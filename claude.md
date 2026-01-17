@@ -159,16 +159,50 @@ Generate celestial objects deterministically from (spec, seed).
 
 **Previous Phase 1 Deliverables** (completed):
 - [x] Core data model: CelestialBody with type-specific components (PhysicalProps, SurfaceProps, AtmosphereProps, RingSystemProps)
-- [ ] Validation rules and error reporting for invalid values
-- [ ] Serialization: JSON schema with schema_version and generator_version fields
-- [ ] Load/save service for celestial objects
+- [x] StellarProps component for star properties (luminosity, spectral class, habitable zone)
+- [x] RingSystemProps with multi-band support (RingBand array)
+- [x] Detailed surface: TerrainProps, HydrosphereProps, CryosphereProps
+- [x] Enhanced PhysicalProps: oblateness, magnetic_moment, internal_heat_watts
+- [x] Validation rules and error reporting (CelestialValidator)
+- [x] Serialization: JSON schema with schema_version and generator_version fields (CelestialSerializer)
+- [x] Load/save service for celestial objects (CelestialPersistence)
+- [x] Provenance tracking (generation_seed, generator_version, schema_version)
+
+**Tests** (completed):
+- [x] Validation invariants: mass > 0, radius > 0, optional fields consistent
+- [x] Component unit tests: all Props classes, Provenance
+- [x] Serialization round-trip: object -> JSON -> object equals original
+- [x] Persistence integration: save/load round-trip
+- [x] StellarProps and RingSystemProps validation
+
+**Acceptance criteria** (completed):
+- [x] Create an object in code, save to JSON, reload, and verify identical content
+
+---
+
+## Current phase: Phase 2
+**Goal:**
+Generate celestial objects deterministically from (spec, seed).
+
+**Deliverables**:
+- [ ] Generators for Star, Planet, Moon, and Asteroid with minimal, controllable specs
+- [ ] Stellar spectral class → luminosity → temperature relationships for star generation
+- [ ] Ring gap generation using Roche limits and orbital resonances
+- [ ] Surface terrain generation based on body type, mass, age, and tectonic activity
+- [ ] Atmospheric escape calculations based on stellar UV flux and escape velocity
+- [ ] Tidal locking detection for close-in planets
+- [ ] Magnetic field generation from mass, rotation rate, and core type
+- [ ] Provenance stored on every object: seed used and spec snapshot
+- [ ] Fixture export tool to write golden-master JSON for selected seeds
 
 **Tests**:
-- [ ] Validation invariants: mass > 0, radius > 0, optional fields consistent
-- [ ] Serialization round-trip: object -> JSON -> object equals original
+- [ ] Golden-master regression: known seeds match saved fixtures
+- [ ] Range tests: generated outputs always satisfy validation
+- [ ] Stellar relationships: spectral class matches temperature/luminosity ranges
+- [ ] Tidal locking: detection correct for close-in bodies
 
 **Acceptance criteria**:
-- [ ] Create an object in code, save to JSON, reload, and verify identical content
+- [ ] Generate each body type from a seed and produce stable JSON outputs
 
 ---
 
