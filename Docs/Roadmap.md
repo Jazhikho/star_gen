@@ -59,14 +59,23 @@ Establish structure, determinism, and automated tests so progress is measurable 
 Define editable celestial objects (stars, planets, moons, asteroids) as validated data with stable serialization.
 
 **Deliverables:**
-•	Core data model: CelestialBody with type-specific components (PhysicalProps, SurfaceProps, AtmosphereProps, RingProps).
-•	Validation rules and error reporting for invalid values.
-•	Serialization: JSON schema with schema_version and generator_version fields.
-•	Load/save service for celestial objects.
+•	✅ Core data model: CelestialBody with type-specific components (PhysicalProps, SurfaceProps, AtmosphereProps, RingSystemProps).
+•	✅ StellarProps component for star-specific properties (luminosity, spectral class, stellar age, habitable zone calculations).
+•	✅ RingSystemProps component supporting multi-band rings (RingBand array with individual properties).
+•	✅ Detailed surface expansion: TerrainProps, HydrosphereProps, CryosphereProps for geological and surface features.
+•	✅ Enhanced PhysicalProps: oblateness, magnetic_moment, internal_heat_watts.
+•	✅ Validation rules and error reporting (CelestialValidator with comprehensive type-specific checks).
+•	✅ Serialization: JSON schema with schema_version and generator_version fields (CelestialSerializer).
+•	✅ Load/save service for celestial objects (CelestialPersistence).
+•	✅ Provenance tracking: generation_seed, generator_version, schema_version, created_timestamp.
 
 **Tests:**
-•	Validation invariants: mass > 0, radius > 0, optional fields consistent.
-•	Serialization round-trip: object -> JSON -> object equals original.
+•	✅ Validation invariants: mass > 0, radius > 0, optional fields consistent (TestCelestialValidator).
+•	✅ Component unit tests: PhysicalProps, OrbitalProps, SurfaceProps, AtmosphereProps, StellarProps, RingSystemProps, TerrainProps, HydrosphereProps, CryosphereProps, Provenance.
+•	✅ Serialization round-trip: object -> JSON -> object equals original (TestCelestialSerializer).
+•	✅ Persistence integration: save/load round-trip (TestCelestialPersistence).
+•	✅ StellarProps validation for star types.
+•	✅ RingSystemProps validation for multi-band configurations.
 
 **Acceptance criteria:**
 •	Create an object in code, save to JSON, reload, and verify identical content.
@@ -77,12 +86,20 @@ Generate celestial objects deterministically from (spec, seed).
 
 **Deliverables:**
 •	Generators for Star, Planet, Moon, and Asteroid with minimal, controllable specs.
+•	Stellar spectral class → luminosity → temperature relationships for star generation.
+•	Ring gap generation using Roche limits and orbital resonances.
+•	Surface terrain generation based on body type, mass, age, and tectonic activity.
+•	Atmospheric escape calculations based on stellar UV flux and escape velocity.
+•	Tidal locking detection for close-in planets.
+•	Magnetic field generation from mass, rotation rate, and core type.
 •	Provenance stored on every object: seed used and spec snapshot.
 •	Fixture export tool to write golden-master JSON for selected seeds.
 
 **Tests:**
 •	Golden-master regression: known seeds match saved fixtures.
 •	Range tests: generated outputs always satisfy validation.
+•	Stellar relationships: spectral class matches temperature/luminosity ranges.
+•	Tidal locking: detection correct for close-in bodies.
 
 **Acceptance criteria:**
 •	Generate each body type from a seed and produce stable JSON outputs.
@@ -95,10 +112,16 @@ View a single celestial object in-app and inspect its properties.
 •	ObjectViewer scene: camera controls, read-only inspector panel.
 •	Generate/re-roll button (changes seed), and save/load JSON from disk.
 •	Basic rendering: sphere mesh with seed-driven material parameters.
+•	Temperature → blackbody color mapping for stars.
+•	Atmospheric scattering from composition (sky color derivation).
+•	Ring opacity and color visualization from composition materials.
+•	Surface shader selection based on surface_type and properties.
 
 **Tests:**
 •	Integration smoke test: viewer scene instantiates and runs one frame.
 •	Invalid JSON load fails gracefully (no crash, user-readable error).
+•	Color derivation: temperature maps to correct blackbody colors.
+•	Atmospheric scattering: composition produces expected sky colors.
 
 **Acceptance criteria:**
 •	Open app -> generate object -> view -> save -> reload -> same result.
@@ -110,12 +133,17 @@ Edit object properties in the program with validation, derived-value recalculati
 **Deliverables:**
 •	Editable inspector controls for core fields (mass, radius, type-specific).
 •	Derived values recalc after edits (e.g., density, surface gravity).
+•	Recalculate derived stellar properties when mass/radius change (luminosity, spectral class).
+•	Validate ring gaps don't overlap when editing ring systems.
+•	Update tidal locking status when orbital distance changes.
 •	Field lock toggles (prepares for future constrained generation).
 •	Undo/redo stack (command-based) for edits.
 
 **Tests:**
 •	Validation tests reject invalid edits and preserve last valid state.
 •	Derived-value tests verify correct recalculation.
+•	Stellar recalculation: mass/radius changes update luminosity/spectral class.
+•	Ring gap validation: overlapping gaps detected and prevented.
 •	Undo/redo tests restore exact prior state.
 
 **Acceptance criteria:**
@@ -127,12 +155,19 @@ Improve visuals without expanding simulation scope.
 
 **Deliverables:**
 •	Seed-driven material layers (continents/bands/noise) for planets.
+•	Oblateness rendering: gas giant bulge from rotation/density calculations.
+•	Atmospheric scale height → visual thickness rendering.
+•	Multiple cloud layers based on atmospheric properties.
+•	Aurora effects from magnetic field strength and composition.
+•	Ring shadow casting on planet surfaces.
 •	Simple atmosphere shell and ring rendering (if enabled by props).
 •	Basic LOD policy for meshes/material complexity.
 
 **Tests:**
 •	Performance budget check for common viewer actions.
 •	Guard against NaN/inf material parameters.
+•	Oblateness: correct bulge rendering for fast-rotating bodies.
+•	Aurora: magnetic field strength maps to correct visual intensity.
 
 **Acceptance criteria:**
 •	Viewer remains stable and responsive while showing improved visuals.
@@ -144,12 +179,20 @@ Randomly generate a solar system, display it, and inspect its bodies (no editing
 **Deliverables:**
 •	SolarSystem data model: stars, planets, optional moons and belts (start minimal).
 •	Orbital parameters: semi-major axis, eccentricity, inclination (start simple).
+•	Orbital resonances between bodies (detection and visualization).
+•	Hill sphere validation: ensure moons are within gravitational influence.
+•	Barycenter calculation for binary star systems.
+•	Roche limit enforcement for rings and close moons.
+•	Habitable zone calculation from star properties (luminosity, temperature).
 •	SolarSystemGenerator.generate(spec, rng) with minimal spec (ranges only).
 •	SolarSystemViewer: 2D map or lightweight 3D view; select body opens ObjectViewer.
 
 **Tests:**
 •	Determinism: same seed/spec -> identical system layout.
 •	Orbital invariants: distances positive; no planet inside star radius; ecc in [0, 1).
+•	Hill sphere validation: moons properly constrained within parent's influence.
+•	Barycenter: binary star systems calculate correct center of mass.
+•	Roche limits: rings and close moons respect gravitational stability.
 •	Golden-master fixtures for a few seeds.
 
 **Acceptance criteria:**
@@ -161,11 +204,16 @@ Support generation constraints such as exact/min/max star count and minimum plan
 
 **Deliverables:**
 •	SystemConstraints model (exact/min/max counts, must-include templates later).
+•	Lock stellar age → affects planet composition and surface age.
+•	Lock binary star separation → constrains orbital parameters.
+•	Force orbital resonances → snap orbits to resonant ratios.
 •	Constraint-aware generation with bounded retries and clear failure errors.
 •	UI for constraints and regenerate.
 
 **Tests:**
 •	Constraint satisfaction tests.
+•	Stellar age lock: affects planetary properties correctly.
+•	Orbital resonance lock: bodies maintain specified resonant ratios.
 •	Impossible constraints fail fast and provide actionable errors.
 
 **Acceptance criteria:**
@@ -177,11 +225,17 @@ Allow edits like adding a star at distance X, adjusting orbits, and recalculatin
 
 **Deliverables:**
 •	Command-based edit operations: add/remove body, adjust orbit, recalc.
+•	Propagate stellar luminosity changes to all planet temperatures.
+•	Revalidate orbits when star mass changes (recalculate all orbital periods).
+•	Cascade deletion: remove moons when planet deleted, remove planets when star deleted.
 •	Safety rails: prevent orbit overlap or auto-resolve.
 •	System-level undo/redo.
 
 **Tests:**
 •	Command apply/undo tests.
+•	Luminosity propagation: star changes update all planet temperatures correctly.
+•	Mass change recalculation: orbital periods update correctly.
+•	Cascade deletion: dependent bodies removed appropriately.
 •	Recalc determinism: same system + same edit ops -> same result.
 
 **Acceptance criteria:**
@@ -193,12 +247,17 @@ Add a galactic container that browses and lazily generates systems without regen
 
 **Deliverables:**
 •	Galaxy model: sectors/regions and seeded system placement.
+•	Stellar metallicity from galactic position (core vs. spiral arm vs. halo).
+•	Star formation rate by region (affects age distribution).
+•	Stellar density gradients (higher density in core, lower in halo).
 •	Lazy generation (generate on demand, not all at once).
 •	Persistence of edits as deltas/patches applied on top of seeded generation.
 •	Galaxy viewer: browse region/sector -> open system.
 
 **Tests:**
 •	Determinism across lazy generation.
+•	Metallicity gradients: correct distribution by galactic position.
+•	Star formation rate: regional differences affect system ages.
 •	Patch application tests for persistence.
 
 **Acceptance criteria:**

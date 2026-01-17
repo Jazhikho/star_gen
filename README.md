@@ -6,9 +6,11 @@ Built with **Godot 4.x** and **GDScript**.
 
 ## Project Status
 
-**Current Phase**: Phase 1 - Celestial object model
+**Current Phase**: Phase 2 - Object generators v1
 
 **Phase 0**: ✅ Complete - Foundations, deterministic RNG, math/validation utilities, and test framework
+
+**Phase 1**: ✅ Complete - Celestial object model with validation, serialization, and persistence
 
 See [claude.md](claude.md) for detailed architecture, roadmap, and working agreement.
 

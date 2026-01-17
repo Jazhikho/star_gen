@@ -151,12 +151,14 @@ No implementing backlog items unless the current phase explicitly includes them.
 
 ---
 
-## Current phase: Phase 1
+## Current phase: Phase 2
 **Goal:**
-Define editable celestial objects (stars, planets, moons, asteroids) as validated data with stable serialization.
+Generate celestial objects deterministically from (spec, seed).
 
-**Deliverables**:
-- [ ] Core data model: CelestialBody with type-specific components (PhysicalProps, SurfaceProps, AtmosphereProps, RingProps)
+**Phase 1**: ✅ Complete - Celestial object model with validation, serialization, and persistence
+
+**Previous Phase 1 Deliverables** (completed):
+- [x] Core data model: CelestialBody with type-specific components (PhysicalProps, SurfaceProps, AtmosphereProps, RingSystemProps)
 - [ ] Validation rules and error reporting for invalid values
 - [ ] Serialization: JSON schema with schema_version and generator_version fields
 - [ ] Load/save service for celestial objects

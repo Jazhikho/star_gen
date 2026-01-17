@@ -75,7 +75,7 @@ static func is_valid_enum(value: int, enum_size: int) -> bool:
 
 
 ## Checks if a seed value is valid (any int is valid, but we may want to normalize).
-## @param value: The seed value.
+## @param _value: The seed value (unused, all ints are valid).
 ## @return: True (all int seeds are valid).
-static func is_valid_seed(value: int) -> bool:
+static func is_valid_seed(_value: int) -> bool:
 	return true
