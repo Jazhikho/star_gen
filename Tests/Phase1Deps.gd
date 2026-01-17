@@ -36,3 +36,20 @@ const _serializer := preload("res://src/domain/celestial/serialization/Celestial
 
 # Services (depends on CelestialBody, CelestialSerializer)
 const _persistence := preload("res://src/services/persistence/CelestialPersistence.gd")
+
+# Phase 2: Generation infrastructure
+const _seeded_rng := preload("res://src/domain/rng/SeededRng.gd")
+const _parent_context := preload("res://src/domain/generation/ParentContext.gd")
+const _size_category := preload("res://src/domain/generation/archetypes/SizeCategory.gd")
+const _orbit_zone := preload("res://src/domain/generation/archetypes/OrbitZone.gd")
+const _star_class := preload("res://src/domain/generation/archetypes/StarClass.gd")
+const _asteroid_type := preload("res://src/domain/generation/archetypes/AsteroidType.gd")
+const _ring_complexity := preload("res://src/domain/generation/archetypes/RingComplexity.gd")
+const _base_spec := preload("res://src/domain/generation/specs/BaseSpec.gd")
+const _star_spec := preload("res://src/domain/generation/specs/StarSpec.gd")
+const _planet_spec := preload("res://src/domain/generation/specs/PlanetSpec.gd")
+const _moon_spec := preload("res://src/domain/generation/specs/MoonSpec.gd")
+const _asteroid_spec := preload("res://src/domain/generation/specs/AsteroidSpec.gd")
+const _size_table := preload("res://src/domain/generation/tables/SizeTable.gd")
+const _star_table := preload("res://src/domain/generation/tables/StarTable.gd")
+const _orbit_table := preload("res://src/domain/generation/tables/OrbitTable.gd")

@@ -84,16 +84,57 @@ Define editable celestial objects (stars, planets, moons, asteroids) as validate
 **Goal:**
 Generate celestial objects deterministically from (spec, seed).
 
-**Deliverables:**
-•	Generators for Star, Planet, Moon, and Asteroid with minimal, controllable specs.
-•	Stellar spectral class → luminosity → temperature relationships for star generation.
-•	Ring gap generation using Roche limits and orbital resonances.
-•	Surface terrain generation based on body type, mass, age, and tectonic activity.
-•	Atmospheric escape calculations based on stellar UV flux and escape velocity.
-•	Tidal locking detection for close-in planets.
-•	Magnetic field generation from mass, rotation rate, and core type.
-•	Provenance stored on every object: seed used and spec snapshot.
-•	Fixture export tool to write golden-master JSON for selected seeds.
+**Stage 1: Core Infrastructure** ✅
+•	ParentContext data class for orbital/parent context
+•	Archetype enums: SizeCategory, OrbitZone, StarClass, AsteroidType, RingComplexity
+•	Archetype data tables: SizeTable, StarTable, OrbitTable
+•	Base spec classes with override support
+•	Spec classes: StarSpec, PlanetSpec, MoonSpec, AsteroidSpec
+
+**Stage 2: Star Generator** (Pending)
+•	StarSpec (archetype: O/B/A/F/G/K/M class hints, optional mass/age overrides)
+•	Main sequence relationships: mass → luminosity → temperature → radius
+•	Spectral subclass calculation (G2V precision)
+•	StarGenerator.generate(spec, rng) → CelestialBody
+
+**Stage 3: Planet Generator - Physical Core** (Pending)
+•	PlanetSpec with size×orbit archetype
+•	PlanetGenerator physical properties (mass, radius, density, rotation)
+•	Orbital properties from archetype + parent context
+•	Tidal locking detection
+•	Magnetic field calculation
+
+**Stage 4: Planet Generator - Surface & Atmosphere** (Pending)
+•	Atmospheric retention/escape based on escape velocity + stellar UV
+•	Surface type selection based on archetype
+•	Terrain generation for rocky bodies
+•	Hydrosphere/Cryosphere based on temperature + mass
+•	Gas giant atmosphere (no terrain)
+
+**Stage 5: Moon Generator** (Pending)
+•	MoonSpec with archetype
+•	Parent planet context for tidal effects
+•	Hill sphere / orbital distance constraints
+•	Subsurface oceans for icy moons
+
+**Stage 6: Asteroid Generator** (Pending)
+•	AsteroidSpec with C/S/M type
+•	Simple physical properties
+•	Minimal/no atmosphere
+•	Basic terrain (craters, roughness)
+
+**Stage 7: Ring System Generator** (Pending)
+•	RingSystemSpec with complexity level
+•	Roche limit calculation from parent
+•	Resonance-based gap placement (simplified)
+•	Composition based on distance from star (ice vs rock)
+
+**Stage 8: Golden Masters & Tests** (Pending)
+•	Fixture export utility
+•	28 fixtures (7 per body type)
+•	Regression tests against fixtures
+•	Range validation tests
+•	Physics relationship tests
 
 **Tests:**
 •	Golden-master regression: known seeds match saved fixtures.

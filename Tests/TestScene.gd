@@ -24,6 +24,11 @@ var _test_scripts: Array[GDScript] = [
 	preload("res://Tests/Unit/TestCelestialValidator.gd"),
 	preload("res://Tests/Unit/TestCelestialSerializer.gd"),
 	preload("res://Tests/Integration/TestCelestialPersistence.gd"),
+	# Phase 2 tests - Stage 1
+	preload("res://Tests/Unit/TestParentContext.gd"),
+	preload("res://Tests/Unit/TestBaseSpec.gd"),
+	preload("res://Tests/Unit/TestSizeTable.gd"),
+	preload("res://Tests/Unit/TestStarTable.gd"),
 ]
 
 ## The test runner instance.
