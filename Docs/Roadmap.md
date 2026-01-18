@@ -104,12 +104,12 @@ Generate celestial objects deterministically from (spec, seed).
 •	✅ Tidal locking detection
 •	✅ Magnetic field calculation
 
-**Stage 4: Planet Generator - Surface & Atmosphere** (Pending)
-•	Atmospheric retention/escape based on escape velocity + stellar UV
-•	Surface type selection based on archetype
-•	Terrain generation for rocky bodies
-•	Hydrosphere/Cryosphere based on temperature + mass
-•	Gas giant atmosphere (no terrain)
+**Stage 4: Planet Generator - Surface & Atmosphere** ✅
+•	✅ Atmospheric retention/escape based on escape velocity + stellar UV
+•	✅ Surface type selection based on archetype
+•	✅ Terrain generation for rocky bodies
+•	✅ Hydrosphere/Cryosphere based on temperature + mass
+•	✅ Gas giant atmosphere (no terrain)
 
 **Stage 5: Moon Generator** (Pending)
 •	MoonSpec with archetype

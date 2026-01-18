@@ -18,6 +18,8 @@ Built with **Godot 4.x** and **GDScript**.
 
 **Phase 2 - Stage 3**: ✅ Complete - Planet generator physical core (mass, radius, density, rotation, orbital properties, tidal locking, magnetic field)
 
+**Phase 2 - Stage 4**: ✅ Complete - Planet generator surface & atmosphere (atmospheric retention, composition, greenhouse effect, surface types, terrain, hydrosphere, cryosphere)
+
 See [claude.md](claude.md) for detailed architecture, roadmap, and working agreement.
 
 ## Project Structure

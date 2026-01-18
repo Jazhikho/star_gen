@@ -363,3 +363,309 @@ func test_internal_heat_non_negative() -> void:
 			planet.physical.internal_heat_watts >= 0.0,
 			"Internal heat should be non-negative"
 		)
+
+
+# =============================================================================
+# STAGE 4 TESTS (Atmosphere & Surface)
+# =============================================================================
+
+
+## Tests that gas giants always have atmospheres.
+func test_gas_giant_has_atmosphere() -> void:
+	var spec: PlanetSpec = PlanetSpec.new(
+		12345,
+		SizeCategory.Category.GAS_GIANT,
+		OrbitZone.Zone.COLD
+	)
+	var context: ParentContext = _create_sun_context()
+	var rng: SeededRng = SeededRng.new(spec.generation_seed)
+	
+	var planet: CelestialBody = PlanetGenerator.generate(spec, context, rng)
+	
+	assert_true(planet.has_atmosphere(), "Gas giant should have atmosphere")
+	assert_false(planet.has_surface(), "Gas giant should not have solid surface")
+
+
+## Tests that gas giants have H2/He dominated atmospheres.
+func test_gas_giant_composition() -> void:
+	var spec: PlanetSpec = PlanetSpec.new(
+		12345,
+		SizeCategory.Category.GAS_GIANT,
+		OrbitZone.Zone.COLD
+	)
+	var context: ParentContext = _create_sun_context()
+	var rng: SeededRng = SeededRng.new(spec.generation_seed)
+	
+	var planet: CelestialBody = PlanetGenerator.generate(spec, context, rng)
+	
+	assert_true(planet.has_atmosphere(), "Should have atmosphere")
+	var h2_fraction: float = planet.atmosphere.composition.get("H2", 0.0) as float
+	var he_fraction: float = planet.atmosphere.composition.get("He", 0.0) as float
+	
+	assert_greater_than(h2_fraction, 0.5, "Gas giant should be H2 dominated")
+	assert_greater_than(he_fraction, 0.05, "Gas giant should have significant He")
+
+
+## Tests that rocky planets have surface properties.
+func test_rocky_planet_has_surface() -> void:
+	var spec: PlanetSpec = PlanetSpec.earth_like(12345)
+	var context: ParentContext = _create_sun_context()
+	var rng: SeededRng = SeededRng.new(spec.generation_seed)
+	
+	var planet: CelestialBody = PlanetGenerator.generate(spec, context, rng)
+	
+	assert_true(planet.has_surface(), "Rocky planet should have surface")
+	assert_not_null(planet.surface.terrain, "Rocky planet should have terrain")
+
+
+## Tests atmosphere composition sums to approximately 1.
+func test_atmosphere_composition_normalized() -> void:
+	for seed_val in [100, 200, 300]:
+		var spec: PlanetSpec = PlanetSpec.random(seed_val)
+		spec.has_atmosphere = true  # Force atmosphere
+		var context: ParentContext = _create_sun_context()
+		var rng: SeededRng = SeededRng.new(spec.generation_seed)
+		
+		var planet: CelestialBody = PlanetGenerator.generate(spec, context, rng)
+		
+		if planet.has_atmosphere():
+			var comp_sum: float = planet.atmosphere.get_composition_sum()
+			assert_float_equal(comp_sum, 1.0, 0.01, "Composition should sum to 1.0")
+
+
+## Tests that surface temperature reflects greenhouse effect.
+func test_greenhouse_effect() -> void:
+	var spec: PlanetSpec = PlanetSpec.earth_like(12345)
+	var context: ParentContext = _create_sun_context()
+	var rng: SeededRng = SeededRng.new(spec.generation_seed)
+	
+	var planet: CelestialBody = PlanetGenerator.generate(spec, context, rng)
+	
+	if planet.has_atmosphere() and planet.has_surface():
+		# Equilibrium temp without greenhouse
+		var equilibrium_temp: float = context.get_equilibrium_temperature_k(0.3)
+		
+		# Surface temp should be >= equilibrium (greenhouse warms)
+		assert_true(
+			planet.surface.temperature_k >= equilibrium_temp * 0.9,
+			"Surface temp should reflect greenhouse warming"
+		)
+		
+		# Greenhouse factor should be >= 1
+		assert_true(
+			planet.atmosphere.greenhouse_factor >= 1.0,
+			"Greenhouse factor should be >= 1"
+		)
+
+
+## Tests that small cold bodies have minimal/no atmosphere.
+func test_small_cold_body_atmosphere() -> void:
+	var spec: PlanetSpec = PlanetSpec.dwarf_planet(12345)
+	var context: ParentContext = _create_sun_context()
+	var rng: SeededRng = SeededRng.new(spec.generation_seed)
+	
+	var planet: CelestialBody = PlanetGenerator.generate(spec, context, rng)
+	
+	# Dwarf planets may or may not have atmosphere, but if they do it's thin
+	if planet.has_atmosphere():
+		assert_less_than(
+			planet.atmosphere.surface_pressure_pa,
+			1000.0,
+			"Dwarf planet atmosphere should be thin"
+		)
+
+
+## Tests terrain properties are within valid ranges.
+func test_terrain_properties_valid() -> void:
+	var spec: PlanetSpec = PlanetSpec.earth_like(12345)
+	var context: ParentContext = _create_sun_context()
+	var rng: SeededRng = SeededRng.new(spec.generation_seed)
+	
+	var planet: CelestialBody = PlanetGenerator.generate(spec, context, rng)
+	
+	assert_true(planet.has_surface(), "Should have surface")
+	assert_not_null(planet.surface.terrain, "Should have terrain")
+	
+	var terrain: TerrainProps = planet.surface.terrain
+	assert_greater_than(terrain.elevation_range_m, 0.0, "Elevation range should be positive")
+	assert_in_range(terrain.roughness, 0.0, 1.0, "Roughness should be 0-1")
+	assert_in_range(terrain.crater_density, 0.0, 1.0, "Crater density should be 0-1")
+	assert_in_range(terrain.tectonic_activity, 0.0, 1.0, "Tectonic activity should be 0-1")
+	assert_in_range(terrain.erosion_level, 0.0, 1.0, "Erosion level should be 0-1")
+
+
+## Tests temperate zone planets can have hydrosphere.
+func test_temperate_planet_hydrosphere() -> void:
+	# Test multiple seeds to find one with hydrosphere
+	var found_hydrosphere: bool = false
+	for seed_val in range(100, 200):
+		var spec: PlanetSpec = PlanetSpec.earth_like(seed_val)
+		var context: ParentContext = _create_sun_context()
+		var rng: SeededRng = SeededRng.new(spec.generation_seed)
+		
+		var planet: CelestialBody = PlanetGenerator.generate(spec, context, rng)
+		
+		if planet.has_surface() and planet.surface.has_hydrosphere():
+			found_hydrosphere = true
+			# Validate hydrosphere properties
+			var hydro: HydrosphereProps = planet.surface.hydrosphere
+			assert_in_range(hydro.ocean_coverage, 0.0, 1.0, "Ocean coverage should be 0-1")
+			assert_in_range(hydro.ice_coverage, 0.0, 1.0, "Ice coverage should be 0-1")
+			assert_greater_than(hydro.ocean_depth_m, 0.0, "Ocean depth should be positive")
+			break
+	
+	assert_true(found_hydrosphere, "Should find at least one temperate planet with hydrosphere")
+
+
+## Tests cold planets have cryosphere.
+func test_cold_planet_cryosphere() -> void:
+	var spec: PlanetSpec = PlanetSpec.new(
+		12345,
+		SizeCategory.Category.TERRESTRIAL,
+		OrbitZone.Zone.COLD
+	)
+	var context: ParentContext = _create_sun_context()
+	var rng: SeededRng = SeededRng.new(spec.generation_seed)
+	
+	var planet: CelestialBody = PlanetGenerator.generate(spec, context, rng)
+	
+	assert_true(planet.has_surface(), "Should have surface")
+	assert_true(planet.surface.has_cryosphere(), "Cold planet should have cryosphere")
+	
+	var cryo: CryosphereProps = planet.surface.cryosphere
+	assert_in_range(cryo.polar_cap_coverage, 0.0, 1.0, "Polar cap coverage should be 0-1")
+	assert_true(cryo.permafrost_depth_m >= 0.0, "Permafrost depth should be non-negative")
+	assert_in_range(cryo.cryovolcanism_level, 0.0, 1.0, "Cryovolcanism should be 0-1")
+
+
+## Tests surface albedo is within valid range.
+func test_surface_albedo_valid() -> void:
+	for seed_val in [500, 600, 700]:
+		var spec: PlanetSpec = PlanetSpec.earth_like(seed_val)
+		var context: ParentContext = _create_sun_context()
+		var rng: SeededRng = SeededRng.new(spec.generation_seed)
+		
+		var planet: CelestialBody = PlanetGenerator.generate(spec, context, rng)
+		
+		if planet.has_surface():
+			assert_in_range(
+				planet.surface.albedo,
+				0.0,
+				1.0,
+				"Albedo should be 0-1"
+			)
+
+
+## Tests volcanism is within valid range.
+func test_volcanism_valid() -> void:
+	for seed_val in [800, 900, 1000]:
+		var spec: PlanetSpec = PlanetSpec.earth_like(seed_val)
+		var context: ParentContext = _create_sun_context()
+		var rng: SeededRng = SeededRng.new(spec.generation_seed)
+		
+		var planet: CelestialBody = PlanetGenerator.generate(spec, context, rng)
+		
+		if planet.has_surface():
+			assert_in_range(
+				planet.surface.volcanism_level,
+				0.0,
+				1.0,
+				"Volcanism level should be 0-1"
+			)
+
+
+## Tests atmosphere scale height is positive when atmosphere exists.
+func test_atmosphere_scale_height_positive() -> void:
+	var spec: PlanetSpec = PlanetSpec.earth_like(12345)
+	var context: ParentContext = _create_sun_context()
+	var rng: SeededRng = SeededRng.new(spec.generation_seed)
+	
+	var planet: CelestialBody = PlanetGenerator.generate(spec, context, rng)
+	
+	if planet.has_atmosphere():
+		assert_greater_than(
+			planet.atmosphere.scale_height_m,
+			0.0,
+			"Scale height should be positive"
+		)
+
+
+## Tests has_atmosphere spec preference is respected.
+func test_atmosphere_preference_respected() -> void:
+	# Force no atmosphere on a super-earth
+	var spec: PlanetSpec = PlanetSpec.new(
+		12345,
+		SizeCategory.Category.SUPER_EARTH,
+		OrbitZone.Zone.TEMPERATE,
+		false  # No atmosphere
+	)
+	var context: ParentContext = _create_sun_context()
+	var rng: SeededRng = SeededRng.new(spec.generation_seed)
+	
+	var planet: CelestialBody = PlanetGenerator.generate(spec, context, rng)
+	
+	assert_false(planet.has_atmosphere(), "Should respect no-atmosphere preference")
+
+
+## Tests that validation still passes with all new components.
+func test_full_planet_validation() -> void:
+	# Test several planet types
+	var specs: Array = [
+		PlanetSpec.earth_like(111),
+		PlanetSpec.hot_jupiter(222),
+		PlanetSpec.mars_like(333),
+		PlanetSpec.ice_giant(444),
+		PlanetSpec.dwarf_planet(555),
+	]
+	
+	var context: ParentContext = _create_sun_context()
+	
+	for spec in specs:
+		var rng: SeededRng = SeededRng.new(spec.generation_seed)
+		var planet: CelestialBody = PlanetGenerator.generate(spec, context, rng)
+		var result: ValidationResult = CelestialValidator.validate(planet)
+		
+		assert_true(result.is_valid(), "Planet should pass validation")
+
+
+## Tests determinism includes atmosphere and surface.
+func test_determinism_includes_atmosphere_surface() -> void:
+	var spec: PlanetSpec = PlanetSpec.earth_like(12345)
+	var context: ParentContext = _create_sun_context()
+	
+	var rng1: SeededRng = SeededRng.new(spec.generation_seed)
+	var rng2: SeededRng = SeededRng.new(spec.generation_seed)
+	
+	var planet1: CelestialBody = PlanetGenerator.generate(spec, context, rng1)
+	var planet2: CelestialBody = PlanetGenerator.generate(spec, context, rng2)
+	
+	# Check atmosphere determinism
+	assert_equal(planet1.has_atmosphere(), planet2.has_atmosphere(), "Atmosphere presence should match")
+	if planet1.has_atmosphere():
+		assert_float_equal(
+			planet1.atmosphere.surface_pressure_pa,
+			planet2.atmosphere.surface_pressure_pa,
+			0.001,
+			"Atmosphere pressure should match"
+		)
+		assert_float_equal(
+			planet1.atmosphere.greenhouse_factor,
+			planet2.atmosphere.greenhouse_factor,
+			0.001,
+			"Greenhouse factor should match"
+		)
+	
+	# Check surface determinism
+	assert_equal(planet1.has_surface(), planet2.has_surface(), "Surface presence should match")
+	if planet1.has_surface():
+		assert_float_equal(
+			planet1.surface.temperature_k,
+			planet2.surface.temperature_k,
+			0.001,
+			"Surface temperature should match"
+		)
+		assert_equal(
+			planet1.surface.surface_type,
+			planet2.surface.surface_type,
+			"Surface type should match"
+		)
