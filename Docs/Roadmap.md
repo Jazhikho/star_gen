@@ -91,11 +91,11 @@ Generate celestial objects deterministically from (spec, seed).
 •	Base spec classes with override support
 •	Spec classes: StarSpec, PlanetSpec, MoonSpec, AsteroidSpec
 
-**Stage 2: Star Generator** (Pending)
-•	StarSpec (archetype: O/B/A/F/G/K/M class hints, optional mass/age overrides)
-•	Main sequence relationships: mass → luminosity → temperature → radius
-•	Spectral subclass calculation (G2V precision)
-•	StarGenerator.generate(spec, rng) → CelestialBody
+**Stage 2: Star Generator** ✅
+•	✅ StarSpec (archetype: O/B/A/F/G/K/M class hints, optional mass/age overrides)
+•	✅ Main sequence relationships: mass → luminosity → temperature → radius
+•	✅ Spectral subclass calculation (G2V precision)
+•	✅ StarGenerator.generate(spec, rng) → CelestialBody
 
 **Stage 3: Planet Generator - Physical Core** (Pending)
 •	PlanetSpec with size×orbit archetype

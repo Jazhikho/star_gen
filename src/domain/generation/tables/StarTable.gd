@@ -149,11 +149,11 @@ static func temperature_from_luminosity_radius(
 
 ## Interpolates a value within a spectral class based on subclass.
 ## @param spectral_class: The spectral class.
-## @param subclass: The subclass (0-9).
+## @param subclass: The subclass (0-9) (unused, for future extensions).
 ## @param range_data: The min/max range dictionary.
 ## @return: Interpolated value.
 static func interpolate_by_subclass(
-	spectral_class: StarClass.SpectralClass,
+	_spectral_class: StarClass.SpectralClass,
 	subclass: int,
 	range_data: Dictionary
 ) -> float:

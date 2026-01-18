@@ -29,6 +29,8 @@ var _test_scripts: Array[GDScript] = [
 	preload("res://Tests/Unit/TestBaseSpec.gd"),
 	preload("res://Tests/Unit/TestSizeTable.gd"),
 	preload("res://Tests/Unit/TestStarTable.gd"),
+	# Phase 2 tests - Stage 2
+	preload("res://Tests/Unit/TestStarGenerator.gd"),
 ]
 
 

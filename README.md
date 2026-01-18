@@ -12,6 +12,10 @@ Built with **Godot 4.x** and **GDScript**.
 
 **Phase 1**: ✅ Complete - Celestial object model with validation, serialization, and persistence
 
+**Phase 2 - Stage 1**: ✅ Complete - Core infrastructure (ParentContext, archetype enums/tables, base specs)
+
+**Phase 2 - Stage 2**: ✅ Complete - Star generator (StarSpec, main sequence relationships, spectral subclass calculation)
+
 See [claude.md](claude.md) for detailed architecture, roadmap, and working agreement.
 
 ## Project Structure

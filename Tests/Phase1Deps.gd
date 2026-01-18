@@ -53,3 +53,5 @@ const _asteroid_spec := preload("res://src/domain/generation/specs/AsteroidSpec.
 const _size_table := preload("res://src/domain/generation/tables/SizeTable.gd")
 const _star_table := preload("res://src/domain/generation/tables/StarTable.gd")
 const _orbit_table := preload("res://src/domain/generation/tables/OrbitTable.gd")
+const _generator_utils := preload("res://src/domain/generation/generators/GeneratorUtils.gd")
+const _star_generator := preload("res://src/domain/generation/generators/StarGenerator.gd")
