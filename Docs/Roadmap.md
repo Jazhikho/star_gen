@@ -97,12 +97,12 @@ Generate celestial objects deterministically from (spec, seed).
 •	✅ Spectral subclass calculation (G2V precision)
 •	✅ StarGenerator.generate(spec, rng) → CelestialBody
 
-**Stage 3: Planet Generator - Physical Core** (Pending)
-•	PlanetSpec with size×orbit archetype
-•	PlanetGenerator physical properties (mass, radius, density, rotation)
-•	Orbital properties from archetype + parent context
-•	Tidal locking detection
-•	Magnetic field calculation
+**Stage 3: Planet Generator - Physical Core** ✅
+•	✅ PlanetSpec with size×orbit archetype
+•	✅ PlanetGenerator physical properties (mass, radius, density, rotation)
+•	✅ Orbital properties from archetype + parent context
+•	✅ Tidal locking detection
+•	✅ Magnetic field calculation
 
 **Stage 4: Planet Generator - Surface & Atmosphere** (Pending)
 •	Atmospheric retention/escape based on escape velocity + stellar UV
