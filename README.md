@@ -6,19 +6,23 @@ Built with **Godot 4.x** and **GDScript**.
 
 ## Project Status
 
-**Current Phase**: Phase 2 - Object generators v1
+**Current Phase**: Phase 3 - Object viewer v1
 
 **Phase 0**: ✅ Complete - Foundations, deterministic RNG, math/validation utilities, and test framework
 
 **Phase 1**: ✅ Complete - Celestial object model with validation, serialization, and persistence
 
-**Phase 2 - Stage 1**: ✅ Complete - Core infrastructure (ParentContext, archetype enums/tables, base specs)
+**Phase 2**: ✅ Complete - Object generators v1
+- **Stage 1**: ✅ Core infrastructure (ParentContext, archetype enums/tables, base specs)
+- **Stage 2**: ✅ Star generator (StarSpec, main sequence relationships, spectral subclass calculation)
+- **Stage 3**: ✅ Planet generator physical core (mass, radius, density, rotation, orbital properties, tidal locking, magnetic field)
+- **Stage 4**: ✅ Planet generator surface & atmosphere (atmospheric retention, composition, greenhouse effect, surface types, terrain, hydrosphere, cryosphere)
+- **Stage 5**: ✅ Moon generator (MoonSpec, parent planet context, Hill sphere constraints, subsurface oceans)
+- **Stage 6**: ✅ Asteroid generator (AsteroidSpec, C/S/M types, physical properties, minimal atmosphere, basic terrain)
+- **Stage 7**: ✅ Ring system generator (RingSystemSpec, Roche limit calculation, resonance-based gaps, ice/rock composition)
+- **Stage 8**: ✅ Golden masters & tests (28 fixtures, regression tests, range validation, physics relationship tests)
 
-**Phase 2 - Stage 2**: ✅ Complete - Star generator (StarSpec, main sequence relationships, spectral subclass calculation)
-
-**Phase 2 - Stage 3**: ✅ Complete - Planet generator physical core (mass, radius, density, rotation, orbital properties, tidal locking, magnetic field)
-
-**Phase 2 - Stage 4**: ✅ Complete - Planet generator surface & atmosphere (atmospheric retention, composition, greenhouse effect, surface types, terrain, hydrosphere, cryosphere)
+**Test Status**: All 286 tests passing ✅
 
 See [claude.md](claude.md) for detailed architecture, roadmap, and working agreement.
 
@@ -62,11 +66,17 @@ star_gen/
 │   │   │   │   ├── StarSpec.gd           # Star generation spec
 │   │   │   │   ├── PlanetSpec.gd         # Planet generation spec
 │   │   │   │   ├── MoonSpec.gd           # Moon generation spec
-│   │   │   │   └── AsteroidSpec.gd       # Asteroid generation spec
+│   │   │   │   ├── AsteroidSpec.gd       # Asteroid generation spec
+│   │   │   │   └── RingSystemSpec.gd      # Ring system generation spec
 │   │   │   ├── generators/         # Generator implementations
 │   │   │   │   ├── StarGenerator.gd      # Star generation logic
 │   │   │   │   ├── PlanetGenerator.gd    # Planet generation logic
+│   │   │   │   ├── MoonGenerator.gd      # Moon generation logic
+│   │   │   │   ├── AsteroidGenerator.gd  # Asteroid generation logic
+│   │   │   │   ├── RingSystemGenerator.gd # Ring system generation logic
 │   │   │   │   └── GeneratorUtils.gd     # Shared generator utilities
+│   │   │   ├── fixtures/           # Golden master fixtures
+│   │   │   │   └── FixtureGenerator.gd   # Fixture generation utility
 │   │   │   └── tables/             # Lookup tables for generation
 │   │   │       ├── StarTable.gd          # Stellar property tables
 │   │   │       ├── SizeTable.gd          # Planet size/mass tables
@@ -94,6 +104,10 @@ star_gen/
 │   │   ├── TestCelestialBody.gd
 │   │   ├── TestStarGenerator.gd
 │   │   ├── TestPlanetGenerator.gd
+│   │   ├── TestMoonGenerator.gd
+│   │   ├── TestAsteroidGenerator.gd
+│   │   ├── TestRingSystemGenerator.gd
+│   │   ├── TestGoldenMasters.gd
 │   │   ├── TestSeededRng.gd
 │   │   └── ... (additional unit tests)
 │   ├── Integration/                # Integration tests

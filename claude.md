@@ -123,43 +123,27 @@ No implementing backlog items unless the current phase explicitly includes them.
 
 ---
 
-## Current phase: Phase 2
+## Current phase: Phase 3
 **Goal:**
-Generate celestial objects deterministically from (spec, seed).
+View a single celestial object in-app and inspect its properties.
 
-**Stage 5: Moon Generator** ✅
-- [x] MoonSpec with archetype
-- [x] Parent planet context for tidal effects
-- [x] Hill sphere / orbital distance constraints
-- [x] Subsurface oceans for icy moons
+**Deliverables:**
+- [ ] ObjectViewer scene: camera controls, read-only inspector panel
+- [ ] Generate/re-roll button (changes seed), and save/load JSON from disk
+- [ ] Basic rendering: sphere mesh with seed-driven material parameters
+- [ ] Temperature → blackbody color mapping for stars
+- [ ] Atmospheric scattering from composition (sky color derivation)
+- [ ] Ring opacity and color visualization from composition materials
+- [ ] Surface shader selection based on surface_type and properties
 
-**Stage 6: Asteroid Generator** ✅
-- [x] AsteroidSpec with C/S/M type
-- [x] Simple physical properties
-- [x] Minimal/no atmosphere
-- [x] Basic terrain (craters, roughness)
+**Tests:**
+- [ ] Integration smoke test: viewer scene instantiates and runs one frame
+- [ ] Invalid JSON load fails gracefully (no crash, user-readable error)
+- [ ] Color derivation: temperature maps to correct blackbody colors
+- [ ] Atmospheric scattering: composition produces expected sky colors
 
-**Stage 7: Ring System Generator** (Pending)
-- [ ] RingSystemSpec with complexity level
-- [ ] Roche limit calculation from parent
-- [ ] Resonance-based gap placement (simplified)
-- [ ] Composition based on distance from star (ice vs rock)
-
-**Stage 8: Golden Masters & Tests** (Pending)
-- [ ] Fixture export utility
-- [ ] 28 fixtures (7 per body type)
-- [ ] Regression tests against fixtures
-- [ ] Range validation tests
-- [ ] Physics relationship tests
-
-**Tests**:
-- [ ] Golden-master regression: known seeds match saved fixtures
-- [ ] Range tests: generated outputs always satisfy validation
-- [ ] Stellar relationships: spectral class matches temperature/luminosity ranges
-- [ ] Tidal locking: detection correct for close-in bodies
-
-**Acceptance criteria**:
-- [ ] Generate each body type from a seed and produce stable JSON outputs
+**Acceptance criteria:**
+- [ ] Open app -> generate object -> view -> save -> reload -> same result
 
 ---
 

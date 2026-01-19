@@ -23,6 +23,8 @@ const _parent_context := preload("res://src/domain/generation/ParentContext.gd")
 const _versions := preload("res://src/domain/constants/Versions.gd")
 const _units := preload("res://src/domain/math/Units.gd")
 const _seeded_rng := preload("res://src/domain/rng/SeededRng.gd")
+const _ring_system_generator := preload("res://src/domain/generation/generators/RingSystemGenerator.gd")
+const _ring_system_props := preload("res://src/domain/celestial/components/RingSystemProps.gd")
 
 
 ## Size category distribution weights for random selection.
@@ -110,6 +112,12 @@ static func generate(spec: PlanetSpec, context: ParentContext, rng: SeededRng) -
 		spec.to_dict()
 	)
 	
+	# Generate ring system if applicable (gas giants and large planets)
+	var ring_system: RingSystemProps = null
+	if _should_generate_rings(spec, size_cat):
+		if RingSystemGenerator.should_have_rings(physical, context, rng):
+			ring_system = RingSystemGenerator.generate(null, physical, context, rng)
+	
 	# Assemble the celestial body
 	var body: CelestialBody = CelestialBody.new(
 		body_id,
@@ -121,6 +129,7 @@ static func generate(spec: PlanetSpec, context: ParentContext, rng: SeededRng) -
 	body.orbital = orbital
 	body.atmosphere = atmosphere
 	body.surface = surface
+	body.ring_system = ring_system
 	
 	return body
 
@@ -659,6 +668,20 @@ static func _get_atmosphere_probability(size_cat: SizeCategory.Category) -> floa
 			return 0.95  # Almost certain
 		_:
 			return 1.0  # Gas giants always
+
+
+## Determines if ring generation should be attempted for this planet.
+## @param spec: The planet specification.
+## @param size_cat: The size category.
+## @return: True if rings should be considered.
+static func _should_generate_rings(spec: PlanetSpec, size_cat: SizeCategory.Category) -> bool:
+	# Check for explicit override
+	var override_rings: Variant = spec.get_override("has_rings", null)
+	if override_rings != null:
+		return override_rings as bool
+	
+	# Only gas giants and ice giants typically have significant rings
+	return SizeCategory.is_gaseous(size_cat)
 
 
 ## Generates atmosphere properties.
