@@ -278,7 +278,7 @@ func test_object_scaling() -> void:
 	viewer.queue_free()
 
 
-## Tests that info labels update when objects are generated.
+## Tests that inspector panel displays properties when objects are generated.
 func test_info_labels_update() -> void:
 	var viewer: ObjectViewer = _object_viewer_scene.instantiate() as ObjectViewer
 	
@@ -296,17 +296,93 @@ func test_info_labels_update() -> void:
 	viewer.generate_object(viewer.ObjectType.PLANET, 12345)
 	await scene_tree.process_frame
 	
-	# Check that info labels are populated
-	assert_not_equal(viewer.type_value.text, "-", "Type should be set")
-	assert_not_equal(viewer.mass_value.text, "-", "Mass should be set")
-	assert_not_equal(viewer.radius_value.text, "-", "Radius should be set")
+	# Check that inspector panel has content
+	assert_not_null(viewer.inspector_panel, "Should have inspector panel")
 	
-	# Check that values use appropriate units
-	assert_true(
-		viewer.mass_value.text.contains("M⊕") or viewer.mass_value.text.contains("MJ"),
-		"Planet mass should use Earth or Jupiter masses"
-	)
-	assert_true(viewer.radius_value.text.contains("R⊕"), "Planet radius should use Earth radii")
+	# Inspector should have created child nodes for the properties
+	var inspector_container: VBoxContainer = viewer.inspector_panel.get_node_or_null("InspectorContainer")
+	assert_not_null(inspector_container, "Should have inspector container")
+	assert_true(inspector_container.get_child_count() > 0, "Inspector should have property sections")
+	
+	# Clean up
+	viewer.queue_free()
+
+
+## Tests that inspector displays all component sections.
+func test_inspector_shows_all_sections() -> void:
+	var viewer: ObjectViewer = _object_viewer_scene.instantiate() as ObjectViewer
+	
+	var scene_tree: SceneTree = _add_viewer_deferred(viewer)
+	if not scene_tree:
+		viewer.free()
+		return
+	
+	await scene_tree.process_frame
+	await scene_tree.process_frame
+	
+	# Generate a planet (has physical, orbital, possibly atmosphere/surface)
+	viewer.generate_object(viewer.ObjectType.PLANET, 55555)
+	await scene_tree.process_frame
+	
+	# The inspector should have created multiple sections
+	var inspector_container: VBoxContainer = viewer.inspector_panel.get_node_or_null("InspectorContainer")
+	assert_not_null(inspector_container, "Should have inspector container")
+	
+	# Count section headers (VBoxContainers with Button children)
+	var section_count: int = 0
+	for child in inspector_container.get_children():
+		if child is VBoxContainer:
+			section_count += 1
+	
+	# Should have at least Basic Info, Physical, and Orbital sections
+	assert_true(section_count >= 3, "Should have at least 3 sections (got %d)" % section_count)
+	
+	# Clean up
+	viewer.queue_free()
+
+
+## Tests that collapsible sections work.
+func test_collapsible_sections() -> void:
+	var viewer: ObjectViewer = _object_viewer_scene.instantiate() as ObjectViewer
+	
+	var scene_tree: SceneTree = _add_viewer_deferred(viewer)
+	if not scene_tree:
+		viewer.free()
+		return
+	
+	await scene_tree.process_frame
+	await scene_tree.process_frame
+	
+	# Generate a planet
+	viewer.generate_object(viewer.ObjectType.PLANET, 12345)
+	await scene_tree.process_frame
+	
+	# Find the first section (Basic Info)
+	var inspector_container: VBoxContainer = viewer.inspector_panel.get_node_or_null("InspectorContainer")
+	assert_not_null(inspector_container, "Should have inspector container")
+	
+	if inspector_container.get_child_count() > 0:
+		var first_section: VBoxContainer = inspector_container.get_child(0) as VBoxContainer
+		if first_section and first_section.get_child_count() >= 2:
+			var header: Button = first_section.get_child(0) as Button
+			var content: VBoxContainer = first_section.get_child(1) as VBoxContainer
+			
+			# Content should be visible by default
+			assert_true(content.visible, "Section content should be visible initially")
+			
+			# Click the header to collapse
+			header.pressed.emit()
+			await scene_tree.process_frame
+			
+			assert_false(content.visible, "Section content should be hidden after toggle")
+			assert_true(header.text.begins_with("▶"), "Header should show collapsed arrow")
+			
+			# Click again to expand
+			header.pressed.emit()
+			await scene_tree.process_frame
+			
+			assert_true(content.visible, "Section content should be visible after second toggle")
+			assert_true(header.text.begins_with("▼"), "Header should show expanded arrow")
 	
 	# Clean up
 	viewer.queue_free()

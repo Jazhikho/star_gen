@@ -35,7 +35,16 @@ Built with **Godot 4.x** and **GDScript**.
 - Basic info display with appropriate units
 - Integration tests (4 new tests)
 
-**Test Status**: All 297 tests passing ✅
+**Phase 3 - Stage 3**: ✅ Complete - Inspector panel
+- InspectorPanel class with dynamic property creation
+- Collapsible sections for all component types
+- All property sections (Physical, Stellar, Orbital, Atmosphere, Surface, Ring System)
+- Proper unit formatting with Unicode preserved (M☉, R☉, M⊕, R⊕, ×, superscripts)
+- Mouse input handling (UI blocks camera input)
+- Soft environmental backlighting
+- Integration tests (3 new tests)
+
+**Test Status**: All 299 tests passing ✅
 
 See [claude.md](claude.md) for detailed architecture, roadmap, and working agreement.
 
@@ -110,7 +119,8 @@ star_gen/
 │       └── viewer/                # Object viewer
 │           ├── ObjectViewer.tscn  # Main viewer scene
 │           ├── ObjectViewer.gd    # Viewer controller
-│           └── CameraController.gd # Orbital camera controls
+│           ├── CameraController.gd # Orbital camera controls
+│           └── InspectorPanel.gd  # Dynamic property inspector
 ├── Tests/                          # Test suite
 │   ├── Framework/                 # Test framework
 │   │   ├── TestCase.gd            # Base test case class

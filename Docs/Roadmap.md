@@ -182,6 +182,15 @@ View a single celestial object in-app and inspect its properties.
 •	Confirmation that loaded object matches saved
 •	Status messages for user feedback
 
+**File Size Optimization Strategy (for Stage 4 and future phases):**
+•	Store generation specs + seeds instead of full bodies (~100-200 bytes vs ~2-5 KB per object)
+•	Compression support (Zstandard) for JSON files (10:1 to 20:1 reduction typical)
+•	Delta storage: only save user modifications/overrides
+•	LOD storage: different detail levels based on importance (minimal/basic/detailed/full)
+•	For Phase 3: Full JSON for debugging, include spec + body for verification
+•	For Phase 6+: Store system seed + specs, regenerate on load
+•	For Phase 9+: Binary galaxy metadata + visited systems in JSON, unvisited as seeds only
+
 **Stage 5: Star Rendering** (Pending)
 •	Temperature → blackbody color mapping
 •	Star material with emission

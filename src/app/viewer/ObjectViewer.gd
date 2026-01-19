@@ -21,6 +21,7 @@ const _seeded_rng := preload("res://src/domain/rng/SeededRng.gd")
 const _celestial_type := preload("res://src/domain/celestial/CelestialType.gd")
 const _units := preload("res://src/domain/math/Units.gd")
 const _stellar_props := preload("res://src/domain/celestial/components/StellarProps.gd")
+const _inspector_panel := preload("res://src/app/viewer/InspectorPanel.gd")
 
 ## UI element references
 @onready var status_label: Label = $UI/TopBar/MarginContainer/HBoxContainer/StatusLabel
@@ -33,11 +34,8 @@ const _stellar_props := preload("res://src/domain/celestial/components/StellarPr
 @onready var generate_button: Button = $UI/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/GenerationSection/ButtonContainer/GenerateButton
 @onready var reroll_button: Button = $UI/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/GenerationSection/ButtonContainer/RerollButton
 
-# Info display
-@onready var name_value: Label = $UI/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/InfoSection/NameContainer/NameValue
-@onready var type_value: Label = $UI/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/InfoSection/TypeContainer/TypeValue
-@onready var mass_value: Label = $UI/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/InfoSection/MassContainer/MassValue
-@onready var radius_value: Label = $UI/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/InfoSection/RadiusContainer/RadiusValue
+# Inspector panel
+@onready var inspector_panel: InspectorPanel = $UI/SidePanel/MarginContainer/ScrollContainer/VBoxContainer
 
 ## 3D element references
 @onready var celestial_object_node: Node3D = $CelestialObject
@@ -288,8 +286,7 @@ func display_body(body: CelestialBody) -> void:
 			cam_controller.set_distance(distance)
 			cam_controller.focus_on_target()
 	
-	# Update UI
-	_update_basic_info()
+	# Update inspector panel
 	_update_inspector()
 
 
@@ -336,134 +333,10 @@ func _calculate_camera_distance(body: CelestialBody) -> float:
 	return clampf(scale * 4.0, 2.0, 50.0)
 
 
-## Updates the basic info display.
-func _update_basic_info() -> void:
-	if not current_body:
-		if name_value:
-			name_value.text = "No object generated"
-		if type_value:
-			type_value.text = "-"
-		if mass_value:
-			mass_value.text = "-"
-		if radius_value:
-			radius_value.text = "-"
-		return
-	
-	# Name
-	if name_value:
-		var display_name: String = current_body.name if current_body.name else current_body.id
-		name_value.text = display_name
-	
-	# Type
-	if type_value:
-		type_value.text = current_body.get_type_string()
-		
-		# Add subtype info for stars
-		if current_body.type == CelestialType.Type.STAR and current_body.has_stellar():
-			type_value.text += " (%s)" % current_body.stellar.spectral_class
-	
-	# Mass
-	if mass_value:
-		mass_value.text = _format_mass(current_body.physical.mass_kg, current_body.type)
-	
-	# Radius
-	if radius_value:
-		radius_value.text = _format_radius(current_body.physical.radius_m, current_body.type)
-
-
-## Formats mass for display with appropriate units.
-## @param mass_kg: Mass in kilograms.
-## @param body_type: The type of celestial body.
-## @return: Formatted mass string.
-func _format_mass(mass_kg: float, body_type: CelestialType.Type) -> String:
-	match body_type:
-		CelestialType.Type.STAR:
-			var solar_masses: float = mass_kg / Units.SOLAR_MASS_KG
-			return "%.3f M☉" % solar_masses
-		
-		CelestialType.Type.PLANET, CelestialType.Type.MOON:
-			var earth_masses: float = mass_kg / Units.EARTH_MASS_KG
-			if earth_masses > 100:
-				# Show in Jupiter masses for large planets
-				var jupiter_masses: float = mass_kg / Units.JUPITER_MASS_KG
-				return "%.2f MJ" % jupiter_masses
-			else:
-				return "%.3f M⊕" % earth_masses
-		
-		CelestialType.Type.ASTEROID:
-			# Format in scientific notation manually
-			return _format_scientific(mass_kg, "kg")
-		_:
-			return _format_scientific(mass_kg, "kg")
-
-
-## Formats radius for display with appropriate units.
-## @param radius_m: Radius in meters.
-## @param body_type: The type of celestial body.
-## @return: Formatted radius string.
-func _format_radius(radius_m: float, body_type: CelestialType.Type) -> String:
-	match body_type:
-		CelestialType.Type.STAR:
-			var solar_radii: float = radius_m / Units.SOLAR_RADIUS_METERS
-			return "%.3f R☉" % solar_radii
-		
-		CelestialType.Type.PLANET, CelestialType.Type.MOON:
-			var earth_radii: float = radius_m / Units.EARTH_RADIUS_METERS
-			return "%.3f R⊕" % earth_radii
-		
-		CelestialType.Type.ASTEROID:
-			var km: float = radius_m / 1000.0
-			if km < 1.0:
-				return "%.1f m" % radius_m
-			else:
-				return "%.2f km" % km
-		_:
-			return _format_scientific(radius_m, "m")
-
-
-## Formats a number in scientific notation.
-## @param value: The value to format.
-## @param unit: The unit string to append.
-## @return: Formatted string like "1.23 × 10¹⁵ kg"
-func _format_scientific(value: float, unit: String) -> String:
-	if value == 0.0:
-		return "0 %s" % unit
-	
-	var exponent: int = int(floor(log(absf(value)) / log(10.0)))
-	var mantissa: float = value / pow(10.0, exponent)
-	
-	# Format exponent with superscript
-	var exp_str: String = _format_superscript(exponent)
-	
-	return "%.2f × 10%s %s" % [mantissa, exp_str, unit]
-
-
-## Converts an integer to superscript characters.
-## @param num: The number to convert.
-## @return: Superscript string.
-func _format_superscript(num: int) -> String:
-	var superscripts: Dictionary = {
-		"0": "⁰", "1": "¹", "2": "²", "3": "³", "4": "⁴",
-		"5": "⁵", "6": "⁶", "7": "⁷", "8": "⁸", "9": "⁹",
-		"-": "⁻"
-	}
-	
-	var num_str: String = str(num)
-	var result: String = ""
-	
-	for c in num_str:
-		if superscripts.has(c):
-			result += superscripts[c]
-		else:
-			result += c
-	
-	return result
-
-
 ## Updates the inspector panel with current body properties.
 func _update_inspector() -> void:
-	# Placeholder for Stage 3 - will show full property breakdown
-	pass
+	if inspector_panel:
+		inspector_panel.display_body(current_body)
 
 
 ## Clears the current display.
@@ -474,5 +347,4 @@ func clear_display() -> void:
 		placeholder_mesh.visible = false
 	
 	set_status("No object loaded")
-	_update_basic_info()
 	_update_inspector()

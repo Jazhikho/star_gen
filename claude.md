@@ -144,11 +144,14 @@ View a single celestial object in-app and inspect its properties.
 - [x] Type-specific scaling and camera distance
 - [x] Unit formatting (solar masses/radii, Earth masses/radii, etc.)
 
-**Stage 3: Inspector Panel** (Pending)
-- [ ] Read-only property display
-- [ ] Organize properties by component (Physical, Orbital, etc.)
-- [ ] Format values with appropriate units
-- [ ] Collapsible sections for components
+**Stage 3: Inspector Panel** ✅
+- [x] Read-only property display
+- [x] Organize properties by component (Physical, Orbital, etc.)
+- [x] Format values with appropriate units
+- [x] Collapsible sections for components
+- [x] InspectorPanel class with dynamic property creation
+- [x] All component sections (Physical, Stellar, Orbital, Atmosphere, Surface, Ring System)
+- [x] Proper unit formatting with Unicode preserved (M☉, R☉, M⊕, R⊕, ×, superscripts)
 
 **Stage 4: Save/Load System** (Pending)
 - [ ] Save button → file dialog → JSON export
@@ -156,6 +159,17 @@ View a single celestial object in-app and inspect its properties.
 - [ ] Error display for invalid JSON (toast/dialog)
 - [ ] Confirmation that loaded object matches saved
 - [ ] Status messages for user feedback
+
+**File Size Optimization Strategy (for Stage 4 and beyond):**
+- Store generation specs + seeds, not full bodies (~100-200 bytes vs ~2-5 KB per object)
+- Use compression (Zstandard) for JSON files (10:1 to 20:1 reduction typical)
+- Hierarchical storage with lazy loading for galactic scale
+- Delta storage: only save user modifications/overrides
+- LOD storage: different detail levels based on importance (minimal/basic/detailed/full)
+- Binary format option for large datasets (20-30% of JSON size)
+- For Phase 3: Store full JSON for debugging, include spec + body for round-trip verification
+- For Phase 6+: Store system seed + specs, regenerate on load
+- For Phase 9+: Binary galaxy metadata + visited systems in JSON, unvisited systems as seeds only
 
 **Stage 5: Star Rendering** (Pending)
 - [ ] Temperature → blackbody color mapping

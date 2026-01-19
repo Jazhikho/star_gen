@@ -1,7 +1,8 @@
-[gd_scene load_steps=7 format=3]
+[gd_scene load_steps=8 format=3 uid="uid://65m6mp4m0yee"]
 
-[ext_resource type="Script" path="res://src/app/viewer/ObjectViewer.gd" id="1"]
-[ext_resource type="Script" path="res://src/app/viewer/CameraController.gd" id="2"]
+[ext_resource type="Script" uid="uid://ca5bspmjti3ij" path="res://src/app/viewer/ObjectViewer.gd" id="1"]
+[ext_resource type="Script" uid="uid://dumtvp5ll7vg8" path="res://src/app/viewer/CameraController.gd" id="2"]
+[ext_resource type="Script" uid="uid://bi6wfcch7dxeh" path="res://src/app/viewer/InspectorPanel.gd" id="3"]
 
 [sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_1"]
 sky_top_color = Color(0.05, 0.05, 0.1, 1)
@@ -32,9 +33,17 @@ script = ExtResource("1")
 environment = SubResource("Environment_1")
 
 [node name="DirectionalLight3D" type="DirectionalLight3D" parent="Environment"]
-transform = Transform3D(0.707107, -0.5, 0.5, 0, 0.707107, 0.707107, -0.707107, -0.5, 0.5, 0, 0, 0)
-light_energy = 0.5
+transform = Transform3D(0.7071068, -0.49999994, 0.5000001, 0, 0.70710695, 0.7071067, -0.7071068, -0.49999994, 0.5000001, 0, 0, 0)
 shadow_enabled = true
+
+[node name="BackLight" type="DirectionalLight3D" parent="Environment"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -5, -5, -5)
+light_color = Color(0.9, 0.95, 1, 1)
+light_energy = 0.67
+light_indirect_energy = 2.32
+light_volumetric_fog_energy = 10.237
+light_angular_distance = 41.75
+light_specular = 0.05
 
 [node name="CameraRig" type="Node3D" parent="."]
 
@@ -48,20 +57,24 @@ script = ExtResource("2")
 [node name="CelestialObject" type="Node3D" parent="."]
 
 [node name="Placeholder" type="MeshInstance3D" parent="CelestialObject"]
-mesh = SubResource("SphereMesh_1")
 visible = false
+mesh = SubResource("SphereMesh_1")
 
 [node name="UI" type="Control" parent="."]
+layout_mode = 3
+anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
 mouse_filter = 2
 
 [node name="TopBar" type="Panel" parent="UI"]
 custom_minimum_size = Vector2(0, 60)
+layout_mode = 0
 anchor_right = 1.0
 offset_bottom = 60.0
 
 [node name="MarginContainer" type="MarginContainer" parent="UI/TopBar"]
+layout_mode = 0
 anchor_right = 1.0
 anchor_bottom = 1.0
 theme_override_constants/margin_left = 10
@@ -75,25 +88,26 @@ theme_override_constants/separation = 20
 
 [node name="TitleLabel" type="Label" parent="UI/TopBar/MarginContainer/HBoxContainer"]
 layout_mode = 2
-text = "StarGen Object Viewer"
 theme_override_font_sizes/font_size = 20
+text = "StarGen Object Viewer"
 
 [node name="VSeparator" type="VSeparator" parent="UI/TopBar/MarginContainer/HBoxContainer"]
 layout_mode = 2
 
 [node name="StatusLabel" type="Label" parent="UI/TopBar/MarginContainer/HBoxContainer"]
+modulate = Color(0.7, 0.7, 0.7, 1)
 layout_mode = 2
 text = "Ready"
-modulate = Color(0.7, 0.7, 0.7, 1)
 
 [node name="SidePanel" type="Panel" parent="UI"]
 custom_minimum_size = Vector2(350, 0)
-anchor_top = 0.0
+layout_mode = 0
 anchor_bottom = 1.0
 offset_top = 60.0
 offset_right = 350.0
 
 [node name="MarginContainer" type="MarginContainer" parent="UI/SidePanel"]
+layout_mode = 0
 anchor_right = 1.0
 anchor_bottom = 1.0
 theme_override_constants/margin_left = 10
@@ -103,11 +117,13 @@ theme_override_constants/margin_bottom = 10
 
 [node name="ScrollContainer" type="ScrollContainer" parent="UI/SidePanel/MarginContainer"]
 layout_mode = 2
+mouse_filter = 0
 
 [node name="VBoxContainer" type="VBoxContainer" parent="UI/SidePanel/MarginContainer/ScrollContainer"]
 layout_mode = 2
 size_flags_horizontal = 3
 theme_override_constants/separation = 10
+script = ExtResource("3")
 
 [node name="GenerationSection" type="VBoxContainer" parent="UI/SidePanel/MarginContainer/ScrollContainer/VBoxContainer"]
 layout_mode = 2
@@ -115,34 +131,32 @@ theme_override_constants/separation = 5
 
 [node name="GenerationLabel" type="Label" parent="UI/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/GenerationSection"]
 layout_mode = 2
-text = "Object Generation"
 theme_override_font_sizes/font_size = 16
+text = "Object Generation"
 
 [node name="TypeContainer" type="HBoxContainer" parent="UI/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/GenerationSection"]
 layout_mode = 2
 
 [node name="TypeLabel" type="Label" parent="UI/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/GenerationSection/TypeContainer"]
+custom_minimum_size = Vector2(60, 0)
 layout_mode = 2
 text = "Type:"
-custom_minimum_size = Vector2(60, 0)
 
 [node name="TypeOption" type="OptionButton" parent="UI/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/GenerationSection/TypeContainer"]
 layout_mode = 2
 size_flags_horizontal = 3
-selected = 1
 
 [node name="SeedContainer" type="HBoxContainer" parent="UI/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/GenerationSection"]
 layout_mode = 2
 
 [node name="SeedLabel" type="Label" parent="UI/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/GenerationSection/SeedContainer"]
+custom_minimum_size = Vector2(60, 0)
 layout_mode = 2
 text = "Seed:"
-custom_minimum_size = Vector2(60, 0)
 
 [node name="SeedInput" type="SpinBox" parent="UI/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/GenerationSection/SeedContainer"]
 layout_mode = 2
 size_flags_horizontal = 3
-min_value = 0.0
 max_value = 999999.0
 value = 12345.0
 rounded = true
@@ -159,89 +173,29 @@ text = "Generate"
 [node name="RerollButton" type="Button" parent="UI/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/GenerationSection/ButtonContainer"]
 layout_mode = 2
 size_flags_horizontal = 3
-text = "Re-roll"
 tooltip_text = "Generate with random seed"
+text = "Re-roll"
 
 [node name="HSeparator1" type="HSeparator" parent="UI/SidePanel/MarginContainer/ScrollContainer/VBoxContainer"]
 layout_mode = 2
 
-[node name="InfoSection" type="VBoxContainer" parent="UI/SidePanel/MarginContainer/ScrollContainer/VBoxContainer"]
+[node name="InspectorContainer" type="VBoxContainer" parent="UI/SidePanel/MarginContainer/ScrollContainer/VBoxContainer"]
 layout_mode = 2
+size_flags_horizontal = 3
 theme_override_constants/separation = 5
-
-[node name="InfoLabel" type="Label" parent="UI/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/InfoSection"]
-layout_mode = 2
-text = "Object Information"
-theme_override_font_sizes/font_size = 16
-
-[node name="NameContainer" type="HBoxContainer" parent="UI/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/InfoSection"]
-layout_mode = 2
-
-[node name="NameLabel" type="Label" parent="UI/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/InfoSection/NameContainer"]
-layout_mode = 2
-text = "Name:"
-custom_minimum_size = Vector2(60, 0)
-theme_override_colors/font_color = Color(0.7, 0.7, 0.7, 1)
-
-[node name="NameValue" type="Label" parent="UI/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/InfoSection/NameContainer"]
-layout_mode = 2
-text = "No object generated"
-size_flags_horizontal = 3
-
-[node name="TypeContainer" type="HBoxContainer" parent="UI/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/InfoSection"]
-layout_mode = 2
-
-[node name="TypeLabel" type="Label" parent="UI/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/InfoSection/TypeContainer"]
-layout_mode = 2
-text = "Type:"
-custom_minimum_size = Vector2(60, 0)
-theme_override_colors/font_color = Color(0.7, 0.7, 0.7, 1)
-
-[node name="TypeValue" type="Label" parent="UI/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/InfoSection/TypeContainer"]
-layout_mode = 2
-text = "-"
-size_flags_horizontal = 3
-
-[node name="MassContainer" type="HBoxContainer" parent="UI/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/InfoSection"]
-layout_mode = 2
-
-[node name="MassLabel" type="Label" parent="UI/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/InfoSection/MassContainer"]
-layout_mode = 2
-text = "Mass:"
-custom_minimum_size = Vector2(60, 0)
-theme_override_colors/font_color = Color(0.7, 0.7, 0.7, 1)
-
-[node name="MassValue" type="Label" parent="UI/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/InfoSection/MassContainer"]
-layout_mode = 2
-text = "-"
-size_flags_horizontal = 3
-
-[node name="RadiusContainer" type="HBoxContainer" parent="UI/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/InfoSection"]
-layout_mode = 2
-
-[node name="RadiusLabel" type="Label" parent="UI/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/InfoSection/RadiusContainer"]
-layout_mode = 2
-text = "Radius:"
-custom_minimum_size = Vector2(60, 0)
-theme_override_colors/font_color = Color(0.7, 0.7, 0.7, 1)
-
-[node name="RadiusValue" type="Label" parent="UI/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/InfoSection/RadiusContainer"]
-layout_mode = 2
-text = "-"
-size_flags_horizontal = 3
 
 [node name="HSeparator2" type="HSeparator" parent="UI/SidePanel/MarginContainer/ScrollContainer/VBoxContainer"]
 layout_mode = 2
 
 [node name="ControlsLabel" type="Label" parent="UI/SidePanel/MarginContainer/ScrollContainer/VBoxContainer"]
 layout_mode = 2
-text = "Camera Controls"
 theme_override_font_sizes/font_size = 16
+text = "Camera Controls"
 
 [node name="CameraInfo" type="Label" parent="UI/SidePanel/MarginContainer/ScrollContainer/VBoxContainer"]
+modulate = Color(0.8, 0.8, 0.8, 1)
 layout_mode = 2
 text = "• Left Mouse: Orbit
 • Right Mouse: Pan
 • Scroll: Zoom
 • F: Focus on object"
-modulate = Color(0.8, 0.8, 0.8, 1)

@@ -27,12 +27,40 @@ var _panning: bool = false
 var _last_mouse_position: Vector2 = Vector2.ZERO
 
 
+## Checks if the mouse is currently over a UI element.
+## @return: True if mouse is over UI.
+func _is_mouse_over_ui() -> bool:
+	var viewport: Viewport = get_viewport()
+	if not viewport:
+		return false
+	
+	# Check if any Control node is capturing the mouse
+	var ui_control: Control = viewport.gui_get_hovered_control()
+	return ui_control != null
+
+
 func _ready() -> void:
 	# Initialize camera position
 	_update_camera_transform()
 
 
 func _input(event: InputEvent) -> void:
+	# Don't process 3D camera input if mouse is over UI
+	if _is_mouse_over_ui():
+		# If we're already orbiting/panning and mouse moves to UI, stop the operation
+		if event is InputEventMouseMotion:
+			_orbiting = false
+			_panning = false
+			return
+		# Don't start new operations if mouse is over UI
+		elif event is InputEventMouseButton:
+			var mouse_event: InputEventMouseButton = event as InputEventMouseButton
+			# Always allow button release to properly end drag operations
+			if mouse_event.pressed:
+				_orbiting = false
+				_panning = false
+				return
+	
 	# Mouse button press
 	if event is InputEventMouseButton:
 		var mouse_event: InputEventMouseButton = event as InputEventMouseButton
@@ -47,16 +75,27 @@ func _input(event: InputEvent) -> void:
 				_last_mouse_position = mouse_event.position
 			
 			MOUSE_BUTTON_WHEEL_UP:
+				if _is_mouse_over_ui():
+					return
 				_target_distance *= (1.0 - zoom_speed)
 				_target_distance = clampf(_target_distance, min_distance, max_distance)
 			
 			MOUSE_BUTTON_WHEEL_DOWN:
+				if _is_mouse_over_ui():
+					return
 				_target_distance *= (1.0 + zoom_speed)
 				_target_distance = clampf(_target_distance, min_distance, max_distance)
 	
 	# Mouse motion
 	elif event is InputEventMouseMotion:
 		var motion_event: InputEventMouseMotion = event as InputEventMouseMotion
+		
+		# Don't process motion if over UI
+		if _is_mouse_over_ui():
+			_orbiting = false
+			_panning = false
+			return
+		
 		var delta: Vector2 = motion_event.position - _last_mouse_position
 		
 		if _orbiting:
