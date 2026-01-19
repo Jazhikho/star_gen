@@ -113,11 +113,21 @@ star_gen/
 │   │   │   │   └── RingSystemSpec.gd      # Ring system generation spec
 │   │   │   ├── generators/         # Generator implementations
 │   │   │   │   ├── StarGenerator.gd      # Star generation logic
-│   │   │   │   ├── PlanetGenerator.gd    # Planet generation logic
-│   │   │   │   ├── MoonGenerator.gd      # Moon generation logic
+│   │   │   │   ├── PlanetGenerator.gd    # Planet generation orchestration
+│   │   │   │   ├── MoonGenerator.gd      # Moon generation orchestration
 │   │   │   │   ├── AsteroidGenerator.gd  # Asteroid generation logic
 │   │   │   │   ├── RingSystemGenerator.gd # Ring system generation logic
-│   │   │   │   └── GeneratorUtils.gd     # Shared generator utilities
+│   │   │   │   ├── GeneratorUtils.gd     # Shared generator utilities
+│   │   │   │   ├── planet/               # Planet generation components
+│   │   │   │   │   ├── PlanetPhysicalGenerator.gd    # Physical properties
+│   │   │   │   │   ├── PlanetAtmosphereGenerator.gd  # Atmosphere properties
+│   │   │   │   │   └── PlanetSurfaceGenerator.gd     # Surface properties
+│   │   │   │   └── moon/                # Moon generation components
+│   │   │   │       ├── MoonPhysicalGenerator.gd      # Physical properties
+│   │   │   │       ├── MoonAtmosphereGenerator.gd    # Atmosphere properties
+│   │   │   │       └── MoonSurfaceGenerator.gd       # Surface properties
+│   │   │   ├── utils/              # Generation utilities
+│   │   │   │   └── AtmosphereUtils.gd    # Shared atmosphere calculations
 │   │   │   ├── fixtures/           # Golden master fixtures
 │   │   │   │   └── FixtureGenerator.gd   # Fixture generation utility
 │   │   │   └── tables/             # Lookup tables for generation
@@ -141,7 +151,8 @@ star_gen/
 │           ├── ObjectViewer.tscn  # Main viewer scene
 │           ├── ObjectViewer.gd    # Viewer controller
 │           ├── CameraController.gd # Orbital camera controls
-│           └── InspectorPanel.gd  # Dynamic property inspector
+│           ├── InspectorPanel.gd  # Dynamic property inspector
+│           └── PropertyFormatter.gd # Property formatting utilities
 ├── Tests/                          # Test suite
 │   ├── Framework/                 # Test framework
 │   │   ├── TestCase.gd            # Base test case class

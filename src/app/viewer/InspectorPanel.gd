@@ -4,8 +4,8 @@ class_name InspectorPanel
 extends VBoxContainer
 
 const _celestial_type := preload("res://src/domain/celestial/CelestialType.gd")
-const _units := preload("res://src/domain/math/Units.gd")
 const _color_utils := preload("res://src/app/rendering/ColorUtils.gd")
+const _property_formatter := preload("res://src/app/viewer/PropertyFormatter.gd")
 
 ## Container for dynamically created inspector content
 @onready var inspector_container: VBoxContainer = get_node("InspectorContainer")
@@ -191,8 +191,8 @@ func _format_type(body: CelestialBody) -> String:
 func _add_physical_properties(body: CelestialBody) -> void:
 	var phys: PhysicalProps = body.physical
 	
-	_add_property("Mass", _format_mass(phys.mass_kg, body.type))
-	_add_property("Radius", _format_radius(phys.radius_m, body.type))
+	_add_property("Mass", _property_formatter.format_mass(phys.mass_kg, body.type))
+	_add_property("Radius", _property_formatter.format_radius(phys.radius_m, body.type))
 	_add_property("Density", "%.1f kg/m³" % phys.get_density_kg_m3())
 	_add_property("Surface Gravity", "%.2f m/s²" % phys.get_surface_gravity_m_s2())
 	_add_property("Escape Velocity", "%.2f km/s" % (phys.get_escape_velocity_m_s() / 1000.0))
@@ -214,7 +214,7 @@ func _add_physical_properties(body: CelestialBody) -> void:
 		_add_property("Oblateness", "%.4f" % phys.oblateness)
 	
 	if phys.magnetic_moment > 0:
-		_add_property("Magnetic Field", _format_scientific(phys.magnetic_moment, "T·m³"))
+		_add_property("Magnetic Field", _property_formatter.format_scientific(phys.magnetic_moment, "T·m³"))
 
 
 ## Adds stellar properties section content.
@@ -223,9 +223,9 @@ func _add_stellar_properties(body: CelestialBody) -> void:
 	var stellar: StellarProps = body.stellar
 	
 	_add_property("Spectral Class", stellar.spectral_class)
-	_add_property("Luminosity", _format_luminosity(stellar.luminosity_watts))
+	_add_property("Luminosity", _property_formatter.format_luminosity(stellar.luminosity_watts))
 	_add_property("Temperature", "%.0f K" % stellar.effective_temperature_k)
-	_add_property("Age", _format_age(stellar.age_years))
+	_add_property("Age", _property_formatter.format_age(stellar.age_years))
 	_add_property("Metallicity", "[Fe/H] = %.2f" % (log(stellar.metallicity) / log(10.0)))
 	_add_property("Stellar Type", stellar.stellar_type.replace("_", " ").capitalize())
 
@@ -235,11 +235,11 @@ func _add_stellar_properties(body: CelestialBody) -> void:
 func _add_orbital_properties(body: CelestialBody) -> void:
 	var orbital: OrbitalProps = body.orbital
 	
-	_add_property("Semi-major Axis", _format_distance(orbital.semi_major_axis_m))
+	_add_property("Semi-major Axis", _property_formatter.format_distance(orbital.semi_major_axis_m))
 	_add_property("Eccentricity", "%.4f" % orbital.eccentricity)
 	_add_property("Inclination", "%.2f°" % orbital.inclination_deg)
-	_add_property("Periapsis", _format_distance(orbital.get_periapsis_m()))
-	_add_property("Apoapsis", _format_distance(orbital.get_apoapsis_m()))
+	_add_property("Periapsis", _property_formatter.format_distance(orbital.get_periapsis_m()))
+	_add_property("Apoapsis", _property_formatter.format_distance(orbital.get_apoapsis_m()))
 	
 	if orbital.parent_id:
 		_add_property("Parent Body", orbital.parent_id)
@@ -250,7 +250,7 @@ func _add_orbital_properties(body: CelestialBody) -> void:
 func _add_atmosphere_properties(body: CelestialBody) -> void:
 	var atmo: AtmosphereProps = body.atmosphere
 	
-	_add_property("Surface Pressure", _format_pressure(atmo.surface_pressure_pa))
+	_add_property("Surface Pressure", _property_formatter.format_pressure(atmo.surface_pressure_pa))
 	_add_property("Scale Height", "%.1f km" % (atmo.scale_height_m / 1000.0))
 	
 	var greenhouse_desc: String = ColorUtils.get_greenhouse_description(atmo.greenhouse_factor)
@@ -315,7 +315,7 @@ func _add_ring_properties(body: CelestialBody) -> void:
 	_add_property("Inner Radius", "%.0f km" % (rings.get_inner_radius_m() / 1000.0))
 	_add_property("Outer Radius", "%.0f km" % (rings.get_outer_radius_m() / 1000.0))
 	_add_property("Total Width", "%.0f km" % (rings.get_total_width_m() / 1000.0))
-	_add_property("Total Mass", _format_scientific(rings.total_mass_kg, "kg"))
+	_add_property("Total Mass", _property_formatter.format_scientific(rings.total_mass_kg, "kg"))
 	_add_property("Inclination", "%.2f°" % rings.inclination_deg)
 	
 	# Individual bands
@@ -325,7 +325,7 @@ func _add_ring_properties(body: CelestialBody) -> void:
 		_add_subsection(band_name + ":")
 		_add_property("  Width", "%.0f km" % (band.get_width_m() / 1000.0))
 		_add_property("  Optical Depth", "%.3f" % band.optical_depth)
-		_add_property("  Particle Size", _format_particle_size(band.particle_size_m))
+		_add_property("  Particle Size", _property_formatter.format_particle_size(band.particle_size_m))
 
 
 ## Sorts composition dictionary by fraction descending.
@@ -339,126 +339,3 @@ func _sort_composition(composition: Dictionary) -> Array:
 	return pairs
 
 
-## Formats mass with appropriate units.
-## @param mass_kg: Mass in kilograms.
-## @param body_type: The body type.
-## @return: Formatted mass string.
-func _format_mass(mass_kg: float, body_type: CelestialType.Type) -> String:
-	match body_type:
-		CelestialType.Type.STAR:
-			return "%.3f M☉" % (mass_kg / Units.SOLAR_MASS_KG)
-		CelestialType.Type.PLANET, CelestialType.Type.MOON:
-			var earth_masses: float = mass_kg / Units.EARTH_MASS_KG
-			if earth_masses > 100:
-				return "%.2f MJ" % (mass_kg / 1.898e27)
-			return "%.4f M⊕" % earth_masses
-		_:
-			return _format_scientific(mass_kg, "kg")
-
-
-## Formats radius with appropriate units.
-## @param radius_m: Radius in meters.
-## @param body_type: The body type.
-## @return: Formatted radius string.
-func _format_radius(radius_m: float, body_type: CelestialType.Type) -> String:
-	match body_type:
-		CelestialType.Type.STAR:
-			return "%.3f R☉" % (radius_m / Units.SOLAR_RADIUS_METERS)
-		CelestialType.Type.PLANET, CelestialType.Type.MOON:
-			return "%.4f R⊕" % (radius_m / Units.EARTH_RADIUS_METERS)
-		_:
-			var km: float = radius_m / 1000.0
-			if km < 1.0:
-				return "%.1f m" % radius_m
-			return "%.2f km" % km
-
-
-## Formats distance with appropriate units.
-## @param distance_m: Distance in meters.
-## @return: Formatted distance string.
-func _format_distance(distance_m: float) -> String:
-	var au: float = distance_m / Units.AU_METERS
-	if au > 0.1:
-		return "%.4f AU" % au
-	var km: float = distance_m / 1000.0
-	if km > 1000:
-		return "%.0f km" % km
-	return "%.1f km" % km
-
-
-## Formats luminosity.
-## @param luminosity_watts: Luminosity in watts.
-## @return: Formatted luminosity string.
-func _format_luminosity(luminosity_watts: float) -> String:
-	var solar: float = luminosity_watts / 3.828e26
-	if solar > 0.01:
-		return "%.4f L☉" % solar
-	return _format_scientific(luminosity_watts, "W")
-
-
-## Formats age in years.
-## @param years: Age in years.
-## @return: Formatted age string.
-func _format_age(years: float) -> String:
-	if years > 1e9:
-		return "%.2f Gyr" % (years / 1e9)
-	if years > 1e6:
-		return "%.2f Myr" % (years / 1e6)
-	return "%.0f years" % years
-
-
-## Formats pressure.
-## @param pressure_pa: Pressure in Pascals.
-## @return: Formatted pressure string.
-func _format_pressure(pressure_pa: float) -> String:
-	var atm: float = pressure_pa / 101325.0
-	if atm > 0.01:
-		return "%.4f atm" % atm
-	if pressure_pa > 1.0:
-		return "%.1f Pa" % pressure_pa
-	return "%.2e Pa" % pressure_pa
-
-
-## Formats particle size.
-## @param size_m: Size in meters.
-## @return: Formatted size string.
-func _format_particle_size(size_m: float) -> String:
-	if size_m < 0.01:
-		return "%.1f mm" % (size_m * 1000.0)
-	if size_m < 1.0:
-		return "%.1f cm" % (size_m * 100.0)
-	return "%.2f m" % size_m
-
-
-## Formats a number in scientific notation.
-## @param value: The value to format.
-## @param unit: The unit string.
-## @return: Formatted scientific notation string.
-func _format_scientific(value: float, unit: String) -> String:
-	if value == 0.0:
-		return "0 %s" % unit
-	
-	var exponent: int = int(floor(log(absf(value)) / log(10.0)))
-	var mantissa: float = value / pow(10.0, exponent)
-	
-	var exp_str: String = _format_superscript(exponent)
-	return "%.2f × 10%s %s" % [mantissa, exp_str, unit]
-
-
-## Converts an integer to superscript characters.
-## @param num: The number to convert.
-## @return: Superscript string.
-func _format_superscript(num: int) -> String:
-	var superscripts: Dictionary = {
-		"0": "⁰", "1": "¹", "2": "²", "3": "³", "4": "⁴",
-		"5": "⁵", "6": "⁶", "7": "⁷", "8": "⁸", "9": "⁹",
-		"-": "⁻"
-	}
-	
-	var num_str: String = str(num)
-	var result: String = ""
-	
-	for c in num_str:
-		result += superscripts.get(c, c)
-	
-	return result

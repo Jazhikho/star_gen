@@ -89,18 +89,8 @@ static func generate(spec: AsteroidSpec, context: ParentContext, rng: SeededRng)
 	# Generate ID
 	var body_id: String = _generate_id(spec, rng)
 	
-	# Store context in spec snapshot for save/load
-	var spec_dict: Dictionary = spec.to_dict()
-	spec_dict["context"] = context.to_dict()
-	
 	# Create provenance
-	var provenance: Provenance = Provenance.new(
-		spec.generation_seed,
-		Versions.GENERATOR_VERSION,
-		Versions.SCHEMA_VERSION,
-		int(Time.get_unix_time_from_system()),
-		spec_dict
-	)
+	var provenance: Provenance = GeneratorUtils.create_provenance(spec, context)
 	
 	# Assemble the celestial body
 	var body: CelestialBody = CelestialBody.new(
@@ -484,4 +474,4 @@ static func _generate_id(spec: AsteroidSpec, rng: SeededRng) -> String:
 	var override_id: Variant = spec.get_override("id", null)
 	if override_id != null and override_id is String and not (override_id as String).is_empty():
 		return override_id as String
-	return GeneratorUtils.generate_id("asteroid", rng)
+	return _generator_utils.generate_id("asteroid", rng)

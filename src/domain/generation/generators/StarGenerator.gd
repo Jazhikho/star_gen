@@ -75,14 +75,8 @@ static func generate(spec: StarSpec, rng: SeededRng) -> CelestialBody:
 	var body_id: String = _generate_id(spec, rng)
 	var body_name: String = _generate_name(spec, rng)
 	
-	# Create provenance
-	var provenance: Provenance = Provenance.new(
-		spec.generation_seed,
-		Versions.GENERATOR_VERSION,
-		Versions.SCHEMA_VERSION,
-		int(Time.get_unix_time_from_system()),
-		spec.to_dict()
-	)
+	# Create provenance (stars don't have context)
+	var provenance: Provenance = GeneratorUtils.create_provenance(spec, null)
 	
 	# Assemble the celestial body
 	var body: CelestialBody = CelestialBody.new(
@@ -340,7 +334,7 @@ static func _generate_id(spec: StarSpec, rng: SeededRng) -> String:
 	var override_id: Variant = spec.get_override("id", null)
 	if override_id != null and override_id is String and not (override_id as String).is_empty():
 		return override_id as String
-	return GeneratorUtils.generate_id("star", rng)
+	return _generator_utils_script.generate_id("star", rng)
 
 
 ## Generates a name for the star.
