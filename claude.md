@@ -123,9 +123,106 @@ No implementing backlog items unless the current phase explicitly includes them.
 
 ---
 
-## Current phase: Phase 3
+## Current phase: Phase 4
 **Goal:**
-View a single celestial object in-app and inspect its properties.
+Edit object properties in the program with validation, derived-value recalculation, and undo.
+
+**Previous phase completion:**
+Phase 3 (Object viewer v1) - ✅ Complete
+- All 8 stages complete (Infrastructure, Generation/Display, Inspector Panel, Save/Load, Star Rendering, Surface Rendering, Atmosphere Rendering, Ring Rendering)
+- All 326 tests passing
+- Full test coverage for all required tests
+
+**Phase 3 Summary:**
+Phase 3 delivered a complete object viewer with:
+- Basic viewer infrastructure with 3D viewport and camera controls
+- Object generation and display with type selection and seed input
+- Comprehensive inspector panel with collapsible sections
+- Save/load system with compression and regeneration-based storage
+- Complete rendering system for all body types (stars, planets, moons, asteroids, rings, atmospheres)
+- All required tests passing
+
+---
+
+**Phase 4: Object editing v1** (In Progress)
+
+**Stage 1: Editing Infrastructure** (Pending)
+- [ ] Make InspectorPanel properties editable (convert labels to LineEdit/SpinBox/OptionButton)
+- [ ] Edit mode toggle (read-only vs editable)
+- [ ] Visual indication of edited properties (color/style changes)
+- [ ] Undo/redo system foundation (command pattern)
+- [ ] Edit state tracking (which properties have been modified)
+
+**Stage 2: Property Validation** (Pending)
+- [ ] Range validation for physical properties (mass > 0, radius > 0, etc.)
+- [ ] Type validation for enums (surface types, spectral classes, etc.)
+- [ ] Relationship validation (e.g., moon mass < parent mass)
+- [ ] Derived value recalculation system (density from mass/radius, etc.)
+- [ ] Error display for invalid edits (user-friendly messages)
+- [ ] Preserve last valid state on invalid edits
+
+**Stage 3: Editing Commands** (Pending)
+- [ ] Command pattern for edits (EditCommand base class)
+- [ ] Specific edit commands (SetMassCommand, SetTemperatureCommand, etc.)
+- [ ] Command history for undo/redo
+- [ ] Batch edits (edit multiple properties atomically)
+- [ ] Validation before command execution
+- [ ] Command execution and rollback
+
+**Stage 4: Derived Value Recalculation** (Pending)
+- [ ] Recalculate density from mass/radius
+- [ ] Recalculate surface gravity from mass/radius
+- [ ] Recalculate orbital period from semi-major axis and masses
+- [ ] Recalculate stellar luminosity from mass/radius (Stefan-Boltzmann)
+- [ ] Recalculate spectral class from temperature/luminosity
+- [ ] Update tidal locking status when orbital distance changes
+- [ ] Update dependent properties when parent changes
+- [ ] Preserve manually set values vs auto-calculated
+
+**Stage 5: UI for Editing** (Pending)
+- [ ] Edit mode toggle button in UI
+- [ ] Property editors (SpinBox for numbers, OptionButton for enums, LineEdit for strings)
+- [ ] Save/Cancel buttons for edit mode
+- [ ] Visual feedback (edited properties highlighted)
+- [ ] Undo/Redo buttons with keyboard shortcuts
+- [ ] Field lock toggles (prepares for future constrained generation)
+- [ ] Conflict resolution UI (if needed)
+
+**Stage 6: Ring System Editing** (Pending)
+- [ ] Edit ring band properties (inner/outer radius, composition, optical depth)
+- [ ] Validate ring gaps don't overlap
+- [ ] Add/remove ring bands
+- [ ] Visual feedback for ring editing
+- [ ] Validation errors for overlapping rings
+
+**Stage 7: Edit Persistence** (Pending)
+- [ ] Track user modifications in body metadata
+- [ ] Save edited properties separately from generation data
+- [ ] Load and apply edits when loading saved bodies
+- [ ] Clear edits (revert to generated state)
+- [ ] Edit history in save files
+- [ ] Distinguish between generated and edited properties
+
+**Tests:**
+- [ ] Validation tests reject invalid edits and preserve last valid state
+- [ ] Derived-value tests verify correct recalculation (density, gravity, etc.)
+- [ ] Stellar recalculation: mass/radius changes update luminosity/spectral class
+- [ ] Ring gap validation: overlapping gaps detected and prevented
+- [ ] Undo/redo tests restore exact prior state
+- [ ] Edit persistence tests (edits saved and loaded correctly)
+- [ ] Relationship validation tests (moon < planet mass, etc.)
+
+**Acceptance criteria:**
+- [ ] Can toggle edit mode on/off
+- [ ] Invalid edits are rejected with clear errors
+- [ ] Valid edits update derived values automatically
+- [ ] Edits can be undone/redone
+- [ ] Edits persist when saving/loading
+- [ ] Edit fields -> derived updates -> undo -> save/load preserves edits
+
+---
+
+**Phase 3 Archive:**
 
 **Stage 1: Basic Viewer Infrastructure** ✅
 - [x] ObjectViewer scene with 3D viewport and environment
@@ -223,6 +320,66 @@ View a single celestial object in-app and inspect its properties.
 **Acceptance criteria:** ✅
 - [x] Open app -> generate object -> view -> save -> reload -> same result
   - Verified via deterministic generation tests and save/load round-trip tests
+
+**Phase 4: Object editing v1** (In Progress)
+**Goal:**
+Enable users to edit celestial object properties with validation and automatic recalculation of derived values.
+
+**Stage 1: Editing Infrastructure** (Pending)
+- [ ] Make InspectorPanel properties editable (convert labels to LineEdit/SpinBox/OptionButton)
+- [ ] Edit mode toggle (read-only vs editable)
+- [ ] Visual indication of edited properties (color/style changes)
+- [ ] Undo/redo system foundation
+- [ ] Validation system for property changes
+
+**Stage 2: Property Validation** (Pending)
+- [ ] Range validation for physical properties (mass, radius, etc.)
+- [ ] Type validation for enums (surface types, spectral classes, etc.)
+- [ ] Relationship validation (e.g., moon mass < parent mass)
+- [ ] Derived value recalculation (density from mass/radius, etc.)
+- [ ] Error display for invalid edits
+
+**Stage 3: Editing Commands** (Pending)
+- [ ] Command pattern for edits (EditCommand base class)
+- [ ] Specific edit commands (SetMassCommand, SetTemperatureCommand, etc.)
+- [ ] Command history for undo/redo
+- [ ] Batch edits (edit multiple properties atomically)
+- [ ] Validation before command execution
+
+**Stage 4: UI for Editing** (Pending)
+- [ ] Edit mode toggle button in UI
+- [ ] Property editors (SpinBox for numbers, OptionButton for enums, LineEdit for strings)
+- [ ] Save/Cancel buttons for edit mode
+- [ ] Visual feedback (edited properties highlighted)
+- [ ] Conflict resolution UI (if needed)
+
+**Stage 5: Derived Value Recalculation** (Pending)
+- [ ] Recalculate density from mass/radius
+- [ ] Recalculate surface gravity from mass/radius
+- [ ] Recalculate orbital period from semi-major axis and masses
+- [ ] Update dependent properties when parent changes
+- [ ] Preserve manually set values vs auto-calculated
+
+**Stage 6: Edit Persistence** (Pending)
+- [ ] Track user modifications in body metadata
+- [ ] Save edited properties separately from generation data
+- [ ] Load and apply edits when loading saved bodies
+- [ ] Clear edits (revert to generated state)
+- [ ] Edit history in save files
+
+**Tests:**
+- [ ] Property validation tests (invalid ranges rejected)
+- [ ] Derived value recalculation tests (density, gravity, etc.)
+- [ ] Edit command tests (undo/redo works)
+- [ ] Edit persistence tests (edits saved and loaded correctly)
+- [ ] Relationship validation tests (moon < planet mass, etc.)
+
+**Acceptance criteria:**
+- [ ] Can toggle edit mode on/off
+- [ ] Invalid edits are rejected with clear errors
+- [ ] Valid edits update derived values automatically
+- [ ] Edits can be undone/redone
+- [ ] Edits persist when saving/loading
 
 ---
 
