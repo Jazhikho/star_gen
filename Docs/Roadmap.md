@@ -152,9 +152,16 @@ All stages implemented and tested. All 286 tests passing. Ready to proceed to Ph
 **Goal:**
 View a single celestial object in-app and inspect its properties.
 
+**Stage 1: Basic Viewer Infrastructure** ✅
+•	✅ ObjectViewer scene with 3D viewport and environment
+•	✅ Camera with orbit controls (CameraController)
+•	✅ UI panel structure (top bar, side panel)
+•	✅ Basic sphere mesh placeholder
+•	✅ Integration tests: scene instantiates and runs one frame
+
 **Deliverables:**
-•	ObjectViewer scene: camera controls, read-only inspector panel.
 •	Generate/re-roll button (changes seed), and save/load JSON from disk.
+•	Inspector panel: read-only property display.
 •	Basic rendering: sphere mesh with seed-driven material parameters.
 •	Temperature → blackbody color mapping for stars.
 •	Atmospheric scattering from composition (sky color derivation).
@@ -162,7 +169,7 @@ View a single celestial object in-app and inspect its properties.
 •	Surface shader selection based on surface_type and properties.
 
 **Tests:**
-•	Integration smoke test: viewer scene instantiates and runs one frame.
+•	✅ Integration smoke test: viewer scene instantiates and runs one frame.
 •	Invalid JSON load fails gracefully (no crash, user-readable error).
 •	Color derivation: temperature maps to correct blackbody colors.
 •	Atmospheric scattering: composition produces expected sky colors.

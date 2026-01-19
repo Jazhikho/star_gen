@@ -127,9 +127,16 @@ No implementing backlog items unless the current phase explicitly includes them.
 **Goal:**
 View a single celestial object in-app and inspect its properties.
 
+**Stage 1: Basic Viewer Infrastructure** ✅
+- [x] ObjectViewer scene with 3D viewport and environment
+- [x] Camera with orbit controls (CameraController)
+- [x] UI panel structure (top bar, side panel)
+- [x] Basic sphere mesh placeholder
+- [x] Integration tests: scene instantiates and runs one frame
+
 **Deliverables:**
-- [ ] ObjectViewer scene: camera controls, read-only inspector panel
 - [ ] Generate/re-roll button (changes seed), and save/load JSON from disk
+- [ ] Inspector panel: read-only property display
 - [ ] Basic rendering: sphere mesh with seed-driven material parameters
 - [ ] Temperature → blackbody color mapping for stars
 - [ ] Atmospheric scattering from composition (sky color derivation)
@@ -137,7 +144,7 @@ View a single celestial object in-app and inspect its properties.
 - [ ] Surface shader selection based on surface_type and properties
 
 **Tests:**
-- [ ] Integration smoke test: viewer scene instantiates and runs one frame
+- [x] Integration smoke test: viewer scene instantiates and runs one frame
 - [ ] Invalid JSON load fails gracefully (no crash, user-readable error)
 - [ ] Color derivation: temperature maps to correct blackbody colors
 - [ ] Atmospheric scattering: composition produces expected sky colors

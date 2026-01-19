@@ -22,7 +22,13 @@ Built with **Godot 4.x** and **GDScript**.
 - **Stage 7**: ✅ Ring system generator (RingSystemSpec, Roche limit calculation, resonance-based gaps, ice/rock composition)
 - **Stage 8**: ✅ Golden masters & tests (28 fixtures, regression tests, range validation, physics relationship tests)
 
-**Test Status**: All 286 tests passing ✅
+**Phase 3 - Stage 1**: ✅ Complete - Basic viewer infrastructure (ObjectViewer scene, camera controls, UI structure)
+- ObjectViewer scene with 3D viewport and environment
+- CameraController with orbit/pan/zoom controls
+- UI panel structure (top bar, side panel)
+- Integration tests (7 tests)
+
+**Test Status**: All 293 tests passing ✅
 
 See [claude.md](claude.md) for detailed architecture, roadmap, and working agreement.
 
@@ -94,7 +100,10 @@ star_gen/
 │   │   └── persistence/
 │   │       └── CelestialPersistence.gd  # Save/load celestial bodies
 │   └── app/                        # Application layer (UI, scenes, rendering)
-│       └── (Future: UI, viewer, editor)
+│       └── viewer/                # Object viewer
+│           ├── ObjectViewer.tscn  # Main viewer scene
+│           ├── ObjectViewer.gd    # Viewer controller
+│           └── CameraController.gd # Orbital camera controls
 ├── Tests/                          # Test suite
 │   ├── Framework/                 # Test framework
 │   │   ├── TestCase.gd            # Base test case class

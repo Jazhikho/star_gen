@@ -41,6 +41,8 @@ var _test_scripts: Array[GDScript] = [
 	preload("res://Tests/Unit/TestRingSystemGenerator.gd"),
 	# Phase 2 tests - Stage 8
 	preload("res://Tests/Unit/TestGoldenMasters.gd"),
+	# Phase 3 tests - Stage 1
+	preload("res://Tests/Integration/TestObjectViewer.gd"),
 ]
 
 ## The test runner instance.
