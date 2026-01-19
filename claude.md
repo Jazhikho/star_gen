@@ -133,11 +133,11 @@ Generate celestial objects deterministically from (spec, seed).
 - [x] Hill sphere / orbital distance constraints
 - [x] Subsurface oceans for icy moons
 
-**Stage 6: Asteroid Generator** (Pending)
-- [ ] AsteroidSpec with C/S/M type
-- [ ] Simple physical properties
-- [ ] Minimal/no atmosphere
-- [ ] Basic terrain (craters, roughness)
+**Stage 6: Asteroid Generator** ✅
+- [x] AsteroidSpec with C/S/M type
+- [x] Simple physical properties
+- [x] Minimal/no atmosphere
+- [x] Basic terrain (craters, roughness)
 
 **Stage 7: Ring System Generator** (Pending)
 - [ ] RingSystemSpec with complexity level

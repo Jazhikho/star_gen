@@ -357,10 +357,11 @@ func test_provenance_stored() -> void:
 
 func test_requires_parent_context() -> void:
 	var spec: MoonSpec = MoonSpec.random(11111)
-	# Create a planet context (no parent body)
+	# Create a planet context (no parent body) - this should trigger an error
 	var context: ParentContext = ParentContext.sun_like()
 	var rng: SeededRng = SeededRng.new(11111)
 	
+	# Note: This will print an error message to console, which is expected behavior
 	var moon: CelestialBody = MoonGenerator.generate(spec, context, rng)
 	
 	assert_null(moon, "Should return null without parent body context")
