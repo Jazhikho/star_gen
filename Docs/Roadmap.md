@@ -159,14 +159,50 @@ View a single celestial object in-app and inspect its properties.
 •	✅ Basic sphere mesh placeholder
 •	✅ Integration tests: scene instantiates and runs one frame
 
-**Deliverables:**
-•	Generate/re-roll button (changes seed), and save/load JSON from disk.
-•	Inspector panel: read-only property display.
-•	Basic rendering: sphere mesh with seed-driven material parameters.
-•	Temperature → blackbody color mapping for stars.
-•	Atmospheric scattering from composition (sky color derivation).
-•	Ring opacity and color visualization from composition materials.
-•	Surface shader selection based on surface_type and properties.
+**Stage 2: Object Generation & Display** (Pending)
+•	Generate/re-roll button (changes seed)
+•	Wire up generators to create random objects
+•	Display basic sphere with size from object
+•	Show object name and type in UI
+•	Object type selector (star/planet/moon/asteroid)
+•	Seed input field for reproducibility
+
+**Stage 3: Inspector Panel** (Pending)
+•	Read-only property display
+•	Organize properties by component (Physical, Orbital, etc.)
+•	Format values with appropriate units
+•	Collapsible sections for components
+
+**Stage 4: Save/Load System** (Pending)
+•	Save button → file dialog → JSON export
+•	Load button → file dialog → JSON import
+•	Error display for invalid JSON (toast/dialog)
+•	Confirmation that loaded object matches saved
+•	Status messages for user feedback
+
+**Stage 5: Star Rendering** (Pending)
+•	Temperature → blackbody color mapping
+•	Star material with emission
+•	Size-based intensity scaling
+•	Add glow/bloom for stars
+
+**Stage 6: Planet/Moon Surface Rendering** (Pending)
+•	Surface type → shader selection
+•	Basic surface textures/colors
+•	Albedo from surface properties
+•	Terrain roughness visualization
+
+**Stage 7: Atmosphere Rendering** (Pending)
+•	Atmospheric scattering shader
+•	Composition → sky color calculation
+•	Atmosphere thickness visualization
+•	Greenhouse effect visual hints
+
+**Stage 8: Ring System Rendering** (Pending)
+•	Ring mesh generation from bands
+•	Opacity from optical depth
+•	Composition → ring color
+•	Multiple band visualization
 
 **Tests:**
 •	✅ Integration smoke test: viewer scene instantiates and runs one frame.
