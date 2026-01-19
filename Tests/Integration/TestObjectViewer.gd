@@ -303,10 +303,10 @@ func test_info_labels_update() -> void:
 	
 	# Check that values use appropriate units
 	assert_true(
-		viewer.mass_value.text.contains("Mearth") or viewer.mass_value.text.contains("Mjup"),
+		viewer.mass_value.text.contains("M⊕") or viewer.mass_value.text.contains("MJ"),
 		"Planet mass should use Earth or Jupiter masses"
 	)
-	assert_true(viewer.radius_value.text.contains("Rearth"), "Planet radius should use Earth radii")
+	assert_true(viewer.radius_value.text.contains("R⊕"), "Planet radius should use Earth radii")
 	
 	# Clean up
 	viewer.queue_free()

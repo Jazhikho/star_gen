@@ -51,10 +51,12 @@ func _init() -> void:
 	print("StarGen Test Suite (Headless)")
 	print("==============================")
 	print("")
+	print("Running tests...")
 	
 	var runner: TestRunner = TestRunner.new()
 	
 	runner.run_all(_test_scripts)
+	
 	runner.print_summary()
 	
 	var exit_code: int = 0 if runner.get_fail_count() == 0 else 1

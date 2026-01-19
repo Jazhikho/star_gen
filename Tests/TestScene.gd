@@ -54,12 +54,13 @@ func _ready() -> void:
 	print("StarGen Test Suite")
 	print("==================")
 	print("")
+	print("Running tests...")
 	
 	_runner = TestRunner.new()
-	_runner.test_started.connect(_on_test_started)
 	_runner.test_finished.connect(_on_test_finished)
 	
 	_runner.run_all(_test_scripts)
+	
 	_runner.print_summary()
 	
 	var exit_code: int = 0 if _runner.get_fail_count() == 0 else 1
@@ -69,10 +70,6 @@ func _ready() -> void:
 	get_tree().quit(exit_code)
 
 
-func _on_test_started(test_name: String) -> void:
-	print("Running: %s" % test_name)
-
-
 func _on_test_finished(result: TestResult) -> void:
-	if not result.passed:
-		push_error("FAILED: %s - %s" % [result.test_name, result.message])
+	# Failures are already printed by TestRunner during execution
+	pass

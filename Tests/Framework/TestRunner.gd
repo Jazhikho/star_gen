@@ -25,7 +25,7 @@ var _pass_count: int = 0
 ## Number of tests that failed.
 var _fail_count: int = 0
 
-## Progress indicator buffer for passing tests.
+## Progress indicator buffer for dots.
 var _progress_buffer: String = ""
 
 
@@ -39,12 +39,10 @@ func run_all(test_scripts: Array) -> Array[TestResult]:
 	_fail_count = 0
 	_progress_buffer = ""
 	
-	print("Running tests...")
-	
 	for script in test_scripts:
 		_run_test_script(script)
 	
-	# Print any remaining progress dots
+	# Flush any remaining progress dots
 	if _progress_buffer.length() > 0:
 		print(_progress_buffer)
 		_progress_buffer = ""
@@ -118,17 +116,17 @@ func _run_single_test(instance: TestCase, method_name: String, script_path: Stri
 		_pass_count += 1
 		# Add dot to progress buffer
 		_progress_buffer += "."
-		# Flush buffer every 50 characters to avoid huge lines
+		# Flush every 50 dots to avoid huge lines
 		if _progress_buffer.length() >= 50:
 			print(_progress_buffer)
 			_progress_buffer = ""
 	else:
 		_fail_count += 1
-		# Flush any pending progress first
+		# Flush progress buffer first
 		if _progress_buffer.length() > 0:
 			print(_progress_buffer)
 			_progress_buffer = ""
-		# Print failure immediately with details
+		# Print failure details immediately
 		print("[FAIL] %s (%.1fms)" % [full_name, time_ms])
 		if message:
 			print("       -> %s" % message)
@@ -161,7 +159,7 @@ func print_summary() -> void:
 	print("TEST SUMMARY")
 	print("=".repeat(60))
 	
-	# Only show failed tests in detail
+	# Only show failed tests in detail (passing tests already shown as dots)
 	if _fail_count > 0:
 		print("")
 		print("FAILED TESTS:")

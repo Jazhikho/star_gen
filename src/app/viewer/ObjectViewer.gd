@@ -379,26 +379,22 @@ func _format_mass(mass_kg: float, body_type: CelestialType.Type) -> String:
 	match body_type:
 		CelestialType.Type.STAR:
 			var solar_masses: float = mass_kg / Units.SOLAR_MASS_KG
-			return "%.3f Msun" % solar_masses
+			return "%.3f M☉" % solar_masses
 		
 		CelestialType.Type.PLANET, CelestialType.Type.MOON:
 			var earth_masses: float = mass_kg / Units.EARTH_MASS_KG
 			if earth_masses > 100:
 				# Show in Jupiter masses for large planets
 				var jupiter_masses: float = mass_kg / Units.JUPITER_MASS_KG
-				return "%.2f Mjup" % jupiter_masses
+				return "%.2f MJ" % jupiter_masses
 			else:
-				return "%.3f Mearth" % earth_masses
+				return "%.3f M⊕" % earth_masses
 		
 		CelestialType.Type.ASTEROID:
-			# Use scientific notation for asteroids
-			if mass_kg < 1e15:
-				return "%.2e kg" % mass_kg
-			else:
-				# Larger asteroids in 10^18 kg
-				return "%.2f x 10^18 kg" % (mass_kg / 1e18)
+			# Format in scientific notation manually
+			return _format_scientific(mass_kg, "kg")
 		_:
-			return "%.2e kg" % mass_kg
+			return _format_scientific(mass_kg, "kg")
 
 
 ## Formats radius for display with appropriate units.
@@ -409,11 +405,11 @@ func _format_radius(radius_m: float, body_type: CelestialType.Type) -> String:
 	match body_type:
 		CelestialType.Type.STAR:
 			var solar_radii: float = radius_m / Units.SOLAR_RADIUS_METERS
-			return "%.3f Rsun" % solar_radii
+			return "%.3f R☉" % solar_radii
 		
 		CelestialType.Type.PLANET, CelestialType.Type.MOON:
 			var earth_radii: float = radius_m / Units.EARTH_RADIUS_METERS
-			return "%.3f Rearth" % earth_radii
+			return "%.3f R⊕" % earth_radii
 		
 		CelestialType.Type.ASTEROID:
 			var km: float = radius_m / 1000.0
@@ -422,7 +418,46 @@ func _format_radius(radius_m: float, body_type: CelestialType.Type) -> String:
 			else:
 				return "%.2f km" % km
 		_:
-			return "%.2e m" % radius_m
+			return _format_scientific(radius_m, "m")
+
+
+## Formats a number in scientific notation.
+## @param value: The value to format.
+## @param unit: The unit string to append.
+## @return: Formatted string like "1.23 × 10¹⁵ kg"
+func _format_scientific(value: float, unit: String) -> String:
+	if value == 0.0:
+		return "0 %s" % unit
+	
+	var exponent: int = int(floor(log(absf(value)) / log(10.0)))
+	var mantissa: float = value / pow(10.0, exponent)
+	
+	# Format exponent with superscript
+	var exp_str: String = _format_superscript(exponent)
+	
+	return "%.2f × 10%s %s" % [mantissa, exp_str, unit]
+
+
+## Converts an integer to superscript characters.
+## @param num: The number to convert.
+## @return: Superscript string.
+func _format_superscript(num: int) -> String:
+	var superscripts: Dictionary = {
+		"0": "⁰", "1": "¹", "2": "²", "3": "³", "4": "⁴",
+		"5": "⁵", "6": "⁶", "7": "⁷", "8": "⁸", "9": "⁹",
+		"-": "⁻"
+	}
+	
+	var num_str: String = str(num)
+	var result: String = ""
+	
+	for c in num_str:
+		if superscripts.has(c):
+			result += superscripts[c]
+		else:
+			result += c
+	
+	return result
 
 
 ## Updates the inspector panel with current body properties.
