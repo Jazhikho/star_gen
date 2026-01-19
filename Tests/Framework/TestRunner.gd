@@ -25,6 +25,9 @@ var _pass_count: int = 0
 ## Number of tests that failed.
 var _fail_count: int = 0
 
+## Progress indicator buffer for passing tests.
+var _progress_buffer: String = ""
+
 
 ## Runs all tests in the provided test case scripts.
 ## @param test_scripts: Array of TestCase scripts (GDScript resources).
@@ -34,9 +37,17 @@ func run_all(test_scripts: Array) -> Array[TestResult]:
 	_total_count = 0
 	_pass_count = 0
 	_fail_count = 0
+	_progress_buffer = ""
+	
+	print("Running tests...")
 	
 	for script in test_scripts:
 		_run_test_script(script)
+	
+	# Print any remaining progress dots
+	if _progress_buffer.length() > 0:
+		print(_progress_buffer)
+		_progress_buffer = ""
 	
 	all_tests_finished.emit(_results)
 	return _results
@@ -105,8 +116,22 @@ func _run_single_test(instance: TestCase, method_name: String, script_path: Stri
 	_total_count += 1
 	if passed:
 		_pass_count += 1
+		# Add dot to progress buffer
+		_progress_buffer += "."
+		# Flush buffer every 50 characters to avoid huge lines
+		if _progress_buffer.length() >= 50:
+			print(_progress_buffer)
+			_progress_buffer = ""
 	else:
 		_fail_count += 1
+		# Flush any pending progress first
+		if _progress_buffer.length() > 0:
+			print(_progress_buffer)
+			_progress_buffer = ""
+		# Print failure immediately with details
+		print("[FAIL] %s (%.1fms)" % [full_name, time_ms])
+		if message:
+			print("       -> %s" % message)
 	
 	test_finished.emit(result)
 
@@ -133,16 +158,22 @@ func get_fail_count() -> int:
 func print_summary() -> void:
 	print("")
 	print("=".repeat(60))
-	print("TEST RESULTS")
+	print("TEST SUMMARY")
 	print("=".repeat(60))
 	
-	for result in _results:
-		var status: String = "PASS" if result.passed else "FAIL"
-		var icon: String = "[OK]" if result.passed else "[X]"
-		print("%s %s %s (%.1fms)" % [icon, status, result.test_name, result.time_ms])
-		if not result.passed and result.message:
-			print("       -> %s" % result.message)
+	# Only show failed tests in detail
+	if _fail_count > 0:
+		print("")
+		print("FAILED TESTS:")
+		print("-".repeat(60))
+		for result in _results:
+			if not result.passed:
+				print("[FAIL] %s (%.1fms)" % [result.test_name, result.time_ms])
+				if result.message:
+					print("       -> %s" % result.message)
+		print("")
 	
+	# Summary statistics
 	print("-".repeat(60))
 	print("Total: %d | Passed: %d | Failed: %d" % [_total_count, _pass_count, _fail_count])
 	print("=".repeat(60))

@@ -379,16 +379,16 @@ func _format_mass(mass_kg: float, body_type: CelestialType.Type) -> String:
 	match body_type:
 		CelestialType.Type.STAR:
 			var solar_masses: float = mass_kg / Units.SOLAR_MASS_KG
-			return "%.3f M☉" % solar_masses
+			return "%.3f Msun" % solar_masses
 		
 		CelestialType.Type.PLANET, CelestialType.Type.MOON:
 			var earth_masses: float = mass_kg / Units.EARTH_MASS_KG
 			if earth_masses > 100:
 				# Show in Jupiter masses for large planets
 				var jupiter_masses: float = mass_kg / Units.JUPITER_MASS_KG
-				return "%.2f MJ" % jupiter_masses
+				return "%.2f Mjup" % jupiter_masses
 			else:
-				return "%.3f M⊕" % earth_masses
+				return "%.3f Mearth" % earth_masses
 		
 		CelestialType.Type.ASTEROID:
 			# Use scientific notation for asteroids
@@ -396,7 +396,7 @@ func _format_mass(mass_kg: float, body_type: CelestialType.Type) -> String:
 				return "%.2e kg" % mass_kg
 			else:
 				# Larger asteroids in 10^18 kg
-				return "%.2f × 10¹⁸ kg" % (mass_kg / 1e18)
+				return "%.2f x 10^18 kg" % (mass_kg / 1e18)
 		_:
 			return "%.2e kg" % mass_kg
 
@@ -409,11 +409,11 @@ func _format_radius(radius_m: float, body_type: CelestialType.Type) -> String:
 	match body_type:
 		CelestialType.Type.STAR:
 			var solar_radii: float = radius_m / Units.SOLAR_RADIUS_METERS
-			return "%.3f R☉" % solar_radii
+			return "%.3f Rsun" % solar_radii
 		
 		CelestialType.Type.PLANET, CelestialType.Type.MOON:
 			var earth_radii: float = radius_m / Units.EARTH_RADIUS_METERS
-			return "%.3f R⊕" % earth_radii
+			return "%.3f Rearth" % earth_radii
 		
 		CelestialType.Type.ASTEROID:
 			var km: float = radius_m / 1000.0
