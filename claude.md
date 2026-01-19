@@ -134,13 +134,15 @@ View a single celestial object in-app and inspect its properties.
 - [x] Basic sphere mesh placeholder
 - [x] Integration tests: scene instantiates and runs one frame
 
-**Stage 2: Object Generation & Display** (Pending)
-- [ ] Generate/re-roll button (changes seed)
-- [ ] Wire up generators to create random objects
-- [ ] Display basic sphere with size from object
-- [ ] Show object name and type in UI
-- [ ] Object type selector (star/planet/moon/asteroid)
-- [ ] Seed input field for reproducibility
+**Stage 2: Object Generation & Display** ✅
+- [x] Generate/re-roll button (changes seed)
+- [x] Wire up generators to create random objects
+- [x] Display basic sphere with size from object
+- [x] Show object name and type in UI
+- [x] Object type selector (star/planet/moon/asteroid)
+- [x] Seed input field for reproducibility
+- [x] Type-specific scaling and camera distance
+- [x] Unit formatting (solar masses/radii, Earth masses/radii, etc.)
 
 **Stage 3: Inspector Panel** (Pending)
 - [ ] Read-only property display

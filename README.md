@@ -28,7 +28,14 @@ Built with **Godot 4.x** and **GDScript**.
 - UI panel structure (top bar, side panel)
 - Integration tests (7 tests)
 
-**Test Status**: All 293 tests passing ✅
+**Phase 3 - Stage 2**: ✅ Complete - Object generation & display
+- Generate/re-roll buttons with type selector and seed input
+- All four object types (star/planet/moon/asteroid) can be generated
+- Type-specific scaling and camera distance
+- Basic info display with appropriate units
+- Integration tests (4 new tests)
+
+**Test Status**: All 297 tests passing ✅
 
 See [claude.md](claude.md) for detailed architecture, roadmap, and working agreement.
 

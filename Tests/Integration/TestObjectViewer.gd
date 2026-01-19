@@ -200,3 +200,147 @@ func test_status_messages() -> void:
 	
 	# Clean up
 	viewer.queue_free()
+
+
+## Tests that generate button creates objects.
+func test_generate_button_creates_objects() -> void:
+	var viewer: ObjectViewer = _object_viewer_scene.instantiate() as ObjectViewer
+	
+	# Add to tree deferred
+	var scene_tree: SceneTree = _add_viewer_deferred(viewer)
+	if not scene_tree:
+		viewer.free()
+		return
+	
+	# Wait for deferred call and ready
+	await scene_tree.process_frame
+	await scene_tree.process_frame
+	
+	# Should have auto-generated an object on ready
+	assert_not_null(viewer.current_body, "Should have generated initial object")
+	
+	# Try generating each type
+	viewer.generate_object(viewer.ObjectType.STAR, 12345)
+	await scene_tree.process_frame
+	assert_equal(viewer.current_body.type, CelestialType.Type.STAR, "Should generate star")
+	
+	viewer.generate_object(viewer.ObjectType.PLANET, 23456)
+	await scene_tree.process_frame
+	assert_equal(viewer.current_body.type, CelestialType.Type.PLANET, "Should generate planet")
+	
+	viewer.generate_object(viewer.ObjectType.MOON, 34567)
+	await scene_tree.process_frame
+	assert_equal(viewer.current_body.type, CelestialType.Type.MOON, "Should generate moon")
+	
+	viewer.generate_object(viewer.ObjectType.ASTEROID, 45678)
+	await scene_tree.process_frame
+	assert_equal(viewer.current_body.type, CelestialType.Type.ASTEROID, "Should generate asteroid")
+	
+	# Clean up
+	viewer.queue_free()
+
+
+## Tests that different object types have appropriate scales.
+func test_object_scaling() -> void:
+	var viewer: ObjectViewer = _object_viewer_scene.instantiate() as ObjectViewer
+	
+	# Add to tree deferred
+	var scene_tree: SceneTree = _add_viewer_deferred(viewer)
+	if not scene_tree:
+		viewer.free()
+		return
+	
+	# Wait for deferred call and ready
+	await scene_tree.process_frame
+	await scene_tree.process_frame
+	
+	# Generate a star
+	viewer.generate_object(viewer.ObjectType.STAR, 11111)
+	await scene_tree.process_frame
+	var star_scale: Vector3 = viewer.placeholder_mesh.scale
+	
+	# Generate a planet
+	viewer.generate_object(viewer.ObjectType.PLANET, 22222)
+	await scene_tree.process_frame
+	var planet_scale: Vector3 = viewer.placeholder_mesh.scale
+	
+	# Generate an asteroid
+	viewer.generate_object(viewer.ObjectType.ASTEROID, 33333)
+	await scene_tree.process_frame
+	var asteroid_scale: Vector3 = viewer.placeholder_mesh.scale
+	
+	# Scales should be reasonable (not zero, not huge)
+	assert_true(star_scale.x > 0.0 and star_scale.x < 10.0, "Star scale should be reasonable")
+	assert_true(planet_scale.x > 0.0 and planet_scale.x < 10.0, "Planet scale should be reasonable")
+	assert_true(asteroid_scale.x > 0.0 and asteroid_scale.x < 10.0, "Asteroid scale should be reasonable")
+	
+	# Clean up
+	viewer.queue_free()
+
+
+## Tests that info labels update when objects are generated.
+func test_info_labels_update() -> void:
+	var viewer: ObjectViewer = _object_viewer_scene.instantiate() as ObjectViewer
+	
+	# Add to tree deferred
+	var scene_tree: SceneTree = _add_viewer_deferred(viewer)
+	if not scene_tree:
+		viewer.free()
+		return
+	
+	# Wait for deferred call and ready
+	await scene_tree.process_frame
+	await scene_tree.process_frame
+	
+	# Generate a planet
+	viewer.generate_object(viewer.ObjectType.PLANET, 12345)
+	await scene_tree.process_frame
+	
+	# Check that info labels are populated
+	assert_not_equal(viewer.type_value.text, "-", "Type should be set")
+	assert_not_equal(viewer.mass_value.text, "-", "Mass should be set")
+	assert_not_equal(viewer.radius_value.text, "-", "Radius should be set")
+	
+	# Check that values use appropriate units
+	assert_true(
+		viewer.mass_value.text.contains("M⊕") or viewer.mass_value.text.contains("MJ"),
+		"Planet mass should use Earth or Jupiter masses"
+	)
+	assert_true(viewer.radius_value.text.contains("R⊕"), "Planet radius should use Earth radii")
+	
+	# Clean up
+	viewer.queue_free()
+
+
+## Tests deterministic generation with same seed.
+func test_deterministic_generation() -> void:
+	var viewer: ObjectViewer = _object_viewer_scene.instantiate() as ObjectViewer
+	
+	# Add to tree deferred
+	var scene_tree: SceneTree = _add_viewer_deferred(viewer)
+	if not scene_tree:
+		viewer.free()
+		return
+	
+	# Wait for deferred call and ready
+	await scene_tree.process_frame
+	await scene_tree.process_frame
+	
+	# Generate with specific seed
+	viewer.generate_object(viewer.ObjectType.PLANET, 99999)
+	await scene_tree.process_frame
+	var first_mass: float = viewer.current_body.physical.mass_kg
+	var first_radius: float = viewer.current_body.physical.radius_m
+	
+	# Generate again with same seed
+	viewer.generate_object(viewer.ObjectType.PLANET, 99999)
+	await scene_tree.process_frame
+	var second_mass: float = viewer.current_body.physical.mass_kg
+	var second_radius: float = viewer.current_body.physical.radius_m
+	
+	# Should be identical
+	assert_equal(first_mass, second_mass, "Same seed should produce same mass")
+	assert_equal(first_radius, second_radius, "Same seed should produce same radius")
+	
+	# Clean up
+	viewer.queue_free()
