@@ -79,3 +79,26 @@ func randfn(mean: float = 0.0, deviation: float = 1.0) -> float:
 func fork() -> SeededRng:
 	var new_seed: int = _rng.randi()
 	return SeededRng.new(new_seed)
+
+
+## Picks a random value from weighted options.
+## @param options: Array of values to choose from.
+## @param weights: Array of weights (same length as options).
+## @return: The selected option.
+func weighted_choice(options: Array, weights: Array[float]) -> Variant:
+	if options.is_empty() or options.size() != weights.size():
+		return null
+	
+	var total_weight: float = 0.0
+	for w in weights:
+		total_weight += w
+	
+	var roll: float = _rng.randf() * total_weight
+	var cumulative: float = 0.0
+	
+	for i in range(options.size()):
+		cumulative += weights[i]
+		if roll < cumulative:
+			return options[i]
+	
+	return options[options.size() - 1]

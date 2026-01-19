@@ -143,7 +143,7 @@ static func _determine_size_category(spec: PlanetSpec, rng: SeededRng) -> SizeCa
 		SizeCategory.Category.GAS_GIANT,
 	]
 	
-	var selected: Variant = GeneratorUtils.weighted_choice(categories, SIZE_CATEGORY_WEIGHTS, rng)
+	var selected: Variant = rng.weighted_choice(categories, SIZE_CATEGORY_WEIGHTS)
 	return selected as SizeCategory.Category
 
 
@@ -161,7 +161,7 @@ static func _determine_orbit_zone(spec: PlanetSpec, rng: SeededRng) -> OrbitZone
 		OrbitZone.Zone.COLD,
 	]
 	
-	var selected: Variant = GeneratorUtils.weighted_choice(zones, ORBIT_ZONE_WEIGHTS, rng)
+	var selected: Variant = rng.weighted_choice(zones, ORBIT_ZONE_WEIGHTS)
 	return selected as OrbitZone.Zone
 
 

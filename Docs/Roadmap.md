@@ -111,11 +111,11 @@ Generate celestial objects deterministically from (spec, seed).
 •	✅ Hydrosphere/Cryosphere based on temperature + mass
 •	✅ Gas giant atmosphere (no terrain)
 
-**Stage 5: Moon Generator** (Pending)
-•	MoonSpec with archetype
-•	Parent planet context for tidal effects
-•	Hill sphere / orbital distance constraints
-•	Subsurface oceans for icy moons
+**Stage 5: Moon Generator** ✅
+•	✅ MoonSpec with archetype
+•	✅ Parent planet context for tidal effects
+•	✅ Hill sphere / orbital distance constraints
+•	✅ Subsurface oceans for icy moons
 
 **Stage 6: Asteroid Generator** (Pending)
 •	AsteroidSpec with C/S/M type

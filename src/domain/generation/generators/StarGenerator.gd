@@ -19,13 +19,13 @@ const _seeded_rng := preload("res://src/domain/rng/SeededRng.gd")
 
 ## Spectral class distribution weights (M stars are most common).
 const SPECTRAL_WEIGHTS: Array[float] = [
-	0.00003,  # O - very rare
-	0.13,     # B - rare
-	0.6,      # A - uncommon
-	3.0,      # F - moderate
-	7.6,      # G - common (Sun-like)
-	12.1,     # K - very common
-	76.45,    # M - most common (red dwarfs)
+	0.00003, # O - very rare
+	0.13, # B - rare
+	0.6, # A - uncommon
+	3.0, # F - moderate
+	7.6, # G - common (Sun-like)
+	12.1, # K - very common
+	76.45, # M - most common (red dwarfs)
 ]
 
 
@@ -116,7 +116,7 @@ static func _determine_spectral_class(spec: StarSpec, rng: SeededRng) -> StarCla
 		StarClass.SpectralClass.M,
 	]
 	
-	var selected: Variant = GeneratorUtils.weighted_choice(classes, SPECTRAL_WEIGHTS, rng)
+	var selected: Variant = rng.weighted_choice(classes, SPECTRAL_WEIGHTS)
 	return selected as StarClass.SpectralClass
 
 
@@ -242,12 +242,12 @@ static func _determine_age(
 		return spec.age_years
 	
 	var lifetime_range: Dictionary = StarTable.get_lifetime_range(spectral_class)
-	var max_age: float = lifetime_range["max"] * 0.9  # Don't go past main sequence
-	var min_age: float = lifetime_range["min"] * 0.1  # Some minimum formation time
+	var max_age: float = lifetime_range["max"] * 0.9 # Don't go past main sequence
+	var min_age: float = lifetime_range["min"] * 0.1 # Some minimum formation time
 	
 	# Bias toward younger ages within lifespan
 	var raw: float = rng.randf()
-	var biased: float = pow(raw, 0.7)  # Slight bias toward younger
+	var biased: float = pow(raw, 0.7) # Slight bias toward younger
 	
 	return lerpf(min_age, max_age, biased)
 
@@ -318,7 +318,7 @@ static func _generate_physical_props(
 	# Internal heat (stars are self-luminous)
 	var internal_heat_watts: float = spec.get_override_float(
 		"physical.internal_heat_watts",
-		0.0  # Handled by luminosity for stars
+		0.0 # Handled by luminosity for stars
 	)
 	
 	return PhysicalProps.new(
@@ -345,9 +345,7 @@ static func _generate_id(spec: StarSpec, rng: SeededRng) -> String:
 
 ## Generates a name for the star.
 ## @param spec: The star specification.
-## @param rng: The random number generator.
-## @return: The body name.
-static func _generate_name(spec: StarSpec, rng: SeededRng) -> String:
-	if not spec.name_hint.is_empty():
-		return spec.name_hint
-	return GeneratorUtils.generate_star_name(rng)
+## @param _rng: The random number generator (unused, kept for signature consistency).
+## @return: The body name (from name_hint if provided, otherwise empty string).
+static func _generate_name(spec: StarSpec, _rng: SeededRng) -> String:
+	return spec.name_hint

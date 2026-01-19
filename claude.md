@@ -127,11 +127,11 @@ No implementing backlog items unless the current phase explicitly includes them.
 **Goal:**
 Generate celestial objects deterministically from (spec, seed).
 
-**Stage 5: Moon Generator** (Pending)
-- [ ] MoonSpec with archetype
-- [ ] Parent planet context for tidal effects
-- [ ] Hill sphere / orbital distance constraints
-- [ ] Subsurface oceans for icy moons
+**Stage 5: Moon Generator** ✅
+- [x] MoonSpec with archetype
+- [x] Parent planet context for tidal effects
+- [x] Hill sphere / orbital distance constraints
+- [x] Subsurface oceans for icy moons
 
 **Stage 6: Asteroid Generator** (Pending)
 - [ ] AsteroidSpec with C/S/M type
