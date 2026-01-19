@@ -5,6 +5,7 @@ extends VBoxContainer
 
 const _celestial_type := preload("res://src/domain/celestial/CelestialType.gd")
 const _units := preload("res://src/domain/math/Units.gd")
+const _color_utils := preload("res://src/app/rendering/ColorUtils.gd")
 
 ## Container for dynamically created inspector content
 @onready var inspector_container: VBoxContainer = get_node("InspectorContainer")
@@ -251,7 +252,9 @@ func _add_atmosphere_properties(body: CelestialBody) -> void:
 	
 	_add_property("Surface Pressure", _format_pressure(atmo.surface_pressure_pa))
 	_add_property("Scale Height", "%.1f km" % (atmo.scale_height_m / 1000.0))
-	_add_property("Greenhouse Factor", "%.2f" % atmo.greenhouse_factor)
+	
+	var greenhouse_desc: String = ColorUtils.get_greenhouse_description(atmo.greenhouse_factor)
+	_add_property("Greenhouse Effect", "%s (%.2fx)" % [greenhouse_desc, atmo.greenhouse_factor])
 	
 	# Composition
 	if not atmo.composition.is_empty():

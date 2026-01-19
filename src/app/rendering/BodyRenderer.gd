@@ -219,14 +219,23 @@ func _update_atmosphere() -> void:
 		atmosphere_mesh.visible = false
 		return
 	
-	# Scale atmosphere slightly larger than body
-	var atmo_scale: float = display_scale * 1.02
+	# Base atmosphere scale slightly larger than body
+	var base_atmo_scale: float = 1.02
 	
 	# Thicker atmosphere = larger visible shell
-	var pressure_factor: float = clampf(pressure / 101325.0, 0.1, 2.0)
-	atmo_scale *= (1.0 + pressure_factor * 0.03)
+	var pressure_factor: float = clampf(pressure / 101325.0, 0.1, 3.0)
+	base_atmo_scale *= (1.0 + pressure_factor * 0.03)
 	
-	atmosphere_mesh.scale = Vector3.ONE * atmo_scale
+	# Apply oblateness to atmosphere (match body shape)
+	var oblateness: float = current_body.physical.oblateness
+	var scale_y: float = 1.0 - oblateness
+	
+	atmosphere_mesh.scale = Vector3(
+		display_scale * base_atmo_scale,
+		display_scale * base_atmo_scale * scale_y,
+		display_scale * base_atmo_scale
+	)
+	
 	atmosphere_mesh.material_override = atmo_material
 	atmosphere_mesh.visible = true
 

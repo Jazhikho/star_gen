@@ -213,11 +213,12 @@ View a single celestial object in-app and inspect its properties.
 •	✅ Gas giant banding shader with turbulence
 •	✅ Icy surface materials for moons
 
-**Stage 7: Atmosphere Rendering** ✅ (3/4 complete)
+**Stage 7: Atmosphere Rendering** ✅
 •	✅ Atmospheric scattering shader (rim-lighting shader in MaterialFactory)
 •	✅ Composition → sky color calculation (ColorUtils.atmosphere_to_sky_color)
 •	✅ Atmosphere thickness visualization (pressure-based scaling, density affects visibility)
-•	⚠️ Greenhouse effect visual hints (not yet implemented)
+•	✅ Greenhouse effect visual hints (color tinting toward orange/yellow, inner glow for trapped heat)
+•	✅ Atmosphere oblateness matching (atmosphere matches planet's flattened shape)
 
 **Stage 8: Ring System Rendering** ✅
 •	✅ Ring mesh generation from bands (BodyRenderer._create_ring_mesh)

@@ -293,8 +293,17 @@ static func create_atmosphere_material(body: CelestialBody) -> ShaderMaterial:
 	
 	var atmo: AtmosphereProps = body.atmosphere
 	
-	# Get sky color from composition
+	# Get base sky color from composition
 	var sky_color: Color = ColorUtils.atmosphere_to_sky_color(atmo.composition)
+	
+	# Apply greenhouse effect tint
+	# Higher greenhouse = more orange/yellow tint (trapped heat)
+	var greenhouse_factor: float = atmo.greenhouse_factor
+	if greenhouse_factor > 1.1:
+		# Lerp toward orange/yellow for strong greenhouse
+		var greenhouse_strength: float = clampf((greenhouse_factor - 1.0) / 2.0, 0.0, 1.0)
+		var greenhouse_tint: Color = Color(0.9, 0.7, 0.4)  # Warm orange
+		sky_color = sky_color.lerp(greenhouse_tint, greenhouse_strength * 0.4)
 	
 	# Create shader material for atmosphere rim effect
 	var material: ShaderMaterial = ShaderMaterial.new()
@@ -313,6 +322,10 @@ static func create_atmosphere_material(body: CelestialBody) -> ShaderMaterial:
 		falloff = clampf(falloff, 1.0, 10.0)
 	material.set_shader_parameter("falloff", falloff)
 	
+	# Pass greenhouse factor for additional visual effect
+	var greenhouse_intensity: float = clampf((greenhouse_factor - 1.0) * 0.5, 0.0, 1.0)
+	material.set_shader_parameter("greenhouse_intensity", greenhouse_intensity)
+	
 	return material
 
 
@@ -327,14 +340,29 @@ render_mode blend_add, depth_draw_opaque, cull_front, unshaded;
 uniform vec4 atmosphere_color : source_color = vec4(0.4, 0.6, 0.9, 1.0);
 uniform float atmosphere_density : hint_range(0.0, 2.0) = 1.0;
 uniform float falloff : hint_range(1.0, 10.0) = 3.0;
+uniform float greenhouse_intensity : hint_range(0.0, 1.0) = 0.0;
 
 void fragment() {
 	// Rim lighting based on view angle
 	float rim = 1.0 - dot(NORMAL, VIEW);
 	rim = pow(rim, falloff);
 	
+	// Base atmosphere color
+	vec3 atmo_color = atmosphere_color.rgb;
+	
+	// Greenhouse effect: add a warm inner glow
+	if (greenhouse_intensity > 0.0) {
+		// Inner glow (opposite of rim - stronger toward center)
+		float inner = dot(NORMAL, VIEW);
+		inner = pow(inner, 2.0);
+		
+		// Warm color for trapped heat
+		vec3 heat_color = vec3(1.0, 0.6, 0.3);
+		atmo_color = mix(atmo_color, heat_color, inner * greenhouse_intensity * 0.3);
+	}
+	
 	// Apply atmosphere color with density
-	ALBEDO = atmosphere_color.rgb;
+	ALBEDO = atmo_color;
 	ALPHA = rim * atmosphere_color.a * atmosphere_density * 0.5;
 }
 """

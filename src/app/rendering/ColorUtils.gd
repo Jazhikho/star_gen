@@ -240,3 +240,28 @@ static func ring_to_color(composition: Dictionary, optical_depth: float) -> Colo
 	base_color.a = alpha
 	
 	return base_color
+
+
+## Gets a description of greenhouse intensity for display.
+## @param greenhouse_factor: The greenhouse factor (1.0 = none).
+## @return: Human-readable description.
+static func get_greenhouse_description(greenhouse_factor: float) -> String:
+	if greenhouse_factor < 1.05:
+		return "None"
+	elif greenhouse_factor < 1.2:
+		return "Mild"
+	elif greenhouse_factor < 1.5:
+		return "Moderate"
+	elif greenhouse_factor < 2.0:
+		return "Strong"
+	else:
+		return "Extreme"
+
+
+## Gets a color hint for greenhouse effect intensity.
+## @param greenhouse_factor: The greenhouse factor.
+## @return: Color representing the greenhouse intensity.
+static func get_greenhouse_color(greenhouse_factor: float) -> Color:
+	var intensity: float = clampf((greenhouse_factor - 1.0) / 2.0, 0.0, 1.0)
+	# Gradient from white (no greenhouse) to orange-red (extreme)
+	return Color(1.0, 1.0 - intensity * 0.5, 1.0 - intensity * 0.8)
