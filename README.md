@@ -44,7 +44,16 @@ Built with **Godot 4.x** and **GDScript**.
 - Soft environmental backlighting
 - Integration tests (3 new tests)
 
-**Test Status**: All 299 tests passing ✅
+**Phase 3 - Stage 4**: ✅ Complete - Save/Load system
+- SaveData service with compression (Zstandard) support
+- Regeneration-based storage (spec + context, not full bodies)
+- Save/load buttons with file dialogs (.sgb binary, .json debug)
+- Error handling for invalid files
+- File size utilities and formatting
+- Deterministic round-trip (save → load → same object)
+- Integration tests (12 new tests)
+
+**Test Status**: All 311 tests passing ✅
 
 See [claude.md](claude.md) for detailed architecture, roadmap, and working agreement.
 
@@ -114,7 +123,7 @@ star_gen/
 │   │       └── Versions.gd        # Version tracking
 │   ├── services/                   # Services layer (I/O, persistence)
 │   │   └── persistence/
-│   │       └── CelestialPersistence.gd  # Save/load celestial bodies
+│   │       └── SaveData.gd         # Efficient save/load with compression
 │   └── app/                        # Application layer (UI, scenes, rendering)
 │       └── viewer/                # Object viewer
 │           ├── ObjectViewer.tscn  # Main viewer scene
@@ -137,7 +146,8 @@ star_gen/
 │   │   ├── TestSeededRng.gd
 │   │   └── ... (additional unit tests)
 │   ├── Integration/                # Integration tests
-│   │   └── TestCelestialPersistence.gd
+│   │   ├── TestObjectViewer.gd
+│   │   └── TestSaveLoad.gd
 │   ├── TestScene.tscn              # Test scene
 │   ├── TestScene.gd                # Test scene script
 │   ├── RunTestsHeadless.gd         # Headless test runner

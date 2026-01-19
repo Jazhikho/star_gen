@@ -169,18 +169,25 @@ View a single celestial object in-app and inspect its properties.
 •	✅ Type-specific scaling and camera distance
 •	✅ Unit formatting (solar masses/radii, Earth masses/radii, etc.)
 
-**Stage 3: Inspector Panel** (Pending)
-•	Read-only property display
-•	Organize properties by component (Physical, Orbital, etc.)
-•	Format values with appropriate units
-•	Collapsible sections for components
+**Stage 3: Inspector Panel** ✅
+•	✅ Read-only property display
+•	✅ Organize properties by component (Physical, Orbital, etc.)
+•	✅ Format values with appropriate units
+•	✅ Collapsible sections for components
+•	✅ InspectorPanel class with dynamic property creation
+•	✅ All component sections (Physical, Stellar, Orbital, Atmosphere, Surface, Ring System)
+•	✅ Proper unit formatting with Unicode preserved (M☉, R☉, M⊕, R⊕, ×, superscripts)
 
-**Stage 4: Save/Load System** (Pending)
-•	Save button → file dialog → JSON export
-•	Load button → file dialog → JSON import
-•	Error display for invalid JSON (toast/dialog)
-•	Confirmation that loaded object matches saved
-•	Status messages for user feedback
+**Stage 4: Save/Load System** ✅
+•	✅ Save button → file dialog → compressed/JSON export
+•	✅ Load button → file dialog → compressed/JSON import
+•	✅ Error display for invalid files (user-readable errors)
+•	✅ Confirmation that loaded object matches saved (deterministic regeneration)
+•	✅ Status messages for user feedback
+•	✅ SaveData service with compression (Zstandard) support
+•	✅ Regeneration-based storage (spec + context, not full bodies)
+•	✅ File size utilities and formatting
+•	✅ Integration tests (12 tests covering save/load, compression, error handling, determinism)
 
 **File Size Optimization Strategy (for Stage 4 and future phases):**
 •	Store generation specs + seeds instead of full bodies (~100-200 bytes vs ~2-5 KB per object)

@@ -43,6 +43,8 @@ var _test_scripts: Array[GDScript] = [
 	preload("res://Tests/Unit/TestGoldenMasters.gd"),
 	# Phase 3 tests - Stage 1
 	preload("res://Tests/Integration/TestObjectViewer.gd"),
+	# Phase 3 tests - Stage 4
+	preload("res://Tests/Integration/TestSaveLoad.gd"),
 ]
 
 ## The test runner instance.
@@ -70,6 +72,6 @@ func _ready() -> void:
 	get_tree().quit(exit_code)
 
 
-func _on_test_finished(result: TestResult) -> void:
+func _on_test_finished(_result: TestResult) -> void:
 	# Failures are already printed by TestRunner during execution
 	pass

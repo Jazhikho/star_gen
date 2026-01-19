@@ -127,13 +127,17 @@ static func generate(spec: MoonSpec, context: ParentContext, rng: SeededRng) -> 
 	# Generate ID
 	var body_id: String = _generate_id(spec, rng)
 	
+	# Store context in spec snapshot for save/load
+	var spec_dict: Dictionary = spec.to_dict()
+	spec_dict["context"] = context.to_dict()
+	
 	# Create provenance
 	var provenance: Provenance = Provenance.new(
 		spec.generation_seed,
 		Versions.GENERATOR_VERSION,
 		Versions.SCHEMA_VERSION,
 		int(Time.get_unix_time_from_system()),
-		spec.to_dict()
+		spec_dict
 	)
 	
 	# Assemble the celestial body

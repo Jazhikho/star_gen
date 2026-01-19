@@ -153,12 +153,16 @@ View a single celestial object in-app and inspect its properties.
 - [x] All component sections (Physical, Stellar, Orbital, Atmosphere, Surface, Ring System)
 - [x] Proper unit formatting with Unicode preserved (M☉, R☉, M⊕, R⊕, ×, superscripts)
 
-**Stage 4: Save/Load System** (Pending)
-- [ ] Save button → file dialog → JSON export
-- [ ] Load button → file dialog → JSON import
-- [ ] Error display for invalid JSON (toast/dialog)
-- [ ] Confirmation that loaded object matches saved
-- [ ] Status messages for user feedback
+**Stage 4: Save/Load System** ✅
+- [x] Save button → file dialog → compressed/JSON export
+- [x] Load button → file dialog → compressed/JSON import
+- [x] Error display for invalid files (user-readable errors)
+- [x] Confirmation that loaded object matches saved (deterministic regeneration)
+- [x] Status messages for user feedback
+- [x] SaveData service with compression (Zstandard) support
+- [x] Regeneration-based storage (spec + context, not full bodies)
+- [x] File size utilities and formatting
+- [x] Integration tests (12 tests covering save/load, compression, error handling, determinism)
 
 **File Size Optimization Strategy (for Stage 4 and beyond):**
 - Store generation specs + seeds, not full bodies (~100-200 bytes vs ~2-5 KB per object)

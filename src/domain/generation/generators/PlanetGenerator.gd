@@ -103,13 +103,17 @@ static func generate(spec: PlanetSpec, context: ParentContext, rng: SeededRng) -
 	# Generate ID
 	var body_id: String = _generate_id(spec, rng)
 	
+	# Store context in spec snapshot for save/load
+	var spec_dict: Dictionary = spec.to_dict()
+	spec_dict["context"] = context.to_dict()
+	
 	# Create provenance
 	var provenance: Provenance = Provenance.new(
 		spec.generation_seed,
 		Versions.GENERATOR_VERSION,
 		Versions.SCHEMA_VERSION,
 		int(Time.get_unix_time_from_system()),
-		spec.to_dict()
+		spec_dict
 	)
 	
 	# Generate ring system if applicable (gas giants and large planets)
@@ -733,13 +737,13 @@ static func _generate_atmosphere(
 
 ## Calculates surface pressure based on planet properties.
 ## @param spec: Planet specification.
-## @param physical: Physical properties.
+## @param _physical: Physical properties (unused, reserved for future use).
 ## @param size_cat: Size category.
 ## @param rng: Random number generator.
 ## @return: Surface pressure in Pascals.
 static func _calculate_surface_pressure(
 	spec: PlanetSpec,
-	physical: PhysicalProps,
+	_physical: PhysicalProps,
 	size_cat: SizeCategory.Category,
 	rng: SeededRng
 ) -> float:

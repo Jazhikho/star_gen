@@ -223,7 +223,7 @@ func test_stellar_physics_relationships() -> void:
 		
 		var stellar: Dictionary = body_data["stellar"]
 		
-		var mass_kg: float = physical["mass_kg"]
+		var _mass_kg: float = physical["mass_kg"]
 		var radius_m: float = physical["radius_m"]
 		var luminosity_w: float = stellar.get("luminosity_watts", 0.0)
 		var temperature_k: float = stellar.get("effective_temperature_k", 0.0)

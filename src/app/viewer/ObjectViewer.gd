@@ -22,6 +22,7 @@ const _celestial_type := preload("res://src/domain/celestial/CelestialType.gd")
 const _units := preload("res://src/domain/math/Units.gd")
 const _stellar_props := preload("res://src/domain/celestial/components/StellarProps.gd")
 const _inspector_panel := preload("res://src/app/viewer/InspectorPanel.gd")
+const _save_data := preload("res://src/services/persistence/SaveData.gd")
 
 ## UI element references
 @onready var status_label: Label = $UI/TopBar/MarginContainer/HBoxContainer/StatusLabel
@@ -36,6 +37,13 @@ const _inspector_panel := preload("res://src/app/viewer/InspectorPanel.gd")
 
 # Inspector panel
 @onready var inspector_panel: InspectorPanel = $UI/SidePanel/MarginContainer/ScrollContainer/VBoxContainer
+
+# File operations
+@onready var save_button: Button = $UI/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/FileSection/FileButtonContainer/SaveButton
+@onready var load_button: Button = $UI/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/FileSection/FileButtonContainer/LoadButton
+@onready var file_info: Label = $UI/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/FileSection/FileInfo
+@onready var save_file_dialog: FileDialog = $SaveFileDialog
+@onready var load_file_dialog: FileDialog = $LoadFileDialog
 
 ## 3D element references
 @onready var celestial_object_node: Node3D = $CelestialObject
@@ -64,6 +72,7 @@ func _ready() -> void:
 	_setup_viewport()
 	_setup_camera()
 	_setup_generation_ui()
+	_setup_file_dialogs()
 	_connect_signals()
 	
 	# Hide placeholder initially
@@ -122,6 +131,16 @@ func _setup_generation_ui() -> void:
 		seed_input.value = randi() % 1000000
 
 
+## Sets up file dialogs.
+func _setup_file_dialogs() -> void:
+	if save_file_dialog:
+		save_file_dialog.current_dir = OS.get_user_data_dir()
+		save_file_dialog.current_file = "celestial_object.sgb"
+	
+	if load_file_dialog:
+		load_file_dialog.current_dir = OS.get_user_data_dir()
+
+
 ## Connects UI signals.
 func _connect_signals() -> void:
 	if generate_button:
@@ -129,6 +148,18 @@ func _connect_signals() -> void:
 	
 	if reroll_button:
 		reroll_button.pressed.connect(_on_reroll_pressed)
+	
+	if save_button:
+		save_button.pressed.connect(_on_save_pressed)
+	
+	if load_button:
+		load_button.pressed.connect(_on_load_pressed)
+	
+	if save_file_dialog:
+		save_file_dialog.file_selected.connect(_on_save_file_selected)
+	
+	if load_file_dialog:
+		load_file_dialog.file_selected.connect(_on_load_file_selected)
 
 
 ## Handles generate button press.
@@ -210,9 +241,9 @@ func _generate_moon(seed_value: int, rng: SeededRng) -> CelestialBody:
 		5778.0,
 		4.6e9,
 		5.2 * Units.AU_METERS,
-		1.898e27,  # Jupiter mass
-		6.9911e7,  # Jupiter radius
-		5.0e8      # 500,000 km from Jupiter
+		1.898e27, # Jupiter mass
+		6.9911e7, # Jupiter radius
+		5.0e8 # 500,000 km from Jupiter
 	)
 	return MoonGenerator.generate(spec, context, rng)
 
@@ -314,11 +345,11 @@ func _calculate_display_scale(body: CelestialBody) -> float:
 			# Asteroids: scale up significantly for visibility
 			var km: float = radius_m / 1000.0
 			if km < 10:
-				return 0.5  # Very small asteroids get minimum size
+				return 0.5 # Very small asteroids get minimum size
 			elif km < 100:
-				return 0.5 + (km - 10) / 90.0  # Scale 0.5 to 1.5
+				return 0.5 + (km - 10) / 90.0 # Scale 0.5 to 1.5
 			else:
-				return 1.5  # Large asteroids cap at 1.5
+				return 1.5 # Large asteroids cap at 1.5
 		_:
 			return 1.0
 
@@ -327,10 +358,10 @@ func _calculate_display_scale(body: CelestialBody) -> float:
 ## @param body: The celestial body to view.
 ## @return: Camera distance in units.
 func _calculate_camera_distance(body: CelestialBody) -> float:
-	var scale: float = _calculate_display_scale(body)
+	var display_scale: float = _calculate_display_scale(body)
 	
 	# Camera should be about 3-5x the display radius for good framing
-	return clampf(scale * 4.0, 2.0, 50.0)
+	return clampf(display_scale * 4.0, 2.0, 50.0)
 
 
 ## Updates the inspector panel with current body properties.
@@ -348,3 +379,89 @@ func clear_display() -> void:
 	
 	set_status("No object loaded")
 	_update_inspector()
+
+
+## Handles save button press.
+func _on_save_pressed() -> void:
+	if not current_body:
+		set_error("No object to save")
+		return
+	
+	if save_file_dialog:
+		save_file_dialog.popup_centered()
+
+
+## Handles load button press.
+func _on_load_pressed() -> void:
+	if load_file_dialog:
+		load_file_dialog.popup_centered()
+
+
+## Handles save file selection.
+## @param path: The selected file path.
+func _on_save_file_selected(path: String) -> void:
+	if not current_body:
+		set_error("No object to save")
+		return
+	
+	var error: Error = SaveData.save_body(current_body, path, SaveData.SaveMode.COMPACT, true)
+	if error == OK:
+		var file_size: int = SaveData.get_file_size(path)
+		var size_str: String = SaveData.format_file_size(file_size)
+		set_status("Saved to: %s (%s)" % [path.get_file(), size_str])
+		if file_info:
+			file_info.text = "File: %s (%s)" % [path.get_file(), size_str]
+	else:
+		set_error("Failed to save: %s" % error_string(error))
+
+
+## Handles load file selection.
+## @param path: The selected file path.
+func _on_load_file_selected(path: String) -> void:
+	var result: SaveData.LoadResult = SaveData.load_body(path)
+	
+	if not result.success:
+		set_error("Failed to load: %s" % result.error_message)
+		return
+	
+	if not result.body:
+		set_error("Loaded file contains no body")
+		return
+	
+	# Display the loaded body
+	display_body(result.body)
+	
+	# Update UI to match loaded body
+	if type_option:
+		var object_type: ObjectType = _get_object_type_from_body(result.body)
+		for i in range(type_option.get_item_count()):
+			if type_option.get_item_id(i) == object_type:
+				type_option.selected = i
+				break
+	
+	if seed_input and result.body.provenance:
+		seed_input.value = result.body.provenance.generation_seed
+	
+	# Update file info
+	var file_size: int = SaveData.get_file_size(path)
+	var size_str: String = SaveData.format_file_size(file_size)
+	set_status("Loaded: %s" % result.body.name)
+	if file_info:
+		file_info.text = "File: %s (%s)" % [path.get_file(), size_str]
+
+
+## Gets the object type enum from a celestial body.
+## @param body: The celestial body.
+## @return: ObjectType enum value.
+func _get_object_type_from_body(body: CelestialBody) -> ObjectType:
+	match body.type:
+		CelestialType.Type.STAR:
+			return ObjectType.STAR
+		CelestialType.Type.PLANET:
+			return ObjectType.PLANET
+		CelestialType.Type.MOON:
+			return ObjectType.MOON
+		CelestialType.Type.ASTEROID:
+			return ObjectType.ASTEROID
+		_:
+			return ObjectType.PLANET
