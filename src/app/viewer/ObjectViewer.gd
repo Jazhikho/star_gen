@@ -24,6 +24,10 @@ const _stellar_props := preload("res://src/domain/celestial/components/StellarPr
 const _inspector_panel := preload("res://src/app/viewer/InspectorPanel.gd")
 const _save_data := preload("res://src/services/persistence/SaveData.gd")
 
+# Rendering
+const _body_renderer_scene := preload("res://src/app/rendering/BodyRenderer.tscn")
+const _body_renderer := preload("res://src/app/rendering/BodyRenderer.gd")
+
 ## UI element references
 @onready var status_label: Label = $UI/TopBar/MarginContainer/HBoxContainer/StatusLabel
 @onready var side_panel: Panel = $UI/SidePanel
@@ -46,17 +50,23 @@ const _save_data := preload("res://src/services/persistence/SaveData.gd")
 @onready var load_file_dialog: FileDialog = $LoadFileDialog
 
 ## 3D element references
-@onready var celestial_object_node: Node3D = $CelestialObject
-@onready var placeholder_mesh: MeshInstance3D = $CelestialObject/Placeholder
+@onready var body_renderer: BodyRenderer = $BodyRenderer
 @onready var camera_rig: Node3D = $CameraRig
 @onready var camera_arm: Node3D = $CameraRig/CameraArm
 @onready var camera: Camera3D = $CameraRig/CameraArm/Camera3D
+@onready var world_environment: WorldEnvironment = $Environment/WorldEnvironment
 
 ## Currently displayed celestial body
 var current_body: CelestialBody = null
 
 ## Whether the viewer is ready
 var is_ready: bool = false
+
+## Whether to animate body rotation
+@export var animate_rotation: bool = true
+
+## Rotation animation speed multiplier
+@export var rotation_speed: float = 1.0
 
 ## Object types for generation
 enum ObjectType {
@@ -74,10 +84,6 @@ func _ready() -> void:
 	_setup_generation_ui()
 	_setup_file_dialogs()
 	_connect_signals()
-	
-	# Hide placeholder initially
-	if placeholder_mesh:
-		placeholder_mesh.visible = false
 	
 	set_status("Viewer initialized")
 	is_ready = true
@@ -302,12 +308,19 @@ func display_body(body: CelestialBody) -> void:
 	current_body = body
 	
 	# Update 3D display
-	if placeholder_mesh:
-		placeholder_mesh.visible = true
-		
-		# Scale based on object type and radius
-		var scale_factor: float = _calculate_display_scale(body)
-		placeholder_mesh.scale = Vector3.ONE * scale_factor
+	var scale_factor: float = _calculate_display_scale(body)
+	
+	if body_renderer:
+		body_renderer.render_body(body, scale_factor)
+	
+	# Adjust lighting for body type
+	_adjust_lighting_for_body(body)
+	
+	# Add glow effect for stars
+	if body.type == CelestialType.Type.STAR:
+		_enable_star_glow(body)
+	else:
+		_disable_star_glow()
 	
 	# Update camera distance based on object size
 	if camera:
@@ -370,12 +383,59 @@ func _update_inspector() -> void:
 		inspector_panel.display_body(current_body)
 
 
+## Adjusts scene lighting based on body type.
+func _adjust_lighting_for_body(body: CelestialBody) -> void:
+	var dir_light: DirectionalLight3D = $Environment/DirectionalLight3D
+	if not dir_light:
+		return
+	
+	match body.type:
+		CelestialType.Type.STAR:
+			# Dim external light for stars (they self-illuminate)
+			dir_light.light_energy = 0.1
+		CelestialType.Type.ASTEROID:
+			# Brighter light for dark asteroids
+			dir_light.light_energy = 1.0
+		_:
+			# Normal lighting for planets/moons
+			dir_light.light_energy = 0.5
+
+
+## Enables glow/bloom for star rendering.
+func _enable_star_glow(body: CelestialBody) -> void:
+	if not world_environment or not world_environment.environment:
+		return
+	
+	var env: Environment = world_environment.environment
+	env.glow_enabled = true
+	env.glow_intensity = 1.0
+	env.glow_strength = 1.2
+	env.glow_bloom = 0.5
+	env.glow_blend_mode = Environment.GLOW_BLEND_MODE_SCREEN
+	
+	# Adjust glow based on star luminosity
+	if body.has_stellar():
+		var luminosity_solar: float = body.stellar.luminosity_watts / 3.828e26
+		env.glow_intensity = clampf(luminosity_solar, 0.5, 2.0)
+
+
+## Disables glow effects.
+func _disable_star_glow() -> void:
+	if not world_environment or not world_environment.environment:
+		return
+	
+	var env: Environment = world_environment.environment
+	env.glow_enabled = false
+
+
 ## Clears the current display.
 func clear_display() -> void:
 	current_body = null
 	
-	if placeholder_mesh:
-		placeholder_mesh.visible = false
+	if body_renderer:
+		body_renderer.clear()
+	
+	_disable_star_glow()
 	
 	set_status("No object loaded")
 	_update_inspector()

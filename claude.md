@@ -175,29 +175,33 @@ View a single celestial object in-app and inspect its properties.
 - For Phase 6+: Store system seed + specs, regenerate on load
 - For Phase 9+: Binary galaxy metadata + visited systems in JSON, unvisited systems as seeds only
 
-**Stage 5: Star Rendering** (Pending)
-- [ ] Temperature → blackbody color mapping
-- [ ] Star material with emission
-- [ ] Size-based intensity scaling
-- [ ] Add glow/bloom for stars
+**Stage 5: Star Rendering** ✅
+- [x] Temperature → blackbody color mapping
+- [x] Star material with emission (custom shader with limb darkening, corona)
+- [x] Size-based intensity scaling
+- [x] Add glow/bloom for stars
+- [x] OmniLight3D for stars to illuminate scene
 
-**Stage 6: Planet/Moon Surface Rendering** (Pending)
-- [ ] Surface type → shader selection
-- [ ] Basic surface textures/colors
-- [ ] Albedo from surface properties
-- [ ] Terrain roughness visualization
+**Stage 6: Planet/Moon Surface Rendering** ✅
+- [x] Surface type → shader/material selection
+- [x] Basic surface textures/colors
+- [x] Albedo from surface properties
+- [x] Terrain roughness visualization
+- [x] Gas giant banding shader with turbulence
+- [x] Icy surface materials for moons
 
-**Stage 7: Atmosphere Rendering** (Pending)
-- [ ] Atmospheric scattering shader
-- [ ] Composition → sky color calculation
-- [ ] Atmosphere thickness visualization
-- [ ] Greenhouse effect visual hints
+**Stage 7: Atmosphere Rendering** ✅ (mostly complete)
+- [x] Atmospheric scattering shader (rim-lighting shader)
+- [x] Composition → sky color calculation
+- [x] Atmosphere thickness visualization (scaling based on pressure, density affects visibility)
+- [ ] Greenhouse effect visual hints (not yet implemented)
 
-**Stage 8: Ring System Rendering** (Pending)
-- [ ] Ring mesh generation from bands
-- [ ] Opacity from optical depth
-- [ ] Composition → ring color
-- [ ] Multiple band visualization
+**Stage 8: Ring System Rendering** ✅
+- [x] Ring mesh generation from bands
+- [x] Opacity from optical depth
+- [x] Composition → ring color
+- [x] Multiple band visualization
+- [x] Ring alignment with equatorial plane
 
 **Tests:**
 - [x] Integration smoke test: viewer scene instantiates and runs one frame

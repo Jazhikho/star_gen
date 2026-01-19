@@ -198,29 +198,33 @@ View a single celestial object in-app and inspect its properties.
 •	For Phase 6+: Store system seed + specs, regenerate on load
 •	For Phase 9+: Binary galaxy metadata + visited systems in JSON, unvisited as seeds only
 
-**Stage 5: Star Rendering** (Pending)
-•	Temperature → blackbody color mapping
-•	Star material with emission
-•	Size-based intensity scaling
-•	Add glow/bloom for stars
+**Stage 5: Star Rendering** ✅
+•	✅ Temperature → blackbody color mapping (ColorUtils)
+•	✅ Star material with emission (custom shader with limb darkening, corona, noise variation)
+•	✅ Size-based intensity scaling (luminosity-based)
+•	✅ Add glow/bloom for stars (environment glow settings)
+•	✅ OmniLight3D for stars to illuminate scene
 
-**Stage 6: Planet/Moon Surface Rendering** (Pending)
-•	Surface type → shader selection
-•	Basic surface textures/colors
-•	Albedo from surface properties
-•	Terrain roughness visualization
+**Stage 6: Planet/Moon Surface Rendering** ✅
+•	✅ Surface type → shader/material selection (MaterialFactory)
+•	✅ Basic surface textures/colors (ColorUtils surface color mapping)
+•	✅ Albedo from surface properties (applied to materials)
+•	✅ Terrain roughness visualization (roughness property mapping)
+•	✅ Gas giant banding shader with turbulence
+•	✅ Icy surface materials for moons
 
-**Stage 7: Atmosphere Rendering** (Pending)
-•	Atmospheric scattering shader
-•	Composition → sky color calculation
-•	Atmosphere thickness visualization
-•	Greenhouse effect visual hints
+**Stage 7: Atmosphere Rendering** ✅ (3/4 complete)
+•	✅ Atmospheric scattering shader (rim-lighting shader in MaterialFactory)
+•	✅ Composition → sky color calculation (ColorUtils.atmosphere_to_sky_color)
+•	✅ Atmosphere thickness visualization (pressure-based scaling, density affects visibility)
+•	⚠️ Greenhouse effect visual hints (not yet implemented)
 
-**Stage 8: Ring System Rendering** (Pending)
-•	Ring mesh generation from bands
-•	Opacity from optical depth
-•	Composition → ring color
-•	Multiple band visualization
+**Stage 8: Ring System Rendering** ✅
+•	✅ Ring mesh generation from bands (BodyRenderer._create_ring_mesh)
+•	✅ Opacity from optical depth (ColorUtils.ring_to_color uses optical_depth for alpha)
+•	✅ Composition → ring color (ColorUtils.ring_to_color)
+•	✅ Multiple band visualization (loop through bands in _update_ring_system)
+•	✅ Ring alignment with equatorial plane (axial tilt + ring inclination)
 
 **Tests:**
 •	✅ Integration smoke test: viewer scene instantiates and runs one frame.

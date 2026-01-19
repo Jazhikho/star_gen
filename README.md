@@ -53,7 +53,19 @@ Built with **Godot 4.x** and **GDScript**.
 - Deterministic round-trip (save → load → same object)
 - Integration tests (12 new tests)
 
-**Test Status**: All 311 tests passing ✅
+**Phase 3 - Stages 5 & 6**: ✅ Complete - Body rendering system
+- Complete rendering pipeline (ColorUtils, MaterialFactory, BodyRenderer)
+- Star rendering: blackbody colors, emission shader with limb darkening/corona, OmniLight3D, glow effects
+- Planet/moon rendering: surface type colors, albedo, roughness, gas giant bands, icy materials
+- Atmosphere rendering: rim-lighting shader, composition-based sky colors, pressure-based thickness
+- Ring system rendering: multi-band meshes, composition colors, optical depth opacity, equatorial alignment
+- Body rotation animation with axial tilt support
+- Material caching for performance
+- Unit tests for color utilities (17 new tests)
+
+**Phase 3 - Stage 8**: ✅ Complete - Ring system rendering (implemented with Stages 5 & 6)
+
+**Test Status**: All 328 tests passing ✅
 
 See [claude.md](claude.md) for detailed architecture, roadmap, and working agreement.
 
