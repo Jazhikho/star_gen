@@ -227,14 +227,14 @@ View a single celestial object in-app and inspect its properties.
 •	✅ Multiple band visualization (loop through bands in _update_ring_system)
 •	✅ Ring alignment with equatorial plane (axial tilt + ring inclination)
 
-**Tests:**
+**Tests:** ✅
 •	✅ Integration smoke test: viewer scene instantiates and runs one frame.
-•	Invalid JSON load fails gracefully (no crash, user-readable error).
-•	Color derivation: temperature maps to correct blackbody colors.
-•	Atmospheric scattering: composition produces expected sky colors.
+•	✅ Invalid JSON load fails gracefully (no crash, user-readable error) - 3 tests covering invalid JSON, nonexistent file, wrong format.
+•	✅ Color derivation: temperature maps to correct blackbody colors - 4 tests covering hot/cool/solar stars and temperature gradient.
+•	✅ Atmospheric scattering: composition produces expected sky colors - 3 tests covering N2/O2 (blue), CO2 (orange), CH4 (cyan).
 
-**Acceptance criteria:**
-•	Open app -> generate object -> view -> save -> reload -> same result.
+**Acceptance criteria:** ✅
+•	✅ Open app -> generate object -> view -> save -> reload -> same result - verified via deterministic generation and save/load round-trip tests.
 
 ### Phase 4: Object editing v1
 **Goal:**

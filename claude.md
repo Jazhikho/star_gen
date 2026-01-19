@@ -204,14 +204,25 @@ View a single celestial object in-app and inspect its properties.
 - [x] Multiple band visualization
 - [x] Ring alignment with equatorial plane
 
-**Tests:**
+**Tests:** ✅
 - [x] Integration smoke test: viewer scene instantiates and runs one frame
-- [ ] Invalid JSON load fails gracefully (no crash, user-readable error)
-- [ ] Color derivation: temperature maps to correct blackbody colors
-- [ ] Atmospheric scattering: composition produces expected sky colors
+- [x] Invalid JSON load fails gracefully (no crash, user-readable error)
+  - `test_load_invalid_json_fails_gracefully()` - invalid JSON syntax
+  - `test_load_invalid_file_fails_gracefully()` - nonexistent file
+  - `test_load_wrong_format_fails_gracefully()` - wrong file format
+- [x] Color derivation: temperature maps to correct blackbody colors
+  - `test_blackbody_hot_star_is_blue()` - O-class stars are blue
+  - `test_blackbody_solar_is_yellow_white()` - G-class stars are yellow-white
+  - `test_blackbody_cool_star_is_red()` - M-class stars are red
+  - `test_blackbody_temperature_gradient()` - gradient from red to blue
+- [x] Atmospheric scattering: composition produces expected sky colors
+  - `test_atmosphere_nitrogen_is_blue()` - N2/O2 atmospheres are blue
+  - `test_atmosphere_co2_is_orange()` - CO2 atmospheres are orange
+  - `test_atmosphere_methane_is_cyan()` - CH4 atmospheres are cyan
 
-**Acceptance criteria:**
-- [ ] Open app -> generate object -> view -> save -> reload -> same result
+**Acceptance criteria:** ✅
+- [x] Open app -> generate object -> view -> save -> reload -> same result
+  - Verified via deterministic generation tests and save/load round-trip tests
 
 ---
 
