@@ -1,12 +1,14 @@
 # StarGen
 
-A deterministic procedural generator + viewer/editor for celestial objects, solar systems, and galactic structures.
+A deterministic procedural generator + viewer for celestial objects, solar systems, and galactic structures.
 
 Built with **Godot 4.x** and **GDScript**.
 
 ## Project Status
 
-**Current Phase**: Phase 3 - Object viewer v1
+**Current Phase**: Phase 3 - Object viewer v1 (Complete)
+
+**Next Phase**: Phase 5 or Phase 6 (Object rendering v2 optional, or Solar system generator)
 
 **Phase 0**: ✅ Complete - Foundations, deterministic RNG, math/validation utilities, and test framework
 
@@ -145,14 +147,25 @@ star_gen/
 │   │       └── Versions.gd        # Version tracking
 │   ├── services/                   # Services layer (I/O, persistence)
 │   │   └── persistence/
-│   │       └── SaveData.gd         # Efficient save/load with compression
+│   │       ├── SaveData.gd         # Efficient save/load with compression
+│   │       └── CelestialPersistence.gd # File I/O service for persistence
 │   └── app/                        # Application layer (UI, scenes, rendering)
-│       └── viewer/                # Object viewer
-│           ├── ObjectViewer.tscn  # Main viewer scene
-│           ├── ObjectViewer.gd    # Viewer controller
-│           ├── CameraController.gd # Orbital camera controls
-│           ├── InspectorPanel.gd  # Dynamic property inspector
-│           └── PropertyFormatter.gd # Property formatting utilities
+│       ├── viewer/                # Object viewer
+│       │   ├── ObjectViewer.tscn  # Main viewer scene
+│       │   ├── ObjectViewer.gd    # Viewer controller
+│       │   ├── CameraController.gd # Orbital camera controls
+│       │   ├── InspectorPanel.gd  # Dynamic property inspector
+│       │   └── PropertyFormatter.gd # Property formatting utilities
+│       └── rendering/             # Body rendering system
+│           ├── BodyRenderer.gd    # Main body rendering logic
+│           ├── BodyRenderer.tscn  # Body renderer scene
+│           ├── ColorUtils.gd      # Color calculation utilities
+│           ├── MaterialFactory.gd # Material generation
+│           ├── shaders/           # Shader assets
+│           │   ├── star.gdshader  # Star emission shader
+│           │   └── gas_giant.gdshader # Gas giant band shader
+│           └── textures/          # Texture assets
+│               └── noise.tres     # Noise texture
 ├── Tests/                          # Test suite
 │   ├── Framework/                 # Test framework
 │   │   ├── TestCase.gd            # Base test case class
@@ -170,7 +183,8 @@ star_gen/
 │   │   └── ... (additional unit tests)
 │   ├── Integration/                # Integration tests
 │   │   ├── TestObjectViewer.gd
-│   │   └── TestSaveLoad.gd
+│   │   ├── TestSaveLoad.gd
+│   │   └── TestCelestialPersistence.gd
 │   ├── TestScene.tscn              # Test scene
 │   ├── TestScene.gd                # Test scene script
 │   ├── RunTestsHeadless.gd         # Headless test runner

@@ -337,5 +337,3 @@ func _sort_composition(composition: Dictionary) -> Array:
 		pairs.append([key, composition[key]])
 	pairs.sort_custom(func(a, b): return a[1] > b[1])
 	return pairs
-
-

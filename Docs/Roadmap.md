@@ -3,7 +3,7 @@
 Godot 4.x - GDScript | DRY + SOLID | Deterministic generation with test gates
 
 ## Overview
-This roadmap builds StarGen in three layers: (1) editable celestial objects, (2) solar systems, then (3) galactic scale. Each phase ends in a shippable vertical slice with a clear acceptance flow and automated tests.
+This roadmap builds StarGen in three layers: (1) viewable celestial objects (editing deferred), (2) solar systems, then (3) galactic scale. Each phase ends in a shippable vertical slice with a clear acceptance flow and automated tests.
 
 ## Guiding principles
 •	One phase at a time. Anything outside the current phase goes to BACKLOG.md.
@@ -236,7 +236,9 @@ View a single celestial object in-app and inspect its properties.
 **Acceptance criteria:** ✅
 •	✅ Open app -> generate object -> view -> save -> reload -> same result - verified via deterministic generation and save/load round-trip tests.
 
-### Phase 4: Object editing v1
+### Phase 4: Object editing v1 (Deferred)
+**Status:** Deferred to a later phase. Editing functionality will be implemented after core viewing and system generation features are complete.
+
 **Goal:**
 Edit object properties in the program with validation, derived-value recalculation, and undo.
 
