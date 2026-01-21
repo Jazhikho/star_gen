@@ -6,9 +6,9 @@ Built with **Godot 4.x** and **GDScript**.
 
 ## Project Status
 
-**Current Phase**: Phase 6 - Solar system generator and viewer (Stage 1 Complete)
+**Current Phase**: Phase 6 - Solar system generator and viewer (Stage 4 Complete)
 
-**Next Phase**: Phase 6 Stage 2 (Orbital Mechanics Utilities)
+**Next Phase**: Phase 6 Stage 5 (Planet Generation)
 
 **Phase 0**: ✅ Complete - Foundations, deterministic RNG, math/validation utilities, and test framework
 
@@ -73,10 +73,32 @@ Built with **Godot 4.x** and **GDScript**.
 - OrbitHost: Computed orbit hosts with stability zones, habitable zones, and frost line calculations
 - AsteroidBelt: Defines asteroid belt regions with boundaries and major asteroid references
 - SolarSystem: Main container for complete solar systems with efficient ID-based body lookups
-- Complete serialization/deserialization for all data classes
+- Complete serialization/deserialization for all data model classes
 - Unit tests (45 new tests covering all data model classes)
 
-**Test Status**: All 371 tests passing ✅
+**Phase 6 - Stage 2**: ✅ Complete - Orbital Mechanics Utilities
+- OrbitalMechanics: Comprehensive orbital mechanics calculations (Kepler's laws, Hill sphere, Roche limit, stability limits, resonances, perturbations, synodic periods)
+- S-type and P-type stability limit calculations for binary systems
+- Resonance spacing with variation support
+- Habitable zone and frost line calculations
+- Unit tests (26 new tests covering all orbital mechanics functions)
+
+**Phase 6 - Stage 3**: ✅ Complete - Stellar Configuration Generator
+- SolarSystemSpec: Specification for system generation with star count ranges, spectral class hints, system age/metallicity
+- StellarConfigGenerator: Generates stars, builds hierarchies, calculates orbit hosts
+- Weighted star count selection (favors single stars)
+- Hierarchical binary system building
+- Orbit host calculation with stability limits
+- Unit tests (31 new tests covering spec and generator)
+
+**Phase 6 - Stage 4**: ✅ Complete - Orbit Slot Generator
+- OrbitSlot: Candidate orbital positions with zone classification, stability, fill probability, and suggested eccentricity
+- OrbitSlotGenerator: Generates slots with resonance spacing, exponential probability decay, star radius safety margin
+- Utility functions: filters (stable, available, by zone), sorts (by distance, probability), statistics
+- Batch generation for multiple hosts
+- Unit tests (29 new tests covering slot and generator)
+
+**Test Status**: All 501 tests passing ✅
 
 See [claude.md](claude.md) for detailed architecture, roadmap, and working agreement.
 
@@ -150,7 +172,12 @@ star_gen/
 │   │   │   ├── SystemHierarchy.gd      # Stellar hierarchy tree
 │   │   │   ├── HierarchyNode.gd        # Hierarchy node (star or barycenter)
 │   │   │   ├── OrbitHost.gd            # Orbit host with stability zones
-│   │   │   └── AsteroidBelt.gd         # Asteroid belt definition
+│   │   │   ├── AsteroidBelt.gd         # Asteroid belt definition
+│   │   │   ├── OrbitalMechanics.gd     # Orbital mechanics calculations
+│   │   │   ├── SolarSystemSpec.gd      # System generation specification
+│   │   │   ├── StellarConfigGenerator.gd # Stellar configuration generator
+│   │   │   ├── OrbitSlot.gd            # Candidate orbital position
+│   │   │   └── OrbitSlotGenerator.gd   # Orbit slot generator
 │   │   ├── math/                   # Math utilities
 │   │   │   ├── MathUtils.gd       # Range checking, remapping, interpolation
 │   │   │   └── Units.gd            # Physical constants and unit conversions
@@ -202,6 +229,11 @@ star_gen/
 │   │   ├── TestOrbitHost.gd
 │   │   ├── TestAsteroidBelt.gd
 │   │   ├── TestSolarSystem.gd
+│   │   ├── TestOrbitalMechanics.gd
+│   │   ├── TestSolarSystemSpec.gd
+│   │   ├── TestStellarConfigGenerator.gd
+│   │   ├── TestOrbitSlot.gd
+│   │   ├── TestOrbitSlotGenerator.gd
 │   │   └── ... (additional unit tests)
 │   ├── Integration/                # Integration tests
 │   │   ├── TestObjectViewer.gd

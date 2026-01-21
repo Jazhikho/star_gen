@@ -303,20 +303,30 @@ Randomly generate a solar system, display it, and inspect its bodies (no editing
 •	✅ AsteroidBelt: 7 tests covering construction, width/center calculations, composition handling, major asteroid tracking, serialization.
 •	✅ SolarSystem: 9 tests covering construction, body management, moon queries, belt/host management, serialization.
 
-**Stage 2: Orbital Mechanics** (Planned)
-•	Math utilities for orbital stability calculations.
-•	Resonance detection and calculation.
-•	Barycenter position calculations.
-•	Stability zone calculations for orbit hosts.
+**Stage 2: Orbital Mechanics** ✅ Complete
+•	OrbitalMechanics: Comprehensive orbital mechanics calculations
+•	Kepler's laws, Hill sphere, Roche limit, stability limits
+•	S-type and P-type stability calculations for binary systems
+•	Resonance spacing with variation support
+•	Habitable zone and frost line calculations
+•	Perturbation analysis and synodic period calculations
+•	Unit tests (26 tests covering all orbital mechanics functions)
 
-**Stage 3: Stellar Configuration** (Planned)
-•	Generate stars with hierarchy structure.
-•	Calculate stability zones for each orbit host.
-•	Support for single stars, binaries, and hierarchical multiples.
+**Stage 3: Stellar Configuration** ✅ Complete
+•	SolarSystemSpec: Specification for system generation
+•	StellarConfigGenerator: Generates stars, builds hierarchies, calculates orbit hosts
+•	Weighted star count selection (favors single stars)
+•	Hierarchical binary system building
+•	Orbit host calculation with stability limits
+•	System age and metallicity support
+•	Unit tests (31 tests covering spec and generator)
 
-**Stage 4: Orbit Slots** (Planned)
-•	Generate candidate orbital positions.
-•	Respect stability zones and resonance constraints.
+**Stage 4: Orbit Slots** ✅ Complete
+•	OrbitSlot: Candidate orbital positions with zone classification, stability, fill probability, suggested eccentricity
+•	OrbitSlotGenerator: Generates slots with resonance spacing, exponential probability decay, star radius safety margin
+•	Utility functions: filters (stable, available, by zone), sorts (by distance, probability), statistics
+•	Batch generation for multiple hosts
+•	Unit tests (29 tests covering slot and generator)
 
 **Stage 5: Planet Generation** (Planned)
 •	Fill orbit slots with planets.
