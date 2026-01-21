@@ -61,6 +61,12 @@ var _test_scripts: Array[GDScript] = [
 	# Phase 6 tests - Stage 4
 	preload("res://Tests/Unit/TestOrbitSlot.gd"),
 	preload("res://Tests/Unit/TestOrbitSlotGenerator.gd"),
+	# Phase 6 tests - Stage 5
+	preload("res://Tests/Unit/TestSystemPlanetGenerator.gd"),
+	# Phase 6 tests - Stage 6
+	preload("res://Tests/Unit/TestSystemMoonGenerator.gd"),
+	# Phase 6 tests - Stage 7
+	preload("res://Tests/Unit/TestSystemAsteroidGenerator.gd"),
 ]
 
 

@@ -336,9 +336,16 @@ Randomly generate a solar system, display it, and inspect its bodies (no editing
 •	Add moons to all planets.
 •	Respect Hill sphere constraints.
 
-**Stage 7: Asteroid Belts** (Planned)
-•	Generate belts with top 10 largest bodies.
-•	Place belts in appropriate zones.
+**Stage 7: Asteroid Belts** ✅ Complete
+•	SystemAsteroidGenerator: Generates asteroid belts for solar systems
+•	Inner (rocky) and outer (icy) belt generation with gap-finding between planets
+•	Power law size distribution for major asteroids (N(>D) ∝ D^-2.5)
+•	Belt composition based on distance (rocky near frost line, icy in outer system)
+•	Realistic belt mass estimation with log-uniform distribution
+•	Up to 10 major asteroids per belt with Ceres-like largest asteroids
+•	Belt-asteroid mapping for easy lookup
+•	Utility functions: get_asteroids_for_belt(), sort_by_mass(), get_statistics(), validate_belt_placement()
+•	Unit tests (20 tests covering belt generation, asteroid placement, composition, validation)
 
 **Stage 8: Validation & Serialization** (Planned)
 •	SystemValidator for system-wide validation.
