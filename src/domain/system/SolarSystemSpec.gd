@@ -30,6 +30,9 @@ var system_age_years: float
 ## -1 = random metallicity per star.
 var system_metallicity: float
 
+## Whether to include asteroid belts in generation.
+var include_asteroid_belts: bool
+
 ## Field overrides for generation.
 var overrides: Dictionary
 
@@ -50,6 +53,7 @@ func _init(
 	spectral_class_hints = []
 	system_age_years = -1.0
 	system_metallicity = -1.0
+	include_asteroid_belts = true
 	overrides = {}
 
 
@@ -142,6 +146,7 @@ func to_dict() -> Dictionary:
 		"spectral_class_hints": hints_array,
 		"system_age_years": system_age_years,
 		"system_metallicity": system_metallicity,
+		"include_asteroid_belts": include_asteroid_belts,
 		"overrides": overrides.duplicate(),
 	}
 
@@ -158,6 +163,7 @@ static func from_dict(data: Dictionary) -> SolarSystemSpec:
 	spec.name_hint = data.get("name_hint", "") as String
 	spec.system_age_years = data.get("system_age_years", -1.0) as float
 	spec.system_metallicity = data.get("system_metallicity", -1.0) as float
+	spec.include_asteroid_belts = data.get("include_asteroid_belts", true) as bool
 	spec.overrides = (data.get("overrides", {}) as Dictionary).duplicate()
 	
 	var hints: Array = data.get("spectral_class_hints", []) as Array
