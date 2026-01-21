@@ -20,19 +20,19 @@ This roadmap builds StarGen in three layers: (1) viewable celestial objects (edi
 •	Documentation updated (this roadmap, plus any dev notes needed to run/verify).
 
 ## Phase summary
-| Phase | Name | Primary output | Acceptance flow |
-|-------|------|----------------|-----------------|
-| 0 | Foundations and guardrails | Repo structure, RNG wrapper, test runner, schema constants | Clone -> run tests -> green |
-| 1 | Celestial object model | Data model + validation + serialization | Create object data -> save -> load -> identical |
-| 2 | Object generators v1 | Seed/spec -> star/planet/moon/asteroid objects | Generate by seed -> export JSON -> matches fixture |
-| 3 | Object viewer v1 | Viewer scene with inspect panel + save/load | Open app -> generate -> view -> save/load |
-| 4 | Object editing v1 | Editable UI with validation + derived recalculation + undo | Edit fields -> derived updates -> undo -> save/load |
-| 5 | Object rendering v2 (optional) | Improved shaders/materials + basic LOD | Viewer remains stable and responsive while rendering |
-| 6 | Solar system generator + viewer | Random system generation + system viewer | Generate system -> browse bodies -> open object viewer |
-| 7 | Solar system constraints (locks) | Constraint-based generation (min/max/exact) | Set constraints -> regenerate -> constraints satisfied |
-| 8 | Solar system editing tools | Add/remove bodies, adjust orbits, recalc, undo | Apply edits -> recalc -> undo -> stable results |
-| 9 | Galactic map v1 | Galaxy browser + lazy system generation + persistence | Browse galaxy -> open system -> edits persist |
-| 10 | Galactic constraints and editing | Region rules + system placement edits | Apply region rules -> regenerate -> edits preserved |
+| Phase | Name                             | Primary output                                             | Acceptance flow                                        |
+| ----- | -------------------------------- | ---------------------------------------------------------- | ------------------------------------------------------ |
+| 0     | Foundations and guardrails       | Repo structure, RNG wrapper, test runner, schema constants | Clone -> run tests -> green                            |
+| 1     | Celestial object model           | Data model + validation + serialization                    | Create object data -> save -> load -> identical        |
+| 2     | Object generators v1             | Seed/spec -> star/planet/moon/asteroid objects             | Generate by seed -> export JSON -> matches fixture     |
+| 3     | Object viewer v1                 | Viewer scene with inspect panel + save/load                | Open app -> generate -> view -> save/load              |
+| 4     | Object editing v1                | Editable UI with validation + derived recalculation + undo | Edit fields -> derived updates -> undo -> save/load    |
+| 5     | Object rendering v2 (optional)   | Improved shaders/materials + basic LOD                     | Viewer remains stable and responsive while rendering   |
+| 6     | Solar system generator + viewer  | Random system generation + system viewer                   | Generate system -> browse bodies -> open object viewer |
+| 7     | Solar system constraints (locks) | Constraint-based generation (min/max/exact)                | Set constraints -> regenerate -> constraints satisfied |
+| 8     | Solar system editing tools       | Add/remove bodies, adjust orbits, recalc, undo             | Apply edits -> recalc -> undo -> stable results        |
+| 9     | Galactic map v1                  | Galaxy browser + lazy system generation + persistence      | Browse galaxy -> open system -> edits persist          |
+| 10    | Galactic constraints and editing | Region rules + system placement edits                      | Apply region rules -> regenerate -> edits preserved    |
 
 ## Phase details
 
@@ -261,7 +261,7 @@ Edit object properties in the program with validation, derived-value recalculati
 **Acceptance criteria:**
 •	Edit fields -> derived updates -> undo -> save/load preserves edits.
 
-### Phase 5: Object rendering v2 (optional)
+### Phase 5: Object rendering v2 (Deferred)
 **Goal:**
 Improve visuals without expanding simulation scope.
 
@@ -288,8 +288,73 @@ Improve visuals without expanding simulation scope.
 **Goal:**
 Randomly generate a solar system, display it, and inspect its bodies (no editing tools yet).
 
-**Deliverables:**
-•	SolarSystem data model: stars, planets, optional moons and belts (start minimal).
+**Stage 1: Core Data Model** ✅
+•	✅ HierarchyNode: Represents single stars (STAR type) and binary pairs (BARYCENTER type) with arbitrary nesting support.
+•	✅ SystemHierarchy: Manages hierarchical arrangement of stars with tree traversal and query methods.
+•	✅ OrbitHost: Computed orbit hosts with stability zones, habitable zones, and frost line calculations.
+•	✅ AsteroidBelt: Defines asteroid belt regions with boundaries and major asteroid references.
+•	✅ SolarSystem: Main container for complete solar systems with efficient ID-based body lookups.
+•	✅ Complete serialization/deserialization for all data classes.
+
+**Tests:** ✅ All passing (45 tests)
+•	✅ HierarchyNode: 11 tests covering star/barycenter creation, star ID collection, depth calculation, node finding, serialization.
+•	✅ SystemHierarchy: 8 tests covering empty/single/binary hierarchies, node traversal, serialization.
+•	✅ OrbitHost: 10 tests covering construction, zone validation, habitable zone/frost line calculations, distance checks, serialization.
+•	✅ AsteroidBelt: 7 tests covering construction, width/center calculations, composition handling, major asteroid tracking, serialization.
+•	✅ SolarSystem: 9 tests covering construction, body management, moon queries, belt/host management, serialization.
+
+**Stage 2: Orbital Mechanics** (Planned)
+•	Math utilities for orbital stability calculations.
+•	Resonance detection and calculation.
+•	Barycenter position calculations.
+•	Stability zone calculations for orbit hosts.
+
+**Stage 3: Stellar Configuration** (Planned)
+•	Generate stars with hierarchy structure.
+•	Calculate stability zones for each orbit host.
+•	Support for single stars, binaries, and hierarchical multiples.
+
+**Stage 4: Orbit Slots** (Planned)
+•	Generate candidate orbital positions.
+•	Respect stability zones and resonance constraints.
+
+**Stage 5: Planet Generation** (Planned)
+•	Fill orbit slots with planets.
+•	Assign orbital parameters based on host properties.
+
+**Stage 6: Moon Generation** (Planned)
+•	Add moons to all planets.
+•	Respect Hill sphere constraints.
+
+**Stage 7: Asteroid Belts** (Planned)
+•	Generate belts with top 10 largest bodies.
+•	Place belts in appropriate zones.
+
+**Stage 8: Validation & Serialization** (Planned)
+•	SystemValidator for system-wide validation.
+•	SystemSerializer for persistence.
+•	Complete round-trip serialization tests.
+
+**Stage 9: Golden Masters** (Planned)
+•	Fixture generation for regression tests.
+•	Determinism verification.
+
+**Stage 10: Viewer - 3D Setup** (Planned)
+•	Scene structure for system viewer.
+•	Camera controls for orbital view.
+•	Orbital path visualization.
+
+**Stage 11: Viewer - Bodies** (Planned)
+•	Body rendering in system context.
+•	Selection and info panel integration.
+•	Link to ObjectViewer for detailed inspection.
+
+**Stage 12: Viewer - Polish** (Planned)
+•	Zone visualization (habitable, stability, frost line).
+•	Save/load UI for systems.
+•	Final touches and optimization.
+
+**Deliverables (Future Stages):**
 •	Orbital parameters: semi-major axis, eccentricity, inclination (start simple).
 •	Orbital resonances between bodies (detection and visualization).
 •	Hill sphere validation: ensure moons are within gravitational influence.
@@ -299,7 +364,7 @@ Randomly generate a solar system, display it, and inspect its bodies (no editing
 •	SolarSystemGenerator.generate(spec, rng) with minimal spec (ranges only).
 •	SolarSystemViewer: 2D map or lightweight 3D view; select body opens ObjectViewer.
 
-**Tests:**
+**Tests (Future Stages):**
 •	Determinism: same seed/spec -> identical system layout.
 •	Orbital invariants: distances positive; no planet inside star radius; ecc in [0, 1).
 •	Hill sphere validation: moons properly constrained within parent's influence.

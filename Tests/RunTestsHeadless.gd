@@ -47,6 +47,12 @@ var _test_scripts: Array[GDScript] = [
 	preload("res://Tests/Integration/TestSaveLoad.gd"),
 	# Phase 3 tests - Stages 5 & 6
 	preload("res://Tests/Unit/TestColorUtils.gd"),
+	# Phase 6 tests - Stage 1
+	preload("res://Tests/Unit/TestHierarchyNode.gd"),
+	preload("res://Tests/Unit/TestSystemHierarchy.gd"),
+	preload("res://Tests/Unit/TestOrbitHost.gd"),
+	preload("res://Tests/Unit/TestAsteroidBelt.gd"),
+	preload("res://Tests/Unit/TestSolarSystem.gd"),
 ]
 
 

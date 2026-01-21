@@ -6,9 +6,9 @@ Built with **Godot 4.x** and **GDScript**.
 
 ## Project Status
 
-**Current Phase**: Phase 3 - Object viewer v1 (Complete)
+**Current Phase**: Phase 6 - Solar system generator and viewer (Stage 1 Complete)
 
-**Next Phase**: Phase 5 or Phase 6 (Object rendering v2 optional, or Solar system generator)
+**Next Phase**: Phase 6 Stage 2 (Orbital Mechanics Utilities)
 
 **Phase 0**: ✅ Complete - Foundations, deterministic RNG, math/validation utilities, and test framework
 
@@ -67,7 +67,16 @@ Built with **Godot 4.x** and **GDScript**.
 
 **Phase 3 - Stage 8**: ✅ Complete - Ring system rendering (implemented with Stages 5 & 6)
 
-**Test Status**: All 328 tests passing ✅
+**Phase 6 - Stage 1**: ✅ Complete - Core Data Model
+- HierarchyNode: Represents single stars and binary pairs with arbitrary nesting support
+- SystemHierarchy: Manages hierarchical arrangement of stars with tree traversal
+- OrbitHost: Computed orbit hosts with stability zones, habitable zones, and frost line calculations
+- AsteroidBelt: Defines asteroid belt regions with boundaries and major asteroid references
+- SolarSystem: Main container for complete solar systems with efficient ID-based body lookups
+- Complete serialization/deserialization for all data classes
+- Unit tests (45 new tests covering all data model classes)
+
+**Test Status**: All 371 tests passing ✅
 
 See [claude.md](claude.md) for detailed architecture, roadmap, and working agreement.
 
@@ -136,6 +145,12 @@ star_gen/
 │   │   │       ├── StarTable.gd          # Stellar property tables
 │   │   │       ├── SizeTable.gd          # Planet size/mass tables
 │   │   │       └── OrbitTable.gd         # Orbital parameter tables
+│   │   ├── system/                 # Solar system data model
+│   │   │   ├── SolarSystem.gd          # Main system container
+│   │   │   ├── SystemHierarchy.gd      # Stellar hierarchy tree
+│   │   │   ├── HierarchyNode.gd        # Hierarchy node (star or barycenter)
+│   │   │   ├── OrbitHost.gd            # Orbit host with stability zones
+│   │   │   └── AsteroidBelt.gd         # Asteroid belt definition
 │   │   ├── math/                   # Math utilities
 │   │   │   ├── MathUtils.gd       # Range checking, remapping, interpolation
 │   │   │   └── Units.gd            # Physical constants and unit conversions
@@ -155,7 +170,9 @@ star_gen/
 │       │   ├── ObjectViewer.gd    # Viewer controller
 │       │   ├── CameraController.gd # Orbital camera controls
 │       │   ├── InspectorPanel.gd  # Dynamic property inspector
-│       │   └── PropertyFormatter.gd # Property formatting utilities
+│       │   ├── PropertyFormatter.gd # Property formatting utilities
+│       │   ├── EditDialog.gd      # Object editing dialog (Phase 4, deferred)
+│       │   └── EditDialog.tscn    # Edit dialog scene (Phase 4, deferred)
 │       └── rendering/             # Body rendering system
 │           ├── BodyRenderer.gd    # Main body rendering logic
 │           ├── BodyRenderer.tscn  # Body renderer scene
@@ -180,6 +197,11 @@ star_gen/
 │   │   ├── TestRingSystemGenerator.gd
 │   │   ├── TestGoldenMasters.gd
 │   │   ├── TestSeededRng.gd
+│   │   ├── TestHierarchyNode.gd
+│   │   ├── TestSystemHierarchy.gd
+│   │   ├── TestOrbitHost.gd
+│   │   ├── TestAsteroidBelt.gd
+│   │   ├── TestSolarSystem.gd
 │   │   └── ... (additional unit tests)
 │   ├── Integration/                # Integration tests
 │   │   ├── TestObjectViewer.gd

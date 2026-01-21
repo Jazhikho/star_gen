@@ -257,17 +257,17 @@ func test_object_scaling() -> void:
 	# Generate a star
 	viewer.generate_object(viewer.ObjectType.STAR, 11111)
 	await scene_tree.process_frame
-	var star_scale: Vector3 = viewer.placeholder_mesh.scale
+	var star_scale: Vector3 = viewer.body_renderer.body_mesh.scale
 	
 	# Generate a planet
 	viewer.generate_object(viewer.ObjectType.PLANET, 22222)
 	await scene_tree.process_frame
-	var planet_scale: Vector3 = viewer.placeholder_mesh.scale
+	var planet_scale: Vector3 = viewer.body_renderer.body_mesh.scale
 	
 	# Generate an asteroid
 	viewer.generate_object(viewer.ObjectType.ASTEROID, 33333)
 	await scene_tree.process_frame
-	var asteroid_scale: Vector3 = viewer.placeholder_mesh.scale
+	var asteroid_scale: Vector3 = viewer.body_renderer.body_mesh.scale
 	
 	# Scales should be reasonable (not zero, not huge)
 	assert_true(star_scale.x > 0.0 and star_scale.x < 10.0, "Star scale should be reasonable")
