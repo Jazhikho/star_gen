@@ -1,0 +1,6 @@
+[gd_scene load_steps=2 format=3 uid="uid://d3sysbodynode"]
+
+[ext_resource type="Script" path="res://src/app/system_viewer/SystemBodyNode.gd" id="1"]
+
+[node name="SystemBodyNode" type="Node3D"]
+script = ExtResource("1")

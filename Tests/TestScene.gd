@@ -47,6 +47,12 @@ var _test_scripts: Array[GDScript] = [
 	preload("res://Tests/Integration/TestSaveLoad.gd"),
 	# Phase 3 tests - Stages 5 & 6
 	preload("res://Tests/Unit/TestColorUtils.gd"),
+	# System Viewer tests
+	preload("res://Tests/Unit/TestSystemScaleManager.gd"),
+	preload("res://Tests/Unit/TestOrbitRenderer.gd"),
+	preload("res://Tests/Integration/TestSystemCameraController.gd"),
+	preload("res://Tests/Unit/TestSystemBodyNode.gd"),
+	preload("res://Tests/Unit/TestSystemInspectorPanel.gd"),
 	# Phase 6 tests - Stage 1
 	preload("res://Tests/Unit/TestHierarchyNode.gd"),
 	preload("res://Tests/Unit/TestSystemHierarchy.gd"),
@@ -72,6 +78,10 @@ var _test_scripts: Array[GDScript] = [
 	preload("res://Tests/Unit/TestSystemSerializer.gd"),
 	preload("res://Tests/Integration/TestSystemPersistence.gd"),
 	preload("res://Tests/Unit/TestSystemGoldenMasters.gd"),
+	# Phase 6 tests - System Viewer Integration
+	preload("res://Tests/Integration/TestSystemViewer.gd"),
+	# Phase 6 tests - Navigation
+	preload("res://Tests/Integration/TestMainApp.gd"),
 ]
 
 ## The test runner instance.

@@ -62,6 +62,15 @@ var current_body: CelestialBody = null
 ## Whether the viewer is ready
 var is_ready: bool = false
 
+## Signal emitted when user requests to go back to system viewer.
+signal back_to_system_requested
+
+## Whether this viewer was opened from the system viewer (shows back button).
+var _navigated_from_system: bool = false
+
+## The back button node (created dynamically when navigated from system).
+var _back_button: Button = null
+
 ## Whether to animate body rotation
 @export var animate_rotation: bool = true
 
@@ -334,6 +343,21 @@ func display_body(body: CelestialBody) -> void:
 	_update_inspector()
 
 
+## Displays an externally-provided celestial body (e.g., from system viewer).
+## Shows the back button and disables generation controls.
+## @param body: The celestial body to display.
+func display_external_body(body: CelestialBody) -> void:
+	if not body:
+		return
+
+	_navigated_from_system = true
+	_show_back_button()
+	_set_generation_controls_enabled(false)
+
+	display_body(body)
+	set_status("Viewing: %s (from system)" % body.name)
+
+
 ## Calculates appropriate display scale for a body.
 ## @param body: The celestial body to scale.
 ## @return: Scale factor for the mesh.
@@ -525,3 +549,50 @@ func _get_object_type_from_body(body: CelestialBody) -> ObjectType:
 			return ObjectType.ASTEROID
 		_:
 			return ObjectType.PLANET
+
+
+## Shows the back-to-system button in the top bar.
+func _show_back_button() -> void:
+	if _back_button != null:
+		_back_button.visible = true
+		return
+
+	var top_bar_container: HBoxContainer = $UI/TopBar/MarginContainer/HBoxContainer
+	if not top_bar_container:
+		return
+
+	# Insert back button at position 0 (leftmost)
+	_back_button = Button.new()
+	_back_button.text = "← Back to System"
+	_back_button.tooltip_text = "Return to solar system viewer"
+	_back_button.pressed.connect(_on_back_pressed)
+	top_bar_container.add_child(_back_button)
+	top_bar_container.move_child(_back_button, 0)
+
+
+## Hides the back-to-system button.
+func _hide_back_button() -> void:
+	if _back_button != null:
+		_back_button.visible = false
+
+
+## Handles back button press.
+func _on_back_pressed() -> void:
+	_navigated_from_system = false
+	_hide_back_button()
+	_set_generation_controls_enabled(true)
+	back_to_system_requested.emit()
+
+
+## Enables or disables generation controls.
+## When viewing an external body, generation controls should be disabled.
+## @param enabled: Whether controls should be enabled.
+func _set_generation_controls_enabled(enabled: bool) -> void:
+	if type_option:
+		type_option.disabled = not enabled
+	if seed_input:
+		seed_input.editable = enabled
+	if generate_button:
+		generate_button.disabled = not enabled
+	if reroll_button:
+		reroll_button.disabled = not enabled

@@ -28,11 +28,14 @@ This roadmap builds StarGen in three layers: (1) viewable celestial objects (edi
 | 3     | Object viewer v1                 | Viewer scene with inspect panel + save/load                | Open app -> generate -> view -> save/load              |
 | 4     | Object editing v1                | Editable UI with validation + derived recalculation + undo | Edit fields -> derived updates -> undo -> save/load    |
 | 5     | Object rendering v2 (optional)   | Improved shaders/materials + basic LOD                     | Viewer remains stable and responsive while rendering   |
-| 6     | Solar system generator + viewer  | Random system generation + system viewer                   | Generate system -> browse bodies -> open object viewer |
-| 7     | Solar system constraints (locks) | Constraint-based generation (min/max/exact)                | Set constraints -> regenerate -> constraints satisfied |
-| 8     | Solar system editing tools       | Add/remove bodies, adjust orbits, recalc, undo             | Apply edits -> recalc -> undo -> stable results        |
-| 9     | Galactic map v1                  | Galaxy browser + lazy system generation + persistence      | Browse galaxy -> open system -> edits persist          |
-| 10    | Galactic constraints and editing | Region rules + system placement edits                      | Apply region rules -> regenerate -> edits preserved    |
+| 6     | Solar system generator + viewer | Random system generation + system viewer                   | Generate system -> browse bodies -> open object viewer |
+| 7     | Solar system generator refinement| Constraint-based generation (min/max/exact)                | Set constraints -> regenerate -> constraints satisfied |
+| 8     | Solar system tools               | Add/remove bodies, adjust orbits, recalc, undo             | Apply edits -> recalc -> undo -> stable results        |
+| 9     | Solar system polish              | Save/load UI, optimization, final touches                  | Save system -> load system -> identical                |
+| 10    | Galactic map v1                  | Galaxy browser + lazy system generation + persistence      | Browse galaxy -> open system -> edits persist          |
+| 11    | Galactic generator refinement    | Region rules + constraint-based generation                 | Apply region rules -> regenerate -> constraints satisfied |
+| 12    | Galactic tools                   | System placement edits, region editing                      | Apply edits -> recalc -> edits preserved               |
+| 13    | Galactic polish                  | Save/load UI, optimization, final touches                  | Save galaxy -> load galaxy -> identical                |
 
 ## Phase details
 
@@ -361,29 +364,29 @@ Randomly generate a solar system, display it, and inspect its bodies (no editing
 •	All fixtures pass validation and regenerate identically (determinism verified)
 •	Unit tests (10 golden master regression tests)
 
-**Stage 10: Viewer - 3D Setup** (In Progress)
+**Stage 10: Viewer - 3D Setup** ✅ Complete
 •	✅ SystemCameraController: Top-down orbital view with smooth zoom, pan, and orbit controls
 •	✅ SystemScaleManager: Astronomical distance/size to viewport unit conversions with Kepler's equation solver
 •	✅ OrbitRenderer: 3D line mesh rendering for orbital paths with type-based coloring
 •	✅ SystemViewer.gd script: Main viewer controller with system display logic
-•	⏳ SystemViewer.tscn scene: Scene structure with UI nodes, camera rig, containers (NOT YET CREATED)
+•	✅ SystemViewer.tscn scene: Scene structure with UI nodes, camera rig, containers
 •	✅ Integration tests (SystemCameraController, SystemScaleManager, OrbitRenderer)
-•	⏳ Integration test for SystemViewer scene instantiation (pending scene file)
+•	✅ Integration test for SystemViewer scene instantiation
 
-**Stage 11: Viewer - Bodies** (Planned - depends on Stage 10)
+**Stage 11: Viewer - Bodies** ✅ Complete
 •	✅ SystemBodyNode: 3D body representation with materials, selection, hover, and click detection
 •	✅ SystemInspectorPanel: System overview and selected body details with property formatting
 •	✅ Unit tests (SystemBodyNode, SystemInspectorPanel)
-•	⏳ Body rendering integration in SystemViewer (pending scene)
-•	⏳ Body selection with camera focus (pending scene)
-•	⏳ Link to ObjectViewer for detailed inspection (pending)
+•	✅ Body rendering integration in SystemViewer (adaptive sizing based on orbital spacing)
+•	✅ Body selection with camera focus (click to select, camera focuses on selected body)
+•	✅ Link to ObjectViewer for detailed inspection (MainApp handles navigation between viewers)
 
-**Stage 12: Viewer - Polish** (Planned - depends on Stage 11)
-•	⏳ Zone visualization: Habitable zone and frost line rings
-•	⏳ View toggles: Show/hide orbits and zones
-•	⏳ System generation UI: Star count selector, seed input, generate/reroll buttons
-•	⏳ Save/load UI for systems
-•	⏳ Final touches and optimization
+**Stage 12: Viewer - Polish** (Deferred)
+•	✅ Zone visualization: Habitable zone and frost line rings (implemented with _create_zone_visualizations)
+•	✅ View toggles: Show/hide orbits and zones (implemented with checkboxes)
+•	✅ System generation UI: Star count selector, seed input, generate/reroll buttons (all implemented)
+•	⏳ Save/load UI for systems (deferred to Phase 9 - Solar system polish)
+•	⏳ Final touches and optimization (deferred to Phase 9 - Solar system polish)
 
 **Deliverables (Future Stages):**
 •	Orbital parameters: semi-major axis, eccentricity, inclination (start simple).
@@ -406,9 +409,9 @@ Randomly generate a solar system, display it, and inspect its bodies (no editing
 **Acceptance criteria:**
 •	Generate system -> browse bodies -> open object viewer reliably.
 
-### Phase 7: Solar system constraints (locks)
+### Phase 7: Solar system generator refinement
 **Goal:**
-Support generation constraints such as exact/min/max star count and minimum planet count.
+Improve generation quality with constraint-based generation (min/max/exact counts, orbital resonances).
 
 **Deliverables:**
 •	SystemConstraints model (exact/min/max counts, must-include templates later).
@@ -427,9 +430,9 @@ Support generation constraints such as exact/min/max star count and minimum plan
 **Acceptance criteria:**
 •	Set constraints -> regenerate -> constraints are satisfied (or cleanly rejected).
 
-### Phase 8: Solar system editing tools
+### Phase 8: Solar system tools
 **Goal:**
-Allow edits like adding a star at distance X, adjusting orbits, and recalculating the system.
+Add editing tools for modifying systems: add/remove bodies, adjust orbits, recalculate.
 
 **Deliverables:**
 •	Command-based edit operations: add/remove body, adjust orbit, recalc.
@@ -449,7 +452,27 @@ Allow edits like adding a star at distance X, adjusting orbits, and recalculatin
 **Acceptance criteria:**
 •	Apply edits -> recalc -> undo works and system remains valid.
 
-### Phase 9: Galactic map v1
+### Phase 9: Solar system polish
+**Goal:**
+Complete the solar system viewer with save/load functionality and final optimizations.
+
+**Deliverables:**
+•	Save/load UI for systems (file dialogs, save/load buttons).
+•	System persistence integration (use SystemPersistence service).
+•	Performance optimizations (LOD, culling, batch rendering).
+•	UI polish (tooltips, keyboard shortcuts, status messages).
+•	Final testing and bug fixes.
+
+**Tests:**
+•	Save/load round-trip tests.
+•	Performance benchmarks.
+•	UI interaction tests.
+
+**Acceptance criteria:**
+•	Save system -> load system -> identical system displayed.
+•	Viewer remains responsive with large systems (100+ bodies).
+
+### Phase 10: Galactic map v1
 **Goal:**
 Add a galactic container that browses and lazily generates systems without regenerating edits.
 
@@ -471,20 +494,61 @@ Add a galactic container that browses and lazily generates systems without regen
 **Acceptance criteria:**
 •	Browse galaxy -> open system -> edits persist across sessions.
 
-### Phase 10: Galactic constraints and editing
+### Phase 11: Galactic generator refinement
 **Goal:**
-Add region-level rules and editing tools for system placement and density.
+Improve galactic generation with region-level constraints and rules.
 
 **Deliverables:**
 •	Region constraints (e.g., higher binary fraction, denser core).
-•	Editing tools: add/remove system, adjust density, regenerate region.
-•	Persistence and backward compatibility for saved galaxy data.
+•	Constraint-based system placement.
+•	Region-level generation rules.
+•	UI for constraints and regenerate.
 
 **Tests:**
-•	Constraint + persistence tests.
-•	Backward compatibility test for at least one prior schema version.
+•	Constraint satisfaction tests.
+•	Region rule application tests.
+•	Determinism across constraint changes.
 
 **Acceptance criteria:**
+•	Apply region rules -> regenerate -> constraints are satisfied.
+
+### Phase 12: Galactic tools
+**Goal:**
+Add editing tools for modifying galactic structure: add/remove systems, adjust density.
+
+**Deliverables:**
+•	Editing tools: add/remove system, adjust density, regenerate region.
+•	System placement editing.
+•	Region editing (modify constraints, regenerate).
+•	Galactic-level undo/redo.
+
+**Tests:**
+•	Edit operation tests.
+•	Persistence tests for edits.
+•	Undo/redo tests.
+
+**Acceptance criteria:**
+•	Apply edits -> recalc -> undo works and galaxy remains valid.
+
+### Phase 13: Galactic polish
+**Goal:**
+Complete the galactic viewer with save/load functionality and final optimizations.
+
+**Deliverables:**
+•	Save/load UI for galaxies (file dialogs, save/load buttons).
+•	Galactic persistence integration.
+•	Performance optimizations (lazy loading, caching).
+•	UI polish (tooltips, keyboard shortcuts, status messages).
+•	Persistence and backward compatibility for saved galaxy data.
+•	Final testing and bug fixes.
+
+**Tests:**
+•	Save/load round-trip tests.
+•	Backward compatibility test for at least one prior schema version.
+•	Performance benchmarks.
+
+**Acceptance criteria:**
+•	Save galaxy -> load galaxy -> identical galaxy displayed.
 •	Apply region rules -> regenerate -> edits remain stable and preserved.
 
 ## Backlog discipline

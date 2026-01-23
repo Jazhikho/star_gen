@@ -6,9 +6,9 @@ Built with **Godot 4.x** and **GDScript**.
 
 ## Project Status
 
-**Current Phase**: Phase 6 - Solar system generator and viewer (Stages 1-4, 7-9 Complete, Stage 10 In Progress)
+**Current Phase**: Phase 6 - Solar system generator and viewer (Stages 1-11 Complete, Stage 12 Deferred)
 
-**Next Phase**: Phase 6 Stage 10 completion (SystemViewer.tscn scene creation)
+**Next Phase**: Phase 7 - Solar system generator refinement (constraint-based generation)
 
 **Phase 0**: ✅ Complete - Foundations, deterministic RNG, math/validation utilities, and test framework
 
@@ -98,23 +98,27 @@ Built with **Godot 4.x** and **GDScript**.
 - Batch generation for multiple hosts
 - Unit tests (29 new tests covering slot and generator)
 
-**Phase 6 - Stage 10**: ⏳ In Progress - System Viewer 3D Setup
+**Phase 6 - Stage 10**: ✅ Complete - System Viewer 3D Setup
 - ✅ SystemCameraController: Top-down orbital view with smooth zoom, pan, and orbit controls
 - ✅ SystemScaleManager: Astronomical distance/size conversions with Kepler's equation solver
 - ✅ OrbitRenderer: 3D line mesh rendering for orbital paths with type-based coloring
 - ✅ SystemViewer.gd: Main viewer controller script with system display logic
-- ⏳ SystemViewer.tscn: Scene file with UI structure, camera rig, containers (NOT YET CREATED)
-- ✅ Integration tests (SystemCameraController, SystemScaleManager, OrbitRenderer)
+- ✅ SystemViewer.tscn: Scene file with UI structure, camera rig, containers
+- ✅ Integration tests (SystemCameraController, SystemScaleManager, OrbitRenderer, SystemViewer)
 
-**Phase 6 - Stage 11**: ⏳ Planned - System Viewer Bodies (depends on Stage 10)
+**Phase 6 - Stage 11**: ✅ Complete - System Viewer Bodies
 - ✅ SystemBodyNode: 3D body representation with materials, selection, hover, click detection
 - ✅ SystemInspectorPanel: System overview and selected body details panel
 - ✅ Unit tests (SystemBodyNode, SystemInspectorPanel)
-- ⏳ Body rendering integration in SystemViewer (pending scene)
-- ⏳ Body selection with camera focus (pending scene)
+- ✅ Body rendering integration in SystemViewer (adaptive sizing based on orbital spacing)
+- ✅ Body selection with camera focus (click to select, camera focuses on selected body)
+- ✅ Link to ObjectViewer for detailed inspection (MainApp handles navigation)
 
-**Phase 6 - Stage 12**: ⏳ Planned - System Viewer Polish (depends on Stage 11)
-- ⏳ Zone visualization, view toggles, generation UI, save/load UI
+**Phase 6 - Stage 12**: ⏳ Deferred - System Viewer Polish
+- ✅ Zone visualization (habitable zone and frost line rings)
+- ✅ View toggles (show/hide orbits and zones)
+- ✅ System generation UI (star count, seed input, generate/reroll buttons)
+- ⏳ Save/load UI for systems (deferred to Phase 9 - Solar system polish)
 
 **Test Status**: All 501 tests passing ✅
 
@@ -210,6 +214,8 @@ star_gen/
 │   │       ├── SaveData.gd         # Efficient save/load with compression
 │   │       └── CelestialPersistence.gd # File I/O service for persistence
 │   └── app/                        # Application layer (UI, scenes, rendering)
+│       ├── MainApp.gd             # Root application controller (navigation)
+│       ├── MainApp.tscn           # Root application scene
 │       ├── viewer/                # Object viewer
 │       │   ├── ObjectViewer.tscn  # Main viewer scene
 │       │   ├── ObjectViewer.gd    # Viewer controller
@@ -220,6 +226,7 @@ star_gen/
 │       │   └── EditDialog.tscn    # Edit dialog scene (Phase 4, deferred)
 │       ├── system_viewer/         # Solar system viewer
 │       │   ├── SystemViewer.gd    # Main system viewer controller
+│       │   ├── SystemViewer.tscn  # System viewer scene
 │       │   ├── SystemCameraController.gd # System camera controls
 │       │   ├── SystemScaleManager.gd # Scale transformations
 │       │   ├── SystemBodyNode.gd  # Individual body node
@@ -269,7 +276,9 @@ star_gen/
 │   │   ├── TestObjectViewer.gd
 │   │   ├── TestSaveLoad.gd
 │   │   ├── TestCelestialPersistence.gd
-│   │   └── TestSystemCameraController.gd
+│   │   ├── TestSystemCameraController.gd
+│   │   ├── TestSystemViewer.gd
+│   │   └── TestMainApp.gd
 │   ├── TestScene.tscn              # Test scene
 │   ├── TestScene.gd                # Test scene script
 │   ├── RunTestsHeadless.gd         # Headless test runner

@@ -266,17 +266,23 @@ static func _calculate_fill_probability(
 	distance_m: float,
 	host: OrbitHost
 ) -> float:
-	# Normalize distance to inner limit (distance = 1.0 at inner limit)
-	var normalized_distance: float = distance_m / host.inner_stability_m
-	if normalized_distance <= 1.0:
-		normalized_distance = 1.0
+	# Ensure slots outside stability zone get zero
+	if distance_m < host.inner_stability_m or distance_m > host.outer_stability_m:
+		return 0.0
 	
-	# Exponential decay: P = exp(-k * (d - 1))
-	# At inner limit (d=1): P = 1.0
-	# Farther out: P decreases exponentially
-	var probability: float = exp(-PROBABILITY_DECAY * (normalized_distance - 1.0))
+	# Normalize to AU for consistent probability regardless of star size
+	var distance_au: float = distance_m / Units.AU_METERS
 	
-	return clampf(probability, 0.0, 1.0)
+	# Gentle exponential decay in AU:
+	# 0.1 AU: P ≈ 0.99
+	# 0.5 AU: P ≈ 0.93
+	# 1.0 AU: P ≈ 0.86
+	# 5.0 AU: P ≈ 0.47
+	# 10 AU:  P ≈ 0.22
+	# 30 AU:  P ≈ 0.01 (clamped to 0.02)
+	var probability: float = exp(-PROBABILITY_DECAY * distance_au)
+	
+	return clampf(probability, 0.02, 1.0)
 
 
 ## Checks if a slot is dynamically stable.
