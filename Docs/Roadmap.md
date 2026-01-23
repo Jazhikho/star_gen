@@ -411,25 +411,41 @@ Randomly generate a solar system, display it, and inspect its bodies (no editing
 
 ### Phase 7: Galactic map v1
 **Goal:**
-Add a galactic container that browses and lazily generates systems without regenerating edits.
+Add a galactic container that browses and lazily generates systems without regenerating edits. Focus on basic generation and UI setup.
+
+**Design Decisions (v1):**
+•	Galaxy type: Spiral galaxy (Milky Way-like) - single type for v1 to keep scope tight.
+•	Scale: ~10,000-50,000 star systems (enough to feel vast, manageable for LOD).
+•	Spatial dimensions: 2D top-down map (z-height as visual only, positions are x/y).
+•	Hierarchy: Grid-based sectors for spatial indexing (simple, deterministic).
+•	Visualization: 2D top-down map with progressive zoom and LOD (dots → names → selectable).
+•	Navigation: Progressive zoom (galaxy → region → local cluster → system) or click region → system list → open system.
+•	Persistence: Delta persistence (spec + seed + patches) - store visited system seeds/specs for instant revisits.
 
 **Deliverables:**
-•	Galaxy model: sectors/regions and seeded system placement.
+•	Galaxy data model: Galaxy, Sector, GalaxyStar classes with serialization.
+•	Galaxy generator: Spiral arm placement, density gradients, sector-based lazy generation.
 •	Stellar metallicity from galactic position (core vs. spiral arm vs. halo).
 •	Star formation rate by region (affects age distribution).
 •	Stellar density gradients (higher density in core, lower in halo).
 •	Lazy generation (generate on demand, not all at once).
-•	Persistence of edits as deltas/patches applied on top of seeded generation.
-•	Galaxy viewer: browse region/sector -> open system.
+•	Galaxy viewer: 2D pan/zoom interface with MultiMesh star points, spectral colors.
+•	Star selection: Click detection on dense star fields, info panel, "Visit System" button.
+•	Navigation integration: MainApp handles Galaxy ↔ System ↔ Object viewer flow.
+•	Persistence: Save/load galaxy state, visited system tracking (seeds/specs for instant revisits).
 
 **Tests:**
 •	Determinism across lazy generation.
 •	Metallicity gradients: correct distribution by galactic position.
 •	Star formation rate: regional differences affect system ages.
-•	Patch application tests for persistence.
+•	Grid-based sector indexing: deterministic sector assignment.
+•	Lazy generation consistency: same sector generates same systems.
+•	Persistence round-trip: save galaxy → load galaxy → identical state.
 
 **Acceptance criteria:**
 •	Browse galaxy -> open system -> edits persist across sessions.
+•	Galaxy viewer remains responsive with 10k+ stars (LOD working).
+•	Progressive zoom shows appropriate detail at each level.
 
 ### Phase 8: Solar system generator refinement
 **Goal:**
