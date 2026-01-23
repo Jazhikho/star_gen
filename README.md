@@ -8,7 +8,7 @@ Built with **Godot 4.x** and **GDScript**.
 
 **Current Phase**: Phase 6 - Solar system generator and viewer (Stages 1-11 Complete, Stage 12 Deferred)
 
-**Next Phase**: Phase 7 - Solar system generator refinement (constraint-based generation)
+**Next Phase**: Phase 7 - Galactic map v1 (galaxy browser + lazy system generation)
 
 **Phase 0**: ✅ Complete - Foundations, deterministic RNG, math/validation utilities, and test framework
 

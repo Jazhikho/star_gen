@@ -29,12 +29,12 @@ This roadmap builds StarGen in three layers: (1) viewable celestial objects (edi
 | 4     | Object editing v1                | Editable UI with validation + derived recalculation + undo | Edit fields -> derived updates -> undo -> save/load    |
 | 5     | Object rendering v2 (optional)   | Improved shaders/materials + basic LOD                     | Viewer remains stable and responsive while rendering   |
 | 6     | Solar system generator + viewer | Random system generation + system viewer                   | Generate system -> browse bodies -> open object viewer |
-| 7     | Solar system generator refinement| Constraint-based generation (min/max/exact)                | Set constraints -> regenerate -> constraints satisfied |
-| 8     | Solar system tools               | Add/remove bodies, adjust orbits, recalc, undo             | Apply edits -> recalc -> undo -> stable results        |
-| 9     | Solar system polish              | Save/load UI, optimization, final touches                  | Save system -> load system -> identical                |
-| 10    | Galactic map v1                  | Galaxy browser + lazy system generation + persistence      | Browse galaxy -> open system -> edits persist          |
-| 11    | Galactic generator refinement    | Region rules + constraint-based generation                 | Apply region rules -> regenerate -> constraints satisfied |
-| 12    | Galactic tools                   | System placement edits, region editing                      | Apply edits -> recalc -> edits preserved               |
+| 7     | Galactic map v1                  | Galaxy browser + lazy system generation + persistence      | Browse galaxy -> open system -> edits persist          |
+| 8     | Solar system generator refinement| Constraint-based generation (min/max/exact)                | Set constraints -> regenerate -> constraints satisfied |
+| 9     | Galactic generator refinement    | Region rules + constraint-based generation                 | Apply region rules -> regenerate -> constraints satisfied |
+| 10    | Solar system tools               | Add/remove bodies, adjust orbits, recalc, undo             | Apply edits -> recalc -> undo -> stable results        |
+| 11    | Galactic tools                   | System placement edits, region editing                      | Apply edits -> recalc -> edits preserved               |
+| 12    | Solar system polish              | Save/load UI, optimization, final touches                  | Save system -> load system -> identical                |
 | 13    | Galactic polish                  | Save/load UI, optimization, final touches                  | Save galaxy -> load galaxy -> identical                |
 
 ## Phase details
@@ -409,70 +409,7 @@ Randomly generate a solar system, display it, and inspect its bodies (no editing
 **Acceptance criteria:**
 •	Generate system -> browse bodies -> open object viewer reliably.
 
-### Phase 7: Solar system generator refinement
-**Goal:**
-Improve generation quality with constraint-based generation (min/max/exact counts, orbital resonances).
-
-**Deliverables:**
-•	SystemConstraints model (exact/min/max counts, must-include templates later).
-•	Lock stellar age → affects planet composition and surface age.
-•	Lock binary star separation → constrains orbital parameters.
-•	Force orbital resonances → snap orbits to resonant ratios.
-•	Constraint-aware generation with bounded retries and clear failure errors.
-•	UI for constraints and regenerate.
-
-**Tests:**
-•	Constraint satisfaction tests.
-•	Stellar age lock: affects planetary properties correctly.
-•	Orbital resonance lock: bodies maintain specified resonant ratios.
-•	Impossible constraints fail fast and provide actionable errors.
-
-**Acceptance criteria:**
-•	Set constraints -> regenerate -> constraints are satisfied (or cleanly rejected).
-
-### Phase 8: Solar system tools
-**Goal:**
-Add editing tools for modifying systems: add/remove bodies, adjust orbits, recalculate.
-
-**Deliverables:**
-•	Command-based edit operations: add/remove body, adjust orbit, recalc.
-•	Propagate stellar luminosity changes to all planet temperatures.
-•	Revalidate orbits when star mass changes (recalculate all orbital periods).
-•	Cascade deletion: remove moons when planet deleted, remove planets when star deleted.
-•	Safety rails: prevent orbit overlap or auto-resolve.
-•	System-level undo/redo.
-
-**Tests:**
-•	Command apply/undo tests.
-•	Luminosity propagation: star changes update all planet temperatures correctly.
-•	Mass change recalculation: orbital periods update correctly.
-•	Cascade deletion: dependent bodies removed appropriately.
-•	Recalc determinism: same system + same edit ops -> same result.
-
-**Acceptance criteria:**
-•	Apply edits -> recalc -> undo works and system remains valid.
-
-### Phase 9: Solar system polish
-**Goal:**
-Complete the solar system viewer with save/load functionality and final optimizations.
-
-**Deliverables:**
-•	Save/load UI for systems (file dialogs, save/load buttons).
-•	System persistence integration (use SystemPersistence service).
-•	Performance optimizations (LOD, culling, batch rendering).
-•	UI polish (tooltips, keyboard shortcuts, status messages).
-•	Final testing and bug fixes.
-
-**Tests:**
-•	Save/load round-trip tests.
-•	Performance benchmarks.
-•	UI interaction tests.
-
-**Acceptance criteria:**
-•	Save system -> load system -> identical system displayed.
-•	Viewer remains responsive with large systems (100+ bodies).
-
-### Phase 10: Galactic map v1
+### Phase 7: Galactic map v1
 **Goal:**
 Add a galactic container that browses and lazily generates systems without regenerating edits.
 
@@ -494,7 +431,28 @@ Add a galactic container that browses and lazily generates systems without regen
 **Acceptance criteria:**
 •	Browse galaxy -> open system -> edits persist across sessions.
 
-### Phase 11: Galactic generator refinement
+### Phase 8: Solar system generator refinement
+**Goal:**
+Improve generation quality with constraint-based generation (min/max/exact counts, orbital resonances).
+
+**Deliverables:**
+•	SystemConstraints model (exact/min/max counts, must-include templates later).
+•	Lock stellar age → affects planet composition and surface age.
+•	Lock binary star separation → constrains orbital parameters.
+•	Force orbital resonances → snap orbits to resonant ratios.
+•	Constraint-aware generation with bounded retries and clear failure errors.
+•	UI for constraints and regenerate.
+
+**Tests:**
+•	Constraint satisfaction tests.
+•	Stellar age lock: affects planetary properties correctly.
+•	Orbital resonance lock: bodies maintain specified resonant ratios.
+•	Impossible constraints fail fast and provide actionable errors.
+
+**Acceptance criteria:**
+•	Set constraints -> regenerate -> constraints are satisfied (or cleanly rejected).
+
+### Phase 9: Galactic generator refinement
 **Goal:**
 Improve galactic generation with region-level constraints and rules.
 
@@ -512,7 +470,29 @@ Improve galactic generation with region-level constraints and rules.
 **Acceptance criteria:**
 •	Apply region rules -> regenerate -> constraints are satisfied.
 
-### Phase 12: Galactic tools
+### Phase 10: Solar system tools
+**Goal:**
+Add editing tools for modifying systems: add/remove bodies, adjust orbits, recalculate.
+
+**Deliverables:**
+•	Command-based edit operations: add/remove body, adjust orbit, recalc.
+•	Propagate stellar luminosity changes to all planet temperatures.
+•	Revalidate orbits when star mass changes (recalculate all orbital periods).
+•	Cascade deletion: remove moons when planet deleted, remove planets when star deleted.
+•	Safety rails: prevent orbit overlap or auto-resolve.
+•	System-level undo/redo.
+
+**Tests:**
+•	Command apply/undo tests.
+•	Luminosity propagation: star changes update all planet temperatures correctly.
+•	Mass change recalculation: orbital periods update correctly.
+•	Cascade deletion: dependent bodies removed appropriately.
+•	Recalc determinism: same system + same edit ops -> same result.
+
+**Acceptance criteria:**
+•	Apply edits -> recalc -> undo works and system remains valid.
+
+### Phase 11: Galactic tools
 **Goal:**
 Add editing tools for modifying galactic structure: add/remove systems, adjust density.
 
@@ -529,6 +509,26 @@ Add editing tools for modifying galactic structure: add/remove systems, adjust d
 
 **Acceptance criteria:**
 •	Apply edits -> recalc -> undo works and galaxy remains valid.
+
+### Phase 12: Solar system polish
+**Goal:**
+Complete the solar system viewer with save/load functionality and final optimizations.
+
+**Deliverables:**
+•	Save/load UI for systems (file dialogs, save/load buttons).
+•	System persistence integration (use SystemPersistence service).
+•	Performance optimizations (LOD, culling, batch rendering).
+•	UI polish (tooltips, keyboard shortcuts, status messages).
+•	Final testing and bug fixes.
+
+**Tests:**
+•	Save/load round-trip tests.
+•	Performance benchmarks.
+•	UI interaction tests.
+
+**Acceptance criteria:**
+•	Save system -> load system -> identical system displayed.
+•	Viewer remains responsive with large systems (100+ bodies).
 
 ### Phase 13: Galactic polish
 **Goal:**
