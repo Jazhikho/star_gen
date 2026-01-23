@@ -361,30 +361,29 @@ Randomly generate a solar system, display it, and inspect its bodies (no editing
 •	All fixtures pass validation and regenerate identically (determinism verified)
 •	Unit tests (10 golden master regression tests)
 
-**Stage 10: Viewer - 3D Setup** ✅ Complete
-•	✅ SystemViewer scene structure with 3D viewport and environment
+**Stage 10: Viewer - 3D Setup** (In Progress)
 •	✅ SystemCameraController: Top-down orbital view with smooth zoom, pan, and orbit controls
 •	✅ SystemScaleManager: Astronomical distance/size to viewport unit conversions with Kepler's equation solver
 •	✅ OrbitRenderer: 3D line mesh rendering for orbital paths with type-based coloring
+•	✅ SystemViewer.gd script: Main viewer controller with system display logic
+•	⏳ SystemViewer.tscn scene: Scene structure with UI nodes, camera rig, containers (NOT YET CREATED)
 •	✅ Integration tests (SystemCameraController, SystemScaleManager, OrbitRenderer)
+•	⏳ Integration test for SystemViewer scene instantiation (pending scene file)
 
-**Stage 11: Viewer - Bodies** ✅ Complete
+**Stage 11: Viewer - Bodies** (Planned - depends on Stage 10)
 •	✅ SystemBodyNode: 3D body representation with materials, selection, hover, and click detection
-•	✅ Body rendering in system context with type-specific scaling and materials
 •	✅ SystemInspectorPanel: System overview and selected body details with property formatting
-•	✅ Body selection with camera focus and orbit highlighting
-•	✅ Integration with existing MaterialFactory for consistent body rendering
 •	✅ Unit tests (SystemBodyNode, SystemInspectorPanel)
+•	⏳ Body rendering integration in SystemViewer (pending scene)
+•	⏳ Body selection with camera focus (pending scene)
+•	⏳ Link to ObjectViewer for detailed inspection (pending)
 
-**Stage 12: Viewer - Polish** ✅ Complete
-•	✅ Zone visualization: Habitable zone and frost line rings for each orbit host
-•	✅ View toggles: Show/hide orbits and zones
-•	✅ System generation UI: Star count selector, seed input, generate/reroll buttons
-•	✅ Status messages and error handling
-•	✅ Asteroid rendering limit (50 max) for performance
-•	✅ Star lighting with temperature-based colors and luminosity scaling
-•	✅ Selection indicators and hover effects
-•	✅ Note: Save/load UI for systems deferred to later phase (system persistence exists but UI not yet integrated)
+**Stage 12: Viewer - Polish** (Planned - depends on Stage 11)
+•	⏳ Zone visualization: Habitable zone and frost line rings
+•	⏳ View toggles: Show/hide orbits and zones
+•	⏳ System generation UI: Star count selector, seed input, generate/reroll buttons
+•	⏳ Save/load UI for systems
+•	⏳ Final touches and optimization
 
 **Deliverables (Future Stages):**
 •	Orbital parameters: semi-major axis, eccentricity, inclination (start simple).
