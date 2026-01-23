@@ -361,20 +361,30 @@ Randomly generate a solar system, display it, and inspect its bodies (no editing
 •	All fixtures pass validation and regenerate identically (determinism verified)
 •	Unit tests (10 golden master regression tests)
 
-**Stage 10: Viewer - 3D Setup** (Planned)
-•	Scene structure for system viewer.
-•	Camera controls for orbital view.
-•	Orbital path visualization.
+**Stage 10: Viewer - 3D Setup** ✅ Complete
+•	✅ SystemViewer scene structure with 3D viewport and environment
+•	✅ SystemCameraController: Top-down orbital view with smooth zoom, pan, and orbit controls
+•	✅ SystemScaleManager: Astronomical distance/size to viewport unit conversions with Kepler's equation solver
+•	✅ OrbitRenderer: 3D line mesh rendering for orbital paths with type-based coloring
+•	✅ Integration tests (SystemCameraController, SystemScaleManager, OrbitRenderer)
 
-**Stage 11: Viewer - Bodies** (Planned)
-•	Body rendering in system context.
-•	Selection and info panel integration.
-•	Link to ObjectViewer for detailed inspection.
+**Stage 11: Viewer - Bodies** ✅ Complete
+•	✅ SystemBodyNode: 3D body representation with materials, selection, hover, and click detection
+•	✅ Body rendering in system context with type-specific scaling and materials
+•	✅ SystemInspectorPanel: System overview and selected body details with property formatting
+•	✅ Body selection with camera focus and orbit highlighting
+•	✅ Integration with existing MaterialFactory for consistent body rendering
+•	✅ Unit tests (SystemBodyNode, SystemInspectorPanel)
 
-**Stage 12: Viewer - Polish** (Planned)
-•	Zone visualization (habitable, stability, frost line).
-•	Save/load UI for systems.
-•	Final touches and optimization.
+**Stage 12: Viewer - Polish** ✅ Complete
+•	✅ Zone visualization: Habitable zone and frost line rings for each orbit host
+•	✅ View toggles: Show/hide orbits and zones
+•	✅ System generation UI: Star count selector, seed input, generate/reroll buttons
+•	✅ Status messages and error handling
+•	✅ Asteroid rendering limit (50 max) for performance
+•	✅ Star lighting with temperature-based colors and luminosity scaling
+•	✅ Selection indicators and hover effects
+•	✅ Note: Save/load UI for systems deferred to later phase (system persistence exists but UI not yet integrated)
 
 **Deliverables (Future Stages):**
 •	Orbital parameters: semi-major axis, eccentricity, inclination (start simple).
