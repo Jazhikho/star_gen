@@ -37,6 +37,9 @@ const _serializer := preload("res://src/domain/celestial/serialization/Celestial
 # Services (depends on CelestialBody, CelestialSerializer)
 const _persistence := preload("res://src/services/persistence/CelestialPersistence.gd")
 
+# Galaxy save/load (so GalaxyViewer and tests can use GalaxySaveData/GalaxyPersistence)
+const _galaxy_viewer_deps := preload("res://src/app/galaxy_viewer/GalaxyViewerDeps.gd")
+
 # Phase 2: Generation infrastructure
 const _seeded_rng := preload("res://src/domain/rng/SeededRng.gd")
 const _parent_context := preload("res://src/domain/generation/ParentContext.gd")

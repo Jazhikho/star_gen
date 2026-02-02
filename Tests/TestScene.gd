@@ -82,6 +82,20 @@ var _test_scripts: Array[GDScript] = [
 	preload("res://Tests/Integration/TestSystemViewer.gd"),
 	# Phase 6 tests - Navigation
 	preload("res://Tests/Integration/TestMainApp.gd"),
+	preload("res://Tests/Integration/TestMainAppNavigation.gd"),
+	# Phase 7 - System cache
+	preload("res://Tests/Unit/TestSystemCache.gd"),
+	# Galaxy Viewer UI
+	preload("res://Tests/Unit/TestGalaxyInspectorPanel.gd"),
+	preload("res://Tests/Integration/TestGalaxyViewerUI.gd"),
+	# Galaxy Viewer Home (Stage 3)
+	preload("res://Tests/Unit/TestHomePosition.gd"),
+	preload("res://Tests/Integration/TestGalaxyViewerHome.gd"),
+	# Galaxy → System transitions (Stage 4)
+	preload("res://Tests/Integration/TestGalaxySystemTransition.gd"),
+	# Galaxy persistence (Stage 5)
+	preload("res://Tests/Unit/TestGalaxySaveData.gd"),
+	preload("res://Tests/Integration/TestGalaxyPersistence.gd"),
 	# Galaxy tests
 	preload("res://Tests/domain/galaxy/TestStableHash.gd"),
 	preload("res://Tests/domain/galaxy/TestSpiralDensityModel.gd"),
@@ -111,7 +125,7 @@ func _ready() -> void:
 	_runner = TestRunner.new()
 	_runner.test_finished.connect(_on_test_finished)
 	
-	_runner.run_all(_test_scripts)
+	await _runner.run_all(_test_scripts, get_tree())
 	
 	_runner.print_summary()
 	

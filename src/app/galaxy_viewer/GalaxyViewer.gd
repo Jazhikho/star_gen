@@ -10,11 +10,21 @@
 class_name GalaxyViewer
 extends Node3D
 
+## Ensures GalaxyInspectorPanel script is loaded so type resolves for analyzer.
+const _GalaxyInspectorPanelScript: GDScript = preload("res://src/app/galaxy_viewer/GalaxyInspectorPanel.gd")
+
 
 ## Emitted when the user clicks a star in star view.
 ## @param world_position: World-space position of the selected star.
 ## @param star_seed: Deterministic seed of the selected star system.
 signal star_selected(world_position: Vector3, star_seed: int)
+
+## Emitted when the user wants to open a star system for detailed viewing.
+## Open system: _selected_star_seed/_selected_star_position set in _pick_star_at; Enter emits this.
+## Do not look up seed from position (floating-point fragile).
+## @param star_seed: Deterministic seed of the selected star system.
+## @param world_position: World-space position of the star.
+signal open_system_requested(star_seed: int, world_position: Vector3)
 
 ## Master seed for the galaxy.
 @export var galaxy_seed: int = 42
@@ -25,6 +35,9 @@ signal star_selected(world_position: Vector3, star_seed: int)
 ## World-space size of each star billboard quad.
 @export var star_size: float = 80.0
 
+## Whether to start at home position (true) or galaxy view (false).
+@export var start_at_home: bool = true
+
 ## Opacity of the galaxy point cloud when dimmed.
 const GALAXY_DIMMED_OPACITY: float = 0.15
 
@@ -34,8 +47,13 @@ const GALAXY_FULL_OPACITY: float = 1.0
 ## Opacity of the galaxy point cloud in star view — dimmer to let local stars pop.
 const GALAXY_STAR_VIEW_OPACITY: float = 0.05
 
-## Opacity of the galaxy point cloud in star view — dimmer to let local stars stand out.
-const GALAXY_STARVIEW_OPACITY: float = 0.07
+## UI element references (from scene).
+@onready var _status_label: Label = $UI/UIRoot/TopBar/MarginContainer/HBoxContainer/StatusLabel
+@onready var _seed_input: SpinBox = $UI/UIRoot/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/GenerationSection/SeedContainer/SeedInput
+@onready var _show_compass_check: CheckBox = $UI/UIRoot/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/ViewSection/ShowCompassCheck
+@onready var _inspector_panel: GalaxyInspectorPanel = $UI/UIRoot/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/InspectorPanel
+@onready var _save_button: Button = $UI/UIRoot/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/SaveLoadSection/ButtonContainer/SaveButton
+@onready var _load_button: Button = $UI/UIRoot/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/SaveLoadSection/ButtonContainer/LoadButton
 
 var _spec: GalaxySpec
 var _density_model: SpiralDensityModel
@@ -56,6 +74,19 @@ var _canvas_layer: CanvasLayer
 
 ## Currently selected sector local coords, or null.
 var _selected_sector: Variant = null
+
+## Currently selected star's world position (or zero if none).
+var _selected_star_position: Vector3 = Vector3.ZERO
+
+## Currently selected star's seed (or 0 if none).
+var _selected_star_seed: int = 0
+
+## Saved state for restoration after returning from system view.
+var _saved_zoom_level: int = -1
+var _saved_quadrant: Variant = null
+var _saved_sector: Variant = null
+var _saved_star_camera_position: Vector3 = Vector3.ZERO
+var _saved_star_camera_rotation: Vector3 = Vector3.ZERO
 
 
 func _ready() -> void:
@@ -85,9 +116,52 @@ func _ready() -> void:
 	_build_orbit_camera()
 	_build_star_camera()
 	_build_compass()
-	_build_environment()
 
-	_apply_zoom_level(GalaxyCoordinates.ZoomLevel.GALAXY)
+	_connect_ui_signals()
+	_update_seed_display()
+
+	# Initialize starting view
+	if start_at_home:
+		_initialize_at_home()
+	else:
+		_apply_zoom_level(GalaxyCoordinates.ZoomLevel.GALAXY)
+		_update_inspector()
+		set_status("Galaxy viewer ready")
+
+
+## Initializes the viewer at the home subsector position.
+## Pre-selects quadrant and sector, then jumps directly to star view.
+func _initialize_at_home() -> void:
+	if not _zoom_machine:
+		return
+
+	var hierarchy: GalaxyCoordinates.HierarchyCoords = HomePosition.get_home_hierarchy()
+
+	# Set quadrant selection (required for sector view)
+	if _quadrant_cursor:
+		_quadrant_cursor.position = hierarchy.quadrant_coords
+	if _quadrant_selector:
+		_quadrant_selector.set_selection(hierarchy.quadrant_coords)
+
+	# Set sector selection (required for subsector view)
+	_selected_sector = hierarchy.sector_local_coords
+	if _sector_cursor:
+		_sector_cursor.position = hierarchy.sector_local_coords
+
+	# Build sector renderer for the home quadrant (needed even though we skip sector view)
+	if _sector_renderer:
+		_sector_renderer.build_for_quadrant(hierarchy.quadrant_coords, _density_model)
+
+	# Jump zoom machine to subsector level
+	_zoom_machine.set_level(GalaxyCoordinates.ZoomLevel.SUBSECTOR)
+
+	# Apply the subsector view
+	_show_subsector_view()
+	_update_inspector()
+
+	var home_pos: Vector3 = HomePosition.get_default_position()
+	var dist_kpc: float = home_pos.length() / 1000.0
+	set_status("Home sector - %.1f kpc from galactic center" % dist_kpc)
 
 
 func _process(_delta: float) -> void:
@@ -113,12 +187,18 @@ func _handle_key_input(event: InputEventKey) -> void:
 			_try_zoom_out()
 		KEY_ESCAPE:
 			_handle_escape()
+		KEY_ENTER, KEY_KP_ENTER:
+			_try_open_selected_system()
 
 
 ## Handles escape to deselect star within subsector view.
 func _handle_escape() -> void:
 	if _zoom_machine.get_current_level() == GalaxyCoordinates.ZoomLevel.SUBSECTOR:
 		_selection_indicator.hide_indicator()
+		_selected_star_position = Vector3.ZERO
+		_selected_star_seed = 0
+		if _inspector_panel:
+			_inspector_panel.clear_selection()
 
 
 ## Handles left-click for selection at each zoom level.
@@ -202,6 +282,13 @@ func _select_quadrant(coords: Vector3i) -> void:
 	_quadrant_selector.set_selection(coords)
 	_quadrant_renderer.set_highlight(coords)
 
+	if _inspector_panel:
+		var center: Vector3 = GalaxyCoordinates.quadrant_to_parsec_center(coords)
+		var density: float = _density_model.get_density(center)
+		_inspector_panel.display_selected_quadrant(coords, density)
+
+	set_status("Selected quadrant (%d, %d, %d)" % [coords.x, coords.y, coords.z])
+
 
 ## Raycasts to pick a sector.
 func _pick_sector_at(screen_position: Vector2) -> void:
@@ -225,6 +312,17 @@ func _pick_sector_at(screen_position: Vector2) -> void:
 		_select_sector(best_coords as Vector3i)
 
 
+## Attempts to open the currently selected star as a system (Enter key).
+func _try_open_selected_system() -> void:
+	if _zoom_machine.get_current_level() != GalaxyCoordinates.ZoomLevel.SUBSECTOR:
+		return
+
+	if _selected_star_seed == 0:
+		return
+
+	open_system_requested.emit(_selected_star_seed, _selected_star_position)
+
+
 ## Raycasts to pick a star using the star view camera.
 func _pick_star_at(screen_position: Vector2) -> void:
 	var ray_origin: Vector3 = _star_camera.project_ray_origin(screen_position)
@@ -235,9 +333,18 @@ func _pick_star_at(screen_position: Vector2) -> void:
 	if result != null:
 		var pick: StarPicker.PickResult = result as StarPicker.PickResult
 		_selection_indicator.show_at(pick.world_position)
+		_selected_star_position = pick.world_position
+		_selected_star_seed = pick.star_seed
 		star_selected.emit(pick.world_position, pick.star_seed)
+		if _inspector_panel:
+			_inspector_panel.display_selected_star(pick.world_position, pick.star_seed)
+		set_status("Selected star (seed: %d)" % pick.star_seed)
 	else:
 		_selection_indicator.hide_indicator()
+		_selected_star_position = Vector3.ZERO
+		_selected_star_seed = 0
+		if _inspector_panel:
+			_inspector_panel.clear_selection()
 
 
 ## Sets the selected sector.
@@ -245,6 +352,15 @@ func _select_sector(coords: Vector3i) -> void:
 	_sector_cursor.position = coords
 	_selected_sector = coords
 	_sector_renderer.set_highlight(coords)
+
+	if _inspector_panel and _quadrant_selector.has_selection():
+		var quadrant_coords: Vector3i = _quadrant_selector.selected_coords as Vector3i
+		var sector_origin: Vector3 = GalaxyCoordinates.sector_world_origin(quadrant_coords, coords)
+		var sector_center: Vector3 = sector_origin + Vector3.ONE * GalaxyCoordinates.SECTOR_SIZE_PC * 0.5
+		var density: float = _density_model.get_density(sector_center)
+		_inspector_panel.display_selected_sector(quadrant_coords, coords, density)
+
+	set_status("Selected sector (%d, %d, %d)" % [coords.x, coords.y, coords.z])
 
 
 ## Attempts to zoom in with selection requirements.
@@ -272,6 +388,7 @@ func _try_zoom_out() -> void:
 ## @param new_level: New zoom level.
 func _on_zoom_level_changed(_old_level: int, new_level: int) -> void:
 	_apply_zoom_level(new_level)
+	_update_inspector()
 
 
 ## Applies visual state for a given zoom level.
@@ -318,6 +435,10 @@ func _show_galaxy_view() -> void:
 
 	_orbit_camera.reconfigure_constraints(500.0, 120000.0, Vector3.ZERO)
 
+	if _inspector_panel:
+		_inspector_panel.clear_selection()
+	set_status("Galaxy view - press ] to zoom in")
+
 
 ## Quadrant view.
 func _show_quadrant_view() -> void:
@@ -329,12 +450,16 @@ func _show_quadrant_view() -> void:
 	_neighborhood_renderer.visible = false
 	_selection_indicator.hide_indicator()
 	_selected_sector = null
-	_compass.visible = true
+	_compass.visible = _show_compass_check == null or _show_compass_check.button_pressed
 
 	if _quadrant_selector.has_selection():
 		_quadrant_renderer.set_highlight(_quadrant_selector.selected_coords)
 
 	_orbit_camera.reconfigure_constraints(200.0, 60000.0, Vector3.ZERO)
+
+	if _inspector_panel:
+		_inspector_panel.clear_selection()
+	set_status("Quadrant view - click to select, ] to zoom in")
 
 
 ## Sector view — select a sector within the chosen quadrant.
@@ -355,12 +480,16 @@ func _show_sector_view() -> void:
 	_sector_renderer.visible = true
 	_neighborhood_renderer.visible = false
 	_selection_indicator.hide_indicator()
-	_compass.visible = true
+	_compass.visible = _show_compass_check == null or _show_compass_check.button_pressed
 
 	if _selected_sector != null:
 		_sector_renderer.set_highlight(_selected_sector)
 
 	_orbit_camera.reconfigure_constraints(50.0, 5000.0, quadrant_center)
+
+	if _inspector_panel:
+		_inspector_panel.clear_selection()
+	set_status("Sector view - click to select, ] to zoom in")
 
 
 ## Star view — first-person exploration with dimmed galaxy backdrop.
@@ -389,6 +518,10 @@ func _show_subsector_view() -> void:
 		sector_center, galaxy_seed, _density_model, _reference_density
 	)
 	_neighborhood_renderer.visible = true
+
+	if _inspector_panel:
+		_inspector_panel.clear_selection()
+	set_status("Star field - WASD to move, click to select star, Enter to open system")
 
 
 ## Creates the galaxy point cloud renderer.
@@ -493,19 +626,360 @@ func _compute_reference_density() -> float:
 	return _density_model.get_density(Vector3(solar_radius_pc, 0.0, 0.0))
 
 
-## Sets up a dark environment with glow post-processing.
-func _build_environment() -> void:
-	var env: Environment = Environment.new()
-	env.background_mode = Environment.BG_COLOR
-	env.background_color = Color(0.0, 0.0, 0.02)
-	env.ambient_light_source = Environment.AMBIENT_SOURCE_COLOR
-	env.ambient_light_color = Color.BLACK
-	env.glow_enabled = true
-	env.glow_intensity = 0.8
-	env.glow_bloom = 0.2
-	env.glow_hdr_threshold = 0.0
+## Connects UI element signals.
+func _connect_ui_signals() -> void:
+	if _show_compass_check:
+		_show_compass_check.toggled.connect(_on_show_compass_toggled)
+	if _inspector_panel:
+		_inspector_panel.open_system_requested.connect(_on_inspector_open_system)
+	if _save_button:
+		_save_button.pressed.connect(_on_save_pressed)
+	if _load_button:
+		_load_button.pressed.connect(_on_load_pressed)
 
-	var world_env: WorldEnvironment = WorldEnvironment.new()
-	world_env.name = "WorldEnvironment"
-	world_env.environment = env
-	add_child(world_env)
+
+## Updates the seed display to match current galaxy seed.
+func _update_seed_display() -> void:
+	if _seed_input:
+		_seed_input.value = galaxy_seed
+
+
+## Handles show compass toggle.
+## @param enabled: Whether compass should be shown.
+func _on_show_compass_toggled(enabled: bool) -> void:
+	var current_level: int = _zoom_machine.get_current_level()
+	if current_level == GalaxyCoordinates.ZoomLevel.QUADRANT or \
+	   current_level == GalaxyCoordinates.ZoomLevel.SECTOR:
+		_compass.visible = enabled
+
+
+## Handles inspector panel request to open system.
+## @param star_seed: The star seed.
+## @param world_position: The star position.
+func _on_inspector_open_system(star_seed: int, world_position: Vector3) -> void:
+	open_system_requested.emit(star_seed, world_position)
+
+
+## Updates the inspector panel with current state.
+func _update_inspector() -> void:
+	if _inspector_panel:
+		_inspector_panel.display_galaxy(_spec, _zoom_machine.get_current_level())
+
+
+## Sets the status message.
+## @param message: Status text.
+func set_status(message: String) -> void:
+	if _status_label:
+		_status_label.text = message
+
+
+## Returns the galaxy specification.
+## @return: GalaxySpec instance.
+func get_spec() -> GalaxySpec:
+	return _spec
+
+
+## Returns the current zoom level.
+## @return: Zoom level enum value.
+func get_zoom_level() -> int:
+	if _zoom_machine:
+		return _zoom_machine.get_current_level()
+	return GalaxyCoordinates.ZoomLevel.GALAXY
+
+
+## Returns the inspector panel (for testing).
+## @return: GalaxyInspectorPanel instance.
+func get_inspector_panel() -> GalaxyInspectorPanel:
+	return _inspector_panel
+
+
+## Navigates to the home subsector from any zoom level.
+## Useful for "go home" button functionality.
+func navigate_to_home() -> void:
+	_initialize_at_home()
+
+
+## Returns whether the viewer starts at home position.
+## @return: True if starting at home.
+func get_start_at_home() -> bool:
+	return start_at_home
+
+
+## Saves the current viewer state for later restoration.
+## Called before transitioning to system viewer.
+func save_state() -> void:
+	if _zoom_machine:
+		_saved_zoom_level = _zoom_machine.get_current_level()
+	else:
+		_saved_zoom_level = GalaxyCoordinates.ZoomLevel.SUBSECTOR
+
+	if _quadrant_selector and _quadrant_selector.has_selection():
+		_saved_quadrant = _quadrant_selector.selected_coords
+	else:
+		_saved_quadrant = null
+
+	_saved_sector = _selected_sector
+
+	# Save star camera state if in subsector view
+	if _saved_zoom_level == GalaxyCoordinates.ZoomLevel.SUBSECTOR and _star_camera:
+		_saved_star_camera_position = _star_camera.global_position
+		_saved_star_camera_rotation = _star_camera.rotation
+
+
+## Restores the previously saved viewer state.
+## Called when returning from system viewer.
+func restore_state() -> void:
+	if _saved_zoom_level < 0:
+		# No saved state, go to home
+		_initialize_at_home()
+		return
+
+	# Restore quadrant selection
+	if _saved_quadrant != null and _quadrant_selector:
+		var quadrant_coords: Vector3i = _saved_quadrant as Vector3i
+		_quadrant_cursor.position = quadrant_coords
+		_quadrant_selector.set_selection(quadrant_coords)
+
+	# Restore sector selection
+	_selected_sector = _saved_sector
+	if _saved_sector != null and _sector_cursor:
+		_sector_cursor.position = _saved_sector as Vector3i
+
+	# Build sector renderer if needed
+	if _saved_quadrant != null and _sector_renderer and \
+	   (_saved_zoom_level == GalaxyCoordinates.ZoomLevel.SECTOR or \
+	   _saved_zoom_level == GalaxyCoordinates.ZoomLevel.SUBSECTOR):
+		_sector_renderer.build_for_quadrant(_saved_quadrant as Vector3i, _density_model)
+
+	# Set zoom level and apply view
+	if _zoom_machine:
+		_zoom_machine.set_level(_saved_zoom_level)
+	_apply_zoom_level(_saved_zoom_level)
+
+	# Restore star camera position if returning to subsector view
+	if _saved_zoom_level == GalaxyCoordinates.ZoomLevel.SUBSECTOR and _star_camera:
+		_star_camera.global_position = _saved_star_camera_position
+		_star_camera.rotation = _saved_star_camera_rotation
+
+		# Rebuild neighborhood for restored position
+		if _neighborhood_renderer:
+			_neighborhood_renderer.build_neighborhood(
+				_star_camera.global_position, galaxy_seed,
+				_density_model, _reference_density
+			)
+
+	_update_inspector()
+	set_status("Returned to galaxy view")
+
+
+## Clears saved state.
+func clear_saved_state() -> void:
+	_saved_zoom_level = -1
+	_saved_quadrant = null
+	_saved_sector = null
+	_saved_star_camera_position = Vector3.ZERO
+	_saved_star_camera_rotation = Vector3.ZERO
+
+
+## Returns true if there is saved state to restore.
+## @return: True if state was previously saved.
+func has_saved_state() -> bool:
+	return _saved_zoom_level >= 0
+
+
+## Returns the currently selected star seed, or 0 if none.
+## @return: Star seed or 0.
+func get_selected_star_seed() -> int:
+	return _selected_star_seed
+
+
+## Returns the currently selected star position.
+## @return: World position or zero vector.
+func get_selected_star_position() -> Vector3:
+	return _selected_star_position
+
+
+## Handles save button press.
+func _on_save_pressed() -> void:
+	var dialog: FileDialog = FileDialog.new()
+	dialog.file_mode = FileDialog.FILE_MODE_SAVE_FILE
+	dialog.access = FileDialog.ACCESS_USERDATA
+	dialog.filters = PackedStringArray(["*.sgg ; StarGen Galaxy", "*.json ; JSON Debug"])
+	dialog.current_file = "galaxy_%d.sgg" % galaxy_seed
+	dialog.file_selected.connect(_on_save_file_selected)
+	dialog.canceled.connect(func() -> void: dialog.queue_free())
+
+	add_child(dialog)
+	dialog.popup_centered(Vector2i(800, 600))
+
+
+## Handles load button press.
+func _on_load_pressed() -> void:
+	var dialog: FileDialog = FileDialog.new()
+	dialog.file_mode = FileDialog.FILE_MODE_OPEN_FILE
+	dialog.access = FileDialog.ACCESS_USERDATA
+	dialog.filters = PackedStringArray(["*.sgg ; StarGen Galaxy", "*.json ; JSON Debug"])
+	dialog.file_selected.connect(_on_load_file_selected)
+	dialog.canceled.connect(func() -> void: dialog.queue_free())
+
+	add_child(dialog)
+	dialog.popup_centered(Vector2i(800, 600))
+
+
+## Handles save file selection.
+## @param path: Selected file path.
+func _on_save_file_selected(path: String) -> void:
+	var data: GalaxySaveData = _create_save_data()
+
+	var error: String = ""
+	if path.ends_with(".json"):
+		error = GalaxyPersistence.save_json(path, data)
+	else:
+		error = GalaxyPersistence.save_binary(path, data)
+
+	if error.is_empty():
+		set_status("Saved to %s" % path.get_file())
+	else:
+		set_status("Save failed: %s" % error)
+		push_error(error)
+
+
+## Handles load file selection.
+## @param path: Selected file path.
+func _on_load_file_selected(path: String) -> void:
+	var data: GalaxySaveData = GalaxyPersistence.load_auto(path)
+
+	if data == null:
+		set_status("Failed to load file")
+		return
+	if not data.is_valid():
+		set_status("Invalid save data")
+		return
+
+	_apply_save_data(data)
+	set_status("Loaded from %s" % path.get_file())
+
+
+## Creates save data from current viewer state.
+## @return: GalaxySaveData with current state.
+func _create_save_data() -> GalaxySaveData:
+	var data: GalaxySaveData = GalaxySaveData.create()
+
+	data.galaxy_seed = galaxy_seed
+
+	if _zoom_machine:
+		data.zoom_level = _zoom_machine.get_current_level()
+
+	if _quadrant_selector and _quadrant_selector.has_selection():
+		data.selected_quadrant = _quadrant_selector.selected_coords
+
+	data.selected_sector = _selected_sector
+
+	if _star_camera:
+		data.camera_position = _star_camera.global_position
+		data.camera_rotation = _star_camera.rotation
+
+	data.has_star_selection = _selected_star_seed != 0
+	data.selected_star_seed = _selected_star_seed
+	data.selected_star_position = _selected_star_position
+
+	return data
+
+
+## Applies save data to restore viewer state.
+## @param data: GalaxySaveData to apply.
+func _apply_save_data(data: GalaxySaveData) -> void:
+	# If galaxy seed changed, regenerate galaxy then apply view state
+	if data.galaxy_seed != galaxy_seed:
+		_change_galaxy_seed(data.galaxy_seed)
+
+	# Restore quadrant selection
+	if data.selected_quadrant != null and _quadrant_selector:
+		var quadrant_coords: Vector3i = data.selected_quadrant as Vector3i
+		if _quadrant_cursor:
+			_quadrant_cursor.position = quadrant_coords
+		_quadrant_selector.set_selection(quadrant_coords)
+	else:
+		if _quadrant_selector:
+			_quadrant_selector.clear_selection()
+
+	# Restore sector selection
+	_selected_sector = data.selected_sector
+	if data.selected_sector != null and _sector_cursor:
+		_sector_cursor.position = data.selected_sector as Vector3i
+
+	# Build sector renderer if needed
+	if data.selected_quadrant != null and _sector_renderer and \
+	   (data.zoom_level == GalaxyCoordinates.ZoomLevel.SECTOR or \
+	   data.zoom_level == GalaxyCoordinates.ZoomLevel.SUBSECTOR):
+		_sector_renderer.build_for_quadrant(data.selected_quadrant as Vector3i, _density_model)
+
+	# Set zoom level
+	if _zoom_machine:
+		_zoom_machine.set_level(data.zoom_level)
+	_apply_zoom_level(data.zoom_level)
+
+	# Restore camera position for subsector view
+	if data.zoom_level == GalaxyCoordinates.ZoomLevel.SUBSECTOR and _star_camera:
+		_star_camera.global_position = data.camera_position
+		_star_camera.rotation = data.camera_rotation
+
+		if _neighborhood_renderer:
+			_neighborhood_renderer.build_neighborhood(
+				_star_camera.global_position, galaxy_seed,
+				_density_model, _reference_density
+			)
+
+	# Restore star selection
+	if data.has_star_selection:
+		_selected_star_seed = data.selected_star_seed
+		_selected_star_position = data.selected_star_position
+		if _selection_indicator:
+			_selection_indicator.show_at(data.selected_star_position)
+		if _inspector_panel:
+			_inspector_panel.display_selected_star(data.selected_star_position, data.selected_star_seed)
+	else:
+		_selected_star_seed = 0
+		_selected_star_position = Vector3.ZERO
+		if _selection_indicator:
+			_selection_indicator.hide_indicator()
+
+	_update_inspector()
+
+
+## Changes the galaxy seed and regenerates galaxy data.
+## @param new_seed: New galaxy seed.
+func _change_galaxy_seed(new_seed: int) -> void:
+	galaxy_seed = new_seed
+
+	_spec = GalaxySpec.create_milky_way(galaxy_seed)
+	_density_model = SpiralDensityModel.new(_spec)
+	_reference_density = _compute_reference_density()
+
+	var rng: RandomNumberGenerator = RandomNumberGenerator.new()
+	rng.seed = _spec.seed
+
+	var sample: GalaxySample = DensitySampler.sample_galaxy(
+		_spec, _density_model, num_points, rng
+	)
+
+	_galaxy_renderer.build_from_sample(sample, star_size)
+	_quadrant_renderer.build_from_density(_spec, _density_model)
+
+	if _quadrant_selector:
+		_quadrant_selector.clear_selection()
+	_selected_sector = null
+
+	_update_seed_display()
+
+
+## Returns current save data (for testing).
+## @return: GalaxySaveData with current state.
+func get_save_data() -> GalaxySaveData:
+	return _create_save_data()
+
+
+## Applies save data (for testing).
+## @param data: GalaxySaveData to apply.
+func apply_save_data(data: GalaxySaveData) -> void:
+	_apply_save_data(data)
