@@ -82,6 +82,19 @@ var _test_scripts: Array[GDScript] = [
 	preload("res://Tests/Integration/TestSystemViewer.gd"),
 	# Phase 6 tests - Navigation
 	preload("res://Tests/Integration/TestMainApp.gd"),
+	# Galaxy tests
+	preload("res://Tests/domain/galaxy/TestStableHash.gd"),
+	preload("res://Tests/domain/galaxy/TestSpiralDensityModel.gd"),
+	preload("res://Tests/domain/galaxy/TestDensitySampler.gd"),
+	preload("res://Tests/domain/galaxy/TestGalaxyCoordinates.gd"),
+	preload("res://Tests/domain/galaxy/TestZoomStateMachine.gd"),
+	preload("res://Tests/domain/galaxy/TestRaycastUtils.gd"),
+	preload("res://Tests/domain/galaxy/TestSeedDeriver.gd"),
+	preload("res://Tests/domain/galaxy/TestQuadrantSelector.gd"),
+	preload("res://Tests/domain/galaxy/TestGridCursor.gd"),
+	preload("res://Tests/domain/galaxy/TestSubSectorGenerator.gd"),
+	preload("res://Tests/domain/galaxy/TestStarPicker.gd"),
+	preload("res://Tests/domain/galaxy/TestSubSectorNeighborhood.gd"),
 ]
 
 
