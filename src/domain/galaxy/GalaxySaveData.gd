@@ -6,6 +6,9 @@ extends RefCounted
 ## Current save format version.
 const FORMAT_VERSION: int = 1
 
+## Script reference for self-instantiation (avoids class_name resolution order when loaded as dependency).
+const _SCRIPT: GDScript = preload("res://src/domain/galaxy/GalaxySaveData.gd")
+
 ## File format version.
 var version: int = FORMAT_VERSION
 
@@ -42,14 +45,15 @@ var selected_star_position: Vector3 = Vector3.ZERO
 
 ## Returns this script for self-instantiation (avoids class_name resolution order when loaded as dependency).
 static func _script_ref() -> GDScript:
-	return load("res://src/domain/galaxy/GalaxySaveData.gd") as GDScript
+	return _SCRIPT
 
 
-## Creates a new save data with current timestamp.
+## Creates a new save data with the given timestamp (caller provides time so domain stays engine-free).
+## @param timestamp: Unix time when the save was created.
 ## @return: New GalaxySaveData instance (RefCounted at type level to avoid load-order issues).
-static func create() -> RefCounted:
+static func create(timestamp: int) -> RefCounted:
 	var data: RefCounted = _script_ref().new()
-	data.set("saved_at", int(Time.get_unix_time_from_system()))
+	data.set("saved_at", timestamp)
 	return data
 
 
@@ -168,12 +172,11 @@ static func _array_to_vector3i(arr: Array) -> Vector3i:
 	return Vector3i(arr[0] as int, arr[1] as int, arr[2] as int)
 
 
-## Returns a human-readable summary of the save data.
+## Returns a human-readable summary of the save data (timestamp as number; app may format for display).
 ## @return: Summary string.
 func get_summary() -> String:
 	var zoom_name: String = _get_zoom_name(zoom_level)
-	var date_str: String = Time.get_datetime_string_from_unix_time(saved_at)
-	return "Seed %d, %s view, saved %s" % [galaxy_seed, zoom_name, date_str]
+	return "Seed %d, %s view, saved %d" % [galaxy_seed, zoom_name, saved_at]
 
 
 ## Returns zoom level name.

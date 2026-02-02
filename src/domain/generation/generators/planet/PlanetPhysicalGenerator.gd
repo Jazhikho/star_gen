@@ -3,15 +3,15 @@
 class_name PlanetPhysicalGenerator
 extends RefCounted
 
-const _planet_spec := preload("res://src/domain/generation/specs/PlanetSpec.gd")
-const _size_category := preload("res://src/domain/generation/archetypes/SizeCategory.gd")
-const _size_table := preload("res://src/domain/generation/tables/SizeTable.gd")
-const _orbit_table := preload("res://src/domain/generation/tables/OrbitTable.gd")
-const _physical_props := preload("res://src/domain/celestial/components/PhysicalProps.gd")
-const _orbital_props := preload("res://src/domain/celestial/components/OrbitalProps.gd")
-const _parent_context := preload("res://src/domain/generation/ParentContext.gd")
-const _units := preload("res://src/domain/math/Units.gd")
-const _seeded_rng := preload("res://src/domain/rng/SeededRng.gd")
+const _planet_spec: GDScript = preload("res://src/domain/generation/specs/PlanetSpec.gd")
+const _size_category: GDScript = preload("res://src/domain/generation/archetypes/SizeCategory.gd")
+const _size_table: GDScript = preload("res://src/domain/generation/tables/SizeTable.gd")
+const _orbit_table: GDScript = preload("res://src/domain/generation/tables/OrbitTable.gd")
+const _physical_props: GDScript = preload("res://src/domain/celestial/components/PhysicalProps.gd")
+const _orbital_props: GDScript = preload("res://src/domain/celestial/components/OrbitalProps.gd")
+const _parent_context: GDScript = preload("res://src/domain/generation/ParentContext.gd")
+const _units: GDScript = preload("res://src/domain/math/Units.gd")
+const _seeded_rng: GDScript = preload("res://src/domain/rng/SeededRng.gd")
 
 
 ## Generates physical properties for a planet.
@@ -233,7 +233,7 @@ static func _calculate_oblateness(
 		return 0.0
 	
 	# Oblateness depends on rotation rate and body rigidity
-	# f ≈ (5/4) * (ω²R³)/(GM) for fluid body
+	# f â‰ˆ (5/4) * (Ï‰Â²RÂ³)/(GM) for fluid body
 	# Reduced for rocky bodies due to rigidity
 	
 	var omega: float = 2.0 * PI / absf(rotation_period_s)
@@ -260,7 +260,7 @@ static func _calculate_oblateness(
 ## @param rotation_period_s: Rotation period.
 ## @param size_cat: Size category.
 ## @param rng: Random number generator.
-## @return: Magnetic moment in T·m³.
+## @return: Magnetic moment in TÂ·mÂ³.
 static func _calculate_magnetic_moment(
 	mass_kg: float,
 	radius_m: float,
@@ -273,7 +273,7 @@ static func _calculate_magnetic_moment(
 	# 2. Rotation (convection needs Coriolis force)
 	# 3. Sufficient heat flux (drives convection)
 	
-	# Earth's magnetic moment: ~8e22 A·m² ≈ 8e22 T·m³
+	# Earth's magnetic moment: ~8e22 AÂ·mÂ² â‰ˆ 8e22 TÂ·mÂ³
 	var earth_moment: float = 8.0e22
 	
 	# No field if too slow rotation (tidally locked small bodies)
@@ -285,13 +285,13 @@ static func _calculate_magnetic_moment(
 	var radius_earth: float = radius_m / Units.EARTH_RADIUS_METERS
 	
 	# Scaling: magnetic moment roughly scales with core size and rotation rate
-	# M ∝ ρ_core * r_core³ * ω
-	# Simplified: M ∝ M^0.5 * R * (24/P)
+	# M âˆ Ï_core * r_coreÂ³ * Ï‰
+	# Simplified: M âˆ M^0.5 * R * (24/P)
 	
 	var base_moment: float
 	if SizeCategory.is_gaseous(size_cat):
 		# Gas giants have strong fields from metallic hydrogen
-		# Jupiter: ~1.5e27 T·m³
+		# Jupiter: ~1.5e27 TÂ·mÂ³
 		base_moment = earth_moment * pow(mass_earth, 0.8) * (24.0 / maxf(rotation_hours, 1.0))
 	else:
 		# Rocky planets: need differentiated iron core

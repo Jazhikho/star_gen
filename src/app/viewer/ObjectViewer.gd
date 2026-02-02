@@ -4,29 +4,29 @@ class_name ObjectViewer
 extends Node3D
 
 # Generators
-const _star_generator := preload("res://src/domain/generation/generators/StarGenerator.gd")
-const _planet_generator := preload("res://src/domain/generation/generators/PlanetGenerator.gd")
-const _moon_generator := preload("res://src/domain/generation/generators/MoonGenerator.gd")
-const _asteroid_generator := preload("res://src/domain/generation/generators/AsteroidGenerator.gd")
+const _star_generator: GDScript = preload("res://src/domain/generation/generators/StarGenerator.gd")
+const _planet_generator: GDScript = preload("res://src/domain/generation/generators/PlanetGenerator.gd")
+const _moon_generator: GDScript = preload("res://src/domain/generation/generators/MoonGenerator.gd")
+const _asteroid_generator: GDScript = preload("res://src/domain/generation/generators/AsteroidGenerator.gd")
 
 # Specs
-const _star_spec := preload("res://src/domain/generation/specs/StarSpec.gd")
-const _planet_spec := preload("res://src/domain/generation/specs/PlanetSpec.gd")
-const _moon_spec := preload("res://src/domain/generation/specs/MoonSpec.gd")
-const _asteroid_spec := preload("res://src/domain/generation/specs/AsteroidSpec.gd")
+const _star_spec: GDScript = preload("res://src/domain/generation/specs/StarSpec.gd")
+const _planet_spec: GDScript = preload("res://src/domain/generation/specs/PlanetSpec.gd")
+const _moon_spec: GDScript = preload("res://src/domain/generation/specs/MoonSpec.gd")
+const _asteroid_spec: GDScript = preload("res://src/domain/generation/specs/AsteroidSpec.gd")
 
 # Supporting classes
-const _parent_context := preload("res://src/domain/generation/ParentContext.gd")
-const _seeded_rng := preload("res://src/domain/rng/SeededRng.gd")
-const _celestial_type := preload("res://src/domain/celestial/CelestialType.gd")
-const _units := preload("res://src/domain/math/Units.gd")
-const _stellar_props := preload("res://src/domain/celestial/components/StellarProps.gd")
-const _inspector_panel := preload("res://src/app/viewer/InspectorPanel.gd")
-const _save_data := preload("res://src/services/persistence/SaveData.gd")
+const _parent_context: GDScript = preload("res://src/domain/generation/ParentContext.gd")
+const _seeded_rng: GDScript = preload("res://src/domain/rng/SeededRng.gd")
+const _celestial_type: GDScript = preload("res://src/domain/celestial/CelestialType.gd")
+const _units: GDScript = preload("res://src/domain/math/Units.gd")
+const _stellar_props: GDScript = preload("res://src/domain/celestial/components/StellarProps.gd")
+const _inspector_panel: GDScript = preload("res://src/app/viewer/InspectorPanel.gd")
+const _save_data: GDScript = preload("res://src/services/persistence/SaveData.gd")
 
 # Rendering
-const _body_renderer_scene := preload("res://src/app/rendering/BodyRenderer.tscn")
-const _body_renderer := preload("res://src/app/rendering/BodyRenderer.gd")
+const _body_renderer_scene: PackedScene = preload("res://src/app/rendering/BodyRenderer.tscn")
+const _body_renderer: GDScript = preload("res://src/app/rendering/BodyRenderer.gd")
 
 ## UI element references
 @onready var status_label: Label = $UI/TopBar/MarginContainer/HBoxContainer/StatusLabel
@@ -563,7 +563,7 @@ func _show_back_button() -> void:
 
 	# Insert back button at position 0 (leftmost)
 	_back_button = Button.new()
-	_back_button.text = "← Back to System"
+	_back_button.text = "â† Back to System"
 	_back_button.tooltip_text = "Return to solar system viewer"
 	_back_button.pressed.connect(_on_back_pressed)
 	top_bar_container.add_child(_back_button)

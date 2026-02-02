@@ -3,10 +3,10 @@
 class_name OrbitalMechanics
 extends RefCounted
 
-const _units := preload("res://src/domain/math/Units.gd")
-const _stellar_props := preload("res://src/domain/celestial/components/StellarProps.gd")
-const _orbit_zone := preload("res://src/domain/generation/archetypes/OrbitZone.gd")
-const _seeded_rng := preload("res://src/domain/rng/SeededRng.gd")
+const _units: GDScript = preload("res://src/domain/math/Units.gd")
+const _stellar_props: GDScript = preload("res://src/domain/celestial/components/StellarProps.gd")
+const _orbit_zone: GDScript = preload("res://src/domain/generation/archetypes/OrbitZone.gd")
+const _seeded_rng: GDScript = preload("res://src/domain/rng/SeededRng.gd")
 
 
 ## Gravitational constant in m^3 kg^-1 s^-2.
@@ -27,7 +27,7 @@ const P_TYPE_CRITICAL_RATIO: float = 2.5
 
 
 ## Calculates orbital period using Kepler's third law.
-## T = 2π * sqrt(a^3 / (G * M))
+## T = 2Ï€ * sqrt(a^3 / (G * M))
 ## @param semi_major_axis_m: Semi-major axis in meters.
 ## @param central_mass_kg: Mass of central body in kg.
 ## @return: Orbital period in seconds.
@@ -41,7 +41,7 @@ static func calculate_orbital_period(
 
 
 ## Calculates semi-major axis from orbital period (inverse of Kepler's third law).
-## a = (G * M * T^2 / (4π^2))^(1/3)
+## a = (G * M * T^2 / (4Ï€^2))^(1/3)
 ## @param period_s: Orbital period in seconds.
 ## @param central_mass_kg: Mass of central body in kg.
 ## @return: Semi-major axis in meters.
@@ -119,7 +119,7 @@ static func calculate_hill_sphere(
 
 
 ## Calculates the Roche limit for a fluid body.
-## d = 2.44 * R_primary * (ρ_primary / ρ_satellite)^(1/3)
+## d = 2.44 * R_primary * (Ï_primary / Ï_satellite)^(1/3)
 ## @param primary_radius_m: Radius of primary body in meters.
 ## @param primary_density_kg_m3: Density of primary in kg/m^3.
 ## @param satellite_density_kg_m3: Density of satellite in kg/m^3.
@@ -153,7 +153,7 @@ static func calculate_roche_limit_from_mass(
 
 
 ## Calculates the sphere of influence (SOI) radius for a body.
-## R_SOI ≈ a * (m / M)^(2/5)  (Laplace approximation)
+## R_SOI â‰ˆ a * (m / M)^(2/5)  (Laplace approximation)
 ## @param body_mass_kg: Mass of the body.
 ## @param primary_mass_kg: Mass of the primary it orbits.
 ## @param semi_major_axis_m: Distance from primary.
@@ -204,8 +204,8 @@ static func calculate_stype_stability_limit(
 		return 0.0
 	
 	# Empirical fit from Holman & Wiegert 1999
-	# a_crit ≈ (0.464 - 0.380*μ - 0.631*e + 0.586*μ*e + 0.150*e^2 - 0.198*μ*e^2) * a_binary
-	# where μ = M_companion / (M_primary + M_companion)
+	# a_crit â‰ˆ (0.464 - 0.380*Î¼ - 0.631*e + 0.586*Î¼*e + 0.150*e^2 - 0.198*Î¼*e^2) * a_binary
+	# where Î¼ = M_companion / (M_primary + M_companion)
 	var mu: float = mass_ratio / (1.0 + mass_ratio)
 	var e: float = clampf(binary_eccentricity, 0.0, 0.99)
 	
@@ -230,7 +230,7 @@ static func calculate_ptype_stability_limit(
 		return 0.0
 	
 	# Empirical fit from Holman & Wiegert 1999
-	# a_crit ≈ (1.60 + 5.10*e - 2.22*e^2 + 4.12*μ - 4.27*e*μ - 5.09*μ^2 + 4.61*e^2*μ^2) * a_binary
+	# a_crit â‰ˆ (1.60 + 5.10*e - 2.22*e^2 + 4.12*Î¼ - 4.27*e*Î¼ - 5.09*Î¼^2 + 4.61*e^2*Î¼^2) * a_binary
 	var mu: float = mass_ratio / (1.0 + mass_ratio)
 	var e: float = clampf(binary_eccentricity, 0.0, 0.99)
 	
@@ -260,7 +260,7 @@ static func calculate_binary_period(
 
 
 ## Calculates the inner edge of the habitable zone.
-## Based on empirical formula: HZ_inner ≈ 0.95 AU * sqrt(L/L_sun)
+## Based on empirical formula: HZ_inner â‰ˆ 0.95 AU * sqrt(L/L_sun)
 ## @param luminosity_watts: Stellar luminosity in watts.
 ## @return: Inner HZ edge in meters.
 static func calculate_habitable_zone_inner(luminosity_watts: float) -> float:
@@ -271,7 +271,7 @@ static func calculate_habitable_zone_inner(luminosity_watts: float) -> float:
 
 
 ## Calculates the outer edge of the habitable zone.
-## Based on empirical formula: HZ_outer ≈ 1.37 AU * sqrt(L/L_sun)
+## Based on empirical formula: HZ_outer â‰ˆ 1.37 AU * sqrt(L/L_sun)
 ## @param luminosity_watts: Stellar luminosity in watts.
 ## @return: Outer HZ edge in meters.
 static func calculate_habitable_zone_outer(luminosity_watts: float) -> float:
@@ -282,7 +282,7 @@ static func calculate_habitable_zone_outer(luminosity_watts: float) -> float:
 
 
 ## Calculates the frost line distance.
-## Based on empirical formula: frost_line ≈ 2.7 AU * sqrt(L/L_sun)
+## Based on empirical formula: frost_line â‰ˆ 2.7 AU * sqrt(L/L_sun)
 ## @param luminosity_watts: Stellar luminosity in watts.
 ## @return: Frost line distance in meters.
 static func calculate_frost_line(luminosity_watts: float) -> float:
@@ -317,7 +317,7 @@ static func get_orbital_zone(distance_m: float, luminosity_watts: float) -> Orbi
 ## Uses flexible spacing with variation.
 ## @param inner_orbit_m: Inner orbit distance in meters.
 ## @param ratio: Resonance ratio (e.g., 2.0 for 2:1, 1.5 for 3:2).
-## @param variation: Fractional variation (0.0 = exact, 0.2 = ±20%).
+## @param variation: Fractional variation (0.0 = exact, 0.2 = Â±20%).
 ## @param rng: Random number generator for variation.
 ## @return: Next orbit distance in meters.
 static func calculate_resonance_spacing(
@@ -329,7 +329,7 @@ static func calculate_resonance_spacing(
 	if inner_orbit_m <= 0.0 or ratio <= 1.0:
 		return inner_orbit_m
 	
-	# a_outer = a_inner * ratio^(2/3)  (from Kepler's 3rd law: P^2 ∝ a^3, so P_ratio = a_ratio^(3/2))
+	# a_outer = a_inner * ratio^(2/3)  (from Kepler's 3rd law: P^2 âˆ a^3, so P_ratio = a_ratio^(3/2))
 	var base_distance: float = inner_orbit_m * pow(ratio, 2.0 / 3.0)
 	
 	if variation <= 0.0:
@@ -464,8 +464,8 @@ static func calculate_perturbation_strength(
 		return 0.0
 	
 	# Tisserand-like parameter
-	# Perturbation scales as (m_comp/m_host) * (a_orbit/a_comp)³ for a < a_comp
-	# and (m_comp/m_host) * (a_comp/a_orbit)² for a > a_comp
+	# Perturbation scales as (m_comp/m_host) * (a_orbit/a_comp)Â³ for a < a_comp
+	# and (m_comp/m_host) * (a_comp/a_orbit)Â² for a > a_comp
 	
 	var mass_ratio: float = companion_mass_kg / host_mass_kg
 	

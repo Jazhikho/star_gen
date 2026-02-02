@@ -3,19 +3,19 @@
 class_name SystemFixtureGenerator
 extends RefCounted
 
-const _solar_system := preload("res://src/domain/system/SolarSystem.gd")
-const _solar_system_spec := preload("res://src/domain/system/SolarSystemSpec.gd")
-const _stellar_config_generator := preload("res://src/domain/system/StellarConfigGenerator.gd")
-const _orbit_slot_generator := preload("res://src/domain/system/OrbitSlotGenerator.gd")
-const _orbit_slot := preload("res://src/domain/system/OrbitSlot.gd")
-const _system_planet_generator := preload("res://src/domain/system/SystemPlanetGenerator.gd")
-const _system_moon_generator := preload("res://src/domain/system/SystemMoonGenerator.gd")
-const _system_asteroid_generator := preload("res://src/domain/system/SystemAsteroidGenerator.gd")
-const _system_serializer := preload("res://src/domain/system/SystemSerializer.gd")
-const _provenance := preload("res://src/domain/celestial/Provenance.gd")
-const _versions := preload("res://src/domain/constants/Versions.gd")
-const _star_class := preload("res://src/domain/generation/archetypes/StarClass.gd")
-const _seeded_rng := preload("res://src/domain/rng/SeededRng.gd")
+const _solar_system: GDScript = preload("res://src/domain/system/SolarSystem.gd")
+const _solar_system_spec: GDScript = preload("res://src/domain/system/SolarSystemSpec.gd")
+const _stellar_config_generator: GDScript = preload("res://src/domain/system/StellarConfigGenerator.gd")
+const _orbit_slot_generator: GDScript = preload("res://src/domain/system/OrbitSlotGenerator.gd")
+const _orbit_slot: GDScript = preload("res://src/domain/system/OrbitSlot.gd")
+const _system_planet_generator: GDScript = preload("res://src/domain/system/SystemPlanetGenerator.gd")
+const _system_moon_generator: GDScript = preload("res://src/domain/system/SystemMoonGenerator.gd")
+const _system_asteroid_generator: GDScript = preload("res://src/domain/system/SystemAsteroidGenerator.gd")
+const _system_serializer: GDScript = preload("res://src/domain/system/SystemSerializer.gd")
+const _provenance: GDScript = preload("res://src/domain/celestial/Provenance.gd")
+const _versions: GDScript = preload("res://src/domain/constants/Versions.gd")
+const _star_class: GDScript = preload("res://src/domain/generation/archetypes/StarClass.gd")
+const _seeded_rng: GDScript = preload("res://src/domain/rng/SeededRng.gd")
 
 
 ## Base seed for fixture generation.

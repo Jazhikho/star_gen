@@ -7,7 +7,7 @@ func get_test_name() -> String:
 
 
 func test_create_sets_timestamp() -> void:
-	var data: GalaxySaveData = GalaxySaveData.create()
+	var data: GalaxySaveData = GalaxySaveData.create(1000)
 
 	assert_greater_than(data.saved_at, 0, "Should have timestamp")
 
@@ -41,7 +41,7 @@ func test_is_valid_rejects_invalid_zoom() -> void:
 
 
 func test_to_dict_contains_required_fields() -> void:
-	var data: GalaxySaveData = GalaxySaveData.create()
+	var data: GalaxySaveData = GalaxySaveData.create(1000)
 	data.galaxy_seed = 12345
 	data.zoom_level = GalaxyCoordinates.ZoomLevel.QUADRANT
 
@@ -54,7 +54,7 @@ func test_to_dict_contains_required_fields() -> void:
 
 
 func test_round_trip_basic() -> void:
-	var original: GalaxySaveData = GalaxySaveData.create()
+	var original: GalaxySaveData = GalaxySaveData.create(0)
 	original.galaxy_seed = 99999
 	original.zoom_level = GalaxyCoordinates.ZoomLevel.SECTOR
 
@@ -67,7 +67,7 @@ func test_round_trip_basic() -> void:
 
 
 func test_round_trip_with_quadrant() -> void:
-	var original: GalaxySaveData = GalaxySaveData.create()
+	var original: GalaxySaveData = GalaxySaveData.create(0)
 	original.selected_quadrant = Vector3i(7, 0, 3)
 
 	var dict: Dictionary = original.to_dict()
@@ -78,7 +78,7 @@ func test_round_trip_with_quadrant() -> void:
 
 
 func test_round_trip_with_sector() -> void:
-	var original: GalaxySaveData = GalaxySaveData.create()
+	var original: GalaxySaveData = GalaxySaveData.create(0)
 	original.selected_sector = Vector3i(5, 2, 8)
 
 	var dict: Dictionary = original.to_dict()
@@ -89,7 +89,7 @@ func test_round_trip_with_sector() -> void:
 
 
 func test_round_trip_with_camera() -> void:
-	var original: GalaxySaveData = GalaxySaveData.create()
+	var original: GalaxySaveData = GalaxySaveData.create(0)
 	original.camera_position = Vector3(8000.5, 20.3, 150.7)
 	original.camera_rotation = Vector3(0.1, 0.5, 0.0)
 
@@ -103,7 +103,7 @@ func test_round_trip_with_camera() -> void:
 
 
 func test_round_trip_with_star_selection() -> void:
-	var original: GalaxySaveData = GalaxySaveData.create()
+	var original: GalaxySaveData = GalaxySaveData.create(0)
 	original.has_star_selection = true
 	original.selected_star_seed = 55555
 	original.selected_star_position = Vector3(8001.2, 19.8, 155.3)
@@ -118,7 +118,7 @@ func test_round_trip_with_star_selection() -> void:
 
 
 func test_null_quadrant_serializes() -> void:
-	var original: GalaxySaveData = GalaxySaveData.create()
+	var original: GalaxySaveData = GalaxySaveData.create(0)
 	original.selected_quadrant = null
 
 	var dict: Dictionary = original.to_dict()
@@ -142,7 +142,7 @@ func test_from_dict_returns_null_for_empty() -> void:
 
 
 func test_get_summary() -> void:
-	var data: GalaxySaveData = GalaxySaveData.create()
+	var data: GalaxySaveData = GalaxySaveData.create(1000)
 	data.galaxy_seed = 42
 	data.zoom_level = GalaxyCoordinates.ZoomLevel.SUBSECTOR
 

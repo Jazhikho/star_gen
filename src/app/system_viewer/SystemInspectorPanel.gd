@@ -3,15 +3,15 @@
 class_name SystemInspectorPanel
 extends VBoxContainer
 
-const _celestial_type := preload("res://src/domain/celestial/CelestialType.gd")
-const _celestial_body := preload("res://src/domain/celestial/CelestialBody.gd")
-const _solar_system := preload("res://src/domain/system/SolarSystem.gd")
-const _units := preload("res://src/domain/math/Units.gd")
-const _stellar_props := preload("res://src/domain/celestial/components/StellarProps.gd")
-const _physical_props := preload("res://src/domain/celestial/components/PhysicalProps.gd")
-const _orbital_props := preload("res://src/domain/celestial/components/OrbitalProps.gd")
-const _atmosphere_props := preload("res://src/domain/celestial/components/AtmosphereProps.gd")
-const _property_formatter := preload("res://src/app/viewer/PropertyFormatter.gd")
+const _celestial_type: GDScript = preload("res://src/domain/celestial/CelestialType.gd")
+const _celestial_body: GDScript = preload("res://src/domain/celestial/CelestialBody.gd")
+const _solar_system: GDScript = preload("res://src/domain/system/SolarSystem.gd")
+const _units: GDScript = preload("res://src/domain/math/Units.gd")
+const _stellar_props: GDScript = preload("res://src/domain/celestial/components/StellarProps.gd")
+const _physical_props: GDScript = preload("res://src/domain/celestial/components/PhysicalProps.gd")
+const _orbital_props: GDScript = preload("res://src/domain/celestial/components/OrbitalProps.gd")
+const _atmosphere_props: GDScript = preload("res://src/domain/celestial/components/AtmosphereProps.gd")
+const _property_formatter: GDScript = preload("res://src/app/viewer/PropertyFormatter.gd")
 
 
 ## Emitted when the user requests to open a body in the detail viewer.
@@ -158,17 +158,17 @@ func _add_physical_properties(body: CelestialBody) -> void:
 	
 	match body.type:
 		CelestialType.Type.STAR:
-			_add_property(_body_section, "Mass", "%.3f M☉" % (phys.mass_kg / Units.SOLAR_MASS_KG))
-			_add_property(_body_section, "Radius", "%.3f R☉" % (phys.radius_m / Units.SOLAR_RADIUS_METERS))
+			_add_property(_body_section, "Mass", "%.3f Mâ˜‰" % (phys.mass_kg / Units.SOLAR_MASS_KG))
+			_add_property(_body_section, "Radius", "%.3f Râ˜‰" % (phys.radius_m / Units.SOLAR_RADIUS_METERS))
 		CelestialType.Type.PLANET, CelestialType.Type.MOON:
-			_add_property(_body_section, "Mass", "%.4f M⊕" % (phys.mass_kg / Units.EARTH_MASS_KG))
-			_add_property(_body_section, "Radius", "%.4f R⊕" % (phys.radius_m / Units.EARTH_RADIUS_METERS))
+			_add_property(_body_section, "Mass", "%.4f MâŠ•" % (phys.mass_kg / Units.EARTH_MASS_KG))
+			_add_property(_body_section, "Radius", "%.4f RâŠ•" % (phys.radius_m / Units.EARTH_RADIUS_METERS))
 		CelestialType.Type.ASTEROID:
 			_add_property(_body_section, "Mass", "%.3e kg" % phys.mass_kg)
 			_add_property(_body_section, "Radius", "%.1f km" % (phys.radius_m / 1000.0))
 	
 	var density: float = _calculate_density(phys.mass_kg, phys.radius_m)
-	_add_property(_body_section, "Density", "%.1f kg/m³" % density)
+	_add_property(_body_section, "Density", "%.1f kg/mÂ³" % density)
 	
 	if phys.rotation_period_s != 0.0:
 		var period_hours: float = absf(phys.rotation_period_s) / 3600.0
@@ -176,7 +176,7 @@ func _add_physical_properties(body: CelestialBody) -> void:
 		_add_property(_body_section, "Rotation", "%.1f hours%s" % [period_hours, retrograde])
 	
 	if phys.axial_tilt_deg != 0.0:
-		_add_property(_body_section, "Axial Tilt", "%.1f°" % phys.axial_tilt_deg)
+		_add_property(_body_section, "Axial Tilt", "%.1fÂ°" % phys.axial_tilt_deg)
 
 
 ## Adds orbital property rows for a body.
@@ -191,7 +191,7 @@ func _add_orbital_properties(body: CelestialBody) -> void:
 		_add_property(_body_section, "Semi-major Axis", "%.0f km" % (orb.semi_major_axis_m / 1000.0))
 	
 	_add_property(_body_section, "Eccentricity", "%.4f" % orb.eccentricity)
-	_add_property(_body_section, "Inclination", "%.2f°" % orb.inclination_deg)
+	_add_property(_body_section, "Inclination", "%.2fÂ°" % orb.inclination_deg)
 	
 	if not orb.parent_id.is_empty():
 		_add_property(_body_section, "Orbits", orb.parent_id)
@@ -206,7 +206,7 @@ func _add_stellar_properties(body: CelestialBody) -> void:
 	_add_property(_body_section, "Temperature", "%d K" % int(stellar.effective_temperature_k))
 	
 	var lum_solar: float = stellar.luminosity_watts / StellarProps.SOLAR_LUMINOSITY_WATTS
-	_add_property(_body_section, "Luminosity", "%.4f L☉" % lum_solar)
+	_add_property(_body_section, "Luminosity", "%.4f Lâ˜‰" % lum_solar)
 	
 	if stellar.age_years > 0:
 		var age_gyr: float = stellar.age_years / 1.0e9
@@ -226,7 +226,7 @@ func _add_atmosphere_properties(body: CelestialBody) -> void:
 		_add_property(_body_section, "Temperature", "%.0f K" % body.surface.temperature_k)
 	
 	if atmo.greenhouse_factor > 1.0:
-		_add_property(_body_section, "Greenhouse", "%.2f×" % atmo.greenhouse_factor)
+		_add_property(_body_section, "Greenhouse", "%.2fÃ—" % atmo.greenhouse_factor)
 
 
 ## Formats star info for overview display.
@@ -241,7 +241,7 @@ func _format_star_info(star: CelestialBody) -> String:
 ## Calculates density from mass and radius.
 ## @param mass_kg: Mass in kg.
 ## @param radius_m: Radius in meters.
-## @return: Density in kg/m³.
+## @return: Density in kg/mÂ³.
 func _calculate_density(mass_kg: float, radius_m: float) -> float:
 	if radius_m <= 0.0:
 		return 0.0

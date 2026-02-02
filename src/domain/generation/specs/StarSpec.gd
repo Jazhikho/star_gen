@@ -3,7 +3,7 @@
 class_name StarSpec
 extends BaseSpec
 
-const _star_class := preload("res://src/domain/generation/archetypes/StarClass.gd")
+const _star_class: GDScript = preload("res://src/domain/generation/archetypes/StarClass.gd")
 
 
 ## Target spectral class (O through M, or -1 for random).

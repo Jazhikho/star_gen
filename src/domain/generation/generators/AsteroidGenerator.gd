@@ -4,20 +4,20 @@
 class_name AsteroidGenerator
 extends RefCounted
 
-const _asteroid_spec := preload("res://src/domain/generation/specs/AsteroidSpec.gd")
-const _asteroid_type := preload("res://src/domain/generation/archetypes/AsteroidType.gd")
-const _generator_utils := preload("res://src/domain/generation/generators/GeneratorUtils.gd")
-const _celestial_body := preload("res://src/domain/celestial/CelestialBody.gd")
-const _celestial_type := preload("res://src/domain/celestial/CelestialType.gd")
-const _physical_props := preload("res://src/domain/celestial/components/PhysicalProps.gd")
-const _orbital_props := preload("res://src/domain/celestial/components/OrbitalProps.gd")
-const _surface_props := preload("res://src/domain/celestial/components/SurfaceProps.gd")
-const _terrain_props := preload("res://src/domain/celestial/components/TerrainProps.gd")
-const _provenance := preload("res://src/domain/celestial/Provenance.gd")
-const _parent_context := preload("res://src/domain/generation/ParentContext.gd")
-const _versions := preload("res://src/domain/constants/Versions.gd")
-const _units := preload("res://src/domain/math/Units.gd")
-const _seeded_rng := preload("res://src/domain/rng/SeededRng.gd")
+const _asteroid_spec: GDScript = preload("res://src/domain/generation/specs/AsteroidSpec.gd")
+const _asteroid_type: GDScript = preload("res://src/domain/generation/archetypes/AsteroidType.gd")
+const _generator_utils: GDScript = preload("res://src/domain/generation/generators/GeneratorUtils.gd")
+const _celestial_body: GDScript = preload("res://src/domain/celestial/CelestialBody.gd")
+const _celestial_type: GDScript = preload("res://src/domain/celestial/CelestialType.gd")
+const _physical_props: GDScript = preload("res://src/domain/celestial/components/PhysicalProps.gd")
+const _orbital_props: GDScript = preload("res://src/domain/celestial/components/OrbitalProps.gd")
+const _surface_props: GDScript = preload("res://src/domain/celestial/components/SurfaceProps.gd")
+const _terrain_props: GDScript = preload("res://src/domain/celestial/components/TerrainProps.gd")
+const _provenance: GDScript = preload("res://src/domain/celestial/Provenance.gd")
+const _parent_context: GDScript = preload("res://src/domain/generation/ParentContext.gd")
+const _versions: GDScript = preload("res://src/domain/constants/Versions.gd")
+const _units: GDScript = preload("res://src/domain/math/Units.gd")
+const _seeded_rng: GDScript = preload("res://src/domain/rng/SeededRng.gd")
 
 
 ## Asteroid type distribution weights (C-type most common in outer belt).
@@ -37,7 +37,7 @@ const TYPICAL_MASS_MAX_KG: float = 1.0e18
 const LARGE_MASS_MIN_KG: float = 1.0e19
 const LARGE_MASS_MAX_KG: float = 1.0e21
 
-## Density ranges by type in kg/m³.
+## Density ranges by type in kg/mÂ³.
 const DENSITY_RANGES: Dictionary = {
 	AsteroidType.Type.C_TYPE: {"min": 1100.0, "max": 2500.0},
 	AsteroidType.Type.S_TYPE: {"min": 2200.0, "max": 3500.0},

@@ -3,7 +3,7 @@
 class_name SystemHierarchy
 extends RefCounted
 
-const _hierarchy_node := preload("res://src/domain/system/HierarchyNode.gd")
+const _hierarchy_node: GDScript = preload("res://src/domain/system/HierarchyNode.gd")
 
 
 ## The root node of the hierarchy.

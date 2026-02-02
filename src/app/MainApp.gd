@@ -1,17 +1,17 @@
 ## Root application controller that manages navigation between viewers.
 ## Switches between GalaxyViewer, SystemViewer, and ObjectViewer.
-## Navigation hierarchy: Galaxy → System → Object (with back navigation)
+## Navigation hierarchy: Galaxy â†’ System â†’ Object (with back navigation)
 class_name MainApp
 extends Node
 
 ## Ensures GalaxySaveData/GalaxyPersistence are in scope before GalaxyViewer loads.
-const _galaxy_viewer_deps := preload("res://src/app/galaxy_viewer/GalaxyViewerDeps.gd")
-const _galaxy_viewer_scene := preload("res://src/app/galaxy_viewer/GalaxyViewer.tscn")
-const _object_viewer_scene := preload("res://src/app/viewer/ObjectViewer.tscn")
-const _system_viewer_scene := preload("res://src/app/system_viewer/SystemViewer.tscn")
-const _system_cache_script := preload("res://src/domain/system/SystemCache.gd")
-const _system_fixture_generator := preload("res://src/domain/system/fixtures/SystemFixtureGenerator.gd")
-const _solar_system_spec := preload("res://src/domain/system/SolarSystemSpec.gd")
+const _galaxy_viewer_deps: GDScript = preload("res://src/app/galaxy_viewer/GalaxyViewerDeps.gd")
+const _galaxy_viewer_scene: PackedScene = preload("res://src/app/galaxy_viewer/GalaxyViewer.tscn")
+const _object_viewer_scene: PackedScene = preload("res://src/app/viewer/ObjectViewer.tscn")
+const _system_viewer_scene: PackedScene = preload("res://src/app/system_viewer/SystemViewer.tscn")
+const _system_cache_script: GDScript = preload("res://src/domain/system/SystemCache.gd")
+const _system_fixture_generator: GDScript = preload("res://src/domain/system/fixtures/SystemFixtureGenerator.gd")
+const _solar_system_spec: GDScript = preload("res://src/domain/system/SolarSystemSpec.gd")
 
 ## Currently active viewer ("galaxy", "system", or "object").
 var _active_viewer: String = ""

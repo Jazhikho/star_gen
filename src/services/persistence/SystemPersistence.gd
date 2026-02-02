@@ -3,8 +3,8 @@
 class_name SystemPersistence
 extends RefCounted
 
-const _solar_system := preload("res://src/domain/system/SolarSystem.gd")
-const _system_serializer := preload("res://src/domain/system/SystemSerializer.gd")
+const _solar_system: GDScript = preload("res://src/domain/system/SolarSystem.gd")
+const _system_serializer: GDScript = preload("res://src/domain/system/SystemSerializer.gd")
 
 
 ## File extension for compressed binary format.

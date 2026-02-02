@@ -3,6 +3,9 @@
 class_name SurfaceProps
 extends RefCounted
 
+## Script reference for from_dict self-instantiation (avoids load() in domain).
+const _SCRIPT: GDScript = preload("res://src/domain/celestial/components/SurfaceProps.gd")
+
 
 ## Surface temperature in Kelvin.
 var temperature_k: float
@@ -103,8 +106,7 @@ func to_dict() -> Dictionary:
 ## @param data: The dictionary to parse.
 ## @return: A new SurfaceProps instance.
 static func from_dict(data: Dictionary) -> SurfaceProps:
-	var script: GDScript = load("res://src/domain/celestial/components/SurfaceProps.gd") as GDScript
-	var props: SurfaceProps = script.new(
+	var props: SurfaceProps = _SCRIPT.new(
 		data.get("temperature_k", 0.0) as float,
 		data.get("albedo", 0.0) as float,
 		data.get("surface_type", "") as String,

@@ -3,20 +3,20 @@
 class_name StellarConfigGenerator
 extends RefCounted
 
-const _solar_system := preload("res://src/domain/system/SolarSystem.gd")
-const _solar_system_spec := preload("res://src/domain/system/SolarSystemSpec.gd")
-const _system_hierarchy := preload("res://src/domain/system/SystemHierarchy.gd")
-const _hierarchy_node := preload("res://src/domain/system/HierarchyNode.gd")
-const _orbit_host := preload("res://src/domain/system/OrbitHost.gd")
-const _orbital_mechanics := preload("res://src/domain/system/OrbitalMechanics.gd")
-const _star_generator := preload("res://src/domain/generation/generators/StarGenerator.gd")
-const _star_spec := preload("res://src/domain/generation/specs/StarSpec.gd")
-const _star_class := preload("res://src/domain/generation/archetypes/StarClass.gd")
-const _celestial_body := preload("res://src/domain/celestial/CelestialBody.gd")
-const _seeded_rng := preload("res://src/domain/rng/SeededRng.gd")
-const _units := preload("res://src/domain/math/Units.gd")
-const _provenance := preload("res://src/domain/celestial/Provenance.gd")
-const _versions := preload("res://src/domain/constants/Versions.gd")
+const _solar_system: GDScript = preload("res://src/domain/system/SolarSystem.gd")
+const _solar_system_spec: GDScript = preload("res://src/domain/system/SolarSystemSpec.gd")
+const _system_hierarchy: GDScript = preload("res://src/domain/system/SystemHierarchy.gd")
+const _hierarchy_node: GDScript = preload("res://src/domain/system/HierarchyNode.gd")
+const _orbit_host: GDScript = preload("res://src/domain/system/OrbitHost.gd")
+const _orbital_mechanics: GDScript = preload("res://src/domain/system/OrbitalMechanics.gd")
+const _star_generator: GDScript = preload("res://src/domain/generation/generators/StarGenerator.gd")
+const _star_spec: GDScript = preload("res://src/domain/generation/specs/StarSpec.gd")
+const _star_class: GDScript = preload("res://src/domain/generation/archetypes/StarClass.gd")
+const _celestial_body: GDScript = preload("res://src/domain/celestial/CelestialBody.gd")
+const _seeded_rng: GDScript = preload("res://src/domain/rng/SeededRng.gd")
+const _units: GDScript = preload("res://src/domain/math/Units.gd")
+const _provenance: GDScript = preload("res://src/domain/celestial/Provenance.gd")
+const _versions: GDScript = preload("res://src/domain/constants/Versions.gd")
 
 
 ## Binary separation category weights (close, moderate, wide).

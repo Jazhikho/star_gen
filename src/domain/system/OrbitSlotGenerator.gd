@@ -3,15 +3,15 @@
 class_name OrbitSlotGenerator
 extends RefCounted
 
-const _orbit_slot := preload("res://src/domain/system/OrbitSlot.gd")
-const _orbit_host := preload("res://src/domain/system/OrbitHost.gd")
-const _orbital_mechanics := preload("res://src/domain/system/OrbitalMechanics.gd")
-const _orbit_zone := preload("res://src/domain/generation/archetypes/OrbitZone.gd")
-const _seeded_rng := preload("res://src/domain/rng/SeededRng.gd")
-const _units := preload("res://src/domain/math/Units.gd")
-const _celestial_body := preload("res://src/domain/celestial/CelestialBody.gd")
-const _system_hierarchy := preload("res://src/domain/system/SystemHierarchy.gd")
-const _hierarchy_node := preload("res://src/domain/system/HierarchyNode.gd")
+const _orbit_slot: GDScript = preload("res://src/domain/system/OrbitSlot.gd")
+const _orbit_host: GDScript = preload("res://src/domain/system/OrbitHost.gd")
+const _orbital_mechanics: GDScript = preload("res://src/domain/system/OrbitalMechanics.gd")
+const _orbit_zone: GDScript = preload("res://src/domain/generation/archetypes/OrbitZone.gd")
+const _seeded_rng: GDScript = preload("res://src/domain/rng/SeededRng.gd")
+const _units: GDScript = preload("res://src/domain/math/Units.gd")
+const _celestial_body: GDScript = preload("res://src/domain/celestial/CelestialBody.gd")
+const _system_hierarchy: GDScript = preload("res://src/domain/system/SystemHierarchy.gd")
+const _hierarchy_node: GDScript = preload("res://src/domain/system/HierarchyNode.gd")
 
 
 ## Minimum spacing factor between adjacent slots (as fraction of inner orbit).
@@ -20,7 +20,7 @@ const MIN_SPACING_FACTOR: float = 0.15
 ## Maximum number of slots to generate per host.
 const MAX_SLOTS_PER_HOST: int = 20
 
-## Resonance variation (±20%).
+## Resonance variation (Â±20%).
 const RESONANCE_VARIATION: float = 0.20
 
 ## Exponential decay constant for fill probability.
@@ -274,12 +274,12 @@ static func _calculate_fill_probability(
 	var distance_au: float = distance_m / Units.AU_METERS
 	
 	# Gentle exponential decay in AU:
-	# 0.1 AU: P ≈ 0.99
-	# 0.5 AU: P ≈ 0.93
-	# 1.0 AU: P ≈ 0.86
-	# 5.0 AU: P ≈ 0.47
-	# 10 AU:  P ≈ 0.22
-	# 30 AU:  P ≈ 0.01 (clamped to 0.02)
+	# 0.1 AU: P â‰ˆ 0.99
+	# 0.5 AU: P â‰ˆ 0.93
+	# 1.0 AU: P â‰ˆ 0.86
+	# 5.0 AU: P â‰ˆ 0.47
+	# 10 AU:  P â‰ˆ 0.22
+	# 30 AU:  P â‰ˆ 0.01 (clamped to 0.02)
 	var probability: float = exp(-PROBABILITY_DECAY * distance_au)
 	
 	return clampf(probability, 0.02, 1.0)

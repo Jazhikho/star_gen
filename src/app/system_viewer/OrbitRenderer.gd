@@ -3,8 +3,8 @@
 class_name OrbitRenderer
 extends Node3D
 
-const _system_scale_manager := preload("res://src/app/system_viewer/SystemScaleManager.gd")
-const _celestial_type := preload("res://src/domain/celestial/CelestialType.gd")
+const _system_scale_manager: GDScript = preload("res://src/app/system_viewer/SystemScaleManager.gd")
+const _celestial_type: GDScript = preload("res://src/domain/celestial/CelestialType.gd")
 
 
 ## Default orbit line color for planets.

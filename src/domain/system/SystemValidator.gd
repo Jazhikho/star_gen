@@ -3,18 +3,18 @@
 class_name SystemValidator
 extends RefCounted
 
-const _solar_system := preload("res://src/domain/system/SolarSystem.gd")
-const _system_hierarchy := preload("res://src/domain/system/SystemHierarchy.gd")
-const _hierarchy_node := preload("res://src/domain/system/HierarchyNode.gd")
-const _orbit_host := preload("res://src/domain/system/OrbitHost.gd")
-const _asteroid_belt := preload("res://src/domain/system/AsteroidBelt.gd")
-const _orbital_mechanics := preload("res://src/domain/system/OrbitalMechanics.gd")
-const _celestial_validator := preload("res://src/domain/celestial/validation/CelestialValidator.gd")
-const _validation_result := preload("res://src/domain/celestial/validation/ValidationResult.gd")
-const _validation_error := preload("res://src/domain/celestial/validation/ValidationError.gd")
-const _celestial_body := preload("res://src/domain/celestial/CelestialBody.gd")
-const _celestial_type := preload("res://src/domain/celestial/CelestialType.gd")
-const _units := preload("res://src/domain/math/Units.gd")
+const _solar_system: GDScript = preload("res://src/domain/system/SolarSystem.gd")
+const _system_hierarchy: GDScript = preload("res://src/domain/system/SystemHierarchy.gd")
+const _hierarchy_node: GDScript = preload("res://src/domain/system/HierarchyNode.gd")
+const _orbit_host: GDScript = preload("res://src/domain/system/OrbitHost.gd")
+const _asteroid_belt: GDScript = preload("res://src/domain/system/AsteroidBelt.gd")
+const _orbital_mechanics: GDScript = preload("res://src/domain/system/OrbitalMechanics.gd")
+const _celestial_validator: GDScript = preload("res://src/domain/celestial/validation/CelestialValidator.gd")
+const _validation_result: GDScript = preload("res://src/domain/celestial/validation/ValidationResult.gd")
+const _validation_error: GDScript = preload("res://src/domain/celestial/validation/ValidationError.gd")
+const _celestial_body: GDScript = preload("res://src/domain/celestial/CelestialBody.gd")
+const _celestial_type: GDScript = preload("res://src/domain/celestial/CelestialType.gd")
+const _units: GDScript = preload("res://src/domain/math/Units.gd")
 
 
 ## Validates a complete solar system.

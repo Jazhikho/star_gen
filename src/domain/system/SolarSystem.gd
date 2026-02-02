@@ -3,14 +3,14 @@
 class_name SolarSystem
 extends RefCounted
 
-const _celestial_body := preload("res://src/domain/celestial/CelestialBody.gd")
-const _celestial_type := preload("res://src/domain/celestial/CelestialType.gd")
-const _provenance := preload("res://src/domain/celestial/Provenance.gd")
-const _hierarchy_node := preload("res://src/domain/system/HierarchyNode.gd")
-const _system_hierarchy := preload("res://src/domain/system/SystemHierarchy.gd")
-const _orbit_host := preload("res://src/domain/system/OrbitHost.gd")
-const _asteroid_belt := preload("res://src/domain/system/AsteroidBelt.gd")
-const _celestial_serializer := preload("res://src/domain/celestial/serialization/CelestialSerializer.gd")
+const _celestial_body: GDScript = preload("res://src/domain/celestial/CelestialBody.gd")
+const _celestial_type: GDScript = preload("res://src/domain/celestial/CelestialType.gd")
+const _provenance: GDScript = preload("res://src/domain/celestial/Provenance.gd")
+const _hierarchy_node: GDScript = preload("res://src/domain/system/HierarchyNode.gd")
+const _system_hierarchy: GDScript = preload("res://src/domain/system/SystemHierarchy.gd")
+const _orbit_host: GDScript = preload("res://src/domain/system/OrbitHost.gd")
+const _asteroid_belt: GDScript = preload("res://src/domain/system/AsteroidBelt.gd")
+const _celestial_serializer: GDScript = preload("res://src/domain/celestial/serialization/CelestialSerializer.gd")
 
 
 ## Unique identifier for this system.

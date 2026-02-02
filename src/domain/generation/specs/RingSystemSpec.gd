@@ -3,7 +3,7 @@
 class_name RingSystemSpec
 extends BaseSpec
 
-const _ring_complexity := preload("res://src/domain/generation/archetypes/RingComplexity.gd")
+const _ring_complexity: GDScript = preload("res://src/domain/generation/archetypes/RingComplexity.gd")
 
 
 ## Complexity level (TRACE, SIMPLE, COMPLEX, or -1 for random).

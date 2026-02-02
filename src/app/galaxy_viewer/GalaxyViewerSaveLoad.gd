@@ -1,0 +1,215 @@
+## Handles galaxy viewer save/load and state restore.
+## Extracted from GalaxyViewer to keep script size under CLAUDE limit.
+class_name GalaxyViewerSaveLoad
+extends RefCounted
+
+
+## Saves the current viewer state for later restoration.
+## @param viewer: GalaxyViewer instance (must expose getters used below).
+func save_state(viewer: Node) -> void:
+	var zoom_machine: ZoomStateMachine = viewer.get_zoom_machine()
+	if zoom_machine:
+		viewer.set_saved_zoom_level(zoom_machine.get_current_level())
+	else:
+		viewer.set_saved_zoom_level(GalaxyCoordinates.ZoomLevel.SUBSECTOR)
+
+	var quadrant_selector: QuadrantSelector = viewer.get_quadrant_selector()
+	if quadrant_selector and quadrant_selector.has_selection():
+		viewer.set_saved_quadrant(quadrant_selector.selected_coords)
+	else:
+		viewer.set_saved_quadrant(null)
+
+	viewer.set_saved_sector(viewer.get_selected_sector_internal())
+
+	var saved_level: int = viewer.get_saved_zoom_level()
+	if saved_level == GalaxyCoordinates.ZoomLevel.SUBSECTOR:
+		var star_cam: StarViewCamera = viewer.get_star_camera()
+		if star_cam:
+			viewer.set_saved_star_camera_position(star_cam.global_position)
+			viewer.set_saved_star_camera_rotation(star_cam.rotation)
+
+
+## Restores the previously saved viewer state.
+## @param viewer: GalaxyViewer instance.
+func restore_state(viewer: Node) -> void:
+	if viewer.get_saved_zoom_level() < 0:
+		viewer.call_initialize_at_home()
+		return
+
+	if viewer.get_saved_quadrant() != null and viewer.get_quadrant_selector():
+		var quadrant_coords: Vector3i = viewer.get_saved_quadrant() as Vector3i
+		if viewer.get_quadrant_cursor():
+			viewer.get_quadrant_cursor().position = quadrant_coords
+		viewer.get_quadrant_selector().set_selection(quadrant_coords)
+
+	viewer.set_selected_sector_internal(viewer.get_saved_sector())
+	if viewer.get_saved_sector() != null and viewer.get_sector_cursor():
+		viewer.get_sector_cursor().position = viewer.get_saved_sector() as Vector3i
+
+	if viewer.get_saved_quadrant() != null and viewer.get_sector_renderer() and \
+	   (viewer.get_saved_zoom_level() == GalaxyCoordinates.ZoomLevel.SECTOR or \
+	    viewer.get_saved_zoom_level() == GalaxyCoordinates.ZoomLevel.SUBSECTOR):
+		viewer.get_sector_renderer().build_for_quadrant(
+			viewer.get_saved_quadrant() as Vector3i, viewer.get_density_model()
+		)
+
+	if viewer.get_zoom_machine():
+		viewer.get_zoom_machine().set_level(viewer.get_saved_zoom_level())
+	viewer.call_apply_zoom_level(viewer.get_saved_zoom_level())
+
+	if viewer.get_saved_zoom_level() == GalaxyCoordinates.ZoomLevel.SUBSECTOR and viewer.get_star_camera():
+		viewer.get_star_camera().global_position = viewer.get_saved_star_camera_position()
+		viewer.get_star_camera().rotation = viewer.get_saved_star_camera_rotation()
+		if viewer.get_neighborhood_renderer():
+			viewer.get_neighborhood_renderer().build_neighborhood(
+				viewer.get_star_camera().global_position, viewer.galaxy_seed,
+				viewer.get_density_model(), viewer.get_reference_density()
+			)
+
+	viewer.call_update_inspector()
+	viewer.set_status("Returned to galaxy view")
+
+
+## Clears saved state.
+func clear_saved_state(viewer: Node) -> void:
+	viewer.set_saved_zoom_level(-1)
+	viewer.set_saved_quadrant(null)
+	viewer.set_saved_sector(null)
+	viewer.set_saved_star_camera_position(Vector3.ZERO)
+	viewer.set_saved_star_camera_rotation(Vector3.ZERO)
+
+
+## Returns true if there is saved state to restore.
+func has_saved_state(viewer: Node) -> bool:
+	return viewer.get_saved_zoom_level() >= 0
+
+
+## Creates save data from current viewer state.
+## @param viewer: GalaxyViewer instance.
+## @return: GalaxySaveData with current state.
+func create_save_data(viewer: Node) -> GalaxySaveData:
+	var data: GalaxySaveData = GalaxySaveData.create(int(Time.get_unix_time_from_system()))
+	data.galaxy_seed = viewer.galaxy_seed
+	if viewer.get_zoom_machine():
+		data.zoom_level = viewer.get_zoom_machine().get_current_level()
+	if viewer.get_quadrant_selector() and viewer.get_quadrant_selector().has_selection():
+		data.selected_quadrant = viewer.get_quadrant_selector().selected_coords
+	data.selected_sector = viewer.get_selected_sector_internal()
+	if viewer.get_star_camera():
+		data.camera_position = viewer.get_star_camera().global_position
+		data.camera_rotation = viewer.get_star_camera().rotation
+	data.has_star_selection = viewer.get_selected_star_seed_internal() != 0
+	data.selected_star_seed = viewer.get_selected_star_seed_internal()
+	data.selected_star_position = viewer.get_selected_star_position_internal()
+	return data
+
+
+## Applies save data to restore viewer state.
+## @param viewer: GalaxyViewer instance.
+## @param data: GalaxySaveData to apply.
+func apply_save_data(viewer: Node, data: GalaxySaveData) -> void:
+	if data.galaxy_seed != viewer.galaxy_seed:
+		viewer.call_change_galaxy_seed(data.galaxy_seed)
+
+	if data.selected_quadrant != null and viewer.get_quadrant_selector():
+		var quadrant_coords: Vector3i = data.selected_quadrant as Vector3i
+		if viewer.get_quadrant_cursor():
+			viewer.get_quadrant_cursor().position = quadrant_coords
+		viewer.get_quadrant_selector().set_selection(quadrant_coords)
+	else:
+		if viewer.get_quadrant_selector():
+			viewer.get_quadrant_selector().clear_selection()
+
+	viewer.set_selected_sector_internal(data.selected_sector)
+	if data.selected_sector != null and viewer.get_sector_cursor():
+		viewer.get_sector_cursor().position = data.selected_sector as Vector3i
+
+	if data.selected_quadrant != null and viewer.get_sector_renderer() and \
+	   (data.zoom_level == GalaxyCoordinates.ZoomLevel.SECTOR or \
+	    data.zoom_level == GalaxyCoordinates.ZoomLevel.SUBSECTOR):
+		viewer.get_sector_renderer().build_for_quadrant(
+			data.selected_quadrant as Vector3i, viewer.get_density_model()
+		)
+
+	if viewer.get_zoom_machine():
+		viewer.get_zoom_machine().set_level(data.zoom_level)
+	viewer.call_apply_zoom_level(data.zoom_level)
+
+	if data.zoom_level == GalaxyCoordinates.ZoomLevel.SUBSECTOR and viewer.get_star_camera():
+		viewer.get_star_camera().global_position = data.camera_position
+		viewer.get_star_camera().rotation = data.camera_rotation
+		if viewer.get_neighborhood_renderer():
+			viewer.get_neighborhood_renderer().build_neighborhood(
+				viewer.get_star_camera().global_position, viewer.galaxy_seed,
+				viewer.get_density_model(), viewer.get_reference_density()
+			)
+
+	if data.has_star_selection:
+		viewer.set_selected_star_seed_internal(data.selected_star_seed)
+		viewer.set_selected_star_position_internal(data.selected_star_position)
+		if viewer.get_selection_indicator():
+			viewer.get_selection_indicator().show_at(data.selected_star_position)
+		if viewer.get_inspector_panel():
+			viewer.get_inspector_panel().display_selected_star(
+				data.selected_star_position, data.selected_star_seed
+			)
+	else:
+		viewer.set_selected_star_seed_internal(0)
+		viewer.set_selected_star_position_internal(Vector3.ZERO)
+		if viewer.get_selection_indicator():
+			viewer.get_selection_indicator().hide_indicator()
+
+	viewer.call_update_inspector()
+
+
+## Handles save button: opens file dialog.
+func on_save_pressed(viewer: Node) -> void:
+	var dialog: FileDialog = FileDialog.new()
+	dialog.file_mode = FileDialog.FILE_MODE_SAVE_FILE
+	dialog.access = FileDialog.ACCESS_USERDATA
+	dialog.filters = PackedStringArray(["*.sgg ; StarGen Galaxy", "*.json ; JSON Debug"])
+	dialog.current_file = "galaxy_%d.sgg" % viewer.galaxy_seed
+	dialog.file_selected.connect(func(path: String) -> void: on_save_file_selected(viewer, path))
+	dialog.canceled.connect(func() -> void: dialog.queue_free())
+	viewer.add_child(dialog)
+	dialog.popup_centered(Vector2i(800, 600))
+
+
+## Handles load button: opens file dialog.
+func on_load_pressed(viewer: Node) -> void:
+	var dialog: FileDialog = FileDialog.new()
+	dialog.file_mode = FileDialog.FILE_MODE_OPEN_FILE
+	dialog.access = FileDialog.ACCESS_USERDATA
+	dialog.filters = PackedStringArray(["*.sgg ; StarGen Galaxy", "*.json ; JSON Debug"])
+	dialog.file_selected.connect(func(path: String) -> void: on_load_file_selected(viewer, path))
+	dialog.canceled.connect(func() -> void: dialog.queue_free())
+	viewer.add_child(dialog)
+	dialog.popup_centered(Vector2i(800, 600))
+
+
+## Handles save file selection from dialog.
+func on_save_file_selected(viewer: Node, path: String) -> void:
+	var data: GalaxySaveData = create_save_data(viewer)
+	var error: String = ""
+	if path.ends_with(".json"):
+		error = GalaxyPersistence.save_json(path, data)
+	else:
+		error = GalaxyPersistence.save_binary(path, data)
+	if error.is_empty():
+		viewer.set_status("Saved to %s" % path.get_file())
+	else:
+		viewer.set_status("Save failed: %s" % error)
+		push_error(error)
+
+
+## Handles load file selection from dialog.
+func on_load_file_selected(viewer: Node, path: String) -> void:
+	var data: GalaxySaveData = GalaxyPersistence.load_auto(path)
+	if data == null:
+		viewer.set_status("Failed to load file")
+		return
+	if not data.is_valid():
+		viewer.set_status("Invalid save data")
+		return
+	apply_save_data(viewer, data)
+	viewer.set_status("Loaded from %s" % path.get_file())

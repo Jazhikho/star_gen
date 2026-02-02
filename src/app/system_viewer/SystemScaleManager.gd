@@ -4,10 +4,10 @@
 class_name SystemScaleManager
 extends RefCounted
 
-const _units := preload("res://src/domain/math/Units.gd")
-const _celestial_type := preload("res://src/domain/celestial/CelestialType.gd")
-const _celestial_body := preload("res://src/domain/celestial/CelestialBody.gd")
-const _orbital_props := preload("res://src/domain/celestial/components/OrbitalProps.gd")
+const _units: GDScript = preload("res://src/domain/math/Units.gd")
+const _celestial_type: GDScript = preload("res://src/domain/celestial/CelestialType.gd")
+const _celestial_body: GDScript = preload("res://src/domain/celestial/CelestialBody.gd")
+const _orbital_props: GDScript = preload("res://src/domain/celestial/components/OrbitalProps.gd")
 
 
 ## Distance scale: 1 viewport unit = this many meters.

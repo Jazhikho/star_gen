@@ -19,7 +19,7 @@ func before_each() -> void:
 
 ## Creates valid GalaxySaveData for tests.
 func _create_test_data() -> GalaxySaveData:
-	var data: GalaxySaveData = GalaxySaveData.create()
+	var data: GalaxySaveData = GalaxySaveData.create(0)
 	data.galaxy_seed = 12345
 	data.zoom_level = GalaxyCoordinates.ZoomLevel.SECTOR
 	data.selected_quadrant = Vector3i(1, 0, 2)

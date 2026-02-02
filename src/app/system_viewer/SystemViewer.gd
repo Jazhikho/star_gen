@@ -9,16 +9,16 @@ signal open_body_in_viewer(body: CelestialBody)
 ## Signal emitted when the user wants to go back to the galaxy viewer.
 signal back_to_galaxy_requested
 
-const _solar_system := preload("res://src/domain/system/SolarSystem.gd")
-const _solar_system_spec := preload("res://src/domain/system/SolarSystemSpec.gd")
-const _system_fixture_generator := preload("res://src/domain/system/fixtures/SystemFixtureGenerator.gd")
-const _celestial_body := preload("res://src/domain/celestial/CelestialBody.gd")
-const _celestial_type := preload("res://src/domain/celestial/CelestialType.gd")
-const _system_scale_manager := preload("res://src/app/system_viewer/SystemScaleManager.gd")
-const _system_body_node_scene := preload("res://src/app/system_viewer/SystemBodyNode.tscn")
-const _orbit_renderer := preload("res://src/app/system_viewer/OrbitRenderer.gd")
-const _orbit_host := preload("res://src/domain/system/OrbitHost.gd")
-const _units := preload("res://src/domain/math/Units.gd")
+const _solar_system: GDScript = preload("res://src/domain/system/SolarSystem.gd")
+const _solar_system_spec: GDScript = preload("res://src/domain/system/SolarSystemSpec.gd")
+const _system_fixture_generator: GDScript = preload("res://src/domain/system/fixtures/SystemFixtureGenerator.gd")
+const _celestial_body: GDScript = preload("res://src/domain/celestial/CelestialBody.gd")
+const _celestial_type: GDScript = preload("res://src/domain/celestial/CelestialType.gd")
+const _system_scale_manager: GDScript = preload("res://src/app/system_viewer/SystemScaleManager.gd")
+const _system_body_node_scene: PackedScene = preload("res://src/app/system_viewer/SystemBodyNode.tscn")
+const _orbit_renderer: GDScript = preload("res://src/app/system_viewer/OrbitRenderer.gd")
+const _orbit_host: GDScript = preload("res://src/domain/system/OrbitHost.gd")
+const _units: GDScript = preload("res://src/domain/math/Units.gd")
 
 ## UI element references
 @onready var status_label: Label = $UI/TopBar/MarginContainer/HBoxContainer/StatusLabel

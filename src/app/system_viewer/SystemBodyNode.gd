@@ -3,10 +3,10 @@
 class_name SystemBodyNode
 extends Node3D
 
-const _material_factory := preload("res://src/app/rendering/MaterialFactory.gd")
-const _color_utils := preload("res://src/app/rendering/ColorUtils.gd")
-const _celestial_type := preload("res://src/domain/celestial/CelestialType.gd")
-const _system_scale_manager := preload("res://src/app/system_viewer/SystemScaleManager.gd")
+const _material_factory: GDScript = preload("res://src/app/rendering/MaterialFactory.gd")
+const _color_utils: GDScript = preload("res://src/app/rendering/ColorUtils.gd")
+const _celestial_type: GDScript = preload("res://src/domain/celestial/CelestialType.gd")
+const _system_scale_manager: GDScript = preload("res://src/app/system_viewer/SystemScaleManager.gd")
 
 
 ## Emitted when this body is clicked/selected.
