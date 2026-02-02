@@ -1,0 +1,992 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Stellar Generator</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:#0a0a10;color:#ccc;font-family:'Segoe UI',sans-serif;display:flex;height:100vh;overflow:hidden}
+canvas{display:block;flex:1;min-width:0;cursor:grab}
+canvas:active{cursor:grabbing}
+#controls{width:330px;min-width:330px;background:#12121a;padding:12px;overflow-y:auto;border-left:1px solid #2a2a3a;display:flex;flex-direction:column;gap:4px}
+#controls h2{color:#e8a;font-size:13px;margin:8px 0 3px;border-bottom:1px solid #2a2a3a;padding-bottom:3px}
+#controls h2:first-child{margin-top:0}
+.row{display:flex;align-items:center;gap:5px;font-size:11.5px}
+.row label{flex:1;white-space:nowrap}
+.row input[type=range]{width:105px;accent-color:#e8a}
+.row .val{width:38px;text-align:right;font-size:10.5px;color:#fc8;font-family:monospace}
+button{background:#4a3a2a;color:#fda;border:1px solid #7a5a3a;padding:5px 9px;cursor:pointer;border-radius:4px;font-size:11.5px;margin-top:3px}
+button:hover{background:#5a4a3a}
+#class-select{display:flex;gap:3px;margin-bottom:6px;flex-wrap:wrap}
+#class-select button{font-size:10px;padding:3px 6px;flex:1;min-width:38px}
+#class-select button.sel{background:#5a4a3a;border-color:#9a7a5a}
+#lum-select{display:flex;gap:2px;margin-bottom:6px;flex-wrap:wrap}
+#lum-select button{font-size:9px;padding:2px 5px;flex:1;min-width:30px}
+#lum-select button.sel{background:#5a4a3a;border-color:#9a7a5a}
+#special-select{display:flex;gap:2px;margin-bottom:4px;flex-wrap:wrap}
+#special-select button{font-size:9px;padding:2px 5px}
+#special-select button.sel{background:#5a4a3a;border-color:#9a7a5a}
+#stats{background:#0d0d16;border:1px solid #2a2a3a;border-radius:5px;padding:8px;margin-top:4px}
+#stats .stat-row{display:flex;justify-content:space-between;font-size:10.5px;padding:2.5px 0;border-bottom:1px solid #1a1a2a}
+#stats .stat-row:last-child{border-bottom:none}
+#stats .stat-label{color:#889}
+#stats .stat-value{color:#fca;font-family:monospace;font-weight:bold}
+.stat-bar-bg{width:55px;height:5px;background:#1a1a2a;border-radius:3px;display:inline-block;vertical-align:middle;margin-left:4px}
+.stat-bar{height:100%;border-radius:3px;transition:width .3s}
+.class-badge{display:inline-block;font-size:9.5px;padding:2px 5px;border-radius:3px;font-weight:bold;margin-left:3px}
+</style>
+</head>
+<body>
+<canvas id="c"></canvas>
+<div id="controls">
+
+<h2>⭐ Spectral Class</h2>
+<div id="class-select">
+  <button onclick="setClass('O')">O</button>
+  <button onclick="setClass('B')">B</button>
+  <button onclick="setClass('A')">A</button>
+  <button onclick="setClass('F')">F</button>
+  <button onclick="setClass('G')" class="sel">G</button>
+  <button onclick="setClass('K')">K</button>
+  <button onclick="setClass('M')">M</button>
+</div>
+
+<h2>💫 Luminosity Class</h2>
+<div id="lum-select">
+  <button onclick="setLumClass('I')">I</button>
+  <button onclick="setLumClass('II')">II</button>
+  <button onclick="setLumClass('III')">III</button>
+  <button onclick="setLumClass('IV')">IV</button>
+  <button onclick="setLumClass('V')" class="sel">V</button>
+  <button onclick="setLumClass('VI')">VI</button>
+  <button onclick="setLumClass('VII')">VII</button>
+</div>
+
+<h2>🌟 Special Types</h2>
+<div id="special-select">
+  <button onclick="setSpecial('')" class="sel">None</button>
+  <button onclick="setSpecial('WR')">WR</button>
+  <button onclick="setSpecial('L')">L Dwf</button>
+  <button onclick="setSpecial('T')">T Dwf</button>
+  <button onclick="setSpecial('Y')">Y Dwf</button>
+  <button onclick="setSpecial('C')">Carbon</button>
+  <button onclick="setSpecial('magnetar')">Magnetar</button>
+  <button onclick="setSpecial('pulsar')">Pulsar</button>
+  <button onclick="setSpecial('neutron')">Neutron</button>
+  <button onclick="setSpecial('blackhole')">Black Hole</button>
+</div>
+
+<h2>🌡️ Surface & Temperature</h2>
+<div class="row"><label>Temperature (K)</label><input type="range" id="temperature" min="0" max="50000" step="100" value="5778"><span class="val"></span></div>
+<div class="row"><label>Radius (R☉)</label><input type="range" id="radius" min="0.01" max="50" step="0.01" value="1.0"><span class="val"></span></div>
+<div class="row"><label>Luminosity Boost</label><input type="range" id="luminosity" min="0.3" max="3" step="0.01" value="1.0"><span class="val"></span></div>
+<div class="row"><label>Limb Darkening</label><input type="range" id="limbDark" min="0" max="1.5" step="0.01" value="0.6"><span class="val"></span></div>
+
+<h2>🫧 Granulation</h2>
+<div class="row"><label>Cell Scale</label><input type="range" id="granScale" min="5" max="80" step="1" value="30"><span class="val"></span></div>
+<div class="row"><label>Cell Contrast</label><input type="range" id="granContrast" min="0" max="1" step="0.01" value="0.35"><span class="val"></span></div>
+<div class="row"><label>Turbulence</label><input type="range" id="granTurb" min="0" max="1" step="0.01" value="0.4"><span class="val"></span></div>
+<div class="row"><label>Flow Speed</label><input type="range" id="granFlow" min="0" max="0.5" step="0.005" value="0.08"><span class="val"></span></div>
+
+<h2>🔵 Sunspots</h2>
+<div class="row"><label>Spot Count</label><input type="range" id="spotCount" min="0" max="20" step="1" value="5"><span class="val"></span></div>
+<div class="row"><label>Spot Size</label><input type="range" id="spotSize" min="0.01" max="0.15" step="0.005" value="0.06"><span class="val"></span></div>
+<div class="row"><label>Penumbra Ratio</label><input type="range" id="penumbra" min="1.2" max="3" step="0.1" value="2.0"><span class="val"></span></div>
+<div class="row"><label>Spot Darkness</label><input type="range" id="spotDark" min="0.1" max="0.9" step="0.01" value="0.35"><span class="val"></span></div>
+
+<h2>🌈 Chromosphere</h2>
+<div class="row"><label>Thickness</label><input type="range" id="chromoThick" min="0" max="0.08" step="0.001" value="0.015"><span class="val"></span></div>
+<div class="row"><label>Intensity</label><input type="range" id="chromoIntensity" min="0" max="2" step="0.01" value="0.8"><span class="val"></span></div>
+<div class="row"><label>Color Shift</label><input type="range" id="chromoShift" min="0" max="1" step="0.01" value="0.5"><span class="val"></span></div>
+
+<h2>👑 Corona</h2>
+<div class="row"><label>Extent</label><input type="range" id="coronaExtent" min="0" max="0.8" step="0.01" value="0.3"><span class="val"></span></div>
+<div class="row"><label>Brightness</label><input type="range" id="coronaBright" min="0" max="2" step="0.01" value="0.5"><span class="val"></span></div>
+<div class="row"><label>Streamer Count</label><input type="range" id="coronaStreams" min="0" max="20" step="1" value="8"><span class="val"></span></div>
+<div class="row"><label>Streamer Length</label><input type="range" id="coronaLength" min="0" max="1" step="0.01" value="0.5"><span class="val"></span></div>
+<div class="row"><label>Asymmetry</label><input type="range" id="coronaAsym" min="0" max="1" step="0.01" value="0.3"><span class="val"></span></div>
+
+<h2>🔥 Prominences & Flares</h2>
+<div class="row"><label>Prominence Count</label><input type="range" id="promCount" min="0" max="8" step="1" value="3"><span class="val"></span></div>
+<div class="row"><label>Prominence Height</label><input type="range" id="promHeight" min="0" max="0.4" step="0.01" value="0.12"><span class="val"></span></div>
+<div class="row"><label>Prominence Glow</label><input type="range" id="promGlow" min="0" max="2" step="0.01" value="0.8"><span class="val"></span></div>
+<div class="row"><label>Flare Intensity</label><input type="range" id="flareIntensity" min="0" max="1" step="0.01" value="0.2"><span class="val"></span></div>
+
+<h2>🌀 Supergranulation & Rotation</h2>
+<div class="row"><label>Supergran Scale</label><input type="range" id="superGranScale" min="2" max="20" step="0.5" value="6"><span class="val"></span></div>
+<div class="row"><label>Supergran Strength</label><input type="range" id="superGranStr" min="0" max="0.5" step="0.01" value="0.15"><span class="val"></span></div>
+<div class="row"><label>Rotation Speed</label><input type="range" id="rotSpeed" min="0" max="0.3" step="0.005" value="0.05"><span class="val"></span></div>
+
+<h2>💫 Bloom & Glow</h2>
+<div class="row"><label>Bloom Radius</label><input type="range" id="bloomRadius" min="0" max="0.5" step="0.01" value="0.15"><span class="val"></span></div>
+<div class="row"><label>Bloom Intensity</label><input type="range" id="bloomIntensity" min="0" max="2" step="0.01" value="0.6"><span class="val"></span></div>
+<div class="row"><label>Spike Count</label><input type="range" id="spikeCount" min="0" max="8" step="1" value="4"><span class="val"></span></div>
+<div class="row"><label>Spike Length</label><input type="range" id="spikeLength" min="0" max="1" step="0.01" value="0.3"><span class="val"></span></div>
+<div class="row"><label>Spike Brightness</label><input type="range" id="spikeBright" min="0" max="1" step="0.01" value="0.25"><span class="val"></span></div>
+
+<h2>🕳️ Black Hole / Remnant</h2>
+<div class="row"><label>Accretion Rate</label><input type="range" id="accretionRate" min="0" max="1" step="0.01" value="0"><span class="val"></span></div>
+<div class="row"><label>Disk Tilt</label><input type="range" id="diskTilt" min="0" max="80" step="1" value="60"><span class="val"></span></div>
+<div class="row"><label>Spin Parameter</label><input type="range" id="bhSpin" min="0" max="1" step="0.01" value="0.8"><span class="val"></span></div>
+<div class="row"><label>Jet Power</label><input type="range" id="jetPower" min="0" max="1" step="0.01" value="0"><span class="val"></span></div>
+<div class="row"><label>Lensing Strength</label><input type="range" id="lensing" min="0" max="2" step="0.01" value="0"><span class="val"></span></div>
+
+<h2>🌌 Background</h2>
+<div class="row"><label>Star Density</label><input type="range" id="starDensity" min="0" max="2" step="0.01" value="1.0"><span class="val"></span></div>
+<div class="row"><label>Nebula Intensity</label><input type="range" id="nebulaIntensity" min="0" max="1" step="0.01" value="0.1"><span class="val"></span></div>
+
+<h2>🔧 Misc</h2>
+<div class="row"><label>Seed</label><input type="range" id="seed" min="0" max="100" step="0.1" value="0"><span class="val"></span></div>
+
+<button onclick="randomize()">🎲 Randomize Star</button>
+<h2>📊 Stellar Profile</h2>
+<div id="stats"></div>
+</div>
+
+<script>
+const canvas=document.getElementById('c');
+const gl=canvas.getContext('webgl2',{antialias:true});
+
+let zoom=1.0;
+let currentClass='G',currentLumClass='V',currentSpecial='';
+
+const VS=`#version 300 es
+in vec2 a_pos;out vec2 v_uv;
+void main(){v_uv=a_pos*.5+.5;gl_Position=vec4(a_pos,0,1);}`;
+
+const FS=`#version 300 es
+precision highp float;
+in vec2 v_uv;out vec4 fragColor;
+
+uniform float u_time;
+uniform vec2 u_resolution;
+uniform float u_temperature, u_radius, u_luminosity, u_limbDark;
+uniform float u_granScale, u_granContrast, u_granTurb, u_granFlow;
+uniform float u_spotCount, u_spotSize, u_penumbra, u_spotDark;
+uniform float u_chromoThick, u_chromoIntensity, u_chromoShift;
+uniform float u_coronaExtent, u_coronaBright, u_coronaStreams, u_coronaLength, u_coronaAsym;
+uniform float u_promCount, u_promHeight, u_promGlow, u_flareIntensity;
+uniform float u_superGranScale, u_superGranStr, u_rotSpeed;
+uniform float u_bloomRadius, u_bloomIntensity;
+uniform float u_spikeCount, u_spikeLength, u_spikeBright;
+uniform float u_starDensity, u_nebulaIntensity;
+uniform float u_seed, u_zoom;
+uniform float u_accretionRate, u_diskTilt, u_bhSpin, u_jetPower, u_lensing;
+
+// ---- Noise ----
+vec3 mod289(vec3 x){return x-floor(x*(1./289.))*289.;}
+vec4 mod289(vec4 x){return x-floor(x*(1./289.))*289.;}
+vec4 permute(vec4 x){return mod289(((x*34.)+1.)*x);}
+vec4 taylorInvSqrt(vec4 r){return 1.79284291400159-.85373472095314*r;}
+
+float snoise(vec3 v){
+  const vec2 C=vec2(1./6.,1./3.);const vec4 D=vec4(0,.5,1,2);
+  vec3 i=floor(v+dot(v,C.yyy));vec3 x0=v-i+dot(i,C.xxx);
+  vec3 g=step(x0.yzx,x0.xyz);vec3 l=1.-g;
+  vec3 i1=min(g,l.zxy);vec3 i2=max(g,l.zxy);
+  vec3 x1=x0-i1+C.xxx;vec3 x2=x0-i2+C.yyy;vec3 x3=x0-D.yyy;
+  i=mod289(i);
+  vec4 p=permute(permute(permute(i.z+vec4(0,i1.z,i2.z,1))+i.y+vec4(0,i1.y,i2.y,1))+i.x+vec4(0,i1.x,i2.x,1));
+  float n_=.142857142857;vec3 ns=n_*D.wyz-D.xzx;
+  vec4 j=p-49.*floor(p*ns.z*ns.z);
+  vec4 x_=floor(j*ns.z);vec4 y_=floor(j-7.*x_);
+  vec4 x=x_*ns.x+ns.yyyy;vec4 y=y_*ns.x+ns.yyyy;
+  vec4 h=1.-abs(x)-abs(y);
+  vec4 b0=vec4(x.xy,y.xy);vec4 b1=vec4(x.zw,y.zw);
+  vec4 s0=floor(b0)*2.+1.;vec4 s1=floor(b1)*2.+1.;
+  vec4 sh=-step(h,vec4(0));
+  vec4 a0=b0.xzyw+s0.xzyw*sh.xxyy;vec4 a1=b1.xzyw+s1.xzyw*sh.zzww;
+  vec3 p0=vec3(a0.xy,h.x);vec3 p1=vec3(a0.zw,h.y);vec3 p2=vec3(a1.xy,h.z);vec3 p3=vec3(a1.zw,h.w);
+  vec4 norm=taylorInvSqrt(vec4(dot(p0,p0),dot(p1,p1),dot(p2,p2),dot(p3,p3)));
+  p0*=norm.x;p1*=norm.y;p2*=norm.z;p3*=norm.w;
+  vec4 m=max(.6-vec4(dot(x0,x0),dot(x1,x1),dot(x2,x2),dot(x3,x3)),0.);m=m*m;
+  return 42.*dot(m*m,vec4(dot(p0,x0),dot(p1,x1),dot(p2,x2),dot(p3,x3)));
+}
+
+float fbm(vec3 p,int octs,float rough){
+  float v=0.,a=.5,f=1.,s=0.;
+  for(int i=0;i<8;i++){if(i>=octs)break;v+=a*snoise(p*f);s+=a;a*=rough;f*=2.;}
+  return v/s;
+}
+
+// Voronoi
+vec2 voronoi(vec3 p){
+  vec3 ip=floor(p);vec3 fp=fract(p);
+  float dMin=10.,dMin2=10.;
+  for(int x=-1;x<=1;x++)for(int y=-1;y<=1;y++)for(int z=-1;z<=1;z++){
+    vec3 nb=vec3(float(x),float(y),float(z));
+    vec3 off=nb+vec3(
+      fract(sin(dot(ip+nb,vec3(127.1,311.7,74.7)))*43758.5453),
+      fract(sin(dot(ip+nb,vec3(269.5,183.3,246.1)))*22578.5453),
+      fract(sin(dot(ip+nb,vec3(419.2,371.9,128.5)))*12345.6789)
+    )-fp;
+    float dd=dot(off,off);
+    if(dd<dMin){dMin2=dMin;dMin=dd;}
+    else if(dd<dMin2){dMin2=dd;}
+  }
+  return vec2(sqrt(dMin),sqrt(dMin2));
+}
+
+// Blackbody to RGB - wavelength-dependent version
+vec3 tempToRGB(float T){
+  float t=T/100.;
+  vec3 c;
+  if(t<=66.)c.r=1.; else{float r=t-60.;c.r=clamp(1.29293618606*pow(r,-.1332047592),0.,1.);}
+  if(t<=66.){float g=t-2.;c.g=clamp(.3900815787+.1302811719*log(max(g,1.))-.00025*g,0.,1.);}
+  else{float g=t-60.;c.g=clamp(1.12989086*pow(g,-.0755148492),0.,1.);}
+  if(t>=66.)c.b=1.; else if(t<=19.)c.b=0.; else{float b=t-10.;c.b=clamp(-.00559+.13155*log(b),0.,1.);}
+  return c;
+}
+
+// Wavelength-dependent limb darkening
+vec3 limbDarkenColor(vec3 baseCol,float mu,float u_ld){
+  // Redder channels darken less at limb (realistic)
+  float lr=1.-(u_ld*0.85)*(1.-mu);
+  float lg=1.-u_ld*(1.-mu);
+  float lb=1.-(u_ld*1.15)*(1.-mu);
+  float q=(1.-mu)*(1.-mu);
+  lr*=1.-.12*q; lg*=1.-.15*q; lb*=1.-.18*q;
+  return baseCol*vec3(max(.05,lr),max(.05,lg),max(.05,lb));
+}
+
+// Star field background
+vec3 starField(vec2 uv,float density,float seed){
+  vec3 col=vec3(.005,.007,.015);
+  float layers[3]=float[](200.,400.,800.);
+  for(int l=0;l<3;l++){
+    float sc=layers[l]*density;
+    vec2 gv=fract(uv*sc)-.5;
+    vec2 id=floor(uv*sc);
+    float n=fract(sin(dot(id,vec2(12.99+seed,78.23+seed*2.)))*43758.5);
+    float n2=fract(sin(dot(id,vec2(39.35+seed,11.14+seed*3.)))*22578.5);
+    if(n>.97-density*.02){
+      float br=pow(n2,2.)*(l==0?1.2:l==1?.8:.5);
+      float star=exp(-length(gv)*(l==0?33.:l==1?40.:50.))*br;
+      vec3 sc2=vec3(1.); if(n2<.3)sc2=vec3(1.,.85,.7); else if(n2>.7)sc2=vec3(.7,.85,1.);
+      col+=sc2*star;
+    }
+  }
+  return col;
+}
+
+vec3 nebulaBg(vec2 uv,float intensity,float seed){
+  if(intensity<.01)return vec3(0.);
+  float n1=fbm(vec3(uv*2.,seed),4,.5);
+  float n2=fbm(vec3(uv*3.+10.,seed*2.),4,.5);
+  return(vec3(.1,.04,.12)*smoothstep(.2,.8,n1)+vec3(.04,.08,.12)*smoothstep(.3,.9,n2))*intensity*.5;
+}
+
+// Background with lensing distortion
+vec3 lensedBg(vec2 c,float R,float lensStr,float sd,float ni,float seed){
+  float d=length(c);
+  vec2 uv=c;
+  if(lensStr>0.01 && d>R*0.5){
+    float rs=R*1.5*lensStr;
+    float bendFactor=rs*rs/(d*d+rs*0.1);
+    vec2 dir=normalize(c);
+    uv=c+dir*bendFactor;
+    // Einstein ring brightening
+    float ringDist=abs(d-rs*0.9);
+    if(ringDist<rs*0.15){
+      float ringBright=exp(-ringDist*ringDist/(rs*rs*0.003))*0.3*lensStr;
+      vec3 bg=starField(uv*.5+.5,sd,seed)+nebulaBg(uv*.5+.5,ni,seed);
+      return bg*(1.+ringBright*8.);
+    }
+  }
+  return starField(uv*.5+.5,sd,seed)+nebulaBg(uv*.5+.5,ni,seed);
+}
+
+// Accretion disk
+vec3 accretionDisk(vec2 c,float R,float rate,float tiltDeg,float spin,float t,float seed){
+  if(rate<0.01)return vec3(0.);
+  float tiltR=tiltDeg*3.14159/180.;
+  float ct=cos(tiltR),st=sin(tiltR);
+
+  // Project point to disk plane
+  float y_disk=c.y/ct;
+  float x_disk=c.x;
+  float diskR=length(vec2(x_disk,y_disk));
+  
+  float innerR=R*1.5;
+  float outerR=R*8.;
+  if(diskR<innerR*0.5||diskR>outerR)return vec3(0.);
+
+  // Vertical thickness check
+  float diskThickness=R*0.15*(diskR/outerR);
+  float vertDist=abs(c.y-y_disk*ct)*2.;
+  if(vertDist>diskThickness*3.)return vec3(0.);
+  float vertFade=exp(-vertDist*vertDist/(diskThickness*diskThickness));
+  
+  // Behind the object check: if we're above and behind, dim it
+  bool isBehind=c.y*st>0.&&abs(c.y)>R*0.3;
+  float behindFade=1.;
+  float d=length(c);
+  if(isBehind&&d<R*1.2)behindFade=smoothstep(R*0.5,R*1.3,d);
+
+  // Orbital angle with Keplerian differential velocity
+  float orbitAngle=atan(y_disk,x_disk);
+  float diskT=(diskR-innerR)/(outerR-innerR);
+  float keplerSpeed=1./pow(max(diskR/innerR,.5),1.5);
+  float flowAngle=orbitAngle-t*keplerSpeed*2.*spin;
+
+  // Temperature profile: hotter toward center
+  float tempProfile=pow(clamp(1.-diskT,0.,1.),0.75);
+  
+  // Inner hot region = white/blue; outer = red/orange
+  vec3 hotCol=vec3(1.,.95,.9);
+  vec3 warmCol=vec3(1.,.6,.2);
+  vec3 coolCol=vec3(.6,.15,.05);
+  vec3 diskCol=mix(coolCol,warmCol,smoothstep(0.,.5,tempProfile));
+  diskCol=mix(diskCol,hotCol,smoothstep(.5,1.,tempProfile));
+
+  // Spiral density waves
+  float spiralN=sin(flowAngle*3.+diskT*20.+fbm(vec3(flowAngle*2.,diskT*8.,seed+t*.1),3,.5)*4.)*.5+.5;
+  float turb=fbm(vec3(x_disk*6.+t*.3,y_disk*6.,seed*3.),4,.55)*.5+.5;
+  float density=(.5+spiralN*.3+turb*.2)*rate;
+  
+  // Doppler beaming: approaching side brighter
+  float doppler=1.+sin(orbitAngle)*0.3*spin;
+  
+  // Radial fade
+  float radialFade=smoothstep(innerR*0.5,innerR*1.5,diskR)*smoothstep(outerR,outerR*0.7,diskR);
+  
+  float alpha=density*vertFade*radialFade*behindFade*doppler;
+  
+  // Self-luminous glow
+  return diskCol*alpha*tempProfile*2.5;
+}
+
+// Relativistic jets
+vec3 jets(vec2 c,float R,float power,float tiltDeg,float t,float seed){
+  if(power<0.01)return vec3(0.);
+  float tiltR=tiltDeg*3.14159/180.;
+
+  // Jet axis is perpendicular to disk (along tilt normal)
+  vec2 jetAxis=vec2(-sin(tiltR),cos(tiltR));
+  vec2 jetPerp=vec2(jetAxis.y,-jetAxis.x);
+  
+  vec3 col=vec3(0.);
+  for(int s=-1;s<=1;s+=2){
+    vec2 axis=jetAxis*float(s);
+    float along=dot(c,axis);
+    float perp=abs(dot(c,jetPerp));
+    if(along<R*0.3)continue;
+    
+    // Cone widening
+    float coneW=R*0.08+along*0.12;
+    if(perp>coneW*2.5)continue;
+    
+    float jetFade=exp(-perp*perp/(coneW*coneW))*exp(-along*1.2/(R*4.));
+    
+    // Internal structure - knots
+    float knots=sin(along*15./(R)+t*3.)*.5+.5;
+    float turbJ=fbm(vec3(along*8./(R)+t*2.,perp*12./(R),seed*7.+float(s)),3,.5)*.5+.5;
+    float brightness=jetFade*power*(0.4+knots*0.3+turbJ*0.3);
+    
+    // Color: blue-white core, fainter outer glow
+    float coreFrac=exp(-perp*perp/(coneW*coneW*0.15));
+    vec3 jetCol=mix(vec3(.3,.4,1.),vec3(.7,.8,1.),coreFrac);
+    col+=jetCol*brightness;
+  }
+  return col;
+}
+
+// Photon ring (thin bright ring at ~1.5 Schwarzschild radii)
+float photonRing(float d,float R,float lensStr){
+  if(lensStr<0.01)return 0.;
+  float ringR=R*1.5;
+  float ringDist=abs(d-ringR);
+  float ringW=R*0.04;
+  return exp(-ringDist*ringDist/(ringW*ringW))*lensStr*0.6;
+}
+
+void main(){
+  vec2 uv=v_uv;
+  float asp=u_resolution.x/u_resolution.y;
+  vec2 c=(uv-.5)*vec2(asp,1.)*u_zoom;
+  float d=length(c);
+  
+  float R=0.32*u_radius;
+  float t=u_time;
+
+  vec3 baseColor=tempToRGB(u_temperature);
+  
+  // Background with gravitational lensing
+  vec3 bg=lensedBg(c,R,u_lensing,u_starDensity,u_nebulaIntensity,u_seed);
+  vec3 color=bg;
+
+  float nd=d/R;
+  float ang=atan(c.y,c.x);
+  float PI=3.14159265;
+  float TAU=6.2831853;
+
+  // ---- Accretion disk (behind) ----
+  // Render portion behind the star/BH
+  if(u_accretionRate>0.01){
+    float tiltR=u_diskTilt*PI/180.;
+    float y_disk=c.y/cos(tiltR);
+    bool behindBH=(c.y*sin(tiltR)>0.);
+    if(behindBH){
+      vec3 disk=accretionDisk(c,R,u_accretionRate,u_diskTilt,u_bhSpin,t,u_seed);
+      color+=disk;
+    }
+  }
+  
+  // ---- Diffraction spikes ----
+  if(u_spikeCount>0.5 && u_temperature>0.5){
+    int spkN=int(u_spikeCount);
+    float spikeMax=0.;
+    for(int i=0;i<8;i++){
+      if(i>=spkN)break;
+      float sa=PI*float(i)/float(spkN);
+      float da=abs(mod(ang-sa+PI,TAU)-PI);
+      float spk=exp(-da*120.)/(1.+d*d/(R*R*u_spikeLength*.5+.001)*3.);
+      spikeMax=max(spikeMax,spk);
+    }
+    color+=baseColor*spikeMax*u_spikeBright*u_luminosity*.5;
+  }
+
+  // ---- Corona ----
+  if(u_coronaBright>0.01 && d>R*.7){
+    float coronaD=max(0.,(d-R))/(R*u_coronaExtent+.001);
+    
+    // Streamers - use Cartesian-based noise to avoid angular seams
+    float streamVal=0.;
+    if(u_coronaStreams>0.5){
+      float nS=u_coronaStreams;
+      vec2 cn=c/max(d,0.001);
+      // Helmet streamers via Cartesian noise
+      float sn1=fbm(vec3(cn.x*nS*1.2,cn.y*nS*1.2,u_seed*5.+t*.02),3,.5);
+      float sn2=fbm(vec3(cn.x*nS*0.7+7.,cn.y*nS*0.7+3.,u_seed*3.+t*.015),2,.5);
+      streamVal=(sn1*.6+sn2*.4+.5)*u_coronaLength;
+      
+      // Polar plumes
+      float polarFactor=pow(abs(cn.y),2.)*.3;
+      streamVal+=polarFactor*u_coronaLength;
+      
+      // Asymmetry via Cartesian noise
+      float asymN=fbm(vec3(cn.x*1.5+u_seed*3.,cn.y*1.5,t*.01),2,.5);
+      streamVal*=(1.+asymN*u_coronaAsym);
+    }
+
+    float coronaFade=exp(-coronaD*(1.5-min(streamVal,.8)*.8));
+    float corona=coronaFade*u_coronaBright*(.5+streamVal*.5);
+    vec3 coronaCol=mix(baseColor,vec3(1.),.6)*corona;
+    
+    // Fine structure
+    float fineN=fbm(vec3(c.x*8.+t*.03,c.y*8.,u_seed*7.),3,.5);
+    coronaCol*=(1.+fineN*.25);
+
+    color+=coronaCol*smoothstep(R*.85,R*1.1,d);
+  }
+
+  // ---- Prominences ----
+  if(u_promCount>0.5 && d>R*.85 && d<R*(1.+u_promHeight*2.5)){
+    int pCount=int(u_promCount);
+    for(int i=0;i<8;i++){
+      if(i>=pCount)break;
+      float fi=float(i);
+      float pSeed=u_seed*17.3+fi*41.7;
+      float pAng=fract(sin(pSeed*127.1)*43758.5)*TAU;
+      float pW=.08+fract(sin(pSeed*269.5)*22578.5)*.12;
+      float pDir=mod(ang-pAng+PI,TAU)-PI;
+      float angDist=abs(pDir);
+      if(angDist<pW*3.){
+        float radialT=(d-R*.92)/(R*u_promHeight*2.);
+        if(radialT>0.&&radialT<1.){
+          // Magnetic loop arch
+          float archX=pDir/pW;
+          float archY=1.-archX*archX;
+          archY=max(0.,archY);
+          // Thin loop structure along the arch
+          float loopT=abs(radialT-archY*0.8);
+          float loopShape=exp(-loopT*loopT*60.)*archY;
+          // Filled prominence material inside loop
+          float fillShape=archY*exp(-radialT*2.)*smoothstep(0.,0.3,archY-radialT*0.5);
+          float promShape=max(loopShape*0.7,fillShape*0.5);
+          
+          float promNoise=fbm(vec3(pDir*20.+t*.1+fi*5.,radialT*8.,pSeed),3,.55)*.5+.5;
+          float prom=promShape*promNoise*u_promGlow;
+          prom*=exp(-angDist/pW*1.5);
+          
+          // H-alpha color
+          vec3 promCol=mix(baseColor,vec3(1.,.25,.15),.65)*prom;
+          color+=promCol*.6;
+        }
+      }
+    }
+
+    // Flares
+    if(u_flareIntensity>0.01){
+      float flareSeed=u_seed*31.7+floor(t*0.15)*7.3;
+      for(int i=0;i<3;i++){
+        float fi=float(i);
+        float fAng=fract(sin(flareSeed+fi*77.7)*43758.5)*TAU;
+        float fW=.04+fract(sin(flareSeed+fi*33.3)*22578.5)*.06;
+        float fDir=mod(ang-fAng+PI,TAU)-PI;
+        float angD=abs(fDir);
+        if(angD<fW*2.5){
+          float fRad=(d-R*.95)/(R*.2);
+          if(fRad>-0.5&&fRad<1.){
+            float flare=exp(-fRad*fRad*3.)*exp(-angD*angD/(fW*fW*2.))*u_flareIntensity;
+            float pulse=sin(t*1.5+fi*3.)*.3+.7;
+            // Bright white flare core
+            vec3 flareCol=mix(baseColor,vec3(1.),.6);
+            color+=flareCol*flare*pulse*2.;
+          }
+        }
+      }
+    }
+  }
+
+  // ---- Chromosphere ----
+  if(u_chromoIntensity>0.01){
+    float chromoEdge=smoothstep(R+u_chromoThick,R,d)*smoothstep(R-.005,R+u_chromoThick*0.5,d);
+    vec3 chromoCol=mix(baseColor,vec3(1.,.2,.15),u_chromoShift*.7);
+    // Spicules - radially oriented structures
+    vec2 cn=c/max(d,.001);
+    float spiculeAngle=atan(cn.y,cn.x);
+    float spicules=sin(spiculeAngle*40.+fbm(vec3(cn*8.,u_seed*11.+t*.3),3,.5)*6.)*.5+.5;
+    float spiculeH=smoothstep(R,R+u_chromoThick,d)*smoothstep(R+u_chromoThick*1.3,R+u_chromoThick*0.5,d);
+    chromoCol*=(.7+spicules*.5);
+    color+=chromoCol*(chromoEdge+spiculeH*0.3)*u_chromoIntensity*.5;
+  }
+
+  // ---- Star surface ----
+  if(d<=R && u_temperature>0.5){
+    float z=sqrt(max(0.,1.-nd*nd));
+    vec3 N=normalize(vec3(c/R,z));
+
+    float rotAng=t*u_rotSpeed;
+    float ca=cos(rotAng),sa=sin(rotAng);
+    vec3 sp=vec3(N.x*ca-N.z*sa,N.y,N.x*sa+N.z*ca);
+    vec3 so=vec3(u_seed*13.7,u_seed*7.3,u_seed*19.1);
+
+    // ---- Supergranulation ----
+    float superGran=0.;
+    if(u_superGranStr>0.01){
+      vec2 sv=voronoi(sp*u_superGranScale+so*.3);
+      superGran=(sv.y-sv.x)*u_superGranStr;
+    }
+
+    // ---- Granulation ----
+    float granTime=t*u_granFlow;
+    vec3 granP=sp*u_granScale+so+vec3(granTime*.3,granTime*.2,granTime*.15);
+    vec2 gv2=voronoi(granP);
+    float cellEdge=gv2.y-gv2.x;
+    float granulation=smoothstep(0.,.3,cellEdge);
+
+    float turbDetail=fbm(sp*u_granScale*2.+so+vec3(granTime),4,.55)*.5+.5;
+    granulation=mix(granulation,turbDetail,u_granTurb*.4);
+
+    // Bright centers, dark intergranular lanes
+    float granBright=1.+granulation*u_granContrast-u_granContrast*.5;
+    granBright+=superGran*.5;
+    
+    // Magnetic bright points in intergranular lanes
+    float mbp=0.;
+    if(u_granContrast>0.1){
+      float mbpNoise=snoise(sp*u_granScale*3.+so*2.);
+      float inLane=1.-smoothstep(0.,.12,cellEdge);
+      mbp=inLane*smoothstep(.6,.9,mbpNoise)*.08*u_granContrast;
+    }
+
+    // ---- Sunspots ----
+    float spotMask=1.;
+    int sCount=int(u_spotCount);
+    for(int i=0;i<20;i++){
+      if(i>=sCount)break;
+      float fi=float(i);
+      float h1=fract(sin(u_seed*127.1+fi*311.7)*43758.5);
+      float h2=fract(sin(u_seed*269.5+fi*183.3)*22578.5);
+      float h3=fract(sin(u_seed*71.3+fi*53.1)*12345.7);
+      // Prefer mid-latitudes
+      float sTheta=(.8*h1-.4)*PI*0.5;
+      float sPhi=h2*TAU;
+      float sCos=cos(sTheta);
+      vec3 spotPos=vec3(sCos*cos(sPhi),sin(sTheta),sCos*sin(sPhi));
+      float spotDist=length(sp-spotPos);
+      float sSize=u_spotSize*(.5+h3);
+
+      float umbra=smoothstep(sSize*.4,sSize*.15,spotDist);
+      float penumbraR=sSize*u_penumbra;
+      float penumbraVal=smoothstep(penumbraR,sSize*.25,spotDist);
+      
+      // Filamentary penumbra with radial spokes
+      float penAngle=atan(sp.y-spotPos.y,sp.x-spotPos.x);
+      float penFil=sin(penAngle*16.+fbm(vec3(penAngle*5.,spotDist*30.,u_seed+fi),3,.5)*5.)*.5+.5;
+      // Radial fine structure
+      float radFil=sin(spotDist*80.+penAngle*4.)*.5+.5;
+      penumbraVal*=(.6+penFil*.25+radFil*.15);
+
+      float spotVal=mix(penumbraVal,1.,umbra);
+      spotMask=min(spotMask,mix(1.,u_spotDark,spotVal));
+    }
+
+    // ---- Faculae / Plage ----
+    float faculae=0.;
+    for(int i=0;i<20;i++){
+      if(i>=sCount)break;
+      float fi=float(i);
+      float h1=fract(sin(u_seed*127.1+fi*311.7)*43758.5);
+      float h2=fract(sin(u_seed*269.5+fi*183.3)*22578.5);
+      float sTheta=(.8*h1-.4)*PI*0.5;
+      float sPhi=h2*TAU;
+      float sCos=cos(sTheta);
+      vec3 spotPos=vec3(sCos*cos(sPhi),sin(sTheta),sCos*sin(sPhi));
+      float spotDist=length(sp-spotPos);
+      float facR=u_spotSize*u_penumbra*2.5;
+      float fac=smoothstep(facR,u_spotSize*u_penumbra*.8,spotDist)
+               *smoothstep(u_spotSize*.3,u_spotSize*u_penumbra*.5,spotDist);
+      // More visible near limb (Wilson depression)
+      fac*=pow(1.-z,.8)*.9+.1;
+      // Plage extends further with noise breakup
+      float plageN=fbm(sp*15.+so+vec3(fi*3.),3,.5)*.5+.5;
+      fac*=(.5+plageN*.5);
+      faculae=max(faculae,fac*.15);
+    }
+
+    // ---- Wavelength-dependent limb darkening ----
+    vec3 limbCol=limbDarkenColor(baseColor,z,u_limbDark);
+
+    // ---- Compose surface ----
+    vec3 surfColor=limbCol*granBright*spotMask*u_luminosity;
+    surfColor+=baseColor*faculae*u_luminosity;
+    surfColor+=baseColor*mbp*u_luminosity;
+
+    // Chromospheric network on disk
+    if(u_chromoIntensity>0.01){
+      float network=1.-smoothstep(0.,.15,cellEdge);
+      vec3 netCol=mix(baseColor,vec3(1.,.4,.3),u_chromoShift*.3);
+      surfColor+=netCol*network*u_chromoIntensity*.04*pow(1.-z,.5);
+    }
+
+    color=surfColor;
+  }
+  
+  // ---- Black hole surface (event horizon) ----
+  if(d<=R && u_temperature<0.5){
+    // Pure black
+    color=vec3(0.);
+    // Photon ring glow at edge
+    float edgeGlow=photonRing(d,R,u_lensing);
+    color+=vec3(.8,.85,1.)*edgeGlow;
+  }
+
+  // ---- Accretion disk (front) ----
+  if(u_accretionRate>0.01){
+    float tiltR=u_diskTilt*PI/180.;
+    float y_disk=c.y/cos(tiltR);
+    bool isFront=(c.y*sin(tiltR)<=0.)||(d>R*1.2);
+    if(isFront){
+      vec3 disk=accretionDisk(c,R,u_accretionRate,u_diskTilt,u_bhSpin,t,u_seed);
+      color+=disk;
+    }
+  }
+  
+  // ---- Photon ring ----
+  if(u_lensing>0.01){
+    float pr=photonRing(d,R,u_lensing);
+    vec3 prCol=mix(vec3(1.,.9,.7),vec3(.7,.8,1.),u_bhSpin);
+    color+=prCol*pr;
+  }
+  
+  // ---- Relativistic jets ----
+  color+=jets(c,R,u_jetPower,u_diskTilt,t,u_seed);
+
+  // ---- Bloom / Glow ----
+  if(u_bloomIntensity>0.01){
+    float bloomD=max(0.,d-R*.5)/(R*(1.+u_bloomRadius*3.));
+    float bloom=exp(-bloomD*bloomD*3.)*u_bloomIntensity;
+    bloom*=smoothstep(R*.3,R,d);
+    // Multi-scale bloom
+    float bloom2=exp(-bloomD*bloomD*.8)*u_bloomIntensity*.3;
+    bloom2*=smoothstep(R*.1,R*.8,d);
+    // Color: inner white, outer tinted
+    vec3 bloomCol=mix(baseColor,vec3(1.),.3)*bloom*.2 + baseColor*bloom2*.1;
+    color+=bloomCol;
+  }
+
+  // Tone mapping (ACES-like filmic)
+  color=color*(color*2.51+.03)/(color*(color*2.43+.59)+.14);
+  color=pow(clamp(color,0.,1.),vec3(1./2.1));
+
+  fragColor=vec4(color,1.);
+}
+`;
+
+function makeShader(type,src){const s=gl.createShader(type);gl.shaderSource(s,src);gl.compileShader(s);if(!gl.getShaderParameter(s,gl.COMPILE_STATUS)){console.error('Shader error:',gl.getShaderInfoLog(s));return null;}return s;}
+function makeProg(vSrc,fSrc){const v=makeShader(gl.VERTEX_SHADER,vSrc),f=makeShader(gl.FRAGMENT_SHADER,fSrc);if(!v||!f)return null;const p=gl.createProgram();gl.attachShader(p,v);gl.attachShader(p,f);gl.linkProgram(p);if(!gl.getProgramParameter(p,gl.LINK_STATUS)){console.error(gl.getProgramInfoLog(p));return null;}return p;}
+
+const prog=makeProg(VS,FS);
+const buf=gl.createBuffer();gl.bindBuffer(gl.ARRAY_BUFFER,buf);
+gl.bufferData(gl.ARRAY_BUFFER,new Float32Array([-1,-1,1,-1,-1,1,1,1]),gl.STATIC_DRAW);
+const vao=gl.createVertexArray();gl.bindVertexArray(vao);
+const aPos=gl.getAttribLocation(prog,'a_pos');gl.enableVertexAttribArray(aPos);gl.vertexAttribPointer(aPos,2,gl.FLOAT,false,0,0);
+
+const uniNames=['u_time','u_resolution','u_temperature','u_radius','u_luminosity','u_limbDark',
+  'u_granScale','u_granContrast','u_granTurb','u_granFlow',
+  'u_spotCount','u_spotSize','u_penumbra','u_spotDark',
+  'u_chromoThick','u_chromoIntensity','u_chromoShift',
+  'u_coronaExtent','u_coronaBright','u_coronaStreams','u_coronaLength','u_coronaAsym',
+  'u_promCount','u_promHeight','u_promGlow','u_flareIntensity',
+  'u_superGranScale','u_superGranStr','u_rotSpeed',
+  'u_bloomRadius','u_bloomIntensity','u_spikeCount','u_spikeLength','u_spikeBright',
+  'u_starDensity','u_nebulaIntensity','u_seed','u_zoom',
+  'u_accretionRate','u_diskTilt','u_bhSpin','u_jetPower','u_lensing'];
+const u={};
+gl.useProgram(prog);
+uniNames.forEach(n=>u[n]=gl.getUniformLocation(prog,n));
+
+function gv(id){const el=document.getElementById(id);return el?parseFloat(el.value):0;}
+
+document.querySelectorAll('#controls input[type=range]').forEach(el=>{
+  const v=el.parentElement.querySelector('.val');
+  const up=()=>{if(v)v.textContent=parseFloat(el.value).toFixed(el.step>=1?0:el.step>=0.1?1:el.id==='temperature'?0:2);};
+  el.addEventListener('input',up);up();
+});
+
+canvas.addEventListener('wheel',e=>{
+  e.preventDefault();
+  zoom*=e.deltaY>0?1.1:0.9;
+  zoom=Math.max(0.05,Math.min(20,zoom));
+});
+
+function resize(){const dp=window.devicePixelRatio||1;canvas.width=canvas.clientWidth*dp;canvas.height=canvas.clientHeight*dp;gl.viewport(0,0,canvas.width,canvas.height);}
+window.addEventListener('resize',resize);resize();
+
+function render(time){
+  const t=time*.001;
+  gl.clearColor(0,0,0,1);gl.clear(gl.COLOR_BUFFER_BIT);
+  gl.useProgram(prog);gl.bindVertexArray(vao);
+  gl.uniform1f(u.u_time,t);
+  gl.uniform2f(u.u_resolution,canvas.width,canvas.height);
+  gl.uniform1f(u.u_temperature,gv('temperature'));
+  gl.uniform1f(u.u_radius,gv('radius'));
+  gl.uniform1f(u.u_luminosity,gv('luminosity'));
+  gl.uniform1f(u.u_limbDark,gv('limbDark'));
+  gl.uniform1f(u.u_granScale,gv('granScale'));
+  gl.uniform1f(u.u_granContrast,gv('granContrast'));
+  gl.uniform1f(u.u_granTurb,gv('granTurb'));
+  gl.uniform1f(u.u_granFlow,gv('granFlow'));
+  gl.uniform1f(u.u_spotCount,gv('spotCount'));
+  gl.uniform1f(u.u_spotSize,gv('spotSize'));
+  gl.uniform1f(u.u_penumbra,gv('penumbra'));
+  gl.uniform1f(u.u_spotDark,gv('spotDark'));
+  gl.uniform1f(u.u_chromoThick,gv('chromoThick'));
+  gl.uniform1f(u.u_chromoIntensity,gv('chromoIntensity'));
+  gl.uniform1f(u.u_chromoShift,gv('chromoShift'));
+  gl.uniform1f(u.u_coronaExtent,gv('coronaExtent'));
+  gl.uniform1f(u.u_coronaBright,gv('coronaBright'));
+  gl.uniform1f(u.u_coronaStreams,gv('coronaStreams'));
+  gl.uniform1f(u.u_coronaLength,gv('coronaLength'));
+  gl.uniform1f(u.u_coronaAsym,gv('coronaAsym'));
+  gl.uniform1f(u.u_promCount,gv('promCount'));
+  gl.uniform1f(u.u_promHeight,gv('promHeight'));
+  gl.uniform1f(u.u_promGlow,gv('promGlow'));
+  gl.uniform1f(u.u_flareIntensity,gv('flareIntensity'));
+  gl.uniform1f(u.u_superGranScale,gv('superGranScale'));
+  gl.uniform1f(u.u_superGranStr,gv('superGranStr'));
+  gl.uniform1f(u.u_rotSpeed,gv('rotSpeed'));
+  gl.uniform1f(u.u_bloomRadius,gv('bloomRadius'));
+  gl.uniform1f(u.u_bloomIntensity,gv('bloomIntensity'));
+  gl.uniform1f(u.u_spikeCount,gv('spikeCount'));
+  gl.uniform1f(u.u_spikeLength,gv('spikeLength'));
+  gl.uniform1f(u.u_spikeBright,gv('spikeBright'));
+  gl.uniform1f(u.u_starDensity,gv('starDensity'));
+  gl.uniform1f(u.u_nebulaIntensity,gv('nebulaIntensity'));
+  gl.uniform1f(u.u_seed,gv('seed'));
+  gl.uniform1f(u.u_zoom,zoom);
+  gl.uniform1f(u.u_accretionRate,gv('accretionRate'));
+  gl.uniform1f(u.u_diskTilt,gv('diskTilt'));
+  gl.uniform1f(u.u_bhSpin,gv('bhSpin'));
+  gl.uniform1f(u.u_jetPower,gv('jetPower'));
+  gl.uniform1f(u.u_lensing,gv('lensing'));
+  gl.drawArrays(gl.TRIANGLE_STRIP,0,4);
+  requestAnimationFrame(render);
+}
+requestAnimationFrame(render);
+
+// ---- Classification data ----
+const spectralData={
+  O:{temp:[30000,50000],radius:[6,15],limbDark:.2,granScale:10,granContrast:.05,granTurb:.15,spotCount:0,chromoIntensity:.3,coronaBright:.9,promCount:1},
+  B:{temp:[10000,30000],radius:[2,8],limbDark:.3,granScale:15,granContrast:.12,granTurb:.2,spotCount:1,chromoIntensity:.4,coronaBright:.7,promCount:1},
+  A:{temp:[7500,10000],radius:[1.4,2.5],limbDark:.45,granScale:22,granContrast:.2,granTurb:.3,spotCount:2,chromoIntensity:.5,coronaBright:.55,promCount:2},
+  F:{temp:[6000,7500],radius:[1.1,1.6],limbDark:.55,granScale:26,granContrast:.28,granTurb:.35,spotCount:3,chromoIntensity:.65,coronaBright:.5,promCount:2},
+  G:{temp:[5200,6000],radius:[.85,1.15],limbDark:.6,granScale:30,granContrast:.35,granTurb:.4,spotCount:5,chromoIntensity:.8,coronaBright:.5,promCount:3},
+  K:{temp:[3700,5200],radius:[.65,1],limbDark:.68,granScale:28,granContrast:.42,granTurb:.45,spotCount:7,chromoIntensity:.9,coronaBright:.4,promCount:3},
+  M:{temp:[2300,3700],radius:[.1,.7],limbDark:.8,granScale:20,granContrast:.55,granTurb:.55,spotCount:12,chromoIntensity:1.2,coronaBright:.3,promCount:2}
+};
+const lumClassData={
+  I:{radiusMult:[15,50]},II:{radiusMult:[8,18]},III:{radiusMult:[4,10]},IV:{radiusMult:[1.5,4]},
+  V:{radiusMult:[.8,1.2]},VI:{radiusMult:[.5,.8]},VII:{radiusMult:[.008,.02]}
+};
+const specialTypes={
+  WR:{tempAdd:10000,chromoIntensity:1.5,coronaBright:1.5,coronaExtent:.6,promCount:5,promGlow:1.5,bloomIntensity:1.5,limbDark:.15},
+  L:{tempRange:[1300,2300],radius:.08,granContrast:.65,spotCount:15,chromoIntensity:1.5,coronaBright:.2},
+  T:{tempRange:[600,1300],radius:.06,granContrast:.4,spotCount:20,chromoIntensity:.5,coronaBright:.05,limbDark:.9},
+  Y:{tempRange:[250,600],radius:.05,granContrast:.25,spotCount:8,chromoIntensity:.1,coronaBright:0,limbDark:.95},
+  C:{tempRange:[2400,3200],chromoShift:.65,coronaBright:.35,granContrast:.6,limbDark:.75},
+  magnetar:{radiusMult:.00002,rotSpeed:.25,coronaBright:1.8,coronaExtent:.7,coronaStreams:14,promCount:8,promGlow:2,flareIntensity:.8,bloomIntensity:1.8,spikeCount:6},
+  pulsar:{radiusMult:.00002,rotSpeed:.3,coronaBright:.5,coronaStreams:4,promCount:0,chromoIntensity:.1,spotCount:2,spotSize:.15,bloomIntensity:1.2,spikeCount:8,spikeBright:.4},
+  neutron:{radiusMult:.00002,rotSpeed:.2,coronaBright:.6,coronaExtent:.3,coronaStreams:6,chromoIntensity:.8,spotCount:2,spotSize:.12,bloomIntensity:1.0,granContrast:.1},
+  blackhole:{temperature:0,radius:.15,luminosity:.3,granContrast:0,granTurb:0,granFlow:0,spotCount:0,chromoIntensity:0,chromoThick:0,coronaBright:0,coronaExtent:0,promCount:0,flareIntensity:0,bloomIntensity:0,spikeCount:0,spikeBright:0,superGranStr:0,rotSpeed:0,accretionRate:.7,diskTilt:60,bhSpin:.8,jetPower:.4,lensing:1.5}
+};
+
+function setVal(id,v){const el=document.getElementById(id);if(el){el.value=v;el.dispatchEvent(new Event('input'));}}
+
+function setClass(cls){
+  currentClass=cls;
+  document.querySelectorAll('#class-select button').forEach(b=>b.classList.toggle('sel',b.textContent===cls));
+  applyClassification();
+}
+function setLumClass(lum){
+  currentLumClass=lum;
+  document.querySelectorAll('#lum-select button').forEach(b=>b.classList.toggle('sel',b.textContent===lum));
+  applyClassification();
+}
+function setSpecial(spec){
+  currentSpecial=spec;
+  const labels={'':'None','WR':'WR','L':'L Dwf','T':'T Dwf','Y':'Y Dwf','C':'Carbon','magnetar':'Magnetar','pulsar':'Pulsar','neutron':'Neutron','blackhole':'Black Hole'};
+  document.querySelectorAll('#special-select button').forEach(b=>b.classList.toggle('sel',b.textContent===labels[spec]));
+  applyClassification();
+}
+
+function applyClassification(){
+  // Reset remnant params
+  setVal('accretionRate',0);setVal('jetPower',0);setVal('lensing',0);
+  
+  const sd=spectralData[currentClass];
+  const ld=lumClassData[currentLumClass];
+
+  if(currentSpecial && specialTypes[currentSpecial]){
+    const st=specialTypes[currentSpecial];
+    
+    if(currentSpecial==='blackhole'){
+      // Black hole: set everything from preset
+      Object.entries(st).forEach(([k,v])=>{setVal(k,v);});
+    } else {
+      if(st.tempRange){
+        setVal('temperature',Math.round((st.tempRange[0]+st.tempRange[1])/2));
+      } else if(st.tempAdd){
+        setVal('temperature',Math.round((sd.temp[0]+sd.temp[1])/2+st.tempAdd));
+      } else {
+        setVal('temperature',Math.round((sd.temp[0]+sd.temp[1])/2));
+      }
+      const baseR=(sd.radius[0]+sd.radius[1])/2;
+      const radVal=st.radiusMult!=null?baseR*st.radiusMult:(st.radius||baseR*(ld.radiusMult[0]+ld.radiusMult[1])/2);
+      setVal('radius',radVal.toFixed(3));
+      
+      Object.entries(st).forEach(([k,v])=>{
+        if(!['tempRange','tempAdd','radiusMult','radius'].includes(k))setVal(k,v);
+      });
+    }
+  } else {
+    setVal('temperature',Math.round((sd.temp[0]+sd.temp[1])/2));
+    const baseR=(sd.radius[0]+sd.radius[1])/2;
+    const radMult=(ld.radiusMult[0]+ld.radiusMult[1])/2;
+    setVal('radius',(baseR*radMult).toFixed(3));
+    setVal('limbDark',sd.limbDark);
+    setVal('granScale',sd.granScale);
+    setVal('granContrast',sd.granContrast);
+    setVal('granTurb',sd.granTurb);
+    setVal('spotCount',sd.spotCount);
+    setVal('chromoIntensity',sd.chromoIntensity);
+    setVal('coronaBright',sd.coronaBright);
+    setVal('promCount',sd.promCount);
+  }
+  updateStats();
+}
+
+function randomize(){
+  const classes=['O','B','A','F','G','K','M'];
+  const lumClasses=['I','II','III','IV','V','VI','VII'];
+  const specials=['','','','','WR','L','T','Y','C','magnetar','pulsar','neutron','blackhole'];
+  currentClass=classes[Math.floor(Math.random()*7)];
+  currentLumClass=lumClasses[Math.floor(Math.random()*7)];
+  currentSpecial=specials[Math.floor(Math.random()*specials.length)];
+  document.querySelectorAll('#class-select button').forEach(b=>b.classList.toggle('sel',b.textContent===currentClass));
+  document.querySelectorAll('#lum-select button').forEach(b=>b.classList.toggle('sel',b.textContent===currentLumClass));
+  applyClassification();
+  setVal('seed',(Math.random()*100).toFixed(1));
+}
+
+// ---- Stats ----
+const statsEl=document.getElementById('stats');
+function bar(p,col){return`<span class="stat-bar-bg"><span class="stat-bar" style="width:${Math.min(100,Math.max(0,p))}%;background:${col}"></span></span>`;}
+
+function updateStats(){
+  const T=gv('temperature'),R=gv('radius'),spots=gv('spotCount');
+  
+  // Handle black hole
+  if(currentSpecial==='blackhole'){
+    const accr=gv('accretionRate'),spin=gv('bhSpin'),jet=gv('jetPower');
+    const massSM=R*50;
+    const rsKm=(massSM*2.95).toFixed(1);
+    const ergoFrac=(spin*50).toFixed(0);
+    const accClass=accr>.6?'Quasar-level':accr>.3?'Active AGN':accr>.1?'Low-luminosity AGN':'Quiescent';
+    statsEl.innerHTML=`
+      <div class="stat-row"><span class="stat-label">📛 Type</span><span class="stat-value"><span class="class-badge" style="background:#22a;color:#aaf;border:1px solid #55f">Black Hole</span></span></div>
+      <div class="stat-row"><span class="stat-label">⚖️ Mass</span><span class="stat-value">~${massSM.toFixed(1)} M☉</span></div>
+      <div class="stat-row"><span class="stat-label">📐 Rs</span><span class="stat-value">${rsKm} km</span></div>
+      <div class="stat-row"><span class="stat-label">🌀 Spin (a)</span><span class="stat-value">${spin.toFixed(2)} ${bar(spin*100,'#66f')}</span></div>
+      <div class="stat-row"><span class="stat-label">🔥 Accretion</span><span class="stat-value">${accClass} ${bar(accr*100,'#f84')}</span></div>
+      <div class="stat-row"><span class="stat-label">💨 Jets</span><span class="stat-value">${jet<.05?'None':jet<.3?'Weak':jet<.6?'Moderate':'Powerful'} ${bar(jet*100,'#48f')}</span></div>
+      <div class="stat-row"><span class="stat-label">🕳️ Ergosphere</span><span class="stat-value">${ergoFrac}% of Rs</span></div>
+      <div class="stat-row"><span class="stat-label">🌡️ Hawking T</span><span class="stat-value">~${(6.17e-8/massSM).toExponential(1)} K</span></div>
+      <div class="stat-row"><span class="stat-label">⏳ Evaporation</span><span class="stat-value">>10⁶⁷ yr</span></div>`;
+    return;
+  }
+  
+  let specClass='M',specSub=0;
+  if(currentSpecial==='WR'){specClass='WR';specSub=Math.round((T-30000)/5000);}
+  else if(currentSpecial==='L'){specClass='L';specSub=Math.max(0,Math.round((2300-T)/100));}
+  else if(currentSpecial==='T'){specClass='T';specSub=Math.max(0,Math.round((1300-T)/70));}
+  else if(currentSpecial==='Y'){specClass='Y';specSub=Math.max(0,Math.round((600-T)/35));}
+  else if(currentSpecial==='C'){specClass='C';specSub=Math.max(0,Math.round((3200-T)/100));}
+  else if(currentSpecial==='magnetar'){specClass='Magnetar';specSub='';}
+  else if(currentSpecial==='pulsar'){specClass='Pulsar';specSub='';}
+  else if(currentSpecial==='neutron'){specClass='NS';specSub='';}
+  else{
+    if(T>=33000){specClass='O';specSub=Math.max(0,Math.min(9,Math.round(9-(T-33000)/2000)));}
+    else if(T>=10000){specClass='B';specSub=Math.max(0,Math.min(9,Math.round(9-(T-10000)/2222)));}
+    else if(T>=7500){specClass='A';specSub=Math.max(0,Math.min(9,Math.round(9-(T-7500)/278)));}
+    else if(T>=6000){specClass='F';specSub=Math.max(0,Math.min(9,Math.round(9-(T-6000)/167)));}
+    else if(T>=5200){specClass='G';specSub=Math.max(0,Math.min(9,Math.round(9-(T-5200)/89)));}
+    else if(T>=3700){specClass='K';specSub=Math.max(0,Math.min(9,Math.round(9-(T-3700)/156)));}
+    else if(T>=2300){specClass='M';specSub=Math.max(0,Math.min(9,Math.round(9-(T-2300)/156)));}
+    else{specClass='L';specSub=0;}
+  }
+
+  const L=Math.pow(R,2)*Math.pow(T/5778,4)*gv('luminosity');
+  const M=T>7500?Math.pow(Math.max(.001,L),1/3.5):Math.pow(Math.max(.001,L),1/4);
+  const absMag=4.83-2.5*Math.log10(Math.max(.0001,L));
+  const lifetime=M>.01?Math.pow(M,-2.5)*10:9999;
+  const surfGrav=M/(R*R);
+  const rotPeriod=gv('rotSpeed')>.001?(2*Math.PI/gv('rotSpeed'))/3.6:Infinity;
+  const rotS=rotPeriod>9000?'Very slow':rotPeriod.toFixed(1)+' hrs';
+  const actLevel=spots>10?'Very High':spots>6?'High':spots>3?'Moderate':spots>0?'Low':'Quiet';
+  const spotPct=Math.min(30,spots*gv('spotSize')*gv('spotSize')*1000);
+  const specBadgeCol=specClass==='O'||specClass==='WR'?'#99f':specClass==='B'?'#aaf':specClass==='A'?'#ddf':specClass==='F'?'#ffa':specClass==='G'?'#ff8':specClass==='K'?'#fa6':specClass.match(/^[LTY]$/)?'#933':specClass==='C'?'#f88':'#f66';
+  const hzI=Math.sqrt(L)*.95, hzO=Math.sqrt(L)*1.37;
+  const fullClass=`${specClass}${specSub}${typeof specSub==='number'?' '+currentLumClass:''}`;
+
+  statsEl.innerHTML=`
+    <div class="stat-row"><span class="stat-label">📛 Spectral</span><span class="stat-value"><span class="class-badge" style="background:${specBadgeCol}22;color:${specBadgeCol};border:1px solid ${specBadgeCol}55">${fullClass}</span></span></div>
+    <div class="stat-row"><span class="stat-label">🌡️ Teff</span><span class="stat-value">${T.toLocaleString()} K</span></div>
+    <div class="stat-row"><span class="stat-label">📐 Radius</span><span class="stat-value">${R<.01?R.toExponential(2):R.toFixed(3)} R☉</span></div>
+    <div class="stat-row"><span class="stat-label">⚖️ Mass</span><span class="stat-value">${M.toFixed(2)} M☉</span></div>
+    <div class="stat-row"><span class="stat-label">💡 Luminosity</span><span class="stat-value">${L<100?L.toFixed(2):L.toFixed(0)} L☉ ${bar(Math.min(100,Math.log10(Math.max(.01,L))*25+50),'#fa8')}</span></div>
+    <div class="stat-row"><span class="stat-label">🔭 Abs Mag</span><span class="stat-value">${absMag.toFixed(1)}</span></div>
+    <div class="stat-row"><span class="stat-label">⏳ Lifetime</span><span class="stat-value">${lifetime>100?'>100':lifetime.toFixed(1)} Gyr</span></div>
+    <div class="stat-row"><span class="stat-label">⚓ Surface g</span><span class="stat-value">${surfGrav>1e4?surfGrav.toExponential(1):surfGrav.toFixed(2)} g☉</span></div>
+    <div class="stat-row"><span class="stat-label">🔄 Rotation</span><span class="stat-value">${rotS}</span></div>
+    <div class="stat-row"><span class="stat-label">🌑 Spots</span><span class="stat-value">${actLevel} (${spotPct.toFixed(1)}%) ${bar(spotPct*3,'#654')}</span></div>
+    <div class="stat-row"><span class="stat-label">🌍 HZ Inner</span><span class="stat-value">${hzI<.001?hzI.toExponential(1):hzI.toFixed(2)} AU</span></div>
+    <div class="stat-row"><span class="stat-label">🌍 HZ Outer</span><span class="stat-value">${hzO<.001?hzO.toExponential(1):hzO.toFixed(2)} AU</span></div>`;
+}
+document.querySelectorAll('#controls input').forEach(el=>el.addEventListener('input',updateStats));
+applyClassification();
+</script>
+</body>
+</html>

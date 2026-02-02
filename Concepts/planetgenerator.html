@@ -1,0 +1,1325 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Planet Generator</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:#0a0a10;color:#ccc;font-family:'Segoe UI',sans-serif;display:flex;height:100vh;overflow:hidden}
+canvas{display:block;flex:1;min-width:0}
+#controls{width:320px;min-width:320px;background:#12121a;padding:12px;overflow-y:auto;border-left:1px solid #2a2a3a;display:flex;flex-direction:column;gap:4px}
+#controls h2{color:#7ab;font-size:13px;margin:8px 0 3px;border-bottom:1px solid #2a2a3a;padding-bottom:3px}
+#controls h2:first-child{margin-top:0}
+.row{display:flex;align-items:center;gap:5px;font-size:11.5px}
+.row label{flex:1;white-space:nowrap}
+.row input[type=range]{width:105px;accent-color:#7ab}
+.row .val{width:38px;text-align:right;font-size:10.5px;color:#8cf;font-family:monospace}
+.row input[type=color]{width:30px;height:18px;border:none;background:none;cursor:pointer}
+button{background:#2a4a5a;color:#adf;border:1px solid #3a6a7a;padding:5px 9px;cursor:pointer;border-radius:4px;font-size:11.5px;margin-top:3px}
+button:hover{background:#3a5a6a}
+#presets{display:flex;flex-wrap:wrap;gap:3px}
+#presets button{font-size:10.5px;padding:3px 7px}
+.section{display:none}.section.active{display:contents}
+#type-select{display:flex;gap:4px;margin-bottom:4px}
+#type-select button{flex:1;padding:6px;font-size:12px;border-radius:4px}
+#type-select button.sel{background:#3a6a7a;color:#fff}
+#ring-level{display:flex;gap:3px;margin-bottom:2px}
+#ring-level button{flex:1;padding:4px 5px;font-size:10.5px;margin-top:0}
+#ring-level button.sel{background:#3a6a7a;color:#fff}
+#stats{background:#0d0d16;border:1px solid #2a2a3a;border-radius:5px;padding:8px;margin-top:4px}
+#stats .stat-row{display:flex;justify-content:space-between;font-size:10.5px;padding:2.5px 0;border-bottom:1px solid #1a1a2a}
+#stats .stat-row:last-child{border-bottom:none}
+#stats .stat-label{color:#889}
+#stats .stat-value{color:#acd;font-family:monospace;font-weight:bold}
+.stat-bar-bg{width:55px;height:5px;background:#1a1a2a;border-radius:3px;display:inline-block;vertical-align:middle;margin-left:4px}
+.stat-bar{height:100%;border-radius:3px;transition:width .3s}
+.hab-badge{display:inline-block;font-size:9.5px;padding:2px 5px;border-radius:3px;font-weight:bold;margin-left:3px}
+.hab-0{background:#3a1a1a;color:#f66}.hab-1{background:#3a2a1a;color:#fa5}.hab-2{background:#2a3a1a;color:#af5}.hab-3{background:#1a3a2a;color:#5fa}
+</style>
+</head>
+<body>
+<canvas id="c"></canvas>
+<div id="controls">
+<h2>🪐 Planet Type</h2>
+<div id="type-select">
+  <button class="sel" onclick="setType(0)">Terrestrial</button>
+  <button onclick="setType(1)">Gas Giant</button>
+</div>
+<h2>⭐ Presets</h2>
+<div id="presets"></div>
+
+<div class="section terrestrial active" id="sec-t-surface">
+<h2>🌍 Surface</h2>
+<div class="row"><label>Continent Size</label><input type="range" id="continentSize" min="0.5" max="4" step="0.1" value="1.5"><span class="val"></span></div>
+<div class="row"><label>Land Coherence</label><input type="range" id="landCoherence" min="0" max="1" step="0.01" value="0.6"><span class="val"></span></div>
+<div class="row"><label>Coastal Detail</label><input type="range" id="coastalDetail" min="0" max="1" step="0.01" value="0.5"><span class="val"></span></div>
+<div class="row"><label>Terrain Scale</label><input type="range" id="terrainScale" min="1" max="12" step="0.1" value="4"><span class="val"></span></div>
+<div class="row"><label>Terrain Height</label><input type="range" id="terrainHeight" min="0" max="1" step="0.01" value="0.5"><span class="val"></span></div>
+<div class="row"><label>Octaves</label><input type="range" id="octaves" min="1" max="8" step="1" value="6"><span class="val"></span></div>
+<div class="row"><label>Roughness</label><input type="range" id="roughness" min="0" max="1" step="0.01" value="0.55"><span class="val"></span></div>
+</div>
+<div class="section terrestrial active" id="sec-t-colors">
+<h2>🎨 Surface Colors</h2>
+<div class="row"><label>Deep Ground</label><input type="color" id="colLow" value="#2a4a1a"></div>
+<div class="row"><label>Mid Ground</label><input type="color" id="colMid" value="#5a8a3a"></div>
+<div class="row"><label>High Ground</label><input type="color" id="colHigh" value="#8a7a5a"></div>
+<div class="row"><label>Peak</label><input type="color" id="colPeak" value="#ccbbaa"></div>
+</div>
+<div class="section terrestrial active" id="sec-t-water">
+<h2>🌊 Water / Liquid</h2>
+<div class="row"><label>Sea Level</label><input type="range" id="seaLevel" min="0" max="1" step="0.01" value="0.45"><span class="val"></span></div>
+<div class="row"><label>Shallow Color</label><input type="color" id="colSeaShallow" value="#2288bb"></div>
+<div class="row"><label>Deep Color</label><input type="color" id="colSeaDeep" value="#0a2244"></div>
+<div class="row"><label>Specular</label><input type="range" id="seaSpecular" min="0" max="2" step="0.01" value="0.8"><span class="val"></span></div>
+<div class="row"><label>Fresnel Strength</label><input type="range" id="fresnelStrength" min="0" max="2" step="0.01" value="1.0"><span class="val"></span></div>
+</div>
+<div class="section terrestrial active" id="sec-t-ice">
+<h2>❄️ Polar Ice</h2>
+<div class="row"><label>Ice Cap Size</label><input type="range" id="iceCap" min="0" max="1" step="0.01" value="0.3"><span class="val"></span></div>
+<div class="row"><label>Ice Color</label><input type="color" id="colIce" value="#ddeeff"></div>
+</div>
+
+<div class="section gasgiant" id="sec-g-bands">
+<h2>🌀 Band Structure</h2>
+<div class="row"><label>Band Count</label><input type="range" id="gBandCount" min="3" max="30" step="1" value="14"><span class="val"></span></div>
+<div class="row"><label>Band Contrast</label><input type="range" id="gBandContrast" min="0" max="1" step="0.01" value="0.5"><span class="val"></span></div>
+<div class="row"><label>Band Turbulence</label><input type="range" id="gBandTurb" min="0" max="2" step="0.01" value="0.6"><span class="val"></span></div>
+<div class="row"><label>Flow Speed</label><input type="range" id="gFlowSpeed" min="0" max="1" step="0.01" value="0.3"><span class="val"></span></div>
+<div class="row"><label>Flow Detail</label><input type="range" id="gFlowDetail" min="1" max="8" step="1" value="5"><span class="val"></span></div>
+<div class="row"><label>Oblateness</label><input type="range" id="gOblateness" min="0" max="0.25" step="0.005" value="0.06"><span class="val"></span></div>
+</div>
+<div class="section gasgiant" id="sec-g-storms">
+<h2>🌪️ Storms</h2>
+<div class="row"><label>Storm Intensity</label><input type="range" id="gStormIntensity" min="0" max="1" step="0.01" value="0.5"><span class="val"></span></div>
+<div class="row"><label>Storm Scale</label><input type="range" id="gStormScale" min="0.5" max="5" step="0.1" value="2"><span class="val"></span></div>
+<div class="row"><label>Vortex Strength</label><input type="range" id="gVortex" min="0" max="2" step="0.01" value="0.7"><span class="val"></span></div>
+</div>
+<div class="section gasgiant" id="sec-g-colors">
+<h2>🎨 Atmosphere Colors</h2>
+<div class="row"><label>Band Light</label><input type="color" id="gColBandLight" value="#e8d5a0"></div>
+<div class="row"><label>Band Dark</label><input type="color" id="gColBandDark" value="#8b6b3a"></div>
+<div class="row"><label>Storm Color</label><input type="color" id="gColStorm" value="#cc6644"></div>
+<div class="row"><label>Polar Tint</label><input type="color" id="gColPolar" value="#6688aa"></div>
+</div>
+
+<div class="section terrestrial gasgiant active" id="sec-atmo">
+<h2>☁️ Atmosphere</h2>
+<div class="row"><label>Density</label><input type="range" id="atmoDensity" min="0" max="2" step="0.01" value="0.6"><span class="val"></span></div>
+<div class="row"><label>Color</label><input type="color" id="atmoColor" value="#4488cc"></div>
+<div class="row"><label>Falloff</label><input type="range" id="atmoFalloff" min="0.5" max="6" step="0.1" value="2.5"><span class="val"></span></div>
+<div class="row"><label>Scattering</label><input type="range" id="scatterStrength" min="0" max="2" step="0.01" value="0.8"><span class="val"></span></div>
+</div>
+<div class="section terrestrial active" id="sec-clouds">
+<h2>☁️ Clouds</h2>
+<div class="row"><label>Coverage</label><input type="range" id="cloudCoverage" min="0" max="1" step="0.01" value="0.4"><span class="val"></span></div>
+<div class="row"><label>Scale</label><input type="range" id="cloudScale" min="1" max="10" step="0.1" value="3.5"><span class="val"></span></div>
+<div class="row"><label>Color</label><input type="color" id="cloudColor" value="#ffffff"></div>
+<div class="row"><label>Shadow</label><input type="range" id="cloudShadow" min="0" max="1" step="0.01" value="0.3"><span class="val"></span></div>
+</div>
+<div class="section terrestrial gasgiant active" id="sec-light">
+<h2>💡 Lighting</h2>
+<div class="row"><label>Sun Angle X</label><input type="range" id="lightX" min="-1" max="1" step="0.01" value="0.7"><span class="val"></span></div>
+<div class="row"><label>Sun Angle Y</label><input type="range" id="lightY" min="-1" max="1" step="0.01" value="0.4"><span class="val"></span></div>
+<div class="row"><label>Ambient</label><input type="range" id="ambient" min="0" max="0.3" step="0.005" value="0.04"><span class="val"></span></div>
+<div class="row"><label>Limb Darkening</label><input type="range" id="limbDark" min="0" max="2" step="0.01" value="0.8"><span class="val"></span></div>
+<div class="row"><label>Terminator Sharp</label><input type="range" id="terminatorSharp" min="0.01" max="0.5" step="0.01" value="0.12"><span class="val"></span></div>
+</div>
+<div class="section terrestrial gasgiant active" id="sec-anim">
+<h2>🔄 Animation</h2>
+<div class="row"><label>Rotation Speed</label><input type="range" id="rotSpeed" min="0" max="0.5" step="0.005" value="0.06"><span class="val"></span></div>
+<div class="row terrestrial"><label>Cloud Drift</label><input type="range" id="cloudDrift" min="0" max="0.3" step="0.005" value="0.03"><span class="val"></span></div>
+<div class="row"><label>Axial Tilt</label><input type="range" id="axialTilt" min="0" max="90" step="1" value="23"><span class="val"></span></div>
+<div class="row"><label>Seed</label><input type="range" id="seed" min="0" max="100" step="0.1" value="0"><span class="val"></span></div>
+</div>
+
+<div class="section terrestrial gasgiant active" id="sec-bg">
+<h2>🌌 Background</h2>
+<div class="row"><label>Star Density</label><input type="range" id="starDensity" min="0" max="2" step="0.01" value="1.0"><span class="val"></span></div>
+<div class="row"><label>Nebula Intensity</label><input type="range" id="nebulaIntensity" min="0" max="1" step="0.01" value="0.15"><span class="val"></span></div>
+</div>
+
+<div class="section terrestrial gasgiant active" id="sec-rings">
+<h2>💍 Ring System</h2>
+<div id="ring-level">
+  <button class="sel" onclick="setRingLevel(0)">None</button>
+  <button onclick="setRingLevel(1)">Trace</button>
+  <button onclick="setRingLevel(2)">Simple</button>
+  <button onclick="setRingLevel(3)">Complex</button>
+</div>
+<div id="ring-opts" style="display:none">
+<div class="row"><label>Inner Radius</label><input type="range" id="ringInner" min="1.2" max="1.8" step="0.01" value="1.4"><span class="val"></span></div>
+<div class="row"><label>Outer Radius</label><input type="range" id="ringOuter" min="1.8" max="3.5" step="0.01" value="2.6"><span class="val"></span></div>
+<div class="row"><label>Band Count</label><input type="range" id="ringBands" min="1" max="12" step="1" value="5"><span class="val"></span></div>
+<div class="row"><label>Inner Color</label><input type="color" id="ringColor1" value="#cc9966"></div>
+<div class="row"><label>Mid Color</label><input type="color" id="ringColor2" value="#bbaa88"></div>
+<div class="row"><label>Outer Color</label><input type="color" id="ringColor3" value="#8899aa"></div>
+<div class="row"><label>Density</label><input type="range" id="ringDensity" min="0.15" max="1" step="0.01" value="0.65"><span class="val"></span></div>
+<div class="row"><label>Gap Size</label><input type="range" id="ringGap" min="0" max="0.5" step="0.01" value="0.15"><span class="val"></span></div>
+</div>
+</div>
+
+<button onclick="randomize()">🎲 Randomize Planet</button>
+<h2>📊 Planet Profile</h2>
+<div id="stats"></div>
+</div>
+
+<script>
+const canvas=document.getElementById('c');
+const gl=canvas.getContext('webgl2',{antialias:true});
+let currentType=0,ringLevel=0;
+let continentCount = 0;
+
+function setType(t){
+  currentType=t;
+  document.querySelectorAll('#type-select button').forEach((b,i)=>b.classList.toggle('sel',i===t));
+  document.querySelectorAll('.section').forEach(s=>{
+    const isT=s.classList.contains('terrestrial'),isG=s.classList.contains('gasgiant');
+    s.classList.toggle('active',t===0?isT:isG);
+  });
+  buildPresets();updateStats();
+}
+function setRingLevel(l){
+  ringLevel=l;
+  document.querySelectorAll('#ring-level button').forEach((b,i)=>b.classList.toggle('sel',i===l));
+  document.getElementById('ring-opts').style.display=l>0?'block':'none';
+}
+
+// ============ JavaScript Noise Implementation for Continent Counting ============
+function mod289(x) { return x - Math.floor(x / 289.0) * 289.0; }
+function permute(x) { return mod289((x * 34.0 + 1.0) * x); }
+
+function snoise3D(x, y, z) {
+  const C_x = 1.0/6.0, C_y = 1.0/3.0;
+  
+  // First corner
+  let i_x = Math.floor(x + (x + y + z) * C_y);
+  let i_y = Math.floor(y + (x + y + z) * C_y);
+  let i_z = Math.floor(z + (x + y + z) * C_y);
+  
+  const x0_x = x - i_x + (i_x + i_y + i_z) * C_x;
+  const x0_y = y - i_y + (i_x + i_y + i_z) * C_x;
+  const x0_z = z - i_z + (i_x + i_y + i_z) * C_x;
+  
+  // Other corners
+  let g_x = x0_x >= x0_y ? 1 : 0;
+  let g_y = x0_y >= x0_z ? 1 : 0;
+  let g_z = x0_z >= x0_x ? 1 : 0;
+  let l_x = 1 - g_x, l_y = 1 - g_y, l_z = 1 - g_z;
+  
+  const i1_x = Math.min(g_x, l_z);
+  const i1_y = Math.min(g_y, l_x);
+  const i1_z = Math.min(g_z, l_y);
+  const i2_x = Math.max(g_x, l_z);
+  const i2_y = Math.max(g_y, l_x);
+  const i2_z = Math.max(g_z, l_y);
+  
+  const x1_x = x0_x - i1_x + C_x;
+  const x1_y = x0_y - i1_y + C_x;
+  const x1_z = x0_z - i1_z + C_x;
+  const x2_x = x0_x - i2_x + C_y;
+  const x2_y = x0_y - i2_y + C_y;
+  const x2_z = x0_z - i2_z + C_y;
+  const x3_x = x0_x - 0.5;
+  const x3_y = x0_y - 0.5;
+  const x3_z = x0_z - 0.5;
+  
+  i_x = mod289(i_x); i_y = mod289(i_y); i_z = mod289(i_z);
+  
+  const p0 = permute(permute(permute(i_z) + i_y) + i_x);
+  const p1 = permute(permute(permute(i_z + i1_z) + i_y + i1_y) + i_x + i1_x);
+  const p2 = permute(permute(permute(i_z + i2_z) + i_y + i2_y) + i_x + i2_x);
+  const p3 = permute(permute(permute(i_z + 1) + i_y + 1) + i_x + 1);
+  
+  // Gradients
+  const n_ = 0.142857142857;
+  function grad(p, px, py, pz) {
+    const j = p - 49.0 * Math.floor(p * n_ * n_);
+    const x_ = Math.floor(j * n_);
+    const y_ = Math.floor(j - 7.0 * x_);
+    let gx = x_ * n_ + n_ - 0.5;
+    let gy = y_ * n_ + n_ - 0.5;
+    const gz = 1.0 - Math.abs(gx) - Math.abs(gy);
+    const leq = gz < 0 ? 1 : 0;
+    gx -= leq * (gx >= 0 ? 1 : -1);
+    gy -= leq * (gy >= 0 ? 1 : -1);
+    const len = Math.sqrt(gx*gx + gy*gy + gz*gz);
+    return (gx*px + gy*py + gz*pz) / len;
+  }
+  
+  let m0 = 0.6 - x0_x*x0_x - x0_y*x0_y - x0_z*x0_z;
+  let m1 = 0.6 - x1_x*x1_x - x1_y*x1_y - x1_z*x1_z;
+  let m2 = 0.6 - x2_x*x2_x - x2_y*x2_y - x2_z*x2_z;
+  let m3 = 0.6 - x3_x*x3_x - x3_y*x3_y - x3_z*x3_z;
+  
+  m0 = m0 < 0 ? 0 : m0 * m0 * m0 * m0 * grad(p0, x0_x, x0_y, x0_z);
+  m1 = m1 < 0 ? 0 : m1 * m1 * m1 * m1 * grad(p1, x1_x, x1_y, x1_z);
+  m2 = m2 < 0 ? 0 : m2 * m2 * m2 * m2 * grad(p2, x2_x, x2_y, x2_z);
+  m3 = m3 < 0 ? 0 : m3 * m3 * m3 * m3 * grad(p3, x3_x, x3_y, x3_z);
+  
+  return 42.0 * (m0 + m1 + m2 + m3);
+}
+
+function fbmJS(x, y, z, octaves, roughness) {
+  let v = 0, a = 0.5, f = 1, s = 0;
+  for (let i = 0; i < octaves; i++) {
+    v += a * snoise3D(x * f, y * f, z * f);
+    s += a;
+    a *= roughness;
+    f *= 2;
+  }
+  return v / s;
+}
+
+function getTerrainAtPoint(lat, lon, params) {
+  // Convert lat/lon to 3D point on sphere
+  const x = Math.cos(lat) * Math.cos(lon);
+  const y = Math.sin(lat);
+  const z = Math.cos(lat) * Math.sin(lon);
+  
+  const so = [params.seed * 13.7, params.seed * 7.3, params.seed * 19.1];
+  
+  // Continental base - large smooth regions
+  const contBase = fbmJS(
+    x * params.continentSize + so[0],
+    y * params.continentSize + so[1],
+    z * params.continentSize + so[2],
+    3, 0.5
+  );
+  
+  // Apply sigmoid-like function for coherent land masses
+  const coherence = params.landCoherence;
+  const contMask = 1.0 / (1.0 + Math.exp(-8.0 * coherence * (contBase - 0.0)));
+  
+  // Fractal detail for coastlines
+  const detail = fbmJS(
+    x * params.terrainScale + so[0],
+    y * params.terrainScale + so[1],
+    z * params.terrainScale + so[2],
+    params.octaves, params.roughness
+  );
+  
+  // Edge detection - where are we near the threshold?
+  const edgeDist = Math.abs(contMask - 0.5);
+  const edgeFactor = Math.max(0, 1.0 - edgeDist * 4.0);
+  
+  // Combine: solid cores with fractal edges
+  const coastalMod = detail * edgeFactor * params.coastalDetail * 0.4;
+  let terrain = contMask + coastalMod;
+  
+  // Add surface detail
+  const surfaceDetail = fbmJS(
+    x * params.terrainScale * 2 + so[0] * 1.5,
+    y * params.terrainScale * 2 + so[1] * 1.5,
+    z * params.terrainScale * 2 + so[2] * 1.5,
+    Math.max(1, params.octaves - 2), params.roughness
+  ) * 0.15 * (1.0 - edgeFactor);
+  
+  terrain = terrain * 0.5 + 0.5 + surfaceDetail;
+  terrain = Math.pow(Math.max(0, Math.min(1, terrain)), 1.0 + (1.0 - params.terrainHeight));
+  
+  return terrain;
+}
+
+function countContinents(params) {
+  const resolution = 60; // Grid resolution for sampling
+  const grid = [];
+  
+  // Sample the planet surface
+  for (let i = 0; i < resolution; i++) {
+    grid[i] = [];
+    const lat = (i / (resolution - 1) - 0.5) * Math.PI;
+    for (let j = 0; j < resolution * 2; j++) {
+      const lon = (j / (resolution * 2)) * Math.PI * 2;
+      const terrain = getTerrainAtPoint(lat, lon, params);
+      grid[i][j] = terrain >= params.seaLevel ? 1 : 0; // 1 = land, 0 = ocean
+    }
+  }
+  
+  // Union-Find for connected components
+  const parent = new Map();
+  const rank = new Map();
+  
+  function makeSet(key) {
+    parent.set(key, key);
+    rank.set(key, 0);
+  }
+  
+  function find(key) {
+    if (parent.get(key) !== key) {
+      parent.set(key, find(parent.get(key)));
+    }
+    return parent.get(key);
+  }
+  
+  function union(a, b) {
+    const rootA = find(a);
+    const rootB = find(b);
+    if (rootA === rootB) return;
+    
+    const rankA = rank.get(rootA);
+    const rankB = rank.get(rootB);
+    if (rankA < rankB) {
+      parent.set(rootA, rootB);
+    } else if (rankA > rankB) {
+      parent.set(rootB, rootA);
+    } else {
+      parent.set(rootB, rootA);
+      rank.set(rootA, rankA + 1);
+    }
+  }
+  
+  // Create sets for all land cells and union adjacent ones
+  for (let i = 0; i < resolution; i++) {
+    for (let j = 0; j < resolution * 2; j++) {
+      if (grid[i][j] === 1) {
+        const key = `${i},${j}`;
+        makeSet(key);
+        
+        // Check neighbors (including wrapping horizontally)
+        const neighbors = [
+          [i - 1, j], [i + 1, j],
+          [i, (j - 1 + resolution * 2) % (resolution * 2)],
+          [i, (j + 1) % (resolution * 2)]
+        ];
+        
+        for (const [ni, nj] of neighbors) {
+          if (ni >= 0 && ni < resolution && grid[ni][nj] === 1) {
+            const nkey = `${ni},${nj}`;
+            if (parent.has(nkey)) {
+              union(key, nkey);
+            }
+          }
+        }
+      }
+    }
+  }
+  
+  // Count unique roots (continents)
+  const roots = new Set();
+  for (const key of parent.keys()) {
+    roots.add(find(key));
+  }
+  
+  // Filter out tiny islands (less than ~1% of land area)
+  const rootSizes = new Map();
+  for (const key of parent.keys()) {
+    const root = find(key);
+    rootSizes.set(root, (rootSizes.get(root) || 0) + 1);
+  }
+  
+  let totalLand = 0;
+  for (const size of rootSizes.values()) {
+    totalLand += size;
+  }
+  
+  const minSize = Math.max(3, totalLand * 0.01); // At least 1% of land or 3 cells
+  let count = 0;
+  for (const size of rootSizes.values()) {
+    if (size >= minSize) count++;
+  }
+  
+  return { count, totalLand, totalCells: resolution * resolution * 2 };
+}
+
+// ============ End JavaScript Noise ============
+
+const NOISE_GLSL=`
+vec3 mod289(vec3 x){return x-floor(x*(1./289.))*289.;}
+vec4 mod289(vec4 x){return x-floor(x*(1./289.))*289.;}
+vec4 permute(vec4 x){return mod289(((x*34.)+1.)*x);}
+vec4 taylorInvSqrt(vec4 r){return 1.79284291400159-.85373472095314*r;}
+float snoise(vec3 v){
+  const vec2 C=vec2(1./6.,1./3.);const vec4 D=vec4(0,.5,1,2);
+  vec3 i=floor(v+dot(v,C.yyy));vec3 x0=v-i+dot(i,C.xxx);
+  vec3 g=step(x0.yzx,x0.xyz);vec3 l=1.-g;
+  vec3 i1=min(g,l.zxy);vec3 i2=max(g,l.zxy);
+  vec3 x1=x0-i1+C.xxx;vec3 x2=x0-i2+C.yyy;vec3 x3=x0-D.yyy;
+  i=mod289(i);
+  vec4 p=permute(permute(permute(i.z+vec4(0,i1.z,i2.z,1))+i.y+vec4(0,i1.y,i2.y,1))+i.x+vec4(0,i1.x,i2.x,1));
+  float n_=.142857142857;vec3 ns=n_*D.wyz-D.xzx;
+  vec4 j=p-49.*floor(p*ns.z*ns.z);
+  vec4 x_=floor(j*ns.z);vec4 y_=floor(j-7.*x_);
+  vec4 x=x_*ns.x+ns.yyyy;vec4 y=y_*ns.x+ns.yyyy;
+  vec4 h=1.-abs(x)-abs(y);
+  vec4 b0=vec4(x.xy,y.xy);vec4 b1=vec4(x.zw,y.zw);
+  vec4 s0=floor(b0)*2.+1.;vec4 s1=floor(b1)*2.+1.;
+  vec4 sh=-step(h,vec4(0));
+  vec4 a0=b0.xzyw+s0.xzyw*sh.xxyy;vec4 a1=b1.xzyw+s1.xzyw*sh.zzww;
+  vec3 p0=vec3(a0.xy,h.x);vec3 p1=vec3(a0.zw,h.y);vec3 p2=vec3(a1.xy,h.z);vec3 p3=vec3(a1.zw,h.w);
+  vec4 norm=taylorInvSqrt(vec4(dot(p0,p0),dot(p1,p1),dot(p2,p2),dot(p3,p3)));
+  p0*=norm.x;p1*=norm.y;p2*=norm.z;p3*=norm.w;
+  vec4 m=max(.6-vec4(dot(x0,x0),dot(x1,x1),dot(x2,x2),dot(x3,x3)),0.);m=m*m;
+  return 42.*dot(m*m,vec4(dot(p0,x0),dot(p1,x1),dot(p2,x2),dot(p3,x3)));
+}
+float fbm(vec3 p,int octs,float rough){
+  float v=0.,a=.5,f=1.,s=0.;
+  for(int i=0;i<8;i++){if(i>=octs)break;v+=a*snoise(p*f);s+=a;a*=rough;f*=2.;}
+  return v/s;
+}
+
+vec3 starField(vec2 uv, float density, float seed){
+  vec3 col = vec3(0.008, 0.01, 0.018);
+  float layers[3] = float[](200.0, 400.0, 800.0);
+  float sizes[3] = float[](1.2, 0.8, 0.5);
+  for(int l=0; l<3; l++){
+    float scale = layers[l] * density;
+    vec2 gv = fract(uv * scale) - 0.5;
+    vec2 id = floor(uv * scale);
+    float n = fract(sin(dot(id, vec2(12.9898+seed, 78.233+seed*2.0))) * 43758.5453);
+    float n2 = fract(sin(dot(id, vec2(39.346+seed, 11.135+seed*3.0))) * 22578.5453);
+    if(n > 0.97 - density * 0.02){
+      float brightness = pow(n2, 2.0) * sizes[l];
+      float star = exp(-length(gv) * (40.0 / sizes[l])) * brightness;
+      vec3 starCol = vec3(1.0);
+      if(n2 < 0.3) starCol = vec3(1.0, 0.85, 0.7);
+      else if(n2 > 0.7) starCol = vec3(0.7, 0.85, 1.0);
+      col += starCol * star;
+    }
+  }
+  return col;
+}
+
+vec3 nebula(vec2 uv, float intensity, float seed){
+  if(intensity < 0.01) return vec3(0.0);
+  float n1 = fbm(vec3(uv * 2.0, seed), 4, 0.5);
+  float n2 = fbm(vec3(uv * 3.0 + 10.0, seed * 2.0), 4, 0.5);
+  vec3 col1 = vec3(0.1, 0.05, 0.15) * smoothstep(0.2, 0.8, n1);
+  vec3 col2 = vec3(0.05, 0.1, 0.15) * smoothstep(0.3, 0.9, n2);
+  return (col1 + col2) * intensity * 0.5;
+}
+`;
+
+const RING_GLSL=`
+float ringProfile(float t,int rType,int numBands,float gapSize,float seed){
+  if(rType<1)return 0.;
+  float bands=float(numBands);
+  float v=0.;
+  for(int i=0;i<12;i++){
+    if(i>=numBands)break;
+    float fi=float(i);
+    float h1=fract(sin(fi*127.1+seed*311.7)*43758.5453);
+    float h2=fract(sin(fi*269.5+seed*183.3)*22578.5453);
+    float h3=fract(sin(fi*71.3+seed*53.1)*12345.6789);
+    float baseCenter=(fi+.5)/bands;
+    float centerOffset=(h1-.5)*0.3/bands;
+    float bandCenter=clamp(baseCenter+centerOffset, fi/bands+0.02, (fi+1.0)/bands-0.02);
+    float widthVar=0.3+h2*0.7;
+    float baseWidth=(1./bands)*(1.-gapSize)*.45;
+    float bandWidth=baseWidth*widthVar;
+    float strengthVar=0.5+h3*0.5;
+    float bandStrength=strengthVar*(1.-.12*fi/bands);
+    float d=abs(t-bandCenter)/max(bandWidth,0.005);
+    float sharpness=1.2+1.5*(1.-widthVar);
+    float profile=exp(-d*d*sharpness);
+    float n=snoise(vec3(t*22.+seed*2.+fi*3.7,seed*5.+fi*1.3,fi*0.5))*.18;
+    v=max(v, profile*(bandStrength+n));
+  }
+  float innerEdge=smoothstep(0.0, 0.015, t);
+  float outerEdge=smoothstep(1.0, 0.97, t);
+  return clamp(v*innerEdge*outerEdge, 0., 1.);
+}
+
+vec3 applyRings(vec3 col, vec2 c, float dP, float R,
+    int rType, vec3 ringNormal,
+    float rInner, float rOuter, int numBands,
+    vec3 rC1, vec3 rC2, vec3 rC3,
+    float rDens, float gapSize, float seed,
+    vec3 L, bool frontPass){
+  if(rType<1) return col;
+  float rI = R*rInner, rO = R*rOuter;
+  vec3 Nrp = normalize(ringNormal);
+  vec3 rayDir = vec3(0.,0.,1.);
+  float denom = dot(Nrp, rayDir);
+  if(abs(denom) < 0.005) return col;
+  float Zcross = -(Nrp.x*c.x + Nrp.y*c.y) / Nrp.z;
+  vec3 hitPt = vec3(c.x, c.y, Zcross);
+  float rDist = length(hitPt);
+  if(rDist < rI || rDist > rO) return col;
+  bool ringBehind = (Zcross < 0.0);
+  if(frontPass != (!ringBehind)) return col;
+  if(ringBehind && dP <= R) return col;
+  float t = (rDist - rI)/(rO - rI);
+  float rA = ringProfile(t, rType, numBands, gapSize, seed) * rDens;
+  if(rA < 0.005) return col;
+  vec3 rC = t<.5 ? mix(rC1,rC2,t*2.) : mix(rC2,rC3,(t-.5)*2.);
+  float nv = snoise(vec3(rDist*38.+seed*1.3, atan(hitPt.y,hitPt.x)*4., seed*3.))*.12;
+  rC *= (1.+nv);
+  float rLight = abs(dot(Nrp, L))*.55+.45;
+  rC *= rLight;
+  float shadow = 1.;
+  if(ringBehind){
+    vec3 oc = hitPt;
+    float b = dot(oc, L);
+    float c2 = dot(oc, oc) - R*R;
+    float disc = b*b - c2;
+    if(disc > 0.0 && b < 0.0) shadow = 0.12;
+  }
+  rC *= shadow;
+  float alpha = rA * (ringBehind ? 0.72 : 0.88);
+  return mix(col, rC, alpha);
+}`;
+
+const VS=`#version 300 es
+in vec2 a_pos;out vec2 v_uv;
+void main(){v_uv=a_pos*.5+.5;gl_Position=vec4(a_pos,0,1);}`;
+
+const FS_TERR=`#version 300 es
+precision highp float;
+in vec2 v_uv;out vec4 fragColor;
+uniform float u_time;uniform vec2 u_resolution;
+uniform float u_terrainScale,u_terrainHeight,u_roughness,u_continentSize;
+uniform float u_landCoherence,u_coastalDetail;
+uniform int u_octaves;
+uniform float u_seaLevel,u_seaSpecular,u_iceCap,u_fresnelStrength;
+uniform float u_atmoDensity,u_atmoFalloff,u_cloudCoverage,u_cloudScale,u_cloudShadow;
+uniform float u_scatterStrength,u_limbDark,u_terminatorSharp;
+uniform float u_lightX,u_lightY,u_ambient,u_rotSpeed,u_cloudDrift,u_seed,u_axialTilt;
+uniform float u_starDensity,u_nebulaIntensity;
+uniform vec3 u_colLow,u_colMid,u_colHigh,u_colPeak;
+uniform vec3 u_colSeaShallow,u_colSeaDeep,u_colIce,u_atmoColor,u_cloudColor;
+uniform int u_ringType,u_ringBands;
+uniform float u_ringInner,u_ringOuter,u_ringDensity,u_ringGap;
+uniform vec3 u_ringColor1,u_ringColor2,u_ringColor3;
+uniform vec3 u_ringNormal;
+${NOISE_GLSL}
+${RING_GLSL}
+
+float sigmoid(float x, float k) {
+  return 1.0 / (1.0 + exp(-k * x));
+}
+
+void main(){
+  vec2 uv=v_uv;float asp=u_resolution.x/u_resolution.y;
+  vec2 c=(uv-.5)*vec2(asp,1);float R=.38,d=length(c);
+  vec3 L=normalize(vec3(u_lightX,u_lightY,.6));
+  
+  vec3 bg = starField(uv, u_starDensity, u_seed);
+  bg += nebula(uv, u_nebulaIntensity, u_seed);
+
+  float rO=R*u_ringOuter;
+  bool inRingBounds=false;
+  if(u_ringType>0){
+    vec3 Nrp=normalize(u_ringNormal);
+    if(abs(Nrp.z)>0.005){
+      float Zc=-(Nrp.x*c.x+Nrp.y*c.y)/Nrp.z;
+      float rd=length(vec3(c.x,c.y,Zc));
+      inRingBounds=rd<rO;
+    }
+  }
+
+  if(d>R+.08&&!inRingBounds){fragColor=vec4(bg,1);return;}
+  vec3 color=bg;
+
+  color=applyRings(color,c,d,R,u_ringType,u_ringNormal,u_ringInner,u_ringOuter,u_ringBands,u_ringColor1,u_ringColor2,u_ringColor3,u_ringDensity,u_ringGap,u_seed,L,false);
+
+  if(d>R&&d<=R+.08){
+    float ae=smoothstep(R+.08*u_atmoDensity,R,d);
+    float gw=pow(ae,u_atmoFalloff)*u_atmoDensity;
+    vec3 scatterCol = mix(u_atmoColor, u_atmoColor * vec3(0.7, 0.85, 1.2), u_scatterStrength * 0.5);
+    float sunGlow = max(0.0, dot(normalize(vec3(c, 0.0)), L)) * 0.3 + 0.7;
+    color=mix(color, scatterCol * sunGlow, gw*.8);
+  }
+
+  if(d<=R){
+    float nd=d/R,z=sqrt(1.-nd*nd);
+    vec3 N=normalize(vec3(c/R,z));
+
+    float ang=u_time*u_rotSpeed;
+    float ca=cos(ang),sa=sin(ang);
+    vec3 k=normalize(u_ringNormal);
+    vec3 kxN=cross(k,N);
+    float kdotN=dot(k,N);
+    vec3 sp=N*ca+kxN*sa+k*kdotN*(1.-ca);
+
+    vec3 so=vec3(u_seed*13.7,u_seed*7.3,u_seed*19.1);
+    
+    // ===== IMPROVED TERRAIN GENERATION =====
+    // Continental base - large smooth regions
+    float contBase = fbm(sp * u_continentSize + so, 3, 0.5);
+    
+    // Apply sigmoid for coherent land masses
+    // Higher coherence = sharper land/ocean distinction
+    float coherenceK = 4.0 + u_landCoherence * 12.0;
+    float contMask = sigmoid(contBase, coherenceK);
+    
+    // Fractal detail for coastlines
+    float detail = fbm(sp * u_terrainScale + so, u_octaves, u_roughness);
+    
+    // Edge detection - apply detail mainly at coastlines
+    float edgeDist = abs(contMask - 0.5);
+    float edgeFactor = max(0.0, 1.0 - edgeDist * 4.0);
+    edgeFactor = pow(edgeFactor, 0.7); // Soften the edge falloff
+    
+    // Coastal detail modulation
+    float coastalMod = detail * edgeFactor * u_coastalDetail * 0.4;
+    
+    // Combine: solid continental cores with fractal coastal edges
+    float ter = contMask + coastalMod;
+    
+    // Add surface detail on land (less at edges to preserve coastlines)
+    float surfaceDetail = fbm(sp * u_terrainScale * 2.0 + so * 1.5, max(1, u_octaves - 2), u_roughness);
+    ter += surfaceDetail * 0.12 * (1.0 - edgeFactor) * step(0.5, contMask);
+    
+    // Normalize and apply height curve
+    ter = ter * 0.5 + 0.5;
+    ter = clamp(ter, 0.0, 1.0);
+    ter = pow(ter, 1.0 + (1.0 - u_terrainHeight));
+    // ===== END IMPROVED TERRAIN =====
+
+    float NdL=dot(N,L);
+    float terminator = smoothstep(-u_terminatorSharp, u_terminatorSharp, NdL);
+    float diff=max(NdL,0.);
+    float wrap=max(NdL*.5+.5,0.);
+    float light=mix(diff,wrap,.3) * terminator + u_ambient * (1.0 - terminator * 0.5);
+    
+    vec3 V=vec3(0,0,1);
+    vec3 H=normalize(L+V);
+    float spec=pow(max(dot(N,H),0.),80.);
+
+    float sl=u_seaLevel;bool isOc=ter<sl;
+    vec3 sCol;float sSpec=0.;
+    
+    if(isOc){
+      float dp=smoothstep(sl,sl-.25,ter);
+      vec3 deepC=u_colSeaDeep * vec3(0.7, 0.85, 1.0);
+      vec3 shallowC=u_colSeaShallow;
+      sCol=mix(shallowC,deepC,dp);
+      
+      float waveT=u_time*.8;
+      float w1=snoise(sp*12.+vec3(waveT*.7,waveT*.5,0.))*.5+.5;
+      float w2=snoise(sp*24.+vec3(-waveT*.5,waveT*.8,waveT*.3))*.5+.5;
+      float w3=snoise(sp*48.+vec3(waveT*.3,-waveT*.6,waveT*.4))*.5+.5;
+      float wave=(w1*.5+w2*.35+w3*.15);
+      float depthFade=1.-dp*.6;
+      sCol+=vec3(.04,.06,.08)*wave*depthFade;
+      sCol=mix(sCol,shallowC*1.15,wave*.18*depthFade);
+      
+      vec3 waveN=normalize(N+vec3(w1-.5,w2-.5,0.)*.08);
+      float fresnel=pow(1.-max(dot(waveN,V),0.),5.) * u_fresnelStrength;
+      vec3 reflectCol = mix(u_atmoColor, vec3(0.9, 0.95, 1.0), 0.5);
+      sCol = mix(sCol, reflectCol, fresnel * 0.4);
+      
+      vec3 R_=reflect(-L,waveN);
+      float specW=pow(max(dot(R_,V),0.),120.)*u_seaSpecular;
+      float specB=pow(max(dot(R_,V),0.),20.)*u_seaSpecular*.3;
+      sSpec=specW+specB;
+      
+      float foam=smoothstep(.35,.42,ter/sl)*smoothstep(sl,sl-.04,ter);
+      foam*=smoothstep(.55,.75,w1*w2)*2.;
+      sCol=mix(sCol,vec3(.85,.9,.95),foam*.25);
+    }
+    else{
+      float t2=(ter-sl)/(1.-sl);
+      float t2s = smoothstep(0.0, 1.0, t2);
+      if(t2s<.25) sCol=mix(u_colLow,u_colMid,t2s/.25);
+      else if(t2s<.55) sCol=mix(u_colMid,u_colHigh,(t2s-.25)/.3);
+      else sCol=mix(u_colHigh,u_colPeak,(t2s-.55)/.45);
+      
+      float terrainNoise = snoise(sp * 20.0 + so) * 0.08;
+      sCol *= (1.0 + terrainNoise);
+      sSpec=.05;
+    }
+
+    // Ice caps
+    {
+      float lat=abs(dot(sp, normalize(u_ringNormal)));
+      float iceS=1.-u_iceCap;
+      float n1=snoise(sp*4.+so)*.18,n2=snoise(sp*8.+so*1.3)*.12;
+      float n3=snoise(sp*16.+so*2.7)*.06,n4=snoise(sp*32.+so*4.1)*.03;
+      float pLat=lat+n1+n2+n3+n4;
+      float rn=abs(snoise(sp*6.+so*.7)),gr=rn*.1*u_iceCap,iT=iceS-gr;
+      float iF=smoothstep(iT-.02,iT+.06,pLat);
+      if(!isOc){
+        float t2=(ter-sl)/(1.-sl);
+        iF=max(iF,smoothstep(.7,.95,t2)*smoothstep(iceS-.35,iceS-.05,lat)*u_iceCap*.5);
+      }
+      iF=clamp(iF,0.,1.);
+      float id=snoise(sp*20.+so)*.08;
+      sCol=mix(sCol,u_colIce*(1.+id),iF);
+      sSpec=mix(sSpec,.4,iF);
+    }
+
+    vec3 lit=sCol*(light+u_ambient)+vec3(1)*spec*sSpec*diff;
+
+    // Clouds with shadows
+    float cloudAlpha = 0.0;
+    {
+      float cAng=u_time*(u_rotSpeed+u_cloudDrift);
+      float cca=cos(cAng),csa=sin(cAng);
+      vec3 k2=normalize(u_ringNormal);
+      vec3 kxN2=cross(k2,N);
+      float kdotN2=dot(k2,N);
+      vec3 cp=N*cca+kxN2*csa+k2*kdotN2*(1.-cca);
+      float cl=fbm(cp*u_cloudScale+so*.5,5,.5);
+      cl=smoothstep(.3-u_cloudCoverage*.5,.6,cl)*u_cloudCoverage;
+      cloudAlpha = cl;
+      
+      vec3 shadowOffset = L * 0.02;
+      vec3 shadowSample = cp + shadowOffset;
+      float shadowCloud = fbm(shadowSample*u_cloudScale+so*.5,5,.5);
+      shadowCloud = smoothstep(.3-u_cloudCoverage*.5,.6,shadowCloud)*u_cloudCoverage;
+      lit *= (1.0 - shadowCloud * u_cloudShadow * 0.4);
+      
+      lit*=(1.-cl*.2);
+      lit=mix(lit,u_cloudColor*(light+u_ambient*2.),cl*.8);
+    }
+
+    float rim=1.-z;
+    float aR=pow(rim,u_atmoFalloff)*u_atmoDensity;
+    vec3 scatterColor = mix(u_atmoColor, u_atmoColor * vec3(0.6, 0.8, 1.3), rim * u_scatterStrength);
+    lit=mix(lit,scatterColor,aR*.6*(diff+.3));
+
+    float limbFactor = pow(z, u_limbDark * 0.5 + 0.5);
+    lit *= mix(0.7, 1.0, limbFactor);
+
+    float nM=smoothstep(.05,-.1,NdL),ciN=snoise(sp*40.+so);
+    float cities=smoothstep(.75,.95,ciN)*nM*.15;
+    if(!isOc)lit+=vec3(1,.85,.5)*cities;
+
+    lit*=terminator*(1.-u_ambient)+u_ambient;
+    color=lit;
+
+    if(u_ringType>0){
+      vec3 Nrp=normalize(u_ringNormal);
+      if(abs(Nrp.z)>0.005){
+        vec3 surfPt=vec3(c.x,c.y,z*R);
+        float denom2=dot(Nrp,L);
+        if(abs(denom2)>0.01){
+          float tHit=-dot(Nrp,surfPt)/denom2;
+          if(tHit>0.01){
+            vec3 ringHit=surfPt+L*tHit;
+            float rdist2=length(ringHit);
+            float rI2=R*u_ringInner, rO2=R*u_ringOuter;
+            if(rdist2>rI2&&rdist2<rO2){
+              float t2=(rdist2-rI2)/(rO2-rI2);
+              float sA=ringProfile(t2,u_ringType,u_ringBands,u_ringGap,u_seed)*u_ringDensity;
+              color*=(1.-sA*.45);
+            }
+          }
+        }
+      }
+    }
+  }
+
+  color=applyRings(color,c,d,R,u_ringType,u_ringNormal,u_ringInner,u_ringOuter,u_ringBands,u_ringColor1,u_ringColor2,u_ringColor3,u_ringDensity,u_ringGap,u_seed,L,true);
+
+  fragColor=vec4(color,1);
+}`;
+
+const FS_GAS=`#version 300 es
+precision highp float;
+in vec2 v_uv;out vec4 fragColor;
+uniform float u_time;uniform vec2 u_resolution;
+uniform float u_gBandCount,u_gBandContrast,u_gBandTurb,u_gFlowSpeed;
+uniform float u_gStormIntensity,u_gStormScale,u_gVortex,u_gOblateness;
+uniform int u_gFlowDetail;
+uniform float u_atmoDensity,u_atmoFalloff,u_scatterStrength,u_limbDark,u_terminatorSharp;
+uniform float u_lightX,u_lightY,u_ambient,u_rotSpeed,u_seed,u_axialTilt;
+uniform float u_starDensity,u_nebulaIntensity;
+uniform vec3 u_gColBandLight,u_gColBandDark,u_gColStorm,u_gColPolar;
+uniform vec3 u_atmoColor;
+uniform int u_ringType,u_ringBands;
+uniform float u_ringInner,u_ringOuter,u_ringDensity,u_ringGap;
+uniform vec3 u_ringColor1,u_ringColor2,u_ringColor3;
+uniform vec3 u_ringNormal;
+${NOISE_GLSL}
+${RING_GLSL}
+void main(){
+  vec2 uv=v_uv;float asp=u_resolution.x/u_resolution.y;
+  vec2 c=(uv-.5)*vec2(asp,1.);
+  float ob=u_gOblateness;
+  vec2 cObl=vec2(c.x,c.y/(1.-ob));
+  float R=.38,d=length(cObl);
+  vec3 L=normalize(vec3(u_lightX,u_lightY,.6));
+  
+  vec3 bg = starField(uv, u_starDensity, u_seed);
+  bg += nebula(uv, u_nebulaIntensity, u_seed);
+
+  float rO=R*u_ringOuter;
+  bool inRingBounds=false;
+  if(u_ringType>0){
+    vec3 Nrp=normalize(u_ringNormal);
+    if(abs(Nrp.z)>0.005){
+      float Zc=-(Nrp.x*c.x+Nrp.y*c.y)/Nrp.z;
+      float rd=length(vec3(c.x,c.y,Zc));
+      inRingBounds=rd<rO;
+    }
+  }
+
+  if(d>R+.1&&!inRingBounds){fragColor=vec4(bg,1.);return;}
+  vec3 color=bg;
+
+  color=applyRings(color,c,d,R,u_ringType,u_ringNormal,u_ringInner,u_ringOuter,u_ringBands,u_ringColor1,u_ringColor2,u_ringColor3,u_ringDensity,u_ringGap,u_seed,L,false);
+
+  if(d>R&&d<=R+.1){
+    float ae=smoothstep(R+.1*u_atmoDensity,R,d);
+    float gw=pow(ae,u_atmoFalloff)*u_atmoDensity;
+    vec3 scatterCol = mix(u_atmoColor, u_atmoColor * vec3(0.8, 0.9, 1.15), u_scatterStrength * 0.4);
+    float sunGlow = max(0.0, dot(normalize(vec3(c, 0.0)), L)) * 0.35 + 0.65;
+    color=mix(color,scatterCol * sunGlow,gw*.85);
+  }
+  
+  if(d<=R){
+    float nd=d/R,z=sqrt(1.-nd*nd);
+    vec3 N=normalize(vec3(cObl/R,z));
+    vec3 Nlight=normalize(vec3(c.x/R,c.y/((1.-ob)*R),z));
+
+    float ang=u_time*u_rotSpeed;
+    float ca=cos(ang),sa=sin(ang);
+    vec3 k=normalize(u_ringNormal);
+    vec3 kxN=cross(k,N);
+    float kdotN=dot(k,N);
+    vec3 sp=N*ca+kxN*sa+k*kdotN*(1.-ca);
+
+    vec3 so=vec3(u_seed*13.7,u_seed*7.3,u_seed*19.1);
+
+    float lat=dot(sp, k);
+    float absLat=abs(lat);
+    float lon=atan(sp.x,sp.z);
+    float bandLat=asin(clamp(lat,-1.,1.))*.63662;
+    float bandPhase=bandLat*u_gBandCount*3.14159;
+    float h1=sin(bandPhase);
+    float h2=sin(bandPhase*1.618+1.7)*.35;
+    float h3=sin(bandPhase*2.414-.9)*.15;
+    float bandBase=h1+h2+h3;
+    float flowDir=sin(bandPhase);
+    float flowTime=u_time*u_gFlowSpeed;
+    float jetMag=1.+cos(bandPhase)*.35;
+    float localFlow=flowTime*flowDir*jetMag;
+    float turb1=fbm(vec3(lon*2.8+localFlow*.75,bandLat*u_gBandCount*.75,sp.z*2.5+so.x),u_gFlowDetail,.55);
+    float turb2=fbm(vec3(lon*5.5+localFlow*1.05,bandLat*5.,sp.x*3.5+so.y),max(u_gFlowDetail-2,1),.52);
+    float turbulence=(turb1*.65+turb2*.35)*u_gBandTurb;
+    float bandPerturbed=bandBase+turbulence*2.2;
+    float bandVal=clamp(bandPerturbed*.5+.5,0.,1.);
+    float latTemp=1.-absLat*.55;
+    vec3 zoneCol=mix(u_gColPolar*.92+vec3(.015),u_gColBandLight*1.04,latTemp*.85);
+    zoneCol+=vec3(.015,.01,-.008)*latTemp;
+    vec3 beltCol=mix(u_gColPolar*.72,u_gColBandDark*1.06,latTemp*.82);
+    beltCol+=vec3(.035,.018,-.025)*latTemp*u_gBandContrast;
+    float zoneBelt=smoothstep(.38,.62,bandVal);
+    vec3 bandColor=mix(beltCol,zoneCol,zoneBelt);
+    float streakFreq=u_gBandCount*5.5;
+    float streakDisp=snoise(vec3(lon*11.+localFlow*1.6,bandLat*streakFreq+.4,so.z*1.5))*.5+.5;
+    float streak=sin(bandLat*streakFreq+streakDisp*.5)*.5+.5;
+    streak=smoothstep(.4,.6,streak);
+    bandColor*=1.+((streak-.5)*.11*u_gBandContrast);
+    float bdryProx=1.-abs(zoneBelt-.5)*2.;
+    float waveNum=6.+u_gBandCount*.4;
+    float rWave=sin(lon*waveNum+bandPhase*.5+localFlow*.6)*.5+.5;
+    float waveAmp=bdryProx*rWave*.1*u_gBandTurb;
+    bandColor=mix(bandColor,zoneCol*.92+beltCol*.08,waveAmp);
+
+    for(int i=0;i<3;i++){
+      float fi=float(i);
+      float sLat=sin(u_seed*7.3+fi*2.1)*.38;
+      float sLonBase=u_seed*4.1+fi*3.7;
+      float sFlowDir=sin(sLat*u_gBandCount*3.14159);
+      float sLon=sLonBase+flowTime*.12*sFlowDir;
+      float dLat=lat-sLat;
+      float dLon=lon-sLon;
+      dLon=dLon-round(dLon/6.28318)*6.28318;
+      float stW=u_gStormScale*.12*(1.-.18*fi);
+      float stH=stW*.45;
+      float sDist=sqrt((dLat/stH)*(dLat/stH)+(dLon/stW)*(dLon/stW));
+      if(sDist<2.5){
+        float sAngle=atan(dLat/stH,dLon/stW);
+        float spiral=sAngle+sDist*u_gVortex*3.14159;
+        float ring2=sin(sDist*6.5-u_time*.4*u_gFlowSpeed)*.5+.5;
+        float sNoise=fbm(vec3(cos(spiral)*sDist*4.5+so.x*2.+fi*7.,sin(spiral)*sDist*4.5,so.z+fi*3.5),3,.55)*.5+.5;
+        float stormTex=ring2*.3+sNoise*.7;
+        float corePull=smoothstep(1.8,.25,sDist);
+        vec3 stormCol=mix(bandColor,u_gColStorm,corePull*.72);
+        stormCol+=vec3(.02,.012,-.008)*corePull*u_gStormIntensity;
+        stormCol=mix(stormCol,stormCol*(1.+(stormTex-.5)*.22),.6);
+        float eyeWall=smoothstep(.75,.35,sDist)*smoothstep(.12,.5,sDist);
+        stormCol=mix(stormCol,zoneCol*.88+vec3(.025,.015,0.),eyeWall*.28);
+        float sMask=smoothstep(2.5,.7,sDist)*u_gStormIntensity*(1.-.15*fi);
+        bandColor=mix(bandColor,stormCol,sMask);
+      }
+    }
+
+    float eddyN=fbm(sp*u_gStormScale*2.5+so*.35,3,.52);
+    float eddyAng=eddyN*u_gVortex*6.28;
+    vec3 eddyP=sp+vec3(cos(eddyAng),0.,sin(eddyAng))*.04*u_gVortex;
+    float eddyDet=fbm(eddyP*u_gStormScale*3.+so*.7,3,.52);
+    float eddyMask=smoothstep(.35,.6,eddyN)*smoothstep(.4,.65,eddyDet)*u_gStormIntensity*.3*(bdryProx*bdryProx);
+    vec3 eddyCol=mix(beltCol,zoneCol,.45);
+    bandColor=mix(bandColor,eddyCol,eddyMask);
+
+    float polarFade=smoothstep(.55,.88,absLat);
+    float pAngle=atan(sp.x,sp.z)+flowTime*.12;
+    float pDist=1.-absLat;
+    float pSwirl=fbm(vec3(cos(pAngle*4.)*pDist*9.+flowTime*.18,sin(pAngle*4.)*pDist*9.,so.x*3.+sp.y*6.),4,.55)*.5+.5;
+    float pRing=sin(pDist*14.-flowTime*.25)*.5+.5;
+    float pTex=pSwirl*.55+pRing*.45;
+    vec3 polCol=mix(u_gColPolar*.82,u_gColPolar*1.18,pTex);
+    polCol+=vec3(.008,.018,.04)*smoothstep(.72,.95,absLat);
+    bandColor=mix(bandColor,polCol,polarFade);
+
+    float NdL=dot(Nlight,L);
+    float terminator = smoothstep(-u_terminatorSharp, u_terminatorSharp, NdL);
+    float diff=max(NdL,0.);
+    float wrap=max(NdL*.5+.5,0.);
+    float light=mix(diff,wrap,.38) * terminator + u_ambient * (1.0 - terminator * 0.5);
+    
+    float limbDark=pow(z, u_limbDark * 0.6 + 0.4);
+    limbDark = mix(0.6, 1.0, limbDark);
+    
+    vec3 lit=bandColor*(light+u_ambient)*limbDark;
+    vec3 H=normalize(L+vec3(0.,0.,1.));
+    float spec=pow(max(dot(Nlight,H),0.),28.)*.22;
+    lit+=vec3(1.)*spec*diff*.4;
+    
+    float rim=1.-z;
+    float aR=pow(rim,u_atmoFalloff)*u_atmoDensity;
+    vec3 rimCol=mix(u_atmoColor, u_atmoColor * vec3(0.85, 0.92, 1.1), rim * u_scatterStrength);
+    rimCol *= (diff + 0.3);
+    lit=mix(lit,rimCol,aR*.6);
+    
+    lit*=terminator*(1.-u_ambient)+u_ambient;
+    color=lit;
+
+    if(u_ringType>0){
+      vec3 Nrp=normalize(u_ringNormal);
+      if(abs(Nrp.z)>0.005){
+        vec3 surfPt=vec3(c.x,c.y,z*R);
+        float denom2=dot(Nrp,L);
+        if(abs(denom2)>0.01){
+          float tHit=-dot(Nrp,surfPt)/denom2;
+          if(tHit>0.01){
+            vec3 ringHit=surfPt+L*tHit;
+            float rdist2=length(ringHit);
+            float rI2=R*u_ringInner, rO2=R*u_ringOuter;
+            if(rdist2>rI2&&rdist2<rO2){
+              float t2=(rdist2-rI2)/(rO2-rI2);
+              float sA=ringProfile(t2,u_ringType,u_ringBands,u_ringGap,u_seed)*u_ringDensity;
+              color*=(1.-sA*.5);
+            }
+          }
+        }
+      }
+    }
+  }
+
+  color=applyRings(color,c,d,R,u_ringType,u_ringNormal,u_ringInner,u_ringOuter,u_ringBands,u_ringColor1,u_ringColor2,u_ringColor3,u_ringDensity,u_ringGap,u_seed,L,true);
+
+  fragColor=vec4(color,1.);
+}`;
+
+function makeShader(type,src){const s=gl.createShader(type);gl.shaderSource(s,src);gl.compileShader(s);if(!gl.getShaderParameter(s,gl.COMPILE_STATUS)){console.error(gl.getShaderInfoLog(s));return null;}return s;}
+function makeProg(vSrc,fSrc){const v=makeShader(gl.VERTEX_SHADER,vSrc),f=makeShader(gl.FRAGMENT_SHADER,fSrc);const p=gl.createProgram();gl.attachShader(p,v);gl.attachShader(p,f);gl.linkProgram(p);if(!gl.getProgramParameter(p,gl.LINK_STATUS)){console.error(gl.getProgramInfoLog(p));return null;}return p;}
+
+const progT=makeProg(VS,FS_TERR),progG=makeProg(VS,FS_GAS);
+const buf=gl.createBuffer();gl.bindBuffer(gl.ARRAY_BUFFER,buf);
+gl.bufferData(gl.ARRAY_BUFFER,new Float32Array([-1,-1,1,-1,-1,1,1,1]),gl.STATIC_DRAW);
+function setupVAO(prog){const vao=gl.createVertexArray();gl.bindVertexArray(vao);const a=gl.getAttribLocation(prog,'a_pos');gl.enableVertexAttribArray(a);gl.bindBuffer(gl.ARRAY_BUFFER,buf);gl.vertexAttribPointer(a,2,gl.FLOAT,false,0,0);return vao;}
+const vaoT=setupVAO(progT),vaoG=setupVAO(progG);
+
+function getUniforms(prog,names){const u={};gl.useProgram(prog);names.forEach(n=>u[n]=gl.getUniformLocation(prog,n));return u;}
+const ringUnis=['u_ringType','u_ringInner','u_ringOuter','u_ringBands','u_ringDensity','u_ringGap','u_ringColor1','u_ringColor2','u_ringColor3','u_ringNormal'];
+const uT=getUniforms(progT,['u_time','u_resolution','u_terrainScale','u_terrainHeight','u_octaves','u_roughness','u_continentSize','u_landCoherence','u_coastalDetail','u_seaLevel','u_seaSpecular','u_fresnelStrength','u_iceCap','u_atmoDensity','u_atmoFalloff','u_scatterStrength','u_cloudCoverage','u_cloudScale','u_cloudShadow','u_limbDark','u_terminatorSharp','u_lightX','u_lightY','u_ambient','u_rotSpeed','u_cloudDrift','u_seed','u_axialTilt','u_starDensity','u_nebulaIntensity','u_colLow','u_colMid','u_colHigh','u_colPeak','u_colSeaShallow','u_colSeaDeep','u_colIce','u_atmoColor','u_cloudColor',...ringUnis]);
+const uG=getUniforms(progG,['u_time','u_resolution','u_gBandCount','u_gBandContrast','u_gBandTurb','u_gFlowSpeed','u_gFlowDetail','u_gOblateness','u_gStormIntensity','u_gStormScale','u_gVortex','u_atmoDensity','u_atmoFalloff','u_scatterStrength','u_limbDark','u_terminatorSharp','u_lightX','u_lightY','u_ambient','u_rotSpeed','u_seed','u_axialTilt','u_starDensity','u_nebulaIntensity','u_gColBandLight','u_gColBandDark','u_gColStorm','u_gColPolar','u_atmoColor',...ringUnis]);
+
+function hexToRgb(h){return[parseInt(h.slice(1,3),16)/255,parseInt(h.slice(3,5),16)/255,parseInt(h.slice(5,7),16)/255];}
+function gv(id){const el=document.getElementById(id);return el?parseFloat(el.value):0;}
+function gc(id){const el=document.getElementById(id);return el?hexToRgb(el.value):[0,0,0];}
+document.querySelectorAll('#controls input[type=range]').forEach(el=>{const v=el.parentElement.querySelector('.val');const u=()=>{if(v)v.textContent=parseFloat(el.value).toFixed(2);};el.addEventListener('input',u);u();});
+
+function getRingNormal(axialTiltDeg){
+  let effectiveTilt = Math.min(axialTiltDeg, 87);
+  const rad = effectiveTilt * Math.PI / 180;
+  const zOffset = 0.12;
+  return [Math.sin(rad), Math.cos(rad), zOffset];
+}
+
+const presetsT={
+  earth:{terrainScale:4,terrainHeight:.5,octaves:6,roughness:.55,continentSize:1.5,landCoherence:0.6,coastalDetail:0.5,seaLevel:.45,seaSpecular:.8,fresnelStrength:1.0,iceCap:.3,atmoDensity:.6,atmoFalloff:2.5,scatterStrength:0.8,cloudCoverage:.4,cloudScale:3.5,cloudShadow:0.3,limbDark:0.8,terminatorSharp:0.12,lightX:.7,lightY:.4,ambient:.04,rotSpeed:.06,cloudDrift:.03,axialTilt:23,seed:0,starDensity:1.0,nebulaIntensity:0.15,colLow:'#2a4a1a',colMid:'#5a8a3a',colHigh:'#8a7a5a',colPeak:'#ccbbaa',colSeaShallow:'#2288bb',colSeaDeep:'#0a2244',colIce:'#ddeeff',atmoColor:'#4488cc',cloudColor:'#ffffff',ringType:0},
+  mars:{terrainScale:5,terrainHeight:.65,octaves:6,roughness:.5,continentSize:2.5,landCoherence:0.3,coastalDetail:0.3,seaLevel:.05,seaSpecular:.1,fresnelStrength:0.5,iceCap:.12,atmoDensity:.15,atmoFalloff:3,scatterStrength:0.4,cloudCoverage:.03,cloudScale:4,cloudShadow:0.1,limbDark:0.6,terminatorSharp:0.08,lightX:.6,lightY:.3,ambient:.03,rotSpeed:.06,cloudDrift:.01,axialTilt:25,seed:12,starDensity:1.0,nebulaIntensity:0.1,colLow:'#6b3322',colMid:'#a05533',colHigh:'#c4885a',colPeak:'#dabb99',colSeaShallow:'#5a3322',colSeaDeep:'#3a1a0a',colIce:'#ddccbb',atmoColor:'#cc9966',cloudColor:'#ddccaa',ringType:0},
+  venus:{terrainScale:3.5,terrainHeight:.4,octaves:5,roughness:.45,continentSize:2,landCoherence:0.4,coastalDetail:0.4,seaLevel:.05,seaSpecular:.1,fresnelStrength:0.3,iceCap:0,atmoDensity:1.8,atmoFalloff:1.5,scatterStrength:1.2,cloudCoverage:.95,cloudScale:2.5,cloudShadow:0.5,limbDark:1.0,terminatorSharp:0.2,lightX:.5,lightY:.2,ambient:.06,rotSpeed:.02,cloudDrift:.08,axialTilt:3,seed:25,starDensity:0.8,nebulaIntensity:0.1,colLow:'#5a4422',colMid:'#7a5533',colHigh:'#997744',colPeak:'#aa8855',colSeaShallow:'#554422',colSeaDeep:'#332211',colIce:'#aaaaaa',atmoColor:'#ccaa55',cloudColor:'#ddcc88',ringType:0},
+  archipelago:{terrainScale:6,terrainHeight:.45,octaves:7,roughness:.6,continentSize:3,landCoherence:0.15,coastalDetail:0.8,seaLevel:.55,seaSpecular:.9,fresnelStrength:1.1,iceCap:.15,atmoDensity:.5,atmoFalloff:2.5,scatterStrength:0.9,cloudCoverage:.45,cloudScale:4,cloudShadow:0.3,limbDark:0.75,terminatorSharp:0.1,lightX:.65,lightY:.35,ambient:.04,rotSpeed:.05,cloudDrift:.025,axialTilt:18,seed:42,starDensity:1.0,nebulaIntensity:0.12,colLow:'#3a5a2a',colMid:'#6a9a4a',colHigh:'#9a8a5a',colPeak:'#bbaa88',colSeaShallow:'#22aacc',colSeaDeep:'#0a3355',colIce:'#ddeeff',atmoColor:'#55aadd',cloudColor:'#ffffff',ringType:0},
+  supercontinent:{terrainScale:4,terrainHeight:.55,octaves:6,roughness:.5,continentSize:1.0,landCoherence:0.85,coastalDetail:0.6,seaLevel:.42,seaSpecular:.75,fresnelStrength:1.0,iceCap:.25,atmoDensity:.55,atmoFalloff:2.5,scatterStrength:0.75,cloudCoverage:.35,cloudScale:3.5,cloudShadow:0.3,limbDark:0.8,terminatorSharp:0.12,lightX:.7,lightY:.4,ambient:.04,rotSpeed:.06,cloudDrift:.03,axialTilt:20,seed:15,starDensity:1.0,nebulaIntensity:0.15,colLow:'#2a4a1a',colMid:'#5a8a3a',colHigh:'#8a7a5a',colPeak:'#ccbbaa',colSeaShallow:'#2288bb',colSeaDeep:'#0a2244',colIce:'#ddeeff',atmoColor:'#4488cc',cloudColor:'#ffffff',ringType:0},
+  desert:{terrainScale:5,terrainHeight:.55,octaves:6,roughness:.5,continentSize:1.8,landCoherence:0.65,coastalDetail:0.45,seaLevel:.15,seaSpecular:.5,fresnelStrength:0.6,iceCap:.02,atmoDensity:.35,atmoFalloff:2.5,scatterStrength:0.6,cloudCoverage:.08,cloudScale:4,cloudShadow:0.2,limbDark:0.7,terminatorSharp:0.1,lightX:.7,lightY:.5,ambient:.04,rotSpeed:.05,cloudDrift:.02,axialTilt:15,seed:33,starDensity:1.0,nebulaIntensity:0.15,colLow:'#8a6633',colMid:'#bb8844',colHigh:'#ccaa66',colPeak:'#eeddbb',colSeaShallow:'#337788',colSeaDeep:'#114455',colIce:'#ddeedd',atmoColor:'#88aacc',cloudColor:'#ffffee',ringType:0},
+  ice:{terrainScale:4,terrainHeight:.45,octaves:6,roughness:.5,continentSize:1.5,landCoherence:0.55,coastalDetail:0.5,seaLevel:.3,seaSpecular:.6,fresnelStrength:1.2,iceCap:.85,atmoDensity:.5,atmoFalloff:2.5,scatterStrength:0.9,cloudCoverage:.35,cloudScale:3.5,cloudShadow:0.3,limbDark:0.85,terminatorSharp:0.12,lightX:.6,lightY:.4,ambient:.06,rotSpeed:.05,cloudDrift:.03,axialTilt:82,seed:77,starDensity:1.1,nebulaIntensity:0.2,colLow:'#556677',colMid:'#7788aa',colHigh:'#99aacc',colPeak:'#ccddee',colSeaShallow:'#224466',colSeaDeep:'#0a1a33',colIce:'#ddeeff',atmoColor:'#aaccee',cloudColor:'#ffffff',ringType:0},
+  lava:{terrainScale:5,terrainHeight:.6,octaves:5,roughness:.55,continentSize:2.0,landCoherence:0.5,coastalDetail:0.4,seaLevel:.35,seaSpecular:1.2,fresnelStrength:0.4,iceCap:0,atmoDensity:.7,atmoFalloff:2,scatterStrength:0.5,cloudCoverage:.15,cloudScale:4,cloudShadow:0.2,limbDark:0.6,terminatorSharp:0.08,lightX:.6,lightY:.3,ambient:.08,rotSpeed:.04,cloudDrift:.05,axialTilt:8,seed:88,starDensity:0.8,nebulaIntensity:0.1,colLow:'#222222',colMid:'#444433',colHigh:'#555544',colPeak:'#666655',colSeaShallow:'#ff5500',colSeaDeep:'#aa2200',colIce:'#aaaaaa',atmoColor:'#cc4422',cloudColor:'#554444',ringType:0},
+};
+const presetsG={
+  jupiter:{gBandCount:14,gBandContrast:.5,gBandTurb:.6,gFlowSpeed:.3,gFlowDetail:5,gOblateness:.065,gStormIntensity:.6,gStormScale:2,gVortex:.8,atmoDensity:1.2,atmoFalloff:2,scatterStrength:0.7,limbDark:0.9,terminatorSharp:0.15,lightX:.7,lightY:.3,ambient:.04,rotSpeed:.12,axialTilt:3,seed:10,starDensity:1.0,nebulaIntensity:0.15,gColBandLight:'#e8d5a0',gColBandDark:'#8b6b3a',gColStorm:'#cc6644',gColPolar:'#6688aa',atmoColor:'#aabb99',ringType:1,ringInner:1.5,ringOuter:1.9,ringBands:2,ringColor1:'#554433',ringColor2:'#443322',ringColor3:'#332211',ringDensity:.2,ringGap:.1},
+  saturn:{gBandCount:20,gBandContrast:.3,gBandTurb:.4,gFlowSpeed:.25,gFlowDetail:5,gOblateness:.1,gStormIntensity:.2,gStormScale:1.5,gVortex:.4,atmoDensity:.9,atmoFalloff:2.2,scatterStrength:0.6,limbDark:0.85,terminatorSharp:0.12,lightX:.6,lightY:.3,ambient:.04,rotSpeed:.14,axialTilt:27,seed:20,starDensity:1.0,nebulaIntensity:0.15,gColBandLight:'#f0dda0',gColBandDark:'#c4a660',gColStorm:'#ddbb77',gColPolar:'#8899aa',atmoColor:'#ccbb88',ringType:3,ringInner:1.38,ringOuter:2.8,ringBands:7,ringColor1:'#d4a855',ringColor2:'#bbaa77',ringColor3:'#8899aa',ringDensity:.82,ringGap:.12},
+  neptune:{gBandCount:8,gBandContrast:.4,gBandTurb:.8,gFlowSpeed:.35,gFlowDetail:6,gOblateness:.02,gStormIntensity:.5,gStormScale:2.5,gVortex:1,atmoDensity:1,atmoFalloff:2.5,scatterStrength:0.9,limbDark:0.95,terminatorSharp:0.15,lightX:.5,lightY:.2,ambient:.03,rotSpeed:.1,axialTilt:28,seed:30,starDensity:1.0,nebulaIntensity:0.2,gColBandLight:'#4477cc',gColBandDark:'#223388',gColStorm:'#5599dd',gColPolar:'#3355aa',atmoColor:'#3366bb',ringType:1,ringInner:1.6,ringOuter:2.1,ringBands:3,ringColor1:'#334455',ringColor2:'#223344',ringColor3:'#112233',ringDensity:.18,ringGap:.2},
+  uranus:{gBandCount:6,gBandContrast:.15,gBandTurb:.3,gFlowSpeed:.15,gFlowDetail:4,gOblateness:.02,gStormIntensity:.15,gStormScale:1.5,gVortex:.3,atmoDensity:.8,atmoFalloff:2.5,scatterStrength:0.85,limbDark:0.9,terminatorSharp:0.12,lightX:.5,lightY:.3,ambient:.04,rotSpeed:.08,axialTilt:82,seed:40,starDensity:1.0,nebulaIntensity:0.18,gColBandLight:'#88cccc',gColBandDark:'#66aaaa',gColStorm:'#77bbbb',gColPolar:'#5599aa',atmoColor:'#77bbcc',ringType:1,ringInner:1.5,ringOuter:2.0,ringBands:2,ringColor1:'#556677',ringColor2:'#445566',ringColor3:'#334455',ringDensity:.22,ringGap:.15},
+  hotjupiter:{gBandCount:10,gBandContrast:.7,gBandTurb:1.2,gFlowSpeed:.6,gFlowDetail:6,gOblateness:.04,gStormIntensity:.8,gStormScale:2.5,gVortex:1.2,atmoDensity:1.5,atmoFalloff:1.5,scatterStrength:0.5,limbDark:0.7,terminatorSharp:0.08,lightX:.8,lightY:.2,ambient:.08,rotSpeed:.15,axialTilt:5,seed:50,starDensity:0.8,nebulaIntensity:0.1,gColBandLight:'#ff9944',gColBandDark:'#882200',gColStorm:'#ffcc33',gColPolar:'#ff6622',atmoColor:'#ff5500',ringType:0},
+  superjupiter:{gBandCount:18,gBandContrast:.65,gBandTurb:.9,gFlowSpeed:.45,gFlowDetail:6,gOblateness:.08,gStormIntensity:.7,gStormScale:3,gVortex:1.5,atmoDensity:1.4,atmoFalloff:1.8,scatterStrength:0.6,limbDark:0.8,terminatorSharp:0.1,lightX:.7,lightY:.3,ambient:.05,rotSpeed:.18,axialTilt:8,seed:70,starDensity:0.9,nebulaIntensity:0.12,gColBandLight:'#ddbb88',gColBandDark:'#664422',gColStorm:'#ee8844',gColPolar:'#554466',atmoColor:'#887755',ringType:2,ringInner:1.4,ringOuter:2.4,ringBands:4,ringColor1:'#887755',ringColor2:'#776644',ringColor3:'#665533',ringDensity:.55,ringGap:.18},
+};
+
+function applyPreset(name){
+  const p=currentType===0?presetsT[name]:presetsG[name];if(!p)return;
+  Object.entries(p).forEach(([k,v])=>{
+    if(k==='ringType'){setRingLevel(v);return;}
+    const el=document.getElementById(k);if(!el)return;el.value=v;el.dispatchEvent(new Event('input'));
+  });
+  updateStats();
+}
+function buildPresets(){
+  const cont=document.getElementById('presets');cont.innerHTML='';
+  const map=currentType===0?presetsT:presetsG;
+  Object.keys(map).forEach(k=>{const b=document.createElement('button');b.textContent=k.charAt(0).toUpperCase()+k.slice(1);b.onclick=()=>applyPreset(k);cont.appendChild(b);});
+}
+buildPresets();
+
+function randomize(){
+  const r=(a,b)=>a+Math.random()*(b-a);
+  const rc=()=>'#'+[0,0,0].map(()=>Math.floor(Math.random()*256).toString(16).padStart(2,'0')).join('');
+  document.getElementById('axialTilt').value=Math.floor(r(0,85));
+  document.getElementById('starDensity').value=r(0.5,1.5);
+  document.getElementById('nebulaIntensity').value=r(0,0.4);
+  document.getElementById('limbDark').value=r(0.4,1.2);
+  document.getElementById('terminatorSharp').value=r(0.05,0.25);
+  if(currentType===0){
+    const hw=Math.random()>.3;
+    document.getElementById('scatterStrength').value=r(0.3,1.2);
+    document.getElementById('fresnelStrength').value=r(0.5,1.5);
+    document.getElementById('cloudShadow').value=r(0.1,0.5);
+    document.getElementById('landCoherence').value=r(0.2,0.9);
+    document.getElementById('coastalDetail').value=r(0.2,0.9);
+    ['terrainScale','terrainHeight','octaves','roughness','continentSize','seaLevel','seaSpecular','iceCap','atmoDensity','atmoFalloff','cloudCoverage','cloudScale','seed'].forEach(id=>{
+      const el=document.getElementById(id);
+      if(id==='octaves')el.value=Math.floor(r(3,8));
+      else if(id==='seaLevel')el.value=hw?r(.25,.6):r(0,.15);
+      else if(id==='iceCap')el.value=r(0,.7);
+      else if(id==='atmoDensity')el.value=r(0,1.5);
+      else if(id==='seed')el.value=r(0,100);
+      else if(id==='continentSize')el.value=r(0.8,3.5);
+      else el.value=r(parseFloat(el.min),parseFloat(el.max));
+    });
+    ['colLow','colMid','colHigh','colPeak','colSeaShallow','colSeaDeep','colIce','atmoColor','cloudColor'].forEach(id=>{document.getElementById(id).value=rc();});
+  }else{
+    const hot=Math.random()>.6;
+    document.getElementById('scatterStrength').value=r(0.4,1.0);
+    document.getElementById('gBandCount').value=Math.floor(r(4,25));
+    document.getElementById('gBandContrast').value=r(.1,.8);
+    document.getElementById('gBandTurb').value=r(.2,1.5);
+    document.getElementById('gFlowSpeed').value=r(.1,.7);
+    document.getElementById('gFlowDetail').value=Math.floor(r(3,7));
+    document.getElementById('gOblateness').value=r(0,.15);
+    document.getElementById('gStormIntensity').value=r(0,.9);
+    document.getElementById('gStormScale').value=r(.8,4);
+    document.getElementById('gVortex').value=r(.1,1.5);
+    document.getElementById('atmoDensity').value=r(.5,1.6);
+    document.getElementById('seed').value=r(0,100);
+    document.getElementById('rotSpeed').value=r(.05,.2);
+    if(hot){
+      document.getElementById('gColBandLight').value='#'+[r(200,255),r(100,200),r(20,100)].map(v=>Math.floor(v).toString(16).padStart(2,'0')).join('');
+      document.getElementById('gColBandDark').value='#'+[r(100,180),r(20,80),r(0,40)].map(v=>Math.floor(v).toString(16).padStart(2,'0')).join('');
+      document.getElementById('atmoColor').value='#'+[r(180,255),r(60,140),r(0,60)].map(v=>Math.floor(v).toString(16).padStart(2,'0')).join('');
+    }else{
+      ['gColBandLight','gColBandDark','gColStorm','gColPolar','atmoColor'].forEach(id=>{document.getElementById(id).value=rc();});
+    }
+    document.getElementById('gColStorm').value=rc();
+    document.getElementById('gColPolar').value=rc();
+  }
+  const rC=Math.random();
+  setRingLevel(rC<.35?0:rC<.55?1:rC<.75?2:3);
+  document.getElementById('ringInner').value=r(1.25,1.6);
+  document.getElementById('ringOuter').value=r(2.0,3.2);
+  document.getElementById('ringBands').value=Math.floor(r(2,10));
+  document.getElementById('ringColor1').value=rc();
+  document.getElementById('ringColor2').value=rc();
+  document.getElementById('ringColor3').value=rc();
+  document.getElementById('ringDensity').value=r(.25,.85);
+  document.getElementById('ringGap').value=r(.05,.35);
+  document.querySelectorAll('#controls input[type=range]').forEach(el=>el.dispatchEvent(new Event('input')));
+  updateStats();
+}
+
+function resize(){const dp=window.devicePixelRatio||1;canvas.width=canvas.clientWidth*dp;canvas.height=canvas.clientHeight*dp;gl.viewport(0,0,canvas.width,canvas.height);}
+window.addEventListener('resize',resize);resize();
+
+function setRingUniforms(u){
+  gl.uniform1i(u.u_ringType,ringLevel);
+  gl.uniform1f(u.u_ringInner,gv('ringInner'));
+  gl.uniform1f(u.u_ringOuter,gv('ringOuter'));
+  gl.uniform1i(u.u_ringBands,Math.floor(gv('ringBands')));
+  gl.uniform3fv(u.u_ringColor1,gc('ringColor1'));
+  gl.uniform3fv(u.u_ringColor2,gc('ringColor2'));
+  gl.uniform3fv(u.u_ringColor3,gc('ringColor3'));
+  gl.uniform1f(u.u_ringDensity,gv('ringDensity'));
+  gl.uniform1f(u.u_ringGap,gv('ringGap'));
+  const rn = getRingNormal(gv('axialTilt'));
+  gl.uniform3fv(u.u_ringNormal, rn);
+}
+
+function render(time){
+  const t=time*.001;
+  gl.clearColor(0,0,0,1);gl.clear(gl.COLOR_BUFFER_BIT);
+  if(currentType===0){
+    gl.useProgram(progT);gl.bindVertexArray(vaoT);
+    gl.uniform1f(uT.u_time,t);gl.uniform2f(uT.u_resolution,canvas.width,canvas.height);
+    gl.uniform1f(uT.u_terrainScale,gv('terrainScale'));gl.uniform1f(uT.u_terrainHeight,gv('terrainHeight'));
+    gl.uniform1i(uT.u_octaves,gv('octaves'));gl.uniform1f(uT.u_roughness,gv('roughness'));
+    gl.uniform1f(uT.u_continentSize,gv('continentSize'));
+    gl.uniform1f(uT.u_landCoherence,gv('landCoherence'));
+    gl.uniform1f(uT.u_coastalDetail,gv('coastalDetail'));
+    gl.uniform1f(uT.u_seaLevel,gv('seaLevel'));
+    gl.uniform1f(uT.u_seaSpecular,gv('seaSpecular'));gl.uniform1f(uT.u_fresnelStrength,gv('fresnelStrength'));
+    gl.uniform1f(uT.u_iceCap,gv('iceCap'));
+    gl.uniform1f(uT.u_atmoDensity,gv('atmoDensity'));gl.uniform1f(uT.u_atmoFalloff,gv('atmoFalloff'));
+    gl.uniform1f(uT.u_scatterStrength,gv('scatterStrength'));
+    gl.uniform1f(uT.u_cloudCoverage,gv('cloudCoverage'));gl.uniform1f(uT.u_cloudScale,gv('cloudScale'));
+    gl.uniform1f(uT.u_cloudShadow,gv('cloudShadow'));
+    gl.uniform1f(uT.u_limbDark,gv('limbDark'));gl.uniform1f(uT.u_terminatorSharp,gv('terminatorSharp'));
+    gl.uniform1f(uT.u_lightX,gv('lightX'));gl.uniform1f(uT.u_lightY,gv('lightY'));
+    gl.uniform1f(uT.u_ambient,gv('ambient'));gl.uniform1f(uT.u_rotSpeed,gv('rotSpeed'));
+    gl.uniform1f(uT.u_cloudDrift,gv('cloudDrift'));gl.uniform1f(uT.u_seed,gv('seed'));
+    gl.uniform1f(uT.u_axialTilt,gv('axialTilt')*Math.PI/180.);
+    gl.uniform1f(uT.u_starDensity,gv('starDensity'));gl.uniform1f(uT.u_nebulaIntensity,gv('nebulaIntensity'));
+    gl.uniform3fv(uT.u_colLow,gc('colLow'));gl.uniform3fv(uT.u_colMid,gc('colMid'));
+    gl.uniform3fv(uT.u_colHigh,gc('colHigh'));gl.uniform3fv(uT.u_colPeak,gc('colPeak'));
+    gl.uniform3fv(uT.u_colSeaShallow,gc('colSeaShallow'));gl.uniform3fv(uT.u_colSeaDeep,gc('colSeaDeep'));
+    gl.uniform3fv(uT.u_colIce,gc('colIce'));gl.uniform3fv(uT.u_atmoColor,gc('atmoColor'));
+    gl.uniform3fv(uT.u_cloudColor,gc('cloudColor'));
+    setRingUniforms(uT);
+  }else{
+    gl.useProgram(progG);gl.bindVertexArray(vaoG);
+    gl.uniform1f(uG.u_time,t);gl.uniform2f(uG.u_resolution,canvas.width,canvas.height);
+    gl.uniform1f(uG.u_gBandCount,gv('gBandCount'));gl.uniform1f(uG.u_gBandContrast,gv('gBandContrast'));
+    gl.uniform1f(uG.u_gBandTurb,gv('gBandTurb'));gl.uniform1f(uG.u_gFlowSpeed,gv('gFlowSpeed'));
+    gl.uniform1i(uG.u_gFlowDetail,gv('gFlowDetail'));gl.uniform1f(uG.u_gOblateness,gv('gOblateness'));
+    gl.uniform1f(uG.u_gStormIntensity,gv('gStormIntensity'));gl.uniform1f(uG.u_gStormScale,gv('gStormScale'));
+    gl.uniform1f(uG.u_gVortex,gv('gVortex'));
+    gl.uniform1f(uG.u_atmoDensity,gv('atmoDensity'));gl.uniform1f(uG.u_atmoFalloff,gv('atmoFalloff'));
+    gl.uniform1f(uG.u_scatterStrength,gv('scatterStrength'));
+    gl.uniform1f(uG.u_limbDark,gv('limbDark'));gl.uniform1f(uG.u_terminatorSharp,gv('terminatorSharp'));
+    gl.uniform1f(uG.u_lightX,gv('lightX'));gl.uniform1f(uG.u_lightY,gv('lightY'));
+    gl.uniform1f(uG.u_ambient,gv('ambient'));gl.uniform1f(uG.u_rotSpeed,gv('rotSpeed'));
+    gl.uniform1f(uG.u_seed,gv('seed'));
+    gl.uniform1f(uG.u_axialTilt,gv('axialTilt')*Math.PI/180.);
+    gl.uniform1f(uG.u_starDensity,gv('starDensity'));gl.uniform1f(uG.u_nebulaIntensity,gv('nebulaIntensity'));
+    gl.uniform3fv(uG.u_gColBandLight,gc('gColBandLight'));gl.uniform3fv(uG.u_gColBandDark,gc('gColBandDark'));
+    gl.uniform3fv(uG.u_gColStorm,gc('gColStorm'));gl.uniform3fv(uG.u_gColPolar,gc('gColPolar'));
+    gl.uniform3fv(uG.u_atmoColor,gc('atmoColor'));
+    setRingUniforms(uG);
+  }
+  gl.drawArrays(gl.TRIANGLE_STRIP,0,4);
+  requestAnimationFrame(render);
+}
+requestAnimationFrame(render);
+
+const statsEl=document.getElementById('stats');
+function bar(p,col){return`<span class="stat-bar-bg"><span class="stat-bar" style="width:${Math.min(100,Math.max(0,p))}%;background:${col}"></span></span>`;}
+
+let statsUpdateTimeout = null;
+function updateStats(){
+  // Debounce continent counting since it's expensive
+  if (statsUpdateTimeout) clearTimeout(statsUpdateTimeout);
+  statsUpdateTimeout = setTimeout(updateStatsImmediate, 150);
+}
+
+function updateStatsImmediate(){
+  const tilt=gv('axialTilt');
+  if(currentType===0){
+    const sl=gv('seaLevel'),ice=gv('iceCap'),atmo=gv('atmoDensity'),cloud=gv('cloudCoverage'),ht=gv('terrainHeight'),rgh=gv('roughness'),rot=gv('rotSpeed');
+    
+    // Count continents
+    const params = {
+      seed: gv('seed'),
+      continentSize: gv('continentSize'),
+      landCoherence: gv('landCoherence'),
+      coastalDetail: gv('coastalDetail'),
+      terrainScale: gv('terrainScale'),
+      octaves: Math.floor(gv('octaves')),
+      roughness: rgh,
+      terrainHeight: ht,
+      seaLevel: sl
+    };
+    
+    const contResult = countContinents(params);
+    continentCount = contResult.count;
+    const landCellPct = (contResult.totalLand / contResult.totalCells) * 100;
+    
+    const oceanPct = Math.max(0, 100 - landCellPct);
+    const icePct=Math.min(100,ice*85),landPct=Math.max(0,100-oceanPct);
+    const iceOnLand=icePct*(landPct/100),openLand=Math.max(0,landPct-iceOnLand);
+    const pressure=atmo<.01?0:atmo<=.8?(atmo/.6):Math.pow(10,(atmo-.6)*2.2);
+    const gh=1+atmo*.35+Math.pow(atmo,2.5)*.15;
+    const surfTemp=255*gh-ice*40+sl*15-(atmo<.1?30:0);const tC=surfTemp-273.15,tF=tC*9/5+32;
+    const albedo=.1+ice*.35+cloud*.25+(1-sl)*.05;
+    const reliefKm=(ht*15+rgh*10)*(1+ht*.5),maxEl=reliefKm*.65;
+    const tec=Math.min(1,ht*.6+rgh*.4);const tecL=['Dead','Low','Moderate','Active','Hyperactive'];
+    const dayH=rot<.002?Infinity:(2*Math.PI/rot)/3.6;const dayS=dayH>9000?'Tidally locked':dayH.toFixed(1)+' hrs';
+    let hab=0;const tOk=tC>-20&&tC<60,wOk=oceanPct>5,aOk=pressure>.3&&pressure<5;
+    if(tC<100)hab++;if(tOk&&aOk)hab++;if(wOk&&tOk)hab++;
+    const habL=['Uninhabitable','Marginal','Challenging','Habitable'];
+    const wS=Math.min(1,cloud*.5+atmo*.25+(rot>.1?.2:0));const wL=['Calm','Mild','Moderate','Severe','Extreme'];
+    const mag=Math.min(1,rot*6+tec*.3);const magL=['None','Weak','Moderate','Strong'];
+    const ero=Math.min(1,atmo*.3+sl*.4+cloud*.2+rgh*.1);const eroL=['Negligible','Low','Moderate','High','Extreme'];
+    const rlN=['','Trace','Simple','Complex'];
+    
+    // Continent description
+    let contDesc = continentCount === 0 ? 'Ocean world' : 
+                   continentCount === 1 ? '1 supercontinent' :
+                   continentCount + ' continents';
+    
+    statsEl.innerHTML=`
+      <div class="stat-row"><span class="stat-label">🌡️ Avg Temp</span><span class="stat-value">${tC.toFixed(0)}°C / ${tF.toFixed(0)}°F</span></div>
+      <div class="stat-row"><span class="stat-label">🌬️ Pressure</span><span class="stat-value">${pressure<.01?'Vacuum':pressure<10?pressure.toFixed(2)+' atm':pressure.toFixed(0)+' atm'}</span></div>
+      <div class="stat-row"><span class="stat-label">🗺️ Continents</span><span class="stat-value">${contDesc}</span></div>
+      <div class="stat-row"><span class="stat-label">🌊 Ocean</span><span class="stat-value">${oceanPct.toFixed(1)}% ${bar(oceanPct,'#2266aa')}</span></div>
+      <div class="stat-row"><span class="stat-label">🏔️ Land</span><span class="stat-value">${openLand.toFixed(1)}% ${bar(openLand,'#5a8a3a')}</span></div>
+      <div class="stat-row"><span class="stat-label">❄️ Ice</span><span class="stat-value">${icePct.toFixed(1)}% ${bar(icePct,'#aaccee')}</span></div>
+      <div class="stat-row"><span class="stat-label">☁️ Clouds</span><span class="stat-value">${(cloud*100).toFixed(0)}% ${bar(cloud*100,'#ccc')}</span></div>
+      <div class="stat-row"><span class="stat-label">🪞 Albedo</span><span class="stat-value">${albedo.toFixed(2)}</span></div>
+      <div class="stat-row"><span class="stat-label">⛰️ Max Elev</span><span class="stat-value">~${maxEl.toFixed(1)} km</span></div>
+      <div class="stat-row"><span class="stat-label">📐 Axial Tilt</span><span class="stat-value">${tilt.toFixed(0)}°</span></div>
+      <div class="stat-row"><span class="stat-label">🕐 Day</span><span class="stat-value">${dayS}</span></div>
+      <div class="stat-row"><span class="stat-label">🌋 Tectonics</span><span class="stat-value">${tecL[Math.min(4,Math.floor(tec*4.99))]}</span></div>
+      <div class="stat-row"><span class="stat-label">⛈️ Weather</span><span class="stat-value">${wL[Math.min(4,Math.floor(wS*4.99))]}</span></div>
+      <div class="stat-row"><span class="stat-label">🧲 Mag Field</span><span class="stat-value">${magL[Math.min(3,Math.floor(mag*3.99))]}</span></div>
+      <div class="stat-row"><span class="stat-label">🏜️ Erosion</span><span class="stat-value">${eroL[Math.min(4,Math.floor(ero*4.99))]}</span></div>`+(ringLevel>0?`
+      <div class="stat-row"><span class="stat-label">💍 Rings</span><span class="stat-value">${rlN[ringLevel]} system</span></div>`:``)+`
+      <div class="stat-row"><span class="stat-label">🧬 Habitability</span><span class="stat-value"><span class="hab-badge hab-${hab}">${habL[hab]}</span></span></div>`;
+  }else{
+    const bands=gv('gBandCount'),turb=gv('gBandTurb'),flow=gv('gFlowSpeed'),storm=gv('gStormIntensity');
+    const obl=gv('gOblateness'),rot=gv('rotSpeed'),atmo=gv('atmoDensity');
+    const massIdx=obl*8+bands/30+storm*.3+atmo*.2;
+    let massClass,massRange,radiusRange;
+    if(massIdx<.4){massClass='Mini-Neptune';massRange='2–10 M⊕';radiusRange='1.8–3.5 R⊕';}
+    else if(massIdx<.7){massClass='Neptune-class';massRange='10–50 M⊕';radiusRange='3.5–6 R⊕';}
+    else if(massIdx<1.0){massClass='Sub-Jupiter';massRange='50–150 M⊕';radiusRange='6–10 R⊕';}
+    else if(massIdx<1.4){massClass='Jupiter-class';massRange='150–1000 M⊕';radiusRange='10–12 R⊕';}
+    else{massClass='Super-Jupiter';massRange='1000–4000 M⊕';radiusRange='10–15 R⊕';}
+    const windKmh=Math.round((flow*800+turb*400+rot*1000)*(.5+Math.random()*.01));
+    const windClass=windKmh<200?'Moderate':windKmh<500?'Strong':windKmh<1000?'Fierce':'Extreme';
+    const bandLight=gc('gColBandLight');const warmth=(bandLight[0]*.5+bandLight[1]*.3-bandLight[2]*.2);
+    const baseGasTemp=warmth>0.5?800+warmth*1500:80+warmth*200;
+    const cloudTop=baseGasTemp-50-atmo*30;
+    const tStr=baseGasTemp>500?`~${Math.round(baseGasTemp)} K (${Math.round(baseGasTemp-273)}°C)`:`~${Math.round(baseGasTemp)} K`;
+    const hotGiant=baseGasTemp>600;
+    const magStr=rot>.1?'Extremely Strong':rot>.05?'Very Strong':'Strong';
+    const stormPct=storm*35+turb*10;
+    const dayH=rot<.002?Infinity:(2*Math.PI/rot)/3.6;const dayS=dayH>9000?'Tidally locked':dayH.toFixed(1)+' hrs';
+    const typeLabel=hotGiant?'Hot '+massClass:massClass;
+    const radiation=rot>.1?'Lethal':rot>.06?'Extreme':'Very High';
+    const rlN=['','Trace','Simple','Complex'];
+    statsEl.innerHTML=`
+      <div class="stat-row"><span class="stat-label">📛 Class</span><span class="stat-value">${typeLabel}</span></div>
+      <div class="stat-row"><span class="stat-label">⚖️ Mass</span><span class="stat-value">${massRange}</span></div>
+      <div class="stat-row"><span class="stat-label">📐 Radius</span><span class="stat-value">${radiusRange}</span></div>
+      <div class="stat-row"><span class="stat-label">🌡️ Cloud Top</span><span class="stat-value">~${Math.round(cloudTop)} K</span></div>
+      <div class="stat-row"><span class="stat-label">🔥 Effective T</span><span class="stat-value">${tStr}</span></div>
+      <div class="stat-row"><span class="stat-label">💨 Winds</span><span class="stat-value">${windKmh.toLocaleString()} km/h (${windClass})</span></div>
+      <div class="stat-row"><span class="stat-label">🌪️ Storm Cover</span><span class="stat-value">${stormPct.toFixed(0)}% ${bar(stormPct,'#cc6644')}</span></div>
+      <div class="stat-row"><span class="stat-label">🌀 Oblateness</span><span class="stat-value">${(obl*100).toFixed(1)}%</span></div>
+      <div class="stat-row"><span class="stat-label">📐 Axial Tilt</span><span class="stat-value">${tilt.toFixed(0)}°</span></div>
+      <div class="stat-row"><span class="stat-label">🕐 Day</span><span class="stat-value">${dayS}</span></div>
+      <div class="stat-row"><span class="stat-label">🧲 Mag Field</span><span class="stat-value">${magStr}</span></div>
+      <div class="stat-row"><span class="stat-label">☢️ Radiation</span><span class="stat-value">${radiation}</span></div>
+      <div class="stat-row"><span class="stat-label">🌐 Band Count</span><span class="stat-value">${Math.round(bands)} zones</span></div>`+(ringLevel>0?`
+      <div class="stat-row"><span class="stat-label">💍 Rings</span><span class="stat-value">${rlN[ringLevel]} system</span></div>`:``)+`
+      <div class="stat-row"><span class="stat-label">🧬 Habitability</span><span class="stat-value"><span class="hab-badge hab-0">Uninhabitable</span></span></div>`;
+  }
+}
+document.querySelectorAll('#controls input').forEach(el=>el.addEventListener('input',updateStats));
+updateStats();
+</script>
+</body>
+</html>
