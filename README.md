@@ -120,10 +120,19 @@ Built with **Godot 4.x** and **GDScript**.
 - ✅ System generation UI (star count, seed input, generate/reroll buttons)
 - ⏳ Save/load UI for systems (deferred to Phase 9 - Solar system polish)
 
-**Test Status**: All 501 tests passing ✅
+**Test Status**: Run headless: `godot --headless --script res://Tests/RunTestsHeadless.gd`. Large suite (unit + integration); some integration tests require full scene tree and may fail headless.
 
-See [claude.md](claude.md) for detailed architecture, roadmap, and working agreement.
+See [CLAUDE.md](CLAUDE.md) for detailed architecture, roadmap, and working agreement.
 
+**Phase 7 (Galactic map v1) – in progress**
+- WelcomeScreen at startup (optional entry before galaxy viewer)
+- Galaxy randomization at startup (random galaxy seed each run; MainApp passes seed to GalaxyViewer)
+- Galaxy save/load: GalaxySaveData (seed, zoom, camera, selection), GalaxyPersistence (file I/O), GalaxyViewerSaveLoad (create/apply save data, file dialogs)
+- GalaxyConfig: tunable galaxy parameters (domain)
+- Domain: `src/domain/galaxy/` (GalaxyConfig, GalaxyCoordinates, GalaxySaveData, GalaxySpec, and supporting types)
+- Integration tests: TestGalaxyPersistence, TestGalaxyRandomization, TestGalaxyStartup, TestWelcomeScreen, TestGalaxySystemTransition, TestGalaxyViewerUI, TestGalaxyViewerHome; unit: TestGalaxyConfig, TestGalaxySaveData, TestGalaxyCoordinates
+
+_Key files for Phase 7: MainApp.gd, GalaxyViewer.gd, GalaxyViewerSaveLoad.gd, GalaxyViewer.tscn, GalaxySaveData.gd, GalaxyPersistence.gd, GalaxySpec.gd, GalaxyConfig.gd, WelcomeScreen.gd/tscn. Tests: TestMainAppNavigation.gd, TestGalaxySaveData.gd, TestGalaxyPersistence.gd; optional TestGalaxyViewerSaveLoad.gd. Scenes: MainApp.tscn, GalaxyViewer.tscn._
 ## Project Structure
 
 ```
@@ -200,6 +209,12 @@ star_gen/
 │   │   │   ├── StellarConfigGenerator.gd # Stellar configuration generator
 │   │   │   ├── OrbitSlot.gd            # Candidate orbital position
 │   │   │   └── OrbitSlotGenerator.gd   # Orbit slot generator
+│   │   ├── galaxy/                 # Galaxy-scale data and generation
+│   │   │   ├── GalaxyConfig.gd         # Tunable galaxy parameters
+│   │   │   ├── GalaxyCoordinates.gd    # Sector/quadrant/sub-sector coordinates
+│   │   │   ├── GalaxySaveData.gd       # Save format (seed, zoom, camera, selection)
+│   │   │   ├── GalaxySpec.gd            # How seed drives galaxy generation
+│   │   │   └── ... (SubSectorGenerator, SpiralDensityModel, etc.)
 │   │   ├── math/                   # Math utilities
 │   │   │   ├── MathUtils.gd       # Range checking, remapping, interpolation
 │   │   │   └── Units.gd            # Physical constants and unit conversions
@@ -212,10 +227,19 @@ star_gen/
 │   ├── services/                   # Services layer (I/O, persistence)
 │   │   └── persistence/
 │   │       ├── SaveData.gd         # Efficient save/load with compression
-│   │       └── CelestialPersistence.gd # File I/O service for persistence
+│   │       ├── CelestialPersistence.gd # File I/O service for persistence
+│   │       └── GalaxyPersistence.gd    # Galaxy save/load file I/O
 │   └── app/                        # Application layer (UI, scenes, rendering)
 │       ├── MainApp.gd             # Root application controller (navigation)
 │       ├── MainApp.tscn           # Root application scene
+│       ├── WelcomeScreen.gd      # Startup welcome/entry screen
+│       ├── WelcomeScreen.tscn    # Welcome screen scene
+│       ├── galaxy_viewer/        # Galaxy map viewer
+│       │   ├── GalaxyViewer.gd    # Galaxy viewer controller
+│       │   ├── GalaxyViewer.tscn  # Galaxy viewer scene
+│       │   ├── GalaxyViewerSaveLoad.gd # Save/load handlers
+│       │   ├── OrbitCamera.gd     # Galaxy camera controls
+│       │   └── ... (renderers, panels, zoom state)
 │       ├── viewer/                # Object viewer
 │       │   ├── ObjectViewer.tscn  # Main viewer scene
 │       │   ├── ObjectViewer.gd    # Viewer controller
@@ -271,6 +295,9 @@ star_gen/
 │   │   ├── TestOrbitRenderer.gd
 │   │   ├── TestSystemBodyNode.gd
 │   │   ├── TestSystemInspectorPanel.gd
+│   │   ├── TestGalaxyConfig.gd
+│   │   ├── TestGalaxySaveData.gd
+│   │   ├── TestGalaxyInspectorPanel.gd
 │   │   └── ... (additional unit tests)
 │   ├── Integration/                # Integration tests
 │   │   ├── TestObjectViewer.gd
@@ -278,7 +305,17 @@ star_gen/
 │   │   ├── TestCelestialPersistence.gd
 │   │   ├── TestSystemCameraController.gd
 │   │   ├── TestSystemViewer.gd
-│   │   └── TestMainApp.gd
+│   │   ├── TestMainApp.gd
+│   │   ├── TestMainAppNavigation.gd
+│   │   ├── TestGalaxyPersistence.gd
+│   │   ├── TestGalaxyRandomization.gd
+│   │   ├── TestGalaxyStartup.gd
+│   │   ├── TestGalaxySystemTransition.gd
+│   │   ├── TestGalaxyViewerUI.gd
+│   │   ├── TestGalaxyViewerHome.gd
+│   │   └── TestWelcomeScreen.gd
+│   ├── domain/galaxy/             # Galaxy domain unit tests
+│   │   └── TestGalaxyCoordinates.gd
 │   ├── TestScene.tscn              # Test scene
 │   ├── TestScene.gd                # Test scene script
 │   ├── RunTestsHeadless.gd         # Headless test runner
@@ -289,7 +326,7 @@ star_gen/
 ├── .gitattributes                  # Git attributes (LFS, etc.)
 ├── .gitignore                      # Git ignore rules
 ├── BACKLOG.md                      # Feature backlog
-├── claude.md                       # Architecture and working agreement
+├── CLAUDE.md                       # Architecture and working agreement
 ├── project.godot                   # Godot project file
 └── README.md                       # This file
 ```
