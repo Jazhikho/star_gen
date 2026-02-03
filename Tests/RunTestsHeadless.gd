@@ -94,8 +94,12 @@ var _test_scripts: Array[GDScript] = [
 	# Galaxy → System transitions (Stage 4)
 	preload("res://Tests/Integration/TestGalaxySystemTransition.gd"),
 	# Galaxy persistence (Stage 5)
+	preload("res://Tests/Unit/TestGalaxyConfig.gd"),
 	preload("res://Tests/Unit/TestGalaxySaveData.gd"),
 	preload("res://Tests/Integration/TestGalaxyPersistence.gd"),
+	preload("res://Tests/Integration/TestGalaxyRandomization.gd"),
+	preload("res://Tests/Integration/TestWelcomeScreen.gd"),
+	preload("res://Tests/Integration/TestGalaxyStartup.gd"),
 	# Galaxy tests
 	preload("res://Tests/domain/galaxy/TestStableHash.gd"),
 	preload("res://Tests/domain/galaxy/TestSpiralDensityModel.gd"),

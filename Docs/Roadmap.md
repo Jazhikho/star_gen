@@ -413,14 +413,6 @@ Randomly generate a solar system, display it, and inspect its bodies (no editing
 **Goal:**
 Add a galactic container that browses and lazily generates systems without regenerating edits. Focus on basic generation and UI setup.
 
-**Progress (in progress):**
-•	WelcomeScreen at startup (optional entry before galaxy viewer).
-•	Galaxy randomization at startup: random galaxy seed each run; MainApp passes seed to GalaxyViewer.
-•	Galaxy save/load: GalaxySaveData (seed, zoom, camera, selection), GalaxyPersistence (file I/O), GalaxyViewerSaveLoad (create/apply save data, file dialogs).
-•	GalaxyConfig: tunable galaxy parameters in domain.
-•	Domain `src/domain/galaxy/`: GalaxyConfig, GalaxyCoordinates, GalaxySaveData, GalaxySpec, and supporting types (SubSectorGenerator, SpiralDensityModel, etc.).
-•	Integration tests: TestGalaxyPersistence, TestGalaxyRandomization, TestGalaxyStartup, TestWelcomeScreen, TestGalaxySystemTransition, TestGalaxyViewerUI, TestGalaxyViewerHome; unit: TestGalaxyConfig, TestGalaxySaveData, TestGalaxyCoordinates.
-
 **Design Decisions (v1):**
 •	Galaxy type: Spiral galaxy (Milky Way-like) - single type for v1 to keep scope tight.
 •	Scale: ~10,000-50,000 star systems (enough to feel vast, manageable for LOD).
@@ -431,6 +423,8 @@ Add a galactic container that browses and lazily generates systems without regen
 •	Persistence: Delta persistence (spec + seed + patches) - store visited system seeds/specs for instant revisits.
 
 **Deliverables:**
+•	✅ Welcome screen: Start New Galaxy (with config), Load Galaxy, Quit; app shows welcome first, then creates galaxy viewer on Start or Load.
+•	✅ GalaxyConfig: Galaxy generation parameters (type, spiral arms, pitch, seed, etc.); single source for galaxy appearance before generation.
 •	Galaxy data model: Galaxy, Sector, GalaxyStar classes with serialization.
 •	Galaxy generator: Spiral arm placement, density gradients, sector-based lazy generation.
 •	Stellar metallicity from galactic position (core vs. spiral arm vs. halo).

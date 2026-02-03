@@ -4,11 +4,14 @@
 class_name MainApp
 extends Node
 
-## Ensures GalaxySaveData/GalaxyPersistence are in scope before GalaxyViewer loads.
+## Ensures GalaxySaveData/GalaxyPersistence/GalaxyConfig are in scope.
 const _galaxy_viewer_deps: GDScript = preload("res://src/app/galaxy_viewer/GalaxyViewerDeps.gd")
+const _GalaxyConfigRef: GDScript = preload("res://src/domain/galaxy/GalaxyConfig.gd")
 const _galaxy_viewer_scene: PackedScene = preload("res://src/app/galaxy_viewer/GalaxyViewer.tscn")
+const _welcome_screen_scene: PackedScene = preload("res://src/app/WelcomeScreen.tscn")
 const _object_viewer_scene: PackedScene = preload("res://src/app/viewer/ObjectViewer.tscn")
 const _system_viewer_scene: PackedScene = preload("res://src/app/system_viewer/SystemViewer.tscn")
+const _SeededRngClass: GDScript = preload("res://src/domain/rng/SeededRng.gd")
 const _system_cache_script: GDScript = preload("res://src/domain/system/SystemCache.gd")
 const _system_fixture_generator: GDScript = preload("res://src/domain/system/fixtures/SystemFixtureGenerator.gd")
 const _solar_system_spec: GDScript = preload("res://src/domain/system/SolarSystemSpec.gd")
@@ -16,7 +19,10 @@ const _solar_system_spec: GDScript = preload("res://src/domain/system/SolarSyste
 ## Currently active viewer ("galaxy", "system", or "object").
 var _active_viewer: String = ""
 
-## The galaxy viewer instance.
+## The welcome screen instance (shown first).
+var _welcome_screen: Control = null
+
+## The galaxy viewer instance (created after Start New or Load).
 var _galaxy_viewer: GalaxyViewer = null
 
 ## The system viewer instance.
@@ -28,8 +34,11 @@ var _object_viewer: ObjectViewer = null
 ## Session cache for generated systems.
 var _system_cache: SystemCache = null
 
-## The galaxy seed (fixed for now, will be configurable later).
-var _galaxy_seed: int = 42
+## The galaxy seed (set when starting new or loading; updated on load).
+var _galaxy_seed: int = 0
+
+## Time-based RNG instance for welcome screen and fallback seed (project rule: all randomness through RNG).
+var _startup_rng: RefCounted = null
 
 ## Currently displayed star seed (for back navigation context).
 var _current_star_seed: int = 0
@@ -42,19 +51,116 @@ var _current_star_position: Vector3 = Vector3.ZERO
 
 
 func _ready() -> void:
+	_startup_rng = _create_startup_rng()
 	_system_cache = _system_cache_script.new()
-	_create_galaxy_viewer()
-	_show_galaxy_viewer()
+	_create_welcome_screen()
+	_show_welcome_screen()
 
 
-## Creates the galaxy viewer instance.
-func _create_galaxy_viewer() -> void:
+## Creates the RNG used at startup (welcome screen and fallback seed).
+## @return: SeededRng instance with time-based seed.
+func _create_startup_rng() -> RefCounted:
+	var time_usec: int = Time.get_ticks_usec()
+	var unix_time: int = int(Time.get_unix_time_from_system() * 1000000.0)
+	var seed_value: int = unix_time ^ time_usec
+	return _SeededRngClass.new(seed_value)
+
+
+## Generates a random galaxy seed using the startup RNG (for tests that bypass welcome screen).
+## @return: Random integer seed (positive, 1..999999 for UI and save validity).
+func _generate_random_seed() -> int:
+	if _startup_rng == null:
+		_startup_rng = _create_startup_rng()
+	var raw: int = absi(_startup_rng.randi()) % 1000000
+	if raw == 0:
+		return 1
+	return raw
+
+
+## Creates the welcome screen instance.
+func _create_welcome_screen() -> void:
+	_welcome_screen = _welcome_screen_scene.instantiate() as Control
+	_welcome_screen.name = "WelcomeScreen"
+	if _welcome_screen.has_method("set_seeded_rng"):
+		_welcome_screen.set_seeded_rng(_startup_rng)
+	if _welcome_screen.has_signal("start_new_galaxy"):
+		_welcome_screen.start_new_galaxy.connect(_on_welcome_start_new_galaxy)
+	if _welcome_screen.has_signal("load_galaxy_requested"):
+		_welcome_screen.load_galaxy_requested.connect(_on_welcome_load_galaxy_requested)
+	if _welcome_screen.has_signal("quit_requested"):
+		_welcome_screen.quit_requested.connect(_on_welcome_quit_requested)
+
+
+## Creates the galaxy viewer instance with the given seed and optional config.
+## @param seed_value: Galaxy seed (1..999999).
+## @param config: GalaxyConfig or null for default.
+func _create_galaxy_viewer(seed_value: int, config: GalaxyConfig = null) -> void:
+	_galaxy_seed = seed_value
 	_galaxy_viewer = _galaxy_viewer_scene.instantiate() as GalaxyViewer
 	_galaxy_viewer.name = "GalaxyViewer"
 	_galaxy_viewer.galaxy_seed = _galaxy_seed
+	if config != null:
+		_galaxy_viewer.set_galaxy_config(config)
 
-	# Connect navigation signal
 	_galaxy_viewer.open_system_requested.connect(_on_open_system_requested)
+	_galaxy_viewer.galaxy_seed_changed.connect(set_galaxy_seed)
+
+
+## Shows the welcome screen (hides galaxy viewer if present).
+func _show_welcome_screen() -> void:
+	if _galaxy_viewer and _galaxy_viewer.is_inside_tree():
+		viewer_container.remove_child(_galaxy_viewer)
+	if _welcome_screen and not _welcome_screen.is_inside_tree():
+		viewer_container.add_child(_welcome_screen)
+	if _welcome_screen and _welcome_screen.has_method("refresh_random_seed_display"):
+		_welcome_screen.refresh_random_seed_display()
+
+
+## Handles welcome screen "Start New Galaxy": create viewer with config and seed, show galaxy.
+## @param config: GalaxyConfig from welcome screen.
+## @param seed_value: Galaxy seed from welcome screen.
+func _on_welcome_start_new_galaxy(config: GalaxyConfig, seed_value: int) -> void:
+	_create_galaxy_viewer(seed_value, config)
+	if _welcome_screen and _welcome_screen.is_inside_tree():
+		viewer_container.remove_child(_welcome_screen)
+	viewer_container.add_child(_galaxy_viewer)
+	_active_viewer = "galaxy"
+
+
+## Handles welcome screen "Load Galaxy": show file dialog; on file selected load and show galaxy.
+func _on_welcome_load_galaxy_requested() -> void:
+	var dialog: FileDialog = FileDialog.new()
+	dialog.file_mode = FileDialog.FILE_MODE_OPEN_FILE
+	dialog.access = FileDialog.ACCESS_USERDATA
+	dialog.filters = PackedStringArray(["*.sgg ; StarGen Galaxy", "*.json ; JSON Debug"])
+	dialog.file_selected.connect(_on_welcome_load_file_selected)
+	dialog.canceled.connect(func() -> void: dialog.queue_free())
+	add_child(dialog)
+	dialog.popup_centered(Vector2i(800, 600))
+
+
+## Handles file selection from welcome-screen load dialog.
+## @param path: Path to the save file.
+func _on_welcome_load_file_selected(path: String) -> void:
+	var data: GalaxySaveData = GalaxyPersistence.load_auto(path)
+	if data == null or not data.is_valid():
+		push_error("MainApp: invalid or missing save file: %s" % path)
+		return
+	_galaxy_seed = data.galaxy_seed
+	var config: GalaxyConfig = null
+	if data.has_config():
+		config = data.get_config()
+	_create_galaxy_viewer(_galaxy_seed, config)
+	_galaxy_viewer.apply_save_data(data)
+	if _welcome_screen and _welcome_screen.is_inside_tree():
+		viewer_container.remove_child(_welcome_screen)
+	viewer_container.add_child(_galaxy_viewer)
+	_active_viewer = "galaxy"
+
+
+## Handles welcome screen "Quit".
+func _on_welcome_quit_requested() -> void:
+	get_tree().quit()
 
 
 ## Creates the system viewer instance (lazy).
@@ -222,6 +328,12 @@ func _on_back_to_galaxy() -> void:
 		_galaxy_viewer.restore_state()
 
 
+## Updates the galaxy seed (called when a saved galaxy is loaded).
+## @param new_seed: The new galaxy seed.
+func set_galaxy_seed(new_seed: int) -> void:
+	_galaxy_seed = new_seed
+
+
 ## Returns the current galaxy seed.
 ## @return: Galaxy seed value.
 func get_galaxy_seed() -> int:
@@ -244,6 +356,18 @@ func get_active_viewer() -> String:
 ## @return: Star seed or 0 if not viewing a system.
 func get_current_star_seed() -> int:
 	return _current_star_seed
+
+
+## Starts the galaxy viewer with a random seed and default config (for tests that bypass welcome screen).
+## Call after _ready() to get a galaxy viewer without user interaction.
+func start_galaxy_with_defaults() -> void:
+	var seed_value: int = _generate_random_seed()
+	var config: GalaxyConfig = GalaxyConfig.create_default()
+	_create_galaxy_viewer(seed_value, config)
+	if _welcome_screen and _welcome_screen.is_inside_tree():
+		viewer_container.remove_child(_welcome_screen)
+	viewer_container.add_child(_galaxy_viewer)
+	_active_viewer = "galaxy"
 
 
 ## Returns the galaxy viewer instance (for testing).

@@ -39,6 +39,7 @@ func before_each() -> void:
 		tree.root.add_child(_wrapper)
 	_wrapper.add_child(_main_app)
 	_main_app._ready()
+	_main_app.start_galaxy_with_defaults()
 
 
 func after_each() -> void:
@@ -64,8 +65,10 @@ func test_starts_with_galaxy_viewer() -> void:
 
 
 func test_galaxy_seed_is_set() -> void:
-	assert_equal(_main_app.get_galaxy_seed(), 42,
-		"Galaxy seed should be set to default value")
+	if _skip_nav_tests:
+		return
+	assert_greater_than(_main_app.get_galaxy_seed(), 0,
+		"Galaxy seed should be set to a positive random value")
 
 
 func test_system_cache_exists() -> void:

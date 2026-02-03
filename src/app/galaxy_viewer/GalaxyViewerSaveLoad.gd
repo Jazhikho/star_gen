@@ -3,6 +3,8 @@
 class_name GalaxyViewerSaveLoad
 extends RefCounted
 
+const _GalaxyConfigRef: GDScript = preload("res://src/domain/galaxy/GalaxyConfig.gd")
+
 
 ## Saves the current viewer state for later restoration.
 ## @param viewer: GalaxyViewer instance (must expose getters used below).
@@ -24,7 +26,7 @@ func save_state(viewer: Node) -> void:
 	var saved_level: int = viewer.get_saved_zoom_level()
 	if saved_level == GalaxyCoordinates.ZoomLevel.SUBSECTOR:
 		var star_cam: StarViewCamera = viewer.get_star_camera()
-		if star_cam:
+		if star_cam and star_cam.is_inside_tree():
 			viewer.set_saved_star_camera_position(star_cam.global_position)
 			viewer.set_saved_star_camera_rotation(star_cam.rotation)
 
@@ -48,7 +50,7 @@ func restore_state(viewer: Node) -> void:
 
 	if viewer.get_saved_quadrant() != null and viewer.get_sector_renderer() and \
 	   (viewer.get_saved_zoom_level() == GalaxyCoordinates.ZoomLevel.SECTOR or \
-	    viewer.get_saved_zoom_level() == GalaxyCoordinates.ZoomLevel.SUBSECTOR):
+		viewer.get_saved_zoom_level() == GalaxyCoordinates.ZoomLevel.SUBSECTOR):
 		viewer.get_sector_renderer().build_for_quadrant(
 			viewer.get_saved_quadrant() as Vector3i, viewer.get_density_model()
 		)
@@ -57,14 +59,16 @@ func restore_state(viewer: Node) -> void:
 		viewer.get_zoom_machine().set_level(viewer.get_saved_zoom_level())
 	viewer.call_apply_zoom_level(viewer.get_saved_zoom_level())
 
-	if viewer.get_saved_zoom_level() == GalaxyCoordinates.ZoomLevel.SUBSECTOR and viewer.get_star_camera():
-		viewer.get_star_camera().global_position = viewer.get_saved_star_camera_position()
-		viewer.get_star_camera().rotation = viewer.get_saved_star_camera_rotation()
-		if viewer.get_neighborhood_renderer():
-			viewer.get_neighborhood_renderer().build_neighborhood(
-				viewer.get_star_camera().global_position, viewer.galaxy_seed,
-				viewer.get_density_model(), viewer.get_reference_density()
-			)
+	if viewer.get_saved_zoom_level() == GalaxyCoordinates.ZoomLevel.SUBSECTOR:
+		var star_cam: StarViewCamera = viewer.get_star_camera()
+		if star_cam and star_cam.is_inside_tree():
+			star_cam.global_position = viewer.get_saved_star_camera_position()
+			star_cam.rotation = viewer.get_saved_star_camera_rotation()
+			if viewer.get_neighborhood_renderer():
+				viewer.get_neighborhood_renderer().build_neighborhood(
+					star_cam.global_position, viewer.galaxy_seed,
+					viewer.get_density_model(), viewer.get_reference_density()
+				)
 
 	viewer.call_update_inspector()
 	viewer.set_status("Returned to galaxy view")
@@ -90,14 +94,18 @@ func has_saved_state(viewer: Node) -> bool:
 func create_save_data(viewer: Node) -> GalaxySaveData:
 	var data: GalaxySaveData = GalaxySaveData.create(int(Time.get_unix_time_from_system()))
 	data.galaxy_seed = viewer.galaxy_seed
+	var config: GalaxyConfig = viewer.get_galaxy_config()
+	if config != null:
+		data.set_config(config)
 	if viewer.get_zoom_machine():
 		data.zoom_level = viewer.get_zoom_machine().get_current_level()
 	if viewer.get_quadrant_selector() and viewer.get_quadrant_selector().has_selection():
 		data.selected_quadrant = viewer.get_quadrant_selector().selected_coords
 	data.selected_sector = viewer.get_selected_sector_internal()
-	if viewer.get_star_camera():
-		data.camera_position = viewer.get_star_camera().global_position
-		data.camera_rotation = viewer.get_star_camera().rotation
+	var star_cam: StarViewCamera = viewer.get_star_camera()
+	if star_cam and star_cam.is_inside_tree():
+		data.camera_position = star_cam.global_position
+		data.camera_rotation = star_cam.rotation
 	data.has_star_selection = viewer.get_selected_star_seed_internal() != 0
 	data.selected_star_seed = viewer.get_selected_star_seed_internal()
 	data.selected_star_position = viewer.get_selected_star_position_internal()
@@ -108,6 +116,10 @@ func create_save_data(viewer: Node) -> GalaxySaveData:
 ## @param viewer: GalaxyViewer instance.
 ## @param data: GalaxySaveData to apply.
 func apply_save_data(viewer: Node, data: GalaxySaveData) -> void:
+	if data.has_config():
+		var loaded_config: GalaxyConfig = data.get_config()
+		if loaded_config != null:
+			viewer.set_galaxy_config(loaded_config)
 	if data.galaxy_seed != viewer.galaxy_seed:
 		viewer.call_change_galaxy_seed(data.galaxy_seed)
 
@@ -126,7 +138,7 @@ func apply_save_data(viewer: Node, data: GalaxySaveData) -> void:
 
 	if data.selected_quadrant != null and viewer.get_sector_renderer() and \
 	   (data.zoom_level == GalaxyCoordinates.ZoomLevel.SECTOR or \
-	    data.zoom_level == GalaxyCoordinates.ZoomLevel.SUBSECTOR):
+		data.zoom_level == GalaxyCoordinates.ZoomLevel.SUBSECTOR):
 		viewer.get_sector_renderer().build_for_quadrant(
 			data.selected_quadrant as Vector3i, viewer.get_density_model()
 		)
@@ -135,14 +147,16 @@ func apply_save_data(viewer: Node, data: GalaxySaveData) -> void:
 		viewer.get_zoom_machine().set_level(data.zoom_level)
 	viewer.call_apply_zoom_level(data.zoom_level)
 
-	if data.zoom_level == GalaxyCoordinates.ZoomLevel.SUBSECTOR and viewer.get_star_camera():
-		viewer.get_star_camera().global_position = data.camera_position
-		viewer.get_star_camera().rotation = data.camera_rotation
-		if viewer.get_neighborhood_renderer():
-			viewer.get_neighborhood_renderer().build_neighborhood(
-				viewer.get_star_camera().global_position, viewer.galaxy_seed,
-				viewer.get_density_model(), viewer.get_reference_density()
-			)
+	if data.zoom_level == GalaxyCoordinates.ZoomLevel.SUBSECTOR:
+		var star_cam: StarViewCamera = viewer.get_star_camera()
+		if star_cam and star_cam.is_inside_tree():
+			star_cam.global_position = data.camera_position
+			star_cam.rotation = data.camera_rotation
+			if viewer.get_neighborhood_renderer():
+				viewer.get_neighborhood_renderer().build_neighborhood(
+					star_cam.global_position, viewer.galaxy_seed,
+					viewer.get_density_model(), viewer.get_reference_density()
+				)
 
 	if data.has_star_selection:
 		viewer.set_selected_star_seed_internal(data.selected_star_seed)

@@ -12,6 +12,7 @@ extends Node3D
 
 ## Ensures GalaxyInspectorPanel script is loaded so type resolves for analyzer.
 const _GalaxyInspectorPanelScript: GDScript = preload("res://src/app/galaxy_viewer/GalaxyInspectorPanel.gd")
+const _GalaxyConfigRef: GDScript = preload("res://src/domain/galaxy/GalaxyConfig.gd")
 const _SaveLoadClass: GDScript = preload("res://src/app/galaxy_viewer/GalaxyViewerSaveLoad.gd")
 
 
@@ -26,6 +27,10 @@ signal star_selected(world_position: Vector3, star_seed: int)
 ## @param star_seed: Deterministic seed of the selected star system.
 ## @param world_position: World-space position of the star.
 signal open_system_requested(star_seed: int, world_position: Vector3)
+
+## Emitted when the galaxy seed changes (e.g., after loading a saved galaxy).
+## @param new_seed: The new galaxy seed value.
+signal galaxy_seed_changed(new_seed: int)
 
 ## Master seed for the galaxy.
 @export var galaxy_seed: int = 42
@@ -57,6 +62,7 @@ const GALAXY_STAR_VIEW_OPACITY: float = 0.05
 @onready var _load_button: Button = $UI/UIRoot/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/SaveLoadSection/ButtonContainer/LoadButton
 
 var _spec: GalaxySpec
+var _galaxy_config: GalaxyConfig = null
 var _density_model: SpiralDensityModel
 var _reference_density: float = 0.0
 var _zoom_machine: ZoomStateMachine
@@ -93,7 +99,9 @@ var _save_load: RefCounted = _SaveLoadClass.new()
 
 
 func _ready() -> void:
-	_spec = GalaxySpec.create_milky_way(galaxy_seed)
+	if _galaxy_config == null:
+		_galaxy_config = GalaxyConfig.create_default()
+	_spec = GalaxySpec.create_from_config(_galaxy_config, galaxy_seed)
 	_density_model = SpiralDensityModel.new(_spec)
 	_reference_density = _compute_reference_density()
 
@@ -682,6 +690,23 @@ func get_spec() -> GalaxySpec:
 	return _spec
 
 
+## Returns the current galaxy config (used for generation).
+## @return: GalaxyConfig instance.
+func get_galaxy_config() -> GalaxyConfig:
+	if _galaxy_config == null:
+		return GalaxyConfig.create_default()
+	return _galaxy_config
+
+
+## Sets the galaxy config (call before _ready or before apply_save_data).
+## @param config: GalaxyConfig to use for next build.
+func set_galaxy_config(config: GalaxyConfig) -> void:
+	if config != null:
+		_galaxy_config = config
+	else:
+		_galaxy_config = GalaxyConfig.create_default()
+
+
 ## Returns the current zoom level.
 ## @return: Zoom level enum value.
 func get_zoom_level() -> int:
@@ -757,8 +782,9 @@ func _on_load_pressed() -> void:
 ## @param new_seed: New galaxy seed.
 func _change_galaxy_seed(new_seed: int) -> void:
 	galaxy_seed = new_seed
-
-	_spec = GalaxySpec.create_milky_way(galaxy_seed)
+	if _galaxy_config == null:
+		_galaxy_config = GalaxyConfig.create_default()
+	_spec = GalaxySpec.create_from_config(_galaxy_config, galaxy_seed)
 	_density_model = SpiralDensityModel.new(_spec)
 	_reference_density = _compute_reference_density()
 
@@ -769,14 +795,18 @@ func _change_galaxy_seed(new_seed: int) -> void:
 		_spec, _density_model, num_points, rng
 	)
 
-	_galaxy_renderer.build_from_sample(sample, star_size)
-	_quadrant_renderer.build_from_density(_spec, _density_model)
+	# Guard against calls before _ready() completes
+	if _galaxy_renderer:
+		_galaxy_renderer.build_from_sample(sample, star_size)
+	if _quadrant_renderer:
+		_quadrant_renderer.build_from_density(_spec, _density_model)
 
 	if _quadrant_selector:
 		_quadrant_selector.clear_selection()
 	_selected_sector = null
 
 	_update_seed_display()
+	galaxy_seed_changed.emit(new_seed)
 
 
 ## Returns current save data (for testing).

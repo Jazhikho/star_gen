@@ -42,6 +42,9 @@ var selected_star_seed: int = 0
 ## Selected star position (if any).
 var selected_star_position: Vector3 = Vector3.ZERO
 
+## Galaxy configuration dictionary (serialized GalaxyConfig).
+var galaxy_config_data: Dictionary = {}
+
 
 ## Returns this script for self-instantiation (avoids class_name resolution order when loaded as dependency).
 static func _script_ref() -> GDScript:
@@ -93,6 +96,7 @@ func to_dict() -> Dictionary:
 	else:
 		dict["selected_sector"] = null
 
+	dict["galaxy_config_data"] = galaxy_config_data
 	return dict
 
 
@@ -137,6 +141,12 @@ static func from_dict(dict: Dictionary) -> Variant:
 	if star_pos is Array:
 		data.selected_star_position = _array_to_vector3(star_pos as Array)
 
+	var config_dict: Variant = dict.get("galaxy_config_data")
+	if config_dict is Dictionary:
+		data.galaxy_config_data = config_dict
+	else:
+		data.galaxy_config_data = {}
+
 	return data
 
 
@@ -177,6 +187,29 @@ static func _array_to_vector3i(arr: Array) -> Vector3i:
 func get_summary() -> String:
 	var zoom_name: String = _get_zoom_name(zoom_level)
 	return "Seed %d, %s view, saved %d" % [galaxy_seed, zoom_name, saved_at]
+
+
+## Returns whether this save data has a galaxy config.
+## @return: True if config data is present.
+func has_config() -> bool:
+	return not galaxy_config_data.is_empty()
+
+
+## Returns the galaxy config from save data.
+## @return: GalaxyConfig or null if not present.
+func get_config() -> GalaxyConfig:
+	if galaxy_config_data.is_empty():
+		return null
+	return GalaxyConfig.from_dict(galaxy_config_data)
+
+
+## Sets the galaxy config in save data.
+## @param config: GalaxyConfig to store.
+func set_config(config: GalaxyConfig) -> void:
+	if config != null:
+		galaxy_config_data = config.to_dict()
+	else:
+		galaxy_config_data = {}
 
 
 ## Returns zoom level name.

@@ -120,7 +120,10 @@ func _handle_mouse_motion(event: InputEventMouseMotion) -> void:
 
 
 ## Recomputes global_position and look_at from yaw, pitch, distance.
+## No-op when not in tree (avoids get_global_transform/look_at errors); _ready() will run when added.
 func _update_transform() -> void:
+	if not is_inside_tree():
+		return
 	var yaw_rad: float = deg_to_rad(_yaw_deg)
 	var pitch_rad: float = deg_to_rad(_pitch_deg)
 

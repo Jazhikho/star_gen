@@ -27,13 +27,16 @@ func after_each() -> void:
 		await _tree.process_frame
 
 
-## Helper to create and add MainApp to scene tree safely.
+## Helper to create and add MainApp to scene tree safely, then start galaxy (bypass welcome screen).
 func _setup_main_app() -> void:
 	_main_app = _main_app_scene.instantiate() as MainApp
 	_tree.root.add_child.call_deferred(_main_app)
 
 	await _tree.process_frame
 	await _tree.process_frame
+	await _tree.process_frame
+
+	_main_app.start_galaxy_with_defaults()
 	await _tree.process_frame
 
 
