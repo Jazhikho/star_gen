@@ -104,6 +104,7 @@ func _create_galaxy_viewer(seed_value: int, config: GalaxyConfig = null) -> void
 
 	_galaxy_viewer.open_system_requested.connect(_on_open_system_requested)
 	_galaxy_viewer.galaxy_seed_changed.connect(set_galaxy_seed)
+	_galaxy_viewer.new_galaxy_requested.connect(_on_new_galaxy_requested)
 
 
 ## Shows the welcome screen (hides galaxy viewer if present).
@@ -161,6 +162,28 @@ func _on_welcome_load_file_selected(path: String) -> void:
 ## Handles welcome screen "Quit".
 func _on_welcome_quit_requested() -> void:
 	get_tree().quit()
+
+
+## Handles new galaxy requested from galaxy viewer.
+## Removes current galaxy viewer and shows welcome screen.
+func _on_new_galaxy_requested() -> void:
+	# Clean up current galaxy viewer
+	if _galaxy_viewer and _galaxy_viewer.is_inside_tree():
+		viewer_container.remove_child(_galaxy_viewer)
+		_galaxy_viewer.queue_free()
+		_galaxy_viewer = null
+	
+	# Clear system cache
+	if _system_cache:
+		_system_cache.clear()
+	
+	# Reset state
+	_active_viewer = ""
+	_current_star_seed = 0
+	_current_star_position = Vector3.ZERO
+	
+	# Show welcome screen
+	_show_welcome_screen()
 
 
 ## Creates the system viewer instance (lazy).

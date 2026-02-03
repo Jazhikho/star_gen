@@ -88,7 +88,7 @@ func _process(delta: float) -> void:
 func build_neighborhood(
 	camera_position: Vector3,
 	galaxy_seed: int,
-	density_model: SpiralDensityModel,
+	density_model: DensityModelInterface,
 	reference_density: float
 ) -> void:
 	if _neighborhood_data != null:
@@ -259,19 +259,19 @@ func _create_wireframe_box(box_size: float) -> ArrayMesh:
 
 	var corners: Array[Vector3] = [
 		Vector3(-half, -half, -half),
-		Vector3( half, -half, -half),
-		Vector3( half,  half, -half),
-		Vector3(-half,  half, -half),
-		Vector3(-half, -half,  half),
-		Vector3( half, -half,  half),
-		Vector3( half,  half,  half),
-		Vector3(-half,  half,  half),
+		Vector3(half, -half, -half),
+		Vector3(half, half, -half),
+		Vector3(-half, half, -half),
+		Vector3(-half, -half, half),
+		Vector3(half, -half, half),
+		Vector3(half, half, half),
+		Vector3(-half, half, half),
 	]
 
 	var edge_indices: Array[int] = [
-		0,1, 1,2, 2,3, 3,0,
-		4,5, 5,6, 6,7, 7,4,
-		0,4, 1,5, 2,6, 3,7,
+		0, 1, 1, 2, 2, 3, 3, 0,
+		4, 5, 5, 6, 6, 7, 7, 4,
+		0, 4, 1, 5, 2, 6, 3, 7,
 	]
 
 	var vertices: PackedVector3Array = PackedVector3Array()

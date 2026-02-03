@@ -56,7 +56,7 @@ static func generate_sector_stars(
 	galaxy_seed: int,
 	quadrant_coords: Vector3i,
 	sector_local_coords: Vector3i,
-	density_model: SpiralDensityModel,
+	density_model: DensityModelInterface,
 	reference_density: float
 ) -> SectorStarData:
 	var result: SectorStarData = SectorStarData.new()
@@ -98,7 +98,7 @@ static func generate_sector_with_border(
 	galaxy_seed: int,
 	quadrant_coords: Vector3i,
 	sector_local_coords: Vector3i,
-	density_model: SpiralDensityModel,
+	density_model: DensityModelInterface,
 	reference_density: float
 ) -> SectorStarData:
 	var result: SectorStarData = SectorStarData.new()
@@ -109,7 +109,7 @@ static func generate_sector_with_border(
 	var sector_origin: Vector3 = GalaxyCoordinates.sector_world_origin(
 		quadrant_coords, sector_local_coords
 	)
-	var min_idx: int = -BORDER_EXTENT
+	var min_idx: int = - BORDER_EXTENT
 	var max_idx: int = SUBSECTORS_PER_EDGE + BORDER_EXTENT
 
 	for bx in range(min_idx, max_idx):
@@ -155,7 +155,7 @@ static func _generate_subsector_stars(
 	sector_seed: int,
 	subsector_local: Vector3i,
 	subsector_origin: Vector3,
-	density_model: SpiralDensityModel,
+	density_model: DensityModelInterface,
 	reference_density: float,
 	out_positions: PackedVector3Array,
 	out_seeds: PackedInt64Array
@@ -224,7 +224,7 @@ static func _sample_poisson(lambda_val: float, rng: RandomNumberGenerator) -> in
 static func generate_single_subsector(
 	galaxy_seed: int,
 	world_origin: Vector3,
-	density_model: SpiralDensityModel,
+	density_model: DensityModelInterface,
 	reference_density: float
 ) -> SectorStarData:
 	var result: SectorStarData = SectorStarData.new()
@@ -251,5 +251,3 @@ static func generate_single_subsector(
 	)
 
 	return result
-
-

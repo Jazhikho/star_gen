@@ -34,6 +34,12 @@ var bulge_radius_pc: float = 1500.0
 ## Galaxy radius in parsecs (10000-25000).
 var radius_pc: float = 15000.0
 
+## Ellipticity for elliptical galaxies (0.0-0.7, 0 = spherical, 0.7 = very flat).
+var ellipticity: float = 0.3
+
+## Irregularity scale for irregular galaxies (0.1-1.0, controls noise frequency).
+var irregularity_scale: float = 0.5
+
 
 ## Creates a default configuration (Milky Way-like).
 ## @return: New GalaxyConfig with default values.
@@ -70,6 +76,8 @@ func apply_to_spec(spec: GalaxySpec) -> void:
 	spec.disk_scale_height_pc = disk_scale_height_pc
 	spec.bulge_radius_pc = bulge_radius_pc
 	spec.radius_pc = radius_pc
+	spec.ellipticity = ellipticity
+	spec.irregularity_scale = irregularity_scale
 
 
 ## Validates the configuration values are within acceptable ranges.
@@ -95,6 +103,10 @@ func is_valid() -> bool:
 		return false
 	if radius_pc < 10000.0 or radius_pc > 25000.0:
 		return false
+	if ellipticity < 0.0 or ellipticity > 0.7:
+		return false
+	if irregularity_scale < 0.1 or irregularity_scale > 1.0:
+		return false
 	return true
 
 
@@ -112,6 +124,8 @@ func to_dict() -> Dictionary:
 		"disk_scale_height_pc": disk_scale_height_pc,
 		"bulge_radius_pc": bulge_radius_pc,
 		"radius_pc": radius_pc,
+		"ellipticity": ellipticity,
+		"irregularity_scale": irregularity_scale,
 	}
 
 
@@ -132,6 +146,8 @@ static func from_dict(dict: Dictionary) -> GalaxyConfig:
 	config.disk_scale_height_pc = dict.get("disk_scale_height_pc", 300.0) as float
 	config.bulge_radius_pc = dict.get("bulge_radius_pc", 1500.0) as float
 	config.radius_pc = dict.get("radius_pc", 15000.0) as float
+	config.ellipticity = dict.get("ellipticity", 0.3) as float
+	config.irregularity_scale = dict.get("irregularity_scale", 0.5) as float
 	return config
 
 

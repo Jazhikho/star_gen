@@ -32,6 +32,10 @@ signal open_system_requested(star_seed: int, world_position: Vector3)
 ## @param new_seed: The new galaxy seed value.
 signal galaxy_seed_changed(new_seed: int)
 
+## Emitted when the user requests to create a new galaxy.
+## The MainApp should handle this by showing the WelcomeScreen or galaxy config dialog.
+signal new_galaxy_requested()
+
 ## Master seed for the galaxy.
 @export var galaxy_seed: int = 42
 
@@ -60,10 +64,11 @@ const GALAXY_STAR_VIEW_OPACITY: float = 0.05
 @onready var _inspector_panel: GalaxyInspectorPanel = $UI/UIRoot/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/InspectorPanel
 @onready var _save_button: Button = $UI/UIRoot/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/SaveLoadSection/ButtonContainer/SaveButton
 @onready var _load_button: Button = $UI/UIRoot/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/SaveLoadSection/ButtonContainer/LoadButton
+@onready var _new_galaxy_button: Button = $UI/UIRoot/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/SaveLoadSection/NewGalaxyButton
 
 var _spec: GalaxySpec
 var _galaxy_config: GalaxyConfig = null
-var _density_model: SpiralDensityModel
+var _density_model: DensityModelInterface
 var _reference_density: float = 0.0
 var _zoom_machine: ZoomStateMachine
 var _galaxy_renderer: GalaxyRenderer
@@ -102,7 +107,7 @@ func _ready() -> void:
 	if _galaxy_config == null:
 		_galaxy_config = GalaxyConfig.create_default()
 	_spec = GalaxySpec.create_from_config(_galaxy_config, galaxy_seed)
-	_density_model = SpiralDensityModel.new(_spec)
+	_density_model = DensityModelInterface.create_for_spec(_spec)
 	_reference_density = _compute_reference_density()
 
 	_zoom_machine = ZoomStateMachine.new()
@@ -116,7 +121,7 @@ func _ready() -> void:
 	rng.seed = _spec.seed
 
 	var sample: GalaxySample = DensitySampler.sample_galaxy(
-		_spec, _density_model, num_points, rng
+		_spec, num_points, rng
 	)
 
 	_build_galaxy_renderer(sample)
@@ -540,7 +545,7 @@ func _build_galaxy_renderer(sample: GalaxySample) -> void:
 	_galaxy_renderer = GalaxyRenderer.new()
 	_galaxy_renderer.name = "GalaxyRenderer"
 	add_child(_galaxy_renderer)
-	_galaxy_renderer.build_from_sample(sample, star_size)
+	_galaxy_renderer.build_from_sample(sample, star_size, _spec.galaxy_type)
 
 
 ## Creates the quadrant grid renderer (starts hidden).
@@ -647,6 +652,8 @@ func _connect_ui_signals() -> void:
 		_save_button.pressed.connect(_on_save_pressed)
 	if _load_button:
 		_load_button.pressed.connect(_on_load_pressed)
+	if _new_galaxy_button:
+		_new_galaxy_button.pressed.connect(_on_new_galaxy_pressed)
 
 
 ## Updates the seed display to match current galaxy seed.
@@ -778,6 +785,11 @@ func _on_load_pressed() -> void:
 	_save_load.on_load_pressed(self)
 
 
+## Handles new galaxy button press.
+func _on_new_galaxy_pressed() -> void:
+	new_galaxy_requested.emit()
+
+
 ## Changes the galaxy seed and regenerates galaxy data.
 ## @param new_seed: New galaxy seed.
 func _change_galaxy_seed(new_seed: int) -> void:
@@ -785,19 +797,19 @@ func _change_galaxy_seed(new_seed: int) -> void:
 	if _galaxy_config == null:
 		_galaxy_config = GalaxyConfig.create_default()
 	_spec = GalaxySpec.create_from_config(_galaxy_config, galaxy_seed)
-	_density_model = SpiralDensityModel.new(_spec)
+	_density_model = DensityModelInterface.create_for_spec(_spec)
 	_reference_density = _compute_reference_density()
 
 	var rng: RandomNumberGenerator = RandomNumberGenerator.new()
 	rng.seed = _spec.seed
 
 	var sample: GalaxySample = DensitySampler.sample_galaxy(
-		_spec, _density_model, num_points, rng
+		_spec, num_points, rng
 	)
 
 	# Guard against calls before _ready() completes
 	if _galaxy_renderer:
-		_galaxy_renderer.build_from_sample(sample, star_size)
+		_galaxy_renderer.build_from_sample(sample, star_size, _spec.galaxy_type)
 	if _quadrant_renderer:
 		_quadrant_renderer.build_from_density(_spec, _density_model)
 
@@ -862,10 +874,9 @@ func get_star_camera() -> StarViewCamera:
 func get_neighborhood_renderer() -> NeighborhoodRenderer:
 	return _neighborhood_renderer
 
-
-## Returns the spiral density model.
-## @return: The SpiralDensityModel instance.
-func get_density_model() -> SpiralDensityModel:
+## Returns the density model for the current galaxy.
+## @return: The DensityModelInterface instance.
+func get_density_model() -> DensityModelInterface:
 	return _density_model
 
 
