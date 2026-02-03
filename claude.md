@@ -21,10 +21,13 @@ Phase 3: Object viewer v1
 Phase 4: Object editing v1
 Phase 5: Object rendering v2 (optional)
 Phase 6: Solar system generator + viewer
-Phase 7: Solar system constraints (locks)
-Phase 8: Solar system editing tools
-Phase 9: Galactic map v1
-Phase 10: Galactic constraints and editing
+Phase 7: Galactic map v1
+Phase 8: Solar system generator refinement
+Phase 9: Galactic generator refinement
+Phase 10: Solar system tools
+Phase 11: Galactic tools
+Phase 12: Solar system polish
+Phase 13: Galactic polish
 
 _See `Docs/Roadmap.md` for detailed phase descriptions, deliverables, tests, and acceptance criteria._
 

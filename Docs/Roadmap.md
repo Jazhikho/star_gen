@@ -414,19 +414,22 @@ Randomly generate a solar system, display it, and inspect its bodies (no editing
 Add a galactic container that browses and lazily generates systems without regenerating edits. Focus on basic generation and UI setup.
 
 **Design Decisions (v1):**
-•	Galaxy type: Spiral galaxy (Milky Way-like) - single type for v1 to keep scope tight.
+•	Galaxy types: Spiral (Milky Way-like), Elliptical (3D Gaussian ellipsoid), Irregular (noise-based 3D blob). Each type uses a dedicated density model so sampling, quadrant view, and star counts are consistent.
 •	Scale: ~10,000-50,000 star systems (enough to feel vast, manageable for LOD).
-•	Spatial dimensions: 2D top-down map (z-height as visual only, positions are x/y).
+•	Spatial dimensions: 3D parsec-space; quadrant/sector/subsector hierarchy (10³ sectors per quadrant, 10³ subsectors per sector, 10³ parsecs per subsector).
 •	Hierarchy: Grid-based sectors for spatial indexing (simple, deterministic).
-•	Visualization: 2D top-down map with progressive zoom and LOD (dots → names → selectable).
-•	Navigation: Progressive zoom (galaxy → region → local cluster → system) or click region → system list → open system.
-•	Persistence: Delta persistence (spec + seed + patches) - store visited system seeds/specs for instant revisits.
+•	Visualization: 3D galaxy view with progressive zoom and quadrant/sector/subsector LOD; star points via MultiMesh with type-specific coloring.
+•	Navigation: Progressive zoom (galaxy → quadrant → sector → subsector/star view) or click to select; MainApp handles Galaxy ↔ System ↔ Object viewer flow.
+•	Persistence: Save/load galaxy state (seed, zoom, camera, selection); delta persistence for visited systems (seeds/specs for instant revisits).
 
 **Deliverables:**
 •	✅ Welcome screen: Start New Galaxy (with config), Load Galaxy, Quit; app shows welcome first, then creates galaxy viewer on Start or Load.
-•	✅ GalaxyConfig: Galaxy generation parameters (type, spiral arms, pitch, seed, etc.); single source for galaxy appearance before generation.
-•	Galaxy data model: Galaxy, Sector, GalaxyStar classes with serialization.
-•	Galaxy generator: Spiral arm placement, density gradients, sector-based lazy generation.
+•	✅ GalaxyConfig: Galaxy generation parameters (type, spiral arms, pitch, ellipticity, irregularity, seed, etc.); single source for galaxy appearance before generation.
+•	✅ Density models: DensityModelInterface with SpiralDensityModel, EllipticalDensityModel, IrregularDensityModel; create_for_spec(spec) factory; used by sampling, quadrant/sector renderers, and subsector star counts.
+•	✅ DensitySampler: Type-specific sampling (spiral disk+bulge, elliptical Gaussian ellipsoid, irregular 3D blob).
+•	✅ GalaxyCoordinates: Galaxy-type-aware grid bounds (effective radius, effective half-height by type).
+•	Galaxy data model: Galaxy, Sector, GalaxyStar classes with serialization (future).
+•	Galaxy generator: Sector-based lazy generation; density from density model.
 •	Stellar metallicity from galactic position (core vs. spiral arm vs. halo).
 •	Star formation rate by region (affects age distribution).
 •	Stellar density gradients (higher density in core, lower in halo).
