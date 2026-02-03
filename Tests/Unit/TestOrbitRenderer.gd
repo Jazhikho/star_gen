@@ -2,8 +2,8 @@
 ## Tests orbit line creation, zone rings, and selection highlighting.
 extends TestCase
 
-const _orbit_renderer := preload("res://src/app/system_viewer/OrbitRenderer.gd")
-const _celestial_type := preload("res://src/domain/celestial/CelestialType.gd")
+const _orbit_renderer: GDScript = preload("res://src/app/system_viewer/OrbitRenderer.gd")
+const _celestial_type: GDScript = preload("res://src/domain/celestial/CelestialType.gd")
 
 
 ## Helper to create an OrbitRenderer attached to the scene tree.

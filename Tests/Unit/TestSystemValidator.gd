@@ -1,19 +1,19 @@
 ## Tests for SystemValidator.
 extends TestCase
 
-const _system_validator := preload("res://src/domain/system/SystemValidator.gd")
-const _solar_system := preload("res://src/domain/system/SolarSystem.gd")
-const _system_hierarchy := preload("res://src/domain/system/SystemHierarchy.gd")
-const _hierarchy_node := preload("res://src/domain/system/HierarchyNode.gd")
-const _orbit_host := preload("res://src/domain/system/OrbitHost.gd")
-const _celestial_body := preload("res://src/domain/celestial/CelestialBody.gd")
-const _celestial_type := preload("res://src/domain/celestial/CelestialType.gd")
-const _star_spec := preload("res://src/domain/generation/specs/StarSpec.gd")
-const _star_generator := preload("res://src/domain/generation/generators/StarGenerator.gd")
-const _seeded_rng := preload("res://src/domain/rng/SeededRng.gd")
-const _units := preload("res://src/domain/math/Units.gd")
-const _stellar_props := preload("res://src/domain/celestial/components/StellarProps.gd")
-const _validation_result := preload("res://src/domain/celestial/validation/ValidationResult.gd")
+const _system_validator: GDScript = preload("res://src/domain/system/SystemValidator.gd")
+const _solar_system: GDScript = preload("res://src/domain/system/SolarSystem.gd")
+const _system_hierarchy: GDScript = preload("res://src/domain/system/SystemHierarchy.gd")
+const _hierarchy_node: GDScript = preload("res://src/domain/system/HierarchyNode.gd")
+const _orbit_host: GDScript = preload("res://src/domain/system/OrbitHost.gd")
+const _celestial_body: GDScript = preload("res://src/domain/celestial/CelestialBody.gd")
+const _celestial_type: GDScript = preload("res://src/domain/celestial/CelestialType.gd")
+const _star_spec: GDScript = preload("res://src/domain/generation/specs/StarSpec.gd")
+const _star_generator: GDScript = preload("res://src/domain/generation/generators/StarGenerator.gd")
+const _seeded_rng: GDScript = preload("res://src/domain/rng/SeededRng.gd")
+const _units: GDScript = preload("res://src/domain/math/Units.gd")
+const _stellar_props: GDScript = preload("res://src/domain/celestial/components/StellarProps.gd")
+const _validation_result: GDScript = preload("res://src/domain/celestial/validation/ValidationResult.gd")
 
 
 ## Creates a minimal valid system for testing.
@@ -123,7 +123,7 @@ func test_invalid_barycenter_eccentricity() -> void:
 	# Create binary hierarchy with invalid eccentricity
 	var node1: HierarchyNode = HierarchyNode.create_star("n1", "star_1")
 	var node2: HierarchyNode = HierarchyNode.create_star("n2", "star_2")
-	var binary: HierarchyNode = HierarchyNode.create_barycenter("binary", node1, node2, 1e11, 1.5)  # Invalid ecc
+	var binary: HierarchyNode = HierarchyNode.create_barycenter("binary", node1, node2, 1e11, 1.5) # Invalid ecc
 	system.hierarchy = SystemHierarchy.new(binary)
 	
 	var result: ValidationResult = SystemValidator.validate(system)
@@ -144,7 +144,7 @@ func test_moon_without_parent() -> void:
 	# Add moon without parent_id
 	var moon: CelestialBody = CelestialBody.new("moon_1", "Moon", CelestialType.Type.MOON)
 	moon.physical = PhysicalProps.new(7.34e22, 1.74e6, 2360592.0)
-	moon.orbital = OrbitalProps.new(3.84e8, 0.05, 5.0, 0.0, 0.0, 0.0, "")  # Empty parent
+	moon.orbital = OrbitalProps.new(3.84e8, 0.05, 5.0, 0.0, 0.0, 0.0, "") # Empty parent
 	system.add_body(moon)
 	
 	var result: ValidationResult = SystemValidator.validate(system)
@@ -160,7 +160,7 @@ func test_invalid_asteroid_belt() -> void:
 	# Add invalid belt (outer < inner)
 	var belt: AsteroidBelt = AsteroidBelt.new("belt_1", "Bad Belt")
 	belt.inner_radius_m = 5.0 * Units.AU_METERS
-	belt.outer_radius_m = 2.0 * Units.AU_METERS  # Invalid
+	belt.outer_radius_m = 2.0 * Units.AU_METERS # Invalid
 	system.add_asteroid_belt(belt)
 	
 	var result: ValidationResult = SystemValidator.validate(system)
@@ -184,8 +184,8 @@ func test_invalid_orbit_host() -> void:
 
 ## Tests get_error_count and get_warning_count.
 func test_error_counts() -> void:
-	var system: SolarSystem = SolarSystem.new("", "")  # Empty ID
-	system.hierarchy = null  # Missing hierarchy
+	var system: SolarSystem = SolarSystem.new("", "") # Empty ID
+	system.hierarchy = null # Missing hierarchy
 	
 	var result: ValidationResult = SystemValidator.validate(system)
 	

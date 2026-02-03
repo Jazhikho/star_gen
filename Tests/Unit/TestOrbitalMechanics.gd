@@ -1,9 +1,9 @@
 ## Tests for OrbitalMechanics utility class.
 extends TestCase
 
-const _orbital_mechanics := preload("res://src/domain/system/OrbitalMechanics.gd")
-const _seeded_rng := preload("res://src/domain/rng/SeededRng.gd")
-const _orbit_zone := preload("res://src/domain/generation/archetypes/OrbitZone.gd")
+const _orbital_mechanics: GDScript = preload("res://src/domain/system/OrbitalMechanics.gd")
+const _seeded_rng: GDScript = preload("res://src/domain/rng/SeededRng.gd")
+const _orbit_zone: GDScript = preload("res://src/domain/generation/archetypes/OrbitZone.gd")
 
 
 # =============================================================================

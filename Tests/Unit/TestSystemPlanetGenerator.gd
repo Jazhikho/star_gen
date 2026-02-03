@@ -1,17 +1,17 @@
 ## Tests for SystemPlanetGenerator.
 extends TestCase
 
-const _system_planet_generator := preload("res://src/domain/system/SystemPlanetGenerator.gd")
-const _orbit_slot := preload("res://src/domain/system/OrbitSlot.gd")
-const _orbit_host := preload("res://src/domain/system/OrbitHost.gd")
-const _orbit_zone := preload("res://src/domain/generation/archetypes/OrbitZone.gd")
-const _size_category := preload("res://src/domain/generation/archetypes/SizeCategory.gd")
-const _seeded_rng := preload("res://src/domain/rng/SeededRng.gd")
-const _units := preload("res://src/domain/math/Units.gd")
-const _stellar_props := preload("res://src/domain/celestial/components/StellarProps.gd")
-const _star_spec := preload("res://src/domain/generation/specs/StarSpec.gd")
-const _star_generator := preload("res://src/domain/generation/generators/StarGenerator.gd")
-const _celestial_validator := preload("res://src/domain/celestial/validation/CelestialValidator.gd")
+const _system_planet_generator: GDScript = preload("res://src/domain/system/SystemPlanetGenerator.gd")
+const _orbit_slot: GDScript = preload("res://src/domain/system/OrbitSlot.gd")
+const _orbit_host: GDScript = preload("res://src/domain/system/OrbitHost.gd")
+const _orbit_zone: GDScript = preload("res://src/domain/generation/archetypes/OrbitZone.gd")
+const _size_category: GDScript = preload("res://src/domain/generation/archetypes/SizeCategory.gd")
+const _seeded_rng: GDScript = preload("res://src/domain/rng/SeededRng.gd")
+const _units: GDScript = preload("res://src/domain/math/Units.gd")
+const _stellar_props: GDScript = preload("res://src/domain/celestial/components/StellarProps.gd")
+const _star_spec: GDScript = preload("res://src/domain/generation/specs/StarSpec.gd")
+const _star_generator: GDScript = preload("res://src/domain/generation/generators/StarGenerator.gd")
+const _celestial_validator: GDScript = preload("res://src/domain/celestial/validation/CelestialValidator.gd")
 
 
 ## Creates a simple orbit host for testing.

@@ -1,11 +1,11 @@
 ## Integration tests for MainApp navigation between viewers.
 extends TestCase
 
-const _main_app_scene := preload("res://src/app/MainApp.tscn")
-const _system_cache := preload("res://src/domain/system/SystemCache.gd")
-const _celestial_body := preload("res://src/domain/celestial/CelestialBody.gd")
-const _celestial_type := preload("res://src/domain/celestial/CelestialType.gd")
-const _physical_props := preload("res://src/domain/celestial/components/PhysicalProps.gd")
+const _main_app_scene: PackedScene = preload("res://src/app/MainApp.tscn")
+const _system_cache: GDScript = preload("res://src/domain/system/SystemCache.gd")
+const _celestial_body: GDScript = preload("res://src/domain/celestial/CelestialBody.gd")
+const _celestial_type: GDScript = preload("res://src/domain/celestial/CelestialType.gd")
+const _physical_props: GDScript = preload("res://src/domain/celestial/components/PhysicalProps.gd")
 
 
 var _main_app: MainApp = null

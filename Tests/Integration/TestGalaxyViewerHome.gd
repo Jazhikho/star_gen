@@ -1,7 +1,7 @@
 ## Integration tests for GalaxyViewer home position initialization.
 extends TestCase
 
-const _galaxy_viewer_scene := preload("res://src/app/galaxy_viewer/GalaxyViewer.tscn")
+const _galaxy_viewer_scene: PackedScene = preload("res://src/app/galaxy_viewer/GalaxyViewer.tscn")
 
 var _viewer: GalaxyViewer = null
 var _tree: SceneTree = null

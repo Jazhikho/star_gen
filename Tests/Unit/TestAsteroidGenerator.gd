@@ -1,15 +1,15 @@
 ## Unit tests for AsteroidGenerator.
 extends TestCase
 
-const _phase1_deps := preload("res://Tests/Phase1Deps.gd")
+const _phase1_deps: GDScript = preload("res://Tests/Phase1Deps.gd")
 
-const _asteroid_generator := preload("res://src/domain/generation/generators/AsteroidGenerator.gd")
-const _asteroid_spec := preload("res://src/domain/generation/specs/AsteroidSpec.gd")
-const _asteroid_type := preload("res://src/domain/generation/archetypes/AsteroidType.gd")
-const _parent_context := preload("res://src/domain/generation/ParentContext.gd")
-const _seeded_rng := preload("res://src/domain/rng/SeededRng.gd")
-const _celestial_type := preload("res://src/domain/celestial/CelestialType.gd")
-const _units := preload("res://src/domain/math/Units.gd")
+const _asteroid_generator: GDScript = preload("res://src/domain/generation/generators/AsteroidGenerator.gd")
+const _asteroid_spec: GDScript = preload("res://src/domain/generation/specs/AsteroidSpec.gd")
+const _asteroid_type: GDScript = preload("res://src/domain/generation/archetypes/AsteroidType.gd")
+const _parent_context: GDScript = preload("res://src/domain/generation/ParentContext.gd")
+const _seeded_rng: GDScript = preload("res://src/domain/rng/SeededRng.gd")
+const _celestial_type: GDScript = preload("res://src/domain/celestial/CelestialType.gd")
+const _units: GDScript = preload("res://src/domain/math/Units.gd")
 
 
 ## Creates a standard solar system context for asteroid generation.

@@ -2,10 +2,10 @@
 ## Verifies scene loads, instantiates, and has correct node structure.
 extends TestCase
 
-const _system_viewer_scene := preload("res://src/app/system_viewer/SystemViewer.tscn")
-const _system_viewer := preload("res://src/app/system_viewer/SystemViewer.gd")
-const _system_camera_controller := preload("res://src/app/system_viewer/SystemCameraController.gd")
-const _system_inspector_panel := preload("res://src/app/system_viewer/SystemInspectorPanel.gd")
+const _system_viewer_scene: PackedScene = preload("res://src/app/system_viewer/SystemViewer.tscn")
+const _system_viewer: GDScript = preload("res://src/app/system_viewer/SystemViewer.gd")
+const _system_camera_controller: GDScript = preload("res://src/app/system_viewer/SystemCameraController.gd")
+const _system_inspector_panel: GDScript = preload("res://src/app/system_viewer/SystemInspectorPanel.gd")
 
 
 func get_test_name() -> String:

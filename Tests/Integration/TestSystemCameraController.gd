@@ -2,7 +2,7 @@
 ## Tests camera initialization, focus, zoom, and view angle changes.
 extends TestCase
 
-const _system_camera_controller := preload("res://src/app/system_viewer/SystemCameraController.gd")
+const _system_camera_controller: GDScript = preload("res://src/app/system_viewer/SystemCameraController.gd")
 
 
 ## Helper to create a camera controller in the scene tree.
@@ -182,7 +182,7 @@ func test_camera_looks_at_origin() -> void:
 	await scene_tree.process_frame
 	
 	# Camera's forward direction should have a downward Y component
-	var forward: Vector3 = -camera.global_transform.basis.z
+	var forward: Vector3 = - camera.global_transform.basis.z
 	assert_true(forward.y < 0.0,
 		"Camera should be looking downward (forward.y=%.2f)" % forward.y)
 	

@@ -1,19 +1,19 @@
 ## Tests for SystemAsteroidGenerator.
 extends TestCase
 
-const _system_asteroid_generator := preload("res://src/domain/system/SystemAsteroidGenerator.gd")
-const _asteroid_belt := preload("res://src/domain/system/AsteroidBelt.gd")
-const _orbit_host := preload("res://src/domain/system/OrbitHost.gd")
-const _orbit_slot := preload("res://src/domain/system/OrbitSlot.gd")
-const _celestial_body := preload("res://src/domain/celestial/CelestialBody.gd")
-const _celestial_type := preload("res://src/domain/celestial/CelestialType.gd")
-const _seeded_rng := preload("res://src/domain/rng/SeededRng.gd")
-const _units := preload("res://src/domain/math/Units.gd")
-const _stellar_props := preload("res://src/domain/celestial/components/StellarProps.gd")
-const _star_spec := preload("res://src/domain/generation/specs/StarSpec.gd")
-const _star_generator := preload("res://src/domain/generation/generators/StarGenerator.gd")
-const _celestial_validator := preload("res://src/domain/celestial/validation/CelestialValidator.gd")
-const _validation_result := preload("res://src/domain/celestial/validation/ValidationResult.gd")
+const _system_asteroid_generator: GDScript = preload("res://src/domain/system/SystemAsteroidGenerator.gd")
+const _asteroid_belt: GDScript = preload("res://src/domain/system/AsteroidBelt.gd")
+const _orbit_host: GDScript = preload("res://src/domain/system/OrbitHost.gd")
+const _orbit_slot: GDScript = preload("res://src/domain/system/OrbitSlot.gd")
+const _celestial_body: GDScript = preload("res://src/domain/celestial/CelestialBody.gd")
+const _celestial_type: GDScript = preload("res://src/domain/celestial/CelestialType.gd")
+const _seeded_rng: GDScript = preload("res://src/domain/rng/SeededRng.gd")
+const _units: GDScript = preload("res://src/domain/math/Units.gd")
+const _stellar_props: GDScript = preload("res://src/domain/celestial/components/StellarProps.gd")
+const _star_spec: GDScript = preload("res://src/domain/generation/specs/StarSpec.gd")
+const _star_generator: GDScript = preload("res://src/domain/generation/generators/StarGenerator.gd")
+const _celestial_validator: GDScript = preload("res://src/domain/celestial/validation/CelestialValidator.gd")
+const _validation_result: GDScript = preload("res://src/domain/celestial/validation/ValidationResult.gd")
 
 
 ## Creates a Sun-like orbit host for testing.
@@ -222,12 +222,12 @@ func test_asteroids_within_belt() -> void:
 			assert_true(asteroid.has_orbital(), "Asteroid should have orbital data")
 			assert_greater_than(
 				asteroid.orbital.semi_major_axis_m,
-				belt.inner_radius_m * 0.9,  # Small margin
+				belt.inner_radius_m * 0.9, # Small margin
 				"Asteroid should be within belt inner edge"
 			)
 			assert_less_than(
 				asteroid.orbital.semi_major_axis_m,
-				belt.outer_radius_m * 1.1,  # Small margin
+				belt.outer_radius_m * 1.1, # Small margin
 				"Asteroid should be within belt outer edge"
 			)
 

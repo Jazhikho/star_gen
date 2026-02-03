@@ -1,7 +1,7 @@
 ## Unit tests for GalaxyInspectorPanel.
 extends TestCase
 
-const _inspector_script := preload("res://src/app/galaxy_viewer/GalaxyInspectorPanel.gd")
+const _inspector_script: GDScript = preload("res://src/app/galaxy_viewer/GalaxyInspectorPanel.gd")
 
 var _panel: GalaxyInspectorPanel = null
 

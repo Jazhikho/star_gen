@@ -102,7 +102,8 @@ No implementing backlog items unless the current phase explicitly includes them.
 
 ### Naming
 - Files: PascalCase (e.g., `CelestialObject.gd`, `StarGenerator.gd`)
-- Folders: PascalCase (e.g., `Scripts/`, `Resources/`)
+- Structural folders under `src/`: snake_case (e.g., `domain/`, `services/`, `app/`)
+- Top-level folders: PascalCase (e.g., `Tests/`, `Docs/`, `Resources/`)
 - GDScript functions: snake_case (e.g., `generate_star()`, `validate_spec()`)
 - GDScript variables: snake_case (e.g., `object_seed`, `physical_props`)
 - Constants: UPPER_SNAKE_CASE (e.g., `MAX_RADIUS`, `DEFAULT_TEMPERATURE`)

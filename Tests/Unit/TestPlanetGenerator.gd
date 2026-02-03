@@ -1,7 +1,7 @@
 ## Tests for PlanetGenerator.
 extends TestCase
 
-const _phase1_deps := preload("res://Tests/Phase1Deps.gd")
+const _phase1_deps: GDScript = preload("res://Tests/Phase1Deps.gd")
 
 
 ## Creates a standard sun-like context for testing.

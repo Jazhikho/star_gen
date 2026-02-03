@@ -1,7 +1,7 @@
 ## Tests for CelestialValidator.
 extends TestCase
 
-const _phase1_deps := preload("res://Tests/Phase1Deps.gd")
+const _phase1_deps: GDScript = preload("res://Tests/Phase1Deps.gd")
 
 
 ## Creates a valid Earth-like planet for testing.

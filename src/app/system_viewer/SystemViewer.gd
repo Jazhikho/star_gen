@@ -491,7 +491,7 @@ func _calculate_body_position(body: CelestialBody) -> Vector3:
 		# Stars at system center (or barycenter for binaries)
 		return Vector3.ZERO
 	
-	var orbital = body.orbital
+	var orbital: OrbitalProps = body.orbital
 	
 	# Get parent position
 	var parent_pos: Vector3 = Vector3.ZERO
@@ -536,7 +536,7 @@ func _create_orbit_path(body: CelestialBody) -> void:
 	if not body.has_orbital():
 		return
 	
-	var orbital = body.orbital
+	var orbital: OrbitalProps = body.orbital
 	
 	# Generate orbit points
 	var points: PackedVector3Array = scale_manager.generate_orbit_points(

@@ -1,14 +1,14 @@
 ## Tests for SolarSystem.
 extends TestCase
 
-const _star_generator := preload("res://src/domain/generation/generators/StarGenerator.gd")
-const _star_spec := preload("res://src/domain/generation/specs/StarSpec.gd")
-const _seeded_rng := preload("res://src/domain/rng/SeededRng.gd")
-const _celestial_body := preload("res://src/domain/celestial/CelestialBody.gd")
-const _celestial_type := preload("res://src/domain/celestial/CelestialType.gd")
-const _orbital_props := preload("res://src/domain/celestial/components/OrbitalProps.gd")
-const _physical_props := preload("res://src/domain/celestial/components/PhysicalProps.gd")
-const _units := preload("res://src/domain/math/Units.gd")
+const _star_generator: GDScript = preload("res://src/domain/generation/generators/StarGenerator.gd")
+const _star_spec: GDScript = preload("res://src/domain/generation/specs/StarSpec.gd")
+const _seeded_rng: GDScript = preload("res://src/domain/rng/SeededRng.gd")
+const _celestial_body: GDScript = preload("res://src/domain/celestial/CelestialBody.gd")
+const _celestial_type: GDScript = preload("res://src/domain/celestial/CelestialType.gd")
+const _orbital_props: GDScript = preload("res://src/domain/celestial/components/OrbitalProps.gd")
+const _physical_props: GDScript = preload("res://src/domain/celestial/components/PhysicalProps.gd")
+const _units: GDScript = preload("res://src/domain/math/Units.gd")
 
 
 ## Creates a simple test star.

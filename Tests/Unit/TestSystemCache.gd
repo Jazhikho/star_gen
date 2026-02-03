@@ -1,8 +1,8 @@
 ## Unit tests for SystemCache.
 extends TestCase
 
-const _system_cache_script := preload("res://src/domain/system/SystemCache.gd")
-const _solar_system := preload("res://src/domain/system/SolarSystem.gd")
+const _system_cache_script: GDScript = preload("res://src/domain/system/SystemCache.gd")
+const _solar_system: GDScript = preload("res://src/domain/system/SolarSystem.gd")
 
 
 var _cache: RefCounted = null

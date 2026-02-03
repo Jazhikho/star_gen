@@ -2,13 +2,13 @@
 ## Tests body setup, selection, hover states, and visual updates.
 extends TestCase
 
-const _system_body_node := preload("res://src/app/system_viewer/SystemBodyNode.gd")
-const _celestial_body := preload("res://src/domain/celestial/CelestialBody.gd")
-const _celestial_type := preload("res://src/domain/celestial/CelestialType.gd")
-const _physical_props := preload("res://src/domain/celestial/components/PhysicalProps.gd")
-const _orbital_props := preload("res://src/domain/celestial/components/OrbitalProps.gd")
-const _stellar_props := preload("res://src/domain/celestial/components/StellarProps.gd")
-const _units := preload("res://src/domain/math/Units.gd")
+const _system_body_node: GDScript = preload("res://src/app/system_viewer/SystemBodyNode.gd")
+const _celestial_body: GDScript = preload("res://src/domain/celestial/CelestialBody.gd")
+const _celestial_type: GDScript = preload("res://src/domain/celestial/CelestialType.gd")
+const _physical_props: GDScript = preload("res://src/domain/celestial/components/PhysicalProps.gd")
+const _orbital_props: GDScript = preload("res://src/domain/celestial/components/OrbitalProps.gd")
+const _stellar_props: GDScript = preload("res://src/domain/celestial/components/StellarProps.gd")
+const _units: GDScript = preload("res://src/domain/math/Units.gd")
 
 
 ## Helper to create a test body.
@@ -309,8 +309,8 @@ func test_hover_no_duplicate_signals() -> void:
 	)
 	
 	node.set_hovered(true)
-	node.set_hovered(true)  # Duplicate - should not emit
-	node.set_hovered(true)  # Duplicate - should not emit
+	node.set_hovered(true) # Duplicate - should not emit
+	node.set_hovered(true) # Duplicate - should not emit
 	
 	assert_equal(hover_count, 1, "Should only emit hover signal once for same state")
 	

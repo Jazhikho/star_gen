@@ -791,93 +791,179 @@ func apply_save_data(data: GalaxySaveData) -> void:
 	_save_load.apply_save_data(self, data)
 
 
-## Getters/setters for GalaxyViewerSaveLoad (and other helpers).
+## Returns the zoom state machine.
+## @return: The ZoomStateMachine instance.
 func get_zoom_machine() -> ZoomStateMachine:
 	return _zoom_machine
 
+
+## Returns the quadrant selector.
+## @return: The QuadrantSelector instance.
 func get_quadrant_selector() -> QuadrantSelector:
 	return _quadrant_selector
 
+
+## Returns the quadrant-level grid cursor.
+## @return: The GridCursor for quadrant navigation.
 func get_quadrant_cursor() -> GridCursor:
 	return _quadrant_cursor
 
+
+## Returns the sector-level grid cursor.
+## @return: The GridCursor for sector navigation.
 func get_sector_cursor() -> GridCursor:
 	return _sector_cursor
 
+
+## Returns the sector renderer.
+## @return: The SectorRenderer instance.
 func get_sector_renderer() -> SectorRenderer:
 	return _sector_renderer
 
+
+## Returns the star-view camera.
+## @return: The StarViewCamera instance.
 func get_star_camera() -> StarViewCamera:
 	return _star_camera
 
+
+## Returns the neighborhood renderer.
+## @return: The NeighborhoodRenderer instance.
 func get_neighborhood_renderer() -> NeighborhoodRenderer:
 	return _neighborhood_renderer
 
+
+## Returns the spiral density model.
+## @return: The SpiralDensityModel instance.
 func get_density_model() -> SpiralDensityModel:
 	return _density_model
 
+
+## Returns the reference density used for star brightness.
+## @return: Reference density value.
 func get_reference_density() -> float:
 	return _reference_density
 
+
+## Returns the selection indicator.
+## @return: The SelectionIndicator instance.
 func get_selection_indicator() -> SelectionIndicator:
 	return _selection_indicator
 
+
+## Returns the saved zoom level for state restoration.
+## @return: Saved zoom level (-1 if none).
 func get_saved_zoom_level() -> int:
 	return _saved_zoom_level
 
+
+## Sets the saved zoom level for state restoration.
+## @param level: Zoom level to save.
 func set_saved_zoom_level(level: int) -> void:
 	_saved_zoom_level = level
 
+
+## Returns the saved quadrant coordinates.
+## @return: Saved quadrant (Vector3i or null).
 func get_saved_quadrant() -> Variant:
 	return _saved_quadrant
 
+
+## Sets the saved quadrant coordinates.
+## @param v: Quadrant to save (Vector3i or null).
 func set_saved_quadrant(v: Variant) -> void:
 	_saved_quadrant = v
 
+
+## Returns the saved sector coordinates.
+## @return: Saved sector (Vector3i or null).
 func get_saved_sector() -> Variant:
 	return _saved_sector
 
+
+## Sets the saved sector coordinates.
+## @param v: Sector to save (Vector3i or null).
 func set_saved_sector(v: Variant) -> void:
 	_saved_sector = v
 
+
+## Returns the saved star camera position.
+## @return: Saved camera position.
 func get_saved_star_camera_position() -> Vector3:
 	return _saved_star_camera_position
 
+
+## Sets the saved star camera position.
+## @param v: Camera position to save.
 func set_saved_star_camera_position(v: Vector3) -> void:
 	_saved_star_camera_position = v
 
+
+## Returns the saved star camera rotation.
+## @return: Saved camera rotation (Euler angles).
 func get_saved_star_camera_rotation() -> Vector3:
 	return _saved_star_camera_rotation
 
+
+## Sets the saved star camera rotation.
+## @param v: Camera rotation to save (Euler angles).
 func set_saved_star_camera_rotation(v: Vector3) -> void:
 	_saved_star_camera_rotation = v
 
+
+## Returns the currently selected sector (internal accessor).
+## @return: Selected sector (Vector3i or null).
 func get_selected_sector_internal() -> Variant:
 	return _selected_sector
 
+
+## Sets the currently selected sector (internal accessor).
+## @param v: Sector to select (Vector3i or null).
 func set_selected_sector_internal(v: Variant) -> void:
 	_selected_sector = v
 
+
+## Returns the currently selected star seed (internal accessor).
+## @return: Selected star seed (0 if none).
 func get_selected_star_seed_internal() -> int:
 	return _selected_star_seed
 
+
+## Sets the currently selected star seed (internal accessor).
+## @param v: Star seed to select.
 func set_selected_star_seed_internal(v: int) -> void:
 	_selected_star_seed = v
 
+
+## Returns the currently selected star position (internal accessor).
+## @return: Selected star position.
 func get_selected_star_position_internal() -> Vector3:
 	return _selected_star_position
 
+
+## Sets the currently selected star position (internal accessor).
+## @param v: Star position to select.
 func set_selected_star_position_internal(v: Vector3) -> void:
 	_selected_star_position = v
 
+
+## Calls the internal initialize_at_home method (for save/load).
 func call_initialize_at_home() -> void:
 	_initialize_at_home()
 
+
+## Calls the internal apply_zoom_level method (for save/load).
+## @param level: Zoom level to apply.
 func call_apply_zoom_level(level: int) -> void:
 	_apply_zoom_level(level)
 
+
+## Calls the internal update_inspector method (for save/load).
 func call_update_inspector() -> void:
 	_update_inspector()
 
+
+## Calls the internal change_galaxy_seed method (for save/load).
+## @param seed_value: New galaxy seed.
 func call_change_galaxy_seed(seed_value: int) -> void:
 	_change_galaxy_seed(seed_value)

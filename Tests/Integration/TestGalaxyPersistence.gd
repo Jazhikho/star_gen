@@ -2,8 +2,8 @@
 extends TestCase
 
 ## Preload domain and service so class_name types are in scope.
-const _galaxy_save_data := preload("res://src/domain/galaxy/GalaxySaveData.gd")
-const _galaxy_persistence := preload("res://src/services/persistence/GalaxyPersistence.gd")
+const _galaxy_save_data: GDScript = preload("res://src/domain/galaxy/GalaxySaveData.gd")
+const _galaxy_persistence: GDScript = preload("res://src/services/persistence/GalaxyPersistence.gd")
 
 
 ## Test file paths for galaxy persistence tests.

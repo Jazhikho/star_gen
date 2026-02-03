@@ -1,7 +1,7 @@
 ## Integration tests for GalaxyViewer UI.
 extends TestCase
 
-const _galaxy_viewer_scene := preload("res://src/app/galaxy_viewer/GalaxyViewer.tscn")
+const _galaxy_viewer_scene: PackedScene = preload("res://src/app/galaxy_viewer/GalaxyViewer.tscn")
 ## Ensures GalaxyInspectorPanel type resolves for analyzer.
 const _GalaxyInspectorPanelScript: GDScript = preload("res://src/app/galaxy_viewer/GalaxyInspectorPanel.gd")
 

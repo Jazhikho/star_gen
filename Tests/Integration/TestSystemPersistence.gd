@@ -1,16 +1,16 @@
 ## Integration tests for SystemPersistence.
 extends TestCase
 
-const _system_persistence := preload("res://src/services/persistence/SystemPersistence.gd")
-const _solar_system := preload("res://src/domain/system/SolarSystem.gd")
-const _system_hierarchy := preload("res://src/domain/system/SystemHierarchy.gd")
-const _hierarchy_node := preload("res://src/domain/system/HierarchyNode.gd")
-const _orbit_host := preload("res://src/domain/system/OrbitHost.gd")
-const _asteroid_belt := preload("res://src/domain/system/AsteroidBelt.gd")
-const _star_spec := preload("res://src/domain/generation/specs/StarSpec.gd")
-const _star_generator := preload("res://src/domain/generation/generators/StarGenerator.gd")
-const _seeded_rng := preload("res://src/domain/rng/SeededRng.gd")
-const _units := preload("res://src/domain/math/Units.gd")
+const _system_persistence: GDScript = preload("res://src/services/persistence/SystemPersistence.gd")
+const _solar_system: GDScript = preload("res://src/domain/system/SolarSystem.gd")
+const _system_hierarchy: GDScript = preload("res://src/domain/system/SystemHierarchy.gd")
+const _hierarchy_node: GDScript = preload("res://src/domain/system/HierarchyNode.gd")
+const _orbit_host: GDScript = preload("res://src/domain/system/OrbitHost.gd")
+const _asteroid_belt: GDScript = preload("res://src/domain/system/AsteroidBelt.gd")
+const _star_spec: GDScript = preload("res://src/domain/generation/specs/StarSpec.gd")
+const _star_generator: GDScript = preload("res://src/domain/generation/generators/StarGenerator.gd")
+const _seeded_rng: GDScript = preload("res://src/domain/rng/SeededRng.gd")
+const _units: GDScript = preload("res://src/domain/math/Units.gd")
 
 
 ## Test file paths

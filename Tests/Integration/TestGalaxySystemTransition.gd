@@ -1,7 +1,7 @@
 ## Integration tests for Galaxy → System → Galaxy transitions.
 extends TestCase
 
-const _main_app_scene := preload("res://src/app/MainApp.tscn")
+const _main_app_scene: PackedScene = preload("res://src/app/MainApp.tscn")
 
 var _main_app: MainApp = null
 var _tree: SceneTree = null
