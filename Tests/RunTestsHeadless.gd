@@ -4,6 +4,8 @@ extends SceneTree
 
 ## Preload Phase 1 domain/service scripts so class_name types are registered before test scripts compile.
 const _phase1_deps = preload("res://Tests/Phase1Deps.gd")
+## Preload population domain scripts so class_name types are registered before population test scripts.
+const _population_deps = preload("res://Tests/PopulationDeps.gd")
 
 ## Array of test scripts to run. Add new test scripts here.
 var _test_scripts: Array[GDScript] = [
@@ -113,6 +115,12 @@ var _test_scripts: Array[GDScript] = [
 	preload("res://Tests/domain/galaxy/TestSubSectorGenerator.gd"),
 	preload("res://Tests/domain/galaxy/TestStarPicker.gd"),
 	preload("res://Tests/domain/galaxy/TestSubSectorNeighborhood.gd"),
+	# Population framework (Stage 1: Planet Profile Model)
+	preload("res://Tests/Unit/Population/TestClimateZone.gd"),
+	preload("res://Tests/Unit/Population/TestBiomeType.gd"),
+	preload("res://Tests/Unit/Population/TestResourceType.gd"),
+	preload("res://Tests/Unit/Population/TestHabitabilityCategory.gd"),
+	preload("res://Tests/Unit/Population/TestPlanetProfile.gd"),
 ]
 
 

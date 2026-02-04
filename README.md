@@ -133,7 +133,9 @@ Built with **Godot 4.x** and **GDScript**.
 
 ### Branch: population (parallel concept)
 
-The **population** branch develops a **population framework for planets** (native populations and their history, plus colonies). It is documented in [Docs/Roadmap.md](Docs/Roadmap.md) under "Branch: population (parallel concept)." This work is intentionally separate from the main roadmap for now; it can be run and tested independently, while the normal test suite for the main app continues to run unchanged. The framework will be integrated into the main branch when ready.
+The **population** branch develops a **population framework for planets** (native populations and their history, plus colonies). It is documented in [Docs/Roadmap.md](Docs/Roadmap.md) under "Branch: population (parallel concept)" and in [Docs/PopulationFrameworkPlan.md](Docs/PopulationFrameworkPlan.md). This work is intentionally separate from the main roadmap for now; it can be run and tested independently, while the normal test suite for the main app continues to run unchanged. The framework will be integrated into the main branch when ready.
+
+- **Stage 1 (Planet Profile Model):** ✅ Complete — PlanetProfile, ClimateZone, BiomeType, ResourceType, HabitabilityCategory; unit tests in `Tests/Unit/Population/`.
 
 See [claude.md](claude.md) for detailed architecture, roadmap, and working agreement.
 
