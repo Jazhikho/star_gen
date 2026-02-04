@@ -131,6 +131,10 @@ Built with **Godot 4.x** and **GDScript**.
 
 **Test Status**: 951+ tests in suite; headless run reports passing (some integration tests expect pre-welcome flow and are being updated).
 
+### Branch: population (parallel concept)
+
+The **population** branch develops a **population framework for planets** (native populations and their history, plus colonies). It is documented in [Docs/Roadmap.md](Docs/Roadmap.md) under "Branch: population (parallel concept)." This work is intentionally separate from the main roadmap for now; it can be run and tested independently, while the normal test suite for the main app continues to run unchanged. The framework will be integrated into the main branch when ready.
+
 See [claude.md](claude.md) for detailed architecture, roadmap, and working agreement.
 
 ### Galaxy randomization, welcome screen, and galaxy types (merged)
