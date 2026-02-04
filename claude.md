@@ -66,6 +66,7 @@ Never domain → services/app.
 
 ## Testing rules
 - All non-trivial logic changes ship with tests.
+- **When creating a new test script:** Add it to **both** `Tests/RunTestsHeadless.gd` and `Tests/TestScene.gd` (the `_test_scripts` array in each). The headless runner and the test scene must run the same set of tests. If the new tests depend on domain types that need preloading (e.g. population enums), add the required preload in both runners (e.g. `PopulationDeps.gd` in RunTestsHeadless and TestScene).
 - Categories:
   - Unit: encode/decode, generation invariants, validation, commands
   - Integration: scenes boot, load/save flows, viewer does not crash

@@ -1,10 +1,10 @@
-# Population Framework Plan (Revised Plan A)
+# Population Framework Plan
 
-This document describes the development plan for the **population framework** on the `population` branch. It aligns with the "Branch: population (parallel concept)" section in `Docs/Roadmap.md`. The plan follows **Revised Plan A** as the primary implementation reference, with selected elements from **Plan B** incorporated where they improve clarity, testability, or integration.
+This document describes the development plan for the **population framework** on the `population` branch. It aligns with the "Branch: population (parallel concept)" section in `Docs/Roadmap.md`. 
 
 ---
 
-## Design Decisions (Answers Incorporated)
+## Design Decisions
 
 | Question | Decision | Impact |
 | -------- | -------- | ------ |
@@ -16,22 +16,9 @@ This document describes the development plan for the **population framework** on
 
 ---
 
-## Rationale for Plan A
-
-Plan A was chosen because it:
-
-- Matches the intended scope: **framework + testing first**, with UI deferred until the framework is stable.
-- Uses a rigorous **Planet Profile** design with explicit source calculations and a dedicated `ProfileCalculations` layer for testability.
-- Introduces **distinct classes** for `NativePopulation` and `Colony`, keeping responsibilities clear.
-- Treats **ColonySuitability** as a first-class, testable concept derived from planet properties.
-- Orders **stages** so that the history framework can be reused (e.g. native history before colony history).
-- Calls out **specific files** for calculation alignment with existing celestial/planetary code.
-
----
-
 ## Scope
 
-**In scope (this plan):**
+**In scope:**
 
 - Domain model and data structures for populations (native, colony) and history.
 - **Planet Profile**: derived summary of a planet’s physical/surface/atmospheric properties used for suitability and population logic.
@@ -72,6 +59,7 @@ Plan A was chosen because it:
 
 - **Purpose:** A first-class concept: “how suitable is this planet (or this profile) for colonization?”
 - **Inputs:** Planet Profile (and optionally policy or scenario flags later).
+- **Carrying-capacity** and **Compound Growth** for colony population over time is calculated against habitability and environmental challenges
 - **Output:** A structured result (e.g. score + categories or factors), not a single magic number.
 - **Location:** Domain; consumed by colony-related logic and (later) UI. Fully testable without the rest of the app.
 
@@ -115,8 +103,8 @@ Suggested implementation order:
    - Data model: founding origin, date, relation to natives, demographics, evolution, history.
    - Optional: “founding” rule that uses ColonySuitability. Tests: creation, serialization, suitability usage.
 
-6. **Integration boundary**
-   - **Typed pipeline result:** Use a **PlanetPopulationData** (or equivalent) container as the return type of the full pipeline, not a raw Dictionary. It holds: body reference (or body_id), profile, native_populations, colonies, generation_seed (optional), and helpers such as `get_total_population()`, `get_dominant_population()`, and serialization (to_dict/from_dict). This gives a clear API for “given a CelestialBody (and context), produce profile + populations” when merging to main.
+6. **Integration boundary** ✅
+   - **Typed pipeline result:** **PlanetPopulationData** is the return type of the full pipeline. It holds: body reference (or body_id), profile, native_populations, colonies, generation_seed (optional), and helpers such as `get_total_population()`, `get_dominant_population()`, and serialization (to_dict/from_dict). This gives a clear API for “given a CelestialBody (and context), produce profile + populations” Implemented in PlanetPopulationData.gd and PopulationGenerator.gd; tests in TestPlanetPopulationData.gd and TestPopulationGenerator.gd.
 
 7. **Separate test runner / scene**
    - Population tests and/or a small runner scene that exercises Profile, Suitability, Native, Colony, History so that main suite stays green and population can be run in isolation.
@@ -134,7 +122,8 @@ Suggested implementation order:
     - `NativePopulation.gd` — Native population data model.
     - `Colony.gd` — Colony data model (takes existing_natives when generated; holds native_relations or equivalent).
     - `PopulationHistory.gd` or `HistoryEvent.gd` — Event types and timeline; richer EventType granularity; profile-driven event weights.
-    - `PlanetPopulationData.gd` — Container for full pipeline result (profile, natives, colonies, helpers, serialization).
+    - `PlanetPopulationData.gd` — Container for full pipeline result (profile, suitability, natives, colonies, helpers, serialization). ✅
+    - `PopulationGenerator.gd` — Main entry point: body + context + spec → PlanetPopulationData; also generate_from_profile, generate_profile_only. ✅
 - **Tests**
   - Unit tests for population in `Tests/Unit/` (e.g. `TestProfileCalculations.gd`, `TestColonySuitability.gd`, `TestNativePopulation.gd`, `TestColony.gd`, `TestPopulationHistory.gd`), or under a dedicated `Tests/Unit/Population/` subfolder if the project prefers.
   - Optional: dedicated runner scene or script that runs only population tests for live/exploratory runs (see Roadmap: “runnable separately”).
@@ -157,50 +146,3 @@ Suggested implementation order:
 - **Determinism:** For any path that uses RNG, add a test: same seed + same inputs → same Profile/Suitability/Population output.
 - **Main suite:** The existing test suite (object, system, galaxy, etc.) continues to run unchanged and must stay green. New population tests are additive (and can live in a subfolder or behind a runner that is optional for CI until merge).
 - **Separate runs:** Provide a way to run only population-related tests (or a single “population” test scene) so that work on the population branch doesn’t block main CI or local full runs.
-
----
-
-## Stage 1 (Planet Profile Model) — Implemented
-
-**As-built (Stage 1):**
-- **Domain:** `src/domain/population/ClimateZone.gd`, `BiomeType.gd`, `ResourceType.gd`, `HabitabilityCategory.gd`, `PlanetProfile.gd`. PlanetProfile includes habitability_score (int 0–10), derived category via `get_habitability_category()`, moon-specific fields (tidal_heating_factor, parent_radiation_exposure, eclipse_factor, is_moon), and full serialization (to_dict/from_dict). from_dict handles JSON-style string keys for biomes and resources.
-- **Tests:** `Tests/Unit/Population/TestClimateZone.gd`, `TestBiomeType.gd`, `TestResourceType.gd`, `TestHabitabilityCategory.gd`, `TestPlanetProfile.gd`. Population tests are registered in `RunTestsHeadless.gd`; `Tests/PopulationDeps.gd` preloads the four enums so class_name types are in scope.
-- **ProfileCalculations** (body → Profile) is Stage 2; Profile data type and enums are Stage 1 only.
-
----
-
-## Acceptance Criteria (Summary)
-
-- [x] **Stage 1:** Planet Profile data type and enums defined; habitability_score is int 0–10; derived category available for display; moon modifier fields on profile; serialization with JSON string-key fix.
-- [ ] Planet Profile is **populated** only via ProfileCalculations from existing CelestialBody (and star context) — Stage 2.
-- [ ] ColonySuitability is computed from Profile (and optionally body) with clear, testable rules.
-- [ ] NativePopulation and Colony are distinct types, each with history support using a shared history model; ColonyGenerator takes existing_natives and Colony holds native_relations (or equivalent).
-- [ ] Full pipeline returns PlanetPopulationData (or equivalent) with profile, natives, colonies, and helpers (e.g. get_total_population(), get_dominant_population(), serialization).
-- [ ] All calculation and model logic has unit tests; determinism is tested where applicable.
-- [ ] Main test suite remains green; population code is runnable/testable separately.
-- [ ] No UI or viewer integration required for this plan; integration boundary is documented and minimal.
-
----
-
-## Revised Plan A + B Takeaways
-
-Elements incorporated from Plan B into this document:
-
-- **Design decisions table** — Explicit Q&A (time scale, natives, colony civ placeholder, moons, habitability) for auditable decisions.
-- **Habitability category** — Derived display category (IMPOSSIBLE → IDEAL) from the 0–10 int; no separate HabitabilityScore type.
-- **Moon-specific modifiers** — Tidal heating, parent radiation exposure, eclipse frequency in profile generation when the body is a moon.
-- **PlanetPopulationData** — Typed container for the full pipeline result instead of a raw Dictionary; includes get_total_population(), get_dominant_population(), serialization.
-- **Colony–native relations** — ColonyGenerator takes existing_natives; Colony holds native_relations (or equivalent) so colony–native relationships are first-class.
-- **History** — Richer EventType granularity (e.g. NATURAL_DISASTER, PLAGUE, WAR, CIVIL_WAR, COLLAPSE) and profile-driven event weights for coherent timelines.
-
-**Deferred (optional later):** Carrying-capacity and compound growth for colony population over time; can be added once basic colony generation is stable.
-
----
-
-## Open Questions (to resolve during implementation)
-
-- **Serialization:** Do we persist Profile/ColonySuitability, or always recompute from body when needed? (Affects whether we add serialization for these in this plan.)
-- **RNG:** Which population steps (e.g. “native from spec”, “colony founding”) need RNG, and how do we inject it so determinism is preserved?
-- **Naming:** Final names for “Planet Profile” vs “HabitabilityProfile” vs “PlanetSummary” and for “ColonySuitability” vs “SettlementSuitability” to match project vocabulary.
-
-This plan is the single reference for implementing the population framework on the `population` branch. When the branch is merged, this document can be updated to reflect the as-built design and any phase in the main roadmap that adopts it.

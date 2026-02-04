@@ -8,3 +8,18 @@ const _climate_zone: GDScript = preload("res://src/domain/population/ClimateZone
 const _biome_type: GDScript = preload("res://src/domain/population/BiomeType.gd")
 const _resource_type: GDScript = preload("res://src/domain/population/ResourceType.gd")
 const _habitability_category: GDScript = preload("res://src/domain/population/HabitabilityCategory.gd")
+# Population framework (Government/Regime, Tech level) - load before NativePopulation so types resolve
+const _government_type: GDScript = preload("res://src/domain/population/GovernmentType.gd")
+const _technology_level: GDScript = preload("res://src/domain/population/TechnologyLevel.gd")
+const _government: GDScript = preload("res://src/domain/population/Government.gd")
+# Population framework (Stage 4: NativePopulation) - load so class_name is registered before tests
+const _native_population: GDScript = preload("res://src/domain/population/NativePopulation.gd")
+const _native_population_generator: GDScript = preload("res://src/domain/population/NativePopulationGenerator.gd")
+# Population framework (Stage 5: Colony)
+const _colony_type: GDScript = preload("res://src/domain/population/ColonyType.gd")
+const _native_relation: GDScript = preload("res://src/domain/population/NativeRelation.gd")
+const _colony: GDScript = preload("res://src/domain/population/Colony.gd")
+const _colony_generator: GDScript = preload("res://src/domain/population/ColonyGenerator.gd")
+# Population framework (Stage 6: Integration boundary)
+const _planet_population_data: GDScript = preload("res://src/domain/population/PlanetPopulationData.gd")
+const _population_generator: GDScript = preload("res://src/domain/population/PopulationGenerator.gd")
