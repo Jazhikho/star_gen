@@ -3,7 +3,7 @@
 class_name SizeTable
 extends RefCounted
 
-const _seeded_rng := preload("res://src/domain/rng/SeededRng.gd")
+const _seeded_rng: GDScript = preload("res://src/domain/rng/SeededRng.gd")
 
 
 ## Mass ranges in Earth masses for each size category.
@@ -30,7 +30,7 @@ const RADIUS_RANGES: Dictionary = {
 }
 
 
-## Typical density ranges in kg/m³ for each size category.
+## Typical density ranges in kg/mÂ³ for each size category.
 const DENSITY_RANGES: Dictionary = {
 	SizeCategory.Category.DWARF: {"min": 1500.0, "max": 3500.0},
 	SizeCategory.Category.SUB_TERRESTRIAL: {"min": 3000.0, "max": 5500.0},
@@ -62,7 +62,7 @@ static func get_radius_range(category: SizeCategory.Category) -> Dictionary:
 
 ## Gets the density range for a size category.
 ## @param category: The size category.
-## @return: Dictionary with "min" and "max" in kg/m³.
+## @return: Dictionary with "min" and "max" in kg/mÂ³.
 static func get_density_range(category: SizeCategory.Category) -> Dictionary:
 	if DENSITY_RANGES.has(category):
 		return DENSITY_RANGES[category]
@@ -110,7 +110,7 @@ static func random_radius_earth(category: SizeCategory.Category, rng: SeededRng)
 ## Generates a random density within a size category.
 ## @param category: The size category.
 ## @param rng: The random number generator.
-## @return: Density in kg/m³.
+## @return: Density in kg/mÂ³.
 static func random_density(category: SizeCategory.Category, rng: SeededRng) -> float:
 	var range_data: Dictionary = get_density_range(category)
 	return rng.randf_range(range_data["min"], range_data["max"])
@@ -118,7 +118,7 @@ static func random_density(category: SizeCategory.Category, rng: SeededRng) -> f
 
 ## Calculates radius from mass and density.
 ## @param mass_kg: Mass in kilograms.
-## @param density_kg_m3: Density in kg/m³.
+## @param density_kg_m3: Density in kg/mÂ³.
 ## @return: Radius in meters.
 static func radius_from_mass_density(mass_kg: float, density_kg_m3: float) -> float:
 	if density_kg_m3 <= 0.0:

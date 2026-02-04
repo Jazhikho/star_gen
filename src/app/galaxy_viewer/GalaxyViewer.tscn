@@ -1,9 +1,195 @@
-[gd_scene load_steps=2 format=3]
+[gd_scene load_steps=4 format=3]
 
 [ext_resource type="Script" path="res://src/app/galaxy_viewer/GalaxyViewer.gd" id="1"]
+[ext_resource type="Script" path="res://src/app/galaxy_viewer/GalaxyInspectorPanel.gd" id="2"]
+
+[sub_resource type="Environment" id="Environment_1"]
+background_mode = 1
+background_color = Color(0, 0, 0.02, 1)
+ambient_light_source = 1
+ambient_light_color = Color(0, 0, 0, 1)
+glow_enabled = true
+glow_intensity = 0.8
+glow_bloom = 0.2
+glow_hdr_threshold = 0.0
 
 [node name="GalaxyViewer" type="Node3D"]
 script = ExtResource("1")
 galaxy_seed = 42
 num_points = 100000
 star_size = 80.0
+start_at_home = true
+
+[node name="Environment" type="Node3D" parent="."]
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="Environment"]
+environment = SubResource("Environment_1")
+
+[node name="UI" type="CanvasLayer" parent="."]
+layer = 5
+
+[node name="UIRoot" type="Control" parent="UI"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+
+[node name="TopBar" type="Panel" parent="UI/UIRoot"]
+layout_mode = 0
+custom_minimum_size = Vector2(0, 50)
+anchor_right = 1.0
+offset_bottom = 50.0
+
+[node name="MarginContainer" type="MarginContainer" parent="UI/UIRoot/TopBar"]
+layout_mode = 0
+anchor_right = 1.0
+anchor_bottom = 1.0
+theme_override_constants/margin_left = 10
+theme_override_constants/margin_top = 8
+theme_override_constants/margin_right = 10
+theme_override_constants/margin_bottom = 8
+
+[node name="HBoxContainer" type="HBoxContainer" parent="UI/UIRoot/TopBar/MarginContainer"]
+layout_mode = 2
+theme_override_constants/separation = 20
+
+[node name="TitleLabel" type="Label" parent="UI/UIRoot/TopBar/MarginContainer/HBoxContainer"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 18
+text = "StarGen Galaxy Viewer"
+
+[node name="VSeparator" type="VSeparator" parent="UI/UIRoot/TopBar/MarginContainer/HBoxContainer"]
+layout_mode = 2
+
+[node name="StatusLabel" type="Label" parent="UI/UIRoot/TopBar/MarginContainer/HBoxContainer"]
+layout_mode = 2
+modulate = Color(0.7, 0.7, 0.7, 1)
+text = "Ready"
+
+[node name="SidePanel" type="Panel" parent="UI/UIRoot"]
+layout_mode = 0
+custom_minimum_size = Vector2(320, 0)
+anchor_bottom = 1.0
+offset_top = 50.0
+offset_right = 320.0
+
+[node name="MarginContainer" type="MarginContainer" parent="UI/UIRoot/SidePanel"]
+layout_mode = 0
+anchor_right = 1.0
+anchor_bottom = 1.0
+theme_override_constants/margin_left = 10
+theme_override_constants/margin_top = 10
+theme_override_constants/margin_right = 10
+theme_override_constants/margin_bottom = 10
+
+[node name="ScrollContainer" type="ScrollContainer" parent="UI/UIRoot/SidePanel/MarginContainer"]
+layout_mode = 2
+mouse_filter = 0
+
+[node name="VBoxContainer" type="VBoxContainer" parent="UI/UIRoot/SidePanel/MarginContainer/ScrollContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 8
+
+[node name="GenerationSection" type="VBoxContainer" parent="UI/UIRoot/SidePanel/MarginContainer/ScrollContainer/VBoxContainer"]
+layout_mode = 2
+theme_override_constants/separation = 5
+
+[node name="GenerationLabel" type="Label" parent="UI/UIRoot/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/GenerationSection"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 14
+text = "Galaxy Generation"
+
+[node name="SeedContainer" type="HBoxContainer" parent="UI/UIRoot/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/GenerationSection"]
+layout_mode = 2
+
+[node name="SeedLabel" type="Label" parent="UI/UIRoot/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/GenerationSection/SeedContainer"]
+custom_minimum_size = Vector2(60, 0)
+layout_mode = 2
+text = "Seed:"
+
+[node name="SeedInput" type="SpinBox" parent="UI/UIRoot/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/GenerationSection/SeedContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+max_value = 999999.0
+value = 42.0
+rounded = true
+editable = false
+
+[node name="HSeparator1" type="HSeparator" parent="UI/UIRoot/SidePanel/MarginContainer/ScrollContainer/VBoxContainer"]
+layout_mode = 2
+
+[node name="ViewSection" type="VBoxContainer" parent="UI/UIRoot/SidePanel/MarginContainer/ScrollContainer/VBoxContainer"]
+layout_mode = 2
+theme_override_constants/separation = 5
+
+[node name="ViewLabel" type="Label" parent="UI/UIRoot/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/ViewSection"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 14
+text = "View Options"
+
+[node name="ShowCompassCheck" type="CheckBox" parent="UI/UIRoot/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/ViewSection"]
+layout_mode = 2
+button_pressed = true
+text = "Show Compass"
+
+[node name="HSeparator1b" type="HSeparator" parent="UI/UIRoot/SidePanel/MarginContainer/ScrollContainer/VBoxContainer"]
+layout_mode = 2
+
+[node name="SaveLoadSection" type="VBoxContainer" parent="UI/UIRoot/SidePanel/MarginContainer/ScrollContainer/VBoxContainer"]
+layout_mode = 2
+theme_override_constants/separation = 5
+
+[node name="SaveLoadLabel" type="Label" parent="UI/UIRoot/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/SaveLoadSection"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 14
+text = "Save / Load"
+
+[node name="ButtonContainer" type="HBoxContainer" parent="UI/UIRoot/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/SaveLoadSection"]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="SaveButton" type="Button" parent="UI/UIRoot/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/SaveLoadSection/ButtonContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Save"
+
+[node name="LoadButton" type="Button" parent="UI/UIRoot/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/SaveLoadSection/ButtonContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Load"
+
+[node name="NewGalaxyButton" type="Button" parent="UI/UIRoot/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/SaveLoadSection"]
+layout_mode = 2
+text = "New Galaxy..."
+
+[node name="HSeparator2" type="HSeparator" parent="UI/UIRoot/SidePanel/MarginContainer/ScrollContainer/VBoxContainer"]
+layout_mode = 2
+
+[node name="InspectorPanel" type="VBoxContainer" parent="UI/UIRoot/SidePanel/MarginContainer/ScrollContainer/VBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 4
+script = ExtResource("2")
+
+[node name="HSeparator3" type="HSeparator" parent="UI/UIRoot/SidePanel/MarginContainer/ScrollContainer/VBoxContainer"]
+layout_mode = 2
+
+[node name="ControlsLabel" type="Label" parent="UI/UIRoot/SidePanel/MarginContainer/ScrollContainer/VBoxContainer"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 14
+text = "Controls"
+
+[node name="ControlsInfo" type="Label" parent="UI/UIRoot/SidePanel/MarginContainer/ScrollContainer/VBoxContainer"]
+layout_mode = 2
+modulate = Color(0.8, 0.8, 0.8, 1)
+theme_override_font_sizes/font_size = 11
+text = "• [ / ]: Zoom out / in
+• Click: Select
+• Enter: Open system
+• Escape: Deselect
+• WASD: Move (star view)
+• Mouse: Look (star view)"

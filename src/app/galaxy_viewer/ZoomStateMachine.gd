@@ -19,6 +19,20 @@ func get_current_level() -> int:
 	return _current_level
 
 
+## Sets the zoom level directly without transition validation.
+## Used for initialization to a specific level.
+## @param level: Target zoom level.
+func set_level(level: int) -> void:
+	if level < GalaxyCoordinates.ZoomLevel.GALAXY or level > GalaxyCoordinates.ZoomLevel.SUBSECTOR:
+		return
+
+	var old_level: int = _current_level
+	_current_level = level
+
+	if old_level != _current_level:
+		level_changed.emit(old_level, _current_level)
+
+
 ## Transitions directly to a specific zoom level.
 ## Does nothing if already at that level.
 ## @param new_level: Target GalaxyCoordinates.ZoomLevel value.

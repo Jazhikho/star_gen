@@ -27,7 +27,7 @@ func build_for_sector(
 	galaxy_seed: int,
 	quadrant_coords: Vector3i,
 	sector_local_coords: Vector3i,
-	density_model: SpiralDensityModel,
+	density_model: DensityModelInterface,
 	reference_density: float
 ) -> void:
 	_star_data = SubSectorGenerator.generate_sector_stars(

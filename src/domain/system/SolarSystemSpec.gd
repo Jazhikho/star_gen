@@ -3,7 +3,7 @@
 class_name SolarSystemSpec
 extends RefCounted
 
-const _star_class := preload("res://src/domain/generation/archetypes/StarClass.gd")
+const _star_class: GDScript = preload("res://src/domain/generation/archetypes/StarClass.gd")
 
 
 ## The seed used for deterministic generation.

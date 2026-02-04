@@ -1,16 +1,16 @@
 ## Unit tests for MoonGenerator.
 extends TestCase
 
-const _phase1_deps := preload("res://Tests/Phase1Deps.gd")
+const _phase1_deps: GDScript = preload("res://Tests/Phase1Deps.gd")
 
-const _moon_generator := preload("res://src/domain/generation/generators/MoonGenerator.gd")
-const _moon_spec := preload("res://src/domain/generation/specs/MoonSpec.gd")
-const _parent_context := preload("res://src/domain/generation/ParentContext.gd")
-const _seeded_rng := preload("res://src/domain/rng/SeededRng.gd")
-const _size_category := preload("res://src/domain/generation/archetypes/SizeCategory.gd")
-const _celestial_type := preload("res://src/domain/celestial/CelestialType.gd")
-const _units := preload("res://src/domain/math/Units.gd")
-const _stellar_props := preload("res://src/domain/celestial/components/StellarProps.gd")
+const _moon_generator: GDScript = preload("res://src/domain/generation/generators/MoonGenerator.gd")
+const _moon_spec: GDScript = preload("res://src/domain/generation/specs/MoonSpec.gd")
+const _parent_context: GDScript = preload("res://src/domain/generation/ParentContext.gd")
+const _seeded_rng: GDScript = preload("res://src/domain/rng/SeededRng.gd")
+const _size_category: GDScript = preload("res://src/domain/generation/archetypes/SizeCategory.gd")
+const _celestial_type: GDScript = preload("res://src/domain/celestial/CelestialType.gd")
+const _units: GDScript = preload("res://src/domain/math/Units.gd")
+const _stellar_props: GDScript = preload("res://src/domain/celestial/components/StellarProps.gd")
 
 
 ## Creates a Jupiter-like parent context for moon generation.

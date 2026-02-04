@@ -4,7 +4,7 @@
 class_name SystemCameraController
 extends Camera3D
 
-const _units := preload("res://src/domain/math/Units.gd")
+const _units: GDScript = preload("res://src/domain/math/Units.gd")
 
 
 ## Zoom speed (scroll sensitivity).

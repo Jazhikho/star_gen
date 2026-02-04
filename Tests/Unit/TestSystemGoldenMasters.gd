@@ -2,12 +2,12 @@
 ## Ensures generated systems remain deterministic across code changes.
 extends TestCase
 
-const _system_fixture_generator := preload("res://src/domain/system/fixtures/SystemFixtureGenerator.gd")
-const _system_serializer := preload("res://src/domain/system/SystemSerializer.gd")
-const _system_validator := preload("res://src/domain/system/SystemValidator.gd")
-const _solar_system_spec := preload("res://src/domain/system/SolarSystemSpec.gd")
-const _solar_system := preload("res://src/domain/system/SolarSystem.gd")
-const _validation_result := preload("res://src/domain/celestial/validation/ValidationResult.gd")
+const _system_fixture_generator: GDScript = preload("res://src/domain/system/fixtures/SystemFixtureGenerator.gd")
+const _system_serializer: GDScript = preload("res://src/domain/system/SystemSerializer.gd")
+const _system_validator: GDScript = preload("res://src/domain/system/SystemValidator.gd")
+const _solar_system_spec: GDScript = preload("res://src/domain/system/SolarSystemSpec.gd")
+const _solar_system: GDScript = preload("res://src/domain/system/SolarSystem.gd")
+const _validation_result: GDScript = preload("res://src/domain/celestial/validation/ValidationResult.gd")
 
 
 ## Cached fixtures for testing.
@@ -185,6 +185,6 @@ func _verify_fixture_regenerates(fixture: Dictionary) -> void:
 		assert_float_equal(
 			orig_stars[i].physical.mass_kg,
 			regen_stars[i].physical.mass_kg,
-			orig_stars[i].physical.mass_kg * 0.001,  # 0.1% tolerance
+			orig_stars[i].physical.mass_kg * 0.001, # 0.1% tolerance
 			"Star %d mass should match" % i
 		)

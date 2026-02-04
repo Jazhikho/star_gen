@@ -49,7 +49,7 @@ class NeighborhoodData:
 static func build(
 	camera_position: Vector3,
 	galaxy_seed: int,
-	density_model: SpiralDensityModel,
+	density_model: DensityModelInterface,
 	reference_density: float
 ) -> NeighborhoodData:
 	var data: NeighborhoodData = NeighborhoodData.new()

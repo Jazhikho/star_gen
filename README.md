@@ -6,9 +6,9 @@ Built with **Godot 4.x** and **GDScript**.
 
 ## Project Status
 
-**Current Phase**: Phase 6 - Solar system generator and viewer (Stages 1-11 Complete, Stage 12 Deferred)
+**Current Phase**: Phase 7 - Galactic map v1 (in progress)
 
-**Next Phase**: Phase 7 - Galactic map v1 (galaxy browser + lazy system generation)
+**Phase 6**: ✅ Complete - Solar system generator and viewer (Stages 1-11 Complete, Stage 12 Deferred)
 
 **Phase 0**: ✅ Complete - Foundations, deterministic RNG, math/validation utilities, and test framework
 
@@ -118,11 +118,75 @@ Built with **Godot 4.x** and **GDScript**.
 - ✅ Zone visualization (habitable zone and frost line rings)
 - ✅ View toggles (show/hide orbits and zones)
 - ✅ System generation UI (star count, seed input, generate/reroll buttons)
-- ⏳ Save/load UI for systems (deferred to Phase 9 - Solar system polish)
+- ⏳ Save/load UI for systems (deferred to Phase 12 - Solar system polish)
 
-**Test Status**: All 501 tests passing ✅
+**Phase 7 - Galactic map v1** (in progress):
+- ✅ Welcome screen: Start New Galaxy (with config), Load Galaxy, Quit; app shows welcome first, then creates galaxy viewer on Start or Load
+- ✅ GalaxyConfig: Galaxy generation parameters (type, spiral arms, pitch, ellipticity, irregularity, seed, etc.)
+- ✅ Galaxy types: Spiral, Elliptical, Irregular with dedicated density models (DensityModelInterface, SpiralDensityModel, EllipticalDensityModel, IrregularDensityModel)
+- ✅ DensitySampler: Type-specific star sampling; GalaxyCoordinates: galaxy-type-aware grid bounds
+- ✅ Galaxy viewer: 3D view with quadrant/sector/subsector zoom; MultiMesh star points with type-specific coloring; New Galaxy button
+- ✅ Save/load galaxy state (seed, zoom, camera, selection)
+- ⏳ Galaxy data model (Galaxy, Sector, GalaxyStar) and lazy system generation (future)
+
+**Test Status**: 951+ tests in suite; headless run reports passing (some integration tests expect pre-welcome flow and are being updated).
+
+### Branch: population (parallel concept)
+
+The **population** branch develops a **population framework for planets** (native populations and their history, plus colonies). It is documented in [Docs/Roadmap.md](Docs/Roadmap.md) under "Branch: population (parallel concept)" and in [Docs/PopulationFrameworkPlan.md](Docs/PopulationFrameworkPlan.md). This work is intentionally separate from the main roadmap for now; it can be run and tested independently, while the normal test suite for the main app continues to run unchanged. The framework will be integrated into the main branch when ready.
+
+- **Stage 1 (Planet Profile Model):** ✅ Complete — PlanetProfile, ClimateZone, BiomeType, ResourceType, HabitabilityCategory; unit tests in `Tests/Unit/Population/`.
 
 See [claude.md](claude.md) for detailed architecture, roadmap, and working agreement.
+
+### Galaxy randomization, welcome screen, and galaxy types (merged)
+
+1. **Welcome screen** — On startup, the app shows a welcome screen (Start New Galaxy, Load Galaxy, Quit). Start New Galaxy uses **GalaxyConfig** (type, spiral arms, pitch, ellipticity, irregularity, seed, etc.) and passes config + seed into the galaxy viewer.
+2. **Galaxy types** — Supported types: **Spiral** (arm-based density), **Elliptical** (3D Gaussian ellipsoid), **Irregular** (noise-based 3D blob). Each type uses a dedicated density model (`DensityModelInterface` → `SpiralDensityModel`, `EllipticalDensityModel`, `IrregularDensityModel`) so sampling, quadrant view, and star counts are consistent.
+3. **Startup galaxy randomization** — When starting a new galaxy, the seed can be random or user-specified. MainApp creates the galaxy viewer only after the user chooses Start or Load.
+4. **Save and load of galaxies** — Users can save the current galaxy (seed + view state) to a file and load a previously saved galaxy. Save/load UI and persistence work with the welcome-screen flow; loaded galaxies restore seed and view state.
+5. **New Galaxy** — In the galaxy viewer, a "New Galaxy..." button returns to the welcome screen to generate a different galaxy without restarting the app.
+
+**Contributor minimum file list** (files involved in galaxy welcome screen, types, and save/load):
+
+| Purpose | File |
+|--------|------|
+| Welcome screen first; Start/Load/Quit; pass config + seed to galaxy viewer | `src/app/MainApp.gd` |
+| Welcome screen UI (Start New Galaxy, Load, Quit; config options; seed) | `src/app/WelcomeScreen.gd`, `src/app/WelcomeScreen.tscn` |
+| Galaxy generation parameters (type, arms, pitch, ellipticity, irregularity, etc.) | `src/domain/galaxy/GalaxyConfig.gd` |
+| Density models (spiral, elliptical, irregular) | `src/domain/galaxy/DensityModelInterface.gd`, `SpiralDensityModel.gd`, `EllipticalDensityModel.gd`, `IrregularDensityModel.gd` |
+| Galaxy sampling by type | `src/domain/galaxy/DensitySampler.gd` |
+| Galaxy viewer controller; seed/config; save/load; New Galaxy | `src/app/galaxy_viewer/GalaxyViewer.gd` |
+| Save/load logic (create_save_data, apply_save_data, file dialogs) | `src/app/galaxy_viewer/GalaxyViewerSaveLoad.gd` |
+| Galaxy viewer scene (Save/Load buttons, seed UI) | `src/app/galaxy_viewer/GalaxyViewer.tscn` |
+| Save format (galaxy_seed, zoom, camera, selection) | `src/domain/galaxy/GalaxySaveData.gd` |
+| File I/O for galaxy save/load | `src/services/persistence/GalaxyPersistence.gd` |
+| Galaxy spec (how seed drives generation; reference only) | `src/domain/galaxy/GalaxySpec.gd` |
+| Galaxy grid bounds by type | `src/domain/galaxy/GalaxyCoordinates.gd` |
+| Dependency preload for galaxy viewer (reference only) | `src/app/galaxy_viewer/GalaxyViewerDeps.gd` |
+
+**Tests** (added or updated for this branch):
+
+| Test file | Purpose |
+|-----------|---------|
+| `Tests/Unit/TestGalaxyConfig.gd` | GalaxyConfig defaults, create_milky_way, validation. |
+| `Tests/Integration/TestWelcomeScreen.gd` | Welcome screen signals and UI behavior. |
+| `Tests/Integration/TestGalaxyStartup.gd` | MainApp shows welcome first; start new galaxy flow. |
+| `Tests/Integration/TestGalaxyRandomization.gd` | Random seed generation and viewer receipt of seed/config. |
+| `Tests/Integration/TestMainAppNavigation.gd` | Navigation and galaxy seed (non-zero when galaxy active). |
+| `Tests/Unit/TestGalaxySaveData.gd` | Save-format round-trip. |
+| `Tests/Integration/TestGalaxyPersistence.gd` | Save/load JSON and binary round-trip including `galaxy_seed`. |
+| `Tests/domain/galaxy/TestDensitySampler.gd` | Spiral/elliptical/irregular sampling, no-disk elliptical, 3D distribution tests. |
+
+**Scenes** (minimum scenes involved in this branch):
+
+| Scene | Purpose |
+|-------|---------|
+| `src/app/MainApp.tscn` | Root scene (`run/main_scene`). Holds `ViewerContainer`; MainApp.gd shows WelcomeScreen first, then instantiates GalaxyViewer on Start or Load. |
+| `src/app/WelcomeScreen.tscn` | Welcome screen: Start New Galaxy (with config), Load Galaxy, Quit. |
+| `src/app/galaxy_viewer/GalaxyViewer.tscn` | Galaxy viewer: UI (TopBar, SidePanel), Save/Load section, seed input. |
+
+MainApp shows WelcomeScreen first; GalaxyViewer is created only after Start New Galaxy or Load Galaxy.
 
 ## Project Structure
 
@@ -200,6 +264,16 @@ star_gen/
 │   │   │   ├── StellarConfigGenerator.gd # Stellar configuration generator
 │   │   │   ├── OrbitSlot.gd            # Candidate orbital position
 │   │   │   └── OrbitSlotGenerator.gd   # Orbit slot generator
+│   │   ├── galaxy/                 # Galaxy-scale data and generation
+│   │   │   ├── GalaxyConfig.gd    # Galaxy generation parameters (type, arms, ellipticity, etc.)
+│   │   │   ├── GalaxySaveData.gd   # Save format (seed, zoom, camera, selection)
+│   │   │   ├── GalaxySpec.gd       # How seed drives galaxy generation
+│   │   │   ├── DensityModelInterface.gd  # Base for density models; create_for_spec(spec)
+│   │   │   ├── SpiralDensityModel.gd     # Spiral arm + bulge + disk density
+│   │   │   ├── EllipticalDensityModel.gd # 3D Gaussian ellipsoid
+│   │   │   ├── IrregularDensityModel.gd  # Noise-based 3D blob
+│   │   │   ├── DensitySampler.gd   # Type-specific star sampling
+│   │   │   └── ... (coordinates, subsectors, etc.)
 │   │   ├── math/                   # Math utilities
 │   │   │   ├── MathUtils.gd       # Range checking, remapping, interpolation
 │   │   │   └── Units.gd            # Physical constants and unit conversions
@@ -216,6 +290,18 @@ star_gen/
 │   └── app/                        # Application layer (UI, scenes, rendering)
 │       ├── MainApp.gd             # Root application controller (navigation)
 │       ├── MainApp.tscn           # Root application scene
+│       ├── WelcomeScreen.gd       # Startup screen (Start New / Load / Quit)
+│       ├── WelcomeScreen.tscn    # Welcome screen scene
+│       ├── components/           # Reusable UI components
+│       │   └── CollapsibleSection.gd/.tscn
+│       ├── themes/                # UI themes
+│       │   └── DarkTheme.tres
+│       ├── galaxy_viewer/         # Galaxy map viewer
+│       │   ├── GalaxyViewer.gd    # Galaxy viewer controller
+│       │   ├── GalaxyViewer.tscn  # Galaxy viewer scene
+│       │   ├── GalaxyViewerSaveLoad.gd # Save/load logic
+│       │   ├── OrbitCamera.gd     # Galaxy orbit camera
+│       │   └── ... (renderers, UI, zoom, etc.)
 │       ├── viewer/                # Object viewer
 │       │   ├── ObjectViewer.tscn  # Main viewer scene
 │       │   ├── ObjectViewer.gd    # Viewer controller

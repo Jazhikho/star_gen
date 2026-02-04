@@ -3,11 +3,11 @@
 class_name GeneratorUtils
 extends RefCounted
 
-const _seeded_rng := preload("res://src/domain/rng/SeededRng.gd")
-const _provenance := preload("res://src/domain/celestial/Provenance.gd")
-const _versions := preload("res://src/domain/constants/Versions.gd")
-const _parent_context := preload("res://src/domain/generation/ParentContext.gd")
-const _base_spec := preload("res://src/domain/generation/specs/BaseSpec.gd")
+const _seeded_rng: GDScript = preload("res://src/domain/rng/SeededRng.gd")
+const _provenance: GDScript = preload("res://src/domain/celestial/Provenance.gd")
+const _versions: GDScript = preload("res://src/domain/constants/Versions.gd")
+const _parent_context: GDScript = preload("res://src/domain/generation/ParentContext.gd")
+const _base_spec: GDScript = preload("res://src/domain/generation/specs/BaseSpec.gd")
 
 
 ## Generates a unique ID for a celestial body.

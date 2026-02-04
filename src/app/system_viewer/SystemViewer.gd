@@ -6,16 +6,19 @@ extends Node3D
 ## Signal emitted when a body should be opened in the object viewer.
 signal open_body_in_viewer(body: CelestialBody)
 
-const _solar_system := preload("res://src/domain/system/SolarSystem.gd")
-const _solar_system_spec := preload("res://src/domain/system/SolarSystemSpec.gd")
-const _system_fixture_generator := preload("res://src/domain/system/fixtures/SystemFixtureGenerator.gd")
-const _celestial_body := preload("res://src/domain/celestial/CelestialBody.gd")
-const _celestial_type := preload("res://src/domain/celestial/CelestialType.gd")
-const _system_scale_manager := preload("res://src/app/system_viewer/SystemScaleManager.gd")
-const _system_body_node_scene := preload("res://src/app/system_viewer/SystemBodyNode.tscn")
-const _orbit_renderer := preload("res://src/app/system_viewer/OrbitRenderer.gd")
-const _orbit_host := preload("res://src/domain/system/OrbitHost.gd")
-const _units := preload("res://src/domain/math/Units.gd")
+## Signal emitted when the user wants to go back to the galaxy viewer.
+signal back_to_galaxy_requested
+
+const _solar_system: GDScript = preload("res://src/domain/system/SolarSystem.gd")
+const _solar_system_spec: GDScript = preload("res://src/domain/system/SolarSystemSpec.gd")
+const _system_fixture_generator: GDScript = preload("res://src/domain/system/fixtures/SystemFixtureGenerator.gd")
+const _celestial_body: GDScript = preload("res://src/domain/celestial/CelestialBody.gd")
+const _celestial_type: GDScript = preload("res://src/domain/celestial/CelestialType.gd")
+const _system_scale_manager: GDScript = preload("res://src/app/system_viewer/SystemScaleManager.gd")
+const _system_body_node_scene: PackedScene = preload("res://src/app/system_viewer/SystemBodyNode.tscn")
+const _orbit_renderer: GDScript = preload("res://src/app/system_viewer/OrbitRenderer.gd")
+const _orbit_host: GDScript = preload("res://src/domain/system/OrbitHost.gd")
+const _units: GDScript = preload("res://src/domain/math/Units.gd")
 
 ## UI element references
 @onready var status_label: Label = $UI/TopBar/MarginContainer/HBoxContainer/StatusLabel
@@ -46,7 +49,7 @@ var current_system: SolarSystem = null
 var selected_body_id: String = ""
 
 ## Scale manager for coordinate conversion
-var scale_manager: SystemScaleManager = null
+var scale_manager: SystemScaleManager = SystemScaleManager.new()
 
 ## Body node references (body_id -> SystemBodyNode)
 var body_nodes: Dictionary = {}
@@ -59,8 +62,6 @@ var is_ready: bool = false
 
 
 func _ready() -> void:
-	scale_manager = SystemScaleManager.new()
-	
 	_setup_viewport()
 	_setup_camera()
 	_setup_generation_ui()
@@ -120,19 +121,32 @@ func _setup_orbit_renderer() -> void:
 func _connect_signals() -> void:
 	if generate_button:
 		generate_button.pressed.connect(_on_generate_pressed)
-	
+
 	if reroll_button:
 		reroll_button.pressed.connect(_on_reroll_pressed)
-	
+
 	if show_orbits_check:
 		show_orbits_check.toggled.connect(_on_show_orbits_toggled)
-	
+
 	if show_zones_check:
 		show_zones_check.toggled.connect(_on_show_zones_toggled)
-	
+
 	# Connect inspector panel signals
 	if inspector_panel:
 		inspector_panel.open_in_viewer_requested.connect(_on_open_body_in_viewer)
+
+	# Connect back button if present (back to galaxy)
+	var back_button: Button = get_node_or_null("UI/TopBar/MarginContainer/HBoxContainer/BackButton")
+	if back_button:
+		back_button.pressed.connect(_on_back_pressed)
+
+
+## Handles back button press to return to galaxy view.
+func _on_back_pressed() -> void:
+	back_to_galaxy_requested.emit()
+
+
+## TODO: Add Escape key in _unhandled_input to emit back_to_galaxy_requested for consistency with back button.
 
 
 ## Handles generate button press.
@@ -188,21 +202,27 @@ func display_system(system: SolarSystem) -> void:
 	if not system:
 		clear_display()
 		return
-	
+
 	current_system = system
-	
+
 	_clear_bodies()
 	_clear_orbits()
 	_clear_zones()
-	
+
 	_create_body_nodes()
 	_create_orbit_visualizations()
 	_create_zone_visualizations()
-	
+
 	_update_inspector_system()
-	
+
 	_debug_system_distances()
 	_fit_camera_to_system()
+
+	# Update status with system summary
+	if system.name and not system.name.is_empty():
+		set_status("Viewing: %s" % system.name)
+	else:
+		set_status("Generated: %s" % system.get_summary())
 
 
 ## Prints orbital distance debug information for the current system.
@@ -266,7 +286,9 @@ func _format_scientific(value: float) -> String:
 
 ## Fits the camera zoom to show the entire system.
 func _fit_camera_to_system() -> void:
-	if not current_system or not camera:
+	if not camera:
+		return
+	if not current_system:
 		camera.focus_on_origin()
 		return
 	
@@ -469,7 +491,7 @@ func _calculate_body_position(body: CelestialBody) -> Vector3:
 		# Stars at system center (or barycenter for binaries)
 		return Vector3.ZERO
 	
-	var orbital = body.orbital
+	var orbital: OrbitalProps = body.orbital
 	
 	# Get parent position
 	var parent_pos: Vector3 = Vector3.ZERO
@@ -514,7 +536,7 @@ func _create_orbit_path(body: CelestialBody) -> void:
 	if not body.has_orbital():
 		return
 	
-	var orbital = body.orbital
+	var orbital: OrbitalProps = body.orbital
 	
 	# Generate orbit points
 	var points: PackedVector3Array = scale_manager.generate_orbit_points(

@@ -3,18 +3,18 @@
 class_name StarGenerator
 extends RefCounted
 
-const _star_spec := preload("res://src/domain/generation/specs/StarSpec.gd")
-const _star_class := preload("res://src/domain/generation/archetypes/StarClass.gd")
-const _star_table := preload("res://src/domain/generation/tables/StarTable.gd")
-const _generator_utils_script := preload("res://src/domain/generation/generators/GeneratorUtils.gd")
-const _celestial_body := preload("res://src/domain/celestial/CelestialBody.gd")
-const _celestial_type := preload("res://src/domain/celestial/CelestialType.gd")
-const _physical_props := preload("res://src/domain/celestial/components/PhysicalProps.gd")
-const _stellar_props := preload("res://src/domain/celestial/components/StellarProps.gd")
-const _provenance := preload("res://src/domain/celestial/Provenance.gd")
-const _versions := preload("res://src/domain/constants/Versions.gd")
-const _units := preload("res://src/domain/math/Units.gd")
-const _seeded_rng := preload("res://src/domain/rng/SeededRng.gd")
+const _star_spec: GDScript = preload("res://src/domain/generation/specs/StarSpec.gd")
+const _star_class: GDScript = preload("res://src/domain/generation/archetypes/StarClass.gd")
+const _star_table: GDScript = preload("res://src/domain/generation/tables/StarTable.gd")
+const _generator_utils_script: GDScript = preload("res://src/domain/generation/generators/GeneratorUtils.gd")
+const _celestial_body: GDScript = preload("res://src/domain/celestial/CelestialBody.gd")
+const _celestial_type: GDScript = preload("res://src/domain/celestial/CelestialType.gd")
+const _physical_props: GDScript = preload("res://src/domain/celestial/components/PhysicalProps.gd")
+const _stellar_props: GDScript = preload("res://src/domain/celestial/components/StellarProps.gd")
+const _provenance: GDScript = preload("res://src/domain/celestial/Provenance.gd")
+const _versions: GDScript = preload("res://src/domain/constants/Versions.gd")
+const _units: GDScript = preload("res://src/domain/math/Units.gd")
+const _seeded_rng: GDScript = preload("res://src/domain/rng/SeededRng.gd")
 
 
 ## Spectral class distribution weights (M stars are most common).
@@ -144,7 +144,7 @@ static func _calculate_mass(
 	var mass_range: Dictionary = StarTable.get_mass_range(spectral_class)
 	var base_mass: float = StarTable.interpolate_by_subclass(spectral_class, subclass, mass_range)
 	
-	# Add small random variation (±5%)
+	# Add small random variation (Â±5%)
 	var variation: float = rng.randf_range(0.95, 1.05)
 	return base_mass * variation
 
@@ -166,7 +166,7 @@ static func _calculate_luminosity(
 	
 	var base_luminosity: float = StarTable.luminosity_from_mass(mass_solar)
 	
-	# Add small random variation (±10%)
+	# Add small random variation (Â±10%)
 	var variation: float = rng.randf_range(0.90, 1.10)
 	return base_luminosity * variation
 
@@ -188,9 +188,9 @@ static func _calculate_radius_from_luminosity_temperature(
 	if override_radius > 0.0:
 		return override_radius
 	
-	# Stefan-Boltzmann: L = 4πR²σT⁴
-	# Solving for R: R = sqrt(L / T⁴) * constant
-	# In solar units: R/R_sun = sqrt(L/L_sun) * (T_sun/T)²
+	# Stefan-Boltzmann: L = 4Ï€RÂ²ÏƒTâ´
+	# Solving for R: R = sqrt(L / Tâ´) * constant
+	# In solar units: R/R_sun = sqrt(L/L_sun) * (T_sun/T)Â²
 	var t_sun: float = 5778.0
 	var radius_solar: float = sqrt(luminosity_solar) * pow(t_sun / temperature_k, 2.0)
 	
@@ -217,7 +217,7 @@ static func _calculate_temperature(
 	var temp_range: Dictionary = StarTable.get_temperature_range(spectral_class)
 	var base_temp: float = StarTable.interpolate_by_subclass(spectral_class, subclass, temp_range)
 	
-	# Add small random variation (±3%)
+	# Add small random variation (Â±3%)
 	var variation: float = rng.randf_range(0.97, 1.03)
 	return base_temp * variation
 

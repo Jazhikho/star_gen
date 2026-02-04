@@ -1,13 +1,13 @@
 ## Integration tests for the ObjectViewer scene.
 extends TestCase
 
-const _object_viewer_scene := preload("res://src/app/viewer/ObjectViewer.tscn")
-const _phase1_deps := preload("res://Tests/Phase1Deps.gd")
-const _celestial_body := preload("res://src/domain/celestial/CelestialBody.gd")
-const _celestial_type := preload("res://src/domain/celestial/CelestialType.gd")
-const _physical_props := preload("res://src/domain/celestial/components/PhysicalProps.gd")
-const _units := preload("res://src/domain/math/Units.gd")
-const _camera_controller := preload("res://src/app/viewer/CameraController.gd")
+const _object_viewer_scene: PackedScene = preload("res://src/app/viewer/ObjectViewer.tscn")
+const _phase1_deps: GDScript = preload("res://Tests/Phase1Deps.gd")
+const _celestial_body: GDScript = preload("res://src/domain/celestial/CelestialBody.gd")
+const _celestial_type: GDScript = preload("res://src/domain/celestial/CelestialType.gd")
+const _physical_props: GDScript = preload("res://src/domain/celestial/components/PhysicalProps.gd")
+const _units: GDScript = preload("res://src/domain/math/Units.gd")
+const _camera_controller: GDScript = preload("res://src/app/viewer/CameraController.gd")
 
 
 ## Helper to safely add a viewer to the tree using deferred call.

@@ -1,14 +1,14 @@
 ## Unit tests for RingSystemGenerator.
 extends TestCase
 
-const _ring_system_generator := preload("res://src/domain/generation/generators/RingSystemGenerator.gd")
-const _ring_system_spec := preload("res://src/domain/generation/specs/RingSystemSpec.gd")
-const _ring_complexity := preload("res://src/domain/generation/archetypes/RingComplexity.gd")
-const _physical_props := preload("res://src/domain/celestial/components/PhysicalProps.gd")
-const _parent_context := preload("res://src/domain/generation/ParentContext.gd")
-const _seeded_rng := preload("res://src/domain/rng/SeededRng.gd")
-const _units := preload("res://src/domain/math/Units.gd")
-const _stellar_props := preload("res://src/domain/celestial/components/StellarProps.gd")
+const _ring_system_generator: GDScript = preload("res://src/domain/generation/generators/RingSystemGenerator.gd")
+const _ring_system_spec: GDScript = preload("res://src/domain/generation/specs/RingSystemSpec.gd")
+const _ring_complexity: GDScript = preload("res://src/domain/generation/archetypes/RingComplexity.gd")
+const _physical_props: GDScript = preload("res://src/domain/celestial/components/PhysicalProps.gd")
+const _parent_context: GDScript = preload("res://src/domain/generation/ParentContext.gd")
+const _seeded_rng: GDScript = preload("res://src/domain/rng/SeededRng.gd")
+const _units: GDScript = preload("res://src/domain/math/Units.gd")
+const _stellar_props: GDScript = preload("res://src/domain/celestial/components/StellarProps.gd")
 
 
 ## Creates Saturn-like physical properties for testing.

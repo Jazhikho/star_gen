@@ -2,9 +2,9 @@
 class_name OrbitTable
 extends RefCounted
 
-const _units := preload("res://src/domain/math/Units.gd")
-const _stellar_props := preload("res://src/domain/celestial/components/StellarProps.gd")
-const _seeded_rng := preload("res://src/domain/rng/SeededRng.gd")
+const _units: GDScript = preload("res://src/domain/math/Units.gd")
+const _stellar_props: GDScript = preload("res://src/domain/celestial/components/StellarProps.gd")
+const _seeded_rng: GDScript = preload("res://src/domain/rng/SeededRng.gd")
 
 
 ## Gets typical orbital distance range for a zone given stellar luminosity.
@@ -113,8 +113,8 @@ static func tidal_locking_timescale_years(
 		return 1.0e20
 	
 	# Simplified formula based on Peale (1977)
-	# τ ∝ a^6 * m / (M^2 * R^3)
-	# Using Earth as reference: τ_Earth ≈ 10^12 years at 1 AU
+	# Ï„ âˆ a^6 * m / (M^2 * R^3)
+	# Using Earth as reference: Ï„_Earth â‰ˆ 10^12 years at 1 AU
 	var a_au: float = orbital_distance_m / Units.AU_METERS
 	var m_earth: float = body_mass_kg / Units.EARTH_MASS_KG
 	var r_earth: float = body_radius_m / Units.EARTH_RADIUS_METERS

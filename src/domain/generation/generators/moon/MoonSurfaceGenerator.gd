@@ -3,14 +3,14 @@
 class_name MoonSurfaceGenerator
 extends RefCounted
 
-const _moon_spec := preload("res://src/domain/generation/specs/MoonSpec.gd")
-const _size_category := preload("res://src/domain/generation/archetypes/SizeCategory.gd")
-const _physical_props := preload("res://src/domain/celestial/components/PhysicalProps.gd")
-const _surface_props := preload("res://src/domain/celestial/components/SurfaceProps.gd")
-const _terrain_props := preload("res://src/domain/celestial/components/TerrainProps.gd")
-const _cryosphere_props := preload("res://src/domain/celestial/components/CryosphereProps.gd")
-const _parent_context := preload("res://src/domain/generation/ParentContext.gd")
-const _seeded_rng := preload("res://src/domain/rng/SeededRng.gd")
+const _moon_spec: GDScript = preload("res://src/domain/generation/specs/MoonSpec.gd")
+const _size_category: GDScript = preload("res://src/domain/generation/archetypes/SizeCategory.gd")
+const _physical_props: GDScript = preload("res://src/domain/celestial/components/PhysicalProps.gd")
+const _surface_props: GDScript = preload("res://src/domain/celestial/components/SurfaceProps.gd")
+const _terrain_props: GDScript = preload("res://src/domain/celestial/components/TerrainProps.gd")
+const _cryosphere_props: GDScript = preload("res://src/domain/celestial/components/CryosphereProps.gd")
+const _parent_context: GDScript = preload("res://src/domain/generation/ParentContext.gd")
+const _seeded_rng: GDScript = preload("res://src/domain/rng/SeededRng.gd")
 
 ## Water freezing point in Kelvin.
 const WATER_FREEZE_K: float = 273.15

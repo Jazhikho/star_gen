@@ -3,19 +3,19 @@
 class_name SystemPlanetGenerator
 extends RefCounted
 
-const _orbit_slot := preload("res://src/domain/system/OrbitSlot.gd")
-const _orbit_host := preload("res://src/domain/system/OrbitHost.gd")
-const _orbit_zone := preload("res://src/domain/generation/archetypes/OrbitZone.gd")
-const _size_category := preload("res://src/domain/generation/archetypes/SizeCategory.gd")
-const _planet_spec := preload("res://src/domain/generation/specs/PlanetSpec.gd")
-const _planet_generator := preload("res://src/domain/generation/generators/PlanetGenerator.gd")
-const _parent_context := preload("res://src/domain/generation/ParentContext.gd")
-const _celestial_body := preload("res://src/domain/celestial/CelestialBody.gd")
-const _celestial_validator := preload("res://src/domain/celestial/validation/CelestialValidator.gd")
-const _validation_result := preload("res://src/domain/celestial/validation/ValidationResult.gd")
-const _seeded_rng := preload("res://src/domain/rng/SeededRng.gd")
-const _units := preload("res://src/domain/math/Units.gd")
-const _stellar_props := preload("res://src/domain/celestial/components/StellarProps.gd")
+const _orbit_slot: GDScript = preload("res://src/domain/system/OrbitSlot.gd")
+const _orbit_host: GDScript = preload("res://src/domain/system/OrbitHost.gd")
+const _orbit_zone: GDScript = preload("res://src/domain/generation/archetypes/OrbitZone.gd")
+const _size_category: GDScript = preload("res://src/domain/generation/archetypes/SizeCategory.gd")
+const _planet_spec: GDScript = preload("res://src/domain/generation/specs/PlanetSpec.gd")
+const _planet_generator: GDScript = preload("res://src/domain/generation/generators/PlanetGenerator.gd")
+const _parent_context: GDScript = preload("res://src/domain/generation/ParentContext.gd")
+const _celestial_body: GDScript = preload("res://src/domain/celestial/CelestialBody.gd")
+const _celestial_validator: GDScript = preload("res://src/domain/celestial/validation/CelestialValidator.gd")
+const _validation_result: GDScript = preload("res://src/domain/celestial/validation/ValidationResult.gd")
+const _seeded_rng: GDScript = preload("res://src/domain/rng/SeededRng.gd")
+const _units: GDScript = preload("res://src/domain/math/Units.gd")
+const _stellar_props: GDScript = preload("res://src/domain/celestial/components/StellarProps.gd")
 
 
 ## Planet archetype weights by zone and size category.

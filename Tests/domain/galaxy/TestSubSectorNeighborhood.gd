@@ -4,13 +4,13 @@ extends TestCase
 
 
 var _spec: GalaxySpec
-var _model: SpiralDensityModel
+var _model: DensityModelInterface
 var _ref_density: float
 
 
 func before_each() -> void:
 	_spec = GalaxySpec.create_milky_way(42)
-	_model = SpiralDensityModel.new(_spec)
+	_model = DensityModelInterface.create_for_spec(_spec)
 	_ref_density = _model.get_density(Vector3(8000.0, 0.0, 0.0))
 
 

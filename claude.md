@@ -21,10 +21,13 @@ Phase 3: Object viewer v1
 Phase 4: Object editing v1
 Phase 5: Object rendering v2 (optional)
 Phase 6: Solar system generator + viewer
-Phase 7: Solar system constraints (locks)
-Phase 8: Solar system editing tools
-Phase 9: Galactic map v1
-Phase 10: Galactic constraints and editing
+Phase 7: Galactic map v1
+Phase 8: Solar system generator refinement
+Phase 9: Galactic generator refinement
+Phase 10: Solar system tools
+Phase 11: Galactic tools
+Phase 12: Solar system polish
+Phase 13: Galactic polish
 
 _See `Docs/Roadmap.md` for detailed phase descriptions, deliverables, tests, and acceptance criteria._
 
@@ -63,6 +66,7 @@ Never domain → services/app.
 
 ## Testing rules
 - All non-trivial logic changes ship with tests.
+- **When creating a new test script:** Add it to **both** `Tests/RunTestsHeadless.gd` and `Tests/TestScene.gd` (the `_test_scripts` array in each). The headless runner and the test scene must run the same set of tests. If the new tests depend on domain types that need preloading (e.g. population enums), add the required preload in both runners (e.g. `PopulationDeps.gd` in RunTestsHeadless and TestScene).
 - Categories:
   - Unit: encode/decode, generation invariants, validation, commands
   - Integration: scenes boot, load/save flows, viewer does not crash
@@ -91,6 +95,15 @@ No implementing backlog items unless the current phase explicitly includes them.
 
 ---
 
+## Branch: population (parallel concept)
+When working on the **population** branch:
+- The **population framework** is for planets: native populations (and their history) and colonies. It is documented in Docs/Roadmap.md under "Branch: population (parallel concept)."
+- This work is developed separately from the main roadmap; it will be integrated into main when ready.
+- The **normal test suite** (unit + integration for the main app) must remain runnable and green. Population code should be runnable separately for live/exploratory tests (e.g. dedicated scenes or runners) so main CI is not blocked.
+- Follow the same architecture (domain/services/app), typing, and doc conventions; keep population logic in its own area until merge.
+
+---
+
 ## Code style & conventions
 ### File organization
 - Domain logic: `src/domain/`
@@ -102,7 +115,8 @@ No implementing backlog items unless the current phase explicitly includes them.
 
 ### Naming
 - Files: PascalCase (e.g., `CelestialObject.gd`, `StarGenerator.gd`)
-- Folders: PascalCase (e.g., `Scripts/`, `Resources/`)
+- Structural folders under `src/`: snake_case (e.g., `domain/`, `services/`, `app/`)
+- Top-level folders: PascalCase (e.g., `Tests/`, `Docs/`, `Resources/`)
 - GDScript functions: snake_case (e.g., `generate_star()`, `validate_spec()`)
 - GDScript variables: snake_case (e.g., `object_seed`, `physical_props`)
 - Constants: UPPER_SNAKE_CASE (e.g., `MAX_RADIUS`, `DEFAULT_TEMPERATURE`)

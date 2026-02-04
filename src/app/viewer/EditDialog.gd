@@ -3,10 +3,10 @@
 class_name EditDialog
 extends Window
 
-const _celestial_type := preload("res://src/domain/celestial/CelestialType.gd")
-const _units := preload("res://src/domain/math/Units.gd")
-const _body_renderer := preload("res://src/app/rendering/BodyRenderer.gd")
-const _property_formatter := preload("res://src/app/viewer/PropertyFormatter.gd")
+const _celestial_type: GDScript = preload("res://src/domain/celestial/CelestialType.gd")
+const _units: GDScript = preload("res://src/domain/math/Units.gd")
+const _body_renderer: GDScript = preload("res://src/app/rendering/BodyRenderer.gd")
+const _property_formatter: GDScript = preload("res://src/app/viewer/PropertyFormatter.gd")
 
 ## Signal emitted when the user confirms edits
 signal edits_confirmed(body: CelestialBody)
@@ -63,7 +63,7 @@ const DERIVED_PREVIEW_COLOR: Color = Color(0.6, 0.7, 0.4)
 const WARNING_COLOR: Color = Color(0.9, 0.6, 0.2)
 const LABEL_MIN_WIDTH: float = 120.0
 
-## Density constraints by body type (kg/m³)
+## Density constraints by body type (kg/mÂ³)
 ## Stars: red giants (~0.0001) to red dwarfs (~100,000)
 const STAR_MIN_DENSITY: float = 0.0001
 const STAR_MAX_DENSITY: float = 150000.0
@@ -252,7 +252,7 @@ func _parse_spectral_class(spectral_class: String) -> Dictionary:
 
 
 ## Gets the density constraints for the current body type.
-## @return: Vector2(min_density, max_density) in kg/m³.
+## @return: Vector2(min_density, max_density) in kg/mÂ³.
 func _get_density_constraints() -> Vector2:
 	match _body.type:
 		CelestialType.Type.STAR:
@@ -308,7 +308,7 @@ func _get_valid_mass_range_for_current_radius() -> Vector2:
 
 ## Calculates valid radius range for a given mass based on density limits (base units).
 ## @param mass_kg: The mass in kg.
-## @param density_constraints: Vector2(min_density, max_density) in kg/m³
+## @param density_constraints: Vector2(min_density, max_density) in kg/mÂ³
 ## @return: Vector2 with (min_radius, max_radius) in meters.
 func _get_radius_range_for_mass(mass_kg: float, density_constraints: Vector2) -> Vector2:
 	if mass_kg <= 0:
@@ -322,7 +322,7 @@ func _get_radius_range_for_mass(mass_kg: float, density_constraints: Vector2) ->
 
 ## Calculates valid mass range for a given radius based on density limits (base units).
 ## @param radius_m: The radius in meters.
-## @param density_constraints: Vector2(min_density, max_density) in kg/m³
+## @param density_constraints: Vector2(min_density, max_density) in kg/mÂ³
 ## @return: Vector2 with (min_mass, max_mass) in kg.
 func _get_mass_range_for_radius(radius_m: float, density_constraints: Vector2) -> Vector2:
 	if radius_m <= 0:
@@ -554,7 +554,7 @@ func _add_numeric_property(
 	
 	# Revert button for this property
 	var revert_btn: Button = Button.new()
-	revert_btn.text = "↺"
+	revert_btn.text = "â†º"
 	revert_btn.tooltip_text = "Revert to original value"
 	revert_btn.custom_minimum_size = Vector2(28, 28)
 	revert_btn.pressed.connect(_on_property_revert_pressed.bind(property_path, slider, spinbox))
@@ -620,20 +620,20 @@ func _update_range_indicator(property_path: String, range_label: Label) -> void:
 func _get_mass_suffix() -> String:
 	match _body.type:
 		CelestialType.Type.STAR:
-			return " M☉"
+			return " Mâ˜‰"
 		CelestialType.Type.PLANET, CelestialType.Type.MOON:
-			return " M⊕"
+			return " MâŠ•"
 		_:
-			return " ×10¹⁵kg"
+			return " Ã—10Â¹âµkg"
 
 
 ## Gets the radius suffix for current body type.
 func _get_radius_suffix() -> String:
 	match _body.type:
 		CelestialType.Type.STAR:
-			return " R☉"
+			return " Râ˜‰"
 		CelestialType.Type.PLANET, CelestialType.Type.MOON:
-			return " R⊕"
+			return " RâŠ•"
 		_:
 			return " km"
 
@@ -663,7 +663,7 @@ func _add_string_property(property_path: String, label_text: String, value: Stri
 	
 	# Revert button
 	var revert_btn: Button = Button.new()
-	revert_btn.text = "↺"
+	revert_btn.text = "â†º"
 	revert_btn.tooltip_text = "Revert to original value"
 	revert_btn.custom_minimum_size = Vector2(28, 28)
 	revert_btn.pressed.connect(_on_string_property_revert_pressed.bind(property_path, line_edit))
@@ -713,7 +713,7 @@ func _add_option_property(property_path: String, label_text: String, current_val
 	
 	# Revert button
 	var revert_btn: Button = Button.new()
-	revert_btn.text = "↺"
+	revert_btn.text = "â†º"
 	revert_btn.tooltip_text = "Revert to original value"
 	revert_btn.custom_minimum_size = Vector2(28, 28)
 	revert_btn.pressed.connect(_on_option_revert_pressed.bind(property_path, option_button, options))
@@ -905,29 +905,29 @@ func _show_derived_previews() -> void:
 	# Physical derived values
 	if _derived_preview_labels.has("Density"):
 		var preview: Label = _derived_preview_labels["Density"]
-		preview.text = " → %.1f kg/m³" % _body.physical.get_density_kg_m3()
+		preview.text = " â†’ %.1f kg/mÂ³" % _body.physical.get_density_kg_m3()
 		preview.visible = true
 	
 	if _derived_preview_labels.has("Surface Gravity"):
 		var preview: Label = _derived_preview_labels["Surface Gravity"]
-		preview.text = " → %.2f m/s²" % _body.physical.get_surface_gravity_m_s2()
+		preview.text = " â†’ %.2f m/sÂ²" % _body.physical.get_surface_gravity_m_s2()
 		preview.visible = true
 	
 	if _derived_preview_labels.has("Escape Velocity"):
 		var preview: Label = _derived_preview_labels["Escape Velocity"]
-		preview.text = " → %.2f km/s" % (_body.physical.get_escape_velocity_m_s() / 1000.0)
+		preview.text = " â†’ %.2f km/s" % (_body.physical.get_escape_velocity_m_s() / 1000.0)
 		preview.visible = true
 	
 	# Orbital derived values
 	if _body.has_orbital():
 		if _derived_preview_labels.has("Periapsis"):
 			var preview: Label = _derived_preview_labels["Periapsis"]
-			preview.text = " → %s" % PropertyFormatter.format_distance(_body.orbital.get_periapsis_m())
+			preview.text = " â†’ %s" % PropertyFormatter.format_distance(_body.orbital.get_periapsis_m())
 			preview.visible = true
 		
 		if _derived_preview_labels.has("Apoapsis"):
 			var preview: Label = _derived_preview_labels["Apoapsis"]
-			preview.text = " → %s" % PropertyFormatter.format_distance(_body.orbital.get_apoapsis_m())
+			preview.text = " â†’ %s" % PropertyFormatter.format_distance(_body.orbital.get_apoapsis_m())
 			preview.visible = true
 
 
@@ -946,9 +946,9 @@ func _update_derived_displays() -> void:
 	
 	# Physical derived values
 	if _derived_labels.has("Density"):
-		_derived_labels["Density"].text = "%.1f kg/m³" % _body.physical.get_density_kg_m3()
+		_derived_labels["Density"].text = "%.1f kg/mÂ³" % _body.physical.get_density_kg_m3()
 	if _derived_labels.has("Surface Gravity"):
-		_derived_labels["Surface Gravity"].text = "%.2f m/s²" % _body.physical.get_surface_gravity_m_s2()
+		_derived_labels["Surface Gravity"].text = "%.2f m/sÂ²" % _body.physical.get_surface_gravity_m_s2()
 	if _derived_labels.has("Escape Velocity"):
 		_derived_labels["Escape Velocity"].text = "%.2f km/s" % (_body.physical.get_escape_velocity_m_s() / 1000.0)
 	
@@ -1017,17 +1017,17 @@ func _add_physical_properties() -> void:
 			mass_value = phys.mass_kg / Units.SOLAR_MASS_KG
 			mass_min = 0.08  # Brown dwarf limit
 			mass_max = 300.0  # Most massive known stars
-			mass_suffix = " M☉"
+			mass_suffix = " Mâ˜‰"
 		CelestialType.Type.PLANET, CelestialType.Type.MOON:
 			mass_value = phys.mass_kg / Units.EARTH_MASS_KG
 			mass_min = 0.0001
 			mass_max = 5000.0
-			mass_suffix = " M⊕"
+			mass_suffix = " MâŠ•"
 		_:
 			mass_value = phys.mass_kg / 1e15
 			mass_min = 0.0001
 			mass_max = 1e10
-			mass_suffix = " ×10¹⁵kg"
+			mass_suffix = " Ã—10Â¹âµkg"
 	
 	_add_numeric_property("physical.mass_kg", "Mass", mass_value, mass_min, mass_max, 0.0001, mass_suffix)
 	
@@ -1042,12 +1042,12 @@ func _add_physical_properties() -> void:
 			radius_value = phys.radius_m / Units.SOLAR_RADIUS_METERS
 			radius_min = 0.001  # White dwarfs can be tiny
 			radius_max = 2000.0  # Red supergiants can be huge
-			radius_suffix = " R☉"
+			radius_suffix = " Râ˜‰"
 		CelestialType.Type.PLANET, CelestialType.Type.MOON:
 			radius_value = phys.radius_m / Units.EARTH_RADIUS_METERS
 			radius_min = 0.01
 			radius_max = 30.0  # Allow for inflated hot Jupiters
-			radius_suffix = " R⊕"
+			radius_suffix = " RâŠ•"
 		_:
 			radius_value = phys.radius_m / 1000.0
 			radius_min = 0.001
@@ -1057,8 +1057,8 @@ func _add_physical_properties() -> void:
 	_add_numeric_property("physical.radius_m", "Radius", radius_value, radius_min, radius_max, 0.001, radius_suffix)
 	
 	# Derived values
-	_add_derived_property("Density", "%.1f kg/m³" % phys.get_density_kg_m3(), "Density")
-	_add_derived_property("Surface Gravity", "%.2f m/s²" % phys.get_surface_gravity_m_s2(), "Surface Gravity")
+	_add_derived_property("Density", "%.1f kg/mÂ³" % phys.get_density_kg_m3(), "Density")
+	_add_derived_property("Surface Gravity", "%.2f m/sÂ²" % phys.get_surface_gravity_m_s2(), "Surface Gravity")
 	_add_derived_property("Escape Velocity", "%.2f km/s" % (phys.get_escape_velocity_m_s() / 1000.0), "Escape Velocity")
 	
 	# Rotation period (in hours)
@@ -1066,7 +1066,7 @@ func _add_physical_properties() -> void:
 	_add_numeric_property("physical.rotation_period_s", "Rotation Period", rotation_hours, 0.1, 10000.0, 0.1, " hrs")
 	
 	# Axial tilt
-	_add_numeric_property("physical.axial_tilt_deg", "Axial Tilt", _body.physical.axial_tilt_deg, 0.0, 180.0, 0.1, "°")
+	_add_numeric_property("physical.axial_tilt_deg", "Axial Tilt", _body.physical.axial_tilt_deg, 0.0, 180.0, 0.1, "Â°")
 	
 	# Oblateness
 	_add_numeric_property("physical.oblateness", "Oblateness", _body.physical.oblateness, 0.0, 0.5, 0.001, "")
@@ -1089,7 +1089,7 @@ func _add_stellar_properties() -> void:
 	
 	# Luminosity (in solar luminosities)
 	var lum_solar: float = stellar.luminosity_watts / 3.828e26
-	_add_numeric_property("stellar.luminosity_watts", "Luminosity", lum_solar, 0.00001, 10000000.0, 0.0001, " L☉")
+	_add_numeric_property("stellar.luminosity_watts", "Luminosity", lum_solar, 0.00001, 10000000.0, 0.0001, " Lâ˜‰")
 	
 	# Age (in billions of years)
 	var age_gyr: float = stellar.age_years / 1e9
@@ -1111,7 +1111,7 @@ func _add_orbital_properties() -> void:
 	_add_numeric_property("orbital.eccentricity", "Eccentricity", orbital.eccentricity, 0.0, 0.99, 0.001, "")
 	
 	# Inclination
-	_add_numeric_property("orbital.inclination_deg", "Inclination", orbital.inclination_deg, 0.0, 180.0, 0.1, "°")
+	_add_numeric_property("orbital.inclination_deg", "Inclination", orbital.inclination_deg, 0.0, 180.0, 0.1, "Â°")
 	
 	# Derived values
 	_add_derived_property("Periapsis", PropertyFormatter.format_distance(orbital.get_periapsis_m()), "Periapsis")
@@ -1131,7 +1131,7 @@ func _add_atmosphere_properties() -> void:
 	_add_numeric_property("atmosphere.scale_height_m", "Scale Height", scale_height_km, 1.0, 500.0, 0.1, " km")
 	
 	# Greenhouse factor
-	_add_numeric_property("atmosphere.greenhouse_factor", "Greenhouse Factor", atmo.greenhouse_factor, 1.0, 100.0, 0.01, "×")
+	_add_numeric_property("atmosphere.greenhouse_factor", "Greenhouse Factor", atmo.greenhouse_factor, 1.0, 100.0, 0.01, "Ã—")
 
 
 ## Adds surface property editors.

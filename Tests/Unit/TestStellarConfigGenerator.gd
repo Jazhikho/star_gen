@@ -1,14 +1,14 @@
 ## Tests for StellarConfigGenerator.
 extends TestCase
 
-const _stellar_config_generator := preload("res://src/domain/system/StellarConfigGenerator.gd")
-const _solar_system_spec := preload("res://src/domain/system/SolarSystemSpec.gd")
-const _solar_system := preload("res://src/domain/system/SolarSystem.gd")
-const _seeded_rng := preload("res://src/domain/rng/SeededRng.gd")
-const _hierarchy_node := preload("res://src/domain/system/HierarchyNode.gd")
-const _orbit_host := preload("res://src/domain/system/OrbitHost.gd")
-const _star_class := preload("res://src/domain/generation/archetypes/StarClass.gd")
-const _units := preload("res://src/domain/math/Units.gd")
+const _stellar_config_generator: GDScript = preload("res://src/domain/system/StellarConfigGenerator.gd")
+const _solar_system_spec: GDScript = preload("res://src/domain/system/SolarSystemSpec.gd")
+const _solar_system: GDScript = preload("res://src/domain/system/SolarSystem.gd")
+const _seeded_rng: GDScript = preload("res://src/domain/rng/SeededRng.gd")
+const _hierarchy_node: GDScript = preload("res://src/domain/system/HierarchyNode.gd")
+const _orbit_host: GDScript = preload("res://src/domain/system/OrbitHost.gd")
+const _star_class: GDScript = preload("res://src/domain/generation/archetypes/StarClass.gd")
+const _units: GDScript = preload("res://src/domain/math/Units.gd")
 
 
 ## Tests single star generation.
@@ -71,8 +71,8 @@ func test_determinism() -> void:
 	assert_equal(system1.get_star_count(), system2.get_star_count())
 	
 	for i in range(system1.star_ids.size()):
-		var star1 = system1.get_body(system1.star_ids[i])
-		var star2 = system2.get_body(system2.star_ids[i])
+		var star1: CelestialBody = system1.get_body(system1.star_ids[i])
+		var star2: CelestialBody = system2.get_body(system2.star_ids[i])
 		assert_float_equal(
 			star1.physical.mass_kg,
 			star2.physical.mass_kg,
@@ -91,7 +91,7 @@ func test_spectral_class_hints() -> void:
 	assert_not_null(system)
 	assert_equal(system.get_star_count(), 1)
 	
-	var star = system.get_stars()[0]
+	var star: CelestialBody = system.get_stars()[0]
 	assert_true(star.has_stellar())
 	assert_true(star.stellar.spectral_class.begins_with("G"), "Should be G-type star")
 
@@ -310,7 +310,7 @@ func test_system_age_metallicity_passed() -> void:
 	var system: SolarSystem = StellarConfigGenerator.generate(spec, rng)
 	
 	assert_not_null(system)
-	var star = system.get_stars()[0]
+	var star: CelestialBody = system.get_stars()[0]
 	assert_true(star.has_stellar())
 	# Age and metallicity should be close to spec values (may have small variation)
 	assert_in_range(star.stellar.age_years, 4.9e9, 5.1e9, "Age should match spec")

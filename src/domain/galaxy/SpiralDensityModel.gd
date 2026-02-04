@@ -4,7 +4,7 @@
 ## modulated by logarithmic spiral arms.
 ## Position convention: XZ = galactic plane, Y = height above disk.
 class_name SpiralDensityModel
-extends RefCounted
+extends DensityModelInterface
 
 
 var _spec: GalaxySpec
@@ -98,3 +98,10 @@ func _wrap_angle(angle: float) -> float:
 	if a < 0.0:
 		a += TAU
 	return a - PI
+
+
+## Returns an estimate of the maximum density (at galactic center).
+## @return: Peak density estimate.
+func get_peak_density() -> float:
+	# At center: bulge is at peak, disk also contributes
+	return _spec.bulge_intensity + 1.0

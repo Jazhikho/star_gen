@@ -3,8 +3,8 @@
 class_name PropertyFormatter
 extends RefCounted
 
-const _celestial_type := preload("res://src/domain/celestial/CelestialType.gd")
-const _units := preload("res://src/domain/math/Units.gd")
+const _celestial_type: GDScript = preload("res://src/domain/celestial/CelestialType.gd")
+const _units: GDScript = preload("res://src/domain/math/Units.gd")
 
 
 ## Formats mass with appropriate units.
@@ -14,12 +14,12 @@ const _units := preload("res://src/domain/math/Units.gd")
 static func format_mass(mass_kg: float, body_type: CelestialType.Type) -> String:
 	match body_type:
 		CelestialType.Type.STAR:
-			return "%.3f M☉" % (mass_kg / Units.SOLAR_MASS_KG)
+			return "%.3f Mâ˜‰" % (mass_kg / Units.SOLAR_MASS_KG)
 		CelestialType.Type.PLANET, CelestialType.Type.MOON:
 			var earth_masses: float = mass_kg / Units.EARTH_MASS_KG
 			if earth_masses > 100:
 				return "%.2f MJ" % (mass_kg / 1.898e27)
-			return "%.4f M⊕" % earth_masses
+			return "%.4f MâŠ•" % earth_masses
 		_:
 			return format_scientific(mass_kg, "kg")
 
@@ -31,9 +31,9 @@ static func format_mass(mass_kg: float, body_type: CelestialType.Type) -> String
 static func format_radius(radius_m: float, body_type: CelestialType.Type) -> String:
 	match body_type:
 		CelestialType.Type.STAR:
-			return "%.3f R☉" % (radius_m / Units.SOLAR_RADIUS_METERS)
+			return "%.3f Râ˜‰" % (radius_m / Units.SOLAR_RADIUS_METERS)
 		CelestialType.Type.PLANET, CelestialType.Type.MOON:
-			return "%.4f R⊕" % (radius_m / Units.EARTH_RADIUS_METERS)
+			return "%.4f RâŠ•" % (radius_m / Units.EARTH_RADIUS_METERS)
 		_:
 			var km: float = radius_m / 1000.0
 			if km < 1.0:
@@ -60,7 +60,7 @@ static func format_distance(distance_m: float) -> String:
 static func format_luminosity(luminosity_watts: float) -> String:
 	var solar: float = luminosity_watts / 3.828e26
 	if solar > 0.01:
-		return "%.4f L☉" % solar
+		return "%.4f Lâ˜‰" % solar
 	return format_scientific(luminosity_watts, "W")
 
 
@@ -110,7 +110,7 @@ static func format_scientific(value: float, unit: String) -> String:
 	var mantissa: float = value / pow(10.0, exponent)
 	
 	var exp_str: String = format_superscript(exponent)
-	return "%.2f × 10%s %s" % [mantissa, exp_str, unit]
+	return "%.2f Ã— 10%s %s" % [mantissa, exp_str, unit]
 
 
 ## Converts an integer to superscript characters.
@@ -118,9 +118,9 @@ static func format_scientific(value: float, unit: String) -> String:
 ## @return: Superscript string.
 static func format_superscript(num: int) -> String:
 	var superscripts: Dictionary = {
-		"0": "⁰", "1": "¹", "2": "²", "3": "³", "4": "⁴",
-		"5": "⁵", "6": "⁶", "7": "⁷", "8": "⁸", "9": "⁹",
-		"-": "⁻"
+		"0": "â°", "1": "Â¹", "2": "Â²", "3": "Â³", "4": "â´",
+		"5": "âµ", "6": "â¶", "7": "â·", "8": "â¸", "9": "â¹",
+		"-": "â»"
 	}
 	
 	var num_str: String = str(num)

@@ -3,7 +3,7 @@
 class_name MoonSpec
 extends BaseSpec
 
-const _size_category := preload("res://src/domain/generation/archetypes/SizeCategory.gd")
+const _size_category: GDScript = preload("res://src/domain/generation/archetypes/SizeCategory.gd")
 
 
 ## Size category (typically DWARF through TERRESTRIAL for most moons).

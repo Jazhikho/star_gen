@@ -3,19 +3,19 @@
 class_name SystemAsteroidGenerator
 extends RefCounted
 
-const _asteroid_belt := preload("res://src/domain/system/AsteroidBelt.gd")
-const _orbit_host := preload("res://src/domain/system/OrbitHost.gd")
-const _orbit_slot := preload("res://src/domain/system/OrbitSlot.gd")
-const _orbital_mechanics := preload("res://src/domain/system/OrbitalMechanics.gd")
-const _orbit_zone := preload("res://src/domain/generation/archetypes/OrbitZone.gd")
-const _asteroid_spec := preload("res://src/domain/generation/specs/AsteroidSpec.gd")
-const _asteroid_generator := preload("res://src/domain/generation/generators/AsteroidGenerator.gd")
-const _asteroid_type := preload("res://src/domain/generation/archetypes/AsteroidType.gd")
-const _parent_context := preload("res://src/domain/generation/ParentContext.gd")
-const _celestial_body := preload("res://src/domain/celestial/CelestialBody.gd")
-const _seeded_rng := preload("res://src/domain/rng/SeededRng.gd")
-const _units := preload("res://src/domain/math/Units.gd")
-const _stellar_props := preload("res://src/domain/celestial/components/StellarProps.gd")
+const _asteroid_belt: GDScript = preload("res://src/domain/system/AsteroidBelt.gd")
+const _orbit_host: GDScript = preload("res://src/domain/system/OrbitHost.gd")
+const _orbit_slot: GDScript = preload("res://src/domain/system/OrbitSlot.gd")
+const _orbital_mechanics: GDScript = preload("res://src/domain/system/OrbitalMechanics.gd")
+const _orbit_zone: GDScript = preload("res://src/domain/generation/archetypes/OrbitZone.gd")
+const _asteroid_spec: GDScript = preload("res://src/domain/generation/specs/AsteroidSpec.gd")
+const _asteroid_generator: GDScript = preload("res://src/domain/generation/generators/AsteroidGenerator.gd")
+const _asteroid_type: GDScript = preload("res://src/domain/generation/archetypes/AsteroidType.gd")
+const _parent_context: GDScript = preload("res://src/domain/generation/ParentContext.gd")
+const _celestial_body: GDScript = preload("res://src/domain/celestial/CelestialBody.gd")
+const _seeded_rng: GDScript = preload("res://src/domain/rng/SeededRng.gd")
+const _units: GDScript = preload("res://src/domain/math/Units.gd")
+const _stellar_props: GDScript = preload("res://src/domain/celestial/components/StellarProps.gd")
 
 
 ## Maximum number of major asteroids to generate per belt.
@@ -44,7 +44,7 @@ const OUTER_BELT_MASS_MAX_KG: float = 1.0e24
 ## Major asteroid radius threshold (km) - asteroids above this are "major".
 const MAJOR_ASTEROID_THRESHOLD_KM: float = 100.0
 
-## Power law exponent for asteroid size distribution (N(>D) ∝ D^-alpha).
+## Power law exponent for asteroid size distribution (N(>D) âˆ D^-alpha).
 const POWER_LAW_ALPHA: float = 2.5
 
 
@@ -477,7 +477,7 @@ static func _generate_major_asteroids(
 static func _generate_asteroid_sizes(count: int, rng: SeededRng) -> Array[float]:
 	var sizes: Array[float] = []
 	
-	# Power law: N(>D) ∝ D^-alpha (more small than large)
+	# Power law: N(>D) âˆ D^-alpha (more small than large)
 	# Generate sizes from largest to smallest
 	# Largest asteroids: 200-1000 km (Ceres-like)
 	# Smallest major asteroids: ~100 km

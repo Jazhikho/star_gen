@@ -2,16 +2,16 @@
 ## Tests system display, body selection display, generation controls, and signals.
 extends TestCase
 
-const _system_inspector_panel := preload("res://src/app/system_viewer/SystemInspectorPanel.gd")
-const _solar_system := preload("res://src/domain/system/SolarSystem.gd")
-const _celestial_body := preload("res://src/domain/celestial/CelestialBody.gd")
-const _celestial_type := preload("res://src/domain/celestial/CelestialType.gd")
-const _physical_props := preload("res://src/domain/celestial/components/PhysicalProps.gd")
-const _orbital_props := preload("res://src/domain/celestial/components/OrbitalProps.gd")
-const _stellar_props := preload("res://src/domain/celestial/components/StellarProps.gd")
-const _atmosphere_props := preload("res://src/domain/celestial/components/AtmosphereProps.gd")
-const _orbit_host := preload("res://src/domain/system/OrbitHost.gd")
-const _units := preload("res://src/domain/math/Units.gd")
+const _system_inspector_panel: GDScript = preload("res://src/app/system_viewer/SystemInspectorPanel.gd")
+const _solar_system: GDScript = preload("res://src/domain/system/SolarSystem.gd")
+const _celestial_body: GDScript = preload("res://src/domain/celestial/CelestialBody.gd")
+const _celestial_type: GDScript = preload("res://src/domain/celestial/CelestialType.gd")
+const _physical_props: GDScript = preload("res://src/domain/celestial/components/PhysicalProps.gd")
+const _orbital_props: GDScript = preload("res://src/domain/celestial/components/OrbitalProps.gd")
+const _stellar_props: GDScript = preload("res://src/domain/celestial/components/StellarProps.gd")
+const _atmosphere_props: GDScript = preload("res://src/domain/celestial/components/AtmosphereProps.gd")
+const _orbit_host: GDScript = preload("res://src/domain/system/OrbitHost.gd")
+const _units: GDScript = preload("res://src/domain/math/Units.gd")
 
 
 ## Helper to create a panel in the scene tree.

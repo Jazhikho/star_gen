@@ -1,8 +1,8 @@
 ## Tests for SolarSystemSpec.
 extends TestCase
 
-const _solar_system_spec := preload("res://src/domain/system/SolarSystemSpec.gd")
-const _star_class := preload("res://src/domain/generation/archetypes/StarClass.gd")
+const _solar_system_spec: GDScript = preload("res://src/domain/system/SolarSystemSpec.gd")
+const _star_class: GDScript = preload("res://src/domain/generation/archetypes/StarClass.gd")
 
 
 ## Tests basic construction.

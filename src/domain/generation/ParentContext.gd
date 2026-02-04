@@ -3,8 +3,8 @@
 class_name ParentContext
 extends RefCounted
 
-const _units := preload("res://src/domain/math/Units.gd")
-const _stellar_props := preload("res://src/domain/celestial/components/StellarProps.gd")
+const _units: GDScript = preload("res://src/domain/math/Units.gd")
+const _stellar_props: GDScript = preload("res://src/domain/celestial/components/StellarProps.gd")
 
 
 ## Mass of the parent star in kilograms.

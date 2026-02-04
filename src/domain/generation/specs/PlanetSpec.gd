@@ -3,9 +3,9 @@
 class_name PlanetSpec
 extends BaseSpec
 
-const _size_category := preload("res://src/domain/generation/archetypes/SizeCategory.gd")
-const _orbit_zone := preload("res://src/domain/generation/archetypes/OrbitZone.gd")
-const _ring_complexity := preload("res://src/domain/generation/archetypes/RingComplexity.gd")
+const _size_category: GDScript = preload("res://src/domain/generation/archetypes/SizeCategory.gd")
+const _orbit_zone: GDScript = preload("res://src/domain/generation/archetypes/OrbitZone.gd")
+const _ring_complexity: GDScript = preload("res://src/domain/generation/archetypes/RingComplexity.gd")
 
 
 ## Size category (DWARF through GAS_GIANT, or -1 for random).

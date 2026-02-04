@@ -3,16 +3,16 @@
 class_name SystemMoonGenerator
 extends RefCounted
 
-const _orbit_host := preload("res://src/domain/system/OrbitHost.gd")
-const _orbital_mechanics := preload("res://src/domain/system/OrbitalMechanics.gd")
-const _size_category := preload("res://src/domain/generation/archetypes/SizeCategory.gd")
-const _moon_spec := preload("res://src/domain/generation/specs/MoonSpec.gd")
-const _moon_generator := preload("res://src/domain/generation/generators/MoonGenerator.gd")
-const _parent_context := preload("res://src/domain/generation/ParentContext.gd")
-const _celestial_body := preload("res://src/domain/celestial/CelestialBody.gd")
-const _seeded_rng := preload("res://src/domain/rng/SeededRng.gd")
-const _units := preload("res://src/domain/math/Units.gd")
-const _stellar_props := preload("res://src/domain/celestial/components/StellarProps.gd")
+const _orbit_host: GDScript = preload("res://src/domain/system/OrbitHost.gd")
+const _orbital_mechanics: GDScript = preload("res://src/domain/system/OrbitalMechanics.gd")
+const _size_category: GDScript = preload("res://src/domain/generation/archetypes/SizeCategory.gd")
+const _moon_spec: GDScript = preload("res://src/domain/generation/specs/MoonSpec.gd")
+const _moon_generator: GDScript = preload("res://src/domain/generation/generators/MoonGenerator.gd")
+const _parent_context: GDScript = preload("res://src/domain/generation/ParentContext.gd")
+const _celestial_body: GDScript = preload("res://src/domain/celestial/CelestialBody.gd")
+const _seeded_rng: GDScript = preload("res://src/domain/rng/SeededRng.gd")
+const _units: GDScript = preload("res://src/domain/math/Units.gd")
+const _stellar_props: GDScript = preload("res://src/domain/celestial/components/StellarProps.gd")
 
 
 ## Moon count ranges by planet mass category.

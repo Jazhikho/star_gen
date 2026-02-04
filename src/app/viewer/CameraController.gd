@@ -3,22 +3,34 @@
 class_name CameraController
 extends Camera3D
 
-## Camera movement speeds
+## Speed multiplier for orbit rotation.
 @export var orbit_speed: float = 2.0
+
+## Speed multiplier for panning.
 @export var pan_speed: float = 1.0
+
+## Speed multiplier for zoom per scroll tick.
 @export var zoom_speed: float = 0.1
+
+## Smoothing factor for zoom interpolation.
 @export var zoom_smooth: float = 5.0
 
-## Camera constraints
+## Minimum camera distance from target.
 @export var min_distance: float = 0.5
+
+## Maximum camera distance from target.
 @export var max_distance: float = 100.0
+
+## Minimum pitch angle in degrees.
 @export var min_pitch: float = -89.0
+
+## Maximum pitch angle in degrees.
 @export var max_pitch: float = 89.0
 
 ## Current camera state
 var _distance: float = 10.0
 var _target_distance: float = 10.0
-var _rotation: Vector2 = Vector2.ZERO  # x = yaw, y = pitch
+var _rotation: Vector2 = Vector2.ZERO # x = yaw, y = pitch
 var _target_position: Vector3 = Vector3.ZERO
 
 ## Input state
@@ -105,7 +117,7 @@ func _input(event: InputEvent) -> void:
 		
 		elif _panning:
 			var pan_delta: Vector3 = Vector3(
-				-delta.x * pan_speed * 0.01 * _distance * 0.1,
+				- delta.x * pan_speed * 0.01 * _distance * 0.1,
 				delta.y * pan_speed * 0.01 * _distance * 0.1,
 				0.0
 			)

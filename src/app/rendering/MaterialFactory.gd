@@ -4,10 +4,10 @@
 class_name MaterialFactory
 extends RefCounted
 
-const _color_utils := preload("res://src/app/rendering/ColorUtils.gd")
-const _celestial_type := preload("res://src/domain/celestial/CelestialType.gd")
-const _star_shader := preload("res://src/app/rendering/shaders/star.gdshader")
-const _gas_giant_shader := preload("res://src/app/rendering/shaders/gas_giant.gdshader")
+const _color_utils: GDScript = preload("res://src/app/rendering/ColorUtils.gd")
+const _celestial_type: GDScript = preload("res://src/domain/celestial/CelestialType.gd")
+const _star_shader: Shader = preload("res://src/app/rendering/shaders/star.gdshader")
+const _gas_giant_shader: Shader = preload("res://src/app/rendering/shaders/gas_giant.gdshader")
 
 ## Cache for reusable materials (key: cache key string, value: Material)
 static var _material_cache: Dictionary = {}

@@ -3,9 +3,9 @@
 class_name InspectorPanel
 extends VBoxContainer
 
-const _celestial_type := preload("res://src/domain/celestial/CelestialType.gd")
-const _color_utils := preload("res://src/app/rendering/ColorUtils.gd")
-const _property_formatter := preload("res://src/app/viewer/PropertyFormatter.gd")
+const _celestial_type: GDScript = preload("res://src/domain/celestial/CelestialType.gd")
+const _color_utils: GDScript = preload("res://src/app/rendering/ColorUtils.gd")
+const _property_formatter: GDScript = preload("res://src/app/viewer/PropertyFormatter.gd")
 
 ## Container for dynamically created inspector content
 @onready var inspector_container: VBoxContainer = get_node("InspectorContainer")
@@ -91,7 +91,7 @@ func _add_section(title: String, expanded: bool = true) -> void:
 	
 	# Header with collapse button
 	var header: Button = Button.new()
-	header.text = ("▼ " if expanded else "▶ ") + title
+	header.text = ("â–¼ " if expanded else "â–¶ ") + title
 	header.flat = true
 	header.alignment = HORIZONTAL_ALIGNMENT_LEFT
 	header.add_theme_font_size_override("font_size", 14)
@@ -119,7 +119,7 @@ func _add_section(title: String, expanded: bool = true) -> void:
 ## @param header: The header button to update.
 func _toggle_section(content: VBoxContainer, header: Button) -> void:
 	content.visible = not content.visible
-	var arrow: String = "▼ " if content.visible else "▶ "
+	var arrow: String = "â–¼ " if content.visible else "â–¶ "
 	var text: String = header.text
 	# Replace first 2 characters (arrow + space)
 	header.text = arrow + text.substr(2)
@@ -193,8 +193,8 @@ func _add_physical_properties(body: CelestialBody) -> void:
 	
 	_add_property("Mass", _property_formatter.format_mass(phys.mass_kg, body.type))
 	_add_property("Radius", _property_formatter.format_radius(phys.radius_m, body.type))
-	_add_property("Density", "%.1f kg/m³" % phys.get_density_kg_m3())
-	_add_property("Surface Gravity", "%.2f m/s²" % phys.get_surface_gravity_m_s2())
+	_add_property("Density", "%.1f kg/mÂ³" % phys.get_density_kg_m3())
+	_add_property("Surface Gravity", "%.2f m/sÂ²" % phys.get_surface_gravity_m_s2())
 	_add_property("Escape Velocity", "%.2f km/s" % (phys.get_escape_velocity_m_s() / 1000.0))
 	
 	# Rotation
@@ -208,13 +208,13 @@ func _add_physical_properties(body: CelestialBody) -> void:
 		rotation_str += " (retrograde)"
 	_add_property("Rotation Period", rotation_str)
 	
-	_add_property("Axial Tilt", "%.1f°" % phys.axial_tilt_deg)
+	_add_property("Axial Tilt", "%.1fÂ°" % phys.axial_tilt_deg)
 	
 	if phys.oblateness > 0.001:
 		_add_property("Oblateness", "%.4f" % phys.oblateness)
 	
 	if phys.magnetic_moment > 0:
-		_add_property("Magnetic Field", _property_formatter.format_scientific(phys.magnetic_moment, "T·m³"))
+		_add_property("Magnetic Field", _property_formatter.format_scientific(phys.magnetic_moment, "TÂ·mÂ³"))
 
 
 ## Adds stellar properties section content.
@@ -237,7 +237,7 @@ func _add_orbital_properties(body: CelestialBody) -> void:
 	
 	_add_property("Semi-major Axis", _property_formatter.format_distance(orbital.semi_major_axis_m))
 	_add_property("Eccentricity", "%.4f" % orbital.eccentricity)
-	_add_property("Inclination", "%.2f°" % orbital.inclination_deg)
+	_add_property("Inclination", "%.2fÂ°" % orbital.inclination_deg)
 	_add_property("Periapsis", _property_formatter.format_distance(orbital.get_periapsis_m()))
 	_add_property("Apoapsis", _property_formatter.format_distance(orbital.get_apoapsis_m()))
 	
@@ -272,7 +272,7 @@ func _add_atmosphere_properties(body: CelestialBody) -> void:
 func _add_surface_properties(body: CelestialBody) -> void:
 	var surface: SurfaceProps = body.surface
 	
-	_add_property("Temperature", "%.1f K (%.1f°C)" % [surface.temperature_k, surface.temperature_k - 273.15])
+	_add_property("Temperature", "%.1f K (%.1fÂ°C)" % [surface.temperature_k, surface.temperature_k - 273.15])
 	_add_property("Albedo", "%.3f" % surface.albedo)
 	_add_property("Surface Type", surface.surface_type.capitalize())
 	
@@ -316,7 +316,7 @@ func _add_ring_properties(body: CelestialBody) -> void:
 	_add_property("Outer Radius", "%.0f km" % (rings.get_outer_radius_m() / 1000.0))
 	_add_property("Total Width", "%.0f km" % (rings.get_total_width_m() / 1000.0))
 	_add_property("Total Mass", _property_formatter.format_scientific(rings.total_mass_kg, "kg"))
-	_add_property("Inclination", "%.2f°" % rings.inclination_deg)
+	_add_property("Inclination", "%.2fÂ°" % rings.inclination_deg)
 	
 	# Individual bands
 	for i in range(mini(rings.get_band_count(), 5)):  # Limit to first 5

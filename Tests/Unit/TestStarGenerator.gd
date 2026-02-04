@@ -1,7 +1,7 @@
 ## Tests for StarGenerator.
 extends TestCase
 
-const _phase1_deps := preload("res://Tests/Phase1Deps.gd")
+const _phase1_deps: GDScript = preload("res://Tests/Phase1Deps.gd")
 
 
 ## Tests that generation is deterministic.

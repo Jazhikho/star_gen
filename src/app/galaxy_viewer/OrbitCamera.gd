@@ -32,6 +32,7 @@ var _target: Vector3 = Vector3.ZERO
 var _rotating: bool = false
 
 
+## Initializes the camera transform on ready.
 func _ready() -> void:
 	_update_transform()
 
@@ -82,6 +83,8 @@ func reconfigure_constraints(new_min: float, new_max: float, new_target: Vector3
 	_update_transform()
 
 
+## Handles unhandled input for camera rotation and zoom.
+## @param event: The input event.
 func _unhandled_input(event: InputEvent) -> void:
 	if event is InputEventMouseButton:
 		_handle_mouse_button(event as InputEventMouseButton)
@@ -89,6 +92,8 @@ func _unhandled_input(event: InputEvent) -> void:
 		_handle_mouse_motion(event as InputEventMouseMotion)
 
 
+## Handles mouse button events for rotation start/stop and zoom.
+## @param event: The mouse button event.
 func _handle_mouse_button(event: InputEventMouseButton) -> void:
 	match event.button_index:
 		MOUSE_BUTTON_RIGHT:
@@ -105,6 +110,8 @@ func _handle_mouse_button(event: InputEventMouseButton) -> void:
 				_update_transform()
 
 
+## Handles mouse motion events for camera rotation.
+## @param event: The mouse motion event.
 func _handle_mouse_motion(event: InputEventMouseMotion) -> void:
 	_yaw_deg -= event.relative.x * ROTATE_SPEED
 	_pitch_deg -= event.relative.y * ROTATE_SPEED
@@ -113,7 +120,10 @@ func _handle_mouse_motion(event: InputEventMouseMotion) -> void:
 
 
 ## Recomputes global_position and look_at from yaw, pitch, distance.
+## No-op when not in tree (avoids get_global_transform/look_at errors); _ready() will run when added.
 func _update_transform() -> void:
+	if not is_inside_tree():
+		return
 	var yaw_rad: float = deg_to_rad(_yaw_deg)
 	var pitch_rad: float = deg_to_rad(_pitch_deg)
 

@@ -62,7 +62,7 @@ func get_current_quadrant() -> Variant:
 ## @param density_model: Density model for coloring.
 func build_for_quadrant(
 	quadrant_coords: Vector3i,
-	density_model: SpiralDensityModel
+	density_model: DensityModelInterface
 ) -> void:
 	_current_quadrant = quadrant_coords
 	_highlighted_coords = null

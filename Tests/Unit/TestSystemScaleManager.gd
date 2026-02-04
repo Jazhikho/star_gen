@@ -2,12 +2,12 @@
 ## Tests distance conversion, body sizing, orbital position calculation, and Kepler solving.
 extends TestCase
 
-const _system_scale_manager := preload("res://src/app/system_viewer/SystemScaleManager.gd")
-const _celestial_body := preload("res://src/domain/celestial/CelestialBody.gd")
-const _celestial_type := preload("res://src/domain/celestial/CelestialType.gd")
-const _physical_props := preload("res://src/domain/celestial/components/PhysicalProps.gd")
-const _orbital_props := preload("res://src/domain/celestial/components/OrbitalProps.gd")
-const _units := preload("res://src/domain/math/Units.gd")
+const _system_scale_manager: GDScript = preload("res://src/app/system_viewer/SystemScaleManager.gd")
+const _celestial_body: GDScript = preload("res://src/domain/celestial/CelestialBody.gd")
+const _celestial_type: GDScript = preload("res://src/domain/celestial/CelestialType.gd")
+const _physical_props: GDScript = preload("res://src/domain/celestial/components/PhysicalProps.gd")
+const _orbital_props: GDScript = preload("res://src/domain/celestial/components/OrbitalProps.gd")
+const _units: GDScript = preload("res://src/domain/math/Units.gd")
 
 
 ## Helper to create a body with physical properties.
@@ -223,12 +223,12 @@ func test_larger_body_larger_display() -> void:
 func test_circular_orbit_zero_anomaly() -> void:
 	var manager: SystemScaleManager = SystemScaleManager.new()
 	var pos: Vector3 = manager.get_orbital_position(
-		Units.AU_METERS,  # 1 AU
-		0.0,              # circular
-		0.0,              # no inclination
-		0.0,              # no ascending node rotation
-		0.0,              # no periapsis rotation
-		0.0               # mean anomaly 0
+		Units.AU_METERS, # 1 AU
+		0.0, # circular
+		0.0, # no inclination
+		0.0, # no ascending node rotation
+		0.0, # no periapsis rotation
+		0.0 # mean anomaly 0
 	)
 	
 	# At mean anomaly 0, circular orbit: body should be at (a, 0, 0) - periapsis
@@ -245,7 +245,7 @@ func test_circular_orbit_180_anomaly() -> void:
 		Units.AU_METERS,
 		0.0,
 		0.0, 0.0, 0.0,
-		180.0  # Opposite side
+		180.0 # Opposite side
 	)
 	
 	var distance: float = pos.length()
@@ -302,7 +302,7 @@ func test_inclined_orbit_has_y_component() -> void:
 	# 45 degree inclination, at 90 degrees true anomaly should have max Y
 	var pos: Vector3 = manager.get_orbital_position(
 		Units.AU_METERS, 0.0,
-		45.0,  # 45 degree inclination
+		45.0, # 45 degree inclination
 		0.0, 0.0,
 		90.0
 	)
@@ -316,7 +316,7 @@ func test_flat_orbit_no_y_component() -> void:
 	var manager: SystemScaleManager = SystemScaleManager.new()
 	var pos: Vector3 = manager.get_orbital_position(
 		Units.AU_METERS, 0.2,
-		0.0,  # No inclination
+		0.0, # No inclination
 		0.0, 0.0,
 		45.0
 	)
@@ -391,7 +391,7 @@ func test_circular_orbit_points_equidistant() -> void:
 		Units.AU_METERS, 0.0, 0.0, 0.0, 0.0, 32
 	)
 	
-	var expected_dist: float = 1.0  # 1 AU in units
+	var expected_dist: float = 1.0 # 1 AU in units
 	for i in range(points.size()):
 		var dist: float = points[i].length()
 		assert_float_equal(dist, expected_dist, 0.05,

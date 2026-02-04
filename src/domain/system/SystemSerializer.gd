@@ -3,8 +3,8 @@
 class_name SystemSerializer
 extends RefCounted
 
-const _solar_system := preload("res://src/domain/system/SolarSystem.gd")
-const _versions := preload("res://src/domain/constants/Versions.gd")
+const _solar_system: GDScript = preload("res://src/domain/system/SolarSystem.gd")
+const _versions: GDScript = preload("res://src/domain/constants/Versions.gd")
 
 
 ## Serializes a solar system to a dictionary.

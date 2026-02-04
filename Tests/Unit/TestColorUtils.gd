@@ -1,7 +1,7 @@
 ## Unit tests for ColorUtils.
 extends TestCase
 
-const _color_utils := preload("res://src/app/rendering/ColorUtils.gd")
+const _color_utils: GDScript = preload("res://src/app/rendering/ColorUtils.gd")
 
 
 func test_blackbody_hot_star_is_blue() -> void:

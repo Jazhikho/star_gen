@@ -4,6 +4,9 @@ class_name TestCase
 extends RefCounted
 
 
+## When set by the runner, scene tree is available and frames will be processed (e.g. for deferred add_child).
+var runner_scene_tree: SceneTree = null
+
 ## Tracks whether the current test has failed.
 var _current_test_failed: bool = false
 
@@ -112,6 +115,21 @@ func assert_not_null(value: Variant, message: String = "") -> void:
 		return
 	if value == null:
 		_fail(message if message else "Expected non-null value but got null")
+
+
+## Asserts that two floats are approximately equal within a tolerance.
+## Same as assert_float_equal; provided for compatibility.
+## @param actual: The actual value.
+## @param expected: The expected value.
+## @param tolerance: The maximum allowed difference.
+## @param message: Optional message to display on failure.
+func assert_almost_equal(
+	actual: float,
+	expected: float,
+	tolerance: float,
+	message: String = ""
+) -> void:
+	assert_float_equal(actual, expected, tolerance, message)
 
 
 ## Asserts that two floats are approximately equal within a tolerance.

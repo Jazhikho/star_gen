@@ -3,7 +3,7 @@
 class_name AsteroidBelt
 extends RefCounted
 
-const _units := preload("res://src/domain/math/Units.gd")
+const _units: GDScript = preload("res://src/domain/math/Units.gd")
 
 
 ## Belt composition types.

@@ -6,7 +6,7 @@ extends RefCounted
 
 
 ## Hierarchical zoom levels for the galaxy viewer.
-enum ZoomLevel { GALAXY, QUADRANT, SECTOR, SUBSECTOR }
+enum ZoomLevel {GALAXY, QUADRANT, SECTOR, SUBSECTOR}
 
 ## Size of one quadrant edge in parsecs.
 const QUADRANT_SIZE_PC: float = 1000.0
@@ -54,13 +54,37 @@ static func get_effective_radius(spec: GalaxySpec) -> float:
 
 
 ## Computes the effective half-height of the galaxy in parsecs.
-## Takes the larger of the disk clipping height and the bulge's vertical 3-sigma.
-## This ensures the grid covers the full extent of where stars actually are.
+## For spirals: uses disk height and bulge vertical extent.
+## For ellipticals: uses Gaussian sigma scaled by axis ratio (~3 sigma coverage).
+## For irregulars: uses a spherical extent matching the scale radius.
 ## @param spec: Galaxy specification.
 ## @return: Effective half-height in parsecs.
 static func get_effective_half_height(spec: GalaxySpec) -> float:
-	var bulge_vertical_extent: float = spec.bulge_height_pc * BULGE_SIGMA_COVERAGE
-	return maxf(spec.height_pc, bulge_vertical_extent)
+	match spec.galaxy_type:
+		GalaxySpec.GalaxyType.SPIRAL:
+			# Spirals are flat disks with a spheroidal bulge
+			var bulge_vertical_extent: float = spec.bulge_height_pc * BULGE_SIGMA_COVERAGE
+			return maxf(spec.height_pc, bulge_vertical_extent)
+		
+		GalaxySpec.GalaxyType.ELLIPTICAL:
+			# Ellipticals use Gaussian profile with sigma = radius_pc * 0.35
+			# axis_ratio = 1 - ellipticity, clamped to minimum 0.3
+			var axis_ratio: float = maxf(1.0 - spec.ellipticity, 0.3)
+			var sigma_major: float = spec.radius_pc * 0.35
+			var sigma_minor: float = sigma_major * axis_ratio
+			# Cover ~3 sigma to include most stars
+			return sigma_minor * BULGE_SIGMA_COVERAGE
+		
+		GalaxySpec.GalaxyType.IRREGULAR:
+			# Irregular galaxies are 3D amorphous blobs (roughly spherical)
+			# The density model uses scale_radius = radius_pc * 0.5
+			# Stars extend to ~3-4x scale radius
+			return spec.radius_pc * 0.8
+		
+		_:
+			# Default: use spiral/disk calculation
+			var bulge_vertical_extent: float = spec.bulge_height_pc * BULGE_SIGMA_COVERAGE
+			return maxf(spec.height_pc, bulge_vertical_extent)
 
 
 ## Returns the minimum quadrant grid coordinates that cover the galaxy's

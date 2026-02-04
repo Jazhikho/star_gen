@@ -3,14 +3,14 @@
 class_name RingSystemGenerator
 extends RefCounted
 
-const _ring_system_spec := preload("res://src/domain/generation/specs/RingSystemSpec.gd")
-const _ring_complexity := preload("res://src/domain/generation/archetypes/RingComplexity.gd")
-const _ring_system_props := preload("res://src/domain/celestial/components/RingSystemProps.gd")
-const _ring_band := preload("res://src/domain/celestial/components/RingBand.gd")
-const _physical_props := preload("res://src/domain/celestial/components/PhysicalProps.gd")
-const _parent_context := preload("res://src/domain/generation/ParentContext.gd")
-const _units := preload("res://src/domain/math/Units.gd")
-const _seeded_rng := preload("res://src/domain/rng/SeededRng.gd")
+const _ring_system_spec: GDScript = preload("res://src/domain/generation/specs/RingSystemSpec.gd")
+const _ring_complexity: GDScript = preload("res://src/domain/generation/archetypes/RingComplexity.gd")
+const _ring_system_props: GDScript = preload("res://src/domain/celestial/components/RingSystemProps.gd")
+const _ring_band: GDScript = preload("res://src/domain/celestial/components/RingBand.gd")
+const _physical_props: GDScript = preload("res://src/domain/celestial/components/PhysicalProps.gd")
+const _parent_context: GDScript = preload("res://src/domain/generation/ParentContext.gd")
+const _units: GDScript = preload("res://src/domain/math/Units.gd")
+const _seeded_rng: GDScript = preload("res://src/domain/rng/SeededRng.gd")
 
 
 ## Complexity level distribution weights.
@@ -23,7 +23,7 @@ const COMPLEXITY_WEIGHTS: Array[float] = [
 ## Ice line distance in AU (beyond this, rings are icy).
 const ICE_LINE_AU: float = 2.7
 
-## Typical ring particle density for mass calculation (kg/m³).
+## Typical ring particle density for mass calculation (kg/mÂ³).
 const ICY_PARTICLE_DENSITY: float = 900.0
 const ROCKY_PARTICLE_DENSITY: float = 2500.0
 
@@ -186,7 +186,7 @@ static func _calculate_ring_limits(
 	var inner_limit_m: float = planet_radius_m * 1.1
 	
 	# Calculate Roche limit for typical ring particle
-	# Roche limit ≈ 2.44 * R_planet * (ρ_planet / ρ_particle)^(1/3)
+	# Roche limit â‰ˆ 2.44 * R_planet * (Ï_planet / Ï_particle)^(1/3)
 	var planet_density: float = planet_physical.get_density_kg_m3()
 	var particle_density: float = ICY_PARTICLE_DENSITY  # Use icy as conservative estimate
 	
@@ -451,7 +451,7 @@ static func _calculate_total_mass(
 	if bands.size() > 0:
 		avg_optical_depth /= bands.size()
 	
-	# Saturn's main rings: area ≈ 1.5e17 m², optical depth ~0.5, mass ~1.5e19 kg
+	# Saturn's main rings: area â‰ˆ 1.5e17 mÂ², optical depth ~0.5, mass ~1.5e19 kg
 	var saturn_area: float = 1.5e17
 	var saturn_depth: float = 0.5
 	

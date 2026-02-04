@@ -3,11 +3,11 @@
 class_name BodyRenderer
 extends Node3D
 
-const _material_factory := preload("res://src/app/rendering/MaterialFactory.gd")
-const _color_utils := preload("res://src/app/rendering/ColorUtils.gd")
-const _celestial_type := preload("res://src/domain/celestial/CelestialType.gd")
-const _units := preload("res://src/domain/math/Units.gd")
-const _ring_band := preload("res://src/domain/celestial/components/RingBand.gd")
+const _material_factory: GDScript = preload("res://src/app/rendering/MaterialFactory.gd")
+const _color_utils: GDScript = preload("res://src/app/rendering/ColorUtils.gd")
+const _celestial_type: GDScript = preload("res://src/domain/celestial/CelestialType.gd")
+const _units: GDScript = preload("res://src/domain/math/Units.gd")
+const _ring_band: GDScript = preload("res://src/domain/celestial/components/RingBand.gd")
 
 ## The main body mesh
 @onready var body_mesh: MeshInstance3D = $BodyMesh

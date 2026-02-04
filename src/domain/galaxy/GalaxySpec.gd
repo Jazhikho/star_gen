@@ -5,7 +5,7 @@ extends RefCounted
 
 
 ## Supported galaxy morphologies.
-enum GalaxyType { SPIRAL, ELLIPTICAL, IRREGULAR }
+enum GalaxyType {SPIRAL, ELLIPTICAL, IRREGULAR}
 
 
 ## Master seed for the galaxy.
@@ -47,6 +47,12 @@ var disk_scale_length_pc: float = 4000.0
 ## Exponential scale height of the disk in parsecs.
 var disk_scale_height_pc: float = 300.0
 
+## Ellipticity for elliptical galaxies (0 = spherical, 0.7 = very flattened).
+var ellipticity: float = 0.3
+
+## Irregularity scale for irregular galaxies (noise frequency multiplier).
+var irregularity_scale: float = 0.5
+
 
 ## Creates a Milky-Way-like spiral galaxy spec.
 ## @param galaxy_seed: Master seed for generation.
@@ -66,4 +72,28 @@ static func create_milky_way(galaxy_seed: int) -> GalaxySpec:
 	spec.bulge_intensity = 0.8
 	spec.disk_scale_length_pc = 4000.0
 	spec.disk_scale_height_pc = 300.0
+	return spec
+
+
+## Creates a galaxy spec from a configuration and seed.
+## @param config: GalaxyConfig with customization parameters.
+## @param galaxy_seed: Master seed for generation.
+## @return: A configured GalaxySpec.
+static func create_from_config(config: GalaxyConfig, galaxy_seed: int) -> GalaxySpec:
+	var spec: GalaxySpec = GalaxySpec.new()
+	spec.seed = galaxy_seed
+	spec.galaxy_type = config.galaxy_type as GalaxyType
+	spec.radius_pc = config.radius_pc
+	spec.height_pc = config.radius_pc / 15.0
+	spec.num_arms = config.num_arms
+	spec.arm_pitch_angle_deg = config.arm_pitch_angle_deg
+	spec.arm_width = 0.4
+	spec.arm_amplitude = config.arm_amplitude
+	spec.bulge_radius_pc = config.bulge_radius_pc
+	spec.bulge_height_pc = config.bulge_radius_pc * 0.53
+	spec.bulge_intensity = config.bulge_intensity
+	spec.disk_scale_length_pc = config.disk_scale_length_pc
+	spec.disk_scale_height_pc = config.disk_scale_height_pc
+	spec.ellipticity = config.ellipticity
+	spec.irregularity_scale = config.irregularity_scale
 	return spec

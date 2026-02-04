@@ -3,8 +3,8 @@
 class_name OrbitSlot
 extends RefCounted
 
-const _units := preload("res://src/domain/math/Units.gd")
-const _orbit_zone := preload("res://src/domain/generation/archetypes/OrbitZone.gd")
+const _units: GDScript = preload("res://src/domain/math/Units.gd")
+const _orbit_zone: GDScript = preload("res://src/domain/generation/archetypes/OrbitZone.gd")
 
 
 ## Unique identifier for this slot.

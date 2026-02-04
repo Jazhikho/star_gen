@@ -3,14 +3,14 @@
 class_name MoonPhysicalGenerator
 extends RefCounted
 
-const _moon_spec := preload("res://src/domain/generation/specs/MoonSpec.gd")
-const _size_category := preload("res://src/domain/generation/archetypes/SizeCategory.gd")
-const _size_table := preload("res://src/domain/generation/tables/SizeTable.gd")
-const _physical_props := preload("res://src/domain/celestial/components/PhysicalProps.gd")
-const _orbital_props := preload("res://src/domain/celestial/components/OrbitalProps.gd")
-const _parent_context := preload("res://src/domain/generation/ParentContext.gd")
-const _units := preload("res://src/domain/math/Units.gd")
-const _seeded_rng := preload("res://src/domain/rng/SeededRng.gd")
+const _moon_spec: GDScript = preload("res://src/domain/generation/specs/MoonSpec.gd")
+const _size_category: GDScript = preload("res://src/domain/generation/archetypes/SizeCategory.gd")
+const _size_table: GDScript = preload("res://src/domain/generation/tables/SizeTable.gd")
+const _physical_props: GDScript = preload("res://src/domain/celestial/components/PhysicalProps.gd")
+const _orbital_props: GDScript = preload("res://src/domain/celestial/components/OrbitalProps.gd")
+const _parent_context: GDScript = preload("res://src/domain/generation/ParentContext.gd")
+const _units: GDScript = preload("res://src/domain/math/Units.gd")
+const _seeded_rng: GDScript = preload("res://src/domain/rng/SeededRng.gd")
 
 
 ## Generates physical properties for a moon.
@@ -138,7 +138,7 @@ static func calculate_tidal_heating(
 		return 0.0
 	
 	# Simplified tidal heating formula
-	# Q_tidal ∝ (M_parent² * R⁵ * e²) / (a⁶)
+	# Q_tidal âˆ (M_parentÂ² * Râµ * eÂ²) / (aâ¶)
 	# Reference: Io produces ~1e14 W
 	var io_ref_heat: float = 1.0e14
 	var io_e: float = 0.004
@@ -177,7 +177,7 @@ static func _is_tidally_locked_to_parent(
 		return false
 	
 	# Tidal locking timescale for moons (much shorter than planets)
-	# τ ∝ a^6 * m / (M^2 * R^3)
+	# Ï„ âˆ a^6 * m / (M^2 * R^3)
 	var a_km: float = orbital_distance_m / 1000.0
 	var m_moon_kg: float = mass_kg
 	var m_parent_kg: float = parent_mass_kg
@@ -230,7 +230,7 @@ static func _calculate_axial_tilt(is_locked: bool, rng: SeededRng) -> float:
 ## @param _radius_m: Moon radius (reserved for future use).
 ## @param rotation_period_s: Rotation period.
 ## @param rng: Random number generator.
-## @return: Magnetic moment in T·m³.
+## @return: Magnetic moment in TÂ·mÂ³.
 static func _calculate_magnetic_moment(
 	mass_kg: float,
 	_radius_m: float,

@@ -1,11 +1,11 @@
 ## Integration tests for MainApp navigation between viewers.
 extends TestCase
 
-const _main_app_scene := preload("res://src/app/MainApp.tscn")
-const _celestial_body := preload("res://src/domain/celestial/CelestialBody.gd")
-const _celestial_type := preload("res://src/domain/celestial/CelestialType.gd")
-const _physical_props := preload("res://src/domain/celestial/components/PhysicalProps.gd")
-const _units := preload("res://src/domain/math/Units.gd")
+const _main_app_scene: PackedScene = preload("res://src/app/MainApp.tscn")
+const _celestial_body: GDScript = preload("res://src/domain/celestial/CelestialBody.gd")
+const _celestial_type: GDScript = preload("res://src/domain/celestial/CelestialType.gd")
+const _physical_props: GDScript = preload("res://src/domain/celestial/components/PhysicalProps.gd")
+const _units: GDScript = preload("res://src/domain/math/Units.gd")
 
 
 func get_test_name() -> String:
@@ -50,7 +50,7 @@ func test_has_viewer_container() -> void:
 func test_object_viewer_has_back_signal() -> void:
 	var viewer_scene: PackedScene = load("res://src/app/viewer/ObjectViewer.tscn") as PackedScene
 	var viewer: Node = viewer_scene.instantiate()
-	assert_true(viewer.has_signal("back_to_system_requested"), 
+	assert_true(viewer.has_signal("back_to_system_requested"),
 		"ObjectViewer should have back_to_system_requested signal")
 	viewer.free()
 

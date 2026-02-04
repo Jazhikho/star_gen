@@ -3,14 +3,14 @@
 class_name PlanetAtmosphereGenerator
 extends RefCounted
 
-const _planet_spec := preload("res://src/domain/generation/specs/PlanetSpec.gd")
-const _size_category := preload("res://src/domain/generation/archetypes/SizeCategory.gd")
-const _orbit_zone := preload("res://src/domain/generation/archetypes/OrbitZone.gd")
-const _physical_props := preload("res://src/domain/celestial/components/PhysicalProps.gd")
-const _atmosphere_props := preload("res://src/domain/celestial/components/AtmosphereProps.gd")
-const _parent_context := preload("res://src/domain/generation/ParentContext.gd")
-const _atmosphere_utils := preload("res://src/domain/generation/utils/AtmosphereUtils.gd")
-const _seeded_rng := preload("res://src/domain/rng/SeededRng.gd")
+const _planet_spec: GDScript = preload("res://src/domain/generation/specs/PlanetSpec.gd")
+const _size_category: GDScript = preload("res://src/domain/generation/archetypes/SizeCategory.gd")
+const _orbit_zone: GDScript = preload("res://src/domain/generation/archetypes/OrbitZone.gd")
+const _physical_props: GDScript = preload("res://src/domain/celestial/components/PhysicalProps.gd")
+const _atmosphere_props: GDScript = preload("res://src/domain/celestial/components/AtmosphereProps.gd")
+const _parent_context: GDScript = preload("res://src/domain/generation/ParentContext.gd")
+const _atmosphere_utils: GDScript = preload("res://src/domain/generation/utils/AtmosphereUtils.gd")
+const _seeded_rng: GDScript = preload("res://src/domain/rng/SeededRng.gd")
 
 ## Earth's atmospheric pressure in Pascals.
 const EARTH_ATMOSPHERE_PA: float = 101325.0
@@ -119,8 +119,8 @@ static func _can_retain_atmosphere(
 	var equilibrium_temp: float = context.get_equilibrium_temperature_k(0.3)
 	var thermal_velocity: float = sqrt(3.0 * BOLTZMANN_K * equilibrium_temp / HYDROGEN_MASS_KG)
 	
-	# Jeans escape parameter: λ = v_escape / v_thermal
-	# Need λ > 6 to retain gas over geological time
+	# Jeans escape parameter: Î» = v_escape / v_thermal
+	# Need Î» > 6 to retain gas over geological time
 	# For heavier gases (N2, CO2), the threshold is lower
 	var jeans_param: float = escape_velocity / thermal_velocity
 	

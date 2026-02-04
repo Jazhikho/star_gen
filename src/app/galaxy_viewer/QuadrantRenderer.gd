@@ -47,7 +47,7 @@ func get_occupied_coords() -> Array[Vector3i]:
 ## Builds the grid MultiMesh from a density model and galaxy spec.
 ## @param spec: Galaxy specification for grid bounds.
 ## @param density_model: Density model to query at each cell center.
-func build_from_density(spec: GalaxySpec, density_model: SpiralDensityModel) -> void:
+func build_from_density(spec: GalaxySpec, density_model: DensityModelInterface) -> void:
 	var grid_min: Vector3i = GalaxyCoordinates.get_quadrant_grid_min(spec)
 	var grid_max: Vector3i = GalaxyCoordinates.get_quadrant_grid_max(spec)
 

@@ -2,7 +2,7 @@
 class_name AsteroidSpec
 extends BaseSpec
 
-const _asteroid_type := preload("res://src/domain/generation/archetypes/AsteroidType.gd")
+const _asteroid_type: GDScript = preload("res://src/domain/generation/archetypes/AsteroidType.gd")
 
 
 ## Compositional type (C, S, M, or -1 for random).
