@@ -15,6 +15,7 @@ var _test_scripts: Array[GDScript] = [
 	preload("res://Tests/Unit/JumpLanes/TestJumpLaneRegion.gd"),
 	preload("res://Tests/Unit/JumpLanes/TestJumpLaneResult.gd"),
 	preload("res://Tests/Unit/JumpLanes/TestJumpLaneCalculator.gd"),
+	preload("res://Tests/Unit/JumpLanes/TestJumpLaneClusterConnector.gd"),
 ]
 
 ## UI references.

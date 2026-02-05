@@ -8,7 +8,8 @@ extends RefCounted
 enum ConnectionType {
 	GREEN, ## Direct connection within 3-5 parsecs
 	YELLOW, ## Connection via bridge system
-	ORANGE ## Direct connection at 7 parsecs (no bridge available)
+	ORANGE, ## Direct connection at 7 parsecs (no bridge available)
+	RED ## Extended connection: direct ≤10 pc or multi-hop path (each hop ≤10 pc)
 }
 
 
@@ -52,6 +53,8 @@ func get_color() -> Color:
 			return Color.YELLOW
 		ConnectionType.ORANGE:
 			return Color.ORANGE
+		ConnectionType.RED:
+			return Color.RED
 	return Color.WHITE
 
 
@@ -65,6 +68,8 @@ func get_type_name() -> String:
 			return "Bridged"
 		ConnectionType.ORANGE:
 			return "Direct (7 pc)"
+		ConnectionType.RED:
+			return "Extended (≤10 pc or multi-hop)"
 	return "Unknown"
 
 

@@ -20,6 +20,7 @@ var _test_scripts: Array[GDScript] = [
 
 func _init() -> void:
 	_test_scripts.append(preload("res://Tests/Unit/JumpLanes/TestJumpLaneCalculator.gd"))
+	_test_scripts.append(preload("res://Tests/Unit/JumpLanes/TestJumpLaneClusterConnector.gd"))
 
 	print("")
 	print("=".repeat(60))

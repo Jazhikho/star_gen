@@ -1,6 +1,7 @@
 ## Calculates jump lane connections between star systems.
 ## Processes systems from lowest to highest population, connecting each
 ## to the highest-populated system within allowed distance thresholds.
+## Then connects isolated clusters as a post-processing step.
 ## Script exceeds ~10 functions to keep the full algorithm in one place for readability and testability.
 class_name JumpLaneCalculator
 extends RefCounted
@@ -12,6 +13,16 @@ const THRESHOLD_DIRECT_MEDIUM: float = 5.0 ## Green: direct connection
 const THRESHOLD_BRIDGE_MAX: float = 7.0 ## Orange if no bridge, or yellow with bridge
 const THRESHOLD_BRIDGE_ONLY: float = 9.0 ## Only with bridge, else no connection
 const BRIDGE_MAX_DISTANCE: float = 5.0 ## Max distance from bridge to either endpoint
+
+## Cluster connector script (preloaded to avoid class_name load order).
+const _cluster_connector_script: GDScript = preload("res://src/domain/jumplanes/JumpLaneClusterConnector.gd")
+
+## Cluster connector for post-processing.
+var _cluster_connector: RefCounted
+
+
+func _init() -> void:
+	_cluster_connector = _cluster_connector_script.new()
 
 
 ## Calculates jump lanes for all systems in a region.
@@ -46,6 +57,8 @@ func calculate(region: JumpLaneRegion) -> JumpLaneResult:
 		if not connected_systems.has(system.id):
 			result.add_orphan(system.id)
 
+	_cluster_connector.connect_clusters(region, result)
+
 	return result
 
 
@@ -69,25 +82,50 @@ func _try_connect_system(
 	if candidates.is_empty():
 		return false
 
-	var target: JumpLaneSystem = _find_highest_populated_within(system, candidates, THRESHOLD_DIRECT_SHORT)
+	if _try_threshold(system, candidates, THRESHOLD_DIRECT_SHORT, region, result, connected_systems, bridge_ids):
+		return true
+	if _try_threshold(system, candidates, THRESHOLD_DIRECT_MEDIUM, region, result, connected_systems, bridge_ids):
+		return true
+	if _try_extended_threshold(system, candidates, region, result, connected_systems, bridge_ids):
+		return true
+
+	return false
+
+
+## Tries to connect within a direct threshold (green connection).
+func _try_threshold(
+	system: JumpLaneSystem,
+	candidates: Array[JumpLaneSystem],
+	threshold: float,
+	region: JumpLaneRegion,
+	result: JumpLaneResult,
+	connected_systems: Dictionary,
+	bridge_ids: Dictionary
+) -> bool:
+	var target: JumpLaneSystem = _find_highest_populated_within(system, candidates, threshold)
 	if target != null:
 		_add_direct_connection(system, target, result, connected_systems)
 		return true
+	return false
 
-	target = _find_highest_populated_within(system, candidates, THRESHOLD_DIRECT_MEDIUM)
-	if target != null:
-		_add_direct_connection(system, target, result, connected_systems)
-		return true
 
-	target = _find_highest_populated_within(system, candidates, THRESHOLD_BRIDGE_MAX)
+## Tries extended thresholds (7pc orange or 9pc with bridge).
+func _try_extended_threshold(
+	system: JumpLaneSystem,
+	candidates: Array[JumpLaneSystem],
+	region: JumpLaneRegion,
+	result: JumpLaneResult,
+	connected_systems: Dictionary,
+	bridge_ids: Dictionary
+) -> bool:
+	var target: JumpLaneSystem = _find_highest_populated_within(system, candidates, THRESHOLD_BRIDGE_MAX)
 	if target != null:
 		var bridge: JumpLaneSystem = _find_bridge(system, target, region)
 		if bridge != null:
 			_add_bridged_connection(system, target, bridge, result, connected_systems, bridge_ids)
-			return true
 		else:
 			_add_orange_connection(system, target, result, connected_systems)
-			return true
+		return true
 
 	target = _find_highest_populated_within(system, candidates, THRESHOLD_BRIDGE_ONLY)
 	if target != null:

@@ -91,8 +91,11 @@ func test_two_systems_at_9pc_no_bridge_no_connection() -> void:
 
 	var result: JumpLaneResult = calculator.calculate(region)
 
-	assert_equal(result.get_total_connections(), 0)
-	assert_equal(result.get_total_orphans(), 2)
+	# Standard phase: no connection at 9 pc. Extended phase: direct red (9 ≤ 10 pc).
+	assert_equal(result.get_total_connections(), 1)
+	assert_equal(result.get_total_orphans(), 0)
+	var counts: Dictionary = result.get_connection_counts()
+	assert_equal(counts.get(JumpLaneConnection.ConnectionType.RED, 0), 1)
 
 
 func test_two_systems_beyond_9pc_no_connection() -> void:
@@ -163,8 +166,11 @@ func test_bridge_must_be_within_5pc_of_both() -> void:
 
 	var result: JumpLaneResult = calculator.calculate(region)
 
-	assert_equal(result.get_total_connections(), 0)
-	assert_equal(result.get_total_orphans(), 2)
+	# Standard: no connection (bad_bridge 6pc from low, exceeds 5pc). Extended: direct red (8 ≤ 10 pc).
+	assert_equal(result.get_total_connections(), 1)
+	assert_equal(result.get_total_orphans(), 0)
+	var counts: Dictionary = result.get_connection_counts()
+	assert_equal(counts.get(JumpLaneConnection.ConnectionType.RED, 0), 1)
 
 
 # =============================================================================
@@ -288,6 +294,8 @@ func test_unpopulated_systems_ignored_as_destinations() -> void:
 
 	var result: JumpLaneResult = calculator.calculate(region)
 
+	# Phase 1: pop has no higher-pop destination; unpop ignored as destination.
+	# Cluster connector: unpop not a cluster member, so only one cluster; no connection.
 	assert_equal(result.get_total_connections(), 0)
 	assert_equal(result.get_total_orphans(), 1)
 	assert_true(result.is_orphan("pop"))
@@ -317,7 +325,9 @@ func test_equal_population_still_connects() -> void:
 
 	var result: JumpLaneResult = calculator.calculate(region)
 
-	assert_equal(result.get_total_orphans(), 2)
+	# Phase 1: equal pop, no higher-pop target. Cluster connector connects them.
+	assert_equal(result.get_total_connections(), 1)
+	assert_equal(result.get_total_orphans(), 0)
 
 
 func test_exactly_at_threshold_boundaries() -> void:

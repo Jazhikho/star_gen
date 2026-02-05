@@ -46,6 +46,13 @@ func test_get_color_orange() -> void:
 	assert_equal(conn.get_color(), Color.ORANGE)
 
 
+func test_get_color_red() -> void:
+	var conn: JumpLaneConnection = JumpLaneConnection.new()
+	conn.connection_type = JumpLaneConnection.ConnectionType.RED
+
+	assert_equal(conn.get_color(), Color.RED)
+
+
 func test_get_type_name_green() -> void:
 	var conn: JumpLaneConnection = JumpLaneConnection.new()
 	conn.connection_type = JumpLaneConnection.ConnectionType.GREEN
@@ -65,6 +72,13 @@ func test_get_type_name_orange() -> void:
 	conn.connection_type = JumpLaneConnection.ConnectionType.ORANGE
 
 	assert_equal(conn.get_type_name(), "Direct (7 pc)")
+
+
+func test_get_type_name_red() -> void:
+	var conn: JumpLaneConnection = JumpLaneConnection.new()
+	conn.connection_type = JumpLaneConnection.ConnectionType.RED
+
+	assert_equal(conn.get_type_name(), "Extended (≤10 pc or multi-hop)")
 
 
 func test_serialization_round_trip() -> void:

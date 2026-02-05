@@ -38,7 +38,8 @@ func get_connection_counts() -> Dictionary:
 	var counts: Dictionary = {
 		JumpLaneConnection.ConnectionType.GREEN: 0,
 		JumpLaneConnection.ConnectionType.YELLOW: 0,
-		JumpLaneConnection.ConnectionType.ORANGE: 0
+		JumpLaneConnection.ConnectionType.ORANGE: 0,
+		JumpLaneConnection.ConnectionType.RED: 0
 	}
 	for conn in connections:
 		counts[conn.connection_type] += 1
