@@ -6,6 +6,8 @@ extends SceneTree
 const _phase1_deps = preload("res://Tests/Phase1Deps.gd")
 ## Preload population domain scripts so class_name types are registered before population test scripts.
 const _population_deps = preload("res://Tests/PopulationDeps.gd")
+## Preload jump lanes domain scripts so class_name types are registered before jump lanes test scripts.
+const _jump_lanes_deps = preload("res://Tests/JumpLanesDeps.gd")
 
 ## Array of test scripts to run. Add new test scripts here.
 var _test_scripts: Array[GDScript] = [
@@ -126,6 +128,12 @@ var _test_scripts: Array[GDScript] = [
 	# Population framework (Stage 6: Integration boundary)
 	preload("res://Tests/Unit/Population/TestPlanetPopulationData.gd"),
 	preload("res://Tests/Unit/Population/TestPopulationGenerator.gd"),
+	# Jump Lanes (jump-lanes-tool branch)
+	preload("res://Tests/Unit/JumpLanes/TestJumpLaneSystem.gd"),
+	preload("res://Tests/Unit/JumpLanes/TestJumpLaneConnection.gd"),
+	preload("res://Tests/Unit/JumpLanes/TestJumpLaneRegion.gd"),
+	preload("res://Tests/Unit/JumpLanes/TestJumpLaneResult.gd"),
+	preload("res://Tests/Unit/JumpLanes/TestJumpLaneCalculator.gd"),
 ]
 
 
