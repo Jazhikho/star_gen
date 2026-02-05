@@ -24,6 +24,9 @@ const _parent_context: GDScript = preload("res://src/domain/generation/ParentCon
 const _seeded_rng: GDScript = preload("res://src/domain/rng/SeededRng.gd")
 const _ring_system_generator: GDScript = preload("res://src/domain/generation/generators/RingSystemGenerator.gd")
 const _ring_system_props: GDScript = preload("res://src/domain/celestial/components/RingSystemProps.gd")
+const _population_generator: GDScript = preload("res://src/domain/population/PopulationGenerator.gd")
+const _population_probability: GDScript = preload("res://src/domain/population/PopulationProbability.gd")
+const _population_seeding: GDScript = preload("res://src/domain/population/PopulationSeeding.gd")
 
 
 ## Size category distribution weights for random selection.
@@ -49,8 +52,9 @@ const ORBIT_ZONE_WEIGHTS: Array[float] = [
 ## @param spec: The planet specification.
 ## @param context: The parent star/system context.
 ## @param rng: The random number generator (will be advanced).
+## @param enable_population: If true, generate population data based on probability.
 ## @return: A new CelestialBody configured as a planet.
-static func generate(spec: PlanetSpec, context: ParentContext, rng: SeededRng) -> CelestialBody:
+static func generate(spec: PlanetSpec, context: ParentContext, rng: SeededRng, enable_population: bool = false) -> CelestialBody:
 	# Determine archetypes
 	var size_cat: SizeCategory.Category = _determine_size_category(spec, rng)
 	var zone: OrbitZone.Zone = _determine_orbit_zone(spec, rng)
@@ -106,6 +110,10 @@ static func generate(spec: PlanetSpec, context: ParentContext, rng: SeededRng) -
 	body.atmosphere = atmosphere
 	body.surface = surface
 	body.ring_system = ring_system
+	
+	# Generate population data if enabled
+	if enable_population:
+		body.population_data = _generate_population(body, context, spec.seed)
 	
 	return body
 
@@ -236,3 +244,44 @@ static func _should_generate_rings(spec: PlanetSpec, size_cat: SizeCategory.Cate
 	
 	# Only gas giants and ice giants typically have significant rings
 	return SizeCategory.is_gaseous(size_cat)
+
+
+## Generates population data for a planet using order-independent seeding.
+## Uses PopulationProbability to decide if population should exist,
+## then delegates to PopulationGenerator for the actual generation.
+## @param body: The generated celestial body.
+## @param context: The parent context (star data).
+## @param base_seed: The generation base seed.
+## @return: PlanetPopulationData, or null if no population generated.
+static func _generate_population(
+	body: CelestialBody,
+	context: ParentContext,
+	base_seed: int
+) -> PlanetPopulationData:
+	# Generate order-independent seed for this body's population
+	var pop_seed: int = PopulationSeeding.generate_population_seed(body.id, base_seed)
+	var pop_rng: SeededRng = SeededRng.new(pop_seed)
+	
+	# Always generate profile and suitability (lightweight, useful for display)
+	var pop_data: PlanetPopulationData = PopulationGenerator.generate_profile_only(body, context)
+	pop_data.generation_seed = pop_seed
+	
+	# Check if natives should be generated
+	var generate_natives: bool = PopulationProbability.should_generate_natives(pop_data.profile, pop_rng)
+	
+	# Check if colony should be generated
+	var generate_colony: bool = false
+	if pop_data.suitability != null:
+		generate_colony = PopulationProbability.should_generate_colony(
+			pop_data.profile, pop_data.suitability, pop_rng
+		)
+	
+	# If either should be generated, run full generation
+	if generate_natives or generate_colony:
+		var spec: PopulationGenerator.PopulationSpec = PopulationGenerator.PopulationSpec.create_default(pop_seed)
+		spec.generate_natives = generate_natives
+		spec.generate_colonies = generate_colony
+		pop_data = PopulationGenerator.generate(body, context, spec)
+		pop_data.generation_seed = pop_seed
+	
+	return pop_data

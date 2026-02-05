@@ -65,12 +65,14 @@ class MoonGenerationResult:
 ## @param _orbit_hosts: Array of orbit hosts (reserved for future use).
 ## @param stars: Array of star bodies.
 ## @param rng: Random number generator.
+## @param enable_population: If true, generate population data for moons.
 ## @return: MoonGenerationResult with generated moons.
 static func generate(
 	planets: Array[CelestialBody],
 	_orbit_hosts: Array[OrbitHost],
 	stars: Array[CelestialBody],
-	rng: SeededRng
+	rng: SeededRng,
+	enable_population: bool = false
 ) -> MoonGenerationResult:
 	var result: MoonGenerationResult = MoonGenerationResult.new()
 	
@@ -96,7 +98,8 @@ static func generate(
 			stellar_luminosity_watts,
 			stellar_temperature_k,
 			stellar_age_years,
-			rng
+			rng,
+			enable_population
 		)
 		
 		if planet_moons.size() > 0:
@@ -117,6 +120,7 @@ static func generate(
 ## @param stellar_temperature_k: Temperature of the star.
 ## @param stellar_age_years: Age of the star/system.
 ## @param rng: Random number generator.
+## @param enable_population: If true, generate population data.
 ## @return: Array of generated moons.
 static func _generate_moons_for_planet(
 	planet: CelestialBody,
@@ -124,7 +128,8 @@ static func _generate_moons_for_planet(
 	stellar_luminosity_watts: float,
 	stellar_temperature_k: float,
 	stellar_age_years: float,
-	rng: SeededRng
+	rng: SeededRng,
+	enable_population: bool = false
 ) -> Array[CelestialBody]:
 	var moons: Array[CelestialBody] = []
 	
@@ -172,7 +177,8 @@ static func _generate_moons_for_planet(
 			stellar_age_years,
 			planet_orbital_distance_m,
 			i,
-			rng
+			rng,
+			enable_population
 		)
 		
 		if moon != null:
@@ -314,6 +320,7 @@ static func _should_be_captured(distance_m: float, hill_radius_m: float, rng: Se
 ## @param planet_orbital_distance_m: Planet's distance from star.
 ## @param moon_index: Index of this moon (for naming).
 ## @param rng: Random number generator.
+## @param enable_population: If true, generate population data.
 ## @return: Generated moon, or null if failed.
 static func _generate_single_moon(
 	planet: CelestialBody,
@@ -325,7 +332,8 @@ static func _generate_single_moon(
 	stellar_age_years: float,
 	planet_orbital_distance_m: float,
 	moon_index: int,
-	rng: SeededRng
+	rng: SeededRng,
+	enable_population: bool = false
 ) -> CelestialBody:
 	# Create moon spec
 	var moon_seed: int = rng.randi()
@@ -353,7 +361,7 @@ static func _generate_single_moon(
 	
 	# Generate moon
 	var moon_rng: SeededRng = SeededRng.new(moon_seed)
-	var moon: CelestialBody = MoonGenerator.generate(spec, context, moon_rng)
+	var moon: CelestialBody = MoonGenerator.generate(spec, context, moon_rng, enable_population, planet)
 	
 	if moon != null:
 		# Assign ID and name

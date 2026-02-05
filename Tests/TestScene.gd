@@ -131,6 +131,10 @@ var _test_scripts: Array[GDScript] = [
 	# Population framework (Stage 6: Integration boundary)
 	preload("res://Tests/Unit/Population/TestPlanetPopulationData.gd"),
 	preload("res://Tests/Unit/Population/TestPopulationGenerator.gd"),
+	# Population integration (Phase 5: Population wiring)
+	preload("res://Tests/Unit/Population/TestPopulationProbability.gd"),
+	preload("res://Tests/Unit/Population/TestPopulationSeeding.gd"),
+	preload("res://Tests/Integration/TestPopulationIntegration.gd"),
 ]
 
 ## The test runner instance.

@@ -81,12 +81,14 @@ class PlanetGenerationResult:
 ## @param orbit_hosts: Array of orbit hosts (for context lookup).
 ## @param stars: Array of star bodies (for parent context).
 ## @param rng: Random number generator.
+## @param enable_population: If true, generate population data for planets.
 ## @return: PlanetGenerationResult with generated planets.
 static func generate(
 	slots: Array[OrbitSlot],
 	orbit_hosts: Array[OrbitHost],
 	stars: Array[CelestialBody],
-	rng: SeededRng
+	rng: SeededRng,
+	enable_population: bool = false
 ) -> PlanetGenerationResult:
 	var result: PlanetGenerationResult = PlanetGenerationResult.new()
 	result.slots = slots.duplicate()
@@ -112,7 +114,7 @@ static func generate(
 			continue
 		
 		# Generate planet for this slot
-		var planet: CelestialBody = _generate_planet_for_slot(slot, host, stars, rng)
+		var planet: CelestialBody = _generate_planet_for_slot(slot, host, stars, rng, enable_population)
 		if planet != null:
 			result.planets.append(planet)
 			slot.fill_with_planet(planet.id)
@@ -128,13 +130,15 @@ static func generate(
 ## @param stars: Array of star bodies.
 ## @param target_count: Desired number of planets.
 ## @param rng: Random number generator.
+## @param enable_population: If true, generate population data for planets.
 ## @return: PlanetGenerationResult.
 static func generate_targeted(
 	slots: Array[OrbitSlot],
 	orbit_hosts: Array[OrbitHost],
 	stars: Array[CelestialBody],
 	target_count: int,
-	rng: SeededRng
+	rng: SeededRng,
+	enable_population: bool = false
 ) -> PlanetGenerationResult:
 	var result: PlanetGenerationResult = PlanetGenerationResult.new()
 	result.slots = slots.duplicate()
@@ -174,7 +178,7 @@ static func generate_targeted(
 		if host == null:
 			continue
 		
-		var planet: CelestialBody = _generate_planet_for_slot(slot, host, stars, rng)
+		var planet: CelestialBody = _generate_planet_for_slot(slot, host, stars, rng, enable_population)
 		if planet != null:
 			result.planets.append(planet)
 			slot.fill_with_planet(planet.id)
@@ -197,12 +201,14 @@ static func _should_fill_slot(slot: OrbitSlot, rng: SeededRng) -> bool:
 ## @param host: The orbit host.
 ## @param stars: Array of star bodies.
 ## @param rng: Random number generator.
+## @param enable_population: If true, generate population data.
 ## @return: Generated planet, or null if failed.
 static func _generate_planet_for_slot(
 	slot: OrbitSlot,
 	host: OrbitHost,
 	stars: Array[CelestialBody],
-	rng: SeededRng
+	rng: SeededRng,
+	enable_population: bool = false
 ) -> CelestialBody:
 	# Determine size category based on zone
 	var size_category: SizeCategory.Category = _determine_size_category(slot.zone, rng)
@@ -227,7 +233,7 @@ static func _generate_planet_for_slot(
 	
 	# Generate planet
 	var planet_rng: SeededRng = SeededRng.new(planet_seed)
-	var planet: CelestialBody = PlanetGenerator.generate(spec, context, planet_rng)
+	var planet: CelestialBody = PlanetGenerator.generate(spec, context, planet_rng, enable_population)
 	
 	if planet != null:
 		# Generate planet ID and name
