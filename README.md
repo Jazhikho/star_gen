@@ -131,11 +131,11 @@ Built with **Godot 4.x** and **GDScript**.
 
 **Test Status**: 951+ tests in suite; headless run reports passing (some integration tests expect pre-welcome flow and are being updated).
 
-### Branch: population (parallel concept)
+### Branch: feature/concepts (Phase 5 + population integration)
 
-The **population** branch develops a **population framework for planets** (native populations and their history, plus colonies). It is documented in [Docs/Roadmap.md](Docs/Roadmap.md) under "Branch: population (parallel concept)" and in [Docs/PopulationFrameworkPlan.md](Docs/PopulationFrameworkPlan.md). This work is intentionally separate from the main roadmap for now; it can be run and tested independently, while the normal test suite for the main app continues to run unchanged. The framework will be integrated into the main branch when ready.
+The **feature/concepts** branch focuses on **Phase 5: Object rendering v2** and **population integration**. See [Docs/FeatureConceptBranch.md](Docs/FeatureConceptBranch.md) for full scope.
 
-- **Stage 1 (Planet Profile Model):** ✅ Complete — PlanetProfile, ClimateZone, BiomeType, ResourceType, HabitabilityCategory; unit tests in `Tests/Unit/Population/`.
+- **Population framework:** ✅ Merged — PlanetProfile, native populations, colonies, history; unit tests in `Tests/Unit/Population/`.
 
 See [claude.md](claude.md) for detailed architecture, roadmap, and working agreement.
 
@@ -273,7 +273,8 @@ star_gen/
 │   │   │   ├── EllipticalDensityModel.gd # 3D Gaussian ellipsoid
 │   │   │   ├── IrregularDensityModel.gd  # Noise-based 3D blob
 │   │   │   ├── DensitySampler.gd   # Type-specific star sampling
-│   │   │   └── ... (coordinates, subsectors, etc.)
+│   │   │   ├── HomePosition.gd     # Home system/position for galaxy
+│   │   │   └── ... (coordinates, subsectors, star picker, etc.)
 │   │   ├── math/                   # Math utilities
 │   │   │   ├── MathUtils.gd       # Range checking, remapping, interpolation
 │   │   │   └── Units.gd            # Physical constants and unit conversions
@@ -281,12 +282,20 @@ star_gen/
 │   │   │   └── SeededRng.gd       # Deterministic RNG wrapper
 │   │   ├── validation/             # General validation utilities
 │   │   │   └── Validation.gd       # Range and type validation
+│   │   ├── population/             # Population framework (native, colony, history)
+│   │   │   ├── PlanetProfile.gd   # Planet habitability/profile model
+│   │   │   ├── ProfileGenerator.gd # Profile generation
+│   │   │   ├── ColonySuitability.gd # Colony desirability
+│   │   │   ├── PopulationGenerator.gd # Full population integration
+│   │   │   └── ... (ClimateZone, BiomeType, Colony, Government, etc.)
 │   │   └── constants/              # Project constants
 │   │       └── Versions.gd        # Version tracking
 │   ├── services/                   # Services layer (I/O, persistence)
 │   │   └── persistence/
 │   │       ├── SaveData.gd         # Efficient save/load with compression
-│   │       └── CelestialPersistence.gd # File I/O service for persistence
+│   │       ├── CelestialPersistence.gd # File I/O for celestial objects
+│   │       ├── SystemPersistence.gd # System save/load
+│   │       └── GalaxyPersistence.gd # Galaxy save/load
 │   └── app/                        # Application layer (UI, scenes, rendering)
 │       ├── MainApp.gd             # Root application controller (navigation)
 │       ├── MainApp.tscn           # Root application scene
@@ -326,7 +335,10 @@ star_gen/
 │           ├── MaterialFactory.gd # Material generation
 │           ├── shaders/           # Shader assets
 │           │   ├── star.gdshader  # Star emission shader
-│           │   └── gas_giant.gdshader # Gas giant band shader
+│           │   ├── stellar_concept.gdshader # Star concept (granulation, corona)
+│           │   ├── gas_giant.gdshader # Gas giant band shader
+│           │   ├── planet_terrestrial.gdshader # Terrestrial planet concept
+│           │   └── planet_gas_giant_concept.gdshader # Gas giant concept
 │           └── textures/          # Texture assets
 │               └── noise.tres     # Noise texture
 ├── Tests/                          # Test suite
@@ -335,6 +347,10 @@ star_gen/
 │   │   ├── TestRunner.gd          # Test execution
 │   │   └── TestResult.gd          # Test result data
 │   ├── Unit/                       # Unit tests
+│   │   ├── Population/             # Population framework tests
+│   │   │   ├── TestPlanetProfile.gd
+│   │   │   ├── TestColonyGenerator.gd
+│   │   │   └── ...
 │   │   ├── TestCelestialBody.gd
 │   │   ├── TestStarGenerator.gd
 │   │   ├── TestPlanetGenerator.gd
@@ -368,9 +384,18 @@ star_gen/
 │   ├── TestScene.tscn              # Test scene
 │   ├── TestScene.gd                # Test scene script
 │   ├── RunTestsHeadless.gd         # Headless test runner
-│   └── Phase1Deps.gd               # Phase dependencies
+│   ├── RunGalaxyTests.gd           # Galaxy test runner (optional)
+│   ├── Phase1Deps.gd               # Phase 1/generation dependencies
+│   └── PopulationDeps.gd           # Population domain dependencies
+├── Concepts/                       # Visual concept demos (reference)
+│   ├── planetgenerator.html        # Planet shader concepts
+│   ├── stargenerator.html          # Star shader concepts
+│   └── Additions.md                # Future visual features
 ├── Docs/                           # Documentation
-│   └── Roadmap.md                  # Development roadmap
+│   ├── Roadmap.md                  # Development roadmap
+│   ├── FeatureConceptBranch.md     # feature/concepts branch scope
+│   ├── CelestialBodyProperties.md  # Celestial body property reference
+│   └── RegimeChangeModel.md        # Regime change model (population)
 ├── .editorconfig                   # Editor configuration
 ├── .gitattributes                  # Git attributes (LFS, etc.)
 ├── .gitignore                      # Git ignore rules
