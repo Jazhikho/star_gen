@@ -253,7 +253,6 @@ void fragment() {
 
 	if (d > R + 0.08 && !inRingBounds) {
 		COLOR = vec4(bg, 1.0);
-		return;
 	}
 	vec3 color = bg;
 

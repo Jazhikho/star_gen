@@ -42,6 +42,11 @@ var _test_scripts: Array[GDScript] = [
 	preload("res://Tests/Integration/TestSaveLoad.gd"),
 	preload("res://Tests/Unit/TestColorUtils.gd"),
 	preload("res://Tests/Unit/TestColorUtilsShaderParams.gd"),
+	preload("res://Tests/Unit/TestStarShaderParams.gd"),
+	preload("res://Tests/Unit/TestTerrestrialShaderParams.gd"),
+	preload("res://Tests/Unit/TestGasGiantShaderParams.gd"),
+	preload("res://Tests/Unit/TestRingShaderParams.gd"),
+	preload("res://Tests/Unit/TestAtmosphereShaderParams.gd"),
 	# System Viewer tests
 	preload("res://Tests/Unit/TestSystemScaleManager.gd"),
 	preload("res://Tests/Unit/TestOrbitRenderer.gd"),

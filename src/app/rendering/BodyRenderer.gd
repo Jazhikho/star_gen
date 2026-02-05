@@ -15,6 +15,12 @@ const _ring_band: GDScript = preload("res://src/domain/celestial/components/Ring
 ## Atmosphere effect mesh (slightly larger sphere)
 @onready var atmosphere_mesh: MeshInstance3D = $AtmosphereMesh
 
+## Star atmosphere mesh (corona, prominences); created at runtime when needed.
+var star_atmosphere_mesh: MeshInstance3D = null
+
+## Star atmosphere scale relative to star surface.
+const STAR_ATMOSPHERE_SCALE: float = 1.25
+
 ## Light source for stars
 @onready var star_light: OmniLight3D = $StarLight
 
@@ -74,6 +80,18 @@ func _ensure_nodes_exist() -> void:
 	else:
 		ring_system_node = $RingSystem
 
+	if star_atmosphere_mesh == null:
+		star_atmosphere_mesh = MeshInstance3D.new()
+		star_atmosphere_mesh.name = "StarAtmosphereMesh"
+		var atmo_sphere: SphereMesh = SphereMesh.new()
+		atmo_sphere.radial_segments = 64
+		atmo_sphere.rings = 32
+		star_atmosphere_mesh.mesh = atmo_sphere
+		star_atmosphere_mesh.visible = false
+		add_child(star_atmosphere_mesh)
+		move_child(star_atmosphere_mesh, 0)
+		star_atmosphere_mesh.sorting_offset = -1.0
+
 
 ## Renders a celestial body.
 ## @param body: The body to render.
@@ -111,7 +129,10 @@ func clear() -> void:
 	
 	if atmosphere_mesh:
 		atmosphere_mesh.visible = false
-	
+
+	if star_atmosphere_mesh:
+		star_atmosphere_mesh.visible = false
+
 	if star_light:
 		star_light.visible = false
 	
@@ -149,6 +170,12 @@ func _update_body_mesh() -> void:
 	# Apply oblateness (flattening)
 	var oblateness: float = current_body.physical.oblateness
 	var scale_y: float = 1.0 - oblateness
+	
+	# Gas giants handle oblateness in their vertex shader (for correct oblate normals).
+	# Skip mesh-level oblateness to avoid double application.
+	if GasGiantShaderParams.is_gas_giant(current_body):
+		scale_y = 1.0
+	
 	body_mesh.scale = Vector3(display_scale, display_scale * scale_y, display_scale)
 	
 	# Create and apply material
@@ -199,17 +226,28 @@ func _update_star_light() -> void:
 ## Updates the atmosphere effect.
 func _update_atmosphere() -> void:
 	if not atmosphere_mesh or not current_body:
-		atmosphere_mesh.visible = false
+		if atmosphere_mesh:
+			atmosphere_mesh.visible = false
+		if star_atmosphere_mesh:
+			star_atmosphere_mesh.visible = false
 		return
-	
+
+	# Stars use a separate atmosphere mesh (corona, prominences)
+	if current_body.type == CelestialType.Type.STAR:
+		atmosphere_mesh.visible = false
+		_update_star_atmosphere()
+		return
+
 	# Only planets and large moons can have visible atmospheres
 	if not current_body.has_atmosphere():
 		atmosphere_mesh.visible = false
+		if star_atmosphere_mesh:
+			star_atmosphere_mesh.visible = false
 		return
 	
 	# Check if atmosphere is substantial enough to render
 	var pressure: float = current_body.atmosphere.surface_pressure_pa
-	if pressure < 100.0:  # Less than 100 Pa = too thin to see
+	if pressure < 100.0: # Less than 100 Pa = too thin to see
 		atmosphere_mesh.visible = false
 		return
 	
@@ -238,6 +276,29 @@ func _update_atmosphere() -> void:
 	
 	atmosphere_mesh.material_override = atmo_material
 	atmosphere_mesh.visible = true
+	if star_atmosphere_mesh:
+		star_atmosphere_mesh.visible = false
+
+
+## Updates the star atmosphere (corona, prominences, diffraction spikes).
+func _update_star_atmosphere() -> void:
+	if not star_atmosphere_mesh or not current_body:
+		return
+
+	var star_atmo_material: ShaderMaterial = MaterialFactory.create_star_atmosphere_material(current_body)
+	if not star_atmo_material:
+		star_atmosphere_mesh.visible = false
+		return
+
+	var oblateness: float = current_body.physical.oblateness
+	var scale_y: float = 1.0 - oblateness
+	star_atmosphere_mesh.scale = Vector3(
+		display_scale * STAR_ATMOSPHERE_SCALE,
+		display_scale * STAR_ATMOSPHERE_SCALE * scale_y,
+		display_scale * STAR_ATMOSPHERE_SCALE
+	)
+	star_atmosphere_mesh.material_override = star_atmo_material
+	star_atmosphere_mesh.visible = true
 
 
 ## Updates the ring system.
@@ -270,9 +331,9 @@ func _update_ring_system() -> void:
 	# This is relative to the equatorial plane, so it's added to the base tilt
 	var axial_tilt: float = current_body.physical.axial_tilt_deg
 	ring_system_node.rotation_degrees = Vector3(
-		ring_inclination,  # Ring's own inclination relative to equator
+		ring_inclination, # Ring's own inclination relative to equator
 		0.0,
-		axial_tilt         # Match body's axial tilt (equatorial plane)
+		axial_tilt # Match body's axial tilt (equatorial plane)
 	)
 
 
@@ -364,10 +425,12 @@ func _apply_axial_tilt() -> void:
 	# Apply axial tilt around Z axis (tilts the rotation axis)
 	if body_mesh:
 		body_mesh.rotation_degrees.z = tilt
-	
-	# Atmosphere should match body tilt
+
 	if atmosphere_mesh:
 		atmosphere_mesh.rotation_degrees.z = tilt
+
+	if star_atmosphere_mesh:
+		star_atmosphere_mesh.rotation_degrees.z = tilt
 	
 	# Ring system tilt is handled in _update_ring_system() to include ring inclination
 
@@ -382,14 +445,14 @@ func rotate_body(delta: float, speed_multiplier: float = 1.0) -> void:
 	# Rotation period in seconds (use a reasonable visual speed)
 	var period: float = absf(current_body.physical.rotation_period_s)
 	if period < 1.0:
-		period = 86400.0  # Default to 1 day if invalid
+		period = 86400.0 # Default to 1 day if invalid
 	
 	# Scale to reasonable visual speed (complete rotation in ~10 seconds at 1x)
 	var rotation_speed: float = (TAU / 10.0) * speed_multiplier
 	
 	# Retrograde rotation
 	if current_body.physical.rotation_period_s < 0:
-		rotation_speed = -rotation_speed
+		rotation_speed = - rotation_speed
 	
 	# Apply rotation around the local Y axis (after tilt has been applied)
 	# This rotates around the tilted axis, not the world Y axis
@@ -398,6 +461,9 @@ func rotate_body(delta: float, speed_multiplier: float = 1.0) -> void:
 	# Atmosphere rotates with body
 	if atmosphere_mesh and atmosphere_mesh.visible:
 		atmosphere_mesh.rotate_object_local(Vector3.UP, rotation_speed * delta)
+
+	if star_atmosphere_mesh and star_atmosphere_mesh.visible:
+		star_atmosphere_mesh.rotate_object_local(Vector3.UP, rotation_speed * delta)
 	
 	# Rings rotate with body (they're in the equatorial plane)
 	# Only rotate if we have rings

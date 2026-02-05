@@ -298,8 +298,6 @@ void fragment() {
 	vec3 color = bg;
 	float nd = d / R;
 	float ang = atan(c.y, c.x);
-	float PI = 3.14159265;
-	float TAU = 6.2831853;
 
 	if (u_accretionRate > 0.01) {
 		float tiltR = u_diskTilt * PI / 180.0;

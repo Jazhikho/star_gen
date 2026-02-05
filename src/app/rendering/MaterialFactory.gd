@@ -6,8 +6,12 @@ extends RefCounted
 
 const _color_utils: GDScript = preload("res://src/app/rendering/ColorUtils.gd")
 const _celestial_type: GDScript = preload("res://src/domain/celestial/CelestialType.gd")
-const _star_shader: Shader = preload("res://src/app/rendering/shaders/star.gdshader")
-const _gas_giant_shader: Shader = preload("res://src/app/rendering/shaders/gas_giant.gdshader")
+const _star_surface_shader: Shader = preload("res://src/app/rendering/shaders/star_surface.gdshader")
+const _star_atmosphere_shader: Shader = preload("res://src/app/rendering/shaders/star_atmosphere.gdshader")
+const _terrestrial_shader: Shader = preload("res://src/app/rendering/shaders/planet_terrestrial_surface.gdshader")
+const _gas_giant_surface_shader: Shader = preload("res://src/app/rendering/shaders/planet_gas_giant_surface.gdshader")
+const _ring_system_shader: Shader = preload("res://src/app/rendering/shaders/ring_system.gdshader")
+const _atmosphere_rim_shader: Shader = preload("res://src/app/rendering/shaders/atmosphere_rim.gdshader")
 
 ## Cache for reusable materials (key: cache key string, value: Material)
 static var _material_cache: Dictionary = {}
@@ -59,9 +63,13 @@ static func _generate_cache_key(body: CelestialBody) -> String:
 			if body.has_stellar():
 				var temp: float = body.stellar.effective_temperature_k
 				var lum: float = body.stellar.luminosity_watts
-				# Round luminosity to avoid precision issues in cache key
-				var lum_rounded: int = int(lum / 1e24)  # Round to nearest 1e24
-				key_parts.append("temp_%d_lum_%d" % [int(temp), lum_rounded])
+				var age: float = body.stellar.age_years
+				var lum_rounded: int = int(lum / 1e24)
+				var age_bin: int = int(age / 1e9)
+				var seed_val: int = 0
+				if body.provenance:
+					seed_val = body.provenance.generation_seed % 1000
+				key_parts.append("temp_%d_lum_%d_age_%d_seed_%d" % [int(temp), lum_rounded, age_bin, seed_val])
 			else:
 				key_parts.append("default")
 		
@@ -69,15 +77,20 @@ static func _generate_cache_key(body: CelestialBody) -> String:
 			if body.has_surface():
 				var surface_type: String = body.surface.surface_type
 				var albedo: float = body.surface.albedo
-				key_parts.append("%s_albedo_%.2f" % [surface_type, albedo])
+				var seed_val: int = 0
+				if body.provenance:
+					seed_val = body.provenance.generation_seed % 1000
+				key_parts.append("%s_albedo_%.2f_seed_%d" % [surface_type, albedo, seed_val])
 			else:
 				key_parts.append("default")
-			
+
 			# Check if gas giant
 			if _is_gas_giant(body):
-				var mass_earth: float = body.physical.mass_kg / 1.989e30 * 333000.0  # Rough estimate
+				var mass_earth: float = body.physical.mass_kg / 1.989e30 * 333000.0 # Rough estimate
 				key_parts.append("gas_%d" % int(mass_earth))
-		
+			elif TerrestrialShaderParams.is_terrestrial_suitable(body):
+				key_parts.append("terrestrial")
+
 		CelestialType.Type.ASTEROID:
 			if body.has_surface():
 				var surface_type: String = body.surface.surface_type
@@ -88,38 +101,95 @@ static func _generate_cache_key(body: CelestialBody) -> String:
 	return "_".join(key_parts)
 
 
-## Creates a material for a star.
+## Creates a material for a star using the advanced surface shader.
 static func _create_star_material(body: CelestialBody) -> ShaderMaterial:
 	var material: ShaderMaterial = ShaderMaterial.new()
-	material.shader = _star_shader
-	
-	# Get temperature for blackbody color
-	var temperature_k: float = 5778.0  # Default solar temperature
-	var luminosity_w: float = 3.828e26  # Solar luminosity
-	
-	if body.has_stellar():
-		temperature_k = body.stellar.effective_temperature_k
-		luminosity_w = body.stellar.luminosity_watts
-	
-	var star_color: Color = ColorUtils.temperature_to_blackbody_color(temperature_k)
-	
-	material.set_shader_parameter("star_color", star_color)
-	material.set_shader_parameter("temperature", temperature_k)
-	
-	# Calculate emission intensity based on luminosity
-	var luminosity_solar: float = luminosity_w / 3.828e26
-	var intensity: float = clampf(luminosity_solar, 0.1, 10.0)
-	material.set_shader_parameter("emission_intensity", intensity)
-	
-	# Add corona parameters
-	material.set_shader_parameter("corona_size", 1.2)
-	material.set_shader_parameter("corona_intensity", intensity * 0.3)
-	
-	# Set noise texture for surface variation (if available)
-	var noise_texture: Texture2D = _get_noise_texture()
-	if noise_texture:
-		material.set_shader_parameter("noise_texture", noise_texture)
-	
+	material.shader = _star_surface_shader
+
+	var params: Dictionary = StarShaderParams.get_star_shader_params(body)
+
+	material.set_shader_parameter("u_star_color", params.get("u_star_color", Color.WHITE))
+	material.set_shader_parameter("u_temperature", params.get("u_temperature", 5778.0))
+	material.set_shader_parameter("u_luminosity", params.get("u_luminosity", 1.0))
+	material.set_shader_parameter("u_limbDark", params.get("u_limbDark", 0.6))
+
+	material.set_shader_parameter("u_granScale", params.get("u_granScale", 30.0))
+	material.set_shader_parameter("u_granContrast", params.get("u_granContrast", 0.35))
+	material.set_shader_parameter("u_granTurb", params.get("u_granTurb", 0.4))
+	material.set_shader_parameter("u_granFlow", params.get("u_granFlow", 0.08))
+	material.set_shader_parameter("u_superGranScale", params.get("u_superGranScale", 6.0))
+	material.set_shader_parameter("u_superGranStr", params.get("u_superGranStr", 0.15))
+
+	material.set_shader_parameter("u_spotCount", params.get("u_spotCount", 5.0))
+	material.set_shader_parameter("u_spotSize", params.get("u_spotSize", 0.06))
+	material.set_shader_parameter("u_penumbra", params.get("u_penumbra", 2.0))
+	material.set_shader_parameter("u_spotDark", params.get("u_spotDark", 0.35))
+
+	material.set_shader_parameter("u_chromoThick", params.get("u_chromoThick", 0.015))
+	material.set_shader_parameter("u_chromoIntensity", params.get("u_chromoIntensity", 0.8))
+	material.set_shader_parameter("u_chromoShift", params.get("u_chromoShift", 0.5))
+
+	material.set_shader_parameter("u_coronaExtent", params.get("u_coronaExtent", 0.3))
+	material.set_shader_parameter("u_coronaBright", params.get("u_coronaBright", 0.5))
+	material.set_shader_parameter("u_coronaStreams", params.get("u_coronaStreams", 8.0))
+	material.set_shader_parameter("u_coronaLength", params.get("u_coronaLength", 0.5))
+	material.set_shader_parameter("u_coronaAsym", params.get("u_coronaAsym", 0.3))
+
+	material.set_shader_parameter("u_promCount", params.get("u_promCount", 3.0))
+	material.set_shader_parameter("u_promHeight", params.get("u_promHeight", 0.12))
+	material.set_shader_parameter("u_promGlow", params.get("u_promGlow", 0.8))
+	material.set_shader_parameter("u_flareIntensity", params.get("u_flareIntensity", 0.2))
+
+	material.set_shader_parameter("u_rotSpeed", params.get("u_rotSpeed", 0.05))
+	material.set_shader_parameter("u_bloomRadius", params.get("u_bloomRadius", 0.15))
+	material.set_shader_parameter("u_bloomIntensity", params.get("u_bloomIntensity", 0.6))
+	material.set_shader_parameter("u_spikeCount", params.get("u_spikeCount", 4.0))
+	material.set_shader_parameter("u_spikeLength", params.get("u_spikeLength", 0.3))
+	material.set_shader_parameter("u_spikeBright", params.get("u_spikeBright", 0.25))
+	material.set_shader_parameter("u_seed", params.get("u_seed", 0.0))
+
+	return material
+
+
+## Creates the star atmosphere material (corona, prominences, etc.).
+## @param body: The star celestial body.
+## @return: Atmosphere material, or null if not a star.
+static func create_star_atmosphere_material(body: CelestialBody) -> ShaderMaterial:
+	if not body or body.type != CelestialType.Type.STAR:
+		return null
+
+	var material: ShaderMaterial = ShaderMaterial.new()
+	material.shader = _star_atmosphere_shader
+
+	var params: Dictionary = StarShaderParams.get_star_shader_params(body)
+
+	material.set_shader_parameter("u_star_color", params.get("u_star_color", Color.WHITE))
+	material.set_shader_parameter("u_luminosity", params.get("u_luminosity", 1.0))
+
+	material.set_shader_parameter("u_chromoThick", params.get("u_chromoThick", 0.015))
+	material.set_shader_parameter("u_chromoIntensity", params.get("u_chromoIntensity", 0.8))
+	material.set_shader_parameter("u_chromoShift", params.get("u_chromoShift", 0.5))
+
+	material.set_shader_parameter("u_coronaExtent", params.get("u_coronaExtent", 0.3))
+	material.set_shader_parameter("u_coronaBright", params.get("u_coronaBright", 0.5))
+	material.set_shader_parameter("u_coronaStreams", params.get("u_coronaStreams", 8.0))
+	material.set_shader_parameter("u_coronaLength", params.get("u_coronaLength", 0.5))
+	material.set_shader_parameter("u_coronaAsym", params.get("u_coronaAsym", 0.3))
+
+	material.set_shader_parameter("u_promCount", params.get("u_promCount", 3.0))
+	material.set_shader_parameter("u_promHeight", params.get("u_promHeight", 0.12))
+	material.set_shader_parameter("u_promGlow", params.get("u_promGlow", 0.8))
+	material.set_shader_parameter("u_flareIntensity", params.get("u_flareIntensity", 0.2))
+
+	material.set_shader_parameter("u_bloomRadius", params.get("u_bloomRadius", 0.15))
+	material.set_shader_parameter("u_bloomIntensity", params.get("u_bloomIntensity", 0.6))
+	material.set_shader_parameter("u_spikeCount", params.get("u_spikeCount", 4.0))
+	material.set_shader_parameter("u_spikeLength", params.get("u_spikeLength", 0.3))
+	material.set_shader_parameter("u_spikeBright", params.get("u_spikeBright", 0.25))
+	material.set_shader_parameter("u_seed", params.get("u_seed", 0.0))
+
+	material.set_shader_parameter("u_star_radius_ratio", 0.8)
+
 	return material
 
 
@@ -128,19 +198,40 @@ static func _create_planet_material(body: CelestialBody) -> Material:
 	# Check if gas giant
 	if _is_gas_giant(body):
 		return _create_gas_giant_material(body)
-	
-	# Rocky planet
+
+	# Check if suitable for terrestrial shader
+	if TerrestrialShaderParams.is_terrestrial_suitable(body):
+		return _create_terrestrial_material(body)
+
+	# Fall back to simple rocky material
 	return _create_rocky_material(body)
 
 
 ## Creates a material for a moon.
 static func _create_moon_material(body: CelestialBody) -> Material:
-	# Similar to planets but often more icy/cratered
+	# Check if suitable for terrestrial shader (large moons with atmospheres)
+	if TerrestrialShaderParams.is_terrestrial_suitable(body):
+		return _create_terrestrial_material(body)
+
+	# Icy moons
 	if body.has_surface() and body.surface.has_cryosphere():
 		if body.surface.cryosphere.polar_cap_coverage > 0.5:
 			return _create_icy_material(body)
-	
+
 	return _create_rocky_material(body)
+
+
+## Creates a terrestrial planet material with full shader features.
+static func _create_terrestrial_material(body: CelestialBody) -> ShaderMaterial:
+	var material: ShaderMaterial = ShaderMaterial.new()
+	material.shader = _terrestrial_shader
+
+	var params: Dictionary = TerrestrialShaderParams.get_params(body)
+
+	for param_name in params:
+		material.set_shader_parameter(param_name, params[param_name])
+
+	return material
 
 
 ## Creates a material for an asteroid.
@@ -156,7 +247,7 @@ static func _create_asteroid_material(body: CelestialBody) -> StandardMaterial3D
 		var asteroid_color: Color = ColorUtils.asteroid_to_color(surface_type, composition)
 		# Adjust for actual albedo
 		material.albedo_color = asteroid_color * (albedo * 2.0)
-		material.roughness = 0.95  # Very rough
+		material.roughness = 0.95 # Very rough
 		material.metallic = 0.1
 		
 		# Metallic asteroids have some metallic sheen
@@ -174,38 +265,15 @@ static func _create_asteroid_material(body: CelestialBody) -> StandardMaterial3D
 	return material
 
 
-## Creates a gas giant material with bands.
+## Creates a gas giant material with bands, storms, and atmosphere.
 static func _create_gas_giant_material(body: CelestialBody) -> ShaderMaterial:
 	var material: ShaderMaterial = ShaderMaterial.new()
-	material.shader = _gas_giant_shader
-	
-	# Determine gas giant colors based on temperature
-	var base_color: Color = Color(0.8, 0.7, 0.5)  # Jupiter-like
-	var band_color: Color = Color(0.9, 0.85, 0.7)
-	var storm_color: Color = Color(0.6, 0.4, 0.3)
-	
-	if body.has_surface():
-		var temp: float = body.surface.temperature_k
-		if temp < 100:  # Very cold - Neptune-like
-			base_color = Color(0.3, 0.5, 0.8)
-			band_color = Color(0.4, 0.6, 0.9)
-		elif temp < 150:  # Cold - Uranus-like
-			base_color = Color(0.4, 0.7, 0.8)
-			band_color = Color(0.5, 0.8, 0.9)
-	
-	material.set_shader_parameter("base_color", base_color)
-	material.set_shader_parameter("band_color", band_color)
-	material.set_shader_parameter("storm_color", storm_color)
-	material.set_shader_parameter("band_count", randi_range(8, 20))
-	material.set_shader_parameter("turbulence", 0.3)
-	material.set_shader_parameter("storm_intensity", randf_range(0.0, 0.5))
-	material.set_shader_parameter("rotation_speed", 0.1)
-	
-	# Set noise texture for turbulence
-	var noise_texture: Texture2D = _get_noise_texture()
-	if noise_texture:
-		material.set_shader_parameter("noise_texture", noise_texture)
-	
+	material.shader = _gas_giant_surface_shader
+
+	var params: Dictionary = GasGiantShaderParams.get_params(body)
+	for param_name in params:
+		material.set_shader_parameter(param_name, params[param_name])
+
 	return material
 
 
@@ -288,88 +356,37 @@ static func _create_default_material() -> StandardMaterial3D:
 ## @param body: The celestial body with atmosphere.
 ## @return: Material for atmosphere effect, or null if no atmosphere.
 static func create_atmosphere_material(body: CelestialBody) -> ShaderMaterial:
-	if not body.has_atmosphere():
+	if not AtmosphereShaderParams.should_render_atmosphere(body):
 		return null
-	
-	var atmo: AtmosphereProps = body.atmosphere
-	
-	# Get base sky color from composition
-	var sky_color: Color = ColorUtils.atmosphere_to_sky_color(atmo.composition)
-	
-	# Apply greenhouse effect tint
-	# Higher greenhouse = more orange/yellow tint (trapped heat)
-	var greenhouse_factor: float = atmo.greenhouse_factor
-	if greenhouse_factor > 1.1:
-		# Lerp toward orange/yellow for strong greenhouse
-		var greenhouse_strength: float = clampf((greenhouse_factor - 1.0) / 2.0, 0.0, 1.0)
-		var greenhouse_tint: Color = Color(0.9, 0.7, 0.4)  # Warm orange
-		sky_color = sky_color.lerp(greenhouse_tint, greenhouse_strength * 0.4)
-	
-	# Create shader material for atmosphere rim effect
+
 	var material: ShaderMaterial = ShaderMaterial.new()
-	material.shader = _get_atmosphere_shader()
-	
-	material.set_shader_parameter("atmosphere_color", sky_color)
-	
-	# Density affects how visible the atmosphere is
-	var density: float = clampf(atmo.surface_pressure_pa / 101325.0, 0.01, 5.0)
-	material.set_shader_parameter("atmosphere_density", minf(density, 2.0))
-	
-	# Scale height affects falloff
-	var falloff: float = 3.0  # Default
-	if body.physical.radius_m > 0 and atmo.scale_height_m > 0:
-		falloff = body.physical.radius_m / atmo.scale_height_m * 0.1
-		falloff = clampf(falloff, 1.0, 10.0)
-	material.set_shader_parameter("falloff", falloff)
-	
-	# Pass greenhouse factor for additional visual effect
-	var greenhouse_intensity: float = clampf((greenhouse_factor - 1.0) * 0.5, 0.0, 1.0)
-	material.set_shader_parameter("greenhouse_intensity", greenhouse_intensity)
-	
+	material.shader = _atmosphere_rim_shader
+
+	var params: Dictionary = AtmosphereShaderParams.get_params(body)
+	for param_name in params:
+		material.set_shader_parameter(param_name, params[param_name])
+
 	return material
 
 
-## Gets or creates the atmosphere shader.
-static func _get_atmosphere_shader() -> Shader:
-	# Simple rim-lighting shader for atmosphere effect
-	var shader: Shader = Shader.new()
-	shader.code = """
-shader_type spatial;
-render_mode blend_add, depth_draw_opaque, cull_front, unshaded;
+## Creates a ring material for the entire ring system.
+## @param ring_system: The ring system properties.
+## @param body: The parent body (for context).
+## @return: Material for the ring system.
+static func create_ring_system_material(ring_system: RingSystemProps, body: CelestialBody = null) -> ShaderMaterial:
+	var material: ShaderMaterial = ShaderMaterial.new()
+	material.shader = _ring_system_shader
 
-uniform vec4 atmosphere_color : source_color = vec4(0.4, 0.6, 0.9, 1.0);
-uniform float atmosphere_density : hint_range(0.0, 2.0) = 1.0;
-uniform float falloff : hint_range(1.0, 10.0) = 3.0;
-uniform float greenhouse_intensity : hint_range(0.0, 1.0) = 0.0;
+	var params: Dictionary = RingShaderParams.get_params(ring_system, body)
+	for param_name in params:
+		material.set_shader_parameter(param_name, params[param_name])
 
-void fragment() {
-	// Rim lighting based on view angle
-	float rim = 1.0 - dot(NORMAL, VIEW);
-	rim = pow(rim, falloff);
-	
-	// Base atmosphere color
-	vec3 atmo_color = atmosphere_color.rgb;
-	
-	// Greenhouse effect: add a warm inner glow
-	if (greenhouse_intensity > 0.0) {
-		// Inner glow (opposite of rim - stronger toward center)
-		float inner = dot(NORMAL, VIEW);
-		inner = pow(inner, 2.0);
-		
-		// Warm color for trapped heat
-		vec3 heat_color = vec3(1.0, 0.6, 0.3);
-		atmo_color = mix(atmo_color, heat_color, inner * greenhouse_intensity * 0.3);
-	}
-	
-	// Apply atmosphere color with density
-	ALBEDO = atmo_color;
-	ALPHA = rim * atmosphere_color.a * atmosphere_density * 0.5;
-}
-"""
-	return shader
+	return material
 
 
-## Creates a ring material.
+## Creates a ring material for a single band (legacy support).
+## @param band: The ring band.
+## @return: Material for the ring band.
 ## @param band: The ring band.
 ## @return: Material for the ring band.
 static func create_ring_material(band: RingBand) -> StandardMaterial3D:
@@ -392,8 +409,7 @@ static func create_ring_material(band: RingBand) -> StandardMaterial3D:
 
 ## Checks if a body is a gas giant.
 static func _is_gas_giant(body: CelestialBody) -> bool:
-	var mass_earth: float = body.physical.mass_kg / 1.989e30 * 333000.0  # Rough estimate
-	return mass_earth > 10.0 and not body.has_surface()
+	return GasGiantShaderParams.is_gas_giant(body)
 
 
 ## Gets the noise texture for shader effects.
