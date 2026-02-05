@@ -291,31 +291,31 @@ static func _generate_population(
 	parent_body: CelestialBody = null
 ) -> PlanetPopulationData:
 	# Generate order-independent seed for this moon's population
-	var pop_seed: int = PopulationSeeding.generate_population_seed(body.id, base_seed)
+	var pop_seed: int = _population_seeding.generate_population_seed(body.id, base_seed)
 	var pop_rng: SeededRng = SeededRng.new(pop_seed)
 	
 	# Generate profile and suitability (passes parent body for moon-specific factors)
-	var pop_data: PlanetPopulationData = PopulationGenerator.generate_profile_only(
+	var pop_data: PlanetPopulationData = _population_generator.generate_profile_only(
 		body, context, parent_body
 	)
 	pop_data.generation_seed = pop_seed
 	
 	# Check if natives should be generated
-	var generate_natives: bool = PopulationProbability.should_generate_natives(pop_data.profile, pop_rng)
+	var generate_natives: bool = _population_probability.should_generate_natives(pop_data.profile, pop_rng)
 	
 	# Check if colony should be generated
 	var generate_colony: bool = false
 	if pop_data.suitability != null:
-		generate_colony = PopulationProbability.should_generate_colony(
+		generate_colony = _population_probability.should_generate_colony(
 			pop_data.profile, pop_data.suitability, pop_rng
 		)
 	
 	# If either should be generated, run full generation
 	if generate_natives or generate_colony:
-		var spec: PopulationGenerator.PopulationSpec = PopulationGenerator.PopulationSpec.create_default(pop_seed)
+		var spec: _population_generator.PopulationSpec = _population_generator.PopulationSpec.create_default(pop_seed)
 		spec.generate_natives = generate_natives
 		spec.generate_colonies = generate_colony
-		pop_data = PopulationGenerator.generate(body, context, spec, parent_body)
+		pop_data = _population_generator.generate(body, context, spec, parent_body)
 		pop_data.generation_seed = pop_seed
 	
 	return pop_data

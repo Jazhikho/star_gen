@@ -135,6 +135,7 @@ var _test_scripts: Array[GDScript] = [
 	preload("res://Tests/Unit/Population/TestPopulationProbability.gd"),
 	preload("res://Tests/Unit/Population/TestPopulationSeeding.gd"),
 	preload("res://Tests/Integration/TestPopulationIntegration.gd"),
+	preload("res://Tests/Integration/TestPopulationGoldenMasters.gd"),
 ]
 
 ## The test runner instance.

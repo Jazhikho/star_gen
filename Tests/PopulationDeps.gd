@@ -23,3 +23,6 @@ const _colony_generator: GDScript = preload("res://src/domain/population/ColonyG
 # Population framework (Stage 6: Integration boundary)
 const _planet_population_data: GDScript = preload("res://src/domain/population/PlanetPopulationData.gd")
 const _population_generator: GDScript = preload("res://src/domain/population/PopulationGenerator.gd")
+# Population integration (Phase 5: Population wiring)
+const _population_probability: GDScript = preload("res://src/domain/population/PopulationProbability.gd")
+const _population_seeding: GDScript = preload("res://src/domain/population/PopulationSeeding.gd")
