@@ -12,7 +12,7 @@ const HASH_PRIME_A: int = 2654435761
 const HASH_PRIME_B: int = 2246822519
 
 ## Salt for population seeds to separate from other generation domains.
-const POPULATION_SALT: int = 0x504F5055  # "POPU" in ASCII hex
+const POPULATION_SALT: int = 0x504F5055 # "POPU" in ASCII hex
 
 
 ## Generates a deterministic population seed from a body ID and base seed.
@@ -56,10 +56,10 @@ static func generate_colony_seed(population_seed: int, colony_index: int) -> int
 ## @param s: The string to hash.
 ## @return: Hash value.
 static func _hash_string(s: String) -> int:
-	var h: int = 0x811C9DC5  # FNV offset basis (32-bit)
+	var h: int = 0x811C9DC5 # FNV offset basis (32-bit)
 	for i in range(s.length()):
 		h = h ^ s.unicode_at(i)
-		h = h * 0x01000193  # FNV prime (32-bit)
+		h = h * 0x01000193 # FNV prime (32-bit)
 	return h
 
 

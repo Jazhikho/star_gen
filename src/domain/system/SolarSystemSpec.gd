@@ -104,9 +104,9 @@ static func sun_like(seed_value: int) -> SolarSystemSpec:
 static func alpha_centauri_like(seed_value: int) -> SolarSystemSpec:
 	var spec: SolarSystemSpec = SolarSystemSpec.new(seed_value, 3, 3)
 	spec.spectral_class_hints = [
-		StarClass.SpectralClass.G,  # Alpha Centauri A
-		StarClass.SpectralClass.K,  # Alpha Centauri B
-		StarClass.SpectralClass.M,  # Proxima Centauri
+		StarClass.SpectralClass.G, # Alpha Centauri A
+		StarClass.SpectralClass.K, # Alpha Centauri B
+		StarClass.SpectralClass.M, # Proxima Centauri
 	]
 	return spec
 

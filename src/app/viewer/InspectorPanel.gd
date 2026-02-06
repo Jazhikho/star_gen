@@ -286,7 +286,7 @@ func _add_atmosphere_properties(body: CelestialBody) -> void:
 		for gas_data in sorted_gases:
 			var gas: String = gas_data[0]
 			var fraction: float = gas_data[1]
-			if fraction > 0.001:  # Only show > 0.1%
+			if fraction > 0.001: # Only show > 0.1%
 				_add_property("  " + gas, "%.2f%%" % (fraction * 100.0))
 
 
@@ -342,7 +342,7 @@ func _add_ring_properties(body: CelestialBody) -> void:
 	_add_property("Inclination", "%.2fÂ°" % rings.inclination_deg)
 	
 	# Individual bands
-	for i in range(mini(rings.get_band_count(), 5)):  # Limit to first 5
+	for i in range(mini(rings.get_band_count(), 5)): # Limit to first 5
 		var band: RingBand = rings.get_band(i)
 		var band_name: String = band.name if band.name else "Band %d" % (i + 1)
 		_add_subsection(band_name + ":")

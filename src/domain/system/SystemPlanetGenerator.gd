@@ -27,7 +27,7 @@ const HOT_ZONE_WEIGHTS: Dictionary = {
 	SizeCategory.Category.SUPER_EARTH: 30.0,
 	SizeCategory.Category.MINI_NEPTUNE: 15.0,
 	SizeCategory.Category.NEPTUNE_CLASS: 5.0,
-	SizeCategory.Category.GAS_GIANT: 5.0,  # Hot Jupiters are rare
+	SizeCategory.Category.GAS_GIANT: 5.0, # Hot Jupiters are rare
 }
 
 ## TEMPERATE zone has balanced mix with slight rocky bias.
@@ -166,7 +166,7 @@ static func generate_targeted(
 		var a_score: float = slot_scores.get(a, 0.0)
 		var b_score: float = slot_scores.get(b, 0.0)
 		if a_score == b_score:
-			return a.id < b.id  # Tiebreaker for stability
+			return a.id < b.id # Tiebreaker for stability
 		return a_score > b_score
 	)
 	
@@ -287,7 +287,7 @@ static func _create_parent_context(
 	orbital_distance_m: float
 ) -> ParentContext:
 	# Get star age (use first star's age as system age)
-	var system_age: float = 4.6e9  # Default to 4.6 billion years
+	var system_age: float = 4.6e9 # Default to 4.6 billion years
 	for star in stars:
 		if star.has_stellar():
 			system_age = star.stellar.age_years
@@ -488,7 +488,7 @@ static func validate_planet_slot_consistency(
 		
 		# Check distance matches (with small tolerance)
 		var distance_diff: float = absf(planet.orbital.semi_major_axis_m - slot.semi_major_axis_m)
-		if distance_diff > 1000.0:  # 1 km tolerance
+		if distance_diff > 1000.0: # 1 km tolerance
 			return false
 	
 	return true

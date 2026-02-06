@@ -17,12 +17,12 @@ const _stellar_props: GDScript = preload("res://src/domain/celestial/components/
 
 ## Moon count ranges by planet mass category.
 ## Format: [min_moons, max_moons, probability_of_having_moons]
-const MOON_COUNT_GAS_GIANT: Array = [2, 8, 0.95]      # Jupiter/Saturn-like
-const MOON_COUNT_ICE_GIANT: Array = [1, 5, 0.90]      # Neptune/Uranus-like
-const MOON_COUNT_SUPER_EARTH: Array = [0, 2, 0.40]    # Large rocky
-const MOON_COUNT_TERRESTRIAL: Array = [0, 2, 0.30]    # Earth-like
+const MOON_COUNT_GAS_GIANT: Array = [2, 8, 0.95] # Jupiter/Saturn-like
+const MOON_COUNT_ICE_GIANT: Array = [1, 5, 0.90] # Neptune/Uranus-like
+const MOON_COUNT_SUPER_EARTH: Array = [0, 2, 0.40] # Large rocky
+const MOON_COUNT_TERRESTRIAL: Array = [0, 2, 0.30] # Earth-like
 const MOON_COUNT_SUB_TERRESTRIAL: Array = [0, 1, 0.15] # Mars-like
-const MOON_COUNT_DWARF: Array = [0, 1, 0.05]          # Pluto-like
+const MOON_COUNT_DWARF: Array = [0, 1, 0.05] # Pluto-like
 
 ## Minimum Hill sphere fraction for moon orbits.
 const MIN_HILL_FRACTION: float = 0.05
@@ -45,7 +45,7 @@ class MoonGenerationResult:
 	var moons: Array[CelestialBody]
 	
 	## Mapping of planet ID to its moon IDs.
-	var planet_moon_map: Dictionary  # String -> Array[String]
+	var planet_moon_map: Dictionary # String -> Array[String]
 	
 	## Whether generation succeeded.
 	var success: bool
@@ -223,7 +223,7 @@ static func _determine_moon_count(planet: CelestialBody, rng: SeededRng) -> int:
 	
 	# Bias toward lower counts
 	var raw: float = rng.randf()
-	var biased: float = pow(raw, 0.7)  # Slight bias toward lower counts
+	var biased: float = pow(raw, 0.7) # Slight bias toward lower counts
 	return int(lerpf(float(min_moons), float(max_moons) + 0.99, biased))
 
 
@@ -273,7 +273,7 @@ static func _generate_moon_distances(
 			var valid: bool = true
 			for existing in distances:
 				var spacing_ratio: float = distance / existing if existing < distance else existing / distance
-				if spacing_ratio < 1.3:  # Minimum 30% spacing
+				if spacing_ratio < 1.3: # Minimum 30% spacing
 					valid = false
 					break
 			
@@ -301,7 +301,7 @@ static func _should_be_captured(distance_m: float, hill_radius_m: float, rng: Se
 	var hill_fraction: float = distance_m / hill_radius_m
 	
 	if hill_fraction > MAX_HILL_FRACTION_REGULAR:
-		return true  # Always captured in outer region
+		return true # Always captured in outer region
 	
 	if hill_fraction > 0.25:
 		return rng.randf() < CAPTURE_PROBABILITY
