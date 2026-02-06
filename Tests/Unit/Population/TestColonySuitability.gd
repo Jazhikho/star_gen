@@ -33,6 +33,10 @@ func _create_test_suitability() -> ColonySuitability:
 		ColonySuitability.FactorType.DAY_LENGTH,
 	]
 
+	suitability.requires_life_support = false
+	suitability.requires_pressure_suit = false
+	suitability.requires_radiation_shielding = false
+
 	return suitability
 
 
@@ -182,6 +186,31 @@ func test_is_colonizable() -> void:
 	assert_true(suitability.is_colonizable())
 
 
+## Tests get_summary returns all expected keys.
+func test_get_summary() -> void:
+	var suitability: ColonySuitability = _create_test_suitability()
+	var summary: Dictionary = suitability.get_summary()
+
+	assert_true(summary.has("overall_score"))
+	assert_true(summary.has("category"))
+	assert_true(summary.has("is_colonizable"))
+	assert_true(summary.has("carrying_capacity"))
+	assert_true(summary.has("base_growth_rate"))
+	assert_true(summary.has("infrastructure_difficulty"))
+	assert_true(summary.has("limiting_factors"))
+	assert_true(summary.has("advantages"))
+	assert_true(summary.has("requires_life_support"))
+	assert_true(summary.has("requires_pressure_suit"))
+	assert_true(summary.has("requires_radiation_shielding"))
+
+	assert_equal(summary["overall_score"], 72)
+	assert_equal(summary["category"], "Favorable")
+	assert_true(summary["is_colonizable"] as bool)
+	assert_equal(summary["requires_life_support"], false)
+	assert_equal(summary["requires_pressure_suit"], false)
+	assert_equal(summary["requires_radiation_shielding"], false)
+
+
 ## Tests category description helper.
 func test_get_category_description() -> void:
 	var desc: String = ColonySuitability.get_category_description(ColonySuitability.Category.FAVORABLE)
@@ -211,6 +240,9 @@ func test_serialization_round_trip() -> void:
 	assert_equal(restored.carrying_capacity, original.carrying_capacity)
 	assert_float_equal(restored.base_growth_rate, original.base_growth_rate, 0.0001)
 	assert_float_equal(restored.infrastructure_difficulty, original.infrastructure_difficulty, 0.0001)
+	assert_equal(restored.requires_life_support, original.requires_life_support)
+	assert_equal(restored.requires_pressure_suit, original.requires_pressure_suit)
+	assert_equal(restored.requires_radiation_shielding, original.requires_radiation_shielding)
 
 
 ## Tests factor_scores serialization.

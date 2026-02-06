@@ -1,0 +1,299 @@
+[gd_scene load_steps=2 format=3 uid="uid://station_gen_proto"]
+
+[ext_resource type="Script" path="res://src/app/prototypes/StationGeneratorPrototype.gd" id="1_script"]
+
+[node name="StationGeneratorPrototype" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_script")
+
+[node name="HSplitContainer" type="HSplitContainer" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 10.0
+offset_top = 10.0
+offset_right = -10.0
+offset_bottom = -10.0
+grow_horizontal = 2
+grow_vertical = 2
+split_offset = 350
+
+[node name="LeftPanel" type="PanelContainer" parent="HSplitContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="ScrollContainer" type="ScrollContainer" parent="HSplitContainer/LeftPanel"]
+layout_mode = 2
+horizontal_scroll_mode = 0
+
+[node name="VBoxContainer" type="VBoxContainer" parent="HSplitContainer/LeftPanel/ScrollContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 10
+
+[node name="Title" type="Label" parent="HSplitContainer/LeftPanel/ScrollContainer/VBoxContainer"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 20
+text = "Station Generator"
+horizontal_alignment = 1
+
+[node name="HSeparator" type="HSeparator" parent="HSplitContainer/LeftPanel/ScrollContainer/VBoxContainer"]
+layout_mode = 2
+
+[node name="ContextLabel" type="Label" parent="HSplitContainer/LeftPanel/ScrollContainer/VBoxContainer"]
+layout_mode = 2
+text = "System Context"
+theme_override_font_sizes/font_size = 16
+
+[node name="ContextOption" type="OptionButton" parent="HSplitContainer/LeftPanel/ScrollContainer/VBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+
+[node name="SeedContainer" type="HBoxContainer" parent="HSplitContainer/LeftPanel/ScrollContainer/VBoxContainer"]
+layout_mode = 2
+
+[node name="SeedLabel" type="Label" parent="HSplitContainer/LeftPanel/ScrollContainer/VBoxContainer/SeedContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Seed:"
+
+[node name="SeedSpinBox" type="SpinBox" parent="HSplitContainer/LeftPanel/ScrollContainer/VBoxContainer/SeedContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+max_value = 999999.0
+value = 12345.0
+
+[node name="RandomSeedButton" type="Button" parent="HSplitContainer/LeftPanel/ScrollContainer/VBoxContainer/SeedContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "🎲"
+
+[node name="DensityContainer" type="HBoxContainer" parent="HSplitContainer/LeftPanel/ScrollContainer/VBoxContainer"]
+layout_mode = 2
+
+[node name="DensityTextLabel" type="Label" parent="HSplitContainer/LeftPanel/ScrollContainer/VBoxContainer/DensityContainer"]
+layout_mode = 2
+text = "Density:"
+
+[node name="DensitySlider" type="HSlider" parent="HSplitContainer/LeftPanel/ScrollContainer/VBoxContainer/DensityContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+min_value = 0.1
+max_value = 3.0
+step = 0.1
+value = 1.0
+
+[node name="DensityLabel" type="Label" parent="HSplitContainer/LeftPanel/ScrollContainer/VBoxContainer/DensityContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+custom_minimum_size = Vector2(50, 0)
+text = "1.0x"
+
+[node name="StationLimitsLabel" type="Label" parent="HSplitContainer/LeftPanel/ScrollContainer/VBoxContainer"]
+layout_mode = 2
+text = "Station Limits"
+theme_override_font_sizes/font_size = 16
+
+[node name="MinMaxContainer" type="HBoxContainer" parent="HSplitContainer/LeftPanel/ScrollContainer/VBoxContainer"]
+layout_mode = 2
+
+[node name="MinLabel" type="Label" parent="HSplitContainer/LeftPanel/ScrollContainer/VBoxContainer/MinMaxContainer"]
+layout_mode = 2
+text = "Min:"
+
+[node name="MinStationsSpinBox" type="SpinBox" parent="HSplitContainer/LeftPanel/ScrollContainer/VBoxContainer/MinMaxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+max_value = 20.0
+
+[node name="MaxLabel" type="Label" parent="HSplitContainer/LeftPanel/ScrollContainer/VBoxContainer/MinMaxContainer"]
+layout_mode = 2
+text = "Max:"
+
+[node name="MaxStationsSpinBox" type="SpinBox" parent="HSplitContainer/LeftPanel/ScrollContainer/VBoxContainer/MinMaxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+max_value = 50.0
+
+[node name="AllowedTypesLabel" type="Label" parent="HSplitContainer/LeftPanel/ScrollContainer/VBoxContainer"]
+layout_mode = 2
+text = "Allowed Types"
+theme_override_font_sizes/font_size = 16
+
+[node name="AllowUtilityCheck" type="CheckBox" parent="HSplitContainer/LeftPanel/ScrollContainer/VBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+button_pressed = true
+text = "Utility Stations (U)"
+
+[node name="AllowOutpostsCheck" type="CheckBox" parent="HSplitContainer/LeftPanel/ScrollContainer/VBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+button_pressed = true
+text = "Outposts (O)"
+
+[node name="AllowLargeCheck" type="CheckBox" parent="HSplitContainer/LeftPanel/ScrollContainer/VBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+button_pressed = true
+text = "Large Stations (B/A/S)"
+
+[node name="HSeparator2" type="HSeparator" parent="HSplitContainer/LeftPanel/ScrollContainer/VBoxContainer"]
+layout_mode = 2
+
+[node name="SystemPropsLabel" type="Label" parent="HSplitContainer/LeftPanel/ScrollContainer/VBoxContainer"]
+layout_mode = 2
+text = "System Properties"
+theme_override_font_sizes/font_size = 16
+
+[node name="ColonyContainer" type="HBoxContainer" parent="HSplitContainer/LeftPanel/ScrollContainer/VBoxContainer"]
+layout_mode = 2
+
+[node name="ColonyLabel" type="Label" parent="HSplitContainer/LeftPanel/ScrollContainer/VBoxContainer/ColonyContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Colony Worlds:"
+
+[node name="ColonyCountSpinBox" type="SpinBox" parent="HSplitContainer/LeftPanel/ScrollContainer/VBoxContainer/ColonyContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+max_value = 5.0
+
+[node name="NativeCheck" type="CheckBox" parent="HSplitContainer/LeftPanel/ScrollContainer/VBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Has Native Population"
+
+[node name="NativeSpacefaringCheck" type="CheckBox" parent="HSplitContainer/LeftPanel/ScrollContainer/VBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+disabled = true
+text = "  └─ Spacefaring Tech"
+
+[node name="ResourceContainer" type="HBoxContainer" parent="HSplitContainer/LeftPanel/ScrollContainer/VBoxContainer"]
+layout_mode = 2
+
+[node name="ResourceTextLabel" type="Label" parent="HSplitContainer/LeftPanel/ScrollContainer/VBoxContainer/ResourceContainer"]
+layout_mode = 2
+text = "Resources:"
+
+[node name="ResourceSlider" type="HSlider" parent="HSplitContainer/LeftPanel/ScrollContainer/VBoxContainer/ResourceContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+max_value = 1.0
+step = 0.05
+value = 0.3
+
+[node name="ResourceLabel" type="Label" parent="HSplitContainer/LeftPanel/ScrollContainer/VBoxContainer/ResourceContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+custom_minimum_size = Vector2(50, 0)
+text = "30%"
+
+[node name="BeltContainer" type="HBoxContainer" parent="HSplitContainer/LeftPanel/ScrollContainer/VBoxContainer"]
+layout_mode = 2
+
+[node name="BeltLabel" type="Label" parent="HSplitContainer/LeftPanel/ScrollContainer/VBoxContainer/BeltContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Asteroid Belts:"
+
+[node name="BeltCountSpinBox" type="SpinBox" parent="HSplitContainer/LeftPanel/ScrollContainer/VBoxContainer/BeltContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+max_value = 5.0
+
+[node name="HSeparator3" type="HSeparator" parent="HSplitContainer/LeftPanel/ScrollContainer/VBoxContainer"]
+layout_mode = 2
+
+[node name="GenerateButton" type="Button" parent="HSplitContainer/LeftPanel/ScrollContainer/VBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_font_sizes/font_size = 18
+text = "Generate Stations"
+
+[node name="RightPanel" type="VSplitContainer" parent="HSplitContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_stretch_ratio = 2.0
+split_offset = 200
+
+[node name="TopRight" type="VBoxContainer" parent="HSplitContainer/RightPanel"]
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="SummaryPanel" type="PanelContainer" parent="HSplitContainer/RightPanel/TopRight"]
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="SummaryScroll" type="ScrollContainer" parent="HSplitContainer/RightPanel/TopRight/SummaryPanel"]
+layout_mode = 2
+
+[node name="SummaryLabel" type="RichTextLabel" parent="HSplitContainer/RightPanel/TopRight/SummaryPanel/SummaryScroll"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+bbcode_enabled = true
+text = "Generation summary will appear here..."
+fit_content = true
+
+[node name="BottomRight" type="HSplitContainer" parent="HSplitContainer/RightPanel"]
+layout_mode = 2
+size_flags_vertical = 3
+size_flags_stretch_ratio = 2.0
+split_offset = 300
+
+[node name="StationListPanel" type="PanelContainer" parent="HSplitContainer/RightPanel/BottomRight"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="StationListVBox" type="VBoxContainer" parent="HSplitContainer/RightPanel/BottomRight/StationListPanel"]
+layout_mode = 2
+
+[node name="ListLabel" type="Label" parent="HSplitContainer/RightPanel/BottomRight/StationListPanel/StationListVBox"]
+layout_mode = 2
+text = "Generated Stations"
+horizontal_alignment = 1
+
+[node name="StationList" type="ItemList" parent="HSplitContainer/RightPanel/BottomRight/StationListPanel/StationListVBox"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="DetailPanel" type="PanelContainer" parent="HSplitContainer/RightPanel/BottomRight"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_stretch_ratio = 1.5
+
+[node name="DetailVBox" type="VBoxContainer" parent="HSplitContainer/RightPanel/BottomRight/DetailPanel"]
+layout_mode = 2
+
+[node name="DetailLabel" type="Label" parent="HSplitContainer/RightPanel/BottomRight/DetailPanel/DetailVBox"]
+layout_mode = 2
+text = "Station Details"
+horizontal_alignment = 1
+
+[node name="DetailScroll" type="ScrollContainer" parent="HSplitContainer/RightPanel/BottomRight/DetailPanel/DetailVBox"]
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="DetailText" type="RichTextLabel" parent="HSplitContainer/RightPanel/BottomRight/DetailPanel/DetailVBox/DetailScroll"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+bbcode_enabled = true
+text = "Select a station to view details."
+fit_content = true

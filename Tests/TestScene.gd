@@ -149,6 +149,18 @@ var _test_scripts: Array[GDScript] = [
 	# Population framework (Stage 6: Integration boundary)
 	preload("res://Tests/Unit/Population/TestPlanetPopulationData.gd"),
 	preload("res://Tests/Unit/Population/TestPopulationGenerator.gd"),
+	# Station framework (outposts-and-spacestations branch)
+	preload("res://Tests/Unit/Population/TestStationClass.gd"),
+	preload("res://Tests/Unit/Population/TestStationType.gd"),
+	preload("res://Tests/Unit/Population/TestStationPurpose.gd"),
+	preload("res://Tests/Unit/Population/TestStationService.gd"),
+	preload("res://Tests/Unit/Population/TestStationPlacementContext.gd"),
+	preload("res://Tests/Unit/Population/TestOutpostAuthority.gd"),
+	preload("res://Tests/Unit/Population/TestOutpost.gd"),
+	preload("res://Tests/Unit/Population/TestSpaceStation.gd"),
+	preload("res://Tests/Unit/Population/TestStationPlacementRules.gd"),
+	preload("res://Tests/Unit/Population/TestStationSpec.gd"),
+	preload("res://Tests/Unit/Population/TestStationGenerator.gd"),
 ]
 
 ## The test runner instance.

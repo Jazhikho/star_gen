@@ -56,6 +56,15 @@ var advantages: Array[FactorType] = []
 ## Reference to source profile body ID.
 var body_id: String = ""
 
+## Whether the planet requires life support for human habitation.
+var requires_life_support: bool = true
+
+## Whether pressure suits are required outdoors.
+var requires_pressure_suit: bool = true
+
+## Whether radiation shielding is required.
+var requires_radiation_shielding: bool = false
+
 
 ## Returns the suitability category based on overall_score.
 ## @return: Category enum value.
@@ -263,6 +272,32 @@ func is_colonizable() -> bool:
 	return overall_score >= 10
 
 
+## Returns a summary dictionary for display.
+## @return: Dictionary with key suitability information.
+func get_summary() -> Dictionary:
+	var limiting_names: Array[String] = []
+	for factor in limiting_factors:
+		limiting_names.append(factor_to_string(factor))
+
+	var advantage_names: Array[String] = []
+	for factor in advantages:
+		advantage_names.append(factor_to_string(factor))
+
+	return {
+		"overall_score": overall_score,
+		"category": get_category_string(),
+		"is_colonizable": is_colonizable(),
+		"carrying_capacity": carrying_capacity,
+		"base_growth_rate": base_growth_rate,
+		"infrastructure_difficulty": infrastructure_difficulty,
+		"limiting_factors": limiting_names,
+		"advantages": advantage_names,
+		"requires_life_support": requires_life_support,
+		"requires_pressure_suit": requires_pressure_suit,
+		"requires_radiation_shielding": requires_radiation_shielding,
+	}
+
+
 ## Returns the number of factor types.
 ## @return: Count of FactorType enum values.
 static func factor_count() -> int:
@@ -299,6 +334,9 @@ func to_dict() -> Dictionary:
 		"infrastructure_difficulty": infrastructure_difficulty,
 		"limiting_factors": limiting_factors_data,
 		"advantages": advantages_data,
+		"requires_life_support": requires_life_support,
+		"requires_pressure_suit": requires_pressure_suit,
+		"requires_radiation_shielding": requires_radiation_shielding,
 	}
 
 
@@ -329,6 +367,10 @@ static func from_dict(data: Dictionary) -> ColonySuitability:
 	var advantages_data: Array = data.get("advantages", []) as Array
 	for factor_int in advantages_data:
 		suitability.advantages.append(_key_to_int(factor_int) as FactorType)
+
+	suitability.requires_life_support = data.get("requires_life_support", true) as bool
+	suitability.requires_pressure_suit = data.get("requires_pressure_suit", true) as bool
+	suitability.requires_radiation_shielding = data.get("requires_radiation_shielding", false) as bool
 
 	return suitability
 

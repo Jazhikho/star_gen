@@ -6,23 +6,24 @@ extends RefCounted
 
 ## Regime forms (matching RegimeChangeModel.md).
 enum Regime {
-	TRIBAL,              ## Tribal/band governance (custom, councils, chiefs)
-	CHIEFDOM,            ## Chiefdom/early hierarchy
-	CITY_STATE,          ## City-state oligarchy/republic (elite participation)
-	FEUDAL,              ## Feudal fragmentation/lord networks
+	TRIBAL, ## Tribal/band governance (custom, councils, chiefs)
+	CHIEFDOM, ## Chiefdom/early hierarchy
+	CITY_STATE, ## City-state oligarchy/republic (elite participation)
+	FEUDAL, ## Feudal fragmentation/lord networks
 	PATRIMONIAL_KINGDOM, ## Patrimonial kingdom (personal rule + local delegation)
 	BUREAUCRATIC_EMPIRE, ## Bureaucratic empire (officials, records, taxation)
-	ABSOLUTE_MONARCHY,   ## Central monarchy/absolutist state (strong executive)
-	CONSTITUTIONAL,      ## Constitutional bargain (assemblies, charters, constraints)
-	ELITE_REPUBLIC,      ## Elite republic (limited franchise, strong institutions)
-	MASS_DEMOCRACY,      ## Mass democracy (broad franchise, parties, elections)
-	ONE_PARTY_STATE,     ## One-party state (bureaucratic authoritarian)
-	MILITARY_JUNTA,      ## Military junta/emergency rule
-	PERSONALIST_DICT,    ## Personalist dictatorship (rule by inner circle)
-	FAILED_STATE,        ## Failed state/warlordism (fragmented coercion)
-	CORPORATE,           ## Corporate governance (colony-specific)
-	THEOCRACY,           ## Religious rule
-	TECHNOCRACY,         ## Rule by technical experts
+	ABSOLUTE_MONARCHY, ## Central monarchy/absolutist state (strong executive)
+	CONSTITUTIONAL, ## Constitutional bargain (assemblies, charters, constraints)
+	OLIGARCHIC, ## Oligarchy (rule by small elite, often hereditary or corporate)
+	ELITE_REPUBLIC, ## Elite republic (limited franchise, strong institutions)
+	MASS_DEMOCRACY, ## Mass democracy (broad franchise, parties, elections)
+	ONE_PARTY_STATE, ## One-party state (bureaucratic authoritarian)
+	MILITARY_JUNTA, ## Military junta/emergency rule
+	PERSONALIST_DICT, ## Personalist dictatorship (rule by inner circle)
+	FAILED_STATE, ## Failed state/warlordism (fragmented coercion)
+	CORPORATE, ## Corporate governance (colony-specific)
+	THEOCRACY, ## Religious rule
+	TECHNOCRACY, ## Rule by technical experts
 }
 
 
@@ -47,6 +48,8 @@ static func to_string_name(regime: Regime) -> String:
 			return "Absolute Monarchy"
 		Regime.CONSTITUTIONAL:
 			return "Constitutional Government"
+		Regime.OLIGARCHIC:
+			return "Oligarchy"
 		Regime.ELITE_REPUBLIC:
 			return "Elite Republic"
 		Regime.MASS_DEMOCRACY:
@@ -90,6 +93,8 @@ static func from_string(name: String) -> Regime:
 			return Regime.ABSOLUTE_MONARCHY
 		"constitutional", "constitutional_government":
 			return Regime.CONSTITUTIONAL
+		"oligarchic", "oligarchy":
+			return Regime.OLIGARCHIC
 		"elite_republic":
 			return Regime.ELITE_REPUBLIC
 		"mass_democracy":
@@ -150,7 +155,9 @@ static func baseline_transitions(regime: Regime) -> Array[Regime]:
 		Regime.ABSOLUTE_MONARCHY:
 			return [Regime.CONSTITUTIONAL, Regime.BUREAUCRATIC_EMPIRE]
 		Regime.CONSTITUTIONAL:
-			return [Regime.ELITE_REPUBLIC]
+			return [Regime.ELITE_REPUBLIC, Regime.OLIGARCHIC]
+		Regime.OLIGARCHIC:
+			return [Regime.ELITE_REPUBLIC, Regime.MASS_DEMOCRACY, Regime.CORPORATE]
 		Regime.ELITE_REPUBLIC:
 			return [Regime.MASS_DEMOCRACY]
 		Regime.MASS_DEMOCRACY:
@@ -188,6 +195,8 @@ static func crisis_transitions(regime: Regime) -> Array[Regime]:
 			return [Regime.MILITARY_JUNTA, Regime.PERSONALIST_DICT, Regime.ONE_PARTY_STATE]
 		Regime.ELITE_REPUBLIC:
 			return [Regime.MILITARY_JUNTA, Regime.PERSONALIST_DICT, Regime.MASS_DEMOCRACY]
+		Regime.OLIGARCHIC:
+			return [Regime.MILITARY_JUNTA, Regime.PERSONALIST_DICT, Regime.CORPORATE]
 		Regime.CONSTITUTIONAL:
 			return [Regime.MILITARY_JUNTA, Regime.PERSONALIST_DICT, Regime.ABSOLUTE_MONARCHY]
 		Regime.BUREAUCRATIC_EMPIRE:
@@ -204,7 +213,7 @@ static func crisis_transitions(regime: Regime) -> Array[Regime]:
 static func is_authoritarian(regime: Regime) -> bool:
 	match regime:
 		Regime.ABSOLUTE_MONARCHY, Regime.ONE_PARTY_STATE, Regime.MILITARY_JUNTA, \
-		Regime.PERSONALIST_DICT, Regime.THEOCRACY:
+		Regime.PERSONALIST_DICT, Regime.THEOCRACY, Regime.OLIGARCHIC:
 			return true
 		_:
 			return false
@@ -236,4 +245,4 @@ static func is_unstable(regime: Regime) -> bool:
 ## Returns the number of regime types.
 ## @return: Count of Regime enum values.
 static func count() -> int:
-	return 17
+	return 18

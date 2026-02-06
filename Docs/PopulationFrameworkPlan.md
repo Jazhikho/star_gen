@@ -38,6 +38,80 @@ This document describes the development plan for the **population framework** on
 
 ---
 
+## Extension: Outposts and Space Stations (branch: outposts-and-spacestations)
+
+This branch extends the population framework with **outposts** and **space stations**. Both are orbital or deep-space habitats rather than planetary populations, but they integrate with the population model (population counts, purposes, placement logic).
+
+### Outposts
+
+- **Definition:** Habitats with population **10,000 or less**.
+- **Placement:**
+  - **Bridge systems:** Frequently placed in small space stations in systems that serve as bridges or waypoints between regions (trade routes, choke points).
+  - **Other locales:** Placed more or less randomly depending on the needs of the establishing faction:
+    - Mining (resource extraction sites)
+    - Science (research stations, observatories)
+    - Spy bases (intelligence gathering)
+    - Other functional purposes
+- Outposts are typically small and purpose-driven.
+
+### Space Stations
+
+- **Definition:** Orbital or deep-space habitats that **can function as outposts** but may grow to **city-sized** populations.
+- **Placement and roles:**
+  - **Over native-populated planets:** Common over planets with native populations that have at least a **space-faring** level of technology. There may be several stations per planet.
+  - **Over colony worlds:** Common over colony worlds, usually offering **functional services** to visiting ships: refuel, repair, and other amenities.
+  - **Resource-rich systems without habitable planets:** In systems that are resource-rich but lack habitable planets, space stations are more likely to support **colony-sized** populations (the station becomes the primary settlement).
+
+### Relationship to population framework
+
+- Space stations and outposts use the same population concepts (counts, demographics, history) where applicable.
+- Placement logic depends on system context (bridge vs colony vs resource-rich), native/colony population presence, and technology level.
+- Determinism and RNG injection apply as for other population generation.
+
+---
+
+### Outposts-and-spacestations stage order
+
+1. **Stage 1: Core enums** ✅
+   - StationClass, StationType, StationPurpose, StationService, StationPlacementContext, OutpostAuthority.
+   - Unit tests for all enums.
+   - See `src/domain/population/Station*.gd`, `OutpostAuthority.gd`.
+
+2. **Stage 2: Outpost and SpaceStation models**
+   - Outpost data model (population ≤10k, purpose, placement, authority).
+   - SpaceStation data model (can grow to city-sized, services, government, history for larger stations).
+   - Serialization (to_dict/from_dict) for both.
+   - Unit tests (creation, serialization, validation).
+
+3. **Stage 3: Placement rules**
+   - StationPlacementRules: pure functions for placement logic.
+   - Bridge system detection (stub if galactic data not yet available).
+   - Native/colony context, resource richness, technology level checks.
+   - Unit tests for all rule branches.
+
+4. **Stage 4: Station generator** ✅
+   - StationGenerator: generates stations/outposts for a system given context and spec.
+   - StationSpec for generation parameters.
+   - Determinism tests.
+   - Prototype: `src/app/prototypes/StationGeneratorPrototype.tscn` for interactive exploration.
+
+5. **Stage 5: Integration**
+   - System-level container for stations (SystemPopulationData or extension to SolarSystem).
+   - Optional integration with PlanetPopulationData when station orbits a planet.
+
+### Station-related file structure
+
+- **Domain:** `src/domain/population/`
+  - `StationClass.gd`, `StationType.gd`, `StationPurpose.gd`, `StationService.gd`, `StationPlacementContext.gd`, `OutpostAuthority.gd` ✅
+  - `Outpost.gd`, `SpaceStation.gd` (Stage 2)
+  - `StationPlacementRules.gd` (Stage 3) ✅
+  - `StationGenerator.gd`, `StationSpec.gd` (Stage 4) ✅
+- **Tests:** `Tests/Unit/Population/`
+  - `TestStationClass.gd`, `TestStationType.gd`, etc. ✅
+  - `TestOutpost.gd`, `TestSpaceStation.gd`, `TestStationPlacementRules.gd`, `TestStationSpec.gd`, `TestStationGenerator.gd` ✅
+
+---
+
 ## Key Design Decisions
 
 ### 1. Planet Profile
