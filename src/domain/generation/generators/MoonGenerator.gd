@@ -28,18 +28,18 @@ const _population_seeding: GDScript = preload("res://src/domain/population/Popul
 
 ## Size category distribution weights for regular moons.
 const SIZE_CATEGORY_WEIGHTS_REGULAR: Array[float] = [
-	30.0,  # DWARF - common for moons
-	50.0,  # SUB_TERRESTRIAL - most common (Luna, Europa, Titan)
-	15.0,  # TERRESTRIAL - rare but possible
-	5.0,   # SUPER_EARTH - very rare
+	30.0, # DWARF - common for moons
+	50.0, # SUB_TERRESTRIAL - most common (Luna, Europa, Titan)
+	15.0, # TERRESTRIAL - rare but possible
+	5.0, # SUPER_EARTH - very rare
 ]
 
 ## Size category distribution weights for captured moons.
 const SIZE_CATEGORY_WEIGHTS_CAPTURED: Array[float] = [
-	80.0,  # DWARF - most captured moons are small
-	18.0,  # SUB_TERRESTRIAL - uncommon
-	2.0,   # TERRESTRIAL - very rare
-	0.0,   # SUPER_EARTH - essentially impossible
+	80.0, # DWARF - most captured moons are small
+	18.0, # SUB_TERRESTRIAL - uncommon
+	2.0, # TERRESTRIAL - very rare
+	0.0, # SUPER_EARTH - essentially impossible
 ]
 
 ## Minimum Hill sphere fraction for stable orbits.
@@ -131,7 +131,7 @@ static func generate(spec: MoonSpec, context: ParentContext, rng: SeededRng, ena
 	
 	# Generate population data if enabled
 	if enable_population:
-		body.population_data = _generate_population(body, context, spec.seed, parent_body)
+		body.population_data = _generate_population(body, context, spec.generation_seed, parent_body)
 	
 	return body
 
@@ -224,7 +224,7 @@ static func _generate_orbital_props(
 		else:
 			# Bias toward circular
 			var raw: float = rng.randf()
-			eccentricity = raw * raw * 0.1  # Max ~0.1 for regular
+			eccentricity = raw * raw * 0.1 # Max ~0.1 for regular
 	
 	# Inclination - regular moons in equatorial plane, captured can be inclined
 	var inclination_deg: float = spec.get_override_float(
@@ -262,7 +262,7 @@ static func _generate_orbital_props(
 		longitude_of_ascending_node_deg,
 		argument_of_periapsis_deg,
 		mean_anomaly_deg,
-		""  # Parent ID set later by system generator
+		"" # Parent ID set later by system generator
 	)
 
 

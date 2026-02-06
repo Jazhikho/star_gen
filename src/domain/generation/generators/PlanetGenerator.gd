@@ -31,20 +31,20 @@ const _population_seeding: GDScript = preload("res://src/domain/population/Popul
 
 ## Size category distribution weights for random selection.
 const SIZE_CATEGORY_WEIGHTS: Array[float] = [
-	5.0,   # DWARF - uncommon
-	10.0,  # SUB_TERRESTRIAL - moderate
-	15.0,  # TERRESTRIAL - common
-	20.0,  # SUPER_EARTH - very common (most discovered exoplanets)
-	20.0,  # MINI_NEPTUNE - very common
-	15.0,  # NEPTUNE_CLASS - common
-	15.0,  # GAS_GIANT - common
+	5.0, # DWARF - uncommon
+	10.0, # SUB_TERRESTRIAL - moderate
+	15.0, # TERRESTRIAL - common
+	20.0, # SUPER_EARTH - very common (most discovered exoplanets)
+	20.0, # MINI_NEPTUNE - very common
+	15.0, # NEPTUNE_CLASS - common
+	15.0, # GAS_GIANT - common
 ]
 
 ## Orbit zone distribution weights for random selection.
 const ORBIT_ZONE_WEIGHTS: Array[float] = [
-	20.0,  # HOT - moderate (detection bias)
-	30.0,  # TEMPERATE - common
-	50.0,  # COLD - most common (more orbital space)
+	20.0, # HOT - moderate (detection bias)
+	30.0, # TEMPERATE - common
+	50.0, # COLD - most common (more orbital space)
 ]
 
 
@@ -113,7 +113,7 @@ static func generate(spec: PlanetSpec, context: ParentContext, rng: SeededRng, e
 	
 	# Generate population data if enabled
 	if enable_population:
-		body.population_data = _generate_population(body, context, spec.seed)
+		body.population_data = _generate_population(body, context, spec.generation_seed)
 	
 	return body
 
@@ -217,7 +217,7 @@ static func _generate_orbital_props(
 		longitude_of_ascending_node_deg,
 		argument_of_periapsis_deg,
 		mean_anomaly_deg,
-		""  # Parent ID set later by system generator
+		"" # Parent ID set later by system generator
 	)
 
 
