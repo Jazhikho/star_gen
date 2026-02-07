@@ -574,3 +574,13 @@ Complete the galactic viewer with save/load functionality and final optimization
 
 ## Backlog discipline
 Any feature request that does not directly support the current phase must be recorded in BACKLOG.md and deferred. Each backlog item should include: title, why it matters, target phase, and complexity (S/M/L).
+
+## Active branches
+Work in progress on feature branches (as of repo survey). Main development is on **master**; these branches are developed separately and may be merged when ready.
+
+| Branch | Focus | Notes |
+|--------|--------|--------|
+| **population** | Planet population framework | Native populations and their history, colonies, planet profiles (habitability, suitability), government types, regime-change model. Domain in `src/domain/population/`; docs: PopulationFrameworkPlan.md, PopulationREADME.md, RegimeChangeModel.md. Parallel to main roadmap; normal test suite must stay runnable; integrate into main when ready. |
+| **object-rendering** | Phase 5–style rendering + population in viewer | Per-type shader params (star, gas giant, terrestrial, ring, atmosphere), noise lib, improved materials/shaders; population display in viewer (profile, suitability, natives, colonies); Phase 7 testing/polish and golden masters. |
+| **jump-lanes-tool** | Jump lanes (galactic/sector connectivity) | Domain: JumpLaneCalculator, JumpLaneClusterConnector, JumpLaneConnection, JumpLaneRegion, JumpLaneResult, JumpLaneSystem. Prototype: JumpLaneRenderer, extended (red) connections, cluster connector. Dedicated test runner (JumpLanesTestRunner, JumpLanesTestScene). |
+| **outposts-and-spacestations** | Stations and outposts (extends population) | Outpost and SpaceStation domain types; StationGenerator, StationPlacementRules, StationPlacementContext; station class, purpose, service, type, spec; OutpostAuthority; OLIGARCHIC regime. StationGeneratorPrototype for UI. Builds on population branch. |
