@@ -25,8 +25,8 @@ const _units: GDScript = preload("res://src/domain/math/Units.gd")
 ## Minimum camera height (closest zoom).
 @export var min_height: float = 0.5
 
-## Maximum camera height (farthest zoom).
-@export var max_height: float = 200.0
+## Maximum camera height (farthest zoom). Increased to handle large multi-star systems.
+@export var max_height: float = 1000.0
 
 ## Minimum pitch angle in degrees (how far down the camera can look).
 @export var min_pitch_deg: float = 10.0
@@ -132,8 +132,8 @@ func _input(event: InputEvent) -> void:
 		elif _panning:
 			# Pan in the camera's local XZ plane
 			var pan_scale: float = _height * pan_speed * 0.002
-			var pan_x: float = -delta.x * pan_scale
-			var pan_z: float = -delta.y * pan_scale
+			var pan_x: float = - delta.x * pan_scale
+			var pan_z: float = - delta.y * pan_scale
 			
 			# Rotate pan direction by camera yaw
 			_target_position.x += pan_x * cos(_yaw) + pan_z * sin(_yaw)

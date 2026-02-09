@@ -456,6 +456,15 @@ Add a galactic container that browses and lazily generates systems without regen
 **Goal:**
 Improve generation quality with constraint-based generation (min/max/exact counts, orbital resonances).
 
+**Status:** In progress (branch: **phase-8-solar-system-refinement**).
+
+**Stages (planned):**
+•	**Stage 1: SystemConstraints model** — Exact/min/max body counts (planets, moons, belts); must-include templates deferred to later. Validation and serialization.
+•	**Stage 2: Stellar locks** — Lock stellar age (→ affects planet composition and surface age); lock binary star separation (→ constrains orbital parameters). Spec extensions and generator wiring.
+•	**Stage 3: Orbital resonances** — Force orbital resonances: snap orbits to specified resonant ratios. Use `OrbitalMechanics.calculate_resonance_spacing` / `get_common_resonance_ratios`; constraint-aware slot/planet placement.
+•	**Stage 4: Constraint-aware generation** — Bounded retries; clear failure errors when constraints are impossible; determinism preserved.
+•	**Stage 5: UI** — Constraints panel and regenerate flow in system viewer.
+
 **Deliverables:**
 •	SystemConstraints model (exact/min/max counts, must-include templates later).
 •	Lock stellar age → affects planet composition and surface age.
@@ -584,3 +593,4 @@ Work in progress on feature branches (as of repo survey). Main development is on
 | **object-rendering** | Phase 5–style rendering + population in viewer | Per-type shader params (star, gas giant, terrestrial, ring, atmosphere), noise lib, improved materials/shaders; population display in viewer (profile, suitability, natives, colonies); Phase 7 testing/polish and golden masters. |
 | **jump-lanes-tool** | Jump lanes (galactic/sector connectivity) | Domain: JumpLaneCalculator, JumpLaneClusterConnector, JumpLaneConnection, JumpLaneRegion, JumpLaneResult, JumpLaneSystem. Prototype: JumpLaneRenderer, extended (red) connections, cluster connector. Dedicated test runner (JumpLanesTestRunner, JumpLanesTestScene). |
 | **outposts-and-spacestations** | Stations and outposts (extends population) | Outpost and SpaceStation domain types; StationGenerator, StationPlacementRules, StationPlacementContext; station class, purpose, service, type, spec; OutpostAuthority; OLIGARCHIC regime. StationGeneratorPrototype for UI. Builds on population branch. |
+| **phase-8-solar-system-refinement** | Phase 8: Solar system generator refinement | SystemConstraints (exact/min/max counts), stellar age lock, binary separation lock, forced orbital resonances, constraint-aware generation with retries, UI for constraints and regenerate. Domain: `src/domain/system/`; app: `src/app/system_viewer/`. |

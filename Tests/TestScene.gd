@@ -53,6 +53,7 @@ var _test_scripts: Array[GDScript] = [
 	preload("res://Tests/Integration/TestSystemCameraController.gd"),
 	preload("res://Tests/Unit/TestSystemBodyNode.gd"),
 	preload("res://Tests/Unit/TestSystemInspectorPanel.gd"),
+	preload("res://Tests/Unit/TestSystemDisplayLayout.gd"),
 	# Phase 6 tests - Stage 1
 	preload("res://Tests/Unit/TestHierarchyNode.gd"),
 	preload("res://Tests/Unit/TestSystemHierarchy.gd"),

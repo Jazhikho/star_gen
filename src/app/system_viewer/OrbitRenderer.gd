@@ -1,5 +1,6 @@
 ## Renders orbital paths as 3D line meshes.
 ## Creates and manages orbit ellipse visualizations.
+## Supports both static and moving orbits (e.g. planets following stars in binary systems).
 class_name OrbitRenderer
 extends Node3D
 
@@ -28,41 +29,98 @@ const SELECTED_ORBIT_COLOR: Color = Color(0.8, 0.8, 0.2, 0.9)
 ## Number of segments per orbit ellipse.
 const ORBIT_SEGMENTS: int = 128
 
+## Per-orbit data for position updates and highlighting.
+class OrbitData:
+	extends RefCounted
+	var mesh_instance: MeshInstance3D
+	var parent_id: String
+	var current_center: Vector3
+	var base_color: Color
+
+	func _init() -> void:
+		mesh_instance = null
+		parent_id = ""
+		current_center = Vector3.ZERO
+		base_color = Color(0.3, 0.4, 0.6, 0.6)
+
+## Map of orbit_id -> OrbitData (for selection, highlighting, and position updates).
+var _orbits: Dictionary = {}
+
 ## Currently selected orbit mesh (for highlighting).
 var _selected_orbit: MeshInstance3D = null
 
-## Map of body_id -> orbit MeshInstance3D for selection.
-var _orbit_meshes: Dictionary = {}
+## ID of the currently highlighted orbit (for restoring base color).
+var _selected_orbit_id: String = ""
 
 
 ## Clears all rendered orbits.
 func clear() -> void:
-	for child in get_children():
-		child.queue_free()
-	_orbit_meshes.clear()
+	for orbit_id in _orbits:
+		var data: OrbitData = _orbits[orbit_id] as OrbitData
+		if data.mesh_instance != null:
+			data.mesh_instance.queue_free()
+	_orbits.clear()
 	_selected_orbit = null
+	_selected_orbit_id = ""
+
+
+## Removes a single orbit by ID.
+## @param orbit_id: The orbit ID to remove.
+func remove_orbit(orbit_id: String) -> void:
+	if _orbits.has(orbit_id):
+		var data: OrbitData = _orbits[orbit_id] as OrbitData
+		if data.mesh_instance != null:
+			data.mesh_instance.queue_free()
+		_orbits.erase(orbit_id)
+		if _selected_orbit_id == orbit_id:
+			_selected_orbit = null
+			_selected_orbit_id = ""
 
 
 ## Renders an orbital path for a body.
 ## @param body_id: Unique ID for this orbit (for selection).
-## @param points: Array of Vector3 points defining the orbit.
+## @param points: Array of Vector3 points defining the orbit (world or center-relative).
 ## @param body_type: Type of the orbiting body (for color selection).
-## @return: The created MeshInstance3D.
+## @param parent_id: Optional host ID for position updates during animation (empty = static).
+## @param center: Center of the orbit; when set with parent_id, orbit moves with host.
+## @return: The created MeshInstance3D, or null if points empty.
 func add_orbit(
 	body_id: String,
 	points: PackedVector3Array,
-	body_type: CelestialType.Type = CelestialType.Type.PLANET
+	body_type: CelestialType.Type = CelestialType.Type.PLANET,
+	parent_id: String = "",
+	center: Vector3 = Vector3.ZERO
 ) -> MeshInstance3D:
 	if points.is_empty():
 		return null
-	
+
+	if _orbits.has(body_id):
+		remove_orbit(body_id)
+
 	var color: Color = _get_orbit_color(body_type)
-	var mesh_instance: MeshInstance3D = _create_line_mesh(points, color)
+	var use_relative: bool = not parent_id.is_empty() or center != Vector3.ZERO
+
+	var relative_points: PackedVector3Array = PackedVector3Array()
+	if use_relative:
+		for i in range(points.size()):
+			relative_points.append(points[i] - center)
+	else:
+		relative_points = points
+
+	var mesh_instance: MeshInstance3D = _create_line_mesh(relative_points, color)
 	mesh_instance.name = "Orbit_" + body_id
-	
+	if use_relative:
+		mesh_instance.position = center
+
 	add_child(mesh_instance)
-	_orbit_meshes[body_id] = mesh_instance
-	
+
+	var data: OrbitData = OrbitData.new()
+	data.mesh_instance = mesh_instance
+	data.parent_id = parent_id
+	data.current_center = center
+	data.base_color = color
+	_orbits[body_id] = data
+
 	return mesh_instance
 
 
@@ -92,31 +150,55 @@ func add_zone_ring(
 ## Highlights a specific orbit by body ID.
 ## @param body_id: The body whose orbit to highlight. Empty string clears highlight.
 func highlight_orbit(body_id: String) -> void:
-	# Restore previous selection
-	if _selected_orbit != null:
-		var prev_material: StandardMaterial3D = _selected_orbit.material_override as StandardMaterial3D
-		if prev_material:
-			# Find the original body type from the name
-			var original_color: Color = PLANET_ORBIT_COLOR
-			_selected_orbit.material_override = _create_line_material(original_color)
-		_selected_orbit = null
-	
-	# Apply new selection
-	if body_id.is_empty() or not _orbit_meshes.has(body_id):
+	if _selected_orbit != null and not _selected_orbit_id.is_empty() and _orbits.has(_selected_orbit_id):
+		var prev_data: OrbitData = _orbits[_selected_orbit_id] as OrbitData
+		_selected_orbit.material_override = _create_line_material(prev_data.base_color)
+	_selected_orbit = null
+	_selected_orbit_id = ""
+
+	if body_id.is_empty() or not _orbits.has(body_id):
 		return
-	
-	_selected_orbit = _orbit_meshes[body_id] as MeshInstance3D
+
+	var data: OrbitData = _orbits[body_id] as OrbitData
+	_selected_orbit = data.mesh_instance
+	_selected_orbit_id = body_id
 	if _selected_orbit:
 		_selected_orbit.material_override = _create_line_material(SELECTED_ORBIT_COLOR)
 
 
 ## Sets visibility of moon orbits.
-## @param visible: Whether moon orbits should be visible.
-func set_moon_orbits_visible(visible: bool) -> void:
-	for body_id in _orbit_meshes:
-		var mesh: MeshInstance3D = _orbit_meshes[body_id] as MeshInstance3D
-		if mesh and mesh.name.begins_with("Orbit_moon_"):
-			mesh.visible = visible
+## @param show_moons: Whether moon orbits should be visible.
+func set_moon_orbits_visible(show_moons: bool) -> void:
+	for orbit_id in _orbits:
+		var data: OrbitData = _orbits[orbit_id] as OrbitData
+		if data.mesh_instance != null and data.mesh_instance.name.begins_with("Orbit_moon_"):
+			data.mesh_instance.visible = show_moons
+
+
+## Updates orbit positions from current host positions (for moving orbits).
+## Call during animation so orbits follow their parent bodies.
+## @param host_positions: Dictionary mapping host/parent ID -> Vector3 position.
+func update_orbit_positions(host_positions: Dictionary) -> void:
+	for orbit_id in _orbits:
+		var data: OrbitData = _orbits[orbit_id] as OrbitData
+		if data.parent_id.is_empty():
+			continue
+		if host_positions.has(data.parent_id):
+			var new_center: Vector3 = host_positions[data.parent_id] as Vector3
+			if new_center != data.current_center:
+				data.current_center = new_center
+				if data.mesh_instance != null:
+					data.mesh_instance.position = new_center
+
+
+## Returns the number of orbits being rendered.
+func get_orbit_count() -> int:
+	return _orbits.size()
+
+
+## Returns true if an orbit with the given ID exists.
+func has_orbit(orbit_id: String) -> bool:
+	return _orbits.has(orbit_id)
 
 
 ## Creates a line mesh from an array of points.

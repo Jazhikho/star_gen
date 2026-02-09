@@ -276,3 +276,112 @@ func test_moon_orbit_visibility() -> void:
 	assert_true(true, "Showing moon orbits should not crash")
 	
 	renderer.queue_free()
+
+
+# =============================================================================
+# MOVING ORBITS (parent_id / center / update_orbit_positions)
+# =============================================================================
+
+
+## Tests adding an orbit with parent_id and center (for animation).
+func test_add_orbit_with_parent() -> void:
+	var renderer: OrbitRenderer = _create_renderer()
+	var center: Vector3 = Vector3(5, 0, 5)
+	var points: PackedVector3Array = PackedVector3Array()
+	for i in range(33):
+		var angle: float = (float(i) / 32.0) * TAU
+		points.append(center + Vector3(cos(angle) * 10.0, 0, sin(angle) * 10.0))
+
+	renderer.add_orbit("planet_orbit", points, CelestialType.Type.PLANET, "star_node", center)
+
+	assert_true(renderer.has_orbit("planet_orbit"), "Should have orbit")
+	assert_equal(renderer.get_orbit_count(), 1, "Should have one orbit")
+	renderer.queue_free()
+
+
+## Tests update_orbit_positions moves orbit mesh when host position changes.
+func test_update_orbit_positions() -> void:
+	var renderer: OrbitRenderer = _create_renderer()
+	var center: Vector3 = Vector3(10, 0, 0)
+	var points: PackedVector3Array = PackedVector3Array()
+	for i in range(33):
+		var angle: float = (float(i) / 32.0) * TAU
+		points.append(center + Vector3(cos(angle) * 5.0, 0, sin(angle) * 5.0))
+
+	renderer.add_orbit("test_orbit", points, CelestialType.Type.PLANET, "parent_star", center)
+
+	var host_positions: Dictionary = {"parent_star": Vector3(20, 0, 0)}
+	renderer.update_orbit_positions(host_positions)
+
+	assert_true(renderer.has_orbit("test_orbit"), "Orbit should still exist after update")
+	renderer.queue_free()
+
+
+## Tests orbit without parent_id is not moved by update_orbit_positions.
+func test_orbit_without_parent_stays_fixed() -> void:
+	var renderer: OrbitRenderer = _create_renderer()
+	var points: PackedVector3Array = _make_circle_points(10.0)
+	renderer.add_orbit("fixed_orbit", points, CelestialType.Type.PLANET)
+
+	var host_positions: Dictionary = {"some_parent": Vector3(100, 0, 0)}
+	renderer.update_orbit_positions(host_positions)
+
+	assert_true(renderer.has_orbit("fixed_orbit"), "Fixed orbit should still exist")
+	renderer.queue_free()
+
+
+## Tests replacing an orbit with the same ID.
+func test_replace_orbit_same_id() -> void:
+	var renderer: OrbitRenderer = _create_renderer()
+
+	renderer.add_orbit("test_orbit", _make_circle_points(10.0), CelestialType.Type.PLANET)
+	renderer.add_orbit("test_orbit", _make_circle_points(20.0), CelestialType.Type.PLANET)
+
+	assert_equal(renderer.get_orbit_count(), 1, "Should still have one orbit after replace")
+	renderer.queue_free()
+
+
+## Tests multiple orbits with different parents can be updated.
+func test_multiple_orbits_different_parents() -> void:
+	var renderer: OrbitRenderer = _create_renderer()
+
+	var center_a: Vector3 = Vector3(-10, 0, 0)
+	var points_a: PackedVector3Array = PackedVector3Array()
+	for i in range(33):
+		var angle: float = (float(i) / 32.0) * TAU
+		points_a.append(center_a + Vector3(cos(angle) * 5.0, 0, sin(angle) * 5.0))
+	renderer.add_orbit("planet_a", points_a, CelestialType.Type.PLANET, "star_a", center_a)
+
+	var center_b: Vector3 = Vector3(10, 0, 0)
+	var points_b: PackedVector3Array = PackedVector3Array()
+	for i in range(33):
+		var angle: float = (float(i) / 32.0) * TAU
+		points_b.append(center_b + Vector3(cos(angle) * 5.0, 0, sin(angle) * 5.0))
+	renderer.add_orbit("planet_b", points_b, CelestialType.Type.PLANET, "star_b", center_b)
+
+	assert_equal(renderer.get_orbit_count(), 2, "Should have two orbits")
+
+	var new_positions: Dictionary = {
+		"star_a": Vector3(-15, 0, 0),
+		"star_b": Vector3(15, 0, 0)
+	}
+	renderer.update_orbit_positions(new_positions)
+
+	assert_true(renderer.has_orbit("planet_a"), "Orbit A should exist")
+	assert_true(renderer.has_orbit("planet_b"), "Orbit B should exist")
+	renderer.queue_free()
+
+
+## Tests remove_orbit removes one orbit and leaves others.
+func test_remove_orbit() -> void:
+	var renderer: OrbitRenderer = _create_renderer()
+
+	renderer.add_orbit("orbit_1", _make_circle_points(2.0), CelestialType.Type.PLANET)
+	renderer.add_orbit("orbit_2", _make_circle_points(4.0), CelestialType.Type.PLANET)
+	assert_equal(renderer.get_orbit_count(), 2, "Should have two orbits")
+
+	renderer.remove_orbit("orbit_1")
+	assert_equal(renderer.get_orbit_count(), 1, "Should have one orbit after remove")
+	assert_false(renderer.has_orbit("orbit_1"), "orbit_1 should be removed")
+	assert_true(renderer.has_orbit("orbit_2"), "orbit_2 should remain")
+	renderer.queue_free()
