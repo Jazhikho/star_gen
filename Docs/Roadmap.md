@@ -367,10 +367,12 @@ Randomly generate a solar system, display it, and inspect its bodies (no editing
 **Stage 10: Viewer - 3D Setup** ✅ Complete
 •	✅ SystemCameraController: Top-down orbital view with smooth zoom, pan, and orbit controls
 •	✅ SystemScaleManager: Astronomical distance/size to viewport unit conversions with Kepler's equation solver
-•	✅ OrbitRenderer: 3D line mesh rendering for orbital paths with type-based coloring
+•	✅ SystemDisplayLayout: Layout calculations with sweep-based separation (extent + orbit radius per node); prevents overlap in triple+ star nested systems; BINARY_BUFFER_GAP / PTYPE_BUFFER_GAP; update_orbits for animation.
+•	✅ OrbitRenderer: 3D line mesh rendering for orbital paths with type-based coloring; per-orbit center/parent_id and update_orbit_positions for animated hierarchies.
 •	✅ SystemViewer.gd script: Main viewer controller with system display logic
 •	✅ SystemViewer.tscn scene: Scene structure with UI nodes, camera rig, containers
 •	✅ Integration tests (SystemCameraController, SystemScaleManager, OrbitRenderer)
+•	✅ Unit tests (TestSystemDisplayLayout): layout invariants, triple no-overlap after animation
 •	✅ Integration test for SystemViewer scene instantiation
 
 **Stage 11: Viewer - Bodies** ✅ Complete
@@ -456,7 +458,13 @@ Add a galactic container that browses and lazily generates systems without regen
 **Goal:**
 Improve generation quality with constraint-based generation (min/max/exact counts, orbital resonances).
 
-**Status:** In progress (branch: **phase-8-solar-system-refinement**).
+**Status:** In progress. Viewer display layout work merged to master.
+
+**Completed (viewer display, merged):**
+•	✅ SystemDisplayLayout: Sweep-based separation (max_sweep_radius, orbit_radius_around_parent) so nested binaries (e.g. (A+B)+C) do not overlap when animated; one recompute pass when required_separation > initial separation; total extent uses sweep for camera fitting.
+•	✅ OrbitRenderer: OrbitData with optional center/parent_id; add_orbit and update_orbit_positions for moving orbits.
+•	✅ SystemViewer: Passes center/parent_id to add_orbit and calls update_orbit_positions after updating orbits.
+•	✅ TestSystemDisplayLayout: Full suite including test_triple_system_no_overlap_after_animation (200 steps, all body pairs maintain clearance).
 
 **Stages (planned):**
 •	**Stage 1: SystemConstraints model** — Exact/min/max body counts (planets, moons, belts); must-include templates deferred to later. Validation and serialization.
@@ -593,4 +601,4 @@ Work in progress on feature branches (as of repo survey). Main development is on
 | **object-rendering** | Phase 5–style rendering + population in viewer | Per-type shader params (star, gas giant, terrestrial, ring, atmosphere), noise lib, improved materials/shaders; population display in viewer (profile, suitability, natives, colonies); Phase 7 testing/polish and golden masters. |
 | **jump-lanes-tool** | Jump lanes (galactic/sector connectivity) | Domain: JumpLaneCalculator, JumpLaneClusterConnector, JumpLaneConnection, JumpLaneRegion, JumpLaneResult, JumpLaneSystem. Prototype: JumpLaneRenderer, extended (red) connections, cluster connector. Dedicated test runner (JumpLanesTestRunner, JumpLanesTestScene). |
 | **outposts-and-spacestations** | Stations and outposts (extends population) | Outpost and SpaceStation domain types; StationGenerator, StationPlacementRules, StationPlacementContext; station class, purpose, service, type, spec; OutpostAuthority; OLIGARCHIC regime. StationGeneratorPrototype for UI. Builds on population branch. |
-| **phase-8-solar-system-refinement** | Phase 8: Solar system generator refinement | SystemConstraints (exact/min/max counts), stellar age lock, binary separation lock, forced orbital resonances, constraint-aware generation with retries, UI for constraints and regenerate. Domain: `src/domain/system/`; app: `src/app/system_viewer/`. |
+| _(phase-8-solar-system-refinement merged)_ | Phase 8 viewer display | Sweep-based SystemDisplayLayout, OrbitRenderer updates, TestSystemDisplayLayout merged to master. Constraint stages (SystemConstraints, stellar locks, resonances, UI) still planned. |

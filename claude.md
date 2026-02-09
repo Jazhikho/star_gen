@@ -98,7 +98,7 @@ No implementing backlog items unless the current phase explicitly includes them.
 ### File organization
 - Domain logic: `src/domain/`
 - Services (IO, caching): `src/services/`
-- App layer (scenes, UI): `src/app/`
+- App layer (scenes, UI): `src/app/` (system viewer includes SystemViewer, SystemDisplayLayout, OrbitRenderer, SystemCameraController, SystemBodyNode, SystemInspectorPanel)
 - Shared resources: `Resources/`
 - Test scenes: `Tests/`
 - Documentation: `Docs/`

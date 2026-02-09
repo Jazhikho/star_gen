@@ -8,6 +8,8 @@ Built with **Godot 4.x** and **GDScript**.
 
 **Current Phase**: Phase 7 - Galactic map v1 (in progress)
 
+**Phase 8 (viewer display)**: ✅ Merged to master - System display layout with sweep-based separation for multi-star systems (no overlap in triple+ hierarchies), OrbitRenderer updates (per-orbit center/parent, animated positions), TestSystemDisplayLayout suite including triple no-overlap-after-animation test.
+
 **Phase 6**: ✅ Complete - Solar system generator and viewer (Stages 1-11 Complete, Stage 12 Deferred)
 
 **Phase 0**: ✅ Complete - Foundations, deterministic RNG, math/validation utilities, and test framework
@@ -129,7 +131,7 @@ Built with **Godot 4.x** and **GDScript**.
 - ✅ Save/load galaxy state (seed, zoom, camera, selection)
 - ⏳ Galaxy data model (Galaxy, Sector, GalaxyStar) and lazy system generation (future)
 
-**Test Status**: 951+ tests in suite; headless run reports passing (some integration tests expect pre-welcome flow and are being updated).
+**Test Status**: 1007 tests in suite; headless run reports 999+ passing (some galaxy integration tests expect full scene tree and are being updated).
 
 See [claude.md](claude.md) for detailed architecture, roadmap, and working agreement.
 
@@ -309,6 +311,7 @@ star_gen/
 │       │   ├── SystemViewer.tscn  # System viewer scene
 │       │   ├── SystemCameraController.gd # System camera controls
 │       │   ├── SystemScaleManager.gd # Scale transformations
+│       │   ├── SystemDisplayLayout.gd # Layout + sweep-based separation (multi-star no-overlap)
 │       │   ├── SystemBodyNode.gd  # Individual body node
 │       │   ├── SystemBodyNode.tscn # Body node scene
 │       │   ├── OrbitRenderer.gd   # Orbit path rendering
@@ -349,6 +352,7 @@ star_gen/
 │   │   ├── TestOrbitSlotGenerator.gd
 │   │   ├── TestSystemScaleManager.gd
 │   │   ├── TestOrbitRenderer.gd
+│   │   ├── TestSystemDisplayLayout.gd
 │   │   ├── TestSystemBodyNode.gd
 │   │   ├── TestSystemInspectorPanel.gd
 │   │   └── ... (additional unit tests)
