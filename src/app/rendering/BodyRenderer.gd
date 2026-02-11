@@ -73,12 +73,18 @@ func _ensure_nodes_exist() -> void:
 	else:
 		star_light = $StarLight
 	
-	if not has_node("RingSystem"):
+	# Ring system is a child of BodyMesh so it inherits axial tilt and rotation (equatorial plane).
+	if has_node("RingSystem"):
+		ring_system_node = get_node("RingSystem") as Node3D
+		if ring_system_node.get_parent() == self:
+			remove_child(ring_system_node)
+			body_mesh.add_child(ring_system_node)
+	elif body_mesh.has_node("RingSystem"):
+		ring_system_node = body_mesh.get_node("RingSystem") as Node3D
+	else:
 		ring_system_node = Node3D.new()
 		ring_system_node.name = "RingSystem"
-		add_child(ring_system_node)
-	else:
-		ring_system_node = $RingSystem
+		body_mesh.add_child(ring_system_node)
 
 	if star_atmosphere_mesh == null:
 		star_atmosphere_mesh = MeshInstance3D.new()
@@ -314,27 +320,13 @@ func _update_ring_system() -> void:
 	if planet_radius_m <= 0.0:
 		return
 	
-	# Reset ring system rotation before adding bands
-	ring_system_node.rotation = Vector3.ZERO
+	# Reset ring system local rotation (only inclination; axial tilt comes from BodyMesh parent).
+	ring_system_node.rotation_degrees = Vector3(rings.inclination_deg, 0.0, 0.0)
 	
 	# Create a mesh for each ring band
 	for i in range(rings.get_band_count()):
 		var band: RingBand = rings.get_band(i)
 		_create_ring_band_mesh(band, planet_radius_m)
-	
-	# Rings are in the equatorial plane of the planet
-	# The ring system will inherit the body's axial tilt from _apply_axial_tilt()
-	# Ring inclination is a small additional tilt relative to the equator
-	var ring_inclination: float = rings.inclination_deg
-	
-	# Apply ring inclination (around X axis, after axial tilt is applied)
-	# This is relative to the equatorial plane, so it's added to the base tilt
-	var axial_tilt: float = current_body.physical.axial_tilt_deg
-	ring_system_node.rotation_degrees = Vector3(
-		ring_inclination, # Ring's own inclination relative to equator
-		0.0,
-		axial_tilt # Match body's axial tilt (equatorial plane)
-	)
 
 
 ## Creates a mesh for a single ring band.
@@ -357,48 +349,48 @@ func _create_ring_band_mesh(band: RingBand, planet_radius_m: float) -> void:
 	ring_system_node.add_child(ring_mesh)
 
 
-## Creates a flat ring mesh (annulus).
+## Creates a flat ring mesh (annulus). Ring lies in XZ plane with normal +Y for consistent lighting.
 func _create_ring_mesh(inner_radius: float, outer_radius: float, segments: int = 64) -> ArrayMesh:
 	var mesh: ArrayMesh = ArrayMesh.new()
 	var vertices: PackedVector3Array = PackedVector3Array()
 	var uvs: PackedVector2Array = PackedVector2Array()
+	var normals: PackedVector3Array = PackedVector3Array()
 	var indices: PackedInt32Array = PackedInt32Array()
-	
-	# Create ring vertices
+	var up: Vector3 = Vector3.UP
+
+	# Create ring vertices; explicit normals so shader lighting is consistent
 	for i in range(segments + 1):
 		var angle: float = (float(i) / float(segments)) * TAU
 		var cos_a: float = cos(angle)
 		var sin_a: float = sin(angle)
-		
-		# Inner vertex
+
 		vertices.append(Vector3(cos_a * inner_radius, 0.0, sin_a * inner_radius))
 		uvs.append(Vector2(float(i) / float(segments), 0.0))
-		
-		# Outer vertex
+		normals.append(up)
+
 		vertices.append(Vector3(cos_a * outer_radius, 0.0, sin_a * outer_radius))
 		uvs.append(Vector2(float(i) / float(segments), 1.0))
-	
+		normals.append(up)
+
 	# Create triangles
 	for i in range(segments):
 		var base: int = i * 2
-		# First triangle
 		indices.append(base)
 		indices.append(base + 1)
 		indices.append(base + 2)
-		# Second triangle
 		indices.append(base + 1)
 		indices.append(base + 3)
 		indices.append(base + 2)
-	
-	# Build mesh
+
 	var arrays: Array = []
 	arrays.resize(Mesh.ARRAY_MAX)
 	arrays[Mesh.ARRAY_VERTEX] = vertices
 	arrays[Mesh.ARRAY_TEX_UV] = uvs
+	arrays[Mesh.ARRAY_NORMAL] = normals
 	arrays[Mesh.ARRAY_INDEX] = indices
-	
+
 	mesh.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES, arrays)
-	
+
 	return mesh
 
 
@@ -465,7 +457,4 @@ func rotate_body(delta: float, speed_multiplier: float = 1.0) -> void:
 	if star_atmosphere_mesh and star_atmosphere_mesh.visible:
 		star_atmosphere_mesh.rotate_object_local(Vector3.UP, rotation_speed * delta)
 	
-	# Rings rotate with body (they're in the equatorial plane)
-	# Only rotate if we have rings
-	if ring_system_node and current_body.has_ring_system():
-		ring_system_node.rotate_object_local(Vector3.UP, rotation_speed * delta)
+	# Rings are under BodyMesh so they rotate with the body automatically

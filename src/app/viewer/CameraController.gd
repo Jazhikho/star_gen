@@ -31,6 +31,7 @@ extends Camera3D
 var _distance: float = 10.0
 var _target_distance: float = 10.0
 var _rotation: Vector2 = Vector2.ZERO # x = yaw, y = pitch
+## World-space position the camera orbits around and looks at. Updated each frame when following a moon.
 var _target_position: Vector3 = Vector3.ZERO
 
 ## Input state
@@ -165,6 +166,12 @@ func focus_on_target() -> void:
 	_target_position = Vector3.ZERO
 	_target_distance = 10.0
 	_rotation = Vector2.ZERO
+
+
+## Sets the point the camera orbits around. Call every frame to follow a moving object (e.g. a moon).
+## @param pos: World-space position to look at.
+func set_target_position(pos: Vector3) -> void:
+	_target_position = pos
 
 
 ## Sets the camera distance.

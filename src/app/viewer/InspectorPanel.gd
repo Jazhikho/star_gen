@@ -13,6 +13,7 @@ const _government_type: GDScript = preload("res://src/domain/population/Governme
 const _colony_type: GDScript = preload("res://src/domain/population/ColonyType.gd")
 const _biome_type: GDScript = preload("res://src/domain/population/BiomeType.gd")
 const _climate_zone: GDScript = preload("res://src/domain/population/ClimateZone.gd")
+const _units: GDScript = preload("res://src/domain/math/Units.gd")
 
 ## Container for dynamically created inspector content
 @onready var inspector_container: VBoxContainer = get_node("InspectorContainer")
@@ -32,6 +33,15 @@ const VALUE_COLOR: Color = Color(0.85, 0.85, 0.85)
 ## Minimum width for labels
 const LABEL_MIN_WIDTH: float = 100.0
 
+## Colour used for moon name buttons in the moon list.
+const MOON_COLOR: Color = Color(0.7, 0.85, 1.0)
+
+## Colour used to highlight the currently-focused moon.
+const FOCUSED_MOON_COLOR: Color = Color(1.0, 0.85, 0.3)
+
+## Emitted when the user clicks a moon in the moon list. Null means "return focus to the planet".
+signal moon_selected(moon: CelestialBody)
+
 
 ## Clears all inspector content.
 func clear() -> void:
@@ -44,62 +54,215 @@ func clear() -> void:
 	_current_section_content = null
 
 
-## Displays properties for a celestial body.
+## Displays a primary body with no moon list.
+## Convenience wrapper around display_body_with_moons.
 ## @param body: The celestial body to inspect.
 func display_body(body: CelestialBody) -> void:
+	display_body_with_moons(body, [])
+
+
+## Displays a primary body. If moons is non-empty a collapsible moon list is
+## prepended so the user can shift focus to any moon from the panel.
+## @param body: The primary body.
+## @param moons: Moons orbiting the body (may be empty).
+func display_body_with_moons(
+	body: CelestialBody,
+	moons: Array[CelestialBody]
+) -> void:
 	clear()
-	
+
 	if not body:
 		_add_label("No object loaded")
 		return
-	
-	# Basic info section
+
+	if not moons.is_empty():
+		_add_moon_list_section(moons, null)
+
+	_add_body_sections(body)
+
+
+## Displays a focused moon view: moon properties, "back to planet" button,
+## compact moon switcher, and collapsed planet summary.
+## @param moon: The moon currently focused.
+## @param planet: The parent planet.
+## @param all_moons: All moons (used for the switcher; may equal [moon]).
+func display_focused_moon(
+	moon: CelestialBody,
+	planet: CelestialBody,
+	all_moons: Array[CelestialBody]
+) -> void:
+	clear()
+
+	if not moon:
+		return
+
+	_add_back_to_planet_button(planet)
+
+	_add_section("Moon: %s" % moon.name, true)
+	_add_property("Type", _format_type(moon))
+	_add_property("ID", moon.id)
+
+	_add_section("Physical Properties", true)
+	_add_physical_properties(moon)
+
+	if moon.has_orbital():
+		_add_section("Orbital Properties", true)
+		_add_orbital_properties(moon)
+
+	if moon.has_atmosphere():
+		_add_section("Atmosphere", true)
+		_add_atmosphere_properties(moon)
+
+	if moon.has_surface():
+		_add_section("Surface", true)
+		_add_surface_properties(moon)
+
+	if moon.has_population_data():
+		_add_section("Planet Profile", true)
+		_add_profile_properties(moon)
+
+	if all_moons.size() > 1:
+		_add_moon_list_section(all_moons, moon)
+
+	if planet:
+		_add_section("Parent: %s" % planet.name, false)
+		_add_property("Type", _format_type(planet))
+		_add_physical_properties(planet)
+
+
+## Adds a collapsible "Moons" section with one button row per moon.
+## The focused moon (if any) is highlighted in a distinct colour.
+## @param moons: Moons to list.
+## @param focused_moon: Currently focused moon, or null.
+func _add_moon_list_section(
+	moons: Array[CelestialBody],
+	focused_moon: CelestialBody
+) -> void:
+	var section: VBoxContainer = VBoxContainer.new()
+	section.add_theme_constant_override("separation", 2)
+
+	var header: Button = Button.new()
+	header.text = "▼ Moons (%d)" % moons.size()
+	header.flat = true
+	header.alignment = HORIZONTAL_ALIGNMENT_LEFT
+	header.add_theme_font_size_override("font_size", 14)
+	header.add_theme_color_override("font_color", SECTION_COLOR)
+
+	var content: VBoxContainer = VBoxContainer.new()
+	content.add_theme_constant_override("separation", 3)
+	content.visible = true
+
+	header.pressed.connect(_toggle_section.bind(content, header))
+
+	for moon: CelestialBody in moons:
+		var row: HBoxContainer = HBoxContainer.new()
+		var is_focused: bool = focused_moon != null and moon.id == focused_moon.id
+
+		var btn: Button = Button.new()
+		btn.text = moon.name
+		btn.flat = true
+		btn.alignment = HORIZONTAL_ALIGNMENT_LEFT
+		btn.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		btn.add_theme_font_size_override("font_size", 12)
+		var btn_color: Color = MOON_COLOR
+		if is_focused:
+			btn_color = FOCUSED_MOON_COLOR
+		btn.add_theme_color_override("font_color", btn_color)
+		btn.pressed.connect(moon_selected.emit.bind(moon))
+		row.add_child(btn)
+
+		var tag: Label = Label.new()
+		tag.text = _brief_moon_tag(moon)
+		tag.add_theme_font_size_override("font_size", 11)
+		tag.add_theme_color_override("font_color", LABEL_COLOR)
+		row.add_child(tag)
+
+		content.add_child(row)
+
+	section.add_child(header)
+	section.add_child(content)
+	inspector_container.add_child(section)
+
+
+## Returns a short one-line descriptor: radius and orbital distance.
+## @param moon: The moon body.
+## @return: Formatted string, e.g. "  0.272 R⊕  384 Mkm".
+func _brief_moon_tag(moon: CelestialBody) -> String:
+	var parts: Array[String] = []
+	if moon.physical:
+		var r: float = moon.physical.radius_m / Units.EARTH_RADIUS_METERS
+		parts.append("%.3f R⊕" % r)
+	if moon.has_orbital():
+		var dist_km: float = moon.orbital.semi_major_axis_m / 1000.0
+		if dist_km >= 1.0e6:
+			parts.append("%.2f Gkm" % (dist_km / 1.0e6))
+		elif dist_km >= 1000.0:
+			parts.append("%.0f Mkm" % (dist_km / 1000.0))
+		else:
+			parts.append("%.0f km" % dist_km)
+	return "  " + "  ".join(parts)
+
+
+## Adds a "← Back to [planet name]" button that emits moon_selected(null).
+## @param planet: Parent planet (used for the button label).
+func _add_back_to_planet_button(planet: CelestialBody) -> void:
+	if not inspector_container:
+		return
+	var back_label: String = "Planet"
+	if planet:
+		back_label = planet.name
+	var btn: Button = Button.new()
+	btn.text = "← Back to %s" % back_label
+	btn.tooltip_text = "Refocus on the parent planet"
+	btn.pressed.connect(moon_selected.emit.bind(null))
+	inspector_container.add_child(btn)
+
+
+## Adds all standard sections for a full body display.
+## @param body: The body whose properties to display.
+func _add_body_sections(body: CelestialBody) -> void:
 	_add_section("Basic Info", true)
-	_add_property("Name", body.name if body.name else body.id)
+	var name_val: String = body.id
+	if body.name:
+		name_val = body.name
+	_add_property("Name", name_val)
 	_add_property("Type", _format_type(body))
 	_add_property("ID", body.id)
-	
-	# Physical properties
+
 	_add_section("Physical Properties", true)
 	_add_physical_properties(body)
-	
-	# Stellar properties (stars only)
+
 	if body.has_stellar():
 		_add_section("Stellar Properties", true)
 		_add_stellar_properties(body)
-	
-	# Orbital properties
+
 	if body.has_orbital():
 		_add_section("Orbital Properties", true)
 		_add_orbital_properties(body)
-	
-	# Atmosphere properties
+
 	if body.has_atmosphere():
 		_add_section("Atmosphere", true)
 		_add_atmosphere_properties(body)
-	
-	# Surface properties
+
 	if body.has_surface():
 		_add_section("Surface", true)
 		_add_surface_properties(body)
-	
-	# Ring system
+
 	if body.has_ring_system():
 		_add_section("Ring System", true)
 		_add_ring_properties(body)
-	
-	# Population data
+
 	if body.has_population_data():
 		_add_section("Planet Profile", true)
 		_add_profile_properties(body)
-		
+
 		_add_section("Colony Suitability", true)
 		_add_suitability_properties(body)
-		
+
 		if body.population_data.has_natives():
 			_add_section("Native Populations", true)
 			_add_native_properties(body)
-		
+
 		if body.population_data.has_colonies():
 			_add_section("Colonies", true)
 			_add_colony_properties(body)

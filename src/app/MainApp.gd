@@ -329,12 +329,13 @@ func _generate_system_from_seed(star_seed: int) -> SolarSystem:
 
 ## Handles request to open a body in the object viewer.
 ## @param body: The celestial body to display.
-func _on_open_in_object_viewer(body: CelestialBody) -> void:
+## @param moons: Associated moons from the system (may be empty).
+func _on_open_in_object_viewer(body: CelestialBody, moons: Array[CelestialBody] = []) -> void:
 	if body == null:
 		return
 
 	_show_object_viewer()
-	_object_viewer.display_external_body(body)
+	_object_viewer.display_external_body(body, moons)
 
 
 ## Handles request to go back to the system viewer from object viewer.

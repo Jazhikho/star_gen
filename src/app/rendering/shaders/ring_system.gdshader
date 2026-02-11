@@ -117,21 +117,17 @@ void fragment() {
 	float fine_detail = smoothstep(0.3, 0.7, fine_noise) * 0.1;
 	ring_color += vec3(fine_detail);
 
-	// Lighting
-	vec3 N = vec3(0.0, 1.0, 0.0);  // Ring normal (up)
+	// Soft lighting so rings don't fade in/out as the planet rotates (min 0.65, max 1.0)
+	vec3 N = normalize(NORMAL);
 	vec3 L = normalize(u_lightDir);
-	float NdotL = abs(dot(N, L));  // Absolute for both sides
-	float light = NdotL * 0.55 + u_ambient;
+	float NdotL = abs(dot(N, L));
+	float light = 0.65 + 0.35 * NdotL;
 
 	ring_color *= light;
 
-	// View-dependent transparency (rings more transparent when edge-on)
-	vec3 V = normalize(VIEW);
-	float view_angle = abs(dot(N, V));
-	float view_alpha = mix(0.3, 1.0, view_angle);
-
+	// No view-dependent alpha so rings stay visible as the planet rotates
 	ALBEDO = ring_color;
-	ALPHA = ring_alpha * view_alpha * 0.88;
+	ALPHA = ring_alpha * 0.88;
 	ROUGHNESS = 0.9;
 	METALLIC = 0.0;
 }

@@ -39,6 +39,7 @@ var _test_scripts: Array[GDScript] = [
 	preload("res://Tests/Unit/TestGoldenMasters.gd"),
 	# Phase 3 tests - Object viewer
 	preload("res://Tests/Integration/TestObjectViewer.gd"),
+	preload("res://Tests/Integration/TestObjectViewerMoons.gd"),
 	preload("res://Tests/Integration/TestSaveLoad.gd"),
 	preload("res://Tests/Unit/TestColorUtils.gd"),
 	preload("res://Tests/Unit/TestColorUtilsShaderParams.gd"),

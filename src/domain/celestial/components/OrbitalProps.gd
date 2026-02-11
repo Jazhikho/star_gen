@@ -10,7 +10,7 @@ var semi_major_axis_m: float
 ## Orbital eccentricity (0 = circular, 0-1 = elliptical).
 var eccentricity: float
 
-## Orbital inclination in degrees.
+## Orbital inclination in degrees. For moons, measured from the planet's equatorial plane.
 var inclination_deg: float
 
 ## Longitude of ascending node in degrees.

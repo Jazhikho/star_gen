@@ -3,8 +3,9 @@
 class_name SystemViewer
 extends Node3D
 
-## Signal emitted when a body should be opened in the object viewer.
-signal open_body_in_viewer(body: CelestialBody)
+## Emitted when a body should be opened in the object viewer.
+## Carries the body and its associated moons (empty array if none).
+signal open_body_in_viewer(body: CelestialBody, moons: Array[CelestialBody])
 
 ## Signal emitted when the user wants to go back to the galaxy viewer.
 signal back_to_galaxy_requested
@@ -517,11 +518,19 @@ func _unhandled_input(event: InputEvent) -> void:
 				deselect_body()
 
 
-## Handles open in viewer request from inspector panel.
-## @param body: The body to open in the object viewer.
+## Handles open-in-viewer request from the inspector panel.
+## Collects all moons whose orbital parent_id matches this body, then emits
+## open_body_in_viewer with both the body and its moons.
+## @param body: The body the user wants to inspect in detail.
 func _on_open_body_in_viewer(body: CelestialBody) -> void:
-	if body:
-		open_body_in_viewer.emit(body)
+	if not body:
+		return
+
+	var moons: Array[CelestialBody] = []
+	if current_system and body.type == CelestialType.Type.PLANET:
+		moons = current_system.get_moons_of_planet(body.id)
+
+	open_body_in_viewer.emit(body, moons)
 
 
 ## Sets the status message.

@@ -60,6 +60,7 @@ static func _get_default_params() -> Dictionary:
 
 
 ## Calculates atmospheric falloff from scale height.
+## Larger scale height = atmosphere extends further = lower falloff rate.
 static func _calculate_falloff(body: CelestialBody, atmo: AtmosphereProps) -> float:
 	if not body.physical or body.physical.radius_m <= 0:
 		return 3.0
@@ -67,9 +68,7 @@ static func _calculate_falloff(body: CelestialBody, atmo: AtmosphereProps) -> fl
 	if atmo.scale_height_m <= 0:
 		return 3.0
 
-	var scale_ratio: float = atmo.scale_height_m / body.physical.radius_m
-	var falloff: float = 0.5 / maxf(scale_ratio, 0.001)
-
+	var falloff: float = 85000.0 / atmo.scale_height_m
 	return clampf(falloff, 1.0, 10.0)
 
 

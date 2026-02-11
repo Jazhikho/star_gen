@@ -188,7 +188,11 @@ static func _generate_orbital_props(
 	
 	# Determine min/max orbital distance
 	var min_distance_m: float = maxf(roche_limit_m * 1.5, context.parent_body_radius_m * 2.0)
-	
+	# Honor spec override (e.g. to enforce clearance outside a ring system).
+	var override_min: float = spec.get_override_float("orbital.min_semi_major_axis_m", -1.0)
+	if override_min > 0.0:
+		min_distance_m = maxf(min_distance_m, override_min)
+
 	var max_fraction: float
 	if spec.is_captured:
 		max_fraction = MAX_HILL_FRACTION_RETROGRADE
