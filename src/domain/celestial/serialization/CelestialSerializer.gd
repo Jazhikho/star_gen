@@ -31,6 +31,9 @@ static func to_dict(body: CelestialBody) -> Dictionary:
 	if body.has_ring_system():
 		data["ring_system"] = body.ring_system.to_dict()
 	
+	if body.has_population_data():
+		data["population_data"] = body.population_data.to_dict()
+	
 	if body.provenance != null:
 		data["provenance"] = body.provenance.to_dict()
 
@@ -78,6 +81,9 @@ static func from_dict(data: Dictionary) -> CelestialBody:
 	
 	if data.has("ring_system"):
 		body.ring_system = RingSystemProps.from_dict(data["ring_system"])
+	
+	if data.has("population_data"):
+		body.population_data = PlanetPopulationData.from_dict(data["population_data"])
 	
 	return body
 

@@ -21,22 +21,25 @@ const _surface_props: GDScript = preload("res://src/domain/celestial/components/
 const _provenance: GDScript = preload("res://src/domain/celestial/Provenance.gd")
 const _parent_context: GDScript = preload("res://src/domain/generation/ParentContext.gd")
 const _seeded_rng: GDScript = preload("res://src/domain/rng/SeededRng.gd")
+const _population_generator: GDScript = preload("res://src/domain/population/PopulationGenerator.gd")
+const _population_probability: GDScript = preload("res://src/domain/population/PopulationProbability.gd")
+const _population_seeding: GDScript = preload("res://src/domain/population/PopulationSeeding.gd")
 
 
 ## Size category distribution weights for regular moons.
 const SIZE_CATEGORY_WEIGHTS_REGULAR: Array[float] = [
-	30.0,  # DWARF - common for moons
-	50.0,  # SUB_TERRESTRIAL - most common (Luna, Europa, Titan)
-	15.0,  # TERRESTRIAL - rare but possible
-	5.0,   # SUPER_EARTH - very rare
+	30.0, # DWARF - common for moons
+	50.0, # SUB_TERRESTRIAL - most common (Luna, Europa, Titan)
+	15.0, # TERRESTRIAL - rare but possible
+	5.0, # SUPER_EARTH - very rare
 ]
 
 ## Size category distribution weights for captured moons.
 const SIZE_CATEGORY_WEIGHTS_CAPTURED: Array[float] = [
-	80.0,  # DWARF - most captured moons are small
-	18.0,  # SUB_TERRESTRIAL - uncommon
-	2.0,   # TERRESTRIAL - very rare
-	0.0,   # SUPER_EARTH - essentially impossible
+	80.0, # DWARF - most captured moons are small
+	18.0, # SUB_TERRESTRIAL - uncommon
+	2.0, # TERRESTRIAL - very rare
+	0.0, # SUPER_EARTH - essentially impossible
 ]
 
 ## Minimum Hill sphere fraction for stable orbits.
@@ -53,8 +56,10 @@ const MAX_HILL_FRACTION_RETROGRADE: float = 0.7
 ## @param spec: The moon specification.
 ## @param context: The parent planet/star context.
 ## @param rng: The random number generator (will be advanced).
+## @param enable_population: If true, generate population data based on probability.
+## @param parent_body: Optional parent body for population context.
 ## @return: A new CelestialBody configured as a moon.
-static func generate(spec: MoonSpec, context: ParentContext, rng: SeededRng) -> CelestialBody:
+static func generate(spec: MoonSpec, context: ParentContext, rng: SeededRng, enable_population: bool = false, parent_body: CelestialBody = null) -> CelestialBody:
 	# Validate context has parent body (planet)
 	if not context.has_parent_body():
 		push_error("MoonGenerator requires a ParentContext with parent body data")
@@ -123,6 +128,10 @@ static func generate(spec: MoonSpec, context: ParentContext, rng: SeededRng) -> 
 	body.orbital = orbital
 	body.atmosphere = atmosphere
 	body.surface = surface
+	
+	# Generate population data if enabled
+	if enable_population:
+		body.population_data = _generate_population(body, context, spec.generation_seed, parent_body)
 	
 	return body
 
@@ -215,7 +224,7 @@ static func _generate_orbital_props(
 		else:
 			# Bias toward circular
 			var raw: float = rng.randf()
-			eccentricity = raw * raw * 0.1  # Max ~0.1 for regular
+			eccentricity = raw * raw * 0.1 # Max ~0.1 for regular
 	
 	# Inclination - regular moons in equatorial plane, captured can be inclined
 	var inclination_deg: float = spec.get_override_float(
@@ -253,7 +262,7 @@ static func _generate_orbital_props(
 		longitude_of_ascending_node_deg,
 		argument_of_periapsis_deg,
 		mean_anomaly_deg,
-		""  # Parent ID set later by system generator
+		"" # Parent ID set later by system generator
 	)
 
 
@@ -266,3 +275,47 @@ static func _generate_id(spec: MoonSpec, rng: SeededRng) -> String:
 	if override_id != null and override_id is String and not (override_id as String).is_empty():
 		return override_id as String
 	return _generator_utils.generate_id("moon", rng)
+
+
+## Generates population data for a moon using order-independent seeding.
+## Moons pass parent body for context (tidal heating, radiation).
+## @param body: The generated moon body.
+## @param context: The parent context (star + planet data).
+## @param base_seed: The generation base seed.
+## @param parent_body: The parent planet body (for population context).
+## @return: PlanetPopulationData, or null if no population generated.
+static func _generate_population(
+	body: CelestialBody,
+	context: ParentContext,
+	base_seed: int,
+	parent_body: CelestialBody = null
+) -> PlanetPopulationData:
+	# Generate order-independent seed for this moon's population
+	var pop_seed: int = _population_seeding.generate_population_seed(body.id, base_seed)
+	var pop_rng: SeededRng = SeededRng.new(pop_seed)
+	
+	# Generate profile and suitability (passes parent body for moon-specific factors)
+	var pop_data: PlanetPopulationData = _population_generator.generate_profile_only(
+		body, context, parent_body
+	)
+	pop_data.generation_seed = pop_seed
+	
+	# Check if natives should be generated
+	var generate_natives: bool = _population_probability.should_generate_natives(pop_data.profile, pop_rng)
+	
+	# Check if colony should be generated
+	var generate_colony: bool = false
+	if pop_data.suitability != null:
+		generate_colony = _population_probability.should_generate_colony(
+			pop_data.profile, pop_data.suitability, pop_rng
+		)
+	
+	# If either should be generated, run full generation
+	if generate_natives or generate_colony:
+		var spec: _population_generator.PopulationSpec = _population_generator.PopulationSpec.create_default(pop_seed)
+		spec.generate_natives = generate_natives
+		spec.generate_colonies = generate_colony
+		pop_data = _population_generator.generate(body, context, spec, parent_body)
+		pop_data.generation_seed = pop_seed
+	
+	return pop_data

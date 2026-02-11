@@ -240,7 +240,7 @@ func _generate_star(seed_value: int, rng: SeededRng) -> CelestialBody:
 func _generate_planet(seed_value: int, rng: SeededRng) -> CelestialBody:
 	var spec: PlanetSpec = PlanetSpec.random(seed_value)
 	var context: ParentContext = ParentContext.sun_like()
-	return PlanetGenerator.generate(spec, context, rng)
+	return PlanetGenerator.generate(spec, context, rng, true)
 
 
 ## Generates a moon.
@@ -260,7 +260,7 @@ func _generate_moon(seed_value: int, rng: SeededRng) -> CelestialBody:
 		6.9911e7, # Jupiter radius
 		5.0e8 # 500,000 km from Jupiter
 	)
-	return MoonGenerator.generate(spec, context, rng)
+	return MoonGenerator.generate(spec, context, rng, true)
 
 
 ## Generates an asteroid.

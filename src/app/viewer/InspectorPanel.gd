@@ -6,6 +6,13 @@ extends VBoxContainer
 const _celestial_type: GDScript = preload("res://src/domain/celestial/CelestialType.gd")
 const _color_utils: GDScript = preload("res://src/app/rendering/ColorUtils.gd")
 const _property_formatter: GDScript = preload("res://src/app/viewer/PropertyFormatter.gd")
+const _planet_population_data: GDScript = preload("res://src/domain/population/PlanetPopulationData.gd")
+const _technology_level: GDScript = preload("res://src/domain/population/TechnologyLevel.gd")
+const _colony_suitability: GDScript = preload("res://src/domain/population/ColonySuitability.gd")
+const _government_type: GDScript = preload("res://src/domain/population/GovernmentType.gd")
+const _colony_type: GDScript = preload("res://src/domain/population/ColonyType.gd")
+const _biome_type: GDScript = preload("res://src/domain/population/BiomeType.gd")
+const _climate_zone: GDScript = preload("res://src/domain/population/ClimateZone.gd")
 
 ## Container for dynamically created inspector content
 @onready var inspector_container: VBoxContainer = get_node("InspectorContainer")
@@ -80,6 +87,22 @@ func display_body(body: CelestialBody) -> void:
 	if body.has_ring_system():
 		_add_section("Ring System", true)
 		_add_ring_properties(body)
+	
+	# Population data
+	if body.has_population_data():
+		_add_section("Planet Profile", true)
+		_add_profile_properties(body)
+		
+		_add_section("Colony Suitability", true)
+		_add_suitability_properties(body)
+		
+		if body.population_data.has_natives():
+			_add_section("Native Populations", true)
+			_add_native_properties(body)
+		
+		if body.population_data.has_colonies():
+			_add_section("Colonies", true)
+			_add_colony_properties(body)
 
 
 ## Adds a collapsible section header with content container.
@@ -263,7 +286,7 @@ func _add_atmosphere_properties(body: CelestialBody) -> void:
 		for gas_data in sorted_gases:
 			var gas: String = gas_data[0]
 			var fraction: float = gas_data[1]
-			if fraction > 0.001:  # Only show > 0.1%
+			if fraction > 0.001: # Only show > 0.1%
 				_add_property("  " + gas, "%.2f%%" % (fraction * 100.0))
 
 
@@ -319,13 +342,144 @@ func _add_ring_properties(body: CelestialBody) -> void:
 	_add_property("Inclination", "%.2fÂ°" % rings.inclination_deg)
 	
 	# Individual bands
-	for i in range(mini(rings.get_band_count(), 5)):  # Limit to first 5
+	for i in range(mini(rings.get_band_count(), 5)): # Limit to first 5
 		var band: RingBand = rings.get_band(i)
 		var band_name: String = band.name if band.name else "Band %d" % (i + 1)
 		_add_subsection(band_name + ":")
 		_add_property("  Width", "%.0f km" % (band.get_width_m() / 1000.0))
 		_add_property("  Optical Depth", "%.3f" % band.optical_depth)
 		_add_property("  Particle Size", _property_formatter.format_particle_size(band.particle_size_m))
+
+
+## Adds planet profile section content.
+## @param body: The celestial body with population data.
+func _add_profile_properties(body: CelestialBody) -> void:
+	var profile: PlanetProfile = body.population_data.profile
+	if not profile:
+		_add_property("Status", "No profile available")
+		return
+	
+	_add_property("Habitability", _property_formatter.format_habitability(profile.habitability_score))
+	_add_property("Temperature", _property_formatter.format_temperature(profile.avg_temperature_k))
+	_add_property("Pressure", "%.3f atm" % profile.pressure_atm)
+	_add_property("Gravity", "%.2f g" % profile.gravity_g)
+	_add_property("Ocean Coverage", _property_formatter.format_percent(profile.ocean_coverage))
+	_add_property("Land Coverage", _property_formatter.format_percent(profile.land_coverage))
+	_add_property("Ice Coverage", _property_formatter.format_percent(profile.ice_coverage))
+	
+	if profile.continent_count > 0:
+		_add_property("Continents", str(profile.continent_count))
+	
+	_add_property("Day Length", "%.1f hours" % profile.day_length_hours)
+	
+	# Key boolean flags
+	var flags: Array[String] = []
+	if profile.has_liquid_water:
+		flags.append("Water")
+	if profile.has_breathable_atmosphere:
+		flags.append("Breathable")
+	if profile.has_magnetic_field:
+		flags.append("Magnetic Field")
+	if profile.is_tidally_locked:
+		flags.append("Tidally Locked")
+	if not flags.is_empty():
+		_add_property("Features", ", ".join(flags))
+	
+	# Dominant biome
+	if not profile.biomes.is_empty():
+		var dominant: BiomeType.Type = profile.get_dominant_biome()
+		_add_property("Dominant Biome", BiomeType.to_string_name(dominant))
+
+
+## Adds colony suitability section content.
+## @param body: The celestial body with population data.
+func _add_suitability_properties(body: CelestialBody) -> void:
+	var suitability: ColonySuitability = body.population_data.suitability
+	if not suitability:
+		_add_property("Status", "No assessment available")
+		return
+	
+	_add_property("Overall Score", _property_formatter.format_suitability(suitability.overall_score))
+	_add_property("Carrying Capacity", _property_formatter.format_population(suitability.carrying_capacity))
+	_add_property("Growth Rate", "%.1f%%" % (suitability.base_growth_rate * 100.0))
+	_add_property("Infrastructure", "%.1fx difficulty" % suitability.infrastructure_difficulty)
+	
+	# Factor scores
+	_add_subsection("Factor Scores:")
+	for factor_int in suitability.factor_scores.keys():
+		var factor: ColonySuitability.FactorType = factor_int as ColonySuitability.FactorType
+		var score: int = suitability.factor_scores[factor_int] as int
+		_add_property("  " + ColonySuitability.factor_to_string(factor), "%d/100" % score)
+	
+	# Limiting factors
+	if not suitability.limiting_factors.is_empty():
+		var limit_names: Array[String] = []
+		for factor in suitability.limiting_factors:
+			limit_names.append(ColonySuitability.factor_to_string(factor))
+		_add_property("Limiting", ", ".join(limit_names))
+	
+	# Advantages
+	if not suitability.advantages.is_empty():
+		var adv_names: Array[String] = []
+		for factor in suitability.advantages:
+			adv_names.append(ColonySuitability.factor_to_string(factor))
+		_add_property("Advantages", ", ".join(adv_names))
+
+
+## Adds native population section content.
+## @param body: The celestial body with population data.
+func _add_native_properties(body: CelestialBody) -> void:
+	var pop_data: PlanetPopulationData = body.population_data
+	
+	_add_property("Total Natives", str(pop_data.native_populations.size()))
+	_add_property("Extant", str(pop_data.get_extant_native_count()))
+	_add_property("Total Pop.", _property_formatter.format_population(pop_data.get_native_population()))
+	
+	for native in pop_data.native_populations:
+		var status_str: String = native.get_growth_state()
+		if not native.is_extant:
+			status_str = "EXTINCT"
+		_add_subsection(native.name + " (%s):" % status_str)
+		_add_property("  Population", _property_formatter.format_population(native.population))
+		_add_property("  Tech Level", _property_formatter.format_tech_level(native.tech_level))
+		_add_property("  Government", _property_formatter.format_regime(native.get_regime()))
+		_add_property("  Territory", _property_formatter.format_percent(native.territorial_control))
+		if not native.is_extant:
+			_add_property("  Cause", native.extinction_cause)
+
+
+## Adds colony section content.
+## @param body: The celestial body with population data.
+func _add_colony_properties(body: CelestialBody) -> void:
+	var pop_data: PlanetPopulationData = body.population_data
+	
+	_add_property("Total Colonies", str(pop_data.colonies.size()))
+	_add_property("Active", str(pop_data.get_active_colony_count()))
+	_add_property("Total Pop.", _property_formatter.format_population(pop_data.get_colony_population()))
+	
+	for colony in pop_data.colonies:
+		var status_str: String = colony.get_growth_state()
+		if not colony.is_active:
+			status_str = "ABANDONED"
+		_add_subsection(colony.name + " (%s):" % status_str)
+		_add_property("  Type", _property_formatter.format_colony_type(colony.colony_type))
+		_add_property("  Population", _property_formatter.format_population(colony.population))
+		_add_property("  Tech Level", _property_formatter.format_tech_level(colony.tech_level))
+		_add_property("  Government", _property_formatter.format_regime(colony.get_regime()))
+		_add_property("  Territory", _property_formatter.format_percent(colony.territorial_control))
+		_add_property("  Self-Sufficiency", _property_formatter.format_percent(colony.self_sufficiency))
+		if colony.is_independent:
+			_add_property("  Status", "Independent")
+		if not colony.is_active:
+			_add_property("  Reason", colony.abandonment_reason)
+		var native_status: String = colony.get_overall_native_status()
+		if native_status != "none":
+			_add_property("  Native Relations", native_status.capitalize())
+	
+	# Overall situation
+	_add_subsection("Political Situation:")
+	_add_property("  Status", _property_formatter.format_political_situation(pop_data.get_political_situation()))
+	_add_property("  Highest Tech", _property_formatter.format_tech_level(pop_data.get_highest_tech_level()))
 
 
 ## Sorts composition dictionary by fraction descending.

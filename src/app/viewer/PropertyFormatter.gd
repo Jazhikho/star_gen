@@ -1,10 +1,18 @@
 ## Utility class for formatting property values for display.
-## Provides consistent formatting for mass, radius, distance, and other properties.
+## Provides consistent formatting for mass, radius, distance, population, and other properties.
 class_name PropertyFormatter
 extends RefCounted
 
 const _celestial_type: GDScript = preload("res://src/domain/celestial/CelestialType.gd")
 const _units: GDScript = preload("res://src/domain/math/Units.gd")
+const _technology_level: GDScript = preload("res://src/domain/population/TechnologyLevel.gd")
+const _colony_suitability: GDScript = preload("res://src/domain/population/ColonySuitability.gd")
+const _colony_type: GDScript = preload("res://src/domain/population/ColonyType.gd")
+const _government_type: GDScript = preload("res://src/domain/population/GovernmentType.gd")
+const _habitability_category: GDScript = preload("res://src/domain/population/HabitabilityCategory.gd")
+const _biome_type: GDScript = preload("res://src/domain/population/BiomeType.gd")
+const _climate_zone: GDScript = preload("res://src/domain/population/ClimateZone.gd")
+const _resource_type: GDScript = preload("res://src/domain/population/ResourceType.gd")
 
 
 ## Formats mass with appropriate units.
@@ -130,3 +138,91 @@ static func format_superscript(num: int) -> String:
 		result += superscripts.get(c, c)
 	
 	return result
+
+
+## Formats a population count with appropriate units (K, M, B).
+## @param count: Population count.
+## @return: Formatted population string.
+static func format_population(count: int) -> String:
+	if count <= 0:
+		return "0"
+	if count < 1000:
+		return str(count)
+	if count < 1000000:
+		return "%.1fK" % (float(count) / 1000.0)
+	if count < 1000000000:
+		return "%.2fM" % (float(count) / 1000000.0)
+	return "%.2fB" % (float(count) / 1000000000.0)
+
+
+## Formats a habitability score with category name.
+## @param score: Habitability score (0-10).
+## @return: Formatted string like "7/10 (Habitable)".
+static func format_habitability(score: int) -> String:
+	var category_name: String = HabitabilityCategory.to_string_name(
+		HabitabilityCategory.from_score(score)
+	)
+	return "%d/10 (%s)" % [score, category_name]
+
+
+## Formats a suitability score with category name.
+## @param score: Overall suitability score (0-100).
+## @return: Formatted string like "75/100 (Favorable)".
+static func format_suitability(score: int) -> String:
+	var suitability: ColonySuitability = ColonySuitability.new()
+	suitability.overall_score = score
+	return "%d/100 (%s)" % [score, suitability.get_category_string()]
+
+
+## Formats a technology level enum value.
+## @param level: The technology level.
+## @return: Human-readable string.
+static func format_tech_level(level: TechnologyLevel.Level) -> String:
+	return TechnologyLevel.to_string_name(level)
+
+
+## Formats a government regime enum value.
+## @param regime: The government regime.
+## @return: Human-readable string.
+static func format_regime(regime: GovernmentType.Regime) -> String:
+	return GovernmentType.to_string_name(regime)
+
+
+## Formats a colony type enum value.
+## @param type: The colony type.
+## @return: Human-readable string.
+static func format_colony_type(type: ColonyType.Type) -> String:
+	return ColonyType.to_string_name(type)
+
+
+## Formats a percentage value (0-1 range).
+## @param value: Value between 0.0 and 1.0.
+## @return: Formatted percentage string.
+static func format_percent(value: float) -> String:
+	return "%.1f%%" % (value * 100.0)
+
+
+## Formats temperature with both Kelvin and Celsius.
+## @param temp_k: Temperature in Kelvin.
+## @return: Formatted temperature string.
+static func format_temperature(temp_k: float) -> String:
+	return "%.0f K (%.0f C)" % [temp_k, temp_k - 273.15]
+
+
+## Formats a political situation string with appropriate capitalization.
+## @param situation: Raw situation string from PlanetPopulationData.
+## @return: Formatted display string.
+static func format_political_situation(situation: String) -> String:
+	match situation:
+		"uninhabited":
+			return "Uninhabited"
+		"native_only":
+			return "Native Only"
+		"colony_only":
+			return "Colony Only"
+		"coexisting":
+			return "Coexisting"
+		"conflict":
+			return "Conflict"
+		_:
+			return situation.capitalize()

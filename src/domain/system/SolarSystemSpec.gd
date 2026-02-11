@@ -33,6 +33,9 @@ var system_metallicity: float
 ## Whether to include asteroid belts in generation.
 var include_asteroid_belts: bool
 
+## Whether to generate population data for planets and moons.
+var generate_population: bool
+
 ## Field overrides for generation.
 var overrides: Dictionary
 
@@ -54,6 +57,7 @@ func _init(
 	system_age_years = -1.0
 	system_metallicity = -1.0
 	include_asteroid_belts = true
+	generate_population = false
 	overrides = {}
 
 
@@ -100,9 +104,9 @@ static func sun_like(seed_value: int) -> SolarSystemSpec:
 static func alpha_centauri_like(seed_value: int) -> SolarSystemSpec:
 	var spec: SolarSystemSpec = SolarSystemSpec.new(seed_value, 3, 3)
 	spec.spectral_class_hints = [
-		StarClass.SpectralClass.G,  # Alpha Centauri A
-		StarClass.SpectralClass.K,  # Alpha Centauri B
-		StarClass.SpectralClass.M,  # Proxima Centauri
+		StarClass.SpectralClass.G, # Alpha Centauri A
+		StarClass.SpectralClass.K, # Alpha Centauri B
+		StarClass.SpectralClass.M, # Proxima Centauri
 	]
 	return spec
 
@@ -147,6 +151,7 @@ func to_dict() -> Dictionary:
 		"system_age_years": system_age_years,
 		"system_metallicity": system_metallicity,
 		"include_asteroid_belts": include_asteroid_belts,
+		"generate_population": generate_population,
 		"overrides": overrides.duplicate(),
 	}
 
@@ -164,6 +169,7 @@ static func from_dict(data: Dictionary) -> SolarSystemSpec:
 	spec.system_age_years = data.get("system_age_years", -1.0) as float
 	spec.system_metallicity = data.get("system_metallicity", -1.0) as float
 	spec.include_asteroid_belts = data.get("include_asteroid_belts", true) as bool
+	spec.generate_population = data.get("generate_population", false) as bool
 	spec.overrides = (data.get("overrides", {}) as Dictionary).duplicate()
 	
 	var hints: Array = data.get("spectral_class_hints", []) as Array

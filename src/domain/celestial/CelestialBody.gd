@@ -31,6 +31,9 @@ var atmosphere: AtmosphereProps
 ## Ring system properties (null for bodies without ring systems).
 var ring_system: RingSystemProps
 
+## Population data (null for bodies without population generation).
+var population_data: PlanetPopulationData
+
 ## Generation provenance information.
 var provenance: Provenance
 
@@ -58,6 +61,7 @@ func _init(
 	surface = null
 	atmosphere = null
 	ring_system = null
+	population_data = null
 
 
 ## Returns true if this body has orbital data.
@@ -88,6 +92,12 @@ func has_atmosphere() -> bool:
 ## @return: True if ring_system is not null.
 func has_ring_system() -> bool:
 	return ring_system != null
+
+
+## Returns true if this body has population data.
+## @return: True if population_data is not null.
+func has_population_data() -> bool:
+	return population_data != null
 
 
 ## Returns the body type as a string.

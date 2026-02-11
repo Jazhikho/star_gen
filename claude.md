@@ -66,6 +66,7 @@ Never domain → services/app.
 
 ## Testing rules
 - All non-trivial logic changes ship with tests.
+- **When creating a new test script:** Add it to **both** `Tests/RunTestsHeadless.gd` and `Tests/TestScene.gd` (the `_test_scripts` array in each). The headless runner and the test scene must run the same set of tests. If the new tests depend on domain types that need preloading (e.g. population enums), add the required preload in both runners (e.g. `PopulationDeps.gd` in RunTestsHeadless and TestScene).
 - Categories:
   - Unit: encode/decode, generation invariants, validation, commands
   - Integration: scenes boot, load/save flows, viewer does not crash
@@ -91,6 +92,15 @@ All out-of-scope ideas go to BACKLOG.md with:
 - Which phase it belongs to
 - Complexity (S/M/L)
 No implementing backlog items unless the current phase explicitly includes them.
+
+---
+
+## Branch: population (parallel concept)
+When working on the **population** branch:
+- The **population framework** is for planets: native populations (and their history) and colonies. It is documented in Docs/Roadmap.md under "Branch: population (parallel concept)."
+- This work is developed separately from the main roadmap; it will be integrated into main when ready.
+- The **normal test suite** (unit + integration for the main app) must remain runnable and green. Population code should be runnable separately for live/exploratory tests (e.g. dedicated scenes or runners) so main CI is not blocked.
+- Follow the same architecture (domain/services/app), typing, and doc conventions; keep population logic in its own area until merge.
 
 ---
 

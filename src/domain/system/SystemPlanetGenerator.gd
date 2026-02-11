@@ -27,7 +27,7 @@ const HOT_ZONE_WEIGHTS: Dictionary = {
 	SizeCategory.Category.SUPER_EARTH: 30.0,
 	SizeCategory.Category.MINI_NEPTUNE: 15.0,
 	SizeCategory.Category.NEPTUNE_CLASS: 5.0,
-	SizeCategory.Category.GAS_GIANT: 5.0,  # Hot Jupiters are rare
+	SizeCategory.Category.GAS_GIANT: 5.0, # Hot Jupiters are rare
 }
 
 ## TEMPERATE zone has balanced mix with slight rocky bias.
@@ -81,12 +81,14 @@ class PlanetGenerationResult:
 ## @param orbit_hosts: Array of orbit hosts (for context lookup).
 ## @param stars: Array of star bodies (for parent context).
 ## @param rng: Random number generator.
+## @param enable_population: If true, generate population data for planets.
 ## @return: PlanetGenerationResult with generated planets.
 static func generate(
 	slots: Array[OrbitSlot],
 	orbit_hosts: Array[OrbitHost],
 	stars: Array[CelestialBody],
-	rng: SeededRng
+	rng: SeededRng,
+	enable_population: bool = false
 ) -> PlanetGenerationResult:
 	var result: PlanetGenerationResult = PlanetGenerationResult.new()
 	result.slots = slots.duplicate()
@@ -112,7 +114,7 @@ static func generate(
 			continue
 		
 		# Generate planet for this slot
-		var planet: CelestialBody = _generate_planet_for_slot(slot, host, stars, rng)
+		var planet: CelestialBody = _generate_planet_for_slot(slot, host, stars, rng, enable_population)
 		if planet != null:
 			result.planets.append(planet)
 			slot.fill_with_planet(planet.id)
@@ -128,13 +130,15 @@ static func generate(
 ## @param stars: Array of star bodies.
 ## @param target_count: Desired number of planets.
 ## @param rng: Random number generator.
+## @param enable_population: If true, generate population data for planets.
 ## @return: PlanetGenerationResult.
 static func generate_targeted(
 	slots: Array[OrbitSlot],
 	orbit_hosts: Array[OrbitHost],
 	stars: Array[CelestialBody],
 	target_count: int,
-	rng: SeededRng
+	rng: SeededRng,
+	enable_population: bool = false
 ) -> PlanetGenerationResult:
 	var result: PlanetGenerationResult = PlanetGenerationResult.new()
 	result.slots = slots.duplicate()
@@ -162,7 +166,7 @@ static func generate_targeted(
 		var a_score: float = slot_scores.get(a, 0.0)
 		var b_score: float = slot_scores.get(b, 0.0)
 		if a_score == b_score:
-			return a.id < b.id  # Tiebreaker for stability
+			return a.id < b.id # Tiebreaker for stability
 		return a_score > b_score
 	)
 	
@@ -174,7 +178,7 @@ static func generate_targeted(
 		if host == null:
 			continue
 		
-		var planet: CelestialBody = _generate_planet_for_slot(slot, host, stars, rng)
+		var planet: CelestialBody = _generate_planet_for_slot(slot, host, stars, rng, enable_population)
 		if planet != null:
 			result.planets.append(planet)
 			slot.fill_with_planet(planet.id)
@@ -197,12 +201,14 @@ static func _should_fill_slot(slot: OrbitSlot, rng: SeededRng) -> bool:
 ## @param host: The orbit host.
 ## @param stars: Array of star bodies.
 ## @param rng: Random number generator.
+## @param enable_population: If true, generate population data.
 ## @return: Generated planet, or null if failed.
 static func _generate_planet_for_slot(
 	slot: OrbitSlot,
 	host: OrbitHost,
 	stars: Array[CelestialBody],
-	rng: SeededRng
+	rng: SeededRng,
+	enable_population: bool = false
 ) -> CelestialBody:
 	# Determine size category based on zone
 	var size_category: SizeCategory.Category = _determine_size_category(slot.zone, rng)
@@ -227,7 +233,7 @@ static func _generate_planet_for_slot(
 	
 	# Generate planet
 	var planet_rng: SeededRng = SeededRng.new(planet_seed)
-	var planet: CelestialBody = PlanetGenerator.generate(spec, context, planet_rng)
+	var planet: CelestialBody = PlanetGenerator.generate(spec, context, planet_rng, enable_population)
 	
 	if planet != null:
 		# Generate planet ID and name
@@ -281,7 +287,7 @@ static func _create_parent_context(
 	orbital_distance_m: float
 ) -> ParentContext:
 	# Get star age (use first star's age as system age)
-	var system_age: float = 4.6e9  # Default to 4.6 billion years
+	var system_age: float = 4.6e9 # Default to 4.6 billion years
 	for star in stars:
 		if star.has_stellar():
 			system_age = star.stellar.age_years
@@ -482,7 +488,7 @@ static func validate_planet_slot_consistency(
 		
 		# Check distance matches (with small tolerance)
 		var distance_diff: float = absf(planet.orbital.semi_major_axis_m - slot.semi_major_axis_m)
-		if distance_diff > 1000.0:  # 1 km tolerance
+		if distance_diff > 1000.0: # 1 km tolerance
 			return false
 	
 	return true

@@ -12,6 +12,7 @@ const _physical_props: GDScript = preload("res://src/domain/celestial/components
 const _orbital_props: GDScript = preload("res://src/domain/celestial/components/OrbitalProps.gd")
 const _atmosphere_props: GDScript = preload("res://src/domain/celestial/components/AtmosphereProps.gd")
 const _property_formatter: GDScript = preload("res://src/app/viewer/PropertyFormatter.gd")
+const _planet_population_data: GDScript = preload("res://src/domain/population/PlanetPopulationData.gd")
 
 
 ## Emitted when the user requests to open a body in the detail viewer.
@@ -132,6 +133,12 @@ func display_selected_body(body: CelestialBody) -> void:
 		_add_header(_body_section, "Atmosphere")
 		_add_atmosphere_properties(body)
 	
+	# Population summary
+	if body.has_population_data():
+		_add_separator(_body_section)
+		_add_header(_body_section, "Population")
+		_add_population_summary(body)
+	
 	# Open in viewer button
 	_add_open_viewer_button()
 
@@ -227,6 +234,25 @@ func _add_atmosphere_properties(body: CelestialBody) -> void:
 	
 	if atmo.greenhouse_factor > 1.0:
 		_add_property(_body_section, "Greenhouse", "%.2fÃ—" % atmo.greenhouse_factor)
+
+
+## Adds population summary for a body.
+## @param body: The celestial body.
+func _add_population_summary(body: CelestialBody) -> void:
+	var pop_data: PlanetPopulationData = body.population_data
+	
+	if pop_data.profile != null:
+		_add_property(_body_section, "Habitability", _property_formatter.format_habitability(pop_data.profile.habitability_score))
+	
+	if pop_data.suitability != null:
+		_add_property(_body_section, "Suitability", _property_formatter.format_suitability(pop_data.suitability.overall_score))
+	
+	_add_property(_body_section, "Status", _property_formatter.format_political_situation(pop_data.get_political_situation()))
+	
+	var total_pop: int = pop_data.get_total_population()
+	if total_pop > 0:
+		_add_property(_body_section, "Total Pop.", _property_formatter.format_population(total_pop))
+		_add_property(_body_section, "Dominant", pop_data.get_dominant_population_name())
 
 
 ## Formats star info for overview display.
