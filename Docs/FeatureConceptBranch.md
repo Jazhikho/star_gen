@@ -1,147 +1,113 @@
-# Feature Concept Branch: Phase 5 + Population Integration
+# Feature Concept Branch: Jump Lanes Tool
 
 ## Purpose
 
-The **feature/concepts** branch focuses on **Phase 5: Object rendering v2** and integrates conditional population generation into the planet/moon generation pipeline. This branch serves as the staging area for:
-
-1. **Visual upgrades** to the Object Viewer using concept shaders
-2. **Planet profile–driven population** with probabilistic success/failure outcomes
-3. **Moon support** for native and colony populations where appropriate
+The **jump-lanes-tool** branch implements a **Jump Lanes** feature that calculates a jump-gate network within a user-defined region (subsector up to sector). Connections are driven by **population**: systems are connected from lowest- to highest-populated, with distance and optional bridging rules. The result is shown in the galaxy viewer as colored lines (and orphan highlighting). This branch depends on **population information** to form connections between star systems.
 
 ---
 
-## Phase 5: Object Rendering v2
-
-### Goal
-
-Improve the visuals of the Object Viewer by adopting shaders and techniques from the standalone concept demos.
-
-### Reference Materials
-
-- **`Concepts/planetgenerator.html`** — Terrestrial and gas giant planet rendering with:
-  - Continental terrain (FBM, sigmoid land coherence, coastal detail)
-  - Ocean with waves, Fresnel, specular
-  - Polar ice caps
-  - Clouds with shadows
-  - Atmospheric scattering and limb darkening
-  - Ring systems (trace/simple/complex)
-  - Planet profile stats (continents, habitability, etc.)
-
-- **`Concepts/stargenerator.html`** — Stellar rendering with:
-  - Spectral class presets (O/B/A/F/G/K/M)
-  - Granulation, supergranulation, sunspots
-  - Chromosphere, corona, prominences, flares
-  - Black hole / remnant modes (accretion disk, jets, lensing)
-
-### Implementation Approach
-
-1. **Reuse concept shaders** — Port as much GLSL as possible from the HTML demos into Godot `.gdshader` files. The existing `planet_terrestrial.gdshader`, `planet_gas_giant_concept.gdshader`, and `stellar_concept.gdshader` are starting points.
-2. **Wire to CelestialBody** — Drive shader uniforms from `PhysicalProps`, `StellarProps`, `TerrainProps`, `HydrosphereProps`, `AtmosphereProps`, etc., so generated objects render correctly.
-3. **Maintain determinism** — All visual parameters must derive from deterministic generation (seed + spec); no runtime-only randomization that breaks save/load.
-
-### Deliverables (Phase 5)
-
-- Terrestrial planets: terrain, ocean, ice, clouds, atmosphere, rings
-- Gas giants: bands, storms, oblateness, rings
-- Stars: temperature-based color, limb darkening, granulation, optional sunspots
-- Basic LOD or performance tuning so the viewer remains responsive
-
----
-
-## Population Integration
-
-### Overview
-
-The planet generator will build a **PlanetProfile** and, when conditions allow, **conditionally activate** the population scripts. Not every body will have population; outcomes depend on habitability and desirability.
-
-### Conditional Activation Rules
-
-| Outcome | Description |
-|--------|-------------|
-| **No population** | Planet/moon never developed native life or was never colonized. |
-| **Native population only** | Indigenous life arose and persists. |
-| **Native population failed** | Life arose but went extinct (e.g., catastrophe, runaway climate). |
-| **Colony only** | No natives; colonization succeeded. |
-| **Colony failed** | Colonization attempted but failed. |
-| **Colony after native failure** | Natives died; later colonization attempted (success or failure). |
-| **Colony after prior colony failure** | Earlier colony failed; retry attempted (success or failure). |
-
-### Probabilistic Model
-
-- **Habitability** (from `PlanetProfile` / `HabitabilityCategory`) and **desirability** (from `ColonySuitability` / `SuitabilityCalculator`) drive the chances of:
-  - Native life arising
-  - Native population surviving vs. failing
-  - Colonization being attempted
-  - Colonization succeeding vs. failing
-  - Retry after failure (native or colony)
-
-- The RNG (injected, deterministic) must be used for all rolls.
-
-### Moons as Population Candidates
-
-- **Moons** that meet habitability/suitability thresholds (e.g., subsurface oceans, suitable temperature, atmosphere) should be eligible for:
-  - Native population (if life could arise)
-  - Colony (if desirability is sufficient)
-
-- Integration points: `MoonGenerator`, `SystemMoonGenerator`, and the population generators must support moon context (parent planet, orbital parameters, tidal effects).
-
----
-
-## Branch Scope Summary
+## Scope
 
 | Area | Scope |
-|------|-------|
-| **Rendering** | Port and adapt shaders from `planetgenerator.html` and `stargenerator.html` into Object Viewer. |
-| **Planet generator** | Build `PlanetProfile`; gate population scripts on habitability/desirability. |
-| **Population** | Conditional activation with probabilities for no-pop, native-only, native-failed, colony-only, colony-failed, retry-after-failure. |
-| **Moons** | Extend population eligibility to suitable moons. |
+|------|--------|
+| **Range** | User chooses how far the network is calculated: from the **subsector** the user is currently in, up to the full **sector**. |
+| **Data** | Population of each system is captured and used to order and connect systems. |
+| **Output** | Jump gates (lines) between systems; line color indicates connection type. Orphan systems (no connections) highlighted in red. |
+| **Placement** | Phase 1: standalone prototype. Phase 2: integrated into the main program (galaxy viewer). |
+
+---
+
+## How Jump Lanes Work
+
+### Order of processing
+
+1. **Capture populations** of each system in the selected region.
+2. **Sort systems** by population from **lowest to highest**.
+3. **Process each system** in that order: try to connect it to a higher-populated system within allowed distances, using the rules below.
+
+### Connection rules (in order of attempt)
+
+- **3 parsecs**  
+  Look for the **highest-populated** world within 3 pc.  
+  If found → connect the two with a **jump gate**.  
+  **Visual:** **green** line.
+
+- **5 parsecs**  
+  If no populated world within 3 pc, look within 5 pc (again, highest populated).  
+  If found → connect.  
+  **Visual:** **green** line.
+
+- **7 parsecs**  
+  If none within 5 pc, look within 7 pc.
+  - If a populated system is found:
+    - **Bridging check:** Look for an **unpopulated** system that can act as a bridge: it must be **no more than 5 parsecs** from **both** the lower-populated and the higher-populated world.
+      - **If a bridge exists:** Connect lower → bridge and bridge → higher (jump gates). Assign the bridge a **false population** = (higher system population − 10,000). The bridge is used as a **destination** for other systems but is **not** used as a source for new connections.  
+        **Visual:** **yellow** lines.
+      - **If no bridge and distance is 7 pc:** Connect the two systems directly.  
+        **Visual:** **orange** line.
+      - **If no bridge and distance is 9 pc:** Do **not** draw a line; move on.
+
+- **9 parsecs**  
+  If none within 7 pc, look within 9 pc.
+  - Same bridging logic as 7 pc: if bridge exists → yellow (two segments); bridge gets false population and is destination-only.
+  - If no bridge and distance is 7 pc → direct **orange** line.
+  - If no bridge and distance is 9 pc → **no line**; move on.
+
+### Cluster connector and extended (red) connections
+
+After the per-system rules above, a **cluster connector** runs to link otherwise isolated clusters:
+
+1. **Standard inter-cluster links (up to 9 pc):** Iteratively find the closest pair of clusters within 9 pc and connect them using the same rules (green / yellow / orange) and bridging as above, until no such pair remains.
+2. **Extended (red) links:** For any clusters still isolated:
+   - If the **shortest distance** between two clusters is **≤10 parsecs**, connect that pair with a single **red** line (extended direct).
+   - If the distance is **>10 pc**, search for a **multi-hop path** through other systems where **each hop is ≤10 pc**. If such a path exists, add **red** lines for each hop; intermediate systems are treated as bridges (same as yellow: `is_bridge`, false population). Red connections use the same 10 pc limit per hop.
+
+**Visual:** **red** lines for extended direct or multi-hop links. (Orphan systems are also indicated in red, e.g. icon or highlight; line red = extended connection, marker red = orphan.)
+
+### Orphans
+
+- A system that ends up with **no connections** is an **orphan**.  
+- **Visual:** highlight the system in **red** (e.g. icon, outline, or background).
+
+### Summary of line colors
+
+| Color | Meaning |
+|--------|--------|
+| **Green** | Direct jump gate (target within 3 pc or 5 pc). |
+| **Yellow** | Connection via a bridging (unpopulated) system; bridge has false population and is destination-only. |
+| **Orange** | Direct jump gate at 7 pc when no bridge exists. |
+| **Red (line)** | Extended connection: direct ≤10 pc between clusters, or multi-hop path (each hop ≤10 pc). |
+| **Red (marker)** | Orphan system (no connections). |
+
+---
+
+## Phases
+
+- **Phase 1:** Build the **prototype** (algorithm, data model, and optional standalone UI or test harness).
+- **Phase 2:** **Integrate** the tool into the main program (galaxy viewer): user controls for range (subsector/sector), run calculation, and display lines and orphan highlighting.
+
+---
+
+## Dependencies
+
+- **Population information** must be available for star systems in the selected region so that:
+  - Systems can be ordered by population (low to high).
+  - “Populated” vs “unpopulated” can be distinguished for bridging and connection rules.
 
 ---
 
 ## Architecture Notes
 
-- **Domain purity** — Population logic stays in `src/domain/population/`; no Godot Nodes or scene tree in domain.
-- **Determinism** — All population outcomes must be reproducible from (seed, spec, parent context).
-- **Tests** — Object generation, object viewer, and population tests all run in the main test suite.
+- **Domain:** Jump-lane calculation (distances, ordering, bridging, connection types) should live in **domain** so it is testable and independent of the viewer.
+- **Viewer:** Galaxy viewer is responsible for range selection (subsector/sector), invoking the calculator, and drawing lines (green/yellow/orange/red for extended) and orphan highlighting (red).
+- **Determinism:** For a given region and population data, the resulting network should be deterministic.
 
 ---
 
 ## Minimal File List for Contributors
 
-To successfully address the branch goals, contributors should read these files:
+(To be refined in the implementation plan.)
 
-### Documentation (start here)
-- `Docs/FeatureConceptBranch.md` — This document
-- `Docs/Roadmap.md` — Phase 5 and population context
-
-### Visual reference (inspiration)
-- `Concepts/planetgenerator.html` — Planet shader logic and uniforms
-- `Concepts/stargenerator.html` — Star shader logic and uniforms
-
-### Rendering pipeline
-- `src/app/rendering/BodyRenderer.gd` — Applies materials to celestial bodies
-- `src/app/rendering/MaterialFactory.gd` — Creates materials from body data
-- `src/app/rendering/shaders/planet_terrestrial.gdshader`
-- `src/app/rendering/shaders/planet_gas_giant_concept.gdshader`
-- `src/app/rendering/shaders/stellar_concept.gdshader`
-- `src/app/viewer/ObjectViewer.gd` — Object Viewer scene controller
-
-### Planet generation + population integration
-- `src/domain/generation/generators/PlanetGenerator.gd` — Build profile; conditionally call population
-- `src/domain/system/SystemPlanetGenerator.gd` — System-level planet generation
-- `src/domain/system/SystemMoonGenerator.gd` — Moon generation; extend for population candidates
-- `src/domain/population/PlanetProfile.gd`
-- `src/domain/population/ProfileGenerator.gd`
-- `src/domain/population/ProfileCalculations.gd`
-- `src/domain/population/ColonySuitability.gd`
-- `src/domain/population/SuitabilityCalculator.gd`
-- `src/domain/population/PlanetPopulationData.gd`
-- `src/domain/population/PopulationGenerator.gd`
-
-### Data model (shader wiring)
-- `src/domain/celestial/CelestialBody.gd`
-- `src/domain/celestial/components/PhysicalProps.gd`
-- `src/domain/celestial/components/StellarProps.gd`
-- `src/domain/celestial/components/TerrainProps.gd`
-- `src/domain/celestial/components/HydrosphereProps.gd`
-- `src/domain/celestial/components/AtmosphereProps.gd`
+- **Docs:** This document; `Docs/FeatureConceptBranchImplementationPlan.md`; `Docs/Roadmap.md` (for phase mapping).
+- **Domain (Phase 1):** Jump-lane calculator; cluster connector (standard 9 pc + extended red ≤10 pc / multi-hop); data structures for system, connection (green/yellow/orange/red), and region.
+- **App (Phase 2):** Galaxy viewer integration: range control, run tool, draw lines and orphans.

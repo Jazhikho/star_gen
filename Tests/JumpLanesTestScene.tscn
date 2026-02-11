@@ -1,0 +1,38 @@
+[gd_scene load_steps=2 format=3 uid="uid://cp4up43iu3mpq"]
+
+[ext_resource type="Script" uid="uid://bvpnrxdmvso7w" path="res://Tests/JumpLanesTestScene.gd" id="1_script"]
+
+[node name="JumpLanesTestScene" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_script")
+
+[node name="VBoxContainer" type="VBoxContainer" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/separation = 10
+
+[node name="Title" type="Label" parent="VBoxContainer"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 24
+text = "Jump Lanes Test Runner"
+horizontal_alignment = 1
+
+[node name="Status" type="Label" parent="VBoxContainer"]
+layout_mode = 2
+text = "Running tests..."
+horizontal_alignment = 1
+
+[node name="Results" type="RichTextLabel" parent="VBoxContainer"]
+layout_mode = 2
+size_flags_vertical = 3
+bbcode_enabled = true
+scroll_following = true

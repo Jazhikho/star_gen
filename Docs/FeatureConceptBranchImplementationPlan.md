@@ -1,139 +1,147 @@
-# Implementation Plan: feature/concepts Branch
+# Implementation Plan: jump-lanes-tool Branch
 
-**Execution order:** Stage 1.1 → 1.2 → 1.3 → (2.1–2.3, 3.1–3.2 in sequence) → 4 → 5 → 6.1–6.2 (can run in parallel with 2–3) → 6.3–6.7 → 7 → 8.
-
----
-
-### Phase 1: Shader Foundation & Star Rendering
-
-**Goal:** Shared shader infrastructure and stellar concept shader in the 3D viewer.
-
-**Stage 1.1: Shader utility functions**
-
-- **Create** `src/app/rendering/shaders/noise_lib.gdshaderinc`
-  - Shared GLSL: simplex (3D), FBM, voronoi (for granulation/terrain).
-  - Include from all body shaders to avoid duplication.
-- **Add param derivation** (keep ~10 functions per script; use small modules if ColorUtils would grow too large):
-  - Star: `StarShaderParams.gd` or `ColorUtils.get_star_shader_params(stellar, physical) -> Dictionary`
-  - Wire: temperature, luminosity, radius, rotation, limb darkening, granulation/spot params, seed from provenance.
-
-**Stage 1.2: Convert stellar concept to spatial**
-
-- **Create** `src/app/rendering/shaders/star_surface.gdshader`
-  - Port: blackbody color (wavelength-dependent), limb darkening, granulation (voronoi + flow), sunspots (umbra/penumbra), chromosphere rim, corona streamers, prominences/flares, diffraction spikes, bloom.
-  - Uniforms from StellarProps/PhysicalProps via Stage 1.1.
-- **Update** `MaterialFactory._create_star_material()` to use new shader and params.
-
-**Stage 1.3: Star shader tests**
-
-- **Create** `Tests/Unit/TestStarShaderParams.gd`: temperature → color, spectral class → granulation, determinism (same seed → same params), edge cases (O-type, M-type).
-
-**Deliverables:** Shared noise lib; star spatial shader; star param tests.
+**Execution order:** Phase 1 (prototype) → Phase 2 (integration into galaxy viewer).
 
 ---
 
-### Phase 2: Terrestrial Planet Shader
+## Phase 1: Prototype
 
-**Stage 2.1: Terrestrial shader conversion**
+**Goal:** Implement the jump-lane calculation algorithm and data model in isolation so it can be tested and tuned before UI integration. Population data is assumed to be available (from population branch or mock).
 
-- **Create** `src/app/rendering/shaders/planet_terrestrial_surface.gdshader`
-  - Port: continental terrain (FBM, coherence), coastal detail, ocean (waves, Fresnel, specular, foam), polar ice caps, clouds with shadows, atmospheric scattering/limb darkening, optional city lights (from population), optional ring shadows (see Phase 5 note).
-  - Uniforms from TerrainProps, HydrosphereProps, CryosphereProps, AtmosphereProps, PhysicalProps, SurfaceProps; seed from provenance.
-- **Param derivation:** `TerrestrialShaderParams.gd` or `ColorUtils` helpers: terrain scale/height, continent size, sea level, ice cap, atmo density, cloud coverage, surface/ocean colors, axial tilt.
-- **Update** `MaterialFactory._create_rocky_material()`: use new shader; fall back to StandardMaterial3D if body lacks required props.
+### Stage 1.1: Data model and region — **Done**
 
-**Stage 2.2: Terrestrial shader tests**
+- **Defined** and implemented:
+  - **System in region:** identifier, position (for distance), population (or “unpopulated”), optional “false population” for bridges (`JumpLaneSystem`).
+  - **Connection:** system A, system B, connection type (green / yellow / orange / **red** for extended) (`JumpLaneConnection`).
+  - **Region:** list of systems + bounds (`JumpLaneRegion`); **Result:** connections + orphan IDs + registered systems (`JumpLaneResult`).
+- **Define** how the user’s “current subsector” and “current sector” map to a set of systems (e.g. filter by coordinates or region IDs) — for Phase 2.
+- **Document** units (parsecs) and that all distances are 3D spatial (or 2D galactic plane, per project convention).
 
-- **Create** `Tests/Unit/TestTerrestrialShaderParams.gd`: ocean world, desert, ice world, Earth-like; determinism.
+### Stage 1.2: Core algorithm — **Done**
 
----
+- **Implemented** in `src/domain/jumplanes/` (`JumpLaneCalculator.gd`):
+  - **Input:** Region (list of systems: id, position, population).
+  - **Output:** Result (connections, orphan IDs, registered systems). Calculator delegates cluster connection to `JumpLaneClusterConnector`.
+- **Steps:** Sort by population ascending; per-system rules (3/5/7/9 pc, green/yellow/orange, bridge selection); collect orphans; then cluster connector runs (see Stage 1.6).
+- **Edge cases:** Highest populated at same distance; bridge selection by smallest total distance; bridge can serve multiple connections.
 
-### Phase 3: Gas Giant Shader
+### Stage 1.3: Bridging and false population — **Done**
 
-**Stage 3.1: Gas giant shader conversion**
+- **Bridging:** In calculator and cluster connector: given two systems A and B, find unpopulated (or bridge) system C with dist(A,C) ≤ 5 and dist(B,C) ≤ 5; multiple candidates use smallest total distance.
+- **False population:** Bridge gets effective population (higher − 10,000), destination-only; same treatment for extended (red) multi-hop waypoints.
 
-- **Create** `src/app/rendering/shaders/planet_gas_giant_surface.gdshader`
-  - Port: latitude bands, turbulence, zonal flow, storm systems, polar vortices, oblateness (vertex), atmospheric rim.
-  - Uniforms: band count/contrast/turbulence, flow speed, storm intensity, oblateness, rotation, band colors from temperature; seed from provenance.
-- **Param derivation:** `GasGiantShaderParams.gd` or ColorUtils: mass/rotation → band count; temperature → palette; age → storm intensity.
-- **Update** `MaterialFactory._create_gas_giant_material()`.
+### Stage 1.4: Prototype tests — **Done**
 
-**Stage 3.2: Gas giant shader tests**
+- **Unit tests** in `Tests/Unit/JumpLanes/`: calculator (sort, thresholds, bridge, connection types, orphans); cluster connector (cluster ID, standard + extended red direct and multi-hop); connection, result, system, region. Determinism and connection-type coverage. All run via `JumpLanesTestRunner.gd` (and optionally main test scene).
 
-- **Create** `Tests/Unit/TestGasGiantShaderParams.gd`: param derivation, determinism.
+### Stage 1.5: Prototype scene — **Done**
 
----
+- **Standalone prototype** scene demonstrates the tool without the full galaxy viewer.
+- **Contents:** Mock systems in a region; run calculator; draw systems and **connections** (green / yellow / orange / **red**); **highlight orphans** (e.g. red). Optional camera/pan and legend.
+- **Purpose:** Visual validation and reference for Phase 2 rendering.
 
-### Phase 4: Atmosphere & Ring Enhancements
+### Stage 1.6: Cluster connector and extended (red) connections — **Done**
 
-**Atmosphere**
+- **Cluster connector** (`JumpLaneClusterConnector.gd`): After per-system rules, iteratively connect the closest cluster pair within 9 pc using standard rules (green/yellow/orange + bridging) until no such pair exists.
+- **Extended phase:** For clusters still isolated: (1) If closest pair ≤10 pc, add a single **red** (extended direct) connection. (2) If not, search for a **multi-hop path** (BFS) where each hop ≤10 pc over all systems; if found, add **red** links for each hop and mark intermediates as bridges. Repeat until no more extended links can be added.
+- **Connection type:** `RED` added to domain and result counts; red bridges treated like yellow (e.g. `is_bridge`, false population).
 
-- Upgrade atmosphere material in MaterialFactory (or dedicated `atmosphere_spatial.gdshader` if needed): composition-based scattering color, pressure-based thickness, greenhouse inner glow, terminator. Document that full Rayleigh/Mie may need multi-pass later.
-
-**Ring system**
-
-- **Create/upgrade** ring shader: band-based density profile with gaps, noise variation, composition-based coloring, optical depth → opacity.
-- **Document** ring shadow casting on planet (e.g. ring-plane intersection in planet shader or separate shadow pass); defer implementation.
-- **Create** `Tests/Unit/TestRingShaderParams.gd`.
-
----
-
-### Phase 5: Population Integration (Single Entry Point)
-
-**Goal:** Wire population framework into planet/moon generation with one domain entry point and deterministic, order-independent seeding.
-
-**Stage 5.1: Population probability (single module)**
-
-- **Create** `src/domain/population/PopulationProbability.gd` (or retain name `PopulationIntegration.gd` for alignment with original plan)
-  - `calculate_native_probability(profile: PlanetProfile) -> float`: habitability score, liquid water, temperature range, atmosphere, radiation, magnetic field, age, tidal locking penalty, moon bonus, subsurface ocean.
-  - `should_generate_natives(profile: PlanetProfile, rng: SeededRng) -> bool`: deterministic roll using above probability.
-  - Single entry for “if/how” population generates; extend later for colonies.
-
-**Stage 5.2: Deterministic seeding**
-
-- **Create** `src/domain/population/PopulationSeeding.gd`
-  - `generate_population_seed(body_id: String, base_seed: int) -> int`: hash body_id + base_seed so same body + seed gives same population regardless of generation order.
-
-**Stage 5.3: Generator integration**
-
-- **Modify** `PlanetGenerator.gd`: after body generation, build PlanetProfile; call PopulationProbability; if `should_generate_natives`, generate native population with PopulationSeeding seed; attach result to body (see 5.4).
-- **Modify** `MoonGenerator.gd`: same pattern; pass parent context; moon-specific factors (tidal heating, parent radiation, subsurface ocean).
-
-**Stage 5.4: Storage and serialization**
-
-- **Body storage:** Add `population_data: PlanetPopulationData` (optional, null if none) to `CelestialBody.gd`; or separate lookup by body_id. Document choice; recommend field for simplicity.
-- **Update** `CelestialSerializer.gd`: serialize/deserialize population data; round-trip tests in Phase 8.
-
-**Stage 5.5: System-level wiring**
-
-- **Modify** `SystemPlanetGenerator.gd`: after `PlanetGenerator.generate()`, optionally run population generation; pass body + context; respect population flags from spec.
-- **Modify** `SystemMoonGenerator.gd`: same for qualifying moons; use parent planet context.
-- **Add population spec to** `SolarSystemSpec`: enable/disable population generation; optional population chance modifier.
-
-**Stage 5.6: Population integration tests**
-
-- **Create** `Tests/Unit/TestPopulationProbability.gd`, `Tests/Unit/TestPopulationSeeding.gd`, `Tests/Integration/TestPopulationGeneration.gd`: probability logic, determinism (same body_id + seed → same population), order independence, moon factors, uninhabitable → 0 probability.
+**Deliverables (Phase 1):** Domain data structures (including RED); jump-lane calculator; cluster connector (standard + extended); bridge logic; unit tests; **prototype scene** that visualizes connections (green/yellow/orange/red) and orphans.
 
 ---
 
-### Phase 6: Population Display in Viewer
+## Phase 2: Integration into main program
 
-- **InspectorPanel.gd:** Add “Population” section when body has population data: profile summary (habitability, category), suitability category, native populations list (name, tech level, population, status), political situation; “No population” when uninhabited.
-- **PropertyFormatter.gd** (or equivalent): format population numbers, tech levels, habitability/suitability categories.
-- **SystemInspectorPanel:** Summary when body selected; “View Details” opens ObjectViewer.
+**Goal:** Expose the jump-lanes tool in the galaxy viewer: user selects range (subsector vs sector), runs the calculation, and sees lines (green/yellow/orange/**red**) and orphan highlighting (red).
+
+### Stage 2.1: Population data wiring — **Not started**
+
+- **Ensure** the galaxy viewer (or its data source) can provide, for the selected region, the list of systems with:
+  - Position (for distance).
+  - Population (from population framework or placeholder).
+- **Single entry point:** e.g. “get systems in region(region_type, current_subsector/sector)” returning the structure expected by the jump-lane calculator (`JumpLaneRegion` with `JumpLaneSystem` instances).
+
+### Stage 2.2: User controls — **Not started**
+
+- **Range control:** UI or viewer action to choose “subsector only” vs “sector” (and pass that into the region query).
+- **Run tool:** Button or command that triggers: (1) get systems in region, (2) run jump-lane calculator, (3) pass results to the renderer.
+
+### Stage 2.3: Visual representation — **Not started**
+
+- **Lines:** Draw connections as lines in the galaxy view:
+  - **Green:** direct 3 pc / 5 pc.
+  - **Yellow:** connection via bridge (two segments: source–bridge, bridge–destination).
+  - **Orange:** direct 7 pc (no bridge).
+  - **Red:** extended connection (direct ≤10 pc or multi-hop path, each hop ≤10 pc).
+- **Orphans:** Highlight systems with no connections in **red** (e.g. icon color, outline, or background)—distinguish from red *lines* (extended links) where needed (e.g. line = red, orphan marker = red highlight/badge).
+- **Performance:** Consider limiting line count or LOD for large sectors; document any culling or simplification.
+
+### Stage 2.4: Integration tests and polish — **Not started**
+
+- **Integration test:** “Galaxy viewer + jump-lanes”: load a small sector, run tool, assert line count and orphan count match domain expectations (including red connections when applicable).
+- **Docs:** Update README or Docs to mention the jump-lanes tool and where it lives (menu, panel, or shortcut).
+
+**Deliverables (Phase 2):** Region + population wiring; subsector/sector control; line drawing (green/yellow/orange/red); orphan highlighting (red); integration test; doc update.
 
 ---
 
-### Phase 7: Testing & Polish
+## File summary (to be refined during implementation)
 
-- **Unit tests:** All shader param modules (star, terrestrial, gas giant, ring); add new test scripts to `Tests/RunTestsHeadless.gd` and `Tests/TestScene.gd`.
-- **Integration:** Population pipeline determinism; serialization round-trip including population data.
-- **Golden masters:** Extend or add fixtures with population data; verify determinism across regeneration.
+**New (Phase 1) — implemented:**
+
+- Domain: `src/domain/jumplanes/` — `JumpLaneCalculator.gd`, `JumpLaneClusterConnector.gd`, `JumpLaneConnection.gd`, `JumpLaneResult.gd`, `JumpLaneSystem.gd`, `JumpLaneRegion.gd`.
+- Tests: `Tests/Unit/JumpLanes/` (TestJumpLaneCalculator, TestJumpLaneClusterConnector, TestJumpLaneConnection, TestJumpLaneResult, TestJumpLaneSystem, TestJumpLaneRegion); `Tests/JumpLanesTestRunner.gd`, `Tests/JumpLanesDeps.gd`, `Tests/JumpLanesTestScene.gd` (+ .tscn).
+- Prototype: `JumpLanesPrototype.tscn` + controller to visualize mock systems, lines (green/yellow/orange/red), and red orphan highlighting.
+
+**New (Phase 2):**
+
+- App: viewer integration (scripts/scenes for range control, draw lines including red, draw orphans); may extend existing galaxy viewer scripts.
+
+**Modified (Phase 2):**
+
+- Galaxy viewer (or equivalent) to call calculator and display results; test runners if new integration test scripts are added.
 
 ---
 
-### File summary
+## Acceptance checklist
 
-**New:** `noise_lib.gdshaderinc`, `star_surface.gdshader`, `planet_terrestrial_surface.gdshader`, `planet_gas_giant_surface.gdshader`, ring shader; `StarShaderParams.gd` (or ColorUtils), `TerrestrialShaderParams.gd`, `GasGiantShaderParams.gd`; `PopulationProbability.gd` (or `PopulationIntegration.gd`), `PopulationSeeding.gd`; `TestStarShaderParams.gd`, `TestTerrestrialShaderParams.gd`, `TestGasGiantShaderParams.gd`, `TestRingShaderParams.gd`, `TestPopulationProbability.gd`, `TestPopulationSeeding.gd`, `TestPopulationGeneration.gd`.
+**Phase 1**
 
-**Modified:** `MaterialFactory.gd`, `BodyRenderer.gd`, `ColorUtils.gd` (if used for params); `CelestialBody.gd`, `CelestialSerializer.gd`; `PlanetGenerator.gd`, `MoonGenerator.gd`, `SystemPlanetGenerator.gd`, `SystemMoonGenerator.gd`; `SolarSystemSpec`; `InspectorPanel.gd`, `PropertyFormatter.gd`, SystemInspectorPanel; `RunTestsHeadless.gd`, `TestScene.gd`.
+- [x] Systems sorted by population (low → high); connection rules (3/5/7/9 pc, bridge, green/yellow/orange) match spec.
+- [x] Cluster connector connects closest clusters within 9 pc (green/yellow/orange) until no more; extended phase adds red (direct ≤10 pc or multi-hop ≤10 pc per hop).
+- [x] Orphans correctly identified and exposed in output.
+- [x] Unit tests pass; determinism for fixed input.
+- [x] Prototype scene runs and displays systems, colored lines (green/yellow/orange/red), and red orphan highlighting with mock data.
+
+**Phase 2**
+
+- [ ] User can select subsector or sector and run the tool.
+- [ ] Lines appear with correct colors (green/yellow/orange/red); orphans appear in red.
+- [ ] Integration test passes; no regressions in main test suite.
+
+---
+
+## Assessment: What remains before Phase 2 is implemented
+
+Phase 1 is **complete**: domain model, calculator, cluster connector (including extended red connections), unit tests, and prototype scene are in place.
+
+To **finish Phase 2**, the following work remains:
+
+1. **Stage 2.1 — Population data wiring**
+   - Implement or hook up a single entry point that returns a `JumpLaneRegion` (list of `JumpLaneSystem`) for the user’s current subsector or sector.
+   - Systems must have: id, position (parsecs), population (0 = unpopulated). If the population branch is not integrated, use a placeholder or mock until real data is available.
+
+2. **Stage 2.2 — User controls**
+   - Add UI or viewer action to choose **subsector only** vs **sector**.
+   - Add a **Run jump-lanes** (or equivalent) control that: gets systems in region → runs `JumpLaneCalculator.calculate(region)` → passes the `JumpLaneResult` to the renderer.
+
+3. **Stage 2.3 — Visual representation**
+   - **Lines:** Draw each connection in the galaxy view using `conn.get_color()` (or equivalent) so **green**, **yellow**, **orange**, and **red** (extended) lines are shown correctly.
+   - **Orphans:** Draw orphan systems with a red highlight (icon/outline/background), distinct from red *lines* (extended links) if the same color is used.
+   - **Performance:** For large sectors, consider culling, LOD, or limiting line count; document any limits.
+
+4. **Stage 2.4 — Integration tests and polish**
+   - Add an integration test: load a small sector (or test region), run the tool, assert connection counts and orphan count match domain expectations (including red when applicable).
+   - Update README or Docs with where the jump-lanes tool lives (menu/panel/shortcut) and how to use it.
+
+**Risks / dependencies:** Phase 2 assumes a galaxy viewer (or equivalent) and a way to resolve “current subsector/sector” to a set of systems. If population data is not yet wired, the tool can still be integrated using placeholder population (e.g. 0 or fixed values) so that line drawing and controls are in place; real population can be plugged in later.
