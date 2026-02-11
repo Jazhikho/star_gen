@@ -95,12 +95,9 @@ No implementing backlog items unless the current phase explicitly includes them.
 
 ---
 
-## Branch: population (parallel concept)
-When working on the **population** branch:
-- The **population framework** is for planets: native populations (and their history) and colonies. It is documented in Docs/Roadmap.md under "Branch: population (parallel concept)."
-- This work is developed separately from the main roadmap; it will be integrated into main when ready.
-- The **normal test suite** (unit + integration for the main app) must remain runnable and green. Population code should be runnable separately for live/exploratory tests (e.g. dedicated scenes or runners) so main CI is not blocked.
-- Follow the same architecture (domain/services/app), typing, and doc conventions; keep population logic in its own area until merge.
+## Population, stations, and jump lanes (on master)
+- The **population framework** (planets: native populations, colonies, history), **outposts and space stations**, and **jump lanes** are on master. See Docs/Roadmap.md for scope.
+- Follow the same architecture (domain/services/app), typing, and doc conventions. Population and station logic live in `src/domain/population/`; jump lanes in `src/domain/jumplanes/`.
 
 ---
 

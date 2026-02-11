@@ -133,13 +133,13 @@ Built with **Godot 4.x** and **GDScript**.
 
 **Test Status**: 1007 tests in suite; headless run reports 999+ passing (some galaxy integration tests expect full scene tree and are being updated).
 
-### Branch: feature/concepts (Phase 5 + population integration)
+### Merged features (master)
 
-The **feature/concepts** branch focuses on **Phase 5: Object rendering v2** and **population integration**. See [Docs/FeatureConceptBranch.md](Docs/FeatureConceptBranch.md) for full scope.
+All development is on **master**. The following are merged and current:
 
-- **Population framework:** ✅ Merged — PlanetProfile, native populations, colonies, history; unit tests in `Tests/Unit/Population/`.
-- **Station framework:** ✅ Merged — Outposts, SpaceStations, StationSpec, StationGenerator; prototype at `src/app/prototypes/StationGeneratorPrototype.tscn`.
-- **Jump Lanes:** ✅ Merged — Jump lane domain and prototype in `src/domain/jumplanes/` and `src/app/jumplanes_prototype/`.
+- **Population framework** — PlanetProfile, native populations, colonies, history; unit tests in `Tests/Unit/Population/`.
+- **Station framework** — Outposts, SpaceStations, StationSpec, StationGenerator; prototype at `src/app/prototypes/StationGeneratorPrototype.tscn`.
+- **Jump Lanes** — Jump lane domain and prototype in `src/domain/jumplanes/` and `src/app/jumplanes_prototype/`. See [Docs/FeatureConceptBranch.md](Docs/FeatureConceptBranch.md) for scope and [Docs/FeatureConceptBranchImplementationPlan.md](Docs/FeatureConceptBranchImplementationPlan.md) for implementation plan.
 
 See [Docs/Roadmap.md](Docs/Roadmap.md) and [claude.md](claude.md) for architecture, roadmap, and working agreement.
 
@@ -169,7 +169,7 @@ See [Docs/Roadmap.md](Docs/Roadmap.md) and [claude.md](claude.md) for architectu
 | Galaxy grid bounds by type | `src/domain/galaxy/GalaxyCoordinates.gd` |
 | Dependency preload for galaxy viewer (reference only) | `src/app/galaxy_viewer/GalaxyViewerDeps.gd` |
 
-**Tests** (added or updated for this branch):
+**Tests** (galaxy and welcome screen):
 
 | Test file | Purpose |
 |-----------|---------|
@@ -182,7 +182,7 @@ See [Docs/Roadmap.md](Docs/Roadmap.md) and [claude.md](claude.md) for architectu
 | `Tests/Integration/TestGalaxyPersistence.gd` | Save/load JSON and binary round-trip including `galaxy_seed`. |
 | `Tests/domain/galaxy/TestDensitySampler.gd` | Spiral/elliptical/irregular sampling, no-disk elliptical, 3D distribution tests. |
 
-**Scenes** (minimum scenes involved in this branch):
+**Scenes** (galaxy and welcome flow):
 
 | Scene | Purpose |
 |-------|---------|
@@ -399,7 +399,8 @@ star_gen/
 │   └── Additions.md                # Future visual features
 ├── Docs/                           # Documentation
 │   ├── Roadmap.md                  # Development roadmap
-│   ├── FeatureConceptBranch.md     # feature/concepts branch scope
+│   ├── FeatureConceptBranch.md     # Jump Lanes scope
+│   ├── FeatureConceptBranchImplementationPlan.md  # Jump Lanes implementation plan
 │   ├── CelestialBodyProperties.md  # Celestial body property reference
 │   └── RegimeChangeModel.md        # Regime change model (population)
 ├── .editorconfig                   # Editor configuration
