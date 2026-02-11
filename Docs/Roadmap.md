@@ -613,6 +613,28 @@ This work is developed on the **population** branch. It is intentionally somewha
 
 **Integration (future):** When ready, the population branch will be merged into main. At that point, population will be documented as part of the roadmap (or a designated phase), and population tests will be part of the standard gate.
 
+---
+
+## Branch: outposts-and-spacestations (parallel concept)
+
+This work is developed on the **outposts-and-spacestations** branch. It extends the population framework with orbital and deep-space habitats.
+
+**Purpose:** Logic for **outposts** (population ≤10,000) and **space stations** (can grow to city-sized). Space stations can and do function as outposts; the distinction is population scale and typical role.
+
+**Scope:**
+
+- **Outposts** — Population 10,000 or less. Placed in:
+  - **Bridge systems** — Usually in small space stations (waypoints, trade routes, choke points).
+  - **Other locales** — Semi-random placement driven by purpose: mining, science, spy base, etc.
+- **Space stations** — Can act as outposts but may support city-sized populations. Common:
+  - **Over native-populated planets** — With at least space-faring technology; there may be several per planet.
+  - **Over colony worlds** — Often provide refuel, repair, and other amenities to visiting ships.
+  - **In resource-rich systems lacking habitable planets** — More likely to support colony-sized populations (station as primary settlement).
+
+**Relationship:** Built on the population framework; uses the same population concepts, determinism, and RNG injection. Placement logic depends on system context (bridge vs colony vs resource-rich), native/colony presence, and technology level.
+
+**See:** `Docs/PopulationFrameworkPlan.md` — Extension: Outposts and Space Stations.
+
 ## Backlog discipline
 Any feature request that does not directly support the current phase must be recorded in BACKLOG.md and deferred. Each backlog item should include: title, why it matters, target phase, and complexity (S/M/L).
 

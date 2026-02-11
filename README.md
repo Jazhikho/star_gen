@@ -138,8 +138,10 @@ Built with **Godot 4.x** and **GDScript**.
 The **feature/concepts** branch focuses on **Phase 5: Object rendering v2** and **population integration**. See [Docs/FeatureConceptBranch.md](Docs/FeatureConceptBranch.md) for full scope.
 
 - **Population framework:** ✅ Merged — PlanetProfile, native populations, colonies, history; unit tests in `Tests/Unit/Population/`.
+- **Station framework:** ✅ Merged — Outposts, SpaceStations, StationSpec, StationGenerator; prototype at `src/app/prototypes/StationGeneratorPrototype.tscn`.
+- **Jump Lanes:** ✅ Merged — Jump lane domain and prototype in `src/domain/jumplanes/` and `src/app/jumplanes_prototype/`.
 
-See [claude.md](claude.md) for detailed architecture, roadmap, and working agreement.
+See [Docs/Roadmap.md](Docs/Roadmap.md) and [claude.md](claude.md) for architecture, roadmap, and working agreement.
 
 ### Galaxy randomization, welcome screen, and galaxy types (merged)
 

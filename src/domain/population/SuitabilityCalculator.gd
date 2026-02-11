@@ -88,6 +88,11 @@ static func calculate(profile: PlanetProfile) -> ColonySuitability:
 	# Calculate infrastructure difficulty
 	suitability.infrastructure_difficulty = _calculate_infrastructure_difficulty(profile, suitability.factor_scores)
 
+	# Determine equipment requirements
+	suitability.requires_life_support = _requires_life_support(suitability.factor_scores)
+	suitability.requires_pressure_suit = _requires_pressure_suit(profile)
+	suitability.requires_radiation_shielding = _requires_radiation_shielding(profile)
+
 	return suitability
 
 
@@ -549,6 +554,33 @@ static func _calculate_infrastructure_difficulty(
 		difficulty *= 1.1
 
 	return clampf(difficulty, 0.5, 5.0)
+
+
+## Determines if life support is required for human habitation.
+## Life support not required if atmosphere is breathable and conditions are good.
+## @param factor_scores: Dictionary of factor scores.
+## @return: True if life support required.
+static func _requires_life_support(factor_scores: Dictionary) -> bool:
+	var atmosphere_score: int = factor_scores.get(ColonySuitability.FactorType.ATMOSPHERE as int, 0) as int
+	var temperature_score: int = factor_scores.get(ColonySuitability.FactorType.TEMPERATURE as int, 0) as int
+	return atmosphere_score < 80 or temperature_score < 60
+
+
+## Determines if pressure suits are required outdoors.
+## Pressure suits required if pressure is too low or too high.
+## @param profile: The planet profile.
+## @return: True if pressure suit required.
+static func _requires_pressure_suit(profile: PlanetProfile) -> bool:
+	var pressure: float = profile.pressure_atm
+	return pressure < 0.5 or pressure > 2.0
+
+
+## Determines if radiation shielding is required.
+## Shielding required if radiation level is dangerous.
+## @param profile: The planet profile.
+## @return: True if radiation shielding required.
+static func _requires_radiation_shielding(profile: PlanetProfile) -> bool:
+	return profile.radiation_level > 0.5
 
 
 ## Projects population at a given year from founding using logistic growth.

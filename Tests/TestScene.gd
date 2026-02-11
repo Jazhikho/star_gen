@@ -147,6 +147,18 @@ var _test_scripts: Array[GDScript] = [
 	preload("res://Tests/Unit/JumpLanes/TestJumpLaneResult.gd"),
 	preload("res://Tests/Unit/JumpLanes/TestJumpLaneCalculator.gd"),
 	preload("res://Tests/Unit/JumpLanes/TestJumpLaneClusterConnector.gd"),
+	# Station framework (outposts, space stations)
+	preload("res://Tests/Unit/Population/TestStationClass.gd"),
+	preload("res://Tests/Unit/Population/TestStationType.gd"),
+	preload("res://Tests/Unit/Population/TestStationPurpose.gd"),
+	preload("res://Tests/Unit/Population/TestStationService.gd"),
+	preload("res://Tests/Unit/Population/TestStationPlacementContext.gd"),
+	preload("res://Tests/Unit/Population/TestOutpostAuthority.gd"),
+	preload("res://Tests/Unit/Population/TestOutpost.gd"),
+	preload("res://Tests/Unit/Population/TestSpaceStation.gd"),
+	preload("res://Tests/Unit/Population/TestStationPlacementRules.gd"),
+	preload("res://Tests/Unit/Population/TestStationSpec.gd"),
+	preload("res://Tests/Unit/Population/TestStationGenerator.gd"),
 ]
 
 ## The test runner instance.

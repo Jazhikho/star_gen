@@ -581,6 +581,45 @@ func test_project_population_zero_years() -> void:
 	assert_equal(pop, 5000, "Zero years should return initial population")
 
 
+## Tests equipment requirements for Earth-like world.
+func test_equipment_requirements_earth_like() -> void:
+	var profile: PlanetProfile = _create_earth_like_profile()
+	var suitability: ColonySuitability = SuitabilityCalculator.calculate(profile)
+
+	assert_false(suitability.requires_life_support,
+		"Earth-like should not require life support")
+	assert_false(suitability.requires_pressure_suit,
+		"Earth-like should not require pressure suit")
+	assert_false(suitability.requires_radiation_shielding,
+		"Earth-like should not require radiation shielding")
+
+
+## Tests equipment requirements for Mars-like world.
+func test_equipment_requirements_mars_like() -> void:
+	var profile: PlanetProfile = _create_mars_like_profile()
+	var suitability: ColonySuitability = SuitabilityCalculator.calculate(profile)
+
+	assert_true(suitability.requires_life_support,
+		"Mars-like should require life support")
+	assert_true(suitability.requires_pressure_suit,
+		"Mars-like should require pressure suit")
+	assert_true(suitability.requires_radiation_shielding,
+		"Mars-like should require radiation shielding")
+
+
+## Tests equipment requirements for airless moon.
+func test_equipment_requirements_airless() -> void:
+	var profile: PlanetProfile = _create_airless_moon_profile()
+	var suitability: ColonySuitability = SuitabilityCalculator.calculate(profile)
+
+	assert_true(suitability.requires_life_support,
+		"Airless moon should require life support")
+	assert_true(suitability.requires_pressure_suit,
+		"Airless moon should require pressure suit")
+	assert_true(suitability.requires_radiation_shielding,
+		"Airless moon should require radiation shielding")
+
+
 ## Tests determinism - same inputs give same results.
 func test_determinism() -> void:
 	var profile: PlanetProfile = _create_earth_like_profile()

@@ -75,4 +75,4 @@ func test_is_unstable() -> void:
 
 ## Tests count.
 func test_count() -> void:
-	assert_equal(GovernmentType.count(), 17)
+	assert_equal(GovernmentType.count(), 18)
