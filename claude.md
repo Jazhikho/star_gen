@@ -13,26 +13,13 @@ Guiding principles:
 
 ---
 
-## Current roadmap (phases)
-Phase 0: Foundations and guardrails
-Phase 1: Celestial object model
-Phase 2: Object generators v1
-Phase 3: Object viewer v1
-Phase 4: Object editing v1
-Phase 5: Object rendering v2 (optional)
-Phase 6: Solar system generator + viewer
-Phase 7: Galactic map v1
-Phase 8: Solar system generator refinement
-Phase 9: Galactic generator refinement
-Phase 10: Solar system tools
-Phase 11: Galactic tools
-Phase 12: Solar system polish
-Phase 13: Galactic polish
+## Roadmap (efforts)
 
-_See `Docs/Roadmap.md` for detailed phase descriptions, deliverables, tests, and acceptance criteria._
+Work is organized by **async efforts** in `Docs/Roadmap.md`. Contributors pick an effort and work against master.
 
-Claude: when asked for new features, first map them to the CURRENT phase.
-If out-of-scope, add to BACKLOG.md and do NOT implement.
+**Efforts:** (1) Solar system constraints, (2) Solar system save/load & polish, (3) Galaxy data model & lazy generation, (4) Object editing, (5) Object rendering v2, (6) Galactic generator refinement, (7) Solar system tools, (8) Galactic tools, (9) Galactic polish, (10) Jump lanes integration, (11) Code quality & simplifications.
+
+**Claude:** When asked for new features, map them to the relevant effort in the roadmap. If out-of-scope, add to BACKLOG.md and do NOT implement.
 
 ---
 
@@ -89,9 +76,9 @@ When proposing implementation, include:
 All out-of-scope ideas go to BACKLOG.md with:
 - Title
 - Why it matters
-- Which phase it belongs to
+- Which effort it belongs to (or TBD)
 - Complexity (S/M/L)
-No implementing backlog items unless the current phase explicitly includes them.
+No implementing backlog items unless an effort or maintainer explicitly includes them.
 
 ---
 
@@ -134,13 +121,12 @@ No implementing backlog items unless the current phase explicitly includes them.
 
 ---
 
-**Phase 4: Object editing v1** (Deferred - moved to later phase)
-**Note:** Editing functionality has been deferred. The viewer currently supports generation, viewing, and save/load only. Editing will be implemented in a future phase after core viewing and system generation features are complete.
+**Object editing** is an outstanding effort (Effort 4 in the roadmap). The viewer currently supports generation, viewing, and save/load only.
 
 ---
 
 ## Communication protocol
-- Before implementing: confirm phase alignment
+- Before implementing: confirm effort alignment (see Docs/Roadmap.md)
 - If feature is out-of-scope: add to BACKLOG.md, do not implement
 - All code changes: include tests and acceptance criteria
 - Breaking changes: document migration path
