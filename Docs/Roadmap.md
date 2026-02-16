@@ -12,7 +12,7 @@ This roadmap builds StarGen in three layers: (1) viewable celestial objects (edi
 •	Keep domain logic pure (no scene tree / Nodes / file I/O inside domain).
 •	Ship tests with features. Golden-master fixtures cover regression for known seeds.
 •	Prefer composition over inheritance. Small services and data components over "manager" classes.
-•	Any feature request that does not directly support an active effort goes to BACKLOG.md.
+•	Any feature request that does not directly support an active effort is added as a new effort in this roadmap.
 
 ## Definition of Done (per effort)
 
@@ -116,6 +116,8 @@ Contributors pick an effort and work against master. Efforts can run in parallel
 ### Effort 4: Object editing
 
 **Goal:** Edit object properties in the program with validation, derived-value recalculation, and undo.
+
+**Note:** EditDialog.gd/.tscn exist in `src/app/viewer/` as a deferred preview; integrate when this effort is picked.
 
 **Deliverables:**
 •	Editable inspector controls for core fields (mass, radius, type-specific).
@@ -252,17 +254,17 @@ Contributors pick an effort and work against master. Efforts can run in parallel
 •	**General:** Audit for other "simplified" or "placeholder" comments; consolidate or document design decisions.
 
 **Deliverables:**
-•	Resolve or document each TODO (either implement or add to BACKLOG with justification).
+•	Resolve or document each TODO (either implement or add as a new effort with justification).
 •	Audit simplified formulas: either improve accuracy or document why simplified is acceptable.
-•	No new TODOs introduced without a corresponding BACKLOG entry or plan.
+•	No new TODOs introduced without a corresponding effort or plan.
 
 **Acceptance:** Zero unaddressed TODOs; all simplifications either improved or documented.
 
 ---
 
-## Backlog discipline
+## Effort discipline
 
-Any feature request that does not directly support an active effort must be recorded in BACKLOG.md and deferred. Each backlog item should include: title, why it matters, target effort (or TBD), and complexity (S/M/L). Do not implement backlog items unless an effort or maintainer explicitly includes them.
+Proposed changes that do not fit any existing effort are added as a **new effort** in this roadmap. Each new effort should include: name, summary, gates (if any), deliverables, tests, and acceptance criteria. Do not implement until that effort is explicitly picked by a contributor.
 
 ---
 

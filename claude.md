@@ -19,7 +19,7 @@ Work is organized by **async efforts** in `Docs/Roadmap.md`. Contributors pick a
 
 **Efforts:** (1) Solar system constraints, (2) Solar system save/load & polish, (3) Galaxy data model & lazy generation, (4) Object editing, (5) Object rendering v2, (6) Galactic generator refinement, (7) Solar system tools, (8) Galactic tools, (9) Galactic polish, (10) Jump lanes integration, (11) Code quality & simplifications.
 
-**Claude:** When asked for new features, map them to the relevant effort in the roadmap. If out-of-scope, add to BACKLOG.md and do NOT implement.
+**Claude:** When asked for new features, map them to the relevant effort in the roadmap. If out-of-scope for all existing efforts, add a new effort to the roadmap and do NOT implement until that effort is picked.
 
 ---
 
@@ -72,13 +72,8 @@ When proposing implementation, include:
 
 ---
 
-## Backlog discipline
-All out-of-scope ideas go to BACKLOG.md with:
-- Title
-- Why it matters
-- Which effort it belongs to (or TBD)
-- Complexity (S/M/L)
-No implementing backlog items unless an effort or maintainer explicitly includes them.
+## Effort discipline
+Proposed changes that do not fit any existing effort are added as a **new effort** in Docs/Roadmap.md. Each new effort should include: name, summary, gates (if any), deliverables, tests, and acceptance criteria. Do not implement until that effort is explicitly picked by a contributor.
 
 ---
 
@@ -127,6 +122,9 @@ No implementing backlog items unless an effort or maintainer explicitly includes
 
 ## Communication protocol
 - Before implementing: confirm effort alignment (see Docs/Roadmap.md)
-- If feature is out-of-scope: add to BACKLOG.md, do not implement
+- If feature is out-of-scope: add as a new effort to Docs/Roadmap.md, do not implement
 - All code changes: include tests and acceptance criteria
 - Breaking changes: document migration path
+
+## Pre-commit discipline
+- **Before any commit:** Update all affected documentation. This includes Docs/ProjectStructure.md if files or folders were added, removed, or moved; Docs/Roadmap.md if efforts changed; and any other Docs that the change touches. Keep documentation in sync with the codebase.
