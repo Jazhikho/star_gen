@@ -14,6 +14,7 @@ extends Node3D
 const _GalaxyInspectorPanelScript: GDScript = preload("res://src/app/galaxy_viewer/GalaxyInspectorPanel.gd")
 const _GalaxyConfigRef: GDScript = preload("res://src/domain/galaxy/GalaxyConfig.gd")
 const _SaveLoadClass: GDScript = preload("res://src/app/galaxy_viewer/GalaxyViewerSaveLoad.gd")
+const _GalaxyClass: GDScript = preload("res://src/domain/galaxy/Galaxy.gd")
 
 
 ## Emitted when the user clicks a star in star view.
@@ -66,10 +67,11 @@ const GALAXY_STAR_VIEW_OPACITY: float = 0.05
 @onready var _load_button: Button = $UI/UIRoot/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/SaveLoadSection/ButtonContainer/LoadButton
 @onready var _new_galaxy_button: Button = $UI/UIRoot/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/SaveLoadSection/NewGalaxyButton
 
+## The Galaxy data model instance (lazy generation, caching).
+var _galaxy: Galaxy
+
 var _spec: GalaxySpec
 var _galaxy_config: GalaxyConfig = null
-var _density_model: DensityModelInterface
-var _reference_density: float = 0.0
 var _zoom_machine: ZoomStateMachine
 var _galaxy_renderer: GalaxyRenderer
 var _quadrant_renderer: QuadrantRenderer
@@ -106,9 +108,10 @@ var _save_load: RefCounted = _SaveLoadClass.new()
 func _ready() -> void:
 	if _galaxy_config == null:
 		_galaxy_config = GalaxyConfig.create_default()
-	_spec = GalaxySpec.create_from_config(_galaxy_config, galaxy_seed)
-	_density_model = DensityModelInterface.create_for_spec(_spec)
-	_reference_density = _compute_reference_density()
+
+	# Create Galaxy data model (handles lazy generation and caching)
+	_galaxy = Galaxy.new(_galaxy_config, galaxy_seed)
+	_spec = _galaxy.spec
 
 	_zoom_machine = ZoomStateMachine.new()
 	_zoom_machine.level_changed.connect(_on_zoom_level_changed)
@@ -166,7 +169,7 @@ func _initialize_at_home() -> void:
 
 	# Build sector renderer for the home quadrant (needed even though we skip sector view)
 	if _sector_renderer:
-		_sector_renderer.build_for_quadrant(hierarchy.quadrant_coords, _density_model)
+		_sector_renderer.build_for_quadrant(hierarchy.quadrant_coords, _galaxy.density_model)
 
 	# Jump zoom machine to subsector level
 	_zoom_machine.set_level(GalaxyCoordinates.ZoomLevel.SUBSECTOR)
@@ -300,7 +303,7 @@ func _select_quadrant(coords: Vector3i) -> void:
 
 	if _inspector_panel:
 		var center: Vector3 = GalaxyCoordinates.quadrant_to_parsec_center(coords)
-		var density: float = _density_model.get_density(center)
+		var density: float = _galaxy.density_model.get_density(center)
 		_inspector_panel.display_selected_quadrant(coords, density)
 
 	set_status("Selected quadrant (%d, %d, %d)" % [coords.x, coords.y, coords.z])
@@ -373,7 +376,7 @@ func _select_sector(coords: Vector3i) -> void:
 		var quadrant_coords: Vector3i = _quadrant_selector.selected_coords as Vector3i
 		var sector_origin: Vector3 = GalaxyCoordinates.sector_world_origin(quadrant_coords, coords)
 		var sector_center: Vector3 = sector_origin + Vector3.ONE * GalaxyCoordinates.SECTOR_SIZE_PC * 0.5
-		var density: float = _density_model.get_density(sector_center)
+		var density: float = _galaxy.density_model.get_density(sector_center)
 		_inspector_panel.display_selected_sector(quadrant_coords, coords, density)
 
 	set_status("Selected sector (%d, %d, %d)" % [coords.x, coords.y, coords.z])
@@ -492,7 +495,7 @@ func _show_sector_view() -> void:
 	# Show quadrant grid for context but clear highlight to prevent white block
 	_quadrant_renderer.visible = true
 	_quadrant_renderer.set_highlight(null)
-	_sector_renderer.build_for_quadrant(quadrant_coords, _density_model)
+	_sector_renderer.build_for_quadrant(quadrant_coords, _galaxy.density_model)
 	_sector_renderer.visible = true
 	_neighborhood_renderer.visible = false
 	_selection_indicator.hide_indicator()
@@ -531,7 +534,7 @@ func _show_subsector_view() -> void:
 	_activate_star_camera()
 
 	_neighborhood_renderer.build_neighborhood(
-		sector_center, galaxy_seed, _density_model, _reference_density
+		sector_center, galaxy_seed, _galaxy.density_model, _galaxy.reference_density
 	)
 	_neighborhood_renderer.visible = true
 
@@ -553,7 +556,7 @@ func _build_quadrant_renderer() -> void:
 	_quadrant_renderer = QuadrantRenderer.new()
 	_quadrant_renderer.name = "QuadrantRenderer"
 	add_child(_quadrant_renderer)
-	_quadrant_renderer.build_from_density(_spec, _density_model)
+	_quadrant_renderer.build_from_density(_spec, _galaxy.density_model)
 	_quadrant_renderer.visible = false
 
 
@@ -606,8 +609,7 @@ func _build_star_camera() -> void:
 ## @param _new_origin: World-space origin of the new subsector (unused, kept for signal signature).
 func _on_subsector_changed(_new_origin: Vector3) -> void:
 	_neighborhood_renderer.build_neighborhood(
-		_star_camera.global_position, galaxy_seed,
-		_density_model, _reference_density
+		_star_camera.global_position, galaxy_seed, _galaxy.density_model, _galaxy.reference_density
 	)
 
 
@@ -631,15 +633,6 @@ func _build_compass() -> void:
 	_compass.visible = false
 	_compass.direction_pressed.connect(_on_compass_direction)
 	_canvas_layer.add_child(_compass)
-
-
-## Computes the reference density at the solar-neighborhood-equivalent radius.
-## This ensures that areas at ~8kpc from center produce ~4 systems per subsector.
-## @return: Density value at the reference radius.
-func _compute_reference_density() -> float:
-	# Solar neighborhood is ~8kpc from galactic center, in the disk plane
-	var solar_radius_pc: float = 8000.0
-	return _density_model.get_density(Vector3(solar_radius_pc, 0.0, 0.0))
 
 
 ## Connects UI element signals.
@@ -695,6 +688,12 @@ func set_status(message: String) -> void:
 ## @return: GalaxySpec instance.
 func get_spec() -> GalaxySpec:
 	return _spec
+
+
+## Returns the Galaxy data model instance.
+## @return: Galaxy instance.
+func get_galaxy() -> Galaxy:
+	return _galaxy
 
 
 ## Returns the current galaxy config (used for generation).
@@ -796,9 +795,8 @@ func _change_galaxy_seed(new_seed: int) -> void:
 	galaxy_seed = new_seed
 	if _galaxy_config == null:
 		_galaxy_config = GalaxyConfig.create_default()
-	_spec = GalaxySpec.create_from_config(_galaxy_config, galaxy_seed)
-	_density_model = DensityModelInterface.create_for_spec(_spec)
-	_reference_density = _compute_reference_density()
+	_galaxy = Galaxy.new(_galaxy_config, galaxy_seed)
+	_spec = _galaxy.spec
 
 	var rng: RandomNumberGenerator = RandomNumberGenerator.new()
 	rng.seed = _spec.seed
@@ -811,7 +809,7 @@ func _change_galaxy_seed(new_seed: int) -> void:
 	if _galaxy_renderer:
 		_galaxy_renderer.build_from_sample(sample, star_size, _spec.galaxy_type)
 	if _quadrant_renderer:
-		_quadrant_renderer.build_from_density(_spec, _density_model)
+		_quadrant_renderer.build_from_density(_spec, _galaxy.density_model)
 
 	if _quadrant_selector:
 		_quadrant_selector.clear_selection()
@@ -877,13 +875,13 @@ func get_neighborhood_renderer() -> NeighborhoodRenderer:
 ## Returns the density model for the current galaxy.
 ## @return: The DensityModelInterface instance.
 func get_density_model() -> DensityModelInterface:
-	return _density_model
+	return _galaxy.density_model
 
 
 ## Returns the reference density used for star brightness.
 ## @return: Reference density value.
 func get_reference_density() -> float:
-	return _reference_density
+	return _galaxy.reference_density
 
 
 ## Returns the selection indicator.

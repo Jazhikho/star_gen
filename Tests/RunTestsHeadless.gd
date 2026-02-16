@@ -79,12 +79,10 @@ var _test_scripts: Array[GDScript] = [
 	preload("res://Tests/Integration/TestMainApp.gd"),
 	preload("res://Tests/Integration/TestMainAppNavigation.gd"),
 	preload("res://Tests/Unit/TestSystemCache.gd"),
-	# Galaxy Viewer
+	# Galaxy Viewer (skip TestGalaxyViewerHome and TestGalaxySystemTransition in headless — they need a live scene tree and await process_frame; run via TestScene)
 	preload("res://Tests/Unit/TestGalaxyInspectorPanel.gd"),
 	preload("res://Tests/Integration/TestGalaxyViewerUI.gd"),
 	preload("res://Tests/Unit/TestHomePosition.gd"),
-	preload("res://Tests/Integration/TestGalaxyViewerHome.gd"),
-	preload("res://Tests/Integration/TestGalaxySystemTransition.gd"),
 	preload("res://Tests/Unit/TestGalaxyConfig.gd"),
 	preload("res://Tests/Unit/TestGalaxySaveData.gd"),
 	preload("res://Tests/Integration/TestGalaxyPersistence.gd"),
@@ -104,6 +102,11 @@ var _test_scripts: Array[GDScript] = [
 	preload("res://Tests/domain/galaxy/TestSubSectorGenerator.gd"),
 	preload("res://Tests/domain/galaxy/TestStarPicker.gd"),
 	preload("res://Tests/domain/galaxy/TestSubSectorNeighborhood.gd"),
+	# Galaxy data model (Effort 3)
+	preload("res://Tests/Unit/TestGalaxy.gd"),
+	preload("res://Tests/Unit/TestGalaxyStar.gd"),
+	preload("res://Tests/Unit/TestSector.gd"),
+	preload("res://Tests/Unit/TestGalaxySystemGenerator.gd"),
 	# Population framework (NativePopulation first for class scope)
 	preload("res://Tests/Unit/Population/TestNativePopulation.gd"),
 	# Population framework (Stage 1: Planet Profile Model)

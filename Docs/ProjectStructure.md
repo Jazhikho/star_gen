@@ -154,16 +154,20 @@ star_gen/
 │   │   │   ├── DensityModelInterface.gd
 │   │   │   ├── DensitySampler.gd
 │   │   │   ├── EllipticalDensityModel.gd
+│   │   │   ├── Galaxy.gd
 │   │   │   ├── GalaxyConfig.gd
 │   │   │   ├── GalaxyCoordinates.gd
 │   │   │   ├── GalaxySample.gd
 │   │   │   ├── GalaxySaveData.gd
 │   │   │   ├── GalaxySpec.gd
+│   │   │   ├── GalaxyStar.gd
+│   │   │   ├── GalaxySystemGenerator.gd
 │   │   │   ├── GridCursor.gd
 │   │   │   ├── HomePosition.gd
 │   │   │   ├── IrregularDensityModel.gd
 │   │   │   ├── RaycastUtils.gd
 │   │   │   ├── SeedDeriver.gd
+│   │   │   ├── Sector.gd
 │   │   │   ├── SpiralDensityModel.gd
 │   │   │   ├── StableHash.gd
 │   │   │   ├── StarPicker.gd
@@ -390,9 +394,13 @@ star_gen/
     │   ├── TestCelestialValidator.gd
     │   ├── TestColorUtils.gd
     │   ├── TestColorUtilsShaderParams.gd
+    │   ├── TestGalaxy.gd
     │   ├── TestGalaxyConfig.gd
     │   ├── TestGalaxyInspectorPanel.gd
     │   ├── TestGalaxySaveData.gd
+    │   ├── TestGalaxyStar.gd
+    │   ├── TestGalaxySystemGenerator.gd
+    │   ├── TestSector.gd
     │   ├── TestGasGiantShaderParams.gd
     │   ├── TestGoldenMasters.gd
     │   ├── TestHierarchyNode.gd

@@ -509,6 +509,7 @@ func display_body_with_moons(
 	moons: Array[CelestialBody]
 ) -> void:
 	if not body:
+		clear_display()
 		set_error("Cannot display null body")
 		return
 

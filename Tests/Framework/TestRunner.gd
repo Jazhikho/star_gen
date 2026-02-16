@@ -128,6 +128,7 @@ func _run_single_test(instance: TestCase, method_name: String, script_path: Stri
 	var full_name: String = "%s::%s" % [script_path.get_file().get_basename(), method_name]
 	
 	test_started.emit(full_name)
+	print("Running: %s" % full_name)
 	
 	instance._reset_failure_state()
 	instance.before_each()
@@ -146,6 +147,7 @@ func _run_single_test_async(instance: TestCase, method_name: String, script_path
 	var full_name: String = "%s::%s" % [script_path.get_file().get_basename(), method_name]
 	
 	test_started.emit(full_name)
+	print("Running: %s" % full_name)
 	
 	instance._reset_failure_state()
 	instance.before_each()
@@ -157,7 +159,8 @@ func _run_single_test_async(instance: TestCase, method_name: String, script_path
 		await scene_tree.process_frame
 	
 	var start_time: int = Time.get_ticks_msec()
-	instance.call(method_name)
+	var callable: Callable = Callable(instance, method_name)
+	await callable.call()
 	var end_time: int = Time.get_ticks_msec()
 	
 	instance.after_each()
@@ -218,6 +221,7 @@ func get_fail_count() -> int:
 ## Prints a summary of test results to the console.
 func print_summary() -> void:
 	print("")
+	print("")
 	print("=".repeat(60))
 	print("TEST SUMMARY")
 	print("=".repeat(60))
@@ -238,8 +242,9 @@ func print_summary() -> void:
 	print("-".repeat(60))
 	print("Total: %d | Passed: %d | Failed: %d" % [_total_count, _pass_count, _fail_count])
 	print("=".repeat(60))
-	
 	if _fail_count > 0:
 		print("SOME TESTS FAILED")
 	else:
 		print("ALL TESTS PASSED")
+	print("")
+	print("(Report complete.)")

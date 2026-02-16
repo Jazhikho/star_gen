@@ -1,5 +1,7 @@
 ## Data structure for galaxy save files.
 ## Contains all information needed to restore a galaxy viewer state.
+## Note: Generated systems are not persisted; they are regenerated on demand
+## from deterministic seeds when the galaxy is loaded.
 class_name GalaxySaveData
 extends RefCounted
 
@@ -44,6 +46,10 @@ var selected_star_position: Vector3 = Vector3.ZERO
 
 ## Galaxy configuration dictionary (serialized GalaxyConfig).
 var galaxy_config_data: Dictionary = {}
+
+## Number of cached systems at save time (informational only).
+## Systems themselves are not persisted; they regenerate deterministically.
+var cached_system_count: int = 0
 
 
 ## Returns this script for self-instantiation (avoids class_name resolution order when loaded as dependency).
@@ -97,6 +103,7 @@ func to_dict() -> Dictionary:
 		dict["selected_sector"] = null
 
 	dict["galaxy_config_data"] = galaxy_config_data
+	dict["cached_system_count"] = cached_system_count
 	return dict
 
 
@@ -146,6 +153,7 @@ static func from_dict(dict: Dictionary) -> Variant:
 		data.galaxy_config_data = config_dict
 	else:
 		data.galaxy_config_data = {}
+	data.cached_system_count = dict.get("cached_system_count", 0) as int
 
 	return data
 

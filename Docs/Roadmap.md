@@ -95,17 +95,27 @@ Contributors pick an effort and work against master. Efforts can run in parallel
 
 ### Effort 3: Galaxy data model & lazy generation
 
-**Goal:** Add Galaxy, Sector, GalaxyStar classes and lazy system generation so systems are generated on demand.
+**Goal:** Add Galaxy, Sector, GalaxyStar classes and lazy system generation so systems are generated on demand. **Status: Complete.**
 
 **Deliverables:**
 •	Galaxy data model: Galaxy, Sector, GalaxyStar with serialization.
 •	Sector-based lazy generation; density from density model.
 •	Stellar metallicity from galactic position (core vs. spiral arm vs. halo).
-•	Star formation rate by region (affects age distribution).
+•	Star formation rate by region (affects age distribution via age_bias).
 •	Lazy generation consistency: same sector generates same systems.
 •	Single entry point for "systems in region" (subsector/sector) for jump-lanes integration.
+•	GalaxySystemGenerator for on-demand system generation from GalaxyStar.
+•	Wire Galaxy into GalaxyViewer.
+•	Persistence uses existing GalaxySaveData (systems regenerate deterministically from seeds).
 
-**Tests:** Determinism across lazy generation; metallicity gradients; grid-based sector indexing; lazy generation consistency; persistence round-trip.
+**Tests:**
+•	Determinism across lazy generation. ✓
+•	Metallicity gradients (radial and vertical). ✓
+•	Grid-based sector indexing. ✓
+•	Lazy generation consistency. ✓
+•	GalaxySystemGenerator produces valid systems with provenance. ✓
+•	Planets have valid parent_id references. ✓
+•	Persistence round-trip (existing tests cover GalaxySaveData). ✓
 
 **Acceptance:** Browse galaxy → open system → edits persist across sessions. Galaxy viewer remains responsive with 10k+ stars.
 

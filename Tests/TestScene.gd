@@ -104,6 +104,11 @@ var _test_scripts: Array[GDScript] = [
 	preload("res://Tests/domain/galaxy/TestSubSectorGenerator.gd"),
 	preload("res://Tests/domain/galaxy/TestStarPicker.gd"),
 	preload("res://Tests/domain/galaxy/TestSubSectorNeighborhood.gd"),
+	# Galaxy data model (Effort 3)
+	preload("res://Tests/Unit/TestGalaxy.gd"),
+	preload("res://Tests/Unit/TestGalaxyStar.gd"),
+	preload("res://Tests/Unit/TestSector.gd"),
+	preload("res://Tests/Unit/TestGalaxySystemGenerator.gd"),
 	# Population framework (NativePopulation first for class scope)
 	preload("res://Tests/Unit/Population/TestNativePopulation.gd"),
 	# Population framework (Stage 1: Planet Profile Model)
@@ -181,8 +186,8 @@ func _ready() -> void:
 	
 	var exit_code: int = 0 if _runner.get_fail_count() == 0 else 1
 	
-	# Give a moment for output to flush, then exit
-	await get_tree().create_timer(0.1).timeout
+	# Pause so the summary is visible in the Output panel before quit
+	await get_tree().create_timer(1.0).timeout
 	get_tree().quit(exit_code)
 
 

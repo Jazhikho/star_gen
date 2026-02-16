@@ -51,6 +51,7 @@ func _make_system() -> SolarSystem:
 	var planet: CelestialBody = CelestialBody.new(
 		"planet_1", "Earth", CelestialType.Type.PLANET, planet_phys, null
 	)
+	planet.orbital = planet_orb
 	system.add_body(planet)
 	
 	# Add orbit host
@@ -76,6 +77,7 @@ func _make_planet() -> CelestialBody:
 	var body: CelestialBody = CelestialBody.new(
 		"planet_1", "Earth", CelestialType.Type.PLANET, physical, null
 	)
+	body.orbital = orbital
 	body.atmosphere = AtmosphereProps.new(
 		101325.0,
 		8500.0,
@@ -260,6 +262,8 @@ func test_display_selected_body_orbital() -> void:
 	
 	var planet: CelestialBody = _make_planet()
 	panel.display_selected_body(planet)
+	await scene_tree.process_frame
+	await scene_tree.process_frame
 	
 	assert_true(_section_contains_text(panel, "Orbital"),
 		"Should display Orbital section header")
@@ -432,6 +436,8 @@ func test_star_mass_solar_units() -> void:
 	star.stellar = StellarProps.new(3.828e26, 5778.0, "G2V", "main_sequence", 1.0, 4.6e9)
 	
 	panel.display_selected_body(star)
+	await scene_tree.process_frame
+	await scene_tree.process_frame
 	
 	assert_true(_section_contains_text(panel, "M☉"),
 		"Star mass should use solar mass units (M☉)")
@@ -447,6 +453,8 @@ func test_planet_mass_earth_units() -> void:
 	await scene_tree.process_frame
 	
 	panel.display_selected_body(_make_planet())
+	await scene_tree.process_frame
+	await scene_tree.process_frame
 	
 	assert_true(_section_contains_text(panel, "M⊕"),
 		"Planet mass should use Earth mass units (M⊕)")

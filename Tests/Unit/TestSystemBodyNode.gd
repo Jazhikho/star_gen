@@ -224,19 +224,19 @@ func test_body_selected_signal() -> void:
 	var node: SystemBodyNode = _create_node()
 	var scene_tree: SceneTree = Engine.get_main_loop() as SceneTree
 	await scene_tree.process_frame
+	await scene_tree.process_frame
 	
 	var body: CelestialBody = _make_body(CelestialType.Type.PLANET, "planet_test")
 	node.setup(body, 0.2, Vector3.ZERO)
 	
-	var received_id: String = ""
+	var received: Array = [""]
 	node.body_selected.connect(func(id: String) -> void:
-		received_id = id
+		received[0] = id
 	)
 	
-	# Simulate selection signal emission
 	node.body_selected.emit("planet_test")
 	
-	assert_equal(received_id, "planet_test", "Should emit body_selected with correct ID")
+	assert_equal(received[0], "planet_test", "Should emit body_selected with correct ID")
 	
 	node.queue_free()
 
@@ -271,25 +271,26 @@ func test_hover_signals() -> void:
 	var node: SystemBodyNode = _create_node()
 	var scene_tree: SceneTree = Engine.get_main_loop() as SceneTree
 	await scene_tree.process_frame
+	await scene_tree.process_frame
 	
 	var body: CelestialBody = _make_body(CelestialType.Type.PLANET, "hover_test")
 	node.setup(body, 0.2, Vector3.ZERO)
 	
-	var hovered_id: String = ""
-	var unhovered_id: String = ""
+	var hovered_id: Array = [""]
+	var unhovered_id: Array = [""]
 	
 	node.body_hovered.connect(func(id: String) -> void:
-		hovered_id = id
+		hovered_id[0] = id
 	)
 	node.body_unhovered.connect(func(id: String) -> void:
-		unhovered_id = id
+		unhovered_id[0] = id
 	)
 	
 	node.set_hovered(true)
-	assert_equal(hovered_id, "hover_test", "Should emit body_hovered")
+	assert_equal(hovered_id[0], "hover_test", "Should emit body_hovered")
 	
 	node.set_hovered(false)
-	assert_equal(unhovered_id, "hover_test", "Should emit body_unhovered")
+	assert_equal(unhovered_id[0], "hover_test", "Should emit body_unhovered")
 	
 	node.queue_free()
 
@@ -299,20 +300,21 @@ func test_hover_no_duplicate_signals() -> void:
 	var node: SystemBodyNode = _create_node()
 	var scene_tree: SceneTree = Engine.get_main_loop() as SceneTree
 	await scene_tree.process_frame
+	await scene_tree.process_frame
 	
 	var body: CelestialBody = _make_body(CelestialType.Type.PLANET, "dup_test")
 	node.setup(body, 0.2, Vector3.ZERO)
 	
-	var hover_count: int = 0
+	var hover_count: Array = [0]
 	node.body_hovered.connect(func(_id: String) -> void:
-		hover_count += 1
+		hover_count[0] += 1
 	)
 	
 	node.set_hovered(true)
 	node.set_hovered(true) # Duplicate - should not emit
 	node.set_hovered(true) # Duplicate - should not emit
 	
-	assert_equal(hover_count, 1, "Should only emit hover signal once for same state")
+	assert_equal(hover_count[0], 1, "Should only emit hover signal once for same state")
 	
 	node.queue_free()
 

@@ -4,6 +4,7 @@ class_name GalaxyViewerSaveLoad
 extends RefCounted
 
 const _GalaxyConfigRef: GDScript = preload("res://src/domain/galaxy/GalaxyConfig.gd")
+const _GalaxyClass: GDScript = preload("res://src/domain/galaxy/Galaxy.gd")
 
 
 ## Saves the current viewer state for later restoration.
@@ -97,6 +98,9 @@ func create_save_data(viewer: Node) -> GalaxySaveData:
 	var config: GalaxyConfig = viewer.get_galaxy_config()
 	if config != null:
 		data.set_config(config)
+	var galaxy: Galaxy = viewer.get_galaxy()
+	if galaxy != null:
+		data.cached_system_count = galaxy.get_cached_system_count()
 	if viewer.get_zoom_machine():
 		data.zoom_level = viewer.get_zoom_machine().get_current_level()
 	if viewer.get_quadrant_selector() and viewer.get_quadrant_selector().has_selection():

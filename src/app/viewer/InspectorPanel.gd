@@ -277,7 +277,7 @@ func _add_section(title: String, expanded: bool = true) -> void:
 	
 	# Header with collapse button
 	var header: Button = Button.new()
-	header.text = ("â–¼ " if expanded else "â–¶ ") + title
+	header.text = ("▼ " if expanded else "▶ ") + title
 	header.flat = true
 	header.alignment = HORIZONTAL_ALIGNMENT_LEFT
 	header.add_theme_font_size_override("font_size", 14)
@@ -305,7 +305,7 @@ func _add_section(title: String, expanded: bool = true) -> void:
 ## @param header: The header button to update.
 func _toggle_section(content: VBoxContainer, header: Button) -> void:
 	content.visible = not content.visible
-	var arrow: String = "â–¼ " if content.visible else "â–¶ "
+	var arrow: String = "▼ " if content.visible else "▶ "
 	var text: String = header.text
 	# Replace first 2 characters (arrow + space)
 	header.text = arrow + text.substr(2)

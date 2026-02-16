@@ -165,11 +165,11 @@ func _add_physical_properties(body: CelestialBody) -> void:
 	
 	match body.type:
 		CelestialType.Type.STAR:
-			_add_property(_body_section, "Mass", "%.3f Mâ˜‰" % (phys.mass_kg / Units.SOLAR_MASS_KG))
-			_add_property(_body_section, "Radius", "%.3f Râ˜‰" % (phys.radius_m / Units.SOLAR_RADIUS_METERS))
+			_add_property(_body_section, "Mass", "%.3f M☉" % (phys.mass_kg / Units.SOLAR_MASS_KG))
+			_add_property(_body_section, "Radius", "%.3f R☉" % (phys.radius_m / Units.SOLAR_RADIUS_METERS))
 		CelestialType.Type.PLANET, CelestialType.Type.MOON:
-			_add_property(_body_section, "Mass", "%.4f MâŠ•" % (phys.mass_kg / Units.EARTH_MASS_KG))
-			_add_property(_body_section, "Radius", "%.4f RâŠ•" % (phys.radius_m / Units.EARTH_RADIUS_METERS))
+			_add_property(_body_section, "Mass", "%.4f M⊕" % (phys.mass_kg / Units.EARTH_MASS_KG))
+			_add_property(_body_section, "Radius", "%.4f R⊕" % (phys.radius_m / Units.EARTH_RADIUS_METERS))
 		CelestialType.Type.ASTEROID:
 			_add_property(_body_section, "Mass", "%.3e kg" % phys.mass_kg)
 			_add_property(_body_section, "Radius", "%.1f km" % (phys.radius_m / 1000.0))

@@ -66,13 +66,13 @@ Generated entities store provenance (seed, generator version, schema version, ti
 
 ### Level 3 output type: “stars-in-space” data (galaxy sampling)
 
-Galaxy generation is currently implemented as deterministic **spatial sampling** returning:
+Galaxy generation uses the **Galaxy** data model (`src/domain/galaxy/Galaxy.gd`), which provides lazy sector and star generation. The primary output type is `GalaxyStar` (position, seed, metallicity, age bias). Low-level sampling returns:
 
 - `SubSectorGenerator.SectorStarData` (`src/domain/galaxy/SubSectorGenerator.gd`)
   - `positions: PackedVector3Array` (world-space parsec coordinates)
   - `star_seeds: PackedInt64Array` (deterministic per-star seed to generate systems on demand)
 
-Downstream system generation is intended to use `star_seed` as the basis for a `SolarSystemSpec.generation_seed`.
+Systems are generated on demand via `GalaxySystemGenerator.generate_system(galaxy_star)`, using `star_seed` as the basis for `SolarSystemSpec.generation_seed`.
 
 ---
 
@@ -409,7 +409,60 @@ At this level, the generation is staged. The important “types” are:
 
 ## Level 3: Galactic scale generation (subsector sampling)
 
-Galaxy generation is currently focused on **deterministic sampling** (positions + seeds), not full persistent galaxy state.
+### Overview
+
+Galaxy generation now includes a full data model for lazy generation and caching.
+
+### Data model classes
+
+- **Galaxy** (`src/domain/galaxy/Galaxy.gd`): Top-level container; holds config, spec, density model, lazy sectors, and optional system cache.
+- **Sector** (`src/domain/galaxy/Sector.gd`): 100 pc³ region; contains stars grouped by subsector and a flat list.
+- **GalaxyStar** (`src/domain/galaxy/GalaxyStar.gd`): Represents a star system entry with position, seed, and derived properties (metallicity, age bias).
+- **GalaxySystemGenerator** (`src/domain/galaxy/GalaxySystemGenerator.gd`): Bridges galaxy layer to system layer; generates SolarSystem from GalaxyStar on demand.
+
+### Class relationships
+
+```
+Galaxy (top-level container)
+├── config: GalaxyConfig
+├── spec: GalaxySpec
+├── density_model: DensityModelInterface
+├── _sectors: Dictionary[key -> Sector]  (lazy-loaded)
+└── _systems_cache: Dictionary[star_seed -> SolarSystem]
+
+Sector (100pc³ region)
+├── quadrant_coords, sector_local_coords
+├── _stars_by_subsector: Dictionary[key -> Array[GalaxyStar]]
+└── _all_stars: Array[GalaxyStar]  (flat list)
+
+GalaxyStar (star system entry)
+├── position: Vector3 (world-space parsecs)
+├── star_seed: int (for deterministic system generation)
+├── metallicity: float (derived from position)
+└── age_bias: float (derived from position)
+```
+
+### Lazy generation flow
+
+1. **Query stars**: Call `Galaxy.get_stars_in_sector()` or `Galaxy.get_stars_in_subsector()`.
+2. **Generate system on demand**: Use `GalaxySystemGenerator.generate_system(galaxy_star)` to produce a `SolarSystem`; cache optionally in `Galaxy`.
+
+### Persistence
+
+Galaxy state is persisted via `GalaxySaveData`:
+- **Seed and config**: Stored and restored; allows deterministic regeneration.
+- **View state**: Zoom level, selections, camera position.
+- **Generated systems**: NOT persisted. Systems regenerate deterministically from star seeds on demand.
+
+This keeps save files small while ensuring identical results across sessions.
+
+### Integration with GalaxyViewer
+
+`GalaxyViewer` creates and owns a `Galaxy` instance:
+- Replaces direct `_density_model` and `_reference_density` fields
+- All density queries go through `_galaxy.density_model`
+- `get_galaxy()` accessor allows external access to the data model
+- Changing galaxy seed creates a new `Galaxy` instance
 
 ### Hierarchy and seed chain
 
