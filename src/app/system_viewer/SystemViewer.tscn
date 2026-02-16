@@ -198,6 +198,32 @@ layout_mode = 2
 button_pressed = true
 text = "Show Zones"
 
+[node name="HSeparator2a" type="HSeparator" parent="UI/SidePanel/MarginContainer/ScrollContainer/VBoxContainer"]
+layout_mode = 2
+
+[node name="SaveLoadSection" type="VBoxContainer" parent="UI/SidePanel/MarginContainer/ScrollContainer/VBoxContainer"]
+layout_mode = 2
+theme_override_constants/separation = 5
+
+[node name="SaveLoadLabel" type="Label" parent="UI/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/SaveLoadSection"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 14
+text = "Save / Load"
+
+[node name="ButtonContainer" type="HBoxContainer" parent="UI/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/SaveLoadSection"]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="SaveButton" type="Button" parent="UI/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/SaveLoadSection/ButtonContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Save..."
+
+[node name="LoadButton" type="Button" parent="UI/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/SaveLoadSection/ButtonContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Load..."
+
 [node name="HSeparator2" type="HSeparator" parent="UI/SidePanel/MarginContainer/ScrollContainer/VBoxContainer"]
 layout_mode = 2
 

@@ -110,6 +110,7 @@ star_gen/
 │   │   │   ├── SystemInspectorPanel.gd
 │   │   │   ├── SystemScaleManager.gd
 │   │   │   ├── SystemViewer.gd
+│   │   │   ├── SystemViewerSaveLoad.gd
 │   │   │   └── SystemViewer.tscn
 │   │   │
 │   │   ├── themes/
@@ -335,6 +336,7 @@ star_gen/
     │   ├── TestSystemCameraController.gd
     │   ├── TestSystemPersistence.gd
     │   ├── TestSystemViewer.gd
+    │   ├── TestSystemViewerSaveLoad.gd
     │   └── TestWelcomeScreen.gd
     │
     ├── Unit/

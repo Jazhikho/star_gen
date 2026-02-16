@@ -4,7 +4,7 @@
 StarGen is a deterministic procedural generator + viewer for:
 1) Individual celestial objects (stars, planets, moons, asteroids) — viewable (editing deferred to later)
 2) Solar systems — generate + view first, then constraints, then editing tools
-3) Galactic scale — later, built on top of the above
+3) Galactic scale — data model done (Galaxy, Sector, GalaxyStar, lazy generation); tools/polish deferred
 
 Guiding principles:
 - DRY + SOLID
@@ -17,7 +17,7 @@ Guiding principles:
 
 Work is organized by **async efforts** in `Docs/Roadmap.md`. Contributors pick an effort and work against master.
 
-**Efforts:** (1) Solar system constraints, (2) Solar system save/load & polish, (3) Galaxy data model & lazy generation, (4) Object editing, (5) Object rendering v2, (6) Galactic generator refinement, (7) Solar system tools, (8) Galactic tools, (9) Galactic polish, (10) Jump lanes integration, (11) Code quality & simplifications.
+**Efforts:** (1) Solar system constraints, (2) System viewer rendering improvements, (3) Galaxy data model & lazy generation [complete], (4) Object editing, (5) Object rendering v2, (6) Galactic generator refinement, (7) Solar system tools, (8) Galactic tools, (9) Galactic polish, (10) Jump lanes integration, (11) Code quality & simplifications. Effort numbers are reused when an effort is completed; see Docs/Roadmap.md for current table and Completed efforts.
 
 **Claude:** When asked for new features, map them to the relevant effort in the roadmap. If out-of-scope for all existing efforts, add a new effort to the roadmap and do NOT implement until that effort is picked.
 

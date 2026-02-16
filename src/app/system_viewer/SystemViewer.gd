@@ -18,6 +18,7 @@ const _celestial_type: GDScript = preload("res://src/domain/celestial/CelestialT
 const _system_display_layout: GDScript = preload("res://src/app/system_viewer/SystemDisplayLayout.gd")
 const _system_body_node_scene: PackedScene = preload("res://src/app/system_viewer/SystemBodyNode.tscn")
 const _orbit_renderer: GDScript = preload("res://src/app/system_viewer/OrbitRenderer.gd")
+const _save_load_class: GDScript = preload("res://src/app/system_viewer/SystemViewerSaveLoad.gd")
 const _orbit_host: GDScript = preload("res://src/domain/system/OrbitHost.gd")
 const _units: GDScript = preload("res://src/domain/math/Units.gd")
 
@@ -31,6 +32,10 @@ const _units: GDScript = preload("res://src/domain/math/Units.gd")
 @onready var seed_input: SpinBox = $UI/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/GenerationSection/SeedContainer/SeedInput
 @onready var generate_button: Button = $UI/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/GenerationSection/ButtonContainer/GenerateButton
 @onready var reroll_button: Button = $UI/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/GenerationSection/ButtonContainer/RerollButton
+
+# Save/load controls
+@onready var save_button: Button = $UI/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/SaveLoadSection/ButtonContainer/SaveButton
+@onready var load_button: Button = $UI/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/SaveLoadSection/ButtonContainer/LoadButton
 
 # View controls
 @onready var show_orbits_check: CheckBox = $UI/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/ViewSection/ShowOrbitsCheck
@@ -64,6 +69,9 @@ var is_ready: bool = false
 ## Whether orbital animation is enabled
 var animation_enabled: bool = true
 
+## Save/load helper instance
+var _save_load: RefCounted = _save_load_class.new()
+
 
 func _ready() -> void:
 	_setup_viewport()
@@ -71,6 +79,8 @@ func _ready() -> void:
 	_setup_generation_ui()
 	_setup_view_ui()
 	_setup_orbit_renderer()
+	_setup_save_load_ui()
+	_setup_tooltips()
 	_connect_signals()
 	
 	set_status("System viewer initialized")
@@ -139,6 +149,31 @@ func _setup_orbit_renderer() -> void:
 		orbits_container.add_child(orbit_renderer)
 
 
+## Sets up save/load UI initial state.
+func _setup_save_load_ui() -> void:
+	_update_save_button_state()
+
+
+## Sets up tooltips for all interactive UI elements.
+func _setup_tooltips() -> void:
+	if generate_button:
+		generate_button.tooltip_text = "Generate system with current settings"
+	if reroll_button:
+		reroll_button.tooltip_text = "Generate with a new random seed"
+	if star_count_spin:
+		star_count_spin.tooltip_text = "Number of stars in the system (1-10)"
+	if seed_input:
+		seed_input.tooltip_text = "Generation seed for deterministic results"
+	if show_orbits_check:
+		show_orbits_check.tooltip_text = "Toggle orbital path visibility"
+	if show_zones_check:
+		show_zones_check.tooltip_text = "Toggle habitable zone visibility"
+	if save_button:
+		save_button.tooltip_text = "Save current system to file (Ctrl+S)"
+	if load_button:
+		load_button.tooltip_text = "Load system from file (Ctrl+O)"
+
+
 ## Connects UI signals.
 func _connect_signals() -> void:
 	if generate_button:
@@ -157,6 +192,12 @@ func _connect_signals() -> void:
 	if inspector_panel:
 		inspector_panel.open_in_viewer_requested.connect(_on_open_body_in_viewer)
 
+	# Connect save/load buttons
+	if save_button:
+		save_button.pressed.connect(_on_save_pressed)
+	if load_button:
+		load_button.pressed.connect(_on_load_pressed)
+
 	# Connect back button if present (back to galaxy)
 	var back_button: Button = get_node_or_null("UI/TopBar/MarginContainer/HBoxContainer/BackButton")
 	if back_button:
@@ -168,7 +209,21 @@ func _on_back_pressed() -> void:
 	back_to_galaxy_requested.emit()
 
 
-## TODO: Add Escape key in _unhandled_input to emit back_to_galaxy_requested for consistency with back button.
+## Handles keyboard shortcuts for the system viewer.
+func _unhandled_key_input(event: InputEvent) -> void:
+	var key_event: InputEventKey = event as InputEventKey
+	if key_event == null or not key_event.pressed or key_event.echo:
+		return
+
+	if key_event.keycode == KEY_S and key_event.ctrl_pressed:
+		_on_save_pressed()
+		get_viewport().set_input_as_handled()
+	elif key_event.keycode == KEY_O and key_event.ctrl_pressed:
+		_on_load_pressed()
+		get_viewport().set_input_as_handled()
+	elif key_event.keycode == KEY_ESCAPE:
+		back_to_galaxy_requested.emit()
+		get_viewport().set_input_as_handled()
 
 
 ## Handles generate button press.
@@ -198,6 +253,22 @@ func _on_show_orbits_toggled(enabled: bool) -> void:
 func _on_show_zones_toggled(enabled: bool) -> void:
 	if zones_container:
 		zones_container.visible = enabled
+
+
+## Handles save button press.
+func _on_save_pressed() -> void:
+	_save_load.on_save_pressed(self)
+
+
+## Handles load button press.
+func _on_load_pressed() -> void:
+	_save_load.on_load_pressed(self)
+
+
+## Updates save button enabled state based on whether a system exists.
+func _update_save_button_state() -> void:
+	if save_button:
+		save_button.disabled = current_system == null
 
 
 ## Generates a solar system.
@@ -230,6 +301,8 @@ func display_system(system: SolarSystem) -> void:
 	current_layout = SystemDisplayLayout.calculate_layout(system)
 
 	_clear_bodies()
+	_update_save_button_state()
+
 	_clear_orbits()
 	_clear_zones()
 
@@ -334,6 +407,7 @@ func clear_display() -> void:
 	_clear_bodies()
 	_clear_orbits()
 	_clear_zones()
+	_update_save_button_state()
 
 	set_status("No system loaded")
 
@@ -548,6 +622,26 @@ func set_error(message: String) -> void:
 		status_label.text = "Error: " + message
 		status_label.modulate = Color(1.0, 0.3, 0.3)
 	push_error(message)
+
+
+## Returns the current solar system.
+## @return: The current system, or null if none loaded.
+func get_current_system() -> SolarSystem:
+	return current_system
+
+
+## Updates the seed display to a specific value.
+## Used when loading a system to reflect its original seed.
+## @param seed_value: The seed to display.
+func update_seed_display(seed_value: int) -> void:
+	if seed_input:
+		seed_input.value = seed_value
+
+
+## Returns the save/load helper for testing.
+## @return: The SystemViewerSaveLoad instance.
+func get_save_load() -> RefCounted:
+	return _save_load
 
 
 ## Enables or disables orbital animation.

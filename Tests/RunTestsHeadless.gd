@@ -74,6 +74,7 @@ var _test_scripts: Array[GDScript] = [
 	preload("res://Tests/Unit/TestSystemValidator.gd"),
 	preload("res://Tests/Unit/TestSystemSerializer.gd"),
 	preload("res://Tests/Integration/TestSystemPersistence.gd"),
+	preload("res://Tests/Integration/TestSystemViewerSaveLoad.gd"),
 	preload("res://Tests/Unit/TestSystemGoldenMasters.gd"),
 	preload("res://Tests/Integration/TestSystemViewer.gd"),
 	preload("res://Tests/Integration/TestMainApp.gd"),

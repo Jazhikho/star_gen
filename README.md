@@ -8,16 +8,17 @@ Built with **Godot 4.x** and **GDScript**.
 
 **Status:** Core object, solar system, and galaxy viewer flows are implemented. Development is organized by **efforts** (see [Docs/Roadmap.md](Docs/Roadmap.md)).
 
-**Done:** Object model, generators, viewer, save/load, rendering (stars, planets, atmospheres, rings). Solar system generator and viewer (full pipeline: stellar config, orbit slots, planets, moons, belts, validation, persistence, 3D layout). Galaxy viewer (welcome screen, GalaxyConfig, density models, save/load). Population framework, stations, jump lanes (domain + prototype).
+**Done:** Object model, generators, viewer, save/load, rendering (stars, planets, atmospheres, rings). Solar system generator and viewer (full pipeline: stellar config, orbit slots, planets, moons, belts, validation, persistence, 3D layout). Galaxy data model (Galaxy, Sector, GalaxyStar, GalaxySystemGenerator) with lazy system generation; galaxy viewer (welcome screen, GalaxyConfig, density models, save/load). Population framework, stations, jump lanes (domain + prototype).
 
-**Remaining efforts:** Solar system constraints, save/load polish, galaxy data model & lazy generation, object editing, rendering v2, galactic refinement, solar system tools, galactic tools, galactic polish, jump lanes integration, code quality & simplifications.
+**Remaining efforts:** Solar system constraints, system viewer rendering improvements, object editing, rendering v2, galactic refinement, solar system tools, galactic tools, galactic polish, jump lanes integration, code quality & simplifications.
 
-**Test Status:** 1000+ tests; headless run via `godot --headless --script res://Tests/RunTestsHeadless.gd`.
+**Test Status:** 1797+ tests; headless run via `godot --headless --script res://Tests/RunTestsHeadless.gd`.
 
 ### Merged features (master)
 
 All development is on **master**. The following are merged and current:
 
+- **Galaxy data model (Effort 3)** — Galaxy, Sector, GalaxyStar, GalaxySystemGenerator; lazy sector and system generation; metallicity/age from galactic position; wired into GalaxyViewer.
 - **Population framework** — PlanetProfile, native populations, colonies, history; unit tests in `Tests/Unit/Population/`.
 - **Station framework** — Outposts, SpaceStations, StationSpec, StationGenerator; prototype at `src/app/prototypes/StationGeneratorPrototype.tscn`.
 - **Jump Lanes** — Jump lane domain and prototype in `src/domain/jumplanes/` and `src/app/jumplanes_prototype/`. See [Docs/FeatureConceptBranch.md](Docs/FeatureConceptBranch.md) for scope and [Docs/FeatureConceptBranchImplementationPlan.md](Docs/FeatureConceptBranchImplementationPlan.md) for implementation plan.
@@ -48,6 +49,10 @@ See [Docs/Roadmap.md](Docs/Roadmap.md) and [claude.md](claude.md) for architectu
 | File I/O for galaxy save/load | `src/services/persistence/GalaxyPersistence.gd` |
 | Galaxy spec (how seed drives generation; reference only) | `src/domain/galaxy/GalaxySpec.gd` |
 | Galaxy grid bounds by type | `src/domain/galaxy/GalaxyCoordinates.gd` |
+| Galaxy data model (top-level container, lazy sectors/systems) | `src/domain/galaxy/Galaxy.gd` |
+| Sector (100pc³ region, lazy star generation) | `src/domain/galaxy/Sector.gd` |
+| GalaxyStar (position, seed, metallicity, age bias) | `src/domain/galaxy/GalaxyStar.gd` |
+| On-demand system generation from GalaxyStar | `src/domain/galaxy/GalaxySystemGenerator.gd` |
 | Dependency preload for galaxy viewer (reference only) | `src/app/galaxy_viewer/GalaxyViewerDeps.gd` |
 
 **Tests** (galaxy and welcome screen):
@@ -62,6 +67,10 @@ See [Docs/Roadmap.md](Docs/Roadmap.md) and [claude.md](claude.md) for architectu
 | `Tests/Unit/TestGalaxySaveData.gd` | Save-format round-trip. |
 | `Tests/Integration/TestGalaxyPersistence.gd` | Save/load JSON and binary round-trip including `galaxy_seed`. |
 | `Tests/domain/galaxy/TestDensitySampler.gd` | Spiral/elliptical/irregular sampling, no-disk elliptical, 3D distribution tests. |
+| `Tests/Unit/TestGalaxy.gd` | Galaxy create, sector caching, determinism, get_stars_in_radius, serialization. |
+| `Tests/Unit/TestGalaxyStar.gd` | Metallicity/age gradients, distance helpers. |
+| `Tests/Unit/TestSector.gd` | Sector creation, lazy generation, subsector indexing, determinism. |
+| `Tests/Unit/TestGalaxySystemGenerator.gd` | System generation from GalaxyStar, provenance, parent_id validity. |
 
 **Scenes** (galaxy and welcome flow):
 

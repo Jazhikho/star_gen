@@ -131,6 +131,23 @@ func test_has_inspector_panel() -> void:
 	viewer.free()
 
 
+## Verifies the save/load section exists.
+func test_has_save_load_section() -> void:
+	var viewer: Node = _system_viewer_scene.instantiate()
+
+	var save_load_path: String = "UI/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/SaveLoadSection"
+
+	var save_btn: Node = viewer.get_node_or_null(save_load_path + "/ButtonContainer/SaveButton")
+	assert_not_null(save_btn, "Should have SaveButton")
+	assert_true(save_btn is Button, "SaveButton should be Button")
+
+	var load_btn: Node = viewer.get_node_or_null(save_load_path + "/ButtonContainer/LoadButton")
+	assert_not_null(load_btn, "Should have LoadButton")
+	assert_true(load_btn is Button, "LoadButton should be Button")
+
+	viewer.free()
+
+
 ## Verifies the environment node exists.
 func test_has_environment() -> void:
 	var viewer: Node = _system_viewer_scene.instantiate()

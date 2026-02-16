@@ -32,7 +32,7 @@ Verified against the codebase as of the last roadmap update.
 
 **Solar system layer:** Data model (SolarSystem, SystemHierarchy, OrbitHost, AsteroidBelt). Orbital mechanics (Kepler, Hill sphere, Roche limit, resonances, stability). Stellar config generator. Orbit slot generator. Planet generation (SystemPlanetGenerator). Moon generation (SystemMoonGenerator). Asteroid belts (SystemAsteroidGenerator). Validation, serialization, persistence. Golden masters (10 system fixtures). System viewer (3D layout, orbit renderer, body nodes, inspector, link to object viewer). System display layout (sweep-based separation, no overlap in multi-star systems). Zone visualization, view toggles, generation UI.
 
-**Galaxy layer:** Welcome screen (Start New, Load, Quit). GalaxyConfig (type, arms, pitch, ellipticity, seed). Density models (spiral, elliptical, irregular). DensitySampler, GalaxyCoordinates. Galaxy viewer (3D, quadrant/sector/subsector zoom, MultiMesh stars). Save/load galaxy state (seed, zoom, camera, selection).
+**Galaxy layer:** Galaxy data model (Galaxy, Sector, GalaxyStar, GalaxySystemGenerator). Lazy sector and system generation; metallicity and age bias from galactic position. Welcome screen (Start New, Load, Quit). GalaxyConfig (type, arms, pitch, ellipticity, seed). Density models (spiral, elliptical, irregular). DensitySampler, GalaxyCoordinates. Galaxy viewer (3D, quadrant/sector/subsector zoom, MultiMesh stars) wired to Galaxy. Save/load galaxy state (seed, zoom, camera, selection; systems regenerate on demand).
 
 **Jump lanes:** Domain (JumpLaneCalculator, JumpLaneClusterConnector, connection types including extended red). Prototype scene with mock data. Unit tests.
 
@@ -42,11 +42,12 @@ Verified against the codebase as of the last roadmap update.
 
 Contributors pick an effort and work against master. Efforts can run in parallel unless gated.
 
+**Numbering:** When an effort is completed, its number may be reused for a new effort. The efforts table below lists current (open) efforts; completed efforts are listed under **Completed efforts** at the end of this document.
+
 | Effort | Name | Summary | Gates |
 |--------|------|---------|-------|
 | 1 | Solar system constraints | Constraint-based generation (min/max/exact counts, stellar locks, resonances), UI | — |
-| 2 | Solar system save/load & polish | Save/load UI for systems, tooltips, shortcuts, optimization | — |
-| 3 | Galaxy data model & lazy generation | Galaxy/Sector/GalaxyStar classes, lazy system generation on demand | — |
+| 2 | System viewer rendering improvements | Directional lighting, axial tilt, 1 day = 1 s, asteroid belt torus | — |
 | 4 | Object editing | Editable inspector, derived-value recalc, undo/redo | — |
 | 5 | Object rendering v2 | Oblateness, aurora, LOD, seed-driven materials | — |
 | 6 | Galactic generator refinement | Region constraints, region rules, constraint-based placement | Effort 3 |
@@ -77,19 +78,19 @@ Contributors pick an effort and work against master. Efforts can run in parallel
 
 ---
 
-### Effort 2: Solar system save/load & polish
+### Effort 2: System viewer rendering improvements
 
-**Goal:** Complete the solar system viewer with save/load UI and final optimizations.
+**Goal:** Fix system viewer rendering so bodies are lit by the star(s), show correct axial tilt and rotation/orbit timing, and render asteroid belts as torus shapes with major asteroids.
 
 **Deliverables:**
-•	Save/load UI for systems (file dialogs, save/load buttons). SystemPersistence service exists; wire into viewer.
-•	Performance optimizations (LOD, culling, batch rendering).
-•	UI polish (tooltips, keyboard shortcuts, status messages).
-•	Final testing and bug fixes.
+•	**Directional lighting:** Planets and moons lit from the star(s) in the system, not uniformly as in the object viewer.
+•	**Axial tilt:** Apply `physical.axial_tilt_deg` so body tilt is visible in the system view.
+•	**Rotation and orbit speed:** Scale so that ~1 day = ~1 second for both rotation and orbital motion.
+•	**Asteroid belt rendering:** Render belts as a flat torus at the belt’s orbital distance (not a sphere on a path); place major asteroids from the belt data within that torus.
 
-**Tests:** Save/load round-trip; performance benchmarks; UI interaction tests.
+**Tests:** Lighting direction from star position; axial tilt applied; rotation/orbit period scaling; belt torus and asteroid placement.
 
-**Acceptance:** Save system → load system → identical system displayed. Viewer remains responsive with large systems (100+ bodies).
+**Acceptance:** In the system viewer, bodies are lit from the star direction, show correct tilt, animate at ~1 day = 1 s, and asteroid belts appear as torus with asteroids inside.
 
 ---
 
@@ -285,3 +286,24 @@ Proposed changes that do not fit any existing effort are added as a **new effort
 **Outposts and space stations:** StationGenerator, StationPlacementRules, OutpostAuthority; prototype at `src/app/prototypes/StationGeneratorPrototype.tscn`.
 
 **Jump lanes (domain + prototype):** `src/domain/jumplanes/`, `src/app/jumplanes_prototype/`; see `Docs/FeatureConceptBranchImplementationPlan.md` for Phase 2 integration work.
+
+---
+
+## Completed efforts
+
+*(Effort number 2 is reused above for System viewer rendering improvements.)*
+
+### Effort 2 (completed): Solar system save/load & polish
+
+**Goal:** Complete the solar system viewer with save/load UI and final optimizations.
+
+**Deliverables:**
+•	Save/load UI for systems (file dialogs, save/load buttons). ✓
+•	SystemViewerSaveLoad helper class (follows GalaxyViewerSaveLoad pattern). ✓
+•	UI polish (tooltips, keyboard shortcuts Ctrl+S/Ctrl+O/Escape, status messages). ✓
+•	Performance: existing LOD in SystemBodyNode by body type; camera_moved signal exists for future culling. ✓
+•	Integration tests for save/load round-trip. ✓
+
+**Tests:** Save/load round-trip; UI element existence; method availability.
+
+**Acceptance:** Save system → load system → identical system displayed. ✓
