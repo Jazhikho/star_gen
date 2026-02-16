@@ -312,4 +312,4 @@ This is a Godot project. Open `project.godot` in Godot 4.x editor.
 
 ## License
 
-_(To be added)_
+MIT License — see [LICENSE](LICENSE).
