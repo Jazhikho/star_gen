@@ -4,6 +4,7 @@
 class_name MainApp
 extends Node
 
+const _star_system_preview: GDScript = preload("res://src/domain/galaxy/StarSystemPreview.gd")
 ## Ensures GalaxySaveData/GalaxyPersistence/GalaxyConfig are in scope.
 const _galaxy_viewer_deps: GDScript = preload("res://src/app/galaxy_viewer/GalaxyViewerDeps.gd")
 const _GalaxyConfigRef: GDScript = preload("res://src/domain/galaxy/GalaxyConfig.gd")
@@ -288,14 +289,24 @@ func _on_open_system_requested(star_seed: int, world_position: Vector3) -> void:
 	if _galaxy_viewer:
 		_galaxy_viewer.save_state()
 
-	# Check cache first
-	var system: SolarSystem = _system_cache.get_system(star_seed)
+	# Check whether the galaxy viewer already generated the system as part of
+	# the click preview. If so, reuse it to avoid a second generation pass.
+	var system: SolarSystem = null
+	var preview: StarSystemPreview.PreviewData = null
+	if _galaxy_viewer:
+		preview = _galaxy_viewer.get_star_preview()
 
-	if system == null:
-		# Generate new system from star seed
-		system = _generate_system_from_seed(star_seed)
-		if system:
-			_system_cache.put_system(star_seed, system)
+	if preview != null and preview.star_seed == star_seed and preview.system != null:
+		# Reuse the preview's cached system (avoids redundant generation).
+		system = preview.system
+		_system_cache.put_system(star_seed, system)
+	else:
+		# Fall back to cache, then fresh generation.
+		system = _system_cache.get_system(star_seed)
+		if system == null:
+			system = _generate_system_from_seed(star_seed)
+			if system:
+				_system_cache.put_system(star_seed, system)
 
 	if system == null:
 		push_error("Failed to generate system for star seed: %d" % star_seed)

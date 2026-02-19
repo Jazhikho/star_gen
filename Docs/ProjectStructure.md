@@ -17,7 +17,43 @@ star_gen/
 ├── Concepts/                       # Visual concept demos (reference)
 │   ├── Additions.md
 │   ├── planetgenerator.html
-│   └── stargenerator.html
+│   ├── stargenerator.html
+│   ├── CivilisationReference/      # Tech tree & regime chart (React)
+│   │   ├── index.html
+│   │   ├── App.jsx
+│   │   ├── LayoutHelpers.js
+│   │   ├── RegimeChartTab.jsx
+│   │   ├── TechTreeTab.jsx
+│   │   └── data/
+│   │       ├── Levels.js
+│   │       ├── Regimes.js
+│   │       └── Techs.js
+│   │
+│   ├── HistoryGenerator/           # Culture sim, regime transitions, map (React)
+│   │   ├── index.html
+│   │   ├── HistoryGenerator.jsx
+│   │   ├── data/
+│   │   │   ├── Constants.js
+│   │   │   ├── Regimes.js
+│   │   │   └── Transitions.js
+│   │   └── logic/
+│   │       ├── NameGen.js
+│   │       ├── Simulation.js
+│   │       └── Utils.js
+│   │
+│   ├── EvoTechTree/                # Biology as evolutionary tech tree; lineage, evo simulator (React)
+│   │   ├── index.html
+│   │   ├── App.jsx                 # Data, NODES, ENVS, evolveStep, genSpecies
+│   │   └── AppUI.jsx               # SpeciesDetail, DictModal, NodeCard, EvoMode, App + mount
+│   │
+│   └── Integration/                # Civilisation Engine: shared data, Tech Tree, Regime Chart, History sim
+│       ├── index.html
+│       ├── IntegrationApp.jsx
+│       ├── LayoutHelpers.js
+│       ├── data/
+│       │   └── SharedData.js
+│       └── logic/
+│           └── Simulation.js
 │
 ├── Docs/
 │   ├── CelestialBodyProperties.md
@@ -87,17 +123,12 @@ star_gen/
 │   │   │   ├── TerrestrialShaderParams.gd
 │   │   │   ├── shaders/
 │   │   │   │   ├── atmosphere_rim.gdshader
-│   │   │   │   ├── gas_giant.gdshader
 │   │   │   │   ├── noise_lib.gdshaderinc
-│   │   │   │   ├── planet_gas_giant_concept.gdshader
 │   │   │   │   ├── planet_gas_giant_surface.gdshader
-│   │   │   │   ├── planet_terrestrial.gdshader
 │   │   │   │   ├── planet_terrestrial_surface.gdshader
 │   │   │   │   ├── ring_system.gdshader
-│   │   │   │   ├── star.gdshader
 │   │   │   │   ├── star_atmosphere.gdshader
 │   │   │   │   ├── star_surface.gdshader
-│   │   │   │   └── stellar_concept.gdshader
 │   │   │   └── textures/
 │   │   │       └── noise.tres
 │   │   │
@@ -172,6 +203,7 @@ star_gen/
 │   │   │   ├── SpiralDensityModel.gd
 │   │   │   ├── StableHash.gd
 │   │   │   ├── StarPicker.gd
+│   │   │   ├── StarSystemPreview.gd
 │   │   │   ├── SubSectorGenerator.gd
 │   │   │   └── SubSectorNeighborhood.gd
 │   │   │
@@ -324,6 +356,7 @@ star_gen/
     │   ├── TestGalaxyRandomization.gd
     │   ├── TestGalaxyStartup.gd
     │   ├── TestGalaxySystemTransition.gd
+    │   ├── TestStarSystemPreviewIntegration.gd
     │   ├── TestGalaxyViewerHome.gd
     │   ├── TestGalaxyViewerUI.gd
     │   ├── TestMainApp.gd
@@ -403,6 +436,7 @@ star_gen/
     │   ├── TestGalaxyStar.gd
     │   ├── TestGalaxySystemGenerator.gd
     │   ├── TestSector.gd
+    │   ├── TestStarSystemPreview.gd
     │   ├── TestGasGiantShaderParams.gd
     │   ├── TestGoldenMasters.gd
     │   ├── TestHierarchyNode.gd

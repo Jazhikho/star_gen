@@ -58,8 +58,8 @@ static func from_dict(data: Dictionary) -> CelestialBody:
 	if data.has("provenance"):
 		provenance = Provenance.from_dict(data["provenance"])
 
-	var script: GDScript = load("res://src/domain/celestial/CelestialBody.gd") as GDScript
-	var body: CelestialBody = script.new(
+	var script_class: GDScript = load("res://src/domain/celestial/CelestialBody.gd") as GDScript
+	var body: CelestialBody = script_class.new(
 		data.get("id", "") as String,
 		data.get("name", "") as String,
 		type_int as CelestialType.Type,

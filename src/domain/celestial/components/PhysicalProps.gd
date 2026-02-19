@@ -123,8 +123,8 @@ func to_dict() -> Dictionary:
 ## @param data: The dictionary to parse.
 ## @return: A new PhysicalProps instance.
 static func from_dict(data: Dictionary) -> PhysicalProps:
-	var script: GDScript = load("res://src/domain/celestial/components/PhysicalProps.gd") as GDScript
-	return script.new(
+	var script_class: GDScript = load("res://src/domain/celestial/components/PhysicalProps.gd") as GDScript
+	return script_class.new(
 		data.get("mass_kg", 0.0) as float,
 		data.get("radius_m", 0.0) as float,
 		data.get("rotation_period_s", 0.0) as float,

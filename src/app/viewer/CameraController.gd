@@ -164,7 +164,8 @@ func _update_camera_transform() -> void:
 ## Focuses the camera on the target.
 func focus_on_target() -> void:
 	_target_position = Vector3.ZERO
-	_target_distance = 10.0
+	# Respect min_distance so the camera never starts inside large bodies.
+	_target_distance = maxf(10.0, min_distance)
 	_rotation = Vector2.ZERO
 
 

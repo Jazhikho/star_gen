@@ -17,7 +17,7 @@ Guiding principles:
 
 Work is organized by **async efforts** in `Docs/Roadmap.md`. Contributors pick an effort and work against master.
 
-**Efforts:** (1) Solar system constraints, (2) System viewer rendering improvements, (3) Galaxy data model & lazy generation [complete], (4) Object editing, (5) Object rendering v2, (6) Galactic generator refinement, (7) Solar system tools, (8) Galactic tools, (9) Galactic polish, (10) Jump lanes integration, (11) Code quality & simplifications. Effort numbers are reused when an effort is completed; see Docs/Roadmap.md for current table and Completed efforts.
+**Efforts:** Solar system constraints; System viewer rendering improvements; Object editing; Object rendering v2; Galactic generator refinement; Solar system tools; Galactic tools; Galactic polish; Jump lanes integration; Code quality & simplifications; Population detail (civilisation/regime). Galaxy data model & lazy generation is complete. See Docs/Roadmap.md for the full table (name, summary, gates) and Completed efforts.
 
 **Claude:** When asked for new features, map them to the relevant effort in the roadmap. If out-of-scope for all existing efforts, add a new effort to the roadmap and do NOT implement until that effort is picked.
 
@@ -116,7 +116,7 @@ Proposed changes that do not fit any existing effort are added as a **new effort
 
 ---
 
-**Object editing** is an outstanding effort (Effort 4 in the roadmap). The viewer currently supports generation, viewing, and save/load only.
+**Object editing** is an outstanding effort in the roadmap. The viewer currently supports generation, viewing, and save/load only.
 
 ---
 

@@ -71,8 +71,8 @@ func to_dict() -> Dictionary:
 ## @param data: The dictionary to parse.
 ## @return: A new AtmosphereProps instance.
 static func from_dict(data: Dictionary) -> AtmosphereProps:
-	var script: GDScript = load("res://src/domain/celestial/components/AtmosphereProps.gd") as GDScript
-	return script.new(
+	var script_class: GDScript = load("res://src/domain/celestial/components/AtmosphereProps.gd") as GDScript
+	return script_class.new(
 		data.get("surface_pressure_pa", 0.0) as float,
 		data.get("scale_height_m", 0.0) as float,
 		data.get("composition", {}) as Dictionary,

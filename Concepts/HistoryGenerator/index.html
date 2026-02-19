@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>History Generator — Culture sim &amp; regime transitions</title>
+  <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+  <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js" crossorigin></script>
+</head>
+<body>
+  <div id="root"></div>
+  <script src="data/Regimes.js"></script>
+  <script src="data/Transitions.js"></script>
+  <script src="data/Constants.js"></script>
+  <script src="logic/Utils.js"></script>
+  <script src="logic/NameGen.js"></script>
+  <script src="logic/Simulation.js"></script>
+  <script type="text/babel" data-presets="react" src="HistoryGenerator.jsx"></script>
+</body>
+</html>

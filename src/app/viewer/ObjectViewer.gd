@@ -532,7 +532,8 @@ func display_body_with_moons(
 	_clear_moon_display()
 	if not moons.is_empty() and body.type == CelestialType.Type.PLANET:
 		# Align moon system with planet equator (same tilt as BodyRenderer body_mesh).
-		_moon_system_rig.rotation_degrees.z = body.physical.axial_tilt_deg
+		var tilt_deg: float = body.physical.axial_tilt_deg
+		_moon_system_rig.basis = Basis(Vector3.FORWARD, deg_to_rad(tilt_deg))
 		_build_moon_display()
 
 	_fit_camera()
@@ -823,10 +824,17 @@ func _fit_camera() -> void:
 	if not camera:
 		return
 	var ctrl: CameraController = camera as CameraController
-	if ctrl:
-		ctrl.set_target_position(Vector3.ZERO)
-		ctrl.set_distance(_calculate_framing_distance())
-		ctrl.focus_on_target()
+	if not ctrl:
+		return
+
+	# Set min_distance so the camera can never enter the body.
+	# Use 1.2× the body's display radius for a small clearance buffer.
+	var body_radius: float = _primary_display_scale
+	ctrl.min_distance = maxf(body_radius * 1.2, 0.5)
+
+	ctrl.set_target_position(Vector3.ZERO)
+	ctrl.set_distance(_calculate_framing_distance())
+	ctrl.focus_on_target()
 
 
 ## Returns the camera distance needed to frame the full moon system.
@@ -834,8 +842,9 @@ func _fit_camera() -> void:
 func _calculate_framing_distance() -> float:
 	if not current_body:
 		return 10.0
+	var min_frame: float = _primary_display_scale * 3.0
 	if current_moons.is_empty():
-		return _primary_display_scale * 4.0
+		return maxf(min_frame, _primary_display_scale * 3.0)
 
 	var moon_scale: float = _get_moon_system_scale()
 	var farthest: float = 0.0
@@ -846,9 +855,9 @@ func _calculate_framing_distance() -> float:
 			farthest = maxf(farthest, apoapsis * moon_scale)
 
 	if farthest <= 0.0:
-		return _primary_display_scale * 4.0
+		return maxf(min_frame, _primary_display_scale * 3.0)
 
-	return farthest * 1.5
+	return maxf(min_frame, farthest * 1.5)
 
 
 ## Shifts camera and inspector focus to the given moon.
@@ -862,8 +871,10 @@ func focus_on_moon(moon: CelestialBody) -> void:
 	var idx: int = current_moons.find(moon)
 	var moon_display_r: float = moon.physical.radius_m * _get_moon_system_scale()
 
+	# Prevent camera from entering the moon sphere.
 	var ctrl: CameraController = camera as CameraController
 	if ctrl:
+		ctrl.min_distance = maxf(moon_display_r * 1.2, 0.5)
 		if idx >= 0 and idx < _moon_renderers.size() and is_instance_valid(_moon_renderers[idx]):
 			ctrl.set_target_position(_moon_renderers[idx].global_position)
 		ctrl.set_distance(moon_display_r * 4.0)
@@ -881,6 +892,10 @@ func focus_on_planet() -> void:
 
 	var ctrl: CameraController = camera as CameraController
 	if ctrl:
+		# Restore min distance for primary body.
+		var body_radius: float = _primary_display_scale
+		ctrl.min_distance = maxf(body_radius * 1.2, 0.5)
+
 		ctrl.set_target_position(Vector3.ZERO)
 		ctrl.set_distance(_calculate_framing_distance())
 		ctrl.focus_on_target()

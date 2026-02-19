@@ -150,7 +150,12 @@ static func _get_spatial_ocean_params(body: CelestialBody) -> Dictionary:
 			params["u_seaSpecular"] *= (1.0 - hydro.ice_coverage * 0.5)
 	elif body.has_surface():
 		var surface_type: String = body.surface.surface_type.to_lower()
-		if surface_type in ["desert", "rocky", "volcanic"]:
+		var dry_types: Array[String] = [
+			"desert", "rocky", "rocky_cold", "volcanic", "molten",
+			"tundra", "arid", "barren", "cratered",
+			"frozen", "icy", "icy_rocky", "icy_cratered",
+		]
+		if surface_type in dry_types:
 			params["u_seaLevel"] = 0.05
 
 	return params
@@ -319,7 +324,8 @@ static func is_terrestrial_suitable(body: CelestialBody) -> bool:
 	var surface_type: String = body.surface.surface_type.to_lower()
 	var valid_types: Array[String] = [
 		"rocky", "rocky_cold", "volcanic", "molten", "continental",
-		"oceanic", "desert", "frozen", "icy", "icy_rocky", "icy_cratered"
+		"oceanic", "desert", "frozen", "icy", "icy_rocky", "icy_cratered",
+		"tundra", "arid", "barren", "cratered"
 	]
 
 	return surface_type in valid_types
@@ -486,6 +492,29 @@ static func _get_surface_colors(body: CelestialBody) -> Dictionary:
 			colors["mid"] = Vector3(0.25, 0.45, 0.2)
 			colors["high"] = Vector3(0.4, 0.45, 0.35)
 			colors["peak"] = Vector3(0.6, 0.58, 0.55)
+		"tundra":
+			colors["low"] = Vector3(0.45, 0.48, 0.42)
+			colors["mid"] = Vector3(0.55, 0.58, 0.50)
+			colors["high"] = Vector3(0.65, 0.68, 0.65)
+			colors["peak"] = Vector3(0.85, 0.88, 0.92)
+		"arid":
+			colors["low"] = Vector3(0.55, 0.42, 0.28)
+			colors["mid"] = Vector3(0.65, 0.50, 0.32)
+			colors["high"] = Vector3(0.72, 0.58, 0.38)
+			colors["peak"] = Vector3(0.82, 0.72, 0.55)
+		"barren":
+			colors["low"] = Vector3(0.32, 0.30, 0.28)
+			colors["mid"] = Vector3(0.42, 0.40, 0.37)
+			colors["high"] = Vector3(0.52, 0.50, 0.47)
+			colors["peak"] = Vector3(0.65, 0.63, 0.60)
+		_:
+			# Fallback: derive colors from temperature so no body renders as pure black.
+			var temp_k: float = surface.temperature_k
+			var warmth: float = clampf((temp_k - 150.0) / 500.0, 0.0, 1.0)
+			colors["low"] = _lerp_vec3(Vector3(0.35, 0.38, 0.42), Vector3(0.50, 0.38, 0.25), warmth)
+			colors["mid"] = _lerp_vec3(Vector3(0.45, 0.48, 0.52), Vector3(0.60, 0.48, 0.32), warmth)
+			colors["high"] = _lerp_vec3(Vector3(0.55, 0.58, 0.60), Vector3(0.68, 0.56, 0.40), warmth)
+			colors["peak"] = _lerp_vec3(Vector3(0.70, 0.72, 0.75), Vector3(0.80, 0.70, 0.55), warmth)
 	if surface.temperature_k > 400.0:
 		var heat_factor: float = clampf((surface.temperature_k - 400.0) / 300.0, 0.0, 1.0)
 		colors["low"] = _lerp_vec3(colors["low"], Vector3(0.5, 0.35, 0.2), heat_factor)

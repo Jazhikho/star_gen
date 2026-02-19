@@ -74,8 +74,8 @@ func to_dict() -> Dictionary:
 ## @param data: The dictionary to parse.
 ## @return: A new HydrosphereProps instance.
 static func from_dict(data: Dictionary) -> HydrosphereProps:
-	var script: GDScript = load("res://src/domain/celestial/components/HydrosphereProps.gd") as GDScript
-	return script.new(
+	var script_class: GDScript = load("res://src/domain/celestial/components/HydrosphereProps.gd") as GDScript
+	return script_class.new(
 		data.get("ocean_coverage", 0.0) as float,
 		data.get("ocean_depth_m", 0.0) as float,
 		data.get("ice_coverage", 0.0) as float,

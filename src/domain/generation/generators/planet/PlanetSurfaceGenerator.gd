@@ -142,16 +142,27 @@ static func _determine_surface_type(
 		var roll: float = rng.randf()
 		if roll < 0.2:
 			return "oceanic"
-		elif roll < 0.5:
+		elif roll < 0.35:
 			return "continental"
-		elif roll < 0.7:
+		elif roll < 0.50:
+			return "tundra"
+		elif roll < 0.65:
 			return "desert"
+		elif roll < 0.80:
+			return "arid"
 		else:
 			return "rocky"
 	else:
 		if size_cat == SizeCategory.Category.DWARF:
 			return "cratered"
-		return "rocky"
+		# Cold zone non-dwarf: variety of barren/icy/rocky.
+		var cold_roll: float = rng.randf()
+		if cold_roll < 0.3:
+			return "barren"
+		elif cold_roll < 0.5:
+			return "rocky_cold"
+		else:
+			return "rocky"
 
 
 ## Calculates volcanism level.
@@ -251,7 +262,7 @@ static func _generate_terrain(
 	# Elevation range scales inversely with gravity
 	# Mars has taller mountains than Earth due to lower gravity
 	var gravity_factor: float = earth_gravity / maxf(gravity, 0.1)
-	var base_elevation: float = 20000.0  # Earth's max is ~20km from trench to peak
+	var base_elevation: float = 20000.0 # Earth's max is ~20km from trench to peak
 	var elevation_range_m: float = base_elevation * gravity_factor * rng.randf_range(0.3, 1.5)
 	elevation_range_m = clampf(elevation_range_m, 1000.0, 100000.0)
 	
@@ -304,12 +315,12 @@ static func _can_have_liquid_water(surface_temp_k: float, physical: PhysicalProp
 	# Pressure affects boiling point, but simplified here
 	if surface_temp_k < WATER_FREEZE_K:
 		return false
-	if surface_temp_k > WATER_BOIL_K * 1.5:  # Allow for high pressure
+	if surface_temp_k > WATER_BOIL_K * 1.5: # Allow for high pressure
 		return false
 	
 	# Need sufficient gravity to retain water vapor
 	var escape_v: float = physical.get_escape_velocity_m_s()
-	return escape_v > 3000.0  # Rough threshold
+	return escape_v > 3000.0 # Rough threshold
 
 
 ## Generates hydrosphere properties.

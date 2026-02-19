@@ -57,10 +57,9 @@ func test_viewer_has_get_current_system() -> void:
 
 	assert_true(viewer.has_method("get_current_system"), "Viewer should have get_current_system method")
 
-	# Initially null before generation
-	var system: Variant = viewer.get_current_system()
+	# Initially null before generation (call verifies the method works).
+	var _system: Variant = viewer.get_current_system()
 	# Note: _ready() calls _on_generate_pressed() so system may exist
-	# Just verify the method works
 
 	viewer.free()
 
@@ -149,7 +148,6 @@ func test_round_trip_preserves_data() -> void:
 ## Tests load of nonexistent file.
 func test_load_nonexistent_file() -> void:
 	var save_load: RefCounted = _system_viewer_save_load.new()
-	var mock_viewer: MockViewer = MockViewer.new()
 
 	var result: SystemPersistence.LoadResult = save_load.load_from_path("user://nonexistent_system.sgs")
 
@@ -158,8 +156,9 @@ func test_load_nonexistent_file() -> void:
 
 
 ## Mock viewer for testing save/load without full scene instantiation.
+## Extends Node so it is accepted by SystemViewerSaveLoad.save_to_path(viewer: Node, ...).
 class MockViewer:
-	extends RefCounted
+	extends Node
 
 	var system: SolarSystem = null
 	var status_message: String = ""
@@ -178,6 +177,3 @@ class MockViewer:
 
 	func display_system(sys: SolarSystem) -> void:
 		system = sys
-
-	func add_child(_node: Node) -> void:
-		pass

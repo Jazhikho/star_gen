@@ -82,8 +82,8 @@ func to_dict() -> Dictionary:
 ## @param data: The dictionary to parse.
 ## @return: A new RingBand instance.
 static func from_dict(data: Dictionary) -> RingBand:
-	var script: GDScript = load("res://src/domain/celestial/components/RingBand.gd") as GDScript
-	return script.new(
+	var script_class: GDScript = load("res://src/domain/celestial/components/RingBand.gd") as GDScript
+	return script_class.new(
 		data.get("inner_radius_m", 0.0) as float,
 		data.get("outer_radius_m", 0.0) as float,
 		data.get("optical_depth", 0.0) as float,

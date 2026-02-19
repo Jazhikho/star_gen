@@ -110,6 +110,8 @@ var _test_scripts: Array[GDScript] = [
 	preload("res://Tests/Unit/TestGalaxyStar.gd"),
 	preload("res://Tests/Unit/TestSector.gd"),
 	preload("res://Tests/Unit/TestGalaxySystemGenerator.gd"),
+	preload("res://Tests/Unit/TestStarSystemPreview.gd"),
+	preload("res://Tests/Integration/TestStarSystemPreviewIntegration.gd"),
 	# Population framework (NativePopulation first for class scope)
 	preload("res://Tests/Unit/Population/TestNativePopulation.gd"),
 	# Population framework (Stage 1: Planet Profile Model)

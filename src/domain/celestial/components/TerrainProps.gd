@@ -75,8 +75,8 @@ func to_dict() -> Dictionary:
 ## @param data: The dictionary to parse.
 ## @return: A new TerrainProps instance.
 static func from_dict(data: Dictionary) -> TerrainProps:
-	var script: GDScript = load("res://src/domain/celestial/components/TerrainProps.gd") as GDScript
-	return script.new(
+	var script_class: GDScript = load("res://src/domain/celestial/components/TerrainProps.gd") as GDScript
+	return script_class.new(
 		data.get("elevation_range_m", 0.0) as float,
 		data.get("roughness", 0.5) as float,
 		data.get("crater_density", 0.0) as float,

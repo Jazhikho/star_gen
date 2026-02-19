@@ -17,33 +17,33 @@ uniform float u_coastalDetail : hint_range(0.0, 1.0) = 0.5;
 uniform int u_octaves : hint_range(1, 8) = 6;
 
 // === Surface colors ===
-uniform vec3 u_colLow : source_color = vec3(0.165, 0.29, 0.102);
-uniform vec3 u_colMid : source_color = vec3(0.353, 0.541, 0.227);
-uniform vec3 u_colHigh : source_color = vec3(0.541, 0.478, 0.353);
-uniform vec3 u_colPeak : source_color = vec3(0.8, 0.733, 0.667);
+uniform vec3 u_colLow = vec3(0.165, 0.29, 0.102);
+uniform vec3 u_colMid = vec3(0.353, 0.541, 0.227);
+uniform vec3 u_colHigh = vec3(0.541, 0.478, 0.353);
+uniform vec3 u_colPeak = vec3(0.8, 0.733, 0.667);
 
 // === Ocean ===
 uniform float u_seaLevel : hint_range(0.0, 1.0) = 0.4;
 uniform float u_seaSpecular : hint_range(0.0, 2.0) = 0.8;
 uniform float u_fresnelStrength : hint_range(0.0, 2.0) = 1.0;
-uniform vec3 u_colSeaShallow : source_color = vec3(0.133, 0.533, 0.733);
-uniform vec3 u_colSeaDeep : source_color = vec3(0.039, 0.133, 0.267);
+uniform vec3 u_colSeaShallow = vec3(0.133, 0.533, 0.733);
+uniform vec3 u_colSeaDeep = vec3(0.039, 0.133, 0.267);
 
 // === Ice caps ===
 uniform float u_iceCap : hint_range(0.0, 1.0) = 0.3;
-uniform vec3 u_colIce : source_color = vec3(0.867, 0.933, 1.0);
+uniform vec3 u_colIce = vec3(0.867, 0.933, 1.0);
 
 // === Atmosphere ===
 uniform float u_atmoDensity : hint_range(0.0, 2.0) = 0.6;
 uniform float u_atmoFalloff : hint_range(0.5, 6.0) = 2.5;
 uniform float u_scatterStrength : hint_range(0.0, 2.0) = 0.8;
-uniform vec3 u_atmoColor : source_color = vec3(0.267, 0.533, 0.8);
+uniform vec3 u_atmoColor = vec3(0.267, 0.533, 0.8);
 
 // === Clouds ===
 uniform float u_cloudCoverage : hint_range(0.0, 1.0) = 0.4;
 uniform float u_cloudScale : hint_range(1.0, 10.0) = 3.5;
 uniform float u_cloudShadow : hint_range(0.0, 1.0) = 0.3;
-uniform vec3 u_cloudColor : source_color = vec3(1.0, 1.0, 1.0);
+uniform vec3 u_cloudColor = vec3(1.0, 1.0, 1.0);
 
 // === Lighting ===
 uniform float u_limbDark : hint_range(0.0, 2.0) = 0.8;
@@ -57,7 +57,7 @@ uniform float u_seed : hint_range(0.0, 100.0) = 0.0;
 
 // === City lights (optional) ===
 uniform float u_cityLightIntensity : hint_range(0.0, 1.0) = 0.0;
-uniform vec3 u_cityLightColor : source_color = vec3(1.0, 0.85, 0.5);
+uniform vec3 u_cityLightColor = vec3(1.0, 0.85, 0.5);
 
 // === Varyings ===
 varying vec3 v_local_pos;

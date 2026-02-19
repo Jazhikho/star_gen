@@ -40,28 +40,27 @@ Verified against the codebase as of the last roadmap update.
 
 ## Efforts (remaining work)
 
-Contributors pick an effort and work against master. Efforts can run in parallel unless gated.
+Contributors pick an effort and work against master. Efforts can run in parallel unless gated. **Gating:** An effort with a gate should start only after its gate(s) are done; gates exist so the dependent work has the right data model or behaviour to build on. **Branch:** When work on an effort is done in a branch (instead of directly on master), put the branch name in the Branch column so others can find it.
 
-**Numbering:** When an effort is completed, its number may be reused for a new effort. The efforts table below lists current (open) efforts; completed efforts are listed under **Completed efforts** at the end of this document.
-
-| Effort | Name | Summary | Gates |
-|--------|------|---------|-------|
-| 1 | Solar system constraints | Constraint-based generation (min/max/exact counts, stellar locks, resonances), UI | — |
-| 2 | System viewer rendering improvements | Directional lighting, axial tilt, 1 day = 1 s, asteroid belt torus | — |
-| 4 | Object editing | Editable inspector, derived-value recalc, undo/redo | — |
-| 5 | Object rendering v2 | Oblateness, aurora, LOD, seed-driven materials | — |
-| 6 | Galactic generator refinement | Region constraints, region rules, constraint-based placement | Effort 3 |
-| 7 | Solar system tools | Add/remove bodies, adjust orbits, recalc, system-level undo | — |
-| 8 | Galactic tools | System placement edits, region editing, galactic undo | Effort 3, Effort 6 |
-| 9 | Galactic polish | Galaxy save/load UI polish, backward compat, performance | Effort 3 |
-| 10 | Jump lanes integration | Wire jump-lanes into galaxy viewer; population data; line/orphan rendering | Effort 3 |
-| 11 | Code quality & simplifications | TODOs, placeholder replacements, simplified formulas to redo | — |
+| Name | Summary | Gates | Branch |
+|------|---------|-------|--------|
+| Solar system constraints | Constraint-based generation (min/max/exact counts, stellar locks, resonances), UI | — | `feature/constraints-belts-rotation` |
+| System viewer rendering improvements | Directional lighting, axial tilt, 1 day = 1 s, asteroid belt torus | — | `feature/constraints-belts-rotation` |
+| Object editing | Editable inspector, derived-value recalc, undo/redo | — | — |
+| Object rendering v2 | Oblateness, aurora, LOD, seed-driven materials | — | — |
+| Galactic generator refinement | Region constraints, region rules, constraint-based placement | — | — |
+| Solar system tools | Add/remove bodies, adjust orbits, recalc, system-level undo | — | — |
+| Galactic tools | System placement edits, region editing, galactic undo | Galactic generator refinement | — |
+| Galactic polish | Galaxy save/load UI polish, backward compat, performance | Galactic tools | — |
+| Jump lanes integration | Wire jump-lanes into galaxy viewer; population data; line/orphan rendering | — | — |
+| Code quality & simplifications | TODOs, placeholder replacements, simplified formulas to redo | — | — |
+| Population detail (civilisation/regime) | Enrich population with tech level, regime type, and transitions; align with Integration and History Generator concepts | — | — |
 
 ---
 
 ## Effort details
 
-### Effort 1: Solar system constraints
+### Solar system constraints
 
 **Goal:** Improve generation quality with constraint-based generation (min/max/exact counts, orbital resonances).
 
@@ -78,7 +77,7 @@ Contributors pick an effort and work against master. Efforts can run in parallel
 
 ---
 
-### Effort 2: System viewer rendering improvements
+### System viewer rendering improvements
 
 **Goal:** Fix system viewer rendering so bodies are lit by the star(s), show correct axial tilt and rotation/orbit timing, and render asteroid belts as torus shapes with major asteroids.
 
@@ -94,7 +93,7 @@ Contributors pick an effort and work against master. Efforts can run in parallel
 
 ---
 
-### Effort 3: Galaxy data model & lazy generation
+### Galaxy data model & lazy generation
 
 **Goal:** Add Galaxy, Sector, GalaxyStar classes and lazy system generation so systems are generated on demand. **Status: Complete.**
 
@@ -120,11 +119,11 @@ Contributors pick an effort and work against master. Efforts can run in parallel
 
 **Acceptance:** Browse galaxy → open system → edits persist across sessions. Galaxy viewer remains responsive with 10k+ stars.
 
-**Gates:** Effort 6 (galactic refinement), Effort 8 (galactic tools), Effort 9 (galactic polish), Effort 10 (jump lanes integration) depend on this.
+**Gates:** Galactic generator refinement, Galactic tools, Galactic polish, and Jump lanes integration depended on this; all are now unblocked.
 
 ---
 
-### Effort 4: Object editing
+### Object editing
 
 **Goal:** Edit object properties in the program with validation, derived-value recalculation, and undo.
 
@@ -144,7 +143,7 @@ Contributors pick an effort and work against master. Efforts can run in parallel
 
 ---
 
-### Effort 5: Object rendering v2
+### Object rendering v2
 
 **Goal:** Improve visuals without expanding simulation scope.
 
@@ -163,11 +162,9 @@ Contributors pick an effort and work against master. Efforts can run in parallel
 
 ---
 
-### Effort 6: Galactic generator refinement
+### Galactic generator refinement
 
 **Goal:** Improve galactic generation with region-level constraints and rules.
-
-**Gates:** Effort 3 (galaxy data model). Cannot proceed until lazy generation and Galaxy/Sector/GalaxyStar exist.
 
 **Deliverables:**
 •	Region constraints (e.g., higher binary fraction, denser core).
@@ -181,7 +178,7 @@ Contributors pick an effort and work against master. Efforts can run in parallel
 
 ---
 
-### Effort 7: Solar system tools
+### Solar system tools
 
 **Goal:** Add editing tools for modifying systems: add/remove bodies, adjust orbits, recalculate.
 
@@ -199,11 +196,11 @@ Contributors pick an effort and work against master. Efforts can run in parallel
 
 ---
 
-### Effort 8: Galactic tools
+### Galactic tools
 
 **Goal:** Add editing tools for modifying galactic structure: add/remove systems, adjust density.
 
-**Gates:** Effort 3 (galaxy data model), Effort 6 (galactic refinement). Requires region rules and data model.
+**Gates:** Galactic generator refinement (region rules and data model).
 
 **Deliverables:**
 •	Editing tools: add/remove system, adjust density, regenerate region.
@@ -217,11 +214,11 @@ Contributors pick an effort and work against master. Efforts can run in parallel
 
 ---
 
-### Effort 9: Galactic polish
+### Galactic polish
 
 **Goal:** Complete the galactic viewer with save/load polish, backward compatibility, and optimizations.
 
-**Gates:** Effort 3 (galaxy data model). Save/load of galaxy state already exists; this effort is polish and compatibility.
+**Gates:** Galactic tools. Polish (including backward compatibility for saved galaxy data) is most useful once galactic editing exists so the schema and UX are stable.
 
 **Deliverables:**
 •	Galaxy save/load UI polish (file dialogs, save/load buttons if not yet present).
@@ -236,11 +233,9 @@ Contributors pick an effort and work against master. Efforts can run in parallel
 
 ---
 
-### Effort 10: Jump lanes integration
+### Jump lanes integration
 
 **Goal:** Expose the jump-lanes tool in the galaxy viewer: user selects range (subsector vs sector), runs the calculation, and sees lines (green/yellow/orange/red) and orphan highlighting.
-
-**Gates:** Effort 3 (galaxy data model). Needs "get systems in region" entry point and galaxy viewer to display results.
 
 **Deliverables:**
 •	Population data wiring: single entry point returning `JumpLaneRegion` for current subsector/sector (placeholder population acceptable until real data).
@@ -255,7 +250,7 @@ Contributors pick an effort and work against master. Efforts can run in parallel
 
 ---
 
-### Effort 11: Code quality & simplifications
+### Code quality & simplifications
 
 **Goal:** Address TODOs in code, replace placeholders, and redo simplified formulas where accuracy or correctness matters.
 
@@ -273,6 +268,26 @@ Contributors pick an effort and work against master. Efforts can run in parallel
 
 ---
 
+### Population detail (civilisation/regime)
+
+**Goal:** Enrich the population framework with civilisation detail: tech level, regime type, and regime transitions. Use the Integration concept (`Concepts/Integration/`) and the History Generator concept (`Concepts/HistoryGenerator/`) as reference models so natives, colonies, and history can be driven by or displayed with tech levels and regimes.
+
+**Context:** The population framework (PlanetProfile, natives, colonies, history) exists in `src/domain/population/`. Code quality & simplifications calls out replacing the "civilization reference placeholder" when a Civilization model exists. The Integration concept app provides a single shared model: LEVELS (tech eras), TECHS (tree), REGIMES (with min/max tech level, coercion/capacity/inclusiveness), TRANSITIONS (allowed regime changes), and simulation logic (validRegimesForLevel, pickRegimeForLevel, history sim). The History Generator concept adds culture sim, regime transitions, and map visualization. This effort brings that model into the domain as population detail.
+
+**Deliverables:**
+•	Domain model for civilisation detail: tech level (or level band), regime id, and optional sliders (coercion/capacity/inclusiveness) attachable to PlanetProfile, native population, or colony.
+•	Regime and transition data: either adopt Integration’s REGIMES/TRANSITIONS (or a GDScript equivalent) as a single source of truth, or document the mapping from Integration to domain types.
+•	Deterministic assignment: given seed and context (e.g. planet type, stellar age, existing population), assign tech level and regime using rules consistent with Integration (e.g. validRegimesForLevel, terrain/climate weighting).
+•	History / timeline: where population history is stored, optionally include regime-change and tech-advance events consistent with the transition model.
+•	Replace civilisation reference placeholder in SpaceStation/Colony (or inspector) with data from this model.
+•	Docs: update Roadmap and any population/civilisation docs; reference `Concepts/Integration/`, `Concepts/HistoryGenerator/`, and `Docs/RegimeChangeModel.md` where relevant.
+
+**Tests:** Determinism for tech/regime assignment; valid regime for given tech level; transition rules respected; serialization/deserialization of new fields.
+
+**Acceptance:** Natives/colonies have tech level and regime; regime is valid for that tech level; placeholder replaced; Integration and History Generator concepts remain the reference for the data shape and rules.
+
+---
+
 ## Effort discipline
 
 Proposed changes that do not fit any existing effort are added as a **new effort** in this roadmap. Each new effort should include: name, summary, gates (if any), deliverables, tests, and acceptance criteria. Do not implement until that effort is explicitly picked by a contributor.
@@ -287,13 +302,13 @@ Proposed changes that do not fit any existing effort are added as a **new effort
 
 **Jump lanes (domain + prototype):** `src/domain/jumplanes/`, `src/app/jumplanes_prototype/`; see `Docs/FeatureConceptBranchImplementationPlan.md` for Phase 2 integration work.
 
+**Civilisation / population detail (concepts):** `Concepts/Integration/` — Tech Tree, Regime Chart, and History sim with shared REGIMES/TRANSITIONS and tech-level–regime validity. `Concepts/HistoryGenerator/` — Culture sim, regime transitions, and map visualization. Reference for Population detail (civilisation/regime) effort. See `Docs/RegimeChangeModel.md`.
+
 ---
 
 ## Completed efforts
 
-*(Effort number 2 is reused above for System viewer rendering improvements.)*
-
-### Effort 2 (completed): Solar system save/load & polish
+### Solar system save/load & polish (completed)
 
 **Goal:** Complete the solar system viewer with save/load UI and final optimizations.
 

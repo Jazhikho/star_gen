@@ -92,8 +92,8 @@ func to_dict() -> Dictionary:
 ## @param data: The dictionary to parse.
 ## @return: A new OrbitalProps instance.
 static func from_dict(data: Dictionary) -> OrbitalProps:
-	var script: GDScript = load("res://src/domain/celestial/components/OrbitalProps.gd") as GDScript
-	return script.new(
+	var script_class: GDScript = load("res://src/domain/celestial/components/OrbitalProps.gd") as GDScript
+	return script_class.new(
 		data.get("semi_major_axis_m", 0.0) as float,
 		data.get("eccentricity", 0.0) as float,
 		data.get("inclination_deg", 0.0) as float,

@@ -1,6 +1,8 @@
 ## Main scene for the galaxy viewer.
 ## Manages zoom-level transitions, click-to-select picking, compass navigation,
-## and first-person star exploration with WASD movement.
+## and first-person star exploration with WASD movement. On star click, generates
+## a system preview via StarSystemPreview and caches the result for reuse when
+## the user opens the system.
 ##
 ## Flow:
 ##   Galaxy → ] → Quadrant view (click/compass to select)
@@ -15,6 +17,7 @@ const _GalaxyInspectorPanelScript: GDScript = preload("res://src/app/galaxy_view
 const _GalaxyConfigRef: GDScript = preload("res://src/domain/galaxy/GalaxyConfig.gd")
 const _SaveLoadClass: GDScript = preload("res://src/app/galaxy_viewer/GalaxyViewerSaveLoad.gd")
 const _GalaxyClass: GDScript = preload("res://src/domain/galaxy/Galaxy.gd")
+const _StarSystemPreviewClass: GDScript = preload("res://src/domain/galaxy/StarSystemPreview.gd")
 
 
 ## Emitted when the user clicks a star in star view.
@@ -95,12 +98,19 @@ var _selected_star_position: Vector3 = Vector3.ZERO
 ## Currently selected star's seed (or 0 if none).
 var _selected_star_seed: int = 0
 
+## Cached preview for the currently selected star (null if none).
+var _star_preview: StarSystemPreview.PreviewData = null
+
 ## Saved state for restoration after returning from system view.
 var _saved_zoom_level: int = -1
 var _saved_quadrant: Variant = null
 var _saved_sector: Variant = null
 var _saved_star_camera_position: Vector3 = Vector3.ZERO
 var _saved_star_camera_rotation: Vector3 = Vector3.ZERO
+
+## Saved star selection for restoration after returning from system view.
+var _saved_star_seed: int = 0
+var _saved_star_position: Vector3 = Vector3.ZERO
 
 var _save_load: RefCounted = _SaveLoadClass.new()
 
@@ -214,10 +224,7 @@ func _handle_key_input(event: InputEventKey) -> void:
 func _handle_escape() -> void:
 	if _zoom_machine.get_current_level() == GalaxyCoordinates.ZoomLevel.SUBSECTOR:
 		_selection_indicator.hide_indicator()
-		_selected_star_position = Vector3.ZERO
-		_selected_star_seed = 0
-		if _inspector_panel:
-			_inspector_panel.clear_selection()
+		_clear_star_selection_state()
 
 
 ## Handles left-click for selection at each zoom level.
@@ -333,6 +340,8 @@ func _pick_sector_at(screen_position: Vector2) -> void:
 
 ## Attempts to open the currently selected star as a system (Enter key).
 func _try_open_selected_system() -> void:
+	if _zoom_machine == null:
+		return
 	if _zoom_machine.get_current_level() != GalaxyCoordinates.ZoomLevel.SUBSECTOR:
 		return
 
@@ -351,19 +360,46 @@ func _pick_star_at(screen_position: Vector2) -> void:
 
 	if result != null:
 		var pick: StarPicker.PickResult = result as StarPicker.PickResult
-		_selection_indicator.show_at(pick.world_position)
-		_selected_star_position = pick.world_position
-		_selected_star_seed = pick.star_seed
-		star_selected.emit(pick.world_position, pick.star_seed)
-		if _inspector_panel:
-			_inspector_panel.display_selected_star(pick.world_position, pick.star_seed)
-		set_status("Selected star (seed: %d)" % pick.star_seed)
+		_apply_star_selection(pick.world_position, pick.star_seed, true)
 	else:
 		_selection_indicator.hide_indicator()
-		_selected_star_position = Vector3.ZERO
-		_selected_star_seed = 0
-		if _inspector_panel:
-			_inspector_panel.clear_selection()
+		_clear_star_selection_state()
+
+
+## Applies a star selection: updates state, inspector, triggers preview generation.
+## @param world_position: World-space position of the star.
+## @param star_seed: Deterministic seed of the star.
+## @param show_indicator: If true, show the selection indicator at the star position.
+func _apply_star_selection(world_position: Vector3, star_seed: int, show_indicator: bool = true) -> void:
+	_selected_star_position = world_position
+	_selected_star_seed = star_seed
+	_star_preview = null
+	star_selected.emit(world_position, star_seed)
+	if _inspector_panel:
+		_inspector_panel.display_selected_star(world_position, star_seed)
+	set_status("Selected star (seed: %d) — generating preview…" % star_seed)
+
+	if show_indicator:
+		_selection_indicator.show_at(world_position)
+
+	# Generate the preview (and cache it). This runs synchronously; for large
+	# galaxies this is fast enough (<1 ms typical for system generation).
+	if _spec != null:
+		_star_preview = StarSystemPreview.generate(star_seed, world_position, _spec)
+	else:
+		_star_preview = null
+	if _inspector_panel:
+		_inspector_panel.display_system_preview(_star_preview)
+	set_status("Selected star (seed: %d)" % star_seed)
+
+
+## Clears star selection state and inspector.
+func _clear_star_selection_state() -> void:
+	_selected_star_position = Vector3.ZERO
+	_selected_star_seed = 0
+	_star_preview = null
+	if _inspector_panel:
+		_inspector_panel.clear_selection()
 
 
 ## Sets the selected sector.
@@ -950,6 +986,37 @@ func set_saved_star_camera_rotation(v: Vector3) -> void:
 	_saved_star_camera_rotation = v
 
 
+## Calls the internal _apply_star_selection method (for save/load restore).
+## @param world_position: Star world position.
+## @param star_seed: Star seed.
+func call_apply_star_selection(world_position: Vector3, star_seed: int) -> void:
+	_apply_star_selection(world_position, star_seed, true)
+
+
+## Returns the saved star seed for state restoration.
+## @return: Saved star seed (0 if none).
+func get_saved_star_seed() -> int:
+	return _saved_star_seed
+
+
+## Sets the saved star seed for state restoration.
+## @param v: Star seed to save.
+func set_saved_star_seed(v: int) -> void:
+	_saved_star_seed = v
+
+
+## Returns the saved star position for state restoration.
+## @return: Saved star position.
+func get_saved_star_position() -> Vector3:
+	return _saved_star_position
+
+
+## Sets the saved star position for state restoration.
+## @param v: Star position to save.
+func set_saved_star_position(v: Vector3) -> void:
+	_saved_star_position = v
+
+
 ## Returns the currently selected sector (internal accessor).
 ## @return: Selected sector (Vector3i or null).
 func get_selected_sector_internal() -> Variant:
@@ -1006,3 +1073,26 @@ func call_update_inspector() -> void:
 ## @param seed_value: New galaxy seed.
 func call_change_galaxy_seed(seed_value: int) -> void:
 	_change_galaxy_seed(seed_value)
+
+
+## Returns the current star preview (for testing and MainApp handoff).
+## @return: PreviewData or null if no star selected or preview not yet generated.
+func get_star_preview() -> StarSystemPreview.PreviewData:
+	return _star_preview
+
+
+## Simulates a star being selected (for integration testing without real raycast).
+## @param star_seed: Seed of the star to select.
+## @param world_position: World position of the star.
+func simulate_star_selected(star_seed: int, world_position: Vector3) -> void:
+	_apply_star_selection(world_position, star_seed)
+
+
+## Simulates clearing the star selection (for integration testing).
+func simulate_star_deselected() -> void:
+	_clear_star_selection_state()
+
+
+## Simulates the user pressing Enter to open the selected system (for integration testing).
+func simulate_open_selected_system() -> void:
+	_try_open_selected_system()

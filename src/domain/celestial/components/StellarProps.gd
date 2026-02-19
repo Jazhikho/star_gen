@@ -130,8 +130,8 @@ func to_dict() -> Dictionary:
 ## @param data: The dictionary to parse.
 ## @return: A new StellarProps instance.
 static func from_dict(data: Dictionary) -> StellarProps:
-	var script: GDScript = load("res://src/domain/celestial/components/StellarProps.gd") as GDScript
-	return script.new(
+	var script_class: GDScript = load("res://src/domain/celestial/components/StellarProps.gd") as GDScript
+	return script_class.new(
 		data.get("luminosity_watts", 0.0) as float,
 		data.get("effective_temperature_k", 0.0) as float,
 		data.get("spectral_class", "") as String,

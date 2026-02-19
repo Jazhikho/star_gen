@@ -1,5 +1,5 @@
 ## Inspector panel for displaying galaxy and selection information.
-## Shows galaxy overview, current zoom level, and selected star details.
+## Shows galaxy overview, current zoom level, selected star details, and system preview.
 class_name GalaxyInspectorPanel
 extends VBoxContainer
 
@@ -11,9 +11,13 @@ signal open_system_requested(star_seed: int, world_position: Vector3)
 var _selected_star_seed: int = 0
 var _selected_star_position: Vector3 = Vector3.ZERO
 
+## Cached preview data for the currently selected star (null if none / not yet generated).
+var _current_preview: StarSystemPreview.PreviewData = null
+
 ## Cached references to dynamic content containers.
 var _overview_container: VBoxContainer = null
 var _selection_container: VBoxContainer = null
+var _preview_container: VBoxContainer = null
 var _open_system_button: Button = null
 
 
@@ -63,6 +67,22 @@ func _build_ui() -> void:
 	_selection_container.add_theme_constant_override("separation", 2)
 	add_child(_selection_container)
 
+	# Separator
+	add_child(HSeparator.new())
+
+	# System preview section label
+	var preview_label: Label = Label.new()
+	preview_label.text = "System Preview"
+	preview_label.add_theme_font_size_override("font_size", 12)
+	preview_label.modulate = Color(0.8, 0.8, 0.8)
+	add_child(preview_label)
+
+	# Preview content container
+	_preview_container = VBoxContainer.new()
+	_preview_container.name = "PreviewContainer"
+	_preview_container.add_theme_constant_override("separation", 2)
+	add_child(_preview_container)
+
 	# Open system button (initially hidden)
 	_open_system_button = Button.new()
 	_open_system_button.name = "OpenSystemButton"
@@ -73,6 +93,7 @@ func _build_ui() -> void:
 
 	# Initial state
 	_add_property(_selection_container, "Status", "Nothing selected")
+	_add_property(_preview_container, "Status", "Select a star to preview")
 
 
 ## Displays galaxy overview information.
@@ -155,6 +176,7 @@ func display_selected_star(world_position: Vector3, star_seed: int) -> void:
 	_clear_container(_selection_container)
 
 	_selected_star_seed = star_seed
+	_current_preview = null
 	_selected_star_position = world_position
 
 	_add_property(_selection_container, "Type", "Star System")
@@ -171,17 +193,58 @@ func display_selected_star(world_position: Vector3, star_seed: int) -> void:
 
 	_open_system_button.visible = true
 
+	# Show generating indicator until preview arrives.
+	_clear_container(_preview_container)
+	_add_property(_preview_container, "Status", "Generating preview…")
+
+
+## Displays a system preview for the selected star.
+## Called after StarSystemPreview.generate() completes.
+## @param preview: The generated PreviewData (null clears the preview section).
+func display_system_preview(preview: StarSystemPreview.PreviewData) -> void:
+	_current_preview = preview
+	_clear_container(_preview_container)
+
+	if preview == null:
+		_add_property(_preview_container, "Status", "Preview unavailable")
+		return
+
+	# Stars.
+	_add_property(_preview_container, "Stars", str(preview.star_count))
+
+	for i in range(preview.spectral_classes.size()):
+		var temp: float = preview.star_temperatures[i]
+		var temp_str: String = "?"
+		if temp > 0.0:
+			temp_str = "%d K" % int(temp)
+		_add_property(
+			_preview_container,
+			"  Star %d" % (i + 1),
+			"%s  %s" % [preview.spectral_classes[i], temp_str]
+		)
+
+	# Bodies.
+	_add_property(_preview_container, "Planets", str(preview.planet_count))
+	_add_property(_preview_container, "Moons", str(preview.moon_count))
+	_add_property(_preview_container, "Belts", str(preview.belt_count))
+
+	# Galactic context.
+	_add_property(_preview_container, "Metallicity", "%.2f Z☉" % preview.metallicity)
+
 
 ## Clears the current selection display.
 func clear_selection() -> void:
 	_clear_container(_selection_container)
+	_clear_container(_preview_container)
 	_clear_star_selection()
 	_add_property(_selection_container, "Status", "Nothing selected")
+	_add_property(_preview_container, "Status", "Select a star to preview")
 
 
 ## Clears star selection state.
 func _clear_star_selection() -> void:
 	_selected_star_seed = 0
+	_current_preview = null
 	_selected_star_position = Vector3.ZERO
 	_open_system_button.visible = false
 
@@ -273,3 +336,9 @@ func get_selected_star_seed() -> int:
 ## @return: World position or zero vector if none selected.
 func get_selected_star_position() -> Vector3:
 	return _selected_star_position
+
+
+## Returns the current preview data (for testing).
+## @return: PreviewData or null.
+func get_current_preview() -> StarSystemPreview.PreviewData:
+	return _current_preview

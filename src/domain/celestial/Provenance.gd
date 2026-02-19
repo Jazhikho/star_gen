@@ -45,8 +45,8 @@ func _init(
 ## @param p_spec_snapshot: Optional spec data.
 ## @return: A new Provenance instance.
 static func create_current(p_generation_seed: int, p_spec_snapshot: Dictionary = {}) -> Provenance:
-	var script: GDScript = load("res://src/domain/celestial/Provenance.gd") as GDScript
-	return script.new(
+	var script_class: GDScript = load("res://src/domain/celestial/Provenance.gd") as GDScript
+	return script_class.new(
 		p_generation_seed,
 		Versions.GENERATOR_VERSION,
 		Versions.SCHEMA_VERSION,
@@ -74,8 +74,8 @@ static func from_dict(data: Dictionary) -> Provenance:
 	if data.is_empty():
 		return null
 
-	var script: GDScript = load("res://src/domain/celestial/Provenance.gd") as GDScript
-	return script.new(
+	var script_class: GDScript = load("res://src/domain/celestial/Provenance.gd") as GDScript
+	return script_class.new(
 		data.get("generation_seed", 0) as int,
 		data.get("generator_version", "") as String,
 		data.get("schema_version", 0) as int,

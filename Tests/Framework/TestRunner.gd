@@ -153,7 +153,7 @@ func _run_single_test_async(instance: TestCase, method_name: String, script_path
 	instance.before_each()
 	
 	# Let deferred add_child run so the viewer/app is in the tree before the test runs.
-	if "TestMainAppNavigation" in script_path or "TestGalaxyViewerUI" in script_path or "TestGalaxyRandomization" in script_path or "TestWelcomeScreen" in script_path or "TestGalaxyStartup" in script_path:
+	if "TestMainAppNavigation" in script_path or "TestGalaxyViewerUI" in script_path or "TestGalaxyRandomization" in script_path or "TestWelcomeScreen" in script_path or "TestGalaxyStartup" in script_path or "TestStarSystemPreviewIntegration" in script_path:
 		await scene_tree.process_frame
 		await scene_tree.process_frame
 		await scene_tree.process_frame

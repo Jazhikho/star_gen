@@ -102,8 +102,8 @@ static func from_dict(data: Dictionary) -> RingSystemProps:
 	for band_data in bands_data:
 		parsed_bands.append(RingBand.from_dict(band_data as Dictionary))
 	
-	var script: GDScript = load("res://src/domain/celestial/components/RingSystemProps.gd") as GDScript
-	return script.new(
+	var script_class: GDScript = load("res://src/domain/celestial/components/RingSystemProps.gd") as GDScript
+	return script_class.new(
 		parsed_bands,
 		data.get("total_mass_kg", 0.0) as float,
 		data.get("inclination_deg", 0.0) as float

@@ -86,8 +86,21 @@ static func _generate_cache_key(body: CelestialBody) -> String:
 
 			# Check if gas giant
 			if _is_gas_giant(body):
-				var mass_earth: float = body.physical.mass_kg / 1.989e30 * 333000.0 # Rough estimate
-				key_parts.append("gas_%d" % int(mass_earth))
+				# Include all visually significant parameters so giants with
+				# different temperatures, compositions, or rotation rates are
+				# not collapsed to the same cached material.
+				var mass_earth: float = body.physical.mass_kg / Units.EARTH_MASS_KG
+				var temp_k: int = int(GasGiantShaderParams._get_temperature_k(body))
+				var rotation_bin: int = int(absf(body.physical.rotation_period_s) / 3600.0)
+				var dominant_gas: String = "none"
+				if body.has_atmosphere():
+					dominant_gas = body.atmosphere.get_dominant_gas()
+				var seed_val: int = 0
+				if body.provenance:
+					seed_val = body.provenance.generation_seed % 1000
+				key_parts.append("gas_m%d_t%d_r%d_%s_s%d" % [
+					int(mass_earth), temp_k, rotation_bin, dominant_gas, seed_val
+				])
 			elif TerrestrialShaderParams.is_terrestrial_suitable(body):
 				key_parts.append("terrestrial")
 

@@ -61,19 +61,19 @@ static func spectral_class_to_color(spectral_type: String) -> Color:
 	
 	match first_char:
 		"O":
-			return Color(0.6, 0.7, 1.0)      # Blue
+			return Color(0.6, 0.7, 1.0) # Blue
 		"B":
-			return Color(0.7, 0.8, 1.0)      # Blue-white
+			return Color(0.7, 0.8, 1.0) # Blue-white
 		"A":
-			return Color(0.9, 0.9, 1.0)      # White
+			return Color(0.9, 0.9, 1.0) # White
 		"F":
-			return Color(1.0, 1.0, 0.9)      # Yellow-white
+			return Color(1.0, 1.0, 0.9) # Yellow-white
 		"G":
-			return Color(1.0, 1.0, 0.8)      # Yellow
+			return Color(1.0, 1.0, 0.8) # Yellow
 		"K":
-			return Color(1.0, 0.85, 0.6)     # Orange
+			return Color(1.0, 0.85, 0.6) # Orange
 		"M":
-			return Color(1.0, 0.6, 0.4)      # Red
+			return Color(1.0, 0.6, 0.4) # Red
 		_:
 			return Color.WHITE
 
@@ -83,7 +83,7 @@ static func spectral_class_to_color(spectral_type: String) -> Color:
 ## @return: Sky color based on dominant gases.
 static func atmosphere_to_sky_color(composition: Dictionary) -> Color:
 	if composition.is_empty():
-		return Color(0.5, 0.6, 0.8)  # Default blue-ish
+		return Color(0.5, 0.6, 0.8) # Default blue-ish
 	
 	# Base color starts neutral
 	var color: Color = Color(0.0, 0.0, 0.0)
@@ -91,16 +91,16 @@ static func atmosphere_to_sky_color(composition: Dictionary) -> Color:
 	
 	# Gas colors based on Rayleigh scattering and absorption
 	var gas_colors: Dictionary = {
-		"N2": Color(0.4, 0.5, 0.9),      # Blue (Earth-like)
-		"O2": Color(0.5, 0.6, 0.9),      # Slight blue
-		"CO2": Color(0.9, 0.7, 0.5),     # Orange-ish (Venus/Mars)
-		"CH4": Color(0.4, 0.6, 0.8),     # Cyan-blue (Titan, Uranus)
-		"H2": Color(0.7, 0.7, 0.8),      # Pale
-		"He": Color(0.8, 0.8, 0.8),      # Very pale
-		"NH3": Color(0.8, 0.7, 0.6),     # Tan
-		"H2O": Color(0.6, 0.7, 0.9),     # Blue
-		"SO2": Color(0.9, 0.8, 0.5),     # Yellow
-		"Ar": Color(0.5, 0.5, 0.6),      # Gray-blue
+		"N2": Color(0.4, 0.5, 0.9), # Blue (Earth-like)
+		"O2": Color(0.5, 0.6, 0.9), # Slight blue
+		"CO2": Color(0.9, 0.7, 0.5), # Orange-ish (Venus/Mars)
+		"CH4": Color(0.4, 0.6, 0.8), # Cyan-blue (Titan, Uranus)
+		"H2": Color(0.7, 0.7, 0.8), # Pale
+		"He": Color(0.8, 0.8, 0.8), # Very pale
+		"NH3": Color(0.8, 0.7, 0.6), # Tan
+		"H2O": Color(0.6, 0.7, 0.9), # Blue
+		"SO2": Color(0.9, 0.8, 0.5), # Yellow
+		"Ar": Color(0.5, 0.5, 0.6), # Gray-blue
 	}
 	
 	for gas in composition.keys():
@@ -130,25 +130,31 @@ static func surface_to_color(surface_type: String, composition: Dictionary, albe
 	
 	match surface_type.to_lower():
 		"molten":
-			base_color = Color(1.0, 0.3, 0.1)  # Bright orange-red
+			base_color = Color(1.0, 0.3, 0.1) # Bright orange-red
 		"volcanic":
-			base_color = Color(0.3, 0.25, 0.2)  # Dark with hints of red
+			base_color = Color(0.3, 0.25, 0.2) # Dark with hints of red
 		"frozen", "icy", "icy_smooth":
-			base_color = Color(0.85, 0.9, 0.95)  # Ice white-blue
+			base_color = Color(0.85, 0.9, 0.95) # Ice white-blue
 		"icy_cratered", "icy_rocky":
-			base_color = Color(0.7, 0.75, 0.8)  # Dirty ice
+			base_color = Color(0.7, 0.75, 0.8) # Dirty ice
 		"rocky", "rocky_cold":
-			base_color = Color(0.5, 0.45, 0.4)  # Gray-brown
-		"cratered":
-			base_color = Color(0.4, 0.4, 0.4)  # Gray
+			base_color = Color(0.5, 0.45, 0.4) # Gray-brown
 		"oceanic":
-			base_color = Color(0.2, 0.4, 0.6)  # Ocean blue
+			base_color = Color(0.2, 0.4, 0.6) # Ocean blue
 		"continental":
-			base_color = Color(0.4, 0.5, 0.3)  # Green-brown
+			base_color = Color(0.4, 0.5, 0.3) # Green-brown
 		"desert":
-			base_color = Color(0.8, 0.7, 0.5)  # Sand
+			base_color = Color(0.8, 0.7, 0.5) # Sand
+		"tundra":
+			base_color = Color(0.55, 0.58, 0.50) # Muted grey-green
+		"arid":
+			base_color = Color(0.65, 0.50, 0.32) # Dry tan
+		"barren":
+			base_color = Color(0.42, 0.40, 0.37) # Neutral grey-brown
+		"cratered":
+			base_color = Color(0.40, 0.40, 0.40) # Gray
 		_:
-			base_color = Color(0.5, 0.5, 0.5)  # Default gray
+			base_color = Color(0.5, 0.5, 0.5) # Default gray
 	
 	# Modify by albedo (higher albedo = lighter)
 	base_color = base_color.lerp(Color.WHITE, albedo * 0.3)
@@ -196,11 +202,11 @@ static func asteroid_to_color(surface_type: String, composition: Dictionary) -> 
 	
 	match surface_type.to_lower():
 		"carbonaceous":
-			base_color = Color(0.15, 0.12, 0.1)  # Very dark
+			base_color = Color(0.15, 0.12, 0.1) # Very dark
 		"silicaceous":
-			base_color = Color(0.5, 0.45, 0.4)   # Gray-brown
+			base_color = Color(0.5, 0.45, 0.4) # Gray-brown
 		"metallic":
-			base_color = Color(0.6, 0.6, 0.55)   # Metallic gray
+			base_color = Color(0.6, 0.6, 0.55) # Metallic gray
 		_:
 			base_color = Color(0.4, 0.4, 0.4)
 	
@@ -221,7 +227,7 @@ static func asteroid_to_color(surface_type: String, composition: Dictionary) -> 
 ## @param optical_depth: Optical depth of the ring.
 ## @return: Ring color with appropriate alpha.
 static func ring_to_color(composition: Dictionary, optical_depth: float) -> Color:
-	var base_color: Color = Color(0.8, 0.8, 0.8)  # Default gray
+	var base_color: Color = Color(0.8, 0.8, 0.8) # Default gray
 	
 	if composition.has("water_ice"):
 		var amount: float = composition["water_ice"] as float

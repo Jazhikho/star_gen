@@ -31,6 +31,10 @@ func save_state(viewer: Node) -> void:
 			viewer.set_saved_star_camera_position(star_cam.global_position)
 			viewer.set_saved_star_camera_rotation(star_cam.rotation)
 
+	# Save star selection so it can be restored when returning from system view.
+	viewer.set_saved_star_seed(viewer.get_selected_star_seed_internal())
+	viewer.set_saved_star_position(viewer.get_selected_star_position_internal())
+
 
 ## Restores the previously saved viewer state.
 ## @param viewer: GalaxyViewer instance.
@@ -71,6 +75,16 @@ func restore_state(viewer: Node) -> void:
 					viewer.get_density_model(), viewer.get_reference_density()
 				)
 
+	# Restore star selection and regenerate preview if a star was selected.
+	var saved_star_seed: int = viewer.get_saved_star_seed()
+	var saved_star_pos: Vector3 = viewer.get_saved_star_position()
+	if saved_star_seed != 0 and viewer.get_saved_zoom_level() == GalaxyCoordinates.ZoomLevel.SUBSECTOR:
+		# Re-apply the full star selection (updates indicator, inspector, and preview).
+		viewer.call_apply_star_selection(saved_star_pos, saved_star_seed)
+	else:
+		# No star was selected — ensure indicator is hidden and inspector is clear.
+		if viewer.get_selection_indicator():
+			viewer.get_selection_indicator().hide_indicator()
 	viewer.call_update_inspector()
 	viewer.set_status("Returned to galaxy view")
 
@@ -82,6 +96,8 @@ func clear_saved_state(viewer: Node) -> void:
 	viewer.set_saved_sector(null)
 	viewer.set_saved_star_camera_position(Vector3.ZERO)
 	viewer.set_saved_star_camera_rotation(Vector3.ZERO)
+	viewer.set_saved_star_seed(0)
+	viewer.set_saved_star_position(Vector3.ZERO)
 
 
 ## Returns true if there is saved state to restore.
