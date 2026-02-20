@@ -183,7 +183,7 @@ func _add_physical_properties(body: CelestialBody) -> void:
 		_add_property(_body_section, "Rotation", "%.1f hours%s" % [period_hours, retrograde])
 	
 	if phys.axial_tilt_deg != 0.0:
-		_add_property(_body_section, "Axial Tilt", "%.1fÂ°" % phys.axial_tilt_deg)
+		_add_property(_body_section, "Axial Tilt", "%.1f°" % phys.axial_tilt_deg)
 
 
 ## Adds orbital property rows for a body.
@@ -198,7 +198,7 @@ func _add_orbital_properties(body: CelestialBody) -> void:
 		_add_property(_body_section, "Semi-major Axis", "%.0f km" % (orb.semi_major_axis_m / 1000.0))
 	
 	_add_property(_body_section, "Eccentricity", "%.4f" % orb.eccentricity)
-	_add_property(_body_section, "Inclination", "%.2fÂ°" % orb.inclination_deg)
+	_add_property(_body_section, "Inclination", "%.2f°" % orb.inclination_deg)
 	
 	if not orb.parent_id.is_empty():
 		_add_property(_body_section, "Orbits", orb.parent_id)

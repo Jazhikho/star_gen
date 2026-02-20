@@ -103,7 +103,7 @@ static func atmosphere_to_sky_color(composition: Dictionary) -> Color:
 		"Ar": Color(0.5, 0.5, 0.6), # Gray-blue
 	}
 	
-	for gas in composition.keys():
+	for gas: String in composition.keys():
 		var fraction: float = composition[gas] as float
 		if fraction < 0.01:
 			continue

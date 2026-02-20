@@ -76,6 +76,10 @@ static func get_star_shader_params(body: CelestialBody) -> Dictionary:
 	return params
 
 
+## Calculates limb darkening coefficient based on stellar temperature.
+## Hotter stars have less limb darkening; cooler stars darken more at the limb.
+## @param temperature_k: Effective temperature in Kelvin.
+## @return: Limb darkening coefficient (0-1).
 static func _calculate_limb_darkening(temperature_k: float) -> float:
 	if temperature_k > 30000.0:
 		return 0.2
@@ -93,6 +97,11 @@ static func _calculate_limb_darkening(temperature_k: float) -> float:
 		return 0.8
 
 
+## Calculates granulation parameters based on stellar temperature.
+## Cooler stars have more prominent, larger granulation cells.
+## Hotter stars have minimal visible granulation.
+## @param temperature_k: Effective temperature in Kelvin.
+## @return: Dictionary with scale, contrast, turbulence, flow, super_scale, super_strength.
 static func _calculate_granulation_params(temperature_k: float) -> Dictionary:
 	var params: Dictionary = {}
 	if temperature_k > 10000.0:
@@ -140,6 +149,13 @@ static func _calculate_granulation_params(temperature_k: float) -> Dictionary:
 	return params
 
 
+## Calculates sunspot parameters based on stellar properties.
+## Younger, faster-rotating stars have more spots due to stronger magnetic activity.
+## Hot stars (>8000K) have no spots; cooler stars can have many large spots.
+## @param temperature_k: Effective temperature in Kelvin.
+## @param age_years: Stellar age in years.
+## @param rotation_period_s: Rotation period in seconds.
+## @return: Dictionary with count, size, penumbra, darkness.
 static func _calculate_spot_params(temperature_k: float, age_years: float, rotation_period_s: float) -> Dictionary:
 	var params: Dictionary = {}
 	var age_factor: float = clampf(1.0 - (age_years / 10.0e9), 0.2, 1.0)
@@ -175,6 +191,11 @@ static func _calculate_spot_params(temperature_k: float, age_years: float, rotat
 	return params
 
 
+## Calculates chromosphere parameters based on stellar temperature.
+## Cooler stars have thicker, more intense chromospheres with stronger emission.
+## Hotter stars have thin, less visible chromospheres.
+## @param temperature_k: Effective temperature in Kelvin.
+## @return: Dictionary with thickness, intensity, shift.
 static func _calculate_chromosphere_params(temperature_k: float) -> Dictionary:
 	var params: Dictionary = {}
 	if temperature_k > 10000.0:
@@ -200,6 +221,12 @@ static func _calculate_chromosphere_params(temperature_k: float) -> Dictionary:
 	return params
 
 
+## Calculates corona parameters based on stellar temperature and luminosity.
+## Hotter, more luminous stars have more extensive coronae with more streamers.
+## Cooler stars have smaller, dimmer coronae.
+## @param temperature_k: Effective temperature in Kelvin.
+## @param luminosity_solar: Luminosity in solar units.
+## @return: Dictionary with extent, brightness, streams, length, asymmetry.
 static func _calculate_corona_params(temperature_k: float, luminosity_solar: float) -> Dictionary:
 	var params: Dictionary = {}
 	var lum_factor: float = clampf(sqrt(luminosity_solar), 0.5, 2.0)
@@ -236,6 +263,12 @@ static func _calculate_corona_params(temperature_k: float, luminosity_solar: flo
 	return params
 
 
+## Calculates prominence and flare parameters based on stellar properties.
+## Younger stars are more magnetically active with stronger, more frequent flares.
+## Prominence count and height vary with temperature and activity level.
+## @param temperature_k: Effective temperature in Kelvin.
+## @param age_years: Stellar age in years.
+## @return: Dictionary with count, height, glow, flare_intensity.
 static func _calculate_prominence_params(temperature_k: float, age_years: float) -> Dictionary:
 	var params: Dictionary = {}
 	var age_factor: float = clampf(1.0 - (age_years / 10.0e9), 0.3, 1.0)

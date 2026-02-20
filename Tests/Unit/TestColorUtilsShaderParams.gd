@@ -114,7 +114,8 @@ func test_gas_giant_params_jupiter_like() -> void:
 	var params: Dictionary = GasGiantShaderParams.get_gas_giant_shader_params(body)
 	assert_true(params.has("u_gBandCount"), "Should have band count")
 	assert_true(params["u_gBandCount"] >= 10.0, "Jupiter-like should have many bands")
-	assert_float_equal(params["u_gOblateness"], 0.065, 0.001, "Oblateness should match")
+	# Oblateness is stored in data but not rendered (always 0.0)
+	assert_float_equal(params["u_gOblateness"], 0.0, 0.001, "Rendered oblateness should be 0")
 	var band_light: Vector3 = params["u_gColBandLight"] as Vector3
 	assert_true(band_light.x > band_light.z, "Jupiter should have warm tones")
 

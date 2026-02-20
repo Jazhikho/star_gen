@@ -75,7 +75,7 @@ static func _generate_cache_key(body: CelestialBody) -> String:
 		
 		CelestialType.Type.PLANET, CelestialType.Type.MOON:
 			if body.has_surface():
-				var surface_type: String = body.surface.surface_type
+				var surface_type: String = body.surface.surface_type if body.surface.surface_type else "unknown"
 				var albedo: float = body.surface.albedo
 				var seed_val: int = 0
 				if body.provenance:
@@ -83,6 +83,10 @@ static func _generate_cache_key(body: CelestialBody) -> String:
 				key_parts.append("%s_albedo_%.2f_seed_%d" % [surface_type, albedo, seed_val])
 			else:
 				key_parts.append("default")
+
+			if body.has_surface():
+				var temp_bin: int = int(body.surface.temperature_k / 50.0)
+				key_parts.append("temp_%d" % temp_bin)
 
 			# Check if gas giant
 			if _is_gas_giant(body):
@@ -212,11 +216,11 @@ static func _create_planet_material(body: CelestialBody) -> Material:
 	if _is_gas_giant(body):
 		return _create_gas_giant_material(body)
 
-	# Check if suitable for terrestrial shader
+	# Check if suitable for terrestrial shader (most bodies with surfaces)
 	if TerrestrialShaderParams.is_terrestrial_suitable(body):
 		return _create_terrestrial_material(body)
 
-	# Fall back to simple rocky material
+	# Fall back to simple rocky material only for edge cases
 	return _create_rocky_material(body)
 
 
@@ -241,7 +245,7 @@ static func _create_terrestrial_material(body: CelestialBody) -> ShaderMaterial:
 
 	var params: Dictionary = TerrestrialShaderParams.get_params(body)
 
-	for param_name in params:
+	for param_name: String in params:
 		material.set_shader_parameter(param_name, params[param_name])
 
 	return material
@@ -284,7 +288,7 @@ static func _create_gas_giant_material(body: CelestialBody) -> ShaderMaterial:
 	material.shader = _gas_giant_surface_shader
 
 	var params: Dictionary = GasGiantShaderParams.get_params(body)
-	for param_name in params:
+	for param_name: String in params:
 		material.set_shader_parameter(param_name, params[param_name])
 
 	return material
@@ -376,7 +380,7 @@ static func create_atmosphere_material(body: CelestialBody) -> ShaderMaterial:
 	material.shader = _atmosphere_rim_shader
 
 	var params: Dictionary = AtmosphereShaderParams.get_params(body)
-	for param_name in params:
+	for param_name: String in params:
 		material.set_shader_parameter(param_name, params[param_name])
 
 	return material
@@ -391,7 +395,7 @@ static func create_ring_system_material(ring_system: RingSystemProps, body: Cele
 	material.shader = _ring_system_shader
 
 	var params: Dictionary = RingShaderParams.get_params(ring_system, body)
-	for param_name in params:
+	for param_name: String in params:
 		material.set_shader_parameter(param_name, params[param_name])
 
 	return material

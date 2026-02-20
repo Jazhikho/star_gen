@@ -42,7 +42,7 @@ static func get_params(ring_system: RingSystemProps, body: CelestialBody = null)
 	if body and body.physical and body.physical.radius_m > 0:
 		body_radius = body.physical.radius_m
 
-	for i in range(ring_system.get_band_count()):
+	for i: int in range(ring_system.get_band_count()):
 		var band: RingBand = ring_system.get_band(i)
 		var band_inner: float = band.inner_radius_m / body_radius
 		var band_outer: float = band.outer_radius_m / body_radius
@@ -108,6 +108,9 @@ static func get_band_params(band: RingBand, body: CelestialBody = null) -> Dicti
 	return params
 
 
+## Calculates average optical density across all ring bands.
+## @param ring_system: The ring system properties.
+## @return: Average density (0.1 to 1.0).
 static func _calculate_average_density(ring_system: RingSystemProps) -> float:
 	if ring_system.get_band_count() == 0:
 		return 0.5
@@ -115,7 +118,7 @@ static func _calculate_average_density(ring_system: RingSystemProps) -> float:
 	var total_depth: float = 0.0
 	var total_width: float = 0.0
 
-	for i in range(ring_system.get_band_count()):
+	for i: int in range(ring_system.get_band_count()):
 		var band: RingBand = ring_system.get_band(i)
 		var width: float = band.outer_radius_m - band.inner_radius_m
 		total_depth += band.optical_depth * width
@@ -127,6 +130,9 @@ static func _calculate_average_density(ring_system: RingSystemProps) -> float:
 	return clampf(total_depth / total_width, 0.1, 1.0)
 
 
+## Calculates gap size as fraction of total ring span.
+## @param ring_system: The ring system properties.
+## @return: Gap fraction (0.05 to 0.5).
 static func _calculate_gap_size(ring_system: RingSystemProps) -> float:
 	if ring_system.get_band_count() < 2:
 		return 0.1
@@ -134,7 +140,7 @@ static func _calculate_gap_size(ring_system: RingSystemProps) -> float:
 	var total_span: float = ring_system.get_outer_radius_m() - ring_system.get_inner_radius_m()
 	var band_coverage: float = 0.0
 
-	for i in range(ring_system.get_band_count()):
+	for i: int in range(ring_system.get_band_count()):
 		var band: RingBand = ring_system.get_band(i)
 		band_coverage += band.outer_radius_m - band.inner_radius_m
 
@@ -145,6 +151,9 @@ static func _calculate_gap_size(ring_system: RingSystemProps) -> float:
 	return clampf(gap_fraction, 0.05, 0.5)
 
 
+## Calculates ring colors from composition of all bands.
+## @param ring_system: The ring system properties.
+## @return: Dictionary with inner, mid, outer colors.
 static func _calculate_ring_colors(ring_system: RingSystemProps) -> Dictionary:
 	# Default Saturn-like colors
 	var inner: Color = Color(0.8, 0.6, 0.4)
@@ -161,17 +170,17 @@ static func _calculate_ring_colors(ring_system: RingSystemProps) -> Dictionary:
 	var carbon_content: float = 0.0
 	var band_count: float = float(ring_system.get_band_count())
 
-	for i in range(ring_system.get_band_count()):
+	for i: int in range(ring_system.get_band_count()):
 		var band: RingBand = ring_system.get_band(i)
 		var comp: Dictionary = band.composition
-		ice_content += comp.get("water_ice", 0.0) as float
-		ice_content += comp.get("ice", 0.0) as float
-		rock_content += comp.get("silicates", 0.0) as float
-		rock_content += comp.get("rock", 0.0) as float
-		iron_content += comp.get("iron", 0.0) as float
-		iron_content += comp.get("iron_oxides", 0.0) as float
-		carbon_content += comp.get("carbon", 0.0) as float
-		carbon_content += comp.get("carbon_compounds", 0.0) as float
+		ice_content += (comp.get("water_ice", 0.0) as float)
+		ice_content += (comp.get("ice", 0.0) as float)
+		rock_content += (comp.get("silicates", 0.0) as float)
+		rock_content += (comp.get("rock", 0.0) as float)
+		iron_content += (comp.get("iron", 0.0) as float)
+		iron_content += (comp.get("iron_oxides", 0.0) as float)
+		carbon_content += (comp.get("carbon", 0.0) as float)
+		carbon_content += (comp.get("carbon_compounds", 0.0) as float)
 
 	ice_content /= band_count
 	rock_content /= band_count
@@ -222,7 +231,7 @@ static func get_ring_shader_params(ring_system: RingSystemProps, planet_radius_m
 
 	var inner_radius: float = INF
 	var outer_radius: float = 0.0
-	for i in range(band_count):
+	for i: int in range(band_count):
 		var band: RingBand = ring_system.get_band(i)
 		inner_radius = minf(inner_radius, band.inner_radius_m)
 		outer_radius = maxf(outer_radius, band.outer_radius_m)
@@ -234,7 +243,7 @@ static func get_ring_shader_params(ring_system: RingSystemProps, planet_radius_m
 	var avg_composition: Dictionary = {}
 	for i in range(band_count):
 		var band: RingBand = ring_system.get_band(i)
-		for key in band.composition:
+		for key: String in band.composition:
 			var existing: float = avg_composition.get(key, 0.0) as float
 			avg_composition[key] = existing + (band.composition[key] as float) / float(band_count)
 
@@ -251,7 +260,7 @@ static func get_ring_shader_params(ring_system: RingSystemProps, planet_radius_m
 
 	var total_ring_width: float = outer_radius - inner_radius
 	var band_width_sum: float = 0.0
-	for i in range(band_count):
+	for i: int in range(band_count):
 		var band: RingBand = ring_system.get_band(i)
 		band_width_sum += band.outer_radius_m - band.inner_radius_m
 	var gap_fraction: float = 1.0 - (band_width_sum / maxf(total_ring_width, 1.0))

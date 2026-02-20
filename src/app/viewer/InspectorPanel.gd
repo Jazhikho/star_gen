@@ -48,7 +48,7 @@ func clear() -> void:
 	if not inspector_container:
 		return
 	
-	for child in inspector_container.get_children():
+	for child: Node in inspector_container.get_children():
 		child.queue_free()
 	
 	_current_section_content = null
@@ -394,13 +394,13 @@ func _add_physical_properties(body: CelestialBody) -> void:
 		rotation_str += " (retrograde)"
 	_add_property("Rotation Period", rotation_str)
 	
-	_add_property("Axial Tilt", "%.1fÂ°" % phys.axial_tilt_deg)
+	_add_property("Axial Tilt", "%.1f°" % phys.axial_tilt_deg)
 	
 	if phys.oblateness > 0.001:
 		_add_property("Oblateness", "%.4f" % phys.oblateness)
 	
 	if phys.magnetic_moment > 0:
-		_add_property("Magnetic Field", _property_formatter.format_scientific(phys.magnetic_moment, "TÂ·mÂ³"))
+		_add_property("Magnetic Field", _property_formatter.format_scientific(phys.magnetic_moment, "T·m³"))
 
 
 ## Adds stellar properties section content.
@@ -423,7 +423,7 @@ func _add_orbital_properties(body: CelestialBody) -> void:
 	
 	_add_property("Semi-major Axis", _property_formatter.format_distance(orbital.semi_major_axis_m))
 	_add_property("Eccentricity", "%.4f" % orbital.eccentricity)
-	_add_property("Inclination", "%.2fÂ°" % orbital.inclination_deg)
+	_add_property("Inclination", "%.2f°" % orbital.inclination_deg)
 	_add_property("Periapsis", _property_formatter.format_distance(orbital.get_periapsis_m()))
 	_add_property("Apoapsis", _property_formatter.format_distance(orbital.get_apoapsis_m()))
 	
@@ -446,7 +446,7 @@ func _add_atmosphere_properties(body: CelestialBody) -> void:
 	if not atmo.composition.is_empty():
 		_add_subsection("Composition:")
 		var sorted_gases: Array = _sort_composition(atmo.composition)
-		for gas_data in sorted_gases:
+		for gas_data: Array in sorted_gases:
 			var gas: String = gas_data[0]
 			var fraction: float = gas_data[1]
 			if fraction > 0.001: # Only show > 0.1%
@@ -458,7 +458,7 @@ func _add_atmosphere_properties(body: CelestialBody) -> void:
 func _add_surface_properties(body: CelestialBody) -> void:
 	var surface: SurfaceProps = body.surface
 	
-	_add_property("Temperature", "%.1f K (%.1fÂ°C)" % [surface.temperature_k, surface.temperature_k - 273.15])
+	_add_property("Temperature", "%.1f K (%.1f°C)" % [surface.temperature_k, surface.temperature_k - 273.15])
 	_add_property("Albedo", "%.3f" % surface.albedo)
 	_add_property("Surface Type", surface.surface_type.capitalize())
 	
@@ -502,10 +502,10 @@ func _add_ring_properties(body: CelestialBody) -> void:
 	_add_property("Outer Radius", "%.0f km" % (rings.get_outer_radius_m() / 1000.0))
 	_add_property("Total Width", "%.0f km" % (rings.get_total_width_m() / 1000.0))
 	_add_property("Total Mass", _property_formatter.format_scientific(rings.total_mass_kg, "kg"))
-	_add_property("Inclination", "%.2fÂ°" % rings.inclination_deg)
+	_add_property("Inclination", "%.2f°" % rings.inclination_deg)
 	
 	# Individual bands
-	for i in range(mini(rings.get_band_count(), 5)): # Limit to first 5
+	for i: int in range(mini(rings.get_band_count(), 5)): # Limit to first 5
 		var band: RingBand = rings.get_band(i)
 		var band_name: String = band.name if band.name else "Band %d" % (i + 1)
 		_add_subsection(band_name + ":")
@@ -569,7 +569,7 @@ func _add_suitability_properties(body: CelestialBody) -> void:
 	
 	# Factor scores
 	_add_subsection("Factor Scores:")
-	for factor_int in suitability.factor_scores.keys():
+	for factor_int: int in suitability.factor_scores.keys():
 		var factor: ColonySuitability.FactorType = factor_int as ColonySuitability.FactorType
 		var score: int = suitability.factor_scores[factor_int] as int
 		_add_property("  " + ColonySuitability.factor_to_string(factor), "%d/100" % score)
@@ -577,14 +577,14 @@ func _add_suitability_properties(body: CelestialBody) -> void:
 	# Limiting factors
 	if not suitability.limiting_factors.is_empty():
 		var limit_names: Array[String] = []
-		for factor in suitability.limiting_factors:
+		for factor: ColonySuitability.FactorType in suitability.limiting_factors:
 			limit_names.append(ColonySuitability.factor_to_string(factor))
 		_add_property("Limiting", ", ".join(limit_names))
 	
 	# Advantages
 	if not suitability.advantages.is_empty():
 		var adv_names: Array[String] = []
-		for factor in suitability.advantages:
+		for factor: ColonySuitability.FactorType in suitability.advantages:
 			adv_names.append(ColonySuitability.factor_to_string(factor))
 		_add_property("Advantages", ", ".join(adv_names))
 
@@ -598,7 +598,7 @@ func _add_native_properties(body: CelestialBody) -> void:
 	_add_property("Extant", str(pop_data.get_extant_native_count()))
 	_add_property("Total Pop.", _property_formatter.format_population(pop_data.get_native_population()))
 	
-	for native in pop_data.native_populations:
+	for native: NativePopulation in pop_data.native_populations:
 		var status_str: String = native.get_growth_state()
 		if not native.is_extant:
 			status_str = "EXTINCT"
@@ -620,7 +620,7 @@ func _add_colony_properties(body: CelestialBody) -> void:
 	_add_property("Active", str(pop_data.get_active_colony_count()))
 	_add_property("Total Pop.", _property_formatter.format_population(pop_data.get_colony_population()))
 	
-	for colony in pop_data.colonies:
+	for colony: Colony in pop_data.colonies:
 		var status_str: String = colony.get_growth_state()
 		if not colony.is_active:
 			status_str = "ABANDONED"
@@ -650,7 +650,7 @@ func _add_colony_properties(body: CelestialBody) -> void:
 ## @return: Sorted array of [gas, fraction] pairs.
 func _sort_composition(composition: Dictionary) -> Array:
 	var pairs: Array = []
-	for key in composition.keys():
+	for key: String in composition.keys():
 		pairs.append([key, composition[key]])
-	pairs.sort_custom(func(a, b): return a[1] > b[1])
+	pairs.sort_custom(func(a: Array, b: Array) -> bool: return (a[1] as float) > (b[1] as float))
 	return pairs

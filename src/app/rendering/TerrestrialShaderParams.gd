@@ -52,21 +52,44 @@ static func get_params(body: CelestialBody) -> Dictionary:
 static func _get_spatial_terrain_params(body: CelestialBody) -> Dictionary:
 	var params: Dictionary = {}
 
+	# Defaults that produce visible terrain
 	params["u_terrainScale"] = 4.0
 	params["u_terrainHeight"] = 0.5
 	params["u_roughness"] = 0.55
-	params["u_continentSize"] = 2.0
+	params["u_continentSize"] = 1.5
 	params["u_landCoherence"] = 0.6
 	params["u_coastalDetail"] = 0.5
 	params["u_octaves"] = 6
 
-	if body.has_surface() and body.surface.has_terrain():
+	if not body.has_surface():
+		# No surface data - use Earth-like defaults
+		return params
+
+	var surface: SurfaceProps = body.surface
+	var surface_type: String = surface.surface_type.to_lower() if surface.surface_type else ""
+
+	if surface.has_terrain():
 		var terrain: TerrainProps = body.surface.terrain
 
 		params["u_roughness"] = clampf(terrain.roughness, 0.3, 0.8)
 
 		var elevation_normalized: float = clampf(terrain.elevation_range_m / 25000.0, 0.1, 1.0)
 		params["u_terrainHeight"] = elevation_normalized
+
+		# Continent size: high tectonic activity = more fragmented continents (smaller)
+		# Low activity = larger, more coherent landmasses (supercontinent-like)
+		# Range: 0.8 (supercontinent) to 3.5 (archipelago)
+		var tectonic_factor: float = terrain.tectonic_activity
+		params["u_continentSize"] = 0.8 + tectonic_factor * 2.7
+
+		# Land coherence: high erosion = more complex coastlines (lower coherence)
+		# High crater density = fragmented terrain (lower coherence)
+		# Range: 0.2 (archipelago/fragmented) to 0.9 (solid continental masses)
+		var fragmentation: float = maxf(terrain.erosion_level, terrain.crater_density)
+		params["u_landCoherence"] = clampf(0.85 - fragmentation * 0.65, 0.2, 0.9)
+
+		# Coastal detail: more erosion = more detailed coastlines
+		params["u_coastalDetail"] = clampf(0.3 + terrain.erosion_level * 0.5, 0.2, 0.9)
 
 		if terrain.tectonic_activity > 0.5:
 			params["u_terrainScale"] = 5.0 + terrain.tectonic_activity * 3.0
@@ -75,12 +98,60 @@ static func _get_spatial_terrain_params(body: CelestialBody) -> Dictionary:
 			params["u_terrainScale"] = 3.0
 			params["u_octaves"] = 5
 
-		if terrain.erosion_level > 0.5:
-			params["u_coastalDetail"] = 0.7
-			params["u_roughness"] *= 0.9
+	# Apply surface-type-based adjustments (whether or not terrain data exists)
+	match surface_type:
+		"oceanic":
+			if not surface.has_terrain():
+				params["u_continentSize"] = 3.0
+				params["u_landCoherence"] = 0.3
+		"continental", "temperate", "earthlike", "habitable":
+			if not surface.has_terrain():
+				params["u_continentSize"] = 1.5
+				params["u_landCoherence"] = 0.6
+		"desert", "arid":
+			if not surface.has_terrain():
+				params["u_continentSize"] = 1.2
+				params["u_landCoherence"] = 0.75
+		"tundra", "cold", "frozen_continental", "subarctic", "arctic":
+			if not surface.has_terrain():
+				params["u_continentSize"] = 1.8
+				params["u_landCoherence"] = 0.55
+		"barren", "rocky", "rocky_cold", "cratered":
+			if not surface.has_terrain():
+				params["u_continentSize"] = 2.0
+				params["u_landCoherence"] = 0.5
+		"icy", "frozen", "icy_rocky", "icy_cratered", "ice", "glacial":
+			if not surface.has_terrain():
+				params["u_continentSize"] = 2.5
+				params["u_landCoherence"] = 0.4
+		"":
+			if not surface.has_terrain():
+				var temp_k_fallback: float = surface.temperature_k
+				if temp_k_fallback < 200.0:
+					params["u_continentSize"] = 2.5
+					params["u_landCoherence"] = 0.4
+				elif temp_k_fallback < 260.0:
+					params["u_continentSize"] = 1.8
+					params["u_landCoherence"] = 0.55
+				elif temp_k_fallback < 320.0:
+					params["u_continentSize"] = 1.5
+					params["u_landCoherence"] = 0.6
+				else:
+					params["u_continentSize"] = 1.2
+					params["u_landCoherence"] = 0.7
+		_:
+			if not surface.has_terrain():
+				params["u_continentSize"] = 1.8
+				params["u_landCoherence"] = 0.55
 
-		if terrain.crater_density > 0.3:
-			params["u_landCoherence"] = maxf(0.2, 0.6 - terrain.crater_density * 0.5)
+	# Temperature-based adjustments (applies to all bodies)
+	var temp_k: float = surface.temperature_k
+	if temp_k < 250.0:
+		# Cold worlds: slightly more coherent landmasses
+		params["u_landCoherence"] = minf(params["u_landCoherence"] + 0.1, 0.9)
+	elif temp_k > 320.0:
+		# Hot worlds: slightly more fragmented
+		params["u_landCoherence"] = maxf(params["u_landCoherence"] - 0.1, 0.2)
 
 	return params
 
@@ -94,6 +165,15 @@ static func _get_spatial_surface_color_params(body: CelestialBody) -> Dictionary
 	params["u_colMid"] = Color(colors["mid"].x, colors["mid"].y, colors["mid"].z)
 	params["u_colHigh"] = Color(colors["high"].x, colors["high"].y, colors["high"].z)
 	params["u_colPeak"] = Color(colors["peak"].x, colors["peak"].y, colors["peak"].z)
+
+	# Ensure colors are never black - add minimum brightness
+	var min_brightness: float = 0.15
+	for key: String in ["u_colLow", "u_colMid", "u_colHigh", "u_colPeak"]:
+		var col: Color = params[key]
+		var brightness: float = maxf(maxf(col.r, col.g), col.b)
+		if brightness < min_brightness:
+			var boost: float = min_brightness / maxf(brightness, 0.01)
+			params[key] = Color(col.r * boost + 0.05, col.g * boost + 0.05, col.b * boost + 0.05)
 
 	if body.has_surface():
 		var composition: Dictionary = body.surface.surface_composition
@@ -314,21 +394,18 @@ static func is_terrestrial_suitable(body: CelestialBody) -> bool:
 	if not body.has_surface():
 		return false
 
-	var mass_earth: float = body.physical.mass_kg / 5.972e24
-	if mass_earth > 15.0 and not body.surface.has_terrain():
+	# Gas giants are handled separately
+	if GasGiantShaderParams.is_gas_giant(body):
 		return false
 
-	if body.surface.has_terrain():
-		return true
+	# Check for obvious non-terrestrial types
+	if body.has_surface():
+		var st: String = body.surface.surface_type.to_lower() if body.surface.surface_type else ""
+		if st in ["gaseous", "gas_giant", "ice_giant"]:
+			return false
 
-	var surface_type: String = body.surface.surface_type.to_lower()
-	var valid_types: Array[String] = [
-		"rocky", "rocky_cold", "volcanic", "molten", "continental",
-		"oceanic", "desert", "frozen", "icy", "icy_rocky", "icy_cratered",
-		"tundra", "arid", "barren", "cratered"
-	]
-
-	return surface_type in valid_types
+	# Any other body with a surface should use the terrestrial shader
+	return true
 
 
 ## Returns shader parameters for legacy canvas_item terrestrial shader.
@@ -420,7 +497,7 @@ static func get_terrestrial_shader_params(body: CelestialBody) -> Dictionary:
 
 	if body.has_ring_system():
 		var ring_params: Dictionary = RingShaderParams.get_ring_shader_params(body.ring_system, body.physical.radius_m)
-		for key in ring_params:
+		for key: String in ring_params:
 			params[key] = ring_params[key]
 	else:
 		params["u_ringType"] = 0
@@ -466,7 +543,9 @@ static func _get_surface_colors(body: CelestialBody) -> Dictionary:
 	if not body.has_surface():
 		return colors
 	var surface: SurfaceProps = body.surface
-	match surface.surface_type:
+	var surface_type_lower: String = surface.surface_type.to_lower() if surface.surface_type else ""
+
+	match surface_type_lower:
 		"rocky", "rocky_cold", "cratered":
 			colors["low"] = Vector3(0.35, 0.32, 0.28)
 			colors["mid"] = Vector3(0.45, 0.42, 0.38)
@@ -487,16 +566,16 @@ static func _get_surface_colors(body: CelestialBody) -> Dictionary:
 			colors["mid"] = Vector3(0.8, 0.85, 0.9)
 			colors["high"] = Vector3(0.85, 0.88, 0.92)
 			colors["peak"] = Vector3(0.95, 0.97, 1.0)
-		"oceanic", "continental":
+		"oceanic", "continental", "temperate", "earthlike", "habitable":
 			colors["low"] = Vector3(0.2, 0.35, 0.15)
 			colors["mid"] = Vector3(0.25, 0.45, 0.2)
 			colors["high"] = Vector3(0.4, 0.45, 0.35)
 			colors["peak"] = Vector3(0.6, 0.58, 0.55)
-		"tundra":
-			colors["low"] = Vector3(0.45, 0.48, 0.42)
-			colors["mid"] = Vector3(0.55, 0.58, 0.50)
-			colors["high"] = Vector3(0.65, 0.68, 0.65)
-			colors["peak"] = Vector3(0.85, 0.88, 0.92)
+		"tundra", "cold", "frozen_continental", "subarctic", "arctic":
+			colors["low"] = Vector3(0.40, 0.45, 0.38)
+			colors["mid"] = Vector3(0.50, 0.55, 0.48)
+			colors["high"] = Vector3(0.62, 0.66, 0.62)
+			colors["peak"] = Vector3(0.82, 0.86, 0.90)
 		"arid":
 			colors["low"] = Vector3(0.55, 0.42, 0.28)
 			colors["mid"] = Vector3(0.65, 0.50, 0.32)
@@ -507,14 +586,15 @@ static func _get_surface_colors(body: CelestialBody) -> Dictionary:
 			colors["mid"] = Vector3(0.42, 0.40, 0.37)
 			colors["high"] = Vector3(0.52, 0.50, 0.47)
 			colors["peak"] = Vector3(0.65, 0.63, 0.60)
-		_:
-			# Fallback: derive colors from temperature so no body renders as pure black.
+		"", _:
+			# Empty or unknown surface type: derive colors from temperature
 			var temp_k: float = surface.temperature_k
 			var warmth: float = clampf((temp_k - 150.0) / 500.0, 0.0, 1.0)
 			colors["low"] = _lerp_vec3(Vector3(0.35, 0.38, 0.42), Vector3(0.50, 0.38, 0.25), warmth)
 			colors["mid"] = _lerp_vec3(Vector3(0.45, 0.48, 0.52), Vector3(0.60, 0.48, 0.32), warmth)
 			colors["high"] = _lerp_vec3(Vector3(0.55, 0.58, 0.60), Vector3(0.68, 0.56, 0.40), warmth)
 			colors["peak"] = _lerp_vec3(Vector3(0.70, 0.72, 0.75), Vector3(0.80, 0.70, 0.55), warmth)
+
 	if surface.temperature_k > 400.0:
 		var heat_factor: float = clampf((surface.temperature_k - 400.0) / 300.0, 0.0, 1.0)
 		colors["low"] = _lerp_vec3(colors["low"], Vector3(0.5, 0.35, 0.2), heat_factor)
@@ -523,6 +603,7 @@ static func _get_surface_colors(body: CelestialBody) -> Dictionary:
 		var cold_factor: float = clampf((250.0 - surface.temperature_k) / 100.0, 0.0, 1.0)
 		colors["low"] = _lerp_vec3(colors["low"], Vector3(0.6, 0.65, 0.7), cold_factor)
 		colors["mid"] = _lerp_vec3(colors["mid"], Vector3(0.7, 0.75, 0.8), cold_factor)
+
 	return colors
 
 

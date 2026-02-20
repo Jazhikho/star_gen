@@ -138,7 +138,7 @@ static func get_params(body: CelestialBody) -> Dictionary:
 
 	if body.has_ring_system():
 		var ring_params: Dictionary = RingShaderParams.get_ring_shader_params(body.ring_system, body.physical.radius_m)
-		for key in ring_params:
+		for key: String in ring_params:
 			params[key] = ring_params[key]
 	else:
 		params["u_ringType"] = 0
@@ -148,7 +148,7 @@ static func get_params(body: CelestialBody) -> Dictionary:
 
 ## Copies all entries from src into dst.
 static func _merge(dst: Dictionary, src: Dictionary) -> void:
-	for key in src:
+	for key: String in src:
 		dst[key] = src[key]
 
 
@@ -225,7 +225,7 @@ static func get_gas_giant_shader_params(body: CelestialBody) -> Dictionary:
 	legacy["u_ambient"] = p.get("u_ambient", 0.04)
 	if body.has_ring_system():
 		var ring_params: Dictionary = RingShaderParams.get_ring_shader_params(body.ring_system, body.physical.radius_m)
-		for key in ring_params:
+		for key: String in ring_params:
 			legacy[key] = ring_params[key]
 	else:
 		legacy["u_ringType"] = 0
@@ -240,14 +240,17 @@ static func _color_to_vec3(c: Color) -> Vector3:
 ## @param body: The celestial body.
 ## @return: True if gas giant (mass >= 10 Earth, no terrain, surface type or mass indicates gas giant).
 static func is_gas_giant(body: CelestialBody) -> bool:
-	if body.surface and body.surface.has_terrain():
+	if body.has_surface() and body.surface.has_terrain():
 		return false
 	var mass_earth: float = body.physical.mass_kg / Units.EARTH_MASS_KG
+	# No solid surface and mass >= 10 Earth: always gas/ice giant
+	if not body.has_surface() and mass_earth >= 10.0:
+		return true
 	if mass_earth >= 15.0:
 		return true
 	if mass_earth < 10.0:
 		return false
-	if body.surface:
+	if body.has_surface():
 		var st: String = body.surface.surface_type.to_lower()
 		return st in ["gaseous", "gas_giant", "ice_giant"]
 	return false
@@ -255,7 +258,8 @@ static func is_gas_giant(body: CelestialBody) -> bool:
 
 static func _get_shape_params(body: CelestialBody) -> Dictionary:
 	var params: Dictionary = {}
-	params["u_oblateness"] = body.physical.oblateness
+	# Oblateness stored in data but not rendered visually
+	params["u_oblateness"] = 0.0
 	params["u_axialTilt"] = deg_to_rad(body.physical.axial_tilt_deg)
 	return params
 
@@ -292,14 +296,13 @@ static func _get_band_params(body: CelestialBody, _archetype: Archetype, preset:
 		float(preset["band_contrast"]) + heat_t * 0.12 + seed_t * 0.08,
 		0.10, 0.95
 	)
+	# Reduce turbulence for smoother, more fluid appearance
 	params["u_bandTurbulence"] = clampf(
-		float(preset["band_turb"]) + heat_t * 0.15 + rot_t * 0.10 + seed_t * 0.10,
-		0.15, 1.40
+		float(preset["band_turb"]) * 0.7 + heat_t * 0.10 + rot_t * 0.08 + seed_t * 0.06,
+		0.10, 0.90
 	)
-	var flow_extra: int = 0
-	if rot_t > 0.5:
-		flow_extra = 1
-	params["u_flowDetail"] = clampi(int(preset["flow_detail"]) + flow_extra, 3, 8)
+	# Higher flow detail for smoother bands
+	params["u_flowDetail"] = clampi(int(preset["flow_detail"]) + 1, 4, 8)
 	return params
 
 
@@ -315,17 +318,18 @@ static func _get_storm_params(body: CelestialBody, _archetype: Archetype, preset
 	if body.provenance:
 		seed_t = (float(body.provenance.generation_seed % 997) / 997.0) - 0.5
 
+	# Reduce storm intensity slightly for smoother appearance
 	params["u_stormIntensity"] = clampf(
-		float(preset["storm_intensity"]) + heat_t * 0.15 + seed_t * 0.10,
-		0.05, 0.95
+		float(preset["storm_intensity"]) * 0.85 + heat_t * 0.12 + seed_t * 0.08,
+		0.05, 0.85
 	)
 	params["u_stormScale"] = clampf(
 		float(preset["storm_scale"]) + heat_t * 0.50 + seed_t * 0.30,
 		0.80, 4.50
 	)
 	params["u_vortexStrength"] = clampf(
-		float(preset["vortex"]) + seed_t * 0.15,
-		0.10, 1.60
+		float(preset["vortex"]) * 0.9 + seed_t * 0.12,
+		0.10, 1.30
 	)
 	return params
 

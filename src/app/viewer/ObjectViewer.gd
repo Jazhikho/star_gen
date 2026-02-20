@@ -25,8 +25,8 @@ const _inspector_panel: GDScript = preload("res://src/app/viewer/InspectorPanel.
 const _save_data: GDScript = preload("res://src/services/persistence/SaveData.gd")
 
 # Rendering
-const _body_renderer_scene: PackedScene = preload("res://src/app/rendering/BodyRenderer.tscn")
 const _body_renderer: GDScript = preload("res://src/app/rendering/BodyRenderer.gd")
+const _moon_system_script: GDScript = preload("res://src/app/viewer/ObjectViewerMoonSystem.gd")
 
 ## UI element references
 @onready var status_label: Label = $UI/TopBar/MarginContainer/HBoxContainer/StatusLabel
@@ -59,23 +59,8 @@ const _body_renderer: GDScript = preload("res://src/app/rendering/BodyRenderer.g
 ## Currently displayed celestial body
 var current_body: CelestialBody = null
 
-## Moons displayed around the primary body (may be empty).
-var current_moons: Array[CelestialBody] = []
-
-## The moon that currently has camera/inspector focus (null = primary body).
-var _focused_moon: CelestialBody = null
-
-## BodyRenderer instances for each moon (index matches current_moons).
-var _moon_renderers: Array[BodyRenderer] = []
-
-## Rig under body_renderer with rotation_degrees.z = planet axial tilt so moons sit in equatorial plane.
-var _moon_system_rig: Node3D = null
-
-## Container that holds all moon BodyRenderer instances.
-var _moon_bodies_node: Node3D = null
-
-## Container that holds all moon orbit line meshes.
-var _moon_orbits_node: Node3D = null
+## Moon system manager (handles display, orbital animation, focus).
+var _moon_system: RefCounted = null
 
 ## Whether the viewer is ready
 var is_ready: bool = false
@@ -106,14 +91,6 @@ enum ObjectType {
 	ASTEROID
 }
 
-## Visual period for a moon at ORBIT_REFERENCE_SMA_M (seconds per full orbit). ~2 minutes for inner moons.
-const ORBIT_BASE_PERIOD_S: float = 120.0
-## Reference semi-major axis for Kepler period scaling (metres); ~Luna distance.
-const ORBIT_REFERENCE_SMA_M: float = 3.844e8
-
-## Accumulated visual time driving moon orbital animation (seconds).
-var _orbit_visual_time: float = 0.0
-
 ## Cached display scale for the primary body (updated in display_body_with_moons).
 var _primary_display_scale: float = 1.0
 
@@ -123,7 +100,7 @@ func _ready() -> void:
 	_setup_camera()
 	_setup_generation_ui()
 	_setup_file_dialogs()
-	_setup_moon_containers()
+	_setup_moon_system()
 	_connect_signals()
 
 	set_status("Viewer initialized")
@@ -136,12 +113,13 @@ func _process(delta: float) -> void:
 	if animate_rotation and body_renderer and current_body:
 		body_renderer.rotate_body(delta, rotation_speed)
 
-	if not current_moons.is_empty():
-		_orbit_visual_time += delta
-		_update_moon_orbital_positions()
+	if _moon_system and _moon_system.has_moons():
+		_moon_system.update_orbital_positions(delta)
 
-	if _focused_moon != null:
-		_update_camera_follow()
+		if _moon_system.get_focused_moon() != null:
+			var ctrl: CameraController = camera as CameraController
+			if ctrl:
+				ctrl.set_target_position(_moon_system.get_focused_moon_position())
 
 
 ## Sets up viewport settings.
@@ -199,21 +177,11 @@ func _setup_file_dialogs() -> void:
 		load_file_dialog.current_dir = OS.get_user_data_dir()
 
 
-## Creates the persistent Node3D containers used to hold moon renderers and
-## orbit lines. Moon system rig is under body_renderer and gets the planet's
-## axial tilt so orbits align with the equator without rotating with the planet.
-func _setup_moon_containers() -> void:
-	_moon_system_rig = Node3D.new()
-	_moon_system_rig.name = "MoonSystemRig"
-	body_renderer.add_child(_moon_system_rig)
-
-	_moon_bodies_node = Node3D.new()
-	_moon_bodies_node.name = "MoonBodies"
-	_moon_system_rig.add_child(_moon_bodies_node)
-
-	_moon_orbits_node = Node3D.new()
-	_moon_orbits_node.name = "MoonOrbits"
-	_moon_system_rig.add_child(_moon_orbits_node)
+## Creates and initializes the moon system manager.
+func _setup_moon_system() -> void:
+	_moon_system = _moon_system_script.new()
+	_moon_system.setup(body_renderer)
+	_moon_system.moon_focused.connect(_on_moon_system_focus_changed)
 
 
 ## Connects UI signals.
@@ -516,9 +484,6 @@ func display_body_with_moons(
 		return
 
 	current_body = body
-	current_moons = moons
-	_focused_moon = null
-	_orbit_visual_time = 0.0
 
 	_primary_display_scale = _calculate_display_scale(body)
 	if body_renderer:
@@ -531,12 +496,12 @@ func display_body_with_moons(
 	else:
 		_disable_star_glow()
 
-	_clear_moon_display()
+	_moon_system.set_primary_body(body, _primary_display_scale)
 	if not moons.is_empty() and body.type == CelestialType.Type.PLANET:
-		# Align moon system with planet equator (same tilt as BodyRenderer body_mesh).
 		var tilt_deg: float = body.physical.axial_tilt_deg
-		_moon_system_rig.basis = Basis(Vector3.FORWARD, deg_to_rad(tilt_deg))
-		_build_moon_display()
+		_moon_system.build_moon_display(moons, tilt_deg)
+	else:
+		_moon_system.clear()
 
 	_fit_camera()
 	_update_inspector()
@@ -556,10 +521,8 @@ func display_external_body(
 	_show_back_button()
 	_set_generation_controls_enabled(false)
 	display_body_with_moons(body, moons)
-	var suffix: String
-	if moons.is_empty():
-		suffix = ""
-	else:
+	var suffix: String = ""
+	if not moons.is_empty():
 		suffix = " with %d moon(s)" % moons.size()
 	set_status("Viewing: %s%s (from system)" % [body.name, suffix])
 
@@ -581,246 +544,6 @@ func _calculate_display_scale(body: CelestialBody) -> float:
 			return 1.0
 
 
-## Returns the scale factor that converts physical meters to display units
-## for the moon system around the current primary body.
-## @return: Display units per meter.
-func _get_moon_system_scale() -> float:
-	if not current_body:
-		return 1.0
-	var r: float = current_body.physical.radius_m
-	if r <= 0.0:
-		return 1.0
-	return _primary_display_scale / r
-
-
-## Solves Kepler's equation for eccentric anomaly using Newton–Raphson.
-## @param mean_anomaly: Mean anomaly in radians.
-## @param eccentricity: Orbital eccentricity [0, 1).
-## @return: Eccentric anomaly in radians.
-func _solve_kepler(mean_anomaly: float, eccentricity: float) -> float:
-	var ea: float = mean_anomaly
-	for _i: int in range(5):
-		ea = ea - (ea - eccentricity * sin(ea) - mean_anomaly) \
-			/ (1.0 - eccentricity * cos(ea))
-	return ea
-
-
-## Returns the display-space position for a moon relative to the planet origin.
-## Uses a Y-up coordinate system matching Godot's convention.
-## @param moon: The moon body (must have orbital properties).
-## @return: 3D display-space position; Vector3.ZERO if no orbital data.
-func get_moon_display_position(moon: CelestialBody) -> Vector3:
-	if not moon.has_orbital():
-		return Vector3.ZERO
-
-	var ms: float = _get_moon_system_scale()
-	var a: float = moon.orbital.semi_major_axis_m * ms
-	var e: float = clampf(moon.orbital.eccentricity, 0.0, 0.99)
-	var inc: float = deg_to_rad(moon.orbital.inclination_deg)
-	var lan: float = deg_to_rad(moon.orbital.longitude_of_ascending_node_deg)
-	var aop: float = deg_to_rad(moon.orbital.argument_of_periapsis_deg)
-	var ma: float = deg_to_rad(moon.orbital.mean_anomaly_deg)
-
-	var ea: float = _solve_kepler(ma, e)
-
-	var ta: float = 2.0 * atan2(
-		sqrt(1.0 + e) * sin(ea / 2.0),
-		sqrt(1.0 - e) * cos(ea / 2.0)
-	)
-	var r: float = a * (1.0 - e * cos(ea))
-	var px: float = r * cos(ta)
-	var py: float = r * sin(ta)
-
-	var c_lan: float = cos(lan)
-	var s_lan: float = sin(lan)
-	var c_aop: float = cos(aop)
-	var s_aop: float = sin(aop)
-	var c_inc: float = cos(inc)
-	var s_inc: float = sin(inc)
-
-	var x: float = (c_lan * c_aop - s_lan * s_aop * c_inc) * px \
-		+ (-c_lan * s_aop - s_lan * c_aop * c_inc) * py
-	var z: float = (s_lan * c_aop + c_lan * s_aop * c_inc) * px \
-		+ (-s_lan * s_aop + c_lan * c_aop * c_inc) * py
-	var y: float = (s_aop * s_inc) * px + (c_aop * s_inc) * py
-
-	return Vector3(x, y, z)
-
-
-## Creates and places all moon BodyRenderers and their orbit line meshes.
-func _build_moon_display() -> void:
-	var moon_scale: float = _get_moon_system_scale()
-
-	for i: int in range(current_moons.size()):
-		var moon: CelestialBody = current_moons[i]
-
-		var renderer: BodyRenderer = _body_renderer_scene.instantiate() as BodyRenderer
-		if not renderer:
-			continue
-		renderer.name = "MoonRenderer_%d" % i
-		var moon_display_radius: float = moon.physical.radius_m * moon_scale
-		var live_ma: float = _compute_live_mean_anomaly(moon)
-		renderer.position = _get_moon_position_at_ma(moon, live_ma)
-		_moon_bodies_node.add_child(renderer)
-		renderer.render_body(moon, moon_display_radius)
-		_moon_renderers.append(renderer)
-
-		var orbit_line: MeshInstance3D = _create_moon_orbit_line(moon, moon_scale)
-		if orbit_line:
-			_moon_orbits_node.add_child(orbit_line)
-
-
-## Recomputes and applies each moon renderer's position for the current
-## _orbit_visual_time. Called every frame when moons are displayed.
-func _update_moon_orbital_positions() -> void:
-	for i: int in range(current_moons.size()):
-		if i >= _moon_renderers.size():
-			break
-		var moon: CelestialBody = current_moons[i]
-		var renderer: BodyRenderer = _moon_renderers[i]
-		if not moon.has_orbital() or not is_instance_valid(renderer):
-			continue
-		var live_ma: float = _compute_live_mean_anomaly(moon)
-		renderer.position = _get_moon_position_at_ma(moon, live_ma)
-
-
-## If a moon is focused, updates the camera target to follow it each frame (world space).
-func _update_camera_follow() -> void:
-	if _focused_moon == null or not current_moons.has(_focused_moon):
-		return
-	var idx: int = current_moons.find(_focused_moon)
-	if idx < 0 or idx >= _moon_renderers.size():
-		return
-	var ctrl: CameraController = camera as CameraController
-	if not ctrl:
-		return
-	var renderer: BodyRenderer = _moon_renderers[idx]
-	if not is_instance_valid(renderer):
-		return
-	ctrl.set_target_position(renderer.global_position)
-
-
-## Returns the live mean anomaly (radians) for a moon at the current
-## _orbit_visual_time, scaled by Kepler's third law so outer moons orbit more slowly.
-func _compute_live_mean_anomaly(moon: CelestialBody) -> float:
-	var sma: float = moon.orbital.semi_major_axis_m
-	var period_scale: float = pow(sma / ORBIT_REFERENCE_SMA_M, 1.5)
-	var visual_period: float = ORBIT_BASE_PERIOD_S * period_scale
-	if visual_period < 0.001:
-		visual_period = 0.001
-	var initial_ma: float = deg_to_rad(moon.orbital.mean_anomaly_deg)
-	return initial_ma + (TAU / visual_period) * _orbit_visual_time
-
-
-## Computes display-space position for a moon at an explicit mean anomaly.
-## Does not modify the body's stored mean_anomaly_deg.
-func _get_moon_position_at_ma(moon: CelestialBody, mean_anomaly_rad: float) -> Vector3:
-	if not moon.has_orbital():
-		return Vector3.ZERO
-
-	var ms: float = _get_moon_system_scale()
-	var a: float = moon.orbital.semi_major_axis_m * ms
-	var e: float = clampf(moon.orbital.eccentricity, 0.0, 0.99)
-	var inc: float = deg_to_rad(moon.orbital.inclination_deg)
-	var lan: float = deg_to_rad(moon.orbital.longitude_of_ascending_node_deg)
-	var aop: float = deg_to_rad(moon.orbital.argument_of_periapsis_deg)
-
-	var ea: float = _solve_kepler(mean_anomaly_rad, e)
-	var ta: float = 2.0 * atan2(
-		sqrt(1.0 + e) * sin(ea / 2.0),
-		sqrt(1.0 - e) * cos(ea / 2.0)
-	)
-	var r: float = a * (1.0 - e * cos(ea))
-	var px: float = r * cos(ta)
-	var py: float = r * sin(ta)
-
-	var c_lan: float = cos(lan)
-	var s_lan: float = sin(lan)
-	var c_aop: float = cos(aop)
-	var s_aop: float = sin(aop)
-	var c_inc: float = cos(inc)
-	var s_inc: float = sin(inc)
-
-	var x: float = (c_lan * c_aop - s_lan * s_aop * c_inc) * px \
-		+ (-c_lan * s_aop - s_lan * c_aop * c_inc) * py
-	var z: float = (s_lan * c_aop + c_lan * s_aop * c_inc) * px \
-		+ (-s_lan * s_aop + c_lan * c_aop * c_inc) * py
-	var y: float = (s_aop * s_inc) * px + (c_aop * s_inc) * py
-
-	return Vector3(x, y, z)
-
-
-## Creates a closed elliptical orbit line for a moon.
-## @param moon: The moon body (must have orbital properties).
-## @param moon_scale: Display units per meter.
-## @return: A MeshInstance3D with the line strip, or null if no orbital data.
-func _create_moon_orbit_line(
-	moon: CelestialBody,
-	moon_scale: float
-) -> MeshInstance3D:
-	if not moon.has_orbital():
-		return null
-
-	var a: float = moon.orbital.semi_major_axis_m * moon_scale
-	var e: float = clampf(moon.orbital.eccentricity, 0.0, 0.99)
-	var b: float = a * sqrt(1.0 - e * e)
-	var inc: float = deg_to_rad(moon.orbital.inclination_deg)
-	var lan: float = deg_to_rad(moon.orbital.longitude_of_ascending_node_deg)
-	var aop: float = deg_to_rad(moon.orbital.argument_of_periapsis_deg)
-
-	var c_lan: float = cos(lan)
-	var s_lan: float = sin(lan)
-	var c_aop: float = cos(aop)
-	var s_aop: float = sin(aop)
-	var c_inc: float = cos(inc)
-	var s_inc: float = sin(inc)
-
-	var f: float = a * e
-
-	var orbit_mesh: ImmediateMesh = ImmediateMesh.new()
-	orbit_mesh.surface_begin(Mesh.PRIMITIVE_LINE_STRIP)
-
-	const SEGMENTS: int = 128
-	for i: int in range(SEGMENTS + 1):
-		var angle: float = (float(i) / float(SEGMENTS)) * TAU
-		var px: float = a * cos(angle) - f
-		var py: float = b * sin(angle)
-
-		var x: float = (c_lan * c_aop - s_lan * s_aop * c_inc) * px \
-			+ (-c_lan * s_aop - s_lan * c_aop * c_inc) * py
-		var z: float = (s_lan * c_aop + c_lan * s_aop * c_inc) * px \
-			+ (-s_lan * s_aop + c_lan * c_aop * c_inc) * py
-		var y: float = (s_aop * s_inc) * px + (c_aop * s_inc) * py
-
-		orbit_mesh.surface_add_vertex(Vector3(x, y, z))
-
-	orbit_mesh.surface_end()
-
-	var instance: MeshInstance3D = MeshInstance3D.new()
-	instance.mesh = orbit_mesh
-	instance.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
-
-	var mat: StandardMaterial3D = StandardMaterial3D.new()
-	mat.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
-	mat.albedo_color = Color(0.45, 0.65, 0.85, 0.55)
-	mat.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
-	mat.cull_mode = BaseMaterial3D.CULL_DISABLED
-	instance.material_override = mat
-
-	return instance
-
-
-## Removes all moon renderers, orbit lines, and clears tracking state.
-func _clear_moon_display() -> void:
-	for child: Node in _moon_bodies_node.get_children():
-		child.queue_free()
-	for child: Node in _moon_orbits_node.get_children():
-		child.queue_free()
-	_moon_renderers.clear()
-	_focused_moon = null
-	_orbit_visual_time = 0.0
-
-
 ## Fits the camera to frame the primary body and all its displayed moons.
 func _fit_camera() -> void:
 	if not camera:
@@ -835,77 +558,52 @@ func _fit_camera() -> void:
 	ctrl.min_distance = maxf(body_radius * 1.2, 0.5)
 
 	ctrl.set_target_position(Vector3.ZERO)
-	ctrl.set_distance(_calculate_framing_distance())
+	ctrl.set_distance(_moon_system.get_framing_distance())
 	ctrl.focus_on_target()
 
 
-## Returns the camera distance needed to frame the full moon system.
-## @return: Camera distance in display units.
-func _calculate_framing_distance() -> float:
-	if not current_body:
-		return 10.0
-	var min_frame: float = _primary_display_scale * 3.0
-	if current_moons.is_empty():
-		return maxf(min_frame, _primary_display_scale * 3.0)
-
-	var moon_scale: float = _get_moon_system_scale()
-	var farthest: float = 0.0
-	for moon: CelestialBody in current_moons:
-		if moon.has_orbital():
-			var apoapsis: float = moon.orbital.semi_major_axis_m \
-				* (1.0 + moon.orbital.eccentricity)
-			farthest = maxf(farthest, apoapsis * moon_scale)
-
-	if farthest <= 0.0:
-		return maxf(min_frame, _primary_display_scale * 3.0)
-
-	return maxf(min_frame, farthest * 1.5)
-
-
 ## Shifts camera and inspector focus to the given moon.
-## Emits moon_focused. Call with null to return focus to the planet.
 ## @param moon: Moon to focus on (must be in current_moons).
 func focus_on_moon(moon: CelestialBody) -> void:
-	if not current_moons.has(moon):
+	if not _moon_system.focus_on_moon(moon):
 		return
 
-	_focused_moon = moon
-	var idx: int = current_moons.find(moon)
-	var moon_display_r: float = moon.physical.radius_m * _get_moon_system_scale()
+	var moon_display_r: float = _moon_system.get_focused_moon_display_radius()
 
-	# Prevent camera from entering the moon sphere.
 	var ctrl: CameraController = camera as CameraController
 	if ctrl:
 		ctrl.min_distance = maxf(moon_display_r * 1.2, 0.5)
-		if idx >= 0 and idx < _moon_renderers.size() and is_instance_valid(_moon_renderers[idx]):
-			ctrl.set_target_position(_moon_renderers[idx].global_position)
+		ctrl.set_target_position(_moon_system.get_focused_moon_position())
 		ctrl.set_distance(moon_display_r * 4.0)
 
 	if inspector_panel:
-		inspector_panel.display_focused_moon(moon, current_body, current_moons)
+		inspector_panel.display_focused_moon(moon, current_body, _moon_system.get_moons())
 
 	set_status("Focused: %s" % moon.name)
-	moon_focused.emit(moon)
 
 
 ## Returns focus to the primary planet and resets the camera.
 func focus_on_planet() -> void:
-	_focused_moon = null
+	_moon_system.focus_on_planet()
 
 	var ctrl: CameraController = camera as CameraController
 	if ctrl:
-		# Restore min distance for primary body.
 		var body_radius: float = _primary_display_scale
 		ctrl.min_distance = maxf(body_radius * 1.2, 0.5)
 
 		ctrl.set_target_position(Vector3.ZERO)
-		ctrl.set_distance(_calculate_framing_distance())
+		ctrl.set_distance(_moon_system.get_framing_distance())
 		ctrl.focus_on_target()
 
 	_update_inspector()
 	if current_body:
 		set_status("Viewing: %s" % current_body.name)
-	moon_focused.emit(null)
+
+
+## Handles focus change from moon system. Re-emits so existing connections to moon_focused still work.
+## @param moon: The newly focused moon, or null for planet.
+func _on_moon_system_focus_changed(moon: CelestialBody) -> void:
+	moon_focused.emit(moon)
 
 
 ## Handles a moon selection coming from the inspector panel.
@@ -919,7 +617,7 @@ func _on_inspector_moon_selected(moon: CelestialBody) -> void:
 
 ## Detects 3D left-clicks on moon meshes via ray-sphere intersection.
 func _unhandled_input(event: InputEvent) -> void:
-	if current_moons.is_empty() or not camera:
+	if not _moon_system or not _moon_system.has_moons() or not camera:
 		return
 	if not event is InputEventMouseButton:
 		return
@@ -927,42 +625,16 @@ func _unhandled_input(event: InputEvent) -> void:
 	if not mb.pressed or mb.button_index != MOUSE_BUTTON_LEFT:
 		return
 
-	var ray_origin: Vector3 = camera.project_ray_origin(mb.position)
-	var ray_dir: Vector3 = camera.project_ray_normal(mb.position)
-
-	var best_moon: CelestialBody = null
-	var best_t: float = INF
-
-	var moon_scale: float = _get_moon_system_scale()
-	for i: int in range(current_moons.size()):
-		if i >= _moon_renderers.size():
-			break
-		var moon: CelestialBody = current_moons[i]
-		var renderer: BodyRenderer = _moon_renderers[i]
-		if not is_instance_valid(renderer):
-			continue
-		var centre: Vector3 = renderer.global_position
-		var radius: float = moon.physical.radius_m * moon_scale
-		var oc: Vector3 = ray_origin - centre
-		var b: float = oc.dot(ray_dir)
-		var c: float = oc.dot(oc) - radius * radius
-		var disc: float = b * b - c
-
-		if disc >= 0.0:
-			var t: float = -b - sqrt(disc)
-			if t > 0.0 and t < best_t:
-				best_t = t
-				best_moon = moon
-
-	if best_moon != null:
-		focus_on_moon(best_moon)
+	var clicked_moon: CelestialBody = _moon_system.detect_moon_click(camera, mb.position)
+	if clicked_moon != null:
+		focus_on_moon(clicked_moon)
 		get_viewport().set_input_as_handled()
 
 
 ## Updates the inspector to show the primary body and moon list.
 func _update_inspector() -> void:
 	if inspector_panel:
-		inspector_panel.display_body_with_moons(current_body, current_moons)
+		inspector_panel.display_body_with_moons(current_body, _moon_system.get_moons())
 
 
 ## Adjusts scene lighting based on body type.
@@ -1013,8 +685,8 @@ func _disable_star_glow() -> void:
 ## Clears the entire display (primary body + moons).
 func clear_display() -> void:
 	current_body = null
-	current_moons.clear()
-	_clear_moon_display()
+	if _moon_system:
+		_moon_system.clear()
 	if body_renderer:
 		body_renderer.clear()
 	_disable_star_glow()
@@ -1075,7 +747,7 @@ func _on_load_file_selected(path: String) -> void:
 	# Update UI to match loaded body
 	if type_option:
 		var object_type: ObjectType = _get_object_type_from_body(result.body)
-		for i in range(type_option.get_item_count()):
+		for i: int in range(type_option.get_item_count()):
 			if type_option.get_item_id(i) == object_type:
 				type_option.selected = i
 				break

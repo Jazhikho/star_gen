@@ -12,6 +12,7 @@ func test_to_string_name() -> void:
 	assert_equal(BiomeType.to_string_name(BiomeType.Type.DESERT), "Desert")
 	assert_equal(BiomeType.to_string_name(BiomeType.Type.VOLCANIC), "Volcanic")
 	assert_equal(BiomeType.to_string_name(BiomeType.Type.BARREN), "Barren")
+	assert_equal(BiomeType.to_string_name(BiomeType.GAS_GIANT_BIOME_KEY as BiomeType.Type), "Gas Giant")
 
 
 ## Tests from_string parses correctly.
@@ -40,6 +41,7 @@ func test_can_support_life() -> void:
 	assert_false(BiomeType.can_support_life(BiomeType.Type.BARREN))
 	assert_false(BiomeType.can_support_life(BiomeType.Type.VOLCANIC))
 	assert_false(BiomeType.can_support_life(BiomeType.Type.ICE_SHEET))
+	assert_false(BiomeType.can_support_life(BiomeType.GAS_GIANT_BIOME_KEY as BiomeType.Type))
 
 
 ## Tests round-trip conversion.
@@ -53,4 +55,4 @@ func test_round_trip() -> void:
 
 ## Tests count returns correct number.
 func test_count() -> void:
-	assert_equal(BiomeType.count(), 14)
+	assert_equal(BiomeType.count(), 15)

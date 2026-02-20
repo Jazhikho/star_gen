@@ -20,7 +20,11 @@ enum Type {
 	VOLCANIC, ## Active volcanic regions
 	BARREN, ## Lifeless rock/regolith
 	SUBSURFACE, ## Underground habitable zones
+	GAS_GIANT, ## No solid surface; placeholder for gas giant / ice giant bodies
 }
+
+## Integer key for GAS_GIANT biome (use this from other scripts to avoid parse-order issues).
+const GAS_GIANT_BIOME_KEY: int = Type.GAS_GIANT as int
 
 
 ## Converts a biome type to a display string.
@@ -56,6 +60,8 @@ static func to_string_name(biome: Type) -> String:
 			return "Barren"
 		Type.SUBSURFACE:
 			return "Subsurface"
+		Type.GAS_GIANT:
+			return "Gas Giant"
 		_:
 			return "Unknown"
 
@@ -93,6 +99,8 @@ static func from_string(name: String) -> Type:
 			return Type.BARREN
 		"subsurface":
 			return Type.SUBSURFACE
+		"gas_giant":
+			return Type.GAS_GIANT
 		_:
 			return Type.BARREN
 
@@ -102,7 +110,7 @@ static func from_string(name: String) -> Type:
 ## @return: True if the biome can support life.
 static func can_support_life(biome: Type) -> bool:
 	match biome:
-		Type.BARREN, Type.VOLCANIC, Type.ICE_SHEET:
+		Type.BARREN, Type.VOLCANIC, Type.ICE_SHEET, Type.GAS_GIANT:
 			return false
 		_:
 			return true
@@ -111,4 +119,4 @@ static func can_support_life(biome: Type) -> bool:
 ## Returns the number of biome types.
 ## @return: Count of biome enum values.
 static func count() -> int:
-	return 14
+	return 15

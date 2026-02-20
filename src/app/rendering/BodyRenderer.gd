@@ -132,12 +132,15 @@ func clear() -> void:
 	
 	if body_mesh:
 		body_mesh.visible = false
+		body_mesh.scale = Vector3.ONE
 	
 	if atmosphere_mesh:
 		atmosphere_mesh.visible = false
+		atmosphere_mesh.scale = Vector3.ONE
 
 	if star_atmosphere_mesh:
 		star_atmosphere_mesh.visible = false
+		star_atmosphere_mesh.scale = Vector3.ONE
 
 	if star_light:
 		star_light.visible = false
@@ -173,16 +176,8 @@ func _update_body_mesh() -> void:
 			sphere.radial_segments = 24
 			sphere.rings = 12
 	
-	# Apply oblateness (flattening)
-	var oblateness: float = current_body.physical.oblateness
-	var scale_y: float = 1.0 - oblateness
-	
-	# Gas giants handle oblateness in their vertex shader (for correct oblate normals).
-	# Skip mesh-level oblateness to avoid double application.
-	if GasGiantShaderParams.is_gas_giant(current_body):
-		scale_y = 1.0
-	
-	body_mesh.scale = Vector3(display_scale, display_scale * scale_y, display_scale)
+	# Uniform scale - oblateness is kept in data but not rendered visually
+	body_mesh.scale = Vector3(display_scale, display_scale, display_scale)
 	
 	# Create and apply material
 	var material: Material = MaterialFactory.create_body_material(current_body)
@@ -270,13 +265,10 @@ func _update_atmosphere() -> void:
 	var pressure_factor: float = clampf(pressure / 101325.0, 0.1, 3.0)
 	base_atmo_scale *= (1.0 + pressure_factor * 0.03)
 	
-	# Apply oblateness to atmosphere (match body shape)
-	var oblateness: float = current_body.physical.oblateness
-	var scale_y: float = 1.0 - oblateness
-	
+	# Uniform scale for atmosphere
 	atmosphere_mesh.scale = Vector3(
 		display_scale * base_atmo_scale,
-		display_scale * base_atmo_scale * scale_y,
+		display_scale * base_atmo_scale,
 		display_scale * base_atmo_scale
 	)
 	
@@ -296,11 +288,10 @@ func _update_star_atmosphere() -> void:
 		star_atmosphere_mesh.visible = false
 		return
 
-	var oblateness: float = current_body.physical.oblateness
-	var scale_y: float = 1.0 - oblateness
+	# Uniform scale for star atmosphere
 	star_atmosphere_mesh.scale = Vector3(
 		display_scale * STAR_ATMOSPHERE_SCALE,
-		display_scale * STAR_ATMOSPHERE_SCALE * scale_y,
+		display_scale * STAR_ATMOSPHERE_SCALE,
 		display_scale * STAR_ATMOSPHERE_SCALE
 	)
 	star_atmosphere_mesh.material_override = star_atmo_material
@@ -324,7 +315,7 @@ func _update_ring_system() -> void:
 	ring_system_node.rotation_degrees = Vector3(rings.inclination_deg, 0.0, 0.0)
 	
 	# Create a mesh for each ring band
-	for i in range(rings.get_band_count()):
+	for i: int in range(rings.get_band_count()):
 		var band: RingBand = rings.get_band(i)
 		_create_ring_band_mesh(band, planet_radius_m)
 
@@ -399,7 +390,7 @@ func _clear_ring_system() -> void:
 	if not ring_system_node:
 		return
 	
-	for child in ring_system_node.get_children():
+	for child: Node in ring_system_node.get_children():
 		child.queue_free()
 
 

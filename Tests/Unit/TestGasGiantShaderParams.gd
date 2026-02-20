@@ -43,7 +43,8 @@ func test_jupiter_like_params() -> void:
 
 	assert_true(params.has("u_bandCount"), "Should have band count")
 	assert_true(params["u_bandCount"] >= 10.0, "Jupiter-like should have many bands")
-	assert_float_equal(params["u_oblateness"], 0.065, 0.001, "Oblateness should match")
+	# Oblateness is stored in data but not rendered (always 0.0)
+	assert_float_equal(params["u_oblateness"], 0.0, 0.001, "Rendered oblateness should be 0")
 	var band_light: Color = params["u_colBandLight"] as Color
 	assert_true(band_light.r > band_light.b, "Jupiter should have warm tones")
 
@@ -76,8 +77,8 @@ func test_oblateness_passed() -> void:
 	var body: CelestialBody = _create_gas_giant(150.0, 0.1, 40000.0)
 	body.physical.oblateness = 0.1
 	var params: Dictionary = GasGiantShaderParams.get_params(body)
-
-	assert_float_equal(params["u_oblateness"], 0.1, 0.001, "Oblateness should match")
+	# Oblateness is stored on body but not rendered visually (always 0.0)
+	assert_float_equal(params["u_oblateness"], 0.0, 0.001, "Rendered oblateness should be 0")
 
 
 func test_methane_blue_tint() -> void:

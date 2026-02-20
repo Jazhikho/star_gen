@@ -313,8 +313,8 @@ func _get_valid_mass_range_for_current_radius() -> Vector2:
 func _get_radius_range_for_mass(mass_kg: float, density_constraints: Vector2) -> Vector2:
 	if mass_kg <= 0:
 		return Vector2(0.0, 1e20)
-	var min_volume: float = mass_kg / density_constraints.y  # max density gives min volume
-	var max_volume: float = mass_kg / density_constraints.x  # min density gives max volume
+	var min_volume: float = mass_kg / density_constraints.y # max density gives min volume
+	var max_volume: float = mass_kg / density_constraints.x # min density gives max volume
 	var min_radius: float = pow(3.0 * min_volume / (4.0 * PI), 1.0 / 3.0)
 	var max_radius: float = pow(3.0 * max_volume / (4.0 * PI), 1.0 / 3.0)
 	return Vector2(min_radius, max_radius)
@@ -381,8 +381,6 @@ func _build_editor_ui() -> void:
 		_add_surface_properties()
 
 
-
-
 ## Gets the display value for a property (converts from base units).
 ## @param property_path: The property path.
 ## @return: Value in display units.
@@ -407,17 +405,17 @@ func _get_display_value_for_property(property_path: String) -> float:
 				_:
 					return base_value / 1000.0
 		"physical.rotation_period_s":
-			return absf(base_value) / 3600.0  # To hours
+			return absf(base_value) / 3600.0 # To hours
 		"stellar.luminosity_watts":
-			return base_value / 3.828e26  # To solar luminosities
+			return base_value / 3.828e26 # To solar luminosities
 		"stellar.age_years":
-			return base_value / 1e9  # To Gyr
+			return base_value / 1e9 # To Gyr
 		"orbital.semi_major_axis_m":
 			return base_value / Units.AU_METERS
 		"atmosphere.surface_pressure_pa":
-			return base_value / 101325.0  # To atm
+			return base_value / 101325.0 # To atm
 		"atmosphere.scale_height_m":
-			return base_value / 1000.0  # To km
+			return base_value / 1000.0 # To km
 		_:
 			return base_value
 
@@ -855,17 +853,17 @@ func _set_working_value_from_display(property_path: String, display_value: float
 				_:
 					base_value = display_value * 1000.0
 		"physical.rotation_period_s":
-			base_value = display_value * 3600.0  # From hours
+			base_value = display_value * 3600.0 # From hours
 		"stellar.luminosity_watts":
-			base_value = display_value * 3.828e26  # From solar luminosities
+			base_value = display_value * 3.828e26 # From solar luminosities
 		"stellar.age_years":
-			base_value = display_value * 1e9  # From Gyr
+			base_value = display_value * 1e9 # From Gyr
 		"orbital.semi_major_axis_m":
 			base_value = display_value * Units.AU_METERS
 		"atmosphere.surface_pressure_pa":
-			base_value = display_value * 101325.0  # From atm
+			base_value = display_value * 101325.0 # From atm
 		"atmosphere.scale_height_m":
-			base_value = display_value * 1000.0  # From km
+			base_value = display_value * 1000.0 # From km
 	
 	_working_values[property_path] = base_value
 
@@ -1015,8 +1013,8 @@ func _add_physical_properties() -> void:
 	match _body.type:
 		CelestialType.Type.STAR:
 			mass_value = phys.mass_kg / Units.SOLAR_MASS_KG
-			mass_min = 0.08  # Brown dwarf limit
-			mass_max = 300.0  # Most massive known stars
+			mass_min = 0.08 # Brown dwarf limit
+			mass_max = 300.0 # Most massive known stars
 			mass_suffix = " Mâ˜‰"
 		CelestialType.Type.PLANET, CelestialType.Type.MOON:
 			mass_value = phys.mass_kg / Units.EARTH_MASS_KG
@@ -1040,13 +1038,13 @@ func _add_physical_properties() -> void:
 	match _body.type:
 		CelestialType.Type.STAR:
 			radius_value = phys.radius_m / Units.SOLAR_RADIUS_METERS
-			radius_min = 0.001  # White dwarfs can be tiny
-			radius_max = 2000.0  # Red supergiants can be huge
+			radius_min = 0.001 # White dwarfs can be tiny
+			radius_max = 2000.0 # Red supergiants can be huge
 			radius_suffix = " Râ˜‰"
 		CelestialType.Type.PLANET, CelestialType.Type.MOON:
 			radius_value = phys.radius_m / Units.EARTH_RADIUS_METERS
 			radius_min = 0.01
-			radius_max = 30.0  # Allow for inflated hot Jupiters
+			radius_max = 30.0 # Allow for inflated hot Jupiters
 			radius_suffix = " RâŠ•"
 		_:
 			radius_value = phys.radius_m / 1000.0
@@ -1066,7 +1064,7 @@ func _add_physical_properties() -> void:
 	_add_numeric_property("physical.rotation_period_s", "Rotation Period", rotation_hours, 0.1, 10000.0, 0.1, " hrs")
 	
 	# Axial tilt
-	_add_numeric_property("physical.axial_tilt_deg", "Axial Tilt", _body.physical.axial_tilt_deg, 0.0, 180.0, 0.1, "Â°")
+	_add_numeric_property("physical.axial_tilt_deg", "Axial Tilt", _body.physical.axial_tilt_deg, 0.0, 180.0, 0.1, "°")
 	
 	# Oblateness
 	_add_numeric_property("physical.oblateness", "Oblateness", _body.physical.oblateness, 0.0, 0.5, 0.001, "")
@@ -1111,7 +1109,7 @@ func _add_orbital_properties() -> void:
 	_add_numeric_property("orbital.eccentricity", "Eccentricity", orbital.eccentricity, 0.0, 0.99, 0.001, "")
 	
 	# Inclination
-	_add_numeric_property("orbital.inclination_deg", "Inclination", orbital.inclination_deg, 0.0, 180.0, 0.1, "Â°")
+	_add_numeric_property("orbital.inclination_deg", "Inclination", orbital.inclination_deg, 0.0, 180.0, 0.1, "°")
 	
 	# Derived values
 	_add_derived_property("Periapsis", PropertyFormatter.format_distance(orbital.get_periapsis_m()), "Periapsis")

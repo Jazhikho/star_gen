@@ -3,7 +3,6 @@
 class_name ProfileGenerator
 extends RefCounted
 
-# Ensure ProfileCalculations is in scope when this script compiles.
 const _profile_calculations: GDScript = preload("res://src/domain/population/ProfileCalculations.gd")
 
 
@@ -39,21 +38,24 @@ static func generate(
 	if profile.is_moon and parent_body != null:
 		_calculate_moon_properties(profile, body, parent_body, context)
 
-	# Calculate complex derived data
-	profile.climate_zones = ProfileCalculations.calculate_climate_zones(
-		profile.axial_tilt_deg,
-		profile.avg_temperature_k,
-		profile.has_atmosphere
-	)
-
-	profile.biomes = ProfileCalculations.calculate_biomes(
-		profile.climate_zones,
-		profile.ocean_coverage,
-		profile.ice_coverage,
-		profile.volcanism_level,
-		profile.has_liquid_water,
-		profile.has_atmosphere
-	)
+	# Gas giants have no solid surface; give them a single Gas Giant biome instead of land-based biomes
+	if _is_gas_giant_for_profile(body):
+		profile.climate_zones = []
+		profile.biomes = {BiomeType.GAS_GIANT_BIOME_KEY: 1.0}
+	else:
+		profile.climate_zones = ProfileCalculations.calculate_climate_zones(
+			profile.axial_tilt_deg,
+			profile.avg_temperature_k,
+			profile.has_atmosphere
+		)
+		profile.biomes = ProfileCalculations.calculate_biomes(
+			profile.climate_zones,
+			profile.ocean_coverage,
+			profile.ice_coverage,
+			profile.volcanism_level,
+			profile.has_liquid_water,
+			profile.has_atmosphere
+		)
 
 	var surface_composition: Dictionary = {}
 	if body.has_surface():
@@ -253,3 +255,12 @@ static func _calculate_moon_properties(
 		moon_orbital_period,
 		parent_orbital_period
 	)
+
+
+## Returns true if the body is a gas giant or ice giant (no solid surface, mass >= 10 Earth).
+## Used to assign the Gas Giant biome instead of land-based biomes.
+static func _is_gas_giant_for_profile(body: CelestialBody) -> bool:
+	if body.physical == null or body.has_surface():
+		return false
+	var mass_earth: float = body.physical.mass_kg / Units.EARTH_MASS_KG
+	return mass_earth >= 10.0

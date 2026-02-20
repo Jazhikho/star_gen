@@ -149,6 +149,7 @@ star_gen/
 │   │   │
 │   │   └── viewer/
 │   │       ├── CameraController.gd
+│   │       ├── ObjectViewerMoonSystem.gd
 │   │       ├── EditDialog.gd              # Phase 4 deferred
 │   │       ├── EditDialog.tscn
 │   │       ├── InspectorPanel.gd

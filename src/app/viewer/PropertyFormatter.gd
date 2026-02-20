@@ -22,12 +22,12 @@ const _resource_type: GDScript = preload("res://src/domain/population/ResourceTy
 static func format_mass(mass_kg: float, body_type: CelestialType.Type) -> String:
 	match body_type:
 		CelestialType.Type.STAR:
-			return "%.3f Mâ˜‰" % (mass_kg / Units.SOLAR_MASS_KG)
+			return "%.3f M☉" % (mass_kg / Units.SOLAR_MASS_KG)
 		CelestialType.Type.PLANET, CelestialType.Type.MOON:
 			var earth_masses: float = mass_kg / Units.EARTH_MASS_KG
 			if earth_masses > 100:
 				return "%.2f MJ" % (mass_kg / 1.898e27)
-			return "%.4f MâŠ•" % earth_masses
+			return "%.4f M⊕" % earth_masses
 		_:
 			return format_scientific(mass_kg, "kg")
 
@@ -39,9 +39,9 @@ static func format_mass(mass_kg: float, body_type: CelestialType.Type) -> String
 static func format_radius(radius_m: float, body_type: CelestialType.Type) -> String:
 	match body_type:
 		CelestialType.Type.STAR:
-			return "%.3f Râ˜‰" % (radius_m / Units.SOLAR_RADIUS_METERS)
+			return "%.3f R☉" % (radius_m / Units.SOLAR_RADIUS_METERS)
 		CelestialType.Type.PLANET, CelestialType.Type.MOON:
-			return "%.4f RâŠ•" % (radius_m / Units.EARTH_RADIUS_METERS)
+			return "%.4f R⊕" % (radius_m / Units.EARTH_RADIUS_METERS)
 		_:
 			var km: float = radius_m / 1000.0
 			if km < 1.0:
@@ -68,7 +68,7 @@ static func format_distance(distance_m: float) -> String:
 static func format_luminosity(luminosity_watts: float) -> String:
 	var solar: float = luminosity_watts / 3.828e26
 	if solar > 0.01:
-		return "%.4f Lâ˜‰" % solar
+		return "%.4f L☉" % solar
 	return format_scientific(luminosity_watts, "W")
 
 
@@ -118,25 +118,23 @@ static func format_scientific(value: float, unit: String) -> String:
 	var mantissa: float = value / pow(10.0, exponent)
 	
 	var exp_str: String = format_superscript(exponent)
-	return "%.2f Ã— 10%s %s" % [mantissa, exp_str, unit]
+	return "%.2f × 10%s %s" % [mantissa, exp_str, unit]
 
 
 ## Converts an integer to superscript characters.
 ## @param num: The number to convert.
 ## @return: Superscript string.
 static func format_superscript(num: int) -> String:
+	# Unicode superscript digits and minus to avoid encoding issues
 	var superscripts: Dictionary = {
-		"0": "â°", "1": "Â¹", "2": "Â²", "3": "Â³", "4": "â´",
-		"5": "âµ", "6": "â¶", "7": "â·", "8": "â¸", "9": "â¹",
-		"-": "â»"
+		"0": "\u2070", "1": "\u00B9", "2": "\u00B2", "3": "\u00B3", "4": "\u2074",
+		"5": "\u2075", "6": "\u2076", "7": "\u2077", "8": "\u2078", "9": "\u2079",
+		"-": "\u207B"
 	}
-	
 	var num_str: String = str(num)
 	var result: String = ""
-	
-	for c in num_str:
+	for c: String in num_str:
 		result += superscripts.get(c, c)
-	
 	return result
 
 
