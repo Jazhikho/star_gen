@@ -108,7 +108,7 @@ func display_galaxy(spec: GalaxySpec, zoom_level: int) -> void:
 
 	var type_name: String = _get_galaxy_type_name(spec.galaxy_type)
 	_add_property(_overview_container, "Type", type_name)
-	_add_property(_overview_container, "Seed", str(spec.seed))
+	_add_property(_overview_container, "Seed", str(spec.galaxy_seed))
 
 	var radius_kpc: float = spec.radius_pc / 1000.0
 	_add_property(_overview_container, "Radius", "%.1f kpc" % radius_kpc)

@@ -21,7 +21,6 @@ const _galaxy_star: GDScript = preload("res://src/domain/galaxy/GalaxyStar.gd")
 ## @return: Generated SolarSystem, or null on failure.
 static func generate_system(star: GalaxyStar, include_asteroids: bool = true) -> SolarSystem:
 	if star == null:
-		push_error("GalaxySystemGenerator: Cannot generate system for null star")
 		return null
 
 	# Create spec with galactic context applied

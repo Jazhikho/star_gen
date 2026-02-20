@@ -204,7 +204,7 @@ func test_methane_ocean_colors() -> void:
 	var params: Dictionary = TerrestrialShaderParams.get_params(body)
 
 	var sea_shallow: Color = params["u_colSeaShallow"] as Color
-	var sea_deep: Color = params["u_colSeaDeep"] as Color
+	var _sea_deep: Color = params["u_colSeaDeep"] as Color
 
 	assert_true(sea_shallow.r > sea_shallow.b, "Methane sea should have warm tones")
 

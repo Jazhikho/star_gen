@@ -52,7 +52,7 @@ func _init(galaxy: Galaxy, p_quadrant_coords: Vector3i, p_sector_local_coords: V
 	sector_local_coords = p_sector_local_coords
 	world_origin = GalaxyCoordinates.sector_world_origin(quadrant_coords, sector_local_coords)
 	sector_seed = SeedDeriver.derive_sector_seed_full(
-		galaxy.seed, quadrant_coords, sector_local_coords
+		galaxy.galaxy_seed, quadrant_coords, sector_local_coords
 	)
 
 
@@ -123,7 +123,7 @@ func _generate_all_subsectors(galaxy: Galaxy) -> void:
 
 	# Generate using SubSectorGenerator
 	var star_data: SubSectorGenerator.SectorStarData = SubSectorGenerator.generate_sector_stars(
-		galaxy.seed,
+		galaxy.galaxy_seed,
 		quadrant_coords,
 		sector_local_coords,
 		galaxy.density_model,

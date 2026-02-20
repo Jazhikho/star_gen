@@ -136,8 +136,8 @@ static func generate(
 	# Setup RNG
 	if rng == null:
 		rng = RandomNumberGenerator.new()
-		if spec.seed != 0:
-			rng.seed = spec.seed
+		if spec.generation_seed != 0:
+			rng.seed = spec.generation_seed
 		else:
 			rng.randomize()
 	result.generation_seed = rng.seed

@@ -154,7 +154,7 @@ func test_validation_invalid_years() -> void:
 ## Tests serialization round-trip.
 func test_serialization_round_trip() -> void:
 	var original: StationSpec = StationSpec.new()
-	original.seed = 12345
+	original.generation_seed = 12345
 	original.generate_stations = true
 	original.force_context = StationPlacementContext.Context.COLONY_WORLD
 	original.min_stations = 2
@@ -170,7 +170,7 @@ func test_serialization_round_trip() -> void:
 	var data: Dictionary = original.to_dict()
 	var restored: StationSpec = StationSpec.from_dict(data)
 
-	assert_equal(restored.seed, original.seed)
+	assert_equal(restored.generation_seed, original.generation_seed)
 	assert_equal(restored.generate_stations, original.generate_stations)
 	# force_context restored as int (from serialization); compare as int values
 	assert_equal(restored.force_context as int, original.force_context as int)

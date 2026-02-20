@@ -131,7 +131,7 @@ func _ready() -> void:
 	_sector_cursor = GridCursor.new()
 
 	var rng: RandomNumberGenerator = RandomNumberGenerator.new()
-	rng.seed = _spec.seed
+	rng.seed = _spec.galaxy_seed
 
 	var sample: GalaxySample = DensitySampler.sample_galaxy(
 		_spec, num_points, rng
@@ -835,7 +835,7 @@ func _change_galaxy_seed(new_seed: int) -> void:
 	_spec = _galaxy.spec
 
 	var rng: RandomNumberGenerator = RandomNumberGenerator.new()
-	rng.seed = _spec.seed
+	rng.seed = _spec.galaxy_seed
 
 	var sample: GalaxySample = DensitySampler.sample_galaxy(
 		_spec, num_points, rng

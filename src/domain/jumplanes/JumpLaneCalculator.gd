@@ -97,10 +97,10 @@ func _try_threshold(
 	system: JumpLaneSystem,
 	candidates: Array[JumpLaneSystem],
 	threshold: float,
-	region: JumpLaneRegion,
+	_region: JumpLaneRegion,
 	result: JumpLaneResult,
 	connected_systems: Dictionary,
-	bridge_ids: Dictionary
+	_bridge_ids: Dictionary
 ) -> bool:
 	var target: JumpLaneSystem = _find_highest_populated_within(system, candidates, threshold)
 	if target != null:

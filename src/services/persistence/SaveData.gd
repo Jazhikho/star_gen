@@ -24,9 +24,9 @@ const SAVE_VERSION: int = 1
 
 ## Save mode enum
 enum SaveMode {
-	MINIMAL,    ## Only seed + type (for regeneration)
-	COMPACT,    ## Seed + spec + context (default)
-	FULL        ## Complete serialized body
+	MINIMAL, ## Only seed + type (for regeneration)
+	COMPACT, ## Seed + spec + context (default)
+	FULL ## Complete serialized body
 }
 
 ## Result of a load operation
@@ -61,7 +61,6 @@ static func save_body(
 	compress: bool = true
 ) -> Error:
 	if not body:
-		push_error("Cannot save null body")
 		return ERR_INVALID_PARAMETER
 	
 	var data: Dictionary = _create_save_data(body, mode)
@@ -188,7 +187,7 @@ static func _create_compact_data(body: CelestialBody) -> Dictionary:
 		# Extract context from spec_snapshot for non-star bodies
 		if body.type != CelestialType.Type.STAR and spec_snapshot.has("context"):
 			data["context"] = spec_snapshot["context"]
-			spec_snapshot.erase("context")  # Remove context from spec data
+			spec_snapshot.erase("context") # Remove context from spec data
 		
 		data["spec"] = spec_snapshot
 		data["generator_version"] = body.provenance.generator_version
@@ -227,7 +226,7 @@ static func _regenerate_body(data: Dictionary) -> CelestialBody:
 	var context_data: Dictionary = data.get("context", {})
 	if context_data.is_empty() and spec_data.has("context"):
 		context_data = spec_data["context"]
-		spec_data.erase("context")  # Remove context from spec before reconstructing
+		spec_data.erase("context") # Remove context from spec before reconstructing
 	
 	var rng: SeededRng = SeededRng.new(seed_val)
 	var body: CelestialBody = null
@@ -359,9 +358,9 @@ static func _save_compressed(path: String, data: Dictionary) -> Error:
 		return FileAccess.get_open_error()
 	
 	# Write magic header
-	file.store_string("SGBD")  # StarGen Body Data
+	file.store_string("SGBD") # StarGen Body Data
 	file.store_16(SAVE_VERSION)
-	file.store_32(bytes.size())  # Uncompressed size
+	file.store_32(bytes.size()) # Uncompressed size
 	file.store_buffer(compressed)
 	file.close()
 	

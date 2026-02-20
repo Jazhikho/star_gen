@@ -187,7 +187,7 @@ func _build_context() -> StationPlacementRules.SystemContext:
 func _build_spec() -> StationSpec:
 	var spec: StationSpec = StationSpec.new()
 
-	spec.seed = int(seed_spinbox.value)
+	spec.generation_seed = int(seed_spinbox.value)
 	spec.population_density = density_slider.value
 	spec.min_stations = int(min_stations_spinbox.value)
 	spec.max_stations = int(max_stations_spinbox.value)

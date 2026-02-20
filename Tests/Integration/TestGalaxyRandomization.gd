@@ -123,7 +123,7 @@ func test_determinism_same_seed_same_spec() -> void:
 	var spec1: GalaxySpec = galaxy_viewer.get_spec()
 	galaxy_viewer.apply_save_data(save_data)
 	var spec2: GalaxySpec = galaxy_viewer.get_spec()
-	assert_equal(spec1.seed, spec2.seed, "Spec seed should match")
+	assert_equal(spec1.galaxy_seed, spec2.galaxy_seed, "Spec seed should match")
 	assert_equal(spec1.radius_pc, spec2.radius_pc, "Spec radius should match")
 	assert_equal(spec1.num_arms, spec2.num_arms, "Spec arms should match")
 

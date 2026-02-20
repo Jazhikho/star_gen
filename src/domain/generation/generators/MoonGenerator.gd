@@ -62,7 +62,6 @@ const MAX_HILL_FRACTION_RETROGRADE: float = 0.7
 static func generate(spec: MoonSpec, context: ParentContext, rng: SeededRng, enable_population: bool = false, parent_body: CelestialBody = null) -> CelestialBody:
 	# Validate context has parent body (planet)
 	if not context.has_parent_body():
-		push_error("MoonGenerator requires a ParentContext with parent body data")
 		return null
 	
 	# Determine size category

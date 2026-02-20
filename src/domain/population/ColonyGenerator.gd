@@ -22,7 +22,7 @@ const _resource_type: GDScript = preload("res://src/domain/population/ResourceTy
 ## Specification for generating colonies.
 class ColonySpec:
 	## Seed for deterministic generation.
-	var seed: int = 0
+	var generation_seed: int = 0
 
 	## Colony type (or null to pick randomly based on suitability).
 	var colony_type: Variant = null # ColonyType.Type or null
@@ -126,7 +126,7 @@ static func generate(
 	)
 
 	colony.peak_population = roundi(colony.population * rng.randf_range(1.0, 1.3))
-	colony.peak_population_year = spec.current_year - rng.randi_range(0, years_elapsed / 4)
+	colony.peak_population_year = spec.current_year - rng.randi_range(0, int(years_elapsed / 4.0))
 
 	# Set territorial control
 	colony.territorial_control = _calculate_territorial_control(
@@ -159,7 +159,7 @@ static func generate(
 
 	# Possibly abandoned
 	if rng.randf() < 0.05 and years_elapsed > 100:
-		var abandon_year: int = spec.current_year - rng.randi_range(10, years_elapsed / 2)
+		var abandon_year: int = spec.current_year - rng.randi_range(10, int(years_elapsed / 2.0))
 		var reasons: Array[String] = ["resource depletion", "hostile conditions", "native conflict", "economic collapse", "unknown"]
 		colony.record_abandonment(abandon_year, reasons[rng.randi_range(0, reasons.size() - 1)])
 
@@ -185,7 +185,7 @@ static func _determine_colony_type(
 	var weights: Dictionary = {}
 
 	for i in range(ColonyType.count()):
-		var type: ColonyType.Type = i as ColonyType.Type
+		var _type: ColonyType.Type = i as ColonyType.Type
 		weights[i] = 1.0
 
 	# High suitability favors settlement
@@ -292,7 +292,7 @@ static func _project_colony_population(
 
 ## Calculates territorial control.
 static func _calculate_territorial_control(
-	profile: PlanetProfile,
+	_profile: PlanetProfile,
 	suitability: ColonySuitability,
 	existing_natives: Array[NativePopulation],
 	years: int,
@@ -419,23 +419,23 @@ static func _establish_native_relations(
 		if colony.colony_type == ColonyType.Type.SCIENTIFIC:
 			disposition += 20
 
-		var relation: NativeRelation = NativeRelation.create_first_contact(
+		var native_rel: NativeRelation = NativeRelation.create_first_contact(
 			native.id,
 			contact_year,
 			disposition
 		)
 
 		# Evolve the relationship over time
-		_evolve_native_relation(relation, colony, native, current_year, rng)
+		_evolve_native_relation(native_rel, colony, native, current_year, rng)
 
-		colony.set_native_relation(relation)
+		colony.set_native_relation(native_rel)
 
 
 ## Evolves a native relation over time.
 static func _evolve_native_relation(
 	relation: NativeRelation,
-	colony: Colony,
-	native: NativePopulation,
+	_colony_instance: Colony,
+	_native: NativePopulation,
 	current_year: int,
 	rng: SeededRng
 ) -> void:
@@ -444,7 +444,7 @@ static func _evolve_native_relation(
 		return
 
 	# Simulate events over time
-	var events_count: int = years_of_contact / 50 # Roughly one significant event per 50 years
+	var events_count: int = int(years_of_contact / 50.0) # Roughly one significant event per 50 years
 
 	for i in range(events_count):
 		var event_type: int = rng.randi_range(0, 10)
@@ -483,8 +483,8 @@ static func _evolve_native_relation(
 ## Adds native-related events to colony history.
 static func _add_native_events_to_history(
 	colony: Colony,
-	current_year: int,
-	rng: SeededRng
+	_current_year: int,
+	_rng: SeededRng
 ) -> void:
 	for relation in colony.native_relations.values():
 		var rel: NativeRelation = relation as NativeRelation

@@ -39,7 +39,6 @@ static func save_json(path: String, data: RefCounted) -> String:
 ## @return: GalaxySaveData instance (Variant) on success, null on failure.
 static func load_json(path: String) -> Variant:
 	if not FileAccess.file_exists(path):
-		push_error("File not found: %s" % path)
 		return null
 
 	var file: FileAccess = FileAccess.open(path, FileAccess.READ)
@@ -86,7 +85,7 @@ static func save_binary(path: String, data: RefCounted) -> String:
 
 	# Write magic header
 	file.store_string("SGG1")
-	file.store_32(bytes.size())  # Uncompressed size
+	file.store_32(bytes.size()) # Uncompressed size
 	file.store_buffer(compressed)
 	file.close()
 

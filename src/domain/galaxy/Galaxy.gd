@@ -16,7 +16,7 @@ const _galaxy_star: GDScript = preload("res://src/domain/galaxy/GalaxyStar.gd")
 
 
 ## The galaxy's master seed.
-var seed: int
+var galaxy_seed: int
 
 ## The galaxy specification (derived from config + seed).
 var spec: GalaxySpec
@@ -41,9 +41,9 @@ var _systems_cache: Dictionary = {}
 ## @param p_config: Galaxy configuration parameters.
 ## @param p_seed: Master seed for the galaxy.
 func _init(p_config: GalaxyConfig, p_seed: int) -> void:
-	seed = p_seed
+	galaxy_seed = p_seed
 	config = p_config if p_config != null else GalaxyConfig.create_default()
-	spec = GalaxySpec.create_from_config(config, seed)
+	spec = GalaxySpec.create_from_config(config, galaxy_seed)
 	density_model = DensityModelInterface.create_for_spec(spec)
 	reference_density = _compute_reference_density()
 
@@ -207,7 +207,7 @@ func _sector_key(quadrant_coords: Vector3i, sector_local_coords: Vector3i) -> St
 ## @return: Dictionary representation.
 func to_dict() -> Dictionary:
 	return {
-		"seed": seed,
+		"seed": galaxy_seed,
 		"config": config.to_dict() if config != null else {},
 	}
 

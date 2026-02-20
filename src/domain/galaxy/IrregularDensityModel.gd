@@ -40,7 +40,7 @@ func _init(spec: GalaxySpec) -> void:
 	
 	# Main structure noise - creates the overall blob shape
 	_structure_noise = FastNoiseLite.new()
-	_structure_noise.seed = spec.seed
+	_structure_noise.seed = spec.galaxy_seed
 	_structure_noise.noise_type = FastNoiseLite.TYPE_SIMPLEX_SMOOTH
 	_structure_noise.frequency = 0.0002 * spec.irregularity_scale
 	_structure_noise.fractal_type = FastNoiseLite.FRACTAL_FBM
@@ -50,7 +50,7 @@ func _init(spec: GalaxySpec) -> void:
 	
 	# Clump noise - creates star-forming regions
 	_clump_noise = FastNoiseLite.new()
-	_clump_noise.seed = spec.seed + 1000
+	_clump_noise.seed = spec.galaxy_seed + 1000
 	_clump_noise.noise_type = FastNoiseLite.TYPE_CELLULAR
 	_clump_noise.frequency = 0.0005 * spec.irregularity_scale
 	_clump_noise.cellular_distance_function = FastNoiseLite.DISTANCE_EUCLIDEAN
@@ -58,13 +58,13 @@ func _init(spec: GalaxySpec) -> void:
 	
 	# Asymmetry noise - distorts the shape
 	_asymmetry_noise = FastNoiseLite.new()
-	_asymmetry_noise.seed = spec.seed + 2000
+	_asymmetry_noise.seed = spec.galaxy_seed + 2000
 	_asymmetry_noise.noise_type = FastNoiseLite.TYPE_PERLIN
 	_asymmetry_noise.frequency = 0.00015 * spec.irregularity_scale
 	
 	# Generate random center offset based on seed
 	var rng: RandomNumberGenerator = RandomNumberGenerator.new()
-	rng.seed = spec.seed
+	rng.seed = spec.galaxy_seed
 	var offset_scale: float = spec.radius_pc * 0.15 * spec.irregularity_scale
 	_center_offset = Vector3(
 		rng.randf_range(-offset_scale, offset_scale),

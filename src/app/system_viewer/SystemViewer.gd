@@ -314,55 +314,12 @@ func display_system(system: SolarSystem) -> void:
 
 	_update_inspector_system()
 
-	_debug_system_layout()
 	_fit_camera_to_system()
 
 	if system.name and not system.name.is_empty():
 		set_status("Viewing: %s" % system.name)
 	else:
 		set_status("Generated: %s" % system.get_summary())
-
-
-## Prints layout debug information for the current system.
-func _debug_system_layout() -> void:
-	if not current_system or not current_layout:
-		print("[SystemViewer] No system/layout to debug")
-		return
-
-	print("=== System Layout Debug ===")
-	print("  Total extent: %.2f units" % current_layout.total_extent)
-	print("  Stars: %d, Planets: %d" % [current_system.star_ids.size(), current_system.planet_ids.size()])
-
-	for node_id in current_layout.node_extents:
-		var extent: SystemDisplayLayout.NodeExtent = current_layout.node_extents[node_id]
-		print("  NODE %s: extent=%.2f, inner=%.2f, first_orbit=%.2f, pos=%s, sep=%.2f, max_planet=%.2f" % [
-			node_id, extent.extent_radius, extent.inner_extent_radius,
-			extent.first_orbit_radius, extent.center_position, extent.binary_separation,
-			extent.max_planet_radius
-		])
-
-	for star in current_system.get_stars():
-		var layout: SystemDisplayLayout.BodyLayout = current_layout.get_body_layout(star.id)
-		var orbit: SystemDisplayLayout.BodyLayout = current_layout.get_star_orbit(star.id)
-		if layout:
-			var solar_radii: float = star.physical.radius_m / _units.SOLAR_RADIUS_METERS
-			var orbit_info: String = "no orbit"
-			if orbit and orbit.is_orbiting:
-				orbit_info = "orbits %s at r=%.2f" % [orbit.orbit_parent_id, orbit.orbit_radius]
-			print("  STAR %s: %.2f R☉ -> display=%.2f units, pos=%s, %s" % [
-				star.name, solar_radii, layout.display_radius, layout.position, orbit_info
-			])
-
-	for planet in current_system.get_planets():
-		var layout: SystemDisplayLayout.BodyLayout = current_layout.get_body_layout(planet.id)
-		if layout:
-			var earth_radii: float = planet.physical.radius_m / _units.EARTH_RADIUS_METERS
-			print("  PLANET %s: %.2f R⊕ -> display=%.2f units, orbit=%.2f units from %s, period=%.1fs" % [
-				planet.name, earth_radii, layout.display_radius, layout.orbit_radius,
-				layout.orbit_parent_id, layout.orbital_period
-			])
-
-	print("=============================")
 
 
 ## Fits the camera zoom to show the entire system.
@@ -394,9 +351,6 @@ func _fit_camera_to_system() -> void:
 	camera._target_pitch = deg_to_rad(60.0)
 	camera._yaw = 0.0
 	camera._smooth_target = Vector3.ZERO
-
-	print("[SystemViewer] Camera fitted to extent %.2f, height %.2f" % [max_extent, target_height])
-
 
 ## Clears the current display.
 func clear_display() -> void:

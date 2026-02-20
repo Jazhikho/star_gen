@@ -115,7 +115,7 @@ func test_different_seed_different_result() -> void:
 
 func test_elliptical_galaxy_no_disk() -> void:
 	var elliptical_spec: GalaxySpec = GalaxySpec.new()
-	elliptical_spec.seed = 100
+	elliptical_spec.galaxy_seed = 100
 	elliptical_spec.galaxy_type = GalaxySpec.GalaxyType.ELLIPTICAL
 	elliptical_spec.bulge_intensity = 1.0
 	elliptical_spec.bulge_radius_pc = 2000.0
@@ -132,7 +132,7 @@ func test_elliptical_galaxy_no_disk() -> void:
 
 func test_elliptical_galaxy_is_3d_not_flat() -> void:
 	var elliptical_spec: GalaxySpec = GalaxySpec.new()
-	elliptical_spec.seed = 300
+	elliptical_spec.galaxy_seed = 300
 	elliptical_spec.galaxy_type = GalaxySpec.GalaxyType.ELLIPTICAL
 	elliptical_spec.bulge_intensity = 1.0
 	elliptical_spec.bulge_radius_pc = 2000.0
@@ -156,7 +156,7 @@ func test_elliptical_galaxy_is_3d_not_flat() -> void:
 
 func test_irregular_galaxy_is_3d_not_flat() -> void:
 	var irregular_spec: GalaxySpec = GalaxySpec.new()
-	irregular_spec.seed = 400
+	irregular_spec.galaxy_seed = 400
 	irregular_spec.galaxy_type = GalaxySpec.GalaxyType.IRREGULAR
 	irregular_spec.bulge_intensity = 0.8
 	irregular_spec.radius_pc = 10000.0
@@ -183,7 +183,7 @@ func test_irregular_galaxy_is_3d_not_flat() -> void:
 
 func test_irregular_galaxy_has_both_populations() -> void:
 	var irregular_spec: GalaxySpec = GalaxySpec.new()
-	irregular_spec.seed = 200
+	irregular_spec.galaxy_seed = 200
 	irregular_spec.galaxy_type = GalaxySpec.GalaxyType.IRREGULAR
 	irregular_spec.bulge_intensity = 0.5
 	irregular_spec.bulge_radius_pc = 1500.0

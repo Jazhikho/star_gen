@@ -347,7 +347,7 @@ func test_generated_data_serialization() -> void:
 func test_create_default_spec() -> void:
 	var spec: PopulationGenerator.PopulationSpec = PopulationGenerator.PopulationSpec.create_default(42)
 
-	assert_equal(spec.seed, 42)
+	assert_equal(spec.generation_seed, 42)
 	assert_equal(spec.current_year, 0)
 	assert_true(spec.generate_natives)
 	assert_true(spec.generate_colonies)

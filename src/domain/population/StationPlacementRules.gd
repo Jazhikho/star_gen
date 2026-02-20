@@ -352,7 +352,7 @@ static func estimate_orbital_station_count(
 		return 0
 
 	# Base: 1 station per 10 million population, minimum 1
-	var base_count: int = maxi(1, population / 10_000_000)
+	var base_count: int = maxi(1, int(population / 10_000_000.0))
 
 	# Advanced tech supports more stations
 	if tech_level >= TechnologyLevel.Level.INTERSTELLAR:

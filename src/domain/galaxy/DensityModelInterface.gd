@@ -7,9 +7,9 @@ extends RefCounted
 
 
 ## Returns the un-normalised density at a position in parsec-space.
-## @param position: Galactic position (XZ plane, Y height).
+## @param _position: Galactic position (XZ plane, Y height).
 ## @return: Density >= 0 (not clamped to 1).
-func get_density(position: Vector3) -> float:
+func get_density(_position: Vector3) -> float:
 	push_error("DensityModelInterface.get_density() must be overridden")
 	return 0.0
 
@@ -23,11 +23,11 @@ func get_peak_density() -> float:
 
 ## Returns the arm modulation factor at a position (only meaningful for spirals).
 ## For non-spiral galaxies, returns 1.0 (no arm modulation).
-## @param r: Radial distance from center.
-## @param x: X coordinate.
-## @param z_pos: Z coordinate.
+## @param _r: Radial distance from center.
+## @param _x: X coordinate.
+## @param _z_pos: Z coordinate.
 ## @return: Arm factor in [0, 1].
-func get_arm_factor(r: float, x: float, z_pos: float) -> float:
+func get_arm_factor(_r: float, _x: float, _z_pos: float) -> float:
 	# Default: no arm modulation for non-spiral types
 	return 1.0
 

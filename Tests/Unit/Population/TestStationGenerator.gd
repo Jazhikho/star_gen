@@ -78,7 +78,7 @@ func test_generation_disabled() -> void:
 func test_generate_bridge_system() -> void:
 	var ctx: StationPlacementRules.SystemContext = _create_bridge_context()
 	var spec: StationSpec = StationSpec.new()
-	spec.seed = 12345
+	spec.generation_seed = 12345
 
 	var result: StationGenerator.GenerationResult = StationGenerator.generate(ctx, spec)
 
@@ -97,7 +97,7 @@ func test_generate_bridge_system() -> void:
 func test_generate_colony_system() -> void:
 	var ctx: StationPlacementRules.SystemContext = _create_colony_context()
 	var spec: StationSpec = StationSpec.new()
-	spec.seed = 12345
+	spec.generation_seed = 12345
 
 	var result: StationGenerator.GenerationResult = StationGenerator.generate(ctx, spec)
 
@@ -111,7 +111,7 @@ func test_generate_colony_system() -> void:
 func test_generate_resource_system() -> void:
 	var ctx: StationPlacementRules.SystemContext = _create_resource_context()
 	var spec: StationSpec = StationSpec.new()
-	spec.seed = 12345
+	spec.generation_seed = 12345
 
 	var result: StationGenerator.GenerationResult = StationGenerator.generate(ctx, spec)
 
@@ -134,7 +134,7 @@ func test_generate_resource_system() -> void:
 func test_generate_native_world() -> void:
 	var ctx: StationPlacementRules.SystemContext = _create_native_context()
 	var spec: StationSpec = StationSpec.new()
-	spec.seed = 12345
+	spec.generation_seed = 12345
 
 	var result: StationGenerator.GenerationResult = StationGenerator.generate(ctx, spec)
 
@@ -146,7 +146,7 @@ func test_generate_native_world() -> void:
 func test_generate_empty_system() -> void:
 	var ctx: StationPlacementRules.SystemContext = _create_empty_context()
 	var spec: StationSpec = StationSpec.new()
-	spec.seed = 12345
+	spec.generation_seed = 12345
 
 	var result: StationGenerator.GenerationResult = StationGenerator.generate(ctx, spec)
 
@@ -157,7 +157,7 @@ func test_generate_empty_system() -> void:
 func test_generate_empty_with_min_stations() -> void:
 	var ctx: StationPlacementRules.SystemContext = _create_empty_context()
 	var spec: StationSpec = StationSpec.new()
-	spec.seed = 12345
+	spec.generation_seed = 12345
 	spec.min_stations = 2
 
 	var result: StationGenerator.GenerationResult = StationGenerator.generate(ctx, spec)
@@ -169,7 +169,7 @@ func test_generate_empty_with_min_stations() -> void:
 func test_max_stations_limit() -> void:
 	var ctx: StationPlacementRules.SystemContext = _create_colony_context()
 	var spec: StationSpec = StationSpec.new()
-	spec.seed = 12345
+	spec.generation_seed = 12345
 	spec.max_stations = 1
 
 	var result: StationGenerator.GenerationResult = StationGenerator.generate(ctx, spec)
@@ -181,7 +181,7 @@ func test_max_stations_limit() -> void:
 func test_forced_context() -> void:
 	var ctx: StationPlacementRules.SystemContext = _create_empty_context()
 	var spec: StationSpec = StationSpec.for_context(StationPlacementContext.Context.RESOURCE_SYSTEM)
-	spec.seed = 12345
+	spec.generation_seed = 12345
 
 	var result: StationGenerator.GenerationResult = StationGenerator.generate(ctx, spec)
 
@@ -193,7 +193,7 @@ func test_forced_context() -> void:
 func test_determinism_same_seed() -> void:
 	var ctx: StationPlacementRules.SystemContext = _create_colony_context()
 	var spec: StationSpec = StationSpec.new()
-	spec.seed = 99999
+	spec.generation_seed = 99999
 
 	var result1: StationGenerator.GenerationResult = StationGenerator.generate(ctx, spec)
 	var result2: StationGenerator.GenerationResult = StationGenerator.generate(ctx, spec)
@@ -213,10 +213,10 @@ func test_determinism_different_seeds() -> void:
 	var ctx: StationPlacementRules.SystemContext = _create_colony_context()
 
 	var spec1: StationSpec = StationSpec.new()
-	spec1.seed = 11111
+	spec1.generation_seed = 11111
 
 	var spec2: StationSpec = StationSpec.new()
-	spec2.seed = 22222
+	spec2.generation_seed = 22222
 
 	var result1: StationGenerator.GenerationResult = StationGenerator.generate(ctx, spec1)
 	var result2: StationGenerator.GenerationResult = StationGenerator.generate(ctx, spec2)
@@ -229,7 +229,7 @@ func test_determinism_different_seeds() -> void:
 func test_no_utility_stations() -> void:
 	var ctx: StationPlacementRules.SystemContext = _create_bridge_context()
 	var spec: StationSpec = StationSpec.new()
-	spec.seed = 12345
+	spec.generation_seed = 12345
 	spec.allow_utility = false
 
 	var result: StationGenerator.GenerationResult = StationGenerator.generate(ctx, spec)
@@ -242,7 +242,7 @@ func test_no_utility_stations() -> void:
 func test_no_large_stations() -> void:
 	var ctx: StationPlacementRules.SystemContext = _create_colony_context()
 	var spec: StationSpec = StationSpec.new()
-	spec.seed = 12345
+	spec.generation_seed = 12345
 	spec.allow_large_stations = false
 
 	var result: StationGenerator.GenerationResult = StationGenerator.generate(ctx, spec)
@@ -255,7 +255,7 @@ func test_no_large_stations() -> void:
 func test_excluded_purposes() -> void:
 	var ctx: StationPlacementRules.SystemContext = _create_resource_context()
 	var spec: StationSpec = StationSpec.new()
-	spec.seed = 12345
+	spec.generation_seed = 12345
 	spec.excluded_purposes = [StationPurpose.Purpose.MINING]
 
 	var result: StationGenerator.GenerationResult = StationGenerator.generate(ctx, spec)
@@ -271,11 +271,11 @@ func test_population_density() -> void:
 	var ctx: StationPlacementRules.SystemContext = _create_colony_context()
 
 	var spec_normal: StationSpec = StationSpec.new()
-	spec_normal.seed = 12345
+	spec_normal.generation_seed = 12345
 	spec_normal.population_density = 1.0
 
 	var spec_dense: StationSpec = StationSpec.new()
-	spec_dense.seed = 12345
+	spec_dense.generation_seed = 12345
 	spec_dense.population_density = 2.0
 
 	var result_normal: StationGenerator.GenerationResult = StationGenerator.generate(ctx, spec_normal)
@@ -300,7 +300,7 @@ func test_population_density() -> void:
 func test_unique_ids() -> void:
 	var ctx: StationPlacementRules.SystemContext = _create_colony_context()
 	var spec: StationSpec = StationSpec.new()
-	spec.seed = 12345
+	spec.generation_seed = 12345
 	spec.min_stations = 5
 
 	var result: StationGenerator.GenerationResult = StationGenerator.generate(ctx, spec)
@@ -318,7 +318,7 @@ func test_unique_ids() -> void:
 func test_orbital_body_ids() -> void:
 	var ctx: StationPlacementRules.SystemContext = _create_colony_context()
 	var spec: StationSpec = StationSpec.new()
-	spec.seed = 12345
+	spec.generation_seed = 12345
 
 	var result: StationGenerator.GenerationResult = StationGenerator.generate(ctx, spec)
 
@@ -331,7 +331,7 @@ func test_orbital_body_ids() -> void:
 func test_large_stations_have_government() -> void:
 	var ctx: StationPlacementRules.SystemContext = _create_colony_context()
 	var spec: StationSpec = StationSpec.new()
-	spec.seed = 12345
+	spec.generation_seed = 12345
 
 	var result: StationGenerator.GenerationResult = StationGenerator.generate(ctx, spec)
 
@@ -345,7 +345,7 @@ func test_large_stations_have_government() -> void:
 func test_get_stations_for_body() -> void:
 	var ctx: StationPlacementRules.SystemContext = _create_colony_context()
 	var spec: StationSpec = StationSpec.new()
-	spec.seed = 12345
+	spec.generation_seed = 12345
 
 	var result: StationGenerator.GenerationResult = StationGenerator.generate(ctx, spec)
 
@@ -359,7 +359,7 @@ func test_get_stations_for_body() -> void:
 func test_result_to_dict() -> void:
 	var ctx: StationPlacementRules.SystemContext = _create_colony_context()
 	var spec: StationSpec = StationSpec.new()
-	spec.seed = 12345
+	spec.generation_seed = 12345
 
 	var result: StationGenerator.GenerationResult = StationGenerator.generate(ctx, spec)
 	var data: Dictionary = result.to_dict()
@@ -386,7 +386,7 @@ func test_invalid_spec_warnings() -> void:
 func test_decommission_chance() -> void:
 	var ctx: StationPlacementRules.SystemContext = _create_colony_context()
 	var spec: StationSpec = StationSpec.new()
-	spec.seed = 12345
+	spec.generation_seed = 12345
 	spec.decommission_chance = 0.5
 	spec.min_stations = 10
 
@@ -407,7 +407,7 @@ func test_decommission_chance() -> void:
 func test_establishment_years() -> void:
 	var ctx: StationPlacementRules.SystemContext = _create_colony_context()
 	var spec: StationSpec = StationSpec.new()
-	spec.seed = 12345
+	spec.generation_seed = 12345
 	spec.min_established_year = -100
 	spec.max_established_year = -10
 

@@ -22,7 +22,7 @@ const _parent_context: GDScript = preload("res://src/domain/generation/ParentCon
 ## Specification for full population generation.
 class PopulationSpec:
 	## Seed for deterministic generation.
-	var seed: int = 0
+	var generation_seed: int = 0
 
 	## Current year (0 = present, negative = past, positive = future).
 	var current_year: int = 0
@@ -49,7 +49,7 @@ class PopulationSpec:
 	## Creates default spec with reasonable settings.
 	static func create_default(p_seed: int = 0) -> PopulationSpec:
 		var spec: PopulationSpec = PopulationSpec.new()
-		spec.seed = p_seed
+		spec.generation_seed = p_seed
 		spec.current_year = 0
 		spec.generate_natives = true
 		spec.generate_colonies = true
@@ -80,10 +80,10 @@ static func generate(
 ) -> PlanetPopulationData:
 	var data: PlanetPopulationData = PlanetPopulationData.new()
 	data.body_id = body.id
-	data.generation_seed = spec.seed
+	data.generation_seed = spec.generation_seed
 
 	# Create RNG from seed
-	var rng: SeededRng = SeededRng.new(spec.seed)
+	var rng: SeededRng = SeededRng.new(spec.generation_seed)
 
 	# Generate profile
 	data.profile = ProfileGenerator.generate(body, context, parent_body)
@@ -119,11 +119,11 @@ static func generate_from_profile(
 ) -> PlanetPopulationData:
 	var data: PlanetPopulationData = PlanetPopulationData.new()
 	data.body_id = profile.body_id
-	data.generation_seed = spec.seed
+	data.generation_seed = spec.generation_seed
 	data.profile = profile
 
 	# Create RNG from seed
-	var rng: SeededRng = SeededRng.new(spec.seed)
+	var rng: SeededRng = SeededRng.new(spec.generation_seed)
 
 	# Generate suitability
 	data.suitability = SuitabilityCalculator.calculate(profile)
@@ -213,7 +213,7 @@ static func _generate_colonies(
 	# Generate each colony
 	for i in range(num_colonies):
 		var colony_spec: ColonyGenerator.ColonySpec = ColonyGenerator.ColonySpec.new()
-		colony_spec.seed = colony_rng.randi()
+		colony_spec.generation_seed = colony_rng.randi()
 		colony_spec.current_year = spec.current_year
 		colony_spec.min_history_years = 50
 		colony_spec.max_history_years = 500

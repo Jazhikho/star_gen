@@ -94,7 +94,7 @@ func test_home_position_is_in_expected_quadrant() -> void:
 	await _setup_viewer()
 
 	# The viewer should have pre-selected the home quadrant
-	var expected_quadrant: Vector3i = HomePosition.get_home_quadrant()
+	var _expected_quadrant: Vector3i = HomePosition.get_home_quadrant()
 
 	# We can verify by checking that zooming out maintains the selection
 	# For now, just verify the zoom level is correct

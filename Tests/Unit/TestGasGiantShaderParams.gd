@@ -126,11 +126,12 @@ func test_is_gas_giant_false_terrain() -> void:
 
 
 func test_saturn_temperature_colors() -> void:
-	var body: CelestialBody = _create_gas_giant(134.0, 0.098, 38340.0)
+	# Use 300 K so body is classified SATURN_CLASS (warm band); 134 K would classify as ice giant.
+	var body: CelestialBody = _create_gas_giant(300.0, 0.098, 38340.0)
 	var params: Dictionary = GasGiantShaderParams.get_params(body)
 
 	var band_light: Color = params["u_colBandLight"] as Color
-	assert_true(band_light.r > 0.8 and band_light.g > 0.7, "Saturn-temperature should have warm golden tones")
+	assert_true(band_light.r > 0.8 and band_light.g > 0.7, "Saturn-class should have warm golden tones")
 
 
 func test_uranus_temperature_colors() -> void:

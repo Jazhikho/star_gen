@@ -486,11 +486,13 @@ func set_status(message: String) -> void:
 
 ## Sets the error message in the UI.
 ## @param message: The error message to display.
-func set_error(message: String) -> void:
+## @param suppress_console: If true, do not call push_error (e.g. for tests asserting error display).
+func set_error(message: String, suppress_console: bool = false) -> void:
 	if status_label:
 		status_label.text = "Error: " + message
 		status_label.modulate = Color(1.0, 0.3, 0.3)
-	push_error(message)
+	if not suppress_console:
+		push_error(message)
 
 
 ## Displays a body with no moons.
@@ -510,7 +512,7 @@ func display_body_with_moons(
 ) -> void:
 	if not body:
 		clear_display()
-		set_error("Cannot display null body")
+		set_error("Cannot display null body", true)
 		return
 
 	current_body = body

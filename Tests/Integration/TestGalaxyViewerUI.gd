@@ -68,7 +68,7 @@ func test_has_spec() -> void:
 		return
 	var spec: GalaxySpec = _viewer.get_spec()
 	assert_not_null(spec, "Should have galaxy spec")
-	assert_equal(spec.seed, 42, "Should have correct seed")
+	assert_equal(spec.galaxy_seed, 42, "Should have correct seed")
 
 
 func test_status_updates() -> void:

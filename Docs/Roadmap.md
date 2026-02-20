@@ -322,3 +322,15 @@ Proposed changes that do not fit any existing effort are added as a **new effort
 **Tests:** Save/load round-trip; UI element existence; method availability.
 
 **Acceptance:** Save system → load system → identical system displayed. ✓
+
+### Code quality: shadowed/unused variables, debug prints (completed)
+
+**Goal:** Eliminate GDScript reload warnings and noisy console output.
+
+**Deliverables:**
+•	Renamed shadowed variables: `seed` → `galaxy_seed` (Galaxy, GalaxySpec) and `generation_seed` (PopulationSpec, ColonySpec, StationSpec); parameter `sector_world_origin` → `ref_sector_origin` in GalaxyCoordinates; `p_galaxy_seed` in GalaxySpec factory methods.
+•	Prefixed or removed unused parameters/variables (e.g. DensityModelInterface, ColonyGenerator, NativePopulationGenerator, JumpLaneCalculator); added getters for GalaxyStar sector coords.
+•	Removed debug prints from SystemViewer (`_debug_system_layout`, camera-fitted message).
+•	Tests: error-path tests no longer trigger `push_error` (GalaxyPersistence, SaveData, GalaxySystemGenerator, MoonGenerator, ObjectViewer `suppress_console`); fixed TestObjectViewer camera assertion and TestGasGiantShaderParams Saturn-class colors; integer division and assertion updates in tests.
+
+**Documentation:** GDD.md updated for GalaxyStar/seed property names; this roadmap entry.

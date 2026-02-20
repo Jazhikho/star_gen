@@ -66,7 +66,7 @@ Generated entities store provenance (seed, generator version, schema version, ti
 
 ### Level 3 output type: “stars-in-space” data (galaxy sampling)
 
-Galaxy generation uses the **Galaxy** data model (`src/domain/galaxy/Galaxy.gd`), which provides lazy sector and star generation. The primary output type is `GalaxyStar` (position, seed, metallicity, age bias). Low-level sampling returns:
+Galaxy generation uses the **Galaxy** data model (`src/domain/galaxy/Galaxy.gd`), which provides lazy sector and star generation. The primary output type is `GalaxyStar` (position, star_seed, metallicity, age bias). `Galaxy` and `GalaxySpec` use `galaxy_seed` for the master seed; population/station specs use `generation_seed`. Low-level sampling returns:
 
 - `SubSectorGenerator.SectorStarData` (`src/domain/galaxy/SubSectorGenerator.gd`)
   - `positions: PackedVector3Array` (world-space parsec coordinates)

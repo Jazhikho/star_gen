@@ -10,7 +10,7 @@ func get_test_name() -> String:
 func test_create_default() -> void:
 	var galaxy: Galaxy = Galaxy.create_default(42)
 	assert_not_null(galaxy, "Should create galaxy")
-	assert_equal(galaxy.seed, 42, "Seed should match")
+	assert_equal(galaxy.galaxy_seed, 42, "Seed should match")
 	assert_not_null(galaxy.spec, "Should have spec")
 	assert_not_null(galaxy.config, "Should have config")
 	assert_not_null(galaxy.density_model, "Should have density model")
@@ -21,7 +21,7 @@ func test_create_with_config() -> void:
 	var config: GalaxyConfig = GalaxyConfig.create_milky_way()
 	config.num_arms = 2
 	var galaxy: Galaxy = Galaxy.new(config, 123)
-	assert_equal(galaxy.seed, 123, "Seed should match")
+	assert_equal(galaxy.galaxy_seed, 123, "Seed should match")
 	assert_equal(galaxy.config.num_arms, 2, "Config should be applied")
 
 
@@ -124,7 +124,7 @@ func test_to_dict_and_from_dict() -> void:
 	assert_true(dict.has("config"), "Dict should contain config")
 
 	var restored: Galaxy = Galaxy.from_dict(dict)
-	assert_equal(restored.seed, 999, "Restored seed should match")
+	assert_equal(restored.galaxy_seed, 999, "Restored seed should match")
 	assert_equal(restored.config.num_arms, 3, "Restored config should match")
 
 

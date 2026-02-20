@@ -98,15 +98,15 @@ static func _determine_population_count(
 
 	# force_population guarantees at least one population (if life is possible)
 	if spec.force_population:
-		var count: int = 1
+		var force_count: int = 1
 
 		# Still roll for additional populations
-		var multi_chance: float = _calculate_multi_population_chance(profile)
-		while count < spec.max_populations and rng.randf() < multi_chance:
-			count += 1
-			multi_chance *= 0.5
+		var force_multi_chance: float = _calculate_multi_population_chance(profile)
+		while force_count < spec.max_populations and rng.randf() < force_multi_chance:
+			force_count += 1
+			force_multi_chance *= 0.5
 
-		return count
+		return force_count
 
 	# Normal path: roll for first population
 	if rng.randf() > life_chance:
@@ -193,7 +193,7 @@ static func _generate_single_population(
 
 	pop.population = _calculate_population(profile, pop, rng)
 	pop.peak_population = roundi(pop.population * rng.randf_range(1.0, 1.5))
-	pop.peak_population_year = spec.current_year - rng.randi_range(0, history_years / 4)
+	pop.peak_population_year = spec.current_year - rng.randi_range(0, int(history_years / 4.0))
 
 	pop.cultural_traits = _generate_cultural_traits(profile, pop.tech_level, rng)
 
@@ -206,7 +206,7 @@ static func _generate_single_population(
 	)
 
 	if rng.randf() < 0.1 and history_years > 10000:
-		var extinction_year: int = spec.current_year - rng.randi_range(100, history_years / 2)
+		var extinction_year: int = spec.current_year - rng.randi_range(100, int(history_years / 2.0))
 		var causes: Array[String] = ["climate change", "asteroid impact", "plague", "war", "unknown"]
 		pop.record_extinction(extinction_year, causes[rng.randi_range(0, causes.size() - 1)])
 
@@ -214,7 +214,7 @@ static func _generate_single_population(
 
 
 ## Generates a name for a population.
-static func _generate_population_name(rng: SeededRng, index: int) -> String:
+static func _generate_population_name(rng: SeededRng, _index: int) -> String:
 	var prefixes: Array[String] = [
 		"Ak", "El", "Vor", "Zan", "Kir", "Tor", "Mar", "Sol", "Vel", "Nor",
 		"Ar", "Eth", "Om", "Ur", "Ix", "Yl", "Qu", "Thal", "Krath", "Ven"
@@ -258,7 +258,7 @@ static func _determine_tech_level(
 ## Generates a government appropriate for the tech level and age.
 static func _generate_government(
 	tech_level: TechnologyLevel.Level,
-	age_years: int,
+	_age_years: int,
 	rng: SeededRng
 ) -> Government:
 	var gov: Government = Government.new()

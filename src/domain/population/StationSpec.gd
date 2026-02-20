@@ -10,7 +10,7 @@ const _station_placement_context: GDScript = preload("res://src/domain/populatio
 
 
 ## Seed for deterministic generation (0 = use system seed or random).
-var seed: int = 0
+var generation_seed: int = 0
 
 ## Whether to generate stations at all.
 var generate_stations: bool = true
@@ -172,7 +172,7 @@ func to_dict() -> Dictionary:
 		excluded_int.append(p as int)
 
 	var data: Dictionary = {
-		"seed": seed,
+		"seed": generation_seed,
 		"generate_stations": generate_stations,
 		"min_stations": min_stations,
 		"max_stations": max_stations,
@@ -204,7 +204,7 @@ func to_dict() -> Dictionary:
 static func from_dict(data: Dictionary) -> StationSpec:
 	var spec: StationSpec = StationSpec.new()
 
-	spec.seed = data.get("seed", 0) as int
+	spec.generation_seed = data.get("seed", 0) as int
 	spec.generate_stations = data.get("generate_stations", true) as bool
 	spec.min_stations = data.get("min_stations", 0) as int
 	spec.max_stations = data.get("max_stations", 0) as int

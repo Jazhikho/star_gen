@@ -172,14 +172,14 @@ static func parsec_to_hierarchy(position: Vector3) -> HierarchyCoords:
 
 ## Computes the world-space origin of a subsector given its relative offset
 ## from a reference sector origin.
-## @param sector_world_origin: World-space origin of the reference sector.
+## @param ref_sector_origin: World-space origin of the reference sector.
 ## @param subsector_offset: Subsector offset in grid units (can be outside 0-9 for border).
 ## @return: World-space origin of the subsector.
 static func subsector_offset_to_world(
-	sector_world_origin: Vector3,
+	ref_sector_origin: Vector3,
 	subsector_offset: Vector3i
 ) -> Vector3:
-	return sector_world_origin + Vector3(
+	return ref_sector_origin + Vector3(
 		float(subsector_offset.x) * SUBSECTOR_SIZE_PC,
 		float(subsector_offset.y) * SUBSECTOR_SIZE_PC,
 		float(subsector_offset.z) * SUBSECTOR_SIZE_PC

@@ -9,7 +9,7 @@ enum GalaxyType {SPIRAL, ELLIPTICAL, IRREGULAR}
 
 
 ## Master seed for the galaxy.
-var seed: int = 0
+var galaxy_seed: int = 0
 
 ## Morphological type.
 var galaxy_type: GalaxyType = GalaxyType.SPIRAL
@@ -55,11 +55,11 @@ var irregularity_scale: float = 0.5
 
 
 ## Creates a Milky-Way-like spiral galaxy spec.
-## @param galaxy_seed: Master seed for generation.
+## @param p_galaxy_seed: Master seed for generation.
 ## @return: A configured GalaxySpec.
-static func create_milky_way(galaxy_seed: int) -> GalaxySpec:
+static func create_milky_way(p_galaxy_seed: int) -> GalaxySpec:
 	var spec: GalaxySpec = GalaxySpec.new()
-	spec.seed = galaxy_seed
+	spec.galaxy_seed = p_galaxy_seed
 	spec.galaxy_type = GalaxyType.SPIRAL
 	spec.radius_pc = 15000.0
 	spec.height_pc = 1000.0
@@ -77,11 +77,11 @@ static func create_milky_way(galaxy_seed: int) -> GalaxySpec:
 
 ## Creates a galaxy spec from a configuration and seed.
 ## @param config: GalaxyConfig with customization parameters.
-## @param galaxy_seed: Master seed for generation.
+## @param p_galaxy_seed: Master seed for generation.
 ## @return: A configured GalaxySpec.
-static func create_from_config(config: GalaxyConfig, galaxy_seed: int) -> GalaxySpec:
+static func create_from_config(config: GalaxyConfig, p_galaxy_seed: int) -> GalaxySpec:
 	var spec: GalaxySpec = GalaxySpec.new()
-	spec.seed = galaxy_seed
+	spec.galaxy_seed = p_galaxy_seed
 	spec.galaxy_type = config.galaxy_type as GalaxyType
 	spec.radius_pc = config.radius_pc
 	spec.height_pc = config.radius_pc / 15.0

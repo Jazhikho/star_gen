@@ -113,6 +113,18 @@ func _calculate_age_bias(r_normalized: float, h: float, galaxy_spec: GalaxySpec)
 	return clampf(1.0 + bulge_factor + halo_factor + disk_factor, 0.5, 2.0)
 
 
+## Returns the sector quadrant coords (set by Sector during generation).
+## @return: Quadrant coordinates.
+func get_sector_quadrant() -> Vector3i:
+	return _sector_quadrant
+
+
+## Returns the sector local coords within quadrant (set by Sector during generation).
+## @return: Sector local coordinates.
+func get_sector_local() -> Vector3i:
+	return _sector_local
+
+
 ## Returns the distance from galactic center in parsecs.
 ## @return: Distance from origin.
 func get_distance_from_center() -> float:

@@ -89,7 +89,7 @@ func test_apply_to_spec() -> void:
 	config.num_arms = 5
 	config.radius_pc = 20000.0
 	var spec: GalaxySpec = GalaxySpec.new()
-	spec.seed = 12345
+	spec.galaxy_seed = 12345
 
 	config.apply_to_spec(spec)
 

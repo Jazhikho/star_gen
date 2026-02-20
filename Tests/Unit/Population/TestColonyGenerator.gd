@@ -72,7 +72,7 @@ func _create_test_native() -> NativePopulation:
 ## Creates a default spec.
 func _create_default_spec() -> ColonyGenerator.ColonySpec:
 	var spec: ColonyGenerator.ColonySpec = ColonyGenerator.ColonySpec.new()
-	spec.seed = 12345
+	spec.generation_seed = 12345
 	spec.current_year = 0
 	spec.min_history_years = 50
 	spec.max_history_years = 300
