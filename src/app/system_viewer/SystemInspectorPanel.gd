@@ -71,7 +71,21 @@ func display_system(system: SolarSystem) -> void:
 	_add_property(_overview_section, "Moons", str(system.get_moon_count()))
 	_add_property(_overview_section, "Asteroids", str(system.get_asteroid_count()))
 	_add_property(_overview_section, "Asteroid Belts", str(system.asteroid_belts.size()))
-	
+
+	# System-wide population summary.
+	# Totals are 0 when enable_population was not set during generation.
+	# Individual body detail is visible by selecting that body below.
+	_add_separator(_overview_section)
+	_add_header(_overview_section, "Population")
+	if system.is_inhabited():
+		_add_property(_overview_section, "Inhabited", "Yes")
+		_add_property(_overview_section, "Total Pop.", _property_formatter.format_population(system.get_total_population()))
+		_add_property(_overview_section, "  Native", _property_formatter.format_population(system.get_native_population()))
+		_add_property(_overview_section, "  Colony", _property_formatter.format_population(system.get_colony_population()))
+	else:
+		_add_property(_overview_section, "Inhabited", "No")
+		_add_property(_overview_section, "Total Pop.", "0")
+
 	# Star details
 	var stars: Array[CelestialBody] = system.get_stars()
 	if stars.size() > 0:

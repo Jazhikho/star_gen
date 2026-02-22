@@ -18,8 +18,11 @@ const _galaxy_star: GDScript = preload("res://src/domain/galaxy/GalaxyStar.gd")
 ## Generates a complete solar system from a GalaxyStar.
 ## @param star: The GalaxyStar to generate a system for.
 ## @param include_asteroids: Whether to generate asteroid belts.
+## @param enable_population: Whether to generate population data for planets.
+##   Set true when callers need get_total_population() / get_native_population() etc.
+##   Defaults to false to keep lazy galaxy generation cheap.
 ## @return: Generated SolarSystem, or null on failure.
-static func generate_system(star: GalaxyStar, include_asteroids: bool = true) -> SolarSystem:
+static func generate_system(star: GalaxyStar, include_asteroids: bool = true, enable_population: bool = false) -> SolarSystem:
 	if star == null:
 		return null
 
@@ -53,7 +56,7 @@ static func generate_system(star: GalaxyStar, include_asteroids: bool = true) ->
 
 	# Generate planets
 	var planet_result: SystemPlanetGenerator.PlanetGenerationResult = SystemPlanetGenerator.generate(
-		all_slots, hosts, stars, rng
+		all_slots, hosts, stars, rng, enable_population
 	)
 
 	for planet in planet_result.planets:
@@ -61,7 +64,7 @@ static func generate_system(star: GalaxyStar, include_asteroids: bool = true) ->
 
 	# Generate moons
 	var moon_result: SystemMoonGenerator.MoonGenerationResult = SystemMoonGenerator.generate(
-		planet_result.planets, hosts, stars, rng
+		planet_result.planets, hosts, stars, rng, enable_population
 	)
 
 	for moon in moon_result.moons:

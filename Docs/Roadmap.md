@@ -28,7 +28,7 @@ This roadmap builds StarGen in three layers: (1) viewable celestial objects (edi
 
 Verified against the codebase as of the last roadmap update.
 
-**Object layer:** Celestial object model (validation, serialization, persistence). Object generators (star, planet, moon, asteroid, ring system). Golden masters (28 fixtures). Object viewer (generate, inspect, save/load). Body rendering (stars, planets, gas giants, atmospheres, rings). Population framework (PlanetProfile, natives, colonies, history). Outposts and space stations (StationGenerator, placement rules, prototype).
+**Object layer:** Celestial object model (validation, serialization, persistence). Object generators (star, planet, moon, asteroid, ring system). Golden masters (28 fixtures). Object viewer (generate, inspect, save/load; population override: Auto/None/Natural populace/Colony for planet/moon). Body rendering (stars, planets, gas giants, atmospheres, rings). Population framework (PlanetProfile, PopulationLikelihood, natives, colonies, history). Outposts and space stations (StationGenerator, placement rules, prototype).
 
 **Solar system layer:** Data model (SolarSystem, SystemHierarchy, OrbitHost, AsteroidBelt). Orbital mechanics (Kepler, Hill sphere, Roche limit, resonances, stability). Stellar config generator. Orbit slot generator. Planet generation (SystemPlanetGenerator). Moon generation (SystemMoonGenerator). Asteroid belts (SystemAsteroidGenerator). Validation, serialization, persistence. Golden masters (10 system fixtures). System viewer (3D layout, orbit renderer, body nodes, inspector, link to object viewer). System display layout (sweep-based separation, no overlap in multi-star systems). Zone visualization, view toggles, generation UI.
 
@@ -272,7 +272,7 @@ Contributors pick an effort and work against master. Efforts can run in parallel
 
 **Goal:** Enrich the population framework with civilisation detail: tech level, regime type, and regime transitions. Use the Integration concept (`Concepts/Integration/`) and the History Generator concept (`Concepts/HistoryGenerator/`) as reference models so natives, colonies, and history can be driven by or displayed with tech levels and regimes.
 
-**Context:** The population framework (PlanetProfile, natives, colonies, history) exists in `src/domain/population/`. Code quality & simplifications calls out replacing the "civilization reference placeholder" when a Civilization model exists. The Integration concept app provides a single shared model: LEVELS (tech eras), TECHS (tree), REGIMES (with min/max tech level, coercion/capacity/inclusiveness), TRANSITIONS (allowed regime changes), and simulation logic (validRegimesForLevel, pickRegimeForLevel, history sim). The History Generator concept adds culture sim, regime transitions, and map visualization. This effort brings that model into the domain as population detail.
+**Context:** The population framework (PlanetProfile, PopulationLikelihood, natives, colonies, history) exists in `src/domain/population/`. Code quality & simplifications calls out replacing the "civilization reference placeholder" when a Civilization model exists. The Integration concept app provides a single shared model: LEVELS (tech eras), TECHS (tree), REGIMES (with min/max tech level, coercion/capacity/inclusiveness), TRANSITIONS (allowed regime changes), and simulation logic (validRegimesForLevel, pickRegimeForLevel, history sim). The History Generator concept adds culture sim, regime transitions, and map visualization. This effort brings that model into the domain as population detail.
 
 **Deliverables:**
 •	Domain model for civilisation detail: tech level (or level band), regime id, and optional sliders (coercion/capacity/inclusiveness) attachable to PlanetProfile, native population, or colony.
@@ -296,7 +296,7 @@ Proposed changes that do not fit any existing effort are added as a **new effort
 
 ## Merged frameworks (reference)
 
-**Population framework:** PlanetProfile, native populations, colonies, history; `src/domain/population/`; unit tests in `Tests/Unit/Population/`.
+**Population framework:** PlanetProfile, PopulationLikelihood, native populations, colonies, history; `src/domain/population/`; unit tests in `Tests/Unit/Population/`.
 
 **Outposts and space stations:** StationGenerator, StationPlacementRules, OutpostAuthority; prototype at `src/app/prototypes/StationGeneratorPrototype.tscn`.
 

@@ -128,7 +128,6 @@ func _run_single_test(instance: TestCase, method_name: String, script_path: Stri
 	var full_name: String = "%s::%s" % [script_path.get_file().get_basename(), method_name]
 	
 	test_started.emit(full_name)
-	print("Running: %s" % full_name)
 	
 	instance._reset_failure_state()
 	instance.before_each()
@@ -147,7 +146,6 @@ func _run_single_test_async(instance: TestCase, method_name: String, script_path
 	var full_name: String = "%s::%s" % [script_path.get_file().get_basename(), method_name]
 	
 	test_started.emit(full_name)
-	print("Running: %s" % full_name)
 	
 	instance._reset_failure_state()
 	instance.before_each()
@@ -180,6 +178,9 @@ func _record_result(full_name: String, instance: TestCase, start_time: int, end_
 	_total_count += 1
 	if passed:
 		_pass_count += 1
+		# Print slow tests (> 5s) to avoid flooding output
+		if time_ms > 5000:
+			print("Running: %s (%.1fs)" % [full_name, time_ms / 1000.0])
 		# Add dot to progress buffer
 		_progress_buffer += "."
 		# Flush every 50 dots to avoid huge lines

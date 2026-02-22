@@ -280,7 +280,8 @@ func generate_system(seed_value: int, min_stars: int = 1, max_stars: int = 1) ->
 	
 	var spec: SolarSystemSpec = SolarSystemSpec.new(seed_value, min_stars, max_stars)
 	
-	var system: SolarSystem = SystemFixtureGenerator.generate_system(spec)
+	# Generate with population data so inspector panel shows population stats.
+	var system: SolarSystem = SystemFixtureGenerator.generate_system(spec, true)
 	
 	if system:
 		display_system(system)

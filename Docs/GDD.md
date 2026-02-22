@@ -143,12 +143,15 @@ Core calculations:
 
 #### Planets (`PlanetGenerator`)
 
-- **Entrypoint**: `PlanetGenerator.generate(spec, context, rng)` (`src/domain/generation/generators/PlanetGenerator.gd`)
+- **Entrypoint**: `PlanetGenerator.generate(spec, context, rng, enable_population, population_override)` (`src/domain/generation/generators/PlanetGenerator.gd`)
+  - `enable_population` (bool, default false): if true, generate population data (profile, suitability, and optionally natives/colonies).
+  - `population_override` (int, default AUTO): `PopulationLikelihood.Override` — AUTO (likelihood vs deterministic seed), NONE, FORCE_NATIVES, FORCE_COLONY.
 - **Spec**: `PlanetSpec` (`src/domain/generation/specs/PlanetSpec.gd`)
 - **Sub-generators**
   - `PlanetPhysicalGenerator` (`src/domain/generation/generators/planet/PlanetPhysicalGenerator.gd`)
   - `PlanetAtmosphereGenerator` (`src/domain/generation/generators/planet/PlanetAtmosphereGenerator.gd`)
   - `PlanetSurfaceGenerator` (`src/domain/generation/generators/planet/PlanetSurfaceGenerator.gd`)
+- **Population** (when `enable_population` true): `PopulationLikelihood` (`src/domain/population/PopulationLikelihood.gd`) estimates likelihood from profile/suitability; a deterministic roll is derived from the body’s population seed; if roll < likelihood, natives and/or colony are generated via `PopulationGenerator`.
 - **Tables**
   - `SizeTable` (`src/domain/generation/tables/SizeTable.gd`)
   - `OrbitTable` (`src/domain/generation/tables/OrbitTable.gd`)
@@ -192,10 +195,15 @@ Core calculations:
    - If yes: `RingSystemGenerator.generate(...)` returns `RingSystemProps`.
 9. **Assemble `CelestialBody`**
    - Type PLANET; `orbital`, `atmosphere`, `surface`, and optional `ring_system` components set.
+10. **Population** (optional)
+   - If `enable_population` true: order-independent population seed from `PopulationSeeding.generate_population_seed(body.id, base_seed)`; profile and suitability always generated; then `PopulationLikelihood` (or override) decides natives/colony; `PopulationGenerator` produces `PlanetPopulationData` and body gets `population_data` set.
 
 #### Moons (`MoonGenerator`)
 
-- **Entrypoint**: `MoonGenerator.generate(spec, context, rng)` (`src/domain/generation/generators/MoonGenerator.gd`)
+- **Entrypoint**: `MoonGenerator.generate(spec, context, rng, enable_population, parent_body, population_override)` (`src/domain/generation/generators/MoonGenerator.gd`)
+  - `enable_population` (bool, default false): if true, generate population data.
+  - `parent_body` (optional): parent planet for population context (e.g. tidal heating).
+  - `population_override` (int, default AUTO): same as `PlanetGenerator` — `PopulationLikelihood.Override`.
 - **Spec**: `MoonSpec` (`src/domain/generation/specs/MoonSpec.gd`)
 - Requires `ParentContext.has_parent_body()` (i.e., must include planet data).
 
@@ -215,6 +223,7 @@ Core calculations:
 6. Surface temperature from equilibrium + greenhouse (same as planets).
 7. Surface generation (moons always get a surface component here) via `MoonSurfaceGenerator.generate_surface(...)`.
 8. Assemble `CelestialBody` type MOON.
+9. **Population** (optional): same as planets — if `enable_population` true, `PopulationLikelihood` / override and `PopulationGenerator` set `population_data`.
 
 #### Asteroids (`AsteroidGenerator`)
 
@@ -353,8 +362,9 @@ At this level, the generation is staged. The important “types” are:
 
 ### 2.3 Planets in slots (`SystemPlanetGenerator`)
 
-- **Entrypoint**: `SystemPlanetGenerator.generate(slots, orbit_hosts, stars, rng)` and `generate_targeted(...)`
+- **Entrypoint**: `SystemPlanetGenerator.generate(slots, orbit_hosts, stars, rng, enable_population)` and `generate_targeted(...)`
   - File: `src/domain/system/SystemPlanetGenerator.gd`
+  - `enable_population` (bool, default false): when true, planets get population data via `PlanetGenerator` (AUTO mode).
 
 **Core steps**
 
@@ -371,14 +381,15 @@ At this level, the generation is staged. The important “types” are:
    - Uses orbit host combined mass/luminosity/temp and a “system age” taken from the first star’s `stellar.age_years` (fallback 4.6e9).
 5. Generate planet body
    - `planet_rng = SeededRng.new(planet_seed)`
-   - `PlanetGenerator.generate(spec, context, planet_rng)`
+   - `PlanetGenerator.generate(spec, context, planet_rng, enable_population, population_override)` (override defaults to AUTO when called from system generator)
 6. Post-processing
    - Force deterministic ID: `planet.id = "planet_%s" % slot.id`
    - Set `planet.orbital.parent_id = host.node_id`
 
 ### 2.4 Moons (`SystemMoonGenerator`)
 
-- **Entrypoint**: `SystemMoonGenerator.generate(planets, orbit_hosts, stars, rng)` (`src/domain/system/SystemMoonGenerator.gd`)
+- **Entrypoint**: `SystemMoonGenerator.generate(planets, orbit_hosts, stars, rng, enable_population)` (`src/domain/system/SystemMoonGenerator.gd`)
+  - `enable_population` (bool, default false): when true, moons get population data (AUTO mode).
 
 **Core steps (high-level)**
 
@@ -388,7 +399,7 @@ At this level, the generation is staged. The important “types” are:
    - Compute Hill sphere: `OrbitalMechanics.calculate_hill_sphere(planet_mass, stellar_mass, planet_distance)`.
    - Choose moon orbital distances within a fraction of Hill sphere.
    - Mark some outer moons as captured.
-   - For each moon, create `MoonSpec` and `ParentContext.for_moon(...)` and call `MoonGenerator.generate(...)`.
+   - For each moon, create `MoonSpec` and `ParentContext.for_moon(...)` and call `MoonGenerator.generate(..., enable_population, planet, population_override)`.
 
 ### 2.5 Asteroid belts (`SystemAsteroidGenerator`)
 

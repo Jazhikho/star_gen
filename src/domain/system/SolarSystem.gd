@@ -23,7 +23,7 @@ var name: String
 var hierarchy: SystemHierarchy
 
 ## All celestial bodies indexed by ID for fast lookup.
-var bodies: Dictionary  # String -> CelestialBody
+var bodies: Dictionary # String -> CelestialBody
 
 ## IDs of all star bodies.
 var star_ids: Array[String]
@@ -183,6 +183,50 @@ func get_moon_count() -> int:
 ## @return: Number of asteroids.
 func get_asteroid_count() -> int:
 	return asteroid_ids.size()
+
+
+## Returns the total population (native + colony) across all bodies in the system.
+## Only bodies whose population_data has been generated contribute.
+## Returns 0 when enable_population was false during generation.
+## @return: Total population count.
+func get_total_population() -> int:
+	var total: int = 0
+	for body_id in bodies:
+		var body: CelestialBody = bodies[body_id] as CelestialBody
+		if body != null and body.has_population_data():
+			total += body.population_data.get_total_population()
+	return total
+
+
+## Returns the total native population across all bodies in the system.
+## Extinct native populations are excluded (matching PlanetPopulationData semantics).
+## @return: Total native population count.
+func get_native_population() -> int:
+	var total: int = 0
+	for body_id in bodies:
+		var body: CelestialBody = bodies[body_id] as CelestialBody
+		if body != null and body.has_population_data():
+			total += body.population_data.get_native_population()
+	return total
+
+
+## Returns the total colony population across all bodies in the system.
+## Abandoned colonies are excluded (matching PlanetPopulationData semantics).
+## @return: Total colony population count.
+func get_colony_population() -> int:
+	var total: int = 0
+	for body_id in bodies:
+		var body: CelestialBody = bodies[body_id] as CelestialBody
+		if body != null and body.has_population_data():
+			total += body.population_data.get_colony_population()
+	return total
+
+
+## Returns whether any body in the system has an active population.
+## Equivalent to get_total_population() > 0 but intention-revealing for callers.
+## @return: True if total population is greater than zero.
+func is_inhabited() -> bool:
+	return get_total_population() > 0
 
 
 ## Adds an asteroid belt to the system.

@@ -93,7 +93,7 @@ static func _get_fixture_configs() -> Array[FixtureConfig]:
 		BASE_SEED + 3,
 		1, 1,
 		[StarClass.SpectralClass.B],
-		false  # Hot stars may not have stable belts
+		false # Hot stars may not have stable belts
 	))
 	
 	# Binary - Equal mass
@@ -147,7 +147,7 @@ static func _get_fixture_configs() -> Array[FixtureConfig]:
 		BASE_SEED + 50,
 		10, 10,
 		[],
-		false  # Skip belts for simplicity
+		false # Skip belts for simplicity
 	))
 	
 	# Minimal system (single star, no belts)
@@ -189,8 +189,9 @@ static func _generate_fixture(config: FixtureConfig) -> Dictionary:
 
 ## Generates a complete solar system from spec.
 ## @param spec: System specification.
+## @param enable_population: If true, generate population data for planets/moons.
 ## @return: Generated SolarSystem, or null on failure.
-static func generate_system(spec: SolarSystemSpec) -> SolarSystem:
+static func generate_system(spec: SolarSystemSpec, enable_population: bool = false) -> SolarSystem:
 	var rng: SeededRng = SeededRng.new(spec.generation_seed)
 	
 	# Generate stellar configuration (returns SolarSystem with stars and hierarchy)
@@ -217,7 +218,8 @@ static func generate_system(spec: SolarSystemSpec) -> SolarSystem:
 		all_slots,
 		hosts,
 		stars,
-		rng
+		rng,
+		enable_population
 	)
 	
 	for planet in planet_result.planets:
@@ -228,7 +230,8 @@ static func generate_system(spec: SolarSystemSpec) -> SolarSystem:
 		planet_result.planets,
 		hosts,
 		stars,
-		rng
+		rng,
+		enable_population
 	)
 	
 	for moon in moon_result.moons:

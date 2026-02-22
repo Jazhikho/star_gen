@@ -3,6 +3,8 @@
 class_name GalaxyInspectorPanel
 extends VBoxContainer
 
+const _property_formatter: GDScript = preload("res://src/app/viewer/PropertyFormatter.gd")
+
 
 ## Emitted when user requests to open selected star as a system.
 signal open_system_requested(star_seed: int, world_position: Vector3)
@@ -230,6 +232,13 @@ func display_system_preview(preview: StarSystemPreview.PreviewData) -> void:
 
 	# Galactic context.
 	_add_property(_preview_container, "Metallicity", "%.2f Z☉" % preview.metallicity)
+
+	# Population summary.
+	if preview.is_inhabited:
+		_add_property(_preview_container, "Inhabited", "Yes")
+		_add_property(_preview_container, "Population", _property_formatter.format_population(preview.total_population))
+	else:
+		_add_property(_preview_container, "Inhabited", "No")
 
 
 ## Clears the current selection display.

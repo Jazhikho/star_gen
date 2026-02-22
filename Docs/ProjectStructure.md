@@ -475,6 +475,7 @@ star_gen/
     │   ├── TestSystemGoldenMasters.gd
     │   ├── TestSystemHierarchy.gd
     │   ├── TestSystemInspectorPanel.gd
+    │   ├── TestSolarSystemPopulation.gd
     │   ├── TestSystemMoonGenerator.gd
     │   ├── TestSystemPlanetGenerator.gd
     │   ├── TestSystemScaleManager.gd

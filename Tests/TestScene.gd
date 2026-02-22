@@ -63,6 +63,7 @@ var _test_scripts: Array[GDScript] = [
 	preload("res://Tests/Unit/TestOrbitHost.gd"),
 	preload("res://Tests/Unit/TestAsteroidBelt.gd"),
 	preload("res://Tests/Unit/TestSolarSystem.gd"),
+	preload("res://Tests/Unit/TestSolarSystemPopulation.gd"),
 	preload("res://Tests/Unit/TestOrbitalMechanics.gd"),
 	preload("res://Tests/Unit/TestSolarSystemSpec.gd"),
 	preload("res://Tests/Unit/TestStellarConfigGenerator.gd"),
@@ -191,7 +192,7 @@ func _ready() -> void:
 	var exit_code: int = 0 if _runner.get_fail_count() == 0 else 1
 	
 	# Pause so the summary is visible in the Output panel before quit
-	await get_tree().create_timer(1.0).timeout
+	await get_tree().create_timer(5.0).timeout
 	get_tree().quit(exit_code)
 
 

@@ -40,6 +40,14 @@ class PreviewData:
 	## Metallicity relative to solar (1.0 = solar).
 	var metallicity: float = 1.0
 
+	## Total population across all bodies (native + colony).
+	## 0 if uninhabited or population generation was skipped.
+	var total_population: int = 0
+
+	## Whether any body in the system is inhabited.
+	## Convenience flag matching system.is_inhabited().
+	var is_inhabited: bool = false
+
 	## The fully generated SolarSystem (cached for reuse when opening the system).
 	var system: SolarSystem = null
 
@@ -68,8 +76,8 @@ static func generate(
 		world_position, star_seed, galaxy_spec
 	)
 
-	# Run the full generation pipeline (same path used when opening the system).
-	var system: SolarSystem = GalaxySystemGenerator.generate_system(galaxy_star, true)
+	# Run the full generation pipeline with population enabled.
+	var system: SolarSystem = GalaxySystemGenerator.generate_system(galaxy_star, true, true)
 	if system == null:
 		return null
 
@@ -84,6 +92,10 @@ static func generate(
 	data.planet_count = system.get_planet_count()
 	data.moon_count = system.get_moon_count()
 	data.belt_count = system.asteroid_belts.size()
+
+	# Population summary.
+	data.total_population = system.get_total_population()
+	data.is_inhabited = system.is_inhabited()
 
 	# Extract stellar data for each star.
 	for star_body in system.get_stars():
