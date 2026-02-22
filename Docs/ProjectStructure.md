@@ -280,6 +280,7 @@ star_gen/
 │   │   │   ├── PlanetProfile.gd
 │   │   │   ├── PopulationGenerator.gd
 │   │   │   ├── PopulationHistory.gd
+│   │   │   ├── PopulationLikelihood.gd
 │   │   │   ├── PopulationProbability.gd
 │   │   │   ├── PopulationSeeding.gd
 │   │   │   ├── ProfileCalculations.gd
@@ -403,6 +404,7 @@ star_gen/
     │   │   ├── TestPlanetProfile.gd
     │   │   ├── TestPopulationGenerator.gd
     │   │   ├── TestPopulationHistory.gd
+    │   │   ├── TestPopulationLikelihood.gd
     │   │   ├── TestPopulationProbability.gd
     │   │   ├── TestPopulationSeeding.gd
     │   │   ├── TestProfileCalculations.gd

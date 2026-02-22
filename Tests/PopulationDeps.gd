@@ -25,6 +25,7 @@ const _planet_population_data: GDScript = preload("res://src/domain/population/P
 const _population_generator: GDScript = preload("res://src/domain/population/PopulationGenerator.gd")
 # Population integration (Phase 5: Population wiring)
 const _population_probability: GDScript = preload("res://src/domain/population/PopulationProbability.gd")
+const _population_likelihood: GDScript = preload("res://src/domain/population/PopulationLikelihood.gd")
 const _population_seeding: GDScript = preload("res://src/domain/population/PopulationSeeding.gd")
 # Station framework (outposts, space stations)
 const _station_class: GDScript = preload("res://src/domain/population/StationClass.gd")

@@ -23,6 +23,7 @@ const _units: GDScript = preload("res://src/domain/math/Units.gd")
 const _stellar_props: GDScript = preload("res://src/domain/celestial/components/StellarProps.gd")
 const _inspector_panel: GDScript = preload("res://src/app/viewer/InspectorPanel.gd")
 const _save_data: GDScript = preload("res://src/services/persistence/SaveData.gd")
+const _population_likelihood: GDScript = preload("res://src/domain/population/PopulationLikelihood.gd")
 
 # Rendering
 const _body_renderer: GDScript = preload("res://src/app/rendering/BodyRenderer.gd")
@@ -36,6 +37,8 @@ const _moon_system_script: GDScript = preload("res://src/app/viewer/ObjectViewer
 # Generation controls
 @onready var type_option: OptionButton = $UI/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/GenerationSection/TypeContainer/TypeOption
 @onready var seed_input: SpinBox = $UI/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/GenerationSection/SeedContainer/SeedInput
+@onready var population_container: HBoxContainer = $UI/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/GenerationSection/PopulationContainer
+@onready var population_option: OptionButton = $UI/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/GenerationSection/PopulationContainer/PopulationOption
 @onready var generate_button: Button = $UI/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/GenerationSection/ButtonContainer/GenerateButton
 @onready var reroll_button: Button = $UI/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/GenerationSection/ButtonContainer/RerollButton
 
@@ -151,20 +154,34 @@ func _setup_camera() -> void:
 func _setup_generation_ui() -> void:
 	if not type_option:
 		return
-	
+
 	# Populate type options
 	type_option.clear()
 	type_option.add_item("Star", ObjectType.STAR)
 	type_option.add_item("Planet", ObjectType.PLANET)
 	type_option.add_item("Moon", ObjectType.MOON)
 	type_option.add_item("Asteroid", ObjectType.ASTEROID)
-	
+
 	# Default to planet
 	type_option.selected = ObjectType.PLANET
-	
+
+	# Populate population override options (visible only for planet/moon)
+	if population_option:
+		population_option.clear()
+		population_option.add_item("Auto", _population_likelihood.Override.AUTO)
+		population_option.add_item("None", _population_likelihood.Override.NONE)
+		population_option.add_item("Natural populace", _population_likelihood.Override.FORCE_NATIVES)
+		population_option.add_item("Colony", _population_likelihood.Override.FORCE_COLONY)
+		population_option.selected = 0
+
+	if type_option:
+		type_option.item_selected.connect(_on_type_selected)
+
 	# Set initial seed
 	if seed_input:
 		seed_input.value = randi() % 1000000
+
+	_update_population_visibility()
 
 
 ## Sets up file dialogs.
@@ -207,6 +224,19 @@ func _connect_signals() -> void:
 		inspector_panel.moon_selected.connect(_on_inspector_moon_selected)
 
 
+## Handles type selection change; updates population option visibility.
+func _on_type_selected(_index: int) -> void:
+	_update_population_visibility()
+
+
+## Shows or hides the population override option based on object type.
+func _update_population_visibility() -> void:
+	if not population_container or not type_option:
+		return
+	var object_type: ObjectType = type_option.get_selected_id() as ObjectType
+	population_container.visible = object_type == ObjectType.PLANET or object_type == ObjectType.MOON
+
+
 ## Handles generate button press.
 func _on_generate_pressed() -> void:
 	if not type_option or not seed_input:
@@ -228,6 +258,14 @@ func _on_reroll_pressed() -> void:
 	_on_generate_pressed()
 
 
+## Returns the selected population override mode.
+## @return: PopulationLikelihood.Override value.
+func _get_population_override() -> int:
+	if not population_option or not population_container.visible:
+		return _population_likelihood.Override.AUTO
+	return population_option.get_selected_id() as int
+
+
 ## Generates a celestial object of the given type.
 ## For planets, also generates a small set of illustrative moons.
 ## @param object_type: The type of object to generate.
@@ -239,15 +277,17 @@ func generate_object(object_type: ObjectType, seed_value: int) -> void:
 
 	set_status("Generating %s with seed %d…" % [_get_type_name(object_type), seed_value])
 
+	var pop_override: int = _get_population_override()
+
 	match object_type:
 		ObjectType.STAR:
 			body = _generate_star(seed_value, rng)
 		ObjectType.PLANET:
-			body = _generate_planet(seed_value, rng)
+			body = _generate_planet(seed_value, rng, pop_override)
 			if body:
-				moons = _generate_moons_for_planet(body, seed_value, rng)
+				moons = _generate_moons_for_planet(body, seed_value, rng, pop_override)
 		ObjectType.MOON:
-			body = _generate_moon(seed_value, rng)
+			body = _generate_moon(seed_value, rng, pop_override)
 		ObjectType.ASTEROID:
 			body = _generate_asteroid(seed_value, rng)
 
@@ -273,11 +313,13 @@ func _generate_star(seed_value: int, rng: SeededRng) -> CelestialBody:
 ## Generates a planet from a random spec at 1 AU from a solar-type star.
 ## @param seed_value: Generation seed.
 ## @param rng: Seeded RNG.
+## @param population_override: PopulationLikelihood.Override for population mode.
 ## @return: Generated planet body.
-func _generate_planet(seed_value: int, rng: SeededRng) -> CelestialBody:
+func _generate_planet(seed_value: int, rng: SeededRng, population_override: int = 0) -> CelestialBody:
 	var spec: PlanetSpec = PlanetSpec.random(seed_value)
 	var context: ParentContext = ParentContext.sun_like()
-	return PlanetGenerator.generate(spec, context, rng, true)
+	var enable_pop: bool = population_override != _population_likelihood.Override.NONE
+	return PlanetGenerator.generate(spec, context, rng, enable_pop, population_override)
 
 
 ## Moon count ranges by planet mass category (aligned with SystemMoonGenerator).
@@ -296,11 +338,13 @@ const _MOON_COUNT_DWARF: Array = [0, 1, 0.05]
 ## @param planet: The generated planet body.
 ## @param base_seed: The planet's generation seed.
 ## @param rng: Planet's RNG (already advanced past planet generation).
+## @param population_override: PopulationLikelihood.Override for moon population mode.
 ## @return: Array of generated moon bodies, may be empty.
 func _generate_moons_for_planet(
 	planet: CelestialBody,
 	base_seed: int,
-	rng: SeededRng
+	rng: SeededRng,
+	population_override: int = 0
 ) -> Array[CelestialBody]:
 	var moons: Array[CelestialBody] = []
 	var earth_masses: float = planet.physical.mass_kg / Units.EARTH_MASS_KG
@@ -330,7 +374,8 @@ func _generate_moons_for_planet(
 		var moon_rng: SeededRng = SeededRng.new(moon_seed)
 		var spec: MoonSpec = MoonSpec.random(moon_seed)
 		spec.set_override("orbital.min_semi_major_axis_m", min_orbit_m)
-		var moon: CelestialBody = MoonGenerator.generate(spec, context, moon_rng, false)
+		var enable_moon_pop: bool = population_override != _population_likelihood.Override.NONE
+		var moon: CelestialBody = MoonGenerator.generate(spec, context, moon_rng, enable_moon_pop, planet, population_override)
 		if moon:
 			moon.name = "%s %s" % [planet.name, _to_roman(i + 1)]
 			moons.append(moon)
@@ -397,11 +442,9 @@ func _to_roman(n: int) -> String:
 ## Generates a standalone moon around a Jupiter-like parent.
 ## @param seed_value: Generation seed.
 ## @param rng: Seeded RNG.
+## @param population_override: PopulationLikelihood.Override for moon population mode.
 ## @return: Generated moon body.
-## @param seed_value: The generation seed.
-## @param rng: The random number generator.
-## @return: Generated moon body.
-func _generate_moon(seed_value: int, rng: SeededRng) -> CelestialBody:
+func _generate_moon(seed_value: int, rng: SeededRng, population_override: int = 0) -> CelestialBody:
 	var spec: MoonSpec = MoonSpec.random(seed_value)
 	# Create a Jupiter-like parent context
 	var context: ParentContext = ParentContext.for_moon(
@@ -414,7 +457,8 @@ func _generate_moon(seed_value: int, rng: SeededRng) -> CelestialBody:
 		6.9911e7, # Jupiter radius
 		5.0e8 # 500,000 km from Jupiter
 	)
-	return MoonGenerator.generate(spec, context, rng, true)
+	var enable_pop: bool = population_override != _population_likelihood.Override.NONE
+	return MoonGenerator.generate(spec, context, rng, enable_pop, null, population_override)
 
 
 ## Generates an asteroid.

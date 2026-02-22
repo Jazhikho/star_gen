@@ -118,8 +118,21 @@ func display_focused_moon(
 		_add_surface_properties(moon)
 
 	if moon.has_population_data():
+		_add_section("Population", true)
+		_add_population_summary_row(moon)
 		_add_section("Planet Profile", true)
 		_add_profile_properties(moon)
+
+		_add_section("Colony Suitability", true)
+		_add_suitability_properties(moon)
+
+		if moon.population_data.has_natives():
+			_add_section("Native Populations", true)
+			_add_native_properties(moon)
+
+		if moon.population_data.has_colonies():
+			_add_section("Colonies", true)
+			_add_colony_properties(moon)
 
 	if all_moons.size() > 1:
 		_add_moon_list_section(all_moons, moon)
@@ -219,6 +232,7 @@ func _add_back_to_planet_button(planet: CelestialBody) -> void:
 
 
 ## Adds all standard sections for a full body display.
+## Population sections are placed early so they are visible without scrolling.
 ## @param body: The body whose properties to display.
 func _add_body_sections(body: CelestialBody) -> void:
 	_add_section("Basic Info", true)
@@ -228,6 +242,23 @@ func _add_body_sections(body: CelestialBody) -> void:
 	_add_property("Name", name_val)
 	_add_property("Type", _format_type(body))
 	_add_property("ID", body.id)
+
+	if body.has_population_data():
+		_add_section("Population", true)
+		_add_population_summary_row(body)
+		_add_section("Planet Profile", true)
+		_add_profile_properties(body)
+
+		_add_section("Colony Suitability", true)
+		_add_suitability_properties(body)
+
+		if body.population_data.has_natives():
+			_add_section("Native Populations", true)
+			_add_native_properties(body)
+
+		if body.population_data.has_colonies():
+			_add_section("Colonies", true)
+			_add_colony_properties(body)
 
 	_add_section("Physical Properties", true)
 	_add_physical_properties(body)
@@ -251,21 +282,6 @@ func _add_body_sections(body: CelestialBody) -> void:
 	if body.has_ring_system():
 		_add_section("Ring System", true)
 		_add_ring_properties(body)
-
-	if body.has_population_data():
-		_add_section("Planet Profile", true)
-		_add_profile_properties(body)
-
-		_add_section("Colony Suitability", true)
-		_add_suitability_properties(body)
-
-		if body.population_data.has_natives():
-			_add_section("Native Populations", true)
-			_add_native_properties(body)
-
-		if body.population_data.has_colonies():
-			_add_section("Colonies", true)
-			_add_colony_properties(body)
 
 
 ## Adds a collapsible section header with content container.
@@ -512,6 +528,20 @@ func _add_ring_properties(body: CelestialBody) -> void:
 		_add_property("  Width", "%.0f km" % (band.get_width_m() / 1000.0))
 		_add_property("  Optical Depth", "%.3f" % band.optical_depth)
 		_add_property("  Particle Size", _property_formatter.format_particle_size(band.particle_size_m))
+
+
+## Adds a compact population summary row (habitability, status, total pop).
+## @param body: The celestial body with population data.
+func _add_population_summary_row(body: CelestialBody) -> void:
+	var pop_data: PlanetPopulationData = body.population_data
+	var parts: Array[String] = []
+	if pop_data.profile != null:
+		parts.append("Habitability %s" % _property_formatter.format_habitability(pop_data.profile.habitability_score))
+	parts.append(_property_formatter.format_political_situation(pop_data.get_political_situation()))
+	var total: int = pop_data.get_total_population()
+	if total > 0:
+		parts.append(_property_formatter.format_population(total))
+	_add_property("Summary", ", ".join(parts))
 
 
 ## Adds planet profile section content.
