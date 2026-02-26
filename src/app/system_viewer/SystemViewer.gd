@@ -18,9 +18,11 @@ const _celestial_type: GDScript = preload("res://src/domain/celestial/CelestialT
 const _system_display_layout: GDScript = preload("res://src/app/system_viewer/SystemDisplayLayout.gd")
 const _system_body_node_scene: PackedScene = preload("res://src/app/system_viewer/SystemBodyNode.tscn")
 const _orbit_renderer: GDScript = preload("res://src/app/system_viewer/OrbitRenderer.gd")
+const _belt_renderer_class: GDScript = preload("res://src/app/system_viewer/BeltRenderer.gd")
 const _save_load_class: GDScript = preload("res://src/app/system_viewer/SystemViewerSaveLoad.gd")
 const _orbit_host: GDScript = preload("res://src/domain/system/OrbitHost.gd")
 const _units: GDScript = preload("res://src/domain/math/Units.gd")
+const INVALID_POSITION: Vector3 = Vector3(1.0e20, 1.0e20, 1.0e20)
 
 ## UI element references
 @onready var status_label: Label = $UI/TopBar/MarginContainer/HBoxContainer/StatusLabel
@@ -63,6 +65,9 @@ var body_nodes: Dictionary = {}
 ## Orbit renderer instance
 var orbit_renderer: OrbitRenderer = null
 
+## Belt renderer instance.
+var belt_renderer: Node3D = null
+
 ## Whether the viewer is ready
 var is_ready: bool = false
 
@@ -79,6 +84,7 @@ func _ready() -> void:
 	_setup_generation_ui()
 	_setup_view_ui()
 	_setup_orbit_renderer()
+	_setup_belt_renderer()
 	_setup_save_load_ui()
 	_setup_tooltips()
 	_connect_signals()
@@ -147,6 +153,14 @@ func _setup_orbit_renderer() -> void:
 		orbit_renderer = OrbitRenderer.new()
 		orbit_renderer.name = "OrbitRenderer"
 		orbits_container.add_child(orbit_renderer)
+
+
+## Sets up belt renderer.
+func _setup_belt_renderer() -> void:
+	if bodies_container:
+		belt_renderer = _belt_renderer_class.new() as Node3D
+		belt_renderer.name = "BeltRenderer"
+		bodies_container.add_child(belt_renderer)
 
 
 ## Sets up save/load UI initial state.
@@ -257,12 +271,12 @@ func _on_show_zones_toggled(enabled: bool) -> void:
 
 ## Handles save button press.
 func _on_save_pressed() -> void:
-	_save_load.on_save_pressed(self)
+	_save_load.on_save_pressed(self )
 
 
 ## Handles load button press.
 func _on_load_pressed() -> void:
-	_save_load.on_load_pressed(self)
+	_save_load.on_load_pressed(self )
 
 
 ## Updates save button enabled state based on whether a system exists.
@@ -305,9 +319,11 @@ func display_system(system: SolarSystem) -> void:
 	_update_save_button_state()
 
 	_clear_orbits()
+	_clear_belts()
 	_clear_zones()
 
 	_create_body_nodes()
+	_create_belt_visualizations()
 	_create_orbit_visualizations()
 
 	if show_zones_check and show_zones_check.button_pressed:
@@ -361,13 +377,14 @@ func clear_display() -> void:
 
 	_clear_bodies()
 	_clear_orbits()
+	_clear_belts()
 	_clear_zones()
 	_update_save_button_state()
 
 	set_status("No system loaded")
 
 
-## Creates 3D nodes for all bodies in the system (stars and planets only; moons not displayed).
+## Creates 3D nodes for all displayed bodies (stars, planets, major asteroids).
 func _create_body_nodes() -> void:
 	if not current_system or not current_layout or not bodies_container:
 		return
@@ -377,6 +394,9 @@ func _create_body_nodes() -> void:
 
 	for planet in current_system.get_planets():
 		_create_body_node_from_layout(planet)
+
+	for asteroid in current_system.get_asteroids():
+		_create_major_asteroid_node(asteroid)
 
 
 ## Creates a 3D node for a single body using pre-calculated layout.
@@ -399,6 +419,76 @@ func _create_body_node_from_layout(body: CelestialBody) -> void:
 
 	bodies_container.add_child(body_node)
 	body_nodes[body.id] = body_node
+
+
+## Creates a 3D node for a major asteroid using belt layout display mapping.
+func _create_major_asteroid_node(asteroid: CelestialBody) -> void:
+	if not asteroid or not asteroid.has_orbital():
+		return
+	var asteroid_position: Vector3 = _get_major_asteroid_display_position(asteroid)
+	if asteroid_position == INVALID_POSITION:
+		return
+
+	var asteroid_display_radius: float = clampf(
+		SystemDisplayLayout.calculate_planet_display_radius(asteroid.physical.radius_m) * 0.4,
+		0.08,
+		0.28
+	)
+	var asteroid_node: SystemBodyNode = _system_body_node_scene.instantiate() as SystemBodyNode
+	if asteroid_node == null:
+		return
+	asteroid_node.setup(asteroid, asteroid_display_radius, asteroid_position)
+	asteroid_node.body_selected.connect(_on_body_clicked)
+	bodies_container.add_child(asteroid_node)
+	body_nodes[asteroid.id] = asteroid_node
+
+
+## Maps a major asteroid's AU orbit data to its belt display slot coordinates.
+## Returns INVALID_POSITION if no matching belt layout exists.
+func _get_major_asteroid_display_position(asteroid: CelestialBody) -> Vector3:
+	if not current_system or not current_layout:
+		return INVALID_POSITION
+
+	var matching_belt: AsteroidBelt = null
+	for belt in current_system.asteroid_belts:
+		if belt.major_asteroid_ids.has(asteroid.id):
+			matching_belt = belt
+			break
+	if matching_belt == null:
+		return INVALID_POSITION
+
+	var belt_layout: RefCounted = current_layout.get_belt_layout(matching_belt.id)
+	if belt_layout == null:
+		return INVALID_POSITION
+
+	var asteroid_au: float = asteroid.orbital.semi_major_axis_m / Units.AU_METERS
+	var band_au: float = maxf(0.001, belt_layout.outer_au - belt_layout.inner_au)
+	var radial_t: float = clampf((asteroid_au - belt_layout.inner_au) / band_au, 0.0, 1.0)
+	var display_radius: float = lerpf(
+		belt_layout.inner_display_radius,
+		belt_layout.outer_display_radius,
+		radial_t
+	)
+	var angle: float = deg_to_rad(asteroid.orbital.mean_anomaly_deg)
+	var incl_deg: float = clampf(absf(asteroid.orbital.inclination_deg), 0.0, belt_layout.max_inclination_deg)
+	var y_offset: float = sin(deg_to_rad(incl_deg)) * sin(angle) * display_radius
+
+	return belt_layout.host_center + Vector3(
+		cos(angle) * display_radius,
+		y_offset,
+		sin(angle) * display_radius
+	)
+
+
+## Creates belt torus and background asteroid visuals.
+func _create_belt_visualizations() -> void:
+	if not current_system or not current_layout or not belt_renderer:
+		return
+	var base_seed: int = 0
+	if current_system.provenance != null:
+		base_seed = current_system.provenance.generation_seed
+	if belt_renderer.has_method("render_belts"):
+		belt_renderer.call("render_belts", current_system, current_layout, base_seed)
 
 
 ## Creates orbit path visualizations for planets and stars.
@@ -464,6 +554,12 @@ func _clear_bodies() -> void:
 func _clear_orbits() -> void:
 	if orbit_renderer:
 		orbit_renderer.clear()
+
+
+## Clears belt visuals.
+func _clear_belts() -> void:
+	if belt_renderer and belt_renderer.has_method("clear"):
+		belt_renderer.call("clear")
 
 
 ## Clears all zone visualizations.

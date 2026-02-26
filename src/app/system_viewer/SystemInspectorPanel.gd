@@ -107,6 +107,20 @@ func display_system(system: SolarSystem) -> void:
 			]
 			_add_property(_overview_section, host.node_id, host_info)
 
+	# Asteroid belt info (true AU distances, independent of display spacing).
+	if system.asteroid_belts.size() > 0:
+		_add_separator(_overview_section)
+		_add_header(_overview_section, "Asteroid Belts")
+		for belt in system.asteroid_belts:
+			var belt_info: String = "%s | %.2f-%.2f AU | center %.2f AU | majors %d" % [
+				belt.get_composition_string(),
+				belt.inner_radius_m / Units.AU_METERS,
+				belt.outer_radius_m / Units.AU_METERS,
+				belt.get_center_au(),
+				belt.get_major_asteroid_count()
+			]
+			_add_property(_overview_section, belt.name, belt_info)
+
 
 ## Displays details for a selected body.
 ## @param body: The selected celestial body (null to clear).

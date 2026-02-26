@@ -1,0 +1,6 @@
+[gd_scene load_steps=2 format=3 uid="uid://c2egkqyl2buoj"]
+
+[ext_resource type="Script" path="res://Concepts/AsteroidBelt/Tests/ConceptTestScene.gd" id="1"]
+
+[node name="ConceptTestScene" type="Node"]
+script = ExtResource("1")

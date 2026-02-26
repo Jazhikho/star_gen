@@ -132,6 +132,7 @@ star_gen/
 │   │   │       └── noise.tres
 │   │   │
 │   │   ├── system_viewer/
+│   │   │   ├── BeltRenderer.gd
 │   │   │   ├── OrbitRenderer.gd
 │   │   │   ├── SystemBodyNode.gd
 │   │   │   ├── SystemBodyNode.tscn
@@ -253,6 +254,23 @@ star_gen/
 │   │   │   ├── JumpLaneRegion.gd
 │   │   │   ├── JumpLaneResult.gd
 │   │   │   └── JumpLaneSystem.gd
+│   │   │
+│   │   ├── asteroid_belt_concept/
+│   │   │   ├── AsteroidBeltDataConcept.gd
+│   │   │   ├── AsteroidBeltGeneratorConcept.gd
+│   │   │   ├── AsteroidBeltSpecConcept.gd
+│   │   │   ├── AsteroidDataConcept.gd
+│   │   │   ├── MajorAsteroidInputConcept.gd
+│   │   │   └── OrbitalMathConcept.gd
+│   │   │
+│   │   ├── system/
+│   │   │   ├── asteroid_belt/
+│   │   │   │   ├── BeltAsteroidData.gd
+│   │   │   │   ├── BeltFieldData.gd
+│   │   │   │   ├── BeltFieldGenerator.gd
+│   │   │   │   ├── BeltFieldSpec.gd
+│   │   │   │   ├── BeltMajorAsteroidInput.gd
+│   │   │   │   └── BeltOrbitalMath.gd
 │   │   │
 │   │   ├── math/
 │   │   │   ├── MathUtils.gd
@@ -426,6 +444,8 @@ star_gen/
     │   ├── TestAtmosphereProps.gd
     │   ├── TestAtmosphereShaderParams.gd
     │   ├── TestBaseSpec.gd
+    │   ├── TestBeltFieldGenerator.gd
+    │   ├── TestBeltOrbitalMath.gd
     │   ├── TestCelestialBody.gd
     │   ├── TestCelestialSerializer.gd
     │   ├── TestCelestialValidator.gd
@@ -484,6 +504,20 @@ star_gen/
     │   ├── TestUnits.gd
     │   ├── TestValidation.gd
     │   └── TestVersions.gd
+    │
+    ├── concept/
+    │   ├── BeltViewerCameraController.gd
+    │   ├── BeltViewerRenderer.gd
+    │   ├── BeltViewerScene.gd
+    │   ├── BeltViewerScene.tscn
+    │   ├── BeltViewerUI.gd
+    │   ├── ConceptDeps.gd
+    │   ├── ConceptHeadlessRunnerNode.gd
+    │   ├── ConceptTestScene.gd
+    │   ├── ConceptTestScene.tscn
+    │   ├── RunConceptTestsHeadless.gd
+    │   ├── TestAsteroidBeltGeneratorConcept.gd
+    │   └── TestOrbitalMathConcept.gd
     │
     ├── JumpLanesDeps.gd
     ├── JumpLanesTestRunner.gd

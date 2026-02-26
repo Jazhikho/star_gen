@@ -6,6 +6,7 @@ const _system_viewer_scene: PackedScene = preload("res://src/app/system_viewer/S
 const _system_viewer: GDScript = preload("res://src/app/system_viewer/SystemViewer.gd")
 const _system_camera_controller: GDScript = preload("res://src/app/system_viewer/SystemCameraController.gd")
 const _system_inspector_panel: GDScript = preload("res://src/app/system_viewer/SystemInspectorPanel.gd")
+const _belt_renderer: GDScript = preload("res://src/app/system_viewer/BeltRenderer.gd")
 
 
 func get_test_name() -> String:
@@ -168,3 +169,16 @@ func test_body_node_scene_loads() -> void:
 	assert_not_null(node, "SystemBodyNode should instantiate")
 	assert_true(node is Node3D, "Should be Node3D")
 	node.free()
+
+
+## Verifies the belt renderer script loads.
+func test_belt_renderer_script_loads() -> void:
+	assert_not_null(_belt_renderer, "BeltRenderer script should load")
+
+
+## Verifies the system viewer exposes asteroid-selection helper methods.
+func test_viewer_has_major_asteroid_helpers() -> void:
+	var viewer: Node = _system_viewer_scene.instantiate()
+	assert_true(viewer.has_method("_create_major_asteroid_node"), "Viewer should create major asteroid nodes")
+	assert_true(viewer.has_method("_get_major_asteroid_display_position"), "Viewer should map major asteroid display positions")
+	viewer.free()

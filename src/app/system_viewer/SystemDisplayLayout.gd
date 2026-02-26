@@ -11,6 +11,7 @@ const _hierarchy_node: GDScript = preload("res://src/domain/system/HierarchyNode
 const _system_hierarchy: GDScript = preload("res://src/domain/system/SystemHierarchy.gd")
 const _orbit_host: GDScript = preload("res://src/domain/system/OrbitHost.gd")
 const _solar_system: GDScript = preload("res://src/domain/system/SolarSystem.gd")
+const _asteroid_belt: GDScript = preload("res://src/domain/system/AsteroidBelt.gd")
 
 
 ## Base display radius for a 1 solar radius star (in Godot units).
@@ -99,6 +100,53 @@ class BodyLayout:
 			)
 
 
+## Calculated layout data for an asteroid belt.
+class BeltLayout:
+	extends RefCounted
+
+	## Belt ID.
+	var belt_id: String
+
+	## Orbit host ID.
+	var host_id: String
+
+	## Host center in display coordinates.
+	var host_center: Vector3
+
+	## Belt center radius in display units.
+	var center_display_radius: float
+
+	## Inner belt radius in display units.
+	var inner_display_radius: float
+
+	## Outer belt radius in display units.
+	var outer_display_radius: float
+
+	## Belt center in AU.
+	var center_au: float
+
+	## Belt inner edge in AU.
+	var inner_au: float
+
+	## Belt outer edge in AU.
+	var outer_au: float
+
+	## Maximum inclination for rendering particles.
+	var max_inclination_deg: float
+
+	func _init(p_belt_id: String = "") -> void:
+		belt_id = p_belt_id
+		host_id = ""
+		host_center = Vector3.ZERO
+		center_display_radius = 0.0
+		inner_display_radius = 0.0
+		outer_display_radius = 0.0
+		center_au = 0.0
+		inner_au = 0.0
+		outer_au = 0.0
+		max_inclination_deg = 6.0
+
+
 ## Intermediate data for calculating node extents.
 class NodeExtent:
 	extends RefCounted
@@ -168,6 +216,9 @@ class SystemLayout:
 	## Body layouts by ID.
 	var body_layouts: Dictionary # body_id -> BodyLayout
 
+	## Belt layouts by belt ID.
+	var belt_layouts: Dictionary # belt_id -> BeltLayout
+
 	## Star orbit data for binary stars (star_id -> BodyLayout with orbit info).
 	var star_orbits: Dictionary # star_id -> BodyLayout
 
@@ -185,6 +236,7 @@ class SystemLayout:
 
 	func _init() -> void:
 		body_layouts = {}
+		belt_layouts = {}
 		star_orbits = {}
 		node_extents = {}
 		host_positions = {}
@@ -194,6 +246,10 @@ class SystemLayout:
 	## Gets layout for a body, or null if not found.
 	func get_body_layout(body_id: String) -> BodyLayout:
 		return body_layouts.get(body_id) as BodyLayout
+
+	## Gets layout for a belt, or null if not found.
+	func get_belt_layout(belt_id: String) -> BeltLayout:
+		return belt_layouts.get(belt_id) as BeltLayout
 
 	## Gets orbit data for a star (if it orbits a barycenter).
 	func get_star_orbit(star_id: String) -> BodyLayout:
@@ -220,6 +276,14 @@ class SystemLayout:
 			var layout: BodyLayout = star_orbits[star_id]
 			if layout.is_orbiting:
 				result.append(layout)
+		return result
+
+	## Gets all belt layouts.
+	func get_all_belts() -> Array[BeltLayout]:
+		var result: Array[BeltLayout] = []
+		for belt_id in belt_layouts:
+			var layout: BeltLayout = belt_layouts[belt_id]
+			result.append(layout)
 		return result
 
 
@@ -292,6 +356,15 @@ static func calculate_orbital_period(orbit_radius: float) -> float:
 	return BASE_ORBITAL_PERIOD * pow(normalized_radius, ORBITAL_PERIOD_EXPONENT)
 
 
+## Calculates max belt inclination from display orbit distance.
+## Closer belts are flatter; distant belts can be thicker.
+static func calculate_belt_max_inclination_deg(orbit_radius: float) -> float:
+	var min_inclination: float = 2.0
+	var max_inclination: float = 24.0
+	var t: float = clampf((orbit_radius - 10.0) / 40.0, 0.0, 1.0)
+	return lerpf(min_inclination, max_inclination, t)
+
+
 ## Calculates complete layout for a solar system.
 ## @param system: The solar system to layout.
 ## @return: SystemLayout with all positions and sizes.
@@ -302,11 +375,13 @@ static func calculate_layout(system: SolarSystem) -> SystemLayout:
 		return layout
 
 	var planets_by_host: Dictionary = _group_planets_by_host(system)
+	var belts_by_host: Dictionary = _group_belts_by_host(system)
+	var host_content_counts: Dictionary = _calculate_host_content_counts(planets_by_host, belts_by_host)
 	var max_planet_radii: Dictionary = _calculate_max_planet_radii(system, planets_by_host)
 
-	_calculate_node_extents(system.hierarchy.root, system, planets_by_host, max_planet_radii, layout)
+	_calculate_node_extents(system.hierarchy.root, system, host_content_counts, max_planet_radii, layout)
 	_position_hierarchy_node(system.hierarchy.root, Vector3.ZERO, null, system, planets_by_host, layout)
-	_position_planets(system, planets_by_host, layout)
+	_position_orbit_content(system, planets_by_host, belts_by_host, layout)
 
 	_calculate_total_extent(layout)
 	return layout
@@ -337,6 +412,34 @@ static func _group_planets_by_host(system: SolarSystem) -> Dictionary:
 		)
 
 	return planets_by_host
+
+
+## Groups asteroid belts by orbit host and sorts by center distance.
+static func _group_belts_by_host(system: SolarSystem) -> Dictionary:
+	var belts_by_host: Dictionary = {}
+	for belt in system.asteroid_belts:
+		var host_id: String = belt.orbit_host_id
+		if not belts_by_host.has(host_id):
+			belts_by_host[host_id] = []
+		belts_by_host[host_id].append(belt)
+
+	for host_id in belts_by_host:
+		var belts: Array = belts_by_host[host_id]
+		belts.sort_custom(func(a: AsteroidBelt, b: AsteroidBelt) -> bool:
+			return a.get_center_m() < b.get_center_m()
+		)
+
+	return belts_by_host
+
+
+## Calculates total orbit content count (planets + belts) per host.
+static func _calculate_host_content_counts(planets_by_host: Dictionary, belts_by_host: Dictionary) -> Dictionary:
+	var counts: Dictionary = {}
+	for host_id in planets_by_host:
+		counts[host_id] = (counts.get(host_id, 0) as int) + (planets_by_host[host_id] as Array).size()
+	for host_id in belts_by_host:
+		counts[host_id] = (counts.get(host_id, 0) as int) + (belts_by_host[host_id] as Array).size()
+	return counts
 
 
 ## Finds the orbit host ID for a planet.
@@ -383,7 +486,7 @@ static func _calculate_max_planet_radii(_system: SolarSystem, planets_by_host: D
 static func _calculate_node_extents(
 	node: HierarchyNode,
 	system: SolarSystem,
-	planets_by_host: Dictionary,
+	host_content_counts: Dictionary,
 	max_planet_radii: Dictionary,
 	layout: SystemLayout
 ) -> float:
@@ -411,8 +514,7 @@ static func _calculate_node_extents(
 			extent.star_display_radius = star_display
 			extent.first_orbit_radius = first_orbit
 
-			var stype_planets: Array = planets_by_host.get(node.id, [])
-			extent.stype_planet_count = stype_planets.size()
+			extent.stype_planet_count = host_content_counts.get(node.id, 0) as int
 
 			if extent.stype_planet_count > 0:
 				var outermost_orbit: float = calculate_nth_orbit_radius(
@@ -428,7 +530,7 @@ static func _calculate_node_extents(
 	else:
 		var child_extents: Array[float] = []
 		for child in node.children:
-			var child_extent_val: float = _calculate_node_extents(child, system, planets_by_host, max_planet_radii, layout)
+			var child_extent_val: float = _calculate_node_extents(child, system, host_content_counts, max_planet_radii, layout)
 			child_extents.append(child_extent_val)
 
 		var child_extent_objects: Array[NodeExtent] = []
@@ -490,8 +592,7 @@ static func _calculate_node_extents(
 				max_distance_to_edge = maxf(max_distance_to_edge, ce + separation / 2.0)
 			extent.inner_extent_radius = max_distance_to_edge
 
-		var ptype_planets: Array = planets_by_host.get(node.id, [])
-		extent.ptype_planet_count = ptype_planets.size()
+		extent.ptype_planet_count = host_content_counts.get(node.id, 0) as int
 
 		extent.first_orbit_radius = extent.inner_extent_radius + extent.max_planet_radius + PTYPE_BUFFER_GAP
 
@@ -617,51 +718,95 @@ static func _get_node_mass(node: HierarchyNode, system: SolarSystem) -> float:
 		return total
 
 
-## Positions all planets around their orbit hosts.
-## @param system: The solar system.
-## @param planets_by_host: Pre-grouped planets.
-## @param layout: Layout being built.
-static func _position_planets(
+## Positions planets and belts around each host using shared display slot spacing.
+static func _position_orbit_content(
 	_system: SolarSystem,
 	planets_by_host: Dictionary,
+	belts_by_host: Dictionary,
 	layout: SystemLayout
 ) -> void:
+	var all_hosts: Dictionary = {}
 	for host_id in planets_by_host:
-		var planets: Array = planets_by_host[host_id]
-		if planets.is_empty():
-			continue
+		all_hosts[host_id] = true
+	for host_id in belts_by_host:
+		all_hosts[host_id] = true
 
+	for host_id in all_hosts:
 		var host_center: Vector3 = layout.get_host_position(host_id)
 		var host_extent: NodeExtent = layout.get_node_extent(host_id)
-
 		if host_extent == null:
 			push_warning("No extent found for host: %s" % host_id)
 			continue
 
 		var first_orbit_radius: float = host_extent.first_orbit_radius
+		var entries: Array = []
+		var planets: Array = planets_by_host.get(host_id, [])
+		var belts: Array = belts_by_host.get(host_id, [])
 
-		for i in range(planets.size()):
-			var planet: CelestialBody = planets[i]
-			var planet_layout: BodyLayout = BodyLayout.new(planet.id)
-
-			var orbit_radius: float = calculate_nth_orbit_radius(first_orbit_radius, i)
-			planet_layout.orbit_radius = orbit_radius
-			planet_layout.orbit_center = host_center
-			planet_layout.orbit_parent_id = host_id
-			planet_layout.display_radius = calculate_planet_display_radius(planet.physical.radius_m)
-
-			var angle: float = 0.0
+		for planet_entry in planets:
+			var planet: CelestialBody = planet_entry as CelestialBody
+			var distance_m: float = 0.0
 			if planet.has_orbital():
-				angle = deg_to_rad(planet.orbital.mean_anomaly_deg)
+				distance_m = planet.orbital.semi_major_axis_m
+			entries.append({
+				"type": "planet",
+				"distance_m": distance_m,
+				"planet": planet,
+			})
+
+		for belt_entry in belts:
+			var belt: AsteroidBelt = belt_entry as AsteroidBelt
+			entries.append({
+				"type": "belt",
+				"distance_m": belt.get_center_m(),
+				"belt": belt,
+			})
+
+		entries.sort_custom(func(a: Dictionary, b: Dictionary) -> bool:
+			return (a.get("distance_m", 0.0) as float) < (b.get("distance_m", 0.0) as float)
+		)
+
+		for i in range(entries.size()):
+			var orbit_radius: float = calculate_nth_orbit_radius(first_orbit_radius, i)
+			var entry: Dictionary = entries[i]
+			if entry.get("type", "") == "planet":
+				var planet_obj: CelestialBody = entry.get("planet") as CelestialBody
+				if planet_obj == null:
+					continue
+				var planet_layout: BodyLayout = BodyLayout.new(planet_obj.id)
+				planet_layout.orbit_radius = orbit_radius
+				planet_layout.orbit_center = host_center
+				planet_layout.orbit_parent_id = host_id
+				planet_layout.display_radius = calculate_planet_display_radius(planet_obj.physical.radius_m)
+
+				var angle: float = 0.0
+				if planet_obj.has_orbital():
+					angle = deg_to_rad(planet_obj.orbital.mean_anomaly_deg)
+				else:
+					angle = float(i) * TAU / float(maxi(entries.size(), 1))
+				planet_layout.orbital_angle = angle
+				planet_layout.orbital_period = calculate_orbital_period(orbit_radius)
+				planet_layout.is_orbiting = true
+				planet_layout.update_position_from_angle()
+				layout.body_layouts[planet_obj.id] = planet_layout
 			else:
-				angle = float(i) * TAU / float(maxi(planets.size(), 1))
-
-			planet_layout.orbital_angle = angle
-			planet_layout.orbital_period = calculate_orbital_period(orbit_radius)
-			planet_layout.is_orbiting = true
-			planet_layout.update_position_from_angle()
-
-			layout.body_layouts[planet.id] = planet_layout
+				var belt_obj: AsteroidBelt = entry.get("belt") as AsteroidBelt
+				if belt_obj == null:
+					continue
+				var belt_layout: BeltLayout = BeltLayout.new(belt_obj.id)
+				belt_layout.host_id = host_id
+				belt_layout.host_center = host_center
+				belt_layout.center_display_radius = orbit_radius
+				var center_m: float = maxf(belt_obj.get_center_m(), 1.0)
+				var half_width_ratio: float = (belt_obj.get_width_m() * 0.5) / center_m
+				var display_half_width: float = clampf(orbit_radius * half_width_ratio, ORBIT_SPACING * 0.15, ORBIT_SPACING * 0.45)
+				belt_layout.inner_display_radius = maxf(0.1, orbit_radius - display_half_width)
+				belt_layout.outer_display_radius = orbit_radius + display_half_width
+				belt_layout.center_au = belt_obj.get_center_au()
+				belt_layout.inner_au = belt_obj.inner_radius_m / _units.AU_METERS
+				belt_layout.outer_au = belt_obj.outer_radius_m / _units.AU_METERS
+				belt_layout.max_inclination_deg = calculate_belt_max_inclination_deg(orbit_radius)
+				layout.belt_layouts[belt_obj.id] = belt_layout
 
 
 ## Calculates the total system extent for camera fitting.
@@ -682,6 +827,11 @@ static func _calculate_total_extent(layout: SystemLayout) -> void:
 		if orbit_layout.orbit_radius > 0:
 			var orbit_edge: float = orbit_layout.orbit_center.length() + orbit_layout.orbit_radius + orbit_layout.display_radius
 			max_extent = maxf(max_extent, orbit_edge)
+
+	for belt_id in layout.belt_layouts:
+		var belt_layout: BeltLayout = layout.belt_layouts[belt_id]
+		var belt_edge: float = belt_layout.host_center.length() + belt_layout.outer_display_radius
+		max_extent = maxf(max_extent, belt_edge)
 
 	for node_id in layout.node_extents:
 		var extent: NodeExtent = layout.node_extents[node_id]
