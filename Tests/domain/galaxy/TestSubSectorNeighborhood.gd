@@ -1,4 +1,4 @@
-## Tests for SubSectorNeighborhood — 7x7x7 grid generation, shells, and boundary handling.
+## Tests for SubSectorNeighborhood — 11x11x11 grid generation, shells, and boundary handling.
 class_name TestSubSectorNeighborhood
 extends TestCase
 
@@ -18,16 +18,16 @@ func test_produces_343_subsector_origins() -> void:
 	var data: SubSectorNeighborhood.NeighborhoodData = SubSectorNeighborhood.build(
 		Vector3(500.0, 500.0, 500.0), 42, _model, _ref_density
 	)
-	assert_equal(data.subsector_origins.size(), 343,
-		"Should have exactly 343 subsector origins for 7x7x7 grid")
+	assert_equal(data.subsector_origins.size(), 1331,
+		"Should have exactly 1331 subsector origins for 11x11x11 grid")
 
 
 func test_produces_343_shell_tags() -> void:
 	var data: SubSectorNeighborhood.NeighborhoodData = SubSectorNeighborhood.build(
 		Vector3(500.0, 500.0, 500.0), 42, _model, _ref_density
 	)
-	assert_equal(data.subsector_shells.size(), 343,
-		"Should have 343 shell tags matching origins")
+	assert_equal(data.subsector_shells.size(), 1331,
+		"Should have 1331 shell tags matching origins")
 
 
 func test_center_origin_matches_camera_subsector() -> void:
@@ -87,6 +87,30 @@ func test_shell_3_has_218_subsectors() -> void:
 	assert_equal(shell_3_count, 218, "Shell 3 should have 218 subsectors")
 
 
+func test_shell_4_has_386_subsectors() -> void:
+	var data: SubSectorNeighborhood.NeighborhoodData = SubSectorNeighborhood.build(
+		Vector3(505.0, 505.0, 505.0), 42, _model, _ref_density
+	)
+	var shell_4_count: int = 0
+	for i in range(data.subsector_shells.size()):
+		if data.subsector_shells[i] == 4:
+			shell_4_count += 1
+	# 9^3 - 7^3 = 729 - 343 = 386
+	assert_equal(shell_4_count, 386, "Shell 4 should have 386 subsectors")
+
+
+func test_shell_5_has_602_subsectors() -> void:
+	var data: SubSectorNeighborhood.NeighborhoodData = SubSectorNeighborhood.build(
+		Vector3(505.0, 505.0, 505.0), 42, _model, _ref_density
+	)
+	var shell_5_count: int = 0
+	for i in range(data.subsector_shells.size()):
+		if data.subsector_shells[i] == 5:
+			shell_5_count += 1
+	# 11^3 - 9^3 = 1331 - 729 = 602
+	assert_equal(shell_5_count, 602, "Shell 5 should have 602 subsectors")
+
+
 func test_star_shells_match_count() -> void:
 	var data: SubSectorNeighborhood.NeighborhoodData = SubSectorNeighborhood.build(
 		Vector3(500.0, 500.0, 500.0), 42, _model, _ref_density
@@ -102,8 +126,8 @@ func test_star_shells_are_valid_range() -> void:
 		Vector3(500.0, 500.0, 500.0), 42, _model, _ref_density
 	)
 	for i in range(data.star_shells.size()):
-		assert_in_range(data.star_shells[i], 0, 3,
-			"Star shell %d must be in range [0, 3]" % i)
+		assert_in_range(data.star_shells[i], 0, 5,
+			"Star shell %d must be in range [0, 5]" % i)
 
 
 func test_deterministic() -> void:
@@ -141,7 +165,7 @@ func test_different_position_different_neighborhood() -> void:
 	)
 
 
-func test_origins_form_7x7x7_grid() -> void:
+func test_origins_form_11x11x11_grid() -> void:
 	var camera_pos: Vector3 = Vector3(505.0, 505.0, 505.0)
 	var data: SubSectorNeighborhood.NeighborhoodData = SubSectorNeighborhood.build(
 		camera_pos, 42, _model, _ref_density
@@ -151,9 +175,9 @@ func test_origins_form_7x7x7_grid() -> void:
 	var center: Vector3 = data.center_origin
 
 	var expected_count: int = 0
-	for dx in range(-3, 4):
-		for dy in range(-3, 4):
-			for dz in range(-3, 4):
+	for dx in range(-5, 6):
+		for dy in range(-5, 6):
+			for dz in range(-5, 6):
 				var expected: Vector3 = center + Vector3(
 					float(dx) * ss_size,
 					float(dy) * ss_size,
@@ -167,7 +191,7 @@ func test_origins_form_7x7x7_grid() -> void:
 				if found:
 					expected_count += 1
 
-	assert_equal(expected_count, 343, "All 343 grid positions should be present")
+	assert_equal(expected_count, 1331, "All 1331 grid positions should be present")
 
 
 func test_handles_sector_boundary_crossing() -> void:

@@ -52,7 +52,7 @@ Contributors pick an effort and work against master. Efforts can run in parallel
 | Solar system tools | Add/remove bodies, adjust orbits, recalc, system-level undo | — | — |
 | Galactic tools | System placement edits, region editing, galactic undo | Galactic generator refinement | — |
 | Galactic polish | Galaxy save/load UI polish, backward compat, performance | Galactic tools | — |
-| Jump lanes integration | Wire jump-lanes into galaxy viewer; population data; line/orphan rendering | — | — |
+| Jump lanes optimization and polish | Optimize and polish jump-lane rendering in galaxy viewer; population data; line/orphan visuals | — | — |
 | Code quality & simplifications | TODOs, placeholder replacements, simplified formulas to redo | — | — |
 | Population detail (civilisation/regime) | Enrich population with tech level, regime type, and transitions; align with Integration and History Generator concepts | — | — |
 
@@ -119,7 +119,7 @@ Contributors pick an effort and work against master. Efforts can run in parallel
 
 **Acceptance:** Browse galaxy → open system → edits persist across sessions. Galaxy viewer remains responsive with 10k+ stars.
 
-**Gates:** Galactic generator refinement, Galactic tools, Galactic polish, and Jump lanes integration depended on this; all are now unblocked.
+**Gates:** Galactic generator refinement, Galactic tools, Galactic polish, and Jump lanes optimization and polish depended on this; all are now unblocked.
 
 ---
 
@@ -233,20 +233,20 @@ Contributors pick an effort and work against master. Efforts can run in parallel
 
 ---
 
-### Jump lanes integration
+### Jump lanes optimization and polish
 
-**Goal:** Expose the jump-lanes tool in the galaxy viewer: user selects range (subsector vs sector), runs the calculation, and sees lines (green/yellow/orange/red) and orphan highlighting.
+**Goal:** Optimize and polish jump-lane display in the galaxy viewer: performance, visual clarity, and UX for range selection (subsector vs sector), line colors (green/yellow/orange/red), and orphan highlighting.
 
 **Deliverables:**
 •	Population data wiring: single entry point returning `JumpLaneRegion` for current subsector/sector (placeholder population acceptable until real data).
-•	User controls: subsector vs sector range; Run jump-lanes button.
-•	Visual representation: draw connections (green/yellow/orange/red); highlight orphans (red).
+•	User controls: subsector vs sector range; Run jump-lanes button (or equivalent).
+•	Visual polish: draw connections (green/yellow/orange/red); highlight orphans (red); performance and LOD if needed.
 •	Integration test: load sector, run tool, assert connection/orphan counts.
 •	Docs: where jump-lanes lives (menu/panel/shortcut) and how to use.
 
 **See:** `Docs/FeatureConceptBranchImplementationPlan.md` for detailed stages.
 
-**Acceptance:** User can select subsector or sector and run the tool. Lines appear with correct colors; orphans appear in red.
+**Acceptance:** User can select subsector or sector and run the tool. Lines appear with correct colors; orphans appear in red; rendering is performant and polished.
 
 ---
 
@@ -300,7 +300,7 @@ Proposed changes that do not fit any existing effort are added as a **new effort
 
 **Outposts and space stations:** StationGenerator, StationPlacementRules, OutpostAuthority; prototype at `src/app/prototypes/StationGeneratorPrototype.tscn`.
 
-**Jump lanes (domain + prototype):** `src/domain/jumplanes/`, `src/app/jumplanes_prototype/`; see `Docs/FeatureConceptBranchImplementationPlan.md` for Phase 2 integration work.
+**Jump lanes (domain + prototype):** `src/domain/jumplanes/`, `src/app/jumplanes_prototype/`; see `Docs/FeatureConceptBranchImplementationPlan.md` for Phase 2 optimization and polish work.
 
 **Civilisation / population detail (concepts):** `Concepts/Integration/` — Tech Tree, Regime Chart, and History sim with shared REGIMES/TRANSITIONS and tech-level–regime validity. `Concepts/HistoryGenerator/` — Culture sim, regime transitions, and map visualization. Reference for Population detail (civilisation/regime) effort. See `Docs/RegimeChangeModel.md`.
 

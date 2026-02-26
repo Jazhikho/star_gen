@@ -25,6 +25,64 @@ func _init() -> void:
 	_cluster_connector = _cluster_connector_script.new()
 
 
+## Calculates jump lanes asynchronously with progress reporting.
+## @param region: The region containing systems to process.
+## @param scene_tree: SceneTree for yielding to allow UI updates.
+## @param progress_callback: Callable(phase: String, current: int, total: int) for progress updates.
+## @return: JumpLaneResult with connections and orphans.
+func calculate_async(
+	region: JumpLaneRegion,
+	scene_tree: SceneTree,
+	progress_callback: Callable = Callable()
+) -> JumpLaneResult:
+	var result: JumpLaneResult = JumpLaneResult.new()
+
+	for system in region.systems:
+		result.register_system(system)
+
+	var connected_systems: Dictionary = {}
+	var sorted_systems: Array[JumpLaneSystem] = region.get_systems_sorted_by_population()
+	var bridge_ids: Dictionary = {}
+	var total_systems: int = sorted_systems.size()
+
+	if progress_callback.is_valid():
+		progress_callback.call("Connecting systems", 0, total_systems)
+	await scene_tree.process_frame
+
+	var processed: int = 0
+	for system in sorted_systems:
+		if bridge_ids.has(system.id):
+			processed += 1
+			continue
+
+		var connection_made: bool = _try_connect_system(
+			system,
+			region,
+			result,
+			connected_systems,
+			bridge_ids
+		)
+
+		if connection_made:
+			connected_systems[system.id] = true
+
+		processed += 1
+
+		# Yield every 25 systems to keep UI responsive
+		if processed % 25 == 0:
+			if progress_callback.is_valid():
+				progress_callback.call("Connecting systems", processed, total_systems)
+			await scene_tree.process_frame
+
+	for system in sorted_systems:
+		if not connected_systems.has(system.id):
+			result.add_orphan(system.id)
+
+	await _cluster_connector.connect_clusters_async(region, result, scene_tree, progress_callback)
+
+	return result
+
+
 ## Calculates jump lanes for all systems in a region.
 ## @param region: The region containing systems to process.
 ## @return: JumpLaneResult with connections and orphans.

@@ -42,6 +42,15 @@ func restore_state(viewer: Node) -> void:
 	if viewer.get_saved_zoom_level() < 0:
 		viewer.call_initialize_at_home()
 		return
+	# Restore jump lane state first (set_jump_lane_result renders if in subsector view).
+	# We restore region separately so incremental recalc works after returning.
+	# (These are stored on the viewer directly, not in saved_* fields, so they
+	#  survive the transition without needing explicit save/restore here — but we
+	#  DO need to re-render if we're returning to subsector view.)
+	var jl_result: JumpLaneResult = viewer.get_jump_lane_result()
+	if jl_result != null:
+		# Re-render so the mesh is recreated after the scene transition.
+		viewer.set_jump_lane_result(jl_result)
 
 	if viewer.get_saved_quadrant() != null and viewer.get_quadrant_selector():
 		var quadrant_coords: Vector3i = viewer.get_saved_quadrant() as Vector3i
@@ -129,6 +138,16 @@ func create_save_data(viewer: Node) -> GalaxySaveData:
 	data.has_star_selection = viewer.get_selected_star_seed_internal() != 0
 	data.selected_star_seed = viewer.get_selected_star_seed_internal()
 	data.selected_star_position = viewer.get_selected_star_position_internal()
+
+	# Persist jump lane state so routes survive save/load round-trips.
+	var jl_region: JumpLaneRegion = viewer.get_jump_lane_region()
+	if jl_region != null:
+		data.jump_lane_region_data = jl_region.to_dict()
+
+	var jl_result: JumpLaneResult = viewer.get_jump_lane_result()
+	if jl_result != null:
+		data.jump_lane_result_data = jl_result.to_dict()
+
 	return data
 
 
@@ -192,6 +211,15 @@ func apply_save_data(viewer: Node, data: GalaxySaveData) -> void:
 		viewer.set_selected_star_position_internal(Vector3.ZERO)
 		if viewer.get_selection_indicator():
 			viewer.get_selection_indicator().hide_indicator()
+
+	# Restore jump lane state.
+	if not data.jump_lane_region_data.is_empty():
+		var region: JumpLaneRegion = JumpLaneRegion.from_dict(data.jump_lane_region_data) as JumpLaneRegion
+		viewer.set_jump_lane_region(region)
+
+	if not data.jump_lane_result_data.is_empty():
+		var result: JumpLaneResult = JumpLaneResult.from_dict(data.jump_lane_result_data) as JumpLaneResult
+		viewer.set_jump_lane_result(result)
 
 	viewer.call_update_inspector()
 

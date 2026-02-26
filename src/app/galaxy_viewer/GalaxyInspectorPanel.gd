@@ -5,6 +5,12 @@ extends VBoxContainer
 
 const _property_formatter: GDScript = preload("res://src/app/viewer/PropertyFormatter.gd")
 
+## Emitted when the user requests jump route calculation for the current neighborhood.
+signal calculate_jump_routes_requested
+
+## Emitted when the user toggles jump route visibility.
+signal jump_routes_visibility_toggled(show_routes: bool)
+
 
 ## Emitted when user requests to open selected star as a system.
 signal open_system_requested(star_seed: int, world_position: Vector3)
@@ -21,6 +27,13 @@ var _overview_container: VBoxContainer = null
 var _selection_container: VBoxContainer = null
 var _preview_container: VBoxContainer = null
 var _open_system_button: Button = null
+
+## Jump routes UI (created in _build_ui).
+var _jump_routes_section: VBoxContainer = null
+var _calculate_routes_button: Button = null
+var _show_routes_check: CheckBox = null
+## True while a calculation is in progress (disables the button).
+var _is_calculating: bool = false
 
 
 func _ready() -> void:
@@ -92,6 +105,29 @@ func _build_ui() -> void:
 	_open_system_button.visible = false
 	_open_system_button.pressed.connect(_on_open_system_pressed)
 	add_child(_open_system_button)
+
+	# Jump routes section.
+	add_child(HSeparator.new())
+
+	var jump_section_label: Label = Label.new()
+	jump_section_label.text = "Jump Routes"
+	jump_section_label.add_theme_font_size_override("font_size", 12)
+	jump_section_label.modulate = Color(0.8, 0.8, 0.8)
+	add_child(jump_section_label)
+
+	_calculate_routes_button = Button.new()
+	_calculate_routes_button.name = "CalculateRoutesButton"
+	_calculate_routes_button.text = "Calculate Jump Routes"
+	_calculate_routes_button.pressed.connect(_on_calculate_routes_pressed)
+	add_child(_calculate_routes_button)
+
+	_show_routes_check = CheckBox.new()
+	_show_routes_check.name = "ShowRoutesCheck"
+	_show_routes_check.text = "Show Jump Routes"
+	_show_routes_check.button_pressed = true
+	_show_routes_check.disabled = true
+	_show_routes_check.toggled.connect(_on_show_routes_toggled)
+	add_child(_show_routes_check)
 
 	# Initial state
 	_add_property(_selection_container, "Status", "Nothing selected")
@@ -262,6 +298,54 @@ func _clear_star_selection() -> void:
 func _on_open_system_pressed() -> void:
 	if _selected_star_seed != 0:
 		open_system_requested.emit(_selected_star_seed, _selected_star_position)
+
+
+## Handles calculate button press.
+func _on_calculate_routes_pressed() -> void:
+	if not _is_calculating:
+		calculate_jump_routes_requested.emit()
+
+
+## Handles show/hide toggle.
+## @param enabled: Whether routes should be visible.
+func _on_show_routes_toggled(enabled: bool) -> void:
+	jump_routes_visibility_toggled.emit(enabled)
+
+
+## Called by GalaxyViewer when calculation starts.
+## Disables the button to prevent concurrent calculations.
+func set_jump_routes_calculating(calculating: bool) -> void:
+	_is_calculating = calculating
+	if _calculate_routes_button:
+		_calculate_routes_button.disabled = calculating
+		if calculating:
+			_calculate_routes_button.text = "Calculating…"
+		else:
+			_calculate_routes_button.text = "Recalculate Jump Routes"
+
+
+## Called by GalaxyViewer when routes become available (calculation complete)
+## or unavailable (neighborhood changed).
+## @param available: Whether routes are currently available to display.
+func set_jump_routes_available(available: bool) -> void:
+	if _show_routes_check:
+		_show_routes_check.disabled = not available
+	if _calculate_routes_button:
+		_calculate_routes_button.disabled = false
+		if available:
+			_calculate_routes_button.text = "Recalculate Jump Routes"
+		else:
+			_calculate_routes_button.text = "Calculate Jump Routes"
+	_is_calculating = false
+
+
+## Returns whether the Show Jump Routes checkbox is currently checked.
+## Used by GalaxyViewer to restore renderer visibility after recalculation.
+## @return: True if checkbox is checked.
+func get_show_routes_checked() -> bool:
+	if _show_routes_check:
+		return _show_routes_check.button_pressed
+	return true
 
 
 ## Clears all children from a container.

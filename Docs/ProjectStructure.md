@@ -75,10 +75,11 @@ star_gen/
 │   │   │   ├── CollapsibleSection.gd
 │   │   │   └── CollapsibleSection.tscn
 │   │   │
-│   │   ├── galaxy_viewer/
-│   │   │   ├── GalaxyInspectorPanel.gd
-│   │   │   ├── GalaxyRenderer.gd
-│   │   │   ├── GalaxyViewer.gd
+    │   │   ├── galaxy_viewer/
+    │   │   │   ├── GalaxyInspectorPanel.gd
+    │   │   │   ├── GalaxyRenderer.gd
+    │   │   │   ├── SectorJumpLaneRenderer.gd
+    │   │   │   ├── GalaxyViewer.gd
 │   │   │   ├── GalaxyViewer.tscn
 │   │   │   ├── GalaxyViewerDeps.gd
 │   │   │   ├── GalaxyViewerSaveLoad.gd

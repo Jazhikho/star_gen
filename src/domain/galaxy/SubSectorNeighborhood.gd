@@ -5,11 +5,11 @@ class_name SubSectorNeighborhood
 extends RefCounted
 
 
-## Extent of the neighborhood in each direction from center (7x7x7 = extent 3).
-const EXTENT: int = 3
+## Extent of the neighborhood in each direction from center (11x11x11 = extent 5).
+const EXTENT: int = 5
 
-## Total subsectors in the neighborhood (7x7x7).
-const TOTAL_SUBSECTORS: int = 343
+## Total subsectors in the neighborhood (11x11x11).
+const TOTAL_SUBSECTORS: int = 1331
 
 
 ## Container for the combined neighborhood data.

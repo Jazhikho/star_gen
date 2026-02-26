@@ -18,11 +18,12 @@ const FADE_FAR: float = 45.0
 ## Maximum lateral distance for ray picking (parsecs).
 const PICK_RADIUS: float = 2.0
 
-## Per-shell alpha multipliers: [center, shell1, shell2, shell3].
-const SHELL_ALPHAS: Array[float] = [1.0, 0.85, 0.5, 0.2]
+## Per-shell alpha multipliers: [center, shell1, shell2, shell3, shell4, shell5].
+## Outer shells fade progressively so the 11x11x11 neighborhood reads as depth.
+const SHELL_ALPHAS: Array[float] = [1.0, 0.85, 0.65, 0.4, 0.2, 0.08]
 
-## Per-shell wireframe alpha: [center, shell1, shell2, shell3].
-const WIRE_SHELL_ALPHAS: Array[float] = [0.2, 0.12, 0.06, 0.03]
+## Per-shell wireframe alpha: [center, shell1, shell2, shell3, shell4, shell5].
+const WIRE_SHELL_ALPHAS: Array[float] = [0.2, 0.15, 0.10, 0.06, 0.03, 0.01]
 
 ## Wireframe base color (RGB, alpha set per shell).
 const WIRE_BASE_COLOR: Color = Color(0.3, 0.5, 0.9)

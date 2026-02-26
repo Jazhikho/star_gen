@@ -18,6 +18,15 @@ const _GalaxyConfigRef: GDScript = preload("res://src/domain/galaxy/GalaxyConfig
 const _SaveLoadClass: GDScript = preload("res://src/app/galaxy_viewer/GalaxyViewerSaveLoad.gd")
 const _GalaxyClass: GDScript = preload("res://src/domain/galaxy/Galaxy.gd")
 const _StarSystemPreviewClass: GDScript = preload("res://src/domain/galaxy/StarSystemPreview.gd")
+# Jump lane domain scripts — preloaded here to ensure class_names are registered.
+const _JumpLaneCalculatorScript: GDScript = preload("res://src/domain/jumplanes/JumpLaneCalculator.gd")
+const _JumpLaneRegionScript: GDScript = preload("res://src/domain/jumplanes/JumpLaneRegion.gd")
+const _JumpLaneSystemScript: GDScript = preload("res://src/domain/jumplanes/JumpLaneSystem.gd")
+const _JumpLaneResultScript: GDScript = preload("res://src/domain/jumplanes/JumpLaneResult.gd")
+const _JumpLaneConnectionScript: GDScript = preload("res://src/domain/jumplanes/JumpLaneConnection.gd")
+const _GalaxySystemGeneratorScript: GDScript = preload("res://src/domain/galaxy/GalaxySystemGenerator.gd")
+const _GalaxyStarScript: GDScript = preload("res://src/domain/galaxy/GalaxyStar.gd")
+const _SectorJumpLaneRendererScript: GDScript = preload("res://src/app/galaxy_viewer/SectorJumpLaneRenderer.gd")
 
 
 ## Emitted when the user clicks a star in star view.
@@ -114,6 +123,22 @@ var _saved_star_position: Vector3 = Vector3.ZERO
 
 var _save_load: RefCounted = _SaveLoadClass.new()
 
+## Jump lane state.
+## The region is retained so incremental recalculation can merge new stars in.
+var _jump_lane_region: JumpLaneRegion = null
+
+## The renderer is a sibling to NeighborhoodRenderer; hidden until routes are calculated.
+var _sector_jump_lane_renderer: Node3D = null
+## Cached result for the last calculated neighborhood; null when stale.
+var _jump_lane_result: JumpLaneResult = null
+## Calculator instance (stateless; reused across calls).
+var _jump_calculator: JumpLaneCalculator = null
+
+## Progress overlay nodes (created in _build_progress_overlay).
+var _progress_canvas: CanvasLayer = null
+var _progress_panel: PanelContainer = null
+var _progress_label: Label = null
+
 
 func _ready() -> void:
 	if _galaxy_config == null:
@@ -145,6 +170,10 @@ func _ready() -> void:
 	_build_orbit_camera()
 	_build_star_camera()
 	_build_compass()
+
+	_build_sector_jump_lane_renderer()
+	_build_progress_overlay()
+	_jump_calculator = _JumpLaneCalculatorScript.new() as JumpLaneCalculator
 
 	_connect_ui_signals()
 	_update_seed_display()
@@ -487,6 +516,10 @@ func _show_galaxy_view() -> void:
 	_quadrant_selector.clear_selection()
 	_selected_sector = null
 	_compass.visible = false
+	# Hide jump lanes when leaving star view — they are neighborhood-specific.
+	if _sector_jump_lane_renderer:
+		_sector_jump_lane_renderer.visible = false
+	# Do NOT clear jump lane state here — lanes persist until explicit recalc or new galaxy.
 
 	_orbit_camera.reconfigure_constraints(500.0, 120000.0, Vector3.ZERO)
 
@@ -505,6 +538,9 @@ func _show_quadrant_view() -> void:
 	_neighborhood_renderer.visible = false
 	_selection_indicator.hide_indicator()
 	_selected_sector = null
+	if _sector_jump_lane_renderer:
+		_sector_jump_lane_renderer.visible = false
+	# Do NOT clear jump lane state here.
 	_compass.visible = _show_compass_check == null or _show_compass_check.button_pressed
 
 	if _quadrant_selector.has_selection():
@@ -535,6 +571,9 @@ func _show_sector_view() -> void:
 	_sector_renderer.visible = true
 	_neighborhood_renderer.visible = false
 	_selection_indicator.hide_indicator()
+	if _sector_jump_lane_renderer:
+		_sector_jump_lane_renderer.visible = false
+	# Do NOT clear jump lane state here.
 	_compass.visible = _show_compass_check == null or _show_compass_check.button_pressed
 
 	if _selected_sector != null:
@@ -577,6 +616,13 @@ func _show_subsector_view() -> void:
 	if _inspector_panel:
 		_inspector_panel.clear_selection()
 	set_status("Star field - WASD to move, click to select star, Enter to open system")
+
+	# Restore jump lane visibility if routes are available.
+	if _jump_lane_result != null and _sector_jump_lane_renderer:
+		var show_now: bool = true
+		if _inspector_panel:
+			show_now = _inspector_panel.get_show_routes_checked()
+		_sector_jump_lane_renderer.visible = show_now
 
 
 ## Creates the galaxy point cloud renderer.
@@ -647,6 +693,263 @@ func _on_subsector_changed(_new_origin: Vector3) -> void:
 	_neighborhood_renderer.build_neighborhood(
 		_star_camera.global_position, galaxy_seed, _galaxy.density_model, _galaxy.reference_density
 	)
+	# Moving to a new subsector does NOT clear jump lanes — they persist until
+	# explicit recalculation or a new galaxy. The existing result is still valid
+	# (it covers the same neighborhood region); the user can recalculate if needed.
+	# Restore renderer visibility to match current checkbox state.
+	if _jump_lane_result != null and _sector_jump_lane_renderer:
+		var show_now: bool = true
+		if _inspector_panel:
+			show_now = _inspector_panel.get_show_routes_checked()
+		_sector_jump_lane_renderer.visible = show_now
+
+
+## Clears jump lane result and notifies the inspector panel that recalculation is needed.
+func _clear_jump_lane_state() -> void:
+	_jump_lane_result = null
+	_jump_lane_region = null
+	if _sector_jump_lane_renderer:
+		(_sector_jump_lane_renderer as SectorJumpLaneRenderer).clear()
+		_sector_jump_lane_renderer.visible = false
+	if _inspector_panel:
+		_inspector_panel.set_jump_routes_available(false)
+
+
+# =============================================================================
+# Jump lane renderer and progress overlay construction
+# =============================================================================
+
+## Creates the SectorJumpLaneRenderer as a sibling of NeighborhoodRenderer.
+func _build_sector_jump_lane_renderer() -> void:
+	_sector_jump_lane_renderer = _SectorJumpLaneRendererScript.new() as SectorJumpLaneRenderer
+	_sector_jump_lane_renderer.name = "SectorJumpLaneRenderer"
+	_sector_jump_lane_renderer.visible = false
+	add_child(_sector_jump_lane_renderer)
+
+
+## Creates the progress overlay panel (hidden by default).
+## Shown during jump lane calculation so the user knows work is happening.
+func _build_progress_overlay() -> void:
+	_progress_canvas = CanvasLayer.new()
+	_progress_canvas.name = "JumpRouteProgress"
+	_progress_canvas.layer = 20
+	add_child(_progress_canvas)
+
+	_progress_panel = PanelContainer.new()
+	_progress_panel.anchor_left = 0.5
+	_progress_panel.anchor_top = 0.5
+	_progress_panel.anchor_right = 0.5
+	_progress_panel.anchor_bottom = 0.5
+	_progress_panel.offset_left = -180.0
+	_progress_panel.offset_top = -55.0
+	_progress_panel.offset_right = 180.0
+	_progress_panel.offset_bottom = 55.0
+	_progress_panel.visible = false
+	_progress_canvas.add_child(_progress_panel)
+
+	var margin: MarginContainer = MarginContainer.new()
+	margin.add_theme_constant_override("margin_left", 16)
+	margin.add_theme_constant_override("margin_right", 16)
+	margin.add_theme_constant_override("margin_top", 12)
+	margin.add_theme_constant_override("margin_bottom", 12)
+	_progress_panel.add_child(margin)
+
+	var vbox: VBoxContainer = VBoxContainer.new()
+	vbox.add_theme_constant_override("separation", 8)
+	margin.add_child(vbox)
+
+	var title: Label = Label.new()
+	title.text = "Calculating Jump Routes"
+	title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	title.add_theme_font_size_override("font_size", 14)
+	vbox.add_child(title)
+
+	_progress_label = Label.new()
+	_progress_label.text = ""
+	_progress_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	_progress_label.custom_minimum_size = Vector2(320.0, 0.0)
+	vbox.add_child(_progress_label)
+
+
+## Shows the progress overlay with an initial message.
+## @param message: Status text to display.
+func _show_progress(message: String) -> void:
+	if _progress_label:
+		_progress_label.text = message
+	if _progress_panel:
+		_progress_panel.visible = true
+
+
+## Updates the progress overlay message without hiding it.
+## @param message: New status text.
+func _update_progress(message: String) -> void:
+	if _progress_label:
+		_progress_label.text = message
+
+
+## Hides the progress overlay.
+func _hide_progress() -> void:
+	if _progress_panel:
+		_progress_panel.visible = false
+
+
+# =============================================================================
+# Jump lane calculation
+# =============================================================================
+
+## Handles the inspector panel's calculate request.
+## Guards against calls outside star view, then fires the async coroutine.
+func _on_calculate_jump_routes_requested() -> void:
+	if _zoom_machine.get_current_level() != GalaxyCoordinates.ZoomLevel.SUBSECTOR:
+		set_status("Jump routes require star field view (press ] to navigate there)")
+		return
+	if _neighborhood_renderer == null or _neighborhood_renderer.get_neighborhood_data() == null:
+		set_status("No neighborhood data — move to a star field first")
+		return
+	# Notify inspector panel so it disables the button while work is in progress.
+	if _inspector_panel:
+		_inspector_panel.set_jump_routes_calculating(true)
+	# Launch coroutine — not awaited so control returns to the caller immediately.
+	_calculate_jump_lanes_async()
+
+
+## Handles the inspector panel's show/hide toggle.
+## @param show_routes: Whether to make the renderer visible.
+func _on_jump_routes_visibility_toggled(show_routes: bool) -> void:
+	if _sector_jump_lane_renderer and _jump_lane_result != null:
+		_sector_jump_lane_renderer.visible = show_routes
+
+
+## Progress callback for jump lane calculation.
+## Updates the progress overlay with the current phase and progress.
+## @param phase: Current calculation phase name.
+## @param current: Current progress value.
+## @param total: Total items to process.
+func _on_jump_calc_progress(phase: String, current: int, total: int) -> void:
+	var pct: int = int((float(current) / float(maxi(total, 1))) * 100.0)
+	_update_progress("%s: %d / %d (%d%%)" % [phase, current, total, pct])
+
+
+## Async coroutine: polls population for every star in the neighborhood,
+## builds a JumpLaneRegion, runs the calculator, and renders the result.
+## Uses process-frame yields so the progress overlay updates are visible.
+func _calculate_jump_lanes_async() -> void:
+	var neighborhood_data: SubSectorNeighborhood.NeighborhoodData = (
+		_neighborhood_renderer.get_neighborhood_data()
+	)
+	if neighborhood_data == null:
+		_hide_progress()
+		if _inspector_panel:
+			_inspector_panel.set_jump_routes_calculating(false)
+		return
+
+	var star_count: int = neighborhood_data.star_positions.size()
+	var start_time: int = Time.get_ticks_msec()
+
+	_show_progress("Polling %d star systems (0%%)…" % star_count)
+	set_status("Calculating jump routes for %d stars…" % star_count)
+	await get_tree().process_frame
+	await get_tree().process_frame
+
+	# Build or extend the jump lane region.
+	# On first calculation, create fresh. On recalculation, merge in any new stars
+	# (stars not already in the region from a previous run).
+	if _jump_lane_region == null:
+		_jump_lane_region = JumpLaneRegion.new(
+			JumpLaneRegion.RegionScope.SECTOR,
+			"neighborhood_%d" % galaxy_seed
+		)
+
+	# Build a set of already-known system IDs for fast lookup.
+	var known_ids: Dictionary = {}
+	for existing_system in _jump_lane_region.systems:
+		known_ids[existing_system.id] = true
+
+	var new_stars_added: int = 0
+	for i in range(star_count):
+		var pos: Vector3 = neighborhood_data.star_positions[i]
+		var seed_val: int = neighborhood_data.star_seeds[i]
+		var system_id: String = str(seed_val)
+
+		# Update population on existing systems (may have been generated since last calc).
+		if known_ids.has(system_id):
+			var existing: JumpLaneSystem = _jump_lane_region.get_system(system_id)
+			if existing != null and existing.population == 0:
+				# Try to fill in population if we now have it cached.
+				if _galaxy.has_cached_system(seed_val):
+					var cached: SolarSystem = _galaxy.get_cached_system(seed_val)
+					existing.population = cached.get_total_population()
+			if (i + 1) % 50 == 0 or i == star_count - 1:
+				var elapsed: float = (Time.get_ticks_msec() - start_time) / 1000.0
+				var pct: int = int((float(i + 1) / float(star_count)) * 100.0)
+				_update_progress("Checking existing systems: %d / %d (%d%%) — %.1fs" % [i + 1, star_count, pct, elapsed])
+				await get_tree().process_frame
+			continue
+
+		var population: int = 0
+		if _galaxy.has_cached_system(seed_val):
+			var cached: SolarSystem = _galaxy.get_cached_system(seed_val)
+			population = cached.get_total_population()
+		else:
+			var galaxy_star: GalaxyStar = GalaxyStar.create_with_derived_properties(
+				pos, seed_val, _spec
+			)
+			var system: SolarSystem = GalaxySystemGenerator.generate_system(
+				galaxy_star, false, true
+			)
+			if system != null:
+				_galaxy.cache_system(seed_val, system)
+				population = system.get_total_population()
+
+		_jump_lane_region.add_system(JumpLaneSystem.new(system_id, pos, population))
+		known_ids[system_id] = true
+		new_stars_added += 1
+
+		if (i + 1) % 50 == 0 or i == star_count - 1:
+			var elapsed: float = (Time.get_ticks_msec() - start_time) / 1000.0
+			var pct: int = int((float(i + 1) / float(star_count)) * 100.0)
+			_update_progress("Polling star systems: %d / %d (%d%%) — %.1fs" % [i + 1, star_count, pct, elapsed])
+			await get_tree().process_frame
+
+	var poll_time: float = (Time.get_ticks_msec() - start_time) / 1000.0
+	var region_size: int = _jump_lane_region.get_system_count()
+	_update_progress("Building jump network for %d systems (%d new)…" % [region_size, new_stars_added])
+	set_status("Building jump network (%d systems, %d new, polled in %.1fs)…" % [region_size, new_stars_added, poll_time])
+
+	var calc_start: int = Time.get_ticks_msec()
+	var progress_cb: Callable = Callable(self , "_on_jump_calc_progress")
+	_jump_lane_result = await _jump_calculator.calculate_async(_jump_lane_region, get_tree(), progress_cb)
+	var calc_time: float = (Time.get_ticks_msec() - calc_start) / 1000.0
+	var total_time: float = (Time.get_ticks_msec() - start_time) / 1000.0
+
+	# Render — respect the current checkbox state.
+	var renderer: SectorJumpLaneRenderer = _sector_jump_lane_renderer as SectorJumpLaneRenderer
+	if renderer:
+		renderer.render(_jump_lane_result)
+		var show_now: bool = true
+		if _inspector_panel:
+			show_now = _inspector_panel.get_show_routes_checked()
+		renderer.visible = show_now
+
+	_hide_progress()
+
+	if _inspector_panel:
+		_inspector_panel.set_jump_routes_available(true)
+
+	var counts: Dictionary = _jump_lane_result.get_connection_counts()
+	set_status(
+		"Jump routes: %d conn (%dG %dY %dO %dR), %d orphans — %.1fs (poll %.1fs, calc %.1fs)" % [
+			_jump_lane_result.get_total_connections(),
+			counts.get(JumpLaneConnection.ConnectionType.GREEN, 0),
+			counts.get(JumpLaneConnection.ConnectionType.YELLOW, 0),
+			counts.get(JumpLaneConnection.ConnectionType.ORANGE, 0),
+			counts.get(JumpLaneConnection.ConnectionType.RED, 0),
+			_jump_lane_result.get_total_orphans(),
+			total_time,
+			poll_time,
+			calc_time,
+		]
+	)
 
 
 ## Builds the compass rose UI in a CanvasLayer overlay.
@@ -677,6 +980,8 @@ func _connect_ui_signals() -> void:
 		_show_compass_check.toggled.connect(_on_show_compass_toggled)
 	if _inspector_panel:
 		_inspector_panel.open_system_requested.connect(_on_inspector_open_system)
+		_inspector_panel.calculate_jump_routes_requested.connect(_on_calculate_jump_routes_requested)
+		_inspector_panel.jump_routes_visibility_toggled.connect(_on_jump_routes_visibility_toggled)
 	if _save_button:
 		_save_button.pressed.connect(_on_save_pressed)
 	if _load_button:
@@ -778,24 +1083,24 @@ func get_start_at_home() -> bool:
 ## Saves the current viewer state for later restoration.
 ## Called before transitioning to system viewer.
 func save_state() -> void:
-	_save_load.save_state(self)
+	_save_load.save_state(self )
 
 
 ## Restores the previously saved viewer state.
 ## Called when returning from system viewer.
 func restore_state() -> void:
-	_save_load.restore_state(self)
+	_save_load.restore_state(self )
 
 
 ## Clears saved state.
 func clear_saved_state() -> void:
-	_save_load.clear_saved_state(self)
+	_save_load.clear_saved_state(self )
 
 
 ## Returns true if there is saved state to restore.
 ## @return: True if state was previously saved.
 func has_saved_state() -> bool:
-	return _save_load.has_saved_state(self)
+	return _save_load.has_saved_state(self )
 
 
 ## Returns the currently selected star seed, or 0 if none.
@@ -812,12 +1117,12 @@ func get_selected_star_position() -> Vector3:
 
 ## Handles save button press.
 func _on_save_pressed() -> void:
-	_save_load.on_save_pressed(self)
+	_save_load.on_save_pressed(self )
 
 
 ## Handles load button press.
 func _on_load_pressed() -> void:
-	_save_load.on_load_pressed(self)
+	_save_load.on_load_pressed(self )
 
 
 ## Handles new galaxy button press.
@@ -858,13 +1163,13 @@ func _change_galaxy_seed(new_seed: int) -> void:
 ## Returns current save data (for testing).
 ## @return: GalaxySaveData with current state.
 func get_save_data() -> GalaxySaveData:
-	return _save_load.create_save_data(self)
+	return _save_load.create_save_data(self )
 
 
 ## Applies save data (for testing).
 ## @param data: GalaxySaveData to apply.
 func apply_save_data(data: GalaxySaveData) -> void:
-	_save_load.apply_save_data(self, data)
+	_save_load.apply_save_data(self , data)
 
 
 ## Returns the zoom state machine.
@@ -1079,6 +1384,41 @@ func call_change_galaxy_seed(seed_value: int) -> void:
 ## @return: PreviewData or null if no star selected or preview not yet generated.
 func get_star_preview() -> StarSystemPreview.PreviewData:
 	return _star_preview
+
+
+## Returns the current jump lane region (for save/load).
+## @return: JumpLaneRegion or null.
+func get_jump_lane_region() -> JumpLaneRegion:
+	return _jump_lane_region
+
+
+## Sets the jump lane region (for save/load restore).
+## @param region: JumpLaneRegion to restore.
+func set_jump_lane_region(region: JumpLaneRegion) -> void:
+	_jump_lane_region = region
+
+
+## Returns the current jump lane result (for save/load).
+## @return: JumpLaneResult or null.
+func get_jump_lane_result() -> JumpLaneResult:
+	return _jump_lane_result
+
+
+## Sets the jump lane result and re-renders (for save/load restore).
+## @param result: JumpLaneResult to restore.
+func set_jump_lane_result(result: JumpLaneResult) -> void:
+	_jump_lane_result = result
+	if result != null and _sector_jump_lane_renderer != null:
+		(_sector_jump_lane_renderer as SectorJumpLaneRenderer).render(result)
+		var show_now: bool = true
+		if _inspector_panel:
+			show_now = _inspector_panel.get_show_routes_checked()
+		_sector_jump_lane_renderer.visible = show_now
+		if _inspector_panel:
+			_inspector_panel.set_jump_routes_available(true)
+	elif result == null and _sector_jump_lane_renderer != null:
+		(_sector_jump_lane_renderer as SectorJumpLaneRenderer).clear()
+		_sector_jump_lane_renderer.visible = false
 
 
 ## Simulates a star being selected (for integration testing without real raycast).

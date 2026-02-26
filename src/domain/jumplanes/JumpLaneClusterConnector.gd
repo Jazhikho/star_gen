@@ -15,6 +15,45 @@ const THRESHOLD_ORANGE: float = 7.0
 const BRIDGE_MAX_DISTANCE: float = 5.0
 
 
+## Connects isolated clusters asynchronously with progress reporting.
+## @param region: The region containing all systems.
+## @param result: The current result to modify in place.
+## @param scene_tree: SceneTree for yielding.
+## @param progress_callback: Callable(phase: String, current: int, total: int) for progress.
+func connect_clusters_async(
+	region: JumpLaneRegion,
+	result: JumpLaneResult,
+	scene_tree: SceneTree,
+	progress_callback: Callable = Callable()
+) -> void:
+	var iterations: int = 0
+	var max_iterations: int = 100
+
+	if progress_callback.is_valid():
+		progress_callback.call("Connecting clusters", 0, max_iterations)
+	await scene_tree.process_frame
+
+	while iterations < max_iterations:
+		var new_connection: bool = _try_connect_one_cluster_pair(region, result)
+		if not new_connection:
+			break
+		iterations += 1
+
+		if iterations % 5 == 0:
+			if progress_callback.is_valid():
+				progress_callback.call("Connecting clusters", iterations, max_iterations)
+			await scene_tree.process_frame
+
+	if progress_callback.is_valid():
+		progress_callback.call("Extended connections", 0, max_iterations)
+	await scene_tree.process_frame
+
+	await _try_extended_connections_async(region, result, scene_tree, progress_callback)
+
+	if progress_callback.is_valid():
+		progress_callback.call("Complete", 1, 1)
+
+
 ## Connects isolated clusters until no more connections possible.
 ## @param region: The region containing all systems.
 ## @param result: The current result to modify in place.
@@ -29,6 +68,46 @@ func connect_clusters(region: JumpLaneRegion, result: JumpLaneResult) -> void:
 		iterations += 1
 
 	_try_extended_connections(region, result)
+
+
+## Async version of extended connections with progress reporting.
+func _try_extended_connections_async(
+	region: JumpLaneRegion,
+	result: JumpLaneResult,
+	scene_tree: SceneTree,
+	progress_callback: Callable
+) -> void:
+	var ext_iterations: int = 0
+	var ext_max: int = 100
+
+	while ext_iterations < ext_max:
+		var clusters: Array = _identify_clusters(result)
+		if clusters.size() < 2:
+			break
+
+		var best_pair: Dictionary = _find_closest_cluster_pair_within(
+			clusters,
+			region,
+			result,
+			MAX_EXTENDED_DISTANCE
+		)
+		if not best_pair.is_empty():
+			_create_direct_red_connection(best_pair, result)
+			ext_iterations += 1
+			if ext_iterations % 5 == 0:
+				if progress_callback.is_valid():
+					progress_callback.call("Extended connections", ext_iterations, ext_max)
+				await scene_tree.process_frame
+			continue
+
+		var path_info: Dictionary = _find_multi_hop_path(clusters, region, result)
+		if path_info.is_empty():
+			break
+		_create_multi_hop_red_connections(path_info, result)
+		ext_iterations += 1
+		if progress_callback.is_valid():
+			progress_callback.call("Extended connections (pathfinding)", ext_iterations, ext_max)
+		await scene_tree.process_frame
 
 
 ## Attempts to connect one pair of clusters.

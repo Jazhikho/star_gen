@@ -51,6 +51,12 @@ var galaxy_config_data: Dictionary = {}
 ## Systems themselves are not persisted; they regenerate deterministically.
 var cached_system_count: int = 0
 
+## Serialized JumpLaneRegion (null if no routes calculated).
+var jump_lane_region_data: Dictionary = {}
+
+## Serialized JumpLaneResult (null if no routes calculated).
+var jump_lane_result_data: Dictionary = {}
+
 
 ## Returns this script for self-instantiation (avoids class_name resolution order when loaded as dependency).
 static func _script_ref() -> GDScript:
@@ -104,6 +110,8 @@ func to_dict() -> Dictionary:
 
 	dict["galaxy_config_data"] = galaxy_config_data
 	dict["cached_system_count"] = cached_system_count
+	dict["jump_lane_region_data"] = jump_lane_region_data
+	dict["jump_lane_result_data"] = jump_lane_result_data
 	return dict
 
 
@@ -154,6 +162,12 @@ static func from_dict(dict: Dictionary) -> Variant:
 	else:
 		data.galaxy_config_data = {}
 	data.cached_system_count = dict.get("cached_system_count", 0) as int
+
+	var jl_region: Variant = dict.get("jump_lane_region_data")
+	data.jump_lane_region_data = jl_region if jl_region is Dictionary else {}
+
+	var jl_result: Variant = dict.get("jump_lane_result_data")
+	data.jump_lane_result_data = jl_result if jl_result is Dictionary else {}
 
 	return data
 
