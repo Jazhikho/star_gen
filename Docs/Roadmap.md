@@ -24,20 +24,6 @@ This roadmap builds StarGen in three layers: (1) viewable celestial objects (edi
 
 ---
 
-## What is done
-
-Verified against the codebase as of the last roadmap update.
-
-**Object layer:** Celestial object model (validation, serialization, persistence). Object generators (star, planet, moon, asteroid, ring system). Golden masters (28 fixtures). Object viewer (generate, inspect, save/load; population override: Auto/None/Natural populace/Colony for planet/moon). Body rendering (stars, planets, gas giants, atmospheres, rings). Population framework (PlanetProfile, PopulationLikelihood, natives, colonies, history). Outposts and space stations (StationGenerator, placement rules, prototype).
-
-**Solar system layer:** Data model (SolarSystem, SystemHierarchy, OrbitHost, AsteroidBelt). Orbital mechanics (Kepler, Hill sphere, Roche limit, resonances, stability). Stellar config generator. Orbit slot generator. Planet generation (SystemPlanetGenerator). Moon generation (SystemMoonGenerator). Asteroid belts (SystemAsteroidGenerator). Validation, serialization, persistence. Golden masters (10 system fixtures). System viewer (3D layout, orbit renderer, body nodes, inspector, link to object viewer). System display layout (sweep-based separation, no overlap in multi-star systems). Zone visualization, view toggles, generation UI.
-
-**Galaxy layer:** Galaxy data model (Galaxy, Sector, GalaxyStar, GalaxySystemGenerator). Lazy sector and system generation; metallicity and age bias from galactic position. Welcome screen (Start New, Load, Quit). GalaxyConfig (type, arms, pitch, ellipticity, seed). Density models (spiral, elliptical, irregular). DensitySampler, GalaxyCoordinates. Galaxy viewer (3D, quadrant/sector/subsector zoom, MultiMesh stars) wired to Galaxy. Save/load galaxy state (seed, zoom, camera, selection; systems regenerate on demand).
-
-**Jump lanes:** Domain (JumpLaneCalculator, JumpLaneClusterConnector, connection types including extended red). Prototype scene with mock data. Unit tests.
-
----
-
 ## Efforts (remaining work)
 
 Contributors pick an effort and work against master. Efforts can run in parallel unless gated. **Gating:** An effort with a gate should start only after its gate(s) are done; gates exist so the dependent work has the right data model or behaviour to build on. **Branch:** When work on an effort is done in a branch (instead of directly on master), put the branch name in the Branch column so others can find it.
@@ -90,36 +76,6 @@ Contributors pick an effort and work against master. Efforts can run in parallel
 **Tests:** Lighting direction from star position; axial tilt applied; rotation/orbit period scaling; belt torus and asteroid placement.
 
 **Acceptance:** In the system viewer, bodies are lit from the star direction, show correct tilt, animate at ~1 day = 1 s, and asteroid belts appear as torus with asteroids inside.
-
----
-
-### Galaxy data model & lazy generation
-
-**Goal:** Add Galaxy, Sector, GalaxyStar classes and lazy system generation so systems are generated on demand. **Status: Complete.**
-
-**Deliverables:**
-•	Galaxy data model: Galaxy, Sector, GalaxyStar with serialization.
-•	Sector-based lazy generation; density from density model.
-•	Stellar metallicity from galactic position (core vs. spiral arm vs. halo).
-•	Star formation rate by region (affects age distribution via age_bias).
-•	Lazy generation consistency: same sector generates same systems.
-•	Single entry point for "systems in region" (subsector/sector) for jump-lanes integration.
-•	GalaxySystemGenerator for on-demand system generation from GalaxyStar.
-•	Wire Galaxy into GalaxyViewer.
-•	Persistence uses existing GalaxySaveData (systems regenerate deterministically from seeds).
-
-**Tests:**
-•	Determinism across lazy generation. ✓
-•	Metallicity gradients (radial and vertical). ✓
-•	Grid-based sector indexing. ✓
-•	Lazy generation consistency. ✓
-•	GalaxySystemGenerator produces valid systems with provenance. ✓
-•	Planets have valid parent_id references. ✓
-•	Persistence round-trip (existing tests cover GalaxySaveData). ✓
-
-**Acceptance:** Browse galaxy → open system → edits persist across sessions. Galaxy viewer remains responsive with 10k+ stars.
-
-**Gates:** Galactic generator refinement, Galactic tools, Galactic polish, and Jump lanes optimization and polish depended on this; all are now unblocked.
 
 ---
 
@@ -244,8 +200,6 @@ Contributors pick an effort and work against master. Efforts can run in parallel
 •	Integration test: load sector, run tool, assert connection/orphan counts.
 •	Docs: where jump-lanes lives (menu/panel/shortcut) and how to use.
 
-**See:** `Docs/FeatureConceptBranchImplementationPlan.md` for detailed stages.
-
 **Acceptance:** User can select subsector or sector and run the tool. Lines appear with correct colors; orphans appear in red; rendering is performant and polished.
 
 ---
@@ -255,7 +209,7 @@ Contributors pick an effort and work against master. Efforts can run in parallel
 **Goal:** Address TODOs in code, replace placeholders, and redo simplified formulas where accuracy or correctness matters.
 
 **Scope (from codebase survey):**
-•	**TODOs:** SystemViewer — Escape key for back navigation; SpaceStation/Colony — civilization reference placeholder (replace when Civilization model exists).
+•	**TODOs:** SpaceStation/Colony — civilization reference placeholder (replace when Civilization model exists).
 •	**Simplifications to review/redo:** OrbitalMechanics (stability zone simplified check); OrbitSlotGenerator (companion positions, host at origin); OrbitTable (tidal locking formula from Peale 1977); PlanetSurfaceGenerator (pressure/boiling point); PlanetPhysicalGenerator (tidal heating); MoonPhysicalGenerator (tidal heating); RingSystemGenerator (resonance-based gaps); StationPlacementRules (simplified system context); SystemDisplayLayout (logarithmic vs astronomical scaling — document or revise).
 •	**General:** Audit for other "simplified" or "placeholder" comments; consolidate or document design decisions.
 
@@ -300,37 +254,7 @@ Proposed changes that do not fit any existing effort are added as a **new effort
 
 **Outposts and space stations:** StationGenerator, StationPlacementRules, OutpostAuthority; prototype at `src/app/prototypes/StationGeneratorPrototype.tscn`.
 
-**Jump lanes (domain + prototype):** `src/domain/jumplanes/`, `src/app/jumplanes_prototype/`; see `Docs/FeatureConceptBranchImplementationPlan.md` for Phase 2 optimization and polish work.
+**Jump lanes (domain + prototype + galaxy viewer):** `src/domain/jumplanes/`, `src/app/jumplanes_prototype/`, and galaxy viewer (`SectorJumpLaneRenderer`, Calculate Jump Routes in `GalaxyInspectorPanel`, save/load in `GalaxySaveData`). Remaining work: see "Jump lanes optimization and polish" effort above.
 
 **Civilisation / population detail (concepts):** `Concepts/Integration/` — Tech Tree, Regime Chart, and History sim with shared REGIMES/TRANSITIONS and tech-level–regime validity. `Concepts/HistoryGenerator/` — Culture sim, regime transitions, and map visualization. Reference for Population detail (civilisation/regime) effort. See `Docs/RegimeChangeModel.md`.
 
----
-
-## Completed efforts
-
-### Solar system save/load & polish (completed)
-
-**Goal:** Complete the solar system viewer with save/load UI and final optimizations.
-
-**Deliverables:**
-•	Save/load UI for systems (file dialogs, save/load buttons). ✓
-•	SystemViewerSaveLoad helper class (follows GalaxyViewerSaveLoad pattern). ✓
-•	UI polish (tooltips, keyboard shortcuts Ctrl+S/Ctrl+O/Escape, status messages). ✓
-•	Performance: existing LOD in SystemBodyNode by body type; camera_moved signal exists for future culling. ✓
-•	Integration tests for save/load round-trip. ✓
-
-**Tests:** Save/load round-trip; UI element existence; method availability.
-
-**Acceptance:** Save system → load system → identical system displayed. ✓
-
-### Code quality: shadowed/unused variables, debug prints (completed)
-
-**Goal:** Eliminate GDScript reload warnings and noisy console output.
-
-**Deliverables:**
-•	Renamed shadowed variables: `seed` → `galaxy_seed` (Galaxy, GalaxySpec) and `generation_seed` (PopulationSpec, ColonySpec, StationSpec); parameter `sector_world_origin` → `ref_sector_origin` in GalaxyCoordinates; `p_galaxy_seed` in GalaxySpec factory methods.
-•	Prefixed or removed unused parameters/variables (e.g. DensityModelInterface, ColonyGenerator, NativePopulationGenerator, JumpLaneCalculator); added getters for GalaxyStar sector coords.
-•	Removed debug prints from SystemViewer (`_debug_system_layout`, camera-fitted message).
-•	Tests: error-path tests no longer trigger `push_error` (GalaxyPersistence, SaveData, GalaxySystemGenerator, MoonGenerator, ObjectViewer `suppress_console`); fixed TestObjectViewer camera assertion and TestGasGiantShaderParams Saturn-class colors; integer division and assertion updates in tests.
-
-**Documentation:** GDD.md updated for GalaxyStar/seed property names; this roadmap entry.

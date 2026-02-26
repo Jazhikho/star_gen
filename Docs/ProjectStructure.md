@@ -57,8 +57,6 @@ star_gen/
 │
 ├── Docs/
 │   ├── CelestialBodyProperties.md
-│   ├── FeatureConceptBranch.md
-│   ├── FeatureConceptBranchImplementationPlan.md
 │   ├── GDD.md
 │   ├── ProjectStructure.md        # This file
 │   ├── RegimeChangeModel.md

@@ -10,7 +10,7 @@ Built with **Godot 4.x** and **GDScript**.
 
 **Done:** Object model, generators, viewer, save/load, rendering (stars, planets, atmospheres, rings). Solar system generator and viewer (full pipeline: stellar config, orbit slots, planets, moons, belts, validation, persistence, 3D layout). Galaxy data model (Galaxy, Sector, GalaxyStar, GalaxySystemGenerator) with lazy system generation; galaxy viewer (welcome screen, GalaxyConfig, density models, save/load). Population framework, stations, jump lanes (domain + prototype).
 
-**Remaining efforts:** Solar system constraints, system viewer rendering improvements, object editing, rendering v2, galactic refinement, solar system tools, galactic tools, galactic polish, jump lanes integration, code quality & simplifications.
+**Remaining efforts:** Solar system constraints, system viewer rendering improvements, object editing, rendering v2, galactic refinement, solar system tools, galactic tools, galactic polish, jump lanes optimization and polish, code quality & simplifications.
 
 **Test Status:** 1797+ tests; headless run via `godot --headless --script res://Tests/RunTestsHeadless.gd`.
 
@@ -21,7 +21,7 @@ All development is on **master**. The following are merged and current:
 - **Galaxy data model** — Galaxy, Sector, GalaxyStar, GalaxySystemGenerator; lazy sector and system generation; metallicity/age from galactic position; wired into GalaxyViewer.
 - **Population framework** — PlanetProfile, PopulationLikelihood, native populations, colonies, history; unit tests in `Tests/Unit/Population/`.
 - **Station framework** — Outposts, SpaceStations, StationSpec, StationGenerator; prototype at `src/app/prototypes/StationGeneratorPrototype.tscn`.
-- **Jump Lanes** — Jump lane domain and prototype in `src/domain/jumplanes/` and `src/app/jumplanes_prototype/`. See [Docs/FeatureConceptBranch.md](Docs/FeatureConceptBranch.md) for scope and [Docs/FeatureConceptBranchImplementationPlan.md](Docs/FeatureConceptBranchImplementationPlan.md) for implementation plan.
+- **Jump Lanes** — Jump lane domain, prototype, and galaxy viewer integration: `src/domain/jumplanes/`, `src/app/jumplanes_prototype/`, and in galaxy viewer (`SectorJumpLaneRenderer`, Calculate Jump Routes in inspector, save/load). Remaining work: see "Jump lanes optimization and polish" in [Docs/Roadmap.md](Docs/Roadmap.md).
 
 See [Docs/Roadmap.md](Docs/Roadmap.md) and [claude.md](claude.md) for architecture, roadmap, and working agreement.
 
