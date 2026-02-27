@@ -1,6 +1,6 @@
 # StarGen Project Structure
 
-Complete enumeration of the project file structure. Excludes `.uid` files, `.git/`, and `.godot/` (generated).
+Complete enumeration of the project file structure. Excludes `.uid` files, `.git/`, `.godot/` (generated).
 
 ```
 star_gen/
@@ -255,23 +255,6 @@ star_gen/
 │   │   │   ├── JumpLaneResult.gd
 │   │   │   └── JumpLaneSystem.gd
 │   │   │
-│   │   ├── asteroid_belt_concept/
-│   │   │   ├── AsteroidBeltDataConcept.gd
-│   │   │   ├── AsteroidBeltGeneratorConcept.gd
-│   │   │   ├── AsteroidBeltSpecConcept.gd
-│   │   │   ├── AsteroidDataConcept.gd
-│   │   │   ├── MajorAsteroidInputConcept.gd
-│   │   │   └── OrbitalMathConcept.gd
-│   │   │
-│   │   ├── system/
-│   │   │   ├── asteroid_belt/
-│   │   │   │   ├── BeltAsteroidData.gd
-│   │   │   │   ├── BeltFieldData.gd
-│   │   │   │   ├── BeltFieldGenerator.gd
-│   │   │   │   ├── BeltFieldSpec.gd
-│   │   │   │   ├── BeltMajorAsteroidInput.gd
-│   │   │   │   └── BeltOrbitalMath.gd
-│   │   │
 │   │   ├── math/
 │   │   │   ├── MathUtils.gd
 │   │   │   └── Units.gd
@@ -320,6 +303,14 @@ star_gen/
 │   │   │
 │   │   ├── system/
 │   │   │   ├── AsteroidBelt.gd
+│   │   │   ├── asteroid_belt/
+│   │   │   │   ├── BeltAsteroidData.gd
+│   │   │   │   ├── BeltFieldData.gd
+│   │   │   │   ├── BeltFieldGenerator.gd
+│   │   │   │   ├── BeltFieldSpec.gd
+│   │   │   │   ├── BeltMajorAsteroidInput.gd
+│   │   │   │   └── BeltOrbitalMath.gd
+│   │   │   │
 │   │   │   ├── HierarchyNode.gd
 │   │   │   ├── OrbitalMechanics.gd
 │   │   │   ├── OrbitHost.gd
@@ -504,20 +495,6 @@ star_gen/
     │   ├── TestUnits.gd
     │   ├── TestValidation.gd
     │   └── TestVersions.gd
-    │
-    ├── concept/
-    │   ├── BeltViewerCameraController.gd
-    │   ├── BeltViewerRenderer.gd
-    │   ├── BeltViewerScene.gd
-    │   ├── BeltViewerScene.tscn
-    │   ├── BeltViewerUI.gd
-    │   ├── ConceptDeps.gd
-    │   ├── ConceptHeadlessRunnerNode.gd
-    │   ├── ConceptTestScene.gd
-    │   ├── ConceptTestScene.tscn
-    │   ├── RunConceptTestsHeadless.gd
-    │   ├── TestAsteroidBeltGeneratorConcept.gd
-    │   └── TestOrbitalMathConcept.gd
     │
     ├── JumpLanesDeps.gd
     ├── JumpLanesTestRunner.gd

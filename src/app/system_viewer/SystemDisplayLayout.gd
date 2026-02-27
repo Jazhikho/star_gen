@@ -29,6 +29,9 @@ const PLANET_MIN_RADIUS: float = 0.25
 ## Maximum planet display radius.
 const PLANET_MAX_RADIUS: float = 2.0
 
+## Half-width of asteroid belt display band in Godot units.
+const BELT_DISPLAY_HALF_WIDTH: float = 0.5
+
 ## Minimum gap between star surface and planet surface on first orbit.
 const FIRST_ORBIT_SURFACE_GAP: float = 4.0
 
@@ -797,11 +800,8 @@ static func _position_orbit_content(
 				belt_layout.host_id = host_id
 				belt_layout.host_center = host_center
 				belt_layout.center_display_radius = orbit_radius
-				var center_m: float = maxf(belt_obj.get_center_m(), 1.0)
-				var half_width_ratio: float = (belt_obj.get_width_m() * 0.5) / center_m
-				var display_half_width: float = clampf(orbit_radius * half_width_ratio, ORBIT_SPACING * 0.15, ORBIT_SPACING * 0.45)
-				belt_layout.inner_display_radius = maxf(0.1, orbit_radius - display_half_width)
-				belt_layout.outer_display_radius = orbit_radius + display_half_width
+				belt_layout.inner_display_radius = maxf(0.1, orbit_radius - BELT_DISPLAY_HALF_WIDTH)
+				belt_layout.outer_display_radius = orbit_radius + BELT_DISPLAY_HALF_WIDTH
 				belt_layout.center_au = belt_obj.get_center_au()
 				belt_layout.inner_au = belt_obj.inner_radius_m / _units.AU_METERS
 				belt_layout.outer_au = belt_obj.outer_radius_m / _units.AU_METERS
