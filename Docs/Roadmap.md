@@ -274,6 +274,13 @@ Contributors pick an effort and work against master. Efforts can run in parallel
 7. **Persistence and UI:** Store UWP (and optional fields) in save format; show UWP in system/planet inspector when Traveller use case is active; ensure versioning/schema note if format changes.
 8. **Documentation:** Update Roadmap and add minimal Doc describing the use case, mappings, and applied rules.
 
+**Traveller-specific galaxy/subsector view and jump routes**
+9. **Traveller subsector grid config:** Add a logical “Traveller grid” overlay for subsectors that can be configured per use case (e.g. 8×10, 10×10, 8×8×8). Keep the physical 3D model (10pc subsector cubes, parsec positions) unchanged and derive grid cells from local parsec-space coordinates.
+10. **3D→2D projection:** Define a deterministic projection from 3D positions to 2D Traveller map coordinates using the existing convention (XZ = galactic plane, Y = height). Use X/Z for map columns/rows and treat Y as depth (slice index, inclusion band, or visual cue) so that multiple stars in a cell can be handled via primary/secondary world policies.
+11. **Traveller subsector export:** For a chosen subsector and grid config, bin stars into grid cells, choose a primary system per cell (e.g. by proximity to midplane or population), and export a 2D subsector view (hex positions, names, UWP, trade codes, bases) suitable for on-screen display and printing.
+12. **Traveller jump-route mode:** Add an alternative jump-lane calculator that uses Traveller-style distances and rules: integer parsec distances (from 3D positions or hex distance) with a max jump rating (e.g. J-4 or J-6), connecting nearby systems and building “mains” and spurs based on distance and importance, while still respecting the underlying 3D layout.
+13. **2D jump-route rendering:** Project Traveller jump routes to the 2D subsector map (hex-to-hex lines), encoding jump distance in styles or labels (e.g. J-1…J-6), so printed maps show Traveller-flavoured routes that remain consistent with the 3D galaxy.
+
 ---
 
 ## Effort discipline
