@@ -41,6 +41,7 @@ Contributors pick an effort and work against master. Efforts can run in parallel
 | Jump lanes optimization and polish | Optimize and polish jump-lane rendering in galaxy viewer; population data; line/orphan visuals | — | — |
 | Code quality & simplifications | TODOs, placeholder replacements, simplified formulas to redo | — | — |
 | Population detail (civilisation/regime) | Enrich population with tech level, regime type, and transitions; align with Integration and History Generator concepts | — | — |
+| Traveller Use Case | Generate systems/planets/populations usable in standard Traveller play: UWP codes, Traveller rules where applicable, use-case toggle | — | `effort/traveller-use-case` |
 
 ---
 
@@ -239,6 +240,39 @@ Contributors pick an effort and work against master. Efforts can run in parallel
 **Tests:** Determinism for tech/regime assignment; valid regime for given tech level; transition rules respected; serialization/deserialization of new fields.
 
 **Acceptance:** Natives/colonies have tech level and regime; regime is valid for that tech level; placeholder replaced; Integration and History Generator concepts remain the reference for the data shape and rules.
+
+---
+
+### Traveller Use Case
+
+**Goal:** Make StarGen output usable in a standard Traveller tabletop game. When “Traveller use case” is selected, generation produces worlds with valid Universal World Profile (UWP) codes and applies Traveller-compatible rules where they affect generation.
+
+**Context:** Traveller uses a **UWP** string (e.g. `X56789A-7`) for each world: Starport (A–E, X), Size (0–9), Atmosphere (0–15), Hydrographics (0–10), Population (0–15, digit = exponent), Government (0–15), Law Level (0–9), Tech Level (0–15). Optional: bases (Naval, Scout, etc.), trade codes (Ag, Hi, In, etc.). StarGen already has: physical size, atmosphere pressure/composition, hydrographics (ocean coverage), population and government (GovernmentType), tech level (TechnologyLevel), and station classes (U/O/B/A/S). Gaps: explicit Law Level, starport grade (Traveller A–X) vs station class, and numeric UWP digits with Traveller’s tables and trade-code rules.
+
+**Deliverables:**
+•	**Use-case toggle:** A generation/spec option (e.g. “Traveller use case”) that enables Traveller-specific outputs and rules. No change to default (non-Traveller) behaviour.
+•	**UWP model and assignment:** Domain type(s) for UWP: starport code, size/atmo/hydro/pop/gov/law/tech digits; deterministic derivation from existing CelestialBody, PlanetProfile, and population data (plus any new Law Level source).
+•	**Mapping tables:** Size (radius/mass → 0–9); Atmosphere (pressure/composition → 0–15); Hydrographics (ocean coverage → 0–10); Population (count → exponent 0–15); Government (GovernmentType.Regime → Traveller 0–15); Tech Level (TechnologyLevel.Level → Traveller 0–15). Starport: from station presence and class, or world population/importance → A–X.
+•	**Law Level:** Define Law Level (0–9) in domain (e.g. on PlanetProfile or population); derive from government, tech level, and/or culture; use in UWP and, where applicable, in Traveller rules.
+•	**Traveller rules where applicable:** When use case is on, apply Traveller-compatible rules that affect generation (e.g. tech level modifiers from size/atmosphere/hydrographics; starport from population and location; trade codes from UWP digits). Document which rules are applied and which remain optional/house-rule.
+•	**Trade codes (optional):** Derive Traveller trade codes (Ag, Hi, In, etc.) from UWP and attach to world data when use case is on.
+•	**Bases (optional):** Optional Naval/Scout/other base flags derivable from government, starport, and population for Traveller play.
+•	**Serialization and UI:** UWP (and trade codes/bases if implemented) in save/load and visible in system/planet inspector when Traveller use case is active.
+•	**Docs:** Roadmap and, if needed, a short Doc describing Traveller use case, mapping choices, and which Traveller rules are used.
+
+**Tests:** Determinism for UWP derivation (fixed seed → same UWP); mapping boundaries (e.g. size digit 0–9, atmo 0–15); Law Level in range; tech-level modifiers consistent with Traveller when use case on; serialization round-trip for UWP/bases/trade codes.
+
+**Acceptance:** With Traveller use case enabled: generate system → every habitable/world body has a valid UWP; UWP digits and starport follow Traveller conventions; inspector shows UWP (and optional trade codes/bases); same seed produces same UWP; default (Traveller off) behaviour unchanged.
+
+**Outline: what needs to be done to bring the repo to Traveller-usable state**
+1. **Spec and toggle:** Add “Traveller use case” (or similar) flag to system/galaxy generation spec and wire it through so generators and UI can branch on it.
+2. **UWP domain model:** Introduce UWP data structure (starport, size, atmo, hydro, pop, gov, law, tech) and a deterministic UWP calculator that takes CelestialBody + PlanetProfile + population (natives/colonies) + stations and produces UWP (and optionally bases/trade codes).
+3. **Mappings:** Implement and test each digit mapping (size, atmosphere, hydrographics, population exponent, government, tech level) with reference to Traveller tables; add starport logic (world importance + station class → A–X).
+4. **Law Level:** Add Law Level to domain (e.g. 0–9); derive from regime, tech, and/or RNG with constraints; persist and use in UWP.
+5. **Traveller generation rules:** Where generation choices are affected (e.g. tech level modifiers, starport from population), apply Traveller rules only when use case is on; keep existing logic as default.
+6. **Trade codes and bases:** Optional pass that computes trade codes and base presence from UWP and context; expose in data and UI.
+7. **Persistence and UI:** Store UWP (and optional fields) in save format; show UWP in system/planet inspector when Traveller use case is active; ensure versioning/schema note if format changes.
+8. **Documentation:** Update Roadmap and add minimal Doc describing the use case, mappings, and applied rules.
 
 ---
 
