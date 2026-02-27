@@ -52,6 +52,16 @@ func _create_test_planet(id: String, earth_radii: float, parent_id: String, sma_
 	return planet
 
 
+## Creates a test asteroid belt.
+func _create_test_belt(id: String, host_id: String, inner_au: float, outer_au: float) -> AsteroidBelt:
+	var belt: AsteroidBelt = AsteroidBelt.new(id, "Test Belt")
+	belt.orbit_host_id = host_id
+	belt.inner_radius_m = inner_au * _units.AU_METERS
+	belt.outer_radius_m = outer_au * _units.AU_METERS
+	belt.total_mass_kg = 1.0e21
+	return belt
+
+
 ## Tests star display radius for sun-like star.
 func test_star_display_radius_solar() -> void:
 	var radius: float = _system_display_layout.calculate_star_display_radius(_units.SOLAR_RADIUS_METERS)
@@ -145,6 +155,33 @@ func test_orbit_spacing() -> void:
 
 	assert_float_equal(second - first_orbit, 6.0, 0.01, "Orbit spacing should be 6 units")
 	assert_float_equal(third - second, 6.0, 0.01, "Orbit spacing should be consistent")
+
+
+## Tests belt layouts are generated with display radii and AU metadata.
+func test_belt_layout_generated() -> void:
+	var system: SolarSystem = SolarSystem.new("test", "Belt System")
+	var star: CelestialBody = _create_test_star("star_0", 1.0)
+	system.add_body(star)
+	var planet: CelestialBody = _create_test_planet("planet_0", 1.0, "node_star_0", 1.0)
+	system.add_body(planet)
+	system.add_asteroid_belt(_create_test_belt("belt_0", "node_star_0", 2.0, 3.0))
+	var star_node: HierarchyNode = HierarchyNode.create_star("node_star_0", "star_0")
+	system.hierarchy = SystemHierarchy.new(star_node)
+
+	var layout: SystemDisplayLayout.SystemLayout = _system_display_layout.calculate_layout(system)
+	var belt_layout: RefCounted = layout.get_belt_layout("belt_0")
+	assert_not_null(belt_layout, "Belt layout should be created")
+	assert_greater_than(belt_layout.center_display_radius, 0.0, "Display center radius should be positive")
+	assert_greater_than(belt_layout.outer_display_radius, belt_layout.inner_display_radius, "Outer display radius > inner")
+	assert_float_equal(belt_layout.inner_au, 2.0, 0.001, "Inner AU metadata should be preserved")
+	assert_float_equal(belt_layout.outer_au, 3.0, 0.001, "Outer AU metadata should be preserved")
+
+
+## Tests belt inclination cap scales up with display distance.
+func test_belt_inclination_scales_with_distance() -> void:
+	var near_value: float = _system_display_layout.calculate_belt_max_inclination_deg(10.0)
+	var far_value: float = _system_display_layout.calculate_belt_max_inclination_deg(60.0)
+	assert_greater_than(far_value, near_value, "Farther belts should allow greater inclination")
 
 
 ## Tests single star system layout.

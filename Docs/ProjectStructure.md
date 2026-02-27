@@ -1,6 +1,6 @@
 # StarGen Project Structure
 
-Complete enumeration of the project file structure. Excludes `.uid` files, `.git/`, and `.godot/` (generated).
+Complete enumeration of the project file structure. Excludes `.uid` files, `.git/`, `.godot/` (generated).
 
 ```
 star_gen/
@@ -132,6 +132,7 @@ star_gen/
 │   │   │       └── noise.tres
 │   │   │
 │   │   ├── system_viewer/
+│   │   │   ├── BeltRenderer.gd
 │   │   │   ├── OrbitRenderer.gd
 │   │   │   ├── SystemBodyNode.gd
 │   │   │   ├── SystemBodyNode.tscn
@@ -303,6 +304,14 @@ star_gen/
 │   │   │
 │   │   ├── system/
 │   │   │   ├── AsteroidBelt.gd
+│   │   │   ├── asteroid_belt/
+│   │   │   │   ├── BeltAsteroidData.gd
+│   │   │   │   ├── BeltFieldData.gd
+│   │   │   │   ├── BeltFieldGenerator.gd
+│   │   │   │   ├── BeltFieldSpec.gd
+│   │   │   │   ├── BeltMajorAsteroidInput.gd
+│   │   │   │   └── BeltOrbitalMath.gd
+│   │   │   │
 │   │   │   ├── HierarchyNode.gd
 │   │   │   ├── OrbitalMechanics.gd
 │   │   │   ├── OrbitHost.gd
@@ -427,6 +436,8 @@ star_gen/
     │   ├── TestAtmosphereProps.gd
     │   ├── TestAtmosphereShaderParams.gd
     │   ├── TestBaseSpec.gd
+    │   ├── TestBeltFieldGenerator.gd
+    │   ├── TestBeltOrbitalMath.gd
     │   ├── TestCelestialBody.gd
     │   ├── TestCelestialSerializer.gd
     │   ├── TestCelestialValidator.gd

@@ -16,6 +16,8 @@ var _test_scripts: Array[GDScript] = [
 	preload("res://Tests/Unit/TestVersions.gd"),
 	preload("res://Tests/Unit/TestMathUtils.gd"),
 	preload("res://Tests/Unit/TestUnits.gd"),
+	preload("res://Tests/Unit/TestBeltOrbitalMath.gd"),
+	preload("res://Tests/Unit/TestBeltFieldGenerator.gd"),
 	preload("res://Tests/Unit/TestValidation.gd"),
 	# Phase 1 tests
 	preload("res://Tests/Unit/TestProvenance.gd"),

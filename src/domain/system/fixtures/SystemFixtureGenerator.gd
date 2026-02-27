@@ -212,6 +212,17 @@ static func generate_system(spec: SolarSystemSpec, enable_population: bool = fal
 		var host_slots: Array = all_slots_dict[host_id]
 		for slot in host_slots:
 			all_slots.append(slot as OrbitSlot)
+
+	# Reserve belt slots before planet generation so belts consume orbit capacity.
+	var belt_reservation: RefCounted = null
+	if spec.include_asteroid_belts:
+		belt_reservation = _system_asteroid_generator.reserve_belt_slots(
+			hosts,
+			all_slots,
+			stars,
+			rng
+		)
+		_system_asteroid_generator.mark_reserved_slots(all_slots, belt_reservation.reserved_slot_ids)
 	
 	# Generate planets
 	var planet_result: SystemPlanetGenerator.PlanetGenerationResult = SystemPlanetGenerator.generate(
@@ -224,6 +235,10 @@ static func generate_system(spec: SolarSystemSpec, enable_population: bool = fal
 	
 	for planet in planet_result.planets:
 		system.add_body(planet)
+
+	# Clear reservation placeholders so only real planets stay marked as filled.
+	if spec.include_asteroid_belts:
+		_system_asteroid_generator.clear_reserved_slot_marks(planet_result.slots)
 	
 	# Generate moons
 	var moon_result: SystemMoonGenerator.MoonGenerationResult = SystemMoonGenerator.generate(
@@ -239,9 +254,9 @@ static func generate_system(spec: SolarSystemSpec, enable_population: bool = fal
 	
 	# Generate asteroid belts (if enabled)
 	if spec.include_asteroid_belts:
-		var belt_result: SystemAsteroidGenerator.BeltGenerationResult = SystemAsteroidGenerator.generate(
+		var belt_result: SystemAsteroidGenerator.BeltGenerationResult = _system_asteroid_generator.generate_from_predefined_belts(
+			belt_reservation.belts,
 			hosts,
-			planet_result.slots,
 			stars,
 			rng
 		)

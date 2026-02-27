@@ -476,3 +476,60 @@ func test_asteroid_names() -> void:
 	
 	for asteroid in result.asteroids:
 		assert_false(asteroid.name.is_empty(), "Asteroid should have a name")
+
+
+## Tests belt slot reservation marks and clearing.
+func test_reserve_belt_slots_marks_and_clears() -> void:
+	var host: OrbitHost = _create_sun_like_host()
+	var star: CelestialBody = _create_test_star()
+	var all_slots: Array[OrbitSlot] = []
+	for i in range(8):
+		var distance_au: float = 0.6 + float(i) * 1.2
+		var slot: OrbitSlot = OrbitSlot.new("open_slot_%d" % i, host.node_id, distance_au * Units.AU_METERS)
+		slot.is_filled = false
+		all_slots.append(slot)
+
+	var host_list: Array[OrbitHost] = [host]
+	var star_list: Array[CelestialBody] = [star]
+	var reservation: RefCounted = _system_asteroid_generator.reserve_belt_slots(
+		host_list,
+		all_slots,
+		star_list,
+		SeededRng.new(121212)
+	)
+	_system_asteroid_generator.mark_reserved_slots(all_slots, reservation.reserved_slot_ids)
+
+	for slot in all_slots:
+		if reservation.reserved_slot_ids.has(slot.id):
+			assert_true(slot.is_filled, "Reserved slot should be marked filled")
+			assert_true(slot.planet_id.begins_with("__belt_reserved__"), "Reserved slot marker should be set")
+
+	_system_asteroid_generator.clear_reserved_slot_marks(all_slots)
+	for slot in all_slots:
+		assert_false(slot.planet_id.begins_with("__belt_reserved__"), "Reserved marker should be removed")
+
+
+## Tests generating from predefined belts preserves IDs and map entries.
+func test_generate_from_predefined_belts() -> void:
+	var host: OrbitHost = _create_sun_like_host()
+	var star: CelestialBody = _create_test_star()
+	var belt: AsteroidBelt = AsteroidBelt.new("belt_test_0", "Test Belt")
+	belt.orbit_host_id = host.node_id
+	belt.inner_radius_m = 2.0 * Units.AU_METERS
+	belt.outer_radius_m = 3.0 * Units.AU_METERS
+	belt.composition = AsteroidBelt.Composition.ROCKY
+	belt.total_mass_kg = 1.0e21
+
+	var belts: Array[AsteroidBelt] = [belt]
+	var host_list: Array[OrbitHost] = [host]
+	var star_list: Array[CelestialBody] = [star]
+	var result: SystemAsteroidGenerator.BeltGenerationResult = _system_asteroid_generator.generate_from_predefined_belts(
+		belts,
+		host_list,
+		star_list,
+		SeededRng.new(343434)
+	)
+
+	assert_true(result.success, "Predefined belt generation should succeed")
+	assert_equal(result.belts.size(), 1, "Should keep predefined belt list")
+	assert_true(result.belt_asteroid_map.has("belt_test_0"), "Result should map predefined belt ID")

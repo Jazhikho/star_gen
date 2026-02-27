@@ -18,9 +18,11 @@ const _celestial_type: GDScript = preload("res://src/domain/celestial/CelestialT
 const _system_display_layout: GDScript = preload("res://src/app/system_viewer/SystemDisplayLayout.gd")
 const _system_body_node_scene: PackedScene = preload("res://src/app/system_viewer/SystemBodyNode.tscn")
 const _orbit_renderer: GDScript = preload("res://src/app/system_viewer/OrbitRenderer.gd")
+const _belt_renderer_class: GDScript = preload("res://src/app/system_viewer/BeltRenderer.gd")
 const _save_load_class: GDScript = preload("res://src/app/system_viewer/SystemViewerSaveLoad.gd")
 const _orbit_host: GDScript = preload("res://src/domain/system/OrbitHost.gd")
 const _units: GDScript = preload("res://src/domain/math/Units.gd")
+const INVALID_POSITION: Vector3 = Vector3(1.0e20, 1.0e20, 1.0e20)
 
 ## UI element references
 @onready var status_label: Label = $UI/TopBar/MarginContainer/HBoxContainer/StatusLabel
@@ -57,17 +59,26 @@ var current_layout: SystemDisplayLayout.SystemLayout = null
 ## Currently selected body ID
 var selected_body_id: String = ""
 
+## Currently selected belt ID (mutually exclusive with body selection).
+var selected_belt_id: String = ""
+
 ## Body node references (body_id -> SystemBodyNode)
 var body_nodes: Dictionary = {}
 
 ## Orbit renderer instance
 var orbit_renderer: OrbitRenderer = null
 
+## Belt renderer instance.
+var belt_renderer: Node3D = null
+
 ## Whether the viewer is ready
 var is_ready: bool = false
 
 ## Whether orbital animation is enabled
 var animation_enabled: bool = true
+
+## Whether a system is currently being (re)generated/displayed.
+var _is_updating_system: bool = false
 
 ## Save/load helper instance
 var _save_load: RefCounted = _save_load_class.new()
@@ -79,6 +90,7 @@ func _ready() -> void:
 	_setup_generation_ui()
 	_setup_view_ui()
 	_setup_orbit_renderer()
+	_setup_belt_renderer()
 	_setup_save_load_ui()
 	_setup_tooltips()
 	_connect_signals()
@@ -98,14 +110,37 @@ func _process(delta: float) -> void:
 ## Updates orbital animation for all bodies and orbit paths.
 ## @param delta: Time elapsed since last frame.
 func _update_orbital_animation(delta: float) -> void:
+	if _is_updating_system or not current_system or not current_layout:
+		return
+
 	_system_display_layout.update_orbits(current_layout, delta)
-	for body_id in body_nodes:
-		var node: SystemBodyNode = body_nodes[body_id] as SystemBodyNode
+	var to_remove: Array[String] = []
+	for body_id in body_nodes.keys():
+		var node: Object = body_nodes[body_id]
+		if node == null or not is_instance_valid(node):
+			to_remove.append(body_id)
+			continue
+
+		var body_node: SystemBodyNode = node as SystemBodyNode
+		if body_node == null or not is_instance_valid(body_node):
+			to_remove.append(body_id)
+			continue
+
 		var layout: SystemDisplayLayout.BodyLayout = current_layout.get_body_layout(body_id)
-		if node and layout:
-			node.global_position = layout.position
+		if layout == null:
+			continue
+
+		if is_instance_valid(body_node):
+			body_node.global_position = layout.position
+
+	for remove_id in to_remove:
+		body_nodes.erase(remove_id)
 	if orbit_renderer:
 		orbit_renderer.update_orbit_positions(current_layout.host_positions)
+	if belt_renderer and belt_renderer.has_method("update_belt_positions"):
+		belt_renderer.call("update_belt_positions", current_layout.host_positions)
+	if belt_renderer and belt_renderer.has_method("update_belt_rotation"):
+		belt_renderer.call("update_belt_rotation", delta)
 
 
 ## Sets up viewport settings.
@@ -147,6 +182,16 @@ func _setup_orbit_renderer() -> void:
 		orbit_renderer = OrbitRenderer.new()
 		orbit_renderer.name = "OrbitRenderer"
 		orbits_container.add_child(orbit_renderer)
+
+
+## Sets up belt renderer.
+func _setup_belt_renderer() -> void:
+	if bodies_container:
+		belt_renderer = _belt_renderer_class.new() as Node3D
+		belt_renderer.name = "BeltRenderer"
+		bodies_container.add_child(belt_renderer)
+		if belt_renderer.has_signal("belt_clicked"):
+			belt_renderer.connect("belt_clicked", _on_belt_clicked)
 
 
 ## Sets up save/load UI initial state.
@@ -257,12 +302,12 @@ func _on_show_zones_toggled(enabled: bool) -> void:
 
 ## Handles save button press.
 func _on_save_pressed() -> void:
-	_save_load.on_save_pressed(self)
+	_save_load.on_save_pressed(self )
 
 
 ## Handles load button press.
 func _on_load_pressed() -> void:
-	_save_load.on_load_pressed(self)
+	_save_load.on_load_pressed(self )
 
 
 ## Updates save button enabled state based on whether a system exists.
@@ -276,6 +321,10 @@ func _update_save_button_state() -> void:
 ## @param min_stars: Minimum star count.
 ## @param max_stars: Maximum star count.
 func generate_system(seed_value: int, min_stars: int = 1, max_stars: int = 1) -> void:
+	# Guard against re-entrancy while a previous display/update is in progress.
+	if _is_updating_system:
+		return
+
 	set_status("Generating system with seed %d..." % seed_value)
 	
 	var spec: SolarSystemSpec = SolarSystemSpec.new(seed_value, min_stars, max_stars)
@@ -293,8 +342,11 @@ func generate_system(seed_value: int, min_stars: int = 1, max_stars: int = 1) ->
 ## Displays a solar system.
 ## @param system: The system to display.
 func display_system(system: SolarSystem) -> void:
+	_is_updating_system = true
+
 	if not system:
 		clear_display()
+		_is_updating_system = false
 		return
 
 	current_system = system
@@ -305,8 +357,10 @@ func display_system(system: SolarSystem) -> void:
 	_update_save_button_state()
 
 	_clear_orbits()
+	_clear_belts()
 	_clear_zones()
 
+	_create_belt_visualizations()
 	_create_body_nodes()
 	_create_orbit_visualizations()
 
@@ -321,6 +375,7 @@ func display_system(system: SolarSystem) -> void:
 		set_status("Viewing: %s" % system.name)
 	else:
 		set_status("Generated: %s" % system.get_summary())
+	_is_updating_system = false
 
 
 ## Fits the camera zoom to show the entire system.
@@ -361,13 +416,14 @@ func clear_display() -> void:
 
 	_clear_bodies()
 	_clear_orbits()
+	_clear_belts()
 	_clear_zones()
 	_update_save_button_state()
 
 	set_status("No system loaded")
 
 
-## Creates 3D nodes for all bodies in the system (stars and planets only; moons not displayed).
+## Creates 3D nodes for all displayed bodies (stars, planets, major asteroids).
 func _create_body_nodes() -> void:
 	if not current_system or not current_layout or not bodies_container:
 		return
@@ -377,6 +433,14 @@ func _create_body_nodes() -> void:
 
 	for planet in current_system.get_planets():
 		_create_body_node_from_layout(planet)
+
+	# Only create nodes for asteroids that belong to a belt with a valid layout.
+	# This prevents asteroid nodes from appearing at INVALID_POSITION.
+	if current_system.asteroid_belts.size() > 0:
+		for asteroid in current_system.get_asteroids():
+			var pos: Vector3 = _get_major_asteroid_display_position(asteroid)
+			if pos != INVALID_POSITION:
+				_create_major_asteroid_node_at(asteroid, pos)
 
 
 ## Creates a 3D node for a single body using pre-calculated layout.
@@ -401,6 +465,100 @@ func _create_body_node_from_layout(body: CelestialBody) -> void:
 	body_nodes[body.id] = body_node
 
 
+## Creates a 3D node for a major asteroid at a known display position.
+## @param asteroid: The asteroid CelestialBody.
+## @param display_position: Pre-calculated world/display position.
+func _create_major_asteroid_node_at(asteroid: CelestialBody, display_position: Vector3) -> void:
+	if not asteroid:
+		return
+
+	var asteroid_display_radius: float = clampf(
+		SystemDisplayLayout.calculate_planet_display_radius(asteroid.physical.radius_m) * 0.4,
+		0.08,
+		0.28
+	)
+	var asteroid_node: SystemBodyNode = _system_body_node_scene.instantiate() as SystemBodyNode
+	if asteroid_node == null:
+		return
+
+	# Default parent and position: direct child of bodies_container at world position.
+	var parent_node: Node3D = bodies_container
+	var local_position: Vector3 = display_position
+
+	# If this asteroid belongs to a belt that has a rendered root, attach it under that root
+	# so it orbits with the belt's rotation and host motion.
+	var belt_id: String = _get_major_asteroid_belt_id(asteroid)
+	if belt_renderer != null and not belt_id.is_empty():
+		var belt_root: Node3D = belt_renderer.get_node_or_null("Belt_" + belt_id) as Node3D
+		if belt_root != null:
+			parent_node = belt_root
+			local_position = belt_root.to_local(display_position)
+
+	asteroid_node.setup(asteroid, asteroid_display_radius, local_position)
+	asteroid_node.body_selected.connect(_on_body_clicked)
+	parent_node.add_child(asteroid_node)
+
+
+## Returns the belt ID this asteroid belongs to, or empty string if none.
+## @param asteroid: The asteroid CelestialBody.
+## @return: Belt ID or "".
+func _get_major_asteroid_belt_id(asteroid: CelestialBody) -> String:
+	if not current_system:
+		return ""
+	for belt in current_system.asteroid_belts:
+		if belt.major_asteroid_ids.has(asteroid.id):
+			return belt.id
+	return ""
+
+
+## Maps a major asteroid's AU orbit data to its belt display slot coordinates.
+## Returns INVALID_POSITION if no matching belt layout exists.
+func _get_major_asteroid_display_position(asteroid: CelestialBody) -> Vector3:
+	if not current_system or not current_layout:
+		return INVALID_POSITION
+
+	var matching_belt: AsteroidBelt = null
+	for belt in current_system.asteroid_belts:
+		if belt.major_asteroid_ids.has(asteroid.id):
+			matching_belt = belt
+			break
+	if matching_belt == null:
+		return INVALID_POSITION
+
+	var belt_layout: RefCounted = current_layout.get_belt_layout(matching_belt.id)
+	if belt_layout == null:
+		return INVALID_POSITION
+
+	var asteroid_au: float = asteroid.orbital.semi_major_axis_m / Units.AU_METERS
+	var band_au: float = maxf(0.001, belt_layout.outer_au - belt_layout.inner_au)
+	var radial_t: float = clampf((asteroid_au - belt_layout.inner_au) / band_au, 0.0, 1.0)
+	var display_radius: float = lerpf(
+		belt_layout.inner_display_radius,
+		belt_layout.outer_display_radius,
+		radial_t
+	)
+	var angle: float = deg_to_rad(asteroid.orbital.mean_anomaly_deg)
+	var incl_deg: float = clampf(absf(asteroid.orbital.inclination_deg), 0.0, belt_layout.max_inclination_deg)
+	var y_offset: float = sin(deg_to_rad(incl_deg)) * sin(angle) * display_radius
+
+	return belt_layout.host_center + Vector3(
+		cos(angle) * display_radius,
+		y_offset,
+		sin(angle) * display_radius
+	)
+
+
+## Creates belt torus and background asteroid visuals.
+func _create_belt_visualizations() -> void:
+	if not current_system or not current_layout or not belt_renderer:
+		return
+	var base_seed: int = 0
+	if current_system.provenance != null:
+		base_seed = current_system.provenance.generation_seed
+	if belt_renderer.has_method("render_belts"):
+		belt_renderer.call("render_belts", current_system, current_layout, base_seed)
+
+
 ## Creates orbit path visualizations for planets and stars.
 func _create_orbit_visualizations() -> void:
 	if not current_system or not current_layout or not orbit_renderer:
@@ -409,41 +567,69 @@ func _create_orbit_visualizations() -> void:
 	for planet in current_system.get_planets():
 		var body_layout: SystemDisplayLayout.BodyLayout = current_layout.get_body_layout(planet.id)
 		if body_layout and body_layout.orbit_radius > 0:
-			_create_circular_orbit(planet.id, body_layout, planet.type)
+			_create_circle_orbit(
+				planet.id,
+				body_layout.orbit_center,
+				body_layout.orbit_radius,
+				planet.type,
+				body_layout.orbit_parent_id
+			)
 
 	for star in current_system.get_stars():
 		var star_orbit: SystemDisplayLayout.BodyLayout = current_layout.get_star_orbit(star.id)
 		if star_orbit and star_orbit.is_orbiting and star_orbit.orbit_radius > 0:
-			_create_circular_orbit(star.id + "_orbit", star_orbit, _celestial_type.Type.STAR)
+			_create_circle_orbit(
+				star.id + "_orbit",
+				star_orbit.orbit_center,
+				star_orbit.orbit_radius,
+				_celestial_type.Type.STAR,
+				star_orbit.orbit_parent_id
+			)
+
+	_create_belt_edge_orbits()
 
 
-## Creates a circular orbit visualization for a body.
+## Creates a circular orbit visualization from explicit parameters.
 ## @param orbit_id: Unique ID for this orbit.
-## @param body_layout: The body's layout data with orbit info.
+## @param center: Center of the orbit circle.
+## @param radius: Orbit radius in display units.
 ## @param body_type: Type of body (for coloring).
-func _create_circular_orbit(orbit_id: String, body_layout: SystemDisplayLayout.BodyLayout, body_type: int) -> void:
-	var center: Vector3 = body_layout.orbit_center
-	var radius: float = body_layout.orbit_radius
-
+## @param parent_id: Host ID for position updates in binary systems.
+func _create_circle_orbit(
+	orbit_id: String,
+	center: Vector3,
+	radius: float,
+	body_type: int,
+	parent_id: String
+) -> void:
 	var points: PackedVector3Array = PackedVector3Array()
 	var segments: int = 64
-
 	for i in range(segments + 1):
 		var angle: float = (float(i) / float(segments)) * TAU
-		var point: Vector3 = center + Vector3(
-			cos(angle) * radius,
-			0.0,
-			sin(angle) * radius
-		)
-		points.append(point)
+		points.append(center + Vector3(cos(angle) * radius, 0.0, sin(angle) * radius))
+	orbit_renderer.add_orbit(orbit_id, points, body_type, parent_id, center)
 
-	orbit_renderer.add_orbit(
-		orbit_id,
-		points,
-		body_type,
-		body_layout.orbit_parent_id,
-		center
-	)
+
+## Creates inner and outer edge orbit lines for each belt.
+## Uses OrbitRenderer so edges track host movement in binary systems automatically.
+func _create_belt_edge_orbits() -> void:
+	if not current_layout or not orbit_renderer:
+		return
+	for belt_layout in current_layout.get_all_belts():
+		_create_circle_orbit(
+			belt_layout.belt_id + "_inner_edge",
+			belt_layout.host_center,
+			belt_layout.inner_display_radius,
+			_celestial_type.Type.ASTEROID,
+			belt_layout.host_id
+		)
+		_create_circle_orbit(
+			belt_layout.belt_id + "_outer_edge",
+			belt_layout.host_center,
+			belt_layout.outer_display_radius,
+			_celestial_type.Type.ASTEROID,
+			belt_layout.host_id
+		)
 
 
 ## Creates zone visualizations (habitable zone, frost line).
@@ -452,11 +638,13 @@ func _create_zone_visualizations() -> void:
 	pass
 
 
-## Clears all body nodes.
+## Clears all body nodes (preserves belt_renderer).
 func _clear_bodies() -> void:
 	body_nodes.clear()
 	if bodies_container:
 		for child in bodies_container.get_children():
+			if child == belt_renderer:
+				continue
 			child.queue_free()
 
 
@@ -464,6 +652,12 @@ func _clear_bodies() -> void:
 func _clear_orbits() -> void:
 	if orbit_renderer:
 		orbit_renderer.clear()
+
+
+## Clears belt visuals.
+func _clear_belts() -> void:
+	if belt_renderer and belt_renderer.has_method("clear"):
+		belt_renderer.call("clear")
 
 
 ## Clears all zone visualizations.
@@ -482,6 +676,7 @@ func _on_body_clicked(body_id: String) -> void:
 ## Selects a body.
 ## @param body_id: The body ID to select.
 func select_body(body_id: String) -> void:
+	selected_belt_id = ""
 	# Deselect previous body
 	if not selected_body_id.is_empty() and body_nodes.has(selected_body_id):
 		var prev_node: SystemBodyNode = body_nodes[selected_body_id] as SystemBodyNode
@@ -507,6 +702,7 @@ func select_body(body_id: String) -> void:
 
 ## Deselects the current body.
 func deselect_body() -> void:
+	selected_belt_id = ""
 	# Deselect current body node
 	if not selected_body_id.is_empty() and body_nodes.has(selected_body_id):
 		var node: SystemBodyNode = body_nodes[selected_body_id] as SystemBodyNode
@@ -525,6 +721,29 @@ func deselect_body() -> void:
 func _update_inspector_system() -> void:
 	if inspector_panel and current_system:
 		inspector_panel.display_system(current_system)
+
+
+## Handles belt click from BeltRenderer.
+## @param belt_id: The clicked belt's ID.
+func _on_belt_clicked(belt_id: String) -> void:
+	# Deselect any selected body first.
+	if not selected_body_id.is_empty() and body_nodes.has(selected_body_id):
+		var prev_node: SystemBodyNode = body_nodes[selected_body_id] as SystemBodyNode
+		if prev_node:
+			prev_node.set_selected(false)
+	selected_body_id = ""
+	if orbit_renderer:
+		orbit_renderer.highlight_orbit("")
+
+	selected_belt_id = belt_id
+
+	if inspector_panel and current_system:
+		for belt in current_system.asteroid_belts:
+			if belt.id == belt_id:
+				inspector_panel.display_selected_belt(belt, current_system)
+				break
+
+	set_status("Selected: %s" % belt_id)
 
 
 ## Updates inspector to show selected body info.

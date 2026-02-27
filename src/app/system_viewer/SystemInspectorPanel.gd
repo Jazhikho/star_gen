@@ -6,6 +6,7 @@ extends VBoxContainer
 const _celestial_type: GDScript = preload("res://src/domain/celestial/CelestialType.gd")
 const _celestial_body: GDScript = preload("res://src/domain/celestial/CelestialBody.gd")
 const _solar_system: GDScript = preload("res://src/domain/system/SolarSystem.gd")
+const _asteroid_belt: GDScript = preload("res://src/domain/system/AsteroidBelt.gd")
 const _units: GDScript = preload("res://src/domain/math/Units.gd")
 const _stellar_props: GDScript = preload("res://src/domain/celestial/components/StellarProps.gd")
 const _physical_props: GDScript = preload("res://src/domain/celestial/components/PhysicalProps.gd")
@@ -107,6 +108,20 @@ func display_system(system: SolarSystem) -> void:
 			]
 			_add_property(_overview_section, host.node_id, host_info)
 
+	# Asteroid belt info (true AU distances, independent of display spacing).
+	if system.asteroid_belts.size() > 0:
+		_add_separator(_overview_section)
+		_add_header(_overview_section, "Asteroid Belts")
+		for belt in system.asteroid_belts:
+			var belt_info: String = "%s | %.2f-%.2f AU | center %.2f AU | majors %d" % [
+				belt.get_composition_string(),
+				belt.inner_radius_m / Units.AU_METERS,
+				belt.outer_radius_m / Units.AU_METERS,
+				belt.get_center_au(),
+				belt.get_major_asteroid_count()
+			]
+			_add_property(_overview_section, belt.name, belt_info)
+
 
 ## Displays details for a selected body.
 ## @param body: The selected celestial body (null to clear).
@@ -157,6 +172,47 @@ func display_selected_body(body: CelestialBody) -> void:
 	_add_open_viewer_button()
 
 
+## Displays details for a selected asteroid belt.
+## @param belt: The selected asteroid belt.
+## @param system: The solar system (for looking up major asteroids).
+func display_selected_belt(belt: AsteroidBelt, system: SolarSystem) -> void:
+	_selected_body = null
+	_clear_section_content(_body_section)
+
+	if belt == null:
+		_add_property(_body_section, "Status", "Click a body to inspect")
+		_remove_open_viewer_button()
+		return
+
+	_add_property(_body_section, "Name", belt.name)
+	_add_property(_body_section, "Type", "Asteroid Belt")
+	_add_property(_body_section, "ID", belt.id)
+
+	_add_separator(_body_section)
+	_add_header(_body_section, "Orbital Extent")
+	_add_property(_body_section, "Inner Edge", "%.4f AU" % (belt.inner_radius_m / Units.AU_METERS))
+	_add_property(_body_section, "Outer Edge", "%.4f AU" % (belt.outer_radius_m / Units.AU_METERS))
+	_add_property(_body_section, "Center", "%.4f AU" % belt.get_center_au())
+	_add_property(_body_section, "Width", "%.4f AU" % belt.get_width_au())
+
+	_add_separator(_body_section)
+	_add_header(_body_section, "Properties")
+	_add_property(_body_section, "Composition", belt.get_composition_string())
+	_add_property(_body_section, "Total Mass", _format_mass_kg(belt.total_mass_kg))
+	_add_property(_body_section, "Major Bodies", str(belt.get_major_asteroid_count()))
+
+	if belt.major_asteroid_ids.size() > 0 and system != null:
+		_add_separator(_body_section)
+		_add_header(_body_section, "Major Asteroids")
+		for ast_id in belt.major_asteroid_ids:
+			var ast: CelestialBody = system.get_body(ast_id)
+			if ast != null:
+				var radius_km: float = ast.physical.radius_m / 1000.0
+				_add_property(_body_section, ast.name, "%.0f km radius" % radius_km)
+
+	_remove_open_viewer_button()
+
+
 ## Clears all displayed information.
 func clear() -> void:
 	_current_system = null
@@ -189,7 +245,7 @@ func _add_physical_properties(body: CelestialBody) -> void:
 			_add_property(_body_section, "Radius", "%.1f km" % (phys.radius_m / 1000.0))
 	
 	var density: float = _calculate_density(phys.mass_kg, phys.radius_m)
-	_add_property(_body_section, "Density", "%.1f kg/mÂ³" % density)
+	_add_property(_body_section, "Density", "%.1f kg/m^3" % density)
 	
 	if phys.rotation_period_s != 0.0:
 		var period_hours: float = absf(phys.rotation_period_s) / 3600.0
@@ -198,6 +254,15 @@ func _add_physical_properties(body: CelestialBody) -> void:
 	
 	if phys.axial_tilt_deg != 0.0:
 		_add_property(_body_section, "Axial Tilt", "%.1f°" % phys.axial_tilt_deg)
+
+
+## Formats a mass value for display.
+## @param mass_kg: Mass in kilograms.
+## @return: Formatted mass string.
+func _format_mass_kg(mass_kg: float) -> String:
+	if mass_kg >= 1.0e24:
+		return "%.2f M⊕" % (mass_kg / Units.EARTH_MASS_KG)
+	return "%.2e kg" % mass_kg
 
 
 ## Adds orbital property rows for a body.

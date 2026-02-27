@@ -21,6 +21,18 @@ const _stellar_props: GDScript = preload("res://src/domain/celestial/components/
 ## Maximum number of major asteroids to generate per belt.
 const MAX_MAJOR_ASTEROIDS: int = 10
 
+## Belt probability per orbit zone. Our solar system has ~1 belt per ~8 slots.
+const BELT_PROBABILITY_HOT: float = 0.05
+
+## Temperate zone belt probability.
+const BELT_PROBABILITY_TEMPERATE: float = 0.12
+
+## Cold zone belt probability (most common; Main Belt sits near frost line).
+const BELT_PROBABILITY_COLD: float = 0.25
+
+## Maximum number of belts per orbit host.
+const MAX_BELTS_PER_HOST: int = 2
+
 ## Minimum belt width as fraction of center distance.
 const MIN_BELT_WIDTH_FRACTION: float = 0.1
 
@@ -59,7 +71,7 @@ class BeltGenerationResult:
 	var asteroids: Array[CelestialBody]
 	
 	## Mapping of belt ID to asteroid IDs.
-	var belt_asteroid_map: Dictionary  # String -> Array[String]
+	var belt_asteroid_map: Dictionary # String -> Array[String]
 	
 	## Whether generation succeeded.
 	var success: bool
@@ -73,6 +85,21 @@ class BeltGenerationResult:
 		belt_asteroid_map = {}
 		success = false
 		error_message = ""
+
+
+## Result of reserving asteroid belt slots before planet placement.
+class BeltReservationResult:
+	extends RefCounted
+
+	## Generated belt definitions.
+	var belts: Array[AsteroidBelt]
+
+	## IDs of slots reserved for belts.
+	var reserved_slot_ids: Array[String]
+
+	func _init() -> void:
+		belts = []
+		reserved_slot_ids = []
 
 
 ## Generates asteroid belts for a system.
@@ -120,6 +147,189 @@ static func generate(
 	return result
 
 
+## Generates major asteroids for pre-selected belts.
+## @param belts: Pre-generated belt definitions.
+## @param orbit_hosts: Orbit hosts for resolving parent IDs.
+## @param stars: Star bodies.
+## @param rng: Random number generator.
+## @return: BeltGenerationResult with generated major asteroids.
+static func generate_from_predefined_belts(
+	belts: Array[AsteroidBelt],
+	orbit_hosts: Array[OrbitHost],
+	stars: Array[CelestialBody],
+	rng: SeededRng
+) -> BeltGenerationResult:
+	var result: BeltGenerationResult = BeltGenerationResult.new()
+	var hosts_by_id: Dictionary = {}
+	for host in orbit_hosts:
+		hosts_by_id[host.node_id] = host
+
+	for belt in belts:
+		result.belts.append(belt)
+		var host: OrbitHost = hosts_by_id.get(belt.orbit_host_id) as OrbitHost
+		if host == null:
+			continue
+		var belt_asteroids: Array[CelestialBody] = _generate_major_asteroids(
+			belt,
+			host,
+			stars,
+			rng
+		)
+		var asteroid_ids: Array[String] = []
+		for asteroid in belt_asteroids:
+			result.asteroids.append(asteroid)
+			asteroid_ids.append(asteroid.id)
+		belt.major_asteroid_ids = asteroid_ids
+		result.belt_asteroid_map[belt.id] = asteroid_ids
+
+	result.success = true
+	return result
+
+
+## Reserves belt slots before planet generation.
+## @param orbit_hosts: Orbit hosts in the system.
+## @param all_slots: All candidate orbit slots.
+## @param stars: Star bodies.
+## @param rng: Random number generator.
+## @return: BeltReservationResult with belts and reserved slot IDs.
+static func reserve_belt_slots(
+	orbit_hosts: Array[OrbitHost],
+	all_slots: Array[OrbitSlot],
+	_stars: Array[CelestialBody],
+	rng: SeededRng
+) -> BeltReservationResult:
+	var result: BeltReservationResult = BeltReservationResult.new()
+
+	for host in orbit_hosts:
+		var belt_count: int = 0
+		var host_slots: Array[OrbitSlot] = []
+
+		for slot in all_slots:
+			if slot.orbit_host_id == host.node_id and slot.is_available():
+				host_slots.append(slot)
+
+		host_slots.sort_custom(func(a: OrbitSlot, b: OrbitSlot) -> bool:
+			return a.semi_major_axis_m < b.semi_major_axis_m
+		)
+
+		for slot in host_slots:
+			if belt_count >= MAX_BELTS_PER_HOST:
+				break
+
+			var prob: float = _belt_probability_for_zone(slot.zone)
+			if rng.randf() >= prob:
+				continue
+
+			var belt: AsteroidBelt = _create_belt_at_slot(slot, host, rng)
+			if belt != null:
+				result.belts.append(belt)
+				result.reserved_slot_ids.append(slot.id)
+				belt_count += 1
+
+	return result
+
+
+## Marks reserved belt slots as filled so planet generation skips them.
+## @param slots: Orbit slots to mark.
+## @param reserved_slot_ids: Slot IDs reserved for belts.
+static func mark_reserved_slots(slots: Array[OrbitSlot], reserved_slot_ids: Array[String]) -> void:
+	for slot in slots:
+		if reserved_slot_ids.has(slot.id):
+			slot.is_filled = true
+			slot.planet_id = "__belt_reserved__%s" % slot.id
+
+
+## Returns belt formation probability for a given orbit zone.
+## @param zone: The orbit zone classification.
+## @return: Probability 0.0–1.0.
+static func _belt_probability_for_zone(zone: OrbitZone.Zone) -> float:
+	match zone:
+		OrbitZone.Zone.HOT:
+			return BELT_PROBABILITY_HOT
+		OrbitZone.Zone.TEMPERATE:
+			return BELT_PROBABILITY_TEMPERATE
+		OrbitZone.Zone.COLD:
+			return BELT_PROBABILITY_COLD
+		_:
+			return BELT_PROBABILITY_TEMPERATE
+
+
+## Creates an asteroid belt centered on a specific orbit slot.
+## @param slot: The orbit slot to convert into a belt.
+## @param host: The orbit host.
+## @param rng: Random number generator.
+## @return: A new AsteroidBelt, or null if parameters are invalid.
+static func _create_belt_at_slot(
+	slot: OrbitSlot,
+	host: OrbitHost,
+	rng: SeededRng
+) -> AsteroidBelt:
+	var center_m: float = slot.semi_major_axis_m
+	if center_m <= 0.0:
+		return null
+
+	var width_fraction: float = rng.randf_range(MIN_BELT_WIDTH_FRACTION, MAX_BELT_WIDTH_FRACTION)
+	var half_width: float = center_m * width_fraction * 0.5
+
+	var belt: AsteroidBelt = AsteroidBelt.new(
+		"belt_%s_%s" % [host.node_id, slot.id],
+		_name_belt_for_zone(slot.zone)
+	)
+	belt.orbit_host_id = host.node_id
+	belt.inner_radius_m = maxf(0.0, center_m - half_width)
+	belt.outer_radius_m = center_m + half_width
+	belt.composition = _composition_for_zone(slot.zone, rng)
+	belt.total_mass_kg = _estimate_belt_mass(
+		belt.inner_radius_m, belt.outer_radius_m,
+		slot.zone == OrbitZone.Zone.COLD, rng
+	)
+	return belt
+
+
+## Returns a display name for a belt based on its orbit zone.
+## @param zone: The orbit zone.
+## @return: Human-readable belt name.
+static func _name_belt_for_zone(zone: OrbitZone.Zone) -> String:
+	match zone:
+		OrbitZone.Zone.HOT:
+			return "Inner Debris Belt"
+		OrbitZone.Zone.TEMPERATE:
+			return "Asteroid Belt"
+		OrbitZone.Zone.COLD:
+			return "Outer Asteroid Belt"
+		_:
+			return "Asteroid Belt"
+
+
+## Returns a belt composition based on its orbit zone.
+## @param zone: The orbit zone.
+## @param rng: Random number generator.
+## @return: Belt composition enum.
+static func _composition_for_zone(zone: OrbitZone.Zone, rng: SeededRng) -> AsteroidBelt.Composition:
+	match zone:
+		OrbitZone.Zone.HOT:
+			return _determine_inner_belt_composition(rng)
+		OrbitZone.Zone.COLD:
+			return _determine_outer_belt_composition(rng)
+		_:
+			var roll: float = rng.randf()
+			if roll < 0.40:
+				return AsteroidBelt.Composition.ROCKY
+			elif roll < 0.75:
+				return AsteroidBelt.Composition.MIXED
+			else:
+				return AsteroidBelt.Composition.METALLIC
+
+
+## Clears belt reservation markers after planet generation.
+## @param slots: Orbit slots to clear.
+static func clear_reserved_slot_marks(slots: Array[OrbitSlot]) -> void:
+	for slot in slots:
+		if slot.planet_id.begins_with("__belt_reserved__"):
+			slot.is_filled = false
+			slot.planet_id = ""
+
+
 ## Generates belts for a single orbit host.
 ## @param host: The orbit host.
 ## @param filled_slots: Slots with planets (to avoid).
@@ -132,17 +342,21 @@ static func _generate_belts_for_host(
 	_stars: Array[CelestialBody],
 	rng: SeededRng
 ) -> Array[AsteroidBelt]:
+	var planet_distances: Array[float] = _collect_filled_distances_for_host(filled_slots, host.node_id)
+	return _generate_belts_for_host_from_distances(host, planet_distances, _stars, rng)
+
+
+## Generates belts using a prepared list of occupied distances for the host.
+static func _generate_belts_for_host_from_distances(
+	host: OrbitHost,
+	planet_distances: Array[float],
+	_stars: Array[CelestialBody],
+	rng: SeededRng
+) -> Array[AsteroidBelt]:
 	var belts: Array[AsteroidBelt] = []
 	
 	if not host.has_valid_zone():
 		return belts
-	
-	# Get planet positions for this host
-	var planet_distances: Array[float] = []
-	for slot in filled_slots:
-		if slot.orbit_host_id == host.node_id and slot.is_filled:
-			planet_distances.append(slot.semi_major_axis_m)
-	planet_distances.sort()
 	
 	# Try to generate inner belt (between frost line and outer planets)
 	if rng.randf() < INNER_BELT_PROBABILITY:
@@ -165,6 +379,68 @@ static func _generate_belts_for_host(
 			belts.append(outer_belt)
 	
 	return belts
+
+
+## Collects occupied orbital distances for one host.
+static func _collect_filled_distances_for_host(
+	filled_slots: Array[OrbitSlot],
+	host_id: String
+) -> Array[float]:
+	var planet_distances: Array[float] = []
+	for slot in filled_slots:
+		if slot.orbit_host_id == host_id and slot.is_filled:
+			planet_distances.append(slot.semi_major_axis_m)
+	planet_distances.sort()
+	return planet_distances
+
+
+## Collects currently available slot distances for one host.
+static func _collect_available_slot_distances(
+	all_slots: Array[OrbitSlot],
+	host_id: String
+) -> Array[float]:
+	var distances: Array[float] = []
+	for slot in all_slots:
+		if slot.orbit_host_id == host_id and slot.is_available():
+			distances.append(slot.semi_major_axis_m)
+	distances.sort()
+	return distances
+
+
+## Finds the best slot ID to reserve for a generated belt.
+static func _find_best_reservation_slot_id(
+	all_slots: Array[OrbitSlot],
+	belt: AsteroidBelt
+) -> String:
+	var best_slot_id: String = ""
+	var best_distance: float = INF
+	var belt_center: float = belt.get_center_m()
+
+	for slot in all_slots:
+		if slot.orbit_host_id != belt.orbit_host_id:
+			continue
+		if not slot.is_available():
+			continue
+		if slot.semi_major_axis_m >= belt.inner_radius_m and slot.semi_major_axis_m <= belt.outer_radius_m:
+			var distance_to_center: float = absf(slot.semi_major_axis_m - belt_center)
+			if distance_to_center < best_distance:
+				best_distance = distance_to_center
+				best_slot_id = slot.id
+
+	if not best_slot_id.is_empty():
+		return best_slot_id
+
+	for slot in all_slots:
+		if slot.orbit_host_id != belt.orbit_host_id:
+			continue
+		if not slot.is_available():
+			continue
+		var distance_to_center: float = absf(slot.semi_major_axis_m - belt_center)
+		if distance_to_center < best_distance:
+			best_distance = distance_to_center
+			best_slot_id = slot.id
+
+	return best_slot_id
 
 
 ## Tries to generate an inner (rocky) asteroid belt.
@@ -297,12 +573,12 @@ static func _find_belt_gap(
 	
 	# Find the gap that contains or is closest to target_center
 	var best_gap_inner: float = min_distance
-	var best_gap_outer: float = planet_distances[0] * 0.8  # Leave margin
+	var best_gap_outer: float = planet_distances[0] * 0.8 # Leave margin
 	var best_gap_score: float = _score_gap(target_center, best_gap_inner, best_gap_outer)
 	
 	# Check gaps between planets
 	for i in range(planet_distances.size() - 1):
-		var gap_inner: float = planet_distances[i] * 1.2  # Leave margin
+		var gap_inner: float = planet_distances[i] * 1.2 # Leave margin
 		var gap_outer: float = planet_distances[i + 1] * 0.8
 		
 		if gap_outer > gap_inner:
@@ -537,13 +813,13 @@ static func _generate_single_major_asteroid(
 	# First asteroid could be Ceres-like (dwarf planet sized)
 	if asteroid_index == 0 and size_km >= 400.0:
 		spec = AsteroidSpec.ceres_like(asteroid_seed)
-		spec.asteroid_type = asteroid_type  # Override type for belt composition
+		spec.asteroid_type = asteroid_type # Override type for belt composition
 	else:
 		spec = AsteroidSpec.new(asteroid_seed, asteroid_type)
 		spec.is_large = size_km >= 400.0
 	
 	# Override size to match power law distribution
-	var radius_m: float = size_km * 1000.0  # km to meters
+	var radius_m: float = size_km * 1000.0 # km to meters
 	spec.set_override("physical.radius_m", radius_m)
 	
 	# Override orbital distance
@@ -590,7 +866,7 @@ static func _get_asteroid_type_for_composition(
 				return AsteroidType.Type.C_TYPE
 		
 		AsteroidBelt.Composition.ICY:
-			return AsteroidType.Type.C_TYPE  # C-type includes icy objects
+			return AsteroidType.Type.C_TYPE # C-type includes icy objects
 		
 		AsteroidBelt.Composition.METALLIC:
 			var roll: float = rng.randf()
