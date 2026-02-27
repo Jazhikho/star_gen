@@ -208,6 +208,7 @@ star_gen/
 │   │   │   └── SubSectorNeighborhood.gd
 │   │   │
 │   │   ├── generation/
+│   │   │   ├── GenerationRealismProfile.gd
 │   │   │   ├── ParentContext.gd
 │   │   │   ├── archetypes/
 │   │   │   │   ├── AsteroidType.gd
@@ -433,8 +434,9 @@ star_gen/
     │   ├── TestColorUtilsShaderParams.gd
     │   ├── TestGalaxy.gd
     │   ├── TestGalaxyConfig.gd
-    │   ├── TestGalaxyInspectorPanel.gd
-    │   ├── TestGalaxySaveData.gd
+│   ├── TestGalaxyInspectorPanel.gd
+│   ├── TestGalaxySaveData.gd
+│   ├── TestGenerationRealismProfile.gd
     │   ├── TestGalaxyStar.gd
     │   ├── TestGalaxySystemGenerator.gd
     │   ├── TestSector.gd
@@ -463,6 +465,7 @@ star_gen/
     │   ├── TestSolarSystem.gd
     │   ├── TestSolarSystemSpec.gd
     │   ├── TestStarGenerator.gd
+│   ├── TestStarGeneratorDistributions.gd
     │   ├── TestStarShaderParams.gd
     │   ├── TestStarTable.gd
     │   ├── TestStellarConfigGenerator.gd
@@ -472,6 +475,7 @@ star_gen/
     │   ├── TestSystemCache.gd
     │   ├── TestSystemDisplayLayout.gd
     │   ├── TestSystemGoldenMasters.gd
+│   ├── TestSystemPlanetDistributions.gd
     │   ├── TestSystemHierarchy.gd
     │   ├── TestSystemInspectorPanel.gd
     │   ├── TestSolarSystemPopulation.gd

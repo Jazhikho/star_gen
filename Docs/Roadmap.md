@@ -242,6 +242,18 @@ Contributors pick an effort and work against master. Efforts can run in parallel
 
 ---
 
+## Scientific calibration and realism
+
+**Realism profiles:** `GenerationRealismProfile` (`src/domain/generation/GenerationRealismProfile.gd`) defines three modes: **Calibrated** (tracks literature-derived distributions), **Balanced** (default; visually rich, roughly plausible), and **Stylized** (more rings, habitable worlds, spectacular systems). A **[0, 1] realism slider** maps to these: 0 → Stylized, 0.5 → Balanced, 1 → Calibrated (`from_slider`). Profile choice plus seed fully defines outcomes when generators respect it (generators are not yet wired to the profile).
+
+**Benchmarks and comparison:** Reference ranges from astrophysical literature are in `Tests/ScientificBenchmarks.gd` (e.g. M-dwarf fraction 60–90%, G+K fraction 10–35%, hot Jupiters &lt;5% of planets). **StarGenerator** is compared to spectral-type benchmarks (local IMF / 20 pc census). **SystemPlanetGenerator** is compared to hot-Jupiter rarity and inner-vs-outer large-planet fractions (exoplanet demographics). **SubSectorGenerator** is tested for solar-neighborhood density (see `TestSubSectorGenerator.test_solar_neighborhood_density_realistic`).
+
+**Running the statistical comparison:** Run the distribution tests via the headless runner or test scene: `TestStarGeneratorDistributions` (spectral histogram vs benchmarks), `TestSystemPlanetDistributions` (hot Jupiters, cold-zone large planets). For custom ensemble runs, use `Tests/GenerationStatsHarness.gd`: `sample_star_spectral_histogram(seed_base, count)` and `sample_system_planet_stats(seed_base, system_count)` return aggregated histograms/stats without writing files.
+
+**Known intentional deviations:** Ring frequency and terrain variety are tuned for visual diversity. When the profile is wired into generators, Calibrated mode will use benchmark-tight parameter sets; Stylized may increase ring likelihood and habitable-zone emphasis while staying within physical bounds.
+
+---
+
 ## Effort discipline
 
 Proposed changes that do not fit any existing effort are added as a **new effort** in this roadmap. Each new effort should include: name, summary, gates (if any), deliverables, tests, and acceptance criteria. Do not implement until that effort is explicitly picked by a contributor.
