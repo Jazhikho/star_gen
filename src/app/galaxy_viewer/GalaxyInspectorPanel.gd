@@ -29,7 +29,6 @@ var _preview_container: VBoxContainer = null
 var _open_system_button: Button = null
 
 ## Jump routes UI (created in _build_ui).
-var _jump_routes_section: VBoxContainer = null
 var _calculate_routes_button: Button = null
 var _show_routes_check: CheckBox = null
 ## True while a calculation is in progress (disables the button).

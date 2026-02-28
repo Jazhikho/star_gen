@@ -240,6 +240,54 @@ static func calculate_ptype_stability_limit(
 	return coeff * binary_separation_m * 1.1
 
 
+# =============================================================================
+# OUTER ORBIT LIMITS (TIDAL VS FORMATION)
+# =============================================================================
+
+
+## Jacobi (tidal) radius: where the Galaxy's tidal field competes with the star's gravity.
+## Scales as M_star^(1/3). Beyond this, companions are barely bound (Oort-like).
+## Solar neighbourhood; r_J ≈ 1.70 pc * (M_tot / (2 M_sun))^(1/3); for a planet M_tot ≈ M_star.
+## @param stellar_mass_kg: Mass of the primary (star or binary) in kg.
+## @return: Jacobi radius in meters (~1e5–5e5 AU for 0.1–5 M_sun).
+static func calculate_jacobi_radius_m(stellar_mass_kg: float) -> float:
+	if stellar_mass_kg <= 0.0:
+		return 0.0
+	var m_solar: float = stellar_mass_kg / Units.SOLAR_MASS_KG
+	var r_j_pc: float = 1.70 * pow(m_solar / 2.0, 1.0 / 3.0)
+	return r_j_pc * Units.PARSEC_METERS
+
+
+## Formation-based outer disc limit: typical dust disc extent scales as M_star^0.6 (Taurus/Lupus).
+## Most "formed in the disc" planets lie inside tens to a few hundred AU; 67% of Lupus discs have R_dust < 30 AU.
+## @param stellar_mass_kg: Mass of the primary in kg.
+## @param base_au_at_1_solar: Outer limit in AU at 1 M_sun (default 100 AU).
+## @return: Formation ceiling in meters.
+static func calculate_formation_outer_limit_m(
+	stellar_mass_kg: float,
+	base_au_at_1_solar: float = 100.0
+) -> float:
+	if stellar_mass_kg <= 0.0:
+		return 0.0
+	var m_solar: float = stellar_mass_kg / Units.SOLAR_MASS_KG
+	var r_au: float = base_au_at_1_solar * pow(m_solar, 0.6)
+	return r_au * Units.AU_METERS
+
+
+## Recommended outer stability limit for planet-forming orbits: min(formation, Jacobi).
+## Formation is the usual limiter; Jacobi is the dynamical ceiling (beyond which binding is marginal).
+## @param stellar_mass_kg: Mass of the primary in kg.
+## @param formation_base_au: Formation limit in AU at 1 M_sun (default 100).
+## @return: Outer limit in meters.
+static func calculate_outer_stability_limit_m(
+	stellar_mass_kg: float,
+	formation_base_au: float = 100.0
+) -> float:
+	var formation_m: float = calculate_formation_outer_limit_m(stellar_mass_kg, formation_base_au)
+	var jacobi_m: float = calculate_jacobi_radius_m(stellar_mass_kg)
+	return minf(formation_m, jacobi_m)
+
+
 ## Calculates the binary orbital period.
 ## @param separation_m: Binary separation in meters.
 ## @param mass_a_kg: Mass of primary in kg.
@@ -344,13 +392,13 @@ static func calculate_resonance_spacing(
 ## @return: Array of resonance ratios.
 static func get_common_resonance_ratios() -> Array[float]:
 	return [
-		2.0,   # 2:1 (very common)
-		1.5,   # 3:2 (common, Mercury-like)
-		1.67,  # 5:3 (Pluto-Neptune)
-		1.4,   # 7:5
-		1.6,   # 8:5
-		1.25,  # 5:4
-		1.33,  # 4:3
+		2.0, # 2:1 (very common)
+		1.5, # 3:2 (common, Mercury-like)
+		1.67, # 5:3 (Pluto-Neptune)
+		1.4, # 7:5
+		1.6, # 8:5
+		1.25, # 5:4
+		1.33, # 4:3
 	]
 
 
@@ -373,7 +421,8 @@ static func distance_ratio_to_period_ratio(distance_ratio: float) -> float:
 
 
 ## Estimates minimum safe spacing between adjacent planetary orbits.
-## Rule of thumb: ~10 mutual Hill radii separation for long-term stability.
+## Rule of thumb: ~10 mutual Hill radii separation for long-term stability (Chambers 1996).
+## There is no single observed "max planets per star"; count is limited by spacing and formation, not a fixed cap.
 ## @param inner_planet_mass_kg: Mass of inner planet.
 ## @param outer_planet_mass_kg: Mass of outer planet.
 ## @param star_mass_kg: Mass of the central star.
@@ -521,6 +570,6 @@ static func calculate_synodic_period(
 	# Use relative threshold: if periods differ by less than 1 part in 10^10,
 	# treat as effectively identical (return very large synodic period)
 	if diff < max_period * 1.0e-10:
-		return 1.0e20  # Effectively infinite
+		return 1.0e20 # Effectively infinite
 	
 	return absf(period1_s * period2_s / diff)

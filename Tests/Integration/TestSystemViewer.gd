@@ -179,6 +179,6 @@ func test_belt_renderer_script_loads() -> void:
 ## Verifies the system viewer exposes asteroid-selection helper methods.
 func test_viewer_has_major_asteroid_helpers() -> void:
 	var viewer: Node = _system_viewer_scene.instantiate()
-	assert_true(viewer.has_method("_create_major_asteroid_node"), "Viewer should create major asteroid nodes")
+	assert_true(viewer.has_method("_create_major_asteroid_node_at"), "Viewer should create major asteroid nodes")
 	assert_true(viewer.has_method("_get_major_asteroid_display_position"), "Viewer should map major asteroid display positions")
 	viewer.free()

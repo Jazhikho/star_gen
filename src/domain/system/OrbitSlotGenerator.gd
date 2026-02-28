@@ -15,9 +15,11 @@ const _hierarchy_node: GDScript = preload("res://src/domain/system/HierarchyNode
 
 
 ## Minimum spacing factor between adjacent slots (as fraction of inner orbit).
+## Used as a floor; actual minimum is the larger of this and mass-dependent Hill spacing (see below).
 const MIN_SPACING_FACTOR: float = 0.15
 
-## Maximum number of slots to generate per host.
+## Maximum number of slots to generate per host (practical cap for generation).
+## Not a physical limit: observed systems have up to ~8 confirmed planets; theoretical capacity is higher for small, well-spaced bodies (see Roadmap: Planet count and orbital stability).
 const MAX_SLOTS_PER_HOST: int = 20
 
 ## Resonance variation (Â±20%).
@@ -133,8 +135,16 @@ static func generate_for_host(
 			rng
 		)
 		
-		# Ensure minimum spacing
-		var min_spacing: float = current_distance * MIN_SPACING_FACTOR
+		# Ensure minimum spacing: use the larger of (a) fraction of inner orbit and (b) mass-dependent stability.
+		# Adjacent slots could hold gas giants; require ~10 mutual Hill radii so any pair remains stable (Chambers 1996).
+		var min_spacing_fraction: float = current_distance * MIN_SPACING_FACTOR
+		var min_hill_spacing_m: float = OrbitalMechanics.calculate_minimum_planet_spacing(
+			Units.JUPITER_MASS_KG,
+			Units.JUPITER_MASS_KG,
+			host.combined_mass_kg,
+			current_distance
+		)
+		var min_spacing: float = maxf(min_spacing_fraction, min_hill_spacing_m)
 		if next_distance - current_distance < min_spacing:
 			next_distance = current_distance + min_spacing
 		
@@ -157,7 +167,7 @@ static func generate_all_slots(
 	hierarchy: SystemHierarchy,
 	rng: SeededRng
 ) -> Dictionary:
-	var all_slots: Dictionary = {}  # node_id -> Array[OrbitSlot]
+	var all_slots: Dictionary = {} # node_id -> Array[OrbitSlot]
 	
 	for host in hosts:
 		# Get star radius for this host
@@ -194,7 +204,7 @@ static func _get_host_star_radius(
 ) -> float:
 	var node: HierarchyNode = hierarchy.find_node(host.node_id)
 	if node == null:
-		return Units.SOLAR_RADIUS_METERS  # Fallback
+		return Units.SOLAR_RADIUS_METERS # Fallback
 	
 	# Get all stars under this node
 	var star_ids: Array[String] = node.get_all_star_ids()
@@ -299,14 +309,13 @@ static func _check_slot_stability(
 ) -> bool:
 	# Already within host's stability zone by construction
 	# Check against companion perturbations
-	
 	if companion_positions_m.is_empty():
 		return true
 	
 	return OrbitalMechanics.is_orbit_stable(
 		distance_m,
 		host.combined_mass_kg,
-		0.0,  # Simplified: host at origin
+		0.0, # Simplified: host at origin
 		companion_masses_kg,
 		companion_positions_m
 	)

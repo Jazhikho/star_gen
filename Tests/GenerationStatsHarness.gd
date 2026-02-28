@@ -47,14 +47,14 @@ static func sample_system_planet_stats(seed_base: int, system_count: int) -> Dic
 	var outer_large: int = 0
 
 	for i in range(system_count):
-		var seed: int = seed_base + i
-		var spec: SolarSystemSpec = SolarSystemSpec.sun_like(seed)
-		var rng_stars: SeededRng = SeededRng.new(seed)
+		var system_seed: int = seed_base + i
+		var spec: SolarSystemSpec = SolarSystemSpec.sun_like(system_seed)
+		var rng_stars: SeededRng = SeededRng.new(system_seed)
 		var system: SolarSystem = StellarConfigGenerator.generate(spec, rng_stars)
 		if system == null:
 			continue
 		var stars: Array[CelestialBody] = system.get_stars()
-		var rng_slots: SeededRng = SeededRng.new(seed + 1)
+		var rng_slots: SeededRng = SeededRng.new(system_seed + 1)
 		var all_slots_map: Dictionary = OrbitSlotGenerator.generate_all_slots(
 			system.orbit_hosts,
 			stars,
@@ -67,7 +67,7 @@ static func sample_system_planet_stats(seed_base: int, system_count: int) -> Dic
 			slots.append_array(host_slots)
 		if slots.is_empty():
 			continue
-		var rng_planets: SeededRng = SeededRng.new(seed + 2)
+		var rng_planets: SeededRng = SeededRng.new(system_seed + 2)
 		var planet_result: SystemPlanetGenerator.PlanetGenerationResult = SystemPlanetGenerator.generate(
 			slots,
 			system.orbit_hosts,

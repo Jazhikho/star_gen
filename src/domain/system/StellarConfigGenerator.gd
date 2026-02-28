@@ -133,15 +133,15 @@ static func _generate_stars(spec: SolarSystemSpec, count: int, rng: SeededRng) -
 			star_spec = StarSpec.new(
 				star_seed,
 				spec.spectral_class_hints[i],
-				-1,  # Random subclass
+				-1, # Random subclass
 				spec.system_metallicity,
 				spec.system_age_years
 			)
 		else:
 			star_spec = StarSpec.new(
 				star_seed,
-				-1,  # Random spectral class
-				-1,  # Random subclass
+				-1, # Random spectral class
+				-1, # Random subclass
 				spec.system_metallicity,
 				spec.system_age_years
 			)
@@ -167,7 +167,7 @@ static func _generate_star_name(index: int, total: int) -> String:
 		return "Primary"
 	
 	# Use Greek letters for multiple stars
-	var letters: Array[String] = ["Alpha", "Beta", "Gamma", "Delta", "Epsilon", 
+	var letters: Array[String] = ["Alpha", "Beta", "Gamma", "Delta", "Epsilon",
 								   "Zeta", "Eta", "Theta", "Iota", "Kappa"]
 	if index < letters.size():
 		return letters[index]
@@ -243,7 +243,7 @@ static func _get_node_mass(node: HierarchyNode, stars: Array[CelestialBody]) -> 
 		for star in stars:
 			if star.id == node.star_id:
 				return star.physical.mass_kg
-		return Units.SOLAR_MASS_KG  # Fallback
+		return Units.SOLAR_MASS_KG # Fallback
 	else:
 		var total: float = 0.0
 		for child in node.children:
@@ -261,7 +261,7 @@ static func _get_node_luminosity(node: HierarchyNode, stars: Array[CelestialBody
 			if star.id == node.star_id:
 				if star.has_stellar():
 					return star.stellar.luminosity_watts
-		return 3.828e26  # Solar luminosity fallback
+		return 3.828e26 # Solar luminosity fallback
 	else:
 		var total: float = 0.0
 		for child in node.children:
@@ -280,20 +280,20 @@ static func _generate_binary_separation(
 	rng: SeededRng
 ) -> float:
 	# Choose separation category
-	var categories: Array[int] = [0, 1, 2]  # close, moderate, wide
+	var categories: Array[int] = [0, 1, 2] # close, moderate, wide
 	var category: int = rng.weighted_choice(categories, SEPARATION_WEIGHTS) as int
 	
 	var min_au: float
 	var max_au: float
 	
 	match category:
-		0:  # Close
+		0: # Close
 			min_au = CLOSE_BINARY_MIN_AU
 			max_au = CLOSE_BINARY_MAX_AU
-		1:  # Moderate
+		1: # Moderate
 			min_au = MODERATE_BINARY_MIN_AU
 			max_au = MODERATE_BINARY_MAX_AU
-		_:  # Wide
+		_: # Wide
 			min_au = WIDE_BINARY_MIN_AU
 			max_au = WIDE_BINARY_MAX_AU
 	
@@ -403,8 +403,11 @@ static func _create_orbit_host_for_node(
 				parent_barycenter.eccentricity
 			)
 		else:
-			# Single star or outermost in hierarchy - use default outer limit
-			host.outer_stability_m = 100.0 * Units.AU_METERS
+			# Single star: outer limit from formation (disc) and Jacobi (tidal) ceiling (see OrbitalMechanics).
+			host.outer_stability_m = OrbitalMechanics.calculate_outer_stability_limit_m(
+				host.combined_mass_kg,
+				100.0
+			)
 	
 	else:
 		# P-type orbit around this barycenter
@@ -427,7 +430,7 @@ static func _create_orbit_host_for_node(
 			host.effective_temperature_k = weighted_temp / total_lum
 		
 		# Inner limit: P-type stability limit
-		var child_mass_ratio: float = 1.0  # Assume equal for simplicity
+		var child_mass_ratio: float = 1.0 # Assume equal for simplicity
 		if node.children.size() >= 2:
 			var mass_0: float = _get_node_mass(node.children[0], stars)
 			var mass_1: float = _get_node_mass(node.children[1], stars)
@@ -451,7 +454,11 @@ static func _create_orbit_host_for_node(
 				parent_barycenter.eccentricity
 			)
 		else:
-			host.outer_stability_m = 200.0 * Units.AU_METERS
+			# P-type (no parent): formation + Jacobi ceiling; larger base (200 AU at 1 M_sun) for circumbinary discs.
+			host.outer_stability_m = OrbitalMechanics.calculate_outer_stability_limit_m(
+				host.combined_mass_kg,
+				200.0
+			)
 	
 	# Calculate zones based on luminosity
 	host.calculate_zones()
@@ -494,7 +501,7 @@ static func _get_sibling_mass(
 	for child in parent.children:
 		if child.id != node.id:
 			return _get_node_mass(child, stars)
-	return Units.SOLAR_MASS_KG  # Fallback
+	return Units.SOLAR_MASS_KG # Fallback
 
 
 ## Generates a unique system ID.

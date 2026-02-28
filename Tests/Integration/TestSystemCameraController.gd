@@ -67,11 +67,11 @@ func test_focus_on_origin() -> void:
 	camera.focus_on_origin()
 	
 	# Wait for smooth interpolation (camera may take many frames to settle)
-	for _i in range(120):
+	for _i in range(300):
 		await scene_tree.process_frame
 	
 	# Height should return toward 20.0 (tolerance allows for lerp timing variance)
-	assert_float_equal(camera.get_height(), 20.0, 20.0,
+	assert_float_equal(camera.get_height(), 20.0, 2.0,
 		"Height should return to ~20 after focus (got %.1f)" % camera.get_height())
 	
 	camera.queue_free()

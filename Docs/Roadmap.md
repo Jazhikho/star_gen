@@ -41,6 +41,12 @@ Contributors pick an effort and work against master. Efforts can run in parallel
 | Jump lanes optimization and polish | Optimize and polish jump-lane rendering in galaxy viewer; population data; line/orphan visuals | — | — |
 | Code quality & simplifications | TODOs, placeholder replacements, simplified formulas to redo | — | — |
 | Population detail (civilisation/regime) | Enrich population with tech level, regime type, and transitions; align with Integration and History Generator concepts | — | — |
+| Engine/tool integration | Minimal Unity/Unreal sample importer or plugin for real workflow evaluation | — | — |
+| Export function | Clean JSON/CSV export for design/UI iteration and technical wiring | — | — |
+| Filters that match game needs | Presets (frontier, dense core, mystery zone, resource rich, dangerous) for missions and worldbuilding | — | — |
+| Quick tagging layer | Labels (mining, habitable, hazard, trade hub, pirate risk) on objects/systems | — | — |
+| Favorites and notes | Bookmark systems, short descriptions, optional screenshot | — | — |
+| Export frames as skybox | 4K cubemap set or equirectangular pano for art team (level/menu placeholder) | System viewer rendering improvements (optional) | — |
 
 ---
 
@@ -242,6 +248,103 @@ Contributors pick an effort and work against master. Efforts can run in parallel
 
 ---
 
+### Engine/tool integration
+
+**Goal:** Provide a minimal Unity/Unreal sample importer or plugin so StarGen output can be evaluated in a real engine workflow.
+
+**Deliverables:**
+•	Sample importer or plugin for Unity and/or Unreal (at least one; both ideal long term).
+•	Documented API or asset format so external tools can consume StarGen data (objects, systems, sectors).
+•	Minimal in-engine sample: load a system or sector and display/use the data (e.g. skybox, spawn points, or simple UI).
+
+**Tests:** Import round-trip or schema validation; sample scene runs without errors.
+
+**Acceptance:** A technical user can pull StarGen data into Unity or Unreal and see it in a minimal sample scene; format is documented for further wiring.
+
+---
+
+### Export function
+
+**Goal:** Provide clean JSON/CSV export so design/UI can iterate on data and technical users can wire StarGen into pipelines.
+
+**Deliverables:**
+•	Export UI: choose scope (object, system, sector, galaxy) and format (JSON, CSV).
+•	JSON: versioned schema for objects, systems, sectors; stable keys and structure for tooling.
+•	CSV: tabular exports (e.g. system list, body list) for spreadsheets and design tools.
+•	Documentation: schema version, field meanings, and example exports.
+
+**Tests:** Export round-trip or schema validation; CSV parses and contains expected columns.
+
+**Acceptance:** User can export selected scope as JSON or CSV; output is well-formed and documented for design and technical integration.
+
+---
+
+### Filters that match game needs
+
+**Goal:** Presets (e.g. “frontier,” “dense core,” “mystery zone,” “resource rich,” “dangerous”) so filtered output is immediately useful for missions and worldbuilding.
+
+**Deliverables:**
+•	Filter preset definitions: criteria per preset (e.g. density, hazards, resources, population) mapped to domain data.
+•	Apply presets to system/region/sector listing or generation; filtered view or filtered export.
+•	Determinism preserved when filtering (same seed + same preset → same filtered set).
+•	UI: choose preset, see filtered list, optionally export filtered result.
+
+**Tests:** Preset criteria applied correctly; determinism for filtered results; edge cases (empty result, full result).
+
+**Acceptance:** User selects a preset and sees a filtered set of systems/regions suitable for missions and worldbuilding; behavior is deterministic and documentable.
+
+---
+
+### Quick tagging layer
+
+**Goal:** Add a basic tagging layer (e.g. “mining,” “habitable,” “hazard,” “trade hub,” “pirate risk”) on objects and/or systems for design and scripting.
+
+**Deliverables:**
+•	Tag model: defined tag set (single source of truth); attach tags to objects and/or systems (and optionally sectors).
+•	Assignment: deterministic rules where possible (e.g. from population, hazards, resources); optional manual overrides.
+•	UI: view and edit tags in inspector or list; tags visible in system/galaxy view.
+•	Export and save: tags included in JSON/CSV and in save data.
+
+**Tests:** Tag assignment rules; serialization/deserialization; determinism when tags are rule-driven.
+
+**Acceptance:** Objects/systems can carry tags; user can see and edit tags; tags are exported and saved; rules are consistent with population/hazard/resource data where used.
+
+---
+
+### Favorites and notes
+
+**Goal:** Let users bookmark favorites and attach short notes and optional screenshots for quick reference.
+
+**Deliverables:**
+•	Favorites/bookmarks: mark objects, systems, or locations as favorite; persisted list.
+•	Per-item notes: short free-text description; persisted with the bookmark.
+•	Optional screenshot: attach a screenshot (or reference to a captured frame) to a bookmark.
+•	UI: add/remove favorites; edit notes; view list and jump to bookmarked item; load/save with project or user data.
+
+**Tests:** Persistence round-trip; no crash when screenshot missing or invalid.
+
+**Acceptance:** User can bookmark items, add notes and optional screenshot, and return to bookmarks from a simple UI.
+
+---
+
+### Export frames as skybox
+
+**Goal:** Export the current (or chosen) view as skybox-ready art: 4K cubemap set or equirectangular pano so an art team can drop it into a level or menu background as a placeholder.
+
+**Gates:** System viewer rendering improvements (optional but recommended so captured frames are lit and composed correctly).
+
+**Deliverables:**
+•	Export options: cubemap (6 faces) or single equirectangular panorama; resolution options (e.g. 4K).
+•	Capture from system viewer: use current camera or a dedicated “skybox capture” camera; document orientation and convention (e.g. face order, up axis).
+•	Output: standard image format (PNG/EXR); folder or archive for cubemap set; naming convention for engine import.
+•	Docs: how to capture, expected layout, and how to import in common engines (e.g. Unity/Unreal).
+
+**Tests:** Output dimensions and count correct; no invalid or blank frames for valid capture request.
+
+**Acceptance:** User can export a 4K cubemap set or equirectangular pano from the system viewer; art can import it as a skybox/background with minimal hand-work.
+
+---
+
 ## Scientific calibration and realism
 
 **Realism profiles:** `GenerationRealismProfile` (`src/domain/generation/GenerationRealismProfile.gd`) defines three modes: **Calibrated** (tracks literature-derived distributions), **Balanced** (default; visually rich, roughly plausible), and **Stylized** (more rings, habitable worlds, spectacular systems). A **[0, 1] realism slider** maps to these: 0 → Stylized, 0.5 → Balanced, 1 → Calibrated (`from_slider`). Profile choice plus seed fully defines outcomes when generators respect it (generators are not yet wired to the profile).
@@ -251,6 +354,10 @@ Contributors pick an effort and work against master. Efforts can run in parallel
 **Running the statistical comparison:** Run the distribution tests via the headless runner or test scene: `TestStarGeneratorDistributions` (spectral histogram vs benchmarks), `TestSystemPlanetDistributions` (hot Jupiters, cold-zone large planets). For custom ensemble runs, use `Tests/GenerationStatsHarness.gd`: `sample_star_spectral_histogram(seed_base, count)` and `sample_system_planet_stats(seed_base, system_count)` return aggregated histograms/stats without writing files.
 
 **Known intentional deviations:** Ring frequency and terrain variety are tuned for visual diversity. When the profile is wired into generators, Calibrated mode will use benchmark-tight parameter sets; Stylized may increase ring likelihood and habitable-zone emphasis while staying within physical bounds.
+
+**Outer orbit limits (how far out can a planet be):** Two ceilings apply. (1) **Dynamical (Jacobi/tidal):** where the Galaxy's tidal field competes with the star's gravity; r_J ∝ M_star^(1/3) (~1.70 pc × (M/(2 M_sun))^(1/3)); for 1 M_sun ~2.78×10^5 AU. (2) **Formation (disc):** dust extent R_dust ∝ M_star^0.6 (Taurus/Lupus); most discs tens of AU (e.g. 67% of Lupus &lt; 30 AU). StarGen uses **min**(formation, Jacobi) as outer stability limit (`OrbitalMechanics.calculate_outer_stability_limit_m`); formation is the usual limiter; Jacobi caps the dynamical ceiling. Wide-separation freaks (e.g. 2MASS J2126 ~7000 AU) are likely capture-like, not disc-formed.
+
+**Planet count and orbital stability:** Science does not give a single “max planets per star” number; it depends on definition of “planet,” initial disk mass, and whether orbits remain stable. **Observed:** up to 8 confirmed around one star (Solar System, Kepler-90); TRAPPIST-1 has 7 in tight orbits. **Why no hard limit:** (1) “Planet” is convention-dependent (e.g. IAU “clearing the neighbourhood”); (2) orbital stability is the real constraint — spacing below ~10 mutual Hill radii tends to instability (Chambers 1996); (3) formation (mergers, migration, scattering) typically reduces final counts. **Back-of-envelope** for equal-mass planets at ~10 mutual Hill radii over 0.1–100 AU around a Sun-like star: ~60 Earth-mass, ~25 Neptune-mass, ~12 Jupiter-mass; nature rarely produces such tidy systems. Co-orbital rings (multiple bodies on one orbit) are dynamically possible but rare/natural vs engineered. **StarGen:** Planet count is emergent from orbit slots. Slots are generated with stability zones and spacing (see `OrbitalMechanics.calculate_minimum_planet_spacing`); there is no single “max = 17” cap. Constraint-based min/max planet counts (Solar system constraints effort) are for design/narrative, not physical law.
 
 ---
 

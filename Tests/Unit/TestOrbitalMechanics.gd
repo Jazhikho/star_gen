@@ -119,8 +119,8 @@ func test_calculate_hill_sphere_jupiter() -> void:
 
 ## Tests Roche limit for Earth-density satellite around Earth.
 func test_calculate_roche_limit_earth() -> void:
-	var earth_density: float = 5515.0  # kg/m³
-	var satellite_density: float = 3000.0  # Rocky moon
+	var earth_density: float = 5515.0 # kg/m³
+	var satellite_density: float = 3000.0 # Rocky moon
 	
 	var roche: float = OrbitalMechanics.calculate_roche_limit(
 		Units.EARTH_RADIUS_METERS,
@@ -167,7 +167,7 @@ func test_calculate_sphere_of_influence() -> void:
 ## Tests barycenter for Earth-Moon system.
 func test_calculate_barycenter_earth_moon() -> void:
 	var moon_mass_kg: float = 7.342e22
-	var earth_moon_distance_m: float = 3.844e8  # 384,400 km
+	var earth_moon_distance_m: float = 3.844e8 # 384,400 km
 	
 	var barycenter_dist: float = OrbitalMechanics.calculate_barycenter_from_a(
 		Units.EARTH_MASS_KG,
@@ -212,7 +212,7 @@ func test_calculate_barycenter_sun_jupiter() -> void:
 ## Tests S-type stability limit for circular binary.
 func test_calculate_stype_stability_limit_circular() -> void:
 	var binary_sep: float = 10.0 * Units.AU_METERS
-	var mass_ratio: float = 1.0  # Equal masses
+	var mass_ratio: float = 1.0 # Equal masses
 	var ecc: float = 0.0
 	
 	var limit: float = OrbitalMechanics.calculate_stype_stability_limit(
@@ -249,7 +249,7 @@ func test_calculate_stype_stability_alpha_cen() -> void:
 	# Alpha Cen AB: separation ~24 AU, e ~0.52, masses ~1.1 and 0.9 solar
 	var separation_m: float = 24.0 * Units.AU_METERS
 	var eccentricity: float = 0.52
-	var mass_ratio: float = 0.9 / 1.1  # Secondary/primary
+	var mass_ratio: float = 0.9 / 1.1 # Secondary/primary
 	
 	var limit: float = OrbitalMechanics.calculate_stype_stability_limit(
 		separation_m,
@@ -306,6 +306,52 @@ func test_calculate_ptype_stability_close_binary() -> void:
 	# Circumbinary planets should be stable beyond ~0.5-0.8 AU
 	var limit_au: float = limit / Units.AU_METERS
 	assert_in_range(limit_au, 0.4, 1.0, "P-type limit for close binary ~0.5-0.8 AU")
+
+
+# =============================================================================
+# OUTER ORBIT LIMITS (JACOBI / FORMATION)
+# =============================================================================
+
+
+## Jacobi radius scales as M_star^(1/3); 1 M_sun ~ 2.78e5 AU (Solar neighbourhood).
+func test_calculate_jacobi_radius_scaling() -> void:
+	var r_1sun_m: float = OrbitalMechanics.calculate_jacobi_radius_m(Units.SOLAR_MASS_KG)
+	var r_1sun_au: float = r_1sun_m / Units.AU_METERS
+	assert_in_range(r_1sun_au, 2.5e5, 3.0e5, "Jacobi at 1 M_sun ~ 2.78e5 AU")
+
+	var m_01: float = 0.1 * Units.SOLAR_MASS_KG
+	var r_01_m: float = OrbitalMechanics.calculate_jacobi_radius_m(m_01)
+	var r_01_au: float = r_01_m / Units.AU_METERS
+	assert_in_range(r_01_au, 1.1e5, 1.4e5, "Jacobi at 0.1 M_sun ~ 1.29e5 AU")
+
+	# Scaling: double mass -> 2^(1/3) ~ 1.26
+	var m_2: float = 2.0 * Units.SOLAR_MASS_KG
+	var r_2_m: float = OrbitalMechanics.calculate_jacobi_radius_m(m_2)
+	assert_greater_than(r_2_m, r_1sun_m, "Jacobi increases with stellar mass")
+
+
+## Formation outer limit scales as M_star^0.6; base 100 AU at 1 M_sun.
+func test_calculate_formation_outer_limit() -> void:
+	var r_1sun_m: float = OrbitalMechanics.calculate_formation_outer_limit_m(Units.SOLAR_MASS_KG, 100.0)
+	var r_1sun_au: float = r_1sun_m / Units.AU_METERS
+	assert_float_equal(r_1sun_au, 100.0, 1.0, "Formation at 1 M_sun with base 100 AU")
+
+	var m_01: float = 0.1 * Units.SOLAR_MASS_KG
+	var r_01_m: float = OrbitalMechanics.calculate_formation_outer_limit_m(m_01, 100.0)
+	var r_01_au: float = r_01_m / Units.AU_METERS
+	assert_in_range(r_01_au, 18.0, 28.0, "Formation at 0.1 M_sun ~ 25 AU (100 * 0.1^0.6)")
+
+
+## Combined outer limit is min(formation, Jacobi); formation dominates for normal stars.
+func test_calculate_outer_stability_limit_m() -> void:
+	var limit_1sun_m: float = OrbitalMechanics.calculate_outer_stability_limit_m(Units.SOLAR_MASS_KG, 100.0)
+	var limit_1sun_au: float = limit_1sun_m / Units.AU_METERS
+	assert_float_equal(limit_1sun_au, 100.0, 1.0, "At 1 M_sun formation is smaller than Jacobi")
+
+	var formation_m: float = OrbitalMechanics.calculate_formation_outer_limit_m(Units.SOLAR_MASS_KG, 100.0)
+	var jacobi_m: float = OrbitalMechanics.calculate_jacobi_radius_m(Units.SOLAR_MASS_KG)
+	assert_less_than(limit_1sun_m, jacobi_m, "Outer limit should be formation-limited for 1 M_sun")
+	assert_float_equal(limit_1sun_m, formation_m, 1.0, "Limit should equal formation when formation < Jacobi")
 
 
 ## Tests binary period calculation.
@@ -401,7 +447,7 @@ func test_calculate_resonance_spacing_2_1() -> void:
 	var outer_orbit: float = OrbitalMechanics.calculate_resonance_spacing(
 		inner_orbit,
 		2.0,
-		0.0,  # No variation
+		0.0, # No variation
 		rng
 	)
 	
@@ -435,7 +481,7 @@ func test_calculate_resonance_spacing_with_variation() -> void:
 	var outer_orbit: float = OrbitalMechanics.calculate_resonance_spacing(
 		inner_orbit,
 		2.0,
-		0.2,  # 20% variation
+		0.2, # 20% variation
 		rng
 	)
 	
@@ -503,11 +549,11 @@ func test_is_orbit_stable_no_companions() -> void:
 ## Tests is_orbit_stable too close to companion.
 func test_is_orbit_stable_too_close_to_companion() -> void:
 	var stable: bool = OrbitalMechanics.is_orbit_stable(
-		8.0 * Units.AU_METERS,  # Orbit at 8 AU
+		8.0 * Units.AU_METERS, # Orbit at 8 AU
 		Units.SOLAR_MASS_KG,
 		0.0,
-		[Units.SOLAR_MASS_KG],  # Companion of equal mass
-		[10.0 * Units.AU_METERS]  # Companion at 10 AU
+		[Units.SOLAR_MASS_KG], # Companion of equal mass
+		[10.0 * Units.AU_METERS] # Companion at 10 AU
 	)
 	
 	assert_false(stable, "Orbit too close to companion should be unstable")
@@ -516,11 +562,11 @@ func test_is_orbit_stable_too_close_to_companion() -> void:
 ## Tests is_orbit_stable far from companion.
 func test_is_orbit_stable_far_from_companion() -> void:
 	var stable: bool = OrbitalMechanics.is_orbit_stable(
-		1.0 * Units.AU_METERS,  # Orbit at 1 AU
+		1.0 * Units.AU_METERS, # Orbit at 1 AU
 		Units.SOLAR_MASS_KG,
 		0.0,
-		[Units.SOLAR_MASS_KG * 0.5],  # Companion of half solar mass
-		[50.0 * Units.AU_METERS]  # Companion far away at 50 AU
+		[Units.SOLAR_MASS_KG * 0.5], # Companion of half solar mass
+		[50.0 * Units.AU_METERS] # Companion far away at 50 AU
 	)
 	
 	assert_true(stable, "Orbit far from companion should be stable")
@@ -598,9 +644,9 @@ func test_do_orbits_overlap_no_overlap() -> void:
 func test_do_orbits_overlap_eccentric() -> void:
 	var overlap: bool = OrbitalMechanics.do_orbits_overlap(
 		1.0 * Units.AU_METERS,
-		0.5,  # Periapsis 0.5 AU, Apoapsis 1.5 AU
+		0.5, # Periapsis 0.5 AU, Apoapsis 1.5 AU
 		1.2 * Units.AU_METERS,
-		0.3   # Periapsis 0.84 AU, Apoapsis 1.56 AU
+		0.3 # Periapsis 0.84 AU, Apoapsis 1.56 AU
 	)
 	
 	assert_true(overlap, "Eccentric orbits with overlapping ranges")
@@ -635,8 +681,8 @@ func test_calculate_synodic_period() -> void:
 
 ## Tests synodic period for nearly identical periods.
 func test_calculate_synodic_period_near_identical() -> void:
-	var period1: float = 365.25 * 24.0 * 3600.0  # 1 year
-	var period2: float = period1 * 1.0000000001  # Differ by 1 part in 10 billion
+	var period1: float = 365.25 * 24.0 * 3600.0 # 1 year
+	var period2: float = period1 * 1.0000000001 # Differ by 1 part in 10 billion
 	
 	var synodic: float = OrbitalMechanics.calculate_synodic_period(period1, period2)
 	
@@ -674,7 +720,7 @@ func test_resonance_spacing_edge_cases() -> void:
 	# Invalid ratio (<= 1.0) should return inner orbit
 	var result: float = OrbitalMechanics.calculate_resonance_spacing(
 		Units.AU_METERS,
-		0.5,  # Invalid ratio
+		0.5, # Invalid ratio
 		0.0,
 		rng
 	)

@@ -236,7 +236,12 @@ static func _check_orbital_overlaps(system: SolarSystem, result: ValidationResul
 		return dist_a < dist_b
 	)
 	
-	# Check adjacent pairs for potential overlap
+	# Group by orbit host so we use the correct primary mass per host
+	var host_map: Dictionary = {} # parent_id -> OrbitHost
+	for host in system.orbit_hosts:
+		host_map[host.node_id] = host
+
+	# Check adjacent pairs for overlap and for mass-dependent minimum spacing (Hill stability)
 	for i in range(sorted_planets.size() - 1):
 		var inner: CelestialBody = sorted_planets[i]
 		var outer: CelestialBody = sorted_planets[i + 1]
@@ -251,6 +256,28 @@ static func _check_orbital_overlaps(system: SolarSystem, result: ValidationResul
 			result.add_warning(
 				"orbital_overlap",
 				"Potential orbital overlap between %s and %s" % [inner.id, outer.id]
+			)
+
+		# Same host: require ~10 mutual Hill radii separation for long-term stability (Chambers 1996)
+		var parent_id: String = inner.orbital.parent_id
+		if parent_id.is_empty() or parent_id != outer.orbital.parent_id:
+			continue
+		var host: OrbitHost = host_map.get(parent_id) as OrbitHost
+		if host == null or host.combined_mass_kg <= 0.0:
+			continue
+		var required_spacing_m: float = OrbitalMechanics.calculate_minimum_planet_spacing(
+			inner.physical.mass_kg,
+			outer.physical.mass_kg,
+			host.combined_mass_kg,
+			inner.orbital.semi_major_axis_m
+		)
+		var actual_spacing_m: float = outer.orbital.semi_major_axis_m - inner.orbital.semi_major_axis_m
+		if actual_spacing_m < required_spacing_m:
+			result.add_warning(
+				"orbital_stability",
+				"Adjacent planets %s and %s are closer than ~10 mutual Hill radii (gap %.2e m, need %.2e m)" % [
+					inner.id, outer.id, actual_spacing_m, required_spacing_m
+				]
 			)
 
 
