@@ -89,6 +89,8 @@ Contributors pick an effort and work against master. Efforts can run in parallel
 
 **Acceptance:** In the system viewer, bodies are lit from the star direction, show correct tilt, animate at ~1 day = 1 s, and asteroid belts appear as torus with asteroids inside.
 
+**Done:** Gas giant variety (archetype + per-planet variation): seven archetypes (Hot Jupiter, Jupiter-class, Saturn-class, Neptune-class, Uranus-class, Super-Jupiter, Mini-Neptune) with structural presets; seeded RNG drives band warp, sharpness, storm count range, dark-spot ratio, haze, detail level, and multi-palette colour choice so same-archetype planets look related but distinct. Shader: `planet_gas_giant_surface.gdshader`; params: `GasGiantShaderParams.gd`. Unit tests in `TestGasGiantShaderParams.gd`.
+
 ---
 
 ### Object editing
