@@ -73,11 +73,11 @@ star_gen/
 │   │   │   ├── CollapsibleSection.gd
 │   │   │   └── CollapsibleSection.tscn
 │   │   │
-    │   │   ├── galaxy_viewer/
-    │   │   │   ├── GalaxyInspectorPanel.gd
-    │   │   │   ├── GalaxyRenderer.gd
-    │   │   │   ├── SectorJumpLaneRenderer.gd
-    │   │   │   ├── GalaxyViewer.gd
+│   │   ├── galaxy_viewer/
+│   │   │   ├── GalaxyInspectorPanel.gd
+│   │   │   ├── GalaxyRenderer.gd
+│   │   │   ├── SectorJumpLaneRenderer.gd
+│   │   │   ├── GalaxyViewer.gd
 │   │   │   ├── GalaxyViewer.tscn
 │   │   │   ├── GalaxyViewerDeps.gd
 │   │   │   ├── GalaxyViewerSaveLoad.gd
@@ -183,6 +183,14 @@ star_gen/
 │   │   ├── constants/
 │   │   │   └── Versions.gd
 │   │   │
+│   │   ├── editing/
+│   │   │   ├── ConstraintSet.gd
+│   │   │   ├── EditRegenerator.gd
+│   │   │   ├── EditSpecBuilder.gd
+│   │   │   ├── PropertyConstraint.gd
+│   │   │   ├── PropertyConstraintSolver.gd
+│   │   │   └── TravellerConstraintBuilder.gd
+│   │   │
 │   │   ├── galaxy/
 │   │   │   ├── DensityModelInterface.gd
 │   │   │   ├── DensitySampler.gd
@@ -191,6 +199,7 @@ star_gen/
 │   │   │   ├── GalaxyConfig.gd
 │   │   │   ├── GalaxyCoordinates.gd
 │   │   │   ├── GalaxySample.gd
+│   │   │   ├── GalaxyBodyOverrides.gd
 │   │   │   ├── GalaxySaveData.gd
 │   │   │   ├── GalaxySpec.gd
 │   │   │   ├── GalaxyStar.gd
@@ -443,12 +452,19 @@ star_gen/
     │   ├── TestCelestialSerializer.gd
     │   ├── TestCelestialValidator.gd
     │   ├── TestColorUtils.gd
+    │   ├── TestConstraintSet.gd
+    │   ├── TestEditRegenerator.gd
+    │   ├── TestEditSpecBuilder.gd
+    │   ├── TestPropertyConstraint.gd
+    │   ├── TestPropertyConstraintSolver.gd
+    │   ├── TestTravellerConstraintBuilder.gd
     │   ├── TestColorUtilsShaderParams.gd
     │   ├── TestGalaxy.gd
     │   ├── TestGalaxyConfig.gd
     │   ├── TestGalaxyInspectorPanel.gd
     │   ├── TestGalaxySaveData.gd
-│   ├── TestGenerationRealismProfile.gd
+        │   ├── TestGalaxyBodyOverrides.gd
+    │   ├── TestGenerationRealismProfile.gd
     │   ├── TestGalaxyStar.gd
     │   ├── TestGalaxySystemGenerator.gd
     │   ├── TestSector.gd

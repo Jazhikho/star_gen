@@ -39,6 +39,7 @@ const _persistence: GDScript = preload("res://src/services/persistence/Celestial
 
 # Galaxy save/load (so GalaxyViewer and tests can use GalaxySaveData/GalaxyPersistence)
 const _galaxy_viewer_deps: GDScript = preload("res://src/app/galaxy_viewer/GalaxyViewerDeps.gd")
+const _galaxy_body_overrides: GDScript = preload("res://src/domain/galaxy/GalaxyBodyOverrides.gd")
 
 # Phase 2: Generation infrastructure
 const _seeded_rng: GDScript = preload("res://src/domain/rng/SeededRng.gd")
@@ -59,3 +60,10 @@ const _star_table: GDScript = preload("res://src/domain/generation/tables/StarTa
 const _orbit_table: GDScript = preload("res://src/domain/generation/tables/OrbitTable.gd")
 const _generator_utils: GDScript = preload("res://src/domain/generation/generators/GeneratorUtils.gd")
 const _star_generator: GDScript = preload("res://src/domain/generation/generators/StarGenerator.gd")
+# Object editing — constraint solver and lock state
+const _property_constraint: GDScript = preload("res://src/domain/editing/PropertyConstraint.gd")
+const _constraint_set: GDScript = preload("res://src/domain/editing/ConstraintSet.gd")
+const _property_constraint_solver: GDScript = preload("res://src/domain/editing/PropertyConstraintSolver.gd")
+const _traveller_constraint_builder: GDScript = preload("res://src/domain/editing/TravellerConstraintBuilder.gd")
+const _edit_spec_builder: GDScript = preload("res://src/domain/editing/EditSpecBuilder.gd")
+const _edit_regenerator: GDScript = preload("res://src/domain/editing/EditRegenerator.gd")

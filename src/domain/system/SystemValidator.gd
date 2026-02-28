@@ -219,6 +219,13 @@ static func _validate_orbital_relationships(system: SolarSystem, result: Validat
 
 
 ## Checks for orbital overlaps between planets orbiting the same host.
+## Formats a distance in meters for warning messages (avoids %e which is not supported by GDScript %).
+## @param meters: Distance in meters.
+## @return: Readable string representation.
+static func _format_meters(meters: float) -> String:
+	return str(meters)
+
+
 ## @param system: The system to validate.
 ## @param result: The result to add errors to.
 static func _check_orbital_overlaps(system: SolarSystem, result: ValidationResult) -> void:
@@ -275,8 +282,8 @@ static func _check_orbital_overlaps(system: SolarSystem, result: ValidationResul
 		if actual_spacing_m < required_spacing_m:
 			result.add_warning(
 				"orbital_stability",
-				"Adjacent planets %s and %s are closer than ~10 mutual Hill radii (gap %.2e m, need %.2e m)" % [
-					inner.id, outer.id, actual_spacing_m, required_spacing_m
+				"Adjacent planets %s and %s are closer than ~10 mutual Hill radii (gap %s m, need %s m)" % [
+					inner.id, outer.id, _format_meters(actual_spacing_m), _format_meters(required_spacing_m)
 				]
 			)
 

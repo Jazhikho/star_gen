@@ -41,6 +41,14 @@ func get_cache_size() -> int:
 	return _cache.size()
 
 
+## Removes a single cached system so the next visit re-generates (e.g. after a body edit).
+## @param star_seed: The system to evict.
+func evict(star_seed: int) -> void:
+	var key: String = str(star_seed)
+	if _cache.has(key):
+		_cache.erase(key)
+
+
 ## Clears all cached systems.
 func clear() -> void:
 	_cache.clear()

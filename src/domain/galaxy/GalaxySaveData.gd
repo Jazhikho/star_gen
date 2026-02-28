@@ -57,6 +57,10 @@ var jump_lane_region_data: Dictionary = {}
 ## Serialized JumpLaneResult (null if no routes calculated).
 var jump_lane_result_data: Dictionary = {}
 
+## Edited-body overrides: star_seed -> { body_id -> serialized body dict }.
+## Stored as a raw Dictionary (GalaxyBodyOverrides.to_dict output). Empty = no overrides.
+var body_overrides_data: Dictionary = {}
+
 
 ## Returns this script for self-instantiation (avoids class_name resolution order when loaded as dependency).
 static func _script_ref() -> GDScript:
@@ -112,6 +116,7 @@ func to_dict() -> Dictionary:
 	dict["cached_system_count"] = cached_system_count
 	dict["jump_lane_region_data"] = jump_lane_region_data
 	dict["jump_lane_result_data"] = jump_lane_result_data
+	dict["body_overrides_data"] = body_overrides_data
 	return dict
 
 
@@ -168,6 +173,9 @@ static func from_dict(dict: Dictionary) -> Variant:
 
 	var jl_result: Variant = dict.get("jump_lane_result_data")
 	data.jump_lane_result_data = jl_result if jl_result is Dictionary else {}
+
+	var overrides: Variant = dict.get("body_overrides_data")
+	data.body_overrides_data = overrides if overrides is Dictionary else {}
 
 	return data
 
@@ -232,6 +240,36 @@ func set_config(config: GalaxyConfig) -> void:
 		galaxy_config_data = config.to_dict()
 	else:
 		galaxy_config_data = {}
+
+
+## Returns whether this save has any body overrides.
+## @return: True if at least one body has been edited.
+func has_body_overrides() -> bool:
+	return not body_overrides_data.is_empty()
+
+
+## Returns a GalaxyBodyOverrides view of the stored override data.
+## @return: New GalaxyBodyOverrides instance (empty if no overrides). Caller may cast to GalaxyBodyOverrides.
+func get_body_overrides() -> RefCounted:
+	var ScriptClass: GDScript = load("res://src/domain/galaxy/GalaxyBodyOverrides.gd") as GDScript
+	if body_overrides_data.is_empty():
+		return ScriptClass.new()
+	return ScriptClass.from_dict(body_overrides_data)
+
+
+## Stores a GalaxyBodyOverrides into the save data.
+## @param overrides: Overrides to store (null clears). Pass a GalaxyBodyOverrides instance.
+func set_body_overrides(overrides: Variant) -> void:
+	if overrides == null:
+		body_overrides_data = {}
+		return
+	if overrides.has_method("is_empty") and overrides.is_empty():
+		body_overrides_data = {}
+		return
+	if overrides.has_method("to_dict"):
+		body_overrides_data = overrides.to_dict()
+	else:
+		body_overrides_data = {}
 
 
 ## Returns zoom level name.

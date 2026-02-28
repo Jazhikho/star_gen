@@ -148,6 +148,15 @@ func create_save_data(viewer: Node) -> GalaxySaveData:
 	if jl_result != null:
 		data.jump_lane_result_data = jl_result.to_dict()
 
+	# Persist body overrides from MainApp (viewer's grandparent).
+	var main_app: Node = viewer.get_parent()
+	if main_app:
+		main_app = main_app.get_parent()
+	if main_app and main_app.has_method("get_body_overrides"):
+		var ov: Variant = main_app.get_body_overrides()
+		if ov != null:
+			data.set_body_overrides(ov)
+
 	return data
 
 

@@ -5,7 +5,7 @@ extends Node3D
 
 ## Emitted when a body should be opened in the object viewer.
 ## Carries the body and its associated moons (empty array if none).
-signal open_body_in_viewer(body: CelestialBody, moons: Array[CelestialBody])
+signal open_body_in_viewer(body: CelestialBody, moons: Array[CelestialBody], star_seed: int)
 
 ## Signal emitted when the user wants to go back to the galaxy viewer.
 signal back_to_galaxy_requested
@@ -79,6 +79,9 @@ var animation_enabled: bool = true
 
 ## Whether a system is currently being (re)generated/displayed.
 var _is_updating_system: bool = false
+
+## Seed of the star system currently displayed (0 when generated locally via Generate button).
+var _source_star_seed: int = 0
 
 ## Save/load helper instance
 var _save_load: RefCounted = _save_load_class.new()
@@ -275,7 +278,10 @@ func _unhandled_key_input(event: InputEvent) -> void:
 func _on_generate_pressed() -> void:
 	var star_count: int = int(star_count_spin.value) if star_count_spin else 1
 	var seed_value: int = int(seed_input.value) if seed_input else randi()
-	
+
+	# Local generation: not tied to any galaxy star.
+	_source_star_seed = 0
+
 	generate_system(seed_value, star_count, star_count)
 
 
@@ -768,7 +774,7 @@ func _unhandled_input(event: InputEvent) -> void:
 
 ## Handles open-in-viewer request from the inspector panel.
 ## Collects all moons whose orbital parent_id matches this body, then emits
-## open_body_in_viewer with both the body and its moons.
+## open_body_in_viewer with the body, its moons, and the source star seed.
 ## @param body: The body the user wants to inspect in detail.
 func _on_open_body_in_viewer(body: CelestialBody) -> void:
 	if not body:
@@ -778,7 +784,7 @@ func _on_open_body_in_viewer(body: CelestialBody) -> void:
 	if current_system and body.type == CelestialType.Type.PLANET:
 		moons = current_system.get_moons_of_planet(body.id)
 
-	open_body_in_viewer.emit(body, moons)
+	open_body_in_viewer.emit(body, moons, _source_star_seed)
 
 
 ## Sets the status message.
@@ -802,6 +808,12 @@ func set_error(message: String) -> void:
 ## @return: The current system, or null if none loaded.
 func get_current_system() -> SolarSystem:
 	return current_system
+
+
+## Sets the source star seed for this system (called by MainApp when opening from galaxy).
+## @param star_seed: The galaxy star seed (0 = standalone generation).
+func set_source_star_seed(star_seed: int) -> void:
+	_source_star_seed = star_seed
 
 
 ## Updates the seed display to a specific value.

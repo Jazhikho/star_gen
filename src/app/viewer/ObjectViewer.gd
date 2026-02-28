@@ -29,6 +29,9 @@ const _population_likelihood: GDScript = preload("res://src/domain/population/Po
 const _body_renderer: GDScript = preload("res://src/app/rendering/BodyRenderer.gd")
 const _moon_system_script: GDScript = preload("res://src/app/viewer/ObjectViewerMoonSystem.gd")
 
+# Edit dialog (lazily instanced)
+const _edit_dialog_scene: PackedScene = preload("res://src/app/viewer/EditDialog.tscn")
+
 ## UI element references
 @onready var status_label: Label = $UI/TopBar/MarginContainer/HBoxContainer/StatusLabel
 @onready var side_panel: Panel = $UI/SidePanel
@@ -74,11 +77,23 @@ signal back_to_system_requested
 ## Emitted when focus shifts to a moon (null = back to planet).
 signal moon_focused(moon: CelestialBody)
 
+## Emitted when the user confirms edits or regenerates a body (so galaxy/system viewer can update overrides).
+signal body_edited(body: CelestialBody, star_seed: int)
+
 ## Whether this viewer was opened from the system viewer (shows back button).
 var _navigated_from_system: bool = false
 
 ## The back button node (created dynamically when navigated from system).
 var _back_button: Button = null
+
+## Edit dialog instance (created when user first presses Edit).
+var _edit_dialog: EditDialog = null
+
+## Edit button in the top bar.
+var _edit_button: Button = null
+
+## Star seed of the system the displayed body came from (0 if generated in-object viewer).
+var _source_star_seed: int = 0
 
 ## Whether to animate body rotation
 @export var animate_rotation: bool = true
@@ -104,6 +119,7 @@ func _ready() -> void:
 	_setup_generation_ui()
 	_setup_file_dialogs()
 	_setup_moon_system()
+	_setup_edit_button()
 	_connect_signals()
 
 	set_status("Viewer initialized")
@@ -199,6 +215,19 @@ func _setup_moon_system() -> void:
 	_moon_system = _moon_system_script.new()
 	_moon_system.setup(body_renderer)
 	_moon_system.moon_focused.connect(_on_moon_system_focus_changed)
+
+
+## Creates and wires the Edit button in the top bar.
+func _setup_edit_button() -> void:
+	var top_bar_container: HBoxContainer = $UI/TopBar/MarginContainer/HBoxContainer
+	if not top_bar_container:
+		return
+	_edit_button = Button.new()
+	_edit_button.text = "Edit\u2026"
+	_edit_button.tooltip_text = "Edit this body's properties"
+	_edit_button.pressed.connect(_on_edit_pressed)
+	top_bar_container.add_child(_edit_button)
+	top_bar_container.move_child(_edit_button, 0)
 
 
 ## Connects UI signals.
@@ -528,6 +557,8 @@ func display_body_with_moons(
 		return
 
 	current_body = body
+	if _edit_button:
+		_edit_button.disabled = false
 
 	_primary_display_scale = _calculate_display_scale(body)
 	if body_renderer:
@@ -555,12 +586,15 @@ func display_body_with_moons(
 ## Shows the back button and disables generation controls for the session.
 ## @param body: The celestial body to display.
 ## @param moons: Associated moons from the system (may be empty).
+## @param star_seed: Seed of the star system (for body_edited and overrides); 0 if unknown.
 func display_external_body(
 	body: CelestialBody,
-	moons: Array[CelestialBody] = []
+	moons: Array[CelestialBody] = [],
+	star_seed: int = 0
 ) -> void:
 	if not body:
 		return
+	_source_star_seed = star_seed
 	_navigated_from_system = true
 	_show_back_button()
 	_set_generation_controls_enabled(false)
@@ -729,6 +763,8 @@ func _disable_star_glow() -> void:
 ## Clears the entire display (primary body + moons).
 func clear_display() -> void:
 	current_body = null
+	if _edit_button:
+		_edit_button.disabled = true
 	if _moon_system:
 		_moon_system.clear()
 	if body_renderer:
@@ -855,6 +891,77 @@ func _on_back_pressed() -> void:
 	_hide_back_button()
 	_set_generation_controls_enabled(true)
 	back_to_system_requested.emit()
+
+
+## Opens the edit dialog for the current body (lazily creates the dialog).
+func _on_edit_pressed() -> void:
+	if not current_body:
+		return
+	if _edit_dialog == null:
+		_edit_dialog = _edit_dialog_scene.instantiate() as EditDialog
+		add_child(_edit_dialog)
+		_edit_dialog.edits_confirmed.connect(_on_edits_confirmed)
+		_edit_dialog.edits_cancelled.connect(_on_edits_cancelled)
+		_edit_dialog.body_regenerated.connect(_on_body_regenerated)
+	_edit_dialog.regeneration_context = _get_regeneration_context()
+	_edit_dialog.open_for_body(current_body)
+	_edit_dialog.popup_centered()
+
+
+## Returns a ParentContext for regeneration when viewing a planet/moon/asteroid; null for stars.
+func _get_regeneration_context() -> ParentContext:
+	if not current_body:
+		return null
+	match current_body.type:
+		CelestialType.Type.STAR:
+			return null
+		CelestialType.Type.PLANET:
+			var dist_m: float = 1.0 * Units.AU_METERS
+			if current_body.has_orbital():
+				dist_m = current_body.orbital.semi_major_axis_m
+			return ParentContext.sun_like(dist_m)
+		CelestialType.Type.MOON:
+			var moon_dist_m: float = 1.0e8
+			if current_body.has_orbital():
+				moon_dist_m = current_body.orbital.semi_major_axis_m
+			return ParentContext.for_moon(
+				Units.SOLAR_MASS_KG,
+				StellarProps.SOLAR_LUMINOSITY_WATTS,
+				5778.0,
+				4.6e9,
+				Units.AU_METERS,
+				Units.EARTH_MASS_KG,
+				Units.EARTH_RADIUS_METERS,
+				moon_dist_m
+			)
+		CelestialType.Type.ASTEROID:
+			return ParentContext.sun_like(2.7 * Units.AU_METERS)
+		_:
+			return null
+
+
+## Handles edit dialog confirm: refresh display and notify listeners.
+func _on_edits_confirmed(body: CelestialBody) -> void:
+	display_body_with_moons(body, [] as Array[CelestialBody])
+	_update_inspector()
+	set_status("Edited: %s" % body.name)
+	body_edited.emit(body, _source_star_seed)
+
+
+## Handles edit dialog cancel: refresh display to current body.
+func _on_edits_cancelled() -> void:
+	if current_body:
+		_update_inspector()
+		set_status("Viewing: %s" % current_body.name)
+
+
+## Handles in-dialog regeneration: swap current body and notify listeners.
+func _on_body_regenerated(new_body: CelestialBody) -> void:
+	current_body = new_body
+	display_body_with_moons(current_body, [] as Array[CelestialBody])
+	_update_inspector()
+	set_status("Regenerated: %s" % current_body.name)
+	body_edited.emit(current_body, _source_star_seed)
 
 
 ## Enables or disables generation controls.

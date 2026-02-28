@@ -13,6 +13,7 @@ const _system_asteroid_generator: GDScript = preload("res://src/domain/system/Sy
 const _orbit_slot_generator: GDScript = preload("res://src/domain/system/OrbitSlotGenerator.gd")
 const _seeded_rng: GDScript = preload("res://src/domain/rng/SeededRng.gd")
 const _galaxy_star: GDScript = preload("res://src/domain/galaxy/GalaxyStar.gd")
+const _galaxy_body_overrides: GDScript = preload("res://src/domain/galaxy/GalaxyBodyOverrides.gd")
 
 
 ## Generates a complete solar system from a GalaxyStar.
@@ -21,8 +22,16 @@ const _galaxy_star: GDScript = preload("res://src/domain/galaxy/GalaxyStar.gd")
 ## @param enable_population: Whether to generate population data for planets.
 ##   Set true when callers need get_total_population() / get_native_population() etc.
 ##   Defaults to false to keep lazy galaxy generation cheap.
+## @param overrides: Optional edited-body overrides. If non-null and has entries
+##   for this star's seed, matching bodies are swapped for the edited versions
+##   after generation. Unmatched bodies stay deterministic.
 ## @return: Generated SolarSystem, or null on failure.
-static func generate_system(star: GalaxyStar, include_asteroids: bool = true, enable_population: bool = false) -> SolarSystem:
+static func generate_system(
+	star: GalaxyStar,
+	include_asteroids: bool = true,
+	enable_population: bool = false,
+	overrides: RefCounted = null
+) -> SolarSystem:
 	if star == null:
 		return null
 
@@ -86,7 +95,39 @@ static func generate_system(star: GalaxyStar, include_asteroids: bool = true, en
 	if system.provenance != null:
 		system.provenance.spec_snapshot = spec.to_dict()
 
+	# Apply edited-body overrides last so they win over deterministic generation.
+	if overrides != null and overrides.has_method("has_any_for") and overrides.has_method("apply_to_bodies"):
+		if overrides.has_any_for(star.star_seed):
+			_apply_overrides_to_system(system, star.star_seed, overrides)
+
 	return system
+
+
+## Swaps generated bodies for edited versions where ids match.
+## @param system: The freshly generated SolarSystem (mutated in place).
+## @param star_seed: Star seed used as the override bucket key.
+## @param overrides: The override set to consult (RefCounted with GalaxyBodyOverrides API).
+static func _apply_overrides_to_system(system: SolarSystem, star_seed: int, overrides: RefCounted) -> void:
+	var all_bodies: Array = []
+	for s: CelestialBody in system.get_stars():
+		all_bodies.append(s)
+	for p: CelestialBody in system.get_planets():
+		all_bodies.append(p)
+	for m: CelestialBody in system.get_moons():
+		all_bodies.append(m)
+	for a: CelestialBody in system.get_asteroids():
+		all_bodies.append(a)
+
+	var replaced: int = overrides.apply_to_bodies(star_seed, all_bodies)
+	if replaced == 0:
+		return
+
+	for body: CelestialBody in all_bodies:
+		if body == null:
+			continue
+		if overrides.get_override_dict(star_seed, body.id).is_empty():
+			continue
+		system.add_body(body)
 
 
 ## Creates a SolarSystemSpec from a GalaxyStar, applying galactic context.

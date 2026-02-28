@@ -1,6 +1,9 @@
 ## Unit tests for GalaxySaveData.
 extends TestCase
 
+## Ensures GalaxyBodyOverrides is loaded for body_overrides tests.
+const _galaxy_body_overrides: GDScript = preload("res://src/domain/galaxy/GalaxyBodyOverrides.gd")
+
 
 func get_test_name() -> String:
 	return "TestGalaxySaveData"
@@ -166,3 +169,49 @@ func test_vector3i_conversion() -> void:
 	var restored: Vector3i = GalaxySaveData._array_to_vector3i(arr)
 
 	assert_equal(restored, original, "Vector3i should round-trip")
+
+
+func test_body_overrides_default_empty() -> void:
+	var data: GalaxySaveData = GalaxySaveData.create(0)
+	assert_false(data.has_body_overrides())
+	var overrides: GalaxyBodyOverrides = data.get_body_overrides() as GalaxyBodyOverrides
+	assert_true(overrides.is_empty())
+
+
+func test_body_overrides_round_trip() -> void:
+	var overrides: RefCounted = _galaxy_body_overrides.new()
+	var body_dict: Dictionary = {"id": "p1", "name": "Planet One", "type": "planet", "physical": {"mass_kg": 1e24, "radius_m": 1e6}}
+	overrides.set_override_dict(100, "p1", body_dict)
+
+	var data: GalaxySaveData = GalaxySaveData.create(0)
+	data.set_body_overrides(overrides)
+	assert_true(data.has_body_overrides())
+
+	var dict: Dictionary = data.to_dict()
+	assert_true(dict.has("body_overrides_data"))
+
+	var restored: GalaxySaveData = GalaxySaveData.from_dict(dict)
+	assert_not_null(restored)
+	assert_true(restored.has_body_overrides())
+	var restored_overrides: GalaxyBodyOverrides = restored.get_body_overrides() as GalaxyBodyOverrides
+	assert_true(restored_overrides.has_any_for(100))
+	assert_false(restored_overrides.get_override_dict(100, "p1").is_empty())
+
+
+func test_body_overrides_absent_field_legacy_save() -> void:
+	var dict: Dictionary = {
+		"version": 1,
+		"galaxy_seed": 42,
+	}
+	var data: GalaxySaveData = GalaxySaveData.from_dict(dict)
+	assert_not_null(data)
+	assert_false(data.has_body_overrides())
+	assert_true(data.get_body_overrides().is_empty())
+
+
+func test_set_body_overrides_null_clears() -> void:
+	var data: GalaxySaveData = GalaxySaveData.create(0)
+	data.body_overrides_data = {"1": {"id": "x"}}
+	data.set_body_overrides(null)
+	assert_true(data.body_overrides_data.is_empty())
+	assert_false(data.has_body_overrides())

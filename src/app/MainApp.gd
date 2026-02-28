@@ -16,6 +16,7 @@ const _SeededRngClass: GDScript = preload("res://src/domain/rng/SeededRng.gd")
 const _system_cache_script: GDScript = preload("res://src/domain/system/SystemCache.gd")
 const _system_fixture_generator: GDScript = preload("res://src/domain/system/fixtures/SystemFixtureGenerator.gd")
 const _solar_system_spec: GDScript = preload("res://src/domain/system/SolarSystemSpec.gd")
+const _galaxy_body_overrides: GDScript = preload("res://src/domain/galaxy/GalaxyBodyOverrides.gd")
 
 ## Currently active viewer ("galaxy", "system", or "object").
 var _active_viewer: String = ""
@@ -46,6 +47,9 @@ var _current_star_seed: int = 0
 
 ## World position of current star (for context).
 var _current_star_position: Vector3 = Vector3.ZERO
+
+## Edited-body overrides for the current galaxy session (null when no galaxy loaded).
+var _body_overrides: RefCounted = null
 
 ## Container for viewer scenes.
 @onready var viewer_container: Node = $ViewerContainer
@@ -97,6 +101,8 @@ func _create_welcome_screen() -> void:
 ## @param config: GalaxyConfig or null for default.
 func _create_galaxy_viewer(seed_value: int, config: GalaxyConfig = null) -> void:
 	_galaxy_seed = seed_value
+	# Fresh galaxy -> fresh override set. Load path restores overrides after this.
+	_body_overrides = _galaxy_body_overrides.new()
 	_galaxy_viewer = _galaxy_viewer_scene.instantiate() as GalaxyViewer
 	_galaxy_viewer.name = "GalaxyViewer"
 	_galaxy_viewer.galaxy_seed = _galaxy_seed
@@ -153,6 +159,8 @@ func _on_welcome_load_file_selected(path: String) -> void:
 	if data.has_config():
 		config = data.get_config()
 	_create_galaxy_viewer(_galaxy_seed, config)
+	# Restore body overrides from save (create_galaxy_viewer set a fresh empty set).
+	_body_overrides = data.get_body_overrides()
 	_galaxy_viewer.apply_save_data(data)
 	if _welcome_screen and _welcome_screen.is_inside_tree():
 		viewer_container.remove_child(_welcome_screen)
@@ -208,8 +216,9 @@ func _create_object_viewer() -> void:
 	_object_viewer = _object_viewer_scene.instantiate() as ObjectViewer
 	_object_viewer.name = "ObjectViewer"
 
-	# Connect back navigation signal
+	# Connect back navigation and edit signals
 	_object_viewer.back_to_system_requested.connect(_on_back_to_system)
+	_object_viewer.body_edited.connect(_on_body_edited)
 
 
 ## Shows the galaxy viewer and removes other viewers from tree.
@@ -299,6 +308,7 @@ func _on_open_system_requested(star_seed: int, world_position: Vector3) -> void:
 	if preview != null and preview.star_seed == star_seed and preview.system != null:
 		# Reuse the preview's cached system (avoids redundant generation).
 		system = preview.system
+		_apply_overrides_to_system(system, star_seed)
 		_system_cache.put_system(star_seed, system)
 	else:
 		# Fall back to cache, then fresh generation.
@@ -306,13 +316,17 @@ func _on_open_system_requested(star_seed: int, world_position: Vector3) -> void:
 		if system == null:
 			system = _generate_system_from_seed(star_seed)
 			if system:
+				_apply_overrides_to_system(system, star_seed)
 				_system_cache.put_system(star_seed, system)
+		else:
+			_apply_overrides_to_system(system, star_seed)
 
 	if system == null:
 		push_error("Failed to generate system for star seed: %d" % star_seed)
 		return
 
 	_show_system_viewer()
+	_system_viewer.set_source_star_seed(star_seed)
 	_system_viewer.display_system(system)
 	_system_viewer.set_status("System from star seed %d" % star_seed)
 
@@ -338,15 +352,70 @@ func _generate_system_from_seed(star_seed: int) -> SolarSystem:
 	return _system_fixture_generator.generate_system(spec)
 
 
+## Applies body overrides to a system in place (preview, cache, or freshly generated).
+## @param system: The SolarSystem to patch.
+## @param star_seed: Star seed (override map key).
+func _apply_overrides_to_system(system: SolarSystem, star_seed: int) -> void:
+	if _body_overrides == null:
+		return
+	if not _body_overrides.has_method("has_any_for") or not _body_overrides.has_any_for(star_seed):
+		return
+	var all_bodies: Array = []
+	for b: CelestialBody in system.get_stars():
+		all_bodies.append(b)
+	for b: CelestialBody in system.get_planets():
+		all_bodies.append(b)
+	for b: CelestialBody in system.get_moons():
+		all_bodies.append(b)
+	for b: CelestialBody in system.get_asteroids():
+		all_bodies.append(b)
+	var replaced: int = _body_overrides.apply_to_bodies(star_seed, all_bodies)
+	if replaced > 0:
+		for b: CelestialBody in all_bodies:
+			if b == null:
+				continue
+			if _body_overrides.get_override_dict(star_seed, b.id).is_empty():
+				continue
+			system.add_body(b)
+
+
+## Handles an edit confirmation from ObjectViewer.
+## Stores the edited body in the galaxy override set, evicts the cached system,
+## and patches the live system viewer if it is still showing this star.
+## @param body: The edited body.
+## @param star_seed: Star seed this body belongs to (0 = standalone, not a galaxy body).
+func _on_body_edited(body: CelestialBody, star_seed: int) -> void:
+	if body == null:
+		return
+	if star_seed == 0:
+		return
+	if _body_overrides == null:
+		_body_overrides = _galaxy_body_overrides.new()
+	_body_overrides.set_override(star_seed, body)
+
+	if _system_cache != null and _system_cache.has_method("evict"):
+		_system_cache.evict(star_seed)
+	elif _system_cache != null:
+		_system_cache.clear()
+
+	# Patch the live system if the system viewer is still showing this star.
+	if _system_viewer != null and _current_star_seed == star_seed:
+		var sys: SolarSystem = _system_viewer.get_current_system()
+		if sys != null:
+			sys.add_body(body)
+			_system_viewer.display_system(sys)
+
+
 ## Handles request to open a body in the object viewer.
 ## @param body: The celestial body to display.
 ## @param moons: Associated moons from the system (may be empty).
-func _on_open_in_object_viewer(body: CelestialBody, moons: Array[CelestialBody] = []) -> void:
+## @param star_seed: Seed of the star system (for overrides); 0 if unknown.
+func _on_open_in_object_viewer(body: CelestialBody, moons: Array[CelestialBody] = [], star_seed: int = 0) -> void:
 	if body == null:
 		return
 
 	_show_object_viewer()
-	_object_viewer.display_external_body(body, moons)
+	_object_viewer.display_external_body(body, moons, star_seed)
 
 
 ## Handles request to go back to the system viewer from object viewer.
@@ -379,6 +448,18 @@ func get_galaxy_seed() -> int:
 ## @return: SystemCache instance.
 func get_system_cache() -> SystemCache:
 	return _system_cache
+
+
+## Returns the current body-override set (for galaxy save flow).
+## @return: GalaxyBodyOverrides or null if no galaxy loaded.
+func get_body_overrides() -> RefCounted:
+	return _body_overrides
+
+
+## Returns whether any bodies have been edited this session (unsaved changes).
+## @return: True if at least one override exists.
+func has_unsaved_edits() -> bool:
+	return _body_overrides != null and not _body_overrides.is_empty()
 
 
 ## Returns the currently active viewer name.

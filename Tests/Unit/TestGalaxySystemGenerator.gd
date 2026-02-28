@@ -2,6 +2,8 @@
 class_name TestGalaxySystemGenerator
 extends TestCase
 
+const _overrides_script: GDScript = preload("res://src/domain/galaxy/GalaxyBodyOverrides.gd")
+
 
 func get_test_name() -> String:
 	return "TestGalaxySystemGenerator"
@@ -136,3 +138,62 @@ func test_generate_system_provenance_has_spec_snapshot() -> void:
 	assert_false(system.provenance.spec_snapshot.is_empty(), "Provenance should have spec snapshot")
 	assert_true(system.provenance.spec_snapshot.has("generation_seed"), "Spec snapshot should have generation_seed")
 	assert_equal(system.provenance.spec_snapshot["generation_seed"], star.star_seed, "Spec snapshot seed should match star seed")
+
+
+func _make_test_star(star_seed: int) -> GalaxyStar:
+	var spec: GalaxySpec = GalaxySpec.create_milky_way(42)
+	return GalaxyStar.create_with_derived_properties(Vector3(8000.0, 0.0, 0.0), star_seed, spec)
+
+
+func test_generate_system_without_overrides_unchanged() -> void:
+	var star: GalaxyStar = _make_test_star(777)
+	var sys_a: SolarSystem = GalaxySystemGenerator.generate_system(star, false, false, null)
+	var sys_b: SolarSystem = GalaxySystemGenerator.generate_system(star, false, false)
+	assert_not_null(sys_a)
+	assert_not_null(sys_b)
+	var planets_a: Array = sys_a.get_planets()
+	var planets_b: Array = sys_b.get_planets()
+	assert_equal(planets_a.size(), planets_b.size(), "null overrides must not change body count")
+
+
+func test_generate_system_applies_planet_override() -> void:
+	var star: GalaxyStar = _make_test_star(12345)
+	var baseline: SolarSystem = GalaxySystemGenerator.generate_system(star, false, false)
+	assert_not_null(baseline)
+	var planets: Array = baseline.get_planets()
+	if planets.is_empty():
+		return
+	var target_planet: CelestialBody = planets[0] as CelestialBody
+	var target_id: String = target_planet.id
+
+	var edited_mass: float = 7.777e24
+	var ov: RefCounted = _overrides_script.new()
+	var edited: CelestialBody = CelestialSerializer.from_dict(CelestialSerializer.to_dict(target_planet))
+	edited.physical.mass_kg = edited_mass
+	edited.name = "Edited-By-Test"
+	ov.set_override(star.star_seed, edited)
+
+	var patched: SolarSystem = GalaxySystemGenerator.generate_system(star, false, false, ov)
+	assert_not_null(patched)
+	var patched_planet: CelestialBody = patched.get_body(target_id)
+	assert_not_null(patched_planet, "override body id must still resolve")
+	assert_float_equal(patched_planet.physical.mass_kg, edited_mass, 1.0, "override mass must replace deterministic value")
+	assert_equal(patched_planet.name, "Edited-By-Test", "override name must survive")
+
+
+func test_generate_system_ignores_overrides_for_other_seeds() -> void:
+	var star: GalaxyStar = _make_test_star(500)
+	var baseline: SolarSystem = GalaxySystemGenerator.generate_system(star, false, false)
+	assert_not_null(baseline)
+
+	var ov: RefCounted = _overrides_script.new()
+	var dummy_phys: PhysicalProps = PhysicalProps.new(1.0, 1.0)
+	var dummy: CelestialBody = CelestialBody.new("wont_match", "Nope", CelestialType.Type.PLANET, dummy_phys, null)
+	ov.set_override(999999, dummy)
+
+	var patched: SolarSystem = GalaxySystemGenerator.generate_system(star, false, false, ov)
+	assert_equal(baseline.get_planets().size(), patched.get_planets().size(), "wrong-seed override must not change structure")
+	if not baseline.get_planets().is_empty():
+		var a: CelestialBody = baseline.get_planets()[0] as CelestialBody
+		var b: CelestialBody = patched.get_planets()[0] as CelestialBody
+		assert_float_equal(a.physical.mass_kg, b.physical.mass_kg, 0.0, "wrong-seed override must not affect generation")

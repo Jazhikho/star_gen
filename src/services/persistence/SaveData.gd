@@ -71,6 +71,21 @@ static func save_body(
 		return _save_json(path, data)
 
 
+## Saves a body that has been edited (values diverge from generation).
+## Uses FULL mode because regeneration cannot reproduce user edits —
+## the seed + spec would regenerate the *original* values.
+## @param body: The edited body.
+## @param path: The file path.
+## @param compress: Whether to compress the output.
+## @return: Error code.
+static func save_edited_body(
+	body: CelestialBody,
+	path: String,
+	compress: bool = true
+) -> Error:
+	return save_body(body, path, SaveMode.FULL, compress)
+
+
 ## Loads a celestial body from a file.
 ## @param path: The file path.
 ## @return: LoadResult with body or error.
