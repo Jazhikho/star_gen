@@ -2,6 +2,10 @@
 
 Godot 4.x - GDScript | DRY + SOLID | Deterministic generation with test gates
 
+## Version history
+
+Release notes and version summaries are in the [README](../README.md#version-history). **v0.1** corresponds to commit `90e2636`; **v0.2** is the current patch (asteroid belts in system viewer, scientific calibration, harness and docs).
+
 ## Overview
 
 This roadmap builds StarGen in three layers: (1) viewable celestial objects (editing deferred), (2) solar systems, then (3) galactic scale. Work is organized as **efforts** that can be pursued in parallel where dependencies allow.

@@ -445,8 +445,8 @@ star_gen/
     │   ├── TestColorUtilsShaderParams.gd
     │   ├── TestGalaxy.gd
     │   ├── TestGalaxyConfig.gd
-│   ├── TestGalaxyInspectorPanel.gd
-│   ├── TestGalaxySaveData.gd
+    │   ├── TestGalaxyInspectorPanel.gd
+    │   ├── TestGalaxySaveData.gd
 │   ├── TestGenerationRealismProfile.gd
     │   ├── TestGalaxyStar.gd
     │   ├── TestGalaxySystemGenerator.gd
@@ -476,7 +476,7 @@ star_gen/
     │   ├── TestSolarSystem.gd
     │   ├── TestSolarSystemSpec.gd
     │   ├── TestStarGenerator.gd
-│   ├── TestStarGeneratorDistributions.gd
+    │   ├── TestStarGeneratorDistributions.gd
     │   ├── TestStarShaderParams.gd
     │   ├── TestStarTable.gd
     │   ├── TestStellarConfigGenerator.gd
@@ -486,7 +486,7 @@ star_gen/
     │   ├── TestSystemCache.gd
     │   ├── TestSystemDisplayLayout.gd
     │   ├── TestSystemGoldenMasters.gd
-│   ├── TestSystemPlanetDistributions.gd
+    │   ├── TestSystemPlanetDistributions.gd
     │   ├── TestSystemHierarchy.gd
     │   ├── TestSystemInspectorPanel.gd
     │   ├── TestSolarSystemPopulation.gd
@@ -500,6 +500,7 @@ star_gen/
     │   ├── TestValidation.gd
     │   └── TestVersions.gd
     │
+    ├── GenerationStatsHarness.gd
     ├── JumpLanesDeps.gd
     ├── JumpLanesTestRunner.gd
     ├── JumpLanesTestScene.gd
@@ -507,6 +508,7 @@ star_gen/
     ├── Phase1Deps.gd
     ├── PopulationDeps.gd
     ├── RunTestsHeadless.gd
+    ├── ScientificBenchmarks.gd
     ├── TestScene.gd
     └── TestScene.tscn
 ```

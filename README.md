@@ -12,7 +12,14 @@ Built with **Godot 4.x** and **GDScript**.
 
 **Remaining efforts:** Solar system constraints, system viewer rendering improvements, object editing, rendering v2, galactic refinement, solar system tools, galactic tools, galactic polish, jump lanes optimization and polish, code quality & simplifications.
 
-**Test Status:** 1797+ tests; headless run via `godot --headless --script res://Tests/RunTestsHeadless.gd`.
+**Test Status:** 1800+ tests; headless run via `godot --headless --script res://Tests/RunTestsHeadless.gd`.
+
+### Version history
+
+| Version | Commit (tag) | Summary |
+|---------|--------------|---------|
+| **0.1** | `90e2636` | First unofficial release. Object and system viewers, galaxy data model and viewer (welcome screen, GalaxyConfig, density models, save/load). Population framework, stations, jump lanes (domain + prototype). |
+| **0.2** | (current) | Asteroid belt generation and rendering in system viewer; scientific calibration (GenerationRealismProfile, benchmarks, ensemble harness, distribution tests); belt renderer/generator integration; OrbitSlotGenerator, OrbitalMechanics, StellarConfigGenerator, SystemValidator updates; GalaxyInspectorPanel and test suite updates. Removed Concepts/AsteroidBelt demo scenes and Tests/RunGalaxyTests.gd. |
 
 ### Merged features (master)
 
