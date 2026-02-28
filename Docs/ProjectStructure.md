@@ -216,7 +216,8 @@ star_gen/
 │   │   │   │   ├── OrbitZone.gd
 │   │   │   │   ├── RingComplexity.gd
 │   │   │   │   ├── SizeCategory.gd
-│   │   │   │   └── StarClass.gd
+│   │   │   │   ├── StarClass.gd
+│   │   │   │   └── TravellerSizeCode.gd
 │   │   │   ├── fixtures/
 │   │   │   │   └── FixtureGenerator.gd
 │   │   │   ├── generators/
@@ -496,6 +497,7 @@ star_gen/
     │   ├── TestSystemSerializer.gd
     │   ├── TestSystemValidator.gd
     │   ├── TestTerrestrialShaderParams.gd
+    │   ├── TestTravellerSizeCode.gd
     │   ├── TestUnits.gd
     │   ├── TestValidation.gd
     │   └── TestVersions.gd

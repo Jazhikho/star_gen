@@ -34,6 +34,7 @@ var _test_scripts: Array[GDScript] = [
 	preload("res://Tests/Unit/TestParentContext.gd"),
 	preload("res://Tests/Unit/TestBaseSpec.gd"),
 	preload("res://Tests/Unit/TestSizeTable.gd"),
+	preload("res://Tests/Unit/TestTravellerSizeCode.gd"),
 	preload("res://Tests/Unit/TestStarTable.gd"),
 	preload("res://Tests/Unit/TestStarGenerator.gd"),
 	preload("res://Tests/Unit/TestStarGeneratorDistributions.gd"),

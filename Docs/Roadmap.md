@@ -34,10 +34,9 @@ Contributors pick an effort and work against master. Efforts can run in parallel
 
 | Name | Summary | Gates | Branch |
 |------|---------|-------|--------|
-| Solar system constraints | Constraint-based generation (min/max/exact counts, stellar locks, resonances), UI | — | `feature/constraints-belts-rotation` |
 | System viewer rendering improvements | Directional lighting, axial tilt, 1 day = 1 s, asteroid belt torus | — | `feature/constraints-belts-rotation` |
-| Object editing | Editable inspector, derived-value recalc, undo/redo | — | — |
-| Object rendering v2 | Oblateness, aurora, LOD, seed-driven materials | — | — |
+| Object editing | Editable inspector, derived-value recalc, undo/redo | — | `object-view` |
+| Object rendering v2 | Oblateness, aurora, LOD, seed-driven materials | — | `object-view` |
 | Galactic generator refinement | Region constraints, region rules, constraint-based placement | — | — |
 | Solar system tools | Add/remove bodies, adjust orbits, recalc, system-level undo | — | — |
 | Galactic tools | System placement edits, region editing, galactic undo | Galactic generator refinement | — |
@@ -51,6 +50,9 @@ Contributors pick an effort and work against master. Efforts can run in parallel
 | Quick tagging layer | Labels (mining, habitable, hazard, trade hub, pirate risk) on objects/systems | — | — |
 | Favorites and notes | Bookmark systems, short descriptions, optional screenshot | — | — |
 | Export frames as skybox | 4K cubemap set or equirectangular pano for art team (level/menu placeholder) | System viewer rendering improvements (optional) | — |
+| Traveller alignment | Align with Traveller UWP planet size scale; size code layer (0–C, D/E) from diameter; Mini-Neptune and above map to D or E | — | — |
+
+**Branch `object-view`:** Focus branch for object-view efforts (Object editing, Object rendering v2). Use this branch when working on single-object viewer UX, editable inspector, derived-value recalc, undo/redo, or object rendering improvements such as oblateness, aurora, LOD, and seed-driven materials.
 
 ---
 
@@ -346,6 +348,18 @@ Contributors pick an effort and work against master. Efforts can run in parallel
 **Tests:** Output dimensions and count correct; no invalid or blank frames for valid capture request.
 
 **Acceptance:** User can export a 4K cubemap set or equirectangular pano from the system viewer; art can import it as a skybox/background with minimal hand-work.
+
+---
+
+### Traveller alignment
+
+**Goal:** Align StarGen with the Traveller UWP planet size scale so generated bodies can be mapped to Traveller size codes for export or display.
+
+**Done:** Simplified Traveller size-code layer in domain: `TravellerSizeCode` (`src/domain/generation/archetypes/TravellerSizeCode.gd`) with diameter bounds (0 = very small/asteroid &lt;800 km; 1–9, A, B, C; D = small gas giant 40,000–120,000 km; E = large gas giant 120,000+ km). `diameter_km_to_code(diameter_km)` returns int 0–9 or String "A"–"E"; `code_to_diameter_range(code)` and `to_string_uwp(code)` for validation/display. From `PhysicalProps.radius_m`, compute `diameter_km = 2 * radius_m / 1000.0` and call `diameter_km_to_code`. Mini-Neptune and above (and any body with diameter in gas-giant range) map to D or E; internal `SizeCategory` enum is unchanged. Unit tests in `TestTravellerSizeCode.gd`.
+
+**Remaining (optional):** When UWP or “Traveller export” is implemented, use this module for the size digit. Constraining generation by Traveller code (e.g. “size 5–8 only”) would map code ranges back to diameter/mass; not required for alignment.
+
+**Acceptance:** For any `PhysicalProps.radius_m`, the Traveller size code (0–9, A, B, C, D, E) is uniquely determined and unit-tested; roadmap documents the alignment and how Mini-Neptune plus maps to D/E.
 
 ---
 

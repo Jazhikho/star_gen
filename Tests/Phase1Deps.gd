@@ -48,6 +48,7 @@ const _orbit_zone: GDScript = preload("res://src/domain/generation/archetypes/Or
 const _star_class: GDScript = preload("res://src/domain/generation/archetypes/StarClass.gd")
 const _asteroid_type: GDScript = preload("res://src/domain/generation/archetypes/AsteroidType.gd")
 const _ring_complexity: GDScript = preload("res://src/domain/generation/archetypes/RingComplexity.gd")
+const _traveller_size_code: GDScript = preload("res://src/domain/generation/archetypes/TravellerSizeCode.gd")
 const _base_spec: GDScript = preload("res://src/domain/generation/specs/BaseSpec.gd")
 const _star_spec: GDScript = preload("res://src/domain/generation/specs/StarSpec.gd")
 const _planet_spec: GDScript = preload("res://src/domain/generation/specs/PlanetSpec.gd")
