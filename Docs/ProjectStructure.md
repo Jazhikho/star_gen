@@ -60,7 +60,15 @@ star_gen/
 │   ├── GDD.md
 │   ├── ProjectStructure.md        # This file
 │   ├── RegimeChangeModel.md
-│   └── Roadmap.md
+│   ├── Roadmap.md
+│   └── TravellerWorldCreation.md
+│
+├── Sources/                       # Scientific literature and bibliography
+│   ├── AnnotatedBibliography.md
+│   ├── SourceReviewProcedure.md   # How to add/review sources; abridgement rules; consistency check
+│   ├── ToReview.md
+│   └── Texts/                     # Full-text copies (AuthorYear.txt)
+│       └── .gitkeep
 │
 ├── src/
 │   ├── app/

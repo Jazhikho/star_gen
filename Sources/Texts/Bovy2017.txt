@@ -1,0 +1,127 @@
+# Stellar Inventory of the Solar Neighborhood using Gaia DR1
+
+**Abridgement note:** This file is an abridgement of Bovy (2017), MNRAS 470:1360–1387. Section 2 (formalism), parts of §3 and §5–§8, and appendix detail are summarized rather than reproduced in full. All quoted numbers, equations, and conclusions match the published paper; the abridgement is intended not to misrepresent the original work. For full methodology, figures, and tables see the journal article or arXiv:1704.05063.
+
+---
+
+Jo Bovy
+Department of Astronomy and Astrophysics, University of Toronto, 50 St. George Street, Toronto, ON M5S 3H4, Canada
+and
+Center for Computational Astrophysics, Flatiron Institute, 162 5th Ave, New York, NY 10010, USA
+
+May 18, 2017
+
+Mon. Not. R. Astron. Soc. 470 (2): 1360–1387 (2017)
+arXiv:1704.05063v2 [astro-ph.GA] 14 Jul 2017
+
+---
+
+## ABSTRACT
+
+The absolute number and the density profiles of different types of stars in the solar neighborhood are a fundamental anchor for studies of the initial mass function, stellar evolution, and galactic structure. Using data from Gaia DR1, we reconstruct Gaia's selection function and determine Gaia's volume completeness, the local number density, and the vertical profiles of different spectral types along the main sequence from early A stars to late K stars as well as along the giant branch. We clearly detect the expected flattening of the stellar density profile near the mid-plane: All vertical profiles are well represented by sech² profiles, with scale heights ranging from ≈ 50 pc for A stars to ≈ 150 pc for G and K dwarfs and giants. We determine the luminosity function along the main sequence for M_V < 7 (M ≳ 0.72 M☉) and along the giant branch for M_J ≳ −2.5 in detail. Converting this to a mass function, we find that the high-mass (M > 1 M☉) present-day mass function along the main sequence is:
+
+  dn/dM = 0.016 (M/M☉)^(−4.7)  stars pc⁻³ M☉⁻¹.
+
+Extrapolating below M = 0.72 M☉, we find a total mid-plane stellar density of **0.040 ± 0.002 M☉ pc⁻³**. Giants contribute 0.00039 ± 0.00001 stars pc⁻³ or about 0.00046 ± 0.00005 M☉ pc⁻³. The star-formation rate surface density is Σ(t) = 7±1 exp(−t/[7±1 Gyr]) M☉ pc⁻² Gyr⁻¹. Overall, we find that Gaia DR1's selection biases are manageable and allow a detailed new inventory of the solar neighborhood to be made that agrees with and extends previous studies. This bodes well for mapping the Milky Way with the full Gaia data set.
+
+**Key words:** Galaxy: disc — Galaxy: fundamental parameters — Galaxy: stellar content — Galaxy: structure — solar neighborhood — stars: statistics
+
+---
+
+## 1 INTRODUCTION
+
+The Milky Way is a cornerstone in our understanding of the structure and evolution of galaxies. And within the Milky Way, the solar neighborhood provides a fundamental basis for studies of Galactic structure, star formation and stellar evolution, and Galactic dynamics. Within a few hundred parsec from the Sun, we can see stars that span the extremes from the most luminous main-sequence and giant stars to the faintest M dwarfs. This provides an essential basis for understanding the baryonic content of the Milky Way and external galaxies as it allows the initial-mass function (IMF; e.g., Gould et al. 1996; Kroupa 2001; Chabrier 2001), the mass-to-light ratio (e.g., Flynn et al. 2006), and the local star-formation history (e.g., Binney et al. 2000) to be determined directly. A complete baryonic census of the solar neighborhood is also important for comparing with dynamical determinations of the local mass distribution, which are only sensitive to the combined mass in baryons and dark matter (e.g., Holmberg & Flynn 2000; Bovy & Rix 2013).
+
+The most precise censuses of stars in the solar neighborhood are largely based on small, volume-complete surveys of local stars (for example, within 25 pc, Reid et al. 2002; within 50 pc, Jahreiss et al. 1998), which contain only a handful of the most luminous stars. While this does not matter for determining the IMF from the number density of long-lived stars, for the purpose of, e.g., measuring the local stellar density distribution and comparing it to dynamical estimates (McKee et al. 2015), small volumes centered on the Sun are potentially biased, because the Sun is likely offset from the mid-plane of the Galaxy by 15 to 25 pc (e.g., Binney et al. 1997; Chen et al. 2001; Jurić et al. 2008). Extending the local stellar census to a few hundred parsecs would allow a much better determination of the bright end of the stellar luminosity function and of the present-day mass function.
+
+The ESA Gaia mission has been designed to investigate the luminous and dark-matter distribution within the Milky Way to constrain its formation and evolution (Gaia Collaboration et al. 2016a). While Gaia will observe more than 1 billion stars, these constitute only about 1% of all of the stars in the Milky Way and the volume completeness for different types of stars will be complex even in the final data release due to variations in stellar colors, interstellar extinction, stellar density, and the observation pattern in different parts of the sky. Gaia released its first data in the Fall of 2016 (Gaia Collaboration et al. 2016b), which consists of the primary Tycho-Gaia Astrometric Solution (TGAS) containing positions, parallaxes, and proper motions for a subset of the Tycho-2 catalog (Høg et al. 2000) and the secondary data set with approximate positions for stars brighter than G ≈ 20.7 in the wide Gaia photometric bandpass G (Lindegren et al. 2016). Based on 14 months of data and a preliminary astrometric processing, the Gaia DR1 TGAS catalog contains 2,057,050 stars with parallaxes with typical uncertainties of ≈ 0.3 mas. As such, TGAS is by far the largest catalog of trigonometric, high-precision parallaxes for a uniformly selected sample of stars. However, no estimate of the completeness of TGAS is provided in the data products. This makes it difficult to use the TGAS data to investigate the spatial and dynamical structure of the solar neighborhood and many of the first uses of the TGAS data have therefore focused on purely kinematic studies that do not require knowledge of the selection function (e.g., Allende Prieto et al. 2016; Hunt et al. 2016; Bovy 2017; Helmi et al. 2017).
+
+This paper has two main parts. The first part consists of an extensive discussion of the volume completeness of the TGAS catalog for different stellar types. This may be useful to other studies employing TGAS data to study various aspects of the Milky Way's structure. It can also be straightforwardly extended to the Gaia DR2 data when they appear. The second part uses the volume completeness combined with star counts for different classes of stars to perform a new stellar census of the solar neighborhood, covering main-sequence stars from early A-type to late K-type dwarfs and giant stars from the subgiant branch to the upper red-giant branch. We also determine the vertical density profiles for these stellar types up to a maximum of 400 pc above the Galactic mid-plane. The resulting census is consistent with previous work and constitutes the most precise determination of the mass distribution in the solar neighborhood within the mass range observed in TGAS.
+
+---
+
+## 2 STELLAR NUMBER DENSITY LAWS FROM INCOMPLETE SURVEYS
+
+[Section 2 introduces the formalism: effective selection function S(α, δ, D), effective volume completeness Ξ(Π_k), and the likelihood approach for determining ν*(X,Y,Z) from incomplete surveys. Key equations: (3) effective selection function; (9) best-fit density n̂_k = N_k / effective volume; (10) effective volume completeness; (12) uncertainty σ_{n̂_k}.]
+
+---
+
+## 3 THE TGAS COMPLETENESS FOR DIFFERENT STELLAR POPULATIONS
+
+Stellar types are defined using the mean dwarf stellar locus from Pecaut & Mamajek (2013) along the main sequence (A through K; M only to M5V) and PARSEC isochrones for giants (subgiants, lower RGB, red-clump, upper RGB). The effective selection function S(α, δ, D) and effective volume completeness Ξ(Π_k) are computed for each type. Vertical profiles are sech²; scale heights ≈ 50 pc (A) to ≈ 150 pc (G, K, giants). Extinction has minor effect over most of the sky. Completeness maps and the gaia_tools package (jobovy/gaia_tools) are described.
+
+---
+
+## 4 STELLAR DENSITY LAWS FOR MAIN-SEQUENCE STARS
+
+Binned vertical densities for subtypes A0V–K9V are measured in cylinders (R_xy = 100–250 pc depending on type). Profiles are fit with two-component sech² models. Table 1 gives spectral type, J−K_s, M_V, M_J, mass, number density n, luminosity function dn/dM_V, mass function dn/dM, cumulative mass density ρ(>M), and scale height z_d.
+
+**Luminosity function (Figure 12):** Agreement with Reid et al. (2002) 25 pc volume-complete sample.
+
+**Mass function (Figure 14):** High-mass (M > 1 M☉) present-day mass function:
+
+  dn/dM = 0.016 (M/M☉)^(−4.7)  M☉⁻¹ pc⁻³.
+
+Total mid-plane stellar density (main-sequence, extrapolated below 0.72 M☉):
+
+  ρ*^MS = 0.040 ± 0.002 M☉ pc⁻³.
+
+Giants: 0.00039 ± 0.00001 stars pc⁻³ ≈ 0.00046 ± 0.00005 M☉ pc⁻³.
+
+**Star-formation history (Figure 15):** Exponentially declining SFR:
+
+  Σ_SFR(t) = 7.2 ± 1.0 exp(−t/[7±1 Gyr]) M☉ pc⁻² Gyr⁻¹.
+
+Total mass formed in last 10 Gyr: Σ_form = 38.5 ± 2.5 M☉ pc⁻². White-dwarf mass density and current vs formed mass ratios are discussed.
+
+---
+
+## 5 STELLAR DENSITY LAWS FOR GIANT STARS
+
+Vertical density profiles for giants in ΔM_J = 0.25 bins; all well fit by single sech² with scale heights ≈ 150 pc. Luminosity function (Figure 18, Table 2) fitted with exponential plus Gaussian red-clump bump. Total mid-plane number density of giants n = 0.00039 ± 0.00001 giants pc⁻³; mass density ρ*^giants = 0.00046 ± 0.00005 M☉ pc⁻³.
+
+---
+
+## 6 THE SUN'S HEIGHT ABOVE THE MID-PLANE
+
+Sun's offset Z☉ from the mid-plane: For A and F dwarfs, Z☉ = −0.9 ± 0.9 pc (consistent with zero). For giants (subgiants, lower RGB, RC), Z☉ = 29 ± 4 pc. The tension with the canonical 15–25 pc from older tracers is discussed; young tracers (open clusters, OB stars) give smaller Z☉ (6–15 pc). Possible systematics and tests (bright-end cut, cylinder size, |Z| > 100 pc only) are summarized.
+
+---
+
+## 7 DISCUSSION
+
+**7.1 Computational complexity** — Method scales to larger Gaia data sets; effective volume integral does not scale with N.
+
+**7.2 Other uses of the effective completeness** — Distance priors, CMD modeling, and kinematic analyses should account for TGAS selection.
+
+**7.3 Astrophysical implications** — Census of M ≳ 0.72 M☉ stars; star-formation history; degeneracy with high-mass IMF slope; migration.
+
+**7.4 Future work** — Extension to Gaia DR2; completeness from Gaia data themselves; simultaneous inference of density, CMD, and extinction.
+
+---
+
+## 8 CONCLUSION
+
+First detailed stellar inventory of the solar neighborhood using Gaia DR1 TGAS. TGAS selection function derived over 48% of the sky; effective completeness and volume completeness for main-sequence and giant types. Results: luminosity function (main sequence and giants), present-day mass function, total mid-plane density 0.040 ± 0.002 M☉ pc⁻³, star-formation history, vertical profiles (sech², z_d ≈ 50–150 pc). Sun at mid-plane for A/F dwarfs (Z☉ ≈ 0); Z☉ = 29 ± 4 pc for giants. Code: https://github.com/jobovy/tgas-completeness and gaia_tools.
+
+---
+
+## REFERENCES
+
+[Full reference list as in original: Allende Prieto et al., Astraatmadja & Bailer-Jones, Astropy Collaboration, Aumer & Binney, Bahcall, Bailer-Jones, Binney et al., Bok, Bonatto et al., Bovy et al., Bressan et al., Buckner & Froebrich, Casagrande et al., Chabrier 2001, Chen et al., Drimmel et al., Flynn et al., Foreman-Mackey et al., Gaia Collaboration, Górski et al., Gould et al., Green et al., Helmi et al., Høg et al., Holmberg & Flynn, Hunt et al., Jahreiss et al., Joshi et al., Jurić et al., Kalirai et al., Kroupa 2001, Leistedt & Hogg, Lindegren et al., Malhotra, Marshall et al., McKee et al., Nakanishi & Sofue, Pecaut & Mamajek, Reed, Reid et al., Scalo, Schönrich & Binney, Sellwood & Binney, Skrutskie et al.]
+
+---
+
+## APPENDIX A: THE COMPLETENESS OF TGAS IN COLOR–MAGNITUDE–SKY-POSITION
+
+TGAS is compared to 2MASS to derive the raw selection function S(J, J−K_s, α, δ). “Good” sky (48%) defined by: mean AL observations > 8.5, spread in AL observations ≤ 10, spread in scan directions ≤ 0.7, |ecliptic latitude| > 20°. Completeness as a function of (J, J−K_s) and the definition of J_G to remove color dependence of the faint-end cut-off. Final model: zero outside good sky; smooth spline in three J−K_s bins evaluated at J_G. Comparison with Tycho-2 at V ≲ 11 shows good agreement.
+
+---
+
+## APPENDIX B: OVERALL COMPLETENESS OF THE LOW-QUALITY PORTION OF THE SKY
+
+Completeness maps for the 52% of the sky failing the quality cuts, including split by reason (low AL observations, low scan spread, etc.).
+
+---
+
+[End of Bovy 2017. For full equations, figures, and tables see MNRAS 470:1360–1387 or arXiv:1704.05063.]

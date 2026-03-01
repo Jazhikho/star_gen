@@ -51,6 +51,11 @@ Contributors pick an effort and work against master. Efforts can run in parallel
 | Favorites and notes | Bookmark systems, short descriptions, optional screenshot | — | — |
 | Export frames as skybox | 4K cubemap set or equirectangular pano for art team (level/menu placeholder) | System viewer rendering improvements (optional) | — |
 | Traveller alignment | Align with Traveller UWP planet size scale; size code layer (0–C, D/E) from diameter; Mini-Neptune and above map to D or E | — | — |
+| Starfinder / other RPG export | Mapper from body + population to Starfinder-style world type, gravity, atmosphere, biomes | — | — |
+| Stars Without Number export | World tags and sector data derivation for SWN-style play | — | — |
+| Traveller/Cepheus UWP full export | Full UWP and sector file export (TravellerMap-compatible) | Traveller alignment | — |
+| Education / outreach mode | Deterministic demos, parameter exploration, seed-based reproducibility for workshops and teaching | — | — |
+| Science / extended classification export | CADRS-like or exoplanet-class export for worldbuilding or reference | — | — |
 
 **Branch `object-view`:** Focus branch for object-view efforts (Object editing, Object rendering v2). Use this branch when working on single-object viewer UX, editable inspector, derived-value recalc, undo/redo, or object rendering improvements such as oblateness, aurora, LOD, and seed-driven materials.
 
@@ -384,6 +389,42 @@ Contributors pick an effort and work against master. Efforts can run in parallel
 ## Effort discipline
 
 Proposed changes that do not fit any existing effort are added as a **new effort** in this roadmap. Each new effort should include: name, summary, gates (if any), deliverables, tests, and acceptance criteria. Do not implement until that effort is explicitly picked by a contributor.
+
+---
+
+## Additional efforts (to be considered later)
+
+The following efforts were identified from research into **other RPGs** and **non-game use cases** beyond Traveller. They are listed in the efforts table above and expanded here for context. Consider when prioritising post–Traveller work.
+
+### Other RPG and game-adjacent use cases
+
+**Traveller-family (UWP-compatible):** **Cepheus Engine** and **Cepheus Light** use the same UWP structure and hex/subsector conventions. A full UWP and sector-file export (Traveller/Cepheus UWP full export) would serve both Traveller and Cepheus; tools like TravellerMap consume standard sector formats.
+
+**Starfinder (Paizo):** “Building Worlds” uses world type (terrestrial, gas giant, irregular, satellite, asteroid, colony ship, station), gravity, atmosphere, biomes, and cultural attributes—no single UWP-style code. A **mapper** from StarGen body + population could produce Starfinder-style stats (Starfinder / other RPG export).
+
+**Stars Without Number (Sine Nomine):** Sector and world generation with **world tags** (e.g. “Abandoned Colony”, “Xenophobes”) and tag-driven content. StarGen’s habitability, population, and atmosphere data can drive **suggested tags** and sector export (Stars Without Number export).
+
+**Star Wars RPG and generic generators:** Template-based or simple-type systems (rocky, hospitable, gas giant) with a few stats. Same underlying data as StarGen; a thin export or preset could target these (covered under Starfinder / other RPG export or ad-hoc mappings).
+
+### Non-game use cases
+
+**Education / outreach:** Tools like **Gaia Sky** use procedural generation for astronomy education; workshops use “procedural playground”–style demos. StarGen’s deterministic, parameter-driven generation (spec + seed → body) fits **reproducible demos** and parameter exploration (Education / outreach mode).
+
+**Science / classification:** The **Orion’s Arm** setting uses a **CADRS-style** classification (matrix of criteria, 0–F). Real exoplanet taxonomy (hot Jupiter, super-Earth, etc.) also exists. StarGen already has the data; an **extended or “science” export** (CADRS-like or exoplanet class) could support worldbuilding or teaching (Science / extended classification export).
+
+**Fiction / worldbuilding:** Demand exists for compact codes (e.g. Star Trek–style class letters) or narrative summaries. UWP is one option; other encodings or prose summaries could be added as export views.
+
+### Summary
+
+| Effort | Use case | Fit |
+|--------|----------|-----|
+| Traveller/Cepheus UWP full export | Traveller, Cepheus, TravellerMap | Direct; build on Traveller alignment. |
+| Starfinder / other RPG export | Starfinder, Star Wars, generic | Mapper from body + population. |
+| Stars Without Number export | SWN sectors and tags | Derive tags from habitability/pop/atmosphere. |
+| Education / outreach mode | Workshops, teaching, demos | Determinism + spec + seed. |
+| Science / extended classification export | CADRS-like, exoplanet class, reference | Extended export from existing data. |
+
+No implementation is implied; these are options for when contributors look beyond the current Traveller-focused work.
 
 ---
 

@@ -1,0 +1,73 @@
+# Stellar Initial Mass Function Varies with Metallicities and Time
+
+**Abridgement note:** This file is an abridgement of Li et al. (2023), Nature. Methods (sample selection, stellar masses, density profiles, hierarchical Bayesian model, validation, vertical actions, binarity), extended data figures/tables, and full reference list are summarized rather than reproduced in full. All quoted numbers, equations, and conclusions match the published paper; the abridgement is intended not to misrepresent the original work. For full methodology and figures see the journal article or arXiv:2301.07029.
+
+---
+
+**Authors:** Jiadong Li, Chao Liu (corresponding: liuchao@nao.cas.cn), Zhi-Yu Zhang, Hao Tian, Xiaoting Fu, Jiao Li, Zhi-Qiang Yan  
+**Affiliations:** Key Lab of Space Astronomy and Technology (NAO Beijing); Beijing Normal University; Nanjing University; Purple Mountain Observatory; Kavli Institute PKU; etc.  
+**Published:** Nature; arXiv:2301.07029v3 [astro-ph.GA] 28 Jan 2023
+
+---
+
+## ABSTRACT
+
+Most structural and evolutionary properties of galaxies strongly rely on the stellar initial mass function (IMF). Both constant and variable IMFs across different environments have been claimed. Measurement of the IMF in Galactic stellar populations has been limited by the relatively small number of photometrically observed stars. Here we report a star-counting result based on **~93,000 spectroscopically observed M-dwarf stars** (order of magnitude more than previous studies) in the **100–300 pc** Solar neighbourhood (LAMOST + Gaia). We find **unambiguous evidence of a variable IMF that depends on both metallicity and stellar age**: (1) stellar populations formed early contain **fewer low-mass stars** compared to the canonical IMF, independent of metallicity; (2) at present, the **proportion of low-mass stars increases with stellar metallicity**. The variable abundance of low-mass stars establishes a benchmark for star formation models and can heavily impact Galactic chemical enrichment, mass estimation of galaxies, and planet formation efficiency. Direct star counting is essential to verify IMF variation; recent large surveys (Gaia, LAMOST) enable reassessment with the star-counting technique.
+
+**Mass range studied:** 0.3–0.7 M☉ (mostly M dwarfs); lifespans longer than the Universe, so present-day mass function ≈ IMF.
+
+---
+
+## MAIN RESULTS
+
+**Sample:** ~300,000 M dwarfs with Teff and [M/H] from LAMOST+Gaia catalogue; masses derived via PARSEC (typical uncertainty ~0.01 M☉). Selected: distance 100–300 pc, mass 0.3–0.7 M☉ to avoid selection effects (Fig 1). Selection-effect correction via LAMOST vs 2MASS; binary bias corrected using literature binary fractions (Liu 2019, Moe et al. 2019). **Final sample: 93,159 M-dwarf stars.**
+
+**IMF model:** Single power-law in 0.3–0.7 M☉: dn/dm = C·m^(-α). Hierarchical Bayesian model with exponential vertical density profile (scale height h0). Metallicity bins from −1.2 to +0.5 dex.
+
+**All metallicity:** Results consistent with canonical IMFs within 1σ (Fig 2a). **IMF is not universal** (Fig 2b): slope α changes with metallicity. As [M/H] increases from **−0.8 to +0.1**, **α increases from ~1.9 to ~2.5**. For −0.5 < [M/H] ≤ +0.1, α is tightly correlated with [M/H]; when [M/H] < −0.3, α does not vary with metallicity. Most bottom-heavy (low-mass biased) IMF at [M/H] ~ +0.1. **When [M/H] changes from −0.8 to +0.1, α increases by ~0.6.** Amplitude in good agreement with empirical predictions and models: **dα/d[M/H] ≈ 0.5** for m < 0.7 M☉. Trend similar to Yan et al. 2020 (resolved star counts, globular clusters, UCDs, UFDs, massive ellipticals). Reconciled with metal-poor thick-disc (bottom-light) and UFDs (bottom-light).
+
+**Sharp turnoff:** Between [M/H] = +0.1 and +0.25 dex, α drops from 2.50±0.06 to 2.00±0.17 (~2.8σ); stars with [M/H] > +0.1 likely migrated from inner disc; [M/H] ~ +0.25 may be ancient populations. Suggests IMF also related to star-forming environment (e.g. high SFR in inner disc → top-heavy).
+
+**Dynamically-hot vs cold (age proxy):** Vertical action Jz: large Jz → more scattering → likely older. Split: dynamically-hot Jz > 20 kpc km/s, dynamically-cold Jz < 10 kpc km/s (Fig 3). For [M/H] ≤ −0.5 (most stars > 4 Gyr), both groups show constant α. For [M/H] ≥ −0.4, trends split: **dynamically-cold** dα/d[M/H] = **1.17±0.10** (−0.5 < [M/H] ≤ +0.1); **dynamically-hot** dα/d[M/H] = **−0.17±0.18** (flat α with metallicity). Dynamically-cold follow whole-sample variation; dynamically-hot flat. [M/H] = +0.25 bin: limited dynamically-hot stars, consistent with old migrated populations.
+
+**Binary correction:** Binary fraction scenarios (general, high for dynamically-hot 45%, extreme 100%) all give similar α–[M/H] trend; α increases by 0.2–0.4 after correction.
+
+**Implications:** Robust confirmation of variable IMF in the Milky Way. Dependencies on metallicity and age indicate physical environments (Jeans mass, turbulence, cosmic rays, CMB, etc.) may systematically influence star formation. IMF variation calls for revision of SFR and stellar mass estimates in Milky Way and external galaxies, especially extreme conditions and early Universe.
+
+---
+
+## KEY NUMBERS (for StarGen)
+
+| Quantity | Value |
+|----------|--------|
+| Sample | ~93,000 M dwarfs, 100–300 pc |
+| Mass range | 0.3–0.7 M☉ |
+| α ([M/H] −0.8 → +0.1) | 1.9 → 2.5 (Δα ~ 0.6) |
+| dα/d[M/H] (m < 0.7 M☉) | ~0.5 (literature/empirical); measured 1.17 (dyn-cold), −0.17 (dyn-hot) in −0.5 < [M/H] ≤ +0.1 |
+| Most bottom-heavy | [M/H] ~ +0.1 |
+| Binary correction | Δα ~ 0.2–0.4 depending on fb |
+
+---
+
+## METHODS (summarized)
+
+**Sample selection:** LAMOST M-dwarf catalogue (~300k stars), Teff and [M/H] from LAMOST; crossmatch 2MASS, Gaia DR2; Bayestar dust; Bayesian distances; PARSEC + XGBoost for mass (~0.01 M☉ typical uncertainty). Selection-effect correction: LAMOST selection function vs 2MASS; stellar density via Bayesian method (Liu et al. 2017). Binary correction from Liu 2019, Moe et al. 2019.
+
+**Hierarchical Bayesian model:** Vertical exponential disc; single power-law IMF; likelihood from number density vs model; MCMC (PyMC3). Metallicity bins non-uniform to ensure ≥500 stars per bin. Validation: direct counting in 100 < |z| < 250 pc gives consistent α (max diff 0.09). Mock data (Galaxia): method recovers α to .0.1 dex for N > 1000; selection-effect and parallax-error tests described.
+
+**Vertical actions:** galpy, MWPotential2014; Jz from Stäckel approximation. Dynamically-hot mostly > 4 Gyr (red-giant calibrated).
+
+**Binarity:** Overestimated mass from unresolved secondaries; fb from literature; correction shifts α by 0.2–0.4; α–[M/H] trend remains significant under various d fb/d[M/H] assumptions.
+
+---
+
+## DATA AND CODE
+
+- Data: National Astronomical Data Center (China-VO); paper data http://paperdata.china-vo.org/jordan/jdli22_imf.csv  
+- Code: https://github.com/jiadonglee/MDwarfMachine  
+
+---
+
+## REFERENCES (abridged)
+
+Main text refs 1–28 (Kroupa, Chabrier, Bastian, Adams, Hopkins, van Dokkum, Cappellari, Yan et al. 2020, Reylé & Robin, Geha, Kordopatis, Jeřábková, Ting & Rix, Larson, Padoan, Papadopoulos, Zhang et al. 2016, etc.). Methods refs 29–59 (LAMOST, APOGEE, Gaia DR2, 2MASS, Bayestar, Bailer-Jones, PARSEC, XGBoost, Mann et al. MLR, Jurić, PyMC3, Galaxia, Dartmouth, galpy, Binney & Tremaine, Wu et al. red giants, Delfosse binaries, etc.).
