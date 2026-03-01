@@ -1,6 +1,6 @@
 # StarGen Roadmap
 
-Godot 4.x - GDScript | DRY + SOLID | Deterministic generation with test gates
+Godot 4.x - GDScript (C# refactor in progress) | DRY + SOLID | Deterministic generation with test gates
 
 ## Version history
 
@@ -34,6 +34,7 @@ Contributors pick an effort and work against master. Efforts can run in parallel
 
 | Name | Summary | Gates | Branch |
 |------|---------|-------|--------|
+| **C# refactor** | Incremental GDScript → C# migration; domain first, then services, then app; preserve determinism and save format | — | — |
 | System viewer rendering improvements | Directional lighting, axial tilt, 1 day = 1 s, asteroid belt torus | — | `feature/constraints-belts-rotation` |
 | Object editing | Editable inspector, derived-value recalc, undo/redo | — | `object-view` |
 | Object rendering v2 | Oblateness, aurora, LOD, seed-driven materials | — | `object-view` |
@@ -62,6 +63,39 @@ Contributors pick an effort and work against master. Efforts can run in parallel
 ---
 
 ## Effort details
+
+### C# refactor (high priority)
+
+**Goal:** Migrate the codebase from GDScript to C# incrementally, preserving determinism, save/load format, and test coverage. GDScript and C# will coexist during migration; app can call into C# domain/services.
+
+**Strategy (migrate in dependency order):**
+
+1. **Domain (no engine)** — Start with leaf types: `CelestialType`, `Units`, `Versions`; then component props (`PhysicalProps`, `OrbitalProps`, `AtmosphereProps`, etc.); then `CelestialBody`, `Provenance`; then validation and serialization. Replace every `load("res://.../X.gd") as GDScript` / `script_class.new(...)` with `new TypeName(...)`. Keep the same `to_dict` / `from_dict` contract so existing callers (or GDScript wrappers) still see the same dictionary shape.
+2. **RNG and generation** — `SeededRng`, then specs and generators (Star, Planet, Moon, Asteroid, Ring, etc.). Preserve algorithms and numeric behaviour so golden-master and determinism tests still pass.
+3. **System / galaxy domain** — `SolarSystem`, `SystemHierarchy`, `OrbitSlot`, `Galaxy`, `Sector`, etc.; then persistence that uses these types. Keep save/load schema unchanged.
+4. **Services** — Persistence (Celestial, System, Galaxy, SaveData). Prefer one language per layer.
+5. **App (Nodes)** — Replace scene-attached scripts last: MainApp, WelcomeScreen, viewers (Object, System, Galaxy), UI, rendering. Update every `.tscn` that references a migrated script to the new `.cs` path; fix signals and connections.
+6. **Tests** — Port the headless test runner to C# (or keep a thin GDScript runner that instantiates C# types and asserts). Retire `Phase1Deps.gd` / `PopulationDeps.gd` / `JumpLanesDeps.gd` once all tests run against C# types.
+
+**Compatibility during migration:** Keep save/load and fixture JSON/dict structure unchanged. GDScript may call C# (Godot script API). Run full test suite and determinism checks after each migrated chunk.
+
+**Risk checklist:** Determinism (same seed → same output); save/load backward compatibility; all scenes referencing migrated scripts updated; signals names/signatures preserved; no remaining `load("...").new()` for ported types.
+
+**Files involved in refactor (by layer):**
+
+- **Domain — celestial:** `src/domain/celestial/CelestialType.gd`, `CelestialBody.gd`, `Provenance.gd`; `src/domain/celestial/components/PhysicalProps.gd`, `OrbitalProps.gd`, `AtmosphereProps.gd`, `StellarProps.gd`, `TerrainProps.gd`, `HydrosphereProps.gd`, `CryosphereProps.gd`, `RingBand.gd`, `RingSystemProps.gd`, `SurfaceProps.gd`; `src/domain/celestial/validation/ValidationError.gd`, `ValidationResult.gd`, `CelestialValidator.gd`; `src/domain/celestial/serialization/CelestialSerializer.gd`.
+- **Domain — constants/math/rng:** `src/domain/constants/Versions.gd`; `src/domain/math/Units.gd`, `MathUtils.gd`; `src/domain/rng/SeededRng.gd`; `src/domain/validation/Validation.gd`.
+- **Domain — generation:** `src/domain/generation/ParentContext.gd`, `GenerationRealismProfile.gd`; `src/domain/generation/archetypes/SizeCategory.gd`, `OrbitZone.gd`, `StarClass.gd`, `AsteroidType.gd`, `RingComplexity.gd`, `TravellerSizeCode.gd`; `src/domain/generation/specs/BaseSpec.gd`, `StarSpec.gd`, `PlanetSpec.gd`, `MoonSpec.gd`, `AsteroidSpec.gd`, `RingSystemSpec.gd`; `src/domain/generation/tables/SizeTable.gd`, `StarTable.gd`, `OrbitTable.gd`; `src/domain/generation/utils/AtmosphereUtils.gd`; `src/domain/generation/generators/GeneratorUtils.gd`, `StarGenerator.gd`, `PlanetGenerator.gd`, `MoonGenerator.gd`, `AsteroidGenerator.gd`, `RingSystemGenerator.gd`; `src/domain/generation/generators/planet/PlanetPhysicalGenerator.gd`, `PlanetAtmosphereGenerator.gd`, `PlanetSurfaceGenerator.gd`; `src/domain/generation/generators/moon/MoonPhysicalGenerator.gd`, `MoonSurfaceGenerator.gd`, `MoonAtmosphereGenerator.gd`; `src/domain/generation/fixtures/FixtureGenerator.gd`.
+- **Domain — editing:** `src/domain/editing/ConstraintSet.gd`, `EditRegenerator.gd`, `EditSpecBuilder.gd`, `PropertyConstraint.gd`, `PropertyConstraintSolver.gd`, `TravellerConstraintBuilder.gd`.
+- **Domain — system:** `src/domain/system/SolarSystem.gd`, `SolarSystemSpec.gd`, `SystemValidator.gd`, `SystemSerializer.gd`, `SystemCache.gd`, `SystemHierarchy.gd`, `HierarchyNode.gd`, `OrbitSlot.gd`, `OrbitHost.gd`, `OrbitalMechanics.gd`, `AsteroidBelt.gd`, `OrbitSlotGenerator.gd`, `StellarConfigGenerator.gd`, `SystemPlanetGenerator.gd`, `SystemMoonGenerator.gd`, `SystemAsteroidGenerator.gd`; `src/domain/system/asteroid_belt/BeltOrbitalMath.gd`, `BeltFieldSpec.gd`, `BeltFieldData.gd`, `BeltFieldGenerator.gd`, `BeltAsteroidData.gd`, `BeltMajorAsteroidInput.gd`; `src/domain/system/fixtures/SystemFixtureGenerator.gd`.
+- **Domain — galaxy:** `src/domain/galaxy/Galaxy.gd`, `GalaxySpec.gd`, `GalaxyConfig.gd`, `GalaxyStar.gd`, `GalaxySample.gd`, `GalaxySaveData.gd`, `GalaxySystemGenerator.gd`, `GalaxyBodyOverrides.gd`, `GalaxyCoordinates.gd`, `Sector.gd`, `HomePosition.gd`, `SeedDeriver.gd`, `StableHash.gd`, `GridCursor.gd`, `StarPicker.gd`, `StarSystemPreview.gd`, `SubSectorGenerator.gd`, `SubSectorNeighborhood.gd`, `DensitySampler.gd`, `DensityModelInterface.gd`, `SpiralDensityModel.gd`, `EllipticalDensityModel.gd`, `IrregularDensityModel.gd`, `RaycastUtils.gd`.
+- **Domain — jumplanes:** `src/domain/jumplanes/JumpLaneSystem.gd`, `JumpLaneConnection.gd`, `JumpLaneRegion.gd`, `JumpLaneResult.gd`, `JumpLaneCalculator.gd`, `JumpLaneClusterConnector.gd`.
+- **Domain — population:** `src/domain/population/BiomeType.gd`, `ClimateZone.gd`, `ColonyType.gd`, `Colony.gd`, `ColonyGenerator.gd`, `ColonySuitability.gd`, `Government.gd`, `GovernmentType.gd`, `HabitabilityCategory.gd`, `HistoryEvent.gd`, `HistoryGenerator.gd`, `NativePopulation.gd`, `NativePopulationGenerator.gd`, `NativeRelation.gd`, `Outpost.gd`, `OutpostAuthority.gd`, `PlanetProfile.gd`, `PlanetPopulationData.gd`, `PopulationHistory.gd`, `PopulationLikelihood.gd`, `PopulationProbability.gd`, `PopulationSeeding.gd`, `PopulationGenerator.gd`, `ProfileCalculations.gd`, `ProfileGenerator.gd`, `ResourceType.gd`, `SpaceStation.gd`, `StationClass.gd`, `StationGenerator.gd`, `StationPlacementContext.gd`, `StationPlacementRules.gd`, `StationPurpose.gd`, `StationService.gd`, `StationSpec.gd`, `StationType.gd`, `SuitabilityCalculator.gd`, `TechnologyLevel.gd`.
+- **Services:** `src/services/persistence/CelestialPersistence.gd`, `SystemPersistence.gd`, `GalaxyPersistence.gd`, `SaveData.gd`.
+- **App:** `src/app/MainApp.gd`, `WelcomeScreen.gd`; `src/app/components/CollapsibleSection.gd`; `src/app/viewer/ObjectViewer.gd`, `ObjectViewerMoonSystem.gd`, `InspectorPanel.gd`, `PropertyFormatter.gd`, `CameraController.gd`, `EditDialog.gd`; `src/app/rendering/BodyRenderer.gd`, `MaterialFactory.gd`, `ColorUtils.gd`, `ShaderParamHelpers.gd`, `AtmosphereShaderParams.gd`, `GasGiantShaderParams.gd`, `RingShaderParams.gd`, `StarShaderParams.gd`, `TerrestrialShaderParams.gd`; `src/app/system_viewer/SystemViewer.gd`, `SystemBodyNode.gd`, `SystemDisplayLayout.gd`, `SystemInspectorPanel.gd`, `SystemScaleManager.gd`, `SystemViewerSaveLoad.gd`, `SystemCameraController.gd`, `OrbitRenderer.gd`, `BeltRenderer.gd`; `src/app/galaxy_viewer/GalaxyViewer.gd`, `GalaxyViewerDeps.gd`, `GalaxyViewerSaveLoad.gd`, `GalaxyRenderer.gd`, `GalaxyInspectorPanel.gd`, `SectorRenderer.gd`, `QuadrantRenderer.gd`, `SubSectorRenderer.gd`, `QuadrantSelector.gd`, `NeighborhoodRenderer.gd`, `SectorJumpLaneRenderer.gd`, `SelectionIndicator.gd`, `OrbitCamera.gd`, `StarViewCamera.gd`, `NavigationCompass.gd`, `ZoomStateMachine.gd`; `src/app/jumplanes_prototype/JumpLanesPrototype.gd`, `JumpLaneRenderer.gd`, `MockRegionGenerator.gd`; `src/app/prototypes/StationGeneratorPrototype.gd`.
+- **Tests:** `Tests/Phase1Deps.gd`, `PopulationDeps.gd`, `JumpLanesDeps.gd`, `RunTestsHeadless.gd`, `TestScene.gd`, `JumpLanesTestRunner.gd`, `JumpLanesTestScene.gd`, `Framework/TestCase.gd`, `Framework/TestRunner.gd`, `Framework/TestResult.gd`, plus all `Tests/Unit/**/*.gd`, `Tests/Integration/**/*.gd`, `Tests/domain/**/*.gd`, and harnesses (`GenerationStatsHarness.gd`, `ScientificBenchmarks.gd`).
+
+---
 
 ### Solar system constraints
 
