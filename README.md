@@ -23,7 +23,7 @@ Built with **Godot 4.x** and **GDScript**.
 
 ### Merged features (master)
 
-All development is on **master**. The following are merged and current:
+All development is on **master**. Branches `object-view` and `effort/traveller-use-case` have been merged into master. The following are merged and current:
 
 - **Galaxy data model** — Galaxy, Sector, GalaxyStar, GalaxySystemGenerator; lazy sector and system generation; metallicity/age from galactic position; wired into GalaxyViewer.
 - **Population framework** — PlanetProfile, PopulationLikelihood, native populations, colonies, history; unit tests in `Tests/Unit/Population/`.

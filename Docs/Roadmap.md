@@ -36,8 +36,8 @@ Contributors pick an effort and work against master. Efforts can run in parallel
 |------|---------|-------|--------|
 | **C# refactor** | Incremental GDScript → C# migration; domain first, then services, then app; preserve determinism and save format | — | — |
 | System viewer rendering improvements | Directional lighting, axial tilt, 1 day = 1 s, asteroid belt torus | — | `feature/constraints-belts-rotation` |
-| Object editing | Editable inspector, derived-value recalc, undo/redo | — | `object-view` |
-| Object rendering v2 | Oblateness, aurora, LOD, seed-driven materials | — | `object-view` |
+| Object editing | Editable inspector, derived-value recalc, undo/redo | — | — |
+| Object rendering v2 | Oblateness, aurora, LOD, seed-driven materials | — | — |
 | Galactic generator refinement | Region constraints, region rules, constraint-based placement | — | — |
 | Solar system tools | Add/remove bodies, adjust orbits, recalc, system-level undo | — | — |
 | Galactic tools | System placement edits, region editing, galactic undo | Galactic generator refinement | — |
@@ -52,13 +52,14 @@ Contributors pick an effort and work against master. Efforts can run in parallel
 | Favorites and notes | Bookmark systems, short descriptions, optional screenshot | — | — |
 | Export frames as skybox | 4K cubemap set or equirectangular pano for art team (level/menu placeholder) | System viewer rendering improvements (optional) | — |
 | Traveller alignment | Align with Traveller UWP planet size scale; size code layer (0–C, D/E) from diameter; Mini-Neptune and above map to D or E | — | — |
+| Traveller Use Case | Generate systems/planets/populations usable in standard Traveller play: UWP codes, Traveller rules where applicable, use-case toggle | — | — |
 | Starfinder / other RPG export | Mapper from body + population to Starfinder-style world type, gravity, atmosphere, biomes | — | — |
 | Stars Without Number export | World tags and sector data derivation for SWN-style play | — | — |
 | Traveller/Cepheus UWP full export | Full UWP and sector file export (TravellerMap-compatible) | Traveller alignment | — |
 | Education / outreach mode | Deterministic demos, parameter exploration, seed-based reproducibility for workshops and teaching | — | — |
 | Science / extended classification export | CADRS-like or exoplanet-class export for worldbuilding or reference | — | — |
 
-**Branch `object-view`:** Focus branch for object-view efforts (Object editing, Object rendering v2). Use this branch when working on single-object viewer UX, editable inspector, derived-value recalc, undo/redo, or object rendering improvements such as oblateness, aurora, LOD, and seed-driven materials.
+**Note:** Branches `object-view` and `effort/traveller-use-case` have been merged into master. Work on Object editing, Object rendering v2, and Traveller Use Case now proceeds on master.
 
 ---
 
@@ -417,6 +418,43 @@ Contributors pick an effort and work against master. Efforts can run in parallel
 **Outer orbit limits (how far out can a planet be):** Two ceilings apply. (1) **Dynamical (Jacobi/tidal):** where the Galaxy's tidal field competes with the star's gravity; r_J ∝ M_star^(1/3) (~1.70 pc × (M/(2 M_sun))^(1/3)); for 1 M_sun ~2.78×10^5 AU. (2) **Formation (disc):** dust extent R_dust ∝ M_star^0.6 (Taurus/Lupus); most discs tens of AU (e.g. 67% of Lupus &lt; 30 AU). StarGen uses **min**(formation, Jacobi) as outer stability limit (`OrbitalMechanics.calculate_outer_stability_limit_m`); formation is the usual limiter; Jacobi caps the dynamical ceiling. Wide-separation freaks (e.g. 2MASS J2126 ~7000 AU) are likely capture-like, not disc-formed.
 
 **Planet count and orbital stability:** Science does not give a single “max planets per star” number; it depends on definition of “planet,” initial disk mass, and whether orbits remain stable. **Observed:** up to 8 confirmed around one star (Solar System, Kepler-90); TRAPPIST-1 has 7 in tight orbits. **Why no hard limit:** (1) “Planet” is convention-dependent (e.g. IAU “clearing the neighbourhood”); (2) orbital stability is the real constraint — spacing below ~10 mutual Hill radii tends to instability (Chambers 1996); (3) formation (mergers, migration, scattering) typically reduces final counts. **Back-of-envelope** for equal-mass planets at ~10 mutual Hill radii over 0.1–100 AU around a Sun-like star: ~60 Earth-mass, ~25 Neptune-mass, ~12 Jupiter-mass; nature rarely produces such tidy systems. Co-orbital rings (multiple bodies on one orbit) are dynamically possible but rare/natural vs engineered. **StarGen:** Planet count is emergent from orbit slots. Slots are generated with stability zones and spacing (see `OrbitalMechanics.calculate_minimum_planet_spacing`); there is no single “max = 17” cap. Constraint-based min/max planet counts (Solar system constraints effort) are for design/narrative, not physical law.
+### Traveller Use Case
+
+**Goal:** Make StarGen output usable in a standard Traveller tabletop game. When “Traveller use case” is selected, generation produces worlds with valid Universal World Profile (UWP) codes and applies Traveller-compatible rules where they affect generation.
+
+**Context:** Traveller uses a **UWP** string (e.g. `X56789A-7`) for each world: Starport (A–E, X), Size (0–9), Atmosphere (0–15), Hydrographics (0–10), Population (0–15, digit = exponent), Government (0–15), Law Level (0–9), Tech Level (0–15). Optional: bases (Naval, Scout, etc.), trade codes (Ag, Hi, In, etc.). StarGen already has: physical size, atmosphere pressure/composition, hydrographics (ocean coverage), population and government (GovernmentType), tech level (TechnologyLevel), and station classes (U/O/B/A/S). Gaps: explicit Law Level, starport grade (Traveller A–X) vs station class, and numeric UWP digits with Traveller’s tables and trade-code rules.
+
+**Deliverables:**
+•	**Use-case toggle:** A generation/spec option (e.g. “Traveller use case”) that enables Traveller-specific outputs and rules. No change to default (non-Traveller) behaviour.
+•	**UWP model and assignment:** Domain type(s) for UWP: starport code, size/atmo/hydro/pop/gov/law/tech digits; deterministic derivation from existing CelestialBody, PlanetProfile, and population data (plus any new Law Level source).
+•	**Mapping tables:** Size (radius/mass → 0–9); Atmosphere (pressure/composition → 0–15); Hydrographics (ocean coverage → 0–10); Population (count → exponent 0–15); Government (GovernmentType.Regime → Traveller 0–15); Tech Level (TechnologyLevel.Level → Traveller 0–15). Starport: from station presence and class, or world population/importance → A–X.
+•	**Law Level:** Define Law Level (0–9) in domain (e.g. on PlanetProfile or population); derive from government, tech level, and/or culture; use in UWP and, where applicable, in Traveller rules.
+•	**Traveller rules where applicable:** When use case is on, apply Traveller-compatible rules that affect generation (e.g. tech level modifiers from size/atmosphere/hydrographics; starport from population and location; trade codes from UWP digits). Document which rules are applied and which remain optional/house-rule.
+•	**Trade codes (optional):** Derive Traveller trade codes (Ag, Hi, In, etc.) from UWP and attach to world data when use case is on.
+•	**Bases (optional):** Optional Naval/Scout/other base flags derivable from government, starport, and population for Traveller play.
+•	**Serialization and UI:** UWP (and trade codes/bases if implemented) in save/load and visible in system/planet inspector when Traveller use case is active.
+•	**Docs:** Roadmap and, if needed, a short Doc describing Traveller use case, mapping choices, and which Traveller rules are used.
+
+**Tests:** Determinism for UWP derivation (fixed seed → same UWP); mapping boundaries (e.g. size digit 0–9, atmo 0–15); Law Level in range; tech-level modifiers consistent with Traveller when use case on; serialization round-trip for UWP/bases/trade codes.
+
+**Acceptance:** With Traveller use case enabled: generate system → every habitable/world body has a valid UWP; UWP digits and starport follow Traveller conventions; inspector shows UWP (and optional trade codes/bases); same seed produces same UWP; default (Traveller off) behaviour unchanged.
+
+**Outline: what needs to be done to bring the repo to Traveller-usable state**
+1. **Spec and toggle:** Add “Traveller use case” (or similar) flag to system/galaxy generation spec and wire it through so generators and UI can branch on it.
+2. **UWP domain model:** Introduce UWP data structure (starport, size, atmo, hydro, pop, gov, law, tech) and a deterministic UWP calculator that takes CelestialBody + PlanetProfile + population (natives/colonies) + stations and produces UWP (and optionally bases/trade codes).
+3. **Mappings:** Implement and test each digit mapping (size, atmosphere, hydrographics, population exponent, government, tech level) with reference to Traveller tables; add starport logic (world importance + station class → A–X).
+4. **Law Level:** Add Law Level to domain (e.g. 0–9); derive from regime, tech, and/or RNG with constraints; persist and use in UWP.
+5. **Traveller generation rules:** Where generation choices are affected (e.g. tech level modifiers, starport from population), apply Traveller rules only when use case is on; keep existing logic as default.
+6. **Trade codes and bases:** Optional pass that computes trade codes and base presence from UWP and context; expose in data and UI.
+7. **Persistence and UI:** Store UWP (and optional fields) in save format; show UWP in system/planet inspector when Traveller use case is active; ensure versioning/schema note if format changes.
+8. **Documentation:** Update Roadmap and add minimal Doc describing the use case, mappings, and applied rules.
+
+**Traveller-specific galaxy/subsector view and jump routes**
+9. **Traveller subsector grid config:** Add a logical “Traveller grid” overlay for subsectors that can be configured per use case (e.g. 8×10, 10×10, 8×8×8). Keep the physical 3D model (10pc subsector cubes, parsec positions) unchanged and derive grid cells from local parsec-space coordinates.
+10. **3D→2D projection:** Define a deterministic projection from 3D positions to 2D Traveller map coordinates using the existing convention (XZ = galactic plane, Y = height). Use X/Z for map columns/rows and treat Y as depth (slice index, inclusion band, or visual cue) so that multiple stars in a cell can be handled via primary/secondary world policies.
+11. **Traveller subsector export:** For a chosen subsector and grid config, bin stars into grid cells, choose a primary system per cell (e.g. by proximity to midplane or population), and export a 2D subsector view (hex positions, names, UWP, trade codes, bases) suitable for on-screen display and printing.
+12. **Traveller jump-route mode:** Add an alternative jump-lane calculator that uses Traveller-style distances and rules: integer parsec distances (from 3D positions or hex distance) with a max jump rating (e.g. J-4 or J-6), connecting nearby systems and building “mains” and spurs based on distance and importance, while still respecting the underlying 3D layout.
+13. **2D jump-route rendering:** Project Traveller jump routes to the 2D subsector map (hex-to-hex lines), encoding jump distance in styles or labels (e.g. J-1…J-6), so printed maps show Traveller-flavoured routes that remain consistent with the 3D galaxy.
 
 ---
 
