@@ -2,6 +2,7 @@
 ## Contains mass, radius, rotation, and derived quantities.
 class_name PhysicalProps
 extends RefCounted
+const PHYSICAL_PROPS_BRIDGE_CLASS: StringName = &"CSharpPhysicalPropsBridge"
 
 
 ## Gravitational constant in m^3 kg^-1 s^-2.
@@ -59,6 +60,11 @@ func _init(
 ## Calculates the volume in cubic meters.
 ## @return: Volume in m^3.
 func get_volume_m3() -> float:
+	var bridge: Object = null
+	if ClassDB.class_exists(PHYSICAL_PROPS_BRIDGE_CLASS):
+		bridge = ClassDB.instantiate(PHYSICAL_PROPS_BRIDGE_CLASS)
+	if bridge != null and bridge.has_method("GetVolumeM3"):
+		return float(bridge.call("GetVolumeM3", radius_m))
 	if radius_m <= 0.0:
 		return 0.0
 	return (4.0 / 3.0) * PI * pow(radius_m, 3.0)
@@ -67,6 +73,11 @@ func get_volume_m3() -> float:
 ## Calculates the mean density in kg/m^3.
 ## @return: Density in kg/m^3.
 func get_density_kg_m3() -> float:
+	var bridge: Object = null
+	if ClassDB.class_exists(PHYSICAL_PROPS_BRIDGE_CLASS):
+		bridge = ClassDB.instantiate(PHYSICAL_PROPS_BRIDGE_CLASS)
+	if bridge != null and bridge.has_method("GetDensityKgM3"):
+		return float(bridge.call("GetDensityKgM3", mass_kg, radius_m))
 	var volume: float = get_volume_m3()
 	if volume <= 0.0:
 		return 0.0
@@ -76,6 +87,11 @@ func get_density_kg_m3() -> float:
 ## Calculates surface gravity in m/s^2.
 ## @return: Surface gravity in m/s^2.
 func get_surface_gravity_m_s2() -> float:
+	var bridge: Object = null
+	if ClassDB.class_exists(PHYSICAL_PROPS_BRIDGE_CLASS):
+		bridge = ClassDB.instantiate(PHYSICAL_PROPS_BRIDGE_CLASS)
+	if bridge != null and bridge.has_method("GetSurfaceGravityMS2"):
+		return float(bridge.call("GetSurfaceGravityMS2", mass_kg, radius_m))
 	if radius_m <= 0.0:
 		return 0.0
 	return G * mass_kg / (radius_m * radius_m)
@@ -84,6 +100,11 @@ func get_surface_gravity_m_s2() -> float:
 ## Calculates escape velocity in m/s.
 ## @return: Escape velocity in m/s.
 func get_escape_velocity_m_s() -> float:
+	var bridge: Object = null
+	if ClassDB.class_exists(PHYSICAL_PROPS_BRIDGE_CLASS):
+		bridge = ClassDB.instantiate(PHYSICAL_PROPS_BRIDGE_CLASS)
+	if bridge != null and bridge.has_method("GetEscapeVelocityMS"):
+		return float(bridge.call("GetEscapeVelocityMS", mass_kg, radius_m))
 	if radius_m <= 0.0:
 		return 0.0
 	return sqrt(2.0 * G * mass_kg / radius_m)
@@ -92,6 +113,11 @@ func get_escape_velocity_m_s() -> float:
 ## Returns the equatorial radius accounting for oblateness.
 ## @return: Equatorial radius in meters.
 func get_equatorial_radius_m() -> float:
+	var bridge: Object = null
+	if ClassDB.class_exists(PHYSICAL_PROPS_BRIDGE_CLASS):
+		bridge = ClassDB.instantiate(PHYSICAL_PROPS_BRIDGE_CLASS)
+	if bridge != null and bridge.has_method("GetEquatorialRadiusM"):
+		return float(bridge.call("GetEquatorialRadiusM", radius_m, oblateness))
 	if oblateness <= 0.0:
 		return radius_m
 	return radius_m / (1.0 - oblateness)
@@ -100,6 +126,11 @@ func get_equatorial_radius_m() -> float:
 ## Returns the polar radius accounting for oblateness.
 ## @return: Polar radius in meters.
 func get_polar_radius_m() -> float:
+	var bridge: Object = null
+	if ClassDB.class_exists(PHYSICAL_PROPS_BRIDGE_CLASS):
+		bridge = ClassDB.instantiate(PHYSICAL_PROPS_BRIDGE_CLASS)
+	if bridge != null and bridge.has_method("GetPolarRadiusM"):
+		return float(bridge.call("GetPolarRadiusM", radius_m, oblateness))
 	if oblateness <= 0.0:
 		return radius_m
 	return radius_m * (1.0 - oblateness)
@@ -123,8 +154,7 @@ func to_dict() -> Dictionary:
 ## @param data: The dictionary to parse.
 ## @return: A new PhysicalProps instance.
 static func from_dict(data: Dictionary) -> PhysicalProps:
-	var script_class: GDScript = load("res://src/domain/celestial/components/PhysicalProps.gd") as GDScript
-	return script_class.new(
+	return PhysicalProps.new(
 		data.get("mass_kg", 0.0) as float,
 		data.get("radius_m", 0.0) as float,
 		data.get("rotation_period_s", 0.0) as float,

@@ -3,7 +3,7 @@
 class_name RingSystemSpec
 extends BaseSpec
 
-const _ring_complexity: GDScript = preload("res://src/domain/generation/archetypes/RingComplexity.gd")
+const RING_SYSTEM_SPEC_BRIDGE_CLASS: StringName = &"CSharpRingSystemSpecBridge"
 
 
 ## Complexity level (TRACE, SIMPLE, COMPLEX, or -1 for random).
@@ -35,6 +35,11 @@ func _init(
 ## @param seed_value: The generation seed.
 ## @return: A new RingSystemSpec with all random values.
 static func random(seed_value: int) -> RingSystemSpec:
+	var bridge: Object = _instantiate_bridge()
+	if bridge != null and bridge.has_method("Random"):
+		var payload: Variant = bridge.call("Random", seed_value)
+		if payload is Dictionary:
+			return _from_payload(payload as Dictionary)
 	return RingSystemSpec.new(seed_value)
 
 
@@ -42,6 +47,11 @@ static func random(seed_value: int) -> RingSystemSpec:
 ## @param seed_value: The generation seed.
 ## @return: A new RingSystemSpec configured for trace rings.
 static func trace(seed_value: int) -> RingSystemSpec:
+	var bridge: Object = _instantiate_bridge()
+	if bridge != null and bridge.has_method("Trace"):
+		var payload: Variant = bridge.call("Trace", seed_value)
+		if payload is Dictionary:
+			return _from_payload(payload as Dictionary)
 	return RingSystemSpec.new(
 		seed_value,
 		RingComplexity.Level.TRACE
@@ -52,6 +62,11 @@ static func trace(seed_value: int) -> RingSystemSpec:
 ## @param seed_value: The generation seed.
 ## @return: A new RingSystemSpec configured for simple rings.
 static func simple(seed_value: int) -> RingSystemSpec:
+	var bridge: Object = _instantiate_bridge()
+	if bridge != null and bridge.has_method("Simple"):
+		var payload: Variant = bridge.call("Simple", seed_value)
+		if payload is Dictionary:
+			return _from_payload(payload as Dictionary)
 	return RingSystemSpec.new(
 		seed_value,
 		RingComplexity.Level.SIMPLE
@@ -62,6 +77,11 @@ static func simple(seed_value: int) -> RingSystemSpec:
 ## @param seed_value: The generation seed.
 ## @return: A new RingSystemSpec configured for complex rings.
 static func complex(seed_value: int) -> RingSystemSpec:
+	var bridge: Object = _instantiate_bridge()
+	if bridge != null and bridge.has_method("Complex"):
+		var payload: Variant = bridge.call("Complex", seed_value)
+		if payload is Dictionary:
+			return _from_payload(payload as Dictionary)
 	return RingSystemSpec.new(
 		seed_value,
 		RingComplexity.Level.COMPLEX
@@ -73,6 +93,11 @@ static func complex(seed_value: int) -> RingSystemSpec:
 ## @param p_complexity: Complexity level, or -1 for random.
 ## @return: A new RingSystemSpec configured for icy rings.
 static func icy(seed_value: int, p_complexity: int = -1) -> RingSystemSpec:
+	var bridge: Object = _instantiate_bridge()
+	if bridge != null and bridge.has_method("Icy"):
+		var payload: Variant = bridge.call("Icy", seed_value, p_complexity)
+		if payload is Dictionary:
+			return _from_payload(payload as Dictionary)
 	return RingSystemSpec.new(
 		seed_value,
 		p_complexity,
@@ -85,6 +110,11 @@ static func icy(seed_value: int, p_complexity: int = -1) -> RingSystemSpec:
 ## @param p_complexity: Complexity level, or -1 for random.
 ## @return: A new RingSystemSpec configured for rocky rings.
 static func rocky(seed_value: int, p_complexity: int = -1) -> RingSystemSpec:
+	var bridge: Object = _instantiate_bridge()
+	if bridge != null and bridge.has_method("Rocky"):
+		var payload: Variant = bridge.call("Rocky", seed_value, p_complexity)
+		if payload is Dictionary:
+			return _from_payload(payload as Dictionary)
 	return RingSystemSpec.new(
 		seed_value,
 		p_complexity,
@@ -111,18 +141,44 @@ func to_dict() -> Dictionary:
 	data["spec_type"] = "ring_system"
 	data["complexity"] = complexity
 	data["is_icy"] = is_icy
-	return data
+	return _normalize_payload(data)
 
 
 ## Creates a RingSystemSpec from a dictionary.
 ## @param data: The dictionary to parse.
 ## @return: A new RingSystemSpec instance.
 static func from_dict(data: Dictionary) -> RingSystemSpec:
-	var spec: RingSystemSpec = RingSystemSpec.new(
+	return _from_payload(_normalize_payload(data))
+
+
+## Creates a RingSystemSpec from a normalized payload.
+## @param data: The normalized dictionary payload.
+## @return: A new RingSystemSpec instance.
+static func _from_payload(data: Dictionary) -> RingSystemSpec:
+	return RingSystemSpec.new(
 		data.get("generation_seed", 0) as int,
 		data.get("complexity", -1) as int,
 		data.get("is_icy"),
 		data.get("name_hint", "") as String,
 		data.get("overrides", {}) as Dictionary
 	)
-	return spec
+
+
+## Returns an optional C# bridge instance for spec helpers.
+## @return: A bridge object when the C# bridge is registered, otherwise null.
+static func _instantiate_bridge() -> Object:
+	if not ClassDB.class_exists(RING_SYSTEM_SPEC_BRIDGE_CLASS):
+		return null
+	return ClassDB.instantiate(RING_SYSTEM_SPEC_BRIDGE_CLASS)
+
+
+## Normalizes a spec payload through the C# bridge when available.
+## @param data: The payload to normalize.
+## @return: A normalized payload that preserves the current schema.
+static func _normalize_payload(data: Dictionary) -> Dictionary:
+	var bridge: Object = _instantiate_bridge()
+	if bridge != null and bridge.has_method("Normalize"):
+		var payload: Variant = bridge.call("Normalize", data)
+		if payload is Dictionary:
+			return payload as Dictionary
+	return data

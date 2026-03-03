@@ -3,11 +3,18 @@
 class_name Validation
 extends RefCounted
 
+const VALIDATION_BRIDGE_CLASS: StringName = &"CSharpValidationBridge"
+
 
 ## Checks if a float is positive (greater than zero).
 ## @param value: The value to check.
 ## @return: True if positive, false otherwise.
 static func is_positive_float(value: float) -> bool:
+	var bridge: Object = null
+	if ClassDB.class_exists(VALIDATION_BRIDGE_CLASS):
+		bridge = ClassDB.instantiate(VALIDATION_BRIDGE_CLASS)
+	if bridge != null and bridge.has_method("IsPositiveFloat"):
+		return bool(bridge.call("IsPositiveFloat", value))
 	return value > 0.0
 
 
@@ -15,6 +22,11 @@ static func is_positive_float(value: float) -> bool:
 ## @param value: The value to check.
 ## @return: True if non-negative, false otherwise.
 static func is_non_negative_float(value: float) -> bool:
+	var bridge: Object = null
+	if ClassDB.class_exists(VALIDATION_BRIDGE_CLASS):
+		bridge = ClassDB.instantiate(VALIDATION_BRIDGE_CLASS)
+	if bridge != null and bridge.has_method("IsNonNegativeFloat"):
+		return bool(bridge.call("IsNonNegativeFloat", value))
 	return value >= 0.0
 
 
@@ -22,6 +34,11 @@ static func is_non_negative_float(value: float) -> bool:
 ## @param value: The value to check.
 ## @return: True if positive, false otherwise.
 static func is_positive_int(value: int) -> bool:
+	var bridge: Object = null
+	if ClassDB.class_exists(VALIDATION_BRIDGE_CLASS):
+		bridge = ClassDB.instantiate(VALIDATION_BRIDGE_CLASS)
+	if bridge != null and bridge.has_method("IsPositiveInt"):
+		return bool(bridge.call("IsPositiveInt", value))
 	return value > 0
 
 
@@ -29,6 +46,11 @@ static func is_positive_int(value: int) -> bool:
 ## @param value: The value to check.
 ## @return: True if non-negative, false otherwise.
 static func is_non_negative_int(value: int) -> bool:
+	var bridge: Object = null
+	if ClassDB.class_exists(VALIDATION_BRIDGE_CLASS):
+		bridge = ClassDB.instantiate(VALIDATION_BRIDGE_CLASS)
+	if bridge != null and bridge.has_method("IsNonNegativeInt"):
+		return bool(bridge.call("IsNonNegativeInt", value))
 	return value >= 0
 
 
@@ -39,6 +61,11 @@ static func is_non_negative_int(value: int) -> bool:
 ## @param max_val: The maximum allowed value.
 ## @return: True if in range, false otherwise.
 static func is_in_range_float(value: float, min_val: float, max_val: float) -> bool:
+	var bridge: Object = null
+	if ClassDB.class_exists(VALIDATION_BRIDGE_CLASS):
+		bridge = ClassDB.instantiate(VALIDATION_BRIDGE_CLASS)
+	if bridge != null and bridge.has_method("IsInRangeFloat"):
+		return bool(bridge.call("IsInRangeFloat", value, min_val, max_val))
 	return MathUtils.is_in_range_float(value, min_val, max_val)
 
 
@@ -49,6 +76,11 @@ static func is_in_range_float(value: float, min_val: float, max_val: float) -> b
 ## @param max_val: The maximum allowed value.
 ## @return: True if in range, false otherwise.
 static func is_in_range_int(value: int, min_val: int, max_val: int) -> bool:
+	var bridge: Object = null
+	if ClassDB.class_exists(VALIDATION_BRIDGE_CLASS):
+		bridge = ClassDB.instantiate(VALIDATION_BRIDGE_CLASS)
+	if bridge != null and bridge.has_method("IsInRangeInt"):
+		return bool(bridge.call("IsInRangeInt", value, min_val, max_val))
 	return MathUtils.is_in_range_int(value, min_val, max_val)
 
 
@@ -56,6 +88,11 @@ static func is_in_range_int(value: int, min_val: int, max_val: int) -> bool:
 ## @param value: The string to check.
 ## @return: True if not empty, false otherwise.
 static func is_not_empty_string(value: String) -> bool:
+	var bridge: Object = null
+	if ClassDB.class_exists(VALIDATION_BRIDGE_CLASS):
+		bridge = ClassDB.instantiate(VALIDATION_BRIDGE_CLASS)
+	if bridge != null and bridge.has_method("IsNotEmptyString"):
+		return bool(bridge.call("IsNotEmptyString", value))
 	return value.length() > 0
 
 
@@ -63,6 +100,11 @@ static func is_not_empty_string(value: String) -> bool:
 ## @param value: The array to check.
 ## @return: True if not empty, false otherwise.
 static func is_not_empty_array(value: Array) -> bool:
+	var bridge: Object = null
+	if ClassDB.class_exists(VALIDATION_BRIDGE_CLASS):
+		bridge = ClassDB.instantiate(VALIDATION_BRIDGE_CLASS)
+	if bridge != null and bridge.has_method("IsNotEmptyArray"):
+		return bool(bridge.call("IsNotEmptyArray", value))
 	return value.size() > 0
 
 
@@ -71,6 +113,11 @@ static func is_not_empty_array(value: Array) -> bool:
 ## @param enum_size: The number of values in the enum.
 ## @return: True if valid enum value, false otherwise.
 static func is_valid_enum(value: int, enum_size: int) -> bool:
+	var bridge: Object = null
+	if ClassDB.class_exists(VALIDATION_BRIDGE_CLASS):
+		bridge = ClassDB.instantiate(VALIDATION_BRIDGE_CLASS)
+	if bridge != null and bridge.has_method("IsValidEnum"):
+		return bool(bridge.call("IsValidEnum", value, enum_size))
 	return value >= 0 and value < enum_size
 
 
@@ -78,4 +125,9 @@ static func is_valid_enum(value: int, enum_size: int) -> bool:
 ## @param _value: The seed value (unused, all ints are valid).
 ## @return: True (all int seeds are valid).
 static func is_valid_seed(_value: int) -> bool:
+	var bridge: Object = null
+	if ClassDB.class_exists(VALIDATION_BRIDGE_CLASS):
+		bridge = ClassDB.instantiate(VALIDATION_BRIDGE_CLASS)
+	if bridge != null and bridge.has_method("IsValidSeed"):
+		return bool(bridge.call("IsValidSeed", _value))
 	return true

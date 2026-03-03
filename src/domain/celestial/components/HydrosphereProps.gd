@@ -2,6 +2,7 @@
 ## Covers oceans, lakes, and surface water features.
 class_name HydrosphereProps
 extends RefCounted
+const HYDROSPHERE_PROPS_BRIDGE_CLASS: StringName = &"CSharpHydrospherePropsBridge"
 
 
 ## Fraction of surface covered by liquid water (0-1).
@@ -43,18 +44,33 @@ func _init(
 ## Returns the fraction of surface that is liquid (not ice).
 ## @return: Liquid water coverage fraction.
 func get_liquid_coverage() -> float:
+	var bridge: Object = null
+	if ClassDB.class_exists(HYDROSPHERE_PROPS_BRIDGE_CLASS):
+		bridge = ClassDB.instantiate(HYDROSPHERE_PROPS_BRIDGE_CLASS)
+	if bridge != null and bridge.has_method("GetLiquidCoverage"):
+		return float(bridge.call("GetLiquidCoverage", ocean_coverage, ice_coverage))
 	return ocean_coverage * (1.0 - ice_coverage)
 
 
 ## Returns whether this body qualifies as an ocean world.
 ## @return: True if ocean coverage exceeds 90%.
 func is_ocean_world() -> bool:
+	var bridge: Object = null
+	if ClassDB.class_exists(HYDROSPHERE_PROPS_BRIDGE_CLASS):
+		bridge = ClassDB.instantiate(HYDROSPHERE_PROPS_BRIDGE_CLASS)
+	if bridge != null and bridge.has_method("IsOceanWorld"):
+		return bool(bridge.call("IsOceanWorld", ocean_coverage))
 	return ocean_coverage > 0.9
 
 
 ## Returns whether the oceans are mostly frozen.
 ## @return: True if ice coverage exceeds 80%.
 func is_frozen() -> bool:
+	var bridge: Object = null
+	if ClassDB.class_exists(HYDROSPHERE_PROPS_BRIDGE_CLASS):
+		bridge = ClassDB.instantiate(HYDROSPHERE_PROPS_BRIDGE_CLASS)
+	if bridge != null and bridge.has_method("IsFrozen"):
+		return bool(bridge.call("IsFrozen", ice_coverage))
 	return ice_coverage > 0.8
 
 
@@ -74,8 +90,7 @@ func to_dict() -> Dictionary:
 ## @param data: The dictionary to parse.
 ## @return: A new HydrosphereProps instance.
 static func from_dict(data: Dictionary) -> HydrosphereProps:
-	var script_class: GDScript = load("res://src/domain/celestial/components/HydrosphereProps.gd") as GDScript
-	return script_class.new(
+	return HydrosphereProps.new(
 		data.get("ocean_coverage", 0.0) as float,
 		data.get("ocean_depth_m", 0.0) as float,
 		data.get("ice_coverage", 0.0) as float,

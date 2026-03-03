@@ -1,4 +1,6 @@
-## Discovers and runs tests, collecting and reporting results.
+## Legacy GDScript fallback runner.
+## The .NET harness is the primary path in .NET-capable builds; this runner
+## remains as the non-.NET and headless fallback implementation.
 class_name TestRunner
 extends RefCounted
 

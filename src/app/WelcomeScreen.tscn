@@ -1,6 +1,6 @@
 [gd_scene load_steps=3 format=3 uid="uid://bqwelcome"]
 
-[ext_resource type="Script" path="res://src/app/WelcomeScreen.gd" id="1"]
+[ext_resource type="Script" path="res://src/app/WelcomeScreen.cs" id="1"]
 [ext_resource type="Theme" path="res://src/app/themes/DarkTheme.tres" id="2"]
 
 [node name="WelcomeScreen" type="Control"]

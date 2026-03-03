@@ -2,6 +2,7 @@
 ## Defines the Keplerian orbital elements.
 class_name OrbitalProps
 extends RefCounted
+const ORBITAL_PROPS_BRIDGE_CLASS: StringName = &"CSharpOrbitalPropsBridge"
 
 
 ## Semi-major axis in meters.
@@ -55,12 +56,22 @@ func _init(
 ## Calculates the periapsis distance in meters.
 ## @return: Periapsis distance in meters.
 func get_periapsis_m() -> float:
+	var bridge: Object = null
+	if ClassDB.class_exists(ORBITAL_PROPS_BRIDGE_CLASS):
+		bridge = ClassDB.instantiate(ORBITAL_PROPS_BRIDGE_CLASS)
+	if bridge != null and bridge.has_method("GetPeriapsisM"):
+		return float(bridge.call("GetPeriapsisM", semi_major_axis_m, eccentricity))
 	return semi_major_axis_m * (1.0 - eccentricity)
 
 
 ## Calculates the apoapsis distance in meters.
 ## @return: Apoapsis distance in meters.
 func get_apoapsis_m() -> float:
+	var bridge: Object = null
+	if ClassDB.class_exists(ORBITAL_PROPS_BRIDGE_CLASS):
+		bridge = ClassDB.instantiate(ORBITAL_PROPS_BRIDGE_CLASS)
+	if bridge != null and bridge.has_method("GetApoapsisM"):
+		return float(bridge.call("GetApoapsisM", semi_major_axis_m, eccentricity))
 	return semi_major_axis_m * (1.0 + eccentricity)
 
 
@@ -68,6 +79,11 @@ func get_apoapsis_m() -> float:
 ## @param parent_mass_kg: Mass of the parent body in kg.
 ## @return: Orbital period in seconds.
 func get_orbital_period_s(parent_mass_kg: float) -> float:
+	var bridge: Object = null
+	if ClassDB.class_exists(ORBITAL_PROPS_BRIDGE_CLASS):
+		bridge = ClassDB.instantiate(ORBITAL_PROPS_BRIDGE_CLASS)
+	if bridge != null and bridge.has_method("GetOrbitalPeriodS"):
+		return float(bridge.call("GetOrbitalPeriodS", semi_major_axis_m, parent_mass_kg))
 	if semi_major_axis_m <= 0.0 or parent_mass_kg <= 0.0:
 		return 0.0
 	const G: float = 6.674e-11
@@ -92,8 +108,7 @@ func to_dict() -> Dictionary:
 ## @param data: The dictionary to parse.
 ## @return: A new OrbitalProps instance.
 static func from_dict(data: Dictionary) -> OrbitalProps:
-	var script_class: GDScript = load("res://src/domain/celestial/components/OrbitalProps.gd") as GDScript
-	return script_class.new(
+	return OrbitalProps.new(
 		data.get("semi_major_axis_m", 0.0) as float,
 		data.get("eccentricity", 0.0) as float,
 		data.get("inclination_deg", 0.0) as float,

@@ -3,7 +3,7 @@
 class_name SizeTable
 extends RefCounted
 
-const _seeded_rng: GDScript = preload("res://src/domain/rng/SeededRng.gd")
+const SIZE_TABLE_BRIDGE_CLASS: StringName = &"CSharpSizeTableBridge"
 
 
 ## Mass ranges in Earth masses for each size category.
@@ -46,6 +46,11 @@ const DENSITY_RANGES: Dictionary = {
 ## @param category: The size category.
 ## @return: Dictionary with "min" and "max" in Earth masses.
 static func get_mass_range(category: SizeCategory.Category) -> Dictionary:
+	var bridge: Object = _instantiate_bridge()
+	if bridge != null and bridge.has_method("GetMassRange"):
+		var payload: Variant = bridge.call("GetMassRange", int(category))
+		if payload is Dictionary:
+			return payload as Dictionary
 	if MASS_RANGES.has(category):
 		return MASS_RANGES[category]
 	return {"min": 0.0, "max": 0.0}
@@ -55,6 +60,11 @@ static func get_mass_range(category: SizeCategory.Category) -> Dictionary:
 ## @param category: The size category.
 ## @return: Dictionary with "min" and "max" in Earth radii.
 static func get_radius_range(category: SizeCategory.Category) -> Dictionary:
+	var bridge: Object = _instantiate_bridge()
+	if bridge != null and bridge.has_method("GetRadiusRange"):
+		var payload: Variant = bridge.call("GetRadiusRange", int(category))
+		if payload is Dictionary:
+			return payload as Dictionary
 	if RADIUS_RANGES.has(category):
 		return RADIUS_RANGES[category]
 	return {"min": 0.0, "max": 0.0}
@@ -64,6 +74,11 @@ static func get_radius_range(category: SizeCategory.Category) -> Dictionary:
 ## @param category: The size category.
 ## @return: Dictionary with "min" and "max" in kg/mÂ³.
 static func get_density_range(category: SizeCategory.Category) -> Dictionary:
+	var bridge: Object = _instantiate_bridge()
+	if bridge != null and bridge.has_method("GetDensityRange"):
+		var payload: Variant = bridge.call("GetDensityRange", int(category))
+		if payload is Dictionary:
+			return payload as Dictionary
 	if DENSITY_RANGES.has(category):
 		return DENSITY_RANGES[category]
 	return {"min": 0.0, "max": 0.0}
@@ -73,6 +88,9 @@ static func get_density_range(category: SizeCategory.Category) -> Dictionary:
 ## @param mass_earth: Mass in Earth masses.
 ## @return: The matching size category.
 static func category_from_mass(mass_earth: float) -> SizeCategory.Category:
+	var bridge: Object = _instantiate_bridge()
+	if bridge != null and bridge.has_method("CategoryFromMass"):
+		return int(bridge.call("CategoryFromMass", mass_earth)) as SizeCategory.Category
 	if mass_earth < 0.01:
 		return SizeCategory.Category.DWARF
 	elif mass_earth < 0.3:
@@ -121,7 +139,18 @@ static func random_density(category: SizeCategory.Category, rng: SeededRng) -> f
 ## @param density_kg_m3: Density in kg/mÂ³.
 ## @return: Radius in meters.
 static func radius_from_mass_density(mass_kg: float, density_kg_m3: float) -> float:
+	var bridge: Object = _instantiate_bridge()
+	if bridge != null and bridge.has_method("RadiusFromMassDensity"):
+		return float(bridge.call("RadiusFromMassDensity", mass_kg, density_kg_m3))
 	if density_kg_m3 <= 0.0:
 		return 0.0
 	var volume: float = mass_kg / density_kg_m3
 	return pow(volume * 3.0 / (4.0 * PI), 1.0 / 3.0)
+
+
+## Returns an optional C# bridge instance for pure size-table helpers.
+## @return: A bridge object when the C# bridge is registered, otherwise null.
+static func _instantiate_bridge() -> Object:
+	if not ClassDB.class_exists(SIZE_TABLE_BRIDGE_CLASS):
+		return null
+	return ClassDB.instantiate(SIZE_TABLE_BRIDGE_CLASS)

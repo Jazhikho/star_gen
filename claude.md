@@ -1,4 +1,4 @@
-# StarGen (Godot 4.x, GDScript)
+# StarGen (Godot 4.x, C#)
 
 ## What we are building
 StarGen is a deterministic procedural generator + viewer for:
@@ -10,6 +10,11 @@ Guiding principles:
 - DRY + SOLID
 - Determinism and test coverage as non-negotiables
 - Finish vertical slices, do not balloon scope
+- **Scientific realism is the default:** Generation is driven by scientific documentation and established ranges by default. The eventual goal is to expose the assumption levers that drive generation so users can adjust them to fit their desired outcome (e.g. hard sci-fi vs space opera vs grim frontier).
+
+Recent refactor:
+- The core codebase has been refactored to C#; new work should favor C# implementations that fit the existing architecture.
+- Any regressions or errors introduced by this refactor are **high-priority fixes** and should be addressed before adding new features.
 
 ---
 
@@ -53,7 +58,7 @@ Never domain → services/app.
 
 ## Testing rules
 - All non-trivial logic changes ship with tests.
-- **When creating a new test script:** Add it to **both** `Tests/RunTestsHeadless.gd` and `Tests/TestScene.gd` (the `_test_scripts` array in each). The headless runner and the test scene must run the same set of tests. If the new tests depend on domain types that need preloading (e.g. population enums), add the required preload in both runners (e.g. `PopulationDeps.gd` in RunTestsHeadless and TestScene).
+- **When creating a new test script:** Register it so it runs in both headless and in-editor flows. For **C# tests:** add to the appropriate DotNet test suite and ensure they run via the headless harness and test scene. For **GDScript tests:** add to `Tests/RunTestsHeadless.gd` and `Tests/TestScene.gd` (`_test_scripts` in each). If tests depend on domain types that need preloading (e.g. population enums), add the required preload/deps in both runners.
 - Categories:
   - Unit: encode/decode, generation invariants, validation, commands
   - Integration: scenes boot, load/save flows, viewer does not crash
@@ -93,30 +98,67 @@ Proposed changes that do not fit any existing effort are added as a **new effort
 - Documentation: `Docs/`
 
 ### Naming
-- Files: PascalCase (e.g., `CelestialObject.gd`, `StarGenerator.gd`)
+- Files: PascalCase (e.g., `CelestialBody.cs`, `StarGenerator.cs`)
 - Structural folders under `src/`: snake_case (e.g., `domain/`, `services/`, `app/`)
 - Top-level folders: PascalCase (e.g., `Tests/`, `Docs/`, `Resources/`)
-- GDScript functions: snake_case (e.g., `generate_star()`, `validate_spec()`)
-- GDScript variables: snake_case (e.g., `object_seed`, `physical_props`)
-- Constants: UPPER_SNAKE_CASE (e.g., `MAX_RADIUS`, `DEFAULT_TEMPERATURE`)
+- C# methods: PascalCase (e.g., `GenerateStar()`, `ValidateSpec()`)
+- C# properties: PascalCase (e.g., `ObjectSeed`, `PhysicalProps`)
+- C# private fields: _camelCase when used for backing state (e.g., `_objectSeed`, `_physicalProps`)
+- Variables: descriptive names; avoid shadowing engine concepts (`transform`, `position`, `global_position`)
+- Constants: PascalCase or UPPER_SNAKE_CASE (e.g., `MaxRadius`, `DefaultTemperature`)
 
 ### Typing
-- Explicit types everywhere. No `:=` inference.
-- Type all function parameters and return values.
-- Type all variables (no untyped `var`).
+- Explicit types everywhere. No `var` for non-obvious types in C#; type all parameters and return values.
+- Type all variables. No inference that hides types.
 
 ### Documentation
-- Doc blocks above every function: purpose, parameters, returns.
-- For `@export` variables, describe what they are ABOVE the export using `##` comments.
-- Inside functions, comment **why**, not what.
+- XML doc blocks above every public method: purpose, parameters, returns.
+- For `[Export]` (Godot) or `[SerializeField]`-style members, describe what they are above the declaration.
+- Inside methods, comment **why**, not what.
 
 ### Script size
-- Target ~10 functions per script (soft limit).
-- If exceeding 12-15 functions, refactor or split by responsibility.
+- Target ~10 methods per class (soft limit).
+- If exceeding 12–15 methods, refactor or split by responsibility. C#: fields, constructors, public methods, then private helpers.
+
+### C# and Cursor rules compliance
+- **No ternary operators** in committed code; use explicit `if` blocks.
+- **No silent fallbacks;** fail loudly with descriptive errors (e.g. `ArgumentException`, `InvalidOperationException`, Godot `push_error`).
+- **Engine-first configuration:** Use Inspector, Input Map, layers/masks, and scene configuration instead of hard-coding where the editor can do it. Prefer `[Export]` and cached node references (`@onready`-style in C# via `GetNode` at ready).
+- **Signals/events over polling.** Use Godot signals or C# events; single source of truth for shared data.
+- **Explicit typing:** Avoid `var` when the type is not obvious; type all parameters and return values.
+- **Warnings as errors:** Code must build cleanly; fix or document any compiler/analyzer warnings.
 
 ---
 
 **Object editing** is an outstanding effort in the roadmap. The viewer currently supports generation, viewing, and save/load only.
+
+---
+
+## Prototypes (beyond core scope)
+
+**Core scope (no prototype required):** Galaxy, systems, stars, planets, moons, asteroids — their **data generation** and **object rendering** (appearance: shaders, materials, BodyRenderer, StarShaderParams, GasGiantShaderParams, TerrestrialShaderParams, etc.) are part of the main program. So are system/galaxy generation, population framework, stations, and jump lanes (see Roadmap).
+
+**When a prototype is required:** Any feature or tool that extends functionality **beyond** that core (e.g. ecology simulation, climate model, causality inspector, retcon manager, new RPG export format) must be developed as a **prototype** first — typically under `Concepts/` or a dedicated branch — and must satisfy **migration gates** before being folded into main.
+
+**Prototype lifecycle:**
+- Prototypes may start as anything: any language, any stack, any structure. No gate at birth.
+- Before code is merged into main, the prototype must meet the gates below. Track status so contributors know where each prototype stands.
+- When a prototype meets all migration gates, it can be added as an effort (or part of one) in Docs/Roadmap.md; once folded into main, remove it from Concepts/ and from the concept expansion menu in Concepts/Additions.md.
+
+**Migration gates (all required before fold-in):**
+1. **Determinism:** Any generation or simulation uses an injected RNG; same seed + same inputs → identical outputs; provenance (seed, version, spec) is stored where applicable.
+2. **Architecture:** Logic fits the layers (domain pure, services for IO/caching, app for UI/rendering). No domain → app/service dependencies.
+3. **No global state:** Generators and simulators do not rely on global mutable state; they accept (spec, rng, context) and return data.
+4. **Tests:** Non-trivial logic has unit tests; determinism tests where applicable; tests run in the headless harness and are registered (C# suites and/or `RunTestsHeadless.gd` / `TestScene.gd`) if they depend on domain types.
+5. **Documentation:** Purpose and integration point are documented; Docs/ProjectStructure.md and Docs/Roadmap.md updated if new modules or efforts are added.
+6. **Scientific realism and export/mapping documentation (optional but strongly recommended):** Scientific realism is the default; generation details should be driven by or referenced against scientific documentation (literature, established ranges, physical constraints). Prototypes should document which assumptions drive generation so they can eventually be exposed as user-tunable levers. Because output may be exported to various systems (TTRPGs, other engines, maps), the details required for mapping and export should be considered and at least suggested in the documentation — e.g. which fields or conventions support which export targets, and what mapping or schema notes exist. This step is not a hard gate but is strongly recommended before fold-in.
+7. **Fold-in branch:** A branch exists that **attempts to fold** the prototype into main (integrate with existing domain/services/app, same RNG and save/load contracts). The branch need not be perfect, but it must demonstrate that the prototype can be wired in without breaking determinism, architecture, or tests. Review and merge only after gates 1–5 are satisfied (and gate 6 where feasible) and the fold-in branch is deemed mergeable.
+
+**Status annotation:** Where prototypes are listed (e.g. Concepts/Additions.md, Roadmap, or a dedicated prototype index), annotate each with a status such as: **Exploration** (no gates yet), **Gates in progress** (meeting determinism/architecture/tests/docs), **Fold-in branch open** (branch exists, integration in progress), **Merged** (folded into main; prototype can be retired or kept as reference).
+
+**Housekeeping when a prototype is folded in:** Once a prototype has been fully adapted for use in the main program, it is a StarGen tool proper — not a prototype. Then: (1) **Remove it from the prototype location** — delete or relocate the prototype code from `Concepts/` or `src/app/prototypes/` so the repo no longer carries the duplicate. (2) **Remove it from prototype documentation** — drop it from the prototype/concept tables and lists in Concepts/Additions.md, Roadmap, and any other docs that list “Prototype TODO” or concept suggestions; do not list it as a prototype once it lives in main. Keep documentation accurate so “prototype” means “not yet in main.”
+
+**Claude:** When proposing a new feature that goes beyond galaxy/systems/stars/planets (and their current rendering and population/station/jump-lane scope), treat it as a prototype: add it to the concept/tool lists as Prototype TODO, and do not implement it in main until a prototype has met the migration gates and a fold-in branch has been created and reviewed.
 
 ---
 

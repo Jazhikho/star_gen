@@ -3,6 +3,8 @@
 class_name MathUtils
 extends RefCounted
 
+const MATH_BRIDGE_CLASS: StringName = &"CSharpMathBridge"
+
 
 ## Checks if a float value is within a range (inclusive).
 ## @param value: The value to check.
@@ -10,6 +12,11 @@ extends RefCounted
 ## @param max_val: The maximum allowed value.
 ## @return: True if value is in range, false otherwise.
 static func is_in_range_float(value: float, min_val: float, max_val: float) -> bool:
+	var bridge: Object = null
+	if ClassDB.class_exists(MATH_BRIDGE_CLASS):
+		bridge = ClassDB.instantiate(MATH_BRIDGE_CLASS)
+	if bridge != null and bridge.has_method("IsInRangeFloat"):
+		return bool(bridge.call("IsInRangeFloat", value, min_val, max_val))
 	return value >= min_val and value <= max_val
 
 
@@ -19,6 +26,11 @@ static func is_in_range_float(value: float, min_val: float, max_val: float) -> b
 ## @param max_val: The maximum allowed value.
 ## @return: True if value is in range, false otherwise.
 static func is_in_range_int(value: int, min_val: int, max_val: int) -> bool:
+	var bridge: Object = null
+	if ClassDB.class_exists(MATH_BRIDGE_CLASS):
+		bridge = ClassDB.instantiate(MATH_BRIDGE_CLASS)
+	if bridge != null and bridge.has_method("IsInRangeInt"):
+		return bool(bridge.call("IsInRangeInt", value, min_val, max_val))
 	return value >= min_val and value <= max_val
 
 
@@ -36,6 +48,11 @@ static func remap(
 	to_min: float,
 	to_max: float
 ) -> float:
+	var bridge: Object = null
+	if ClassDB.class_exists(MATH_BRIDGE_CLASS):
+		bridge = ClassDB.instantiate(MATH_BRIDGE_CLASS)
+	if bridge != null and bridge.has_method("Remap"):
+		return float(bridge.call("Remap", value, from_min, from_max, to_min, to_max))
 	if from_max == from_min:
 		return to_min
 	var normalized: float = (value - from_min) / (from_max - from_min)
@@ -56,6 +73,11 @@ static func remap_clamped(
 	to_min: float,
 	to_max: float
 ) -> float:
+	var bridge: Object = null
+	if ClassDB.class_exists(MATH_BRIDGE_CLASS):
+		bridge = ClassDB.instantiate(MATH_BRIDGE_CLASS)
+	if bridge != null and bridge.has_method("RemapClamped"):
+		return float(bridge.call("RemapClamped", value, from_min, from_max, to_min, to_max))
 	var remapped: float = remap(value, from_min, from_max, to_min, to_max)
 	var actual_min: float = minf(to_min, to_max)
 	var actual_max: float = maxf(to_min, to_max)
@@ -68,6 +90,11 @@ static func remap_clamped(
 ## @param value: The value to check.
 ## @return: The normalized position (0.0 at from, 1.0 at to).
 static func inverse_lerp(from: float, to: float, value: float) -> float:
+	var bridge: Object = null
+	if ClassDB.class_exists(MATH_BRIDGE_CLASS):
+		bridge = ClassDB.instantiate(MATH_BRIDGE_CLASS)
+	if bridge != null and bridge.has_method("InverseLerp"):
+		return float(bridge.call("InverseLerp", from, to, value))
 	if to == from:
 		return 0.0
 	return (value - from) / (to - from)
@@ -79,6 +106,11 @@ static func inverse_lerp(from: float, to: float, value: float) -> float:
 ## @param weight: The interpolation weight (0.0 to 1.0).
 ## @return: The smoothly interpolated value.
 static func smooth_lerp(from: float, to: float, weight: float) -> float:
+	var bridge: Object = null
+	if ClassDB.class_exists(MATH_BRIDGE_CLASS):
+		bridge = ClassDB.instantiate(MATH_BRIDGE_CLASS)
+	if bridge != null and bridge.has_method("SmoothLerp"):
+		return float(bridge.call("SmoothLerp", from, to, weight))
 	var t: float = clampf(weight, 0.0, 1.0)
 	t = t * t * (3.0 - 2.0 * t)
 	return lerpf(from, to, t)

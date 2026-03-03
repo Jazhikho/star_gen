@@ -2,9 +2,7 @@
 class_name OrbitTable
 extends RefCounted
 
-const _units: GDScript = preload("res://src/domain/math/Units.gd")
-const _stellar_props: GDScript = preload("res://src/domain/celestial/components/StellarProps.gd")
-const _seeded_rng: GDScript = preload("res://src/domain/rng/SeededRng.gd")
+const ORBIT_TABLE_BRIDGE_CLASS: StringName = &"CSharpOrbitTableBridge"
 
 
 ## Gets typical orbital distance range for a zone given stellar luminosity.
@@ -15,6 +13,11 @@ static func get_distance_range(
 	zone: OrbitZone.Zone,
 	stellar_luminosity_watts: float
 ) -> Dictionary:
+	var bridge: Object = _instantiate_bridge()
+	if bridge != null and bridge.has_method("GetDistanceRange"):
+		var payload: Variant = bridge.call("GetDistanceRange", int(zone), stellar_luminosity_watts)
+		if payload is Dictionary:
+			return payload as Dictionary
 	var l_solar: float = stellar_luminosity_watts / StellarProps.SOLAR_LUMINOSITY_WATTS
 	if l_solar <= 0.0:
 		l_solar = 1.0
@@ -63,6 +66,11 @@ static func random_distance(
 ## @param zone: The orbit zone.
 ## @return: Dictionary with "min" and "max" eccentricity values.
 static func get_eccentricity_range(zone: OrbitZone.Zone) -> Dictionary:
+	var bridge: Object = _instantiate_bridge()
+	if bridge != null and bridge.has_method("GetEccentricityRange"):
+		var payload: Variant = bridge.call("GetEccentricityRange", int(zone))
+		if payload is Dictionary:
+			return payload as Dictionary
 	match zone:
 		OrbitZone.Zone.HOT:
 			return {"min": 0.0, "max": 0.1}
@@ -109,6 +117,17 @@ static func tidal_locking_timescale_years(
 	body_radius_m: float,
 	stellar_mass_kg: float
 ) -> float:
+	var bridge: Object = _instantiate_bridge()
+	if bridge != null and bridge.has_method("TidalLockingTimescaleYears"):
+		return float(
+			bridge.call(
+				"TidalLockingTimescaleYears",
+				orbital_distance_m,
+				body_mass_kg,
+				body_radius_m,
+				stellar_mass_kg
+			)
+		)
 	if body_radius_m <= 0.0 or stellar_mass_kg <= 0.0:
 		return 1.0e20
 	
@@ -138,6 +157,18 @@ static func is_tidally_locked(
 	stellar_mass_kg: float,
 	system_age_years: float
 ) -> bool:
+	var bridge: Object = _instantiate_bridge()
+	if bridge != null and bridge.has_method("IsTidallyLocked"):
+		return bool(
+			bridge.call(
+				"IsTidallyLocked",
+				orbital_distance_m,
+				body_mass_kg,
+				body_radius_m,
+				stellar_mass_kg,
+				system_age_years
+			)
+		)
 	var timescale: float = tidal_locking_timescale_years(
 		orbital_distance_m,
 		body_mass_kg,
@@ -145,3 +176,11 @@ static func is_tidally_locked(
 		stellar_mass_kg
 	)
 	return system_age_years > timescale
+
+
+## Returns an optional C# bridge instance for pure orbit-table helpers.
+## @return: A bridge object when the C# bridge is registered, otherwise null.
+static func _instantiate_bridge() -> Object:
+	if not ClassDB.class_exists(ORBIT_TABLE_BRIDGE_CLASS):
+		return null
+	return ClassDB.instantiate(ORBIT_TABLE_BRIDGE_CLASS)

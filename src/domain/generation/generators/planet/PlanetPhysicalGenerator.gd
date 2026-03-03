@@ -3,17 +3,6 @@
 class_name PlanetPhysicalGenerator
 extends RefCounted
 
-const _planet_spec: GDScript = preload("res://src/domain/generation/specs/PlanetSpec.gd")
-const _size_category: GDScript = preload("res://src/domain/generation/archetypes/SizeCategory.gd")
-const _size_table: GDScript = preload("res://src/domain/generation/tables/SizeTable.gd")
-const _orbit_table: GDScript = preload("res://src/domain/generation/tables/OrbitTable.gd")
-const _physical_props: GDScript = preload("res://src/domain/celestial/components/PhysicalProps.gd")
-const _orbital_props: GDScript = preload("res://src/domain/celestial/components/OrbitalProps.gd")
-const _parent_context: GDScript = preload("res://src/domain/generation/ParentContext.gd")
-const _units: GDScript = preload("res://src/domain/math/Units.gd")
-const _seeded_rng: GDScript = preload("res://src/domain/rng/SeededRng.gd")
-
-
 ## Generates physical properties for a planet.
 ## @param spec: The planet specification.
 ## @param context: The parent context.
@@ -22,6 +11,18 @@ const _seeded_rng: GDScript = preload("res://src/domain/rng/SeededRng.gd")
 ## @param rng: The random number generator.
 ## @return: PhysicalProps for the planet.
 static func generate_physical_props(
+	spec: PlanetSpec,
+	context: ParentContext,
+	size_cat: SizeCategory.Category,
+	orbital: OrbitalProps,
+	rng: SeededRng
+) -> PhysicalProps:
+	return _generate_physical_props_fallback(spec, context, size_cat, orbital, rng)
+
+
+## Runs the legacy GDScript physical-property generation path directly.
+## @return: PhysicalProps for the planet.
+static func _generate_physical_props_fallback(
 	spec: PlanetSpec,
 	context: ParentContext,
 	size_cat: SizeCategory.Category,
@@ -113,6 +114,7 @@ static func generate_physical_props(
 		magnetic_moment,
 		internal_heat_watts
 	)
+
 
 
 ## Checks if the planet would be tidally locked.

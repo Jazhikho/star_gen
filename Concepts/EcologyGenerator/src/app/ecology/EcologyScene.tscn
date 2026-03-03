@@ -1,0 +1,283 @@
+[gd_scene load_steps=3 format=3 uid="uid://ecology_scene"]
+
+[ext_resource type="Script" path="res://Concepts/EcologyGenerator/src/app/ecology/EcologyViewer.cs" id="1"]
+[ext_resource type="Script" path="res://Concepts/EcologyGenerator/src/app/ecology/EcologyWebRenderer.cs" id="2"]
+
+[node name="EcologyScene" type="Control"]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+script = ExtResource("1")
+
+[node name="VBoxContainer" type="VBoxContainer" parent="."]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 10.0
+offset_top = 10.0
+offset_right = -10.0
+offset_bottom = -10.0
+
+[node name="TopPanel" type="HBoxContainer" parent="VBoxContainer"]
+layout_mode = 2
+custom_minimum_size = Vector2(0, 40)
+
+[node name="SeedLabel" type="Label" parent="VBoxContainer/TopPanel"]
+layout_mode = 2
+text = "Seed:"
+
+[node name="SeedInput" type="LineEdit" parent="VBoxContainer/TopPanel"]
+layout_mode = 2
+custom_minimum_size = Vector2(120, 0)
+text = "12345"
+
+[node name="BiomeLabel" type="Label" parent="VBoxContainer/TopPanel"]
+layout_mode = 2
+text = "  Biome:"
+
+[node name="BiomeOption" type="OptionButton" parent="VBoxContainer/TopPanel"]
+layout_mode = 2
+custom_minimum_size = Vector2(120, 0)
+
+[node name="Spacer" type="Control" parent="VBoxContainer/TopPanel"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="GenerateButton" type="Button" parent="VBoxContainer/TopPanel"]
+layout_mode = 2
+custom_minimum_size = Vector2(100, 0)
+text = "Generate"
+
+[node name="HSplitContainer" type="HSplitContainer" parent="VBoxContainer"]
+layout_mode = 2
+size_flags_vertical = 3
+split_offset = 320
+
+[node name="LeftPanel" type="PanelContainer" parent="VBoxContainer/HSplitContainer"]
+layout_mode = 2
+custom_minimum_size = Vector2(320, 0)
+
+[node name="LeftVBox" type="VBoxContainer" parent="VBoxContainer/HSplitContainer/LeftPanel"]
+layout_mode = 2
+
+[node name="EnvLabel" type="Label" parent="VBoxContainer/HSplitContainer/LeftPanel/LeftVBox"]
+layout_mode = 2
+text = "Environment Parameters"
+horizontal_alignment = 1
+
+[node name="ParamScroll" type="ScrollContainer" parent="VBoxContainer/HSplitContainer/LeftPanel/LeftVBox"]
+layout_mode = 2
+size_flags_vertical = 3
+horizontal_scroll_mode = 0
+
+[node name="ParamVBox" type="VBoxContainer" parent="VBoxContainer/HSplitContainer/LeftPanel/LeftVBox/ParamScroll"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="TempMinRow" type="HBoxContainer" parent="VBoxContainer/HSplitContainer/LeftPanel/LeftVBox/ParamScroll/ParamVBox"]
+layout_mode = 2
+
+[node name="TempMinLabel" type="Label" parent="VBoxContainer/HSplitContainer/LeftPanel/LeftVBox/ParamScroll/ParamVBox/TempMinRow"]
+layout_mode = 2
+custom_minimum_size = Vector2(100, 0)
+text = "Temp Min (K):"
+
+[node name="TempMinSlider" type="HSlider" parent="VBoxContainer/HSplitContainer/LeftPanel/LeftVBox/ParamScroll/ParamVBox/TempMinRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+custom_minimum_size = Vector2(120, 24)
+min_value = 200.0
+max_value = 400.0
+value = 273.0
+
+[node name="TempMinValue" type="Label" parent="VBoxContainer/HSplitContainer/LeftPanel/LeftVBox/ParamScroll/ParamVBox/TempMinRow"]
+layout_mode = 2
+custom_minimum_size = Vector2(50, 0)
+text = "273"
+horizontal_alignment = 2
+
+[node name="TempMaxRow" type="HBoxContainer" parent="VBoxContainer/HSplitContainer/LeftPanel/LeftVBox/ParamScroll/ParamVBox"]
+layout_mode = 2
+
+[node name="TempMaxLabel" type="Label" parent="VBoxContainer/HSplitContainer/LeftPanel/LeftVBox/ParamScroll/ParamVBox/TempMaxRow"]
+layout_mode = 2
+custom_minimum_size = Vector2(100, 0)
+text = "Temp Max (K):"
+
+[node name="TempMaxSlider" type="HSlider" parent="VBoxContainer/HSplitContainer/LeftPanel/LeftVBox/ParamScroll/ParamVBox/TempMaxRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+custom_minimum_size = Vector2(120, 24)
+min_value = 200.0
+max_value = 450.0
+value = 310.0
+
+[node name="TempMaxValue" type="Label" parent="VBoxContainer/HSplitContainer/LeftPanel/LeftVBox/ParamScroll/ParamVBox/TempMaxRow"]
+layout_mode = 2
+custom_minimum_size = Vector2(50, 0)
+text = "310"
+horizontal_alignment = 2
+
+[node name="WaterRow" type="HBoxContainer" parent="VBoxContainer/HSplitContainer/LeftPanel/LeftVBox/ParamScroll/ParamVBox"]
+layout_mode = 2
+
+[node name="WaterLabel" type="Label" parent="VBoxContainer/HSplitContainer/LeftPanel/LeftVBox/ParamScroll/ParamVBox/WaterRow"]
+layout_mode = 2
+custom_minimum_size = Vector2(100, 0)
+text = "Water:"
+
+[node name="WaterSlider" type="HSlider" parent="VBoxContainer/HSplitContainer/LeftPanel/LeftVBox/ParamScroll/ParamVBox/WaterRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+custom_minimum_size = Vector2(120, 24)
+max_value = 1.0
+step = 0.05
+value = 0.5
+
+[node name="WaterValue" type="Label" parent="VBoxContainer/HSplitContainer/LeftPanel/LeftVBox/ParamScroll/ParamVBox/WaterRow"]
+layout_mode = 2
+custom_minimum_size = Vector2(50, 0)
+text = "0.50"
+horizontal_alignment = 2
+
+[node name="LightRow" type="HBoxContainer" parent="VBoxContainer/HSplitContainer/LeftPanel/LeftVBox/ParamScroll/ParamVBox"]
+layout_mode = 2
+
+[node name="LightLabel" type="Label" parent="VBoxContainer/HSplitContainer/LeftPanel/LeftVBox/ParamScroll/ParamVBox/LightRow"]
+layout_mode = 2
+custom_minimum_size = Vector2(100, 0)
+text = "Light:"
+
+[node name="LightSlider" type="HSlider" parent="VBoxContainer/HSplitContainer/LeftPanel/LeftVBox/ParamScroll/ParamVBox/LightRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+custom_minimum_size = Vector2(120, 24)
+max_value = 1.0
+step = 0.05
+value = 1.0
+
+[node name="LightValue" type="Label" parent="VBoxContainer/HSplitContainer/LeftPanel/LeftVBox/ParamScroll/ParamVBox/LightRow"]
+layout_mode = 2
+custom_minimum_size = Vector2(50, 0)
+text = "1.00"
+horizontal_alignment = 2
+
+[node name="NutrientRow" type="HBoxContainer" parent="VBoxContainer/HSplitContainer/LeftPanel/LeftVBox/ParamScroll/ParamVBox"]
+layout_mode = 2
+
+[node name="NutrientLabel" type="Label" parent="VBoxContainer/HSplitContainer/LeftPanel/LeftVBox/ParamScroll/ParamVBox/NutrientRow"]
+layout_mode = 2
+custom_minimum_size = Vector2(100, 0)
+text = "Nutrients:"
+
+[node name="NutrientSlider" type="HSlider" parent="VBoxContainer/HSplitContainer/LeftPanel/LeftVBox/ParamScroll/ParamVBox/NutrientRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+custom_minimum_size = Vector2(120, 24)
+max_value = 1.0
+step = 0.05
+value = 0.5
+
+[node name="NutrientValue" type="Label" parent="VBoxContainer/HSplitContainer/LeftPanel/LeftVBox/ParamScroll/ParamVBox/NutrientRow"]
+layout_mode = 2
+custom_minimum_size = Vector2(50, 0)
+text = "0.50"
+horizontal_alignment = 2
+
+[node name="GravityRow" type="HBoxContainer" parent="VBoxContainer/HSplitContainer/LeftPanel/LeftVBox/ParamScroll/ParamVBox"]
+layout_mode = 2
+
+[node name="GravityLabel" type="Label" parent="VBoxContainer/HSplitContainer/LeftPanel/LeftVBox/ParamScroll/ParamVBox/GravityRow"]
+layout_mode = 2
+custom_minimum_size = Vector2(100, 0)
+text = "Gravity:"
+
+[node name="GravitySlider" type="HSlider" parent="VBoxContainer/HSplitContainer/LeftPanel/LeftVBox/ParamScroll/ParamVBox/GravityRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+custom_minimum_size = Vector2(120, 24)
+min_value = 0.1
+max_value = 3.0
+step = 0.1
+value = 1.0
+
+[node name="GravityValue" type="Label" parent="VBoxContainer/HSplitContainer/LeftPanel/LeftVBox/ParamScroll/ParamVBox/GravityRow"]
+layout_mode = 2
+custom_minimum_size = Vector2(50, 0)
+text = "1.00"
+horizontal_alignment = 2
+
+[node name="RadiationRow" type="HBoxContainer" parent="VBoxContainer/HSplitContainer/LeftPanel/LeftVBox/ParamScroll/ParamVBox"]
+layout_mode = 2
+
+[node name="RadiationLabel" type="Label" parent="VBoxContainer/HSplitContainer/LeftPanel/LeftVBox/ParamScroll/ParamVBox/RadiationRow"]
+layout_mode = 2
+custom_minimum_size = Vector2(100, 0)
+text = "Radiation:"
+
+[node name="RadiationSlider" type="HSlider" parent="VBoxContainer/HSplitContainer/LeftPanel/LeftVBox/ParamScroll/ParamVBox/RadiationRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+custom_minimum_size = Vector2(120, 24)
+max_value = 1.0
+step = 0.05
+value = 0.1
+
+[node name="RadiationValue" type="Label" parent="VBoxContainer/HSplitContainer/LeftPanel/LeftVBox/ParamScroll/ParamVBox/RadiationRow"]
+layout_mode = 2
+custom_minimum_size = Vector2(50, 0)
+text = "0.10"
+horizontal_alignment = 2
+
+[node name="OxygenRow" type="HBoxContainer" parent="VBoxContainer/HSplitContainer/LeftPanel/LeftVBox/ParamScroll/ParamVBox"]
+layout_mode = 2
+
+[node name="OxygenLabel" type="Label" parent="VBoxContainer/HSplitContainer/LeftPanel/LeftVBox/ParamScroll/ParamVBox/OxygenRow"]
+layout_mode = 2
+custom_minimum_size = Vector2(100, 0)
+text = "Oxygen:"
+
+[node name="OxygenSlider" type="HSlider" parent="VBoxContainer/HSplitContainer/LeftPanel/LeftVBox/ParamScroll/ParamVBox/OxygenRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+custom_minimum_size = Vector2(120, 24)
+max_value = 1.0
+step = 0.05
+value = 0.21
+
+[node name="OxygenValue" type="Label" parent="VBoxContainer/HSplitContainer/LeftPanel/LeftVBox/ParamScroll/ParamVBox/OxygenRow"]
+layout_mode = 2
+custom_minimum_size = Vector2(50, 0)
+text = "0.21"
+horizontal_alignment = 2
+
+[node name="Separator" type="HSeparator" parent="VBoxContainer/HSplitContainer/LeftPanel/LeftVBox"]
+layout_mode = 2
+
+[node name="StatsLabel" type="Label" parent="VBoxContainer/HSplitContainer/LeftPanel/LeftVBox"]
+layout_mode = 2
+text = "Statistics"
+horizontal_alignment = 1
+
+[node name="StatsText" type="RichTextLabel" parent="VBoxContainer/HSplitContainer/LeftPanel/LeftVBox"]
+layout_mode = 2
+size_flags_vertical = 3
+custom_minimum_size = Vector2(0, 150)
+bbcode_enabled = true
+text = "Generate an ecology to see statistics."
+
+[node name="WebRenderer" type="Control" parent="VBoxContainer/HSplitContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+script = ExtResource("2")
+
+[node name="BottomPanel" type="HBoxContainer" parent="VBoxContainer"]
+layout_mode = 2
+custom_minimum_size = Vector2(0, 30)
+
+[node name="StatusLabel" type="Label" parent="VBoxContainer/BottomPanel"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Ready"
+

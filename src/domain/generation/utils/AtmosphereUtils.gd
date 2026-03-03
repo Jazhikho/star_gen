@@ -3,8 +3,6 @@
 class_name AtmosphereUtils
 extends RefCounted
 
-const _atmosphere_props: GDScript = preload("res://src/domain/celestial/components/AtmosphereProps.gd")
-
 
 ## Gets average molecular mass for a gas mixture.
 ## @param composition: Gas composition dictionary (gas name -> fraction).

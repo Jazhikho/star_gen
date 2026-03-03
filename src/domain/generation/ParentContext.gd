@@ -2,9 +2,7 @@
 ## Used to calculate orbital dynamics, tidal effects, atmospheric escape, etc.
 class_name ParentContext
 extends RefCounted
-
-const _units: GDScript = preload("res://src/domain/math/Units.gd")
-const _stellar_props: GDScript = preload("res://src/domain/celestial/components/StellarProps.gd")
+const PARENT_CONTEXT_BRIDGE_CLASS: StringName = &"CSharpParentContextBridge"
 
 
 ## Mass of the parent star in kilograms.
@@ -134,6 +132,16 @@ func has_parent_body() -> bool:
 ## The Hill sphere is the region where a body's gravity dominates.
 ## @return: Hill sphere radius in meters, or 0 if not applicable.
 func get_hill_sphere_radius_m() -> float:
+	var bridge: Object = null
+	if ClassDB.class_exists(PARENT_CONTEXT_BRIDGE_CLASS):
+		bridge = ClassDB.instantiate(PARENT_CONTEXT_BRIDGE_CLASS)
+	if bridge != null and bridge.has_method("GetHillSphereRadiusM"):
+		return float(bridge.call(
+			"GetHillSphereRadiusM",
+			stellar_mass_kg,
+			orbital_distance_from_star_m,
+			parent_body_mass_kg
+		))
 	if parent_body_mass_kg <= 0.0 or stellar_mass_kg <= 0.0:
 		return 0.0
 	if orbital_distance_from_star_m <= 0.0:
@@ -148,6 +156,16 @@ func get_hill_sphere_radius_m() -> float:
 ## @param satellite_density_kg_m3: Density of the satellite.
 ## @return: Roche limit in meters.
 func get_roche_limit_m(satellite_density_kg_m3: float) -> float:
+	var bridge: Object = null
+	if ClassDB.class_exists(PARENT_CONTEXT_BRIDGE_CLASS):
+		bridge = ClassDB.instantiate(PARENT_CONTEXT_BRIDGE_CLASS)
+	if bridge != null and bridge.has_method("GetRocheLimitM"):
+		return float(bridge.call(
+			"GetRocheLimitM",
+			parent_body_mass_kg,
+			parent_body_radius_m,
+			satellite_density_kg_m3
+		))
 	if parent_body_radius_m <= 0.0 or parent_body_mass_kg <= 0.0:
 		return 0.0
 	if satellite_density_kg_m3 <= 0.0:
@@ -162,6 +180,16 @@ func get_roche_limit_m(satellite_density_kg_m3: float) -> float:
 ## @param albedo: Bond albedo of the body (default 0.3).
 ## @return: Equilibrium temperature in Kelvin.
 func get_equilibrium_temperature_k(albedo: float = 0.3) -> float:
+	var bridge: Object = null
+	if ClassDB.class_exists(PARENT_CONTEXT_BRIDGE_CLASS):
+		bridge = ClassDB.instantiate(PARENT_CONTEXT_BRIDGE_CLASS)
+	if bridge != null and bridge.has_method("GetEquilibriumTemperatureK"):
+		return float(bridge.call(
+			"GetEquilibriumTemperatureK",
+			stellar_luminosity_watts,
+			orbital_distance_from_star_m,
+			albedo
+		))
 	if stellar_luminosity_watts <= 0.0 or orbital_distance_from_star_m <= 0.0:
 		return 0.0
 	

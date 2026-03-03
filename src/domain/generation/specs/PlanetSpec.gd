@@ -3,9 +3,7 @@
 class_name PlanetSpec
 extends BaseSpec
 
-const _size_category: GDScript = preload("res://src/domain/generation/archetypes/SizeCategory.gd")
-const _orbit_zone: GDScript = preload("res://src/domain/generation/archetypes/OrbitZone.gd")
-const _ring_complexity: GDScript = preload("res://src/domain/generation/archetypes/RingComplexity.gd")
+const PLANET_SPEC_BRIDGE_CLASS: StringName = &"CSharpPlanetSpecBridge"
 
 
 ## Size category (DWARF through GAS_GIANT, or -1 for random).
@@ -55,6 +53,11 @@ func _init(
 ## @param seed_value: The generation seed.
 ## @return: A new PlanetSpec with all random values.
 static func random(seed_value: int) -> PlanetSpec:
+	var bridge: Object = _instantiate_bridge()
+	if bridge != null and bridge.has_method("Random"):
+		var payload: Variant = bridge.call("Random", seed_value)
+		if payload is Dictionary:
+			return _from_payload(payload as Dictionary)
 	return PlanetSpec.new(seed_value)
 
 
@@ -62,6 +65,11 @@ static func random(seed_value: int) -> PlanetSpec:
 ## @param seed_value: The generation seed.
 ## @return: A new PlanetSpec configured for terrestrial temperate.
 static func earth_like(seed_value: int) -> PlanetSpec:
+	var bridge: Object = _instantiate_bridge()
+	if bridge != null and bridge.has_method("EarthLike"):
+		var payload: Variant = bridge.call("EarthLike", seed_value)
+		if payload is Dictionary:
+			return _from_payload(payload as Dictionary)
 	return PlanetSpec.new(
 		seed_value,
 		SizeCategory.Category.TERRESTRIAL,
@@ -75,6 +83,11 @@ static func earth_like(seed_value: int) -> PlanetSpec:
 ## @param seed_value: The generation seed.
 ## @return: A new PlanetSpec configured for hot gas giant.
 static func hot_jupiter(seed_value: int) -> PlanetSpec:
+	var bridge: Object = _instantiate_bridge()
+	if bridge != null and bridge.has_method("HotJupiter"):
+		var payload: Variant = bridge.call("HotJupiter", seed_value)
+		if payload is Dictionary:
+			return _from_payload(payload as Dictionary)
 	return PlanetSpec.new(
 		seed_value,
 		SizeCategory.Category.GAS_GIANT,
@@ -88,6 +101,11 @@ static func hot_jupiter(seed_value: int) -> PlanetSpec:
 ## @param seed_value: The generation seed.
 ## @return: A new PlanetSpec configured for cold gas giant.
 static func cold_giant(seed_value: int) -> PlanetSpec:
+	var bridge: Object = _instantiate_bridge()
+	if bridge != null and bridge.has_method("ColdGiant"):
+		var payload: Variant = bridge.call("ColdGiant", seed_value)
+		if payload is Dictionary:
+			return _from_payload(payload as Dictionary)
 	return PlanetSpec.new(
 		seed_value,
 		SizeCategory.Category.GAS_GIANT,
@@ -101,6 +119,11 @@ static func cold_giant(seed_value: int) -> PlanetSpec:
 ## @param seed_value: The generation seed.
 ## @return: A new PlanetSpec configured for sub-terrestrial cold.
 static func mars_like(seed_value: int) -> PlanetSpec:
+	var bridge: Object = _instantiate_bridge()
+	if bridge != null and bridge.has_method("MarsLike"):
+		var payload: Variant = bridge.call("MarsLike", seed_value)
+		if payload is Dictionary:
+			return _from_payload(payload as Dictionary)
 	return PlanetSpec.new(
 		seed_value,
 		SizeCategory.Category.SUB_TERRESTRIAL,
@@ -114,6 +137,11 @@ static func mars_like(seed_value: int) -> PlanetSpec:
 ## @param seed_value: The generation seed.
 ## @return: A new PlanetSpec configured for dwarf cold.
 static func dwarf_planet(seed_value: int) -> PlanetSpec:
+	var bridge: Object = _instantiate_bridge()
+	if bridge != null and bridge.has_method("DwarfPlanet"):
+		var payload: Variant = bridge.call("DwarfPlanet", seed_value)
+		if payload is Dictionary:
+			return _from_payload(payload as Dictionary)
 	return PlanetSpec.new(
 		seed_value,
 		SizeCategory.Category.DWARF,
@@ -127,6 +155,11 @@ static func dwarf_planet(seed_value: int) -> PlanetSpec:
 ## @param seed_value: The generation seed.
 ## @return: A new PlanetSpec configured for Neptune-class cold.
 static func ice_giant(seed_value: int) -> PlanetSpec:
+	var bridge: Object = _instantiate_bridge()
+	if bridge != null and bridge.has_method("IceGiant"):
+		var payload: Variant = bridge.call("IceGiant", seed_value)
+		if payload is Dictionary:
+			return _from_payload(payload as Dictionary)
 	return PlanetSpec.new(
 		seed_value,
 		SizeCategory.Category.NEPTUNE_CLASS,
@@ -171,14 +204,21 @@ func to_dict() -> Dictionary:
 	data["has_atmosphere"] = has_atmosphere
 	data["has_rings"] = has_rings
 	data["ring_complexity"] = ring_complexity
-	return data
+	return _normalize_payload(data)
 
 
 ## Creates a PlanetSpec from a dictionary.
 ## @param data: The dictionary to parse.
 ## @return: A new PlanetSpec instance.
 static func from_dict(data: Dictionary) -> PlanetSpec:
-	var spec: PlanetSpec = PlanetSpec.new(
+	return _from_payload(_normalize_payload(data))
+
+
+## Creates a PlanetSpec from a normalized payload.
+## @param data: The normalized dictionary payload.
+## @return: A new PlanetSpec instance.
+static func _from_payload(data: Dictionary) -> PlanetSpec:
+	return PlanetSpec.new(
 		data.get("generation_seed", 0) as int,
 		data.get("size_category", -1) as int,
 		data.get("orbit_zone", -1) as int,
@@ -188,4 +228,23 @@ static func from_dict(data: Dictionary) -> PlanetSpec:
 		data.get("name_hint", "") as String,
 		data.get("overrides", {}) as Dictionary
 	)
-	return spec
+
+
+## Returns an optional C# bridge instance for spec helpers.
+## @return: A bridge object when the C# bridge is registered, otherwise null.
+static func _instantiate_bridge() -> Object:
+	if not ClassDB.class_exists(PLANET_SPEC_BRIDGE_CLASS):
+		return null
+	return ClassDB.instantiate(PLANET_SPEC_BRIDGE_CLASS)
+
+
+## Normalizes a spec payload through the C# bridge when available.
+## @param data: The payload to normalize.
+## @return: A normalized payload that preserves the current schema.
+static func _normalize_payload(data: Dictionary) -> Dictionary:
+	var bridge: Object = _instantiate_bridge()
+	if bridge != null and bridge.has_method("Normalize"):
+		var payload: Variant = bridge.call("Normalize", data)
+		if payload is Dictionary:
+			return payload as Dictionary
+	return data

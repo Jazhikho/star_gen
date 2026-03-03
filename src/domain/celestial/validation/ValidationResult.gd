@@ -2,6 +2,8 @@
 class_name ValidationResult
 extends RefCounted
 
+const CELESTIAL_VALIDATION_BRIDGE_CLASS: StringName = &"CSharpCelestialValidationBridge"
+
 
 ## List of validation errors found.
 var errors: Array[ValidationError]
@@ -71,3 +73,25 @@ func get_error_count() -> int:
 ## @return: Number of warnings.
 func get_warning_count() -> int:
 	return get_warnings_only().size()
+
+
+## Converts this validation result to a dictionary payload.
+## @return: Dictionary representation.
+func to_dict() -> Dictionary:
+	var serialized_errors: Array = []
+	for error in errors:
+		serialized_errors.append(error.to_dict())
+	return {
+		"errors": serialized_errors,
+	}
+
+
+## Creates a validation result from a dictionary payload.
+## @param data: The dictionary to parse.
+## @return: A new ValidationResult instance.
+static func from_dict(data: Dictionary) -> ValidationResult:
+	var result: ValidationResult = ValidationResult.new()
+	var serialized_errors: Array = data.get("errors", []) as Array
+	for error_data in serialized_errors:
+		result.errors.append(ValidationError.from_dict(error_data as Dictionary))
+	return result

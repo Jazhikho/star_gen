@@ -3,15 +3,6 @@
 class_name RingSystemGenerator
 extends RefCounted
 
-const _ring_system_spec: GDScript = preload("res://src/domain/generation/specs/RingSystemSpec.gd")
-const _ring_complexity: GDScript = preload("res://src/domain/generation/archetypes/RingComplexity.gd")
-const _ring_system_props: GDScript = preload("res://src/domain/celestial/components/RingSystemProps.gd")
-const _ring_band: GDScript = preload("res://src/domain/celestial/components/RingBand.gd")
-const _physical_props: GDScript = preload("res://src/domain/celestial/components/PhysicalProps.gd")
-const _parent_context: GDScript = preload("res://src/domain/generation/ParentContext.gd")
-const _units: GDScript = preload("res://src/domain/math/Units.gd")
-const _seeded_rng: GDScript = preload("res://src/domain/rng/SeededRng.gd")
-
 
 ## Complexity level distribution weights.
 const COMPLEXITY_WEIGHTS: Array[float] = [
@@ -52,6 +43,16 @@ const RESONANCE_FRACTIONS: Array[float] = [
 ## @param rng: Random number generator.
 ## @return: True if rings should be generated.
 static func should_have_rings(
+	planet_physical: PhysicalProps,
+	context: ParentContext,
+	rng: SeededRng
+) -> bool:
+	return _should_have_rings_fallback(planet_physical, context, rng)
+
+
+## Runs the legacy GDScript ring-presence path directly.
+## @return: True if rings should be generated.
+static func _should_have_rings_fallback(
 	planet_physical: PhysicalProps,
 	_context: ParentContext,
 	rng: SeededRng
@@ -95,6 +96,17 @@ static func generate(
 	context: ParentContext,
 	rng: SeededRng
 ) -> RingSystemProps:
+	return _generate_fallback(spec, planet_physical, context, rng)
+
+
+## Runs the legacy GDScript ring-generation path directly.
+## @return: RingSystemProps, or null if generation fails.
+static func _generate_fallback(
+	spec: RingSystemSpec,
+	planet_physical: PhysicalProps,
+	context: ParentContext,
+	rng: SeededRng
+) -> RingSystemProps:
 	# Use default spec if none provided
 	var ring_spec: RingSystemSpec = spec
 	if ring_spec == null:
@@ -133,6 +145,7 @@ static func generate(
 	)
 	
 	return RingSystemProps.new(bands, total_mass_kg, inclination_deg)
+
 
 
 ## Determines the complexity level from spec or random selection.

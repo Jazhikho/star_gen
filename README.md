@@ -2,7 +2,7 @@
 
 A deterministic procedural generator + viewer for celestial objects, solar systems, and galactic structures.
 
-Built with **Godot 4.x** and **GDScript**.
+Built with **Godot 4.x** and a **GDScript + C#** codebase (incremental C# migration in progress).
 
 ## Project Status
 
@@ -12,7 +12,7 @@ Built with **Godot 4.x** and **GDScript**.
 
 **Remaining efforts:** Solar system constraints, system viewer rendering improvements, object editing, rendering v2, galactic refinement, solar system tools, galactic tools, galactic polish, jump lanes optimization and polish, code quality & simplifications.
 
-**Test Status:** 1800+ tests; headless run via `godot --headless --script res://Tests/RunTestsHeadless.gd`.
+**Test Status:** 1800+ tests; headless run via `godot --headless --script res://Tests/RunTestsHeadless.gd`. C# bootstrap build via `dotnet build StarGen.csproj`.
 
 ### Version history
 
@@ -109,6 +109,11 @@ godot --path . res://Tests/TestScene.tscn
 
 ### Building
 This is a Godot project. Open `project.godot` in Godot 4.x editor.
+
+For the current C# bootstrap tranche, you can also build the C# assembly directly:
+```bash
+dotnet build StarGen.csproj
+```
 
 ## License
 

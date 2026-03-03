@@ -2,6 +2,7 @@
 ## Ring systems are composed of multiple bands with gaps between them.
 class_name RingBand
 extends RefCounted
+const RING_PROPS_BRIDGE_CLASS: StringName = &"CSharpRingPropsBridge"
 
 
 ## Inner radius of this band in meters.
@@ -49,12 +50,22 @@ func _init(
 ## Calculates the width of this band in meters.
 ## @return: Band width in meters.
 func get_width_m() -> float:
+	var bridge: Object = null
+	if ClassDB.class_exists(RING_PROPS_BRIDGE_CLASS):
+		bridge = ClassDB.instantiate(RING_PROPS_BRIDGE_CLASS)
+	if bridge != null and bridge.has_method("GetBandWidthM"):
+		return float(bridge.call("GetBandWidthM", inner_radius_m, outer_radius_m))
 	return outer_radius_m - inner_radius_m
 
 
 ## Returns the dominant material in the composition.
 ## @return: Material name with highest fraction, or empty string.
 func get_dominant_material() -> String:
+	var bridge: Object = null
+	if ClassDB.class_exists(RING_PROPS_BRIDGE_CLASS):
+		bridge = ClassDB.instantiate(RING_PROPS_BRIDGE_CLASS)
+	if bridge != null and bridge.has_method("GetBandDominantMaterial"):
+		return String(bridge.call("GetBandDominantMaterial", composition))
 	var max_fraction: float = 0.0
 	var dominant: String = ""
 	for material in composition:
@@ -82,8 +93,7 @@ func to_dict() -> Dictionary:
 ## @param data: The dictionary to parse.
 ## @return: A new RingBand instance.
 static func from_dict(data: Dictionary) -> RingBand:
-	var script_class: GDScript = load("res://src/domain/celestial/components/RingBand.gd") as GDScript
-	return script_class.new(
+	return RingBand.new(
 		data.get("inner_radius_m", 0.0) as float,
 		data.get("outer_radius_m", 0.0) as float,
 		data.get("optical_depth", 0.0) as float,

@@ -2,7 +2,7 @@
 class_name AsteroidSpec
 extends BaseSpec
 
-const _asteroid_type: GDScript = preload("res://src/domain/generation/archetypes/AsteroidType.gd")
+const ASTEROID_SPEC_BRIDGE_CLASS: StringName = &"CSharpAsteroidSpecBridge"
 
 
 ## Compositional type (C, S, M, or -1 for random).
@@ -34,6 +34,11 @@ func _init(
 ## @param seed_value: The generation seed.
 ## @return: A new AsteroidSpec with all random values.
 static func random(seed_value: int) -> AsteroidSpec:
+	var bridge: Object = _instantiate_bridge()
+	if bridge != null and bridge.has_method("Random"):
+		var payload: Variant = bridge.call("Random", seed_value)
+		if payload is Dictionary:
+			return _from_payload(payload as Dictionary)
 	return AsteroidSpec.new(seed_value)
 
 
@@ -41,6 +46,11 @@ static func random(seed_value: int) -> AsteroidSpec:
 ## @param seed_value: The generation seed.
 ## @return: A new AsteroidSpec configured for C-type.
 static func carbonaceous(seed_value: int) -> AsteroidSpec:
+	var bridge: Object = _instantiate_bridge()
+	if bridge != null and bridge.has_method("Carbonaceous"):
+		var payload: Variant = bridge.call("Carbonaceous", seed_value)
+		if payload is Dictionary:
+			return _from_payload(payload as Dictionary)
 	return AsteroidSpec.new(
 		seed_value,
 		AsteroidType.Type.C_TYPE,
@@ -52,6 +62,11 @@ static func carbonaceous(seed_value: int) -> AsteroidSpec:
 ## @param seed_value: The generation seed.
 ## @return: A new AsteroidSpec configured for M-type.
 static func metallic(seed_value: int) -> AsteroidSpec:
+	var bridge: Object = _instantiate_bridge()
+	if bridge != null and bridge.has_method("Metallic"):
+		var payload: Variant = bridge.call("Metallic", seed_value)
+		if payload is Dictionary:
+			return _from_payload(payload as Dictionary)
 	return AsteroidSpec.new(
 		seed_value,
 		AsteroidType.Type.M_TYPE,
@@ -63,6 +78,11 @@ static func metallic(seed_value: int) -> AsteroidSpec:
 ## @param seed_value: The generation seed.
 ## @return: A new AsteroidSpec configured for S-type.
 static func stony(seed_value: int) -> AsteroidSpec:
+	var bridge: Object = _instantiate_bridge()
+	if bridge != null and bridge.has_method("Stony"):
+		var payload: Variant = bridge.call("Stony", seed_value)
+		if payload is Dictionary:
+			return _from_payload(payload as Dictionary)
 	return AsteroidSpec.new(
 		seed_value,
 		AsteroidType.Type.S_TYPE,
@@ -74,6 +94,11 @@ static func stony(seed_value: int) -> AsteroidSpec:
 ## @param seed_value: The generation seed.
 ## @return: A new AsteroidSpec configured for large body.
 static func ceres_like(seed_value: int) -> AsteroidSpec:
+	var bridge: Object = _instantiate_bridge()
+	if bridge != null and bridge.has_method("CeresLike"):
+		var payload: Variant = bridge.call("CeresLike", seed_value)
+		if payload is Dictionary:
+			return _from_payload(payload as Dictionary)
 	return AsteroidSpec.new(
 		seed_value,
 		AsteroidType.Type.C_TYPE,
@@ -94,18 +119,44 @@ func to_dict() -> Dictionary:
 	data["spec_type"] = "asteroid"
 	data["asteroid_type"] = asteroid_type
 	data["is_large"] = is_large
-	return data
+	return _normalize_payload(data)
 
 
 ## Creates an AsteroidSpec from a dictionary.
 ## @param data: The dictionary to parse.
 ## @return: A new AsteroidSpec instance.
 static func from_dict(data: Dictionary) -> AsteroidSpec:
-	var spec: AsteroidSpec = AsteroidSpec.new(
+	return _from_payload(_normalize_payload(data))
+
+
+## Creates an AsteroidSpec from a normalized payload.
+## @param data: The normalized dictionary payload.
+## @return: A new AsteroidSpec instance.
+static func _from_payload(data: Dictionary) -> AsteroidSpec:
+	return AsteroidSpec.new(
 		data.get("generation_seed", 0) as int,
 		data.get("asteroid_type", -1) as int,
 		data.get("is_large", false) as bool,
 		data.get("name_hint", "") as String,
 		data.get("overrides", {}) as Dictionary
 	)
-	return spec
+
+
+## Returns an optional C# bridge instance for spec helpers.
+## @return: A bridge object when the C# bridge is registered, otherwise null.
+static func _instantiate_bridge() -> Object:
+	if not ClassDB.class_exists(ASTEROID_SPEC_BRIDGE_CLASS):
+		return null
+	return ClassDB.instantiate(ASTEROID_SPEC_BRIDGE_CLASS)
+
+
+## Normalizes a spec payload through the C# bridge when available.
+## @param data: The payload to normalize.
+## @return: A normalized payload that preserves the current schema.
+static func _normalize_payload(data: Dictionary) -> Dictionary:
+	var bridge: Object = _instantiate_bridge()
+	if bridge != null and bridge.has_method("Normalize"):
+		var payload: Variant = bridge.call("Normalize", data)
+		if payload is Dictionary:
+			return payload as Dictionary
+	return data

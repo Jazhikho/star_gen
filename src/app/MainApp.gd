@@ -8,15 +8,16 @@ const _star_system_preview: GDScript = preload("res://src/domain/galaxy/StarSyst
 ## Ensures GalaxySaveData/GalaxyPersistence/GalaxyConfig are in scope.
 const _galaxy_viewer_deps: GDScript = preload("res://src/app/galaxy_viewer/GalaxyViewerDeps.gd")
 const _GalaxyConfigRef: GDScript = preload("res://src/domain/galaxy/GalaxyConfig.gd")
-const _galaxy_viewer_scene: PackedScene = preload("res://src/app/galaxy_viewer/GalaxyViewer.tscn")
+const _galaxy_viewer_csharp_scene_path: String = "res://src/app/galaxy_viewer/GalaxyViewerCSharp.tscn"
 const _welcome_screen_scene: PackedScene = preload("res://src/app/WelcomeScreen.tscn")
-const _object_viewer_scene: PackedScene = preload("res://src/app/viewer/ObjectViewer.tscn")
-const _system_viewer_scene: PackedScene = preload("res://src/app/system_viewer/SystemViewer.tscn")
+const _object_viewer_csharp_scene_path: String = "res://src/app/viewer/ObjectViewerCSharp.tscn"
+const _system_viewer_csharp_scene_path: String = "res://src/app/system_viewer/SystemViewerCSharp.tscn"
 const _SeededRngClass: GDScript = preload("res://src/domain/rng/SeededRng.gd")
 const _system_cache_script: GDScript = preload("res://src/domain/system/SystemCache.gd")
 const _system_fixture_generator: GDScript = preload("res://src/domain/system/fixtures/SystemFixtureGenerator.gd")
 const _solar_system_spec: GDScript = preload("res://src/domain/system/SolarSystemSpec.gd")
 const _galaxy_body_overrides: GDScript = preload("res://src/domain/galaxy/GalaxyBodyOverrides.gd")
+const _celestial_serializer: GDScript = preload("res://src/domain/celestial/serialization/CelestialSerializer.gd")
 
 ## Currently active viewer ("galaxy", "system", or "object").
 var _active_viewer: String = ""
@@ -25,13 +26,13 @@ var _active_viewer: String = ""
 var _welcome_screen: Control = null
 
 ## The galaxy viewer instance (created after Start New or Load).
-var _galaxy_viewer: GalaxyViewer = null
+var _galaxy_viewer: Node = null
 
 ## The system viewer instance.
-var _system_viewer: SystemViewer = null
+var _system_viewer: Node = null
 
 ## The object viewer instance.
-var _object_viewer: ObjectViewer = null
+var _object_viewer: Node = null
 
 ## Session cache for generated systems.
 var _system_cache: SystemCache = null
@@ -103,15 +104,33 @@ func _create_galaxy_viewer(seed_value: int, config: GalaxyConfig = null) -> void
 	_galaxy_seed = seed_value
 	# Fresh galaxy -> fresh override set. Load path restores overrides after this.
 	_body_overrides = _galaxy_body_overrides.new()
-	_galaxy_viewer = _galaxy_viewer_scene.instantiate() as GalaxyViewer
-	_galaxy_viewer.name = "GalaxyViewer"
-	_galaxy_viewer.galaxy_seed = _galaxy_seed
-	if config != null:
-		_galaxy_viewer.set_galaxy_config(config)
+	var galaxy_viewer_scene: PackedScene = _load_galaxy_viewer_scene()
+	if galaxy_viewer_scene == null:
+		push_error("MainApp: failed to load a galaxy viewer scene")
+		return
 
-	_galaxy_viewer.open_system_requested.connect(_on_open_system_requested)
-	_galaxy_viewer.galaxy_seed_changed.connect(set_galaxy_seed)
-	_galaxy_viewer.new_galaxy_requested.connect(_on_new_galaxy_requested)
+	_galaxy_viewer = galaxy_viewer_scene.instantiate() as Node
+	if _galaxy_viewer == null:
+		push_error("MainApp: failed to instantiate a galaxy viewer")
+		return
+
+	_galaxy_viewer.name = "GalaxyViewer"
+	_galaxy_viewer.set("galaxy_seed", _galaxy_seed)
+	if config != null and _galaxy_viewer.has_method("set_galaxy_config"):
+		_galaxy_viewer.call("set_galaxy_config", config)
+
+	if _galaxy_viewer.has_signal("OpenSystemRequested"):
+		_galaxy_viewer.connect("OpenSystemRequested", _on_open_system_requested)
+	if _galaxy_viewer.has_signal("GalaxySeedChanged"):
+		_galaxy_viewer.connect("GalaxySeedChanged", set_galaxy_seed)
+	if _galaxy_viewer.has_signal("NewGalaxyRequested"):
+		_galaxy_viewer.connect("NewGalaxyRequested", _on_new_galaxy_requested)
+
+
+## Loads the active galaxy viewer scene.
+## @return: PackedScene for the current runtime, or null on failure.
+func _load_galaxy_viewer_scene() -> PackedScene:
+	return load(_galaxy_viewer_csharp_scene_path) as PackedScene
 
 
 ## Shows the welcome screen (hides galaxy viewer if present).
@@ -161,7 +180,8 @@ func _on_welcome_load_file_selected(path: String) -> void:
 	_create_galaxy_viewer(_galaxy_seed, config)
 	# Restore body overrides from save (create_galaxy_viewer set a fresh empty set).
 	_body_overrides = data.get_body_overrides()
-	_galaxy_viewer.apply_save_data(data)
+	if _galaxy_viewer != null and _galaxy_viewer.has_method("apply_save_data"):
+		_galaxy_viewer.call("apply_save_data", data)
 	if _welcome_screen and _welcome_screen.is_inside_tree():
 		viewer_container.remove_child(_welcome_screen)
 	viewer_container.add_child(_galaxy_viewer)
@@ -200,12 +220,25 @@ func _create_system_viewer() -> void:
 	if _system_viewer != null:
 		return
 
-	_system_viewer = _system_viewer_scene.instantiate() as SystemViewer
+	var system_viewer_scene: PackedScene = _load_system_viewer_scene()
+	if system_viewer_scene == null:
+		push_error("MainApp: failed to load a system viewer scene")
+		return
+
+	_system_viewer = system_viewer_scene.instantiate() as Node
 	_system_viewer.name = "SystemViewer"
 
 	# Connect navigation signals
-	_system_viewer.open_body_in_viewer.connect(_on_open_in_object_viewer)
-	_system_viewer.back_to_galaxy_requested.connect(_on_back_to_galaxy)
+	if _system_viewer.has_signal("OpenBodyInViewer"):
+		_system_viewer.connect("OpenBodyInViewer", _on_open_in_object_viewer)
+	if _system_viewer.has_signal("BackToGalaxyRequested"):
+		_system_viewer.connect("BackToGalaxyRequested", _on_back_to_galaxy)
+
+
+## Loads the active system viewer scene.
+## @return: PackedScene for the current runtime, or null on failure.
+func _load_system_viewer_scene() -> PackedScene:
+	return load(_system_viewer_csharp_scene_path) as PackedScene
 
 
 ## Creates the object viewer instance (lazy).
@@ -213,12 +246,25 @@ func _create_object_viewer() -> void:
 	if _object_viewer != null:
 		return
 
-	_object_viewer = _object_viewer_scene.instantiate() as ObjectViewer
+	var object_viewer_scene: PackedScene = _load_object_viewer_scene()
+	if object_viewer_scene == null:
+		push_error("MainApp: failed to load an object viewer scene")
+		return
+
+	_object_viewer = object_viewer_scene.instantiate() as Node
 	_object_viewer.name = "ObjectViewer"
 
 	# Connect back navigation and edit signals
-	_object_viewer.back_to_system_requested.connect(_on_back_to_system)
-	_object_viewer.body_edited.connect(_on_body_edited)
+	if _object_viewer.has_signal("BackToSystemRequested"):
+		_object_viewer.connect("BackToSystemRequested", _on_back_to_system)
+	if _object_viewer.has_signal("BodyEdited"):
+		_object_viewer.connect("BodyEdited", _on_body_edited)
+
+
+## Loads the active object viewer scene.
+## @return: PackedScene for the current runtime, or null on failure.
+func _load_object_viewer_scene() -> PackedScene:
+	return load(_object_viewer_csharp_scene_path) as PackedScene
 
 
 ## Shows the galaxy viewer and removes other viewers from tree.
@@ -295,19 +341,21 @@ func _on_open_system_requested(star_seed: int, world_position: Vector3) -> void:
 	_current_star_position = world_position
 
 	# Save galaxy viewer state before transitioning
-	if _galaxy_viewer:
-		_galaxy_viewer.save_state()
+	if _galaxy_viewer and _galaxy_viewer.has_method("save_state"):
+		_galaxy_viewer.call("save_state")
 
 	# Check whether the galaxy viewer already generated the system as part of
 	# the click preview. If so, reuse it to avoid a second generation pass.
 	var system: SolarSystem = null
-	var preview: StarSystemPreview.PreviewData = null
-	if _galaxy_viewer:
-		preview = _galaxy_viewer.get_star_preview()
+	var preview: Variant = null
+	if _galaxy_viewer and _galaxy_viewer.has_method("get_star_preview"):
+		preview = _galaxy_viewer.call("get_star_preview")
 
-	if preview != null and preview.star_seed == star_seed and preview.system != null:
+	var preview_star_seed: int = _extract_preview_star_seed(preview)
+	var preview_system: SolarSystem = _extract_preview_system(preview)
+	if preview_system != null and preview_star_seed == star_seed:
 		# Reuse the preview's cached system (avoids redundant generation).
-		system = preview.system
+		system = preview_system
 		_apply_overrides_to_system(system, star_seed)
 		_system_cache.put_system(star_seed, system)
 	else:
@@ -326,9 +374,9 @@ func _on_open_system_requested(star_seed: int, world_position: Vector3) -> void:
 		return
 
 	_show_system_viewer()
-	_system_viewer.set_source_star_seed(star_seed)
-	_system_viewer.display_system(system)
-	_system_viewer.set_status("System from star seed %d" % star_seed)
+	_system_viewer.call("set_source_star_seed", star_seed)
+	_system_viewer.call("display_system", system)
+	_system_viewer.call("set_status", "System from star seed %d" % star_seed)
 
 
 ## Generates a solar system from a star seed.
@@ -400,22 +448,53 @@ func _on_body_edited(body: CelestialBody, star_seed: int) -> void:
 
 	# Patch the live system if the system viewer is still showing this star.
 	if _system_viewer != null and _current_star_seed == star_seed:
-		var sys: SolarSystem = _system_viewer.get_current_system()
+		var sys: SolarSystem = _system_viewer.call("get_current_system") as SolarSystem
 		if sys != null:
 			sys.add_body(body)
-			_system_viewer.display_system(sys)
+			_system_viewer.call("display_system", sys)
 
 
 ## Handles request to open a body in the object viewer.
-## @param body: The celestial body to display.
-## @param moons: Associated moons from the system (may be empty).
+## @param body: The celestial body object to display.
+## @param moons: Associated moon objects from the system (may be empty).
 ## @param star_seed: Seed of the star system (for overrides); 0 if unknown.
-func _on_open_in_object_viewer(body: CelestialBody, moons: Array[CelestialBody] = [], star_seed: int = 0) -> void:
-	if body == null:
+func _on_open_in_object_viewer(body: Variant, moons: Array = [], star_seed: int = 0) -> void:
+	var typed_body: CelestialBody = _coerce_to_celestial_body(body)
+	if typed_body == null:
+		push_error("MainApp: unable to convert body payload for object viewer")
 		return
 
+	var typed_moons: Array[CelestialBody] = []
+	for moon_value in moons:
+		var typed_moon: CelestialBody = _coerce_to_celestial_body(moon_value)
+		if typed_moon != null:
+			typed_moons.append(typed_moon)
+
 	_show_object_viewer()
-	_object_viewer.display_external_body(body, moons, star_seed)
+	if _object_viewer == null:
+		push_error("MainApp: object viewer could not be created")
+		return
+	_object_viewer.call("display_external_body", typed_body, typed_moons, star_seed)
+
+
+## Coerces a runtime payload into a CelestialBody for mixed C#/GDScript handoff.
+## @param value: Variant payload from a signal or method.
+## @return: CelestialBody instance or null if the payload cannot be converted.
+func _coerce_to_celestial_body(value: Variant) -> CelestialBody:
+	if value == null:
+		return null
+
+	var typed_body: CelestialBody = value as CelestialBody
+	if typed_body != null:
+		return typed_body
+
+	var object_value: Object = value as Object
+	if object_value != null and object_value.has_method("to_dict"):
+		var data: Variant = object_value.call("to_dict")
+		if data is Dictionary:
+			return _celestial_serializer.from_dict(data as Dictionary)
+
+	return null
 
 
 ## Handles request to go back to the system viewer from object viewer.
@@ -428,8 +507,48 @@ func _on_back_to_galaxy() -> void:
 	_show_galaxy_viewer()
 
 	# Restore galaxy viewer state
-	if _galaxy_viewer and _galaxy_viewer.has_saved_state():
-		_galaxy_viewer.restore_state()
+	if _galaxy_viewer and _galaxy_viewer.has_method("has_saved_state") and _galaxy_viewer.call("has_saved_state"):
+		_galaxy_viewer.call("restore_state")
+
+
+## Extracts the preview star seed from either the GDScript or C# preview object.
+## @param preview: Preview object or null.
+## @return: Preview star seed, or 0 when unavailable.
+func _extract_preview_star_seed(preview: Variant) -> int:
+	var preview_object: Object = preview as Object
+	if preview_object == null:
+		return 0
+
+	var value: Variant = _get_mixed_object_property(preview_object, "star_seed", "StarSeed")
+	if value is int:
+		return value as int
+	if value is float:
+		return int(value)
+	return 0
+
+
+## Extracts the cached preview system from either the GDScript or C# preview object.
+## @param preview: Preview object or null.
+## @return: Cached SolarSystem, or null when unavailable.
+func _extract_preview_system(preview: Variant) -> SolarSystem:
+	var preview_object: Object = preview as Object
+	if preview_object == null:
+		return null
+
+	var value: Variant = _get_mixed_object_property(preview_object, "system", "System")
+	return value as SolarSystem
+
+
+## Reads a snake_case or PascalCase property from a mixed GDScript/C# object.
+## @param object_value: Runtime object instance.
+## @param snake_name: GDScript property name.
+## @param pascal_name: C# property name.
+## @return: Property value, or null when neither property resolves.
+func _get_mixed_object_property(object_value: Object, snake_name: String, pascal_name: String) -> Variant:
+	var snake_value: Variant = object_value.get(snake_name)
+	if snake_value != null:
+		return snake_value
+	return object_value.get(pascal_name)
 
 
 ## Updates the galaxy seed (called when a saved galaxy is loaded).
@@ -487,12 +606,12 @@ func start_galaxy_with_defaults() -> void:
 
 
 ## Returns the galaxy viewer instance (for testing).
-## @return: GalaxyViewer instance.
-func get_galaxy_viewer() -> GalaxyViewer:
+## @return: GalaxyViewer node instance.
+func get_galaxy_viewer() -> Node:
 	return _galaxy_viewer
 
 
 ## Returns the system viewer instance (for testing).
-## @return: SystemViewer instance or null.
-func get_system_viewer() -> SystemViewer:
+## @return: SystemViewer node instance or null.
+func get_system_viewer() -> Node:
 	return _system_viewer

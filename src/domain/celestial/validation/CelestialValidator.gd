@@ -8,6 +8,14 @@ extends RefCounted
 ## @param body: The celestial body to validate.
 ## @return: ValidationResult containing any errors/warnings.
 static func validate(body: CelestialBody) -> ValidationResult:
+	var bridge: Object = null
+	if ClassDB.class_exists(ValidationResult.CELESTIAL_VALIDATION_BRIDGE_CLASS):
+		bridge = ClassDB.instantiate(ValidationResult.CELESTIAL_VALIDATION_BRIDGE_CLASS)
+	if bridge != null and bridge.has_method("ValidateBodyData"):
+		var payload: Variant = bridge.call("ValidateBodyData", CelestialSerializer.to_dict(body))
+		if payload is Dictionary:
+			return ValidationResult.from_dict(payload as Dictionary)
+
 	var result: ValidationResult = ValidationResult.new()
 	
 	_validate_identity(body, result)

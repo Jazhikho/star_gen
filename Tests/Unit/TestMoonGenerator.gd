@@ -382,3 +382,4 @@ func test_different_seeds_produce_different_moons() -> void:
 	# Mass might be the same by chance, so just check they're valid
 	assert_true(moon1.physical.mass_kg > 0.0, "Moon 1 should have positive mass")
 	assert_true(moon2.physical.mass_kg > 0.0, "Moon 2 should have positive mass")
+

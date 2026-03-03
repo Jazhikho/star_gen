@@ -2,6 +2,7 @@
 ## Contains common fields shared by all body type specs.
 class_name BaseSpec
 extends RefCounted
+const BASE_SPEC_BRIDGE_CLASS: StringName = &"CSharpBaseSpecBridge"
 
 
 ## The seed used for deterministic generation.
@@ -33,6 +34,11 @@ func _init(
 ## @param field_path: The field path to check.
 ## @return: True if the field is overridden.
 func has_override(field_path: String) -> bool:
+	var bridge: Object = null
+	if ClassDB.class_exists(BASE_SPEC_BRIDGE_CLASS):
+		bridge = ClassDB.instantiate(BASE_SPEC_BRIDGE_CLASS)
+	if bridge != null and bridge.has_method("HasOverride"):
+		return bool(bridge.call("HasOverride", overrides, field_path))
 	return overrides.has(field_path)
 
 
@@ -41,6 +47,11 @@ func has_override(field_path: String) -> bool:
 ## @param default_value: Value to return if not overridden.
 ## @return: The override value or default.
 func get_override(field_path: String, default_value: Variant) -> Variant:
+	var bridge: Object = null
+	if ClassDB.class_exists(BASE_SPEC_BRIDGE_CLASS):
+		bridge = ClassDB.instantiate(BASE_SPEC_BRIDGE_CLASS)
+	if bridge != null and bridge.has_method("GetOverride"):
+		return bridge.call("GetOverride", overrides, field_path, default_value)
 	if overrides.has(field_path):
 		return overrides[field_path]
 	return default_value
@@ -51,6 +62,11 @@ func get_override(field_path: String, default_value: Variant) -> Variant:
 ## @param default_value: Value to return if not overridden.
 ## @return: The override value as float or default.
 func get_override_float(field_path: String, default_value: float) -> float:
+	var bridge: Object = null
+	if ClassDB.class_exists(BASE_SPEC_BRIDGE_CLASS):
+		bridge = ClassDB.instantiate(BASE_SPEC_BRIDGE_CLASS)
+	if bridge != null and bridge.has_method("GetOverrideFloat"):
+		return float(bridge.call("GetOverrideFloat", overrides, field_path, default_value))
 	if overrides.has(field_path):
 		return overrides[field_path] as float
 	return default_value
@@ -61,6 +77,11 @@ func get_override_float(field_path: String, default_value: float) -> float:
 ## @param default_value: Value to return if not overridden.
 ## @return: The override value as int or default.
 func get_override_int(field_path: String, default_value: int) -> int:
+	var bridge: Object = null
+	if ClassDB.class_exists(BASE_SPEC_BRIDGE_CLASS):
+		bridge = ClassDB.instantiate(BASE_SPEC_BRIDGE_CLASS)
+	if bridge != null and bridge.has_method("GetOverrideInt"):
+		return int(bridge.call("GetOverrideInt", overrides, field_path, default_value))
 	if overrides.has(field_path):
 		return overrides[field_path] as int
 	return default_value

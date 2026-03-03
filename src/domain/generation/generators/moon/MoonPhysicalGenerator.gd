@@ -3,15 +3,6 @@
 class_name MoonPhysicalGenerator
 extends RefCounted
 
-const _moon_spec: GDScript = preload("res://src/domain/generation/specs/MoonSpec.gd")
-const _size_category: GDScript = preload("res://src/domain/generation/archetypes/SizeCategory.gd")
-const _size_table: GDScript = preload("res://src/domain/generation/tables/SizeTable.gd")
-const _physical_props: GDScript = preload("res://src/domain/celestial/components/PhysicalProps.gd")
-const _orbital_props: GDScript = preload("res://src/domain/celestial/components/OrbitalProps.gd")
-const _parent_context: GDScript = preload("res://src/domain/generation/ParentContext.gd")
-const _units: GDScript = preload("res://src/domain/math/Units.gd")
-const _seeded_rng: GDScript = preload("res://src/domain/rng/SeededRng.gd")
-
 
 ## Generates physical properties for a moon.
 ## @param spec: The moon specification.
@@ -21,6 +12,18 @@ const _seeded_rng: GDScript = preload("res://src/domain/rng/SeededRng.gd")
 ## @param rng: The random number generator.
 ## @return: PhysicalProps for the moon.
 static func generate_physical_props(
+	spec: MoonSpec,
+	context: ParentContext,
+	size_cat: SizeCategory.Category,
+	orbital: OrbitalProps,
+	rng: SeededRng
+) -> PhysicalProps:
+	return _generate_physical_props_fallback(spec, context, size_cat, orbital, rng)
+
+
+## Runs the legacy GDScript physical-property generation path directly.
+## @return: PhysicalProps for the moon.
+static func _generate_physical_props_fallback(
 	spec: MoonSpec,
 	context: ParentContext,
 	size_cat: SizeCategory.Category,
@@ -123,6 +126,16 @@ static func calculate_tidal_heating(
 	orbital: OrbitalProps,
 	context: ParentContext
 ) -> float:
+	return _calculate_tidal_heating_fallback(physical, orbital, context)
+
+
+## Runs the legacy GDScript tidal-heating path directly.
+## @return: Tidal heating in watts.
+static func _calculate_tidal_heating_fallback(
+	physical: PhysicalProps,
+	orbital: OrbitalProps,
+	context: ParentContext
+) -> float:
 	# Tidal heating depends on eccentricity and orbital distance
 	# Io: ~1e14 W with e~0.004 at 421,800 km from Jupiter
 	
@@ -155,6 +168,7 @@ static func calculate_tidal_heating(
 	
 	# Cap at reasonable maximum
 	return minf(tidal_heat, 1.0e16)
+
 
 
 ## Checks if the moon would be tidally locked to its parent.

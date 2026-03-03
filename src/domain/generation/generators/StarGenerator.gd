@@ -3,20 +3,6 @@
 class_name StarGenerator
 extends RefCounted
 
-const _star_spec: GDScript = preload("res://src/domain/generation/specs/StarSpec.gd")
-const _star_class: GDScript = preload("res://src/domain/generation/archetypes/StarClass.gd")
-const _star_table: GDScript = preload("res://src/domain/generation/tables/StarTable.gd")
-const _generator_utils_script: GDScript = preload("res://src/domain/generation/generators/GeneratorUtils.gd")
-const _celestial_body: GDScript = preload("res://src/domain/celestial/CelestialBody.gd")
-const _celestial_type: GDScript = preload("res://src/domain/celestial/CelestialType.gd")
-const _physical_props: GDScript = preload("res://src/domain/celestial/components/PhysicalProps.gd")
-const _stellar_props: GDScript = preload("res://src/domain/celestial/components/StellarProps.gd")
-const _provenance: GDScript = preload("res://src/domain/celestial/Provenance.gd")
-const _versions: GDScript = preload("res://src/domain/constants/Versions.gd")
-const _units: GDScript = preload("res://src/domain/math/Units.gd")
-const _seeded_rng: GDScript = preload("res://src/domain/rng/SeededRng.gd")
-
-
 ## Spectral class distribution weights (M stars are most common).
 const SPECTRAL_WEIGHTS: Array[float] = [
 	0.00003, # O - very rare
@@ -34,6 +20,12 @@ const SPECTRAL_WEIGHTS: Array[float] = [
 ## @param rng: The random number generator (will be advanced).
 ## @return: A new CelestialBody configured as a star.
 static func generate(spec: StarSpec, rng: SeededRng) -> CelestialBody:
+	return _generate_fallback(spec, rng)
+
+
+## Runs the legacy GDScript star-generation path directly.
+## @return: A new CelestialBody configured as a star.
+static func _generate_fallback(spec: StarSpec, rng: SeededRng) -> CelestialBody:
 	# Determine spectral class
 	var spectral_class: StarClass.SpectralClass = _determine_spectral_class(spec, rng)
 	
@@ -334,7 +326,7 @@ static func _generate_id(spec: StarSpec, rng: SeededRng) -> String:
 	var override_id: Variant = spec.get_override("id", null)
 	if override_id != null and override_id is String and not (override_id as String).is_empty():
 		return override_id as String
-	return _generator_utils_script.generate_id("star", rng)
+	return GeneratorUtils.generate_id("star", rng)
 
 
 ## Generates a name for the star.

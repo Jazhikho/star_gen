@@ -3,14 +3,6 @@
 class_name MoonAtmosphereGenerator
 extends RefCounted
 
-const _moon_spec: GDScript = preload("res://src/domain/generation/specs/MoonSpec.gd")
-const _size_category: GDScript = preload("res://src/domain/generation/archetypes/SizeCategory.gd")
-const _physical_props: GDScript = preload("res://src/domain/celestial/components/PhysicalProps.gd")
-const _atmosphere_props: GDScript = preload("res://src/domain/celestial/components/AtmosphereProps.gd")
-const _parent_context: GDScript = preload("res://src/domain/generation/ParentContext.gd")
-const _atmosphere_utils: GDScript = preload("res://src/domain/generation/utils/AtmosphereUtils.gd")
-const _seeded_rng: GDScript = preload("res://src/domain/rng/SeededRng.gd")
-
 ## Boltzmann constant in J/K.
 const BOLTZMANN_K: float = 1.380649e-23
 
@@ -26,6 +18,18 @@ const NITROGEN_MASS_KG: float = 4.6518e-26
 ## @param rng: Random number generator.
 ## @return: AtmosphereProps or null.
 static func generate_atmosphere(
+	spec: MoonSpec,
+	physical: PhysicalProps,
+	size_cat: SizeCategory.Category,
+	equilibrium_temp_k: float,
+	rng: SeededRng
+) -> AtmosphereProps:
+	return _generate_atmosphere_fallback(spec, physical, size_cat, equilibrium_temp_k, rng)
+
+
+## Runs the legacy GDScript atmosphere-generation path directly.
+## @return: AtmosphereProps or null.
+static func _generate_atmosphere_fallback(
 	spec: MoonSpec,
 	physical: PhysicalProps,
 	size_cat: SizeCategory.Category,
@@ -74,7 +78,7 @@ static func generate_atmosphere(
 			composition[gas] = (composition[gas] as float) / total
 	
 	# Scale height
-	var avg_molecular_mass: float = _atmosphere_utils.get_average_molecular_mass(composition)
+	var avg_molecular_mass: float = AtmosphereUtils.get_average_molecular_mass(composition)
 	var gravity: float = physical.get_surface_gravity_m_s2()
 	var scale_height_m: float = 0.0
 	if gravity > 0.0 and avg_molecular_mass > 0.0:
@@ -99,6 +103,18 @@ static func generate_atmosphere(
 ## @param rng: Random number generator.
 ## @return: True if atmosphere should be generated.
 static func should_have_atmosphere(
+	spec: MoonSpec,
+	physical: PhysicalProps,
+	size_cat: SizeCategory.Category,
+	context: ParentContext,
+	rng: SeededRng
+) -> bool:
+	return _should_have_atmosphere_fallback(spec, physical, size_cat, context, rng)
+
+
+## Runs the legacy GDScript atmosphere-presence path directly.
+## @return: True if atmosphere should be generated.
+static func _should_have_atmosphere_fallback(
 	spec: MoonSpec,
 	physical: PhysicalProps,
 	size_cat: SizeCategory.Category,

@@ -3,6 +3,8 @@
 class_name CelestialType
 extends RefCounted
 
+const CELESTIAL_TYPE_BRIDGE_CLASS: StringName = &"CSharpCelestialTypeBridge"
+
 
 ## The type of celestial body.
 enum Type {
@@ -17,6 +19,11 @@ enum Type {
 ## @param type: The type enum value.
 ## @return: Human-readable type name.
 static func type_to_string(type: Type) -> String:
+	var bridge: Object = null
+	if ClassDB.class_exists(CELESTIAL_TYPE_BRIDGE_CLASS):
+		bridge = ClassDB.instantiate(CELESTIAL_TYPE_BRIDGE_CLASS)
+	if bridge != null and bridge.has_method("TypeToString"):
+		return String(bridge.call("TypeToString", int(type)))
 	match type:
 		Type.STAR:
 			return "Star"
@@ -34,6 +41,11 @@ static func type_to_string(type: Type) -> String:
 ## @param type_str: The string to parse.
 ## @return: The corresponding type, or -1 if invalid.
 static func string_to_type(type_str: String) -> int:
+	var bridge: Object = null
+	if ClassDB.class_exists(CELESTIAL_TYPE_BRIDGE_CLASS):
+		bridge = ClassDB.instantiate(CELESTIAL_TYPE_BRIDGE_CLASS)
+	if bridge != null and bridge.has_method("StringToType"):
+		return int(bridge.call("StringToType", type_str))
 	match type_str.to_lower():
 		"star":
 			return Type.STAR

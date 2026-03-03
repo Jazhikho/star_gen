@@ -305,3 +305,4 @@ func test_different_seeds_produce_different_rings() -> void:
 		rings1.get_inner_radius_m() != rings2.get_inner_radius_m()
 	)
 	assert_true(differ, "Different seeds should produce different rings")
+

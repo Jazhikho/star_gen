@@ -39,3 +39,24 @@ func _init(
 func format_error() -> String:
 	var severity_str: String = "ERROR" if severity == Severity.ERROR else "WARNING"
 	return "[%s] %s: %s" % [severity_str, field, message]
+
+
+## Converts this validation error to a dictionary payload.
+## @return: Dictionary representation.
+func to_dict() -> Dictionary:
+	return {
+		"field": field,
+		"message": message,
+		"severity": int(severity),
+	}
+
+
+## Creates a validation error from a dictionary payload.
+## @param data: The dictionary to parse.
+## @return: A new ValidationError instance.
+static func from_dict(data: Dictionary) -> ValidationError:
+	return ValidationError.new(
+		data.get("field", "") as String,
+		data.get("message", "") as String,
+		int(data.get("severity", Severity.ERROR)) as Severity
+	)

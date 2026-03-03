@@ -2,6 +2,7 @@
 ## Covers polar caps, permafrost, and subsurface ice.
 class_name CryosphereProps
 extends RefCounted
+const CRYOSPHERE_PROPS_BRIDGE_CLASS: StringName = &"CSharpCryospherePropsBridge"
 
 
 ## Fraction of surface covered by polar ice caps (0-1).
@@ -49,12 +50,22 @@ func _init(
 ## Returns whether the body has significant ice features.
 ## @return: True if polar caps or permafrost present.
 func has_significant_ice() -> bool:
+	var bridge: Object = null
+	if ClassDB.class_exists(CRYOSPHERE_PROPS_BRIDGE_CLASS):
+		bridge = ClassDB.instantiate(CRYOSPHERE_PROPS_BRIDGE_CLASS)
+	if bridge != null and bridge.has_method("HasSignificantIce"):
+		return bool(bridge.call("HasSignificantIce", polar_cap_coverage, permafrost_depth_m))
 	return polar_cap_coverage > 0.1 or permafrost_depth_m > 0.0
 
 
 ## Returns whether cryovolcanism is active.
 ## @return: True if cryovolcanism level is significant.
 func is_cryovolcanically_active() -> bool:
+	var bridge: Object = null
+	if ClassDB.class_exists(CRYOSPHERE_PROPS_BRIDGE_CLASS):
+		bridge = ClassDB.instantiate(CRYOSPHERE_PROPS_BRIDGE_CLASS)
+	if bridge != null and bridge.has_method("IsCryovolcanicallyActive"):
+		return bool(bridge.call("IsCryovolcanicallyActive", cryovolcanism_level))
 	return cryovolcanism_level > 0.1
 
 
@@ -75,8 +86,7 @@ func to_dict() -> Dictionary:
 ## @param data: The dictionary to parse.
 ## @return: A new CryosphereProps instance.
 static func from_dict(data: Dictionary) -> CryosphereProps:
-	var script_class: GDScript = load("res://src/domain/celestial/components/CryosphereProps.gd") as GDScript
-	return script_class.new(
+	return CryosphereProps.new(
 		data.get("polar_cap_coverage", 0.0) as float,
 		data.get("permafrost_depth_m", 0.0) as float,
 		data.get("has_subsurface_ocean", false) as bool,

@@ -3,15 +3,6 @@
 class_name MoonSurfaceGenerator
 extends RefCounted
 
-const _moon_spec: GDScript = preload("res://src/domain/generation/specs/MoonSpec.gd")
-const _size_category: GDScript = preload("res://src/domain/generation/archetypes/SizeCategory.gd")
-const _physical_props: GDScript = preload("res://src/domain/celestial/components/PhysicalProps.gd")
-const _surface_props: GDScript = preload("res://src/domain/celestial/components/SurfaceProps.gd")
-const _terrain_props: GDScript = preload("res://src/domain/celestial/components/TerrainProps.gd")
-const _cryosphere_props: GDScript = preload("res://src/domain/celestial/components/CryosphereProps.gd")
-const _parent_context: GDScript = preload("res://src/domain/generation/ParentContext.gd")
-const _seeded_rng: GDScript = preload("res://src/domain/rng/SeededRng.gd")
-
 ## Water freezing point in Kelvin.
 const WATER_FREEZE_K: float = 273.15
 
@@ -26,6 +17,20 @@ const WATER_FREEZE_K: float = 273.15
 ## @param rng: Random number generator.
 ## @return: SurfaceProps.
 static func generate_surface(
+	spec: MoonSpec,
+	physical: PhysicalProps,
+	size_cat: SizeCategory.Category,
+	surface_temp_k: float,
+	tidal_heat_watts: float,
+	context: ParentContext,
+	rng: SeededRng
+) -> SurfaceProps:
+	return _generate_surface_fallback(spec, physical, size_cat, surface_temp_k, tidal_heat_watts, context, rng)
+
+
+## Runs the legacy GDScript surface-generation path directly.
+## @return: SurfaceProps.
+static func _generate_surface_fallback(
 	spec: MoonSpec,
 	physical: PhysicalProps,
 	size_cat: SizeCategory.Category,
@@ -65,6 +70,7 @@ static func generate_surface(
 		)
 	
 	return surface
+
 
 
 ## Calculates surface albedo for moons.

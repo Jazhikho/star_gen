@@ -3,7 +3,7 @@
 class_name MoonSpec
 extends BaseSpec
 
-const _size_category: GDScript = preload("res://src/domain/generation/archetypes/SizeCategory.gd")
+const MOON_SPEC_BRIDGE_CLASS: StringName = &"CSharpMoonSpecBridge"
 
 
 ## Size category (typically DWARF through TERRESTRIAL for most moons).
@@ -47,6 +47,11 @@ func _init(
 ## @param seed_value: The generation seed.
 ## @return: A new MoonSpec with all random values.
 static func random(seed_value: int) -> MoonSpec:
+	var bridge: Object = _instantiate_bridge()
+	if bridge != null and bridge.has_method("Random"):
+		var payload: Variant = bridge.call("Random", seed_value)
+		if payload is Dictionary:
+			return _from_payload(payload as Dictionary)
 	return MoonSpec.new(seed_value)
 
 
@@ -54,6 +59,11 @@ static func random(seed_value: int) -> MoonSpec:
 ## @param seed_value: The generation seed.
 ## @return: A new MoonSpec configured for sub-terrestrial rocky.
 static func luna_like(seed_value: int) -> MoonSpec:
+	var bridge: Object = _instantiate_bridge()
+	if bridge != null and bridge.has_method("LunaLike"):
+		var payload: Variant = bridge.call("LunaLike", seed_value)
+		if payload is Dictionary:
+			return _from_payload(payload as Dictionary)
 	return MoonSpec.new(
 		seed_value,
 		SizeCategory.Category.SUB_TERRESTRIAL,
@@ -67,6 +77,11 @@ static func luna_like(seed_value: int) -> MoonSpec:
 ## @param seed_value: The generation seed.
 ## @return: A new MoonSpec configured for icy with ocean.
 static func europa_like(seed_value: int) -> MoonSpec:
+	var bridge: Object = _instantiate_bridge()
+	if bridge != null and bridge.has_method("EuropaLike"):
+		var payload: Variant = bridge.call("EuropaLike", seed_value)
+		if payload is Dictionary:
+			return _from_payload(payload as Dictionary)
 	return MoonSpec.new(
 		seed_value,
 		SizeCategory.Category.SUB_TERRESTRIAL,
@@ -80,6 +95,11 @@ static func europa_like(seed_value: int) -> MoonSpec:
 ## @param seed_value: The generation seed.
 ## @return: A new MoonSpec configured for large with atmosphere.
 static func titan_like(seed_value: int) -> MoonSpec:
+	var bridge: Object = _instantiate_bridge()
+	if bridge != null and bridge.has_method("TitanLike"):
+		var payload: Variant = bridge.call("TitanLike", seed_value)
+		if payload is Dictionary:
+			return _from_payload(payload as Dictionary)
 	return MoonSpec.new(
 		seed_value,
 		SizeCategory.Category.SUB_TERRESTRIAL,
@@ -93,6 +113,11 @@ static func titan_like(seed_value: int) -> MoonSpec:
 ## @param seed_value: The generation seed.
 ## @return: A new MoonSpec configured for captured body.
 static func captured(seed_value: int) -> MoonSpec:
+	var bridge: Object = _instantiate_bridge()
+	if bridge != null and bridge.has_method("Captured"):
+		var payload: Variant = bridge.call("Captured", seed_value)
+		if payload is Dictionary:
+			return _from_payload(payload as Dictionary)
 	return MoonSpec.new(
 		seed_value,
 		SizeCategory.Category.DWARF,
@@ -129,14 +154,21 @@ func to_dict() -> Dictionary:
 	data["is_captured"] = is_captured
 	data["has_atmosphere"] = has_atmosphere
 	data["has_subsurface_ocean"] = has_subsurface_ocean
-	return data
+	return _normalize_payload(data)
 
 
 ## Creates a MoonSpec from a dictionary.
 ## @param data: The dictionary to parse.
 ## @return: A new MoonSpec instance.
 static func from_dict(data: Dictionary) -> MoonSpec:
-	var spec: MoonSpec = MoonSpec.new(
+	return _from_payload(_normalize_payload(data))
+
+
+## Creates a MoonSpec from a normalized payload.
+## @param data: The normalized dictionary payload.
+## @return: A new MoonSpec instance.
+static func _from_payload(data: Dictionary) -> MoonSpec:
+	return MoonSpec.new(
 		data.get("generation_seed", 0) as int,
 		data.get("size_category", -1) as int,
 		data.get("is_captured", false) as bool,
@@ -145,4 +177,23 @@ static func from_dict(data: Dictionary) -> MoonSpec:
 		data.get("name_hint", "") as String,
 		data.get("overrides", {}) as Dictionary
 	)
-	return spec
+
+
+## Returns an optional C# bridge instance for spec helpers.
+## @return: A bridge object when the C# bridge is registered, otherwise null.
+static func _instantiate_bridge() -> Object:
+	if not ClassDB.class_exists(MOON_SPEC_BRIDGE_CLASS):
+		return null
+	return ClassDB.instantiate(MOON_SPEC_BRIDGE_CLASS)
+
+
+## Normalizes a spec payload through the C# bridge when available.
+## @param data: The payload to normalize.
+## @return: A normalized payload that preserves the current schema.
+static func _normalize_payload(data: Dictionary) -> Dictionary:
+	var bridge: Object = _instantiate_bridge()
+	if bridge != null and bridge.has_method("Normalize"):
+		var payload: Variant = bridge.call("Normalize", data)
+		if payload is Dictionary:
+			return payload as Dictionary
+	return data

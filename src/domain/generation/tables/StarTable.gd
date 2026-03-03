@@ -3,6 +3,8 @@
 class_name StarTable
 extends RefCounted
 
+const STAR_TABLE_BRIDGE_CLASS: StringName = &"CSharpStarTableBridge"
+
 
 ## Mass ranges in solar masses for each spectral class.
 const MASS_RANGES: Dictionary = {
@@ -68,6 +70,11 @@ const LIFETIME_RANGES: Dictionary = {
 ## @param spectral_class: The spectral class.
 ## @return: Dictionary with "min" and "max" in solar masses.
 static func get_mass_range(spectral_class: StarClass.SpectralClass) -> Dictionary:
+	var bridge: Object = _instantiate_bridge()
+	if bridge != null and bridge.has_method("GetMassRange"):
+		var payload: Variant = bridge.call("GetMassRange", int(spectral_class))
+		if payload is Dictionary:
+			return payload as Dictionary
 	if MASS_RANGES.has(spectral_class):
 		return MASS_RANGES[spectral_class]
 	return {"min": 0.0, "max": 0.0}
@@ -77,6 +84,11 @@ static func get_mass_range(spectral_class: StarClass.SpectralClass) -> Dictionar
 ## @param spectral_class: The spectral class.
 ## @return: Dictionary with "min" and "max" in Kelvin.
 static func get_temperature_range(spectral_class: StarClass.SpectralClass) -> Dictionary:
+	var bridge: Object = _instantiate_bridge()
+	if bridge != null and bridge.has_method("GetTemperatureRange"):
+		var payload: Variant = bridge.call("GetTemperatureRange", int(spectral_class))
+		if payload is Dictionary:
+			return payload as Dictionary
 	if TEMPERATURE_RANGES.has(spectral_class):
 		return TEMPERATURE_RANGES[spectral_class]
 	return {"min": 0.0, "max": 0.0}
@@ -86,6 +98,11 @@ static func get_temperature_range(spectral_class: StarClass.SpectralClass) -> Di
 ## @param spectral_class: The spectral class.
 ## @return: Dictionary with "min" and "max" in solar luminosities.
 static func get_luminosity_range(spectral_class: StarClass.SpectralClass) -> Dictionary:
+	var bridge: Object = _instantiate_bridge()
+	if bridge != null and bridge.has_method("GetLuminosityRange"):
+		var payload: Variant = bridge.call("GetLuminosityRange", int(spectral_class))
+		if payload is Dictionary:
+			return payload as Dictionary
 	if LUMINOSITY_RANGES.has(spectral_class):
 		return LUMINOSITY_RANGES[spectral_class]
 	return {"min": 0.0, "max": 0.0}
@@ -95,6 +112,11 @@ static func get_luminosity_range(spectral_class: StarClass.SpectralClass) -> Dic
 ## @param spectral_class: The spectral class.
 ## @return: Dictionary with "min" and "max" in solar radii.
 static func get_radius_range(spectral_class: StarClass.SpectralClass) -> Dictionary:
+	var bridge: Object = _instantiate_bridge()
+	if bridge != null and bridge.has_method("GetRadiusRange"):
+		var payload: Variant = bridge.call("GetRadiusRange", int(spectral_class))
+		if payload is Dictionary:
+			return payload as Dictionary
 	if RADIUS_RANGES.has(spectral_class):
 		return RADIUS_RANGES[spectral_class]
 	return {"min": 0.0, "max": 0.0}
@@ -104,6 +126,11 @@ static func get_radius_range(spectral_class: StarClass.SpectralClass) -> Diction
 ## @param spectral_class: The spectral class.
 ## @return: Dictionary with "min" and "max" in years.
 static func get_lifetime_range(spectral_class: StarClass.SpectralClass) -> Dictionary:
+	var bridge: Object = _instantiate_bridge()
+	if bridge != null and bridge.has_method("GetLifetimeRange"):
+		var payload: Variant = bridge.call("GetLifetimeRange", int(spectral_class))
+		if payload is Dictionary:
+			return payload as Dictionary
 	if LIFETIME_RANGES.has(spectral_class):
 		return LIFETIME_RANGES[spectral_class]
 	return {"min": 0.0, "max": 0.0}
@@ -114,6 +141,9 @@ static func get_lifetime_range(spectral_class: StarClass.SpectralClass) -> Dicti
 ## @param mass_solar: Mass in solar masses.
 ## @return: Luminosity in solar luminosities.
 static func luminosity_from_mass(mass_solar: float) -> float:
+	var bridge: Object = _instantiate_bridge()
+	if bridge != null and bridge.has_method("LuminosityFromMass"):
+		return float(bridge.call("LuminosityFromMass", mass_solar))
 	if mass_solar <= 0.0:
 		return 0.0
 	# L ∝ M^3.5 for main sequence stars
@@ -125,6 +155,9 @@ static func luminosity_from_mass(mass_solar: float) -> float:
 ## @param mass_solar: Mass in solar masses.
 ## @return: Radius in solar radii.
 static func radius_from_mass(mass_solar: float) -> float:
+	var bridge: Object = _instantiate_bridge()
+	if bridge != null and bridge.has_method("RadiusFromMass"):
+		return float(bridge.call("RadiusFromMass", mass_solar))
 	if mass_solar <= 0.0:
 		return 0.0
 	# R ∝ M^0.8 for main sequence stars
@@ -140,6 +173,9 @@ static func temperature_from_luminosity_radius(
 	luminosity_solar: float,
 	radius_solar: float
 ) -> float:
+	var bridge: Object = _instantiate_bridge()
+	if bridge != null and bridge.has_method("TemperatureFromLuminosityRadius"):
+		return float(bridge.call("TemperatureFromLuminosityRadius", luminosity_solar, radius_solar))
 	if luminosity_solar <= 0.0 or radius_solar <= 0.0:
 		return 0.0
 	# T = T_sun * (L/L_sun)^0.25 / (R/R_sun)^0.5
@@ -157,6 +193,9 @@ static func interpolate_by_subclass(
 	subclass: int,
 	range_data: Dictionary
 ) -> float:
+	var bridge: Object = _instantiate_bridge()
+	if bridge != null and bridge.has_method("InterpolateBySubclass"):
+		return float(bridge.call("InterpolateBySubclass", int(_spectral_class), subclass, range_data))
 	var t: float = float(subclass) / 9.0
 	var min_val: float = range_data["min"]
 	var max_val: float = range_data["max"]
@@ -168,6 +207,9 @@ static func interpolate_by_subclass(
 ## @param temperature_k: Temperature in Kelvin.
 ## @return: The matching spectral class.
 static func class_from_temperature(temperature_k: float) -> StarClass.SpectralClass:
+	var bridge: Object = _instantiate_bridge()
+	if bridge != null and bridge.has_method("ClassFromTemperature"):
+		return int(bridge.call("ClassFromTemperature", temperature_k)) as StarClass.SpectralClass
 	if temperature_k >= 30000.0:
 		return StarClass.SpectralClass.O
 	elif temperature_k > 10000.0:
@@ -182,3 +224,11 @@ static func class_from_temperature(temperature_k: float) -> StarClass.SpectralCl
 		return StarClass.SpectralClass.K
 	else:
 		return StarClass.SpectralClass.M
+
+
+## Returns an optional C# bridge instance for pure star-table helpers.
+## @return: A bridge object when the C# bridge is registered, otherwise null.
+static func _instantiate_bridge() -> Object:
+	if not ClassDB.class_exists(STAR_TABLE_BRIDGE_CLASS):
+		return null
+	return ClassDB.instantiate(STAR_TABLE_BRIDGE_CLASS)

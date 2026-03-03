@@ -2,6 +2,7 @@
 ## Describes geological features and activity levels.
 class_name TerrainProps
 extends RefCounted
+const TERRAIN_PROPS_BRIDGE_CLASS: StringName = &"CSharpTerrainPropsBridge"
 
 
 ## Maximum elevation range in meters (highest peak to lowest valley).
@@ -49,12 +50,22 @@ func _init(
 ## Returns whether the surface shows signs of geological activity.
 ## @return: True if tectonically active.
 func is_geologically_active() -> bool:
+	var bridge: Object = null
+	if ClassDB.class_exists(TERRAIN_PROPS_BRIDGE_CLASS):
+		bridge = ClassDB.instantiate(TERRAIN_PROPS_BRIDGE_CLASS)
+	if bridge != null and bridge.has_method("IsGeologicallyActive"):
+		return bool(bridge.call("IsGeologicallyActive", tectonic_activity))
 	return tectonic_activity > 0.1
 
 
 ## Returns whether the surface is heavily cratered.
 ## @return: True if crater density is high.
 func is_heavily_cratered() -> bool:
+	var bridge: Object = null
+	if ClassDB.class_exists(TERRAIN_PROPS_BRIDGE_CLASS):
+		bridge = ClassDB.instantiate(TERRAIN_PROPS_BRIDGE_CLASS)
+	if bridge != null and bridge.has_method("IsHeavilyCratered"):
+		return bool(bridge.call("IsHeavilyCratered", crater_density))
 	return crater_density > 0.5
 
 
@@ -75,8 +86,7 @@ func to_dict() -> Dictionary:
 ## @param data: The dictionary to parse.
 ## @return: A new TerrainProps instance.
 static func from_dict(data: Dictionary) -> TerrainProps:
-	var script_class: GDScript = load("res://src/domain/celestial/components/TerrainProps.gd") as GDScript
-	return script_class.new(
+	return TerrainProps.new(
 		data.get("elevation_range_m", 0.0) as float,
 		data.get("roughness", 0.5) as float,
 		data.get("crater_density", 0.0) as float,

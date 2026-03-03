@@ -3,15 +3,6 @@
 class_name PlanetAtmosphereGenerator
 extends RefCounted
 
-const _planet_spec: GDScript = preload("res://src/domain/generation/specs/PlanetSpec.gd")
-const _size_category: GDScript = preload("res://src/domain/generation/archetypes/SizeCategory.gd")
-const _orbit_zone: GDScript = preload("res://src/domain/generation/archetypes/OrbitZone.gd")
-const _physical_props: GDScript = preload("res://src/domain/celestial/components/PhysicalProps.gd")
-const _atmosphere_props: GDScript = preload("res://src/domain/celestial/components/AtmosphereProps.gd")
-const _parent_context: GDScript = preload("res://src/domain/generation/ParentContext.gd")
-const _atmosphere_utils: GDScript = preload("res://src/domain/generation/utils/AtmosphereUtils.gd")
-const _seeded_rng: GDScript = preload("res://src/domain/rng/SeededRng.gd")
-
 ## Earth's atmospheric pressure in Pascals.
 const EARTH_ATMOSPHERE_PA: float = 101325.0
 
@@ -38,6 +29,19 @@ static func generate_atmosphere(
 	equilibrium_temp_k: float,
 	rng: SeededRng
 ) -> AtmosphereProps:
+	return _generate_atmosphere_fallback(spec, physical, size_cat, zone, equilibrium_temp_k, rng)
+
+
+## Runs the legacy GDScript atmosphere-generation path directly.
+## @return: AtmosphereProps or null.
+static func _generate_atmosphere_fallback(
+	spec: PlanetSpec,
+	physical: PhysicalProps,
+	size_cat: SizeCategory.Category,
+	zone: OrbitZone.Zone,
+	equilibrium_temp_k: float,
+	rng: SeededRng
+) -> AtmosphereProps:
 	# Generate surface pressure
 	var surface_pressure_pa: float = _calculate_surface_pressure(
 		spec, physical, size_cat, rng
@@ -50,7 +54,7 @@ static func generate_atmosphere(
 	
 	# Calculate scale height: H = kT/(mg)
 	# Use average molecular mass based on composition
-	var avg_molecular_mass: float = _atmosphere_utils.get_average_molecular_mass(composition)
+	var avg_molecular_mass: float = AtmosphereUtils.get_average_molecular_mass(composition)
 	var gravity: float = physical.get_surface_gravity_m_s2()
 	var scale_height_m: float = 0.0
 	if gravity > 0.0 and avg_molecular_mass > 0.0:
@@ -77,6 +81,18 @@ static func generate_atmosphere(
 ## @param rng: Random number generator.
 ## @return: True if atmosphere should be generated.
 static func should_have_atmosphere(
+	spec: PlanetSpec,
+	physical: PhysicalProps,
+	size_cat: SizeCategory.Category,
+	context: ParentContext,
+	rng: SeededRng
+) -> bool:
+	return _should_have_atmosphere_fallback(spec, physical, size_cat, context, rng)
+
+
+## Runs the legacy GDScript atmosphere-retention decision path directly.
+## @return: True if atmosphere should be generated.
+static func _should_have_atmosphere_fallback(
 	spec: PlanetSpec,
 	physical: PhysicalProps,
 	size_cat: SizeCategory.Category,

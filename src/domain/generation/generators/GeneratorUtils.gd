@@ -3,12 +3,6 @@
 class_name GeneratorUtils
 extends RefCounted
 
-const _seeded_rng: GDScript = preload("res://src/domain/rng/SeededRng.gd")
-const _provenance: GDScript = preload("res://src/domain/celestial/Provenance.gd")
-const _versions: GDScript = preload("res://src/domain/constants/Versions.gd")
-const _parent_context: GDScript = preload("res://src/domain/generation/ParentContext.gd")
-const _base_spec: GDScript = preload("res://src/domain/generation/specs/BaseSpec.gd")
-
 
 ## Generates a unique ID for a celestial body.
 ## @param body_type: The type of body (star, planet, moon, asteroid).
@@ -27,11 +21,11 @@ static func create_provenance(spec: BaseSpec, context: ParentContext = null) -> 
 	var spec_dict: Dictionary = spec.to_dict()
 	if context != null:
 		spec_dict["context"] = context.to_dict()
-	
+
 	return Provenance.new(
 		spec.generation_seed,
-		Versions.GENERATOR_VERSION,
-		Versions.SCHEMA_VERSION,
+		Versions.get_generator_version(),
+		Versions.get_schema_version(),
 		int(Time.get_unix_time_from_system()),
 		spec_dict
 	)

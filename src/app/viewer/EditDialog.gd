@@ -66,7 +66,6 @@ var _regenerate_btn: Button = null
 var _save_btn: Button = null
 
 @onready var _content: VBoxContainer = $MarginContainer/VBoxContainer/ContentSplit/ScrollContainer/ContentMargin/ContentContainer
-@onready var _preview_viewport: SubViewport = $MarginContainer/VBoxContainer/ContentSplit/PreviewContainer/SubViewportContainer/SubViewport
 @onready var _preview_camera: Camera3D = $MarginContainer/VBoxContainer/ContentSplit/PreviewContainer/SubViewportContainer/SubViewport/Camera3D
 @onready var _preview_body_renderer: BodyRenderer = $MarginContainer/VBoxContainer/ContentSplit/PreviewContainer/SubViewportContainer/SubViewport/BodyRenderer
 @onready var _preview_light: DirectionalLight3D = $MarginContainer/VBoxContainer/ContentSplit/PreviewContainer/SubViewportContainer/SubViewport/PreviewEnvironment/DirectionalLight3D

@@ -2,6 +2,7 @@
 ## Contains luminosity, spectral classification, and evolution data.
 class_name StellarProps
 extends RefCounted
+const STELLAR_PROPS_BRIDGE_CLASS: StringName = &"CSharpStellarPropsBridge"
 
 
 ## Luminosity in watts.
@@ -52,6 +53,11 @@ func _init(
 ## Returns luminosity in solar luminosities.
 ## @return: Luminosity as multiple of Sun's luminosity.
 func get_luminosity_solar() -> float:
+	var bridge: Object = null
+	if ClassDB.class_exists(STELLAR_PROPS_BRIDGE_CLASS):
+		bridge = ClassDB.instantiate(STELLAR_PROPS_BRIDGE_CLASS)
+	if bridge != null and bridge.has_method("GetLuminositySolar"):
+		return float(bridge.call("GetLuminositySolar", luminosity_watts))
 	if SOLAR_LUMINOSITY_WATTS <= 0.0:
 		return 0.0
 	return luminosity_watts / SOLAR_LUMINOSITY_WATTS
@@ -61,6 +67,11 @@ func get_luminosity_solar() -> float:
 ## Based on luminosity relative to solar.
 ## @return: Inner habitable zone radius in meters.
 func get_habitable_zone_inner_m() -> float:
+	var bridge: Object = null
+	if ClassDB.class_exists(STELLAR_PROPS_BRIDGE_CLASS):
+		bridge = ClassDB.instantiate(STELLAR_PROPS_BRIDGE_CLASS)
+	if bridge != null and bridge.has_method("GetHabitableZoneInnerM"):
+		return float(bridge.call("GetHabitableZoneInnerM", luminosity_watts))
 	var l_solar: float = get_luminosity_solar()
 	if l_solar <= 0.0:
 		return 0.0
@@ -72,6 +83,11 @@ func get_habitable_zone_inner_m() -> float:
 ## Based on luminosity relative to solar.
 ## @return: Outer habitable zone radius in meters.
 func get_habitable_zone_outer_m() -> float:
+	var bridge: Object = null
+	if ClassDB.class_exists(STELLAR_PROPS_BRIDGE_CLASS):
+		bridge = ClassDB.instantiate(STELLAR_PROPS_BRIDGE_CLASS)
+	if bridge != null and bridge.has_method("GetHabitableZoneOuterM"):
+		return float(bridge.call("GetHabitableZoneOuterM", luminosity_watts))
 	var l_solar: float = get_luminosity_solar()
 	if l_solar <= 0.0:
 		return 0.0
@@ -83,6 +99,11 @@ func get_habitable_zone_outer_m() -> float:
 ## Where water ice becomes stable.
 ## @return: Frost line radius in meters.
 func get_frost_line_m() -> float:
+	var bridge: Object = null
+	if ClassDB.class_exists(STELLAR_PROPS_BRIDGE_CLASS):
+		bridge = ClassDB.instantiate(STELLAR_PROPS_BRIDGE_CLASS)
+	if bridge != null and bridge.has_method("GetFrostLineM"):
+		return float(bridge.call("GetFrostLineM", luminosity_watts))
 	var l_solar: float = get_luminosity_solar()
 	if l_solar <= 0.0:
 		return 0.0
@@ -93,6 +114,11 @@ func get_frost_line_m() -> float:
 ## Extracts the spectral letter from the spectral class.
 ## @return: Single letter (O, B, A, F, G, K, M) or empty string.
 func get_spectral_letter() -> String:
+	var bridge: Object = null
+	if ClassDB.class_exists(STELLAR_PROPS_BRIDGE_CLASS):
+		bridge = ClassDB.instantiate(STELLAR_PROPS_BRIDGE_CLASS)
+	if bridge != null and bridge.has_method("GetSpectralLetter"):
+		return String(bridge.call("GetSpectralLetter", spectral_class))
 	if spectral_class.is_empty():
 		return ""
 	return spectral_class.substr(0, 1).to_upper()
@@ -101,6 +127,11 @@ func get_spectral_letter() -> String:
 ## Extracts the luminosity class from the spectral class.
 ## @return: Roman numeral (I, II, III, IV, V) or empty string.
 func get_luminosity_class() -> String:
+	var bridge: Object = null
+	if ClassDB.class_exists(STELLAR_PROPS_BRIDGE_CLASS):
+		bridge = ClassDB.instantiate(STELLAR_PROPS_BRIDGE_CLASS)
+	if bridge != null and bridge.has_method("GetLuminosityClass"):
+		return String(bridge.call("GetLuminosityClass", spectral_class))
 	if spectral_class.length() < 3:
 		return ""
 	# Find where letters end and luminosity class begins
@@ -130,8 +161,7 @@ func to_dict() -> Dictionary:
 ## @param data: The dictionary to parse.
 ## @return: A new StellarProps instance.
 static func from_dict(data: Dictionary) -> StellarProps:
-	var script_class: GDScript = load("res://src/domain/celestial/components/StellarProps.gd") as GDScript
-	return script_class.new(
+	return StellarProps.new(
 		data.get("luminosity_watts", 0.0) as float,
 		data.get("effective_temperature_k", 0.0) as float,
 		data.get("spectral_class", "") as String,

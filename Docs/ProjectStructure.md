@@ -2,6 +2,226 @@
 
 Complete enumeration of the project file structure. Excludes `.uid` files, `.git/`, `.godot/` (generated).
 
+## Incremental C# Migration Note
+
+The repo now contains side-by-side `.gd` and `.cs` sources during the incremental C# migration. Existing scenes still reference the `.gd` scripts until each slice is explicitly migrated.
+
+Current C# bootstrap additions:
+- `StarGen.sln`
+- `StarGen.csproj`
+- `src/domain/bootstrap/CSharpSmokeTest.cs`
+- `src/domain/bootstrap/CSharp*Bridge.cs` (remaining transitional bridge helpers; the generator/helper subset is now removed where no longer needed)
+- `src/domain/constants/Versions.cs`
+- `src/domain/math/Units.cs`
+- `src/domain/math/MathUtils.cs`
+- `src/domain/validation/Validation.cs`
+- `src/domain/rng/SeededRng.cs`
+- `src/domain/celestial/CelestialType.cs`
+- `src/domain/celestial/CelestialBody.cs`
+- `src/domain/celestial/Provenance.cs`
+- `src/domain/celestial/validation/ValidationError.cs`
+- `src/domain/celestial/validation/ValidationResult.cs`
+- `src/domain/celestial/validation/CelestialValidator.cs`
+- `src/domain/celestial/serialization/CelestialSerializer.cs`
+- `src/domain/celestial/serialization/SerializedPopulationData.cs`
+- `src/domain/celestial/components/TerrainProps.cs`
+- `src/domain/celestial/components/HydrosphereProps.cs`
+- `src/domain/celestial/components/CryosphereProps.cs`
+- `src/domain/celestial/components/SurfaceProps.cs`
+- `src/domain/celestial/components/RingBand.cs`
+- `src/domain/celestial/components/RingSystemProps.cs`
+- `src/domain/celestial/components/PhysicalProps.cs`
+- `src/domain/celestial/components/OrbitalProps.cs`
+- `src/domain/celestial/components/AtmosphereProps.cs`
+- `src/domain/celestial/components/StellarProps.cs`
+- `src/domain/generation/ParentContext.cs`
+- `src/domain/generation/GenerationRealismProfile.cs`
+- `src/domain/generation/specs/BaseSpec.cs`
+- `src/domain/generation/specs/StarSpec.cs`
+- `src/domain/generation/specs/PlanetSpec.cs`
+- `src/domain/generation/specs/MoonSpec.cs`
+- `src/domain/generation/specs/AsteroidSpec.cs`
+- `src/domain/generation/specs/RingSystemSpec.cs`
+- `src/domain/generation/tables/SizeTable.cs`
+- `src/domain/generation/tables/StarTable.cs`
+- `src/domain/generation/tables/OrbitTable.cs`
+- `src/domain/generation/utils/AtmosphereUtils.cs`
+- `src/domain/generation/generators/GeneratorUtils.cs`
+- `src/domain/generation/generators/StarGenerator.cs`
+- `src/domain/generation/generators/PlanetGenerator.cs`
+- `src/domain/generation/generators/MoonGenerator.cs`
+- `src/domain/generation/generators/AsteroidGenerator.cs`
+- `src/domain/generation/generators/RingSystemGenerator.cs`
+- `src/domain/generation/archetypes/SizeCategory.cs`
+- `src/domain/generation/archetypes/StarClass.cs`
+- `src/domain/generation/archetypes/AsteroidType.cs`
+- `src/domain/generation/archetypes/RingComplexity.cs`
+- `src/domain/generation/archetypes/TravellerSizeCode.cs`
+- `src/domain/generation/archetypes/OrbitZone.cs`
+- `src/domain/population/HabitabilityCategory.cs`
+- `src/domain/population/ClimateZone.cs`
+- `src/domain/population/BiomeType.cs`
+- `src/domain/population/ResourceType.cs`
+- `src/domain/population/TechnologyLevel.cs`
+- `src/domain/population/GovernmentType.cs`
+- `src/domain/population/Government.cs`
+- `src/domain/population/ColonyType.cs`
+- `src/domain/population/NativeRelation.cs`
+- `src/domain/population/HistoryEvent.cs`
+- `src/domain/population/PopulationHistory.cs`
+- `src/domain/population/NativePopulation.cs`
+- `src/domain/population/Colony.cs`
+- `src/domain/population/PlanetPopulationData.cs`
+- `src/domain/population/PlanetProfile.cs`
+- `src/domain/population/ColonySuitability.cs`
+- `src/domain/population/PopulationSeeding.cs`
+- `src/domain/population/PopulationProbability.cs`
+- `src/domain/population/PopulationLikelihood.cs`
+- `src/domain/population/SuitabilityCalculator.cs`
+- `src/domain/population/ProfileCalculations.cs`
+- `src/domain/population/ProfileGenerator.cs`
+- `src/domain/population/HistoryGenerator.cs`
+- `src/domain/population/NativePopulationGenerator.cs`
+- `src/domain/population/ColonyGenerator.cs`
+- `src/domain/population/PopulationGenerator.cs`
+- `src/domain/population/OutpostAuthority.cs`
+- `src/domain/population/StationClass.cs`
+- `src/domain/population/StationType.cs`
+- `src/domain/population/StationPurpose.cs`
+- `src/domain/population/StationService.cs`
+- `src/domain/population/StationPlacementContext.cs`
+- `src/domain/population/StationPlacementRecommendation.cs`
+- `src/domain/population/StationSystemContext.cs`
+- `src/domain/population/StationPlacementRules.cs`
+- `src/domain/population/StationSpec.cs`
+- `src/domain/population/Outpost.cs`
+- `src/domain/population/SpaceStation.cs`
+- `src/domain/population/StationGenerationResult.cs`
+- `src/domain/population/StationGenerator.cs`
+- `src/domain/jumplanes/JumpLaneConnection.cs`
+- `src/domain/jumplanes/JumpLaneSystem.cs`
+- `src/domain/jumplanes/JumpLaneRegion.cs`
+- `src/domain/jumplanes/JumpLaneResult.cs`
+- `src/domain/jumplanes/JumpLaneClusterConnector.cs`
+- `src/domain/jumplanes/JumpLaneCalculator.cs`
+- `src/domain/system/HierarchyNode.cs`
+- `src/domain/system/SystemHierarchy.cs`
+- `src/domain/system/OrbitHost.cs`
+- `src/domain/system/OrbitSlot.cs`
+- `src/domain/system/AsteroidBelt.cs`
+- `src/domain/system/SolarSystemSpec.cs`
+- `src/domain/system/SolarSystem.cs`
+- `src/domain/system/SystemSerializer.cs`
+- `src/domain/system/SystemCache.cs`
+- `src/domain/system/OrbitalMechanics.cs`
+- `src/domain/system/SystemValidator.cs`
+- `src/domain/system/OrbitSlotGenerationResult.cs`
+- `src/domain/system/MoonGenerationResult.cs`
+- `src/domain/system/BeltGenerationResult.cs`
+- `src/domain/system/BeltReservationResult.cs`
+- `src/domain/system/PlanetGenerationResult.cs`
+- `src/domain/system/OrbitSlotGenerator.cs`
+- `src/domain/system/StellarConfigGenerator.cs`
+- `src/domain/system/SystemPlanetGenerator.cs`
+- `src/domain/system/SystemMoonGenerator.cs`
+- `src/domain/system/SystemAsteroidGenerator.cs`
+- `src/domain/system/fixtures/SystemFixtureGenerator.cs`
+- `src/domain/system/asteroid_belt/BeltFieldSpec.cs`
+- `src/domain/system/asteroid_belt/BeltFieldData.cs`
+- `src/domain/system/asteroid_belt/BeltAsteroidData.cs`
+- `src/domain/system/asteroid_belt/BeltMajorAsteroidInput.cs`
+- `src/domain/system/asteroid_belt/BeltOrbitalMath.cs`
+- `src/domain/system/asteroid_belt/BeltFieldGenerator.cs`
+- `src/domain/galaxy/GalaxySpec.cs`
+- `src/domain/galaxy/GalaxyStar.cs`
+- `src/domain/galaxy/GalaxyBodyOverrides.cs`
+- `src/domain/galaxy/GalaxySystemGenerator.cs`
+- `src/domain/galaxy/StableHash.cs`
+- `src/domain/galaxy/SeedDeriver.cs`
+- `src/domain/galaxy/HierarchyCoords.cs`
+- `src/domain/galaxy/GalaxyCoordinates.cs`
+- `src/domain/galaxy/GalaxyConfig.cs`
+- `src/domain/galaxy/GalaxySample.cs`
+- `src/domain/galaxy/DensityModelInterface.cs`
+- `src/domain/galaxy/SpiralDensityModel.cs`
+- `src/domain/galaxy/EllipticalDensityModel.cs`
+- `src/domain/galaxy/IrregularDensityModel.cs`
+- `src/domain/galaxy/DensitySampler.cs`
+- `src/domain/galaxy/StarPickResult.cs`
+- `src/domain/galaxy/StarPicker.cs`
+- `src/domain/galaxy/SectorStarData.cs`
+- `src/domain/galaxy/SubSectorGenerator.cs`
+- `src/domain/galaxy/HomePosition.cs`
+- `src/domain/galaxy/GridCursor.cs`
+- `src/domain/galaxy/StarSystemPreviewData.cs`
+- `src/domain/galaxy/StarSystemPreview.cs`
+- `src/domain/galaxy/SubSectorNeighborhoodData.cs`
+- `src/domain/galaxy/SubSectorNeighborhood.cs`
+- `src/domain/galaxy/GalaxySaveData.cs`
+- `src/domain/galaxy/RaycastUtils.cs`
+- `src/domain/galaxy/Sector.cs`
+- `src/domain/galaxy/Galaxy.cs`
+- `src/services/persistence/CelestialPersistence.cs`
+- `src/services/persistence/GalaxyPersistence.cs`
+- `src/services/persistence/SaveDataLoadResult.cs`
+- `src/services/persistence/SaveData.cs`
+- `src/services/persistence/SystemPersistenceLoadResult.cs`
+- `src/services/persistence/SystemPersistence.cs`
+- `src/app/galaxy_viewer/QuadrantSelector.cs`
+- `src/app/galaxy_viewer/ZoomStateMachine.cs`
+- `src/app/galaxy_viewer/GalaxyInspectorPanel.cs`
+- `src/app/galaxy_viewer/GalaxyRenderer.cs`
+- `src/app/galaxy_viewer/GalaxyViewer.cs`
+- `src/app/galaxy_viewer/GalaxyViewerCSharp.tscn`
+- `src/app/galaxy_viewer/GalaxyViewerSaveLoad.cs`
+- `src/app/galaxy_viewer/NeighborhoodRenderer.cs`
+- `src/app/galaxy_viewer/NavigationCompass.cs`
+- `src/app/galaxy_viewer/OrbitCamera.cs`
+- `src/app/galaxy_viewer/QuadrantRenderer.cs`
+- `src/app/galaxy_viewer/SectorJumpLaneRenderer.cs`
+- `src/app/galaxy_viewer/SectorRenderer.cs`
+- `src/app/galaxy_viewer/SelectionIndicator.cs`
+- `src/app/galaxy_viewer/StarViewCamera.cs`
+- `src/app/galaxy_viewer/SubSectorRenderer.cs`
+- `src/app/rendering/ColorUtils.cs`
+- `src/app/rendering/ShaderParamHelpers.cs`
+- `src/app/rendering/StarShaderParams.cs`
+- `src/app/rendering/AtmosphereShaderParams.cs`
+- `src/app/rendering/GasGiantShaderParamProfiles.cs`
+- `src/app/rendering/GasGiantShaderParams.cs`
+- `src/app/rendering/MaterialFactory.cs`
+- `src/app/rendering/BodyRenderer.cs`
+- `src/app/rendering/RingShaderParams.cs`
+- `src/app/rendering/TerrestrialShaderParamProfiles.cs`
+- `src/app/rendering/TerrestrialShaderParams.cs`
+- `src/app/system_viewer/SystemScaleManager.cs`
+- `src/app/system_viewer/BodyLayout.cs`
+- `src/app/system_viewer/BeltLayout.cs`
+- `src/app/system_viewer/NodeExtent.cs`
+- `src/app/system_viewer/SystemLayout.cs`
+- `src/app/system_viewer/SystemDisplayLayout.cs`
+- `src/app/system_viewer/SystemBodyNode.cs`
+- `src/app/system_viewer/SystemCameraController.cs`
+- `src/app/system_viewer/OrbitRenderer.cs`
+- `src/app/system_viewer/BeltRenderer.cs`
+- `src/app/system_viewer/SystemBodyNodeCSharp.tscn`
+- `src/app/system_viewer/SystemInspectorPanel.cs`
+- `src/app/system_viewer/SystemViewer.cs`
+- `src/app/system_viewer/SystemViewerSaveLoad.cs`
+- `src/app/system_viewer/SystemViewerCSharp.tscn`
+- `src/app/viewer/CameraController.cs`
+- `src/app/viewer/InspectorPanel.cs`
+- `src/app/viewer/ObjectViewerMoonSystem.cs`
+- `src/app/viewer/ObjectViewer.cs`
+- `src/app/viewer/ObjectViewerCSharp.tscn`
+- `src/app/viewer/PropertyFormatter.cs`
+- `Tests/Framework/DotNetTestResult.cs`
+- `Tests/Framework/DotNetTestRunner.cs`
+- `Tests/Framework/DotNetNativeTestSuite.cs`
+- `Tests/TestRegistry.gd`
+- `Tests/TestSceneCSharp.cs`
+- `Tests/TestSceneCSharp.tscn`
+
 ```
 star_gen/
 ├── .editorconfig
@@ -14,46 +234,29 @@ star_gen/
 ├── project.godot
 ├── README.md
 │
-├── Concepts/                       # Visual concept demos (reference)
+├── Concepts/                       # Visual concept demos (reference); prototypes folded into main are removed
 │   ├── Additions.md
-│   ├── planetgenerator.html
-│   ├── stargenerator.html
-│   ├── CivilisationReference/      # Tech tree & regime chart (React)
+│   ├── CivilisationEngine/         # Civ + history: Tech Tree, Regime Chart, culture sim, regime transitions (React)
 │   │   ├── index.html
-│   │   ├── App.jsx
+│   │   ├── IntegrationApp.jsx
 │   │   ├── LayoutHelpers.js
-│   │   ├── RegimeChartTab.jsx
-│   │   ├── TechTreeTab.jsx
-│   │   └── data/
-│   │       ├── Levels.js
-│   │       ├── Regimes.js
-│   │       └── Techs.js
-│   │
-│   ├── HistoryGenerator/           # Culture sim, regime transitions, map (React)
-│   │   ├── index.html
-│   │   ├── HistoryGenerator.jsx
 │   │   ├── data/
-│   │   │   ├── Constants.js
-│   │   │   ├── Regimes.js
-│   │   │   └── Transitions.js
+│   │   │   └── SharedData.js
 │   │   └── logic/
-│   │       ├── NameGen.js
-│   │       ├── Simulation.js
-│   │       └── Utils.js
+│   │       └── Simulation.js
 │   │
 │   ├── EvoTechTree/                # Biology as evolutionary tech tree; lineage, evo simulator (React)
 │   │   ├── index.html
 │   │   ├── App.jsx                 # Data, NODES, ENVS, evolveStep, genSpecies
 │   │   └── AppUI.jsx               # SpeciesDetail, DictModal, NodeCard, EvoMode, App + mount
 │   │
-│   └── Integration/                # Civilisation Engine: shared data, Tech Tree, Regime Chart, History sim
+│   ├── SpaceStationBuilder/        # Traveller station builder: extended ship rules, classification, export
+│   │   ├── index.html
+│   │   └── StationBuilder.jsx
+│   │
+│   └── DiseaseSimulator/           # Concept 9: pathogen evolution sim — SEIRDV, symptoms, comorbidities (deterministic RNG)
 │       ├── index.html
-│       ├── IntegrationApp.jsx
-│       ├── LayoutHelpers.js
-│       ├── data/
-│       │   └── SharedData.js
-│       └── logic/
-│           └── Simulation.js
+│       └── DiseaseSimulator.jsx
 │
 ├── Docs/
 │   ├── CelestialBodyProperties.md
@@ -72,8 +275,10 @@ star_gen/
 │
 ├── src/
 │   ├── app/
+│   │   ├── MainApp.cs
 │   │   ├── MainApp.gd
 │   │   ├── MainApp.tscn
+│   │   ├── WelcomeScreen.cs
 │   │   ├── WelcomeScreen.gd
 │   │   ├── WelcomeScreen.tscn
 │   │   │
@@ -360,6 +565,8 @@ star_gen/
 │
 └── Tests/
     ├── Framework/
+    │   ├── DotNetTestResult.cs
+    │   ├── DotNetTestRunner.cs
     │   ├── TestCase.gd
     │   ├── TestResult.gd
     │   └── TestRunner.gd
@@ -536,7 +743,9 @@ star_gen/
     ├── RunTestsHeadless.gd
     ├── ScientificBenchmarks.gd
     ├── TestScene.gd
-    └── TestScene.tscn
+    ├── TestScene.tscn
+    ├── TestSceneCSharp.cs
+    └── TestSceneCSharp.tscn
 ```
 
 ## Layer summary

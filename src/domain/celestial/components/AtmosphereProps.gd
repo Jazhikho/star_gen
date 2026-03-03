@@ -2,6 +2,7 @@
 ## Optional component for bodies with atmospheres.
 class_name AtmosphereProps
 extends RefCounted
+const ATMOSPHERE_PROPS_BRIDGE_CLASS: StringName = &"CSharpAtmospherePropsBridge"
 
 
 ## Surface pressure in Pascals.
@@ -37,6 +38,11 @@ func _init(
 ## Calculates the sum of all composition fractions.
 ## @return: Sum of composition fractions.
 func get_composition_sum() -> float:
+	var bridge: Object = null
+	if ClassDB.class_exists(ATMOSPHERE_PROPS_BRIDGE_CLASS):
+		bridge = ClassDB.instantiate(ATMOSPHERE_PROPS_BRIDGE_CLASS)
+	if bridge != null and bridge.has_method("GetCompositionSum"):
+		return float(bridge.call("GetCompositionSum", composition))
 	var total: float = 0.0
 	for fraction in composition.values():
 		total += fraction as float
@@ -46,6 +52,11 @@ func get_composition_sum() -> float:
 ## Returns the dominant gas in the atmosphere.
 ## @return: Name of the gas with highest fraction, or empty string.
 func get_dominant_gas() -> String:
+	var bridge: Object = null
+	if ClassDB.class_exists(ATMOSPHERE_PROPS_BRIDGE_CLASS):
+		bridge = ClassDB.instantiate(ATMOSPHERE_PROPS_BRIDGE_CLASS)
+	if bridge != null and bridge.has_method("GetDominantGas"):
+		return String(bridge.call("GetDominantGas", composition))
 	var max_fraction: float = 0.0
 	var dominant: String = ""
 	for gas in composition:
@@ -71,8 +82,7 @@ func to_dict() -> Dictionary:
 ## @param data: The dictionary to parse.
 ## @return: A new AtmosphereProps instance.
 static func from_dict(data: Dictionary) -> AtmosphereProps:
-	var script_class: GDScript = load("res://src/domain/celestial/components/AtmosphereProps.gd") as GDScript
-	return script_class.new(
+	return AtmosphereProps.new(
 		data.get("surface_pressure_pa", 0.0) as float,
 		data.get("scale_height_m", 0.0) as float,
 		data.get("composition", {}) as Dictionary,

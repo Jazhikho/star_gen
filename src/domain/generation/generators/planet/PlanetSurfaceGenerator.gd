@@ -3,17 +3,6 @@
 class_name PlanetSurfaceGenerator
 extends RefCounted
 
-const _planet_spec: GDScript = preload("res://src/domain/generation/specs/PlanetSpec.gd")
-const _size_category: GDScript = preload("res://src/domain/generation/archetypes/SizeCategory.gd")
-const _orbit_zone: GDScript = preload("res://src/domain/generation/archetypes/OrbitZone.gd")
-const _physical_props: GDScript = preload("res://src/domain/celestial/components/PhysicalProps.gd")
-const _surface_props: GDScript = preload("res://src/domain/celestial/components/SurfaceProps.gd")
-const _terrain_props: GDScript = preload("res://src/domain/celestial/components/TerrainProps.gd")
-const _hydrosphere_props: GDScript = preload("res://src/domain/celestial/components/HydrosphereProps.gd")
-const _cryosphere_props: GDScript = preload("res://src/domain/celestial/components/CryosphereProps.gd")
-const _parent_context: GDScript = preload("res://src/domain/generation/ParentContext.gd")
-const _seeded_rng: GDScript = preload("res://src/domain/rng/SeededRng.gd")
-
 ## Water freezing point in Kelvin.
 const WATER_FREEZE_K: float = 273.15
 
@@ -31,6 +20,28 @@ const WATER_BOIL_K: float = 373.15
 ## @param rng: Random number generator.
 ## @return: SurfaceProps or null.
 static func generate_surface(
+	spec: PlanetSpec,
+	physical: PhysicalProps,
+	size_cat: SizeCategory.Category,
+	zone: OrbitZone.Zone,
+	surface_temp_k: float,
+	context: ParentContext,
+	rng: SeededRng
+) -> SurfaceProps:
+	return _generate_surface_fallback(
+		spec,
+		physical,
+		size_cat,
+		zone,
+		surface_temp_k,
+		context,
+		rng
+	)
+
+
+## Runs the legacy GDScript surface-generation path directly.
+## @return: SurfaceProps or null.
+static func _generate_surface_fallback(
 	spec: PlanetSpec,
 	physical: PhysicalProps,
 	size_cat: SizeCategory.Category,
