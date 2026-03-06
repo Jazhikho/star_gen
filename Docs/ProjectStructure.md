@@ -10,7 +10,7 @@ Partial-class splits (large files broken into focused parts):
 - `SystemViewer.cs` / `SystemViewer.Setup.cs` / `SystemViewer.Rendering.cs` / `SystemViewer.Interaction.cs` / `SystemViewer.GdCompat.cs`
 - `GalaxyViewer.cs` / `GalaxyViewer.Setup.cs` / `GalaxyViewer.Navigation.cs` / `GalaxyViewer.Selection.cs` / `GalaxyViewer.Accessors.cs`
 - `MainApp.cs` / `MainApp.Navigation.cs`
-- `ObjectViewer.cs` / `ObjectViewer.Display.cs`
+- `ObjectViewer.cs` / `ObjectViewer.Display.cs` / `ObjectViewer.SaveLoad.cs`
 
 Prototype files consolidated under `src/app/prototypes/`:
 - `JumpLanesPrototype.cs`, `JumpLaneRenderer.cs`, `MockRegionGenerator.cs` (moved from `src/app/jumplanes_prototype/`)
@@ -180,8 +180,10 @@ C# source files:
 - `src/domain/galaxy/Galaxy.cs`
 - `src/services/persistence/CelestialPersistence.cs`
 - `src/services/persistence/GalaxyPersistence.cs`
-- `src/services/persistence/SaveDataLoadResult.cs`
+- `src/services/persistence/PersistenceUtils.cs`
 - `src/services/persistence/SaveData.cs`
+- `src/services/persistence/SaveData.Generators.cs`
+- `src/services/persistence/SaveDataLoadResult.cs`
 - `src/services/persistence/SystemPersistenceLoadResult.cs`
 - `src/services/persistence/SystemPersistence.cs`
 - `src/app/galaxy_viewer/QuadrantSelector.cs`
@@ -238,6 +240,7 @@ C# source files:
 - `src/app/viewer/ObjectViewerMoonSystem.cs`
 - `src/app/viewer/ObjectViewer.cs`
 - `src/app/viewer/ObjectViewer.Display.cs`
+- `src/app/viewer/ObjectViewer.SaveLoad.cs`
 - `src/app/viewer/PropertyFormatter.cs`
 - `src/app/viewer/EditDialog.cs`
 - `src/app/components/CollapsibleSection.cs`
@@ -427,6 +430,7 @@ star_gen/
 │   │       ├── InspectorPanel.cs
 │   │       ├── ObjectViewer.cs
 │   │       ├── ObjectViewer.Display.cs
+│   │       ├── ObjectViewer.SaveLoad.cs
 │   │       ├── ObjectViewer.tscn
 │   │       ├── ObjectViewerMoonSystem.cs
 │   │       └── PropertyFormatter.cs
@@ -634,7 +638,9 @@ star_gen/
 │       └── persistence/
 │           ├── CelestialPersistence.cs
 │           ├── GalaxyPersistence.cs
+│           ├── PersistenceUtils.cs
 │           ├── SaveData.cs
+│           ├── SaveData.Generators.cs
 │           ├── SaveDataLoadResult.cs
 │           ├── SystemPersistence.cs
 │           └── SystemPersistenceLoadResult.cs
@@ -712,6 +718,18 @@ star_gen/
     ├── TestScene.tscn
     └── TestSceneCSharp.tscn
 ```
+
+## Save system (in-app)
+
+Save/load is driven by the app layer; persistence services handle format and I/O. **File extension is significant:** it selects format (compressed binary vs JSON) on both save and load.
+
+| Scope | Service | Extensions | App entry points |
+|-------|---------|------------|-------------------|
+| Single body (star/planet/moon/asteroid) | `SaveData` | `.sgt` star, `.sgp` planet/moon, `.sga` asteroid, `.sgb` legacy body, `.json` | ObjectViewer Save/Load; EditDialog "Save As…" |
+| Solar system | `SystemPersistence` | `.sgs` compressed, `.json` | SystemViewer Save/Load (Ctrl+S) |
+| Galaxy + viewer state | `GalaxyPersistence` | `.sgg` binary, `.json` | GalaxyViewer Save/Load |
+
+Body and system saves support **Compact** (seed + spec, regenerate on load) or **Full** (full serialization). Edited bodies use Full via `SaveData.SaveEditedBody`. See **Save format and compatibility** in Docs/Roadmap.md for ZSTD/binary roadmap.
 
 ## Layer summary
 

@@ -3,6 +3,7 @@ using System.IO.Compression;
 using System.Text;
 using Godot;
 using Godot.Collections;
+using StarGen.Domain.Celestial;
 
 namespace StarGen.Services.Persistence;
 
@@ -12,6 +13,31 @@ namespace StarGen.Services.Persistence;
 /// </summary>
 public static partial class SaveData
 {
+    /// <summary>
+    /// Legacy generic compressed body extension.
+    /// </summary>
+    public const string LegacyBinaryExtension = "sgb";
+
+    /// <summary>
+    /// Compressed asteroid-body extension.
+    /// </summary>
+    public const string AsteroidBinaryExtension = "sga";
+
+    /// <summary>
+    /// Compressed planet/moon-body extension.
+    /// </summary>
+    public const string WorldBinaryExtension = "sgp";
+
+    /// <summary>
+    /// Compressed star-body extension.
+    /// </summary>
+    public const string StarBinaryExtension = "sgt";
+
+    /// <summary>
+    /// JSON debug extension.
+    /// </summary>
+    public const string JsonExtension = "json";
+
     /// <summary>
     /// Supported save modes.
     /// </summary>
@@ -33,7 +59,7 @@ public static partial class SaveData
     /// Saves a celestial body using the selected save mode.
     /// </summary>
     public static Error SaveBody(
-        StarGen.Domain.Celestial.CelestialBody? body,
+        CelestialBody? body,
         string path,
         SaveMode mode = SaveMode.Compact,
         bool compress = true)
@@ -43,24 +69,111 @@ public static partial class SaveData
             return Error.InvalidParameter;
         }
 
+        string savePath = ResolveSavePath(body, path, compress);
         Dictionary data = CreateSaveData(body, mode);
         if (compress)
         {
-            return SaveCompressed(path, data);
+            return SaveCompressed(savePath, data);
         }
 
-        return SaveJson(path, data);
+        return SaveJson(savePath, data);
     }
 
     /// <summary>
     /// Saves an edited body using full serialization.
     /// </summary>
     public static Error SaveEditedBody(
-        StarGen.Domain.Celestial.CelestialBody? body,
+        CelestialBody? body,
         string path,
         bool compress = true)
     {
         return SaveBody(body, path, SaveMode.Full, compress);
+    }
+
+    /// <summary>
+    /// Returns the preferred compressed extension for a body type.
+    /// </summary>
+    public static string GetPreferredBinaryExtension(CelestialType.Type bodyType)
+    {
+        return bodyType switch
+        {
+            CelestialType.Type.Star => StarBinaryExtension,
+            CelestialType.Type.Asteroid => AsteroidBinaryExtension,
+            CelestialType.Type.Planet => WorldBinaryExtension,
+            CelestialType.Type.Moon => WorldBinaryExtension,
+            _ => LegacyBinaryExtension,
+        };
+    }
+
+    /// <summary>
+    /// Returns the preferred file-dialog filters for a specific body type.
+    /// </summary>
+    public static string[] GetFileFilters(CelestialType.Type? bodyType = null, bool includeLegacy = false)
+    {
+        string binaryFilter;
+        if (!bodyType.HasValue)
+        {
+            if (includeLegacy)
+            {
+                return
+                [
+                    "*.sgt ; StarGen Star",
+                    "*.sgp ; StarGen Planet or Moon",
+                    "*.sga ; StarGen Asteroid",
+                    "*.sgb ; StarGen Legacy Body",
+                    "*.json ; JSON Debug",
+                ];
+            }
+
+            return
+            [
+                "*.sgt ; StarGen Star",
+                "*.sgp ; StarGen Planet or Moon",
+                "*.sga ; StarGen Asteroid",
+                "*.json ; JSON Debug",
+            ];
+        }
+
+        binaryFilter = bodyType.Value switch
+        {
+            CelestialType.Type.Star => "*.sgt ; StarGen Star",
+            CelestialType.Type.Asteroid => "*.sga ; StarGen Asteroid",
+            CelestialType.Type.Planet => "*.sgp ; StarGen Planet or Moon",
+            CelestialType.Type.Moon => "*.sgp ; StarGen Planet or Moon",
+            _ => "*.sgb ; StarGen Body",
+        };
+
+        if (includeLegacy)
+        {
+            return [binaryFilter, "*.sgb ; StarGen Legacy Body", "*.json ; JSON Debug"];
+        }
+
+        return [binaryFilter, "*.json ; JSON Debug"];
+    }
+
+    /// <summary>
+    /// Returns the resolved save path with the expected extension applied.
+    /// </summary>
+    public static string ResolveSavePath(CelestialBody body, string path, bool compress = true)
+    {
+        if (!compress)
+        {
+            if (path.EndsWith(".json"))
+            {
+                return path;
+            }
+
+            return $"{Path.ChangeExtension(path, null)}.json";
+        }
+
+        string extension = Path.GetExtension(path).TrimStart('.').ToLowerInvariant();
+        if (IsKnownBinaryExtension(extension))
+        {
+            return path;
+        }
+
+        string preferredExtension = GetPreferredBinaryExtension(body.Type);
+        return $"{Path.ChangeExtension(path, null)}.{preferredExtension}";
     }
 
     /// <summary>
@@ -75,7 +188,7 @@ public static partial class SaveData
             string errorMessage;
             string extension = Path.GetExtension(path).TrimStart('.').ToLowerInvariant();
 
-            if (extension == "sgb")
+            if (IsKnownBinaryExtension(extension))
             {
                 data = LoadCompressed(path, out errorMessage);
             }
@@ -155,13 +268,14 @@ public static partial class SaveData
         try
         {
             string savePath;
-            if (path.EndsWith(".sgb"))
+            string extension = Path.GetExtension(path).TrimStart('.').ToLowerInvariant();
+            if (IsKnownBinaryExtension(extension))
             {
                 savePath = path;
             }
             else
             {
-                savePath = $"{Path.ChangeExtension(path, null)}.sgb";
+                savePath = $"{Path.ChangeExtension(path, null)}.{LegacyBinaryExtension}";
             }
 
             string globalPath = ProjectSettings.GlobalizePath(savePath);
@@ -416,5 +530,16 @@ public static partial class SaveData
         }
 
         return new Dictionary();
+    }
+
+    /// <summary>
+    /// Returns whether the extension is one of the supported compressed body formats.
+    /// </summary>
+    private static bool IsKnownBinaryExtension(string extension)
+    {
+        return extension == LegacyBinaryExtension
+            || extension == AsteroidBinaryExtension
+            || extension == WorldBinaryExtension
+            || extension == StarBinaryExtension;
     }
 }

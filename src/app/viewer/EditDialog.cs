@@ -862,7 +862,7 @@ public partial class EditDialog : Window
 				FileMode = FileDialog.FileModeEnum.SaveFile,
 				Access = FileDialog.AccessEnum.Filesystem,
 			};
-			_saveDialog.Filters = new string[] { "*.sgb ; StarGen Binary", "*.json ; JSON" };
+			_saveDialog.Filters = SaveData.GetFileFilters(_body.Type, includeLegacy: true);
 			_saveDialog.CurrentDir = OS.GetUserDataDir();
 			_saveDialog.FileSelected += OnSavePathSelected;
 			AddChild(_saveDialog);
@@ -878,19 +878,22 @@ public partial class EditDialog : Window
 		}
 
 		string defaultName = rawName.Replace(" ", "_").ToLowerInvariant();
-		_saveDialog.CurrentFile = defaultName + ".sgb";
+		_saveDialog.CurrentFile = defaultName + "." + SaveData.GetPreferredBinaryExtension(_body.Type);
 		_saveDialog.PopupCentered(new Vector2I(600, 400));
 	}
 
 	private void OnSavePathSelected(string path)
 	{
 		ApplyValuesToBody();
-		bool compress = path.EndsWith(".sgb");
-		Error err = SaveData.SaveEditedBody(_body, path, compress);
+		if (_body == null)
+			return;
+		bool useCompression = !path.EndsWith(".json", StringComparison.OrdinalIgnoreCase);
+		string savePath = SaveData.ResolveSavePath(_body, path, useCompression);
+		Error err = SaveData.SaveEditedBody(_body, savePath, useCompression);
 		if (err != Error.Ok)
 			Title = "Save failed: " + err.ToString();
 		else
-			Title = "Saved: " + System.IO.Path.GetFileName(path);
+			Title = "Saved: " + System.IO.Path.GetFileName(savePath);
 	}
 
 	private double DisplayFactorFor(string propertyPath)

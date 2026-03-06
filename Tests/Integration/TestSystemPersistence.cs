@@ -10,6 +10,7 @@ using StarGen.Domain.Generation.Specs;
 using StarGen.Domain.Math;
 using StarGen.Domain.Rng;
 using StarGen.Domain.Systems;
+using StarGen.Domain.Systems.Fixtures;
 using StarGen.Services.Persistence;
 using StarGen.Tests.Framework;
 
@@ -46,6 +47,9 @@ public static class TestSystemPersistence
         runner.RunNativeTest(
             "TestSystemPersistence::test_round_trip_full_data",
             TestRoundTripFullData);
+        runner.RunNativeTest(
+            "TestSystemPersistence::test_generated_system_saves_compact_payload",
+            TestGeneratedSystemSavesCompactPayload);
     }
 
     /// <summary>
@@ -205,6 +209,43 @@ public static class TestSystemPersistence
             DotNetNativeTestSuite.AssertTrue(result.Success);
             DotNetNativeTestSuite.AssertEqual(1, result.System.PlanetIds.Count);
             DotNetNativeTestSuite.AssertEqual(1, result.System.AsteroidBelts.Count);
+        }
+        finally
+        {
+            CleanupTestFiles();
+        }
+    }
+
+    /// <summary>
+    /// Tests generated systems save their seed/spec payload instead of a full body dump.
+    /// </summary>
+    private static void TestGeneratedSystemSavesCompactPayload()
+    {
+        try
+        {
+            SolarSystemSpec spec = SolarSystemSpec.Binary(11223);
+            spec.IncludeAsteroidBelts = true;
+            spec.GeneratePopulation = true;
+
+            SolarSystem? generated = SystemFixtureGenerator.GenerateSystem(spec);
+            DotNetNativeTestSuite.AssertNotNull(generated, "Generated system should exist");
+
+            Error saveError = SystemPersistence.Save(generated, TestJsonPath, compress: false);
+            DotNetNativeTestSuite.AssertEqual(Error.Ok, saveError, "Compact JSON save should succeed");
+
+            string json = FileAccess.GetFileAsString(TestJsonPath);
+            Json parser = new();
+            DotNetNativeTestSuite.AssertEqual(Error.Ok, parser.Parse(json), "Saved JSON should parse");
+
+            Godot.Collections.Dictionary data = (Godot.Collections.Dictionary)parser.Data;
+            DotNetNativeTestSuite.AssertEqual((int)SystemPersistence.SaveMode.Compact, (int)data["save_mode"], "Generated systems should save compact payloads");
+            DotNetNativeTestSuite.AssertTrue(data.ContainsKey("spec"), "Compact payload should include spec");
+            DotNetNativeTestSuite.AssertFalse(data.ContainsKey("system"), "Compact payload should not include full system snapshot");
+
+            SystemPersistenceLoadResult result = SystemPersistence.Load(TestJsonPath);
+            DotNetNativeTestSuite.AssertTrue(result.Success, "Compact payload should load");
+            DotNetNativeTestSuite.AssertNotNull(result.System, "Loaded system should exist");
+            DotNetNativeTestSuite.AssertEqual(generated.StarIds.Count, result.System.StarIds.Count, "Regenerated system should preserve star count");
         }
         finally
         {

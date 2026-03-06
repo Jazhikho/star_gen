@@ -108,12 +108,13 @@ public partial class SystemViewerSaveLoad : RefCounted
         }
 
         bool compress = !path.EndsWith(".json");
-        Error error = SystemPersistence.Save(currentSystem, path, compress);
+        string savePath = SystemPersistence.ResolveSavePath(path, compress);
+        Error error = SystemPersistence.Save(currentSystem, savePath, compress);
         if (error == Error.Ok)
         {
-            long size = SystemPersistence.GetFileSize(path);
+            long size = SystemPersistence.GetFileSize(savePath);
             string sizeString = SystemPersistence.FormatFileSize(size);
-            viewer.SetStatus($"Saved to {Path.GetFileName(path)} ({sizeString})");
+            viewer.SetStatus($"Saved to {Path.GetFileName(savePath)} ({sizeString})");
             return;
         }
 
@@ -158,7 +159,7 @@ public partial class SystemViewerSaveLoad : RefCounted
             return Error.InvalidData;
         }
 
-        return SystemPersistence.Save(currentSystem, path, compress);
+        return SystemPersistence.Save(currentSystem, SystemPersistence.ResolveSavePath(path, compress), compress);
     }
 
     /// <summary>

@@ -63,6 +63,9 @@ public static class TestSaveLoad
         runner.RunNativeTest(
             "TestSaveLoad::test_file_size_formatting",
             TestFileSizeFormatting);
+        runner.RunNativeTest(
+            "TestSaveLoad::test_resolve_typed_extensions",
+            TestResolveTypedExtensions);
     }
 
     /// <summary>
@@ -156,7 +159,7 @@ public static class TestSaveLoad
         try
         {
             CelestialBody original = CreateTestStar(12345);
-            string path = TestDir + "test_star.sgb";
+            string path = TestDir + "test_star.sgt";
 
             Error saveError = SaveData.SaveBody(original, path, SaveData.SaveMode.Compact, true);
             DotNetNativeTestSuite.AssertEqual(Error.Ok, saveError, "Should save without error");
@@ -211,7 +214,7 @@ public static class TestSaveLoad
         try
         {
             CelestialBody original = CreateTestMoon(34567);
-            string path = TestDir + "test_moon.sgb";
+            string path = TestDir + "test_moon.sgp";
 
             Error saveError = SaveData.SaveBody(original, path);
             DotNetNativeTestSuite.AssertEqual(Error.Ok, saveError, "Should save without error");
@@ -236,7 +239,7 @@ public static class TestSaveLoad
         try
         {
             CelestialBody original = CreateTestAsteroid(45678);
-            string path = TestDir + "test_asteroid.sgb";
+            string path = TestDir + "test_asteroid.sga";
 
             Error saveError = SaveData.SaveBody(original, path);
             DotNetNativeTestSuite.AssertEqual(Error.Ok, saveError, "Should save without error");
@@ -420,5 +423,23 @@ public static class TestSaveLoad
 
         string mbStr = SaveData.FormatFileSize(2 * 1024 * 1024);
         DotNetNativeTestSuite.AssertTrue(mbStr.Contains("MB"), "Should format MB correctly");
+    }
+
+    /// <summary>
+    /// Tests object types resolve to their distinct save extensions.
+    /// </summary>
+    private static void TestResolveTypedExtensions()
+    {
+        CelestialBody star = CreateTestStar(90001);
+        CelestialBody planet = CreateTestPlanet(90002);
+        CelestialBody asteroid = CreateTestAsteroid(90003);
+
+        string starPath = SaveData.ResolveSavePath(star, TestDir + "typed_star", true);
+        string planetPath = SaveData.ResolveSavePath(planet, TestDir + "typed_planet", true);
+        string asteroidPath = SaveData.ResolveSavePath(asteroid, TestDir + "typed_asteroid", true);
+
+        DotNetNativeTestSuite.AssertTrue(starPath.EndsWith(".sgt"), "Stars should resolve to .sgt");
+        DotNetNativeTestSuite.AssertTrue(planetPath.EndsWith(".sgp"), "Planets should resolve to .sgp");
+        DotNetNativeTestSuite.AssertTrue(asteroidPath.EndsWith(".sga"), "Asteroids should resolve to .sga");
     }
 }

@@ -77,6 +77,8 @@ Contributors pick an effort and work against master. Efforts can run in parallel
 
 **Goal:** Address save-path parity and backward compatibility so all save/load flows can run on the C# stack without silently changing formats.
 
+**Current state:** In-app save flows, custom file extensions (`.sgt`, `.sgp`, `.sga`, `.sgb`, `.sgs`, `.sgg`), and which service drives each flow are documented in Docs/ProjectStructure.md under "Save system (in-app)".
+
 **Deliverables:**
 •	**ZSTD binary formats:** Byte-compatible C# implementation for `.sgg` (galaxy) and `.sgb` (body) so the binary save path can move off the GDScript path. Do not change the on-disk format; existing saves must remain loadable.
 •	Backward compatibility: preserve ability to load at least one prior schema version where applicable.

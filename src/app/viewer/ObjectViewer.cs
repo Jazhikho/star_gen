@@ -78,6 +78,7 @@ public partial class ObjectViewer : Node3D
 		SetupViewport();
 		SetupCamera();
 		SetupMoonSystem();
+		SetupControls();
 		ConnectSignals();
 		SetGenerationControlsEnabled(false);
 		SetFileControlsEnabled(false);
@@ -175,7 +176,7 @@ public partial class ObjectViewer : Node3D
 
 		ShowBackButton();
 		SetGenerationControlsEnabled(false);
-		SetFileControlsEnabled(false);
+		SetFileControlsEnabled(true);
 		DisplayBodyWithMoons(body, _currentMoons);
 
 		string suffix;
@@ -233,6 +234,7 @@ public partial class ObjectViewer : Node3D
 		_bodyRenderer?.Clear();
 		DisableStarGlow();
 		UpdateInspector();
+		SetFileControlsEnabled(false);
 		SetStatus("No object loaded");
 	}
 }

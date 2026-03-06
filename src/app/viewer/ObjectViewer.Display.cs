@@ -165,6 +165,7 @@ public partial class ObjectViewer
 		}
 
 		UpdateInspector();
+		UpdateFileInfoForCurrentTarget();
 		SetStatus($"Focused: {moon.Name}");
 	}
 
@@ -186,6 +187,7 @@ public partial class ObjectViewer
 		}
 
 		UpdateInspector();
+		UpdateFileInfoForCurrentTarget();
 		if (_currentBody != null)
 		{
 			SetStatus($"Viewing: {_currentBody.Name}");
@@ -350,7 +352,11 @@ public partial class ObjectViewer
 
 		if (_fileInfo != null && !enabled)
 		{
-			_fileInfo.Text = "C# object-viewer save/load is not wired yet";
+			_fileInfo.Text = "No object selected";
+		}
+		else if (_fileInfo != null)
+		{
+			UpdateFileInfoForCurrentTarget();
 		}
 
 		if (_saveFileDialog != null)

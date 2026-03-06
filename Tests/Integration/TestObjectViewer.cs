@@ -4,6 +4,7 @@ using Godot;
 using StarGen.App.Rendering;
 using StarGen.App.Viewer;
 using StarGen.Domain.Celestial;
+using StarGen.Services.Persistence;
 using StarGen.Tests.Framework;
 
 namespace StarGen.Tests.Integration;
@@ -27,6 +28,7 @@ public static class TestObjectViewer
         runner.RunNativeTest("TestObjectViewer::test_inspector_shows_all_sections", TestInspectorShowsAllSections);
         runner.RunNativeTest("TestObjectViewer::test_collapsible_sections", TestCollapsibleSections);
         runner.RunNativeTest("TestObjectViewer::test_deterministic_generation", TestDeterministicGeneration);
+        runner.RunNativeTest("TestObjectViewer::test_viewer_save_and_load_body", TestViewerSaveAndLoadBody);
     }
 
     private static ObjectViewer CreateViewer()
@@ -46,6 +48,14 @@ public static class TestObjectViewer
         }
 
         return viewer;
+    }
+
+    private static void CleanupSaveFile(string path)
+    {
+        if (FileAccess.FileExists(path))
+        {
+            DirAccess.RemoveAbsolute(path);
+        }
     }
 
     private static void TestViewerSceneInstantiates()
@@ -267,6 +277,30 @@ public static class TestObjectViewer
         }
         finally
         {
+            IntegrationTestUtils.CleanupNode(viewer);
+        }
+    }
+
+    private static void TestViewerSaveAndLoadBody()
+    {
+        const string path = "user://object_viewer_save_test.sgt";
+
+        ObjectViewer viewer = CreateViewer();
+        try
+        {
+            viewer.generate_object(ObjectViewer.ObjectType.Star, 24680);
+
+            Error saveError = viewer.SaveCurrentBodyToPath(path);
+            DotNetNativeTestSuite.AssertEqual(Error.Ok, saveError, "Viewer save should succeed");
+
+            SaveDataLoadResult result = viewer.LoadBodyFromPath(path);
+            DotNetNativeTestSuite.AssertTrue(result.Success, "Viewer load should succeed");
+            DotNetNativeTestSuite.AssertNotNull(result.Body, "Loaded body should be present");
+            DotNetNativeTestSuite.AssertEqual(CelestialType.Type.Star, viewer.current_body!.Type, "Viewer should display loaded star");
+        }
+        finally
+        {
+            CleanupSaveFile(path);
             IntegrationTestUtils.CleanupNode(viewer);
         }
     }
