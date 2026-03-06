@@ -14,27 +14,27 @@ public partial class PlanetSpec : BaseSpec
     /// <summary>
     /// Size category, or -1 for random.
     /// </summary>
-    public int SizeCategory;
+    public int SizeCategory { get; set; }
 
     /// <summary>
     /// Orbit zone, or -1 for random.
     /// </summary>
-    public int OrbitZone;
+    public int OrbitZone { get; set; }
 
     /// <summary>
     /// Whether an atmosphere is required, or nil for auto.
     /// </summary>
-    public Variant HasAtmosphere;
+    public Variant HasAtmosphere { get; set; }
 
     /// <summary>
     /// Whether rings are required, or nil for auto.
     /// </summary>
-    public Variant HasRings;
+    public Variant HasRings { get; set; }
 
     /// <summary>
     /// Ring complexity, or -1 for random.
     /// </summary>
-    public int RingComplexity;
+    public int RingComplexity { get; set; }
 
     /// <summary>
     /// Creates a new planet specification.
@@ -55,6 +55,54 @@ public partial class PlanetSpec : BaseSpec
         HasAtmosphere = hasAtmosphere;
         HasRings = hasRings;
         RingComplexity = ringComplexity;
+    }
+
+    /// <summary>
+    /// Compatibility constructor accepting enum-typed categories.
+    /// </summary>
+    public PlanetSpec(
+        int generationSeed,
+        SizeCategoryArchetype.Category sizeCategory,
+        OrbitZoneArchetype.Zone orbitZone,
+        Variant hasAtmosphere = default,
+        Variant hasRings = default,
+        RingComplexityArchetype.Level ringComplexity = (RingComplexityArchetype.Level)(-1),
+        string nameHint = "",
+        Dictionary? overrides = null)
+        : this(
+            generationSeed,
+            (int)sizeCategory,
+            (int)orbitZone,
+            hasAtmosphere,
+            hasRings,
+            (int)ringComplexity,
+            nameHint,
+            overrides)
+    {
+    }
+
+    /// <summary>
+    /// Compatibility constructor accepting enum categories and integer ring-complexity values.
+    /// </summary>
+    public PlanetSpec(
+        int generationSeed,
+        SizeCategoryArchetype.Category sizeCategory,
+        OrbitZoneArchetype.Zone orbitZone,
+        Variant hasAtmosphere,
+        Variant hasRings,
+        int ringComplexity,
+        string nameHint = "",
+        Dictionary? overrides = null)
+        : this(
+            generationSeed,
+            (int)sizeCategory,
+            (int)orbitZone,
+            hasAtmosphere,
+            hasRings,
+            ringComplexity,
+            nameHint,
+            overrides)
+    {
     }
 
     /// <summary>
@@ -180,19 +228,72 @@ public partial class PlanetSpec : BaseSpec
     /// </summary>
     public static PlanetSpec FromDictionary(Dictionary data)
     {
-        return new PlanetSpec(
-            data.ContainsKey("generation_seed") ? (int)data["generation_seed"] : 0,
-            data.ContainsKey("size_category") ? (int)data["size_category"] : -1,
-            data.ContainsKey("orbit_zone") ? (int)data["orbit_zone"] : -1,
-            GetVariant(data, "has_atmosphere"),
-            GetVariant(data, "has_rings"),
-            data.ContainsKey("ring_complexity") ? (int)data["ring_complexity"] : -1,
-            data.ContainsKey("name_hint") ? (string)data["name_hint"] : string.Empty,
-            data.ContainsKey("overrides") ? (Dictionary)data["overrides"] : null);
+        int generationSeed;
+        if (data.ContainsKey("generation_seed"))
+        {
+            generationSeed = (int)data["generation_seed"];
+        }
+        else
+        {
+            generationSeed = 0;
+        }
+
+        int sizeCategory;
+        if (data.ContainsKey("size_category"))
+        {
+            sizeCategory = (int)data["size_category"];
+        }
+        else
+        {
+            sizeCategory = -1;
+        }
+
+        int orbitZone;
+        if (data.ContainsKey("orbit_zone"))
+        {
+            orbitZone = (int)data["orbit_zone"];
+        }
+        else
+        {
+            orbitZone = -1;
+        }
+
+        int ringComplexity;
+        if (data.ContainsKey("ring_complexity"))
+        {
+            ringComplexity = (int)data["ring_complexity"];
+        }
+        else
+        {
+            ringComplexity = -1;
+        }
+
+        string nameHint;
+        if (data.ContainsKey("name_hint"))
+        {
+            nameHint = (string)data["name_hint"];
+        }
+        else
+        {
+            nameHint = string.Empty;
+        }
+
+        Dictionary? overrides = null;
+        if (data.ContainsKey("overrides"))
+        {
+            overrides = (Dictionary)data["overrides"];
+        }
+
+        return new PlanetSpec(generationSeed, sizeCategory, orbitZone, GetVariant(data, "has_atmosphere"), GetVariant(data, "has_rings"), ringComplexity, nameHint, overrides);
     }
 
     private static Variant GetVariant(Dictionary data, string key)
     {
-        return data.ContainsKey(key) ? data[key] : default;
+        if (data.ContainsKey(key))
+        {
+            return data[key];
+        }
+
+        return default;
     }
 }

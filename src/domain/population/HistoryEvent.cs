@@ -109,6 +109,30 @@ public partial class HistoryEvent : RefCounted
     }
 
     /// <summary>
+    /// Returns whether the event is neutral.
+    /// </summary>
+    public bool IsNeutral()
+    {
+        return Magnitude == 0.0;
+    }
+
+    /// <summary>
+    /// Returns whether the event references another population.
+    /// </summary>
+    public bool InvolvesOtherPopulation()
+    {
+        return !string.IsNullOrEmpty(RelatedPopulationId);
+    }
+
+    /// <summary>
+    /// Returns a stable sort key for timeline ordering.
+    /// </summary>
+    public int GetSortKey()
+    {
+        return Year;
+    }
+
+    /// <summary>
     /// Returns whether an event type is typically harmful.
     /// </summary>
     public static bool IsTypicallyHarmful(EventType type)
@@ -137,6 +161,77 @@ public partial class HistoryEvent : RefCounted
     }
 
     /// <summary>
+    /// Converts an event type to a display name.
+    /// </summary>
+    public static string TypeToString(EventType type)
+    {
+        return type switch
+        {
+            EventType.Founding => "Founding",
+            EventType.NaturalDisaster => "Natural Disaster",
+            EventType.Plague => "Plague",
+            EventType.Famine => "Famine",
+            EventType.War => "War",
+            EventType.CivilWar => "Civil War",
+            EventType.TechAdvancement => "Technological Advancement",
+            EventType.Expansion => "Expansion",
+            EventType.PoliticalChange => "Political Change",
+            EventType.Migration => "Migration",
+            EventType.Collapse => "Collapse",
+            EventType.GoldenAge => "Golden Age",
+            EventType.CulturalShift => "Cultural Shift",
+            EventType.Contact => "First Contact",
+            EventType.Treaty => "Treaty",
+            EventType.Independence => "Independence",
+            EventType.Annexation => "Annexation",
+            EventType.Discovery => "Discovery",
+            EventType.Construction => "Construction",
+            EventType.Leader => "Notable Leader",
+            _ => "Unknown",
+        };
+    }
+
+    /// <summary>
+    /// Parses an event type from text; defaults to Founding.
+    /// </summary>
+    public static EventType TypeFromString(string name)
+    {
+        string normalized = name.ToLowerInvariant().Trim().Replace(" ", "_");
+        return normalized switch
+        {
+            "founding" => EventType.Founding,
+            "natural_disaster" => EventType.NaturalDisaster,
+            "plague" => EventType.Plague,
+            "famine" => EventType.Famine,
+            "war" => EventType.War,
+            "civil_war" => EventType.CivilWar,
+            "tech_advancement" or "technological_advancement" => EventType.TechAdvancement,
+            "expansion" => EventType.Expansion,
+            "political_change" => EventType.PoliticalChange,
+            "migration" => EventType.Migration,
+            "collapse" => EventType.Collapse,
+            "golden_age" => EventType.GoldenAge,
+            "cultural_shift" => EventType.CulturalShift,
+            "contact" or "first_contact" => EventType.Contact,
+            "treaty" => EventType.Treaty,
+            "independence" => EventType.Independence,
+            "annexation" => EventType.Annexation,
+            "discovery" => EventType.Discovery,
+            "construction" => EventType.Construction,
+            "leader" or "notable_leader" => EventType.Leader,
+            _ => EventType.Founding,
+        };
+    }
+
+    /// <summary>
+    /// Returns the number of event types.
+    /// </summary>
+    public static int TypeCount()
+    {
+        return 20;
+    }
+
+    /// <summary>
     /// Converts this event to a dictionary payload.
     /// </summary>
     public Dictionary ToDictionary()
@@ -152,6 +247,14 @@ public partial class HistoryEvent : RefCounted
             ["related_population_id"] = RelatedPopulationId,
             ["metadata"] = CloneDictionary(Metadata),
         };
+    }
+
+    /// <summary>
+    /// Compatibility alias for legacy API naming.
+    /// </summary>
+    public Dictionary ToDict()
+    {
+        return ToDictionary();
     }
 
     /// <summary>
@@ -171,6 +274,14 @@ public partial class HistoryEvent : RefCounted
         historyEvent.RelatedPopulationId = GetString(data, "related_population_id", string.Empty);
         historyEvent.Metadata = GetDictionary(data, "metadata");
         return historyEvent;
+    }
+
+    /// <summary>
+    /// Compatibility alias for legacy API naming.
+    /// </summary>
+    public static HistoryEvent FromDict(Dictionary data)
+    {
+        return FromDictionary(data);
     }
 
     /// <summary>
@@ -198,7 +309,12 @@ public partial class HistoryEvent : RefCounted
         }
 
         Variant value = data[key];
-        return value.VariantType == Variant.Type.String ? (string)value : fallback;
+        if (value.VariantType == Variant.Type.String)
+        {
+            return (string)value;
+        }
+
+        return fallback;
     }
 
     /// <summary>
@@ -215,7 +331,7 @@ public partial class HistoryEvent : RefCounted
         return value.VariantType switch
         {
             Variant.Type.Int => (int)value,
-            Variant.Type.String => int.TryParse((string)value, out int parsed) ? parsed : fallback,
+            Variant.Type.String => TryParseInt((string)value, fallback),
             _ => fallback,
         };
     }
@@ -235,7 +351,7 @@ public partial class HistoryEvent : RefCounted
         {
             Variant.Type.Float => (double)value,
             Variant.Type.Int => (int)value,
-            Variant.Type.String => double.TryParse((string)value, out double parsed) ? parsed : fallback,
+            Variant.Type.String => TryParseDouble((string)value, fallback),
             _ => fallback,
         };
     }
@@ -245,8 +361,31 @@ public partial class HistoryEvent : RefCounted
     /// </summary>
     private static Dictionary GetDictionary(Dictionary data, string key)
     {
-        return data.ContainsKey(key) && data[key].VariantType == Variant.Type.Dictionary
-            ? CloneDictionary((Dictionary)data[key])
-            : new Dictionary();
+        if (data.ContainsKey(key) && data[key].VariantType == Variant.Type.Dictionary)
+        {
+            return CloneDictionary((Dictionary)data[key]);
+        }
+
+        return new Dictionary();
+    }
+
+    private static int TryParseInt(string s, int fallback)
+    {
+        if (int.TryParse(s, out int parsed))
+        {
+            return parsed;
+        }
+
+        return fallback;
+    }
+
+    private static double TryParseDouble(string s, double fallback)
+    {
+        if (double.TryParse(s, out double parsed))
+        {
+            return parsed;
+        }
+
+        return fallback;
     }
 }

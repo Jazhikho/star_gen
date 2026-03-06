@@ -58,10 +58,20 @@ public partial class BeltFieldData : RefCounted
             asteroids.Add(asteroid.ToDictionary());
         }
 
+        Dictionary specData;
+        if (Spec != null)
+        {
+            specData = Spec.ToDictionary();
+        }
+        else
+        {
+            specData = new Dictionary();
+        }
+
         return new Dictionary
         {
             ["asteroids"] = asteroids,
-            ["spec"] = Spec != null ? Spec.ToDictionary() : new Dictionary(),
+            ["spec"] = specData,
             ["generation_seed"] = GenerationSeed,
             ["generator_version"] = GeneratorVersion,
         };
@@ -121,6 +131,11 @@ public partial class BeltFieldData : RefCounted
         }
 
         Variant value = data[key];
-        return value.VariantType == Variant.Type.String ? (string)value : fallback;
+        if (value.VariantType == Variant.Type.String)
+        {
+            return (string)value;
+        }
+
+        return fallback;
     }
 }

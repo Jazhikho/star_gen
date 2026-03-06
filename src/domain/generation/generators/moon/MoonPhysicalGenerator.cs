@@ -48,9 +48,14 @@ public static class MoonPhysicalGenerator
         if (radiusM < 0.0)
         {
             double radiusEarth = spec.GetOverrideFloat("physical.radius_earth", -1.0);
-            radiusM = radiusEarth < 0.0
-                ? SizeTable.RadiusFromMassDensity(massKg, densityKgM3)
-                : radiusEarth * Units.EarthRadiusMeters;
+            if (radiusEarth < 0.0)
+            {
+                radiusM = SizeTable.RadiusFromMassDensity(massKg, densityKgM3);
+            }
+            else
+            {
+                radiusM = radiusEarth * Units.EarthRadiusMeters;
+            }
         }
 
         bool isLocked = IsTidallyLockedToParent(
@@ -79,9 +84,14 @@ public static class MoonPhysicalGenerator
         double oblateness = spec.GetOverrideFloat("physical.oblateness", -1.0);
         if (oblateness < 0.0)
         {
-            oblateness = isLocked
-                ? rng.RandfRange(0.0f, 0.005f)
-                : rng.RandfRange(0.0f, 0.02f);
+            if (isLocked)
+            {
+                oblateness = rng.RandfRange(0.0f, 0.005f);
+            }
+            else
+            {
+                oblateness = rng.RandfRange(0.0f, 0.02f);
+            }
         }
 
         double magneticMoment = spec.GetOverrideFloat("physical.magnetic_moment", -1.0);
@@ -142,6 +152,7 @@ public static class MoonPhysicalGenerator
         return System.Math.Min(tidalHeat, 1.0e16);
     }
 
+    /// <summary>Returns whether the moon is tidally locked to its parent.</summary>
     private static bool IsTidallyLockedToParent(
         double orbitalDistanceM,
         double massKg,
@@ -163,6 +174,7 @@ public static class MoonPhysicalGenerator
         return systemAgeYears > tau;
     }
 
+    /// <summary>Computes rotation period; locked moons match orbital period.</summary>
     private static double CalculateRotationPeriod(
         OrbitalProps orbital,
         double parentMassKg,
@@ -177,13 +189,18 @@ public static class MoonPhysicalGenerator
         return rng.RandfRange(5.0f, 50.0f) * 3600.0;
     }
 
+    /// <summary>Computes axial tilt; locked bodies remain near-zero.</summary>
     private static double CalculateAxialTilt(bool isLocked, SeededRng rng)
     {
-        return isLocked
-            ? rng.RandfRange(0.0f, 5.0f)
-            : rng.RandfRange(0.0f, 30.0f);
+        if (isLocked)
+        {
+            return rng.RandfRange(0.0f, 5.0f);
+        }
+
+        return rng.RandfRange(0.0f, 30.0f);
     }
 
+    /// <summary>Estimates magnetic moment for the moon.</summary>
     private static double CalculateMagneticMoment(
         double massKg,
         double radiusM,
@@ -212,6 +229,7 @@ public static class MoonPhysicalGenerator
         return baseMoment * rng.RandfRange(0.01f, 0.5f);
     }
 
+    /// <summary>Estimates internal heat from mass and age.</summary>
     private static double CalculateInternalHeat(double massKg, double ageYears, SeededRng rng)
     {
         const double earthHeat = 4.7e13;

@@ -6,5 +6,16 @@
     <EnableDynamicLoading>true</EnableDynamicLoading>
     <Nullable>enable</Nullable>
     <ImplicitUsings>disable</ImplicitUsings>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
   </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Remove="Concepts\ReligionGenerator\**\*.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Update="Tests\**\*.cs">
+      <Nullable>disable</Nullable>
+    </Compile>
+  </ItemGroup>
 </Project>

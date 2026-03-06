@@ -1,12 +1,88 @@
 using System;
 using System.IO;
 using Godot;
-using Godot.Collections;
+using StarGen.App;
+using StarGen.Services.Persistence;
 using StarGen.Domain.Galaxy;
 using StarGen.Domain.Jumplanes;
-using StarGen.Services.Persistence;
 
 namespace StarGen.App.GalaxyViewer;
+
+/// <summary>
+/// Minimal saved-state contract used by the galaxy-viewer save/load helper and its tests.
+/// </summary>
+public interface IGalaxyViewerSavedStateHost
+{
+    /// <summary>
+    /// Returns the saved zoom level.
+    /// </summary>
+    int GetSavedZoomLevel();
+
+    /// <summary>
+    /// Stores the saved zoom level.
+    /// </summary>
+    void SetSavedZoomLevel(int level);
+
+    /// <summary>
+    /// Returns the saved quadrant, if present.
+    /// </summary>
+    Vector3I? GetSavedQuadrant();
+
+    /// <summary>
+    /// Stores the saved quadrant.
+    /// </summary>
+    void SetSavedQuadrant(Vector3I? value);
+
+    /// <summary>
+    /// Returns the saved sector, if present.
+    /// </summary>
+    Vector3I? GetSavedSector();
+
+    /// <summary>
+    /// Stores the saved sector.
+    /// </summary>
+    void SetSavedSector(Vector3I? value);
+
+    /// <summary>
+    /// Returns the saved star-camera position.
+    /// </summary>
+    Vector3 GetSavedStarCameraPosition();
+
+    /// <summary>
+    /// Stores the saved star-camera position.
+    /// </summary>
+    void SetSavedStarCameraPosition(Vector3 value);
+
+    /// <summary>
+    /// Returns the saved star-camera rotation.
+    /// </summary>
+    Vector3 GetSavedStarCameraRotation();
+
+    /// <summary>
+    /// Stores the saved star-camera rotation.
+    /// </summary>
+    void SetSavedStarCameraRotation(Vector3 value);
+
+    /// <summary>
+    /// Returns the saved star seed.
+    /// </summary>
+    int GetSavedStarSeed();
+
+    /// <summary>
+    /// Stores the saved star seed.
+    /// </summary>
+    void SetSavedStarSeed(int value);
+
+    /// <summary>
+    /// Returns the saved star position.
+    /// </summary>
+    Vector3 GetSavedStarPosition();
+
+    /// <summary>
+    /// Stores the saved star position.
+    /// </summary>
+    void SetSavedStarPosition(Vector3 value);
+}
 
 /// <summary>
 /// Handles galaxy-viewer save/load state capture and restore flows.
@@ -16,241 +92,238 @@ public partial class GalaxyViewerSaveLoad : RefCounted
     /// <summary>
     /// Saves the current viewer state for later restoration.
     /// </summary>
-    public void SaveState(Node viewer)
+    public void SaveState(GalaxyViewer viewer)
     {
-        ZoomStateMachine? zoomMachine = viewer.Call("get_zoom_machine").As<ZoomStateMachine>();
+        ZoomStateMachine? zoomMachine = viewer.GetZoomMachine();
         if (zoomMachine != null)
         {
-            viewer.Call("set_saved_zoom_level", zoomMachine.GetCurrentLevel());
+            viewer.SetSavedZoomLevel(zoomMachine.GetCurrentLevel());
         }
         else
         {
-            viewer.Call("set_saved_zoom_level", (int)GalaxyCoordinates.ZoomLevel.Subsector);
+            viewer.SetSavedZoomLevel((int)GalaxyCoordinates.ZoomLevel.Subsector);
         }
 
-        QuadrantSelector? quadrantSelector = viewer.Call("get_quadrant_selector").As<QuadrantSelector>();
-        if (quadrantSelector != null && quadrantSelector.HasSelection())
+        QuadrantSelector? quadrantSelector = viewer.GetQuadrantSelector();
+        if (quadrantSelector != null
+            && quadrantSelector.HasSelection()
+            && quadrantSelector.SelectedCoords.VariantType == Variant.Type.Vector3I)
         {
-            viewer.Call("set_saved_quadrant", quadrantSelector.SelectedCoords);
+            viewer.SetSavedQuadrant((Vector3I)quadrantSelector.SelectedCoords);
         }
         else
         {
-            viewer.Call("set_saved_quadrant", default(Variant));
+            viewer.SetSavedQuadrant(null);
         }
 
-        viewer.Call("set_saved_sector", viewer.Call("get_selected_sector_internal"));
+        viewer.SetSavedSector(viewer.GetSelectedSector());
 
-        int savedLevel = GetInt(viewer.Call("get_saved_zoom_level"), (int)GalaxyCoordinates.ZoomLevel.Subsector);
-        if (savedLevel == (int)GalaxyCoordinates.ZoomLevel.Subsector)
+        if (viewer.GetSavedZoomLevel() == (int)GalaxyCoordinates.ZoomLevel.Subsector)
         {
-            Node3D? starCamera = viewer.Call("get_star_camera").As<Node3D>();
+            StarViewCamera? starCamera = viewer.GetStarCamera();
             if (starCamera != null && starCamera.IsInsideTree())
             {
-                viewer.Call("set_saved_star_camera_position", starCamera.GlobalPosition);
-                viewer.Call("set_saved_star_camera_rotation", starCamera.Rotation);
+                viewer.SetSavedStarCameraPosition(starCamera.GlobalPosition);
+                viewer.SetSavedStarCameraRotation(starCamera.Rotation);
             }
         }
 
-        viewer.Call("set_saved_star_seed", viewer.Call("get_selected_star_seed_internal"));
-        viewer.Call("set_saved_star_position", viewer.Call("get_selected_star_position_internal"));
+        viewer.SetSavedStarSeed(viewer.GetSelectedStarSeed());
+        viewer.SetSavedStarPosition(viewer.GetSelectedStarPosition());
     }
 
     /// <summary>
     /// Restores the previously saved viewer state.
     /// </summary>
-    public void RestoreState(Node viewer)
+    public void RestoreState(GalaxyViewer viewer)
     {
-        int savedLevel = GetInt(viewer.Call("get_saved_zoom_level"), -1);
+        int savedLevel = viewer.GetSavedZoomLevel();
         if (savedLevel < 0)
         {
-            viewer.Call("call_initialize_at_home");
+            viewer.InitializeAtHomeState();
             return;
         }
 
-        JumpLaneResult? jumpLaneResult = viewer.Call("get_jump_lane_result").As<JumpLaneResult>();
+        JumpLaneResult? jumpLaneResult = viewer.GetJumpLaneResult();
         if (jumpLaneResult != null)
         {
-            viewer.Call("set_jump_lane_result", jumpLaneResult);
+            viewer.SetJumpLaneResult(jumpLaneResult);
         }
 
-        Variant savedQuadrantVariant = viewer.Call("get_saved_quadrant");
-        QuadrantSelector? quadrantSelector = viewer.Call("get_quadrant_selector").As<QuadrantSelector>();
-        if (savedQuadrantVariant.VariantType == Variant.Type.Vector3I && quadrantSelector != null)
+        Vector3I? savedQuadrant = viewer.GetSavedQuadrant();
+        QuadrantSelector? quadrantSelector = viewer.GetQuadrantSelector();
+        if (savedQuadrant.HasValue && quadrantSelector != null)
         {
-            Vector3I quadrantCoords = (Vector3I)savedQuadrantVariant;
-            GodotObject? quadrantCursor = viewer.Call("get_quadrant_cursor").AsGodotObject();
+            GridCursor? quadrantCursor = viewer.GetQuadrantCursor();
             if (quadrantCursor != null)
             {
-                quadrantCursor.Set("position", quadrantCoords);
+                quadrantCursor.Position = savedQuadrant.Value;
             }
 
-            quadrantSelector.SetSelection(quadrantCoords);
+            quadrantSelector.SetSelection(Variant.CreateFrom(savedQuadrant.Value));
+        }
+        else if (quadrantSelector != null)
+        {
+            quadrantSelector.ClearSelection();
         }
 
-        Variant savedSectorVariant = viewer.Call("get_saved_sector");
-        viewer.Call("set_selected_sector_internal", savedSectorVariant);
-        if (savedSectorVariant.VariantType == Variant.Type.Vector3I)
+        Vector3I? savedSector = viewer.GetSavedSector();
+        viewer.SetSelectedSector(savedSector);
+        if (savedSector.HasValue)
         {
-            GodotObject? sectorCursor = viewer.Call("get_sector_cursor").AsGodotObject();
+            GridCursor? sectorCursor = viewer.GetSectorCursor();
             if (sectorCursor != null)
             {
-                sectorCursor.Set("position", (Vector3I)savedSectorVariant);
+                sectorCursor.Position = savedSector.Value;
             }
         }
 
-        if (savedQuadrantVariant.VariantType == Variant.Type.Vector3I
-            && (savedLevel == (int)GalaxyCoordinates.ZoomLevel.Sector || savedLevel == (int)GalaxyCoordinates.ZoomLevel.Subsector))
+        if (savedQuadrant.HasValue
+            && (savedLevel == (int)GalaxyCoordinates.ZoomLevel.Sector
+                || savedLevel == (int)GalaxyCoordinates.ZoomLevel.Subsector))
         {
-            GodotObject? sectorRenderer = viewer.Call("get_sector_renderer").AsGodotObject();
-            if (sectorRenderer != null)
+            SectorRenderer? sectorRenderer = viewer.GetSectorRenderer();
+            DensityModelInterface? densityModel = viewer.GetDensityModel();
+            if (sectorRenderer != null && densityModel != null)
             {
-                sectorRenderer.Call("build_for_quadrant", (Vector3I)savedQuadrantVariant, viewer.Call("get_density_model"));
+                sectorRenderer.BuildForQuadrant(savedQuadrant.Value, densityModel);
             }
         }
 
-        ZoomStateMachine? zoomMachine = viewer.Call("get_zoom_machine").As<ZoomStateMachine>();
+        ZoomStateMachine? zoomMachine = viewer.GetZoomMachine();
         if (zoomMachine != null)
         {
             zoomMachine.SetLevel(savedLevel);
         }
 
-        viewer.Call("call_apply_zoom_level", savedLevel);
+        viewer.ApplyZoomLevelState(savedLevel);
 
         if (savedLevel == (int)GalaxyCoordinates.ZoomLevel.Subsector)
         {
-            Node3D? starCamera = viewer.Call("get_star_camera").As<Node3D>();
+            StarViewCamera? starCamera = viewer.GetStarCamera();
             if (starCamera != null && starCamera.IsInsideTree())
             {
-                starCamera.GlobalPosition = GetVector3(viewer.Call("get_saved_star_camera_position"));
-                starCamera.Rotation = GetVector3(viewer.Call("get_saved_star_camera_rotation"));
+                starCamera.GlobalPosition = viewer.GetSavedStarCameraPosition();
+                starCamera.Rotation = viewer.GetSavedStarCameraRotation();
 
-                GodotObject? neighborhoodRenderer = viewer.Call("get_neighborhood_renderer").AsGodotObject();
-                if (neighborhoodRenderer != null)
+                NeighborhoodRenderer? neighborhoodRenderer = viewer.GetNeighborhoodRenderer();
+                DensityModelInterface? densityModel = viewer.GetDensityModel();
+                if (neighborhoodRenderer != null && densityModel != null)
                 {
-                    neighborhoodRenderer.Call(
-                        "build_neighborhood",
+                    neighborhoodRenderer.BuildNeighborhood(
                         starCamera.GlobalPosition,
-                        viewer.Get("galaxy_seed"),
-                        viewer.Call("get_density_model"),
-                        viewer.Call("get_reference_density"));
+                        viewer.GalaxySeed,
+                        densityModel,
+                        viewer.GetReferenceDensity());
                 }
             }
         }
 
-        int savedStarSeed = GetInt(viewer.Call("get_saved_star_seed"), 0);
-        Vector3 savedStarPosition = GetVector3(viewer.Call("get_saved_star_position"));
+        int savedStarSeed = viewer.GetSavedStarSeed();
+        Vector3 savedStarPosition = viewer.GetSavedStarPosition();
         if (savedStarSeed != 0 && savedLevel == (int)GalaxyCoordinates.ZoomLevel.Subsector)
         {
-            viewer.Call("call_apply_star_selection", savedStarPosition, savedStarSeed);
+            viewer.ApplyStarSelectionState(savedStarPosition, savedStarSeed);
         }
         else
         {
-            GodotObject? selectionIndicator = viewer.Call("get_selection_indicator").AsGodotObject();
+            SelectionIndicator? selectionIndicator = viewer.GetSelectionIndicator();
             if (selectionIndicator != null)
             {
-                selectionIndicator.Call("hide_indicator");
+                selectionIndicator.HideIndicator();
             }
         }
 
-        viewer.Call("call_update_inspector");
-        viewer.Call("set_status", "Returned to galaxy view");
+        viewer.UpdateInspectorState();
+        viewer.SetStatus("Returned to galaxy view");
     }
 
     /// <summary>
     /// Clears saved viewer state.
     /// </summary>
-    public void ClearSavedState(Node viewer)
+    public void ClearSavedState(IGalaxyViewerSavedStateHost viewer)
     {
-        viewer.Call("set_saved_zoom_level", -1);
-        viewer.Call("set_saved_quadrant", default(Variant));
-        viewer.Call("set_saved_sector", default(Variant));
-        viewer.Call("set_saved_star_camera_position", Vector3.Zero);
-        viewer.Call("set_saved_star_camera_rotation", Vector3.Zero);
-        viewer.Call("set_saved_star_seed", 0);
-        viewer.Call("set_saved_star_position", Vector3.Zero);
+        viewer.SetSavedZoomLevel(-1);
+        viewer.SetSavedQuadrant(null);
+        viewer.SetSavedSector(null);
+        viewer.SetSavedStarCameraPosition(Vector3.Zero);
+        viewer.SetSavedStarCameraRotation(Vector3.Zero);
+        viewer.SetSavedStarSeed(0);
+        viewer.SetSavedStarPosition(Vector3.Zero);
     }
 
     /// <summary>
     /// Returns whether there is saved viewer state to restore.
     /// </summary>
-    public bool HasSavedState(Node viewer)
+    public bool HasSavedState(IGalaxyViewerSavedStateHost viewer)
     {
-        return GetInt(viewer.Call("get_saved_zoom_level"), -1) >= 0;
+        return viewer.GetSavedZoomLevel() >= 0;
     }
 
     /// <summary>
     /// Creates a galaxy-save payload from the current viewer state.
     /// </summary>
-    public GalaxySaveData CreateSaveData(Node viewer)
+    public GalaxySaveData CreateSaveData(GalaxyViewer viewer)
     {
         GalaxySaveData data = GalaxySaveData.Create((long)Time.GetUnixTimeFromSystem());
-        data.GalaxySeed = GetInt(viewer.Get("galaxy_seed"), data.GalaxySeed);
+        data.GalaxySeed = viewer.GalaxySeed;
 
-        GalaxyConfig? config = viewer.Call("get_galaxy_config").As<GalaxyConfig>();
+        GalaxyConfig? config = viewer.GetGalaxyConfig();
         if (config != null)
         {
             data.SetConfig(config);
         }
 
-        Galaxy? galaxy = viewer.Call("get_galaxy").As<Galaxy>();
+        Galaxy? galaxy = viewer.GetGalaxy();
         if (galaxy != null)
         {
             data.CachedSystemCount = galaxy.GetCachedSystemCount();
         }
 
-        ZoomStateMachine? zoomMachine = viewer.Call("get_zoom_machine").As<ZoomStateMachine>();
+        ZoomStateMachine? zoomMachine = viewer.GetZoomMachine();
         if (zoomMachine != null)
         {
-            data.ZoomLevel = zoomMachine.GetCurrentLevel();
+            data.ZoomLevel = (GalaxyCoordinates.ZoomLevel)zoomMachine.GetCurrentLevel();
         }
 
-        QuadrantSelector? quadrantSelector = viewer.Call("get_quadrant_selector").As<QuadrantSelector>();
-        if (quadrantSelector != null && quadrantSelector.HasSelection())
+        QuadrantSelector? quadrantSelector = viewer.GetQuadrantSelector();
+        if (quadrantSelector != null
+            && quadrantSelector.HasSelection()
+            && quadrantSelector.SelectedCoords.VariantType == Variant.Type.Vector3I)
         {
-            if (quadrantSelector.SelectedCoords.VariantType == Variant.Type.Vector3I)
-            {
-                data.SelectedQuadrant = (Vector3I)quadrantSelector.SelectedCoords;
-            }
+            data.SelectedQuadrant = (Vector3I)quadrantSelector.SelectedCoords;
         }
 
-        Variant selectedSectorVariant = viewer.Call("get_selected_sector_internal");
-        if (selectedSectorVariant.VariantType == Variant.Type.Vector3I)
-        {
-            data.SelectedSector = (Vector3I)selectedSectorVariant;
-        }
+        data.SelectedSector = viewer.GetSelectedSector();
 
-        Node3D? starCamera = viewer.Call("get_star_camera").As<Node3D>();
+        StarViewCamera? starCamera = viewer.GetStarCamera();
         if (starCamera != null && starCamera.IsInsideTree())
         {
             data.CameraPosition = starCamera.GlobalPosition;
             data.CameraRotation = starCamera.Rotation;
         }
 
-        int selectedStarSeed = GetInt(viewer.Call("get_selected_star_seed_internal"), 0);
+        int selectedStarSeed = viewer.GetSelectedStarSeed();
         data.HasStarSelection = selectedStarSeed != 0;
         data.SelectedStarSeed = selectedStarSeed;
-        data.SelectedStarPosition = GetVector3(viewer.Call("get_selected_star_position_internal"));
+        data.SelectedStarPosition = viewer.GetSelectedStarPosition();
 
-        JumpLaneRegion? jumpLaneRegion = viewer.Call("get_jump_lane_region").As<JumpLaneRegion>();
+        JumpLaneRegion? jumpLaneRegion = viewer.GetJumpLaneRegion();
         if (jumpLaneRegion != null)
         {
             data.JumpLaneRegionData = jumpLaneRegion.ToDictionary();
         }
 
-        JumpLaneResult? jumpLaneResult = viewer.Call("get_jump_lane_result").As<JumpLaneResult>();
+        JumpLaneResult? jumpLaneResult = viewer.GetJumpLaneResult();
         if (jumpLaneResult != null)
         {
             data.JumpLaneResultData = jumpLaneResult.ToDictionary();
         }
 
-        Node? mainApp = viewer.GetParent()?.GetParent();
-        if (mainApp != null && mainApp.HasMethod("get_body_overrides"))
+        MainApp? mainApp = viewer.GetParent()?.GetParent() as MainApp;
+        if (mainApp != null)
         {
-            Variant overridesVariant = mainApp.Call("get_body_overrides");
-            if (overridesVariant.VariantType != Variant.Type.Nil)
-            {
-                data.SetBodyOverrides(overridesVariant.As<GalaxyBodyOverrides>());
-            }
+            data.SetBodyOverrides(mainApp.GetBodyOverrides());
         }
 
         return data;
@@ -259,141 +332,136 @@ public partial class GalaxyViewerSaveLoad : RefCounted
     /// <summary>
     /// Applies save data to restore viewer state.
     /// </summary>
-    public void ApplySaveData(Node viewer, GalaxySaveData data)
+    public void ApplySaveData(GalaxyViewer viewer, GalaxySaveData data)
     {
         if (data.HasConfig())
         {
             GalaxyConfig? config = data.GetConfig();
             if (config != null)
             {
-                viewer.Call("set_galaxy_config", config);
+                viewer.SetGalaxyConfig(config);
             }
         }
 
-        int currentSeed = GetInt(viewer.Get("galaxy_seed"), data.GalaxySeed);
-        if (data.GalaxySeed != currentSeed)
+        if (data.GalaxySeed != viewer.GalaxySeed)
         {
-            viewer.Call("call_change_galaxy_seed", data.GalaxySeed);
+            viewer.ChangeGalaxySeed(data.GalaxySeed);
         }
 
-        QuadrantSelector? quadrantSelector = viewer.Call("get_quadrant_selector").As<QuadrantSelector>();
+        QuadrantSelector? quadrantSelector = viewer.GetQuadrantSelector();
         if (data.SelectedQuadrant.HasValue && quadrantSelector != null)
         {
             Vector3I quadrantCoords = data.SelectedQuadrant.Value;
-            GodotObject? quadrantCursor = viewer.Call("get_quadrant_cursor").AsGodotObject();
+            GridCursor? quadrantCursor = viewer.GetQuadrantCursor();
             if (quadrantCursor != null)
             {
-                quadrantCursor.Set("position", quadrantCoords);
+                quadrantCursor.Position = quadrantCoords;
             }
 
-            quadrantSelector.SetSelection(quadrantCoords);
+            quadrantSelector.SetSelection(Variant.CreateFrom(quadrantCoords));
         }
         else if (quadrantSelector != null)
         {
             quadrantSelector.ClearSelection();
         }
 
+        viewer.SetSelectedSector(data.SelectedSector);
         if (data.SelectedSector.HasValue)
         {
-            viewer.Call("set_selected_sector_internal", data.SelectedSector.Value);
-            GodotObject? sectorCursor = viewer.Call("get_sector_cursor").AsGodotObject();
+            GridCursor? sectorCursor = viewer.GetSectorCursor();
             if (sectorCursor != null)
             {
-                sectorCursor.Set("position", data.SelectedSector.Value);
+                sectorCursor.Position = data.SelectedSector.Value;
             }
-        }
-        else
-        {
-            viewer.Call("set_selected_sector_internal", default(Variant));
         }
 
         if (data.SelectedQuadrant.HasValue
-            && (data.ZoomLevel == (int)GalaxyCoordinates.ZoomLevel.Sector || data.ZoomLevel == (int)GalaxyCoordinates.ZoomLevel.Subsector))
+            && (data.ZoomLevel == GalaxyCoordinates.ZoomLevel.Sector
+                || data.ZoomLevel == GalaxyCoordinates.ZoomLevel.Subsector))
         {
-            GodotObject? sectorRenderer = viewer.Call("get_sector_renderer").AsGodotObject();
-            if (sectorRenderer != null)
+            SectorRenderer? sectorRenderer = viewer.GetSectorRenderer();
+            DensityModelInterface? densityModel = viewer.GetDensityModel();
+            if (sectorRenderer != null && densityModel != null)
             {
-                sectorRenderer.Call("build_for_quadrant", data.SelectedQuadrant.Value, viewer.Call("get_density_model"));
+                sectorRenderer.BuildForQuadrant(data.SelectedQuadrant.Value, densityModel);
             }
         }
 
-        ZoomStateMachine? zoomMachine = viewer.Call("get_zoom_machine").As<ZoomStateMachine>();
+        ZoomStateMachine? zoomMachine = viewer.GetZoomMachine();
         if (zoomMachine != null)
         {
-            zoomMachine.SetLevel(data.ZoomLevel);
+            zoomMachine.SetLevel((int)data.ZoomLevel);
         }
 
-        viewer.Call("call_apply_zoom_level", data.ZoomLevel);
+        viewer.ApplyZoomLevelState((int)data.ZoomLevel);
 
-        if (data.ZoomLevel == (int)GalaxyCoordinates.ZoomLevel.Subsector)
+        if (data.ZoomLevel == GalaxyCoordinates.ZoomLevel.Subsector)
         {
-            Node3D? starCamera = viewer.Call("get_star_camera").As<Node3D>();
+            StarViewCamera? starCamera = viewer.GetStarCamera();
             if (starCamera != null && starCamera.IsInsideTree())
             {
                 starCamera.GlobalPosition = data.CameraPosition;
                 starCamera.Rotation = data.CameraRotation;
 
-                GodotObject? neighborhoodRenderer = viewer.Call("get_neighborhood_renderer").AsGodotObject();
-                if (neighborhoodRenderer != null)
+                NeighborhoodRenderer? neighborhoodRenderer = viewer.GetNeighborhoodRenderer();
+                DensityModelInterface? densityModel = viewer.GetDensityModel();
+                if (neighborhoodRenderer != null && densityModel != null)
                 {
-                    neighborhoodRenderer.Call(
-                        "build_neighborhood",
+                    neighborhoodRenderer.BuildNeighborhood(
                         starCamera.GlobalPosition,
-                        viewer.Get("galaxy_seed"),
-                        viewer.Call("get_density_model"),
-                        viewer.Call("get_reference_density"));
+                        viewer.GalaxySeed,
+                        densityModel,
+                        viewer.GetReferenceDensity());
                 }
             }
         }
 
         if (data.HasStarSelection)
         {
-            viewer.Call("set_selected_star_seed_internal", data.SelectedStarSeed);
-            viewer.Call("set_selected_star_position_internal", data.SelectedStarPosition);
-
-            GodotObject? selectionIndicator = viewer.Call("get_selection_indicator").AsGodotObject();
+            viewer.SetSelectedStarState(data.SelectedStarSeed, data.SelectedStarPosition);
+            SelectionIndicator? selectionIndicator = viewer.GetSelectionIndicator();
             if (selectionIndicator != null)
             {
-                selectionIndicator.Call("show_at", data.SelectedStarPosition);
+                selectionIndicator.ShowAt(data.SelectedStarPosition);
             }
 
-            GodotObject? inspectorPanel = viewer.Call("get_inspector_panel").AsGodotObject();
+            GalaxyInspectorPanel? inspectorPanel = viewer.GetInspectorPanel();
             if (inspectorPanel != null)
             {
-                inspectorPanel.Call("display_selected_star", data.SelectedStarPosition, data.SelectedStarSeed);
+                inspectorPanel.DisplaySelectedStar(data.SelectedStarPosition, data.SelectedStarSeed);
             }
         }
         else
         {
-            viewer.Call("set_selected_star_seed_internal", 0);
-            viewer.Call("set_selected_star_position_internal", Vector3.Zero);
-
-            GodotObject? selectionIndicator = viewer.Call("get_selection_indicator").AsGodotObject();
+            viewer.ClearSelectedStarState();
+            SelectionIndicator? selectionIndicator = viewer.GetSelectionIndicator();
             if (selectionIndicator != null)
             {
-                selectionIndicator.Call("hide_indicator");
+                selectionIndicator.HideIndicator();
             }
         }
 
+        viewer.SetJumpLaneRegion(null);
+        viewer.SetJumpLaneResult(null);
+
         if (data.JumpLaneRegionData.Count > 0)
         {
-            JumpLaneRegion region = JumpLaneRegion.FromDictionary(data.JumpLaneRegionData);
-            viewer.Call("set_jump_lane_region", region);
+            viewer.SetJumpLaneRegion(JumpLaneRegion.FromDictionary(data.JumpLaneRegionData));
         }
 
         if (data.JumpLaneResultData.Count > 0)
         {
-            JumpLaneResult result = JumpLaneResult.FromDictionary(data.JumpLaneResultData);
-            viewer.Call("set_jump_lane_result", result);
+            viewer.SetJumpLaneResult(JumpLaneResult.FromDictionary(data.JumpLaneResultData));
         }
 
-        viewer.Call("call_update_inspector");
+        viewer.UpdateInspectorState();
+        viewer.RefreshJumpRoutePresentationState();
     }
 
     /// <summary>
     /// Opens the save dialog for galaxy save files.
     /// </summary>
-    public void OnSavePressed(Node viewer)
+    public void OnSavePressed(GalaxyViewer viewer)
     {
         FileDialog dialog = new()
         {
@@ -402,10 +470,9 @@ public partial class GalaxyViewerSaveLoad : RefCounted
             Filters = ["*.sgg ; StarGen Galaxy", "*.json ; JSON Debug"],
         };
 
-        int galaxySeed = GetInt(viewer.Get("galaxy_seed"), 0);
-        dialog.CurrentFile = $"galaxy_{galaxySeed}.sgg";
+        dialog.CurrentFile = $"galaxy_{viewer.GalaxySeed}.sgg";
         dialog.FileSelected += path => OnSaveFileSelected(viewer, path);
-        dialog.Canceled += () => dialog.QueueFree();
+        dialog.Canceled += dialog.QueueFree;
         viewer.AddChild(dialog);
         dialog.PopupCentered(new Vector2I(800, 600));
     }
@@ -413,7 +480,7 @@ public partial class GalaxyViewerSaveLoad : RefCounted
     /// <summary>
     /// Opens the load dialog for galaxy save files.
     /// </summary>
-    public void OnLoadPressed(Node viewer)
+    public void OnLoadPressed(GalaxyViewer viewer)
     {
         FileDialog dialog = new()
         {
@@ -423,7 +490,7 @@ public partial class GalaxyViewerSaveLoad : RefCounted
         };
 
         dialog.FileSelected += path => OnLoadFileSelected(viewer, path);
-        dialog.Canceled += () => dialog.QueueFree();
+        dialog.Canceled += dialog.QueueFree;
         viewer.AddChild(dialog);
         dialog.PopupCentered(new Vector2I(800, 600));
     }
@@ -431,57 +498,48 @@ public partial class GalaxyViewerSaveLoad : RefCounted
     /// <summary>
     /// Handles a chosen save path.
     /// </summary>
-    public void OnSaveFileSelected(Node viewer, string path)
+    public void OnSaveFileSelected(GalaxyViewer viewer, string path)
     {
         GalaxySaveData data = CreateSaveData(viewer);
-        string error = path.EndsWith(".json", StringComparison.OrdinalIgnoreCase)
-            ? GalaxyPersistence.SaveJson(path, data)
-            : GalaxyPersistence.SaveBinary(path, data);
+        string error;
+        if (path.EndsWith(".json", StringComparison.OrdinalIgnoreCase))
+        {
+            error = GalaxyPersistence.SaveJson(path, data);
+        }
+        else
+        {
+            error = GalaxyPersistence.SaveBinary(path, data);
+        }
 
         if (string.IsNullOrEmpty(error))
         {
-            viewer.Call("set_status", $"Saved to {Path.GetFileName(path)}");
+            viewer.SetStatus($"Saved to {Path.GetFileName(path)}");
             return;
         }
 
-        viewer.Call("set_status", $"Save failed: {error}");
+        viewer.SetStatus($"Save failed: {error}");
         GD.PushError(error);
     }
 
     /// <summary>
     /// Handles a chosen load path.
     /// </summary>
-    public void OnLoadFileSelected(Node viewer, string path)
+    public void OnLoadFileSelected(GalaxyViewer viewer, string path)
     {
         GalaxySaveData? data = GalaxyPersistence.LoadAuto(path);
         if (data == null)
         {
-            viewer.Call("set_status", "Failed to load file");
+            viewer.SetStatus("Failed to load file");
             return;
         }
 
         if (!data.IsValid())
         {
-            viewer.Call("set_status", "Invalid save data");
+            viewer.SetStatus("Invalid save data");
             return;
         }
 
         ApplySaveData(viewer, data);
-        viewer.Call("set_status", $"Loaded from {Path.GetFileName(path)}");
-    }
-
-    private static int GetInt(Variant value, int fallback)
-    {
-        return value.VariantType switch
-        {
-            Variant.Type.Int => (int)(long)value,
-            Variant.Type.Float => (int)(double)value,
-            _ => fallback,
-        };
-    }
-
-    private static Vector3 GetVector3(Variant value)
-    {
-        return value.VariantType == Variant.Type.Vector3 ? (Vector3)value : Vector3.Zero;
+        viewer.SetStatus($"Loaded from {Path.GetFileName(path)}");
     }
 }

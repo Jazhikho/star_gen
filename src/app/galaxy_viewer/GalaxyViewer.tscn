@@ -1,7 +1,16 @@
-[gd_scene load_steps=4 format=3]
+[gd_scene load_steps=12 format=3]
 
-[ext_resource type="Script" path="res://src/app/galaxy_viewer/GalaxyViewer.gd" id="1"]
-[ext_resource type="Script" path="res://src/app/galaxy_viewer/GalaxyInspectorPanel.gd" id="2"]
+[ext_resource type="Script" path="res://src/app/galaxy_viewer/GalaxyViewer.cs" id="1"]
+[ext_resource type="Script" path="res://src/app/galaxy_viewer/GalaxyInspectorPanel.cs" id="2"]
+[ext_resource type="Script" path="res://src/app/galaxy_viewer/GalaxyRenderer.cs" id="3"]
+[ext_resource type="Script" path="res://src/app/galaxy_viewer/QuadrantRenderer.cs" id="4"]
+[ext_resource type="Script" path="res://src/app/galaxy_viewer/SectorRenderer.cs" id="5"]
+[ext_resource type="Script" path="res://src/app/galaxy_viewer/NeighborhoodRenderer.cs" id="6"]
+[ext_resource type="Script" path="res://src/app/galaxy_viewer/SectorJumpLaneRenderer.cs" id="7"]
+[ext_resource type="Script" path="res://src/app/galaxy_viewer/SelectionIndicator.cs" id="8"]
+[ext_resource type="Script" path="res://src/app/galaxy_viewer/OrbitCamera.cs" id="9"]
+[ext_resource type="Script" path="res://src/app/galaxy_viewer/StarViewCamera.cs" id="10"]
+[ext_resource type="Script" path="res://src/app/galaxy_viewer/NavigationCompass.cs" id="11"]
 
 [sub_resource type="Environment" id="Environment_1"]
 background_mode = 1
@@ -15,18 +24,56 @@ glow_hdr_threshold = 0.0
 
 [node name="GalaxyViewer" type="Node3D"]
 script = ExtResource("1")
-galaxy_seed = 42
-num_points = 100000
-star_size = 80.0
-start_at_home = true
+GalaxySeed = 42
+NumPoints = 100000
+StarSize = 80.0
+StartAtHome = true
 
 [node name="Environment" type="Node3D" parent="."]
 
 [node name="WorldEnvironment" type="WorldEnvironment" parent="Environment"]
 environment = SubResource("Environment_1")
 
+[node name="GalaxyRenderer" type="MultiMeshInstance3D" parent="."]
+script = ExtResource("3")
+
+[node name="QuadrantRenderer" type="MultiMeshInstance3D" parent="."]
+visible = false
+script = ExtResource("4")
+
+[node name="SectorRenderer" type="MultiMeshInstance3D" parent="."]
+visible = false
+script = ExtResource("5")
+
+[node name="NeighborhoodRenderer" type="Node3D" parent="."]
+visible = false
+script = ExtResource("6")
+
+[node name="SectorJumpLaneRenderer" type="Node3D" parent="."]
+visible = false
+script = ExtResource("7")
+
+[node name="SelectionIndicator" type="MeshInstance3D" parent="."]
+script = ExtResource("8")
+
+[node name="OrbitCamera" type="Camera3D" parent="."]
+current = true
+script = ExtResource("9")
+
+[node name="StarCamera" type="Camera3D" parent="."]
+current = false
+script = ExtResource("10")
+
 [node name="UI" type="CanvasLayer" parent="."]
 layer = 5
+
+[node name="Compass" type="SubViewportContainer" parent="UI"]
+visible = false
+offset_left = 1080.0
+offset_top = 560.0
+offset_right = 1230.0
+offset_bottom = 710.0
+script = ExtResource("11")
 
 [node name="UIRoot" type="Control" parent="UI"]
 layout_mode = 3
@@ -187,9 +234,4 @@ text = "Controls"
 layout_mode = 2
 modulate = Color(0.8, 0.8, 0.8, 1)
 theme_override_font_sizes/font_size = 11
-text = "• [ / ]: Zoom out / in
-• Click: Select
-• Enter: Open system
-• Escape: Deselect
-• WASD: Move (star view)
-• Mouse: Look (star view)"
+text = "• [ / ]: Zoom out / in\n• Click: Select\n• Enter: Open system\n• Escape: Deselect\n• WASD: Move (star view)\n• Mouse: Look (star view)"

@@ -131,7 +131,17 @@ public partial class InspectorPanel : VBoxContainer
 	private void AddBodySummarySection(CelestialBody body, string? headerOverride = null)
 	{
 		AddSectionHeader(headerOverride ?? "Body");
-		AddProperty("Name", string.IsNullOrEmpty(body.Name) ? body.Id : body.Name);
+		string nameValue;
+		if (string.IsNullOrEmpty(body.Name))
+		{
+			nameValue = body.Id;
+		}
+		else
+		{
+			nameValue = body.Name;
+		}
+
+		AddProperty("Name", nameValue);
 		AddProperty("Type", body.GetTypeString());
 		AddProperty("ID", body.Id);
 		AddPhysicalSummary(body.Physical);
@@ -183,10 +193,25 @@ public partial class InspectorPanel : VBoxContainer
 		{
 			CelestialBody moon = moons[index];
 			Button button = new();
-			button.Text = focusedMoon != null && moon.Id == focusedMoon.Id ? $"* {moon.Name}" : moon.Name;
+			if (focusedMoon != null && moon.Id == focusedMoon.Id)
+			{
+				button.Text = $"* {moon.Name}";
+			}
+			else
+			{
+				button.Text = moon.Name;
+			}
 			button.Flat = true;
 			button.Alignment = HorizontalAlignment.Left;
-			Variant emitValue = index < originalMoonVariants.Count ? (Variant)originalMoonVariants[index] : Variant.From((GodotObject?)null);
+			Variant emitValue;
+			if (index < originalMoonVariants.Count)
+			{
+				emitValue = (Variant)originalMoonVariants[index];
+			}
+			else
+			{
+				emitValue = Variant.From((GodotObject?)null);
+			}
 			button.Pressed += () => EmitSignal(SignalName.MoonSelected, emitValue);
 			section.AddChild(button);
 		}
@@ -202,7 +227,14 @@ public partial class InspectorPanel : VBoxContainer
 		}
 
 		Button button = new();
-		button.Text = planet == null ? "Back to Planet" : $"Back to {planet.Name}";
+		if (planet == null)
+		{
+			button.Text = "Back to Planet";
+		}
+		else
+		{
+			button.Text = $"Back to {planet.Name}";
+		}
 		button.Pressed += () => EmitSignal(SignalName.MoonSelected, new Variant());
 		_inspectorContainer.AddChild(button);
 	}

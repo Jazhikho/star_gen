@@ -1,3 +1,4 @@
+using System;
 using Godot;
 using Godot.Collections;
 using StarGen.Domain.Celestial;
@@ -52,7 +53,7 @@ public static class StarGenerator
         double ageYears = DetermineAge(spec, spectralClass, rng);
         double metallicity = DetermineMetallicity(spec, rng);
 
-        PhysicalProps physical = GeneratePhysicalProps(spec, massSolar, radiusSolar, rng);
+        PhysicalProps physical = GeneratePhysicalProps(spec, massSolar, radiusSolar, spectralClass, rng);
         StellarProps stellar = new(
             luminositySolar * StellarProps.SolarLuminosityWatts,
             temperatureK,
@@ -72,6 +73,7 @@ public static class StarGenerator
         return body;
     }
 
+    /// <summary>Picks spectral class from spec override or weighted RNG.</summary>
     private static StarClass.SpectralClass DetermineSpectralClass(StarSpec spec, SeededRng rng)
     {
         if (spec.HasSpectralClass())
@@ -80,14 +82,27 @@ public static class StarGenerator
         }
 
         StarClass.SpectralClass? selected = rng.WeightedChoice(SpectralClasses, SpectralWeights);
-        return selected ?? StarClass.SpectralClass.M;
+        if (selected == null)
+        {
+            GD.PushError("StarGenerator.DetermineSpectralClass: WeightedChoice returned null — spectral weight table may be empty or invalid.");
+            throw new InvalidOperationException("WeightedChoice returned null for SpectralClass.");
+        }
+
+        return selected.Value;
     }
 
+    /// <summary>Picks subclass from spec override or random 0–9.</summary>
     private static int DetermineSubclass(StarSpec spec, SeededRng rng)
     {
-        return spec.HasSubclass() ? System.Math.Clamp(spec.Subclass, 0, 9) : rng.RandiRange(0, 9);
+        if (spec.HasSubclass())
+        {
+            return System.Math.Clamp(spec.Subclass, 0, 9);
+        }
+
+        return rng.RandiRange(0, 9);
     }
 
+    /// <summary>Computes stellar mass in solar units from table and overrides.</summary>
     private static double CalculateMass(
         StarSpec spec,
         StarClass.SpectralClass spectralClass,
@@ -119,6 +134,7 @@ public static class StarGenerator
         return baseLuminosity * variation;
     }
 
+    /// <summary>Derives radius from luminosity and temperature (or override).</summary>
     private static double CalculateRadiusFromLuminosityTemperature(
         StarSpec spec,
         double luminositySolar,
@@ -134,6 +150,7 @@ public static class StarGenerator
         return System.Math.Sqrt(luminositySolar) * System.Math.Pow(solarTemperature / temperatureK, 2.0);
     }
 
+    /// <summary>Computes effective temperature from table and overrides.</summary>
     private static double CalculateTemperature(
         StarSpec spec,
         StarClass.SpectralClass spectralClass,
@@ -152,6 +169,12 @@ public static class StarGenerator
         return baseTemperature * variation;
     }
 
+    /// <summary>
+    /// Picks age in years from spec or biased random within stellar lifetime.
+    /// Capped at 13.5 Gyr (current age of the universe, Planck 2018) to prevent
+    /// physically impossible ages for long-lived M-stars whose lifetimes far exceed
+    /// the universe's current age.
+    /// </summary>
     private static double DetermineAge(
         StarSpec spec,
         StarClass.SpectralClass spectralClass,
@@ -162,14 +185,17 @@ public static class StarGenerator
             return spec.AgeYears;
         }
 
-        Dictionary lifetimeRange = StarTable.GetLifetimeRange(spectralClass);
-        double maxAge = (double)lifetimeRange["max"] * 0.9;
-        double minAge = (double)lifetimeRange["min"] * 0.1;
+        const double MaxUniverseAgeYears = 13.5e9;
+
+        (double minLifetime, double maxLifetime) = StarTable.GetLifetimeRangeTuple(spectralClass);
+        double maxAge = System.Math.Min(maxLifetime * 0.9, MaxUniverseAgeYears);
+        double minAge = minLifetime * 0.1;
         double raw = rng.Randf();
         double biased = System.Math.Pow(raw, 0.7);
         return minAge + (maxAge - minAge) * biased;
     }
 
+    /// <summary>Picks metallicity from spec or log-normal random.</summary>
     private static double DetermineMetallicity(StarSpec spec, SeededRng rng)
     {
         if (spec.HasMetallicity())
@@ -181,12 +207,23 @@ public static class StarGenerator
         return System.Math.Clamp(System.Math.Exp(logMetallicity), 0.1, 3.0);
     }
 
-    private static PhysicalProps GeneratePhysicalProps(StarSpec spec, double massSolar, double radiusSolar, SeededRng rng)
+    /// <summary>
+    /// Builds physical properties from mass, radius, spectral class, and spec overrides.
+    /// Rotation period is sampled from spectral-class-dependent ranges based on
+    /// observational surveys (McQuillan et al. 2014; Reinhold &amp; Gizon 2015).
+    /// </summary>
+    private static PhysicalProps GeneratePhysicalProps(
+        StarSpec spec,
+        double massSolar,
+        double radiusSolar,
+        StarClass.SpectralClass spectralClass,
+        SeededRng rng)
     {
         double massKg = spec.GetOverrideFloat("physical.mass_kg", massSolar * Units.SolarMassKg);
         double radiusM = spec.GetOverrideFloat("physical.radius_m", radiusSolar * Units.SolarRadiusMeters);
 
-        double rotationDays = rng.RandfRange(10.0f, 50.0f);
+        (double rotMinDays, double rotMaxDays) = StarTable.GetRotationPeriodRangeDays(spectralClass);
+        double rotationDays = rng.RandfRange((float)rotMinDays, (float)rotMaxDays);
         double rotationPeriodS = spec.GetOverrideFloat("physical.rotation_period_s", rotationDays * 24.0 * 3600.0);
         double axialTiltDeg = spec.GetOverrideFloat("physical.axial_tilt_deg", rng.RandfRange(0.0f, 30.0f));
         double oblateness = spec.GetOverrideFloat("physical.oblateness", rng.RandfRange(0.0f, 0.001f));
@@ -203,6 +240,7 @@ public static class StarGenerator
             internalHeatWatts);
     }
 
+    /// <summary>Produces a unique star id from spec override or RNG.</summary>
     private static string GenerateId(StarSpec spec, SeededRng rng)
     {
         Variant overrideId = spec.GetOverride("id", default);

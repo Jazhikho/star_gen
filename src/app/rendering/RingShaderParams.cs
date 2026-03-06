@@ -32,7 +32,15 @@ public static class RingShaderParams
             return parameters;
         }
 
-        float seedValue = body?.Provenance == null ? 0.0f : (body.Provenance.GenerationSeed % 1000L) / 10.0f;
+        float seedValue;
+        if (body?.Provenance == null)
+        {
+            seedValue = 0.0f;
+        }
+        else
+        {
+            seedValue = (body.Provenance.GenerationSeed % 1000L) / 10.0f;
+        }
         parameters["u_seed"] = seedValue;
         parameters["u_bandCount"] = ringSystem.GetBandCount();
 
@@ -89,7 +97,15 @@ public static class RingShaderParams
     public static Dictionary GetBandParams(RingBand band, CelestialBody? body = null)
     {
         Dictionary parameters = new();
-        float seedValue = body?.Provenance == null ? 0.0f : (body.Provenance.GenerationSeed % 1000L) / 10.0f;
+        float seedValue;
+        if (body?.Provenance == null)
+        {
+            seedValue = 0.0f;
+        }
+        else
+        {
+            seedValue = (body.Provenance.GenerationSeed % 1000L) / 10.0f;
+        }
         parameters["u_seed"] = seedValue;
 
         float bodyRadius = 1.0f;
@@ -202,6 +218,14 @@ public static class RingShaderParams
         float inclinationRad = Mathf.DegToRad((float)ringSystem.InclinationDeg);
         parameters["u_ringNormal"] = new Vector3(Mathf.Sin(inclinationRad), Mathf.Cos(inclinationRad), 0.12f);
         return parameters;
+    }
+
+    /// <summary>
+    /// Compatibility overload accepting a double radius.
+    /// </summary>
+    public static Dictionary GetRingShaderParams(RingSystemProps? ringSystem, double planetRadiusM)
+    {
+        return GetRingShaderParams(ringSystem, (float)planetRadiusM);
     }
 
     /// <summary>

@@ -1,5 +1,6 @@
 using Godot;
 using Godot.Collections;
+using StarGen.Domain.Math;
 
 namespace StarGen.Domain.Celestial.Components;
 
@@ -8,7 +9,6 @@ namespace StarGen.Domain.Celestial.Components;
 /// </summary>
 public partial class OrbitalProps : RefCounted
 {
-    private const double G = 6.674e-11;
 
     /// <summary>
     /// Semi-major axis in meters.
@@ -86,7 +86,7 @@ public partial class OrbitalProps : RefCounted
             return 0.0;
         }
 
-        return 2.0 * Mathf.Pi * System.Math.Sqrt(System.Math.Pow(SemiMajorAxisM, 3.0) / (G * parentMassKg));
+        return 2.0 * System.Math.PI * System.Math.Sqrt(System.Math.Pow(SemiMajorAxisM, 3.0) / (Units.G * parentMassKg));
     }
 
     /// <summary>
@@ -123,11 +123,21 @@ public partial class OrbitalProps : RefCounted
 
     private static double GetDouble(Dictionary data, string key, double fallback)
     {
-        return data.ContainsKey(key) ? (double)data[key] : fallback;
+        if (data.ContainsKey(key))
+        {
+            return (double)data[key];
+        }
+
+        return fallback;
     }
 
     private static string GetString(Dictionary data, string key, string fallback)
     {
-        return data.ContainsKey(key) ? (string)data[key] : fallback;
+        if (data.ContainsKey(key))
+        {
+            return (string)data[key];
+        }
+
+        return fallback;
     }
 }

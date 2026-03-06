@@ -157,7 +157,15 @@ public partial class Government : RefCounted
     public static Government FromDictionary(Dictionary data)
     {
         Government government = new();
-        Variant regimeValue = data.ContainsKey("regime") ? data["regime"] : 0;
+        Variant regimeValue;
+        if (data.ContainsKey("regime"))
+        {
+            regimeValue = data["regime"];
+        }
+        else
+        {
+            regimeValue = Variant.CreateFrom(0);
+        }
         if (regimeValue.VariantType == Variant.Type.String)
         {
             regimeValue = int.Parse((string)regimeValue);
@@ -237,16 +245,31 @@ public partial class Government : RefCounted
 
     private static double GetDouble(Dictionary data, string key, double fallback)
     {
-        return data.ContainsKey(key) ? (double)data[key] : fallback;
+        if (data.ContainsKey(key))
+        {
+            return (double)data[key];
+        }
+
+        return fallback;
     }
 
     private static int GetInt(Dictionary data, string key, int fallback)
     {
-        return data.ContainsKey(key) ? (int)data[key] : fallback;
+        if (data.ContainsKey(key))
+        {
+            return (int)data[key];
+        }
+
+        return fallback;
     }
 
     private static string GetString(Dictionary data, string key, string fallback)
     {
-        return data.ContainsKey(key) ? (string)data[key] : fallback;
+        if (data.ContainsKey(key))
+        {
+            return (string)data[key];
+        }
+
+        return fallback;
     }
 }

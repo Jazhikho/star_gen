@@ -1,6 +1,5 @@
 using Godot.Collections;
 using StarGen.Domain.Celestial;
-using StarGen.Domain.Celestial.Serialization;
 using StarGen.Domain.Generation;
 using StarGen.Domain.Rng;
 
@@ -39,19 +38,6 @@ public static class PopulationGenerator
             Profile = profile,
             Suitability = suitability,
         };
-    }
-
-    /// <summary>
-    /// Generates profile-only serialized payload data.
-    /// </summary>
-    public static SerializedPopulationData GenerateProfileOnly(
-        CelestialBody body,
-        ParentContext context,
-        int generationSeed = 0,
-        CelestialBody? parentBody = null)
-    {
-        PlanetPopulationData data = BuildProfileOnlyData(body, context, generationSeed, parentBody);
-        return new SerializedPopulationData(data.ToDictionary());
     }
 
     /// <summary>
@@ -123,7 +109,7 @@ public static class PopulationGenerator
     /// <summary>
     /// Generates full serialized population payload data using the same top-level decision flow as GDScript.
     /// </summary>
-    public static SerializedPopulationData? GenerateAuto(
+    public static PlanetPopulationData? GenerateAuto(
         CelestialBody body,
         ParentContext context,
         int baseSeed,
@@ -160,7 +146,7 @@ public static class PopulationGenerator
 
         if (data.Profile == null || data.Suitability == null)
         {
-            return new SerializedPopulationData(data.ToDictionary());
+            return data;
         }
 
         PlanetPopulationData generated = GenerateFromProfile(
@@ -170,7 +156,7 @@ public static class PopulationGenerator
             generateColony,
             DefaultCurrentYear,
             data.Suitability);
-        return new SerializedPopulationData(generated.ToDictionary());
+        return generated;
     }
 
     private static Array<NativePopulation> GenerateNatives(

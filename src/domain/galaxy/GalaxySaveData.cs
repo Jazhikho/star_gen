@@ -1,5 +1,6 @@
 using Godot;
 using Godot.Collections;
+using StarGen.Domain.Utils;
 
 namespace StarGen.Domain.Galaxy;
 
@@ -16,82 +17,82 @@ public partial class GalaxySaveData : RefCounted
     /// <summary>
     /// File format version.
     /// </summary>
-    public int Version = FormatVersion;
+    public int Version { get; set; } = FormatVersion;
 
     /// <summary>
     /// Galaxy master seed.
     /// </summary>
-    public int GalaxySeed = 42;
+    public int GalaxySeed { get; set; } = 42;
 
     /// <summary>
     /// Unix timestamp at save time.
     /// </summary>
-    public long SavedAt;
+    public long SavedAt { get; set; }
 
     /// <summary>
     /// Current zoom level.
     /// </summary>
-    public int ZoomLevel = (int)GalaxyCoordinates.ZoomLevel.Subsector;
+    public GalaxyCoordinates.ZoomLevel ZoomLevel { get; set; } = GalaxyCoordinates.ZoomLevel.Subsector;
 
     /// <summary>
     /// Selected quadrant coordinates, if any.
     /// </summary>
-    public Vector3I? SelectedQuadrant;
+    public Vector3I? SelectedQuadrant { get; set; }
 
     /// <summary>
     /// Selected sector coordinates, if any.
     /// </summary>
-    public Vector3I? SelectedSector;
+    public Vector3I? SelectedSector { get; set; }
 
     /// <summary>
     /// Camera position in subsector view.
     /// </summary>
-    public Vector3 CameraPosition = Vector3.Zero;
+    public Vector3 CameraPosition { get; set; } = Vector3.Zero;
 
     /// <summary>
     /// Camera rotation in subsector view.
     /// </summary>
-    public Vector3 CameraRotation = Vector3.Zero;
+    public Vector3 CameraRotation { get; set; } = Vector3.Zero;
 
     /// <summary>
-    /// Returns whether a star is selected.
+    /// Whether a star is currently selected.
     /// </summary>
-    public bool HasStarSelection;
+    public bool HasStarSelection { get; set; }
 
     /// <summary>
     /// Selected star seed, if any.
     /// </summary>
-    public int SelectedStarSeed;
+    public int SelectedStarSeed { get; set; }
 
     /// <summary>
     /// Selected star position, if any.
     /// </summary>
-    public Vector3 SelectedStarPosition = Vector3.Zero;
+    public Vector3 SelectedStarPosition { get; set; } = Vector3.Zero;
 
     /// <summary>
     /// Serialized galaxy configuration payload.
     /// </summary>
-    public Dictionary GalaxyConfigData = new();
+    public Dictionary GalaxyConfigData { get; set; } = new();
 
     /// <summary>
     /// Informational cached-system count.
     /// </summary>
-    public int CachedSystemCount;
+    public int CachedSystemCount { get; set; }
 
     /// <summary>
     /// Serialized jump-lane region payload.
     /// </summary>
-    public Dictionary JumpLaneRegionData = new();
+    public Dictionary JumpLaneRegionData { get; set; } = new();
 
     /// <summary>
     /// Serialized jump-lane result payload.
     /// </summary>
-    public Dictionary JumpLaneResultData = new();
+    public Dictionary JumpLaneResultData { get; set; } = new();
 
     /// <summary>
     /// Serialized edited-body overrides payload.
     /// </summary>
-    public Dictionary BodyOverridesData = new();
+    public Dictionary BodyOverridesData { get; set; } = new();
 
     /// <summary>
     /// Creates a new save-data payload for the supplied timestamp.
@@ -115,7 +116,8 @@ public partial class GalaxySaveData : RefCounted
 
         int minZoom = (int)GalaxyCoordinates.ZoomLevel.Galaxy;
         int maxZoom = (int)GalaxyCoordinates.ZoomLevel.Subsector;
-        return ZoomLevel >= minZoom && ZoomLevel <= maxZoom;
+        int zoom = (int)ZoomLevel;
+        return zoom >= minZoom && zoom <= maxZoom;
     }
 
     /// <summary>
@@ -128,7 +130,7 @@ public partial class GalaxySaveData : RefCounted
             ["version"] = Version,
             ["galaxy_seed"] = GalaxySeed,
             ["saved_at"] = SavedAt,
-            ["zoom_level"] = ZoomLevel,
+            ["zoom_level"] = (int)ZoomLevel,
             ["camera_position"] = Vector3ToArray(CameraPosition),
             ["camera_rotation"] = Vector3ToArray(CameraRotation),
             ["has_star_selection"] = HasStarSelection,
@@ -173,44 +175,44 @@ public partial class GalaxySaveData : RefCounted
 
         GalaxySaveData saveData = new()
         {
-            Version = GetInt(data, "version", FormatVersion),
-            GalaxySeed = GetInt(data, "galaxy_seed", 42),
-            SavedAt = GetLong(data, "saved_at", 0),
-            ZoomLevel = GetInt(data, "zoom_level", (int)GalaxyCoordinates.ZoomLevel.Subsector),
-            HasStarSelection = GetBool(data, "has_star_selection", false),
-            SelectedStarSeed = GetInt(data, "selected_star_seed", 0),
+            Version = DomainDictionaryUtils.GetInt(data, "version", FormatVersion),
+            GalaxySeed = DomainDictionaryUtils.GetInt(data, "galaxy_seed", 42),
+            SavedAt = DomainDictionaryUtils.GetLong(data, "saved_at", 0),
+            ZoomLevel = (GalaxyCoordinates.ZoomLevel)DomainDictionaryUtils.GetInt(data, "zoom_level", (int)GalaxyCoordinates.ZoomLevel.Subsector),
+            HasStarSelection = DomainDictionaryUtils.GetBool(data, "has_star_selection", false),
+            SelectedStarSeed = DomainDictionaryUtils.GetInt(data, "selected_star_seed", 0),
         };
 
-        if (TryGetArray(data, "camera_position", out Array cameraPosition))
+        if (DomainDictionaryUtils.TryGetArray(data, "camera_position", out Array cameraPosition))
         {
             saveData.CameraPosition = ArrayToVector3(cameraPosition);
         }
 
-        if (TryGetArray(data, "camera_rotation", out Array cameraRotation))
+        if (DomainDictionaryUtils.TryGetArray(data, "camera_rotation", out Array cameraRotation))
         {
             saveData.CameraRotation = ArrayToVector3(cameraRotation);
         }
 
-        if (TryGetArray(data, "selected_quadrant", out Array selectedQuadrant))
+        if (DomainDictionaryUtils.TryGetArray(data, "selected_quadrant", out Array selectedQuadrant))
         {
             saveData.SelectedQuadrant = ArrayToVector3I(selectedQuadrant);
         }
 
-        if (TryGetArray(data, "selected_sector", out Array selectedSector))
+        if (DomainDictionaryUtils.TryGetArray(data, "selected_sector", out Array selectedSector))
         {
             saveData.SelectedSector = ArrayToVector3I(selectedSector);
         }
 
-        if (TryGetArray(data, "selected_star_position", out Array selectedStarPosition))
+        if (DomainDictionaryUtils.TryGetArray(data, "selected_star_position", out Array selectedStarPosition))
         {
             saveData.SelectedStarPosition = ArrayToVector3(selectedStarPosition);
         }
 
-        saveData.GalaxyConfigData = GetDictionary(data, "galaxy_config_data");
-        saveData.CachedSystemCount = GetInt(data, "cached_system_count", 0);
-        saveData.JumpLaneRegionData = GetDictionary(data, "jump_lane_region_data");
-        saveData.JumpLaneResultData = GetDictionary(data, "jump_lane_result_data");
-        saveData.BodyOverridesData = GetDictionary(data, "body_overrides_data");
+        saveData.GalaxyConfigData = DomainDictionaryUtils.GetDictionary(data, "galaxy_config_data");
+        saveData.CachedSystemCount = DomainDictionaryUtils.GetInt(data, "cached_system_count", 0);
+        saveData.JumpLaneRegionData = DomainDictionaryUtils.GetDictionary(data, "jump_lane_region_data");
+        saveData.JumpLaneResultData = DomainDictionaryUtils.GetDictionary(data, "jump_lane_result_data");
+        saveData.BodyOverridesData = DomainDictionaryUtils.GetDictionary(data, "body_overrides_data");
         return saveData;
     }
 
@@ -219,7 +221,7 @@ public partial class GalaxySaveData : RefCounted
     /// </summary>
     public string GetSummary()
     {
-        return $"Seed {GalaxySeed}, {GetZoomName(ZoomLevel)} view, saved {SavedAt}";
+        return $"Seed {GalaxySeed}, {GetZoomName((int)ZoomLevel)} view, saved {SavedAt}";
     }
 
     /// <summary>
@@ -235,7 +237,12 @@ public partial class GalaxySaveData : RefCounted
     /// </summary>
     public GalaxyConfig? GetConfig()
     {
-        return GalaxyConfigData.Count == 0 ? null : GalaxyConfig.FromDictionary(GalaxyConfigData);
+        if (GalaxyConfigData.Count == 0)
+        {
+            return null;
+        }
+
+        return GalaxyConfig.FromDictionary(GalaxyConfigData);
     }
 
     /// <summary>
@@ -243,7 +250,14 @@ public partial class GalaxySaveData : RefCounted
     /// </summary>
     public void SetConfig(GalaxyConfig? config)
     {
-        GalaxyConfigData = config != null ? config.ToDictionary() : new Dictionary();
+        if (config != null)
+        {
+            GalaxyConfigData = config.ToDictionary();
+        }
+        else
+        {
+            GalaxyConfigData = new Dictionary();
+        }
     }
 
     /// <summary>
@@ -259,7 +273,12 @@ public partial class GalaxySaveData : RefCounted
     /// </summary>
     public GalaxyBodyOverrides GetBodyOverrides()
     {
-        return BodyOverridesData.Count == 0 ? new GalaxyBodyOverrides() : GalaxyBodyOverrides.FromDictionary(BodyOverridesData);
+        if (BodyOverridesData.Count == 0)
+        {
+            return new GalaxyBodyOverrides();
+        }
+
+        return GalaxyBodyOverrides.FromDictionary(BodyOverridesData);
     }
 
     /// <summary>
@@ -267,13 +286,20 @@ public partial class GalaxySaveData : RefCounted
     /// </summary>
     public void SetBodyOverrides(GalaxyBodyOverrides? overrides)
     {
-        BodyOverridesData = overrides == null || overrides.IsEmpty() ? new Dictionary() : overrides.ToDictionary();
+        if (overrides == null || overrides.IsEmpty())
+        {
+            BodyOverridesData = new Dictionary();
+        }
+        else
+        {
+            BodyOverridesData = overrides.ToDictionary();
+        }
     }
 
     /// <summary>
     /// Converts a Vector3 to an array payload for JSON compatibility.
     /// </summary>
-    private static Array Vector3ToArray(Vector3 value)
+    public static Array Vector3ToArray(Vector3 value)
     {
         return new Array { value.X, value.Y, value.Z };
     }
@@ -281,7 +307,7 @@ public partial class GalaxySaveData : RefCounted
     /// <summary>
     /// Converts a Vector3I to an array payload for JSON compatibility.
     /// </summary>
-    private static Array Vector3IToArray(Vector3I value)
+    public static Array Vector3IToArray(Vector3I value)
     {
         return new Array { value.X, value.Y, value.Z };
     }
@@ -289,7 +315,7 @@ public partial class GalaxySaveData : RefCounted
     /// <summary>
     /// Converts a numeric array payload to a Vector3.
     /// </summary>
-    private static Vector3 ArrayToVector3(Array values)
+    public static Vector3 ArrayToVector3(Array values)
     {
         if (values.Count < 3)
         {
@@ -297,15 +323,15 @@ public partial class GalaxySaveData : RefCounted
         }
 
         return new Vector3(
-            (float)GetNumeric(values[0]),
-            (float)GetNumeric(values[1]),
-            (float)GetNumeric(values[2]));
+            (float)DomainDictionaryUtils.GetNumeric(values[0]),
+            (float)DomainDictionaryUtils.GetNumeric(values[1]),
+            (float)DomainDictionaryUtils.GetNumeric(values[2]));
     }
 
     /// <summary>
     /// Converts a numeric array payload to a Vector3I.
     /// </summary>
-    private static Vector3I ArrayToVector3I(Array values)
+    public static Vector3I ArrayToVector3I(Array values)
     {
         if (values.Count < 3)
         {
@@ -313,9 +339,9 @@ public partial class GalaxySaveData : RefCounted
         }
 
         return new Vector3I(
-            (int)GetNumeric(values[0]),
-            (int)GetNumeric(values[1]),
-            (int)GetNumeric(values[2]));
+            (int)DomainDictionaryUtils.GetNumeric(values[0]),
+            (int)DomainDictionaryUtils.GetNumeric(values[1]),
+            (int)DomainDictionaryUtils.GetNumeric(values[2]));
     }
 
     /// <summary>
@@ -334,92 +360,13 @@ public partial class GalaxySaveData : RefCounted
     }
 
     /// <summary>
-    /// Reads an integer from a dictionary payload.
+    /// Legacy casing alias.
     /// </summary>
-    private static int GetInt(Dictionary data, string key, int fallback)
-    {
-        if (!data.ContainsKey(key))
-        {
-            return fallback;
-        }
-
-        Variant value = data[key];
-        return value.VariantType switch
-        {
-            Variant.Type.Int => (int)value,
-            Variant.Type.Float => (int)(double)value,
-            _ => fallback,
-        };
-    }
+    public static Array Vector3iToArray(Vector3I value) => Vector3IToArray(value);
 
     /// <summary>
-    /// Reads a 64-bit integer from a dictionary payload.
+    /// Legacy casing alias.
     /// </summary>
-    private static long GetLong(Dictionary data, string key, long fallback)
-    {
-        if (!data.ContainsKey(key))
-        {
-            return fallback;
-        }
+    public static Vector3I ArrayToVector3i(Array values) => ArrayToVector3I(values);
 
-        Variant value = data[key];
-        return value.VariantType switch
-        {
-            Variant.Type.Int => (long)(int)value,
-            Variant.Type.Float => (long)(double)value,
-            _ => fallback,
-        };
-    }
-
-    /// <summary>
-    /// Reads a boolean from a dictionary payload.
-    /// </summary>
-    private static bool GetBool(Dictionary data, string key, bool fallback)
-    {
-        if (!data.ContainsKey(key))
-        {
-            return fallback;
-        }
-
-        Variant value = data[key];
-        return value.VariantType == Variant.Type.Bool ? (bool)value : fallback;
-    }
-
-    /// <summary>
-    /// Returns a dictionary payload value or an empty dictionary.
-    /// </summary>
-    private static Dictionary GetDictionary(Dictionary data, string key)
-    {
-        return data.ContainsKey(key) && data[key].VariantType == Variant.Type.Dictionary
-            ? (Dictionary)data[key]
-            : new Dictionary();
-    }
-
-    /// <summary>
-    /// Returns whether a payload key contains an array.
-    /// </summary>
-    private static bool TryGetArray(Dictionary data, string key, out Array array)
-    {
-        if (data.ContainsKey(key) && data[key].VariantType == Variant.Type.Array)
-        {
-            array = (Array)data[key];
-            return true;
-        }
-
-        array = new Array();
-        return false;
-    }
-
-    /// <summary>
-    /// Reads a numeric value from a variant.
-    /// </summary>
-    private static double GetNumeric(Variant value)
-    {
-        return value.VariantType switch
-        {
-            Variant.Type.Int => (int)value,
-            Variant.Type.Float => (double)value,
-            _ => 0.0,
-        };
-    }
 }

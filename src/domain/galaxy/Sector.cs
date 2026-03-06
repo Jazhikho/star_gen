@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Globalization;
 using Godot;
 
 namespace StarGen.Domain.Galaxy;
@@ -17,6 +18,7 @@ public partial class Sector : RefCounted
     private readonly Dictionary<string, List<GalaxyStar>> _starsBySubsector = new();
     private readonly List<GalaxyStar> _allStars = new();
     private bool _isGenerated;
+    private Godot.Collections.Array<GalaxyStar>? _cachedGodotArray;
 
     /// <summary>
     /// Quadrant grid coordinates.
@@ -52,11 +54,17 @@ public partial class Sector : RefCounted
 
     /// <summary>
     /// Returns all stars in the sector, generating them if needed.
+    /// The Godot array wrapper is cached after first generation and reused on subsequent calls.
     /// </summary>
     public Godot.Collections.Array<GalaxyStar> GetStars()
     {
         EnsureGenerated();
-        return ToGodotArray(_allStars);
+        if (_cachedGodotArray == null)
+        {
+            _cachedGodotArray = ToGodotArray(_allStars);
+        }
+
+        return _cachedGodotArray;
     }
 
     /// <summary>
@@ -66,9 +74,12 @@ public partial class Sector : RefCounted
     {
         EnsureGenerated();
         string key = GetSubsectorKey(subsectorLocalCoords);
-        return _starsBySubsector.ContainsKey(key)
-            ? ToGodotArray(_starsBySubsector[key])
-            : new Godot.Collections.Array<GalaxyStar>();
+        if (_starsBySubsector.ContainsKey(key))
+        {
+            return ToGodotArray(_starsBySubsector[key]);
+        }
+
+        return new Godot.Collections.Array<GalaxyStar>();
     }
 
     /// <summary>
@@ -94,6 +105,7 @@ public partial class Sector : RefCounted
     public void Regenerate()
     {
         _isGenerated = false;
+        _cachedGodotArray = null;
         _starsBySubsector.Clear();
         _allStars.Clear();
         EnsureGenerated();
@@ -168,7 +180,12 @@ public partial class Sector : RefCounted
     /// </summary>
     private static string GetSubsectorKey(Vector3I coords)
     {
-        return $"{coords.X},{coords.Y},{coords.Z}";
+        return string.Concat(
+            coords.X.ToString(CultureInfo.InvariantCulture),
+            ",",
+            coords.Y.ToString(CultureInfo.InvariantCulture),
+            ",",
+            coords.Z.ToString(CultureInfo.InvariantCulture));
     }
 
     /// <summary>

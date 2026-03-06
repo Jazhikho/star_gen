@@ -107,7 +107,14 @@ public partial class WelcomeScreen : Control
     public void set_seeded_rng(Variant rngVariant)
     {
         _seededRng = null;
-        _seededRngObject = rngVariant.VariantType == Variant.Type.Nil ? null : rngVariant.AsGodotObject();
+        if (rngVariant.VariantType == Variant.Type.Nil)
+        {
+            _seededRngObject = null;
+        }
+        else
+        {
+            _seededRngObject = rngVariant.AsGodotObject();
+        }
         RefreshRandomSeedDisplay();
     }
 
@@ -234,11 +241,50 @@ public partial class WelcomeScreen : Control
     private void UpdateSectionVisibility()
     {
         if (_typeContent != null) _typeContent.Visible = _typeSectionExpanded;
-        if (_typeHeader != null) _typeHeader.Text = $"{(_typeSectionExpanded ? ArrowExpanded : ArrowCollapsed)}  Galaxy Type";
+        if (_typeHeader != null)
+        {
+            string arrow;
+            if (_typeSectionExpanded)
+            {
+                arrow = ArrowExpanded;
+            }
+            else
+            {
+                arrow = ArrowCollapsed;
+            }
+
+            _typeHeader.Text = $"{arrow}  Galaxy Type";
+        }
         if (_structureContent != null) _structureContent.Visible = _structureSectionExpanded;
-        if (_structureHeader != null) _structureHeader.Text = $"{(_structureSectionExpanded ? ArrowExpanded : ArrowCollapsed)}  Structure";
+        if (_structureHeader != null)
+        {
+            string arrow;
+            if (_structureSectionExpanded)
+            {
+                arrow = ArrowExpanded;
+            }
+            else
+            {
+                arrow = ArrowCollapsed;
+            }
+
+            _structureHeader.Text = $"{arrow}  Structure";
+        }
         if (_sizeContent != null) _sizeContent.Visible = _sizeSectionExpanded;
-        if (_sizeHeader != null) _sizeHeader.Text = $"{(_sizeSectionExpanded ? ArrowExpanded : ArrowCollapsed)}  Size & Density";
+        if (_sizeHeader != null)
+        {
+            string arrow;
+            if (_sizeSectionExpanded)
+            {
+                arrow = ArrowExpanded;
+            }
+            else
+            {
+                arrow = ArrowCollapsed;
+            }
+
+            _sizeHeader.Text = $"{arrow}  Size & Density";
+        }
     }
 
     private void UpdateTypeSpecificControls()
@@ -370,7 +416,12 @@ public partial class WelcomeScreen : Control
                 _ => 1L,
             };
             long capped = Math.Abs(rawValue) % 1000000L;
-            return capped == 0L ? 1 : (int)capped;
+            if (capped == 0L)
+            {
+                return 1;
+            }
+
+            return (int)capped;
         }
 
         return 12345;
@@ -405,7 +456,15 @@ public partial class WelcomeScreen : Control
             config = GalaxyConfig.CreateDefault();
         }
 
-        int seedValue = _seedSpin == null ? GenerateRandomSeed() : (int)_seedSpin.Value;
+        int seedValue;
+        if (_seedSpin == null)
+        {
+            seedValue = GenerateRandomSeed();
+        }
+        else
+        {
+            seedValue = (int)_seedSpin.Value;
+        }
         if (seedValue == 0) seedValue = GenerateRandomSeed();
         EmitSignal("start_new_galaxy", config, seedValue);
     }

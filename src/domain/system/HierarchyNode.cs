@@ -200,10 +200,20 @@ public partial class HierarchyNode : RefCounted
     /// </summary>
     public Dictionary ToDictionary()
     {
+        string nodeType;
+        if (IsStar())
+        {
+            nodeType = "star";
+        }
+        else
+        {
+            nodeType = "barycenter";
+        }
+
         Dictionary data = new()
         {
             ["id"] = Id,
-            ["node_type"] = IsStar() ? "star" : "barycenter",
+            ["node_type"] = nodeType,
         };
 
         if (IsStar())
@@ -238,7 +248,15 @@ public partial class HierarchyNode : RefCounted
         }
 
         string typeName = GetString(data, "node_type", "star");
-        NodeType type = typeName == "star" ? NodeType.Star : NodeType.Barycenter;
+        NodeType type;
+        if (typeName == "star")
+        {
+            type = NodeType.Star;
+        }
+        else
+        {
+            type = NodeType.Barycenter;
+        }
         HierarchyNode node = new(GetString(data, "id", string.Empty), type);
         if (node.IsStar())
         {
@@ -279,7 +297,12 @@ public partial class HierarchyNode : RefCounted
         }
 
         Variant value = data[key];
-        return value.VariantType == Variant.Type.String ? (string)value : fallback;
+        if (value.VariantType == Variant.Type.String)
+        {
+            return (string)value;
+        }
+
+        return fallback;
     }
 
     /// <summary>
@@ -297,8 +320,18 @@ public partial class HierarchyNode : RefCounted
         {
             Variant.Type.Float => (double)value,
             Variant.Type.Int => (int)value,
-            Variant.Type.String => double.TryParse((string)value, out double parsed) ? parsed : fallback,
+            Variant.Type.String => TryParseDouble((string)value, fallback),
             _ => fallback,
         };
+    }
+
+    private static double TryParseDouble(string s, double fallback)
+    {
+        if (double.TryParse(s, out double parsed))
+        {
+            return parsed;
+        }
+
+        return fallback;
     }
 }

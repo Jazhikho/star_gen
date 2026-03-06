@@ -43,7 +43,12 @@ public partial class SectorRenderer : MultiMeshInstance3D
 	/// </summary>
 	public Variant get_current_quadrant()
 	{
-		return _currentQuadrant.HasValue ? Variant.CreateFrom(_currentQuadrant.Value) : default;
+		if (_currentQuadrant.HasValue)
+		{
+			return Variant.CreateFrom(_currentQuadrant.Value);
+		}
+
+		return default;
 	}
 
 	/// <summary>

@@ -1,0 +1,9 @@
+#nullable enable annotations
+#nullable disable warnings
+global using StarGen.Domain.Constants;
+global using StarGen.Domain.Celestial.Components;
+global using StarGen.Domain.Celestial.Serialization;
+global using StarGen.Domain.Generation.Archetypes;
+global using StarGen.Domain.Generation.Tables;
+global using StarGen.Domain.Math;
+global using StarGen.Tests.Framework;

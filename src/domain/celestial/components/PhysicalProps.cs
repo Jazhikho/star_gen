@@ -1,5 +1,6 @@
 using Godot;
 using Godot.Collections;
+using StarGen.Domain.Math;
 
 namespace StarGen.Domain.Celestial.Components;
 
@@ -8,10 +9,6 @@ namespace StarGen.Domain.Celestial.Components;
 /// </summary>
 public partial class PhysicalProps : RefCounted
 {
-    /// <summary>
-    /// Gravitational constant in m^3 kg^-1 s^-2.
-    /// </summary>
-    public const double G = 6.674e-11;
 
     /// <summary>
     /// Mass in kilograms.
@@ -79,7 +76,7 @@ public partial class PhysicalProps : RefCounted
             return 0.0;
         }
 
-        return (4.0 / 3.0) * Mathf.Pi * System.Math.Pow(RadiusM, 3.0);
+        return (4.0 / 3.0) * System.Math.PI * System.Math.Pow(RadiusM, 3.0);
     }
 
     /// <summary>
@@ -106,7 +103,7 @@ public partial class PhysicalProps : RefCounted
             return 0.0;
         }
 
-        return G * MassKg / (RadiusM * RadiusM);
+        return Units.G * MassKg / (RadiusM * RadiusM);
     }
 
     /// <summary>
@@ -119,7 +116,7 @@ public partial class PhysicalProps : RefCounted
             return 0.0;
         }
 
-        return System.Math.Sqrt((2.0 * G * MassKg) / RadiusM);
+        return System.Math.Sqrt((2.0 * Units.G * MassKg) / RadiusM);
     }
 
     /// <summary>
@@ -182,6 +179,11 @@ public partial class PhysicalProps : RefCounted
 
     private static double GetDouble(Dictionary data, string key, double fallback)
     {
-        return data.ContainsKey(key) ? (double)data[key] : fallback;
+        if (data.ContainsKey(key))
+        {
+            return (double)data[key];
+        }
+
+        return fallback;
     }
 }

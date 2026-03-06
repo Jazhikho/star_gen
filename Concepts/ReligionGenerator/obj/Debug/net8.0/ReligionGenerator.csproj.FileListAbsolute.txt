@@ -1,0 +1,12 @@
+D:\Game Creation\star_gen\Concepts\ReligionGenerator\bin\Debug\net8.0\ReligionGenerator.deps.json
+D:\Game Creation\star_gen\Concepts\ReligionGenerator\bin\Debug\net8.0\ReligionGenerator.dll
+D:\Game Creation\star_gen\Concepts\ReligionGenerator\bin\Debug\net8.0\ReligionGenerator.pdb
+D:\Game Creation\star_gen\Concepts\ReligionGenerator\obj\Debug\net8.0\ReligionGenerator.GeneratedMSBuildEditorConfig.editorconfig
+D:\Game Creation\star_gen\Concepts\ReligionGenerator\obj\Debug\net8.0\ReligionGenerator.AssemblyInfoInputs.cache
+D:\Game Creation\star_gen\Concepts\ReligionGenerator\obj\Debug\net8.0\ReligionGenerator.AssemblyInfo.cs
+D:\Game Creation\star_gen\Concepts\ReligionGenerator\obj\Debug\net8.0\ReligionGenerator.csproj.CoreCompileInputs.cache
+D:\Game Creation\star_gen\Concepts\ReligionGenerator\obj\Debug\net8.0\ReligionGenerator.sourcelink.json
+D:\Game Creation\star_gen\Concepts\ReligionGenerator\obj\Debug\net8.0\ReligionGenerator.dll
+D:\Game Creation\star_gen\Concepts\ReligionGenerator\obj\Debug\net8.0\refint\ReligionGenerator.dll
+D:\Game Creation\star_gen\Concepts\ReligionGenerator\obj\Debug\net8.0\ReligionGenerator.pdb
+D:\Game Creation\star_gen\Concepts\ReligionGenerator\obj\Debug\net8.0\ref\ReligionGenerator.dll

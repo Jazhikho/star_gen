@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using Godot.Collections;
 using StarGen.Domain.Rng;
 
@@ -5,12 +6,50 @@ namespace StarGen.Domain.Population;
 
 /// <summary>
 /// Deterministic colony generation.
+/// Produces a <see cref="Colony"/> from a <see cref="PlanetProfile"/> and suitability data
+/// using a seeded RNG. Same seed + inputs always yields identical output.
 /// </summary>
 public static class ColonyGenerator
 {
+    private static readonly string[] NamePrefixesGeneral =
+    {
+        "New", "Nova", "Port", "Fort", "Camp", "Station", "Haven", "Point", "Landing", "Base",
+    };
+
+    private static readonly string[] NamePrefixesMilitary =
+    {
+        "Fort", "Station", "Base", "Outpost", "Camp",
+    };
+
+    private static readonly string[] NameRoots =
+    {
+        "Terra", "Sol", "Vega", "Hope", "Dawn", "Unity", "Prospect", "Fortune", "Pioneer", "Frontier",
+        "Avalon", "Elysium", "Arcadia", "Horizon",
+    };
+
+    private static readonly string[] NameSuffixesGeneral =
+    {
+        string.Empty, " Prime", " Alpha", " Colony", " Station", " Settlement", " Outpost", " Base",
+    };
+
+    private static readonly string[] NameSuffixesMilitary =
+    {
+        " Base", " Station", " Outpost", " Alpha", " Prime",
+    };
     /// <summary>
-    /// Generates a single colony for a profile, or null when colonization is not possible.
+    /// Generates a single colony for the given planet profile, or null when colonization is not possible.
     /// </summary>
+    /// <param name="profile">Planet profile providing body ID and physical characteristics.</param>
+    /// <param name="suitability">Pre-calculated colony suitability for the body.</param>
+    /// <param name="existingNatives">Any native populations already present on the body.</param>
+    /// <param name="rng">Seeded RNG; must be deterministic for the caller's seed.</param>
+    /// <param name="currentYear">In-game year at the time of generation.</param>
+    /// <param name="minHistoryYears">Minimum years of colony history to simulate.</param>
+    /// <param name="maxHistoryYears">Maximum years of colony history to simulate.</param>
+    /// <param name="foundingTechLevel">Technology level of the founding civilization.</param>
+    /// <param name="foundingCivilizationId">Unique ID of the founding civilization.</param>
+    /// <param name="foundingCivilizationName">Display name of the founding civilization.</param>
+    /// <returns>A fully populated <see cref="Colony"/>, or null if the body is not colonizable.</returns>
     public static Colony? Generate(
         PlanetProfile profile,
         ColonySuitability suitability,
@@ -93,74 +132,74 @@ public static class ColonyGenerator
         ColonySuitability suitability,
         SeededRng rng)
     {
-        Dictionary weights = new();
-        for (int typeValue = 0; typeValue < ColonyType.Count(); typeValue += 1)
+        int typeCount = ColonyType.Count();
+        double[] weights = new double[typeCount];
+        for (int i = 0; i < typeCount; i += 1)
         {
-            weights[typeValue] = 1.0;
+            weights[i] = 1.0;
         }
 
         if (suitability.OverallScore >= 70)
         {
-            MultiplyWeight(weights, ColonyType.Type.Settlement, 2.0);
-            MultiplyWeight(weights, ColonyType.Type.Agricultural, 1.5);
+            weights[(int)ColonyType.Type.Settlement] *= 2.0;
+            weights[(int)ColonyType.Type.Agricultural] *= 1.5;
         }
 
         int resourceScore = suitability.GetFactorScore(ColonySuitability.FactorType.Resources);
         if (resourceScore >= 60)
         {
-            MultiplyWeight(weights, ColonyType.Type.Corporate, 1.5);
-            MultiplyWeight(weights, ColonyType.Type.Industrial, 1.5);
+            weights[(int)ColonyType.Type.Corporate] *= 1.5;
+            weights[(int)ColonyType.Type.Industrial] *= 1.5;
         }
 
         if (suitability.OverallScore < 40)
         {
-            MultiplyWeight(weights, ColonyType.Type.Military, 2.0);
-            MultiplyWeight(weights, ColonyType.Type.Scientific, 2.0);
-            MultiplyWeight(weights, ColonyType.Type.Settlement, 0.3);
+            weights[(int)ColonyType.Type.Military] *= 2.0;
+            weights[(int)ColonyType.Type.Scientific] *= 2.0;
+            weights[(int)ColonyType.Type.Settlement] *= 0.3;
         }
 
         if (profile.HasLiquidWater && profile.OceanCoverage < 0.9)
         {
-            MultiplyWeight(weights, ColonyType.Type.Agricultural, 1.5);
+            weights[(int)ColonyType.Type.Agricultural] *= 1.5;
         }
 
-        Array<int> types = new();
-        Array<float> weightValues = new();
-        foreach (int typeKey in weights.Keys)
+        List<int> types = new(typeCount);
+        List<float> weightValues = new(typeCount);
+        for (int i = 0; i < typeCount; i += 1)
         {
-            types.Add(typeKey);
-            weightValues.Add((float)(double)weights[typeKey]);
+            types.Add(i);
+            weightValues.Add((float)weights[i]);
         }
 
         int? selected = rng.WeightedChoice(types, weightValues);
-        return selected.HasValue ? (ColonyType.Type)selected.Value : ColonyType.Type.Settlement;
+        if (selected.HasValue)
+        {
+            return (ColonyType.Type)selected.Value;
+        }
+
+        return ColonyType.Type.Settlement;
     }
 
     private static string GenerateColonyName(ColonyType.Type type, SeededRng rng)
     {
-        Array<string> prefixes = new()
+        bool isMilitary = type == ColonyType.Type.Military || type == ColonyType.Type.Scientific;
+        string[] prefixes;
+        string[] suffixes;
+        if (isMilitary)
         {
-            "New", "Nova", "Port", "Fort", "Camp", "Station", "Haven", "Point", "Landing", "Base",
-        };
-        Array<string> roots = new()
+            prefixes = NamePrefixesMilitary;
+            suffixes = NameSuffixesMilitary;
+        }
+        else
         {
-            "Terra", "Sol", "Vega", "Hope", "Dawn", "Unity", "Prospect", "Fortune", "Pioneer", "Frontier",
-            "Avalon", "Elysium", "Arcadia", "Horizon",
-        };
-        Array<string> suffixes = new()
-        {
-            string.Empty, " Prime", " Alpha", " Colony", " Station", " Settlement", " Outpost", " Base",
-        };
-
-        if (type == ColonyType.Type.Military || type == ColonyType.Type.Scientific)
-        {
-            prefixes = new Array<string> { "Fort", "Station", "Base", "Outpost", "Camp" };
-            suffixes = new Array<string> { " Base", " Station", " Outpost", " Alpha", " Prime" };
+            prefixes = NamePrefixesGeneral;
+            suffixes = NameSuffixesGeneral;
         }
 
-        string prefix = prefixes[rng.RandiRange(0, prefixes.Count - 1)];
-        string root = roots[rng.RandiRange(0, roots.Count - 1)];
-        string suffix = suffixes[rng.RandiRange(0, suffixes.Count - 1)];
+        string prefix = prefixes[rng.RandiRange(0, prefixes.Length - 1)];
+        string root = NameRoots[rng.RandiRange(0, NameRoots.Length - 1)];
+        string suffix = suffixes[rng.RandiRange(0, suffixes.Length - 1)];
 
         if (rng.Randf() < 0.3)
         {
@@ -230,36 +269,36 @@ public static class ColonyGenerator
         {
             case ColonyType.Type.Corporate:
             case ColonyType.Type.Industrial:
-            {
-                Array<string> industries = new() { "mining", "manufacturing", "processing" };
-                if (profile.Resources.ContainsKey((int)ResourceType.Type.RareElements))
                 {
-                    industries.Add("rare element extraction");
-                }
+                    Array<string> industries = new() { "mining", "manufacturing", "processing" };
+                    if (profile.Resources.ContainsKey((int)ResourceType.Type.RareElements))
+                    {
+                        industries.Add("rare element extraction");
+                    }
 
-                if (profile.Resources.ContainsKey((int)ResourceType.Type.Hydrocarbons))
-                {
-                    industries.Add("petrochemical");
-                }
+                    if (profile.Resources.ContainsKey((int)ResourceType.Type.Hydrocarbons))
+                    {
+                        industries.Add("petrochemical");
+                    }
 
-                return industries[rng.RandiRange(0, industries.Count - 1)];
-            }
+                    return industries[rng.RandiRange(0, industries.Count - 1)];
+                }
             case ColonyType.Type.Agricultural:
                 return "agriculture";
             case ColonyType.Type.Military:
                 return "defense";
             case ColonyType.Type.Scientific:
-            {
-                Array<string> focuses = new() { "research", "exploration", "xenobiology", "terraforming study" };
-                return focuses[rng.RandiRange(0, focuses.Count - 1)];
-            }
+                {
+                    Array<string> focuses = new() { "research", "exploration", "xenobiology", "terraforming study" };
+                    return focuses[rng.RandiRange(0, focuses.Count - 1)];
+                }
             case ColonyType.Type.Religious:
                 return "spiritual community";
             default:
-            {
-                Array<string> general = new() { "mixed economy", "services", "trade" };
-                return general[rng.RandiRange(0, general.Count - 1)];
-            }
+                {
+                    Array<string> general = new() { "mixed economy", "services", "trade" };
+                    return general[rng.RandiRange(0, general.Count - 1)];
+                }
         }
     }
 
@@ -350,13 +389,13 @@ public static class ColonyGenerator
             {
                 case 0:
                 case 1:
-                {
-                    double intensity = rng.RandfRange(0.2f, 0.8f);
-                    int eventYear = relation.FirstContactYear + rng.RandiRange(10, yearsOfContact);
-                    relation.RecordConflict(eventYear, "Territorial dispute", intensity);
-                    relation.TerritoryTaken += rng.RandfRange(0.05f, 0.15f);
-                    break;
-                }
+                    {
+                        double intensity = rng.RandfRange(0.2f, 0.8f);
+                        int eventYear = relation.FirstContactYear + rng.RandiRange(10, yearsOfContact);
+                        relation.RecordConflict(eventYear, "Territorial dispute", intensity);
+                        relation.TerritoryTaken += rng.RandfRange(0.05f, 0.15f);
+                        break;
+                    }
                 case 2:
                 case 3:
                     relation.TradeLevel = System.Math.Min(relation.TradeLevel + rng.RandfRange(0.1f, 0.3f), 1.0);
@@ -411,9 +450,4 @@ public static class ColonyGenerator
         }
     }
 
-    private static void MultiplyWeight(Dictionary weights, ColonyType.Type type, double factor)
-    {
-        int key = (int)type;
-        weights[key] = (double)weights[key] * factor;
-    }
 }

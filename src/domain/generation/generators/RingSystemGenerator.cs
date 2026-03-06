@@ -98,6 +98,7 @@ public static class RingSystemGenerator
         return new RingSystemProps(bands, totalMassKg, inclinationDeg);
     }
 
+    /// <summary>Picks complexity level from spec or weighted RNG.</summary>
     private static RingComplexity.Level DetermineComplexity(RingSystemSpec spec, SeededRng rng)
     {
         if (spec.HasComplexity())
@@ -116,6 +117,7 @@ public static class RingSystemGenerator
         return selected ?? RingComplexity.Level.Trace;
     }
 
+    /// <summary>Returns true if rings should be icy (beyond ice line) or from spec.</summary>
     private static bool DetermineComposition(RingSystemSpec spec, ParentContext context)
     {
         if (spec.HasCompositionPreference())
@@ -129,6 +131,7 @@ public static class RingSystemGenerator
         return distanceAu > adjustedIceLine;
     }
 
+    /// <summary>Computes inner and outer ring limits from planet radius and Roche/Hill.</summary>
     private static (double InnerLimitM, double OuterLimitM) CalculateRingLimits(
         PhysicalProps planetPhysical,
         ParentContext context)
@@ -151,6 +154,7 @@ public static class RingSystemGenerator
         return (innerLimitM, outerLimitM);
     }
 
+    /// <summary>Generates ring bands for the given complexity and limits.</summary>
     private static Array<RingBand> GenerateBands(
         RingComplexity.Level complexity,
         double innerLimitM,
@@ -179,6 +183,7 @@ public static class RingSystemGenerator
             rng);
     }
 
+    /// <summary>Builds multiple bands with resonance-style gaps.</summary>
     private static Array<RingBand> GenerateMultiBandSystem(
         int bandCount,
         double innerLimitM,
@@ -261,7 +266,15 @@ public static class RingSystemGenerator
 
             if (bandOuter > currentInner + 1000.0)
             {
-                string bandName = index < bandNames.Length ? bandNames[index] : $"Band_{index}";
+                string bandName;
+                if (index < bandNames.Length)
+                {
+                    bandName = bandNames[index];
+                }
+                else
+                {
+                    bandName = $"Band_{index}";
+                }
                 bands.Add(CreateBand(
                     currentInner,
                     bandOuter,
@@ -287,6 +300,7 @@ public static class RingSystemGenerator
         return bands;
     }
 
+    /// <summary>Creates a single ring band with optical depth and composition.</summary>
     private static RingBand CreateBand(
         double innerM,
         double outerM,
@@ -314,6 +328,7 @@ public static class RingSystemGenerator
             bandName);
     }
 
+    /// <summary>Generates normalized composition dict for icy or rocky rings.</summary>
     private static Dictionary GenerateComposition(bool isIcy, SeededRng rng)
     {
         Dictionary composition = new();
@@ -348,6 +363,7 @@ public static class RingSystemGenerator
         return composition;
     }
 
+    /// <summary>Estimates total ring mass from band areas and optical depths.</summary>
     private static double CalculateTotalMass(
         Array<RingBand> bands,
         bool isIcy,

@@ -33,6 +33,15 @@ public partial class NodeExtent : RefCounted
     public int STypePlanetCount;
 
     /// <summary>
+    /// Legacy casing alias used by converted tests.
+    /// </summary>
+    public int StypePlanetCount
+    {
+        get => STypePlanetCount;
+        set => STypePlanetCount = value;
+    }
+
+    /// <summary>
     /// Number of P-type orbit contents.
     /// </summary>
     public int PTypePlanetCount;

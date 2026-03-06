@@ -530,7 +530,15 @@ public static class ProfileCalculations
             }
 
             double fraction = (double)composition[gas];
-            double threshold = gas == "CO2" ? 0.05 : 0.01;
+            double threshold;
+            if (gas == "CO2")
+            {
+                threshold = 0.05;
+            }
+            else
+            {
+                threshold = 0.01;
+            }
             if (fraction > threshold)
             {
                 return false;
@@ -624,13 +632,26 @@ public static class ProfileCalculations
     private static void AddBiome(Dictionary biomes, BiomeType.Type biome, double coverage)
     {
         int key = (int)biome;
-        double existing = biomes.ContainsKey(key) ? (double)biomes[key] : 0.0;
+        double existing;
+        if (biomes.ContainsKey(key))
+        {
+            existing = (double)biomes[key];
+        }
+        else
+        {
+            existing = 0.0;
+        }
         biomes[key] = existing + coverage;
     }
 
     private static double GetBiomeCoverage(Dictionary biomes, BiomeType.Type biome)
     {
         int key = (int)biome;
-        return biomes.ContainsKey(key) ? (double)biomes[key] : 0.0;
+        if (biomes.ContainsKey(key))
+        {
+            return (double)biomes[key];
+        }
+
+        return 0.0;
     }
 }

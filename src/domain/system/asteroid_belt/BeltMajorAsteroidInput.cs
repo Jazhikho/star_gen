@@ -64,7 +64,12 @@ public partial class BeltMajorAsteroidInput : RefCounted
         }
 
         Variant value = data[key];
-        return value.VariantType == Variant.Type.String ? (string)value : fallback;
+        if (value.VariantType == Variant.Type.String)
+        {
+            return (string)value;
+        }
+
+        return fallback;
     }
 
     private static int GetInt(Dictionary data, string key, int fallback)

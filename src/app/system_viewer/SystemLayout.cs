@@ -48,7 +48,12 @@ public partial class SystemLayout : RefCounted
     /// </summary>
     public BodyLayout? GetBodyLayout(string bodyId)
     {
-        return BodyLayouts.ContainsKey(bodyId) ? BodyLayouts[bodyId] : null;
+        if (BodyLayouts.ContainsKey(bodyId))
+        {
+            return BodyLayouts[bodyId];
+        }
+
+        return null;
     }
 
     /// <summary>
@@ -56,7 +61,12 @@ public partial class SystemLayout : RefCounted
     /// </summary>
     public BeltLayout? GetBeltLayout(string beltId)
     {
-        return BeltLayouts.ContainsKey(beltId) ? BeltLayouts[beltId] : null;
+        if (BeltLayouts.ContainsKey(beltId))
+        {
+            return BeltLayouts[beltId];
+        }
+
+        return null;
     }
 
     /// <summary>
@@ -64,7 +74,12 @@ public partial class SystemLayout : RefCounted
     /// </summary>
     public BodyLayout? GetStarOrbit(string starId)
     {
-        return StarOrbits.ContainsKey(starId) ? StarOrbits[starId] : null;
+        if (StarOrbits.ContainsKey(starId))
+        {
+            return StarOrbits[starId];
+        }
+
+        return null;
     }
 
     /// <summary>
@@ -72,7 +87,12 @@ public partial class SystemLayout : RefCounted
     /// </summary>
     public NodeExtent? GetNodeExtent(string nodeId)
     {
-        return NodeExtents.ContainsKey(nodeId) ? NodeExtents[nodeId] : null;
+        if (NodeExtents.ContainsKey(nodeId))
+        {
+            return NodeExtents[nodeId];
+        }
+
+        return null;
     }
 
     /// <summary>
@@ -80,7 +100,12 @@ public partial class SystemLayout : RefCounted
     /// </summary>
     public Vector3 GetHostPosition(string hostId)
     {
-        return HostPositions.ContainsKey(hostId) ? HostPositions[hostId] : Vector3.Zero;
+        if (HostPositions.ContainsKey(hostId))
+        {
+            return HostPositions[hostId];
+        }
+
+        return Vector3.Zero;
     }
 
     /// <summary>

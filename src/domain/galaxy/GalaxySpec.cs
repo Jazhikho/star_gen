@@ -1,5 +1,6 @@
 using Godot;
 using Godot.Collections;
+using StarGen.Domain.Utils;
 
 namespace StarGen.Domain.Galaxy;
 
@@ -21,77 +22,77 @@ public partial class GalaxySpec : RefCounted
     /// <summary>
     /// Master seed for the galaxy.
     /// </summary>
-    public int GalaxySeed;
+    public int GalaxySeed { get; set; }
 
     /// <summary>
     /// Morphological type.
     /// </summary>
-    public GalaxyType Type = GalaxyType.Spiral;
+    public GalaxyType Type { get; set; } = GalaxyType.Spiral;
 
     /// <summary>
     /// Radius of the galactic disk in parsecs.
     /// </summary>
-    public double RadiusPc = 15000.0;
+    public double RadiusPc { get; set; } = 15000.0;
 
     /// <summary>
     /// Half-height of the full extent in parsecs.
     /// </summary>
-    public double HeightPc = 1000.0;
+    public double HeightPc { get; set; } = 1000.0;
 
     /// <summary>
     /// Number of spiral arms.
     /// </summary>
-    public int NumArms = 4;
+    public int NumArms { get; set; } = 4;
 
     /// <summary>
     /// Pitch angle of the logarithmic spiral arms in degrees.
     /// </summary>
-    public double ArmPitchAngleDeg = 14.0;
+    public double ArmPitchAngleDeg { get; set; } = 14.0;
 
     /// <summary>
     /// Angular half-width of each arm in radians.
     /// </summary>
-    public double ArmWidth = 0.4;
+    public double ArmWidth { get; set; } = 0.4;
 
     /// <summary>
     /// Arm density contrast.
     /// </summary>
-    public double ArmAmplitude = 0.65;
+    public double ArmAmplitude { get; set; } = 0.65;
 
     /// <summary>
     /// Radius of the central bulge in parsecs.
     /// </summary>
-    public double BulgeRadiusPc = 1500.0;
+    public double BulgeRadiusPc { get; set; } = 1500.0;
 
     /// <summary>
     /// Half-height of the central bulge in parsecs.
     /// </summary>
-    public double BulgeHeightPc = 800.0;
+    public double BulgeHeightPc { get; set; } = 800.0;
 
     /// <summary>
     /// Peak intensity of the bulge relative to disk normalization.
     /// </summary>
-    public double BulgeIntensity = 0.8;
+    public double BulgeIntensity { get; set; } = 0.8;
 
     /// <summary>
     /// Exponential scale length of the disk in parsecs.
     /// </summary>
-    public double DiskScaleLengthPc = 4000.0;
+    public double DiskScaleLengthPc { get; set; } = 4000.0;
 
     /// <summary>
     /// Exponential scale height of the disk in parsecs.
     /// </summary>
-    public double DiskScaleHeightPc = 300.0;
+    public double DiskScaleHeightPc { get; set; } = 300.0;
 
     /// <summary>
     /// Ellipticity for elliptical galaxies.
     /// </summary>
-    public double Ellipticity = 0.3;
+    public double Ellipticity { get; set; } = 0.3;
 
     /// <summary>
     /// Irregularity scale for irregular galaxies.
     /// </summary>
-    public double IrregularityScale = 0.5;
+    public double IrregularityScale { get; set; } = 0.5;
 
     /// <summary>
     /// Creates a Milky-Way-like spiral galaxy specification.
@@ -118,6 +119,24 @@ public partial class GalaxySpec : RefCounted
 
     /// <summary>
     /// Creates a galaxy specification from a configuration object and seed.
+    /// Derived quantities:
+    /// <list type="bullet">
+    ///   <item>
+    ///     <term>HeightPc</term>
+    ///     <description>
+    ///       Set to RadiusPc / 15. The Milky Way disk has a radius-to-half-height ratio of ~15:1
+    ///       for the total stellar distribution (Bland-Hawthorn &amp; Gerhard 2016, ARA&amp;A 54).
+    ///     </description>
+    ///   </item>
+    ///   <item>
+    ///     <term>BulgeHeightPc</term>
+    ///     <description>
+    ///       Set to BulgeRadiusPc × 0.53. Milky Way bar/bulge observations give a vertical-to-planar
+    ///       half-axis ratio in the range 0.4–0.6 (Wegg, Gerhard &amp; Portail 2015, MNRAS 450; Portail
+    ///       et al. 2017, MNRAS 465). A factor of 0.53 represents a moderately flattened prolate bulge.
+    ///     </description>
+    ///   </item>
+    /// </list>
     /// </summary>
     public static GalaxySpec CreateFromConfig(GalaxyConfig? config, int galaxySeed)
     {
@@ -174,64 +193,32 @@ public partial class GalaxySpec : RefCounted
     {
         GalaxySpec spec = new()
         {
-            GalaxySeed = GetInt(data, "galaxy_seed", 0),
-            RadiusPc = GetDouble(data, "radius_pc", 15000.0),
-            HeightPc = GetDouble(data, "height_pc", 1000.0),
-            NumArms = GetInt(data, "num_arms", 4),
-            ArmPitchAngleDeg = GetDouble(data, "arm_pitch_angle_deg", 14.0),
-            ArmWidth = GetDouble(data, "arm_width", 0.4),
-            ArmAmplitude = GetDouble(data, "arm_amplitude", 0.65),
-            BulgeRadiusPc = GetDouble(data, "bulge_radius_pc", 1500.0),
-            BulgeHeightPc = GetDouble(data, "bulge_height_pc", 800.0),
-            BulgeIntensity = GetDouble(data, "bulge_intensity", 0.8),
-            DiskScaleLengthPc = GetDouble(data, "disk_scale_length_pc", 4000.0),
-            DiskScaleHeightPc = GetDouble(data, "disk_scale_height_pc", 300.0),
-            Ellipticity = GetDouble(data, "ellipticity", 0.3),
-            IrregularityScale = GetDouble(data, "irregularity_scale", 0.5),
+            GalaxySeed = DomainDictionaryUtils.GetInt(data, "galaxy_seed", 0),
+            RadiusPc = DomainDictionaryUtils.GetDouble(data, "radius_pc", 15000.0),
+            HeightPc = DomainDictionaryUtils.GetDouble(data, "height_pc", 1000.0),
+            NumArms = DomainDictionaryUtils.GetInt(data, "num_arms", 4),
+            ArmPitchAngleDeg = DomainDictionaryUtils.GetDouble(data, "arm_pitch_angle_deg", 14.0),
+            ArmWidth = DomainDictionaryUtils.GetDouble(data, "arm_width", 0.4),
+            ArmAmplitude = DomainDictionaryUtils.GetDouble(data, "arm_amplitude", 0.65),
+            BulgeRadiusPc = DomainDictionaryUtils.GetDouble(data, "bulge_radius_pc", 1500.0),
+            BulgeHeightPc = DomainDictionaryUtils.GetDouble(data, "bulge_height_pc", 800.0),
+            BulgeIntensity = DomainDictionaryUtils.GetDouble(data, "bulge_intensity", 0.8),
+            DiskScaleLengthPc = DomainDictionaryUtils.GetDouble(data, "disk_scale_length_pc", 4000.0),
+            DiskScaleHeightPc = DomainDictionaryUtils.GetDouble(data, "disk_scale_height_pc", 300.0),
+            Ellipticity = DomainDictionaryUtils.GetDouble(data, "ellipticity", 0.3),
+            IrregularityScale = DomainDictionaryUtils.GetDouble(data, "irregularity_scale", 0.5),
         };
 
-        int typeValue = GetInt(data, "galaxy_type", (int)GalaxyType.Spiral);
-        spec.Type = System.Enum.IsDefined(typeof(GalaxyType), typeValue)
-            ? (GalaxyType)typeValue
-            : GalaxyType.Spiral;
+        int typeValue = DomainDictionaryUtils.GetInt(data, "galaxy_type", (int)GalaxyType.Spiral);
+        if (System.Enum.IsDefined(typeof(GalaxyType), typeValue))
+        {
+            spec.Type = (GalaxyType)typeValue;
+        }
+        else
+        {
+            spec.Type = GalaxyType.Spiral;
+        }
         return spec;
     }
 
-    /// <summary>
-    /// Reads an integer value from a dictionary.
-    /// </summary>
-    private static int GetInt(Dictionary data, string key, int fallback)
-    {
-        if (!data.ContainsKey(key))
-        {
-            return fallback;
-        }
-
-        Variant value = data[key];
-        return value.VariantType switch
-        {
-            Variant.Type.Int => (int)value,
-            Variant.Type.Float => (int)(double)value,
-            _ => fallback,
-        };
-    }
-
-    /// <summary>
-    /// Reads a floating-point value from a dictionary.
-    /// </summary>
-    private static double GetDouble(Dictionary data, string key, double fallback)
-    {
-        if (!data.ContainsKey(key))
-        {
-            return fallback;
-        }
-
-        Variant value = data[key];
-        return value.VariantType switch
-        {
-            Variant.Type.Float => (double)value,
-            Variant.Type.Int => (int)value,
-            _ => fallback,
-        };
-    }
 }

@@ -11,22 +11,22 @@ public partial class StarSpec : BaseSpec
     /// <summary>
     /// Target spectral class, or -1 for random.
     /// </summary>
-    public int SpectralClass;
+    public int SpectralClass { get; set; }
 
     /// <summary>
     /// Target subclass, or -1 for random.
     /// </summary>
-    public int Subclass;
+    public int Subclass { get; set; }
 
     /// <summary>
     /// Metallicity relative to solar, or -1 for random.
     /// </summary>
-    public double Metallicity;
+    public double Metallicity { get; set; }
 
     /// <summary>
     /// Age hint in years, or -1 for random.
     /// </summary>
-    public double AgeYears;
+    public double AgeYears { get; set; }
 
     /// <summary>
     /// Creates a new star specification.
@@ -45,6 +45,21 @@ public partial class StarSpec : BaseSpec
         Subclass = subclass;
         Metallicity = metallicity;
         AgeYears = ageYears;
+    }
+
+    /// <summary>
+    /// Compatibility constructor accepting enum spectral class.
+    /// </summary>
+    public StarSpec(
+        int generationSeed,
+        StarClass.SpectralClass spectralClass,
+        int subclass = -1,
+        double metallicity = -1.0,
+        double ageYears = -1.0,
+        string nameHint = "",
+        Dictionary? overrides = null)
+        : this(generationSeed, (int)spectralClass, subclass, metallicity, ageYears, nameHint, overrides)
+    {
     }
 
     /// <summary>
@@ -115,18 +130,61 @@ public partial class StarSpec : BaseSpec
     /// </summary>
     public static StarSpec FromDictionary(Dictionary data)
     {
-        return new StarSpec(
-            data.ContainsKey("generation_seed") ? (int)data["generation_seed"] : 0,
-            data.ContainsKey("spectral_class") ? (int)data["spectral_class"] : -1,
-            data.ContainsKey("subclass") ? (int)data["subclass"] : -1,
-            GetDouble(data, "metallicity", -1.0),
-            GetDouble(data, "age_years", -1.0),
-            data.ContainsKey("name_hint") ? (string)data["name_hint"] : string.Empty,
-            data.ContainsKey("overrides") ? (Dictionary)data["overrides"] : null);
+        int generationSeed;
+        if (data.ContainsKey("generation_seed"))
+        {
+            generationSeed = (int)data["generation_seed"];
+        }
+        else
+        {
+            generationSeed = 0;
+        }
+
+        int spectralClass;
+        if (data.ContainsKey("spectral_class"))
+        {
+            spectralClass = (int)data["spectral_class"];
+        }
+        else
+        {
+            spectralClass = -1;
+        }
+
+        int subclass;
+        if (data.ContainsKey("subclass"))
+        {
+            subclass = (int)data["subclass"];
+        }
+        else
+        {
+            subclass = -1;
+        }
+        string nameHint;
+        if (data.ContainsKey("name_hint"))
+        {
+            nameHint = (string)data["name_hint"];
+        }
+        else
+        {
+            nameHint = string.Empty;
+        }
+
+        Dictionary? overrides = null;
+        if (data.ContainsKey("overrides"))
+        {
+            overrides = (Dictionary)data["overrides"];
+        }
+
+        return new StarSpec(generationSeed, spectralClass, subclass, GetDouble(data, "metallicity", -1.0), GetDouble(data, "age_years", -1.0), nameHint, overrides);
     }
 
     private static double GetDouble(Dictionary data, string key, double fallback)
     {
-        return data.ContainsKey(key) ? (double)data[key] : fallback;
+        if (data.ContainsKey(key))
+        {
+            return (double)data[key];
+        }
+
+        return fallback;
     }
 }

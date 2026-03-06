@@ -1,6 +1,6 @@
 [gd_scene load_steps=3 format=3]
 
-[ext_resource type="Script" path="res://src/app/rendering/BodyRenderer.gd" id="1"]
+[ext_resource type="Script" path="res://src/app/rendering/BodyRenderer.cs" id="1"]
 
 [sub_resource type="SphereMesh" id="SphereMesh_1"]
 radial_segments = 48

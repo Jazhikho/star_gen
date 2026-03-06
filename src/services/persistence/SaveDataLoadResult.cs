@@ -11,17 +11,17 @@ public partial class SaveDataLoadResult : RefCounted
     /// <summary>
     /// Returns whether the load succeeded.
     /// </summary>
-    public bool Success;
+    public bool Success { get; set; }
 
     /// <summary>
     /// Loaded body, if successful.
     /// </summary>
-    public CelestialBody? Body;
+    public CelestialBody? Body { get; set; }
 
     /// <summary>
     /// Error message when the load fails.
     /// </summary>
-    public string ErrorMessage = string.Empty;
+    public string ErrorMessage { get; set; } = string.Empty;
 
     /// <summary>
     /// Creates a successful load-result payload.

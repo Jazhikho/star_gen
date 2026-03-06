@@ -73,7 +73,12 @@ public partial class GalaxyBodyOverrides : RefCounted
         }
 
         System.Collections.Generic.Dictionary<string, Dictionary> bucket = _overrides[starSeed];
-        return bucket.ContainsKey(bodyId) ? CloneDictionary(bucket[bodyId]) : new Dictionary();
+        if (bucket.ContainsKey(bodyId))
+        {
+            return CloneDictionary(bucket[bodyId]);
+        }
+
+        return new Dictionary();
     }
 
     /// <summary>
@@ -82,7 +87,12 @@ public partial class GalaxyBodyOverrides : RefCounted
     public CelestialBody? GetOverrideBody(int starSeed, string bodyId)
     {
         Dictionary data = GetOverrideDict(starSeed, bodyId);
-        return data.Count == 0 ? null : CelestialSerializer.FromDictionary(data);
+        if (data.Count == 0)
+        {
+            return null;
+        }
+
+        return CelestialSerializer.FromDictionary(data);
     }
 
     /// <summary>
@@ -233,7 +243,14 @@ public partial class GalaxyBodyOverrides : RefCounted
         foreach (Variant key in source.Keys)
         {
             Variant value = source[key];
-            clone[key] = value.VariantType == Variant.Type.Dictionary ? CloneDictionary((Dictionary)value) : value;
+            if (value.VariantType == Variant.Type.Dictionary)
+            {
+                clone[key] = CloneDictionary((Dictionary)value);
+            }
+            else
+            {
+                clone[key] = value;
+            }
         }
 
         return clone;

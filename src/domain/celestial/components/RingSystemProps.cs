@@ -1,5 +1,6 @@
 using Godot;
 using Godot.Collections;
+using System.Collections.Generic;
 
 namespace StarGen.Domain.Celestial.Components;
 
@@ -34,6 +35,17 @@ public partial class RingSystemProps : RefCounted
         Bands = CloneBands(bands);
         TotalMassKg = totalMassKg;
         InclinationDeg = inclinationDeg;
+    }
+
+    /// <summary>
+    /// Compatibility overload accepting .NET lists.
+    /// </summary>
+    public RingSystemProps(
+        List<RingBand> bands,
+        double totalMassKg = 0.0,
+        double inclinationDeg = 0.0)
+        : this(ToGodotArray(bands), totalMassKg, inclinationDeg)
+    {
     }
 
     /// <summary>
@@ -163,8 +175,24 @@ public partial class RingSystemProps : RefCounted
         return clone;
     }
 
+    private static Array<RingBand> ToGodotArray(List<RingBand> source)
+    {
+        Array<RingBand> array = new();
+        foreach (RingBand band in source)
+        {
+            array.Add(band);
+        }
+
+        return array;
+    }
+
     private static double GetDouble(Dictionary data, string key, double fallback)
     {
-        return data.ContainsKey(key) ? (double)data[key] : fallback;
+        if (data.ContainsKey(key))
+        {
+            return (double)data[key];
+        }
+
+        return fallback;
     }
 }

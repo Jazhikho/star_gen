@@ -37,6 +37,8 @@ public partial class GalaxyInspectorPanel : VBoxContainer
 	private Button? _openSystemButton;
 	private Button? _calculateRoutesButton;
 	private CheckBox? _showRoutesCheck;
+	private Label? _jumpRoutesProgressLabel;
+	private ProgressBar? _jumpRoutesProgressBar;
 	private bool _isCalculating;
 
 	/// <summary>
@@ -79,6 +81,14 @@ public partial class GalaxyInspectorPanel : VBoxContainer
 		AddProperty(_overviewContainer, "Spiral Arms", spec.NumArms.ToString());
 		AddProperty(_overviewContainer, "Arm Pitch", $"{spec.ArmPitchAngleDeg:0.0} deg");
 		AddProperty(_overviewContainer, "View", GetZoomLevelName(zoomLevel));
+	}
+
+	/// <summary>
+	/// Compatibility overload accepting enum zoom-level values.
+	/// </summary>
+	public void DisplayGalaxy(GalaxySpec? spec, GalaxyCoordinates.ZoomLevel zoomLevel)
+	{
+		DisplayGalaxy(spec, (int)zoomLevel);
 	}
 
 	/// <summary>
@@ -148,6 +158,14 @@ public partial class GalaxyInspectorPanel : VBoxContainer
 	}
 
 	/// <summary>
+	/// Compatibility overload accepting double density.
+	/// </summary>
+	public void DisplaySelectedQuadrant(Vector3I coords, double density)
+	{
+		DisplaySelectedQuadrant(coords, (float)density);
+	}
+
+	/// <summary>
 	/// Displays selected sector information.
 	/// </summary>
 	public void display_selected_sector(Vector3I quadrantCoords, Vector3I sectorCoords, float density)
@@ -171,6 +189,14 @@ public partial class GalaxyInspectorPanel : VBoxContainer
 		AddProperty(_selectionContainer, "Quadrant", FormatVector3I(quadrantCoords));
 		AddProperty(_selectionContainer, "Local", FormatVector3I(sectorCoords));
 		AddProperty(_selectionContainer, "Density", density.ToString("0.0000"));
+	}
+
+	/// <summary>
+	/// Compatibility overload accepting double density.
+	/// </summary>
+	public void DisplaySelectedSector(Vector3I quadrantCoords, Vector3I sectorCoords, double density)
+	{
+		DisplaySelectedSector(quadrantCoords, sectorCoords, (float)density);
 	}
 
 	/// <summary>
@@ -200,10 +226,20 @@ public partial class GalaxyInspectorPanel : VBoxContainer
 			AddProperty(_selectionContainer, "Z", $"{worldPosition.Z:0.00} pc");
 
 			float distPc = worldPosition.Length();
+			string fromCenterText;
+			if (distPc > 1000.0f)
+			{
+				fromCenterText = $"{distPc / 1000.0f:0.00} kpc";
+			}
+			else
+			{
+				fromCenterText = $"{distPc:0.0} pc";
+			}
+
 			AddProperty(
 				_selectionContainer,
 				"From Center",
-				distPc > 1000.0f ? $"{distPc / 1000.0f:0.00} kpc" : $"{distPc:0.0} pc");
+				fromCenterText);
 		}
 
 		if (_openSystemButton != null)
@@ -248,8 +284,25 @@ public partial class GalaxyInspectorPanel : VBoxContainer
 		for (int index = 0; index < preview.SpectralClasses.Length; index++)
 		{
 			string spectral = preview.SpectralClasses[index];
-			float temp = index < preview.StarTemperatures.Length ? preview.StarTemperatures[index] : 0.0f;
-			string tempText = temp > 0.0f ? $"{(int)temp} K" : "?";
+			float temp;
+			if (index < preview.StarTemperatures.Length)
+			{
+				temp = preview.StarTemperatures[index];
+			}
+			else
+			{
+				temp = 0.0f;
+			}
+
+			string tempText;
+			if (temp > 0.0f)
+			{
+				tempText = $"{(int)temp} K";
+			}
+			else
+			{
+				tempText = "?";
+			}
 			AddProperty(_previewContainer, $"  Star {index + 1}", $"{spectral}  {tempText}");
 		}
 
@@ -257,7 +310,17 @@ public partial class GalaxyInspectorPanel : VBoxContainer
 		AddProperty(_previewContainer, "Moons", preview.MoonCount.ToString());
 		AddProperty(_previewContainer, "Belts", preview.BeltCount.ToString());
 		AddProperty(_previewContainer, "Metallicity", $"{preview.Metallicity:0.00} Zsun");
-		AddProperty(_previewContainer, "Inhabited", preview.IsInhabited ? "Yes" : "No");
+		string inhabitedText;
+		if (preview.IsInhabited)
+		{
+			inhabitedText = "Yes";
+		}
+		else
+		{
+			inhabitedText = "No";
+		}
+
+		AddProperty(_previewContainer, "Inhabited", inhabitedText);
 		if (preview.IsInhabited)
 		{
 			AddProperty(_previewContainer, "Population", PropertyFormatter.FormatPopulation(preview.TotalPopulation));
@@ -307,7 +370,33 @@ public partial class GalaxyInspectorPanel : VBoxContainer
 		if (_calculateRoutesButton != null)
 		{
 			_calculateRoutesButton.Disabled = calculating;
-			_calculateRoutesButton.Text = calculating ? "Calculating..." : "Recalculate Jump Routes";
+			if (calculating)
+			{
+				_calculateRoutesButton.Text = "Calculating...";
+			}
+			else
+			{
+				_calculateRoutesButton.Text = "Recalculate Jump Routes";
+			}
+		}
+
+		if (_jumpRoutesProgressLabel != null)
+		{
+			_jumpRoutesProgressLabel.Visible = calculating;
+			if (calculating)
+			{
+				_jumpRoutesProgressLabel.Text = "Preparing jump routes...";
+			}
+		}
+
+		if (_jumpRoutesProgressBar != null)
+		{
+			_jumpRoutesProgressBar.Visible = calculating;
+			if (calculating)
+			{
+				_jumpRoutesProgressBar.MaxValue = 1.0;
+				_jumpRoutesProgressBar.Value = 0.0;
+			}
 		}
 	}
 
@@ -331,9 +420,81 @@ public partial class GalaxyInspectorPanel : VBoxContainer
 		if (_calculateRoutesButton != null)
 		{
 			_calculateRoutesButton.Disabled = false;
-			_calculateRoutesButton.Text = available ? "Recalculate Jump Routes" : "Calculate Jump Routes";
+			if (available)
+			{
+				_calculateRoutesButton.Text = "Recalculate Jump Routes";
+			}
+			else
+			{
+				_calculateRoutesButton.Text = "Calculate Jump Routes";
+			}
 		}
 		_isCalculating = false;
+
+		if (_jumpRoutesProgressLabel != null)
+		{
+			_jumpRoutesProgressLabel.Visible = false;
+		}
+
+		if (_jumpRoutesProgressBar != null)
+		{
+			_jumpRoutesProgressBar.Visible = false;
+		}
+	}
+
+	/// <summary>
+	/// Updates the visible jump-route calculation progress.
+	/// </summary>
+	public void SetJumpRoutesProgress(int completed, int total)
+	{
+		SetJumpRoutesProgress("Building jump routes", completed, total);
+	}
+
+	/// <summary>
+	/// Updates the visible jump-route calculation progress for a named stage.
+	/// </summary>
+	public void SetJumpRoutesProgress(string stageLabel, int completed, int total)
+	{
+		int safeTotal;
+		if (total > 0)
+		{
+			safeTotal = total;
+		}
+		else
+		{
+			safeTotal = 1;
+		}
+
+		int safeCompleted;
+		if (completed >= 0)
+		{
+			safeCompleted = completed;
+		}
+		else
+		{
+			safeCompleted = 0;
+		}
+
+		if (_jumpRoutesProgressLabel != null)
+		{
+			_jumpRoutesProgressLabel.Visible = true;
+			_jumpRoutesProgressLabel.Text = $"{stageLabel}: {safeCompleted}/{safeTotal}";
+		}
+
+		if (_jumpRoutesProgressBar != null)
+		{
+			_jumpRoutesProgressBar.Visible = true;
+			_jumpRoutesProgressBar.MaxValue = safeTotal;
+			_jumpRoutesProgressBar.Value = safeCompleted;
+		}
+	}
+
+	/// <summary>
+	/// Updates the jump-route progress indicator for a coarse pipeline stage.
+	/// </summary>
+	public void SetJumpRoutesStage(string stageLabel, int stageIndex, int stageCount)
+	{
+		SetJumpRoutesProgress(stageLabel, stageIndex, stageCount);
 	}
 
 	/// <summary>
@@ -361,6 +522,11 @@ public partial class GalaxyInspectorPanel : VBoxContainer
 	}
 
 	/// <summary>
+	/// PascalCase compatibility alias.
+	/// </summary>
+	public bool HasStarSelected() => has_star_selected();
+
+	/// <summary>
 	/// Returns the selected star seed.
 	/// </summary>
 	public int get_selected_star_seed()
@@ -369,12 +535,22 @@ public partial class GalaxyInspectorPanel : VBoxContainer
 	}
 
 	/// <summary>
+	/// PascalCase compatibility alias.
+	/// </summary>
+	public int GetSelectedStarSeed() => get_selected_star_seed();
+
+	/// <summary>
 	/// Returns the selected star position.
 	/// </summary>
 	public Vector3 get_selected_star_position()
 	{
 		return _selectedStarPosition;
 	}
+
+	/// <summary>
+	/// PascalCase compatibility alias.
+	/// </summary>
+	public Vector3 GetSelectedStarPosition() => get_selected_star_position();
 
 	/// <summary>
 	/// Returns the current preview data.
@@ -437,6 +613,28 @@ public partial class GalaxyInspectorPanel : VBoxContainer
 		};
 		_showRoutesCheck.Toggled += OnShowRoutesToggled;
 		AddChild(_showRoutesCheck);
+
+		_jumpRoutesProgressLabel = new Label
+		{
+			Name = "JumpRoutesProgressLabel",
+			Text = "Preparing jump routes...",
+			Visible = false,
+		};
+		_jumpRoutesProgressLabel.AddThemeFontSizeOverride("font_size", 11);
+		AddChild(_jumpRoutesProgressLabel);
+
+		_jumpRoutesProgressBar = new ProgressBar
+		{
+			Name = "JumpRoutesProgressBar",
+			Visible = false,
+			ShowPercentage = false,
+			MinValue = 0.0,
+			MaxValue = 1.0,
+			Value = 0.0,
+			CustomMinimumSize = new Vector2(0.0f, 18.0f),
+			SizeFlagsHorizontal = SizeFlags.ExpandFill,
+		};
+		AddChild(_jumpRoutesProgressBar);
 
 		if (_selectionContainer != null)
 		{
@@ -660,13 +858,23 @@ public partial class GalaxyInspectorPanel : VBoxContainer
 	private static bool GetBoolProperty(GodotObject source, string propertyName, bool fallback)
 	{
 		Variant value = source.Get(propertyName);
-		return value.VariantType == Variant.Type.Bool ? (bool)value : fallback;
+		if (value.VariantType == Variant.Type.Bool)
+		{
+			return (bool)value;
+		}
+
+		return fallback;
 	}
 
 	private static Vector3 GetVector3Property(GodotObject source, string propertyName, Vector3 fallback)
 	{
 		Variant value = source.Get(propertyName);
-		return value.VariantType == Variant.Type.Vector3 ? (Vector3)value : fallback;
+		if (value.VariantType == Variant.Type.Vector3)
+		{
+			return (Vector3)value;
+		}
+
+		return fallback;
 	}
 
 	private static string[] GetStringArrayProperty(GodotObject source, string propertyName)
@@ -682,7 +890,14 @@ public partial class GalaxyInspectorPanel : VBoxContainer
 		for (int index = 0; index < array.Count; index++)
 		{
 			Variant item = array[index];
-			result[index] = item.VariantType == Variant.Type.String ? (string)item : "?";
+			if (item.VariantType == Variant.Type.String)
+			{
+				result[index] = (string)item;
+			}
+			else
+			{
+				result[index] = "?";
+			}
 		}
 
 		return result;

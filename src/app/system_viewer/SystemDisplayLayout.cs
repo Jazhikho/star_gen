@@ -119,11 +119,30 @@ public static class SystemDisplayLayout
     }
 
     /// <summary>
+    /// Double-precision overload for compatibility with converted tests.
+    /// </summary>
+    public static double CalculateFirstOrbitRadiusForStar(
+        double starDisplayRadius,
+        double maxPlanetRadius,
+        double logAdjustment)
+    {
+        return CalculateFirstOrbitRadiusForStar((float)starDisplayRadius, (float)maxPlanetRadius, (float)logAdjustment);
+    }
+
+    /// <summary>
     /// Calculates the radius of an indexed orbit slot.
     /// </summary>
     public static float CalculateNthOrbitRadius(float firstOrbitRadius, int orbitIndex)
     {
         return firstOrbitRadius + (orbitIndex * OrbitSpacing);
+    }
+
+    /// <summary>
+    /// Double-precision overload for compatibility with converted tests.
+    /// </summary>
+    public static double CalculateNthOrbitRadius(double firstOrbitRadius, int orbitIndex)
+    {
+        return CalculateNthOrbitRadius((float)firstOrbitRadius, orbitIndex);
     }
 
     /// <summary>
@@ -141,6 +160,14 @@ public static class SystemDisplayLayout
     }
 
     /// <summary>
+    /// Double-precision overload for compatibility with converted tests.
+    /// </summary>
+    public static double CalculateOrbitalPeriod(double orbitRadius)
+    {
+        return CalculateOrbitalPeriod((float)orbitRadius);
+    }
+
+    /// <summary>
     /// Calculates the maximum rendered belt inclination from orbit distance.
     /// </summary>
     public static float CalculateBeltMaxInclinationDeg(float orbitRadius)
@@ -149,6 +176,14 @@ public static class SystemDisplayLayout
         const float maxInclination = 24.0f;
         float t = Mathf.Clamp((orbitRadius - 10.0f) / 40.0f, 0.0f, 1.0f);
         return Mathf.Lerp(minInclination, maxInclination, t);
+    }
+
+    /// <summary>
+    /// Double-precision overload for compatibility with converted tests.
+    /// </summary>
+    public static double CalculateBeltMaxInclinationDeg(double orbitRadius)
+    {
+        return CalculateBeltMaxInclinationDeg((float)orbitRadius);
     }
 
     /// <summary>
@@ -261,8 +296,26 @@ public static class SystemDisplayLayout
             List<CelestialBody> planets = grouped[hostId];
             planets.Sort(static (a, b) =>
             {
-                double distanceA = a.HasOrbital() ? a.Orbital!.SemiMajorAxisM : 0.0;
-                double distanceB = b.HasOrbital() ? b.Orbital!.SemiMajorAxisM : 0.0;
+                double distanceA;
+                if (a.HasOrbital())
+                {
+                    distanceA = a.Orbital!.SemiMajorAxisM;
+                }
+                else
+                {
+                    distanceA = 0.0;
+                }
+
+                double distanceB;
+                if (b.HasOrbital())
+                {
+                    distanceB = b.Orbital!.SemiMajorAxisM;
+                }
+                else
+                {
+                    distanceB = 0.0;
+                }
+
                 return distanceA.CompareTo(distanceB);
             });
 
@@ -324,13 +377,27 @@ public static class SystemDisplayLayout
         foreach (string hostId in planetsByHost.Keys)
         {
             int total = planetsByHost[hostId].Count;
-            counts[hostId] = counts.ContainsKey(hostId) ? counts[hostId] + total : total;
+            if (counts.ContainsKey(hostId))
+            {
+                counts[hostId] = counts[hostId] + total;
+            }
+            else
+            {
+                counts[hostId] = total;
+            }
         }
 
         foreach (string hostId in beltsByHost.Keys)
         {
             int total = beltsByHost[hostId].Count;
-            counts[hostId] = counts.ContainsKey(hostId) ? counts[hostId] + total : total;
+            if (counts.ContainsKey(hostId))
+            {
+                counts[hostId] = counts[hostId] + total;
+            }
+            else
+            {
+                counts[hostId] = total;
+            }
         }
 
         return counts;
@@ -397,7 +464,14 @@ public static class SystemDisplayLayout
         }
 
         NodeExtent extent = new(node.Id);
-        extent.MaxPlanetRadius = maxPlanetRadii.ContainsKey(node.Id) ? maxPlanetRadii[node.Id] : PlanetMaxRadius;
+        if (maxPlanetRadii.ContainsKey(node.Id))
+        {
+            extent.MaxPlanetRadius = maxPlanetRadii[node.Id];
+        }
+        else
+        {
+            extent.MaxPlanetRadius = PlanetMaxRadius;
+        }
 
         if (node.IsStar())
         {
@@ -418,7 +492,14 @@ public static class SystemDisplayLayout
 
                 extent.StarDisplayRadius = starDisplay;
                 extent.FirstOrbitRadius = firstOrbit;
-                extent.STypePlanetCount = hostContentCounts.ContainsKey(node.Id) ? hostContentCounts[node.Id] : 0;
+                if (hostContentCounts.ContainsKey(node.Id))
+                {
+                    extent.STypePlanetCount = hostContentCounts[node.Id];
+                }
+                else
+                {
+                    extent.STypePlanetCount = 0;
+                }
 
                 if (extent.STypePlanetCount > 0)
                 {
@@ -518,7 +599,14 @@ public static class SystemDisplayLayout
             extent.InnerExtentRadius = maxDistanceToEdge;
         }
 
-        extent.PTypePlanetCount = hostContentCounts.ContainsKey(node.Id) ? hostContentCounts[node.Id] : 0;
+        if (hostContentCounts.ContainsKey(node.Id))
+        {
+            extent.PTypePlanetCount = hostContentCounts[node.Id];
+        }
+        else
+        {
+            extent.PTypePlanetCount = 0;
+        }
         extent.FirstOrbitRadius = extent.InnerExtentRadius + extent.MaxPlanetRadius + PTypeBufferGap;
         if (extent.PTypePlanetCount > 0)
         {
@@ -564,7 +652,15 @@ public static class SystemDisplayLayout
                 return;
             }
 
-            float starDisplayRadius = layout.NodeExtents.ContainsKey(node.Id) ? layout.NodeExtents[node.Id].StarDisplayRadius : StarBaseRadius;
+            float starDisplayRadius;
+            if (layout.NodeExtents.ContainsKey(node.Id))
+            {
+                starDisplayRadius = layout.NodeExtents[node.Id].StarDisplayRadius;
+            }
+            else
+            {
+                starDisplayRadius = StarBaseRadius;
+            }
             BodyLayout starLayout = new(star.Id)
             {
                 Position = center,
@@ -614,7 +710,15 @@ public static class SystemDisplayLayout
         {
             HierarchyNode childA = node.Children[0];
             HierarchyNode childB = node.Children[1];
-            float separation = extent != null ? extent.BinarySeparation : BinaryBufferGap * 2.0f;
+            float separation;
+            if (extent != null)
+            {
+                separation = extent.BinarySeparation;
+            }
+            else
+            {
+                separation = BinaryBufferGap * 2.0f;
+            }
 
             float massA = GetNodeMass(childA, system);
             float massB = GetNodeMass(childB, system);
@@ -648,7 +752,17 @@ public static class SystemDisplayLayout
             for (int index = 2; index < node.Children.Count; index++)
             {
                 float angle = (Mathf.Pi * 0.5f) + ((index - 2) * Mathf.Pi / (node.Children.Count - 1));
-                float offset = (extent != null ? extent.InnerExtentRadius : 10.0f) * 0.8f;
+                float innerRadius;
+                if (extent != null)
+                {
+                    innerRadius = extent.InnerExtentRadius;
+                }
+                else
+                {
+                    innerRadius = 10.0f;
+                }
+
+                float offset = innerRadius * 0.8f;
                 Vector3 childPosition = center + new Vector3(Mathf.Cos(angle) * offset, 0.0f, Mathf.Sin(angle) * offset);
                 PositionHierarchyNode(node.Children[index], childPosition, node.Id, system, layout);
             }
@@ -663,7 +777,12 @@ public static class SystemDisplayLayout
         if (node.IsStar())
         {
             CelestialBody? star = system.GetBody(node.StarId);
-            return star != null ? (float)star.Physical.MassKg : (float)Units.SolarMassKg;
+            if (star != null)
+            {
+                return (float)star.Physical.MassKg;
+            }
+
+            return (float)Units.SolarMassKg;
         }
 
         float total = 0.0f;
@@ -712,7 +831,15 @@ public static class SystemDisplayLayout
             {
                 foreach (CelestialBody planet in planetsByHost[hostId])
                 {
-                    double distanceM = planet.HasOrbital() ? planet.Orbital!.SemiMajorAxisM : 0.0;
+                    double distanceM;
+                    if (planet.HasOrbital())
+                    {
+                        distanceM = planet.Orbital!.SemiMajorAxisM;
+                    }
+                    else
+                    {
+                        distanceM = 0.0;
+                    }
                     entries.Add(new OrbitEntry(OrbitEntryType.Planet, distanceM, planet, null));
                 }
             }
@@ -741,9 +868,15 @@ public static class SystemDisplayLayout
                         DisplayRadius = CalculatePlanetDisplayRadius(planet.Physical.RadiusM),
                     };
 
-                    float angle = planet.HasOrbital()
-                        ? Mathf.DegToRad((float)planet.Orbital!.MeanAnomalyDeg)
-                        : (index * Mathf.Tau / Mathf.Max(entries.Count, 1));
+                    float angle;
+                    if (planet.HasOrbital())
+                    {
+                        angle = Mathf.DegToRad((float)planet.Orbital!.MeanAnomalyDeg);
+                    }
+                    else
+                    {
+                        angle = index * Mathf.Tau / Mathf.Max(entries.Count, 1);
+                    }
                     planetLayout.OrbitalAngle = angle;
                     planetLayout.OrbitalPeriod = CalculateOrbitalPeriod(orbitRadius);
                     planetLayout.IsOrbiting = true;
@@ -808,7 +941,15 @@ public static class SystemDisplayLayout
 
         foreach (NodeExtent extent in layout.NodeExtents.Values)
         {
-            float sweep = extent.MaxSweepRadius > 0.0f ? extent.MaxSweepRadius : extent.ExtentRadius;
+            float sweep;
+            if (extent.MaxSweepRadius > 0.0f)
+            {
+                sweep = extent.MaxSweepRadius;
+            }
+            else
+            {
+                sweep = extent.ExtentRadius;
+            }
             float distance = extent.CenterPosition.Length() + sweep;
             maxExtent = Mathf.Max(maxExtent, distance);
         }

@@ -1,3 +1,4 @@
+using Godot;
 using StarGen.Domain.Celestial.Components;
 using StarGen.Domain.Generation;
 using StarGen.Domain.Generation.Archetypes;
@@ -50,9 +51,14 @@ public static class PlanetPhysicalGenerator
         if (radiusM < 0.0)
         {
             double radiusEarth = spec.GetOverrideFloat("physical.radius_earth", -1.0);
-            radiusM = radiusEarth < 0.0
-                ? SizeTable.RadiusFromMassDensity(massKg, densityKgM3)
-                : radiusEarth * Units.EarthRadiusMeters;
+            if (radiusEarth < 0.0)
+            {
+                radiusM = SizeTable.RadiusFromMassDensity(massKg, densityKgM3);
+            }
+            else
+            {
+                radiusM = radiusEarth * Units.EarthRadiusMeters;
+            }
         }
 
         bool isLocked = OrbitTable.IsTidallyLocked(
@@ -102,6 +108,7 @@ public static class PlanetPhysicalGenerator
             internalHeatWatts);
     }
 
+    /// <summary>Computes rotation period in seconds from size and lock state.</summary>
     private static double CalculateRotationPeriod(
         double massKg,
         OrbitalProps orbital,
@@ -132,6 +139,7 @@ public static class PlanetPhysicalGenerator
         return periodHours * 3600.0;
     }
 
+    /// <summary>Computes axial tilt in degrees; locked bodies get 0.</summary>
     private static double CalculateAxialTilt(bool isLocked, SeededRng rng)
     {
         if (isLocked)
@@ -158,23 +166,39 @@ public static class PlanetPhysicalGenerator
         return rng.RandfRange(90.0f, 180.0f);
     }
 
+    /// <summary>Computes oblateness from rotation and radius.</summary>
     private static double CalculateOblateness(
         double massKg,
         double radiusM,
         double rotationPeriodS,
         SizeCategory.Category sizeCategory)
     {
-        if (rotationPeriodS == 0.0 || radiusM <= 0.0)
+        if (rotationPeriodS == 0.0)
         {
             return 0.0;
         }
 
+        if (radiusM <= 0.0)
+        {
+            GD.PushError($"PlanetPhysicalGenerator.CalculateOblateness: invalid radius {radiusM} m — expected a positive value.");
+            return 0.0;
+        }
+
         double omega = 2.0 * System.Math.PI / System.Math.Abs(rotationPeriodS);
-        double fluidOblateness = (5.0 / 4.0) * omega * omega * System.Math.Pow(radiusM, 3.0) / (PhysicalProps.G * massKg);
-        double rigidityFactor = SizeCategory.IsRocky(sizeCategory) ? 0.3 : 0.8;
+        double fluidOblateness = (5.0 / 4.0) * omega * omega * System.Math.Pow(radiusM, 3.0) / (Units.G * massKg);
+        double rigidityFactor;
+        if (SizeCategory.IsRocky(sizeCategory))
+        {
+            rigidityFactor = 0.3;
+        }
+        else
+        {
+            rigidityFactor = 0.8;
+        }
         return System.Math.Clamp(fluidOblateness * rigidityFactor, 0.0, 0.15);
     }
 
+    /// <summary>Estimates magnetic moment from core and rotation.</summary>
     private static double CalculateMagneticMoment(
         double massKg,
         double radiusM,
@@ -221,6 +245,7 @@ public static class PlanetPhysicalGenerator
         return baseMoment * variation;
     }
 
+    /// <summary>Estimates internal heat flux from mass and age.</summary>
     private static double CalculateInternalHeat(double massKg, double ageYears, SeededRng rng)
     {
         const double earthHeat = 4.7e13;

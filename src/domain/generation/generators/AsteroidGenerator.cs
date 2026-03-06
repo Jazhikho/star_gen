@@ -1,3 +1,4 @@
+using System;
 using Godot;
 using Godot.Collections;
 using StarGen.Domain.Celestial;
@@ -59,6 +60,7 @@ public static class AsteroidGenerator
         return body;
     }
 
+    /// <summary>Picks asteroid type from spec override or weighted RNG.</summary>
     private static AsteroidType.Type DetermineAsteroidType(AsteroidSpec spec, SeededRng rng)
     {
         if (spec.HasAsteroidType())
@@ -67,9 +69,16 @@ public static class AsteroidGenerator
         }
 
         AsteroidType.Type? selected = rng.WeightedChoice(AsteroidTypes, TypeWeights);
-        return selected ?? AsteroidType.Type.CType;
+        if (selected == null)
+        {
+            GD.PushError("AsteroidGenerator.DetermineAsteroidType: WeightedChoice returned null — type weight table may be empty or invalid.");
+            throw new InvalidOperationException("WeightedChoice returned null for AsteroidType.");
+        }
+
+        return selected.Value;
     }
 
+    /// <summary>Builds physical properties from type, density/mass ranges, and overrides.</summary>
     private static PhysicalProps GeneratePhysicalProps(
         AsteroidSpec spec,
         AsteroidType.Type asteroidType,
@@ -85,8 +94,21 @@ public static class AsteroidGenerator
         double massKg = spec.GetOverrideFloat("physical.mass_kg", -1.0);
         if (massKg < 0.0)
         {
-            double logMin = System.Math.Log(spec.IsLarge ? LargeMassMinKg : TypicalMassMinKg);
-            double logMax = System.Math.Log(spec.IsLarge ? LargeMassMaxKg : TypicalMassMaxKg);
+            double massMinKg;
+            double massMaxKg;
+            if (spec.IsLarge)
+            {
+                massMinKg = LargeMassMinKg;
+                massMaxKg = LargeMassMaxKg;
+            }
+            else
+            {
+                massMinKg = TypicalMassMinKg;
+                massMaxKg = TypicalMassMaxKg;
+            }
+
+            double logMin = System.Math.Log(massMinKg);
+            double logMax = System.Math.Log(massMaxKg);
             massKg = System.Math.Exp(rng.RandfRange((float)logMin, (float)logMax));
         }
 
@@ -112,9 +134,14 @@ public static class AsteroidGenerator
         double oblateness = spec.GetOverrideFloat("physical.oblateness", -1.0);
         if (oblateness < 0.0)
         {
-            oblateness = spec.IsLarge
-                ? rng.RandfRange(0.0f, 0.1f)
-                : rng.RandfRange(0.0f, 0.4f);
+            if (spec.IsLarge)
+            {
+                oblateness = rng.RandfRange(0.0f, 0.1f);
+            }
+            else
+            {
+                oblateness = rng.RandfRange(0.0f, 0.4f);
+            }
         }
 
         double magneticMoment = spec.GetOverrideFloat("physical.magnetic_moment", 0.0);
@@ -122,9 +149,14 @@ public static class AsteroidGenerator
         double internalHeatWatts = spec.GetOverrideFloat("physical.internal_heat_watts", -1.0);
         if (internalHeatWatts < 0.0)
         {
-            internalHeatWatts = spec.IsLarge
-                ? rng.RandfRange(1.0e6f, 1.0e10f)
-                : rng.RandfRange(0.0f, 1.0e6f);
+            if (spec.IsLarge)
+            {
+                internalHeatWatts = rng.RandfRange(1.0e6f, 1.0e10f);
+            }
+            else
+            {
+                internalHeatWatts = rng.RandfRange(0.0f, 1.0e6f);
+            }
         }
 
         return new PhysicalProps(
@@ -137,6 +169,7 @@ public static class AsteroidGenerator
             internalHeatWatts);
     }
 
+    /// <summary>Generates rotation period in seconds from radius and RNG.</summary>
     private static double GenerateRotationPeriod(double radiusM, SeededRng rng)
     {
         double radiusKm = radiusM / 1000.0;
@@ -176,6 +209,7 @@ public static class AsteroidGenerator
         return periodHours * 3600.0;
     }
 
+    /// <summary>Builds orbital properties for main-belt style orbit with overrides.</summary>
     private static OrbitalProps GenerateOrbitalProps(AsteroidSpec spec, SeededRng rng)
     {
         double semiMajorAxisM = spec.GetOverrideFloat("orbital.semi_major_axis_m", -1.0);
@@ -222,6 +256,7 @@ public static class AsteroidGenerator
             string.Empty);
     }
 
+    /// <summary>Builds surface props (albedo, type, composition, terrain) from type and RNG.</summary>
     private static SurfaceProps GenerateSurface(
         AsteroidSpec spec,
         PhysicalProps physical,
@@ -247,6 +282,7 @@ public static class AsteroidGenerator
         return surface;
     }
 
+    /// <summary>Returns min/max density range for the given asteroid type.</summary>
     private static Dictionary GetDensityRange(AsteroidType.Type asteroidType)
     {
         return asteroidType switch
@@ -254,10 +290,11 @@ public static class AsteroidGenerator
             AsteroidType.Type.CType => BuildRange(1100.0, 2500.0),
             AsteroidType.Type.SType => BuildRange(2200.0, 3500.0),
             AsteroidType.Type.MType => BuildRange(4500.0, 7500.0),
-            _ => BuildRange(1100.0, 2500.0),
+            _ => throw new InvalidOperationException($"AsteroidGenerator.GetDensityRange: unrecognized asteroid type '{asteroidType}'."),
         };
     }
 
+    /// <summary>Returns min/max albedo range for the given asteroid type.</summary>
     private static Dictionary GetAlbedoRange(AsteroidType.Type asteroidType)
     {
         return asteroidType switch
@@ -265,10 +302,11 @@ public static class AsteroidGenerator
             AsteroidType.Type.CType => BuildRange(0.03, 0.10),
             AsteroidType.Type.SType => BuildRange(0.10, 0.30),
             AsteroidType.Type.MType => BuildRange(0.10, 0.25),
-            _ => BuildRange(0.03, 0.10),
+            _ => throw new InvalidOperationException($"AsteroidGenerator.GetAlbedoRange: unrecognized asteroid type '{asteroidType}'."),
         };
     }
 
+    /// <summary>Maps asteroid type to surface type string.</summary>
     private static string GetSurfaceType(AsteroidType.Type asteroidType)
     {
         return asteroidType switch
@@ -276,10 +314,11 @@ public static class AsteroidGenerator
             AsteroidType.Type.CType => "carbonaceous",
             AsteroidType.Type.SType => "silicaceous",
             AsteroidType.Type.MType => "metallic",
-            _ => "rocky",
+            _ => throw new InvalidOperationException($"AsteroidGenerator.GetSurfaceType: unrecognized asteroid type '{asteroidType}'."),
         };
     }
 
+    /// <summary>Generates normalized surface composition dict for the asteroid type.</summary>
     private static Dictionary GenerateSurfaceComposition(AsteroidType.Type asteroidType, SeededRng rng)
     {
         Dictionary composition = new();
@@ -305,16 +344,25 @@ public static class AsteroidGenerator
                 composition["cobalt"] = rng.RandfRange(0.01f, 0.05f);
                 composition["silicates"] = rng.RandfRange(0.02f, 0.10f);
                 break;
+            default:
+                throw new InvalidOperationException($"AsteroidGenerator.GenerateSurfaceComposition: unrecognized asteroid type '{asteroidType}'.");
         }
 
         return NormalizeComposition(composition);
     }
 
+    /// <summary>Builds terrain props (elevation, roughness) for the asteroid.</summary>
     private static TerrainProps GenerateTerrain(PhysicalProps physical, bool isLarge, SeededRng rng)
     {
-        double elevationFraction = isLarge
-            ? rng.RandfRange(0.01f, 0.05f)
-            : rng.RandfRange(0.05f, 0.30f);
+        double elevationFraction;
+        if (isLarge)
+        {
+            elevationFraction = rng.RandfRange(0.01f, 0.05f);
+        }
+        else
+        {
+            elevationFraction = rng.RandfRange(0.05f, 0.30f);
+        }
         double elevationRangeM = System.Math.Max(physical.RadiusM * 2.0 * elevationFraction, 10.0);
 
         return new TerrainProps(
@@ -326,6 +374,7 @@ public static class AsteroidGenerator
             "cratered");
     }
 
+    /// <summary>Creates provenance from spec and context.</summary>
     private static Provenance CreateProvenance(AsteroidSpec spec, ParentContext context)
     {
         Dictionary specSnapshot = spec.ToDictionary();
@@ -333,6 +382,7 @@ public static class AsteroidGenerator
         return Provenance.CreateCurrent(spec.GenerationSeed, specSnapshot);
     }
 
+    /// <summary>Produces unique asteroid id from spec override or RNG.</summary>
     private static string GenerateId(AsteroidSpec spec, SeededRng rng)
     {
         Variant overrideId = spec.GetOverride("id", default);
@@ -349,6 +399,7 @@ public static class AsteroidGenerator
         return GeneratorUtils.GenerateIdFromRandomPart("asteroid", randomPart);
     }
 
+    /// <summary>Normalizes composition fractions so they sum to 1.</summary>
     private static Dictionary NormalizeComposition(Dictionary composition)
     {
         double total = 0.0;
@@ -359,6 +410,7 @@ public static class AsteroidGenerator
 
         if (total <= 0.0)
         {
+            GD.PushError("AsteroidGenerator.NormalizeComposition: composition total is zero or negative — input was empty or contained no positive fractions.");
             return composition;
         }
 
@@ -370,6 +422,7 @@ public static class AsteroidGenerator
         return composition;
     }
 
+    /// <summary>Builds a min/max range dictionary.</summary>
     private static Dictionary BuildRange(double min, double max)
     {
         return new Dictionary

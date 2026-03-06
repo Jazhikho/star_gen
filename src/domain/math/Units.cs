@@ -6,6 +6,12 @@ namespace StarGen.Domain.Math;
 public static class Units
 {
     /// <summary>
+    /// Newtonian gravitational constant in m³ kg⁻¹ s⁻².
+    /// NIST CODATA 2018: 6.67430 × 10⁻¹¹.
+    /// </summary>
+    public const double G = 6.674e-11;
+
+    /// <summary>
     /// Mass of the Sun in kilograms.
     /// </summary>
     public const double SolarMassKg = 1.989e30;

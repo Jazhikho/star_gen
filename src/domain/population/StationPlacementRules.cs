@@ -19,6 +19,20 @@ public static class StationPlacementRules
     public const double HighResourceThreshold = 0.7;
 
     /// <summary>
+    /// Importance multipliers for each resource type when calculating richness.
+    /// Keyed by <see cref="ResourceType.Type"/> cast to int.
+    /// </summary>
+    private static readonly System.Collections.Generic.Dictionary<int, double> ResourceWeights = new()
+    {
+        [(int)ResourceType.Type.Water] = 1.5,
+        [(int)ResourceType.Type.Metals] = 1.2,
+        [(int)ResourceType.Type.RareElements] = 2.0,
+        [(int)ResourceType.Type.Radioactives] = 1.8,
+        [(int)ResourceType.Type.Hydrocarbons] = 1.3,
+        [(int)ResourceType.Type.Exotics] = 2.5,
+    };
+
+    /// <summary>
     /// Evaluates a system and returns placement recommendations.
     /// </summary>
     public static StationPlacementRecommendation EvaluateSystem(StationSystemContext context)
@@ -163,22 +177,30 @@ public static class StationPlacementRules
             return 0.0;
         }
 
-        Dictionary weights = new()
-        {
-            [(int)ResourceType.Type.Water] = 1.5,
-            [(int)ResourceType.Type.Metals] = 1.2,
-            [(int)ResourceType.Type.RareElements] = 2.0,
-            [(int)ResourceType.Type.Radioactives] = 1.8,
-            [(int)ResourceType.Type.Hydrocarbons] = 1.3,
-            [(int)ResourceType.Type.Exotics] = 2.5,
-        };
-
         double total = 0.0;
         int count = 0;
         foreach (Variant resourceKey in resourceAbundance.Keys)
         {
             double abundance = (double)resourceAbundance[resourceKey];
-            double weight = weights.ContainsKey(resourceKey) ? (double)weights[resourceKey] : 1.0;
+            int keyInt;
+            if (resourceKey.VariantType == Variant.Type.Int)
+            {
+                keyInt = (int)resourceKey;
+            }
+            else
+            {
+                keyInt = -1;
+            }
+            double weight;
+            if (keyInt >= 0 && ResourceWeights.TryGetValue(keyInt, out double mapped))
+            {
+                weight = mapped;
+            }
+            else
+            {
+                weight = 1.0;
+            }
+
             total += abundance * weight;
             count += 1;
         }
@@ -223,15 +245,29 @@ public static class StationPlacementRules
         int highestTech = -1;
         foreach (Dictionary data in nativeData)
         {
-            string bodyId = data.ContainsKey("body_id") ? (string)data["body_id"] : string.Empty;
+            string bodyId;
+            if (data.ContainsKey("body_id"))
+            {
+                bodyId = (string)data["body_id"];
+            }
+            else
+            {
+                bodyId = string.Empty;
+            }
             if (!string.IsNullOrEmpty(bodyId))
             {
                 context.NativePlanetIds.Add(bodyId);
             }
 
-            TechnologyLevel.Level tech = data.ContainsKey("tech_level")
-                ? (TechnologyLevel.Level)(int)data["tech_level"]
-                : TechnologyLevel.Level.StoneAge;
+            TechnologyLevel.Level tech;
+            if (data.ContainsKey("tech_level"))
+            {
+                tech = (TechnologyLevel.Level)(int)data["tech_level"];
+            }
+            else
+            {
+                tech = TechnologyLevel.Level.StoneAge;
+            }
             if ((int)tech > highestTech)
             {
                 highestTech = (int)tech;

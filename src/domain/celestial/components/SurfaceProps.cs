@@ -125,12 +125,18 @@ public partial class SurfaceProps : RefCounted
     /// </summary>
     public static SurfaceProps FromDictionary(Dictionary data)
     {
+        Dictionary? surfaceComposition = null;
+        if (data.ContainsKey("surface_composition"))
+        {
+            surfaceComposition = (Dictionary)data["surface_composition"];
+        }
+
         SurfaceProps props = new(
             GetDouble(data, "temperature_k", 0.0),
             GetDouble(data, "albedo", 0.0),
             GetString(data, "surface_type", ""),
             GetDouble(data, "volcanism_level", 0.0),
-            data.ContainsKey("surface_composition") ? (Dictionary)data["surface_composition"] : null);
+            surfaceComposition);
 
         if (data.ContainsKey("terrain"))
         {
@@ -168,11 +174,21 @@ public partial class SurfaceProps : RefCounted
 
     private static double GetDouble(Dictionary data, string key, double fallback)
     {
-        return data.ContainsKey(key) ? (double)data[key] : fallback;
+        if (data.ContainsKey(key))
+        {
+            return (double)data[key];
+        }
+
+        return fallback;
     }
 
     private static string GetString(Dictionary data, string key, string fallback)
     {
-        return data.ContainsKey(key) ? (string)data[key] : fallback;
+        if (data.ContainsKey(key))
+        {
+            return (string)data[key];
+        }
+
+        return fallback;
     }
 }

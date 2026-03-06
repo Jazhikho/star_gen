@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using Godot;
 using Godot.Collections;
@@ -41,9 +42,19 @@ public static class StellarConfigGenerator
             return null;
         }
 
+        string systemName;
+        if (string.IsNullOrEmpty(spec.NameHint))
+        {
+            systemName = $"System-{spec.GenerationSeed}";
+        }
+        else
+        {
+            systemName = spec.NameHint;
+        }
+
         SolarSystem system = new(
             GenerateSystemId(rng),
-            string.IsNullOrEmpty(spec.NameHint) ? $"System-{spec.GenerationSeed}" : spec.NameHint);
+            systemName);
 
         Array<CelestialBody> stars = GenerateStars(spec, starCount, rng);
         if (stars.Count == 0)
@@ -70,7 +81,7 @@ public static class StellarConfigGenerator
             spec.GenerationSeed,
             Versions.GeneratorVersion,
             Versions.SchemaVersion,
-            (long)Time.GetUnixTimeFromSystem(),
+            DateTimeOffset.UtcNow.ToUnixTimeSeconds(),
             spec.ToDictionary());
         return system;
     }
@@ -162,7 +173,12 @@ public static class StellarConfigGenerator
             "Alpha", "Beta", "Gamma", "Delta", "Epsilon",
             "Zeta", "Eta", "Theta", "Iota", "Kappa",
         };
-        return index < labels.Length ? labels[index] : $"Star {index + 1}";
+        if (index < labels.Length)
+        {
+            return labels[index];
+        }
+
+        return $"Star {index + 1}";
     }
 
     /// <summary>
@@ -386,7 +402,15 @@ public static class StellarConfigGenerator
             if (parentBarycenter != null)
             {
                 double siblingMass = GetSiblingMass(node, parentBarycenter, stars);
-                double massRatio = host.CombinedMassKg > 0.0 ? siblingMass / host.CombinedMassKg : 1.0;
+                double massRatio;
+                if (host.CombinedMassKg > 0.0)
+                {
+                    massRatio = siblingMass / host.CombinedMassKg;
+                }
+                else
+                {
+                    massRatio = 1.0;
+                }
                 host.OuterStabilityM = OrbitalMechanics.CalculateStypeStabilityLimit(
                     parentBarycenter.SeparationM,
                     massRatio,
@@ -440,7 +464,15 @@ public static class StellarConfigGenerator
             if (parentBarycenter != null)
             {
                 double siblingMass = GetSiblingMass(node, parentBarycenter, stars);
-                double massRatio = host.CombinedMassKg > 0.0 ? siblingMass / host.CombinedMassKg : 1.0;
+                double massRatio;
+                if (host.CombinedMassKg > 0.0)
+                {
+                    massRatio = siblingMass / host.CombinedMassKg;
+                }
+                else
+                {
+                    massRatio = 1.0;
+                }
                 host.OuterStabilityM = OrbitalMechanics.CalculateStypeStabilityLimit(
                     parentBarycenter.SeparationM,
                     massRatio,

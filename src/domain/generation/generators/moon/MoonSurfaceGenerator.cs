@@ -53,6 +53,7 @@ public static class MoonSurfaceGenerator
         return surface;
     }
 
+    /// <summary>Computes surface albedo from temperature and RNG.</summary>
     private static double CalculateAlbedo(double surfaceTempK, SeededRng rng)
     {
         if (surfaceTempK < 150.0)
@@ -68,6 +69,7 @@ public static class MoonSurfaceGenerator
         return rng.RandfRange(0.05f, 0.3f);
     }
 
+    /// <summary>Picks surface type string from temperature and tidal heating.</summary>
     private static string DetermineSurfaceType(
         double surfaceTempK,
         double tidalHeatWatts,
@@ -96,12 +98,18 @@ public static class MoonSurfaceGenerator
 
         if (surfaceTempK < WaterFreezeK)
         {
-            return rng.Randf() < 0.5f ? "icy_rocky" : "rocky_cold";
+            if (rng.Randf() < 0.5f)
+            {
+                return "icy_rocky";
+            }
+
+            return "rocky_cold";
         }
 
         return "rocky";
     }
 
+    /// <summary>Computes volcanism from internal and tidal heat.</summary>
     private static double CalculateVolcanism(
         PhysicalProps physical,
         double tidalHeatWatts,
@@ -113,6 +121,7 @@ public static class MoonSurfaceGenerator
         return System.Math.Clamp(baseVolcanism * variation, 0.0, 1.0);
     }
 
+    /// <summary>Generates normalized surface composition from temperature.</summary>
     private static Dictionary GenerateSurfaceComposition(double surfaceTempK, SeededRng rng)
     {
         Dictionary composition = new();
@@ -161,6 +170,7 @@ public static class MoonSurfaceGenerator
         return composition;
     }
 
+    /// <summary>Builds terrain props from gravity, size, and volcanism.</summary>
     private static TerrainProps GenerateTerrain(
         PhysicalProps physical,
         SizeCategory.Category sizeCategory,
@@ -189,11 +199,19 @@ public static class MoonSurfaceGenerator
 
         double tectonicActivity = volcanismLevel * rng.RandfRange(0.5f, 1.0f);
         double erosionLevel = rng.RandfRange(0.0f, 0.1f);
-        string terrainType = volcanismLevel > 0.5
-            ? "volcanic"
-            : craterDensity > 0.6
-                ? "cratered"
-                : "plains";
+        string terrainType;
+        if (volcanismLevel > 0.5)
+        {
+            terrainType = "volcanic";
+        }
+        else if (craterDensity > 0.6)
+        {
+            terrainType = "cratered";
+        }
+        else
+        {
+            terrainType = "plains";
+        }
 
         return new TerrainProps(
             elevationRangeM,
@@ -204,6 +222,7 @@ public static class MoonSurfaceGenerator
             terrainType);
     }
 
+    /// <summary>Generates cryosphere (polar caps, subsurface ocean) for moons.</summary>
     private static CryosphereProps GenerateCryosphere(
         MoonSpec spec,
         double surfaceTempK,
@@ -211,9 +230,15 @@ public static class MoonSurfaceGenerator
         double tidalHeatWatts,
         SeededRng rng)
     {
-        double polarCapCoverage = surfaceTempK < 150.0
-            ? rng.RandfRange(0.8f, 1.0f)
-            : rng.RandfRange(0.3f, 0.8f);
+        double polarCapCoverage;
+        if (surfaceTempK < 150.0)
+        {
+            polarCapCoverage = rng.RandfRange(0.8f, 1.0f);
+        }
+        else
+        {
+            polarCapCoverage = rng.RandfRange(0.3f, 0.8f);
+        }
         double permafrostDepthM = rng.RandfRange(1000.0f, 50000.0f);
 
         bool hasSubsurfaceOcean;
@@ -238,12 +263,25 @@ public static class MoonSurfaceGenerator
             }
         }
 
-        double subsurfaceOceanDepthM = hasSubsurfaceOcean
-            ? rng.RandfRange(5000.0f, 150000.0f)
-            : 0.0;
-        double cryovolcanismLevel = hasSubsurfaceOcean && tidalHeatWatts > 1.0e11
-            ? rng.RandfRange(0.1f, 0.8f)
-            : 0.0;
+        double subsurfaceOceanDepthM;
+        if (hasSubsurfaceOcean)
+        {
+            subsurfaceOceanDepthM = rng.RandfRange(5000.0f, 150000.0f);
+        }
+        else
+        {
+            subsurfaceOceanDepthM = 0.0;
+        }
+
+        double cryovolcanismLevel;
+        if (hasSubsurfaceOcean && tidalHeatWatts > 1.0e11)
+        {
+            cryovolcanismLevel = rng.RandfRange(0.1f, 0.8f);
+        }
+        else
+        {
+            cryovolcanismLevel = 0.0;
+        }
 
         string iceType = "water_ice";
         if (surfaceTempK < 50.0)

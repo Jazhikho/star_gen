@@ -187,6 +187,55 @@ public partial class NativeRelation : RefCounted
     }
 
     /// <summary>
+    /// Returns whether there is active trade.
+    /// </summary>
+    public bool HasActiveTrade()
+    {
+        return CurrentStatus == Status.Trading && TradeLevel > 0.0;
+    }
+
+    /// <summary>
+    /// Converts a status to a display string.
+    /// </summary>
+    public static string StatusToString(Status status)
+    {
+        return status switch
+        {
+            Status.Unknown => "Unknown",
+            Status.FirstContact => "First Contact",
+            Status.Peaceful => "Peaceful",
+            Status.Trading => "Trading",
+            Status.Tense => "Tense",
+            Status.Hostile => "Hostile",
+            Status.Subjugated => "Subjugated",
+            Status.Integrated => "Integrated",
+            Status.Extinct => "Extinct",
+            _ => "Unknown",
+        };
+    }
+
+    /// <summary>
+    /// Parses a status from a string.
+    /// </summary>
+    public static Status StatusFromString(string name)
+    {
+        return name.ToLowerInvariant().Replace(" ", "_") switch
+        {
+            "unknown" => Status.Unknown,
+            "first_contact" => Status.FirstContact,
+            "firstcontact" => Status.FirstContact,
+            "peaceful" => Status.Peaceful,
+            "trading" => Status.Trading,
+            "tense" => Status.Tense,
+            "hostile" => Status.Hostile,
+            "subjugated" => Status.Subjugated,
+            "integrated" => Status.Integrated,
+            "extinct" => Status.Extinct,
+            _ => Status.Unknown,
+        };
+    }
+
+    /// <summary>
     /// Converts this relation to a dictionary payload.
     /// </summary>
     public Dictionary ToDictionary()
@@ -212,6 +261,11 @@ public partial class NativeRelation : RefCounted
             ["relationship_events"] = events,
         };
     }
+
+    /// <summary>
+    /// Alias for ToDictionary for test compatibility.
+    /// </summary>
+    public Dictionary ToDict() => ToDictionary();
 
     /// <summary>
     /// Creates a native relation from a dictionary payload.
@@ -247,6 +301,11 @@ public partial class NativeRelation : RefCounted
     }
 
     /// <summary>
+    /// Alias for FromDictionary for test compatibility.
+    /// </summary>
+    public static NativeRelation FromDict(Dictionary data) => FromDictionary(data);
+
+    /// <summary>
     /// Reads an integer value from a dictionary.
     /// </summary>
     private static int GetInt(Dictionary data, string key, int fallback)
@@ -261,7 +320,7 @@ public partial class NativeRelation : RefCounted
         {
             Variant.Type.Int => (int)value,
             Variant.Type.Float => (int)(double)value,
-            Variant.Type.String => int.TryParse((string)value, out int parsed) ? parsed : fallback,
+            Variant.Type.String => TryParseInt((string)value, fallback),
             _ => fallback,
         };
     }
@@ -281,7 +340,7 @@ public partial class NativeRelation : RefCounted
         {
             Variant.Type.Float => (double)value,
             Variant.Type.Int => (int)value,
-            Variant.Type.String => double.TryParse((string)value, out double parsed) ? parsed : fallback,
+            Variant.Type.String => TryParseDouble((string)value, fallback),
             _ => fallback,
         };
     }
@@ -297,7 +356,12 @@ public partial class NativeRelation : RefCounted
         }
 
         Variant value = data[key];
-        return value.VariantType == Variant.Type.String ? (string)value : fallback;
+        if (value.VariantType == Variant.Type.String)
+        {
+            return (string)value;
+        }
+
+        return fallback;
     }
 
     /// <summary>
@@ -305,7 +369,12 @@ public partial class NativeRelation : RefCounted
     /// </summary>
     private static bool GetBool(Dictionary data, string key, bool fallback)
     {
-        return data.ContainsKey(key) && data[key].VariantType == Variant.Type.Bool ? (bool)data[key] : fallback;
+        if (data.ContainsKey(key) && data[key].VariantType == Variant.Type.Bool)
+        {
+            return (bool)data[key];
+        }
+
+        return fallback;
     }
 
     /// <summary>
@@ -314,5 +383,25 @@ public partial class NativeRelation : RefCounted
     private static double Clamp01(double value)
     {
         return System.Math.Clamp(value, 0.0, 1.0);
+    }
+
+    private static int TryParseInt(string s, int fallback)
+    {
+        if (int.TryParse(s, out int parsed))
+        {
+            return parsed;
+        }
+
+        return fallback;
+    }
+
+    private static double TryParseDouble(string s, double fallback)
+    {
+        if (double.TryParse(s, out double parsed))
+        {
+            return parsed;
+        }
+
+        return fallback;
     }
 }

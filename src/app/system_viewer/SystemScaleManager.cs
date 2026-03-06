@@ -198,7 +198,15 @@ public partial class SystemScaleManager : RefCounted
             return meanAnomalyRad;
         }
 
-        double eccentricAnomaly = eccentricity > 0.8 ? Mathf.Pi : meanAnomalyRad;
+        double eccentricAnomaly;
+        if (eccentricity > 0.8)
+        {
+            eccentricAnomaly = Mathf.Pi;
+        }
+        else
+        {
+            eccentricAnomaly = meanAnomalyRad;
+        }
         for (int iteration = 0; iteration < 20; iteration++)
         {
             double delta = eccentricAnomaly - eccentricity * System.Math.Sin(eccentricAnomaly) - meanAnomalyRad;

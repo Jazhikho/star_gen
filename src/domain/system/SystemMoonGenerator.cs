@@ -105,8 +105,27 @@ public static class SystemMoonGenerator
 
         for (int index = 0; index < moons.Count; index += 1)
         {
-            string letter = index < letters.Length ? letters[index] : (index + 1).ToString();
-            moons[index].Name = string.IsNullOrEmpty(planetName) ? letter : $"{planetName} {letter}";
+            string letter;
+            if (index < letters.Length)
+            {
+                letter = letters[index];
+            }
+            else
+            {
+                letter = (index + 1).ToString();
+            }
+
+            string name;
+            if (string.IsNullOrEmpty(planetName))
+            {
+                name = letter;
+            }
+            else
+            {
+                name = $"{planetName} {letter}";
+            }
+
+            moons[index].Name = name;
         }
     }
 
@@ -279,7 +298,15 @@ public static class SystemMoonGenerator
         bool enablePopulation)
     {
         Array<CelestialBody> moons = new();
-        double planetOrbitalDistanceM = planet.HasOrbital() ? planet.Orbital!.SemiMajorAxisM : Units.AuMeters;
+        double planetOrbitalDistanceM;
+        if (planet.HasOrbital())
+        {
+            planetOrbitalDistanceM = planet.Orbital!.SemiMajorAxisM;
+        }
+        else
+        {
+            planetOrbitalDistanceM = Units.AuMeters;
+        }
         int moonCount = DetermineMoonCount(planet, rng);
         if (moonCount <= 0)
         {
@@ -299,7 +326,15 @@ public static class SystemMoonGenerator
         for (int index = 0; index < moonDistances.Count; index += 1)
         {
             double moonDistance = moonDistances[index];
-            double hillFraction = hillRadiusM > 0.0 ? moonDistance / hillRadiusM : 0.0;
+            double hillFraction;
+            if (hillRadiusM > 0.0)
+            {
+                hillFraction = moonDistance / hillRadiusM;
+            }
+            else
+            {
+                hillFraction = 0.0;
+            }
             bool isCaptured = hillFraction > 0.25 && rng.Randf() < CaptureProbability;
             CelestialBody? moon = GenerateSingleMoon(
                 planet,
@@ -418,7 +453,15 @@ public static class SystemMoonGenerator
                 bool valid = true;
                 foreach (double existing in distances)
                 {
-                    double spacingRatio = existing < distance ? distance / existing : existing / distance;
+                    double spacingRatio;
+                    if (existing < distance)
+                    {
+                        spacingRatio = distance / existing;
+                    }
+                    else
+                    {
+                        spacingRatio = existing / distance;
+                    }
                     if (spacingRatio < 1.3)
                     {
                         valid = false;
@@ -507,11 +550,38 @@ public static class SystemMoonGenerator
         }
 
         string[] numerals = { "I", "II", "III", "IV", "V", "VI", "VII", "VIII", "IX", "X" };
-        string numeral = moonIndex < numerals.Length ? numerals[moonIndex] : (moonIndex + 1).ToString();
-        string prefix = !string.IsNullOrEmpty(planet.Name) ? planet.Name : planet.Id;
+        string numeral;
+        if (moonIndex < numerals.Length)
+        {
+            numeral = numerals[moonIndex];
+        }
+        else
+        {
+            numeral = (moonIndex + 1).ToString();
+        }
+
+        string prefix;
+        if (!string.IsNullOrEmpty(planet.Name))
+        {
+            prefix = planet.Name;
+        }
+        else
+        {
+            prefix = planet.Id;
+        }
 
         moon.Id = $"moon_{planet.Id}_{moonIndex}";
-        moon.Name = isCaptured ? $"{prefix} {numeral} (captured)" : $"{prefix} {numeral}";
+        string moonName;
+        if (isCaptured)
+        {
+            moonName = $"{prefix} {numeral} (captured)";
+        }
+        else
+        {
+            moonName = $"{prefix} {numeral}";
+        }
+
+        moon.Name = moonName;
         if (moon.HasOrbital())
         {
             moon.Orbital!.ParentId = planet.Id;

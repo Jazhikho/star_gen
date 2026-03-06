@@ -11,17 +11,17 @@ public partial class BaseSpec : Godot.RefCounted
     /// <summary>
     /// The seed used for deterministic generation.
     /// </summary>
-    public int GenerationSeed;
+    public int GenerationSeed { get; set; }
 
     /// <summary>
     /// Optional name hint for the generated body.
     /// </summary>
-    public string NameHint;
+    public string NameHint { get; set; }
 
     /// <summary>
     /// Field overrides that lock specific values during generation.
     /// </summary>
-    public Dictionary Overrides;
+    public Dictionary Overrides { get; set; }
 
     /// <summary>
     /// Creates a new base specification.
@@ -46,23 +46,68 @@ public partial class BaseSpec : Godot.RefCounted
     /// </summary>
     public Variant GetOverride(string fieldPath, Variant defaultValue)
     {
-        return Overrides.ContainsKey(fieldPath) ? Overrides[fieldPath] : defaultValue;
+        if (Overrides.ContainsKey(fieldPath))
+        {
+            return Overrides[fieldPath];
+        }
+
+        return defaultValue;
     }
 
     /// <summary>
     /// Gets the override value as a floating-point value.
+    /// Returns <paramref name="defaultValue"/> when the field is absent or the stored type is not numeric.
     /// </summary>
+    /// <param name="fieldPath">Property path key.</param>
+    /// <param name="defaultValue">Fallback when the key is missing or type is wrong.</param>
+    /// <returns>Override double value, or <paramref name="defaultValue"/>.</returns>
     public double GetOverrideFloat(string fieldPath, double defaultValue)
     {
-        return Overrides.ContainsKey(fieldPath) ? (double)Overrides[fieldPath] : defaultValue;
+        if (!Overrides.ContainsKey(fieldPath))
+        {
+            return defaultValue;
+        }
+
+        Variant stored = Overrides[fieldPath];
+        if (stored.VariantType == Variant.Type.Float)
+        {
+            return (double)stored;
+        }
+
+        if (stored.VariantType == Variant.Type.Int)
+        {
+            return (int)stored;
+        }
+
+        return defaultValue;
     }
 
     /// <summary>
     /// Gets the override value as an integer.
+    /// Returns <paramref name="defaultValue"/> when the field is absent or the stored type is not numeric.
     /// </summary>
+    /// <param name="fieldPath">Property path key.</param>
+    /// <param name="defaultValue">Fallback when the key is missing or type is wrong.</param>
+    /// <returns>Override integer value, or <paramref name="defaultValue"/>.</returns>
     public int GetOverrideInt(string fieldPath, int defaultValue)
     {
-        return Overrides.ContainsKey(fieldPath) ? (int)Overrides[fieldPath] : defaultValue;
+        if (!Overrides.ContainsKey(fieldPath))
+        {
+            return defaultValue;
+        }
+
+        Variant stored = Overrides[fieldPath];
+        if (stored.VariantType == Variant.Type.Int)
+        {
+            return (int)stored;
+        }
+
+        if (stored.VariantType == Variant.Type.Float)
+        {
+            return (int)(double)stored;
+        }
+
+        return defaultValue;
     }
 
     /// <summary>
@@ -107,9 +152,32 @@ public partial class BaseSpec : Godot.RefCounted
     /// </summary>
     public void ApplyBaseFromDictionary(Dictionary data)
     {
-        GenerationSeed = data.ContainsKey("generation_seed") ? (int)data["generation_seed"] : 0;
-        NameHint = data.ContainsKey("name_hint") ? (string)data["name_hint"] : string.Empty;
-        Overrides = data.ContainsKey("overrides") ? CloneDictionary((Dictionary)data["overrides"]) : new Dictionary();
+        if (data.ContainsKey("generation_seed") && data["generation_seed"].VariantType == Variant.Type.Int)
+        {
+            GenerationSeed = (int)data["generation_seed"];
+        }
+        else
+        {
+            GenerationSeed = 0;
+        }
+
+        if (data.ContainsKey("name_hint") && data["name_hint"].VariantType == Variant.Type.String)
+        {
+            NameHint = (string)data["name_hint"];
+        }
+        else
+        {
+            NameHint = string.Empty;
+        }
+
+        if (data.ContainsKey("overrides") && data["overrides"].VariantType == Variant.Type.Dictionary)
+        {
+            Overrides = CloneDictionary((Dictionary)data["overrides"]);
+        }
+        else
+        {
+            Overrides = new Dictionary();
+        }
     }
 
     private static Dictionary CloneDictionary(Dictionary? source)

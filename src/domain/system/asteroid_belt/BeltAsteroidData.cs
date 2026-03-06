@@ -64,7 +64,12 @@ public partial class BeltAsteroidData : RefCounted
 
     private static bool GetBool(Dictionary data, string key, bool fallback)
     {
-        return data.ContainsKey(key) && data[key].VariantType == Variant.Type.Bool ? (bool)data[key] : fallback;
+        if (data.ContainsKey(key) && data[key].VariantType == Variant.Type.Bool)
+        {
+            return (bool)data[key];
+        }
+
+        return fallback;
     }
 
     private static int GetInt(Dictionary data, string key, int fallback)
@@ -107,11 +112,21 @@ public partial class BeltAsteroidData : RefCounted
         }
 
         Variant value = data[key];
-        return value.VariantType == Variant.Type.String ? (string)value : fallback;
+        if (value.VariantType == Variant.Type.String)
+        {
+            return (string)value;
+        }
+
+        return fallback;
     }
 
     private static Vector3 GetVector3(Dictionary data, string key, Vector3 fallback)
     {
-        return data.ContainsKey(key) && data[key].VariantType == Variant.Type.Vector3 ? (Vector3)data[key] : fallback;
+        if (data.ContainsKey(key) && data[key].VariantType == Variant.Type.Vector3)
+        {
+            return (Vector3)data[key];
+        }
+
+        return fallback;
     }
 }

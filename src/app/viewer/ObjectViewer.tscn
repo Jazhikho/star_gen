@@ -1,8 +1,8 @@
 [gd_scene load_steps=8 format=3 uid="uid://65m6mp4m0yee"]
 
-[ext_resource type="Script" uid="uid://ca5bspmjti3ij" path="res://src/app/viewer/ObjectViewer.gd" id="1"]
-[ext_resource type="Script" uid="uid://dumtvp5ll7vg8" path="res://src/app/viewer/CameraController.gd" id="2"]
-[ext_resource type="Script" uid="uid://bi6wfcch7dxeh" path="res://src/app/viewer/InspectorPanel.gd" id="3"]
+[ext_resource type="Script" path="res://src/app/viewer/ObjectViewer.cs" id="1"]
+[ext_resource type="Script" path="res://src/app/viewer/CameraController.cs" id="2"]
+[ext_resource type="Script" path="res://src/app/viewer/InspectorPanel.cs" id="3"]
 [ext_resource type="PackedScene" path="res://src/app/rendering/BodyRenderer.tscn" id="4"]
 
 [sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_1"]

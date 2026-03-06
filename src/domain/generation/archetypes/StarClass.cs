@@ -75,6 +75,19 @@ public static class StarClass
     }
 
     /// <summary>
+    /// Parses a class letter and returns enum value as int, or -1 when invalid.
+    /// </summary>
+    public static int FromLetter(string letter)
+    {
+        if (TryParseLetter(letter, out SpectralClass spectralClass))
+        {
+            return (int)spectralClass;
+        }
+
+        return -1;
+    }
+
+    /// <summary>
     /// Builds a full spectral string such as G2V.
     /// </summary>
     public static string BuildSpectralString(
@@ -108,7 +121,15 @@ public static class StarClass
             return new Dictionary<string, Variant>();
         }
 
-        string luminosityClass = spectralString.Length > 2 ? spectralString[2..] : "V";
+        string luminosityClass;
+        if (spectralString.Length > 2)
+        {
+            luminosityClass = spectralString[2..];
+        }
+        else
+        {
+            luminosityClass = "V";
+        }
 
         return new Dictionary<string, Variant>
         {

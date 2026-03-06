@@ -1,4 +1,5 @@
 using System.IO;
+using System.IO.Compression;
 using System.Text;
 using Godot;
 using Godot.Collections;
@@ -21,8 +22,7 @@ public static class GalaxyPersistence
     /// </summary>
     public const string JsonExtension = "json";
 
-    private const string BinaryNotYetPortedMessage =
-        "Binary .sgg format is not yet ported in C#; use JSON or the GDScript path for now.";
+    private static readonly byte[] BinaryMagic = Encoding.ASCII.GetBytes("SGG1");
 
     /// <summary>
     /// Saves galaxy data to a JSON file.
@@ -40,7 +40,7 @@ public static class GalaxyPersistence
         }
 
         string globalPath = ProjectSettings.GlobalizePath(path);
-        EnsureDirectoryExists(globalPath);
+        PersistenceUtils.EnsureDirectoryExists(globalPath);
         string json = Json.Stringify(data.ToDictionary(), "  ");
         File.WriteAllText(globalPath, json, Encoding.UTF8);
         return string.Empty;
@@ -48,6 +48,7 @@ public static class GalaxyPersistence
 
     /// <summary>
     /// Loads galaxy data from a JSON file.
+    /// Returns null if the file is missing, unreadable, or JSON is invalid.
     /// </summary>
     public static GalaxySaveData? LoadJson(string path)
     {
@@ -57,15 +58,21 @@ public static class GalaxyPersistence
             return null;
         }
 
-        string json = File.ReadAllText(globalPath, Encoding.UTF8);
-        Variant parsed = Json.ParseString(json);
-        if (parsed.VariantType != Variant.Type.Dictionary)
+        try
         {
-            GD.PushError("Invalid JSON structure");
+            string json = File.ReadAllText(globalPath, Encoding.UTF8);
+            Json parser = new();
+            if (parser.Parse(json) != Error.Ok || parser.Data.VariantType != Variant.Type.Dictionary)
+            {
+                return null;
+            }
+
+            return GalaxySaveData.FromDictionary((Dictionary)parser.Data);
+        }
+        catch (System.Exception)
+        {
             return null;
         }
-
-        return GalaxySaveData.FromDictionary((Dictionary)parsed);
     }
 
     /// <summary>
@@ -83,7 +90,34 @@ public static class GalaxyPersistence
             return "Invalid galaxy save data";
         }
 
-        return BinaryNotYetPortedMessage;
+        try
+        {
+            string savePath;
+            if (Path.GetExtension(path).Equals(".sgg", System.StringComparison.OrdinalIgnoreCase))
+            {
+                savePath = path;
+            }
+            else
+            {
+                savePath = $"{Path.ChangeExtension(path, null)}.sgg";
+            }
+
+            string globalPath = ProjectSettings.GlobalizePath(savePath);
+            PersistenceUtils.EnsureDirectoryExists(globalPath);
+
+            string json = Json.Stringify(data.ToDictionary());
+            byte[] payload = Encoding.UTF8.GetBytes(json);
+
+            using FileStream stream = File.Create(globalPath);
+            stream.Write(BinaryMagic, 0, BinaryMagic.Length);
+            using GZipStream gzip = new(stream, CompressionLevel.Optimal, leaveOpen: false);
+            gzip.Write(payload, 0, payload.Length);
+            return string.Empty;
+        }
+        catch (System.Exception ex)
+        {
+            return ex.Message;
+        }
     }
 
     /// <summary>
@@ -94,12 +128,48 @@ public static class GalaxyPersistence
         string globalPath = ProjectSettings.GlobalizePath(path);
         if (!File.Exists(globalPath))
         {
-            GD.PushError($"File not found: {path}");
             return null;
         }
 
-        GD.PushError(BinaryNotYetPortedMessage);
-        return null;
+        try
+        {
+            using FileStream stream = File.OpenRead(globalPath);
+            byte[] header = new byte[BinaryMagic.Length];
+            int read = stream.Read(header, 0, header.Length);
+            if (read != BinaryMagic.Length)
+            {
+                return null;
+            }
+
+            for (int index = 0; index < BinaryMagic.Length; index += 1)
+            {
+                if (header[index] != BinaryMagic[index])
+                {
+                    return null;
+                }
+            }
+
+            using GZipStream gzip = new(stream, CompressionMode.Decompress, leaveOpen: false);
+            using MemoryStream output = new();
+            gzip.CopyTo(output);
+
+            string json = Encoding.UTF8.GetString(output.ToArray());
+            Json parser = new();
+            if (parser.Parse(json) != Error.Ok || parser.Data.VariantType != Variant.Type.Dictionary)
+            {
+                return null;
+            }
+
+            return GalaxySaveData.FromDictionary((Dictionary)parser.Data);
+        }
+        catch (InvalidDataException)
+        {
+            return null;
+        }
+        catch (System.Exception)
+        {
+            return null;
+        }
     }
 
     /// <summary>
@@ -108,7 +178,12 @@ public static class GalaxyPersistence
     public static GalaxySaveData? LoadAuto(string path)
     {
         string extension = Path.GetExtension(path).TrimStart('.').ToLowerInvariant();
-        return extension == JsonExtension ? LoadJson(path) : LoadBinary(path);
+        if (extension == JsonExtension)
+        {
+            return LoadJson(path);
+        }
+
+        return LoadBinary(path);
     }
 
     /// <summary>
@@ -119,15 +194,4 @@ public static class GalaxyPersistence
         return "*.sgg ; StarGen Galaxy, *.json ; JSON Debug";
     }
 
-    /// <summary>
-    /// Ensures the target directory exists before writing.
-    /// </summary>
-    private static void EnsureDirectoryExists(string globalPath)
-    {
-        string? directoryPath = Path.GetDirectoryName(globalPath);
-        if (!string.IsNullOrEmpty(directoryPath))
-        {
-            Directory.CreateDirectory(directoryPath);
-        }
-    }
 }

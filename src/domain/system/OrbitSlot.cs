@@ -165,7 +165,12 @@ public partial class OrbitSlot : RefCounted
         }
 
         Variant value = data[key];
-        return value.VariantType == Variant.Type.String ? (string)value : fallback;
+        if (value.VariantType == Variant.Type.String)
+        {
+            return (string)value;
+        }
+
+        return fallback;
     }
 
     /// <summary>
@@ -183,7 +188,7 @@ public partial class OrbitSlot : RefCounted
         {
             Variant.Type.Float => (double)value,
             Variant.Type.Int => (int)value,
-            Variant.Type.String => double.TryParse((string)value, out double parsed) ? parsed : fallback,
+            Variant.Type.String => TryParseDouble((string)value, fallback),
             _ => fallback,
         };
     }
@@ -193,6 +198,21 @@ public partial class OrbitSlot : RefCounted
     /// </summary>
     private static bool GetBool(Dictionary data, string key, bool fallback)
     {
-        return data.ContainsKey(key) && data[key].VariantType == Variant.Type.Bool ? (bool)data[key] : fallback;
+        if (data.ContainsKey(key) && data[key].VariantType == Variant.Type.Bool)
+        {
+            return (bool)data[key];
+        }
+
+        return fallback;
+    }
+
+    private static double TryParseDouble(string s, double fallback)
+    {
+        if (double.TryParse(s, out double parsed))
+        {
+            return parsed;
+        }
+
+        return fallback;
     }
 }

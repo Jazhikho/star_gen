@@ -1,6 +1,6 @@
 [gd_scene load_steps=2 format=3 uid="uid://cp4up43iu3mpq"]
 
-[ext_resource type="Script" uid="uid://bvpnrxdmvso7w" path="res://Tests/JumpLanesTestScene.gd" id="1_script"]
+[ext_resource type="Script" path="res://Tests/JumpLanesTestScene.cs" id="1_script"]
 
 [node name="JumpLanesTestScene" type="Control"]
 layout_mode = 3

@@ -19,7 +19,12 @@ public partial class SystemCache : RefCounted
     public SolarSystem? GetSystem(int starSeed)
     {
         string key = starSeed.ToString();
-        return _cache.ContainsKey(key) ? _cache[key] : null;
+        if (_cache.ContainsKey(key))
+        {
+            return _cache[key];
+        }
+
+        return null;
     }
 
     /// <summary>

@@ -1,4 +1,4 @@
-[gd_resource type="Theme" load_steps=16 format=3 uid="uid://c6a5io6e0kwn8"]
+[gd_resource type="Theme" format=3 uid="uid://c6a5io6e0kwn8"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_button_disabled"]
 content_margin_left = 12.0

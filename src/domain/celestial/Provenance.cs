@@ -1,3 +1,4 @@
+using System;
 using Godot;
 using Godot.Collections;
 using StarGen.Domain.Constants;
@@ -60,7 +61,7 @@ public partial class Provenance : RefCounted
             generationSeed,
             Versions.GeneratorVersion,
             Versions.SchemaVersion,
-            (long)Time.GetUnixTimeFromSystem(),
+            DateTimeOffset.UtcNow.ToUnixTimeSeconds(),
             specSnapshot);
     }
 
@@ -89,12 +90,18 @@ public partial class Provenance : RefCounted
             return null;
         }
 
+        Dictionary? specSnapshot = null;
+        if (data.ContainsKey("spec_snapshot"))
+        {
+            specSnapshot = (Dictionary)data["spec_snapshot"];
+        }
+
         return new Provenance(
             GetLong(data, "generation_seed", 0),
             GetString(data, "generator_version", ""),
             GetInt(data, "schema_version", 0),
             GetLong(data, "created_timestamp", 0),
-            data.ContainsKey("spec_snapshot") ? (Dictionary)data["spec_snapshot"] : null);
+            specSnapshot);
     }
 
     private static Dictionary CloneDictionary(Dictionary? source)
@@ -115,16 +122,31 @@ public partial class Provenance : RefCounted
 
     private static int GetInt(Dictionary data, string key, int fallback)
     {
-        return data.ContainsKey(key) ? (int)data[key] : fallback;
+        if (data.ContainsKey(key))
+        {
+            return (int)data[key];
+        }
+
+        return fallback;
     }
 
     private static long GetLong(Dictionary data, string key, long fallback)
     {
-        return data.ContainsKey(key) ? (long)data[key] : fallback;
+        if (data.ContainsKey(key))
+        {
+            return (long)data[key];
+        }
+
+        return fallback;
     }
 
     private static string GetString(Dictionary data, string key, string fallback)
     {
-        return data.ContainsKey(key) ? (string)data[key] : fallback;
+        if (data.ContainsKey(key))
+        {
+            return (string)data[key];
+        }
+
+        return fallback;
     }
 }

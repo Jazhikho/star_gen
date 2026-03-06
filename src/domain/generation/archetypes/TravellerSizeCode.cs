@@ -40,7 +40,7 @@ public static class TravellerSizeCode
     /// <summary>
     /// Returns the Traveller size code for a diameter in kilometers.
     /// </summary>
-    public static Variant DiameterKmToCode(double diameterKm)
+    public static object DiameterKmToCode(double diameterKm)
     {
         if (diameterKm < 0.0 || diameterKm < DiamKm0Max)
         {
@@ -118,11 +118,24 @@ public static class TravellerSizeCode
     /// <summary>
     /// Returns the diameter range for a Traveller size code.
     /// </summary>
-    public static Dictionary<string, double> CodeToDiameterRange(Variant code)
+    public static Dictionary<string, double> CodeToDiameterRange(object? code)
     {
-        if (code.VariantType == Variant.Type.Int)
+        if (code is Variant variantCode)
         {
-            return (int)code switch
+            if (variantCode.VariantType == Variant.Type.Int)
+            {
+                return CodeToDiameterRange((int)variantCode);
+            }
+
+            if (variantCode.VariantType == Variant.Type.String)
+            {
+                return CodeToDiameterRange((string)variantCode);
+            }
+        }
+
+        if (code is int intCode)
+        {
+            return intCode switch
             {
                 0 => new Dictionary<string, double> { ["min"] = 0.0, ["max"] = DiamKm0Max },
                 1 => new Dictionary<string, double> { ["min"] = DiamKm1Min, ["max"] = DiamKm1Max },
@@ -138,9 +151,14 @@ public static class TravellerSizeCode
             };
         }
 
-        if (code.VariantType == Variant.Type.String)
+        if (code is long longCode && longCode >= int.MinValue && longCode <= int.MaxValue)
         {
-            return ((string)code) switch
+            return CodeToDiameterRange((int)longCode);
+        }
+
+        if (code is string stringCode)
+        {
+            return stringCode.ToUpperInvariant() switch
             {
                 "A" => new Dictionary<string, double> { ["min"] = DiamKmAMin, ["max"] = DiamKmAMax },
                 "B" => new Dictionary<string, double> { ["min"] = DiamKmBMin, ["max"] = DiamKmBMax },
@@ -157,13 +175,38 @@ public static class TravellerSizeCode
     /// <summary>
     /// Returns the code as a single UWP character.
     /// </summary>
-    public static string ToStringUwp(Variant code)
+    public static string ToStringUwp(object? code)
     {
-        return code.VariantType switch
+        if (code is null)
         {
-            Variant.Type.Int => ((int)code).ToString(),
-            Variant.Type.String => (string)code,
-            _ => "?",
-        };
+            return "?";
+        }
+
+        if (code is Variant variantCode)
+        {
+            return variantCode.VariantType switch
+            {
+                Variant.Type.Int => ((int)variantCode).ToString(),
+                Variant.Type.String => (string)variantCode,
+                _ => "?",
+            };
+        }
+
+        if (code is string stringCode)
+        {
+            return stringCode;
+        }
+
+        if (code is int intCode)
+        {
+            return intCode.ToString();
+        }
+
+        if (code is long longCode)
+        {
+            return longCode.ToString();
+        }
+
+        return "?";
     }
 }

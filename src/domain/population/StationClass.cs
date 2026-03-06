@@ -126,7 +126,12 @@ public static class StationClass
     {
         if (population <= OutpostMax)
         {
-            return isUtility ? Class.U : Class.O;
+            if (isUtility)
+            {
+                return Class.U;
+            }
+
+            return Class.O;
         }
 
         if (population <= BaseMax)

@@ -30,6 +30,15 @@ public partial class StellarProps : RefCounted
     public string SpectralClass;
 
     /// <summary>
+    /// Legacy alias for spectral classification string.
+    /// </summary>
+    public string SpectralType
+    {
+        get => SpectralClass;
+        set => SpectralClass = value;
+    }
+
+    /// <summary>
     /// Stellar type category.
     /// </summary>
     public string StellarType;
@@ -180,11 +189,21 @@ public partial class StellarProps : RefCounted
 
     private static double GetDouble(Dictionary data, string key, double fallback)
     {
-        return data.ContainsKey(key) ? (double)data[key] : fallback;
+        if (data.ContainsKey(key))
+        {
+            return (double)data[key];
+        }
+
+        return fallback;
     }
 
     private static string GetString(Dictionary data, string key, string fallback)
     {
-        return data.ContainsKey(key) ? (string)data[key] : fallback;
+        if (data.ContainsKey(key))
+        {
+            return (string)data[key];
+        }
+
+        return fallback;
     }
 }

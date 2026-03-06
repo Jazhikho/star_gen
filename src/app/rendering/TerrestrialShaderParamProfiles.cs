@@ -168,6 +168,13 @@ internal static class TerrestrialShaderParamProfiles
                 parameters["u_seaSpecular"] = (float)parameters["u_seaSpecular"] * (1.0f - ((float)hydrosphere.IceCoverage * 0.5f));
             }
 
+            // Keep desert/arid worlds mostly dry even when a minimal hydrosphere payload exists.
+            string surfaceType = body.Surface.SurfaceType.ToLowerInvariant();
+            if (surfaceType is "desert" or "arid")
+            {
+                parameters["u_seaLevel"] = Mathf.Min((float)parameters["u_seaLevel"], Mathf.Clamp((float)hydrosphere.OceanCoverage * 2.0f, 0.0f, 0.2f));
+            }
+
             return parameters;
         }
 
@@ -258,7 +265,7 @@ internal static class TerrestrialShaderParamProfiles
 
         AtmosphereProps atmosphere = body.Atmosphere;
         float pressureRatio = (float)(atmosphere.SurfacePressurePa / 101325.0);
-        parameters["u_atmoDensity"] = Mathf.Clamp(pressureRatio * 0.6f, 0.0f, 2.0f);
+        parameters["u_atmoDensity"] = Mathf.Clamp(pressureRatio, 0.0f, 2.0f);
 
         if (pressureRatio < 0.1f)
         {
@@ -302,11 +309,30 @@ internal static class TerrestrialShaderParamProfiles
         AtmosphereProps atmosphere = body.Atmosphere;
         Dictionary composition = atmosphere.Composition;
         bool hasWater = composition.ContainsKey("H2O");
+        if (!hasWater
+            && body.HasSurface()
+            && body.Surface != null
+            && body.Surface.HasHydrosphere()
+            && body.Surface.Hydrosphere != null
+            && body.Surface.Hydrosphere.OceanCoverage > 0.0)
+        {
+            hasWater = true;
+        }
+
         float pressureRatio = (float)(atmosphere.SurfacePressurePa / 101325.0);
 
         if (hasWater)
         {
             float waterFraction = GetFloat(composition, "H2O", 0.0f);
+            if (waterFraction <= 0.0f
+                && body.HasSurface()
+                && body.Surface != null
+                && body.Surface.HasHydrosphere()
+                && body.Surface.Hydrosphere != null)
+            {
+                waterFraction = Mathf.Clamp((float)body.Surface.Hydrosphere.OceanCoverage, 0.0f, 1.0f);
+            }
+
             parameters["u_cloudCoverage"] = Mathf.Clamp((waterFraction * 10.0f) + (pressureRatio * 0.2f), 0.0f, 0.9f);
         }
         else if (composition.ContainsKey("SO2") || composition.ContainsKey("H2SO4"))

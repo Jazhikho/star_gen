@@ -121,7 +121,8 @@ public partial class SpiralDensityModel : DensityModelInterface
     /// </summary>
     private static float WrapAngle(float angle)
     {
-        float wrapped = Mathf.PosMod(angle + Mathf.Pi, Mathf.Tau);
-        return wrapped - Mathf.Pi;
+        float tau = (float)(2.0 * System.Math.PI);
+        float wrapped = Mathf.PosMod(angle + (float)System.Math.PI, tau);
+        return wrapped - (float)System.Math.PI;
     }
 }

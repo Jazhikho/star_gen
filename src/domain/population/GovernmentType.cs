@@ -119,6 +119,53 @@ public static class GovernmentType
     }
 
     /// <summary>
+    /// Returns typical non-crisis political transitions from the current regime.
+    /// </summary>
+    public static Array<Regime> BaselineTransitions(Regime regime)
+    {
+        return regime switch
+        {
+            Regime.Tribal => new Array<Regime> { Regime.Chiefdom, Regime.CityState },
+            Regime.Chiefdom => new Array<Regime> { Regime.CityState, Regime.Feudal },
+            Regime.CityState => new Array<Regime> { Regime.EliteRepublic, Regime.Oligarchic },
+            Regime.Feudal => new Array<Regime> { Regime.PatrimonialKingdom, Regime.AbsoluteMonarchy },
+            Regime.PatrimonialKingdom => new Array<Regime> { Regime.BureaucraticEmpire, Regime.AbsoluteMonarchy },
+            Regime.BureaucraticEmpire => new Array<Regime> { Regime.AbsoluteMonarchy, Regime.Constitutional },
+            Regime.AbsoluteMonarchy => new Array<Regime> { Regime.Constitutional, Regime.MilitaryJunta },
+            Regime.Constitutional => new Array<Regime> { Regime.MassDemocracy, Regime.EliteRepublic },
+            Regime.Oligarchic => new Array<Regime> { Regime.EliteRepublic, Regime.Corporate },
+            Regime.EliteRepublic => new Array<Regime> { Regime.MassDemocracy, Regime.Corporate },
+            Regime.MassDemocracy => new Array<Regime> { Regime.Constitutional, Regime.Technocracy },
+            Regime.OnePartyState => new Array<Regime> { Regime.Technocracy, Regime.MilitaryJunta },
+            Regime.MilitaryJunta => new Array<Regime> { Regime.Constitutional, Regime.OnePartyState },
+            Regime.PersonalistDict => new Array<Regime> { Regime.OnePartyState, Regime.MilitaryJunta },
+            Regime.FailedState => new Array<Regime> { Regime.Chiefdom, Regime.Tribal },
+            Regime.Corporate => new Array<Regime> { Regime.Technocracy, Regime.EliteRepublic },
+            Regime.Theocracy => new Array<Regime> { Regime.AbsoluteMonarchy, Regime.OnePartyState },
+            Regime.Technocracy => new Array<Regime> { Regime.Corporate, Regime.MassDemocracy },
+            _ => new Array<Regime>(),
+        };
+    }
+
+    /// <summary>
+    /// Returns likely crisis transitions from the current regime.
+    /// </summary>
+    public static Array<Regime> CrisisTransitions(Regime regime)
+    {
+        return regime switch
+        {
+            Regime.MassDemocracy => new Array<Regime> { Regime.MilitaryJunta, Regime.OnePartyState, Regime.FailedState },
+            Regime.Constitutional => new Array<Regime> { Regime.MilitaryJunta, Regime.AbsoluteMonarchy, Regime.FailedState },
+            Regime.EliteRepublic => new Array<Regime> { Regime.MilitaryJunta, Regime.Oligarchic, Regime.FailedState },
+            Regime.Corporate => new Array<Regime> { Regime.MilitaryJunta, Regime.OnePartyState, Regime.FailedState },
+            Regime.Technocracy => new Array<Regime> { Regime.MilitaryJunta, Regime.OnePartyState, Regime.FailedState },
+            Regime.Tribal => new Array<Regime> { Regime.Chiefdom, Regime.FailedState },
+            Regime.Chiefdom => new Array<Regime> { Regime.Feudal, Regime.FailedState },
+            _ => new Array<Regime> { Regime.FailedState },
+        };
+    }
+
+    /// <summary>
     /// Returns whether the regime is authoritarian.
     /// </summary>
     public static bool IsAuthoritarian(Regime regime)

@@ -19,6 +19,11 @@ public partial class CSharpCelestialTypeBridge : RefCounted
     /// </summary>
     public int StringToType(string typeName)
     {
-        return CelestialType.TryParse(typeName, out CelestialType.Type parsedType) ? (int)parsedType : -1;
+        if (CelestialType.TryParse(typeName, out CelestialType.Type parsedType))
+        {
+            return (int)parsedType;
+        }
+
+        return -1;
     }
 }

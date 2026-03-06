@@ -34,6 +34,11 @@ public static class SystemSerializer
     }
 
     /// <summary>
+    /// Compatibility alias for legacy API naming.
+    /// </summary>
+    public static Dictionary ToDict(SolarSystem system) => ToDictionary(system);
+
+    /// <summary>
     /// Deserializes a dictionary payload to a solar system.
     /// </summary>
     public static SolarSystem? FromDictionary(Dictionary data)
@@ -53,12 +58,22 @@ public static class SystemSerializer
     }
 
     /// <summary>
+    /// Compatibility alias for legacy API naming.
+    /// </summary>
+    public static SolarSystem? FromDict(Dictionary data) => FromDictionary(data);
+
+    /// <summary>
     /// Serializes a solar system to JSON.
     /// </summary>
     public static string ToJson(SolarSystem system, bool pretty = true)
     {
         Dictionary data = ToDictionary(system);
-        return pretty ? Json.Stringify(data, "\t") : Json.Stringify(data);
+        if (pretty)
+        {
+            return Json.Stringify(data, "\t");
+        }
+
+        return Json.Stringify(data);
     }
 
     /// <summary>
@@ -66,13 +81,13 @@ public static class SystemSerializer
     /// </summary>
     public static SolarSystem? FromJson(string jsonString)
     {
-        Variant parsed = Json.ParseString(jsonString);
-        if (parsed.VariantType != Variant.Type.Dictionary)
+        Json parser = new();
+        if (parser.Parse(jsonString) != Error.Ok || parser.Data.VariantType != Variant.Type.Dictionary)
         {
             return null;
         }
 
-        return FromDictionary((Dictionary)parsed);
+        return FromDictionary((Dictionary)parser.Data);
     }
 
     /// <summary>
@@ -86,6 +101,11 @@ public static class SystemSerializer
         }
 
         Variant value = data[key];
-        return value.VariantType == Variant.Type.String ? (string)value : fallback;
+        if (value.VariantType == Variant.Type.String)
+        {
+            return (string)value;
+        }
+
+        return fallback;
     }
 }

@@ -94,11 +94,101 @@ public partial class NativePopulation : RefCounted
     public Dictionary Metadata = new();
 
     /// <summary>
+    /// Returns the age of the population.
+    /// </summary>
+    public int GetAge(int currentYear)
+    {
+        if (IsExtant)
+        {
+            return currentYear - OriginYear;
+        }
+
+        return ExtinctionYear - OriginYear;
+    }
+
+    /// <summary>
+    /// Returns the growth state string.
+    /// </summary>
+    public string GetGrowthState()
+    {
+        if (!IsExtant)
+        {
+            return "extinct";
+        }
+
+        if (Population >= PeakPopulation * 0.95)
+        {
+            return "growing";
+        }
+
+        if (Population >= PeakPopulation * 0.7)
+        {
+            return "stable";
+        }
+
+        return "declining";
+    }
+
+    /// <summary>
+    /// Returns the current regime.
+    /// </summary>
+    public GovernmentType.Regime GetRegime()
+    {
+        return Government.Regime;
+    }
+
+    /// <summary>
     /// Returns whether the government is stable.
     /// </summary>
     public bool IsPoliticallyStable()
     {
         return Government.IsStable();
+    }
+
+    /// <summary>
+    /// Returns whether the population can achieve spaceflight.
+    /// </summary>
+    public bool CanSpaceflight()
+    {
+        return TechnologyLevel.CanSpaceflight(TechLevel);
+    }
+
+    /// <summary>
+    /// Returns whether the population can colonize other worlds.
+    /// </summary>
+    public bool CanColonize()
+    {
+        return TechnologyLevel.CanInterstellar(TechLevel);
+    }
+
+    /// <summary>
+    /// Updates the peak population if current is higher.
+    /// </summary>
+    public void UpdatePeakPopulation(int year)
+    {
+        if (Population > PeakPopulation)
+        {
+            PeakPopulation = Population;
+            PeakPopulationYear = year;
+        }
+    }
+
+    /// <summary>
+    /// Returns a summary dictionary.
+    /// </summary>
+    public Dictionary GetSummary()
+    {
+        return new Dictionary
+        {
+            ["id"] = Id,
+            ["name"] = Name,
+            ["body_id"] = BodyId,
+            ["population"] = Population,
+            ["tech_level"] = TechnologyLevel.ToStringName(TechLevel),
+            ["regime"] = GovernmentType.ToStringName(Government.Regime),
+            ["is_extant"] = IsExtant,
+            ["territorial_control"] = TerritorialControl,
+        };
     }
 
     /// <summary>
@@ -144,6 +234,11 @@ public partial class NativePopulation : RefCounted
             ["history"] = History.ToDictionary(),
         };
     }
+
+    /// <summary>
+    /// Alias for ToDictionary for test compatibility.
+    /// </summary>
+    public Dictionary ToDict() => ToDictionary();
 
     /// <summary>
     /// Creates a native population from a dictionary payload.
@@ -196,6 +291,11 @@ public partial class NativePopulation : RefCounted
         return population;
     }
 
+    /// <summary>
+    /// Alias for FromDictionary for test compatibility.
+    /// </summary>
+    public static NativePopulation FromDict(Dictionary data) => FromDictionary(data);
+
     private static Dictionary CloneDictionary(Dictionary source)
     {
         Dictionary clone = new();
@@ -222,7 +322,7 @@ public partial class NativePopulation : RefCounted
         {
             Variant.Type.Int => (int)value,
             Variant.Type.Float => (int)(double)value,
-            Variant.Type.String => int.TryParse((string)value, out int parsed) ? parsed : fallback,
+            Variant.Type.String => TryParseInt((string)value, fallback),
             _ => fallback,
         };
     }
@@ -242,7 +342,7 @@ public partial class NativePopulation : RefCounted
         {
             Variant.Type.Float => (double)value,
             Variant.Type.Int => (int)value,
-            Variant.Type.String => double.TryParse((string)value, out double parsed) ? parsed : fallback,
+            Variant.Type.String => TryParseDouble((string)value, fallback),
             _ => fallback,
         };
     }
@@ -258,7 +358,12 @@ public partial class NativePopulation : RefCounted
         }
 
         Variant value = data[key];
-        return value.VariantType == Variant.Type.String ? (string)value : fallback;
+        if (value.VariantType == Variant.Type.String)
+        {
+            return (string)value;
+        }
+
+        return fallback;
     }
 
     /// <summary>
@@ -266,7 +371,12 @@ public partial class NativePopulation : RefCounted
     /// </summary>
     private static bool GetBool(Dictionary data, string key, bool fallback)
     {
-        return data.ContainsKey(key) && data[key].VariantType == Variant.Type.Bool ? (bool)data[key] : fallback;
+        if (data.ContainsKey(key) && data[key].VariantType == Variant.Type.Bool)
+        {
+            return (bool)data[key];
+        }
+
+        return fallback;
     }
 
     /// <summary>
@@ -275,5 +385,25 @@ public partial class NativePopulation : RefCounted
     private static double Clamp01(double value)
     {
         return System.Math.Clamp(value, 0.0, 1.0);
+    }
+
+    private static int TryParseInt(string s, int fallback)
+    {
+        if (int.TryParse(s, out int parsed))
+        {
+            return parsed;
+        }
+
+        return fallback;
+    }
+
+    private static double TryParseDouble(string s, double fallback)
+    {
+        if (double.TryParse(s, out double parsed))
+        {
+            return parsed;
+        }
+
+        return fallback;
     }
 }

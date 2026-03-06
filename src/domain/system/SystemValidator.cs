@@ -254,8 +254,25 @@ public static class SystemValidator
 
         sortedPlanets.Sort((left, right) =>
         {
-            double leftDistance = left.HasOrbital() ? left.Orbital!.SemiMajorAxisM : 0.0;
-            double rightDistance = right.HasOrbital() ? right.Orbital!.SemiMajorAxisM : 0.0;
+            double leftDistance;
+            if (left.HasOrbital())
+            {
+                leftDistance = left.Orbital!.SemiMajorAxisM;
+            }
+            else
+            {
+                leftDistance = 0.0;
+            }
+
+            double rightDistance;
+            if (right.HasOrbital())
+            {
+                rightDistance = right.Orbital!.SemiMajorAxisM;
+            }
+            else
+            {
+                rightDistance = 0.0;
+            }
             return leftDistance.CompareTo(rightDistance);
         });
 

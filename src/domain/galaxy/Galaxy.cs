@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using Godot;
 using StarGen.Domain.Systems;
+using StarGen.Domain.Utils;
 
 namespace StarGen.Domain.Galaxy;
 
@@ -15,27 +16,27 @@ public partial class Galaxy : RefCounted
     /// <summary>
     /// Galaxy master seed.
     /// </summary>
-    public int GalaxySeed;
+    public int GalaxySeed { get; set; }
 
     /// <summary>
     /// Derived galaxy specification.
     /// </summary>
-    public GalaxySpec Spec;
+    public GalaxySpec Spec { get; set; }
 
     /// <summary>
     /// Source galaxy configuration.
     /// </summary>
-    public GalaxyConfig Config;
+    public GalaxyConfig Config { get; set; }
 
     /// <summary>
     /// Density model matching the galaxy type.
     /// </summary>
-    public DensityModelInterface DensityModel;
+    public DensityModelInterface DensityModel { get; set; }
 
     /// <summary>
     /// Reference density near the solar-neighborhood radius.
     /// </summary>
-    public float ReferenceDensity;
+    public float ReferenceDensity { get; set; }
 
     /// <summary>
     /// Creates a new galaxy from configuration and seed.
@@ -119,8 +120,25 @@ public partial class Galaxy : RefCounted
                 for (int qz = minHierarchy.QuadrantCoords.Z; qz <= maxHierarchy.QuadrantCoords.Z; qz += 1)
                 {
                     Vector3I quadrant = new(qx, qy, qz);
-                    Vector3I sectorMin = quadrant == minHierarchy.QuadrantCoords ? minHierarchy.SectorLocalCoords : Vector3I.Zero;
-                    Vector3I sectorMax = quadrant == maxHierarchy.QuadrantCoords ? maxHierarchy.SectorLocalCoords : new Vector3I(9, 9, 9);
+                    Vector3I sectorMin;
+                    if (quadrant == minHierarchy.QuadrantCoords)
+                    {
+                        sectorMin = minHierarchy.SectorLocalCoords;
+                    }
+                    else
+                    {
+                        sectorMin = Vector3I.Zero;
+                    }
+
+                    Vector3I sectorMax;
+                    if (quadrant == maxHierarchy.QuadrantCoords)
+                    {
+                        sectorMax = maxHierarchy.SectorLocalCoords;
+                    }
+                    else
+                    {
+                        sectorMax = new Vector3I(9, 9, 9);
+                    }
 
                     for (int sx = sectorMin.X; sx <= sectorMax.X; sx += 1)
                     {
@@ -159,7 +177,12 @@ public partial class Galaxy : RefCounted
     /// </summary>
     public SolarSystem? GetCachedSystem(int starSeed)
     {
-        return _systemsCache.ContainsKey(starSeed) ? _systemsCache[starSeed] : null;
+        if (_systemsCache.ContainsKey(starSeed))
+        {
+            return _systemsCache[starSeed];
+        }
+
+        return null;
     }
 
     /// <summary>
@@ -212,10 +235,27 @@ public partial class Galaxy : RefCounted
     /// </summary>
     public static Galaxy FromDictionary(Godot.Collections.Dictionary data)
     {
-        int seed = GetInt(data, "seed", 42);
-        GalaxyConfig config = data.ContainsKey("config") && data["config"].VariantType == Variant.Type.Dictionary
-            ? GalaxyConfig.FromDictionary((Godot.Collections.Dictionary)data["config"]) ?? GalaxyConfig.CreateDefault()
-            : GalaxyConfig.CreateDefault();
+        int seed = DomainDictionaryUtils.GetInt(data, "seed", 42);
+        GalaxyConfig config;
+        if (data.ContainsKey("config") && data["config"].VariantType == Variant.Type.Dictionary)
+        {
+            GalaxyConfig? parsed = GalaxyConfig.FromDictionary((Godot.Collections.Dictionary)data["config"]);
+            if (parsed == null)
+            {
+                GD.PushError("Galaxy.FromDictionary: GalaxyConfig.FromDictionary returned null — falling back to default galaxy configuration.");
+                config = GalaxyConfig.CreateDefault();
+            }
+            else
+            {
+                config = parsed;
+            }
+        }
+        else
+        {
+            GD.PushError("Galaxy.FromDictionary: 'config' key missing or wrong type in payload — falling back to default galaxy configuration.");
+            config = GalaxyConfig.CreateDefault();
+        }
+
         return new Galaxy(config, seed);
     }
 
@@ -235,22 +275,4 @@ public partial class Galaxy : RefCounted
         return $"{quadrantCoords.X},{quadrantCoords.Y},{quadrantCoords.Z}:{sectorLocalCoords.X},{sectorLocalCoords.Y},{sectorLocalCoords.Z}";
     }
 
-    /// <summary>
-    /// Reads an integer from a dictionary payload.
-    /// </summary>
-    private static int GetInt(Godot.Collections.Dictionary data, string key, int fallback)
-    {
-        if (!data.ContainsKey(key))
-        {
-            return fallback;
-        }
-
-        Variant value = data[key];
-        return value.VariantType switch
-        {
-            Variant.Type.Int => (int)value,
-            Variant.Type.Float => (int)(double)value,
-            _ => fallback,
-        };
-    }
 }

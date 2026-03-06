@@ -1,3 +1,5 @@
+using System;
+using Godot;
 using Godot.Collections;
 using StarGen.Domain.Celestial.Components;
 using StarGen.Domain.Generation;
@@ -15,11 +17,24 @@ public static class PlanetAtmosphereGenerator
 {
     /// <summary>
     /// Earth's atmospheric pressure in Pascals.
+    /// Aliased from <see cref="AtmosphereUtils.EarthAtmospherePa"/> for convenience.
     /// </summary>
-    public const double EarthAtmospherePa = 101325.0;
+    public const double EarthAtmospherePa = AtmosphereUtils.EarthAtmospherePa;
 
     private const double BoltzmannK = 1.380649e-23;
+
+    /// <summary>
+    /// Mass of one H2 molecule in kg; used for gas-giant Jeans criterion.
+    /// </summary>
     private const double HydrogenMassKg = 1.6735575e-27;
+
+    /// <summary>
+    /// Mass of one N2 molecule in kg (~2 × 14 Da); used for rocky-body atmosphere
+    /// retention. Rocky planets rarely retain H2 — N2 (the dominant terrestrial
+    /// atmospheric species) is the appropriate test molecule.
+    /// 1 Da = 1.66053906660e-27 kg; N2 ≈ 28 Da.
+    /// </summary>
+    private const double NitrogenMassKg = 28.0 * 1.66053906660e-27;
 
     /// <summary>
     /// Generates atmosphere properties for a planet.
@@ -43,7 +58,7 @@ public static class PlanetAtmosphereGenerator
             scaleHeightM = BoltzmannK * equilibriumTempK / (averageMolecularMass * gravity);
         }
 
-        double greenhouseFactor = CalculateGreenhouseFactor(composition, surfacePressurePa, rng);
+        double greenhouseFactor = AtmosphereUtils.CalculateGreenhouseFactor(composition, surfacePressurePa, rng);
         return new AtmosphereProps(surfacePressurePa, scaleHeightM, composition, greenhouseFactor);
     }
 
@@ -75,6 +90,16 @@ public static class PlanetAtmosphereGenerator
         return rng.Randf() < GetAtmosphereProbability(sizeCategory);
     }
 
+    /// <summary>
+    /// Returns whether the body can retain an atmosphere via the Jeans criterion.
+    /// Rocky bodies are tested against N2 (the dominant terrestrial atmospheric
+    /// molecule, ~28 Da) because they cannot retain H2 — using H2 as the test
+    /// molecule would incorrectly prevent atmospheres on Earth-mass rocky worlds.
+    /// Dwarf bodies use N2 as well but require a higher Jeans parameter.
+    /// Gas giants trivially retain atmospheres and skip the check.
+    /// Jeans parameter λ = v_esc / v_thermal; atmosphere is retained when λ > threshold.
+    /// Thresholds after Pierrehumbert (2010) and Catling &amp; Kasting (2017).
+    /// </summary>
     private static bool CanRetainAtmosphere(
         PhysicalProps physical,
         SizeCategory.Category sizeCategory,
@@ -82,22 +107,23 @@ public static class PlanetAtmosphereGenerator
     {
         double escapeVelocity = physical.GetEscapeVelocityMS();
         double equilibriumTemp = context.GetEquilibriumTemperatureK(0.3);
-        double thermalVelocity = System.Math.Sqrt(3.0 * BoltzmannK * equilibriumTemp / HydrogenMassKg);
-        double jeansParameter = escapeVelocity / thermalVelocity;
 
         if (sizeCategory == SizeCategory.Category.Dwarf)
         {
-            return jeansParameter > 10.0;
+            double thermalVelocity = System.Math.Sqrt(3.0 * BoltzmannK * equilibriumTemp / NitrogenMassKg);
+            return (escapeVelocity / thermalVelocity) > 10.0;
         }
 
         if (SizeCategory.IsRocky(sizeCategory))
         {
-            return jeansParameter > 4.0;
+            double thermalVelocity = System.Math.Sqrt(3.0 * BoltzmannK * equilibriumTemp / NitrogenMassKg);
+            return (escapeVelocity / thermalVelocity) > 4.0;
         }
 
         return true;
     }
 
+    /// <summary>Returns probability of having an atmosphere by size category.</summary>
     private static double GetAtmosphereProbability(SizeCategory.Category sizeCategory)
     {
         return sizeCategory switch
@@ -106,10 +132,11 @@ public static class PlanetAtmosphereGenerator
             SizeCategory.Category.SubTerrestrial => 0.4,
             SizeCategory.Category.Terrestrial => 0.8,
             SizeCategory.Category.SuperEarth => 0.95,
-            _ => 1.0,
+            _ => throw new InvalidOperationException($"PlanetAtmosphereGenerator.GetAtmosphereProbability: unrecognized size category '{sizeCategory}'."),
         };
     }
 
+    /// <summary>Computes surface pressure in Pa from size and overrides.</summary>
     private static double CalculateSurfacePressure(
         PlanetSpec spec,
         SizeCategory.Category sizeCategory,
@@ -128,19 +155,26 @@ public static class PlanetAtmosphereGenerator
             SizeCategory.Category.Terrestrial => System.Math.Pow(10.0, rng.RandfRange(3.0f, 7.0f)),
             SizeCategory.Category.SuperEarth => System.Math.Pow(10.0, rng.RandfRange(4.0f, 8.0f)),
             SizeCategory.Category.MiniNeptune or SizeCategory.Category.NeptuneClass or SizeCategory.Category.GasGiant => rng.RandfRange(0.5e5f, 2.0e5f),
-            _ => EarthAtmospherePa,
+            _ => throw new InvalidOperationException($"PlanetAtmosphereGenerator.CalculateSurfacePressure: unrecognized size category '{sizeCategory}'."),
         };
     }
 
+    /// <summary>Builds normalized gas composition for gas giants or rocky atmospheres.</summary>
     private static Dictionary GenerateAtmosphereComposition(
         SizeCategory.Category sizeCategory,
         OrbitZone.Zone zone,
         double equilibriumTempK,
         SeededRng rng)
     {
-        Dictionary composition = SizeCategory.IsGaseous(sizeCategory)
-            ? GenerateGasGiantComposition(sizeCategory, rng)
-            : GenerateRockyAtmosphereComposition(zone, equilibriumTempK, rng);
+        Dictionary composition;
+        if (SizeCategory.IsGaseous(sizeCategory))
+        {
+            composition = GenerateGasGiantComposition(sizeCategory, rng);
+        }
+        else
+        {
+            composition = GenerateRockyAtmosphereComposition(zone, equilibriumTempK, rng);
+        }
 
         double total = 0.0;
         foreach (Godot.Variant fraction in composition.Values)
@@ -159,6 +193,7 @@ public static class PlanetAtmosphereGenerator
         return composition;
     }
 
+    /// <summary>Generates H2/He-dominated composition for gas giants.</summary>
     private static Dictionary GenerateGasGiantComposition(SizeCategory.Category sizeCategory, SeededRng rng)
     {
         Dictionary composition = new();
@@ -180,6 +215,7 @@ public static class PlanetAtmosphereGenerator
         return composition;
     }
 
+    /// <summary>Generates composition for rocky planet atmospheres by zone.</summary>
     private static Dictionary GenerateRockyAtmosphereComposition(
         OrbitZone.Zone zone,
         double equilibriumTempK,
@@ -234,35 +270,4 @@ public static class PlanetAtmosphereGenerator
         return composition;
     }
 
-    private static double CalculateGreenhouseFactor(Dictionary composition, double surfacePressurePa, SeededRng rng)
-    {
-        double co2Fraction = composition.ContainsKey("CO2") ? (double)composition["CO2"] : 0.0;
-        double ch4Fraction = composition.ContainsKey("CH4") ? (double)composition["CH4"] : 0.0;
-        double h2oFraction = composition.ContainsKey("H2O") ? (double)composition["H2O"] : 0.0;
-
-        double pressureRatio = System.Math.Max(surfacePressurePa / EarthAtmospherePa, 0.001);
-        double pressureFactor = System.Math.Log(pressureRatio) / System.Math.Log(10.0);
-        pressureFactor = System.Math.Clamp(pressureFactor, -2.0, 3.0);
-
-        double greenhouse = 1.0;
-        if (co2Fraction > 0.0)
-        {
-            greenhouse += 0.1
-                * (System.Math.Log(co2Fraction * 1e6 + 1.0) / System.Math.Log(10.0))
-                * (1.0 + pressureFactor * 0.3);
-        }
-
-        if (ch4Fraction > 0.0)
-        {
-            greenhouse += ch4Fraction * 25.0;
-        }
-
-        if (h2oFraction > 0.0)
-        {
-            greenhouse += h2oFraction * 2.0;
-        }
-
-        greenhouse *= rng.RandfRange(0.9f, 1.1f);
-        return System.Math.Clamp(greenhouse, 1.0, 3.0);
-    }
 }

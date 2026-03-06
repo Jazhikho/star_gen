@@ -12,12 +12,12 @@ public partial class RingSystemSpec : BaseSpec
     /// <summary>
     /// Complexity level, or -1 for random.
     /// </summary>
-    public int Complexity;
+    public int Complexity { get; set; }
 
     /// <summary>
     /// Whether the rings are icy, or nil for auto.
     /// </summary>
-    public Variant IsIcy;
+    public Variant IsIcy { get; set; }
 
     /// <summary>
     /// Creates a new ring-system specification.
@@ -106,11 +106,51 @@ public partial class RingSystemSpec : BaseSpec
     /// </summary>
     public static RingSystemSpec FromDictionary(Dictionary data)
     {
-        return new RingSystemSpec(
-            data.ContainsKey("generation_seed") ? (int)data["generation_seed"] : 0,
-            data.ContainsKey("complexity") ? (int)data["complexity"] : -1,
-            data.ContainsKey("is_icy") ? data["is_icy"] : default,
-            data.ContainsKey("name_hint") ? (string)data["name_hint"] : string.Empty,
-            data.ContainsKey("overrides") ? (Dictionary)data["overrides"] : null);
+        int generationSeed;
+        if (data.ContainsKey("generation_seed"))
+        {
+            generationSeed = (int)data["generation_seed"];
+        }
+        else
+        {
+            generationSeed = 0;
+        }
+
+        int complexity;
+        if (data.ContainsKey("complexity"))
+        {
+            complexity = (int)data["complexity"];
+        }
+        else
+        {
+            complexity = -1;
+        }
+
+        Variant isIcy;
+        if (data.ContainsKey("is_icy"))
+        {
+            isIcy = data["is_icy"];
+        }
+        else
+        {
+            isIcy = default;
+        }
+        string nameHint;
+        if (data.ContainsKey("name_hint"))
+        {
+            nameHint = (string)data["name_hint"];
+        }
+        else
+        {
+            nameHint = string.Empty;
+        }
+
+        Dictionary? overrides = null;
+        if (data.ContainsKey("overrides"))
+        {
+            overrides = (Dictionary)data["overrides"];
+        }
+
+        return new RingSystemSpec(generationSeed, complexity, isIcy, nameHint, overrides);
     }
 }

@@ -54,6 +54,7 @@ public static class PlanetSurfaceGenerator
         return surface;
     }
 
+    /// <summary>Computes surface albedo from zone, temperature, and overrides.</summary>
     private static double CalculateAlbedo(
         PlanetSpec spec,
         OrbitZone.Zone zone,
@@ -79,14 +80,16 @@ public static class PlanetSurfaceGenerator
         return rng.RandfRange(0.1f, 0.5f);
     }
 
+    /// <summary>Picks surface type string from size, zone, temperature and RNG.</summary>
     private static string DetermineSurfaceType(
         SizeCategory.Category sizeCategory,
         OrbitZone.Zone zone,
         double surfaceTempK,
         SeededRng rng)
     {
-        if (surfaceTempK > 700.0)
+        if (surfaceTempK >= 1000.0)
         {
+            // Basalt melting point ~1000–1200 K; below this, rocky surfaces can form.
             return "molten";
         }
 
@@ -102,7 +105,12 @@ public static class PlanetSurfaceGenerator
 
         if (surfaceTempK < WaterFreezeK)
         {
-            return rng.Randf() < 0.5f ? "icy" : "rocky_cold";
+            if (rng.Randf() < 0.5f)
+            {
+                return "icy";
+            }
+
+            return "rocky_cold";
         }
 
         if (zone == OrbitZone.Zone.Temperate)
@@ -155,6 +163,7 @@ public static class PlanetSurfaceGenerator
         return "rocky";
     }
 
+    /// <summary>Computes volcanism level from internal heat and age.</summary>
     private static double CalculateVolcanism(
         PlanetSpec spec,
         PhysicalProps physical,
@@ -179,6 +188,7 @@ public static class PlanetSurfaceGenerator
         return System.Math.Clamp(baseVolcanism * rng.RandfRange(0.5f, 1.5f), 0.0, 1.0);
     }
 
+    /// <summary>Generates normalized surface composition dict from zone and temperature.</summary>
     private static Dictionary GenerateSurfaceComposition(
         SizeCategory.Category sizeCategory,
         OrbitZone.Zone zone,
@@ -227,6 +237,12 @@ public static class PlanetSurfaceGenerator
         return composition;
     }
 
+    /// <summary>Generates terrain properties from physical characteristics and volcanism.</summary>
+    /// <param name="physical">Physical properties of the body.</param>
+    /// <param name="sizeCategory">Body size category used for crater density scaling.</param>
+    /// <param name="volcanismLevel">Current volcanism level [0–1].</param>
+    /// <param name="rng">Seeded RNG for reproducible output.</param>
+    /// <returns>A <see cref="TerrainProps"/> describing elevation, roughness, craters, and type.</returns>
     private static TerrainProps GenerateTerrain(
         PhysicalProps physical,
         SizeCategory.Category sizeCategory,
@@ -256,13 +272,23 @@ public static class PlanetSurfaceGenerator
         double tectonicActivity = System.Math.Clamp(volcanismLevel * rng.RandfRange(0.8f, 1.2f), 0.0, 1.0);
         double erosionLevel = rng.RandfRange(0.1f, 0.5f);
 
-        string terrainType = volcanismLevel > 0.5
-            ? "volcanic"
-            : craterDensity > 0.6
-                ? "cratered"
-                : tectonicActivity > 0.4
-                    ? "tectonic"
-                    : "plains";
+        string terrainType;
+        if (volcanismLevel > 0.5)
+        {
+            terrainType = "volcanic";
+        }
+        else if (craterDensity > 0.6)
+        {
+            terrainType = "cratered";
+        }
+        else if (tectonicActivity > 0.4)
+        {
+            terrainType = "tectonic";
+        }
+        else
+        {
+            terrainType = "plains";
+        }
 
         return new TerrainProps(
             elevationRangeM,
@@ -273,6 +299,7 @@ public static class PlanetSurfaceGenerator
             terrainType);
     }
 
+    /// <summary>Returns whether the body can retain liquid surface water.</summary>
     private static bool CanHaveLiquidWater(double surfaceTempK, PhysicalProps physical)
     {
         if (surfaceTempK < WaterFreezeK)
@@ -288,15 +315,27 @@ public static class PlanetSurfaceGenerator
         return physical.GetEscapeVelocityMS() > 3000.0;
     }
 
+    /// <summary>Generates hydrosphere properties for a body that can retain liquid water.</summary>
+    /// <param name="surfaceTempK">Surface temperature in Kelvin.</param>
+    /// <param name="sizeCategory">Body size category — larger bodies support deeper oceans.</param>
+    /// <param name="volcanismLevel">Volcanism level [0–1]; high values may acidify water.</param>
+    /// <param name="rng">Seeded RNG for reproducible output.</param>
+    /// <returns>A <see cref="HydrosphereProps"/> describing ocean and ice coverage.</returns>
     private static HydrosphereProps GenerateHydrosphere(
         double surfaceTempK,
         SizeCategory.Category sizeCategory,
         double volcanismLevel,
         SeededRng rng)
     {
-        double oceanCoverage = (int)sizeCategory >= (int)SizeCategory.Category.Terrestrial
-            ? rng.RandfRange(0.1f, 0.95f)
-            : rng.RandfRange(0.0f, 0.3f);
+        double oceanCoverage;
+        if ((int)sizeCategory >= (int)SizeCategory.Category.Terrestrial)
+        {
+            oceanCoverage = rng.RandfRange(0.1f, 0.95f);
+        }
+        else
+        {
+            oceanCoverage = rng.RandfRange(0.0f, 0.3f);
+        }
 
         double oceanDepthM = oceanCoverage * rng.RandfRange(1000.0f, 10000.0f);
         double iceCoverage = 0.0;
@@ -310,7 +349,15 @@ public static class PlanetSurfaceGenerator
             iceCoverage = rng.RandfRange(0.05f, 0.3f);
         }
 
-        string waterType = volcanismLevel > 0.5 && rng.Randf() < 0.3f ? "acidic_water" : "water";
+        string waterType;
+        if (volcanismLevel > 0.5 && rng.Randf() < 0.3f)
+        {
+            waterType = "acidic_water";
+        }
+        else
+        {
+            waterType = "water";
+        }
         return new HydrosphereProps(
             oceanCoverage,
             oceanDepthM,
@@ -319,6 +366,7 @@ public static class PlanetSurfaceGenerator
             waterType);
     }
 
+    /// <summary>Generates cryosphere (polar caps, ice) from surface temperature.</summary>
     private static CryosphereProps GenerateCryosphere(
         double surfaceTempK,
         PhysicalProps physical,

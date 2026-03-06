@@ -167,6 +167,7 @@ public partial class BodyRenderer : Node3D
         {
             if (existingRingNode.GetParent() == this)
             {
+                existingRingNode.Owner = null;
                 RemoveChild(existingRingNode);
                 _bodyMesh.AddChild(existingRingNode);
             }
@@ -179,6 +180,7 @@ public partial class BodyRenderer : Node3D
             {
                 Name = "RingSystem",
             };
+            _ringSystemNode.Owner = null;
             _bodyMesh.AddChild(_ringSystemNode);
         }
 
@@ -255,9 +257,15 @@ public partial class BodyRenderer : Node3D
             return;
         }
 
-        float temperatureK = _currentBody.HasStellar() && _currentBody.Stellar != null
-            ? (float)_currentBody.Stellar.EffectiveTemperatureK
-            : 5778.0f;
+        float temperatureK;
+        if (_currentBody.HasStellar() && _currentBody.Stellar != null)
+        {
+            temperatureK = (float)_currentBody.Stellar.EffectiveTemperatureK;
+        }
+        else
+        {
+            temperatureK = 5778.0f;
+        }
         _starLight.LightColor = ColorUtils.TemperatureToBlackbodyColor(temperatureK);
 
         float energy = 2.0f;

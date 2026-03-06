@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using Godot.Collections;
 using StarGen.Domain.Rng;
 
@@ -6,28 +7,132 @@ namespace StarGen.Domain.Population;
 /// <summary>
 /// Generates stations and outposts for a system from placement rules.
 /// </summary>
-public static class StationGenerator
+public static partial class StationGenerator
 {
+    /// <summary>
+    /// Legacy nested result type expected by converted tests.
+    /// </summary>
+    public partial class GenerationResult : StationGenerationResult
+    {
+        public GenerationResult()
+        {
+        }
+
+        public GenerationResult(StationGenerationResult source)
+        {
+            Outposts = source.Outposts;
+            Stations = source.Stations;
+            Recommendation = source.Recommendation;
+            GenerationSeed = source.GenerationSeed;
+            Warnings = source.Warnings;
+        }
+
+        public new List<SpaceStation> GetStationsForBody(string bodyId)
+        {
+            List<SpaceStation> matches = new();
+            foreach (SpaceStation station in Stations)
+            {
+                if (station.OrbitingBodyId == bodyId)
+                {
+                    matches.Add(station);
+                }
+            }
+
+            return matches;
+        }
+
+        public new Dictionary ToDict() => ToDictionary();
+    }
+
     private const int LargeStationIdOffset = 100;
 
-    private static readonly Dictionary PopRangeU = BuildRange(50, 5000);
-    private static readonly Dictionary PopRangeO = BuildRange(100, 10000);
-    private static readonly Dictionary PopRangeB = BuildRange(10000, 100000);
-    private static readonly Dictionary PopRangeA = BuildRange(100000, 1000000);
-    private static readonly Dictionary PopRangeS = BuildRange(1000000, 10000000);
+    private static readonly (int Min, int Max) PopRangeU = (50, 5000);
+    private static readonly (int Min, int Max) PopRangeO = (100, 10000);
+    private static readonly (int Min, int Max) PopRangeB = (10000, 100000);
+    private static readonly (int Min, int Max) PopRangeA = (100000, 1000000);
+    private static readonly (int Min, int Max) PopRangeS = (1000000, 10000000);
 
-    private static readonly Dictionary NamePrefixes = new()
+    private static readonly System.Collections.Generic.Dictionary<int, string[]> NamePrefixes = new()
     {
-        [(int)StationPurpose.Purpose.Utility] = new Array<string> { "Waypoint", "Rest Stop", "Junction", "Crossroads" },
-        [(int)StationPurpose.Purpose.Trade] = new Array<string> { "Trade Hub", "Market", "Exchange", "Commerce" },
-        [(int)StationPurpose.Purpose.Military] = new Array<string> { "Outpost", "Bastion", "Sentinel", "Watchtower" },
-        [(int)StationPurpose.Purpose.Science] = new Array<string> { "Observatory", "Research", "Survey", "Lab" },
-        [(int)StationPurpose.Purpose.Mining] = new Array<string> { "Excavation", "Extraction", "Drill", "Mine" },
-        [(int)StationPurpose.Purpose.Residential] = new Array<string> { "Habitat", "Colony", "Settlement", "Haven" },
-        [(int)StationPurpose.Purpose.Administrative] = new Array<string> { "Central", "Nexus", "Hub", "Authority" },
-        [(int)StationPurpose.Purpose.Industrial] = new Array<string> { "Foundry", "Factory", "Works", "Forge" },
-        [(int)StationPurpose.Purpose.Medical] = new Array<string> { "Medical", "Hospital", "Clinic", "Care" },
-        [(int)StationPurpose.Purpose.Communications] = new Array<string> { "Relay", "Signal", "Beacon", "Comm" },
+        [(int)StationPurpose.Purpose.Utility] = new string[] { "Waypoint", "Rest Stop", "Junction", "Crossroads" },
+        [(int)StationPurpose.Purpose.Trade] = new string[] { "Trade Hub", "Market", "Exchange", "Commerce" },
+        [(int)StationPurpose.Purpose.Military] = new string[] { "Outpost", "Bastion", "Sentinel", "Watchtower" },
+        [(int)StationPurpose.Purpose.Science] = new string[] { "Observatory", "Research", "Survey", "Lab" },
+        [(int)StationPurpose.Purpose.Mining] = new string[] { "Excavation", "Extraction", "Drill", "Mine" },
+        [(int)StationPurpose.Purpose.Residential] = new string[] { "Habitat", "Colony", "Settlement", "Haven" },
+        [(int)StationPurpose.Purpose.Administrative] = new string[] { "Central", "Nexus", "Hub", "Authority" },
+        [(int)StationPurpose.Purpose.Industrial] = new string[] { "Foundry", "Factory", "Works", "Forge" },
+        [(int)StationPurpose.Purpose.Medical] = new string[] { "Medical", "Hospital", "Clinic", "Care" },
+        [(int)StationPurpose.Purpose.Communications] = new string[] { "Relay", "Signal", "Beacon", "Comm" },
+    };
+
+    private static readonly OutpostAuthority.Type[] AuthorityUtility =
+    {
+        OutpostAuthority.Type.Corporate,
+        OutpostAuthority.Type.Franchise,
+        OutpostAuthority.Type.Independent,
+    };
+
+    private static readonly OutpostAuthority.Type[] AuthorityMilitary =
+    {
+        OutpostAuthority.Type.Military,
+        OutpostAuthority.Type.Government,
+    };
+
+    private static readonly OutpostAuthority.Type[] AuthorityScience =
+    {
+        OutpostAuthority.Type.Government,
+        OutpostAuthority.Type.Corporate,
+        OutpostAuthority.Type.Cooperative,
+    };
+
+    private static readonly OutpostAuthority.Type[] AuthorityMining =
+    {
+        OutpostAuthority.Type.Corporate,
+        OutpostAuthority.Type.Cooperative,
+        OutpostAuthority.Type.Independent,
+    };
+
+    private static readonly OutpostAuthority.Type[] AuthorityTrade =
+    {
+        OutpostAuthority.Type.Corporate,
+        OutpostAuthority.Type.Franchise,
+        OutpostAuthority.Type.Independent,
+    };
+
+    private static readonly OutpostAuthority.Type[] AuthorityDefault =
+    {
+        OutpostAuthority.Type.Corporate,
+        OutpostAuthority.Type.Military,
+        OutpostAuthority.Type.Government,
+        OutpostAuthority.Type.Independent,
+    };
+
+    private static readonly GovernmentType.Regime[] RegimeColony =
+    {
+        GovernmentType.Regime.Constitutional,
+        GovernmentType.Regime.Corporate,
+        GovernmentType.Regime.Oligarchic,
+    };
+
+    private static readonly GovernmentType.Regime[] RegimeNative =
+    {
+        GovernmentType.Regime.Constitutional,
+        GovernmentType.Regime.EliteRepublic,
+    };
+
+    private static readonly GovernmentType.Regime[] RegimeResource =
+    {
+        GovernmentType.Regime.Corporate,
+        GovernmentType.Regime.Technocracy,
+        GovernmentType.Regime.Oligarchic,
+    };
+
+    private static readonly GovernmentType.Regime[] RegimeDefault =
+    {
+        GovernmentType.Regime.Constitutional,
+        GovernmentType.Regime.Corporate,
+        GovernmentType.Regime.Technocracy,
     };
 
     private static readonly string[] GreekLetters =
@@ -61,9 +166,15 @@ public static class StationGenerator
             return result;
         }
 
-        StationPlacementRecommendation recommendation = resolvedSpec.ForceContext.HasValue
-            ? CreateForcedRecommendation(resolvedSpec.ForceContext.Value, systemContext)
-            : StationPlacementRules.EvaluateSystem(systemContext);
+        StationPlacementRecommendation recommendation;
+        if (resolvedSpec.ForceContext.HasValue)
+        {
+            recommendation = CreateForcedRecommendation(resolvedSpec.ForceContext.Value, systemContext);
+        }
+        else
+        {
+            recommendation = StationPlacementRules.EvaluateSystem(systemContext);
+        }
         result.Recommendation = recommendation;
 
         if (!recommendation.ShouldHaveStations && resolvedSpec.MinStations == 0)
@@ -112,6 +223,25 @@ public static class StationGenerator
     public static StationGenerationResult Generate(StationSystemContext systemContext, SeededRng rng)
     {
         return Generate(systemContext, null, rng);
+    }
+
+    /// <summary>
+    /// Generates stations using the seed stored in the specification.
+    /// </summary>
+    public static GenerationResult Generate(StationSystemContext systemContext, StationSpec? spec)
+    {
+        int seed = spec?.GenerationSeed ?? 0;
+        SeededRng rng = new(seed);
+        return new GenerationResult(Generate(systemContext, spec, rng));
+    }
+
+    /// <summary>
+    /// Generates stations using a default specification and deterministic fallback seed.
+    /// </summary>
+    public static GenerationResult Generate(StationSystemContext systemContext)
+    {
+        SeededRng rng = new(0);
+        return new GenerationResult(Generate(systemContext, null, rng));
     }
 
     /// <summary>
@@ -290,10 +420,18 @@ public static class StationGenerator
             outpost.ParentOrganizationName = GenerateOrgName(outpost.Authority, rng);
         }
 
-        Dictionary popRange = stationClass == StationClass.Class.U ? PopRangeU : PopRangeO;
-        int basePopulation = rng.RandiRange((int)popRange["min"], (int)popRange["max"]);
+        (int Min, int Max) outpostPopRange;
+        if (stationClass == StationClass.Class.U)
+        {
+            outpostPopRange = PopRangeU;
+        }
+        else
+        {
+            outpostPopRange = PopRangeO;
+        }
+        int basePopulation = rng.RandiRange(outpostPopRange.Min, outpostPopRange.Max);
         outpost.Population = (int)(basePopulation * spec.PopulationDensity);
-        outpost.Population = System.Math.Clamp(outpost.Population, (int)popRange["min"], Outpost.MaxPopulation);
+        outpost.Population = System.Math.Clamp(outpost.Population, outpostPopRange.Min, Outpost.MaxPopulation);
         outpost.EstablishedYear = rng.RandiRange(spec.MinEstablishedYear, spec.MaxEstablishedYear);
         outpost.Services = SelectServices(outpost.PrimaryPurpose, stationClass, rng);
         outpost.UpdateCommanderTitle();
@@ -349,8 +487,8 @@ public static class StationGenerator
         StationClass.Class targetClass = StationPlacementRules.RecommendStationClass(
             recommendation.Context,
             IsLargePopulationContext(systemContext));
-        Dictionary popRange = GetPopRange(targetClass);
-        int basePopulation = rng.RandiRange((int)popRange["min"], (int)popRange["max"]);
+        (int Min, int Max) popRange = GetPopRange(targetClass);
+        int basePopulation = rng.RandiRange(popRange.Min, popRange.Max);
         station.Population = (int)(basePopulation * spec.PopulationDensity);
         station.UpdateClassFromPopulation();
         station.EstablishedYear = rng.RandiRange(spec.MinEstablishedYear, spec.MaxEstablishedYear);
@@ -485,41 +623,30 @@ public static class StationGenerator
     /// </summary>
     private static OutpostAuthority.Type SelectAuthority(StationPurpose.Purpose purpose, SeededRng rng)
     {
-        Array<OutpostAuthority.Type> options = purpose switch
+        OutpostAuthority.Type[] options;
+        switch (purpose)
         {
-            StationPurpose.Purpose.Utility => new Array<OutpostAuthority.Type>
-            {
-                OutpostAuthority.Type.Corporate,
-                OutpostAuthority.Type.Franchise,
-                OutpostAuthority.Type.Independent,
-            },
-            StationPurpose.Purpose.Military => new Array<OutpostAuthority.Type>
-            {
-                OutpostAuthority.Type.Military,
-                OutpostAuthority.Type.Government,
-            },
-            StationPurpose.Purpose.Science => new Array<OutpostAuthority.Type>
-            {
-                OutpostAuthority.Type.Government,
-                OutpostAuthority.Type.Corporate,
-                OutpostAuthority.Type.Cooperative,
-            },
-            StationPurpose.Purpose.Mining => new Array<OutpostAuthority.Type>
-            {
-                OutpostAuthority.Type.Corporate,
-                OutpostAuthority.Type.Cooperative,
-                OutpostAuthority.Type.Independent,
-            },
-            StationPurpose.Purpose.Trade => new Array<OutpostAuthority.Type>
-            {
-                OutpostAuthority.Type.Corporate,
-                OutpostAuthority.Type.Franchise,
-                OutpostAuthority.Type.Independent,
-            },
-            _ => OutpostAuthority.TypicalForOutpost(),
-        };
+            case StationPurpose.Purpose.Utility:
+                options = AuthorityUtility;
+                break;
+            case StationPurpose.Purpose.Military:
+                options = AuthorityMilitary;
+                break;
+            case StationPurpose.Purpose.Science:
+                options = AuthorityScience;
+                break;
+            case StationPurpose.Purpose.Mining:
+                options = AuthorityMining;
+                break;
+            case StationPurpose.Purpose.Trade:
+                options = AuthorityTrade;
+                break;
+            default:
+                options = AuthorityDefault;
+                break;
+        }
 
-        return options[rng.RandiRange(0, options.Count - 1)];
+        return options[rng.RandiRange(0, options.Length - 1)];
     }
 
     /// <summary>
@@ -626,34 +753,24 @@ public static class StationGenerator
         StationPlacementContext.Context context,
         SeededRng rng)
     {
-        Array<GovernmentType.Regime> options = context switch
+        GovernmentType.Regime[] options;
+        switch (context)
         {
-            StationPlacementContext.Context.ColonyWorld => new Array<GovernmentType.Regime>
-            {
-                GovernmentType.Regime.Constitutional,
-                GovernmentType.Regime.Corporate,
-                GovernmentType.Regime.Oligarchic,
-            },
-            StationPlacementContext.Context.NativeWorld => new Array<GovernmentType.Regime>
-            {
-                GovernmentType.Regime.Constitutional,
-                GovernmentType.Regime.EliteRepublic,
-            },
-            StationPlacementContext.Context.ResourceSystem => new Array<GovernmentType.Regime>
-            {
-                GovernmentType.Regime.Corporate,
-                GovernmentType.Regime.Technocracy,
-                GovernmentType.Regime.Oligarchic,
-            },
-            _ => new Array<GovernmentType.Regime>
-            {
-                GovernmentType.Regime.Constitutional,
-                GovernmentType.Regime.Corporate,
-                GovernmentType.Regime.Technocracy,
-            },
-        };
+            case StationPlacementContext.Context.ColonyWorld:
+                options = RegimeColony;
+                break;
+            case StationPlacementContext.Context.NativeWorld:
+                options = RegimeNative;
+                break;
+            case StationPlacementContext.Context.ResourceSystem:
+                options = RegimeResource;
+                break;
+            default:
+                options = RegimeDefault;
+                break;
+        }
 
-        return options[rng.RandiRange(0, options.Count - 1)];
+        return options[rng.RandiRange(0, options.Length - 1)];
     }
 
     /// <summary>
@@ -661,10 +778,17 @@ public static class StationGenerator
     /// </summary>
     private static string GenerateName(StationPurpose.Purpose purpose, int index, SeededRng rng)
     {
-        Array<string> prefixes = NamePrefixes.ContainsKey((int)purpose)
-            ? (Array<string>)NamePrefixes[(int)purpose]
-            : new Array<string> { "Station" };
-        string prefix = prefixes[rng.RandiRange(0, prefixes.Count - 1)];
+        string[] prefixes;
+        if (!NamePrefixes.TryGetValue((int)purpose, out string[]? found))
+        {
+            prefixes = new string[] { "Station" };
+        }
+        else
+        {
+            prefixes = found;
+        }
+
+        string prefix = prefixes[rng.RandiRange(0, prefixes.Length - 1)];
         if (index < GreekLetters.Length && rng.Randf() > 0.3f)
         {
             return $"{prefix} {GreekLetters[index]}";
@@ -713,7 +837,7 @@ public static class StationGenerator
     /// <summary>
     /// Returns the population range for a station class.
     /// </summary>
-    private static Dictionary GetPopRange(StationClass.Class stationClass)
+    private static (int Min, int Max) GetPopRange(StationClass.Class stationClass)
     {
         return stationClass switch
         {
@@ -756,15 +880,4 @@ public static class StationGenerator
         }
     }
 
-    /// <summary>
-    /// Builds a reusable population-range dictionary.
-    /// </summary>
-    private static Dictionary BuildRange(int minimum, int maximum)
-    {
-        return new Dictionary
-        {
-            ["min"] = minimum,
-            ["max"] = maximum,
-        };
-    }
 }

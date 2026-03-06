@@ -104,11 +104,17 @@ public partial class RingBand : RefCounted
     /// </summary>
     public static RingBand FromDictionary(Dictionary data)
     {
+        Dictionary? composition = null;
+        if (data.ContainsKey("composition"))
+        {
+            composition = (Dictionary)data["composition"];
+        }
+
         return new RingBand(
             GetDouble(data, "inner_radius_m", 0.0),
             GetDouble(data, "outer_radius_m", 0.0),
             GetDouble(data, "optical_depth", 0.0),
-            data.ContainsKey("composition") ? (Dictionary)data["composition"] : null,
+            composition,
             GetDouble(data, "particle_size_m", 1.0),
             GetString(data, "name", ""));
     }
@@ -131,11 +137,21 @@ public partial class RingBand : RefCounted
 
     private static double GetDouble(Dictionary data, string key, double fallback)
     {
-        return data.ContainsKey(key) ? (double)data[key] : fallback;
+        if (data.ContainsKey(key))
+        {
+            return (double)data[key];
+        }
+
+        return fallback;
     }
 
     private static string GetString(Dictionary data, string key, string fallback)
     {
-        return data.ContainsKey(key) ? (string)data[key] : fallback;
+        if (data.ContainsKey(key))
+        {
+            return (string)data[key];
+        }
+
+        return fallback;
     }
 }

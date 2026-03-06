@@ -1,3 +1,5 @@
+#nullable enable annotations
+#nullable disable warnings
 using System;
 using System.IO;
 using StarGen.App.GalaxyViewer;
@@ -22,13 +24,14 @@ namespace StarGen.Tests.Framework;
 
 /// <summary>
 /// Native C# tests that exercise migrated code paths directly without the GDScript bridge.
+/// Split into partial files by domain: App, Galaxy, System, Generation, Helpers.
 /// </summary>
 public static partial class DotNetNativeTestSuite
 {
     /// <summary>
-    /// Runs the current native C# test tranche through the shared .NET runner.
+    /// Runs the headless-safe native C# suite set.
     /// </summary>
-    public static void RunAll(DotNetTestRunner runner)
+    public static void RunHeadless(DotNetTestRunner runner)
     {
         runner.RunNativeTest(
             "DotNetNativeTestSuite::test_stable_hash_seed_chain_consistency",
@@ -136,6 +139,9 @@ public static partial class DotNetNativeTestSuite
             "DotNetNativeTestSuite::test_system_viewer_save_load_round_trips_json_path",
             TestSystemViewerSaveLoadRoundTripsJsonPath);
         runner.RunNativeTest(
+            "TestSuiteIntegrity::test_no_blatant_fake_pass_assertions",
+            Tests.Quality.TestSuiteIntegrity.TestNoBlatantFakePassAssertions);
+        runner.RunNativeTest(
             "DotNetNativeTestSuite::test_star_generator_deterministic_same_seed",
             TestStarGeneratorDeterministicSameSeed);
         runner.RunNativeTest(
@@ -148,8 +154,56 @@ public static partial class DotNetNativeTestSuite
             "DotNetNativeTestSuite::test_celestial_serializer_round_trip_preserves_star_payload",
             TestCelestialSerializerRoundTripPreservesStarPayload);
         runner.RunNativeTest(
+            "DotNetNativeTestSuite::test_ring_system_generator_returns_ring_system",
+            TestRingSystemGeneratorReturnsRingSystem);
+        runner.RunNativeTest(
             "DotNetNativeTestSuite::test_ring_system_generator_deterministic_same_seed",
             TestRingSystemGeneratorDeterministicSameSeed);
+        runner.RunNativeTest(
+            "DotNetNativeTestSuite::test_ring_system_generator_trace_complexity",
+            TestRingSystemGeneratorTraceComplexity);
+        runner.RunNativeTest(
+            "DotNetNativeTestSuite::test_ring_system_generator_simple_complexity",
+            TestRingSystemGeneratorSimpleComplexity);
+        runner.RunNativeTest(
+            "DotNetNativeTestSuite::test_ring_system_generator_complex_complexity",
+            TestRingSystemGeneratorComplexComplexity);
+        runner.RunNativeTest(
+            "DotNetNativeTestSuite::test_ring_system_generator_icy_composition_beyond_ice_line",
+            TestRingSystemGeneratorIcyCompositionBeyondIceLine);
+        runner.RunNativeTest(
+            "DotNetNativeTestSuite::test_ring_system_generator_rocky_composition_inside_ice_line",
+            TestRingSystemGeneratorRockyCompositionInsideIceLine);
+        runner.RunNativeTest(
+            "DotNetNativeTestSuite::test_ring_system_generator_forced_icy_composition",
+            TestRingSystemGeneratorForcedIcyComposition);
+        runner.RunNativeTest(
+            "DotNetNativeTestSuite::test_ring_system_generator_forced_rocky_composition",
+            TestRingSystemGeneratorForcedRockyComposition);
+        runner.RunNativeTest(
+            "DotNetNativeTestSuite::test_ring_system_generator_rings_outside_planet_radius",
+            TestRingSystemGeneratorRingsOutsidePlanetRadius);
+        runner.RunNativeTest(
+            "DotNetNativeTestSuite::test_ring_system_generator_bands_ordered_by_radius",
+            TestRingSystemGeneratorBandsOrderedByRadius);
+        runner.RunNativeTest(
+            "DotNetNativeTestSuite::test_ring_system_generator_band_properties_valid",
+            TestRingSystemGeneratorBandPropertiesValid);
+        runner.RunNativeTest(
+            "DotNetNativeTestSuite::test_ring_system_generator_total_mass_positive",
+            TestRingSystemGeneratorTotalMassPositive);
+        runner.RunNativeTest(
+            "DotNetNativeTestSuite::test_ring_system_generator_inclination_small",
+            TestRingSystemGeneratorInclinationSmall);
+        runner.RunNativeTest(
+            "DotNetNativeTestSuite::test_ring_system_generator_should_have_rings_gas_giant",
+            TestRingSystemGeneratorShouldHaveRingsGasGiant);
+        runner.RunNativeTest(
+            "DotNetNativeTestSuite::test_ring_system_generator_should_have_rings_terrestrial_rare",
+            TestRingSystemGeneratorShouldHaveRingsTerrestrialRare);
+        runner.RunNativeTest(
+            "DotNetNativeTestSuite::test_ring_system_generator_different_seeds_produce_different_rings",
+            TestRingSystemGeneratorDifferentSeedsProduceDifferentRings);
         runner.RunNativeTest(
             "DotNetNativeTestSuite::test_asteroid_generator_deterministic_same_seed",
             TestAsteroidGeneratorDeterministicSameSeed);
@@ -159,1484 +213,2748 @@ public static partial class DotNetNativeTestSuite
         runner.RunNativeTest(
             "DotNetNativeTestSuite::test_galaxy_system_generator_deterministic_same_star_seed",
             TestGalaxySystemGeneratorDeterministicSameStarSeed);
-    }
-
-    /// <summary>
-    /// Verifies that hierarchical seed derivation stays internally consistent.
-    /// </summary>
-    private static void TestStableHashSeedChainConsistency()
-    {
-        long galaxySeed = 42_4242;
-        Vector3I quadrantCoords = new(1, 2, 3);
-        Vector3I sectorCoords = new(4, 5, 6);
-        Vector3I subsectorCoords = new(7, 8, 9);
-
-        long quadrantSeed = SeedDeriver.DeriveQuadrantSeed(galaxySeed, quadrantCoords);
-        long sectorSeed = SeedDeriver.DeriveSectorSeed(quadrantSeed, sectorCoords);
-        long subsectorSeed = SeedDeriver.DeriveSubsectorSeed(sectorSeed, subsectorCoords);
-
-        AssertEqual(
-            SeedDeriver.DeriveSectorSeedFull(galaxySeed, quadrantCoords, sectorCoords),
-            sectorSeed,
-            "full sector derivation should match the stepwise chain");
-        AssertEqual(
-            SeedDeriver.DeriveSubsectorSeedFull(galaxySeed, quadrantCoords, sectorCoords, subsectorCoords),
-            subsectorSeed,
-            "full subsector derivation should match the stepwise chain");
-        AssertNotEqual(quadrantSeed, sectorSeed, "derived child seeds should change across hierarchy levels");
-    }
-
-    /// <summary>
-    /// Verifies stable color behavior for migrated rendering helpers.
-    /// </summary>
-    private static void TestColorUtilsSpectralAndBlackbodyBehavior()
-    {
-        Color gClass = ColorUtils.SpectralClassToColor("G2V");
-        AssertFloatNear(1.0f, gClass.R, 1.0e-6f, "G-class red channel should match the expected palette");
-        AssertFloatNear(1.0f, gClass.G, 1.0e-6f, "G-class green channel should match the expected palette");
-        AssertFloatNear(0.8f, gClass.B, 1.0e-6f, "G-class blue channel should match the expected palette");
-
-        Color cool = ColorUtils.TemperatureToBlackbodyColor(3000.0f);
-        Color hot = ColorUtils.TemperatureToBlackbodyColor(12000.0f);
-        AssertTrue(cool.R >= hot.R, "cooler stars should not be bluer in the red channel");
-        AssertTrue(cool.B <= hot.B, "hotter stars should push more blue light");
-    }
-
-    /// <summary>
-    /// Verifies stable display formatting for migrated UI helpers.
-    /// </summary>
-    private static void TestPropertyFormatterOutputsExpectedDisplayStrings()
-    {
-        string population = PropertyFormatter.FormatPopulation(1_234_567);
-        AssertEqual("1.23M", population, "population formatting should use the M suffix");
-
-        string habitability = PropertyFormatter.FormatHabitability(8);
-        AssertEqual("8/10 (Comfortable)", habitability, "habitability formatting should include score and category");
-
-        string distance = PropertyFormatter.FormatDistance(Units.AuMeters);
-        AssertEqual("1.0000 AU", distance, "1 AU should format in astronomical units");
-    }
-
-    /// <summary>
-    /// Verifies core material creation paths and caching for the migrated material factory.
-    /// </summary>
-    private static void TestMaterialFactoryCreatesExpectedMaterialsAndCaches()
-    {
-        MaterialFactory.ClearCache();
-
-        Material defaultMaterial = MaterialFactory.CreateBodyMaterial(null);
-        AssertTrue(defaultMaterial is StandardMaterial3D, "null bodies should use the default standard material");
-
-        CelestialBody star = CreateFixtureMaterialFactoryStarBody();
-        Material firstMaterial = MaterialFactory.CreateBodyMaterial(star);
-        Material secondMaterial = MaterialFactory.CreateBodyMaterial(star);
-
-        AssertEqual(firstMaterial, secondMaterial, "repeated requests should reuse the cached material");
-        AssertTrue(firstMaterial is ShaderMaterial, "star bodies should use the shader-material path");
-
-        ShaderMaterial shaderMaterial = (ShaderMaterial)firstMaterial;
-        AssertNotNull(shaderMaterial.Shader, "star materials should have a shader assigned");
-        Variant temperatureVariant = shaderMaterial.GetShaderParameter("u_temperature");
-        AssertTrue(IsNumericVariant(temperatureVariant), "star shader should expose a numeric temperature parameter");
-        AssertFloatNear(5778.0, ToDouble(temperatureVariant), 0.01, "star shader should receive the stellar temperature");
-
-        MaterialFactory.ClearCache();
-    }
-
-    /// <summary>
-    /// Verifies stable scaling and orbit geometry for the system-viewer scale helper.
-    /// </summary>
-    private static void TestSystemScaleManagerDistanceAndOrbitMath()
-    {
-        SystemScaleManager scaleManager = new(Units.AuMeters);
-        double units = scaleManager.DistanceToUnits(Units.AuMeters * 2.5);
-        AssertFloatNear(2.5, units, 1.0e-9, "distance scaling should convert meters to viewport units");
-        AssertFloatNear(Units.AuMeters * 2.5, scaleManager.UnitsToDistance(units), 1.0, "distance scaling should round-trip");
-
-        Vector3[] points = scaleManager.GenerateOrbitPoints(
-            Units.AuMeters,
-            0.1,
-            5.0,
-            15.0,
-            30.0,
-            32);
-        AssertEqual(33, points.Length, "orbit-point generation should include a closing point");
-        AssertTrue(points[0].DistanceTo(points[^1]) < 1.0e-4f, "generated orbit should close cleanly");
-    }
-
-    /// <summary>
-    /// Verifies sizing helpers and belt-layout generation for the migrated system layout engine.
-    /// </summary>
-    private static void TestSystemDisplayLayoutCalculatesExpectedSizingAndBelts()
-    {
-        AssertFloatNear(
-            3.0,
-            SystemDisplayLayout.CalculateStarDisplayRadius(Units.SolarRadiusMeters),
-            0.01,
-            "a solar-radius star should keep the expected display radius");
-        AssertFloatNear(
-            9.0,
-            SystemDisplayLayout.CalculateFirstOrbitRadiusForStar(3.0f, 2.0f, 0.0f),
-            0.01,
-            "the first orbit radius should preserve the current surface-gap formula");
-
-        SolarSystem system = CreateFixtureDisplayLayoutSystemWithBelt();
-        SystemLayout layout = SystemDisplayLayout.CalculateLayout(system);
-        BeltLayout? beltLayout = layout.GetBeltLayout("belt_0");
-
-        AssertNotNull(beltLayout, "belt layouts should be generated for asteroid belts");
-        AssertTrue(beltLayout!.CenterDisplayRadius > 0.0f, "belt display center radius should be positive");
-        AssertTrue(beltLayout.OuterDisplayRadius > beltLayout.InnerDisplayRadius, "belt display radii should expand outward");
-        AssertFloatNear(2.0, beltLayout.InnerAu, 0.001, "belt layout should preserve the inner AU metadata");
-        AssertFloatNear(3.0, beltLayout.OuterAu, 0.001, "belt layout should preserve the outer AU metadata");
-    }
-
-    /// <summary>
-    /// Verifies zoom transitions and signal emission for the migrated galaxy-viewer state machine.
-    /// </summary>
-    private static void TestZoomStateMachineTransitionsAndSignal()
-    {
-        ZoomStateMachine zoomMachine = new();
-        int signalCount = 0;
-        int lastOldLevel = -1;
-        int lastNewLevel = -1;
-        zoomMachine.LevelChanged += (oldLevel, newLevel) =>
-        {
-            signalCount += 1;
-            lastOldLevel = oldLevel;
-            lastNewLevel = newLevel;
-        };
-
-        AssertEqual((int)GalaxyCoordinates.ZoomLevel.Galaxy, zoomMachine.GetCurrentLevel(), "zoom should start at galaxy level");
-        AssertTrue(zoomMachine.CanZoomIn(), "fresh zoom machine should allow zooming in");
-        AssertTrue(!zoomMachine.CanZoomOut(), "fresh zoom machine should not allow zooming out");
-
-        zoomMachine.ZoomIn();
-        AssertEqual((int)GalaxyCoordinates.ZoomLevel.Quadrant, zoomMachine.GetCurrentLevel(), "zoom in should advance one level");
-        AssertEqual(1, signalCount, "zoom in should emit one level-change signal");
-        AssertEqual((int)GalaxyCoordinates.ZoomLevel.Galaxy, lastOldLevel, "signal should include the previous level");
-        AssertEqual((int)GalaxyCoordinates.ZoomLevel.Quadrant, lastNewLevel, "signal should include the new level");
-
-        zoomMachine.SetLevel(999);
-        AssertEqual((int)GalaxyCoordinates.ZoomLevel.Quadrant, zoomMachine.GetCurrentLevel(), "out-of-range levels should be ignored");
-
-        zoomMachine.TransitionTo((int)GalaxyCoordinates.ZoomLevel.Subsector);
-        AssertEqual((int)GalaxyCoordinates.ZoomLevel.Subsector, zoomMachine.GetCurrentLevel(), "explicit transitions should set the requested level");
-        AssertTrue(!zoomMachine.CanZoomIn(), "subsector is the deepest zoom level");
-        AssertTrue(zoomMachine.CanZoomOut(), "subsector should still allow zooming out");
-    }
-
-    /// <summary>
-    /// Verifies nearest-hit quadrant picking for the migrated quadrant selector.
-    /// </summary>
-    private static void TestQuadrantSelectorPicksNearestOccupiedQuadrant()
-    {
-        QuadrantSelector selector = new();
-        float quadrantSize = (float)GalaxyCoordinates.QuadrantSizePc;
-        Array<Vector3I> occupied = [new Vector3I(0, 0, 0), new Vector3I(1, 0, 0)];
-
-        Variant picked = selector.PickFromRay(
-            new Vector3(-10.0f, quadrantSize * 0.5f, quadrantSize * 0.5f),
-            Vector3.Right,
-            occupied);
-        AssertEqual(Variant.Type.Vector3I, picked.VariantType, "ray pick should return occupied quadrant coordinates");
-        AssertEqual(new Vector3I(0, 0, 0), picked.AsVector3I(), "ray pick should choose the nearest intersected quadrant");
-
-        selector.SetSelection(picked);
-        AssertTrue(selector.HasSelection(), "explicit selection should be tracked");
-        AssertEqual(new Vector3I(0, 0, 0), selector.SelectedCoords.AsVector3I(), "stored selection should match the chosen quadrant");
-
-        selector.ClearSelection();
-        AssertTrue(!selector.HasSelection(), "clearing selection should reset the selector");
-    }
-
-    /// <summary>
-    /// Verifies the migrated selection-indicator wrappers preserve visible state.
-    /// </summary>
-    private static void TestSelectionIndicatorShowHideWrappers()
-    {
-        SelectionIndicator indicator = new();
-        indicator._Ready();
-        AssertTrue(!indicator.IsShown(), "selection indicator should start hidden");
-
-        Vector3 firstPosition = new(1.0f, 2.0f, 3.0f);
-        indicator.ShowAt(firstPosition);
-        AssertTrue(indicator.IsShown(), "ShowAt should make the indicator visible");
-        AssertFloatNear(firstPosition.X, indicator.Position.X, 1.0e-6, "ShowAt should update the x coordinate");
-
-        Vector3 secondPosition = new(-4.0f, 5.0f, -6.0f);
-        indicator.show_at(secondPosition);
-        AssertTrue(indicator.is_shown(), "snake_case wrapper should also make the indicator visible");
-        AssertFloatNear(secondPosition.Z, indicator.Position.Z, 1.0e-6, "snake_case wrapper should update the position");
-
-        indicator.HideIndicator();
-        AssertTrue(!indicator.IsShown(), "HideIndicator should hide the indicator");
-        indicator.hide_indicator();
-        AssertTrue(!indicator.is_shown(), "snake_case hide wrapper should leave the indicator hidden");
-    }
-
-    /// <summary>
-    /// Verifies galaxy-configuration validation, display naming, and round-trip behavior.
-    /// </summary>
-    private static void TestGalaxyConfigRoundTripAndValidation()
-    {
-        GalaxyConfig config = GalaxyConfig.CreateMilkyWay();
-        AssertTrue(config.IsValid(), "Milky-Way config should be valid");
-        AssertEqual("Spiral", config.GetTypeName(), "Milky-Way config should report the spiral type name");
-
-        Dictionary data = config.ToDictionary();
-        GalaxyConfig? rebuilt = GalaxyConfig.FromDictionary(data);
-        AssertNotNull(rebuilt, "galaxy config should rebuild from its dictionary payload");
-        AssertVariantDeepEqual(data, rebuilt!.ToDictionary(), "galaxy config should round-trip semantically unchanged");
-
-        rebuilt.NumArms = 1;
-        AssertTrue(!rebuilt.IsValid(), "invalid arm-count changes should fail validation");
-    }
-
-    /// <summary>
-    /// Verifies key hierarchy conversions and center calculations for galaxy coordinates.
-    /// </summary>
-    private static void TestGalaxyCoordinatesHierarchyAndCenters()
-    {
-        Vector3 position = new(1234.5f, 67.8f, -987.6f);
-        Vector3I quadrant = GalaxyCoordinates.ParsecToQuadrant(position);
-        AssertEqual(new Vector3I(1, 0, -1), quadrant, "parsec-to-quadrant conversion should floor into the expected cell");
-
-        HierarchyCoords hierarchy = GalaxyCoordinates.ParsecToHierarchy(position);
-        AssertEqual(quadrant, hierarchy.QuadrantCoords, "hierarchy conversion should preserve quadrant coordinates");
-        AssertTrue(
-            hierarchy.SectorLocalCoords.X >= 0 && hierarchy.SectorLocalCoords.X <= 9,
-            "sector local x should stay in the expected 0-9 range");
-        AssertTrue(
-            hierarchy.SubsectorLocalCoords.Z >= 0 && hierarchy.SubsectorLocalCoords.Z <= 9,
-            "subsector local z should stay in the expected 0-9 range");
-
-        Vector3 quadrantCenter = GalaxyCoordinates.QuadrantToParsecCenter(Vector3I.Zero);
-        AssertFloatNear(500.0, quadrantCenter.X, 1.0e-6, "quadrant center should be offset by half a quadrant");
-
-        Vector3 subsectorCenter = GalaxyCoordinates.GetSubsectorWorldCenter(position);
-        AssertTrue(
-            subsectorCenter.DistanceTo(GalaxyCoordinates.GetSubsectorWorldOrigin(position)) > 0.0f,
-            "subsector center should differ from its origin by a positive offset");
-    }
-
-    /// <summary>
-    /// Verifies slab-based AABB ray tests for the migrated raycast helper.
-    /// </summary>
-    private static void TestRaycastUtilsHitsAndMissesAabb()
-    {
-        float hit = RaycastUtils.RayIntersectsAabb(
-            new Vector3(-5.0f, 0.5f, 0.5f),
-            Vector3.Right,
-            Vector3.Zero,
-            Vector3.One);
-        AssertTrue(hit >= 0.0f, "ray aimed through the box should report a hit");
-        AssertFloatNear(5.0, hit, 1.0e-6, "hit distance should match the first slab intersection");
-
-        float miss = RaycastUtils.RayIntersectsAabb(
-            new Vector3(-5.0f, 5.0f, 0.5f),
-            Vector3.Right,
-            Vector3.Zero,
-            Vector3.One);
-        AssertEqual(RaycastUtils.NoHit, miss, "ray outside the slabs should miss the box");
-    }
-
-    /// <summary>
-    /// Verifies nearest-target snapping for the migrated grid cursor.
-    /// </summary>
-    private static void TestGridCursorNavigationSnapsToNearestTargets()
-    {
-        GridCursor cursor = new()
-        {
-            Position = Vector3I.Zero,
-        };
-        Vector3I[] occupied =
-        [
-            new Vector3I(3, 0, 0),
-            new Vector3I(1, 0, 0),
-            new Vector3I(0, 4, 0),
-            new Vector3I(-2, 0, 0),
-        ];
-
-        Vector3I? right = cursor.MoveInDirection(Vector3I.Right, occupied);
-        AssertTrue(right.HasValue, "cursor should find a target to the right");
-        AssertEqual(new Vector3I(1, 0, 0), right!.Value, "cursor should choose the nearest matching target in direction");
-
-        cursor.Position = new Vector3I(1, 2, 0);
-        Vector3I? nearest = cursor.SnapToNearest(occupied);
-        AssertTrue(nearest.HasValue, "cursor should snap to the nearest occupied point");
-        AssertEqual(new Vector3I(1, 0, 0), nearest!.Value, "snap should choose the closest occupied point");
-    }
-
-    /// <summary>
-    /// Verifies galaxy-star derivation and dictionary round-trip behavior.
-    /// </summary>
-    private static void TestGalaxyStarRoundTripAndDerivedProperties()
-    {
-        GalaxySpec spec = GalaxySpec.CreateMilkyWay(123_321);
-        GalaxyStar star = GalaxyStar.CreateWithDerivedProperties(new Vector3(1200.0f, 15.0f, -800.0f), 111_111, spec);
-
-        AssertTrue(star.Metallicity >= 0.1 && star.Metallicity <= 3.0, "derived metallicity should stay within the supported range");
-        AssertTrue(star.AgeBias >= 0.5 && star.AgeBias <= 2.0, "derived age bias should stay within the supported range");
-
-        Dictionary data = star.ToDictionary();
-        GalaxyStar? rebuilt = GalaxyStar.FromDictionary(data);
-        AssertNotNull(rebuilt, "galaxy star should rebuild from its serialized payload");
-        AssertVariantDeepEqual(data, rebuilt!.ToDictionary(), "galaxy star should round-trip semantically unchanged");
-    }
-
-    /// <summary>
-    /// Verifies that spiral density peaks near the core and falls off in the outer disk.
-    /// </summary>
-    private static void TestSpiralDensityModelCenterExceedsOuterDiskDensity()
-    {
-        GalaxySpec spec = GalaxySpec.CreateMilkyWay(234_567);
-        SpiralDensityModel model = new(spec);
-
-        float coreDensity = model.GetDensity(Vector3.Zero);
-        float outerDensity = model.GetDensity(new Vector3((float)spec.RadiusPc, 0.0f, 0.0f));
-
-        AssertTrue(coreDensity > outerDensity, "spiral density should be stronger near the galactic core");
-        AssertTrue(coreDensity > 0.0f, "spiral core density should be positive");
-        AssertTrue(model.GetPeakDensity() >= coreDensity, "peak density should bound the sampled core density");
-    }
-
-    /// <summary>
-    /// Verifies deterministic point sampling for a fixed galaxy spec and RNG seed.
-    /// </summary>
-    private static void TestDensitySamplerIsDeterministicForFixedSeed()
-    {
-        GalaxySpec spec = GalaxySpec.CreateMilkyWay(345_678);
-        GalaxySample first = DensitySampler.SampleGalaxy(spec, 128, new SeededRng(456_789));
-        GalaxySample second = DensitySampler.SampleGalaxy(spec, 128, new SeededRng(456_789));
-
-        AssertEqual(first.GetTotalCount(), second.GetTotalCount(), "sampled point count should be deterministic");
-        AssertEqual(first.BulgePoints.Length, second.BulgePoints.Length, "bulge sample count should be deterministic");
-        AssertEqual(first.DiskPoints.Length, second.DiskPoints.Length, "disk sample count should be deterministic");
-
-        if (first.BulgePoints.Length > 0)
-        {
-            AssertTrue(first.BulgePoints[0] == second.BulgePoints[0], "bulge point positions should match for identical seeds");
-        }
-
-        if (first.DiskPoints.Length > 0)
-        {
-            AssertTrue(first.DiskPoints[0] == second.DiskPoints[0], "disk point positions should match for identical seeds");
-        }
-    }
-
-    /// <summary>
-    /// Verifies nearest-to-ray picking for the migrated star-picker helper.
-    /// </summary>
-    private static void TestStarPickerSelectsNearestStarToRay()
-    {
-        Vector3[] positions =
-        [
-            new Vector3(10.0f, 0.1f, 0.0f),
-            new Vector3(12.0f, 2.0f, 0.0f),
-            new Vector3(15.0f, 0.05f, 0.0f),
-        ];
-        long[] starSeeds = [101L, 202L, 303L];
-
-        StarPickResult? result = StarPicker.PickNearestToRay(
-            Vector3.Zero,
-            Vector3.Right,
-            positions,
-            starSeeds,
-            0.2f);
-
-        AssertNotNull(result, "star picker should find a visible star near the ray");
-        AssertEqual(2, result!.StarIndex, "star picker should choose the star with the smallest lateral distance");
-        AssertEqual(303L, result.StarSeed, "star picker should preserve the matching seed");
-    }
-
-    /// <summary>
-    /// Verifies deterministic subsector generation for fixed seeds and density inputs.
-    /// </summary>
-    private static void TestSubsectorGeneratorIsDeterministicForFixedInputs()
-    {
-        GalaxySpec spec = GalaxySpec.CreateMilkyWay(567_890);
-        SpiralDensityModel densityModel = new(spec);
-        float referenceDensity = densityModel.GetDensity(HomePosition.GetDefaultPosition());
-
-        SectorStarData first = SubSectorGenerator.GenerateSingleSubsector(
-            678_901,
-            HomePosition.GetHomeSubsectorCenter() - (Vector3.One * (float)(GalaxyCoordinates.SubsectorSizePc * 0.5)),
-            densityModel,
-            referenceDensity);
-        SectorStarData second = SubSectorGenerator.GenerateSingleSubsector(
-            678_901,
-            HomePosition.GetHomeSubsectorCenter() - (Vector3.One * (float)(GalaxyCoordinates.SubsectorSizePc * 0.5)),
-            densityModel,
-            referenceDensity);
-
-        AssertEqual(first.GetCount(), second.GetCount(), "subsector star count should be deterministic");
-        AssertEqual(first.StarSeeds.Length, second.StarSeeds.Length, "subsector seed count should be deterministic");
-        if (first.GetCount() > 0)
-        {
-            AssertTrue(first.Positions[0] == second.Positions[0], "subsector positions should match for identical inputs");
-            AssertEqual(first.StarSeeds[0], second.StarSeeds[0], "subsector star seeds should match for identical inputs");
-        }
-    }
-
-    /// <summary>
-    /// Verifies deterministic neighborhood generation around a fixed camera position.
-    /// </summary>
-    private static void TestSubsectorNeighborhoodIsDeterministicForFixedInputs()
-    {
-        GalaxySpec spec = GalaxySpec.CreateMilkyWay(789_012);
-        SpiralDensityModel densityModel = new(spec);
-        Vector3 cameraPosition = HomePosition.GetHomeSubsectorCenter();
-        float referenceDensity = densityModel.GetDensity(cameraPosition);
-
-        SubSectorNeighborhoodData first = SubSectorNeighborhood.Build(cameraPosition, 890_123, densityModel, referenceDensity);
-        SubSectorNeighborhoodData second = SubSectorNeighborhood.Build(cameraPosition, 890_123, densityModel, referenceDensity);
-
-        AssertEqual(first.SubsectorOrigins.Length, second.SubsectorOrigins.Length, "subsector origin counts should be deterministic");
-        AssertEqual(first.StarPositions.Length, second.StarPositions.Length, "neighborhood star counts should be deterministic");
-        AssertTrue(first.CenterOrigin == second.CenterOrigin, "center origin should be deterministic");
-        if (first.StarPositions.Length > 0)
-        {
-            AssertTrue(first.StarPositions[0] == second.StarPositions[0], "neighborhood star positions should match");
-            AssertEqual(first.StarSeeds[0], second.StarSeeds[0], "neighborhood star seeds should match");
-        }
-    }
-
-    /// <summary>
-    /// Verifies consistent system-preview generation for a fixed star seed and position.
-    /// </summary>
-    private static void TestStarSystemPreviewGeneratesConsistentPreview()
-    {
-        GalaxySpec spec = GalaxySpec.CreateMilkyWay(901_234);
-        Vector3 worldPosition = HomePosition.GetDefaultPosition();
-
-        StarSystemPreviewData? first = StarSystemPreview.Generate(246_810, worldPosition, spec);
-        StarSystemPreviewData? second = StarSystemPreview.Generate(246_810, worldPosition, spec);
-
-        AssertNotNull(first, "preview generation should produce a result for a valid star seed");
-        AssertNotNull(second, "preview generation should be repeatable for a valid star seed");
-        AssertEqual(first!.StarSeed, second!.StarSeed, "preview seed should remain stable");
-        AssertEqual(first.StarCount, second.StarCount, "preview star count should be deterministic");
-        AssertEqual(first.PlanetCount, second.PlanetCount, "preview planet count should be deterministic");
-        AssertEqual(first.IsInhabited, second.IsInhabited, "preview inhabited state should be deterministic");
-    }
-
-    /// <summary>
-    /// Verifies realism-profile slider mapping and preset constructors.
-    /// </summary>
-    private static void TestGenerationRealismProfileSliderAndPresets()
-    {
-        GenerationRealismProfile stylized = GenerationRealismProfile.FromSlider(0.1);
-        GenerationRealismProfile balanced = GenerationRealismProfile.FromSlider(0.5);
-        GenerationRealismProfile calibrated = GenerationRealismProfile.FromSlider(0.9);
-
-        AssertEqual(GenerationRealismProfile.ModeType.Stylized, stylized.Mode, "low slider values should map to stylized mode");
-        AssertEqual(GenerationRealismProfile.ModeType.Balanced, balanced.Mode, "mid slider values should map to balanced mode");
-        AssertEqual(GenerationRealismProfile.ModeType.Calibrated, calibrated.Mode, "high slider values should map to calibrated mode");
-
-        AssertFloatNear(0.0, GenerationRealismProfile.Stylized().RealismSlider, 1.0e-9, "stylized preset should pin the slider to 0");
-        AssertFloatNear(0.5, GenerationRealismProfile.Balanced().RealismSlider, 1.0e-9, "balanced preset should pin the slider to 0.5");
-        AssertFloatNear(1.0, GenerationRealismProfile.Calibrated().RealismSlider, 1.0e-9, "calibrated preset should pin the slider to 1");
-    }
-
-    /// <summary>
-    /// Verifies the key Kepler conversions in the migrated orbital-mechanics helper.
-    /// </summary>
-    private static void TestOrbitalMechanicsPeriodAxisRoundTrip()
-    {
-        double originalAxis = Units.AuMeters;
-        double period = OrbitalMechanics.CalculateOrbitalPeriod(originalAxis, Units.SolarMassKg);
-        double rebuiltAxis = OrbitalMechanics.CalculateSemiMajorAxis(period, Units.SolarMassKg);
-
-        AssertTrue(period > 0.0, "orbital period should be positive for valid inputs");
-        AssertFloatNear(originalAxis, rebuiltAxis, Units.AuMeters * 1.0e-9, "period/axis conversions should round-trip");
-        AssertTrue(
-            OrbitalMechanics.CalculateOrbitalVelocity(originalAxis, Units.SolarMassKg) > 0.0,
-            "orbital velocity should be positive for valid inputs");
-    }
-
-    /// <summary>
-    /// Verifies orbit-host zone calculations and dictionary round-tripping.
-    /// </summary>
-    private static void TestOrbitHostZoneCalculationAndRoundTrip()
-    {
-        OrbitHost host = new("primary", OrbitHost.HostType.SType)
-        {
-            CombinedMassKg = Units.SolarMassKg,
-            CombinedLuminosityWatts = StellarProps.SolarLuminosityWatts,
-            EffectiveTemperatureK = 5778.0,
-            InnerStabilityM = 0.5 * Units.AuMeters,
-            OuterStabilityM = 5.0 * Units.AuMeters,
-        };
-        host.CalculateZones();
-
-        AssertTrue(host.HasValidZone(), "fixture host should expose a valid stable zone");
-        AssertEqual("S-type", host.GetTypeString(), "host type string should match the stored type");
-        AssertTrue(host.IsDistanceStable(Units.AuMeters), "1 AU should lie inside the fixture stable zone");
-        AssertTrue(host.IsDistanceHabitable(Units.AuMeters), "1 AU should lie inside the solar-luminosity habitable zone");
-        AssertTrue(host.IsBeyondFrostLine(3.0 * Units.AuMeters), "3 AU should lie beyond the nominal frost line");
-
-        Dictionary data = host.ToDictionary();
-        OrbitHost rebuilt = OrbitHost.FromDictionary(data);
-        AssertVariantDeepEqual(data, rebuilt.ToDictionary(), "orbit host should round-trip semantically unchanged");
-    }
-
-    /// <summary>
-    /// Verifies solar-system spec presets and dictionary round-tripping.
-    /// </summary>
-    private static void TestSolarSystemSpecPresetsAndRoundTrip()
-    {
-        SolarSystemSpec spec = SolarSystemSpec.AlphaCentauriLike(135_791);
-        spec.NameHint = "Alpha";
-        spec.GeneratePopulation = true;
-        spec.IncludeAsteroidBelts = false;
-        spec.SetOverride("viewer.force_binary", true);
-
-        AssertEqual(3, spec.StarCountMin, "Alpha-Centauri preset should request three stars");
-        AssertEqual(3, spec.StarCountMax, "Alpha-Centauri preset should cap at three stars");
-        AssertTrue(spec.HasOverride("viewer.force_binary"), "set overrides should be addressable");
-
-        Dictionary data = spec.ToDictionary();
-        SolarSystemSpec rebuilt = SolarSystemSpec.FromDictionary(data);
-        AssertVariantDeepEqual(data, rebuilt.ToDictionary(), "solar-system spec should round-trip semantically unchanged");
-
-        SolarSystemSpec sunLike = SolarSystemSpec.SunLike(246_802);
-        AssertEqual(1, sunLike.StarCountMin, "Sun-like preset should request one star");
-        AssertEqual(1, sunLike.SpectralClassHints.Count, "Sun-like preset should seed one spectral hint");
-    }
-
-    /// <summary>
-    /// Verifies hierarchy-node traversal and dictionary round-tripping.
-    /// </summary>
-    private static void TestHierarchyNodeRoundTripAndTreeQueries()
-    {
-        HierarchyNode left = HierarchyNode.CreateStar("node_a", "star_a");
-        HierarchyNode right = HierarchyNode.CreateStar("node_b", "star_b");
-        HierarchyNode root = HierarchyNode.CreateBarycenter("root", left, right, Units.AuMeters * 10.0, 0.1);
-
-        AssertTrue(root.IsBarycenter(), "root should be a barycenter");
-        AssertEqual(2, root.GetStarCount(), "barycenter subtree should contain both stars");
-        AssertEqual(2, root.GetDepth(), "binary hierarchy depth should be two");
-        AssertEqual(2, root.GetAllStarIds().Count, "tree should expose both star ids");
-        AssertNotNull(root.FindNode("node_b"), "tree queries should find nested nodes");
-
-        Dictionary data = root.ToDictionary();
-        HierarchyNode? rebuilt = HierarchyNode.FromDictionary(data);
-        AssertNotNull(rebuilt, "hierarchy node should rebuild from dictionary payload");
-        AssertVariantDeepEqual(data, rebuilt!.ToDictionary(), "hierarchy node should round-trip semantically unchanged");
-    }
-
-    /// <summary>
-    /// Verifies system-hierarchy traversal and dictionary round-tripping.
-    /// </summary>
-    private static void TestSystemHierarchyRoundTripAndNodeFilters()
-    {
-        HierarchyNode root = HierarchyNode.CreateBarycenter(
-            "root",
-            HierarchyNode.CreateStar("node_a", "star_a"),
-            HierarchyNode.CreateStar("node_b", "star_b"),
-            Units.AuMeters * 20.0);
-        SystemHierarchy hierarchy = new(root);
-
-        AssertTrue(hierarchy.IsValid(), "hierarchy with a root should be valid");
-        AssertEqual(2, hierarchy.GetStarCount(), "hierarchy should count both stars");
-        AssertEqual(3, hierarchy.GetAllNodes().Count, "hierarchy should flatten root plus children");
-        AssertEqual(1, hierarchy.GetAllBarycenters().Count, "hierarchy should identify the barycenter");
-        AssertEqual(2, hierarchy.GetAllStarNodes().Count, "hierarchy should identify the leaf stars");
-
-        Dictionary data = hierarchy.ToDictionary();
-        SystemHierarchy rebuilt = SystemHierarchy.FromDictionary(data);
-        AssertVariantDeepEqual(data, rebuilt.ToDictionary(), "system hierarchy should round-trip semantically unchanged");
-    }
-
-    /// <summary>
-    /// Verifies solar-system indexes update as bodies are added.
-    /// </summary>
-    private static void TestSolarSystemAddBodyUpdatesIndexes()
-    {
-        SolarSystem system = new("sys_1", "Fixture");
-        CelestialBody star = StarGenerator.Generate(StarSpec.SunLike(111_222), new SeededRng(222_333));
-        CelestialBody planet = PlanetGenerator.Generate(
-            PlanetSpec.EarthLike(333_444),
-            CreateFixturePlanetContext(),
-            new SeededRng(444_555),
-            enablePopulation: false);
-
-        system.AddBody(star);
-        system.AddBody(planet);
-
-        AssertEqual(2, system.GetBodyCount(), "solar system should store both added bodies");
-        AssertEqual(1, system.GetStarCount(), "solar system should index star bodies");
-        AssertEqual(1, system.GetPlanetCount(), "solar system should index planet bodies");
-        AssertEqual(1, system.GetStars().Count, "star lookup should return the added star");
-        AssertEqual(1, system.GetPlanets().Count, "planet lookup should return the added planet");
-        AssertNotNull(system.GetBody(star.Id), "body lookup should find the stored star");
-    }
-
-    /// <summary>
-    /// Verifies sector generation remains stable across repeated access.
-    /// </summary>
-    private static void TestSectorGenerationIsStableForRepeatedAccess()
-    {
-        Galaxy galaxy = Galaxy.CreateDefault(555_666);
-        HierarchyCoords home = HomePosition.GetHomeHierarchy();
-        Sector sector = galaxy.GetSector(home.QuadrantCoords, home.SectorLocalCoords);
-
-        int firstCount = sector.GetStarCount();
-        int secondCount = sector.GetStarCount();
-        AssertEqual(firstCount, secondCount, "repeated sector access should keep a stable star count");
-
-        Godot.Collections.Array<GalaxyStar> starsA = sector.GetStars();
-        Godot.Collections.Array<GalaxyStar> starsB = sector.GetStars();
-        AssertEqual(starsA.Count, starsB.Count, "repeated star enumeration should keep a stable count");
-        AssertTrue(sector.IsGenerated(), "sector should report generated after access");
-    }
-
-    /// <summary>
-    /// Verifies top-level galaxy caches sectors and systems consistently.
-    /// </summary>
-    private static void TestGalaxyCachesSectorsAndSystems()
-    {
-        Galaxy galaxy = Galaxy.CreateDefault(777_888);
-        Vector3 homePosition = HomePosition.GetDefaultPosition();
-        Sector byPosition = galaxy.GetSectorAtPosition(homePosition);
-        HierarchyCoords home = HomePosition.GetHomeHierarchy();
-        Sector byCoords = galaxy.GetSector(home.QuadrantCoords, home.SectorLocalCoords);
-
-        AssertTrue(ReferenceEquals(byPosition, byCoords), "sector lookups by position and by coordinates should reuse the same cache entry");
-        AssertEqual(1, galaxy.GetCachedSectorCount(), "reused sector lookups should only cache one sector");
-
-        SolarSystem? system = GalaxySystemGenerator.GenerateSystem(CreateFixtureGalaxyStar(), includeAsteroids: false, enablePopulation: false);
-        AssertNotNull(system, "fixture galaxy star should generate a system for cache testing");
-        galaxy.CacheSystem(123456, system!);
-        AssertTrue(galaxy.HasCachedSystem(123456), "cached systems should be discoverable by seed");
-        AssertEqual(1, galaxy.GetCachedSystemCount(), "system cache count should track cached entries");
-        AssertTrue(ReferenceEquals(system, galaxy.GetCachedSystem(123456)), "cached system lookup should return the stored instance");
-    }
-
-    /// <summary>
-    /// Verifies the default home position remains inside the nominal Milky Way bounds.
-    /// </summary>
-    private static void TestHomePositionStaysWithinDefaultGalaxyBounds()
-    {
-        GalaxySpec spec = GalaxySpec.CreateMilkyWay(919_191);
-        Vector3 home = HomePosition.GetDefaultPosition();
-        HierarchyCoords hierarchy = HomePosition.GetHomeHierarchy();
-
-        AssertTrue(HomePosition.IsWithinGalaxy(home, spec), "default home position should lie inside the galaxy bounds");
-        AssertEqual(
-            GalaxyCoordinates.ParsecToQuadrant(home),
-            HomePosition.GetHomeQuadrant(),
-            "home quadrant helper should match direct hierarchy conversion");
-        AssertEqual(
-            hierarchy.QuadrantCoords,
-            HomePosition.GetHomeQuadrant(),
-            "home hierarchy should agree with the home quadrant helper");
-    }
-
-    /// <summary>
-    /// Verifies galaxy save data round-trips without semantic drift.
-    /// </summary>
-    private static void TestGalaxySaveDataRoundTripPreservesPayload()
-    {
-        GalaxySaveData original = GalaxySaveData.Create(1_777_777_777);
-        original.GalaxySeed = 246810;
-        original.ZoomLevel = (int)GalaxyCoordinates.ZoomLevel.Sector;
-        original.SelectedQuadrant = new Vector3I(2, 3, 4);
-        original.SelectedSector = new Vector3I(5, 6, 7);
-        original.CameraPosition = new Vector3(10.0f, 20.0f, 30.0f);
-        original.CameraRotation = new Vector3(0.1f, 0.2f, 0.3f);
-        original.HasStarSelection = true;
-        original.SelectedStarSeed = 13579;
-        original.SelectedStarPosition = new Vector3(-1.0f, 2.5f, -3.5f);
-        original.CachedSystemCount = 12;
-        original.SetConfig(GalaxyConfig.CreateMilkyWay());
-        original.SetBodyOverrides(CreateFixtureOverrides());
-
-        Dictionary originalData = original.ToDictionary();
-        GalaxySaveData? rebuilt = GalaxySaveData.FromDictionary(originalData);
-        AssertNotNull(rebuilt, "galaxy save data should rebuild from its serialized dictionary");
-
-        Dictionary rebuiltData = rebuilt!.ToDictionary();
-        AssertVariantDeepEqual(
-            originalData,
-            rebuiltData,
-            "galaxy save data should round-trip semantically unchanged");
-        AssertTrue(rebuilt.HasConfig(), "rebuilt save data should preserve galaxy config");
-        AssertTrue(rebuilt.HasBodyOverrides(), "rebuilt save data should preserve body overrides");
-    }
-
-    /// <summary>
-    /// Verifies body-override serialization and in-place application.
-    /// </summary>
-    private static void TestGalaxyBodyOverridesRoundTripAndApply()
-    {
-        GalaxyBodyOverrides original = CreateFixtureOverrides();
-        Dictionary serialized = original.ToDictionary();
-        GalaxyBodyOverrides rebuilt = GalaxyBodyOverrides.FromDictionary(serialized);
-
-        AssertEqual(original.TotalCount(), rebuilt.TotalCount(), "override count should survive round-trip serialization");
-        AssertTrue(rebuilt.HasAnyFor(CreateFixtureGalaxyStar().StarSeed), "rebuilt overrides should preserve the star bucket");
-
-        int starSeed = CreateFixtureGalaxyStar().StarSeed;
-        CelestialBody baseline = StarGenerator.Generate(StarSpec.RedDwarf(777_777), new SeededRng(888_888));
-        baseline.Name = "Original";
-        Array<CelestialBody> bodies = [baseline];
-
-        int replaced = rebuilt.ApplyToBodies(starSeed, bodies);
-        AssertEqual(1, replaced, "override application should patch the matching body");
-        AssertEqual("Edited Star", bodies[0].Name, "override application should replace the body payload");
-    }
-
-    /// <summary>
-    /// Verifies basic cache put/get/evict semantics.
-    /// </summary>
-    private static void TestSystemCachePutGetAndEvict()
-    {
-        SystemCache cache = new();
-        int seed = 112233;
-        SolarSystem? system = GalaxySystemGenerator.GenerateSystem(CreateFixtureGalaxyStar(), includeAsteroids: false, enablePopulation: false);
-        AssertNotNull(system, "fixture galaxy star should generate a system for cache testing");
-
-        AssertTrue(!cache.HasSystem(seed), "fresh cache should start empty");
-        cache.PutSystem(seed, system!);
-        AssertTrue(cache.HasSystem(seed), "stored systems should become addressable by seed");
-        AssertEqual(1, cache.GetCacheSize(), "cache size should reflect inserted systems");
-        AssertTrue(ReferenceEquals(system, cache.GetSystem(seed)), "cache should return the same stored instance");
-
-        cache.Evict(seed);
-        AssertTrue(!cache.HasSystem(seed), "evict should remove the cached system");
-        AssertEqual(0, cache.GetCacheSize(), "cache size should shrink after eviction");
-    }
-
-    /// <summary>
-    /// Verifies save-state clearing for the migrated galaxy-viewer save/load helper.
-    /// </summary>
-    private static void TestGalaxyViewerSaveLoadClearsSavedState()
-    {
-        GalaxyViewerSaveLoad saveLoad = new();
-        MockGalaxyViewerStateNode viewer = new();
-
-        AssertTrue(saveLoad.HasSavedState(viewer), "fixture viewer should start with saved state");
-        saveLoad.ClearSavedState(viewer);
-
-        AssertTrue(!saveLoad.HasSavedState(viewer), "clearing saved state should reset the saved zoom level");
-        AssertEqual(Variant.Type.Nil, viewer.get_saved_quadrant().VariantType, "saved quadrant should be cleared");
-        AssertEqual(Variant.Type.Nil, viewer.get_saved_sector().VariantType, "saved sector should be cleared");
-        AssertEqual(0, viewer.get_saved_star_seed(), "saved star seed should be cleared");
-        AssertFloatNear(0.0, viewer.get_saved_star_position().Length(), 1.0e-6, "saved star position should be reset");
-    }
-
-    /// <summary>
-    /// Verifies JSON save/load round-trip behavior for the migrated system-viewer helper.
-    /// </summary>
-    private static void TestSystemViewerSaveLoadRoundTripsJsonPath()
-    {
-        SystemViewerSaveLoad saveLoad = new();
-        SolarSystem? original = GalaxySystemGenerator.GenerateSystem(CreateFixtureGalaxyStar(), includeAsteroids: false, enablePopulation: false);
-        AssertNotNull(original, "fixture galaxy star should generate a system for save/load testing");
-
-        string path = Path.Combine(
-            ProjectSettings.GlobalizePath("user://"),
-            $"dotnet_native_system_{Guid.NewGuid():N}.json");
-        MockSystemViewerNode viewer = new(original!);
-
-        try
-        {
-            Error saveError = saveLoad.SaveToPath(viewer, path, compress: false);
-            AssertEqual(Error.Ok, saveError, "system-viewer save helper should save JSON files successfully");
-
-            SystemPersistenceLoadResult result = saveLoad.LoadFromPath(path);
-            AssertTrue(result.Success, "system-viewer load helper should load the saved file");
-            AssertNotNull(result.System, "system-viewer load helper should rebuild a system");
-
-            Dictionary originalData = SystemSerializer.ToDictionary(original!);
-            Dictionary rebuiltData = SystemSerializer.ToDictionary(result.System!);
-            NormalizeTransientFields(originalData);
-            NormalizeTransientFields(rebuiltData);
-
-            AssertVariantDeepEqual(
-                originalData,
-                rebuiltData,
-                "system-viewer save/load helper should preserve system payloads");
-        }
-        finally
-        {
-            if (File.Exists(path))
-            {
-                File.Delete(path);
-            }
-        }
-    }
-
-    /// <summary>
-    /// Verifies that star generation is deterministic for the same spec and RNG seed.
-    /// </summary>
-    private static void TestStarGeneratorDeterministicSameSeed()
-    {
-        StarSpec spec = StarSpec.SunLike(101_001);
-        CelestialBody first = StarGenerator.Generate(spec, new SeededRng(202_002));
-        CelestialBody second = StarGenerator.Generate(spec, new SeededRng(202_002));
-
-        string firstJson = CelestialSerializer.ToJson(first, pretty: false);
-        string secondJson = CelestialSerializer.ToJson(second, pretty: false);
-
-        AssertEqual(firstJson, secondJson, "same star spec and seed should serialize identically");
-    }
-
-    /// <summary>
-    /// Verifies that planet generation is deterministic for the same spec and RNG seed.
-    /// </summary>
-    private static void TestPlanetGeneratorDeterministicSameSeed()
-    {
-        PlanetSpec spec = PlanetSpec.EarthLike(212_121);
-        ParentContext context = CreateFixturePlanetContext();
-
-        CelestialBody first = PlanetGenerator.Generate(spec, context, new SeededRng(313_131), enablePopulation: false);
-        CelestialBody second = PlanetGenerator.Generate(spec, context, new SeededRng(313_131), enablePopulation: false);
-
-        Dictionary firstData = CelestialSerializer.ToDictionary(first);
-        Dictionary secondData = CelestialSerializer.ToDictionary(second);
-        NormalizeTransientFields(firstData);
-        NormalizeTransientFields(secondData);
-
-        AssertVariantDeepEqual(
-            firstData,
-            secondData,
-            "same planet spec and seed should remain semantically identical");
-    }
-
-    /// <summary>
-    /// Verifies that moon generation is deterministic for the same spec and RNG seed.
-    /// </summary>
-    private static void TestMoonGeneratorDeterministicSameSeed()
-    {
-        MoonSpec spec = MoonSpec.TitanLike(414_141);
-        ParentContext context = CreateFixtureMoonContext();
-
-        CelestialBody? first = MoonGenerator.Generate(spec, context, new SeededRng(515_151), enablePopulation: false);
-        CelestialBody? second = MoonGenerator.Generate(spec, context, new SeededRng(515_151), enablePopulation: false);
-
-        AssertNotNull(first, "fixture moon spec should generate a moon");
-        AssertNotNull(second, "fixture moon spec should generate a moon");
-
-        Dictionary firstData = CelestialSerializer.ToDictionary(first!);
-        Dictionary secondData = CelestialSerializer.ToDictionary(second!);
-        NormalizeTransientFields(firstData);
-        NormalizeTransientFields(secondData);
-
-        AssertVariantDeepEqual(
-            firstData,
-            secondData,
-            "same moon spec and seed should remain semantically identical");
-    }
-
-    /// <summary>
-    /// Verifies that C# celestial serialization round-trips a generated star without drift.
-    /// </summary>
-    private static void TestCelestialSerializerRoundTripPreservesStarPayload()
-    {
-        StarSpec spec = StarSpec.RedDwarf(303_003);
-        CelestialBody original = StarGenerator.Generate(spec, new SeededRng(404_004));
-        Dictionary originalData = CelestialSerializer.ToDictionary(original);
-        string originalJson = Json.Stringify(originalData);
-
-        CelestialBody? rebuilt = CelestialSerializer.FromJson(originalJson);
-        AssertNotNull(rebuilt, "round-trip should rebuild a celestial body");
-
-        Dictionary rebuiltData = CelestialSerializer.ToDictionary(rebuilt!);
-        AssertVariantDeepEqual(
-            originalData,
-            rebuiltData,
-            "round-tripped star payload should remain semantically unchanged");
-    }
-
-    /// <summary>
-    /// Verifies that ring generation is deterministic for the same inputs and RNG seed.
-    /// </summary>
-    private static void TestRingSystemGeneratorDeterministicSameSeed()
-    {
-        RingSystemSpec spec = RingSystemSpec.Complex(505_005);
-        PhysicalProps planetPhysical = new(
-            Units.EarthMassKg * 120.0,
-            Units.JupiterRadiusMeters,
-            10.0 * 3600.0,
-            3.0,
-            0.05,
-            1.0e25,
-            0.0);
-        ParentContext context = ParentContext.ForPlanet(
-            Units.SolarMassKg,
-            StellarProps.SolarLuminosityWatts,
-            5778.0,
-            4.6e9,
-            Units.AuMeters * 5.2);
-
-        RingSystemProps? first = RingSystemGenerator.Generate(spec, planetPhysical, context, new SeededRng(606_006));
-        RingSystemProps? second = RingSystemGenerator.Generate(spec, planetPhysical, context, new SeededRng(606_006));
-
-        AssertNotNull(first, "ring generation should produce a system for the fixture inputs");
-        AssertNotNull(second, "ring generation should produce a system for the fixture inputs");
-
-        string firstJson = Json.Stringify(first!.ToDictionary());
-        string secondJson = Json.Stringify(second!.ToDictionary());
-        AssertEqual(firstJson, secondJson, "same ring inputs and seed should serialize identically");
-    }
-
-    /// <summary>
-    /// Verifies that asteroid generation is deterministic for the same inputs and RNG seed.
-    /// </summary>
-    private static void TestAsteroidGeneratorDeterministicSameSeed()
-    {
-        AsteroidSpec spec = AsteroidSpec.CeresLike(707_007);
-        ParentContext context = ParentContext.ForPlanet(
-            Units.SolarMassKg,
-            StellarProps.SolarLuminosityWatts,
-            5778.0,
-            4.6e9,
-            Units.AuMeters * 2.7);
-
-        CelestialBody first = AsteroidGenerator.Generate(spec, context, new SeededRng(808_008));
-        CelestialBody second = AsteroidGenerator.Generate(spec, context, new SeededRng(808_008));
-
-        Dictionary firstData = CelestialSerializer.ToDictionary(first);
-        Dictionary secondData = CelestialSerializer.ToDictionary(second);
-        NormalizeTransientFields(firstData);
-        NormalizeTransientFields(secondData);
-
-        AssertVariantDeepEqual(
-            firstData,
-            secondData,
-            "same asteroid inputs and seed should remain semantically identical");
-    }
-
-    /// <summary>
-    /// Verifies that a generated system can round-trip through the C# system serializer.
-    /// </summary>
-    private static void TestSystemSerializerRoundTripPreservesSystemPayload()
-    {
-        GalaxyStar star = CreateFixtureGalaxyStar();
-        SolarSystem? original = GalaxySystemGenerator.GenerateSystem(star, includeAsteroids: true, enablePopulation: false);
-        AssertNotNull(original, "fixture galaxy star should generate a system");
-
-        Dictionary originalData = SystemSerializer.ToDictionary(original!);
-        NormalizeTransientFields(originalData);
-        string originalJson = Json.Stringify(originalData);
-
-        SolarSystem? rebuilt = SystemSerializer.FromJson(originalJson);
-        AssertNotNull(rebuilt, "system round-trip should rebuild a solar system");
-
-        Dictionary rebuiltData = SystemSerializer.ToDictionary(rebuilt!);
-        NormalizeTransientFields(rebuiltData);
-
-        AssertVariantDeepEqual(
-            originalData,
-            rebuiltData,
-            "round-tripped system payload should remain semantically unchanged");
-    }
-
-    /// <summary>
-    /// Verifies that galaxy-to-system generation remains deterministic for a fixed galaxy star.
-    /// </summary>
-    private static void TestGalaxySystemGeneratorDeterministicSameStarSeed()
-    {
-        GalaxyStar firstStar = CreateFixtureGalaxyStar();
-        GalaxyStar secondStar = CreateFixtureGalaxyStar();
-
-        SolarSystem? first = GalaxySystemGenerator.GenerateSystem(firstStar, includeAsteroids: true, enablePopulation: false);
-        SolarSystem? second = GalaxySystemGenerator.GenerateSystem(secondStar, includeAsteroids: true, enablePopulation: false);
-
-        AssertNotNull(first, "fixture galaxy star should generate a system");
-        AssertNotNull(second, "fixture galaxy star should generate a system");
-
-        Dictionary firstData = SystemSerializer.ToDictionary(first!);
-        Dictionary secondData = SystemSerializer.ToDictionary(second!);
-        NormalizeTransientFields(firstData);
-        NormalizeTransientFields(secondData);
-
-        AssertVariantDeepEqual(
-            firstData,
-            secondData,
-            "same galaxy star seed should generate the same system payload");
-    }
-
-    /// <summary>
-    /// Throws when two values differ.
-    /// </summary>
-    private static void AssertEqual<T>(T expected, T actual, string message)
-    {
-        if (!Equals(expected, actual))
-        {
-            throw new InvalidOperationException($"{message}. Expected '{expected}', got '{actual}'.");
-        }
-    }
-
-    /// <summary>
-    /// Throws when two values are equal.
-    /// </summary>
-    private static void AssertNotEqual<T>(T left, T right, string message)
-    {
-        if (Equals(left, right))
-        {
-            throw new InvalidOperationException($"{message}. Both values were '{left}'.");
-        }
-    }
-
-    /// <summary>
-    /// Throws when a reference value is null.
-    /// </summary>
-    private static void AssertNotNull(object? value, string message)
-    {
-        if (value == null)
-        {
-            throw new InvalidOperationException(message);
-        }
-    }
-
-    /// <summary>
-    /// Throws when a condition is false.
-    /// </summary>
-    private static void AssertTrue(bool condition, string message)
-    {
-        if (!condition)
-        {
-            throw new InvalidOperationException(message);
-        }
-    }
-
-    /// <summary>
-    /// Throws when floating-point values differ beyond a supplied tolerance.
-    /// </summary>
-    private static void AssertFloatNear(double expected, double actual, double tolerance, string message)
-    {
-        if (Math.Abs(expected - actual) > tolerance)
-        {
-            throw new InvalidOperationException($"{message}. Expected '{expected}', got '{actual}'.");
-        }
-    }
-
-    /// <summary>
-    /// Throws when two Godot variants differ after tolerant deep comparison.
-    /// </summary>
-    private static void AssertVariantDeepEqual(Dictionary expected, Dictionary actual, string message)
-    {
-        if (TryFindDifference(expected, actual, "$", out string difference))
-        {
-            throw new InvalidOperationException($"{message}. {difference}");
-        }
-    }
-
-    /// <summary>
-    /// Returns the first semantic difference between two variants, if any.
-    /// </summary>
-    private static bool TryFindDifference(Variant expected, Variant actual, string path, out string difference)
-    {
-        if (IsNumericVariant(expected) && IsNumericVariant(actual))
-        {
-            if (NumbersEqual(ToDouble(expected), ToDouble(actual)))
-            {
-                difference = string.Empty;
-                return false;
-            }
-
-            difference = $"{path}: numeric mismatch ({ToDouble(expected)} != {ToDouble(actual)})";
-            return true;
-        }
-
-        if (IsStringLikeVariant(expected) && IsStringLikeVariant(actual))
-        {
-            string expectedText = expected.ToString();
-            string actualText = actual.ToString();
-            if (expectedText == actualText)
-            {
-                difference = string.Empty;
-                return false;
-            }
-
-            difference = $"{path}: string mismatch ('{expectedText}' != '{actualText}')";
-            return true;
-        }
-
-        if (expected.VariantType != actual.VariantType)
-        {
-            difference = $"{path}: type mismatch ({expected.VariantType} != {actual.VariantType})";
-            return true;
-        }
-
-        if (expected.VariantType == Variant.Type.Dictionary)
-        {
-            Dictionary expectedDictionary = expected.AsGodotDictionary();
-            Dictionary actualDictionary = actual.AsGodotDictionary();
-            if (expectedDictionary.Count != actualDictionary.Count)
-            {
-                difference = $"{path}: dictionary size mismatch ({expectedDictionary.Count} != {actualDictionary.Count})";
-                return true;
-            }
-
-            foreach (Variant key in expectedDictionary.Keys)
-            {
-                if (!TryGetDictionaryValue(actualDictionary, key, out Variant actualKey, out Variant actualValue))
-                {
-                    difference = $"{path}: missing key '{key}'";
-                    return true;
-                }
-
-                string childPath = $"{path}.{actualKey}";
-                if (TryFindDifference(expectedDictionary[key], actualValue, childPath, out difference))
-                {
-                    return true;
-                }
-            }
-
-            difference = string.Empty;
-            return false;
-        }
-
-        if (expected.VariantType == Variant.Type.Array)
-        {
-            Godot.Collections.Array expectedArray = expected.AsGodotArray();
-            Godot.Collections.Array actualArray = actual.AsGodotArray();
-            if (expectedArray.Count != actualArray.Count)
-            {
-                difference = $"{path}: array size mismatch ({expectedArray.Count} != {actualArray.Count})";
-                return true;
-            }
-
-            for (int index = 0; index < expectedArray.Count; index += 1)
-            {
-                if (TryFindDifference(expectedArray[index], actualArray[index], $"{path}[{index}]", out difference))
-                {
-                    return true;
-                }
-            }
-
-            difference = string.Empty;
-            return false;
-        }
-
-        if (expected.Equals(actual))
-        {
-            difference = string.Empty;
-            return false;
-        }
-
-        difference = $"{path}: value mismatch ('{expected}' != '{actual}')";
-        return true;
-    }
-
-    /// <summary>
-    /// Returns whether a variant is any numeric type that may be normalized through JSON.
-    /// </summary>
-    private static bool IsNumericVariant(Variant value)
-    {
-        return value.VariantType == Variant.Type.Int
-            || value.VariantType == Variant.Type.Float;
-    }
-
-    /// <summary>
-    /// Returns whether a variant is a string-like key/value that can normalize through JSON.
-    /// </summary>
-    private static bool IsStringLikeVariant(Variant value)
-    {
-        return value.VariantType == Variant.Type.String
-            || value.VariantType == Variant.Type.StringName
-            || value.VariantType == Variant.Type.NodePath;
-    }
-
-    /// <summary>
-    /// Converts a numeric variant to double.
-    /// </summary>
-    private static double ToDouble(Variant value)
-    {
-        return value.VariantType == Variant.Type.Int
-            ? value.AsInt64()
-            : value.AsDouble();
-    }
-
-    /// <summary>
-    /// Compares two floating-point values with relative tolerance.
-    /// </summary>
-    private static bool NumbersEqual(double expected, double actual)
-    {
-        double difference = Math.Abs(expected - actual);
-        if (difference <= 1.0e-6)
-        {
-            return true;
-        }
-
-        double scale = Math.Max(Math.Abs(expected), Math.Abs(actual));
-        if (scale <= 1.0)
-        {
-            return difference <= 1.0e-6;
-        }
-
-        return difference / scale <= 1.0e-6;
-    }
-
-    /// <summary>
-    /// Removes known transient fields from a payload tree before semantic comparison.
-    /// </summary>
-    private static void NormalizeTransientFields(Dictionary data)
-    {
-        RemoveTransientFields(data);
-    }
-
-    /// <summary>
-    /// Walks a payload recursively and removes transient keys like timestamps.
-    /// </summary>
-    private static void RemoveTransientFields(Variant value)
-    {
-        if (value.VariantType == Variant.Type.Dictionary)
-        {
-            Dictionary dictionary = value.AsGodotDictionary();
-            dictionary.Remove("created_timestamp");
-            foreach (Variant key in dictionary.Keys)
-            {
-                RemoveTransientFields(dictionary[key]);
-            }
-
-            return;
-        }
-
-        if (value.VariantType == Variant.Type.Array)
-        {
-            Godot.Collections.Array array = value.AsGodotArray();
-            foreach (Variant item in array)
-            {
-                RemoveTransientFields(item);
-            }
-        }
-    }
-
-    /// <summary>
-    /// Finds a matching dictionary value while allowing string-key normalization.
-    /// </summary>
-    private static bool TryGetDictionaryValue(
-        Dictionary dictionary,
-        Variant expectedKey,
-        out Variant actualKey,
-        out Variant actualValue)
-    {
-        if (dictionary.ContainsKey(expectedKey))
-        {
-            actualKey = expectedKey;
-            actualValue = dictionary[expectedKey];
-            return true;
-        }
-
-        if (IsStringLikeVariant(expectedKey))
-        {
-            string expectedText = expectedKey.ToString();
-            foreach (Variant candidateKey in dictionary.Keys)
-            {
-                if (candidateKey.ToString() == expectedText)
-                {
-                    actualKey = candidateKey;
-                    actualValue = dictionary[candidateKey];
-                    return true;
-                }
-            }
-        }
-
-        actualKey = default;
-        actualValue = default;
-        return false;
-    }
-
-    /// <summary>
-    /// Creates a deterministic galaxy-star fixture for system-generation tests.
-    /// </summary>
-    private static GalaxyStar CreateFixtureGalaxyStar()
-    {
-        GalaxySpec spec = GalaxySpec.CreateMilkyWay(909_009);
-        return GalaxyStar.CreateWithDerivedProperties(new Vector3(1200.0f, 15.0f, -800.0f), 111_111, spec);
-    }
-
-    /// <summary>
-    /// Creates a deterministic planet-generation context.
-    /// </summary>
-    private static ParentContext CreateFixturePlanetContext()
-    {
-        return ParentContext.ForPlanet(
-            Units.SolarMassKg,
-            StellarProps.SolarLuminosityWatts,
-            5778.0,
-            4.6e9,
-            Units.AuMeters);
-    }
-
-    /// <summary>
-    /// Creates a deterministic moon-generation context for a gas-giant host.
-    /// </summary>
-    private static ParentContext CreateFixtureMoonContext()
-    {
-        return ParentContext.ForMoon(
-            Units.SolarMassKg,
-            StellarProps.SolarLuminosityWatts,
-            5778.0,
-            4.6e9,
-            Units.AuMeters * 9.5,
-            Units.JupiterMassKg,
-            Units.JupiterRadiusMeters,
-            Units.JupiterRadiusMeters * 20.0);
-    }
-
-    /// <summary>
-    /// Creates a deterministic edited-body override payload for a fixture star.
-    /// </summary>
-    private static GalaxyBodyOverrides CreateFixtureOverrides()
-    {
-        GalaxyStar star = CreateFixtureGalaxyStar();
-        CelestialBody body = StarGenerator.Generate(StarSpec.RedDwarf(star.StarSeed), new SeededRng(888_888));
-        body.Name = "Edited Star";
-
-        GalaxyBodyOverrides overrides = new();
-        overrides.SetOverride(star.StarSeed, body);
-        return overrides;
-    }
-
-    /// <summary>
-    /// Creates a simple rocky planet used by the material-factory tests.
-    /// </summary>
-    private static CelestialBody CreateFixtureMaterialFactoryRockyBody()
-    {
-        CelestialBody body = new(
-            "test_rocky",
-            "Test Rocky",
-            CelestialType.Type.Planet,
-            new PhysicalProps(
-                Units.EarthMassKg,
-                Units.EarthRadiusMeters,
-                86_400.0,
-                23.5,
-                0.0033,
-                7.8e22,
-                4.4e13),
-            new Provenance(24_680, "1.0.0", 0, 0, new Dictionary()));
-        body.Surface = new SurfaceProps(
-            288.0,
-            0.3,
-            "continental",
-            0.1,
-            new Dictionary
-            {
-                ["iron"] = 0.2,
-            });
-        return body;
-    }
-
-    /// <summary>
-    /// Creates a simple solar-type star used by the material-factory tests.
-    /// </summary>
-    private static CelestialBody CreateFixtureMaterialFactoryStarBody()
-    {
-        CelestialBody body = new(
-            "test_star",
-            "Test Star",
-            CelestialType.Type.Star,
-            new PhysicalProps(
-                1.989e30,
-                6.9634e8,
-                2.16e6,
-                7.25,
-                0.0,
-                0.0,
-                0.0),
-            new Provenance(13_579, "1.0.0", 0, 0, new Dictionary()));
-        body.Stellar = new StellarProps(
-            StellarProps.SolarLuminosityWatts,
-            5778.0,
-            "G2V",
-            "main_sequence",
-            1.0,
-            4.6e9);
-        return body;
-    }
-
-    /// <summary>
-    /// Creates a deterministic single-star fixture with one planet and one belt for layout tests.
-    /// </summary>
-    private static SolarSystem CreateFixtureDisplayLayoutSystemWithBelt()
-    {
-        SolarSystem system = new("test_layout", "Layout System");
-
-        CelestialBody star = new(
-            "star_0",
-            "Test Star",
-            CelestialType.Type.Star,
-            new PhysicalProps(Units.SolarMassKg, Units.SolarRadiusMeters),
-            new Provenance(11_111, "1.0.0", 0, 0, new Dictionary()));
-        CelestialBody planet = CreateFixtureMaterialFactoryRockyBody();
-        planet.Id = "planet_0";
-        planet.Name = "Test Planet";
-        planet.Orbital = new OrbitalProps
-        {
-            ParentId = "node_star_0",
-            SemiMajorAxisM = Units.AuMeters,
-            MeanAnomalyDeg = 0.0,
-        };
-
-        AsteroidBelt belt = new("belt_0", "Test Belt")
-        {
-            OrbitHostId = "node_star_0",
-            InnerRadiusM = 2.0 * Units.AuMeters,
-            OuterRadiusM = 3.0 * Units.AuMeters,
-            TotalMassKg = 1.0e21,
-        };
 
-        system.AddBody(star);
-        system.AddBody(planet);
-        system.AddAsteroidBelt(belt);
-        system.Hierarchy = new SystemHierarchy(HierarchyNode.CreateStar("node_star_0", "star_0"));
-        return system;
+        // Run all converted unit tests
+        RunAllUnitTests(runner);
+
+        RunGalaxyDomainTests(runner);
+        RunJumpLanesTests(runner);
+        RunPopulationTests(runner);
+        RunHeadlessIntegrationTests(runner);
+    }
+
+    /// <summary>
+    /// Runs the full interactive native C# suite set.
+    /// </summary>
+    public static void RunInteractive(DotNetTestRunner runner)
+    {
+        RunHeadless(runner);
+        RunSceneOnlyIntegrationTests(runner);
+    }
+
+    /// <summary>
+    /// Runs all unit tests from Tests/Unit/*.cs files.
+    /// </summary>
+    private static void RunAllUnitTests(DotNetTestRunner runner)
+    {
+        runner.RunNativeTest(
+            "TestAsteroidBelt::test_construction",
+            Tests.Unit.TestAsteroidBelt.TestConstruction);
+        runner.RunNativeTest(
+            "TestAsteroidBelt::test_get_width",
+            Tests.Unit.TestAsteroidBelt.TestGetWidth);
+        runner.RunNativeTest(
+            "TestAsteroidBelt::test_get_center",
+            Tests.Unit.TestAsteroidBelt.TestGetCenter);
+        runner.RunNativeTest(
+            "TestAsteroidBelt::test_composition_to_string",
+            Tests.Unit.TestAsteroidBelt.TestCompositionToString);
+        runner.RunNativeTest(
+            "TestAsteroidBelt::test_string_to_composition",
+            Tests.Unit.TestAsteroidBelt.TestStringToComposition);
+        runner.RunNativeTest(
+            "TestAsteroidBelt::test_major_asteroid_ids",
+            Tests.Unit.TestAsteroidBelt.TestMajorAsteroidIds);
+        runner.RunNativeTest(
+            "TestAsteroidBelt::test_round_trip",
+            Tests.Unit.TestAsteroidBelt.TestRoundTrip);
+        runner.RunNativeTest(
+            "TestAsteroidGenerator::test_generate_returns_celestial_body",
+            Tests.Unit.TestAsteroidGenerator.TestGenerateReturnsCelestialBody);
+        runner.RunNativeTest(
+            "TestAsteroidGenerator::test_generate_is_deterministic",
+            Tests.Unit.TestAsteroidGenerator.TestGenerateIsDeterministic);
+        runner.RunNativeTest(
+            "TestAsteroidGenerator::test_carbonaceous_spec",
+            Tests.Unit.TestAsteroidGenerator.TestCarbonaceousSpec);
+        runner.RunNativeTest(
+            "TestAsteroidGenerator::test_silicaceous_spec",
+            Tests.Unit.TestAsteroidGenerator.TestSilicaceousSpec);
+        runner.RunNativeTest(
+            "TestAsteroidGenerator::test_metallic_spec",
+            Tests.Unit.TestAsteroidGenerator.TestMetallicSpec);
+        runner.RunNativeTest(
+            "TestAsteroidGenerator::test_ceres_like_spec",
+            Tests.Unit.TestAsteroidGenerator.TestCeresLikeSpec);
+        runner.RunNativeTest(
+            "TestAsteroidGenerator::test_no_atmosphere",
+            Tests.Unit.TestAsteroidGenerator.TestNoAtmosphere);
+        runner.RunNativeTest(
+            "TestAsteroidGenerator::test_has_surface",
+            Tests.Unit.TestAsteroidGenerator.TestHasSurface);
+        runner.RunNativeTest(
+            "TestAsteroidGenerator::test_high_crater_density",
+            Tests.Unit.TestAsteroidGenerator.TestHighCraterDensity);
+        runner.RunNativeTest(
+            "TestAsteroidGenerator::test_no_volcanism",
+            Tests.Unit.TestAsteroidGenerator.TestNoVolcanism);
+        runner.RunNativeTest(
+            "TestAsteroidGenerator::test_no_erosion",
+            Tests.Unit.TestAsteroidGenerator.TestNoErosion);
+        runner.RunNativeTest(
+            "TestAsteroidGenerator::test_orbital_in_main_belt_by_default",
+            Tests.Unit.TestAsteroidGenerator.TestOrbitalInMainBeltByDefault);
+        runner.RunNativeTest(
+            "TestAsteroidGenerator::test_orbital_override",
+            Tests.Unit.TestAsteroidGenerator.TestOrbitalOverride);
+        runner.RunNativeTest(
+            "TestAsteroidGenerator::test_different_seeds_produce_different_asteroids",
+            Tests.Unit.TestAsteroidGenerator.TestDifferentSeedsProduceDifferentAsteroids);
+        runner.RunNativeTest(
+            "TestAtmosphereProps::test_default_values",
+            Tests.Unit.TestAtmosphereProps.TestDefaultValues);
+        runner.RunNativeTest(
+            "TestAtmosphereProps::test_composition_sum",
+            Tests.Unit.TestAtmosphereProps.TestCompositionSum);
+        runner.RunNativeTest(
+            "TestAtmosphereProps::test_dominant_gas",
+            Tests.Unit.TestAtmosphereProps.TestDominantGas);
+        runner.RunNativeTest(
+            "TestAtmosphereProps::test_dominant_gas_single",
+            Tests.Unit.TestAtmosphereProps.TestDominantGasSingle);
+        runner.RunNativeTest(
+            "TestAtmosphereProps::test_empty_composition",
+            Tests.Unit.TestAtmosphereProps.TestEmptyComposition);
+        runner.RunNativeTest(
+            "TestAtmosphereProps::test_round_trip",
+            Tests.Unit.TestAtmosphereProps.TestRoundTrip);
+        runner.RunNativeTest(
+            "TestAtmosphereShaderParams::test_earth_like_params",
+            Tests.Unit.TestAtmosphereShaderParams.TestEarthLikeParams);
+        runner.RunNativeTest(
+            "TestAtmosphereShaderParams::test_thin_atmosphere",
+            Tests.Unit.TestAtmosphereShaderParams.TestThinAtmosphere);
+        runner.RunNativeTest(
+            "TestAtmosphereShaderParams::test_thick_atmosphere",
+            Tests.Unit.TestAtmosphereShaderParams.TestThickAtmosphere);
+        runner.RunNativeTest(
+            "TestAtmosphereShaderParams::test_greenhouse_effect",
+            Tests.Unit.TestAtmosphereShaderParams.TestGreenhouseEffect);
+        runner.RunNativeTest(
+            "TestAtmosphereShaderParams::test_co2_atmosphere_color",
+            Tests.Unit.TestAtmosphereShaderParams.TestCo2AtmosphereColor);
+        runner.RunNativeTest(
+            "TestAtmosphereShaderParams::test_methane_atmosphere",
+            Tests.Unit.TestAtmosphereShaderParams.TestMethaneAtmosphere);
+        runner.RunNativeTest(
+            "TestAtmosphereShaderParams::test_h2_he_atmosphere",
+            Tests.Unit.TestAtmosphereShaderParams.TestH2HeAtmosphere);
+        runner.RunNativeTest(
+            "TestAtmosphereShaderParams::test_no_atmosphere",
+            Tests.Unit.TestAtmosphereShaderParams.TestNoAtmosphere);
+        runner.RunNativeTest(
+            "TestAtmosphereShaderParams::test_should_render_atmosphere_true",
+            Tests.Unit.TestAtmosphereShaderParams.TestShouldRenderAtmosphereTrue);
+        runner.RunNativeTest(
+            "TestAtmosphereShaderParams::test_should_render_atmosphere_false_no_atmo",
+            Tests.Unit.TestAtmosphereShaderParams.TestShouldRenderAtmosphereFalseNoAtmo);
+        runner.RunNativeTest(
+            "TestAtmosphereShaderParams::test_should_render_atmosphere_false_too_thin",
+            Tests.Unit.TestAtmosphereShaderParams.TestShouldRenderAtmosphereFalseTooThin);
+        runner.RunNativeTest(
+            "TestAtmosphereShaderParams::test_falloff_from_scale_height",
+            Tests.Unit.TestAtmosphereShaderParams.TestFalloffFromScaleHeight);
+        runner.RunNativeTest(
+            "TestAtmosphereShaderParams::test_sun_glow_strength",
+            Tests.Unit.TestAtmosphereShaderParams.TestSunGlowStrength);
+        runner.RunNativeTest(
+            "TestBaseSpec::test_default_values",
+            Tests.Unit.TestBaseSpec.TestDefaultValues);
+        runner.RunNativeTest(
+            "TestBaseSpec::test_initialization",
+            Tests.Unit.TestBaseSpec.TestInitialization);
+        runner.RunNativeTest(
+            "TestBaseSpec::test_overrides",
+            Tests.Unit.TestBaseSpec.TestOverrides);
+        runner.RunNativeTest(
+            "TestBaseSpec::test_typed_overrides",
+            Tests.Unit.TestBaseSpec.TestTypedOverrides);
+        runner.RunNativeTest(
+            "TestBaseSpec::test_clear_overrides",
+            Tests.Unit.TestBaseSpec.TestClearOverrides);
+        runner.RunNativeTest(
+            "TestBaseSpec::test_star_spec_presets",
+            Tests.Unit.TestBaseSpec.TestStarSpecPresets);
+        runner.RunNativeTest(
+            "TestBaseSpec::test_planet_spec_presets",
+            Tests.Unit.TestBaseSpec.TestPlanetSpecPresets);
+        runner.RunNativeTest(
+            "TestBaseSpec::test_moon_spec_presets",
+            Tests.Unit.TestBaseSpec.TestMoonSpecPresets);
+        runner.RunNativeTest(
+            "TestBaseSpec::test_asteroid_spec_presets",
+            Tests.Unit.TestBaseSpec.TestAsteroidSpecPresets);
+        runner.RunNativeTest(
+            "TestBaseSpec::test_spec_serialization",
+            Tests.Unit.TestBaseSpec.TestSpecSerialization);
+        runner.RunNativeTest(
+            "TestBeltFieldGenerator::test_generate_field_deterministic",
+            Tests.Unit.TestBeltFieldGenerator.TestGenerateFieldDeterministic);
+        runner.RunNativeTest(
+            "TestBeltFieldGenerator::test_generate_field_background_within_bounds",
+            Tests.Unit.TestBeltFieldGenerator.TestGenerateFieldBackgroundWithinBounds);
+        runner.RunNativeTest(
+            "TestBeltOrbitalMath::test_orbital_elements_circular_flat_radius",
+            Tests.Unit.TestBeltOrbitalMath.TestOrbitalElementsCircularFlatRadius);
+        runner.RunNativeTest(
+            "TestBeltOrbitalMath::test_mean_to_true_anomaly_for_circular_orbit",
+            Tests.Unit.TestBeltOrbitalMath.TestMeanToTrueAnomalyForCircularOrbit);
+        runner.RunNativeTest(
+            "TestCelestialBody::test_minimal_creation",
+            Tests.Unit.TestCelestialBody.TestMinimalCreation);
+        runner.RunNativeTest(
+            "TestCelestialBody::test_full_creation",
+            Tests.Unit.TestCelestialBody.TestFullCreation);
+        runner.RunNativeTest(
+            "TestCelestialBody::test_has_component_flags",
+            Tests.Unit.TestCelestialBody.TestHasComponentFlags);
+        runner.RunNativeTest(
+            "TestCelestialBody::test_type_string",
+            Tests.Unit.TestCelestialBody.TestTypeString);
+        runner.RunNativeTest(
+            "TestCelestialBody::test_all_types",
+            Tests.Unit.TestCelestialBody.TestAllTypes);
+        runner.RunNativeTest(
+            "TestCelestialSerializer::test_to_dict_has_required_fields",
+            Tests.Unit.TestCelestialSerializer.TestToDictHasRequiredFields);
+        runner.RunNativeTest(
+            "TestCelestialSerializer::test_to_dict_includes_optional_components",
+            Tests.Unit.TestCelestialSerializer.TestToDictIncludesOptionalComponents);
+        runner.RunNativeTest(
+            "TestCelestialSerializer::test_to_dict_excludes_null_components",
+            Tests.Unit.TestCelestialSerializer.TestToDictExcludesNullComponents);
+        runner.RunNativeTest(
+            "TestCelestialSerializer::test_from_dict_restores_identity",
+            Tests.Unit.TestCelestialSerializer.TestFromDictRestoresIdentity);
+        runner.RunNativeTest(
+            "TestCelestialSerializer::test_from_dict_restores_physical",
+            Tests.Unit.TestCelestialSerializer.TestFromDictRestoresPhysical);
+        runner.RunNativeTest(
+            "TestCelestialSerializer::test_from_dict_restores_orbital",
+            Tests.Unit.TestCelestialSerializer.TestFromDictRestoresOrbital);
+        runner.RunNativeTest(
+            "TestCelestialSerializer::test_from_dict_restores_atmosphere",
+            Tests.Unit.TestCelestialSerializer.TestFromDictRestoresAtmosphere);
+        runner.RunNativeTest(
+            "TestCelestialSerializer::test_from_dict_restores_surface_components",
+            Tests.Unit.TestCelestialSerializer.TestFromDictRestoresSurfaceComponents);
+        runner.RunNativeTest(
+            "TestCelestialSerializer::test_stellar_round_trip",
+            Tests.Unit.TestCelestialSerializer.TestStellarRoundTrip);
+        runner.RunNativeTest(
+            "TestCelestialSerializer::test_from_dict_restores_provenance",
+            Tests.Unit.TestCelestialSerializer.TestFromDictRestoresProvenance);
+        runner.RunNativeTest(
+            "TestCelestialSerializer::test_json_round_trip",
+            Tests.Unit.TestCelestialSerializer.TestJsonRoundTrip);
+        runner.RunNativeTest(
+            "TestCelestialSerializer::test_from_dict_handles_missing_fields",
+            Tests.Unit.TestCelestialSerializer.TestFromDictHandlesMissingFields);
+        runner.RunNativeTest(
+            "TestCelestialSerializer::test_from_json_handles_invalid",
+            Tests.Unit.TestCelestialSerializer.TestFromJsonHandlesInvalid);
+        runner.RunNativeTest(
+            "TestCelestialSerializer::test_from_dict_handles_empty",
+            Tests.Unit.TestCelestialSerializer.TestFromDictHandlesEmpty);
+        runner.RunNativeTest(
+            "TestCelestialSerializer::test_schema_version_included",
+            Tests.Unit.TestCelestialSerializer.TestSchemaVersionIncluded);
+        runner.RunNativeTest(
+            "TestCelestialValidator::test_valid_body_passes",
+            Tests.Unit.TestCelestialValidator.TestValidBodyPasses);
+        runner.RunNativeTest(
+            "TestCelestialValidator::test_empty_id_fails",
+            Tests.Unit.TestCelestialValidator.TestEmptyIdFails);
+        runner.RunNativeTest(
+            "TestCelestialValidator::test_zero_mass_fails",
+            Tests.Unit.TestCelestialValidator.TestZeroMassFails);
+        runner.RunNativeTest(
+            "TestCelestialValidator::test_negative_mass_fails",
+            Tests.Unit.TestCelestialValidator.TestNegativeMassFails);
+        runner.RunNativeTest(
+            "TestCelestialValidator::test_zero_radius_fails",
+            Tests.Unit.TestCelestialValidator.TestZeroRadiusFails);
+        runner.RunNativeTest(
+            "TestCelestialValidator::test_negative_eccentricity_fails",
+            Tests.Unit.TestCelestialValidator.TestNegativeEccentricityFails);
+        runner.RunNativeTest(
+            "TestCelestialValidator::test_high_eccentricity_warns",
+            Tests.Unit.TestCelestialValidator.TestHighEccentricityWarns);
+        runner.RunNativeTest(
+            "TestCelestialValidator::test_invalid_albedo_fails",
+            Tests.Unit.TestCelestialValidator.TestInvalidAlbedoFails);
+        runner.RunNativeTest(
+            "TestCelestialValidator::test_negative_temperature_fails",
+            Tests.Unit.TestCelestialValidator.TestNegativeTemperatureFails);
+        runner.RunNativeTest(
+            "TestCelestialValidator::test_atmosphere_composition_warning",
+            Tests.Unit.TestCelestialValidator.TestAtmosphereCompositionWarning);
+        runner.RunNativeTest(
+            "TestCelestialValidator::test_ring_band_radius_order",
+            Tests.Unit.TestCelestialValidator.TestRingBandRadiusOrder);
+        runner.RunNativeTest(
+            "TestCelestialValidator::test_ring_band_inside_body_fails",
+            Tests.Unit.TestCelestialValidator.TestRingBandInsideBodyFails);
+        runner.RunNativeTest(
+            "TestCelestialValidator::test_valid_ring_system_passes",
+            Tests.Unit.TestCelestialValidator.TestValidRingSystemPasses);
+        runner.RunNativeTest(
+            "TestCelestialValidator::test_star_with_stellar_passes",
+            Tests.Unit.TestCelestialValidator.TestStarWithStellarPasses);
+        runner.RunNativeTest(
+            "TestCelestialValidator::test_star_without_stellar_warns",
+            Tests.Unit.TestCelestialValidator.TestStarWithoutStellarWarns);
+        runner.RunNativeTest(
+            "TestCelestialValidator::test_star_with_surface_warns",
+            Tests.Unit.TestCelestialValidator.TestStarWithSurfaceWarns);
+        runner.RunNativeTest(
+            "TestColorUtils::test_blackbody_hot_star_is_blue",
+            Tests.Unit.TestColorUtils.TestBlackbodyHotStarIsBlue);
+        runner.RunNativeTest(
+            "TestColorUtils::test_blackbody_solar_is_yellow_white",
+            Tests.Unit.TestColorUtils.TestBlackbodySolarIsYellowWhite);
+        runner.RunNativeTest(
+            "TestColorUtils::test_blackbody_cool_star_is_red",
+            Tests.Unit.TestColorUtils.TestBlackbodyCoolStarIsRed);
+        runner.RunNativeTest(
+            "TestColorUtils::test_blackbody_temperature_gradient",
+            Tests.Unit.TestColorUtils.TestBlackbodyTemperatureGradient);
+        runner.RunNativeTest(
+            "TestColorUtils::test_spectral_class_colors",
+            Tests.Unit.TestColorUtils.TestSpectralClassColors);
+        runner.RunNativeTest(
+            "TestColorUtils::test_atmosphere_nitrogen_is_blue",
+            Tests.Unit.TestColorUtils.TestAtmosphereNitrogenIsBlue);
+        runner.RunNativeTest(
+            "TestColorUtils::test_atmosphere_co2_is_orange",
+            Tests.Unit.TestColorUtils.TestAtmosphereCo2IsOrange);
+        runner.RunNativeTest(
+            "TestColorUtils::test_atmosphere_methaneis_cyan",
+            Tests.Unit.TestColorUtils.TestAtmosphereMethaneisCyan);
+        runner.RunNativeTest(
+            "TestColorUtils::test_surface_molten_is_red_orange",
+            Tests.Unit.TestColorUtils.TestSurfaceMoltenIsRedOrange);
+        runner.RunNativeTest(
+            "TestColorUtils::test_surface_icy_is_white_blue",
+            Tests.Unit.TestColorUtils.TestSurfaceIcyIsWhiteBlue);
+        runner.RunNativeTest(
+            "TestColorUtils::test_surface_rocky_is_gray_brown",
+            Tests.Unit.TestColorUtils.TestSurfaceRockyIsGrayBrown);
+        runner.RunNativeTest(
+            "TestColorUtils::test_asteroid_carbonaceous_is_dark",
+            Tests.Unit.TestColorUtils.TestAsteroidCarbonaceousIsDark);
+        runner.RunNativeTest(
+            "TestColorUtils::test_asteroid_metallic_is_gray",
+            Tests.Unit.TestColorUtils.TestAsteroidMetallicIsGray);
+        runner.RunNativeTest(
+            "TestColorUtils::test_ring_icy_is_bright",
+            Tests.Unit.TestColorUtils.TestRingIcyIsBright);
+        runner.RunNativeTest(
+            "TestColorUtils::test_ring_optical_depth_affects_alpha",
+            Tests.Unit.TestColorUtils.TestRingOpticalDepthAffectsAlpha);
+        runner.RunNativeTest(
+            "TestColorUtilsShaderParams::test_star_params_sun_like",
+            Tests.Unit.TestColorUtilsShaderParams.TestStarParamsSunLike);
+        runner.RunNativeTest(
+            "TestColorUtilsShaderParams::test_star_params_hot_o_type",
+            Tests.Unit.TestColorUtilsShaderParams.TestStarParamsHotOType);
+        runner.RunNativeTest(
+            "TestColorUtilsShaderParams::test_star_params_cool_m_type",
+            Tests.Unit.TestColorUtilsShaderParams.TestStarParamsCoolMType);
+        runner.RunNativeTest(
+            "TestColorUtilsShaderParams::test_star_params_young_active",
+            Tests.Unit.TestColorUtilsShaderParams.TestStarParamsYoungActive);
+        runner.RunNativeTest(
+            "TestColorUtilsShaderParams::test_star_params_deterministic_seed",
+            Tests.Unit.TestColorUtilsShaderParams.TestStarParamsDeterministicSeed);
+        runner.RunNativeTest(
+            "TestColorUtilsShaderParams::test_terrestrial_params_earth_like",
+            Tests.Unit.TestColorUtilsShaderParams.TestTerrestrialParamsEarthLike);
+        runner.RunNativeTest(
+            "TestColorUtilsShaderParams::test_terrestrial_params_desert_world",
+            Tests.Unit.TestColorUtilsShaderParams.TestTerrestrialParamsDesertWorld);
+        runner.RunNativeTest(
+            "TestColorUtilsShaderParams::test_terrestrial_params_ice_world",
+            Tests.Unit.TestColorUtilsShaderParams.TestTerrestrialParamsIceWorld);
+        runner.RunNativeTest(
+            "TestColorUtilsShaderParams::test_terrestrial_params_no_atmosphere",
+            Tests.Unit.TestColorUtilsShaderParams.TestTerrestrialParamsNoAtmosphere);
+        runner.RunNativeTest(
+            "TestColorUtilsShaderParams::test_gas_giant_params_jupiter_like",
+            Tests.Unit.TestColorUtilsShaderParams.TestGasGiantParamsJupiterLike);
+        runner.RunNativeTest(
+            "TestColorUtilsShaderParams::test_gas_giant_params_ice_giant",
+            Tests.Unit.TestColorUtilsShaderParams.TestGasGiantParamsIceGiant);
+        runner.RunNativeTest(
+            "TestColorUtilsShaderParams::test_gas_giant_params_hot_jupiter",
+            Tests.Unit.TestColorUtilsShaderParams.TestGasGiantParamsHotJupiter);
+        runner.RunNativeTest(
+            "TestColorUtilsShaderParams::test_ring_params_simple_ring",
+            Tests.Unit.TestColorUtilsShaderParams.TestRingParamsSimpleRing);
+        runner.RunNativeTest(
+            "TestColorUtilsShaderParams::test_ring_params_no_rings",
+            Tests.Unit.TestColorUtilsShaderParams.TestRingParamsNoRings);
+        runner.RunNativeTest(
+            "TestColorUtilsShaderParams::test_ring_params_complex_rings",
+            Tests.Unit.TestColorUtilsShaderParams.TestRingParamsComplexRings);
+        runner.RunNativeTest(
+            "TestConstraintSet::test_set_and_get",
+            Tests.Unit.TestConstraintSet.TestSetAndGet);
+        runner.RunNativeTest(
+            "TestConstraintSet::test_get_missing_returns_null",
+            Tests.Unit.TestConstraintSet.TestGetMissingReturnsNull);
+        runner.RunNativeTest(
+            "TestConstraintSet::test_lock_and_unlock",
+            Tests.Unit.TestConstraintSet.TestLockAndUnlock);
+        runner.RunNativeTest(
+            "TestConstraintSet::test_lock_missing_is_noop",
+            Tests.Unit.TestConstraintSet.TestLockMissingIsNoop);
+        runner.RunNativeTest(
+            "TestConstraintSet::test_get_locked_paths",
+            Tests.Unit.TestConstraintSet.TestGetLockedPaths);
+        runner.RunNativeTest(
+            "TestConstraintSet::test_get_locked_overrides_matches_spec_format",
+            Tests.Unit.TestConstraintSet.TestGetLockedOverridesMatchesSpecFormat);
+        runner.RunNativeTest(
+            "TestConstraintSet::test_set_value_does_not_clamp",
+            Tests.Unit.TestConstraintSet.TestSetValueDoesNotClamp);
+        runner.RunNativeTest(
+            "TestConstraintSet::test_is_consistent_all_good",
+            Tests.Unit.TestConstraintSet.TestIsConsistentAllGood);
+        runner.RunNativeTest(
+            "TestConstraintSet::test_is_consistent_detects_out_of_range",
+            Tests.Unit.TestConstraintSet.TestIsConsistentDetectsOutOfRange);
+        runner.RunNativeTest(
+            "TestConstraintSet::test_is_consistent_detects_unsatisfiable",
+            Tests.Unit.TestConstraintSet.TestIsConsistentDetectsUnsatisfiable);
+        runner.RunNativeTest(
+            "TestConstraintSet::test_clamp_unlocked_clamps_only_unlocked",
+            Tests.Unit.TestConstraintSet.TestClampUnlockedClampsOnlyUnlocked);
+        runner.RunNativeTest(
+            "TestConstraintSet::test_clamp_unlocked_returns_empty_when_all_in_range",
+            Tests.Unit.TestConstraintSet.TestClampUnlockedReturnsEmptyWhenAllInRange);
+        runner.RunNativeTest(
+            "TestEditRegenerator::test_planet_regeneration_produces_valid_body",
+            Tests.Unit.TestEditRegenerator.TestPlanetRegenerationProducesValidBody);
+        runner.RunNativeTest(
+            "TestEditRegenerator::test_star_regeneration_produces_valid_body",
+            Tests.Unit.TestEditRegenerator.TestStarRegenerationProducesValidBody);
+        runner.RunNativeTest(
+            "TestEditRegenerator::test_locked_orbital_eccentricity_survives_planet_regeneration",
+            Tests.Unit.TestEditRegenerator.TestLockedOrbitalEccentricitySurvivesPlanetRegeneration);
+        runner.RunNativeTest(
+            "TestEditRegenerator::test_locked_semi_major_axis_survives_planet_regeneration",
+            Tests.Unit.TestEditRegenerator.TestLockedSemiMajorAxisSurvivesPlanetRegeneration);
+        runner.RunNativeTest(
+            "TestEditRegenerator::test_locked_star_mass_survives_regeneration",
+            Tests.Unit.TestEditRegenerator.TestLockedStarMassSurvivesRegeneration);
+        runner.RunNativeTest(
+            "TestEditRegenerator::test_same_seed_same_locks_is_deterministic",
+            Tests.Unit.TestEditRegenerator.TestSameSeedSameLocksIsDeterministic);
+        runner.RunNativeTest(
+            "TestEditRegenerator::test_different_seeds_change_unlocked_properties",
+            Tests.Unit.TestEditRegenerator.TestDifferentSeedsChangeUnlockedProperties);
+        runner.RunNativeTest(
+            "TestEditRegenerator::test_unsupported_type_returns_error",
+            Tests.Unit.TestEditRegenerator.TestUnsupportedTypeReturnsError);
+        runner.RunNativeTest(
+            "TestEditSpecBuilder::test_planet_locks_pass_through_unchanged",
+            Tests.Unit.TestEditSpecBuilder.TestPlanetLocksPassThroughUnchanged);
+        runner.RunNativeTest(
+            "TestEditSpecBuilder::test_star_mass_lock_writes_solar_alias",
+            Tests.Unit.TestEditSpecBuilder.TestStarMassLockWritesSolarAlias);
+        runner.RunNativeTest(
+            "TestEditSpecBuilder::test_star_luminosity_lock_writes_solar_alias",
+            Tests.Unit.TestEditSpecBuilder.TestStarLuminosityLockWritesSolarAlias);
+        runner.RunNativeTest(
+            "TestEditSpecBuilder::test_star_temperature_k_written_as_base_path",
+            Tests.Unit.TestEditSpecBuilder.TestStarTemperatureKWrittenAsBasePath);
+        runner.RunNativeTest(
+            "TestEditSpecBuilder::test_unlocked_properties_excluded",
+            Tests.Unit.TestEditSpecBuilder.TestUnlockedPropertiesExcluded);
+        runner.RunNativeTest(
+            "TestEditSpecBuilder::test_apply_to_spec_clears_and_populates",
+            Tests.Unit.TestEditSpecBuilder.TestApplyToSpecClearsAndPopulates);
+        runner.RunNativeTest(
+            "TestEditSpecBuilder::test_empty_locks_produce_empty_overrides",
+            Tests.Unit.TestEditSpecBuilder.TestEmptyLocksProduceEmptyOverrides);
+        runner.RunNativeTest(
+            "TestGalaxy::test_create_default",
+            Tests.Unit.TestGalaxy.TestCreateDefault);
+        runner.RunNativeTest(
+            "TestGalaxy::test_create_with_config",
+            Tests.Unit.TestGalaxy.TestCreateWithConfig);
+        runner.RunNativeTest(
+            "TestGalaxy::test_get_sector_creates_sector",
+            Tests.Unit.TestGalaxy.TestGetSectorCreatesSector);
+        runner.RunNativeTest(
+            "TestGalaxy::test_get_sector_caches_sector",
+            Tests.Unit.TestGalaxy.TestGetSectorCachesSector);
+        runner.RunNativeTest(
+            "TestGalaxy::test_get_sector_different_coords_different_sectors",
+            Tests.Unit.TestGalaxy.TestGetSectorDifferentCoordsDifferentSectors);
+        runner.RunNativeTest(
+            "TestGalaxy::test_get_sector_at_position",
+            Tests.Unit.TestGalaxy.TestGetSectorAtPosition);
+        runner.RunNativeTest(
+            "TestGalaxy::test_get_stars_in_sector",
+            Tests.Unit.TestGalaxy.TestGetStarsInSector);
+        runner.RunNativeTest(
+            "TestGalaxy::test_get_stars_in_sector_deterministic",
+            Tests.Unit.TestGalaxy.TestGetStarsInSectorDeterministic);
+        runner.RunNativeTest(
+            "TestGalaxy::test_get_stars_in_subsector",
+            Tests.Unit.TestGalaxy.TestGetStarsInSubsector);
+        runner.RunNativeTest(
+            "TestGalaxy::test_cache_system",
+            Tests.Unit.TestGalaxy.TestCacheSystem);
+        runner.RunNativeTest(
+            "TestGalaxy::test_get_cached_system_returns_null_for_missing",
+            Tests.Unit.TestGalaxy.TestGetCachedSystemReturnsNullForMissing);
+        runner.RunNativeTest(
+            "TestGalaxy::test_clear_cache",
+            Tests.Unit.TestGalaxy.TestClearCache);
+        runner.RunNativeTest(
+            "TestGalaxy::test_to_dict_and_from_dict",
+            Tests.Unit.TestGalaxy.TestToDictAndFromDict);
+        runner.RunNativeTest(
+            "TestGalaxy::test_get_stars_in_radius",
+            Tests.Unit.TestGalaxy.TestGetStarsInRadius);
+        runner.RunNativeTest(
+            "TestGalaxy::test_different_galaxy_seeds_different_stars",
+            Tests.Unit.TestGalaxy.TestDifferentGalaxySeedsDifferentStars);
+        runner.RunNativeTest(
+            "TestGalaxy::test_stars_have_metallicity",
+            Tests.Unit.TestGalaxy.TestStarsHaveMetallicity);
+        runner.RunNativeTest(
+            "TestGalaxyBodyOverrides::test_empty_state",
+            Tests.Unit.TestGalaxyBodyOverrides.TestEmptyState);
+        runner.RunNativeTest(
+            "TestGalaxyBodyOverrides::test_set_and_get_override",
+            Tests.Unit.TestGalaxyBodyOverrides.TestSetAndGetOverride);
+        runner.RunNativeTest(
+            "TestGalaxyBodyOverrides::test_get_override_missing_returns_empty",
+            Tests.Unit.TestGalaxyBodyOverrides.TestGetOverrideMissingReturnsEmpty);
+        runner.RunNativeTest(
+            "TestGalaxyBodyOverrides::test_clear_override",
+            Tests.Unit.TestGalaxyBodyOverrides.TestClearOverride);
+        runner.RunNativeTest(
+            "TestGalaxyBodyOverrides::test_multiple_bodies_same_system",
+            Tests.Unit.TestGalaxyBodyOverrides.TestMultipleBodiesSameSystem);
+        runner.RunNativeTest(
+            "TestGalaxyBodyOverrides::test_set_override_dict",
+            Tests.Unit.TestGalaxyBodyOverrides.TestSetOverrideDict);
+        runner.RunNativeTest(
+            "TestGalaxyBodyOverrides::test_rejects_null_body",
+            Tests.Unit.TestGalaxyBodyOverrides.TestRejectsNullBody);
+        runner.RunNativeTest(
+            "TestGalaxyBodyOverrides::test_rejects_empty_body_id",
+            Tests.Unit.TestGalaxyBodyOverrides.TestRejectsEmptyBodyId);
+        runner.RunNativeTest(
+            "TestGalaxyBodyOverrides::test_to_dict_from_dict_round_trip",
+            Tests.Unit.TestGalaxyBodyOverrides.TestToDictFromDictRoundTrip);
+        runner.RunNativeTest(
+            "TestGalaxyBodyOverrides::test_apply_to_bodies_replaces_matching",
+            Tests.Unit.TestGalaxyBodyOverrides.TestApplyToBodiesReplacesMatching);
+        runner.RunNativeTest(
+            "TestGalaxyBodyOverrides::test_apply_to_bodies_no_op_wrong_seed",
+            Tests.Unit.TestGalaxyBodyOverrides.TestApplyToBodiesNoOpWrongSeed);
+        runner.RunNativeTest(
+            "TestGalaxyBodyOverrides::test_apply_to_bodies_handles_nulls_in_array",
+            Tests.Unit.TestGalaxyBodyOverrides.TestApplyToBodiesHandlesNullsInArray);
+        runner.RunNativeTest(
+            "TestGalaxyConfig::test_create_default_returns_valid_config",
+            Tests.Unit.TestGalaxyConfig.TestCreateDefaultReturnsValidConfig);
+        runner.RunNativeTest(
+            "TestGalaxyConfig::test_create_milky_way_sets_spiral_params",
+            Tests.Unit.TestGalaxyConfig.TestCreateMilkyWaySetsSpiralParams);
+        runner.RunNativeTest(
+            "TestGalaxyConfig::test_is_valid_rejects_bad_type",
+            Tests.Unit.TestGalaxyConfig.TestIsValidRejectsBadType);
+        runner.RunNativeTest(
+            "TestGalaxyConfig::test_is_valid_rejects_bad_num_arms",
+            Tests.Unit.TestGalaxyConfig.TestIsValidRejectsBadNumArms);
+        runner.RunNativeTest(
+            "TestGalaxyConfig::test_is_valid_rejects_bad_radius",
+            Tests.Unit.TestGalaxyConfig.TestIsValidRejectsBadRadius);
+        runner.RunNativeTest(
+            "TestGalaxyConfig::test_to_dict_round_trip",
+            Tests.Unit.TestGalaxyConfig.TestToDictRoundTrip);
+        runner.RunNativeTest(
+            "TestGalaxyConfig::test_from_dict_empty_returns_null",
+            Tests.Unit.TestGalaxyConfig.TestFromDictEmptyReturnsNull);
+        runner.RunNativeTest(
+            "TestGalaxyConfig::test_get_type_name_spiral",
+            Tests.Unit.TestGalaxyConfig.TestGetTypeNameSpiral);
+        runner.RunNativeTest(
+            "TestGalaxyConfig::test_get_type_name_elliptical",
+            Tests.Unit.TestGalaxyConfig.TestGetTypeNameElliptical);
+        runner.RunNativeTest(
+            "TestGalaxyConfig::test_apply_to_spec",
+            Tests.Unit.TestGalaxyConfig.TestApplyToSpec);
+        runner.RunNativeTest(
+            "TestGalaxyInspectorPanel::test_instantiates",
+            Tests.Unit.TestGalaxyInspectorPanel.TestInstantiates);
+        runner.RunNativeTest(
+            "TestGalaxyInspectorPanel::test_starts_without_star_selected",
+            Tests.Unit.TestGalaxyInspectorPanel.TestStartsWithoutStarSelected);
+        runner.RunNativeTest(
+            "TestGalaxyInspectorPanel::test_display_selected_star_sets_selection",
+            Tests.Unit.TestGalaxyInspectorPanel.TestDisplaySelectedStarSetsSelection);
+        runner.RunNativeTest(
+            "TestGalaxyInspectorPanel::test_clear_selection_removes_star",
+            Tests.Unit.TestGalaxyInspectorPanel.TestClearSelectionRemovesStar);
+        runner.RunNativeTest(
+            "TestGalaxyInspectorPanel::test_display_selected_quadrant_clears_star",
+            Tests.Unit.TestGalaxyInspectorPanel.TestDisplaySelectedQuadrantClearsStar);
+        runner.RunNativeTest(
+            "TestGalaxyInspectorPanel::test_display_selected_sector_clears_star",
+            Tests.Unit.TestGalaxyInspectorPanel.TestDisplaySelectedSectorClearsStar);
+        runner.RunNativeTest(
+            "TestGalaxyInspectorPanel::test_display_galaxy_with_spec",
+            Tests.Unit.TestGalaxyInspectorPanel.TestDisplayGalaxyWithSpec);
+        runner.RunNativeTest(
+            "TestGalaxyInspectorPanel::test_display_galaxy_with_null_spec",
+            Tests.Unit.TestGalaxyInspectorPanel.TestDisplayGalaxyWithNullSpec);
+        runner.RunNativeTest(
+            "TestGalaxySaveData::test_create_sets_timestamp",
+            Tests.Unit.TestGalaxySaveData.TestCreateSetsTimestamp);
+        runner.RunNativeTest(
+            "TestGalaxySaveData::test_default_values",
+            Tests.Unit.TestGalaxySaveData.TestDefaultValues);
+        runner.RunNativeTest(
+            "TestGalaxySaveData::test_is_valid_with_defaults",
+            Tests.Unit.TestGalaxySaveData.TestIsValidWithDefaults);
+        runner.RunNativeTest(
+            "TestGalaxySaveData::test_is_valid_rejects_zero_seed",
+            Tests.Unit.TestGalaxySaveData.TestIsValidRejectsZeroSeed);
+        runner.RunNativeTest(
+            "TestGalaxySaveData::test_is_valid_rejects_invalid_zoom",
+            Tests.Unit.TestGalaxySaveData.TestIsValidRejectsInvalidZoom);
+        runner.RunNativeTest(
+            "TestGalaxySaveData::test_to_dict_contains_required_fields",
+            Tests.Unit.TestGalaxySaveData.TestToDictContainsRequiredFields);
+        runner.RunNativeTest(
+            "TestGalaxySaveData::test_round_trip_basic",
+            Tests.Unit.TestGalaxySaveData.TestRoundTripBasic);
+        runner.RunNativeTest(
+            "TestGalaxySaveData::test_round_trip_with_quadrant",
+            Tests.Unit.TestGalaxySaveData.TestRoundTripWithQuadrant);
+        runner.RunNativeTest(
+            "TestGalaxySaveData::test_round_trip_with_sector",
+            Tests.Unit.TestGalaxySaveData.TestRoundTripWithSector);
+        runner.RunNativeTest(
+            "TestGalaxySaveData::test_round_trip_with_camera",
+            Tests.Unit.TestGalaxySaveData.TestRoundTripWithCamera);
+        runner.RunNativeTest(
+            "TestGalaxySaveData::test_round_trip_with_star_selection",
+            Tests.Unit.TestGalaxySaveData.TestRoundTripWithStarSelection);
+        runner.RunNativeTest(
+            "TestGalaxySaveData::test_null_quadrant_serializes",
+            Tests.Unit.TestGalaxySaveData.TestNullQuadrantSerializes);
+        runner.RunNativeTest(
+            "TestGalaxySaveData::test_from_dict_returns_null_for_invalid",
+            Tests.Unit.TestGalaxySaveData.TestFromDictReturnsNullForInvalid);
+        runner.RunNativeTest(
+            "TestGalaxySaveData::test_from_dict_returns_null_for_empty",
+            Tests.Unit.TestGalaxySaveData.TestFromDictReturnsNullForEmpty);
+        runner.RunNativeTest(
+            "TestGalaxySaveData::test_get_summary",
+            Tests.Unit.TestGalaxySaveData.TestGetSummary);
+        runner.RunNativeTest(
+            "TestGalaxySaveData::test_vector3_conversion",
+            Tests.Unit.TestGalaxySaveData.TestVector3Conversion);
+        runner.RunNativeTest(
+            "TestGalaxySaveData::test_vector3i_conversion",
+            Tests.Unit.TestGalaxySaveData.TestVector3iConversion);
+        runner.RunNativeTest(
+            "TestGalaxySaveData::test_body_overrides_default_empty",
+            Tests.Unit.TestGalaxySaveData.TestBodyOverridesDefaultEmpty);
+        runner.RunNativeTest(
+            "TestGalaxySaveData::test_body_overrides_round_trip",
+            Tests.Unit.TestGalaxySaveData.TestBodyOverridesRoundTrip);
+        runner.RunNativeTest(
+            "TestGalaxySaveData::test_body_overrides_absent_field_legacy_save",
+            Tests.Unit.TestGalaxySaveData.TestBodyOverridesAbsentFieldLegacySave);
+        runner.RunNativeTest(
+            "TestGalaxySaveData::test_set_body_overrides_null_clears",
+            Tests.Unit.TestGalaxySaveData.TestSetBodyOverridesNullClears);
+        runner.RunNativeTest(
+            "TestGalaxyStar::test_basic_creation",
+            Tests.Unit.TestGalaxyStar.TestBasicCreation);
+        runner.RunNativeTest(
+            "TestGalaxyStar::test_create_with_derived_properties",
+            Tests.Unit.TestGalaxyStar.TestCreateWithDerivedProperties);
+        runner.RunNativeTest(
+            "TestGalaxyStar::test_metallicity_gradient_radial",
+            Tests.Unit.TestGalaxyStar.TestMetallicityGradientRadial);
+        runner.RunNativeTest(
+            "TestGalaxyStar::test_metallicity_gradient_vertical",
+            Tests.Unit.TestGalaxyStar.TestMetallicityGradientVertical);
+        runner.RunNativeTest(
+            "TestGalaxyStar::test_age_bias_bulge",
+            Tests.Unit.TestGalaxyStar.TestAgeBiasBulge);
+        runner.RunNativeTest(
+            "TestGalaxyStar::test_distance_helpers",
+            Tests.Unit.TestGalaxyStar.TestDistanceHelpers);
+        runner.RunNativeTest(
+            "TestGalaxyStar::test_to_string",
+            Tests.Unit.TestGalaxyStar.TestToString);
+        runner.RunNativeTest(
+            "TestGalaxySystemGenerator::test_generate_system_from_star",
+            Tests.Unit.TestGalaxySystemGenerator.TestGenerateSystemFromStar);
+        runner.RunNativeTest(
+            "TestGalaxySystemGenerator::test_generate_system_deterministic",
+            Tests.Unit.TestGalaxySystemGenerator.TestGenerateSystemDeterministic);
+        runner.RunNativeTest(
+            "TestGalaxySystemGenerator::test_generate_system_different_seeds_different_results",
+            Tests.Unit.TestGalaxySystemGenerator.TestGenerateSystemDifferentSeedsDifferentResults);
+        runner.RunNativeTest(
+            "TestGalaxySystemGenerator::test_generate_system_null_star_returns_null",
+            Tests.Unit.TestGalaxySystemGenerator.TestGenerateSystemNullStarReturnsNull);
+        runner.RunNativeTest(
+            "TestGalaxySystemGenerator::test_generate_system_without_asteroids",
+            Tests.Unit.TestGalaxySystemGenerator.TestGenerateSystemWithoutAsteroids);
+        runner.RunNativeTest(
+            "TestGalaxySystemGenerator::test_metallicity_applied_to_spec",
+            Tests.Unit.TestGalaxySystemGenerator.TestMetallicityAppliedToSpec);
+        runner.RunNativeTest(
+            "TestGalaxySystemGenerator::test_generate_system_has_valid_hierarchy",
+            Tests.Unit.TestGalaxySystemGenerator.TestGenerateSystemHasValidHierarchy);
+        runner.RunNativeTest(
+            "TestGalaxySystemGenerator::test_generate_system_planets_have_parent_ids",
+            Tests.Unit.TestGalaxySystemGenerator.TestGenerateSystemPlanetsHaveParentIds);
+        runner.RunNativeTest(
+            "TestGalaxySystemGenerator::test_generate_system_provenance_has_spec_snapshot",
+            Tests.Unit.TestGalaxySystemGenerator.TestGenerateSystemProvenanceHasSpecSnapshot);
+        runner.RunNativeTest(
+            "TestGalaxySystemGenerator::test_generate_system_without_overrides_unchanged",
+            Tests.Unit.TestGalaxySystemGenerator.TestGenerateSystemWithoutOverridesUnchanged);
+        runner.RunNativeTest(
+            "TestGalaxySystemGenerator::test_generate_system_applies_planet_override",
+            Tests.Unit.TestGalaxySystemGenerator.TestGenerateSystemAppliesPlanetOverride);
+        runner.RunNativeTest(
+            "TestGalaxySystemGenerator::test_generate_system_ignores_overrides_for_other_seeds",
+            Tests.Unit.TestGalaxySystemGenerator.TestGenerateSystemIgnoresOverridesForOtherSeeds);
+        runner.RunNativeTest(
+            "TestGasGiantShaderParams::test_jupiter_like_params",
+            Tests.Unit.TestGasGiantShaderParams.TestJupiterLikeParams);
+        runner.RunNativeTest(
+            "TestGasGiantShaderParams::test_neptune_like_params",
+            Tests.Unit.TestGasGiantShaderParams.TestNeptuneLikeParams);
+        runner.RunNativeTest(
+            "TestGasGiantShaderParams::test_hot_jupiter_params",
+            Tests.Unit.TestGasGiantShaderParams.TestHotJupiterParams);
+        runner.RunNativeTest(
+            "TestGasGiantShaderParams::test_determinism_same_seed",
+            Tests.Unit.TestGasGiantShaderParams.TestDeterminismSameSeed);
+        runner.RunNativeTest(
+            "TestGasGiantShaderParams::test_determinism_different_seed",
+            Tests.Unit.TestGasGiantShaderParams.TestDeterminismDifferentSeed);
+        runner.RunNativeTest(
+            "TestGasGiantShaderParams::test_is_gas_giant_true",
+            Tests.Unit.TestGasGiantShaderParams.TestIsGasGiantTrue);
+        runner.RunNativeTest(
+            "TestGasGiantShaderParams::test_is_gas_giant_false_small_mass",
+            Tests.Unit.TestGasGiantShaderParams.TestIsGasGiantFalseSmallMass);
+        runner.RunNativeTest(
+            "TestGasGiantShaderParams::test_is_gas_giant_false_terrain",
+            Tests.Unit.TestGasGiantShaderParams.TestIsGasGiantFalseTerrain);
+        runner.RunNativeTest(
+            "TestGenerationRealismProfile::test_from_slider_zero_is_stylized",
+            Tests.Unit.TestGenerationRealismProfile.TestFromSliderZeroIsStylized);
+        runner.RunNativeTest(
+            "TestGenerationRealismProfile::test_from_slider_one_is_calibrated",
+            Tests.Unit.TestGenerationRealismProfile.TestFromSliderOneIsCalibrated);
+        runner.RunNativeTest(
+            "TestGenerationRealismProfile::test_from_slider_mid_is_balanced",
+            Tests.Unit.TestGenerationRealismProfile.TestFromSliderMidIsBalanced);
+        runner.RunNativeTest(
+            "TestGenerationRealismProfile::test_from_slider_clamped",
+            Tests.Unit.TestGenerationRealismProfile.TestFromSliderClamped);
+        runner.RunNativeTest(
+            "TestGenerationRealismProfile::test_static_factories",
+            Tests.Unit.TestGenerationRealismProfile.TestStaticFactories);
+        runner.RunNativeTest(
+            "TestGenerationRealismProfile::test_same_slider_same_mode",
+            Tests.Unit.TestGenerationRealismProfile.TestSameSliderSameMode);
+        runner.RunNativeTest(
+            "TestGoldenMasters::test_all_fixtures_generate",
+            Tests.Unit.TestGoldenMasters.TestAllFixturesGenerate);
+        runner.RunNativeTest(
+            "TestGoldenMasters::test_star_determinism",
+            Tests.Unit.TestGoldenMasters.TestStarDeterminism);
+        runner.RunNativeTest(
+            "TestGoldenMasters::test_planet_determinism",
+            Tests.Unit.TestGoldenMasters.TestPlanetDeterminism);
+        runner.RunNativeTest(
+            "TestGoldenMasters::test_moon_determinism",
+            Tests.Unit.TestGoldenMasters.TestMoonDeterminism);
+        runner.RunNativeTest(
+            "TestGoldenMasters::test_asteroid_determinism",
+            Tests.Unit.TestGoldenMasters.TestAsteroidDeterminism);
+        runner.RunNativeTest(
+            "TestGoldenMasters::test_fixtures_export_to_json",
+            Tests.Unit.TestGoldenMasters.TestFixturesExportToJson);
+        runner.RunNativeTest(
+            "TestGoldenMasters::test_star_range_validation",
+            Tests.Unit.TestGoldenMasters.TestStarRangeValidation);
+        runner.RunNativeTest(
+            "TestGoldenMasters::test_planet_range_validation",
+            Tests.Unit.TestGoldenMasters.TestPlanetRangeValidation);
+        runner.RunNativeTest(
+            "TestGoldenMasters::test_moon_range_validation",
+            Tests.Unit.TestGoldenMasters.TestMoonRangeValidation);
+        runner.RunNativeTest(
+            "TestGoldenMasters::test_asteroid_range_validation",
+            Tests.Unit.TestGoldenMasters.TestAsteroidRangeValidation);
+        runner.RunNativeTest(
+            "TestGoldenMasters::test_stellar_physics_relationships",
+            Tests.Unit.TestGoldenMasters.TestStellarPhysicsRelationships);
+        runner.RunNativeTest(
+            "TestGoldenMasters::test_serialization_roundtrip",
+            Tests.Unit.TestGoldenMasters.TestSerializationRoundtrip);
+        runner.RunNativeTest(
+            "TestHierarchyNode::test_create_star_node",
+            Tests.Unit.TestHierarchyNode.TestCreateStarNode);
+        runner.RunNativeTest(
+            "TestHierarchyNode::test_create_barycenter_node",
+            Tests.Unit.TestHierarchyNode.TestCreateBarycenterNode);
+        runner.RunNativeTest(
+            "TestHierarchyNode::test_get_all_star_ids_single",
+            Tests.Unit.TestHierarchyNode.TestGetAllStarIdsSingle);
+        runner.RunNativeTest(
+            "TestHierarchyNode::test_get_all_star_ids_binary",
+            Tests.Unit.TestHierarchyNode.TestGetAllStarIdsBinary);
+        runner.RunNativeTest(
+            "TestHierarchyNode::test_get_all_star_ids_triple",
+            Tests.Unit.TestHierarchyNode.TestGetAllStarIdsTriple);
+        runner.RunNativeTest(
+            "TestHierarchyNode::test_get_depth_single",
+            Tests.Unit.TestHierarchyNode.TestGetDepthSingle);
+        runner.RunNativeTest(
+            "TestHierarchyNode::test_get_depth_binary",
+            Tests.Unit.TestHierarchyNode.TestGetDepthBinary);
+        runner.RunNativeTest(
+            "TestHierarchyNode::test_get_depth_triple",
+            Tests.Unit.TestHierarchyNode.TestGetDepthTriple);
+        runner.RunNativeTest(
+            "TestHierarchyNode::test_find_node",
+            Tests.Unit.TestHierarchyNode.TestFindNode);
+        runner.RunNativeTest(
+            "TestHierarchyNode::test_round_trip_star",
+            Tests.Unit.TestHierarchyNode.TestRoundTripStar);
+        runner.RunNativeTest(
+            "TestHierarchyNode::test_round_trip_barycenter",
+            Tests.Unit.TestHierarchyNode.TestRoundTripBarycenter);
+        runner.RunNativeTest(
+            "TestHomePosition::test_default_position_distance_from_center",
+            Tests.Unit.TestHomePosition.TestDefaultPositionDistanceFromCenter);
+        runner.RunNativeTest(
+            "TestHomePosition::test_default_position_height",
+            Tests.Unit.TestHomePosition.TestDefaultPositionHeight);
+        runner.RunNativeTest(
+            "TestHomePosition::test_home_quadrant_is_valid",
+            Tests.Unit.TestHomePosition.TestHomeQuadrantIsValid);
+        runner.RunNativeTest(
+            "TestHomePosition::test_home_hierarchy_is_consistent",
+            Tests.Unit.TestHomePosition.TestHomeHierarchyIsConsistent);
+        runner.RunNativeTest(
+            "TestHomePosition::test_home_sector_coords_in_range",
+            Tests.Unit.TestHomePosition.TestHomeSectorCoordsInRange);
+        runner.RunNativeTest(
+            "TestHomePosition::test_home_subsector_coords_in_range",
+            Tests.Unit.TestHomePosition.TestHomeSubsectorCoordsInRange);
+        runner.RunNativeTest(
+            "TestHomePosition::test_home_sector_origin_is_within_galaxy",
+            Tests.Unit.TestHomePosition.TestHomeSectorOriginIsWithinGalaxy);
+        runner.RunNativeTest(
+            "TestHomePosition::test_home_sector_center_is_near_default_position",
+            Tests.Unit.TestHomePosition.TestHomeSectorCenterIsNearDefaultPosition);
+        runner.RunNativeTest(
+            "TestHomePosition::test_home_subsector_center_is_near_default_position",
+            Tests.Unit.TestHomePosition.TestHomeSubsectorCenterIsNearDefaultPosition);
+        runner.RunNativeTest(
+            "TestHomePosition::test_is_within_galaxy_accepts_valid_position",
+            Tests.Unit.TestHomePosition.TestIsWithinGalaxyAcceptsValidPosition);
+        runner.RunNativeTest(
+            "TestHomePosition::test_is_within_galaxy_rejects_too_far",
+            Tests.Unit.TestHomePosition.TestIsWithinGalaxyRejectsTooFar);
+        runner.RunNativeTest(
+            "TestHomePosition::test_is_within_galaxy_rejects_too_high",
+            Tests.Unit.TestHomePosition.TestIsWithinGalaxyRejectsTooHigh);
+        runner.RunNativeTest(
+            "TestHomePosition::test_default_position_is_deterministic",
+            Tests.Unit.TestHomePosition.TestDefaultPositionIsDeterministic);
+        runner.RunNativeTest(
+            "TestMaterialFactory::test_null_body_returns_default_material",
+            Tests.Unit.TestMaterialFactory.TestNullBodyReturnsDefaultMaterial);
+        runner.RunNativeTest(
+            "TestMaterialFactory::test_same_body_reuses_cached_material",
+            Tests.Unit.TestMaterialFactory.TestSameBodyReusesCachedMaterial);
+        runner.RunNativeTest(
+            "TestMaterialFactory::test_star_body_uses_star_shader_material",
+            Tests.Unit.TestMaterialFactory.TestStarBodyUsesStarShaderMaterial);
+        runner.RunNativeTest(
+            "TestMathUtils::test_is_in_range_float_inside",
+            Tests.Unit.TestMathUtils.TestIsInRangeFloatInside);
+        runner.RunNativeTest(
+            "TestMathUtils::test_is_in_range_float_outside",
+            Tests.Unit.TestMathUtils.TestIsInRangeFloatOutside);
+        runner.RunNativeTest(
+            "TestMathUtils::test_is_in_range_int_inside",
+            Tests.Unit.TestMathUtils.TestIsInRangeIntInside);
+        runner.RunNativeTest(
+            "TestMathUtils::test_is_in_range_int_outside",
+            Tests.Unit.TestMathUtils.TestIsInRangeIntOutside);
+        runner.RunNativeTest(
+            "TestMathUtils::test_remap_standard",
+            Tests.Unit.TestMathUtils.TestRemapStandard);
+        runner.RunNativeTest(
+            "TestMathUtils::test_remap_boundaries",
+            Tests.Unit.TestMathUtils.TestRemapBoundaries);
+        runner.RunNativeTest(
+            "TestMathUtils::test_remap_inverted_range",
+            Tests.Unit.TestMathUtils.TestRemapInvertedRange);
+        runner.RunNativeTest(
+            "TestMathUtils::test_remap_zero_source_range",
+            Tests.Unit.TestMathUtils.TestRemapZeroSourceRange);
+        runner.RunNativeTest(
+            "TestMathUtils::test_remap_clamped",
+            Tests.Unit.TestMathUtils.TestRemapClamped);
+        runner.RunNativeTest(
+            "TestMathUtils::test_inverse_lerp",
+            Tests.Unit.TestMathUtils.TestInverseLerp);
+        runner.RunNativeTest(
+            "TestMathUtils::test_inverse_lerp_zero_range",
+            Tests.Unit.TestMathUtils.TestInverseLerpZeroRange);
+        runner.RunNativeTest(
+            "TestMathUtils::test_smooth_lerp_range",
+            Tests.Unit.TestMathUtils.TestSmoothLerpRange);
+        runner.RunNativeTest(
+            "TestMathUtils::test_smooth_lerp_clamped_weight",
+            Tests.Unit.TestMathUtils.TestSmoothLerpClampedWeight);
+        runner.RunNativeTest(
+            "TestMoonGenerator::test_generate_returns_celestial_body",
+            Tests.Unit.TestMoonGenerator.TestGenerateReturnsCelestialBody);
+        runner.RunNativeTest(
+            "TestMoonGenerator::test_generate_is_deterministic",
+            Tests.Unit.TestMoonGenerator.TestGenerateIsDeterministic);
+        runner.RunNativeTest(
+            "TestMoonGenerator::test_generate_respects_size_category_override",
+            Tests.Unit.TestMoonGenerator.TestGenerateRespectsSizeCategoryOverride);
+        runner.RunNativeTest(
+            "TestMoonGenerator::test_luna_like_spec",
+            Tests.Unit.TestMoonGenerator.TestLunaLikeSpec);
+        runner.RunNativeTest(
+            "TestMoonGenerator::test_europa_like_spec",
+            Tests.Unit.TestMoonGenerator.TestEuropaLikeSpec);
+        runner.RunNativeTest(
+            "TestMoonGenerator::test_titan_like_spec",
+            Tests.Unit.TestMoonGenerator.TestTitanLikeSpec);
+        runner.RunNativeTest(
+            "TestMoonGenerator::test_captured_moon_spec",
+            Tests.Unit.TestMoonGenerator.TestCapturedMoonSpec);
+        runner.RunNativeTest(
+            "TestMoonGenerator::test_orbital_distance_within_hill_sphere",
+            Tests.Unit.TestMoonGenerator.TestOrbitalDistanceWithinHillSphere);
+        runner.RunNativeTest(
+            "TestMoonGenerator::test_orbital_distance_outside_roche_limit",
+            Tests.Unit.TestMoonGenerator.TestOrbitalDistanceOutsideRocheLimit);
+        runner.RunNativeTest(
+            "TestMoonGenerator::test_tidal_locking",
+            Tests.Unit.TestMoonGenerator.TestTidalLocking);
+        runner.RunNativeTest(
+            "TestMoonGenerator::test_different_seeds_produce_different_moons",
+            Tests.Unit.TestMoonGenerator.TestDifferentSeedsProduceDifferentMoons);
+        runner.RunNativeTest(
+            "TestOrbitalMechanics::test_calculate_orbital_period_earth",
+            Tests.Unit.TestOrbitalMechanics.TestCalculateOrbitalPeriodEarth);
+        runner.RunNativeTest(
+            "TestOrbitalMechanics::test_calculate_orbital_period_jupiter",
+            Tests.Unit.TestOrbitalMechanics.TestCalculateOrbitalPeriodJupiter);
+        runner.RunNativeTest(
+            "TestOrbitalMechanics::test_calculate_semi_major_axis",
+            Tests.Unit.TestOrbitalMechanics.TestCalculateSemiMajorAxis);
+        runner.RunNativeTest(
+            "TestOrbitalMechanics::test_calculate_semi_major_axis_edge_cases",
+            Tests.Unit.TestOrbitalMechanics.TestCalculateSemiMajorAxisEdgeCases);
+        runner.RunNativeTest(
+            "TestOrbitalMechanics::test_calculate_orbital_velocity_earth",
+            Tests.Unit.TestOrbitalMechanics.TestCalculateOrbitalVelocityEarth);
+        runner.RunNativeTest(
+            "TestOrbitalMechanics::test_calculate_escape_velocity_earth",
+            Tests.Unit.TestOrbitalMechanics.TestCalculateEscapeVelocityEarth);
+        runner.RunNativeTest(
+            "TestOrbitalMechanics::test_calculate_mean_motion",
+            Tests.Unit.TestOrbitalMechanics.TestCalculateMeanMotion);
+        runner.RunNativeTest(
+            "TestOrbitalMechanics::test_orbital_period_edge_cases",
+            Tests.Unit.TestOrbitalMechanics.TestOrbitalPeriodEdgeCases);
+        runner.RunNativeTest(
+            "TestOrbitalMechanics::test_calculate_hill_sphere_earth",
+            Tests.Unit.TestOrbitalMechanics.TestCalculateHillSphereEarth);
+        runner.RunNativeTest(
+            "TestOrbitalMechanics::test_calculate_habitable_zone_solar",
+            Tests.Unit.TestOrbitalMechanics.TestCalculateHabitableZoneSolar);
+        runner.RunNativeTest(
+            "TestOrbitalMechanics::test_calculate_frost_line_solar",
+            Tests.Unit.TestOrbitalMechanics.TestCalculateFrostLineSolar);
+        runner.RunNativeTest(
+            "TestOrbitalMechanics::test_get_orbital_zone",
+            Tests.Unit.TestOrbitalMechanics.TestGetOrbitalZone);
+        runner.RunNativeTest(
+            "TestOrbitalMechanics::test_get_orbital_zone_invalid_inputs",
+            Tests.Unit.TestOrbitalMechanics.TestGetOrbitalZoneInvalidInputs);
+        runner.RunNativeTest(
+            "TestOrbitalMechanics::test_calculate_hill_sphere_jupiter",
+            Tests.Unit.TestOrbitalMechanics.TestCalculateHillSphereJupiter);
+        runner.RunNativeTest(
+            "TestOrbitalMechanics::test_calculate_roche_limit_earth",
+            Tests.Unit.TestOrbitalMechanics.TestCalculateRocheLimitEarth);
+        runner.RunNativeTest(
+            "TestOrbitalMechanics::test_calculate_roche_limit_from_mass",
+            Tests.Unit.TestOrbitalMechanics.TestCalculateRocheLimitFromMass);
+        runner.RunNativeTest(
+            "TestOrbitalMechanics::test_calculate_sphere_of_influence",
+            Tests.Unit.TestOrbitalMechanics.TestCalculateSphereOfInfluence);
+        runner.RunNativeTest(
+            "TestOrbitalMechanics::test_calculate_barycenter_earth_moon",
+            Tests.Unit.TestOrbitalMechanics.TestCalculateBarycenterEarthMoon);
+        runner.RunNativeTest(
+            "TestOrbitalMechanics::test_calculate_barycenter_equal_masses",
+            Tests.Unit.TestOrbitalMechanics.TestCalculateBarycenterEqualMasses);
+        runner.RunNativeTest(
+            "TestOrbitalMechanics::test_calculate_barycenter_sun_jupiter",
+            Tests.Unit.TestOrbitalMechanics.TestCalculateBarycenterSunJupiter);
+        runner.RunNativeTest(
+            "TestOrbitalMechanics::test_calculate_stype_stability_limit_circular",
+            Tests.Unit.TestOrbitalMechanics.TestCalculateStypeStabilityLimitCircular);
+        runner.RunNativeTest(
+            "TestOrbitalMechanics::test_calculate_stype_stability_limit_eccentric",
+            Tests.Unit.TestOrbitalMechanics.TestCalculateStypeStabilityLimitEccentric);
+        runner.RunNativeTest(
+            "TestOrbitalMechanics::test_calculate_stype_stability_alpha_cen",
+            Tests.Unit.TestOrbitalMechanics.TestCalculateStypeStabilityAlphaCen);
+        runner.RunNativeTest(
+            "TestOrbitalMechanics::test_calculate_ptype_stability_limit_circular",
+            Tests.Unit.TestOrbitalMechanics.TestCalculatePtypeStabilityLimitCircular);
+        runner.RunNativeTest(
+            "TestOrbitalMechanics::test_calculate_ptype_stability_limit_eccentric",
+            Tests.Unit.TestOrbitalMechanics.TestCalculatePtypeStabilityLimitEccentric);
+        runner.RunNativeTest(
+            "TestOrbitalMechanics::test_calculate_ptype_stability_close_binary",
+            Tests.Unit.TestOrbitalMechanics.TestCalculatePtypeStabilityCloseBinary);
+        runner.RunNativeTest(
+            "TestOrbitalMechanics::test_calculate_jacobi_radius_scaling",
+            Tests.Unit.TestOrbitalMechanics.TestCalculateJacobiRadiusScaling);
+        runner.RunNativeTest(
+            "TestOrbitalMechanics::test_calculate_formation_outer_limit",
+            Tests.Unit.TestOrbitalMechanics.TestCalculateFormationOuterLimit);
+        runner.RunNativeTest(
+            "TestOrbitalMechanics::test_calculate_outer_stability_limit_m",
+            Tests.Unit.TestOrbitalMechanics.TestCalculateOuterStabilityLimitM);
+        runner.RunNativeTest(
+            "TestOrbitalMechanics::test_calculate_binary_period",
+            Tests.Unit.TestOrbitalMechanics.TestCalculateBinaryPeriod);
+        runner.RunNativeTest(
+            "TestOrbitalMechanics::test_calculate_habitable_zone_scaling",
+            Tests.Unit.TestOrbitalMechanics.TestCalculateHabitableZoneScaling);
+        runner.RunNativeTest(
+            "TestOrbitalMechanics::test_calculate_resonance_spacing_2_1",
+            Tests.Unit.TestOrbitalMechanics.TestCalculateResonanceSpacing2_1);
+        runner.RunNativeTest(
+            "TestOrbitalMechanics::test_calculate_resonance_spacing_3_2",
+            Tests.Unit.TestOrbitalMechanics.TestCalculateResonanceSpacing3_2);
+        runner.RunNativeTest(
+            "TestOrbitalMechanics::test_calculate_resonance_spacing_with_variation",
+            Tests.Unit.TestOrbitalMechanics.TestCalculateResonanceSpacingWithVariation);
+        runner.RunNativeTest(
+            "TestOrbitalMechanics::test_get_common_resonance_ratios",
+            Tests.Unit.TestOrbitalMechanics.TestGetCommonResonanceRatios);
+        runner.RunNativeTest(
+            "TestOrbitalMechanics::test_period_ratio_to_distance_ratio",
+            Tests.Unit.TestOrbitalMechanics.TestPeriodRatioToDistanceRatio);
+        runner.RunNativeTest(
+            "TestOrbitalMechanics::test_distance_ratio_to_period_ratio",
+            Tests.Unit.TestOrbitalMechanics.TestDistanceRatioToPeriodRatio);
+        runner.RunNativeTest(
+            "TestOrbitalMechanics::test_calculate_minimum_planet_spacing",
+            Tests.Unit.TestOrbitalMechanics.TestCalculateMinimumPlanetSpacing);
+        runner.RunNativeTest(
+            "TestOrbitalMechanics::test_is_orbit_stable_no_companions",
+            Tests.Unit.TestOrbitalMechanics.TestIsOrbitStableNoCompanions);
+        runner.RunNativeTest(
+            "TestOrbitalMechanics::test_is_orbit_stable_too_close_to_companion",
+            Tests.Unit.TestOrbitalMechanics.TestIsOrbitStableTooCloseToCompanion);
+        runner.RunNativeTest(
+            "TestOrbitalMechanics::test_is_orbit_stable_far_from_companion",
+            Tests.Unit.TestOrbitalMechanics.TestIsOrbitStableFarFromCompanion);
+        runner.RunNativeTest(
+            "TestOrbitalMechanics::test_calculate_perturbation_strength",
+            Tests.Unit.TestOrbitalMechanics.TestCalculatePerturbationStrength);
+        runner.RunNativeTest(
+            "TestOrbitalMechanics::test_calculate_perturbation_strength_inside",
+            Tests.Unit.TestOrbitalMechanics.TestCalculatePerturbationStrengthInside);
+        runner.RunNativeTest(
+            "TestOrbitalMechanics::test_do_orbits_overlap_no_overlap",
+            Tests.Unit.TestOrbitalMechanics.TestDoOrbitsOverlapNoOverlap);
+        runner.RunNativeTest(
+            "TestOrbitalMechanics::test_do_orbits_overlap_eccentric",
+            Tests.Unit.TestOrbitalMechanics.TestDoOrbitsOverlapEccentric);
+        runner.RunNativeTest(
+            "TestOrbitalMechanics::test_do_orbits_overlap_touching",
+            Tests.Unit.TestOrbitalMechanics.TestDoOrbitsOverlapTouching);
+        runner.RunNativeTest(
+            "TestOrbitalMechanics::test_calculate_synodic_period",
+            Tests.Unit.TestOrbitalMechanics.TestCalculateSynodicPeriod);
+        runner.RunNativeTest(
+            "TestOrbitalMechanics::test_calculate_synodic_period_near_identical",
+            Tests.Unit.TestOrbitalMechanics.TestCalculateSynodicPeriodNearIdentical);
+        runner.RunNativeTest(
+            "TestOrbitalMechanics::test_edge_case_zero_inputs",
+            Tests.Unit.TestOrbitalMechanics.TestEdgeCaseZeroInputs);
+        runner.RunNativeTest(
+            "TestOrbitalMechanics::test_edge_case_negative_inputs",
+            Tests.Unit.TestOrbitalMechanics.TestEdgeCaseNegativeInputs);
+        runner.RunNativeTest(
+            "TestOrbitalMechanics::test_resonance_spacing_edge_cases",
+            Tests.Unit.TestOrbitalMechanics.TestResonanceSpacingEdgeCases);
+        runner.RunNativeTest(
+            "TestOrbitalProps::test_default_values",
+            Tests.Unit.TestOrbitalProps.TestDefaultValues);
+        runner.RunNativeTest(
+            "TestOrbitalProps::test_periapsis",
+            Tests.Unit.TestOrbitalProps.TestPeriapsis);
+        runner.RunNativeTest(
+            "TestOrbitalProps::test_apoapsis",
+            Tests.Unit.TestOrbitalProps.TestApoapsis);
+        runner.RunNativeTest(
+            "TestOrbitalProps::test_circular_orbit",
+            Tests.Unit.TestOrbitalProps.TestCircularOrbit);
+        runner.RunNativeTest(
+            "TestOrbitalProps::test_orbital_period",
+            Tests.Unit.TestOrbitalProps.TestOrbitalPeriod);
+        runner.RunNativeTest(
+            "TestOrbitalProps::test_round_trip",
+            Tests.Unit.TestOrbitalProps.TestRoundTrip);
+        runner.RunNativeTest(
+            "TestOrbitHost::test_construction",
+            Tests.Unit.TestOrbitHost.TestConstruction);
+        runner.RunNativeTest(
+            "TestOrbitHost::test_has_valid_zone",
+            Tests.Unit.TestOrbitHost.TestHasValidZone);
+        runner.RunNativeTest(
+            "TestOrbitHost::test_get_zone_width",
+            Tests.Unit.TestOrbitHost.TestGetZoneWidth);
+        runner.RunNativeTest(
+            "TestOrbitHost::test_is_distance_stable",
+            Tests.Unit.TestOrbitHost.TestIsDistanceStable);
+        runner.RunNativeTest(
+            "TestOrbitHost::test_calculate_zones_sun_like",
+            Tests.Unit.TestOrbitHost.TestCalculateZonesSunLike);
+        runner.RunNativeTest(
+            "TestOrbitHost::test_calculate_zones_bright_star",
+            Tests.Unit.TestOrbitHost.TestCalculateZonesBrightStar);
+        runner.RunNativeTest(
+            "TestOrbitHost::test_is_distance_habitable",
+            Tests.Unit.TestOrbitHost.TestIsDistanceHabitable);
+        runner.RunNativeTest(
+            "TestOrbitHost::test_is_beyond_frost_line",
+            Tests.Unit.TestOrbitHost.TestIsBeyondFrostLine);
+        runner.RunNativeTest(
+            "TestOrbitHost::test_get_type_string",
+            Tests.Unit.TestOrbitHost.TestGetTypeString);
+        runner.RunNativeTest(
+            "TestOrbitHost::test_round_trip",
+            Tests.Unit.TestOrbitHost.TestRoundTrip);
+        runner.RunNativeTest(
+            "TestOrbitRenderer::test_add_planet_orbit",
+            Tests.Unit.TestOrbitRenderer.TestAddPlanetOrbit);
+        runner.RunNativeTest(
+            "TestOrbitRenderer::test_add_multiple_orbits",
+            Tests.Unit.TestOrbitRenderer.TestAddMultipleOrbits);
+        runner.RunNativeTest(
+            "TestOrbitRenderer::test_add_orbit_empty_points",
+            Tests.Unit.TestOrbitRenderer.TestAddOrbitEmptyPoints);
+        runner.RunNativeTest(
+            "TestOrbitRenderer::test_orbit_material_has_transparency",
+            Tests.Unit.TestOrbitRenderer.TestOrbitMaterialHasTransparency);
+        runner.RunNativeTest(
+            "TestOrbitRenderer::test_orbit_no_shadow",
+            Tests.Unit.TestOrbitRenderer.TestOrbitNoShadow);
+        runner.RunNativeTest(
+            "TestOrbitRenderer::test_orbit_colors_differ_by_type",
+            Tests.Unit.TestOrbitRenderer.TestOrbitColorsDifferByType);
+        runner.RunNativeTest(
+            "TestOrbitRenderer::test_add_zone_ring",
+            Tests.Unit.TestOrbitRenderer.TestAddZoneRing);
+        runner.RunNativeTest(
+            "TestOrbitRenderer::test_zone_ring_zero_radius",
+            Tests.Unit.TestOrbitRenderer.TestZoneRingZeroRadius);
+        runner.RunNativeTest(
+            "TestOrbitRenderer::test_zone_ring_negative_radius",
+            Tests.Unit.TestOrbitRenderer.TestZoneRingNegativeRadius);
+        runner.RunNativeTest(
+            "TestOrbitRenderer::test_clear_removes_all",
+            Tests.Unit.TestOrbitRenderer.TestClearRemovesAll);
+        runner.RunNativeTest(
+            "TestOrbitRenderer::test_moon_orbit_visibility",
+            Tests.Unit.TestOrbitRenderer.TestMoonOrbitVisibility);
+        runner.RunNativeTest(
+            "TestOrbitRenderer::test_replace_orbit_same_id",
+            Tests.Unit.TestOrbitRenderer.TestReplaceOrbitSameId);
+        runner.RunNativeTest(
+            "TestOrbitRenderer::test_remove_orbit",
+            Tests.Unit.TestOrbitRenderer.TestRemoveOrbit);
+        runner.RunNativeTest(
+            "TestOrbitSlot::test_construction",
+            Tests.Unit.TestOrbitSlot.TestConstruction);
+        runner.RunNativeTest(
+            "TestOrbitSlot::test_get_semi_major_axis_au",
+            Tests.Unit.TestOrbitSlot.TestGetSemiMajorAxisAu);
+        runner.RunNativeTest(
+            "TestOrbitSlot::test_get_zone_string",
+            Tests.Unit.TestOrbitSlot.TestGetZoneString);
+        runner.RunNativeTest(
+            "TestOrbitSlot::test_fill_with_planet",
+            Tests.Unit.TestOrbitSlot.TestFillWithPlanet);
+        runner.RunNativeTest(
+            "TestOrbitSlot::test_clear_planet",
+            Tests.Unit.TestOrbitSlot.TestClearPlanet);
+        runner.RunNativeTest(
+            "TestOrbitSlot::test_is_available",
+            Tests.Unit.TestOrbitSlot.TestIsAvailable);
+        runner.RunNativeTest(
+            "TestOrbitSlot::test_suggested_eccentricity",
+            Tests.Unit.TestOrbitSlot.TestSuggestedEccentricity);
+        runner.RunNativeTest(
+            "TestOrbitSlot::test_round_trip",
+            Tests.Unit.TestOrbitSlot.TestRoundTrip);
+        runner.RunNativeTest(
+            "TestOrbitSlotGenerator::test_generate_for_host_single_star",
+            Tests.Unit.TestOrbitSlotGenerator.TestGenerateForHostSingleStar);
+        runner.RunNativeTest(
+            "TestOrbitSlotGenerator::test_slots_within_stability_zone",
+            Tests.Unit.TestOrbitSlotGenerator.TestSlotsWithinStabilityZone);
+        runner.RunNativeTest(
+            "TestOrbitSlotGenerator::test_slots_increasing_distance",
+            Tests.Unit.TestOrbitSlotGenerator.TestSlotsIncreasingDistance);
+        runner.RunNativeTest(
+            "TestOrbitSlotGenerator::test_determinism",
+            Tests.Unit.TestOrbitSlotGenerator.TestDeterminism);
+        runner.RunNativeTest(
+            "TestOrbitSlotGenerator::test_filter_stable",
+            Tests.Unit.TestOrbitSlotGenerator.TestFilterStable);
+        runner.RunNativeTest(
+            "TestOrbitSlotGenerator::test_filter_available",
+            Tests.Unit.TestOrbitSlotGenerator.TestFilterAvailable);
+        runner.RunNativeTest(
+            "TestOrbitSlotGenerator::test_filter_by_zone",
+            Tests.Unit.TestOrbitSlotGenerator.TestFilterByZone);
+        runner.RunNativeTest(
+            "TestOrbitSlotGenerator::test_sort_by_distance",
+            Tests.Unit.TestOrbitSlotGenerator.TestSortByDistance);
+        runner.RunNativeTest(
+            "TestOrbitSlotGenerator::test_sort_by_probability",
+            Tests.Unit.TestOrbitSlotGenerator.TestSortByProbability);
+        runner.RunNativeTest(
+            "TestOrbitSlotGenerator::test_zone_classification",
+            Tests.Unit.TestOrbitSlotGenerator.TestZoneClassification);
+        runner.RunNativeTest(
+            "TestOrbitSlotGenerator::test_fill_probability_decreases",
+            Tests.Unit.TestOrbitSlotGenerator.TestFillProbabilityDecreases);
+        runner.RunNativeTest(
+            "TestOrbitSlotGenerator::test_eccentricity_increases_with_distance",
+            Tests.Unit.TestOrbitSlotGenerator.TestEccentricityIncreasesWithDistance);
+        runner.RunNativeTest(
+            "TestOrbitSlotGenerator::test_minimum_spacing",
+            Tests.Unit.TestOrbitSlotGenerator.TestMinimumSpacing);
+        runner.RunNativeTest(
+            "TestOrbitSlotGenerator::test_star_radius_safety",
+            Tests.Unit.TestOrbitSlotGenerator.TestStarRadiusSafety);
+        runner.RunNativeTest(
+            "TestOrbitSlotGenerator::test_generate_for_hosts",
+            Tests.Unit.TestOrbitSlotGenerator.TestGenerateForHosts);
+        runner.RunNativeTest(
+            "TestOrbitSlotGenerator::test_check_stability",
+            Tests.Unit.TestOrbitSlotGenerator.TestCheckStability);
+        runner.RunNativeTest(
+            "TestOrbitSlotGenerator::test_get_statistics",
+            Tests.Unit.TestOrbitSlotGenerator.TestGetStatistics);
+        runner.RunNativeTest(
+            "TestOrbitSlotGenerator::test_max_slots_limit",
+            Tests.Unit.TestOrbitSlotGenerator.TestMaxSlotsLimit);
+        runner.RunNativeTest(
+            "TestOrbitSlotGenerator::test_ptype_host_generation",
+            Tests.Unit.TestOrbitSlotGenerator.TestPtypeHostGeneration);
+        runner.RunNativeTest(
+            "TestOrbitSlotGenerator::test_invalid_host",
+            Tests.Unit.TestOrbitSlotGenerator.TestInvalidHost);
+        runner.RunNativeTest(
+            "TestOrbitSlotGenerator::test_narrow_stability_zone",
+            Tests.Unit.TestOrbitSlotGenerator.TestNarrowStabilityZone);
+        runner.RunNativeTest(
+            "TestOrbitSlotGenerator::test_wide_zone_many_slots",
+            Tests.Unit.TestOrbitSlotGenerator.TestWideZoneManySlots);
+        runner.RunNativeTest(
+            "TestParentContext::test_default_values",
+            Tests.Unit.TestParentContext.TestDefaultValues);
+        runner.RunNativeTest(
+            "TestParentContext::test_for_planet",
+            Tests.Unit.TestParentContext.TestForPlanet);
+        runner.RunNativeTest(
+            "TestParentContext::test_for_moon",
+            Tests.Unit.TestParentContext.TestForMoon);
+        runner.RunNativeTest(
+            "TestParentContext::test_sun_like",
+            Tests.Unit.TestParentContext.TestSunLike);
+        runner.RunNativeTest(
+            "TestParentContext::test_equilibrium_temperature",
+            Tests.Unit.TestParentContext.TestEquilibriumTemperature);
+        runner.RunNativeTest(
+            "TestParentContext::test_hill_sphere",
+            Tests.Unit.TestParentContext.TestHillSphere);
+        runner.RunNativeTest(
+            "TestParentContext::test_roche_limit",
+            Tests.Unit.TestParentContext.TestRocheLimit);
+        runner.RunNativeTest(
+            "TestParentContext::test_round_trip",
+            Tests.Unit.TestParentContext.TestRoundTrip);
+        runner.RunNativeTest(
+            "TestPhysicalProps::test_default_values",
+            Tests.Unit.TestPhysicalProps.TestDefaultValues);
+        runner.RunNativeTest(
+            "TestPhysicalProps::test_initialization",
+            Tests.Unit.TestPhysicalProps.TestInitialization);
+        runner.RunNativeTest(
+            "TestPhysicalProps::test_volume_calculation",
+            Tests.Unit.TestPhysicalProps.TestVolumeCalculation);
+        runner.RunNativeTest(
+            "TestPhysicalProps::test_volume_zero_radius",
+            Tests.Unit.TestPhysicalProps.TestVolumeZeroRadius);
+        runner.RunNativeTest(
+            "TestPhysicalProps::test_density_calculation",
+            Tests.Unit.TestPhysicalProps.TestDensityCalculation);
+        runner.RunNativeTest(
+            "TestPhysicalProps::test_surface_gravity",
+            Tests.Unit.TestPhysicalProps.TestSurfaceGravity);
+        runner.RunNativeTest(
+            "TestPhysicalProps::test_escape_velocity",
+            Tests.Unit.TestPhysicalProps.TestEscapeVelocity);
+        runner.RunNativeTest(
+            "TestPhysicalProps::test_oblateness",
+            Tests.Unit.TestPhysicalProps.TestOblateness);
+        runner.RunNativeTest(
+            "TestPhysicalProps::test_internal_heat",
+            Tests.Unit.TestPhysicalProps.TestInternalHeat);
+        runner.RunNativeTest(
+            "TestPhysicalProps::test_to_dict",
+            Tests.Unit.TestPhysicalProps.TestToDict);
+        runner.RunNativeTest(
+            "TestPhysicalProps::test_from_dict",
+            Tests.Unit.TestPhysicalProps.TestFromDict);
+        runner.RunNativeTest(
+            "TestPhysicalProps::test_round_trip",
+            Tests.Unit.TestPhysicalProps.TestRoundTrip);
+        runner.RunNativeTest(
+            "TestPlanetGenerator::test_determinism",
+            Tests.Unit.TestPlanetGenerator.TestDeterminism);
+        runner.RunNativeTest(
+            "TestPlanetGenerator::test_different_seeds",
+            Tests.Unit.TestPlanetGenerator.TestDifferentSeeds);
+        runner.RunNativeTest(
+            "TestPlanetGenerator::test_validation_passes",
+            Tests.Unit.TestPlanetGenerator.TestValidationPasses);
+        runner.RunNativeTest(
+            "TestPlanetGenerator::test_earth_like_preset",
+            Tests.Unit.TestPlanetGenerator.TestEarthLikePreset);
+        runner.RunNativeTest(
+            "TestPlanetGenerator::test_hot_jupiter_preset",
+            Tests.Unit.TestPlanetGenerator.TestHotJupiterPreset);
+        runner.RunNativeTest(
+            "TestPlanetGenerator::test_dwarf_planet_preset",
+            Tests.Unit.TestPlanetGenerator.TestDwarfPlanetPreset);
+        runner.RunNativeTest(
+            "TestPlanetGenerator::test_physical_properties_positive",
+            Tests.Unit.TestPlanetGenerator.TestPhysicalPropertiesPositive);
+        runner.RunNativeTest(
+            "TestPlanetGenerator::test_orbital_properties_valid",
+            Tests.Unit.TestPlanetGenerator.TestOrbitalPropertiesValid);
+        runner.RunNativeTest(
+            "TestPlanetGenerator::test_tidal_locking_close_in",
+            Tests.Unit.TestPlanetGenerator.TestTidalLockingCloseIn);
+        runner.RunNativeTest(
+            "TestPlanetGenerator::test_not_tidally_locked_distant",
+            Tests.Unit.TestPlanetGenerator.TestNotTidallyLockedDistant);
+        runner.RunNativeTest(
+            "TestPlanetGenerator::test_density_matches_category",
+            Tests.Unit.TestPlanetGenerator.TestDensityMatchesCategory);
+        runner.RunNativeTest(
+            "TestPlanetGenerator::test_provenance",
+            Tests.Unit.TestPlanetGenerator.TestProvenance);
+        runner.RunNativeTest(
+            "TestPlanetGenerator::test_name_hint",
+            Tests.Unit.TestPlanetGenerator.TestNameHint);
+        runner.RunNativeTest(
+            "TestPlanetGenerator::test_overrides",
+            Tests.Unit.TestPlanetGenerator.TestOverrides);
+        runner.RunNativeTest(
+            "TestPlanetGenerator::test_planet_type",
+            Tests.Unit.TestPlanetGenerator.TestPlanetType);
+        runner.RunNativeTest(
+            "TestPlanetGenerator::test_axial_tilt_range",
+            Tests.Unit.TestPlanetGenerator.TestAxialTiltRange);
+        runner.RunNativeTest(
+            "TestPlanetGenerator::test_oblateness_reasonable",
+            Tests.Unit.TestPlanetGenerator.TestOblatenessReasonable);
+        runner.RunNativeTest(
+            "TestPlanetGenerator::test_magnetic_moment_non_negative",
+            Tests.Unit.TestPlanetGenerator.TestMagneticMomentNonNegative);
+        runner.RunNativeTest(
+            "TestPlanetGenerator::test_internal_heat_non_negative",
+            Tests.Unit.TestPlanetGenerator.TestInternalHeatNonNegative);
+        runner.RunNativeTest(
+            "TestPlanetGenerator::test_gas_giant_has_atmosphere",
+            Tests.Unit.TestPlanetGenerator.TestGasGiantHasAtmosphere);
+        runner.RunNativeTest(
+            "TestPlanetGenerator::test_gas_giant_composition",
+            Tests.Unit.TestPlanetGenerator.TestGasGiantComposition);
+        runner.RunNativeTest(
+            "TestPlanetGenerator::test_rocky_planet_has_surface",
+            Tests.Unit.TestPlanetGenerator.TestRockyPlanetHasSurface);
+        runner.RunNativeTest(
+            "TestPropertyConstraint::test_in_range_when_inside",
+            Tests.Unit.TestPropertyConstraint.TestInRangeWhenInside);
+        runner.RunNativeTest(
+            "TestPropertyConstraint::test_in_range_at_bounds",
+            Tests.Unit.TestPropertyConstraint.TestInRangeAtBounds);
+        runner.RunNativeTest(
+            "TestPropertyConstraint::test_out_of_range",
+            Tests.Unit.TestPropertyConstraint.TestOutOfRange);
+        runner.RunNativeTest(
+            "TestPropertyConstraint::test_clamp_value",
+            Tests.Unit.TestPropertyConstraint.TestClampValue);
+        runner.RunNativeTest(
+            "TestPropertyConstraint::test_has_bounds_with_infinities",
+            Tests.Unit.TestPropertyConstraint.TestHasBoundsWithInfinities);
+        runner.RunNativeTest(
+            "TestPropertyConstraint::test_with_lock_returns_new_instance",
+            Tests.Unit.TestPropertyConstraint.TestWithLockReturnsNewInstance);
+        runner.RunNativeTest(
+            "TestPropertyConstraint::test_with_value_returns_new_instance",
+            Tests.Unit.TestPropertyConstraint.TestWithValueReturnsNewInstance);
+        runner.RunNativeTest(
+            "TestPropertyConstraint::test_intersected_with_narrows_range",
+            Tests.Unit.TestPropertyConstraint.TestIntersectedWithNarrowsRange);
+        runner.RunNativeTest(
+            "TestPropertyConstraint::test_intersected_with_cannot_widen",
+            Tests.Unit.TestPropertyConstraint.TestIntersectedWithCannotWiden);
+        runner.RunNativeTest(
+            "TestPropertyConstraint::test_intersected_with_appends_reason_only_when_narrowed",
+            Tests.Unit.TestPropertyConstraint.TestIntersectedWithAppendsReasonOnlyWhenNarrowed);
+        runner.RunNativeTest(
+            "TestPropertyConstraint::test_is_satisfiable",
+            Tests.Unit.TestPropertyConstraint.TestIsSatisfiable);
+        runner.RunNativeTest(
+            "TestPropertyConstraint::test_to_dict_round_trip_fields",
+            Tests.Unit.TestPropertyConstraint.TestToDictRoundTripFields);
+        runner.RunNativeTest(
+            "TestPropertyConstraintSolver::test_seeds_physical_constraints_for_planet",
+            Tests.Unit.TestPropertyConstraintSolver.TestSeedsPhysicalConstraintsForPlanet);
+        runner.RunNativeTest(
+            "TestPropertyConstraintSolver::test_earth_values_fall_within_planet_bounds",
+            Tests.Unit.TestPropertyConstraintSolver.TestEarthValuesFallWithinPlanetBounds);
+        runner.RunNativeTest(
+            "TestPropertyConstraintSolver::test_star_has_stellar_constraints_planet_does_not",
+            Tests.Unit.TestPropertyConstraintSolver.TestStarHasStellarConstraintsPlanetDoesNot);
+        runner.RunNativeTest(
+            "TestPropertyConstraintSolver::test_locking_mass_narrows_radius_range",
+            Tests.Unit.TestPropertyConstraintSolver.TestLockingMassNarrowsRadiusRange);
+        runner.RunNativeTest(
+            "TestPropertyConstraintSolver::test_earth_radius_still_valid_after_mass_lock",
+            Tests.Unit.TestPropertyConstraintSolver.TestEarthRadiusStillValidAfterMassLock);
+        runner.RunNativeTest(
+            "TestPropertyConstraintSolver::test_locking_radius_narrows_mass_range",
+            Tests.Unit.TestPropertyConstraintSolver.TestLockingRadiusNarrowsMassRange);
+        runner.RunNativeTest(
+            "TestPropertyConstraintSolver::test_locking_slow_rotation_caps_oblateness",
+            Tests.Unit.TestPropertyConstraintSolver.TestLockingSlowRotationCapsOblateness);
+        runner.RunNativeTest(
+            "TestPropertyConstraintSolver::test_locking_fast_rotation_allows_high_oblateness",
+            Tests.Unit.TestPropertyConstraintSolver.TestLockingFastRotationAllowsHighOblateness);
+        runner.RunNativeTest(
+            "TestPropertyConstraintSolver::test_both_mass_and_radius_locked_no_narrowing",
+            Tests.Unit.TestPropertyConstraintSolver.TestBothMassAndRadiusLockedNoNarrowing);
+        runner.RunNativeTest(
+            "TestPropertyConstraintSolver::test_locked_paths_are_marked_locked_in_output",
+            Tests.Unit.TestPropertyConstraintSolver.TestLockedPathsAreMarkedLockedInOutput);
+        runner.RunNativeTest(
+            "TestPropertyConstraintSolver::test_determinism_same_input_same_output",
+            Tests.Unit.TestPropertyConstraintSolver.TestDeterminismSameInputSameOutput);
+        runner.RunNativeTest(
+            "TestPropertyConstraintSolver::test_axial_tilt_matches_validator_bounds",
+            Tests.Unit.TestPropertyConstraintSolver.TestAxialTiltMatchesValidatorBounds);
+        runner.RunNativeTest(
+            "TestPropertyConstraintSolver::test_albedo_matches_validator_bounds",
+            Tests.Unit.TestPropertyConstraintSolver.TestAlbedoMatchesValidatorBounds);
+        runner.RunNativeTest(
+            "TestPropertyConstraintSolver::test_extra_constraints_narrow_radius",
+            Tests.Unit.TestPropertyConstraintSolver.TestExtraConstraintsNarrowRadius);
+        runner.RunNativeTest(
+            "TestPropertyConstraintSolver::test_extra_constraints_feed_into_coupling",
+            Tests.Unit.TestPropertyConstraintSolver.TestExtraConstraintsFeedIntoCoupling);
+        runner.RunNativeTest(
+            "TestProvenance::test_default_values",
+            Tests.Unit.TestProvenance.TestDefaultValues);
+        runner.RunNativeTest(
+            "TestProvenance::test_initialization",
+            Tests.Unit.TestProvenance.TestInitialization);
+        runner.RunNativeTest(
+            "TestProvenance::test_create_current",
+            Tests.Unit.TestProvenance.TestCreateCurrent);
+        runner.RunNativeTest(
+            "TestProvenance::test_round_trip",
+            Tests.Unit.TestProvenance.TestRoundTrip);
+        runner.RunNativeTest(
+            "TestProvenance::test_from_dict_empty",
+            Tests.Unit.TestProvenance.TestFromDictEmpty);
+        runner.RunNativeTest(
+            "TestProvenance::test_backward_compatibility_seed_field",
+            Tests.Unit.TestProvenance.TestBackwardCompatibilitySeedField);
+        runner.RunNativeTest(
+            "TestRingShaderParams::test_basic_params_exist",
+            Tests.Unit.TestRingShaderParams.TestBasicParamsExist);
+        runner.RunNativeTest(
+            "TestRingShaderParams::test_band_count_matches",
+            Tests.Unit.TestRingShaderParams.TestBandCountMatches);
+        runner.RunNativeTest(
+            "TestRingShaderParams::test_ice_rich_colors",
+            Tests.Unit.TestRingShaderParams.TestIceRichColors);
+        runner.RunNativeTest(
+            "TestRingShaderParams::test_rocky_colors",
+            Tests.Unit.TestRingShaderParams.TestRockyColors);
+        runner.RunNativeTest(
+            "TestRingShaderParams::test_determinism_same_seed",
+            Tests.Unit.TestRingShaderParams.TestDeterminismSameSeed);
+        runner.RunNativeTest(
+            "TestRingShaderParams::test_determinism_different_seed",
+            Tests.Unit.TestRingShaderParams.TestDeterminismDifferentSeed);
+        runner.RunNativeTest(
+            "TestRingShaderParams::test_empty_ring_system",
+            Tests.Unit.TestRingShaderParams.TestEmptyRingSystem);
+        runner.RunNativeTest(
+            "TestRingSystemGenerator::test_generate_returns_ring_system",
+            Tests.Unit.TestRingSystemGenerator.TestGenerateReturnsRingSystem);
+        runner.RunNativeTest(
+            "TestRingSystemGenerator::test_generate_is_deterministic",
+            Tests.Unit.TestRingSystemGenerator.TestGenerateIsDeterministic);
+        runner.RunNativeTest(
+            "TestRingSystemGenerator::test_trace_complexity",
+            Tests.Unit.TestRingSystemGenerator.TestTraceComplexity);
+        runner.RunNativeTest(
+            "TestRingSystemGenerator::test_simple_complexity",
+            Tests.Unit.TestRingSystemGenerator.TestSimpleComplexity);
+        runner.RunNativeTest(
+            "TestRingSystemGenerator::test_complex_complexity",
+            Tests.Unit.TestRingSystemGenerator.TestComplexComplexity);
+        runner.RunNativeTest(
+            "TestRingSystemGenerator::test_icy_composition_beyond_ice_line",
+            Tests.Unit.TestRingSystemGenerator.TestIcyCompositionBeyondIceLine);
+        runner.RunNativeTest(
+            "TestRingSystemGenerator::test_rocky_composition_inside_ice_line",
+            Tests.Unit.TestRingSystemGenerator.TestRockyCompositionInsideIceLine);
+        runner.RunNativeTest(
+            "TestRingSystemGenerator::test_forced_icy_composition",
+            Tests.Unit.TestRingSystemGenerator.TestForcedIcyComposition);
+        runner.RunNativeTest(
+            "TestRingSystemGenerator::test_forced_rocky_composition",
+            Tests.Unit.TestRingSystemGenerator.TestForcedRockyComposition);
+        runner.RunNativeTest(
+            "TestRingSystemGenerator::test_rings_outside_planet_radius",
+            Tests.Unit.TestRingSystemGenerator.TestRingsOutsidePlanetRadius);
+        runner.RunNativeTest(
+            "TestRingSystemGenerator::test_bands_ordered_by_radius",
+            Tests.Unit.TestRingSystemGenerator.TestBandsOrderedByRadius);
+        runner.RunNativeTest(
+            "TestRingSystemGenerator::test_band_properties_valid",
+            Tests.Unit.TestRingSystemGenerator.TestBandPropertiesValid);
+        runner.RunNativeTest(
+            "TestRingSystemGenerator::test_total_mass_positive",
+            Tests.Unit.TestRingSystemGenerator.TestTotalMassPositive);
+        runner.RunNativeTest(
+            "TestRingSystemGenerator::test_inclination_small",
+            Tests.Unit.TestRingSystemGenerator.TestInclinationSmall);
+        runner.RunNativeTest(
+            "TestRingSystemGenerator::test_different_seeds_produce_different_rings",
+            Tests.Unit.TestRingSystemGenerator.TestDifferentSeedsProduceDifferentRings);
+        runner.RunNativeTest(
+            "TestRingSystemProps::test_ring_band_default_values",
+            Tests.Unit.TestRingSystemProps.TestRingBandDefaultValues);
+        runner.RunNativeTest(
+            "TestRingSystemProps::test_ring_band_width",
+            Tests.Unit.TestRingSystemProps.TestRingBandWidth);
+        runner.RunNativeTest(
+            "TestRingSystemProps::test_ring_band_dominant_material",
+            Tests.Unit.TestRingSystemProps.TestRingBandDominantMaterial);
+        runner.RunNativeTest(
+            "TestRingSystemProps::test_ring_system_empty",
+            Tests.Unit.TestRingSystemProps.TestRingSystemEmpty);
+        runner.RunNativeTest(
+            "TestRingSystemProps::test_ring_system_multiple_bands",
+            Tests.Unit.TestRingSystemProps.TestRingSystemMultipleBands);
+        runner.RunNativeTest(
+            "TestRingSystemProps::test_ring_system_add_band",
+            Tests.Unit.TestRingSystemProps.TestRingSystemAddBand);
+        runner.RunNativeTest(
+            "TestRingSystemProps::test_ring_system_get_band",
+            Tests.Unit.TestRingSystemProps.TestRingSystemGetBand);
+        runner.RunNativeTest(
+            "TestRingSystemProps::test_ring_band_round_trip",
+            Tests.Unit.TestRingSystemProps.TestRingBandRoundTrip);
+        runner.RunNativeTest(
+            "TestRingSystemProps::test_ring_system_round_trip",
+            Tests.Unit.TestRingSystemProps.TestRingSystemRoundTrip);
+        runner.RunNativeTest(
+            "TestSector::test_sector_creation",
+            Tests.Unit.TestSector.TestSectorCreation);
+        runner.RunNativeTest(
+            "TestSector::test_sector_world_origin",
+            Tests.Unit.TestSector.TestSectorWorldOrigin);
+        runner.RunNativeTest(
+            "TestSector::test_get_stars_triggers_generation",
+            Tests.Unit.TestSector.TestGetStarsTriggersGeneration);
+        runner.RunNativeTest(
+            "TestSector::test_get_stars_deterministic",
+            Tests.Unit.TestSector.TestGetStarsDeterministic);
+        runner.RunNativeTest(
+            "TestSector::test_get_star_count",
+            Tests.Unit.TestSector.TestGetStarCount);
+        runner.RunNativeTest(
+            "TestSector::test_get_stars_in_subsector",
+            Tests.Unit.TestSector.TestGetStarsInSubsector);
+        runner.RunNativeTest(
+            "TestSector::test_stars_have_correct_subsector_coords",
+            Tests.Unit.TestSector.TestStarsHaveCorrectSubsectorCoords);
+        runner.RunNativeTest(
+            "TestSector::test_regenerate_clears_and_regenerates",
+            Tests.Unit.TestSector.TestRegenerateClearsAndRegenerates);
+        runner.RunNativeTest(
+            "TestSector::test_sector_seed_is_deterministic",
+            Tests.Unit.TestSector.TestSectorSeedIsDeterministic);
+        runner.RunNativeTest(
+            "TestSeededRng::test_determinism_same_seed_produces_same_sequence",
+            Tests.Unit.TestSeededRng.TestDeterminismSameSeedProducesSameSequence);
+        runner.RunNativeTest(
+            "TestSeededRng::test_different_seeds_produce_different_sequences",
+            Tests.Unit.TestSeededRng.TestDifferentSeedsProduceDifferentSequences);
+        runner.RunNativeTest(
+            "TestSeededRng::test_randf_returns_values_in_valid_range",
+            Tests.Unit.TestSeededRng.TestRandfReturnsValuesInValidRange);
+        runner.RunNativeTest(
+            "TestSeededRng::test_randf_range_returns_values_in_specified_range",
+            Tests.Unit.TestSeededRng.TestRandfRangeReturnsValuesInSpecifiedRange);
+        runner.RunNativeTest(
+            "TestSeededRng::test_randi_range_returns_values_in_specified_range",
+            Tests.Unit.TestSeededRng.TestRandiRangeReturnsValuesInSpecifiedRange);
+        runner.RunNativeTest(
+            "TestSeededRng::test_get_initial_seed_returns_correct_value",
+            Tests.Unit.TestSeededRng.TestGetInitialSeedReturnsCorrectValue);
+        runner.RunNativeTest(
+            "TestSeededRng::test_state_save_and_restore",
+            Tests.Unit.TestSeededRng.TestStateSaveAndRestore);
+        runner.RunNativeTest(
+            "TestSeededRng::test_fork_is_deterministic",
+            Tests.Unit.TestSeededRng.TestForkIsDeterministic);
+        runner.RunNativeTest(
+            "TestSeededRng::test_fork_does_not_affect_parent_determinism",
+            Tests.Unit.TestSeededRng.TestForkDoesNotAffectParentDeterminism);
+        runner.RunNativeTest(
+            "TestSizeTable::test_mass_ranges",
+            Tests.Unit.TestSizeTable.TestMassRanges);
+        runner.RunNativeTest(
+            "TestSizeTable::test_category_from_mass",
+            Tests.Unit.TestSizeTable.TestCategoryFromMass);
+        runner.RunNativeTest(
+            "TestSizeTable::test_random_mass_in_range",
+            Tests.Unit.TestSizeTable.TestRandomMassInRange);
+        runner.RunNativeTest(
+            "TestSizeTable::test_radius_from_mass_density",
+            Tests.Unit.TestSizeTable.TestRadiusFromMassDensity);
+        runner.RunNativeTest(
+            "TestSizeTable::test_density_ranges_realistic",
+            Tests.Unit.TestSizeTable.TestDensityRangesRealistic);
+        runner.RunNativeTest(
+            "TestSolarSystem::test_construction",
+            Tests.Unit.TestSolarSystem.TestConstruction);
+        runner.RunNativeTest(
+            "TestSolarSystem::test_add_star",
+            Tests.Unit.TestSolarSystem.TestAddStar);
+        runner.RunNativeTest(
+            "TestSolarSystem::test_add_multiple_body_types",
+            Tests.Unit.TestSolarSystem.TestAddMultipleBodyTypes);
+        runner.RunNativeTest(
+            "TestSolarSystem::test_get_moons_of_planet",
+            Tests.Unit.TestSolarSystem.TestGetMoonsOfPlanet);
+        runner.RunNativeTest(
+            "TestSolarSystem::test_is_valid",
+            Tests.Unit.TestSolarSystem.TestIsValid);
+        runner.RunNativeTest(
+            "TestSolarSystem::test_asteroid_belts",
+            Tests.Unit.TestSolarSystem.TestAsteroidBelts);
+        runner.RunNativeTest(
+            "TestSolarSystem::test_orbit_hosts",
+            Tests.Unit.TestSolarSystem.TestOrbitHosts);
+        runner.RunNativeTest(
+            "TestSolarSystem::test_get_summary",
+            Tests.Unit.TestSolarSystem.TestGetSummary);
+        runner.RunNativeTest(
+            "TestSolarSystemPopulation::test_empty_system_returns_zero_totals",
+            Tests.Unit.TestSolarSystemPopulation.TestEmptySystemReturnsZeroTotals);
+        runner.RunNativeTest(
+            "TestSolarSystemPopulation::test_empty_system_is_not_inhabited",
+            Tests.Unit.TestSolarSystemPopulation.TestEmptySystemIsNotInhabited);
+        runner.RunNativeTest(
+            "TestSolarSystemPopulation::test_body_without_population_data_contributes_zero",
+            Tests.Unit.TestSolarSystemPopulation.TestBodyWithoutPopulationDataContributesZero);
+        runner.RunNativeTest(
+            "TestSolarSystemPopulation::test_total_population_sums_across_all_bodies",
+            Tests.Unit.TestSolarSystemPopulation.TestTotalPopulationSumsAcrossAllBodies);
+        runner.RunNativeTest(
+            "TestSolarSystemPopulation::test_native_population_excludes_colony_counts",
+            Tests.Unit.TestSolarSystemPopulation.TestNativePopulationExcludesColonyCounts);
+        runner.RunNativeTest(
+            "TestSolarSystemPopulation::test_colony_population_excludes_native_counts",
+            Tests.Unit.TestSolarSystemPopulation.TestColonyPopulationExcludesNativeCounts);
+        runner.RunNativeTest(
+            "TestSolarSystemPopulation::test_native_plus_colony_equals_total",
+            Tests.Unit.TestSolarSystemPopulation.TestNativePlusColonyEqualsTotal);
+        runner.RunNativeTest(
+            "TestSolarSystemPopulation::test_is_inhabited_true_when_any_colony_exists",
+            Tests.Unit.TestSolarSystemPopulation.TestIsInhabitedTrueWhenAnyColonyExists);
+        runner.RunNativeTest(
+            "TestSolarSystemPopulation::test_is_inhabited_true_when_any_native_exists",
+            Tests.Unit.TestSolarSystemPopulation.TestIsInhabitedTrueWhenAnyNativeExists);
+        runner.RunNativeTest(
+            "TestSolarSystemPopulation::test_moon_population_included_in_total",
+            Tests.Unit.TestSolarSystemPopulation.TestMoonPopulationIncludedInTotal);
+        runner.RunNativeTest(
+            "TestSolarSystemPopulation::test_native_plus_colony_equals_total_with_moons",
+            Tests.Unit.TestSolarSystemPopulation.TestNativePlusColonyEqualsTotalWithMoons);
+        runner.RunNativeTest(
+            "TestSolarSystemSpec::test_construction",
+            Tests.Unit.TestSolarSystemSpec.TestConstruction);
+        runner.RunNativeTest(
+            "TestSolarSystemSpec::test_star_count_clamping",
+            Tests.Unit.TestSolarSystemSpec.TestStarCountClamping);
+        runner.RunNativeTest(
+            "TestSolarSystemSpec::test_star_count_min_greater_than_max",
+            Tests.Unit.TestSolarSystemSpec.TestStarCountMinGreaterThanMax);
+        runner.RunNativeTest(
+            "TestSolarSystemSpec::test_single_star_preset",
+            Tests.Unit.TestSolarSystemSpec.TestSingleStarPreset);
+        runner.RunNativeTest(
+            "TestSolarSystemSpec::test_binary_preset",
+            Tests.Unit.TestSolarSystemSpec.TestBinaryPreset);
+        runner.RunNativeTest(
+            "TestSolarSystemSpec::test_random_small_preset",
+            Tests.Unit.TestSolarSystemSpec.TestRandomSmallPreset);
+        runner.RunNativeTest(
+            "TestSolarSystemSpec::test_random_preset",
+            Tests.Unit.TestSolarSystemSpec.TestRandomPreset);
+        runner.RunNativeTest(
+            "TestSolarSystemSpec::test_sun_like_preset",
+            Tests.Unit.TestSolarSystemSpec.TestSunLikePreset);
+        runner.RunNativeTest(
+            "TestSolarSystemSpec::test_alpha_centauri_like_preset",
+            Tests.Unit.TestSolarSystemSpec.TestAlphaCentauriLikePreset);
+        runner.RunNativeTest(
+            "TestSolarSystemSpec::test_overrides",
+            Tests.Unit.TestSolarSystemSpec.TestOverrides);
+        runner.RunNativeTest(
+            "TestSolarSystemSpec::test_system_age_metallicity_defaults",
+            Tests.Unit.TestSolarSystemSpec.TestSystemAgeMetallicityDefaults);
+        runner.RunNativeTest(
+            "TestSolarSystemSpec::test_system_age_metallicity_setting",
+            Tests.Unit.TestSolarSystemSpec.TestSystemAgeMetallicitySetting);
+        runner.RunNativeTest(
+            "TestSolarSystemSpec::test_round_trip",
+            Tests.Unit.TestSolarSystemSpec.TestRoundTrip);
+        runner.RunNativeTest(
+            "TestStarGenerator::test_determinism",
+            Tests.Unit.TestStarGenerator.TestDeterminism);
+        runner.RunNativeTest(
+            "TestStarGenerator::test_different_seeds",
+            Tests.Unit.TestStarGenerator.TestDifferentSeeds);
+        runner.RunNativeTest(
+            "TestStarGenerator::test_validation_passes",
+            Tests.Unit.TestStarGenerator.TestValidationPasses);
+        runner.RunNativeTest(
+            "TestStarGenerator::test_sun_like_preset",
+            Tests.Unit.TestStarGenerator.TestSunLikePreset);
+        runner.RunNativeTest(
+            "TestStarGenerator::test_red_dwarf_preset",
+            Tests.Unit.TestStarGenerator.TestRedDwarfPreset);
+        runner.RunNativeTest(
+            "TestStarGenerator::test_hot_blue_preset",
+            Tests.Unit.TestStarGenerator.TestHotBluePreset);
+        runner.RunNativeTest(
+            "TestStarGenerator::test_temperature_matches_class",
+            Tests.Unit.TestStarGenerator.TestTemperatureMatchesClass);
+        runner.RunNativeTest(
+            "TestStarGenerator::test_mass_luminosity_relationship",
+            Tests.Unit.TestStarGenerator.TestMassLuminosityRelationship);
+        runner.RunNativeTest(
+            "TestStarGenerator::test_provenance",
+            Tests.Unit.TestStarGenerator.TestProvenance);
+        runner.RunNativeTest(
+            "TestStarGenerator::test_name_hint",
+            Tests.Unit.TestStarGenerator.TestNameHint);
+        runner.RunNativeTest(
+            "TestStarGenerator::test_overrides",
+            Tests.Unit.TestStarGenerator.TestOverrides);
+        runner.RunNativeTest(
+            "TestStarGenerator::test_star_type",
+            Tests.Unit.TestStarGenerator.TestStarType);
+        runner.RunNativeTest(
+            "TestStarGenerator::test_physical_properties_positive",
+            Tests.Unit.TestStarGenerator.TestPhysicalPropertiesPositive);
+        runner.RunNativeTest(
+            "TestStarGenerator::test_stellar_properties_positive",
+            Tests.Unit.TestStarGenerator.TestStellarPropertiesPositive);
+        runner.RunNativeTest(
+            "TestStarGenerator::test_age_within_lifetime",
+            Tests.Unit.TestStarGenerator.TestAgeWithinLifetime);
+        runner.RunNativeTest(
+            "TestStarGenerator::test_habitable_zone",
+            Tests.Unit.TestStarGenerator.TestHabitableZone);
+        runner.RunNativeTest(
+            "TestStarGeneratorDistributions::test_spectral_type_distribution_reasonable",
+            Tests.Unit.TestStarGeneratorDistributions.TestSpectralTypeDistributionReasonable);
+        runner.RunNativeTest(
+            "TestStarShaderParams::test_solar_temperature_color",
+            Tests.Unit.TestStarShaderParams.TestSolarTemperatureColor);
+        runner.RunNativeTest(
+            "TestStarShaderParams::test_hot_star_temperature",
+            Tests.Unit.TestStarShaderParams.TestHotStarTemperature);
+        runner.RunNativeTest(
+            "TestStarShaderParams::test_cool_star_temperature",
+            Tests.Unit.TestStarShaderParams.TestCoolStarTemperature);
+        runner.RunNativeTest(
+            "TestStarShaderParams::test_granulation_varies_with_temperature",
+            Tests.Unit.TestStarShaderParams.TestGranulationVariesWithTemperature);
+        runner.RunNativeTest(
+            "TestStarShaderParams::test_determinism_same_seed",
+            Tests.Unit.TestStarShaderParams.TestDeterminismSameSeed);
+        runner.RunNativeTest(
+            "TestStarShaderParams::test_determinism_different_seed",
+            Tests.Unit.TestStarShaderParams.TestDeterminismDifferentSeed);
+        runner.RunNativeTest(
+            "TestStarSystemPreview::test_generate_returns_null_for_zero_seed",
+            Tests.Unit.TestStarSystemPreview.TestGenerateReturnsNullForZeroSeed);
+        runner.RunNativeTest(
+            "TestStarSystemPreview::test_generate_returns_null_for_null_spec",
+            Tests.Unit.TestStarSystemPreview.TestGenerateReturnsNullForNullSpec);
+        runner.RunNativeTest(
+            "TestStarSystemPreview::test_generate_returns_preview_data",
+            Tests.Unit.TestStarSystemPreview.TestGenerateReturnsPreviewData);
+        runner.RunNativeTest(
+            "TestStarSystemPreview::test_generate_seeds_match",
+            Tests.Unit.TestStarSystemPreview.TestGenerateSeedsMatch);
+        runner.RunNativeTest(
+            "TestStarSystemPreview::test_generate_caches_system",
+            Tests.Unit.TestStarSystemPreview.TestGenerateCachesSystem);
+        runner.RunNativeTest(
+            "TestStarSystemPreview::test_generate_star_count_at_least_one",
+            Tests.Unit.TestStarSystemPreview.TestGenerateStarCountAtLeastOne);
+        runner.RunNativeTest(
+            "TestStarSystemPreview::test_generate_spectral_classes_match_star_count",
+            Tests.Unit.TestStarSystemPreview.TestGenerateSpectralClassesMatchStarCount);
+        runner.RunNativeTest(
+            "TestStarSystemPreview::test_generate_temperatures_match_star_count",
+            Tests.Unit.TestStarSystemPreview.TestGenerateTemperaturesMatchStarCount);
+        runner.RunNativeTest(
+            "TestStarSystemPreview::test_generate_is_deterministic",
+            Tests.Unit.TestStarSystemPreview.TestGenerateIsDeterministic);
+        runner.RunNativeTest(
+            "TestStarSystemPreview::test_generate_metallicity_positive",
+            Tests.Unit.TestStarSystemPreview.TestGenerateMetallicityPositive);
+        runner.RunNativeTest(
+            "TestStarTable::test_mass_ranges",
+            Tests.Unit.TestStarTable.TestMassRanges);
+        runner.RunNativeTest(
+            "TestStarTable::test_luminosity_from_mass",
+            Tests.Unit.TestStarTable.TestLuminosityFromMass);
+        runner.RunNativeTest(
+            "TestStarTable::test_radius_from_mass",
+            Tests.Unit.TestStarTable.TestRadiusFromMass);
+        runner.RunNativeTest(
+            "TestStarTable::test_temperature_from_luminosity_radius",
+            Tests.Unit.TestStarTable.TestTemperatureFromLuminosityRadius);
+        runner.RunNativeTest(
+            "TestStarTable::test_class_from_temperature",
+            Tests.Unit.TestStarTable.TestClassFromTemperature);
+        runner.RunNativeTest(
+            "TestStarTable::test_subclass_interpolation",
+            Tests.Unit.TestStarTable.TestSubclassInterpolation);
+        runner.RunNativeTest(
+            "TestStarTable::test_lifetime_ranges",
+            Tests.Unit.TestStarTable.TestLifetimeRanges);
+        runner.RunNativeTest(
+            "TestStellarConfigGenerator::test_generate_single_star",
+            Tests.Unit.TestStellarConfigGenerator.TestGenerateSingleStar);
+        runner.RunNativeTest(
+            "TestStellarConfigGenerator::test_generate_binary",
+            Tests.Unit.TestStellarConfigGenerator.TestGenerateBinary);
+        runner.RunNativeTest(
+            "TestStellarConfigGenerator::test_generate_triple",
+            Tests.Unit.TestStellarConfigGenerator.TestGenerateTriple);
+        runner.RunNativeTest(
+            "TestStellarConfigGenerator::test_determinism",
+            Tests.Unit.TestStellarConfigGenerator.TestDeterminism);
+        runner.RunNativeTest(
+            "TestStellarConfigGenerator::test_spectral_class_hints",
+            Tests.Unit.TestStellarConfigGenerator.TestSpectralClassHints);
+        runner.RunNativeTest(
+            "TestStellarConfigGenerator::test_orbit_hosts_created",
+            Tests.Unit.TestStellarConfigGenerator.TestOrbitHostsCreated);
+        runner.RunNativeTest(
+            "TestStellarConfigGenerator::test_star_names",
+            Tests.Unit.TestStellarConfigGenerator.TestStarNames);
+        runner.RunNativeTest(
+            "TestStellarConfigGenerator::test_star_ids_unique",
+            Tests.Unit.TestStellarConfigGenerator.TestStarIdsUnique);
+        runner.RunNativeTest(
+            "TestStellarConfigGenerator::test_provenance_stored",
+            Tests.Unit.TestStellarConfigGenerator.TestProvenanceStored);
+        runner.RunNativeTest(
+            "TestStellarConfigGenerator::test_random_star_count_in_range",
+            Tests.Unit.TestStellarConfigGenerator.TestRandomStarCountInRange);
+        runner.RunNativeTest(
+            "TestStellarConfigGenerator::test_hierarchical_system",
+            Tests.Unit.TestStellarConfigGenerator.TestHierarchicalSystem);
+        runner.RunNativeTest(
+            "TestStellarConfigGenerator::test_maximum_stars",
+            Tests.Unit.TestStellarConfigGenerator.TestMaximumStars);
+        runner.RunNativeTest(
+            "TestStellarProps::test_default_values",
+            Tests.Unit.TestStellarProps.TestDefaultValues);
+        runner.RunNativeTest(
+            "TestStellarProps::test_sun_like_initialization",
+            Tests.Unit.TestStellarProps.TestSunLikeInitialization);
+        runner.RunNativeTest(
+            "TestStellarProps::test_luminosity_solar",
+            Tests.Unit.TestStellarProps.TestLuminositySolar);
+        runner.RunNativeTest(
+            "TestStellarProps::test_habitable_zone_sun_like",
+            Tests.Unit.TestStellarProps.TestHabitableZoneSunLike);
+        runner.RunNativeTest(
+            "TestStellarProps::test_habitable_zone_brighter_star",
+            Tests.Unit.TestStellarProps.TestHabitableZoneBrighterStar);
+        runner.RunNativeTest(
+            "TestStellarProps::test_frost_line",
+            Tests.Unit.TestStellarProps.TestFrostLine);
+        runner.RunNativeTest(
+            "TestStellarProps::test_non_positive_luminosity_returns_zero_boundaries",
+            Tests.Unit.TestStellarProps.TestNonPositiveLuminosityReturnsZeroBoundaries);
+        runner.RunNativeTest(
+            "TestStellarProps::test_spectral_letter",
+            Tests.Unit.TestStellarProps.TestSpectralLetter);
+        runner.RunNativeTest(
+            "TestStellarProps::test_round_trip",
+            Tests.Unit.TestStellarProps.TestRoundTrip);
+        runner.RunNativeTest(
+            "TestSystemAsteroidGenerator::test_generate_belts",
+            Tests.Unit.TestSystemAsteroidGenerator.TestGenerateBelts);
+        runner.RunNativeTest(
+            "TestSystemAsteroidGenerator::test_generate_belts_no_planets",
+            Tests.Unit.TestSystemAsteroidGenerator.TestGenerateBeltsNoPlanets);
+        runner.RunNativeTest(
+            "TestSystemAsteroidGenerator::test_determinism",
+            Tests.Unit.TestSystemAsteroidGenerator.TestDeterminism);
+        runner.RunNativeTest(
+            "TestSystemAsteroidGenerator::test_belt_boundaries",
+            Tests.Unit.TestSystemAsteroidGenerator.TestBeltBoundaries);
+        runner.RunNativeTest(
+            "TestSystemAsteroidGenerator::test_asteroid_ids_unique",
+            Tests.Unit.TestSystemAsteroidGenerator.TestAsteroidIdsUnique);
+        runner.RunNativeTest(
+            "TestSystemAsteroidGenerator::test_asteroids_pass_validation",
+            Tests.Unit.TestSystemAsteroidGenerator.TestAsteroidsPassValidation);
+        runner.RunNativeTest(
+            "TestSystemAsteroidGenerator::test_asteroid_parent_ids",
+            Tests.Unit.TestSystemAsteroidGenerator.TestAsteroidParentIds);
+        runner.RunNativeTest(
+            "TestSystemAsteroidGenerator::test_asteroid_names",
+            Tests.Unit.TestSystemAsteroidGenerator.TestAsteroidNames);
+        runner.RunNativeTest(
+            "TestSystemBodyNode::test_setup_planet",
+            Tests.Unit.TestSystemBodyNode.TestSetupPlanet);
+        runner.RunNativeTest(
+            "TestSystemBodyNode::test_setup_star_creates_light",
+            Tests.Unit.TestSystemBodyNode.TestSetupStarCreatesLight);
+        runner.RunNativeTest(
+            "TestSystemBodyNode::test_setup_planet_no_light",
+            Tests.Unit.TestSystemBodyNode.TestSetupPlanetNoLight);
+        runner.RunNativeTest(
+            "TestSystemBodyNode::test_setup_creates_mesh",
+            Tests.Unit.TestSystemBodyNode.TestSetupCreatesMesh);
+        runner.RunNativeTest(
+            "TestSystemBodyNode::test_setup_creates_click_area",
+            Tests.Unit.TestSystemBodyNode.TestSetupCreatesClickArea);
+        runner.RunNativeTest(
+            "TestSystemBodyNode::test_setup_null_body",
+            Tests.Unit.TestSystemBodyNode.TestSetupNullBody);
+        runner.RunNativeTest(
+            "TestSystemBodyNode::test_set_selected",
+            Tests.Unit.TestSystemBodyNode.TestSetSelected);
+        runner.RunNativeTest(
+            "TestSystemBodyNode::test_get_body_type",
+            Tests.Unit.TestSystemBodyNode.TestGetBodyType);
+        runner.RunNativeTest(
+            "TestSystemBodyNode::test_get_display_name",
+            Tests.Unit.TestSystemBodyNode.TestGetDisplayName);
+        runner.RunNativeTest(
+            "TestSystemBodyNode::test_get_display_name_null_body",
+            Tests.Unit.TestSystemBodyNode.TestGetDisplayNameNullBody);
+        runner.RunNativeTest(
+            "TestSystemBodyNode::test_get_parent_id",
+            Tests.Unit.TestSystemBodyNode.TestGetParentId);
+        runner.RunNativeTest(
+            "TestSystemBodyNode::test_get_parent_id_no_orbital",
+            Tests.Unit.TestSystemBodyNode.TestGetParentIdNoOrbital);
+        runner.RunNativeTest(
+            "TestSystemBodyNode::test_cleanup",
+            Tests.Unit.TestSystemBodyNode.TestCleanup);
+        runner.RunNativeTest(
+            "TestSystemCache::test_starts_empty",
+            Tests.Unit.TestSystemCache.TestStartsEmpty);
+        runner.RunNativeTest(
+            "TestSystemCache::test_has_system_returns_false_for_missing",
+            Tests.Unit.TestSystemCache.TestHasSystemReturnsFalseForMissing);
+        runner.RunNativeTest(
+            "TestSystemCache::test_get_system_returns_null_for_missing",
+            Tests.Unit.TestSystemCache.TestGetSystemReturnsNullForMissing);
+        runner.RunNativeTest(
+            "TestSystemCache::test_put_and_get_system",
+            Tests.Unit.TestSystemCache.TestPutAndGetSystem);
+        runner.RunNativeTest(
+            "TestSystemCache::test_cache_size_increases",
+            Tests.Unit.TestSystemCache.TestCacheSizeIncreases);
+        runner.RunNativeTest(
+            "TestSystemCache::test_overwrite_same_key",
+            Tests.Unit.TestSystemCache.TestOverwriteSameKey);
+        runner.RunNativeTest(
+            "TestSystemCache::test_clear_empties_cache",
+            Tests.Unit.TestSystemCache.TestClearEmptiesCache);
+        runner.RunNativeTest(
+            "TestSystemCache::test_different_seeds_are_independent",
+            Tests.Unit.TestSystemCache.TestDifferentSeedsAreIndependent);
+        runner.RunNativeTest(
+            "TestSystemDisplayLayout::test_star_display_radius_solar",
+            Tests.Unit.TestSystemDisplayLayout.TestStarDisplayRadiusSolar);
+        runner.RunNativeTest(
+            "TestSystemDisplayLayout::test_star_display_radius_red_dwarf",
+            Tests.Unit.TestSystemDisplayLayout.TestStarDisplayRadiusRedDwarf);
+        runner.RunNativeTest(
+            "TestSystemDisplayLayout::test_star_display_radius_giant",
+            Tests.Unit.TestSystemDisplayLayout.TestStarDisplayRadiusGiant);
+        runner.RunNativeTest(
+            "TestSystemDisplayLayout::test_star_display_radius_max_clamp",
+            Tests.Unit.TestSystemDisplayLayout.TestStarDisplayRadiusMaxClamp);
+        runner.RunNativeTest(
+            "TestSystemDisplayLayout::test_star_display_radius_min_clamp",
+            Tests.Unit.TestSystemDisplayLayout.TestStarDisplayRadiusMinClamp);
+        runner.RunNativeTest(
+            "TestSystemDisplayLayout::test_planet_display_radius_earth",
+            Tests.Unit.TestSystemDisplayLayout.TestPlanetDisplayRadiusEarth);
+        runner.RunNativeTest(
+            "TestSystemDisplayLayout::test_planet_display_radius_jupiter",
+            Tests.Unit.TestSystemDisplayLayout.TestPlanetDisplayRadiusJupiter);
+        runner.RunNativeTest(
+            "TestSystemDisplayLayout::test_planet_display_radius_dwarf",
+            Tests.Unit.TestSystemDisplayLayout.TestPlanetDisplayRadiusDwarf);
+        runner.RunNativeTest(
+            "TestSystemDisplayLayout::test_first_orbit_radius_solar",
+            Tests.Unit.TestSystemDisplayLayout.TestFirstOrbitRadiusSolar);
+        runner.RunNativeTest(
+            "TestSystemDisplayLayout::test_first_orbit_radius_giant",
+            Tests.Unit.TestSystemDisplayLayout.TestFirstOrbitRadiusGiant);
+        runner.RunNativeTest(
+            "TestSystemDisplayLayout::test_orbit_spacing",
+            Tests.Unit.TestSystemDisplayLayout.TestOrbitSpacing);
+        runner.RunNativeTest(
+            "TestSystemDisplayLayout::test_belt_layout_generated",
+            Tests.Unit.TestSystemDisplayLayout.TestBeltLayoutGenerated);
+        runner.RunNativeTest(
+            "TestSystemDisplayLayout::test_belt_inclination_scales_with_distance",
+            Tests.Unit.TestSystemDisplayLayout.TestBeltInclinationScalesWithDistance);
+        runner.RunNativeTest(
+            "TestSystemDisplayLayout::test_single_star_layout",
+            Tests.Unit.TestSystemDisplayLayout.TestSingleStarLayout);
+        runner.RunNativeTest(
+            "TestSystemDisplayLayout::test_single_star_with_planets_layout",
+            Tests.Unit.TestSystemDisplayLayout.TestSingleStarWithPlanetsLayout);
+        runner.RunNativeTest(
+            "TestSystemDisplayLayout::test_star_extent_with_planets",
+            Tests.Unit.TestSystemDisplayLayout.TestStarExtentWithPlanets);
+        runner.RunNativeTest(
+            "TestSystemDisplayLayout::test_binary_star_layout_no_planets",
+            Tests.Unit.TestSystemDisplayLayout.TestBinaryStarLayoutNoPlanets);
+        runner.RunNativeTest(
+            "TestSystemDisplayLayout::test_first_orbit_outside_star_solar",
+            Tests.Unit.TestSystemDisplayLayout.TestFirstOrbitOutsideStarSolar);
+        runner.RunNativeTest(
+            "TestSystemDisplayLayout::test_first_orbit_outside_giant_star",
+            Tests.Unit.TestSystemDisplayLayout.TestFirstOrbitOutsideGiantStar);
+        runner.RunNativeTest(
+            "TestSystemDisplayLayout::test_first_orbit_outside_red_dwarf",
+            Tests.Unit.TestSystemDisplayLayout.TestFirstOrbitOutsideRedDwarf);
+        runner.RunNativeTest(
+            "TestSystemDisplayLayout::test_binary_with_stype_planets_no_overlap",
+            Tests.Unit.TestSystemDisplayLayout.TestBinaryWithStypePlanetsNoOverlap);
+        runner.RunNativeTest(
+            "TestSystemDisplayLayout::test_null_system_returns_empty_layout",
+            Tests.Unit.TestSystemDisplayLayout.TestNullSystemReturnsEmptyLayout);
+        runner.RunNativeTest(
+            "TestSystemDisplayLayout::test_system_without_hierarchy_returns_empty_layout",
+            Tests.Unit.TestSystemDisplayLayout.TestSystemWithoutHierarchyReturnsEmptyLayout);
+        runner.RunNativeTest(
+            "TestSystemGoldenMasters::test_fixtures_generated",
+            Tests.Unit.TestSystemGoldenMasters.TestFixturesGenerated);
+        runner.RunNativeTest(
+            "TestSystemGoldenMasters::test_fixture_single_sun_like",
+            Tests.Unit.TestSystemGoldenMasters.TestFixtureSingleSunLike);
+        runner.RunNativeTest(
+            "TestSystemGoldenMasters::test_fixture_single_red_dwarf",
+            Tests.Unit.TestSystemGoldenMasters.TestFixtureSingleRedDwarf);
+        runner.RunNativeTest(
+            "TestSystemGoldenMasters::test_fixture_binary_equal",
+            Tests.Unit.TestSystemGoldenMasters.TestFixtureBinaryEqual);
+        runner.RunNativeTest(
+            "TestSystemGoldenMasters::test_fixture_binary_unequal",
+            Tests.Unit.TestSystemGoldenMasters.TestFixtureBinaryUnequal);
+        runner.RunNativeTest(
+            "TestSystemGoldenMasters::test_fixture_triple_hierarchical",
+            Tests.Unit.TestSystemGoldenMasters.TestFixtureTripleHierarchical);
+        runner.RunNativeTest(
+            "TestSystemGoldenMasters::test_fixture_quadruple",
+            Tests.Unit.TestSystemGoldenMasters.TestFixtureQuadruple);
+        runner.RunNativeTest(
+            "TestSystemGoldenMasters::test_fixture_max_stars",
+            Tests.Unit.TestSystemGoldenMasters.TestFixtureMaxStars);
+        runner.RunNativeTest(
+            "TestSystemGoldenMasters::test_all_fixtures_valid",
+            Tests.Unit.TestSystemGoldenMasters.TestAllFixturesValid);
+        runner.RunNativeTest(
+            "TestSystemGoldenMasters::test_fixture_star_counts",
+            Tests.Unit.TestSystemGoldenMasters.TestFixtureStarCounts);
+        runner.RunNativeTest(
+            "TestSystemGoldenMasters::test_fixture_serialization_roundtrip",
+            Tests.Unit.TestSystemGoldenMasters.TestFixtureSerializationRoundtrip);
+        runner.RunNativeTest(
+            "TestSystemHierarchy::test_empty_hierarchy",
+            Tests.Unit.TestSystemHierarchy.TestEmptyHierarchy);
+        runner.RunNativeTest(
+            "TestSystemHierarchy::test_single_star",
+            Tests.Unit.TestSystemHierarchy.TestSingleStar);
+        runner.RunNativeTest(
+            "TestSystemHierarchy::test_binary_stars",
+            Tests.Unit.TestSystemHierarchy.TestBinaryStars);
+        runner.RunNativeTest(
+            "TestSystemHierarchy::test_get_all_nodes",
+            Tests.Unit.TestSystemHierarchy.TestGetAllNodes);
+        runner.RunNativeTest(
+            "TestSystemHierarchy::test_get_all_barycenters",
+            Tests.Unit.TestSystemHierarchy.TestGetAllBarycenters);
+        runner.RunNativeTest(
+            "TestSystemHierarchy::test_get_all_star_nodes",
+            Tests.Unit.TestSystemHierarchy.TestGetAllStarNodes);
+        runner.RunNativeTest(
+            "TestSystemHierarchy::test_find_node",
+            Tests.Unit.TestSystemHierarchy.TestFindNode);
+        runner.RunNativeTest(
+            "TestSystemHierarchy::test_round_trip",
+            Tests.Unit.TestSystemHierarchy.TestRoundTrip);
+        runner.RunNativeTest(
+            "TestSystemInspectorPanel::test_display_system_star_count",
+            Tests.Unit.TestSystemInspectorPanel.TestDisplaySystemStarCount);
+        runner.RunNativeTest(
+            "TestSystemInspectorPanel::test_display_null_system",
+            Tests.Unit.TestSystemInspectorPanel.TestDisplayNullSystem);
+        runner.RunNativeTest(
+            "TestSystemInspectorPanel::test_display_selected_body_name",
+            Tests.Unit.TestSystemInspectorPanel.TestDisplaySelectedBodyName);
+        runner.RunNativeTest(
+            "TestSystemInspectorPanel::test_display_null_body",
+            Tests.Unit.TestSystemInspectorPanel.TestDisplayNullBody);
+        runner.RunNativeTest(
+            "TestSystemInspectorPanel::test_clear",
+            Tests.Unit.TestSystemInspectorPanel.TestClear);
+        runner.RunNativeTest(
+            "TestSystemMoonGenerator::test_generate_gas_giant_moons",
+            Tests.Unit.TestSystemMoonGenerator.TestGenerateGasGiantMoons);
+        runner.RunNativeTest(
+            "TestSystemMoonGenerator::test_determinism",
+            Tests.Unit.TestSystemMoonGenerator.TestDeterminism);
+        runner.RunNativeTest(
+            "TestSystemMoonGenerator::test_moon_parent_ids",
+            Tests.Unit.TestSystemMoonGenerator.TestMoonParentIds);
+        runner.RunNativeTest(
+            "TestSystemMoonGenerator::test_moons_within_hill_sphere",
+            Tests.Unit.TestSystemMoonGenerator.TestMoonsWithinHillSphere);
+        runner.RunNativeTest(
+            "TestSystemMoonGenerator::test_moons_outside_planet_surface",
+            Tests.Unit.TestSystemMoonGenerator.TestMoonsOutsidePlanetSurface);
+        runner.RunNativeTest(
+            "TestSystemMoonGenerator::test_get_moons_for_planet",
+            Tests.Unit.TestSystemMoonGenerator.TestGetMoonsForPlanet);
+        runner.RunNativeTest(
+            "TestSystemMoonGenerator::test_sort_by_distance",
+            Tests.Unit.TestSystemMoonGenerator.TestSortByDistance);
+        runner.RunNativeTest(
+            "TestSystemMoonGenerator::test_get_statistics",
+            Tests.Unit.TestSystemMoonGenerator.TestGetStatistics);
+        runner.RunNativeTest(
+            "TestSystemMoonGenerator::test_moon_ids_unique",
+            Tests.Unit.TestSystemMoonGenerator.TestMoonIdsUnique);
+        runner.RunNativeTest(
+            "TestSystemPlanetGenerator::test_generate_planets",
+            Tests.Unit.TestSystemPlanetGenerator.TestGeneratePlanets);
+        runner.RunNativeTest(
+            "TestSystemPlanetGenerator::test_determinism",
+            Tests.Unit.TestSystemPlanetGenerator.TestDeterminism);
+        runner.RunNativeTest(
+            "TestSystemPlanetGenerator::test_unstable_slots_not_filled",
+            Tests.Unit.TestSystemPlanetGenerator.TestUnstableSlotsNotFilled);
+        runner.RunNativeTest(
+            "TestSystemPlanetGenerator::test_sort_by_distance",
+            Tests.Unit.TestSystemPlanetGenerator.TestSortByDistance);
+        runner.RunNativeTest(
+            "TestSystemPlanetGenerator::test_planets_have_ids",
+            Tests.Unit.TestSystemPlanetGenerator.TestPlanetsHaveIds);
+        runner.RunNativeTest(
+            "TestSystemPlanetGenerator::test_planets_pass_validation",
+            Tests.Unit.TestSystemPlanetGenerator.TestPlanetsPassValidation);
+        runner.RunNativeTest(
+            "TestSystemPlanetDistributions::test_hot_jupiter_fraction_rare",
+            Tests.Unit.TestSystemPlanetDistributions.TestHotJupiterFractionRare);
+        runner.RunNativeTest(
+            "TestSystemPlanetDistributions::test_cold_zone_prefers_large_planets",
+            Tests.Unit.TestSystemPlanetDistributions.TestColdZonePrefersLargePlanets);
+        runner.RunNativeTest(
+            "TestSystemScaleManager::test_default_scale_is1_au",
+            Tests.Unit.TestSystemScaleManager.TestDefaultScaleIs1Au);
+        runner.RunNativeTest(
+            "TestSystemScaleManager::test_distance_to_units1_au",
+            Tests.Unit.TestSystemScaleManager.TestDistanceToUnits1Au);
+        runner.RunNativeTest(
+            "TestSystemScaleManager::test_distance_to_units5_au",
+            Tests.Unit.TestSystemScaleManager.TestDistanceToUnits5Au);
+        runner.RunNativeTest(
+            "TestSystemScaleManager::test_units_to_distance_round_trip",
+            Tests.Unit.TestSystemScaleManager.TestUnitsToDistanceRoundTrip);
+        runner.RunNativeTest(
+            "TestSystemScaleManager::test_custom_scale",
+            Tests.Unit.TestSystemScaleManager.TestCustomScale);
+        runner.RunNativeTest(
+            "TestSystemScaleManager::test_distance_zero",
+            Tests.Unit.TestSystemScaleManager.TestDistanceZero);
+        runner.RunNativeTest(
+            "TestSystemScaleManager::test_negative_scale_clamped",
+            Tests.Unit.TestSystemScaleManager.TestNegativeScaleClamped);
+        runner.RunNativeTest(
+            "TestSystemScaleManager::test_star_display_radius_in_bounds",
+            Tests.Unit.TestSystemScaleManager.TestStarDisplayRadiusInBounds);
+        runner.RunNativeTest(
+            "TestSystemScaleManager::test_planet_display_radius_in_bounds",
+            Tests.Unit.TestSystemScaleManager.TestPlanetDisplayRadiusInBounds);
+        runner.RunNativeTest(
+            "TestSystemScaleManager::test_null_body_returns_minimum",
+            Tests.Unit.TestSystemScaleManager.TestNullBodyReturnsMinimum);
+        runner.RunNativeTest(
+            "TestSystemScaleManager::test_star_larger_than_planet_same_radius",
+            Tests.Unit.TestSystemScaleManager.TestStarLargerThanPlanetSameRadius);
+        runner.RunNativeTest(
+            "TestSystemScaleManager::test_larger_body_larger_display",
+            Tests.Unit.TestSystemScaleManager.TestLargerBodyLargerDisplay);
+        runner.RunNativeTest(
+            "TestSystemScaleManager::test_circular_orbit_zero_anomaly",
+            Tests.Unit.TestSystemScaleManager.TestCircularOrbitZeroAnomaly);
+        runner.RunNativeTest(
+            "TestSystemScaleManager::test_circular_orbit180_anomaly",
+            Tests.Unit.TestSystemScaleManager.TestCircularOrbit180Anomaly);
+        runner.RunNativeTest(
+            "TestSystemScaleManager::test_circular_orbit90_anomaly",
+            Tests.Unit.TestSystemScaleManager.TestCircularOrbit90Anomaly);
+        runner.RunNativeTest(
+            "TestSystemScaleManager::test_eccentric_orbit_periapsis_vs_apoapsis",
+            Tests.Unit.TestSystemScaleManager.TestEccentricOrbitPeriapsisVsApoapsis);
+        runner.RunNativeTest(
+            "TestSystemScaleManager::test_inclined_orbit_has_y_component",
+            Tests.Unit.TestSystemScaleManager.TestInclinedOrbitHasYComponent);
+        runner.RunNativeTest(
+            "TestSystemScaleManager::test_flat_orbit_no_y_component",
+            Tests.Unit.TestSystemScaleManager.TestFlatOrbitNoYComponent);
+        runner.RunNativeTest(
+            "TestSystemScaleManager::test_body_orbital_position_null",
+            Tests.Unit.TestSystemScaleManager.TestBodyOrbitalPositionNull);
+        runner.RunNativeTest(
+            "TestSystemScaleManager::test_body_orbital_position_no_orbital",
+            Tests.Unit.TestSystemScaleManager.TestBodyOrbitalPositionNoOrbital);
+        runner.RunNativeTest(
+            "TestSystemScaleManager::test_body_orbital_position_uses_props",
+            Tests.Unit.TestSystemScaleManager.TestBodyOrbitalPositionUsesProps);
+        runner.RunNativeTest(
+            "TestSystemScaleManager::test_orbit_points_count",
+            Tests.Unit.TestSystemScaleManager.TestOrbitPointsCount);
+        runner.RunNativeTest(
+            "TestSystemScaleManager::test_orbit_points_closed_loop",
+            Tests.Unit.TestSystemScaleManager.TestOrbitPointsClosedLoop);
+        runner.RunNativeTest(
+            "TestSystemScaleManager::test_circular_orbit_points_equidistant",
+            Tests.Unit.TestSystemScaleManager.TestCircularOrbitPointsEquidistant);
+        runner.RunNativeTest(
+            "TestSystemScaleManager::test_eccentric_orbit_points_vary_distance",
+            Tests.Unit.TestSystemScaleManager.TestEccentricOrbitPointsVaryDistance);
+        runner.RunNativeTest(
+            "TestSystemScaleManager::test_orbit_points_zero_sma",
+            Tests.Unit.TestSystemScaleManager.TestOrbitPointsZeroSma);
+        runner.RunNativeTest(
+            "TestSystemScaleManager::test_flat_orbit_points_no_y",
+            Tests.Unit.TestSystemScaleManager.TestFlatOrbitPointsNoY);
+        runner.RunNativeTest(
+            "TestSystemScaleManager::test_inclined_orbit_points_have_y",
+            Tests.Unit.TestSystemScaleManager.TestInclinedOrbitPointsHaveY);
+        runner.RunNativeTest(
+            "TestSystemScaleManager::test_kepler_circular",
+            Tests.Unit.TestSystemScaleManager.TestKeplerCircular);
+        runner.RunNativeTest(
+            "TestSystemScaleManager::test_kepler_high_eccentricity_no_nan",
+            Tests.Unit.TestSystemScaleManager.TestKeplerHighEccentricityNoNan);
+        runner.RunNativeTest(
+            "TestSystemScaleManager::test_orbit_symmetry",
+            Tests.Unit.TestSystemScaleManager.TestOrbitSymmetry);
+        runner.RunNativeTest(
+            "TestSystemScaleManager::test_circular_orbit_positions_cancel",
+            Tests.Unit.TestSystemScaleManager.TestCircularOrbitPositionsCancel);
+        runner.RunNativeTest(
+            "TestSystemSerializer::test_round_trip_dict",
+            Tests.Unit.TestSystemSerializer.TestRoundTripDict);
+        runner.RunNativeTest(
+            "TestSystemSerializer::test_round_trip_json",
+            Tests.Unit.TestSystemSerializer.TestRoundTripJson);
+        runner.RunNativeTest(
+            "TestSystemSerializer::test_hierarchy_preserved",
+            Tests.Unit.TestSystemSerializer.TestHierarchyPreserved);
+        runner.RunNativeTest(
+            "TestSystemSerializer::test_bodies_preserved",
+            Tests.Unit.TestSystemSerializer.TestBodiesPreserved);
+        runner.RunNativeTest(
+            "TestSystemSerializer::test_orbit_hosts_preserved",
+            Tests.Unit.TestSystemSerializer.TestOrbitHostsPreserved);
+        runner.RunNativeTest(
+            "TestSystemSerializer::test_asteroid_belts_preserved",
+            Tests.Unit.TestSystemSerializer.TestAsteroidBeltsPreserved);
+        runner.RunNativeTest(
+            "TestSystemSerializer::test_provenance_preserved",
+            Tests.Unit.TestSystemSerializer.TestProvenancePreserved);
+        runner.RunNativeTest(
+            "TestSystemSerializer::test_invalid_data_returns_null",
+            Tests.Unit.TestSystemSerializer.TestInvalidDataReturnsNull);
+        runner.RunNativeTest(
+            "TestSystemSerializer::test_invalid_json_returns_null",
+            Tests.Unit.TestSystemSerializer.TestInvalidJsonReturnsNull);
+        runner.RunNativeTest(
+            "TestSystemSerializer::test_schema_version_included",
+            Tests.Unit.TestSystemSerializer.TestSchemaVersionIncluded);
+        runner.RunNativeTest(
+            "TestSystemValidator::test_validate_valid_system",
+            Tests.Unit.TestSystemValidator.TestValidateValidSystem);
+        runner.RunNativeTest(
+            "TestSystemValidator::test_is_valid",
+            Tests.Unit.TestSystemValidator.TestIsValid);
+        runner.RunNativeTest(
+            "TestSystemValidator::test_is_valid_null",
+            Tests.Unit.TestSystemValidator.TestIsValidNull);
+        runner.RunNativeTest(
+            "TestSystemValidator::test_empty_id_fails",
+            Tests.Unit.TestSystemValidator.TestEmptyIdFails);
+        runner.RunNativeTest(
+            "TestSystemValidator::test_missing_hierarchy_fails",
+            Tests.Unit.TestSystemValidator.TestMissingHierarchyFails);
+        runner.RunNativeTest(
+            "TestSystemValidator::test_no_stars_fails",
+            Tests.Unit.TestSystemValidator.TestNoStarsFails);
+        runner.RunNativeTest(
+            "TestSystemValidator::test_invalid_asteroid_belt",
+            Tests.Unit.TestSystemValidator.TestInvalidAsteroidBelt);
+        runner.RunNativeTest(
+            "TestSystemValidator::test_invalid_orbit_host",
+            Tests.Unit.TestSystemValidator.TestInvalidOrbitHost);
+        runner.RunNativeTest(
+            "TestSystemValidator::test_error_counts",
+            Tests.Unit.TestSystemValidator.TestErrorCounts);
+        runner.RunNativeTest(
+            "TestTerrestrialShaderParams::test_earth_like_params",
+            Tests.Unit.TestTerrestrialShaderParams.TestEarthLikeParams);
+        runner.RunNativeTest(
+            "TestTerrestrialShaderParams::test_desert_planet_params",
+            Tests.Unit.TestTerrestrialShaderParams.TestDesertPlanetParams);
+        runner.RunNativeTest(
+            "TestTerrestrialShaderParams::test_ice_world_params",
+            Tests.Unit.TestTerrestrialShaderParams.TestIceWorldParams);
+        runner.RunNativeTest(
+            "TestTerrestrialShaderParams::test_determinism_same_seed",
+            Tests.Unit.TestTerrestrialShaderParams.TestDeterminismSameSeed);
+        runner.RunNativeTest(
+            "TestTerrestrialShaderParams::test_determinism_different_seed",
+            Tests.Unit.TestTerrestrialShaderParams.TestDeterminismDifferentSeed);
+        runner.RunNativeTest(
+            "TestTerrestrialShaderParams::test_is_terrestrial_suitable_true",
+            Tests.Unit.TestTerrestrialShaderParams.TestIsTerrestrialSuitableTrue);
+        runner.RunNativeTest(
+            "TestTerrestrialShaderParams::test_is_terrestrial_suitable_false_no_surface",
+            Tests.Unit.TestTerrestrialShaderParams.TestIsTerrestrialSuitableFalseNoSurface);
+        runner.RunNativeTest(
+            "TestTravellerConstraintBuilder::test_code8_covers_earth",
+            Tests.Unit.TestTravellerConstraintBuilder.TestCode8CoversEarth);
+        runner.RunNativeTest(
+            "TestTravellerConstraintBuilder::test_code0_handles_tiny_bodies",
+            Tests.Unit.TestTravellerConstraintBuilder.TestCode0HandlesTinyBodies);
+        runner.RunNativeTest(
+            "TestTravellerConstraintBuilder::test_code_e_has_finite_upper_bound",
+            Tests.Unit.TestTravellerConstraintBuilder.TestCodeEHasFiniteUpperBound);
+        runner.RunNativeTest(
+            "TestTravellerConstraintBuilder::test_mass_window_is_positive_and_ordered",
+            Tests.Unit.TestTravellerConstraintBuilder.TestMassWindowIsPositiveAndOrdered);
+        runner.RunNativeTest(
+            "TestTravellerConstraintBuilder::test_code_for_radius_round_trip_on_earth",
+            Tests.Unit.TestTravellerConstraintBuilder.TestCodeForRadiusRoundTripOnEarth);
+        runner.RunNativeTest(
+            "TestTravellerConstraintBuilder::test_code_for_radius_jupiter_is_e",
+            Tests.Unit.TestTravellerConstraintBuilder.TestCodeForRadiusJupiterIsE);
+        runner.RunNativeTest(
+            "TestTravellerConstraintBuilder::test_invalid_code_returns_empty",
+            Tests.Unit.TestTravellerConstraintBuilder.TestInvalidCodeReturnsEmpty);
+        runner.RunNativeTest(
+            "TestTravellerConstraintBuilder::test_describe_code_format",
+            Tests.Unit.TestTravellerConstraintBuilder.TestDescribeCodeFormat);
+        runner.RunNativeTest(
+            "TestTravellerConstraintBuilder::test_all_codes_order_and_count",
+            Tests.Unit.TestTravellerConstraintBuilder.TestAllCodesOrderAndCount);
+        runner.RunNativeTest(
+            "TestTravellerConstraintBuilder::test_adjacent_codes_have_non_overlapping_radius_midpoints",
+            Tests.Unit.TestTravellerConstraintBuilder.TestAdjacentCodesHaveNonOverlappingRadiusMidpoints);
+        runner.RunNativeTest(
+            "TestTravellerSizeCode::test_known_diameters",
+            Tests.Unit.TestTravellerSizeCode.TestKnownDiameters);
+        runner.RunNativeTest(
+            "TestTravellerSizeCode::test_boundary0800",
+            Tests.Unit.TestTravellerSizeCode.TestBoundary0800);
+        runner.RunNativeTest(
+            "TestTravellerSizeCode::test_boundary18400",
+            Tests.Unit.TestTravellerSizeCode.TestBoundary18400);
+        runner.RunNativeTest(
+            "TestTravellerSizeCode::test_boundary40000120000",
+            Tests.Unit.TestTravellerSizeCode.TestBoundary40000120000);
+        runner.RunNativeTest(
+            "TestTravellerSizeCode::test_negative_diameter_returns0",
+            Tests.Unit.TestTravellerSizeCode.TestNegativeDiameterReturns0);
+        runner.RunNativeTest(
+            "TestTravellerSizeCode::test_code_to_diameter_range",
+            Tests.Unit.TestTravellerSizeCode.TestCodeToDiameterRange);
+        runner.RunNativeTest(
+            "TestTravellerSizeCode::test_to_string_uwp",
+            Tests.Unit.TestTravellerSizeCode.TestToStringUwp);
+        runner.RunNativeTest(
+            "TestUnits::test_solar_mass_round_trip",
+            Tests.Unit.TestUnits.TestSolarMassRoundTrip);
+        runner.RunNativeTest(
+            "TestUnits::test_earth_mass_round_trip",
+            Tests.Unit.TestUnits.TestEarthMassRoundTrip);
+        runner.RunNativeTest(
+            "TestUnits::test_jupiter_mass_round_trip",
+            Tests.Unit.TestUnits.TestJupiterMassRoundTrip);
+        runner.RunNativeTest(
+            "TestUnits::test_au_round_trip",
+            Tests.Unit.TestUnits.TestAuRoundTrip);
+        runner.RunNativeTest(
+            "TestUnits::test_light_year_round_trip",
+            Tests.Unit.TestUnits.TestLightYearRoundTrip);
+        runner.RunNativeTest(
+            "TestUnits::test_parsec_round_trip",
+            Tests.Unit.TestUnits.TestParsecRoundTrip);
+        runner.RunNativeTest(
+            "TestUnits::test_solar_radius_round_trip",
+            Tests.Unit.TestUnits.TestSolarRadiusRoundTrip);
+        runner.RunNativeTest(
+            "TestUnits::test_earth_radius_round_trip",
+            Tests.Unit.TestUnits.TestEarthRadiusRoundTrip);
+        runner.RunNativeTest(
+            "TestUnits::test_celsius_to_kelvin",
+            Tests.Unit.TestUnits.TestCelsiusToKelvin);
+        runner.RunNativeTest(
+            "TestUnits::test_kelvin_to_celsius",
+            Tests.Unit.TestUnits.TestKelvinToCelsius);
+        runner.RunNativeTest(
+            "TestUnits::test_jupiter_earth_mass_relationship",
+            Tests.Unit.TestUnits.TestJupiterEarthMassRelationship);
+        runner.RunNativeTest(
+            "TestValidation::test_is_positive_float",
+            Tests.Unit.TestValidation.TestIsPositiveFloat);
+        runner.RunNativeTest(
+            "TestValidation::test_is_non_negative_float",
+            Tests.Unit.TestValidation.TestIsNonNegativeFloat);
+        runner.RunNativeTest(
+            "TestValidation::test_is_positive_int",
+            Tests.Unit.TestValidation.TestIsPositiveInt);
+        runner.RunNativeTest(
+            "TestValidation::test_is_non_negative_int",
+            Tests.Unit.TestValidation.TestIsNonNegativeInt);
+        runner.RunNativeTest(
+            "TestValidation::test_is_in_range_float",
+            Tests.Unit.TestValidation.TestIsInRangeFloat);
+        runner.RunNativeTest(
+            "TestValidation::test_is_in_range_int",
+            Tests.Unit.TestValidation.TestIsInRangeInt);
+        runner.RunNativeTest(
+            "TestValidation::test_is_not_empty_string",
+            Tests.Unit.TestValidation.TestIsNotEmptyString);
+        runner.RunNativeTest(
+            "TestValidation::test_is_not_empty_array",
+            Tests.Unit.TestValidation.TestIsNotEmptyArray);
+        runner.RunNativeTest(
+            "TestValidation::test_is_valid_enum",
+            Tests.Unit.TestValidation.TestIsValidEnum);
+        runner.RunNativeTest(
+            "TestValidation::test_is_valid_seed",
+            Tests.Unit.TestValidation.TestIsValidSeed);
+        runner.RunNativeTest(
+            "TestVersions::test_generator_version_is_non_empty_string",
+            Tests.Unit.TestVersions.TestGeneratorVersionIsNonEmptyString);
+        runner.RunNativeTest(
+            "TestVersions::test_generator_version_is_semver_format",
+            Tests.Unit.TestVersions.TestGeneratorVersionIsSemverFormat);
+        runner.RunNativeTest(
+            "TestVersions::test_schema_version_is_positive",
+            Tests.Unit.TestVersions.TestSchemaVersionIsPositive);
+    }
+
+    /// <summary>
+    /// Runs all galaxy domain tests from Tests/domain/galaxy/.
+    /// </summary>
+    private static void RunGalaxyDomainTests(DotNetTestRunner runner)
+    {
+        runner.RunNativeTest("TestStableHash::test_same_input_same_output", Tests.Domain.Galaxy.TestStableHash.TestSameInputSameOutput);
+        runner.RunNativeTest("TestStableHash::test_different_inputs_different_output", Tests.Domain.Galaxy.TestStableHash.TestDifferentInputsDifferentOutput);
+        runner.RunNativeTest("TestStableHash::test_order_matters", Tests.Domain.Galaxy.TestStableHash.TestOrderMatters);
+        runner.RunNativeTest("TestStableHash::test_hash_is_positive", Tests.Domain.Galaxy.TestStableHash.TestHashIsPositive);
+        runner.RunNativeTest("TestStableHash::test_derive_seed_deterministic", Tests.Domain.Galaxy.TestStableHash.TestDeriveSeedDeterministic);
+        runner.RunNativeTest("TestStableHash::test_derive_seed_varies_with_coords", Tests.Domain.Galaxy.TestStableHash.TestDeriveSeedVariesWithCoords);
+        runner.RunNativeTest("TestStableHash::test_derive_seed_varies_with_parent", Tests.Domain.Galaxy.TestStableHash.TestDeriveSeedVariesWithParent);
+        runner.RunNativeTest("TestStableHash::test_derive_seed_indexed_deterministic", Tests.Domain.Galaxy.TestStableHash.TestDeriveSeedIndexedDeterministic);
+        runner.RunNativeTest("TestStableHash::test_known_value_stability", Tests.Domain.Galaxy.TestStableHash.TestKnownValueStability);
+
+        runner.RunNativeTest("TestSeedDeriver::test_quadrant_seed_deterministic", Tests.Domain.Galaxy.TestSeedDeriver.TestQuadrantSeedDeterministic);
+        runner.RunNativeTest("TestSeedDeriver::test_quadrant_seed_varies_with_coords", Tests.Domain.Galaxy.TestSeedDeriver.TestQuadrantSeedVariesWithCoords);
+        runner.RunNativeTest("TestSeedDeriver::test_quadrant_seed_varies_with_galaxy_seed", Tests.Domain.Galaxy.TestSeedDeriver.TestQuadrantSeedVariesWithGalaxySeed);
+        runner.RunNativeTest("TestSeedDeriver::test_sector_seed_deterministic", Tests.Domain.Galaxy.TestSeedDeriver.TestSectorSeedDeterministic);
+        runner.RunNativeTest("TestSeedDeriver::test_sector_seed_varies_with_local_coords", Tests.Domain.Galaxy.TestSeedDeriver.TestSectorSeedVariesWithLocalCoords);
+        runner.RunNativeTest("TestSeedDeriver::test_subsector_seed_deterministic", Tests.Domain.Galaxy.TestSeedDeriver.TestSubsectorSeedDeterministic);
+        runner.RunNativeTest("TestSeedDeriver::test_star_seed_deterministic", Tests.Domain.Galaxy.TestSeedDeriver.TestStarSeedDeterministic);
+        runner.RunNativeTest("TestSeedDeriver::test_star_seed_varies_with_index", Tests.Domain.Galaxy.TestSeedDeriver.TestStarSeedVariesWithIndex);
+        runner.RunNativeTest("TestSeedDeriver::test_full_chain_deterministic", Tests.Domain.Galaxy.TestSeedDeriver.TestFullChainDeterministic);
+        runner.RunNativeTest("TestSeedDeriver::test_full_chain_subsector_deterministic", Tests.Domain.Galaxy.TestSeedDeriver.TestFullChainSubsectorDeterministic);
+        runner.RunNativeTest("TestSeedDeriver::test_full_chain_varies_with_quadrant", Tests.Domain.Galaxy.TestSeedDeriver.TestFullChainVariesWithQuadrant);
+        runner.RunNativeTest("TestSeedDeriver::test_hierarchy_independence", Tests.Domain.Galaxy.TestSeedDeriver.TestHierarchyIndependence);
+
+        runner.RunNativeTest("TestSpiralDensityModel::test_center_has_highest_density", Tests.Domain.Galaxy.TestSpiralDensityModel.TestCenterHasHighestDensity);
+        runner.RunNativeTest("TestSpiralDensityModel::test_density_is_non_negative", Tests.Domain.Galaxy.TestSpiralDensityModel.TestDensityIsNonNegative);
+        runner.RunNativeTest("TestSpiralDensityModel::test_density_falls_with_height", Tests.Domain.Galaxy.TestSpiralDensityModel.TestDensityFallsWithHeight);
+        runner.RunNativeTest("TestSpiralDensityModel::test_density_falls_with_radius", Tests.Domain.Galaxy.TestSpiralDensityModel.TestDensityFallsWithRadius);
+        runner.RunNativeTest("TestSpiralDensityModel::test_arm_factor_peaks_on_arm", Tests.Domain.Galaxy.TestSpiralDensityModel.TestArmFactorPeaksOnArm);
+        runner.RunNativeTest("TestSpiralDensityModel::test_arm_factor_near_center_is_one", Tests.Domain.Galaxy.TestSpiralDensityModel.TestArmFactorNearCenterIsOne);
+        runner.RunNativeTest("TestSpiralDensityModel::test_determinism", Tests.Domain.Galaxy.TestSpiralDensityModel.TestDeterminism);
+        runner.RunNativeTest("TestSpiralDensityModel::test_different_spec_gives_different_density", Tests.Domain.Galaxy.TestSpiralDensityModel.TestDifferentSpecGivesDifferentDensity);
+
+        runner.RunNativeTest("TestDensitySampler::test_determinism", Tests.Domain.Galaxy.TestDensitySampler.TestDeterminism);
+        runner.RunNativeTest("TestDensitySampler::test_produces_requested_count", Tests.Domain.Galaxy.TestDensitySampler.TestProducesRequestedCount);
+        runner.RunNativeTest("TestDensitySampler::test_has_both_populations", Tests.Domain.Galaxy.TestDensitySampler.TestHasBothPopulations);
+        runner.RunNativeTest("TestDensitySampler::test_bulge_points_near_center", Tests.Domain.Galaxy.TestDensitySampler.TestBulgePointsNearCenter);
+        runner.RunNativeTest("TestDensitySampler::test_disk_points_within_galaxy_bounds", Tests.Domain.Galaxy.TestDensitySampler.TestDiskPointsWithinGalaxyBounds);
+        runner.RunNativeTest("TestDensitySampler::test_different_seed_different_result", Tests.Domain.Galaxy.TestDensitySampler.TestDifferentSeedDifferentResult);
+        runner.RunNativeTest("TestDensitySampler::test_elliptical_galaxy_no_disk", Tests.Domain.Galaxy.TestDensitySampler.TestEllipticalGalaxyNoDisk);
+        runner.RunNativeTest("TestDensitySampler::test_elliptical_galaxy_is_3d_not_flat", Tests.Domain.Galaxy.TestDensitySampler.TestEllipticalGalaxyIs3dNotFlat);
+        runner.RunNativeTest("TestDensitySampler::test_irregular_galaxy_is_3d_not_flat", Tests.Domain.Galaxy.TestDensitySampler.TestIrregularGalaxyIs3dNotFlat);
+        runner.RunNativeTest("TestDensitySampler::test_irregular_galaxy_has_both_populations", Tests.Domain.Galaxy.TestDensitySampler.TestIrregularGalaxyHasBothPopulations);
+
+        runner.RunNativeTest("TestGalaxyCoordinates::test_origin_maps_to_quadrant_zero", Tests.Domain.Galaxy.TestGalaxyCoordinates.TestOriginMapsToQuadrantZero);
+        runner.RunNativeTest("TestGalaxyCoordinates::test_positive_position_correct_quadrant", Tests.Domain.Galaxy.TestGalaxyCoordinates.TestPositivePositionCorrectQuadrant);
+        runner.RunNativeTest("TestGalaxyCoordinates::test_position_at_boundary_rolls_to_next", Tests.Domain.Galaxy.TestGalaxyCoordinates.TestPositionAtBoundaryRollsToNext);
+        runner.RunNativeTest("TestGalaxyCoordinates::test_negative_position_correct_quadrant", Tests.Domain.Galaxy.TestGalaxyCoordinates.TestNegativePositionCorrectQuadrant);
+        runner.RunNativeTest("TestGalaxyCoordinates::test_negative_position_deep", Tests.Domain.Galaxy.TestGalaxyCoordinates.TestNegativePositionDeep);
+        runner.RunNativeTest("TestGalaxyCoordinates::test_quadrant_center_positive", Tests.Domain.Galaxy.TestGalaxyCoordinates.TestQuadrantCenterPositive);
+        runner.RunNativeTest("TestGalaxyCoordinates::test_quadrant_center_negative", Tests.Domain.Galaxy.TestGalaxyCoordinates.TestQuadrantCenterNegative);
+        runner.RunNativeTest("TestGalaxyCoordinates::test_round_trip_positive", Tests.Domain.Galaxy.TestGalaxyCoordinates.TestRoundTripPositive);
+        runner.RunNativeTest("TestGalaxyCoordinates::test_round_trip_negative", Tests.Domain.Galaxy.TestGalaxyCoordinates.TestRoundTripNegative);
+        runner.RunNativeTest("TestGalaxyCoordinates::test_center_is_within_cell", Tests.Domain.Galaxy.TestGalaxyCoordinates.TestCenterIsWithinCell);
+        runner.RunNativeTest("TestGalaxyCoordinates::test_grid_bounds_cover_galaxy", Tests.Domain.Galaxy.TestGalaxyCoordinates.TestGridBoundsCoverGalaxy);
+        runner.RunNativeTest("TestGalaxyCoordinates::test_grid_bounds_symmetric", Tests.Domain.Galaxy.TestGalaxyCoordinates.TestGridBoundsSymmetric);
+        runner.RunNativeTest("TestGalaxyCoordinates::test_is_position_in_quadrant_true", Tests.Domain.Galaxy.TestGalaxyCoordinates.TestIsPositionInQuadrantTrue);
+        runner.RunNativeTest("TestGalaxyCoordinates::test_is_position_in_quadrant_false", Tests.Domain.Galaxy.TestGalaxyCoordinates.TestIsPositionInQuadrantFalse);
+        runner.RunNativeTest("TestGalaxyCoordinates::test_effective_half_height_uses_bulge_when_larger", Tests.Domain.Galaxy.TestGalaxyCoordinates.TestEffectiveHalfHeightUsesBulgeWhenLarger);
+        runner.RunNativeTest("TestGalaxyCoordinates::test_effective_half_height_uses_height_when_larger", Tests.Domain.Galaxy.TestGalaxyCoordinates.TestEffectiveHalfHeightUsesHeightWhenLarger);
+        runner.RunNativeTest("TestGalaxyCoordinates::test_effective_radius_uses_disk_when_larger", Tests.Domain.Galaxy.TestGalaxyCoordinates.TestEffectiveRadiusUsesDiskWhenLarger);
+        runner.RunNativeTest("TestGalaxyCoordinates::test_effective_radius_uses_bulge_when_larger", Tests.Domain.Galaxy.TestGalaxyCoordinates.TestEffectiveRadiusUsesBulgeWhenLarger);
+        runner.RunNativeTest("TestGalaxyCoordinates::test_grid_bounds_cover_bulge_vertically", Tests.Domain.Galaxy.TestGalaxyCoordinates.TestGridBoundsCoverBulgeVertically);
+        runner.RunNativeTest("TestGalaxyCoordinates::test_grid_has_symmetric_y_layers", Tests.Domain.Galaxy.TestGalaxyCoordinates.TestGridHasSymmetricYLayers);
+
+        runner.RunNativeTest("TestZoomStateMachine::test_initial_level_is_galaxy", Tests.Domain.Galaxy.TestZoomStateMachine.TestInitialLevelIsGalaxy);
+        runner.RunNativeTest("TestZoomStateMachine::test_zoom_in_from_galaxy", Tests.Domain.Galaxy.TestZoomStateMachine.TestZoomInFromGalaxy);
+        runner.RunNativeTest("TestZoomStateMachine::test_zoom_out_from_galaxy_does_nothing", Tests.Domain.Galaxy.TestZoomStateMachine.TestZoomOutFromGalaxyDoesNothing);
+        runner.RunNativeTest("TestZoomStateMachine::test_zoom_in_twice", Tests.Domain.Galaxy.TestZoomStateMachine.TestZoomInTwice);
+        runner.RunNativeTest("TestZoomStateMachine::test_zoom_in_three_times", Tests.Domain.Galaxy.TestZoomStateMachine.TestZoomInThreeTimes);
+        runner.RunNativeTest("TestZoomStateMachine::test_cannot_zoom_past_subsector", Tests.Domain.Galaxy.TestZoomStateMachine.TestCannotZoomPastSubsector);
+        runner.RunNativeTest("TestZoomStateMachine::test_zoom_out_from_quadrant", Tests.Domain.Galaxy.TestZoomStateMachine.TestZoomOutFromQuadrant);
+        runner.RunNativeTest("TestZoomStateMachine::test_can_zoom_in_from_galaxy", Tests.Domain.Galaxy.TestZoomStateMachine.TestCanZoomInFromGalaxy);
+        runner.RunNativeTest("TestZoomStateMachine::test_cannot_zoom_out_from_galaxy", Tests.Domain.Galaxy.TestZoomStateMachine.TestCannotZoomOutFromGalaxy);
+        runner.RunNativeTest("TestZoomStateMachine::test_can_zoom_in_from_sector", Tests.Domain.Galaxy.TestZoomStateMachine.TestCanZoomInFromSector);
+        runner.RunNativeTest("TestZoomStateMachine::test_cannot_zoom_in_from_subsector", Tests.Domain.Galaxy.TestZoomStateMachine.TestCannotZoomInFromSubsector);
+        runner.RunNativeTest("TestZoomStateMachine::test_transition_to_specific_level", Tests.Domain.Galaxy.TestZoomStateMachine.TestTransitionToSpecificLevel);
+        runner.RunNativeTest("TestZoomStateMachine::test_transition_to_same_level_is_noop", Tests.Domain.Galaxy.TestZoomStateMachine.TestTransitionToSameLevelIsNoop);
+
+        runner.RunNativeTest("TestRaycastUtils::test_ray_hits_aabb_from_front", Tests.Domain.Galaxy.TestRaycastUtils.TestRayHitsAabbFromFront);
+        runner.RunNativeTest("TestRaycastUtils::test_ray_hits_aabb_from_side", Tests.Domain.Galaxy.TestRaycastUtils.TestRayHitsAabbFromSide);
+        runner.RunNativeTest("TestRaycastUtils::test_ray_hits_aabb_from_above", Tests.Domain.Galaxy.TestRaycastUtils.TestRayHitsAabbFromAbove);
+        runner.RunNativeTest("TestRaycastUtils::test_ray_misses_aabb_pointing_away", Tests.Domain.Galaxy.TestRaycastUtils.TestRayMissesAabbPointingAway);
+        runner.RunNativeTest("TestRaycastUtils::test_ray_misses_aabb_behind", Tests.Domain.Galaxy.TestRaycastUtils.TestRayMissesAabbBehind);
+        runner.RunNativeTest("TestRaycastUtils::test_ray_origin_inside_aabb", Tests.Domain.Galaxy.TestRaycastUtils.TestRayOriginInsideAabb);
+        runner.RunNativeTest("TestRaycastUtils::test_ray_parallel_to_slab_inside", Tests.Domain.Galaxy.TestRaycastUtils.TestRayParallelToSlabInside);
+        runner.RunNativeTest("TestRaycastUtils::test_ray_parallel_to_slab_outside", Tests.Domain.Galaxy.TestRaycastUtils.TestRayParallelToSlabOutside);
+        runner.RunNativeTest("TestRaycastUtils::test_diagonal_ray_hits", Tests.Domain.Galaxy.TestRaycastUtils.TestDiagonalRayHits);
+        runner.RunNativeTest("TestRaycastUtils::test_offset_aabb", Tests.Domain.Galaxy.TestRaycastUtils.TestOffsetAabb);
+        runner.RunNativeTest("TestRaycastUtils::test_near_miss", Tests.Domain.Galaxy.TestRaycastUtils.TestNearMiss);
+
+        runner.RunNativeTest("TestQuadrantSelector::test_picks_quadrant_when_ray_hits", Tests.Domain.Galaxy.TestQuadrantSelector.TestPicksQuadrantWhenRayHits);
+        runner.RunNativeTest("TestQuadrantSelector::test_returns_null_when_ray_misses_all", Tests.Domain.Galaxy.TestQuadrantSelector.TestReturnsNullWhenRayMissesAll);
+        runner.RunNativeTest("TestQuadrantSelector::test_returns_null_for_empty_coords_list", Tests.Domain.Galaxy.TestQuadrantSelector.TestReturnsNullForEmptyCoordsList);
+        runner.RunNativeTest("TestQuadrantSelector::test_picks_nearest_when_ray_hits_multiple", Tests.Domain.Galaxy.TestQuadrantSelector.TestPicksNearestWhenRayHitsMultiple);
+        runner.RunNativeTest("TestQuadrantSelector::test_picks_correct_quadrant_at_negative_coords", Tests.Domain.Galaxy.TestQuadrantSelector.TestPicksCorrectQuadrantAtNegativeCoords);
+        runner.RunNativeTest("TestQuadrantSelector::test_initial_selection_is_null", Tests.Domain.Galaxy.TestQuadrantSelector.TestInitialSelectionIsNull);
+        runner.RunNativeTest("TestQuadrantSelector::test_set_selection", Tests.Domain.Galaxy.TestQuadrantSelector.TestSetSelection);
+        runner.RunNativeTest("TestQuadrantSelector::test_clear_selection", Tests.Domain.Galaxy.TestQuadrantSelector.TestClearSelection);
+        runner.RunNativeTest("TestQuadrantSelector::test_set_selection_to_null", Tests.Domain.Galaxy.TestQuadrantSelector.TestSetSelectionToNull);
+
+        runner.RunNativeTest("TestGridCursor::test_find_nearest_positive_x", Tests.Domain.Galaxy.TestGridCursor.TestFindNearestPositiveX);
+        runner.RunNativeTest("TestGridCursor::test_find_nearest_negative_x", Tests.Domain.Galaxy.TestGridCursor.TestFindNearestNegativeX);
+        runner.RunNativeTest("TestGridCursor::test_find_nearest_positive_y", Tests.Domain.Galaxy.TestGridCursor.TestFindNearestPositiveY);
+        runner.RunNativeTest("TestGridCursor::test_find_nearest_positive_z", Tests.Domain.Galaxy.TestGridCursor.TestFindNearestPositiveZ);
+        runner.RunNativeTest("TestGridCursor::test_returns_null_when_nothing_in_direction", Tests.Domain.Galaxy.TestGridCursor.TestReturnsNullWhenNothingInDirection);
+        runner.RunNativeTest("TestGridCursor::test_returns_null_for_empty_list", Tests.Domain.Galaxy.TestGridCursor.TestReturnsNullForEmptyList);
+        runner.RunNativeTest("TestGridCursor::test_skips_current_position", Tests.Domain.Galaxy.TestGridCursor.TestSkipsCurrentPosition);
+        runner.RunNativeTest("TestGridCursor::test_finds_closest_among_multiple_candidates", Tests.Domain.Galaxy.TestGridCursor.TestFindsClosestAmongMultipleCandidates);
+        runner.RunNativeTest("TestGridCursor::test_finds_diagonal_candidate_in_direction", Tests.Domain.Galaxy.TestGridCursor.TestFindsDiagonalCandidateInDirection);
+        runner.RunNativeTest("TestGridCursor::test_find_nearest_to_position", Tests.Domain.Galaxy.TestGridCursor.TestFindNearestToPosition);
+        runner.RunNativeTest("TestGridCursor::test_find_nearest_empty_list", Tests.Domain.Galaxy.TestGridCursor.TestFindNearestEmptyList);
+        runner.RunNativeTest("TestGridCursor::test_move_updates_position", Tests.Domain.Galaxy.TestGridCursor.TestMoveUpdatesPosition);
+        runner.RunNativeTest("TestGridCursor::test_move_returns_null_when_blocked", Tests.Domain.Galaxy.TestGridCursor.TestMoveReturnsNullWhenBlocked);
+        runner.RunNativeTest("TestGridCursor::test_snap_to_nearest", Tests.Domain.Galaxy.TestGridCursor.TestSnapToNearest);
+        runner.RunNativeTest("TestGridCursor::test_sequential_moves", Tests.Domain.Galaxy.TestGridCursor.TestSequentialMoves);
+
+        runner.RunNativeTest("TestSubSectorGenerator::test_determinism", Tests.Domain.Galaxy.TestSubSectorGenerator.TestDeterminism);
+        runner.RunNativeTest("TestSubSectorGenerator::test_different_seed_different_result", Tests.Domain.Galaxy.TestSubSectorGenerator.TestDifferentSeedDifferentResult);
+        runner.RunNativeTest("TestSubSectorGenerator::test_different_quadrant_different_result", Tests.Domain.Galaxy.TestSubSectorGenerator.TestDifferentQuadrantDifferentResult);
+        runner.RunNativeTest("TestSubSectorGenerator::test_different_sector_different_result", Tests.Domain.Galaxy.TestSubSectorGenerator.TestDifferentSectorDifferentResult);
+        runner.RunNativeTest("TestSubSectorGenerator::test_center_sector_has_more_stars_than_edge", Tests.Domain.Galaxy.TestSubSectorGenerator.TestCenterSectorHasMoreStarsThanEdge);
+        runner.RunNativeTest("TestSubSectorGenerator::test_zero_reference_density_returns_empty", Tests.Domain.Galaxy.TestSubSectorGenerator.TestZeroReferenceDensityReturnsEmpty);
+        runner.RunNativeTest("TestSubSectorGenerator::test_star_positions_within_sector_bounds", Tests.Domain.Galaxy.TestSubSectorGenerator.TestStarPositionsWithinSectorBounds);
+        runner.RunNativeTest("TestSubSectorGenerator::test_star_seeds_are_unique_within_sector", Tests.Domain.Galaxy.TestSubSectorGenerator.TestStarSeedsAreUniqueWithinSector);
+        runner.RunNativeTest("TestSubSectorGenerator::test_produces_stars_at_galaxy_center", Tests.Domain.Galaxy.TestSubSectorGenerator.TestProducesStarsAtGalaxyCenter);
+        runner.RunNativeTest("TestSubSectorGenerator::test_poisson_produces_zero_for_zero_lambda", Tests.Domain.Galaxy.TestSubSectorGenerator.TestPoissonProducesZeroForZeroLambda);
+        runner.RunNativeTest("TestSubSectorGenerator::test_border_generation_deterministic", Tests.Domain.Galaxy.TestSubSectorGenerator.TestBorderGenerationDeterministic);
+        runner.RunNativeTest("TestSubSectorGenerator::test_border_has_more_stars_than_sector_alone", Tests.Domain.Galaxy.TestSubSectorGenerator.TestBorderHasMoreStarsThanSectorAlone);
+        runner.RunNativeTest("TestSubSectorGenerator::test_border_stars_extend_beyond_sector_bounds", Tests.Domain.Galaxy.TestSubSectorGenerator.TestBorderStarsExtendBeyondSectorBounds);
+        runner.RunNativeTest("TestSubSectorGenerator::test_solar_neighborhood_density_realistic", Tests.Domain.Galaxy.TestSubSectorGenerator.TestSolarNeighborhoodDensityRealistic);
+        runner.RunNativeTest("TestSubSectorGenerator::test_merge_star_data", Tests.Domain.Galaxy.TestSubSectorGenerator.TestMergeStarData);
+
+        runner.RunNativeTest("TestStarPicker::test_picks_star_directly_on_ray", Tests.Domain.Galaxy.TestStarPicker.TestPicksStarDirectlyOnRay);
+        runner.RunNativeTest("TestStarPicker::test_picks_nearest_when_multiple_in_range", Tests.Domain.Galaxy.TestStarPicker.TestPicksNearestWhenMultipleInRange);
+        runner.RunNativeTest("TestStarPicker::test_returns_null_when_none_in_range", Tests.Domain.Galaxy.TestStarPicker.TestReturnsNullWhenNoneInRange);
+        runner.RunNativeTest("TestStarPicker::test_ignores_stars_behind_ray", Tests.Domain.Galaxy.TestStarPicker.TestIgnoresStarsBehindRay);
+        runner.RunNativeTest("TestStarPicker::test_returns_null_for_empty_arrays", Tests.Domain.Galaxy.TestStarPicker.TestReturnsNullForEmptyArrays);
+        runner.RunNativeTest("TestStarPicker::test_pick_result_has_correct_position", Tests.Domain.Galaxy.TestStarPicker.TestPickResultHasCorrectPosition);
+        runner.RunNativeTest("TestStarPicker::test_ray_distance_is_positive", Tests.Domain.Galaxy.TestStarPicker.TestRayDistanceIsPositive);
+        runner.RunNativeTest("TestStarPicker::test_lateral_distance_correct", Tests.Domain.Galaxy.TestStarPicker.TestLateralDistanceCorrect);
+        runner.RunNativeTest("TestStarPicker::test_picks_from_diagonal_ray", Tests.Domain.Galaxy.TestStarPicker.TestPicksFromDiagonalRay);
+
+        runner.RunNativeTest("TestSubSectorNeighborhood::test_produces_1331_subsector_origins", Tests.Domain.Galaxy.TestSubSectorNeighborhood.TestProduces1331SubsectorOrigins);
+        runner.RunNativeTest("TestSubSectorNeighborhood::test_produces_1331_shell_tags", Tests.Domain.Galaxy.TestSubSectorNeighborhood.TestProduces1331ShellTags);
+        runner.RunNativeTest("TestSubSectorNeighborhood::test_center_origin_matches_camera_subsector", Tests.Domain.Galaxy.TestSubSectorNeighborhood.TestCenterOriginMatchesCameraSubsector);
+        runner.RunNativeTest("TestSubSectorNeighborhood::test_shell_0_is_center_only", Tests.Domain.Galaxy.TestSubSectorNeighborhood.TestShell0IsCenterOnly);
+        runner.RunNativeTest("TestSubSectorNeighborhood::test_shell_1_has_26_subsectors", Tests.Domain.Galaxy.TestSubSectorNeighborhood.TestShell1Has26Subsectors);
+        runner.RunNativeTest("TestSubSectorNeighborhood::test_shell_2_has_98_subsectors", Tests.Domain.Galaxy.TestSubSectorNeighborhood.TestShell2Has98Subsectors);
+        runner.RunNativeTest("TestSubSectorNeighborhood::test_shell_3_has_218_subsectors", Tests.Domain.Galaxy.TestSubSectorNeighborhood.TestShell3Has218Subsectors);
+        runner.RunNativeTest("TestSubSectorNeighborhood::test_shell_4_has_386_subsectors", Tests.Domain.Galaxy.TestSubSectorNeighborhood.TestShell4Has386Subsectors);
+        runner.RunNativeTest("TestSubSectorNeighborhood::test_shell_5_has_602_subsectors", Tests.Domain.Galaxy.TestSubSectorNeighborhood.TestShell5Has602Subsectors);
+        runner.RunNativeTest("TestSubSectorNeighborhood::test_star_shells_match_count", Tests.Domain.Galaxy.TestSubSectorNeighborhood.TestStarShellsMatchCount);
+        runner.RunNativeTest("TestSubSectorNeighborhood::test_star_shells_are_valid_range", Tests.Domain.Galaxy.TestSubSectorNeighborhood.TestStarShellsAreValidRange);
+        runner.RunNativeTest("TestSubSectorNeighborhood::test_deterministic", Tests.Domain.Galaxy.TestSubSectorNeighborhood.TestDeterministic);
+        runner.RunNativeTest("TestSubSectorNeighborhood::test_different_position_different_neighborhood", Tests.Domain.Galaxy.TestSubSectorNeighborhood.TestDifferentPositionDifferentNeighborhood);
+        runner.RunNativeTest("TestSubSectorNeighborhood::test_origins_form_11x11x11_grid", Tests.Domain.Galaxy.TestSubSectorNeighborhood.TestOriginsForm11x11x11Grid);
+        runner.RunNativeTest("TestSubSectorNeighborhood::test_handles_sector_boundary_crossing", Tests.Domain.Galaxy.TestSubSectorNeighborhood.TestHandlesSectorBoundaryCrossing);
+        runner.RunNativeTest("TestSubSectorNeighborhood::test_handles_quadrant_boundary_crossing", Tests.Domain.Galaxy.TestSubSectorNeighborhood.TestHandlesQuadrantBoundaryCrossing);
+        runner.RunNativeTest("TestSubSectorNeighborhood::test_get_center_origin_matches_build", Tests.Domain.Galaxy.TestSubSectorNeighborhood.TestGetCenterOriginMatchesBuild);
+        runner.RunNativeTest("TestSubSectorNeighborhood::test_produces_stars_near_galactic_center", Tests.Domain.Galaxy.TestSubSectorNeighborhood.TestProducesStarsNearGalacticCenter);
+        runner.RunNativeTest("TestSubSectorNeighborhood::test_zero_reference_density_produces_no_stars", Tests.Domain.Galaxy.TestSubSectorNeighborhood.TestZeroReferenceDensityProducesNoStars);
     }
 
     /// <summary>
     /// Minimal mixed-runtime save-state surface for the galaxy-viewer save/load helper.
     /// </summary>
-    private sealed partial class MockGalaxyViewerStateNode : Node
+    private sealed partial class MockGalaxyViewerStateNode : Node, IGalaxyViewerSavedStateHost
     {
         private int _savedZoomLevel = (int)GalaxyCoordinates.ZoomLevel.Subsector;
-        private Variant _savedQuadrant = Variant.CreateFrom(new Vector3I(1, 2, 3));
-        private Variant _savedSector = Variant.CreateFrom(new Vector3I(4, 5, 6));
+        private Vector3I? _savedQuadrant = new Vector3I(1, 2, 3);
+        private Vector3I? _savedSector = new Vector3I(4, 5, 6);
         private Vector3 _savedStarCameraPosition = new(7.0f, 8.0f, 9.0f);
         private Vector3 _savedStarCameraRotation = new(0.1f, 0.2f, 0.3f);
         private int _savedStarSeed = 123456;
         private Vector3 _savedStarPosition = new(10.0f, 11.0f, 12.0f);
 
-        public void set_saved_zoom_level(int value) => _savedZoomLevel = value;
+        public int GetSavedZoomLevel() => _savedZoomLevel;
 
-        public int get_saved_zoom_level() => _savedZoomLevel;
+        public void SetSavedZoomLevel(int value) => _savedZoomLevel = value;
 
-        public void set_saved_quadrant(Variant value) => _savedQuadrant = value;
+        public Vector3I? GetSavedQuadrant() => _savedQuadrant;
 
-        public Variant get_saved_quadrant() => _savedQuadrant;
+        public void SetSavedQuadrant(Vector3I? value) => _savedQuadrant = value;
 
-        public void set_saved_sector(Variant value) => _savedSector = value;
+        public Vector3I? GetSavedSector() => _savedSector;
 
-        public Variant get_saved_sector() => _savedSector;
+        public void SetSavedSector(Vector3I? value) => _savedSector = value;
 
-        public void set_saved_star_camera_position(Vector3 value) => _savedStarCameraPosition = value;
+        public Vector3 GetSavedStarCameraPosition() => _savedStarCameraPosition;
 
-        public Vector3 get_saved_star_camera_position() => _savedStarCameraPosition;
+        public void SetSavedStarCameraPosition(Vector3 value) => _savedStarCameraPosition = value;
 
-        public void set_saved_star_camera_rotation(Vector3 value) => _savedStarCameraRotation = value;
+        public Vector3 GetSavedStarCameraRotation() => _savedStarCameraRotation;
 
-        public Vector3 get_saved_star_camera_rotation() => _savedStarCameraRotation;
+        public void SetSavedStarCameraRotation(Vector3 value) => _savedStarCameraRotation = value;
 
-        public void set_saved_star_seed(int value) => _savedStarSeed = value;
+        public int GetSavedStarSeed() => _savedStarSeed;
 
-        public int get_saved_star_seed() => _savedStarSeed;
+        public void SetSavedStarSeed(int value) => _savedStarSeed = value;
 
-        public void set_saved_star_position(Vector3 value) => _savedStarPosition = value;
+        public Vector3 GetSavedStarPosition() => _savedStarPosition;
 
-        public Vector3 get_saved_star_position() => _savedStarPosition;
+        public void SetSavedStarPosition(Vector3 value) => _savedStarPosition = value;
     }
 
     /// <summary>
     /// Minimal mixed-runtime viewer surface for the system-viewer save/load helper.
     /// </summary>
-    private sealed partial class MockSystemViewerNode : Node
+    private sealed partial class MockSystemViewerNode : Node, StarGen.App.SystemViewer.ISystemViewerSaveLoadHost
     {
         private readonly SolarSystem _currentSystem;
 
@@ -1645,6 +2963,24 @@ public static partial class DotNetNativeTestSuite
             _currentSystem = currentSystem;
         }
 
-        public SolarSystem get_current_system() => _currentSystem;
+        public SolarSystem? GetCurrentSystem() => _currentSystem;
+
+        public void SetStatus(string message)
+        {
+            GD.Print(message);
+        }
+
+        public void SetError(string message)
+        {
+            GD.PushError(message);
+        }
+
+        public void DisplaySystem(SolarSystem system)
+        {
+        }
+
+        public void UpdateSeedDisplay(int seedValue)
+        {
+        }
     }
 }

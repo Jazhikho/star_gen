@@ -1,3 +1,4 @@
+using System;
 using Godot;
 using Godot.Collections;
 using StarGen.Domain.Celestial;
@@ -57,6 +58,7 @@ public static class MoonGenerator
     {
         if (!context.HasParentBody())
         {
+            GD.PushError("MoonGenerator.Generate: context has no parent body — cannot generate moon without a parent.");
             return null;
         }
 
@@ -121,6 +123,7 @@ public static class MoonGenerator
         return body;
     }
 
+    /// <summary>Picks moon size category from spec or weighted RNG (regular vs captured).</summary>
     private static SizeCategory.Category DetermineSizeCategory(MoonSpec spec, SeededRng rng)
     {
         if (spec.HasSizeCategory())
@@ -128,11 +131,26 @@ public static class MoonGenerator
             return (SizeCategory.Category)spec.SizeCategory;
         }
 
-        float[] weights = spec.IsCaptured ? SizeCategoryWeightsCaptured : SizeCategoryWeightsRegular;
+        float[] weights;
+        if (spec.IsCaptured)
+        {
+            weights = SizeCategoryWeightsCaptured;
+        }
+        else
+        {
+            weights = SizeCategoryWeightsRegular;
+        }
         SizeCategory.Category? selected = rng.WeightedChoice(MoonSizes, weights);
-        return selected ?? SizeCategory.Category.SubTerrestrial;
+        if (selected == null)
+        {
+            GD.PushError("MoonGenerator.DetermineSizeCategory: WeightedChoice returned null — size weight table may be empty or invalid.");
+            throw new InvalidOperationException("WeightedChoice returned null for SizeCategory.");
+        }
+
+        return selected.Value;
     }
 
+    /// <summary>Builds orbital props within Hill sphere and Roche limits.</summary>
     private static OrbitalProps GenerateOrbitalProps(
         MoonSpec spec,
         ParentContext context,
@@ -140,8 +158,8 @@ public static class MoonGenerator
         SeededRng rng)
     {
         double hillRadiusM = context.GetHillSphereRadiusM();
-        Dictionary densityRange = SizeTable.GetDensityRange(sizeCategory);
-        double estimatedDensity = ((double)densityRange["min"] + (double)densityRange["max"]) / 2.0;
+        (double densityMin, double densityMax) = SizeTable.GetDensityRangeTuple(sizeCategory);
+        double estimatedDensity = (densityMin + densityMax) / 2.0;
         double rocheLimitM = context.GetRocheLimitM(estimatedDensity);
 
         double minDistanceM = System.Math.Max(rocheLimitM * 1.5, context.ParentBodyRadiusM * 2.0);
@@ -151,7 +169,15 @@ public static class MoonGenerator
             minDistanceM = System.Math.Max(minDistanceM, overrideMin);
         }
 
-        double maxFraction = spec.IsCaptured ? MaxHillFractionRetrograde : MaxHillFractionPrograde;
+        double maxFraction;
+        if (spec.IsCaptured)
+        {
+            maxFraction = MaxHillFractionRetrograde;
+        }
+        else
+        {
+            maxFraction = MaxHillFractionPrograde;
+        }
         double maxDistanceM = hillRadiusM * maxFraction;
         if (minDistanceM >= maxDistanceM)
         {
@@ -184,9 +210,14 @@ public static class MoonGenerator
         double inclinationDeg = spec.GetOverrideFloat("orbital.inclination_deg", -1.0);
         if (inclinationDeg < 0.0)
         {
-            inclinationDeg = spec.IsCaptured
-                ? rng.RandfRange(0.0f, 180.0f)
-                : rng.RandfRange(0.0f, 5.0f);
+            if (spec.IsCaptured)
+            {
+                inclinationDeg = rng.RandfRange(0.0f, 180.0f);
+            }
+            else
+            {
+                inclinationDeg = rng.RandfRange(0.0f, 5.0f);
+            }
         }
 
         double longitudeOfAscendingNodeDeg = spec.GetOverrideFloat(
@@ -209,6 +240,7 @@ public static class MoonGenerator
             string.Empty);
     }
 
+    /// <summary>Creates provenance from spec and context.</summary>
     private static Provenance CreateProvenance(MoonSpec spec, ParentContext context)
     {
         Dictionary specSnapshot = spec.ToDictionary();
@@ -216,6 +248,7 @@ public static class MoonGenerator
         return Provenance.CreateCurrent(spec.GenerationSeed, specSnapshot);
     }
 
+    /// <summary>Produces unique moon id from spec override or RNG.</summary>
     private static string GenerateId(MoonSpec spec, SeededRng rng)
     {
         Variant overrideId = spec.GetOverride("id", default);

@@ -12,22 +12,22 @@ public partial class MoonSpec : BaseSpec
     /// <summary>
     /// Size category, or -1 for random.
     /// </summary>
-    public int SizeCategory;
+    public int SizeCategory { get; set; }
 
     /// <summary>
     /// Whether this moon is captured.
     /// </summary>
-    public bool IsCaptured;
+    public bool IsCaptured { get; set; }
 
     /// <summary>
     /// Whether an atmosphere is required, or nil for auto.
     /// </summary>
-    public Variant HasAtmosphere;
+    public Variant HasAtmosphere { get; set; }
 
     /// <summary>
     /// Whether a subsurface ocean is required, or nil for auto.
     /// </summary>
-    public Variant HasSubsurfaceOcean;
+    public Variant HasSubsurfaceOcean { get; set; }
 
     /// <summary>
     /// Creates a new moon specification.
@@ -46,6 +46,21 @@ public partial class MoonSpec : BaseSpec
         IsCaptured = isCaptured;
         HasAtmosphere = hasAtmosphere;
         HasSubsurfaceOcean = hasSubsurfaceOcean;
+    }
+
+    /// <summary>
+    /// Compatibility constructor accepting enum size category.
+    /// </summary>
+    public MoonSpec(
+        int generationSeed,
+        SizeCategoryArchetype.Category sizeCategory,
+        bool isCaptured = false,
+        Variant hasAtmosphere = default,
+        Variant hasSubsurfaceOcean = default,
+        string nameHint = "",
+        Dictionary? overrides = null)
+        : this(generationSeed, (int)sizeCategory, isCaptured, hasAtmosphere, hasSubsurfaceOcean, nameHint, overrides)
+    {
     }
 
     /// <summary>
@@ -139,18 +154,53 @@ public partial class MoonSpec : BaseSpec
     /// </summary>
     public static MoonSpec FromDictionary(Dictionary data)
     {
-        return new MoonSpec(
-            data.ContainsKey("generation_seed") ? (int)data["generation_seed"] : 0,
-            data.ContainsKey("size_category") ? (int)data["size_category"] : -1,
-            data.ContainsKey("is_captured") && (bool)data["is_captured"],
-            GetVariant(data, "has_atmosphere"),
-            GetVariant(data, "has_subsurface_ocean"),
-            data.ContainsKey("name_hint") ? (string)data["name_hint"] : string.Empty,
-            data.ContainsKey("overrides") ? (Dictionary)data["overrides"] : null);
+        int generationSeed;
+        if (data.ContainsKey("generation_seed"))
+        {
+            generationSeed = (int)data["generation_seed"];
+        }
+        else
+        {
+            generationSeed = 0;
+        }
+
+        int sizeCategory;
+        if (data.ContainsKey("size_category"))
+        {
+            sizeCategory = (int)data["size_category"];
+        }
+        else
+        {
+            sizeCategory = -1;
+        }
+
+        string nameHint;
+        if (data.ContainsKey("name_hint"))
+        {
+            nameHint = (string)data["name_hint"];
+        }
+        else
+        {
+            nameHint = string.Empty;
+        }
+
+        Dictionary? overrides = null;
+        if (data.ContainsKey("overrides"))
+        {
+            overrides = (Dictionary)data["overrides"];
+        }
+
+        bool isCaptured = data.ContainsKey("is_captured") && (bool)data["is_captured"];
+        return new MoonSpec(generationSeed, sizeCategory, isCaptured, GetVariant(data, "has_atmosphere"), GetVariant(data, "has_subsurface_ocean"), nameHint, overrides);
     }
 
     private static Variant GetVariant(Dictionary data, string key)
     {
-        return data.ContainsKey(key) ? data[key] : default;
+        if (data.ContainsKey(key))
+        {
+            return data[key];
+        }
+
+        return default;
     }
 }

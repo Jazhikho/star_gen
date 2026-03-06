@@ -272,6 +272,16 @@ public static class SystemAsteroidGenerator
             }
         }
 
+        double avgPerBelt;
+        if (belts.Count > 0)
+        {
+            avgPerBelt = (double)asteroids.Count / belts.Count;
+        }
+        else
+        {
+            avgPerBelt = 0.0;
+        }
+
         return new Dictionary
         {
             ["total_belts"] = belts.Count,
@@ -283,7 +293,7 @@ public static class SystemAsteroidGenerator
             ["mixed_belts"] = mixedBelts,
             ["metallic_belts"] = metallicBelts,
             ["total_belt_mass_kg"] = totalBeltMassKg,
-            ["avg_asteroids_per_belt"] = belts.Count > 0 ? (double)asteroids.Count / belts.Count : 0.0,
+            ["avg_asteroids_per_belt"] = avgPerBelt,
         };
     }
 
@@ -355,7 +365,14 @@ public static class SystemAsteroidGenerator
                     bestGapOuter = planetDistances[0] * 0.8;
                     double width = bestGapOuter - bestGapInner;
                     double center = (bestGapInner + bestGapOuter) / 2.0;
-                    bestScore = width > 0.0 ? width / (1.0 + (System.Math.Abs(center - targetCenter) / targetCenter)) : -1.0;
+                    if (width > 0.0)
+                    {
+                        bestScore = width / (1.0 + (System.Math.Abs(center - targetCenter) / targetCenter));
+                    }
+                    else
+                    {
+                        bestScore = -1.0;
+                    }
 
                     for (int index = 0; index < planetDistances.Count - 1; index += 1)
                     {
@@ -409,9 +426,18 @@ public static class SystemAsteroidGenerator
                     };
 
                     double compositionRoll = rng.Randf();
-                    innerBelt.PrimaryComposition = compositionRoll < 0.50
-                        ? AsteroidBelt.Composition.Rocky
-                        : (compositionRoll < 0.80 ? AsteroidBelt.Composition.Mixed : AsteroidBelt.Composition.Metallic);
+                    if (compositionRoll < 0.50)
+                    {
+                        innerBelt.PrimaryComposition = AsteroidBelt.Composition.Rocky;
+                    }
+                    else if (compositionRoll < 0.80)
+                    {
+                        innerBelt.PrimaryComposition = AsteroidBelt.Composition.Mixed;
+                    }
+                    else
+                    {
+                        innerBelt.PrimaryComposition = AsteroidBelt.Composition.Metallic;
+                    }
 
                     double widthFactor = (innerBelt.OuterRadiusM - innerBelt.InnerRadiusM) / innerBelt.InnerRadiusM;
                     double scale = System.Math.Clamp(widthFactor * 2.0, 0.5, 2.0);
@@ -429,7 +455,15 @@ public static class SystemAsteroidGenerator
             double maxDistance = host.OuterStabilityM * 0.8;
             if (minDistance < maxDistance)
             {
-                double outermostPlanet = planetDistances.Count > 0 ? planetDistances[planetDistances.Count - 1] : 0.0;
+                double outermostPlanet;
+                if (planetDistances.Count > 0)
+                {
+                    outermostPlanet = planetDistances[planetDistances.Count - 1];
+                }
+                else
+                {
+                    outermostPlanet = 0.0;
+                }
                 double innerRadius = System.Math.Max(minDistance, outermostPlanet * 1.5);
                 if (innerRadius < maxDistance)
                 {
@@ -437,12 +471,22 @@ public static class SystemAsteroidGenerator
                     double outerRadius = System.Math.Min(innerRadius * (1.0 + widthFraction), maxDistance);
                     if (outerRadius > innerRadius)
                     {
+                        AsteroidBelt.Composition outerComposition;
+                        if (rng.Randf() < 0.70)
+                        {
+                            outerComposition = AsteroidBelt.Composition.Icy;
+                        }
+                        else
+                        {
+                            outerComposition = AsteroidBelt.Composition.Mixed;
+                        }
+
                         AsteroidBelt outerBelt = new($"belt_{host.NodeId}_outer", "Outer Asteroid Belt")
                         {
                             OrbitHostId = host.NodeId,
                             InnerRadiusM = innerRadius,
                             OuterRadiusM = outerRadius,
-                            PrimaryComposition = rng.Randf() < 0.70 ? AsteroidBelt.Composition.Icy : AsteroidBelt.Composition.Mixed,
+                            PrimaryComposition = outerComposition,
                         };
 
                         double widthFactor = (outerBelt.OuterRadiusM - outerBelt.InnerRadiusM) / outerBelt.InnerRadiusM;
@@ -485,20 +529,67 @@ public static class SystemAsteroidGenerator
         };
 
         double roll = rng.Randf();
-        belt.PrimaryComposition = slot.Zone switch
+        AsteroidBelt.Composition composition;
+        switch (slot.Zone)
         {
-            OrbitZone.Zone.Hot => roll < 0.50
-                ? AsteroidBelt.Composition.Rocky
-                : (roll < 0.80 ? AsteroidBelt.Composition.Mixed : AsteroidBelt.Composition.Metallic),
-            OrbitZone.Zone.Cold => roll < 0.70 ? AsteroidBelt.Composition.Icy : AsteroidBelt.Composition.Mixed,
-            _ => roll < 0.40
-                ? AsteroidBelt.Composition.Rocky
-                : (roll < 0.75 ? AsteroidBelt.Composition.Mixed : AsteroidBelt.Composition.Metallic),
-        };
+            case OrbitZone.Zone.Hot:
+                if (roll < 0.50)
+                {
+                    composition = AsteroidBelt.Composition.Rocky;
+                }
+                else if (roll < 0.80)
+                {
+                    composition = AsteroidBelt.Composition.Mixed;
+                }
+                else
+                {
+                    composition = AsteroidBelt.Composition.Metallic;
+                }
+
+                break;
+            case OrbitZone.Zone.Cold:
+                if (roll < 0.70)
+                {
+                    composition = AsteroidBelt.Composition.Icy;
+                }
+                else
+                {
+                    composition = AsteroidBelt.Composition.Mixed;
+                }
+
+                break;
+            default:
+                if (roll < 0.40)
+                {
+                    composition = AsteroidBelt.Composition.Rocky;
+                }
+                else if (roll < 0.75)
+                {
+                    composition = AsteroidBelt.Composition.Mixed;
+                }
+                else
+                {
+                    composition = AsteroidBelt.Composition.Metallic;
+                }
+
+                break;
+        }
+
+        belt.PrimaryComposition = composition;
 
         bool isOuter = slot.Zone == OrbitZone.Zone.Cold;
-        double minMass = isOuter ? OuterBeltMassMinKg : InnerBeltMassMinKg;
-        double maxMass = isOuter ? OuterBeltMassMaxKg : InnerBeltMassMaxKg;
+        double minMass;
+        double maxMass;
+        if (isOuter)
+        {
+            minMass = OuterBeltMassMinKg;
+            maxMass = OuterBeltMassMaxKg;
+        }
+        else
+        {
+            minMass = InnerBeltMassMinKg;
+            maxMass = InnerBeltMassMaxKg;
+        }
         double widthFactor = (belt.OuterRadiusM - belt.InnerRadiusM) / System.Math.Max(belt.InnerRadiusM, 1.0);
         double scale = System.Math.Clamp(widthFactor * 2.0, 0.5, 2.0);
         double logMinMass = System.Math.Log(minMass * scale);
@@ -582,16 +673,53 @@ public static class SystemAsteroidGenerator
         double orbitalDistance = belt.InnerRadiusM + ((belt.OuterRadiusM - belt.InnerRadiusM) * distanceFraction);
 
         double compositionRoll = rng.Randf();
-        int asteroidType = belt.PrimaryComposition switch
+        int asteroidType;
+        switch (belt.PrimaryComposition)
         {
-            AsteroidBelt.Composition.Rocky => compositionRoll < 0.75 ? (int)AsteroidType.Type.SType : (int)AsteroidType.Type.CType,
-            AsteroidBelt.Composition.Icy => (int)AsteroidType.Type.CType,
-            AsteroidBelt.Composition.Metallic => compositionRoll < 0.60 ? (int)AsteroidType.Type.MType : (int)AsteroidType.Type.SType,
-            AsteroidBelt.Composition.Mixed => compositionRoll < 0.50
-                ? (int)AsteroidType.Type.CType
-                : (compositionRoll < 0.85 ? (int)AsteroidType.Type.SType : (int)AsteroidType.Type.MType),
-            _ => (int)AsteroidType.Type.CType,
-        };
+            case AsteroidBelt.Composition.Rocky:
+                if (compositionRoll < 0.75)
+                {
+                    asteroidType = (int)AsteroidType.Type.SType;
+                }
+                else
+                {
+                    asteroidType = (int)AsteroidType.Type.CType;
+                }
+
+                break;
+            case AsteroidBelt.Composition.Icy:
+                asteroidType = (int)AsteroidType.Type.CType;
+                break;
+            case AsteroidBelt.Composition.Metallic:
+                if (compositionRoll < 0.60)
+                {
+                    asteroidType = (int)AsteroidType.Type.MType;
+                }
+                else
+                {
+                    asteroidType = (int)AsteroidType.Type.SType;
+                }
+
+                break;
+            case AsteroidBelt.Composition.Mixed:
+                if (compositionRoll < 0.50)
+                {
+                    asteroidType = (int)AsteroidType.Type.CType;
+                }
+                else if (compositionRoll < 0.85)
+                {
+                    asteroidType = (int)AsteroidType.Type.SType;
+                }
+                else
+                {
+                    asteroidType = (int)AsteroidType.Type.MType;
+                }
+
+                break;
+            default:
+                asteroidType = (int)AsteroidType.Type.CType;
+                break;
+        }
 
         int asteroidSeed = unchecked((int)rng.Randi());
         AsteroidSpec spec;
@@ -619,11 +747,18 @@ public static class SystemAsteroidGenerator
         SeededRng asteroidRng = new(asteroidSeed);
         CelestialBody asteroid = AsteroidGenerator.Generate(spec, context, asteroidRng);
         asteroid.Id = $"asteroid_{belt.Id}_{asteroidIndex}";
-        asteroid.Name = belt.Name.Contains("Inner")
-            ? $"{asteroidIndex + 1} {belt.Name.Replace("Inner Asteroid Belt", "Ceres-family")}"
-            : (belt.Name.Contains("Outer")
-                ? $"{asteroidIndex + 1} {belt.Name.Replace("Outer Asteroid Belt", "TNO")}"
-                : $"{asteroidIndex + 1} {belt.Id}");
+        if (belt.Name.Contains("Inner"))
+        {
+            asteroid.Name = $"{asteroidIndex + 1} {belt.Name.Replace("Inner Asteroid Belt", "Ceres-family")}";
+        }
+        else if (belt.Name.Contains("Outer"))
+        {
+            asteroid.Name = $"{asteroidIndex + 1} {belt.Name.Replace("Outer Asteroid Belt", "TNO")}";
+        }
+        else
+        {
+            asteroid.Name = $"{asteroidIndex + 1} {belt.Id}";
+        }
 
         if (asteroid.HasOrbital())
         {

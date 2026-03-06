@@ -121,7 +121,12 @@ public partial class SystemBodyNode : Node3D
     /// </summary>
     public CelestialType.Type GetBodyType()
     {
-        return Body != null ? Body.Type : CelestialType.Type.Planet;
+        if (Body != null)
+        {
+            return Body.Type;
+        }
+
+        return CelestialType.Type.Planet;
     }
 
     /// <summary>
@@ -129,7 +134,12 @@ public partial class SystemBodyNode : Node3D
     /// </summary>
     public string GetDisplayName()
     {
-        return Body != null ? Body.Name : "Unknown";
+        if (Body != null)
+        {
+            return Body.Name;
+        }
+
+        return "Unknown";
     }
 
     /// <summary>
@@ -336,9 +346,15 @@ public partial class SystemBodyNode : Node3D
             AddChild(_starLight);
         }
 
-        float temperatureK = Body.HasStellar() && Body.Stellar != null
-            ? (float)Body.Stellar.EffectiveTemperatureK
-            : 5778.0f;
+        float temperatureK;
+        if (Body.HasStellar() && Body.Stellar != null)
+        {
+            temperatureK = (float)Body.Stellar.EffectiveTemperatureK;
+        }
+        else
+        {
+            temperatureK = 5778.0f;
+        }
         _starLight.LightColor = ColorUtils.TemperatureToBlackbodyColor(temperatureK);
 
         float energy = 2.0f;
@@ -386,9 +402,14 @@ public partial class SystemBodyNode : Node3D
             return;
         }
 
-        _meshInstance.Scale = IsHovered
-            ? Vector3.One * DisplayRadius * 2.3f
-            : Vector3.One * DisplayRadius * 2.0f;
+        if (IsHovered)
+        {
+            _meshInstance.Scale = Vector3.One * DisplayRadius * 2.3f;
+        }
+        else
+        {
+            _meshInstance.Scale = Vector3.One * DisplayRadius * 2.0f;
+        }
     }
 
     /// <summary>

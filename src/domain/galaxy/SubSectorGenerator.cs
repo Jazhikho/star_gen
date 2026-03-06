@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using Godot;
+using StarGen.Domain.Rng;
 
 namespace StarGen.Domain.Galaxy;
 
@@ -179,10 +180,7 @@ public static class SubSectorGenerator
         List<long> outSeeds)
     {
         long subsectorSeed = SeedDeriver.DeriveSubsectorSeed(sectorSeed, subsectorLocalCoords);
-        RandomNumberGenerator rng = new()
-        {
-            Seed = unchecked((ulong)subsectorSeed),
-        };
+        SeededRng rng = new SeededRng(subsectorSeed);
 
         Vector3 center = subsectorOrigin + (Vector3.One * (float)(GalaxyCoordinates.SubsectorSizePc * 0.5));
         float localDensity = densityModel.GetDensity(center);
@@ -205,7 +203,7 @@ public static class SubSectorGenerator
     /// <summary>
     /// Samples a Poisson-distributed count using inverse-transform sampling.
     /// </summary>
-    private static int SamplePoisson(float lambdaValue, RandomNumberGenerator rng)
+    private static int SamplePoisson(float lambdaValue, SeededRng rng)
     {
         if (lambdaValue <= 0.0f)
         {

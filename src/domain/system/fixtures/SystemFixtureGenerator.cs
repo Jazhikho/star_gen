@@ -137,7 +137,14 @@ public static class SystemFixtureGenerator
             }
 
             string fixtureName = (string)fixture["name"];
-            result[fixtureName] = pretty ? Json.Stringify(fixture, "\t") : Json.Stringify(fixture);
+            if (pretty)
+            {
+                result[fixtureName] = Json.Stringify(fixture, "\t");
+            }
+            else
+            {
+                result[fixtureName] = Json.Stringify(fixture);
+            }
         }
 
         return result;

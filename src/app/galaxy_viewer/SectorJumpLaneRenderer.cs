@@ -69,12 +69,8 @@ public partial class SectorJumpLaneRenderer : Node3D
 
 		foreach (JumpLaneConnection connection in result.Connections)
 		{
-			JumpLaneSystem? source = result.Systems.ContainsKey(connection.SourceId)
-				? result.Systems[connection.SourceId].As<JumpLaneSystem>()
-				: null;
-			JumpLaneSystem? destination = result.Systems.ContainsKey(connection.DestinationId)
-				? result.Systems[connection.DestinationId].As<JumpLaneSystem>()
-				: null;
+			JumpLaneSystem? source = result.GetSystem(connection.SourceId);
+			JumpLaneSystem? destination = result.GetSystem(connection.DestinationId);
 
 			if (source == null || destination == null)
 			{

@@ -35,7 +35,15 @@ public static class StarShaderParams
             rotationPeriodS = 2.16e6f;
         }
 
-        float seedValue = body.Provenance == null ? 0.0f : (body.Provenance.GenerationSeed % 1000L) / 10.0f;
+        float seedValue;
+        if (body.Provenance == null)
+        {
+            seedValue = 0.0f;
+        }
+        else
+        {
+            seedValue = (body.Provenance.GenerationSeed % 1000L) / 10.0f;
+        }
 
         parameters["u_temperature"] = temperatureK;
         parameters["u_star_color"] = ColorUtils.TemperatureToBlackbodyColor(temperatureK);

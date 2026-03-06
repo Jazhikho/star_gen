@@ -16,7 +16,15 @@ public static class GasGiantShaderParams
     {
         Dictionary parameters = new();
 
-        int seedInt = body.Provenance == null ? 0 : unchecked((int)body.Provenance.GenerationSeed);
+        int seedInt;
+        if (body.Provenance == null)
+        {
+            seedInt = 0;
+        }
+        else
+        {
+            seedInt = unchecked((int)body.Provenance.GenerationSeed);
+        }
         float seedValue = (seedInt % 1000) / 10.0f;
         parameters["u_seed"] = seedValue;
 
@@ -174,17 +182,23 @@ public static class GasGiantShaderParams
 
         if (temperatureK < 150.0f)
         {
-            return rotationH > 16.0f
-                ? GasGiantArchetype.UranusClass
-                : GasGiantArchetype.NeptuneClass;
+            if (rotationH > 16.0f)
+            {
+                return GasGiantArchetype.UranusClass;
+            }
+
+            return GasGiantArchetype.NeptuneClass;
         }
 
         float methane = GetCompositionFraction(body, "CH4");
         if (rotationH < 12.0f && massEarth < 200.0 && methane < 0.01f)
         {
-            return body.Physical.Oblateness > 0.08
-                ? GasGiantArchetype.SaturnClass
-                : GasGiantArchetype.JupiterClass;
+            if (body.Physical.Oblateness > 0.08)
+            {
+                return GasGiantArchetype.SaturnClass;
+            }
+
+            return GasGiantArchetype.JupiterClass;
         }
 
         return GasGiantArchetype.JupiterClass;
@@ -406,6 +420,11 @@ public static class GasGiantShaderParams
         }
 
         Variant value = dictionary[key];
-        return value.VariantType == Variant.Type.Color ? (Color)value : fallback;
+        if (value.VariantType == Variant.Type.Color)
+        {
+            return (Color)value;
+        }
+
+        return fallback;
     }
 }

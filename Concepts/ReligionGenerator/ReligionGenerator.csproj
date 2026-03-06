@@ -1,0 +1,9 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <RootNamespace>StarGen.Concepts.ReligionGenerator</RootNamespace>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>disable</ImplicitUsings>
+    <Description>Prototype: procedural religion generator. Multi-factor anthropological modeling, deterministic seeded RNG.</Description>
+  </PropertyGroup>
+</Project>

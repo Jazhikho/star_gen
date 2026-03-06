@@ -19,17 +19,17 @@ public partial class ValidationError : RefCounted
     /// <summary>
     /// The field or path that has the error.
     /// </summary>
-    public string Field;
+    public string Field { get; set; }
 
     /// <summary>
     /// Human-readable error message.
     /// </summary>
-    public string Message;
+    public string Message { get; set; }
 
     /// <summary>
     /// Severity of the error.
     /// </summary>
-    public SeverityLevel Severity;
+    public SeverityLevel Severity { get; set; }
 
     /// <summary>
     /// Creates a new validation error.
@@ -49,7 +49,16 @@ public partial class ValidationError : RefCounted
     /// </summary>
     public string FormatError()
     {
-        string severityText = Severity == SeverityLevel.Error ? "ERROR" : "WARNING";
+        string severityText;
+        if (Severity == SeverityLevel.Error)
+        {
+            severityText = "ERROR";
+        }
+        else
+        {
+            severityText = "WARNING";
+        }
+
         return $"[{severityText}] {Field}: {Message}";
     }
 }

@@ -21,6 +21,17 @@ public partial class AsteroidBelt : RefCounted
     }
 
     /// <summary>
+    /// Compatibility enum alias for legacy tests/API.
+    /// </summary>
+    public enum CompositionType
+    {
+        Rocky,
+        Icy,
+        Mixed,
+        Metallic,
+    }
+
+    /// <summary>
     /// Unique belt identifier.
     /// </summary>
     public string Id = string.Empty;
@@ -140,18 +151,34 @@ public partial class AsteroidBelt : RefCounted
     }
 
     /// <summary>
+    /// Compatibility overload for legacy enum alias.
+    /// </summary>
+    public static string CompositionToString(CompositionType composition)
+    {
+        return CompositionToString((Composition)composition);
+    }
+
+    /// <summary>
     /// Parses a serialized composition token.
     /// </summary>
-    public static Composition StringToComposition(string compositionName)
+    public static CompositionType StringToComposition(string compositionName)
     {
         return compositionName.ToLowerInvariant() switch
         {
-            "rocky" => Composition.Rocky,
-            "icy" => Composition.Icy,
-            "mixed" => Composition.Mixed,
-            "metallic" => Composition.Metallic,
-            _ => Composition.Rocky,
+            "rocky" => CompositionType.Rocky,
+            "icy" => CompositionType.Icy,
+            "mixed" => CompositionType.Mixed,
+            "metallic" => CompositionType.Metallic,
+            _ => CompositionType.Rocky,
         };
+    }
+
+    /// <summary>
+    /// Parser returning the primary enum type used internally.
+    /// </summary>
+    public static Composition StringToPrimaryComposition(string compositionName)
+    {
+        return (Composition)StringToComposition(compositionName);
     }
 
     /// <summary>
@@ -190,7 +217,7 @@ public partial class AsteroidBelt : RefCounted
         belt.InnerRadiusM = GetDouble(data, "inner_radius_m", 0.0);
         belt.OuterRadiusM = GetDouble(data, "outer_radius_m", 0.0);
         belt.TotalMassKg = GetDouble(data, "total_mass_kg", 0.0);
-        belt.PrimaryComposition = StringToComposition(GetString(data, "composition", "rocky"));
+        belt.PrimaryComposition = (Composition)StringToComposition(GetString(data, "composition", "rocky"));
 
         if (data.ContainsKey("major_asteroid_ids") && data["major_asteroid_ids"].VariantType == Variant.Type.Array)
         {
@@ -217,7 +244,12 @@ public partial class AsteroidBelt : RefCounted
         }
 
         Variant value = data[key];
-        return value.VariantType == Variant.Type.String ? (string)value : fallback;
+        if (value.VariantType == Variant.Type.String)
+        {
+            return (string)value;
+        }
+
+        return fallback;
     }
 
     /// <summary>
@@ -235,8 +267,18 @@ public partial class AsteroidBelt : RefCounted
         {
             Variant.Type.Float => (double)value,
             Variant.Type.Int => (int)value,
-            Variant.Type.String => double.TryParse((string)value, out double parsed) ? parsed : fallback,
+            Variant.Type.String => TryParseDouble((string)value, fallback),
             _ => fallback,
         };
+    }
+
+    private static double TryParseDouble(string s, double fallback)
+    {
+        if (double.TryParse(s, out double parsed))
+        {
+            return parsed;
+        }
+
+        return fallback;
     }
 }

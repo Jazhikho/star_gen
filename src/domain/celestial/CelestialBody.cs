@@ -1,5 +1,6 @@
 using Godot;
 using StarGen.Domain.Celestial.Components;
+using StarGen.Domain.Population;
 
 namespace StarGen.Domain.Celestial;
 
@@ -11,57 +12,57 @@ public partial class CelestialBody : RefCounted
     /// <summary>
     /// Unique identifier for this body.
     /// </summary>
-    public string Id;
+    public string Id { get; set; }
 
     /// <summary>
     /// Display name of the body.
     /// </summary>
-    public string Name;
+    public string Name { get; set; }
 
     /// <summary>
     /// Type of celestial body.
     /// </summary>
-    public CelestialType.Type Type;
+    public CelestialType.Type Type { get; set; }
 
     /// <summary>
     /// Physical properties for this body.
     /// </summary>
-    public PhysicalProps Physical;
+    public PhysicalProps Physical { get; set; }
 
     /// <summary>
     /// Orbital properties.
     /// </summary>
-    public OrbitalProps? Orbital;
+    public OrbitalProps? Orbital { get; set; }
 
     /// <summary>
     /// Stellar properties.
     /// </summary>
-    public StellarProps? Stellar;
+    public StellarProps? Stellar { get; set; }
 
     /// <summary>
     /// Surface properties.
     /// </summary>
-    public SurfaceProps? Surface;
+    public SurfaceProps? Surface { get; set; }
 
     /// <summary>
     /// Atmospheric properties.
     /// </summary>
-    public AtmosphereProps? Atmosphere;
+    public AtmosphereProps? Atmosphere { get; set; }
 
     /// <summary>
     /// Ring-system properties.
     /// </summary>
-    public RingSystemProps? RingSystem;
+    public RingSystemProps? RingSystem { get; set; }
 
     /// <summary>
-    /// Population data. The dedicated C# population model has not been ported yet.
+    /// Population data for the body when generated or loaded.
     /// </summary>
-    public RefCounted? PopulationData;
+    public PlanetPopulationData? PopulationData { get; set; }
 
     /// <summary>
     /// Generation provenance information.
     /// </summary>
-    public Provenance? Provenance;
+    public Provenance? Provenance { get; set; }
 
     /// <summary>
     /// Creates a new celestial-body instance.

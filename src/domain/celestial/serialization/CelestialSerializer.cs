@@ -12,6 +12,16 @@ namespace StarGen.Domain.Celestial.Serialization;
 public static class CelestialSerializer
 {
     /// <summary>
+    /// Legacy alias for converted tests.
+    /// </summary>
+    public static Dictionary ToDict(CelestialBody body) => ToDictionary(body);
+
+    /// <summary>
+    /// Legacy alias for converted tests.
+    /// </summary>
+    public static CelestialBody? FromDict(Dictionary data) => FromDictionary(data);
+
+    /// <summary>
     /// Serializes a celestial body to a dictionary.
     /// </summary>
     public static Dictionary ToDictionary(CelestialBody body)
@@ -50,16 +60,9 @@ public static class CelestialSerializer
             data["ring_system"] = body.RingSystem!.ToDictionary();
         }
 
-        if (body.HasPopulationData())
+        if (body.HasPopulationData() && body.PopulationData != null)
         {
-            if (body.PopulationData is SerializedPopulationData serializedPopulationData)
-            {
-                data["population_data"] = serializedPopulationData.ToDictionary();
-            }
-            else if (body.PopulationData!.HasMethod("to_dict"))
-            {
-                data["population_data"] = body.PopulationData.Call("to_dict");
-            }
+            data["population_data"] = body.PopulationData.ToDictionary();
         }
 
         if (body.Provenance != null)
@@ -83,14 +86,40 @@ public static class CelestialSerializer
         CelestialType.Type type = CelestialType.Type.Planet;
         if (data.ContainsKey("type"))
         {
-            string typeName = (string)data["type"];
-            if (CelestialType.TryParse(typeName, out CelestialType.Type parsedType))
+            Variant typeVariant = data["type"];
+            if (typeVariant.VariantType != Variant.Type.String)
             {
-                type = parsedType;
+                GD.PushError($"CelestialSerializer.FromDictionary: 'type' value has unexpected Variant type '{typeVariant.VariantType}' — defaulting to Planet.");
+            }
+            else
+            {
+                string typeName = (string)typeVariant;
+                if (!CelestialType.TryParse(typeName, out CelestialType.Type parsedType))
+                {
+                    GD.PushError($"CelestialSerializer.FromDictionary: unrecognized body type '{typeName}' — defaulting to Planet.");
+                }
+                else
+                {
+                    type = parsedType;
+                }
             }
         }
+        else
+        {
+            GD.PushError("CelestialSerializer.FromDictionary: 'type' key missing from body data — defaulting to Planet.");
+        }
 
-        Dictionary physicalData = data.ContainsKey("physical") ? (Dictionary)data["physical"] : new Dictionary();
+        Dictionary physicalData;
+        if (data.ContainsKey("physical") && data["physical"].VariantType == Variant.Type.Dictionary)
+        {
+            physicalData = (Dictionary)data["physical"];
+        }
+        else
+        {
+            GD.PushError($"CelestialSerializer.FromDictionary: 'physical' key missing or wrong type for body '{GetString(data, "id", "<unknown>")}' — constructing empty PhysicalProps.");
+            physicalData = new Dictionary();
+        }
+
         PhysicalProps physical = PhysicalProps.FromDictionary(physicalData);
 
         Provenance? provenance = null;
@@ -145,7 +174,12 @@ public static class CelestialSerializer
     public static string ToJson(CelestialBody body, bool pretty = true)
     {
         Dictionary data = ToDictionary(body);
-        return pretty ? Json.Stringify(data, "\t") : Json.Stringify(data);
+        if (pretty)
+        {
+            return Json.Stringify(data, "\t");
+        }
+
+        return Json.Stringify(data);
     }
 
     /// <summary>
@@ -153,7 +187,14 @@ public static class CelestialSerializer
     /// </summary>
     public static CelestialBody? FromJson(string jsonString)
     {
-        Variant parsed = Json.ParseString(jsonString);
+        Json parser = new();
+        Error parseError = parser.Parse(jsonString);
+        if (parseError != Error.Ok)
+        {
+            return null;
+        }
+
+        Variant parsed = parser.Data;
         if (parsed.VariantType != Variant.Type.Dictionary)
         {
             return null;
@@ -164,31 +205,20 @@ public static class CelestialSerializer
 
     private static string GetString(Dictionary data, string key, string fallback)
     {
-        return data.ContainsKey(key) ? (string)data[key] : fallback;
-    }
-
-    /// <summary>
-    /// Deserializes population data to the richest currently available C# type.
-    /// </summary>
-    private static RefCounted DeserializePopulationData(Dictionary data)
-    {
-        if (LooksLikePlanetPopulationData(data))
+        if (data.ContainsKey(key))
         {
-            return PlanetPopulationData.FromDictionary(data);
+            return (string)data[key];
         }
 
-        return new SerializedPopulationData(data);
+        return fallback;
     }
 
     /// <summary>
-    /// Returns whether a dictionary matches the known planet-population payload shape.
+    /// Deserializes population data to PlanetPopulationData (handles minimal or full payloads).
     /// </summary>
-    private static bool LooksLikePlanetPopulationData(Dictionary data)
+    private static PlanetPopulationData DeserializePopulationData(Dictionary data)
     {
-        return data.ContainsKey("body_id")
-            || data.ContainsKey("profile")
-            || data.ContainsKey("suitability")
-            || data.ContainsKey("native_populations")
-            || data.ContainsKey("colonies");
+        return PlanetPopulationData.FromDictionary(data);
     }
 }
+

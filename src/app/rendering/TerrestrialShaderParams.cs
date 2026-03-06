@@ -16,7 +16,15 @@ public static class TerrestrialShaderParams
     public static Dictionary GetParams(CelestialBody body)
     {
         Dictionary parameters = new();
-        float seedValue = body.Provenance == null ? 0.0f : (body.Provenance.GenerationSeed % 1000L) / 10.0f;
+        float seedValue;
+        if (body.Provenance == null)
+        {
+            seedValue = 0.0f;
+        }
+        else
+        {
+            seedValue = (body.Provenance.GenerationSeed % 1000L) / 10.0f;
+        }
         parameters["u_seed"] = seedValue;
 
         Merge(parameters, TerrestrialShaderParamProfiles.BuildTerrainParams(body));
@@ -53,7 +61,15 @@ public static class TerrestrialShaderParams
     public static Dictionary GetTerrestrialShaderParams(CelestialBody body)
     {
         Dictionary parameters = new();
-        float seedValue = body.Provenance == null ? 0.0f : (body.Provenance.GenerationSeed % 1000L) / 10.0f;
+        float seedValue;
+        if (body.Provenance == null)
+        {
+            seedValue = 0.0f;
+        }
+        else
+        {
+            seedValue = (body.Provenance.GenerationSeed % 1000L) / 10.0f;
+        }
         float rotationPeriod = Mathf.Abs((float)body.Physical.RotationPeriodS);
         if (rotationPeriod < 1.0f)
         {

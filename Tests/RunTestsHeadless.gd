@@ -1,87 +1,73 @@
-## Headless test runner script.
-## Run with: godot --headless --script res://Tests/RunTestsHeadless.gd
 extends SceneTree
 
-## Preload Phase 1 domain/service scripts so class_name types are registered before test scripts compile.
-const _phase1_deps = preload("res://Tests/Phase1Deps.gd")
-## Preload population domain scripts so class_name types are registered before population test scripts.
-const _population_deps = preload("res://Tests/PopulationDeps.gd")
-## Preload jump lanes domain scripts so class_name types are registered before jump lanes test scripts.
-const _jump_lanes_deps = preload("res://Tests/JumpLanesDeps.gd")
-## Shared registry of all test scripts.
-const _test_registry: GDScript = preload("res://Tests/TestRegistry.gd")
-## Parallel C# harness scene for .NET-capable runs.
-const _csharp_test_scene_path: String = "res://Tests/TestSceneCSharp.tscn"
+const CSHARP_TEST_SCENE_PATH := "res://Tests/TestSceneCSharp.tscn"
+const SUPPORTED_GODOT_MAJOR := 4
+const SUPPORTED_GODOT_MINOR := 6
 
-## Array of test scripts to run. Add new test scripts in TestRegistry.gd.
-var _test_scripts: Array[GDScript] = _test_registry.get_headless_test_scripts()
-## The active C# harness instance for .NET runs.
-var _csharp_harness: Node = null
+var _csharp_harness = null
 
-
-func _init() -> void:
+func _initialize() -> void:
 	print("")
 	print("StarGen Test Suite (Headless)")
 	print("==============================")
 	print("")
 	print("Running tests...")
+	print("Supported runtime: Godot .NET 4.6.x")
+	print("Detected runtime: %s" % _get_runtime_label())
 
-	if ClassDB.class_exists("CSharpScript"):
-		call_deferred("_run_csharp_harness")
+	if not _is_supported_runtime():
+		push_error("Headless tests require Godot .NET 4.6.x. Detected %s." % _get_runtime_label())
+		quit(1)
 		return
 
-	var runner: TestRunner = TestRunner.new()
+	call_deferred("_start_csharp_harness")
 
-	runner.run_all(_test_scripts)
-
-	runner.print_summary()
-
-	var exit_code: int = 0 if runner.get_fail_count() == 0 else 1
-	quit(exit_code)
-
-
-## Runs the parallel C# harness when the .NET runtime is available.
-func _run_csharp_harness() -> void:
-	var scene: PackedScene = ResourceLoader.load(
-		_csharp_test_scene_path,
-		"PackedScene",
-		ResourceLoader.CACHE_MODE_IGNORE
-	) as PackedScene
+func _start_csharp_harness() -> void:
+	var scene := load(CSHARP_TEST_SCENE_PATH)
 	if scene == null:
-		push_error("Failed to load C# test harness scene: %s" % _csharp_test_scene_path)
+		push_error("Failed to load C# test harness scene: " + CSHARP_TEST_SCENE_PATH)
 		quit(1)
 		return
 
-	_csharp_harness = scene.instantiate()
-	if _csharp_harness == null:
-		push_error("Failed to instantiate C# test harness scene: %s" % _csharp_test_scene_path)
+	var harness = scene.instantiate()
+	if harness == null:
+		push_error("Failed to instantiate C# test harness scene: " + CSHARP_TEST_SCENE_PATH)
 		quit(1)
 		return
 
-	root.add_child(_csharp_harness)
-	if _csharp_harness.has_signal("RunCompleted"):
-		_csharp_harness.connect("RunCompleted", Callable(self, "_on_csharp_headless_completed"))
+	_csharp_harness = harness
+	root.add_child(harness)
+	if harness.has_signal("run_completed"):
+		harness.connect("run_completed", Callable(self, "_on_csharp_headless_completed"))
+	elif harness.has_signal("RunCompleted"):
+		harness.connect("RunCompleted", Callable(self, "_on_csharp_headless_completed"))
 	else:
-		_cleanup_csharp_harness()
-		push_error("C# test harness does not expose a completion signal")
+		push_error("C# test harness is missing RunCompleted/run_completed signal")
 		quit(1)
 		return
-	_csharp_harness.call("start_run", _test_scripts, self)
+	harness.start_headless()
 
-
-## Removes the C# harness from the tree and frees it.
-func _cleanup_csharp_harness() -> void:
-	if _csharp_harness == null:
-		return
-	var parent: Node = _csharp_harness.get_parent()
-	if parent != null:
-		parent.remove_child(_csharp_harness)
-	_csharp_harness.queue_free()
-	_csharp_harness = null
-
-
-## Quits the headless process after the C# harness completes.
 func _on_csharp_headless_completed(exit_code: int) -> void:
-	_cleanup_csharp_harness()
+	if _csharp_harness != null:
+		_csharp_harness.queue_free()
+		_csharp_harness = null
+
+	for child in root.get_children():
+		child.queue_free()
+
+	await process_frame
+	await process_frame
 	await process_frame
 	quit(exit_code)
+
+func _is_supported_runtime() -> bool:
+	var version_info: Dictionary = Engine.get_version_info()
+	return int(version_info.get("major", 0)) == SUPPORTED_GODOT_MAJOR and int(version_info.get("minor", 0)) == SUPPORTED_GODOT_MINOR
+
+func _get_runtime_label() -> String:
+	var version_info: Dictionary = Engine.get_version_info()
+	var major := int(version_info.get("major", 0))
+	var minor := int(version_info.get("minor", 0))
+	var patch := int(version_info.get("patch", 0))
+	var status := String(version_info.get("status", "unknown"))
+	return "%d.%d.%d %s" % [major, minor, patch, status]

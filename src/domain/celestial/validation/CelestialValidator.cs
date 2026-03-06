@@ -46,6 +46,7 @@ public static class CelestialValidator
         return result;
     }
 
+    /// <summary>Validates that the body has a non-empty identifier and name.</summary>
     private static void ValidateIdentity(CelestialBody body, ValidationResult result)
     {
         if (string.IsNullOrEmpty(body.Id))
@@ -59,6 +60,7 @@ public static class CelestialValidator
         }
     }
 
+    /// <summary>Validates mass, radius, axial tilt, oblateness, and internal heat.</summary>
     private static void ValidatePhysical(PhysicalProps? physical, ValidationResult result)
     {
         if (physical == null)
@@ -93,6 +95,7 @@ public static class CelestialValidator
         }
     }
 
+    /// <summary>Validates stellar luminosity, temperature, metallicity, and age; warns if a non-star has stellar props.</summary>
     private static void ValidateStellar(StellarProps stellar, CelestialType.Type bodyType, ValidationResult result)
     {
         if (bodyType != CelestialType.Type.Star)
@@ -121,6 +124,7 @@ public static class CelestialValidator
         }
     }
 
+    /// <summary>Validates semi-major axis, eccentricity, and inclination.</summary>
     private static void ValidateOrbital(OrbitalProps orbital, ValidationResult result)
     {
         if (orbital.SemiMajorAxisM <= 0.0)
@@ -144,6 +148,7 @@ public static class CelestialValidator
         }
     }
 
+    /// <summary>Validates surface temperature, albedo, volcanism, and delegates to sub-validators for terrain, hydrosphere, and cryosphere.</summary>
     private static void ValidateSurface(SurfaceProps surface, ValidationResult result)
     {
         if (surface.TemperatureK < 0.0)
@@ -177,6 +182,7 @@ public static class CelestialValidator
         }
     }
 
+    /// <summary>Validates terrain elevation range, roughness, crater density, tectonic activity, and erosion level.</summary>
     private static void ValidateTerrain(TerrainProps terrain, ValidationResult result)
     {
         if (terrain.ElevationRangeM < 0.0)
@@ -205,6 +211,7 @@ public static class CelestialValidator
         }
     }
 
+    /// <summary>Validates ocean coverage, depth, ice coverage, and salinity.</summary>
     private static void ValidateHydrosphere(HydrosphereProps hydrosphere, ValidationResult result)
     {
         if (hydrosphere.OceanCoverage < 0.0 || hydrosphere.OceanCoverage > 1.0)
@@ -228,6 +235,7 @@ public static class CelestialValidator
         }
     }
 
+    /// <summary>Validates polar cap coverage, permafrost depth, subsurface ocean depth, and cryovolcanism level.</summary>
     private static void ValidateCryosphere(CryosphereProps cryosphere, ValidationResult result)
     {
         if (cryosphere.PolarCapCoverage < 0.0 || cryosphere.PolarCapCoverage > 1.0)
@@ -251,6 +259,7 @@ public static class CelestialValidator
         }
     }
 
+    /// <summary>Validates surface pressure, scale height, greenhouse factor, and composition fractions sum.</summary>
     private static void ValidateAtmosphere(AtmosphereProps atmosphere, ValidationResult result)
     {
         if (atmosphere.SurfacePressurePa < 0.0)
@@ -277,6 +286,7 @@ public static class CelestialValidator
         }
     }
 
+    /// <summary>Validates ring system mass, band geometry, optical depth, particle size, and overlap.</summary>
     private static void ValidateRingSystem(RingSystemProps ringSystem, PhysicalProps physical, ValidationResult result)
     {
         if (ringSystem.TotalMassKg < 0.0)
@@ -335,6 +345,7 @@ public static class CelestialValidator
         }
     }
 
+    /// <summary>Warns when a body carries components that are inconsistent with its declared type.</summary>
     private static void ValidateTypeConsistency(CelestialBody body, ValidationResult result)
     {
         switch (body.Type)

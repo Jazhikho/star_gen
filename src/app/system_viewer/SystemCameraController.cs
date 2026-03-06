@@ -202,7 +202,7 @@ public partial class SystemCameraController : Camera3D
         UpdateTransform();
         Near = Mathf.Max(0.001f, _height * 0.001f);
         Far = Mathf.Max(100.0f, _height * 50.0f);
-        EmitSignal(SignalName.CameraMoved, GlobalPosition, _height);
+        EmitSignal(SignalName.CameraMoved, GetCameraPosition(), _height);
     }
 
     /// <summary>
@@ -268,7 +268,14 @@ public partial class SystemCameraController : Camera3D
             _height,
             horizontalDistance * Mathf.Cos(_yaw));
 
-        GlobalPosition = _smoothTarget + cameraOffset;
+        Vector3 cameraPosition = _smoothTarget + cameraOffset;
+        if (!IsInsideTree())
+        {
+            Position = cameraPosition;
+            return;
+        }
+
+        GlobalPosition = cameraPosition;
         LookAt(_smoothTarget, Vector3.Up);
     }
 
@@ -277,9 +284,14 @@ public partial class SystemCameraController : Camera3D
     /// </summary>
     private void ToggleViewAngle()
     {
-        _targetPitch = _targetPitch > Mathf.DegToRad(70.0f)
-            ? Mathf.DegToRad(30.0f)
-            : Mathf.DegToRad(80.0f);
+        if (_targetPitch > Mathf.DegToRad(70.0f))
+        {
+            _targetPitch = Mathf.DegToRad(30.0f);
+        }
+        else
+        {
+            _targetPitch = Mathf.DegToRad(80.0f);
+        }
     }
 
     /// <summary>
@@ -294,5 +306,60 @@ public partial class SystemCameraController : Camera3D
         }
 
         return viewport.GuiGetHoveredControl() != null;
+    }
+
+    /// <summary>
+    /// Returns the current camera position without requiring scene-tree membership.
+    /// </summary>
+    private Vector3 GetCameraPosition()
+    {
+        if (IsInsideTree())
+        {
+            return GlobalPosition;
+        }
+
+        return Position;
+    }
+
+    /// <summary>
+    /// GDScript-compatible min-height accessor.
+    /// </summary>
+    public float min_height => MinHeight;
+
+    /// <summary>
+    /// GDScript-compatible max-height accessor.
+    /// </summary>
+    public float max_height => MaxHeight;
+
+    /// <summary>
+    /// GDScript-compatible height setter wrapper.
+    /// </summary>
+    public void set_height(float height)
+    {
+        SetHeight(height);
+    }
+
+    /// <summary>
+    /// GDScript-compatible height getter wrapper.
+    /// </summary>
+    public float get_height()
+    {
+        return GetHeightValue();
+    }
+
+    /// <summary>
+    /// GDScript-compatible origin focus wrapper.
+    /// </summary>
+    public void focus_on_origin()
+    {
+        FocusOnOrigin();
+    }
+
+    /// <summary>
+    /// GDScript-compatible position focus wrapper.
+    /// </summary>
+    public void focus_on_position(Vector3 target, float zoomToDistance = -1.0f)
+    {
+        FocusOnPosition(target, zoomToDistance);
     }
 }

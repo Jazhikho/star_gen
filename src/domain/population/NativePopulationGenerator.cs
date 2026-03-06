@@ -264,52 +264,52 @@ public static class NativePopulationGenerator
                 break;
             case TechnologyLevel.Level.BronzeAge:
             case TechnologyLevel.Level.IronAge:
-            {
-                Array<GovernmentType.Regime> options = new()
+                {
+                    Array<GovernmentType.Regime> options = new()
                 {
                     GovernmentType.Regime.Chiefdom,
                     GovernmentType.Regime.CityState,
                     GovernmentType.Regime.PatrimonialKingdom,
                 };
-                government.Regime = options[rng.RandiRange(0, options.Count - 1)];
-                break;
-            }
+                    government.Regime = options[rng.RandiRange(0, options.Count - 1)];
+                    break;
+                }
             case TechnologyLevel.Level.Classical:
             case TechnologyLevel.Level.Medieval:
-            {
-                Array<GovernmentType.Regime> options = new()
+                {
+                    Array<GovernmentType.Regime> options = new()
                 {
                     GovernmentType.Regime.Feudal,
                     GovernmentType.Regime.PatrimonialKingdom,
                     GovernmentType.Regime.BureaucraticEmpire,
                 };
-                government.Regime = options[rng.RandiRange(0, options.Count - 1)];
-                break;
-            }
+                    government.Regime = options[rng.RandiRange(0, options.Count - 1)];
+                    break;
+                }
             case TechnologyLevel.Level.Renaissance:
             case TechnologyLevel.Level.Industrial:
-            {
-                Array<GovernmentType.Regime> options = new()
+                {
+                    Array<GovernmentType.Regime> options = new()
                 {
                     GovernmentType.Regime.AbsoluteMonarchy,
                     GovernmentType.Regime.Constitutional,
                     GovernmentType.Regime.EliteRepublic,
                 };
-                government.Regime = options[rng.RandiRange(0, options.Count - 1)];
-                break;
-            }
+                    government.Regime = options[rng.RandiRange(0, options.Count - 1)];
+                    break;
+                }
             default:
-            {
-                Array<GovernmentType.Regime> options = new()
+                {
+                    Array<GovernmentType.Regime> options = new()
                 {
                     GovernmentType.Regime.MassDemocracy,
                     GovernmentType.Regime.Constitutional,
                     GovernmentType.Regime.OnePartyState,
                     GovernmentType.Regime.EliteRepublic,
                 };
-                government.Regime = options[rng.RandiRange(0, options.Count - 1)];
-                break;
-            }
+                    government.Regime = options[rng.RandiRange(0, options.Count - 1)];
+                    break;
+                }
         }
 
         double techFactor = (int)techLevel / (double)TechnologyLevel.Count();
@@ -331,8 +331,8 @@ public static class NativePopulationGenerator
 
     private static string SelectPrimaryBiome(PlanetProfile profile, SeededRng rng)
     {
-        Array<int> candidates = new();
-        Array<float> weights = new();
+        System.Collections.Generic.List<int> candidates = new();
+        System.Collections.Generic.List<float> weights = new();
 
         foreach (Variant biomeKey in profile.Biomes.Keys)
         {

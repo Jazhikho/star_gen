@@ -335,10 +335,23 @@ public static class SystemPlanetGenerator
 
         for (int index = 0; index < planets.Count; index += 1)
         {
-            string numeral = index < numerals.Length ? numerals[index] : (index + 1).ToString();
-            planets[index].Name = string.IsNullOrEmpty(systemName)
-                ? $"Planet {numeral}"
-                : $"{systemName} {numeral}";
+            string numeral;
+            if (index < numerals.Length)
+            {
+                numeral = numerals[index];
+            }
+            else
+            {
+                numeral = (index + 1).ToString();
+            }
+            if (string.IsNullOrEmpty(systemName))
+            {
+                planets[index].Name = $"Planet {numeral}";
+            }
+            else
+            {
+                planets[index].Name = $"{systemName} {numeral}";
+            }
         }
     }
 
@@ -539,8 +552,25 @@ public static class SystemPlanetGenerator
 
         sorted.Sort((left, right) =>
         {
-            double leftScore = slotScores.ContainsKey(left) ? slotScores[left] : 0.0;
-            double rightScore = slotScores.ContainsKey(right) ? slotScores[right] : 0.0;
+            double leftScore;
+            if (slotScores.ContainsKey(left))
+            {
+                leftScore = slotScores[left];
+            }
+            else
+            {
+                leftScore = 0.0;
+            }
+
+            double rightScore;
+            if (slotScores.ContainsKey(right))
+            {
+                rightScore = slotScores[right];
+            }
+            else
+            {
+                rightScore = 0.0;
+            }
             int scoreComparison = rightScore.CompareTo(leftScore);
             if (scoreComparison != 0)
             {

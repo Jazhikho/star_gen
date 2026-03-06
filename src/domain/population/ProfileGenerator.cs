@@ -54,7 +54,15 @@ public static class ProfileGenerator
                 profile.HasAtmosphere);
         }
 
-        Dictionary surfaceComposition = body.HasSurface() ? body.Surface!.SurfaceComposition : new Dictionary();
+        Dictionary surfaceComposition;
+        if (body.HasSurface())
+        {
+            surfaceComposition = body.Surface!.SurfaceComposition;
+        }
+        else
+        {
+            surfaceComposition = new Dictionary();
+        }
         profile.Resources = ProfileCalculations.CalculateResources(
             surfaceComposition,
             profile.Biomes,

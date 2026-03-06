@@ -12,19 +12,28 @@ namespace StarGen.Domain.Bootstrap;
 public partial class CSharpSizeTableBridge : RefCounted
 {
     /// <summary>
-    /// Returns the mass range for a size category.
+    /// Returns the mass range for a size category as a dictionary with "min" and "max" keys.
     /// </summary>
-    public Dictionary GetMassRange(int category) => SizeTable.GetMassRange((SizeCategoryArchetype.Category)category);
+    public Dictionary GetMassRange(int category)
+    {
+        return SizeTable.GetMassRange((SizeCategoryArchetype.Category)category);
+    }
 
     /// <summary>
-    /// Returns the radius range for a size category.
+    /// Returns the radius range for a size category as a dictionary with "min" and "max" keys.
     /// </summary>
-    public Dictionary GetRadiusRange(int category) => SizeTable.GetRadiusRange((SizeCategoryArchetype.Category)category);
+    public Dictionary GetRadiusRange(int category)
+    {
+        return SizeTable.GetRadiusRange((SizeCategoryArchetype.Category)category);
+    }
 
     /// <summary>
-    /// Returns the density range for a size category.
+    /// Returns the density range for a size category as a dictionary with "min" and "max" keys.
     /// </summary>
-    public Dictionary GetDensityRange(int category) => SizeTable.GetDensityRange((SizeCategoryArchetype.Category)category);
+    public Dictionary GetDensityRange(int category)
+    {
+        return SizeTable.GetDensityRange((SizeCategoryArchetype.Category)category);
+    }
 
     /// <summary>
     /// Infers a size category from a mass in Earth masses.

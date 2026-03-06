@@ -65,6 +65,7 @@ public sealed class SeededRng
 
     /// <summary>
     /// Creates a child RNG using a seed derived from the current sequence.
+    /// Note: The child seed is taken from Randi() (32-bit); the full 64-bit initial seed range is not preserved for the child.
     /// </summary>
     public SeededRng Fork() => new(_rng.Randi());
 

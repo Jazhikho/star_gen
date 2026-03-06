@@ -87,6 +87,21 @@ public partial class JumpLaneResult : RefCounted
     }
 
     /// <summary>
+    /// Returns the <see cref="JumpLaneSystem"/> registered under the given identifier, or null when absent.
+    /// </summary>
+    /// <param name="systemId">Identifier of the system to retrieve.</param>
+    /// <returns>The registered system, or null when the identifier is not found.</returns>
+    public JumpLaneSystem? GetSystem(string systemId)
+    {
+        if (!Systems.ContainsKey(systemId))
+        {
+            return null;
+        }
+
+        return Systems[systemId].Obj as JumpLaneSystem;
+    }
+
+    /// <summary>
     /// Returns whether a system is marked as an orphan.
     /// </summary>
     public bool IsOrphan(string systemId)

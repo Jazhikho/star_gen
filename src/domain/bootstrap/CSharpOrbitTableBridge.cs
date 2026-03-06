@@ -12,7 +12,7 @@ namespace StarGen.Domain.Bootstrap;
 public partial class CSharpOrbitTableBridge : RefCounted
 {
     /// <summary>
-    /// Returns the orbital-distance range for a zone.
+    /// Returns the orbital-distance range for a zone as a dictionary with "min" and "max" keys.
     /// </summary>
     public Dictionary GetDistanceRange(int zone, double stellarLuminosityWatts)
     {
@@ -20,7 +20,7 @@ public partial class CSharpOrbitTableBridge : RefCounted
     }
 
     /// <summary>
-    /// Returns the eccentricity range for a zone.
+    /// Returns the eccentricity range for a zone as a dictionary with "min" and "max" keys.
     /// </summary>
     public Dictionary GetEccentricityRange(int zone)
     {

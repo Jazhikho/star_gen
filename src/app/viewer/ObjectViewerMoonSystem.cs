@@ -210,7 +210,12 @@ public partial class ObjectViewerMoonSystem : RefCounted
         }
 
         BodyRenderer renderer = _moonRenderers[index];
-        return GodotObject.IsInstanceValid(renderer) ? renderer.GlobalPosition : Vector3.Zero;
+        if (GodotObject.IsInstanceValid(renderer))
+        {
+            return renderer.GlobalPosition;
+        }
+
+        return Vector3.Zero;
     }
 
     /// <summary>
@@ -218,7 +223,12 @@ public partial class ObjectViewerMoonSystem : RefCounted
     /// </summary>
     public float GetFocusedMoonDisplayRadius()
     {
-        return _focusedMoon == null ? 0.0f : (float)(_focusedMoon.Physical.RadiusM * GetMoonSystemScale());
+        if (_focusedMoon == null)
+        {
+            return 0.0f;
+        }
+
+        return (float)(_focusedMoon.Physical.RadiusM * GetMoonSystemScale());
     }
 
     /// <summary>
@@ -250,7 +260,12 @@ public partial class ObjectViewerMoonSystem : RefCounted
             farthest = Mathf.Max(farthest, apoapsis);
         }
 
-        return farthest <= 0.0f ? Mathf.Max(minFrame, _primaryDisplayScale * 3.0f) : Mathf.Max(minFrame, farthest * 1.5f);
+        if (farthest <= 0.0f)
+        {
+            return Mathf.Max(minFrame, _primaryDisplayScale * 3.0f);
+        }
+
+        return Mathf.Max(minFrame, farthest * 1.5f);
     }
 
     /// <summary>

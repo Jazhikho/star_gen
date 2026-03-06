@@ -1,3 +1,5 @@
+#nullable enable annotations
+#nullable disable warnings
 using Godot;
 
 namespace StarGen.Tests.Framework;

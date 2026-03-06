@@ -60,6 +60,14 @@ public static class ColorUtils
     }
 
     /// <summary>
+    /// Compatibility overload for double temperature values.
+    /// </summary>
+    public static Color TemperatureToBlackbodyColor(double temperatureK)
+    {
+        return TemperatureToBlackbodyColor((float)temperatureK);
+    }
+
+    /// <summary>
     /// Returns a representative color for a stellar spectral class.
     /// </summary>
     public static Color SpectralClassToColor(string spectralType)
@@ -118,12 +126,25 @@ public static class ColorUtils
                 continue;
             }
 
-            Color gasColor = gasColors.ContainsKey(gas) ? (Color)gasColors[gas] : new Color(0.5f, 0.5f, 0.5f);
+            Color gasColor;
+            if (gasColors.ContainsKey(gas))
+            {
+                gasColor = (Color)gasColors[gas];
+            }
+            else
+            {
+                gasColor = new Color(0.5f, 0.5f, 0.5f);
+            }
             color += gasColor * fraction;
             totalWeight += fraction;
         }
 
-        return totalWeight > 0.0f ? color / totalWeight : new Color(0.5f, 0.6f, 0.8f);
+        if (totalWeight > 0.0f)
+        {
+            return color / totalWeight;
+        }
+
+        return new Color(0.5f, 0.6f, 0.8f);
     }
 
     /// <summary>
@@ -150,7 +171,20 @@ public static class ColorUtils
         };
 
         baseColor = baseColor.Lerp(Colors.White, albedo * 0.3f);
-        return composition.Count == 0 ? baseColor : ModifyColorByComposition(baseColor, composition);
+        if (composition.Count == 0)
+        {
+            return baseColor;
+        }
+
+        return ModifyColorByComposition(baseColor, composition);
+    }
+
+    /// <summary>
+    /// Compatibility overload for double albedo values.
+    /// </summary>
+    public static Color SurfaceToColor(string surfaceType, Dictionary composition, double albedo)
+    {
+        return SurfaceToColor(surfaceType, composition, (float)albedo);
     }
 
     /// <summary>
@@ -210,6 +244,14 @@ public static class ColorUtils
     }
 
     /// <summary>
+    /// Compatibility overload for double optical depth values.
+    /// </summary>
+    public static Color RingToColor(Dictionary composition, double opticalDepth)
+    {
+        return RingToColor(composition, (float)opticalDepth);
+    }
+
+    /// <summary>
     /// Returns a display string for greenhouse intensity.
     /// </summary>
     public static string GetGreenhouseDescription(float greenhouseFactor)
@@ -238,12 +280,28 @@ public static class ColorUtils
     }
 
     /// <summary>
+    /// Compatibility overload for double greenhouse values.
+    /// </summary>
+    public static string GetGreenhouseDescription(double greenhouseFactor)
+    {
+        return GetGreenhouseDescription((float)greenhouseFactor);
+    }
+
+    /// <summary>
     /// Returns a color hint for greenhouse intensity.
     /// </summary>
     public static Color GetGreenhouseColor(float greenhouseFactor)
     {
         float intensity = Mathf.Clamp((greenhouseFactor - 1.0f) / 2.0f, 0.0f, 1.0f);
         return new Color(1.0f, 1.0f - intensity * 0.5f, 1.0f - intensity * 0.8f);
+    }
+
+    /// <summary>
+    /// Compatibility overload for double greenhouse values.
+    /// </summary>
+    public static Color GetGreenhouseColor(double greenhouseFactor)
+    {
+        return GetGreenhouseColor((float)greenhouseFactor);
     }
 
     /// <summary>

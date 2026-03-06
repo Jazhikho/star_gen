@@ -34,7 +34,12 @@ public partial class SystemHierarchy : RefCounted
     /// </summary>
     public int GetStarCount()
     {
-        return Root != null ? Root.GetStarCount() : 0;
+        if (Root != null)
+        {
+            return Root.GetStarCount();
+        }
+
+        return 0;
     }
 
     /// <summary>
@@ -42,7 +47,12 @@ public partial class SystemHierarchy : RefCounted
     /// </summary>
     public Array<string> GetAllStarIds()
     {
-        return Root != null ? Root.GetAllStarIds() : new Array<string>();
+        if (Root != null)
+        {
+            return Root.GetAllStarIds();
+        }
+
+        return new Array<string>();
     }
 
     /// <summary>
@@ -50,7 +60,12 @@ public partial class SystemHierarchy : RefCounted
     /// </summary>
     public int GetDepth()
     {
-        return Root != null ? Root.GetDepth() : 0;
+        if (Root != null)
+        {
+            return Root.GetDepth();
+        }
+
+        return 0;
     }
 
     /// <summary>
@@ -58,7 +73,12 @@ public partial class SystemHierarchy : RefCounted
     /// </summary>
     public HierarchyNode? FindNode(string nodeId)
     {
-        return Root != null ? Root.FindNode(nodeId) : null;
+        if (Root != null)
+        {
+            return Root.FindNode(nodeId);
+        }
+
+        return null;
     }
 
     /// <summary>

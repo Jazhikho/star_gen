@@ -1,5 +1,6 @@
 using Godot;
 using Godot.Collections;
+using StarGen.Domain.Utils;
 
 namespace StarGen.Domain.Jumplanes;
 
@@ -48,7 +49,12 @@ public partial class JumpLaneSystem : RefCounted
     /// </summary>
     public int GetEffectivePopulation()
     {
-        return FalsePopulation >= 0 ? FalsePopulation : Population;
+        if (FalsePopulation >= 0)
+        {
+            return FalsePopulation;
+        }
+
+        return Population;
     }
 
     /// <summary>
@@ -110,78 +116,18 @@ public partial class JumpLaneSystem : RefCounted
         {
             Dictionary positionData = (Dictionary)data["position"];
             position = new Vector3(
-                (float)GetDouble(positionData, "x", 0.0),
-                (float)GetDouble(positionData, "y", 0.0),
-                (float)GetDouble(positionData, "z", 0.0));
+                (float)DomainDictionaryUtils.GetDouble(positionData, "x", 0.0),
+                (float)DomainDictionaryUtils.GetDouble(positionData, "y", 0.0),
+                (float)DomainDictionaryUtils.GetDouble(positionData, "z", 0.0));
         }
 
         JumpLaneSystem system = new(
-            GetString(data, "id", string.Empty),
+            DomainDictionaryUtils.GetString(data, "id", string.Empty),
             position,
-            GetInt(data, "population", 0));
-        system.FalsePopulation = GetInt(data, "false_population", -1);
-        system.IsBridge = GetBool(data, "is_bridge", false);
+            DomainDictionaryUtils.GetInt(data, "population", 0));
+        system.FalsePopulation = DomainDictionaryUtils.GetInt(data, "false_population", -1);
+        system.IsBridge = DomainDictionaryUtils.GetBool(data, "is_bridge", false);
         return system;
     }
 
-    /// <summary>
-    /// Reads a string value from a dictionary.
-    /// </summary>
-    private static string GetString(Dictionary data, string key, string fallback)
-    {
-        if (!data.ContainsKey(key))
-        {
-            return fallback;
-        }
-
-        Variant value = data[key];
-        return value.VariantType == Variant.Type.String ? (string)value : fallback;
-    }
-
-    /// <summary>
-    /// Reads an integer value from a dictionary.
-    /// </summary>
-    private static int GetInt(Dictionary data, string key, int fallback)
-    {
-        if (!data.ContainsKey(key))
-        {
-            return fallback;
-        }
-
-        Variant value = data[key];
-        return value.VariantType switch
-        {
-            Variant.Type.Int => (int)value,
-            Variant.Type.String => int.TryParse((string)value, out int parsed) ? parsed : fallback,
-            _ => fallback,
-        };
-    }
-
-    /// <summary>
-    /// Reads a floating-point value from a dictionary.
-    /// </summary>
-    private static double GetDouble(Dictionary data, string key, double fallback)
-    {
-        if (!data.ContainsKey(key))
-        {
-            return fallback;
-        }
-
-        Variant value = data[key];
-        return value.VariantType switch
-        {
-            Variant.Type.Float => (double)value,
-            Variant.Type.Int => (int)value,
-            Variant.Type.String => double.TryParse((string)value, out double parsed) ? parsed : fallback,
-            _ => fallback,
-        };
-    }
-
-    /// <summary>
-    /// Reads a boolean value from a dictionary.
-    /// </summary>
-    private static bool GetBool(Dictionary data, string key, bool fallback)
-    {
-        return data.ContainsKey(key) && data[key].VariantType == Variant.Type.Bool ? (bool)data[key] : fallback;
-    }
 }

@@ -32,13 +32,18 @@ public static class SystemPersistence
         }
 
         string extension = Path.GetExtension(path).TrimStart('.').ToLowerInvariant();
-        return extension == JsonExtension || !compress
-            ? SaveJson(SystemSerializer.ToDictionary(system), path)
-            : SaveCompressed(SystemSerializer.ToDictionary(system), path);
+        Godot.Collections.Dictionary payload = SystemSerializer.ToDictionary(system);
+        if (extension == JsonExtension || !compress)
+        {
+            return SaveJson(payload, path);
+        }
+
+        return SaveCompressed(payload, path);
     }
 
     /// <summary>
     /// Loads a solar system from disk.
+    /// On failure, ErrorMessage is set; Success is false and System may be null.
     /// </summary>
     public static SystemPersistenceLoadResult Load(string path)
     {
@@ -50,30 +55,43 @@ public static class SystemPersistence
             return result;
         }
 
-        string extension = Path.GetExtension(path).TrimStart('.').ToLowerInvariant();
-        Godot.Collections.Dictionary data = extension == JsonExtension
-            ? LoadJson(path, result)
-            : LoadCompressed(path, result);
-
-        if (data.Count == 0)
+        try
         {
-            if (string.IsNullOrEmpty(result.ErrorMessage))
+            string extension = Path.GetExtension(path).TrimStart('.').ToLowerInvariant();
+            Godot.Collections.Dictionary data;
+            if (extension == JsonExtension)
             {
-                result.ErrorMessage = "Failed to parse file";
+                data = LoadJson(path, result);
+            }
+            else
+            {
+                data = LoadCompressed(path, result);
             }
 
+            if (data.Count == 0)
+            {
+                if (string.IsNullOrEmpty(result.ErrorMessage))
+                {
+                    result.ErrorMessage = "Failed to parse file";
+                }
+                return result;
+            }
+
+            result.System = SystemSerializer.FromDictionary(data);
+            if (result.System == null)
+            {
+                result.ErrorMessage = "Failed to deserialize system";
+                return result;
+            }
+
+            result.Success = true;
             return result;
         }
-
-        result.System = SystemSerializer.FromDictionary(data);
-        if (result.System == null)
+        catch (System.Exception ex)
         {
-            result.ErrorMessage = "Failed to deserialize system";
+            result.ErrorMessage = ex.Message;
             return result;
         }
-
-        result.Success = true;
-        return result;
     }
 
     /// <summary>
@@ -82,7 +100,12 @@ public static class SystemPersistence
     public static long GetFileSize(string path)
     {
         string globalPath = ProjectSettings.GlobalizePath(path);
-        return File.Exists(globalPath) ? new FileInfo(globalPath).Length : 0L;
+        if (File.Exists(globalPath))
+        {
+            return new FileInfo(globalPath).Length;
+        }
+
+        return 0L;
     }
 
     /// <summary>
@@ -90,17 +113,7 @@ public static class SystemPersistence
     /// </summary>
     public static string FormatFileSize(long bytes)
     {
-        if (bytes < 1024L)
-        {
-            return $"{bytes} B";
-        }
-
-        if (bytes < 1024L * 1024L)
-        {
-            return $"{(bytes / 1024.0):0.0} KB";
-        }
-
-        return $"{(bytes / (1024.0 * 1024.0)):0.0} MB";
+        return PersistenceUtils.FormatFileSize(bytes);
     }
 
     /// <summary>
@@ -109,7 +122,7 @@ public static class SystemPersistence
     private static Error SaveJson(Godot.Collections.Dictionary data, string path)
     {
         string globalPath = ProjectSettings.GlobalizePath(path);
-        EnsureDirectoryExists(globalPath);
+        PersistenceUtils.EnsureDirectoryExists(globalPath);
         string json = Json.Stringify(data, "\t");
         File.WriteAllText(globalPath, json, Encoding.UTF8);
         return Error.Ok;
@@ -121,7 +134,7 @@ public static class SystemPersistence
     private static Error SaveCompressed(Godot.Collections.Dictionary data, string path)
     {
         string globalPath = ProjectSettings.GlobalizePath(path);
-        EnsureDirectoryExists(globalPath);
+        PersistenceUtils.EnsureDirectoryExists(globalPath);
         string json = Json.Stringify(data);
         byte[] bytes = Encoding.UTF8.GetBytes(json);
 
@@ -138,14 +151,14 @@ public static class SystemPersistence
     {
         string globalPath = ProjectSettings.GlobalizePath(path);
         string json = File.ReadAllText(globalPath, Encoding.UTF8);
-        Variant parsed = Json.ParseString(json);
-        if (parsed.VariantType != Variant.Type.Dictionary)
+        Json parser = new();
+        if (parser.Parse(json) != Error.Ok || parser.Data.VariantType != Variant.Type.Dictionary)
         {
             result.ErrorMessage = "Invalid JSON structure";
             return new Godot.Collections.Dictionary();
         }
 
-        return (Godot.Collections.Dictionary)parsed;
+        return (Godot.Collections.Dictionary)parser.Data;
     }
 
     /// <summary>
@@ -160,14 +173,14 @@ public static class SystemPersistence
             using GZipStream gzipStream = new(fileStream, CompressionMode.Decompress);
             using StreamReader reader = new(gzipStream, Encoding.UTF8);
             string json = reader.ReadToEnd();
-            Variant parsed = Json.ParseString(json);
-            if (parsed.VariantType != Variant.Type.Dictionary)
+            Json parser = new();
+            if (parser.Parse(json) != Error.Ok || parser.Data.VariantType != Variant.Type.Dictionary)
             {
                 result.ErrorMessage = "Invalid JSON structure";
                 return new Godot.Collections.Dictionary();
             }
 
-            return (Godot.Collections.Dictionary)parsed;
+            return (Godot.Collections.Dictionary)parser.Data;
         }
         catch (InvalidDataException)
         {
@@ -176,15 +189,4 @@ public static class SystemPersistence
         }
     }
 
-    /// <summary>
-    /// Ensures the target directory for a file path exists.
-    /// </summary>
-    private static void EnsureDirectoryExists(string globalPath)
-    {
-        string? directoryPath = Path.GetDirectoryName(globalPath);
-        if (!string.IsNullOrEmpty(directoryPath))
-        {
-            Directory.CreateDirectory(directoryPath);
-        }
-    }
 }

@@ -166,7 +166,12 @@ public partial class SpaceStation : RefCounted
     /// </summary>
     public int GetAge(int currentYear = 0)
     {
-        return IsOperational ? currentYear - EstablishedYear : DecommissionedYear - EstablishedYear;
+        if (IsOperational)
+        {
+            return currentYear - EstablishedYear;
+        }
+
+        return DecommissionedYear - EstablishedYear;
     }
 
     /// <summary>
@@ -208,7 +213,12 @@ public partial class SpaceStation : RefCounted
     /// </summary>
     public GovernmentType.Regime GetRegime()
     {
-        return Government != null ? Government.Regime : GovernmentType.Regime.Constitutional;
+        if (Government != null)
+        {
+            return Government.Regime;
+        }
+
+        return GovernmentType.Regime.Constitutional;
     }
 
     /// <summary>
@@ -300,7 +310,12 @@ public partial class SpaceStation : RefCounted
 
         if (PeakPopulation == 0)
         {
-            return Population > 0 ? "growing" : "stable";
+            if (Population > 0)
+            {
+                return "growing";
+            }
+
+            return "stable";
         }
 
         if (Population > PeakPopulation * 0.95)
@@ -599,7 +614,12 @@ public partial class SpaceStation : RefCounted
         }
 
         Variant value = data[key];
-        return value.VariantType == Variant.Type.String ? (string)value : fallback;
+        if (value.VariantType == Variant.Type.String)
+        {
+            return (string)value;
+        }
+
+        return fallback;
     }
 
     /// <summary>
@@ -616,7 +636,7 @@ public partial class SpaceStation : RefCounted
         return value.VariantType switch
         {
             Variant.Type.Int => (int)value,
-            Variant.Type.String => int.TryParse((string)value, out int parsed) ? parsed : fallback,
+            Variant.Type.String => TryParseInt((string)value, fallback),
             _ => fallback,
         };
     }
@@ -626,7 +646,12 @@ public partial class SpaceStation : RefCounted
     /// </summary>
     private static bool GetBool(Dictionary data, string key, bool fallback)
     {
-        return data.ContainsKey(key) && data[key].VariantType == Variant.Type.Bool ? (bool)data[key] : fallback;
+        if (data.ContainsKey(key) && data[key].VariantType == Variant.Type.Bool)
+        {
+            return (bool)data[key];
+        }
+
+        return fallback;
     }
 
     /// <summary>
@@ -634,9 +659,12 @@ public partial class SpaceStation : RefCounted
     /// </summary>
     private static Dictionary GetDictionary(Dictionary data, string key)
     {
-        return data.ContainsKey(key) && data[key].VariantType == Variant.Type.Dictionary
-            ? CloneDictionary((Dictionary)data[key])
-            : new Dictionary();
+        if (data.ContainsKey(key) && data[key].VariantType == Variant.Type.Dictionary)
+        {
+            return CloneDictionary((Dictionary)data[key]);
+        }
+
+        return new Dictionary();
     }
 
     /// <summary>
@@ -689,5 +717,15 @@ public partial class SpaceStation : RefCounted
         }
 
         return result;
+    }
+
+    private static int TryParseInt(string s, int fallback)
+    {
+        if (int.TryParse(s, out int parsed))
+        {
+            return parsed;
+        }
+
+        return fallback;
     }
 }

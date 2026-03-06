@@ -43,7 +43,7 @@ public static class HomePosition
     /// <summary>
     /// Returns the full hierarchy coordinates for the default home position.
     /// </summary>
-    public static HierarchyCoords GetHomeHierarchy()
+    public static GalaxyCoordinates.HierarchyCoords GetHomeHierarchy()
     {
         return GalaxyCoordinates.ParsecToHierarchy(GetDefaultPosition());
     }
@@ -53,7 +53,7 @@ public static class HomePosition
     /// </summary>
     public static Vector3 GetHomeSectorOrigin()
     {
-        HierarchyCoords hierarchy = GetHomeHierarchy();
+        GalaxyCoordinates.HierarchyCoords hierarchy = GetHomeHierarchy();
         return GalaxyCoordinates.SectorWorldOrigin(hierarchy.QuadrantCoords, hierarchy.SectorLocalCoords);
     }
 
@@ -70,7 +70,7 @@ public static class HomePosition
     /// </summary>
     public static Vector3 GetHomeSubsectorCenter()
     {
-        HierarchyCoords hierarchy = GetHomeHierarchy();
+        GalaxyCoordinates.HierarchyCoords hierarchy = GetHomeHierarchy();
         Vector3 sectorOrigin = GalaxyCoordinates.SectorWorldOrigin(hierarchy.QuadrantCoords, hierarchy.SectorLocalCoords);
         Vector3 subsectorOrigin = sectorOrigin + new Vector3(
             (float)(hierarchy.SubsectorLocalCoords.X * GalaxyCoordinates.SubsectorSizePc),

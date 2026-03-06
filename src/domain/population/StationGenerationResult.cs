@@ -112,13 +112,28 @@ public partial class StationGenerationResult : RefCounted
             warnings.Add(warning);
         }
 
+        Dictionary recommendationData;
+        if (Recommendation != null)
+        {
+            recommendationData = Recommendation.ToDictionary();
+        }
+        else
+        {
+            recommendationData = new Dictionary();
+        }
+
         return new Dictionary
         {
             ["outposts"] = outposts,
             ["stations"] = stations,
             ["generation_seed"] = GenerationSeed,
             ["warnings"] = warnings,
-            ["recommendation"] = Recommendation != null ? Recommendation.ToDictionary() : new Dictionary(),
+            ["recommendation"] = recommendationData,
         };
     }
+
+    /// <summary>
+    /// Legacy alias for dictionary conversion.
+    /// </summary>
+    public Dictionary ToDict() => ToDictionary();
 }

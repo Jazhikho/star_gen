@@ -20,6 +20,7 @@ public partial class OrbitRenderer : Node3D
     private static readonly Color PlanetOrbitColor = new(0.3f, 0.4f, 0.6f, 0.6f);
     private static readonly Color MoonOrbitColor = new(0.4f, 0.4f, 0.5f, 0.4f);
     private static readonly Color SelectedOrbitColor = new(0.8f, 0.8f, 0.2f, 0.9f);
+    public static readonly Color HzInnerColor = new(0.2f, 0.8f, 0.2f, 0.45f);
     private readonly Dictionary<string, OrbitData> _orbits = new();
     private MeshInstance3D? _selectedOrbit;
     private string _selectedOrbitId = string.Empty;
@@ -81,7 +82,15 @@ public partial class OrbitRenderer : Node3D
 
         Color color = GetOrbitColor((CelestialType.Type)bodyType);
         bool useRelative = !string.IsNullOrEmpty(parentId) || center != Vector3.Zero;
-        Vector3[] relativePoints = useRelative ? MakeRelativePoints(points, center) : points;
+        Vector3[] relativePoints;
+        if (useRelative)
+        {
+            relativePoints = MakeRelativePoints(points, center);
+        }
+        else
+        {
+            relativePoints = points;
+        }
 
         MeshInstance3D meshInstance = CreateLineMesh(relativePoints, color);
         meshInstance.Name = "Orbit_" + bodyId;
@@ -101,6 +110,19 @@ public partial class OrbitRenderer : Node3D
         };
 
         return meshInstance;
+    }
+
+    /// <summary>
+    /// Compatibility overload accepting enum body type.
+    /// </summary>
+    public MeshInstance3D? AddOrbit(
+        string bodyId,
+        Vector3[] points,
+        CelestialType.Type bodyType,
+        string parentId = "",
+        Vector3 center = default)
+    {
+        return AddOrbit(bodyId, points, (int)bodyType, parentId, center);
     }
 
     /// <summary>

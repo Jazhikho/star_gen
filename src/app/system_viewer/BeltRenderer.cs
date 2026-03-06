@@ -70,7 +70,15 @@ public partial class BeltRenderer : Node3D
     {
         foreach (KeyValuePair<string, Node3D> pair in _beltRoots)
         {
-            string hostId = _beltHostIds.TryGetValue(pair.Key, out string? value) ? value : string.Empty;
+            string hostId;
+            if (_beltHostIds.TryGetValue(pair.Key, out string? value))
+            {
+                hostId = value;
+            }
+            else
+            {
+                hostId = string.Empty;
+            }
             if (string.IsNullOrEmpty(hostId) || !hostPositions.ContainsKey(hostId))
             {
                 continue;

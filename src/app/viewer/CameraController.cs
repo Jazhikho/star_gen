@@ -215,6 +215,12 @@ public partial class CameraController : Camera3D
             _distance * Mathf.Cos(_rotation.Y) * Mathf.Cos(_rotation.X));
 
         cameraPosition += _targetPosition;
+        if (!IsInsideTree())
+        {
+            Position = cameraPosition;
+            return;
+        }
+
         GlobalPosition = cameraPosition;
         LookAt(_targetPosition, Vector3.Up);
     }

@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using Godot.Collections;
 using StarGen.Domain.Rng;
 
@@ -12,9 +13,9 @@ public static class HistoryGenerator
     private const int BaseEventInterval = 25;
 
     /// <summary>
-    /// Base event weights before profile modifiers.
+    /// Base event weights before profile modifiers, keyed by <see cref="HistoryEvent.EventType"/> cast to int.
     /// </summary>
-    public static readonly Dictionary BaseWeights = new()
+    private static readonly System.Collections.Generic.Dictionary<int, double> BaseWeights = new()
     {
         [(int)HistoryEvent.EventType.NaturalDisaster] = 1.0,
         [(int)HistoryEvent.EventType.Plague] = 0.8,
@@ -58,9 +59,9 @@ public static class HistoryGenerator
             0.5);
         history.AddEvent(founding);
 
-        Dictionary weights = CalculateEventWeights(profile);
+        System.Collections.Generic.Dictionary<int, double> weights = CalculateEventWeightsInternal(profile);
         int currentYear = startYear + CalculateNextInterval(profile, rng);
-        Dictionary lastEventYears = new();
+        System.Collections.Generic.Dictionary<int, int> lastEventYears = new();
 
         while (currentYear < endYear)
         {
@@ -74,78 +75,82 @@ public static class HistoryGenerator
         return history;
     }
 
-    private static Dictionary CalculateEventWeights(PlanetProfile profile)
+    private static System.Collections.Generic.Dictionary<int, double> CalculateEventWeightsInternal(PlanetProfile profile)
     {
-        Dictionary weights = new();
-        foreach (int typeKey in BaseWeights.Keys)
-        {
-            weights[typeKey] = (double)BaseWeights[typeKey];
-        }
+        System.Collections.Generic.Dictionary<int, double> weights = new(BaseWeights);
 
         double disasterModifier = 1.0 + profile.VolcanismLevel + profile.TectonicActivity;
-        weights[(int)HistoryEvent.EventType.NaturalDisaster] =
-            (double)weights[(int)HistoryEvent.EventType.NaturalDisaster] * disasterModifier;
+        weights[(int)HistoryEvent.EventType.NaturalDisaster] *= disasterModifier;
 
         if (profile.WeatherSeverity > 0.5)
         {
-            weights[(int)HistoryEvent.EventType.NaturalDisaster] =
-                (double)weights[(int)HistoryEvent.EventType.NaturalDisaster] * (1.0 + profile.WeatherSeverity);
-            weights[(int)HistoryEvent.EventType.Famine] =
-                (double)weights[(int)HistoryEvent.EventType.Famine] * (1.0 + (profile.WeatherSeverity * 0.5));
+            weights[(int)HistoryEvent.EventType.NaturalDisaster] *= (1.0 + profile.WeatherSeverity);
+            weights[(int)HistoryEvent.EventType.Famine] *= (1.0 + (profile.WeatherSeverity * 0.5));
         }
 
         if (profile.HabitabilityScore < 5)
         {
             double hardshipModifier = 1.5 - (profile.HabitabilityScore * 0.1);
-            weights[(int)HistoryEvent.EventType.Famine] = (double)weights[(int)HistoryEvent.EventType.Famine] * hardshipModifier;
-            weights[(int)HistoryEvent.EventType.Plague] = (double)weights[(int)HistoryEvent.EventType.Plague] * hardshipModifier;
-            weights[(int)HistoryEvent.EventType.Collapse] = (double)weights[(int)HistoryEvent.EventType.Collapse] * hardshipModifier;
-            weights[(int)HistoryEvent.EventType.Expansion] = (double)weights[(int)HistoryEvent.EventType.Expansion] * 0.5;
-            weights[(int)HistoryEvent.EventType.GoldenAge] = (double)weights[(int)HistoryEvent.EventType.GoldenAge] * 0.3;
+            weights[(int)HistoryEvent.EventType.Famine] *= hardshipModifier;
+            weights[(int)HistoryEvent.EventType.Plague] *= hardshipModifier;
+            weights[(int)HistoryEvent.EventType.Collapse] *= hardshipModifier;
+            weights[(int)HistoryEvent.EventType.Expansion] *= 0.5;
+            weights[(int)HistoryEvent.EventType.GoldenAge] *= 0.3;
         }
 
         if (profile.HabitabilityScore >= 7)
         {
             double prosperityModifier = 1.0 + ((profile.HabitabilityScore - 7) * 0.15);
-            weights[(int)HistoryEvent.EventType.GoldenAge] = (double)weights[(int)HistoryEvent.EventType.GoldenAge] * prosperityModifier;
-            weights[(int)HistoryEvent.EventType.Expansion] = (double)weights[(int)HistoryEvent.EventType.Expansion] * prosperityModifier;
-            weights[(int)HistoryEvent.EventType.TechAdvancement] =
-                (double)weights[(int)HistoryEvent.EventType.TechAdvancement] * prosperityModifier;
+            weights[(int)HistoryEvent.EventType.GoldenAge] *= prosperityModifier;
+            weights[(int)HistoryEvent.EventType.Expansion] *= prosperityModifier;
+            weights[(int)HistoryEvent.EventType.TechAdvancement] *= prosperityModifier;
         }
 
         if (!profile.HasLiquidWater)
         {
-            weights[(int)HistoryEvent.EventType.Famine] = (double)weights[(int)HistoryEvent.EventType.Famine] * 1.5;
+            weights[(int)HistoryEvent.EventType.Famine] *= 1.5;
         }
 
         if (profile.RadiationLevel > 0.5)
         {
-            weights[(int)HistoryEvent.EventType.Plague] =
-                (double)weights[(int)HistoryEvent.EventType.Plague] * (1.0 + profile.RadiationLevel);
+            weights[(int)HistoryEvent.EventType.Plague] *= (1.0 + profile.RadiationLevel);
         }
 
         int resourceCount = profile.Resources.Count;
         if (resourceCount >= 5)
         {
-            weights[(int)HistoryEvent.EventType.War] = (double)weights[(int)HistoryEvent.EventType.War] * 1.2;
-            weights[(int)HistoryEvent.EventType.TechAdvancement] =
-                (double)weights[(int)HistoryEvent.EventType.TechAdvancement] * 1.2;
+            weights[(int)HistoryEvent.EventType.War] *= 1.2;
+            weights[(int)HistoryEvent.EventType.TechAdvancement] *= 1.2;
         }
         else if (resourceCount <= 2)
         {
-            weights[(int)HistoryEvent.EventType.Famine] = (double)weights[(int)HistoryEvent.EventType.Famine] * 1.3;
-            weights[(int)HistoryEvent.EventType.Migration] = (double)weights[(int)HistoryEvent.EventType.Migration] * 1.5;
+            weights[(int)HistoryEvent.EventType.Famine] *= 1.3;
+            weights[(int)HistoryEvent.EventType.Migration] *= 1.5;
         }
 
         if (profile.ContinentCount >= 3)
         {
-            weights[(int)HistoryEvent.EventType.War] = (double)weights[(int)HistoryEvent.EventType.War] * 1.2;
-            weights[(int)HistoryEvent.EventType.Treaty] = (double)weights[(int)HistoryEvent.EventType.Treaty] * 1.3;
-            weights[(int)HistoryEvent.EventType.CulturalShift] =
-                (double)weights[(int)HistoryEvent.EventType.CulturalShift] * 1.2;
+            weights[(int)HistoryEvent.EventType.War] *= 1.2;
+            weights[(int)HistoryEvent.EventType.Treaty] *= 1.3;
+            weights[(int)HistoryEvent.EventType.CulturalShift] *= 1.2;
         }
 
         return weights;
+    }
+
+    /// <summary>
+    /// Returns event weights as a Godot dictionary for legacy tests/tooling.
+    /// </summary>
+    public static Dictionary CalculateEventWeights(PlanetProfile profile)
+    {
+        System.Collections.Generic.Dictionary<int, double> weights = CalculateEventWeightsInternal(profile);
+        Dictionary result = new();
+        foreach (KeyValuePair<int, double> entry in weights)
+        {
+            result[entry.Key] = entry.Value;
+        }
+
+        return result;
     }
 
     private static int CalculateNextInterval(PlanetProfile profile, SeededRng rng)
@@ -165,20 +170,20 @@ public static class HistoryGenerator
     }
 
     private static HistoryEvent.EventType PickEventType(
-        Dictionary weights,
-        Dictionary lastYears,
+        System.Collections.Generic.Dictionary<int, double> weights,
+        System.Collections.Generic.Dictionary<int, int> lastYears,
         int currentYear,
         SeededRng rng)
     {
-        Array<int> eligibleTypes = new();
-        Array<float> eligibleWeights = new();
+        List<int> eligibleTypes = new(weights.Count);
+        List<float> eligibleWeights = new(weights.Count);
 
-        foreach (int typeKey in weights.Keys)
+        foreach (KeyValuePair<int, double> entry in weights)
         {
-            double weight = (double)weights[typeKey];
-            if (lastYears.ContainsKey(typeKey))
+            double weight = entry.Value;
+            if (lastYears.TryGetValue(entry.Key, out int lastYear))
             {
-                int yearsSince = currentYear - (int)lastYears[typeKey];
+                int yearsSince = currentYear - lastYear;
                 if (yearsSince < MinEventSpacing)
                 {
                     weight *= 0.1;
@@ -191,7 +196,7 @@ public static class HistoryGenerator
 
             if (weight > 0.01)
             {
-                eligibleTypes.Add(typeKey);
+                eligibleTypes.Add(entry.Key);
                 eligibleWeights.Add((float)weight);
             }
         }
@@ -202,7 +207,12 @@ public static class HistoryGenerator
         }
 
         int? result = rng.WeightedChoice(eligibleTypes, eligibleWeights);
-        return result.HasValue ? (HistoryEvent.EventType)result.Value : HistoryEvent.EventType.PoliticalChange;
+        if (result.HasValue)
+        {
+            return (HistoryEvent.EventType)result.Value;
+        }
+
+        return HistoryEvent.EventType.PoliticalChange;
     }
 
     private static HistoryEvent GenerateEvent(
@@ -228,6 +238,26 @@ public static class HistoryGenerator
         PlanetProfile profile,
         SeededRng rng)
     {
+        string volcanicOption;
+        if (profile.VolcanismLevel > 0.5)
+        {
+            volcanicOption = "Volcanic Winter";
+        }
+        else
+        {
+            volcanicOption = string.Empty;
+        }
+
+        string tectonicOption;
+        if (profile.TectonicActivity > 0.5)
+        {
+            tectonicOption = "Tectonic Upheaval";
+        }
+        else
+        {
+            tectonicOption = string.Empty;
+        }
+
         return type switch
         {
             HistoryEvent.EventType.NaturalDisaster => PickString(
@@ -238,8 +268,8 @@ public static class HistoryGenerator
                     "Massive Flood",
                     "Terrible Storm",
                     "Meteor Strike",
-                    profile.VolcanismLevel > 0.5 ? "Volcanic Winter" : string.Empty,
-                    profile.TectonicActivity > 0.5 ? "Tectonic Upheaval" : string.Empty,
+                    volcanicOption,
+                    tectonicOption,
                 },
                 rng),
             HistoryEvent.EventType.Plague => PickString(

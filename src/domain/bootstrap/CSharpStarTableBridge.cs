@@ -12,29 +12,44 @@ namespace StarGen.Domain.Bootstrap;
 public partial class CSharpStarTableBridge : RefCounted
 {
     /// <summary>
-    /// Returns the mass range for a spectral class.
+    /// Returns the mass range for a spectral class as a dictionary with "min" and "max" keys.
     /// </summary>
-    public Dictionary GetMassRange(int spectralClass) => StarTable.GetMassRange((StarClass.SpectralClass)spectralClass);
+    public Dictionary GetMassRange(int spectralClass)
+    {
+        return StarTable.GetMassRange((StarClass.SpectralClass)spectralClass);
+    }
 
     /// <summary>
-    /// Returns the temperature range for a spectral class.
+    /// Returns the temperature range for a spectral class as a dictionary with "min" and "max" keys.
     /// </summary>
-    public Dictionary GetTemperatureRange(int spectralClass) => StarTable.GetTemperatureRange((StarClass.SpectralClass)spectralClass);
+    public Dictionary GetTemperatureRange(int spectralClass)
+    {
+        return StarTable.GetTemperatureRange((StarClass.SpectralClass)spectralClass);
+    }
 
     /// <summary>
-    /// Returns the luminosity range for a spectral class.
+    /// Returns the luminosity range for a spectral class as a dictionary with "min" and "max" keys.
     /// </summary>
-    public Dictionary GetLuminosityRange(int spectralClass) => StarTable.GetLuminosityRange((StarClass.SpectralClass)spectralClass);
+    public Dictionary GetLuminosityRange(int spectralClass)
+    {
+        return StarTable.GetLuminosityRange((StarClass.SpectralClass)spectralClass);
+    }
 
     /// <summary>
-    /// Returns the radius range for a spectral class.
+    /// Returns the radius range for a spectral class as a dictionary with "min" and "max" keys.
     /// </summary>
-    public Dictionary GetRadiusRange(int spectralClass) => StarTable.GetRadiusRange((StarClass.SpectralClass)spectralClass);
+    public Dictionary GetRadiusRange(int spectralClass)
+    {
+        return StarTable.GetRadiusRange((StarClass.SpectralClass)spectralClass);
+    }
 
     /// <summary>
-    /// Returns the lifetime range for a spectral class.
+    /// Returns the lifetime range for a spectral class as a dictionary with "min" and "max" keys.
     /// </summary>
-    public Dictionary GetLifetimeRange(int spectralClass) => StarTable.GetLifetimeRange((StarClass.SpectralClass)spectralClass);
+    public Dictionary GetLifetimeRange(int spectralClass)
+    {
+        return StarTable.GetLifetimeRange((StarClass.SpectralClass)spectralClass);
+    }
 
     /// <summary>
     /// Approximates luminosity from stellar mass.
@@ -56,6 +71,7 @@ public partial class CSharpStarTableBridge : RefCounted
 
     /// <summary>
     /// Interpolates a value within a spectral class by subclass.
+    /// Accepts a dictionary with "min" and "max" keys for GDScript compatibility.
     /// </summary>
     public double InterpolateBySubclass(int spectralClass, int subclass, Dictionary rangeData)
     {

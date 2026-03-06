@@ -11,12 +11,12 @@ public partial class AsteroidSpec : BaseSpec
     /// <summary>
     /// Target asteroid type, or -1 for random.
     /// </summary>
-    public int AsteroidType;
+    public int AsteroidType { get; set; }
 
     /// <summary>
     /// Whether this is a large asteroid.
     /// </summary>
-    public bool IsLarge;
+    public bool IsLarge { get; set; }
 
     /// <summary>
     /// Creates a new asteroid specification.
@@ -31,6 +31,19 @@ public partial class AsteroidSpec : BaseSpec
     {
         AsteroidType = asteroidType;
         IsLarge = isLarge;
+    }
+
+    /// <summary>
+    /// Compatibility constructor accepting enum asteroid type.
+    /// </summary>
+    public AsteroidSpec(
+        int generationSeed,
+        AsteroidTypeArchetype.Type asteroidType,
+        bool isLarge = false,
+        string nameHint = "",
+        Dictionary? overrides = null)
+        : this(generationSeed, (int)asteroidType, isLarge, nameHint, overrides)
+    {
     }
 
     /// <summary>
@@ -92,11 +105,43 @@ public partial class AsteroidSpec : BaseSpec
     /// </summary>
     public static AsteroidSpec FromDictionary(Dictionary data)
     {
-        return new AsteroidSpec(
-            data.ContainsKey("generation_seed") ? (int)data["generation_seed"] : 0,
-            data.ContainsKey("asteroid_type") ? (int)data["asteroid_type"] : -1,
-            data.ContainsKey("is_large") && (bool)data["is_large"],
-            data.ContainsKey("name_hint") ? (string)data["name_hint"] : string.Empty,
-            data.ContainsKey("overrides") ? (Dictionary)data["overrides"] : null);
+        int generationSeed;
+        if (data.ContainsKey("generation_seed"))
+        {
+            generationSeed = (int)data["generation_seed"];
+        }
+        else
+        {
+            generationSeed = 0;
+        }
+
+        int asteroidType;
+        if (data.ContainsKey("asteroid_type"))
+        {
+            asteroidType = (int)data["asteroid_type"];
+        }
+        else
+        {
+            asteroidType = -1;
+        }
+
+        string nameHint;
+        if (data.ContainsKey("name_hint"))
+        {
+            nameHint = (string)data["name_hint"];
+        }
+        else
+        {
+            nameHint = string.Empty;
+        }
+
+        Dictionary? overrides = null;
+        if (data.ContainsKey("overrides"))
+        {
+            overrides = (Dictionary)data["overrides"];
+        }
+
+        bool isLarge = data.ContainsKey("is_large") && (bool)data["is_large"];
+        return new AsteroidSpec(generationSeed, asteroidType, isLarge, nameHint, overrides);
     }
 }

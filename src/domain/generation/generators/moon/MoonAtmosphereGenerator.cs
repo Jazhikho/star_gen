@@ -82,7 +82,7 @@ public static class MoonAtmosphereGenerator
             scaleHeightM = BoltzmannK * equilibriumTempK / (averageMolecularMass * gravity);
         }
 
-        double greenhouseFactor = 1.0 + rng.RandfRange(0.0f, 0.2f);
+        double greenhouseFactor = AtmosphereUtils.CalculateGreenhouseFactor(composition, surfacePressurePa, rng);
         return new AtmosphereProps(
             surfacePressurePa,
             scaleHeightM,

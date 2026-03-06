@@ -121,7 +121,12 @@ public partial class NeighborhoodRenderer : Node3D
 			_neighborhoodData.StarSeeds,
 			PickRadius);
 
-		return result == null ? default : Variant.CreateFrom(result);
+		if (result == null)
+		{
+			return default;
+		}
+
+		return Variant.CreateFrom(result);
 	}
 
 	/// <summary>
@@ -137,7 +142,12 @@ public partial class NeighborhoodRenderer : Node3D
 	/// </summary>
 	public static float GetShellAlpha(int shell)
 	{
-		return shell >= 0 && shell < ShellAlphas.Length ? ShellAlphas[shell] : 0.1f;
+		if (shell >= 0 && shell < ShellAlphas.Length)
+		{
+			return ShellAlphas[shell];
+		}
+
+		return 0.1f;
 	}
 
 	private void RebuildStars()
@@ -211,7 +221,15 @@ public partial class NeighborhoodRenderer : Node3D
 			Vector3 origin = _neighborhoodData.SubsectorOrigins[i];
 			int shell = _neighborhoodData.SubsectorShells[i];
 			bool isCenter = origin.IsEqualApprox(center);
-			Color baseRgb = isCenter ? WireCenterColor : WireBaseColor;
+			Color baseRgb;
+			if (isCenter)
+			{
+				baseRgb = WireCenterColor;
+			}
+			else
+			{
+				baseRgb = WireBaseColor;
+			}
 			float wireAlpha = WireShellAlphas[Mathf.Min(shell, WireShellAlphas.Length - 1)];
 			Color wireColor = new(baseRgb.R, baseRgb.G, baseRgb.B, wireAlpha);
 

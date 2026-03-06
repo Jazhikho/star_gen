@@ -93,12 +93,36 @@ public partial class ValidationResult : RefCounted
     }
 
     /// <summary>
-    /// Returns the count of errors.
+    /// Returns the count of errors without allocating a filtered array.
     /// </summary>
-    public int GetErrorCount() => GetErrorsOnly().Count;
+    public int GetErrorCount()
+    {
+        int count = 0;
+        foreach (ValidationError error in Errors)
+        {
+            if (error.Severity == ValidationError.SeverityLevel.Error)
+            {
+                count += 1;
+            }
+        }
+
+        return count;
+    }
 
     /// <summary>
-    /// Returns the count of warnings.
+    /// Returns the count of warnings without allocating a filtered array.
     /// </summary>
-    public int GetWarningCount() => GetWarningsOnly().Count;
+    public int GetWarningCount()
+    {
+        int count = 0;
+        foreach (ValidationError error in Errors)
+        {
+            if (error.Severity == ValidationError.SeverityLevel.Warning)
+            {
+                count += 1;
+            }
+        }
+
+        return count;
+    }
 }

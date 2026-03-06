@@ -195,7 +195,17 @@ public static class DensitySampler
         float scaleRadius = densityModel.GetScaleRadius();
         float peakDensity = densityModel.GetPeakDensity();
         Vector3 centerOffset = densityModel.GetCenterOffset();
-        float sampleScale = scaleRadius * (isCore ? 0.6f : 1.5f);
+        float scaleFactor;
+        if (isCore)
+        {
+            scaleFactor = 0.6f;
+        }
+        else
+        {
+            scaleFactor = 1.5f;
+        }
+
+        float sampleScale = scaleRadius * scaleFactor;
         float maxRadius = sampleScale * 4.0f;
         int attempt = 0;
 

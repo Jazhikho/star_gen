@@ -5,7 +5,7 @@ namespace StarGen.Domain.Galaxy;
 /// <summary>
 /// Conversions between parsec-space positions and hierarchical grid coordinates.
 /// </summary>
-public static class GalaxyCoordinates
+public static partial class GalaxyCoordinates
 {
     /// <summary>
     /// Hierarchical zoom levels for the galaxy viewer.
@@ -16,6 +16,14 @@ public static class GalaxyCoordinates
         Quadrant,
         Sector,
         Subsector,
+        SubSector = Subsector,
+    }
+
+    /// <summary>
+    /// Legacy nested hierarchy-coordinates type alias.
+    /// </summary>
+    public partial class HierarchyCoords : global::StarGen.Domain.Galaxy.HierarchyCoords
+    {
     }
 
     /// <summary>

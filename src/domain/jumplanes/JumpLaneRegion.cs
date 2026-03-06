@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using Godot;
 using Godot.Collections;
+using StarGen.Domain.Utils;
 
 namespace StarGen.Domain.Jumplanes;
 
@@ -147,11 +148,20 @@ public partial class JumpLaneRegion : RefCounted
     }
 
     /// <summary>
-    /// Returns the populated-system count.
+    /// Returns the populated-system count without allocating a filtered array.
     /// </summary>
     public int GetPopulatedCount()
     {
-        return GetPopulatedSystems().Count;
+        int count = 0;
+        foreach (JumpLaneSystem system in Systems)
+        {
+            if (system.IsPopulated())
+            {
+                count += 1;
+            }
+        }
+
+        return count;
     }
 
     /// <summary>
@@ -187,8 +197,8 @@ public partial class JumpLaneRegion : RefCounted
     public static JumpLaneRegion FromDictionary(Dictionary data)
     {
         JumpLaneRegion region = new(
-            (RegionScope)GetInt(data, "scope", (int)RegionScope.Subsector),
-            GetString(data, "region_id", string.Empty));
+            (RegionScope)DomainDictionaryUtils.GetInt(data, "scope", (int)RegionScope.Subsector),
+            DomainDictionaryUtils.GetString(data, "region_id", string.Empty));
         if (data.ContainsKey("systems") && data["systems"].VariantType == Variant.Type.Array)
         {
             foreach (Variant value in (Array)data["systems"])
@@ -203,36 +213,4 @@ public partial class JumpLaneRegion : RefCounted
         return region;
     }
 
-    /// <summary>
-    /// Reads a string value from a dictionary.
-    /// </summary>
-    private static string GetString(Dictionary data, string key, string fallback)
-    {
-        if (!data.ContainsKey(key))
-        {
-            return fallback;
-        }
-
-        Variant value = data[key];
-        return value.VariantType == Variant.Type.String ? (string)value : fallback;
-    }
-
-    /// <summary>
-    /// Reads an integer value from a dictionary.
-    /// </summary>
-    private static int GetInt(Dictionary data, string key, int fallback)
-    {
-        if (!data.ContainsKey(key))
-        {
-            return fallback;
-        }
-
-        Variant value = data[key];
-        return value.VariantType switch
-        {
-            Variant.Type.Int => (int)value,
-            Variant.Type.String => int.TryParse((string)value, out int parsed) ? parsed : fallback,
-            _ => fallback,
-        };
-    }
 }

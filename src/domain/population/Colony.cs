@@ -124,11 +124,116 @@ public partial class Colony : RefCounted
     public Dictionary Metadata = new();
 
     /// <summary>
+    /// Returns the age of the colony.
+    /// </summary>
+    public int GetAge(int currentYear)
+    {
+        if (IsActive)
+        {
+            return currentYear - FoundingYear;
+        }
+
+        return AbandonmentYear - FoundingYear;
+    }
+
+    /// <summary>
+    /// Returns the growth state string.
+    /// </summary>
+    public string GetGrowthState()
+    {
+        if (!IsActive)
+        {
+            return "abandoned";
+        }
+
+        if (Population >= PeakPopulation * 0.95)
+        {
+            return "growing";
+        }
+
+        if (Population >= PeakPopulation * 0.6)
+        {
+            return "stable";
+        }
+
+        return "declining";
+    }
+
+    /// <summary>
+    /// Returns the current regime.
+    /// </summary>
+    public GovernmentType.Regime GetRegime()
+    {
+        return Government.Regime;
+    }
+
+    /// <summary>
+    /// Returns whether the government is stable.
+    /// </summary>
+    public bool IsPoliticallyStable()
+    {
+        return Government.IsStable();
+    }
+
+    /// <summary>
+    /// Updates the peak population if current is higher.
+    /// </summary>
+    public void UpdatePeakPopulation(int year)
+    {
+        if (Population > PeakPopulation)
+        {
+            PeakPopulation = Population;
+            PeakPopulationYear = year;
+        }
+    }
+
+    /// <summary>
+    /// Returns a summary dictionary.
+    /// </summary>
+    public Dictionary GetSummary()
+    {
+        return new Dictionary
+        {
+            ["id"] = Id,
+            ["name"] = Name,
+            ["body_id"] = BodyId,
+            ["colony_type"] = ColonyType.ToStringName(Type),
+            ["population"] = Population,
+            ["tech_level"] = TechnologyLevel.ToStringName(TechLevel),
+            ["regime"] = GovernmentType.ToStringName(Government.Regime),
+            ["is_active"] = IsActive,
+            ["is_independent"] = IsIndependent,
+            ["territorial_control"] = TerritorialControl,
+        };
+    }
+
+    /// <summary>
     /// Adds or updates a native relation.
     /// </summary>
     public void SetNativeRelation(NativeRelation relation)
     {
         NativeRelations[relation.NativePopulationId] = relation;
+    }
+
+    /// <summary>
+    /// Returns whether any native relations exist.
+    /// </summary>
+    public bool HasNativeRelations()
+    {
+        return NativeRelations.Count > 0;
+    }
+
+    /// <summary>
+    /// Returns a specific native relation by ID.
+    /// </summary>
+    public NativeRelation? GetNativeRelation(string nativeId)
+    {
+        if (NativeRelations.ContainsKey(nativeId))
+        {
+            return (NativeRelation)NativeRelations[nativeId];
+        }
+
+        return null;
     }
 
     /// <summary>
@@ -159,6 +264,50 @@ public partial class Colony : RefCounted
         }
 
         return false;
+    }
+
+    /// <summary>
+    /// Returns the overall native status string.
+    /// </summary>
+    public string GetOverallNativeStatus()
+    {
+        if (NativeRelations.Count == 0)
+        {
+            return "none";
+        }
+
+        bool hasHostile = false;
+        bool hasPeaceful = false;
+
+        foreach (Variant relation in NativeRelations.Values)
+        {
+            NativeRelation nativeRelation = (NativeRelation)relation;
+            if (nativeRelation.IsHostile())
+            {
+                hasHostile = true;
+            }
+            else if (nativeRelation.IsPositive())
+            {
+                hasPeaceful = true;
+            }
+        }
+
+        if (hasHostile && hasPeaceful)
+        {
+            return "mixed";
+        }
+
+        if (hasHostile)
+        {
+            return "hostile";
+        }
+
+        if (hasPeaceful)
+        {
+            return "peaceful";
+        }
+
+        return "neutral";
     }
 
     /// <summary>
@@ -219,6 +368,11 @@ public partial class Colony : RefCounted
             ["history"] = History.ToDictionary(),
         };
     }
+
+    /// <summary>
+    /// Alias for ToDictionary for test compatibility.
+    /// </summary>
+    public Dictionary ToDict() => ToDictionary();
 
     /// <summary>
     /// Creates a colony from a dictionary payload.
@@ -284,6 +438,11 @@ public partial class Colony : RefCounted
         return colony;
     }
 
+    /// <summary>
+    /// Alias for FromDictionary for test compatibility.
+    /// </summary>
+    public static Colony FromDict(Dictionary data) => FromDictionary(data);
+
     private static Dictionary CloneDictionary(Dictionary source)
     {
         Dictionary clone = new();
@@ -310,7 +469,7 @@ public partial class Colony : RefCounted
         {
             Variant.Type.Int => (int)value,
             Variant.Type.Float => (int)(double)value,
-            Variant.Type.String => int.TryParse((string)value, out int parsed) ? parsed : fallback,
+            Variant.Type.String => TryParseInt((string)value, fallback),
             _ => fallback,
         };
     }
@@ -330,7 +489,7 @@ public partial class Colony : RefCounted
         {
             Variant.Type.Float => (double)value,
             Variant.Type.Int => (int)value,
-            Variant.Type.String => double.TryParse((string)value, out double parsed) ? parsed : fallback,
+            Variant.Type.String => TryParseDouble((string)value, fallback),
             _ => fallback,
         };
     }
@@ -346,7 +505,12 @@ public partial class Colony : RefCounted
         }
 
         Variant value = data[key];
-        return value.VariantType == Variant.Type.String ? (string)value : fallback;
+        if (value.VariantType == Variant.Type.String)
+        {
+            return (string)value;
+        }
+
+        return fallback;
     }
 
     /// <summary>
@@ -354,7 +518,12 @@ public partial class Colony : RefCounted
     /// </summary>
     private static bool GetBool(Dictionary data, string key, bool fallback)
     {
-        return data.ContainsKey(key) && data[key].VariantType == Variant.Type.Bool ? (bool)data[key] : fallback;
+        if (data.ContainsKey(key) && data[key].VariantType == Variant.Type.Bool)
+        {
+            return (bool)data[key];
+        }
+
+        return fallback;
     }
 
     /// <summary>
@@ -363,5 +532,25 @@ public partial class Colony : RefCounted
     private static double Clamp01(double value)
     {
         return System.Math.Clamp(value, 0.0, 1.0);
+    }
+
+    private static int TryParseInt(string s, int fallback)
+    {
+        if (int.TryParse(s, out int parsed))
+        {
+            return parsed;
+        }
+
+        return fallback;
+    }
+
+    private static double TryParseDouble(string s, double fallback)
+    {
+        if (double.TryParse(s, out double parsed))
+        {
+            return parsed;
+        }
+
+        return fallback;
     }
 }

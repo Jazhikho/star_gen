@@ -1,3 +1,6 @@
+using StarGen.Domain.Celestial.Components;
+using StarGen.Domain.Math;
+
 namespace StarGen.Domain.Generation.Archetypes;
 
 /// <summary>
@@ -5,7 +8,6 @@ namespace StarGen.Domain.Generation.Archetypes;
 /// </summary>
 public static class OrbitZone
 {
-    private const double SolarLuminosityWatts = 3.828e26;
 
     /// <summary>
     /// Orbit zone enumeration.
@@ -63,7 +65,7 @@ public static class OrbitZone
             return Zone.Temperate;
         }
 
-        double solarLuminosityRatio = stellarLuminosityWatts / SolarLuminosityWatts;
+        double solarLuminosityRatio = stellarLuminosityWatts / StellarProps.SolarLuminosityWatts;
         double squareRootLuminosity = System.Math.Sqrt(solarLuminosityRatio);
         double habitableZoneInnerMeters = 0.95 * StarGen.Domain.Math.Units.AuMeters * squareRootLuminosity;
         double frostLineMeters = 2.7 * StarGen.Domain.Math.Units.AuMeters * squareRootLuminosity;

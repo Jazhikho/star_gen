@@ -43,6 +43,7 @@ public partial class SystemInspectorPanel : VBoxContainer
 
         _currentSystem = system;
         _selectedBody = null;
+        ResetOpenViewerButtonState();
         ClearSectionContent(_overviewSection);
         ClearSectionContent(_bodySection);
         AddProperty(_bodySection, "Status", "Click a body to inspect");
@@ -128,6 +129,7 @@ public partial class SystemInspectorPanel : VBoxContainer
         EnsureUi();
 
         _selectedBody = body;
+        ResetOpenViewerButtonState();
         ClearSectionContent(_bodySection);
 
         if (body == null)
@@ -184,6 +186,7 @@ public partial class SystemInspectorPanel : VBoxContainer
         EnsureUi();
 
         _selectedBody = null;
+        ResetOpenViewerButtonState();
         ClearSectionContent(_bodySection);
 
         if (belt == null)
@@ -242,6 +245,7 @@ public partial class SystemInspectorPanel : VBoxContainer
 
         _currentSystem = null;
         _selectedBody = null;
+        ResetOpenViewerButtonState();
         ClearSectionContent(_overviewSection);
         ClearSectionContent(_bodySection);
         AddProperty(_overviewSection, "Status", "No system generated");
@@ -282,7 +286,15 @@ public partial class SystemInspectorPanel : VBoxContainer
         if (physical.RotationPeriodS != 0.0)
         {
             double hours = System.Math.Abs(physical.RotationPeriodS) / 3600.0;
-            string retrograde = physical.RotationPeriodS < 0.0 ? " (retrograde)" : string.Empty;
+            string retrograde;
+            if (physical.RotationPeriodS < 0.0)
+            {
+                retrograde = " (retrograde)";
+            }
+            else
+            {
+                retrograde = string.Empty;
+            }
             AddProperty(
                 _bodySection,
                 "Rotation",
@@ -411,11 +423,12 @@ public partial class SystemInspectorPanel : VBoxContainer
     /// </summary>
     private void AddPopulationSummary(CelestialBody body)
     {
-        if (body.PopulationData is not PlanetPopulationData populationData)
+        if (body.PopulationData == null)
         {
             return;
         }
 
+        PlanetPopulationData populationData = body.PopulationData;
         if (populationData.Profile != null)
         {
             AddProperty(
@@ -667,8 +680,34 @@ public partial class SystemInspectorPanel : VBoxContainer
             return;
         }
 
+        if (!GodotObject.IsInstanceValid(_openViewerButton))
+        {
+            _openViewerButton = null;
+            return;
+        }
+
         _openViewerButton.Pressed -= OnOpenViewerPressed;
         _openViewerButton.QueueFree();
+        _openViewerButton = null;
+    }
+
+    /// <summary>
+    /// Clears the tracked open-in-viewer button reference before section rebuilds.
+    /// </summary>
+    private void ResetOpenViewerButtonState()
+    {
+        if (_openViewerButton == null)
+        {
+            return;
+        }
+
+        if (!GodotObject.IsInstanceValid(_openViewerButton))
+        {
+            _openViewerButton = null;
+            return;
+        }
+
+        _openViewerButton.Pressed -= OnOpenViewerPressed;
         _openViewerButton = null;
     }
 

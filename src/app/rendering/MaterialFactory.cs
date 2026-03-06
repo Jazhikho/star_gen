@@ -143,7 +143,15 @@ public static class MaterialFactory
                 {
                     int luminosityRounded = (int)(body.Stellar.LuminosityWatts / 1.0e24);
                     int ageBin = (int)(body.Stellar.AgeYears / 1.0e9);
-                    int seedValue = body.Provenance == null ? 0 : (int)(body.Provenance.GenerationSeed % 1000L);
+                    int seedValue;
+                    if (body.Provenance == null)
+                    {
+                        seedValue = 0;
+                    }
+                    else
+                    {
+                        seedValue = (int)(body.Provenance.GenerationSeed % 1000L);
+                    }
                     keyParts.Add($"temp_{(int)body.Stellar.EffectiveTemperatureK}_lum_{luminosityRounded}_age_{ageBin}_seed_{seedValue}");
                 }
                 else
@@ -155,9 +163,25 @@ public static class MaterialFactory
             case CelestialType.Type.Moon:
                 if (body.HasSurface() && body.Surface != null)
                 {
-                    string surfaceType = string.IsNullOrEmpty(body.Surface.SurfaceType) ? "unknown" : body.Surface.SurfaceType;
+                    string surfaceType;
+                    if (string.IsNullOrEmpty(body.Surface.SurfaceType))
+                    {
+                        surfaceType = "unknown";
+                    }
+                    else
+                    {
+                        surfaceType = body.Surface.SurfaceType;
+                    }
                     float albedo = (float)body.Surface.Albedo;
-                    int seedValue = body.Provenance == null ? 0 : (int)(body.Provenance.GenerationSeed % 1000L);
+                    int seedValue;
+                    if (body.Provenance == null)
+                    {
+                        seedValue = 0;
+                    }
+                    else
+                    {
+                        seedValue = (int)(body.Provenance.GenerationSeed % 1000L);
+                    }
                     keyParts.Add($"{surfaceType}_albedo_{albedo:0.00}_seed_{seedValue}");
                     keyParts.Add($"temp_{(int)(body.Surface.TemperatureK / 50.0)}");
                 }
@@ -171,10 +195,24 @@ public static class MaterialFactory
                     double massEarth = body.Physical.MassKg / StarGen.Domain.Math.Units.EarthMassKg;
                     int tempK = (int)GetBodyTemperatureK(body);
                     int rotationBin = (int)(Mathf.Abs((float)body.Physical.RotationPeriodS) / 3600.0f);
-                    string dominantGas = body.HasAtmosphere() && body.Atmosphere != null
-                        ? body.Atmosphere.GetDominantGas()
-                        : "none";
-                    int seedValue = body.Provenance == null ? 0 : (int)(body.Provenance.GenerationSeed % 1000L);
+                    string dominantGas;
+                    if (body.HasAtmosphere() && body.Atmosphere != null)
+                    {
+                        dominantGas = body.Atmosphere.GetDominantGas();
+                    }
+                    else
+                    {
+                        dominantGas = "none";
+                    }
+                    int seedValue;
+                    if (body.Provenance == null)
+                    {
+                        seedValue = 0;
+                    }
+                    else
+                    {
+                        seedValue = (int)(body.Provenance.GenerationSeed % 1000L);
+                    }
                     keyParts.Add($"gas_m{(int)massEarth}_t{tempK}_r{rotationBin}_{dominantGas}_s{seedValue}");
                 }
                 else if (TerrestrialShaderParams.IsTerrestrialSuitable(body))

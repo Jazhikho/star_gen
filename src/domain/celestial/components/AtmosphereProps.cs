@@ -97,10 +97,16 @@ public partial class AtmosphereProps : RefCounted
     /// </summary>
     public static AtmosphereProps FromDictionary(Dictionary data)
     {
+        Dictionary? composition = null;
+        if (data.ContainsKey("composition"))
+        {
+            composition = (Dictionary)data["composition"];
+        }
+
         return new AtmosphereProps(
             GetDouble(data, "surface_pressure_pa", 0.0),
             GetDouble(data, "scale_height_m", 0.0),
-            data.ContainsKey("composition") ? (Dictionary)data["composition"] : null,
+            composition,
             GetDouble(data, "greenhouse_factor", 1.0));
     }
 
@@ -122,6 +128,11 @@ public partial class AtmosphereProps : RefCounted
 
     private static double GetDouble(Dictionary data, string key, double fallback)
     {
-        return data.ContainsKey(key) ? (double)data[key] : fallback;
+        if (data.ContainsKey(key))
+        {
+            return (double)data[key];
+        }
+
+        return fallback;
     }
 }

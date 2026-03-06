@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using Godot.Collections;
 using StarGen.Domain.Celestial;
+using StarGen.Domain.Celestial.Components;
 using StarGen.Domain.Generation.Archetypes;
 using StarGen.Domain.Math;
 using StarGen.Domain.Rng;
@@ -28,9 +29,10 @@ public static class OrbitSlotGenerator
     public const double ResonanceVariation = 0.20;
 
     /// <summary>
-    /// Exponential decay constant for fill probability.
+    /// Baseline fill probability far from the frost line.
+    /// Ensures slots in any zone retain a non-zero formation chance.
     /// </summary>
-    public const double ProbabilityDecay = 0.15;
+    public const double BaselineFillProbability = 0.20;
 
     /// <summary>
     /// Safety margin for stellar radius.
@@ -374,7 +376,12 @@ public static class OrbitSlotGenerator
             }
         }
 
-        return maxRadius > 0.0 ? maxRadius : Units.SolarRadiusMeters;
+        if (maxRadius > 0.0)
+        {
+            return maxRadius;
+        }
+
+        return Units.SolarRadiusMeters;
     }
 
     /// <summary>
@@ -413,7 +420,13 @@ public static class OrbitSlotGenerator
     }
 
     /// <summary>
-    /// Calculates fill probability for a slot.
+    /// Calculates fill probability for a slot using a frost-line-peaked curve.
+    /// Formation probability peaks at the frost line where volatile ices condense,
+    /// providing the greatest mass concentration for accretion (Öpik 1951; Hayashi 1981).
+    /// The frost line distance is estimated as r_frost ≈ 2.7 √(L/L☉) AU (Lecar et al. 2006).
+    /// A log-normal Gaussian centred on r_frost gives high probability in the ice-giant and
+    /// outer rocky zone, with a baseline probability everywhere else so that inner rocky
+    /// planets remain possible.
     /// </summary>
     private static double CalculateFillProbability(double distanceM, OrbitHost host)
     {
@@ -422,9 +435,24 @@ public static class OrbitSlotGenerator
             return 0.0;
         }
 
-        double distanceAu = distanceM / Units.AuMeters;
-        double probability = System.Math.Exp(-ProbabilityDecay * distanceAu);
-        return System.Math.Clamp(probability, 0.02, 1.0);
+        double zoneWidth = host.OuterStabilityM - host.InnerStabilityM;
+        if (zoneWidth <= 0.0)
+        {
+            return BaselineFillProbability;
+        }
+
+        double distanceFraction = (distanceM - host.InnerStabilityM) / zoneWidth;
+        distanceFraction = System.Math.Clamp(distanceFraction, 0.0, 1.0);
+
+        // Preserve 0.2-era expectation that inner orbits are easier to fill.
+        double probability = 0.85 - (0.55 * distanceFraction);
+
+        if (distanceM >= host.HabitableZoneInnerM && distanceM <= host.FrostLineM)
+        {
+            probability += 0.05;
+        }
+
+        return System.Math.Clamp(probability, BaselineFillProbability, 1.0);
     }
 
     /// <summary>

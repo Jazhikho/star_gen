@@ -404,26 +404,51 @@ public partial class PlanetProfile : RefCounted
 
     private static bool GetBool(Dictionary data, string key, bool fallback)
     {
-        return data.ContainsKey(key) ? (bool)data[key] : fallback;
+        if (data.ContainsKey(key))
+        {
+            return (bool)data[key];
+        }
+
+        return fallback;
     }
 
     private static double GetDouble(Dictionary data, string key, double fallback)
     {
-        return data.ContainsKey(key) ? (double)data[key] : fallback;
+        if (data.ContainsKey(key))
+        {
+            return (double)data[key];
+        }
+
+        return fallback;
     }
 
     private static double GetDouble(Dictionary data, Variant key, double fallback)
     {
-        return data.ContainsKey(key) ? (double)data[key] : fallback;
+        if (data.ContainsKey(key))
+        {
+            return (double)data[key];
+        }
+
+        return fallback;
     }
 
     private static int GetInt(Dictionary data, string key, int fallback)
     {
-        return data.ContainsKey(key) ? (int)data[key] : fallback;
+        if (data.ContainsKey(key))
+        {
+            return (int)data[key];
+        }
+
+        return fallback;
     }
 
     private static string GetString(Dictionary data, string key, string fallback)
     {
-        return data.ContainsKey(key) ? (string)data[key] : fallback;
+        if (data.ContainsKey(key))
+        {
+            return (string)data[key];
+        }
+
+        return fallback;
     }
 }

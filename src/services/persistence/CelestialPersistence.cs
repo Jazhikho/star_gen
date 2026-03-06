@@ -40,6 +40,7 @@ public static class CelestialPersistence
 
     /// <summary>
     /// Loads a celestial body from a JSON file.
+    /// Returns null if the file is missing, unreadable, or JSON is invalid.
     /// </summary>
     public static CelestialBody? LoadBody(string filePath)
     {
@@ -49,8 +50,15 @@ public static class CelestialPersistence
             return null;
         }
 
-        string json = File.ReadAllText(globalPath);
-        return CelestialSerializer.FromJson(json);
+        try
+        {
+            string json = File.ReadAllText(globalPath);
+            return CelestialSerializer.FromJson(json);
+        }
+        catch (System.Exception)
+        {
+            return null;
+        }
     }
 
     /// <summary>
@@ -58,7 +66,15 @@ public static class CelestialPersistence
     /// </summary>
     public static string GetDefaultPath(CelestialBody body)
     {
-        string fileName = string.IsNullOrEmpty(body.Id) ? "unnamed" : body.Id;
+        string fileName;
+        if (string.IsNullOrEmpty(body.Id))
+        {
+            fileName = "unnamed";
+        }
+        else
+        {
+            fileName = body.Id;
+        }
         fileName = fileName.Replace(" ", "_").ToLowerInvariant();
         return DefaultSaveDir + fileName + ".json";
     }
@@ -68,7 +84,15 @@ public static class CelestialPersistence
     /// </summary>
     public static Godot.Collections.Array<string> ListSavedBodies(string? dirPath = null)
     {
-        string effectiveDir = string.IsNullOrEmpty(dirPath) ? DefaultSaveDir : dirPath;
+        string effectiveDir;
+        if (string.IsNullOrEmpty(dirPath))
+        {
+            effectiveDir = DefaultSaveDir;
+        }
+        else
+        {
+            effectiveDir = dirPath;
+        }
         string globalPath = ProjectSettings.GlobalizePath(effectiveDir);
         Godot.Collections.Array<string> results = new();
 

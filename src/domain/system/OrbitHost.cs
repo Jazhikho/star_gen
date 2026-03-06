@@ -30,6 +30,15 @@ public partial class OrbitHost : RefCounted
     public HostType Type = HostType.SType;
 
     /// <summary>
+    /// Legacy alias for host type field.
+    /// </summary>
+    public HostType HostTypeValue
+    {
+        get => Type;
+        set => Type = value;
+    }
+
+    /// <summary>
     /// Combined mass in kilograms.
     /// </summary>
     public double CombinedMassKg;
@@ -164,10 +173,20 @@ public partial class OrbitHost : RefCounted
     /// </summary>
     public Dictionary ToDictionary()
     {
+        string hostTypeStr;
+        if (Type == HostType.SType)
+        {
+            hostTypeStr = "s_type";
+        }
+        else
+        {
+            hostTypeStr = "p_type";
+        }
+
         return new Dictionary
         {
             ["node_id"] = NodeId,
-            ["host_type"] = Type == HostType.SType ? "s_type" : "p_type",
+            ["host_type"] = hostTypeStr,
             ["combined_mass_kg"] = CombinedMassKg,
             ["combined_luminosity_watts"] = CombinedLuminosityWatts,
             ["effective_temperature_k"] = EffectiveTemperatureK,
@@ -185,9 +204,19 @@ public partial class OrbitHost : RefCounted
     public static OrbitHost FromDictionary(Dictionary data)
     {
         string hostType = GetString(data, "host_type", "s_type");
+        HostType type;
+        if (hostType == "s_type")
+        {
+            type = HostType.SType;
+        }
+        else
+        {
+            type = HostType.PType;
+        }
+
         OrbitHost host = new(
             GetString(data, "node_id", string.Empty),
-            hostType == "s_type" ? HostType.SType : HostType.PType);
+            type);
         host.CombinedMassKg = GetDouble(data, "combined_mass_kg", 0.0);
         host.CombinedLuminosityWatts = GetDouble(data, "combined_luminosity_watts", 0.0);
         host.EffectiveTemperatureK = GetDouble(data, "effective_temperature_k", 0.0);
@@ -210,7 +239,12 @@ public partial class OrbitHost : RefCounted
         }
 
         Variant value = data[key];
-        return value.VariantType == Variant.Type.String ? (string)value : fallback;
+        if (value.VariantType == Variant.Type.String)
+        {
+            return (string)value;
+        }
+
+        return fallback;
     }
 
     /// <summary>
@@ -228,8 +262,18 @@ public partial class OrbitHost : RefCounted
         {
             Variant.Type.Float => (double)value,
             Variant.Type.Int => (int)value,
-            Variant.Type.String => double.TryParse((string)value, out double parsed) ? parsed : fallback,
+            Variant.Type.String => TryParseDouble((string)value, fallback),
             _ => fallback,
         };
+    }
+
+    private static double TryParseDouble(string s, double fallback)
+    {
+        if (double.TryParse(s, out double parsed))
+        {
+            return parsed;
+        }
+
+        return fallback;
     }
 }
