@@ -1,0 +1,335 @@
+[gd_scene load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://src/app/MainMenuScreen.cs" id="1"]
+[ext_resource type="Theme" path="res://src/app/themes/DarkTheme.tres" id="2"]
+
+[node name="MainMenuScreen" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme = ExtResource("2")
+script = ExtResource("1")
+
+[node name="Background" type="ColorRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0.0313726, 0.0470588, 0.0862745, 1)
+
+[node name="AccentBand" type="ColorRect" parent="."]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.58
+anchor_top = 0.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0.0784314, 0.172549, 0.25098, 0.25)
+
+[node name="MarginContainer" type="MarginContainer" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/margin_left = 42
+theme_override_constants/margin_top = 36
+theme_override_constants/margin_right = 42
+theme_override_constants/margin_bottom = 36
+
+[node name="ScrollContainer" type="ScrollContainer" parent="MarginContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+horizontal_scroll_mode = 0
+
+[node name="Layout" type="HFlowContainer" parent="MarginContainer/ScrollContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/h_separation = 24
+theme_override_constants/v_separation = 24
+
+[node name="HeroPanel" type="PanelContainer" parent="MarginContainer/ScrollContainer/Layout"]
+custom_minimum_size = Vector2(320, 0)
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="MarginContainer" type="MarginContainer" parent="MarginContainer/ScrollContainer/Layout/HeroPanel"]
+layout_mode = 2
+theme_override_constants/margin_left = 28
+theme_override_constants/margin_top = 28
+theme_override_constants/margin_right = 28
+theme_override_constants/margin_bottom = 28
+
+[node name="HeroVBox" type="VBoxContainer" parent="MarginContainer/ScrollContainer/Layout/HeroPanel/MarginContainer"]
+layout_mode = 2
+theme_override_constants/separation = 20
+
+[node name="TopRow" type="HBoxContainer" parent="MarginContainer/ScrollContainer/Layout/HeroPanel/MarginContainer/HeroVBox"]
+layout_mode = 2
+theme_override_constants/separation = 12
+
+[node name="KickerLabel" type="Label" parent="MarginContainer/ScrollContainer/Layout/HeroPanel/MarginContainer/HeroVBox/TopRow"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.921569, 0.768627, 0.470588, 1)
+text = "Procedural space generator"
+
+[node name="VersionLabel" type="Label" parent="MarginContainer/ScrollContainer/Layout/HeroPanel/MarginContainer/HeroVBox/TopRow"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.631373, 0.701961, 0.772549, 1)
+text = "Version 0.3.0"
+
+[node name="TitleLabel" type="Label" parent="MarginContainer/ScrollContainer/Layout/HeroPanel/MarginContainer/HeroVBox"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 44
+text = "StarGen"
+
+[node name="SubtitleLabel" type="Label" parent="MarginContainer/ScrollContainer/Layout/HeroPanel/MarginContainer/HeroVBox"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 20
+autowrap_mode = 2
+text = "Generate and explore stars, planets, moons, and galaxies."
+
+[node name="ReleaseNote" type="Label" parent="MarginContainer/ScrollContainer/Layout/HeroPanel/MarginContainer/HeroVBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.705882, 0.768627, 0.835294, 1)
+autowrap_mode = 2
+text = ""
+
+[node name="HeroCards" type="HFlowContainer" parent="MarginContainer/ScrollContainer/Layout/HeroPanel/MarginContainer/HeroVBox"]
+layout_mode = 2
+theme_override_constants/h_separation = 14
+theme_override_constants/v_separation = 14
+
+[node name="CardGalaxy" type="PanelContainer" parent="MarginContainer/ScrollContainer/Layout/HeroPanel/MarginContainer/HeroVBox/HeroCards"]
+custom_minimum_size = Vector2(220, 0)
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="MarginContainer" type="MarginContainer" parent="MarginContainer/ScrollContainer/Layout/HeroPanel/MarginContainer/HeroVBox/HeroCards/CardGalaxy"]
+layout_mode = 2
+theme_override_constants/margin_left = 16
+theme_override_constants/margin_top = 16
+theme_override_constants/margin_right = 16
+theme_override_constants/margin_bottom = 16
+
+[node name="VBoxContainer" type="VBoxContainer" parent="MarginContainer/ScrollContainer/Layout/HeroPanel/MarginContainer/HeroVBox/HeroCards/CardGalaxy/MarginContainer"]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="Label" type="Label" parent="MarginContainer/ScrollContainer/Layout/HeroPanel/MarginContainer/HeroVBox/HeroCards/CardGalaxy/MarginContainer/VBoxContainer"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.921569, 0.768627, 0.470588, 1)
+text = "Galaxy"
+
+[node name="Label2" type="Label" parent="MarginContainer/ScrollContainer/Layout/HeroPanel/MarginContainer/HeroVBox/HeroCards/CardGalaxy/MarginContainer/VBoxContainer"]
+layout_mode = 2
+autowrap_mode = 2
+text = "Generate and explore a full galaxy. Pick a seed, then browse sectors and star systems."
+
+[node name="CardExpansion" type="PanelContainer" parent="MarginContainer/ScrollContainer/Layout/HeroPanel/MarginContainer/HeroVBox/HeroCards"]
+custom_minimum_size = Vector2(220, 0)
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="MarginContainer" type="MarginContainer" parent="MarginContainer/ScrollContainer/Layout/HeroPanel/MarginContainer/HeroVBox/HeroCards/CardExpansion"]
+layout_mode = 2
+theme_override_constants/margin_left = 16
+theme_override_constants/margin_top = 16
+theme_override_constants/margin_right = 16
+theme_override_constants/margin_bottom = 16
+
+[node name="VBoxContainer" type="VBoxContainer" parent="MarginContainer/ScrollContainer/Layout/HeroPanel/MarginContainer/HeroVBox/HeroCards/CardExpansion/MarginContainer"]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="Label" type="Label" parent="MarginContainer/ScrollContainer/Layout/HeroPanel/MarginContainer/HeroVBox/HeroCards/CardExpansion/MarginContainer/VBoxContainer"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.921569, 0.768627, 0.470588, 1)
+text = "Systems & objects"
+
+[node name="Label2" type="Label" parent="MarginContainer/ScrollContainer/Layout/HeroPanel/MarginContainer/HeroVBox/HeroCards/CardExpansion/MarginContainer/VBoxContainer"]
+layout_mode = 2
+autowrap_mode = 2
+text = "Generate a single star system or focus on one star, planet, moon, or asteroid."
+
+[node name="MenuColumn" type="VBoxContainer" parent="MarginContainer/ScrollContainer/Layout"]
+custom_minimum_size = Vector2(260, 0)
+layout_mode = 2
+theme_override_constants/separation = 16
+
+[node name="MenuButtons" type="VBoxContainer" parent="MarginContainer/ScrollContainer/Layout/MenuColumn"]
+layout_mode = 2
+theme_override_constants/separation = 12
+
+[node name="GalaxyButton" type="Button" parent="MarginContainer/ScrollContainer/Layout/MenuColumn/MenuButtons"]
+custom_minimum_size = Vector2(0, 54)
+layout_mode = 2
+text = "Galaxy Generation"
+
+[node name="SystemButton" type="Button" parent="MarginContainer/ScrollContainer/Layout/MenuColumn/MenuButtons"]
+custom_minimum_size = Vector2(0, 54)
+layout_mode = 2
+text = "System Generation"
+
+[node name="ObjectButton" type="Button" parent="MarginContainer/ScrollContainer/Layout/MenuColumn/MenuButtons"]
+custom_minimum_size = Vector2(0, 54)
+layout_mode = 2
+text = "Object Generation"
+
+[node name="SecondaryButtons" type="VBoxContainer" parent="MarginContainer/ScrollContainer/Layout/MenuColumn"]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="HelpButton" type="Button" parent="MarginContainer/ScrollContainer/Layout/MenuColumn/SecondaryButtons"]
+layout_mode = 2
+text = "Help"
+
+[node name="CreditsButton" type="Button" parent="MarginContainer/ScrollContainer/Layout/MenuColumn/SecondaryButtons"]
+layout_mode = 2
+text = "Credits"
+
+[node name="ReleaseNotesButton" type="Button" parent="MarginContainer/ScrollContainer/Layout/MenuColumn/SecondaryButtons"]
+layout_mode = 2
+text = "Release Notes"
+
+[node name="OptionsButton" type="Button" parent="MarginContainer/ScrollContainer/Layout/MenuColumn/SecondaryButtons"]
+layout_mode = 2
+text = "Options"
+
+[node name="QuitButton" type="Button" parent="MarginContainer/ScrollContainer/Layout/MenuColumn"]
+layout_mode = 2
+text = "Quit"
+
+[node name="ContentPanel" type="PanelContainer" parent="MarginContainer/ScrollContainer/Layout"]
+custom_minimum_size = Vector2(320, 0)
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="MarginContainer" type="MarginContainer" parent="MarginContainer/ScrollContainer/Layout/ContentPanel"]
+layout_mode = 2
+theme_override_constants/margin_left = 22
+theme_override_constants/margin_top = 22
+theme_override_constants/margin_right = 22
+theme_override_constants/margin_bottom = 22
+
+[node name="ContentStack" type="VBoxContainer" parent="MarginContainer/ScrollContainer/Layout/ContentPanel/MarginContainer"]
+layout_mode = 2
+
+[node name="OverviewPanel" type="VBoxContainer" parent="MarginContainer/ScrollContainer/Layout/ContentPanel/MarginContainer/ContentStack"]
+layout_mode = 2
+theme_override_constants/separation = 12
+
+[node name="OverviewTitle" type="Label" parent="MarginContainer/ScrollContainer/Layout/ContentPanel/MarginContainer/ContentStack/OverviewPanel"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 26
+text = "Get started"
+
+[node name="OverviewBody" type="Label" parent="MarginContainer/ScrollContainer/Layout/ContentPanel/MarginContainer/ContentStack/OverviewPanel"]
+layout_mode = 2
+autowrap_mode = 2
+text = "Choose one of the options below to start generating. You can explore galaxies, work with a single star system, or focus on individual stars, planets, moons, and asteroids."
+
+[node name="OverviewChecklist" type="Label" parent="MarginContainer/ScrollContainer/Layout/ContentPanel/MarginContainer/ContentStack/OverviewPanel"]
+layout_mode = 2
+autowrap_mode = 2
+text = ""
+
+[node name="HelpPanel" type="VBoxContainer" parent="MarginContainer/ScrollContainer/Layout/ContentPanel/MarginContainer/ContentStack"]
+visible = false
+layout_mode = 2
+theme_override_constants/separation = 12
+
+[node name="HelpTitle" type="Label" parent="MarginContainer/ScrollContainer/Layout/ContentPanel/MarginContainer/ContentStack/HelpPanel"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 26
+text = "Help"
+
+[node name="HelpText" type="RichTextLabel" parent="MarginContainer/ScrollContainer/Layout/ContentPanel/MarginContainer/ContentStack/HelpPanel"]
+custom_minimum_size = Vector2(0, 320)
+layout_mode = 2
+bbcode_enabled = false
+scroll_following = true
+fit_content = true
+
+[node name="CreditsPanel" type="VBoxContainer" parent="MarginContainer/ScrollContainer/Layout/ContentPanel/MarginContainer/ContentStack"]
+visible = false
+layout_mode = 2
+theme_override_constants/separation = 12
+
+[node name="CreditsTitle" type="Label" parent="MarginContainer/ScrollContainer/Layout/ContentPanel/MarginContainer/ContentStack/CreditsPanel"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 26
+text = "Credits"
+
+[node name="CreditsText" type="RichTextLabel" parent="MarginContainer/ScrollContainer/Layout/ContentPanel/MarginContainer/ContentStack/CreditsPanel"]
+custom_minimum_size = Vector2(0, 240)
+layout_mode = 2
+bbcode_enabled = false
+fit_content = true
+
+[node name="ReleaseNotesPanel" type="VBoxContainer" parent="MarginContainer/ScrollContainer/Layout/ContentPanel/MarginContainer/ContentStack"]
+visible = false
+layout_mode = 2
+theme_override_constants/separation = 12
+
+[node name="ReleaseNotesTitle" type="Label" parent="MarginContainer/ScrollContainer/Layout/ContentPanel/MarginContainer/ContentStack/ReleaseNotesPanel"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 26
+text = "Release Notes"
+
+[node name="ReleaseNotesText" type="RichTextLabel" parent="MarginContainer/ScrollContainer/Layout/ContentPanel/MarginContainer/ContentStack/ReleaseNotesPanel"]
+custom_minimum_size = Vector2(0, 320)
+layout_mode = 2
+bbcode_enabled = false
+scroll_following = true
+fit_content = true
+
+[node name="OptionsPanel" type="VBoxContainer" parent="MarginContainer/ScrollContainer/Layout/ContentPanel/MarginContainer/ContentStack"]
+visible = false
+layout_mode = 2
+theme_override_constants/separation = 14
+
+[node name="OptionsTitle" type="Label" parent="MarginContainer/ScrollContainer/Layout/ContentPanel/MarginContainer/ContentStack/OptionsPanel"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 26
+text = "Options"
+
+[node name="OptionsVBox" type="VBoxContainer" parent="MarginContainer/ScrollContainer/Layout/ContentPanel/MarginContainer/ContentStack/OptionsPanel"]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="FullscreenCheck" type="CheckButton" parent="MarginContainer/ScrollContainer/Layout/ContentPanel/MarginContainer/ContentStack/OptionsPanel/OptionsVBox"]
+layout_mode = 2
+text = "Fullscreen"
+
+[node name="ResolutionRow" type="HBoxContainer" parent="MarginContainer/ScrollContainer/Layout/ContentPanel/MarginContainer/ContentStack/OptionsPanel/OptionsVBox"]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="ResolutionLabel" type="Label" parent="MarginContainer/ScrollContainer/Layout/ContentPanel/MarginContainer/ContentStack/OptionsPanel/OptionsVBox/ResolutionRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Resolution"
+
+[node name="ResolutionOption" type="OptionButton" parent="MarginContainer/ScrollContainer/Layout/ContentPanel/MarginContainer/ContentStack/OptionsPanel/OptionsVBox/ResolutionRow"]
+custom_minimum_size = Vector2(180, 0)
+layout_mode = 2
+
+[node name="ApplyOptionsButton" type="Button" parent="MarginContainer/ScrollContainer/Layout/ContentPanel/MarginContainer/ContentStack/OptionsPanel/OptionsVBox"]
+layout_mode = 2
+text = "Apply Display Settings"
+
+[node name="OptionsStatusLabel" type="Label" parent="MarginContainer/ScrollContainer/Layout/ContentPanel/MarginContainer/ContentStack/OptionsPanel/OptionsVBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.631373, 0.701961, 0.772549, 1)
+autowrap_mode = 2
+text = "Display settings are ready."

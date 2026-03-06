@@ -394,13 +394,23 @@ public static class SystemPersistence
         }
 
         Variant value = data[key];
-        return value.VariantType switch
+        switch (value.VariantType)
         {
-            Variant.Type.Int => (int)value,
-            Variant.Type.Float => (int)(double)value,
-            Variant.Type.String => int.TryParse((string)value, out int parsed) ? parsed : fallback,
-            _ => fallback,
-        };
+            case Variant.Type.Int:
+                return (int)value;
+            case Variant.Type.Float:
+                return (int)(double)value;
+            case Variant.Type.String:
+                {
+                    if (int.TryParse((string)value, out int parsed))
+                    {
+                        return parsed;
+                    }
+                    return fallback;
+                }
+            default:
+                return fallback;
+        }
     }
 
     /// <summary>

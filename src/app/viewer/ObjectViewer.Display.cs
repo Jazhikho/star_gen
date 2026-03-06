@@ -270,10 +270,12 @@ public partial class ObjectViewer
 		EmitSignal(SignalName.MoonFocused, moonVariant);
 	}
 
-	private void ShowBackButton()
+	private void ShowBackButton(string buttonText = "<- Back to System", string tooltipText = "Return to solar system viewer")
 	{
 		if (_backButton != null)
 		{
+			_backButton.Text = buttonText;
+			_backButton.TooltipText = tooltipText;
 			_backButton.Visible = true;
 			return;
 		}
@@ -286,21 +288,26 @@ public partial class ObjectViewer
 
 		_backButton = new Button
 		{
-			Text = "<- Back to System",
-			TooltipText = "Return to solar system viewer",
+			Text = buttonText,
+			TooltipText = tooltipText,
 		};
 		_backButton.Pressed += OnBackPressed;
 		topBar.AddChild(_backButton);
 		topBar.MoveChild(_backButton, 0);
 	}
 
-	private void OnBackPressed()
+	private void HideBackButton()
 	{
-		_navigatedFromSystem = false;
 		if (_backButton != null)
 		{
 			_backButton.Visible = false;
 		}
+	}
+
+	private void OnBackPressed()
+	{
+		_navigatedFromSystem = false;
+		HideBackButton();
 
 		EmitSignal(SignalName.BackToSystemRequested);
 	}

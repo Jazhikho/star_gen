@@ -17,6 +17,9 @@ public partial class WelcomeScreen : Control
     public delegate void load_galaxy_requestedEventHandler();
 
     [Signal]
+    public delegate void back_requestedEventHandler();
+
+    [Signal]
     public delegate void quit_requestedEventHandler();
 
     private enum Preset
@@ -41,6 +44,7 @@ public partial class WelcomeScreen : Control
 
     private Button? _startButton;
     private Button? _loadButton;
+    private Button? _backButton;
     private Button? _quitButton;
     private Button? _randomizeButton;
     private OptionButton? _presetOption;
@@ -167,10 +171,35 @@ public partial class WelcomeScreen : Control
         RefreshRandomSeedDisplay();
     }
 
+    /// <summary>
+    /// Controls the visibility of the back and quit buttons for menu-driven navigation.
+    /// </summary>
+    public void SetNavigationVisibility(bool showBackButton, bool showQuitButton)
+    {
+        if (_backButton != null)
+        {
+            _backButton.Visible = showBackButton;
+        }
+
+        if (_quitButton != null)
+        {
+            _quitButton.Visible = showQuitButton;
+        }
+    }
+
+    /// <summary>
+    /// GDScript-compatible visibility wrapper.
+    /// </summary>
+    public void set_navigation_visibility(bool showBackButton, bool showQuitButton)
+    {
+        SetNavigationVisibility(showBackButton, showQuitButton);
+    }
+
     private void CacheNodeReferences()
     {
         _startButton = GetNodeOrNull<Button>("CenterContainer/MainPanel/MarginContainer/VBox/Buttons/StartButton");
         _loadButton = GetNodeOrNull<Button>("CenterContainer/MainPanel/MarginContainer/VBox/Buttons/LoadButton");
+        _backButton = GetNodeOrNull<Button>("CenterContainer/MainPanel/MarginContainer/VBox/HeaderRow/BackButton");
         _quitButton = GetNodeOrNull<Button>("CenterContainer/MainPanel/MarginContainer/VBox/Buttons/QuitButton");
         _randomizeButton = GetNodeOrNull<Button>("CenterContainer/MainPanel/MarginContainer/VBox/ScrollContainer/SettingsVBox/SeedContainer/RandomizeButton");
         _presetOption = GetNodeOrNull<OptionButton>("CenterContainer/MainPanel/MarginContainer/VBox/ScrollContainer/SettingsVBox/PresetContainer/PresetOption");
@@ -213,6 +242,7 @@ public partial class WelcomeScreen : Control
     {
         if (_startButton != null) _startButton.Pressed += OnStartPressed;
         if (_loadButton != null) _loadButton.Pressed += OnLoadPressed;
+        if (_backButton != null) _backButton.Pressed += OnBackPressed;
         if (_quitButton != null) _quitButton.Pressed += OnQuitPressed;
         if (_randomizeButton != null) _randomizeButton.Pressed += OnRandomizePressed;
         if (_presetOption != null) _presetOption.ItemSelected += OnPresetSelected;
@@ -470,6 +500,7 @@ public partial class WelcomeScreen : Control
     }
 
     private void OnLoadPressed() => EmitSignal("load_galaxy_requested");
+    private void OnBackPressed() => EmitSignal("back_requested");
     private void OnQuitPressed() => EmitSignal("quit_requested");
 
     private void OnRandomizePressed()

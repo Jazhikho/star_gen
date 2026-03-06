@@ -14,6 +14,7 @@ public partial class SystemViewer
     private void CacheNodeReferences()
     {
         _statusLabel = GetNodeOrNull<Label>("UI/TopBar/MarginContainer/HBoxContainer/StatusLabel");
+        _backButton = GetNodeOrNull<Button>("UI/TopBar/MarginContainer/HBoxContainer/BackButton");
         _inspectorPanel = GetNodeOrNull<Node>("UI/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/InspectorPanel");
         _starCountSpin = GetNodeOrNull<SpinBox>("UI/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/GenerationSection/StarCountContainer/StarCountSpin");
         _seedInput = GetNodeOrNull<SpinBox>("UI/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/GenerationSection/SeedContainer/SeedInput");
@@ -225,10 +226,9 @@ public partial class SystemViewer
             _inspectorPanel.Connect("open_in_viewer_requested", Callable.From<CelestialBody>(OnOpenBodyInViewer));
         }
 
-        Button? backButton = GetNodeOrNull<Button>("UI/TopBar/MarginContainer/HBoxContainer/BackButton");
-        if (backButton != null)
+        if (_backButton != null)
         {
-            backButton.Pressed += OnBackPressed;
+            _backButton.Pressed += OnBackPressed;
         }
     }
 }

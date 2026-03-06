@@ -31,7 +31,7 @@ grow_horizontal = 2
 grow_vertical = 2
 
 [node name="MainPanel" type="PanelContainer" parent="CenterContainer"]
-custom_minimum_size = Vector2(480, 0)
+custom_minimum_size = Vector2(640, 0)
 layout_mode = 2
 
 [node name="MarginContainer" type="MarginContainer" parent="CenterContainer/MainPanel"]
@@ -45,6 +45,15 @@ theme_override_constants/margin_bottom = 24
 layout_mode = 2
 theme_override_constants/separation = 16
 
+[node name="HeaderRow" type="HBoxContainer" parent="CenterContainer/MainPanel/MarginContainer/VBox"]
+layout_mode = 2
+theme_override_constants/separation = 12
+
+[node name="BackButton" type="Button" parent="CenterContainer/MainPanel/MarginContainer/VBox/HeaderRow"]
+visible = false
+layout_mode = 2
+text = "<- Main Menu"
+
 [node name="TitleLabel" type="Label" parent="CenterContainer/MainPanel/MarginContainer/VBox"]
 layout_mode = 2
 theme_override_font_sizes/font_size = 32
@@ -54,14 +63,20 @@ horizontal_alignment = 1
 [node name="SubtitleLabel" type="Label" parent="CenterContainer/MainPanel/MarginContainer/VBox"]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.6, 0.65, 0.7, 1)
-text = "Galaxy Generator"
+text = "Galaxy Generation Studio"
 horizontal_alignment = 1
+
+[node name="IntroLabel" type="Label" parent="CenterContainer/MainPanel/MarginContainer/VBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.72, 0.76, 0.82, 1)
+autowrap_mode = 2
+text = "Tune the galaxy profile, pick a seed, and launch into the viewer. This remains the core StarGen workflow for the 0.4 release."
 
 [node name="HSeparator" type="HSeparator" parent="CenterContainer/MainPanel/MarginContainer/VBox"]
 layout_mode = 2
 
 [node name="ScrollContainer" type="ScrollContainer" parent="CenterContainer/MainPanel/MarginContainer/VBox"]
-custom_minimum_size = Vector2(0, 380)
+custom_minimum_size = Vector2(0, 420)
 layout_mode = 2
 horizontal_scroll_mode = 0
 
@@ -434,7 +449,7 @@ theme_override_constants/separation = 8
 
 [node name="StartButton" type="Button" parent="CenterContainer/MainPanel/MarginContainer/VBox/Buttons"]
 layout_mode = 2
-text = "Generate Galaxy"
+text = "Open Galaxy Viewer"
 
 [node name="LoadButton" type="Button" parent="CenterContainer/MainPanel/MarginContainer/VBox/Buttons"]
 layout_mode = 2

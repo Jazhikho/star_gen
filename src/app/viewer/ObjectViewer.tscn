@@ -1,9 +1,10 @@
-[gd_scene load_steps=8 format=3 uid="uid://65m6mp4m0yee"]
+[gd_scene load_steps=9 format=3 uid="uid://65m6mp4m0yee"]
 
 [ext_resource type="Script" path="res://src/app/viewer/ObjectViewer.cs" id="1"]
 [ext_resource type="Script" path="res://src/app/viewer/CameraController.cs" id="2"]
 [ext_resource type="Script" path="res://src/app/viewer/InspectorPanel.cs" id="3"]
 [ext_resource type="PackedScene" path="res://src/app/rendering/BodyRenderer.tscn" id="4"]
+[ext_resource type="Theme" path="res://src/app/themes/DarkTheme.tres" id="5"]
 
 [sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_1"]
 sky_top_color = Color(0.05, 0.05, 0.1, 1)
@@ -73,6 +74,7 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 2
+theme = ExtResource("5")
 
 [node name="TopBar" type="Panel" parent="UI"]
 custom_minimum_size = Vector2(0, 60)

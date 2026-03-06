@@ -19,7 +19,14 @@ Built with **Godot 4.x** and a **C#-first** codebase. Remaining GDScript files a
 | Version | Commit (tag) | Summary |
 |---------|--------------|---------|
 | **0.1** | `90e2636` | First unofficial release. Object and system viewers, galaxy data model and viewer (welcome screen, GalaxyConfig, density models, save/load). Population framework, stations, jump lanes (domain + prototype). |
-| **0.2** | (current) | Asteroid belt generation and rendering in system viewer; scientific calibration (GenerationRealismProfile, benchmarks, ensemble harness, distribution tests); belt renderer/generator integration; OrbitSlotGenerator, OrbitalMechanics, StellarConfigGenerator, SystemValidator updates; GalaxyInspectorPanel and test suite updates. Removed Concepts/AsteroidBelt demo scenes and Tests/RunGalaxyTests.gd. |
+| **0.2** | `a99ef2c` | Asteroid belt generation and rendering in system viewer; scientific calibration (GenerationRealismProfile, benchmarks, ensemble harness, distribution tests); belt renderer/generator integration; OrbitSlotGenerator, OrbitalMechanics, StellarConfigGenerator, SystemValidator updates; GalaxyInspectorPanel and test suite updates. Removed Concepts/AsteroidBelt demo scenes and Tests/RunGalaxyTests.gd. |
+| **0.3** | — | **User-facing:** Main menu with user-focused copy and Release Notes; save/load for bodies and systems (ObjectViewer save/load partial, path/extension handling); gas giant variety (archetypes, per-planet variation); edit a body in the object viewer and save as file (optional Traveller UWP size code in edit dialog). **Under the hood:** C# refactor (core, tests, harness; GDScript removed from src/). (Traveller Use Case, full object editing, and other efforts remain in progress and are not yet fully live.) (current) |
+
+### Release notes (summary)
+
+- **0.3.0** — Main menu: user-focused copy and Release Notes. Save/load: body and system files with correct extensions. Gas giant variety in system view. Edit a body and save as file (edit dialog; optional UWP size code). C# refactor under the hood. Traveller Use Case and full object editing are in progress, not yet fully in-app.
+- **0.2** — Asteroid belts in system viewer; scientific calibration and benchmarks; belt renderer and generator integration; test suite and GalaxyInspectorPanel updates.
+- **0.1** — First release: object and system viewers, galaxy data model and viewer (welcome, config, density models, save/load), population framework, stations, jump lanes.
 
 ### Merged features (master)
 

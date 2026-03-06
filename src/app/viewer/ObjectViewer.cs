@@ -237,4 +237,42 @@ public partial class ObjectViewer : Node3D
 		SetFileControlsEnabled(false);
 		SetStatus("No object loaded");
 	}
+
+	/// <summary>
+	/// Shows or hides the top-level back button with caller-provided text.
+	/// </summary>
+	public void SetBackNavigationVisibility(bool visible, string buttonText = "<- Back", string tooltipText = "Return")
+	{
+		if (visible)
+		{
+			ShowBackButton(buttonText, tooltipText);
+			return;
+		}
+
+		HideBackButton();
+	}
+
+	/// <summary>
+	/// Prepares the object viewer for standalone generation launched from the main menu.
+	/// </summary>
+	public void PrepareStandaloneGenerator(int seedValue, ObjectType defaultType)
+	{
+		_navigatedFromSystem = false;
+		SetGenerationControlsEnabled(true);
+		SetFileControlsEnabled(false);
+
+		if (_seedInput != null)
+		{
+			_seedInput.Value = seedValue;
+		}
+
+		if (_typeOption != null)
+		{
+			_typeOption.Select((int)defaultType);
+		}
+
+		generate_object(defaultType, seedValue);
+		_navigatedFromSystem = false;
+		ShowBackButton("<- Back to Menu", "Return to the main menu");
+	}
 }

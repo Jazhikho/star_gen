@@ -15,14 +15,61 @@ namespace StarGen.App;
 public partial class MainApp
 {
     /// <summary>
+    /// Handles splash-screen completion.
+    /// </summary>
+    private void OnSplashFinished()
+    {
+        ShowMainMenu();
+    }
+
+    /// <summary>
+    /// Opens the galaxy-generation screen from the main menu.
+    /// </summary>
+    private void OnMainMenuGalaxyGenerationRequested()
+    {
+        _welcomeScreen?.SetNavigationVisibility(showBackButton: true, showQuitButton: false);
+        ShowWelcomeScreen();
+    }
+
+    /// <summary>
+    /// Opens the standalone system generator from the main menu.
+    /// </summary>
+    private void OnMainMenuSystemGenerationRequested()
+    {
+        _systemOrigin = NavigationOrigin.Menu;
+        _objectOrigin = NavigationOrigin.None;
+        _currentStarSeed = 0;
+        _currentStarPosition = Godot.Vector3.Zero;
+        ShowSystemViewer();
+
+        int seedValue = GenerateRandomSeed();
+        _systemViewer?.UpdateSeedDisplay(seedValue);
+        _systemViewer?.SetSourceStarSeed(0);
+        _systemViewer?.GenerateSystem(seedValue, 1, 1);
+        _systemViewer?.SetStatus($"Standalone system generator loaded with seed {seedValue}");
+    }
+
+    /// <summary>
+    /// Opens the standalone object generator from the main menu.
+    /// </summary>
+    private void OnMainMenuObjectGenerationRequested()
+    {
+        _systemOrigin = NavigationOrigin.None;
+        _objectOrigin = NavigationOrigin.Menu;
+        ShowObjectViewer();
+
+        int seedValue = GenerateRandomSeed();
+        _objectViewer?.SetBackNavigationVisibility(true, "<- Back to Menu", "Return to the main menu");
+        _objectViewer?.PrepareStandaloneGenerator(seedValue, StarGen.App.Viewer.ObjectViewer.ObjectType.Planet);
+    }
+
+    /// <summary>
     /// Handles startup-screen start requests.
     /// </summary>
     private void OnWelcomeStartNewGalaxy(GalaxyConfig config, int seedValue)
     {
         CreateGalaxyViewer(seedValue, config);
-        RemoveFromViewerContainer(_welcomeScreen);
-        AddToViewerContainer(_galaxyViewer);
-        _activeViewer = ViewerType.Galaxy;
+        ShowGalaxyViewer();
     }
 
     /// <summary>
@@ -62,10 +109,16 @@ public partial class MainApp
         CreateGalaxyViewer(_galaxySeed, data.GetConfig());
         _bodyOverrides = data.GetBodyOverrides();
 
-        RemoveFromViewerContainer(_welcomeScreen);
-        AddToViewerContainer(_galaxyViewer);
+        ShowGalaxyViewer();
         _galaxyViewer?.ApplySaveData(data);
-        _activeViewer = ViewerType.Galaxy;
+    }
+
+    /// <summary>
+    /// Returns from the galaxy-generation screen to the main menu.
+    /// </summary>
+    private void OnWelcomeBackRequested()
+    {
+        ShowMainMenu();
     }
 
     /// <summary>
@@ -92,6 +145,8 @@ public partial class MainApp
         _activeViewer = ViewerType.None;
         _currentStarSeed = 0;
         _currentStarPosition = Godot.Vector3.Zero;
+        _systemOrigin = NavigationOrigin.None;
+        _objectOrigin = NavigationOrigin.None;
         ShowWelcomeScreen();
     }
 
@@ -107,6 +162,8 @@ public partial class MainApp
 
         _currentStarSeed = starSeed;
         _currentStarPosition = worldPosition;
+        _systemOrigin = NavigationOrigin.Galaxy;
+        _objectOrigin = NavigationOrigin.None;
         _galaxyViewer?.SaveState();
 
         SolarSystem? system = null;
@@ -243,6 +300,7 @@ public partial class MainApp
             }
         }
 
+        _objectOrigin = NavigationOrigin.System;
         ShowObjectViewer();
         if (_objectViewer == null)
         {
@@ -250,6 +308,7 @@ public partial class MainApp
             return;
         }
 
+        _objectViewer.SetBackNavigationVisibility(true, "<- Back to System", "Return to the system viewer");
         _objectViewer.DisplayExternalBody(typedBody, moonPayload, starSeed);
     }
 
@@ -285,6 +344,13 @@ public partial class MainApp
     /// </summary>
     private void OnBackToSystem()
     {
+        if (_objectOrigin == NavigationOrigin.Menu)
+        {
+            _objectOrigin = NavigationOrigin.None;
+            ShowMainMenu();
+            return;
+        }
+
         ShowSystemViewer();
     }
 
@@ -293,6 +359,13 @@ public partial class MainApp
     /// </summary>
     private void OnBackToGalaxy()
     {
+        if (_systemOrigin == NavigationOrigin.Menu)
+        {
+            _systemOrigin = NavigationOrigin.None;
+            ShowMainMenu();
+            return;
+        }
+
         ShowGalaxyViewer();
         if (_galaxyViewer != null && _galaxyViewer.HasSavedState())
         {
@@ -331,8 +404,6 @@ public partial class MainApp
     public void start_galaxy_with_defaults()
     {
         CreateGalaxyViewer(GenerateRandomSeed(), GalaxyConfig.CreateDefault());
-        RemoveFromViewerContainer(_welcomeScreen);
-        AddToViewerContainer(_galaxyViewer);
-        _activeViewer = ViewerType.Galaxy;
+        ShowGalaxyViewer();
     }
 }

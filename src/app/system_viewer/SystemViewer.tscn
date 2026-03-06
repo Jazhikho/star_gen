@@ -1,8 +1,9 @@
-[gd_scene load_steps=6 format=3 uid="uid://d3sv1ewrsyst"]
+[gd_scene load_steps=7 format=3 uid="uid://d3sv1ewrsyst"]
 
 [ext_resource type="Script" path="res://src/app/system_viewer/SystemViewer.cs" id="1"]
 [ext_resource type="Script" path="res://src/app/system_viewer/SystemCameraController.cs" id="2"]
 [ext_resource type="Script" path="res://src/app/system_viewer/SystemInspectorPanel.cs" id="3"]
+[ext_resource type="Theme" path="res://src/app/themes/DarkTheme.tres" id="4"]
 
 [sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_1"]
 sky_top_color = Color(0.02, 0.02, 0.06, 1)
@@ -58,6 +59,7 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 2
+theme = ExtResource("4")
 
 [node name="TopBar" type="Panel" parent="UI"]
 custom_minimum_size = Vector2(0, 50)

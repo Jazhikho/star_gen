@@ -246,6 +246,8 @@ C# source files:
 - `src/app/components/CollapsibleSection.cs`
 - `src/app/MainApp.cs`
 - `src/app/MainApp.Navigation.cs`
+- `src/app/SplashScreen.cs`
+- `src/app/MainMenuScreen.cs`
 - `src/app/WelcomeScreen.cs`
 - `src/app/prototypes/JumpLanesPrototype.cs`
 - `src/app/prototypes/JumpLaneRenderer.cs`
@@ -329,6 +331,10 @@ star_gen/
 │   │   ├── MainApp.cs
 │   │   ├── MainApp.Navigation.cs
 │   │   ├── MainApp.tscn
+│   │   ├── SplashScreen.cs
+│   │   ├── SplashScreen.tscn
+│   │   ├── MainMenuScreen.cs
+│   │   ├── MainMenuScreen.tscn
 │   │   ├── WelcomeScreen.cs
 │   │   ├── WelcomeScreen.tscn
 │   │   │

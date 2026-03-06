@@ -12,18 +12,26 @@ namespace StarGen.App;
 /// </summary>
 public partial class MainApp : Node
 {
+	private const string SplashScreenScenePath = "res://src/app/SplashScreen.tscn";
+	private const string MainMenuScreenScenePath = "res://src/app/MainMenuScreen.tscn";
 	private const string WelcomeScreenScenePath = "res://src/app/WelcomeScreen.tscn";
 	private const string GalaxyViewerScenePath = "res://src/app/galaxy_viewer/GalaxyViewerCSharp.tscn";
 	private const string SystemViewerScenePath = "res://src/app/system_viewer/SystemViewer.tscn";
 	private const string ObjectViewerScenePath = "res://src/app/viewer/ObjectViewer.tscn";
 
-	private enum ViewerType { None, Galaxy, System, Object }
+	private enum ViewerType { None, Splash, Menu, Galaxy, System, Object }
+	private enum NavigationOrigin { None, Menu, Galaxy, System }
+
 	private ViewerType _activeViewer = ViewerType.None;
 	private Node? _viewerContainer;
+	private SplashScreen? _splashScreen;
+	private MainMenuScreen? _mainMenuScreen;
 	private WelcomeScreen? _welcomeScreen;
 	private StarGen.App.GalaxyViewer.GalaxyViewer? _galaxyViewer;
 	private StarGen.App.SystemViewer.SystemViewer? _systemViewer;
 	private StarGen.App.Viewer.ObjectViewer? _objectViewer;
+	private NavigationOrigin _systemOrigin = NavigationOrigin.None;
+	private NavigationOrigin _objectOrigin = NavigationOrigin.None;
 	private readonly SystemCache _systemCache = new();
 	private SeededRng? _startupRng;
 	private int _galaxySeed;
@@ -38,8 +46,23 @@ public partial class MainApp : Node
 	{
 		_viewerContainer = GetNodeOrNull<Node>("ViewerContainer");
 		_startupRng = CreateStartupRng();
+		CreateSplashScreen();
+		CreateMainMenuScreen();
 		CreateWelcomeScreen();
-		ShowWelcomeScreen();
+		ShowSplashScreen();
+	}
+
+	/// <summary>
+	/// Frees detached startup/viewer nodes that are not owned by the tree at shutdown.
+	/// </summary>
+	public override void _ExitTree()
+	{
+		QueueDetachedNodeForCleanup(_splashScreen);
+		QueueDetachedNodeForCleanup(_mainMenuScreen);
+		QueueDetachedNodeForCleanup(_welcomeScreen);
+		QueueDetachedNodeForCleanup(_galaxyViewer);
+		QueueDetachedNodeForCleanup(_systemViewer);
+		QueueDetachedNodeForCleanup(_objectViewer);
 	}
 
 	/// <summary>
@@ -128,7 +151,87 @@ public partial class MainApp : Node
 		_welcomeScreen.SetSeededRng(_startupRng);
 		_welcomeScreen.Connect("start_new_galaxy", Callable.From<GalaxyConfig, int>(OnWelcomeStartNewGalaxy));
 		_welcomeScreen.Connect("load_galaxy_requested", Callable.From(OnWelcomeLoadGalaxyRequested));
+		_welcomeScreen.Connect("back_requested", Callable.From(OnWelcomeBackRequested));
 		_welcomeScreen.Connect("quit_requested", Callable.From(OnWelcomeQuitRequested));
+		_welcomeScreen.SetNavigationVisibility(showBackButton: true, showQuitButton: false);
+	}
+
+	/// <summary>
+	/// Creates the splash screen shown at startup.
+	/// </summary>
+	private void CreateSplashScreen()
+	{
+		PackedScene? scene = ResourceLoader.Load<PackedScene>(SplashScreenScenePath);
+		if (scene == null)
+		{
+			GD.PushError("MainApp: failed to load splash screen scene");
+			return;
+		}
+
+		_splashScreen = scene.Instantiate() as SplashScreen;
+		if (_splashScreen == null)
+		{
+			GD.PushError("MainApp: failed to instantiate splash screen");
+			return;
+		}
+
+		_splashScreen.Name = "SplashScreen";
+		_splashScreen.Connect("splash_finished", Callable.From(OnSplashFinished));
+	}
+
+	/// <summary>
+	/// Creates the primary main menu screen.
+	/// </summary>
+	private void CreateMainMenuScreen()
+	{
+		PackedScene? scene = ResourceLoader.Load<PackedScene>(MainMenuScreenScenePath);
+		if (scene == null)
+		{
+			GD.PushError("MainApp: failed to load main menu scene");
+			return;
+		}
+
+		_mainMenuScreen = scene.Instantiate() as MainMenuScreen;
+		if (_mainMenuScreen == null)
+		{
+			GD.PushError("MainApp: failed to instantiate main menu");
+			return;
+		}
+
+		_mainMenuScreen.Name = "MainMenuScreen";
+		_mainMenuScreen.Connect("galaxy_generation_requested", Callable.From(OnMainMenuGalaxyGenerationRequested));
+		_mainMenuScreen.Connect("system_generation_requested", Callable.From(OnMainMenuSystemGenerationRequested));
+		_mainMenuScreen.Connect("object_generation_requested", Callable.From(OnMainMenuObjectGenerationRequested));
+		_mainMenuScreen.Connect("quit_requested", Callable.From(OnWelcomeQuitRequested));
+	}
+
+	/// <summary>
+	/// Displays the splash screen.
+	/// </summary>
+	private void ShowSplashScreen()
+	{
+		RemoveFromViewerContainer(_mainMenuScreen);
+		RemoveFromViewerContainer(_welcomeScreen);
+		RemoveFromViewerContainer(_galaxyViewer);
+		RemoveFromViewerContainer(_systemViewer);
+		RemoveFromViewerContainer(_objectViewer);
+		AddToViewerContainer(_splashScreen);
+		_activeViewer = ViewerType.Splash;
+	}
+
+	/// <summary>
+	/// Displays the main menu.
+	/// </summary>
+	private void ShowMainMenu()
+	{
+		RemoveFromViewerContainer(_splashScreen);
+		RemoveFromViewerContainer(_welcomeScreen);
+		RemoveFromViewerContainer(_galaxyViewer);
+		RemoveFromViewerContainer(_systemViewer);
+		RemoveFromViewerContainer(_objectViewer);
+		AddToViewerContainer(_mainMenuScreen);
+		_mainMenuScreen?.RefreshWindowSettings();
+		_activeViewer = ViewerType.Menu;
 	}
 
 	/// <summary>
@@ -136,10 +239,13 @@ public partial class MainApp : Node
 	/// </summary>
 	private void ShowWelcomeScreen()
 	{
+		RemoveFromViewerContainer(_splashScreen);
+		RemoveFromViewerContainer(_mainMenuScreen);
 		RemoveFromViewerContainer(_galaxyViewer);
 		RemoveFromViewerContainer(_systemViewer);
 		RemoveFromViewerContainer(_objectViewer);
 		AddToViewerContainer(_welcomeScreen);
+		_welcomeScreen?.SetNavigationVisibility(showBackButton: true, showQuitButton: false);
 		_welcomeScreen?.RefreshRandomSeedDisplay();
 		_activeViewer = ViewerType.None;
 	}
@@ -246,6 +352,9 @@ public partial class MainApp : Node
 			return;
 		}
 
+		RemoveFromViewerContainer(_splashScreen);
+		RemoveFromViewerContainer(_mainMenuScreen);
+		RemoveFromViewerContainer(_welcomeScreen);
 		RemoveFromViewerContainer(_systemViewer);
 		RemoveFromViewerContainer(_objectViewer);
 		AddToViewerContainer(_galaxyViewer);
@@ -263,9 +372,21 @@ public partial class MainApp : Node
 		}
 
 		CreateSystemViewer();
+		RemoveFromViewerContainer(_splashScreen);
+		RemoveFromViewerContainer(_mainMenuScreen);
+		RemoveFromViewerContainer(_welcomeScreen);
 		RemoveFromViewerContainer(_galaxyViewer);
 		RemoveFromViewerContainer(_objectViewer);
 		AddToViewerContainer(_systemViewer);
+		if (_systemOrigin == NavigationOrigin.Menu)
+		{
+			_systemViewer?.ConfigureBackNavigation("<- Menu", "Back to Main Menu (Esc)");
+		}
+		else
+		{
+			_systemViewer?.ConfigureBackNavigation("<- Galaxy", "Back to Galaxy (Esc)");
+		}
+
 		_activeViewer = ViewerType.System;
 	}
 
@@ -280,9 +401,17 @@ public partial class MainApp : Node
 		}
 
 		CreateObjectViewer();
+		RemoveFromViewerContainer(_splashScreen);
+		RemoveFromViewerContainer(_mainMenuScreen);
+		RemoveFromViewerContainer(_welcomeScreen);
 		RemoveFromViewerContainer(_galaxyViewer);
 		RemoveFromViewerContainer(_systemViewer);
 		AddToViewerContainer(_objectViewer);
+		if (_objectOrigin == NavigationOrigin.Menu)
+		{
+			_objectViewer?.SetBackNavigationVisibility(true, "<- Back to Menu", "Return to the main menu");
+		}
+
 		_activeViewer = ViewerType.Object;
 	}
 
@@ -305,6 +434,17 @@ public partial class MainApp : Node
 		if (_viewerContainer != null && node != null && node.GetParent() != _viewerContainer)
 		{
 			_viewerContainer.AddChild(node);
+		}
+	}
+
+	/// <summary>
+	/// Queues detached nodes so tests and shutdown paths do not leak pre-instantiated screens.
+	/// </summary>
+	private static void QueueDetachedNodeForCleanup(Node? node)
+	{
+		if (node != null && GodotObject.IsInstanceValid(node) && node.GetParent() == null)
+		{
+			node.QueueFree();
 		}
 	}
 }

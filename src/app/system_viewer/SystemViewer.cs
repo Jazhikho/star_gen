@@ -30,6 +30,7 @@ public partial class SystemViewer : Node3D, ISystemViewerSaveLoadHost
     internal const string SystemBodyNodeScenePath = "res://src/app/system_viewer/SystemBodyNode.tscn";
 
     internal Label? _statusLabel;
+    internal Button? _backButton;
     internal Node? _inspectorPanel;
     internal SpinBox? _starCountSpin;
     internal SpinBox? _seedInput;
@@ -373,5 +374,19 @@ public partial class SystemViewer : Node3D, ISystemViewerSaveLoadHost
     public void SetAnimationEnabled(bool enabled)
     {
         _animationEnabled = enabled;
+    }
+
+    /// <summary>
+    /// Updates the text and tooltip of the top-level back button.
+    /// </summary>
+    public void ConfigureBackNavigation(string buttonText, string tooltipText)
+    {
+        if (_backButton == null)
+        {
+            return;
+        }
+
+        _backButton.Text = buttonText;
+        _backButton.TooltipText = tooltipText;
     }
 }

@@ -4,7 +4,7 @@ Godot 4.x - C#-first runtime | DRY + SOLID | Deterministic generation with test 
 
 ## Version history
 
-Release notes and version summaries are in the [README](../README.md#version-history). **v0.1** corresponds to commit `90e2636`; **v0.2** is the current patch (asteroid belts in system viewer, scientific calibration, harness and docs).
+Release notes and version summaries are in the [README](../README.md#version-history). **v0.1** = commit `90e2636`; **v0.2** = asteroid belts, scientific calibration; **v0.3** = user-focused main menu, save system docs, release notes in-app.
 
 ## Overview
 
