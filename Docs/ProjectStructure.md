@@ -2,11 +2,21 @@
 
 Complete enumeration of the project file structure. Excludes `.uid` files, `.git/`, `.godot/` (generated).
 
-## Incremental C# Migration Note
+## C# Migration — Complete
 
-The repo now contains side-by-side `.gd` and `.cs` sources during the incremental C# migration. Existing scenes still reference the `.gd` scripts until each slice is explicitly migrated.
+The GDScript-to-C# migration of all `src/` source files is complete. No `.gd` files remain under `src/`; all source logic, scenes, and app scripts are now in C#. All `.tscn` scene files reference their corresponding `.cs` scripts. The `SolarSystem.gd` GDScript bridge has been removed; `SystemViewer` now uses the C# `SolarSystem` type directly.
 
-Current C# bootstrap additions:
+Partial-class splits (large files broken into focused parts):
+- `SystemViewer.cs` / `SystemViewer.Setup.cs` / `SystemViewer.Rendering.cs` / `SystemViewer.Interaction.cs` / `SystemViewer.GdCompat.cs`
+- `GalaxyViewer.cs` / `GalaxyViewer.Setup.cs` / `GalaxyViewer.Navigation.cs` / `GalaxyViewer.Selection.cs` / `GalaxyViewer.Accessors.cs`
+- `MainApp.cs` / `MainApp.Navigation.cs`
+- `ObjectViewer.cs` / `ObjectViewer.Display.cs`
+
+Prototype files consolidated under `src/app/prototypes/`:
+- `JumpLanesPrototype.cs`, `JumpLaneRenderer.cs`, `MockRegionGenerator.cs` (moved from `src/app/jumplanes_prototype/`)
+- `StationGeneratorPrototype.cs`
+
+C# source files:
 - `StarGen.sln`
 - `StarGen.csproj`
 - `src/domain/bootstrap/CSharpSmokeTest.cs`
@@ -58,6 +68,7 @@ Current C# bootstrap additions:
 - `src/domain/generation/archetypes/RingComplexity.cs`
 - `src/domain/generation/archetypes/TravellerSizeCode.cs`
 - `src/domain/generation/archetypes/OrbitZone.cs`
+- `src/domain/generation/fixtures/FixtureGenerator.cs`
 - `src/domain/population/HabitabilityCategory.cs`
 - `src/domain/population/ClimateZone.cs`
 - `src/domain/population/BiomeType.cs`
@@ -104,6 +115,12 @@ Current C# bootstrap additions:
 - `src/domain/jumplanes/JumpLaneResult.cs`
 - `src/domain/jumplanes/JumpLaneClusterConnector.cs`
 - `src/domain/jumplanes/JumpLaneCalculator.cs`
+- `src/domain/editing/PropertyConstraint.cs`
+- `src/domain/editing/ConstraintSet.cs`
+- `src/domain/editing/EditSpecBuilder.cs`
+- `src/domain/editing/PropertyConstraintSolver.cs`
+- `src/domain/editing/TravellerConstraintBuilder.cs`
+- `src/domain/editing/EditRegenerator.cs`
 - `src/domain/system/HierarchyNode.cs`
 - `src/domain/system/SystemHierarchy.cs`
 - `src/domain/system/OrbitHost.cs`
@@ -172,6 +189,10 @@ Current C# bootstrap additions:
 - `src/app/galaxy_viewer/GalaxyInspectorPanel.cs`
 - `src/app/galaxy_viewer/GalaxyRenderer.cs`
 - `src/app/galaxy_viewer/GalaxyViewer.cs`
+- `src/app/galaxy_viewer/GalaxyViewer.Setup.cs`
+- `src/app/galaxy_viewer/GalaxyViewer.Navigation.cs`
+- `src/app/galaxy_viewer/GalaxyViewer.Selection.cs`
+- `src/app/galaxy_viewer/GalaxyViewer.Accessors.cs`
 - `src/app/galaxy_viewer/GalaxyViewerCSharp.tscn`
 - `src/app/galaxy_viewer/GalaxyViewerSaveLoad.cs`
 - `src/app/galaxy_viewer/NeighborhoodRenderer.cs`
@@ -207,20 +228,35 @@ Current C# bootstrap additions:
 - `src/app/system_viewer/SystemBodyNodeCSharp.tscn`
 - `src/app/system_viewer/SystemInspectorPanel.cs`
 - `src/app/system_viewer/SystemViewer.cs`
+- `src/app/system_viewer/SystemViewer.Setup.cs`
+- `src/app/system_viewer/SystemViewer.Rendering.cs`
+- `src/app/system_viewer/SystemViewer.Interaction.cs`
+- `src/app/system_viewer/SystemViewer.GdCompat.cs`
 - `src/app/system_viewer/SystemViewerSaveLoad.cs`
-- `src/app/system_viewer/SystemViewerCSharp.tscn`
 - `src/app/viewer/CameraController.cs`
 - `src/app/viewer/InspectorPanel.cs`
 - `src/app/viewer/ObjectViewerMoonSystem.cs`
 - `src/app/viewer/ObjectViewer.cs`
-- `src/app/viewer/ObjectViewerCSharp.tscn`
+- `src/app/viewer/ObjectViewer.Display.cs`
 - `src/app/viewer/PropertyFormatter.cs`
+- `src/app/viewer/EditDialog.cs`
+- `src/app/components/CollapsibleSection.cs`
+- `src/app/MainApp.cs`
+- `src/app/MainApp.Navigation.cs`
+- `src/app/WelcomeScreen.cs`
+- `src/app/prototypes/JumpLanesPrototype.cs`
+- `src/app/prototypes/JumpLaneRenderer.cs`
+- `src/app/prototypes/MockRegionGenerator.cs`
+- `src/app/prototypes/StationGeneratorPrototype.cs`
 - `Tests/Framework/DotNetTestResult.cs`
 - `Tests/Framework/DotNetTestRunner.cs`
 - `Tests/Framework/DotNetNativeTestSuite.cs`
+- `Tests/TestRegistry.cs`
 - `Tests/TestRegistry.gd`
 - `Tests/TestSceneCSharp.cs`
 - `Tests/TestSceneCSharp.tscn`
+
+> **Note:** The tree below reflects the current state after the C# migration. All `.gd` source files have been removed from `src/`. Under `Tests/`, unit and integration tests are C# (`Test*.cs` in Unit/, Integration/, domain/, Quality/); only `RunTestsHeadless.gd` and `TestScene.gd` remain as GDScript launchers that boot the .NET harness. `TestRegistry.cs` is the maintained suite manifest.
 
 ```
 star_gen/
@@ -257,6 +293,18 @@ star_gen/
 │   └── DiseaseSimulator/           # Concept 9: pathogen evolution sim — SEIRDV, symptoms, comorbidities (deterministic RNG)
 │       ├── index.html
 │       └── DiseaseSimulator.jsx
+│   │
+│   └── ReligionGenerator/          # Concept 16: procedural religion — deity, cosmology, ritual, landscape (deterministic seeded C#)
+│       ├── ReligionGenerator.csproj
+│       ├── ReligionParams.cs
+│       ├── ReligionResult.cs
+│       ├── ReligionRng.cs
+│       ├── ReligionGenerator.cs
+│       └── README.md
+│   │
+│   └── ConlangGenerator/            # Concept 18: conlang — phonology, grammar, concept lexicon, inflection (Mulberry32 seeded React)
+│       ├── index.html
+│       └── ConlangGenerator.jsx
 │
 ├── Docs/
 │   ├── CelestialBodyProperties.md
@@ -276,34 +324,37 @@ star_gen/
 ├── src/
 │   ├── app/
 │   │   ├── MainApp.cs
-│   │   ├── MainApp.gd
+│   │   ├── MainApp.Navigation.cs
 │   │   ├── MainApp.tscn
 │   │   ├── WelcomeScreen.cs
-│   │   ├── WelcomeScreen.gd
 │   │   ├── WelcomeScreen.tscn
 │   │   │
 │   │   ├── components/
-│   │   │   ├── CollapsibleSection.gd
+│   │   │   ├── CollapsibleSection.cs
 │   │   │   └── CollapsibleSection.tscn
 │   │   │
 │   │   ├── galaxy_viewer/
-│   │   │   ├── GalaxyInspectorPanel.gd
-│   │   │   ├── GalaxyRenderer.gd
-│   │   │   ├── SectorJumpLaneRenderer.gd
-│   │   │   ├── GalaxyViewer.gd
+│   │   │   ├── GalaxyInspectorPanel.cs
+│   │   │   ├── GalaxyRenderer.cs
+│   │   │   ├── GalaxyViewer.cs
+│   │   │   ├── GalaxyViewer.Setup.cs
+│   │   │   ├── GalaxyViewer.Navigation.cs
+│   │   │   ├── GalaxyViewer.Selection.cs
+│   │   │   ├── GalaxyViewer.Accessors.cs
 │   │   │   ├── GalaxyViewer.tscn
-│   │   │   ├── GalaxyViewerDeps.gd
-│   │   │   ├── GalaxyViewerSaveLoad.gd
-│   │   │   ├── NavigationCompass.gd
-│   │   │   ├── NeighborhoodRenderer.gd
-│   │   │   ├── OrbitCamera.gd
-│   │   │   ├── QuadrantRenderer.gd
-│   │   │   ├── QuadrantSelector.gd
-│   │   │   ├── SectorRenderer.gd
-│   │   │   ├── SelectionIndicator.gd
-│   │   │   ├── StarViewCamera.gd
-│   │   │   ├── SubSectorRenderer.gd
-│   │   │   ├── ZoomStateMachine.gd
+│   │   │   ├── GalaxyViewerCSharp.tscn
+│   │   │   ├── GalaxyViewerSaveLoad.cs
+│   │   │   ├── NavigationCompass.cs
+│   │   │   ├── NeighborhoodRenderer.cs
+│   │   │   ├── OrbitCamera.cs
+│   │   │   ├── QuadrantRenderer.cs
+│   │   │   ├── QuadrantSelector.cs
+│   │   │   ├── SectorJumpLaneRenderer.cs
+│   │   │   ├── SectorRenderer.cs
+│   │   │   ├── SelectionIndicator.cs
+│   │   │   ├── StarViewCamera.cs
+│   │   │   ├── SubSectorRenderer.cs
+│   │   │   ├── ZoomStateMachine.cs
 │   │   │   └── shaders/
 │   │   │       ├── quadrant_cell.gdshader
 │   │   │       ├── sector_cell.gdshader
@@ -312,27 +363,27 @@ star_gen/
 │   │   │       ├── star_sector_view.gdshader
 │   │   │       └── subsector_wire.gdshader
 │   │   │
-│   │   ├── jumplanes_prototype/
-│   │   │   ├── JumpLaneRenderer.gd
-│   │   │   ├── JumpLanesPrototype.gd
-│   │   │   ├── JumpLanesPrototype.tscn
-│   │   │   └── MockRegionGenerator.gd
-│   │   │
 │   │   ├── prototypes/
-│   │   │   ├── StationGeneratorPrototype.gd
+│   │   │   ├── JumpLaneRenderer.cs
+│   │   │   ├── JumpLanesPrototype.cs
+│   │   │   ├── JumpLanesPrototype.tscn
+│   │   │   ├── MockRegionGenerator.cs
+│   │   │   ├── StationGeneratorPrototype.cs
 │   │   │   └── StationGeneratorPrototype.tscn
 │   │   │
 │   │   ├── rendering/
-│   │   │   ├── AtmosphereShaderParams.gd
-│   │   │   ├── BodyRenderer.gd
+│   │   │   ├── AtmosphereShaderParams.cs
+│   │   │   ├── BodyRenderer.cs
 │   │   │   ├── BodyRenderer.tscn
-│   │   │   ├── ColorUtils.gd
-│   │   │   ├── GasGiantShaderParams.gd
-│   │   │   ├── MaterialFactory.gd
-│   │   │   ├── RingShaderParams.gd
-│   │   │   ├── ShaderParamHelpers.gd
-│   │   │   ├── StarShaderParams.gd
-│   │   │   ├── TerrestrialShaderParams.gd
+│   │   │   ├── ColorUtils.cs
+│   │   │   ├── GasGiantShaderParams.cs
+│   │   │   ├── GasGiantShaderParamProfiles.cs
+│   │   │   ├── MaterialFactory.cs
+│   │   │   ├── RingShaderParams.cs
+│   │   │   ├── ShaderParamHelpers.cs
+│   │   │   ├── StarShaderParams.cs
+│   │   │   ├── TerrestrialShaderParams.cs
+│   │   │   ├── TerrestrialShaderParamProfiles.cs
 │   │   │   ├── shaders/
 │   │   │   │   ├── atmosphere_rim.gdshader
 │   │   │   │   ├── noise_lib.gdshaderinc
@@ -340,411 +391,325 @@ star_gen/
 │   │   │   │   ├── planet_terrestrial_surface.gdshader
 │   │   │   │   ├── ring_system.gdshader
 │   │   │   │   ├── star_atmosphere.gdshader
-│   │   │   │   ├── star_surface.gdshader
+│   │   │   │   └── star_surface.gdshader
 │   │   │   └── textures/
 │   │   │       └── noise.tres
 │   │   │
 │   │   ├── system_viewer/
-│   │   │   ├── BeltRenderer.gd
-│   │   │   ├── OrbitRenderer.gd
-│   │   │   ├── SystemBodyNode.gd
+│   │   │   ├── BeltRenderer.cs
+│   │   │   ├── BeltLayout.cs
+│   │   │   ├── BodyLayout.cs
+│   │   │   ├── NodeExtent.cs
+│   │   │   ├── OrbitRenderer.cs
+│   │   │   ├── SystemBodyNode.cs
 │   │   │   ├── SystemBodyNode.tscn
-│   │   │   ├── SystemCameraController.gd
-│   │   │   ├── SystemDisplayLayout.gd
-│   │   │   ├── SystemInspectorPanel.gd
-│   │   │   ├── SystemScaleManager.gd
-│   │   │   ├── SystemViewer.gd
-│   │   │   ├── SystemViewerSaveLoad.gd
+│   │   │   ├── SystemBodyNodeCSharp.tscn
+│   │   │   ├── SystemCameraController.cs
+│   │   │   ├── SystemDisplayLayout.cs
+│   │   │   ├── SystemInspectorPanel.cs
+│   │   │   ├── SystemLayout.cs
+│   │   │   ├── SystemScaleManager.cs
+│   │   │   ├── SystemViewer.cs
+│   │   │   ├── SystemViewer.Setup.cs
+│   │   │   ├── SystemViewer.Rendering.cs
+│   │   │   ├── SystemViewer.Interaction.cs
+│   │   │   ├── SystemViewer.GdCompat.cs
+│   │   │   ├── SystemViewerSaveLoad.cs
 │   │   │   └── SystemViewer.tscn
 │   │   │
 │   │   ├── themes/
 │   │   │   └── DarkTheme.tres
 │   │   │
 │   │   └── viewer/
-│   │       ├── CameraController.gd
-│   │       ├── ObjectViewerMoonSystem.gd
-│   │       ├── EditDialog.gd              # Phase 4 deferred
+│   │       ├── CameraController.cs
+│   │       ├── EditDialog.cs
 │   │       ├── EditDialog.tscn
-│   │       ├── InspectorPanel.gd
-│   │       ├── ObjectViewer.gd
+│   │       ├── InspectorPanel.cs
+│   │       ├── ObjectViewer.cs
+│   │       ├── ObjectViewer.Display.cs
 │   │       ├── ObjectViewer.tscn
-│   │       └── PropertyFormatter.gd
+│   │       ├── ObjectViewerMoonSystem.cs
+│   │       └── PropertyFormatter.cs
 │   │
 │   ├── domain/
+│   │   ├── bootstrap/
+│   │   │   ├── CSharpCelestialTypeBridge.cs
+│   │   │   ├── CSharpOrbitTableBridge.cs
+│   │   │   ├── CSharpSizeTableBridge.cs
+│   │   │   ├── CSharpSmokeTest.cs
+│   │   │   └── CSharpStarTableBridge.cs
+│   │   │
 │   │   ├── celestial/
-│   │   │   ├── CelestialBody.gd
-│   │   │   ├── CelestialType.gd
-│   │   │   ├── Provenance.gd
+│   │   │   ├── CelestialBody.cs
+│   │   │   ├── CelestialType.cs
+│   │   │   ├── Provenance.cs
 │   │   │   ├── components/
-│   │   │   │   ├── AtmosphereProps.gd
-│   │   │   │   ├── CryosphereProps.gd
-│   │   │   │   ├── HydrosphereProps.gd
-│   │   │   │   ├── OrbitalProps.gd
-│   │   │   │   ├── PhysicalProps.gd
-│   │   │   │   ├── RingBand.gd
-│   │   │   │   ├── RingSystemProps.gd
-│   │   │   │   ├── StellarProps.gd
-│   │   │   │   ├── SurfaceProps.gd
-│   │   │   │   └── TerrainProps.gd
+│   │   │   │   ├── AtmosphereProps.cs
+│   │   │   │   ├── CryosphereProps.cs
+│   │   │   │   ├── HydrosphereProps.cs
+│   │   │   │   ├── OrbitalProps.cs
+│   │   │   │   ├── PhysicalProps.cs
+│   │   │   │   ├── RingBand.cs
+│   │   │   │   ├── RingSystemProps.cs
+│   │   │   │   ├── StellarProps.cs
+│   │   │   │   ├── SurfaceProps.cs
+│   │   │   │   └── TerrainProps.cs
 │   │   │   ├── serialization/
-│   │   │   │   └── CelestialSerializer.gd
+│   │   │   │   ├── CelestialSerializer.cs
+│   │   │   │   └── SerializedPopulationData.cs
 │   │   │   └── validation/
-│   │   │       ├── CelestialValidator.gd
-│   │   │       ├── ValidationError.gd
-│   │   │       └── ValidationResult.gd
+│   │   │       ├── CelestialValidator.cs
+│   │   │       ├── ValidationError.cs
+│   │   │       └── ValidationResult.cs
 │   │   │
 │   │   ├── constants/
-│   │   │   └── Versions.gd
+│   │   │   └── Versions.cs
 │   │   │
 │   │   ├── editing/
-│   │   │   ├── ConstraintSet.gd
-│   │   │   ├── EditRegenerator.gd
-│   │   │   ├── EditSpecBuilder.gd
-│   │   │   ├── PropertyConstraint.gd
-│   │   │   ├── PropertyConstraintSolver.gd
-│   │   │   └── TravellerConstraintBuilder.gd
+│   │   │   ├── ConstraintSet.cs
+│   │   │   ├── EditRegenerator.cs
+│   │   │   ├── EditSpecBuilder.cs
+│   │   │   ├── PropertyConstraint.cs
+│   │   │   ├── PropertyConstraintSolver.cs
+│   │   │   ├── RegenerateResult.cs
+│   │   │   └── TravellerConstraintBuilder.cs
 │   │   │
 │   │   ├── galaxy/
-│   │   │   ├── DensityModelInterface.gd
-│   │   │   ├── DensitySampler.gd
-│   │   │   ├── EllipticalDensityModel.gd
-│   │   │   ├── Galaxy.gd
-│   │   │   ├── GalaxyConfig.gd
-│   │   │   ├── GalaxyCoordinates.gd
-│   │   │   ├── GalaxySample.gd
-│   │   │   ├── GalaxyBodyOverrides.gd
-│   │   │   ├── GalaxySaveData.gd
-│   │   │   ├── GalaxySpec.gd
-│   │   │   ├── GalaxyStar.gd
-│   │   │   ├── GalaxySystemGenerator.gd
-│   │   │   ├── GridCursor.gd
-│   │   │   ├── HomePosition.gd
-│   │   │   ├── IrregularDensityModel.gd
-│   │   │   ├── RaycastUtils.gd
-│   │   │   ├── SeedDeriver.gd
-│   │   │   ├── Sector.gd
-│   │   │   ├── SpiralDensityModel.gd
-│   │   │   ├── StableHash.gd
-│   │   │   ├── StarPicker.gd
-│   │   │   ├── StarSystemPreview.gd
-│   │   │   ├── SubSectorGenerator.gd
-│   │   │   └── SubSectorNeighborhood.gd
+│   │   │   ├── DensityModelInterface.cs
+│   │   │   ├── DensitySampler.cs
+│   │   │   ├── EllipticalDensityModel.cs
+│   │   │   ├── Galaxy.cs
+│   │   │   ├── GalaxyBodyOverrides.cs
+│   │   │   ├── GalaxyConfig.cs
+│   │   │   ├── GalaxyCoordinates.cs
+│   │   │   ├── GalaxySample.cs
+│   │   │   ├── GalaxySaveData.cs
+│   │   │   ├── GalaxySpec.cs
+│   │   │   ├── GalaxyStar.cs
+│   │   │   ├── GalaxySystemGenerator.cs
+│   │   │   ├── GridCursor.cs
+│   │   │   ├── HierarchyCoords.cs
+│   │   │   ├── HomePosition.cs
+│   │   │   ├── IrregularDensityModel.cs
+│   │   │   ├── RaycastUtils.cs
+│   │   │   ├── Sector.cs
+│   │   │   ├── SectorStarData.cs
+│   │   │   ├── SeedDeriver.cs
+│   │   │   ├── SpiralDensityModel.cs
+│   │   │   ├── StableHash.cs
+│   │   │   ├── StarPickResult.cs
+│   │   │   ├── StarPicker.cs
+│   │   │   ├── StarSystemPreview.cs
+│   │   │   ├── StarSystemPreviewData.cs
+│   │   │   ├── SubSectorGenerator.cs
+│   │   │   ├── SubSectorNeighborhood.cs
+│   │   │   └── SubSectorNeighborhoodData.cs
 │   │   │
 │   │   ├── generation/
-│   │   │   ├── GenerationRealismProfile.gd
-│   │   │   ├── ParentContext.gd
+│   │   │   ├── GenerationRealismProfile.cs
+│   │   │   ├── ParentContext.cs
 │   │   │   ├── archetypes/
-│   │   │   │   ├── AsteroidType.gd
-│   │   │   │   ├── OrbitZone.gd
-│   │   │   │   ├── RingComplexity.gd
-│   │   │   │   ├── SizeCategory.gd
-│   │   │   │   ├── StarClass.gd
-│   │   │   │   └── TravellerSizeCode.gd
+│   │   │   │   ├── AsteroidType.cs
+│   │   │   │   ├── OrbitZone.cs
+│   │   │   │   ├── RingComplexity.cs
+│   │   │   │   ├── SizeCategory.cs
+│   │   │   │   ├── StarClass.cs
+│   │   │   │   └── TravellerSizeCode.cs
 │   │   │   ├── fixtures/
-│   │   │   │   └── FixtureGenerator.gd
+│   │   │   │   └── FixtureGenerator.cs
 │   │   │   ├── generators/
-│   │   │   │   ├── AsteroidGenerator.gd
-│   │   │   │   ├── GeneratorUtils.gd
-│   │   │   │   ├── MoonGenerator.gd
-│   │   │   │   ├── PlanetGenerator.gd
-│   │   │   │   ├── RingSystemGenerator.gd
-│   │   │   │   ├── StarGenerator.gd
-│   │   │   │   ├── moon/
-│   │   │   │   │   ├── MoonAtmosphereGenerator.gd
-│   │   │   │   │   ├── MoonPhysicalGenerator.gd
-│   │   │   │   │   └── MoonSurfaceGenerator.gd
-│   │   │   │   └── planet/
-│   │   │   │       ├── PlanetAtmosphereGenerator.gd
-│   │   │   │       ├── PlanetPhysicalGenerator.gd
-│   │   │   │       └── PlanetSurfaceGenerator.gd
+│   │   │   │   ├── AsteroidGenerator.cs
+│   │   │   │   ├── GeneratorUtils.cs
+│   │   │   │   ├── MoonGenerator.cs
+│   │   │   │   ├── PlanetGenerator.cs
+│   │   │   │   ├── RingSystemGenerator.cs
+│   │   │   │   └── StarGenerator.cs
 │   │   │   ├── specs/
-│   │   │   │   ├── AsteroidSpec.gd
-│   │   │   │   ├── BaseSpec.gd
-│   │   │   │   ├── MoonSpec.gd
-│   │   │   │   ├── PlanetSpec.gd
-│   │   │   │   ├── RingSystemSpec.gd
-│   │   │   │   └── StarSpec.gd
+│   │   │   │   ├── AsteroidSpec.cs
+│   │   │   │   ├── BaseSpec.cs
+│   │   │   │   ├── MoonSpec.cs
+│   │   │   │   ├── PlanetSpec.cs
+│   │   │   │   ├── RingSystemSpec.cs
+│   │   │   │   └── StarSpec.cs
 │   │   │   ├── tables/
-│   │   │   │   ├── OrbitTable.gd
-│   │   │   │   ├── SizeTable.gd
-│   │   │   │   └── StarTable.gd
+│   │   │   │   ├── OrbitTable.cs
+│   │   │   │   ├── SizeTable.cs
+│   │   │   │   └── StarTable.cs
 │   │   │   └── utils/
-│   │   │       └── AtmosphereUtils.gd
+│   │   │       └── AtmosphereUtils.cs
 │   │   │
 │   │   ├── jumplanes/
-│   │   │   ├── JumpLaneCalculator.gd
-│   │   │   ├── JumpLaneClusterConnector.gd
-│   │   │   ├── JumpLaneConnection.gd
-│   │   │   ├── JumpLaneRegion.gd
-│   │   │   ├── JumpLaneResult.gd
-│   │   │   └── JumpLaneSystem.gd
+│   │   │   ├── JumpLaneCalculator.cs
+│   │   │   ├── JumpLaneClusterConnector.cs
+│   │   │   ├── JumpLaneConnection.cs
+│   │   │   ├── JumpLaneRegion.cs
+│   │   │   ├── JumpLaneResult.cs
+│   │   │   └── JumpLaneSystem.cs
 │   │   │
 │   │   ├── math/
-│   │   │   ├── MathUtils.gd
-│   │   │   └── Units.gd
+│   │   │   ├── MathUtils.cs
+│   │   │   └── Units.cs
 │   │   │
 │   │   ├── population/
-│   │   │   ├── BiomeType.gd
-│   │   │   ├── ClimateZone.gd
-│   │   │   ├── Colony.gd
-│   │   │   ├── ColonyGenerator.gd
-│   │   │   ├── ColonySuitability.gd
-│   │   │   ├── ColonyType.gd
-│   │   │   ├── Government.gd
-│   │   │   ├── GovernmentType.gd
-│   │   │   ├── HabitabilityCategory.gd
-│   │   │   ├── HistoryEvent.gd
-│   │   │   ├── HistoryGenerator.gd
-│   │   │   ├── NativePopulation.gd
-│   │   │   ├── NativePopulationGenerator.gd
-│   │   │   ├── NativeRelation.gd
-│   │   │   ├── Outpost.gd
-│   │   │   ├── OutpostAuthority.gd
-│   │   │   ├── PlanetPopulationData.gd
-│   │   │   ├── PlanetProfile.gd
-│   │   │   ├── PopulationGenerator.gd
-│   │   │   ├── PopulationHistory.gd
-│   │   │   ├── PopulationLikelihood.gd
-│   │   │   ├── PopulationProbability.gd
-│   │   │   ├── PopulationSeeding.gd
-│   │   │   ├── ProfileCalculations.gd
-│   │   │   ├── ProfileGenerator.gd
-│   │   │   ├── ResourceType.gd
-│   │   │   ├── SpaceStation.gd
-│   │   │   ├── StationClass.gd
-│   │   │   ├── StationGenerator.gd
-│   │   │   ├── StationPlacementContext.gd
-│   │   │   ├── StationPlacementRules.gd
-│   │   │   ├── StationPurpose.gd
-│   │   │   ├── StationService.gd
-│   │   │   ├── StationSpec.gd
-│   │   │   ├── StationType.gd
-│   │   │   ├── SuitabilityCalculator.gd
-│   │   │   └── TechnologyLevel.gd
+│   │   │   ├── BiomeType.cs
+│   │   │   ├── ClimateZone.cs
+│   │   │   ├── Colony.cs
+│   │   │   ├── ColonyGenerator.cs
+│   │   │   ├── ColonySuitability.cs
+│   │   │   ├── ColonyType.cs
+│   │   │   ├── Government.cs
+│   │   │   ├── GovernmentType.cs
+│   │   │   ├── HabitabilityCategory.cs
+│   │   │   ├── HistoryEvent.cs
+│   │   │   ├── HistoryGenerator.cs
+│   │   │   ├── NativePopulation.cs
+│   │   │   ├── NativePopulationGenerator.cs
+│   │   │   ├── NativeRelation.cs
+│   │   │   ├── Outpost.cs
+│   │   │   ├── OutpostAuthority.cs
+│   │   │   ├── PlanetPopulationData.cs
+│   │   │   ├── PlanetProfile.cs
+│   │   │   ├── PopulationGenerator.cs
+│   │   │   ├── PopulationHistory.cs
+│   │   │   ├── PopulationLikelihood.cs
+│   │   │   ├── PopulationProbability.cs
+│   │   │   ├── PopulationSeeding.cs
+│   │   │   ├── ProfileCalculations.cs
+│   │   │   ├── ProfileGenerator.cs
+│   │   │   ├── ResourceType.cs
+│   │   │   ├── SpaceStation.cs
+│   │   │   ├── StationClass.cs
+│   │   │   ├── StationGenerationResult.cs
+│   │   │   ├── StationGenerator.cs
+│   │   │   ├── StationPlacementContext.cs
+│   │   │   ├── StationPlacementRecommendation.cs
+│   │   │   ├── StationPlacementRules.cs
+│   │   │   ├── StationPurpose.cs
+│   │   │   ├── StationService.cs
+│   │   │   ├── StationSpec.cs
+│   │   │   ├── StationSystemContext.cs
+│   │   │   ├── StationType.cs
+│   │   │   ├── SuitabilityCalculator.cs
+│   │   │   └── TechnologyLevel.cs
 │   │   │
 │   │   ├── rng/
-│   │   │   └── SeededRng.gd
+│   │   │   └── SeededRng.cs
 │   │   │
 │   │   ├── system/
-│   │   │   ├── AsteroidBelt.gd
+│   │   │   ├── AsteroidBelt.cs
+│   │   │   ├── BeltGenerationResult.cs
+│   │   │   ├── BeltReservationResult.cs
+│   │   │   ├── HierarchyNode.cs
+│   │   │   ├── MoonGenerationResult.cs
+│   │   │   ├── OrbitalMechanics.cs
+│   │   │   ├── OrbitHost.cs
+│   │   │   ├── OrbitSlot.cs
+│   │   │   ├── OrbitSlotGenerationResult.cs
+│   │   │   ├── OrbitSlotGenerator.cs
+│   │   │   ├── PlanetGenerationResult.cs
+│   │   │   ├── SolarSystem.cs
+│   │   │   ├── SolarSystemSpec.cs
+│   │   │   ├── StellarConfigGenerator.cs
+│   │   │   ├── SystemAsteroidGenerator.cs
+│   │   │   ├── SystemCache.cs
+│   │   │   ├── SystemHierarchy.cs
+│   │   │   ├── SystemMoonGenerator.cs
+│   │   │   ├── SystemPlanetGenerator.cs
+│   │   │   ├── SystemSerializer.cs
+│   │   │   ├── SystemValidator.cs
 │   │   │   ├── asteroid_belt/
-│   │   │   │   ├── BeltAsteroidData.gd
-│   │   │   │   ├── BeltFieldData.gd
-│   │   │   │   ├── BeltFieldGenerator.gd
-│   │   │   │   ├── BeltFieldSpec.gd
-│   │   │   │   ├── BeltMajorAsteroidInput.gd
-│   │   │   │   └── BeltOrbitalMath.gd
-│   │   │   │
-│   │   │   ├── HierarchyNode.gd
-│   │   │   ├── OrbitalMechanics.gd
-│   │   │   ├── OrbitHost.gd
-│   │   │   ├── OrbitSlot.gd
-│   │   │   ├── OrbitSlotGenerator.gd
-│   │   │   ├── SolarSystem.gd
-│   │   │   ├── SolarSystemSpec.gd
-│   │   │   ├── StellarConfigGenerator.gd
-│   │   │   ├── SystemAsteroidGenerator.gd
-│   │   │   ├── SystemCache.gd
-│   │   │   ├── SystemHierarchy.gd
-│   │   │   ├── SystemMoonGenerator.gd
-│   │   │   ├── SystemPlanetGenerator.gd
-│   │   │   ├── SystemSerializer.gd
-│   │   │   ├── SystemValidator.gd
+│   │   │   │   ├── BeltAsteroidData.cs
+│   │   │   │   ├── BeltFieldData.cs
+│   │   │   │   ├── BeltFieldGenerator.cs
+│   │   │   │   ├── BeltFieldSpec.cs
+│   │   │   │   ├── BeltMajorAsteroidInput.cs
+│   │   │   │   └── BeltOrbitalMath.cs
 │   │   │   └── fixtures/
-│   │   │       └── SystemFixtureGenerator.gd
+│   │   │       └── SystemFixtureGenerator.cs
 │   │   │
 │   │   └── validation/
-│   │       └── Validation.gd
+│   │       └── Validation.cs
 │   │
 │   └── services/
 │       └── persistence/
-│           ├── CelestialPersistence.gd
-│           ├── GalaxyPersistence.gd
-│           ├── SaveData.gd
-│           └── SystemPersistence.gd
+│           ├── CelestialPersistence.cs
+│           ├── GalaxyPersistence.cs
+│           ├── SaveData.cs
+│           ├── SaveDataLoadResult.cs
+│           ├── SystemPersistence.cs
+│           └── SystemPersistenceLoadResult.cs
 │
 └── Tests/
     ├── Framework/
+    │   ├── DotNetNativeTestSuite.cs        # base class for C# test suites
+    │   ├── DotNetNativeTestSuite.App.cs
+    │   ├── DotNetNativeTestSuite.Galaxy.cs
+    │   ├── DotNetNativeTestSuite.Generation.cs
+    │   ├── DotNetNativeTestSuite.Helpers.cs
+    │   ├── DotNetNativeTestSuite.Integration.cs
+    │   ├── DotNetNativeTestSuite.JumpLanes.cs
+    │   ├── DotNetNativeTestSuite.Population.cs
+    │   ├── DotNetNativeTestSuite.System.cs
     │   ├── DotNetTestResult.cs
     │   ├── DotNetTestRunner.cs
-    │   ├── TestCase.gd
-    │   ├── TestResult.gd
-    │   └── TestRunner.gd
-    │
-    ├── domain/
-    │   └── galaxy/
-    │       ├── TestDensitySampler.gd
-    │       ├── TestGalaxyCoordinates.gd
-    │       ├── TestGridCursor.gd
-    │       ├── TestQuadrantSelector.gd
-    │       ├── TestRaycastUtils.gd
-    │       ├── TestSeedDeriver.gd
-    │       ├── TestSpiralDensityModel.gd
-    │       ├── TestStableHash.gd
-    │       ├── TestStarPicker.gd
-    │       ├── TestSubSectorGenerator.gd
-    │       ├── TestSubSectorNeighborhood.gd
-    │       └── TestZoomStateMachine.gd
+    │   └── GodotDictionaryCompatExtensions.cs
     │
     ├── Integration/
-    │   ├── TestCelestialPersistence.gd
-    │   ├── TestGalaxyPersistence.gd
-    │   ├── TestGalaxyRandomization.gd
-    │   ├── TestGalaxyStartup.gd
-    │   ├── TestGalaxySystemTransition.gd
-    │   ├── TestStarSystemPreviewIntegration.gd
-    │   ├── TestGalaxyViewerHome.gd
-    │   ├── TestGalaxyViewerUI.gd
-    │   ├── TestMainApp.gd
-    │   ├── TestMainAppNavigation.gd
-    │   ├── TestObjectViewer.gd
-    │   ├── TestObjectViewerMoons.gd
-    │   ├── TestPopulationGoldenMasters.gd
-    │   ├── TestPopulationIntegration.gd
-    │   ├── TestSaveLoad.gd
-    │   ├── TestSystemCameraController.gd
-    │   ├── TestSystemPersistence.gd
-    │   ├── TestSystemViewer.gd
-    │   ├── TestSystemViewerSaveLoad.gd
-    │   └── TestWelcomeScreen.gd
+    │   ├── IntegrationTestUtils.cs
+    │   ├── TestCelestialPersistence.cs
+    │   ├── TestGalaxyPersistence.cs
+    │   ├── TestGalaxyRandomization.cs
+    │   ├── TestGalaxyStartup.cs
+    │   ├── TestGalaxySystemTransition.cs
+    │   ├── TestGalaxyViewerHome.cs
+    │   ├── TestGalaxyViewerUI.cs
+    │   ├── TestMainApp.cs
+    │   ├── TestMainAppNavigation.cs
+    │   ├── TestObjectViewer.cs
+    │   ├── TestObjectViewerMoons.cs
+    │   ├── TestPopulationGoldenMasters.cs
+    │   ├── TestPopulationIntegration.cs
+    │   ├── TestSaveLoad.cs
+    │   ├── TestStarSystemPreviewIntegration.cs
+    │   ├── TestSystemCameraController.cs
+    │   ├── TestSystemPersistence.cs
+    │   ├── TestSystemViewer.cs
+    │   ├── TestSystemViewerSaveLoad.cs
+    │   └── TestWelcomeScreen.cs
+    │
+    ├── Quality/
+    │   └── TestSuiteIntegrity.cs
     │
     ├── Unit/
     │   ├── JumpLanes/
-    │   │   ├── TestJumpLaneCalculator.gd
-    │   │   ├── TestJumpLaneClusterConnector.gd
-    │   │   ├── TestJumpLaneConnection.gd
-    │   │   ├── TestJumpLaneRegion.gd
-    │   │   ├── TestJumpLaneResult.gd
-    │   │   └── TestJumpLaneSystem.gd
+    │   │   ├── TestJumpLaneCalculator.cs
+    │   │   ├── TestJumpLaneClusterConnector.cs
+    │   │   ├── TestJumpLaneConnection.cs
+    │   │   ├── TestJumpLaneRegion.cs
+    │   │   ├── TestJumpLaneResult.cs
+    │   │   └── TestJumpLaneSystem.cs
     │   │
     │   ├── Population/
-    │   │   ├── TestBiomeType.gd
-    │   │   ├── TestClimateZone.gd
-    │   │   ├── TestColony.gd
-    │   │   ├── TestColonyGenerator.gd
-    │   │   ├── TestColonySuitability.gd
-    │   │   ├── TestColonyType.gd
-    │   │   ├── TestGovernment.gd
-    │   │   ├── TestGovernmentType.gd
-    │   │   ├── TestHabitabilityCategory.gd
-    │   │   ├── TestHistoryEvent.gd
-    │   │   ├── TestHistoryGenerator.gd
-    │   │   ├── TestNativePopulation.gd
-    │   │   ├── TestNativePopulationGenerator.gd
-    │   │   ├── TestNativeRelation.gd
-    │   │   ├── TestOutpost.gd
-    │   │   ├── TestOutpostAuthority.gd
-    │   │   ├── TestPlanetPopulationData.gd
-    │   │   ├── TestPlanetProfile.gd
-    │   │   ├── TestPopulationGenerator.gd
-    │   │   ├── TestPopulationHistory.gd
-    │   │   ├── TestPopulationLikelihood.gd
-    │   │   ├── TestPopulationProbability.gd
-    │   │   ├── TestPopulationSeeding.gd
-    │   │   ├── TestProfileCalculations.gd
-    │   │   ├── TestProfileGenerator.gd
-    │   │   ├── TestResourceType.gd
-    │   │   ├── TestSpaceStation.gd
-    │   │   ├── TestStationClass.gd
-    │   │   ├── TestStationGenerator.gd
-    │   │   ├── TestStationPlacementContext.gd
-    │   │   ├── TestStationPlacementRules.gd
-    │   │   ├── TestStationPurpose.gd
-    │   │   ├── TestStationService.gd
-    │   │   ├── TestStationSpec.gd
-    │   │   ├── TestStationType.gd
-    │   │   ├── TestSuitabilityCalculator.gd
-    │   │   └── TestTechnologyLevel.gd
+    │   │   └── (Test*.cs for population types)
     │   │
-    │   ├── TestAsteroidBelt.gd
-    │   ├── TestAsteroidGenerator.gd
-    │   ├── TestAtmosphereProps.gd
-    │   ├── TestAtmosphereShaderParams.gd
-    │   ├── TestBaseSpec.gd
-    │   ├── TestBeltFieldGenerator.gd
-    │   ├── TestBeltOrbitalMath.gd
-    │   ├── TestCelestialBody.gd
-    │   ├── TestCelestialSerializer.gd
-    │   ├── TestCelestialValidator.gd
-    │   ├── TestColorUtils.gd
-    │   ├── TestConstraintSet.gd
-    │   ├── TestEditRegenerator.gd
-    │   ├── TestEditSpecBuilder.gd
-    │   ├── TestPropertyConstraint.gd
-    │   ├── TestPropertyConstraintSolver.gd
-    │   ├── TestTravellerConstraintBuilder.gd
-    │   ├── TestColorUtilsShaderParams.gd
-    │   ├── TestGalaxy.gd
-    │   ├── TestGalaxyConfig.gd
-    │   ├── TestGalaxyInspectorPanel.gd
-    │   ├── TestGalaxySaveData.gd
-        │   ├── TestGalaxyBodyOverrides.gd
-    │   ├── TestGenerationRealismProfile.gd
-    │   ├── TestGalaxyStar.gd
-    │   ├── TestGalaxySystemGenerator.gd
-    │   ├── TestSector.gd
-    │   ├── TestStarSystemPreview.gd
-    │   ├── TestGasGiantShaderParams.gd
-    │   ├── TestGoldenMasters.gd
-    │   ├── TestHierarchyNode.gd
-    │   ├── TestHomePosition.gd
-    │   ├── TestMathUtils.gd
-    │   ├── TestMoonGenerator.gd
-    │   ├── TestOrbitalMechanics.gd
-    │   ├── TestOrbitalProps.gd
-    │   ├── TestOrbitHost.gd
-    │   ├── TestOrbitRenderer.gd
-    │   ├── TestOrbitSlot.gd
-    │   ├── TestOrbitSlotGenerator.gd
-    │   ├── TestParentContext.gd
-    │   ├── TestPhysicalProps.gd
-    │   ├── TestPlanetGenerator.gd
-    │   ├── TestProvenance.gd
-    │   ├── TestRingShaderParams.gd
-    │   ├── TestRingSystemGenerator.gd
-    │   ├── TestRingSystemProps.gd
-    │   ├── TestSeededRng.gd
-    │   ├── TestSizeTable.gd
-    │   ├── TestSolarSystem.gd
-    │   ├── TestSolarSystemSpec.gd
-    │   ├── TestStarGenerator.gd
-    │   ├── TestStarGeneratorDistributions.gd
-    │   ├── TestStarShaderParams.gd
-    │   ├── TestStarTable.gd
-    │   ├── TestStellarConfigGenerator.gd
-    │   ├── TestStellarProps.gd
-    │   ├── TestSystemAsteroidGenerator.gd
-    │   ├── TestSystemBodyNode.gd
-    │   ├── TestSystemCache.gd
-    │   ├── TestSystemDisplayLayout.gd
-    │   ├── TestSystemGoldenMasters.gd
-    │   ├── TestSystemPlanetDistributions.gd
-    │   ├── TestSystemHierarchy.gd
-    │   ├── TestSystemInspectorPanel.gd
-    │   ├── TestSolarSystemPopulation.gd
-    │   ├── TestSystemMoonGenerator.gd
-    │   ├── TestSystemPlanetGenerator.gd
-    │   ├── TestSystemScaleManager.gd
-    │   ├── TestSystemSerializer.gd
-    │   ├── TestSystemValidator.gd
-    │   ├── TestTerrestrialShaderParams.gd
-    │   ├── TestTravellerSizeCode.gd
-    │   ├── TestUnits.gd
-    │   ├── TestValidation.gd
-    │   └── TestVersions.gd
+    │   └── (Test*.cs for domain, generation, system, app helpers)
     │
-    ├── GenerationStatsHarness.gd
-    ├── JumpLanesDeps.gd
-    ├── JumpLanesTestRunner.gd
-    ├── JumpLanesTestScene.gd
+    ├── domain/
+    │   └── galaxy/
+    │       └── (Test*.cs for galaxy domain)
+    │
+    ├── GlobalUsings.cs
+    ├── GenerationStatsHarness.cs
+    ├── JumpLanesTestScene.cs
     ├── JumpLanesTestScene.tscn
-    ├── Phase1Deps.gd
-    ├── PopulationDeps.gd
-    ├── RunTestsHeadless.gd
-    ├── ScientificBenchmarks.gd
-    ├── TestScene.gd
+    ├── RunTestsHeadless.cs
+    ├── RunTestsHeadless.gd                 # launcher only; boots C# harness
+    ├── ScientificBenchmarks.cs
+    ├── TestRegistry.cs                     # maintained suite manifest
+    ├── TestRegistry.gd                    # reference copy
+    ├── TestScene.cs
+    ├── TestScene.gd                       # launcher only; boots C# harness
     ├── TestScene.tscn
-    ├── TestSceneCSharp.cs
     └── TestSceneCSharp.tscn
 ```
 

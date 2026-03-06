@@ -2,7 +2,7 @@
 
 A deterministic procedural generator + viewer for celestial objects, solar systems, and galactic structures.
 
-Built with **Godot 4.x** and a **GDScript + C#** codebase (incremental C# migration in progress).
+Built with **Godot 4.x** and a **C#-first** codebase. Remaining GDScript files are limited to launchers, fallback harness glue, and historical reference copies.
 
 ## Project Status
 
@@ -10,9 +10,9 @@ Built with **Godot 4.x** and a **GDScript + C#** codebase (incremental C# migrat
 
 **Done:** Object model, generators, viewer, save/load, rendering (stars, planets, atmospheres, rings). Solar system generator and viewer (full pipeline: stellar config, orbit slots, planets, moons, belts, validation, persistence, 3D layout). Galaxy data model (Galaxy, Sector, GalaxyStar, GalaxySystemGenerator) with lazy system generation; galaxy viewer (welcome screen, GalaxyConfig, density models, save/load). Population framework, stations, jump lanes (domain + prototype).
 
-**Remaining efforts:** Solar system constraints, system viewer rendering improvements, object editing, rendering v2, galactic refinement, solar system tools, galactic tools, galactic polish, jump lanes optimization and polish, code quality & simplifications.
+**Remaining efforts:** Save format and compatibility (ZSTD .sgg/.sgb C# port); solar system constraints; system viewer rendering improvements; object editing; rendering v2; galactic refinement; solar system tools; galactic tools; galactic polish; jump lanes optimization and polish; code quality & simplifications.
 
-**Test Status:** 1800+ tests; headless run via `godot --headless --script res://Tests/RunTestsHeadless.gd`. C# bootstrap build via `dotnet build StarGen.csproj`.
+**Test Status:** 1800+ tests. The supported runtime for both headless and interactive execution is **Godot .NET 4.6.x**. Headless runs start from `godot-mono.exe --headless --script res://Tests/RunTestsHeadless.gd`, which launches the C# harness. Interactive runs use `res://Tests/TestScene.tscn`, which boots the same C# suite manifest through a thin GDScript launcher. `dotnet build StarGen.sln` validates the C# codebase.
 
 ### Version history
 
@@ -44,46 +44,45 @@ See [Docs/Roadmap.md](Docs/Roadmap.md) and [claude.md](claude.md) for architectu
 
 | Purpose | File |
 |--------|------|
-| Welcome screen first; Start/Load/Quit; pass config + seed to galaxy viewer | `src/app/MainApp.gd` |
-| Welcome screen UI (Start New Galaxy, Load, Quit; config options; seed) | `src/app/WelcomeScreen.gd`, `src/app/WelcomeScreen.tscn` |
-| Galaxy generation parameters (type, arms, pitch, ellipticity, irregularity, etc.) | `src/domain/galaxy/GalaxyConfig.gd` |
-| Density models (spiral, elliptical, irregular) | `src/domain/galaxy/DensityModelInterface.gd`, `SpiralDensityModel.gd`, `EllipticalDensityModel.gd`, `IrregularDensityModel.gd` |
-| Galaxy sampling by type | `src/domain/galaxy/DensitySampler.gd` |
-| Galaxy viewer controller; seed/config; save/load; New Galaxy | `src/app/galaxy_viewer/GalaxyViewer.gd` |
-| Save/load logic (create_save_data, apply_save_data, file dialogs) | `src/app/galaxy_viewer/GalaxyViewerSaveLoad.gd` |
+| Welcome screen first; Start/Load/Quit; pass config + seed to galaxy viewer | `src/app/MainApp.cs`, `src/app/MainApp.Navigation.cs` |
+| Welcome screen UI (Start New Galaxy, Load, Quit; config options; seed) | `src/app/WelcomeScreen.cs`, `src/app/WelcomeScreen.tscn` |
+| Galaxy generation parameters (type, arms, pitch, ellipticity, irregularity, etc.) | `src/domain/galaxy/GalaxyConfig.cs` |
+| Density models (spiral, elliptical, irregular) | `src/domain/galaxy/DensityModelInterface.cs`, `SpiralDensityModel.cs`, `EllipticalDensityModel.cs`, `IrregularDensityModel.cs` |
+| Galaxy sampling by type | `src/domain/galaxy/DensitySampler.cs` |
+| Galaxy viewer controller; seed/config; save/load; New Galaxy | `src/app/galaxy_viewer/GalaxyViewer.cs`, `GalaxyViewer.Accessors.cs`, `GalaxyViewer.GdCompat.cs` |
+| Save/load logic (create save data, apply save data, file dialogs) | `src/app/galaxy_viewer/GalaxyViewerSaveLoad.cs` |
 | Galaxy viewer scene (Save/Load buttons, seed UI) | `src/app/galaxy_viewer/GalaxyViewer.tscn` |
-| Save format (galaxy_seed, zoom, camera, selection) | `src/domain/galaxy/GalaxySaveData.gd` |
-| File I/O for galaxy save/load | `src/services/persistence/GalaxyPersistence.gd` |
-| Galaxy spec (how seed drives generation; reference only) | `src/domain/galaxy/GalaxySpec.gd` |
-| Galaxy grid bounds by type | `src/domain/galaxy/GalaxyCoordinates.gd` |
-| Galaxy data model (top-level container, lazy sectors/systems) | `src/domain/galaxy/Galaxy.gd` |
-| Sector (100pc³ region, lazy star generation) | `src/domain/galaxy/Sector.gd` |
-| GalaxyStar (position, seed, metallicity, age bias) | `src/domain/galaxy/GalaxyStar.gd` |
-| On-demand system generation from GalaxyStar | `src/domain/galaxy/GalaxySystemGenerator.gd` |
-| Dependency preload for galaxy viewer (reference only) | `src/app/galaxy_viewer/GalaxyViewerDeps.gd` |
+| Save format (galaxy seed, zoom, camera, selection) | `src/domain/galaxy/GalaxySaveData.cs` |
+| File I/O for galaxy save/load | `src/services/persistence/GalaxyPersistence.cs` |
+| Galaxy spec (how seed drives generation; reference only) | `src/domain/galaxy/GalaxySpec.cs` |
+| Galaxy grid bounds by type | `src/domain/galaxy/GalaxyCoordinates.cs` |
+| Galaxy data model (top-level container, lazy sectors/systems) | `src/domain/galaxy/Galaxy.cs` |
+| Sector (100pc³ region, lazy star generation) | `src/domain/galaxy/Sector.cs` |
+| GalaxyStar (position, seed, metallicity, age bias) | `src/domain/galaxy/GalaxyStar.cs` |
+| On-demand system generation from GalaxyStar | `src/domain/galaxy/GalaxySystemGenerator.cs` |
 
 **Tests** (galaxy and welcome screen):
 
 | Test file | Purpose |
 |-----------|---------|
-| `Tests/Unit/TestGalaxyConfig.gd` | GalaxyConfig defaults, create_milky_way, validation. |
-| `Tests/Integration/TestWelcomeScreen.gd` | Welcome screen signals and UI behavior. |
-| `Tests/Integration/TestGalaxyStartup.gd` | MainApp shows welcome first; start new galaxy flow. |
-| `Tests/Integration/TestGalaxyRandomization.gd` | Random seed generation and viewer receipt of seed/config. |
-| `Tests/Integration/TestMainAppNavigation.gd` | Navigation and galaxy seed (non-zero when galaxy active). |
-| `Tests/Unit/TestGalaxySaveData.gd` | Save-format round-trip. |
-| `Tests/Integration/TestGalaxyPersistence.gd` | Save/load JSON and binary round-trip including `galaxy_seed`. |
-| `Tests/domain/galaxy/TestDensitySampler.gd` | Spiral/elliptical/irregular sampling, no-disk elliptical, 3D distribution tests. |
-| `Tests/Unit/TestGalaxy.gd` | Galaxy create, sector caching, determinism, get_stars_in_radius, serialization. |
-| `Tests/Unit/TestGalaxyStar.gd` | Metallicity/age gradients, distance helpers. |
-| `Tests/Unit/TestSector.gd` | Sector creation, lazy generation, subsector indexing, determinism. |
-| `Tests/Unit/TestGalaxySystemGenerator.gd` | System generation from GalaxyStar, provenance, parent_id validity. |
+| `Tests/Unit/TestGalaxyConfig.cs` | GalaxyConfig defaults, create_milky_way, validation. |
+| `Tests/Integration/TestWelcomeScreen.cs` | Welcome screen signals and UI behavior. |
+| `Tests/Integration/TestGalaxyStartup.cs` | MainApp shows welcome first; start new galaxy flow. |
+| `Tests/Integration/TestGalaxyRandomization.cs` | Random seed generation and viewer receipt of seed/config. |
+| `Tests/Integration/TestMainAppNavigation.cs` | Navigation and galaxy seed (non-zero when galaxy active). |
+| `Tests/Unit/TestGalaxySaveData.cs` | Save-format round-trip. |
+| `Tests/Integration/TestGalaxyPersistence.cs` | Save/load JSON and binary round-trip including `galaxy_seed`. |
+| `Tests/domain/galaxy/TestDensitySampler.cs` | Spiral/elliptical/irregular sampling, no-disk elliptical, 3D distribution tests. |
+| `Tests/Unit/TestGalaxy.cs` | Galaxy create, sector caching, determinism, get_stars_in_radius, serialization. |
+| `Tests/Unit/TestGalaxyStar.cs` | Metallicity/age gradients, distance helpers. |
+| `Tests/Unit/TestSector.cs` | Sector creation, lazy generation, subsector indexing, determinism. |
+| `Tests/Unit/TestGalaxySystemGenerator.cs` | System generation from GalaxyStar, provenance, parent_id validity. |
 
 **Scenes** (galaxy and welcome flow):
 
 | Scene | Purpose |
 |-------|---------|
-| `src/app/MainApp.tscn` | Root scene (`run/main_scene`). Holds `ViewerContainer`; MainApp.gd shows WelcomeScreen first, then instantiates GalaxyViewer on Start or Load. |
+| `src/app/MainApp.tscn` | Root scene (`run/main_scene`). Holds `ViewerContainer`; `MainApp.cs` shows `WelcomeScreen` first, then instantiates `GalaxyViewer` on Start or Load. |
 | `src/app/WelcomeScreen.tscn` | Welcome screen: Start New Galaxy (with config), Load Galaxy, Quit. |
 | `src/app/galaxy_viewer/GalaxyViewer.tscn` | Galaxy viewer: UI (TopBar, SidePanel), Save/Load section, seed input. |
 
@@ -97,22 +96,28 @@ Full project structure is enumerated in [Docs/ProjectStructure.md](Docs/ProjectS
 
 ### Running Tests
 
+Use **Godot .NET 4.6.x** for runtime and test execution.
+
 **Option 1: Run headless (recommended for CI)**
 ```bash
-godot --headless --script res://Tests/RunTestsHeadless.gd
+godot-mono.exe --path . --headless --script res://Tests/RunTestsHeadless.gd
 ```
+
+Use a Godot .NET 4.6.x / Mono build for this command. `RunTestsHeadless.gd` is only the launcher; it verifies the runtime version, then boots the C# harness scene, which executes the explicit suite manifest in `Tests/TestRegistry.cs`.
 
 **Option 2: Run via scene**
 ```bash
-godot --path . res://Tests/TestScene.tscn
+godot-mono.exe --path . res://Tests/TestScene.tscn
 ```
+
+`TestScene.tscn` uses `TestScene.gd`, which verifies the runtime version, boots `TestSceneCSharp.tscn`, and runs the interactive C# suites from the same manifest.
 
 ### Building
 This is a Godot project. Open `project.godot` in Godot 4.x editor.
 
-For the current C# bootstrap tranche, you can also build the C# assembly directly:
+Build the C# solution directly:
 ```bash
-dotnet build StarGen.csproj
+dotnet build StarGen.sln
 ```
 
 ## License

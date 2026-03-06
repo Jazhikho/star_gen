@@ -22,7 +22,7 @@ Recent refactor:
 
 Work is organized by **async efforts** in `Docs/Roadmap.md`. Contributors pick an effort and work against master.
 
-**Efforts:** Solar system constraints; System viewer rendering improvements; Object editing; Object rendering v2; Galactic generator refinement; Solar system tools; Galactic tools; Galactic polish; Jump lanes optimization and polish; Code quality & simplifications; Population detail (civilisation/regime). Galaxy data model & lazy generation is complete. See Docs/Roadmap.md for the full table (name, summary, gates) and Completed efforts.
+**Efforts:** Save format and compatibility (ZSTD binary saves); Solar system constraints; System viewer rendering improvements; Object editing; Object rendering v2; Galactic generator refinement; Solar system tools; Galactic tools; Galactic polish; Jump lanes optimization and polish; Code quality & simplifications; Population detail (civilisation/regime). C# refactor is complete; galaxy data model & lazy generation is complete. See Docs/Roadmap.md for the full table (name, summary, gates) and completed efforts.
 
 **Claude:** When asked for new features, map them to the relevant effort in the roadmap. If out-of-scope for all existing efforts, add a new effort to the roadmap and do NOT implement until that effort is picked.
 
