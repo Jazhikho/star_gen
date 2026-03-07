@@ -39,6 +39,7 @@ public static partial class DotNetNativeTestSuite
         TestPopulationGoldenMasters.RunAll(runner);
         TestPopulationIntegration.RunAll(runner);
         TestGenerationParameters.RunAll(runner);
+        TestWindowSettingsService.RunAll(runner);
         TestObjectViewerMoons.RunAll(runner);
         TestViewerLayoutHelper.RunAll(runner);
         TestGalaxyViewerUI.RunAll(runner);

@@ -16,6 +16,7 @@ public static class TestGalaxyViewerUI
     {
         runner.RunNativeTest("TestGalaxyViewerUI::test_viewer_instantiates", TestViewerInstantiates);
         runner.RunNativeTest("TestGalaxyViewerUI::test_has_inspector_panel", TestHasInspectorPanel);
+        runner.RunNativeTest("TestGalaxyViewerUI::test_top_menu_exists", TestTopMenuExists);
         runner.RunNativeTest("TestGalaxyViewerUI::test_starts_at_galaxy_zoom_level", TestStartsAtGalaxyZoomLevel);
         runner.RunNativeTest("TestGalaxyViewerUI::test_has_spec", TestHasSpec);
         runner.RunNativeTest("TestGalaxyViewerUI::test_status_updates", TestStatusUpdates);
@@ -70,6 +71,21 @@ public static class TestGalaxyViewerUI
         }
     }
 
+    private static void TestTopMenuExists()
+    {
+        GalaxyViewer viewer = CreateViewer();
+        try
+        {
+            HBoxContainer? menuRow = viewer.GetNodeOrNull<HBoxContainer>("UI/UIRoot/TopBar/MarginContainer/TopBarVBox/MenuRow");
+            DotNetNativeTestSuite.AssertNotNull(menuRow, "Galaxy viewer should expose a top menu row");
+            DotNetNativeTestSuite.AssertGreaterThan(menuRow!.GetChildCount(), 3, "Galaxy viewer should expose standard top-level menus");
+        }
+        finally
+        {
+            IntegrationTestUtils.CleanupNode(viewer);
+        }
+    }
+
     private static void TestStartsAtGalaxyZoomLevel()
     {
         GalaxyViewer viewer = CreateViewer(startAtHome: false);
@@ -103,7 +119,7 @@ public static class TestGalaxyViewerUI
         GalaxyViewer viewer = CreateViewer();
         try
         {
-            Label? statusLabel = viewer.GetNodeOrNull<Label>("UI/UIRoot/TopBar/MarginContainer/HBoxContainer/StatusLabel");
+            Label? statusLabel = viewer.GetNodeOrNull<Label>("UI/UIRoot/TopBar/MarginContainer/TopBarVBox/HeaderRow/StatusLabel");
             DotNetNativeTestSuite.AssertNotNull(statusLabel, "Status label should exist");
 
             viewer.set_status("Test status message");

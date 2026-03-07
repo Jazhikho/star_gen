@@ -22,6 +22,7 @@ public static class TestObjectViewer
         runner.RunNativeTest("TestObjectViewer::test_viewer_handles_null_body", TestViewerHandlesNullBody);
         runner.RunNativeTest("TestObjectViewer::test_camera_controller_exists", TestCameraControllerExists);
         runner.RunNativeTest("TestObjectViewer::test_ui_elements_exist", TestUiElementsExist);
+        runner.RunNativeTest("TestObjectViewer::test_top_menu_exists", TestTopMenuExists);
         runner.RunNativeTest("TestObjectViewer::test_status_messages", TestStatusMessages);
         runner.RunNativeTest("TestObjectViewer::test_generate_button_creates_objects", TestGenerateButtonCreatesObjects);
         runner.RunNativeTest("TestObjectViewer::test_object_scaling", TestObjectScaling);
@@ -32,6 +33,7 @@ public static class TestObjectViewer
         runner.RunNativeTest("TestObjectViewer::test_viewer_save_and_load_body", TestViewerSaveAndLoadBody);
         runner.RunNativeTest("TestObjectViewer::test_preset_controls_exist", TestPresetControlsExist);
         runner.RunNativeTest("TestObjectViewer::test_earth_like_preset_updates_spec_snapshot", TestEarthLikePresetUpdatesSpecSnapshot);
+        runner.RunNativeTest("TestObjectViewer::test_standalone_back_button_stays_menu_scoped", TestStandaloneBackButtonStaysMenuScoped);
     }
 
     private static ObjectViewer CreateViewer()
@@ -284,6 +286,21 @@ public static class TestObjectViewer
         }
     }
 
+    private static void TestTopMenuExists()
+    {
+        ObjectViewer viewer = CreateViewer();
+        try
+        {
+            HBoxContainer? menuRow = viewer.GetNodeOrNull<HBoxContainer>("UI/TopBar/MarginContainer/TopBarVBox/MenuRow");
+            DotNetNativeTestSuite.AssertNotNull(menuRow, "Object viewer should expose a top menu row");
+            DotNetNativeTestSuite.AssertGreaterThan(menuRow!.GetChildCount(), 3, "Object viewer should expose standard top-level menus");
+        }
+        finally
+        {
+            IntegrationTestUtils.CleanupNode(viewer);
+        }
+    }
+
     private static void TestViewerSaveAndLoadBody()
     {
         const string path = "user://object_viewer_save_test.sgt";
@@ -355,5 +372,49 @@ public static class TestObjectViewer
         {
             IntegrationTestUtils.CleanupNode(viewer);
         }
+    }
+
+    private static void TestStandaloneBackButtonStaysMenuScoped()
+    {
+        ObjectViewer viewer = CreateViewer();
+        try
+        {
+            viewer.PrepareStandaloneGenerator(12345, ObjectViewer.ObjectType.Planet);
+            Button? generateButton = viewer.GetNodeOrNull<Button>("UI/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/GenerationSection/ButtonContainer/GenerateButton");
+            DotNetNativeTestSuite.AssertNotNull(generateButton, "Generate button should exist");
+
+            Button? backButton = FindBackButton(viewer);
+            DotNetNativeTestSuite.AssertNotNull(backButton, "Standalone mode should show a back button");
+            DotNetNativeTestSuite.AssertTrue(backButton!.Text.Contains("Menu"), "Standalone mode should point back to the menu");
+
+            generateButton!.EmitSignal(Button.SignalName.Pressed);
+
+            Button? updatedBackButton = FindBackButton(viewer);
+            DotNetNativeTestSuite.AssertNotNull(updatedBackButton, "Regeneration should keep the back button visible");
+            DotNetNativeTestSuite.AssertTrue(updatedBackButton!.Text.Contains("Menu"), "Regeneration should preserve menu-scoped back navigation");
+        }
+        finally
+        {
+            IntegrationTestUtils.CleanupNode(viewer);
+        }
+    }
+
+    private static Button? FindBackButton(ObjectViewer viewer)
+    {
+        HBoxContainer? headerRow = viewer.GetNodeOrNull<HBoxContainer>("UI/TopBar/MarginContainer/TopBarVBox/HeaderRow");
+        if (headerRow == null)
+        {
+            return null;
+        }
+
+        foreach (Node child in headerRow.GetChildren())
+        {
+            if (child is Button typedButton && typedButton.Text.Contains("Back"))
+            {
+                return typedButton;
+            }
+        }
+
+        return null;
     }
 }

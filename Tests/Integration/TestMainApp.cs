@@ -69,14 +69,14 @@ public static class TestMainApp
             viewer.Connect(ObjectViewer.SignalName.BackToSystemRequested, Callable.From(() => requestedBack = true));
 
             viewer.DisplayExternalBody(IntegrationTestUtils.CreateTestBody(type: StarGen.Domain.Celestial.CelestialType.Type.Planet), [], 123);
-            Button? backButton = viewer.GetNodeOrNull<Button>("UI/TopBar/MarginContainer/HBoxContainer/Button");
+            Button? backButton = viewer.GetNodeOrNull<Button>("UI/TopBar/MarginContainer/TopBarVBox/HeaderRow/Button");
             if (backButton == null)
             {
-                backButton = viewer.GetNodeOrNull<Button>("UI/TopBar/MarginContainer/HBoxContainer/<- Back to System");
+                backButton = viewer.GetNodeOrNull<Button>("UI/TopBar/MarginContainer/TopBarVBox/HeaderRow/<- Back to System");
             }
             if (backButton == null)
             {
-                foreach (Node child in viewer.GetNode("UI/TopBar/MarginContainer/HBoxContainer").GetChildren())
+                foreach (Node child in viewer.GetNode("UI/TopBar/MarginContainer/TopBarVBox/HeaderRow").GetChildren())
                 {
                     if (child is Button typedButton && typedButton.Text.Contains("Back"))
                     {

@@ -11,6 +11,7 @@ public static class TestViewerLayoutHelper
     public static void RunAll(DotNetTestRunner runner)
     {
         runner.RunNativeTest("TestViewerLayoutHelper::test_compute_render_rect_excludes_panel_and_topbar", TestComputeRenderRectExcludesPanelAndTopbar);
+        runner.RunNativeTest("TestViewerLayoutHelper::test_compute_render_rect_honors_chrome_offsets", TestComputeRenderRectHonorsChromeOffsets);
         runner.RunNativeTest("TestViewerLayoutHelper::test_compute_center_offset_biases_visible_center", TestComputeCenterOffsetBiasesVisibleCenter);
     }
 
@@ -58,6 +59,39 @@ public static class TestViewerLayoutHelper
 
             DotNetNativeTestSuite.AssertTrue(offset.X > 0.0f, "The visible center should shift right when a left inspector is present");
             DotNetNativeTestSuite.AssertTrue(offset.Y > 0.0f, "The visible center should shift down when a top bar is present");
+        }
+        finally
+        {
+            IntegrationTestUtils.CleanupNode(viewport);
+        }
+    }
+
+    private static void TestComputeRenderRectHonorsChromeOffsets()
+    {
+        SubViewport viewport = new();
+        Control root = new();
+        Panel topBar = new();
+        Panel sidePanel = new();
+
+        try
+        {
+            viewport.Size = new Vector2I(1200, 800);
+            viewport.AddChild(root);
+
+            topBar.Position = new Vector2(12.0f, 12.0f);
+            topBar.Size = new Vector2(1176.0f, 92.0f);
+            root.AddChild(topBar);
+
+            sidePanel.Position = new Vector2(12.0f, 116.0f);
+            sidePanel.Size = new Vector2(332.0f, 672.0f);
+            root.AddChild(sidePanel);
+
+            Rect2 renderRect = ViewerLayoutHelper.ComputeRenderRect(viewport, topBar, sidePanel);
+
+            DotNetNativeTestSuite.AssertFloatNear(344.0, renderRect.Position.X, 0.001, "Render rect should start after the chrome-adjusted side panel");
+            DotNetNativeTestSuite.AssertFloatNear(104.0, renderRect.Position.Y, 0.001, "Render rect should start below the chrome-adjusted top bar");
+            DotNetNativeTestSuite.AssertFloatNear(856.0, renderRect.Size.X, 0.001, "Render rect width should exclude the side chrome and padding");
+            DotNetNativeTestSuite.AssertFloatNear(696.0, renderRect.Size.Y, 0.001, "Render rect height should exclude the top chrome and padding");
         }
         finally
         {

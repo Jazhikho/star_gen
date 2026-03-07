@@ -18,6 +18,7 @@ public static class TestSystemViewer
         runner.RunNativeTest("TestSystemViewer::test_has_camera", TestHasCamera);
         runner.RunNativeTest("TestSystemViewer::test_has_3d_containers", TestHas3dContainers);
         runner.RunNativeTest("TestSystemViewer::test_has_ui_structure", TestHasUiStructure);
+        runner.RunNativeTest("TestSystemViewer::test_top_menu_exists", TestTopMenuExists);
         runner.RunNativeTest("TestSystemViewer::test_has_generation_controls", TestHasGenerationControls);
         runner.RunNativeTest("TestSystemViewer::test_has_view_controls", TestHasViewControls);
         runner.RunNativeTest("TestSystemViewer::test_has_inspector_panel", TestHasInspectorPanel);
@@ -93,8 +94,23 @@ public static class TestSystemViewer
         {
             DotNetNativeTestSuite.AssertNotNull(viewer.GetNodeOrNull<Control>("UI"), "Should have UI root");
             DotNetNativeTestSuite.AssertNotNull(viewer.GetNodeOrNull<Node>("UI/TopBar"), "Should have top bar");
-            DotNetNativeTestSuite.AssertNotNull(viewer.GetNodeOrNull<Label>("UI/TopBar/MarginContainer/HBoxContainer/StatusLabel"), "Should have status label");
+            DotNetNativeTestSuite.AssertNotNull(viewer.GetNodeOrNull<Label>("UI/TopBar/MarginContainer/TopBarVBox/HeaderRow/StatusLabel"), "Should have status label");
             DotNetNativeTestSuite.AssertNotNull(viewer.GetNodeOrNull<Node>("UI/SidePanel"), "Should have side panel");
+        }
+        finally
+        {
+            IntegrationTestUtils.CleanupNode(viewer);
+        }
+    }
+
+    private static void TestTopMenuExists()
+    {
+        SystemViewer viewer = CreateViewer();
+        try
+        {
+            HBoxContainer? menuRow = viewer.GetNodeOrNull<HBoxContainer>("UI/TopBar/MarginContainer/TopBarVBox/MenuRow");
+            DotNetNativeTestSuite.AssertNotNull(menuRow, "System viewer should expose a top menu row");
+            DotNetNativeTestSuite.AssertGreaterThan(menuRow!.GetChildCount(), 3, "System viewer should expose standard top-level menus");
         }
         finally
         {
@@ -221,7 +237,7 @@ public static class TestSystemViewer
             SolarSystemSpec invalidSpec = new(0, 1, 1);
             viewer.GenerateSystem(invalidSpec);
 
-            Label? statusLabel = viewer.GetNodeOrNull<Label>("UI/TopBar/MarginContainer/HBoxContainer/StatusLabel");
+            Label? statusLabel = viewer.GetNodeOrNull<Label>("UI/TopBar/MarginContainer/TopBarVBox/HeaderRow/StatusLabel");
             DotNetNativeTestSuite.AssertNotNull(statusLabel, "Status label should exist");
             DotNetNativeTestSuite.AssertTrue(statusLabel!.Text.StartsWith("Error"), "Blocking validation errors should surface as an error status");
             DotNetNativeTestSuite.AssertEqual(previousSystem, viewer.GetCurrentSystem(), "Blocking validation errors should leave the previous system intact");
