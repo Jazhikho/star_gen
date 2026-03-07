@@ -93,6 +93,7 @@ public partial class WelcomeScreen : Control
     public override void _Ready()
     {
         CacheNodeReferences();
+        ApplyLayoutPolish();
         BuildParameterSupportUi();
         ConnectSignals();
         ApplyParameterTooltips();
@@ -300,6 +301,39 @@ public partial class WelcomeScreen : Control
         ConnectSlider(_diskHeightSlider, OnDiskHeightChanged);
         ConnectSlider(_densitySlider, OnDensityChanged);
         if (_seedSpin != null) _seedSpin.ValueChanged += _ => RefreshValidationIssues();
+    }
+
+    private void ApplyLayoutPolish()
+    {
+        if (_settingsVBox != null)
+        {
+            ApplyRowSpacing(_settingsVBox);
+        }
+
+        VBoxContainer? buttonsContainer = GetNodeOrNull<VBoxContainer>("CenterContainer/MainPanel/MarginContainer/VBox/Buttons");
+        if (buttonsContainer != null)
+        {
+            foreach (Node child in buttonsContainer.GetChildren())
+            {
+                if (child is Button typedButton)
+                {
+                    typedButton.SizeFlagsHorizontal = Control.SizeFlags.ExpandFill;
+                }
+            }
+        }
+    }
+
+    private static void ApplyRowSpacing(Node root)
+    {
+        foreach (Node child in root.GetChildren())
+        {
+            if (child is HBoxContainer row)
+            {
+                row.AddThemeConstantOverride("separation", 12);
+            }
+
+            ApplyRowSpacing(child);
+        }
     }
 
     private static void ConnectSlider(Godot.Range? slider, Action<double> callback)

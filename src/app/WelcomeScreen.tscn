@@ -25,14 +25,19 @@ color = Color(0.102, 0.102, 0.18, 1)
 [node name="CenterContainer" type="CenterContainer" parent="."]
 layout_mode = 1
 anchors_preset = 15
+offset_left = 24.0
+offset_top = 24.0
 anchor_right = 1.0
 anchor_bottom = 1.0
+offset_right = -24.0
+offset_bottom = -24.0
 grow_horizontal = 2
 grow_vertical = 2
 
 [node name="MainPanel" type="PanelContainer" parent="CenterContainer"]
-custom_minimum_size = Vector2(640, 0)
+custom_minimum_size = Vector2(680, 0)
 layout_mode = 2
+size_flags_vertical = 3
 
 [node name="MarginContainer" type="MarginContainer" parent="CenterContainer/MainPanel"]
 layout_mode = 2
@@ -43,6 +48,7 @@ theme_override_constants/margin_bottom = 24
 
 [node name="VBox" type="VBoxContainer" parent="CenterContainer/MainPanel/MarginContainer"]
 layout_mode = 2
+size_flags_vertical = 3
 theme_override_constants/separation = 16
 
 [node name="HeaderRow" type="HBoxContainer" parent="CenterContainer/MainPanel/MarginContainer/VBox"]
@@ -76,14 +82,15 @@ text = "Tune the galaxy profile, pick a seed, and launch into the viewer. This r
 layout_mode = 2
 
 [node name="ScrollContainer" type="ScrollContainer" parent="CenterContainer/MainPanel/MarginContainer/VBox"]
-custom_minimum_size = Vector2(0, 420)
 layout_mode = 2
+size_flags_vertical = 3
 horizontal_scroll_mode = 0
 
 [node name="SettingsVBox" type="VBoxContainer" parent="CenterContainer/MainPanel/MarginContainer/VBox/ScrollContainer"]
 layout_mode = 2
 size_flags_horizontal = 3
-theme_override_constants/separation = 12
+size_flags_vertical = 3
+theme_override_constants/separation = 14
 
 [node name="PresetContainer" type="HBoxContainer" parent="CenterContainer/MainPanel/MarginContainer/VBox/ScrollContainer/SettingsVBox"]
 layout_mode = 2
@@ -119,6 +126,8 @@ text = "▼  Galaxy Type"
 layout_mode = 2
 theme_override_constants/margin_left = 16
 theme_override_constants/margin_top = 4
+theme_override_constants/margin_right = 8
+theme_override_constants/margin_bottom = 8
 
 [node name="TypeVBox" type="VBoxContainer" parent="CenterContainer/MainPanel/MarginContainer/VBox/ScrollContainer/SettingsVBox/TypeSection/TypeContent"]
 layout_mode = 2
@@ -177,6 +186,8 @@ visible = false
 layout_mode = 2
 theme_override_constants/margin_left = 16
 theme_override_constants/margin_top = 4
+theme_override_constants/margin_right = 8
+theme_override_constants/margin_bottom = 8
 
 [node name="StructureVBox" type="VBoxContainer" parent="CenterContainer/MainPanel/MarginContainer/VBox/ScrollContainer/SettingsVBox/StructureSection/StructureContent"]
 layout_mode = 2
@@ -328,6 +339,8 @@ visible = false
 layout_mode = 2
 theme_override_constants/margin_left = 16
 theme_override_constants/margin_top = 4
+theme_override_constants/margin_right = 8
+theme_override_constants/margin_bottom = 8
 
 [node name="SizeVBox" type="VBoxContainer" parent="CenterContainer/MainPanel/MarginContainer/VBox/ScrollContainer/SettingsVBox/SizeSection/SizeContent"]
 layout_mode = 2
@@ -449,12 +462,15 @@ theme_override_constants/separation = 8
 
 [node name="StartButton" type="Button" parent="CenterContainer/MainPanel/MarginContainer/VBox/Buttons"]
 layout_mode = 2
+size_flags_horizontal = 3
 text = "Open Galaxy Viewer"
 
 [node name="LoadButton" type="Button" parent="CenterContainer/MainPanel/MarginContainer/VBox/Buttons"]
 layout_mode = 2
+size_flags_horizontal = 3
 text = "Load Galaxy"
 
 [node name="QuitButton" type="Button" parent="CenterContainer/MainPanel/MarginContainer/VBox/Buttons"]
 layout_mode = 2
+size_flags_horizontal = 3
 text = "Quit"
