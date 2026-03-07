@@ -16,7 +16,7 @@ public partial class ObjectViewer
 		_uiRoot = GetNodeOrNull<Control>("UI");
 		_topBar = GetNodeOrNull<Control>("UI/TopBar");
 		_sidePanel = GetNodeOrNull<Control>("UI/SidePanel");
-		_statusLabel = GetNodeOrNull<Label>("UI/TopBar/MarginContainer/HBoxContainer/StatusLabel");
+		_statusLabel = GetNodeOrNull<Label>("UI/TopBar/MarginContainer/TopBarVBox/HeaderRow/StatusLabel");
 		_inspectorPanel = GetNodeOrNull<Node>("UI/SidePanel/MarginContainer/ScrollContainer/VBoxContainer");
 		_typeOption = GetNodeOrNull<OptionButton>("UI/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/GenerationSection/TypeContainer/TypeOption");
 		_seedInput = GetNodeOrNull<SpinBox>("UI/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/GenerationSection/SeedContainer/SeedInput");
@@ -412,7 +412,7 @@ public partial class ObjectViewer
 			return;
 		}
 
-		HBoxContainer? topBar = GetNodeOrNull<HBoxContainer>("UI/TopBar/MarginContainer/HBoxContainer");
+		HBoxContainer? topBar = GetNodeOrNull<HBoxContainer>("UI/TopBar/MarginContainer/TopBarVBox/HeaderRow");
 		if (topBar == null)
 		{
 			return;

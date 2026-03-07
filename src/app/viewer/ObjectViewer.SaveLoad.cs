@@ -251,11 +251,6 @@ public partial class ObjectViewer
         _gdMoonById.Clear();
         _sourceStarSeed = 0;
 
-        if (_backButton != null && !_navigatedFromSystem)
-        {
-            _backButton.Visible = false;
-        }
-
         SetGenerationControlsEnabled(true);
         SetFileControlsEnabled(true);
         DisplayBodyWithMoons(result.Body, _currentMoons);
@@ -283,11 +278,6 @@ public partial class ObjectViewer
         {
             DisplayExternalBody(result.Body, [], 0);
             _navigatedFromSystem = false;
-            if (_backButton != null)
-            {
-                _backButton.Visible = false;
-            }
-
             SetGenerationControlsEnabled(true);
             UpdateFileInfo(Path.GetFileName(path), result.Body);
         }

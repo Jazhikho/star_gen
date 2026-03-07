@@ -87,6 +87,7 @@ public partial class ObjectViewer : Node3D
 		SetupCamera();
 		SetupMoonSystem();
 		SetupControls();
+		SetupTopMenu();
 		ConnectSignals();
 		SetGenerationControlsEnabled(false);
 		SetFileControlsEnabled(false);
@@ -160,7 +161,7 @@ public partial class ObjectViewer : Node3D
 		_currentBody = body;
 		_gdCurrentBody = bodyVariant.AsGodotObject();
 		_sourceStarSeed = starSeed;
-		_navigatedFromSystem = true;
+		_navigatedFromSystem = starSeed != 0;
 		_currentMoons.Clear();
 		_gdCurrentMoons.Clear();
 		_gdMoonById.Clear();
@@ -184,7 +185,18 @@ public partial class ObjectViewer : Node3D
 			}
 		}
 
-		ShowBackButton();
+		if (_navigatedFromSystem)
+		{
+			ShowBackButton("<- Back to System", "Return to the system viewer");
+		}
+		else if (_backButton != null && _backButton.Visible)
+		{
+			ShowBackButton(_backButton.Text, _backButton.TooltipText);
+		}
+		else
+		{
+			HideBackButton();
+		}
 		SetGenerationControlsEnabled(false);
 		SetFileControlsEnabled(true);
 		DisplayBodyWithMoons(body, _currentMoons);

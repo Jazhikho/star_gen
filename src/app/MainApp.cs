@@ -45,6 +45,7 @@ public partial class MainApp : Node
 	public override void _Ready()
 	{
 		_viewerContainer = GetNodeOrNull<Node>("ViewerContainer");
+		WindowSettingsService.ApplySavedOrCurrent();
 		_startupRng = CreateStartupRng();
 		CreateSplashScreen();
 		CreateMainMenuScreen();

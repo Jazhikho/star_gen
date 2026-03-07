@@ -25,7 +25,7 @@ public partial class GalaxyViewer
 		_uiRoot = GetNodeOrNull<Control>("UI/UIRoot");
 		_topBar = GetNodeOrNull<Control>("UI/UIRoot/TopBar");
 		_sidePanel = GetNodeOrNull<Control>("UI/UIRoot/SidePanel");
-		_statusLabel = GetNodeOrNull<Label>("UI/UIRoot/TopBar/MarginContainer/HBoxContainer/StatusLabel");
+		_statusLabel = GetNodeOrNull<Label>("UI/UIRoot/TopBar/MarginContainer/TopBarVBox/HeaderRow/StatusLabel");
 		_seedInput = GetNodeOrNull<SpinBox>("UI/UIRoot/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/GenerationSection/SeedContainer/SeedInput");
 		_showCompassCheck = GetNodeOrNull<CheckBox>("UI/UIRoot/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/ViewSection/ShowCompassCheck");
 		_inspectorPanel = GetNodeOrNull<Node>("UI/UIRoot/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/InspectorPanel");

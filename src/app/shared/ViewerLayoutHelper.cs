@@ -18,21 +18,25 @@ public static class ViewerLayoutHelper
         }
 
         Rect2 visibleRect = viewport.GetVisibleRect();
-        float topHeight = 0.0f;
-        float sideWidth = 0.0f;
+        float renderLeft = visibleRect.Position.X;
+        float renderTop = visibleRect.Position.Y;
         if (topBar != null)
         {
-            topHeight = topBar.GetGlobalRect().Size.Y;
+            Rect2 topRect = topBar.GetGlobalRect();
+            renderTop = Mathf.Max(renderTop, topRect.Position.Y + topRect.Size.Y);
         }
 
         if (sidePanel != null)
         {
-            sideWidth = sidePanel.GetGlobalRect().Size.X;
+            Rect2 sideRect = sidePanel.GetGlobalRect();
+            renderLeft = Mathf.Max(renderLeft, sideRect.Position.X + sideRect.Size.X);
         }
 
-        float width = Mathf.Max(1.0f, visibleRect.Size.X - sideWidth);
-        float height = Mathf.Max(1.0f, visibleRect.Size.Y - topHeight);
-        return new Rect2(new Vector2(sideWidth, topHeight), new Vector2(width, height));
+        float renderRight = visibleRect.Position.X + visibleRect.Size.X;
+        float renderBottom = visibleRect.Position.Y + visibleRect.Size.Y;
+        float width = Mathf.Max(1.0f, renderRight - renderLeft);
+        float height = Mathf.Max(1.0f, renderBottom - renderTop);
+        return new Rect2(new Vector2(renderLeft, renderTop), new Vector2(width, height));
     }
 
     /// <summary>

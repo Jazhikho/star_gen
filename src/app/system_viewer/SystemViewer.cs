@@ -95,6 +95,7 @@ public partial class SystemViewer : Node3D, ISystemViewerSaveLoadHost
         SetupOrbitRenderer();
         SetupBeltRenderer();
         SetupSaveLoadUi();
+        SetupTopMenu();
         SetupTooltips();
         ConnectSignals();
 

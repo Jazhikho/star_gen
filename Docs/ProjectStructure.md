@@ -15,10 +15,15 @@ Partial-class splits (large files broken into focused parts):
 Recent 0.4.0 additions:
 - `Docs/Release-0.4.0-MVP.md`
 - `src/app/shared/ViewerLayoutHelper.cs`
+- `src/app/viewer/ObjectViewer.Menu.cs`
+- `src/app/system_viewer/SystemViewer.Menu.cs`
+- `src/app/galaxy_viewer/GalaxyViewer.Menu.cs`
 - `src/app/system_viewer/SystemViewer.Parameters.cs`
 - `src/domain/generation/parameters/` (shared parameter definitions and validators)
+- `src/services/persistence/WindowSettingsService.cs`
 - `Tests/Integration/TestGenerationParameters.cs`
 - `Tests/Integration/TestViewerLayoutHelper.cs`
+- `Tests/Integration/TestWindowSettingsService.cs`
 
 Prototype files consolidated under `src/app/prototypes/`:
 - `JumpLanesPrototype.cs`, `JumpLaneRenderer.cs`, `MockRegionGenerator.cs` (moved from `src/app/jumplanes_prototype/`)
@@ -201,11 +206,13 @@ C# source files:
 - `src/services/persistence/SaveDataLoadResult.cs`
 - `src/services/persistence/SystemPersistenceLoadResult.cs`
 - `src/services/persistence/SystemPersistence.cs`
+- `src/services/persistence/WindowSettingsService.cs`
 - `src/app/galaxy_viewer/QuadrantSelector.cs`
 - `src/app/galaxy_viewer/ZoomStateMachine.cs`
 - `src/app/galaxy_viewer/GalaxyInspectorPanel.cs`
 - `src/app/galaxy_viewer/GalaxyRenderer.cs`
 - `src/app/galaxy_viewer/GalaxyViewer.cs`
+- `src/app/galaxy_viewer/GalaxyViewer.Menu.cs`
 - `src/app/galaxy_viewer/GalaxyViewer.Setup.cs`
 - `src/app/galaxy_viewer/GalaxyViewer.Navigation.cs`
 - `src/app/galaxy_viewer/GalaxyViewer.Selection.cs`
@@ -245,6 +252,7 @@ C# source files:
 - `src/app/system_viewer/SystemBodyNodeCSharp.tscn`
 - `src/app/system_viewer/SystemInspectorPanel.cs`
 - `src/app/system_viewer/SystemViewer.cs`
+- `src/app/system_viewer/SystemViewer.Menu.cs`
 - `src/app/system_viewer/SystemViewer.Parameters.cs`
 - `src/app/system_viewer/SystemViewer.Setup.cs`
 - `src/app/system_viewer/SystemViewer.Rendering.cs`
@@ -256,6 +264,7 @@ C# source files:
 - `src/app/viewer/ObjectViewerMoonSystem.cs`
 - `src/app/viewer/ObjectViewer.cs`
 - `src/app/viewer/ObjectViewer.Display.cs`
+- `src/app/viewer/ObjectViewer.Menu.cs`
 - `src/app/viewer/ObjectViewer.SaveLoad.cs`
 - `src/app/viewer/PropertyFormatter.cs`
 - `src/app/viewer/EditDialog.cs`

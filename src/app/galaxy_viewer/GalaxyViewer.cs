@@ -118,6 +118,7 @@ public partial class GalaxyViewer : Node3D, IGalaxyViewerSavedStateHost
 		CacheNodeReferences();
 		InitializeState();
 		BuildStaticRenderers();
+		SetupTopMenu();
 		ConnectUiSignals();
 		UpdateSeedDisplay();
 

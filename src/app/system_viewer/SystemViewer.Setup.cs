@@ -17,8 +17,8 @@ public partial class SystemViewer
         _uiRoot = GetNodeOrNull<Control>("UI");
         _topBar = GetNodeOrNull<Control>("UI/TopBar");
         _sidePanel = GetNodeOrNull<Control>("UI/SidePanel");
-        _statusLabel = GetNodeOrNull<Label>("UI/TopBar/MarginContainer/HBoxContainer/StatusLabel");
-        _backButton = GetNodeOrNull<Button>("UI/TopBar/MarginContainer/HBoxContainer/BackButton");
+        _statusLabel = GetNodeOrNull<Label>("UI/TopBar/MarginContainer/TopBarVBox/HeaderRow/StatusLabel");
+        _backButton = GetNodeOrNull<Button>("UI/TopBar/MarginContainer/TopBarVBox/HeaderRow/BackButton");
         _inspectorPanel = GetNodeOrNull<Node>("UI/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/InspectorPanel");
         _generationSection = GetNodeOrNull<VBoxContainer>("UI/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/GenerationSection");
         _starCountLabel = GetNodeOrNull<Label>("UI/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/GenerationSection/StarCountContainer/StarCountLabel");

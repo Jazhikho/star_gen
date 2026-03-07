@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using Godot;
+using StarGen.Services.Persistence;
 
 namespace StarGen.App;
 
@@ -28,14 +29,6 @@ public partial class MainMenuScreen : Control
 		ReleaseNotes,
 		Options,
 	}
-
-	private static readonly IReadOnlyList<Vector2I> CommonResolutions =
-	[
-		new Vector2I(1280, 720),
-		new Vector2I(1600, 900),
-		new Vector2I(1920, 1080),
-		new Vector2I(2560, 1440),
-	];
 
 	private Label? _versionLabel;
 	private Label? _heroNoteLabel;
@@ -83,32 +76,32 @@ public partial class MainMenuScreen : Control
 			return;
 		}
 
-		DisplayServer.WindowMode mode = DisplayServer.WindowGetMode();
-		bool isFullscreen = mode == DisplayServer.WindowMode.Fullscreen || mode == DisplayServer.WindowMode.ExclusiveFullscreen;
-		_fullscreenCheck.ButtonPressed = isFullscreen;
+		WindowSettingsService.WindowSettingsState currentSettings = WindowSettingsService.CaptureCurrent();
+		_fullscreenCheck.ButtonPressed = currentSettings.Fullscreen;
 
-		Vector2I size = DisplayServer.WindowGetSize();
-		int index = FindResolutionIndex(size);
+		int index = FindResolutionIndex(currentSettings.Resolution);
 		if (index < 0)
 		{
-			_resolutionOption.AddItem($"{size.X} x {size.Y}");
-			_resolutionOption.SetItemMetadata(_resolutionOption.ItemCount - 1, $"{size.X}x{size.Y}");
+			_resolutionOption.AddItem(WindowSettingsService.FormatResolutionLabel(currentSettings.Resolution));
+			_resolutionOption.SetItemMetadata(
+				_resolutionOption.ItemCount - 1,
+				WindowSettingsService.FormatResolutionKey(currentSettings.Resolution));
 			index = _resolutionOption.ItemCount - 1;
 		}
 
 		_resolutionOption.Select(index);
-		_resolutionOption.Disabled = isFullscreen;
+		_resolutionOption.Disabled = currentSettings.Fullscreen;
 
 		if (_optionsStatusLabel != null)
 		{
 			string modeText;
-			if (isFullscreen)
+			if (currentSettings.Fullscreen)
 			{
 				modeText = "Fullscreen active";
 			}
 			else
 			{
-				modeText = $"Windowed at {size.X} x {size.Y}";
+				modeText = $"Windowed at {currentSettings.Resolution.X} x {currentSettings.Resolution.Y}";
 			}
 			_optionsStatusLabel.Text = modeText;
 		}
@@ -163,7 +156,7 @@ public partial class MainMenuScreen : Control
 
 	private void PopulateStaticText()
 	{
-		string version = ProjectSettings.GetSetting("application/config/version", "0.3.0").AsString();
+		string version = ProjectSettings.GetSetting("application/config/version", "0.4.0").AsString();
 		if (_versionLabel != null)
 		{
 			_versionLabel.Text = $"Version {version}";
@@ -203,7 +196,7 @@ public partial class MainMenuScreen : Control
 	private static string GetReleaseNotesContent()
 	{
 		return
-			"Version 0.3.0\n\n" +
+			"Version 0.4.0\n\n" +
 			"• New Main Menu and Release Notes.\n" +
 			"• Save/load: save and load body files (.sgt, .sgp, .sga, .sgb) and system files (.sgs) from the object and system viewers.\n" +
 			"• Gas giant variety: gas giants in the system viewer now use varied archetypes and per-planet variation.\n" +
@@ -228,8 +221,8 @@ public partial class MainMenuScreen : Control
 
 		foreach (Vector2I resolution in CommonResolutions)
 		{
-			_resolutionOption.AddItem($"{resolution.X} x {resolution.Y}");
-			_resolutionOption.SetItemMetadata(_resolutionOption.ItemCount - 1, $"{resolution.X}x{resolution.Y}");
+			_resolutionOption.AddItem(WindowSettingsService.FormatResolutionLabel(resolution));
+			_resolutionOption.SetItemMetadata(_resolutionOption.ItemCount - 1, WindowSettingsService.FormatResolutionKey(resolution));
 		}
 	}
 
@@ -251,7 +244,7 @@ public partial class MainMenuScreen : Control
 
 		if (_fullscreenCheck.ButtonPressed)
 		{
-			DisplayServer.WindowSetMode(DisplayServer.WindowMode.Fullscreen);
+			WindowSettingsService.ApplyAndSave(new WindowSettingsService.WindowSettingsState(true, GetSelectedResolution()));
 			if (_optionsStatusLabel != null)
 			{
 				_optionsStatusLabel.Text = "Applied fullscreen mode";
@@ -260,9 +253,8 @@ public partial class MainMenuScreen : Control
 			return;
 		}
 
-		DisplayServer.WindowSetMode(DisplayServer.WindowMode.Windowed);
 		Vector2I resolution = GetSelectedResolution();
-		DisplayServer.WindowSetSize(resolution);
+		WindowSettingsService.ApplyAndSave(new WindowSettingsService.WindowSettingsState(false, resolution));
 		if (_optionsStatusLabel != null)
 		{
 			_optionsStatusLabel.Text = $"Applied windowed mode at {resolution.X} x {resolution.Y}";
@@ -286,12 +278,9 @@ public partial class MainMenuScreen : Control
 		{
 			text = "1600x900";
 		}
-		string[] parts = text.Split('x');
-		if (parts.Length == 2
-			&& int.TryParse(parts[0], out int width)
-			&& int.TryParse(parts[1], out int height))
+		if (WindowSettingsService.TryParseResolutionKey(text, out Vector2I resolution))
 		{
-			return new Vector2I(width, height);
+			return resolution;
 		}
 
 		return new Vector2I(1600, 900);
@@ -304,8 +293,8 @@ public partial class MainMenuScreen : Control
 			return -1;
 		}
 
-		string key = $"{size.X}x{size.Y}";
-		for (int i = 0; i < _resolutionOption.ItemCount; i++)
+		string key = WindowSettingsService.FormatResolutionKey(size);
+		for (int i = 0; i < _resolutionOption.ItemCount; i += 1)
 		{
 			Variant metadata = _resolutionOption.GetItemMetadata(i);
 			if (metadata.VariantType == Variant.Type.String && metadata.AsString() == key)
@@ -316,4 +305,6 @@ public partial class MainMenuScreen : Control
 
 		return -1;
 	}
+
+	private static IReadOnlyList<Vector2I> CommonResolutions => WindowSettingsService.GetCommonResolutions();
 }
