@@ -1,6 +1,7 @@
 using Godot;
 using StarGen.App.Rendering;
 using StarGen.Domain.Celestial;
+using StarGen.Domain.Celestial.Validation;
 
 namespace StarGen.App.Viewer;
 
@@ -41,8 +42,13 @@ public partial class ObjectViewer : Node3D
 	public float RotationSpeed = 1.0f;
 
 	internal Label? _statusLabel;
+	internal Control? _uiRoot;
+	internal Control? _topBar;
+	internal Control? _sidePanel;
 	internal Node? _inspectorPanel;
 	internal OptionButton? _typeOption;
+	internal OptionButton? _presetOption;
+	internal Label? _presetAssumptionsLabel;
 	internal SpinBox? _seedInput;
 	internal HBoxContainer? _populationContainer;
 	internal OptionButton? _populationOption;
@@ -59,6 +65,7 @@ public partial class ObjectViewer : Node3D
 	internal BodyRenderer? _bodyRenderer;
 	internal WorldEnvironment? _worldEnvironment;
 	internal Button? _backButton;
+	internal EditDialog? _editDialog;
 	internal ObjectViewerMoonSystem? _moonSystem;
 	internal CelestialBody? _currentBody;
 	internal GodotObject? _gdCurrentBody;
@@ -68,6 +75,7 @@ public partial class ObjectViewer : Node3D
 	internal float _primaryDisplayScale = 1.0f;
 	internal int _sourceStarSeed;
 	internal bool _navigatedFromSystem;
+	internal Rect2 _renderAreaRect = new Rect2();
 
 	/// <summary>
 	/// Initializes the viewer state.
@@ -90,6 +98,8 @@ public partial class ObjectViewer : Node3D
 	/// </summary>
 	public override void _Process(double delta)
 	{
+		UpdatePanelAwareFraming();
+
 		if (AnimateRotation && _bodyRenderer != null && _currentBody != null)
 		{
 			_bodyRenderer.RotateBody((float)delta, RotationSpeed);
@@ -271,7 +281,12 @@ public partial class ObjectViewer : Node3D
 			_typeOption.Select((int)defaultType);
 		}
 
-		generate_object(defaultType, seedValue);
+		if (_presetOption != null)
+		{
+			_presetOption.Select(0);
+		}
+
+		GenerateObjectFromPreset(defaultType, seedValue);
 		_navigatedFromSystem = false;
 		ShowBackButton("<- Back to Menu", "Return to the main menu");
 	}

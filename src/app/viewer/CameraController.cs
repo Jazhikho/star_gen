@@ -35,6 +35,7 @@ public partial class CameraController : Camera3D
     private float _targetDistance = 10.0f;
     private Vector2 _rotation = Vector2.Zero;
     private Vector3 _targetPosition = Vector3.Zero;
+    private Vector2 _framingOffset = Vector2.Zero;
     private bool _orbiting;
     private bool _panning;
     private Vector2 _lastMousePosition = Vector2.Zero;
@@ -121,6 +122,14 @@ public partial class CameraController : Camera3D
     {
         _distance = Mathf.Clamp(distance, MinDistance, MaxDistance);
         _targetDistance = _distance;
+    }
+
+    /// <summary>
+    /// Applies a normalized screen-center offset so the visible render pane becomes the framing target.
+    /// </summary>
+    public void SetFramingOffset(Vector2 framingOffset)
+    {
+        _framingOffset = framingOffset;
     }
 
     /// <summary>
@@ -215,6 +224,7 @@ public partial class CameraController : Camera3D
             _distance * Mathf.Cos(_rotation.Y) * Mathf.Cos(_rotation.X));
 
         cameraPosition += _targetPosition;
+        Vector3 focusPoint = ComputeFocusPoint(cameraPosition);
         if (!IsInsideTree())
         {
             Position = cameraPosition;
@@ -222,6 +232,49 @@ public partial class CameraController : Camera3D
         }
 
         GlobalPosition = cameraPosition;
-        LookAt(_targetPosition, Vector3.Up);
+        LookAt(focusPoint, Vector3.Up);
+    }
+
+    /// <summary>
+    /// Shifts the look-at point so the orbit target is centered in the visible render area.
+    /// </summary>
+    private Vector3 ComputeFocusPoint(Vector3 cameraPosition)
+    {
+        if (_framingOffset == Vector2.Zero)
+        {
+            return _targetPosition;
+        }
+
+        Viewport? viewport = GetViewport();
+        Vector2 viewportSize = new Vector2(1280.0f, 720.0f);
+        if (viewport != null)
+        {
+            viewportSize = viewport.GetVisibleRect().Size;
+        }
+
+        float aspect = viewportSize.X / Mathf.Max(1.0f, viewportSize.Y);
+        float distance = cameraPosition.DistanceTo(_targetPosition);
+        if (distance <= 0.001f)
+        {
+            return _targetPosition;
+        }
+
+        Vector3 forward = (_targetPosition - cameraPosition).Normalized();
+        Vector3 right = forward.Cross(Vector3.Up);
+        if (right.LengthSquared() <= 0.000001f)
+        {
+            right = Vector3.Right;
+        }
+        else
+        {
+            right = right.Normalized();
+        }
+
+        Vector3 up = right.Cross(forward).Normalized();
+        float halfHeight = Mathf.Tan(Mathf.DegToRad(Fov) * 0.5f) * distance;
+        float halfWidth = halfHeight * aspect;
+        float shiftX = _framingOffset.X * halfWidth;
+        float shiftY = _framingOffset.Y * halfHeight;
+        return _targetPosition - (right * shiftX) + (up * shiftY);
     }
 }

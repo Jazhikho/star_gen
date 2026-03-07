@@ -62,6 +62,9 @@ public partial class GalaxyViewer : Node3D, IGalaxyViewerSavedStateHost
 	public bool StartAtHome = true;
 
 	internal Label? _statusLabel;
+	internal Control? _uiRoot;
+	internal Control? _topBar;
+	internal Control? _sidePanel;
 	internal SpinBox? _seedInput;
 	internal CheckBox? _showCompassCheck;
 	internal Node? _inspectorPanel;
@@ -105,6 +108,7 @@ public partial class GalaxyViewer : Node3D, IGalaxyViewerSavedStateHost
 	internal readonly HashSet<string> _jumpRouteCalculatedRegionIds = new();
 	internal int _jumpRouteCalculationGeneration;
 	internal readonly GalaxyViewerSaveLoad _saveLoad = new();
+	internal Rect2 _renderAreaRect = new Rect2();
 
 	/// <summary>
 	/// Initializes controller state and helper objects.
@@ -134,6 +138,8 @@ public partial class GalaxyViewer : Node3D, IGalaxyViewerSavedStateHost
 	/// </summary>
 	public override void _Process(double delta)
 	{
+		UpdatePanelAwareFraming();
+
 		if (_compass != null && _compass.Visible && _orbitCamera != null)
 		{
 			_compass.SyncRotation(_orbitCamera.GetYawDeg(), _orbitCamera.GetPitchDeg());
@@ -259,5 +265,13 @@ public partial class GalaxyViewer : Node3D, IGalaxyViewerSavedStateHost
 		}
 
 		SetGalaxyConfig(config);
+	}
+
+	/// <summary>
+	/// Returns the visible 3D render area after subtracting the persistent UI chrome.
+	/// </summary>
+	public Rect2 GetRenderAreaRect()
+	{
+		return _renderAreaRect;
 	}
 }

@@ -71,6 +71,7 @@ public partial class SystemCameraController : Camera3D
     private float _targetHeight = 20.0f;
     private Vector3 _targetPosition = Vector3.Zero;
     private Vector3 _smoothTarget = Vector3.Zero;
+    private Vector2 _framingOffset = Vector2.Zero;
     private float _yaw;
     private float _pitch = Mathf.DegToRad(60.0f);
     private float _targetPitch = Mathf.DegToRad(60.0f);
@@ -243,6 +244,14 @@ public partial class SystemCameraController : Camera3D
     }
 
     /// <summary>
+    /// Applies a normalized screen-center offset so framing respects the visible render pane.
+    /// </summary>
+    public void SetFramingOffset(Vector2 framingOffset)
+    {
+        _framingOffset = framingOffset;
+    }
+
+    /// <summary>
     /// Applies a full target state and snaps the smooth target to it.
     /// </summary>
     public void ApplyViewState(Vector3 targetPosition, float height, float pitchRadians, float yaw)
@@ -269,6 +278,7 @@ public partial class SystemCameraController : Camera3D
             horizontalDistance * Mathf.Cos(_yaw));
 
         Vector3 cameraPosition = _smoothTarget + cameraOffset;
+        Vector3 focusPoint = ComputeFocusPoint(cameraPosition);
         if (!IsInsideTree())
         {
             Position = cameraPosition;
@@ -276,7 +286,7 @@ public partial class SystemCameraController : Camera3D
         }
 
         GlobalPosition = cameraPosition;
-        LookAt(_smoothTarget, Vector3.Up);
+        LookAt(focusPoint, Vector3.Up);
     }
 
     /// <summary>
@@ -319,6 +329,49 @@ public partial class SystemCameraController : Camera3D
         }
 
         return Position;
+    }
+
+    /// <summary>
+    /// Shifts the look-at point so camera focus aligns to the visible render area.
+    /// </summary>
+    private Vector3 ComputeFocusPoint(Vector3 cameraPosition)
+    {
+        if (_framingOffset == Vector2.Zero)
+        {
+            return _smoothTarget;
+        }
+
+        Viewport? viewport = GetViewport();
+        Vector2 viewportSize = new Vector2(1280.0f, 720.0f);
+        if (viewport != null)
+        {
+            viewportSize = viewport.GetVisibleRect().Size;
+        }
+
+        float aspect = viewportSize.X / Mathf.Max(1.0f, viewportSize.Y);
+        float distance = cameraPosition.DistanceTo(_smoothTarget);
+        if (distance <= 0.001f)
+        {
+            return _smoothTarget;
+        }
+
+        Vector3 forward = (_smoothTarget - cameraPosition).Normalized();
+        Vector3 right = forward.Cross(Vector3.Up);
+        if (right.LengthSquared() <= 0.000001f)
+        {
+            right = Vector3.Right;
+        }
+        else
+        {
+            right = right.Normalized();
+        }
+
+        Vector3 up = right.Cross(forward).Normalized();
+        float halfHeight = Mathf.Tan(Mathf.DegToRad(Fov) * 0.5f) * distance;
+        float halfWidth = halfHeight * aspect;
+        float shiftX = _framingOffset.X * halfWidth;
+        float shiftY = _framingOffset.Y * halfHeight;
+        return _smoothTarget - (right * shiftX) + (up * shiftY);
     }
 
     /// <summary>

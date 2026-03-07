@@ -1,6 +1,7 @@
 using Godot;
 using StarGen.Domain.Celestial;
 using StarGen.Domain.Celestial.Serialization;
+using StarGen.Domain.Celestial.Validation;
 using StarGen.Domain.Math;
 
 namespace StarGen.App.Viewer;
@@ -12,6 +13,9 @@ public partial class ObjectViewer
 {
 	private void CacheNodeReferences()
 	{
+		_uiRoot = GetNodeOrNull<Control>("UI");
+		_topBar = GetNodeOrNull<Control>("UI/TopBar");
+		_sidePanel = GetNodeOrNull<Control>("UI/SidePanel");
 		_statusLabel = GetNodeOrNull<Label>("UI/TopBar/MarginContainer/HBoxContainer/StatusLabel");
 		_inspectorPanel = GetNodeOrNull<Node>("UI/SidePanel/MarginContainer/ScrollContainer/VBoxContainer");
 		_typeOption = GetNodeOrNull<OptionButton>("UI/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/GenerationSection/TypeContainer/TypeOption");
@@ -65,15 +69,46 @@ public partial class ObjectViewer
 		_moonSystem.Connect("MoonFocused", Callable.From<Variant>(OnMoonFocusChangedVariant));
 	}
 
+	private void SetupEditDialog()
+	{
+		if (_editDialog != null)
+		{
+			return;
+		}
+
+		PackedScene? scene = ResourceLoader.Load<PackedScene>("res://src/app/viewer/EditDialog.tscn");
+		if (scene == null)
+		{
+			return;
+		}
+
+		EditDialog? editDialog = scene.Instantiate() as EditDialog;
+		if (editDialog == null)
+		{
+			return;
+		}
+
+		editDialog.Name = "EditDialog";
+		editDialog.EditsConfirmed += OnEditDialogUpdated;
+		editDialog.BodyRegenerated += OnEditDialogUpdated;
+		AddChild(editDialog);
+		_editDialog = editDialog;
+	}
+
 	private void ConnectSignals()
 	{
 		if (_inspectorPanel is InspectorPanel typedInspectorPanel)
 		{
 			typedInspectorPanel.MoonSelected += OnInspectorMoonSelectedVariant;
+			typedInspectorPanel.EditRequested += OnInspectorEditRequested;
 		}
 		else if (_inspectorPanel != null && _inspectorPanel.HasSignal("moon_selected"))
 		{
 			_inspectorPanel.Connect("moon_selected", Callable.From<Variant>(OnInspectorMoonSelectedVariant));
+			if (_inspectorPanel.HasSignal("edit_requested"))
+			{
+				_inspectorPanel.Connect("edit_requested", Callable.From(OnInspectorEditRequested));
+			}
 		}
 	}
 
@@ -112,6 +147,16 @@ public partial class ObjectViewer
 
 		FitCamera();
 		UpdateInspector();
+	}
+
+	private void UpdatePanelAwareFraming()
+	{
+		_renderAreaRect = StarGen.App.Shared.ViewerLayoutHelper.ComputeRenderRect(GetViewport(), _topBar, _sidePanel);
+		Vector2 framingOffset = StarGen.App.Shared.ViewerLayoutHelper.ComputeNormalizedCenterOffset(GetViewport(), _renderAreaRect);
+		if (_camera != null)
+		{
+			_camera.SetFramingOffset(framingOffset);
+		}
 	}
 
 	private float CalculateDisplayScale(CelestialBody body)
@@ -268,6 +313,93 @@ public partial class ObjectViewer
 	private void OnMoonFocusChangedVariant(Variant moonVariant)
 	{
 		EmitSignal(SignalName.MoonFocused, moonVariant);
+	}
+
+	private void OnInspectorEditRequested()
+	{
+		CelestialBody? targetBody = GetCurrentTargetBody();
+		if (targetBody == null)
+		{
+			return;
+		}
+
+		SetupEditDialog();
+		if (_editDialog == null)
+		{
+			return;
+		}
+
+		_editDialog.RegenerationContext = null;
+		_editDialog.OpenForBody(targetBody);
+	}
+
+	private CelestialBody? GetCurrentTargetBody()
+	{
+		if (_moonSystem != null && _moonSystem.GetFocusedMoon() != null)
+		{
+			return _moonSystem.GetFocusedMoon();
+		}
+
+		return _currentBody;
+	}
+
+	private void OnEditDialogUpdated(CelestialBody updatedBody)
+	{
+		if (updatedBody == null)
+		{
+			return;
+		}
+
+		if (_moonSystem != null && _moonSystem.GetFocusedMoon() != null)
+		{
+			ReplaceMoon(updatedBody);
+		}
+		else
+		{
+			_currentBody = updatedBody;
+			_gdCurrentBody = updatedBody;
+			MarkBodyAsUserEdited(updatedBody);
+		}
+
+		if (_currentBody != null)
+		{
+			DisplayBodyWithMoons(_currentBody, _currentMoons);
+		}
+
+		UpdateFileInfoForCurrentTarget();
+		CelestialBody? targetBody = GetCurrentTargetBody();
+		if (targetBody != null)
+		{
+			SetStatus($"Edited: {targetBody.Name}");
+			if (_sourceStarSeed != 0)
+			{
+				EmitSignal(SignalName.BodyEdited, targetBody, _sourceStarSeed);
+			}
+		}
+	}
+
+	private void ReplaceMoon(CelestialBody updatedMoon)
+	{
+		for (int index = 0; index < _currentMoons.Count; index += 1)
+		{
+			if (_currentMoons[index].Id == updatedMoon.Id)
+			{
+				_currentMoons[index] = updatedMoon;
+				_gdCurrentMoons[index] = updatedMoon;
+				_gdMoonById[updatedMoon.Id] = updatedMoon;
+				MarkBodyAsUserEdited(updatedMoon);
+				return;
+			}
+		}
+	}
+
+	private static void MarkBodyAsUserEdited(CelestialBody body)
+	{
+		Godot.Collections.Dictionary modifications = new Godot.Collections.Dictionary
+		{
+			["edited"] = true,
+		};
+		body.SetMeta("user_modifications", modifications);
 	}
 
 	private void ShowBackButton(string buttonText = "<- Back to System", string tooltipText = "Return to solar system viewer")
@@ -451,5 +583,13 @@ public partial class ObjectViewer
 		}
 
 		return null;
+	}
+
+	/// <summary>
+	/// Returns the visible 3D render area after subtracting the persistent UI chrome.
+	/// </summary>
+	public Rect2 GetRenderAreaRect()
+	{
+		return _renderAreaRect;
 	}
 }

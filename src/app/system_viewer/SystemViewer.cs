@@ -1,6 +1,7 @@
 using Godot;
 using StarGen.Domain.Systems;
 using StarGen.Domain.Systems.Fixtures;
+using StarGen.Domain.Generation.Parameters;
 using System.Collections.Generic;
 
 namespace StarGen.App.SystemViewer;
@@ -30,10 +31,23 @@ public partial class SystemViewer : Node3D, ISystemViewerSaveLoadHost
     internal const string SystemBodyNodeScenePath = "res://src/app/system_viewer/SystemBodyNode.tscn";
 
     internal Label? _statusLabel;
+    internal Control? _uiRoot;
+    internal Control? _topBar;
+    internal Control? _sidePanel;
     internal Button? _backButton;
     internal Node? _inspectorPanel;
+    internal VBoxContainer? _generationSection;
+    internal Label? _starCountLabel;
     internal SpinBox? _starCountSpin;
+    internal SpinBox? _starCountMaxSpin;
     internal SpinBox? _seedInput;
+    internal LineEdit? _spectralHintsInput;
+    internal SpinBox? _systemAgeInput;
+    internal SpinBox? _systemMetallicityInput;
+    internal CheckBox? _includeBeltsCheck;
+    internal CheckBox? _generatePopulationCheck;
+    internal Label? _generationAssumptionsLabel;
+    internal VBoxContainer? _generationIssuesContainer;
     internal Button? _generateButton;
     internal Button? _rerollButton;
     internal Button? _saveButton;
@@ -58,6 +72,9 @@ public partial class SystemViewer : Node3D, ISystemViewerSaveLoadHost
     internal bool _isReady;
     internal int _sourceStarSeed;
     internal readonly SystemViewerSaveLoad _saveLoad = new();
+    internal Rect2 _renderAreaRect = new Rect2();
+    internal SolarSystemSpec? _currentSpec;
+    internal GenerationParameterIssueSet _currentGenerationIssues = new();
 
     /// <summary>
     /// Reused scratch list for removing stale body node IDs during the animation update.
@@ -91,6 +108,8 @@ public partial class SystemViewer : Node3D, ISystemViewerSaveLoadHost
     /// </summary>
     public override void _Process(double delta)
     {
+        UpdatePanelAwareFraming();
+
         if (_animationEnabled && _currentLayout != null)
         {
             UpdateOrbitalAnimation((float)delta);
@@ -160,14 +179,31 @@ public partial class SystemViewer : Node3D, ISystemViewerSaveLoadHost
     /// </summary>
     public void GenerateSystem(int seedValue, int minStars = 1, int maxStars = 1)
     {
+        SolarSystemSpec spec = new(seedValue, minStars, maxStars);
+        GenerateSystem(spec);
+    }
+
+    /// <summary>
+    /// Generates a solar system from a fully specified generation spec.
+    /// </summary>
+    public void GenerateSystem(SolarSystemSpec spec)
+    {
         if (_isUpdatingSystem)
         {
             return;
         }
 
-        SetStatus($"Generating system with seed {seedValue}...");
-        SolarSystemSpec spec = new(seedValue, minStars, maxStars);
-        SolarSystem? system = SystemFixtureGenerator.GenerateSystem(spec, true);
+        _currentGenerationIssues = SystemGenerationParameterValidator.Validate(spec);
+        UpdateGenerationIssuesUi();
+        if (_currentGenerationIssues.HasErrors())
+        {
+            SetError("System parameters contain blocking errors");
+            return;
+        }
+
+        _currentSpec = spec;
+        SetStatus($"Generating system with seed {spec.GenerationSeed}...");
+        SolarSystem? system = SystemFixtureGenerator.GenerateSystem(spec, null);
         if (system == null)
         {
             SetError("Failed to generate system");
@@ -175,6 +211,12 @@ public partial class SystemViewer : Node3D, ISystemViewerSaveLoadHost
         }
 
         DisplaySystem(system);
+        if (_currentGenerationIssues.Issues.Count > 0)
+        {
+            SetStatus($"Generated with {_currentGenerationIssues.Issues.Count} advisory issue(s): {system.GetSummary()}");
+            return;
+        }
+
         SetStatus($"Generated: {system.GetSummary()}");
     }
 
@@ -194,6 +236,11 @@ public partial class SystemViewer : Node3D, ISystemViewerSaveLoadHost
 
         _currentSystem = system;
         _currentLayout = SystemDisplayLayout.CalculateLayout(system);
+        SolarSystemSpec? currentSpec = ExtractCurrentSpec(system);
+        if (currentSpec != null)
+        {
+            ApplySpecToControls(currentSpec);
+        }
 
         ClearBodies();
         UpdateSaveButtonState();
@@ -388,5 +435,13 @@ public partial class SystemViewer : Node3D, ISystemViewerSaveLoadHost
 
         _backButton.Text = buttonText;
         _backButton.TooltipText = tooltipText;
+    }
+
+    /// <summary>
+    /// Returns the visible 3D render area after subtracting the persistent UI chrome.
+    /// </summary>
+    public Rect2 GetRenderAreaRect()
+    {
+        return _renderAreaRect;
     }
 }

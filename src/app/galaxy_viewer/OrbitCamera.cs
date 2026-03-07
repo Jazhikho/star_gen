@@ -20,6 +20,7 @@ public partial class OrbitCamera : Camera3D
     private float _pitchDeg = -35.0f;
     private float _distance = 40000.0f;
     private Vector3 _target = Vector3.Zero;
+    private Vector2 _framingOffset = Vector2.Zero;
     private bool _rotating;
 
     /// <summary>
@@ -82,6 +83,14 @@ public partial class OrbitCamera : Camera3D
         _target = newTarget;
         _distance = Mathf.Clamp(_distance, MinDistance, MaxDistance);
         UpdateTransform();
+    }
+
+    /// <summary>
+    /// Applies a normalized screen-center offset so the orbit target stays centered in the visible pane.
+    /// </summary>
+    public void SetFramingOffset(Vector2 framingOffset)
+    {
+        _framingOffset = framingOffset;
     }
 
     /// <summary>
@@ -161,6 +170,49 @@ public partial class OrbitCamera : Camera3D
             _distance * Mathf.Cos(pitchRad) * Mathf.Cos(yawRad));
 
         GlobalPosition = _target + offset;
-        LookAt(_target, Vector3.Up);
+        LookAt(ComputeFocusPoint(GlobalPosition), Vector3.Up);
+    }
+
+    /// <summary>
+    /// Shifts the orbit camera look-at point to the center of the visible render area.
+    /// </summary>
+    private Vector3 ComputeFocusPoint(Vector3 cameraPosition)
+    {
+        if (_framingOffset == Vector2.Zero)
+        {
+            return _target;
+        }
+
+        Viewport? viewport = GetViewport();
+        Vector2 viewportSize = new Vector2(1280.0f, 720.0f);
+        if (viewport != null)
+        {
+            viewportSize = viewport.GetVisibleRect().Size;
+        }
+
+        float aspect = viewportSize.X / Mathf.Max(1.0f, viewportSize.Y);
+        float distance = cameraPosition.DistanceTo(_target);
+        if (distance <= 0.001f)
+        {
+            return _target;
+        }
+
+        Vector3 forward = (_target - cameraPosition).Normalized();
+        Vector3 right = forward.Cross(Vector3.Up);
+        if (right.LengthSquared() <= 0.000001f)
+        {
+            right = Vector3.Right;
+        }
+        else
+        {
+            right = right.Normalized();
+        }
+
+        Vector3 up = right.Cross(forward).Normalized();
+        float halfHeight = Mathf.Tan(Mathf.DegToRad(Fov) * 0.5f) * distance;
+        float halfWidth = halfHeight * aspect;
+        float shiftX = _framingOffset.X * halfWidth;
+        float shiftY = _framingOffset.Y * halfHeight;
+        return _target - (right * shiftX) + (up * shiftY);
     }
 }

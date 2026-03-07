@@ -22,6 +22,9 @@ public partial class GalaxyViewer
 	/// </summary>
 	private void CacheNodeReferences()
 	{
+		_uiRoot = GetNodeOrNull<Control>("UI/UIRoot");
+		_topBar = GetNodeOrNull<Control>("UI/UIRoot/TopBar");
+		_sidePanel = GetNodeOrNull<Control>("UI/UIRoot/SidePanel");
 		_statusLabel = GetNodeOrNull<Label>("UI/UIRoot/TopBar/MarginContainer/HBoxContainer/StatusLabel");
 		_seedInput = GetNodeOrNull<SpinBox>("UI/UIRoot/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/GenerationSection/SeedContainer/SeedInput");
 		_showCompassCheck = GetNodeOrNull<CheckBox>("UI/UIRoot/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/ViewSection/ShowCompassCheck");
@@ -113,6 +116,7 @@ public partial class GalaxyViewer
 			typedInspectorPanel.OpenSystemRequested += OnInspectorOpenSystemRequested;
 			typedInspectorPanel.CalculateJumpRoutesRequested += OnCalculateJumpRoutesRequested;
 			typedInspectorPanel.JumpRoutesVisibilityToggled += OnJumpRoutesVisibilityToggled;
+			typedInspectorPanel.ApplyGalaxyConfigRequested += OnApplyGalaxyConfigRequested;
 		}
 	}
 
@@ -124,6 +128,19 @@ public partial class GalaxyViewer
 		if (_seedInput != null)
 		{
 			_seedInput.Value = GalaxySeed;
+		}
+	}
+
+	/// <summary>
+	/// Updates orbit-camera framing to account for the left panel and top bar.
+	/// </summary>
+	private void UpdatePanelAwareFraming()
+	{
+		_renderAreaRect = StarGen.App.Shared.ViewerLayoutHelper.ComputeRenderRect(GetViewport(), _topBar, _sidePanel);
+		Vector2 framingOffset = StarGen.App.Shared.ViewerLayoutHelper.ComputeNormalizedCenterOffset(GetViewport(), _renderAreaRect);
+		if (_orbitCamera != null)
+		{
+			_orbitCamera.SetFramingOffset(framingOffset);
 		}
 	}
 
