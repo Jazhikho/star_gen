@@ -146,7 +146,7 @@ size_flags_horizontal = 3
 max_value = 999999.0
 value = 42.0
 rounded = true
-editable = false
+editable = true
 
 [node name="ViewSection" type="VBoxContainer" parent="UI/UIRoot/SidePanel/MarginContainer/ScrollContainer/VBoxContainer"]
 layout_mode = 2

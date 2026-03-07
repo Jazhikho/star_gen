@@ -129,6 +129,7 @@ public partial class GalaxyViewer
         _spec = _galaxy.Spec;
         _jumpRoutePopulationCache.Clear();
         InvalidateJumpRoutes();
+        BuildStaticRenderers();
         UpdateInspectorState();
     }
 

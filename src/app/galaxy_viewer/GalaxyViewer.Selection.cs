@@ -1,4 +1,5 @@
 using Godot;
+using StarGen.Domain.Generation.Parameters;
 using StarGen.Domain.Galaxy;
 
 namespace StarGen.App.GalaxyViewer;
@@ -197,6 +198,7 @@ public partial class GalaxyViewer
 
 		if (_inspectorPanel is GalaxyInspectorPanel typedInspectorPanel)
 		{
+			typedInspectorPanel.SetEditableConfig(_galaxyConfig);
 			typedInspectorPanel.DisplayGalaxy(_spec, _zoomMachine.GetCurrentLevel());
 
 			if (_selectedStarSeed != 0)
@@ -243,6 +245,51 @@ public partial class GalaxyViewer
 		}
 
 		_inspectorPanel.Call("display_galaxy", _spec, _zoomMachine.GetCurrentLevel());
+	}
+
+	/// <summary>
+	/// Applies the currently edited galaxy config and rebuilds the viewer.
+	/// </summary>
+	private void OnApplyGalaxyConfigRequested()
+	{
+		if (_inspectorPanel is not GalaxyInspectorPanel typedInspectorPanel)
+		{
+			return;
+		}
+
+		int seedValue = GalaxySeed;
+		if (_seedInput != null)
+		{
+			seedValue = (int)_seedInput.Value;
+		}
+
+		GalaxyConfig config = typedInspectorPanel.GetEditableConfig();
+		GenerationParameterIssueSet issues = GalaxyGenerationParameterValidator.Validate(seedValue, config);
+		typedInspectorPanel.SetConfigIssues(issues);
+		if (issues.HasErrors())
+		{
+			SetStatus("Galaxy parameters contain blocking errors");
+			return;
+		}
+
+		GalaxySeed = seedValue;
+		_galaxyConfig = config;
+		_galaxy = new Galaxy(_galaxyConfig, GalaxySeed);
+		_spec = _galaxy.Spec;
+		EmitSignal(SignalName.GalaxySeedChanged, GalaxySeed);
+		_jumpRoutePopulationCache.Clear();
+		InvalidateJumpRoutes();
+		BuildStaticRenderers();
+		UpdateSeedDisplay();
+		ClearStarSelection();
+		UpdateInspector();
+		if (issues.Issues.Count > 0)
+		{
+			SetStatus($"Regenerated galaxy with {issues.Issues.Count} advisory issue(s)");
+			return;
+		}
+
+		SetStatus("Regenerated galaxy");
 	}
 
 	/// <summary>

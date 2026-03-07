@@ -1,5 +1,6 @@
 using System;
 using Godot;
+using StarGen.Domain.Generation.Parameters;
 using StarGen.Domain.Galaxy;
 using StarGen.Domain.Rng;
 
@@ -81,6 +82,10 @@ public partial class WelcomeScreen : Control
     private HSlider? _densitySlider;
     private Label? _densityValue;
     private SpinBox? _seedSpin;
+    private VBoxContainer? _settingsVBox;
+    private Label? _assumptionsLabel;
+    private VBoxContainer? _issuesContainer;
+    private GenerationParameterIssueSet _currentIssues = new();
 
     /// <summary>
     /// Initializes UI wiring.
@@ -88,11 +93,14 @@ public partial class WelcomeScreen : Control
     public override void _Ready()
     {
         CacheNodeReferences();
+        BuildParameterSupportUi();
         ConnectSignals();
+        ApplyParameterTooltips();
         UpdateSectionVisibility();
         UpdateTypeSpecificControls();
         UpdateAllValueLabels();
         RefreshRandomSeedDisplay();
+        RefreshValidationIssues();
     }
 
     /// <summary>
@@ -150,6 +158,35 @@ public partial class WelcomeScreen : Control
     public GalaxyConfig get_current_config()
     {
         return GetCurrentConfig();
+    }
+
+    /// <summary>
+    /// Applies a typed galaxy configuration to the welcome-screen controls.
+    /// </summary>
+    public void SetCurrentConfig(GalaxyConfig config)
+    {
+        _isUpdatingUi = true;
+        ApplyConfig(config);
+        UpdateTypeSpecificControls();
+        UpdateAllValueLabels();
+        _isUpdatingUi = false;
+        RefreshValidationIssues();
+    }
+
+    /// <summary>
+    /// GDScript-compatible config setter wrapper.
+    /// </summary>
+    public void set_current_config(GalaxyConfig config)
+    {
+        SetCurrentConfig(config);
+    }
+
+    /// <summary>
+    /// Returns the current validation results for the startup configuration.
+    /// </summary>
+    public GenerationParameterIssueSet GetCurrentIssues()
+    {
+        return _currentIssues;
     }
 
     /// <summary>
@@ -236,6 +273,7 @@ public partial class WelcomeScreen : Control
         _densitySlider = GetNodeOrNull<HSlider>("CenterContainer/MainPanel/MarginContainer/VBox/ScrollContainer/SettingsVBox/SizeSection/SizeContent/SizeVBox/DensityRow/DensitySlider");
         _densityValue = GetNodeOrNull<Label>("CenterContainer/MainPanel/MarginContainer/VBox/ScrollContainer/SettingsVBox/SizeSection/SizeContent/SizeVBox/DensityRow/DensityValue");
         _seedSpin = GetNodeOrNull<SpinBox>("CenterContainer/MainPanel/MarginContainer/VBox/ScrollContainer/SettingsVBox/SeedContainer/SeedSpin");
+        _settingsVBox = GetNodeOrNull<VBoxContainer>("CenterContainer/MainPanel/MarginContainer/VBox/ScrollContainer/SettingsVBox");
     }
 
     private void ConnectSignals()
@@ -261,6 +299,7 @@ public partial class WelcomeScreen : Control
         ConnectSlider(_diskLengthSlider, OnDiskLengthChanged);
         ConnectSlider(_diskHeightSlider, OnDiskHeightChanged);
         ConnectSlider(_densitySlider, OnDensityChanged);
+        if (_seedSpin != null) _seedSpin.ValueChanged += _ => RefreshValidationIssues();
     }
 
     private static void ConnectSlider(Godot.Range? slider, Action<double> callback)
@@ -343,86 +382,71 @@ public partial class WelcomeScreen : Control
     private void ApplyPreset(int preset)
     {
         _isUpdatingUi = true;
-        switch ((Preset)preset)
-        {
-            case Preset.Custom: ApplyDefaultValues(); break;
-            case Preset.MilkyWay: ApplyDefaultValues(); break;
-            case Preset.Andromeda: ApplyAndromedaPreset(); break;
-            case Preset.Whirlpool: ApplyWhirlpoolPreset(); break;
-            case Preset.Sombrero: ApplySombreroPreset(); break;
-            case Preset.LargeMagellanicCloud: ApplyLargeMagellanicCloudPreset(); break;
-        }
+        ApplyConfig(BuildPresetConfig((Preset)preset));
         UpdateTypeSpecificControls();
         UpdateAllValueLabels();
         _isUpdatingUi = false;
+        RefreshValidationIssues();
     }
 
-    private void ApplyDefaultValues()
+    private static GalaxyConfig BuildPresetConfig(Preset preset)
     {
-        SetType((int)GalaxySpec.GalaxyType.Spiral);
-        SetSlider(_armsSlider, 4.0);
-        SetSlider(_pitchSlider, 14.0);
-        SetSlider(_amplitudeSlider, 0.65);
-        SetSlider(_bulgeIntensitySlider, 0.8);
-        SetSlider(_bulgeRadiusSlider, 1500.0);
-        SetSlider(_ellipticitySlider, 0.3);
-        SetSlider(_irregularitySlider, 0.5);
-        SetSlider(_radiusSlider, 15000.0);
-        SetSlider(_diskLengthSlider, 4000.0);
-        SetSlider(_diskHeightSlider, 300.0);
-        SetSlider(_densitySlider, 1.0);
-    }
+        GalaxyConfig config = GalaxyConfig.CreateDefault();
+        if (preset == Preset.Andromeda)
+        {
+            config.Type = GalaxySpec.GalaxyType.Spiral;
+            config.NumArms = 2;
+            config.ArmPitchAngleDeg = 20.0;
+            config.ArmAmplitude = 0.55;
+            config.BulgeIntensity = 1.0;
+            config.BulgeRadiusPc = 2200.0;
+            config.RadiusPc = 22000.0;
+            config.DiskScaleLengthPc = 5500.0;
+            config.DiskScaleHeightPc = 400.0;
+            config.StarDensityMultiplier = 1.2;
+            return config;
+        }
 
-    private void ApplyAndromedaPreset()
-    {
-        SetType((int)GalaxySpec.GalaxyType.Spiral);
-        SetSlider(_armsSlider, 2.0);
-        SetSlider(_pitchSlider, 20.0);
-        SetSlider(_amplitudeSlider, 0.55);
-        SetSlider(_bulgeIntensitySlider, 1.0);
-        SetSlider(_bulgeRadiusSlider, 2200.0);
-        SetSlider(_radiusSlider, 22000.0);
-        SetSlider(_diskLengthSlider, 5500.0);
-        SetSlider(_diskHeightSlider, 400.0);
-        SetSlider(_densitySlider, 1.2);
-    }
+        if (preset == Preset.Whirlpool)
+        {
+            config.Type = GalaxySpec.GalaxyType.Spiral;
+            config.NumArms = 2;
+            config.ArmPitchAngleDeg = 18.0;
+            config.ArmAmplitude = 0.85;
+            config.BulgeIntensity = 0.6;
+            config.BulgeRadiusPc = 1200.0;
+            config.RadiusPc = 12000.0;
+            config.DiskScaleLengthPc = 3500.0;
+            config.DiskScaleHeightPc = 250.0;
+            return config;
+        }
 
-    private void ApplyWhirlpoolPreset()
-    {
-        SetType((int)GalaxySpec.GalaxyType.Spiral);
-        SetSlider(_armsSlider, 2.0);
-        SetSlider(_pitchSlider, 18.0);
-        SetSlider(_amplitudeSlider, 0.85);
-        SetSlider(_bulgeIntensitySlider, 0.6);
-        SetSlider(_bulgeRadiusSlider, 1200.0);
-        SetSlider(_radiusSlider, 12000.0);
-        SetSlider(_diskLengthSlider, 3500.0);
-        SetSlider(_diskHeightSlider, 250.0);
-        SetSlider(_densitySlider, 1.0);
-    }
+        if (preset == Preset.Sombrero)
+        {
+            config.Type = GalaxySpec.GalaxyType.Elliptical;
+            config.BulgeIntensity = 1.2;
+            config.BulgeRadiusPc = 2500.0;
+            config.Ellipticity = 0.6;
+            config.RadiusPc = 15000.0;
+            config.DiskScaleLengthPc = 4000.0;
+            config.DiskScaleHeightPc = 450.0;
+            config.StarDensityMultiplier = 1.3;
+            return config;
+        }
 
-    private void ApplySombreroPreset()
-    {
-        SetType((int)GalaxySpec.GalaxyType.Elliptical);
-        SetSlider(_bulgeIntensitySlider, 1.2);
-        SetSlider(_bulgeRadiusSlider, 2500.0);
-        SetSlider(_ellipticitySlider, 0.6);
-        SetSlider(_radiusSlider, 15000.0);
-        SetSlider(_diskLengthSlider, 4000.0);
-        SetSlider(_diskHeightSlider, 450.0);
-        SetSlider(_densitySlider, 1.3);
-    }
+        if (preset == Preset.LargeMagellanicCloud)
+        {
+            config.Type = GalaxySpec.GalaxyType.Irregular;
+            config.BulgeIntensity = 0.4;
+            config.BulgeRadiusPc = 1000.0;
+            config.IrregularityScale = 0.7;
+            config.RadiusPc = 10000.0;
+            config.DiskScaleLengthPc = 2500.0;
+            config.DiskScaleHeightPc = 350.0;
+            config.StarDensityMultiplier = 0.7;
+        }
 
-    private void ApplyLargeMagellanicCloudPreset()
-    {
-        SetType((int)GalaxySpec.GalaxyType.Irregular);
-        SetSlider(_bulgeIntensitySlider, 0.4);
-        SetSlider(_bulgeRadiusSlider, 1000.0);
-        SetSlider(_irregularitySlider, 0.7);
-        SetSlider(_radiusSlider, 10000.0);
-        SetSlider(_diskLengthSlider, 2500.0);
-        SetSlider(_diskHeightSlider, 350.0);
-        SetSlider(_densitySlider, 0.7);
+        return config;
     }
 
     private void MarkAsCustom()
@@ -480,10 +504,11 @@ public partial class WelcomeScreen : Control
     private void OnStartPressed()
     {
         GalaxyConfig config = GetCurrentConfig();
-        if (!config.IsValid())
+        RefreshValidationIssues();
+        if (_currentIssues.HasErrors())
         {
-            GD.PushError("WelcomeScreen: config invalid, using default");
-            config = GalaxyConfig.CreateDefault();
+            GD.PushError("WelcomeScreen: galaxy parameters contain blocking errors");
+            return;
         }
 
         int seedValue;
@@ -506,6 +531,7 @@ public partial class WelcomeScreen : Control
     private void OnRandomizePressed()
     {
         if (_seedSpin != null) _seedSpin.Value = GenerateRandomSeed();
+        RefreshValidationIssues();
     }
 
     private void OnPresetSelected(long index) => ApplyPreset((int)index);
@@ -532,17 +558,151 @@ public partial class WelcomeScreen : Control
     {
         UpdateTypeSpecificControls();
         MarkAsCustom();
+        RefreshValidationIssues();
     }
 
-    private void OnArmsChanged(double _value) { UpdateIntLabel(_armsValue, _armsSlider, string.Empty); MarkAsCustom(); }
-    private void OnPitchChanged(double _value) { UpdateFloatLabel(_pitchValue, _pitchSlider, "0.0", " deg"); MarkAsCustom(); }
-    private void OnAmplitudeChanged(double _value) { UpdateFloatLabel(_amplitudeValue, _amplitudeSlider, "0.00", string.Empty); MarkAsCustom(); }
-    private void OnBulgeIntensityChanged(double _value) { UpdateFloatLabel(_bulgeIntensityValue, _bulgeIntensitySlider, "0.00", string.Empty); MarkAsCustom(); }
-    private void OnBulgeRadiusChanged(double _value) { UpdateIntLabel(_bulgeRadiusValue, _bulgeRadiusSlider, " pc"); MarkAsCustom(); }
-    private void OnEllipticityChanged(double _value) { UpdateFloatLabel(_ellipticityValue, _ellipticitySlider, "0.00", string.Empty); MarkAsCustom(); }
-    private void OnIrregularityChanged(double _value) { UpdateFloatLabel(_irregularityValue, _irregularitySlider, "0.00", string.Empty); MarkAsCustom(); }
-    private void OnRadiusChanged(double _value) { UpdateIntLabel(_radiusValue, _radiusSlider, " pc"); MarkAsCustom(); }
-    private void OnDiskLengthChanged(double _value) { UpdateIntLabel(_diskLengthValue, _diskLengthSlider, " pc"); MarkAsCustom(); }
-    private void OnDiskHeightChanged(double _value) { UpdateIntLabel(_diskHeightValue, _diskHeightSlider, " pc"); MarkAsCustom(); }
-    private void OnDensityChanged(double _value) { UpdateFloatLabel(_densityValue, _densitySlider, "0.0", "x"); MarkAsCustom(); }
+    private void OnArmsChanged(double _value) { UpdateIntLabel(_armsValue, _armsSlider, string.Empty); MarkAsCustom(); RefreshValidationIssues(); }
+    private void OnPitchChanged(double _value) { UpdateFloatLabel(_pitchValue, _pitchSlider, "0.0", " deg"); MarkAsCustom(); RefreshValidationIssues(); }
+    private void OnAmplitudeChanged(double _value) { UpdateFloatLabel(_amplitudeValue, _amplitudeSlider, "0.00", string.Empty); MarkAsCustom(); RefreshValidationIssues(); }
+    private void OnBulgeIntensityChanged(double _value) { UpdateFloatLabel(_bulgeIntensityValue, _bulgeIntensitySlider, "0.00", string.Empty); MarkAsCustom(); RefreshValidationIssues(); }
+    private void OnBulgeRadiusChanged(double _value) { UpdateIntLabel(_bulgeRadiusValue, _bulgeRadiusSlider, " pc"); MarkAsCustom(); RefreshValidationIssues(); }
+    private void OnEllipticityChanged(double _value) { UpdateFloatLabel(_ellipticityValue, _ellipticitySlider, "0.00", string.Empty); MarkAsCustom(); RefreshValidationIssues(); }
+    private void OnIrregularityChanged(double _value) { UpdateFloatLabel(_irregularityValue, _irregularitySlider, "0.00", string.Empty); MarkAsCustom(); RefreshValidationIssues(); }
+    private void OnRadiusChanged(double _value) { UpdateIntLabel(_radiusValue, _radiusSlider, " pc"); MarkAsCustom(); RefreshValidationIssues(); }
+    private void OnDiskLengthChanged(double _value) { UpdateIntLabel(_diskLengthValue, _diskLengthSlider, " pc"); MarkAsCustom(); RefreshValidationIssues(); }
+    private void OnDiskHeightChanged(double _value) { UpdateIntLabel(_diskHeightValue, _diskHeightSlider, " pc"); MarkAsCustom(); RefreshValidationIssues(); }
+    private void OnDensityChanged(double _value) { UpdateFloatLabel(_densityValue, _densitySlider, "0.0", "x"); MarkAsCustom(); RefreshValidationIssues(); }
+
+    private void BuildParameterSupportUi()
+    {
+        if (_settingsVBox == null || _issuesContainer != null)
+        {
+            return;
+        }
+
+        Label assumptionsLabel = new Label();
+        assumptionsLabel.Name = "AssumptionsLabel";
+        assumptionsLabel.AutowrapMode = TextServer.AutowrapMode.Word;
+        assumptionsLabel.AddThemeFontSizeOverride("font_size", 10);
+        assumptionsLabel.Modulate = new Color(0.65f, 0.72f, 0.8f, 1.0f);
+        assumptionsLabel.Text = "The startup editor uses the same normalized GalaxyConfig and validation rules as the in-viewer galaxy inspector.";
+        _settingsVBox.AddChild(assumptionsLabel);
+        _assumptionsLabel = assumptionsLabel;
+
+        VBoxContainer issuesContainer = new VBoxContainer();
+        issuesContainer.Name = "IssuesContainer";
+        issuesContainer.AddThemeConstantOverride("separation", 2);
+        _settingsVBox.AddChild(issuesContainer);
+        _issuesContainer = issuesContainer;
+    }
+
+    private void ApplyParameterTooltips()
+    {
+        ApplyTooltip("galaxy_type", _typeOption, "CenterContainer/MainPanel/MarginContainer/VBox/ScrollContainer/SettingsVBox/TypeSection/TypeContent/TypeVBox/TypeRow/TypeLabel");
+        ApplyTooltip("num_arms", _armsSlider, "CenterContainer/MainPanel/MarginContainer/VBox/ScrollContainer/SettingsVBox/TypeSection/TypeContent/TypeVBox/ArmsRow/ArmsLabel");
+        ApplyTooltip("arm_pitch_angle_deg", _pitchSlider, "CenterContainer/MainPanel/MarginContainer/VBox/ScrollContainer/SettingsVBox/StructureSection/StructureContent/StructureVBox/PitchRow/PitchLabel");
+        ApplyTooltip("arm_amplitude", _amplitudeSlider, "CenterContainer/MainPanel/MarginContainer/VBox/ScrollContainer/SettingsVBox/StructureSection/StructureContent/StructureVBox/AmplitudeRow/AmplitudeLabel");
+        ApplyTooltip("bulge_intensity", _bulgeIntensitySlider, "CenterContainer/MainPanel/MarginContainer/VBox/ScrollContainer/SettingsVBox/StructureSection/StructureContent/StructureVBox/BulgeIntensityRow/BulgeIntensityLabel");
+        ApplyTooltip("bulge_radius_pc", _bulgeRadiusSlider, "CenterContainer/MainPanel/MarginContainer/VBox/ScrollContainer/SettingsVBox/StructureSection/StructureContent/StructureVBox/BulgeRadiusRow/BulgeRadiusLabel");
+        ApplyTooltip("ellipticity", _ellipticitySlider, "CenterContainer/MainPanel/MarginContainer/VBox/ScrollContainer/SettingsVBox/StructureSection/StructureContent/StructureVBox/EllipticityRow/EllipticityLabel");
+        ApplyTooltip("irregularity_scale", _irregularitySlider, "CenterContainer/MainPanel/MarginContainer/VBox/ScrollContainer/SettingsVBox/StructureSection/StructureContent/StructureVBox/IrregularityRow/IrregularityLabel");
+        ApplyTooltip("radius_pc", _radiusSlider, "CenterContainer/MainPanel/MarginContainer/VBox/ScrollContainer/SettingsVBox/SizeSection/SizeContent/SizeVBox/RadiusRow/RadiusLabel");
+        ApplyTooltip("disk_scale_length_pc", _diskLengthSlider, "CenterContainer/MainPanel/MarginContainer/VBox/ScrollContainer/SettingsVBox/SizeSection/SizeContent/SizeVBox/DiskLengthRow/DiskLengthLabel");
+        ApplyTooltip("disk_scale_height_pc", _diskHeightSlider, "CenterContainer/MainPanel/MarginContainer/VBox/ScrollContainer/SettingsVBox/SizeSection/SizeContent/SizeVBox/DiskHeightRow/DiskHeightLabel");
+        ApplyTooltip("star_density_multiplier", _densitySlider, "CenterContainer/MainPanel/MarginContainer/VBox/ScrollContainer/SettingsVBox/SizeSection/SizeContent/SizeVBox/DensityRow/DensityLabel");
+        ApplyTooltip("galaxy_seed", _seedSpin, "CenterContainer/MainPanel/MarginContainer/VBox/ScrollContainer/SettingsVBox/SeedContainer/SeedLabel");
+    }
+
+    private void ApplyTooltip(string parameterId, Control? inputControl, string labelPath)
+    {
+        string tooltip = GetParameterAssumption(parameterId);
+        if (inputControl != null)
+        {
+            inputControl.TooltipText = tooltip;
+        }
+
+        Label? label = GetNodeOrNull<Label>(labelPath);
+        if (label != null)
+        {
+            label.TooltipText = tooltip;
+        }
+    }
+
+    private string GetParameterAssumption(string parameterId)
+    {
+        foreach (GenerationParameterDefinition definition in GenerationParameterCatalog.GetGalaxyDefinitions())
+        {
+            if (definition.Id == parameterId)
+            {
+                return definition.AssumptionText;
+            }
+        }
+
+        return string.Empty;
+    }
+
+    private void ApplyConfig(GalaxyConfig config)
+    {
+        SetType((int)config.Type);
+        SetSlider(_armsSlider, config.NumArms);
+        SetSlider(_pitchSlider, config.ArmPitchAngleDeg);
+        SetSlider(_amplitudeSlider, config.ArmAmplitude);
+        SetSlider(_bulgeIntensitySlider, config.BulgeIntensity);
+        SetSlider(_bulgeRadiusSlider, config.BulgeRadiusPc);
+        SetSlider(_ellipticitySlider, config.Ellipticity);
+        SetSlider(_irregularitySlider, config.IrregularityScale);
+        SetSlider(_radiusSlider, config.RadiusPc);
+        SetSlider(_diskLengthSlider, config.DiskScaleLengthPc);
+        SetSlider(_diskHeightSlider, config.DiskScaleHeightPc);
+        SetSlider(_densitySlider, config.StarDensityMultiplier);
+    }
+
+    private void RefreshValidationIssues()
+    {
+        int seedValue = 1;
+        if (_seedSpin != null)
+        {
+            seedValue = (int)_seedSpin.Value;
+        }
+
+        _currentIssues = GalaxyGenerationParameterValidator.Validate(seedValue, GetCurrentConfig());
+        if (_issuesContainer == null)
+        {
+            return;
+        }
+
+        foreach (Node child in _issuesContainer.GetChildren())
+        {
+            child.QueueFree();
+        }
+
+        if (_currentIssues.Issues.Count == 0)
+        {
+            Label cleanLabel = new Label();
+            cleanLabel.Text = "No parameter issues.";
+            cleanLabel.AddThemeFontSizeOverride("font_size", 10);
+            cleanLabel.Modulate = new Color(0.55f, 0.75f, 0.55f, 1.0f);
+            _issuesContainer.AddChild(cleanLabel);
+            return;
+        }
+
+        foreach (GenerationParameterIssue issue in _currentIssues.Issues)
+        {
+            Label issueLabel = new Label();
+            issueLabel.AutowrapMode = TextServer.AutowrapMode.Word;
+            issueLabel.AddThemeFontSizeOverride("font_size", 10);
+            if (issue.Severity == GenerationParameterIssue.IssueSeverity.Error)
+            {
+                issueLabel.Modulate = new Color(1.0f, 0.45f, 0.45f, 1.0f);
+                issueLabel.Text = $"Error: {issue.Message}";
+            }
+            else
+            {
+                issueLabel.Modulate = new Color(0.85f, 0.7f, 0.3f, 1.0f);
+                issueLabel.Text = $"Warning: {issue.Message}";
+            }
+
+            _issuesContainer.AddChild(issueLabel);
+        }
+    }
 }
