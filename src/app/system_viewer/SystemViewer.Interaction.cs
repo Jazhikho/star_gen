@@ -55,27 +55,9 @@ public partial class SystemViewer
     /// </summary>
     private void OnGeneratePressed()
     {
-        int starCount;
-        if (_starCountSpin != null)
-        {
-            starCount = (int)_starCountSpin.Value;
-        }
-        else
-        {
-            starCount = 1;
-        }
-
-        int seedValue;
-        if (_seedInput != null)
-        {
-            seedValue = (int)_seedInput.Value;
-        }
-        else
-        {
-            seedValue = (int)(GD.Randi() % 1000000);
-        }
+        SolarSystemSpec spec = BuildCurrentSpecFromControls();
         _sourceStarSeed = 0;
-        GenerateSystem(seedValue, starCount, starCount);
+        GenerateSystem(spec);
     }
 
     /// <summary>
