@@ -2,6 +2,7 @@ using Godot;
 using StarGen.Domain.Celestial;
 using StarGen.Domain.Celestial.Components;
 using StarGen.Domain.Celestial.Serialization;
+using StarGen.Domain.Celestial.Validation;
 
 namespace StarGen.App.Viewer;
 
@@ -15,6 +16,12 @@ public partial class InspectorPanel : VBoxContainer
 	/// </summary>
 	[Signal]
 	public delegate void MoonSelectedEventHandler(Variant moon);
+
+	/// <summary>
+	/// Emitted when the user requests editing for the currently displayed body.
+	/// </summary>
+	[Signal]
+	public delegate void EditRequestedEventHandler();
 
 	private VBoxContainer? _inspectorContainer;
 
@@ -162,13 +169,19 @@ public partial class InspectorPanel : VBoxContainer
 		{
 			AddProperty("Surface Pressure", $"{body.Atmosphere.SurfacePressurePa / 101325.0:0.###} atm");
 		}
+
+		AddGenerationSnapshot(body);
+		AddValidationSummary(body);
+		AddEditButton();
 	}
 
 	private void AddPhysicalSummary(PhysicalProps physical)
 	{
 		AddProperty("Mass", $"{physical.MassKg:0.###e0} kg");
 		AddProperty("Radius", FormatDistance(physical.RadiusM));
+		AddProperty("Density", $"{physical.GetDensityKgM3():0.0} kg/m^3");
 		AddProperty("Gravity", $"{physical.GetSurfaceGravityMS2():0.00} m/s^2");
+		AddProperty("Escape Velocity", $"{physical.GetEscapeVelocityMS() / 1000.0:0.00} km/s");
 	}
 
 	private void AddMoonListSection(
@@ -284,6 +297,83 @@ public partial class InspectorPanel : VBoxContainer
 		Label label = new();
 		label.Text = text;
 		_inspectorContainer.AddChild(label);
+	}
+
+	private void AddGenerationSnapshot(CelestialBody body)
+	{
+		if (_inspectorContainer == null || body.Provenance == null || body.Provenance.SpecSnapshot.Count == 0)
+		{
+			return;
+		}
+
+		AddSectionHeader("Generation Targets");
+		if (body.Provenance.SpecSnapshot.ContainsKey("spec_type"))
+		{
+			AddProperty("Spec", body.Provenance.SpecSnapshot["spec_type"].ToString());
+		}
+
+		if (body.Provenance.SpecSnapshot.ContainsKey("size_category"))
+		{
+			AddProperty("Size Target", body.Provenance.SpecSnapshot["size_category"].ToString());
+		}
+
+		if (body.Provenance.SpecSnapshot.ContainsKey("orbit_zone"))
+		{
+			AddProperty("Orbit Target", body.Provenance.SpecSnapshot["orbit_zone"].ToString());
+		}
+
+		if (body.Provenance.SpecSnapshot.ContainsKey("spectral_class"))
+		{
+			AddProperty("Spectral Target", body.Provenance.SpecSnapshot["spectral_class"].ToString());
+		}
+	}
+
+	private void AddValidationSummary(CelestialBody body)
+	{
+		if (_inspectorContainer == null)
+		{
+			return;
+		}
+
+		ValidationResult validation = CelestialValidator.Validate(body);
+		AddSectionHeader("Validation");
+		if (validation.IsClean())
+		{
+			AddInfoLabel("No validation issues");
+			return;
+		}
+
+		foreach (ValidationError warning in validation.Errors)
+		{
+			Label label = new Label();
+			label.AutowrapMode = TextServer.AutowrapMode.Word;
+			if (warning.Severity == ValidationError.SeverityLevel.Error)
+			{
+				label.Text = $"Error: {warning.Message}";
+				label.Modulate = new Color(1.0f, 0.45f, 0.45f, 1.0f);
+			}
+			else
+			{
+				label.Text = $"Warning: {warning.Message}";
+				label.Modulate = new Color(0.85f, 0.7f, 0.3f, 1.0f);
+			}
+
+			_inspectorContainer.AddChild(label);
+		}
+	}
+
+	private void AddEditButton()
+	{
+		if (_inspectorContainer == null)
+		{
+			return;
+		}
+
+		Button button = new Button();
+		button.Text = "Open Parameter Editor";
+		button.TooltipText = "Edit and regenerate this body using validated parameters";
+		button.Pressed += () => EmitSignal(SignalName.EditRequested);
+		_inspectorContainer.AddChild(button);
 	}
 
 	private static string FormatDistance(double meters)

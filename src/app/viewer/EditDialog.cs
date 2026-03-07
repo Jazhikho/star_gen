@@ -4,6 +4,7 @@ using Godot;
 using Godot.Collections;
 using StarGen.Domain.Celestial;
 using StarGen.Domain.Celestial.Components;
+using StarGen.Domain.Celestial.Validation;
 using StarGen.Domain.Editing;
 using StarGen.Domain.Generation;
 using StarGen.Domain.Generation.Archetypes;
@@ -129,6 +130,7 @@ public partial class EditDialog : Window
 	private FileDialog? _saveDialog;
 	private Button? _regenerateBtn;
 	private Button? _saveBtn;
+	private VBoxContainer? _validationIssuesContainer;
 
 	private VBoxContainer? _content;
 	private Camera3D? _previewCamera;
@@ -375,6 +377,11 @@ public partial class EditDialog : Window
 			AddNumericEditor("surface.albedo", "Albedo");
 			AddNumericEditor("surface.volcanism_level", "Volcanism Level");
 		}
+		AddSection("Validation");
+		_validationIssuesContainer = new VBoxContainer();
+		_validationIssuesContainer.AddThemeConstantOverride("separation", 2);
+		_currentSectionContent?.AddChild(_validationIssuesContainer);
+		UpdateValidationIssues();
 	}
 
 	private void AddSection(string titleText)
@@ -571,6 +578,7 @@ public partial class EditDialog : Window
 		ApplyValuesToBody();
 		UpdatePreview();
 		UpdateDerivedLabels();
+		UpdateValidationIssues();
 	}
 
 	private void OnSliderChanged(double dispValue, string propertyPath, SpinBox spin)
@@ -594,6 +602,7 @@ public partial class EditDialog : Window
 		ApplyValuesToBody();
 		UpdatePreview();
 		UpdateDerivedLabels();
+		UpdateValidationIssues();
 	}
 
 	private void OnTravellerApply()
@@ -619,6 +628,7 @@ public partial class EditDialog : Window
 		ApplyValuesToBody();
 		UpdatePreview();
 		UpdateDerivedLabels();
+		UpdateValidationIssues();
 		if (_travellerClear != null)
 			_travellerClear.Disabled = false;
 	}
@@ -629,6 +639,7 @@ public partial class EditDialog : Window
 		Resolve();
 		RefreshAllEditorBounds();
 		UpdateDerivedLabels();
+		UpdateValidationIssues();
 		if (_travellerClear != null)
 			_travellerClear.Disabled = true;
 	}
@@ -701,6 +712,51 @@ public partial class EditDialog : Window
 		}
 		if (_derivedLabels.ContainsKey("TravellerStatus"))
 			(_derivedLabels["TravellerStatus"].As<Label>())!.Text = TravellerStatusText();
+	}
+
+	private void UpdateValidationIssues()
+	{
+		if (_validationIssuesContainer == null || _body == null)
+		{
+			return;
+		}
+
+		foreach (Node child in _validationIssuesContainer.GetChildren())
+		{
+			child.QueueFree();
+		}
+
+		ValidationResult validation = CelestialValidator.Validate(_body);
+		if (validation.IsClean())
+		{
+			Label cleanLabel = new Label
+			{
+				Text = "No validation issues",
+			};
+			cleanLabel.AddThemeFontSizeOverride("font_size", 11);
+			cleanLabel.AddThemeColorOverride("font_color", new Color(0.55f, 0.75f, 0.55f));
+			_validationIssuesContainer.AddChild(cleanLabel);
+			return;
+		}
+
+		foreach (ValidationError issue in validation.Errors)
+		{
+			Label label = new Label();
+			label.AutowrapMode = TextServer.AutowrapMode.Word;
+			label.AddThemeFontSizeOverride("font_size", 11);
+			if (issue.Severity == ValidationError.SeverityLevel.Error)
+			{
+				label.Text = "Error: " + issue.Message;
+				label.AddThemeColorOverride("font_color", new Color(1.0f, 0.45f, 0.45f));
+			}
+			else
+			{
+				label.Text = "Warning: " + issue.Message;
+				label.AddThemeColorOverride("font_color", new Color(WarningColorR, WarningColorG, WarningColorB));
+			}
+
+			_validationIssuesContainer.AddChild(label);
+		}
 	}
 
 	private void UpdatePreview()
