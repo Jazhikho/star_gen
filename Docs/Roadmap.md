@@ -10,6 +10,19 @@ Release notes and version summaries are in the [README](../README.md#version-his
 
 This roadmap builds StarGen in three layers: (1) viewable celestial objects (editing deferred), (2) solar systems, then (3) galactic scale. Work is organized as **efforts** that can be pursued in parallel where dependencies allow.
 
+## 0.4.0 MVP focus
+
+The active review scope for `0.4.0` is tracked in [Docs/Release-0.4.0-MVP.md](../Docs/Release-0.4.0-MVP.md).
+
+This MVP bundles the following into one vertical slice:
+
+- panel-aware object, system, and galaxy viewers
+- parameter-driven generation editors for galaxy, system, and object flows
+- shared pre-generation validation and advisory-warning handling for editable generation inputs
+- provenance-backed object inspector visibility for generation targets and realism issues
+
+This scope intentionally excludes freeform structural editing for systems and galaxies. Those remain under later roadmap efforts such as Solar system tools and Galactic tools.
+
 ## Guiding principles
 
 •	Determinism is non-negotiable: same seed + same inputs must produce identical outputs.
@@ -34,7 +47,6 @@ Contributors pick an effort and work against master. Efforts can run in parallel
 
 | Name | Summary | Gates | Branch |
 |------|---------|-------|--------|
-| **Save format and compatibility** | ZSTD .sgg/.sgb C# port (byte-compatible), backward compat for binary saves; address save-path parity | — | — |
 | System viewer rendering improvements | Directional lighting, axial tilt, 1 day = 1 s, asteroid belt torus | — | `feature/constraints-belts-rotation` |
 | Object editing | Editable inspector, derived-value recalc, undo/redo | — | — |
 | Object rendering v2 | Oblateness, aurora, LOD, seed-driven materials | — | — |
@@ -64,31 +76,6 @@ Contributors pick an effort and work against master. Efforts can run in parallel
 ---
 
 ## Effort details
-
-### C# refactor (completed)
-
-**Goal (achieved):** Complete the C# migration while preserving determinism, save/load format, and release parity. Remaining GDScript is limited to launcher and fallback harness glue, not the primary runtime path.
-
-**Outcome:** Domain, services, and app under `src/` are now C#. All production scenes reference `.cs` scripts. JSON save/load runs on the C# serializers and persistence layer. The primary test harness is C# (`DotNetNativeTestSuite`, `TestRegistry.cs`); `RunTestsHeadless.gd` and `TestScene.gd` remain only as launchers that boot the .NET harness. Remaining save-format work (ZSTD `.sgg`/`.sgb` binary formats) is tracked under **Save format and compatibility**.
-
----
-
-### Save format and compatibility
-
-**Goal:** Address save-path parity and backward compatibility so all save/load flows can run on the C# stack without silently changing formats.
-
-**Current state:** In-app save flows, custom file extensions (`.sgt`, `.sgp`, `.sga`, `.sgb`, `.sgs`, `.sgg`), and which service drives each flow are documented in Docs/ProjectStructure.md under "Save system (in-app)".
-
-**Deliverables:**
-•	**ZSTD binary formats:** Byte-compatible C# implementation for `.sgg` (galaxy) and `.sgb` (body) so the binary save path can move off the GDScript path. Do not change the on-disk format; existing saves must remain loadable.
-•	Backward compatibility: preserve ability to load at least one prior schema version where applicable.
-•	Documentation: note which formats (JSON, GZIP, ZSTD) are supported and where each is used.
-
-**Tests:** Round-trip save/load for each format; byte-level compatibility with existing .sgg/.sgb fixtures if available; no regression in JSON/GZIP paths.
-
-**Acceptance:** Binary saves (ZSTD) can be written and read from C# with identical byte output for the same data; existing saved files load correctly.
-
----
 
 ### Solar system constraints
 
