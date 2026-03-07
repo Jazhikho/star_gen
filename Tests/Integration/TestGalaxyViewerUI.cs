@@ -25,6 +25,8 @@ public static class TestGalaxyViewerUI
         runner.RunNativeTest("TestGalaxyViewerUI::test_jump_route_progress_controls_exist", TestJumpRouteProgressControlsExist);
         runner.RunNativeTest("TestGalaxyViewerUI::test_recalculate_same_subsector_does_not_duplicate_systems", TestRecalculateSameSubsectorDoesNotDuplicateSystems);
         runner.RunNativeTest("TestGalaxyViewerUI::test_subsector_change_keeps_routes_and_recalculate_expands_region", TestSubsectorChangeKeepsRoutesAndRecalculateExpandsRegion);
+        runner.RunNativeTest("TestGalaxyViewerUI::test_apply_valid_config_updates_spec", TestApplyValidConfigUpdatesSpec);
+        runner.RunNativeTest("TestGalaxyViewerUI::test_invalid_config_is_blocked", TestInvalidConfigIsBlocked);
     }
 
     private static GalaxyViewer CreateViewer(bool startAtHome = true)
@@ -266,6 +268,71 @@ public static class TestGalaxyViewerUI
             DotNetNativeTestSuite.AssertTrue(
                 expandedSystemCount >= initialSystemCount,
                 "Recalculating after moving should keep prior systems and add any newly visible ones");
+        }
+        finally
+        {
+            IntegrationTestUtils.CleanupNode(viewer);
+        }
+    }
+
+    private static void TestApplyValidConfigUpdatesSpec()
+    {
+        GalaxyViewer viewer = CreateViewer(startAtHome: false);
+        try
+        {
+            GalaxyInspectorPanel? panel = viewer.get_inspector_panel() as GalaxyInspectorPanel;
+            DotNetNativeTestSuite.AssertNotNull(panel, "Inspector panel should exist");
+
+            SpinBox? seedInput = viewer.GetNodeOrNull<SpinBox>("UI/UIRoot/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/GenerationSection/SeedContainer/SeedInput");
+            DotNetNativeTestSuite.AssertNotNull(seedInput, "Galaxy viewer should expose the seed input");
+            seedInput!.Value = 424242;
+
+            GalaxyConfig updatedConfig = GalaxyConfig.CreateDefault();
+            updatedConfig.Type = GalaxySpec.GalaxyType.Elliptical;
+            updatedConfig.BulgeIntensity = 1.1;
+            updatedConfig.Ellipticity = 0.55;
+            updatedConfig.RadiusPc = 18000.0;
+            panel!.SetEditableConfig(updatedConfig);
+            panel.EmitSignal(GalaxyInspectorPanel.SignalName.ApplyGalaxyConfigRequested);
+
+            GalaxySpec? spec = viewer.get_spec();
+            DotNetNativeTestSuite.AssertNotNull(spec, "Viewer should expose an updated spec");
+            DotNetNativeTestSuite.AssertEqual(GalaxySpec.GalaxyType.Elliptical, spec!.Type, "Applying a valid config should update galaxy type");
+            DotNetNativeTestSuite.AssertEqual(updatedConfig.RadiusPc, spec.RadiusPc, "Applying a valid config should update radius");
+            DotNetNativeTestSuite.AssertEqual(424242, viewer.galaxy_seed, "Applying a valid config should update the seed");
+        }
+        finally
+        {
+            IntegrationTestUtils.CleanupNode(viewer);
+        }
+    }
+
+    private static void TestInvalidConfigIsBlocked()
+    {
+        GalaxyViewer viewer = CreateViewer(startAtHome: false);
+        try
+        {
+            GalaxyInspectorPanel? panel = viewer.get_inspector_panel() as GalaxyInspectorPanel;
+            DotNetNativeTestSuite.AssertNotNull(panel, "Inspector panel should exist");
+            SpinBox? seedInput = viewer.GetNodeOrNull<SpinBox>("UI/UIRoot/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/GenerationSection/SeedContainer/SeedInput");
+            DotNetNativeTestSuite.AssertNotNull(seedInput, "Galaxy viewer should expose the seed input");
+
+            GalaxySpec? originalSpec = viewer.get_spec();
+            DotNetNativeTestSuite.AssertNotNull(originalSpec, "Viewer should expose an initial spec");
+            double originalRadius = originalSpec!.RadiusPc;
+
+            seedInput!.Value = 0.0;
+            GalaxyConfig invalidConfig = GalaxyConfig.CreateDefault();
+            panel!.SetEditableConfig(invalidConfig);
+            panel.EmitSignal(GalaxyInspectorPanel.SignalName.ApplyGalaxyConfigRequested);
+
+            GalaxySpec? currentSpec = viewer.get_spec();
+            DotNetNativeTestSuite.AssertNotNull(currentSpec, "Viewer should still expose a spec after invalid apply");
+            DotNetNativeTestSuite.AssertEqual(originalRadius, currentSpec!.RadiusPc, "Invalid config should not replace the active spec");
+
+            VBoxContainer? issuesContainer = panel.GetNodeOrNull<VBoxContainer>("ConfigEditorContainer/ConfigIssuesContainer");
+            DotNetNativeTestSuite.AssertNotNull(issuesContainer, "Galaxy inspector should expose the config issue container");
+            DotNetNativeTestSuite.AssertTrue(issuesContainer!.GetChildCount() > 0, "Invalid config should render issues");
         }
         finally
         {

@@ -12,6 +12,14 @@ Partial-class splits (large files broken into focused parts):
 - `MainApp.cs` / `MainApp.Navigation.cs`
 - `ObjectViewer.cs` / `ObjectViewer.Display.cs` / `ObjectViewer.SaveLoad.cs`
 
+Recent 0.4.0 additions:
+- `Docs/Release-0.4.0-MVP.md`
+- `src/app/shared/ViewerLayoutHelper.cs`
+- `src/app/system_viewer/SystemViewer.Parameters.cs`
+- `src/domain/generation/parameters/` (shared parameter definitions and validators)
+- `Tests/Integration/TestGenerationParameters.cs`
+- `Tests/Integration/TestViewerLayoutHelper.cs`
+
 Prototype files consolidated under `src/app/prototypes/`:
 - `JumpLanesPrototype.cs`, `JumpLaneRenderer.cs`, `MockRegionGenerator.cs` (moved from `src/app/jumplanes_prototype/`)
 - `StationGeneratorPrototype.cs`
@@ -69,6 +77,13 @@ C# source files:
 - `src/domain/generation/archetypes/TravellerSizeCode.cs`
 - `src/domain/generation/archetypes/OrbitZone.cs`
 - `src/domain/generation/fixtures/FixtureGenerator.cs`
+- `src/domain/generation/parameters/GenerationParameterControlType.cs`
+- `src/domain/generation/parameters/GenerationParameterDefinition.cs`
+- `src/domain/generation/parameters/GenerationParameterIssue.cs`
+- `src/domain/generation/parameters/GenerationParameterIssueSet.cs`
+- `src/domain/generation/parameters/GenerationParameterCatalog.cs`
+- `src/domain/generation/parameters/SystemGenerationParameterValidator.cs`
+- `src/domain/generation/parameters/GalaxyGenerationParameterValidator.cs`
 - `src/domain/population/HabitabilityCategory.cs`
 - `src/domain/population/ClimateZone.cs`
 - `src/domain/population/BiomeType.cs`
@@ -230,6 +245,7 @@ C# source files:
 - `src/app/system_viewer/SystemBodyNodeCSharp.tscn`
 - `src/app/system_viewer/SystemInspectorPanel.cs`
 - `src/app/system_viewer/SystemViewer.cs`
+- `src/app/system_viewer/SystemViewer.Parameters.cs`
 - `src/app/system_viewer/SystemViewer.Setup.cs`
 - `src/app/system_viewer/SystemViewer.Rendering.cs`
 - `src/app/system_viewer/SystemViewer.Interaction.cs`
@@ -243,6 +259,7 @@ C# source files:
 - `src/app/viewer/ObjectViewer.SaveLoad.cs`
 - `src/app/viewer/PropertyFormatter.cs`
 - `src/app/viewer/EditDialog.cs`
+- `src/app/shared/ViewerLayoutHelper.cs`
 - `src/app/components/CollapsibleSection.cs`
 - `src/app/MainApp.cs`
 - `src/app/MainApp.Navigation.cs`

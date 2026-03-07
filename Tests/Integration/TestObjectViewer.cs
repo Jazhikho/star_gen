@@ -4,6 +4,7 @@ using Godot;
 using StarGen.App.Rendering;
 using StarGen.App.Viewer;
 using StarGen.Domain.Celestial;
+using StarGen.Domain.Generation.Archetypes;
 using StarGen.Services.Persistence;
 using StarGen.Tests.Framework;
 
@@ -29,6 +30,8 @@ public static class TestObjectViewer
         runner.RunNativeTest("TestObjectViewer::test_collapsible_sections", TestCollapsibleSections);
         runner.RunNativeTest("TestObjectViewer::test_deterministic_generation", TestDeterministicGeneration);
         runner.RunNativeTest("TestObjectViewer::test_viewer_save_and_load_body", TestViewerSaveAndLoadBody);
+        runner.RunNativeTest("TestObjectViewer::test_preset_controls_exist", TestPresetControlsExist);
+        runner.RunNativeTest("TestObjectViewer::test_earth_like_preset_updates_spec_snapshot", TestEarthLikePresetUpdatesSpecSnapshot);
     }
 
     private static ObjectViewer CreateViewer()
@@ -301,6 +304,55 @@ public static class TestObjectViewer
         finally
         {
             CleanupSaveFile(path);
+            IntegrationTestUtils.CleanupNode(viewer);
+        }
+    }
+
+    private static void TestPresetControlsExist()
+    {
+        ObjectViewer viewer = CreateViewer();
+        try
+        {
+            OptionButton? presetOption = viewer.GetNodeOrNull<OptionButton>("UI/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/GenerationSection/PresetContainer/PresetOption");
+            Label? assumptionsLabel = viewer.GetNodeOrNull<Label>("UI/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/GenerationSection/PresetAssumptionsLabel");
+            DotNetNativeTestSuite.AssertNotNull(presetOption, "Object viewer should expose a preset selector");
+            DotNetNativeTestSuite.AssertNotNull(assumptionsLabel, "Object viewer should expose preset assumption text");
+            DotNetNativeTestSuite.AssertTrue(presetOption!.ItemCount > 0, "Preset selector should contain entries");
+            DotNetNativeTestSuite.AssertTrue(!string.IsNullOrEmpty(assumptionsLabel!.Text), "Preset assumption text should be populated");
+        }
+        finally
+        {
+            IntegrationTestUtils.CleanupNode(viewer);
+        }
+    }
+
+    private static void TestEarthLikePresetUpdatesSpecSnapshot()
+    {
+        ObjectViewer viewer = CreateViewer();
+        try
+        {
+            OptionButton? typeOption = viewer.GetNodeOrNull<OptionButton>("UI/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/GenerationSection/TypeContainer/TypeOption");
+            OptionButton? presetOption = viewer.GetNodeOrNull<OptionButton>("UI/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/GenerationSection/PresetContainer/PresetOption");
+            Button? generateButton = viewer.GetNodeOrNull<Button>("UI/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/GenerationSection/ButtonContainer/GenerateButton");
+
+            DotNetNativeTestSuite.AssertNotNull(typeOption, "Type selector should exist");
+            DotNetNativeTestSuite.AssertNotNull(presetOption, "Preset selector should exist");
+            DotNetNativeTestSuite.AssertNotNull(generateButton, "Generate button should exist");
+
+            typeOption!.Select((int)ObjectViewer.ObjectType.Planet);
+            typeOption.EmitSignal(OptionButton.SignalName.ItemSelected, (long)ObjectViewer.ObjectType.Planet);
+            presetOption!.Select(1);
+            presetOption.EmitSignal(OptionButton.SignalName.ItemSelected, 1L);
+            generateButton!.EmitSignal(Button.SignalName.Pressed);
+
+            DotNetNativeTestSuite.AssertNotNull(viewer.current_body, "Preset generation should produce a body");
+            Godot.Collections.Dictionary snapshot = viewer.current_body!.Provenance.SpecSnapshot;
+            DotNetNativeTestSuite.AssertEqual("planet", (string)snapshot["spec_type"], "Preset generation should preserve the planet spec snapshot");
+            DotNetNativeTestSuite.AssertEqual((int)SizeCategory.Category.Terrestrial, (int)snapshot["size_category"], "Earth-like preset should lock terrestrial size target");
+            DotNetNativeTestSuite.AssertEqual((int)OrbitZone.Zone.Temperate, (int)snapshot["orbit_zone"], "Earth-like preset should lock temperate orbit target");
+        }
+        finally
+        {
             IntegrationTestUtils.CleanupNode(viewer);
         }
     }

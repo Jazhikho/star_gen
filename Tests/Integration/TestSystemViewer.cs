@@ -2,6 +2,7 @@
 #nullable disable warnings
 using Godot;
 using StarGen.App.SystemViewer;
+using StarGen.Domain.Systems;
 using StarGen.Tests.Framework;
 
 namespace StarGen.Tests.Integration;
@@ -24,6 +25,8 @@ public static class TestSystemViewer
         runner.RunNativeTest("TestSystemViewer::test_has_environment", TestHasEnvironment);
         runner.RunNativeTest("TestSystemViewer::test_body_node_scene_loads", TestBodyNodeSceneLoads);
         runner.RunNativeTest("TestSystemViewer::test_belt_renderer_script_loads", TestBeltRendererScriptLoads);
+        runner.RunNativeTest("TestSystemViewer::test_has_parameter_editor_controls", TestHasParameterEditorControls);
+        runner.RunNativeTest("TestSystemViewer::test_invalid_spec_blocks_generation", TestInvalidSpecBlocksGeneration);
     }
 
     private static SystemViewer CreateViewer()
@@ -190,6 +193,43 @@ public static class TestSystemViewer
         BeltRenderer renderer = new();
         DotNetNativeTestSuite.AssertNotNull(renderer, "BeltRenderer type should instantiate");
         IntegrationTestUtils.CleanupNode(renderer);
+    }
+
+    private static void TestHasParameterEditorControls()
+    {
+        SystemViewer viewer = CreateViewer();
+        try
+        {
+            string basePath = "UI/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/GenerationSection";
+            DotNetNativeTestSuite.AssertNotNull(viewer.GetNodeOrNull<SpinBox>($"{basePath}/StarCountContainer/StarCountSpin"), "Should expose min-star editor");
+            DotNetNativeTestSuite.AssertNotNull(viewer.GetNodeOrNull<LineEdit>($"{basePath}/SpectralHintsContainer/SpectralHintsInput"), "Should expose spectral-hint editor");
+            DotNetNativeTestSuite.AssertNotNull(viewer.GetNodeOrNull<SpinBox>($"{basePath}/SystemAgeContainer/SystemAgeInput"), "Should expose age editor");
+            DotNetNativeTestSuite.AssertNotNull(viewer.GetNodeOrNull<SpinBox>($"{basePath}/SystemMetallicityContainer/SystemMetallicityInput"), "Should expose metallicity editor");
+        }
+        finally
+        {
+            IntegrationTestUtils.CleanupNode(viewer);
+        }
+    }
+
+    private static void TestInvalidSpecBlocksGeneration()
+    {
+        SystemViewer viewer = CreateViewer();
+        try
+        {
+            SolarSystem? previousSystem = viewer.GetCurrentSystem();
+            SolarSystemSpec invalidSpec = new(0, 1, 1);
+            viewer.GenerateSystem(invalidSpec);
+
+            Label? statusLabel = viewer.GetNodeOrNull<Label>("UI/TopBar/MarginContainer/HBoxContainer/StatusLabel");
+            DotNetNativeTestSuite.AssertNotNull(statusLabel, "Status label should exist");
+            DotNetNativeTestSuite.AssertTrue(statusLabel!.Text.StartsWith("Error"), "Blocking validation errors should surface as an error status");
+            DotNetNativeTestSuite.AssertEqual(previousSystem, viewer.GetCurrentSystem(), "Blocking validation errors should leave the previous system intact");
+        }
+        finally
+        {
+            IntegrationTestUtils.CleanupNode(viewer);
+        }
     }
 
 }
