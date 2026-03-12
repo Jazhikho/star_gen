@@ -10,19 +10,6 @@ Release notes and version summaries are in the [README](../README.md#version-his
 
 This roadmap builds StarGen in three layers: (1) viewable celestial objects (editing deferred), (2) solar systems, then (3) galactic scale. Work is organized as **efforts** that can be pursued in parallel where dependencies allow.
 
-## 0.4.0 MVP focus
-
-The active review scope for `0.4.0` is tracked in [Docs/Release-0.4.0-MVP.md](../Docs/Release-0.4.0-MVP.md).
-
-This MVP bundles the following into one vertical slice:
-
-- panel-aware object, system, and galaxy viewers
-- parameter-driven generation editors for galaxy, system, and object flows
-- shared pre-generation validation and advisory-warning handling for editable generation inputs
-- provenance-backed object inspector visibility for generation targets and realism issues
-
-This scope intentionally excludes freeform structural editing for systems and galaxies. Those remain under later roadmap efforts such as Solar system tools and Galactic tools.
-
 ## Guiding principles
 
 •	Determinism is non-negotiable: same seed + same inputs must produce identical outputs.
@@ -402,6 +389,8 @@ Contributors pick an effort and work against master. Efforts can run in parallel
 **Goal:** Make StarGen output usable in a standard Traveller tabletop game. When “Traveller use case” is selected, generation produces worlds with valid Universal World Profile (UWP) codes and applies Traveller-compatible rules where they affect generation.
 
 **Context:** Traveller uses a **UWP** string (e.g. `X56789A-7`) for each world: Starport (A–E, X), Size (0–9), Atmosphere (0–15), Hydrographics (0–10), Population (0–15, digit = exponent), Government (0–15), Law Level (0–9), Tech Level (0–15). Optional: bases (Naval, Scout, etc.), trade codes (Ag, Hi, In, etc.). StarGen already has: physical size, atmosphere pressure/composition, hydrographics (ocean coverage), population and government (GovernmentType), tech level (TechnologyLevel), and station classes (U/O/B/A/S). Gaps: explicit Law Level, starport grade (Traveller A–X) vs station class, and numeric UWP digits with Traveller’s tables and trade-code rules.
+
+**Current master foundation:** Config-first galaxy/system/object generation is now in place. Shared `GenerationUseCaseSettings` carries ruleset mode, Traveller readout visibility, life/population permissiveness, and mainworld policy through UI, specs, and persistence. Current inspectors expose derived Traveller readouts and deterministic mainworld readiness summaries, but full UWP generation, Traveller trade routes, and subsector export remain future work in this effort.
 
 **Deliverables:**
 •	**Use-case toggle:** A generation/spec option (e.g. “Traveller use case”) that enables Traveller-specific outputs and rules. No change to default (non-Traveller) behaviour.

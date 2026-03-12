@@ -724,6 +724,9 @@ public static partial class DotNetNativeTestSuite
             "TestGalaxy::test_different_galaxy_seeds_different_stars",
             Tests.Unit.TestGalaxy.TestDifferentGalaxySeedsDifferentStars);
         runner.RunNativeTest(
+            "TestGalaxy::test_returned_star_snapshots_survive_garbage_collection",
+            Tests.Unit.TestGalaxy.TestReturnedStarSnapshotsSurviveGarbageCollection);
+        runner.RunNativeTest(
             "TestGalaxy::test_stars_have_metallicity",
             Tests.Unit.TestGalaxy.TestStarsHaveMetallicity);
         runner.RunNativeTest(

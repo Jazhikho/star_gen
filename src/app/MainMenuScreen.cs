@@ -156,7 +156,7 @@ public partial class MainMenuScreen : Control
 
 	private void PopulateStaticText()
 	{
-		string version = ProjectSettings.GetSetting("application/config/version", "0.4.1.0").AsString();
+		string version = ProjectSettings.GetSetting("application/config/version", "0.4.1.1").AsString();
 		if (_versionLabel != null)
 		{
 			_versionLabel.Text = $"Version {version}";
@@ -196,6 +196,9 @@ public partial class MainMenuScreen : Control
 	private static string GetReleaseNotesContent()
 	{
 		return
+			"Version 0.4.1.1\n\n" +
+			"- Added a regression test for galaxy star snapshots surviving garbage collection.\n" +
+			"- Consolidated the 0.4.0 MVP scope and Traveller integration notes into the active docs set.\n\n" +
 			"Version 0.4.1.0\n\n" +
 			"- Reworked the app entry flow around dedicated galaxy, system, and object generation studios.\n" +
 			"- Main-menu launches now open viewers with generated content instead of empty setup states.\n\n" +

@@ -22,11 +22,13 @@ Built with **Godot 4.x** and a **C#-first** codebase. Remaining GDScript files a
 | **0.2.0** | `a99ef2c` | Asteroid belt generation and rendering in system viewer; scientific calibration (GenerationRealismProfile, benchmarks, ensemble harness, distribution tests); belt renderer/generator integration; OrbitSlotGenerator, OrbitalMechanics, StellarConfigGenerator, SystemValidator updates; GalaxyInspectorPanel and test suite updates. Removed Concepts/AsteroidBelt demo scenes and Tests/RunGalaxyTests.gd. |
 | **0.3.0** | - | User-facing main menu and release notes, body/system save-load, gas giant variety, optional Traveller size-code support in object editing, and the completed C# refactor. |
 | **0.4.0** | - | Config-first standalone system/object entry, shared Traveller/worldbuilding settings across galaxy/system/object flows, persisted Traveller readouts, and deterministic mainworld readiness summaries. |
-| **0.4.1.0** | - | Studio-first generation flow: redesigned main menu, dedicated system/object setup screens, and viewer launches that open with generated content. (current) |
+| **0.4.1.1** | - | Patch update: added galaxy snapshot GC regression coverage and consolidated the 0.4.0 MVP / Traveller documentation into the current docs set. (current) |
+| **0.4.1.0** | - | Studio-first generation flow: redesigned main menu, dedicated system/object setup screens, and viewer launches that open with generated content. |
 | **0.4.0.1** | - | Fixed galaxy star snapshot lifetime so returned sector stars remain valid under full headless test execution. |
 
 ### Release notes (summary)
 
+- **0.4.1.1** - Added the galaxy snapshot lifetime regression test, folded the 0.4.0 MVP scope into the roadmap/docs, and aligned the repo-local versioning note.
 - **0.4.1.0** - Redesigned the menu into a studio dashboard, added dedicated system/object generation studios, and shifted menu-driven generation setup out of the viewers.
 - **0.4.0.1** - Fixed galaxy star snapshot lifetime so returned sector stars remain valid under full headless test execution.
 - **0.4.0** - Config-first standalone generation for system and object entry. Shared Traveller/worldbuilding settings across galaxy, system, and object flows. Traveller/UWP readouts and mainworld readiness summaries are persisted and exposed in inspectors.

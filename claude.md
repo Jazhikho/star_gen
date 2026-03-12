@@ -77,6 +77,16 @@ When proposing implementation, include:
 
 ---
 
+## Versioning
+- App and release versions must follow the repository versioning method from the global agent instructions.
+- **Features:** increment by `0.0.1`
+- **Bug fixes:** increment by `0.0.0.1`
+- **Refactors:** increment by `0.1`
+- **Release builds:** increment by `0.1`, or by `1.0` if the release breaks previous user saves or a contributor is explicitly instructed otherwise.
+- Keep `VERSION.md`, `project.godot`, export preset version metadata, and user-facing version labels in sync whenever a version changes.
+
+---
+
 ## Effort discipline
 Proposed changes that do not fit any existing effort are added as a **new effort** in Docs/Roadmap.md. Each new effort should include: name, summary, gates (if any), deliverables, tests, and acceptance criteria. Do not implement until that effort is explicitly picked by a contributor.
 

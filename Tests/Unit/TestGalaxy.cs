@@ -248,6 +248,30 @@ public static class TestGalaxy
     }
 
     /// <summary>
+    /// Tests returned sector star snapshots remain valid after garbage collection.
+    /// </summary>
+    public static void TestReturnedStarSnapshotsSurviveGarbageCollection()
+    {
+        Galaxy galaxy = Galaxy.CreateDefault(42);
+        Array<GalaxyStar> stars = galaxy.GetStarsInSector(new Vector3I(0, 0, 0), new Vector3I(5, 5, 5));
+        if (stars.Count <= 0)
+        {
+            throw new InvalidOperationException("Expected at least one star snapshot for GC lifetime test");
+        }
+
+        galaxy = null;
+        GC.Collect();
+        GC.WaitForPendingFinalizers();
+        GC.Collect();
+
+        int starSeed = stars[0].StarSeed;
+        if (starSeed == 0)
+        {
+            throw new InvalidOperationException("Star snapshot should remain valid after GC");
+        }
+    }
+
+    /// <summary>
     /// Tests stars have metallicity.
     /// </summary>
     public static void TestStarsHaveMetallicity()

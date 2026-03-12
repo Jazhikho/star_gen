@@ -25,7 +25,7 @@ public partial class SplashScreen : Control
         _versionLabel = GetNodeOrNull<Label>("MarginContainer/Layout/WordmarkBlock/VersionLabel");
         _statusLabel = GetNodeOrNull<Label>("MarginContainer/Layout/WordmarkBlock/StatusLabel");
 
-        string version = ProjectSettings.GetSetting("application/config/version", "0.4.1.0").AsString();
+        string version = ProjectSettings.GetSetting("application/config/version", "0.4.1.1").AsString();
         if (_versionLabel != null)
         {
             _versionLabel.Text = $"Release {version}";

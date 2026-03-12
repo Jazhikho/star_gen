@@ -226,7 +226,7 @@ public partial class SystemGenerationScreen : Control
     {
         if (_versionLabel != null)
         {
-            string version = ProjectSettings.GetSetting("application/config/version", "0.4.1.0").AsString();
+            string version = ProjectSettings.GetSetting("application/config/version", "0.4.1.1").AsString();
             _versionLabel.Text = $"Version {version}";
         }
     }

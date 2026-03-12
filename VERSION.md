@@ -1,10 +1,16 @@
 # Version
 
-Current version: `0.4.1.0`
+Current version: `0.4.1.1`
 
 Date: `2026-03-12`
 
 Versioning method: release/refactor `+0.1`, feature `+0.0.1`, bug fix `+0.0.0.1`, save-breaking release `+1.0`.
+
+## 0.4.1.1
+
+- Added a regression test covering returned galaxy-star snapshot lifetime after garbage collection.
+- Folded the 0.4.0 MVP scope note into the roadmap and Traveller reference docs, and removed the standalone scope document.
+- Updated the repo-local `claude.md` versioning section to match the active repository versioning rules.
 
 ## 0.4.1.0
 

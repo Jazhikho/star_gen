@@ -7,6 +7,8 @@ Source: [Traveller SRD – World Creation](https://www.traveller-srd.com/core-ru
 
 ## Overview
 
+- **Current StarGen integration status**: master now exposes a config-first Traveller/worldbuilding settings layer (GenerationUseCaseSettings) across galaxy, system, and object flows. The app can persist Traveller-oriented assumptions, show derived size-code/readout data, and summarize mainworld readiness, but it does not yet generate full UWP strings, Traveller trade routes, or subsector exports.
+
 - **World occurrence**: 50% chance per hex (roll 4–6 on 1d6). Referee may adjust: rift -2 DM, sparse -1 DM, dense +1 DM.
 - **Starport**, **Bases**, **Gas Giants**, **Travel Zones**, **Polities**, **Communications Routes**, and **Trade Routes** are also defined at subsector level (see SRD for details).
 
@@ -536,3 +538,4 @@ Implementing these tweaks would be **effort work** (new presets, constraints, or
 ---
 
 *This document is a reference copy of the Traveller SRD world creation rules plus a gap analysis for StarGen. "Traveller" and the Traveller logo are trademarks of Far Future Enterprises, Inc. Used for game design reference only.*
+
