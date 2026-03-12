@@ -72,7 +72,8 @@ public static class SystemFixtureGenerator
             hosts,
             stars,
             rng,
-            generatePopulation);
+            generatePopulation,
+            spec.UseCaseSettings);
         foreach (CelestialBody planet in planetResult.Planets)
         {
             system.AddBody(planet);
@@ -88,7 +89,8 @@ public static class SystemFixtureGenerator
             hosts,
             stars,
             rng,
-            generatePopulation);
+            generatePopulation,
+            spec.UseCaseSettings);
         foreach (CelestialBody moon in moonResult.Moons)
         {
             system.AddBody(moon);
@@ -100,7 +102,8 @@ public static class SystemFixtureGenerator
                 beltReservation.Belts,
                 hosts,
                 stars,
-                rng);
+                rng,
+                spec.UseCaseSettings);
 
             foreach (AsteroidBelt belt in beltResult.Belts)
             {

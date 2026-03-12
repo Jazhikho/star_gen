@@ -28,6 +28,9 @@ public static class TestSystemViewer
         runner.RunNativeTest("TestSystemViewer::test_belt_renderer_script_loads", TestBeltRendererScriptLoads);
         runner.RunNativeTest("TestSystemViewer::test_has_parameter_editor_controls", TestHasParameterEditorControls);
         runner.RunNativeTest("TestSystemViewer::test_invalid_spec_blocks_generation", TestInvalidSpecBlocksGeneration);
+        runner.RunNativeTest("TestSystemViewer::test_standalone_startup_waits_for_generate", TestStandaloneStartupWaitsForGenerate);
+        runner.RunNativeTest("TestSystemViewer::test_traveller_controls_exist", TestTravellerControlsExist);
+        runner.RunNativeTest("TestSystemViewer::test_traveller_ruleset_applies_defaults", TestTravellerRulesetAppliesDefaults);
     }
 
     private static SystemViewer CreateViewer()
@@ -241,6 +244,79 @@ public static class TestSystemViewer
             DotNetNativeTestSuite.AssertNotNull(statusLabel, "Status label should exist");
             DotNetNativeTestSuite.AssertTrue(statusLabel!.Text.StartsWith("Error"), "Blocking validation errors should surface as an error status");
             DotNetNativeTestSuite.AssertEqual(previousSystem, viewer.GetCurrentSystem(), "Blocking validation errors should leave the previous system intact");
+        }
+        finally
+        {
+            IntegrationTestUtils.CleanupNode(viewer);
+        }
+    }
+
+    private static void TestStandaloneStartupWaitsForGenerate()
+    {
+        SystemViewer viewer = CreateViewer();
+        try
+        {
+            Label? statusLabel = viewer.GetNodeOrNull<Label>("UI/TopBar/MarginContainer/TopBarVBox/HeaderRow/StatusLabel");
+            Button? saveButton = viewer.GetNodeOrNull<Button>("UI/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/SaveLoadSection/ButtonContainer/SaveButton");
+            Button? loadButton = viewer.GetNodeOrNull<Button>("UI/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/SaveLoadSection/ButtonContainer/LoadButton");
+            Label? emptyStateLabel = viewer.GetNodeOrNull<Label>("UI/EmptyStateLabel");
+
+            DotNetNativeTestSuite.AssertNull(viewer.GetCurrentSystem(), "System viewer should not auto-generate on startup");
+            DotNetNativeTestSuite.AssertNotNull(statusLabel, "Status label should exist");
+            DotNetNativeTestSuite.AssertEqual("Set parameters, then click Generate", statusLabel!.Text, "Standalone startup should prompt for generation");
+            DotNetNativeTestSuite.AssertNotNull(saveButton, "Save button should exist");
+            DotNetNativeTestSuite.AssertTrue(saveButton!.Disabled, "Save should stay disabled without a generated system");
+            DotNetNativeTestSuite.AssertNotNull(loadButton, "Load button should exist");
+            DotNetNativeTestSuite.AssertFalse(loadButton!.Disabled, "Load should stay enabled before generation");
+            DotNetNativeTestSuite.AssertNotNull(emptyStateLabel, "Empty-state label should exist");
+            DotNetNativeTestSuite.AssertTrue(emptyStateLabel!.Visible, "Empty-state label should be visible before generation");
+        }
+        finally
+        {
+            IntegrationTestUtils.CleanupNode(viewer);
+        }
+    }
+
+    private static void TestTravellerControlsExist()
+    {
+        SystemViewer viewer = CreateViewer();
+        try
+        {
+            string basePath = "UI/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/GenerationSection";
+            DotNetNativeTestSuite.AssertNotNull(viewer.GetNodeOrNull<OptionButton>($"{basePath}/RulesetModeContainer/RulesetModeOption"), "System viewer should expose a ruleset selector");
+            DotNetNativeTestSuite.AssertNotNull(viewer.GetNodeOrNull<CheckBox>($"{basePath}/ShowTravellerReadoutsCheck"), "System viewer should expose a Traveller readout toggle");
+            DotNetNativeTestSuite.AssertNotNull(viewer.GetNodeOrNull<SpinBox>($"{basePath}/LifePermissivenessContainer/LifePermissivenessInput"), "System viewer should expose a life-bias control");
+            DotNetNativeTestSuite.AssertNotNull(viewer.GetNodeOrNull<SpinBox>($"{basePath}/PopulationPermissivenessContainer/PopulationPermissivenessInput"), "System viewer should expose a population-bias control");
+            DotNetNativeTestSuite.AssertNotNull(viewer.GetNodeOrNull<OptionButton>($"{basePath}/MainworldPolicyContainer/MainworldPolicyOption"), "System viewer should expose a mainworld-policy selector");
+        }
+        finally
+        {
+            IntegrationTestUtils.CleanupNode(viewer);
+        }
+    }
+
+    private static void TestTravellerRulesetAppliesDefaults()
+    {
+        SystemViewer viewer = CreateViewer();
+        try
+        {
+            string basePath = "UI/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/GenerationSection";
+            OptionButton? rulesetOption = viewer.GetNodeOrNull<OptionButton>($"{basePath}/RulesetModeContainer/RulesetModeOption");
+            CheckBox? readoutsCheck = viewer.GetNodeOrNull<CheckBox>($"{basePath}/ShowTravellerReadoutsCheck");
+            CheckBox? populationCheck = viewer.GetNodeOrNull<CheckBox>($"{basePath}/GeneratePopulationCheck");
+            OptionButton? mainworldOption = viewer.GetNodeOrNull<OptionButton>($"{basePath}/MainworldPolicyContainer/MainworldPolicyOption");
+
+            DotNetNativeTestSuite.AssertNotNull(rulesetOption, "Ruleset selector should exist");
+            DotNetNativeTestSuite.AssertNotNull(readoutsCheck, "Traveller readout toggle should exist");
+            DotNetNativeTestSuite.AssertNotNull(populationCheck, "Population toggle should exist");
+            DotNetNativeTestSuite.AssertNotNull(mainworldOption, "Mainworld selector should exist");
+
+            rulesetOption!.Select(1);
+            rulesetOption.EmitSignal(OptionButton.SignalName.ItemSelected, 1L);
+
+            DotNetNativeTestSuite.AssertTrue(readoutsCheck!.ButtonPressed, "Traveller mode should enable Traveller readouts by default");
+            DotNetNativeTestSuite.AssertTrue(populationCheck!.ButtonPressed, "Traveller mode should enable population generation by default");
+            DotNetNativeTestSuite.AssertEqual(2, mainworldOption!.Selected, "Traveller mode should require a mainworld by default");
         }
         finally
         {

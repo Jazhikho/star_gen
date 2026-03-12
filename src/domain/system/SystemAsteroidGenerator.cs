@@ -38,7 +38,8 @@ public static class SystemAsteroidGenerator
         Array<OrbitHost> orbitHosts,
         Array<OrbitSlot> filledSlots,
         Array<CelestialBody> stars,
-        SeededRng rng)
+        SeededRng rng,
+        GenerationUseCaseSettings? useCaseSettings = null)
     {
         BeltGenerationResult result = new();
 
@@ -48,7 +49,7 @@ public static class SystemAsteroidGenerator
             foreach (AsteroidBelt belt in hostBelts)
             {
                 result.Belts.Add(belt);
-                Array<CelestialBody> beltAsteroids = GenerateMajorAsteroids(belt, host, stars, rng);
+                Array<CelestialBody> beltAsteroids = GenerateMajorAsteroids(belt, host, stars, rng, useCaseSettings);
                 Array<string> asteroidIds = new();
 
                 foreach (CelestialBody asteroid in beltAsteroids)
@@ -73,7 +74,8 @@ public static class SystemAsteroidGenerator
         Array<AsteroidBelt> belts,
         Array<OrbitHost> orbitHosts,
         Array<CelestialBody> stars,
-        SeededRng rng)
+        SeededRng rng,
+        GenerationUseCaseSettings? useCaseSettings = null)
     {
         BeltGenerationResult result = new();
         System.Collections.Generic.Dictionary<string, OrbitHost> hostsById = new();
@@ -90,7 +92,7 @@ public static class SystemAsteroidGenerator
                 continue;
             }
 
-            Array<CelestialBody> beltAsteroids = GenerateMajorAsteroids(belt, hostsById[belt.OrbitHostId], stars, rng);
+            Array<CelestialBody> beltAsteroids = GenerateMajorAsteroids(belt, hostsById[belt.OrbitHostId], stars, rng, useCaseSettings);
             Array<string> asteroidIds = new();
             foreach (CelestialBody asteroid in beltAsteroids)
             {
@@ -605,7 +607,8 @@ public static class SystemAsteroidGenerator
         AsteroidBelt belt,
         OrbitHost host,
         Array<CelestialBody> stars,
-        SeededRng rng)
+        SeededRng rng,
+        GenerationUseCaseSettings? useCaseSettings)
     {
         Array<CelestialBody> asteroids = new();
         int count = rng.RandiRange(3, MaxMajorAsteroids);
@@ -645,7 +648,8 @@ public static class SystemAsteroidGenerator
                 stellarAgeYears,
                 sizesKm[index],
                 index,
-                rng);
+                rng,
+                useCaseSettings);
             if (asteroid != null)
             {
                 asteroids.Add(asteroid);
@@ -667,7 +671,8 @@ public static class SystemAsteroidGenerator
         double stellarAgeYears,
         double sizeKm,
         int asteroidIndex,
-        SeededRng rng)
+        SeededRng rng,
+        GenerationUseCaseSettings? useCaseSettings)
     {
         double distanceFraction = rng.RandfRange(0.1f, 0.9f);
         double orbitalDistance = belt.InnerRadiusM + ((belt.OuterRadiusM - belt.InnerRadiusM) * distanceFraction);
@@ -727,10 +732,11 @@ public static class SystemAsteroidGenerator
         {
             spec = AsteroidSpec.CeresLike(asteroidSeed);
             spec.AsteroidType = asteroidType;
+            spec.UseCaseSettings = useCaseSettings?.Clone() ?? GenerationUseCaseSettings.CreateDefault();
         }
         else
         {
-            spec = new AsteroidSpec(asteroidSeed, asteroidType);
+            spec = new AsteroidSpec(asteroidSeed, asteroidType, useCaseSettings: useCaseSettings);
             spec.IsLarge = sizeKm >= 400.0;
         }
 

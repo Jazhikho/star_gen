@@ -1,5 +1,6 @@
 using Godot;
 using Godot.Collections;
+using StarGen.Domain.Generation;
 using StarGen.Domain.Generation.Archetypes;
 
 namespace StarGen.Domain.Systems;
@@ -58,6 +59,11 @@ public partial class SolarSystemSpec : RefCounted
     /// Field overrides keyed by path.
     /// </summary>
     public Dictionary Overrides = new();
+
+    /// <summary>
+    /// Shared generation intent for ruleset/readout behavior.
+    /// </summary>
+    public GenerationUseCaseSettings UseCaseSettings = GenerationUseCaseSettings.CreateDefault();
 
     /// <summary>
     /// Creates a new solar-system spec.
@@ -175,6 +181,7 @@ public partial class SolarSystemSpec : RefCounted
             ["include_asteroid_belts"] = IncludeAsteroidBelts,
             ["generate_population"] = GeneratePopulation,
             ["overrides"] = CloneDictionary(Overrides),
+            ["use_case_settings"] = UseCaseSettings.ToDictionary(),
         };
     }
 
@@ -196,6 +203,11 @@ public partial class SolarSystemSpec : RefCounted
         if (data.ContainsKey("overrides") && data["overrides"].VariantType == Variant.Type.Dictionary)
         {
             spec.Overrides = CloneDictionary((Dictionary)data["overrides"]);
+        }
+
+        if (data.ContainsKey("use_case_settings") && data["use_case_settings"].VariantType == Variant.Type.Dictionary)
+        {
+            spec.UseCaseSettings = GenerationUseCaseSettings.FromDictionary((Dictionary)data["use_case_settings"]);
         }
 
         if (data.ContainsKey("spectral_class_hints") && data["spectral_class_hints"].VariantType == Variant.Type.Array)

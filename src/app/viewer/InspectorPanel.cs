@@ -3,6 +3,8 @@ using StarGen.Domain.Celestial;
 using StarGen.Domain.Celestial.Components;
 using StarGen.Domain.Celestial.Serialization;
 using StarGen.Domain.Celestial.Validation;
+using StarGen.Domain.Generation;
+using StarGen.Domain.Generation.Archetypes;
 
 namespace StarGen.App.Viewer;
 
@@ -171,6 +173,7 @@ public partial class InspectorPanel : VBoxContainer
 		}
 
 		AddGenerationSnapshot(body);
+		AddTravellerReadout(body);
 		AddValidationSummary(body);
 		AddEditButton();
 	}
@@ -326,6 +329,39 @@ public partial class InspectorPanel : VBoxContainer
 		{
 			AddProperty("Spectral Target", body.Provenance.SpecSnapshot["spectral_class"].ToString());
 		}
+	}
+
+	private void AddTravellerReadout(CelestialBody body)
+	{
+		if (_inspectorContainer == null || body.Provenance == null || body.Provenance.SpecSnapshot.Count == 0)
+		{
+			return;
+		}
+
+		if (!body.Provenance.SpecSnapshot.ContainsKey("use_case_settings"))
+		{
+			return;
+		}
+
+		Variant settingsVariant = body.Provenance.SpecSnapshot["use_case_settings"];
+		if (settingsVariant.VariantType != Variant.Type.Dictionary)
+		{
+			return;
+		}
+
+		GenerationUseCaseSettings settings = GenerationUseCaseSettings.FromDictionary((Godot.Collections.Dictionary)settingsVariant);
+		if (!settings.ShowTravellerReadouts && !settings.IsTravellerMode())
+		{
+			return;
+		}
+
+		AddSectionHeader("Traveller");
+		AddProperty("Ruleset", settings.IsTravellerMode() ? "Traveller" : "Default");
+		double diameterKm = body.Physical.RadiusM * 2.0 / 1000.0;
+		string sizeCode = TravellerSizeCode.ToStringUwp(TravellerSizeCode.DiameterKmToCode(diameterKm));
+		AddProperty("Size Code", sizeCode);
+		AddProperty("Life Bias", $"{settings.LifePermissiveness:0.00}");
+		AddProperty("Pop. Bias", $"{settings.PopulationPermissiveness:0.00}");
 	}
 
 	private void AddValidationSummary(CelestialBody body)

@@ -22,6 +22,11 @@ public static class GenerationParameterCatalog
             new GenerationParameterDefinition("system_metallicity", "System Metallicity", "Zsun", GenerationParameterControlType.Number, "When set, all stars share a metallicity target instead of rolling independently.", supportsTarget: true),
             new GenerationParameterDefinition("include_asteroid_belts", "Asteroid Belts", string.Empty, GenerationParameterControlType.Toggle, "Controls whether the belt stage participates in generation."),
             new GenerationParameterDefinition("generate_population", "Generate Population", string.Empty, GenerationParameterControlType.Toggle, "Enables the downstream population pipeline for planets and moons."),
+            new GenerationParameterDefinition("ruleset_mode", "Ruleset", string.Empty, GenerationParameterControlType.Choice, "Switches between the default StarGen assumptions and Traveller-oriented worldbuilding defaults."),
+            new GenerationParameterDefinition("show_traveller_readouts", "Traveller Readouts", string.Empty, GenerationParameterControlType.Toggle, "Shows derived Traveller/UWP-oriented readouts when the current flow has enough information."),
+            new GenerationParameterDefinition("life_permissiveness", "Life Permissiveness", string.Empty, GenerationParameterControlType.Number, "Biases how permissive the current worldbuilding assumptions are toward life-friendly outcomes."),
+            new GenerationParameterDefinition("population_permissiveness", "Population Permissiveness", string.Empty, GenerationParameterControlType.Number, "Biases how permissive the current worldbuilding assumptions are toward populated outcomes."),
+            new GenerationParameterDefinition("mainworld_policy", "Mainworld Policy", string.Empty, GenerationParameterControlType.Choice, "Controls whether Traveller-oriented flows should ignore, prefer, or require a plausible mainworld candidate."),
         };
     }
 
@@ -45,6 +50,11 @@ public static class GenerationParameterCatalog
             new GenerationParameterDefinition("star_density_multiplier", "Density Multiplier", "x", GenerationParameterControlType.Number, "Scales total sampled density without changing morphology."),
             new GenerationParameterDefinition("ellipticity", "Ellipticity", string.Empty, GenerationParameterControlType.Number, "Only applies to elliptical galaxies."),
             new GenerationParameterDefinition("irregularity_scale", "Irregularity", string.Empty, GenerationParameterControlType.Number, "Only applies to irregular galaxies."),
+            new GenerationParameterDefinition("ruleset_mode", "Ruleset", string.Empty, GenerationParameterControlType.Choice, "Switches between the default StarGen assumptions and Traveller-oriented worldbuilding defaults."),
+            new GenerationParameterDefinition("show_traveller_readouts", "Traveller Readouts", string.Empty, GenerationParameterControlType.Toggle, "Shows derived Traveller/UWP-oriented readouts when the current flow has enough information."),
+            new GenerationParameterDefinition("life_permissiveness", "Life Permissiveness", string.Empty, GenerationParameterControlType.Number, "Biases how permissive the current worldbuilding assumptions are toward life-friendly outcomes."),
+            new GenerationParameterDefinition("population_permissiveness", "Population Permissiveness", string.Empty, GenerationParameterControlType.Number, "Biases how permissive the current worldbuilding assumptions are toward populated outcomes."),
+            new GenerationParameterDefinition("mainworld_policy", "Mainworld Policy", string.Empty, GenerationParameterControlType.Choice, "Controls whether Traveller-oriented flows should ignore, prefer, or require plausible mainworld-ready systems."),
         };
     }
 }

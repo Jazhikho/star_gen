@@ -58,10 +58,42 @@ public partial class MainApp
 	}
 
 	/// <summary>
+	/// GDScript-compatible main-menu system-generation wrapper.
+	/// </summary>
+	public void _on_main_menu_system_generation_requested()
+	{
+		OnMainMenuSystemGenerationRequested();
+	}
+
+	/// <summary>
+	/// GDScript-compatible main-menu object-generation wrapper.
+	/// </summary>
+	public void _on_main_menu_object_generation_requested()
+	{
+		OnMainMenuObjectGenerationRequested();
+	}
+
+	/// <summary>
 	/// Returns the current object viewer instance for test compatibility.
 	/// </summary>
 	public StarGen.App.Viewer.ObjectViewer? get_object_viewer()
 	{
 		return _objectViewer;
+	}
+
+	/// <summary>
+	/// Returns the current system-generation screen for test compatibility.
+	/// </summary>
+	public SystemGenerationScreen? get_system_generation_screen()
+	{
+		return _systemGenerationScreen;
+	}
+
+	/// <summary>
+	/// Returns the current object-generation screen for test compatibility.
+	/// </summary>
+	public ObjectGenerationScreen? get_object_generation_screen()
+	{
+		return _objectGenerationScreen;
 	}
 }

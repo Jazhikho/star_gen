@@ -104,6 +104,7 @@ public static class TestSaveLoad
     private static CelestialBody CreateTestStar(int seedVal)
     {
         StarSpec spec = StarSpec.Random(seedVal);
+        spec.UseCaseSettings = CreateTravellerSettings();
         SeededRng rng = new(seedVal);
         return StarGenerator.Generate(spec, rng);
     }
@@ -114,6 +115,7 @@ public static class TestSaveLoad
     private static CelestialBody CreateTestPlanet(int seedVal)
     {
         PlanetSpec spec = PlanetSpec.Random(seedVal);
+        spec.UseCaseSettings = CreateTravellerSettings();
         ParentContext context = ParentContext.SunLike();
         SeededRng rng = new(seedVal);
         return PlanetGenerator.Generate(spec, context, rng);
@@ -125,6 +127,7 @@ public static class TestSaveLoad
     private static CelestialBody CreateTestMoon(int seedVal)
     {
         MoonSpec spec = MoonSpec.Random(seedVal);
+        spec.UseCaseSettings = CreateTravellerSettings();
         ParentContext context = ParentContext.ForMoon(
             Units.SolarMassKg,
             3.828e26,
@@ -145,6 +148,7 @@ public static class TestSaveLoad
     private static CelestialBody CreateTestAsteroid(int seedVal)
     {
         AsteroidSpec spec = AsteroidSpec.Random(seedVal);
+        spec.UseCaseSettings = CreateTravellerSettings();
         ParentContext context = ParentContext.SunLike(2.7 * Units.AuMeters);
         SeededRng rng = new(seedVal);
         return AsteroidGenerator.Generate(spec, context, rng);
@@ -384,6 +388,12 @@ public static class TestSaveLoad
             DotNetNativeTestSuite.AssertNotNull(result.Body.Provenance, "Should have provenance");
             DotNetNativeTestSuite.AssertEqual(original.Provenance.GenerationSeed, result.Body.Provenance.GenerationSeed,
                 "Seed should be preserved");
+            DotNetNativeTestSuite.AssertTrue(result.Body.Provenance.SpecSnapshot.ContainsKey("use_case_settings"), "Provenance snapshot should preserve use-case settings");
+
+            Godot.Collections.Dictionary settingsData = (Godot.Collections.Dictionary)result.Body.Provenance.SpecSnapshot["use_case_settings"];
+            GenerationUseCaseSettings settings = GenerationUseCaseSettings.FromDictionary(settingsData);
+            DotNetNativeTestSuite.AssertEqual(GenerationUseCaseSettings.RulesetModeType.Traveller, settings.RulesetMode, "Body save/load should preserve ruleset mode");
+            DotNetNativeTestSuite.AssertTrue(settings.ShowTravellerReadouts, "Body save/load should preserve Traveller readout visibility");
         }
         finally
         {
@@ -441,5 +451,16 @@ public static class TestSaveLoad
         DotNetNativeTestSuite.AssertTrue(starPath.EndsWith(".sgt"), "Stars should resolve to .sgt");
         DotNetNativeTestSuite.AssertTrue(planetPath.EndsWith(".sgp"), "Planets should resolve to .sgp");
         DotNetNativeTestSuite.AssertTrue(asteroidPath.EndsWith(".sga"), "Asteroids should resolve to .sga");
+    }
+
+    private static GenerationUseCaseSettings CreateTravellerSettings()
+    {
+        GenerationUseCaseSettings settings = GenerationUseCaseSettings.CreateDefault();
+        settings.RulesetMode = GenerationUseCaseSettings.RulesetModeType.Traveller;
+        settings.ShowTravellerReadouts = true;
+        settings.LifePermissiveness = 0.6;
+        settings.PopulationPermissiveness = 0.75;
+        settings.MainworldPolicy = GenerationUseCaseSettings.MainworldPolicyType.Prefer;
+        return settings;
     }
 }

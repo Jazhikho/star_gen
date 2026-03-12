@@ -1,5 +1,6 @@
 using Godot.Collections;
 using StarGen.Domain.Celestial;
+using StarGen.Domain.Generation;
 using StarGen.Domain.Systems;
 using StarGen.Domain.Rng;
 
@@ -17,14 +18,19 @@ public static class GalaxySystemGenerator
         GalaxyStar? star,
         bool includeAsteroids = true,
         bool enablePopulation = false,
-        GalaxyBodyOverrides? overrides = null)
+        GalaxyBodyOverrides? overrides = null,
+        GenerationUseCaseSettings? useCaseSettings = null)
     {
         if (star == null)
         {
             return null;
         }
 
-        SolarSystemSpec spec = CreateSpecFromStar(star, includeAsteroids);
+        SolarSystemSpec spec = CreateSpecFromStar(star, includeAsteroids, useCaseSettings);
+        if (useCaseSettings != null && useCaseSettings.IsTravellerMode())
+        {
+            spec.GeneratePopulation = true;
+        }
         SeededRng rng = new(spec.GenerationSeed);
         SolarSystem? system = StellarConfigGenerator.Generate(spec, rng);
         if (system == null)
@@ -51,7 +57,8 @@ public static class GalaxySystemGenerator
             hosts,
             stars,
             rng,
-            enablePopulation);
+            enablePopulation,
+            spec.UseCaseSettings);
         foreach (CelestialBody planet in planetResult.Planets)
         {
             system.AddBody(planet);
@@ -62,7 +69,8 @@ public static class GalaxySystemGenerator
             hosts,
             stars,
             rng,
-            enablePopulation);
+            enablePopulation,
+            spec.UseCaseSettings);
         foreach (CelestialBody moon in moonResult.Moons)
         {
             system.AddBody(moon);
@@ -74,7 +82,8 @@ public static class GalaxySystemGenerator
                 hosts,
                 planetResult.Slots,
                 stars,
-                rng);
+                rng,
+                spec.UseCaseSettings);
 
             foreach (AsteroidBelt belt in beltResult.Belts)
             {
@@ -151,11 +160,15 @@ public static class GalaxySystemGenerator
     /// <summary>
     /// Creates a system specification from a galaxy-star entry.
     /// </summary>
-    private static SolarSystemSpec CreateSpecFromStar(GalaxyStar star, bool includeAsteroids)
+    private static SolarSystemSpec CreateSpecFromStar(GalaxyStar star, bool includeAsteroids, GenerationUseCaseSettings? useCaseSettings)
     {
         SolarSystemSpec spec = SolarSystemSpec.RandomSmall(star.StarSeed);
         spec.SystemMetallicity = star.Metallicity;
         spec.IncludeAsteroidBelts = includeAsteroids;
+        if (useCaseSettings != null)
+        {
+            spec.UseCaseSettings = useCaseSettings.Clone();
+        }
         return spec;
     }
 }

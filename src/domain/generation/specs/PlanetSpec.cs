@@ -1,5 +1,6 @@
 using Godot;
 using Godot.Collections;
+using StarGen.Domain.Generation;
 using OrbitZoneArchetype = StarGen.Domain.Generation.Archetypes.OrbitZone;
 using RingComplexityArchetype = StarGen.Domain.Generation.Archetypes.RingComplexity;
 using SizeCategoryArchetype = StarGen.Domain.Generation.Archetypes.SizeCategory;
@@ -47,8 +48,9 @@ public partial class PlanetSpec : BaseSpec
         Variant hasRings = default,
         int ringComplexity = -1,
         string nameHint = "",
-        Dictionary? overrides = null)
-        : base(generationSeed, nameHint, overrides)
+        Dictionary? overrides = null,
+        GenerationUseCaseSettings? useCaseSettings = null)
+        : base(generationSeed, nameHint, overrides, useCaseSettings)
     {
         SizeCategory = sizeCategory;
         OrbitZone = orbitZone;
@@ -68,7 +70,8 @@ public partial class PlanetSpec : BaseSpec
         Variant hasRings = default,
         RingComplexityArchetype.Level ringComplexity = (RingComplexityArchetype.Level)(-1),
         string nameHint = "",
-        Dictionary? overrides = null)
+        Dictionary? overrides = null,
+        GenerationUseCaseSettings? useCaseSettings = null)
         : this(
             generationSeed,
             (int)sizeCategory,
@@ -77,7 +80,8 @@ public partial class PlanetSpec : BaseSpec
             hasRings,
             (int)ringComplexity,
             nameHint,
-            overrides)
+            overrides,
+            useCaseSettings)
     {
     }
 
@@ -92,7 +96,8 @@ public partial class PlanetSpec : BaseSpec
         Variant hasRings,
         int ringComplexity,
         string nameHint = "",
-        Dictionary? overrides = null)
+        Dictionary? overrides = null,
+        GenerationUseCaseSettings? useCaseSettings = null)
         : this(
             generationSeed,
             (int)sizeCategory,
@@ -101,7 +106,8 @@ public partial class PlanetSpec : BaseSpec
             hasRings,
             ringComplexity,
             nameHint,
-            overrides)
+            overrides,
+            useCaseSettings)
     {
     }
 
@@ -284,7 +290,9 @@ public partial class PlanetSpec : BaseSpec
             overrides = (Dictionary)data["overrides"];
         }
 
-        return new PlanetSpec(generationSeed, sizeCategory, orbitZone, GetVariant(data, "has_atmosphere"), GetVariant(data, "has_rings"), ringComplexity, nameHint, overrides);
+        PlanetSpec spec = new PlanetSpec(generationSeed, sizeCategory, orbitZone, GetVariant(data, "has_atmosphere"), GetVariant(data, "has_rings"), ringComplexity, nameHint, overrides);
+        spec.ApplyBaseFromDictionary(data);
+        return spec;
     }
 
     private static Variant GetVariant(Dictionary data, string key)

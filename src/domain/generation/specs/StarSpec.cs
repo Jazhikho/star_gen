@@ -1,4 +1,5 @@
 using Godot.Collections;
+using StarGen.Domain.Generation;
 using StarGen.Domain.Generation.Archetypes;
 
 namespace StarGen.Domain.Generation.Specs;
@@ -38,8 +39,9 @@ public partial class StarSpec : BaseSpec
         double metallicity = -1.0,
         double ageYears = -1.0,
         string nameHint = "",
-        Dictionary? overrides = null)
-        : base(generationSeed, nameHint, overrides)
+        Dictionary? overrides = null,
+        GenerationUseCaseSettings? useCaseSettings = null)
+        : base(generationSeed, nameHint, overrides, useCaseSettings)
     {
         SpectralClass = spectralClass;
         Subclass = subclass;
@@ -57,8 +59,9 @@ public partial class StarSpec : BaseSpec
         double metallicity = -1.0,
         double ageYears = -1.0,
         string nameHint = "",
-        Dictionary? overrides = null)
-        : this(generationSeed, (int)spectralClass, subclass, metallicity, ageYears, nameHint, overrides)
+        Dictionary? overrides = null,
+        GenerationUseCaseSettings? useCaseSettings = null)
+        : this(generationSeed, (int)spectralClass, subclass, metallicity, ageYears, nameHint, overrides, useCaseSettings)
     {
     }
 
@@ -175,7 +178,9 @@ public partial class StarSpec : BaseSpec
             overrides = (Dictionary)data["overrides"];
         }
 
-        return new StarSpec(generationSeed, spectralClass, subclass, GetDouble(data, "metallicity", -1.0), GetDouble(data, "age_years", -1.0), nameHint, overrides);
+        StarSpec spec = new StarSpec(generationSeed, spectralClass, subclass, GetDouble(data, "metallicity", -1.0), GetDouble(data, "age_years", -1.0), nameHint, overrides);
+        spec.ApplyBaseFromDictionary(data);
+        return spec;
     }
 
     private static double GetDouble(Dictionary data, string key, double fallback)

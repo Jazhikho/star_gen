@@ -3,6 +3,7 @@ using Godot.Collections;
 using StarGen.Domain.Celestial;
 using StarGen.Domain.Celestial.Serialization;
 using StarGen.Domain.Galaxy;
+using StarGen.Domain.Generation;
 using StarGen.Domain.Systems;
 using StarGen.Domain.Systems.Fixtures;
 using StarGen.Services.Persistence;
@@ -40,13 +41,8 @@ public partial class MainApp
         _objectOrigin = NavigationOrigin.None;
         _currentStarSeed = 0;
         _currentStarPosition = Godot.Vector3.Zero;
-        ShowSystemViewer();
-
-        int seedValue = GenerateRandomSeed();
-        _systemViewer?.UpdateSeedDisplay(seedValue);
-        _systemViewer?.SetSourceStarSeed(0);
-        _systemViewer?.GenerateSystem(seedValue, 1, 1);
-        _systemViewer?.SetStatus($"Standalone system generator loaded with seed {seedValue}");
+        _systemGenerationScreen?.SetInitialSeed(GenerateRandomSeed());
+        ShowSystemGenerationScreen();
     }
 
     /// <summary>
@@ -56,11 +52,8 @@ public partial class MainApp
     {
         _systemOrigin = NavigationOrigin.None;
         _objectOrigin = NavigationOrigin.Menu;
-        ShowObjectViewer();
-
-        int seedValue = GenerateRandomSeed();
-        _objectViewer?.SetBackNavigationVisibility(true, "<- Back to Menu", "Return to the main menu");
-        _objectViewer?.PrepareStandaloneGenerator(seedValue, StarGen.App.Viewer.ObjectViewer.ObjectType.Planet);
+        _objectGenerationScreen?.SetInitialSeed(GenerateRandomSeed());
+        ShowObjectGenerationScreen();
     }
 
     /// <summary>
@@ -122,6 +115,22 @@ public partial class MainApp
     }
 
     /// <summary>
+    /// Returns from the system-generation studio to the main menu.
+    /// </summary>
+    private void OnSystemGenerationBackRequested()
+    {
+        ShowMainMenu();
+    }
+
+    /// <summary>
+    /// Returns from the object-generation studio to the main menu.
+    /// </summary>
+    private void OnObjectGenerationBackRequested()
+    {
+        ShowMainMenu();
+    }
+
+    /// <summary>
     /// Handles startup-screen quit requests.
     /// </summary>
     private void OnWelcomeQuitRequested()
@@ -148,6 +157,114 @@ public partial class MainApp
         _systemOrigin = NavigationOrigin.None;
         _objectOrigin = NavigationOrigin.None;
         ShowWelcomeScreen();
+    }
+
+    /// <summary>
+    /// Launches the standalone system viewer from the studio.
+    /// </summary>
+    private void OnSystemGenerationStarted(SolarSystemSpec spec)
+    {
+        _systemOrigin = NavigationOrigin.Menu;
+        _objectOrigin = NavigationOrigin.None;
+        _currentStarSeed = 0;
+        _currentStarPosition = Godot.Vector3.Zero;
+        ShowSystemViewer();
+        _systemViewer?.SetGenerationSectionVisible(false);
+        _systemViewer?.GenerateSystem(spec);
+    }
+
+    /// <summary>
+    /// Launches the standalone object viewer from the studio.
+    /// </summary>
+    private void OnObjectGenerationStarted(ObjectGenerationRequest request)
+    {
+        _systemOrigin = NavigationOrigin.None;
+        _objectOrigin = NavigationOrigin.Menu;
+        ShowObjectViewer();
+        _objectViewer?.SetBackNavigationVisibility(true, "<- Back to Menu", "Return to the main menu");
+        _objectViewer?.LaunchStandaloneGeneration(request);
+    }
+
+    /// <summary>
+    /// Opens a load dialog for standalone system files from the studio.
+    /// </summary>
+    private void OnSystemGenerationLoadRequested()
+    {
+        FileDialog dialog = new()
+        {
+            FileMode = FileDialog.FileModeEnum.OpenFile,
+            Access = FileDialog.AccessEnum.Userdata,
+            Filters = new string[] { "*.sgs ; StarGen System", "*.json ; JSON Debug" },
+        };
+        dialog.FileSelected += path =>
+        {
+            OnSystemGenerationLoadFileSelected(path);
+            dialog.QueueFree();
+        };
+        dialog.Canceled += dialog.QueueFree;
+        AddChild(dialog);
+        dialog.PopupCentered(new Vector2I(800, 600));
+    }
+
+    /// <summary>
+    /// Opens a load dialog for standalone body files from the studio.
+    /// </summary>
+    private void OnObjectGenerationLoadRequested()
+    {
+        FileDialog dialog = new()
+        {
+            FileMode = FileDialog.FileModeEnum.OpenFile,
+            Access = FileDialog.AccessEnum.Userdata,
+            Filters = SaveData.GetFileFilters(includeLegacy: true),
+        };
+        dialog.FileSelected += path =>
+        {
+            OnObjectGenerationLoadFileSelected(path);
+            dialog.QueueFree();
+        };
+        dialog.Canceled += dialog.QueueFree;
+        AddChild(dialog);
+        dialog.PopupCentered(new Vector2I(800, 600));
+    }
+
+    /// <summary>
+    /// Loads a system selected in the standalone system studio.
+    /// </summary>
+    private void OnSystemGenerationLoadFileSelected(string path)
+    {
+        SystemPersistenceLoadResult result = SystemPersistence.Load(path);
+        if (!result.Success || result.System == null)
+        {
+            GD.PushError($"MainApp: failed to load system save '{path}': {result.ErrorMessage}");
+            return;
+        }
+
+        _systemOrigin = NavigationOrigin.Menu;
+        _objectOrigin = NavigationOrigin.None;
+        ShowSystemViewer();
+        _systemViewer?.SetGenerationSectionVisible(false);
+        _systemViewer?.DisplaySystem(result.System);
+        if (result.System.Provenance != null)
+        {
+            _systemViewer?.UpdateSeedDisplay((int)result.System.Provenance.GenerationSeed);
+        }
+    }
+
+    /// <summary>
+    /// Loads an object selected in the standalone object studio.
+    /// </summary>
+    private void OnObjectGenerationLoadFileSelected(string path)
+    {
+        _systemOrigin = NavigationOrigin.None;
+        _objectOrigin = NavigationOrigin.Menu;
+        ShowObjectViewer();
+        _objectViewer?.SetBackNavigationVisibility(true, "<- Back to Menu", "Return to the main menu");
+        _objectViewer?.SetGenerationSectionVisible(false);
+        SaveDataLoadResult result = _objectViewer?.LoadBodyFromPath(path) ?? new SaveDataLoadResult();
+        if (!result.Success)
+        {
+            GD.PushError($"MainApp: failed to load body save '{path}': {result.ErrorMessage}");
+        }
     }
 
     /// <summary>
@@ -179,7 +296,8 @@ public partial class MainApp
             system = _systemCache.GetSystem(starSeed);
             if (system == null)
             {
-                system = GenerateSystemFromSeed(starSeed);
+                GenerationUseCaseSettings? useCaseSettings = _galaxyViewer?.GetGalaxyConfig()?.UseCaseSettings;
+                system = GenerateSystemFromSeed(starSeed, useCaseSettings);
                 if (system != null)
                 {
                     ApplyOverridesToSystem(system, starSeed);
@@ -207,7 +325,7 @@ public partial class MainApp
     /// <summary>
     /// Generates a system from a star seed.
     /// </summary>
-    private static SolarSystem? GenerateSystemFromSeed(int starSeed)
+    private static SolarSystem? GenerateSystemFromSeed(int starSeed, GenerationUseCaseSettings? useCaseSettings = null)
     {
         RandomNumberGenerator rng = new()
         {
@@ -226,6 +344,15 @@ public partial class MainApp
         }
 
         SolarSystemSpec spec = new(starSeed, starCount, starCount);
+        if (useCaseSettings != null)
+        {
+            spec.UseCaseSettings = useCaseSettings.Clone();
+            if (useCaseSettings.IsTravellerMode())
+            {
+                spec.GeneratePopulation = true;
+            }
+        }
+
         return SystemFixtureGenerator.GenerateSystem(spec);
     }
 
@@ -309,6 +436,7 @@ public partial class MainApp
         }
 
         _objectViewer.SetBackNavigationVisibility(true, "<- Back to System", "Return to the system viewer");
+        _objectViewer.SetGenerationSectionVisible(false);
         _objectViewer.DisplayExternalBody(typedBody, moonPayload, starSeed);
     }
 
@@ -347,7 +475,7 @@ public partial class MainApp
         if (_objectOrigin == NavigationOrigin.Menu)
         {
             _objectOrigin = NavigationOrigin.None;
-            ShowMainMenu();
+            ShowObjectGenerationScreen();
             return;
         }
 
@@ -362,7 +490,7 @@ public partial class MainApp
         if (_systemOrigin == NavigationOrigin.Menu)
         {
             _systemOrigin = NavigationOrigin.None;
-            ShowMainMenu();
+            ShowSystemGenerationScreen();
             return;
         }
 

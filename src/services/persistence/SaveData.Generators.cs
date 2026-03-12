@@ -207,6 +207,10 @@ public static partial class SaveData
         else
         {
             spec = StarSpec.FromDictionary(specData);
+            if (spec.GenerationSeed == 0)
+            {
+                spec.GenerationSeed = generationSeed;
+            }
         }
         return StarGenerator.Generate(spec, rng);
     }
@@ -229,6 +233,10 @@ public static partial class SaveData
         else
         {
             spec = PlanetSpec.FromDictionary(specData);
+            if (spec.GenerationSeed == 0)
+            {
+                spec.GenerationSeed = generationSeed;
+            }
         }
         ParentContext context = ReconstructContext(contextData, CelestialType.Type.Planet);
         return PlanetGenerator.Generate(spec, context, rng);
@@ -252,6 +260,10 @@ public static partial class SaveData
         else
         {
             spec = MoonSpec.FromDictionary(specData);
+            if (spec.GenerationSeed == 0)
+            {
+                spec.GenerationSeed = generationSeed;
+            }
         }
         ParentContext context = ReconstructContext(contextData, CelestialType.Type.Moon);
         return MoonGenerator.Generate(spec, context, rng);
@@ -275,6 +287,10 @@ public static partial class SaveData
         else
         {
             spec = AsteroidSpec.FromDictionary(specData);
+            if (spec.GenerationSeed == 0)
+            {
+                spec.GenerationSeed = generationSeed;
+            }
         }
         ParentContext context = ReconstructContext(contextData, CelestialType.Type.Asteroid);
         return AsteroidGenerator.Generate(spec, context, rng);

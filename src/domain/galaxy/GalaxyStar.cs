@@ -64,6 +64,21 @@ public partial class GalaxyStar : RefCounted
     }
 
     /// <summary>
+    /// Creates a detached copy of this star for snapshot-style callers.
+    /// </summary>
+    public GalaxyStar Clone()
+    {
+        return new GalaxyStar(Position, StarSeed)
+        {
+            Metallicity = Metallicity,
+            AgeBias = AgeBias,
+            SectorQuadrant = SectorQuadrant,
+            SectorLocal = SectorLocal,
+            SubsectorCoords = SubsectorCoords,
+        };
+    }
+
+    /// <summary>
     /// Derives metallicity and age bias from galactic position.
     /// </summary>
     public void DerivePropertiesFromPosition(GalaxySpec galaxySpec)

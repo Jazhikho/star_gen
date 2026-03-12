@@ -1,4 +1,5 @@
 using StarGen.Domain.Galaxy;
+using StarGen.Domain.Generation;
 
 namespace StarGen.Domain.Generation.Parameters;
 
@@ -91,6 +92,22 @@ public static class GalaxyGenerationParameterValidator
         if (config.Type == GalaxySpec.GalaxyType.Irregular && config.IrregularityScale >= 0.9)
         {
             issues.AddWarning("irregularity_scale", "Very strong irregularity is allowed, but it tends toward chaotic showcase structure.");
+        }
+
+        if (config.UseCaseSettings.IsTravellerMode() && config.StarDensityMultiplier < 0.8)
+        {
+            issues.AddWarning("star_density_multiplier", "Traveller mode on a sparse galaxy can work, but it may produce fewer plausible mainworld candidates per region.");
+        }
+
+        if (config.UseCaseSettings.ShowTravellerReadouts && !config.UseCaseSettings.IsTravellerMode())
+        {
+            issues.AddWarning("show_traveller_readouts", "Traveller readouts are enabled while the default ruleset remains active; values shown will be derived mappings only.");
+        }
+
+        if (config.UseCaseSettings.MainworldPolicy == GenerationUseCaseSettings.MainworldPolicyType.Require
+            && !config.UseCaseSettings.IsTravellerMode())
+        {
+            issues.AddWarning("mainworld_policy", "Requiring a mainworld is mainly intended for Traveller-oriented flows.");
         }
 
         return issues;

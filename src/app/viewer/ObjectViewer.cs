@@ -1,7 +1,9 @@
 using Godot;
+using StarGen.App;
 using StarGen.App.Rendering;
 using StarGen.Domain.Celestial;
 using StarGen.Domain.Celestial.Validation;
+using StarGen.Domain.Generation;
 
 namespace StarGen.App.Viewer;
 
@@ -11,6 +13,12 @@ namespace StarGen.App.Viewer;
 /// </summary>
 public partial class ObjectViewer : Node3D
 {
+    internal enum ViewerStartupState
+    {
+        ViewingExistingContent = 0,
+        UnconfiguredStandalone = 1,
+    }
+
 	/// <summary>
 	/// Emitted when the user wants to return to the system viewer.
 	/// </summary>
@@ -46,17 +54,24 @@ public partial class ObjectViewer : Node3D
 	internal Control? _topBar;
 	internal Control? _sidePanel;
 	internal Node? _inspectorPanel;
+	internal Control? _generationSection;
 	internal OptionButton? _typeOption;
 	internal OptionButton? _presetOption;
 	internal Label? _presetAssumptionsLabel;
 	internal SpinBox? _seedInput;
 	internal HBoxContainer? _populationContainer;
 	internal OptionButton? _populationOption;
+	internal OptionButton? _rulesetModeOption;
+	internal CheckBox? _showTravellerReadoutsCheck;
+	internal SpinBox? _lifePermissivenessInput;
+	internal SpinBox? _populationPermissivenessInput;
+	internal Label? _useCaseAssumptionsLabel;
 	internal Button? _generateButton;
 	internal Button? _rerollButton;
 	internal Button? _saveButton;
 	internal Button? _loadButton;
 	internal Label? _fileInfo;
+	internal Label? _emptyStateLabel;
 	internal FileDialog? _saveFileDialog;
 	internal FileDialog? _loadFileDialog;
 	internal CameraController? _camera;
@@ -76,6 +91,8 @@ public partial class ObjectViewer : Node3D
 	internal int _sourceStarSeed;
 	internal bool _navigatedFromSystem;
 	internal Rect2 _renderAreaRect = new Rect2();
+	internal ViewerStartupState _startupState = ViewerStartupState.UnconfiguredStandalone;
+	internal GenerationUseCaseSettings _activeUseCaseSettings = GenerationUseCaseSettings.CreateDefault();
 
 	/// <summary>
 	/// Initializes the viewer state.
@@ -90,7 +107,8 @@ public partial class ObjectViewer : Node3D
 		SetupTopMenu();
 		ConnectSignals();
 		SetGenerationControlsEnabled(false);
-		SetFileControlsEnabled(false);
+		SetFileControlState(false, false);
+		SetupEmptyStateUi();
 		SetStatus("Object viewer initialized");
 	}
 
@@ -198,7 +216,10 @@ public partial class ObjectViewer : Node3D
 			HideBackButton();
 		}
 		SetGenerationControlsEnabled(false);
-		SetFileControlsEnabled(true);
+		_startupState = ViewerStartupState.ViewingExistingContent;
+		TryApplyUseCaseSettingsFromBody(body);
+		ApplyUseCaseSettingsToControls(_activeUseCaseSettings);
+		SetFileControlState(true, true);
 		DisplayBodyWithMoons(body, _currentMoons);
 
 		string suffix;
@@ -256,8 +277,17 @@ public partial class ObjectViewer : Node3D
 		_bodyRenderer?.Clear();
 		DisableStarGlow();
 		UpdateInspector();
-		SetFileControlsEnabled(false);
-		SetStatus("No object loaded");
+		if (_startupState == ViewerStartupState.UnconfiguredStandalone)
+		{
+			SetFileControlState(false, true);
+			SetStatus("Set parameters, then click Generate");
+		}
+		else
+		{
+			SetFileControlState(false, false);
+			SetStatus("No object loaded");
+		}
+		UpdateEmptyStateVisibility();
 	}
 
 	/// <summary>
@@ -280,8 +310,10 @@ public partial class ObjectViewer : Node3D
 	public void PrepareStandaloneGenerator(int seedValue, ObjectType defaultType)
 	{
 		_navigatedFromSystem = false;
+		_startupState = ViewerStartupState.UnconfiguredStandalone;
+		SetGenerationSectionVisible(true);
 		SetGenerationControlsEnabled(true);
-		SetFileControlsEnabled(false);
+		SetFileControlState(false, true);
 
 		if (_seedInput != null)
 		{
@@ -298,8 +330,53 @@ public partial class ObjectViewer : Node3D
 			_presetOption.Select(0);
 		}
 
-		GenerateObjectFromPreset(defaultType, seedValue);
 		_navigatedFromSystem = false;
 		ShowBackButton("<- Back to Menu", "Return to the main menu");
+		ClearDisplay();
+	}
+
+	/// <summary>
+	/// Launches standalone generation from a prebuilt studio request.
+	/// </summary>
+	public void LaunchStandaloneGeneration(ObjectGenerationRequest request)
+	{
+		if (request == null)
+		{
+			throw new System.ArgumentNullException(nameof(request));
+		}
+
+		_navigatedFromSystem = false;
+		_startupState = ViewerStartupState.ViewingExistingContent;
+		SetGenerationSectionVisible(false);
+		SetGenerationControlsEnabled(false);
+		ApplyUseCaseSettingsToControls(request.UseCaseSettings);
+		if (_seedInput != null)
+		{
+			_seedInput.Value = request.SeedValue;
+		}
+
+		if (_typeOption != null)
+		{
+			_typeOption.Select((int)request.ObjectType);
+		}
+
+		RebuildPresetOptions();
+		if (_presetOption != null && request.PresetId >= 0 && request.PresetId < _presetOption.ItemCount)
+		{
+			_presetOption.Select(request.PresetId);
+		}
+
+		GenerateObjectFromPreset(request.ObjectType, request.SeedValue);
+	}
+
+	/// <summary>
+	/// Shows or hides the generation section.
+	/// </summary>
+	public void SetGenerationSectionVisible(bool visible)
+	{
+		if (_generationSection != null)
+		{
+			_generationSection.Visible = visible;
+		}
 	}
 }

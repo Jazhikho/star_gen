@@ -1,5 +1,6 @@
 using System;
 using Godot;
+using StarGen.Domain.Generation;
 using StarGen.Domain.Generation.Parameters;
 using StarGen.Domain.Galaxy;
 using StarGen.Domain.Rng;
@@ -82,6 +83,11 @@ public partial class WelcomeScreen : Control
     private HSlider? _densitySlider;
     private Label? _densityValue;
     private SpinBox? _seedSpin;
+    private OptionButton? _rulesetModeOption;
+    private CheckBox? _showTravellerReadoutsCheck;
+    private SpinBox? _lifePermissivenessInput;
+    private SpinBox? _populationPermissivenessInput;
+    private OptionButton? _mainworldPolicyOption;
     private VBoxContainer? _settingsVBox;
     private Label? _assumptionsLabel;
     private VBoxContainer? _issuesContainer;
@@ -150,6 +156,7 @@ public partial class WelcomeScreen : Control
             StarDensityMultiplier = _densitySlider?.Value ?? 1.0,
             Ellipticity = _ellipticitySlider?.Value ?? 0.3,
             IrregularityScale = _irregularitySlider?.Value ?? 0.5,
+            UseCaseSettings = BuildUseCaseSettingsFromControls(),
         };
     }
 
@@ -301,6 +308,11 @@ public partial class WelcomeScreen : Control
         ConnectSlider(_diskHeightSlider, OnDiskHeightChanged);
         ConnectSlider(_densitySlider, OnDensityChanged);
         if (_seedSpin != null) _seedSpin.ValueChanged += _ => RefreshValidationIssues();
+        if (_rulesetModeOption != null) _rulesetModeOption.ItemSelected += OnRulesetModeSelected;
+        if (_showTravellerReadoutsCheck != null) _showTravellerReadoutsCheck.Toggled += _ => RefreshValidationIssues();
+        if (_lifePermissivenessInput != null) _lifePermissivenessInput.ValueChanged += _ => RefreshValidationIssues();
+        if (_populationPermissivenessInput != null) _populationPermissivenessInput.ValueChanged += _ => RefreshValidationIssues();
+        if (_mainworldPolicyOption != null) _mainworldPolicyOption.ItemSelected += _ => RefreshValidationIssues();
     }
 
     private void ApplyLayoutPolish()
@@ -614,12 +626,99 @@ public partial class WelcomeScreen : Control
             return;
         }
 
+        VBoxContainer useCaseSection = new VBoxContainer();
+        useCaseSection.Name = "UseCaseSection";
+        useCaseSection.AddThemeConstantOverride("separation", 8);
+
+        Label useCaseHeader = new Label();
+        useCaseHeader.Text = "Traveller / Ruleset";
+        useCaseHeader.AddThemeFontSizeOverride("font_size", 12);
+        useCaseHeader.Modulate = new Color(0.82f, 0.82f, 0.55f, 1.0f);
+        useCaseSection.AddChild(useCaseHeader);
+
+        HBoxContainer rulesetRow = new HBoxContainer();
+        rulesetRow.AddThemeConstantOverride("separation", 12);
+        Label rulesetLabel = new Label();
+        rulesetLabel.Text = "Ruleset";
+        rulesetLabel.CustomMinimumSize = new Vector2(110.0f, 0.0f);
+        rulesetRow.AddChild(rulesetLabel);
+        OptionButton rulesetModeOption = new OptionButton();
+        rulesetModeOption.Name = "RulesetModeOption";
+        rulesetModeOption.SizeFlagsHorizontal = Control.SizeFlags.ExpandFill;
+        rulesetModeOption.AddItem("Default", (int)GenerationUseCaseSettings.RulesetModeType.Default);
+        rulesetModeOption.AddItem("Traveller", (int)GenerationUseCaseSettings.RulesetModeType.Traveller);
+        rulesetRow.AddChild(rulesetModeOption);
+        _rulesetModeOption = rulesetModeOption;
+        useCaseSection.AddChild(rulesetRow);
+
+        CheckBox showTravellerReadoutsCheck = new CheckBox();
+        showTravellerReadoutsCheck.Name = "ShowTravellerReadoutsCheck";
+        showTravellerReadoutsCheck.Text = "Show Traveller / UWP Readouts";
+        _showTravellerReadoutsCheck = showTravellerReadoutsCheck;
+        useCaseSection.AddChild(showTravellerReadoutsCheck);
+
+        Label advancedHeader = new Label();
+        advancedHeader.Text = "Advanced Assumptions";
+        advancedHeader.AddThemeFontSizeOverride("font_size", 12);
+        advancedHeader.Modulate = new Color(0.82f, 0.82f, 0.55f, 1.0f);
+        useCaseSection.AddChild(advancedHeader);
+
+        HBoxContainer lifeRow = new HBoxContainer();
+        lifeRow.AddThemeConstantOverride("separation", 12);
+        Label lifeLabel = new Label();
+        lifeLabel.Text = "Life Bias";
+        lifeLabel.CustomMinimumSize = new Vector2(110.0f, 0.0f);
+        lifeRow.AddChild(lifeLabel);
+        SpinBox lifePermissivenessInput = new SpinBox();
+        lifePermissivenessInput.Name = "LifePermissivenessInput";
+        lifePermissivenessInput.MinValue = 0.0;
+        lifePermissivenessInput.MaxValue = 1.0;
+        lifePermissivenessInput.Step = 0.05;
+        lifePermissivenessInput.SizeFlagsHorizontal = Control.SizeFlags.ExpandFill;
+        lifeRow.AddChild(lifePermissivenessInput);
+        _lifePermissivenessInput = lifePermissivenessInput;
+        useCaseSection.AddChild(lifeRow);
+
+        HBoxContainer populationRow = new HBoxContainer();
+        populationRow.AddThemeConstantOverride("separation", 12);
+        Label populationLabel = new Label();
+        populationLabel.Text = "Pop. Bias";
+        populationLabel.CustomMinimumSize = new Vector2(110.0f, 0.0f);
+        populationRow.AddChild(populationLabel);
+        SpinBox populationPermissivenessInput = new SpinBox();
+        populationPermissivenessInput.Name = "PopulationPermissivenessInput";
+        populationPermissivenessInput.MinValue = 0.0;
+        populationPermissivenessInput.MaxValue = 1.0;
+        populationPermissivenessInput.Step = 0.05;
+        populationPermissivenessInput.SizeFlagsHorizontal = Control.SizeFlags.ExpandFill;
+        populationRow.AddChild(populationPermissivenessInput);
+        _populationPermissivenessInput = populationPermissivenessInput;
+        useCaseSection.AddChild(populationRow);
+
+        HBoxContainer mainworldRow = new HBoxContainer();
+        mainworldRow.AddThemeConstantOverride("separation", 12);
+        Label mainworldLabel = new Label();
+        mainworldLabel.Text = "Mainworld";
+        mainworldLabel.CustomMinimumSize = new Vector2(110.0f, 0.0f);
+        mainworldRow.AddChild(mainworldLabel);
+        OptionButton mainworldPolicyOption = new OptionButton();
+        mainworldPolicyOption.Name = "MainworldPolicyOption";
+        mainworldPolicyOption.SizeFlagsHorizontal = Control.SizeFlags.ExpandFill;
+        mainworldPolicyOption.AddItem("None", (int)GenerationUseCaseSettings.MainworldPolicyType.None);
+        mainworldPolicyOption.AddItem("Prefer", (int)GenerationUseCaseSettings.MainworldPolicyType.Prefer);
+        mainworldPolicyOption.AddItem("Require", (int)GenerationUseCaseSettings.MainworldPolicyType.Require);
+        mainworldRow.AddChild(mainworldPolicyOption);
+        _mainworldPolicyOption = mainworldPolicyOption;
+        useCaseSection.AddChild(mainworldRow);
+
+        _settingsVBox.AddChild(useCaseSection);
+
         Label assumptionsLabel = new Label();
         assumptionsLabel.Name = "AssumptionsLabel";
         assumptionsLabel.AutowrapMode = TextServer.AutowrapMode.Word;
         assumptionsLabel.AddThemeFontSizeOverride("font_size", 10);
         assumptionsLabel.Modulate = new Color(0.65f, 0.72f, 0.8f, 1.0f);
-        assumptionsLabel.Text = "The startup editor uses the same normalized GalaxyConfig and validation rules as the in-viewer galaxy inspector.";
+        assumptionsLabel.Text = "The startup editor uses the same normalized GalaxyConfig and validation rules as the in-viewer galaxy inspector, including Traveller-oriented ruleset metadata.";
         _settingsVBox.AddChild(assumptionsLabel);
         _assumptionsLabel = assumptionsLabel;
 
@@ -628,6 +727,8 @@ public partial class WelcomeScreen : Control
         issuesContainer.AddThemeConstantOverride("separation", 2);
         _settingsVBox.AddChild(issuesContainer);
         _issuesContainer = issuesContainer;
+
+        ApplyUseCaseSettingsToControls(GenerationUseCaseSettings.CreateDefault());
     }
 
     private void ApplyParameterTooltips()
@@ -645,6 +746,11 @@ public partial class WelcomeScreen : Control
         ApplyTooltip("disk_scale_height_pc", _diskHeightSlider, "CenterContainer/MainPanel/MarginContainer/VBox/ScrollContainer/SettingsVBox/SizeSection/SizeContent/SizeVBox/DiskHeightRow/DiskHeightLabel");
         ApplyTooltip("star_density_multiplier", _densitySlider, "CenterContainer/MainPanel/MarginContainer/VBox/ScrollContainer/SettingsVBox/SizeSection/SizeContent/SizeVBox/DensityRow/DensityLabel");
         ApplyTooltip("galaxy_seed", _seedSpin, "CenterContainer/MainPanel/MarginContainer/VBox/ScrollContainer/SettingsVBox/SeedContainer/SeedLabel");
+        ApplyDynamicTooltip(_rulesetModeOption, "ruleset_mode");
+        ApplyDynamicTooltip(_showTravellerReadoutsCheck, "show_traveller_readouts");
+        ApplyDynamicTooltip(_lifePermissivenessInput, "life_permissiveness");
+        ApplyDynamicTooltip(_populationPermissivenessInput, "population_permissiveness");
+        ApplyDynamicTooltip(_mainworldPolicyOption, "mainworld_policy");
     }
 
     private void ApplyTooltip(string parameterId, Control? inputControl, string labelPath)
@@ -675,6 +781,16 @@ public partial class WelcomeScreen : Control
         return string.Empty;
     }
 
+    private void ApplyDynamicTooltip(Control? control, string parameterId)
+    {
+        if (control == null)
+        {
+            return;
+        }
+
+        control.TooltipText = GetParameterAssumption(parameterId);
+    }
+
     private void ApplyConfig(GalaxyConfig config)
     {
         SetType((int)config.Type);
@@ -689,6 +805,91 @@ public partial class WelcomeScreen : Control
         SetSlider(_diskLengthSlider, config.DiskScaleLengthPc);
         SetSlider(_diskHeightSlider, config.DiskScaleHeightPc);
         SetSlider(_densitySlider, config.StarDensityMultiplier);
+        ApplyUseCaseSettingsToControls(config.UseCaseSettings);
+    }
+
+    private GenerationUseCaseSettings BuildUseCaseSettingsFromControls()
+    {
+        GenerationUseCaseSettings settings = GenerationUseCaseSettings.CreateDefault();
+        if (_rulesetModeOption != null)
+        {
+            settings.RulesetMode = (GenerationUseCaseSettings.RulesetModeType)_rulesetModeOption.Selected;
+        }
+
+        if (_showTravellerReadoutsCheck != null)
+        {
+            settings.ShowTravellerReadouts = _showTravellerReadoutsCheck.ButtonPressed;
+        }
+
+        if (_lifePermissivenessInput != null)
+        {
+            settings.LifePermissiveness = _lifePermissivenessInput.Value;
+        }
+
+        if (_populationPermissivenessInput != null)
+        {
+            settings.PopulationPermissiveness = _populationPermissivenessInput.Value;
+        }
+
+        if (_mainworldPolicyOption != null)
+        {
+            settings.MainworldPolicy = (GenerationUseCaseSettings.MainworldPolicyType)_mainworldPolicyOption.Selected;
+        }
+
+        return settings;
+    }
+
+    private void ApplyUseCaseSettingsToControls(GenerationUseCaseSettings? settings)
+    {
+        GenerationUseCaseSettings resolvedSettings = settings?.Clone() ?? GenerationUseCaseSettings.CreateDefault();
+        if (_rulesetModeOption != null)
+        {
+            _rulesetModeOption.Select((int)resolvedSettings.RulesetMode);
+        }
+
+        if (_showTravellerReadoutsCheck != null)
+        {
+            _showTravellerReadoutsCheck.ButtonPressed = resolvedSettings.ShowTravellerReadouts;
+        }
+
+        if (_lifePermissivenessInput != null)
+        {
+            _lifePermissivenessInput.Value = resolvedSettings.LifePermissiveness;
+        }
+
+        if (_populationPermissivenessInput != null)
+        {
+            _populationPermissivenessInput.Value = resolvedSettings.PopulationPermissiveness;
+        }
+
+        if (_mainworldPolicyOption != null)
+        {
+            _mainworldPolicyOption.Select((int)resolvedSettings.MainworldPolicy);
+        }
+    }
+
+    private void OnRulesetModeSelected(long selectedId)
+    {
+        if (_isUpdatingUi)
+        {
+            RefreshValidationIssues();
+            return;
+        }
+
+        if ((GenerationUseCaseSettings.RulesetModeType)selectedId == GenerationUseCaseSettings.RulesetModeType.Traveller)
+        {
+            if (_showTravellerReadoutsCheck != null)
+            {
+                _showTravellerReadoutsCheck.ButtonPressed = true;
+            }
+
+            if (_mainworldPolicyOption != null)
+            {
+                _mainworldPolicyOption.Select((int)GenerationUseCaseSettings.MainworldPolicyType.Require);
+            }
+        }
+
+        RefreshValidationIssues();
     }
 
     private void RefreshValidationIssues()

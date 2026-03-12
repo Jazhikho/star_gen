@@ -34,6 +34,9 @@ public static class TestObjectViewer
         runner.RunNativeTest("TestObjectViewer::test_preset_controls_exist", TestPresetControlsExist);
         runner.RunNativeTest("TestObjectViewer::test_earth_like_preset_updates_spec_snapshot", TestEarthLikePresetUpdatesSpecSnapshot);
         runner.RunNativeTest("TestObjectViewer::test_standalone_back_button_stays_menu_scoped", TestStandaloneBackButtonStaysMenuScoped);
+        runner.RunNativeTest("TestObjectViewer::test_standalone_generator_waits_for_explicit_generation", TestStandaloneGeneratorWaitsForExplicitGeneration);
+        runner.RunNativeTest("TestObjectViewer::test_use_case_controls_exist", TestUseCaseControlsExist);
+        runner.RunNativeTest("TestObjectViewer::test_traveller_readout_visibility_tracks_settings", TestTravellerReadoutVisibilityTracksSettings);
     }
 
     private static ObjectViewer CreateViewer()
@@ -397,6 +400,94 @@ public static class TestObjectViewer
         {
             IntegrationTestUtils.CleanupNode(viewer);
         }
+    }
+
+    private static void TestStandaloneGeneratorWaitsForExplicitGeneration()
+    {
+        ObjectViewer viewer = CreateViewer();
+        try
+        {
+            viewer.PrepareStandaloneGenerator(12345, ObjectViewer.ObjectType.Planet);
+
+            Button? saveButton = viewer.GetNodeOrNull<Button>("UI/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/FileSection/FileButtonContainer/SaveButton");
+            Button? loadButton = viewer.GetNodeOrNull<Button>("UI/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/FileSection/FileButtonContainer/LoadButton");
+            Label? emptyStateLabel = viewer.GetNodeOrNull<Label>("UI/EmptyStateLabel");
+
+            DotNetNativeTestSuite.AssertNull(viewer.current_body, "Standalone object generation should not auto-generate");
+            DotNetNativeTestSuite.AssertEqual("Set parameters, then click Generate", viewer.status_label!.Text, "Standalone startup should prompt for generation");
+            DotNetNativeTestSuite.AssertNotNull(saveButton, "Save button should exist");
+            DotNetNativeTestSuite.AssertTrue(saveButton!.Disabled, "Save should stay disabled until a body exists");
+            DotNetNativeTestSuite.AssertNotNull(loadButton, "Load button should exist");
+            DotNetNativeTestSuite.AssertFalse(loadButton!.Disabled, "Load should stay enabled before generation");
+            DotNetNativeTestSuite.AssertNotNull(emptyStateLabel, "Empty-state label should exist");
+            DotNetNativeTestSuite.AssertTrue(emptyStateLabel!.Visible, "Empty-state label should be visible before generation");
+        }
+        finally
+        {
+            IntegrationTestUtils.CleanupNode(viewer);
+        }
+    }
+
+    private static void TestUseCaseControlsExist()
+    {
+        ObjectViewer viewer = CreateViewer();
+        try
+        {
+            string basePath = "UI/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/GenerationSection";
+            DotNetNativeTestSuite.AssertNotNull(viewer.GetNodeOrNull<OptionButton>($"{basePath}/RulesetContainer/RulesetModeOption"), "Object viewer should expose a ruleset selector");
+            DotNetNativeTestSuite.AssertNotNull(viewer.GetNodeOrNull<CheckBox>($"{basePath}/ShowTravellerReadoutsCheck"), "Object viewer should expose a Traveller readout toggle");
+            DotNetNativeTestSuite.AssertNotNull(viewer.GetNodeOrNull<SpinBox>($"{basePath}/LifePermissivenessContainer/LifePermissivenessInput"), "Object viewer should expose a life-bias control");
+            DotNetNativeTestSuite.AssertNotNull(viewer.GetNodeOrNull<SpinBox>($"{basePath}/PopulationPermissivenessContainer/PopulationPermissivenessInput"), "Object viewer should expose a population-bias control");
+        }
+        finally
+        {
+            IntegrationTestUtils.CleanupNode(viewer);
+        }
+    }
+
+    private static void TestTravellerReadoutVisibilityTracksSettings()
+    {
+        ObjectViewer viewer = CreateViewer();
+        try
+        {
+            VBoxContainer? inspectorContainer = viewer.inspector_panel?.GetNodeOrNull<VBoxContainer>("InspectorContainer");
+            OptionButton? rulesetOption = viewer.GetNodeOrNull<OptionButton>("UI/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/GenerationSection/RulesetContainer/RulesetModeOption");
+
+            DotNetNativeTestSuite.AssertNotNull(inspectorContainer, "Inspector container should exist");
+            DotNetNativeTestSuite.AssertNotNull(rulesetOption, "Ruleset selector should exist");
+
+            viewer.generate_object(ObjectViewer.ObjectType.Planet, 54321);
+            DotNetNativeTestSuite.AssertFalse(InspectorContainsText(inspectorContainer!, "Size Code"), "Default object generation should hide Traveller readouts");
+
+            rulesetOption!.Select(1);
+            rulesetOption.EmitSignal(OptionButton.SignalName.ItemSelected, 1L);
+            viewer.generate_object(ObjectViewer.ObjectType.Planet, 54321);
+
+            DotNetNativeTestSuite.AssertTrue(InspectorContainsText(inspectorContainer!, "Traveller"), "Traveller mode should show the Traveller inspector section");
+            DotNetNativeTestSuite.AssertTrue(InspectorContainsText(inspectorContainer, "Size Code"), "Traveller mode should show the Traveller size-code readout");
+        }
+        finally
+        {
+            IntegrationTestUtils.CleanupNode(viewer);
+        }
+    }
+
+    private static bool InspectorContainsText(Control root, string text)
+    {
+        foreach (Node child in root.GetChildren())
+        {
+            if (child is Label typedLabel && typedLabel.Text.Contains(text))
+            {
+                return true;
+            }
+
+            if (child is Control typedControl && InspectorContainsText(typedControl, text))
+            {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     private static Button? FindBackButton(ObjectViewer viewer)

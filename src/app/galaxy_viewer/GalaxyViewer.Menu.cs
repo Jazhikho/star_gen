@@ -59,7 +59,7 @@ public partial class GalaxyViewer
 	{
 		PopupMenu popup = menuButton.GetPopup();
 		popup.IdPressed += OnEditMenuIdPressed;
-		popup.AddItem("Apply Current Parameters", EditMenuApplyConfigId);
+		popup.AddItem("Open Galaxy Studio", EditMenuApplyConfigId);
 	}
 
 	private void ConfigureViewMenu(MenuButton menuButton)
@@ -139,7 +139,7 @@ public partial class GalaxyViewer
 	{
 		if (id == EditMenuApplyConfigId)
 		{
-			OnApplyGalaxyConfigRequested();
+			EmitSignal(SignalName.NewGalaxyRequested);
 		}
 	}
 

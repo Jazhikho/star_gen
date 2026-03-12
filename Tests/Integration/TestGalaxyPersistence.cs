@@ -2,6 +2,7 @@
 #nullable disable warnings
 using System;
 using Godot;
+using StarGen.Domain.Generation;
 using StarGen.Domain.Galaxy;
 using StarGen.Services.Persistence;
 using StarGen.Tests.Framework;
@@ -74,6 +75,9 @@ public static class TestGalaxyPersistence
         data.HasStarSelection = true;
         data.SelectedStarSeed = 99999;
         data.SelectedStarPosition = new Vector3(105.0f, 52.0f, 210.0f);
+        GalaxyConfig config = GalaxyConfig.CreateDefault();
+        config.UseCaseSettings = CreateTravellerSettings();
+        data.SetConfig(config);
         return data;
     }
 
@@ -120,6 +124,11 @@ public static class TestGalaxyPersistence
             DotNetNativeTestSuite.AssertEqual(original.SelectedStarSeed, loaded.SelectedStarSeed, "Star seed should match");
             DotNetNativeTestSuite.AssertTrue(loaded.SelectedStarPosition.IsEqualApprox(original.SelectedStarPosition),
                 "Star position should match");
+            DotNetNativeTestSuite.AssertNotNull(loaded.GetConfig(), "Galaxy config should round-trip");
+            DotNetNativeTestSuite.AssertEqual(
+                GenerationUseCaseSettings.RulesetModeType.Traveller,
+                loaded.GetConfig()!.UseCaseSettings.RulesetMode,
+                "Galaxy save should preserve the active ruleset mode");
         }
         finally
         {
@@ -148,6 +157,10 @@ public static class TestGalaxyPersistence
             DotNetNativeTestSuite.AssertTrue(loaded.CameraPosition.IsEqualApprox(original.CameraPosition),
                 "Camera position should match");
             DotNetNativeTestSuite.AssertEqual(original.SelectedStarSeed, loaded.SelectedStarSeed, "Star seed should match");
+            DotNetNativeTestSuite.AssertNotNull(loaded.GetConfig(), "Galaxy config should round-trip through binary persistence");
+            DotNetNativeTestSuite.AssertTrue(
+                loaded.GetConfig()!.UseCaseSettings.ShowTravellerReadouts,
+                "Binary galaxy persistence should preserve Traveller readout visibility");
         }
         finally
         {
@@ -268,5 +281,16 @@ public static class TestGalaxyPersistence
         string filterStr = GalaxyPersistence.GetFileFilter();
         DotNetNativeTestSuite.AssertTrue(filterStr.Contains("sgg"), "Filter should mention sgg");
         DotNetNativeTestSuite.AssertTrue(filterStr.Contains("json"), "Filter should mention json");
+    }
+
+    private static GenerationUseCaseSettings CreateTravellerSettings()
+    {
+        GenerationUseCaseSettings settings = GenerationUseCaseSettings.CreateDefault();
+        settings.RulesetMode = GenerationUseCaseSettings.RulesetModeType.Traveller;
+        settings.ShowTravellerReadouts = true;
+        settings.LifePermissiveness = 0.7;
+        settings.PopulationPermissiveness = 0.8;
+        settings.MainworldPolicy = GenerationUseCaseSettings.MainworldPolicyType.Require;
+        return settings;
     }
 }

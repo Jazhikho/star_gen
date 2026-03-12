@@ -133,7 +133,8 @@ public static class StellarConfigGenerator
                     spec.SpectralClassHints[index],
                     -1,
                     spec.SystemMetallicity,
-                    spec.SystemAgeYears);
+                    spec.SystemAgeYears,
+                    useCaseSettings: spec.UseCaseSettings);
             }
             else
             {
@@ -142,7 +143,8 @@ public static class StellarConfigGenerator
                     -1,
                     -1,
                     spec.SystemMetallicity,
-                    spec.SystemAgeYears);
+                    spec.SystemAgeYears,
+                    useCaseSettings: spec.UseCaseSettings);
             }
 
             CelestialBody star = StarGenerator.Generate(starSpec, starRng);

@@ -99,16 +99,19 @@ public partial class ObjectViewer
 		if (objectType == ObjectType.Star)
 		{
 			StarSpec spec = StarSpec.Random(seedValue);
+			spec.UseCaseSettings = _activeUseCaseSettings.Clone();
 			body = StarGenerator.Generate(spec, rng);
 		}
 		else if (objectType == ObjectType.Planet)
 		{
 			PlanetSpec spec = PlanetSpec.Random(seedValue);
+			spec.UseCaseSettings = _activeUseCaseSettings.Clone();
 			body = PlanetGenerator.Generate(spec, ParentContext.SunLike(), rng);
 		}
 		else if (objectType == ObjectType.Moon)
 		{
 			MoonSpec spec = MoonSpec.Random(seedValue);
+			spec.UseCaseSettings = _activeUseCaseSettings.Clone();
 			ParentContext moonContext = ParentContext.ForMoon(
 				Units.SolarMassKg,
 				3.828e26,
@@ -123,6 +126,7 @@ public partial class ObjectViewer
 		else
 		{
 			AsteroidSpec spec = AsteroidSpec.Random(seedValue);
+			spec.UseCaseSettings = _activeUseCaseSettings.Clone();
 			body = AsteroidGenerator.Generate(spec, ParentContext.SunLike(2.7 * Units.AuMeters), rng);
 		}
 

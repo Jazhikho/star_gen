@@ -112,26 +112,26 @@ public partial class MainMenuScreen : Control
 		const string Root = "MarginContainer/ScrollContainer/Layout";
 		_versionLabel = GetNodeOrNull<Label>($"{Root}/HeroPanel/MarginContainer/HeroVBox/TopRow/VersionLabel");
 		_heroNoteLabel = GetNodeOrNull<Label>($"{Root}/HeroPanel/MarginContainer/HeroVBox/ReleaseNote");
-		_galaxyButton = GetNodeOrNull<Button>($"{Root}/MenuColumn/MenuButtons/GalaxyButton");
-		_systemButton = GetNodeOrNull<Button>($"{Root}/MenuColumn/MenuButtons/SystemButton");
-		_objectButton = GetNodeOrNull<Button>($"{Root}/MenuColumn/MenuButtons/ObjectButton");
-		_helpButton = GetNodeOrNull<Button>($"{Root}/MenuColumn/SecondaryButtons/HelpButton");
-		_creditsButton = GetNodeOrNull<Button>($"{Root}/MenuColumn/SecondaryButtons/CreditsButton");
-		_releaseNotesButton = GetNodeOrNull<Button>($"{Root}/MenuColumn/SecondaryButtons/ReleaseNotesButton");
-		_optionsButton = GetNodeOrNull<Button>($"{Root}/MenuColumn/SecondaryButtons/OptionsButton");
-		_quitButton = GetNodeOrNull<Button>($"{Root}/MenuColumn/QuitButton");
-		_overviewPanel = GetNodeOrNull<Control>($"{Root}/ContentPanel/MarginContainer/ContentStack/OverviewPanel");
-		_helpPanel = GetNodeOrNull<Control>($"{Root}/ContentPanel/MarginContainer/ContentStack/HelpPanel");
-		_creditsPanel = GetNodeOrNull<Control>($"{Root}/ContentPanel/MarginContainer/ContentStack/CreditsPanel");
-		_releaseNotesPanel = GetNodeOrNull<Control>($"{Root}/ContentPanel/MarginContainer/ContentStack/ReleaseNotesPanel");
-		_optionsPanel = GetNodeOrNull<Control>($"{Root}/ContentPanel/MarginContainer/ContentStack/OptionsPanel");
-		_helpText = GetNodeOrNull<RichTextLabel>($"{Root}/ContentPanel/MarginContainer/ContentStack/HelpPanel/HelpText");
-		_creditsText = GetNodeOrNull<RichTextLabel>($"{Root}/ContentPanel/MarginContainer/ContentStack/CreditsPanel/CreditsText");
-		_releaseNotesText = GetNodeOrNull<RichTextLabel>($"{Root}/ContentPanel/MarginContainer/ContentStack/ReleaseNotesPanel/ReleaseNotesText");
-		_fullscreenCheck = GetNodeOrNull<CheckButton>($"{Root}/ContentPanel/MarginContainer/ContentStack/OptionsPanel/OptionsVBox/FullscreenCheck");
-		_resolutionOption = GetNodeOrNull<OptionButton>($"{Root}/ContentPanel/MarginContainer/ContentStack/OptionsPanel/OptionsVBox/ResolutionRow/ResolutionOption");
-		_applyOptionsButton = GetNodeOrNull<Button>($"{Root}/ContentPanel/MarginContainer/ContentStack/OptionsPanel/OptionsVBox/ApplyOptionsButton");
-		_optionsStatusLabel = GetNodeOrNull<Label>($"{Root}/ContentPanel/MarginContainer/ContentStack/OptionsPanel/OptionsVBox/OptionsStatusLabel");
+		_galaxyButton = GetNodeOrNull<Button>($"{Root}/ModesPanel/MarginContainer/ModesVBox/ModeCards/CardGalaxy/MarginContainer/VBoxContainer/GalaxyButton");
+		_systemButton = GetNodeOrNull<Button>($"{Root}/ModesPanel/MarginContainer/ModesVBox/ModeCards/CardSystem/MarginContainer/VBoxContainer/SystemButton");
+		_objectButton = GetNodeOrNull<Button>($"{Root}/ModesPanel/MarginContainer/ModesVBox/ModeCards/CardObject/MarginContainer/VBoxContainer/ObjectButton");
+		_helpButton = GetNodeOrNull<Button>($"{Root}/UtilityRow/UtilityPanel/MarginContainer/UtilityVBox/SecondaryButtons/HelpButton");
+		_creditsButton = GetNodeOrNull<Button>($"{Root}/UtilityRow/UtilityPanel/MarginContainer/UtilityVBox/SecondaryButtons/CreditsButton");
+		_releaseNotesButton = GetNodeOrNull<Button>($"{Root}/UtilityRow/UtilityPanel/MarginContainer/UtilityVBox/SecondaryButtons/ReleaseNotesButton");
+		_optionsButton = GetNodeOrNull<Button>($"{Root}/UtilityRow/UtilityPanel/MarginContainer/UtilityVBox/SecondaryButtons/OptionsButton");
+		_quitButton = GetNodeOrNull<Button>($"{Root}/UtilityRow/UtilityPanel/MarginContainer/UtilityVBox/QuitButton");
+		_overviewPanel = GetNodeOrNull<Control>($"{Root}/UtilityRow/ContentPanel/MarginContainer/ContentStack/OverviewPanel");
+		_helpPanel = GetNodeOrNull<Control>($"{Root}/UtilityRow/ContentPanel/MarginContainer/ContentStack/HelpPanel");
+		_creditsPanel = GetNodeOrNull<Control>($"{Root}/UtilityRow/ContentPanel/MarginContainer/ContentStack/CreditsPanel");
+		_releaseNotesPanel = GetNodeOrNull<Control>($"{Root}/UtilityRow/ContentPanel/MarginContainer/ContentStack/ReleaseNotesPanel");
+		_optionsPanel = GetNodeOrNull<Control>($"{Root}/UtilityRow/ContentPanel/MarginContainer/ContentStack/OptionsPanel");
+		_helpText = GetNodeOrNull<RichTextLabel>($"{Root}/UtilityRow/ContentPanel/MarginContainer/ContentStack/HelpPanel/HelpText");
+		_creditsText = GetNodeOrNull<RichTextLabel>($"{Root}/UtilityRow/ContentPanel/MarginContainer/ContentStack/CreditsPanel/CreditsText");
+		_releaseNotesText = GetNodeOrNull<RichTextLabel>($"{Root}/UtilityRow/ContentPanel/MarginContainer/ContentStack/ReleaseNotesPanel/ReleaseNotesText");
+		_fullscreenCheck = GetNodeOrNull<CheckButton>($"{Root}/UtilityRow/ContentPanel/MarginContainer/ContentStack/OptionsPanel/OptionsVBox/FullscreenCheck");
+		_resolutionOption = GetNodeOrNull<OptionButton>($"{Root}/UtilityRow/ContentPanel/MarginContainer/ContentStack/OptionsPanel/OptionsVBox/ResolutionRow/ResolutionOption");
+		_applyOptionsButton = GetNodeOrNull<Button>($"{Root}/UtilityRow/ContentPanel/MarginContainer/ContentStack/OptionsPanel/OptionsVBox/ApplyOptionsButton");
+		_optionsStatusLabel = GetNodeOrNull<Label>($"{Root}/UtilityRow/ContentPanel/MarginContainer/ContentStack/OptionsPanel/OptionsVBox/OptionsStatusLabel");
 	}
 
 	private void ConnectSignals()
@@ -156,7 +156,7 @@ public partial class MainMenuScreen : Control
 
 	private void PopulateStaticText()
 	{
-		string version = ProjectSettings.GetSetting("application/config/version", "0.4.0").AsString();
+		string version = ProjectSettings.GetSetting("application/config/version", "0.4.1.0").AsString();
 		if (_versionLabel != null)
 		{
 			_versionLabel.Text = $"Version {version}";
@@ -171,9 +171,9 @@ public partial class MainMenuScreen : Control
 		{
 			_helpText.Text =
 				"How to use StarGen\n\n" +
-				"• Galaxy Generation — Configure and explore a full galaxy. Choose a seed, then fly into the galaxy viewer to pick sectors and star systems.\n\n" +
-				"• System Generation — Work with a single star system. Generate from a seed, view orbits and bodies, and save or load system files.\n\n" +
-				"• Object Generation — Focus on one star, planet, moon, or asteroid. Generate, inspect details, and save or load individual bodies.";
+				"- Galaxy Studio: Configure a galaxy profile first, then open the galaxy viewer to explore sectors and star systems.\n\n" +
+				"- System Studio: Set stellar counts, seed, and Traveller assumptions before opening the system viewer.\n\n" +
+				"- Object Studio: Choose a star, planet, moon, or asteroid preset before launching the object viewer.";
 		}
 
 		if (_creditsText != null)
@@ -181,7 +181,7 @@ public partial class MainMenuScreen : Control
 			_creditsText.Text =
 				"Credits\n\n" +
 				"Design and direction: Jazhikho\n\n" +
-				"StarGen uses astronomy and worldbuilding references for its generation parameters. See the project’s Sources folder for further reading.";
+				"StarGen uses astronomy and worldbuilding references for its generation parameters. See the project's Sources folder for further reading.";
 		}
 
 		if (_releaseNotesText != null)
@@ -196,20 +196,26 @@ public partial class MainMenuScreen : Control
 	private static string GetReleaseNotesContent()
 	{
 		return
+			"Version 0.4.1.0\n\n" +
+			"- Reworked the app entry flow around dedicated galaxy, system, and object generation studios.\n" +
+			"- Main-menu launches now open viewers with generated content instead of empty setup states.\n\n" +
+			"Version 0.4.0.1\n\n" +
+			"- Fixed galaxy-sector star snapshot lifetime so returned stars remain valid under full headless test runs.\n" +
+			"- Added regression coverage for detached galaxy-sector star snapshots.\n\n" +
 			"Version 0.4.0\n\n" +
-			"• New Main Menu and Release Notes.\n" +
-			"• Save/load: save and load body files (.sgt, .sgp, .sga, .sgb) and system files (.sgs) from the object and system viewers.\n" +
-			"• Gas giant variety: gas giants in the system viewer now use varied archetypes and per-planet variation.\n" +
-			"• Edit and save: edit a body in the object viewer (Edit dialog) and save as file; optional Traveller UWP size code in the editor.\n\n" +
-			"Version 0.2\n\n" +
-			"• Asteroid belt generation and rendering in the system viewer.\n" +
-			"• Scientific calibration: GenerationRealismProfile, benchmarks, ensemble harness, and distribution tests.\n" +
-			"• Belt renderer and generator integration; OrbitSlotGenerator, OrbitalMechanics, StellarConfigGenerator, and SystemValidator updates.\n" +
-			"• GalaxyInspectorPanel and test suite updates. Removed Concepts/AsteroidBelt demo scenes and Tests/RunGalaxyTests.gd.\n\n" +
-			"Version 0.1\n\n" +
-			"• First unofficial release.\n" +
-			"• Object and system viewers; galaxy data model and viewer (welcome screen, GalaxyConfig, density models, save/load).\n" +
-			"• Population framework, stations, and jump lanes (domain and prototype).";
+				"- New Main Menu and Release Notes.\n" +
+				"- Save/load: save and load body files (.sgt, .sgp, .sga, .sgb) and system files (.sgs) from the object and system viewers.\n" +
+				"- Gas giant variety: gas giants in the system viewer now use varied archetypes and per-planet variation.\n" +
+				"- Edit and save: edit a body in the object viewer (Edit dialog) and save as file; optional Traveller UWP size code in the editor.\n\n" +
+			"Version 0.2.0\n\n" +
+				"- Asteroid belt generation and rendering in the system viewer.\n" +
+				"- Scientific calibration: GenerationRealismProfile, benchmarks, ensemble harness, and distribution tests.\n" +
+				"- Belt renderer and generator integration; OrbitSlotGenerator, OrbitalMechanics, StellarConfigGenerator, and SystemValidator updates.\n" +
+				"- GalaxyInspectorPanel and test suite updates. Removed Concepts/AsteroidBelt demo scenes and Tests/RunGalaxyTests.gd.\n\n" +
+			"Version 0.1.0\n\n" +
+				"- First unofficial release.\n" +
+				"- Object and system viewers; galaxy data model and viewer (welcome screen, GalaxyConfig, density models, save/load).\n" +
+				"- Population framework, stations, and jump lanes (domain and prototype).";
 	}
 
 	private void PopulateResolutionOptions()

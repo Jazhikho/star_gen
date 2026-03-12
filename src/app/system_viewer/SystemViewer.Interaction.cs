@@ -1,5 +1,6 @@
 using Godot;
 using StarGen.Domain.Celestial;
+using StarGen.Domain.Generation;
 using StarGen.Domain.Celestial.Serialization;
 using StarGen.Domain.Systems;
 
@@ -56,6 +57,7 @@ public partial class SystemViewer
     private void OnGeneratePressed()
     {
         SolarSystemSpec spec = BuildCurrentSpecFromControls();
+        _startupState = ViewerStartupState.ViewingExistingContent;
         _sourceStarSeed = 0;
         GenerateSystem(spec);
     }
@@ -121,6 +123,19 @@ public partial class SystemViewer
         {
             _saveButton.Disabled = _currentSystem == null;
         }
+    }
+
+    /// <summary>
+    /// Updates the standalone empty-state banner.
+    /// </summary>
+    private void UpdateEmptyStateVisibility()
+    {
+        if (_emptyStateLabel == null)
+        {
+            return;
+        }
+
+        _emptyStateLabel.Visible = _currentSystem == null && _startupState == ViewerStartupState.UnconfiguredStandalone;
     }
 
     /// <summary>
@@ -193,14 +208,14 @@ public partial class SystemViewer
     /// </summary>
     private void UpdateInspectorSystem()
     {
-        if (_currentSystem == null || _inspectorPanel == null)
+        if (_inspectorPanel == null)
         {
             return;
         }
 
         if (_inspectorPanel is SystemInspectorPanel typedInspectorPanel)
         {
-            typedInspectorPanel.DisplaySystem(_currentSystem);
+            typedInspectorPanel.DisplaySystem(_currentSystem, _currentSpec);
             return;
         }
 
@@ -320,6 +335,19 @@ public partial class SystemViewer
         }
 
         return null;
+    }
+
+    /// <summary>
+    /// Applies ruleset defaults when the user switches to Traveller mode.
+    /// </summary>
+    private void OnRulesetModeSelected(long selectedId)
+    {
+        if (selectedId == (long)GenerationUseCaseSettings.RulesetModeType.Traveller)
+        {
+            ApplyTravellerDefaultsToControls();
+        }
+
+        RefreshGenerationValidationFromControls();
     }
 
 }

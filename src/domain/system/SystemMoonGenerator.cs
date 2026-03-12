@@ -40,7 +40,8 @@ public static class SystemMoonGenerator
         Array<OrbitHost> orbitHosts,
         Array<CelestialBody> stars,
         SeededRng rng,
-        bool enablePopulation = false)
+        bool enablePopulation = false,
+        GenerationUseCaseSettings? useCaseSettings = null)
     {
         _ = orbitHosts;
 
@@ -71,7 +72,8 @@ public static class SystemMoonGenerator
                 stellarTemperatureK,
                 stellarAgeYears,
                 rng,
-                enablePopulation);
+                enablePopulation,
+                useCaseSettings);
 
             if (planetMoons.Count == 0)
             {
@@ -295,7 +297,8 @@ public static class SystemMoonGenerator
         double stellarTemperatureK,
         double stellarAgeYears,
         SeededRng rng,
-        bool enablePopulation)
+        bool enablePopulation,
+        GenerationUseCaseSettings? useCaseSettings)
     {
         Array<CelestialBody> moons = new();
         double planetOrbitalDistanceM;
@@ -347,7 +350,8 @@ public static class SystemMoonGenerator
                 planetOrbitalDistanceM,
                 index,
                 rng,
-                enablePopulation);
+                enablePopulation,
+                useCaseSettings);
 
             if (moon != null)
             {
@@ -501,10 +505,11 @@ public static class SystemMoonGenerator
         double planetOrbitalDistanceM,
         int moonIndex,
         SeededRng rng,
-        bool enablePopulation)
+        bool enablePopulation,
+        GenerationUseCaseSettings? useCaseSettings)
     {
         int moonSeed = unchecked((int)rng.Randi());
-        MoonSpec spec = new(moonSeed, -1, isCaptured);
+        MoonSpec spec = new(moonSeed, -1, isCaptured, useCaseSettings: useCaseSettings);
         double planetMassEarth = planet.Physical.MassKg / Units.EarthMassKg;
         SizeCategory.Category sizeCategory;
 

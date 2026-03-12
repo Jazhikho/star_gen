@@ -1,5 +1,6 @@
 using Godot;
 using Godot.Collections;
+using StarGen.Domain.Generation;
 using SizeCategoryArchetype = StarGen.Domain.Generation.Archetypes.SizeCategory;
 
 namespace StarGen.Domain.Generation.Specs;
@@ -39,8 +40,9 @@ public partial class MoonSpec : BaseSpec
         Variant hasAtmosphere = default,
         Variant hasSubsurfaceOcean = default,
         string nameHint = "",
-        Dictionary? overrides = null)
-        : base(generationSeed, nameHint, overrides)
+        Dictionary? overrides = null,
+        GenerationUseCaseSettings? useCaseSettings = null)
+        : base(generationSeed, nameHint, overrides, useCaseSettings)
     {
         SizeCategory = sizeCategory;
         IsCaptured = isCaptured;
@@ -58,8 +60,9 @@ public partial class MoonSpec : BaseSpec
         Variant hasAtmosphere = default,
         Variant hasSubsurfaceOcean = default,
         string nameHint = "",
-        Dictionary? overrides = null)
-        : this(generationSeed, (int)sizeCategory, isCaptured, hasAtmosphere, hasSubsurfaceOcean, nameHint, overrides)
+        Dictionary? overrides = null,
+        GenerationUseCaseSettings? useCaseSettings = null)
+        : this(generationSeed, (int)sizeCategory, isCaptured, hasAtmosphere, hasSubsurfaceOcean, nameHint, overrides, useCaseSettings)
     {
     }
 
@@ -191,7 +194,9 @@ public partial class MoonSpec : BaseSpec
         }
 
         bool isCaptured = data.ContainsKey("is_captured") && (bool)data["is_captured"];
-        return new MoonSpec(generationSeed, sizeCategory, isCaptured, GetVariant(data, "has_atmosphere"), GetVariant(data, "has_subsurface_ocean"), nameHint, overrides);
+        MoonSpec spec = new MoonSpec(generationSeed, sizeCategory, isCaptured, GetVariant(data, "has_atmosphere"), GetVariant(data, "has_subsurface_ocean"), nameHint, overrides);
+        spec.ApplyBaseFromDictionary(data);
+        return spec;
     }
 
     private static Variant GetVariant(Dictionary data, string key)

@@ -56,7 +56,8 @@ public static class SystemPlanetGenerator
         Array<OrbitHost> orbitHosts,
         Array<CelestialBody> stars,
         SeededRng rng,
-        bool enablePopulation = false)
+        bool enablePopulation = false,
+        GenerationUseCaseSettings? useCaseSettings = null)
     {
         PlanetGenerationResult result = new()
         {
@@ -81,7 +82,7 @@ public static class SystemPlanetGenerator
                 continue;
             }
 
-            CelestialBody? planet = GeneratePlanetForSlot(slot, hostMap[slot.OrbitHostId], stars, rng, enablePopulation);
+            CelestialBody? planet = GeneratePlanetForSlot(slot, hostMap[slot.OrbitHostId], stars, rng, enablePopulation, useCaseSettings);
             if (planet != null)
             {
                 result.Planets.Add(planet);
@@ -102,7 +103,8 @@ public static class SystemPlanetGenerator
         Array<CelestialBody> stars,
         int targetCount,
         SeededRng rng,
-        bool enablePopulation = false)
+        bool enablePopulation = false,
+        GenerationUseCaseSettings? useCaseSettings = null)
     {
         PlanetGenerationResult result = new()
         {
@@ -136,7 +138,7 @@ public static class SystemPlanetGenerator
                 continue;
             }
 
-            CelestialBody? planet = GeneratePlanetForSlot(slot, hostMap[slot.OrbitHostId], stars, rng, enablePopulation);
+            CelestialBody? planet = GeneratePlanetForSlot(slot, hostMap[slot.OrbitHostId], stars, rng, enablePopulation, useCaseSettings);
             if (planet != null)
             {
                 result.Planets.Add(planet);
@@ -425,14 +427,16 @@ public static class SystemPlanetGenerator
         OrbitHost host,
         Array<CelestialBody> stars,
         SeededRng rng,
-        bool enablePopulation)
+        bool enablePopulation,
+        GenerationUseCaseSettings? useCaseSettings)
     {
         SizeCategory.Category sizeCategory = DetermineSizeCategory(slot.Zone, rng);
         int planetSeed = unchecked((int)rng.Randi());
         PlanetSpec spec = new(
             planetSeed,
             (int)sizeCategory,
-            (int)slot.Zone);
+            (int)slot.Zone,
+            useCaseSettings: useCaseSettings);
         spec.SetOverride("orbital.semi_major_axis_m", slot.SemiMajorAxisM);
         if (slot.SuggestedEccentricity > 0.0)
         {

@@ -24,6 +24,10 @@ public static class TestMainAppNavigation
         runner.RunNativeTest("TestMainAppNavigation::test_full_navigation_cycle", TestFullNavigationCycle);
         runner.RunNativeTest("TestMainAppNavigation::test_generated_system_is_deterministic", TestGeneratedSystemIsDeterministic);
         runner.RunNativeTest("TestMainAppNavigation::test_zero_star_seed_ignored", TestZeroStarSeedIgnored);
+        runner.RunNativeTest("TestMainAppNavigation::test_main_menu_system_generation_opens_studio", TestMainMenuSystemGenerationOpensStudio);
+        runner.RunNativeTest("TestMainAppNavigation::test_main_menu_object_generation_opens_studio", TestMainMenuObjectGenerationOpensStudio);
+        runner.RunNativeTest("TestMainAppNavigation::test_system_studio_launch_generates_before_viewer", TestSystemStudioLaunchGeneratesBeforeViewer);
+        runner.RunNativeTest("TestMainAppNavigation::test_object_studio_launch_generates_before_viewer", TestObjectStudioLaunchGeneratesBeforeViewer);
     }
 
     private static MainApp CreateStartedApp()
@@ -217,6 +221,88 @@ public static class TestMainAppNavigation
         {
             app._on_open_system_requested(0, Vector3.Zero);
             DotNetNativeTestSuite.AssertEqual("galaxy", app.get_active_viewer(), "Zero seed should be ignored");
+        }
+        finally
+        {
+            IntegrationTestUtils.CleanupNode(app);
+        }
+    }
+
+    private static void TestMainMenuSystemGenerationOpensStudio()
+    {
+        MainApp app = CreateStartedApp();
+        try
+        {
+            app._on_main_menu_system_generation_requested();
+
+            DotNetNativeTestSuite.AssertEqual("systemstudio", app.get_active_viewer(), "Main-menu system generation should open the system studio");
+            SystemGenerationScreen? screen = app.get_system_generation_screen();
+            DotNetNativeTestSuite.AssertNotNull(screen, "System studio should exist");
+            Button? startButton = screen!.GetNodeOrNull<Button>("MarginContainer/MainPanel/MarginContainer/VBox/StudioRow/SummaryPanel/MarginContainer/SummaryVBox/Buttons/StartButton");
+            DotNetNativeTestSuite.AssertNotNull(startButton, "System studio should expose a launch button");
+        }
+        finally
+        {
+            IntegrationTestUtils.CleanupNode(app);
+        }
+    }
+
+    private static void TestMainMenuObjectGenerationOpensStudio()
+    {
+        MainApp app = CreateStartedApp();
+        try
+        {
+            app._on_main_menu_object_generation_requested();
+
+            DotNetNativeTestSuite.AssertEqual("objectstudio", app.get_active_viewer(), "Main-menu object generation should open the object studio");
+            ObjectGenerationScreen? screen = app.get_object_generation_screen();
+            DotNetNativeTestSuite.AssertNotNull(screen, "Object studio should exist");
+            Button? startButton = screen!.GetNodeOrNull<Button>("MarginContainer/MainPanel/MarginContainer/VBox/StudioRow/SummaryPanel/MarginContainer/SummaryVBox/Buttons/StartButton");
+            DotNetNativeTestSuite.AssertNotNull(startButton, "Object studio should expose a launch button");
+        }
+        finally
+        {
+            IntegrationTestUtils.CleanupNode(app);
+        }
+    }
+
+    private static void TestSystemStudioLaunchGeneratesBeforeViewer()
+    {
+        MainApp app = CreateStartedApp();
+        try
+        {
+            app._on_main_menu_system_generation_requested();
+            SystemGenerationScreen? screen = app.get_system_generation_screen();
+            DotNetNativeTestSuite.AssertNotNull(screen, "System studio should exist");
+
+            screen!.EmitSignal("start_system_generation", screen.GetCurrentSpec());
+
+            DotNetNativeTestSuite.AssertEqual("system", app.get_active_viewer(), "Launching from the system studio should open the system viewer");
+            StarGen.App.SystemViewer.SystemViewer? viewer = app.get_system_viewer();
+            DotNetNativeTestSuite.AssertNotNull(viewer, "System viewer should exist");
+            DotNetNativeTestSuite.AssertNotNull(viewer!.GetCurrentSystem(), "System studio launch should generate a system immediately");
+        }
+        finally
+        {
+            IntegrationTestUtils.CleanupNode(app);
+        }
+    }
+
+    private static void TestObjectStudioLaunchGeneratesBeforeViewer()
+    {
+        MainApp app = CreateStartedApp();
+        try
+        {
+            app._on_main_menu_object_generation_requested();
+            ObjectGenerationScreen? screen = app.get_object_generation_screen();
+            DotNetNativeTestSuite.AssertNotNull(screen, "Object studio should exist");
+
+            screen!.EmitSignal("start_object_generation", screen.GetCurrentRequest());
+
+            DotNetNativeTestSuite.AssertEqual("object", app.get_active_viewer(), "Launching from the object studio should open the object viewer");
+            StarGen.App.Viewer.ObjectViewer? viewer = app.get_object_viewer();
+            DotNetNativeTestSuite.AssertNotNull(viewer, "Object viewer should exist");
+            DotNetNativeTestSuite.AssertNotNull(viewer!.current_body, "Object studio launch should generate a body immediately");
         }
         finally
         {

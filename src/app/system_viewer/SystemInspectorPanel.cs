@@ -2,6 +2,7 @@ using Godot;
 using StarGen.App.Viewer;
 using StarGen.Domain.Celestial;
 using StarGen.Domain.Celestial.Components;
+using StarGen.Domain.Generation;
 using StarGen.Domain.Math;
 using StarGen.Domain.Population;
 using StarGen.Domain.Systems;
@@ -37,7 +38,7 @@ public partial class SystemInspectorPanel : VBoxContainer
     /// <summary>
     /// Displays system overview information.
     /// </summary>
-    public void DisplaySystem(SolarSystem? system)
+    public void DisplaySystem(SolarSystem? system, SolarSystemSpec? spec = null)
     {
         EnsureUi();
 
@@ -118,6 +119,11 @@ public partial class SystemInspectorPanel : VBoxContainer
                     belt.GetMajorAsteroidCount());
                 AddProperty(_overviewSection, belt.Name, beltInfo);
             }
+        }
+
+        if (spec != null && (spec.UseCaseSettings.IsTravellerMode() || spec.UseCaseSettings.ShowTravellerReadouts))
+        {
+            AddTravellerSummary(system, spec);
         }
     }
 
@@ -459,6 +465,32 @@ public partial class SystemInspectorPanel : VBoxContainer
     }
 
     /// <summary>
+    /// Adds Traveller-oriented mainworld readiness summary rows.
+    /// </summary>
+    private void AddTravellerSummary(SolarSystem system, SolarSystemSpec spec)
+    {
+        AddSeparator(_overviewSection);
+        AddHeader(_overviewSection, "Traveller");
+        AddProperty(_overviewSection, "Ruleset", GetRulesetLabel(spec.UseCaseSettings.RulesetMode));
+        AddProperty(_overviewSection, "Mainworld Policy", GetMainworldPolicyLabel(spec.UseCaseSettings.MainworldPolicy));
+
+        TravellerMainworldSelector.SelectionResult selection = TravellerMainworldSelector.Select(system);
+        if (!selection.HasCandidate() || selection.Body == null)
+        {
+            AddProperty(_overviewSection, "Mainworld", "No candidate");
+            AddProperty(_overviewSection, "Readiness", "Mainworld candidate missing");
+            AddProperty(_overviewSection, "Reason", selection.Reason);
+            return;
+        }
+
+        AddProperty(_overviewSection, "Mainworld", selection.Body.Name);
+        AddProperty(_overviewSection, "Reason", selection.Reason);
+        AddProperty(_overviewSection, "Population", PropertyFormatter.FormatPopulation(selection.Population));
+        AddProperty(_overviewSection, "Habitability", PropertyFormatter.FormatHabitability(selection.HabitabilityScore));
+        AddProperty(_overviewSection, "Suitability", PropertyFormatter.FormatSuitability(selection.SuitabilityScore));
+    }
+
+    /// <summary>
     /// Derives the current political situation for display.
     /// </summary>
     private static string GetPoliticalSituation(PlanetPopulationData populationData)
@@ -550,6 +582,31 @@ public partial class SystemInspectorPanel : VBoxContainer
             CelestialType.Type.Asteroid => "Asteroid",
             _ => "Unknown",
         };
+    }
+
+    private static string GetRulesetLabel(GenerationUseCaseSettings.RulesetModeType rulesetMode)
+    {
+        if (rulesetMode == GenerationUseCaseSettings.RulesetModeType.Traveller)
+        {
+            return "Traveller";
+        }
+
+        return "Default";
+    }
+
+    private static string GetMainworldPolicyLabel(GenerationUseCaseSettings.MainworldPolicyType policy)
+    {
+        if (policy == GenerationUseCaseSettings.MainworldPolicyType.Prefer)
+        {
+            return "Prefer";
+        }
+
+        if (policy == GenerationUseCaseSettings.MainworldPolicyType.Require)
+        {
+            return "Require";
+        }
+
+        return "None";
     }
 
     /// <summary>

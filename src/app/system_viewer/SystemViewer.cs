@@ -1,4 +1,5 @@
 using Godot;
+using StarGen.Domain.Generation;
 using StarGen.Domain.Systems;
 using StarGen.Domain.Systems.Fixtures;
 using StarGen.Domain.Generation.Parameters;
@@ -15,6 +16,12 @@ namespace StarGen.App.SystemViewer;
 /// </summary>
 public partial class SystemViewer : Node3D, ISystemViewerSaveLoadHost
 {
+    internal enum ViewerStartupState
+    {
+        ViewingExistingContent = 0,
+        UnconfiguredStandalone = 1,
+    }
+
     /// <summary>
     /// Emitted when a body should be opened in the object viewer.
     /// </summary>
@@ -46,6 +53,11 @@ public partial class SystemViewer : Node3D, ISystemViewerSaveLoadHost
     internal SpinBox? _systemMetallicityInput;
     internal CheckBox? _includeBeltsCheck;
     internal CheckBox? _generatePopulationCheck;
+    internal OptionButton? _rulesetModeOption;
+    internal CheckBox? _showTravellerReadoutsCheck;
+    internal SpinBox? _lifePermissivenessInput;
+    internal SpinBox? _populationPermissivenessInput;
+    internal OptionButton? _mainworldPolicyOption;
     internal Label? _generationAssumptionsLabel;
     internal VBoxContainer? _generationIssuesContainer;
     internal Button? _generateButton;
@@ -60,6 +72,7 @@ public partial class SystemViewer : Node3D, ISystemViewerSaveLoadHost
     internal Node3D? _zonesContainer;
     internal Node? _orbitRenderer;
     internal Node3D? _beltRenderer;
+    internal Label? _emptyStateLabel;
     internal PackedScene? _systemBodyNodeScene;
 
     internal SolarSystem? _currentSystem;
@@ -75,6 +88,7 @@ public partial class SystemViewer : Node3D, ISystemViewerSaveLoadHost
     internal Rect2 _renderAreaRect = new Rect2();
     internal SolarSystemSpec? _currentSpec;
     internal GenerationParameterIssueSet _currentGenerationIssues = new();
+    internal ViewerStartupState _startupState = ViewerStartupState.UnconfiguredStandalone;
 
     /// <summary>
     /// Reused scratch list for removing stale body node IDs during the animation update.
@@ -101,7 +115,7 @@ public partial class SystemViewer : Node3D, ISystemViewerSaveLoadHost
 
         SetStatus("System viewer initialized");
         _isReady = true;
-        OnGeneratePressed();
+        ConfigureStandaloneGenerator((int)(_seedInput?.Value ?? 1.0));
     }
 
     /// <summary>
@@ -211,6 +225,8 @@ public partial class SystemViewer : Node3D, ISystemViewerSaveLoadHost
             return;
         }
 
+        AppendTravellerGenerationIssues(system, spec);
+        UpdateGenerationIssuesUi();
         DisplaySystem(system);
         if (_currentGenerationIssues.Issues.Count > 0)
         {
@@ -219,6 +235,20 @@ public partial class SystemViewer : Node3D, ISystemViewerSaveLoadHost
         }
 
         SetStatus($"Generated: {system.GetSummary()}");
+    }
+
+    private void AppendTravellerGenerationIssues(SolarSystem system, SolarSystemSpec spec)
+    {
+        if (spec.UseCaseSettings.MainworldPolicy != GenerationUseCaseSettings.MainworldPolicyType.Require)
+        {
+            return;
+        }
+
+        TravellerMainworldSelector.SelectionResult selection = TravellerMainworldSelector.Select(system);
+        if (!selection.HasCandidate())
+        {
+            _currentGenerationIssues.AddWarning("mainworld_policy", "Traveller mainworld requirement has no valid candidate in this generated system.");
+        }
     }
 
     /// <summary>
@@ -236,6 +266,7 @@ public partial class SystemViewer : Node3D, ISystemViewerSaveLoadHost
         }
 
         _currentSystem = system;
+        _startupState = ViewerStartupState.ViewingExistingContent;
         _currentLayout = SystemDisplayLayout.CalculateLayout(system);
         SolarSystemSpec? currentSpec = ExtractCurrentSpec(system);
         if (currentSpec != null)
@@ -252,6 +283,7 @@ public partial class SystemViewer : Node3D, ISystemViewerSaveLoadHost
         CreateBeltVisualizations();
         CreateBodyNodes();
         CreateOrbitVisualizations();
+        UpdateEmptyStateVisibility();
 
         if (_showZonesCheck != null && _showZonesCheck.ButtonPressed)
         {
@@ -288,8 +320,17 @@ public partial class SystemViewer : Node3D, ISystemViewerSaveLoadHost
         ClearBelts();
         ClearZones();
         UpdateSaveButtonState();
+        UpdateEmptyStateVisibility();
+        UpdateInspectorSystem();
 
-        SetStatus("No system loaded");
+        if (_startupState == ViewerStartupState.UnconfiguredStandalone)
+        {
+            SetStatus("Set parameters, then click Generate");
+        }
+        else
+        {
+            SetStatus("No system loaded");
+        }
     }
 
     /// <summary>
@@ -405,6 +446,52 @@ public partial class SystemViewer : Node3D, ISystemViewerSaveLoadHost
         if (_seedInput != null)
         {
             _seedInput.Value = seedValue;
+        }
+    }
+
+    /// <summary>
+    /// Returns the current generation specification reflected by the viewer controls.
+    /// </summary>
+    public SolarSystemSpec? GetCurrentSpec()
+    {
+        return _currentSpec;
+    }
+
+    /// <summary>
+    /// Prepares the viewer for standalone generation launched from the main menu.
+    /// </summary>
+    public void ConfigureStandaloneGenerator(int seedValue, SolarSystemSpec? initialSpec = null)
+    {
+        SolarSystemSpec seedSpec;
+        if (initialSpec != null)
+        {
+            seedSpec = initialSpec;
+        }
+        else
+        {
+            seedSpec = new SolarSystemSpec(seedValue, 1, 1);
+        }
+
+        if (seedSpec.GenerationSeed == 0)
+        {
+            seedSpec.GenerationSeed = seedValue;
+        }
+
+        _startupState = ViewerStartupState.UnconfiguredStandalone;
+        _sourceStarSeed = 0;
+        SetGenerationSectionVisible(true);
+        ApplySpecToControls(seedSpec);
+        ClearDisplay();
+    }
+
+    /// <summary>
+    /// Shows or hides the standalone generation section.
+    /// </summary>
+    public void SetGenerationSectionVisible(bool visible)
+    {
+        if (_generationSection != null)
+        {
+            _generationSection.Visible = visible;
         }
     }
 

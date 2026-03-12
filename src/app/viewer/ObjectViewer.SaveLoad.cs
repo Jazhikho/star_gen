@@ -20,6 +20,7 @@ public partial class ObjectViewer
         SetupTypeOptions();
         SetupPresetOptions();
         SetupPopulationOptions();
+        SetupUseCaseControls();
 
         if (_generateButton != null)
         {
@@ -252,7 +253,10 @@ public partial class ObjectViewer
         _sourceStarSeed = 0;
 
         SetGenerationControlsEnabled(true);
-        SetFileControlsEnabled(true);
+        _startupState = ViewerStartupState.ViewingExistingContent;
+        TryApplyUseCaseSettingsFromBody(result.Body);
+        ApplyUseCaseSettingsToControls(_activeUseCaseSettings);
+        SetFileControlState(true, true);
         DisplayBodyWithMoons(result.Body, _currentMoons);
         SetStatus($"Loaded: {Path.GetFileName(path)}");
         UpdateFileInfo(Path.GetFileName(path), result.Body);
@@ -279,6 +283,7 @@ public partial class ObjectViewer
             DisplayExternalBody(result.Body, [], 0);
             _navigatedFromSystem = false;
             SetGenerationControlsEnabled(true);
+            SetFileControlState(true, true);
             UpdateFileInfo(Path.GetFileName(path), result.Body);
         }
 
@@ -475,6 +480,8 @@ public partial class ObjectViewer
             spec = StarSpec.Random(seedValue);
         }
 
+        spec.UseCaseSettings = _activeUseCaseSettings.Clone();
+
         CelestialBody body = StarGenerator.Generate(spec, rng);
         DisplayGeneratedBody(body, ObjectType.Star, presetId);
     }
@@ -513,6 +520,8 @@ public partial class ObjectViewer
             spec = PlanetSpec.Random(seedValue);
         }
 
+        spec.UseCaseSettings = _activeUseCaseSettings.Clone();
+
         CelestialBody body = PlanetGenerator.Generate(spec, ParentContext.SunLike(), rng);
         DisplayGeneratedBody(body, ObjectType.Planet, presetId);
     }
@@ -542,6 +551,8 @@ public partial class ObjectViewer
         {
             spec = MoonSpec.Random(seedValue);
         }
+
+        spec.UseCaseSettings = _activeUseCaseSettings.Clone();
 
         ParentContext moonContext = ParentContext.ForMoon(
             Units.SolarMassKg,
@@ -667,8 +678,9 @@ public partial class ObjectViewer
     {
         DisplayExternalBody(body, [], 0);
         _navigatedFromSystem = false;
+        _startupState = ViewerStartupState.ViewingExistingContent;
         SetGenerationControlsEnabled(true);
-        SetFileControlsEnabled(true);
+        SetFileControlState(true, true);
         string presetLabel = "Random";
         if (_presetOption != null && _presetOption.ItemCount > 0)
         {

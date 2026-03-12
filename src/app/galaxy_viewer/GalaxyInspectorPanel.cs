@@ -1,5 +1,6 @@
 using Godot;
 using StarGen.App.Viewer;
+using StarGen.Domain.Generation;
 using StarGen.Domain.Generation.Parameters;
 using StarGen.Domain.Galaxy;
 
@@ -52,6 +53,11 @@ public partial class GalaxyInspectorPanel : VBoxContainer
 	private SpinBox? _densityInput;
 	private SpinBox? _ellipticityInput;
 	private SpinBox? _irregularityInput;
+	private OptionButton? _rulesetModeOption;
+	private CheckBox? _showTravellerReadoutsCheck;
+	private SpinBox? _lifePermissivenessInput;
+	private SpinBox? _populationPermissivenessInput;
+	private OptionButton? _mainworldPolicyOption;
 	private Button? _applyGalaxyConfigButton;
 	private VBoxContainer? _configIssuesContainer;
 	private VBoxContainer? _selectionContainer;
@@ -62,6 +68,7 @@ public partial class GalaxyInspectorPanel : VBoxContainer
 	private Label? _jumpRoutesProgressLabel;
 	private ProgressBar? _jumpRoutesProgressBar;
 	private bool _isCalculating;
+	private GalaxyConfig? _editableConfig;
 
 	/// <summary>
 	/// Builds the inspector UI.
@@ -102,6 +109,7 @@ public partial class GalaxyInspectorPanel : VBoxContainer
 		AddProperty(_overviewContainer, "Height", $"{spec.HeightPc / 1000.0:0.0} kpc");
 		AddProperty(_overviewContainer, "Spiral Arms", spec.NumArms.ToString());
 		AddProperty(_overviewContainer, "Arm Pitch", $"{spec.ArmPitchAngleDeg:0.0} deg");
+		AddUseCaseOverview(_overviewContainer, _editableConfig?.UseCaseSettings);
 		AddProperty(_overviewContainer, "View", GetZoomLevelName(zoomLevel));
 	}
 
@@ -589,7 +597,7 @@ public partial class GalaxyInspectorPanel : VBoxContainer
 		AddTitle("Galaxy Inspector", 14);
 		AddChild(new HSeparator());
 
-		AddSectionLabel("Generation Parameters");
+		AddSectionLabel("Generation Profile");
 		_configEditorContainer = CreateSectionContainer("ConfigEditorContainer");
 		AddChild(_configEditorContainer);
 		BuildConfigEditorUi();
@@ -685,6 +693,8 @@ public partial class GalaxyInspectorPanel : VBoxContainer
 			return;
 		}
 
+		_editableConfig = config;
+
 		if (_galaxyTypeOption != null)
 		{
 			_galaxyTypeOption.Selected = (int)config.Type;
@@ -744,6 +754,9 @@ public partial class GalaxyInspectorPanel : VBoxContainer
 		{
 			_irregularityInput.Value = config.IrregularityScale;
 		}
+
+		ApplyUseCaseSettingsToControls(config.UseCaseSettings);
+		SetConfigControlsEditable(false);
 	}
 
 	/// <summary>
@@ -811,6 +824,9 @@ public partial class GalaxyInspectorPanel : VBoxContainer
 		{
 			config.IrregularityScale = _irregularityInput.Value;
 		}
+
+		config.UseCaseSettings = BuildUseCaseSettingsFromControls();
+		_editableConfig = config;
 
 		return config;
 	}
@@ -948,21 +964,189 @@ public partial class GalaxyInspectorPanel : VBoxContainer
 		_irregularityInput = CreateSpinBox(0.1, 1.0, 0.01, string.Empty);
 		AddEditorRow("Irregularity", _irregularityInput, "irregularity_scale");
 
+		_rulesetModeOption = new OptionButton();
+		_rulesetModeOption.AddItem("Default", (int)GenerationUseCaseSettings.RulesetModeType.Default);
+		_rulesetModeOption.AddItem("Traveller", (int)GenerationUseCaseSettings.RulesetModeType.Traveller);
+		_rulesetModeOption.ItemSelected += OnRulesetModeSelected;
+		AddEditorRow("Ruleset", _rulesetModeOption, "ruleset_mode");
+
+		_showTravellerReadoutsCheck = new CheckBox();
+		_showTravellerReadoutsCheck.Text = "Show Traveller / UWP Readouts";
+		AddEditorRow("Readouts", _showTravellerReadoutsCheck, "show_traveller_readouts");
+
+		_lifePermissivenessInput = CreateSpinBox(0.0, 1.0, 0.05, string.Empty);
+		AddEditorRow("Life Bias", _lifePermissivenessInput, "life_permissiveness");
+
+		_populationPermissivenessInput = CreateSpinBox(0.0, 1.0, 0.05, string.Empty);
+		AddEditorRow("Pop. Bias", _populationPermissivenessInput, "population_permissiveness");
+
+		_mainworldPolicyOption = new OptionButton();
+		_mainworldPolicyOption.AddItem("None", (int)GenerationUseCaseSettings.MainworldPolicyType.None);
+		_mainworldPolicyOption.AddItem("Prefer", (int)GenerationUseCaseSettings.MainworldPolicyType.Prefer);
+		_mainworldPolicyOption.AddItem("Require", (int)GenerationUseCaseSettings.MainworldPolicyType.Require);
+		AddEditorRow("Mainworld", _mainworldPolicyOption, "mainworld_policy");
+
 		Label noteLabel = new Label();
-		noteLabel.Text = "Derived heights and density-model rules still come from the active morphology implementation.";
+		noteLabel.Text = "Galaxy generation parameters are configured in the Galaxy Generation Studio. This viewer shows the active profile and reuses it when you open systems.";
 		noteLabel.AutowrapMode = TextServer.AutowrapMode.Word;
 		noteLabel.AddThemeFontSizeOverride("font_size", 10);
 		noteLabel.Modulate = new Color(0.6f, 0.7f, 0.8f, 1.0f);
 		_configEditorContainer.AddChild(noteLabel);
 
 		_applyGalaxyConfigButton = new Button();
-		_applyGalaxyConfigButton.Text = "Apply + Regenerate Galaxy";
+		_applyGalaxyConfigButton.Text = "Return to Galaxy Studio";
 		_applyGalaxyConfigButton.Pressed += OnApplyGalaxyConfigPressed;
+		_applyGalaxyConfigButton.Visible = false;
 		_configEditorContainer.AddChild(_applyGalaxyConfigButton);
 
 		_configIssuesContainer = CreateSectionContainer("ConfigIssuesContainer");
 		_configEditorContainer.AddChild(_configIssuesContainer);
+		ApplyUseCaseSettingsToControls(GenerationUseCaseSettings.CreateDefault());
+		SetConfigControlsEditable(false);
 		SetConfigIssues(new GenerationParameterIssueSet());
+	}
+
+	private void SetConfigControlsEditable(bool editable)
+	{
+		SetControlEditable(_galaxyTypeOption, editable);
+		SetControlEditable(_numArmsInput, editable);
+		SetControlEditable(_armPitchInput, editable);
+		SetControlEditable(_armAmplitudeInput, editable);
+		SetControlEditable(_bulgeIntensityInput, editable);
+		SetControlEditable(_bulgeRadiusInput, editable);
+		SetControlEditable(_radiusInput, editable);
+		SetControlEditable(_diskLengthInput, editable);
+		SetControlEditable(_diskHeightInput, editable);
+		SetControlEditable(_densityInput, editable);
+		SetControlEditable(_ellipticityInput, editable);
+		SetControlEditable(_irregularityInput, editable);
+		SetControlEditable(_rulesetModeOption, editable);
+		SetControlEditable(_showTravellerReadoutsCheck, editable);
+		SetControlEditable(_lifePermissivenessInput, editable);
+		SetControlEditable(_populationPermissivenessInput, editable);
+		SetControlEditable(_mainworldPolicyOption, editable);
+	}
+
+	private static void SetControlEditable(Control? control, bool editable)
+	{
+		if (control == null)
+		{
+			return;
+		}
+
+		if (control is BaseButton typedButton)
+		{
+			typedButton.Disabled = !editable;
+			return;
+		}
+
+		if (control is OptionButton typedOptionButton)
+		{
+			typedOptionButton.Disabled = !editable;
+			return;
+		}
+
+		if (control is SpinBox typedSpinBox)
+		{
+			typedSpinBox.Editable = editable;
+			return;
+		}
+	}
+
+	private GenerationUseCaseSettings BuildUseCaseSettingsFromControls()
+	{
+		GenerationUseCaseSettings settings = GenerationUseCaseSettings.CreateDefault();
+		if (_rulesetModeOption != null)
+		{
+			settings.RulesetMode = (GenerationUseCaseSettings.RulesetModeType)_rulesetModeOption.Selected;
+		}
+
+		if (_showTravellerReadoutsCheck != null)
+		{
+			settings.ShowTravellerReadouts = _showTravellerReadoutsCheck.ButtonPressed;
+		}
+
+		if (_lifePermissivenessInput != null)
+		{
+			settings.LifePermissiveness = _lifePermissivenessInput.Value;
+		}
+
+		if (_populationPermissivenessInput != null)
+		{
+			settings.PopulationPermissiveness = _populationPermissivenessInput.Value;
+		}
+
+		if (_mainworldPolicyOption != null)
+		{
+			settings.MainworldPolicy = (GenerationUseCaseSettings.MainworldPolicyType)_mainworldPolicyOption.Selected;
+		}
+
+		return settings;
+	}
+
+	private void ApplyUseCaseSettingsToControls(GenerationUseCaseSettings? settings)
+	{
+		GenerationUseCaseSettings resolvedSettings = settings?.Clone() ?? GenerationUseCaseSettings.CreateDefault();
+		if (_rulesetModeOption != null)
+		{
+			_rulesetModeOption.Select((int)resolvedSettings.RulesetMode);
+		}
+
+		if (_showTravellerReadoutsCheck != null)
+		{
+			_showTravellerReadoutsCheck.ButtonPressed = resolvedSettings.ShowTravellerReadouts;
+		}
+
+		if (_lifePermissivenessInput != null)
+		{
+			_lifePermissivenessInput.Value = resolvedSettings.LifePermissiveness;
+		}
+
+		if (_populationPermissivenessInput != null)
+		{
+			_populationPermissivenessInput.Value = resolvedSettings.PopulationPermissiveness;
+		}
+
+		if (_mainworldPolicyOption != null)
+		{
+			_mainworldPolicyOption.Select((int)resolvedSettings.MainworldPolicy);
+		}
+	}
+
+	private void OnRulesetModeSelected(long selectedId)
+	{
+		if ((GenerationUseCaseSettings.RulesetModeType)selectedId == GenerationUseCaseSettings.RulesetModeType.Traveller)
+		{
+			if (_showTravellerReadoutsCheck != null)
+			{
+				_showTravellerReadoutsCheck.ButtonPressed = true;
+			}
+
+			if (_mainworldPolicyOption != null)
+			{
+				_mainworldPolicyOption.Select((int)GenerationUseCaseSettings.MainworldPolicyType.Require);
+			}
+		}
+	}
+
+	private void AddUseCaseOverview(VBoxContainer container, GenerationUseCaseSettings? settings)
+	{
+		GenerationUseCaseSettings resolvedSettings = settings?.Clone() ?? GenerationUseCaseSettings.CreateDefault();
+		string readoutText;
+		if (resolvedSettings.ShowTravellerReadouts)
+		{
+			readoutText = "On";
+		}
+		else
+		{
+			readoutText = "Off";
+		}
+
+		AddProperty(container, "Ruleset", resolvedSettings.RulesetMode.ToString());
+		AddProperty(container, "Traveller Readouts", readoutText);
+		AddProperty(container, "Life Bias", resolvedSettings.LifePermissiveness.ToString("0.00"));
+		AddProperty(container, "Pop. Bias", resolvedSettings.PopulationPermissiveness.ToString("0.00"));
+		AddProperty(container, "Mainworld Policy", resolvedSettings.MainworldPolicy.ToString());
 	}
 
 	private void AddEditorRow(string labelText, Control inputControl, string parameterId)

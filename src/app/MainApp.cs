@@ -15,11 +15,13 @@ public partial class MainApp : Node
 	private const string SplashScreenScenePath = "res://src/app/SplashScreen.tscn";
 	private const string MainMenuScreenScenePath = "res://src/app/MainMenuScreen.tscn";
 	private const string WelcomeScreenScenePath = "res://src/app/WelcomeScreen.tscn";
+	private const string SystemGenerationScreenScenePath = "res://src/app/SystemGenerationScreen.tscn";
+	private const string ObjectGenerationScreenScenePath = "res://src/app/ObjectGenerationScreen.tscn";
 	private const string GalaxyViewerScenePath = "res://src/app/galaxy_viewer/GalaxyViewerCSharp.tscn";
 	private const string SystemViewerScenePath = "res://src/app/system_viewer/SystemViewer.tscn";
 	private const string ObjectViewerScenePath = "res://src/app/viewer/ObjectViewer.tscn";
 
-	private enum ViewerType { None, Splash, Menu, Galaxy, System, Object }
+	private enum ViewerType { None, Splash, Menu, GalaxyStudio, SystemStudio, ObjectStudio, Galaxy, System, Object }
 	private enum NavigationOrigin { None, Menu, Galaxy, System }
 
 	private ViewerType _activeViewer = ViewerType.None;
@@ -27,6 +29,8 @@ public partial class MainApp : Node
 	private SplashScreen? _splashScreen;
 	private MainMenuScreen? _mainMenuScreen;
 	private WelcomeScreen? _welcomeScreen;
+	private SystemGenerationScreen? _systemGenerationScreen;
+	private ObjectGenerationScreen? _objectGenerationScreen;
 	private StarGen.App.GalaxyViewer.GalaxyViewer? _galaxyViewer;
 	private StarGen.App.SystemViewer.SystemViewer? _systemViewer;
 	private StarGen.App.Viewer.ObjectViewer? _objectViewer;
@@ -50,6 +54,8 @@ public partial class MainApp : Node
 		CreateSplashScreen();
 		CreateMainMenuScreen();
 		CreateWelcomeScreen();
+		CreateSystemGenerationScreen();
+		CreateObjectGenerationScreen();
 		ShowSplashScreen();
 	}
 
@@ -61,6 +67,8 @@ public partial class MainApp : Node
 		QueueDetachedNodeForCleanup(_splashScreen);
 		QueueDetachedNodeForCleanup(_mainMenuScreen);
 		QueueDetachedNodeForCleanup(_welcomeScreen);
+		QueueDetachedNodeForCleanup(_systemGenerationScreen);
+		QueueDetachedNodeForCleanup(_objectGenerationScreen);
 		QueueDetachedNodeForCleanup(_galaxyViewer);
 		QueueDetachedNodeForCleanup(_systemViewer);
 		QueueDetachedNodeForCleanup(_objectViewer);
@@ -158,6 +166,56 @@ public partial class MainApp : Node
 	}
 
 	/// <summary>
+	/// Creates the standalone system-generation studio.
+	/// </summary>
+	private void CreateSystemGenerationScreen()
+	{
+		PackedScene? scene = ResourceLoader.Load<PackedScene>(SystemGenerationScreenScenePath);
+		if (scene == null)
+		{
+			GD.PushError("MainApp: failed to load system generation screen scene");
+			return;
+		}
+
+		_systemGenerationScreen = scene.Instantiate() as SystemGenerationScreen;
+		if (_systemGenerationScreen == null)
+		{
+			GD.PushError("MainApp: failed to instantiate system generation screen");
+			return;
+		}
+
+		_systemGenerationScreen.Name = "SystemGenerationScreen";
+		_systemGenerationScreen.Connect("start_system_generation", Callable.From<SolarSystemSpec>(OnSystemGenerationStarted));
+		_systemGenerationScreen.Connect("load_system_requested", Callable.From(OnSystemGenerationLoadRequested));
+		_systemGenerationScreen.Connect("back_requested", Callable.From(OnSystemGenerationBackRequested));
+	}
+
+	/// <summary>
+	/// Creates the standalone object-generation studio.
+	/// </summary>
+	private void CreateObjectGenerationScreen()
+	{
+		PackedScene? scene = ResourceLoader.Load<PackedScene>(ObjectGenerationScreenScenePath);
+		if (scene == null)
+		{
+			GD.PushError("MainApp: failed to load object generation screen scene");
+			return;
+		}
+
+		_objectGenerationScreen = scene.Instantiate() as ObjectGenerationScreen;
+		if (_objectGenerationScreen == null)
+		{
+			GD.PushError("MainApp: failed to instantiate object generation screen");
+			return;
+		}
+
+		_objectGenerationScreen.Name = "ObjectGenerationScreen";
+		_objectGenerationScreen.Connect("start_object_generation", Callable.From<ObjectGenerationRequest>(OnObjectGenerationStarted));
+		_objectGenerationScreen.Connect("load_object_requested", Callable.From(OnObjectGenerationLoadRequested));
+		_objectGenerationScreen.Connect("back_requested", Callable.From(OnObjectGenerationBackRequested));
+	}
+
+	/// <summary>
 	/// Creates the splash screen shown at startup.
 	/// </summary>
 	private void CreateSplashScreen()
@@ -213,6 +271,8 @@ public partial class MainApp : Node
 	{
 		RemoveFromViewerContainer(_mainMenuScreen);
 		RemoveFromViewerContainer(_welcomeScreen);
+		RemoveFromViewerContainer(_systemGenerationScreen);
+		RemoveFromViewerContainer(_objectGenerationScreen);
 		RemoveFromViewerContainer(_galaxyViewer);
 		RemoveFromViewerContainer(_systemViewer);
 		RemoveFromViewerContainer(_objectViewer);
@@ -227,6 +287,8 @@ public partial class MainApp : Node
 	{
 		RemoveFromViewerContainer(_splashScreen);
 		RemoveFromViewerContainer(_welcomeScreen);
+		RemoveFromViewerContainer(_systemGenerationScreen);
+		RemoveFromViewerContainer(_objectGenerationScreen);
 		RemoveFromViewerContainer(_galaxyViewer);
 		RemoveFromViewerContainer(_systemViewer);
 		RemoveFromViewerContainer(_objectViewer);
@@ -242,13 +304,47 @@ public partial class MainApp : Node
 	{
 		RemoveFromViewerContainer(_splashScreen);
 		RemoveFromViewerContainer(_mainMenuScreen);
+		RemoveFromViewerContainer(_systemGenerationScreen);
+		RemoveFromViewerContainer(_objectGenerationScreen);
 		RemoveFromViewerContainer(_galaxyViewer);
 		RemoveFromViewerContainer(_systemViewer);
 		RemoveFromViewerContainer(_objectViewer);
 		AddToViewerContainer(_welcomeScreen);
 		_welcomeScreen?.SetNavigationVisibility(showBackButton: true, showQuitButton: false);
 		_welcomeScreen?.RefreshRandomSeedDisplay();
-		_activeViewer = ViewerType.None;
+		_activeViewer = ViewerType.GalaxyStudio;
+	}
+
+	/// <summary>
+	/// Displays the system-generation studio.
+	/// </summary>
+	private void ShowSystemGenerationScreen()
+	{
+		RemoveFromViewerContainer(_splashScreen);
+		RemoveFromViewerContainer(_mainMenuScreen);
+		RemoveFromViewerContainer(_welcomeScreen);
+		RemoveFromViewerContainer(_objectGenerationScreen);
+		RemoveFromViewerContainer(_galaxyViewer);
+		RemoveFromViewerContainer(_systemViewer);
+		RemoveFromViewerContainer(_objectViewer);
+		AddToViewerContainer(_systemGenerationScreen);
+		_activeViewer = ViewerType.SystemStudio;
+	}
+
+	/// <summary>
+	/// Displays the object-generation studio.
+	/// </summary>
+	private void ShowObjectGenerationScreen()
+	{
+		RemoveFromViewerContainer(_splashScreen);
+		RemoveFromViewerContainer(_mainMenuScreen);
+		RemoveFromViewerContainer(_welcomeScreen);
+		RemoveFromViewerContainer(_systemGenerationScreen);
+		RemoveFromViewerContainer(_galaxyViewer);
+		RemoveFromViewerContainer(_systemViewer);
+		RemoveFromViewerContainer(_objectViewer);
+		AddToViewerContainer(_objectGenerationScreen);
+		_activeViewer = ViewerType.ObjectStudio;
 	}
 
 	/// <summary>
@@ -356,6 +452,8 @@ public partial class MainApp : Node
 		RemoveFromViewerContainer(_splashScreen);
 		RemoveFromViewerContainer(_mainMenuScreen);
 		RemoveFromViewerContainer(_welcomeScreen);
+		RemoveFromViewerContainer(_systemGenerationScreen);
+		RemoveFromViewerContainer(_objectGenerationScreen);
 		RemoveFromViewerContainer(_systemViewer);
 		RemoveFromViewerContainer(_objectViewer);
 		AddToViewerContainer(_galaxyViewer);
@@ -376,6 +474,8 @@ public partial class MainApp : Node
 		RemoveFromViewerContainer(_splashScreen);
 		RemoveFromViewerContainer(_mainMenuScreen);
 		RemoveFromViewerContainer(_welcomeScreen);
+		RemoveFromViewerContainer(_systemGenerationScreen);
+		RemoveFromViewerContainer(_objectGenerationScreen);
 		RemoveFromViewerContainer(_galaxyViewer);
 		RemoveFromViewerContainer(_objectViewer);
 		AddToViewerContainer(_systemViewer);
@@ -405,6 +505,8 @@ public partial class MainApp : Node
 		RemoveFromViewerContainer(_splashScreen);
 		RemoveFromViewerContainer(_mainMenuScreen);
 		RemoveFromViewerContainer(_welcomeScreen);
+		RemoveFromViewerContainer(_systemGenerationScreen);
+		RemoveFromViewerContainer(_objectGenerationScreen);
 		RemoveFromViewerContainer(_galaxyViewer);
 		RemoveFromViewerContainer(_systemViewer);
 		AddToViewerContainer(_objectViewer);

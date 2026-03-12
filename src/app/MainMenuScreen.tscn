@@ -20,18 +20,16 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-color = Color(0.0313726, 0.0470588, 0.0862745, 1)
+color = Color(0.027451, 0.0392157, 0.0784314, 1)
 
 [node name="AccentBand" type="ColorRect" parent="."]
 layout_mode = 1
-anchors_preset = 8
-anchor_left = 0.58
-anchor_top = 0.0
+anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-color = Color(0.0784314, 0.172549, 0.25098, 0.25)
+color = Color(0.101961, 0.156863, 0.270588, 0.16)
 
 [node name="MarginContainer" type="MarginContainer" parent="."]
 layout_mode = 1
@@ -40,10 +38,10 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-theme_override_constants/margin_left = 42
-theme_override_constants/margin_top = 36
-theme_override_constants/margin_right = 42
-theme_override_constants/margin_bottom = 36
+theme_override_constants/margin_left = 34
+theme_override_constants/margin_top = 28
+theme_override_constants/margin_right = 34
+theme_override_constants/margin_bottom = 28
 
 [node name="ScrollContainer" type="ScrollContainer" parent="MarginContainer"]
 layout_mode = 2
@@ -51,27 +49,25 @@ size_flags_horizontal = 3
 size_flags_vertical = 3
 horizontal_scroll_mode = 0
 
-[node name="Layout" type="HFlowContainer" parent="MarginContainer/ScrollContainer"]
+[node name="Layout" type="VBoxContainer" parent="MarginContainer/ScrollContainer"]
 layout_mode = 2
 size_flags_horizontal = 3
-theme_override_constants/h_separation = 24
-theme_override_constants/v_separation = 24
+theme_override_constants/separation = 22
 
 [node name="HeroPanel" type="PanelContainer" parent="MarginContainer/ScrollContainer/Layout"]
-custom_minimum_size = Vector2(320, 0)
 layout_mode = 2
 size_flags_horizontal = 3
 
 [node name="MarginContainer" type="MarginContainer" parent="MarginContainer/ScrollContainer/Layout/HeroPanel"]
 layout_mode = 2
 theme_override_constants/margin_left = 28
-theme_override_constants/margin_top = 28
+theme_override_constants/margin_top = 26
 theme_override_constants/margin_right = 28
-theme_override_constants/margin_bottom = 28
+theme_override_constants/margin_bottom = 26
 
 [node name="HeroVBox" type="VBoxContainer" parent="MarginContainer/ScrollContainer/Layout/HeroPanel/MarginContainer"]
 layout_mode = 2
-theme_override_constants/separation = 20
+theme_override_constants/separation = 14
 
 [node name="TopRow" type="HBoxContainer" parent="MarginContainer/ScrollContainer/Layout/HeroPanel/MarginContainer/HeroVBox"]
 layout_mode = 2
@@ -85,18 +81,18 @@ text = "Procedural space generator"
 [node name="VersionLabel" type="Label" parent="MarginContainer/ScrollContainer/Layout/HeroPanel/MarginContainer/HeroVBox/TopRow"]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.631373, 0.701961, 0.772549, 1)
-text = "Version 0.3.0"
+text = "Version 0.4.1.0"
 
 [node name="TitleLabel" type="Label" parent="MarginContainer/ScrollContainer/Layout/HeroPanel/MarginContainer/HeroVBox"]
 layout_mode = 2
-theme_override_font_sizes/font_size = 44
+theme_override_font_sizes/font_size = 46
 text = "StarGen"
 
 [node name="SubtitleLabel" type="Label" parent="MarginContainer/ScrollContainer/Layout/HeroPanel/MarginContainer/HeroVBox"]
 layout_mode = 2
 theme_override_font_sizes/font_size = 20
 autowrap_mode = 2
-text = "Generate and explore stars, planets, moons, and galaxies."
+text = "Build galaxies, systems, and individual worlds from deterministic seeds and shared worldbuilding rules."
 
 [node name="ReleaseNote" type="Label" parent="MarginContainer/ScrollContainer/Layout/HeroPanel/MarginContainer/HeroVBox"]
 layout_mode = 2
@@ -104,231 +100,321 @@ theme_override_colors/font_color = Color(0.705882, 0.768627, 0.835294, 1)
 autowrap_mode = 2
 text = ""
 
-[node name="HeroCards" type="HFlowContainer" parent="MarginContainer/ScrollContainer/Layout/HeroPanel/MarginContainer/HeroVBox"]
+[node name="HeroFooter" type="Label" parent="MarginContainer/ScrollContainer/Layout/HeroPanel/MarginContainer/HeroVBox"]
 layout_mode = 2
-theme_override_constants/h_separation = 14
-theme_override_constants/v_separation = 14
+theme_override_colors/font_color = Color(0.631373, 0.701961, 0.772549, 1)
+autowrap_mode = 2
+text = "Choose a studio below to set parameters before you enter a viewer."
 
-[node name="CardGalaxy" type="PanelContainer" parent="MarginContainer/ScrollContainer/Layout/HeroPanel/MarginContainer/HeroVBox/HeroCards"]
-custom_minimum_size = Vector2(220, 0)
+[node name="ModesPanel" type="PanelContainer" parent="MarginContainer/ScrollContainer/Layout"]
 layout_mode = 2
 size_flags_horizontal = 3
 
-[node name="MarginContainer" type="MarginContainer" parent="MarginContainer/ScrollContainer/Layout/HeroPanel/MarginContainer/HeroVBox/HeroCards/CardGalaxy"]
+[node name="MarginContainer" type="MarginContainer" parent="MarginContainer/ScrollContainer/Layout/ModesPanel"]
 layout_mode = 2
-theme_override_constants/margin_left = 16
-theme_override_constants/margin_top = 16
-theme_override_constants/margin_right = 16
-theme_override_constants/margin_bottom = 16
+theme_override_constants/margin_left = 24
+theme_override_constants/margin_top = 22
+theme_override_constants/margin_right = 24
+theme_override_constants/margin_bottom = 22
 
-[node name="VBoxContainer" type="VBoxContainer" parent="MarginContainer/ScrollContainer/Layout/HeroPanel/MarginContainer/HeroVBox/HeroCards/CardGalaxy/MarginContainer"]
-layout_mode = 2
-theme_override_constants/separation = 8
-
-[node name="Label" type="Label" parent="MarginContainer/ScrollContainer/Layout/HeroPanel/MarginContainer/HeroVBox/HeroCards/CardGalaxy/MarginContainer/VBoxContainer"]
-layout_mode = 2
-theme_override_colors/font_color = Color(0.921569, 0.768627, 0.470588, 1)
-text = "Galaxy"
-
-[node name="Label2" type="Label" parent="MarginContainer/ScrollContainer/Layout/HeroPanel/MarginContainer/HeroVBox/HeroCards/CardGalaxy/MarginContainer/VBoxContainer"]
-layout_mode = 2
-autowrap_mode = 2
-text = "Generate and explore a full galaxy. Pick a seed, then browse sectors and star systems."
-
-[node name="CardExpansion" type="PanelContainer" parent="MarginContainer/ScrollContainer/Layout/HeroPanel/MarginContainer/HeroVBox/HeroCards"]
-custom_minimum_size = Vector2(220, 0)
-layout_mode = 2
-size_flags_horizontal = 3
-
-[node name="MarginContainer" type="MarginContainer" parent="MarginContainer/ScrollContainer/Layout/HeroPanel/MarginContainer/HeroVBox/HeroCards/CardExpansion"]
-layout_mode = 2
-theme_override_constants/margin_left = 16
-theme_override_constants/margin_top = 16
-theme_override_constants/margin_right = 16
-theme_override_constants/margin_bottom = 16
-
-[node name="VBoxContainer" type="VBoxContainer" parent="MarginContainer/ScrollContainer/Layout/HeroPanel/MarginContainer/HeroVBox/HeroCards/CardExpansion/MarginContainer"]
-layout_mode = 2
-theme_override_constants/separation = 8
-
-[node name="Label" type="Label" parent="MarginContainer/ScrollContainer/Layout/HeroPanel/MarginContainer/HeroVBox/HeroCards/CardExpansion/MarginContainer/VBoxContainer"]
-layout_mode = 2
-theme_override_colors/font_color = Color(0.921569, 0.768627, 0.470588, 1)
-text = "Systems & objects"
-
-[node name="Label2" type="Label" parent="MarginContainer/ScrollContainer/Layout/HeroPanel/MarginContainer/HeroVBox/HeroCards/CardExpansion/MarginContainer/VBoxContainer"]
-layout_mode = 2
-autowrap_mode = 2
-text = "Generate a single star system or focus on one star, planet, moon, or asteroid."
-
-[node name="MenuColumn" type="VBoxContainer" parent="MarginContainer/ScrollContainer/Layout"]
-custom_minimum_size = Vector2(260, 0)
+[node name="ModesVBox" type="VBoxContainer" parent="MarginContainer/ScrollContainer/Layout/ModesPanel/MarginContainer"]
 layout_mode = 2
 theme_override_constants/separation = 16
 
-[node name="MenuButtons" type="VBoxContainer" parent="MarginContainer/ScrollContainer/Layout/MenuColumn"]
+[node name="ModesHeader" type="HBoxContainer" parent="MarginContainer/ScrollContainer/Layout/ModesPanel/MarginContainer/ModesVBox"]
 layout_mode = 2
 theme_override_constants/separation = 12
 
-[node name="GalaxyButton" type="Button" parent="MarginContainer/ScrollContainer/Layout/MenuColumn/MenuButtons"]
-custom_minimum_size = Vector2(0, 54)
+[node name="ModesTitle" type="Label" parent="MarginContainer/ScrollContainer/Layout/ModesPanel/MarginContainer/ModesVBox/ModesHeader"]
 layout_mode = 2
-text = "Galaxy Generation"
+theme_override_font_sizes/font_size = 24
+text = "Generation Studios"
 
-[node name="SystemButton" type="Button" parent="MarginContainer/ScrollContainer/Layout/MenuColumn/MenuButtons"]
-custom_minimum_size = Vector2(0, 54)
+[node name="ModesIntro" type="Label" parent="MarginContainer/ScrollContainer/Layout/ModesPanel/MarginContainer/ModesVBox/ModesHeader"]
 layout_mode = 2
-text = "System Generation"
+size_flags_horizontal = 3
+horizontal_alignment = 2
+theme_override_colors/font_color = Color(0.631373, 0.701961, 0.772549, 1)
+text = "Each flow opens with parameters first, viewer second."
 
-[node name="ObjectButton" type="Button" parent="MarginContainer/ScrollContainer/Layout/MenuColumn/MenuButtons"]
-custom_minimum_size = Vector2(0, 54)
+[node name="ModeCards" type="HFlowContainer" parent="MarginContainer/ScrollContainer/Layout/ModesPanel/MarginContainer/ModesVBox"]
 layout_mode = 2
-text = "Object Generation"
+theme_override_constants/h_separation = 16
+theme_override_constants/v_separation = 16
 
-[node name="SecondaryButtons" type="VBoxContainer" parent="MarginContainer/ScrollContainer/Layout/MenuColumn"]
-layout_mode = 2
-theme_override_constants/separation = 10
-
-[node name="HelpButton" type="Button" parent="MarginContainer/ScrollContainer/Layout/MenuColumn/SecondaryButtons"]
-layout_mode = 2
-text = "Help"
-
-[node name="CreditsButton" type="Button" parent="MarginContainer/ScrollContainer/Layout/MenuColumn/SecondaryButtons"]
-layout_mode = 2
-text = "Credits"
-
-[node name="ReleaseNotesButton" type="Button" parent="MarginContainer/ScrollContainer/Layout/MenuColumn/SecondaryButtons"]
-layout_mode = 2
-text = "Release Notes"
-
-[node name="OptionsButton" type="Button" parent="MarginContainer/ScrollContainer/Layout/MenuColumn/SecondaryButtons"]
-layout_mode = 2
-text = "Options"
-
-[node name="QuitButton" type="Button" parent="MarginContainer/ScrollContainer/Layout/MenuColumn"]
-layout_mode = 2
-text = "Quit"
-
-[node name="ContentPanel" type="PanelContainer" parent="MarginContainer/ScrollContainer/Layout"]
-custom_minimum_size = Vector2(320, 0)
+[node name="CardGalaxy" type="PanelContainer" parent="MarginContainer/ScrollContainer/Layout/ModesPanel/MarginContainer/ModesVBox/ModeCards"]
+custom_minimum_size = Vector2(250, 0)
 layout_mode = 2
 size_flags_horizontal = 3
 
-[node name="MarginContainer" type="MarginContainer" parent="MarginContainer/ScrollContainer/Layout/ContentPanel"]
+[node name="MarginContainer" type="MarginContainer" parent="MarginContainer/ScrollContainer/Layout/ModesPanel/MarginContainer/ModesVBox/ModeCards/CardGalaxy"]
+layout_mode = 2
+theme_override_constants/margin_left = 18
+theme_override_constants/margin_top = 18
+theme_override_constants/margin_right = 18
+theme_override_constants/margin_bottom = 18
+
+[node name="VBoxContainer" type="VBoxContainer" parent="MarginContainer/ScrollContainer/Layout/ModesPanel/MarginContainer/ModesVBox/ModeCards/CardGalaxy/MarginContainer"]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="Label" type="Label" parent="MarginContainer/ScrollContainer/Layout/ModesPanel/MarginContainer/ModesVBox/ModeCards/CardGalaxy/MarginContainer/VBoxContainer"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.921569, 0.768627, 0.470588, 1)
+theme_override_font_sizes/font_size = 18
+text = "Galaxy"
+
+[node name="Label2" type="Label" parent="MarginContainer/ScrollContainer/Layout/ModesPanel/MarginContainer/ModesVBox/ModeCards/CardGalaxy/MarginContainer/VBoxContainer"]
+layout_mode = 2
+autowrap_mode = 2
+text = "Shape a galaxy profile, choose a seed, and then move into the map and sector viewer."
+
+[node name="GalaxyButton" type="Button" parent="MarginContainer/ScrollContainer/Layout/ModesPanel/MarginContainer/ModesVBox/ModeCards/CardGalaxy/MarginContainer/VBoxContainer"]
+custom_minimum_size = Vector2(0, 48)
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Open Galaxy Studio"
+
+[node name="CardSystem" type="PanelContainer" parent="MarginContainer/ScrollContainer/Layout/ModesPanel/MarginContainer/ModesVBox/ModeCards"]
+custom_minimum_size = Vector2(250, 0)
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="MarginContainer" type="MarginContainer" parent="MarginContainer/ScrollContainer/Layout/ModesPanel/MarginContainer/ModesVBox/ModeCards/CardSystem"]
+layout_mode = 2
+theme_override_constants/margin_left = 18
+theme_override_constants/margin_top = 18
+theme_override_constants/margin_right = 18
+theme_override_constants/margin_bottom = 18
+
+[node name="VBoxContainer" type="VBoxContainer" parent="MarginContainer/ScrollContainer/Layout/ModesPanel/MarginContainer/ModesVBox/ModeCards/CardSystem/MarginContainer"]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="Label" type="Label" parent="MarginContainer/ScrollContainer/Layout/ModesPanel/MarginContainer/ModesVBox/ModeCards/CardSystem/MarginContainer/VBoxContainer"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.921569, 0.768627, 0.470588, 1)
+theme_override_font_sizes/font_size = 18
+text = "System"
+
+[node name="Label2" type="Label" parent="MarginContainer/ScrollContainer/Layout/ModesPanel/MarginContainer/ModesVBox/ModeCards/CardSystem/MarginContainer/VBoxContainer"]
+layout_mode = 2
+autowrap_mode = 2
+text = "Set stellar counts, Traveller assumptions, and seed data before opening the solar system viewer."
+
+[node name="SystemButton" type="Button" parent="MarginContainer/ScrollContainer/Layout/ModesPanel/MarginContainer/ModesVBox/ModeCards/CardSystem/MarginContainer/VBoxContainer"]
+custom_minimum_size = Vector2(0, 48)
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Open System Studio"
+
+[node name="CardObject" type="PanelContainer" parent="MarginContainer/ScrollContainer/Layout/ModesPanel/MarginContainer/ModesVBox/ModeCards"]
+custom_minimum_size = Vector2(250, 0)
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="MarginContainer" type="MarginContainer" parent="MarginContainer/ScrollContainer/Layout/ModesPanel/MarginContainer/ModesVBox/ModeCards/CardObject"]
+layout_mode = 2
+theme_override_constants/margin_left = 18
+theme_override_constants/margin_top = 18
+theme_override_constants/margin_right = 18
+theme_override_constants/margin_bottom = 18
+
+[node name="VBoxContainer" type="VBoxContainer" parent="MarginContainer/ScrollContainer/Layout/ModesPanel/MarginContainer/ModesVBox/ModeCards/CardObject/MarginContainer"]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="Label" type="Label" parent="MarginContainer/ScrollContainer/Layout/ModesPanel/MarginContainer/ModesVBox/ModeCards/CardObject/MarginContainer/VBoxContainer"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.921569, 0.768627, 0.470588, 1)
+theme_override_font_sizes/font_size = 18
+text = "Object"
+
+[node name="Label2" type="Label" parent="MarginContainer/ScrollContainer/Layout/ModesPanel/MarginContainer/ModesVBox/ModeCards/CardObject/MarginContainer/VBoxContainer"]
+layout_mode = 2
+autowrap_mode = 2
+text = "Pick a body type, preset, and ruleset before launching a focused star, planet, moon, or asteroid viewer."
+
+[node name="ObjectButton" type="Button" parent="MarginContainer/ScrollContainer/Layout/ModesPanel/MarginContainer/ModesVBox/ModeCards/CardObject/MarginContainer/VBoxContainer"]
+custom_minimum_size = Vector2(0, 48)
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Open Object Studio"
+
+[node name="UtilityRow" type="HFlowContainer" parent="MarginContainer/ScrollContainer/Layout"]
+layout_mode = 2
+theme_override_constants/h_separation = 16
+theme_override_constants/v_separation = 16
+
+[node name="UtilityPanel" type="PanelContainer" parent="MarginContainer/ScrollContainer/Layout/UtilityRow"]
+custom_minimum_size = Vector2(240, 0)
+layout_mode = 2
+
+[node name="MarginContainer" type="MarginContainer" parent="MarginContainer/ScrollContainer/Layout/UtilityRow/UtilityPanel"]
+layout_mode = 2
+theme_override_constants/margin_left = 18
+theme_override_constants/margin_top = 18
+theme_override_constants/margin_right = 18
+theme_override_constants/margin_bottom = 18
+
+[node name="UtilityVBox" type="VBoxContainer" parent="MarginContainer/ScrollContainer/Layout/UtilityRow/UtilityPanel/MarginContainer"]
+layout_mode = 2
+theme_override_constants/separation = 12
+
+[node name="UtilityTitle" type="Label" parent="MarginContainer/ScrollContainer/Layout/UtilityRow/UtilityPanel/MarginContainer/UtilityVBox"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 20
+text = "Utilities"
+
+[node name="SecondaryButtons" type="VBoxContainer" parent="MarginContainer/ScrollContainer/Layout/UtilityRow/UtilityPanel/MarginContainer/UtilityVBox"]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="HelpButton" type="Button" parent="MarginContainer/ScrollContainer/Layout/UtilityRow/UtilityPanel/MarginContainer/UtilityVBox/SecondaryButtons"]
+layout_mode = 2
+text = "Help"
+
+[node name="CreditsButton" type="Button" parent="MarginContainer/ScrollContainer/Layout/UtilityRow/UtilityPanel/MarginContainer/UtilityVBox/SecondaryButtons"]
+layout_mode = 2
+text = "Credits"
+
+[node name="ReleaseNotesButton" type="Button" parent="MarginContainer/ScrollContainer/Layout/UtilityRow/UtilityPanel/MarginContainer/UtilityVBox/SecondaryButtons"]
+layout_mode = 2
+text = "Release Notes"
+
+[node name="OptionsButton" type="Button" parent="MarginContainer/ScrollContainer/Layout/UtilityRow/UtilityPanel/MarginContainer/UtilityVBox/SecondaryButtons"]
+layout_mode = 2
+text = "Options"
+
+[node name="Spacer" type="Control" parent="MarginContainer/ScrollContainer/Layout/UtilityRow/UtilityPanel/MarginContainer/UtilityVBox"]
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="QuitButton" type="Button" parent="MarginContainer/ScrollContainer/Layout/UtilityRow/UtilityPanel/MarginContainer/UtilityVBox"]
+layout_mode = 2
+text = "Quit"
+
+[node name="ContentPanel" type="PanelContainer" parent="MarginContainer/ScrollContainer/Layout/UtilityRow"]
+custom_minimum_size = Vector2(420, 0)
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="MarginContainer" type="MarginContainer" parent="MarginContainer/ScrollContainer/Layout/UtilityRow/ContentPanel"]
 layout_mode = 2
 theme_override_constants/margin_left = 22
 theme_override_constants/margin_top = 22
 theme_override_constants/margin_right = 22
 theme_override_constants/margin_bottom = 22
 
-[node name="ContentStack" type="VBoxContainer" parent="MarginContainer/ScrollContainer/Layout/ContentPanel/MarginContainer"]
+[node name="ContentStack" type="VBoxContainer" parent="MarginContainer/ScrollContainer/Layout/UtilityRow/ContentPanel/MarginContainer"]
 layout_mode = 2
 
-[node name="OverviewPanel" type="VBoxContainer" parent="MarginContainer/ScrollContainer/Layout/ContentPanel/MarginContainer/ContentStack"]
+[node name="OverviewPanel" type="VBoxContainer" parent="MarginContainer/ScrollContainer/Layout/UtilityRow/ContentPanel/MarginContainer/ContentStack"]
 layout_mode = 2
 theme_override_constants/separation = 12
 
-[node name="OverviewTitle" type="Label" parent="MarginContainer/ScrollContainer/Layout/ContentPanel/MarginContainer/ContentStack/OverviewPanel"]
+[node name="OverviewTitle" type="Label" parent="MarginContainer/ScrollContainer/Layout/UtilityRow/ContentPanel/MarginContainer/ContentStack/OverviewPanel"]
 layout_mode = 2
 theme_override_font_sizes/font_size = 26
-text = "Get started"
+text = "Studio-first workflow"
 
-[node name="OverviewBody" type="Label" parent="MarginContainer/ScrollContainer/Layout/ContentPanel/MarginContainer/ContentStack/OverviewPanel"]
+[node name="OverviewBody" type="Label" parent="MarginContainer/ScrollContainer/Layout/UtilityRow/ContentPanel/MarginContainer/ContentStack/OverviewPanel"]
 layout_mode = 2
 autowrap_mode = 2
-text = "Choose one of the options below to start generating. You can explore galaxies, work with a single star system, or focus on individual stars, planets, moons, and asteroids."
+text = "The main menu now routes each creation path through a dedicated studio. Configure the seed and assumptions first, then enter the viewer with generated content already in place."
 
-[node name="OverviewChecklist" type="Label" parent="MarginContainer/ScrollContainer/Layout/ContentPanel/MarginContainer/ContentStack/OverviewPanel"]
+[node name="OverviewChecklist" type="Label" parent="MarginContainer/ScrollContainer/Layout/UtilityRow/ContentPanel/MarginContainer/ContentStack/OverviewPanel"]
 layout_mode = 2
 autowrap_mode = 2
-text = ""
+theme_override_colors/font_color = Color(0.631373, 0.701961, 0.772549, 1)
+text = "Galaxy: shape sectors and density.\nSystem: define stellar and Traveller settings.\nObject: choose type, preset, and body assumptions."
 
-[node name="HelpPanel" type="VBoxContainer" parent="MarginContainer/ScrollContainer/Layout/ContentPanel/MarginContainer/ContentStack"]
+[node name="HelpPanel" type="VBoxContainer" parent="MarginContainer/ScrollContainer/Layout/UtilityRow/ContentPanel/MarginContainer/ContentStack"]
 visible = false
 layout_mode = 2
 theme_override_constants/separation = 12
 
-[node name="HelpTitle" type="Label" parent="MarginContainer/ScrollContainer/Layout/ContentPanel/MarginContainer/ContentStack/HelpPanel"]
+[node name="HelpTitle" type="Label" parent="MarginContainer/ScrollContainer/Layout/UtilityRow/ContentPanel/MarginContainer/ContentStack/HelpPanel"]
 layout_mode = 2
 theme_override_font_sizes/font_size = 26
 text = "Help"
 
-[node name="HelpText" type="RichTextLabel" parent="MarginContainer/ScrollContainer/Layout/ContentPanel/MarginContainer/ContentStack/HelpPanel"]
+[node name="HelpText" type="RichTextLabel" parent="MarginContainer/ScrollContainer/Layout/UtilityRow/ContentPanel/MarginContainer/ContentStack/HelpPanel"]
 custom_minimum_size = Vector2(0, 320)
 layout_mode = 2
 bbcode_enabled = false
 scroll_following = true
 fit_content = true
 
-[node name="CreditsPanel" type="VBoxContainer" parent="MarginContainer/ScrollContainer/Layout/ContentPanel/MarginContainer/ContentStack"]
+[node name="CreditsPanel" type="VBoxContainer" parent="MarginContainer/ScrollContainer/Layout/UtilityRow/ContentPanel/MarginContainer/ContentStack"]
 visible = false
 layout_mode = 2
 theme_override_constants/separation = 12
 
-[node name="CreditsTitle" type="Label" parent="MarginContainer/ScrollContainer/Layout/ContentPanel/MarginContainer/ContentStack/CreditsPanel"]
+[node name="CreditsTitle" type="Label" parent="MarginContainer/ScrollContainer/Layout/UtilityRow/ContentPanel/MarginContainer/ContentStack/CreditsPanel"]
 layout_mode = 2
 theme_override_font_sizes/font_size = 26
 text = "Credits"
 
-[node name="CreditsText" type="RichTextLabel" parent="MarginContainer/ScrollContainer/Layout/ContentPanel/MarginContainer/ContentStack/CreditsPanel"]
+[node name="CreditsText" type="RichTextLabel" parent="MarginContainer/ScrollContainer/Layout/UtilityRow/ContentPanel/MarginContainer/ContentStack/CreditsPanel"]
 custom_minimum_size = Vector2(0, 240)
 layout_mode = 2
 bbcode_enabled = false
 fit_content = true
 
-[node name="ReleaseNotesPanel" type="VBoxContainer" parent="MarginContainer/ScrollContainer/Layout/ContentPanel/MarginContainer/ContentStack"]
+[node name="ReleaseNotesPanel" type="VBoxContainer" parent="MarginContainer/ScrollContainer/Layout/UtilityRow/ContentPanel/MarginContainer/ContentStack"]
 visible = false
 layout_mode = 2
 theme_override_constants/separation = 12
 
-[node name="ReleaseNotesTitle" type="Label" parent="MarginContainer/ScrollContainer/Layout/ContentPanel/MarginContainer/ContentStack/ReleaseNotesPanel"]
+[node name="ReleaseNotesTitle" type="Label" parent="MarginContainer/ScrollContainer/Layout/UtilityRow/ContentPanel/MarginContainer/ContentStack/ReleaseNotesPanel"]
 layout_mode = 2
 theme_override_font_sizes/font_size = 26
 text = "Release Notes"
 
-[node name="ReleaseNotesText" type="RichTextLabel" parent="MarginContainer/ScrollContainer/Layout/ContentPanel/MarginContainer/ContentStack/ReleaseNotesPanel"]
+[node name="ReleaseNotesText" type="RichTextLabel" parent="MarginContainer/ScrollContainer/Layout/UtilityRow/ContentPanel/MarginContainer/ContentStack/ReleaseNotesPanel"]
 custom_minimum_size = Vector2(0, 320)
 layout_mode = 2
 bbcode_enabled = false
 scroll_following = true
 fit_content = true
 
-[node name="OptionsPanel" type="VBoxContainer" parent="MarginContainer/ScrollContainer/Layout/ContentPanel/MarginContainer/ContentStack"]
+[node name="OptionsPanel" type="VBoxContainer" parent="MarginContainer/ScrollContainer/Layout/UtilityRow/ContentPanel/MarginContainer/ContentStack"]
 visible = false
 layout_mode = 2
 theme_override_constants/separation = 14
 
-[node name="OptionsTitle" type="Label" parent="MarginContainer/ScrollContainer/Layout/ContentPanel/MarginContainer/ContentStack/OptionsPanel"]
+[node name="OptionsTitle" type="Label" parent="MarginContainer/ScrollContainer/Layout/UtilityRow/ContentPanel/MarginContainer/ContentStack/OptionsPanel"]
 layout_mode = 2
 theme_override_font_sizes/font_size = 26
 text = "Options"
 
-[node name="OptionsVBox" type="VBoxContainer" parent="MarginContainer/ScrollContainer/Layout/ContentPanel/MarginContainer/ContentStack/OptionsPanel"]
+[node name="OptionsVBox" type="VBoxContainer" parent="MarginContainer/ScrollContainer/Layout/UtilityRow/ContentPanel/MarginContainer/ContentStack/OptionsPanel"]
 layout_mode = 2
 theme_override_constants/separation = 10
 
-[node name="FullscreenCheck" type="CheckButton" parent="MarginContainer/ScrollContainer/Layout/ContentPanel/MarginContainer/ContentStack/OptionsPanel/OptionsVBox"]
+[node name="FullscreenCheck" type="CheckButton" parent="MarginContainer/ScrollContainer/Layout/UtilityRow/ContentPanel/MarginContainer/ContentStack/OptionsPanel/OptionsVBox"]
 layout_mode = 2
 text = "Fullscreen"
 
-[node name="ResolutionRow" type="HBoxContainer" parent="MarginContainer/ScrollContainer/Layout/ContentPanel/MarginContainer/ContentStack/OptionsPanel/OptionsVBox"]
+[node name="ResolutionRow" type="HBoxContainer" parent="MarginContainer/ScrollContainer/Layout/UtilityRow/ContentPanel/MarginContainer/ContentStack/OptionsPanel/OptionsVBox"]
 layout_mode = 2
 theme_override_constants/separation = 10
 
-[node name="ResolutionLabel" type="Label" parent="MarginContainer/ScrollContainer/Layout/ContentPanel/MarginContainer/ContentStack/OptionsPanel/OptionsVBox/ResolutionRow"]
+[node name="ResolutionLabel" type="Label" parent="MarginContainer/ScrollContainer/Layout/UtilityRow/ContentPanel/MarginContainer/ContentStack/OptionsPanel/OptionsVBox/ResolutionRow"]
 layout_mode = 2
 size_flags_horizontal = 3
 text = "Resolution"
 
-[node name="ResolutionOption" type="OptionButton" parent="MarginContainer/ScrollContainer/Layout/ContentPanel/MarginContainer/ContentStack/OptionsPanel/OptionsVBox/ResolutionRow"]
+[node name="ResolutionOption" type="OptionButton" parent="MarginContainer/ScrollContainer/Layout/UtilityRow/ContentPanel/MarginContainer/ContentStack/OptionsPanel/OptionsVBox/ResolutionRow"]
 custom_minimum_size = Vector2(180, 0)
 layout_mode = 2
 
-[node name="ApplyOptionsButton" type="Button" parent="MarginContainer/ScrollContainer/Layout/ContentPanel/MarginContainer/ContentStack/OptionsPanel/OptionsVBox"]
+[node name="ApplyOptionsButton" type="Button" parent="MarginContainer/ScrollContainer/Layout/UtilityRow/ContentPanel/MarginContainer/ContentStack/OptionsPanel/OptionsVBox"]
 layout_mode = 2
 text = "Apply Display Settings"
 
-[node name="OptionsStatusLabel" type="Label" parent="MarginContainer/ScrollContainer/Layout/ContentPanel/MarginContainer/ContentStack/OptionsPanel/OptionsVBox"]
+[node name="OptionsStatusLabel" type="Label" parent="MarginContainer/ScrollContainer/Layout/UtilityRow/ContentPanel/MarginContainer/ContentStack/OptionsPanel/OptionsVBox"]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.631373, 0.701961, 0.772549, 1)
 autowrap_mode = 2

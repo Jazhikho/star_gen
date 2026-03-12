@@ -1,4 +1,5 @@
 using Godot.Collections;
+using StarGen.Domain.Generation;
 using AsteroidTypeArchetype = StarGen.Domain.Generation.Archetypes.AsteroidType;
 
 namespace StarGen.Domain.Generation.Specs;
@@ -26,8 +27,9 @@ public partial class AsteroidSpec : BaseSpec
         int asteroidType = -1,
         bool isLarge = false,
         string nameHint = "",
-        Dictionary? overrides = null)
-        : base(generationSeed, nameHint, overrides)
+        Dictionary? overrides = null,
+        GenerationUseCaseSettings? useCaseSettings = null)
+        : base(generationSeed, nameHint, overrides, useCaseSettings)
     {
         AsteroidType = asteroidType;
         IsLarge = isLarge;
@@ -41,8 +43,9 @@ public partial class AsteroidSpec : BaseSpec
         AsteroidTypeArchetype.Type asteroidType,
         bool isLarge = false,
         string nameHint = "",
-        Dictionary? overrides = null)
-        : this(generationSeed, (int)asteroidType, isLarge, nameHint, overrides)
+        Dictionary? overrides = null,
+        GenerationUseCaseSettings? useCaseSettings = null)
+        : this(generationSeed, (int)asteroidType, isLarge, nameHint, overrides, useCaseSettings)
     {
     }
 
@@ -142,6 +145,8 @@ public partial class AsteroidSpec : BaseSpec
         }
 
         bool isLarge = data.ContainsKey("is_large") && (bool)data["is_large"];
-        return new AsteroidSpec(generationSeed, asteroidType, isLarge, nameHint, overrides);
+        AsteroidSpec spec = new AsteroidSpec(generationSeed, asteroidType, isLarge, nameHint, overrides);
+        spec.ApplyBaseFromDictionary(data);
+        return spec;
     }
 }

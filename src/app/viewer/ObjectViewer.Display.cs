@@ -18,6 +18,7 @@ public partial class ObjectViewer
 		_sidePanel = GetNodeOrNull<Control>("UI/SidePanel");
 		_statusLabel = GetNodeOrNull<Label>("UI/TopBar/MarginContainer/TopBarVBox/HeaderRow/StatusLabel");
 		_inspectorPanel = GetNodeOrNull<Node>("UI/SidePanel/MarginContainer/ScrollContainer/VBoxContainer");
+		_generationSection = GetNodeOrNull<Control>("UI/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/GenerationSection");
 		_typeOption = GetNodeOrNull<OptionButton>("UI/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/GenerationSection/TypeContainer/TypeOption");
 		_seedInput = GetNodeOrNull<SpinBox>("UI/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/GenerationSection/SeedContainer/SeedInput");
 		_populationContainer = GetNodeOrNull<HBoxContainer>("UI/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/GenerationSection/PopulationContainer");
@@ -147,6 +148,7 @@ public partial class ObjectViewer
 
 		FitCamera();
 		UpdateInspector();
+		UpdateEmptyStateVisibility();
 	}
 
 	private void UpdatePanelAwareFraming()
@@ -474,38 +476,6 @@ public partial class ObjectViewer
 		if (_rerollButton != null)
 		{
 			_rerollButton.Disabled = !enabled;
-		}
-	}
-
-	private void SetFileControlsEnabled(bool enabled)
-	{
-		if (_saveButton != null)
-		{
-			_saveButton.Disabled = !enabled;
-		}
-
-		if (_loadButton != null)
-		{
-			_loadButton.Disabled = !enabled;
-		}
-
-		if (_fileInfo != null && !enabled)
-		{
-			_fileInfo.Text = "No object selected";
-		}
-		else if (_fileInfo != null)
-		{
-			UpdateFileInfoForCurrentTarget();
-		}
-
-		if (_saveFileDialog != null)
-		{
-			_saveFileDialog.Visible = false;
-		}
-
-		if (_loadFileDialog != null)
-		{
-			_loadFileDialog.Visible = false;
 		}
 	}
 

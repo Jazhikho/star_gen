@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using StarGen.Domain.Celestial;
+using StarGen.Domain.Generation;
 
 namespace StarGen.Domain.Galaxy;
 
@@ -11,7 +12,7 @@ public static class StarSystemPreview
     /// <summary>
     /// Generates a preview for the given star seed and world position.
     /// </summary>
-    public static StarSystemPreviewData? Generate(int starSeed, Godot.Vector3 worldPosition, GalaxySpec galaxySpec)
+    public static StarSystemPreviewData? Generate(int starSeed, Godot.Vector3 worldPosition, GalaxySpec galaxySpec, GenerationUseCaseSettings? useCaseSettings = null)
     {
         if (starSeed == 0 || galaxySpec == null)
         {
@@ -19,7 +20,8 @@ public static class StarSystemPreview
         }
 
         GalaxyStar star = GalaxyStar.CreateWithDerivedProperties(worldPosition, starSeed, galaxySpec);
-        StarGen.Domain.Systems.SolarSystem? system = GalaxySystemGenerator.GenerateSystem(star, true, true);
+        bool enablePopulation = useCaseSettings != null && useCaseSettings.IsTravellerMode();
+        StarGen.Domain.Systems.SolarSystem? system = GalaxySystemGenerator.GenerateSystem(star, true, enablePopulation, null, useCaseSettings);
         if (system == null)
         {
             return null;

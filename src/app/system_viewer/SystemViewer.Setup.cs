@@ -145,7 +145,41 @@ public partial class SystemViewer
     /// </summary>
     private void SetupSaveLoadUi()
     {
+        SetupEmptyStateUi();
         UpdateSaveButtonState();
+    }
+
+    /// <summary>
+    /// Creates the empty-state placeholder shown before the first standalone generation.
+    /// </summary>
+    private void SetupEmptyStateUi()
+    {
+        if (_uiRoot == null || _emptyStateLabel != null)
+        {
+            return;
+        }
+
+        Label emptyStateLabel = new Label();
+        emptyStateLabel.Name = "EmptyStateLabel";
+        emptyStateLabel.Text = "Set parameters in the side panel, then click Generate.";
+        emptyStateLabel.HorizontalAlignment = HorizontalAlignment.Center;
+        emptyStateLabel.VerticalAlignment = VerticalAlignment.Center;
+        emptyStateLabel.AutowrapMode = TextServer.AutowrapMode.Word;
+        emptyStateLabel.SizeFlagsHorizontal = Control.SizeFlags.ExpandFill;
+        emptyStateLabel.SizeFlagsVertical = Control.SizeFlags.ExpandFill;
+        emptyStateLabel.AnchorLeft = 0.0f;
+        emptyStateLabel.AnchorTop = 0.0f;
+        emptyStateLabel.AnchorRight = 1.0f;
+        emptyStateLabel.AnchorBottom = 1.0f;
+        emptyStateLabel.OffsetLeft = 180.0f;
+        emptyStateLabel.OffsetTop = 120.0f;
+        emptyStateLabel.OffsetRight = -180.0f;
+        emptyStateLabel.OffsetBottom = -120.0f;
+        emptyStateLabel.MouseFilter = Control.MouseFilterEnum.Ignore;
+        emptyStateLabel.Modulate = new Color(0.74f, 0.78f, 0.84f, 0.9f);
+        _uiRoot.AddChild(emptyStateLabel);
+        _emptyStateLabel = emptyStateLabel;
+        UpdateEmptyStateVisibility();
     }
 
     /// <summary>
@@ -192,6 +226,31 @@ public partial class SystemViewer
         {
             _loadButton.TooltipText = "Load system from file (Ctrl+O)";
         }
+
+        if (_rulesetModeOption != null)
+        {
+            _rulesetModeOption.TooltipText = GetSystemAssumption("ruleset_mode");
+        }
+
+        if (_showTravellerReadoutsCheck != null)
+        {
+            _showTravellerReadoutsCheck.TooltipText = GetSystemAssumption("show_traveller_readouts");
+        }
+
+        if (_lifePermissivenessInput != null)
+        {
+            _lifePermissivenessInput.TooltipText = GetSystemAssumption("life_permissiveness");
+        }
+
+        if (_populationPermissivenessInput != null)
+        {
+            _populationPermissivenessInput.TooltipText = GetSystemAssumption("population_permissiveness");
+        }
+
+        if (_mainworldPolicyOption != null)
+        {
+            _mainworldPolicyOption.TooltipText = GetSystemAssumption("mainworld_policy");
+        }
     }
 
     /// <summary>
@@ -227,6 +286,36 @@ public partial class SystemViewer
         if (_loadButton != null)
         {
             _loadButton.Pressed += OnLoadPressed;
+        }
+
+        if (_rulesetModeOption != null)
+        {
+            _rulesetModeOption.ItemSelected += OnRulesetModeSelected;
+        }
+
+        if (_showTravellerReadoutsCheck != null)
+        {
+            _showTravellerReadoutsCheck.Toggled += _ => RefreshGenerationValidationFromControls();
+        }
+
+        if (_lifePermissivenessInput != null)
+        {
+            _lifePermissivenessInput.ValueChanged += _ => RefreshGenerationValidationFromControls();
+        }
+
+        if (_populationPermissivenessInput != null)
+        {
+            _populationPermissivenessInput.ValueChanged += _ => RefreshGenerationValidationFromControls();
+        }
+
+        if (_mainworldPolicyOption != null)
+        {
+            _mainworldPolicyOption.ItemSelected += _ => RefreshGenerationValidationFromControls();
+        }
+
+        if (_generatePopulationCheck != null)
+        {
+            _generatePopulationCheck.Toggled += _ => RefreshGenerationValidationFromControls();
         }
 
         if (_inspectorPanel is SystemInspectorPanel typedInspectorPanel)

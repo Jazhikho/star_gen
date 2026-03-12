@@ -23,14 +23,14 @@ public static class TestVersions
     }
 
     /// <summary>
-    /// Tests that GENERATOR_VERSION follows semver format (x.y.z).
+    /// Tests that GENERATOR_VERSION follows the repo version format (x.y.z or x.y.z.w).
     /// </summary>
     public static void TestGeneratorVersionIsSemverFormat()
     {
         string[] parts = Versions.GeneratorVersion.Split(".");
-        if (parts.Length != 3)
+        if (parts.Length != 3 && parts.Length != 4)
         {
-            throw new InvalidOperationException($"GENERATOR_VERSION should have 3 parts (x.y.z), got {parts.Length}");
+            throw new InvalidOperationException($"GENERATOR_VERSION should have 3 or 4 parts (x.y.z or x.y.z.w), got {parts.Length}");
         }
 
         foreach (string part in parts)

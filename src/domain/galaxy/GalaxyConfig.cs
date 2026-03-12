@@ -1,5 +1,6 @@
 using Godot;
 using Godot.Collections;
+using StarGen.Domain.Generation;
 using StarGen.Domain.Utils;
 
 namespace StarGen.Domain.Galaxy;
@@ -77,6 +78,11 @@ public partial class GalaxyConfig : RefCounted
     /// Noise frequency scaling for irregular galaxies.
     /// </summary>
     public double IrregularityScale { get; set; } = 0.5;
+
+    /// <summary>
+    /// Shared generation intent for ruleset/readout behavior.
+    /// </summary>
+    public GenerationUseCaseSettings UseCaseSettings { get; set; } = GenerationUseCaseSettings.CreateDefault();
 
     /// <summary>
     /// Creates a default configuration.
@@ -211,6 +217,7 @@ public partial class GalaxyConfig : RefCounted
             ["radius_pc"] = RadiusPc,
             ["ellipticity"] = Ellipticity,
             ["irregularity_scale"] = IrregularityScale,
+            ["use_case_settings"] = UseCaseSettings.ToDictionary(),
         };
     }
 
@@ -238,6 +245,11 @@ public partial class GalaxyConfig : RefCounted
             Ellipticity = DomainDictionaryUtils.GetDouble(data, "ellipticity", 0.3),
             IrregularityScale = DomainDictionaryUtils.GetDouble(data, "irregularity_scale", 0.5),
         };
+
+        if (data.ContainsKey("use_case_settings") && data["use_case_settings"].VariantType == Variant.Type.Dictionary)
+        {
+            config.UseCaseSettings = GenerationUseCaseSettings.FromDictionary((Dictionary)data["use_case_settings"]);
+        }
 
         int typeValue = DomainDictionaryUtils.GetInt(data, "galaxy_type", (int)GalaxySpec.GalaxyType.Spiral);
         if (System.Enum.IsDefined(typeof(GalaxySpec.GalaxyType), typeValue))

@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using Godot;
 using Godot.Collections;
+using StarGen.Domain.Generation;
 using StarGen.Domain.Generation.Archetypes;
 using StarGen.Domain.Generation.Parameters;
 using StarGen.Domain.Systems;
@@ -94,6 +95,80 @@ public partial class SystemViewer
         generatePopulationCheck.TooltipText = GetSystemAssumption("generate_population");
         _generatePopulationCheck = generatePopulationCheck;
         _generationSection.AddChild(generatePopulationCheck);
+
+        Label basicHeader = new Label();
+        basicHeader.Name = "TravellerBasicHeader";
+        basicHeader.Text = "Traveller / Ruleset";
+        basicHeader.AddThemeFontSizeOverride("font_size", 12);
+        basicHeader.Modulate = new Color(0.82f, 0.82f, 0.55f, 1.0f);
+        _generationSection.AddChild(basicHeader);
+
+        HBoxContainer rulesetRow = CreateGenerationRow("Ruleset:", out Label rulesetLabel);
+        rulesetRow.Name = "RulesetModeContainer";
+        rulesetLabel.TooltipText = GetSystemAssumption("ruleset_mode");
+        OptionButton rulesetModeOption = new OptionButton();
+        rulesetModeOption.Name = "RulesetModeOption";
+        rulesetModeOption.SizeFlagsHorizontal = Control.SizeFlags.ExpandFill;
+        rulesetModeOption.AddItem("Default", (int)GenerationUseCaseSettings.RulesetModeType.Default);
+        rulesetModeOption.AddItem("Traveller", (int)GenerationUseCaseSettings.RulesetModeType.Traveller);
+        rulesetRow.AddChild(rulesetModeOption);
+        _rulesetModeOption = rulesetModeOption;
+        _generationSection.AddChild(rulesetRow);
+
+        CheckBox showTravellerReadoutsCheck = new CheckBox();
+        showTravellerReadoutsCheck.Name = "ShowTravellerReadoutsCheck";
+        showTravellerReadoutsCheck.Text = "Show Traveller / UWP Readouts";
+        showTravellerReadoutsCheck.TooltipText = GetSystemAssumption("show_traveller_readouts");
+        _showTravellerReadoutsCheck = showTravellerReadoutsCheck;
+        _generationSection.AddChild(showTravellerReadoutsCheck);
+
+        Label advancedHeader = new Label();
+        advancedHeader.Name = "TravellerAdvancedHeader";
+        advancedHeader.Text = "Advanced Assumptions";
+        advancedHeader.AddThemeFontSizeOverride("font_size", 12);
+        advancedHeader.Modulate = new Color(0.82f, 0.82f, 0.55f, 1.0f);
+        _generationSection.AddChild(advancedHeader);
+
+        HBoxContainer lifeRow = CreateGenerationRow("Life Bias:", out Label lifeLabel);
+        lifeRow.Name = "LifePermissivenessContainer";
+        lifeLabel.TooltipText = GetSystemAssumption("life_permissiveness");
+        SpinBox lifePermissivenessInput = new SpinBox();
+        lifePermissivenessInput.Name = "LifePermissivenessInput";
+        lifePermissivenessInput.MinValue = 0.0;
+        lifePermissivenessInput.MaxValue = 1.0;
+        lifePermissivenessInput.Step = 0.05;
+        lifePermissivenessInput.SizeFlagsHorizontal = Control.SizeFlags.ExpandFill;
+        lifePermissivenessInput.TooltipText = GetSystemAssumption("life_permissiveness");
+        lifeRow.AddChild(lifePermissivenessInput);
+        _lifePermissivenessInput = lifePermissivenessInput;
+        _generationSection.AddChild(lifeRow);
+
+        HBoxContainer populationRow = CreateGenerationRow("Pop. Bias:", out Label populationLabel);
+        populationRow.Name = "PopulationPermissivenessContainer";
+        populationLabel.TooltipText = GetSystemAssumption("population_permissiveness");
+        SpinBox populationPermissivenessInput = new SpinBox();
+        populationPermissivenessInput.Name = "PopulationPermissivenessInput";
+        populationPermissivenessInput.MinValue = 0.0;
+        populationPermissivenessInput.MaxValue = 1.0;
+        populationPermissivenessInput.Step = 0.05;
+        populationPermissivenessInput.SizeFlagsHorizontal = Control.SizeFlags.ExpandFill;
+        populationPermissivenessInput.TooltipText = GetSystemAssumption("population_permissiveness");
+        populationRow.AddChild(populationPermissivenessInput);
+        _populationPermissivenessInput = populationPermissivenessInput;
+        _generationSection.AddChild(populationRow);
+
+        HBoxContainer mainworldRow = CreateGenerationRow("Mainworld:", out Label mainworldLabel);
+        mainworldRow.Name = "MainworldPolicyContainer";
+        mainworldLabel.TooltipText = GetSystemAssumption("mainworld_policy");
+        OptionButton mainworldPolicyOption = new OptionButton();
+        mainworldPolicyOption.Name = "MainworldPolicyOption";
+        mainworldPolicyOption.SizeFlagsHorizontal = Control.SizeFlags.ExpandFill;
+        mainworldPolicyOption.AddItem("None", (int)GenerationUseCaseSettings.MainworldPolicyType.None);
+        mainworldPolicyOption.AddItem("Prefer", (int)GenerationUseCaseSettings.MainworldPolicyType.Prefer);
+        mainworldPolicyOption.AddItem("Require", (int)GenerationUseCaseSettings.MainworldPolicyType.Require);
+        mainworldRow.AddChild(mainworldPolicyOption);
+        _mainworldPolicyOption = mainworldPolicyOption;
+        _generationSection.AddChild(mainworldRow);
 
         Label assumptionsLabel = new Label();
         assumptionsLabel.Name = "GenerationAssumptionsLabel";
@@ -196,6 +271,8 @@ public partial class SystemViewer
             spec.GeneratePopulation = _generatePopulationCheck.ButtonPressed;
         }
 
+        spec.UseCaseSettings = BuildUseCaseSettingsFromControls();
+
         return spec;
     }
 
@@ -256,6 +333,8 @@ public partial class SystemViewer
             _generatePopulationCheck.ButtonPressed = spec.GeneratePopulation;
         }
 
+        ApplyUseCaseSettingsToControls(spec.UseCaseSettings);
+
         _currentGenerationIssues = SystemGenerationParameterValidator.Validate(spec);
         UpdateGenerationIssuesUi();
     }
@@ -308,6 +387,90 @@ public partial class SystemViewer
             issueLabel.Text = $"{prefix}: {issue.Message}";
             _generationIssuesContainer.AddChild(issueLabel);
         }
+    }
+
+    private GenerationUseCaseSettings BuildUseCaseSettingsFromControls()
+    {
+        GenerationUseCaseSettings settings = GenerationUseCaseSettings.CreateDefault();
+        if (_rulesetModeOption != null)
+        {
+            settings.RulesetMode = (GenerationUseCaseSettings.RulesetModeType)_rulesetModeOption.GetSelectedId();
+        }
+
+        if (_showTravellerReadoutsCheck != null)
+        {
+            settings.ShowTravellerReadouts = _showTravellerReadoutsCheck.ButtonPressed;
+        }
+
+        if (_lifePermissivenessInput != null)
+        {
+            settings.LifePermissiveness = _lifePermissivenessInput.Value;
+        }
+
+        if (_populationPermissivenessInput != null)
+        {
+            settings.PopulationPermissiveness = _populationPermissivenessInput.Value;
+        }
+
+        if (_mainworldPolicyOption != null)
+        {
+            settings.MainworldPolicy = (GenerationUseCaseSettings.MainworldPolicyType)_mainworldPolicyOption.GetSelectedId();
+        }
+
+        return settings;
+    }
+
+    private void ApplyUseCaseSettingsToControls(GenerationUseCaseSettings settings)
+    {
+        if (_rulesetModeOption != null)
+        {
+            _rulesetModeOption.Select((int)settings.RulesetMode);
+        }
+
+        if (_showTravellerReadoutsCheck != null)
+        {
+            _showTravellerReadoutsCheck.ButtonPressed = settings.ShowTravellerReadouts;
+        }
+
+        if (_lifePermissivenessInput != null)
+        {
+            _lifePermissivenessInput.Value = settings.LifePermissiveness;
+        }
+
+        if (_populationPermissivenessInput != null)
+        {
+            _populationPermissivenessInput.Value = settings.PopulationPermissiveness;
+        }
+
+        if (_mainworldPolicyOption != null)
+        {
+            _mainworldPolicyOption.Select((int)settings.MainworldPolicy);
+        }
+    }
+
+    private void ApplyTravellerDefaultsToControls()
+    {
+        if (_showTravellerReadoutsCheck != null)
+        {
+            _showTravellerReadoutsCheck.ButtonPressed = true;
+        }
+
+        if (_mainworldPolicyOption != null)
+        {
+            _mainworldPolicyOption.Select((int)GenerationUseCaseSettings.MainworldPolicyType.Require);
+        }
+
+        if (_generatePopulationCheck != null)
+        {
+            _generatePopulationCheck.ButtonPressed = true;
+        }
+    }
+
+    private void RefreshGenerationValidationFromControls()
+    {
+        SolarSystemSpec spec = BuildCurrentSpecFromControls();
+        _currentGenerationIssues = SystemGenerationParameterValidator.Validate(spec);
+        UpdateGenerationIssuesUi();
     }
 
     private static Array<int> ParseSpectralHints(string text)

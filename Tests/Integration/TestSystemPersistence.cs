@@ -226,6 +226,7 @@ public static class TestSystemPersistence
             SolarSystemSpec spec = SolarSystemSpec.Binary(11223);
             spec.IncludeAsteroidBelts = true;
             spec.GeneratePopulation = true;
+            spec.UseCaseSettings = CreateTravellerSettings();
 
             SolarSystem? generated = SystemFixtureGenerator.GenerateSystem(spec);
             DotNetNativeTestSuite.AssertNotNull(generated, "Generated system should exist");
@@ -246,10 +247,28 @@ public static class TestSystemPersistence
             DotNetNativeTestSuite.AssertTrue(result.Success, "Compact payload should load");
             DotNetNativeTestSuite.AssertNotNull(result.System, "Loaded system should exist");
             DotNetNativeTestSuite.AssertEqual(generated.StarIds.Count, result.System.StarIds.Count, "Regenerated system should preserve star count");
+            DotNetNativeTestSuite.AssertNotNull(result.System.Provenance, "Loaded compact system should preserve provenance");
+            DotNetNativeTestSuite.AssertTrue(result.System.Provenance.SpecSnapshot.ContainsKey("use_case_settings"), "Compact system payload should keep use-case settings in the spec snapshot");
+
+            Godot.Collections.Dictionary settingsData = (Godot.Collections.Dictionary)result.System.Provenance.SpecSnapshot["use_case_settings"];
+            GenerationUseCaseSettings settings = GenerationUseCaseSettings.FromDictionary(settingsData);
+            DotNetNativeTestSuite.AssertEqual(GenerationUseCaseSettings.RulesetModeType.Traveller, settings.RulesetMode, "Compact system persistence should preserve ruleset mode");
+            DotNetNativeTestSuite.AssertEqual(GenerationUseCaseSettings.MainworldPolicyType.Require, settings.MainworldPolicy, "Compact system persistence should preserve mainworld policy");
         }
         finally
         {
             CleanupTestFiles();
         }
+    }
+
+    private static GenerationUseCaseSettings CreateTravellerSettings()
+    {
+        GenerationUseCaseSettings settings = GenerationUseCaseSettings.CreateDefault();
+        settings.RulesetMode = GenerationUseCaseSettings.RulesetModeType.Traveller;
+        settings.ShowTravellerReadouts = true;
+        settings.LifePermissiveness = 0.65;
+        settings.PopulationPermissiveness = 0.8;
+        settings.MainworldPolicy = GenerationUseCaseSettings.MainworldPolicyType.Require;
+        return settings;
     }
 }

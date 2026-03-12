@@ -106,7 +106,7 @@ public static class TestProvenance
     public static void TestRoundTrip()
     {
         Godot.Collections.Dictionary spec = new Godot.Collections.Dictionary { ["preset"] = "mars", ["size"] = "medium" };
-        Provenance original = new Provenance(54321, "0.2.0", 2, 1700000000, spec);
+        Provenance original = new Provenance(54321, "0.2.0.1", 2, 1700000000, spec);
         Godot.Collections.Dictionary data = original.ToDictionary();
         Provenance restored = Provenance.FromDictionary(data);
 

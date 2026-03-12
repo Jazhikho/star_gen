@@ -1,4 +1,5 @@
 using System;
+using StarGen.Domain.Generation;
 using StarGen.Domain.Generation.Archetypes;
 using StarGen.Domain.Systems;
 
@@ -77,6 +78,22 @@ public static class SystemGenerationParameterValidator
         if (spec.GeneratePopulation && spec.StarCountMax >= 5)
         {
             issues.AddWarning("generate_population", "Population generation on very high-multiplicity systems is supported, but habitability outcomes become less intuitive.");
+        }
+
+        if (spec.UseCaseSettings.IsTravellerMode() && !spec.GeneratePopulation)
+        {
+            issues.AddWarning("generate_population", "Traveller mode works best with population enabled so mainworld and UWP-oriented readouts have meaningful data.");
+        }
+
+        if (spec.UseCaseSettings.ShowTravellerReadouts && !spec.UseCaseSettings.IsTravellerMode())
+        {
+            issues.AddWarning("show_traveller_readouts", "Traveller readouts are enabled while the default ruleset remains active; values shown will be derived mappings only.");
+        }
+
+        if (spec.UseCaseSettings.MainworldPolicy == GenerationUseCaseSettings.MainworldPolicyType.Require
+            && !spec.UseCaseSettings.IsTravellerMode())
+        {
+            issues.AddWarning("mainworld_policy", "Requiring a mainworld is mainly intended for Traveller-oriented flows.");
         }
 
         return issues;

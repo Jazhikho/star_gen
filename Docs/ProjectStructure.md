@@ -10,15 +10,23 @@ Partial-class splits (large files broken into focused parts):
 - `SystemViewer.cs` / `SystemViewer.Setup.cs` / `SystemViewer.Rendering.cs` / `SystemViewer.Interaction.cs` / `SystemViewer.GdCompat.cs`
 - `GalaxyViewer.cs` / `GalaxyViewer.Setup.cs` / `GalaxyViewer.Navigation.cs` / `GalaxyViewer.Selection.cs` / `GalaxyViewer.Accessors.cs`
 - `MainApp.cs` / `MainApp.Navigation.cs`
-- `ObjectViewer.cs` / `ObjectViewer.Display.cs` / `ObjectViewer.SaveLoad.cs`
+- `ObjectViewer.cs` / `ObjectViewer.Display.cs` / `ObjectViewer.Parameters.cs` / `ObjectViewer.SaveLoad.cs`
 
 Recent 0.4.0 additions:
 - `Docs/Release-0.4.0-MVP.md`
 - `src/app/shared/ViewerLayoutHelper.cs`
+- `src/app/ObjectGenerationRequest.cs`
+- `src/app/SystemGenerationScreen.cs`
+- `src/app/SystemGenerationScreen.tscn`
+- `src/app/ObjectGenerationScreen.cs`
+- `src/app/ObjectGenerationScreen.tscn`
 - `src/app/viewer/ObjectViewer.Menu.cs`
 - `src/app/system_viewer/SystemViewer.Menu.cs`
 - `src/app/galaxy_viewer/GalaxyViewer.Menu.cs`
 - `src/app/system_viewer/SystemViewer.Parameters.cs`
+- `src/app/viewer/ObjectViewer.Parameters.cs`
+- `src/domain/generation/GenerationUseCaseSettings.cs`
+- `src/domain/system/TravellerMainworldSelector.cs`
 - `src/domain/generation/parameters/` (shared parameter definitions and validators)
 - `src/services/persistence/WindowSettingsService.cs`
 - `Tests/Integration/TestGenerationParameters.cs`
@@ -59,6 +67,7 @@ C# source files:
 - `src/domain/celestial/components/StellarProps.cs`
 - `src/domain/generation/ParentContext.cs`
 - `src/domain/generation/GenerationRealismProfile.cs`
+- `src/domain/generation/GenerationUseCaseSettings.cs`
 - `src/domain/generation/specs/BaseSpec.cs`
 - `src/domain/generation/specs/StarSpec.cs`
 - `src/domain/generation/specs/PlanetSpec.cs`
@@ -162,6 +171,7 @@ C# source files:
 - `src/domain/system/SystemPlanetGenerator.cs`
 - `src/domain/system/SystemMoonGenerator.cs`
 - `src/domain/system/SystemAsteroidGenerator.cs`
+- `src/domain/system/TravellerMainworldSelector.cs`
 - `src/domain/system/fixtures/SystemFixtureGenerator.cs`
 - `src/domain/system/asteroid_belt/BeltFieldSpec.cs`
 - `src/domain/system/asteroid_belt/BeltFieldData.cs`
@@ -265,6 +275,7 @@ C# source files:
 - `src/app/viewer/ObjectViewer.cs`
 - `src/app/viewer/ObjectViewer.Display.cs`
 - `src/app/viewer/ObjectViewer.Menu.cs`
+- `src/app/viewer/ObjectViewer.Parameters.cs`
 - `src/app/viewer/ObjectViewer.SaveLoad.cs`
 - `src/app/viewer/PropertyFormatter.cs`
 - `src/app/viewer/EditDialog.cs`
@@ -275,6 +286,9 @@ C# source files:
 - `src/app/SplashScreen.cs`
 - `src/app/MainMenuScreen.cs`
 - `src/app/WelcomeScreen.cs`
+- `src/app/ObjectGenerationRequest.cs`
+- `src/app/SystemGenerationScreen.cs`
+- `src/app/ObjectGenerationScreen.cs`
 - `src/app/prototypes/JumpLanesPrototype.cs`
 - `src/app/prototypes/JumpLaneRenderer.cs`
 - `src/app/prototypes/MockRegionGenerator.cs`

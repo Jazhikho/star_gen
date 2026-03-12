@@ -60,7 +60,7 @@ public static class TestSystemSerializer
         belt.PrimaryComposition = AsteroidBelt.Composition.Rocky;
         system.AddAsteroidBelt(belt);
 
-        system.Provenance = new Provenance(12345, "0.1.0", 1, 1234567890, new Godot.Collections.Dictionary { { "test", true } });
+        system.Provenance = new Provenance(12345, "0.4.1.0", 1, 1234567890, new Godot.Collections.Dictionary { { "test", true } });
 
         return system;
     }

@@ -18,7 +18,6 @@ public partial class Sector : RefCounted
     private readonly Dictionary<string, List<GalaxyStar>> _starsBySubsector = new();
     private readonly List<GalaxyStar> _allStars = new();
     private bool _isGenerated;
-    private Godot.Collections.Array<GalaxyStar>? _cachedGodotArray;
 
     /// <summary>
     /// Quadrant grid coordinates.
@@ -54,17 +53,12 @@ public partial class Sector : RefCounted
 
     /// <summary>
     /// Returns all stars in the sector, generating them if needed.
-    /// The Godot array wrapper is cached after first generation and reused on subsequent calls.
+    /// Callers receive detached snapshots so they are not coupled to sector cache lifetime.
     /// </summary>
     public Godot.Collections.Array<GalaxyStar> GetStars()
     {
         EnsureGenerated();
-        if (_cachedGodotArray == null)
-        {
-            _cachedGodotArray = ToGodotArray(_allStars);
-        }
-
-        return _cachedGodotArray;
+        return CreateSnapshotArray(_allStars);
     }
 
     /// <summary>
@@ -76,7 +70,7 @@ public partial class Sector : RefCounted
         string key = GetSubsectorKey(subsectorLocalCoords);
         if (_starsBySubsector.ContainsKey(key))
         {
-            return ToGodotArray(_starsBySubsector[key]);
+            return CreateSnapshotArray(_starsBySubsector[key]);
         }
 
         return new Godot.Collections.Array<GalaxyStar>();
@@ -105,7 +99,6 @@ public partial class Sector : RefCounted
     public void Regenerate()
     {
         _isGenerated = false;
-        _cachedGodotArray = null;
         _starsBySubsector.Clear();
         _allStars.Clear();
         EnsureGenerated();
@@ -189,14 +182,14 @@ public partial class Sector : RefCounted
     }
 
     /// <summary>
-    /// Converts a list to a Godot array.
+    /// Converts a list to a detached Godot array of star snapshots.
     /// </summary>
-    private static Godot.Collections.Array<GalaxyStar> ToGodotArray(List<GalaxyStar> stars)
+    private static Godot.Collections.Array<GalaxyStar> CreateSnapshotArray(List<GalaxyStar> stars)
     {
         Godot.Collections.Array<GalaxyStar> result = new();
         foreach (GalaxyStar star in stars)
         {
-            result.Add(star);
+            result.Add(star.Clone());
         }
 
         return result;
