@@ -9,6 +9,21 @@ namespace StarGen.Domain.Generation;
 public partial class GenerationUseCaseSettings : RefCounted
 {
     /// <summary>
+    /// Neutral midpoint for permissiveness sliders.
+    /// </summary>
+    public const double NeutralPermissiveness = 0.5;
+
+    /// <summary>
+    /// Traveller-leaning life permissiveness baseline.
+    /// </summary>
+    public const double TravellerLifePermissiveness = 0.55;
+
+    /// <summary>
+    /// Traveller-leaning settlement permissiveness baseline.
+    /// </summary>
+    public const double TravellerPopulationPermissiveness = 0.65;
+
+    /// <summary>
     /// Supported ruleset modes.
     /// </summary>
     public enum RulesetModeType
@@ -40,12 +55,12 @@ public partial class GenerationUseCaseSettings : RefCounted
     /// <summary>
     /// User-adjustable life permissiveness in the inclusive range [0, 1].
     /// </summary>
-    public double LifePermissiveness { get; set; } = 0.5;
+    public double LifePermissiveness { get; set; } = NeutralPermissiveness;
 
     /// <summary>
     /// User-adjustable population permissiveness in the inclusive range [0, 1].
     /// </summary>
-    public double PopulationPermissiveness { get; set; } = 0.5;
+    public double PopulationPermissiveness { get; set; } = NeutralPermissiveness;
 
     /// <summary>
     /// Desired mainworld policy for system and galaxy flows.
@@ -76,6 +91,28 @@ public partial class GenerationUseCaseSettings : RefCounted
         RulesetMode = RulesetModeType.Traveller;
         ShowTravellerReadouts = true;
         MainworldPolicy = MainworldPolicyType.Require;
+        if (IsApproximatelyNeutral(LifePermissiveness))
+        {
+            LifePermissiveness = TravellerLifePermissiveness;
+        }
+
+        if (IsApproximatelyNeutral(PopulationPermissiveness))
+        {
+            PopulationPermissiveness = TravellerPopulationPermissiveness;
+        }
+    }
+
+    /// <summary>
+    /// Returns whether the current permissiveness values are still neutral.
+    /// </summary>
+    public bool HasNeutralPermissiveness()
+    {
+        if (!IsApproximatelyNeutral(LifePermissiveness))
+        {
+            return false;
+        }
+
+        return IsApproximatelyNeutral(PopulationPermissiveness);
     }
 
     /// <summary>
@@ -126,8 +163,8 @@ public partial class GenerationUseCaseSettings : RefCounted
         }
 
         settings.ShowTravellerReadouts = GetBool(data, "show_traveller_readouts", false);
-        settings.LifePermissiveness = System.Math.Clamp(GetDouble(data, "life_permissiveness", 0.5), 0.0, 1.0);
-        settings.PopulationPermissiveness = System.Math.Clamp(GetDouble(data, "population_permissiveness", 0.5), 0.0, 1.0);
+        settings.LifePermissiveness = System.Math.Clamp(GetDouble(data, "life_permissiveness", NeutralPermissiveness), 0.0, 1.0);
+        settings.PopulationPermissiveness = System.Math.Clamp(GetDouble(data, "population_permissiveness", NeutralPermissiveness), 0.0, 1.0);
 
         int mainworldPolicyValue = GetInt(data, "mainworld_policy", (int)MainworldPolicyType.None);
         if (System.Enum.IsDefined(typeof(MainworldPolicyType), mainworldPolicyValue))
@@ -178,5 +215,10 @@ public partial class GenerationUseCaseSettings : RefCounted
             Variant.Type.Int => (int)value,
             _ => fallback,
         };
+    }
+
+    private static bool IsApproximatelyNeutral(double value)
+    {
+        return System.Math.Abs(value - NeutralPermissiveness) < 0.001;
     }
 }

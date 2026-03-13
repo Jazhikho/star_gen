@@ -36,6 +36,17 @@ Standard steps when adding or reviewing a scientific source for StarGen. Keeps [
 
 ---
 
+## AI-assisted source work
+
+AI may help summarize, compare, or organize sources, but it must not be treated as the authority on what a paper says.
+
+- A human must verify every quoted number, citation, equation, and claim before it is added to docs, benchmarks, comments, or code.
+- If AI materially assisted with a scientific summary, benchmark note, or bibliography entry, record that work in [../AI-Provenance-Log.md](../AI-Provenance-Log.md).
+- Do not cite a source that has only been summarized by AI without human review of the underlying text or another human-reviewed reference.
+- If there is uncertainty about what the source supports, record it as uncertainty rather than overstating confidence.
+
+---
+
 ## What to include from the paper (Texts/ copy)
 
 - **Always include (verbatim or near-verbatim):**

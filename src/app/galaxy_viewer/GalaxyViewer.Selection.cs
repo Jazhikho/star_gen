@@ -1,5 +1,4 @@
 using Godot;
-using StarGen.Domain.Generation.Parameters;
 using StarGen.Domain.Galaxy;
 
 namespace StarGen.App.GalaxyViewer;
@@ -248,48 +247,12 @@ public partial class GalaxyViewer
 	}
 
 	/// <summary>
-	/// Applies the currently edited galaxy config and rebuilds the viewer.
+	/// Returns to the galaxy-generation studio, which owns galaxy parameter editing.
 	/// </summary>
 	private void OnApplyGalaxyConfigRequested()
 	{
-		if (_inspectorPanel is not GalaxyInspectorPanel typedInspectorPanel)
-		{
-			return;
-		}
-
-		int seedValue = GalaxySeed;
-		if (_seedInput != null)
-		{
-			seedValue = (int)_seedInput.Value;
-		}
-
-		GalaxyConfig config = typedInspectorPanel.GetEditableConfig();
-		GenerationParameterIssueSet issues = GalaxyGenerationParameterValidator.Validate(seedValue, config);
-		typedInspectorPanel.SetConfigIssues(issues);
-		if (issues.HasErrors())
-		{
-			SetStatus("Galaxy parameters contain blocking errors");
-			return;
-		}
-
-		GalaxySeed = seedValue;
-		_galaxyConfig = config;
-		_galaxy = new Galaxy(_galaxyConfig, GalaxySeed);
-		_spec = _galaxy.Spec;
-		EmitSignal(SignalName.GalaxySeedChanged, GalaxySeed);
-		_jumpRoutePopulationCache.Clear();
-		InvalidateJumpRoutes();
-		BuildStaticRenderers();
-		UpdateSeedDisplay();
-		ClearStarSelection();
-		UpdateInspector();
-		if (issues.Issues.Count > 0)
-		{
-			SetStatus($"Regenerated galaxy with {issues.Issues.Count} advisory issue(s)");
-			return;
-		}
-
-		SetStatus("Regenerated galaxy");
+		SetStatus("Returning to Galaxy Generation Studio");
+		EmitSignal(SignalName.NewGalaxyRequested);
 	}
 
 	/// <summary>

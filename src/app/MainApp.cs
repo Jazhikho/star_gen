@@ -17,11 +17,12 @@ public partial class MainApp : Node
 	private const string WelcomeScreenScenePath = "res://src/app/WelcomeScreen.tscn";
 	private const string SystemGenerationScreenScenePath = "res://src/app/SystemGenerationScreen.tscn";
 	private const string ObjectGenerationScreenScenePath = "res://src/app/ObjectGenerationScreen.tscn";
+	private const string StationStudioScreenScenePath = "res://src/app/StationStudioScreen.tscn";
 	private const string GalaxyViewerScenePath = "res://src/app/galaxy_viewer/GalaxyViewerCSharp.tscn";
 	private const string SystemViewerScenePath = "res://src/app/system_viewer/SystemViewer.tscn";
 	private const string ObjectViewerScenePath = "res://src/app/viewer/ObjectViewer.tscn";
 
-	private enum ViewerType { None, Splash, Menu, GalaxyStudio, SystemStudio, ObjectStudio, Galaxy, System, Object }
+	private enum ViewerType { None, Splash, Menu, GalaxyStudio, SystemStudio, ObjectStudio, StationStudio, Galaxy, System, Object }
 	private enum NavigationOrigin { None, Menu, Galaxy, System }
 
 	private ViewerType _activeViewer = ViewerType.None;
@@ -31,6 +32,7 @@ public partial class MainApp : Node
 	private WelcomeScreen? _welcomeScreen;
 	private SystemGenerationScreen? _systemGenerationScreen;
 	private ObjectGenerationScreen? _objectGenerationScreen;
+	private StationStudioScreen? _stationStudioScreen;
 	private StarGen.App.GalaxyViewer.GalaxyViewer? _galaxyViewer;
 	private StarGen.App.SystemViewer.SystemViewer? _systemViewer;
 	private StarGen.App.Viewer.ObjectViewer? _objectViewer;
@@ -56,6 +58,7 @@ public partial class MainApp : Node
 		CreateWelcomeScreen();
 		CreateSystemGenerationScreen();
 		CreateObjectGenerationScreen();
+		CreateStationStudioScreen();
 		ShowSplashScreen();
 	}
 
@@ -69,6 +72,7 @@ public partial class MainApp : Node
 		QueueDetachedNodeForCleanup(_welcomeScreen);
 		QueueDetachedNodeForCleanup(_systemGenerationScreen);
 		QueueDetachedNodeForCleanup(_objectGenerationScreen);
+		QueueDetachedNodeForCleanup(_stationStudioScreen);
 		QueueDetachedNodeForCleanup(_galaxyViewer);
 		QueueDetachedNodeForCleanup(_systemViewer);
 		QueueDetachedNodeForCleanup(_objectViewer);
@@ -216,6 +220,29 @@ public partial class MainApp : Node
 	}
 
 	/// <summary>
+	/// Creates the station-studio placeholder screen.
+	/// </summary>
+	private void CreateStationStudioScreen()
+	{
+		PackedScene? scene = ResourceLoader.Load<PackedScene>(StationStudioScreenScenePath);
+		if (scene == null)
+		{
+			GD.PushError("MainApp: failed to load station studio scene");
+			return;
+		}
+
+		_stationStudioScreen = scene.Instantiate() as StationStudioScreen;
+		if (_stationStudioScreen == null)
+		{
+			GD.PushError("MainApp: failed to instantiate station studio scene");
+			return;
+		}
+
+		_stationStudioScreen.Name = "StationStudioScreen";
+		_stationStudioScreen.Connect("back_requested", Callable.From(ShowMainMenu));
+	}
+
+	/// <summary>
 	/// Creates the splash screen shown at startup.
 	/// </summary>
 	private void CreateSplashScreen()
@@ -261,6 +288,7 @@ public partial class MainApp : Node
 		_mainMenuScreen.Connect("galaxy_generation_requested", Callable.From(OnMainMenuGalaxyGenerationRequested));
 		_mainMenuScreen.Connect("system_generation_requested", Callable.From(OnMainMenuSystemGenerationRequested));
 		_mainMenuScreen.Connect("object_generation_requested", Callable.From(OnMainMenuObjectGenerationRequested));
+		_mainMenuScreen.Connect("station_generation_requested", Callable.From(OnMainMenuStationGenerationRequested));
 		_mainMenuScreen.Connect("quit_requested", Callable.From(OnWelcomeQuitRequested));
 	}
 
@@ -273,6 +301,7 @@ public partial class MainApp : Node
 		RemoveFromViewerContainer(_welcomeScreen);
 		RemoveFromViewerContainer(_systemGenerationScreen);
 		RemoveFromViewerContainer(_objectGenerationScreen);
+		RemoveFromViewerContainer(_stationStudioScreen);
 		RemoveFromViewerContainer(_galaxyViewer);
 		RemoveFromViewerContainer(_systemViewer);
 		RemoveFromViewerContainer(_objectViewer);
@@ -289,11 +318,12 @@ public partial class MainApp : Node
 		RemoveFromViewerContainer(_welcomeScreen);
 		RemoveFromViewerContainer(_systemGenerationScreen);
 		RemoveFromViewerContainer(_objectGenerationScreen);
+		RemoveFromViewerContainer(_stationStudioScreen);
 		RemoveFromViewerContainer(_galaxyViewer);
 		RemoveFromViewerContainer(_systemViewer);
 		RemoveFromViewerContainer(_objectViewer);
 		AddToViewerContainer(_mainMenuScreen);
-		_mainMenuScreen?.RefreshWindowSettings();
+		_mainMenuScreen?.RefreshOptionsState();
 		_activeViewer = ViewerType.Menu;
 	}
 
@@ -306,12 +336,13 @@ public partial class MainApp : Node
 		RemoveFromViewerContainer(_mainMenuScreen);
 		RemoveFromViewerContainer(_systemGenerationScreen);
 		RemoveFromViewerContainer(_objectGenerationScreen);
+		RemoveFromViewerContainer(_stationStudioScreen);
 		RemoveFromViewerContainer(_galaxyViewer);
 		RemoveFromViewerContainer(_systemViewer);
 		RemoveFromViewerContainer(_objectViewer);
 		AddToViewerContainer(_welcomeScreen);
 		_welcomeScreen?.SetNavigationVisibility(showBackButton: true, showQuitButton: false);
-		_welcomeScreen?.RefreshRandomSeedDisplay();
+		_welcomeScreen?.ApplySeedVisibilityPreference(rerollHiddenSeed: true);
 		_activeViewer = ViewerType.GalaxyStudio;
 	}
 
@@ -324,10 +355,12 @@ public partial class MainApp : Node
 		RemoveFromViewerContainer(_mainMenuScreen);
 		RemoveFromViewerContainer(_welcomeScreen);
 		RemoveFromViewerContainer(_objectGenerationScreen);
+		RemoveFromViewerContainer(_stationStudioScreen);
 		RemoveFromViewerContainer(_galaxyViewer);
 		RemoveFromViewerContainer(_systemViewer);
 		RemoveFromViewerContainer(_objectViewer);
 		AddToViewerContainer(_systemGenerationScreen);
+		_systemGenerationScreen?.ApplySeedVisibilityPreference(rerollHiddenSeed: true);
 		_activeViewer = ViewerType.SystemStudio;
 	}
 
@@ -340,11 +373,38 @@ public partial class MainApp : Node
 		RemoveFromViewerContainer(_mainMenuScreen);
 		RemoveFromViewerContainer(_welcomeScreen);
 		RemoveFromViewerContainer(_systemGenerationScreen);
+		RemoveFromViewerContainer(_stationStudioScreen);
 		RemoveFromViewerContainer(_galaxyViewer);
 		RemoveFromViewerContainer(_systemViewer);
 		RemoveFromViewerContainer(_objectViewer);
 		AddToViewerContainer(_objectGenerationScreen);
+		_objectGenerationScreen?.ApplySeedVisibilityPreference(rerollHiddenSeed: true);
 		_activeViewer = ViewerType.ObjectStudio;
+	}
+
+	/// <summary>
+	/// Displays the station-studio placeholder.
+	/// </summary>
+	private void ShowStationStudioScreen()
+	{
+		RemoveFromViewerContainer(_splashScreen);
+		RemoveFromViewerContainer(_mainMenuScreen);
+		RemoveFromViewerContainer(_welcomeScreen);
+		RemoveFromViewerContainer(_systemGenerationScreen);
+		RemoveFromViewerContainer(_objectGenerationScreen);
+		RemoveFromViewerContainer(_galaxyViewer);
+		RemoveFromViewerContainer(_systemViewer);
+		RemoveFromViewerContainer(_objectViewer);
+		AddToViewerContainer(_stationStudioScreen);
+		_activeViewer = ViewerType.StationStudio;
+	}
+
+	/// <summary>
+	/// Opens the station-studio placeholder from the main menu.
+	/// </summary>
+	private void OnMainMenuStationGenerationRequested()
+	{
+		ShowStationStudioScreen();
 	}
 
 	/// <summary>
@@ -379,6 +439,7 @@ public partial class MainApp : Node
 		_galaxyViewer.OpenSystemRequested += OnOpenSystemRequested;
 		_galaxyViewer.GalaxySeedChanged += SetGalaxySeed;
 		_galaxyViewer.NewGalaxyRequested += OnNewGalaxyRequested;
+		_galaxyViewer.MainMenuRequested += OnGalaxyViewerMainMenuRequested;
 	}
 
 	/// <summary>
@@ -436,6 +497,7 @@ public partial class MainApp : Node
 
 		_objectViewer.Name = "ObjectViewer";
 		_objectViewer.BackToSystemRequested += OnBackToSystem;
+		_objectViewer.BackToMainMenuRequested += ShowMainMenu;
 		_objectViewer.BodyEdited += OnBodyEdited;
 	}
 
@@ -454,6 +516,7 @@ public partial class MainApp : Node
 		RemoveFromViewerContainer(_welcomeScreen);
 		RemoveFromViewerContainer(_systemGenerationScreen);
 		RemoveFromViewerContainer(_objectGenerationScreen);
+		RemoveFromViewerContainer(_stationStudioScreen);
 		RemoveFromViewerContainer(_systemViewer);
 		RemoveFromViewerContainer(_objectViewer);
 		AddToViewerContainer(_galaxyViewer);
@@ -476,16 +539,17 @@ public partial class MainApp : Node
 		RemoveFromViewerContainer(_welcomeScreen);
 		RemoveFromViewerContainer(_systemGenerationScreen);
 		RemoveFromViewerContainer(_objectGenerationScreen);
+		RemoveFromViewerContainer(_stationStudioScreen);
 		RemoveFromViewerContainer(_galaxyViewer);
 		RemoveFromViewerContainer(_objectViewer);
 		AddToViewerContainer(_systemViewer);
 		if (_systemOrigin == NavigationOrigin.Menu)
 		{
-			_systemViewer?.ConfigureBackNavigation("<- Menu", "Back to Main Menu (Esc)");
+			_systemViewer?.ConfigureBackNavigation("Return to Main Menu", "Return to the main menu (Esc)");
 		}
 		else
 		{
-			_systemViewer?.ConfigureBackNavigation("<- Galaxy", "Back to Galaxy (Esc)");
+			_systemViewer?.ConfigureBackNavigation("Return to Galaxy Viewer", "Return to the galaxy viewer (Esc)");
 		}
 
 		_activeViewer = ViewerType.System;
@@ -507,12 +571,13 @@ public partial class MainApp : Node
 		RemoveFromViewerContainer(_welcomeScreen);
 		RemoveFromViewerContainer(_systemGenerationScreen);
 		RemoveFromViewerContainer(_objectGenerationScreen);
+		RemoveFromViewerContainer(_stationStudioScreen);
 		RemoveFromViewerContainer(_galaxyViewer);
 		RemoveFromViewerContainer(_systemViewer);
 		AddToViewerContainer(_objectViewer);
 		if (_objectOrigin == NavigationOrigin.Menu)
 		{
-			_objectViewer?.SetBackNavigationVisibility(true, "<- Back to Menu", "Return to the main menu");
+			_objectViewer?.SetBackNavigationVisibility(true, "Return to Main Menu", "Return to the main menu", true);
 		}
 
 		_activeViewer = ViewerType.Object;

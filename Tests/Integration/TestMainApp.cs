@@ -17,7 +17,8 @@ public static class TestMainApp
         runner.RunNativeTest("TestMainApp::test_scene_loads", TestSceneLoads);
         runner.RunNativeTest("TestMainApp::test_instantiates", TestInstantiates);
         runner.RunNativeTest("TestMainApp::test_has_viewer_container", TestHasViewerContainer);
-        runner.RunNativeTest("TestMainApp::test_object_viewer_back_button_emits_signal", TestObjectViewerBackButtonEmitsSignal);
+        runner.RunNativeTest("TestMainApp::test_object_viewer_return_menu_emits_signal", TestObjectViewerReturnMenuEmitsSignal);
+        runner.RunNativeTest("TestMainApp::test_object_viewer_main_menu_return_emits_signal", TestObjectViewerMainMenuReturnEmitsSignal);
         runner.RunNativeTest("TestMainApp::test_object_viewer_display_external_body_sets_state", TestObjectViewerDisplayExternalBodySetsState);
     }
 
@@ -60,7 +61,7 @@ public static class TestMainApp
         return viewer;
     }
 
-    private static void TestObjectViewerBackButtonEmitsSignal()
+    private static void TestObjectViewerReturnMenuEmitsSignal()
     {
         ObjectViewer viewer = CreateObjectViewer();
         try
@@ -69,26 +70,56 @@ public static class TestMainApp
             viewer.Connect(ObjectViewer.SignalName.BackToSystemRequested, Callable.From(() => requestedBack = true));
 
             viewer.DisplayExternalBody(IntegrationTestUtils.CreateTestBody(type: StarGen.Domain.Celestial.CelestialType.Type.Planet), [], 123);
-            Button? backButton = viewer.GetNodeOrNull<Button>("UI/TopBar/MarginContainer/TopBarVBox/HeaderRow/Button");
-            if (backButton == null)
+            HBoxContainer? menuRow = viewer.GetNodeOrNull<HBoxContainer>("UI/TopBar/MarginContainer/TopBarVBox/MenuRow");
+            DotNetNativeTestSuite.AssertNotNull(menuRow, "Object viewer should expose a top menu row");
+
+            PopupMenu? fileMenu = null;
+            foreach (Node child in menuRow!.GetChildren())
             {
-                backButton = viewer.GetNodeOrNull<Button>("UI/TopBar/MarginContainer/TopBarVBox/HeaderRow/<- Back to System");
-            }
-            if (backButton == null)
-            {
-                foreach (Node child in viewer.GetNode("UI/TopBar/MarginContainer/TopBarVBox/HeaderRow").GetChildren())
+                if (child is MenuButton typedButton && typedButton.Text == "File")
                 {
-                    if (child is Button typedButton && typedButton.Text.Contains("Back"))
-                    {
-                        backButton = typedButton;
-                        break;
-                    }
+                    fileMenu = typedButton.GetPopup();
+                    break;
                 }
             }
 
-            DotNetNativeTestSuite.AssertNotNull(backButton, "Displaying an external body should create a back button");
-            backButton!.EmitSignal(BaseButton.SignalName.Pressed);
-            DotNetNativeTestSuite.AssertTrue(requestedBack, "Pressing the back button should emit BackToSystemRequested");
+            DotNetNativeTestSuite.AssertNotNull(fileMenu, "Displaying an external body should expose a file menu");
+            fileMenu!.EmitSignal(PopupMenu.SignalName.AboutToPopup);
+            fileMenu.EmitSignal(PopupMenu.SignalName.IdPressed, 3L);
+            DotNetNativeTestSuite.AssertTrue(requestedBack, "Selecting the return menu item should emit BackToSystemRequested");
+        }
+        finally
+        {
+            IntegrationTestUtils.CleanupNode(viewer);
+        }
+    }
+
+    private static void TestObjectViewerMainMenuReturnEmitsSignal()
+    {
+        ObjectViewer viewer = CreateObjectViewer();
+        try
+        {
+            bool requestedMainMenu = false;
+            viewer.Connect(ObjectViewer.SignalName.BackToMainMenuRequested, Callable.From(() => requestedMainMenu = true));
+            viewer.SetBackNavigationVisibility(true, "Return to Main Menu", "Return to the main menu", true);
+
+            HBoxContainer? menuRow = viewer.GetNodeOrNull<HBoxContainer>("UI/TopBar/MarginContainer/TopBarVBox/MenuRow");
+            DotNetNativeTestSuite.AssertNotNull(menuRow, "Object viewer should expose a top menu row");
+
+            PopupMenu? fileMenu = null;
+            foreach (Node child in menuRow!.GetChildren())
+            {
+                if (child is MenuButton typedButton && typedButton.Text == "File")
+                {
+                    fileMenu = typedButton.GetPopup();
+                    break;
+                }
+            }
+
+            DotNetNativeTestSuite.AssertNotNull(fileMenu, "Main-menu return should be available from the file menu");
+            fileMenu!.EmitSignal(PopupMenu.SignalName.AboutToPopup);
+            fileMenu.EmitSignal(PopupMenu.SignalName.IdPressed, 3L);
+            DotNetNativeTestSuite.AssertTrue(requestedMainMenu, "Selecting the main-menu return should emit BackToMainMenuRequested");
         }
         finally
         {

@@ -11,6 +11,8 @@ namespace StarGen.Tests.Integration;
 public static class TestWelcomeScreen
 {
     private const string WelcomeScenePath = "res://src/app/WelcomeScreen.tscn";
+    private const string SeedSpinPath = "MarginContainer/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/SeedContainer/SeedSpin";
+    private const string StartButtonPath = "MarginContainer/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/FooterVBox/Buttons/StartButton";
 
     public static void RunAll(DotNetTestRunner runner)
     {
@@ -61,7 +63,7 @@ public static class TestWelcomeScreen
         WelcomeScreen welcome = CreateWelcomeScreen();
         try
         {
-            SpinBox? seedSpin = welcome.GetNodeOrNull<SpinBox>("CenterContainer/MainPanel/MarginContainer/VBox/ScrollContainer/SettingsVBox/SeedContainer/SeedSpin");
+            SpinBox? seedSpin = welcome.GetNodeOrNull<SpinBox>(SeedSpinPath);
             DotNetNativeTestSuite.AssertNotNull(seedSpin, "Welcome screen should expose the seed spin box");
 
             SeededRng expectedRng = new(42);
@@ -115,11 +117,11 @@ public static class TestWelcomeScreen
             bool started = false;
             welcome.Connect("start_new_galaxy", Callable.From<GalaxyConfig, int>((_config, _seed) => started = true));
 
-            SpinBox? seedSpin = welcome.GetNodeOrNull<SpinBox>("CenterContainer/MainPanel/MarginContainer/VBox/ScrollContainer/SettingsVBox/SeedContainer/SeedSpin");
+            SpinBox? seedSpin = welcome.GetNodeOrNull<SpinBox>(SeedSpinPath);
             DotNetNativeTestSuite.AssertNotNull(seedSpin, "Welcome screen should expose the seed spin box");
             seedSpin!.Value = 0.0;
 
-            Button? startButton = welcome.GetNodeOrNull<Button>("CenterContainer/MainPanel/MarginContainer/VBox/Buttons/StartButton");
+            Button? startButton = welcome.GetNodeOrNull<Button>(StartButtonPath);
             DotNetNativeTestSuite.AssertNotNull(startButton, "Welcome screen should expose the start button");
             startButton!.EmitSignal(Button.SignalName.Pressed);
 

@@ -41,9 +41,9 @@ public static class PlanetSurfaceGenerator
 
         surface.Terrain = GenerateTerrain(physical, sizeCategory, volcanismLevel, rng);
 
-        if (CanHaveLiquidWater(surfaceTempK, physical))
+        if (HasHydrosphereOverride(spec) || CanHaveLiquidWater(surfaceTempK, physical))
         {
-            surface.Hydrosphere = GenerateHydrosphere(surfaceTempK, sizeCategory, volcanismLevel, rng);
+            surface.Hydrosphere = GenerateHydrosphere(spec, surfaceTempK, sizeCategory, volcanismLevel, rng);
         }
 
         if (surfaceTempK < WaterFreezeK || zone == OrbitZone.Zone.Cold)
@@ -322,13 +322,19 @@ public static class PlanetSurfaceGenerator
     /// <param name="rng">Seeded RNG for reproducible output.</param>
     /// <returns>A <see cref="HydrosphereProps"/> describing ocean and ice coverage.</returns>
     private static HydrosphereProps GenerateHydrosphere(
+        PlanetSpec spec,
         double surfaceTempK,
         SizeCategory.Category sizeCategory,
         double volcanismLevel,
         SeededRng rng)
     {
+        double overrideOceanCoverage = spec.GetOverrideFloat("surface.hydrosphere.ocean_coverage", -1.0);
         double oceanCoverage;
-        if ((int)sizeCategory >= (int)SizeCategory.Category.Terrestrial)
+        if (overrideOceanCoverage >= 0.0)
+        {
+            oceanCoverage = System.Math.Clamp(overrideOceanCoverage, 0.0, 1.0);
+        }
+        else if ((int)sizeCategory >= (int)SizeCategory.Category.Terrestrial)
         {
             oceanCoverage = rng.RandfRange(0.1f, 0.95f);
         }
@@ -338,9 +344,14 @@ public static class PlanetSurfaceGenerator
         }
 
         double oceanDepthM = oceanCoverage * rng.RandfRange(1000.0f, 10000.0f);
+        double overrideIceCoverage = spec.GetOverrideFloat("surface.hydrosphere.ice_coverage", -1.0);
         double iceCoverage = 0.0;
 
-        if (surfaceTempK < WaterFreezeK + 20.0)
+        if (overrideIceCoverage >= 0.0)
+        {
+            iceCoverage = System.Math.Clamp(overrideIceCoverage, 0.0, 1.0);
+        }
+        else if (surfaceTempK < WaterFreezeK + 20.0)
         {
             iceCoverage = rng.RandfRange(0.3f, 0.8f);
         }
@@ -364,6 +375,12 @@ public static class PlanetSurfaceGenerator
             iceCoverage,
             rng.RandfRange(10.0f, 50.0f),
             waterType);
+    }
+
+    private static bool HasHydrosphereOverride(PlanetSpec spec)
+    {
+        return spec.HasOverride("surface.hydrosphere.ocean_coverage")
+            || spec.HasOverride("surface.hydrosphere.ice_coverage");
     }
 
     /// <summary>Generates cryosphere (polar caps, ice) from surface temperature.</summary>

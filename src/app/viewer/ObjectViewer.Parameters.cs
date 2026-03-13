@@ -48,7 +48,7 @@ public partial class ObjectViewer
         HBoxContainer lifeContainer = new HBoxContainer();
         lifeContainer.Name = "LifePermissivenessContainer";
         Label lifeLabel = new Label();
-        lifeLabel.Text = "Life Bias:";
+        lifeLabel.Text = "Life Potential:";
         lifeLabel.CustomMinimumSize = new Vector2(60.0f, 0.0f);
         lifeContainer.AddChild(lifeLabel);
 
@@ -65,7 +65,7 @@ public partial class ObjectViewer
         HBoxContainer populationContainer = new HBoxContainer();
         populationContainer.Name = "PopulationPermissivenessContainer";
         Label populationLabel = new Label();
-        populationLabel.Text = "Pop. Bias:";
+        populationLabel.Text = "Settlement Density:";
         populationLabel.CustomMinimumSize = new Vector2(60.0f, 0.0f);
         populationContainer.AddChild(populationLabel);
 
@@ -82,9 +82,10 @@ public partial class ObjectViewer
         Label useCaseAssumptionsLabel = new Label();
         useCaseAssumptionsLabel.Name = "UseCaseAssumptionsLabel";
         useCaseAssumptionsLabel.AutowrapMode = TextServer.AutowrapMode.Word;
+        useCaseAssumptionsLabel.CustomMinimumSize = new Vector2(220.0f, 0.0f);
         useCaseAssumptionsLabel.AddThemeFontSizeOverride("font_size", 10);
         useCaseAssumptionsLabel.Modulate = new Color(0.6f, 0.7f, 0.8f, 1.0f);
-        useCaseAssumptionsLabel.Text = "Ruleset and permissiveness settings are persisted with generated bodies so downstream system and export work can honor the same assumptions.";
+        useCaseAssumptionsLabel.Text = "Ruleset and assumption settings are persisted with generated bodies so downstream system and export work can honor the same assumptions.";
         _useCaseAssumptionsLabel = useCaseAssumptionsLabel;
 
         int buttonIndex = generationSection.GetNode("ButtonContainer").GetIndex();
@@ -123,6 +124,7 @@ public partial class ObjectViewer
         emptyStateLabel.HorizontalAlignment = HorizontalAlignment.Center;
         emptyStateLabel.VerticalAlignment = VerticalAlignment.Center;
         emptyStateLabel.AutowrapMode = TextServer.AutowrapMode.Word;
+        emptyStateLabel.CustomMinimumSize = new Vector2(280.0f, 0.0f);
         emptyStateLabel.MouseFilter = Control.MouseFilterEnum.Ignore;
         emptyStateLabel.Modulate = new Color(0.74f, 0.78f, 0.84f, 0.9f);
         _uiRoot.AddChild(emptyStateLabel);
@@ -226,7 +228,7 @@ public partial class ObjectViewer
         _activeUseCaseSettings.RulesetMode = (GenerationUseCaseSettings.RulesetModeType)selectedId;
         if (_activeUseCaseSettings.RulesetMode == GenerationUseCaseSettings.RulesetModeType.Traveller)
         {
-            _activeUseCaseSettings.ShowTravellerReadouts = true;
+            _activeUseCaseSettings.ApplyTravellerDefaults();
         }
 
         ApplyUseCaseSettingsToControls(_activeUseCaseSettings);

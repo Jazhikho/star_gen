@@ -94,7 +94,7 @@ public partial class ObjectViewer
 		popup.AddItem("Load...", FileMenuLoadId);
 		popup.AddSeparator();
 		popup.AddItem(GetReturnMenuText(), FileMenuReturnId);
-		popup.SetItemDisabled(popup.ItemCount - 1, _backButton == null || !_backButton.Visible);
+		popup.SetItemDisabled(popup.ItemCount - 1, !_backNavigationVisible);
 	}
 
 	private void RebuildEditMenu(PopupMenu popup)
@@ -141,9 +141,9 @@ public partial class ObjectViewer
 
 	private string GetReturnMenuText()
 	{
-		if (_backButton != null && _backButton.Visible && !string.IsNullOrWhiteSpace(_backButton.Text))
+		if (_backNavigationVisible && !string.IsNullOrWhiteSpace(_backNavigationText))
 		{
-			return _backButton.Text;
+			return _backNavigationText;
 		}
 
 		return "Return";

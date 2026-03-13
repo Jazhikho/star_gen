@@ -24,8 +24,8 @@ public static class GenerationParameterCatalog
             new GenerationParameterDefinition("generate_population", "Generate Population", string.Empty, GenerationParameterControlType.Toggle, "Enables the downstream population pipeline for planets and moons."),
             new GenerationParameterDefinition("ruleset_mode", "Ruleset", string.Empty, GenerationParameterControlType.Choice, "Switches between the default StarGen assumptions and Traveller-oriented worldbuilding defaults."),
             new GenerationParameterDefinition("show_traveller_readouts", "Traveller Readouts", string.Empty, GenerationParameterControlType.Toggle, "Shows derived Traveller/UWP-oriented readouts when the current flow has enough information."),
-            new GenerationParameterDefinition("life_permissiveness", "Life Permissiveness", string.Empty, GenerationParameterControlType.Number, "Biases how permissive the current worldbuilding assumptions are toward life-friendly outcomes."),
-            new GenerationParameterDefinition("population_permissiveness", "Population Permissiveness", string.Empty, GenerationParameterControlType.Number, "Biases how permissive the current worldbuilding assumptions are toward populated outcomes."),
+            new GenerationParameterDefinition("life_permissiveness", "Life Potential", string.Empty, GenerationParameterControlType.Number, "Controls how strongly the generator favors biosphere-friendly outcomes. The neutral midpoint is 0.5; Traveller-oriented defaults lean slightly higher."),
+            new GenerationParameterDefinition("population_permissiveness", "Settlement Density", string.Empty, GenerationParameterControlType.Number, "Controls how strongly the generator favors inhabited outcomes. 0.5 is neutral, Traveller is roughly medium-high (~0.65), and space-opera assumptions would be higher still."),
             new GenerationParameterDefinition("mainworld_policy", "Mainworld Policy", string.Empty, GenerationParameterControlType.Choice, "Controls whether Traveller-oriented flows should ignore, prefer, or require a plausible mainworld candidate."),
         };
     }
@@ -52,8 +52,8 @@ public static class GenerationParameterCatalog
             new GenerationParameterDefinition("irregularity_scale", "Irregularity", string.Empty, GenerationParameterControlType.Number, "Only applies to irregular galaxies."),
             new GenerationParameterDefinition("ruleset_mode", "Ruleset", string.Empty, GenerationParameterControlType.Choice, "Switches between the default StarGen assumptions and Traveller-oriented worldbuilding defaults."),
             new GenerationParameterDefinition("show_traveller_readouts", "Traveller Readouts", string.Empty, GenerationParameterControlType.Toggle, "Shows derived Traveller/UWP-oriented readouts when the current flow has enough information."),
-            new GenerationParameterDefinition("life_permissiveness", "Life Permissiveness", string.Empty, GenerationParameterControlType.Number, "Biases how permissive the current worldbuilding assumptions are toward life-friendly outcomes."),
-            new GenerationParameterDefinition("population_permissiveness", "Population Permissiveness", string.Empty, GenerationParameterControlType.Number, "Biases how permissive the current worldbuilding assumptions are toward populated outcomes."),
+            new GenerationParameterDefinition("life_permissiveness", "Life Potential", string.Empty, GenerationParameterControlType.Number, "Controls how strongly the generator favors biosphere-friendly outcomes. The neutral midpoint is 0.5; Traveller-oriented defaults lean slightly higher."),
+            new GenerationParameterDefinition("population_permissiveness", "Settlement Density", string.Empty, GenerationParameterControlType.Number, "Controls how strongly the generator favors inhabited outcomes. 0.5 is neutral, Traveller is roughly medium-high (~0.65), and space-opera assumptions would be higher still."),
             new GenerationParameterDefinition("mainworld_policy", "Mainworld Policy", string.Empty, GenerationParameterControlType.Choice, "Controls whether Traveller-oriented flows should ignore, prefer, or require plausible mainworld-ready systems."),
         };
     }

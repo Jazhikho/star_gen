@@ -404,44 +404,36 @@ public partial class ObjectViewer
 		body.SetMeta("user_modifications", modifications);
 	}
 
-	private void ShowBackButton(string buttonText = "<- Back to System", string tooltipText = "Return to solar system viewer")
+	private void ShowBackButton(
+		string buttonText = "Return to System Viewer",
+		string tooltipText = "Return to solar system viewer",
+		bool returnToMainMenu = false)
 	{
-		if (_backButton != null)
-		{
-			_backButton.Text = buttonText;
-			_backButton.TooltipText = tooltipText;
-			_backButton.Visible = true;
-			return;
-		}
-
-		HBoxContainer? topBar = GetNodeOrNull<HBoxContainer>("UI/TopBar/MarginContainer/TopBarVBox/HeaderRow");
-		if (topBar == null)
-		{
-			return;
-		}
-
-		_backButton = new Button
-		{
-			Text = buttonText,
-			TooltipText = tooltipText,
-		};
-		_backButton.Pressed += OnBackPressed;
-		topBar.AddChild(_backButton);
-		topBar.MoveChild(_backButton, 0);
+		_backNavigationVisible = true;
+		_backNavigationText = buttonText;
+		_backNavigationTooltip = tooltipText;
+		_backNavigationReturnsToMainMenu = returnToMainMenu;
 	}
 
 	private void HideBackButton()
 	{
-		if (_backButton != null)
-		{
-			_backButton.Visible = false;
-		}
+		_backNavigationVisible = false;
+		_backNavigationText = "Return";
+		_backNavigationTooltip = "Return";
+		_backNavigationReturnsToMainMenu = false;
 	}
 
 	private void OnBackPressed()
 	{
 		_navigatedFromSystem = false;
+		bool returnToMainMenu = _backNavigationReturnsToMainMenu;
 		HideBackButton();
+
+		if (returnToMainMenu)
+		{
+			EmitSignal(SignalName.BackToMainMenuRequested);
+			return;
+		}
 
 		EmitSignal(SignalName.BackToSystemRequested);
 	}

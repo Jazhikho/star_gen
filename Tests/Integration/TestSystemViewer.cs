@@ -285,8 +285,8 @@ public static class TestSystemViewer
             string basePath = "UI/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/GenerationSection";
             DotNetNativeTestSuite.AssertNotNull(viewer.GetNodeOrNull<OptionButton>($"{basePath}/RulesetModeContainer/RulesetModeOption"), "System viewer should expose a ruleset selector");
             DotNetNativeTestSuite.AssertNotNull(viewer.GetNodeOrNull<CheckBox>($"{basePath}/ShowTravellerReadoutsCheck"), "System viewer should expose a Traveller readout toggle");
-            DotNetNativeTestSuite.AssertNotNull(viewer.GetNodeOrNull<SpinBox>($"{basePath}/LifePermissivenessContainer/LifePermissivenessInput"), "System viewer should expose a life-bias control");
-            DotNetNativeTestSuite.AssertNotNull(viewer.GetNodeOrNull<SpinBox>($"{basePath}/PopulationPermissivenessContainer/PopulationPermissivenessInput"), "System viewer should expose a population-bias control");
+            DotNetNativeTestSuite.AssertNotNull(viewer.GetNodeOrNull<HSlider>($"{basePath}/LifePermissivenessContainer/LifePermissivenessInput"), "System viewer should expose a life-potential control");
+            DotNetNativeTestSuite.AssertNotNull(viewer.GetNodeOrNull<HSlider>($"{basePath}/PopulationPermissivenessContainer/PopulationPermissivenessInput"), "System viewer should expose a settlement-density control");
             DotNetNativeTestSuite.AssertNotNull(viewer.GetNodeOrNull<OptionButton>($"{basePath}/MainworldPolicyContainer/MainworldPolicyOption"), "System viewer should expose a mainworld-policy selector");
         }
         finally

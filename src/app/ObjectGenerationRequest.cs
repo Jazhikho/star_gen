@@ -1,4 +1,5 @@
 using Godot;
+using Godot.Collections;
 using StarGen.Domain.Generation;
 using StarGen.App.Viewer;
 
@@ -30,6 +31,21 @@ public partial class ObjectGenerationRequest : RefCounted
     public GenerationUseCaseSettings UseCaseSettings { get; set; } = GenerationUseCaseSettings.CreateDefault();
 
     /// <summary>
+    /// Optional explicit generator spec payload for studio-driven launches.
+    /// </summary>
+    public Dictionary SpecData { get; set; } = new Dictionary();
+
+    /// <summary>
+    /// Optional Traveller world-profile payload used for planet-focused readouts and mapping.
+    /// </summary>
+    public Dictionary TravellerWorldProfileData { get; set; } = new Dictionary();
+
+    /// <summary>
+    /// Whether the studio exposed the seed to the user.
+    /// </summary>
+    public bool ShowSeed { get; set; }
+
+    /// <summary>
     /// Returns a defensive copy of the request.
     /// </summary>
     public ObjectGenerationRequest Clone()
@@ -40,6 +56,9 @@ public partial class ObjectGenerationRequest : RefCounted
             SeedValue = SeedValue,
             PresetId = PresetId,
             UseCaseSettings = UseCaseSettings.Clone(),
+            SpecData = (Dictionary)SpecData.Duplicate(true),
+            TravellerWorldProfileData = (Dictionary)TravellerWorldProfileData.Duplicate(true),
+            ShowSeed = ShowSeed,
         };
     }
 }

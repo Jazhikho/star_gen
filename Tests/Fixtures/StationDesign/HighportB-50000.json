@@ -1,0 +1,21 @@
+{
+  "name": "HighportB-50000",
+  "template": "HighportB",
+  "hull_tons": 50000,
+  "configuration": "Sphere",
+  "used_tonnage": 16970,
+  "cargo_tonnage": 33030,
+  "total_cost": 3281525000,
+  "total_crew": 244,
+  "power_demand": 356,
+  "power_output": 428,
+  "hardpoints_used": 60,
+  "warning_count": 0,
+  "earned_classifications": [
+    "StarportB",
+    "StarportC",
+    "StarportD",
+    "TradeStation",
+    "Waystation"
+  ]
+}

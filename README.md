@@ -4,6 +4,12 @@ A deterministic procedural generator + viewer for celestial objects, solar syste
 
 Built with **Godot 4.x** and a **C#-first** codebase. Remaining GDScript files are limited to launchers, fallback harness glue, and historical reference copies.
 
+## AI Use
+
+This repository allows human-directed, AI-assisted work under the rules in [AI-Use-Statement.md](AI-Use-Statement.md).
+
+Significant AI-assisted artifacts should be logged in [AI-Provenance-Log.md](AI-Provenance-Log.md).
+
 ## Project Status
 
 **Status:** Core object, solar system, and galaxy viewer flows are implemented. Development is organized by **efforts** (see [Docs/Roadmap.md](Docs/Roadmap.md)).
@@ -12,7 +18,9 @@ Built with **Godot 4.x** and a **C#-first** codebase. Remaining GDScript files a
 
 **Remaining efforts:** Save format and compatibility (ZSTD .sgg/.sgb C# port); solar system constraints; system viewer rendering improvements; object editing; rendering v2; galactic refinement; solar system tools; galactic tools; galactic polish; jump lanes optimization and polish; code quality & simplifications.
 
-**Test Status:** 1800+ tests. The supported runtime for both headless and interactive execution is **Godot .NET 4.6.x**. Headless runs start from `godot-mono.exe --headless --script res://Tests/RunTestsHeadless.gd`, which launches the C# harness. Interactive runs use `res://Tests/TestScene.tscn`, which boots the same C# suite manifest through a thin GDScript launcher. `dotnet build StarGen.sln` validates the C# codebase.
+**Test Status:** 1900+ tests. The supported runtime for both headless and interactive execution is **Godot .NET 4.6.x**. Headless runs start from `godot-mono.exe --headless --script res://Tests/RunTestsHeadless.gd`, which launches the C# harness. Interactive runs use `res://Tests/TestScene.tscn`, which boots the same C# suite manifest through a thin GDScript launcher. `dotnet build StarGen.sln` validates the C# codebase.
+
+**UI minimum supported width:** `640 px`. Wrapped labels should be given a sensible `CustomMinimumSize.X` based on their panel width so word wrapping remains stable instead of stretching layouts.
 
 ### Version history
 
@@ -22,12 +30,33 @@ Built with **Godot 4.x** and a **C#-first** codebase. Remaining GDScript files a
 | **0.2.0** | `a99ef2c` | Asteroid belt generation and rendering in system viewer; scientific calibration (GenerationRealismProfile, benchmarks, ensemble harness, distribution tests); belt renderer/generator integration; OrbitSlotGenerator, OrbitalMechanics, StellarConfigGenerator, SystemValidator updates; GalaxyInspectorPanel and test suite updates. Removed Concepts/AsteroidBelt demo scenes and Tests/RunGalaxyTests.gd. |
 | **0.3.0** | - | User-facing main menu and release notes, body/system save-load, gas giant variety, optional Traveller size-code support in object editing, and the completed C# refactor. |
 | **0.4.0** | - | Config-first standalone system/object entry, shared Traveller/worldbuilding settings across galaxy/system/object flows, persisted Traveller readouts, and deterministic mainworld readiness summaries. |
-| **0.4.1.1** | - | Patch update: added galaxy snapshot GC regression coverage and consolidated the 0.4.0 MVP / Traveller documentation into the current docs set. (current) |
+| **0.5.0.0** | - | First public release since `0.3.0`, rolling up the internal `0.4.x` work: config-first studios, Traveller-aligned launch/readout support, station design fold-in, UI/navigation polish, and AI provenance/release sync. (current) |
+| **0.4.3.5** | - | Fixed the main-menu scene/script mismatch after the user-driven menu rewrite and added direct regression coverage for the restored main-menu actions. |
+| **0.4.3.3** | - | Removed launch-summary clutter from the studios, hid studio seeds behind the Options preference with reroll-on-launch behavior, added a Station Studio entry point, and kept the galaxy viewer on a single new-galaxy path. |
+| **0.4.3.2** | - | Moved viewer menus below the header, removed duplicate header back affordances, fixed Traveller world-generation edge cases, and clarified `Auto / Yes / No` plus population-assumption wording across the launch flows. |
+| **0.4.3.1** | - | Reworked the studio layouts to stack responsively, added summary scrolling/tooltips, and fixed the worst screen-clipping issues across the menu, splash, and launch studios. |
+| **0.4.3.0** | - | Reworked object generation into an explicit spec builder, added Traveller planet profile generation/UWP output, and moved UWP world-profile readouts to the top of the inspector. |
+| **0.4.2.3** | - | Fixed window/resolution application so display changes take effect immediately and loosened the galaxy studio layout. |
+| **0.4.2.2** | - | Moved galaxy profile editing fully into the galaxy studio, split galaxy-viewer studio vs main-menu return actions, and expanded object-viewer inspector readouts. |
+| **0.4.2.1** | - | Fixed station-design compact save/load to preserve full spec data and aligned hull-band sizing with the generated station class. |
+| **0.4.2.0** | - | Folded detailed station design into the main station framework, added exporter/save-load/regression coverage, and retired the SpaceStationBuilder prototype. |
+| **0.4.1.1** | - | Patch update: added galaxy snapshot GC regression coverage and consolidated the 0.4.0 MVP / Traveller documentation into the current docs set. |
 | **0.4.1.0** | - | Studio-first generation flow: redesigned main menu, dedicated system/object setup screens, and viewer launches that open with generated content. |
 | **0.4.0.1** | - | Fixed galaxy star snapshot lifetime so returned sector stars remain valid under full headless test execution. |
 
 ### Release notes (summary)
 
+- **0.5.0.0** - First public release since `0.3.0`, rolling up the internal `0.4.x` work: config-first studios, Traveller-aligned launch/readout support, station design fold-in, UI/navigation polish, and AI provenance/release sync.
+- **0.4.3.5** - Fixed the main-menu scene/script mismatch after the user-driven menu rewrite and added direct regression coverage for the restored main-menu actions.
+- **0.4.3.4** - Reformatted the AI provenance log into readable entries, documented/enforced a 640 px minimum supported width, fixed object-viewer main-menu return routing, and added sensible wrap minima across key wrapped UI labels.
+- **0.4.3.3** - Removed studio launch-summary clutter, hid studio seeds behind the Options preference with reroll-on-launch behavior, added the Station Studio entry point, and kept the galaxy viewer on a single `New Galaxy...` path.
+- **0.4.3.2** - Moved viewer menus below the header, removed duplicate header return affordances, fixed Traveller blank-world edge cases, and clarified optional-feature and population-assumption wording.
+- **0.4.3.1** - Reworked the launch studio layouts to stack responsively, added summary scrolling/tooltips, and reduced clipping across the menu, splash, and pre-launch screens.
+- **0.4.3.0** - Reworked object generation into an explicit spec builder, added Traveller planet profile generation and deterministic UWP output, and surfaced world-profile readouts at the top of the inspector.
+- **0.4.2.3** - Fixed immediate window/fullscreen application and loosened the galaxy studio layout so the parameter panel has more room.
+- **0.4.2.2** - Moved galaxy profile editing fully into the galaxy studio, split galaxy-viewer studio vs main-menu return actions, and expanded object-viewer inspector readouts and Traveller context.
+- **0.4.2.1** - Fixed station-design compact reloads to preserve full spec fields and aligned detailed hull sizing with the generated station class.
+- **0.4.2.0** - Folded the SpaceStationBuilder prototype into the main station framework with deterministic station design, classification, persistence, export, and regression fixtures.
 - **0.4.1.1** - Added the galaxy snapshot lifetime regression test, folded the 0.4.0 MVP scope into the roadmap/docs, and aligned the repo-local versioning note.
 - **0.4.1.0** - Redesigned the menu into a studio dashboard, added dedicated system/object generation studios, and shifted menu-driven generation setup out of the viewers.
 - **0.4.0.1** - Fixed galaxy star snapshot lifetime so returned sector stars remain valid under full headless test execution.
@@ -42,7 +71,7 @@ All development is on **master**. Branches `object-view` and `effort/traveller-u
 
 - **Galaxy data model** — Galaxy, Sector, GalaxyStar, GalaxySystemGenerator; lazy sector and system generation; metallicity/age from galactic position; wired into GalaxyViewer.
 - **Population framework** — PlanetProfile, PopulationLikelihood, native populations, colonies, history; unit tests in `Tests/Unit/Population/`.
-- **Station framework** — Outposts, SpaceStations, StationSpec, StationGenerator; prototype at `src/app/prototypes/StationGeneratorPrototype.tscn`.
+- **Station framework** - Outposts, SpaceStations, StationSpec, StationGenerator, detailed station design (`src/domain/population/station_design/`), and `src/services/export/StationStatBlockExporter.cs`.
 - **Jump Lanes** — Jump lane domain, prototype, and galaxy viewer integration: `src/domain/jumplanes/`, `src/app/jumplanes_prototype/`, and in galaxy viewer (`SectorJumpLaneRenderer`, Calculate Jump Routes in inspector, save/load). Remaining work: see "Jump lanes optimization and polish" in [Docs/Roadmap.md](Docs/Roadmap.md).
 
 See [Docs/Roadmap.md](Docs/Roadmap.md) and [claude.md](claude.md) for architecture, roadmap, and working agreement.

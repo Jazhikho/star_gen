@@ -4,6 +4,7 @@ using StarGen.Domain.Celestial;
 using StarGen.Domain.Generation;
 using StarGen.Domain.Generation.Generators;
 using StarGen.Domain.Generation.Specs;
+using StarGen.Domain.Generation.Traveller;
 using StarGen.Domain.Math;
 using StarGen.Domain.Rng;
 using StarGen.Services.Persistence;
@@ -102,6 +103,7 @@ public partial class ObjectViewer
             Label assumptionsLabel = new Label();
             assumptionsLabel.Name = "PresetAssumptionsLabel";
             assumptionsLabel.AutowrapMode = TextServer.AutowrapMode.Word;
+            assumptionsLabel.CustomMinimumSize = new Vector2(220.0f, 0.0f);
             assumptionsLabel.AddThemeFontSizeOverride("font_size", 10);
             assumptionsLabel.Modulate = new Color(0.6f, 0.7f, 0.8f, 1.0f);
             generationSection.AddChild(assumptionsLabel);
@@ -455,13 +457,57 @@ public partial class ObjectViewer
             return;
         }
 
+        if (objectType == ObjectType.Asteroid)
+        {
+            GenerateAsteroidFromPreset(seedValue);
+            return;
+        }
+
         generate_object(objectType, seedValue);
+    }
+
+    private void GenerateObjectFromRequest(ObjectGenerationRequest request)
+    {
+        if (request.SpecData.Count == 0)
+        {
+            GenerateObjectFromPreset(request.ObjectType, request.SeedValue);
+            return;
+        }
+
+        if (request.ObjectType == ObjectType.Planet)
+        {
+            PlanetSpec spec = PlanetSpec.FromDictionary(request.SpecData);
+            GeneratePlanetFromSpec(spec, request.PresetId, request.TravellerWorldProfileData);
+            return;
+        }
+
+        if (request.ObjectType == ObjectType.Moon)
+        {
+            MoonSpec spec = MoonSpec.FromDictionary(request.SpecData);
+            GenerateMoonFromSpec(spec, request.PresetId);
+            return;
+        }
+
+        if (request.ObjectType == ObjectType.Star)
+        {
+            StarSpec spec = StarSpec.FromDictionary(request.SpecData);
+            GenerateStarFromSpec(spec, request.PresetId);
+            return;
+        }
+
+        if (request.ObjectType == ObjectType.Asteroid)
+        {
+            AsteroidSpec spec = AsteroidSpec.FromDictionary(request.SpecData);
+            GenerateAsteroidFromSpec(spec, request.PresetId);
+            return;
+        }
+
+        GenerateObjectFromPreset(request.ObjectType, request.SeedValue);
     }
 
     private void GenerateStarFromPreset(int seedValue)
     {
         int presetId = _presetOption?.GetSelectedId() ?? 0;
-        SeededRng rng = new SeededRng(seedValue);
         StarSpec spec;
         if (presetId == 1)
         {
@@ -481,7 +527,12 @@ public partial class ObjectViewer
         }
 
         spec.UseCaseSettings = _activeUseCaseSettings.Clone();
+        GenerateStarFromSpec(spec, presetId);
+    }
 
+    private void GenerateStarFromSpec(StarSpec spec, int presetId)
+    {
+        SeededRng rng = new SeededRng(spec.GenerationSeed);
         CelestialBody body = StarGenerator.Generate(spec, rng);
         DisplayGeneratedBody(body, ObjectType.Star, presetId);
     }
@@ -489,7 +540,6 @@ public partial class ObjectViewer
     private void GeneratePlanetFromPreset(int seedValue)
     {
         int presetId = _presetOption?.GetSelectedId() ?? 0;
-        SeededRng rng = new SeededRng(seedValue);
         PlanetSpec spec;
         if (presetId == 1)
         {
@@ -521,15 +571,26 @@ public partial class ObjectViewer
         }
 
         spec.UseCaseSettings = _activeUseCaseSettings.Clone();
+        GeneratePlanetFromSpec(spec, presetId, new Godot.Collections.Dictionary());
+    }
 
+    private void GeneratePlanetFromSpec(PlanetSpec spec, int presetId, Godot.Collections.Dictionary travellerWorldProfileData)
+    {
+        SeededRng rng = new SeededRng(spec.GenerationSeed);
         CelestialBody body = PlanetGenerator.Generate(spec, ParentContext.SunLike(), rng);
+        if (travellerWorldProfileData.Count > 0 && body.Provenance != null)
+        {
+            body.Provenance.SpecSnapshot["traveller_world_profile"] = travellerWorldProfileData.Duplicate(true);
+            TravellerWorldProfile travellerProfile = TravellerWorldProfile.FromDictionary(travellerWorldProfileData);
+            body.Name = ApplyTravellerDisplayName(body.Name, travellerProfile);
+        }
+
         DisplayGeneratedBody(body, ObjectType.Planet, presetId);
     }
 
     private void GenerateMoonFromPreset(int seedValue)
     {
         int presetId = _presetOption?.GetSelectedId() ?? 0;
-        SeededRng rng = new SeededRng(seedValue);
         MoonSpec spec;
         if (presetId == 1)
         {
@@ -553,7 +614,12 @@ public partial class ObjectViewer
         }
 
         spec.UseCaseSettings = _activeUseCaseSettings.Clone();
+        GenerateMoonFromSpec(spec, presetId);
+    }
 
+    private void GenerateMoonFromSpec(MoonSpec spec, int presetId)
+    {
+        SeededRng rng = new SeededRng(spec.GenerationSeed);
         ParentContext moonContext = ParentContext.ForMoon(
             Units.SolarMassKg,
             3.828e26,
@@ -570,6 +636,42 @@ public partial class ObjectViewer
         }
 
         DisplayGeneratedBody(body, ObjectType.Moon, presetId);
+    }
+
+    private void GenerateAsteroidFromPreset(int seedValue)
+    {
+        int presetId = _presetOption?.GetSelectedId() ?? 0;
+        AsteroidSpec spec;
+        if (presetId == 1)
+        {
+            spec = AsteroidSpec.Carbonaceous(seedValue);
+        }
+        else if (presetId == 2)
+        {
+            spec = AsteroidSpec.Metallic(seedValue);
+        }
+        else if (presetId == 3)
+        {
+            spec = AsteroidSpec.Stony(seedValue);
+        }
+        else if (presetId == 4)
+        {
+            spec = AsteroidSpec.CeresLike(seedValue);
+        }
+        else
+        {
+            spec = AsteroidSpec.Random(seedValue);
+        }
+
+        spec.UseCaseSettings = _activeUseCaseSettings.Clone();
+        GenerateAsteroidFromSpec(spec, presetId);
+    }
+
+    private void GenerateAsteroidFromSpec(AsteroidSpec spec, int presetId)
+    {
+        SeededRng rng = new SeededRng(spec.GenerationSeed);
+        CelestialBody body = AsteroidGenerator.Generate(spec, ParentContext.SunLike(), rng);
+        DisplayGeneratedBody(body, ObjectType.Asteroid, presetId);
     }
 
     private void UpdatePresetAssumptions()
@@ -688,5 +790,15 @@ public partial class ObjectViewer
         }
 
         SetStatus($"Generated {objectType}: {presetLabel}");
+    }
+
+    private static string ApplyTravellerDisplayName(string currentName, TravellerWorldProfile profile)
+    {
+        if (!string.IsNullOrWhiteSpace(currentName))
+        {
+            return currentName;
+        }
+
+        return $"World {profile.ToUwpString()}";
     }
 }

@@ -1,4 +1,5 @@
 using Godot;
+using StarGen.App.Shared;
 using StarGen.Domain.Celestial;
 using StarGen.Domain.Systems;
 
@@ -18,7 +19,6 @@ public partial class SystemViewer
         _topBar = GetNodeOrNull<Control>("UI/TopBar");
         _sidePanel = GetNodeOrNull<Control>("UI/SidePanel");
         _statusLabel = GetNodeOrNull<Label>("UI/TopBar/MarginContainer/TopBarVBox/HeaderRow/StatusLabel");
-        _backButton = GetNodeOrNull<Button>("UI/TopBar/MarginContainer/TopBarVBox/HeaderRow/BackButton");
         _inspectorPanel = GetNodeOrNull<Node>("UI/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/InspectorPanel");
         _generationSection = GetNodeOrNull<VBoxContainer>("UI/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/GenerationSection");
         _starCountLabel = GetNodeOrNull<Label>("UI/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/GenerationSection/StarCountContainer/StarCountLabel");
@@ -165,6 +165,7 @@ public partial class SystemViewer
         emptyStateLabel.HorizontalAlignment = HorizontalAlignment.Center;
         emptyStateLabel.VerticalAlignment = VerticalAlignment.Center;
         emptyStateLabel.AutowrapMode = TextServer.AutowrapMode.Word;
+        emptyStateLabel.CustomMinimumSize = new Vector2(280.0f, 0.0f);
         emptyStateLabel.SizeFlagsHorizontal = Control.SizeFlags.ExpandFill;
         emptyStateLabel.SizeFlagsVertical = Control.SizeFlags.ExpandFill;
         emptyStateLabel.AnchorLeft = 0.0f;
@@ -239,12 +240,12 @@ public partial class SystemViewer
 
         if (_lifePermissivenessInput != null)
         {
-            _lifePermissivenessInput.TooltipText = GetSystemAssumption("life_permissiveness");
+            _lifePermissivenessInput.TooltipText = PermissivenessScaleHelper.GetTooltipText("life");
         }
 
         if (_populationPermissivenessInput != null)
         {
-            _populationPermissivenessInput.TooltipText = GetSystemAssumption("population_permissiveness");
+            _populationPermissivenessInput.TooltipText = PermissivenessScaleHelper.GetTooltipText("settlement");
         }
 
         if (_mainworldPolicyOption != null)
@@ -327,10 +328,6 @@ public partial class SystemViewer
             _inspectorPanel.Connect("open_in_viewer_requested", Callable.From<CelestialBody>(OnOpenBodyInViewer));
         }
 
-        if (_backButton != null)
-        {
-            _backButton.Pressed += OnBackPressed;
-        }
     }
 
     /// <summary>

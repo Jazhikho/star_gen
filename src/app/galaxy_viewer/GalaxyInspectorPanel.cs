@@ -1,4 +1,5 @@
 using Godot;
+using StarGen.App.Shared;
 using StarGen.App.Viewer;
 using StarGen.Domain.Generation;
 using StarGen.Domain.Generation.Parameters;
@@ -41,6 +42,7 @@ public partial class GalaxyInspectorPanel : VBoxContainer
 
 	private VBoxContainer? _overviewContainer;
 	private VBoxContainer? _configEditorContainer;
+	private VBoxContainer? _profileSummaryContainer;
 	private OptionButton? _galaxyTypeOption;
 	private SpinBox? _numArmsInput;
 	private SpinBox? _armPitchInput;
@@ -58,7 +60,6 @@ public partial class GalaxyInspectorPanel : VBoxContainer
 	private SpinBox? _lifePermissivenessInput;
 	private SpinBox? _populationPermissivenessInput;
 	private OptionButton? _mainworldPolicyOption;
-	private Button? _applyGalaxyConfigButton;
 	private VBoxContainer? _configIssuesContainer;
 	private VBoxContainer? _selectionContainer;
 	private VBoxContainer? _previewContainer;
@@ -597,7 +598,7 @@ public partial class GalaxyInspectorPanel : VBoxContainer
 		AddTitle("Galaxy Inspector", 14);
 		AddChild(new HSeparator());
 
-		AddSectionLabel("Generation Profile");
+		AddSectionLabel("Active Profile");
 		_configEditorContainer = CreateSectionContainer("ConfigEditorContainer");
 		AddChild(_configEditorContainer);
 		BuildConfigEditorUi();
@@ -693,70 +694,8 @@ public partial class GalaxyInspectorPanel : VBoxContainer
 			return;
 		}
 
-		_editableConfig = config;
-
-		if (_galaxyTypeOption != null)
-		{
-			_galaxyTypeOption.Selected = (int)config.Type;
-		}
-
-		if (_numArmsInput != null)
-		{
-			_numArmsInput.Value = config.NumArms;
-		}
-
-		if (_armPitchInput != null)
-		{
-			_armPitchInput.Value = config.ArmPitchAngleDeg;
-		}
-
-		if (_armAmplitudeInput != null)
-		{
-			_armAmplitudeInput.Value = config.ArmAmplitude;
-		}
-
-		if (_bulgeIntensityInput != null)
-		{
-			_bulgeIntensityInput.Value = config.BulgeIntensity;
-		}
-
-		if (_bulgeRadiusInput != null)
-		{
-			_bulgeRadiusInput.Value = config.BulgeRadiusPc;
-		}
-
-		if (_radiusInput != null)
-		{
-			_radiusInput.Value = config.RadiusPc;
-		}
-
-		if (_diskLengthInput != null)
-		{
-			_diskLengthInput.Value = config.DiskScaleLengthPc;
-		}
-
-		if (_diskHeightInput != null)
-		{
-			_diskHeightInput.Value = config.DiskScaleHeightPc;
-		}
-
-		if (_densityInput != null)
-		{
-			_densityInput.Value = config.StarDensityMultiplier;
-		}
-
-		if (_ellipticityInput != null)
-		{
-			_ellipticityInput.Value = config.Ellipticity;
-		}
-
-		if (_irregularityInput != null)
-		{
-			_irregularityInput.Value = config.IrregularityScale;
-		}
-
-		ApplyUseCaseSettingsToControls(config.UseCaseSettings);
-		SetConfigControlsEditable(false);
+		_editableConfig = GalaxyConfig.FromDictionary(config.ToDictionary()) ?? config;
+		RebuildProfileSummary();
 	}
 
 	/// <summary>
@@ -764,71 +703,12 @@ public partial class GalaxyInspectorPanel : VBoxContainer
 	/// </summary>
 	public GalaxyConfig GetEditableConfig()
 	{
-		GalaxyConfig config = new GalaxyConfig();
-		if (_galaxyTypeOption != null)
+		if (_editableConfig == null)
 		{
-			config.Type = (GalaxySpec.GalaxyType)_galaxyTypeOption.Selected;
+			return GalaxyConfig.CreateDefault();
 		}
 
-		if (_numArmsInput != null)
-		{
-			config.NumArms = (int)_numArmsInput.Value;
-		}
-
-		if (_armPitchInput != null)
-		{
-			config.ArmPitchAngleDeg = _armPitchInput.Value;
-		}
-
-		if (_armAmplitudeInput != null)
-		{
-			config.ArmAmplitude = _armAmplitudeInput.Value;
-		}
-
-		if (_bulgeIntensityInput != null)
-		{
-			config.BulgeIntensity = _bulgeIntensityInput.Value;
-		}
-
-		if (_bulgeRadiusInput != null)
-		{
-			config.BulgeRadiusPc = _bulgeRadiusInput.Value;
-		}
-
-		if (_radiusInput != null)
-		{
-			config.RadiusPc = _radiusInput.Value;
-		}
-
-		if (_diskLengthInput != null)
-		{
-			config.DiskScaleLengthPc = _diskLengthInput.Value;
-		}
-
-		if (_diskHeightInput != null)
-		{
-			config.DiskScaleHeightPc = _diskHeightInput.Value;
-		}
-
-		if (_densityInput != null)
-		{
-			config.StarDensityMultiplier = _densityInput.Value;
-		}
-
-		if (_ellipticityInput != null)
-		{
-			config.Ellipticity = _ellipticityInput.Value;
-		}
-
-		if (_irregularityInput != null)
-		{
-			config.IrregularityScale = _irregularityInput.Value;
-		}
-
-		config.UseCaseSettings = BuildUseCaseSettingsFromControls();
-		_editableConfig = config;
-
-		return config;
+		return GalaxyConfig.FromDictionary(_editableConfig.ToDictionary()) ?? _editableConfig;
 	}
 
 	/// <summary>
@@ -860,6 +740,7 @@ public partial class GalaxyInspectorPanel : VBoxContainer
 		{
 			Label issueLabel = new Label();
 			issueLabel.AutowrapMode = TextServer.AutowrapMode.Word;
+			issueLabel.CustomMinimumSize = new Vector2(220.0f, 0.0f);
 			issueLabel.AddThemeFontSizeOverride("font_size", 10);
 			if (issue.Severity == GenerationParameterIssue.IssueSeverity.Error)
 			{
@@ -925,85 +806,60 @@ public partial class GalaxyInspectorPanel : VBoxContainer
 			return;
 		}
 
-		_galaxyTypeOption = new OptionButton();
-		_galaxyTypeOption.AddItem("Spiral", (int)GalaxySpec.GalaxyType.Spiral);
-		_galaxyTypeOption.AddItem("Elliptical", (int)GalaxySpec.GalaxyType.Elliptical);
-		_galaxyTypeOption.AddItem("Irregular", (int)GalaxySpec.GalaxyType.Irregular);
-		AddEditorRow("Type", _galaxyTypeOption, "galaxy_type");
-
-		_numArmsInput = CreateSpinBox(2.0, 6.0, 1.0, string.Empty);
-		AddEditorRow("Arms", _numArmsInput, "num_arms");
-
-		_armPitchInput = CreateSpinBox(10.0, 30.0, 0.1, " deg");
-		AddEditorRow("Pitch", _armPitchInput, "arm_pitch_angle_deg");
-
-		_armAmplitudeInput = CreateSpinBox(0.3, 0.9, 0.01, string.Empty);
-		AddEditorRow("Amplitude", _armAmplitudeInput, "arm_amplitude");
-
-		_bulgeIntensityInput = CreateSpinBox(0.3, 1.2, 0.01, string.Empty);
-		AddEditorRow("Bulge", _bulgeIntensityInput, "bulge_intensity");
-
-		_bulgeRadiusInput = CreateSpinBox(1000.0, 2500.0, 10.0, " pc");
-		AddEditorRow("Bulge Radius", _bulgeRadiusInput, "bulge_radius_pc");
-
-		_radiusInput = CreateSpinBox(10000.0, 25000.0, 100.0, " pc");
-		AddEditorRow("Radius", _radiusInput, "radius_pc");
-
-		_diskLengthInput = CreateSpinBox(2000.0, 6000.0, 50.0, " pc");
-		AddEditorRow("Disk Length", _diskLengthInput, "disk_scale_length_pc");
-
-		_diskHeightInput = CreateSpinBox(200.0, 500.0, 10.0, " pc");
-		AddEditorRow("Disk Height", _diskHeightInput, "disk_scale_height_pc");
-
-		_densityInput = CreateSpinBox(0.5, 2.0, 0.05, "x");
-		AddEditorRow("Density", _densityInput, "star_density_multiplier");
-
-		_ellipticityInput = CreateSpinBox(0.0, 0.7, 0.01, string.Empty);
-		AddEditorRow("Ellipticity", _ellipticityInput, "ellipticity");
-
-		_irregularityInput = CreateSpinBox(0.1, 1.0, 0.01, string.Empty);
-		AddEditorRow("Irregularity", _irregularityInput, "irregularity_scale");
-
-		_rulesetModeOption = new OptionButton();
-		_rulesetModeOption.AddItem("Default", (int)GenerationUseCaseSettings.RulesetModeType.Default);
-		_rulesetModeOption.AddItem("Traveller", (int)GenerationUseCaseSettings.RulesetModeType.Traveller);
-		_rulesetModeOption.ItemSelected += OnRulesetModeSelected;
-		AddEditorRow("Ruleset", _rulesetModeOption, "ruleset_mode");
-
-		_showTravellerReadoutsCheck = new CheckBox();
-		_showTravellerReadoutsCheck.Text = "Show Traveller / UWP Readouts";
-		AddEditorRow("Readouts", _showTravellerReadoutsCheck, "show_traveller_readouts");
-
-		_lifePermissivenessInput = CreateSpinBox(0.0, 1.0, 0.05, string.Empty);
-		AddEditorRow("Life Bias", _lifePermissivenessInput, "life_permissiveness");
-
-		_populationPermissivenessInput = CreateSpinBox(0.0, 1.0, 0.05, string.Empty);
-		AddEditorRow("Pop. Bias", _populationPermissivenessInput, "population_permissiveness");
-
-		_mainworldPolicyOption = new OptionButton();
-		_mainworldPolicyOption.AddItem("None", (int)GenerationUseCaseSettings.MainworldPolicyType.None);
-		_mainworldPolicyOption.AddItem("Prefer", (int)GenerationUseCaseSettings.MainworldPolicyType.Prefer);
-		_mainworldPolicyOption.AddItem("Require", (int)GenerationUseCaseSettings.MainworldPolicyType.Require);
-		AddEditorRow("Mainworld", _mainworldPolicyOption, "mainworld_policy");
+		_profileSummaryContainer = CreateSectionContainer("ProfileSummaryContainer");
+		_configEditorContainer.AddChild(_profileSummaryContainer);
 
 		Label noteLabel = new Label();
-		noteLabel.Text = "Galaxy generation parameters are configured in the Galaxy Generation Studio. This viewer shows the active profile and reuses it when you open systems.";
+		noteLabel.Text = "Galaxy parameters are configured in Galaxy Generation Studio. This viewer only shows the active profile while you inspect stars, previews, and jump routes.";
 		noteLabel.AutowrapMode = TextServer.AutowrapMode.Word;
+		noteLabel.CustomMinimumSize = new Vector2(220.0f, 0.0f);
 		noteLabel.AddThemeFontSizeOverride("font_size", 10);
 		noteLabel.Modulate = new Color(0.6f, 0.7f, 0.8f, 1.0f);
 		_configEditorContainer.AddChild(noteLabel);
 
-		_applyGalaxyConfigButton = new Button();
-		_applyGalaxyConfigButton.Text = "Return to Galaxy Studio";
-		_applyGalaxyConfigButton.Pressed += OnApplyGalaxyConfigPressed;
-		_applyGalaxyConfigButton.Visible = false;
-		_configEditorContainer.AddChild(_applyGalaxyConfigButton);
-
 		_configIssuesContainer = CreateSectionContainer("ConfigIssuesContainer");
 		_configEditorContainer.AddChild(_configIssuesContainer);
-		ApplyUseCaseSettingsToControls(GenerationUseCaseSettings.CreateDefault());
-		SetConfigControlsEditable(false);
 		SetConfigIssues(new GenerationParameterIssueSet());
+		RebuildProfileSummary();
+	}
+
+	private void RebuildProfileSummary()
+	{
+		if (_profileSummaryContainer == null)
+		{
+			return;
+		}
+
+		ClearContainer(_profileSummaryContainer);
+		if (_editableConfig == null)
+		{
+			AddProperty(_profileSummaryContainer, "Status", "No galaxy profile loaded");
+			return;
+		}
+
+		AddProperty(_profileSummaryContainer, "Type", _editableConfig.GetTypeName());
+		if (_editableConfig.Type == GalaxySpec.GalaxyType.Spiral)
+		{
+			AddProperty(_profileSummaryContainer, "Arms", _editableConfig.NumArms.ToString());
+			AddProperty(_profileSummaryContainer, "Pitch", $"{_editableConfig.ArmPitchAngleDeg:0.0} deg");
+			AddProperty(_profileSummaryContainer, "Amplitude", _editableConfig.ArmAmplitude.ToString("0.00"));
+		}
+		else if (_editableConfig.Type == GalaxySpec.GalaxyType.Elliptical)
+		{
+			AddProperty(_profileSummaryContainer, "Ellipticity", _editableConfig.Ellipticity.ToString("0.00"));
+		}
+		else
+		{
+			AddProperty(_profileSummaryContainer, "Irregularity", _editableConfig.IrregularityScale.ToString("0.00"));
+		}
+
+		AddProperty(_profileSummaryContainer, "Radius", $"{_editableConfig.RadiusPc / 1000.0:0.0} kpc");
+		AddProperty(_profileSummaryContainer, "Disk Length", $"{_editableConfig.DiskScaleLengthPc:0} pc");
+		AddProperty(_profileSummaryContainer, "Disk Height", $"{_editableConfig.DiskScaleHeightPc:0} pc");
+		AddProperty(_profileSummaryContainer, "Density", $"{_editableConfig.StarDensityMultiplier:0.0}x");
+		AddProperty(_profileSummaryContainer, "Bulge Intensity", _editableConfig.BulgeIntensity.ToString("0.00"));
+		AddProperty(_profileSummaryContainer, "Bulge Radius", $"{_editableConfig.BulgeRadiusPc:0} pc");
+		AddUseCaseOverview(_profileSummaryContainer, _editableConfig.UseCaseSettings);
 	}
 
 	private void SetConfigControlsEditable(bool editable)
@@ -1144,8 +1000,14 @@ public partial class GalaxyInspectorPanel : VBoxContainer
 
 		AddProperty(container, "Ruleset", resolvedSettings.RulesetMode.ToString());
 		AddProperty(container, "Traveller Readouts", readoutText);
-		AddProperty(container, "Life Bias", resolvedSettings.LifePermissiveness.ToString("0.00"));
-		AddProperty(container, "Pop. Bias", resolvedSettings.PopulationPermissiveness.ToString("0.00"));
+		AddProperty(
+			container,
+			"Life Potential",
+			$"{resolvedSettings.LifePermissiveness:0.00} {PermissivenessScaleHelper.GetBandLabel(resolvedSettings.LifePermissiveness)}");
+		AddProperty(
+			container,
+			"Settlement Density",
+			$"{resolvedSettings.PopulationPermissiveness:0.00} {PermissivenessScaleHelper.GetBandLabel(resolvedSettings.PopulationPermissiveness)}");
 		AddProperty(container, "Mainworld Policy", resolvedSettings.MainworldPolicy.ToString());
 	}
 
@@ -1190,11 +1052,6 @@ public partial class GalaxyInspectorPanel : VBoxContainer
 		}
 
 		return string.Empty;
-	}
-
-	private void OnApplyGalaxyConfigPressed()
-	{
-		EmitSignal(SignalName.ApplyGalaxyConfigRequested);
 	}
 
 	private void AddTitle(string text, int fontSize)

@@ -24,10 +24,15 @@ public static class TestMainAppNavigation
         runner.RunNativeTest("TestMainAppNavigation::test_full_navigation_cycle", TestFullNavigationCycle);
         runner.RunNativeTest("TestMainAppNavigation::test_generated_system_is_deterministic", TestGeneratedSystemIsDeterministic);
         runner.RunNativeTest("TestMainAppNavigation::test_zero_star_seed_ignored", TestZeroStarSeedIgnored);
+        runner.RunNativeTest("TestMainAppNavigation::test_main_menu_galaxy_generation_opens_studio", TestMainMenuGalaxyGenerationOpensStudio);
         runner.RunNativeTest("TestMainAppNavigation::test_main_menu_system_generation_opens_studio", TestMainMenuSystemGenerationOpensStudio);
         runner.RunNativeTest("TestMainAppNavigation::test_main_menu_object_generation_opens_studio", TestMainMenuObjectGenerationOpensStudio);
+        runner.RunNativeTest("TestMainAppNavigation::test_main_menu_station_generation_opens_studio", TestMainMenuStationGenerationOpensStudio);
         runner.RunNativeTest("TestMainAppNavigation::test_system_studio_launch_generates_before_viewer", TestSystemStudioLaunchGeneratesBeforeViewer);
         runner.RunNativeTest("TestMainAppNavigation::test_object_studio_launch_generates_before_viewer", TestObjectStudioLaunchGeneratesBeforeViewer);
+        runner.RunNativeTest("TestMainAppNavigation::test_system_viewer_return_from_menu_goes_to_main_menu", TestSystemViewerReturnFromMenuGoesToMainMenu);
+        runner.RunNativeTest("TestMainAppNavigation::test_object_viewer_return_from_menu_goes_to_main_menu", TestObjectViewerReturnFromMenuGoesToMainMenu);
+        runner.RunNativeTest("TestMainAppNavigation::test_galaxy_viewer_can_return_to_main_menu", TestGalaxyViewerCanReturnToMainMenu);
     }
 
     private static MainApp CreateStartedApp()
@@ -228,6 +233,25 @@ public static class TestMainAppNavigation
         }
     }
 
+    private static void TestMainMenuGalaxyGenerationOpensStudio()
+    {
+        MainApp app = CreateStartedApp();
+        try
+        {
+            app._on_main_menu_galaxy_generation_requested();
+
+            DotNetNativeTestSuite.AssertEqual("galaxystudio", app.get_active_viewer(), "Main-menu galaxy generation should open the galaxy studio");
+            WelcomeScreen? screen = app.get_galaxy_generation_screen();
+            DotNetNativeTestSuite.AssertNotNull(screen, "Galaxy studio should exist");
+            Button? startButton = screen!.GetNodeOrNull<Button>("MarginContainer/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/FooterVBox/Buttons/StartButton");
+            DotNetNativeTestSuite.AssertNotNull(startButton, "Galaxy studio should expose a launch button");
+        }
+        finally
+        {
+            IntegrationTestUtils.CleanupNode(app);
+        }
+    }
+
     private static void TestMainMenuSystemGenerationOpensStudio()
     {
         MainApp app = CreateStartedApp();
@@ -238,7 +262,7 @@ public static class TestMainAppNavigation
             DotNetNativeTestSuite.AssertEqual("systemstudio", app.get_active_viewer(), "Main-menu system generation should open the system studio");
             SystemGenerationScreen? screen = app.get_system_generation_screen();
             DotNetNativeTestSuite.AssertNotNull(screen, "System studio should exist");
-            Button? startButton = screen!.GetNodeOrNull<Button>("MarginContainer/MainPanel/MarginContainer/VBox/StudioRow/SummaryPanel/MarginContainer/SummaryVBox/Buttons/StartButton");
+            Button? startButton = screen!.GetNodeOrNull<Button>("MarginContainer/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/FooterVBox/Buttons/StartButton");
             DotNetNativeTestSuite.AssertNotNull(startButton, "System studio should expose a launch button");
         }
         finally
@@ -257,8 +281,25 @@ public static class TestMainAppNavigation
             DotNetNativeTestSuite.AssertEqual("objectstudio", app.get_active_viewer(), "Main-menu object generation should open the object studio");
             ObjectGenerationScreen? screen = app.get_object_generation_screen();
             DotNetNativeTestSuite.AssertNotNull(screen, "Object studio should exist");
-            Button? startButton = screen!.GetNodeOrNull<Button>("MarginContainer/MainPanel/MarginContainer/VBox/StudioRow/SummaryPanel/MarginContainer/SummaryVBox/Buttons/StartButton");
+            Button? startButton = screen!.GetNodeOrNull<Button>("MarginContainer/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/FooterVBox/Buttons/StartButton");
             DotNetNativeTestSuite.AssertNotNull(startButton, "Object studio should expose a launch button");
+        }
+        finally
+        {
+            IntegrationTestUtils.CleanupNode(app);
+        }
+    }
+
+    private static void TestMainMenuStationGenerationOpensStudio()
+    {
+        MainApp app = CreateStartedApp();
+        try
+        {
+            app._on_main_menu_station_generation_requested();
+
+            DotNetNativeTestSuite.AssertEqual("stationstudio", app.get_active_viewer(), "Main-menu station generation should open the station studio");
+            StationStudioScreen? screen = app.get_station_studio_screen();
+            DotNetNativeTestSuite.AssertNotNull(screen, "Station studio should exist");
         }
         finally
         {
@@ -303,6 +344,62 @@ public static class TestMainAppNavigation
             StarGen.App.Viewer.ObjectViewer? viewer = app.get_object_viewer();
             DotNetNativeTestSuite.AssertNotNull(viewer, "Object viewer should exist");
             DotNetNativeTestSuite.AssertNotNull(viewer!.current_body, "Object studio launch should generate a body immediately");
+        }
+        finally
+        {
+            IntegrationTestUtils.CleanupNode(app);
+        }
+    }
+
+    private static void TestSystemViewerReturnFromMenuGoesToMainMenu()
+    {
+        MainApp app = CreateStartedApp();
+        try
+        {
+            app._on_main_menu_system_generation_requested();
+            SystemGenerationScreen? screen = app.get_system_generation_screen();
+            DotNetNativeTestSuite.AssertNotNull(screen, "System studio should exist");
+
+            screen!.EmitSignal("start_system_generation", screen.GetCurrentSpec());
+            DotNetNativeTestSuite.AssertEqual("system", app.get_active_viewer(), "System studio launch should open the system viewer");
+
+            app._on_back_to_galaxy();
+            DotNetNativeTestSuite.AssertEqual("menu", app.get_active_viewer(), "Standalone system-viewer return should go to the main menu");
+        }
+        finally
+        {
+            IntegrationTestUtils.CleanupNode(app);
+        }
+    }
+
+    private static void TestObjectViewerReturnFromMenuGoesToMainMenu()
+    {
+        MainApp app = CreateStartedApp();
+        try
+        {
+            app._on_main_menu_object_generation_requested();
+            ObjectGenerationScreen? screen = app.get_object_generation_screen();
+            DotNetNativeTestSuite.AssertNotNull(screen, "Object studio should exist");
+
+            screen!.EmitSignal("start_object_generation", screen.GetCurrentRequest());
+            DotNetNativeTestSuite.AssertEqual("object", app.get_active_viewer(), "Object studio launch should open the object viewer");
+
+            app._on_back_to_system();
+            DotNetNativeTestSuite.AssertEqual("menu", app.get_active_viewer(), "Standalone object-viewer return should go to the main menu");
+        }
+        finally
+        {
+            IntegrationTestUtils.CleanupNode(app);
+        }
+    }
+
+    private static void TestGalaxyViewerCanReturnToMainMenu()
+    {
+        MainApp app = CreateStartedApp();
+        try
+        {
+            app._on_galaxy_viewer_main_menu_requested();
+            DotNetNativeTestSuite.AssertEqual("menu", app.get_active_viewer(), "Galaxy viewer main-menu return should switch back to the menu");
         }
         finally
         {

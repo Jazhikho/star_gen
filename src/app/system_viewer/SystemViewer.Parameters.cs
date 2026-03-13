@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using Godot;
 using Godot.Collections;
+using StarGen.App.Shared;
 using StarGen.Domain.Generation;
 using StarGen.Domain.Generation.Archetypes;
 using StarGen.Domain.Generation.Parameters;
@@ -129,32 +130,57 @@ public partial class SystemViewer
         advancedHeader.Modulate = new Color(0.82f, 0.82f, 0.55f, 1.0f);
         _generationSection.AddChild(advancedHeader);
 
-        HBoxContainer lifeRow = CreateGenerationRow("Life Bias:", out Label lifeLabel);
+        Label legendLabel = new Label();
+        legendLabel.Name = "PermissivenessLegendLabel";
+        legendLabel.Text = PermissivenessScaleHelper.GetLegendText();
+        legendLabel.AutowrapMode = TextServer.AutowrapMode.WordSmart;
+        legendLabel.CustomMinimumSize = new Vector2(220.0f, 0.0f);
+        legendLabel.AddThemeFontSizeOverride("font_size", 10);
+        legendLabel.Modulate = new Color(0.62f, 0.7f, 0.8f, 1.0f);
+        _generationSection.AddChild(legendLabel);
+
+        HBoxContainer lifeRow = CreateGenerationRow("Life Potential:", out Label lifeLabel);
         lifeRow.Name = "LifePermissivenessContainer";
-        lifeLabel.TooltipText = GetSystemAssumption("life_permissiveness");
-        SpinBox lifePermissivenessInput = new SpinBox();
+        lifeLabel.CustomMinimumSize = new Vector2(120.0f, 0.0f);
+        lifeLabel.TooltipText = PermissivenessScaleHelper.GetTooltipText("life");
+        HSlider lifePermissivenessInput = new HSlider();
         lifePermissivenessInput.Name = "LifePermissivenessInput";
         lifePermissivenessInput.MinValue = 0.0;
         lifePermissivenessInput.MaxValue = 1.0;
         lifePermissivenessInput.Step = 0.05;
         lifePermissivenessInput.SizeFlagsHorizontal = Control.SizeFlags.ExpandFill;
-        lifePermissivenessInput.TooltipText = GetSystemAssumption("life_permissiveness");
+        lifePermissivenessInput.TooltipText = lifeLabel.TooltipText;
         lifeRow.AddChild(lifePermissivenessInput);
+        Label lifeValueLabel = new Label();
+        lifeValueLabel.Name = "LifePermissivenessValueLabel";
+        lifeValueLabel.CustomMinimumSize = new Vector2(156.0f, 0.0f);
+        lifeValueLabel.HorizontalAlignment = HorizontalAlignment.Right;
+        lifeValueLabel.TooltipText = lifeLabel.TooltipText;
+        lifeRow.AddChild(lifeValueLabel);
         _lifePermissivenessInput = lifePermissivenessInput;
+        _lifePermissivenessValueLabel = lifeValueLabel;
         _generationSection.AddChild(lifeRow);
 
-        HBoxContainer populationRow = CreateGenerationRow("Pop. Bias:", out Label populationLabel);
+        HBoxContainer populationRow = CreateGenerationRow("Settlement Density:", out Label populationLabel);
         populationRow.Name = "PopulationPermissivenessContainer";
-        populationLabel.TooltipText = GetSystemAssumption("population_permissiveness");
-        SpinBox populationPermissivenessInput = new SpinBox();
+        populationLabel.CustomMinimumSize = new Vector2(120.0f, 0.0f);
+        populationLabel.TooltipText = PermissivenessScaleHelper.GetTooltipText("settlement");
+        HSlider populationPermissivenessInput = new HSlider();
         populationPermissivenessInput.Name = "PopulationPermissivenessInput";
         populationPermissivenessInput.MinValue = 0.0;
         populationPermissivenessInput.MaxValue = 1.0;
         populationPermissivenessInput.Step = 0.05;
         populationPermissivenessInput.SizeFlagsHorizontal = Control.SizeFlags.ExpandFill;
-        populationPermissivenessInput.TooltipText = GetSystemAssumption("population_permissiveness");
+        populationPermissivenessInput.TooltipText = populationLabel.TooltipText;
         populationRow.AddChild(populationPermissivenessInput);
+        Label populationValueLabel = new Label();
+        populationValueLabel.Name = "PopulationPermissivenessValueLabel";
+        populationValueLabel.CustomMinimumSize = new Vector2(156.0f, 0.0f);
+        populationValueLabel.HorizontalAlignment = HorizontalAlignment.Right;
+        populationValueLabel.TooltipText = populationLabel.TooltipText;
+        populationRow.AddChild(populationValueLabel);
         _populationPermissivenessInput = populationPermissivenessInput;
+        _populationPermissivenessValueLabel = populationValueLabel;
         _generationSection.AddChild(populationRow);
 
         HBoxContainer mainworldRow = CreateGenerationRow("Mainworld:", out Label mainworldLabel);
@@ -173,9 +199,10 @@ public partial class SystemViewer
         Label assumptionsLabel = new Label();
         assumptionsLabel.Name = "GenerationAssumptionsLabel";
         assumptionsLabel.AutowrapMode = TextServer.AutowrapMode.Word;
+        assumptionsLabel.CustomMinimumSize = new Vector2(220.0f, 0.0f);
         assumptionsLabel.AddThemeFontSizeOverride("font_size", 10);
         assumptionsLabel.Modulate = new Color(0.6f, 0.7f, 0.8f, 1.0f);
-        assumptionsLabel.Text = "Targets bias star generation and shared chemistry, but orbit slots and body placement remain generator-driven in 0.4.0.";
+        assumptionsLabel.Text = "Targets bias star generation and shared chemistry, but orbit slots and body placement remain generator-driven in the current release.";
         _generationAssumptionsLabel = assumptionsLabel;
         _generationSection.AddChild(assumptionsLabel);
 
@@ -375,6 +402,7 @@ public partial class SystemViewer
         {
             Label issueLabel = new Label();
             issueLabel.AutowrapMode = TextServer.AutowrapMode.Word;
+            issueLabel.CustomMinimumSize = new Vector2(220.0f, 0.0f);
             issueLabel.AddThemeFontSizeOverride("font_size", 10);
             string prefix = "Warning";
             issueLabel.Modulate = new Color(0.85f, 0.7f, 0.3f, 1.0f);
@@ -446,6 +474,8 @@ public partial class SystemViewer
         {
             _mainworldPolicyOption.Select((int)settings.MainworldPolicy);
         }
+
+        UpdatePermissivenessValueLabels();
     }
 
     private void ApplyTravellerDefaultsToControls()
@@ -464,13 +494,45 @@ public partial class SystemViewer
         {
             _generatePopulationCheck.ButtonPressed = true;
         }
+
+        if (_lifePermissivenessInput != null)
+        {
+            if (System.Math.Abs(_lifePermissivenessInput.Value - GenerationUseCaseSettings.NeutralPermissiveness) < 0.001)
+            {
+                _lifePermissivenessInput.Value = GenerationUseCaseSettings.TravellerLifePermissiveness;
+            }
+        }
+
+        if (_populationPermissivenessInput != null)
+        {
+            if (System.Math.Abs(_populationPermissivenessInput.Value - GenerationUseCaseSettings.NeutralPermissiveness) < 0.001)
+            {
+                _populationPermissivenessInput.Value = GenerationUseCaseSettings.TravellerPopulationPermissiveness;
+            }
+        }
     }
 
     private void RefreshGenerationValidationFromControls()
     {
         SolarSystemSpec spec = BuildCurrentSpecFromControls();
         _currentGenerationIssues = SystemGenerationParameterValidator.Validate(spec);
+        UpdatePermissivenessValueLabels();
         UpdateGenerationIssuesUi();
+    }
+
+    private void UpdatePermissivenessValueLabels()
+    {
+        if (_lifePermissivenessInput != null && _lifePermissivenessValueLabel != null)
+        {
+            _lifePermissivenessValueLabel.Text =
+                $"{_lifePermissivenessInput.Value:0.00} {PermissivenessScaleHelper.GetBandLabel(_lifePermissivenessInput.Value)}";
+        }
+
+        if (_populationPermissivenessInput != null && _populationPermissivenessValueLabel != null)
+        {
+            _populationPermissivenessValueLabel.Text =
+                $"{_populationPermissivenessInput.Value:0.00} {PermissivenessScaleHelper.GetBandLabel(_populationPermissivenessInput.Value)}";
+        }
     }
 
     private static Array<int> ParseSpectralHints(string text)

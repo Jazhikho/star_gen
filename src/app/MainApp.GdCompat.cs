@@ -58,6 +58,22 @@ public partial class MainApp
 	}
 
 	/// <summary>
+	/// GDScript-compatible main-menu galaxy-generation wrapper.
+	/// </summary>
+	public void _on_main_menu_galaxy_generation_requested()
+	{
+		OnMainMenuGalaxyGenerationRequested();
+	}
+
+	/// <summary>
+	/// GDScript-compatible return-to-main-menu wrapper from the galaxy viewer.
+	/// </summary>
+	public void _on_galaxy_viewer_main_menu_requested()
+	{
+		OnGalaxyViewerMainMenuRequested();
+	}
+
+	/// <summary>
 	/// GDScript-compatible main-menu system-generation wrapper.
 	/// </summary>
 	public void _on_main_menu_system_generation_requested()
@@ -74,11 +90,27 @@ public partial class MainApp
 	}
 
 	/// <summary>
+	/// GDScript-compatible main-menu station-generation wrapper.
+	/// </summary>
+	public void _on_main_menu_station_generation_requested()
+	{
+		OnMainMenuStationGenerationRequested();
+	}
+
+	/// <summary>
 	/// Returns the current object viewer instance for test compatibility.
 	/// </summary>
 	public StarGen.App.Viewer.ObjectViewer? get_object_viewer()
 	{
 		return _objectViewer;
+	}
+
+	/// <summary>
+	/// Returns the current galaxy-generation screen for test compatibility.
+	/// </summary>
+	public WelcomeScreen? get_galaxy_generation_screen()
+	{
+		return _welcomeScreen;
 	}
 
 	/// <summary>
@@ -95,5 +127,13 @@ public partial class MainApp
 	public ObjectGenerationScreen? get_object_generation_screen()
 	{
 		return _objectGenerationScreen;
+	}
+
+	/// <summary>
+	/// Returns the current station-studio screen for test compatibility.
+	/// </summary>
+	public StationStudioScreen? get_station_studio_screen()
+	{
+		return _stationStudioScreen;
 	}
 }

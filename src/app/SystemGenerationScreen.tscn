@@ -38,10 +38,10 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-theme_override_constants/margin_left = 32
-theme_override_constants/margin_top = 28
-theme_override_constants/margin_right = 32
-theme_override_constants/margin_bottom = 28
+theme_override_constants/margin_left = 16
+theme_override_constants/margin_top = 14
+theme_override_constants/margin_right = 16
+theme_override_constants/margin_bottom = 14
 
 [node name="MainPanel" type="PanelContainer" parent="MarginContainer"]
 layout_mode = 2
@@ -50,15 +50,15 @@ size_flags_vertical = 3
 
 [node name="MarginContainer" type="MarginContainer" parent="MarginContainer/MainPanel"]
 layout_mode = 2
-theme_override_constants/margin_left = 24
-theme_override_constants/margin_top = 24
-theme_override_constants/margin_right = 24
-theme_override_constants/margin_bottom = 24
+theme_override_constants/margin_left = 18
+theme_override_constants/margin_top = 18
+theme_override_constants/margin_right = 18
+theme_override_constants/margin_bottom = 18
 
 [node name="VBox" type="VBoxContainer" parent="MarginContainer/MainPanel/MarginContainer"]
 layout_mode = 2
 size_flags_vertical = 3
-theme_override_constants/separation = 18
+theme_override_constants/separation = 14
 
 [node name="HeaderRow" type="HBoxContainer" parent="MarginContainer/MainPanel/MarginContainer/VBox"]
 layout_mode = 2
@@ -81,14 +81,16 @@ theme_override_font_sizes/font_size = 34
 text = "System Generation Studio"
 
 [node name="SubtitleLabel" type="Label" parent="MarginContainer/MainPanel/MarginContainer/VBox"]
+custom_minimum_size = Vector2(320, 0)
 layout_mode = 2
 autowrap_mode = 2
 theme_override_colors/font_color = Color(0.72, 0.76, 0.82, 1)
 text = "Configure a deterministic system before you enter the viewer."
 
-[node name="StudioRow" type="HBoxContainer" parent="MarginContainer/MainPanel/MarginContainer/VBox"]
+[node name="StudioRow" type="BoxContainer" parent="MarginContainer/MainPanel/MarginContainer/VBox"]
 layout_mode = 2
 size_flags_vertical = 3
+vertical = false
 theme_override_constants/separation = 18
 
 [node name="SettingsPanel" type="PanelContainer" parent="MarginContainer/MainPanel/MarginContainer/VBox/StudioRow"]
@@ -123,63 +125,45 @@ layout_mode = 2
 size_flags_horizontal = 3
 theme_override_constants/separation = 10
 
-[node name="SummaryPanel" type="PanelContainer" parent="MarginContainer/MainPanel/MarginContainer/VBox/StudioRow"]
-custom_minimum_size = Vector2(300, 0)
+[node name="FooterVBox" type="VBoxContainer" parent="MarginContainer/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox"]
 layout_mode = 2
-size_flags_vertical = 3
+theme_override_constants/separation = 10
 
-[node name="MarginContainer" type="MarginContainer" parent="MarginContainer/MainPanel/MarginContainer/VBox/StudioRow/SummaryPanel"]
-layout_mode = 2
-theme_override_constants/margin_left = 18
-theme_override_constants/margin_top = 18
-theme_override_constants/margin_right = 18
-theme_override_constants/margin_bottom = 18
-
-[node name="SummaryVBox" type="VBoxContainer" parent="MarginContainer/MainPanel/MarginContainer/VBox/StudioRow/SummaryPanel/MarginContainer"]
-layout_mode = 2
-size_flags_vertical = 3
-theme_override_constants/separation = 12
-
-[node name="SummaryTitle" type="Label" parent="MarginContainer/MainPanel/MarginContainer/VBox/StudioRow/SummaryPanel/MarginContainer/SummaryVBox"]
-layout_mode = 2
-theme_override_font_sizes/font_size = 18
-text = "Launch Summary"
-
-[node name="SummaryLabel" type="Label" parent="MarginContainer/MainPanel/MarginContainer/VBox/StudioRow/SummaryPanel/MarginContainer/SummaryVBox"]
+[node name="SummaryLabel" type="Label" parent="MarginContainer/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/FooterVBox"]
+visible = false
+custom_minimum_size = Vector2(220, 0)
 layout_mode = 2
 autowrap_mode = 2
 theme_override_colors/font_color = Color(0.72, 0.76, 0.82, 1)
 text = ""
 
-[node name="AssumptionsLabel" type="Label" parent="MarginContainer/MainPanel/MarginContainer/VBox/StudioRow/SummaryPanel/MarginContainer/SummaryVBox"]
+[node name="AssumptionsLabel" type="Label" parent="MarginContainer/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/FooterVBox"]
+visible = false
+custom_minimum_size = Vector2(220, 0)
 layout_mode = 2
 autowrap_mode = 2
 theme_override_colors/font_color = Color(0.631373, 0.701961, 0.772549, 1)
 text = ""
 
-[node name="IssuesTitle" type="Label" parent="MarginContainer/MainPanel/MarginContainer/VBox/StudioRow/SummaryPanel/MarginContainer/SummaryVBox"]
+[node name="IssuesTitle" type="Label" parent="MarginContainer/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/FooterVBox"]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.921569, 0.768627, 0.470588, 1)
 text = "Validation"
 
-[node name="IssuesContainer" type="VBoxContainer" parent="MarginContainer/MainPanel/MarginContainer/VBox/StudioRow/SummaryPanel/MarginContainer/SummaryVBox"]
+[node name="IssuesContainer" type="VBoxContainer" parent="MarginContainer/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/FooterVBox"]
 layout_mode = 2
 theme_override_constants/separation = 4
 
-[node name="Spacer" type="Control" parent="MarginContainer/MainPanel/MarginContainer/VBox/StudioRow/SummaryPanel/MarginContainer/SummaryVBox"]
-layout_mode = 2
-size_flags_vertical = 3
-
-[node name="Buttons" type="VBoxContainer" parent="MarginContainer/MainPanel/MarginContainer/VBox/StudioRow/SummaryPanel/MarginContainer/SummaryVBox"]
+[node name="Buttons" type="VBoxContainer" parent="MarginContainer/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/FooterVBox"]
 layout_mode = 2
 theme_override_constants/separation = 10
 
-[node name="StartButton" type="Button" parent="MarginContainer/MainPanel/MarginContainer/VBox/StudioRow/SummaryPanel/MarginContainer/SummaryVBox/Buttons"]
+[node name="StartButton" type="Button" parent="MarginContainer/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/FooterVBox/Buttons"]
 layout_mode = 2
 size_flags_horizontal = 3
 text = "Open System Viewer"
 
-[node name="LoadButton" type="Button" parent="MarginContainer/MainPanel/MarginContainer/VBox/StudioRow/SummaryPanel/MarginContainer/SummaryVBox/Buttons"]
+[node name="LoadButton" type="Button" parent="MarginContainer/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/FooterVBox/Buttons"]
 layout_mode = 2
 size_flags_horizontal = 3
 text = "Load System"

@@ -10,7 +10,7 @@ namespace StarGen.Tests.Integration;
 
 public static class TestGalaxyViewerUI
 {
-    private const string GalaxyViewerScenePath = "res://src/app/galaxy_viewer/GalaxyViewer.tscn";
+    private const string GalaxyViewerScenePath = "res://src/app/galaxy_viewer/GalaxyViewerCSharp.tscn";
 
     public static void RunAll(DotNetTestRunner runner)
     {
@@ -26,8 +26,10 @@ public static class TestGalaxyViewerUI
         runner.RunNativeTest("TestGalaxyViewerUI::test_jump_route_progress_controls_exist", TestJumpRouteProgressControlsExist);
         runner.RunNativeTest("TestGalaxyViewerUI::test_recalculate_same_subsector_does_not_duplicate_systems", TestRecalculateSameSubsectorDoesNotDuplicateSystems);
         runner.RunNativeTest("TestGalaxyViewerUI::test_subsector_change_keeps_routes_and_recalculate_expands_region", TestSubsectorChangeKeepsRoutesAndRecalculateExpandsRegion);
-        runner.RunNativeTest("TestGalaxyViewerUI::test_apply_valid_config_updates_spec", TestApplyValidConfigUpdatesSpec);
-        runner.RunNativeTest("TestGalaxyViewerUI::test_invalid_config_is_blocked", TestInvalidConfigIsBlocked);
+        runner.RunNativeTest("TestGalaxyViewerUI::test_profile_summary_shows_active_config", TestProfileSummaryShowsActiveConfig);
+        runner.RunNativeTest("TestGalaxyViewerUI::test_menu_row_sits_below_header", TestMenuRowSitsBelowHeader);
+        runner.RunNativeTest("TestGalaxyViewerUI::test_inspector_no_longer_shows_galaxy_studio_button", TestInspectorNoLongerShowsGalaxyStudioButton);
+        runner.RunNativeTest("TestGalaxyViewerUI::test_file_menu_can_return_to_main_menu", TestFileMenuCanReturnToMainMenu);
     }
 
     private static GalaxyViewer CreateViewer(bool startAtHome = true)
@@ -79,6 +81,22 @@ public static class TestGalaxyViewerUI
             HBoxContainer? menuRow = viewer.GetNodeOrNull<HBoxContainer>("UI/UIRoot/TopBar/MarginContainer/TopBarVBox/MenuRow");
             DotNetNativeTestSuite.AssertNotNull(menuRow, "Galaxy viewer should expose a top menu row");
             DotNetNativeTestSuite.AssertGreaterThan(menuRow!.GetChildCount(), 3, "Galaxy viewer should expose standard top-level menus");
+        }
+        finally
+        {
+            IntegrationTestUtils.CleanupNode(viewer);
+        }
+    }
+
+    private static void TestMenuRowSitsBelowHeader()
+    {
+        GalaxyViewer viewer = CreateViewer();
+        try
+        {
+            VBoxContainer? topBarVBox = viewer.GetNodeOrNull<VBoxContainer>("UI/UIRoot/TopBar/MarginContainer/TopBarVBox");
+            DotNetNativeTestSuite.AssertNotNull(topBarVBox, "Top-bar container should exist");
+            DotNetNativeTestSuite.AssertEqual("HeaderRow", topBarVBox!.GetChild(0).Name, "Header row should appear before the menu row");
+            DotNetNativeTestSuite.AssertEqual("MenuRow", topBarVBox.GetChild(1).Name, "Menu row should sit below the header");
         }
         finally
         {
@@ -291,17 +309,13 @@ public static class TestGalaxyViewerUI
         }
     }
 
-    private static void TestApplyValidConfigUpdatesSpec()
+    private static void TestProfileSummaryShowsActiveConfig()
     {
         GalaxyViewer viewer = CreateViewer(startAtHome: false);
         try
         {
             GalaxyInspectorPanel? panel = viewer.get_inspector_panel() as GalaxyInspectorPanel;
             DotNetNativeTestSuite.AssertNotNull(panel, "Inspector panel should exist");
-
-            SpinBox? seedInput = viewer.GetNodeOrNull<SpinBox>("UI/UIRoot/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/GenerationSection/SeedContainer/SeedInput");
-            DotNetNativeTestSuite.AssertNotNull(seedInput, "Galaxy viewer should expose the seed input");
-            seedInput!.Value = 424242;
 
             GalaxyConfig updatedConfig = GalaxyConfig.CreateDefault();
             updatedConfig.Type = GalaxySpec.GalaxyType.Elliptical;
@@ -309,13 +323,11 @@ public static class TestGalaxyViewerUI
             updatedConfig.Ellipticity = 0.55;
             updatedConfig.RadiusPc = 18000.0;
             panel!.SetEditableConfig(updatedConfig);
-            panel.EmitSignal(GalaxyInspectorPanel.SignalName.ApplyGalaxyConfigRequested);
 
-            GalaxySpec? spec = viewer.get_spec();
-            DotNetNativeTestSuite.AssertNotNull(spec, "Viewer should expose an updated spec");
-            DotNetNativeTestSuite.AssertEqual(GalaxySpec.GalaxyType.Elliptical, spec!.Type, "Applying a valid config should update galaxy type");
-            DotNetNativeTestSuite.AssertEqual(updatedConfig.RadiusPc, spec.RadiusPc, "Applying a valid config should update radius");
-            DotNetNativeTestSuite.AssertEqual(424242, viewer.galaxy_seed, "Applying a valid config should update the seed");
+            VBoxContainer? profileSummary = panel.GetNodeOrNull<VBoxContainer>("ConfigEditorContainer/ProfileSummaryContainer");
+            DotNetNativeTestSuite.AssertNotNull(profileSummary, "Galaxy inspector should expose the active-profile summary");
+            DotNetNativeTestSuite.AssertTrue(PanelContainsText(profileSummary!, "Elliptical"), "Profile summary should display the configured galaxy type");
+            DotNetNativeTestSuite.AssertTrue(PanelContainsText(profileSummary, "18.0 kpc"), "Profile summary should display the configured radius");
         }
         finally
         {
@@ -323,36 +335,81 @@ public static class TestGalaxyViewerUI
         }
     }
 
-    private static void TestInvalidConfigIsBlocked()
+    private static void TestInspectorNoLongerShowsGalaxyStudioButton()
     {
         GalaxyViewer viewer = CreateViewer(startAtHome: false);
         try
         {
             GalaxyInspectorPanel? panel = viewer.get_inspector_panel() as GalaxyInspectorPanel;
             DotNetNativeTestSuite.AssertNotNull(panel, "Inspector panel should exist");
-            SpinBox? seedInput = viewer.GetNodeOrNull<SpinBox>("UI/UIRoot/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/GenerationSection/SeedContainer/SeedInput");
-            DotNetNativeTestSuite.AssertNotNull(seedInput, "Galaxy viewer should expose the seed input");
-
-            GalaxySpec? originalSpec = viewer.get_spec();
-            DotNetNativeTestSuite.AssertNotNull(originalSpec, "Viewer should expose an initial spec");
-            double originalRadius = originalSpec!.RadiusPc;
-
-            seedInput!.Value = 0.0;
-            GalaxyConfig invalidConfig = GalaxyConfig.CreateDefault();
-            panel!.SetEditableConfig(invalidConfig);
-            panel.EmitSignal(GalaxyInspectorPanel.SignalName.ApplyGalaxyConfigRequested);
-
-            GalaxySpec? currentSpec = viewer.get_spec();
-            DotNetNativeTestSuite.AssertNotNull(currentSpec, "Viewer should still expose a spec after invalid apply");
-            DotNetNativeTestSuite.AssertEqual(originalRadius, currentSpec!.RadiusPc, "Invalid config should not replace the active spec");
-
-            VBoxContainer? issuesContainer = panel.GetNodeOrNull<VBoxContainer>("ConfigEditorContainer/ConfigIssuesContainer");
-            DotNetNativeTestSuite.AssertNotNull(issuesContainer, "Galaxy inspector should expose the config issue container");
-            DotNetNativeTestSuite.AssertTrue(issuesContainer!.GetChildCount() > 0, "Invalid config should render issues");
+            Button? button = panel!.GetNodeOrNull<Button>("ConfigEditorContainer/OpenGalaxyStudioButton");
+            DotNetNativeTestSuite.AssertNull(button, "Galaxy inspector should not duplicate the New Galaxy action with a studio button");
         }
         finally
         {
             IntegrationTestUtils.CleanupNode(viewer);
         }
+    }
+
+    private static void TestFileMenuCanReturnToMainMenu()
+    {
+        GalaxyViewer viewer = CreateViewer(startAtHome: false);
+        try
+        {
+            HBoxContainer? menuRow = viewer.GetNodeOrNull<HBoxContainer>("UI/UIRoot/TopBar/MarginContainer/TopBarVBox/MenuRow");
+            DotNetNativeTestSuite.AssertNotNull(menuRow, "Galaxy viewer should expose a top menu row");
+
+            MenuButton? fileMenuButton = null;
+            foreach (Node child in menuRow!.GetChildren())
+            {
+                if (child is MenuButton typedButton && typedButton.Text == "File")
+                {
+                    fileMenuButton = typedButton;
+                    break;
+                }
+            }
+
+            DotNetNativeTestSuite.AssertNotNull(fileMenuButton, "Galaxy viewer should expose a File menu");
+            PopupMenu popup = fileMenuButton!.GetPopup();
+            int itemId = -1;
+            for (int index = 0; index < popup.ItemCount; index += 1)
+            {
+                if (popup.GetItemText(index) == "Return to Main Menu")
+                {
+                    itemId = popup.GetItemId(index);
+                    break;
+                }
+            }
+
+            DotNetNativeTestSuite.AssertTrue(itemId >= 0, "File menu should include a main-menu return action");
+
+            bool mainMenuRequested = false;
+            viewer.Connect(GalaxyViewer.SignalName.MainMenuRequested, Callable.From(() => mainMenuRequested = true));
+            popup.EmitSignal(PopupMenu.SignalName.IdPressed, itemId);
+
+            DotNetNativeTestSuite.AssertTrue(mainMenuRequested, "Selecting the File menu main-menu action should emit the return signal");
+        }
+        finally
+        {
+            IntegrationTestUtils.CleanupNode(viewer);
+        }
+    }
+
+    private static bool PanelContainsText(Control root, string text)
+    {
+        foreach (Node child in root.GetChildren())
+        {
+            if (child is Label typedLabel && typedLabel.Text.Contains(text))
+            {
+                return true;
+            }
+
+            if (child is Control typedControl && PanelContainsText(typedControl, text))
+            {
+                return true;
+            }
+        }
+
+        return false;
     }
 }

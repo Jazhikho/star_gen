@@ -668,6 +668,7 @@ public partial class SystemInspectorPanel : VBoxContainer
         value.AddThemeFontSizeOverride("font_size", 12);
         value.SizeFlagsHorizontal = Control.SizeFlags.ExpandFill;
         value.AutowrapMode = TextServer.AutowrapMode.Word;
+        value.CustomMinimumSize = new Vector2(180.0f, 0.0f);
         row.AddChild(value);
 
         section.AddChild(row);

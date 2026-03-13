@@ -20,90 +20,125 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-color = Color(0.102, 0.102, 0.18, 1)
+color = Color(0.0313726, 0.0470588, 0.0862745, 1)
 
-[node name="CenterContainer" type="CenterContainer" parent="."]
+[node name="AccentGlow" type="ColorRect" parent="."]
 layout_mode = 1
 anchors_preset = 15
-offset_left = 24.0
-offset_top = 24.0
 anchor_right = 1.0
 anchor_bottom = 1.0
-offset_right = -24.0
-offset_bottom = -24.0
 grow_horizontal = 2
 grow_vertical = 2
+color = Color(0.0705882, 0.12549, 0.227451, 0.12)
 
-[node name="MainPanel" type="PanelContainer" parent="CenterContainer"]
-custom_minimum_size = Vector2(680, 0)
+[node name="MarginContainer" type="MarginContainer" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/margin_left = 16
+theme_override_constants/margin_top = 14
+theme_override_constants/margin_right = 16
+theme_override_constants/margin_bottom = 14
+
+[node name="MainPanel" type="PanelContainer" parent="MarginContainer"]
 layout_mode = 2
+size_flags_horizontal = 3
 size_flags_vertical = 3
 
-[node name="MarginContainer" type="MarginContainer" parent="CenterContainer/MainPanel"]
+[node name="MarginContainer" type="MarginContainer" parent="MarginContainer/MainPanel"]
 layout_mode = 2
-theme_override_constants/margin_left = 24
-theme_override_constants/margin_top = 24
-theme_override_constants/margin_right = 24
-theme_override_constants/margin_bottom = 24
+theme_override_constants/margin_left = 18
+theme_override_constants/margin_top = 18
+theme_override_constants/margin_right = 18
+theme_override_constants/margin_bottom = 18
 
-[node name="VBox" type="VBoxContainer" parent="CenterContainer/MainPanel/MarginContainer"]
+[node name="VBox" type="VBoxContainer" parent="MarginContainer/MainPanel/MarginContainer"]
 layout_mode = 2
 size_flags_vertical = 3
-theme_override_constants/separation = 16
+theme_override_constants/separation = 14
 
-[node name="HeaderRow" type="HBoxContainer" parent="CenterContainer/MainPanel/MarginContainer/VBox"]
+[node name="HeaderRow" type="HBoxContainer" parent="MarginContainer/MainPanel/MarginContainer/VBox"]
 layout_mode = 2
 theme_override_constants/separation = 12
 
-[node name="BackButton" type="Button" parent="CenterContainer/MainPanel/MarginContainer/VBox/HeaderRow"]
+[node name="BackButton" type="Button" parent="MarginContainer/MainPanel/MarginContainer/VBox/HeaderRow"]
 visible = false
 layout_mode = 2
 text = "<- Main Menu"
 
-[node name="TitleLabel" type="Label" parent="CenterContainer/MainPanel/MarginContainer/VBox"]
+[node name="VersionLabel" type="Label" parent="MarginContainer/MainPanel/MarginContainer/VBox/HeaderRow"]
 layout_mode = 2
-theme_override_font_sizes/font_size = 32
-text = "STARGEN"
-horizontal_alignment = 1
+size_flags_horizontal = 3
+horizontal_alignment = 2
+theme_override_colors/font_color = Color(0.631373, 0.701961, 0.772549, 1)
+text = "Version"
 
-[node name="SubtitleLabel" type="Label" parent="CenterContainer/MainPanel/MarginContainer/VBox"]
+[node name="TitleLabel" type="Label" parent="MarginContainer/MainPanel/MarginContainer/VBox"]
 layout_mode = 2
-theme_override_colors/font_color = Color(0.6, 0.65, 0.7, 1)
+theme_override_font_sizes/font_size = 34
 text = "Galaxy Generation Studio"
-horizontal_alignment = 1
 
-[node name="IntroLabel" type="Label" parent="CenterContainer/MainPanel/MarginContainer/VBox"]
+[node name="SubtitleLabel" type="Label" parent="MarginContainer/MainPanel/MarginContainer/VBox"]
+custom_minimum_size = Vector2(320, 0)
 layout_mode = 2
-theme_override_colors/font_color = Color(0.72, 0.76, 0.82, 1)
 autowrap_mode = 2
-text = "Tune the galaxy profile, pick a seed, and launch into the viewer. This remains the core StarGen workflow for the 0.4 release."
+theme_override_colors/font_color = Color(0.72, 0.76, 0.82, 1)
+text = "Configure the galaxy profile before you enter the viewer."
 
-[node name="HSeparator" type="HSeparator" parent="CenterContainer/MainPanel/MarginContainer/VBox"]
+[node name="StudioRow" type="BoxContainer" parent="MarginContainer/MainPanel/MarginContainer/VBox"]
 layout_mode = 2
+size_flags_vertical = 3
+vertical = false
+theme_override_constants/separation = 18
 
-[node name="ScrollContainer" type="ScrollContainer" parent="CenterContainer/MainPanel/MarginContainer/VBox"]
+[node name="SettingsPanel" type="PanelContainer" parent="MarginContainer/MainPanel/MarginContainer/VBox/StudioRow"]
+custom_minimum_size = Vector2(560, 0)
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+
+[node name="MarginContainer" type="MarginContainer" parent="MarginContainer/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel"]
+layout_mode = 2
+theme_override_constants/margin_left = 18
+theme_override_constants/margin_top = 18
+theme_override_constants/margin_right = 18
+theme_override_constants/margin_bottom = 18
+
+[node name="SettingsVBox" type="VBoxContainer" parent="MarginContainer/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer"]
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_constants/separation = 12
+
+[node name="SettingsTitle" type="Label" parent="MarginContainer/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 18
+text = "Parameters"
+
+[node name="ScrollContainer" type="ScrollContainer" parent="MarginContainer/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox"]
 layout_mode = 2
 size_flags_vertical = 3
 horizontal_scroll_mode = 0
 
-[node name="SettingsVBox" type="VBoxContainer" parent="CenterContainer/MainPanel/MarginContainer/VBox/ScrollContainer"]
+[node name="ParameterVBox" type="VBoxContainer" parent="MarginContainer/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer"]
 layout_mode = 2
 size_flags_horizontal = 3
-size_flags_vertical = 3
-theme_override_constants/separation = 14
+theme_override_constants/separation = 12
 
-[node name="PresetContainer" type="HBoxContainer" parent="CenterContainer/MainPanel/MarginContainer/VBox/ScrollContainer/SettingsVBox"]
+[node name="PresetContainer" type="HBoxContainer" parent="MarginContainer/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox"]
 layout_mode = 2
 theme_override_constants/separation = 12
 
-[node name="PresetLabel" type="Label" parent="CenterContainer/MainPanel/MarginContainer/VBox/ScrollContainer/SettingsVBox/PresetContainer"]
+[node name="PresetLabel" type="Label" parent="MarginContainer/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/PresetContainer"]
 layout_mode = 2
-size_flags_horizontal = 3
+custom_minimum_size = Vector2(96, 0)
 text = "Preset"
 
-[node name="PresetOption" type="OptionButton" parent="CenterContainer/MainPanel/MarginContainer/VBox/ScrollContainer/SettingsVBox/PresetContainer"]
-custom_minimum_size = Vector2(200, 0)
+[node name="PresetOption" type="OptionButton" parent="MarginContainer/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/PresetContainer"]
 layout_mode = 2
+size_flags_horizontal = 3
 item_count = 6
 selected = 0
 popup/item_0/text = "Custom"
@@ -113,75 +148,75 @@ popup/item_3/text = "Whirlpool"
 popup/item_4/text = "Sombrero"
 popup/item_5/text = "Large Magellanic Cloud"
 
-[node name="TypeSection" type="VBoxContainer" parent="CenterContainer/MainPanel/MarginContainer/VBox/ScrollContainer/SettingsVBox"]
+[node name="TypeSection" type="VBoxContainer" parent="MarginContainer/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox"]
 layout_mode = 2
 theme_override_constants/separation = 8
 
-[node name="TypeHeader" type="Button" parent="CenterContainer/MainPanel/MarginContainer/VBox/ScrollContainer/SettingsVBox/TypeSection"]
+[node name="TypeHeader" type="Button" parent="MarginContainer/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/TypeSection"]
 layout_mode = 2
 alignment = 0
-text = "▼  Galaxy Type"
+text = "v  Galaxy Type"
 
-[node name="TypeContent" type="MarginContainer" parent="CenterContainer/MainPanel/MarginContainer/VBox/ScrollContainer/SettingsVBox/TypeSection"]
+[node name="TypeContent" type="MarginContainer" parent="MarginContainer/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/TypeSection"]
 layout_mode = 2
 theme_override_constants/margin_left = 16
 theme_override_constants/margin_top = 4
 theme_override_constants/margin_right = 8
 theme_override_constants/margin_bottom = 8
 
-[node name="TypeVBox" type="VBoxContainer" parent="CenterContainer/MainPanel/MarginContainer/VBox/ScrollContainer/SettingsVBox/TypeSection/TypeContent"]
+[node name="TypeVBox" type="VBoxContainer" parent="MarginContainer/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/TypeSection/TypeContent"]
 layout_mode = 2
 theme_override_constants/separation = 8
 
-[node name="TypeRow" type="HBoxContainer" parent="CenterContainer/MainPanel/MarginContainer/VBox/ScrollContainer/SettingsVBox/TypeSection/TypeContent/TypeVBox"]
+[node name="TypeRow" type="HBoxContainer" parent="MarginContainer/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/TypeSection/TypeContent/TypeVBox"]
 layout_mode = 2
 
-[node name="TypeLabel" type="Label" parent="CenterContainer/MainPanel/MarginContainer/VBox/ScrollContainer/SettingsVBox/TypeSection/TypeContent/TypeVBox/TypeRow"]
+[node name="TypeLabel" type="Label" parent="MarginContainer/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/TypeSection/TypeContent/TypeVBox/TypeRow"]
 layout_mode = 2
-size_flags_horizontal = 3
+custom_minimum_size = Vector2(96, 0)
 text = "Type"
 
-[node name="TypeOption" type="OptionButton" parent="CenterContainer/MainPanel/MarginContainer/VBox/ScrollContainer/SettingsVBox/TypeSection/TypeContent/TypeVBox/TypeRow"]
-custom_minimum_size = Vector2(160, 0)
+[node name="TypeOption" type="OptionButton" parent="MarginContainer/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/TypeSection/TypeContent/TypeVBox/TypeRow"]
 layout_mode = 2
+size_flags_horizontal = 3
 item_count = 3
 selected = 0
 popup/item_0/text = "Spiral"
 popup/item_1/text = "Elliptical"
 popup/item_2/text = "Irregular"
 
-[node name="ArmsRow" type="HBoxContainer" parent="CenterContainer/MainPanel/MarginContainer/VBox/ScrollContainer/SettingsVBox/TypeSection/TypeContent/TypeVBox"]
+[node name="ArmsRow" type="HBoxContainer" parent="MarginContainer/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/TypeSection/TypeContent/TypeVBox"]
 layout_mode = 2
 
-[node name="ArmsLabel" type="Label" parent="CenterContainer/MainPanel/MarginContainer/VBox/ScrollContainer/SettingsVBox/TypeSection/TypeContent/TypeVBox/ArmsRow"]
+[node name="ArmsLabel" type="Label" parent="MarginContainer/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/TypeSection/TypeContent/TypeVBox/ArmsRow"]
 layout_mode = 2
-size_flags_horizontal = 3
+custom_minimum_size = Vector2(96, 0)
 text = "Spiral Arms"
 
-[node name="ArmsSlider" type="HSlider" parent="CenterContainer/MainPanel/MarginContainer/VBox/ScrollContainer/SettingsVBox/TypeSection/TypeContent/TypeVBox/ArmsRow"]
-custom_minimum_size = Vector2(100, 0)
+[node name="ArmsSlider" type="HSlider" parent="MarginContainer/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/TypeSection/TypeContent/TypeVBox/ArmsRow"]
 layout_mode = 2
+size_flags_horizontal = 3
 min_value = 2.0
 max_value = 6.0
 step = 1.0
 value = 4.0
 
-[node name="ArmsValue" type="Label" parent="CenterContainer/MainPanel/MarginContainer/VBox/ScrollContainer/SettingsVBox/TypeSection/TypeContent/TypeVBox/ArmsRow"]
-custom_minimum_size = Vector2(32, 0)
+[node name="ArmsValue" type="Label" parent="MarginContainer/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/TypeSection/TypeContent/TypeVBox/ArmsRow"]
+custom_minimum_size = Vector2(36, 0)
 layout_mode = 2
-text = "4"
 horizontal_alignment = 2
+text = "4"
 
-[node name="StructureSection" type="VBoxContainer" parent="CenterContainer/MainPanel/MarginContainer/VBox/ScrollContainer/SettingsVBox"]
+[node name="StructureSection" type="VBoxContainer" parent="MarginContainer/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox"]
 layout_mode = 2
 theme_override_constants/separation = 8
 
-[node name="StructureHeader" type="Button" parent="CenterContainer/MainPanel/MarginContainer/VBox/ScrollContainer/SettingsVBox/StructureSection"]
+[node name="StructureHeader" type="Button" parent="MarginContainer/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/StructureSection"]
 layout_mode = 2
 alignment = 0
-text = "▶  Structure"
+text = ">  Structure"
 
-[node name="StructureContent" type="MarginContainer" parent="CenterContainer/MainPanel/MarginContainer/VBox/ScrollContainer/SettingsVBox/StructureSection"]
+[node name="StructureContent" type="MarginContainer" parent="MarginContainer/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/StructureSection"]
 visible = false
 layout_mode = 2
 theme_override_constants/margin_left = 16
@@ -189,152 +224,152 @@ theme_override_constants/margin_top = 4
 theme_override_constants/margin_right = 8
 theme_override_constants/margin_bottom = 8
 
-[node name="StructureVBox" type="VBoxContainer" parent="CenterContainer/MainPanel/MarginContainer/VBox/ScrollContainer/SettingsVBox/StructureSection/StructureContent"]
+[node name="StructureVBox" type="VBoxContainer" parent="MarginContainer/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/StructureSection/StructureContent"]
 layout_mode = 2
 theme_override_constants/separation = 8
 
-[node name="PitchRow" type="HBoxContainer" parent="CenterContainer/MainPanel/MarginContainer/VBox/ScrollContainer/SettingsVBox/StructureSection/StructureContent/StructureVBox"]
+[node name="PitchRow" type="HBoxContainer" parent="MarginContainer/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/StructureSection/StructureContent/StructureVBox"]
 layout_mode = 2
 
-[node name="PitchLabel" type="Label" parent="CenterContainer/MainPanel/MarginContainer/VBox/ScrollContainer/SettingsVBox/StructureSection/StructureContent/StructureVBox/PitchRow"]
+[node name="PitchLabel" type="Label" parent="MarginContainer/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/StructureSection/StructureContent/StructureVBox/PitchRow"]
+layout_mode = 2
+custom_minimum_size = Vector2(96, 0)
+text = "Arm Pitch"
+
+[node name="PitchSlider" type="HSlider" parent="MarginContainer/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/StructureSection/StructureContent/StructureVBox/PitchRow"]
 layout_mode = 2
 size_flags_horizontal = 3
-text = "Arm Pitch Angle"
-
-[node name="PitchSlider" type="HSlider" parent="CenterContainer/MainPanel/MarginContainer/VBox/ScrollContainer/SettingsVBox/StructureSection/StructureContent/StructureVBox/PitchRow"]
-custom_minimum_size = Vector2(100, 0)
-layout_mode = 2
 min_value = 10.0
 max_value = 30.0
 step = 0.5
 value = 14.0
 
-[node name="PitchValue" type="Label" parent="CenterContainer/MainPanel/MarginContainer/VBox/ScrollContainer/SettingsVBox/StructureSection/StructureContent/StructureVBox/PitchRow"]
-custom_minimum_size = Vector2(48, 0)
+[node name="PitchValue" type="Label" parent="MarginContainer/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/StructureSection/StructureContent/StructureVBox/PitchRow"]
+custom_minimum_size = Vector2(60, 0)
 layout_mode = 2
-text = "14.0°"
 horizontal_alignment = 2
+text = "14.0 deg"
 
-[node name="AmplitudeRow" type="HBoxContainer" parent="CenterContainer/MainPanel/MarginContainer/VBox/ScrollContainer/SettingsVBox/StructureSection/StructureContent/StructureVBox"]
+[node name="AmplitudeRow" type="HBoxContainer" parent="MarginContainer/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/StructureSection/StructureContent/StructureVBox"]
 layout_mode = 2
 
-[node name="AmplitudeLabel" type="Label" parent="CenterContainer/MainPanel/MarginContainer/VBox/ScrollContainer/SettingsVBox/StructureSection/StructureContent/StructureVBox/AmplitudeRow"]
+[node name="AmplitudeLabel" type="Label" parent="MarginContainer/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/StructureSection/StructureContent/StructureVBox/AmplitudeRow"]
 layout_mode = 2
-size_flags_horizontal = 3
+custom_minimum_size = Vector2(96, 0)
 text = "Arm Definition"
 
-[node name="AmplitudeSlider" type="HSlider" parent="CenterContainer/MainPanel/MarginContainer/VBox/ScrollContainer/SettingsVBox/StructureSection/StructureContent/StructureVBox/AmplitudeRow"]
-custom_minimum_size = Vector2(100, 0)
+[node name="AmplitudeSlider" type="HSlider" parent="MarginContainer/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/StructureSection/StructureContent/StructureVBox/AmplitudeRow"]
 layout_mode = 2
+size_flags_horizontal = 3
 min_value = 0.3
 max_value = 0.9
 step = 0.05
 value = 0.65
 
-[node name="AmplitudeValue" type="Label" parent="CenterContainer/MainPanel/MarginContainer/VBox/ScrollContainer/SettingsVBox/StructureSection/StructureContent/StructureVBox/AmplitudeRow"]
-custom_minimum_size = Vector2(48, 0)
+[node name="AmplitudeValue" type="Label" parent="MarginContainer/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/StructureSection/StructureContent/StructureVBox/AmplitudeRow"]
+custom_minimum_size = Vector2(60, 0)
 layout_mode = 2
-text = "0.65"
 horizontal_alignment = 2
+text = "0.65"
 
-[node name="BulgeIntensityRow" type="HBoxContainer" parent="CenterContainer/MainPanel/MarginContainer/VBox/ScrollContainer/SettingsVBox/StructureSection/StructureContent/StructureVBox"]
+[node name="BulgeIntensityRow" type="HBoxContainer" parent="MarginContainer/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/StructureSection/StructureContent/StructureVBox"]
 layout_mode = 2
 
-[node name="BulgeIntensityLabel" type="Label" parent="CenterContainer/MainPanel/MarginContainer/VBox/ScrollContainer/SettingsVBox/StructureSection/StructureContent/StructureVBox/BulgeIntensityRow"]
+[node name="BulgeIntensityLabel" type="Label" parent="MarginContainer/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/StructureSection/StructureContent/StructureVBox/BulgeIntensityRow"]
 layout_mode = 2
-size_flags_horizontal = 3
+custom_minimum_size = Vector2(96, 0)
 text = "Core Brightness"
 
-[node name="BulgeIntensitySlider" type="HSlider" parent="CenterContainer/MainPanel/MarginContainer/VBox/ScrollContainer/SettingsVBox/StructureSection/StructureContent/StructureVBox/BulgeIntensityRow"]
-custom_minimum_size = Vector2(100, 0)
+[node name="BulgeIntensitySlider" type="HSlider" parent="MarginContainer/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/StructureSection/StructureContent/StructureVBox/BulgeIntensityRow"]
 layout_mode = 2
+size_flags_horizontal = 3
 min_value = 0.3
 max_value = 1.2
 step = 0.05
 value = 0.8
 
-[node name="BulgeIntensityValue" type="Label" parent="CenterContainer/MainPanel/MarginContainer/VBox/ScrollContainer/SettingsVBox/StructureSection/StructureContent/StructureVBox/BulgeIntensityRow"]
-custom_minimum_size = Vector2(48, 0)
+[node name="BulgeIntensityValue" type="Label" parent="MarginContainer/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/StructureSection/StructureContent/StructureVBox/BulgeIntensityRow"]
+custom_minimum_size = Vector2(60, 0)
 layout_mode = 2
-text = "0.80"
 horizontal_alignment = 2
+text = "0.80"
 
-[node name="BulgeRadiusRow" type="HBoxContainer" parent="CenterContainer/MainPanel/MarginContainer/VBox/ScrollContainer/SettingsVBox/StructureSection/StructureContent/StructureVBox"]
+[node name="BulgeRadiusRow" type="HBoxContainer" parent="MarginContainer/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/StructureSection/StructureContent/StructureVBox"]
 layout_mode = 2
 
-[node name="BulgeRadiusLabel" type="Label" parent="CenterContainer/MainPanel/MarginContainer/VBox/ScrollContainer/SettingsVBox/StructureSection/StructureContent/StructureVBox/BulgeRadiusRow"]
+[node name="BulgeRadiusLabel" type="Label" parent="MarginContainer/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/StructureSection/StructureContent/StructureVBox/BulgeRadiusRow"]
 layout_mode = 2
-size_flags_horizontal = 3
+custom_minimum_size = Vector2(96, 0)
 text = "Core Size"
 
-[node name="BulgeRadiusSlider" type="HSlider" parent="CenterContainer/MainPanel/MarginContainer/VBox/ScrollContainer/SettingsVBox/StructureSection/StructureContent/StructureVBox/BulgeRadiusRow"]
-custom_minimum_size = Vector2(100, 0)
+[node name="BulgeRadiusSlider" type="HSlider" parent="MarginContainer/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/StructureSection/StructureContent/StructureVBox/BulgeRadiusRow"]
 layout_mode = 2
+size_flags_horizontal = 3
 min_value = 1000.0
 max_value = 2500.0
 step = 50.0
 value = 1500.0
 
-[node name="BulgeRadiusValue" type="Label" parent="CenterContainer/MainPanel/MarginContainer/VBox/ScrollContainer/SettingsVBox/StructureSection/StructureContent/StructureVBox/BulgeRadiusRow"]
-custom_minimum_size = Vector2(64, 0)
+[node name="BulgeRadiusValue" type="Label" parent="MarginContainer/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/StructureSection/StructureContent/StructureVBox/BulgeRadiusRow"]
+custom_minimum_size = Vector2(72, 0)
 layout_mode = 2
-text = "1500 pc"
 horizontal_alignment = 2
+text = "1500 pc"
 
-[node name="EllipticityRow" type="HBoxContainer" parent="CenterContainer/MainPanel/MarginContainer/VBox/ScrollContainer/SettingsVBox/StructureSection/StructureContent/StructureVBox"]
+[node name="EllipticityRow" type="HBoxContainer" parent="MarginContainer/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/StructureSection/StructureContent/StructureVBox"]
 layout_mode = 2
 
-[node name="EllipticityLabel" type="Label" parent="CenterContainer/MainPanel/MarginContainer/VBox/ScrollContainer/SettingsVBox/StructureSection/StructureContent/StructureVBox/EllipticityRow"]
+[node name="EllipticityLabel" type="Label" parent="MarginContainer/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/StructureSection/StructureContent/StructureVBox/EllipticityRow"]
 layout_mode = 2
-size_flags_horizontal = 3
+custom_minimum_size = Vector2(96, 0)
 text = "Ellipticity"
 
-[node name="EllipticitySlider" type="HSlider" parent="CenterContainer/MainPanel/MarginContainer/VBox/ScrollContainer/SettingsVBox/StructureSection/StructureContent/StructureVBox/EllipticityRow"]
-custom_minimum_size = Vector2(100, 0)
+[node name="EllipticitySlider" type="HSlider" parent="MarginContainer/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/StructureSection/StructureContent/StructureVBox/EllipticityRow"]
 layout_mode = 2
+size_flags_horizontal = 3
 min_value = 0.0
 max_value = 0.7
 step = 0.05
 value = 0.3
 
-[node name="EllipticityValue" type="Label" parent="CenterContainer/MainPanel/MarginContainer/VBox/ScrollContainer/SettingsVBox/StructureSection/StructureContent/StructureVBox/EllipticityRow"]
-custom_minimum_size = Vector2(48, 0)
+[node name="EllipticityValue" type="Label" parent="MarginContainer/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/StructureSection/StructureContent/StructureVBox/EllipticityRow"]
+custom_minimum_size = Vector2(60, 0)
 layout_mode = 2
-text = "0.30"
 horizontal_alignment = 2
+text = "0.30"
 
-[node name="IrregularityRow" type="HBoxContainer" parent="CenterContainer/MainPanel/MarginContainer/VBox/ScrollContainer/SettingsVBox/StructureSection/StructureContent/StructureVBox"]
+[node name="IrregularityRow" type="HBoxContainer" parent="MarginContainer/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/StructureSection/StructureContent/StructureVBox"]
 layout_mode = 2
 
-[node name="IrregularityLabel" type="Label" parent="CenterContainer/MainPanel/MarginContainer/VBox/ScrollContainer/SettingsVBox/StructureSection/StructureContent/StructureVBox/IrregularityRow"]
+[node name="IrregularityLabel" type="Label" parent="MarginContainer/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/StructureSection/StructureContent/StructureVBox/IrregularityRow"]
 layout_mode = 2
-size_flags_horizontal = 3
+custom_minimum_size = Vector2(96, 0)
 text = "Irregularity"
 
-[node name="IrregularitySlider" type="HSlider" parent="CenterContainer/MainPanel/MarginContainer/VBox/ScrollContainer/SettingsVBox/StructureSection/StructureContent/StructureVBox/IrregularityRow"]
-custom_minimum_size = Vector2(100, 0)
+[node name="IrregularitySlider" type="HSlider" parent="MarginContainer/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/StructureSection/StructureContent/StructureVBox/IrregularityRow"]
 layout_mode = 2
+size_flags_horizontal = 3
 min_value = 0.1
 max_value = 1.0
 step = 0.05
 value = 0.5
 
-[node name="IrregularityValue" type="Label" parent="CenterContainer/MainPanel/MarginContainer/VBox/ScrollContainer/SettingsVBox/StructureSection/StructureContent/StructureVBox/IrregularityRow"]
-custom_minimum_size = Vector2(48, 0)
+[node name="IrregularityValue" type="Label" parent="MarginContainer/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/StructureSection/StructureContent/StructureVBox/IrregularityRow"]
+custom_minimum_size = Vector2(60, 0)
 layout_mode = 2
-text = "0.50"
 horizontal_alignment = 2
+text = "0.50"
 
-[node name="SizeSection" type="VBoxContainer" parent="CenterContainer/MainPanel/MarginContainer/VBox/ScrollContainer/SettingsVBox"]
+[node name="SizeSection" type="VBoxContainer" parent="MarginContainer/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox"]
 layout_mode = 2
 theme_override_constants/separation = 8
 
-[node name="SizeHeader" type="Button" parent="CenterContainer/MainPanel/MarginContainer/VBox/ScrollContainer/SettingsVBox/SizeSection"]
+[node name="SizeHeader" type="Button" parent="MarginContainer/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/SizeSection"]
 layout_mode = 2
 alignment = 0
-text = "▶  Size & Density"
+text = ">  Size & Density"
 
-[node name="SizeContent" type="MarginContainer" parent="CenterContainer/MainPanel/MarginContainer/VBox/ScrollContainer/SettingsVBox/SizeSection"]
+[node name="SizeContent" type="MarginContainer" parent="MarginContainer/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/SizeSection"]
 visible = false
 layout_mode = 2
 theme_override_constants/margin_left = 16
@@ -342,135 +377,163 @@ theme_override_constants/margin_top = 4
 theme_override_constants/margin_right = 8
 theme_override_constants/margin_bottom = 8
 
-[node name="SizeVBox" type="VBoxContainer" parent="CenterContainer/MainPanel/MarginContainer/VBox/ScrollContainer/SettingsVBox/SizeSection/SizeContent"]
+[node name="SizeVBox" type="VBoxContainer" parent="MarginContainer/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/SizeSection/SizeContent"]
 layout_mode = 2
 theme_override_constants/separation = 8
 
-[node name="RadiusRow" type="HBoxContainer" parent="CenterContainer/MainPanel/MarginContainer/VBox/ScrollContainer/SettingsVBox/SizeSection/SizeContent/SizeVBox"]
+[node name="RadiusRow" type="HBoxContainer" parent="MarginContainer/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/SizeSection/SizeContent/SizeVBox"]
 layout_mode = 2
 
-[node name="RadiusLabel" type="Label" parent="CenterContainer/MainPanel/MarginContainer/VBox/ScrollContainer/SettingsVBox/SizeSection/SizeContent/SizeVBox/RadiusRow"]
+[node name="RadiusLabel" type="Label" parent="MarginContainer/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/SizeSection/SizeContent/SizeVBox/RadiusRow"]
 layout_mode = 2
-size_flags_horizontal = 3
+custom_minimum_size = Vector2(96, 0)
 text = "Galaxy Radius"
 
-[node name="RadiusSlider" type="HSlider" parent="CenterContainer/MainPanel/MarginContainer/VBox/ScrollContainer/SettingsVBox/SizeSection/SizeContent/SizeVBox/RadiusRow"]
-custom_minimum_size = Vector2(100, 0)
+[node name="RadiusSlider" type="HSlider" parent="MarginContainer/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/SizeSection/SizeContent/SizeVBox/RadiusRow"]
 layout_mode = 2
+size_flags_horizontal = 3
 min_value = 10000.0
 max_value = 25000.0
 step = 500.0
 value = 15000.0
 
-[node name="RadiusValue" type="Label" parent="CenterContainer/MainPanel/MarginContainer/VBox/ScrollContainer/SettingsVBox/SizeSection/SizeContent/SizeVBox/RadiusRow"]
+[node name="RadiusValue" type="Label" parent="MarginContainer/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/SizeSection/SizeContent/SizeVBox/RadiusRow"]
 custom_minimum_size = Vector2(72, 0)
 layout_mode = 2
-text = "15000 pc"
 horizontal_alignment = 2
+text = "15000 pc"
 
-[node name="DiskLengthRow" type="HBoxContainer" parent="CenterContainer/MainPanel/MarginContainer/VBox/ScrollContainer/SettingsVBox/SizeSection/SizeContent/SizeVBox"]
+[node name="DiskLengthRow" type="HBoxContainer" parent="MarginContainer/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/SizeSection/SizeContent/SizeVBox"]
 layout_mode = 2
 
-[node name="DiskLengthLabel" type="Label" parent="CenterContainer/MainPanel/MarginContainer/VBox/ScrollContainer/SettingsVBox/SizeSection/SizeContent/SizeVBox/DiskLengthRow"]
+[node name="DiskLengthLabel" type="Label" parent="MarginContainer/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/SizeSection/SizeContent/SizeVBox/DiskLengthRow"]
+layout_mode = 2
+custom_minimum_size = Vector2(96, 0)
+text = "Disk Length"
+
+[node name="DiskLengthSlider" type="HSlider" parent="MarginContainer/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/SizeSection/SizeContent/SizeVBox/DiskLengthRow"]
 layout_mode = 2
 size_flags_horizontal = 3
-text = "Disk Scale Length"
-
-[node name="DiskLengthSlider" type="HSlider" parent="CenterContainer/MainPanel/MarginContainer/VBox/ScrollContainer/SettingsVBox/SizeSection/SizeContent/SizeVBox/DiskLengthRow"]
-custom_minimum_size = Vector2(100, 0)
-layout_mode = 2
 min_value = 2000.0
 max_value = 6000.0
 step = 100.0
 value = 4000.0
 
-[node name="DiskLengthValue" type="Label" parent="CenterContainer/MainPanel/MarginContainer/VBox/ScrollContainer/SettingsVBox/SizeSection/SizeContent/SizeVBox/DiskLengthRow"]
+[node name="DiskLengthValue" type="Label" parent="MarginContainer/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/SizeSection/SizeContent/SizeVBox/DiskLengthRow"]
 custom_minimum_size = Vector2(72, 0)
 layout_mode = 2
-text = "4000 pc"
 horizontal_alignment = 2
+text = "4000 pc"
 
-[node name="DiskHeightRow" type="HBoxContainer" parent="CenterContainer/MainPanel/MarginContainer/VBox/ScrollContainer/SettingsVBox/SizeSection/SizeContent/SizeVBox"]
+[node name="DiskHeightRow" type="HBoxContainer" parent="MarginContainer/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/SizeSection/SizeContent/SizeVBox"]
 layout_mode = 2
 
-[node name="DiskHeightLabel" type="Label" parent="CenterContainer/MainPanel/MarginContainer/VBox/ScrollContainer/SettingsVBox/SizeSection/SizeContent/SizeVBox/DiskHeightRow"]
+[node name="DiskHeightLabel" type="Label" parent="MarginContainer/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/SizeSection/SizeContent/SizeVBox/DiskHeightRow"]
+layout_mode = 2
+custom_minimum_size = Vector2(96, 0)
+text = "Disk Height"
+
+[node name="DiskHeightSlider" type="HSlider" parent="MarginContainer/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/SizeSection/SizeContent/SizeVBox/DiskHeightRow"]
 layout_mode = 2
 size_flags_horizontal = 3
-text = "Disk Thickness"
-
-[node name="DiskHeightSlider" type="HSlider" parent="CenterContainer/MainPanel/MarginContainer/VBox/ScrollContainer/SettingsVBox/SizeSection/SizeContent/SizeVBox/DiskHeightRow"]
-custom_minimum_size = Vector2(100, 0)
-layout_mode = 2
 min_value = 200.0
 max_value = 500.0
 step = 10.0
 value = 300.0
 
-[node name="DiskHeightValue" type="Label" parent="CenterContainer/MainPanel/MarginContainer/VBox/ScrollContainer/SettingsVBox/SizeSection/SizeContent/SizeVBox/DiskHeightRow"]
+[node name="DiskHeightValue" type="Label" parent="MarginContainer/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/SizeSection/SizeContent/SizeVBox/DiskHeightRow"]
 custom_minimum_size = Vector2(72, 0)
 layout_mode = 2
-text = "300 pc"
 horizontal_alignment = 2
+text = "300 pc"
 
-[node name="DensityRow" type="HBoxContainer" parent="CenterContainer/MainPanel/MarginContainer/VBox/ScrollContainer/SettingsVBox/SizeSection/SizeContent/SizeVBox"]
+[node name="DensityRow" type="HBoxContainer" parent="MarginContainer/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/SizeSection/SizeContent/SizeVBox"]
 layout_mode = 2
 
-[node name="DensityLabel" type="Label" parent="CenterContainer/MainPanel/MarginContainer/VBox/ScrollContainer/SettingsVBox/SizeSection/SizeContent/SizeVBox/DensityRow"]
+[node name="DensityLabel" type="Label" parent="MarginContainer/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/SizeSection/SizeContent/SizeVBox/DensityRow"]
 layout_mode = 2
-size_flags_horizontal = 3
+custom_minimum_size = Vector2(96, 0)
 text = "Star Density"
 
-[node name="DensitySlider" type="HSlider" parent="CenterContainer/MainPanel/MarginContainer/VBox/ScrollContainer/SettingsVBox/SizeSection/SizeContent/SizeVBox/DensityRow"]
-custom_minimum_size = Vector2(100, 0)
+[node name="DensitySlider" type="HSlider" parent="MarginContainer/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/SizeSection/SizeContent/SizeVBox/DensityRow"]
 layout_mode = 2
+size_flags_horizontal = 3
 min_value = 0.5
 max_value = 2.0
 step = 0.1
 value = 1.0
 
-[node name="DensityValue" type="Label" parent="CenterContainer/MainPanel/MarginContainer/VBox/ScrollContainer/SettingsVBox/SizeSection/SizeContent/SizeVBox/DensityRow"]
-custom_minimum_size = Vector2(48, 0)
+[node name="DensityValue" type="Label" parent="MarginContainer/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/SizeSection/SizeContent/SizeVBox/DensityRow"]
+custom_minimum_size = Vector2(60, 0)
 layout_mode = 2
-text = "1.0x"
 horizontal_alignment = 2
+text = "1.0x"
 
-[node name="SeedContainer" type="HBoxContainer" parent="CenterContainer/MainPanel/MarginContainer/VBox/ScrollContainer/SettingsVBox"]
+[node name="SeedContainer" type="HBoxContainer" parent="MarginContainer/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox"]
 layout_mode = 2
 theme_override_constants/separation = 8
 
-[node name="SeedLabel" type="Label" parent="CenterContainer/MainPanel/MarginContainer/VBox/ScrollContainer/SettingsVBox/SeedContainer"]
+[node name="SeedLabel" type="Label" parent="MarginContainer/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/SeedContainer"]
 layout_mode = 2
+custom_minimum_size = Vector2(96, 0)
 text = "Seed"
 
-[node name="SeedSpin" type="SpinBox" parent="CenterContainer/MainPanel/MarginContainer/VBox/ScrollContainer/SettingsVBox/SeedContainer"]
+[node name="SeedSpin" type="SpinBox" parent="MarginContainer/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/SeedContainer"]
 layout_mode = 2
 size_flags_horizontal = 3
-min_value = 1.0
+min_value = 0.0
 max_value = 999999.0
 value = 12345.0
 
-[node name="RandomizeButton" type="Button" parent="CenterContainer/MainPanel/MarginContainer/VBox/ScrollContainer/SettingsVBox/SeedContainer"]
+[node name="RandomizeButton" type="Button" parent="MarginContainer/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/SeedContainer"]
 layout_mode = 2
-text = "🎲"
+text = "Randomize"
 
-[node name="HSeparator2" type="HSeparator" parent="CenterContainer/MainPanel/MarginContainer/VBox"]
+[node name="FooterVBox" type="VBoxContainer" parent="MarginContainer/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox"]
 layout_mode = 2
+theme_override_constants/separation = 10
 
-[node name="Buttons" type="VBoxContainer" parent="CenterContainer/MainPanel/MarginContainer/VBox"]
+[node name="SummaryLabel" type="Label" parent="MarginContainer/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/FooterVBox"]
+visible = false
+custom_minimum_size = Vector2(220, 0)
 layout_mode = 2
-theme_override_constants/separation = 8
+autowrap_mode = 2
+theme_override_colors/font_color = Color(0.72, 0.76, 0.82, 1)
+text = ""
 
-[node name="StartButton" type="Button" parent="CenterContainer/MainPanel/MarginContainer/VBox/Buttons"]
+[node name="AssumptionsLabel" type="Label" parent="MarginContainer/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/FooterVBox"]
+visible = false
+custom_minimum_size = Vector2(220, 0)
+layout_mode = 2
+autowrap_mode = 2
+theme_override_colors/font_color = Color(0.631373, 0.701961, 0.772549, 1)
+text = ""
+
+[node name="IssuesTitle" type="Label" parent="MarginContainer/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/FooterVBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.921569, 0.768627, 0.470588, 1)
+text = "Validation"
+
+[node name="IssuesContainer" type="VBoxContainer" parent="MarginContainer/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/FooterVBox"]
+layout_mode = 2
+theme_override_constants/separation = 4
+
+[node name="Buttons" type="VBoxContainer" parent="MarginContainer/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/FooterVBox"]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="StartButton" type="Button" parent="MarginContainer/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/FooterVBox/Buttons"]
 layout_mode = 2
 size_flags_horizontal = 3
 text = "Open Galaxy Viewer"
 
-[node name="LoadButton" type="Button" parent="CenterContainer/MainPanel/MarginContainer/VBox/Buttons"]
+[node name="LoadButton" type="Button" parent="MarginContainer/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/FooterVBox/Buttons"]
 layout_mode = 2
 size_flags_horizontal = 3
 text = "Load Galaxy"
 
-[node name="QuitButton" type="Button" parent="CenterContainer/MainPanel/MarginContainer/VBox/Buttons"]
+[node name="QuitButton" type="Button" parent="MarginContainer/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/FooterVBox/Buttons"]
+visible = false
 layout_mode = 2
 size_flags_horizontal = 3
 text = "Quit"

@@ -12,7 +12,7 @@ public partial class GalaxyViewer
 	private const int FileMenuSaveId = 1;
 	private const int FileMenuLoadId = 2;
 	private const int FileMenuNewGalaxyId = 3;
-	private const int EditMenuApplyConfigId = 10;
+	private const int FileMenuReturnToMainMenuId = 4;
 	private const int ViewMenuShowCompassId = 20;
 	private const int ViewMenuCalculateRoutesId = 21;
 	private const int WindowMenuFullscreenId = 30;
@@ -28,7 +28,6 @@ public partial class GalaxyViewer
 		}
 
 		ConfigureFileMenu(CreateMenuButton(menuRow, "File"));
-		ConfigureEditMenu(CreateMenuButton(menuRow, "Edit"));
 		ConfigureViewMenu(CreateMenuButton(menuRow, "View"));
 		ConfigureWindowMenu(CreateMenuButton(menuRow, "Window"));
 		ConfigureHelpMenu(CreateMenuButton(menuRow, "Help"));
@@ -53,13 +52,7 @@ public partial class GalaxyViewer
 		popup.AddItem("Load...", FileMenuLoadId);
 		popup.AddSeparator();
 		popup.AddItem("New Galaxy...", FileMenuNewGalaxyId);
-	}
-
-	private void ConfigureEditMenu(MenuButton menuButton)
-	{
-		PopupMenu popup = menuButton.GetPopup();
-		popup.IdPressed += OnEditMenuIdPressed;
-		popup.AddItem("Open Galaxy Studio", EditMenuApplyConfigId);
+		popup.AddItem("Return to Main Menu", FileMenuReturnToMainMenuId);
 	}
 
 	private void ConfigureViewMenu(MenuButton menuButton)
@@ -132,14 +125,12 @@ public partial class GalaxyViewer
 		if (id == FileMenuNewGalaxyId)
 		{
 			EmitSignal(SignalName.NewGalaxyRequested);
+			return;
 		}
-	}
 
-	private void OnEditMenuIdPressed(long id)
-	{
-		if (id == EditMenuApplyConfigId)
+		if (id == FileMenuReturnToMainMenuId)
 		{
-			EmitSignal(SignalName.NewGalaxyRequested);
+			EmitSignal(SignalName.MainMenuRequested);
 		}
 	}
 

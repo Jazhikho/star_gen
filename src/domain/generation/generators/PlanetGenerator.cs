@@ -98,7 +98,8 @@ public static class PlanetGenerator
         RingSystemProps? ringSystem = null;
         if (ShouldGenerateRings(spec, sizeCategory) && RingSystemGenerator.ShouldHaveRings(physical, context, rng))
         {
-            ringSystem = RingSystemGenerator.Generate(null, physical, context, rng);
+            RingSystemSpec ringSpec = new RingSystemSpec(spec.GenerationSeed, spec.RingComplexity);
+            ringSystem = RingSystemGenerator.Generate(ringSpec, physical, context, rng);
         }
 
         CelestialBody body = new(

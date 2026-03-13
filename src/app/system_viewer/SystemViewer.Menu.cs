@@ -93,7 +93,7 @@ public partial class SystemViewer
         popup.SetItemDisabled(popup.ItemCount - 1, _currentSystem == null);
         popup.AddItem("Load...", FileMenuLoadId);
         popup.AddSeparator();
-        popup.AddItem(_backButton?.Text ?? "Return", FileMenuReturnId);
+        popup.AddItem(_backNavigationText, FileMenuReturnId);
     }
 
     private void RebuildViewMenu(PopupMenu popup)

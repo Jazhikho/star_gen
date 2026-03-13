@@ -38,6 +38,12 @@ public partial class GalaxyViewer : Node3D, IGalaxyViewerSavedStateHost
 	public delegate void NewGalaxyRequestedEventHandler();
 
 	/// <summary>
+	/// Emitted when the user requests to return directly to the main menu.
+	/// </summary>
+	[Signal]
+	public delegate void MainMenuRequestedEventHandler();
+
+	/// <summary>
 	/// Master seed for the galaxy.
 	/// </summary>
 	[Export]

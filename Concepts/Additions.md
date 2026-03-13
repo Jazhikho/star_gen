@@ -1,8 +1,10 @@
 ## Concept expansion menu: classification and placement
 
-**Already in main (no prototype required):** Core object **generation** (stars, planets, moons, asteroids — StarGenerator, PlanetGenerator, MoonGenerator, AsteroidGenerator, RingSystemGenerator) and **appearance** (object rendering: BodyRenderer, MaterialFactory, StarShaderParams, GasGiantShaderParams, TerrestrialShaderParams, ring/atmosphere shaders) are in the main program. So are system and galaxy generation, population framework, stations, and jump lanes. Once a prototype is fully folded into main, remove it from Concepts/ or src/app/prototypes/ and from the Placement column below (see CLAUDE.md).
+**Already in main (no prototype required):** Core object **generation** (stars, planets, moons, asteroids - StarGenerator, PlanetGenerator, MoonGenerator, AsteroidGenerator, RingSystemGenerator) and **appearance** (object rendering: BodyRenderer, MaterialFactory, StarShaderParams, GasGiantShaderParams, TerrestrialShaderParams, ring/atmosphere shaders) are in the main program. So are system and galaxy generation, population framework, stations, detailed station design, and jump lanes. Once a prototype is fully folded into main, remove it from Concepts/ or src/app/prototypes/ and from the Placement column below (see CLAUDE.md).
 
 **Separation from Roadmap:** This document holds exploratory concepts and tools. When a prototype meets all migration gates (see CLAUDE.md), it can be added as an effort (or part of one) in Docs/Roadmap.md; once it is folded into main, remove it from this menu and from Concepts/. See Docs/Roadmap.md for formal efforts.
+
+**Human-audit note:** Prototypes touching civilisation, culture, religion, language, species framing, or other culture-adjacent worldbuilding are higher-risk. They may use AI for bounded ideation or critique, but they require explicit human audit for bias, analogy boundaries, unsupported realism claims, and publication suitability before fold-in or release.
 
 Items are classified as **Generator** (creates data), **Simulator** (changes data over time), **Validator** (checks plausibility/consistency), **Viewer/Editor** (inspect/tune), or **Exporter** (use elsewhere). **Placement** gives the status (Prototype TODO, Roadmap effort TODO, or Other) and, where one exists, the Concepts/ folder or effort holding the current prototype.
 

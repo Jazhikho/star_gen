@@ -83,15 +83,12 @@ theme_override_constants/margin_bottom = 12
 layout_mode = 2
 theme_override_constants/separation = 8
 
-[node name="MenuRow" type="HBoxContainer" parent="UI/TopBar/MarginContainer/TopBarVBox"]
-layout_mode = 2
-theme_override_constants/separation = 6
-
 [node name="HeaderRow" type="HBoxContainer" parent="UI/TopBar/MarginContainer/TopBarVBox"]
 layout_mode = 2
 theme_override_constants/separation = 20
 
 [node name="BackButton" type="Button" parent="UI/TopBar/MarginContainer/TopBarVBox/HeaderRow"]
+visible = false
 layout_mode = 2
 tooltip_text = "Back to Galaxy (Esc)"
 text = "← Galaxy"
@@ -109,6 +106,10 @@ modulate = Color(0.7, 0.7, 0.7, 1)
 layout_mode = 2
 size_flags_horizontal = 3
 text = "Ready"
+
+[node name="MenuRow" type="HBoxContainer" parent="UI/TopBar/MarginContainer/TopBarVBox"]
+layout_mode = 2
+theme_override_constants/separation = 6
 
 [node name="SidePanel" type="Panel" parent="UI"]
 custom_minimum_size = Vector2(332, 0)

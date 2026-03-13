@@ -160,6 +160,16 @@ public partial class MainApp
     }
 
     /// <summary>
+    /// Returns from the galaxy viewer directly to the main menu.
+    /// </summary>
+    private void OnGalaxyViewerMainMenuRequested()
+    {
+        _systemOrigin = NavigationOrigin.None;
+        _objectOrigin = NavigationOrigin.None;
+        ShowMainMenu();
+    }
+
+    /// <summary>
     /// Launches the standalone system viewer from the studio.
     /// </summary>
     private void OnSystemGenerationStarted(SolarSystemSpec spec)
@@ -181,7 +191,7 @@ public partial class MainApp
         _systemOrigin = NavigationOrigin.None;
         _objectOrigin = NavigationOrigin.Menu;
         ShowObjectViewer();
-        _objectViewer?.SetBackNavigationVisibility(true, "<- Back to Menu", "Return to the main menu");
+        _objectViewer?.SetBackNavigationVisibility(true, "Return to Main Menu", "Return to the main menu", true);
         _objectViewer?.LaunchStandaloneGeneration(request);
     }
 
@@ -258,7 +268,7 @@ public partial class MainApp
         _systemOrigin = NavigationOrigin.None;
         _objectOrigin = NavigationOrigin.Menu;
         ShowObjectViewer();
-        _objectViewer?.SetBackNavigationVisibility(true, "<- Back to Menu", "Return to the main menu");
+        _objectViewer?.SetBackNavigationVisibility(true, "Return to Main Menu", "Return to the main menu", true);
         _objectViewer?.SetGenerationSectionVisible(false);
         SaveDataLoadResult result = _objectViewer?.LoadBodyFromPath(path) ?? new SaveDataLoadResult();
         if (!result.Success)
@@ -435,7 +445,7 @@ public partial class MainApp
             return;
         }
 
-        _objectViewer.SetBackNavigationVisibility(true, "<- Back to System", "Return to the system viewer");
+        _objectViewer.SetBackNavigationVisibility(true, "Return to System Viewer", "Return to the system viewer");
         _objectViewer.SetGenerationSectionVisible(false);
         _objectViewer.DisplayExternalBody(typedBody, moonPayload, starSeed);
     }
@@ -475,7 +485,7 @@ public partial class MainApp
         if (_objectOrigin == NavigationOrigin.Menu)
         {
             _objectOrigin = NavigationOrigin.None;
-            ShowObjectGenerationScreen();
+            ShowMainMenu();
             return;
         }
 
@@ -490,7 +500,7 @@ public partial class MainApp
         if (_systemOrigin == NavigationOrigin.Menu)
         {
             _systemOrigin = NavigationOrigin.None;
-            ShowSystemGenerationScreen();
+            ShowMainMenu();
             return;
         }
 

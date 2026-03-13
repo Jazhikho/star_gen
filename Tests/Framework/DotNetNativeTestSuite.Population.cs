@@ -5,6 +5,7 @@ using Godot;
 using Godot.Collections;
 using StarGen.Domain.Population;
 using StarGen.Tests.Unit.Population;
+using StarGen.Tests.Unit.Population.StationDesign;
 
 namespace StarGen.Tests.Framework;
 
@@ -625,5 +626,16 @@ public static partial class DotNetNativeTestSuite
         runner.RunNativeTest("TestStationGenerator::test_invalid_spec_warnings", TestStationGenerator.TestInvalidSpecWarnings);
         runner.RunNativeTest("TestStationGenerator::test_decommission_chance", TestStationGenerator.TestDecommissionChance);
         runner.RunNativeTest("TestStationGenerator::test_establishment_years", TestStationGenerator.TestEstablishmentYears);
+        TestDesignPresetCatalog.RunAll(runner);
+        TestPresetApplicator.RunAll(runner);
+        TestHullCalculator.RunAll(runner);
+        TestCrewCalculator.RunAll(runner);
+        TestBudgetFitter.RunAll(runner);
+        TestDesignMapping.RunAll(runner);
+        TestDesignCalculator.RunAll(runner);
+        TestDesignResultSerialization.RunAll(runner);
+        TestStationDesignRegression.RunAll(runner);
+        TestClassificationReportSerialization.RunAll(runner);
+        TestClassificationEvaluator.RunAll(runner);
     }
 }

@@ -4,7 +4,7 @@ Godot 4.x - C#-first runtime | DRY + SOLID | Deterministic generation with test 
 
 ## Version history
 
-Release notes and version summaries are in the [README](../README.md#version-history). **v0.1** = commit `90e2636`; **v0.2** = asteroid belts, scientific calibration; **v0.3** = user-focused main menu, save system docs, release notes in-app.
+Release notes and version summaries are in the [README](../README.md#version-history). **v0.1** = commit `90e2636`; **v0.2** = asteroid belts, scientific calibration; **v0.3** = user-focused main menu, save system docs, release notes in-app; **v0.5** = first public release since `0.3.0`, rolling up the internal `0.4.x` work into a single release build.
 
 ## Overview
 
@@ -25,6 +25,9 @@ This roadmap builds StarGen in three layers: (1) viewable celestial objects (edi
 •	Minimal UX flow works end-to-end for the effort.
 •	Schema/versioning updated if data formats changed.
 •	Documentation updated (this roadmap, plus any dev notes needed to run/verify).
+•	If work was significantly AI-assisted, disclosure/provenance is updated in `AI-Provenance-Log.md`.
+•	AI-assisted scientific, realism, or citation-related claims are human-verified against reviewed sources before acceptance.
+•	Culture-, civilisation-, religion-, language-, or species-related outputs receive explicit human audit before merge or release.
 
 ---
 
@@ -59,6 +62,9 @@ Contributors pick an effort and work against master. Efforts can run in parallel
 | Science / extended classification export | CADRS-like or exoplanet-class export for worldbuilding or reference | — | — |
 
 **Note:** Branches `object-view` and `effort/traveller-use-case` have been merged into master. Work on Object editing, Object rendering v2, and Traveller Use Case now proceeds on master.
+
+Recently completed on `master` and included in the `0.5.0.0` release rollup:
+- Station design fold-in
 
 ---
 
@@ -260,6 +266,26 @@ Contributors pick an effort and work against master. Efforts can run in parallel
 
 **Acceptance:** Natives/colonies have tech level and regime; regime is valid for that tech level; placeholder replaced; CivilisationEngine remains the reference for the data shape and rules until folded in.
 
+**Human audit gate:** Any AI-assisted contribution touching regime, civilisation, culture, religion-adjacent, or plausibility framing must receive explicit human audit for bias, analogy boundaries, unsupported realism claims, and publication suitability before merge or release.
+
+---
+
+### Station design fold-in
+
+**Goal:** Fold the `Concepts/SpaceStationBuilder/` prototype into the main population framework as a deterministic, persisted, exportable station-design subsystem.
+
+**Deliverables:**
+- Canonical station-design domain under `src/domain/population/station_design/` with calculators, component catalogs, presets, design mapping, and classification reports.
+- Deterministic `DesignMapping` wiring from station purpose/class/context into template, hull tonnage, and hull configuration.
+- Station persistence that prefers full detailed design plus classification report, with compact-spec regeneration for backward compatibility.
+- ASCII stat-block export via `src/services/export/StationStatBlockExporter.cs`.
+- Regression fixtures for representative stations (`HighportB-50000`, `HighportA-200000`, `Defense-20000`, `Waystation-5000`).
+- Prototype retirement: remove `Concepts/SpaceStationBuilder/` after fold-in.
+
+**Tests:** Unit coverage for presets, calculators, mapping, serialization, classification, regression fixtures, and integration coverage for generator wiring, save/load round-trips, and exporter smoke output.
+
+**Acceptance:** `dotnet build StarGen.sln` succeeds cleanly, the headless Godot harness passes with station-design tests enabled, station detailed-design save/load is backward compatible, and the prototype folder is retired from `Concepts/`.
+
 ---
 
 ### Engine/tool integration
@@ -434,7 +460,7 @@ Proposed changes that do not fit any existing effort are added as a **new effort
 
 ## Additional efforts (to be considered later)
 
-**Prototypes:** Features beyond core (galaxy, systems, stars, planets, plus current rendering and population/stations/jump lanes) must be prototyped first and meet migration gates before fold-in; see **CLAUDE.md** (Prototypes section) for gates, lifecycle, and fold-in branch requirement. When a prototype meets all migration gates, it can be added as an effort (or part of one) in this Roadmap; once folded into main, remove it from Concepts/ and from the concept expansion menu in Concepts/Additions.md.
+**Prototypes:** Features beyond core (galaxy, systems, stars, planets, plus current rendering and population/stations/jump lanes) must be prototyped first and meet migration gates before fold-in; see **CLAUDE.md** (Prototypes section) for gates, lifecycle, and fold-in branch requirement. When a prototype meets all migration gates, it can be added as an effort (or part of one) in this Roadmap; once folded into main, remove it from Concepts/ and from the concept expansion menu in Concepts/Additions.md. If a prototype includes civilisation, culture, religion, language, species, or other culture-adjacent framing, it also requires explicit human audit before fold-in or release.
 
 **Exploratory concepts and tools:** See **Concepts/Additions.md** for the concept expansion menu (classified suggestions and prototype placements). Propose new efforts from that list when prioritising; once a prototype is folded into main, remove it from Additions and from Concepts/.
 
@@ -476,7 +502,7 @@ No implementation is implied; these are options for when contributors look beyon
 
 **Population framework:** PlanetProfile, PopulationLikelihood, native populations, colonies, history; `src/domain/population/`; unit tests in `Tests/Unit/Population/`.
 
-**Outposts and space stations:** StationGenerator, StationPlacementRules, OutpostAuthority; prototype at `src/app/prototypes/StationGeneratorPrototype.tscn`.
+**Outposts and space stations:** StationGenerator, StationPlacementRules, OutpostAuthority, detailed station design (`src/domain/population/station_design/`), persistence in `SpaceStation`, and `src/services/export/StationStatBlockExporter.cs`.
 
 **Jump lanes (domain + prototype + galaxy viewer):** `src/domain/jumplanes/`, `src/app/jumplanes_prototype/`, and galaxy viewer (`SectorJumpLaneRenderer`, Calculate Jump Routes in `GalaxyInspectorPanel`, save/load in `GalaxySaveData`). Remaining work: see "Jump lanes optimization and polish" effort above.
 

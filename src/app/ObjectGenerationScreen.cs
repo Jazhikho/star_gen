@@ -1,4 +1,5 @@
 using Godot;
+using StarGen.App.Shared;
 using StarGen.App.Viewer;
 using StarGen.Domain.Generation;
 
@@ -19,6 +20,9 @@ public partial class ObjectGenerationScreen : Control
     public delegate void back_requestedEventHandler();
 
     private VBoxContainer? _parameterVBox;
+    private BoxContainer? _studioRow;
+    private Control? _settingsPanel;
+    private Control? _summaryPanel;
     private Label? _versionLabel;
     private Label? _summaryLabel;
     private Label? _assumptionsLabel;
@@ -26,13 +30,17 @@ public partial class ObjectGenerationScreen : Control
     private Button? _startButton;
     private Button? _loadButton;
     private Button? _backButton;
+    private HBoxContainer? _seedRow;
     private OptionButton? _typeOption;
     private OptionButton? _presetOption;
     private SpinBox? _seedInput;
     private OptionButton? _rulesetModeOption;
     private CheckBox? _showTravellerReadoutsCheck;
-    private SpinBox? _lifePermissivenessInput;
-    private SpinBox? _populationPermissivenessInput;
+    private HSlider? _lifePermissivenessInput;
+    private Label? _lifePermissivenessValueLabel;
+    private HSlider? _populationPermissivenessInput;
+    private Label? _populationPermissivenessValueLabel;
+    private bool _showSeedControls;
 
     /// <summary>
     /// Builds the screen and initializes controls.
@@ -40,11 +48,15 @@ public partial class ObjectGenerationScreen : Control
     public override void _Ready()
     {
         CacheNodeReferences();
+        ApplyLayoutPolish();
         BuildParameterUi();
         ConnectSignals();
         ApplyVersionLabel();
         ApplyDefaults();
+        ApplySeedVisibilityPreference(rerollHiddenSeed: true);
         RefreshSummary();
+        ApplyResponsiveLayout();
+        Resized += ApplyResponsiveLayout;
     }
 
     /// <summary>
@@ -61,66 +73,54 @@ public partial class ObjectGenerationScreen : Control
     }
 
     /// <summary>
+    /// Applies the global studio seed-visibility preference and optionally rerolls hidden seeds.
+    /// </summary>
+    public void ApplySeedVisibilityPreference(bool rerollHiddenSeed)
+    {
+        StarGen.Services.Persistence.StudioUiPreferencesService.StudioUiPreferences preferences =
+            StarGen.Services.Persistence.StudioUiPreferencesService.LoadOrDefault();
+        _showSeedControls = preferences.ShowSeedControls;
+
+        if (_seedRow != null)
+        {
+            _seedRow.Visible = _showSeedControls;
+        }
+
+        if (rerollHiddenSeed && !_showSeedControls && _seedInput != null)
+        {
+            _seedInput.Value = GenerateHiddenSeed();
+        }
+
+        RefreshSummary();
+    }
+
+    /// <summary>
     /// Returns the currently selected launch request.
     /// </summary>
     public ObjectGenerationRequest GetCurrentRequest()
     {
-        ObjectGenerationRequest request = new ObjectGenerationRequest();
-        if (_typeOption != null)
-        {
-            request.ObjectType = (ObjectViewer.ObjectType)_typeOption.GetSelectedId();
-        }
-
-        if (_presetOption != null)
-        {
-            request.PresetId = _presetOption.GetSelectedId();
-        }
-
-        if (_seedInput != null)
-        {
-            request.SeedValue = (int)_seedInput.Value;
-        }
-
-        request.UseCaseSettings = BuildUseCaseSettingsFromControls();
-        return request;
+        return BuildEnhancedRequest();
     }
 
     private void CacheNodeReferences()
     {
         const string Root = "MarginContainer/MainPanel/MarginContainer/VBox";
+        _studioRow = GetNodeOrNull<BoxContainer>($"{Root}/StudioRow");
+        _settingsPanel = GetNodeOrNull<Control>($"{Root}/StudioRow/SettingsPanel");
+        _summaryPanel = null;
         _versionLabel = GetNodeOrNull<Label>($"{Root}/HeaderRow/VersionLabel");
         _parameterVBox = GetNodeOrNull<VBoxContainer>($"{Root}/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox");
-        _summaryLabel = GetNodeOrNull<Label>($"{Root}/StudioRow/SummaryPanel/MarginContainer/SummaryVBox/SummaryLabel");
-        _assumptionsLabel = GetNodeOrNull<Label>($"{Root}/StudioRow/SummaryPanel/MarginContainer/SummaryVBox/AssumptionsLabel");
-        _issuesContainer = GetNodeOrNull<VBoxContainer>($"{Root}/StudioRow/SummaryPanel/MarginContainer/SummaryVBox/IssuesContainer");
-        _startButton = GetNodeOrNull<Button>($"{Root}/StudioRow/SummaryPanel/MarginContainer/SummaryVBox/Buttons/StartButton");
-        _loadButton = GetNodeOrNull<Button>($"{Root}/StudioRow/SummaryPanel/MarginContainer/SummaryVBox/Buttons/LoadButton");
+        _summaryLabel = GetNodeOrNull<Label>($"{Root}/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/FooterVBox/SummaryLabel");
+        _assumptionsLabel = GetNodeOrNull<Label>($"{Root}/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/FooterVBox/AssumptionsLabel");
+        _issuesContainer = GetNodeOrNull<VBoxContainer>($"{Root}/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/FooterVBox/IssuesContainer");
+        _startButton = GetNodeOrNull<Button>($"{Root}/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/FooterVBox/Buttons/StartButton");
+        _loadButton = GetNodeOrNull<Button>($"{Root}/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/FooterVBox/Buttons/LoadButton");
         _backButton = GetNodeOrNull<Button>($"{Root}/HeaderRow/BackButton");
     }
 
     private void BuildParameterUi()
     {
-        if (_parameterVBox == null || _typeOption != null)
-        {
-            return;
-        }
-
-        _typeOption = AddOptionRow("Type");
-        _typeOption.AddItem("Star", (int)ObjectViewer.ObjectType.Star);
-        _typeOption.AddItem("Planet", (int)ObjectViewer.ObjectType.Planet);
-        _typeOption.AddItem("Moon", (int)ObjectViewer.ObjectType.Moon);
-        _typeOption.AddItem("Asteroid", (int)ObjectViewer.ObjectType.Asteroid);
-
-        _presetOption = AddOptionRow("Preset");
-        _seedInput = AddSpinRow("Seed", 1.0, 999999.0, 1.0);
-        _rulesetModeOption = AddOptionRow("Ruleset");
-        _rulesetModeOption.AddItem("Default", (int)GenerationUseCaseSettings.RulesetModeType.Default);
-        _rulesetModeOption.AddItem("Traveller", (int)GenerationUseCaseSettings.RulesetModeType.Traveller);
-        _showTravellerReadoutsCheck = AddCheckRow("Show Traveller / UWP Readouts");
-        _lifePermissivenessInput = AddSpinRow("Life Bias", 0.0, 1.0, 0.05);
-        _populationPermissivenessInput = AddSpinRow("Pop. Bias", 0.0, 1.0, 0.05);
-
-        RebuildPresetOptions();
+        BuildEnhancedParameterUi();
     }
 
     private SpinBox AddSpinRow(string labelText, double minValue, double maxValue, double step)
@@ -159,194 +159,77 @@ public partial class ObjectGenerationScreen : Control
         row.AddThemeConstantOverride("separation", 10);
         Label label = new Label();
         label.Text = labelText;
-        label.CustomMinimumSize = new Vector2(110.0f, 0.0f);
+        label.CustomMinimumSize = new Vector2(96.0f, 0.0f);
         row.AddChild(label);
         _parameterVBox!.AddChild(row);
         return row;
     }
 
+    private void ApplyResponsiveLayout()
+    {
+        StudioScreenLayoutHelper.ApplyResponsiveStudioLayout(this, _studioRow, _settingsPanel, _summaryPanel);
+    }
+
     private void ConnectSignals()
     {
-        if (_startButton != null)
-        {
-            _startButton.Pressed += OnStartPressed;
-        }
-
-        if (_loadButton != null)
-        {
-            _loadButton.Pressed += () => EmitSignal(SignalName.load_object_requested);
-        }
-
-        if (_backButton != null)
-        {
-            _backButton.Pressed += () => EmitSignal(SignalName.back_requested);
-        }
-
-        if (_typeOption != null)
-        {
-            _typeOption.ItemSelected += _ => OnTypeChanged();
-        }
-
-        if (_presetOption != null)
-        {
-            _presetOption.ItemSelected += _ => RefreshSummary();
-        }
-
-        if (_seedInput != null)
-        {
-            _seedInput.ValueChanged += _ => RefreshSummary();
-        }
-
-        if (_rulesetModeOption != null)
-        {
-            _rulesetModeOption.ItemSelected += OnRulesetModeSelected;
-        }
-
-        if (_showTravellerReadoutsCheck != null)
-        {
-            _showTravellerReadoutsCheck.Toggled += _ => RefreshSummary();
-        }
-
-        if (_lifePermissivenessInput != null)
-        {
-            _lifePermissivenessInput.ValueChanged += _ => RefreshSummary();
-        }
-
-        if (_populationPermissivenessInput != null)
-        {
-            _populationPermissivenessInput.ValueChanged += _ => RefreshSummary();
-        }
+        ConnectEnhancedSignals();
     }
 
     private void ApplyVersionLabel()
     {
         if (_versionLabel != null)
         {
-            string version = ProjectSettings.GetSetting("application/config/version", "0.4.1.1").AsString();
+			string version = ProjectSettings.GetSetting("application/config/version", "0.5.0.0").AsString();
             _versionLabel.Text = $"Version {version}";
         }
     }
 
     private void ApplyDefaults()
     {
-        if (_typeOption != null)
-        {
-            _typeOption.Select((int)ObjectViewer.ObjectType.Planet);
-        }
-
-        if (_seedInput != null)
-        {
-            _seedInput.Value = 12345.0;
-        }
-
-        if (_rulesetModeOption != null)
-        {
-            _rulesetModeOption.Select((int)GenerationUseCaseSettings.RulesetModeType.Default);
-        }
-
-        if (_showTravellerReadoutsCheck != null)
-        {
-            _showTravellerReadoutsCheck.ButtonPressed = false;
-        }
-
-        if (_lifePermissivenessInput != null)
-        {
-            _lifePermissivenessInput.Value = 0.5;
-        }
-
-        if (_populationPermissivenessInput != null)
-        {
-            _populationPermissivenessInput.Value = 0.5;
-        }
-
-        RebuildPresetOptions();
+        ApplyEnhancedDefaults();
     }
 
     private void OnStartPressed()
     {
+        if (!_showSeedControls && _seedInput != null)
+        {
+            _seedInput.Value = GenerateHiddenSeed();
+        }
+
         EmitSignal(SignalName.start_object_generation, GetCurrentRequest());
     }
 
     private void OnTypeChanged()
     {
-        RebuildPresetOptions();
-        RefreshSummary();
+        OnEnhancedTypeChanged();
     }
 
     private void OnRulesetModeSelected(long selectedId)
     {
-        if (selectedId == (long)GenerationUseCaseSettings.RulesetModeType.Traveller)
-        {
-            if (_showTravellerReadoutsCheck != null)
-            {
-                _showTravellerReadoutsCheck.ButtonPressed = true;
-            }
-        }
-
-        RefreshSummary();
+        OnEnhancedRulesetModeSelected(selectedId);
     }
 
     private void RebuildPresetOptions()
     {
-        if (_presetOption == null)
-        {
-            return;
-        }
-
-        _presetOption.Clear();
-        ObjectViewer.ObjectType objectType = GetSelectedObjectType();
-        if (objectType == ObjectViewer.ObjectType.Star)
-        {
-            _presetOption.AddItem("Random", 0);
-            _presetOption.AddItem("Sun-like", 1);
-            _presetOption.AddItem("Red Dwarf", 2);
-            _presetOption.AddItem("Hot Blue", 3);
-        }
-        else if (objectType == ObjectViewer.ObjectType.Planet)
-        {
-            _presetOption.AddItem("Random", 0);
-            _presetOption.AddItem("Earth-like", 1);
-            _presetOption.AddItem("Hot Jupiter", 2);
-            _presetOption.AddItem("Cold Giant", 3);
-            _presetOption.AddItem("Mars-like", 4);
-            _presetOption.AddItem("Dwarf Planet", 5);
-            _presetOption.AddItem("Ice Giant", 6);
-        }
-        else if (objectType == ObjectViewer.ObjectType.Moon)
-        {
-            _presetOption.AddItem("Random", 0);
-            _presetOption.AddItem("Luna-like", 1);
-            _presetOption.AddItem("Europa-like", 2);
-            _presetOption.AddItem("Titan-like", 3);
-            _presetOption.AddItem("Captured", 4);
-        }
-        else
-        {
-            _presetOption.AddItem("Random", 0);
-        }
-
-        _presetOption.Select(0);
+        RebuildEnhancedPresetOptions();
     }
 
     private void RefreshSummary()
     {
-        ObjectGenerationRequest request = GetCurrentRequest();
+        RefreshEnhancedSummary();
+    }
+
+    private void ApplyLayoutPolish()
+    {
         if (_summaryLabel != null)
         {
-            _summaryLabel.Text =
-                $"Seed {request.SeedValue}\n" +
-                $"Type {request.ObjectType}\n" +
-                $"Preset {GetSelectedPresetLabel()}\n" +
-                $"Ruleset {request.UseCaseSettings.RulesetMode}\n" +
-                $"Traveller Readouts {(request.UseCaseSettings.ShowTravellerReadouts ? "On" : "Off")}";
+            _summaryLabel.Visible = false;
         }
 
         if (_assumptionsLabel != null)
         {
-            _assumptionsLabel.Text = "Preset assumptions and use-case settings will be persisted into the generated body so downstream inspection and save/load flows stay aligned.";
+            _assumptionsLabel.Visible = false;
         }
-
-        RefreshIssuesUi();
     }
 
     private void RefreshIssuesUi()
@@ -363,6 +246,7 @@ public partial class ObjectGenerationScreen : Control
 
         Label noteLabel = new Label();
         noteLabel.AutowrapMode = TextServer.AutowrapMode.Word;
+        noteLabel.CustomMinimumSize = new Vector2(220.0f, 0.0f);
         noteLabel.Modulate = new Color(0.85f, 0.7f, 0.3f, 1.0f);
         noteLabel.Text = GetPresetAssumptionText(GetSelectedObjectType(), _presetOption?.GetSelectedId() ?? 0);
         _issuesContainer.AddChild(noteLabel);
@@ -396,28 +280,7 @@ public partial class ObjectGenerationScreen : Control
 
     private GenerationUseCaseSettings BuildUseCaseSettingsFromControls()
     {
-        GenerationUseCaseSettings settings = GenerationUseCaseSettings.CreateDefault();
-        if (_rulesetModeOption != null)
-        {
-            settings.RulesetMode = (GenerationUseCaseSettings.RulesetModeType)_rulesetModeOption.GetSelectedId();
-        }
-
-        if (_showTravellerReadoutsCheck != null)
-        {
-            settings.ShowTravellerReadouts = _showTravellerReadoutsCheck.ButtonPressed;
-        }
-
-        if (_lifePermissivenessInput != null)
-        {
-            settings.LifePermissiveness = _lifePermissivenessInput.Value;
-        }
-
-        if (_populationPermissivenessInput != null)
-        {
-            settings.PopulationPermissiveness = _populationPermissivenessInput.Value;
-        }
-
-        return settings;
+        return BuildEnhancedUseCaseSettingsFromControls();
     }
 
     private static string GetPresetAssumptionText(ObjectViewer.ObjectType objectType, int presetId)
@@ -503,5 +366,18 @@ public partial class ObjectGenerationScreen : Control
         }
 
         return "Random asteroid generation leaves composition and size open for the seed to resolve.";
+    }
+
+    private static int GenerateHiddenSeed()
+    {
+        long ticksUsec = unchecked((long)Time.GetTicksUsec());
+        long unixTimeUsec = (long)(Time.GetUnixTimeFromSystem() * 1000000.0);
+        long combined = (ticksUsec ^ unixTimeUsec) & 0x7FFFFFFF;
+        if (combined < 1)
+        {
+            combined = 1;
+        }
+
+        return (int)combined;
     }
 }

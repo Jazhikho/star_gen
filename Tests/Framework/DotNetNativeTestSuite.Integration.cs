@@ -40,10 +40,14 @@ public static partial class DotNetNativeTestSuite
         TestPopulationIntegration.RunAll(runner);
         TestGenerationParameters.RunAll(runner);
         TestWindowSettingsService.RunAll(runner);
+        TestObjectGenerationStudio.RunAll(runner);
         TestObjectViewerMoons.RunAll(runner);
+        TestMainMenuScreen.RunAll(runner);
+        TestStudioScreenLayoutHelper.RunAll(runner);
         TestViewerLayoutHelper.RunAll(runner);
         TestGalaxyViewerUI.RunAll(runner);
         TestObjectViewer.RunAll(runner);
+        TestStationDesignIntegration.RunAll(runner);
         TestSystemViewer.RunAll(runner);
         TestSystemViewerSaveLoad.RunAll(runner);
     }

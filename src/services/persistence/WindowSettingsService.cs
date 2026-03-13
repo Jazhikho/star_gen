@@ -14,6 +14,7 @@ public static class WindowSettingsService
 	private const string FullscreenKey = "fullscreen";
 	private const string WidthKey = "width";
 	private const string HeightKey = "height";
+	public static readonly Vector2I MinimumSupportedWindowSize = new Vector2I(640, 480);
 
 	private static readonly IReadOnlyList<Vector2I> _commonResolutions =
 	[
@@ -61,6 +62,12 @@ public static class WindowSettingsService
 	/// </summary>
 	public static void ApplySavedOrCurrent()
 	{
+		Window? window = GetRootWindow();
+		if (window != null)
+		{
+			ApplyMinimumSize(window);
+		}
+
 		WindowSettingsState settings = LoadOrCaptureCurrent();
 		Apply(settings, saveAfterApply: false);
 		if (!HasSavedSettings())
@@ -92,10 +99,15 @@ public static class WindowSettingsService
 	/// </summary>
 	public static WindowSettingsState CaptureCurrent()
 	{
-		DisplayServer.WindowMode mode = DisplayServer.WindowGetMode();
+		Window? window = GetRootWindow();
+		DisplayServer.WindowMode mode = window != null
+			? ToDisplayServerMode(window.Mode)
+			: DisplayServer.WindowGetMode();
 		bool fullscreen = mode == DisplayServer.WindowMode.Fullscreen
 			|| mode == DisplayServer.WindowMode.ExclusiveFullscreen;
-		Vector2I size = NormalizeResolution(DisplayServer.WindowGetSize());
+		Vector2I size = window != null
+			? NormalizeResolution(window.Size)
+			: NormalizeResolution(DisplayServer.WindowGetSize());
 		return new WindowSettingsState(fullscreen, size);
 	}
 
@@ -130,6 +142,13 @@ public static class WindowSettingsService
 			return;
 		}
 
+		Window? window = GetRootWindow();
+		if (window != null)
+		{
+			ApplyMinimumSize(window);
+			ApplyToWindow(window, settings);
+		}
+
 		if (settings.Fullscreen)
 		{
 			DisplayServer.WindowSetMode(DisplayServer.WindowMode.Fullscreen);
@@ -138,6 +157,7 @@ public static class WindowSettingsService
 		{
 			DisplayServer.WindowSetMode(DisplayServer.WindowMode.Windowed);
 			DisplayServer.WindowSetSize(settings.Resolution);
+			CenterWindow(settings.Resolution);
 		}
 
 		if (saveAfterApply)
@@ -152,6 +172,28 @@ public static class WindowSettingsService
 	public static void ApplyAndSave(WindowSettingsState settings)
 	{
 		Apply(settings, saveAfterApply: true);
+	}
+
+	/// <summary>
+	/// Applies the provided settings directly to a specific Godot window.
+	/// </summary>
+	public static void ApplyToWindow(Window window, WindowSettingsState settings)
+	{
+		if (window == null)
+		{
+			throw new ArgumentNullException(nameof(window));
+		}
+
+		ApplyMinimumSize(window);
+
+		if (settings.Fullscreen)
+		{
+			window.Mode = Window.ModeEnum.Fullscreen;
+			return;
+		}
+
+		window.Mode = Window.ModeEnum.Windowed;
+		window.Size = settings.Resolution;
 	}
 
 	/// <summary>
@@ -230,12 +272,54 @@ public static class WindowSettingsService
 			return new Vector2I(1600, 900);
 		}
 
-		return resolution;
+		int clampedWidth = Math.Max(resolution.X, MinimumSupportedWindowSize.X);
+		int clampedHeight = Math.Max(resolution.Y, MinimumSupportedWindowSize.Y);
+		return new Vector2I(clampedWidth, clampedHeight);
 	}
 
 	private static bool IsHeadless()
 	{
 		string displayName = DisplayServer.GetName();
 		return string.Equals(displayName, "headless", StringComparison.OrdinalIgnoreCase);
+	}
+
+	private static Window? GetRootWindow()
+	{
+		SceneTree? tree = Engine.GetMainLoop() as SceneTree;
+		return tree?.Root;
+	}
+
+	private static void ApplyMinimumSize(Window window)
+	{
+		window.MinSize = MinimumSupportedWindowSize;
+	}
+
+	private static DisplayServer.WindowMode ToDisplayServerMode(Window.ModeEnum mode)
+	{
+		if (mode == Window.ModeEnum.Fullscreen)
+		{
+			return DisplayServer.WindowMode.Fullscreen;
+		}
+
+		if (mode == Window.ModeEnum.ExclusiveFullscreen)
+		{
+			return DisplayServer.WindowMode.ExclusiveFullscreen;
+		}
+
+		return DisplayServer.WindowMode.Windowed;
+	}
+
+	private static void CenterWindow(Vector2I resolution)
+	{
+		int screen = DisplayServer.WindowGetCurrentScreen();
+		Rect2I usableRect = DisplayServer.ScreenGetUsableRect(screen);
+		if (usableRect.Size.X <= 0 || usableRect.Size.Y <= 0)
+		{
+			return;
+		}
+
+		int centeredX = usableRect.Position.X + (usableRect.Size.X - resolution.X) / 2;
+		int centeredY = usableRect.Position.Y + (usableRect.Size.Y - resolution.Y) / 2;
+		DisplayServer.WindowSetPosition(new Vector2I(centeredX, centeredY));
 	}
 }

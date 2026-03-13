@@ -1,3 +1,4 @@
+using System;
 using Godot;
 using StarGen.Domain.Celestial;
 using StarGen.Domain.Celestial.Components;
@@ -5,6 +6,10 @@ using StarGen.Domain.Celestial.Serialization;
 using StarGen.Domain.Celestial.Validation;
 using StarGen.Domain.Generation;
 using StarGen.Domain.Generation.Archetypes;
+using StarGen.Domain.Generation.Traveller;
+using OrbitZoneArchetype = StarGen.Domain.Generation.Archetypes.OrbitZone;
+using RingComplexityArchetype = StarGen.Domain.Generation.Archetypes.RingComplexity;
+using SizeCategoryArchetype = StarGen.Domain.Generation.Archetypes.SizeCategory;
 
 namespace StarGen.App.Viewer;
 
@@ -153,6 +158,7 @@ public partial class InspectorPanel : VBoxContainer
 		AddProperty("Name", nameValue);
 		AddProperty("Type", body.GetTypeString());
 		AddProperty("ID", body.Id);
+		AddWorldProfileSummary(body);
 		AddPhysicalSummary(body.Physical);
 
 		if (body.HasStellar() && body.Stellar != null)
@@ -161,21 +167,62 @@ public partial class InspectorPanel : VBoxContainer
 			AddProperty("Temperature", $"{body.Stellar.EffectiveTemperatureK:0} K");
 		}
 
-		if (body.HasOrbital() && body.Orbital != null)
-		{
-			AddProperty("Semi-major Axis", FormatDistance(body.Orbital.SemiMajorAxisM));
-			AddProperty("Eccentricity", $"{body.Orbital.Eccentricity:0.0000}");
-		}
-
-		if (body.HasAtmosphere() && body.Atmosphere != null)
-		{
-			AddProperty("Surface Pressure", $"{body.Atmosphere.SurfacePressurePa / 101325.0:0.###} atm");
-		}
-
+		AddOrbitalSummary(body);
+		AddSurfaceSummary(body);
+		AddAtmosphereSummary(body);
+		AddRingSummary(body);
 		AddGenerationSnapshot(body);
 		AddTravellerReadout(body);
+		AddPopulationSummary(body);
 		AddValidationSummary(body);
 		AddEditButton();
+	}
+
+	private void AddWorldProfileSummary(CelestialBody body)
+	{
+		if (_inspectorContainer == null)
+		{
+			return;
+		}
+
+		if (body.Type != CelestialType.Type.Planet && body.Type != CelestialType.Type.Moon)
+		{
+			return;
+		}
+
+		TravellerWorldProfile profile;
+		TravellerWorldProfile? stored = TravellerWorldGenerator.TryGetStoredProfile(body);
+		if (stored != null)
+		{
+			profile = stored;
+		}
+		else
+		{
+			profile = TravellerWorldGenerator.DeriveFromBody(body);
+		}
+
+		AddSectionHeader("World Profile");
+		AddProperty("UWP", profile.ToUwpString());
+		AddProperty("Starport", profile.StarportCode);
+		AddProperty(
+			"Atmosphere",
+			TravellerWorldProfile.ToHexDigit(profile.AtmosphereCode) + " " + TravellerWorldGenerator.DescribeAtmosphereCode(profile.AtmosphereCode));
+		AddProperty("Hydrographics", $"{TravellerWorldProfile.ToHexDigit(profile.HydrographicsCode)} ({profile.HydrographicsCode * 10}% nominal)");
+		AddProperty("Population", TravellerWorldProfile.ToHexDigit(profile.PopulationCode));
+		AddProperty("Government", TravellerWorldProfile.ToHexDigit(profile.GovernmentCode));
+		AddProperty("Law", TravellerWorldProfile.ToHexDigit(profile.LawCode));
+		AddProperty("Tech Level", TravellerWorldProfile.ToHexDigit(profile.TechLevelCode));
+		AddProperty("Gravity (g)", $"{body.Physical.GetSurfaceGravityMS2() / 9.80665:0.00} g");
+		if (body.HasSurface() && body.Surface != null)
+		{
+			double celsius = body.Surface.TemperatureK - 273.15;
+			AddProperty("Climate", $"{body.Surface.TemperatureK:0.0} K / {celsius:0.0} C");
+		}
+
+		if (body.HasPopulationData() && body.PopulationData != null && body.PopulationData.Suitability != null)
+		{
+			AddProperty("Suitability", body.PopulationData.Suitability.OverallScore.ToString());
+		}
 	}
 
 	private void AddPhysicalSummary(PhysicalProps physical)
@@ -317,17 +364,42 @@ public partial class InspectorPanel : VBoxContainer
 
 		if (body.Provenance.SpecSnapshot.ContainsKey("size_category"))
 		{
-			AddProperty("Size Target", body.Provenance.SpecSnapshot["size_category"].ToString());
+			AddProperty("Size Target", FormatSizeCategory(body.Provenance.SpecSnapshot["size_category"]));
 		}
 
 		if (body.Provenance.SpecSnapshot.ContainsKey("orbit_zone"))
 		{
-			AddProperty("Orbit Target", body.Provenance.SpecSnapshot["orbit_zone"].ToString());
+			AddProperty("Orbit Target", FormatOrbitZone(body.Provenance.SpecSnapshot["orbit_zone"]));
 		}
 
 		if (body.Provenance.SpecSnapshot.ContainsKey("spectral_class"))
 		{
 			AddProperty("Spectral Target", body.Provenance.SpecSnapshot["spectral_class"].ToString());
+		}
+
+		if (body.Provenance.SpecSnapshot.ContainsKey("has_atmosphere"))
+		{
+			AddProperty("Atmosphere Target", FormatOptionalBool(body.Provenance.SpecSnapshot["has_atmosphere"]));
+		}
+
+		if (body.Provenance.SpecSnapshot.ContainsKey("has_rings"))
+		{
+			AddProperty("Rings Target", FormatOptionalBool(body.Provenance.SpecSnapshot["has_rings"]));
+		}
+
+		if (body.Provenance.SpecSnapshot.ContainsKey("ring_complexity"))
+		{
+			AddProperty("Ring Complexity", FormatRingComplexity(body.Provenance.SpecSnapshot["ring_complexity"]));
+		}
+
+		if (body.Provenance.SpecSnapshot.ContainsKey("is_captured"))
+		{
+			AddProperty("Captured Target", (bool)body.Provenance.SpecSnapshot["is_captured"] ? "Yes" : "No");
+		}
+
+		if (body.Provenance.SpecSnapshot.ContainsKey("has_subsurface_ocean"))
+		{
+			AddProperty("Ocean Target", FormatOptionalBool(body.Provenance.SpecSnapshot["has_subsurface_ocean"]));
 		}
 	}
 
@@ -355,13 +427,138 @@ public partial class InspectorPanel : VBoxContainer
 			return;
 		}
 
+		TravellerWorldProfile profile;
+		TravellerWorldProfile? stored = TravellerWorldGenerator.TryGetStoredProfile(body);
+		if (stored != null)
+		{
+			profile = stored;
+		}
+		else
+		{
+			profile = TravellerWorldGenerator.DeriveFromBody(body);
+		}
+
 		AddSectionHeader("Traveller");
 		AddProperty("Ruleset", settings.IsTravellerMode() ? "Traveller" : "Default");
-		double diameterKm = body.Physical.RadiusM * 2.0 / 1000.0;
-		string sizeCode = TravellerSizeCode.ToStringUwp(TravellerSizeCode.DiameterKmToCode(diameterKm));
-		AddProperty("Size Code", sizeCode);
-		AddProperty("Life Bias", $"{settings.LifePermissiveness:0.00}");
-		AddProperty("Pop. Bias", $"{settings.PopulationPermissiveness:0.00}");
+		AddProperty("UWP", profile.ToUwpString());
+		AddProperty("Size Code", TravellerWorldProfile.ToHexDigit(profile.SizeCode));
+		AddProperty("Atmosphere Code", TravellerWorldProfile.ToHexDigit(profile.AtmosphereCode));
+		AddProperty("Hydrographics Code", TravellerWorldProfile.ToHexDigit(profile.HydrographicsCode));
+		AddProperty("Population Code", TravellerWorldProfile.ToHexDigit(profile.PopulationCode));
+		AddProperty("Government Code", TravellerWorldProfile.ToHexDigit(profile.GovernmentCode));
+		AddProperty("Law Code", TravellerWorldProfile.ToHexDigit(profile.LawCode));
+		AddProperty("Tech Level", TravellerWorldProfile.ToHexDigit(profile.TechLevelCode));
+	}
+
+	private void AddOrbitalSummary(CelestialBody body)
+	{
+		if (_inspectorContainer == null || !body.HasOrbital() || body.Orbital == null)
+		{
+			return;
+		}
+
+		AddSectionHeader("Orbit");
+		AddProperty("Semi-major Axis", FormatDistance(body.Orbital.SemiMajorAxisM));
+		AddProperty("Eccentricity", $"{body.Orbital.Eccentricity:0.0000}");
+		AddProperty("Periapsis", FormatDistance(body.Orbital.GetPeriapsisM()));
+		AddProperty("Apoapsis", FormatDistance(body.Orbital.GetApoapsisM()));
+		AddProperty("Inclination", $"{body.Orbital.InclinationDeg:0.00} deg");
+		if (!string.IsNullOrWhiteSpace(body.Orbital.ParentId))
+		{
+			AddProperty("Parent", body.Orbital.ParentId);
+		}
+	}
+
+	private void AddSurfaceSummary(CelestialBody body)
+	{
+		if (_inspectorContainer == null || !body.HasSurface() || body.Surface == null)
+		{
+			return;
+		}
+
+		AddSectionHeader("Surface");
+		AddProperty("Temperature", $"{body.Surface.TemperatureK:0.0} K");
+		AddProperty("Albedo", $"{body.Surface.Albedo:0.00}");
+		if (!string.IsNullOrWhiteSpace(body.Surface.SurfaceType))
+		{
+			AddProperty("Surface Type", body.Surface.SurfaceType);
+		}
+		AddProperty("Volcanism", $"{body.Surface.VolcanismLevel:0.00}");
+
+		if (body.Surface.HasTerrain() && body.Surface.Terrain != null)
+		{
+			AddProperty("Terrain", body.Surface.Terrain.TerrainType);
+			AddProperty("Elevation Range", FormatDistance(body.Surface.Terrain.ElevationRangeM));
+			AddProperty("Tectonics", $"{body.Surface.Terrain.TectonicActivity:0.00}");
+		}
+
+		if (body.Surface.HasHydrosphere() && body.Surface.Hydrosphere != null)
+		{
+			AddProperty("Ocean Coverage", $"{body.Surface.Hydrosphere.OceanCoverage * 100.0:0.#}%");
+			AddProperty("Ice Coverage", $"{body.Surface.Hydrosphere.IceCoverage * 100.0:0.#}%");
+			AddProperty("Water Type", body.Surface.Hydrosphere.WaterType);
+		}
+
+		if (body.Surface.HasCryosphere() && body.Surface.Cryosphere != null)
+		{
+			AddProperty("Polar Caps", $"{body.Surface.Cryosphere.PolarCapCoverage * 100.0:0.#}%");
+			AddProperty("Subsurface Ocean", body.Surface.Cryosphere.HasSubsurfaceOcean ? "Yes" : "No");
+			AddProperty("Cryovolcanism", $"{body.Surface.Cryosphere.CryovolcanismLevel:0.00}");
+		}
+	}
+
+	private void AddAtmosphereSummary(CelestialBody body)
+	{
+		if (_inspectorContainer == null || !body.HasAtmosphere() || body.Atmosphere == null)
+		{
+			return;
+		}
+
+		AddSectionHeader("Atmosphere");
+		AddProperty("Surface Pressure", $"{body.Atmosphere.SurfacePressurePa / 101325.0:0.###} atm");
+		AddProperty("Scale Height", FormatDistance(body.Atmosphere.ScaleHeightM));
+		AddProperty("Greenhouse", $"{body.Atmosphere.GreenhouseFactor:0.00}x");
+		if (body.Atmosphere.Composition.Count > 0)
+		{
+			AddProperty("Dominant Gas", body.Atmosphere.GetDominantGas());
+		}
+	}
+
+	private void AddRingSummary(CelestialBody body)
+	{
+		if (_inspectorContainer == null || !body.HasRingSystem() || body.RingSystem == null)
+		{
+			return;
+		}
+
+		AddSectionHeader("Rings");
+		AddProperty("Bands", body.RingSystem.GetBandCount().ToString());
+		AddProperty("Inner Radius", FormatDistance(body.RingSystem.GetInnerRadiusM()));
+		AddProperty("Outer Radius", FormatDistance(body.RingSystem.GetOuterRadiusM()));
+		AddProperty("Plane Tilt", $"{body.RingSystem.InclinationDeg:0.0} deg");
+	}
+
+	private void AddPopulationSummary(CelestialBody body)
+	{
+		if (_inspectorContainer == null || !body.HasPopulationData() || body.PopulationData == null)
+		{
+			return;
+		}
+
+		AddSectionHeader("Population");
+		AddProperty("Total Population", PropertyFormatter.FormatPopulation(body.PopulationData.GetTotalPopulation()));
+		AddProperty("Situation", body.PopulationData.GetPoliticalSituation());
+		AddProperty("Colonies", body.PopulationData.GetActiveColonyCount().ToString());
+		AddProperty("Native Groups", body.PopulationData.GetExtantNativeCount().ToString());
+		AddProperty("Dominant", body.PopulationData.GetDominantPopulationName());
+		if (body.PopulationData.Profile != null)
+		{
+			AddProperty("Habitability", body.PopulationData.Profile.HabitabilityScore.ToString());
+		}
+		if (body.PopulationData.Suitability != null)
+		{
+			AddProperty("Suitability", body.PopulationData.Suitability.OverallScore.ToString());
+		}
 	}
 
 	private void AddValidationSummary(CelestialBody body)
@@ -383,6 +580,7 @@ public partial class InspectorPanel : VBoxContainer
 		{
 			Label label = new Label();
 			label.AutowrapMode = TextServer.AutowrapMode.Word;
+			label.CustomMinimumSize = new Vector2(220.0f, 0.0f);
 			if (warning.Severity == ValidationError.SeverityLevel.Error)
 			{
 				label.Text = $"Error: {warning.Message}";
@@ -430,6 +628,79 @@ public partial class InspectorPanel : VBoxContainer
 		}
 
 		return $"{meters:0.###} m";
+	}
+
+	private static string FormatOptionalBool(Variant value)
+	{
+		if (value.VariantType == Variant.Type.Nil)
+		{
+			return "Auto";
+		}
+
+        if (value.VariantType == Variant.Type.Bool)
+        {
+            if ((bool)value)
+            {
+                return "Yes";
+            }
+
+            return "None";
+        }
+
+		return value.ToString();
+	}
+
+	private static string FormatSizeCategory(Variant value)
+	{
+		if (value.VariantType != Variant.Type.Int)
+		{
+			return value.ToString();
+		}
+
+		int intValue = (int)value;
+		if (!Enum.IsDefined(typeof(SizeCategoryArchetype.Category), intValue))
+		{
+			return intValue.ToString();
+		}
+
+		return ((SizeCategoryArchetype.Category)intValue).ToString();
+	}
+
+	private static string FormatOrbitZone(Variant value)
+	{
+		if (value.VariantType != Variant.Type.Int)
+		{
+			return value.ToString();
+		}
+
+		int intValue = (int)value;
+		if (!Enum.IsDefined(typeof(OrbitZoneArchetype.Zone), intValue))
+		{
+			return intValue.ToString();
+		}
+
+		return ((OrbitZoneArchetype.Zone)intValue).ToString();
+	}
+
+	private static string FormatRingComplexity(Variant value)
+	{
+		if (value.VariantType != Variant.Type.Int)
+		{
+			return value.ToString();
+		}
+
+		int intValue = (int)value;
+		if (intValue < 0)
+		{
+			return "Auto";
+		}
+
+		if (!Enum.IsDefined(typeof(RingComplexityArchetype.Level), intValue))
+		{
+			return intValue.ToString();
+		}
+
+		return ((RingComplexityArchetype.Level)intValue).ToString();
 	}
 
 	private static CelestialBody? ConvertVariantToCelestialBody(Variant value)

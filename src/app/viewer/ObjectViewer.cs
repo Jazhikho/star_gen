@@ -26,6 +26,12 @@ public partial class ObjectViewer : Node3D
 	public delegate void BackToSystemRequestedEventHandler();
 
 	/// <summary>
+	/// Emitted when the user wants to return directly to the main menu.
+	/// </summary>
+	[Signal]
+	public delegate void BackToMainMenuRequestedEventHandler();
+
+	/// <summary>
 	/// Emitted when focus shifts to a moon. Null means focus returned to the primary body.
 	/// </summary>
 	[Signal]
@@ -79,7 +85,6 @@ public partial class ObjectViewer : Node3D
 	internal Node3D? _cameraArm;
 	internal BodyRenderer? _bodyRenderer;
 	internal WorldEnvironment? _worldEnvironment;
-	internal Button? _backButton;
 	internal EditDialog? _editDialog;
 	internal ObjectViewerMoonSystem? _moonSystem;
 	internal CelestialBody? _currentBody;
@@ -93,6 +98,10 @@ public partial class ObjectViewer : Node3D
 	internal Rect2 _renderAreaRect = new Rect2();
 	internal ViewerStartupState _startupState = ViewerStartupState.UnconfiguredStandalone;
 	internal GenerationUseCaseSettings _activeUseCaseSettings = GenerationUseCaseSettings.CreateDefault();
+	internal bool _backNavigationVisible;
+	internal string _backNavigationText = "Return";
+	internal string _backNavigationTooltip = "Return";
+	internal bool _backNavigationReturnsToMainMenu;
 
 	/// <summary>
 	/// Initializes the viewer state.
@@ -205,11 +214,11 @@ public partial class ObjectViewer : Node3D
 
 		if (_navigatedFromSystem)
 		{
-			ShowBackButton("<- Back to System", "Return to the system viewer");
+			ShowBackButton("Return to System Viewer", "Return to the system viewer");
 		}
-		else if (_backButton != null && _backButton.Visible)
+		else if (_backNavigationVisible)
 		{
-			ShowBackButton(_backButton.Text, _backButton.TooltipText);
+			ShowBackButton(_backNavigationText, _backNavigationTooltip);
 		}
 		else
 		{
@@ -293,11 +302,15 @@ public partial class ObjectViewer : Node3D
 	/// <summary>
 	/// Shows or hides the top-level back button with caller-provided text.
 	/// </summary>
-	public void SetBackNavigationVisibility(bool visible, string buttonText = "<- Back", string tooltipText = "Return")
+	public void SetBackNavigationVisibility(
+		bool visible,
+		string buttonText = "Return",
+		string tooltipText = "Return",
+		bool returnToMainMenu = false)
 	{
 		if (visible)
 		{
-			ShowBackButton(buttonText, tooltipText);
+			ShowBackButton(buttonText, tooltipText, returnToMainMenu);
 			return;
 		}
 
@@ -331,7 +344,7 @@ public partial class ObjectViewer : Node3D
 		}
 
 		_navigatedFromSystem = false;
-		ShowBackButton("<- Back to Menu", "Return to the main menu");
+		ShowBackButton("Return to Main Menu", "Return to the main menu", true);
 		ClearDisplay();
 	}
 
@@ -366,7 +379,7 @@ public partial class ObjectViewer : Node3D
 			_presetOption.Select(request.PresetId);
 		}
 
-		GenerateObjectFromPreset(request.ObjectType, request.SeedValue);
+		GenerateObjectFromRequest(request);
 	}
 
 	/// <summary>

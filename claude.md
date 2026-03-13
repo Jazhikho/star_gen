@@ -67,6 +67,15 @@ Never domain → services/app.
 
 ---
 
+## AI-assisted workflow
+- Follow [AI-Use-Statement.md](AI-Use-Statement.md) for all AI-assisted work in this repository.
+- AI may assist with drafting, refactoring, testing, critique, and formatting, but **humans remain responsible** for design decisions, scientific claims, source evaluation, licensing judgments, publication decisions, and release approval.
+- Meaningful AI-assisted artifacts must be logged in [AI-Provenance-Log.md](AI-Provenance-Log.md).
+- AI-assisted scientific or realism-related claims must be verified by a human against `Sources/`, benchmark materials, or another human-reviewed reference set before merge.
+- Culture-, civilisation-, religion-, language-, or species-related outputs require explicit human audit before merge or release.
+
+---
+
 ## Deliverable format for code changes
 When proposing implementation, include:
 1) File list (paths)
@@ -180,3 +189,4 @@ Proposed changes that do not fit any existing effort are added as a **new effort
 
 ## Pre-commit discipline
 - **Before any commit:** Update all affected documentation. This includes Docs/ProjectStructure.md if files or folders were added, removed, or moved; Docs/Roadmap.md if efforts changed; and any other Docs that the change touches. Keep documentation in sync with the codebase.
+- **Before any commit of significant AI-assisted work:** Update [AI-Provenance-Log.md](AI-Provenance-Log.md) and ensure any relevant disclosure, source verification, or explicit human-audit notes are present in the touched docs.

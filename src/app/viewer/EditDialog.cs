@@ -742,6 +742,7 @@ public partial class EditDialog : Window
 		foreach (ValidationError issue in validation.Errors)
 		{
 			Label label = new Label();
+			label.CustomMinimumSize = new Vector2(240.0f, 0.0f);
 			label.AutowrapMode = TextServer.AutowrapMode.Word;
 			label.AddThemeFontSizeOverride("font_size", 11);
 			if (issue.Severity == ValidationError.SeverityLevel.Error)

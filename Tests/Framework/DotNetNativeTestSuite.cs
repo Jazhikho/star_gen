@@ -2671,6 +2671,18 @@ public static partial class DotNetNativeTestSuite
             "TestTravellerSizeCode::test_to_string_uwp",
             Tests.Unit.TestTravellerSizeCode.TestToStringUwp);
         runner.RunNativeTest(
+            "TestTravellerWorldGenerator::test_generate_planet_profile_honors_requested_codes",
+            Tests.Unit.TestTravellerWorldGenerator.TestGeneratePlanetProfileHonorsRequestedCodes);
+        runner.RunNativeTest(
+            "TestTravellerWorldGenerator::test_generate_planet_profile_population_zero_clears_dependent_codes",
+            Tests.Unit.TestTravellerWorldGenerator.TestGeneratePlanetProfilePopulationZeroClearsDependentCodes);
+        runner.RunNativeTest(
+            "TestTravellerWorldGenerator::test_apply_to_planet_spec_sets_expected_overrides",
+            Tests.Unit.TestTravellerWorldGenerator.TestApplyToPlanetSpecSetsExpectedOverrides);
+        runner.RunNativeTest(
+            "TestTravellerWorldGenerator::test_generate_planet_profile_avoids_all_zero_auto_world",
+            Tests.Unit.TestTravellerWorldGenerator.TestGeneratePlanetProfileAvoidsAllZeroAutoWorld);
+        runner.RunNativeTest(
             "TestUnits::test_solar_mass_round_trip",
             Tests.Unit.TestUnits.TestSolarMassRoundTrip);
         runner.RunNativeTest(

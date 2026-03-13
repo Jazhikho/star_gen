@@ -1,0 +1,18 @@
+{
+  "name": "Waystation-5000",
+  "template": "Waystation",
+  "hull_tons": 5000,
+  "configuration": "Sphere",
+  "used_tonnage": 2723,
+  "cargo_tonnage": 2277,
+  "total_cost": 326935000,
+  "total_crew": 19,
+  "power_demand": 23,
+  "power_output": 27,
+  "hardpoints_used": 2,
+  "warning_count": 0,
+  "earned_classifications": [
+    "StarportD",
+    "Waystation"
+  ]
+}

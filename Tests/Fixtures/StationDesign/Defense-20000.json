@@ -1,0 +1,18 @@
+{
+  "name": "Defense-20000",
+  "template": "Defense",
+  "hull_tons": 20000,
+  "configuration": "Sphere",
+  "used_tonnage": 6319,
+  "cargo_tonnage": 13681,
+  "total_cost": 3083050000,
+  "total_crew": 203,
+  "power_demand": 463,
+  "power_output": 602,
+  "hardpoints_used": 90,
+  "warning_count": 0,
+  "earned_classifications": [
+    "StarportD",
+    "DefensePlatform"
+  ]
+}

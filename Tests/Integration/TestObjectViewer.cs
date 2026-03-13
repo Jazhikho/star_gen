@@ -33,10 +33,11 @@ public static class TestObjectViewer
         runner.RunNativeTest("TestObjectViewer::test_viewer_save_and_load_body", TestViewerSaveAndLoadBody);
         runner.RunNativeTest("TestObjectViewer::test_preset_controls_exist", TestPresetControlsExist);
         runner.RunNativeTest("TestObjectViewer::test_earth_like_preset_updates_spec_snapshot", TestEarthLikePresetUpdatesSpecSnapshot);
-        runner.RunNativeTest("TestObjectViewer::test_standalone_back_button_stays_menu_scoped", TestStandaloneBackButtonStaysMenuScoped);
+        runner.RunNativeTest("TestObjectViewer::test_standalone_return_stays_menu_scoped", TestStandaloneReturnStaysMenuScoped);
         runner.RunNativeTest("TestObjectViewer::test_standalone_generator_waits_for_explicit_generation", TestStandaloneGeneratorWaitsForExplicitGeneration);
         runner.RunNativeTest("TestObjectViewer::test_use_case_controls_exist", TestUseCaseControlsExist);
         runner.RunNativeTest("TestObjectViewer::test_traveller_readout_visibility_tracks_settings", TestTravellerReadoutVisibilityTracksSettings);
+        runner.RunNativeTest("TestObjectViewer::test_inspector_shows_uwp_for_planets", TestInspectorShowsUwpForPlanets);
     }
 
     private static ObjectViewer CreateViewer()
@@ -377,7 +378,7 @@ public static class TestObjectViewer
         }
     }
 
-    private static void TestStandaloneBackButtonStaysMenuScoped()
+    private static void TestStandaloneReturnStaysMenuScoped()
     {
         ObjectViewer viewer = CreateViewer();
         try
@@ -387,14 +388,17 @@ public static class TestObjectViewer
             DotNetNativeTestSuite.AssertNotNull(generateButton, "Generate button should exist");
 
             Button? backButton = FindBackButton(viewer);
-            DotNetNativeTestSuite.AssertNotNull(backButton, "Standalone mode should show a back button");
-            DotNetNativeTestSuite.AssertTrue(backButton!.Text.Contains("Menu"), "Standalone mode should point back to the menu");
+            DotNetNativeTestSuite.AssertNull(backButton, "Standalone mode should not show a duplicate header back button");
+
+            PopupMenu? fileMenu = GetFileMenu(viewer);
+            DotNetNativeTestSuite.AssertNotNull(fileMenu, "Standalone mode should expose a file menu");
+            fileMenu!.EmitSignal(PopupMenu.SignalName.AboutToPopup);
+            DotNetNativeTestSuite.AssertTrue(PopupContainsText(fileMenu, "Return to Main Menu"), "Standalone mode should route return through the file menu");
 
             generateButton!.EmitSignal(Button.SignalName.Pressed);
 
-            Button? updatedBackButton = FindBackButton(viewer);
-            DotNetNativeTestSuite.AssertNotNull(updatedBackButton, "Regeneration should keep the back button visible");
-            DotNetNativeTestSuite.AssertTrue(updatedBackButton!.Text.Contains("Menu"), "Regeneration should preserve menu-scoped back navigation");
+            fileMenu.EmitSignal(PopupMenu.SignalName.AboutToPopup);
+            DotNetNativeTestSuite.AssertTrue(PopupContainsText(fileMenu, "Return to Main Menu"), "Regeneration should preserve menu-scoped return navigation");
         }
         finally
         {
@@ -472,6 +476,25 @@ public static class TestObjectViewer
         }
     }
 
+    private static void TestInspectorShowsUwpForPlanets()
+    {
+        ObjectViewer viewer = CreateViewer();
+        try
+        {
+            VBoxContainer? inspectorContainer = viewer.inspector_panel?.GetNodeOrNull<VBoxContainer>("InspectorContainer");
+            DotNetNativeTestSuite.AssertNotNull(inspectorContainer, "Inspector container should exist");
+
+            viewer.generate_object(ObjectViewer.ObjectType.Planet, 13579);
+
+            DotNetNativeTestSuite.AssertTrue(InspectorContainsText(inspectorContainer!, "World Profile"), "Planet inspector should show a world-profile section");
+            DotNetNativeTestSuite.AssertTrue(InspectorContainsText(inspectorContainer, "UWP"), "Planet inspector should surface UWP near the top of the readout");
+        }
+        finally
+        {
+            IntegrationTestUtils.CleanupNode(viewer);
+        }
+    }
+
     private static bool InspectorContainsText(Control root, string text)
     {
         foreach (Node child in root.GetChildren())
@@ -507,5 +530,37 @@ public static class TestObjectViewer
         }
 
         return null;
+    }
+
+    private static PopupMenu? GetFileMenu(ObjectViewer viewer)
+    {
+        HBoxContainer? menuRow = viewer.GetNodeOrNull<HBoxContainer>("UI/TopBar/MarginContainer/TopBarVBox/MenuRow");
+        if (menuRow == null)
+        {
+            return null;
+        }
+
+        foreach (Node child in menuRow.GetChildren())
+        {
+            if (child is MenuButton typedButton && typedButton.Text == "File")
+            {
+                return typedButton.GetPopup();
+            }
+        }
+
+        return null;
+    }
+
+    private static bool PopupContainsText(PopupMenu popupMenu, string text)
+    {
+        for (int index = 0; index < popupMenu.ItemCount; index += 1)
+        {
+            if (popupMenu.GetItemText(index).Contains(text))
+            {
+                return true;
+            }
+        }
+
+        return false;
     }
 }
