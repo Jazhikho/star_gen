@@ -48,8 +48,8 @@ public static class TestSystemPersistence
             "TestSystemPersistence::test_round_trip_full_data",
             TestRoundTripFullData);
         runner.RunNativeTest(
-            "TestSystemPersistence::test_generated_system_saves_compact_payload",
-            TestGeneratedSystemSavesCompactPayload);
+            "TestSystemPersistence::test_generated_system_without_auto_concepts_saves_compact_payload",
+            TestGeneratedSystemWithoutAutoConceptsSavesCompactPayload);
     }
 
     /// <summary>
@@ -217,9 +217,9 @@ public static class TestSystemPersistence
     }
 
     /// <summary>
-    /// Tests generated systems save their seed/spec payload instead of a full body dump.
+    /// Tests generated systems stay on the compact save path when concept layers are not auto-persisted.
     /// </summary>
-    private static void TestGeneratedSystemSavesCompactPayload()
+    private static void TestGeneratedSystemWithoutAutoConceptsSavesCompactPayload()
     {
         try
         {
@@ -239,16 +239,17 @@ public static class TestSystemPersistence
             DotNetNativeTestSuite.AssertEqual(Error.Ok, parser.Parse(json), "Saved JSON should parse");
 
             Godot.Collections.Dictionary data = (Godot.Collections.Dictionary)parser.Data;
-            DotNetNativeTestSuite.AssertEqual((int)SystemPersistence.SaveMode.Compact, (int)data["save_mode"], "Generated systems should save compact payloads");
-            DotNetNativeTestSuite.AssertTrue(data.ContainsKey("spec"), "Compact payload should include spec");
-            DotNetNativeTestSuite.AssertFalse(data.ContainsKey("system"), "Compact payload should not include full system snapshot");
+            DotNetNativeTestSuite.AssertEqual((int)SystemPersistence.SaveMode.Compact, (int)data["save_mode"], "Generated systems without auto concept state should save compact payloads");
+            DotNetNativeTestSuite.AssertFalse(data.ContainsKey("system"), "Compact payload should avoid the serialized system snapshot");
+            DotNetNativeTestSuite.AssertTrue(data.ContainsKey("spec"), "Compact payload should preserve the regeneration spec");
 
             SystemPersistenceLoadResult result = SystemPersistence.Load(TestJsonPath);
             DotNetNativeTestSuite.AssertTrue(result.Success, "Compact payload should load");
             DotNetNativeTestSuite.AssertNotNull(result.System, "Loaded system should exist");
-            DotNetNativeTestSuite.AssertEqual(generated.StarIds.Count, result.System.StarIds.Count, "Regenerated system should preserve star count");
+            DotNetNativeTestSuite.AssertEqual(generated.StarIds.Count, result.System.StarIds.Count, "Loaded compact system should preserve star count");
             DotNetNativeTestSuite.AssertNotNull(result.System.Provenance, "Loaded compact system should preserve provenance");
             DotNetNativeTestSuite.AssertTrue(result.System.Provenance.SpecSnapshot.ContainsKey("use_case_settings"), "Compact system payload should keep use-case settings in the spec snapshot");
+            DotNetNativeTestSuite.AssertFalse(result.System.HasConceptResults(), "Loaded system should remain free of auto-generated concept state");
 
             Godot.Collections.Dictionary settingsData = (Godot.Collections.Dictionary)result.System.Provenance.SpecSnapshot["use_case_settings"];
             GenerationUseCaseSettings settings = GenerationUseCaseSettings.FromDictionary(settingsData);

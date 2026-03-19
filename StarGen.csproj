@@ -11,6 +11,10 @@
 
   <ItemGroup>
     <Compile Remove="Concepts\ReligionGenerator\**\*.cs" />
+    <Compile Include="Concepts\ReligionGenerator\ReligionGenerator.cs" />
+    <Compile Include="Concepts\ReligionGenerator\ReligionParams.cs" />
+    <Compile Include="Concepts\ReligionGenerator\ReligionResult.cs" />
+    <Compile Include="Concepts\ReligionGenerator\ReligionRng.cs" />
   </ItemGroup>
 
   <ItemGroup>

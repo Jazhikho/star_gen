@@ -26,6 +26,12 @@ public partial class GalaxyViewer : Node3D, IGalaxyViewerSavedStateHost
 	public delegate void OpenSystemRequestedEventHandler(int starSeed, Vector3 worldPosition);
 
 	/// <summary>
+	/// Emitted when the user requests to open the concept atlas for the selected star or preview.
+	/// </summary>
+	[Signal]
+	public delegate void OpenConceptAtlasRequestedEventHandler(int starSeed, Vector3 worldPosition);
+
+	/// <summary>
 	/// Emitted when the galaxy seed changes.
 	/// </summary>
 	[Signal]

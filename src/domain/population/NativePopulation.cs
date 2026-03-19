@@ -1,5 +1,6 @@
 using Godot;
 using Godot.Collections;
+using StarGen.Domain.Concepts;
 
 namespace StarGen.Domain.Population;
 
@@ -92,6 +93,11 @@ public partial class NativePopulation : RefCounted
     /// Extra metadata.
     /// </summary>
     public Dictionary Metadata = new();
+
+    /// <summary>
+    /// Persisted concept results for this population.
+    /// </summary>
+    public ConceptResultStore ConceptResults = new();
 
     /// <summary>
     /// Returns the age of the population.
@@ -213,7 +219,7 @@ public partial class NativePopulation : RefCounted
             traits.Add(culturalTrait);
         }
 
-        return new Dictionary
+        Dictionary data = new Dictionary
         {
             ["id"] = Id,
             ["name"] = Name,
@@ -233,6 +239,13 @@ public partial class NativePopulation : RefCounted
             ["government"] = Government.ToDictionary(),
             ["history"] = History.ToDictionary(),
         };
+
+        if (!ConceptResults.IsEmpty())
+        {
+            data["concept_results"] = ConceptResults.ToDictionary();
+        }
+
+        return data;
     }
 
     /// <summary>
@@ -275,6 +288,11 @@ public partial class NativePopulation : RefCounted
         if (data.ContainsKey("metadata") && data["metadata"].VariantType == Variant.Type.Dictionary)
         {
             population.Metadata = CloneDictionary((Dictionary)data["metadata"]);
+        }
+
+        if (data.ContainsKey("concept_results") && data["concept_results"].VariantType == Variant.Type.Dictionary)
+        {
+            population.ConceptResults = ConceptResultStore.FromDictionary((Dictionary)data["concept_results"]);
         }
 
         if (data.ContainsKey("cultural_traits") && data["cultural_traits"].VariantType == Variant.Type.Array)

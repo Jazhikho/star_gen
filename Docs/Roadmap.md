@@ -47,6 +47,8 @@ Contributors pick an effort and work against master. Efforts can run in parallel
 | Jump lanes optimization and polish | Optimize and polish jump-lane rendering in galaxy viewer; population data; line/orphan visuals | — | — |
 | Code quality & simplifications | TODOs, placeholder replacements, simplified formulas to redo | — | — |
 | Population detail (civilisation/regime) | Enrich population with tech level, regime type, and transitions; align with CivilisationEngine concept (Concepts/CivilisationEngine/) | — | — |
+| Concept Atlas and concept tool fold-in | Bring the current Concepts/ modules into StarGen as in-app, deterministic, end-user-visible tools with manual and context-aware entry points | — | `codex/concept-atlas-fold-in` (Release 1 showcase surface complete; Release 2 persistence parity complete in branch) |
+| Cross-layer concept integration | Persist and wire concept outputs into population, history, body, system, and atlas flows after the showcase-first fold-in lands | Concept Atlas and concept tool fold-in | `codex/concept-atlas-fold-in` (implementation complete; `0.7.0.0` prep in branch, public audit pending) |
 | Engine/tool integration | Minimal Unity/Unreal sample importer or plugin for real workflow evaluation | — | — |
 | Export function | Clean JSON/CSV export for design/UI iteration and technical wiring | — | — |
 | Filters that match game needs | Presets (frontier, dense core, mystery zone, resource rich, dangerous) for missions and worldbuilding | — | — |
@@ -267,6 +269,41 @@ Recently completed on `master` and included in the `0.5.0.0` release rollup:
 **Acceptance:** Natives/colonies have tech level and regime; regime is valid for that tech level; placeholder replaced; CivilisationEngine remains the reference for the data shape and rules until folded in.
 
 **Human audit gate:** Any AI-assisted contribution touching regime, civilisation, culture, religion-adjacent, or plausibility framing must receive explicit human audit for bias, analogy boundaries, unsupported realism claims, and publication suitability before merge or release.
+
+---
+
+### Concept Atlas and concept tool fold-in
+
+**Goal:** Make every current concept prototype accessible inside StarGen for the digital-humanities showcase through a dedicated Concept Atlas and context-aware launch points from the main app.
+
+**Status:** Release 1 showcase surface is complete on `codex/concept-atlas-fold-in`: all currently selected concept modules are accessible in-app from the main menu and relevant viewer inspectors. Post-review polish keeps the atlas clearly framed as a standalone tool in development, with prototype-folder retirement still gated on explicit human audit and cleanup.
+
+**Deliverables:**
+• Shared concept types and registry (`ConceptContextSnapshot`, `ConceptProvenance`, `ConceptModuleDescriptor`, run request/result plumbing).
+• `ConceptAtlasScreen` in the app with manual sandbox inputs and context-aware launch support.
+• Fold-in passes for Ecology, Religion, Civilisation, Language, Disease, and Evolution concepts so each is viewable and explorable inside StarGen.
+• Subtle user-facing framing in help/release/docs, not a separate “mode”.
+• Tests covering atlas navigation, concept launch, and deterministic outputs for each folded-in concept.
+
+**Acceptance:** From the main menu and relevant viewers, users can open the Concept Atlas and inspect every current concept module without leaving StarGen.
+
+---
+
+### Cross-layer concept integration
+
+**Goal:** Move concept outputs from on-demand showcase runs into normal generated world state, persistence, inspectors, and histories.
+
+**Gates:** Concept Atlas and concept tool fold-in.
+
+**Status:** Deferred on the current showcase branch. Earlier fold-in experiments remain available as in-tree scaffolding, but the automatic generation/save/load/inspector wiring has been removed for now so the Concept Atlas stays a standalone tool until applicability rules, realism controls, and integration scope are ready.
+
+**Deliverables:**
+• Persisted ecology/species, civilisation, religion, language, and disease data in normal world/system/population payloads.
+• Generation pipeline wiring so concept outputs derive from existing seeded world context.
+• Inspector and timeline surfaces that expose persisted concept data outside the atlas.
+• Save/load migration for pre-concept saves.
+
+**Acceptance:** A future branch can reintroduce concept outputs as persisted world state only after applicability rules are explicit, deterministic coverage is in place, and the atlas can reflect those results without overclaiming world-state completeness.
 
 ---
 

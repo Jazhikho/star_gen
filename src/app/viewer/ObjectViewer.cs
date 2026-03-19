@@ -44,6 +44,12 @@ public partial class ObjectViewer : Node3D
 	public delegate void BodyEditedEventHandler(GodotObject body, int starSeed);
 
 	/// <summary>
+	/// Emitted when the user wants to open the concept atlas for the current body or moon.
+	/// </summary>
+	[Signal]
+	public delegate void OpenConceptAtlasRequestedEventHandler(GodotObject body, int starSeed);
+
+	/// <summary>
 	/// Whether the primary body should rotate.
 	/// </summary>
 	[Export]

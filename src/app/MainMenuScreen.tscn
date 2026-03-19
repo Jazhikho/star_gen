@@ -338,3 +338,41 @@ custom_minimum_size = Vector2(0, 48)
 layout_mode = 2
 size_flags_horizontal = 3
 text = "Open Station Studio"
+
+[node name="CardConceptAtlas" type="PanelContainer" parent="MarginContainer/ScrollContainer/Layout/HBoxContainer/ModesPanel/MarginContainer/ModesVBox/ModeCards" unique_id=1059348877]
+custom_minimum_size = Vector2(250, 0)
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="MarginContainer" type="MarginContainer" parent="MarginContainer/ScrollContainer/Layout/HBoxContainer/ModesPanel/MarginContainer/ModesVBox/ModeCards/CardConceptAtlas" unique_id=1170934442]
+layout_mode = 2
+theme_override_constants/margin_left = 18
+theme_override_constants/margin_top = 18
+theme_override_constants/margin_right = 18
+theme_override_constants/margin_bottom = 18
+
+[node name="VBoxContainer" type="VBoxContainer" parent="MarginContainer/ScrollContainer/Layout/HBoxContainer/ModesPanel/MarginContainer/ModesVBox/ModeCards/CardConceptAtlas/MarginContainer" unique_id=1397071833]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="Label" type="Label" parent="MarginContainer/ScrollContainer/Layout/HBoxContainer/ModesPanel/MarginContainer/ModesVBox/ModeCards/CardConceptAtlas/MarginContainer/VBoxContainer" unique_id=1265974972]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.921569, 0.768627, 0.470588, 1)
+theme_override_font_sizes/font_size = 18
+text = "Concept Atlas"
+
+[node name="Label2" type="Label" parent="MarginContainer/ScrollContainer/Layout/HBoxContainer/ModesPanel/MarginContainer/ModesVBox/ModeCards/CardConceptAtlas/MarginContainer/VBoxContainer" unique_id=1660712485]
+custom_minimum_size = Vector2(220, 0)
+layout_mode = 2
+text = "Standalone concept tool in development for realistic, user-adjustable worldbuilding models and showcase exploration."
+autowrap_mode = 2
+
+[node name="Spacer" type="Control" parent="MarginContainer/ScrollContainer/Layout/HBoxContainer/ModesPanel/MarginContainer/ModesVBox/ModeCards/CardConceptAtlas/MarginContainer/VBoxContainer" unique_id=1809975042]
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="ConceptAtlasButton" type="Button" parent="MarginContainer/ScrollContainer/Layout/HBoxContainer/ModesPanel/MarginContainer/ModesVBox/ModeCards/CardConceptAtlas/MarginContainer/VBoxContainer" unique_id=191383366]
+custom_minimum_size = Vector2(0, 48)
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Open Concept Atlas"

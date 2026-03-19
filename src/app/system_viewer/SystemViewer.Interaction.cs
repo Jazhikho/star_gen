@@ -268,6 +268,32 @@ public partial class SystemViewer
     }
 
     /// <summary>
+    /// Handles concept-atlas requests from the inspector.
+    /// </summary>
+    private void OnOpenBodyInConceptAtlas(CelestialBody body)
+    {
+        if (body == null)
+        {
+            return;
+        }
+
+        EmitSignal(SignalName.OpenConceptAtlasRequested, body);
+    }
+
+    /// <summary>
+    /// Handles populated-world focus requests from the inspector overview.
+    /// </summary>
+    private void OnFocusBodyRequested(CelestialBody body)
+    {
+        if (body == null || string.IsNullOrEmpty(body.Id))
+        {
+            return;
+        }
+
+        SelectBody(body.Id);
+    }
+
+    /// <summary>
     /// Converts host positions into a GDScript-friendly dictionary.
     /// </summary>
     private static Godot.Collections.Dictionary BuildHostPositionsDictionary(Godot.Collections.Dictionary<string, Vector3> hostPositions)

@@ -304,6 +304,11 @@ public partial class ObjectViewer
 
     private SaveData.SaveMode GetPreferredSaveMode(CelestialBody body)
     {
+        if (body.HasPopulationData() || body.HasConceptResults())
+        {
+            return SaveData.SaveMode.Full;
+        }
+
         if (body.HasMeta("user_modifications"))
         {
             Variant modifications = body.GetMeta("user_modifications");

@@ -294,6 +294,21 @@ public partial class GalaxyViewer
 	}
 
 	/// <summary>
+	/// Forwards the inspector's concept-atlas request through the viewer signal.
+	/// </summary>
+	private void OnInspectorOpenConceptAtlasRequested(int starSeed, Vector3 worldPosition)
+	{
+		if (starSeed == 0)
+		{
+			return;
+		}
+
+		_selectedStarSeed = starSeed;
+		_selectedStarPosition = worldPosition;
+		EmitSignal(SignalName.OpenConceptAtlasRequested, _selectedStarSeed, _selectedStarPosition);
+	}
+
+	/// <summary>
 	/// Converts a mixed GDScript/C# config payload into a C# galaxy config.
 	/// </summary>
 	private static GalaxyConfig? ConvertGalaxyConfig(Variant configVariant)

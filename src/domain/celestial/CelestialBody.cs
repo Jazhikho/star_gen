@@ -1,5 +1,6 @@
 using Godot;
 using StarGen.Domain.Celestial.Components;
+using StarGen.Domain.Concepts;
 using StarGen.Domain.Population;
 
 namespace StarGen.Domain.Celestial;
@@ -60,6 +61,11 @@ public partial class CelestialBody : RefCounted
     public PlanetPopulationData? PopulationData { get; set; }
 
     /// <summary>
+    /// Persisted concept results associated with this body.
+    /// </summary>
+    public ConceptResultStore ConceptResults { get; set; }
+
+    /// <summary>
     /// Generation provenance information.
     /// </summary>
     public Provenance? Provenance { get; set; }
@@ -85,6 +91,7 @@ public partial class CelestialBody : RefCounted
         Atmosphere = null;
         RingSystem = null;
         PopulationData = null;
+        ConceptResults = new ConceptResultStore();
     }
 
     /// <summary>
@@ -116,6 +123,11 @@ public partial class CelestialBody : RefCounted
     /// Returns whether this body has population data.
     /// </summary>
     public bool HasPopulationData() => PopulationData != null;
+
+    /// <summary>
+    /// Returns whether this body has persisted concept results.
+    /// </summary>
+    public bool HasConceptResults() => !ConceptResults.IsEmpty();
 
     /// <summary>
     /// Returns the body type as a string.

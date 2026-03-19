@@ -177,7 +177,8 @@ public static class SystemPersistence
     {
         return system.Provenance != null
             && system.Provenance.GenerationSeed != 0
-            && system.Provenance.SpecSnapshot.Count > 0;
+            && system.Provenance.SpecSnapshot.Count > 0
+            && !HasPersistedConceptState(system);
     }
 
     /// <summary>
@@ -457,5 +458,52 @@ public static class SystemPersistence
         }
 
         return clone;
+    }
+
+    /// <summary>
+    /// Returns whether the system carries persisted concept state that requires full snapshots.
+    /// </summary>
+    private static bool HasPersistedConceptState(SolarSystem system)
+    {
+        if (system.HasConceptResults())
+        {
+            return true;
+        }
+
+        foreach (StarGen.Domain.Celestial.CelestialBody body in system.Bodies.Values)
+        {
+            if (body.HasConceptResults())
+            {
+                return true;
+            }
+
+            if (body.PopulationData == null)
+            {
+                continue;
+            }
+
+            if (body.PopulationData.HasConceptResults())
+            {
+                return true;
+            }
+
+            foreach (StarGen.Domain.Population.NativePopulation nativePopulation in body.PopulationData.NativePopulations)
+            {
+                if (!nativePopulation.ConceptResults.IsEmpty())
+                {
+                    return true;
+                }
+            }
+
+            foreach (StarGen.Domain.Population.Colony colony in body.PopulationData.Colonies)
+            {
+                if (!colony.ConceptResults.IsEmpty())
+                {
+                    return true;
+                }
+            }
+        }
+
+        return false;
     }
 }

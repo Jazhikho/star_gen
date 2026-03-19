@@ -2,6 +2,8 @@
 #nullable disable warnings
 using Godot;
 using StarGen.App.SystemViewer;
+using StarGen.Domain.Celestial;
+using StarGen.Domain.Population;
 using StarGen.Domain.Systems;
 using StarGen.Tests.Framework;
 
@@ -31,6 +33,8 @@ public static class TestSystemViewer
         runner.RunNativeTest("TestSystemViewer::test_standalone_startup_waits_for_generate", TestStandaloneStartupWaitsForGenerate);
         runner.RunNativeTest("TestSystemViewer::test_traveller_controls_exist", TestTravellerControlsExist);
         runner.RunNativeTest("TestSystemViewer::test_traveller_ruleset_applies_defaults", TestTravellerRulesetAppliesDefaults);
+        runner.RunNativeTest("TestSystemViewer::test_inspector_concept_atlas_button_emits_viewer_signal", TestInspectorConceptAtlasButtonEmitsViewerSignal);
+        runner.RunNativeTest("TestSystemViewer::test_populated_world_button_focuses_body", TestPopulatedWorldButtonFocusesBody);
     }
 
     private static SystemViewer CreateViewer()
@@ -322,6 +326,120 @@ public static class TestSystemViewer
         {
             IntegrationTestUtils.CleanupNode(viewer);
         }
+    }
+
+    private static void TestInspectorConceptAtlasButtonEmitsViewerSignal()
+    {
+        SystemViewer viewer = CreateViewer();
+        try
+        {
+            SystemInspectorPanel? panel = viewer.GetNodeOrNull<SystemInspectorPanel>("UI/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/InspectorPanel");
+            DotNetNativeTestSuite.AssertNotNull(panel, "Inspector panel should exist");
+
+            CelestialBody body = IntegrationTestUtils.CreateTestBody(name: "Kepler", type: CelestialType.Type.Planet);
+            bool signaled = false;
+            string emittedBodyId = string.Empty;
+            viewer.Connect(
+                SystemViewer.SignalName.OpenConceptAtlasRequested,
+                Callable.From<GodotObject>(emittedBody =>
+                {
+                    signaled = true;
+                    if (emittedBody is CelestialBody typedBody)
+                    {
+                        emittedBodyId = typedBody.Id;
+                    }
+                }));
+
+            panel!.DisplaySelectedBody(body);
+            Button? button = FindButtonByText(panel, "Open Concept Atlas");
+            DotNetNativeTestSuite.AssertNotNull(button, "System inspector should expose a concept-atlas button for selected bodies");
+
+            button!.EmitSignal(Button.SignalName.Pressed);
+
+            DotNetNativeTestSuite.AssertTrue(signaled, "Concept-atlas button should bubble through the system viewer signal");
+            DotNetNativeTestSuite.AssertEqual(body.Id, emittedBodyId, "Viewer signal should preserve the selected body");
+        }
+        finally
+        {
+            IntegrationTestUtils.CleanupNode(viewer);
+        }
+    }
+
+    private static void TestPopulatedWorldButtonFocusesBody()
+    {
+        SystemViewer viewer = CreateViewer();
+        try
+        {
+            SolarSystem system = new("focus_test", "Focus Test");
+            CelestialBody inhabitedBody = IntegrationTestUtils.CreateTestBody(name: "Haven", type: CelestialType.Type.Planet);
+            PlanetPopulationData populationData = new()
+            {
+                BodyId = inhabitedBody.Id,
+            };
+            NativePopulation nativePopulation = new()
+            {
+                Id = "native_focus",
+                Name = "Haveners",
+                BodyId = inhabitedBody.Id,
+                Population = 1250000,
+                PeakPopulation = 1250000,
+            };
+            populationData.NativePopulations.Add(nativePopulation);
+            inhabitedBody.PopulationData = populationData;
+            system.AddBody(inhabitedBody);
+
+            viewer.DisplaySystem(system);
+
+            SystemInspectorPanel? panel = viewer.GetNodeOrNull<SystemInspectorPanel>("UI/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/InspectorPanel");
+            DotNetNativeTestSuite.AssertNotNull(panel, "Inspector panel should exist");
+
+            Button? button = FindButtonByText(panel!, "Focus Haven (" + StarGen.App.Viewer.PropertyFormatter.FormatPopulation(populationData.GetTotalPopulation()) + ")");
+            DotNetNativeTestSuite.AssertNotNull(button, "System overview should expose a populated-world focus button");
+
+            button!.EmitSignal(Button.SignalName.Pressed);
+
+            DotNetNativeTestSuite.AssertTrue(GetSelectedBodyId(viewer) == inhabitedBody.Id, "Focus button should select the populated world");
+        }
+        finally
+        {
+            IntegrationTestUtils.CleanupNode(viewer);
+        }
+    }
+
+    private static Button? FindButtonByText(Node root, string text)
+    {
+        foreach (Node child in root.GetChildren())
+        {
+            if (child is Button typedButton && typedButton.Text == text)
+            {
+                return typedButton;
+            }
+
+            Button? nested = FindButtonByText(child, text);
+            if (nested != null)
+            {
+                return nested;
+            }
+        }
+
+        return null;
+    }
+
+    private static string GetSelectedBodyId(SystemViewer viewer)
+    {
+        System.Reflection.FieldInfo? field = typeof(SystemViewer).GetField("_selectedBodyId", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic);
+        if (field == null)
+        {
+            return string.Empty;
+        }
+
+        object? value = field.GetValue(viewer);
+        if (value is string selectedBodyId)
+        {
+            return selectedBodyId;
+        }
+
+        return string.Empty;
     }
 
 }

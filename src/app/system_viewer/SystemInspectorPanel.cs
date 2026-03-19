@@ -6,6 +6,7 @@ using StarGen.Domain.Generation;
 using StarGen.Domain.Math;
 using StarGen.Domain.Population;
 using StarGen.Domain.Systems;
+using System.Collections.Generic;
 using System.Globalization;
 
 namespace StarGen.App.SystemViewer;
@@ -21,9 +22,22 @@ public partial class SystemInspectorPanel : VBoxContainer
     [Signal]
     public delegate void OpenInViewerRequestedEventHandler(CelestialBody body);
 
+    /// <summary>
+    /// Emitted when the user requests to open the concept atlas for the selected body.
+    /// </summary>
+    [Signal]
+    public delegate void OpenConceptAtlasRequestedEventHandler(CelestialBody body);
+
+    /// <summary>
+    /// Emitted when the user requests that the viewer focus a populated world from the overview section.
+    /// </summary>
+    [Signal]
+    public delegate void FocusBodyRequestedEventHandler(CelestialBody body);
+
     private VBoxContainer? _overviewSection;
     private VBoxContainer? _bodySection;
     private Button? _openViewerButton;
+    private Button? _openConceptAtlasButton;
     private SolarSystem? _currentSystem;
     private CelestialBody? _selectedBody;
 
@@ -125,6 +139,8 @@ public partial class SystemInspectorPanel : VBoxContainer
         {
             AddTravellerSummary(system, spec);
         }
+
+        AddPopulatedWorldSummary(system);
     }
 
     /// <summary>
@@ -465,6 +481,83 @@ public partial class SystemInspectorPanel : VBoxContainer
     }
 
     /// <summary>
+    /// Adds a populated-world summary with quick-focus buttons.
+    /// </summary>
+    private void AddPopulatedWorldSummary(SolarSystem system)
+    {
+        AddSeparator(_overviewSection);
+        AddHeader(_overviewSection, "Populated Worlds");
+
+        List<CelestialBody> populatedBodies = GetPopulatedBodies(system);
+        if (populatedBodies.Count == 0)
+        {
+            AddProperty(_overviewSection, "Worlds", "No populated worlds");
+            return;
+        }
+
+        foreach (CelestialBody body in populatedBodies)
+        {
+            AddPopulatedWorldButton(body);
+        }
+    }
+
+    /// <summary>
+    /// Returns the currently populated worlds in display order.
+    /// </summary>
+    private static List<CelestialBody> GetPopulatedBodies(SolarSystem system)
+    {
+        List<CelestialBody> populatedBodies = new List<CelestialBody>();
+        foreach (CelestialBody body in system.Bodies.Values)
+        {
+            if (!body.HasPopulationData() || body.PopulationData == null || !body.PopulationData.IsInhabited())
+            {
+                continue;
+            }
+
+            populatedBodies.Add(body);
+        }
+
+        populatedBodies.Sort(ComparePopulatedBodies);
+        return populatedBodies;
+    }
+
+    /// <summary>
+    /// Sorts populated worlds by total population, then by name.
+    /// </summary>
+    private static int ComparePopulatedBodies(CelestialBody left, CelestialBody right)
+    {
+        int leftPopulation = left.PopulationData != null ? left.PopulationData.GetTotalPopulation() : 0;
+        int rightPopulation = right.PopulationData != null ? right.PopulationData.GetTotalPopulation() : 0;
+        int populationComparison = rightPopulation.CompareTo(leftPopulation);
+        if (populationComparison != 0)
+        {
+            return populationComparison;
+        }
+
+        return string.Compare(left.Name, right.Name, System.StringComparison.Ordinal);
+    }
+
+    /// <summary>
+    /// Adds one populated-world focus button to the overview.
+    /// </summary>
+    private void AddPopulatedWorldButton(CelestialBody body)
+    {
+        if (_overviewSection == null || body.PopulationData == null)
+        {
+            return;
+        }
+
+        Button button = new();
+        button.Text = "Focus " + body.Name + " (" + PropertyFormatter.FormatPopulation(body.PopulationData.GetTotalPopulation()) + ")";
+        button.TooltipText = "Jump the system selection and camera to " + body.Name;
+        button.Alignment = HorizontalAlignment.Left;
+        button.AutowrapMode = TextServer.AutowrapMode.WordSmart;
+        button.SizeFlagsHorizontal = Control.SizeFlags.ExpandFill;
+        button.Pressed += () => EmitSignal(SignalName.FocusBodyRequested, body);
+        _overviewSection.AddChild(button);
+    }
+
+    /// <summary>
     /// Adds Traveller-oriented mainworld readiness summary rows.
     /// </summary>
     private void AddTravellerSummary(SolarSystem system, SolarSystemSpec spec)
@@ -726,6 +819,14 @@ public partial class SystemInspectorPanel : VBoxContainer
         };
         _openViewerButton.Pressed += OnOpenViewerPressed;
         _bodySection.AddChild(_openViewerButton);
+
+        _openConceptAtlasButton = new Button
+        {
+            Text = "Open Concept Atlas",
+            TooltipText = "Explore concept modules seeded from this body",
+        };
+        _openConceptAtlasButton.Pressed += OnOpenConceptAtlasPressed;
+        _bodySection.AddChild(_openConceptAtlasButton);
     }
 
     /// <summary>
@@ -747,6 +848,20 @@ public partial class SystemInspectorPanel : VBoxContainer
         _openViewerButton.Pressed -= OnOpenViewerPressed;
         _openViewerButton.QueueFree();
         _openViewerButton = null;
+        if (_openConceptAtlasButton == null)
+        {
+            return;
+        }
+
+        if (!GodotObject.IsInstanceValid(_openConceptAtlasButton))
+        {
+            _openConceptAtlasButton = null;
+            return;
+        }
+
+        _openConceptAtlasButton.Pressed -= OnOpenConceptAtlasPressed;
+        _openConceptAtlasButton.QueueFree();
+        _openConceptAtlasButton = null;
     }
 
     /// <summary>
@@ -767,6 +882,19 @@ public partial class SystemInspectorPanel : VBoxContainer
 
         _openViewerButton.Pressed -= OnOpenViewerPressed;
         _openViewerButton = null;
+        if (_openConceptAtlasButton == null)
+        {
+            return;
+        }
+
+        if (!GodotObject.IsInstanceValid(_openConceptAtlasButton))
+        {
+            _openConceptAtlasButton = null;
+            return;
+        }
+
+        _openConceptAtlasButton.Pressed -= OnOpenConceptAtlasPressed;
+        _openConceptAtlasButton = null;
     }
 
     /// <summary>
@@ -777,6 +905,17 @@ public partial class SystemInspectorPanel : VBoxContainer
         if (_selectedBody != null)
         {
             EmitSignal(SignalName.OpenInViewerRequested, _selectedBody);
+        }
+    }
+
+    /// <summary>
+    /// Handles the concept-atlas button press.
+    /// </summary>
+    private void OnOpenConceptAtlasPressed()
+    {
+        if (_selectedBody != null)
+        {
+            EmitSignal(SignalName.OpenConceptAtlasRequested, _selectedBody);
         }
     }
 

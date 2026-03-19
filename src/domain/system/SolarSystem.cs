@@ -1,5 +1,6 @@
 using Godot.Collections;
 using StarGen.Domain.Celestial;
+using StarGen.Domain.Concepts;
 
 namespace StarGen.Domain.Systems;
 
@@ -63,6 +64,11 @@ public partial class SolarSystem : Godot.RefCounted
     /// Generation provenance.
     /// </summary>
     public Provenance? Provenance;
+
+    /// <summary>
+    /// Persisted concept results for system-level aggregate views.
+    /// </summary>
+    public ConceptResultStore ConceptResults = new();
 
     /// <summary>
     /// Creates a new solar-system container.
@@ -213,6 +219,14 @@ public partial class SolarSystem : Godot.RefCounted
     public bool IsValid()
     {
         return Hierarchy.IsValid() && StarIds.Count > 0;
+    }
+
+    /// <summary>
+    /// Returns whether this system has persisted concept results.
+    /// </summary>
+    public bool HasConceptResults()
+    {
+        return !ConceptResults.IsEmpty();
     }
 
     /// <summary>

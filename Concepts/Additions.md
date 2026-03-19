@@ -6,6 +6,8 @@
 
 **Human-audit note:** Prototypes touching civilisation, culture, religion, language, species framing, or other culture-adjacent worldbuilding are higher-risk. They may use AI for bounded ideation or critique, but they require explicit human audit for bias, analogy boundaries, unsupported realism claims, and publication suitability before fold-in or release.
 
+**Selected for current fold-in:** EcologyGenerator, ReligionGenerator, CivilisationEngine, ConlangGenerator, DiseaseSimulator, and EvoTechTree are now assigned to the active effort **Concept Atlas and concept tool fold-in** on branch `codex/concept-atlas-fold-in`. Their main-app atlas replacements are present, end-user accessible, and now persisted through generated world state; they remain listed here until explicit human release audit and clean prototype retirement are complete.
+
 Items are classified as **Generator** (creates data), **Simulator** (changes data over time), **Validator** (checks plausibility/consistency), **Viewer/Editor** (inspect/tune), or **Exporter** (use elsewhere). **Placement** gives the status (Prototype TODO, Roadmap effort TODO, or Other) and, where one exists, the Concepts/ folder or effort holding the current prototype.
 
 | # | Suggestion | Type | Placement | Note |

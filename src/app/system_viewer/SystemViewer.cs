@@ -34,6 +34,12 @@ public partial class SystemViewer : Node3D, ISystemViewerSaveLoadHost
 	[Signal]
 	public delegate void BackToGalaxyRequestedEventHandler();
 
+	/// <summary>
+	/// Emitted when the user wants to open the concept atlas for the selected body.
+	/// </summary>
+	[Signal]
+	public delegate void OpenConceptAtlasRequestedEventHandler(GodotObject body);
+
 	internal static readonly Vector3 InvalidPosition = new(1.0e20f, 1.0e20f, 1.0e20f);
 	internal const string SystemBodyNodeScenePath = "res://src/app/system_viewer/SystemBodyNode.tscn";
 

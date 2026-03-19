@@ -1,5 +1,6 @@
 using Godot;
 using Godot.Collections;
+using StarGen.Domain.Concepts;
 
 namespace StarGen.Domain.Population;
 
@@ -79,6 +80,11 @@ public partial class PlanetPopulationData : RefCounted
     public int Population;
 
     /// <summary>
+    /// Persisted aggregate concept results for this body's population layer.
+    /// </summary>
+    public ConceptResultStore ConceptResults = new();
+
+    /// <summary>
     /// Returns the total extant native plus active colony population.
     /// </summary>
     public int GetTotalPopulation()
@@ -126,6 +132,14 @@ public partial class PlanetPopulationData : RefCounted
     public bool IsInhabited()
     {
         return GetTotalPopulation() > 0;
+    }
+
+    /// <summary>
+    /// Returns whether aggregate population concept results exist.
+    /// </summary>
+    public bool HasConceptResults()
+    {
+        return !ConceptResults.IsEmpty();
     }
 
     /// <summary>
@@ -523,6 +537,11 @@ public partial class PlanetPopulationData : RefCounted
             data["suitability"] = Suitability.ToDictionary();
         }
 
+        if (HasConceptResults())
+        {
+            data["concept_results"] = ConceptResults.ToDictionary();
+        }
+
         return data;
     }
 
@@ -573,6 +592,11 @@ public partial class PlanetPopulationData : RefCounted
                     populationData.Colonies.Add(Colony.FromDictionary((Dictionary)value));
                 }
             }
+        }
+
+        if (data.ContainsKey("concept_results") && data["concept_results"].VariantType == Variant.Type.Dictionary)
+        {
+            populationData.ConceptResults = ConceptResultStore.FromDictionary((Dictionary)data["concept_results"]);
         }
 
         return populationData;

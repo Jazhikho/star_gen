@@ -1,5 +1,6 @@
 using Godot;
 using Godot.Collections;
+using StarGen.Domain.Concepts;
 
 namespace StarGen.Domain.Population;
 
@@ -124,6 +125,11 @@ public partial class Colony : RefCounted
     public Dictionary Metadata = new();
 
     /// <summary>
+    /// Persisted concept results for this colony.
+    /// </summary>
+    public ConceptResultStore ConceptResults = new();
+
+    /// <summary>
     /// Returns the age of the colony.
     /// </summary>
     public int GetAge(int currentYear)
@@ -192,7 +198,7 @@ public partial class Colony : RefCounted
     /// </summary>
     public Dictionary GetSummary()
     {
-        return new Dictionary
+        Dictionary data = new Dictionary
         {
             ["id"] = Id,
             ["name"] = Name,
@@ -205,6 +211,8 @@ public partial class Colony : RefCounted
             ["is_independent"] = IsIndependent,
             ["territorial_control"] = TerritorialControl,
         };
+
+        return data;
     }
 
     /// <summary>
@@ -341,7 +349,7 @@ public partial class Colony : RefCounted
             nativeRelationsData[(string)nativeId] = ((NativeRelation)NativeRelations[nativeId]).ToDictionary();
         }
 
-        return new Dictionary
+        Dictionary data = new Dictionary
         {
             ["id"] = Id,
             ["name"] = Name,
@@ -367,6 +375,13 @@ public partial class Colony : RefCounted
             ["government"] = Government.ToDictionary(),
             ["history"] = History.ToDictionary(),
         };
+
+        if (!ConceptResults.IsEmpty())
+        {
+            data["concept_results"] = ConceptResults.ToDictionary();
+        }
+
+        return data;
     }
 
     /// <summary>
@@ -415,6 +430,11 @@ public partial class Colony : RefCounted
         if (data.ContainsKey("metadata") && data["metadata"].VariantType == Variant.Type.Dictionary)
         {
             colony.Metadata = CloneDictionary((Dictionary)data["metadata"]);
+        }
+
+        if (data.ContainsKey("concept_results") && data["concept_results"].VariantType == Variant.Type.Dictionary)
+        {
+            colony.ConceptResults = ConceptResultStore.FromDictionary((Dictionary)data["concept_results"]);
         }
 
         if (data.ContainsKey("native_relations") && data["native_relations"].VariantType == Variant.Type.Dictionary)

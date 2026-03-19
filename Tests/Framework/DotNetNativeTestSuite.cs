@@ -220,6 +220,7 @@ public static partial class DotNetNativeTestSuite
         RunGalaxyDomainTests(runner);
         RunJumpLanesTests(runner);
         RunPopulationTests(runner);
+        RunConceptTests(runner);
         RunHeadlessIntegrationTests(runner);
     }
 

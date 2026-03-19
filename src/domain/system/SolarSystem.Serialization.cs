@@ -2,6 +2,7 @@ using Godot;
 using Godot.Collections;
 using StarGen.Domain.Celestial;
 using StarGen.Domain.Celestial.Serialization;
+using StarGen.Domain.Concepts;
 
 namespace StarGen.Domain.Systems;
 
@@ -63,6 +64,11 @@ public partial class SolarSystem
         if (Provenance != null)
         {
             data["provenance"] = Provenance.ToDictionary();
+        }
+
+        if (HasConceptResults())
+        {
+            data["concept_results"] = ConceptResults.ToDictionary();
         }
 
         return data;
@@ -136,6 +142,11 @@ public partial class SolarSystem
         if (data.ContainsKey("provenance") && data["provenance"].VariantType == Variant.Type.Dictionary)
         {
             system.Provenance = Provenance.FromDictionary((Dictionary)data["provenance"]);
+        }
+
+        if (data.ContainsKey("concept_results") && data["concept_results"].VariantType == Variant.Type.Dictionary)
+        {
+            system.ConceptResults = ConceptResultStore.FromDictionary((Dictionary)data["concept_results"]);
         }
 
         return system;

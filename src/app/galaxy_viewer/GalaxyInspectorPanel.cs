@@ -1,6 +1,7 @@
 using Godot;
 using StarGen.App.Shared;
 using StarGen.App.Viewer;
+using StarGen.Domain.Concepts;
 using StarGen.Domain.Generation;
 using StarGen.Domain.Generation.Parameters;
 using StarGen.Domain.Galaxy;
@@ -29,6 +30,12 @@ public partial class GalaxyInspectorPanel : VBoxContainer
 	/// </summary>
 	[Signal]
 	public delegate void OpenSystemRequestedEventHandler(int starSeed, Vector3 worldPosition);
+
+	/// <summary>
+	/// Emitted when the user requests to open the concept atlas for the selected star.
+	/// </summary>
+	[Signal]
+	public delegate void OpenConceptAtlasRequestedEventHandler(int starSeed, Vector3 worldPosition);
 
 	/// <summary>
 	/// Emitted when the user requests galaxy regeneration from the current editable config.
@@ -64,6 +71,7 @@ public partial class GalaxyInspectorPanel : VBoxContainer
 	private VBoxContainer? _selectionContainer;
 	private VBoxContainer? _previewContainer;
 	private Button? _openSystemButton;
+	private Button? _openConceptAtlasButton;
 	private Button? _calculateRoutesButton;
 	private CheckBox? _showRoutesCheck;
 	private Label? _jumpRoutesProgressLabel;
@@ -277,6 +285,10 @@ public partial class GalaxyInspectorPanel : VBoxContainer
 		{
 			_openSystemButton.Visible = true;
 		}
+		if (_openConceptAtlasButton != null)
+		{
+			_openConceptAtlasButton.Visible = true;
+		}
 
 		ClearContainer(_previewContainer);
 		if (_previewContainer != null)
@@ -355,6 +367,21 @@ public partial class GalaxyInspectorPanel : VBoxContainer
 		if (preview.IsInhabited)
 		{
 			AddProperty(_previewContainer, "Population", PropertyFormatter.FormatPopulation(preview.TotalPopulation));
+		}
+
+		if (preview.System != null && preview.System.HasConceptResults())
+		{
+			foreach (ConceptKind kind in preview.System.ConceptResults.GetAll().Keys)
+			{
+				ConceptRunResult? result = preview.System.ConceptResults.Get(kind);
+				if (result == null)
+				{
+					continue;
+				}
+
+				string value = string.IsNullOrEmpty(result.Subtitle) ? result.Title : result.Subtitle;
+				AddProperty(_previewContainer, kind.ToString(), value);
+			}
 		}
 	}
 
@@ -630,6 +657,16 @@ public partial class GalaxyInspectorPanel : VBoxContainer
 		_openSystemButton.Pressed += OnOpenSystemPressed;
 		AddChild(_openSystemButton);
 
+		_openConceptAtlasButton = new Button
+		{
+			Name = "OpenConceptAtlasButton",
+			Text = "Open Concept Atlas",
+			TooltipText = "Explore concept modules seeded from the selected star or preview",
+			Visible = false,
+		};
+		_openConceptAtlasButton.Pressed += OnOpenConceptAtlasPressed;
+		AddChild(_openConceptAtlasButton);
+
 		AddChild(new HSeparator());
 
 		AddSectionLabel("Jump Routes");
@@ -766,6 +803,10 @@ public partial class GalaxyInspectorPanel : VBoxContainer
 		{
 			_openSystemButton.Visible = false;
 		}
+		if (_openConceptAtlasButton != null)
+		{
+			_openConceptAtlasButton.Visible = false;
+		}
 	}
 
 	private void OnOpenSystemPressed()
@@ -773,6 +814,14 @@ public partial class GalaxyInspectorPanel : VBoxContainer
 		if (_selectedStarSeed != 0)
 		{
 			EmitSignal(SignalName.OpenSystemRequested, _selectedStarSeed, _selectedStarPosition);
+		}
+	}
+
+	private void OnOpenConceptAtlasPressed()
+	{
+		if (_selectedStarSeed != 0)
+		{
+			EmitSignal(SignalName.OpenConceptAtlasRequested, _selectedStarSeed, _selectedStarPosition);
 		}
 	}
 

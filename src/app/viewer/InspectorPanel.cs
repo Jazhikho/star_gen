@@ -4,6 +4,7 @@ using StarGen.Domain.Celestial;
 using StarGen.Domain.Celestial.Components;
 using StarGen.Domain.Celestial.Serialization;
 using StarGen.Domain.Celestial.Validation;
+using StarGen.Domain.Concepts;
 using StarGen.Domain.Generation;
 using StarGen.Domain.Generation.Archetypes;
 using StarGen.Domain.Generation.Traveller;
@@ -29,6 +30,12 @@ public partial class InspectorPanel : VBoxContainer
 	/// </summary>
 	[Signal]
 	public delegate void EditRequestedEventHandler();
+
+	/// <summary>
+	/// Emitted when the user requests the concept atlas for the current body or moon.
+	/// </summary>
+	[Signal]
+	public delegate void OpenConceptAtlasRequestedEventHandler();
 
 	private VBoxContainer? _inspectorContainer;
 
@@ -174,6 +181,8 @@ public partial class InspectorPanel : VBoxContainer
 		AddGenerationSnapshot(body);
 		AddTravellerReadout(body);
 		AddPopulationSummary(body);
+		AddConceptSummary(body);
+		AddConceptHistorySummary(body);
 		AddValidationSummary(body);
 		AddEditButton();
 	}
@@ -561,6 +570,97 @@ public partial class InspectorPanel : VBoxContainer
 		}
 	}
 
+	private void AddConceptSummary(CelestialBody body)
+	{
+		if (_inspectorContainer == null)
+		{
+			return;
+		}
+
+		bool hasPopulationConcepts = body.PopulationData != null && body.PopulationData.HasConceptResults();
+		if (!body.HasConceptResults() && !hasPopulationConcepts)
+		{
+			return;
+		}
+
+		AddSectionHeader("Concept Summary");
+		AddConceptProperties(body.ConceptResults);
+		if (body.PopulationData != null)
+		{
+			AddConceptProperties(body.PopulationData.ConceptResults);
+		}
+	}
+
+	private void AddConceptProperties(ConceptResultStore store)
+	{
+		foreach (ConceptKind kind in store.GetAll().Keys)
+		{
+			ConceptRunResult? result = store.Get(kind);
+			if (result == null)
+			{
+				continue;
+			}
+
+			string label = kind.ToString();
+			string value;
+			if (!string.IsNullOrEmpty(result.Subtitle))
+			{
+				value = result.Subtitle;
+			}
+			else
+			{
+				value = result.Title;
+			}
+
+			AddProperty(label, value);
+		}
+	}
+
+	private void AddConceptHistorySummary(CelestialBody body)
+	{
+		if (_inspectorContainer == null || body.PopulationData == null)
+		{
+			return;
+		}
+
+		Godot.Collections.Array<StarGen.Domain.Population.HistoryEvent> events = new();
+		foreach (StarGen.Domain.Population.NativePopulation nativePopulation in body.PopulationData.NativePopulations)
+		{
+			foreach (StarGen.Domain.Population.HistoryEvent historyEvent in nativePopulation.History.GetAllEvents())
+			{
+				if (historyEvent.Metadata.ContainsKey("concept_kind"))
+				{
+					events.Add(historyEvent);
+				}
+			}
+		}
+
+		foreach (StarGen.Domain.Population.Colony colony in body.PopulationData.Colonies)
+		{
+			foreach (StarGen.Domain.Population.HistoryEvent historyEvent in colony.History.GetAllEvents())
+			{
+				if (historyEvent.Metadata.ContainsKey("concept_kind"))
+				{
+					events.Add(historyEvent);
+				}
+			}
+		}
+
+		if (events.Count == 0)
+		{
+			return;
+		}
+
+		AddSectionHeader("History Highlights");
+		int startIndex = Mathf.Max(0, events.Count - 4);
+		for (int index = startIndex; index < events.Count; index += 1)
+		{
+			StarGen.Domain.Population.HistoryEvent historyEvent = events[index];
+			string label = StarGen.Domain.Population.HistoryEvent.TypeToString(historyEvent.Type);
+			AddProperty(label, historyEvent.Title);
+		}
+	}
+
 	private void AddValidationSummary(CelestialBody body)
 	{
 		if (_inspectorContainer == null)
@@ -608,6 +708,12 @@ public partial class InspectorPanel : VBoxContainer
 		button.TooltipText = "Edit and regenerate this body using validated parameters";
 		button.Pressed += () => EmitSignal(SignalName.EditRequested);
 		_inspectorContainer.AddChild(button);
+
+		Button conceptAtlasButton = new Button();
+		conceptAtlasButton.Text = "Open Concept Atlas";
+		conceptAtlasButton.TooltipText = "Explore concept modules seeded from the current body or moon";
+		conceptAtlasButton.Pressed += () => EmitSignal(SignalName.OpenConceptAtlasRequested);
+		_inspectorContainer.AddChild(conceptAtlasButton);
 	}
 
 	private static string FormatDistance(double meters)

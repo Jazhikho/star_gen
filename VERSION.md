@@ -1,10 +1,70 @@
 # Version
 
-Current version: `0.5.0.0`
+Current version: `0.7.0.0`
 
-Date: `2026-03-13`
+Date: `2026-03-19`
 
 Versioning method: release/refactor `+0.1`, feature `+0.0.1`, bug fix `+0.0.0.1`, save-breaking release `+1.0`.
+
+## 0.7.0.0
+
+- Release: Kept the user-facing `0.7.0.0` label in place for the showcase branch while concept tools remain presented as a standalone atlas in development.
+- Docs: Synced roadmap, project structure, README, in-app release notes, and provenance to reflect the current standalone-atlas state and the deferred cross-layer integration effort.
+- Patch follow-up: Moved Concept Atlas into the Generation Studios section, added Station Studio guidance to Help, added AI-usage credit copy, made the atlas sidebar scroll cleanly, normalized concept-facing identifier text into sentence case, replaced dead system-level concept summaries with populated-world focus actions, and removed automatic concept generation from the normal pipeline.
+
+## 0.6.1.0
+
+- Feature: Post-review concept showcase patch cycle: the Concept Atlas stays standalone, context-aware, and sandbox-friendly while automatic concept generation is removed from generation, save/load, preview, and viewer flows for now.
+- Test: Added regression coverage for the relocated main-menu Concept Atlas entry, the updated help/credits copy, sentence-case concept text, populated-world focus actions, and compact system persistence without auto concept state.
+
+## 0.6.0.0
+
+- Release: Prepared the Release 1 showcase milestone with all selected concept prototypes accessible inside StarGen through the Concept Atlas and viewer inspection surfaces.
+- Docs: Synced roadmap, additions tracking, README, in-app release notes, and AI provenance for the showcase-ready Concept Atlas presentation.
+
+## 0.5.8.0
+
+- Feature: Added context-aware Concept Atlas launch points from the galaxy, system, and object inspection surfaces, with return navigation back to the originating viewer.
+- Test: Added integration coverage for inspector-driven atlas launches in `MainApp`, `GalaxyViewer`, `SystemViewer`, and `ObjectViewer`.
+
+## 0.5.7.0
+
+- Feature: Folded the evolution concept into the Concept Atlas with deterministic lineage, trait, and species-profile generation.
+- Test: Added deterministic presenter coverage for the evolution atlas module.
+
+## 0.5.6.0
+
+- Feature: Folded the disease concept into the Concept Atlas with deterministic outbreak traits, symptom bundles, and epidemic summary metrics.
+- Test: Added deterministic presenter coverage for the disease atlas module.
+
+## 0.5.5.0
+
+- Feature: Folded the language concept into the Concept Atlas with deterministic phonology, grammar, lexicon, and sample utterance generation.
+- Test: Added deterministic presenter coverage for the language atlas module.
+
+## 0.5.4.0
+
+- Feature: Folded the civilisation concept into the Concept Atlas with deterministic regime, economy, culture, and timeline summaries generated from StarGen population context.
+- Test: Added deterministic presenter coverage for the civilisation atlas module.
+
+## 0.5.3.0
+
+- Feature: Folded the religion concept into the Concept Atlas with deterministic belief-system generation, doctrinal summaries, and landscape readouts seeded from population context.
+- Test: Added deterministic presenter coverage for the religion atlas module.
+
+## 0.5.2.0
+
+- Feature: Folded the ecology concept into the Concept Atlas with deterministic environment mapping, trophic-profile metrics, and niche summaries.
+- Test: Added `DotNetNativeTestSuite.Concepts.cs` coverage for the ecology atlas presenter.
+
+## 0.5.1.0
+
+- Feature: Added the first Concept Atlas shell with shared concept context/provenance plumbing, a manual concept sandbox, and a main-menu entry point for upcoming fold-ins.
+- Docs: Added roadmap and project-structure tracking for the Concept Atlas and cross-layer concept integration efforts.
+
+## 0.5.0.1
+
+- Hotfix: Set StarGen.png as project/app icon; added Docs/Assets.md with Flaticon/Freepik attribution; added icon credit to in-app Credits.
 
 ## 0.5.0.0
 

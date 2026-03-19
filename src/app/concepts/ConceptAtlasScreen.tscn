@@ -1,0 +1,14 @@
+[gd_scene format=3 uid="uid://c8h0l4gmw2u71"]
+
+[ext_resource type="Script" path="res://src/app/concepts/ConceptAtlasScreen.cs" id="1"]
+[ext_resource type="Theme" uid="uid://c6a5io6e0kwn8" path="res://src/app/themes/DarkTheme.tres" id="2"]
+
+[node name="ConceptAtlasScreen" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme = ExtResource("2")
+script = ExtResource("1")

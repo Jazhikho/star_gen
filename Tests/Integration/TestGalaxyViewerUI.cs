@@ -29,6 +29,7 @@ public static class TestGalaxyViewerUI
         runner.RunNativeTest("TestGalaxyViewerUI::test_profile_summary_shows_active_config", TestProfileSummaryShowsActiveConfig);
         runner.RunNativeTest("TestGalaxyViewerUI::test_menu_row_sits_below_header", TestMenuRowSitsBelowHeader);
         runner.RunNativeTest("TestGalaxyViewerUI::test_inspector_no_longer_shows_galaxy_studio_button", TestInspectorNoLongerShowsGalaxyStudioButton);
+        runner.RunNativeTest("TestGalaxyViewerUI::test_inspector_concept_atlas_button_emits_viewer_signal", TestInspectorConceptAtlasButtonEmitsViewerSignal);
         runner.RunNativeTest("TestGalaxyViewerUI::test_file_menu_can_return_to_main_menu", TestFileMenuCanReturnToMainMenu);
     }
 
@@ -344,6 +345,39 @@ public static class TestGalaxyViewerUI
             DotNetNativeTestSuite.AssertNotNull(panel, "Inspector panel should exist");
             Button? button = panel!.GetNodeOrNull<Button>("ConfigEditorContainer/OpenGalaxyStudioButton");
             DotNetNativeTestSuite.AssertNull(button, "Galaxy inspector should not duplicate the New Galaxy action with a studio button");
+        }
+        finally
+        {
+            IntegrationTestUtils.CleanupNode(viewer);
+        }
+    }
+
+    private static void TestInspectorConceptAtlasButtonEmitsViewerSignal()
+    {
+        GalaxyViewer viewer = CreateViewer(startAtHome: false);
+        try
+        {
+            GalaxyInspectorPanel? panel = viewer.get_inspector_panel() as GalaxyInspectorPanel;
+            DotNetNativeTestSuite.AssertNotNull(panel, "Inspector panel should exist");
+
+            bool signaled = false;
+            int emittedSeed = 0;
+            viewer.Connect(
+                GalaxyViewer.SignalName.OpenConceptAtlasRequested,
+                Callable.From<int, Vector3>((seed, _) =>
+                {
+                    signaled = true;
+                    emittedSeed = seed;
+                }));
+
+            panel!.DisplaySelectedStar(new Vector3(18.0f, 4.0f, -2.0f), 55555);
+            Button? button = panel.GetNodeOrNull<Button>("OpenConceptAtlasButton");
+            DotNetNativeTestSuite.AssertNotNull(button, "Galaxy inspector should expose a concept-atlas button for star selections");
+
+            button!.EmitSignal(Button.SignalName.Pressed);
+
+            DotNetNativeTestSuite.AssertTrue(signaled, "Concept-atlas button should bubble through the viewer signal");
+            DotNetNativeTestSuite.AssertEqual(55555, emittedSeed, "Viewer signal should preserve the selected star seed");
         }
         finally
         {

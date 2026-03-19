@@ -1,6 +1,7 @@
 using Godot;
 using Godot.Collections;
 using StarGen.Domain.Celestial.Components;
+using StarGen.Domain.Concepts;
 using StarGen.Domain.Constants;
 using StarGen.Domain.Population;
 
@@ -63,6 +64,11 @@ public static class CelestialSerializer
         if (body.HasPopulationData() && body.PopulationData != null)
         {
             data["population_data"] = body.PopulationData.ToDictionary();
+        }
+
+        if (body.HasConceptResults())
+        {
+            data["concept_results"] = body.ConceptResults.ToDictionary();
         }
 
         if (body.Provenance != null)
@@ -163,6 +169,11 @@ public static class CelestialSerializer
         if (data.ContainsKey("population_data"))
         {
             body.PopulationData = DeserializePopulationData((Dictionary)data["population_data"]);
+        }
+
+        if (data.ContainsKey("concept_results") && data["concept_results"].VariantType == Variant.Type.Dictionary)
+        {
+            body.ConceptResults = ConceptResultStore.FromDictionary((Dictionary)data["concept_results"]);
         }
 
         return body;

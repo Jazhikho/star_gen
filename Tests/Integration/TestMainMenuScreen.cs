@@ -1,6 +1,7 @@
 #nullable enable annotations
 #nullable disable warnings
 using Godot;
+using System.Reflection;
 using StarGen.App;
 using StarGen.Tests.Framework;
 
@@ -13,7 +14,9 @@ public static class TestMainMenuScreen
     public static void RunAll(DotNetTestRunner runner)
     {
         runner.RunNativeTest("TestMainMenuScreen::test_mode_buttons_emit_navigation_signals", TestModeButtonsEmitNavigationSignals);
+        runner.RunNativeTest("TestMainMenuScreen::test_concept_atlas_button_emits_signal", TestConceptAtlasButtonEmitsSignal);
         runner.RunNativeTest("TestMainMenuScreen::test_utility_buttons_open_fallback_dialogs", TestUtilityButtonsOpenFallbackDialogs);
+        runner.RunNativeTest("TestMainMenuScreen::test_help_and_credits_copy_mentions_station_and_ai_assistance", TestHelpAndCreditsCopyMentionsStationAndAiAssistance);
     }
 
     private static void TestModeButtonsEmitNavigationSignals()
@@ -59,6 +62,28 @@ public static class TestMainMenuScreen
         }
     }
 
+    private static void TestConceptAtlasButtonEmitsSignal()
+    {
+        MainMenuScreen screen = IntegrationTestUtils.InstantiateScene<MainMenuScreen>(ScenePath);
+        try
+        {
+            screen._Ready();
+
+            bool atlasRequested = false;
+            screen.Connect(MainMenuScreen.SignalName.concept_atlas_requested, Callable.From(() => atlasRequested = true));
+
+            Button? atlasButton = screen.GetNodeOrNull<Button>("MarginContainer/ScrollContainer/Layout/HBoxContainer/ModesPanel/MarginContainer/ModesVBox/ModeCards/CardConceptAtlas/MarginContainer/VBoxContainer/ConceptAtlasButton");
+            DotNetNativeTestSuite.AssertNotNull(atlasButton, "Concept Atlas button should exist");
+
+            atlasButton!.EmitSignal(BaseButton.SignalName.Pressed);
+            DotNetNativeTestSuite.AssertTrue(atlasRequested, "Concept Atlas button should emit concept_atlas_requested");
+        }
+        finally
+        {
+            IntegrationTestUtils.CleanupNode(screen);
+        }
+    }
+
     private static void TestUtilityButtonsOpenFallbackDialogs()
     {
         MainMenuScreen screen = IntegrationTestUtils.InstantiateScene<MainMenuScreen>(ScenePath);
@@ -86,5 +111,22 @@ public static class TestMainMenuScreen
         {
             IntegrationTestUtils.CleanupNode(screen);
         }
+    }
+
+    private static void TestHelpAndCreditsCopyMentionsStationAndAiAssistance()
+    {
+        MethodInfo? helpMethod = typeof(MainMenuScreen).GetMethod("BuildHelpFallbackText", BindingFlags.NonPublic | BindingFlags.Static);
+        MethodInfo? creditsMethod = typeof(MainMenuScreen).GetMethod("BuildCreditsFallbackText", BindingFlags.NonPublic | BindingFlags.Static);
+
+        DotNetNativeTestSuite.AssertNotNull(helpMethod, "Help fallback builder should exist");
+        DotNetNativeTestSuite.AssertNotNull(creditsMethod, "Credits fallback builder should exist");
+
+        string? helpText = helpMethod!.Invoke(null, null) as string;
+        string? creditsText = creditsMethod!.Invoke(null, null) as string;
+
+        DotNetNativeTestSuite.AssertNotNull(helpText, "Help fallback text should exist");
+        DotNetNativeTestSuite.AssertNotNull(creditsText, "Credits fallback text should exist");
+        DotNetNativeTestSuite.AssertTrue(helpText!.Contains("Station Studio"), "Help text should mention the Station Studio");
+        DotNetNativeTestSuite.AssertTrue(creditsText!.Contains("AI assistance"), "Credits text should mention AI assistance");
     }
 }

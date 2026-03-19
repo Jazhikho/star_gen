@@ -322,10 +322,21 @@ public partial class SystemViewer
         if (_inspectorPanel is SystemInspectorPanel typedInspectorPanel)
         {
             typedInspectorPanel.OpenInViewerRequested += OnOpenBodyInViewer;
+            typedInspectorPanel.OpenConceptAtlasRequested += OnOpenBodyInConceptAtlas;
+            typedInspectorPanel.FocusBodyRequested += OnFocusBodyRequested;
         }
         else if (_inspectorPanel != null && _inspectorPanel.HasSignal("open_in_viewer_requested"))
         {
             _inspectorPanel.Connect("open_in_viewer_requested", Callable.From<CelestialBody>(OnOpenBodyInViewer));
+            if (_inspectorPanel.HasSignal("open_concept_atlas_requested"))
+            {
+                _inspectorPanel.Connect("open_concept_atlas_requested", Callable.From<CelestialBody>(OnOpenBodyInConceptAtlas));
+            }
+
+            if (_inspectorPanel.HasSignal("focus_body_requested"))
+            {
+                _inspectorPanel.Connect("focus_body_requested", Callable.From<CelestialBody>(OnFocusBodyRequested));
+            }
         }
 
     }

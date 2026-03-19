@@ -102,6 +102,7 @@ public partial class ObjectViewer
 		{
 			typedInspectorPanel.MoonSelected += OnInspectorMoonSelectedVariant;
 			typedInspectorPanel.EditRequested += OnInspectorEditRequested;
+			typedInspectorPanel.OpenConceptAtlasRequested += OnInspectorConceptAtlasRequested;
 		}
 		else if (_inspectorPanel != null && _inspectorPanel.HasSignal("moon_selected"))
 		{
@@ -109,6 +110,10 @@ public partial class ObjectViewer
 			if (_inspectorPanel.HasSignal("edit_requested"))
 			{
 				_inspectorPanel.Connect("edit_requested", Callable.From(OnInspectorEditRequested));
+			}
+			if (_inspectorPanel.HasSignal("open_concept_atlas_requested"))
+			{
+				_inspectorPanel.Connect("open_concept_atlas_requested", Callable.From(OnInspectorConceptAtlasRequested));
 			}
 		}
 	}
@@ -335,7 +340,7 @@ public partial class ObjectViewer
 		_editDialog.OpenForBody(targetBody);
 	}
 
-	private CelestialBody? GetCurrentTargetBody()
+	public CelestialBody? GetCurrentTargetBody()
 	{
 		if (_moonSystem != null && _moonSystem.GetFocusedMoon() != null)
 		{
@@ -343,6 +348,14 @@ public partial class ObjectViewer
 		}
 
 		return _currentBody;
+	}
+
+	/// <summary>
+	/// GDScript-compatible accessor for the currently focused body or moon.
+	/// </summary>
+	public CelestialBody? get_current_target_body()
+	{
+		return GetCurrentTargetBody();
 	}
 
 	private void OnEditDialogUpdated(CelestialBody updatedBody)
@@ -436,6 +449,17 @@ public partial class ObjectViewer
 		}
 
 		EmitSignal(SignalName.BackToSystemRequested);
+	}
+
+	private void OnInspectorConceptAtlasRequested()
+	{
+		CelestialBody? targetBody = GetCurrentTargetBody();
+		if (targetBody == null)
+		{
+			return;
+		}
+
+		EmitSignal(SignalName.OpenConceptAtlasRequested, targetBody, _sourceStarSeed);
 	}
 
 	private void SetGenerationControlsEnabled(bool enabled)

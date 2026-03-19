@@ -180,6 +180,7 @@ public static partial class DotNetNativeTestSuite
         StarGen.App.SystemViewer.SystemViewerSaveLoad saveLoad = new();
         SolarSystem? original = GalaxySystemGenerator.GenerateSystem(CreateFixtureGalaxyStar(), includeAsteroids: false, enablePopulation: false);
         AssertNotNull(original, "fixture galaxy star should generate a system for save/load testing");
+        StarGen.Services.Concepts.ConceptWorldStateGenerator.EnsureSystemConcepts(original);
 
         string path = Path.Combine(
             Godot.ProjectSettings.GlobalizePath("user://"),

@@ -17,6 +17,160 @@ Use this log for significant AI-assisted artifacts in this repository.
 
 ## Entries
 
+### 2026-03-19 - Codex (GPT-5)
+
+- Task Purpose: Rewrite the repository README into a more user-facing orientation ahead of commit, push, build, and storefront publication.
+- Input Materials Used: User request; existing `README.md`; `claude.md`; `AGENTS.md`; `VERSION.md`.
+- AI Produced: Replaced the developer-heavy README with a shorter orientation covering what StarGen is, what users can currently do, the current development state, how to run it, how to validate it, and where to find deeper project documentation.
+- Human Accepted: Pending review and commit approval.
+- Human Rejected: No attempt was made to treat the README as a full technical architecture reference; that detail was intentionally moved behind linked docs instead.
+- Human Changed: The user-set requirement is that the README act as an orientation to StarGen for end users rather than a contributor-facing dump of internal project history.
+- Validation Method: Pending commit/build/release execution after the README rewrite is finalized.
+- Final Approver: Pending Christopher B. Del Gesso review.
+
+### 2026-03-19 - Codex (GPT-5)
+
+- Task Purpose: Apply the post-review concept-showcase presentation fixes requested after manual acceptance review.
+- Input Materials Used: User feedback and screenshots; `claude.md`; `AGENTS.md`; `src/app/MainMenuScreen.cs/.tscn`; `src/app/concepts/ConceptAtlasScreen.cs`; concept result factory files; integration and concept tests; current version/docs surfaces.
+- AI Produced: Moved the Concept Atlas entry into the Generation Studios area, expanded help text to mention the Station Studio, added brief AI-usage credits, added scroll-safe atlas sidebar behavior, normalized concept-facing identifier text into sentence case, and updated related tests and docs.
+- Human Accepted: Pending review and commit approval.
+- Human Rejected: No claim was made that the concept tools are final or authoritative; the in-app framing continues to mark them as a tool in development.
+- Human Changed: The user-set requirement is that the concept tools be presented as realistic, user-adjustable worldbuilding tools in development rather than as completed integrated simulation layers.
+- Validation Method: Pending build/test run after the full requested patch set is complete.
+- Final Approver: Pending Christopher B. Del Gesso review.
+
+### 2026-03-19 - Codex (GPT-5)
+
+- Task Purpose: Apply the post-review system-view and pipeline rollback fixes so Concept Atlas remains standalone for the showcase branch.
+- Input Materials Used: User review notes; `claude.md`; `AGENTS.md`; `src/app/system_viewer/*`; `src/app/MainApp.Navigation.cs`; `src/app/viewer/ObjectViewer.cs`; persistence services; `src/domain/galaxy/StarSystemPreview.cs`; related integration tests; current docs/version surfaces.
+- AI Produced: Replaced the system-level concept summary with populated-world focus actions, added viewer-side handling to jump selection and camera, removed automatic concept generation hooks from generation/save/load/preview/viewer flows, revised release/docs copy to reflect the standalone-atlas state, and updated persistence/system-viewer tests.
+- Human Accepted: Pending review and commit approval.
+- Human Rejected: The concept tools were not presented as fully integrated simulation layers, and no release/version bump beyond the retained `0.7.0.0` user-facing label was assumed.
+- Human Changed: The user-set requirement is that these be treated as patch follow-ups to the concept showcase branch, with the atlas remaining a standalone tool in development until broader integration is ready.
+- Validation Method: Pending full build/test run after the patch set is complete.
+- Final Approver: Pending Christopher B. Del Gesso review.
+
+### 2026-03-18 - Codex (GPT-5)
+
+- Task Purpose: Prepare the Release 2 concept-integration milestone and sync the repository/docs surfaces to `0.7.0.0`.
+- Input Materials Used: The completed `codex/concept-atlas-fold-in` branch after cross-layer integration; `Docs/Roadmap.md`; `Docs/ProjectStructure.md`; `README.md`; `VERSION.md`; `project.godot`; `src/app/MainMenuScreen.cs`; existing provenance entries.
+- AI Produced: Updated branch-level release/version metadata and user-facing release-note surfaces to reflect the completed concept-integration milestone, while preserving the explicit human-audit gate for culture-adjacent outputs.
+- Human Accepted: Pending review and final release approval.
+- Human Rejected: No public publication, prototype deletion, or audit bypass was assumed in this pass.
+- Human Changed: The user-set requirement remains that showcase framing stay present while merge/release authority for cultural outputs remains human-owned.
+- Validation Method: `dotnet build StarGen.sln`; `godot-mono.exe --path . --headless --script res://Tests/RunTestsHeadless.gd`.
+- Final Approver: Pending Christopher B. Del Gesso review.
+
+### 2026-03-18 - Codex (GPT-5)
+
+- Task Purpose: Implement the Release 2 cross-layer concept integration so folded-in concept outputs persist through generation, save/load, inspectors, histories, and atlas re-entry.
+- Input Materials Used: Existing `codex/concept-atlas-fold-in` branch state; concept atlas presenters and registry; world/system/body/population domain models; save/load services; inspector panels; concept fold-in plan and roadmap/docs; headless and C# test harnesses.
+- AI Produced: Added persisted concept-result stores and serialization helpers, a shared concept result factory and world-state generator, save/load and generation-pipeline wiring for systems/bodies/populations, inspector/history summaries, atlas persisted-state reuse behavior, and regression coverage for concept persistence and atlas behavior.
+- Human Accepted: Pending review with the broader concept fold-in and final release approval.
+- Human Rejected: Prototype deletion and public release sign-off were not assumed; culture-, religion-, language-, civilisation-, and species-adjacent outputs still require explicit human audit before merge or release.
+- Human Changed: The user-set requirement remains that the showcase emphasis be preserved while concept outputs become normal StarGen state rather than a disposable demo layer.
+- Validation Method: `dotnet build StarGen.sln`; `godot-mono.exe --path . --headless --script res://Tests/RunTestsHeadless.gd`.
+- Final Approver: Pending Christopher B. Del Gesso review.
+
+### 2026-03-18 - Codex (GPT-5)
+
+- Task Purpose: Prepare the Release 1 Concept Atlas showcase milestone and sync the repository/docs surfaces to `0.6.0.0`.
+- Input Materials Used: Current `codex/concept-atlas-fold-in` branch state; `Docs/Roadmap.md`; `Concepts/Additions.md`; `README.md`; `Docs/ProjectStructure.md`; `VERSION.md`; `project.godot`; `src/app/MainMenuScreen.cs`; existing provenance entries.
+- AI Produced: Updated roadmap and additions status for the completed showcase surface, synced versioning and release-note surfaces to `0.6.0.0`, and documented the Release 1 milestone as the showcase-ready completion of the selected concept fold-in work.
+- Human Accepted: Pending review and final showcase sign-off.
+- Human Rejected: No release publication, prototype deletion, or cross-layer persistence claims were added in this pass; those remain separate steps.
+- Human Changed: The user-set requirement remains that culture-adjacent outputs are showcase-ready for demonstration but still require explicit human audit before public release approval.
+- Validation Method: `dotnet build StarGen.sln`.
+- Final Approver: Pending Christopher B. Del Gesso review.
+
+### 2026-03-18 - Codex (GPT-5)
+
+- Task Purpose: Add end-user-facing Concept Atlas launch points across the existing galaxy, system, and object inspection surfaces for showcase use.
+- Input Materials Used: Existing Concept Atlas shell and module registry; `MainApp*`; galaxy/system/object viewer controllers and inspector panels; concept context builder; integration test harness; current version/docs surfaces.
+- AI Produced: Added inspector-driven Concept Atlas entry points, context-aware atlas seeding from galaxy preview/system/body context, return-to-origin atlas navigation, and regression coverage across `MainApp`, `GalaxyViewer`, `SystemViewer`, and `ObjectViewer`.
+- Human Accepted: Pending review with the broader concept fold-in and Release 1 showcase milestone.
+- Human Rejected: No separate prototype viewer embedding or save-schema expansion was introduced in this slice; the work stayed in the release-1 atlas/navigation layer.
+- Human Changed: The user-set requirement remains that cultural, religious, language, civilisation, and species-framing outputs require explicit human audit before merge or release sign-off.
+- Validation Method: `dotnet build StarGen.sln`; `godot-mono.exe --path . --headless --script res://Tests/RunTestsHeadless.gd`.
+- Final Approver: Pending Christopher B. Del Gesso review.
+
+### 2026-03-18 - Codex (GPT-5)
+
+- Task Purpose: Fold the evolution/species prototype into the Concept Atlas as a deterministic lineage and species-profile tool.
+- Input Materials Used: `Concepts/EvoTechTree/` as conceptual reference; shared concept context types; atlas registry and test harness; current docs/version surfaces.
+- AI Produced: Added `EvolutionConceptGenerator`, `EvolutionConceptSnapshot`, `EvolutionAtlasModulePresenter`, registry wiring, and deterministic regression coverage for lineage milestones, trait bundles, and species-facing summaries.
+- Human Accepted: Pending review with the broader concept fold-in and the required human audit for species-framing outputs before release.
+- Human Rejected: No embedded prototype UI or non-deterministic evo-mode simulation loop was used; the fold-in stayed native and deterministic.
+- Human Changed: The user-set requirement remains that species-framing outputs require explicit human audit before merge or release.
+- Validation Method: `dotnet build StarGen.sln`.
+- Final Approver: Pending Christopher B. Del Gesso review.
+
+### 2026-03-18 - Codex (GPT-5)
+
+- Task Purpose: Fold the disease simulator concept into the Concept Atlas as a deterministic outbreak-analysis tool seeded from world and population context.
+- Input Materials Used: `Concepts/DiseaseSimulator/` as conceptual reference; shared concept context types; atlas registry and test harness; current version/docs surfaces.
+- AI Produced: Added `DiseaseConceptGenerator`, `DiseaseConceptSnapshot`, `DiseaseAtlasModulePresenter`, registry wiring, and deterministic regression coverage for outbreak traits, symptoms, and epidemic summary outputs.
+- Human Accepted: Pending review with the broader concept fold-in.
+- Human Rejected: No embedded prototype charts or web view were used; the fold-in stayed native and deterministic with atlas-facing summaries.
+- Human Changed: The user-set requirement remains that concept work stays deterministic and showcase-ready while remaining suitable for later cross-layer integration.
+- Validation Method: `dotnet build StarGen.sln`.
+- Final Approver: Pending Christopher B. Del Gesso review.
+
+### 2026-03-18 - Codex (GPT-5)
+
+- Task Purpose: Fold the conlang prototype into the Concept Atlas as a deterministic phonology/grammar/lexicon tool for showcase use.
+- Input Materials Used: `Concepts/ConlangGenerator/` as conceptual reference; shared concept context types; atlas registry and concept test harness; current versioning/docs surfaces.
+- AI Produced: Added `LanguageConceptGenerator`, `LanguageConceptSnapshot`, `LanguageAtlasModulePresenter`, registry wiring, and deterministic regression coverage for phonology, grammar, lexicon, and example utterances.
+- Human Accepted: Pending review with the broader concept fold-in and the required human audit for language/culture-adjacent outputs before release.
+- Human Rejected: No web embedding or full prototype UI port was used; the fold-in stayed native, deterministic, and atlas-oriented.
+- Human Changed: The user-set requirement remains that language and related culture-adjacent outputs require explicit human audit before merge or release.
+- Validation Method: `dotnet build StarGen.sln`.
+- Final Approver: Pending Christopher B. Del Gesso review.
+
+### 2026-03-18 - Codex (GPT-5)
+
+- Task Purpose: Fold the civilisation concept into the Concept Atlas as a deterministic polity-history layer grounded in StarGen's population and government data.
+- Input Materials Used: `Concepts/CivilisationEngine/` as conceptual reference; StarGen population domain types (`GovernmentType`, `TechnologyLevel`); `ConceptContextSnapshot`; atlas registry and test harness; current documentation/version surfaces.
+- AI Produced: Added `CivilizationConceptGenerator`, `CivilizationConceptSnapshot`, `CivilizationAtlasModulePresenter`, registry wiring, and deterministic regression coverage for civilisation summaries spanning regime, economy, culture, and historical trajectory.
+- Human Accepted: Pending review with the broader concept fold-in and the required human audit for culture/civilisation-adjacent outputs before release.
+- Human Rejected: No embedded prototype web UI or non-deterministic simulation loop was used; the fold-in stays native and deterministic.
+- Human Changed: The user-set requirement remains that civilisation and other culture-adjacent outputs are not final authority material and require explicit human audit before merge or release.
+- Validation Method: `dotnet build StarGen.sln`.
+- Final Approver: Pending Christopher B. Del Gesso review.
+
+### 2026-03-18 - Codex (GPT-5)
+
+- Task Purpose: Fold the religion concept into the Concept Atlas as a deterministic, context-aware in-app module for the showcase branch.
+- Input Materials Used: `Concepts/ReligionGenerator/` deterministic C# prototype files; `ConceptContextSnapshot`; population regime/technology context types; atlas registry and concept test harness; repo documentation/version surfaces.
+- AI Produced: Added `ReligionAtlasModulePresenter`, a religion atlas snapshot model, context-to-belief-parameter mapping, doctrinal/ritual/landscape summaries for atlas presentation, project wiring to compile the prototype generator sources safely, and deterministic regression coverage for the religion presenter.
+- Human Accepted: Pending review with the broader concept fold-in and the required human audit for religion/culture-adjacent outputs before release.
+- Human Rejected: No web embedding or duplicate prototype UI was used; the fold-in stays native C# + Godot and reuses deterministic prototype domain logic only.
+- Human Changed: The user-set requirement remains that religion, language, civilisation, and related cultural outputs require explicit human audit before merge or public release.
+- Validation Method: `dotnet build StarGen.sln`.
+- Final Approver: Pending Christopher B. Del Gesso review.
+
+### 2026-03-18 - Codex (GPT-5)
+
+- Task Purpose: Begin the Concept Atlas and concept fold-in effort by adding shared concept plumbing, the first in-app atlas shell, and menu/navigation/test scaffolding for upcoming concept migrations.
+- Input Materials Used: User-approved fold-in plan; `AGENTS.md`; `claude.md`; `Docs/Roadmap.md`; `Concepts/Additions.md`; `README.md`; `Docs/ProjectStructure.md`; `MainApp*`; `MainMenuScreen*`; existing population/body/system context models; integration tests.
+- AI Produced: Added shared concept domain types, `ConceptContextBuilder`, the first `ConceptAtlasScreen` and module registry shell, main-menu atlas entry wiring, initial atlas/manual-input UI, roadmap/additions/readme/project-structure updates, and regression coverage for the new menu/navigation path.
+- Human Accepted: Pending review and release approval after the broader concept fold-in is completed.
+- Human Rejected: No web-view embedding or non-deterministic shortcut implementation; the shell stayed native C# + Godot and used seeded/manual context plumbing only.
+- Human Changed: The user set the two-release structure, the branch strategy, the subtle showcase framing, and the requirement that culture-adjacent outputs remain subject to human audit before release.
+- Validation Method: `dotnet build StarGen.sln` and added integration coverage for the new Concept Atlas entry point.
+- Final Approver: Pending Christopher B. Del Gesso review.
+
+### 2026-03-18 - Codex (GPT-5)
+
+- Task Purpose: Fold the ecology concept into the Concept Atlas as the first deterministic content module.
+- Input Materials Used: The new atlas shell on `codex/concept-atlas-fold-in`; Ecology prototype domain files in `Concepts/EcologyGenerator/`; `ConceptContextSnapshot`; roadmap/docs; test harness files.
+- AI Produced: Added `EcologyAtlasModulePresenter`, an ecology atlas snapshot model, deterministic context-to-environment mapping, trophic-profile and niche summaries for the atlas surface, and a concept-specific regression in `DotNetNativeTestSuite.Concepts.cs`.
+- Human Accepted: Pending review with the broader concept fold-in.
+- Human Rejected: No separate web-view or duplicate prototype viewer embedding was used; the fold-in reuses deterministic C# ecology generation and presents it through the atlas surface.
+- Human Changed: The user-set requirement remains that concept work stay deterministic, visualized, and suitable for later cross-layer integration rather than becoming a throwaway showcase-only dead end.
+- Validation Method: `dotnet build StarGen.sln`.
+- Final Approver: Pending Christopher B. Del Gesso review.
+
 ### Before 2026-03-12 - GPT Codex; Cursor; Claude Sonnet; Claude Opus
 
 - Task Purpose: Prior repository assistance before a formal AI policy existed.

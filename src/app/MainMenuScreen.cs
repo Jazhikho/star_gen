@@ -22,6 +22,9 @@ public partial class MainMenuScreen : Control
 	public delegate void station_generation_requestedEventHandler();
 
 	[Signal]
+	public delegate void concept_atlas_requestedEventHandler();
+
+	[Signal]
 	public delegate void quit_requestedEventHandler();
 
 	private enum ContentPanel
@@ -39,6 +42,7 @@ public partial class MainMenuScreen : Control
 	private Button? _systemButton;
 	private Button? _objectButton;
 	private Button? _stationButton;
+	private Button? _conceptAtlasButton;
 	private Button? _helpButton;
 	private Button? _creditsButton;
 	private Button? _releaseNotesButton;
@@ -138,6 +142,7 @@ public partial class MainMenuScreen : Control
 		_systemButton = GetNodeOrNull<Button>($"{Root}/HBoxContainer/ModesPanel/MarginContainer/ModesVBox/ModeCards/CardSystem/MarginContainer/VBoxContainer/SystemButton");
 		_objectButton = GetNodeOrNull<Button>($"{Root}/HBoxContainer/ModesPanel/MarginContainer/ModesVBox/ModeCards/CardObject/MarginContainer/VBoxContainer/ObjectButton");
 		_stationButton = GetNodeOrNull<Button>($"{Root}/HBoxContainer/ModesPanel/MarginContainer/ModesVBox/ModeCards/CardStation/MarginContainer/VBoxContainer/StationButton");
+		_conceptAtlasButton = GetNodeOrNull<Button>($"{Root}/HBoxContainer/ModesPanel/MarginContainer/ModesVBox/ModeCards/CardConceptAtlas/MarginContainer/VBoxContainer/ConceptAtlasButton");
 		_helpButton = GetNodeOrNull<Button>($"{Root}/HBoxContainer/UtilityRow/UtilityPanel/MarginContainer/UtilityVBox/SecondaryButtons/HelpButton");
 		_creditsButton = GetNodeOrNull<Button>($"{Root}/HBoxContainer/UtilityRow/UtilityPanel/MarginContainer/UtilityVBox/SecondaryButtons/CreditsButton");
 		_releaseNotesButton = GetNodeOrNull<Button>($"{Root}/HBoxContainer/UtilityRow/UtilityPanel/MarginContainer/UtilityVBox/SecondaryButtons/ReleaseNotesButton");
@@ -164,6 +169,7 @@ public partial class MainMenuScreen : Control
 		if (_systemButton != null) _systemButton.Connect(Button.SignalName.Pressed, Callable.From(OnSystemButtonPressed));
 		if (_objectButton != null) _objectButton.Connect(Button.SignalName.Pressed, Callable.From(OnObjectButtonPressed));
 		if (_stationButton != null) _stationButton.Connect(Button.SignalName.Pressed, Callable.From(OnStationButtonPressed));
+		if (_conceptAtlasButton != null) _conceptAtlasButton.Connect(Button.SignalName.Pressed, Callable.From(OnConceptAtlasButtonPressed));
 		if (_helpButton != null) _helpButton.Connect(Button.SignalName.Pressed, Callable.From(OnHelpButtonPressed));
 		if (_creditsButton != null) _creditsButton.Connect(Button.SignalName.Pressed, Callable.From(OnCreditsButtonPressed));
 		if (_releaseNotesButton != null) _releaseNotesButton.Connect(Button.SignalName.Pressed, Callable.From(OnReleaseNotesButtonPressed));
@@ -181,7 +187,7 @@ public partial class MainMenuScreen : Control
 
 	private void PopulateStaticText()
 	{
-			string version = ProjectSettings.GetSetting("application/config/version", "0.5.0.0").AsString();
+			string version = ProjectSettings.GetSetting("application/config/version", "0.7.0.0").AsString();
 		if (_versionLabel != null)
 		{
 			_versionLabel.Text = $"Version {version}";
@@ -198,7 +204,9 @@ public partial class MainMenuScreen : Control
 				"How to use StarGen\n\n" +
 				"- Galaxy Studio: Configure a galaxy profile first, then open the galaxy viewer to explore sectors and star systems.\n\n" +
 				"- System Studio: Set stellar counts, seed, and Traveller assumptions before opening the system viewer.\n\n" +
-				"- Object Studio: Choose a star, planet, moon, or asteroid preset before launching the object viewer.";
+				"- Object Studio: Choose a star, planet, moon, or asteroid preset before launching the object viewer.\n\n" +
+				"- Station Studio: Open the in-progress station tool to configure individualized space stations.\n\n" +
+				"- Concept Atlas: Open the standalone concept tool in development from the main menu or inspector surfaces to explore ecology, civilisation, language, religion, disease, and evolution layers. The long-term goal is realistic, user-adjustable worldbuilding models grounded in the same seed-driven context.";
 		}
 
 		if (_creditsText != null)
@@ -206,6 +214,8 @@ public partial class MainMenuScreen : Control
 			_creditsText.Text =
 				"Credits\n\n" +
 				"Design and direction: Jazhikho\n\n" +
+				"AI assistance: OpenAI Codex / GPT models and Anthropic Claude were used under human direction for exploration, drafting, refactoring, testing support, UI copy iteration, and documentation/provenance upkeep. Human review remained responsible for design, realism, licensing, and release decisions.\n\n" +
+				"App icon (Galaxy): Freepik (Flaticon). Used under Flaticon License; attribution required. See Docs/Assets.md.\n\n" +
 				"StarGen uses astronomy and worldbuilding references for its generation parameters. See the project's Sources folder for further reading.";
 		}
 
@@ -233,6 +243,11 @@ public partial class MainMenuScreen : Control
 	private void OnStationButtonPressed()
 	{
 		EmitSignal(SignalName.station_generation_requested);
+	}
+
+	private void OnConceptAtlasButtonPressed()
+	{
+		EmitSignal(SignalName.concept_atlas_requested);
 	}
 
 	private void OnHelpButtonPressed()
@@ -266,6 +281,46 @@ public partial class MainMenuScreen : Control
 	private static string GetReleaseNotesContent()
 	{
 		return
+				"Version 0.7.0.0\n\n" +
+			"- Current showcase branch milestone: the user-facing `0.7.0.0` label remains in place while the concept tools stay presented as a standalone atlas in development.\n" +
+			"- Refined the showcase presentation with a Generation Studios entry for Concept Atlas, clearer help and credits copy, sentence-case concept display text, and scroll-safe atlas navigation.\n" +
+			"- Broader simulation and persistence integration for concept layers is deferred until applicability rules, realism controls, and tuning are ready.\n" +
+			"- Cultural, religious, language, civilisation, and species-facing outputs remain subject to explicit human audit before public release sign-off.\n\n" +
+				"Version 0.6.1.0\n\n" +
+			"- Post-review showcase patch cycle: removed automatic concept generation from the normal generation, save/load, preview, and viewer pipelines so the Concept Atlas remains a standalone feature for now.\n" +
+			"- Replaced the system-view `Concept Layers` overview with populated-world shortcuts that jump the current selection and camera.\n" +
+			"- Keeps the atlas context-aware and sandbox-friendly while avoiding misleading main-pipeline concept coverage on worlds that should not yet generate those layers.\n" +
+			"- Cultural, religious, language, civilisation, and species-facing outputs remain subject to explicit human audit before public release sign-off.\n\n" +
+				"Version 0.6.0.0\n\n" +
+			"- Release 1 showcase milestone: every selected concept prototype is now accessible inside StarGen through the Concept Atlas and relevant viewer inspection surfaces.\n" +
+			"- Keeps the digital-humanities framing subtle in-app while making the atlas a reliable demonstration surface for ecology, civilisation, language, religion, disease, and evolution layers.\n" +
+			"- Marks the atlas as a tool in development, intended to grow into realistic, user-adjustable worldbuilding models.\n" +
+			"- Cultural, religious, language, civilisation, and species-facing outputs remain subject to explicit human audit before public release sign-off.\n\n" +
+				"Version 0.5.8.0\n\n" +
+			"- Added Concept Atlas launch points from galaxy, system, and object inspection surfaces so showcase visitors can move directly from generated worlds into the concept layers.\n" +
+			"- Added context-aware atlas return navigation so the atlas sends users back to the originating viewer instead of always resetting to the main menu.\n" +
+			"- Added regression coverage for inspector-driven atlas launch paths across the main app and the viewer surfaces.\n\n" +
+				"Version 0.5.7.0\n\n" +
+			"- Folded the evolution concept into the Concept Atlas with deterministic lineage, trait, and species-profile generation driven by environmental pressures.\n" +
+			"- Added atlas-specific deterministic regression coverage for the evolution presenter.\n\n" +
+				"Version 0.5.6.0\n\n" +
+			"- Folded the disease concept into the Concept Atlas with deterministic outbreak traits, symptom bundles, and epidemic summary metrics derived from world and population context.\n" +
+			"- Added atlas-specific deterministic regression coverage for the disease presenter.\n\n" +
+				"Version 0.5.5.0\n\n" +
+			"- Folded the language concept into the Concept Atlas with deterministic phonology, grammar, lexicon, and sample utterance generation for showcase-ready cultural presentation.\n" +
+			"- Added atlas-specific deterministic regression coverage for the language presenter.\n\n" +
+				"Version 0.5.4.0\n\n" +
+			"- Folded the civilisation concept into the Concept Atlas with deterministic polity, economy, culture, and timeline summaries seeded from StarGen population context.\n" +
+			"- Added atlas-specific deterministic regression coverage for the civilisation presenter.\n\n" +
+				"Version 0.5.3.0\n\n" +
+			"- Folded the religion concept into the Concept Atlas with deterministic belief-system generation, doctrine and landscape summaries, and context-seeded atlas readouts.\n" +
+			"- Added atlas-specific deterministic regression coverage for the religion presenter.\n\n" +
+				"Version 0.5.2.0\n\n" +
+			"- Folded the ecology concept into the Concept Atlas with deterministic environment-to-food-web generation, trophic metrics, and highlighted niche summaries.\n" +
+			"- Added atlas-specific concept regression coverage for the ecology presenter.\n\n" +
+				"Version 0.5.1.0\n\n" +
+			"- Added the first Concept Atlas shell, including shared concept context/provenance plumbing, a manual sandbox input surface, and a main-menu entry point for the concept fold-in work.\n" +
+			"- Added initial regression coverage for the new Concept Atlas menu and navigation path.\n\n" +
 				"Version 0.5.0.0\n\n" +
 			"- First public release since 0.3.0, rolling up the internal 0.4.x work into a single release build.\n" +
 			"- Adds config-first galaxy, system, and object studios; Traveller-aligned launch settings and UWP/world-profile readouts; and broad UI/navigation polish.\n" +
@@ -610,7 +665,9 @@ public partial class MainMenuScreen : Control
 			"How to use StarGen\n\n" +
 			"- Galaxy Studio: Configure a galaxy profile first, then open the galaxy viewer to explore sectors and star systems.\n\n" +
 			"- System Studio: Set stellar counts, seed, and Traveller assumptions before opening the system viewer.\n\n" +
-			"- Object Studio: Choose a star, planet, moon, or asteroid preset before launching the object viewer.";
+			"- Object Studio: Choose a star, planet, moon, or asteroid preset before launching the object viewer.\n\n" +
+			"- Station Studio: Open the in-progress station tool to configure individualized space stations.\n\n" +
+			"- Concept Atlas: Open the standalone concept tool in development from the main menu or inspector surfaces to explore ecology, civilisation, language, religion, disease, and evolution layers. The long-term goal is realistic, user-adjustable worldbuilding models grounded in the same seed-driven context.";
 	}
 
 	private static string BuildCreditsFallbackText()
@@ -618,6 +675,8 @@ public partial class MainMenuScreen : Control
 		return
 			"Credits\n\n" +
 			"Design and direction: Jazhikho\n\n" +
+			"AI assistance: OpenAI Codex / GPT models and Anthropic Claude were used under human direction for exploration, drafting, refactoring, testing support, UI copy iteration, and documentation/provenance upkeep. Human review remained responsible for design, realism, licensing, and release decisions.\n\n" +
+			"App icon (Galaxy): Freepik (Flaticon). Used under Flaticon License; attribution required. See Docs/Assets.md.\n\n" +
 			"StarGen uses astronomy and worldbuilding references for its generation parameters. See the project's Sources folder for further reading.";
 	}
 

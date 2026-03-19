@@ -21,19 +21,20 @@ public static partial class SaveData
     /// </summary>
     private static Dictionary CreateSaveData(CelestialBody body, SaveMode mode)
     {
+        SaveMode resolvedMode = ResolveSaveMode(body, mode);
         Dictionary data = new()
         {
             ["version"] = SaveVersion,
-            ["save_mode"] = (int)mode,
+            ["save_mode"] = (int)resolvedMode,
             ["timestamp"] = (long)Time.GetUnixTimeFromSystem(),
         };
 
         Dictionary modeData;
-        if (mode == SaveMode.Minimal)
+        if (resolvedMode == SaveMode.Minimal)
         {
             modeData = CreateMinimalData(body);
         }
-        else if (mode == SaveMode.Full)
+        else if (resolvedMode == SaveMode.Full)
         {
             modeData = CreateFullData(body);
         }
@@ -359,5 +360,18 @@ public static partial class SaveData
         }
 
         return (int)seedValue;
+    }
+
+    /// <summary>
+    /// Upgrades compact body saves to full snapshots when population or concept state would be lost.
+    /// </summary>
+    private static SaveMode ResolveSaveMode(CelestialBody body, SaveMode requestedMode)
+    {
+        if (requestedMode == SaveMode.Compact && (body.HasPopulationData() || body.HasConceptResults()))
+        {
+            return SaveMode.Full;
+        }
+
+        return requestedMode;
     }
 }

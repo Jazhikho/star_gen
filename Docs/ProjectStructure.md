@@ -17,7 +17,12 @@ UI layout baseline:
 - Wrapped labels should have a panel-appropriate minimum width rather than relying on autowrap alone; large full-width headers can be broader, while sidebar/footer text should usually stay closer to the 180-320 px range.
 
 Current public release target:
-- `0.5.0.0`
+- `0.7.0.0`
+
+Recent 0.7.0 additions:
+- `VERSION.md`, `README.md`, `project.godot`, and `src/app/MainMenuScreen.cs` (Release 2 concept-integration milestone sync)
+- `src/app/concepts/ConceptAtlasScreen.cs` (post-review atlas presentation polish: development note, scroll-safe sidebar behavior, and clearer showcase-facing framing)
+- `src/app/system_viewer/SystemInspectorPanel.cs` / `src/app/system_viewer/SystemViewer*.cs` (post-review populated-world quick focus and standalone-atlas rollback)
 
 Recent 0.4.0 additions:
 - `Docs/Release-0.4.0-MVP.md`
@@ -71,6 +76,76 @@ Recent 0.5 release rollup highlights:
 - `src/domain/population/station_design/`
 - `src/services/export/StationStatBlockExporter.cs`
 
+Recent 0.5.1 additions:
+- `src/app/concepts/ConceptAtlasScreen.cs`
+- `src/app/concepts/ConceptAtlasScreen.tscn`
+- `src/app/concepts/ConceptAtlasModuleRegistry.cs`
+- `src/domain/concepts/` (shared concept kinds, context, provenance, and atlas result types)
+- `src/services/concepts/ConceptContextBuilder.cs`
+- `Concepts/Additions.md` (active fold-in annotation for the selected concept prototypes)
+
+Recent 0.5.2 additions:
+- `src/app/concepts/EcologyAtlasModulePresenter.cs`
+- `src/domain/concepts/ecology/EcologyConceptSnapshot.cs`
+- `Tests/Framework/DotNetNativeTestSuite.Concepts.cs`
+
+Recent 0.5.3 additions:
+- `src/app/concepts/ReligionAtlasModulePresenter.cs`
+- `src/domain/concepts/religion/ReligionConceptSnapshot.cs`
+- `Concepts/ReligionGenerator/ReligionGenerator.cs`
+- `Concepts/ReligionGenerator/ReligionParams.cs`
+- `Concepts/ReligionGenerator/ReligionResult.cs`
+- `Concepts/ReligionGenerator/ReligionRng.cs`
+
+Recent 0.5.4 additions:
+- `src/app/concepts/CivilizationAtlasModulePresenter.cs`
+- `src/domain/concepts/civilization/CivilizationConceptGenerator.cs`
+- `src/domain/concepts/civilization/CivilizationConceptSnapshot.cs`
+
+Recent 0.5.5 additions:
+- `src/app/concepts/LanguageAtlasModulePresenter.cs`
+- `src/domain/concepts/language/LanguageConceptGenerator.cs`
+- `src/domain/concepts/language/LanguageConceptSnapshot.cs`
+
+Recent 0.5.6 additions:
+- `src/app/concepts/DiseaseAtlasModulePresenter.cs`
+- `src/domain/concepts/disease/DiseaseConceptGenerator.cs`
+- `src/domain/concepts/disease/DiseaseConceptSnapshot.cs`
+
+Recent 0.5.7 additions:
+- `src/app/concepts/EvolutionAtlasModulePresenter.cs`
+- `src/domain/concepts/evolution/EvolutionConceptGenerator.cs`
+- `src/domain/concepts/evolution/EvolutionConceptSnapshot.cs`
+
+Recent 0.5.8 additions:
+- `src/app/MainApp.cs` / `src/app/MainApp.Navigation.cs` / `src/app/MainApp.GdCompat.cs` (context-aware Concept Atlas routing and return-to-origin navigation)
+- `src/app/galaxy_viewer/GalaxyInspectorPanel.cs`
+- `src/app/galaxy_viewer/GalaxyViewer.cs`
+- `src/app/system_viewer/SystemInspectorPanel.cs`
+- `src/app/system_viewer/SystemViewer.cs`
+- `src/app/viewer/InspectorPanel.cs`
+- `src/app/viewer/ObjectViewer.cs`
+- `Tests/Integration/TestMainAppNavigation.cs`
+- `Tests/Integration/TestGalaxyViewerUI.cs`
+- `Tests/Integration/TestSystemViewer.cs`
+- `Tests/Integration/TestObjectViewer.cs`
+
+Recent 0.6.0 additions:
+- `Docs/Roadmap.md` (Release 1 showcase status for the Concept Atlas effort)
+- `Concepts/Additions.md` (selected-concept fold-in status updated to note live in-app replacements)
+- `src/app/MainMenuScreen.cs` (showcase-facing release-note and help-text sync for the complete Release 1 atlas surface)
+
+Recent 0.6.1 additions:
+- `src/domain/concepts/ConceptResultStore.cs`
+- `src/domain/concepts/ConceptRunResultSerialization.cs`
+- `src/services/concepts/ConceptResultFactory.cs`
+- `src/services/concepts/ConceptResultFactory.EcologyReligion.cs`
+- `src/services/concepts/ConceptResultFactory.Society.cs`
+- `src/services/concepts/ConceptWorldStateGenerator.cs`
+- `src/app/system_viewer/SystemInspectorPanel.cs` / `src/app/viewer/InspectorPanel.cs` / `src/app/galaxy_viewer/GalaxyInspectorPanel.cs` (concept launch points and future integration scaffolding; automatic persisted-state hooks are currently disabled on the showcase branch)
+- `Tests/Framework/DotNetNativeTestSuite.Concepts.cs`
+- `Tests/Integration/TestSystemPersistence.cs`
+
 C# source files:
 - `StarGen.sln`
 - `StarGen.csproj`
@@ -88,6 +163,8 @@ C# source files:
 - `src/domain/celestial/validation/ValidationResult.cs`
 - `src/domain/celestial/validation/CelestialValidator.cs`
 - `src/domain/celestial/serialization/CelestialSerializer.cs`
+- `src/domain/concepts/ConceptResultStore.cs`
+- `src/domain/concepts/ConceptRunResultSerialization.cs`
 - `src/domain/celestial/serialization/SerializedPopulationData.cs`
 - `src/domain/celestial/components/TerrainProps.cs`
 - `src/domain/celestial/components/HydrosphereProps.cs`
@@ -193,6 +270,7 @@ C# source files:
 - `src/domain/system/AsteroidBelt.cs`
 - `src/domain/system/SolarSystemSpec.cs`
 - `src/domain/system/SolarSystem.cs`
+- `src/domain/system/SolarSystem.Serialization.cs`
 - `src/domain/system/SystemSerializer.cs`
 - `src/domain/system/SystemCache.cs`
 - `src/domain/system/OrbitalMechanics.cs`
@@ -244,6 +322,11 @@ C# source files:
 - `src/domain/galaxy/RaycastUtils.cs`
 - `src/domain/galaxy/Sector.cs`
 - `src/domain/galaxy/Galaxy.cs`
+- `src/services/concepts/ConceptContextBuilder.cs`
+- `src/services/concepts/ConceptResultFactory.cs`
+- `src/services/concepts/ConceptResultFactory.EcologyReligion.cs`
+- `src/services/concepts/ConceptResultFactory.Society.cs`
+- `src/services/concepts/ConceptWorldStateGenerator.cs`
 - `src/services/persistence/CelestialPersistence.cs`
 - `src/services/persistence/GalaxyPersistence.cs`
 - `src/services/persistence/PersistenceUtils.cs`
@@ -317,6 +400,14 @@ C# source files:
 - `src/app/viewer/EditDialog.cs`
 - `src/app/shared/ViewerLayoutHelper.cs`
 - `src/app/shared/StudioScreenLayoutHelper.cs`
+- `src/app/concepts/ConceptAtlasScreen.cs`
+- `src/app/concepts/ConceptAtlasModuleRegistry.cs`
+- `src/app/concepts/CivilizationAtlasModulePresenter.cs`
+- `src/app/concepts/DiseaseAtlasModulePresenter.cs`
+- `src/app/concepts/EcologyAtlasModulePresenter.cs`
+- `src/app/concepts/EvolutionAtlasModulePresenter.cs`
+- `src/app/concepts/LanguageAtlasModulePresenter.cs`
+- `src/app/concepts/ReligionAtlasModulePresenter.cs`
 - `src/app/components/CollapsibleSection.cs`
 - `src/app/MainApp.cs`
 - `src/app/MainApp.Navigation.cs`
@@ -356,10 +447,18 @@ star_gen/
 |-- src/
 |   |-- app/
 |   |   |-- galaxy_viewer/
+|   |   |-- concepts/
 |   |   |-- system_viewer/
 |   |   |-- viewer/
 |   |   `-- prototypes/
 |   |-- domain/
+|   |   |-- concepts/
+|   |   |   |-- civilization/
+|   |   |   |-- disease/
+|   |   |   |-- ecology/
+|   |   |   |-- evolution/
+|   |   |   |-- language/
+|   |   |   `-- religion/
 |   |   |-- population/
 |   |   |   |-- Outpost.cs
 |   |   |   |-- SpaceStation.cs
@@ -388,6 +487,7 @@ star_gen/
 |   |   |-- jumplanes/
 |   |   `-- system/
 |   `-- services/
+|       |-- concepts/
 |       |-- export/
 |       |   `-- StationStatBlockExporter.cs
 |       `-- persistence/
