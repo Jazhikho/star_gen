@@ -17,6 +17,7 @@ public static class TestMainMenuScreen
         runner.RunNativeTest("TestMainMenuScreen::test_concept_atlas_button_emits_signal", TestConceptAtlasButtonEmitsSignal);
         runner.RunNativeTest("TestMainMenuScreen::test_utility_buttons_open_fallback_dialogs", TestUtilityButtonsOpenFallbackDialogs);
         runner.RunNativeTest("TestMainMenuScreen::test_help_and_credits_copy_mentions_station_and_ai_assistance", TestHelpAndCreditsCopyMentionsStationAndAiAssistance);
+        runner.RunNativeTest("TestMainMenuScreen::test_main_menu_uses_user_facing_version_label", TestMainMenuUsesUserFacingVersionLabel);
     }
 
     private static void TestModeButtonsEmitNavigationSignals()
@@ -128,5 +129,23 @@ public static class TestMainMenuScreen
         DotNetNativeTestSuite.AssertNotNull(creditsText, "Credits fallback text should exist");
         DotNetNativeTestSuite.AssertTrue(helpText!.Contains("Station Studio"), "Help text should mention the Station Studio");
         DotNetNativeTestSuite.AssertTrue(creditsText!.Contains("AI assistance"), "Credits text should mention AI assistance");
+        DotNetNativeTestSuite.AssertTrue(creditsText.Contains("Cursor"), "Credits text should mention Cursor");
+    }
+
+    private static void TestMainMenuUsesUserFacingVersionLabel()
+    {
+        MainMenuScreen screen = IntegrationTestUtils.InstantiateScene<MainMenuScreen>(ScenePath);
+        try
+        {
+            screen._Ready();
+
+            Label? versionLabel = screen.GetNodeOrNull<Label>("MarginContainer/ScrollContainer/Layout/HeroPanel/MarginContainer/HeroVBox/TopRow/VersionLabel");
+            DotNetNativeTestSuite.AssertNotNull(versionLabel, "Version label should exist");
+            DotNetNativeTestSuite.AssertTrue(versionLabel!.Text.Contains("0.8.0.0"), "Main menu should show the user-facing upcoming release label");
+        }
+        finally
+        {
+            IntegrationTestUtils.CleanupNode(screen);
+        }
     }
 }

@@ -54,6 +54,9 @@ public static partial class DotNetNativeTestSuite
             "DotNetNativeTestSuite::test_concept_pipeline_marks_lifeless_world_not_applicable",
             TestConceptPipelineMarksLifelessWorldNotApplicable);
         runner.RunNativeTest(
+            "DotNetNativeTestSuite::test_concept_pipeline_maps_subsurface_biology_without_surface_biome_failure",
+            TestConceptPipelineMapsSubsurfaceBiologyWithoutSurfaceBiomeFailure);
+        runner.RunNativeTest(
             "DotNetNativeTestSuite::test_concept_pipeline_keeps_non_sentient_worlds_pre_society",
             TestConceptPipelineKeepsNonSentientWorldsPreSociety);
         runner.RunNativeTest(
@@ -374,6 +377,35 @@ public static partial class DotNetNativeTestSuite
         AssertTrue(body.ConceptResults.Has(ConceptKind.Evolution), "Body should persist evolution applicability result");
         AssertFalse(body.ConceptResults.Has(ConceptKind.Civilization), "Body should not fabricate civilisation for lifeless worlds");
         AssertFalse(system.ConceptResults.Has(ConceptKind.Civilization), "System should not fabricate civilisation without population");
+    }
+
+    private static void TestConceptPipelineMapsSubsurfaceBiologyWithoutSurfaceBiomeFailure()
+    {
+        PlanetProfile profile = new PlanetProfile();
+        profile.BodyId = "profile_subsurface";
+        profile.HabitabilityScore = 3;
+        profile.AvgTemperatureK = 245.0;
+        profile.PressureAtm = 0.0;
+        profile.OceanCoverage = 0.0;
+        profile.LandCoverage = 1.0;
+        profile.IceCoverage = 0.8;
+        profile.GravityG = 0.15;
+        profile.TectonicActivity = 0.22;
+        profile.VolcanismLevel = 0.08;
+        profile.WeatherSeverity = 0.0;
+        profile.MagneticFieldStrength = 0.18;
+        profile.RadiationLevel = 0.28;
+        profile.HasAtmosphere = false;
+        profile.HasLiquidWater = true;
+        profile.HasBreathableAtmosphere = false;
+        profile.IsMoon = true;
+        profile.Biomes[(int)BiomeType.Type.Barren] = 1.0;
+
+        PlanetPopulationData data = PopulationGenerator.GenerateFromProfile(profile, 44012, generateNatives: true, generateColonies: false);
+
+        AssertNotNull(data.EcologyState, "Subsurface world should evaluate ecology");
+        AssertEqual(ConceptRunStatus.Generated, data.EcologyState!.Status, "Subsurface ocean worlds should map to a non-surface ecology instead of failing");
+        AssertNotNull(data.EcologyState.Snapshot, "Generated subsurface ecology should include a snapshot");
     }
 
     private static void TestConceptPipelineKeepsNonSentientWorldsPreSociety()

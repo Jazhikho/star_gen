@@ -21,7 +21,7 @@ StarGen is in active development. The core generation and viewer flow is working
 - The Concept Atlas and concept pipeline are in active 0.7 hardening work. The target is a constrained deterministic chain where environment drives ecology, ecology drives species and sentience, and only sentient populations generate downstream society, religion, and language layers.
 - This is still an internal iteration line. The next public release target is `0.8.0.0` after the concept pipeline, realism tuning, and human audit gates are complete.
 
-The current development version is `0.7.1.0`. Detailed version history and patch notes live in [VERSION.md](VERSION.md).
+The current internal development version is `0.7.1.1`, while the app UI intentionally shows the next planned public build label, `0.8.0.0`. Detailed version history and patch notes live in [VERSION.md](VERSION.md).
 
 ## Running StarGen
 
@@ -44,6 +44,12 @@ Run the main automated checks with:
 ```bash
 dotnet build StarGen.sln
 godot-mono.exe --path . --headless --script res://Tests/RunTestsHeadless.gd
+
+To regenerate the current life-and-settlement baseline outside the main test suite, run:
+
+```bash
+godot-mono.exe --path . --headless --script res://Tests/Baselines/RunLifeDistributionBaseline.gd
+```
 ```
 
 ## Project Docs

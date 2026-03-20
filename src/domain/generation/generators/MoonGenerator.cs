@@ -117,7 +117,8 @@ public static class MoonGenerator
                 context,
                 spec.GenerationSeed,
                 populationOverride,
-                parentBody);
+                parentBody,
+                spec.UseCaseSettings);
             CopyConceptPipelineState(body);
         }
 

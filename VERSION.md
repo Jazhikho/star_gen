@@ -1,12 +1,22 @@
 # Version
 
-Current version: `0.7.1.0`
+Current version: `0.7.1.1`
 
 Date: `2026-03-20`
 
 Versioning method: release/refactor `+0.1`, feature `+0.0.1`, bug fix `+0.0.0.1`, save-breaking release `+1.0`.
 
 Current public release target: `0.8.0.0`
+
+User-facing app label: `0.8.0.0`
+
+## 0.7.1.1
+
+- Bug fix: Main-menu and studio version labels now read from a dedicated public-version setting so the user-facing UI can advertise the upcoming public release while internal 0.7 hardening continues.
+- Bug fix: Galaxy Studio is back on a real split layout, with a dedicated summary panel, better use of horizontal space, a hoverable advanced-assumptions info button, and corrected checkbox highlighting that no longer obscures nearby controls.
+- Feature: Galaxy morphology controls now explain their actual density-model impact in-app, and the project source notes now include review targets for spiral, elliptical, bulge, and irregular-galaxy structure references.
+- Feature: `Life Potential` and `Settlement Density` now affect native-life and colony generation instead of acting as mostly cosmetic labels, and a separate 1000-world baseline runner now records the resulting distribution for future regression review.
+- Docs: Added Cursor to the in-app AI credits text, documented the user-facing `0.8.0.0` label policy, and added baseline-runner guidance plus galaxy-morphology review sources.
 
 ## 0.7.1.0
 

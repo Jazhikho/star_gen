@@ -35,9 +35,11 @@ public static class TestPopulationProbability
     {
         PlanetProfile profileLow = new();
         profileLow.HabitabilityScore = 3;
+        profileLow.HasLiquidWater = true;
 
         PlanetProfile profileHigh = new();
         profileHigh.HabitabilityScore = 8;
+        profileHigh.HasLiquidWater = true;
 
         double probLow = PopulationProbability.CalculateNativeProbability(profileLow);
         double probHigh = PopulationProbability.CalculateNativeProbability(profileHigh);
@@ -71,11 +73,15 @@ public static class TestPopulationProbability
     {
         PlanetProfile profileNo = new();
         profileNo.HabitabilityScore = 5;
+        profileNo.HasLiquidWater = true;
         profileNo.HasBreathableAtmosphere = false;
+        profileNo.HasAtmosphere = true;
 
         PlanetProfile profileYes = new();
         profileYes.HabitabilityScore = 5;
+        profileYes.HasLiquidWater = true;
         profileYes.HasBreathableAtmosphere = true;
+        profileYes.HasAtmosphere = true;
 
         double probNo = PopulationProbability.CalculateNativeProbability(profileNo);
         double probYes = PopulationProbability.CalculateNativeProbability(profileYes);
@@ -90,10 +96,14 @@ public static class TestPopulationProbability
     {
         PlanetProfile profileFree = new();
         profileFree.HabitabilityScore = 5;
+        profileFree.HasLiquidWater = true;
+        profileFree.HasAtmosphere = true;
         profileFree.IsTidallyLocked = false;
 
         PlanetProfile profileLocked = new();
         profileLocked.HabitabilityScore = 5;
+        profileLocked.HasLiquidWater = true;
+        profileLocked.HasAtmosphere = true;
         profileLocked.IsTidallyLocked = true;
 
         double probFree = PopulationProbability.CalculateNativeProbability(profileFree);
@@ -150,6 +160,47 @@ public static class TestPopulationProbability
         double probHigh = PopulationProbability.CalculateColonyProbability(profile, suitHigh);
 
         DotNetNativeTestSuite.AssertTrue(probHigh > probLow, "Higher suitability should increase colony probability");
+    }
+
+    /// <summary>
+    /// Tests that high life permissiveness materially raises native-life probability on marginal worlds.
+    /// </summary>
+    public static void TestLifePermissivenessAffectsMarginalWorlds()
+    {
+        PlanetProfile profile = new();
+        profile.HabitabilityScore = 4;
+        profile.HasLiquidWater = true;
+        profile.HasAtmosphere = true;
+        profile.HasBreathableAtmosphere = false;
+        profile.RadiationLevel = 0.45;
+
+        double strictProbability = PopulationProbability.CalculateNativeProbability(profile, 0.0);
+        double permissiveProbability = PopulationProbability.CalculateNativeProbability(profile, 1.0);
+
+        DotNetNativeTestSuite.AssertTrue(strictProbability < 0.05, "Strict life settings should nearly suppress marginal biospheres");
+        DotNetNativeTestSuite.AssertTrue(permissiveProbability > strictProbability, "Permissive life settings should raise marginal biosphere probability");
+    }
+
+    /// <summary>
+    /// Tests that high settlement permissiveness materially raises colony probability on harsh but survivable worlds.
+    /// </summary>
+    public static void TestSettlementPermissivenessAffectsHarshWorlds()
+    {
+        PlanetProfile profile = new();
+        profile.HabitabilityScore = 1;
+        profile.IsMoon = true;
+
+        ColonySuitability harshSuitability = new();
+        harshSuitability.OverallScore = 18;
+        harshSuitability.RequiresLifeSupport = true;
+        harshSuitability.RequiresPressureSuit = true;
+        harshSuitability.RequiresRadiationShielding = false;
+
+        double strictProbability = PopulationProbability.CalculateColonyProbability(profile, harshSuitability, 0.0);
+        double permissiveProbability = PopulationProbability.CalculateColonyProbability(profile, harshSuitability, 1.0);
+
+        DotNetNativeTestSuite.AssertFloatNear(0.0, strictProbability, 0.001, "Strict settlement settings should reject harsh colony targets");
+        DotNetNativeTestSuite.AssertTrue(permissiveProbability > 0.0, "Permissive settlement settings should allow harsh colony targets");
     }
 
     /// <summary>

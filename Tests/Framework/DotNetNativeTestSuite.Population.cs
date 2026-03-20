@@ -409,6 +409,8 @@ public static partial class DotNetNativeTestSuite
         runner.RunNativeTest("TestPopulationProbability::test_probability_clamped", TestPopulationProbability.TestProbabilityClamped);
         runner.RunNativeTest("TestPopulationProbability::test_colony_probability_zero_for_unsuitable", TestPopulationProbability.TestColonyProbabilityZeroForUnsuitable);
         runner.RunNativeTest("TestPopulationProbability::test_colony_probability_scales_with_suitability", TestPopulationProbability.TestColonyProbabilityScalesWithSuitability);
+        runner.RunNativeTest("TestPopulationProbability::test_life_permissiveness_affects_marginal_worlds", TestPopulationProbability.TestLifePermissivenessAffectsMarginalWorlds);
+        runner.RunNativeTest("TestPopulationProbability::test_settlement_permissiveness_affects_harsh_worlds", TestPopulationProbability.TestSettlementPermissivenessAffectsHarshWorlds);
 
         runner.RunNativeTest("TestPopulationLikelihood::test_estimate_native_likelihood_matches_probability", TestPopulationLikelihood.TestEstimateNativeLikelihoodMatchesProbability);
         runner.RunNativeTest("TestPopulationLikelihood::test_derive_roll_value_deterministic", TestPopulationLikelihood.TestDeriveRollValueDeterministic);
@@ -416,6 +418,7 @@ public static partial class DotNetNativeTestSuite
         runner.RunNativeTest("TestPopulationLikelihood::test_native_and_colony_rolls_differ", TestPopulationLikelihood.TestNativeAndColonyRollsDiffer);
         runner.RunNativeTest("TestPopulationLikelihood::test_should_generate_natives_deterministic", TestPopulationLikelihood.TestShouldGenerateNativesDeterministic);
         runner.RunNativeTest("TestPopulationLikelihood::test_should_generate_natives_zero_when_uninhabitable", TestPopulationLikelihood.TestShouldGenerateNativesZeroWhenUninhabitable);
+        runner.RunNativeTest("TestPopulationLikelihood::test_should_generate_natives_respects_life_permissiveness", TestPopulationLikelihood.TestShouldGenerateNativesRespectsLifePermissiveness);
         runner.RunNativeTest("TestPopulationLikelihood::test_override_enum_values", TestPopulationLikelihood.TestOverrideEnumValues);
 
         runner.RunNativeTest("TestPopulationSeeding::test_determinism_same_inputs_same_output", TestPopulationSeeding.TestDeterminismSameInputsSameOutput);

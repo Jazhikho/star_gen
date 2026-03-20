@@ -1,6 +1,7 @@
 #nullable enable annotations
 #nullable disable warnings
 using System;
+using StarGen.Domain.Generation;
 using StarGen.Domain.Population;
 using StarGen.Tests.Framework;
 
@@ -105,6 +106,35 @@ public static class TestPopulationLikelihood
 
         bool result = PopulationLikelihood.ShouldGenerateNatives(profile, 99999);
         DotNetNativeTestSuite.AssertFalse(result, "Very low habitability should never produce natives");
+    }
+
+    /// <summary>
+    /// Tests that life permissiveness changes deterministic native-generation outcomes for the same seed.
+    /// </summary>
+    public static void TestShouldGenerateNativesRespectsLifePermissiveness()
+    {
+        PlanetProfile profile = new();
+        profile.BodyId = "marginal";
+        profile.HabitabilityScore = 4;
+        profile.HasLiquidWater = true;
+        profile.HasAtmosphere = true;
+        profile.HasBreathableAtmosphere = false;
+        profile.IsTidallyLocked = false;
+        profile.RadiationLevel = 0.35;
+
+        long populationSeed = 11113;
+
+        GenerationUseCaseSettings strictSettings = GenerationUseCaseSettings.CreateDefault();
+        strictSettings.LifePermissiveness = 0.0;
+
+        GenerationUseCaseSettings permissiveSettings = GenerationUseCaseSettings.CreateDefault();
+        permissiveSettings.LifePermissiveness = 1.0;
+
+        bool strictResult = PopulationLikelihood.ShouldGenerateNatives(profile, populationSeed, strictSettings);
+        bool permissiveResult = PopulationLikelihood.ShouldGenerateNatives(profile, populationSeed, permissiveSettings);
+
+        DotNetNativeTestSuite.AssertFalse(strictResult, "Strict life settings should reject the marginal world for this deterministic seed");
+        DotNetNativeTestSuite.AssertTrue(permissiveResult, "Permissive life settings should accept the same marginal world for this deterministic seed");
     }
 
     /// <summary>

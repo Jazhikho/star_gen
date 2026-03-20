@@ -121,7 +121,9 @@ public static class PlanetGenerator
                 body,
                 context,
                 spec.GenerationSeed,
-                populationOverride);
+                populationOverride,
+                null,
+                spec.UseCaseSettings);
             CopyConceptPipelineState(body);
         }
 

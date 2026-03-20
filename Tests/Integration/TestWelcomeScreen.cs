@@ -12,7 +12,7 @@ public static class TestWelcomeScreen
 {
     private const string WelcomeScenePath = "res://src/app/WelcomeScreen.tscn";
     private const string SeedSpinPath = "MarginContainer/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/SeedContainer/SeedSpin";
-    private const string StartButtonPath = "MarginContainer/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/FooterVBox/Buttons/StartButton";
+    private const string StartButtonPath = "MarginContainer/MainPanel/MarginContainer/VBox/StudioRow/SummaryPanel/MarginContainer/SummaryVBox/Buttons/StartButton";
 
     public static void RunAll(DotNetTestRunner runner)
     {
@@ -21,6 +21,7 @@ public static class TestWelcomeScreen
         runner.RunNativeTest("TestWelcomeScreen::test_set_seeded_rng_accepts_rng", TestSetSeededRngAcceptsRng);
         runner.RunNativeTest("TestWelcomeScreen::test_set_current_config_round_trips", TestSetCurrentConfigRoundTrips);
         runner.RunNativeTest("TestWelcomeScreen::test_start_blocks_when_validation_errors_exist", TestStartBlocksWhenValidationErrorsExist);
+        runner.RunNativeTest("TestWelcomeScreen::test_welcome_screen_exposes_split_summary_panel", TestWelcomeScreenExposesSplitSummaryPanel);
     }
 
     private static WelcomeScreen CreateWelcomeScreen()
@@ -127,6 +128,25 @@ public static class TestWelcomeScreen
 
             DotNetNativeTestSuite.AssertFalse(started, "Blocking validation errors should stop startup emission");
             DotNetNativeTestSuite.AssertTrue(welcome.GetCurrentIssues().HasErrors(), "Blocking validation errors should be surfaced in the welcome screen");
+        }
+        finally
+        {
+            IntegrationTestUtils.CleanupNode(welcome);
+        }
+    }
+
+    private static void TestWelcomeScreenExposesSplitSummaryPanel()
+    {
+        WelcomeScreen welcome = CreateWelcomeScreen();
+        try
+        {
+            Control? summaryPanel = welcome.GetNodeOrNull<Control>("MarginContainer/MainPanel/MarginContainer/VBox/StudioRow/SummaryPanel");
+            Label? summaryLabel = welcome.GetNodeOrNull<Label>("MarginContainer/MainPanel/MarginContainer/VBox/StudioRow/SummaryPanel/MarginContainer/SummaryVBox/SummaryScroll/SummaryContent/SummaryLabel");
+            Button? infoButton = welcome.FindChild("AdvancedAssumptionsInfoButton", recursive: true, owned: false) as Button;
+
+            DotNetNativeTestSuite.AssertNotNull(summaryPanel, "Welcome screen should expose a separate summary panel");
+            DotNetNativeTestSuite.AssertNotNull(summaryLabel, "Summary panel should include the active-profile summary label");
+            DotNetNativeTestSuite.AssertNotNull(infoButton, "Advanced assumptions should expose an info button");
         }
         finally
         {

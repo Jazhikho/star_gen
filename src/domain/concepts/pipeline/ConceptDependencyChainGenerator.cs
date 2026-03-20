@@ -185,7 +185,7 @@ public static class ConceptDependencyChainGenerator
             spec.OxygenLevel = 0.03f;
         }
         spec.SeasonalVariation = System.Math.Clamp((float)(0.12 + (environment.WeatherSeverity * 0.30)), 0.0f, 1.0f);
-        spec.Biome = MapEcologyBiome(environment.DominantBiome);
+        spec.Biome = ResolveEcologyBiome(environment);
         spec.GeneratorVersion = EcologyGeneratorVersion;
         return spec;
     }
@@ -282,6 +282,22 @@ public static class ConceptDependencyChainGenerator
         return System.Math.Clamp(score, 0.0, 1.0);
     }
 
+    private static StarGen.Domain.Ecology.BiomeType ResolveEcologyBiome(PlanetEnvironmentProfile environment)
+    {
+        string normalized = environment.DominantBiome.Trim().ToLowerInvariant();
+        if (normalized == "barren")
+        {
+            if (environment.HasLiquidWater)
+            {
+                return StarGen.Domain.Ecology.BiomeType.Subterranean;
+            }
+
+            throw new InvalidOperationException("Ecology cannot be mapped from barren biome context.");
+        }
+
+        return MapEcologyBiome(environment.DominantBiome);
+    }
+
     private static StarGen.Domain.Ecology.BiomeType MapEcologyBiome(string biomeName)
     {
         string normalized = biomeName.Trim().ToLowerInvariant();
@@ -368,11 +384,6 @@ public static class ConceptDependencyChainGenerator
         if (normalized == "reef")
         {
             return StarGen.Domain.Ecology.BiomeType.Reef;
-        }
-
-        if (normalized == "barren")
-        {
-            throw new InvalidOperationException("Ecology cannot be mapped from barren biome context.");
         }
 
         throw new InvalidOperationException("Unsupported ecology biome '" + biomeName + "'.");

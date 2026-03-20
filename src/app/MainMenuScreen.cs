@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using Godot;
+using StarGen.App.Shared;
 using StarGen.Services.Persistence;
 
 namespace StarGen.App;
@@ -187,7 +188,7 @@ public partial class MainMenuScreen : Control
 
 	private void PopulateStaticText()
 	{
-			string version = ProjectSettings.GetSetting("application/config/version", "0.7.1.0").AsString();
+		string version = UserFacingVersionHelper.GetDisplayVersion();
 		if (_versionLabel != null)
 		{
 			_versionLabel.Text = $"Version {version}";
@@ -214,7 +215,7 @@ public partial class MainMenuScreen : Control
 			_creditsText.Text =
 				"Credits\n\n" +
 				"Design and direction: Jazhikho\n\n" +
-				"AI assistance: OpenAI Codex / GPT models and Anthropic Claude were used under human direction for exploration, drafting, refactoring, testing support, UI copy iteration, and documentation/provenance upkeep. Human review remained responsible for design, realism, licensing, and release decisions.\n\n" +
+				"AI assistance: OpenAI Codex / GPT models, Anthropic Claude, and Cursor were used under human direction for exploration, drafting, refactoring, testing support, UI copy iteration, documentation/provenance upkeep, and focused implementation assistance. Human review remained responsible for design, realism, licensing, and release decisions.\n\n" +
 				"App icon (Galaxy): Freepik (Flaticon). Used under Flaticon License; attribution required. See Docs/Assets.md.\n\n" +
 				"StarGen uses astronomy and worldbuilding references for its generation parameters. See the project's Sources folder for further reading.";
 		}
@@ -281,7 +282,15 @@ public partial class MainMenuScreen : Control
 	private static string GetReleaseNotesContent()
 	{
 		return
-				"Version 0.7.1.0\n\n" +
+			"Version 0.8.0.0\n\n" +
+			"- Upcoming public build label used throughout the UI while the current branch continues the internal 0.7 hardening pass.\n" +
+			"- Galaxy Studio now surfaces morphology explanations more clearly, life and settlement permissiveness are being tightened into real generation logic, and review sources are being collected in the Sources folder for human approval.\n" +
+			"- Public release remains blocked on realism tuning, baseline distribution review, and explicit human audit for culture-, religion-, language-, civilisation-, and species-facing outputs.\n\n" +
+			"Version 0.7.1.1\n\n" +
+			"- Internal patch milestone: the user-facing UI now advertises the upcoming `0.8.0.0` public build while internal 0.7 hardening continues underneath.\n" +
+			"- Galaxy Studio now uses a proper split layout again, includes clearer morphology and assumption guidance, and treats Life Potential and Settlement Density as real generation inputs rather than mostly decorative labels.\n" +
+			"- Added a separate deterministic 1000-world baseline runner for reviewing life and settlement distribution changes outside the main automated suite.\n\n" +
+			"Version 0.7.1.0\n\n" +
 			"- Internal hardening milestone: concept generation now follows an explicit dependency chain from environment to ecology, species, sentience, and then society-layer tools.\n" +
 			"- Lifeless worlds no longer fabricate ecology or society layers, non-sentient worlds stop before civilisation/religion/language, and runtime concept state is persisted only when applicability rules are met.\n" +
 			"- Hardened concept serialization, provenance, and test coverage while removing concept-path ternary operators and silent fallback behavior.\n" +
@@ -680,7 +689,7 @@ public partial class MainMenuScreen : Control
 		return
 			"Credits\n\n" +
 			"Design and direction: Jazhikho\n\n" +
-			"AI assistance: OpenAI Codex / GPT models and Anthropic Claude were used under human direction for exploration, drafting, refactoring, testing support, UI copy iteration, and documentation/provenance upkeep. Human review remained responsible for design, realism, licensing, and release decisions.\n\n" +
+			"AI assistance: OpenAI Codex / GPT models, Anthropic Claude, and Cursor were used under human direction for exploration, drafting, refactoring, testing support, UI copy iteration, documentation/provenance upkeep, and focused implementation assistance. Human review remained responsible for design, realism, licensing, and release decisions.\n\n" +
 			"App icon (Galaxy): Freepik (Flaticon). Used under Flaticon License; attribution required. See Docs/Assets.md.\n\n" +
 			"StarGen uses astronomy and worldbuilding references for its generation parameters. See the project's Sources folder for further reading.";
 	}

@@ -16,8 +16,6 @@ public static class PopulationGenerator
     private const int DefaultMaxNativePopulations = 3;
     private const int DefaultNativeMinHistoryYears = 1000;
     private const int DefaultNativeMaxHistoryYears = 50000;
-    private const int DefaultMaxAutoColonies = 2;
-    private const double DefaultColonyChance = 0.3;
     private const int DefaultColonyMinHistoryYears = 50;
     private const int DefaultColonyMaxHistoryYears = 500;
 
@@ -67,7 +65,8 @@ public static class PopulationGenerator
         bool generateNatives = true,
         bool generateColonies = true,
         CelestialBody? parentBody = null,
-        int currentYear = DefaultCurrentYear)
+        int currentYear = DefaultCurrentYear,
+        GenerationUseCaseSettings? useCaseSettings = null)
     {
         PlanetPopulationData data = BuildProfileOnlyData(body, context, generationSeed, parentBody);
         if (data.Profile == null || data.Suitability == null)
@@ -81,7 +80,8 @@ public static class PopulationGenerator
             generateNatives,
             generateColonies,
             currentYear,
-            data.Suitability);
+            data.Suitability,
+            useCaseSettings);
     }
 
     /// <summary>
@@ -93,7 +93,8 @@ public static class PopulationGenerator
         bool generateNatives = true,
         bool generateColonies = true,
         int currentYear = DefaultCurrentYear,
-        ColonySuitability? existingSuitability = null)
+        ColonySuitability? existingSuitability = null,
+        GenerationUseCaseSettings? useCaseSettings = null)
     {
         ColonySuitability suitability = existingSuitability ?? SuitabilityCalculator.Calculate(profile);
         PlanetPopulationData data = new()
@@ -136,7 +137,8 @@ public static class PopulationGenerator
                 suitability,
                 data.NativePopulations,
                 currentYear,
-                rng);
+                rng,
+                useCaseSettings);
         }
 
         return data;
@@ -150,7 +152,8 @@ public static class PopulationGenerator
         ParentContext context,
         int baseSeed,
         int populationOverride = 0,
-        CelestialBody? parentBody = null)
+        CelestialBody? parentBody = null,
+        GenerationUseCaseSettings? useCaseSettings = null)
     {
         if (populationOverride == (int)PopulationLikelihood.Override.None)
         {
@@ -174,10 +177,11 @@ public static class PopulationGenerator
         }
         else
         {
-            generateNatives = data.Profile != null && PopulationLikelihood.ShouldGenerateNatives(data.Profile, populationSeed);
+            generateNatives = data.Profile != null
+                && PopulationLikelihood.ShouldGenerateNatives(data.Profile, populationSeed, useCaseSettings);
             generateColony = data.Profile != null
                 && data.Suitability != null
-                && PopulationLikelihood.ShouldGenerateColony(data.Profile, data.Suitability, populationSeed);
+                && PopulationLikelihood.ShouldGenerateColony(data.Profile, data.Suitability, populationSeed, useCaseSettings);
         }
 
         if (data.Profile == null || data.Suitability == null)
@@ -194,7 +198,8 @@ public static class PopulationGenerator
             generateNatives && sentientNativesAvailable,
             generateColony,
             DefaultCurrentYear,
-            data.Suitability);
+            data.Suitability,
+            useCaseSettings);
         generated.EnvironmentProfile = data.EnvironmentProfile;
         generated.EcologyState = data.EcologyState;
         generated.SpeciesEvolution = data.SpeciesEvolution;
@@ -224,7 +229,8 @@ public static class PopulationGenerator
         ColonySuitability suitability,
         Array<NativePopulation> existingNatives,
         int currentYear,
-        SeededRng rng)
+        SeededRng rng,
+        GenerationUseCaseSettings? useCaseSettings)
     {
         Array<Colony> colonies = new();
         if (!suitability.IsColonizable())
@@ -233,7 +239,7 @@ public static class PopulationGenerator
         }
 
         SeededRng colonyRng = rng.Fork();
-        int colonyCount = DetermineAutoColonyCount(suitability, colonyRng);
+        int colonyCount = DetermineAutoColonyCount(profile, suitability, colonyRng, useCaseSettings);
         for (int index = 0; index < colonyCount; index += 1)
         {
             Colony? colony = ColonyGenerator.Generate(
@@ -256,23 +262,38 @@ public static class PopulationGenerator
         return colonies;
     }
 
-    private static int DetermineAutoColonyCount(ColonySuitability suitability, SeededRng rng)
+    private static int DetermineAutoColonyCount(
+        PlanetProfile profile,
+        ColonySuitability suitability,
+        SeededRng rng,
+        GenerationUseCaseSettings? useCaseSettings)
     {
+        double permissiveness = GenerationUseCaseSettings.NeutralPermissiveness;
+        if (useCaseSettings != null)
+        {
+            permissiveness = useCaseSettings.PopulationPermissiveness;
+        }
+
         int count = 0;
-        double adjustedChance = DefaultColonyChance * (suitability.OverallScore / 50.0);
-        adjustedChance = System.Math.Clamp(adjustedChance, 0.0, 0.9);
+        double adjustedChance = PopulationProbability.CalculateColonyProbability(profile, suitability, permissiveness);
 
         if (rng.Randf() < adjustedChance)
         {
             count = 1;
-            double additionalChance = adjustedChance * 0.3;
-            while (count < DefaultMaxAutoColonies && rng.Randf() < additionalChance)
+            int maxColonies = 1 + (int)System.Math.Round(3.0 * permissiveness);
+            double additionalChance = adjustedChance * Lerp(0.12, 0.40, permissiveness);
+            while (count < maxColonies && rng.Randf() < additionalChance)
             {
                 count += 1;
-                additionalChance *= 0.3;
+                additionalChance *= Lerp(0.18, 0.45, permissiveness);
             }
         }
 
         return count;
+    }
+
+    private static double Lerp(double minValue, double maxValue, double factor)
+    {
+        return minValue + ((maxValue - minValue) * factor);
     }
 }

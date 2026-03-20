@@ -19,6 +19,17 @@ Use this log for significant AI-assisted artifacts in this repository.
 
 ### 2026-03-20 - Codex (GPT-5)
 
+- Task Purpose: Tighten the galaxy-studio presentation and parameter semantics so the user-facing UI reflects the next planned release, galaxy controls explain real generation behavior, and life/settlement permissiveness stop acting like cosmetic sliders.
+- Input Materials Used: User review notes and screenshot from the galaxy studio; `claude.md`; `AGENTS.md`; `project.godot`; `MainMenuScreen.cs`; `WelcomeScreen.cs/.tscn`; `DarkTheme.tres`; galaxy density-model code; population probability/generator code; integration and population tests; README/version/project-structure/source docs.
+- AI Produced: Added a dedicated user-facing version-label helper and project setting, restored the split galaxy-studio layout and summary panel, replaced the advanced-assumptions hover text with an information button, fixed checkbox highlight styling, added Cursor to the in-app credits text, expanded morphology explanations and source references, wired `Life Potential` and `Settlement Density` into native-life and colony generation logic, and added a separate 1000-world baseline runner plus regression coverage.
+- Human Accepted: Pending review of the revised galaxy-studio layout, the clarified parameter behavior, and the baseline artifacts.
+- Human Rejected: No claim was made that the current galaxy-type model is a full astrophysical formation simulation; the implementation remains a deterministic morphology proxy informed by reviewed structure papers and still subject to human realism review.
+- Human Changed: The user-set requirement is that the app always show the next public release label to end users, that Cursor receive explicit credit alongside other AI tools, that galaxy controls become more than window dressing, and that life/settlement distribution changes be measured through a separate baseline run rather than silently folded into the normal suite.
+- Validation Method: `dotnet build StarGen.sln`; `godot-mono.exe --path . --headless --script res://Tests/Baselines/RunLifeDistributionBaseline.gd`; `godot-mono.exe --path . --headless --script res://Tests/RunTestsHeadless.gd` (`1926 / 1926` passed; the same pre-existing headless popup/layout leak warnings still print afterward).
+- Final Approver: Pending Christopher B. Del Gesso review.
+
+### 2026-03-20 - Codex (GPT-5)
+
 - Task Purpose: Implement the 0.7 concept-pipeline hardening pass so concept generation follows deterministic worldbuilding dependencies instead of the earlier flattened showcase context.
 - Input Materials Used: User-approved 0.7 hardening plan; `Claude.md`; `AGENTS.md`; concept atlas/runtime code; population and celestial domain models; concept prototypes in `Concepts/`; persistence services; concept and integration tests; roadmap/version/project-structure/readme surfaces.
 - AI Produced: Added typed pipeline states for environment, ecology, species evolution, sentience, society, religion, language, and disease; reworked world/population generation to gate downstream concepts on biological and sentient applicability; hardened concept serialization and provenance; removed concept-path ternary operators and silent-fallback behavior; updated deterministic concept tests; and synced roadmap/version/readme/project-structure documentation for the internal `0.7.1.0` hardening line toward a future `0.8.0.0` public release.

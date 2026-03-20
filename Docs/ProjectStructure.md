@@ -17,10 +17,19 @@ UI layout baseline:
 - Wrapped labels should have a panel-appropriate minimum width rather than relying on autowrap alone; large full-width headers can be broader, while sidebar/footer text should usually stay closer to the 180-320 px range.
 
 Current development line:
-- `0.7.1.0`
+- `0.7.1.1`
 
 Current public release target:
 - `0.8.0.0`
+
+Recent 0.7.1.1 additions:
+- `src/app/shared/UserFacingVersionHelper.cs` (separates the user-facing release label from the internal branch version)
+- `src/app/WelcomeScreen.cs` / `src/app/WelcomeScreen.tscn` (restored split galaxy-studio layout, morphology summary panel, info-button-based advanced-assumptions help, and cleaner parameter presentation)
+- `src/app/themes/DarkTheme.tres` (checkbox highlight override so validation/readout controls no longer paint a blocking full-width red bar)
+- `src/domain/population/PopulationProbability.cs` / `src/domain/population/PopulationLikelihood.cs` / `src/domain/population/PopulationGenerator.cs` (life-potential and settlement-density wiring into native-life and colony generation)
+- `Tests/Baselines/` (separate deterministic 1000-world life/settlement baseline runner and generated artifact location outside the main suite)
+- `Tests/Baselines/Artifacts/` (baseline markdown, CSV, and JSON outputs regenerated when distribution tuning changes)
+- `Tests/Integration/TestMainMenuScreen.cs` / `Tests/Integration/TestWelcomeScreen.cs` / `Tests/Unit/Population/*` (user-facing version-label, galaxy-studio layout, and permissiveness behavior regression coverage)
 
 Recent 0.7.1 additions:
 - `src/domain/concepts/ConceptRunStatus.cs`
@@ -442,6 +451,7 @@ C# source files:
 - `src/app/viewer/EditDialog.cs`
 - `src/app/shared/ViewerLayoutHelper.cs`
 - `src/app/shared/StudioScreenLayoutHelper.cs`
+- `src/app/shared/UserFacingVersionHelper.cs`
 - `src/app/concepts/ConceptAtlasScreen.cs`
 - `src/app/concepts/ConceptAtlasModuleRegistry.cs`
 - `src/app/concepts/CivilizationAtlasModulePresenter.cs`
@@ -468,6 +478,9 @@ C# source files:
 - `Tests/Framework/DotNetTestResult.cs`
 - `Tests/Framework/DotNetTestRunner.cs`
 - `Tests/Framework/DotNetNativeTestSuite.cs`
+- `Tests/Baselines/LifeDistributionBaselineRunner.cs`
+- `Tests/Baselines/LifeDistributionBaselineRunner.tscn`
+- `Tests/Baselines/RunLifeDistributionBaseline.gd`
 - `Tests/TestRegistry.cs`
 - `Tests/TestRegistry.gd`
 - `Tests/TestSceneCSharp.cs`

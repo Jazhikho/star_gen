@@ -95,6 +95,7 @@ public partial class WelcomeScreen : Control
 	private HSlider? _populationPermissivenessInput;
 	private Label? _populationPermissivenessValueLabel;
 	private OptionButton? _mainworldPolicyOption;
+	private Button? _advancedAssumptionsInfoButton;
 	private VBoxContainer? _settingsVBox;
 	private BoxContainer? _studioRow;
 	private Control? _settingsPanel;
@@ -106,7 +107,7 @@ public partial class WelcomeScreen : Control
 
 	private const string StudioRootPath = "MarginContainer/MainPanel/MarginContainer/VBox";
 	private const string ParameterRootPath = "MarginContainer/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox";
-	private const string SummaryRootPath = "MarginContainer/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/FooterVBox";
+	private const string SummaryRootPath = "MarginContainer/MainPanel/MarginContainer/VBox/StudioRow/SummaryPanel/MarginContainer/SummaryVBox";
 
 	/// <summary>
 	/// Initializes UI wiring.
@@ -290,11 +291,11 @@ public partial class WelcomeScreen : Control
 	{
 		_studioRow = GetNodeOrNull<BoxContainer>($"{StudioRootPath}/StudioRow");
 		_settingsPanel = GetNodeOrNull<Control>($"{StudioRootPath}/StudioRow/SettingsPanel");
-		_summaryPanel = null;
+		_summaryPanel = GetNodeOrNull<Control>($"{StudioRootPath}/StudioRow/SummaryPanel");
 		_versionLabel = GetNodeOrNull<Label>($"{StudioRootPath}/HeaderRow/VersionLabel");
-		_summaryLabel = GetNodeOrNull<Label>($"{SummaryRootPath}/SummaryLabel");
-		_assumptionsLabel = GetNodeOrNull<Label>($"{SummaryRootPath}/AssumptionsLabel");
-		_issuesContainer = GetNodeOrNull<VBoxContainer>($"{SummaryRootPath}/IssuesContainer");
+		_summaryLabel = GetNodeOrNull<Label>($"{SummaryRootPath}/SummaryScroll/SummaryContent/SummaryLabel");
+		_assumptionsLabel = GetNodeOrNull<Label>($"{SummaryRootPath}/SummaryScroll/SummaryContent/AssumptionsLabel");
+		_issuesContainer = GetNodeOrNull<VBoxContainer>($"{SummaryRootPath}/SummaryScroll/SummaryContent/IssuesContainer");
 		_startButton = GetNodeOrNull<Button>($"{SummaryRootPath}/Buttons/StartButton");
 		_loadButton = GetNodeOrNull<Button>($"{SummaryRootPath}/Buttons/LoadButton");
 		_quitButton = GetNodeOrNull<Button>($"{SummaryRootPath}/Buttons/QuitButton");
@@ -373,12 +374,12 @@ public partial class WelcomeScreen : Control
 	{
 		if (_summaryLabel != null)
 		{
-			_summaryLabel.Visible = false;
+			_summaryLabel.Visible = true;
 		}
 
 		if (_assumptionsLabel != null)
 		{
-			_assumptionsLabel.Visible = false;
+			_assumptionsLabel.Visible = true;
 		}
 
 		if (_settingsVBox != null)
@@ -421,7 +422,7 @@ public partial class WelcomeScreen : Control
 	{
 		if (_versionLabel != null)
 		{
-			string version = ProjectSettings.GetSetting("application/config/version", "0.5.0.0").AsString();
+			string version = UserFacingVersionHelper.GetDisplayVersion();
 			_versionLabel.Text = $"Version {version}";
 		}
 	}
@@ -738,22 +739,28 @@ public partial class WelcomeScreen : Control
 		CheckBox showTravellerReadoutsCheck = new CheckBox();
 		showTravellerReadoutsCheck.Name = "ShowTravellerReadoutsCheck";
 		showTravellerReadoutsCheck.Text = "Show Traveller / UWP Readouts";
+		showTravellerReadoutsCheck.SizeFlagsHorizontal = Control.SizeFlags.ExpandFill;
 		_showTravellerReadoutsCheck = showTravellerReadoutsCheck;
 		useCaseSection.AddChild(showTravellerReadoutsCheck);
 
+		HBoxContainer advancedHeaderRow = new HBoxContainer();
+		advancedHeaderRow.AddThemeConstantOverride("separation", 8);
 		Label advancedHeader = new Label();
 		advancedHeader.Text = "Advanced Assumptions";
 		advancedHeader.AddThemeFontSizeOverride("font_size", 12);
 		advancedHeader.Modulate = new Color(0.82f, 0.82f, 0.55f, 1.0f);
-		useCaseSection.AddChild(advancedHeader);
-
-		Label legendLabel = new Label();
-		legendLabel.Text = PermissivenessScaleHelper.GetLegendText();
-		legendLabel.AutowrapMode = TextServer.AutowrapMode.WordSmart;
-		legendLabel.CustomMinimumSize = new Vector2(220.0f, 0.0f);
-		legendLabel.AddThemeFontSizeOverride("font_size", 10);
-		legendLabel.Modulate = new Color(0.62f, 0.7f, 0.8f, 1.0f);
-		useCaseSection.AddChild(legendLabel);
+		advancedHeaderRow.AddChild(advancedHeader);
+		Button advancedInfoButton = new Button();
+		advancedInfoButton.Name = "AdvancedAssumptionsInfoButton";
+		advancedInfoButton.Text = "i";
+		advancedInfoButton.Flat = true;
+		advancedInfoButton.FocusMode = FocusModeEnum.None;
+		advancedInfoButton.CustomMinimumSize = new Vector2(24.0f, 24.0f);
+		advancedInfoButton.SizeFlagsHorizontal = Control.SizeFlags.ShrinkEnd;
+		advancedInfoButton.TooltipText = PermissivenessScaleHelper.GetAdvancedLegendTooltip();
+		advancedHeaderRow.AddChild(advancedInfoButton);
+		_advancedAssumptionsInfoButton = advancedInfoButton;
+		useCaseSection.AddChild(advancedHeaderRow);
 
 		HBoxContainer lifeRow = new HBoxContainer();
 		lifeRow.AddThemeConstantOverride("separation", 12);
@@ -1025,15 +1032,15 @@ public partial class WelcomeScreen : Control
 			lines.Add($"Density {config.StarDensityMultiplier:0.0}x");
 			lines.Add($"Ruleset {settings.RulesetMode}");
 			lines.Add($"Traveller Readouts {(settings.ShowTravellerReadouts ? "On" : "Off")}");
-			lines.Add($"Life Potential {PermissivenessScaleHelper.GetBandLabel(settings.LifePermissiveness)}");
-			lines.Add($"Settlement Density {PermissivenessScaleHelper.GetBandLabel(settings.PopulationPermissiveness)}");
+			lines.Add($"Life Potential {settings.LifePermissiveness:0.00} {PermissivenessScaleHelper.GetBandLabel(settings.LifePermissiveness)}");
+			lines.Add($"Settlement Density {settings.PopulationPermissiveness:0.00} {PermissivenessScaleHelper.GetBandLabel(settings.PopulationPermissiveness)}");
 			_summaryLabel.Text = string.Join("\n", lines);
 		}
 
 		if (_assumptionsLabel != null)
 		{
-			_assumptionsLabel.Text = string.Empty;
-			_assumptionsLabel.TooltipText = "Galaxy parameters live in this studio. Traveller mode here applies a moderately settlement-friendly profile, enables Traveller readouts, and tightens the mainworld policy without claiming full Traveller sector simulation.";
+			_assumptionsLabel.Text = BuildAssumptionsSummary(config);
+			_assumptionsLabel.TooltipText = BuildAssumptionsTooltip();
 		}
 	}
 
@@ -1081,6 +1088,52 @@ public partial class WelcomeScreen : Control
 			_populationPermissivenessValueLabel.Text =
 				$"{_populationPermissivenessInput.Value:0.00} {PermissivenessScaleHelper.GetBandLabel(_populationPermissivenessInput.Value)}";
 		}
+	}
+
+	private static string BuildAssumptionsSummary(GalaxyConfig config)
+	{
+		System.Collections.Generic.List<string> lines = new();
+		lines.Add(GetMorphologySummary(config));
+		lines.Add(GetActiveParameterSummary(config));
+		lines.Add("Life Potential now changes native-life thresholds instead of only relabeling the screen.");
+		lines.Add("Settlement Density now changes colony likelihood and follow-on colony spread on harsh worlds.");
+		lines.Add("Sources for the current morphology assumptions are listed in Sources/ToReview.md for human review.");
+		return string.Join("\n\n", lines);
+	}
+
+	private static string BuildAssumptionsTooltip()
+	{
+		return "Traveller mode still applies a moderately settlement-friendly baseline, enables Traveller readouts, and tightens the mainworld policy without claiming full Traveller sector simulation.";
+	}
+
+	private static string GetMorphologySummary(GalaxyConfig config)
+	{
+		if (config.Type == GalaxySpec.GalaxyType.Spiral)
+		{
+			return "Spiral galaxies use an exponential stellar disk, a Gaussian bulge, and logarithmic arm modulation. Arm count, arm pitch, arm definition, and core settings all change where stars concentrate across the map.";
+		}
+
+		if (config.Type == GalaxySpec.GalaxyType.Elliptical)
+		{
+			return "Elliptical galaxies use a smooth triaxial ellipsoid. Ellipticity changes the axis ratio, while bulge intensity, radius, and overall size reshape the central stellar concentration.";
+		}
+
+		return "Irregular galaxies use an off-center clumpy falloff with layered noise. Irregularity changes asymmetry, clumping, and how patchy the stellar distribution becomes.";
+	}
+
+	private static string GetActiveParameterSummary(GalaxyConfig config)
+	{
+		if (config.Type == GalaxySpec.GalaxyType.Spiral)
+		{
+			return $"Active controls: {config.NumArms} arms, {config.ArmPitchAngleDeg:0.0} deg pitch, and {config.ArmAmplitude:0.00} arm contrast.";
+		}
+
+		if (config.Type == GalaxySpec.GalaxyType.Elliptical)
+		{
+			return $"Active controls: ellipticity {config.Ellipticity:0.00}, bulge radius {config.BulgeRadiusPc:0} pc, and density {config.StarDensityMultiplier:0.0}x.";
+		}
+
+		return $"Active controls: irregularity {config.IrregularityScale:0.00}, core intensity {config.BulgeIntensity:0.00}, and radius {config.RadiusPc / 1000.0:0.0} kpc.";
 	}
 
 	private void RefreshValidationIssues()
