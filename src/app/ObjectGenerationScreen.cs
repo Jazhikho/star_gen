@@ -123,48 +123,6 @@ public partial class ObjectGenerationScreen : Control
         BuildEnhancedParameterUi();
     }
 
-    private SpinBox AddSpinRow(string labelText, double minValue, double maxValue, double step)
-    {
-        HBoxContainer row = CreateRow(labelText);
-        SpinBox spinBox = new SpinBox();
-        spinBox.MinValue = minValue;
-        spinBox.MaxValue = maxValue;
-        spinBox.Step = step;
-        spinBox.Rounded = step >= 1.0;
-        spinBox.SizeFlagsHorizontal = Control.SizeFlags.ExpandFill;
-        row.AddChild(spinBox);
-        return spinBox;
-    }
-
-    private CheckBox AddCheckRow(string labelText)
-    {
-        CheckBox checkBox = new CheckBox();
-        checkBox.Text = labelText;
-        _parameterVBox!.AddChild(checkBox);
-        return checkBox;
-    }
-
-    private OptionButton AddOptionRow(string labelText)
-    {
-        HBoxContainer row = CreateRow(labelText);
-        OptionButton optionButton = new OptionButton();
-        optionButton.SizeFlagsHorizontal = Control.SizeFlags.ExpandFill;
-        row.AddChild(optionButton);
-        return optionButton;
-    }
-
-    private HBoxContainer CreateRow(string labelText)
-    {
-        HBoxContainer row = new HBoxContainer();
-        row.AddThemeConstantOverride("separation", 10);
-        Label label = new Label();
-        label.Text = labelText;
-        label.CustomMinimumSize = new Vector2(96.0f, 0.0f);
-        row.AddChild(label);
-        _parameterVBox!.AddChild(row);
-        return row;
-    }
-
     private void ApplyResponsiveLayout()
     {
         StudioScreenLayoutHelper.ApplyResponsiveStudioLayout(this, _studioRow, _settingsPanel, _summaryPanel);
@@ -179,7 +137,7 @@ public partial class ObjectGenerationScreen : Control
     {
         if (_versionLabel != null)
         {
-			string version = ProjectSettings.GetSetting("application/config/version", "0.5.0.0").AsString();
+			string version = UserFacingVersionHelper.GetDisplayVersion();
             _versionLabel.Text = $"Version {version}";
         }
     }

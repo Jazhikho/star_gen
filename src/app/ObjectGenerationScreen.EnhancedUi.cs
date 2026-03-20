@@ -50,45 +50,109 @@ public partial class ObjectGenerationScreen
 
     private void BuildEnhancedParameterUi()
     {
-        if (_parameterVBox == null || _typeOption != null)
+        if (_parameterVBox == null)
         {
             return;
         }
 
-        _typeOption = AddEnhancedOptionRow("TypeRow", "Type");
-        _typeOption.Name = "TypeOption";
+        CacheEnhancedSceneReferences();
+        PopulateEnhancedStaticOptions();
+        RebuildEnhancedPresetOptions();
+    }
+
+    private void CacheEnhancedSceneReferences()
+    {
+        if (_typeOption != null)
+        {
+            return;
+        }
+
+        _rows.Clear();
+        _rowLabels.Clear();
+        _optionalToggles.Clear();
+        _optionalInputs.Clear();
+
+        _typeOption = GetRequiredOptionButton("TypeRow", "TypeOption");
+        _presetOption = GetRequiredOptionButton("PresetRow", "PresetOption");
+        _nameInput = GetRequiredLineEdit("NameRow", "NameInput");
+        _seedInput = GetRequiredSpinBox("SeedRow", "SeedInput");
+        _seedRow = GetRequiredRow("SeedRow");
+        _rulesetModeOption = GetRequiredOptionButton("RulesetRow", "RulesetModeOption");
+        _showTravellerReadoutsCheck = GetRequiredCheckBox("ShowTravellerReadoutsRow", "ShowTravellerReadoutsCheck");
+        _showAdvancedControlsCheck = GetRequiredCheckBox("ShowAdvancedControlsRow", "ShowAdvancedControlsCheck");
+
+        _planetSection = GetNodeOrNull<VBoxContainer>("MarginContainer/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/PlanetSection");
+        _travellerSection = GetNodeOrNull<VBoxContainer>("MarginContainer/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/TravellerSection");
+        _moonSection = GetNodeOrNull<VBoxContainer>("MarginContainer/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/MoonSection");
+        _starSection = GetNodeOrNull<VBoxContainer>("MarginContainer/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/StarSection");
+        _asteroidSection = GetNodeOrNull<VBoxContainer>("MarginContainer/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/AsteroidSection");
+        _advancedSection = GetNodeOrNull<VBoxContainer>("MarginContainer/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/AdvancedSection");
+
+        _planetSizeCategoryOption = GetRequiredOptionButton("PlanetSizeCategoryRow", "PlanetSizeCategoryOption");
+        _planetOrbitZoneOption = GetRequiredOptionButton("PlanetOrbitZoneRow", "PlanetOrbitZoneOption");
+        _planetAtmosphereOption = GetRequiredOptionButton("PlanetAtmosphereRow", "PlanetAtmosphereOption");
+        _planetRingsOption = GetRequiredOptionButton("PlanetRingsRow", "PlanetRingsOption");
+        _planetRingComplexityOption = GetRequiredOptionButton("PlanetRingComplexityRow", "PlanetRingComplexityOption");
+
+        _useTravellerWorldProfileCheck = GetRequiredCheckBox("UseTravellerWorldProfileRow", "UseTravellerWorldProfileCheck");
+        _travellerSizeCodeOption = GetRequiredOptionButton("TravellerSizeCodeRow", "TravellerSizeCodeOption");
+        _travellerAtmosphereCodeOption = GetRequiredOptionButton("TravellerAtmosphereCodeRow", "TravellerAtmosphereCodeOption");
+        _travellerHydrographicsCodeOption = GetRequiredOptionButton("TravellerHydrographicsCodeRow", "TravellerHydrographicsCodeOption");
+        _travellerPopulationCodeOption = GetRequiredOptionButton("TravellerPopulationCodeRow", "TravellerPopulationCodeOption");
+
+        _moonSizeCategoryOption = GetRequiredOptionButton("MoonSizeCategoryRow", "MoonSizeCategoryOption");
+        _moonCapturedCheck = GetRequiredCheckBox("MoonCapturedRow", "MoonCapturedCheck");
+        _moonAtmosphereOption = GetRequiredOptionButton("MoonAtmosphereRow", "MoonAtmosphereOption");
+        _moonOceanOption = GetRequiredOptionButton("MoonOceanRow", "MoonOceanOption");
+
+        _starSpectralClassOption = GetRequiredOptionButton("StarSpectralClassRow", "StarSpectralClassOption");
+
+        _asteroidTypeOption = GetRequiredOptionButton("AsteroidTypeRow", "AsteroidTypeOption");
+        _asteroidLargeCheck = GetRequiredCheckBox("AsteroidLargeRow", "AsteroidLargeCheck");
+
+        _lifePermissivenessInput = GetRequiredSlider("LifePermissivenessRow", "LifePermissivenessInput");
+        _lifePermissivenessValueLabel = GetRequiredLabel("LifePermissivenessRow", "LifePermissivenessValue");
+        _populationPermissivenessInput = GetRequiredSlider("PopulationPermissivenessRow", "PopulationPermissivenessInput");
+        _populationPermissivenessValueLabel = GetRequiredLabel("PopulationPermissivenessRow", "PopulationPermissivenessValue");
+
+        CacheOptionalOverride("StarSubclass");
+        CacheOptionalOverride("StarMetallicity");
+        CacheOptionalOverride("StarAgeGyr");
+        CacheOptionalOverride("MassOverride");
+        CacheOptionalOverride("RadiusOverride");
+        CacheOptionalOverride("RotationOverride");
+        CacheOptionalOverride("AxialTiltOverride");
+        CacheOptionalOverride("SemiMajorAxisOverride");
+        CacheOptionalOverride("EccentricityOverride");
+        CacheOptionalOverride("InclinationOverride");
+        CacheOptionalOverride("SurfacePressureOverride");
+        CacheOptionalOverride("AlbedoOverride");
+        CacheOptionalOverride("VolcanismOverride");
+        CacheOptionalOverride("TemperatureOverride");
+        CacheOptionalOverride("LuminosityOverride");
+    }
+
+    private void PopulateEnhancedStaticOptions()
+    {
+        if (_typeOption == null || _rulesetModeOption == null)
+        {
+            throw new InvalidOperationException("ObjectGenerationScreen scene is missing required parameter controls.");
+        }
+
+        _typeOption.Clear();
         _typeOption.AddItem("Star", (int)ObjectViewer.ObjectType.Star);
         _typeOption.AddItem("Planet", (int)ObjectViewer.ObjectType.Planet);
         _typeOption.AddItem("Moon", (int)ObjectViewer.ObjectType.Moon);
         _typeOption.AddItem("Asteroid", (int)ObjectViewer.ObjectType.Asteroid);
-
-        _presetOption = AddEnhancedOptionRow("PresetRow", "Preset");
-        _presetOption.Name = "PresetOption";
-        _nameInput = AddEnhancedLineEditRow("NameRow", "Name");
-        _nameInput.Name = "NameInput";
-
-        _seedInput = AddEnhancedSpinRow("SeedRow", "Seed", 1.0, 999999.0, 1.0);
-        _seedInput.Name = "SeedInput";
-        _seedRow = _seedInput.GetParent() as HBoxContainer;
-
-        _rulesetModeOption = AddEnhancedOptionRow("RulesetRow", "Ruleset");
-        _rulesetModeOption.Name = "RulesetModeOption";
+        _rulesetModeOption.Clear();
         _rulesetModeOption.AddItem("Default", (int)GenerationUseCaseSettings.RulesetModeType.Default);
         _rulesetModeOption.AddItem("Traveller", (int)GenerationUseCaseSettings.RulesetModeType.Traveller);
-
-        _showTravellerReadoutsCheck = AddEnhancedCheckRow("ShowTravellerReadoutsRow", "Traveller Readouts");
-        _showTravellerReadoutsCheck.Name = "ShowTravellerReadoutsCheck";
-        _showAdvancedControlsCheck = AddEnhancedCheckRow("ShowAdvancedControlsRow", "Advanced Controls");
-        _showAdvancedControlsCheck.Name = "ShowAdvancedControlsCheck";
-
-        BuildPlanetSection();
-        BuildTravellerSection();
-        BuildMoonSection();
-        BuildStarSection();
-        BuildAsteroidSection();
-        BuildAdvancedSection();
-
-        RebuildEnhancedPresetOptions();
+        PopulatePlanetSection();
+        PopulateTravellerSection();
+        PopulateMoonSection();
+        PopulateStarSection();
+        PopulateAsteroidSection();
+        PopulateAdvancedSection();
     }
 
     private void ConnectEnhancedSignals()
@@ -481,132 +545,48 @@ public partial class ObjectGenerationScreen
         RefreshSummary();
     }
 
-    private void BuildPlanetSection()
+    private void PopulatePlanetSection()
     {
-        _planetSection = AddEnhancedSection("PlanetSection", "Planet Profile");
-        _planetSizeCategoryOption = AddEnhancedSectionOptionRow(_planetSection, "PlanetSizeCategoryRow", "Size Category");
         PopulateAutoSizeOptions(_planetSizeCategoryOption);
-        _planetOrbitZoneOption = AddEnhancedSectionOptionRow(_planetSection, "PlanetOrbitZoneRow", "Orbit Zone");
         PopulateAutoOrbitZoneOptions(_planetOrbitZoneOption);
-        _planetAtmosphereOption = AddEnhancedSectionOptionRow(_planetSection, "PlanetAtmosphereRow", "Atmosphere");
         PopulateAutoBoolOptions(_planetAtmosphereOption);
         ApplyTriStateTooltip("PlanetAtmosphereRow", _planetAtmosphereOption, "atmosphere");
-        _planetRingsOption = AddEnhancedSectionOptionRow(_planetSection, "PlanetRingsRow", "Rings");
         PopulateAutoBoolOptions(_planetRingsOption);
         ApplyTriStateTooltip("PlanetRingsRow", _planetRingsOption, "rings");
-        _planetRingComplexityOption = AddEnhancedSectionOptionRow(_planetSection, "PlanetRingComplexityRow", "Ring Complexity");
         PopulateAutoRingComplexityOptions(_planetRingComplexityOption);
     }
 
-    private void BuildTravellerSection()
+    private void PopulateTravellerSection()
     {
-        _travellerSection = AddEnhancedSection("TravellerSection", "Traveller World Profile");
-        _useTravellerWorldProfileCheck = AddEnhancedSectionCheckRow(_travellerSection, "UseTravellerWorldProfileRow", "Traveller Worldgen");
-        _travellerSizeCodeOption = AddEnhancedSectionOptionRow(_travellerSection, "TravellerSizeCodeRow", "Size Code");
         PopulateTravellerCodeOptions(_travellerSizeCodeOption, "size");
-        _travellerAtmosphereCodeOption = AddEnhancedSectionOptionRow(_travellerSection, "TravellerAtmosphereCodeRow", "Atmosphere");
         PopulateTravellerCodeOptions(_travellerAtmosphereCodeOption, "atmosphere");
-        _travellerHydrographicsCodeOption = AddEnhancedSectionOptionRow(_travellerSection, "TravellerHydrographicsCodeRow", "Hydrographics");
         PopulateTravellerCodeOptions(_travellerHydrographicsCodeOption, "hydrographics");
-        _travellerPopulationCodeOption = AddEnhancedSectionOptionRow(_travellerSection, "TravellerPopulationCodeRow", "Population");
         PopulateTravellerCodeOptions(_travellerPopulationCodeOption, "population");
     }
 
-    private void BuildMoonSection()
+    private void PopulateMoonSection()
     {
-        _moonSection = AddEnhancedSection("MoonSection", "Moon Profile");
-        _moonSizeCategoryOption = AddEnhancedSectionOptionRow(_moonSection, "MoonSizeCategoryRow", "Size Category");
         PopulateAutoSizeOptions(_moonSizeCategoryOption);
-        _moonCapturedCheck = AddEnhancedSectionCheckRow(_moonSection, "MoonCapturedRow", "Captured Moon");
-        _moonAtmosphereOption = AddEnhancedSectionOptionRow(_moonSection, "MoonAtmosphereRow", "Atmosphere");
         PopulateAutoBoolOptions(_moonAtmosphereOption);
         ApplyTriStateTooltip("MoonAtmosphereRow", _moonAtmosphereOption, "atmosphere");
-        _moonOceanOption = AddEnhancedSectionOptionRow(_moonSection, "MoonOceanRow", "Subsurface Ocean");
         PopulateAutoBoolOptions(_moonOceanOption);
         ApplyTriStateTooltip("MoonOceanRow", _moonOceanOption, "subsurface ocean");
     }
 
-    private void BuildStarSection()
+    private void PopulateStarSection()
     {
-        _starSection = AddEnhancedSection("StarSection", "Star Profile");
-        _starSpectralClassOption = AddEnhancedSectionOptionRow(_starSection, "StarSpectralClassRow", "Spectral Class");
         PopulateStarClassOptions(_starSpectralClassOption);
-        AddEnhancedOptionalSpinRow(_starSection, "StarSubclass", "Subclass", 0.0, 9.0, 1.0);
-        AddEnhancedOptionalSpinRow(_starSection, "StarMetallicity", "Metallicity", 0.01, 3.0, 0.01);
-        AddEnhancedOptionalSpinRow(_starSection, "StarAgeGyr", "Age (Gyr)", 0.001, 15.0, 0.01);
     }
 
-    private void BuildAsteroidSection()
+    private void PopulateAsteroidSection()
     {
-        _asteroidSection = AddEnhancedSection("AsteroidSection", "Asteroid Profile");
-        _asteroidTypeOption = AddEnhancedSectionOptionRow(_asteroidSection, "AsteroidTypeRow", "Asteroid Type");
         PopulateAsteroidTypeOptions(_asteroidTypeOption);
-        _asteroidLargeCheck = AddEnhancedSectionCheckRow(_asteroidSection, "AsteroidLargeRow", "Large Body");
     }
 
-    private void BuildAdvancedSection()
+    private void PopulateAdvancedSection()
     {
-        _advancedSection = AddEnhancedSection("AdvancedSection", "Advanced Overrides");
-        Label legendLabel = new Label();
-        legendLabel.Text = PermissivenessScaleHelper.GetLegendText();
-        legendLabel.AutowrapMode = TextServer.AutowrapMode.WordSmart;
-        legendLabel.CustomMinimumSize = new Vector2(220.0f, 0.0f);
-        legendLabel.AddThemeFontSizeOverride("font_size", 10);
-        legendLabel.Modulate = new Color(0.62f, 0.7f, 0.8f, 1.0f);
-        _advancedSection.AddChild(legendLabel);
-        _lifePermissivenessInput = AddEnhancedPermissivenessRow(_advancedSection, "LifePermissivenessRow", "Life Potential", "life");
-        _populationPermissivenessInput = AddEnhancedPermissivenessRow(_advancedSection, "PopulationPermissivenessRow", "Settlement Density", "settlement");
-        AddEnhancedOptionalSpinRow(_advancedSection, "MassOverride", "Mass", 0.00001, 5000.0, 0.0001);
-        AddEnhancedOptionalSpinRow(_advancedSection, "RadiusOverride", "Radius", 0.001, 500.0, 0.001);
-        AddEnhancedOptionalSpinRow(_advancedSection, "RotationOverride", "Rotation Period (hrs)", 0.1, 10000.0, 0.1);
-        AddEnhancedOptionalSpinRow(_advancedSection, "AxialTiltOverride", "Axial Tilt (deg)", 0.0, 180.0, 0.1);
-        AddEnhancedOptionalSpinRow(_advancedSection, "SemiMajorAxisOverride", "Semi-major Axis (AU)", 0.001, 1000.0, 0.001);
-        AddEnhancedOptionalSpinRow(_advancedSection, "EccentricityOverride", "Eccentricity", 0.0, 0.99, 0.001);
-        AddEnhancedOptionalSpinRow(_advancedSection, "InclinationOverride", "Inclination (deg)", 0.0, 180.0, 0.1);
-        AddEnhancedOptionalSpinRow(_advancedSection, "SurfacePressureOverride", "Surface Pressure (atm)", 0.0, 20.0, 0.001);
-        AddEnhancedOptionalSpinRow(_advancedSection, "AlbedoOverride", "Albedo", 0.0, 1.0, 0.001);
-        AddEnhancedOptionalSpinRow(_advancedSection, "VolcanismOverride", "Volcanism", 0.0, 1.0, 0.01);
-        AddEnhancedOptionalSpinRow(_advancedSection, "TemperatureOverride", "Temperature (K)", 100.0, 50000.0, 1.0);
-        AddEnhancedOptionalSpinRow(_advancedSection, "LuminosityOverride", "Luminosity (Solar)", 0.0001, 1000000.0, 0.0001);
-    }
-
-    private HSlider AddEnhancedPermissivenessRow(VBoxContainer section, string rowName, string labelText, string subject)
-    {
-        HBoxContainer row = CreateEnhancedRow(rowName, labelText);
-        if (_rowLabels.TryGetValue(rowName, out Label? label))
-        {
-            label.CustomMinimumSize = new Vector2(112.0f, 0.0f);
-            label.TooltipText = PermissivenessScaleHelper.GetTooltipText(subject);
-        }
-
-        HSlider slider = new HSlider();
-        slider.MinValue = 0.0;
-        slider.MaxValue = 1.0;
-        slider.Step = 0.05;
-        slider.SizeFlagsHorizontal = Control.SizeFlags.ExpandFill;
-        if (_rowLabels.TryGetValue(rowName, out Label? sliderLabel))
-        {
-            slider.TooltipText = sliderLabel.TooltipText;
-        }
-
-        row.AddChild(slider);
-        Label valueLabel = new Label();
-        valueLabel.CustomMinimumSize = new Vector2(156.0f, 0.0f);
-        valueLabel.HorizontalAlignment = HorizontalAlignment.Right;
-        valueLabel.TooltipText = slider.TooltipText;
-        row.AddChild(valueLabel);
-
-        if (rowName == "LifePermissivenessRow")
-        {
-            _lifePermissivenessValueLabel = valueLabel;
-        }
-        else
-        {
-            _populationPermissivenessValueLabel = valueLabel;
-        }
-
-        section.AddChild(row);
-        return slider;
+        ApplyPermissivenessTooltip("LifePermissivenessRow", _lifePermissivenessInput, _lifePermissivenessValueLabel, "life");
+        ApplyPermissivenessTooltip("PopulationPermissivenessRow", _populationPermissivenessInput, _populationPermissivenessValueLabel, "settlement");
     }
 
     private string BuildEnhancedAssumptionText()
@@ -699,132 +679,93 @@ public partial class ObjectGenerationScreen
         }
     }
 
-    private HBoxContainer CreateEnhancedRow(string rowName, string labelText)
+    private void CacheOptionalOverride(string key)
     {
-        HBoxContainer row = new HBoxContainer();
-        row.Name = rowName;
+        HBoxContainer row = GetRequiredRow($"{key}Row");
+        _optionalToggles[key] = GetRequiredChild<CheckBox>(row, $"{key}Toggle");
+        _optionalInputs[key] = GetRequiredChild<SpinBox>(row, $"{key}Input");
+    }
+
+    private HBoxContainer GetRequiredRow(string rowName)
+    {
+        HBoxContainer? row = FindChild(rowName, true, false) as HBoxContainer;
+        if (row == null)
+        {
+            throw new InvalidOperationException($"ObjectGenerationScreen is missing row '{rowName}'.");
+        }
+
         row.AddThemeConstantOverride("separation", 10);
-        Label label = new Label();
-        label.Name = $"{rowName}Label";
-        label.Text = labelText;
+        Label label = GetRequiredChild<Label>(row, $"{rowName}Label");
         label.CustomMinimumSize = new Vector2(112.0f, 0.0f);
         label.AutowrapMode = TextServer.AutowrapMode.WordSmart;
-        row.AddChild(label);
         _rows[rowName] = row;
         _rowLabels[rowName] = label;
         return row;
     }
 
-    private OptionButton AddEnhancedOptionRow(string rowName, string labelText)
+    private OptionButton GetRequiredOptionButton(string rowName, string controlName)
     {
-        HBoxContainer row = CreateEnhancedRow(rowName, labelText);
-        OptionButton optionButton = new OptionButton();
-        optionButton.SizeFlagsHorizontal = Control.SizeFlags.ExpandFill;
-        row.AddChild(optionButton);
-        _parameterVBox!.AddChild(row);
-        return optionButton;
+        HBoxContainer row = GetRequiredRow(rowName);
+        return GetRequiredChild<OptionButton>(row, controlName);
     }
 
-    private SpinBox AddEnhancedSpinRow(string rowName, string labelText, double minValue, double maxValue, double step)
+    private SpinBox GetRequiredSpinBox(string rowName, string controlName)
     {
-        HBoxContainer row = CreateEnhancedRow(rowName, labelText);
-        SpinBox spinBox = new SpinBox();
-        spinBox.MinValue = minValue;
-        spinBox.MaxValue = maxValue;
-        spinBox.Step = step;
-        spinBox.Rounded = step >= 1.0;
-        spinBox.SizeFlagsHorizontal = Control.SizeFlags.ExpandFill;
-        row.AddChild(spinBox);
-        _parameterVBox!.AddChild(row);
-        return spinBox;
+        HBoxContainer row = GetRequiredRow(rowName);
+        return GetRequiredChild<SpinBox>(row, controlName);
     }
 
-    private LineEdit AddEnhancedLineEditRow(string rowName, string labelText)
+    private LineEdit GetRequiredLineEdit(string rowName, string controlName)
     {
-        HBoxContainer row = CreateEnhancedRow(rowName, labelText);
-        LineEdit input = new LineEdit();
-        input.SizeFlagsHorizontal = Control.SizeFlags.ExpandFill;
-        row.AddChild(input);
-        _parameterVBox!.AddChild(row);
-        return input;
+        HBoxContainer row = GetRequiredRow(rowName);
+        return GetRequiredChild<LineEdit>(row, controlName);
     }
 
-    private CheckBox AddEnhancedCheckRow(string rowName, string labelText)
+    private CheckBox GetRequiredCheckBox(string rowName, string controlName)
     {
-        HBoxContainer row = CreateEnhancedRow(rowName, labelText);
-        CheckBox checkBox = new CheckBox();
-        row.AddChild(checkBox);
-        _parameterVBox!.AddChild(row);
-        return checkBox;
+        HBoxContainer row = GetRequiredRow(rowName);
+        return GetRequiredChild<CheckBox>(row, controlName);
     }
 
-    private VBoxContainer AddEnhancedSection(string name, string title)
+    private HSlider GetRequiredSlider(string rowName, string controlName)
     {
-        VBoxContainer section = new VBoxContainer();
-        section.Name = name;
-        section.AddThemeConstantOverride("separation", 8);
-        Label label = new Label();
-        label.Text = title;
-        label.AddThemeFontSizeOverride("font_size", 16);
-        section.AddChild(label);
-        section.AddChild(new HSeparator());
-        _parameterVBox!.AddChild(section);
-        return section;
+        HBoxContainer row = GetRequiredRow(rowName);
+        return GetRequiredChild<HSlider>(row, controlName);
     }
 
-    private OptionButton AddEnhancedSectionOptionRow(VBoxContainer section, string rowName, string labelText)
+    private Label GetRequiredLabel(string rowName, string controlName)
     {
-        HBoxContainer row = CreateEnhancedRow(rowName, labelText);
-        OptionButton optionButton = new OptionButton();
-        optionButton.SizeFlagsHorizontal = Control.SizeFlags.ExpandFill;
-        row.AddChild(optionButton);
-        section.AddChild(row);
-        return optionButton;
+        HBoxContainer row = GetRequiredRow(rowName);
+        return GetRequiredChild<Label>(row, controlName);
     }
 
-    private SpinBox AddEnhancedSectionSpinRow(VBoxContainer section, string rowName, string labelText, double minValue, double maxValue, double step)
+    private static T GetRequiredChild<T>(Node parent, string childName) where T : Node
     {
-        HBoxContainer row = CreateEnhancedRow(rowName, labelText);
-        SpinBox spinBox = new SpinBox();
-        spinBox.MinValue = minValue;
-        spinBox.MaxValue = maxValue;
-        spinBox.Step = step;
-        spinBox.Rounded = step >= 1.0;
-        spinBox.SizeFlagsHorizontal = Control.SizeFlags.ExpandFill;
-        row.AddChild(spinBox);
-        section.AddChild(row);
-        return spinBox;
+        T? child = parent.GetNodeOrNull<T>(childName);
+        if (child == null)
+        {
+            throw new InvalidOperationException($"ObjectGenerationScreen is missing child '{childName}' under '{parent.Name}'.");
+        }
+
+        return child;
     }
 
-    private CheckBox AddEnhancedSectionCheckRow(VBoxContainer section, string rowName, string labelText)
+    private void ApplyPermissivenessTooltip(string rowName, Control? input, Label? valueLabel, string subject)
     {
-        HBoxContainer row = CreateEnhancedRow(rowName, labelText);
-        CheckBox checkBox = new CheckBox();
-        row.AddChild(checkBox);
-        section.AddChild(row);
-        return checkBox;
-    }
+        if (_rowLabels.TryGetValue(rowName, out Label? label))
+        {
+            label.TooltipText = PermissivenessScaleHelper.GetTooltipText(subject);
+        }
 
-    private void AddEnhancedOptionalSpinRow(VBoxContainer section, string key, string labelText, double minValue, double maxValue, double step)
-    {
-        string rowName = $"{key}Row";
-        HBoxContainer row = CreateEnhancedRow(rowName, labelText);
-        CheckBox toggle = new CheckBox();
-        toggle.Name = $"{key}Toggle";
-        toggle.Text = "Set";
-        row.AddChild(toggle);
-        SpinBox input = new SpinBox();
-        input.Name = $"{key}Input";
-        input.MinValue = minValue;
-        input.MaxValue = maxValue;
-        input.Step = step;
-        input.Rounded = step >= 1.0;
-        input.SizeFlagsHorizontal = Control.SizeFlags.ExpandFill;
-        input.Editable = false;
-        row.AddChild(input);
-        _optionalToggles[key] = toggle;
-        _optionalInputs[key] = input;
-        section.AddChild(row);
+        if (input != null && _rowLabels.TryGetValue(rowName, out Label? rowLabel))
+        {
+            input.TooltipText = rowLabel.TooltipText;
+        }
+
+        if (valueLabel != null && input != null)
+        {
+            valueLabel.TooltipText = input.TooltipText;
+        }
     }
 
     private void PopulateAutoSizeOptions(OptionButton? optionButton)
@@ -834,6 +775,7 @@ public partial class ObjectGenerationScreen
             return;
         }
 
+        optionButton.Clear();
         optionButton.AddItem("Auto", -1);
         foreach (SizeCategory.Category category in Enum.GetValues<SizeCategory.Category>())
         {
@@ -848,6 +790,7 @@ public partial class ObjectGenerationScreen
             return;
         }
 
+        optionButton.Clear();
         optionButton.AddItem("Auto", -1);
         foreach (OrbitZone.Zone zone in Enum.GetValues<OrbitZone.Zone>())
         {
@@ -862,6 +805,7 @@ public partial class ObjectGenerationScreen
             return;
         }
 
+        optionButton.Clear();
         optionButton.AddItem("Auto", -1);
         foreach (RingComplexity.Level level in Enum.GetValues<RingComplexity.Level>())
         {
@@ -876,6 +820,7 @@ public partial class ObjectGenerationScreen
             return;
         }
 
+        optionButton.Clear();
         optionButton.AddItem("Auto", -1);
         foreach (StarClass.SpectralClass spectralClass in Enum.GetValues<StarClass.SpectralClass>())
         {
@@ -890,6 +835,7 @@ public partial class ObjectGenerationScreen
             return;
         }
 
+        optionButton.Clear();
         optionButton.AddItem("Auto", -1);
         foreach (AsteroidType.Type asteroidType in Enum.GetValues<AsteroidType.Type>())
         {
@@ -904,6 +850,7 @@ public partial class ObjectGenerationScreen
             return;
         }
 
+        optionButton.Clear();
         optionButton.AddItem("Auto", -1);
         optionButton.AddItem("Yes", 1);
         optionButton.AddItem("No", 0);
@@ -946,6 +893,7 @@ public partial class ObjectGenerationScreen
             return;
         }
 
+        optionButton.Clear();
         optionButton.AddItem("Auto", -1);
         int maxCode = 10;
         if (kind == "atmosphere" || kind == "population")

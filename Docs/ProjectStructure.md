@@ -17,10 +17,15 @@ UI layout baseline:
 - Wrapped labels should have a panel-appropriate minimum width rather than relying on autowrap alone; large full-width headers can be broader, while sidebar/footer text should usually stay closer to the 180-320 px range.
 
 Current development line:
-- `0.7.1.2`
+- `0.7.2.0`
 
 Current public release target:
 - `0.8.0.0`
+
+Recent 0.7.2.0 additions:
+- `src/app/WelcomeScreen.cs` / `src/app/WelcomeScreen.tscn` (Galaxy Studio generation-rules controls now live in the scene tree instead of being constructed at runtime)
+- `src/app/SystemGenerationScreen.cs` / `src/app/SystemGenerationScreen.tscn` (System Studio parameter controls are now scene-defined, leaving the script to bind state and emit specs)
+- `src/app/ObjectGenerationScreen.cs` / `src/app/ObjectGenerationScreen.EnhancedUi.cs` / `src/app/ObjectGenerationScreen.tscn` (Object Studio now uses a scene-defined parameter shell and section layout instead of building stable rows and sections in code)
 
 Recent 0.7.1.2 additions:
 - `src/app/MainMenuScreen.cs` / `src/app/MainMenuScreen.tscn` / `src/app/SplashScreen.cs` / `src/app/StationStudioScreen.tscn` (user-facing release label cleanup, direct credits attribution, Sources button/panel fallback, and removal of repo-facing UI copy)

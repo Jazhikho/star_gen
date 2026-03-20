@@ -19,6 +19,17 @@ Use this log for significant AI-assisted artifacts in this repository.
 
 ### 2026-03-20 - Codex (GPT-5)
 
+- Task Purpose: Refactor the studio UIs away from runtime-built controls and toward scene-first Godot node structures so stable launch-screen forms are visible and editable in the editor.
+- Input Materials Used: User report about generator-first/UI architecture concerns; `claude.md`; `AGENTS.md`; `src/app/WelcomeScreen.cs/.tscn`; `src/app/SystemGenerationScreen.cs/.tscn`; `src/app/ObjectGenerationScreen.cs/.tscn`; `src/app/ObjectGenerationScreen.EnhancedUi.cs`; existing studio integration tests and headless harness.
+- AI Produced: Moved the fixed Galaxy Studio generation-rules form, the System Studio parameter form, and the Object Studio parameter shell/sections into their `.tscn` scene trees; rewrote the related C# scripts to cache scene nodes and handle wiring/state instead of creating stable controls at runtime; and synced version/project-structure metadata for the refactor pass.
+- Human Accepted: Pending review of the scene-first studio refactor and the remaining UI areas that may still justify hybrid runtime rows.
+- Human Rejected: No claim was made that every runtime-generated UI element in the entire app must disappear; data-driven inspectors, validation lists, and similarly variable content remain runtime-built where that is still the appropriate representation.
+- Human Changed: The user-set requirement is that if UI can live naturally in Godot's node structure, it should, with the Galaxy Generation Studio being the immediate concrete example.
+- Validation Method: `dotnet build StarGen.sln`; `godot-mono.exe --path . --headless --script res://Tests/RunTestsHeadless.gd` (`1935 / 1935` passed; the same pre-existing fallback-dialog/layout/ObjectDB warnings still print afterward).
+- Final Approver: Pending Christopher B. Del Gesso review.
+
+### 2026-03-20 - Codex (GPT-5)
+
 - Task Purpose: Correct the galaxy-studio responsive layout after user review showed the three intended columns were still collapsing into stacked rows on normal desktop widths.
 - Input Materials Used: User feedback from reviewing Galaxy Generation Studio; `src/app/WelcomeScreen.cs`; `src/app/shared/StudioScreenLayoutHelper.cs`; existing version metadata.
 - AI Produced: Lowered the effective compact breakpoint for the three-panel galaxy studio, reduced the wide-mode minimum widths for the settings/rules/summary panels, and kept the welcome screen bound to the new tighter breakpoint so the layout stays in columns unless the window is actually narrow.

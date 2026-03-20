@@ -107,10 +107,10 @@ public partial class WelcomeScreen : Control
 	{
 		CacheNodeReferences();
 		ApplyLayoutPolish();
-		BuildParameterSupportUi();
 		ConnectSignals();
 		ApplyParameterTooltips();
 		ApplyVersionLabel();
+		ApplyUseCaseSettingsToControls(GenerationUseCaseSettings.CreateDefault());
 		UpdateTypeSpecificControls();
 		UpdateAllValueLabels();
 		ApplySeedVisibilityPreference(rerollHiddenSeed: true);
@@ -323,6 +323,13 @@ public partial class WelcomeScreen : Control
 		_seedSpin = GetNodeOrNull<SpinBox>($"{ParameterRootPath}/SeedContainer/SeedSpin");
 		_settingsVBox = GetNodeOrNull<VBoxContainer>(ParameterRootPath);
 		_rulesVBox = GetNodeOrNull<VBoxContainer>(RulesRootPath);
+		_rulesetModeOption = GetNodeOrNull<OptionButton>($"{RulesRootPath}/UseCaseSection/RulesetRow/RulesetModeOption");
+		_showTravellerReadoutsCheck = GetNodeOrNull<CheckBox>($"{RulesRootPath}/UseCaseSection/ShowTravellerReadoutsCheck");
+		_advancedAssumptionsInfoButton = GetNodeOrNull<Button>($"{RulesRootPath}/UseCaseSection/AdvancedHeaderRow/AdvancedAssumptionsInfoButton");
+		_lifePermissivenessInput = GetNodeOrNull<HSlider>($"{RulesRootPath}/UseCaseSection/LifeRow/LifePermissivenessInput");
+		_lifePermissivenessValueLabel = GetNodeOrNull<Label>($"{RulesRootPath}/UseCaseSection/LifeRow/LifePermissivenessValue");
+		_populationPermissivenessInput = GetNodeOrNull<HSlider>($"{RulesRootPath}/UseCaseSection/PopulationRow/PopulationPermissivenessInput");
+		_populationPermissivenessValueLabel = GetNodeOrNull<Label>($"{RulesRootPath}/UseCaseSection/PopulationRow/PopulationPermissivenessValue");
 	}
 
 	private void ConnectSignals()
@@ -629,125 +636,6 @@ public partial class WelcomeScreen : Control
 	private void OnDiskLengthChanged(double _value) { UpdateIntLabel(_diskLengthValue, _diskLengthSlider, " pc"); MarkAsCustom(); RefreshValidationIssues(); }
 	private void OnDiskHeightChanged(double _value) { UpdateIntLabel(_diskHeightValue, _diskHeightSlider, " pc"); MarkAsCustom(); RefreshValidationIssues(); }
 	private void OnDensityChanged(double _value) { UpdateFloatLabel(_densityValue, _densitySlider, "0.0", "x"); MarkAsCustom(); RefreshValidationIssues(); }
-
-	private void BuildParameterSupportUi()
-	{
-		if (_rulesetModeOption != null)
-		{
-			return;
-		}
-
-		if (_rulesVBox == null)
-		{
-			throw new InvalidOperationException("WelcomeScreen is missing the generation-rules column.");
-		}
-
-		VBoxContainer useCaseSection = new VBoxContainer();
-		useCaseSection.Name = "UseCaseSection";
-		useCaseSection.AddThemeConstantOverride("separation", 8);
-
-		Label useCaseHeader = new Label();
-		useCaseHeader.Text = "Traveller / Ruleset";
-		useCaseHeader.AddThemeFontSizeOverride("font_size", 12);
-		useCaseHeader.Modulate = new Color(0.82f, 0.82f, 0.55f, 1.0f);
-		useCaseSection.AddChild(useCaseHeader);
-
-		HBoxContainer rulesetRow = new HBoxContainer();
-		rulesetRow.AddThemeConstantOverride("separation", 12);
-		Label rulesetLabel = new Label();
-		rulesetLabel.Text = "Ruleset";
-		rulesetLabel.CustomMinimumSize = new Vector2(96.0f, 0.0f);
-		rulesetRow.AddChild(rulesetLabel);
-		OptionButton rulesetModeOption = new OptionButton();
-		rulesetModeOption.Name = "RulesetModeOption";
-		rulesetModeOption.SizeFlagsHorizontal = Control.SizeFlags.ExpandFill;
-		rulesetModeOption.AddItem("Default", (int)GenerationUseCaseSettings.RulesetModeType.Default);
-		rulesetModeOption.AddItem("Traveller", (int)GenerationUseCaseSettings.RulesetModeType.Traveller);
-		rulesetRow.AddChild(rulesetModeOption);
-		_rulesetModeOption = rulesetModeOption;
-		useCaseSection.AddChild(rulesetRow);
-
-		CheckBox showTravellerReadoutsCheck = new CheckBox();
-		showTravellerReadoutsCheck.Name = "ShowTravellerReadoutsCheck";
-		showTravellerReadoutsCheck.Text = "Show Traveller / UWP Readouts";
-		showTravellerReadoutsCheck.SizeFlagsHorizontal = Control.SizeFlags.ExpandFill;
-		_showTravellerReadoutsCheck = showTravellerReadoutsCheck;
-		useCaseSection.AddChild(showTravellerReadoutsCheck);
-
-		HBoxContainer advancedHeaderRow = new HBoxContainer();
-		advancedHeaderRow.AddThemeConstantOverride("separation", 8);
-		Label advancedHeader = new Label();
-		advancedHeader.Text = "Advanced Assumptions";
-		advancedHeader.AddThemeFontSizeOverride("font_size", 12);
-		advancedHeader.Modulate = new Color(0.82f, 0.82f, 0.55f, 1.0f);
-		advancedHeaderRow.AddChild(advancedHeader);
-		Button advancedInfoButton = new Button();
-		advancedInfoButton.Name = "AdvancedAssumptionsInfoButton";
-		advancedInfoButton.Text = "i";
-		advancedInfoButton.Flat = true;
-		advancedInfoButton.FocusMode = FocusModeEnum.None;
-		advancedInfoButton.CustomMinimumSize = new Vector2(24.0f, 24.0f);
-		advancedInfoButton.SizeFlagsHorizontal = Control.SizeFlags.ShrinkEnd;
-		advancedInfoButton.TooltipText = PermissivenessScaleHelper.GetAdvancedLegendTooltip();
-		advancedHeaderRow.AddChild(advancedInfoButton);
-		_advancedAssumptionsInfoButton = advancedInfoButton;
-		useCaseSection.AddChild(advancedHeaderRow);
-
-		HBoxContainer lifeRow = new HBoxContainer();
-		lifeRow.AddThemeConstantOverride("separation", 12);
-		Label lifeLabel = new Label();
-		lifeLabel.Text = "Life Potential";
-		lifeLabel.CustomMinimumSize = new Vector2(120.0f, 0.0f);
-		lifeLabel.TooltipText = PermissivenessScaleHelper.GetTooltipText("life");
-		lifeRow.AddChild(lifeLabel);
-		HSlider lifePermissivenessInput = new HSlider();
-		lifePermissivenessInput.Name = "LifePermissivenessInput";
-		lifePermissivenessInput.MinValue = 0.0;
-		lifePermissivenessInput.MaxValue = 1.0;
-		lifePermissivenessInput.Step = 0.05;
-		lifePermissivenessInput.SizeFlagsHorizontal = Control.SizeFlags.ExpandFill;
-		lifePermissivenessInput.TooltipText = lifeLabel.TooltipText;
-		lifeRow.AddChild(lifePermissivenessInput);
-		Label lifeValueLabel = new Label();
-		lifeValueLabel.Name = "LifePermissivenessValue";
-		lifeValueLabel.CustomMinimumSize = new Vector2(156.0f, 0.0f);
-		lifeValueLabel.HorizontalAlignment = HorizontalAlignment.Right;
-		lifeValueLabel.TooltipText = lifeLabel.TooltipText;
-		lifeRow.AddChild(lifeValueLabel);
-		_lifePermissivenessInput = lifePermissivenessInput;
-		_lifePermissivenessValueLabel = lifeValueLabel;
-		useCaseSection.AddChild(lifeRow);
-
-		HBoxContainer populationRow = new HBoxContainer();
-		populationRow.AddThemeConstantOverride("separation", 12);
-		Label populationLabel = new Label();
-		populationLabel.Text = "Settlement Density";
-		populationLabel.CustomMinimumSize = new Vector2(120.0f, 0.0f);
-		populationLabel.TooltipText = PermissivenessScaleHelper.GetTooltipText("settlement");
-		populationRow.AddChild(populationLabel);
-		HSlider populationPermissivenessInput = new HSlider();
-		populationPermissivenessInput.Name = "PopulationPermissivenessInput";
-		populationPermissivenessInput.MinValue = 0.0;
-		populationPermissivenessInput.MaxValue = 1.0;
-		populationPermissivenessInput.Step = 0.05;
-		populationPermissivenessInput.SizeFlagsHorizontal = Control.SizeFlags.ExpandFill;
-		populationPermissivenessInput.TooltipText = populationLabel.TooltipText;
-		populationRow.AddChild(populationPermissivenessInput);
-		Label populationValueLabel = new Label();
-		populationValueLabel.Name = "PopulationPermissivenessValue";
-		populationValueLabel.CustomMinimumSize = new Vector2(156.0f, 0.0f);
-		populationValueLabel.HorizontalAlignment = HorizontalAlignment.Right;
-		populationValueLabel.TooltipText = populationLabel.TooltipText;
-		populationRow.AddChild(populationValueLabel);
-		_populationPermissivenessInput = populationPermissivenessInput;
-		_populationPermissivenessValueLabel = populationValueLabel;
-		useCaseSection.AddChild(populationRow);
-
-		ApplyRowSpacing(useCaseSection);
-		_rulesVBox.AddChild(useCaseSection);
-
-		ApplyUseCaseSettingsToControls(GenerationUseCaseSettings.CreateDefault());
-	}
 
 	private void ApplyParameterTooltips()
 	{

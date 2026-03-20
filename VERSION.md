@@ -1,6 +1,6 @@
 # Version
 
-Current version: `0.7.1.3`
+Current version: `0.7.2.0`
 
 Date: `2026-03-20`
 
@@ -9,6 +9,12 @@ Versioning method: release/refactor `+0.1`, feature `+0.0.1`, bug fix `+0.0.0.1`
 Current public release target: `0.8.0.0`
 
 User-facing app label: `0.8.0.0`
+
+## 0.7.2.0
+
+- Refactor: Moved the fixed Galaxy, System, and Object studio control shells out of runtime C# construction and into their `.tscn` scene trees so those screens are now scene-first and editor-visible.
+- Refactor: Reduced `WelcomeScreen`, `SystemGenerationScreen`, and `ObjectGenerationScreen` to node binding, state wiring, and summary logic while keeping only truly data-driven rows generated at runtime.
+- Test: Verified the studio scene refactor against the existing headless integration suite to ensure the generated request/spec flows still behave identically after the UI restructuring.
 
 ## 0.7.1.3
 
