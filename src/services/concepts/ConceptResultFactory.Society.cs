@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Globalization;
 using StarGen.Domain.Concepts;
@@ -5,6 +6,7 @@ using StarGen.Domain.Concepts.Civilization;
 using StarGen.Domain.Concepts.Disease;
 using StarGen.Domain.Concepts.Evolution;
 using StarGen.Domain.Concepts.Language;
+using StarGen.Domain.Concepts.Pipeline;
 
 namespace StarGen.Services.Concepts;
 
@@ -20,6 +22,44 @@ public static partial class ConceptResultFactory
 
     private static ConceptRunResult BuildCivilizationResult(ConceptContextSnapshot context)
     {
+        if (context.SocietyState != null)
+        {
+            if (context.SocietyState.Status == ConceptRunStatus.NotApplicable)
+            {
+                return BuildNotApplicableResult(
+                    ConceptKind.Civilization,
+                    context.Seed,
+                    "Civilisation Sandbox",
+                    context.SourceLabel,
+                    context.SocietyState.StatusReason,
+                    context.SocietyState.Provenance.GeneratorVersion);
+            }
+
+            if (context.SocietyState.Status == ConceptRunStatus.Failed)
+            {
+                return BuildFailedResult(
+                    ConceptKind.Civilization,
+                    context.Seed,
+                    "Civilisation Sandbox",
+                    context.SourceLabel,
+                    context.SocietyState.StatusReason,
+                    context.SocietyState.Provenance.GeneratorVersion);
+            }
+
+            return BuildCivilizationResultFromState(context.SocietyState);
+        }
+
+        if (context.Population <= 0)
+        {
+            return BuildNotApplicableResult(
+                ConceptKind.Civilization,
+                context.Seed,
+                "Civilisation Sandbox",
+                context.SourceLabel,
+                "Civilisation requires an extant sentient population.",
+                CivilizationGeneratorVersion);
+        }
+
         CivilizationConceptSnapshot snapshot = CivilizationConceptGenerator.Generate(context);
         string title = snapshot.PolityName;
         if (string.IsNullOrWhiteSpace(title))
@@ -44,13 +84,39 @@ public static partial class ConceptResultFactory
         };
     }
 
+    private static ConceptRunResult BuildCivilizationResultFromState(SocietyState state)
+    {
+        CivilizationConceptSnapshot snapshot = state.Snapshot;
+        string title = snapshot.PolityName;
+        if (string.IsNullOrWhiteSpace(title))
+        {
+            title = "Civilisation Sandbox";
+        }
+
+        ConceptRunResult result = new ConceptRunResult();
+        result.Status = ConceptRunStatus.Generated;
+        result.Title = title;
+        result.Subtitle = snapshot.TechEra + " | " + snapshot.RegimeName;
+        result.Summary = BuildCivilizationSummary(snapshot);
+        result.Metrics = BuildCivilizationMetrics(snapshot);
+        result.Sections = BuildCivilizationSections(snapshot);
+        result.Provenance = state.Provenance;
+        return result;
+    }
+
     private static string BuildCivilizationSummary(CivilizationConceptSnapshot snapshot)
     {
-        string economyLead = snapshot.EconomySectors.Count > 0 ? snapshot.EconomySectors[0].ToLowerInvariant() : "regional exchange";
+        string economyLead = "regional exchange";
+        if (snapshot.EconomySectors.Count > 0)
+        {
+            economyLead = snapshot.EconomySectors[0].ToLowerInvariant();
+        }
+
         return snapshot.PolityName + " presents as a " + snapshot.RegimeName.ToLowerInvariant()
             + " in a " + snapshot.TechEra.ToLowerInvariant()
             + " horizon, organized around " + economyLead
-            + " and legitimized through " + snapshot.LegitimacyFrame
+            + " with a " + snapshot.CoreTerrain
+            + " core and legitimacy anchored in " + snapshot.LegitimacyFrame
             + ".";
     }
 
@@ -63,6 +129,7 @@ public static partial class ConceptResultFactory
             BuildPercentMetric("Inclusiveness", snapshot.Inclusiveness),
             BuildPercentMetric("Innovation", snapshot.Innovation),
             BuildPercentMetric("External pressure", snapshot.ExternalPressure),
+            BuildPercentMetric("Administrative capacity", snapshot.AdministrativeCapacity),
         };
     }
 
@@ -76,7 +143,9 @@ public static partial class ConceptResultFactory
             {
                 "Regime: " + snapshot.RegimeName,
                 "Technology era: " + snapshot.TechEra,
+                "Core terrain: " + snapshot.CoreTerrain,
                 "Legitimacy frame: " + snapshot.LegitimacyFrame,
+                "Key systems: " + string.Join(", ", snapshot.KeyTechnologies),
             },
         });
         sections.Add(new ConceptSection
@@ -99,6 +168,44 @@ public static partial class ConceptResultFactory
 
     private static ConceptRunResult BuildLanguageResult(ConceptContextSnapshot context)
     {
+        if (context.LanguageState != null)
+        {
+            if (context.LanguageState.Status == ConceptRunStatus.NotApplicable)
+            {
+                return BuildNotApplicableResult(
+                    ConceptKind.Language,
+                    context.Seed,
+                    "Language Sandbox",
+                    context.SourceLabel,
+                    context.LanguageState.StatusReason,
+                    context.LanguageState.Provenance.GeneratorVersion);
+            }
+
+            if (context.LanguageState.Status == ConceptRunStatus.Failed)
+            {
+                return BuildFailedResult(
+                    ConceptKind.Language,
+                    context.Seed,
+                    "Language Sandbox",
+                    context.SourceLabel,
+                    context.LanguageState.StatusReason,
+                    context.LanguageState.Provenance.GeneratorVersion);
+            }
+
+            return BuildLanguageResultFromState(context.LanguageState);
+        }
+
+        if (context.Population <= 0)
+        {
+            return BuildNotApplicableResult(
+                ConceptKind.Language,
+                context.Seed,
+                "Language Sandbox",
+                context.SourceLabel,
+                "Language requires an extant sentient population or a manual society context.",
+                LanguageGeneratorVersion);
+        }
+
         LanguageConceptSnapshot snapshot = LanguageConceptGenerator.Generate(context);
         return new ConceptRunResult
         {
@@ -117,12 +224,31 @@ public static partial class ConceptResultFactory
         };
     }
 
+    private static ConceptRunResult BuildLanguageResultFromState(LanguageState state)
+    {
+        LanguageConceptSnapshot snapshot = state.Snapshot;
+        ConceptRunResult result = new ConceptRunResult();
+        result.Status = ConceptRunStatus.Generated;
+        result.Title = snapshot.Name;
+        result.Subtitle = snapshot.WordOrder + " | " + snapshot.MorphType;
+        result.Summary = BuildLanguageSummary(snapshot);
+        result.Metrics = BuildLanguageMetrics(snapshot);
+        result.Sections = BuildLanguageSections(snapshot);
+        result.Provenance = state.Provenance;
+        return result;
+    }
+
     private static string BuildLanguageSummary(LanguageConceptSnapshot snapshot)
     {
-        string toneText = snapshot.HasTones ? "tonal" : "non-tonal";
+        string toneText = "non-tonal";
+        if (snapshot.HasTones)
+        {
+            toneText = "tonal";
+        }
+
         return snapshot.Name + " is a " + toneText + " " + snapshot.MorphType.ToLowerInvariant()
             + " language with " + snapshot.WordOrder + " order and " + snapshot.HeadDirection.ToLowerInvariant()
-            + " phrase structure.";
+            + " phrase structure, favoring " + snapshot.AffixPreference + " morphology.";
     }
 
     private static List<ConceptMetric> BuildLanguageMetrics(LanguageConceptSnapshot snapshot)
@@ -133,6 +259,7 @@ public static partial class ConceptResultFactory
         metrics.Add(BuildCountMetric("Syllable patterns", snapshot.SyllablePatterns.Count, 6.0));
         metrics.Add(BuildBinaryMetric("Case", snapshot.HasCase));
         metrics.Add(BuildBinaryMetric("Gender", snapshot.HasGender));
+        metrics.Add(BuildBinaryMetric("Aspect", snapshot.HasAspect));
         return metrics;
     }
 
@@ -157,8 +284,11 @@ public static partial class ConceptResultFactory
                 "Word order: " + snapshot.WordOrder,
                 "Morphology: " + snapshot.MorphType,
                 "Head direction: " + snapshot.HeadDirection,
+                "Affix preference: " + snapshot.AffixPreference,
                 "Repair strategy: " + snapshot.RepairStrategy,
-                "Features: " + BuildLanguageFeatureSummary(snapshot),
+                "Repair particle: " + snapshot.RepairParticle,
+                "Filler particle: " + snapshot.FillerParticle,
+                "Features: " + BuildLanguageFeatureSummary(snapshot) + BuildOptionalLanguageInventory(snapshot),
             },
         });
         sections.Add(new ConceptSection
@@ -171,15 +301,22 @@ public static partial class ConceptResultFactory
             Title = "Example utterances",
             Items = new List<string>(snapshot.ExampleSentences),
         });
+        sections.Add(new ConceptSection
+        {
+            Title = "Morphology inventory",
+            Items = BuildMorphologyInventory(snapshot),
+        });
         return sections;
     }
 
     private static List<string> BuildLanguageLexiconItems(LanguageConceptSnapshot snapshot)
     {
         List<string> items = new List<string>();
-        foreach (KeyValuePair<string, string> entry in snapshot.Lexicon)
+        List<string> keys = new List<string>(snapshot.Lexicon.Keys);
+        keys.Sort(StringComparer.Ordinal);
+        foreach (string key in keys)
         {
-            items.Add(entry.Key + " = " + entry.Value);
+            items.Add(key + " = " + snapshot.Lexicon[key]);
         }
 
         return items;
@@ -208,6 +345,11 @@ public static partial class ConceptResultFactory
             features.Add("vowel harmony");
         }
 
+        if (snapshot.HasAspect)
+        {
+            features.Add("aspect");
+        }
+
         if (features.Count == 0)
         {
             return "analytic inventory";
@@ -216,8 +358,89 @@ public static partial class ConceptResultFactory
         return string.Join(", ", features);
     }
 
+    private static string BuildOptionalLanguageInventory(LanguageConceptSnapshot snapshot)
+    {
+        List<string> notes = new List<string>();
+        if (snapshot.GenderClasses.Count > 0)
+        {
+            notes.Add("classes: " + string.Join(", ", snapshot.GenderClasses));
+        }
+
+        if (snapshot.Tones.Count > 0)
+        {
+            notes.Add("tones: " + string.Join(", ", snapshot.Tones));
+        }
+
+        if (notes.Count == 0)
+        {
+            return string.Empty;
+        }
+
+        return " | " + string.Join(" | ", notes);
+    }
+
+    private static List<string> BuildMorphologyInventory(LanguageConceptSnapshot snapshot)
+    {
+        List<string> items = new List<string>();
+        AppendAffixItems(items, "Tense", snapshot.TenseAffixes);
+        AppendAffixItems(items, "Noun", snapshot.NounAffixes);
+        AppendAffixItems(items, "Verb", snapshot.VerbAffixes);
+        AppendAffixItems(items, "Case", snapshot.CaseAffixes);
+        AppendAffixItems(items, "Gender", snapshot.GenderAffixes);
+        AppendAffixItems(items, "Adposition", snapshot.Adpositions);
+        return items;
+    }
+
+    private static void AppendAffixItems(List<string> items, string label, Dictionary<string, string> values)
+    {
+        List<string> keys = new List<string>(values.Keys);
+        keys.Sort(StringComparer.Ordinal);
+        foreach (string key in keys)
+        {
+            items.Add(label + " - " + key + ": " + values[key]);
+        }
+    }
+
     private static ConceptRunResult BuildDiseaseResult(ConceptContextSnapshot context)
     {
+        if (context.DiseaseState != null)
+        {
+            if (context.DiseaseState.Status == ConceptRunStatus.NotApplicable)
+            {
+                return BuildNotApplicableResult(
+                    ConceptKind.Disease,
+                    context.Seed,
+                    "Disease Sandbox",
+                    context.SourceLabel,
+                    context.DiseaseState.StatusReason,
+                    context.DiseaseState.Provenance.GeneratorVersion);
+            }
+
+            if (context.DiseaseState.Status == ConceptRunStatus.Failed)
+            {
+                return BuildFailedResult(
+                    ConceptKind.Disease,
+                    context.Seed,
+                    "Disease Sandbox",
+                    context.SourceLabel,
+                    context.DiseaseState.StatusReason,
+                    context.DiseaseState.Provenance.GeneratorVersion);
+            }
+
+            return BuildDiseaseResultFromState(context, context.DiseaseState);
+        }
+
+        if (context.Population <= 0 && !SupportsManualEcology(context))
+        {
+            return BuildNotApplicableResult(
+                ConceptKind.Disease,
+                context.Seed,
+                "Disease Sandbox",
+                context.SourceLabel,
+                "Disease requires a biological host ecology or an inhabited population.",
+                DiseaseGeneratorVersion);
+        }
+
         DiseaseConceptSnapshot snapshot = DiseaseConceptGenerator.Generate(context);
         int population = context.Population;
         if (population <= 0)
@@ -252,6 +475,36 @@ public static partial class ConceptResultFactory
         };
     }
 
+    private static ConceptRunResult BuildDiseaseResultFromState(ConceptContextSnapshot context, DiseaseState state)
+    {
+        DiseaseConceptSnapshot snapshot = state.Snapshot;
+        int population = context.Population;
+        if (population <= 0)
+        {
+            population = 1000000;
+        }
+
+        string title = context.BodyName;
+        if (string.IsNullOrWhiteSpace(title))
+        {
+            title = "Disease Sandbox";
+        }
+        else
+        {
+            title += " Outbreak Model";
+        }
+
+        ConceptRunResult result = new ConceptRunResult();
+        result.Status = ConceptRunStatus.Generated;
+        result.Title = title;
+        result.Subtitle = snapshot.PathogenType;
+        result.Summary = BuildDiseaseSummary(snapshot, population);
+        result.Metrics = BuildDiseaseMetrics(snapshot, population);
+        result.Sections = BuildDiseaseSections(snapshot);
+        result.Provenance = state.Provenance;
+        return result;
+    }
+
     private static string BuildDiseaseSummary(DiseaseConceptSnapshot snapshot, int population)
     {
         double peakShare = snapshot.PeakInfected / (double)population;
@@ -259,6 +512,7 @@ public static partial class ConceptResultFactory
             + (peakShare * 100.0).ToString("0.0", CultureInfo.InvariantCulture)
             + "% of the population around day "
             + snapshot.PeakDay.ToString(CultureInfo.InvariantCulture)
+            + " in " + snapshot.HostEnvironment.ToLowerInvariant()
             + ", with " + snapshot.Symptoms[0].ToLowerInvariant() + " as a leading symptom signal.";
     }
 
@@ -269,6 +523,7 @@ public static partial class ConceptResultFactory
             BuildPercentMetric("Infectivity", snapshot.Infectivity),
             BuildPercentMetric("Severity", snapshot.Severity),
             BuildPercentMetric("Lethality", snapshot.Lethality),
+            BuildPercentMetric("Incubation", snapshot.Incubation),
             BuildPercentMetric("Peak infected", snapshot.PeakInfected / (double)population),
             BuildPercentMetric("Mortality", snapshot.TotalDeaths / (double)population),
         };
@@ -284,8 +539,11 @@ public static partial class ConceptResultFactory
                 Items = new List<string>
                 {
                     "Type: " + snapshot.PathogenType,
+                    "Host environment: " + snapshot.HostEnvironment,
                     "Mutability: " + (snapshot.Mutability * 100.0).ToString("0", CultureInfo.InvariantCulture) + "%",
                     "Resilience: " + (snapshot.Resilience * 100.0).ToString("0", CultureInfo.InvariantCulture) + "%",
+                    "Airborne pressure: " + (snapshot.Airborne * 100.0).ToString("0", CultureInfo.InvariantCulture) + "%",
+                    "Immune evasion: " + (snapshot.ImmuneEvasion * 100.0).ToString("0", CultureInfo.InvariantCulture) + "%",
                 },
             },
             new ConceptSection
@@ -306,6 +564,11 @@ public static partial class ConceptResultFactory
             },
             new ConceptSection
             {
+                Title = "Mutation history",
+                Items = new List<string>(snapshot.MutationEvents),
+            },
+            new ConceptSection
+            {
                 Title = "Environmental drivers",
                 Items = new List<string>(snapshot.EnvironmentalDrivers),
             },
@@ -314,6 +577,44 @@ public static partial class ConceptResultFactory
 
     private static ConceptRunResult BuildEvolutionResult(ConceptContextSnapshot context)
     {
+        if (context.SpeciesEvolution != null)
+        {
+            if (context.SpeciesEvolution.Status == ConceptRunStatus.NotApplicable)
+            {
+                return BuildNotApplicableResult(
+                    ConceptKind.Evolution,
+                    context.Seed,
+                    "Evolution Sandbox",
+                    context.SourceLabel,
+                    context.SpeciesEvolution.StatusReason,
+                    context.SpeciesEvolution.Provenance.GeneratorVersion);
+            }
+
+            if (context.SpeciesEvolution.Status == ConceptRunStatus.Failed)
+            {
+                return BuildFailedResult(
+                    ConceptKind.Evolution,
+                    context.Seed,
+                    "Evolution Sandbox",
+                    context.SourceLabel,
+                    context.SpeciesEvolution.StatusReason,
+                    context.SpeciesEvolution.Provenance.GeneratorVersion);
+            }
+
+            return BuildEvolutionResultFromState(context.SpeciesEvolution);
+        }
+
+        if (!SupportsManualEcology(context))
+        {
+            return BuildNotApplicableResult(
+                ConceptKind.Evolution,
+                context.Seed,
+                "Evolution Sandbox",
+                context.SourceLabel,
+                "Evolution requires a life-supporting ecological context.",
+                EvolutionGeneratorVersion);
+        }
+
         EvolutionConceptSnapshot snapshot = EvolutionConceptGenerator.Generate(context);
         return new ConceptRunResult
         {
@@ -330,6 +631,20 @@ public static partial class ConceptResultFactory
                 SourceContext = context.SourceLabel,
             },
         };
+    }
+
+    private static ConceptRunResult BuildEvolutionResultFromState(SpeciesEvolutionState state)
+    {
+        EvolutionConceptSnapshot snapshot = state.Snapshot;
+        ConceptRunResult result = new ConceptRunResult();
+        result.Status = ConceptRunStatus.Generated;
+        result.Title = snapshot.SpeciesName;
+        result.Subtitle = snapshot.EnvironmentLabel;
+        result.Summary = BuildEvolutionSummary(snapshot);
+        result.Metrics = BuildEvolutionMetrics(snapshot);
+        result.Sections = BuildEvolutionSections(snapshot);
+        result.Provenance = state.Provenance;
+        return result;
     }
 
     private static string BuildEvolutionSummary(EvolutionConceptSnapshot snapshot)
@@ -353,9 +668,9 @@ public static partial class ConceptResultFactory
             new ConceptMetric
             {
                 Label = "Traits",
-                Value = snapshot.Traits.Count,
-                MaxValue = 10.0,
-                DisplayText = snapshot.Traits.Count.ToString(CultureInfo.InvariantCulture),
+                Value = snapshot.UnlockedNodes.Count,
+                MaxValue = 24.0,
+                DisplayText = snapshot.UnlockedNodes.Count.ToString(CultureInfo.InvariantCulture),
             },
         };
     }
@@ -374,6 +689,10 @@ public static partial class ConceptResultFactory
                     "Diet: " + snapshot.Diet,
                     "Senses: " + snapshot.Senses,
                     "Sociality: " + snapshot.Sociality,
+                    "Reproduction: " + snapshot.Reproduction,
+                    "Communication: " + snapshot.Communication,
+                    "Metabolism: " + snapshot.Metabolism,
+                    "Integument: " + snapshot.Integument,
                 },
             },
             new ConceptSection
@@ -413,12 +732,20 @@ public static partial class ConceptResultFactory
 
     private static ConceptMetric BuildBinaryMetric(string label, bool value)
     {
+        double numericValue = 0.0;
+        string displayText = "No";
+        if (value)
+        {
+            numericValue = 1.0;
+            displayText = "Yes";
+        }
+
         return new ConceptMetric
         {
             Label = label,
-            Value = value ? 1.0 : 0.0,
+            Value = numericValue,
             MaxValue = 1.0,
-            DisplayText = value ? "Yes" : "No",
+            DisplayText = displayText,
         };
     }
 

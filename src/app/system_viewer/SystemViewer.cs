@@ -4,6 +4,7 @@ using StarGen.Domain.Systems;
 using StarGen.Domain.Systems.Fixtures;
 using StarGen.Domain.Generation.Parameters;
 using System.Collections.Generic;
+using StarGen.Services.Concepts;
 
 namespace StarGen.App.SystemViewer;
 
@@ -227,16 +228,18 @@ public partial class SystemViewer : Node3D, ISystemViewerSaveLoadHost
 
 		_currentSpec = spec;
 		SetStatus($"Generating system with seed {spec.GenerationSeed}...");
-		SolarSystem? system = SystemFixtureGenerator.GenerateSystem(spec, null);
-		if (system == null)
-		{
-			SetError("Failed to generate system");
-			return;
-		}
+        SolarSystem? system = SystemFixtureGenerator.GenerateSystem(spec, null);
+        if (system == null)
+        {
+            SetError("Failed to generate system");
+            return;
+        }
 
-		AppendTravellerGenerationIssues(system, spec);
-		UpdateGenerationIssuesUi();
-		DisplaySystem(system);
+        ConceptWorldStateGenerator.EnsureSystemConcepts(system);
+
+        AppendTravellerGenerationIssues(system, spec);
+        UpdateGenerationIssuesUi();
+        DisplaySystem(system);
 		if (_currentGenerationIssues.Issues.Count > 0)
 		{
 			SetStatus($"Generated with {_currentGenerationIssues.Issues.Count} advisory issue(s): {system.GetSummary()}");

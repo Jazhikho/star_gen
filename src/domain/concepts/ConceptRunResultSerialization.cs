@@ -44,18 +44,14 @@ public static class ConceptRunResultSerialization
 
         return new Dictionary
         {
+            ["status"] = (int)result.Status,
+            ["status_reason"] = result.StatusReason,
             ["title"] = result.Title,
             ["subtitle"] = result.Subtitle,
             ["summary"] = result.Summary,
             ["metrics"] = metrics,
             ["sections"] = sections,
-            ["provenance"] = new Dictionary
-            {
-                ["concept_id"] = result.Provenance.ConceptId,
-                ["seed"] = result.Provenance.Seed,
-                ["generator_version"] = result.Provenance.GeneratorVersion,
-                ["source_context"] = result.Provenance.SourceContext,
-            },
+            ["provenance"] = ToProvenanceDictionary(result.Provenance),
         };
     }
 
@@ -66,9 +62,11 @@ public static class ConceptRunResultSerialization
     {
         ConceptRunResult result = new()
         {
-            Title = GetString(data, "title"),
-            Subtitle = GetString(data, "subtitle"),
-            Summary = GetString(data, "summary"),
+            Status = (ConceptRunStatus)ConceptSerializationUtils.ReadOptionalInt(data, "status", (int)ConceptRunStatus.Generated),
+            StatusReason = ConceptSerializationUtils.ReadOptionalString(data, "status_reason"),
+            Title = ConceptSerializationUtils.ReadString(data, "title"),
+            Subtitle = ConceptSerializationUtils.ReadString(data, "subtitle"),
+            Summary = ConceptSerializationUtils.ReadString(data, "summary"),
         };
 
         if (data.ContainsKey("metrics") && data["metrics"].VariantType == Variant.Type.Array)
@@ -83,10 +81,10 @@ public static class ConceptRunResultSerialization
                 Dictionary metricData = (Dictionary)metricValue;
                 result.Metrics.Add(new ConceptMetric
                 {
-                    Label = GetString(metricData, "label"),
-                    Value = GetDouble(metricData, "value"),
-                    MaxValue = GetDouble(metricData, "max_value", 1.0),
-                    DisplayText = GetString(metricData, "display_text"),
+                    Label = ConceptSerializationUtils.ReadString(metricData, "label"),
+                    Value = ConceptSerializationUtils.ReadDouble(metricData, "value"),
+                    MaxValue = ConceptSerializationUtils.ReadOptionalDouble(metricData, "max_value", 1.0),
+                    DisplayText = ConceptSerializationUtils.ReadOptionalString(metricData, "display_text"),
                 });
             }
         }
@@ -103,7 +101,7 @@ public static class ConceptRunResultSerialization
                 Dictionary sectionData = (Dictionary)sectionValue;
                 ConceptSection section = new()
                 {
-                    Title = GetString(sectionData, "title"),
+                    Title = ConceptSerializationUtils.ReadString(sectionData, "title"),
                 };
 
                 if (sectionData.ContainsKey("items") && sectionData["items"].VariantType == Variant.Type.Array)
@@ -124,13 +122,7 @@ public static class ConceptRunResultSerialization
         if (data.ContainsKey("provenance") && data["provenance"].VariantType == Variant.Type.Dictionary)
         {
             Dictionary provenance = (Dictionary)data["provenance"];
-            result.Provenance = new ConceptProvenance
-            {
-                ConceptId = GetString(provenance, "concept_id"),
-                Seed = GetInt(provenance, "seed"),
-                GeneratorVersion = GetString(provenance, "generator_version"),
-                SourceContext = GetString(provenance, "source_context"),
-            };
+            result.Provenance = FromProvenanceDictionary(provenance);
         }
 
         return result;
@@ -144,51 +136,54 @@ public static class ConceptRunResultSerialization
         return FromDictionary(ToDictionary(result));
     }
 
-    private static string GetString(Dictionary data, string key, string fallback = "")
+    /// <summary>
+    /// Converts provenance into a dictionary payload.
+    /// </summary>
+    public static Dictionary ToProvenanceDictionary(ConceptProvenance provenance)
     {
-        if (!data.ContainsKey(key))
+        Array<string> dependencies = new();
+        foreach (string dependency in provenance.UpstreamDependencies)
         {
-            return fallback;
+            dependencies.Add(dependency);
         }
 
-        Variant value = data[key];
-        if (value.VariantType == Variant.Type.String)
+        return new Dictionary
         {
-            return (string)value;
-        }
-
-        return fallback;
-    }
-
-    private static int GetInt(Dictionary data, string key, int fallback = 0)
-    {
-        if (!data.ContainsKey(key))
-        {
-            return fallback;
-        }
-
-        Variant value = data[key];
-        return value.VariantType switch
-        {
-            Variant.Type.Int => (int)value,
-            Variant.Type.Float => (int)(double)value,
-            _ => fallback,
+            ["concept_id"] = provenance.ConceptId,
+            ["seed"] = provenance.Seed,
+            ["generator_version"] = provenance.GeneratorVersion,
+            ["source_context"] = provenance.SourceContext,
+            ["input_signature"] = provenance.InputSignature,
+            ["upstream_dependencies"] = dependencies,
         };
     }
 
-    private static double GetDouble(Dictionary data, string key, double fallback = 0.0)
+    /// <summary>
+    /// Rehydrates provenance from a dictionary payload.
+    /// </summary>
+    public static ConceptProvenance FromProvenanceDictionary(Dictionary provenance)
     {
-        if (!data.ContainsKey(key))
+        ConceptProvenance result = new ConceptProvenance
         {
-            return fallback;
+            ConceptId = ConceptSerializationUtils.ReadString(provenance, "concept_id"),
+            Seed = ConceptSerializationUtils.ReadInt(provenance, "seed"),
+            GeneratorVersion = ConceptSerializationUtils.ReadString(provenance, "generator_version"),
+            SourceContext = ConceptSerializationUtils.ReadString(provenance, "source_context"),
+            InputSignature = ConceptSerializationUtils.ReadOptionalString(provenance, "input_signature"),
+        };
+
+        if (provenance.ContainsKey("upstream_dependencies") && provenance["upstream_dependencies"].VariantType == Variant.Type.Array)
+        {
+            foreach (Variant dependencyValue in (Array)provenance["upstream_dependencies"])
+            {
+                if (dependencyValue.VariantType == Variant.Type.String)
+                {
+                    result.UpstreamDependencies.Add((string)dependencyValue);
+                }
+            }
         }
 
-        Variant value = data[key];
-        return value.VariantType switch
-        {
-            Variant.Type.Int => (int)value,
-            Variant.Type.Float => (double)value,
-            _ => fallback,
-        };
+        return result;
     }
+
 }

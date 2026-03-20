@@ -330,15 +330,23 @@ public partial class ConceptAtlasScreen : Control
             row.AddThemeConstantOverride("separation", 4);
 
             Label label = new();
-            string displayText = string.IsNullOrEmpty(metric.DisplayText)
-                ? metric.Value.ToString("0.##")
-                : metric.DisplayText;
+            string displayText = metric.DisplayText;
+            if (string.IsNullOrEmpty(displayText))
+            {
+                displayText = metric.Value.ToString("0.##");
+            }
+
             label.Text = metric.Label + ": " + displayText;
             row.AddChild(label);
 
             ProgressBar bar = new();
             bar.MinValue = 0.0;
-            bar.MaxValue = metric.MaxValue > 0.0 ? metric.MaxValue : 1.0;
+            bar.MaxValue = 1.0;
+            if (metric.MaxValue > 0.0)
+            {
+                bar.MaxValue = metric.MaxValue;
+            }
+
             bar.Value = metric.Value;
             bar.ShowPercentage = false;
             row.AddChild(bar);
@@ -391,9 +399,14 @@ public partial class ConceptAtlasScreen : Control
 
         if (_bodyNameInput != null)
         {
-            _bodyNameInput.Text = !string.IsNullOrEmpty(_contextSnapshot.BodyName)
-                ? _contextSnapshot.BodyName
-                : _contextSnapshot.SourceLabel;
+            if (!string.IsNullOrEmpty(_contextSnapshot.BodyName))
+            {
+                _bodyNameInput.Text = _contextSnapshot.BodyName;
+            }
+            else
+            {
+                _bodyNameInput.Text = _contextSnapshot.SourceLabel;
+            }
         }
 
         if (_populationInput != null)
@@ -409,7 +422,14 @@ public partial class ConceptAtlasScreen : Control
         if (_biomeOption != null)
         {
             int biomeIndex = FindBiomeIndex(_contextSnapshot.DominantBiome);
-            _biomeOption.Select(biomeIndex >= 0 ? biomeIndex : 0);
+            if (biomeIndex >= 0)
+            {
+                _biomeOption.Select(biomeIndex);
+            }
+            else
+            {
+                _biomeOption.Select(0);
+            }
         }
     }
 
@@ -464,7 +484,10 @@ public partial class ConceptAtlasScreen : Control
         if (_bodyNameInput != null)
         {
             snapshot.BodyName = _bodyNameInput.Text;
-            snapshot.SourceLabel = string.IsNullOrEmpty(_bodyNameInput.Text) ? snapshot.SourceLabel : _bodyNameInput.Text;
+            if (!string.IsNullOrEmpty(_bodyNameInput.Text))
+            {
+                snapshot.SourceLabel = _bodyNameInput.Text;
+            }
         }
 
         if (_populationInput != null)

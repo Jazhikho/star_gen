@@ -1,6 +1,7 @@
 using Godot;
 using Godot.Collections;
 using StarGen.Domain.Concepts;
+using StarGen.Domain.Concepts.Pipeline;
 
 namespace StarGen.Domain.Population;
 
@@ -83,6 +84,31 @@ public partial class PlanetPopulationData : RefCounted
     /// Persisted aggregate concept results for this body's population layer.
     /// </summary>
     public ConceptResultStore ConceptResults = new();
+
+    /// <summary>
+    /// Derived environment profile used by the concept dependency pipeline.
+    /// </summary>
+    public PlanetEnvironmentProfile? EnvironmentProfile;
+
+    /// <summary>
+    /// Body-level ecology state.
+    /// </summary>
+    public EcologyState? EcologyState;
+
+    /// <summary>
+    /// Body-level evolution and species state.
+    /// </summary>
+    public SpeciesEvolutionState? SpeciesEvolution;
+
+    /// <summary>
+    /// Sentience assessment for the native biosphere.
+    /// </summary>
+    public SentienceAssessment? SentienceAssessment;
+
+    /// <summary>
+    /// Body-level disease state when no narrower population state applies.
+    /// </summary>
+    public DiseaseState? DiseaseState;
 
     /// <summary>
     /// Returns the total extant native plus active colony population.
@@ -542,6 +568,31 @@ public partial class PlanetPopulationData : RefCounted
             data["concept_results"] = ConceptResults.ToDictionary();
         }
 
+        if (EnvironmentProfile != null)
+        {
+            data["environment_profile"] = EnvironmentProfile.ToDictionary();
+        }
+
+        if (EcologyState != null)
+        {
+            data["ecology_state"] = EcologyState.ToDictionary();
+        }
+
+        if (SpeciesEvolution != null)
+        {
+            data["species_evolution"] = SpeciesEvolution.ToDictionary();
+        }
+
+        if (SentienceAssessment != null)
+        {
+            data["sentience_assessment"] = SentienceAssessment.ToDictionary();
+        }
+
+        if (DiseaseState != null)
+        {
+            data["disease_state"] = DiseaseState.ToDictionary();
+        }
+
         return data;
     }
 
@@ -597,6 +648,31 @@ public partial class PlanetPopulationData : RefCounted
         if (data.ContainsKey("concept_results") && data["concept_results"].VariantType == Variant.Type.Dictionary)
         {
             populationData.ConceptResults = ConceptResultStore.FromDictionary((Dictionary)data["concept_results"]);
+        }
+
+        if (data.ContainsKey("environment_profile") && data["environment_profile"].VariantType == Variant.Type.Dictionary)
+        {
+            populationData.EnvironmentProfile = PlanetEnvironmentProfile.FromDictionary((Dictionary)data["environment_profile"]);
+        }
+
+        if (data.ContainsKey("ecology_state") && data["ecology_state"].VariantType == Variant.Type.Dictionary)
+        {
+            populationData.EcologyState = EcologyState.FromDictionary((Dictionary)data["ecology_state"]);
+        }
+
+        if (data.ContainsKey("species_evolution") && data["species_evolution"].VariantType == Variant.Type.Dictionary)
+        {
+            populationData.SpeciesEvolution = SpeciesEvolutionState.FromDictionary((Dictionary)data["species_evolution"]);
+        }
+
+        if (data.ContainsKey("sentience_assessment") && data["sentience_assessment"].VariantType == Variant.Type.Dictionary)
+        {
+            populationData.SentienceAssessment = SentienceAssessment.FromDictionary((Dictionary)data["sentience_assessment"]);
+        }
+
+        if (data.ContainsKey("disease_state") && data["disease_state"].VariantType == Variant.Type.Dictionary)
+        {
+            populationData.DiseaseState = DiseaseState.FromDictionary((Dictionary)data["disease_state"]);
         }
 
         return populationData;

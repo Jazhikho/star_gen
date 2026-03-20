@@ -122,6 +122,7 @@ public static class PlanetGenerator
                 context,
                 spec.GenerationSeed,
                 populationOverride);
+            CopyConceptPipelineState(body);
         }
 
         return body;
@@ -224,5 +225,19 @@ public static class PlanetGenerator
 
         int randomPart = (int)(rng.Randi() % 1_000_000u);
         return GeneratorUtils.GenerateIdFromRandomPart("planet", randomPart);
+    }
+
+    private static void CopyConceptPipelineState(CelestialBody body)
+    {
+        if (body.PopulationData == null)
+        {
+            return;
+        }
+
+        body.EnvironmentProfile = body.PopulationData.EnvironmentProfile;
+        body.Ecology = body.PopulationData.EcologyState;
+        body.SpeciesEvolution = body.PopulationData.SpeciesEvolution;
+        body.Sentience = body.PopulationData.SentienceAssessment;
+        body.Disease = body.PopulationData.DiseaseState;
     }
 }

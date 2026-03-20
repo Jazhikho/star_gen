@@ -1,6 +1,7 @@
 using Godot;
 using StarGen.Domain.Celestial.Components;
 using StarGen.Domain.Concepts;
+using StarGen.Domain.Concepts.Pipeline;
 using StarGen.Domain.Population;
 
 namespace StarGen.Domain.Celestial;
@@ -66,6 +67,31 @@ public partial class CelestialBody : RefCounted
     public ConceptResultStore ConceptResults { get; set; }
 
     /// <summary>
+    /// Rich environment analysis derived from the body's profile.
+    /// </summary>
+    public PlanetEnvironmentProfile? EnvironmentProfile { get; set; }
+
+    /// <summary>
+    /// Ecology layer for the body's biosphere.
+    /// </summary>
+    public EcologyState? Ecology { get; set; }
+
+    /// <summary>
+    /// Species and evolutionary state for the body's biosphere.
+    /// </summary>
+    public SpeciesEvolutionState? SpeciesEvolution { get; set; }
+
+    /// <summary>
+    /// Sentience assessment for the dominant native lineage.
+    /// </summary>
+    public SentienceAssessment? Sentience { get; set; }
+
+    /// <summary>
+    /// Body-level disease state when no narrower population target applies.
+    /// </summary>
+    public DiseaseState? Disease { get; set; }
+
+    /// <summary>
     /// Generation provenance information.
     /// </summary>
     public Provenance? Provenance { get; set; }
@@ -92,6 +118,11 @@ public partial class CelestialBody : RefCounted
         RingSystem = null;
         PopulationData = null;
         ConceptResults = new ConceptResultStore();
+        EnvironmentProfile = null;
+        Ecology = null;
+        SpeciesEvolution = null;
+        Sentience = null;
+        Disease = null;
     }
 
     /// <summary>

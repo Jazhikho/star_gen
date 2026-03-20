@@ -2,6 +2,7 @@ using Godot;
 using Godot.Collections;
 using StarGen.Domain.Celestial.Components;
 using StarGen.Domain.Concepts;
+using StarGen.Domain.Concepts.Pipeline;
 using StarGen.Domain.Constants;
 using StarGen.Domain.Population;
 
@@ -69,6 +70,31 @@ public static class CelestialSerializer
         if (body.HasConceptResults())
         {
             data["concept_results"] = body.ConceptResults.ToDictionary();
+        }
+
+        if (body.EnvironmentProfile != null)
+        {
+            data["environment_profile"] = body.EnvironmentProfile.ToDictionary();
+        }
+
+        if (body.Ecology != null)
+        {
+            data["ecology_state"] = body.Ecology.ToDictionary();
+        }
+
+        if (body.SpeciesEvolution != null)
+        {
+            data["species_evolution"] = body.SpeciesEvolution.ToDictionary();
+        }
+
+        if (body.Sentience != null)
+        {
+            data["sentience_assessment"] = body.Sentience.ToDictionary();
+        }
+
+        if (body.Disease != null)
+        {
+            data["disease_state"] = body.Disease.ToDictionary();
         }
 
         if (body.Provenance != null)
@@ -174,6 +200,31 @@ public static class CelestialSerializer
         if (data.ContainsKey("concept_results") && data["concept_results"].VariantType == Variant.Type.Dictionary)
         {
             body.ConceptResults = ConceptResultStore.FromDictionary((Dictionary)data["concept_results"]);
+        }
+
+        if (data.ContainsKey("environment_profile") && data["environment_profile"].VariantType == Variant.Type.Dictionary)
+        {
+            body.EnvironmentProfile = PlanetEnvironmentProfile.FromDictionary((Dictionary)data["environment_profile"]);
+        }
+
+        if (data.ContainsKey("ecology_state") && data["ecology_state"].VariantType == Variant.Type.Dictionary)
+        {
+            body.Ecology = EcologyState.FromDictionary((Dictionary)data["ecology_state"]);
+        }
+
+        if (data.ContainsKey("species_evolution") && data["species_evolution"].VariantType == Variant.Type.Dictionary)
+        {
+            body.SpeciesEvolution = SpeciesEvolutionState.FromDictionary((Dictionary)data["species_evolution"]);
+        }
+
+        if (data.ContainsKey("sentience_assessment") && data["sentience_assessment"].VariantType == Variant.Type.Dictionary)
+        {
+            body.Sentience = SentienceAssessment.FromDictionary((Dictionary)data["sentience_assessment"]);
+        }
+
+        if (data.ContainsKey("disease_state") && data["disease_state"].VariantType == Variant.Type.Dictionary)
+        {
+            body.Disease = DiseaseState.FromDictionary((Dictionary)data["disease_state"]);
         }
 
         return body;

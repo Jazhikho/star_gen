@@ -255,6 +255,7 @@ public partial class MainApp
         _objectOrigin = NavigationOrigin.None;
         ShowSystemViewer();
         _systemViewer?.SetGenerationSectionVisible(false);
+        ConceptWorldStateGenerator.EnsureSystemConcepts(result.System);
         _systemViewer?.DisplaySystem(result.System);
         if (result.System.Provenance != null)
         {
@@ -300,6 +301,7 @@ public partial class MainApp
         if (preview != null && preview.StarSeed == starSeed && preview.System != null)
         {
             system = preview.System;
+            ConceptWorldStateGenerator.EnsureSystemConcepts(system, _galaxySeed);
             ApplyOverridesToSystem(system, starSeed);
             _systemCache.PutSystem(starSeed, system);
         }
@@ -312,12 +314,14 @@ public partial class MainApp
                 system = GenerateSystemFromSeed(starSeed, useCaseSettings);
                 if (system != null)
                 {
+                    ConceptWorldStateGenerator.EnsureSystemConcepts(system, _galaxySeed);
                     ApplyOverridesToSystem(system, starSeed);
                     _systemCache.PutSystem(starSeed, system);
                 }
             }
             else
             {
+                ConceptWorldStateGenerator.EnsureSystemConcepts(system, _galaxySeed);
                 ApplyOverridesToSystem(system, starSeed);
             }
         }
@@ -390,6 +394,10 @@ public partial class MainApp
         }
 
         SolarSystem? system = SystemFixtureGenerator.GenerateSystem(spec);
+        if (system != null)
+        {
+            ConceptWorldStateGenerator.EnsureSystemConcepts(system);
+        }
         return system;
     }
 

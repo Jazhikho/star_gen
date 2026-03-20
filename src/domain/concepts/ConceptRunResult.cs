@@ -8,6 +8,16 @@ namespace StarGen.Domain.Concepts;
 public sealed class ConceptRunResult
 {
     /// <summary>
+    /// Explicit run status.
+    /// </summary>
+    public ConceptRunStatus Status { get; set; } = ConceptRunStatus.Generated;
+
+    /// <summary>
+    /// Failure or non-applicability reason.
+    /// </summary>
+    public string StatusReason { get; set; } = string.Empty;
+
+    /// <summary>
     /// Display title.
     /// </summary>
     public string Title { get; set; } = string.Empty;

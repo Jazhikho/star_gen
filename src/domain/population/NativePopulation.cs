@@ -1,6 +1,7 @@
 using Godot;
 using Godot.Collections;
 using StarGen.Domain.Concepts;
+using StarGen.Domain.Concepts.Pipeline;
 
 namespace StarGen.Domain.Population;
 
@@ -98,6 +99,26 @@ public partial class NativePopulation : RefCounted
     /// Persisted concept results for this population.
     /// </summary>
     public ConceptResultStore ConceptResults = new();
+
+    /// <summary>
+    /// Society-layer state for this population.
+    /// </summary>
+    public SocietyState? SocietyState;
+
+    /// <summary>
+    /// Religion-layer state for this population.
+    /// </summary>
+    public ReligionState? ReligionState;
+
+    /// <summary>
+    /// Language-layer state for this population.
+    /// </summary>
+    public LanguageState? LanguageState;
+
+    /// <summary>
+    /// Disease-layer state for this population.
+    /// </summary>
+    public DiseaseState? DiseaseState;
 
     /// <summary>
     /// Returns the age of the population.
@@ -245,6 +266,26 @@ public partial class NativePopulation : RefCounted
             data["concept_results"] = ConceptResults.ToDictionary();
         }
 
+        if (SocietyState != null)
+        {
+            data["society_state"] = SocietyState.ToDictionary();
+        }
+
+        if (ReligionState != null)
+        {
+            data["religion_state"] = ReligionState.ToDictionary();
+        }
+
+        if (LanguageState != null)
+        {
+            data["language_state"] = LanguageState.ToDictionary();
+        }
+
+        if (DiseaseState != null)
+        {
+            data["disease_state"] = DiseaseState.ToDictionary();
+        }
+
         return data;
     }
 
@@ -293,6 +334,26 @@ public partial class NativePopulation : RefCounted
         if (data.ContainsKey("concept_results") && data["concept_results"].VariantType == Variant.Type.Dictionary)
         {
             population.ConceptResults = ConceptResultStore.FromDictionary((Dictionary)data["concept_results"]);
+        }
+
+        if (data.ContainsKey("society_state") && data["society_state"].VariantType == Variant.Type.Dictionary)
+        {
+            population.SocietyState = SocietyState.FromDictionary((Dictionary)data["society_state"]);
+        }
+
+        if (data.ContainsKey("religion_state") && data["religion_state"].VariantType == Variant.Type.Dictionary)
+        {
+            population.ReligionState = ReligionState.FromDictionary((Dictionary)data["religion_state"]);
+        }
+
+        if (data.ContainsKey("language_state") && data["language_state"].VariantType == Variant.Type.Dictionary)
+        {
+            population.LanguageState = LanguageState.FromDictionary((Dictionary)data["language_state"]);
+        }
+
+        if (data.ContainsKey("disease_state") && data["disease_state"].VariantType == Variant.Type.Dictionary)
+        {
+            population.DiseaseState = DiseaseState.FromDictionary((Dictionary)data["disease_state"]);
         }
 
         if (data.ContainsKey("cultural_traits") && data["cultural_traits"].VariantType == Variant.Type.Array)

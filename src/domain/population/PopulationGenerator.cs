@@ -1,5 +1,7 @@
 using Godot.Collections;
 using StarGen.Domain.Celestial;
+using StarGen.Domain.Concepts;
+using StarGen.Domain.Concepts.Pipeline;
 using StarGen.Domain.Generation;
 using StarGen.Domain.Rng;
 
@@ -30,14 +32,29 @@ public static class PopulationGenerator
     {
         PlanetProfile profile = ProfileGenerator.Generate(body, context, parentBody);
         ColonySuitability suitability = SuitabilityCalculator.Calculate(profile);
-
-        return new PlanetPopulationData
+        PlanetPopulationData data = new PlanetPopulationData
         {
             BodyId = body.Id,
             GenerationSeed = generationSeed,
             Profile = profile,
             Suitability = suitability,
         };
+
+        PlanetEnvironmentProfile environmentProfile = PlanetEnvironmentProfile.FromPlanetProfile(
+            profile,
+            generationSeed,
+            body.Name,
+            body.GetTypeString());
+        ConceptDependencyChainGenerator.PopulatePreSocietyStates(
+            environmentProfile,
+            out EcologyState ecologyState,
+            out SpeciesEvolutionState speciesEvolutionState,
+            out SentienceAssessment sentienceAssessment);
+        data.EnvironmentProfile = environmentProfile;
+        data.EcologyState = ecologyState;
+        data.SpeciesEvolution = speciesEvolutionState;
+        data.SentienceAssessment = sentienceAssessment;
+        return data;
     }
 
     /// <summary>
@@ -87,10 +104,29 @@ public static class PopulationGenerator
             Suitability = suitability,
         };
 
+        PlanetEnvironmentProfile environmentProfile = PlanetEnvironmentProfile.FromPlanetProfile(
+            profile,
+            generationSeed,
+            profile.BodyId,
+            "Planet");
+        ConceptDependencyChainGenerator.PopulatePreSocietyStates(
+            environmentProfile,
+            out EcologyState ecologyState,
+            out SpeciesEvolutionState speciesEvolutionState,
+            out SentienceAssessment sentienceAssessment);
+        data.EnvironmentProfile = environmentProfile;
+        data.EcologyState = ecologyState;
+        data.SpeciesEvolution = speciesEvolutionState;
+        data.SentienceAssessment = sentienceAssessment;
+
         SeededRng rng = new(generationSeed);
-        if (generateNatives)
+        bool allowNativeSentients = generateNatives
+            && data.SentienceAssessment != null
+            && data.SentienceAssessment.Status == ConceptRunStatus.Generated
+            && data.SentienceAssessment.HasSentientLife;
+        if (allowNativeSentients)
         {
-            data.NativePopulations = GenerateNatives(profile, currentYear, rng);
+            data.NativePopulations = GenerateNatives(profile, currentYear, rng, true);
         }
 
         if (generateColonies)
@@ -149,20 +185,28 @@ public static class PopulationGenerator
             return data;
         }
 
+        bool sentientNativesAvailable = data.SentienceAssessment != null
+            && data.SentienceAssessment.Status == ConceptRunStatus.Generated
+            && data.SentienceAssessment.HasSentientLife;
         PlanetPopulationData generated = GenerateFromProfile(
             data.Profile,
             (int)populationSeed,
-            generateNatives,
+            generateNatives && sentientNativesAvailable,
             generateColony,
             DefaultCurrentYear,
             data.Suitability);
+        generated.EnvironmentProfile = data.EnvironmentProfile;
+        generated.EcologyState = data.EcologyState;
+        generated.SpeciesEvolution = data.SpeciesEvolution;
+        generated.SentienceAssessment = data.SentienceAssessment;
         return generated;
     }
 
     private static Array<NativePopulation> GenerateNatives(
         PlanetProfile profile,
         int currentYear,
-        SeededRng rng)
+        SeededRng rng,
+        bool forcePopulation)
     {
         SeededRng nativeRng = rng.Fork();
         return NativePopulationGenerator.Generate(
@@ -170,7 +214,7 @@ public static class PopulationGenerator
             nativeRng,
             currentYear,
             DefaultMaxNativePopulations,
-            false,
+            forcePopulation,
             DefaultNativeMinHistoryYears,
             DefaultNativeMaxHistoryYears);
     }
