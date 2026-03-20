@@ -1,10 +1,20 @@
 # Version
 
-Current version: `0.7.0.0`
+Current version: `0.7.1.0`
 
-Date: `2026-03-19`
+Date: `2026-03-20`
 
 Versioning method: release/refactor `+0.1`, feature `+0.0.1`, bug fix `+0.0.0.1`, save-breaking release `+1.0`.
+
+Current public release target: `0.8.0.0`
+
+## 0.7.1.0
+
+- Refactor: Replaced the flattened concept showcase context with a typed dependency pipeline spanning `PlanetEnvironmentProfile`, `EcologyState`, `SpeciesEvolutionState`, `SentienceAssessment`, `SocietyState`, `ReligionState`, `LanguageState`, and `DiseaseState`.
+- Feature: Reworked native-life generation so ecology and evolution attach only to biological worlds, sentience is evaluated explicitly, and civilisation/religion/language now generate only for extant sentient populations.
+- Feature: Reintroduced persisted concept state on the hardening branch behind deterministic applicability gates, richer provenance, and atlas reuse of typed runtime results instead of fabricated summaries.
+- Quality: Removed ternary operators from the concept path, tightened concept serialization and registry failures, and added concept-pipeline regression coverage for lifeless, non-sentient, and sentient worlds plus a static ternary scan.
+- Internal milestone: `0.7.1.0` is part of the private 0.7 hardening line. The next public release target remains `0.8.0.0` after realism tuning and explicit human audit on culture-, religion-, language-, civilisation-, and species-adjacent outputs.
 
 ## 0.7.0.0
 

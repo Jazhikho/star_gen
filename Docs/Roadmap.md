@@ -47,8 +47,9 @@ Contributors pick an effort and work against master. Efforts can run in parallel
 | Jump lanes optimization and polish | Optimize and polish jump-lane rendering in galaxy viewer; population data; line/orphan visuals | — | — |
 | Code quality & simplifications | TODOs, placeholder replacements, simplified formulas to redo | — | — |
 | Population detail (civilisation/regime) | Enrich population with tech level, regime type, and transitions; align with CivilisationEngine concept (Concepts/CivilisationEngine/) | — | — |
-| Concept Atlas and concept tool fold-in | Bring the current Concepts/ modules into StarGen as in-app, deterministic, end-user-visible tools with manual and context-aware entry points | — | `codex/concept-atlas-fold-in` (Release 1 showcase surface complete; Release 2 persistence parity complete in branch) |
-| Cross-layer concept integration | Persist and wire concept outputs into population, history, body, system, and atlas flows after the showcase-first fold-in lands | Concept Atlas and concept tool fold-in | `codex/concept-atlas-fold-in` (implementation complete; `0.7.0.0` prep in branch, public audit pending) |
+| Concept Atlas and concept tool fold-in | Keep every selected concept prototype accessible inside StarGen through a dedicated atlas, manual sandbox, and context-aware launch points | — | `codex/concept-atlas-fold-in` (showcase surface complete; remains the atlas-facing baseline) |
+| Concept dependency pipeline and determinism hardening | Replace flattened concept context with an explicit deterministic dependency chain from environment through ecology, species, sentience, and society layers | Concept Atlas and concept tool fold-in | `codex/concept-pipeline-hardening` (active 0.7 internal iteration) |
+| Cross-layer concept integration | Persist and wire concept outputs into population, history, body, system, and atlas flows only after the dependency pipeline and applicability gates are stable | Concept Atlas and concept tool fold-in; Concept dependency pipeline and determinism hardening | `codex/concept-pipeline-hardening` (active rework; not public-release ready) |
 | Engine/tool integration | Minimal Unity/Unreal sample importer or plugin for real workflow evaluation | — | — |
 | Export function | Clean JSON/CSV export for design/UI iteration and technical wiring | — | — |
 | Filters that match game needs | Presets (frontier, dense core, mystery zone, resource rich, dangerous) for missions and worldbuilding | — | — |
@@ -276,7 +277,7 @@ Recently completed on `master` and included in the `0.5.0.0` release rollup:
 
 **Goal:** Make every current concept prototype accessible inside StarGen for the digital-humanities showcase through a dedicated Concept Atlas and context-aware launch points from the main app.
 
-**Status:** Release 1 showcase surface is complete on `codex/concept-atlas-fold-in`: all currently selected concept modules are accessible in-app from the main menu and relevant viewer inspectors. Post-review polish keeps the atlas clearly framed as a standalone tool in development, with prototype-folder retirement still gated on explicit human audit and cleanup.
+**Status:** Release 1 showcase surface is complete on `codex/concept-atlas-fold-in`: all currently selected concept modules are accessible in-app from the main menu and relevant viewer inspectors. The atlas remains the user-facing front end while `codex/concept-pipeline-hardening` replaces the original flattened concept wiring underneath it.
 
 **Deliverables:**
 • Shared concept types and registry (`ConceptContextSnapshot`, `ConceptProvenance`, `ConceptModuleDescriptor`, run request/result plumbing).
@@ -289,13 +290,32 @@ Recently completed on `master` and included in the `0.5.0.0` release rollup:
 
 ---
 
+### Concept dependency pipeline and determinism hardening
+
+**Goal:** Rebuild concept integration around explicit deterministic dependencies so worldbuilding layers derive from one another instead of being fabricated from a thin shared snapshot.
+
+**Gates:** Concept Atlas and concept tool fold-in.
+
+**Status:** Active on `codex/concept-pipeline-hardening` as the 0.7 internal iteration line. This branch introduces typed environment, ecology, species/evolution, sentience, society, religion, language, and disease states; reworks native-population generation so sentience is explicit; and restores persisted runtime concept state only behind applicability rules and richer provenance.
+
+**Deliverables:**
+• Typed dependency inputs/outputs: `PlanetEnvironmentProfile`, `EcologyState`, `SpeciesEvolutionState`, `SentienceAssessment`, `SocietyState`, `ReligionState`, `LanguageState`, and `DiseaseState`.
+• Runtime generation order that respects applicability: no ecology on lifeless worlds, no species without ecology, no society/religion/language without sentience, and disease only where biological hosts or inhabited populations exist.
+• Deterministic native C# ports and hardening passes for evolution, civilisation, language, and disease, plus deeper runtime use of the stronger ecology and religion generators.
+• Failure behavior that is explicit instead of silent, with richer provenance and input-signature tracking on persisted concept state.
+• Regression coverage for lifeless, non-sentient, and sentient world paths plus static checks for concept-path ternary operators.
+
+**Acceptance:** For a fixed seed, concept results remain deterministic and follow the dependency chain. Lifeless worlds stop at non-applicable ecology/species/society states, non-sentient worlds stop before society layers, and sentient worlds produce downstream society-layer outputs without hidden fallbacks.
+
+---
+
 ### Cross-layer concept integration
 
 **Goal:** Move concept outputs from on-demand showcase runs into normal generated world state, persistence, inspectors, and histories.
 
-**Gates:** Concept Atlas and concept tool fold-in.
+**Gates:** Concept Atlas and concept tool fold-in; Concept dependency pipeline and determinism hardening.
 
-**Status:** Deferred on the current showcase branch. Earlier fold-in experiments remain available as in-tree scaffolding, but the automatic generation/save/load/inspector wiring has been removed for now so the Concept Atlas stays a standalone tool until applicability rules, realism controls, and integration scope are ready.
+**Status:** Active rework on `codex/concept-pipeline-hardening`, but not yet public-release ready. Runtime concept persistence is back on the hardening branch for deterministic testing, while realism controls, prototype-parity cleanup, and human-audit gates still block an `0.8.0.0` release.
 
 **Deliverables:**
 • Persisted ecology/species, civilisation, religion, language, and disease data in normal world/system/population payloads.
@@ -303,7 +323,7 @@ Recently completed on `master` and included in the `0.5.0.0` release rollup:
 • Inspector and timeline surfaces that expose persisted concept data outside the atlas.
 • Save/load migration for pre-concept saves.
 
-**Acceptance:** A future branch can reintroduce concept outputs as persisted world state only after applicability rules are explicit, deterministic coverage is in place, and the atlas can reflect those results without overclaiming world-state completeness.
+**Acceptance:** Concept outputs may count as normal world state only when the dependency pipeline is stable, persisted results survive save/load and atlas inspection, and the branch no longer relies on showcase-era fabricated summaries or broad applicability shortcuts.
 
 ---
 

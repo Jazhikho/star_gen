@@ -17,6 +17,17 @@ Use this log for significant AI-assisted artifacts in this repository.
 
 ## Entries
 
+### 2026-03-20 - Codex (GPT-5)
+
+- Task Purpose: Implement the 0.7 concept-pipeline hardening pass so concept generation follows deterministic worldbuilding dependencies instead of the earlier flattened showcase context.
+- Input Materials Used: User-approved 0.7 hardening plan; `Claude.md`; `AGENTS.md`; concept atlas/runtime code; population and celestial domain models; concept prototypes in `Concepts/`; persistence services; concept and integration tests; roadmap/version/project-structure/readme surfaces.
+- AI Produced: Added typed pipeline states for environment, ecology, species evolution, sentience, society, religion, language, and disease; reworked world/population generation to gate downstream concepts on biological and sentient applicability; hardened concept serialization and provenance; removed concept-path ternary operators and silent-fallback behavior; updated deterministic concept tests; and synced roadmap/version/readme/project-structure documentation for the internal `0.7.1.0` hardening line toward a future `0.8.0.0` public release.
+- Human Accepted: Pending review and approval of the 0.7 hardening branch after manual inspection of the pipeline behavior and concept quality.
+- Human Rejected: No public `0.8.0.0` release, prototype retirement, or bypass of the required human audit for culture-, religion-, language-, civilisation-, and species-adjacent outputs was assumed.
+- Human Changed: The user-set requirement is that StarGen behave as a constrained deterministic worldbuilding tool where each concept layer depends on explicit upstream results, and that 0.7 remain an internal iteration line until the user is satisfied.
+- Validation Method: `dotnet build StarGen.sln`; `godot-mono.exe --path . --headless --script res://Tests/RunTestsHeadless.gd` (`1921 / 1921` passed); concept-path ternary scan enforced by `DotNetNativeTestSuite.Concepts`.
+- Final Approver: Pending Christopher B. Del Gesso review.
+
 ### 2026-03-19 - Codex (GPT-5)
 
 - Task Purpose: Rewrite the repository README into a more user-facing orientation ahead of commit, push, build, and storefront publication.

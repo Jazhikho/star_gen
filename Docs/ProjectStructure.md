@@ -16,13 +16,25 @@ UI layout baseline:
 - The supported minimum app width is `640 px` (`480 px` height floor for windowed mode).
 - Wrapped labels should have a panel-appropriate minimum width rather than relying on autowrap alone; large full-width headers can be broader, while sidebar/footer text should usually stay closer to the 180-320 px range.
 
+Current development line:
+- `0.7.1.0`
+
 Current public release target:
-- `0.7.0.0`
+- `0.8.0.0`
+
+Recent 0.7.1 additions:
+- `src/domain/concepts/ConceptRunStatus.cs`
+- `src/domain/concepts/ConceptSerializationUtils.cs`
+- `src/domain/concepts/pipeline/` (typed environment, ecology, species, sentience, society, religion, language, and disease pipeline state)
+- `src/services/concepts/ConceptWorldStateGenerator.cs` (dependency-gated runtime concept persistence on the hardening branch)
+- `src/domain/generation/generators/PlanetGenerator.cs` / `src/domain/generation/generators/MoonGenerator.cs` / `src/domain/population/PopulationGenerator.cs` (environment-to-society concept handoff and sentience-aware native population gating)
+- `Tests/Framework/DotNetNativeTestSuite.Concepts.cs` (pipeline applicability, sentience gating, persisted atlas-result reuse, and ternary-operator guard coverage)
+- `Tests/Integration/TestSystemPersistence.cs` (runtime concept regeneration/persistence coverage on load)
 
 Recent 0.7.0 additions:
-- `VERSION.md`, `README.md`, `project.godot`, and `src/app/MainMenuScreen.cs` (Release 2 concept-integration milestone sync)
+- `VERSION.md`, `README.md`, `project.godot`, and `src/app/MainMenuScreen.cs` (showcase-era concept branch sync before the 0.7 hardening pass)
 - `src/app/concepts/ConceptAtlasScreen.cs` (post-review atlas presentation polish: development note, scroll-safe sidebar behavior, and clearer showcase-facing framing)
-- `src/app/system_viewer/SystemInspectorPanel.cs` / `src/app/system_viewer/SystemViewer*.cs` (post-review populated-world quick focus and standalone-atlas rollback)
+- `src/app/system_viewer/SystemInspectorPanel.cs` / `src/app/system_viewer/SystemViewer*.cs` (post-review populated-world quick focus and standalone-atlas rollback that the hardening branch now supersedes)
 
 Recent 0.4.0 additions:
 - `Docs/Release-0.4.0-MVP.md`
@@ -163,8 +175,38 @@ C# source files:
 - `src/domain/celestial/validation/ValidationResult.cs`
 - `src/domain/celestial/validation/CelestialValidator.cs`
 - `src/domain/celestial/serialization/CelestialSerializer.cs`
+- `src/domain/concepts/ConceptContextSnapshot.cs`
+- `src/domain/concepts/ConceptKind.cs`
+- `src/domain/concepts/ConceptMetric.cs`
+- `src/domain/concepts/ConceptModuleDescriptor.cs`
+- `src/domain/concepts/ConceptProvenance.cs`
 - `src/domain/concepts/ConceptResultStore.cs`
+- `src/domain/concepts/ConceptRunRequest.cs`
+- `src/domain/concepts/ConceptRunResult.cs`
 - `src/domain/concepts/ConceptRunResultSerialization.cs`
+- `src/domain/concepts/ConceptRunStatus.cs`
+- `src/domain/concepts/ConceptSection.cs`
+- `src/domain/concepts/ConceptSerializationUtils.cs`
+- `src/domain/concepts/civilization/CivilizationConceptGenerator.cs`
+- `src/domain/concepts/civilization/CivilizationConceptSnapshot.cs`
+- `src/domain/concepts/disease/DiseaseConceptData.cs`
+- `src/domain/concepts/disease/DiseaseConceptGenerator.cs`
+- `src/domain/concepts/disease/DiseaseConceptSnapshot.cs`
+- `src/domain/concepts/ecology/EcologyConceptSnapshot.cs`
+- `src/domain/concepts/evolution/EvolutionConceptGenerator.cs`
+- `src/domain/concepts/evolution/EvolutionConceptSnapshot.cs`
+- `src/domain/concepts/language/LanguageConceptGenerator.cs`
+- `src/domain/concepts/language/LanguageConceptSnapshot.cs`
+- `src/domain/concepts/pipeline/ConceptDependencyChainGenerator.cs`
+- `src/domain/concepts/pipeline/DiseaseState.cs`
+- `src/domain/concepts/pipeline/EcologyState.cs`
+- `src/domain/concepts/pipeline/LanguageState.cs`
+- `src/domain/concepts/pipeline/PlanetEnvironmentProfile.cs`
+- `src/domain/concepts/pipeline/ReligionState.cs`
+- `src/domain/concepts/pipeline/SentienceAssessment.cs`
+- `src/domain/concepts/pipeline/SocietyState.cs`
+- `src/domain/concepts/pipeline/SpeciesEvolutionState.cs`
+- `src/domain/concepts/religion/ReligionConceptSnapshot.cs`
 - `src/domain/celestial/serialization/SerializedPopulationData.cs`
 - `src/domain/celestial/components/TerrainProps.cs`
 - `src/domain/celestial/components/HydrosphereProps.cs`
@@ -406,7 +448,9 @@ C# source files:
 - `src/app/concepts/DiseaseAtlasModulePresenter.cs`
 - `src/app/concepts/EcologyAtlasModulePresenter.cs`
 - `src/app/concepts/EvolutionAtlasModulePresenter.cs`
+- `src/app/concepts/IConceptModulePresenter.cs`
 - `src/app/concepts/LanguageAtlasModulePresenter.cs`
+- `src/app/concepts/PlaceholderConceptModulePresenter.cs`
 - `src/app/concepts/ReligionAtlasModulePresenter.cs`
 - `src/app/components/CollapsibleSection.cs`
 - `src/app/MainApp.cs`

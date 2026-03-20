@@ -10,7 +10,7 @@ It is aimed at science-fiction worldbuilding, setting design, and procedural exp
 - Explore generated results in viewers with scientific and worldbuilding readouts.
 - Save and load generated content.
 - Use Traveller-oriented world profile support where available.
-- Open the Concept Atlas to experiment with in-development ecology, religion, civilisation, language, disease, and evolution tools in a standalone sandbox.
+- Open the Concept Atlas to experiment with in-development ecology, species, sentience, religion, civilisation, language, and disease tools.
 
 ## Current Status
 
@@ -18,9 +18,10 @@ StarGen is in active development. The core generation and viewer flow is working
 
 - The galaxy, system, and object studios are the main supported entry points.
 - Stations are present as an in-progress studio and broader population/station systems exist in the project.
-- The Concept Atlas is a tool in development. It is intended to grow into a realistic, user-adjustable set of worldbuilding models, but for now it should be treated as a standalone exploration surface rather than a fully integrated simulation layer.
+- The Concept Atlas and concept pipeline are in active 0.7 hardening work. The target is a constrained deterministic chain where environment drives ecology, ecology drives species and sentience, and only sentient populations generate downstream society, religion, and language layers.
+- This is still an internal iteration line. The next public release target is `0.8.0.0` after the concept pipeline, realism tuning, and human audit gates are complete.
 
-The current user-facing version is `0.7.0.0`. Detailed version history and patch notes live in [VERSION.md](VERSION.md).
+The current development version is `0.7.1.0`. Detailed version history and patch notes live in [VERSION.md](VERSION.md).
 
 ## Running StarGen
 

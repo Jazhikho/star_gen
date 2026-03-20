@@ -187,7 +187,7 @@ public partial class MainMenuScreen : Control
 
 	private void PopulateStaticText()
 	{
-			string version = ProjectSettings.GetSetting("application/config/version", "0.7.0.0").AsString();
+			string version = ProjectSettings.GetSetting("application/config/version", "0.7.1.0").AsString();
 		if (_versionLabel != null)
 		{
 			_versionLabel.Text = $"Version {version}";
@@ -281,10 +281,15 @@ public partial class MainMenuScreen : Control
 	private static string GetReleaseNotesContent()
 	{
 		return
+				"Version 0.7.1.0\n\n" +
+			"- Internal hardening milestone: concept generation now follows an explicit dependency chain from environment to ecology, species, sentience, and then society-layer tools.\n" +
+			"- Lifeless worlds no longer fabricate ecology or society layers, non-sentient worlds stop before civilisation/religion/language, and runtime concept state is persisted only when applicability rules are met.\n" +
+			"- Hardened concept serialization, provenance, and test coverage while removing concept-path ternary operators and silent fallback behavior.\n" +
+			"- The next public release target is `0.8.0.0` after realism tuning and explicit human audit for culture-, religion-, language-, civilisation-, and species-facing outputs.\n\n" +
 				"Version 0.7.0.0\n\n" +
 			"- Current showcase branch milestone: the user-facing `0.7.0.0` label remains in place while the concept tools stay presented as a standalone atlas in development.\n" +
 			"- Refined the showcase presentation with a Generation Studios entry for Concept Atlas, clearer help and credits copy, sentence-case concept display text, and scroll-safe atlas navigation.\n" +
-			"- Broader simulation and persistence integration for concept layers is deferred until applicability rules, realism controls, and tuning are ready.\n" +
+			"- Broader simulation and persistence integration for concept layers was deferred at that milestone until applicability rules, realism controls, and tuning were ready.\n" +
 			"- Cultural, religious, language, civilisation, and species-facing outputs remain subject to explicit human audit before public release sign-off.\n\n" +
 				"Version 0.6.1.0\n\n" +
 			"- Post-review showcase patch cycle: removed automatic concept generation from the normal generation, save/load, preview, and viewer pipelines so the Concept Atlas remains a standalone feature for now.\n" +
