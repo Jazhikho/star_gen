@@ -1,6 +1,6 @@
 # Version
 
-Current version: `0.7.1.2`
+Current version: `0.7.1.3`
 
 Date: `2026-03-20`
 
@@ -9,6 +9,11 @@ Versioning method: release/refactor `+0.1`, feature `+0.0.1`, bug fix `+0.0.0.1`
 Current public release target: `0.8.0.0`
 
 User-facing app label: `0.8.0.0`
+
+## 0.7.1.3
+
+- Bug fix: Galaxy Studio now keeps the three-panel layout in actual columns at normal desktop widths instead of stacking them into rows too aggressively.
+- Bug fix: Tightened the three-column responsive breakpoint and minimum panel widths so the parameters, generation rules, and active profile sections stay side by side until the window is genuinely narrow.
 
 ## 0.7.1.2
 

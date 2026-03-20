@@ -19,6 +19,17 @@ Use this log for significant AI-assisted artifacts in this repository.
 
 ### 2026-03-20 - Codex (GPT-5)
 
+- Task Purpose: Correct the galaxy-studio responsive layout after user review showed the three intended columns were still collapsing into stacked rows on normal desktop widths.
+- Input Materials Used: User feedback from reviewing Galaxy Generation Studio; `src/app/WelcomeScreen.cs`; `src/app/shared/StudioScreenLayoutHelper.cs`; existing version metadata.
+- AI Produced: Lowered the effective compact breakpoint for the three-panel galaxy studio, reduced the wide-mode minimum widths for the settings/rules/summary panels, and kept the welcome screen bound to the new tighter breakpoint so the layout stays in columns unless the window is actually narrow.
+- Human Accepted: Pending review of the corrected galaxy-studio layout.
+- Human Rejected: No broader redesign of the studio content structure was attempted in this patch; the change is scoped to the responsive layout behavior.
+- Human Changed: The user-set requirement is that Galaxy Studio present as three columns, not stacked rows, during normal desktop use.
+- Validation Method: `dotnet build StarGen.sln`; `godot-mono.exe --path . --headless --script res://Tests/RunTestsHeadless.gd` (`1935 / 1935` passed; the same pre-existing fallback-dialog/layout/ObjectDB warnings still print afterward).
+- Final Approver: Pending Christopher B. Del Gesso review.
+
+### 2026-03-20 - Codex (GPT-5)
+
 - Task Purpose: Tighten the user-facing menu/studio surfaces and correct the baseline comparison so galaxy-studio review feedback is reflected in the running app rather than only in internal tooling.
 - Input Materials Used: User review notes and screenshot of Galaxy Generation Studio; `claude.md`; `AGENTS.md`; `MainMenuScreen.cs/.tscn`; `SplashScreen.cs`; `StationStudioScreen.tscn`; `WelcomeScreen.cs/.tscn`; `StudioScreenLayoutHelper.cs`; `PopulationGenerator.cs`; `LifeDistributionBaselineRunner.cs`; existing integration/concept tests; `VERSION.md`; `Docs/ProjectStructure.md`.
 - AI Produced: Added a Sources button and user-facing help/credits/release-note copy, ensured splash/menu/studio version labels use the public `0.8.0.0` label, rebuilt Galaxy Studio into three columns with separate parameters and generation-rules panels, removed the misleading galaxy mainworld control, updated tooltips and station placeholder copy, fixed runtime concept-state suppression when native life does not emerge, stabilized the baseline runner to compare the same deterministic world sample across scenarios, and added splash/menu/studio/native-life regression coverage.

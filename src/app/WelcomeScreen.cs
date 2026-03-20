@@ -98,6 +98,7 @@ public partial class WelcomeScreen : Control
 	private const string ParameterRootPath = "MarginContainer/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox";
 	private const string RulesRootPath = "MarginContainer/MainPanel/MarginContainer/VBox/StudioRow/RulesPanel/MarginContainer/RulesVBox/ScrollContainer/RulesContent";
 	private const string SummaryRootPath = "MarginContainer/MainPanel/MarginContainer/VBox/StudioRow/SummaryPanel/MarginContainer/SummaryVBox";
+	private const float GalaxyStudioCompactBreakpoint = 1080.0f;
 
 	/// <summary>
 	/// Initializes UI wiring.
@@ -415,7 +416,13 @@ public partial class WelcomeScreen : Control
 
 	private void ApplyResponsiveLayout()
 	{
-		StudioScreenLayoutHelper.ApplyResponsiveStudioLayout(this, _studioRow, _settingsPanel, _rulesPanel, _summaryPanel);
+		StudioScreenLayoutHelper.ApplyResponsiveStudioLayout(
+			this,
+			_studioRow,
+			_settingsPanel,
+			_rulesPanel,
+			_summaryPanel,
+			GalaxyStudioCompactBreakpoint);
 	}
 
 	private void UpdateTypeSpecificControls()

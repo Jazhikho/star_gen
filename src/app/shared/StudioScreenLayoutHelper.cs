@@ -60,7 +60,8 @@ public static class StudioScreenLayoutHelper
         BoxContainer? studioRow,
         Control? settingsPanel,
         Control? rulesPanel,
-        Control? summaryPanel)
+        Control? summaryPanel,
+        float compactBreakpoint = CompactBreakpoint)
     {
         if (owner == null || studioRow == null)
         {
@@ -68,12 +69,12 @@ public static class StudioScreenLayoutHelper
         }
 
         Vector2 viewportSize = ResolveAvailableSize(owner);
-        bool stackPanels = viewportSize.X < CompactBreakpoint;
+        bool stackPanels = viewportSize.X < compactBreakpoint;
         studioRow.Vertical = stackPanels;
 
-        ApplyPanelSizing(settingsPanel, stackPanels, 420.0f);
-        ApplyPanelSizing(rulesPanel, stackPanels, 320.0f);
-        ApplyPanelSizing(summaryPanel, stackPanels, 320.0f);
+        ApplyPanelSizing(settingsPanel, stackPanels, 360.0f);
+        ApplyPanelSizing(rulesPanel, stackPanels, 280.0f);
+        ApplyPanelSizing(summaryPanel, stackPanels, 280.0f);
     }
 
     private static void ApplyPanelSizing(Control? panel, bool stackPanels, float wideMinimumWidth)
