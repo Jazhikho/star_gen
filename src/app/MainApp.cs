@@ -10,14 +10,14 @@ using StarGen.Services.Persistence;
 namespace StarGen.App;
 
 /// <summary>
-/// Root application controller for navigating between welcome, galaxy, system, and object viewers.
+/// Root application controller for navigating between the menu, generation studios, and viewers.
 /// Navigation callbacks and system-generation helpers in MainApp.Navigation.cs.
 /// </summary>
 public partial class MainApp : Node
 {
 	private const string SplashScreenScenePath = "res://src/app/SplashScreen.tscn";
 	private const string MainMenuScreenScenePath = "res://src/app/MainMenuScreen.tscn";
-	private const string WelcomeScreenScenePath = "res://src/app/WelcomeScreen.tscn";
+	private const string GalaxyGenerationScreenScenePath = "res://src/app/GalaxyGenerationScreen.tscn";
 	private const string SystemGenerationScreenScenePath = "res://src/app/SystemGenerationScreen.tscn";
 	private const string ObjectGenerationScreenScenePath = "res://src/app/ObjectGenerationScreen.tscn";
 	private const string StationStudioScreenScenePath = "res://src/app/StationStudioScreen.tscn";
@@ -33,7 +33,7 @@ public partial class MainApp : Node
 	private Node? _viewerContainer;
 	private SplashScreen? _splashScreen;
 	private MainMenuScreen? _mainMenuScreen;
-	private WelcomeScreen? _welcomeScreen;
+	private GalaxyGenerationScreen? _galaxyGenerationScreen;
 	private SystemGenerationScreen? _systemGenerationScreen;
 	private ObjectGenerationScreen? _objectGenerationScreen;
 	private StationStudioScreen? _stationStudioScreen;
@@ -61,7 +61,7 @@ public partial class MainApp : Node
 		_startupRng = CreateStartupRng();
 		CreateSplashScreen();
 		CreateMainMenuScreen();
-		CreateWelcomeScreen();
+		CreateGalaxyGenerationScreen();
 		CreateSystemGenerationScreen();
 		CreateObjectGenerationScreen();
 		CreateStationStudioScreen();
@@ -76,7 +76,7 @@ public partial class MainApp : Node
 	{
 		QueueDetachedNodeForCleanup(_splashScreen);
 		QueueDetachedNodeForCleanup(_mainMenuScreen);
-		QueueDetachedNodeForCleanup(_welcomeScreen);
+		QueueDetachedNodeForCleanup(_galaxyGenerationScreen);
 		QueueDetachedNodeForCleanup(_systemGenerationScreen);
 		QueueDetachedNodeForCleanup(_objectGenerationScreen);
 		QueueDetachedNodeForCleanup(_stationStudioScreen);
@@ -150,31 +150,31 @@ public partial class MainApp : Node
 	}
 
 	/// <summary>
-	/// Creates and wires the welcome screen.
+	/// Creates and wires the galaxy-generation studio screen.
 	/// </summary>
-	private void CreateWelcomeScreen()
+	private void CreateGalaxyGenerationScreen()
 	{
-		PackedScene? scene = ResourceLoader.Load<PackedScene>(WelcomeScreenScenePath);
+		PackedScene? scene = ResourceLoader.Load<PackedScene>(GalaxyGenerationScreenScenePath);
 		if (scene == null)
 		{
-			GD.PushError("MainApp: failed to load welcome screen scene");
+			GD.PushError("MainApp: failed to load galaxy generation screen scene");
 			return;
 		}
 
-		_welcomeScreen = scene.Instantiate() as WelcomeScreen;
-		if (_welcomeScreen == null)
+		_galaxyGenerationScreen = scene.Instantiate() as GalaxyGenerationScreen;
+		if (_galaxyGenerationScreen == null)
 		{
-			GD.PushError("MainApp: failed to instantiate welcome screen");
+			GD.PushError("MainApp: failed to instantiate galaxy generation screen");
 			return;
 		}
 
-		_welcomeScreen.Name = "WelcomeScreen";
-		_welcomeScreen.SetSeededRng(_startupRng);
-		_welcomeScreen.Connect("start_new_galaxy", Callable.From<GalaxyConfig, int>(OnWelcomeStartNewGalaxy));
-		_welcomeScreen.Connect("load_galaxy_requested", Callable.From(OnWelcomeLoadGalaxyRequested));
-		_welcomeScreen.Connect("back_requested", Callable.From(OnWelcomeBackRequested));
-		_welcomeScreen.Connect("quit_requested", Callable.From(OnWelcomeQuitRequested));
-		_welcomeScreen.SetNavigationVisibility(showBackButton: true, showQuitButton: false);
+		_galaxyGenerationScreen.Name = "GalaxyGenerationScreen";
+		_galaxyGenerationScreen.SetSeededRng(_startupRng);
+		_galaxyGenerationScreen.Connect("start_new_galaxy", Callable.From<GalaxyConfig, int>(OnGalaxyGenerationStarted));
+		_galaxyGenerationScreen.Connect("load_galaxy_requested", Callable.From(OnGalaxyLoadRequested));
+		_galaxyGenerationScreen.Connect("back_requested", Callable.From(OnGalaxyGenerationBackRequested));
+		_galaxyGenerationScreen.Connect("quit_requested", Callable.From(OnGalaxyGenerationQuitRequested));
+		_galaxyGenerationScreen.SetNavigationVisibility(showBackButton: true, showQuitButton: false);
 	}
 
 	/// <summary>
@@ -321,7 +321,7 @@ public partial class MainApp : Node
 		_mainMenuScreen.Connect("object_generation_requested", Callable.From(OnMainMenuObjectGenerationRequested));
 		_mainMenuScreen.Connect("station_generation_requested", Callable.From(OnMainMenuStationGenerationRequested));
 		_mainMenuScreen.Connect("concept_atlas_requested", Callable.From(OnMainMenuConceptAtlasRequested));
-		_mainMenuScreen.Connect("quit_requested", Callable.From(OnWelcomeQuitRequested));
+		_mainMenuScreen.Connect("quit_requested", Callable.From(OnGalaxyGenerationQuitRequested));
 	}
 
 	/// <summary>
@@ -330,7 +330,7 @@ public partial class MainApp : Node
 	private void ShowSplashScreen()
 	{
 		RemoveFromViewerContainer(_mainMenuScreen);
-		RemoveFromViewerContainer(_welcomeScreen);
+		RemoveFromViewerContainer(_galaxyGenerationScreen);
 		RemoveFromViewerContainer(_systemGenerationScreen);
 		RemoveFromViewerContainer(_objectGenerationScreen);
 		RemoveFromViewerContainer(_stationStudioScreen);
@@ -348,7 +348,7 @@ public partial class MainApp : Node
 	private void ShowMainMenu()
 	{
 		RemoveFromViewerContainer(_splashScreen);
-		RemoveFromViewerContainer(_welcomeScreen);
+		RemoveFromViewerContainer(_galaxyGenerationScreen);
 		RemoveFromViewerContainer(_systemGenerationScreen);
 		RemoveFromViewerContainer(_objectGenerationScreen);
 		RemoveFromViewerContainer(_stationStudioScreen);
@@ -362,9 +362,9 @@ public partial class MainApp : Node
 	}
 
 	/// <summary>
-	/// Displays the welcome screen.
+	/// Displays the galaxy-generation studio.
 	/// </summary>
-	private void ShowWelcomeScreen()
+	private void ShowGalaxyGenerationScreen()
 	{
 		RemoveFromViewerContainer(_splashScreen);
 		RemoveFromViewerContainer(_mainMenuScreen);
@@ -375,9 +375,9 @@ public partial class MainApp : Node
 		RemoveFromViewerContainer(_galaxyViewer);
 		RemoveFromViewerContainer(_systemViewer);
 		RemoveFromViewerContainer(_objectViewer);
-		AddToViewerContainer(_welcomeScreen);
-		_welcomeScreen?.SetNavigationVisibility(showBackButton: true, showQuitButton: false);
-		_welcomeScreen?.ApplySeedVisibilityPreference(rerollHiddenSeed: true);
+		AddToViewerContainer(_galaxyGenerationScreen);
+		_galaxyGenerationScreen?.SetNavigationVisibility(showBackButton: true, showQuitButton: false);
+		_galaxyGenerationScreen?.ApplySeedVisibilityPreference(rerollHiddenSeed: true);
 		_activeViewer = ViewerType.GalaxyStudio;
 	}
 
@@ -388,7 +388,7 @@ public partial class MainApp : Node
 	{
 		RemoveFromViewerContainer(_splashScreen);
 		RemoveFromViewerContainer(_mainMenuScreen);
-		RemoveFromViewerContainer(_welcomeScreen);
+		RemoveFromViewerContainer(_galaxyGenerationScreen);
 		RemoveFromViewerContainer(_objectGenerationScreen);
 		RemoveFromViewerContainer(_stationStudioScreen);
 		RemoveFromViewerContainer(_conceptAtlasScreen);
@@ -407,7 +407,7 @@ public partial class MainApp : Node
 	{
 		RemoveFromViewerContainer(_splashScreen);
 		RemoveFromViewerContainer(_mainMenuScreen);
-		RemoveFromViewerContainer(_welcomeScreen);
+		RemoveFromViewerContainer(_galaxyGenerationScreen);
 		RemoveFromViewerContainer(_systemGenerationScreen);
 		RemoveFromViewerContainer(_stationStudioScreen);
 		RemoveFromViewerContainer(_galaxyViewer);
@@ -425,7 +425,7 @@ public partial class MainApp : Node
 	{
 		RemoveFromViewerContainer(_splashScreen);
 		RemoveFromViewerContainer(_mainMenuScreen);
-		RemoveFromViewerContainer(_welcomeScreen);
+		RemoveFromViewerContainer(_galaxyGenerationScreen);
 		RemoveFromViewerContainer(_systemGenerationScreen);
 		RemoveFromViewerContainer(_objectGenerationScreen);
 		RemoveFromViewerContainer(_conceptAtlasScreen);
@@ -443,7 +443,7 @@ public partial class MainApp : Node
 	{
 		RemoveFromViewerContainer(_splashScreen);
 		RemoveFromViewerContainer(_mainMenuScreen);
-		RemoveFromViewerContainer(_welcomeScreen);
+		RemoveFromViewerContainer(_galaxyGenerationScreen);
 		RemoveFromViewerContainer(_systemGenerationScreen);
 		RemoveFromViewerContainer(_objectGenerationScreen);
 		RemoveFromViewerContainer(_stationStudioScreen);
@@ -619,7 +619,7 @@ public partial class MainApp : Node
 
 		RemoveFromViewerContainer(_splashScreen);
 		RemoveFromViewerContainer(_mainMenuScreen);
-		RemoveFromViewerContainer(_welcomeScreen);
+		RemoveFromViewerContainer(_galaxyGenerationScreen);
 		RemoveFromViewerContainer(_systemGenerationScreen);
 		RemoveFromViewerContainer(_objectGenerationScreen);
 		RemoveFromViewerContainer(_stationStudioScreen);
@@ -643,7 +643,7 @@ public partial class MainApp : Node
 		CreateSystemViewer();
 		RemoveFromViewerContainer(_splashScreen);
 		RemoveFromViewerContainer(_mainMenuScreen);
-		RemoveFromViewerContainer(_welcomeScreen);
+		RemoveFromViewerContainer(_galaxyGenerationScreen);
 		RemoveFromViewerContainer(_systemGenerationScreen);
 		RemoveFromViewerContainer(_objectGenerationScreen);
 		RemoveFromViewerContainer(_stationStudioScreen);
@@ -676,7 +676,7 @@ public partial class MainApp : Node
 		CreateObjectViewer();
 		RemoveFromViewerContainer(_splashScreen);
 		RemoveFromViewerContainer(_mainMenuScreen);
-		RemoveFromViewerContainer(_welcomeScreen);
+		RemoveFromViewerContainer(_galaxyGenerationScreen);
 		RemoveFromViewerContainer(_systemGenerationScreen);
 		RemoveFromViewerContainer(_objectGenerationScreen);
 		RemoveFromViewerContainer(_stationStudioScreen);

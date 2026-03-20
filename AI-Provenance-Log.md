@@ -19,6 +19,17 @@ Use this log for significant AI-assisted artifacts in this repository.
 
 ### 2026-03-20 - Codex (GPT-5)
 
+- Task Purpose: Finish the Galaxy Studio scene-first refactor by giving it a dedicated `GalaxyGenerationScreen` identity instead of leaving the runtime and tests wired through the legacy `WelcomeScreen` name.
+- Input Materials Used: User report that a `galaxyStudioScreen` did not appear to exist; `claude.md`; `AGENTS.md`; `src/app/MainApp.cs`; `src/app/MainApp.Navigation.cs`; `src/app/MainApp.GdCompat.cs`; `src/app/GalaxyGenerationScreen.cs/.tscn`; the legacy `src/app/WelcomeScreen.cs/.tscn`; `Tests/Integration/TestMainAppNavigation.cs`; `Tests/Integration/TestWelcomeScreen.cs`; `Tests/Framework/DotNetNativeTestSuite.Integration.cs`; version/project-structure/source docs.
+- AI Produced: Renamed the active Galaxy Studio scene/controller flow to `GalaxyGenerationScreen`, updated `MainApp` navigation and GDScript-compatible accessors to load and expose that scene directly, migrated the integration coverage to `TestGalaxyGenerationScreen`, removed the obsolete `WelcomeScreen` scene/script pair from the active UI layer, and synced version/project-structure/source metadata to the new naming.
+- Human Accepted: Pending review of the dedicated Galaxy Studio screen identity and the removal of the misleading `WelcomeScreen` runtime ownership.
+- Human Rejected: No broader redesign of the Galaxy Studio itself was attempted in this pass; the scope is limited to making the screen actually exist as a first-class scene/controller and keeping the existing UI behavior intact.
+- Human Changed: The user-set requirement is that if a screen exists conceptually in the app, it should also exist concretely in the Godot scene/code structure instead of hiding behind legacy naming.
+- Validation Method: `dotnet build StarGen.sln`; `godot-mono.exe --path . --headless --script res://Tests/RunTestsHeadless.gd` (`1935 / 1935` passed; the same pre-existing fallback-dialog, layout, and ObjectDB/RID warnings still print afterward).
+- Final Approver: Pending Christopher B. Del Gesso review.
+
+### 2026-03-20 - Codex (GPT-5)
+
 - Task Purpose: Refactor the studio UIs away from runtime-built controls and toward scene-first Godot node structures so stable launch-screen forms are visible and editable in the editor.
 - Input Materials Used: User report about generator-first/UI architecture concerns; `claude.md`; `AGENTS.md`; `src/app/WelcomeScreen.cs/.tscn`; `src/app/SystemGenerationScreen.cs/.tscn`; `src/app/ObjectGenerationScreen.cs/.tscn`; `src/app/ObjectGenerationScreen.EnhancedUi.cs`; existing studio integration tests and headless harness.
 - AI Produced: Moved the fixed Galaxy Studio generation-rules form, the System Studio parameter form, and the Object Studio parameter shell/sections into their `.tscn` scene trees; rewrote the related C# scripts to cache scene nodes and handle wiring/state instead of creating stable controls at runtime; and synced version/project-structure metadata for the refactor pass.

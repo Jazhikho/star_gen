@@ -51,7 +51,7 @@ public static partial class DotNetNativeTestSuite
         TestStationDesignIntegration.RunAll(runner);
         TestSystemViewer.RunAll(runner);
         TestSystemViewerSaveLoad.RunAll(runner);
-        TestWelcomeScreen.RunAll(runner);
+        TestGalaxyGenerationScreen.RunAll(runner);
     }
 
     /// <summary>

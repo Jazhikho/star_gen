@@ -1,9 +1,9 @@
 [gd_scene load_steps=3 format=3 uid="uid://bqwelcome"]
 
-[ext_resource type="Script" path="res://src/app/WelcomeScreen.cs" id="1"]
+[ext_resource type="Script" path="res://src/app/GalaxyGenerationScreen.cs" id="1"]
 [ext_resource type="Theme" path="res://src/app/themes/DarkTheme.tres" id="2"]
 
-[node name="WelcomeScreen" type="Control"]
+[node name="GalaxyGenerationScreen" type="Control"]
 layout_mode = 3
 anchors_preset = 15
 anchor_right = 1.0

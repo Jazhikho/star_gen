@@ -10,9 +10,9 @@ using StarGen.Services.Persistence;
 namespace StarGen.App;
 
 /// <summary>
-/// Startup screen for galaxy generation with presets and exposed tuning controls.
+/// Galaxy-generation studio screen with presets and exposed tuning controls.
 /// </summary>
-public partial class WelcomeScreen : Control
+public partial class GalaxyGenerationScreen : Control
 {
 	[Signal]
 	public delegate void start_new_galaxyEventHandler(GalaxyConfig config, int seedValue);
@@ -178,7 +178,7 @@ public partial class WelcomeScreen : Control
 	}
 
 	/// <summary>
-	/// Applies a typed galaxy configuration to the welcome-screen controls.
+	/// Applies a typed galaxy configuration to the galaxy-studio controls.
 	/// </summary>
 	public void SetCurrentConfig(GalaxyConfig config)
 	{

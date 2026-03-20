@@ -17,10 +17,15 @@ UI layout baseline:
 - Wrapped labels should have a panel-appropriate minimum width rather than relying on autowrap alone; large full-width headers can be broader, while sidebar/footer text should usually stay closer to the 180-320 px range.
 
 Current development line:
-- `0.7.3.0`
+- `0.7.4.0`
 
 Current public release target:
 - `0.8.0.0`
+
+Recent 0.7.4.0 additions:
+- `src/app/GalaxyGenerationScreen.cs` / `src/app/GalaxyGenerationScreen.tscn` (Galaxy Studio now exists as its own first-class screen instead of hiding behind the older `WelcomeScreen` identity)
+- `src/app/MainApp.cs` / `src/app/MainApp.Navigation.cs` / `src/app/MainApp.GdCompat.cs` (navigation, accessors, and screen creation now reference `GalaxyGenerationScreen` directly)
+- `Tests/Integration/TestGalaxyGenerationScreen.cs` / `Tests/Integration/TestMainAppNavigation.cs` / `Tests/Framework/DotNetNativeTestSuite.Integration.cs` (integration coverage now mounts and exercises the real galaxy-studio scene directly)
 
 Recent 0.7.3.0 additions:
 - `src/app/system_viewer/SystemViewer.cs` / `src/app/system_viewer/SystemViewer.Setup.cs` / `src/app/system_viewer/SystemViewer.Parameters.cs` / `src/app/system_viewer/SystemViewer.tscn` (stable system-viewer generation controls and the standalone empty-state placeholder are now scene-defined, leaving C# to bind and validate them)
@@ -30,25 +35,25 @@ Recent 0.7.3.0 additions:
 - `Tests/Framework/DotNetNativeTestSuite.Concepts.cs` (scene-backed atlas regression setup now mounts the real atlas scene in-tree before asserting persisted-result reuse)
 
 Recent 0.7.2.0 additions:
-- `src/app/WelcomeScreen.cs` / `src/app/WelcomeScreen.tscn` (Galaxy Studio generation-rules controls now live in the scene tree instead of being constructed at runtime)
+- `src/app/GalaxyGenerationScreen.cs` / `src/app/GalaxyGenerationScreen.tscn` (Galaxy Studio generation-rules controls now live in the scene tree instead of being constructed at runtime)
 - `src/app/SystemGenerationScreen.cs` / `src/app/SystemGenerationScreen.tscn` (System Studio parameter controls are now scene-defined, leaving the script to bind state and emit specs)
 - `src/app/ObjectGenerationScreen.cs` / `src/app/ObjectGenerationScreen.EnhancedUi.cs` / `src/app/ObjectGenerationScreen.tscn` (Object Studio now uses a scene-defined parameter shell and section layout instead of building stable rows and sections in code)
 
 Recent 0.7.1.2 additions:
 - `src/app/MainMenuScreen.cs` / `src/app/MainMenuScreen.tscn` / `src/app/SplashScreen.cs` / `src/app/StationStudioScreen.tscn` (user-facing release label cleanup, direct credits attribution, Sources button/panel fallback, and removal of repo-facing UI copy)
-- `src/app/WelcomeScreen.cs` / `src/app/WelcomeScreen.tscn` / `src/app/shared/StudioScreenLayoutHelper.cs` (three-column galaxy-studio layout separating parameters, generation rules, and active profile, plus removal of the misleading galaxy mainworld control)
+- `src/app/GalaxyGenerationScreen.cs` / `src/app/GalaxyGenerationScreen.tscn` / `src/app/shared/StudioScreenLayoutHelper.cs` (three-column galaxy-studio layout separating parameters, generation rules, and active profile, plus removal of the misleading galaxy mainworld control)
 - `src/domain/population/PopulationGenerator.cs` (native-life absence now suppresses downstream ecology/evolution/sentience states instead of silently leaving concept layers present)
 - `Tests/Baselines/LifeDistributionBaselineRunner.cs` / `Tests/Baselines/Artifacts/` (baseline now evaluates a shared fixed world sample across slider scenarios)
-- `Tests/Integration/TestSplashScreen.cs` / `Tests/Integration/TestMainMenuScreen.cs` / `Tests/Integration/TestWelcomeScreen.cs` / `Tests/Framework/DotNetNativeTestSuite.Integration.cs` / `Tests/Framework/DotNetNativeTestSuite.Concepts.cs` (coverage for the splash release label, Sources button, three-column galaxy studio, and native-life gating)
+- `Tests/Integration/TestSplashScreen.cs` / `Tests/Integration/TestMainMenuScreen.cs` / `Tests/Integration/TestGalaxyGenerationScreen.cs` / `Tests/Framework/DotNetNativeTestSuite.Integration.cs` / `Tests/Framework/DotNetNativeTestSuite.Concepts.cs` (coverage for the splash release label, Sources button, three-column galaxy studio, and native-life gating)
 
 Recent 0.7.1.1 additions:
 - `src/app/shared/UserFacingVersionHelper.cs` (separates the user-facing release label from the internal branch version)
-- `src/app/WelcomeScreen.cs` / `src/app/WelcomeScreen.tscn` (restored split galaxy-studio layout, morphology summary panel, info-button-based advanced-assumptions help, and cleaner parameter presentation)
+- `src/app/GalaxyGenerationScreen.cs` / `src/app/GalaxyGenerationScreen.tscn` (restored split galaxy-studio layout, morphology summary panel, info-button-based advanced-assumptions help, and cleaner parameter presentation)
 - `src/app/themes/DarkTheme.tres` (checkbox highlight override so validation/readout controls no longer paint a blocking full-width red bar)
 - `src/domain/population/PopulationProbability.cs` / `src/domain/population/PopulationLikelihood.cs` / `src/domain/population/PopulationGenerator.cs` (life-potential and settlement-density wiring into native-life and colony generation)
 - `Tests/Baselines/` (separate deterministic 1000-world life/settlement baseline runner and generated artifact location outside the main suite)
 - `Tests/Baselines/Artifacts/` (baseline markdown, CSV, and JSON outputs regenerated when distribution tuning changes)
-- `Tests/Integration/TestMainMenuScreen.cs` / `Tests/Integration/TestWelcomeScreen.cs` / `Tests/Unit/Population/*` (user-facing version-label, galaxy-studio layout, and permissiveness behavior regression coverage)
+- `Tests/Integration/TestMainMenuScreen.cs` / `Tests/Integration/TestGalaxyGenerationScreen.cs` / `Tests/Unit/Population/*` (user-facing version-label, galaxy-studio layout, and permissiveness behavior regression coverage)
 
 Recent 0.7.1 additions:
 - `src/domain/concepts/ConceptRunStatus.cs`
@@ -486,7 +491,7 @@ C# source files:
 - `src/app/MainApp.Navigation.cs`
 - `src/app/SplashScreen.cs`
 - `src/app/MainMenuScreen.cs`
-- `src/app/WelcomeScreen.cs`
+- `src/app/GalaxyGenerationScreen.cs`
 - `src/app/ObjectGenerationRequest.cs`
 - `src/app/SystemGenerationScreen.cs`
 - `src/app/ObjectGenerationScreen.cs`

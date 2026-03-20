@@ -246,9 +246,9 @@ public static class TestMainAppNavigation
             app._on_main_menu_galaxy_generation_requested();
 
             DotNetNativeTestSuite.AssertEqual("galaxystudio", app.get_active_viewer(), "Main-menu galaxy generation should open the galaxy studio");
-            WelcomeScreen? screen = app.get_galaxy_generation_screen();
+            GalaxyGenerationScreen? screen = app.get_galaxy_generation_screen();
             DotNetNativeTestSuite.AssertNotNull(screen, "Galaxy studio should exist");
-            Button? startButton = screen!.GetNodeOrNull<Button>("MarginContainer/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/FooterVBox/Buttons/StartButton");
+            Button? startButton = screen!.GetNodeOrNull<Button>("MarginContainer/MainPanel/MarginContainer/VBox/StudioRow/SummaryPanel/MarginContainer/SummaryVBox/Buttons/StartButton");
             DotNetNativeTestSuite.AssertNotNull(startButton, "Galaxy studio should expose a launch button");
         }
         finally

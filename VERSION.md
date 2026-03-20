@@ -1,6 +1,6 @@
 # Version
 
-Current version: `0.7.3.0`
+Current version: `0.7.4.0`
 
 Date: `2026-03-20`
 
@@ -9,6 +9,12 @@ Versioning method: release/refactor `+0.1`, feature `+0.0.1`, bug fix `+0.0.0.1`
 Current public release target: `0.8.0.0`
 
 User-facing app label: `0.8.0.0`
+
+## 0.7.4.0
+
+- Refactor: Promoted Galaxy Studio to a first-class `GalaxyGenerationScreen` scene/controller instead of leaving it hidden behind the legacy `WelcomeScreen` identity.
+- Refactor: Updated `MainApp`, GDScript compatibility accessors, and integration coverage to instantiate and exercise `GalaxyGenerationScreen.tscn` directly, then removed the obsolete `WelcomeScreen` scene/script pair from the active UI layer.
+- Test: Revalidated the renamed galaxy-studio screen through the full headless suite after the navigation and scene-path cleanup.
 
 ## 0.7.3.0
 

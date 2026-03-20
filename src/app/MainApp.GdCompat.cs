@@ -148,9 +148,9 @@ public partial class MainApp
 	/// <summary>
 	/// Returns the current galaxy-generation screen for test compatibility.
 	/// </summary>
-	public WelcomeScreen? get_galaxy_generation_screen()
+	public GalaxyGenerationScreen? get_galaxy_generation_screen()
 	{
-		return _welcomeScreen;
+		return _galaxyGenerationScreen;
 	}
 
 	/// <summary>

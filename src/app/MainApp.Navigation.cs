@@ -25,14 +25,14 @@ public partial class MainApp
         ShowMainMenu();
     }
 
-    /// <summary>
-    /// Opens the galaxy-generation screen from the main menu.
-    /// </summary>
-    private void OnMainMenuGalaxyGenerationRequested()
-    {
-        _welcomeScreen?.SetNavigationVisibility(showBackButton: true, showQuitButton: false);
-        ShowWelcomeScreen();
-    }
+	/// <summary>
+	/// Opens the galaxy-generation screen from the main menu.
+	/// </summary>
+	private void OnMainMenuGalaxyGenerationRequested()
+	{
+		_galaxyGenerationScreen?.SetNavigationVisibility(showBackButton: true, showQuitButton: false);
+		ShowGalaxyGenerationScreen();
+	}
 
     /// <summary>
     /// Opens the standalone system generator from the main menu.
@@ -58,42 +58,42 @@ public partial class MainApp
         ShowObjectGenerationScreen();
     }
 
-    /// <summary>
-    /// Handles startup-screen start requests.
-    /// </summary>
-    private void OnWelcomeStartNewGalaxy(GalaxyConfig config, int seedValue)
-    {
-        CreateGalaxyViewer(seedValue, config);
-        ShowGalaxyViewer();
-    }
+	/// <summary>
+	/// Handles galaxy-studio start requests.
+	/// </summary>
+	private void OnGalaxyGenerationStarted(GalaxyConfig config, int seedValue)
+	{
+		CreateGalaxyViewer(seedValue, config);
+		ShowGalaxyViewer();
+	}
 
-    /// <summary>
-    /// Handles startup-screen load requests.
-    /// </summary>
-    private void OnWelcomeLoadGalaxyRequested()
-    {
-        FileDialog dialog = new()
+	/// <summary>
+	/// Handles galaxy-studio load requests.
+	/// </summary>
+	private void OnGalaxyLoadRequested()
+	{
+		FileDialog dialog = new()
         {
             FileMode = FileDialog.FileModeEnum.OpenFile,
             Access = FileDialog.AccessEnum.Userdata,
             Filters = new string[] { "*.sgg ; StarGen Galaxy", "*.json ; JSON Debug" },
-        };
-        dialog.FileSelected += path =>
-        {
-            OnWelcomeLoadFileSelected(path);
-            dialog.QueueFree();
-        };
+		};
+		dialog.FileSelected += path =>
+		{
+			OnGalaxyLoadFileSelected(path);
+			dialog.QueueFree();
+		};
         dialog.Canceled += dialog.QueueFree;
         AddChild(dialog);
         dialog.PopupCentered(new Vector2I(800, 600));
     }
 
-    /// <summary>
-    /// Handles file selection from the load dialog.
-    /// </summary>
-    private void OnWelcomeLoadFileSelected(string path)
-    {
-        GalaxySaveData? data = GalaxyPersistence.LoadAuto(path);
+	/// <summary>
+	/// Handles file selection from the galaxy load dialog.
+	/// </summary>
+	private void OnGalaxyLoadFileSelected(string path)
+	{
+		GalaxySaveData? data = GalaxyPersistence.LoadAuto(path);
         if (data == null || !data.IsValid())
         {
             GD.PushError($"MainApp: invalid or missing save file: {path}");
@@ -108,13 +108,13 @@ public partial class MainApp
         _galaxyViewer?.ApplySaveData(data);
     }
 
-    /// <summary>
-    /// Returns from the galaxy-generation screen to the main menu.
-    /// </summary>
-    private void OnWelcomeBackRequested()
-    {
-        ShowMainMenu();
-    }
+	/// <summary>
+	/// Returns from the galaxy-generation studio to the main menu.
+	/// </summary>
+	private void OnGalaxyGenerationBackRequested()
+	{
+		ShowMainMenu();
+	}
 
     /// <summary>
     /// Returns from the system-generation studio to the main menu.
@@ -132,19 +132,19 @@ public partial class MainApp
         ShowMainMenu();
     }
 
-    /// <summary>
-    /// Handles startup-screen quit requests.
-    /// </summary>
-    private void OnWelcomeQuitRequested()
-    {
-        GetTree().Quit();
-    }
+	/// <summary>
+	/// Handles app quit requests from the menu-driven screens.
+	/// </summary>
+	private void OnGalaxyGenerationQuitRequested()
+	{
+		GetTree().Quit();
+	}
 
-    /// <summary>
-    /// Returns to the startup screen for a new galaxy.
-    /// </summary>
-    private void OnNewGalaxyRequested()
-    {
+	/// <summary>
+	/// Returns to the galaxy-generation studio for a new galaxy.
+	/// </summary>
+	private void OnNewGalaxyRequested()
+	{
         RemoveFromViewerContainer(_galaxyViewer);
         if (_galaxyViewer != null)
         {
@@ -158,8 +158,8 @@ public partial class MainApp
         _currentStarPosition = Godot.Vector3.Zero;
         _systemOrigin = NavigationOrigin.None;
         _objectOrigin = NavigationOrigin.None;
-        ShowWelcomeScreen();
-    }
+		ShowGalaxyGenerationScreen();
+	}
 
     /// <summary>
     /// Returns from the galaxy viewer directly to the main menu.
