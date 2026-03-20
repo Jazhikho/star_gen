@@ -120,6 +120,11 @@ public static class PopulationGenerator
         data.SpeciesEvolution = speciesEvolutionState;
         data.SentienceAssessment = sentienceAssessment;
 
+        if (!generateNatives)
+        {
+            MarkNativeLifeAbsent(data);
+        }
+
         SeededRng rng = new(generationSeed);
         bool allowNativeSentients = generateNatives
             && data.SentienceAssessment != null
@@ -189,21 +194,15 @@ public static class PopulationGenerator
             return data;
         }
 
-        bool sentientNativesAvailable = data.SentienceAssessment != null
-            && data.SentienceAssessment.Status == ConceptRunStatus.Generated
-            && data.SentienceAssessment.HasSentientLife;
         PlanetPopulationData generated = GenerateFromProfile(
             data.Profile,
             (int)populationSeed,
-            generateNatives && sentientNativesAvailable,
+            generateNatives,
             generateColony,
             DefaultCurrentYear,
             data.Suitability,
             useCaseSettings);
         generated.EnvironmentProfile = data.EnvironmentProfile;
-        generated.EcologyState = data.EcologyState;
-        generated.SpeciesEvolution = data.SpeciesEvolution;
-        generated.SentienceAssessment = data.SentienceAssessment;
         return generated;
     }
 
@@ -295,5 +294,37 @@ public static class PopulationGenerator
     private static double Lerp(double minValue, double maxValue, double factor)
     {
         return minValue + ((maxValue - minValue) * factor);
+    }
+
+    private static void MarkNativeLifeAbsent(PlanetPopulationData data)
+    {
+        string reason = "Native life did not emerge for this world under the current generation assumptions.";
+
+        EcologyState ecologyState = new EcologyState();
+        ecologyState.Status = ConceptRunStatus.NotApplicable;
+        ecologyState.StatusReason = reason;
+        if (data.EcologyState != null)
+        {
+            ecologyState.Provenance = data.EcologyState.Provenance;
+        }
+        data.EcologyState = ecologyState;
+
+        SpeciesEvolutionState speciesEvolutionState = new SpeciesEvolutionState();
+        speciesEvolutionState.Status = ConceptRunStatus.NotApplicable;
+        speciesEvolutionState.StatusReason = reason;
+        if (data.SpeciesEvolution != null)
+        {
+            speciesEvolutionState.Provenance = data.SpeciesEvolution.Provenance;
+        }
+        data.SpeciesEvolution = speciesEvolutionState;
+
+        SentienceAssessment sentienceAssessment = new SentienceAssessment();
+        sentienceAssessment.Status = ConceptRunStatus.NotApplicable;
+        sentienceAssessment.StatusReason = reason;
+        if (data.SentienceAssessment != null)
+        {
+            sentienceAssessment.Provenance = data.SentienceAssessment.Provenance;
+        }
+        data.SentienceAssessment = sentienceAssessment;
     }
 }

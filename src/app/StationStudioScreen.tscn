@@ -66,14 +66,14 @@ text = "Station Studio"
 custom_minimum_size = Vector2(320, 0)
 layout_mode = 2
 theme_override_colors/font_color = Color(0.72, 0.76, 0.82, 1)
-text = "Detailed station generation is folded into the build, but the dedicated studio and viewer workflow are still being integrated."
+text = "Station Studio is still taking shape. Use it to review the current station-generation workflow while the dedicated studio experience continues to expand."
 autowrap_mode = 2
 
 [node name="BodyLabel" type="Label" parent="MarginContainer/MainPanel/MarginContainer/VBox" unique_id=912884466]
 custom_minimum_size = Vector2(320, 0)
 layout_mode = 2
 theme_override_colors/font_color = Color(0.631373, 0.701961, 0.772549, 1)
-text = "This placeholder keeps the feature discoverable for the 0.5 release review. Final station-studio navigation, editing, and presentation still need a focused polish pass."
+text = "This screen keeps the station workflow available while deeper editing, navigation, and presentation are refined."
 autowrap_mode = 2
 
 [node name="StatusNote" type="Label" parent="MarginContainer/MainPanel/MarginContainer/VBox" unique_id=1741064069]

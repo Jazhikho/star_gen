@@ -36,15 +36,9 @@ public partial class WelcomeScreen : Control
 		LargeMagellanicCloud = 5,
 	}
 
-	private const string ArrowCollapsed = ">";
-	private const string ArrowExpanded = "v";
-
 	private SeededRng? _seededRng;
 	private GodotObject? _seededRngObject;
 	private bool _isUpdatingUi;
-	private bool _typeSectionExpanded = true;
-	private bool _structureSectionExpanded;
-	private bool _sizeSectionExpanded;
 
 	private Button? _startButton;
 	private Button? _loadButton;
@@ -54,14 +48,10 @@ public partial class WelcomeScreen : Control
 	private OptionButton? _presetOption;
 	private Label? _versionLabel;
 	private Label? _summaryLabel;
-	private Button? _typeHeader;
-	private MarginContainer? _typeContent;
 	private OptionButton? _typeOption;
 	private HBoxContainer? _armsRow;
 	private HSlider? _armsSlider;
 	private Label? _armsValue;
-	private Button? _structureHeader;
-	private MarginContainer? _structureContent;
 	private HSlider? _pitchSlider;
 	private Label? _pitchValue;
 	private HSlider? _amplitudeSlider;
@@ -76,8 +66,6 @@ public partial class WelcomeScreen : Control
 	private HBoxContainer? _irregularityRow;
 	private HSlider? _irregularitySlider;
 	private Label? _irregularityValue;
-	private Button? _sizeHeader;
-	private MarginContainer? _sizeContent;
 	private HSlider? _radiusSlider;
 	private Label? _radiusValue;
 	private HSlider? _diskLengthSlider;
@@ -94,11 +82,12 @@ public partial class WelcomeScreen : Control
 	private Label? _lifePermissivenessValueLabel;
 	private HSlider? _populationPermissivenessInput;
 	private Label? _populationPermissivenessValueLabel;
-	private OptionButton? _mainworldPolicyOption;
 	private Button? _advancedAssumptionsInfoButton;
 	private VBoxContainer? _settingsVBox;
+	private VBoxContainer? _rulesVBox;
 	private BoxContainer? _studioRow;
 	private Control? _settingsPanel;
+	private Control? _rulesPanel;
 	private Control? _summaryPanel;
 	private Label? _assumptionsLabel;
 	private VBoxContainer? _issuesContainer;
@@ -107,6 +96,7 @@ public partial class WelcomeScreen : Control
 
 	private const string StudioRootPath = "MarginContainer/MainPanel/MarginContainer/VBox";
 	private const string ParameterRootPath = "MarginContainer/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox";
+	private const string RulesRootPath = "MarginContainer/MainPanel/MarginContainer/VBox/StudioRow/RulesPanel/MarginContainer/RulesVBox/ScrollContainer/RulesContent";
 	private const string SummaryRootPath = "MarginContainer/MainPanel/MarginContainer/VBox/StudioRow/SummaryPanel/MarginContainer/SummaryVBox";
 
 	/// <summary>
@@ -120,7 +110,6 @@ public partial class WelcomeScreen : Control
 		ConnectSignals();
 		ApplyParameterTooltips();
 		ApplyVersionLabel();
-		UpdateSectionVisibility();
 		UpdateTypeSpecificControls();
 		UpdateAllValueLabels();
 		ApplySeedVisibilityPreference(rerollHiddenSeed: true);
@@ -291,6 +280,7 @@ public partial class WelcomeScreen : Control
 	{
 		_studioRow = GetNodeOrNull<BoxContainer>($"{StudioRootPath}/StudioRow");
 		_settingsPanel = GetNodeOrNull<Control>($"{StudioRootPath}/StudioRow/SettingsPanel");
+		_rulesPanel = GetNodeOrNull<Control>($"{StudioRootPath}/StudioRow/RulesPanel");
 		_summaryPanel = GetNodeOrNull<Control>($"{StudioRootPath}/StudioRow/SummaryPanel");
 		_versionLabel = GetNodeOrNull<Label>($"{StudioRootPath}/HeaderRow/VersionLabel");
 		_summaryLabel = GetNodeOrNull<Label>($"{SummaryRootPath}/SummaryScroll/SummaryContent/SummaryLabel");
@@ -303,14 +293,10 @@ public partial class WelcomeScreen : Control
 		_seedContainer = GetNodeOrNull<HBoxContainer>($"{ParameterRootPath}/SeedContainer");
 		_randomizeButton = GetNodeOrNull<Button>($"{ParameterRootPath}/SeedContainer/RandomizeButton");
 		_presetOption = GetNodeOrNull<OptionButton>($"{ParameterRootPath}/PresetContainer/PresetOption");
-		_typeHeader = GetNodeOrNull<Button>($"{ParameterRootPath}/TypeSection/TypeHeader");
-		_typeContent = GetNodeOrNull<MarginContainer>($"{ParameterRootPath}/TypeSection/TypeContent");
 		_typeOption = GetNodeOrNull<OptionButton>($"{ParameterRootPath}/TypeSection/TypeContent/TypeVBox/TypeRow/TypeOption");
 		_armsRow = GetNodeOrNull<HBoxContainer>($"{ParameterRootPath}/TypeSection/TypeContent/TypeVBox/ArmsRow");
 		_armsSlider = GetNodeOrNull<HSlider>($"{ParameterRootPath}/TypeSection/TypeContent/TypeVBox/ArmsRow/ArmsSlider");
 		_armsValue = GetNodeOrNull<Label>($"{ParameterRootPath}/TypeSection/TypeContent/TypeVBox/ArmsRow/ArmsValue");
-		_structureHeader = GetNodeOrNull<Button>($"{ParameterRootPath}/StructureSection/StructureHeader");
-		_structureContent = GetNodeOrNull<MarginContainer>($"{ParameterRootPath}/StructureSection/StructureContent");
 		_pitchSlider = GetNodeOrNull<HSlider>($"{ParameterRootPath}/StructureSection/StructureContent/StructureVBox/PitchRow/PitchSlider");
 		_pitchValue = GetNodeOrNull<Label>($"{ParameterRootPath}/StructureSection/StructureContent/StructureVBox/PitchRow/PitchValue");
 		_amplitudeSlider = GetNodeOrNull<HSlider>($"{ParameterRootPath}/StructureSection/StructureContent/StructureVBox/AmplitudeRow/AmplitudeSlider");
@@ -325,8 +311,6 @@ public partial class WelcomeScreen : Control
 		_irregularityRow = GetNodeOrNull<HBoxContainer>($"{ParameterRootPath}/StructureSection/StructureContent/StructureVBox/IrregularityRow");
 		_irregularitySlider = GetNodeOrNull<HSlider>($"{ParameterRootPath}/StructureSection/StructureContent/StructureVBox/IrregularityRow/IrregularitySlider");
 		_irregularityValue = GetNodeOrNull<Label>($"{ParameterRootPath}/StructureSection/StructureContent/StructureVBox/IrregularityRow/IrregularityValue");
-		_sizeHeader = GetNodeOrNull<Button>($"{ParameterRootPath}/SizeSection/SizeHeader");
-		_sizeContent = GetNodeOrNull<MarginContainer>($"{ParameterRootPath}/SizeSection/SizeContent");
 		_radiusSlider = GetNodeOrNull<HSlider>($"{ParameterRootPath}/SizeSection/SizeContent/SizeVBox/RadiusRow/RadiusSlider");
 		_radiusValue = GetNodeOrNull<Label>($"{ParameterRootPath}/SizeSection/SizeContent/SizeVBox/RadiusRow/RadiusValue");
 		_diskLengthSlider = GetNodeOrNull<HSlider>($"{ParameterRootPath}/SizeSection/SizeContent/SizeVBox/DiskLengthRow/DiskLengthSlider");
@@ -337,6 +321,7 @@ public partial class WelcomeScreen : Control
 		_densityValue = GetNodeOrNull<Label>($"{ParameterRootPath}/SizeSection/SizeContent/SizeVBox/DensityRow/DensityValue");
 		_seedSpin = GetNodeOrNull<SpinBox>($"{ParameterRootPath}/SeedContainer/SeedSpin");
 		_settingsVBox = GetNodeOrNull<VBoxContainer>(ParameterRootPath);
+		_rulesVBox = GetNodeOrNull<VBoxContainer>(RulesRootPath);
 	}
 
 	private void ConnectSignals()
@@ -347,9 +332,6 @@ public partial class WelcomeScreen : Control
 		if (_quitButton != null) _quitButton.Pressed += OnQuitPressed;
 		if (_randomizeButton != null) _randomizeButton.Pressed += OnRandomizePressed;
 		if (_presetOption != null) _presetOption.ItemSelected += OnPresetSelected;
-		if (_typeHeader != null) _typeHeader.Pressed += OnTypeHeaderPressed;
-		if (_structureHeader != null) _structureHeader.Pressed += OnStructureHeaderPressed;
-		if (_sizeHeader != null) _sizeHeader.Pressed += OnSizeHeaderPressed;
 		if (_typeOption != null) _typeOption.ItemSelected += OnTypeChanged;
 		ConnectSlider(_armsSlider, OnArmsChanged);
 		ConnectSlider(_pitchSlider, OnPitchChanged);
@@ -367,7 +349,6 @@ public partial class WelcomeScreen : Control
 		if (_showTravellerReadoutsCheck != null) _showTravellerReadoutsCheck.Toggled += _ => RefreshValidationIssues();
 		if (_lifePermissivenessInput != null) _lifePermissivenessInput.ValueChanged += OnLifePermissivenessChanged;
 		if (_populationPermissivenessInput != null) _populationPermissivenessInput.ValueChanged += OnPopulationPermissivenessChanged;
-		if (_mainworldPolicyOption != null) _mainworldPolicyOption.ItemSelected += _ => RefreshValidationIssues();
 	}
 
 	private void ApplyLayoutPolish()
@@ -385,6 +366,11 @@ public partial class WelcomeScreen : Control
 		if (_settingsVBox != null)
 		{
 			ApplyRowSpacing(_settingsVBox);
+		}
+
+		if (_rulesVBox != null)
+		{
+			ApplyRowSpacing(_rulesVBox);
 		}
 
 		VBoxContainer? buttonsContainer = GetNodeOrNull<VBoxContainer>($"{SummaryRootPath}/Buttons");
@@ -429,56 +415,7 @@ public partial class WelcomeScreen : Control
 
 	private void ApplyResponsiveLayout()
 	{
-		StudioScreenLayoutHelper.ApplyResponsiveStudioLayout(this, _studioRow, _settingsPanel, _summaryPanel);
-	}
-
-	private void UpdateSectionVisibility()
-	{
-		if (_typeContent != null) _typeContent.Visible = _typeSectionExpanded;
-		if (_typeHeader != null)
-		{
-			string arrow;
-			if (_typeSectionExpanded)
-			{
-				arrow = ArrowExpanded;
-			}
-			else
-			{
-				arrow = ArrowCollapsed;
-			}
-
-			_typeHeader.Text = $"{arrow}  Galaxy Type";
-		}
-		if (_structureContent != null) _structureContent.Visible = _structureSectionExpanded;
-		if (_structureHeader != null)
-		{
-			string arrow;
-			if (_structureSectionExpanded)
-			{
-				arrow = ArrowExpanded;
-			}
-			else
-			{
-				arrow = ArrowCollapsed;
-			}
-
-			_structureHeader.Text = $"{arrow}  Structure";
-		}
-		if (_sizeContent != null) _sizeContent.Visible = _sizeSectionExpanded;
-		if (_sizeHeader != null)
-		{
-			string arrow;
-			if (_sizeSectionExpanded)
-			{
-				arrow = ArrowExpanded;
-			}
-			else
-			{
-				arrow = ArrowCollapsed;
-			}
-
-			_sizeHeader.Text = $"{arrow}  Size & Density";
-		}
+		StudioScreenLayoutHelper.ApplyResponsiveStudioLayout(this, _studioRow, _settingsPanel, _rulesPanel, _summaryPanel);
 	}
 
 	private void UpdateTypeSpecificControls()
@@ -667,24 +604,6 @@ public partial class WelcomeScreen : Control
 
 	private void OnPresetSelected(long index) => ApplyPreset((int)index);
 
-	private void OnTypeHeaderPressed()
-	{
-		_typeSectionExpanded = !_typeSectionExpanded;
-		UpdateSectionVisibility();
-	}
-
-	private void OnStructureHeaderPressed()
-	{
-		_structureSectionExpanded = !_structureSectionExpanded;
-		UpdateSectionVisibility();
-	}
-
-	private void OnSizeHeaderPressed()
-	{
-		_sizeSectionExpanded = !_sizeSectionExpanded;
-		UpdateSectionVisibility();
-	}
-
 	private void OnTypeChanged(long _index)
 	{
 		UpdateTypeSpecificControls();
@@ -706,9 +625,14 @@ public partial class WelcomeScreen : Control
 
 	private void BuildParameterSupportUi()
 	{
-		if (_settingsVBox == null || _rulesetModeOption != null)
+		if (_rulesetModeOption != null)
 		{
 			return;
+		}
+
+		if (_rulesVBox == null)
+		{
+			throw new InvalidOperationException("WelcomeScreen is missing the generation-rules column.");
 		}
 
 		VBoxContainer useCaseSection = new VBoxContainer();
@@ -812,23 +736,8 @@ public partial class WelcomeScreen : Control
 		_populationPermissivenessValueLabel = populationValueLabel;
 		useCaseSection.AddChild(populationRow);
 
-		HBoxContainer mainworldRow = new HBoxContainer();
-		mainworldRow.AddThemeConstantOverride("separation", 12);
-		Label mainworldLabel = new Label();
-		mainworldLabel.Text = "Mainworld";
-		mainworldLabel.CustomMinimumSize = new Vector2(96.0f, 0.0f);
-		mainworldRow.AddChild(mainworldLabel);
-		OptionButton mainworldPolicyOption = new OptionButton();
-		mainworldPolicyOption.Name = "MainworldPolicyOption";
-		mainworldPolicyOption.SizeFlagsHorizontal = Control.SizeFlags.ExpandFill;
-		mainworldPolicyOption.AddItem("None", (int)GenerationUseCaseSettings.MainworldPolicyType.None);
-		mainworldPolicyOption.AddItem("Prefer", (int)GenerationUseCaseSettings.MainworldPolicyType.Prefer);
-		mainworldPolicyOption.AddItem("Require", (int)GenerationUseCaseSettings.MainworldPolicyType.Require);
-		mainworldRow.AddChild(mainworldPolicyOption);
-		_mainworldPolicyOption = mainworldPolicyOption;
-		useCaseSection.AddChild(mainworldRow);
-
-		_settingsVBox.AddChild(useCaseSection);
+		ApplyRowSpacing(useCaseSection);
+		_rulesVBox.AddChild(useCaseSection);
 
 		ApplyUseCaseSettingsToControls(GenerationUseCaseSettings.CreateDefault());
 	}
@@ -850,9 +759,6 @@ public partial class WelcomeScreen : Control
 		ApplyTooltip("galaxy_seed", _seedSpin, $"{ParameterRootPath}/SeedContainer/SeedLabel");
 		ApplyDynamicTooltip(_rulesetModeOption, "ruleset_mode");
 		ApplyDynamicTooltip(_showTravellerReadoutsCheck, "show_traveller_readouts");
-		ApplyDynamicTooltip(_lifePermissivenessInput, "life_permissiveness");
-		ApplyDynamicTooltip(_populationPermissivenessInput, "population_permissiveness");
-		ApplyDynamicTooltip(_mainworldPolicyOption, "mainworld_policy");
 	}
 
 	private void ApplyTooltip(string parameterId, Control? inputControl, string labelPath)
@@ -933,11 +839,6 @@ public partial class WelcomeScreen : Control
 			settings.PopulationPermissiveness = _populationPermissivenessInput.Value;
 		}
 
-		if (_mainworldPolicyOption != null)
-		{
-			settings.MainworldPolicy = (GenerationUseCaseSettings.MainworldPolicyType)_mainworldPolicyOption.Selected;
-		}
-
 		return settings;
 	}
 
@@ -964,11 +865,6 @@ public partial class WelcomeScreen : Control
 			_populationPermissivenessInput.Value = resolvedSettings.PopulationPermissiveness;
 		}
 
-		if (_mainworldPolicyOption != null)
-		{
-			_mainworldPolicyOption.Select((int)resolvedSettings.MainworldPolicy);
-		}
-
 		UpdatePermissivenessValueLabels();
 	}
 
@@ -985,11 +881,6 @@ public partial class WelcomeScreen : Control
 			if (_showTravellerReadoutsCheck != null)
 			{
 				_showTravellerReadoutsCheck.ButtonPressed = true;
-			}
-
-			if (_mainworldPolicyOption != null)
-			{
-				_mainworldPolicyOption.Select((int)GenerationUseCaseSettings.MainworldPolicyType.Require);
 			}
 
 			ApplyTravellerDefaultsToControls();
@@ -1095,15 +986,15 @@ public partial class WelcomeScreen : Control
 		System.Collections.Generic.List<string> lines = new();
 		lines.Add(GetMorphologySummary(config));
 		lines.Add(GetActiveParameterSummary(config));
-		lines.Add("Life Potential now changes native-life thresholds instead of only relabeling the screen.");
-		lines.Add("Settlement Density now changes colony likelihood and follow-on colony spread on harsh worlds.");
-		lines.Add("Sources for the current morphology assumptions are listed in Sources/ToReview.md for human review.");
+		lines.Add("Life Potential changes how permissive the generator is about native biospheres on difficult but still plausible worlds.");
+		lines.Add("Settlement Density changes how readily colonies appear on marginal worlds, moons, and sealed habitats once expansion is technically viable.");
+		lines.Add("Current morphology assumptions are summarized from astronomy references listed under Sources on the main menu.");
 		return string.Join("\n\n", lines);
 	}
 
 	private static string BuildAssumptionsTooltip()
 	{
-		return "Traveller mode still applies a moderately settlement-friendly baseline, enables Traveller readouts, and tightens the mainworld policy without claiming full Traveller sector simulation.";
+		return "Traveller mode enables Traveller readouts and applies a slightly settlement-friendlier baseline without claiming a full Traveller sector simulation.";
 	}
 
 	private static string GetMorphologySummary(GalaxyConfig config)

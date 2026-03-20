@@ -69,6 +69,13 @@ public partial class LifeDistributionBaselineRunner : Node
         public List<BandStats> Bands = new();
     }
 
+    private sealed class WorldSample
+    {
+        public PlanetProfile Profile = new();
+        public ColonySuitability Suitability = new();
+        public int GenerationSeed;
+    }
+
     public void start_headless()
     {
         CallDeferred(MethodName.RunBaseline);
@@ -78,10 +85,11 @@ public partial class LifeDistributionBaselineRunner : Node
     {
         try
         {
+            List<WorldSample> worldSamples = CollectWorldSamples();
             List<ScenarioResult> scenarios = new();
             for (int index = 0; index < ScenarioValues.Length; index += 1)
             {
-                ScenarioResult result = SampleScenario(ScenarioKeys[index], ScenarioLabels[index], ScenarioValues[index]);
+                ScenarioResult result = SampleScenario(ScenarioKeys[index], ScenarioLabels[index], ScenarioValues[index], worldSamples);
                 scenarios.Add(result);
             }
 
@@ -110,21 +118,12 @@ public partial class LifeDistributionBaselineRunner : Node
         }
     }
 
-    private static ScenarioResult SampleScenario(string key, string label, double permissiveness)
+    private static List<WorldSample> CollectWorldSamples()
     {
-        ScenarioResult result = new ScenarioResult
-        {
-            Key = key,
-            Label = label,
-            Bands = CreateBands(),
-        };
-
+        List<WorldSample> samples = new();
         GenerationUseCaseSettings settings = GenerationUseCaseSettings.CreateDefault();
-        settings.LifePermissiveness = permissiveness;
-        settings.PopulationPermissiveness = permissiveness;
-
         int systemIndex = 0;
-        while (result.TotalWorlds < TargetWorldCount)
+        while (samples.Count < TargetWorldCount)
         {
             int seed = SeedBase + systemIndex;
             GalaxySpec galaxySpec = GalaxySpec.CreateMilkyWay(seed);
@@ -139,26 +138,47 @@ public partial class LifeDistributionBaselineRunner : Node
 
             foreach (CelestialBody body in system.GetPlanets())
             {
-                AddWorldSample(result, body);
-                if (result.TotalWorlds >= TargetWorldCount)
+                AddWorldSample(samples, body);
+                if (samples.Count >= TargetWorldCount)
                 {
                     break;
                 }
             }
 
-            if (result.TotalWorlds >= TargetWorldCount)
+            if (samples.Count >= TargetWorldCount)
             {
                 continue;
             }
 
             foreach (CelestialBody body in system.GetMoons())
             {
-                AddWorldSample(result, body);
-                if (result.TotalWorlds >= TargetWorldCount)
+                AddWorldSample(samples, body);
+                if (samples.Count >= TargetWorldCount)
                 {
                     break;
                 }
             }
+        }
+
+        return samples;
+    }
+
+    private static ScenarioResult SampleScenario(string key, string label, double permissiveness, List<WorldSample> worldSamples)
+    {
+        ScenarioResult result = new ScenarioResult
+        {
+            Key = key,
+            Label = label,
+            Bands = CreateBands(),
+        };
+
+        GenerationUseCaseSettings settings = GenerationUseCaseSettings.CreateDefault();
+        settings.LifePermissiveness = permissiveness;
+        settings.PopulationPermissiveness = permissiveness;
+
+        foreach (WorldSample sample in worldSamples)
+        {
+            AddScenarioResult(result, sample, settings);
         }
 
         return result;
@@ -176,7 +196,7 @@ public partial class LifeDistributionBaselineRunner : Node
         };
     }
 
-    private static void AddWorldSample(ScenarioResult result, CelestialBody body)
+    private static void AddWorldSample(List<WorldSample> samples, CelestialBody body)
     {
         if (body.PopulationData == null || body.PopulationData.Profile == null)
         {
@@ -184,6 +204,33 @@ public partial class LifeDistributionBaselineRunner : Node
         }
 
         PlanetPopulationData populationData = body.PopulationData;
+        if (populationData.Suitability == null)
+        {
+            return;
+        }
+
+        WorldSample sample = new WorldSample();
+        sample.Profile = PlanetProfile.FromDictionary(populationData.Profile.ToDictionary());
+        sample.Suitability = ColonySuitability.FromDictionary(populationData.Suitability.ToDictionary());
+        sample.GenerationSeed = populationData.GenerationSeed;
+        samples.Add(sample);
+    }
+
+    private static void AddScenarioResult(
+        ScenarioResult result,
+        WorldSample sample,
+        GenerationUseCaseSettings settings)
+    {
+        bool nativeLifeExists = PopulationLikelihood.ShouldGenerateNatives(sample.Profile, sample.GenerationSeed, settings);
+        bool colonyExists = PopulationLikelihood.ShouldGenerateColony(sample.Profile, sample.Suitability, sample.GenerationSeed, settings);
+        PlanetPopulationData populationData = PopulationGenerator.GenerateFromProfile(
+            PlanetProfile.FromDictionary(sample.Profile.ToDictionary()),
+            sample.GenerationSeed,
+            generateNatives: nativeLifeExists,
+            generateColonies: colonyExists,
+            currentYear: 0,
+            existingSuitability: ColonySuitability.FromDictionary(sample.Suitability.ToDictionary()),
+            useCaseSettings: settings);
         PlanetProfile profile = populationData.Profile;
 
         result.TotalWorlds += 1;
@@ -241,7 +288,7 @@ public partial class LifeDistributionBaselineRunner : Node
         lines.Add(string.Empty);
         lines.Add("Generated by `godot-mono.exe --path . --headless --script res://Tests/Baselines/RunLifeDistributionBaseline.gd`.");
         lines.Add(string.Empty);
-        lines.Add($"Each scenario samples the first {TargetWorldCount} generated planets and moons from deterministic seeds.");
+        lines.Add($"Each scenario evaluates the same first {TargetWorldCount} generated planets and moons from deterministic seeds.");
         lines.Add(string.Empty);
 
         foreach (ScenarioResult scenario in scenarios)

@@ -1,4 +1,5 @@
 using Godot;
+using StarGen.App.Shared;
 
 namespace StarGen.App;
 
@@ -25,7 +26,7 @@ public partial class SplashScreen : Control
 		_versionLabel = GetNodeOrNull<Label>("MarginContainer/ScrollContainer/Layout/WordmarkBlock/VersionLabel");
 		_statusLabel = GetNodeOrNull<Label>("MarginContainer/ScrollContainer/Layout/WordmarkBlock/StatusLabel");
 
-		string version = ProjectSettings.GetSetting("application/config/version", "0.5.0.0").AsString();
+		string version = UserFacingVersionHelper.GetDisplayVersion();
 		if (_versionLabel != null)
 		{
 			_versionLabel.Text = $"Release {version}";
@@ -33,13 +34,16 @@ public partial class SplashScreen : Control
 
 		if (_statusLabel != null)
 		{
-			_statusLabel.Text = "Initializing generator modules...";
+			_statusLabel.Text = "Preparing star charts...";
 		}
 
 		if (_revealTimer != null)
 		{
 			_revealTimer.Timeout += Finish;
-			_revealTimer.Start();
+			if (_revealTimer.IsInsideTree())
+			{
+				_revealTimer.Start();
+			}
 		}
 	}
 

@@ -19,7 +19,7 @@ public static class PermissivenessScaleHelper
 	public static string GetAdvancedLegendTooltip()
 	{
 		return
-			"Rare to space opera is a worldbuilding permissiveness scale, not a realism score. " +
+			"Rare to space opera is a worldbuilding permissiveness scale, not a realism score.\n\n" +
 			"Life Potential changes how strict native biosphere emergence is. " +
 			"Settlement Density changes how readily colonies appear on worlds that are survivable but not naturally inhabited.";
 	}
@@ -55,14 +55,14 @@ public static class PermissivenessScaleHelper
 		if (subject == "life")
 		{
 			return
-				"Low values require near-Earthlike conditions before native life is likely. " +
+				"Low values require near-Earthlike conditions before native life is likely.\n\n" +
 				"High values allow life on marginal but still biologically plausible worlds, including more permissive ocean and subsurface cases.";
 		}
 
 		if (subject == "settlement")
 		{
 			return
-				"Low values keep colonies focused on the best worlds. " +
+				"Low values keep colonies focused on the best worlds.\n\n" +
 				"High values make sealed habitats, moons, and other harsh but workable locations much more likely to attract settlements.";
 		}
 

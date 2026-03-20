@@ -21,7 +21,7 @@ public static class TestWelcomeScreen
         runner.RunNativeTest("TestWelcomeScreen::test_set_seeded_rng_accepts_rng", TestSetSeededRngAcceptsRng);
         runner.RunNativeTest("TestWelcomeScreen::test_set_current_config_round_trips", TestSetCurrentConfigRoundTrips);
         runner.RunNativeTest("TestWelcomeScreen::test_start_blocks_when_validation_errors_exist", TestStartBlocksWhenValidationErrorsExist);
-        runner.RunNativeTest("TestWelcomeScreen::test_welcome_screen_exposes_split_summary_panel", TestWelcomeScreenExposesSplitSummaryPanel);
+        runner.RunNativeTest("TestWelcomeScreen::test_welcome_screen_exposes_three_column_studio_layout", TestWelcomeScreenExposesThreeColumnStudioLayout);
     }
 
     private static WelcomeScreen CreateWelcomeScreen()
@@ -135,18 +135,25 @@ public static class TestWelcomeScreen
         }
     }
 
-    private static void TestWelcomeScreenExposesSplitSummaryPanel()
+    private static void TestWelcomeScreenExposesThreeColumnStudioLayout()
     {
         WelcomeScreen welcome = CreateWelcomeScreen();
         try
         {
+            Control? rulesPanel = welcome.GetNodeOrNull<Control>("MarginContainer/MainPanel/MarginContainer/VBox/StudioRow/RulesPanel");
             Control? summaryPanel = welcome.GetNodeOrNull<Control>("MarginContainer/MainPanel/MarginContainer/VBox/StudioRow/SummaryPanel");
             Label? summaryLabel = welcome.GetNodeOrNull<Label>("MarginContainer/MainPanel/MarginContainer/VBox/StudioRow/SummaryPanel/MarginContainer/SummaryVBox/SummaryScroll/SummaryContent/SummaryLabel");
+            Button? startButton = welcome.GetNodeOrNull<Button>(StartButtonPath);
             Button? infoButton = welcome.FindChild("AdvancedAssumptionsInfoButton", recursive: true, owned: false) as Button;
+            OptionButton? mainworldOption = welcome.FindChild("MainworldPolicyOption", recursive: true, owned: false) as OptionButton;
 
+            DotNetNativeTestSuite.AssertNotNull(rulesPanel, "Welcome screen should expose a dedicated generation-rules panel");
             DotNetNativeTestSuite.AssertNotNull(summaryPanel, "Welcome screen should expose a separate summary panel");
             DotNetNativeTestSuite.AssertNotNull(summaryLabel, "Summary panel should include the active-profile summary label");
+            DotNetNativeTestSuite.AssertNotNull(startButton, "Welcome screen should expose the generate button");
             DotNetNativeTestSuite.AssertNotNull(infoButton, "Advanced assumptions should expose an info button");
+            DotNetNativeTestSuite.AssertEqual("Generate Galaxy", startButton!.Text, "Galaxy studio start button should use the user-facing generation label");
+            DotNetNativeTestSuite.AssertNull(mainworldOption, "Galaxy studio should not expose the misleading mainworld control");
         }
         finally
         {

@@ -57,6 +57,12 @@ public static partial class DotNetNativeTestSuite
             "DotNetNativeTestSuite::test_concept_pipeline_maps_subsurface_biology_without_surface_biome_failure",
             TestConceptPipelineMapsSubsurfaceBiologyWithoutSurfaceBiomeFailure);
         runner.RunNativeTest(
+            "DotNetNativeTestSuite::test_concept_pipeline_blocks_sentience_on_marginal_worlds",
+            TestConceptPipelineBlocksSentienceOnMarginalWorlds);
+        runner.RunNativeTest(
+            "DotNetNativeTestSuite::test_concept_pipeline_marks_world_without_native_life_not_applicable",
+            TestConceptPipelineMarksWorldWithoutNativeLifeNotApplicable);
+        runner.RunNativeTest(
             "DotNetNativeTestSuite::test_concept_pipeline_keeps_non_sentient_worlds_pre_society",
             TestConceptPipelineKeepsNonSentientWorldsPreSociety);
         runner.RunNativeTest(
@@ -406,6 +412,32 @@ public static partial class DotNetNativeTestSuite
         AssertNotNull(data.EcologyState, "Subsurface world should evaluate ecology");
         AssertEqual(ConceptRunStatus.Generated, data.EcologyState!.Status, "Subsurface ocean worlds should map to a non-surface ecology instead of failing");
         AssertNotNull(data.EcologyState.Snapshot, "Generated subsurface ecology should include a snapshot");
+    }
+
+    private static void TestConceptPipelineBlocksSentienceOnMarginalWorlds()
+    {
+        PlanetProfile profile = CreateHabitableProfile();
+        profile.HabitabilityScore = 3;
+        profile.HasBreathableAtmosphere = false;
+        profile.RadiationLevel = 0.28;
+
+        int seed = FindSeedForSentience(profile, shouldBeSentient: false);
+        PlanetPopulationData data = PopulationGenerator.GenerateFromProfile(profile, seed, generateNatives: true, generateColonies: false);
+
+        AssertNotNull(data.SentienceAssessment, "Marginal world should still evaluate sentience");
+        AssertEqual(ConceptRunStatus.Generated, data.SentienceAssessment!.Status, "Marginal world should record sentience evaluation");
+        AssertFalse(data.SentienceAssessment.HasSentientLife, "Marginal worlds should not graduate into sentient civilizations");
+    }
+
+    private static void TestConceptPipelineMarksWorldWithoutNativeLifeNotApplicable()
+    {
+        PlanetProfile profile = CreateHabitableProfile();
+        PlanetPopulationData data = PopulationGenerator.GenerateFromProfile(profile, 12021, generateNatives: false, generateColonies: true);
+
+        AssertEqual(ConceptRunStatus.NotApplicable, data.EcologyState!.Status, "Worlds without native life should not keep ecology as generated");
+        AssertEqual(ConceptRunStatus.NotApplicable, data.SpeciesEvolution!.Status, "Worlds without native life should not keep species evolution as generated");
+        AssertEqual(ConceptRunStatus.NotApplicable, data.SentienceAssessment!.Status, "Worlds without native life should not keep sentience as generated");
+        AssertEqual(0, data.NativePopulations.Count, "Worlds without native life should not create native populations");
     }
 
     private static void TestConceptPipelineKeepsNonSentientWorldsPreSociety()

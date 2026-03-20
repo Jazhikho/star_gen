@@ -132,16 +132,28 @@ public static class ConceptDependencyChainGenerator
         assessment.SocialComplexity = ResolveSocialComplexity(species);
         assessment.CommunicationScore = ResolveCommunicationScore(species);
         assessment.ManipulationScore = ResolveManipulationScore(species);
-        assessment.HasSentientLife = speciesEvolutionState.HasSentientCandidate
-            && assessment.CognitionScore >= 0.48
-            && assessment.SocialComplexity >= 0.40
-            && assessment.CommunicationScore >= 0.32
-            && assessment.ManipulationScore >= 0.32;
+        bool supportsSentientCivilization = environment.HabitabilityScore >= 5;
+        if (supportsSentientCivilization)
+        {
+            assessment.HasSentientLife = speciesEvolutionState.HasSentientCandidate
+                && assessment.CognitionScore >= 0.48
+                && assessment.SocialComplexity >= 0.40
+                && assessment.CommunicationScore >= 0.32
+                && assessment.ManipulationScore >= 0.32;
+        }
+        else
+        {
+            assessment.HasSentientLife = false;
+        }
 
         assessment.Status = ConceptRunStatus.Generated;
         if (assessment.HasSentientLife)
         {
             assessment.StatusReason = "Cognition, communication, and manipulation thresholds support sentient populations.";
+        }
+        else if (!supportsSentientCivilization)
+        {
+            assessment.StatusReason = "Complex life may exist, but the current environment is too marginal to support a sentient civilization.";
         }
         else
         {

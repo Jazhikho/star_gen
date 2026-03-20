@@ -1,6 +1,6 @@
 # Version
 
-Current version: `0.7.1.1`
+Current version: `0.7.1.2`
 
 Date: `2026-03-20`
 
@@ -9,6 +9,14 @@ Versioning method: release/refactor `+0.1`, feature `+0.0.1`, bug fix `+0.0.0.1`
 Current public release target: `0.8.0.0`
 
 User-facing app label: `0.8.0.0`
+
+## 0.7.1.2
+
+- Bug fix: The splash screen, main menu, and galaxy studio all now use the upcoming public release label `0.8.0.0`, while the internal hardening line advances separately as `0.7.1.2`.
+- Bug fix: Main-menu Help, Credits, Release Notes, Station Studio, and Sources copy were cleaned to stay user-facing, with direct icon attribution and a dedicated Sources button instead of repo-path references.
+- Bug fix: Galaxy Studio now uses a three-column layout that separates parameters, generation rules, and the active profile; the galaxy-only `Mainworld` control was removed because it was not meaningfully shaping galaxy generation.
+- Bug fix: The life-assumptions tooltip now reads cleanly from the in-app helper copy, and the 1000-world baseline now evaluates the same generated world sample across scenarios instead of silently changing the sample set between runs.
+- Bug fix: Native-life absence now correctly suppresses ecology, evolution, and sentience states in runtime population data, preventing concept layers from appearing on worlds where native life never emerged.
 
 ## 0.7.1.1
 

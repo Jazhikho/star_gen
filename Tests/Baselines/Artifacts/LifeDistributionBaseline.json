@@ -19,7 +19,7 @@
 					"label": "Marginal (2-3)",
 					"maximum_habitability": 3,
 					"minimum_habitability": 2,
-					"sentient_worlds": 1,
+					"sentient_worlds": 0,
 					"settled_worlds": 0,
 					"total_worlds": 357
 				},
@@ -58,7 +58,7 @@
 			"colony_worlds": 0,
 			"key": "strict",
 			"label": "0.00 Strict",
-			"sentient_worlds": 1,
+			"sentient_worlds": 0,
 			"settled_worlds": 0,
 			"total_worlds": 1000
 		},
@@ -72,27 +72,27 @@
 					"minimum_habitability": 0,
 					"sentient_worlds": 0,
 					"settled_worlds": 0,
-					"total_worlds": 580
+					"total_worlds": 565
 				},
 				{
-					"biosphere_worlds": 33,
-					"colony_worlds": 0,
+					"biosphere_worlds": 21,
+					"colony_worlds": 3,
 					"label": "Marginal (2-3)",
 					"maximum_habitability": 3,
 					"minimum_habitability": 2,
-					"sentient_worlds": 2,
-					"settled_worlds": 0,
-					"total_worlds": 329
+					"sentient_worlds": 0,
+					"settled_worlds": 3,
+					"total_worlds": 357
 				},
 				{
-					"biosphere_worlds": 8,
-					"colony_worlds": 3,
+					"biosphere_worlds": 5,
+					"colony_worlds": 8,
 					"label": "Viable (4-5)",
 					"maximum_habitability": 5,
 					"minimum_habitability": 4,
 					"sentient_worlds": 0,
-					"settled_worlds": 3,
-					"total_worlds": 90
+					"settled_worlds": 8,
+					"total_worlds": 77
 				},
 				{
 					"biosphere_worlds": 1,
@@ -115,73 +115,73 @@
 					"total_worlds": 0
 				}
 			],
-			"biosphere_worlds": 42,
-			"colony_worlds": 3,
+			"biosphere_worlds": 27,
+			"colony_worlds": 11,
 			"key": "neutral",
 			"label": "0.50 Neutral",
-			"sentient_worlds": 2,
-			"settled_worlds": 3,
+			"sentient_worlds": 0,
+			"settled_worlds": 11,
 			"total_worlds": 1000
 		},
 		{
 			"bands": [
 				{
 					"biosphere_worlds": 0,
-					"colony_worlds": 9,
+					"colony_worlds": 11,
 					"label": "Hostile (0-1)",
 					"maximum_habitability": 1,
 					"minimum_habitability": 0,
 					"sentient_worlds": 0,
-					"settled_worlds": 9,
-					"total_worlds": 577
+					"settled_worlds": 11,
+					"total_worlds": 565
 				},
 				{
-					"biosphere_worlds": 23,
-					"colony_worlds": 37,
+					"biosphere_worlds": 21,
+					"colony_worlds": 88,
 					"label": "Marginal (2-3)",
 					"maximum_habitability": 3,
 					"minimum_habitability": 2,
 					"sentient_worlds": 0,
-					"settled_worlds": 37,
-					"total_worlds": 341
+					"settled_worlds": 88,
+					"total_worlds": 357
 				},
 				{
-					"biosphere_worlds": 8,
-					"colony_worlds": 12,
+					"biosphere_worlds": 5,
+					"colony_worlds": 39,
 					"label": "Viable (4-5)",
 					"maximum_habitability": 5,
 					"minimum_habitability": 4,
 					"sentient_worlds": 0,
-					"settled_worlds": 12,
-					"total_worlds": 74
+					"settled_worlds": 39,
+					"total_worlds": 77
 				},
 				{
-					"biosphere_worlds": 7,
-					"colony_worlds": 4,
+					"biosphere_worlds": 1,
+					"colony_worlds": 0,
 					"label": "Habitable (6-7)",
 					"maximum_habitability": 7,
 					"minimum_habitability": 6,
 					"sentient_worlds": 0,
-					"settled_worlds": 4,
-					"total_worlds": 7
+					"settled_worlds": 0,
+					"total_worlds": 1
 				},
 				{
-					"biosphere_worlds": 1,
+					"biosphere_worlds": 0,
 					"colony_worlds": 0,
 					"label": "Prime (8-10)",
 					"maximum_habitability": 10,
 					"minimum_habitability": 8,
 					"sentient_worlds": 0,
 					"settled_worlds": 0,
-					"total_worlds": 1
+					"total_worlds": 0
 				}
 			],
-			"biosphere_worlds": 39,
-			"colony_worlds": 62,
+			"biosphere_worlds": 27,
+			"colony_worlds": 138,
 			"key": "space_opera",
 			"label": "1.00 Space Opera",
 			"sentient_worlds": 0,
-			"settled_worlds": 62,
+			"settled_worlds": 138,
 			"total_worlds": 1000
 		}
 	],

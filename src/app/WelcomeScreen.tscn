@@ -86,7 +86,7 @@ custom_minimum_size = Vector2(320, 0)
 layout_mode = 2
 autowrap_mode = 2
 theme_override_colors/font_color = Color(0.72, 0.76, 0.82, 1)
-text = "Configure the galaxy profile before you enter the viewer."
+text = "Configure the galaxy profile before you generate and explore the viewer."
 
 [node name="StudioRow" type="BoxContainer" parent="MarginContainer/MainPanel/MarginContainer/VBox"]
 layout_mode = 2
@@ -95,7 +95,7 @@ vertical = false
 theme_override_constants/separation = 18
 
 [node name="SettingsPanel" type="PanelContainer" parent="MarginContainer/MainPanel/MarginContainer/VBox/StudioRow"]
-custom_minimum_size = Vector2(720, 0)
+custom_minimum_size = Vector2(420, 0)
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
@@ -152,10 +152,11 @@ popup/item_5/text = "Large Magellanic Cloud"
 layout_mode = 2
 theme_override_constants/separation = 8
 
-[node name="TypeHeader" type="Button" parent="MarginContainer/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/TypeSection"]
+[node name="TypeHeader" type="Label" parent="MarginContainer/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/TypeSection"]
 layout_mode = 2
-alignment = 0
-text = "v  Galaxy Type"
+theme_override_colors/font_color = Color(0.921569, 0.768627, 0.470588, 1)
+theme_override_font_sizes/font_size = 16
+text = "Galaxy Type"
 
 [node name="TypeContent" type="MarginContainer" parent="MarginContainer/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/TypeSection"]
 layout_mode = 2
@@ -211,13 +212,13 @@ text = "4"
 layout_mode = 2
 theme_override_constants/separation = 8
 
-[node name="StructureHeader" type="Button" parent="MarginContainer/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/StructureSection"]
+[node name="StructureHeader" type="Label" parent="MarginContainer/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/StructureSection"]
 layout_mode = 2
-alignment = 0
-text = ">  Structure"
+theme_override_colors/font_color = Color(0.921569, 0.768627, 0.470588, 1)
+theme_override_font_sizes/font_size = 16
+text = "Structure"
 
 [node name="StructureContent" type="MarginContainer" parent="MarginContainer/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/StructureSection"]
-visible = false
 layout_mode = 2
 theme_override_constants/margin_left = 16
 theme_override_constants/margin_top = 4
@@ -364,13 +365,13 @@ text = "0.50"
 layout_mode = 2
 theme_override_constants/separation = 8
 
-[node name="SizeHeader" type="Button" parent="MarginContainer/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/SizeSection"]
+[node name="SizeHeader" type="Label" parent="MarginContainer/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/SizeSection"]
 layout_mode = 2
-alignment = 0
-text = ">  Size & Density"
+theme_override_colors/font_color = Color(0.921569, 0.768627, 0.470588, 1)
+theme_override_font_sizes/font_size = 16
+text = "Size and Density"
 
 [node name="SizeContent" type="MarginContainer" parent="MarginContainer/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/SizeSection"]
-visible = false
 layout_mode = 2
 theme_override_constants/margin_left = 16
 theme_override_constants/margin_top = 4
@@ -489,6 +490,46 @@ value = 12345.0
 layout_mode = 2
 text = "Randomize"
 
+[node name="RulesPanel" type="PanelContainer" parent="MarginContainer/MainPanel/MarginContainer/VBox/StudioRow"]
+custom_minimum_size = Vector2(360, 0)
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+
+[node name="MarginContainer" type="MarginContainer" parent="MarginContainer/MainPanel/MarginContainer/VBox/StudioRow/RulesPanel"]
+layout_mode = 2
+theme_override_constants/margin_left = 18
+theme_override_constants/margin_top = 18
+theme_override_constants/margin_right = 18
+theme_override_constants/margin_bottom = 18
+
+[node name="RulesVBox" type="VBoxContainer" parent="MarginContainer/MainPanel/MarginContainer/VBox/StudioRow/RulesPanel/MarginContainer"]
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_constants/separation = 12
+
+[node name="RulesTitle" type="Label" parent="MarginContainer/MainPanel/MarginContainer/VBox/StudioRow/RulesPanel/MarginContainer/RulesVBox"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 18
+text = "Generation Rules"
+
+[node name="RulesIntro" type="Label" parent="MarginContainer/MainPanel/MarginContainer/VBox/StudioRow/RulesPanel/MarginContainer/RulesVBox"]
+custom_minimum_size = Vector2(220, 0)
+layout_mode = 2
+autowrap_mode = 2
+theme_override_colors/font_color = Color(0.72, 0.76, 0.82, 1)
+text = "Rules change how StarGen interprets worldbuilding assumptions. Parameters shape the galaxy itself."
+
+[node name="ScrollContainer" type="ScrollContainer" parent="MarginContainer/MainPanel/MarginContainer/VBox/StudioRow/RulesPanel/MarginContainer/RulesVBox"]
+layout_mode = 2
+size_flags_vertical = 3
+horizontal_scroll_mode = 0
+
+[node name="RulesContent" type="VBoxContainer" parent="MarginContainer/MainPanel/MarginContainer/VBox/StudioRow/RulesPanel/MarginContainer/RulesVBox/ScrollContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 12
+
 [node name="SummaryPanel" type="PanelContainer" parent="MarginContainer/MainPanel/MarginContainer/VBox/StudioRow"]
 custom_minimum_size = Vector2(360, 0)
 layout_mode = 2
@@ -552,7 +593,7 @@ theme_override_constants/separation = 10
 [node name="StartButton" type="Button" parent="MarginContainer/MainPanel/MarginContainer/VBox/StudioRow/SummaryPanel/MarginContainer/SummaryVBox/Buttons"]
 layout_mode = 2
 size_flags_horizontal = 3
-text = "Open Galaxy Viewer"
+text = "Generate Galaxy"
 
 [node name="LoadButton" type="Button" parent="MarginContainer/MainPanel/MarginContainer/VBox/StudioRow/SummaryPanel/MarginContainer/SummaryVBox/Buttons"]
 layout_mode = 2

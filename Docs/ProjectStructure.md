@@ -17,10 +17,17 @@ UI layout baseline:
 - Wrapped labels should have a panel-appropriate minimum width rather than relying on autowrap alone; large full-width headers can be broader, while sidebar/footer text should usually stay closer to the 180-320 px range.
 
 Current development line:
-- `0.7.1.1`
+- `0.7.1.2`
 
 Current public release target:
 - `0.8.0.0`
+
+Recent 0.7.1.2 additions:
+- `src/app/MainMenuScreen.cs` / `src/app/MainMenuScreen.tscn` / `src/app/SplashScreen.cs` / `src/app/StationStudioScreen.tscn` (user-facing release label cleanup, direct credits attribution, Sources button/panel fallback, and removal of repo-facing UI copy)
+- `src/app/WelcomeScreen.cs` / `src/app/WelcomeScreen.tscn` / `src/app/shared/StudioScreenLayoutHelper.cs` (three-column galaxy-studio layout separating parameters, generation rules, and active profile, plus removal of the misleading galaxy mainworld control)
+- `src/domain/population/PopulationGenerator.cs` (native-life absence now suppresses downstream ecology/evolution/sentience states instead of silently leaving concept layers present)
+- `Tests/Baselines/LifeDistributionBaselineRunner.cs` / `Tests/Baselines/Artifacts/` (baseline now evaluates a shared fixed world sample across slider scenarios)
+- `Tests/Integration/TestSplashScreen.cs` / `Tests/Integration/TestMainMenuScreen.cs` / `Tests/Integration/TestWelcomeScreen.cs` / `Tests/Framework/DotNetNativeTestSuite.Integration.cs` / `Tests/Framework/DotNetNativeTestSuite.Concepts.cs` (coverage for the splash release label, Sources button, three-column galaxy studio, and native-life gating)
 
 Recent 0.7.1.1 additions:
 - `src/app/shared/UserFacingVersionHelper.cs` (separates the user-facing release label from the internal branch version)

@@ -19,6 +19,17 @@ Use this log for significant AI-assisted artifacts in this repository.
 
 ### 2026-03-20 - Codex (GPT-5)
 
+- Task Purpose: Tighten the user-facing menu/studio surfaces and correct the baseline comparison so galaxy-studio review feedback is reflected in the running app rather than only in internal tooling.
+- Input Materials Used: User review notes and screenshot of Galaxy Generation Studio; `claude.md`; `AGENTS.md`; `MainMenuScreen.cs/.tscn`; `SplashScreen.cs`; `StationStudioScreen.tscn`; `WelcomeScreen.cs/.tscn`; `StudioScreenLayoutHelper.cs`; `PopulationGenerator.cs`; `LifeDistributionBaselineRunner.cs`; existing integration/concept tests; `VERSION.md`; `Docs/ProjectStructure.md`.
+- AI Produced: Added a Sources button and user-facing help/credits/release-note copy, ensured splash/menu/studio version labels use the public `0.8.0.0` label, rebuilt Galaxy Studio into three columns with separate parameters and generation-rules panels, removed the misleading galaxy mainworld control, updated tooltips and station placeholder copy, fixed runtime concept-state suppression when native life does not emerge, stabilized the baseline runner to compare the same deterministic world sample across scenarios, and added splash/menu/studio/native-life regression coverage.
+- Human Accepted: Pending review of the revised menu copy, the three-column galaxy-studio layout, and the updated baseline artifacts.
+- Human Rejected: No claim was made that the current life-distribution tuning is final; the patch corrects the comparison method and concept-state gating, but wider habitability-distribution tuning still remains subject to further human-directed iteration.
+- Human Changed: The user-set requirement is that user-facing UI never reference repo files or backend workflow, that the app advertise the next planned public release label rather than the current internal branch version, and that Galaxy Studio separate morphology parameters from generation-rule assumptions.
+- Validation Method: `dotnet build StarGen.sln`; `godot-mono.exe --path . --headless --script res://Tests/Baselines/RunLifeDistributionBaseline.gd`; `godot-mono.exe --path . --headless --script res://Tests/RunTestsHeadless.gd` (`1934 / 1934` passed; the same pre-existing fallback-dialog/layout/ObjectDB warnings still print afterward).
+- Final Approver: Pending Christopher B. Del Gesso review.
+
+### 2026-03-20 - Codex (GPT-5)
+
 - Task Purpose: Tighten the galaxy-studio presentation and parameter semantics so the user-facing UI reflects the next planned release, galaxy controls explain real generation behavior, and life/settlement permissiveness stop acting like cosmetic sliders.
 - Input Materials Used: User review notes and screenshot from the galaxy studio; `claude.md`; `AGENTS.md`; `project.godot`; `MainMenuScreen.cs`; `WelcomeScreen.cs/.tscn`; `DarkTheme.tres`; galaxy density-model code; population probability/generator code; integration and population tests; README/version/project-structure/source docs.
 - AI Produced: Added a dedicated user-facing version-label helper and project setting, restored the split galaxy-studio layout and summary panel, replaced the advanced-assumptions hover text with an information button, fixed checkbox highlight styling, added Cursor to the in-app credits text, expanded morphology explanations and source references, wired `Life Potential` and `Settlement Density` into native-life and colony generation logic, and added a separate 1000-world baseline runner plus regression coverage.

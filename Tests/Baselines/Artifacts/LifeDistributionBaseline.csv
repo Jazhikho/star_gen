@@ -1,16 +1,16 @@
 scenario_key,scenario_label,band,total_worlds,biosphere_worlds,sentient_worlds,settled_worlds,colony_worlds
 strict,"0.00 Strict","Hostile (0-1)",565,0,0,0,0
-strict,"0.00 Strict","Marginal (2-3)",357,21,1,0,0
+strict,"0.00 Strict","Marginal (2-3)",357,21,0,0,0
 strict,"0.00 Strict","Viable (4-5)",77,5,0,0,0
 strict,"0.00 Strict","Habitable (6-7)",1,1,0,0,0
 strict,"0.00 Strict","Prime (8-10)",0,0,0,0,0
-neutral,"0.50 Neutral","Hostile (0-1)",580,0,0,0,0
-neutral,"0.50 Neutral","Marginal (2-3)",329,33,2,0,0
-neutral,"0.50 Neutral","Viable (4-5)",90,8,0,3,3
+neutral,"0.50 Neutral","Hostile (0-1)",565,0,0,0,0
+neutral,"0.50 Neutral","Marginal (2-3)",357,21,0,3,3
+neutral,"0.50 Neutral","Viable (4-5)",77,5,0,8,8
 neutral,"0.50 Neutral","Habitable (6-7)",1,1,0,0,0
 neutral,"0.50 Neutral","Prime (8-10)",0,0,0,0,0
-space_opera,"1.00 Space Opera","Hostile (0-1)",577,0,0,9,9
-space_opera,"1.00 Space Opera","Marginal (2-3)",341,23,0,37,37
-space_opera,"1.00 Space Opera","Viable (4-5)",74,8,0,12,12
-space_opera,"1.00 Space Opera","Habitable (6-7)",7,7,0,4,4
-space_opera,"1.00 Space Opera","Prime (8-10)",1,1,0,0,0
+space_opera,"1.00 Space Opera","Hostile (0-1)",565,0,0,11,11
+space_opera,"1.00 Space Opera","Marginal (2-3)",357,21,0,88,88
+space_opera,"1.00 Space Opera","Viable (4-5)",77,5,0,39,39
+space_opera,"1.00 Space Opera","Habitable (6-7)",1,1,0,0,0
+space_opera,"1.00 Space Opera","Prime (8-10)",0,0,0,0,0

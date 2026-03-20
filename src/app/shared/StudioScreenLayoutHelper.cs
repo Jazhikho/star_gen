@@ -52,6 +52,48 @@ public static class StudioScreenLayoutHelper
         }
     }
 
+    /// <summary>
+    /// Applies responsive orientation and panel minimum sizes for a three-column studio layout.
+    /// </summary>
+    public static void ApplyResponsiveStudioLayout(
+        Control? owner,
+        BoxContainer? studioRow,
+        Control? settingsPanel,
+        Control? rulesPanel,
+        Control? summaryPanel)
+    {
+        if (owner == null || studioRow == null)
+        {
+            return;
+        }
+
+        Vector2 viewportSize = ResolveAvailableSize(owner);
+        bool stackPanels = viewportSize.X < CompactBreakpoint;
+        studioRow.Vertical = stackPanels;
+
+        ApplyPanelSizing(settingsPanel, stackPanels, 420.0f);
+        ApplyPanelSizing(rulesPanel, stackPanels, 320.0f);
+        ApplyPanelSizing(summaryPanel, stackPanels, 320.0f);
+    }
+
+    private static void ApplyPanelSizing(Control? panel, bool stackPanels, float wideMinimumWidth)
+    {
+        if (panel == null)
+        {
+            return;
+        }
+
+        panel.SizeFlagsHorizontal = Control.SizeFlags.ExpandFill;
+        panel.SizeFlagsVertical = Control.SizeFlags.ExpandFill;
+        if (stackPanels)
+        {
+            panel.CustomMinimumSize = new Vector2(0.0f, 260.0f);
+            return;
+        }
+
+        panel.CustomMinimumSize = new Vector2(wideMinimumWidth, 0.0f);
+    }
+
     private static Vector2 ResolveAvailableSize(Control owner)
     {
         if (owner.IsInsideTree())

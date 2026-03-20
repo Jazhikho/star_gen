@@ -16,7 +16,7 @@ public static class TestMainMenuScreen
         runner.RunNativeTest("TestMainMenuScreen::test_mode_buttons_emit_navigation_signals", TestModeButtonsEmitNavigationSignals);
         runner.RunNativeTest("TestMainMenuScreen::test_concept_atlas_button_emits_signal", TestConceptAtlasButtonEmitsSignal);
         runner.RunNativeTest("TestMainMenuScreen::test_utility_buttons_open_fallback_dialogs", TestUtilityButtonsOpenFallbackDialogs);
-        runner.RunNativeTest("TestMainMenuScreen::test_help_and_credits_copy_mentions_station_and_ai_assistance", TestHelpAndCreditsCopyMentionsStationAndAiAssistance);
+        runner.RunNativeTest("TestMainMenuScreen::test_help_credits_and_sources_copy_are_user_facing", TestHelpCreditsAndSourcesCopyAreUserFacing);
         runner.RunNativeTest("TestMainMenuScreen::test_main_menu_uses_user_facing_version_label", TestMainMenuUsesUserFacingVersionLabel);
     }
 
@@ -93,15 +93,20 @@ public static class TestMainMenuScreen
             screen._Ready();
 
             Button? helpButton = screen.GetNodeOrNull<Button>("MarginContainer/ScrollContainer/Layout/HBoxContainer/UtilityRow/UtilityPanel/MarginContainer/UtilityVBox/SecondaryButtons/HelpButton");
+            Button? sourcesButton = screen.GetNodeOrNull<Button>("MarginContainer/ScrollContainer/Layout/HBoxContainer/UtilityRow/UtilityPanel/MarginContainer/UtilityVBox/SecondaryButtons/SourcesButton");
             Button? optionsButton = screen.GetNodeOrNull<Button>("MarginContainer/ScrollContainer/Layout/HBoxContainer/UtilityRow/UtilityPanel/MarginContainer/UtilityVBox/SecondaryButtons/OptionsButton");
 
             DotNetNativeTestSuite.AssertNotNull(helpButton, "Help button should exist");
+            DotNetNativeTestSuite.AssertNotNull(sourcesButton, "Sources button should exist");
             DotNetNativeTestSuite.AssertNotNull(optionsButton, "Options button should exist");
 
             helpButton!.EmitSignal(BaseButton.SignalName.Pressed);
             Window? infoDialog = screen.GetNodeOrNull<Window>("InfoDialog");
             DotNetNativeTestSuite.AssertNotNull(infoDialog, "Help fallback should create an info dialog");
             DotNetNativeTestSuite.AssertTrue(infoDialog!.Visible, "Help fallback dialog should be visible");
+
+            sourcesButton!.EmitSignal(BaseButton.SignalName.Pressed);
+            DotNetNativeTestSuite.AssertTrue(infoDialog.Visible, "Sources fallback dialog should reuse the info dialog");
 
             optionsButton!.EmitSignal(BaseButton.SignalName.Pressed);
             Window? optionsDialog = screen.GetNodeOrNull<Window>("OptionsDialog");
@@ -114,22 +119,31 @@ public static class TestMainMenuScreen
         }
     }
 
-    private static void TestHelpAndCreditsCopyMentionsStationAndAiAssistance()
+    private static void TestHelpCreditsAndSourcesCopyAreUserFacing()
     {
         MethodInfo? helpMethod = typeof(MainMenuScreen).GetMethod("BuildHelpFallbackText", BindingFlags.NonPublic | BindingFlags.Static);
         MethodInfo? creditsMethod = typeof(MainMenuScreen).GetMethod("BuildCreditsFallbackText", BindingFlags.NonPublic | BindingFlags.Static);
+        MethodInfo? sourcesMethod = typeof(MainMenuScreen).GetMethod("BuildSourcesFallbackText", BindingFlags.NonPublic | BindingFlags.Static);
 
         DotNetNativeTestSuite.AssertNotNull(helpMethod, "Help fallback builder should exist");
         DotNetNativeTestSuite.AssertNotNull(creditsMethod, "Credits fallback builder should exist");
+        DotNetNativeTestSuite.AssertNotNull(sourcesMethod, "Sources fallback builder should exist");
 
         string? helpText = helpMethod!.Invoke(null, null) as string;
         string? creditsText = creditsMethod!.Invoke(null, null) as string;
+        string? sourcesText = sourcesMethod!.Invoke(null, null) as string;
 
         DotNetNativeTestSuite.AssertNotNull(helpText, "Help fallback text should exist");
         DotNetNativeTestSuite.AssertNotNull(creditsText, "Credits fallback text should exist");
+        DotNetNativeTestSuite.AssertNotNull(sourcesText, "Sources fallback text should exist");
         DotNetNativeTestSuite.AssertTrue(helpText!.Contains("Station Studio"), "Help text should mention the Station Studio");
+        DotNetNativeTestSuite.AssertTrue(helpText.Contains("Sources"), "Help text should mention the Sources button");
         DotNetNativeTestSuite.AssertTrue(creditsText!.Contains("AI assistance"), "Credits text should mention AI assistance");
         DotNetNativeTestSuite.AssertTrue(creditsText.Contains("Cursor"), "Credits text should mention Cursor");
+        DotNetNativeTestSuite.AssertTrue(creditsText.Contains("Freepik via Flaticon"), "Credits should contain direct icon attribution");
+        DotNetNativeTestSuite.AssertFalse(creditsText.Contains("Assets.md"), "Credits should not refer users to repository documentation");
+        DotNetNativeTestSuite.AssertFalse(helpText.Contains("repo"), "Help text should avoid repository-facing language");
+        DotNetNativeTestSuite.AssertTrue(sourcesText!.Contains("Bland-Hawthorn"), "Sources text should mention the current astronomy references");
     }
 
     private static void TestMainMenuUsesUserFacingVersionLabel()
