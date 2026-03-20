@@ -30,6 +30,7 @@ public partial class SystemViewer
         _loadButton = GetNodeOrNull<Button>("UI/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/SaveLoadSection/ButtonContainer/LoadButton");
         _showOrbitsCheck = GetNodeOrNull<CheckBox>("UI/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/ViewSection/ShowOrbitsCheck");
         _showZonesCheck = GetNodeOrNull<CheckBox>("UI/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/ViewSection/ShowZonesCheck");
+        _emptyStateLabel = GetNodeOrNull<Label>("UI/EmptyStateLabel");
         _cameraController = GetNodeOrNull<Node>("CameraRig/Camera3D");
         _bodiesContainer = GetNodeOrNull<Node3D>("BodiesContainer");
         _orbitsContainer = GetNodeOrNull<Node3D>("OrbitsContainer");
@@ -154,32 +155,15 @@ public partial class SystemViewer
     /// </summary>
     private void SetupEmptyStateUi()
     {
-        if (_uiRoot == null || _emptyStateLabel != null)
+        if (_emptyStateLabel == null)
         {
-            return;
+            throw new System.InvalidOperationException("SystemViewer scene is missing EmptyStateLabel.");
         }
 
-        Label emptyStateLabel = new Label();
-        emptyStateLabel.Name = "EmptyStateLabel";
-        emptyStateLabel.Text = "Set parameters in the side panel, then click Generate.";
-        emptyStateLabel.HorizontalAlignment = HorizontalAlignment.Center;
-        emptyStateLabel.VerticalAlignment = VerticalAlignment.Center;
-        emptyStateLabel.AutowrapMode = TextServer.AutowrapMode.Word;
-        emptyStateLabel.CustomMinimumSize = new Vector2(280.0f, 0.0f);
-        emptyStateLabel.SizeFlagsHorizontal = Control.SizeFlags.ExpandFill;
-        emptyStateLabel.SizeFlagsVertical = Control.SizeFlags.ExpandFill;
-        emptyStateLabel.AnchorLeft = 0.0f;
-        emptyStateLabel.AnchorTop = 0.0f;
-        emptyStateLabel.AnchorRight = 1.0f;
-        emptyStateLabel.AnchorBottom = 1.0f;
-        emptyStateLabel.OffsetLeft = 180.0f;
-        emptyStateLabel.OffsetTop = 120.0f;
-        emptyStateLabel.OffsetRight = -180.0f;
-        emptyStateLabel.OffsetBottom = -120.0f;
-        emptyStateLabel.MouseFilter = Control.MouseFilterEnum.Ignore;
-        emptyStateLabel.Modulate = new Color(0.74f, 0.78f, 0.84f, 0.9f);
-        _uiRoot.AddChild(emptyStateLabel);
-        _emptyStateLabel = emptyStateLabel;
+        _emptyStateLabel.HorizontalAlignment = HorizontalAlignment.Center;
+        _emptyStateLabel.VerticalAlignment = VerticalAlignment.Center;
+        _emptyStateLabel.AutowrapMode = TextServer.AutowrapMode.Word;
+        _emptyStateLabel.CustomMinimumSize = new Vector2(280.0f, 0.0f);
         UpdateEmptyStateVisibility();
     }
 

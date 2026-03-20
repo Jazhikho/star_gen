@@ -17,10 +17,17 @@ UI layout baseline:
 - Wrapped labels should have a panel-appropriate minimum width rather than relying on autowrap alone; large full-width headers can be broader, while sidebar/footer text should usually stay closer to the 180-320 px range.
 
 Current development line:
-- `0.7.2.0`
+- `0.7.3.0`
 
 Current public release target:
 - `0.8.0.0`
+
+Recent 0.7.3.0 additions:
+- `src/app/system_viewer/SystemViewer.cs` / `src/app/system_viewer/SystemViewer.Setup.cs` / `src/app/system_viewer/SystemViewer.Parameters.cs` / `src/app/system_viewer/SystemViewer.tscn` (stable system-viewer generation controls and the standalone empty-state placeholder are now scene-defined, leaving C# to bind and validate them)
+- `src/app/viewer/ObjectViewer.Display.cs` / `src/app/viewer/ObjectViewer.Parameters.cs` / `src/app/viewer/ObjectViewer.SaveLoad.cs` / `src/app/viewer/ObjectViewer.tscn` (object-viewer preset, ruleset, use-case, and empty-state UI is now scene-first instead of runtime-built)
+- `src/app/concepts/ConceptAtlasScreen.cs` / `src/app/concepts/ConceptAtlasScreen.tscn` (Concept Atlas now uses a real scene shell for its header, module list, manual-input controls, and result frame; runtime code only renders variable metrics and detail sections)
+- `src/app/viewer/EditDialog.cs` / `src/app/viewer/EditDialog.tscn` (edit-dialog action buttons and save dialog are now defined in the scene tree while property editors remain data-driven)
+- `Tests/Framework/DotNetNativeTestSuite.Concepts.cs` (scene-backed atlas regression setup now mounts the real atlas scene in-tree before asserting persisted-result reuse)
 
 Recent 0.7.2.0 additions:
 - `src/app/WelcomeScreen.cs` / `src/app/WelcomeScreen.tscn` (Galaxy Studio generation-rules controls now live in the scene tree instead of being constructed at runtime)

@@ -16,7 +16,7 @@ public partial class SystemViewer
 {
     private void BuildParameterEditorUi()
     {
-        if (_generationSection == null || _spectralHintsInput != null)
+        if (_generationSection == null)
         {
             return;
         }
@@ -26,202 +26,103 @@ public partial class SystemViewer
             _starCountLabel.Text = "Min Stars:";
         }
 
-        HBoxContainer maxStarsRow = CreateGenerationRow("Max Stars:", out Label maxStarsLabel);
-        maxStarsRow.Name = "StarCountMaxContainer";
-        maxStarsLabel.TooltipText = GetSystemAssumption("star_count_max");
-        SpinBox maxStarsSpin = new SpinBox();
-        maxStarsSpin.Name = "StarCountMaxSpin";
-        maxStarsSpin.MinValue = 1.0;
-        maxStarsSpin.MaxValue = 10.0;
-        maxStarsSpin.Step = 1.0;
-        maxStarsSpin.Rounded = true;
-        maxStarsSpin.SizeFlagsHorizontal = Control.SizeFlags.ExpandFill;
-        maxStarsSpin.TooltipText = GetSystemAssumption("star_count_max");
-        maxStarsRow.AddChild(maxStarsSpin);
-        _starCountMaxSpin = maxStarsSpin;
-        _generationSection.AddChild(maxStarsRow);
+        _starCountMaxSpin = GetNodeOrNull<SpinBox>("UI/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/GenerationSection/StarCountMaxContainer/StarCountMaxSpin")
+            ?? throw new System.InvalidOperationException("SystemViewer scene is missing StarCountMaxSpin.");
+        _spectralHintsInput = GetNodeOrNull<LineEdit>("UI/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/GenerationSection/SpectralHintsContainer/SpectralHintsInput")
+            ?? throw new System.InvalidOperationException("SystemViewer scene is missing SpectralHintsInput.");
+        _systemAgeInput = GetNodeOrNull<SpinBox>("UI/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/GenerationSection/SystemAgeContainer/SystemAgeInput")
+            ?? throw new System.InvalidOperationException("SystemViewer scene is missing SystemAgeInput.");
+        _systemMetallicityInput = GetNodeOrNull<SpinBox>("UI/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/GenerationSection/SystemMetallicityContainer/SystemMetallicityInput")
+            ?? throw new System.InvalidOperationException("SystemViewer scene is missing SystemMetallicityInput.");
+        _includeBeltsCheck = GetNodeOrNull<CheckBox>("UI/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/GenerationSection/IncludeBeltsCheck")
+            ?? throw new System.InvalidOperationException("SystemViewer scene is missing IncludeBeltsCheck.");
+        _generatePopulationCheck = GetNodeOrNull<CheckBox>("UI/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/GenerationSection/GeneratePopulationCheck")
+            ?? throw new System.InvalidOperationException("SystemViewer scene is missing GeneratePopulationCheck.");
+        _rulesetModeOption = GetNodeOrNull<OptionButton>("UI/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/GenerationSection/RulesetModeContainer/RulesetModeOption")
+            ?? throw new System.InvalidOperationException("SystemViewer scene is missing RulesetModeOption.");
+        _showTravellerReadoutsCheck = GetNodeOrNull<CheckBox>("UI/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/GenerationSection/ShowTravellerReadoutsCheck")
+            ?? throw new System.InvalidOperationException("SystemViewer scene is missing ShowTravellerReadoutsCheck.");
+        _lifePermissivenessInput = GetNodeOrNull<HSlider>("UI/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/GenerationSection/LifePermissivenessContainer/LifePermissivenessInput")
+            ?? throw new System.InvalidOperationException("SystemViewer scene is missing LifePermissivenessInput.");
+        _lifePermissivenessValueLabel = GetNodeOrNull<Label>("UI/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/GenerationSection/LifePermissivenessContainer/LifePermissivenessValueLabel")
+            ?? throw new System.InvalidOperationException("SystemViewer scene is missing LifePermissivenessValueLabel.");
+        _populationPermissivenessInput = GetNodeOrNull<HSlider>("UI/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/GenerationSection/PopulationPermissivenessContainer/PopulationPermissivenessInput")
+            ?? throw new System.InvalidOperationException("SystemViewer scene is missing PopulationPermissivenessInput.");
+        _populationPermissivenessValueLabel = GetNodeOrNull<Label>("UI/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/GenerationSection/PopulationPermissivenessContainer/PopulationPermissivenessValueLabel")
+            ?? throw new System.InvalidOperationException("SystemViewer scene is missing PopulationPermissivenessValueLabel.");
+        _mainworldPolicyOption = GetNodeOrNull<OptionButton>("UI/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/GenerationSection/MainworldPolicyContainer/MainworldPolicyOption")
+            ?? throw new System.InvalidOperationException("SystemViewer scene is missing MainworldPolicyOption.");
+        _generationAssumptionsLabel = GetNodeOrNull<Label>("UI/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/GenerationSection/GenerationAssumptionsLabel")
+            ?? throw new System.InvalidOperationException("SystemViewer scene is missing GenerationAssumptionsLabel.");
+        _generationIssuesContainer = GetNodeOrNull<VBoxContainer>("UI/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/GenerationSection/GenerationIssuesContainer")
+            ?? throw new System.InvalidOperationException("SystemViewer scene is missing GenerationIssuesContainer.");
 
-        HBoxContainer spectralHintsRow = CreateGenerationRow("Spectral:", out Label spectralLabel);
-        spectralHintsRow.Name = "SpectralHintsContainer";
-        spectralLabel.TooltipText = GetSystemAssumption("spectral_class_hints");
-        LineEdit spectralInput = new LineEdit();
-        spectralInput.Name = "SpectralHintsInput";
-        spectralInput.PlaceholderText = "G,K,M";
-        spectralInput.SizeFlagsHorizontal = Control.SizeFlags.ExpandFill;
-        spectralInput.TooltipText = GetSystemAssumption("spectral_class_hints");
-        spectralHintsRow.AddChild(spectralInput);
-        _spectralHintsInput = spectralInput;
-        _generationSection.AddChild(spectralHintsRow);
+        Label starCountMaxLabel = GetNodeOrNull<Label>("UI/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/GenerationSection/StarCountMaxContainer/StarCountMaxLabel")
+            ?? throw new System.InvalidOperationException("SystemViewer scene is missing StarCountMaxLabel.");
+        Label spectralHintsLabel = GetNodeOrNull<Label>("UI/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/GenerationSection/SpectralHintsContainer/SpectralHintsLabel")
+            ?? throw new System.InvalidOperationException("SystemViewer scene is missing SpectralHintsLabel.");
+        Label systemAgeLabel = GetNodeOrNull<Label>("UI/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/GenerationSection/SystemAgeContainer/SystemAgeLabel")
+            ?? throw new System.InvalidOperationException("SystemViewer scene is missing SystemAgeLabel.");
+        Label metallicityLabel = GetNodeOrNull<Label>("UI/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/GenerationSection/SystemMetallicityContainer/SystemMetallicityLabel")
+            ?? throw new System.InvalidOperationException("SystemViewer scene is missing SystemMetallicityLabel.");
+        Label rulesetModeLabel = GetNodeOrNull<Label>("UI/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/GenerationSection/RulesetModeContainer/RulesetModeLabel")
+            ?? throw new System.InvalidOperationException("SystemViewer scene is missing RulesetModeLabel.");
+        Label lifePermissivenessLabel = GetNodeOrNull<Label>("UI/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/GenerationSection/LifePermissivenessContainer/LifePermissivenessLabel")
+            ?? throw new System.InvalidOperationException("SystemViewer scene is missing LifePermissivenessLabel.");
+        Label populationPermissivenessLabel = GetNodeOrNull<Label>("UI/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/GenerationSection/PopulationPermissivenessContainer/PopulationPermissivenessLabel")
+            ?? throw new System.InvalidOperationException("SystemViewer scene is missing PopulationPermissivenessLabel.");
+        Label mainworldPolicyLabel = GetNodeOrNull<Label>("UI/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/GenerationSection/MainworldPolicyContainer/MainworldPolicyLabel")
+            ?? throw new System.InvalidOperationException("SystemViewer scene is missing MainworldPolicyLabel.");
+        Label permissivenessLegendLabel = GetNodeOrNull<Label>("UI/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/GenerationSection/PermissivenessLegendLabel")
+            ?? throw new System.InvalidOperationException("SystemViewer scene is missing PermissivenessLegendLabel.");
 
-        HBoxContainer ageRow = CreateGenerationRow("Age:", out Label ageLabel);
-        ageRow.Name = "SystemAgeContainer";
-        ageLabel.TooltipText = GetSystemAssumption("system_age_years");
-        SpinBox ageInput = new SpinBox();
-        ageInput.Name = "SystemAgeInput";
-        ageInput.MinValue = -1.0;
-        ageInput.MaxValue = 13.0;
-        ageInput.Step = 0.1;
-        ageInput.Suffix = " Gyr";
-        ageInput.SizeFlagsHorizontal = Control.SizeFlags.ExpandFill;
-        ageInput.TooltipText = GetSystemAssumption("system_age_years");
-        ageRow.AddChild(ageInput);
-        _systemAgeInput = ageInput;
-        _generationSection.AddChild(ageRow);
+        string starCountMaxAssumption = GetSystemAssumption("star_count_max");
+        string spectralHintsAssumption = GetSystemAssumption("spectral_class_hints");
+        string systemAgeAssumption = GetSystemAssumption("system_age_years");
+        string systemMetallicityAssumption = GetSystemAssumption("system_metallicity");
+        string includeBeltsAssumption = GetSystemAssumption("include_asteroid_belts");
+        string generatePopulationAssumption = GetSystemAssumption("generate_population");
+        string rulesetModeAssumption = GetSystemAssumption("ruleset_mode");
+        string showTravellerAssumption = GetSystemAssumption("show_traveller_readouts");
+        string lifeAssumption = PermissivenessScaleHelper.GetTooltipText("life");
+        string settlementAssumption = PermissivenessScaleHelper.GetTooltipText("settlement");
+        string mainworldAssumption = GetSystemAssumption("mainworld_policy");
 
-        HBoxContainer metallicityRow = CreateGenerationRow("Metallicity:", out Label metallicityLabel);
-        metallicityRow.Name = "SystemMetallicityContainer";
-        metallicityLabel.TooltipText = GetSystemAssumption("system_metallicity");
-        SpinBox metallicityInput = new SpinBox();
-        metallicityInput.Name = "SystemMetallicityInput";
-        metallicityInput.MinValue = -1.0;
-        metallicityInput.MaxValue = 5.0;
-        metallicityInput.Step = 0.05;
-        metallicityInput.Suffix = " Zsun";
-        metallicityInput.SizeFlagsHorizontal = Control.SizeFlags.ExpandFill;
-        metallicityInput.TooltipText = GetSystemAssumption("system_metallicity");
-        metallicityRow.AddChild(metallicityInput);
-        _systemMetallicityInput = metallicityInput;
-        _generationSection.AddChild(metallicityRow);
+        starCountMaxLabel.TooltipText = starCountMaxAssumption;
+        _starCountMaxSpin.TooltipText = starCountMaxAssumption;
+        spectralHintsLabel.TooltipText = spectralHintsAssumption;
+        _spectralHintsInput.TooltipText = spectralHintsAssumption;
+        systemAgeLabel.TooltipText = systemAgeAssumption;
+        _systemAgeInput.TooltipText = systemAgeAssumption;
+        metallicityLabel.TooltipText = systemMetallicityAssumption;
+        _systemMetallicityInput.TooltipText = systemMetallicityAssumption;
+        _includeBeltsCheck.TooltipText = includeBeltsAssumption;
+        _generatePopulationCheck.TooltipText = generatePopulationAssumption;
+        rulesetModeLabel.TooltipText = rulesetModeAssumption;
+        _rulesetModeOption.TooltipText = rulesetModeAssumption;
+        _showTravellerReadoutsCheck.TooltipText = showTravellerAssumption;
+        lifePermissivenessLabel.TooltipText = lifeAssumption;
+        _lifePermissivenessInput.TooltipText = lifeAssumption;
+        _lifePermissivenessValueLabel.TooltipText = lifeAssumption;
+        populationPermissivenessLabel.TooltipText = settlementAssumption;
+        _populationPermissivenessInput.TooltipText = settlementAssumption;
+        _populationPermissivenessValueLabel.TooltipText = settlementAssumption;
+        mainworldPolicyLabel.TooltipText = mainworldAssumption;
+        _mainworldPolicyOption.TooltipText = mainworldAssumption;
+        permissivenessLegendLabel.Text = PermissivenessScaleHelper.GetLegendText();
 
-        CheckBox includeBeltsCheck = new CheckBox();
-        includeBeltsCheck.Name = "IncludeBeltsCheck";
-        includeBeltsCheck.Text = "Generate Asteroid Belts";
-        includeBeltsCheck.TooltipText = GetSystemAssumption("include_asteroid_belts");
-        _includeBeltsCheck = includeBeltsCheck;
-        _generationSection.AddChild(includeBeltsCheck);
+        if (_rulesetModeOption.ItemCount == 0)
+        {
+            _rulesetModeOption.AddItem("Default", (int)GenerationUseCaseSettings.RulesetModeType.Default);
+            _rulesetModeOption.AddItem("Traveller", (int)GenerationUseCaseSettings.RulesetModeType.Traveller);
+        }
 
-        CheckBox generatePopulationCheck = new CheckBox();
-        generatePopulationCheck.Name = "GeneratePopulationCheck";
-        generatePopulationCheck.Text = "Generate Population";
-        generatePopulationCheck.TooltipText = GetSystemAssumption("generate_population");
-        _generatePopulationCheck = generatePopulationCheck;
-        _generationSection.AddChild(generatePopulationCheck);
-
-        Label basicHeader = new Label();
-        basicHeader.Name = "TravellerBasicHeader";
-        basicHeader.Text = "Traveller / Ruleset";
-        basicHeader.AddThemeFontSizeOverride("font_size", 12);
-        basicHeader.Modulate = new Color(0.82f, 0.82f, 0.55f, 1.0f);
-        _generationSection.AddChild(basicHeader);
-
-        HBoxContainer rulesetRow = CreateGenerationRow("Ruleset:", out Label rulesetLabel);
-        rulesetRow.Name = "RulesetModeContainer";
-        rulesetLabel.TooltipText = GetSystemAssumption("ruleset_mode");
-        OptionButton rulesetModeOption = new OptionButton();
-        rulesetModeOption.Name = "RulesetModeOption";
-        rulesetModeOption.SizeFlagsHorizontal = Control.SizeFlags.ExpandFill;
-        rulesetModeOption.AddItem("Default", (int)GenerationUseCaseSettings.RulesetModeType.Default);
-        rulesetModeOption.AddItem("Traveller", (int)GenerationUseCaseSettings.RulesetModeType.Traveller);
-        rulesetRow.AddChild(rulesetModeOption);
-        _rulesetModeOption = rulesetModeOption;
-        _generationSection.AddChild(rulesetRow);
-
-        CheckBox showTravellerReadoutsCheck = new CheckBox();
-        showTravellerReadoutsCheck.Name = "ShowTravellerReadoutsCheck";
-        showTravellerReadoutsCheck.Text = "Show Traveller / UWP Readouts";
-        showTravellerReadoutsCheck.TooltipText = GetSystemAssumption("show_traveller_readouts");
-        _showTravellerReadoutsCheck = showTravellerReadoutsCheck;
-        _generationSection.AddChild(showTravellerReadoutsCheck);
-
-        Label advancedHeader = new Label();
-        advancedHeader.Name = "TravellerAdvancedHeader";
-        advancedHeader.Text = "Advanced Assumptions";
-        advancedHeader.AddThemeFontSizeOverride("font_size", 12);
-        advancedHeader.Modulate = new Color(0.82f, 0.82f, 0.55f, 1.0f);
-        _generationSection.AddChild(advancedHeader);
-
-        Label legendLabel = new Label();
-        legendLabel.Name = "PermissivenessLegendLabel";
-        legendLabel.Text = PermissivenessScaleHelper.GetLegendText();
-        legendLabel.AutowrapMode = TextServer.AutowrapMode.WordSmart;
-        legendLabel.CustomMinimumSize = new Vector2(220.0f, 0.0f);
-        legendLabel.AddThemeFontSizeOverride("font_size", 10);
-        legendLabel.Modulate = new Color(0.62f, 0.7f, 0.8f, 1.0f);
-        _generationSection.AddChild(legendLabel);
-
-        HBoxContainer lifeRow = CreateGenerationRow("Life Potential:", out Label lifeLabel);
-        lifeRow.Name = "LifePermissivenessContainer";
-        lifeLabel.CustomMinimumSize = new Vector2(120.0f, 0.0f);
-        lifeLabel.TooltipText = PermissivenessScaleHelper.GetTooltipText("life");
-        HSlider lifePermissivenessInput = new HSlider();
-        lifePermissivenessInput.Name = "LifePermissivenessInput";
-        lifePermissivenessInput.MinValue = 0.0;
-        lifePermissivenessInput.MaxValue = 1.0;
-        lifePermissivenessInput.Step = 0.05;
-        lifePermissivenessInput.SizeFlagsHorizontal = Control.SizeFlags.ExpandFill;
-        lifePermissivenessInput.TooltipText = lifeLabel.TooltipText;
-        lifeRow.AddChild(lifePermissivenessInput);
-        Label lifeValueLabel = new Label();
-        lifeValueLabel.Name = "LifePermissivenessValueLabel";
-        lifeValueLabel.CustomMinimumSize = new Vector2(156.0f, 0.0f);
-        lifeValueLabel.HorizontalAlignment = HorizontalAlignment.Right;
-        lifeValueLabel.TooltipText = lifeLabel.TooltipText;
-        lifeRow.AddChild(lifeValueLabel);
-        _lifePermissivenessInput = lifePermissivenessInput;
-        _lifePermissivenessValueLabel = lifeValueLabel;
-        _generationSection.AddChild(lifeRow);
-
-        HBoxContainer populationRow = CreateGenerationRow("Settlement Density:", out Label populationLabel);
-        populationRow.Name = "PopulationPermissivenessContainer";
-        populationLabel.CustomMinimumSize = new Vector2(120.0f, 0.0f);
-        populationLabel.TooltipText = PermissivenessScaleHelper.GetTooltipText("settlement");
-        HSlider populationPermissivenessInput = new HSlider();
-        populationPermissivenessInput.Name = "PopulationPermissivenessInput";
-        populationPermissivenessInput.MinValue = 0.0;
-        populationPermissivenessInput.MaxValue = 1.0;
-        populationPermissivenessInput.Step = 0.05;
-        populationPermissivenessInput.SizeFlagsHorizontal = Control.SizeFlags.ExpandFill;
-        populationPermissivenessInput.TooltipText = populationLabel.TooltipText;
-        populationRow.AddChild(populationPermissivenessInput);
-        Label populationValueLabel = new Label();
-        populationValueLabel.Name = "PopulationPermissivenessValueLabel";
-        populationValueLabel.CustomMinimumSize = new Vector2(156.0f, 0.0f);
-        populationValueLabel.HorizontalAlignment = HorizontalAlignment.Right;
-        populationValueLabel.TooltipText = populationLabel.TooltipText;
-        populationRow.AddChild(populationValueLabel);
-        _populationPermissivenessInput = populationPermissivenessInput;
-        _populationPermissivenessValueLabel = populationValueLabel;
-        _generationSection.AddChild(populationRow);
-
-        HBoxContainer mainworldRow = CreateGenerationRow("Mainworld:", out Label mainworldLabel);
-        mainworldRow.Name = "MainworldPolicyContainer";
-        mainworldLabel.TooltipText = GetSystemAssumption("mainworld_policy");
-        OptionButton mainworldPolicyOption = new OptionButton();
-        mainworldPolicyOption.Name = "MainworldPolicyOption";
-        mainworldPolicyOption.SizeFlagsHorizontal = Control.SizeFlags.ExpandFill;
-        mainworldPolicyOption.AddItem("None", (int)GenerationUseCaseSettings.MainworldPolicyType.None);
-        mainworldPolicyOption.AddItem("Prefer", (int)GenerationUseCaseSettings.MainworldPolicyType.Prefer);
-        mainworldPolicyOption.AddItem("Require", (int)GenerationUseCaseSettings.MainworldPolicyType.Require);
-        mainworldRow.AddChild(mainworldPolicyOption);
-        _mainworldPolicyOption = mainworldPolicyOption;
-        _generationSection.AddChild(mainworldRow);
-
-        Label assumptionsLabel = new Label();
-        assumptionsLabel.Name = "GenerationAssumptionsLabel";
-        assumptionsLabel.AutowrapMode = TextServer.AutowrapMode.Word;
-        assumptionsLabel.CustomMinimumSize = new Vector2(220.0f, 0.0f);
-        assumptionsLabel.AddThemeFontSizeOverride("font_size", 10);
-        assumptionsLabel.Modulate = new Color(0.6f, 0.7f, 0.8f, 1.0f);
-        assumptionsLabel.Text = "Targets bias star generation and shared chemistry, but orbit slots and body placement remain generator-driven in the current release.";
-        _generationAssumptionsLabel = assumptionsLabel;
-        _generationSection.AddChild(assumptionsLabel);
-
-        VBoxContainer issuesContainer = new VBoxContainer();
-        issuesContainer.Name = "GenerationIssuesContainer";
-        issuesContainer.AddThemeConstantOverride("separation", 2);
-        _generationIssuesContainer = issuesContainer;
-        _generationSection.AddChild(issuesContainer);
-    }
-
-    private static HBoxContainer CreateGenerationRow(string labelText, out Label label)
-    {
-        HBoxContainer row = new HBoxContainer();
-        row.AddThemeConstantOverride("separation", 8);
-        label = new Label();
-        label.Text = labelText;
-        label.CustomMinimumSize = new Vector2(90.0f, 0.0f);
-        row.AddChild(label);
-        return row;
+        if (_mainworldPolicyOption.ItemCount == 0)
+        {
+            _mainworldPolicyOption.AddItem("None", (int)GenerationUseCaseSettings.MainworldPolicyType.None);
+            _mainworldPolicyOption.AddItem("Prefer", (int)GenerationUseCaseSettings.MainworldPolicyType.Prefer);
+            _mainworldPolicyOption.AddItem("Require", (int)GenerationUseCaseSettings.MainworldPolicyType.Require);
+        }
     }
 
     private string GetSystemAssumption(string parameterId)

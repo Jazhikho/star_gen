@@ -75,50 +75,14 @@ public partial class ObjectViewer
             return;
         }
 
-        Node? generationSectionNode = GetNodeOrNull<Node>("UI/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/GenerationSection");
-        if (generationSectionNode is not VBoxContainer generationSection)
+        if (_presetOption == null)
         {
-            return;
+            throw new System.InvalidOperationException("ObjectViewer scene is missing PresetOption.");
         }
 
-        HBoxContainer? existingRow = generationSection.GetNodeOrNull<HBoxContainer>("PresetContainer");
-        if (existingRow == null)
+        if (_presetAssumptionsLabel == null)
         {
-            HBoxContainer presetContainer = new HBoxContainer();
-            presetContainer.Name = "PresetContainer";
-            Label presetLabel = new Label();
-            presetLabel.Text = "Preset:";
-            presetLabel.CustomMinimumSize = new Vector2(60.0f, 0.0f);
-            presetContainer.AddChild(presetLabel);
-
-            OptionButton presetOption = new OptionButton();
-            presetOption.Name = "PresetOption";
-            presetOption.SizeFlagsHorizontal = Control.SizeFlags.ExpandFill;
-            presetContainer.AddChild(presetOption);
-            generationSection.AddChild(presetContainer);
-            int buttonIndex = generationSection.GetNode("ButtonContainer").GetIndex();
-            generationSection.MoveChild(presetContainer, buttonIndex);
-            _presetOption = presetOption;
-
-            Label assumptionsLabel = new Label();
-            assumptionsLabel.Name = "PresetAssumptionsLabel";
-            assumptionsLabel.AutowrapMode = TextServer.AutowrapMode.Word;
-            assumptionsLabel.CustomMinimumSize = new Vector2(220.0f, 0.0f);
-            assumptionsLabel.AddThemeFontSizeOverride("font_size", 10);
-            assumptionsLabel.Modulate = new Color(0.6f, 0.7f, 0.8f, 1.0f);
-            generationSection.AddChild(assumptionsLabel);
-            generationSection.MoveChild(assumptionsLabel, buttonIndex + 1);
-            _presetAssumptionsLabel = assumptionsLabel;
-        }
-        else
-        {
-            _presetOption = existingRow.GetNodeOrNull<OptionButton>("PresetOption");
-            if (_presetOption == null && existingRow.GetChildCount() > 1)
-            {
-                _presetOption = existingRow.GetChild(1) as OptionButton;
-            }
-
-            _presetAssumptionsLabel = generationSection.GetNodeOrNull<Label>("PresetAssumptionsLabel");
+            throw new System.InvalidOperationException("ObjectViewer scene is missing PresetAssumptionsLabel.");
         }
 
         if (_typeOption != null)

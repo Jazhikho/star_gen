@@ -178,6 +178,185 @@ max_value = 999999.0
 value = 12345.0
 rounded = true
 
+[node name="StarCountMaxContainer" type="HBoxContainer" parent="UI/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/GenerationSection"]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="StarCountMaxLabel" type="Label" parent="UI/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/GenerationSection/StarCountMaxContainer"]
+custom_minimum_size = Vector2(90, 0)
+layout_mode = 2
+text = "Max Stars:"
+
+[node name="StarCountMaxSpin" type="SpinBox" parent="UI/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/GenerationSection/StarCountMaxContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+min_value = 1.0
+max_value = 10.0
+step = 1.0
+value = 1.0
+rounded = true
+
+[node name="SpectralHintsContainer" type="HBoxContainer" parent="UI/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/GenerationSection"]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="SpectralHintsLabel" type="Label" parent="UI/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/GenerationSection/SpectralHintsContainer"]
+custom_minimum_size = Vector2(90, 0)
+layout_mode = 2
+text = "Spectral:"
+
+[node name="SpectralHintsInput" type="LineEdit" parent="UI/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/GenerationSection/SpectralHintsContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+placeholder_text = "G,K,M"
+
+[node name="SystemAgeContainer" type="HBoxContainer" parent="UI/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/GenerationSection"]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="SystemAgeLabel" type="Label" parent="UI/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/GenerationSection/SystemAgeContainer"]
+custom_minimum_size = Vector2(90, 0)
+layout_mode = 2
+text = "Age:"
+
+[node name="SystemAgeInput" type="SpinBox" parent="UI/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/GenerationSection/SystemAgeContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+min_value = -1.0
+max_value = 13.0
+step = 0.1
+suffix = " Gyr"
+
+[node name="SystemMetallicityContainer" type="HBoxContainer" parent="UI/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/GenerationSection"]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="SystemMetallicityLabel" type="Label" parent="UI/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/GenerationSection/SystemMetallicityContainer"]
+custom_minimum_size = Vector2(90, 0)
+layout_mode = 2
+text = "Metallicity:"
+
+[node name="SystemMetallicityInput" type="SpinBox" parent="UI/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/GenerationSection/SystemMetallicityContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+min_value = -1.0
+max_value = 5.0
+step = 0.05
+suffix = " Zsun"
+
+[node name="IncludeBeltsCheck" type="CheckBox" parent="UI/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/GenerationSection"]
+layout_mode = 2
+text = "Generate Asteroid Belts"
+
+[node name="GeneratePopulationCheck" type="CheckBox" parent="UI/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/GenerationSection"]
+layout_mode = 2
+text = "Generate Population"
+
+[node name="TravellerBasicHeader" type="Label" parent="UI/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/GenerationSection"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 12
+modulate = Color(0.82, 0.82, 0.55, 1)
+text = "Traveller / Ruleset"
+
+[node name="RulesetModeContainer" type="HBoxContainer" parent="UI/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/GenerationSection"]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="RulesetModeLabel" type="Label" parent="UI/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/GenerationSection/RulesetModeContainer"]
+custom_minimum_size = Vector2(90, 0)
+layout_mode = 2
+text = "Ruleset:"
+
+[node name="RulesetModeOption" type="OptionButton" parent="UI/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/GenerationSection/RulesetModeContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="ShowTravellerReadoutsCheck" type="CheckBox" parent="UI/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/GenerationSection"]
+layout_mode = 2
+text = "Show Traveller / UWP Readouts"
+
+[node name="TravellerAdvancedHeader" type="Label" parent="UI/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/GenerationSection"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 12
+modulate = Color(0.82, 0.82, 0.55, 1)
+text = "Advanced Assumptions"
+
+[node name="PermissivenessLegendLabel" type="Label" parent="UI/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/GenerationSection"]
+custom_minimum_size = Vector2(220, 0)
+layout_mode = 2
+theme_override_font_sizes/font_size = 10
+modulate = Color(0.62, 0.7, 0.8, 1)
+autowrap_mode = 2
+
+[node name="LifePermissivenessContainer" type="HBoxContainer" parent="UI/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/GenerationSection"]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="LifePermissivenessLabel" type="Label" parent="UI/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/GenerationSection/LifePermissivenessContainer"]
+custom_minimum_size = Vector2(120, 0)
+layout_mode = 2
+text = "Life Potential:"
+
+[node name="LifePermissivenessInput" type="HSlider" parent="UI/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/GenerationSection/LifePermissivenessContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+max_value = 1.0
+step = 0.05
+value = 0.5
+
+[node name="LifePermissivenessValueLabel" type="Label" parent="UI/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/GenerationSection/LifePermissivenessContainer"]
+custom_minimum_size = Vector2(156, 0)
+layout_mode = 2
+horizontal_alignment = 2
+text = "0.50 Neutral"
+
+[node name="PopulationPermissivenessContainer" type="HBoxContainer" parent="UI/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/GenerationSection"]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="PopulationPermissivenessLabel" type="Label" parent="UI/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/GenerationSection/PopulationPermissivenessContainer"]
+custom_minimum_size = Vector2(120, 0)
+layout_mode = 2
+text = "Settlement Density:"
+
+[node name="PopulationPermissivenessInput" type="HSlider" parent="UI/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/GenerationSection/PopulationPermissivenessContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+max_value = 1.0
+step = 0.05
+value = 0.5
+
+[node name="PopulationPermissivenessValueLabel" type="Label" parent="UI/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/GenerationSection/PopulationPermissivenessContainer"]
+custom_minimum_size = Vector2(156, 0)
+layout_mode = 2
+horizontal_alignment = 2
+text = "0.50 Neutral"
+
+[node name="MainworldPolicyContainer" type="HBoxContainer" parent="UI/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/GenerationSection"]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="MainworldPolicyLabel" type="Label" parent="UI/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/GenerationSection/MainworldPolicyContainer"]
+custom_minimum_size = Vector2(90, 0)
+layout_mode = 2
+text = "Mainworld:"
+
+[node name="MainworldPolicyOption" type="OptionButton" parent="UI/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/GenerationSection/MainworldPolicyContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="GenerationAssumptionsLabel" type="Label" parent="UI/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/GenerationSection"]
+custom_minimum_size = Vector2(220, 0)
+layout_mode = 2
+theme_override_font_sizes/font_size = 10
+modulate = Color(0.6, 0.7, 0.8, 1)
+autowrap_mode = 2
+text = "Targets bias star generation and shared chemistry, but orbit slots and body placement remain generator-driven in the current release."
+
+[node name="GenerationIssuesContainer" type="VBoxContainer" parent="UI/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/GenerationSection"]
+layout_mode = 2
+theme_override_constants/separation = 2
+
 [node name="ButtonContainer" type="HBoxContainer" parent="UI/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/GenerationSection"]
 layout_mode = 2
 theme_override_constants/separation = 10
@@ -268,3 +447,18 @@ text = "• Left Mouse: Orbit
 • F: Focus origin
 • T: Toggle view angle
 • Click body: Select + focus"
+[node name="EmptyStateLabel" type="Label" parent="UI"]
+visible = false
+layout_mode = 0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 180.0
+offset_top = 120.0
+offset_right = -180.0
+offset_bottom = -120.0
+mouse_filter = 2
+theme_override_colors/font_color = Color(0.74, 0.78, 0.84, 0.9)
+horizontal_alignment = 1
+vertical_alignment = 1
+autowrap_mode = 2
+text = "Set parameters in the side panel, then click Generate."

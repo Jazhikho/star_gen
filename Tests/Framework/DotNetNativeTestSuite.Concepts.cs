@@ -350,8 +350,11 @@ public static partial class DotNetNativeTestSuite
                 },
             });
 
-        ConceptAtlasScreen screen = new ConceptAtlasScreen();
-        screen._Ready();
+        PackedScene atlasScene = ResourceLoader.Load<PackedScene>("res://src/app/concepts/ConceptAtlasScreen.tscn")
+            ?? throw new InvalidOperationException("Concept atlas scene could not be loaded for tests.");
+        ConceptAtlasScreen screen = atlasScene.Instantiate<ConceptAtlasScreen>();
+        SceneTree sceneTree = (SceneTree)Engine.GetMainLoop();
+        sceneTree.Root.AddChild(screen);
         screen.SetContext(context, ConceptKind.Ecology);
 
         RichTextLabel? summary = screen.FindChild("SummaryText", recursive: true, owned: false) as RichTextLabel;

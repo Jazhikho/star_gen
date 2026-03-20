@@ -196,6 +196,83 @@ text = "Population:"
 layout_mode = 2
 size_flags_horizontal = 3
 
+[node name="PresetContainer" type="HBoxContainer" parent="UI/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/GenerationSection"]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="PresetLabel" type="Label" parent="UI/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/GenerationSection/PresetContainer"]
+custom_minimum_size = Vector2(60, 0)
+layout_mode = 2
+text = "Preset:"
+
+[node name="PresetOption" type="OptionButton" parent="UI/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/GenerationSection/PresetContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="RulesetContainer" type="HBoxContainer" parent="UI/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/GenerationSection"]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="RulesetLabel" type="Label" parent="UI/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/GenerationSection/RulesetContainer"]
+custom_minimum_size = Vector2(60, 0)
+layout_mode = 2
+text = "Ruleset:"
+
+[node name="RulesetModeOption" type="OptionButton" parent="UI/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/GenerationSection/RulesetContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="ShowTravellerReadoutsCheck" type="CheckBox" parent="UI/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/GenerationSection"]
+layout_mode = 2
+text = "Show Traveller / UWP Readouts"
+
+[node name="LifePermissivenessContainer" type="HBoxContainer" parent="UI/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/GenerationSection"]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="LifePermissivenessLabel" type="Label" parent="UI/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/GenerationSection/LifePermissivenessContainer"]
+custom_minimum_size = Vector2(80, 0)
+layout_mode = 2
+text = "Life Potential:"
+
+[node name="LifePermissivenessInput" type="SpinBox" parent="UI/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/GenerationSection/LifePermissivenessContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+max_value = 1.0
+step = 0.05
+value = 0.5
+
+[node name="PopulationPermissivenessContainer" type="HBoxContainer" parent="UI/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/GenerationSection"]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="PopulationPermissivenessLabel" type="Label" parent="UI/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/GenerationSection/PopulationPermissivenessContainer"]
+custom_minimum_size = Vector2(80, 0)
+layout_mode = 2
+text = "Settlement Density:"
+
+[node name="PopulationPermissivenessInput" type="SpinBox" parent="UI/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/GenerationSection/PopulationPermissivenessContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+max_value = 1.0
+step = 0.05
+value = 0.5
+
+[node name="PresetAssumptionsLabel" type="Label" parent="UI/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/GenerationSection"]
+custom_minimum_size = Vector2(220, 0)
+layout_mode = 2
+theme_override_font_sizes/font_size = 10
+modulate = Color(0.6, 0.7, 0.8, 1)
+autowrap_mode = 2
+
+[node name="UseCaseAssumptionsLabel" type="Label" parent="UI/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/GenerationSection"]
+custom_minimum_size = Vector2(220, 0)
+layout_mode = 2
+theme_override_font_sizes/font_size = 10
+modulate = Color(0.6, 0.7, 0.8, 1)
+autowrap_mode = 2
+text = "Ruleset and assumption settings are persisted with generated bodies so downstream system and export work can honor the same assumptions."
+
 [node name="ButtonContainer" type="HBoxContainer" parent="UI/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/GenerationSection"]
 layout_mode = 2
 theme_override_constants/separation = 10
@@ -269,3 +346,18 @@ text = "• Left Mouse: Orbit
 • Right Mouse: Pan
 • Scroll: Zoom
 • F: Focus on object"
+[node name="EmptyStateLabel" type="Label" parent="UI"]
+visible = false
+layout_mode = 0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 180.0
+offset_top = 120.0
+offset_right = -180.0
+offset_bottom = -120.0
+mouse_filter = 2
+theme_override_colors/font_color = Color(0.74, 0.78, 0.84, 0.9)
+horizontal_alignment = 1
+vertical_alignment = 1
+autowrap_mode = 2
+text = "Set parameters in the side panel, then click Generate."

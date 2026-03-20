@@ -368,3 +368,13 @@ Use this log for significant AI-assisted artifacts in this repository.
 - Human Changed: Left the user’s rewritten main-menu scene structure intact and adapted the script to it instead of reverting the scene back toward the older embedded-content layout.
 - Validation Method: `dotnet build StarGen.sln` and the Godot headless harness (`Total: 1901 | Passed: 1901 | Failed: 0`).
 - Final Approver: Approved by Christopher B. Del Gesso.
+### 2026-03-20 - Codex (GPT-5)
+
+- Task Purpose: Continue the scene-first refactor by moving the remaining fixed viewer/editor/atlas UI shells out of runtime C# construction and into Godot scene trees.
+- Input Materials Used: User direction to move anything that did not need to live in code into node structure; `claude.md`; current viewer/editor/concept scene/script files; `SystemViewer*.cs/.tscn`; `ObjectViewer*.cs/.tscn`; `EditDialog.cs/.tscn`; `ConceptAtlasScreen.cs/.tscn`; `Tests/Framework/DotNetNativeTestSuite.Concepts.cs`; version/project-structure metadata files.
+- AI Produced: Replaced runtime-built fixed shells in `SystemViewer`, `ObjectViewer`, `ConceptAtlasScreen`, and `EditDialog` with scene-defined control trees; reduced the related scripts to node binding, option population, signal wiring, and dynamic row rendering only where content is inherently data-driven; updated the atlas regression test to mount the real scene tree; and synced internal refactor metadata to `0.7.3.0`.
+- Human Accepted: Pending user review of the broader viewer/editor scene-first pass.
+- Human Rejected: No attempt was made to force fully data-driven inspector/property-list content into static scenes; those rows remain runtime-built because they vary by generated body, validation state, or concept output.
+- Human Changed: The refactor stayed focused on live runtime screens and did not remove unrelated untracked prototype/baseline artifacts from the working tree.
+- Validation Method: `dotnet build StarGen.sln` and the Godot headless harness (`Total: 1935 | Passed: 1935 | Failed: 0`).
+- Final Approver: Pending Christopher B. Del Gesso review.

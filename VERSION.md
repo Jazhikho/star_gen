@@ -1,6 +1,6 @@
 # Version
 
-Current version: `0.7.2.0`
+Current version: `0.7.3.0`
 
 Date: `2026-03-20`
 
@@ -9,6 +9,12 @@ Versioning method: release/refactor `+0.1`, feature `+0.0.1`, bug fix `+0.0.0.1`
 Current public release target: `0.8.0.0`
 
 User-facing app label: `0.8.0.0`
+
+## 0.7.3.0
+
+- Refactor: Moved the fixed `SystemViewer`, `ObjectViewer`, `ConceptAtlasScreen`, and `EditDialog` shells into their `.tscn` scene trees so the stable viewer/editor UI is now scene-first and editor-visible instead of being rebuilt in C#.
+- Refactor: Reduced the remaining viewer/atlas scripts to node binding, option population, signal wiring, and data-driven row rendering while keeping dynamic creation only for variable inspector/detail content and validation/result rows.
+- Test: Updated the concept-atlas persisted-result regression to mount the real scene in the tree and revalidated the full headless suite after the scene-backed refactor.
 
 ## 0.7.2.0
 
