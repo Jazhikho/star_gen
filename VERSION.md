@@ -1,6 +1,6 @@
 # Version
 
-Current version: `0.7.8.1`
+Current version: `0.7.8.2`
 
 Date: `2026-03-22`
 
@@ -9,6 +9,10 @@ Versioning method: release/refactor `+0.1`, feature `+0.0.1`, bug fix `+0.0.0.1`
 Current public release target: `0.8.0.0`
 
 User-facing app label: `0.8.0.0`
+
+## 0.7.8.2
+
+- Feature: Concept Atlas is no longer launched from the galaxy viewer or system viewer; it remains available from the main menu and from the object viewer inspector.
 
 ## 0.7.8.1
 

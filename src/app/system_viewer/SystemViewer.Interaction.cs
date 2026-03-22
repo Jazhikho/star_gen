@@ -287,19 +287,6 @@ public partial class SystemViewer
     }
 
     /// <summary>
-    /// Handles concept-atlas requests from the inspector.
-    /// </summary>
-    private void OnOpenBodyInConceptAtlas(CelestialBody body)
-    {
-        if (body == null)
-        {
-            return;
-        }
-
-        EmitSignal(SignalName.OpenConceptAtlasRequested, body);
-    }
-
-    /// <summary>
     /// Handles populated-world focus requests from the inspector overview.
     /// </summary>
     private void OnFocusBodyRequested(CelestialBody body)

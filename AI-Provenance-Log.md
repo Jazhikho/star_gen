@@ -19,6 +19,17 @@ Use this log for significant AI-assisted artifacts in this repository.
 
 ### 2026-03-22 - Cursor (agent)
 
+- Task Purpose: Remove Concept Atlas entry points from the galaxy and system viewers (keep main menu and object viewer); bump internal version to `0.7.8.2` and sync documentation; create a focused git commit (exclude unrelated working-tree edits).
+- Input Materials Used: User direction; grep of `OpenConceptAtlas` / `GalaxyInspectorPanel` / `SystemInspectorPanel` / `MainApp`; existing integration tests.
+- AI Produced: UI and navigation wiring removed; tests updated; `VERSION.md` / `project.godot` / `Docs/ProjectStructure.md` / this log entry; repository commit with message `feat: remove Concept Atlas from galaxy and system viewers`.
+- Human Accepted: Pending review.
+- Human Rejected: None.
+- Human Changed: The user requested commit discipline for this slice.
+- Validation Method: `dotnet build StarGen.sln` (succeeded before commit).
+- Final Approver: Pending Christopher B. Del Gesso review.
+
+### 2026-03-22 - Cursor (agent)
+
 - Task Purpose: Commit the system-viewer camera follow-focus feature with full repository commit discipline: document the change, bump internal version to `0.7.8.1`, sync `project.godot` and `export_presets.cfg`, update `Docs/ProjectStructure.md`, and record provenance.
 - Input Materials Used: Prior implementation on branch `codex/concept-pipeline-hardening` (`SystemCameraController`, `SystemViewer` partials, `TestSystemCameraController`); `VERSION.md` versioning rules; `CLAUDE.md` workflow notes.
 - AI Produced: Version metadata and documentation sync (`0.7.8.0` → `0.7.8.1`); `export_presets.cfg` Android `version/code` `70800` → `70801`; this log entry; Project Structure “Recent 0.7.8.1 additions” bullet.

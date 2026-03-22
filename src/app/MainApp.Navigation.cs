@@ -348,30 +348,6 @@ public partial class MainApp
     }
 
     /// <summary>
-    /// Opens the concept atlas from a galaxy-level star selection or preview.
-    /// </summary>
-    private void OnGalaxyConceptAtlasRequested(int starSeed, Godot.Vector3 worldPosition)
-    {
-        StarSystemPreviewData? preview = _galaxyViewer?.get_star_preview();
-        if (preview != null && preview.StarSeed == starSeed && preview.System != null)
-        {
-            ConceptContextSnapshot snapshot = ConceptContextBuilder.FromSystem(preview.System, starSeed);
-            snapshot.GalaxySeed = _galaxySeed;
-            snapshot.SourceLabel = $"{preview.System.Name} (galaxy preview)";
-            OpenConceptAtlas(snapshot, ChooseAtlasKind(snapshot), ViewerType.Galaxy);
-            return;
-        }
-
-        ConceptContextSnapshot fallback = ConceptContextBuilder.FromGalaxy(_galaxyViewer?.GetGalaxyConfig(), _galaxySeed, starSeed);
-        if (starSeed != 0)
-        {
-            fallback.SourceLabel = $"Star seed {starSeed} at ({worldPosition.X:0.0}, {worldPosition.Y:0.0}, {worldPosition.Z:0.0}) pc";
-        }
-
-        OpenConceptAtlas(fallback, ChooseAtlasKind(fallback), ViewerType.Galaxy);
-    }
-
-    /// <summary>
     /// Generates a system from a star seed.
     /// </summary>
     private static SolarSystem? GenerateSystemFromSeed(
@@ -518,22 +494,6 @@ public partial class MainApp
         }
 
         _objectViewer.DisplayExternalBody(typedBody, moonPayload, starSeed);
-    }
-
-    /// <summary>
-    /// Opens the concept atlas for the body currently selected in the system viewer.
-    /// </summary>
-    private void OnSystemConceptAtlasRequested(GodotObject bodyObject)
-    {
-        CelestialBody? body = CoerceToCelestialBody(bodyObject);
-        if (body == null)
-        {
-            return;
-        }
-
-        SolarSystem? system = _systemViewer?.GetCurrentSystem();
-        ConceptContextSnapshot snapshot = ConceptContextBuilder.FromBody(body, system, _galaxySeed);
-        OpenConceptAtlas(snapshot, ChooseAtlasKind(snapshot), ViewerType.System);
     }
 
     /// <summary>

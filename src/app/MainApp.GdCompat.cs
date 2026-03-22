@@ -106,26 +106,6 @@ public partial class MainApp
 	}
 
 	/// <summary>
-	/// GDScript-compatible galaxy-viewer concept-atlas wrapper.
-	/// </summary>
-	public void _on_galaxy_concept_atlas_requested(int starSeed, Vector3 worldPosition)
-	{
-		OnGalaxyConceptAtlasRequested(starSeed, worldPosition);
-	}
-
-	/// <summary>
-	/// GDScript-compatible system-viewer concept-atlas wrapper.
-	/// </summary>
-	public void _on_system_concept_atlas_requested(Variant bodyVariant)
-	{
-		GodotObject? bodyObject = bodyVariant.AsGodotObject();
-		if (bodyObject != null)
-		{
-			OnSystemConceptAtlasRequested(bodyObject);
-		}
-	}
-
-	/// <summary>
 	/// GDScript-compatible object-viewer concept-atlas wrapper.
 	/// </summary>
 	public void _on_object_concept_atlas_requested(Variant bodyVariant, int starSeed = 0)

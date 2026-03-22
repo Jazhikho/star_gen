@@ -476,12 +476,6 @@ public partial class MainApp : Node
 	{
 		switch (_conceptAtlasReturnViewer)
 		{
-			case ViewerType.Galaxy:
-				ShowGalaxyViewer();
-				return;
-			case ViewerType.System:
-				ShowSystemViewer();
-				return;
 			case ViewerType.Object:
 				ShowObjectViewer();
 				return;
@@ -540,7 +534,6 @@ public partial class MainApp : Node
 		}
 
 		_galaxyViewer.OpenSystemRequested += OnOpenSystemRequested;
-		_galaxyViewer.OpenConceptAtlasRequested += OnGalaxyConceptAtlasRequested;
 		_galaxyViewer.GalaxySeedChanged += SetGalaxySeed;
 		_galaxyViewer.NewGalaxyRequested += OnNewGalaxyRequested;
 		_galaxyViewer.MainMenuRequested += OnGalaxyViewerMainMenuRequested;
@@ -572,7 +565,6 @@ public partial class MainApp : Node
 
 		_systemViewer.Name = "SystemViewer";
 		_systemViewer.OpenBodyInViewer += OnOpenInObjectViewer;
-		_systemViewer.OpenConceptAtlasRequested += OnSystemConceptAtlasRequested;
 		_systemViewer.BackToGalaxyRequested += OnBackToGalaxy;
 		_systemViewer.NewSystemRequested += OnMainMenuSystemGenerationRequested;
 		_systemViewer.MainMenuRequested += OnViewerMainMenuRequested;

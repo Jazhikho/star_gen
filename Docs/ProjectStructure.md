@@ -17,10 +17,13 @@ UI layout baseline:
 - Wrapped labels should have a panel-appropriate minimum width rather than relying on autowrap alone; large full-width headers can be broader, while sidebar/footer text should usually stay closer to the 180-320 px range.
 
 Current development line:
-- `0.7.8.1`
+- `0.7.8.2`
 
 Current public release target:
 - `0.8.0.0`
+
+Recent 0.7.8.2 additions:
+- `src/app/galaxy_viewer/GalaxyInspectorPanel.cs` / `src/app/system_viewer/SystemInspectorPanel.cs` / `MainApp.cs` / `MainApp.Navigation.cs` / `MainApp.GdCompat.cs` (removed Concept Atlas entry points from galaxy and system viewers; atlas remains on the main menu and object-viewer inspector); `Tests/Integration/TestGalaxyViewerUI.cs` / `TestSystemViewer.cs` / `TestMainAppNavigation.cs` (dropped obsolete atlas wiring tests)
 
 Recent 0.7.8.1 additions:
 - `src/app/system_viewer/SystemCameraController.cs` / `SystemViewer.cs` / `SystemViewer.Rendering.cs` / `SystemViewer.Interaction.cs` (when a body is selected in system view, the camera focus tracks the body node as it moves so framing stays consistent; manual orbit/pan, origin focus, fit-to-system, clearing bodies, belt selection, and deselect clear follow); `Tests/Integration/TestSystemCameraController.cs` (follow-motion and `ApplyViewState` clear regressions)
@@ -211,7 +214,7 @@ Recent 0.6.1 additions:
 - `src/services/concepts/ConceptResultFactory.EcologyReligion.cs`
 - `src/services/concepts/ConceptResultFactory.Society.cs`
 - `src/services/concepts/ConceptWorldStateGenerator.cs`
-- `src/app/system_viewer/SystemInspectorPanel.cs` / `src/app/viewer/InspectorPanel.cs` / `src/app/galaxy_viewer/GalaxyInspectorPanel.cs` (concept launch points and future integration scaffolding; automatic persisted-state hooks are currently disabled on the showcase branch)
+- `src/app/viewer/InspectorPanel.cs` (object-viewer Concept Atlas entry; galaxy/system inspectors do not launch the atlas)
 - `Tests/Framework/DotNetNativeTestSuite.Concepts.cs`
 - `Tests/Integration/TestSystemPersistence.cs`
 

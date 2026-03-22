@@ -24,12 +24,6 @@ public partial class SystemInspectorPanel : VBoxContainer
     public delegate void OpenInViewerRequestedEventHandler(CelestialBody body);
 
     /// <summary>
-    /// Emitted when the user requests to open the concept atlas for the selected body.
-    /// </summary>
-    [Signal]
-    public delegate void OpenConceptAtlasRequestedEventHandler(CelestialBody body);
-
-    /// <summary>
     /// Emitted when the user requests that the viewer focus a populated world from the overview section.
     /// </summary>
     [Signal]
@@ -38,7 +32,6 @@ public partial class SystemInspectorPanel : VBoxContainer
     private VBoxContainer? _overviewSection;
     private VBoxContainer? _bodySection;
     private Button? _openViewerButton;
-    private Button? _openConceptAtlasButton;
     private SolarSystem? _currentSystem;
     private CelestialBody? _selectedBody;
 
@@ -842,14 +835,6 @@ public partial class SystemInspectorPanel : VBoxContainer
         };
         _openViewerButton.Pressed += OnOpenViewerPressed;
         _bodySection.AddChild(_openViewerButton);
-
-        _openConceptAtlasButton = new Button
-        {
-            Text = "Open Concept Atlas",
-            TooltipText = "Explore concept modules seeded from this body",
-        };
-        _openConceptAtlasButton.Pressed += OnOpenConceptAtlasPressed;
-        _bodySection.AddChild(_openConceptAtlasButton);
     }
 
     /// <summary>
@@ -871,20 +856,6 @@ public partial class SystemInspectorPanel : VBoxContainer
         _openViewerButton.Pressed -= OnOpenViewerPressed;
         _openViewerButton.QueueFree();
         _openViewerButton = null;
-        if (_openConceptAtlasButton == null)
-        {
-            return;
-        }
-
-        if (!GodotObject.IsInstanceValid(_openConceptAtlasButton))
-        {
-            _openConceptAtlasButton = null;
-            return;
-        }
-
-        _openConceptAtlasButton.Pressed -= OnOpenConceptAtlasPressed;
-        _openConceptAtlasButton.QueueFree();
-        _openConceptAtlasButton = null;
     }
 
     /// <summary>
@@ -905,19 +876,6 @@ public partial class SystemInspectorPanel : VBoxContainer
 
         _openViewerButton.Pressed -= OnOpenViewerPressed;
         _openViewerButton = null;
-        if (_openConceptAtlasButton == null)
-        {
-            return;
-        }
-
-        if (!GodotObject.IsInstanceValid(_openConceptAtlasButton))
-        {
-            _openConceptAtlasButton = null;
-            return;
-        }
-
-        _openConceptAtlasButton.Pressed -= OnOpenConceptAtlasPressed;
-        _openConceptAtlasButton = null;
     }
 
     /// <summary>
@@ -928,17 +886,6 @@ public partial class SystemInspectorPanel : VBoxContainer
         if (_selectedBody != null)
         {
             EmitSignal(SignalName.OpenInViewerRequested, _selectedBody);
-        }
-    }
-
-    /// <summary>
-    /// Handles the concept-atlas button press.
-    /// </summary>
-    private void OnOpenConceptAtlasPressed()
-    {
-        if (_selectedBody != null)
-        {
-            EmitSignal(SignalName.OpenConceptAtlasRequested, _selectedBody);
         }
     }
 

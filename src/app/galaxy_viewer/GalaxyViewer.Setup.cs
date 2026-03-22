@@ -120,7 +120,6 @@ public partial class GalaxyViewer
 		if (_inspectorPanel is GalaxyInspectorPanel typedInspectorPanel)
 		{
 			typedInspectorPanel.OpenSystemRequested += OnInspectorOpenSystemRequested;
-			typedInspectorPanel.OpenConceptAtlasRequested += OnInspectorOpenConceptAtlasRequested;
 			typedInspectorPanel.CalculateJumpRoutesRequested += OnCalculateJumpRoutesRequested;
 			typedInspectorPanel.JumpRoutesVisibilityToggled += OnJumpRoutesVisibilityToggled;
 			typedInspectorPanel.ApplyGalaxyConfigRequested += OnApplyGalaxyConfigRequested;
