@@ -16,6 +16,7 @@ This roadmap builds StarGen in three layers: (1) viewable celestial objects (edi
 •	Keep domain logic pure (no scene tree / Nodes / file I/O inside domain).
 •	Ship tests with features. Golden-master fixtures cover regression for known seeds.
 •	Prefer composition over inheritance. Small services and data components over "manager" classes.
+•	Generation sets initial conditions; simulation produces emergent structure. Studio-driven generation should define the starting state top down, while tool-driven simulations should evolve outcomes bottom up from local conditions.
 •	Any feature request that does not directly support an active effort is added as a new effort in this roadmap.
 
 ## Definition of Done (per effort)
@@ -473,7 +474,7 @@ Recently completed on `master` and included in the `0.5.0.0` release rollup:
 
 **Context:** Traveller uses a **UWP** string (e.g. `X56789A-7`) for each world: Starport (A–E, X), Size (0–9), Atmosphere (0–15), Hydrographics (0–10), Population (0–15, digit = exponent), Government (0–15), Law Level (0–9), Tech Level (0–15). Optional: bases (Naval, Scout, etc.), trade codes (Ag, Hi, In, etc.). StarGen already has: physical size, atmosphere pressure/composition, hydrographics (ocean coverage), population and government (GovernmentType), tech level (TechnologyLevel), and station classes (U/O/B/A/S). Gaps: explicit Law Level, starport grade (Traveller A–X) vs station class, and numeric UWP digits with Traveller’s tables and trade-code rules.
 
-**Current master foundation:** Config-first galaxy/system/object generation is now in place. Shared `GenerationUseCaseSettings` carries ruleset mode, Traveller readout visibility, life/population permissiveness, and mainworld policy through UI, specs, and persistence. Current inspectors expose derived Traveller readouts and deterministic mainworld readiness summaries, but full UWP generation, Traveller trade routes, and subsector export remain future work in this effort.
+**Current master foundation:** Config-first galaxy/system/object generation is now in place. Shared `GenerationUseCaseSettings` carries ruleset mode, Traveller readout visibility, life permissiveness, and mainworld policy through UI, specs, and persistence. Colonies and non-Traveller jump routes now live in an explicit colonization-simulation layer with persisted subsector-scoped state instead of being treated as generation assumptions. Current inspectors expose derived Traveller readouts and deterministic mainworld readiness summaries, but full UWP generation, Traveller trade routes, and subsector export remain future work in this effort.
 
 **Deliverables:**
 •	**Use-case toggle:** A generation/spec option (e.g. “Traveller use case”) that enables Traveller-specific outputs and rules. No change to default (non-Traveller) behaviour.

@@ -15,7 +15,7 @@ namespace StarGen.Domain.Generation.Traveller;
 /// Builds Traveller-style UWP profiles and maps them onto supported planet-generation fields.
 /// Source rules: Traveller SRD world creation.
 /// </summary>
-public static class TravellerWorldGenerator
+public static partial class TravellerWorldGenerator
 {
     private const double EarthAtmPa = 101325.0;
 

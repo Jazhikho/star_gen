@@ -18,6 +18,7 @@ public partial class SystemViewer
         _uiRoot = GetNodeOrNull<Control>("UI");
         _topBar = GetNodeOrNull<Control>("UI/TopBar");
         _sidePanel = GetNodeOrNull<Control>("UI/SidePanel");
+        _backButton = GetNodeOrNull<Button>("UI/TopBar/MarginContainer/TopBarVBox/HeaderRow/BackButton");
         _statusLabel = GetNodeOrNull<Label>("UI/TopBar/MarginContainer/TopBarVBox/HeaderRow/StatusLabel");
         _inspectorPanel = GetNodeOrNull<Node>("UI/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/InspectorPanel");
         _generationSection = GetNodeOrNull<VBoxContainer>("UI/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/GenerationSection");
@@ -212,6 +213,11 @@ public partial class SystemViewer
             _loadButton.TooltipText = "Load system from file (Ctrl+O)";
         }
 
+        if (_backButton != null)
+        {
+            _backButton.TooltipText = _backNavigationTooltip;
+        }
+
         if (_rulesetModeOption != null)
         {
             _rulesetModeOption.TooltipText = GetSystemAssumption("ruleset_mode");
@@ -271,6 +277,11 @@ public partial class SystemViewer
         if (_loadButton != null)
         {
             _loadButton.Pressed += OnLoadPressed;
+        }
+
+        if (_backButton != null)
+        {
+            _backButton.Pressed += OnBackPressed;
         }
 
         if (_rulesetModeOption != null)

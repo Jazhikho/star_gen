@@ -27,6 +27,16 @@ public static class PopulationProbability
     /// </summary>
     public const double ColonyBaseProbability = 0.30;
 
+    /// <summary>
+    /// Maximum allowed native-life probability after all modifiers.
+    /// </summary>
+    public const double MaxNativeProbability = 0.98;
+
+    /// <summary>
+    /// Maximum allowed colony-attempt probability after all modifiers.
+    /// </summary>
+    public const double MaxColonyProbability = 0.97;
+
     private const double LiquidWaterBonus = 0.15;
     private const double BreathableAtmosphereBonus = 0.10;
     private const double TidalLockingPenalty = 0.10;
@@ -47,33 +57,35 @@ public static class PopulationProbability
     public static double CalculateNativeProbability(PlanetProfile profile, double lifePermissiveness)
     {
         double permissiveness = ClampPermissiveness(lifePermissiveness);
-        if (!CanSupportBiologyAtAll(profile))
+        GenerationUseCaseSettings settings = GenerationUseCaseSettings.CreateDefault();
+        settings.LifePermissiveness = permissiveness;
+        if (!CanSupportBiologyAtAll(profile, settings))
         {
             return 0.0;
         }
 
-        double minimumHabitability = Lerp(7.0, 2.0, permissiveness);
+        double minimumHabitability = Lerp(8.0, 5.0, permissiveness);
         if (profile.HabitabilityScore < minimumHabitability)
         {
             return 0.0;
         }
 
         double normalizedHabitability = Normalize(profile.HabitabilityScore, minimumHabitability, 10.0);
-        double probability = Lerp(0.04, 0.18, permissiveness);
-        probability += normalizedHabitability * Lerp(0.18, 0.62, permissiveness);
+        double probability = Lerp(0.02, 0.30, permissiveness);
+        probability += normalizedHabitability * Lerp(0.18, 0.48, permissiveness);
         probability += LiquidWaterBonus;
 
         if (profile.HasBreathableAtmosphere)
         {
-            probability += Lerp(BreathableAtmosphereBonus + 0.10, BreathableAtmosphereBonus, permissiveness);
+            probability += Lerp(BreathableAtmosphereBonus + 0.14, BreathableAtmosphereBonus + 0.04, permissiveness);
         }
         else if (profile.HasAtmosphere)
         {
-            probability -= Lerp(0.10, -0.02, permissiveness);
+            probability -= Lerp(0.20, -0.02, permissiveness);
         }
         else
         {
-            probability -= Lerp(0.22, 0.06, permissiveness);
+            probability -= Lerp(0.35, 0.06, permissiveness);
         }
 
         if (profile.IsMoon && profile.TidalHeatingFactor > 0.3)
@@ -103,7 +115,33 @@ public static class PopulationProbability
             probability -= gravityPenalty * Lerp(0.12, 0.04, permissiveness);
         }
 
-        return System.Math.Clamp(probability, 0.0, 0.98);
+        if (profile.HabitabilityScore >= 4 && profile.HasLiquidWater)
+        {
+            probability += Lerp(0.03, 0.14, permissiveness);
+        }
+
+        if (profile.HabitabilityScore >= 5 && profile.HasLiquidWater)
+        {
+            probability += Lerp(0.0, 0.14, permissiveness);
+            probability = System.Math.Max(probability, Lerp(0.0, 0.68, permissiveness));
+        }
+
+        if (profile.HabitabilityScore >= 6)
+        {
+            probability = System.Math.Max(probability, Lerp(0.18, 0.78, permissiveness));
+        }
+
+        if (profile.HabitabilityScore >= 7)
+        {
+            probability = System.Math.Max(probability, Lerp(0.35, 0.88, permissiveness));
+        }
+
+        if (profile.HabitabilityScore >= 8)
+        {
+            probability = System.Math.Max(probability, Lerp(0.82, 0.96, permissiveness));
+        }
+
+        return System.Math.Clamp(probability, 0.0, MaxNativeProbability);
     }
 
     /// <summary>
@@ -111,7 +149,7 @@ public static class PopulationProbability
     /// </summary>
     public static double CalculateColonyProbability(PlanetProfile profile, ColonySuitability suitability)
     {
-        return CalculateColonyProbability(profile, suitability, GenerationUseCaseSettings.NeutralPermissiveness);
+        return CalculateColonyProbability(profile, suitability, GenerationUseCaseSettings.NeutralPermissiveness, null);
     }
 
     /// <summary>
@@ -120,9 +158,10 @@ public static class PopulationProbability
     public static double CalculateColonyProbability(
         PlanetProfile profile,
         ColonySuitability suitability,
-        double populationPermissiveness)
+        double populationPermissiveness,
+        ColonyPressureContext? pressureContext = null)
     {
-        double permissiveness = ClampPermissiveness(populationPermissiveness);
+        double permissiveness = ResolveEffectivePermissiveness(populationPermissiveness, pressureContext);
         if (suitability.OverallScore < MinSuitabilityForColony)
         {
             return 0.0;
@@ -140,7 +179,12 @@ public static class PopulationProbability
 
         if (profile.HabitabilityScore >= 6)
         {
-            probability += Lerp(0.10, 0.04, permissiveness);
+            probability += Lerp(0.10, 0.06, permissiveness);
+        }
+
+        if (profile.HabitabilityScore >= 8)
+        {
+            probability += Lerp(0.0, 0.10, permissiveness);
         }
         else if (profile.HabitabilityScore < MinHabitabilityForColony)
         {
@@ -167,27 +211,40 @@ public static class PopulationProbability
             probability += Lerp(0.0, 0.08, permissiveness);
         }
 
-        return System.Math.Clamp(probability, 0.0, 0.95);
+        if (suitability.OverallScore >= 35)
+        {
+            probability = System.Math.Max(probability, Lerp(0.04, 0.22, permissiveness));
+        }
+
+        if (suitability.OverallScore >= 50)
+        {
+            probability = System.Math.Max(probability, Lerp(0.08, 0.40, permissiveness));
+        }
+
+        if (pressureContext != null)
+        {
+            probability += pressureContext.LocalNativePressure * Lerp(0.08, 0.24, permissiveness);
+            probability += pressureContext.NearbySystemNativePressure * Lerp(0.04, 0.16, permissiveness);
+
+            if (pressureContext.LocalNativeWorldCount > 0 && profile.IsMoon)
+            {
+                probability += Lerp(0.01, 0.06, permissiveness);
+            }
+
+            if (pressureContext.GetCombinedNativeWorldCount() >= 2)
+            {
+                probability += Lerp(0.01, 0.05, permissiveness);
+            }
+        }
+
+        return System.Math.Clamp(probability, 0.0, MaxColonyProbability);
     }
 
-    private static bool CanSupportBiologyAtAll(PlanetProfile profile)
+    private static bool CanSupportBiologyAtAll(
+        PlanetProfile profile,
+        GenerationUseCaseSettings? useCaseSettings)
     {
-        if (!profile.HasLiquidWater)
-        {
-            return false;
-        }
-
-        if (profile.HabitabilityScore < MinHabitabilityForNatives)
-        {
-            return false;
-        }
-
-        if (profile.RadiationLevel >= 0.95)
-        {
-            return false;
-        }
-
-        return true;
+        return BiologySupportEvaluator.SupportsBiology(profile, useCaseSettings);
     }
 
     private static double GetDeviationPenalty(double value, double idealValue, double idealTolerance, double maxTolerance)
@@ -229,5 +286,18 @@ public static class PopulationProbability
     private static double ClampPermissiveness(double permissiveness)
     {
         return System.Math.Clamp(permissiveness, 0.0, 1.0);
+    }
+
+    private static double ResolveEffectivePermissiveness(double basePermissiveness, ColonyPressureContext? pressureContext)
+    {
+        double permissiveness = ClampPermissiveness(basePermissiveness);
+        if (pressureContext == null)
+        {
+            return permissiveness;
+        }
+
+        double combinedPressure = pressureContext.GetCombinedPressure();
+        double pressureLift = (1.0 - permissiveness) * combinedPressure * 0.55;
+        return ClampPermissiveness(permissiveness + pressureLift);
     }
 }

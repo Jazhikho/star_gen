@@ -5,6 +5,7 @@ using System.Linq;
 using StarGen.Domain.Concepts.Ecology;
 using StarGen.Domain.Concepts.Evolution;
 using StarGen.Domain.Ecology;
+using StarGen.Domain.Generation;
 
 namespace StarGen.Domain.Concepts.Pipeline;
 
@@ -24,14 +25,17 @@ public static class ConceptDependencyChainGenerator
         PlanetEnvironmentProfile environment,
         out EcologyState ecologyState,
         out SpeciesEvolutionState speciesEvolutionState,
-        out SentienceAssessment sentienceAssessment)
+        out SentienceAssessment sentienceAssessment,
+        GenerationUseCaseSettings? useCaseSettings = null)
     {
-        ecologyState = GenerateEcology(environment);
+        ecologyState = GenerateEcology(environment, useCaseSettings);
         speciesEvolutionState = GenerateSpecies(environment, ecologyState);
         sentienceAssessment = GenerateSentience(environment, speciesEvolutionState);
     }
 
-    private static EcologyState GenerateEcology(PlanetEnvironmentProfile environment)
+    private static EcologyState GenerateEcology(
+        PlanetEnvironmentProfile environment,
+        GenerationUseCaseSettings? useCaseSettings)
     {
         EcologyState state = new EcologyState();
         state.Provenance = BuildProvenance(
@@ -41,7 +45,7 @@ public static class ConceptDependencyChainGenerator
             environment.BodyName,
             new List<string> { "environment:" + environment.BodyId });
 
-        if (!environment.SupportsBiology())
+        if (!environment.SupportsBiology(useCaseSettings))
         {
             state.Status = ConceptRunStatus.NotApplicable;
             state.StatusReason = "Environment does not support a stable biosphere.";

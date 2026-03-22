@@ -290,7 +290,9 @@ public static class TestSystemViewer
             DotNetNativeTestSuite.AssertNotNull(viewer.GetNodeOrNull<OptionButton>($"{basePath}/RulesetModeContainer/RulesetModeOption"), "System viewer should expose a ruleset selector");
             DotNetNativeTestSuite.AssertNotNull(viewer.GetNodeOrNull<CheckBox>($"{basePath}/ShowTravellerReadoutsCheck"), "System viewer should expose a Traveller readout toggle");
             DotNetNativeTestSuite.AssertNotNull(viewer.GetNodeOrNull<HSlider>($"{basePath}/LifePermissivenessContainer/LifePermissivenessInput"), "System viewer should expose a life-potential control");
-            DotNetNativeTestSuite.AssertNotNull(viewer.GetNodeOrNull<HSlider>($"{basePath}/PopulationPermissivenessContainer/PopulationPermissivenessInput"), "System viewer should expose a settlement-density control");
+            Control? populationContainer = viewer.GetNodeOrNull<Control>($"{basePath}/PopulationPermissivenessContainer");
+            DotNetNativeTestSuite.AssertNotNull(populationContainer, "System viewer should retain the legacy population container for scene compatibility");
+            DotNetNativeTestSuite.AssertFalse(populationContainer!.Visible, "System viewer should hide colonization controls from generation surfaces");
             DotNetNativeTestSuite.AssertNotNull(viewer.GetNodeOrNull<OptionButton>($"{basePath}/MainworldPolicyContainer/MainworldPolicyOption"), "System viewer should expose a mainworld-policy selector");
         }
         finally

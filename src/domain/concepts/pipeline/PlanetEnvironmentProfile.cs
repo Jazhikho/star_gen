@@ -1,5 +1,6 @@
 using Godot;
 using Godot.Collections;
+using StarGen.Domain.Generation;
 using StarGen.Domain.Population;
 
 namespace StarGen.Domain.Concepts.Pipeline;
@@ -184,23 +185,8 @@ public sealed class PlanetEnvironmentProfile
         return environment;
     }
 
-    public bool SupportsBiology()
+    public bool SupportsBiology(GenerationUseCaseSettings? useCaseSettings = null)
     {
-        if (!HasLiquidWater)
-        {
-            return false;
-        }
-
-        if (!HasAtmosphere && !HasLiquidWater)
-        {
-            return false;
-        }
-
-        if (AvgTemperatureK < 180.0 || AvgTemperatureK > 390.0)
-        {
-            return false;
-        }
-
-        return HabitabilityScore >= 2;
+        return BiologySupportEvaluator.SupportsBiology(this, useCaseSettings);
     }
 }

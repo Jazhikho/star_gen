@@ -112,6 +112,11 @@ public partial class ObjectViewer
 
     private void OnGeneratePressed()
     {
+        if (!_generationActionsVisible)
+        {
+            return;
+        }
+
         int seedValue = 0;
         if (_seedInput != null)
         {
@@ -130,6 +135,11 @@ public partial class ObjectViewer
 
     private void OnRerollPressed()
     {
+        if (!_generationActionsVisible)
+        {
+            return;
+        }
+
         int seedValue = unchecked((int)GD.Randi());
         if (_seedInput != null)
         {
@@ -218,7 +228,7 @@ public partial class ObjectViewer
         _gdMoonById.Clear();
         _sourceStarSeed = 0;
 
-        SetGenerationControlsEnabled(true);
+        SetGenerationControlsEnabled(_generationActionsVisible);
         _startupState = ViewerStartupState.ViewingExistingContent;
         TryApplyUseCaseSettingsFromBody(result.Body);
         ApplyUseCaseSettingsToControls(_activeUseCaseSettings);
@@ -248,7 +258,7 @@ public partial class ObjectViewer
         {
             DisplayExternalBody(result.Body, [], 0);
             _navigatedFromSystem = false;
-            SetGenerationControlsEnabled(true);
+            SetGenerationControlsEnabled(_generationActionsVisible);
             SetFileControlState(true, true);
             UpdateFileInfo(Path.GetFileName(path), result.Body);
         }
@@ -750,7 +760,7 @@ public partial class ObjectViewer
         DisplayExternalBody(body, [], 0);
         _navigatedFromSystem = false;
         _startupState = ViewerStartupState.ViewingExistingContent;
-        SetGenerationControlsEnabled(true);
+        SetGenerationControlsEnabled(_generationActionsVisible);
         SetFileControlState(true, true);
         string presetLabel = "Random";
         if (_presetOption != null && _presetOption.ItemCount > 0)

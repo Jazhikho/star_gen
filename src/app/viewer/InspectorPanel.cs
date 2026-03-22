@@ -221,6 +221,18 @@ public partial class InspectorPanel : VBoxContainer
 		AddProperty("Government", TravellerWorldProfile.ToHexDigit(profile.GovernmentCode));
 		AddProperty("Law", TravellerWorldProfile.ToHexDigit(profile.LawCode));
 		AddProperty("Tech Level", TravellerWorldProfile.ToHexDigit(profile.TechLevelCode));
+		TravellerTradeCodeSet? tradeCodes = TryGetStoredTradeCodes(body);
+		if (tradeCodes != null)
+		{
+			AddProperty("Trade Codes", tradeCodes.ToDisplayString());
+		}
+
+		string travelZone = TryGetStoredTravelZone(body);
+		if (!string.IsNullOrEmpty(travelZone))
+		{
+			AddProperty("Travel Zone", travelZone);
+		}
+
 		AddProperty("Gravity (g)", $"{body.Physical.GetSurfaceGravityMS2() / 9.80665:0.00} g");
 		if (body.HasSurface() && body.Surface != null)
 		{
@@ -448,7 +460,7 @@ public partial class InspectorPanel : VBoxContainer
 		}
 
 		AddSectionHeader("Traveller");
-		AddProperty("Ruleset", settings.IsTravellerMode() ? "Traveller" : "Default");
+		AddProperty("Ruleset", GenerationUseCasePresentation.GetRulesetLabel(settings.RulesetMode));
 		AddProperty("UWP", profile.ToUwpString());
 		AddProperty("Size Code", TravellerWorldProfile.ToHexDigit(profile.SizeCode));
 		AddProperty("Atmosphere Code", TravellerWorldProfile.ToHexDigit(profile.AtmosphereCode));
@@ -457,6 +469,49 @@ public partial class InspectorPanel : VBoxContainer
 		AddProperty("Government Code", TravellerWorldProfile.ToHexDigit(profile.GovernmentCode));
 		AddProperty("Law Code", TravellerWorldProfile.ToHexDigit(profile.LawCode));
 		AddProperty("Tech Level", TravellerWorldProfile.ToHexDigit(profile.TechLevelCode));
+		TravellerTradeCodeSet? tradeCodes = TryGetStoredTradeCodes(body);
+		if (tradeCodes != null)
+		{
+			AddProperty("Trade Codes", tradeCodes.ToDisplayString());
+		}
+
+		string travelZone = TryGetStoredTravelZone(body);
+		if (!string.IsNullOrEmpty(travelZone))
+		{
+			AddProperty("Travel Zone", travelZone);
+		}
+	}
+
+	private static TravellerTradeCodeSet? TryGetStoredTradeCodes(CelestialBody body)
+	{
+		if (body.Provenance == null || !body.Provenance.SpecSnapshot.ContainsKey("traveller_trade_codes"))
+		{
+			return null;
+		}
+
+		Variant codesVariant = body.Provenance.SpecSnapshot["traveller_trade_codes"];
+		if (codesVariant.VariantType != Variant.Type.Dictionary)
+		{
+			return null;
+		}
+
+		return TravellerTradeCodeSet.FromDictionary((Godot.Collections.Dictionary)codesVariant);
+	}
+
+	private static string TryGetStoredTravelZone(CelestialBody body)
+	{
+		if (body.Provenance == null || !body.Provenance.SpecSnapshot.ContainsKey("traveller_travel_zone"))
+		{
+			return string.Empty;
+		}
+
+		Variant travelZoneVariant = body.Provenance.SpecSnapshot["traveller_travel_zone"];
+		if (travelZoneVariant.VariantType == Variant.Type.String)
+		{
+			return (string)travelZoneVariant;
+		}
+
+		return string.Empty;
 	}
 
 	private void AddOrbitalSummary(CelestialBody body)

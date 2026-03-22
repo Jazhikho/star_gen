@@ -161,7 +161,7 @@ public partial class GalaxyViewer
 		}
 		else
 		{
-			_starPreview = StarSystemPreview.Generate(starSeed, worldPosition, _spec, _galaxyConfig?.UseCaseSettings);
+		_starPreview = StarSystemPreview.Generate(starSeed, worldPosition, _spec, _galaxyConfig?.UseCaseSettings, _galaxy);
 		}
 		_selectionIndicator?.ShowAt(worldPosition);
 		if (_inspectorPanel is GalaxyInspectorPanel typedInspectorPanel)

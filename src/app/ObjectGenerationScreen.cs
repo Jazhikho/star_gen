@@ -22,6 +22,7 @@ public partial class ObjectGenerationScreen : Control
     private VBoxContainer? _parameterVBox;
     private BoxContainer? _studioRow;
     private Control? _settingsPanel;
+    private Control? _rulesPanel;
     private Control? _summaryPanel;
     private Label? _versionLabel;
     private Label? _summaryLabel;
@@ -104,18 +105,20 @@ public partial class ObjectGenerationScreen : Control
 
     private void CacheNodeReferences()
     {
-        const string Root = "MarginContainer/MainPanel/MarginContainer/VBox";
+        const string Root = "MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox";
+        const string HeroRoot = "MarginContainer/ScrollContainer/Layout/HeroPanel/MarginContainer/HeroVBox";
         _studioRow = GetNodeOrNull<BoxContainer>($"{Root}/StudioRow");
         _settingsPanel = GetNodeOrNull<Control>($"{Root}/StudioRow/SettingsPanel");
-        _summaryPanel = null;
-        _versionLabel = GetNodeOrNull<Label>($"{Root}/HeaderRow/VersionLabel");
+        _rulesPanel = GetNodeOrNull<Control>($"{Root}/StudioRow/RulesPanel");
+        _summaryPanel = GetNodeOrNull<Control>($"{Root}/StudioRow/SummaryPanel");
+        _versionLabel = GetNodeOrNull<Label>($"{HeroRoot}/HeaderRow/VersionLabel");
         _parameterVBox = GetNodeOrNull<VBoxContainer>($"{Root}/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox");
-        _summaryLabel = GetNodeOrNull<Label>($"{Root}/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/FooterVBox/SummaryLabel");
-        _assumptionsLabel = GetNodeOrNull<Label>($"{Root}/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/FooterVBox/AssumptionsLabel");
-        _issuesContainer = GetNodeOrNull<VBoxContainer>($"{Root}/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/FooterVBox/IssuesContainer");
-        _startButton = GetNodeOrNull<Button>($"{Root}/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/FooterVBox/Buttons/StartButton");
-        _loadButton = GetNodeOrNull<Button>($"{Root}/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/FooterVBox/Buttons/LoadButton");
-        _backButton = GetNodeOrNull<Button>($"{Root}/HeaderRow/BackButton");
+        _summaryLabel = GetNodeOrNull<Label>($"{Root}/StudioRow/SummaryPanel/MarginContainer/SummaryVBox/SummaryScroll/SummaryContent/SummaryLabel");
+        _assumptionsLabel = GetNodeOrNull<Label>($"{Root}/StudioRow/SummaryPanel/MarginContainer/SummaryVBox/SummaryScroll/SummaryContent/AssumptionsLabel");
+        _issuesContainer = GetNodeOrNull<VBoxContainer>($"{Root}/StudioRow/SummaryPanel/MarginContainer/SummaryVBox/SummaryScroll/SummaryContent/IssuesContainer");
+        _startButton = GetNodeOrNull<Button>($"{Root}/StudioRow/SummaryPanel/MarginContainer/SummaryVBox/Buttons/StartButton");
+        _loadButton = GetNodeOrNull<Button>($"{Root}/StudioRow/SummaryPanel/MarginContainer/SummaryVBox/Buttons/LoadButton");
+        _backButton = GetNodeOrNull<Button>($"{HeroRoot}/HeaderRow/BackButton");
     }
 
     private void BuildParameterUi()
@@ -125,7 +128,7 @@ public partial class ObjectGenerationScreen : Control
 
     private void ApplyResponsiveLayout()
     {
-        StudioScreenLayoutHelper.ApplyResponsiveStudioLayout(this, _studioRow, _settingsPanel, _summaryPanel);
+        StudioScreenLayoutHelper.ApplyResponsiveStudioLayout(this, _studioRow, _settingsPanel, _rulesPanel, _summaryPanel);
     }
 
     private void ConnectSignals()
@@ -179,15 +182,6 @@ public partial class ObjectGenerationScreen : Control
 
     private void ApplyLayoutPolish()
     {
-        if (_summaryLabel != null)
-        {
-            _summaryLabel.Visible = false;
-        }
-
-        if (_assumptionsLabel != null)
-        {
-            _assumptionsLabel.Visible = false;
-        }
     }
 
     private void RefreshIssuesUi()

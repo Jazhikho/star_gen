@@ -1,9 +1,11 @@
 #nullable enable annotations
 #nullable disable warnings
 using Godot;
+using System.Globalization;
 using StarGen.App.GalaxyViewer;
 using StarGen.Domain.Galaxy;
 using StarGen.Domain.Jumplanes;
+using StarGen.Domain.Systems;
 using StarGen.Tests.Framework;
 
 namespace StarGen.Tests.Integration;
@@ -22,6 +24,7 @@ public static class TestGalaxyViewerUI
         runner.RunNativeTest("TestGalaxyViewerUI::test_status_updates", TestStatusUpdates);
         runner.RunNativeTest("TestGalaxyViewerUI::test_spec_matches_seed", TestSpecMatchesSeed);
         runner.RunNativeTest("TestGalaxyViewerUI::test_calculate_jump_routes_populates_result", TestCalculateJumpRoutesPopulatesResult);
+        runner.RunNativeTest("TestGalaxyViewerUI::test_jump_route_region_uses_generated_population", TestJumpRouteRegionUsesGeneratedPopulation);
         runner.RunNativeTest("TestGalaxyViewerUI::test_jump_route_visibility_toggle_updates_renderer", TestJumpRouteVisibilityToggleUpdatesRenderer);
         runner.RunNativeTest("TestGalaxyViewerUI::test_jump_route_progress_controls_exist", TestJumpRouteProgressControlsExist);
         runner.RunNativeTest("TestGalaxyViewerUI::test_recalculate_same_subsector_does_not_duplicate_systems", TestRecalculateSameSubsectorDoesNotDuplicateSystems);
@@ -199,6 +202,81 @@ public static class TestGalaxyViewerUI
         }
     }
 
+    private static void TestJumpRouteRegionUsesGeneratedPopulation()
+    {
+        GalaxyViewer viewer = CreateViewer();
+        try
+        {
+            viewer.CalculateJumpRoutesForCurrentSubsector();
+
+            JumpLaneRegion? region = viewer.GetJumpLaneRegion();
+            JumpLaneResult? result = viewer.GetJumpLaneResult();
+            DotNetNativeTestSuite.AssertNotNull(region, "Jump-route region should exist after calculation");
+            DotNetNativeTestSuite.AssertNotNull(result, "Jump-route result should exist after calculation");
+
+            GalaxySpec? spec = viewer.get_spec();
+            Galaxy? galaxy = viewer.GetGalaxy();
+            DotNetNativeTestSuite.AssertNotNull(spec, "Viewer spec should exist");
+            DotNetNativeTestSuite.AssertNotNull(galaxy, "Viewer galaxy should exist");
+            DotNetNativeTestSuite.AssertNotNull(
+                galaxy!.GetColonizationSimulationState(region!.RegionId),
+                "Explicit colonization simulation should be cached for the visible subsector");
+
+            foreach (JumpLaneConnection connection in result!.Connections)
+            {
+                JumpLaneSystem? sourceSystem = result.GetSystem(connection.SourceId);
+                JumpLaneSystem? destinationSystem = result.GetSystem(connection.DestinationId);
+                DotNetNativeTestSuite.AssertNotNull(sourceSystem, "Connected source systems should remain registered");
+                DotNetNativeTestSuite.AssertNotNull(destinationSystem, "Connected destination systems should remain registered");
+                DotNetNativeTestSuite.AssertGreaterThan(sourceSystem!.Population, 0, "Connected source systems should have positive route population");
+                DotNetNativeTestSuite.AssertGreaterThan(destinationSystem!.Population, 0, "Connected destination systems should have positive route population");
+            }
+
+            int comparisons = 0;
+            foreach (JumpLaneSystem routeSystem in region!.Systems)
+            {
+                int starSeed = int.Parse(routeSystem.Id, CultureInfo.InvariantCulture);
+                GalaxyStar star = GalaxyStar.CreateWithDerivedProperties(routeSystem.Position, starSeed, spec!);
+                SolarSystem? generatedSystem = GalaxySystemGenerator.GenerateSystem(
+                    star,
+                    includeAsteroids: true,
+                    enablePopulation: true,
+                    overrides: null,
+                    useCaseSettings: viewer.GetGalaxyConfig()?.UseCaseSettings,
+                    galaxy: galaxy);
+                int expectedPopulation = 0;
+                if (generatedSystem != null)
+                {
+                    expectedPopulation = generatedSystem.GetTotalPopulation();
+                }
+
+                DotNetNativeTestSuite.AssertTrue(
+                    routeSystem.Population >= expectedPopulation,
+                    "Colonization-simulation systems should preserve or exceed the direct generated-system population baseline");
+
+                if (expectedPopulation == 0 && result.GetConnectionsForSystem(routeSystem.Id).Count > 0)
+                {
+                    DotNetNativeTestSuite.AssertGreaterThan(
+                        routeSystem.Population,
+                        0,
+                        "Route-connected systems that start empty should only appear after receiving simulated colony population");
+                }
+
+                comparisons += 1;
+                if (comparisons >= 5)
+                {
+                    break;
+                }
+            }
+
+            DotNetNativeTestSuite.AssertGreaterThan(comparisons, 0, "The colonization simulation should expose route systems to validate");
+        }
+        finally
+        {
+            IntegrationTestUtils.CleanupNode(viewer);
+        }
+    }
+
     private static void TestJumpRouteVisibilityToggleUpdatesRenderer()
     {
         GalaxyViewer viewer = CreateViewer();
@@ -284,25 +362,42 @@ public static class TestGalaxyViewerUI
             DotNetNativeTestSuite.AssertNotNull(initialResult, "Initial jump-route result should exist");
 
             int initialSystemCount = initialRegion!.GetSystemCount();
+            string initialRegionId = initialRegion.RegionId;
             StarViewCamera? starCamera = viewer.GetStarCamera();
             DotNetNativeTestSuite.AssertNotNull(starCamera, "Star camera should exist");
 
-            Vector3 shiftedPosition = starCamera!.GetCurrentPosition() + new Vector3((float)GalaxyCoordinates.SubsectorSizePc, 0.0f, 0.0f);
+            Vector3 initialPosition = starCamera!.GetCurrentPosition();
+            Vector3 shiftedPosition = initialPosition + new Vector3((float)GalaxyCoordinates.SubsectorSizePc, 0.0f, 0.0f);
             starCamera.Configure(shiftedPosition);
             starCamera.EmitSignal(StarViewCamera.SignalName.SubsectorChanged, GalaxyCoordinates.GetSubsectorWorldOrigin(shiftedPosition));
 
-            DotNetNativeTestSuite.AssertNotNull(viewer.GetJumpLaneResult(), "Routes should remain cached after moving to a new subsector");
-            DotNetNativeTestSuite.AssertEqual(
-                initialSystemCount,
-                viewer.GetJumpLaneRegion()!.GetSystemCount(),
-                "Moving alone should not discard or duplicate the accumulated jump-route region");
+            string? shiftedRegionId = viewer.GetVisibleJumpRouteRegionId();
+            DotNetNativeTestSuite.AssertTrue(
+                !string.IsNullOrEmpty(shiftedRegionId) && shiftedRegionId != initialRegionId,
+                "Moving to a new subsector should change the visible simulation region");
+            DotNetNativeTestSuite.AssertNull(viewer.GetJumpLaneResult(), "Unsimulated subsectors should not inherit the prior subsector's cached routes");
+            DotNetNativeTestSuite.AssertNull(viewer.GetJumpLaneRegion(), "Unsimulated subsectors should clear the prior visible route region");
 
             viewer.CalculateJumpRoutesForCurrentSubsector();
-            int expandedSystemCount = viewer.GetJumpLaneRegion()!.GetSystemCount();
+            JumpLaneRegion? shiftedRegion = viewer.GetJumpLaneRegion();
+            JumpLaneResult? shiftedResult = viewer.GetJumpLaneResult();
+            DotNetNativeTestSuite.AssertNotNull(shiftedRegion, "Explicit calculation should simulate the newly visible subsector");
+            DotNetNativeTestSuite.AssertNotNull(shiftedResult, "Explicit calculation should populate jump-route results for the newly visible subsector");
+            int shiftedSystemCount = shiftedRegion!.GetSystemCount();
 
             DotNetNativeTestSuite.AssertTrue(
-                expandedSystemCount >= initialSystemCount,
-                "Recalculating after moving should keep prior systems and add any newly visible ones");
+                shiftedSystemCount > 0,
+                "Simulating a visible subsector should produce a route region with systems");
+
+            starCamera.Configure(initialPosition);
+            starCamera.EmitSignal(StarViewCamera.SignalName.SubsectorChanged, GalaxyCoordinates.GetSubsectorWorldOrigin(initialPosition));
+
+            JumpLaneRegion? restoredRegion = viewer.GetJumpLaneRegion();
+            JumpLaneResult? restoredResult = viewer.GetJumpLaneResult();
+            DotNetNativeTestSuite.AssertNotNull(restoredRegion, "Returning to a simulated subsector should restore its cached route region");
+            DotNetNativeTestSuite.AssertNotNull(restoredResult, "Returning to a simulated subsector should restore its cached route result");
+            DotNetNativeTestSuite.AssertEqual(initialRegionId, restoredRegion!.RegionId, "Returning should restore the original cached subsector simulation");
+            DotNetNativeTestSuite.AssertEqual(initialSystemCount, restoredRegion.GetSystemCount(), "Restored subsector simulation should keep its original system count");
         }
         finally
         {

@@ -27,11 +27,6 @@ public partial class ObjectViewer
             throw new System.InvalidOperationException("ObjectViewer scene is missing LifePermissivenessInput.");
         }
 
-        if (_populationPermissivenessInput == null)
-        {
-            throw new System.InvalidOperationException("ObjectViewer scene is missing PopulationPermissivenessInput.");
-        }
-
         if (_useCaseAssumptionsLabel == null)
         {
             throw new System.InvalidOperationException("ObjectViewer scene is missing UseCaseAssumptionsLabel.");
@@ -39,15 +34,15 @@ public partial class ObjectViewer
 
         if (_rulesetModeOption.ItemCount == 0)
         {
-            _rulesetModeOption.AddItem("Default", (int)GenerationUseCaseSettings.RulesetModeType.Default);
+            _rulesetModeOption.AddItem(GenerationUseCasePresentation.RealisticRulesetLabel, (int)GenerationUseCaseSettings.RulesetModeType.Default);
             _rulesetModeOption.AddItem("Traveller", (int)GenerationUseCaseSettings.RulesetModeType.Traveller);
         }
 
         _rulesetModeOption.ItemSelected += OnRulesetModeSelected;
         _showTravellerReadoutsCheck.Toggled += OnShowTravellerReadoutsToggled;
         _lifePermissivenessInput.ValueChanged += OnLifePermissivenessChanged;
-        _populationPermissivenessInput.ValueChanged += OnPopulationPermissivenessChanged;
         ApplyUseCaseSettingsToControls(_activeUseCaseSettings);
+        _populationPermissivenessInput?.GetParent<Control>()?.Hide();
     }
 
     private void SetupEmptyStateUi()
@@ -130,10 +125,6 @@ public partial class ObjectViewer
             _lifePermissivenessInput.Value = _activeUseCaseSettings.LifePermissiveness;
         }
 
-        if (_populationPermissivenessInput != null)
-        {
-            _populationPermissivenessInput.Value = _activeUseCaseSettings.PopulationPermissiveness;
-        }
     }
 
     private void TryApplyUseCaseSettingsFromBody(CelestialBody body)
@@ -176,8 +167,5 @@ public partial class ObjectViewer
         _activeUseCaseSettings.LifePermissiveness = value;
     }
 
-    private void OnPopulationPermissivenessChanged(double value)
-    {
-        _activeUseCaseSettings.PopulationPermissiveness = value;
-    }
+    private void OnPopulationPermissivenessChanged(double value) { }
 }

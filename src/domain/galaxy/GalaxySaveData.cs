@@ -1,5 +1,6 @@
 using Godot;
 using Godot.Collections;
+using StarGen.Domain.Colonization;
 using StarGen.Domain.Utils;
 
 namespace StarGen.Domain.Galaxy;
@@ -95,6 +96,16 @@ public partial class GalaxySaveData : RefCounted
     public Dictionary BodyOverridesData { get; set; } = new();
 
     /// <summary>
+    /// Serialized explicit colonization-simulation settings payload.
+    /// </summary>
+    public Dictionary ColonizationSimulationSettingsData { get; set; } = new();
+
+    /// <summary>
+    /// Serialized colonization-simulation state payloads keyed by region id.
+    /// </summary>
+    public Dictionary ColonizationSimulationStatesData { get; set; } = new();
+
+    /// <summary>
     /// Creates a new save-data payload for the supplied timestamp.
     /// </summary>
     public static GalaxySaveData Create(long timestamp)
@@ -141,6 +152,8 @@ public partial class GalaxySaveData : RefCounted
             ["jump_lane_region_data"] = JumpLaneRegionData,
             ["jump_lane_result_data"] = JumpLaneResultData,
             ["body_overrides_data"] = BodyOverridesData,
+            ["colonization_simulation_settings_data"] = ColonizationSimulationSettingsData,
+            ["colonization_simulation_states_data"] = ColonizationSimulationStatesData,
         };
 
         if (SelectedQuadrant.HasValue)
@@ -213,6 +226,8 @@ public partial class GalaxySaveData : RefCounted
         saveData.JumpLaneRegionData = DomainDictionaryUtils.GetDictionary(data, "jump_lane_region_data");
         saveData.JumpLaneResultData = DomainDictionaryUtils.GetDictionary(data, "jump_lane_result_data");
         saveData.BodyOverridesData = DomainDictionaryUtils.GetDictionary(data, "body_overrides_data");
+        saveData.ColonizationSimulationSettingsData = DomainDictionaryUtils.GetDictionary(data, "colonization_simulation_settings_data");
+        saveData.ColonizationSimulationStatesData = DomainDictionaryUtils.GetDictionary(data, "colonization_simulation_states_data");
         return saveData;
     }
 
@@ -293,6 +308,81 @@ public partial class GalaxySaveData : RefCounted
         else
         {
             BodyOverridesData = overrides.ToDictionary();
+        }
+    }
+
+    /// <summary>
+    /// Returns whether colonization-simulation settings are present.
+    /// </summary>
+    public bool HasColonizationSimulationSettings()
+    {
+        return ColonizationSimulationSettingsData.Count > 0;
+    }
+
+    /// <summary>
+    /// Returns the stored colonization-simulation settings.
+    /// </summary>
+    public ColonizationSimulationSettings GetColonizationSimulationSettings()
+    {
+        if (ColonizationSimulationSettingsData.Count == 0)
+        {
+            return ColonizationSimulationSettings.CreateDefault();
+        }
+
+        return ColonizationSimulationSettings.FromDictionary(ColonizationSimulationSettingsData);
+    }
+
+    /// <summary>
+    /// Stores colonization-simulation settings into the payload.
+    /// </summary>
+    public void SetColonizationSimulationSettings(ColonizationSimulationSettings? settings)
+    {
+        if (settings == null)
+        {
+            ColonizationSimulationSettingsData = new Dictionary();
+            return;
+        }
+
+        ColonizationSimulationSettingsData = settings.ToDictionary();
+    }
+
+    /// <summary>
+    /// Returns the stored colonization simulation states.
+    /// </summary>
+    public Array<ColonizationSimulationState> GetColonizationSimulationStates()
+    {
+        Array<ColonizationSimulationState> result = new();
+        foreach (Variant key in ColonizationSimulationStatesData.Keys)
+        {
+            if (key.VariantType != Variant.Type.String)
+            {
+                continue;
+            }
+
+            Variant value = ColonizationSimulationStatesData[key];
+            if (value.VariantType == Variant.Type.Dictionary)
+            {
+                result.Add(ColonizationSimulationState.FromDictionary((Dictionary)value));
+            }
+        }
+
+        return result;
+    }
+
+    /// <summary>
+    /// Stores colonization simulation states keyed by region id.
+    /// </summary>
+    public void SetColonizationSimulationStates(Array<ColonizationSimulationState> states)
+    {
+        ColonizationSimulationStatesData = new Dictionary();
+        foreach (ColonizationSimulationState state in states)
+        {
+            if (state == null || string.IsNullOrWhiteSpace(state.RegionId))
+            {
+                continue;
+            }
+
+            ColonizationSimulationStatesData[state.RegionId] = state.ToDictionary();
         }
     }
 

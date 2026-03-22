@@ -14,7 +14,7 @@
 					"total_worlds": 565
 				},
 				{
-					"biosphere_worlds": 21,
+					"biosphere_worlds": 0,
 					"colony_worlds": 0,
 					"label": "Marginal (2-3)",
 					"maximum_habitability": 3,
@@ -24,7 +24,7 @@
 					"total_worlds": 357
 				},
 				{
-					"biosphere_worlds": 5,
+					"biosphere_worlds": 0,
 					"colony_worlds": 0,
 					"label": "Viable (4-5)",
 					"maximum_habitability": 5,
@@ -34,7 +34,7 @@
 					"total_worlds": 77
 				},
 				{
-					"biosphere_worlds": 1,
+					"biosphere_worlds": 0,
 					"colony_worlds": 0,
 					"label": "Habitable (6-7)",
 					"maximum_habitability": 7,
@@ -54,13 +54,35 @@
 					"total_worlds": 0
 				}
 			],
-			"biosphere_worlds": 27,
+			"biology_support_worlds": 9,
+			"biosphere_worlds": 0,
+			"colony_approved_worlds": 0,
+			"colony_candidate_avg_probability": "0.063",
+			"colony_candidate_avg_roll": "0.399",
+			"colony_candidate_worlds": 7,
 			"colony_worlds": 0,
+			"expected_biosphere_worlds": 0.0,
+			"expected_colony_worlds": 0.44,
+			"expected_ecology_capable_biosphere_worlds": 0.0,
 			"key": "strict",
 			"label": "0.00 Strict",
+			"native_approved_worlds": 0,
+			"native_candidate_avg_probability": "0.000",
+			"native_candidate_avg_roll": "0.000",
+			"native_candidate_temperature_blocked_worlds": 0,
+			"native_candidate_worlds": 0,
+			"native_ecology_blocked_worlds": 0,
+			"native_ecology_capable_candidate_worlds": 0,
+			"native_roll_rejected_worlds": 0,
 			"sentient_worlds": 0,
 			"settled_worlds": 0,
-			"total_worlds": 1000
+			"total_worlds": 1000,
+			"waterless_worlds": 622,
+			"wet_habitability_blocked_worlds": 312,
+			"wet_radiation_blocked_worlds": 36,
+			"wet_too_cold_worlds": 13,
+			"wet_too_hot_worlds": 8,
+			"wet_worlds": 378
 		},
 		{
 			"bands": [
@@ -75,17 +97,17 @@
 					"total_worlds": 565
 				},
 				{
-					"biosphere_worlds": 21,
-					"colony_worlds": 3,
+					"biosphere_worlds": 0,
+					"colony_worlds": 8,
 					"label": "Marginal (2-3)",
 					"maximum_habitability": 3,
 					"minimum_habitability": 2,
 					"sentient_worlds": 0,
-					"settled_worlds": 3,
+					"settled_worlds": 8,
 					"total_worlds": 357
 				},
 				{
-					"biosphere_worlds": 5,
+					"biosphere_worlds": 1,
 					"colony_worlds": 8,
 					"label": "Viable (4-5)",
 					"maximum_habitability": 5,
@@ -95,7 +117,7 @@
 					"total_worlds": 77
 				},
 				{
-					"biosphere_worlds": 1,
+					"biosphere_worlds": 0,
 					"colony_worlds": 0,
 					"label": "Habitable (6-7)",
 					"maximum_habitability": 7,
@@ -115,13 +137,35 @@
 					"total_worlds": 0
 				}
 			],
-			"biosphere_worlds": 27,
-			"colony_worlds": 11,
+			"biology_support_worlds": 14,
+			"biosphere_worlds": 1,
+			"colony_approved_worlds": 17,
+			"colony_candidate_avg_probability": "0.106",
+			"colony_candidate_avg_roll": "0.505",
+			"colony_candidate_worlds": 134,
+			"colony_worlds": 16,
+			"expected_biosphere_worlds": 1.29217677929119,
+			"expected_colony_worlds": 14.23,
+			"expected_ecology_capable_biosphere_worlds": 1.29217677929119,
 			"key": "neutral",
 			"label": "0.50 Neutral",
+			"native_approved_worlds": 1,
+			"native_candidate_avg_probability": "0.162",
+			"native_candidate_avg_roll": "0.602",
+			"native_candidate_temperature_blocked_worlds": 0,
+			"native_candidate_worlds": 8,
+			"native_ecology_blocked_worlds": 0,
+			"native_ecology_capable_candidate_worlds": 8,
+			"native_roll_rejected_worlds": 7,
 			"sentient_worlds": 0,
-			"settled_worlds": 11,
-			"total_worlds": 1000
+			"settled_worlds": 16,
+			"total_worlds": 1000,
+			"waterless_worlds": 622,
+			"wet_habitability_blocked_worlds": 312,
+			"wet_radiation_blocked_worlds": 34,
+			"wet_too_cold_worlds": 13,
+			"wet_too_hot_worlds": 5,
+			"wet_worlds": 378
 		},
 		{
 			"bands": [
@@ -136,23 +180,23 @@
 					"total_worlds": 565
 				},
 				{
-					"biosphere_worlds": 21,
-					"colony_worlds": 88,
+					"biosphere_worlds": 6,
+					"colony_worlds": 92,
 					"label": "Marginal (2-3)",
 					"maximum_habitability": 3,
 					"minimum_habitability": 2,
 					"sentient_worlds": 0,
-					"settled_worlds": 88,
+					"settled_worlds": 92,
 					"total_worlds": 357
 				},
 				{
 					"biosphere_worlds": 5,
-					"colony_worlds": 39,
+					"colony_worlds": 34,
 					"label": "Viable (4-5)",
 					"maximum_habitability": 5,
 					"minimum_habitability": 4,
 					"sentient_worlds": 0,
-					"settled_worlds": 39,
+					"settled_worlds": 34,
 					"total_worlds": 77
 				},
 				{
@@ -176,13 +220,35 @@
 					"total_worlds": 0
 				}
 			],
-			"biosphere_worlds": 27,
-			"colony_worlds": 138,
+			"biology_support_worlds": 27,
+			"biosphere_worlds": 12,
+			"colony_approved_worlds": 142,
+			"colony_candidate_avg_probability": "0.412",
+			"colony_candidate_avg_roll": "0.502",
+			"colony_candidate_worlds": 352,
+			"colony_worlds": 137,
+			"expected_biosphere_worlds": 11.8622286696139,
+			"expected_colony_worlds": 145.084,
+			"expected_ecology_capable_biosphere_worlds": 11.8622286696139,
 			"key": "space_opera",
 			"label": "1.00 Space Opera",
+			"native_approved_worlds": 12,
+			"native_candidate_avg_probability": "0.439",
+			"native_candidate_avg_roll": "0.498",
+			"native_candidate_temperature_blocked_worlds": 0,
+			"native_candidate_worlds": 27,
+			"native_ecology_blocked_worlds": 0,
+			"native_ecology_capable_candidate_worlds": 27,
+			"native_roll_rejected_worlds": 15,
 			"sentient_worlds": 0,
-			"settled_worlds": 138,
-			"total_worlds": 1000
+			"settled_worlds": 137,
+			"total_worlds": 1000,
+			"waterless_worlds": 622,
+			"wet_habitability_blocked_worlds": 187,
+			"wet_radiation_blocked_worlds": 148,
+			"wet_too_cold_worlds": 13,
+			"wet_too_hot_worlds": 3,
+			"wet_worlds": 378
 		}
 	],
 	"seed_base": 120000

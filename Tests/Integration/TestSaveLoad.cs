@@ -459,7 +459,6 @@ public static class TestSaveLoad
         settings.RulesetMode = GenerationUseCaseSettings.RulesetModeType.Traveller;
         settings.ShowTravellerReadouts = true;
         settings.LifePermissiveness = 0.6;
-        settings.PopulationPermissiveness = 0.75;
         settings.MainworldPolicy = GenerationUseCaseSettings.MainworldPolicyType.Prefer;
         return settings;
     }

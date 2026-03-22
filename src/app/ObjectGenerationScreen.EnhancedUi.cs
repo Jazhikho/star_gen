@@ -145,7 +145,7 @@ public partial class ObjectGenerationScreen
         _typeOption.AddItem("Moon", (int)ObjectViewer.ObjectType.Moon);
         _typeOption.AddItem("Asteroid", (int)ObjectViewer.ObjectType.Asteroid);
         _rulesetModeOption.Clear();
-        _rulesetModeOption.AddItem("Default", (int)GenerationUseCaseSettings.RulesetModeType.Default);
+        _rulesetModeOption.AddItem(GenerationUseCasePresentation.RealisticRulesetLabel, (int)GenerationUseCaseSettings.RulesetModeType.Default);
         _rulesetModeOption.AddItem("Traveller", (int)GenerationUseCaseSettings.RulesetModeType.Traveller);
         PopulatePlanetSection();
         PopulateTravellerSection();
@@ -215,11 +215,6 @@ public partial class ObjectGenerationScreen
         if (_lifePermissivenessInput != null)
         {
             _lifePermissivenessInput.ValueChanged += OnLifePermissivenessChanged;
-        }
-
-        if (_populationPermissivenessInput != null)
-        {
-            _populationPermissivenessInput.ValueChanged += OnPopulationPermissivenessChanged;
         }
 
         ConnectOptionToSummary(_planetSizeCategoryOption);
@@ -296,11 +291,6 @@ public partial class ObjectGenerationScreen
             _lifePermissivenessInput.Value = GenerationUseCaseSettings.NeutralPermissiveness;
         }
 
-        if (_populationPermissivenessInput != null)
-        {
-            _populationPermissivenessInput.Value = GenerationUseCaseSettings.NeutralPermissiveness;
-        }
-
         ResetEnhancedOptionalInputs();
         RebuildEnhancedPresetOptions();
         RefreshEnhancedFieldPresentation();
@@ -355,11 +345,9 @@ public partial class ObjectGenerationScreen
                 lines.Add($"Seed {request.SeedValue}");
             }
 
-            lines.Add($"Ruleset {request.UseCaseSettings.RulesetMode}");
+            lines.Add($"Ruleset {GenerationUseCasePresentation.GetRulesetLabel(request.UseCaseSettings.RulesetMode)}");
             lines.Add($"Traveller Readouts {(request.UseCaseSettings.ShowTravellerReadouts ? "On" : "Off")}");
             lines.Add($"Life Potential {PermissivenessScaleHelper.GetBandLabel(request.UseCaseSettings.LifePermissiveness)}");
-            lines.Add($"Settlement Density {PermissivenessScaleHelper.GetBandLabel(request.UseCaseSettings.PopulationPermissiveness)}");
-
             if (request.TravellerWorldProfileData.Count > 0)
             {
                 TravellerWorldProfile profile = TravellerWorldProfile.FromDictionary(request.TravellerWorldProfileData);
@@ -395,11 +383,6 @@ public partial class ObjectGenerationScreen
         if (_lifePermissivenessInput != null)
         {
             settings.LifePermissiveness = _lifePermissivenessInput.Value;
-        }
-
-        if (_populationPermissivenessInput != null)
-        {
-            settings.PopulationPermissiveness = _populationPermissivenessInput.Value;
         }
 
         if (settings.IsTravellerMode())
@@ -447,7 +430,7 @@ public partial class ObjectGenerationScreen
         SetEnhancedRowVisible("TemperatureOverrideRow", showAdvanced && objectType == ObjectViewer.ObjectType.Star);
         SetEnhancedRowVisible("LuminosityOverrideRow", showAdvanced && objectType == ObjectViewer.ObjectType.Star);
         SetEnhancedRowVisible("LifePermissivenessRow", showAdvanced && objectType != ObjectViewer.ObjectType.Star);
-        SetEnhancedRowVisible("PopulationPermissivenessRow", showAdvanced && objectType != ObjectViewer.ObjectType.Star);
+        SetEnhancedRowVisible("PopulationPermissivenessRow", false);
     }
 
     private void RefreshEnhancedFieldPresentation()
@@ -515,7 +498,6 @@ public partial class ObjectGenerationScreen
 
     private void OnPopulationPermissivenessChanged(double _value)
     {
-        UpdatePermissivenessValueLabels();
         RefreshSummary();
     }
 
@@ -527,11 +509,6 @@ public partial class ObjectGenerationScreen
                 $"{_lifePermissivenessInput.Value:0.00} {PermissivenessScaleHelper.GetBandLabel(_lifePermissivenessInput.Value)}";
         }
 
-        if (_populationPermissivenessInput != null && _populationPermissivenessValueLabel != null)
-        {
-            _populationPermissivenessValueLabel.Text =
-                $"{_populationPermissivenessInput.Value:0.00} {PermissivenessScaleHelper.GetBandLabel(_populationPermissivenessInput.Value)}";
-        }
     }
 
     private void OnEnhancedOptionalToggleChanged(string key)
@@ -586,7 +563,6 @@ public partial class ObjectGenerationScreen
     private void PopulateAdvancedSection()
     {
         ApplyPermissivenessTooltip("LifePermissivenessRow", _lifePermissivenessInput, _lifePermissivenessValueLabel, "life");
-        ApplyPermissivenessTooltip("PopulationPermissivenessRow", _populationPermissivenessInput, _populationPermissivenessValueLabel, "settlement");
     }
 
     private string BuildEnhancedAssumptionText()
@@ -879,11 +855,6 @@ public partial class ObjectGenerationScreen
             _lifePermissivenessInput.Value = GenerationUseCaseSettings.TravellerLifePermissiveness;
         }
 
-        if (_populationPermissivenessInput != null
-            && System.Math.Abs(_populationPermissivenessInput.Value - GenerationUseCaseSettings.NeutralPermissiveness) < 0.001)
-        {
-            _populationPermissivenessInput.Value = GenerationUseCaseSettings.TravellerPopulationPermissiveness;
-        }
     }
 
     private void PopulateTravellerCodeOptions(OptionButton? optionButton, string kind)

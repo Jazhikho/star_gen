@@ -6,6 +6,7 @@ using Godot;
 using Godot.Collections;
 using StarGen.Domain.Celestial;
 using StarGen.Domain.Concepts;
+using StarGen.Domain.Concepts.Pipeline;
 using StarGen.Domain.Galaxy;
 using StarGen.Domain.Generation;
 using StarGen.Domain.Population;
@@ -62,10 +63,32 @@ public partial class LifeDistributionBaselineRunner : Node
         public string Key = string.Empty;
         public string Label = string.Empty;
         public int TotalWorlds;
+        public int WetWorlds;
+        public int BiologySupportWorlds;
+        public int WaterlessWorlds;
+        public int WetHabitabilityBlockedWorlds;
+        public int WetRadiationBlockedWorlds;
+        public int WetTooColdWorlds;
+        public int WetTooHotWorlds;
+        public int NativeCandidateWorlds;
+        public int NativeEcologyCapableCandidateWorlds;
+        public int NativeApprovedWorlds;
+        public int NativeRollRejectedWorlds;
+        public int NativeEcologyBlockedWorlds;
+        public int NativeCandidateTemperatureBlockedWorlds;
+        public int ColonyCandidateWorlds;
+        public int ColonyApprovedWorlds;
         public int BiosphereWorlds;
+        public double ExpectedBiosphereWorlds;
+        public double ExpectedEcologyCapableBiosphereWorlds;
+        public double NativeCandidateProbabilitySum;
+        public double NativeCandidateRollSum;
         public int SentientWorlds;
         public int SettledWorlds;
         public int ColonyWorlds;
+        public double ExpectedColonyWorlds;
+        public double ColonyCandidateProbabilitySum;
+        public double ColonyCandidateRollSum;
         public List<BandStats> Bands = new();
     }
 
@@ -174,7 +197,6 @@ public partial class LifeDistributionBaselineRunner : Node
 
         GenerationUseCaseSettings settings = GenerationUseCaseSettings.CreateDefault();
         settings.LifePermissiveness = permissiveness;
-        settings.PopulationPermissiveness = permissiveness;
 
         foreach (WorldSample sample in worldSamples)
         {
@@ -221,8 +243,19 @@ public partial class LifeDistributionBaselineRunner : Node
         WorldSample sample,
         GenerationUseCaseSettings settings)
     {
+        PlanetEnvironmentProfile environmentProfile = PlanetEnvironmentProfile.FromPlanetProfile(
+            sample.Profile,
+            sample.GenerationSeed,
+            sample.Profile.BodyId,
+            "Planet");
+        BiologySupportEvaluator.Assessment biologyAssessment = BiologySupportEvaluator.Evaluate(environmentProfile, settings);
+        bool supportsBiology = biologyAssessment.IsSupported;
         bool nativeLifeExists = PopulationLikelihood.ShouldGenerateNatives(sample.Profile, sample.GenerationSeed, settings);
         bool colonyExists = PopulationLikelihood.ShouldGenerateColony(sample.Profile, sample.Suitability, sample.GenerationSeed, settings);
+        double nativeLikelihood = PopulationLikelihood.EstimateNativeLikelihood(sample.Profile, settings);
+        double colonyLikelihood = PopulationLikelihood.EstimateColonyLikelihood(sample.Profile, sample.Suitability, settings);
+        double nativeRoll = PopulationLikelihood.DeriveRollValue(sample.GenerationSeed, PopulationLikelihood.NativeRollSalt);
+        double colonyRoll = PopulationLikelihood.DeriveRollValue(sample.GenerationSeed, PopulationLikelihood.ColonyRollSalt);
         PlanetPopulationData populationData = PopulationGenerator.GenerateFromProfile(
             PlanetProfile.FromDictionary(sample.Profile.ToDictionary()),
             sample.GenerationSeed,
@@ -234,6 +267,81 @@ public partial class LifeDistributionBaselineRunner : Node
         PlanetProfile profile = populationData.Profile;
 
         result.TotalWorlds += 1;
+        if (sample.Profile.HasLiquidWater)
+        {
+            result.WetWorlds += 1;
+        }
+
+        if (supportsBiology)
+        {
+            result.BiologySupportWorlds += 1;
+        }
+        else
+        {
+            if (biologyAssessment.Reason == BiologySupportEvaluator.FailureReason.NoLiquidWater)
+            {
+                result.WaterlessWorlds += 1;
+            }
+            else if (biologyAssessment.Reason == BiologySupportEvaluator.FailureReason.LowHabitability)
+            {
+                result.WetHabitabilityBlockedWorlds += 1;
+            }
+            else if (biologyAssessment.Reason == BiologySupportEvaluator.FailureReason.HighRadiation)
+            {
+                result.WetRadiationBlockedWorlds += 1;
+            }
+            else if (biologyAssessment.Reason == BiologySupportEvaluator.FailureReason.TooCold)
+            {
+                result.WetTooColdWorlds += 1;
+            }
+            else if (biologyAssessment.Reason == BiologySupportEvaluator.FailureReason.TooHot)
+            {
+                result.WetTooHotWorlds += 1;
+            }
+        }
+
+        if (nativeLikelihood > 0.0)
+        {
+            result.NativeCandidateWorlds += 1;
+            result.NativeCandidateProbabilitySum += nativeLikelihood;
+            result.NativeCandidateRollSum += nativeRoll;
+            if (supportsBiology)
+            {
+                result.NativeEcologyCapableCandidateWorlds += 1;
+                result.ExpectedEcologyCapableBiosphereWorlds += nativeLikelihood;
+            }
+            else if (environmentProfile.AvgTemperatureK < 180.0 || environmentProfile.AvgTemperatureK > 390.0)
+            {
+                result.NativeCandidateTemperatureBlockedWorlds += 1;
+            }
+
+            if (nativeLifeExists)
+            {
+                result.NativeApprovedWorlds += 1;
+                if (!supportsBiology)
+                {
+                    result.NativeEcologyBlockedWorlds += 1;
+                }
+            }
+            else
+            {
+                result.NativeRollRejectedWorlds += 1;
+            }
+        }
+
+        if (colonyLikelihood > 0.0)
+        {
+            result.ColonyCandidateWorlds += 1;
+            result.ColonyCandidateProbabilitySum += colonyLikelihood;
+            result.ColonyCandidateRollSum += colonyRoll;
+            if (colonyExists)
+            {
+                result.ColonyApprovedWorlds += 1;
+            }
+        }
+
+        result.ExpectedBiosphereWorlds += nativeLikelihood;
+        result.ExpectedColonyWorlds += colonyLikelihood;
         BandStats band = GetBand(result.Bands, profile.HabitabilityScore);
         band.TotalWorlds += 1;
 
@@ -296,7 +404,29 @@ public partial class LifeDistributionBaselineRunner : Node
             lines.Add("## " + scenario.Label);
             lines.Add(string.Empty);
             lines.Add($"- Total worlds: {scenario.TotalWorlds}");
+            lines.Add($"- Wet worlds: {scenario.WetWorlds}");
+            lines.Add($"- Ecology-capable worlds: {scenario.BiologySupportWorlds}");
+            lines.Add($"- Waterless worlds: {scenario.WaterlessWorlds}");
+            lines.Add($"- Wet worlds blocked by habitability: {scenario.WetHabitabilityBlockedWorlds}");
+            lines.Add($"- Wet worlds blocked by radiation: {scenario.WetRadiationBlockedWorlds}");
+            lines.Add($"- Wet worlds blocked as too cold: {scenario.WetTooColdWorlds}");
+            lines.Add($"- Wet worlds blocked as too hot: {scenario.WetTooHotWorlds}");
+            lines.Add($"- Native-life candidates: {scenario.NativeCandidateWorlds}");
+            lines.Add($"- Expected biospheres from probability sum: {scenario.ExpectedBiosphereWorlds:0.0}");
+            lines.Add($"- Ecology-capable native candidates: {scenario.NativeEcologyCapableCandidateWorlds}");
+            lines.Add($"- Expected biospheres within ecology-capable worlds: {scenario.ExpectedEcologyCapableBiosphereWorlds:0.0}");
+            lines.Add($"- Worlds approved by native roll: {scenario.NativeApprovedWorlds}");
+            lines.Add($"- Native candidates avg probability: {FormatAverage(scenario.NativeCandidateProbabilitySum, scenario.NativeCandidateWorlds)}");
+            lines.Add($"- Native candidates avg roll: {FormatAverage(scenario.NativeCandidateRollSum, scenario.NativeCandidateWorlds)}");
+            lines.Add($"- Native candidates rejected by roll: {scenario.NativeRollRejectedWorlds}");
+            lines.Add($"- Native approvals blocked by ecology support: {scenario.NativeEcologyBlockedWorlds}");
+            lines.Add($"- Native candidates blocked by ecology temperature gate: {scenario.NativeCandidateTemperatureBlockedWorlds}");
             lines.Add($"- Worlds with biospheres: {scenario.BiosphereWorlds} ({FormatPercent(scenario.BiosphereWorlds, scenario.TotalWorlds)})");
+            lines.Add($"- Colony candidates: {scenario.ColonyCandidateWorlds}");
+            lines.Add($"- Expected colony worlds from probability sum: {scenario.ExpectedColonyWorlds:0.0}");
+            lines.Add($"- Worlds approved by colony roll: {scenario.ColonyApprovedWorlds}");
+            lines.Add($"- Colony candidates avg probability: {FormatAverage(scenario.ColonyCandidateProbabilitySum, scenario.ColonyCandidateWorlds)}");
+            lines.Add($"- Colony candidates avg roll: {FormatAverage(scenario.ColonyCandidateRollSum, scenario.ColonyCandidateWorlds)}");
             lines.Add($"- Worlds with sentient native life: {scenario.SentientWorlds} ({FormatPercent(scenario.SentientWorlds, scenario.TotalWorlds)})");
             lines.Add($"- Worlds with any settlement: {scenario.SettledWorlds} ({FormatPercent(scenario.SettledWorlds, scenario.TotalWorlds)})");
             lines.Add($"- Worlds with colonies: {scenario.ColonyWorlds} ({FormatPercent(scenario.ColonyWorlds, scenario.TotalWorlds)})");
@@ -319,13 +449,13 @@ public partial class LifeDistributionBaselineRunner : Node
     private static string BuildCsvReport(List<ScenarioResult> scenarios)
     {
         List<string> lines = new List<string>();
-        lines.Add("scenario_key,scenario_label,band,total_worlds,biosphere_worlds,sentient_worlds,settled_worlds,colony_worlds");
+        lines.Add("scenario_key,scenario_label,wet_worlds,biology_support_worlds,waterless_worlds,wet_habitability_blocked_worlds,wet_radiation_blocked_worlds,wet_too_cold_worlds,wet_too_hot_worlds,native_candidate_worlds,native_ecology_capable_candidate_worlds,native_approved_worlds,native_roll_rejected_worlds,native_ecology_blocked_worlds,native_candidate_temperature_blocked_worlds,expected_biosphere_worlds,expected_ecology_capable_biosphere_worlds,native_candidate_avg_probability,native_candidate_avg_roll,colony_candidate_worlds,colony_approved_worlds,expected_colony_worlds,colony_candidate_avg_probability,colony_candidate_avg_roll,band,total_worlds,biosphere_worlds,sentient_worlds,settled_worlds,colony_worlds");
         foreach (ScenarioResult scenario in scenarios)
         {
             foreach (BandStats band in scenario.Bands)
             {
                 lines.Add(
-                    $"{scenario.Key},{EscapeCsv(scenario.Label)},{EscapeCsv(band.Label)},{band.TotalWorlds},{band.BiosphereWorlds},{band.SentientWorlds},{band.SettledWorlds},{band.ColonyWorlds}");
+                    $"{scenario.Key},{EscapeCsv(scenario.Label)},{scenario.WetWorlds},{scenario.BiologySupportWorlds},{scenario.WaterlessWorlds},{scenario.WetHabitabilityBlockedWorlds},{scenario.WetRadiationBlockedWorlds},{scenario.WetTooColdWorlds},{scenario.WetTooHotWorlds},{scenario.NativeCandidateWorlds},{scenario.NativeEcologyCapableCandidateWorlds},{scenario.NativeApprovedWorlds},{scenario.NativeRollRejectedWorlds},{scenario.NativeEcologyBlockedWorlds},{scenario.NativeCandidateTemperatureBlockedWorlds},{scenario.ExpectedBiosphereWorlds:0.000},{scenario.ExpectedEcologyCapableBiosphereWorlds:0.000},{FormatAverage(scenario.NativeCandidateProbabilitySum, scenario.NativeCandidateWorlds)},{FormatAverage(scenario.NativeCandidateRollSum, scenario.NativeCandidateWorlds)},{scenario.ColonyCandidateWorlds},{scenario.ColonyApprovedWorlds},{scenario.ExpectedColonyWorlds:0.000},{FormatAverage(scenario.ColonyCandidateProbabilitySum, scenario.ColonyCandidateWorlds)},{FormatAverage(scenario.ColonyCandidateRollSum, scenario.ColonyCandidateWorlds)},{EscapeCsv(band.Label)},{band.TotalWorlds},{band.BiosphereWorlds},{band.SentientWorlds},{band.SettledWorlds},{band.ColonyWorlds}");
             }
         }
 
@@ -358,7 +488,29 @@ public partial class LifeDistributionBaselineRunner : Node
                 ["key"] = scenario.Key,
                 ["label"] = scenario.Label,
                 ["total_worlds"] = scenario.TotalWorlds,
+                ["wet_worlds"] = scenario.WetWorlds,
+                ["biology_support_worlds"] = scenario.BiologySupportWorlds,
+                ["waterless_worlds"] = scenario.WaterlessWorlds,
+                ["wet_habitability_blocked_worlds"] = scenario.WetHabitabilityBlockedWorlds,
+                ["wet_radiation_blocked_worlds"] = scenario.WetRadiationBlockedWorlds,
+                ["wet_too_cold_worlds"] = scenario.WetTooColdWorlds,
+                ["wet_too_hot_worlds"] = scenario.WetTooHotWorlds,
+                ["native_candidate_worlds"] = scenario.NativeCandidateWorlds,
+                ["native_ecology_capable_candidate_worlds"] = scenario.NativeEcologyCapableCandidateWorlds,
+                ["native_approved_worlds"] = scenario.NativeApprovedWorlds,
+                ["native_roll_rejected_worlds"] = scenario.NativeRollRejectedWorlds,
+                ["native_ecology_blocked_worlds"] = scenario.NativeEcologyBlockedWorlds,
+                ["native_candidate_temperature_blocked_worlds"] = scenario.NativeCandidateTemperatureBlockedWorlds,
+                ["expected_biosphere_worlds"] = scenario.ExpectedBiosphereWorlds,
+                ["expected_ecology_capable_biosphere_worlds"] = scenario.ExpectedEcologyCapableBiosphereWorlds,
+                ["native_candidate_avg_probability"] = FormatAverage(scenario.NativeCandidateProbabilitySum, scenario.NativeCandidateWorlds),
+                ["native_candidate_avg_roll"] = FormatAverage(scenario.NativeCandidateRollSum, scenario.NativeCandidateWorlds),
                 ["biosphere_worlds"] = scenario.BiosphereWorlds,
+                ["colony_candidate_worlds"] = scenario.ColonyCandidateWorlds,
+                ["colony_approved_worlds"] = scenario.ColonyApprovedWorlds,
+                ["expected_colony_worlds"] = scenario.ExpectedColonyWorlds,
+                ["colony_candidate_avg_probability"] = FormatAverage(scenario.ColonyCandidateProbabilitySum, scenario.ColonyCandidateWorlds),
+                ["colony_candidate_avg_roll"] = FormatAverage(scenario.ColonyCandidateRollSum, scenario.ColonyCandidateWorlds),
                 ["sentient_worlds"] = scenario.SentientWorlds,
                 ["settled_worlds"] = scenario.SettledWorlds,
                 ["colony_worlds"] = scenario.ColonyWorlds,
@@ -401,6 +553,16 @@ public partial class LifeDistributionBaselineRunner : Node
 
         double percent = ((double)value / total) * 100.0;
         return percent.ToString("0.0") + "%";
+    }
+
+    private static string FormatAverage(double totalValue, int count)
+    {
+        if (count <= 0)
+        {
+            return "0.000";
+        }
+
+        return (totalValue / count).ToString("0.000");
     }
 
     private static string EscapeCsv(string value)

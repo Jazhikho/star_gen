@@ -44,6 +44,9 @@ public static partial class DotNetNativeTestSuite
         runner.RunNativeTest(
             "TestJumpLaneSystem::test_serialization_round_trip",
             TestJumpLaneSystem.TestSerializationRoundTrip);
+        runner.RunNativeTest(
+            "TestJumpLaneSystem::test_serialization_round_trip_preserves_traveller_profile",
+            TestJumpLaneSystem.TestSerializationRoundTripPreservesTravellerProfile);
 
         runner.RunNativeTest(
             "TestJumpLaneConnection::test_init_defaults",
@@ -186,6 +189,26 @@ public static partial class DotNetNativeTestSuite
         runner.RunNativeTest(
             "TestJumpLaneCalculator::test_just_beyond_threshold",
             TestJumpLaneCalculator.TestJustBeyondThreshold);
+
+        runner.RunNativeTest(
+            "TestColonizationRouteCalculator::test_interstellar_exporter_colonizes_nearby_viable_target",
+            TestColonizationRouteCalculator.TestInterstellarExporterColonizesNearbyViableTarget);
+        runner.RunNativeTest(
+            "TestColonizationRouteCalculator::test_low_tech_systems_do_not_colonize",
+            TestColonizationRouteCalculator.TestLowTechSystemsDoNotColonize);
+        runner.RunNativeTest(
+            "TestColonizationRouteCalculator::test_colonization_routes_are_deterministic",
+            TestColonizationRouteCalculator.TestColonizationRoutesAreDeterministic);
+
+        runner.RunNativeTest(
+            "TestTravellerRouteCalculator::test_j1_equals_2_parsecs",
+            TestTravellerRouteCalculator.TestJ1Equals2Parsecs);
+        runner.RunNativeTest(
+            "TestTravellerRouteCalculator::test_beyond_j1_range_does_not_connect",
+            TestTravellerRouteCalculator.TestBeyondJ1RangeDoesNotConnect);
+        runner.RunNativeTest(
+            "TestTravellerRouteCalculator::test_j2_uses_4_parsec_range_and_trade_codes",
+            TestTravellerRouteCalculator.TestJ2Uses4ParsecRangeAndTradeCodes);
 
         runner.RunNativeTest(
             "TestJumpLaneClusterConnector::test_single_system_is_one_cluster",

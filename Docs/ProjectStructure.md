@@ -17,10 +17,31 @@ UI layout baseline:
 - Wrapped labels should have a panel-appropriate minimum width rather than relying on autowrap alone; large full-width headers can be broader, while sidebar/footer text should usually stay closer to the 180-320 px range.
 
 Current development line:
-- `0.7.4.0`
+- `0.7.7.0`
 
 Current public release target:
 - `0.8.0.0`
+
+Recent 0.7.7.0 additions:
+- `src/domain/colonization/ColonizationSimulationSettings.cs` / `src/domain/colonization/ColonizationSimulationRequest.cs` / `src/domain/colonization/ColonizationSimulationState.cs` / `src/domain/colonization/ColonizationSettlementRecord.cs` / `src/domain/colonization/ColonizationRouteRecord.cs` / `src/domain/colonization/ColonizationSimulator.cs` / `src/domain/colonization/ColonizationSimulationOverlay.cs` (colonies and non-Traveller routes now come from an explicit deterministic colonization simulation layer with persisted settings, event records, and body-level reconstruction when a system is opened)
+- `src/domain/galaxy/Galaxy.cs` / `src/domain/galaxy/GalaxySaveData.cs` / `src/app/galaxy_viewer/GalaxyViewer.Accessors.cs` / `src/app/galaxy_viewer/GalaxyViewer.Setup.cs` / `src/app/galaxy_viewer/GalaxyViewer.JumpRoutes.cs` / `src/app/galaxy_viewer/GalaxyViewerSaveLoad.cs` / `src/app/MainApp.Navigation.cs` (galaxy/runtime paths now cache explicit subsector simulation state, restore it by region, and overlay saved colonization outcomes on native-only generated systems)
+- `src/domain/generation/GenerationUseCaseSettings.cs` / `src/domain/generation/parameters/GenerationParameterCatalog.cs` / `src/app/GalaxyGenerationScreen.cs` / `src/app/SystemGenerationScreen.cs` / `src/app/ObjectGenerationScreen.EnhancedUi.cs` / `src/app/system_viewer/SystemViewer.Parameters.cs` / `src/app/viewer/ObjectViewer.Parameters.cs` (generation-facing expansion controls were removed or hidden so studio/viewer generation surfaces now stop at initial conditions instead of implying colonization is a generation input)
+- `Tests/Integration/TestGalaxyViewerUI.cs` / `Tests/Integration/TestGalaxyGenerationScreen.cs` / `Tests/Integration/TestSystemViewer.cs` / `Tests/Integration/TestObjectViewer.cs` / `Tests/Unit/JumpLanes/TestColonizationRouteCalculator.cs` / `Tests/Unit/TestGalaxySystemGenerator.cs` / `Tests/Unit/TestStarSystemPreview.cs` / `Tests/Unit/Population/*` (coverage for native-only generation invariants, explicit subsector simulation caching/restoration, hidden generation-side colonization controls, and authoritative route/overlay behavior)
+
+Recent 0.7.6.1 additions:
+- `src/domain/jumplanes/ColonizationRouteCalculator.cs` / `src/domain/jumplanes/JumpLaneSystem.cs` / `src/app/galaxy_viewer/GalaxyViewer.Setup.cs` / `src/app/galaxy_viewer/GalaxyViewer.JumpRoutes.cs` (non-Traveller jump routes now use deterministic interstellar colonization pressure from generated system summaries, turning viable empty systems into simulated colony endpoints instead of linking by a heuristic population guess)
+- `Tests/Unit/JumpLanes/TestColonizationRouteCalculator.cs` / `Tests/Integration/TestGalaxyViewerUI.cs` / `Tests/Unit/JumpLanes/TestJumpLaneSystem.cs` (coverage for colonization-driven route formation, deterministic route-population outcomes, and serialization of the richer route-system summary data)
+
+Recent 0.7.6.0 additions:
+- `src/domain/population/ColonyPressureContext.cs` / `src/domain/population/NativeSystemPressureSummary.cs` / `src/domain/galaxy/GalaxyNativePressureCalculator.cs` (deterministic local-and-nearby native-pressure summaries now feed a second-pass colony rebuild instead of deciding colonies body-by-body during initial generation)
+- `src/domain/population/PopulationGenerator.cs` / `src/domain/population/PopulationLikelihood.cs` / `src/domain/population/PopulationProbability.cs` / `src/domain/galaxy/Galaxy.cs` / `src/domain/galaxy/GalaxySystemGenerator.cs` / `src/domain/galaxy/StarSystemPreview.cs` / `src/domain/system/fixtures/SystemFixtureGenerator.cs` (runtime and fixture generation now rebuild colonies after native worlds exist, while galaxy caches keep nearby-system summaries deterministic and order-independent)
+- `Tests/Unit/Population/TestPopulationProbability.cs` / `Tests/Unit/Population/TestPopulationLikelihood.cs` / `Tests/Unit/Population/TestPopulationGenerator.cs` / `Tests/Unit/TestGalaxySystemGenerator.cs` / `Tests/Unit/TestStarSystemPreview.cs` (coverage for native-pressure colony probability, deterministic colony-roll flips under pressure, second-pass rebuild behavior, and galaxy-context preview/system determinism)
+
+Recent 0.7.5.0 additions:
+- `src/app/GalaxyGenerationScreen.cs` / `src/app/GalaxyGenerationScreen.tscn` / `src/domain/generation/GenerationUseCasePresentation.cs` (Galaxy Studio now uses concise active-profile summaries, canonical `Realistic` / `Traveller` / `Expansion Pressure` wording, and tooltip-first explanation text shared across generation surfaces)
+- `src/domain/generation/traveller/TravellerSystemGenerator.cs` / `src/domain/generation/traveller/TravellerSystemProfile.cs` / `src/domain/generation/traveller/TravellerTradeCodeSet.cs` / `src/domain/generation/traveller/TravellerRouteProfile.cs` / `src/domain/generation/traveller/TravellerWorldGenerator.Systems.cs` (Traveller mode now selects a deterministic mainworld, applies Traveller world-generation outputs as authoritative mainworld state, and stores typed system-level Traveller data instead of only readout strings)
+- `src/domain/jumplanes/TravellerRouteCalculator.cs` / `src/domain/jumplanes/JumpLaneSystem.cs` / `src/app/galaxy_viewer/GalaxyViewer.JumpRoutes.cs` / `src/app/galaxy_viewer/GalaxyViewer.Setup.cs` (Traveller route building now uses a dedicated route calculator and persists Traveller-aware route/system data while Realistic mode keeps the existing jump-lane path)
+- `Tests/Integration/TestGalaxyGenerationScreen.cs` / `Tests/Integration/TestSystemPersistence.cs` / `Tests/Unit/TestTravellerWorldGenerator.cs` / `Tests/Unit/TestSystemSerializer.cs` / `Tests/Unit/JumpLanes/TestTravellerRouteCalculator.cs` / `Tests/Unit/JumpLanes/TestJumpLaneSystem.cs` (coverage for UI wording/tooltips, Traveller determinism, typed Traveller persistence, and the 2 pc-per-jump Traveller route rule)
 
 Recent 0.7.4.0 additions:
 - `src/app/GalaxyGenerationScreen.cs` / `src/app/GalaxyGenerationScreen.tscn` (Galaxy Studio now exists as its own first-class screen instead of hiding behind the older `WelcomeScreen` identity)
@@ -253,6 +274,7 @@ C# source files:
 - `src/domain/celestial/components/StellarProps.cs`
 - `src/domain/generation/ParentContext.cs`
 - `src/domain/generation/GenerationRealismProfile.cs`
+- `src/domain/generation/GenerationUseCasePresentation.cs`
 - `src/domain/generation/GenerationUseCaseSettings.cs`
 - `src/domain/generation/specs/BaseSpec.cs`
 - `src/domain/generation/specs/StarSpec.cs`
@@ -284,8 +306,13 @@ C# source files:
 - `src/domain/generation/parameters/GenerationParameterCatalog.cs`
 - `src/domain/generation/parameters/SystemGenerationParameterValidator.cs`
 - `src/domain/generation/parameters/GalaxyGenerationParameterValidator.cs`
+- `src/domain/generation/traveller/TravellerRouteProfile.cs`
+- `src/domain/generation/traveller/TravellerSystemGenerator.cs`
+- `src/domain/generation/traveller/TravellerSystemProfile.cs`
+- `src/domain/generation/traveller/TravellerTradeCodeSet.cs`
 - `src/domain/generation/traveller/TravellerWorldProfile.cs`
 - `src/domain/generation/traveller/TravellerWorldGenerator.cs`
+- `src/domain/generation/traveller/TravellerWorldGenerator.Systems.cs`
 - `src/domain/population/HabitabilityCategory.cs`
 - `src/domain/population/ClimateZone.cs`
 - `src/domain/population/BiomeType.cs`
@@ -303,8 +330,11 @@ C# source files:
 - `src/domain/population/PlanetProfile.cs`
 - `src/domain/population/ColonySuitability.cs`
 - `src/domain/population/PopulationSeeding.cs`
+- `src/domain/population/BiologySupportEvaluator.cs`
 - `src/domain/population/PopulationProbability.cs`
 - `src/domain/population/PopulationLikelihood.cs`
+- `src/domain/population/ColonyPressureContext.cs`
+- `src/domain/population/NativeSystemPressureSummary.cs`
 - `src/domain/population/SuitabilityCalculator.cs`
 - `src/domain/population/ProfileCalculations.cs`
 - `src/domain/population/ProfileGenerator.cs`
@@ -332,6 +362,7 @@ C# source files:
 - `src/domain/jumplanes/JumpLaneResult.cs`
 - `src/domain/jumplanes/JumpLaneClusterConnector.cs`
 - `src/domain/jumplanes/JumpLaneCalculator.cs`
+- `src/domain/jumplanes/TravellerRouteCalculator.cs`
 - `src/domain/editing/PropertyConstraint.cs`
 - `src/domain/editing/ConstraintSet.cs`
 - `src/domain/editing/EditSpecBuilder.cs`
@@ -391,6 +422,7 @@ C# source files:
 - `src/domain/galaxy/GridCursor.cs`
 - `src/domain/galaxy/StarSystemPreviewData.cs`
 - `src/domain/galaxy/StarSystemPreview.cs`
+- `src/domain/galaxy/GalaxyNativePressureCalculator.cs`
 - `src/domain/galaxy/SubSectorNeighborhoodData.cs`
 - `src/domain/galaxy/SubSectorNeighborhood.cs`
 - `src/domain/galaxy/GalaxySaveData.cs`
@@ -418,6 +450,7 @@ C# source files:
 - `src/app/galaxy_viewer/GalaxyViewer.cs`
 - `src/app/galaxy_viewer/GalaxyViewer.Menu.cs`
 - `src/app/galaxy_viewer/GalaxyViewer.Setup.cs`
+- `src/app/galaxy_viewer/GalaxyViewer.JumpRoutes.cs`
 - `src/app/galaxy_viewer/GalaxyViewer.Navigation.cs`
 - `src/app/galaxy_viewer/GalaxyViewer.Selection.cs`
 - `src/app/galaxy_viewer/GalaxyViewer.Accessors.cs`

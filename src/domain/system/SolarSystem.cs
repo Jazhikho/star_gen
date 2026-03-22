@@ -1,6 +1,7 @@
 using Godot.Collections;
 using StarGen.Domain.Celestial;
 using StarGen.Domain.Concepts;
+using StarGen.Domain.Generation.Traveller;
 
 namespace StarGen.Domain.Systems;
 
@@ -69,6 +70,11 @@ public partial class SolarSystem : Godot.RefCounted
     /// Persisted concept results for system-level aggregate views.
     /// </summary>
     public ConceptResultStore ConceptResults = new();
+
+    /// <summary>
+    /// Authoritative Traveller profile for the selected mainworld when Traveller mode is active.
+    /// </summary>
+    public TravellerSystemProfile? TravellerProfile;
 
     /// <summary>
     /// Creates a new solar-system container.

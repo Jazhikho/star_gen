@@ -1,14 +1,84 @@
 # Version
 
-Current version: `0.7.4.0`
+Current version: `0.7.8.0`
 
-Date: `2026-03-20`
+Date: `2026-03-22`
 
 Versioning method: release/refactor `+0.1`, feature `+0.0.1`, bug fix `+0.0.0.1`, save-breaking release `+1.0`.
 
 Current public release target: `0.8.0.0`
 
 User-facing app label: `0.8.0.0`
+
+## 0.7.8.0
+
+- Feature: Deterministic colonization simulation (settings, state, settlement routes, overlays) layered on saved galaxy data; galaxy native-pressure summaries and colonization-route calculators drive non-Traveller jump networks and viewer overlays.
+- Feature: Traveller-oriented routing and system typing (`TravellerRouteProfile`, `TravellerSystemProfile`, `TravellerTradeCodeSet`, calculators) integrated with generation and jump-lane plumbing.
+- Feature: Generation studios use the main-menu bordered `ScrollContainer` shell and hero/main panel layout; shared `StudioScreenLayoutHelper` rules keep three-column studios readable at the minimum window size.
+- Refactor: Population and preview paths updated for native-pressure context, biology gates, and serialization; life-distribution baseline artifacts and harness coverage refreshed.
+- Test: Expanded unit and integration coverage for colonization routes, Traveller routes, population, serializers, and studio layout; run `dotnet build StarGen.sln` before shipping.
+
+## 0.7.7.3
+
+- Bug fix: System Studio and Object Studio now stay in a horizontal side-by-side column layout at all resolutions instead of collapsing into a vertical stack, relying on adaptive panel widths and each panel's own scrolling behavior when space gets tight.
+- Bug fix: Native life generation once again appears on viable worlds after the generation/simulation split; native-population materialization now follows the ecology/native-life gate instead of waiting for the concept pipeline to predeclare sentience, and the life-permissiveness curve now scales from near-earthlike-only at `0.0` to strong odds for viable `HabitabilityScore 5+` wet worlds at `1.0`.
+- Test: Revalidated with `dotnet build StarGen.sln` and the full Godot headless harness (`1957 / 1957` passed). The harness still prints the repo's existing post-summary popup/layout/ObjectDB/RID warning noise after completion, but the run itself is green.
+
+## 0.7.7.2
+
+- Bug fix: System view and object view now expose explicit `New System...` / `New Object...` and `Return to Main Menu` actions in the File menu, so viewers no longer trap the user inside the current inspection path.
+- Bug fix: System Studio and Object Studio now use the same three-panel `Parameters / Generation Rules / Active Profile` layout pattern as Galaxy Studio, with launch actions and validation moved into the summary column instead of being buried under the settings form.
+- Test: Revalidated with `dotnet build StarGen.sln` and the full Godot headless harness (`1957 / 1957` passed). The harness still prints the repo's existing post-summary popup/layout/ObjectDB/RID warning noise after completion, but the run itself is green.
+
+## 0.7.7.1
+
+- Bug fix: Restored explicit top-bar back buttons for galaxy-opened system/object views, removed regeneration actions from studio-launched viewer contexts, and aligned file-menu/Escape navigation so only views with an actual upstream parent expose back navigation.
+- Bug fix: Object edits made from object view now persist back into the currently open standalone system viewer even when there is no galaxy star-seed context, keeping system-studio object inspection/editing usable as a one-level-deep flow.
+- Test: Revalidated with `dotnet build StarGen.sln` and the full Godot headless harness (`1957 / 1957` passed). The harness still prints the repo's existing post-summary popup/layout/ObjectDB warning noise after completion, but the test run itself is green.
+
+## 0.7.7.0
+
+- Feature: Generation now stops at initial conditions plus extant native populations, while colonies and non-Traveller jump routes are produced by an explicit deterministic colonization simulation layered on top of saved galaxy state.
+- Feature: Added persisted colonization simulation settings/state/settlement-route records, authoritative colony overlays when opening systems, and subsector-scoped simulation caching so revisiting a simulated region restores the same emergent structures without rerunning generation.
+- Refactor: Removed generation-side `Expansion Pressure` from use-case settings and generation UI surfaces, keeping `Life Potential` in generation while moving colonization controls into the simulation/tool layer.
+- Test: Revalidated with `dotnet build StarGen.sln` and the full Godot headless harness (`1957 / 1957` passed). The harness still prints the repo's existing post-summary popup/layout/ObjectDB warning noise, but the test run itself is green.
+
+## 0.7.6.1
+
+- Bug fix: Non-Traveller galaxy jump routes now derive from a deterministic colonization network instead of the older heuristic nearest-population graph, so routes form only from systems with interstellar-capable export pressure and viable colony targets.
+- Bug fix: Route-region systems now carry explicit colonization summaries from generated system data, allowing connected empty systems to receive simulated colony population instead of appearing as route endpoints with zero population.
+- Test: Added `ColonizationRouteCalculator` unit coverage plus viewer regressions for connected-system population baselines; `dotnet build StarGen.sln` succeeds cleanly, while the full Godot headless harness is still blocked by the same pre-existing CLR crash in `TestGalaxySystemGenerator::test_generate_system_with_galaxy_context_deterministic_population` before the run reaches the new jump-route cases.
+
+## 0.7.6.0
+
+- Feature: Colony generation now runs as a deterministic second pass over completed systems, so same-system native worlds and cached nearby-system native summaries can raise expansion pressure without making outcomes depend on generation order.
+- Feature: Added deterministic native-pressure summary caching at the galaxy layer plus runtime-path updates so galaxy previews and opened systems use the same colony-pressure pipeline while standalone fixture generation keeps the same-system-only pass.
+- Test: Added colony-pressure probability/likelihood regressions plus system/preview determinism coverage, then revalidated with `dotnet build StarGen.sln` and the full Godot headless harness (`1953 / 1953` assertions passed; the run still ends with the same pre-existing post-summary Godot .NET cleanup/leak errors in this repo).
+
+## 0.7.5.3
+
+- Bug fix: Galaxy-view realistic generation now actually enables population generation in the runtime tool path, instead of only doing so for Traveller mode while the baseline harness continued to generate realistic population correctly.
+- Bug fix: Opening a system from the galaxy viewer now preserves realistic `Life Potential` / `Expansion Pressure` population generation, so populated-world outcomes can make it from Galaxy Studio settings into the generated system data.
+- Test: Added regressions for both `StarSystemPreview.Generate(...)` and `MainApp -> GalaxyViewer -> open system` to prove that realistic mode with high life/population settings yields populated runtime systems, then revalidated with `dotnet build StarGen.sln` and the full Godot headless harness (`1947 / 1947` passed).
+
+## 0.7.5.2
+
+- Bug fix: Realistic biosphere support and native-life expectation tracking now use the same deterministic biology gate, eliminating the earlier collapse where high `Life Potential` approved biosphere candidates that the ecology layer later rejected.
+- Bug fix: Re-ran the 1000-world life-distribution baseline with support-failure diagnostics; realistic biospheres now track the expected counts across the sampled bands (`0.50 Neutral`: expected `1.3`, actual `1`; `1.00 Space Opera`: expected `11.9`, actual `12`).
+- Test: Made the native-life probability ceiling explicit in code and aligned the probability clamp regression with the documented `0.98` maximum, then revalidated with `dotnet build StarGen.sln`, the full Godot headless harness (`1946 / 1946` passed), and a fresh `RunLifeDistributionBaseline.gd` run.
+
+## 0.7.5.1
+
+- Bug fix: Realistic auto-colony generation now uses the persisted population seed consistently and no longer rerolls away colony worlds after the deterministic likelihood gate has already approved them.
+- Bug fix: Re-ran the 1000-world life-distribution baseline after the realistic population fix; at `1.00 Space Opera`, active colony worlds rose from `49` to `137`, while native biospheres remained unchanged on the current sample.
+- Test: Revalidated with `dotnet build StarGen.sln` and the full Godot headless harness (`1945 / 1945` passed), alongside a fresh `RunLifeDistributionBaseline.gd` artifact refresh.
+
+## 0.7.5.0
+
+- Feature: Galaxy Studio now binds the edited scene layout directly, uses `Realistic` / `Traveller` wording consistently, renames `Settlement Density` to `Expansion Pressure`, moves rules explanations into tooltips, and keeps the active profile column to a concise output-intent summary.
+- Feature: Traveller mode now performs deterministic mainworld takeover with typed `TravellerSystemProfile`, `TravellerTradeCodeSet`, and `TravellerRouteProfile` data, applying Traveller world-generation rules across supported UWP-facing elements for the selected mainworld while keeping non-mainworld bodies on the realistic path.
+- Feature: Traveller mode now builds jump routes from Traveller-specific world data with the `2 pc per jump number` distance rule, persists the typed Traveller profile through save/load, and updates inspectors/viewers to read the authoritative Traveller profile instead of older fallback strings.
+- Test: Revalidated the Traveller/UI expansion with `dotnet build StarGen.sln` and the full Godot headless harness (`1944 / 1944` passed).
 
 ## 0.7.4.0
 

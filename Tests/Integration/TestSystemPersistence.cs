@@ -255,6 +255,9 @@ public static class TestSystemPersistence
             GenerationUseCaseSettings settings = GenerationUseCaseSettings.FromDictionary(settingsData);
             DotNetNativeTestSuite.AssertEqual(GenerationUseCaseSettings.RulesetModeType.Traveller, settings.RulesetMode, "Compact system persistence should preserve ruleset mode");
             DotNetNativeTestSuite.AssertEqual(GenerationUseCaseSettings.MainworldPolicyType.Require, settings.MainworldPolicy, "Compact system persistence should preserve mainworld policy");
+            DotNetNativeTestSuite.AssertNotNull(result.System.TravellerProfile, "Compact Traveller systems should regenerate the typed Traveller system profile");
+            DotNetNativeTestSuite.AssertTrue(!string.IsNullOrEmpty(result.System.TravellerProfile!.GetUwp()), "Compact Traveller systems should regenerate UWP data");
+            DotNetNativeTestSuite.AssertTrue(result.System.TravellerProfile.TradeCodes.Codes.Count > 0 || result.System.TravellerProfile.WorldProfile.PopulationCode == 0, "Compact Traveller systems should regenerate trade codes when populated");
         }
         finally
         {
@@ -268,7 +271,6 @@ public static class TestSystemPersistence
         settings.RulesetMode = GenerationUseCaseSettings.RulesetModeType.Traveller;
         settings.ShowTravellerReadouts = true;
         settings.LifePermissiveness = 0.65;
-        settings.PopulationPermissiveness = 0.8;
         settings.MainworldPolicy = GenerationUseCaseSettings.MainworldPolicyType.Require;
         return settings;
     }

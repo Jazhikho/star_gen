@@ -1,7 +1,7 @@
 namespace StarGen.App.Shared;
 
 /// <summary>
-/// Shared labels and descriptions for life and settlement permissiveness scales.
+/// Shared labels and descriptions for the generation-side life permissiveness scale.
 /// </summary>
 public static class PermissivenessScaleHelper
 {
@@ -21,7 +21,7 @@ public static class PermissivenessScaleHelper
 		return
 			"Rare to space opera is a worldbuilding permissiveness scale, not a realism score.\n\n" +
 			"Life Potential changes how strict native biosphere emergence is. " +
-			"Settlement Density changes how readily colonies appear on worlds that are survivable but not naturally inhabited.";
+			"Colonization settings now live in the simulation tools instead of generation.";
 	}
 
 	/// <summary>
@@ -59,11 +59,11 @@ public static class PermissivenessScaleHelper
 				"High values allow life on marginal but still biologically plausible worlds, including more permissive ocean and subsurface cases.";
 		}
 
-		if (subject == "settlement")
+		if (subject == "expansion")
 		{
 			return
-				"Low values keep colonies focused on the best worlds.\n\n" +
-				"High values make sealed habitats, moons, and other harsh but workable locations much more likely to attract settlements.";
+				"Low values keep expansion focused on the best worlds.\n\n" +
+				"High values make sealed habitats, moons, and other harsh but workable locations much more likely to attract settlements during colonization simulation.";
 		}
 
 		return

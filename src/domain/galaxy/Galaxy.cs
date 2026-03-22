@@ -1,6 +1,8 @@
 using System.Collections.Generic;
 using Godot;
+using StarGen.Domain.Colonization;
 using StarGen.Domain.Systems;
+using StarGen.Domain.Population;
 using StarGen.Domain.Utils;
 
 namespace StarGen.Domain.Galaxy;
@@ -12,6 +14,8 @@ public partial class Galaxy : RefCounted
 {
     private readonly Dictionary<string, Sector> _sectors = new();
     private readonly Dictionary<int, SolarSystem> _systemsCache = new();
+    private readonly Dictionary<int, NativeSystemPressureSummary> _nativePressureSummaries = new();
+    private readonly Dictionary<string, ColonizationSimulationState> _colonizationSimulationStates = new(System.StringComparer.Ordinal);
 
     /// <summary>
     /// Galaxy master seed.
@@ -200,6 +204,8 @@ public partial class Galaxy : RefCounted
     {
         _sectors.Clear();
         _systemsCache.Clear();
+        _nativePressureSummaries.Clear();
+        _colonizationSimulationStates.Clear();
     }
 
     /// <summary>
@@ -216,6 +222,112 @@ public partial class Galaxy : RefCounted
     public int GetCachedSystemCount()
     {
         return _systemsCache.Count;
+    }
+
+    /// <summary>
+    /// Caches a native-pressure summary for a star seed.
+    /// </summary>
+    public void CacheNativePressureSummary(int starSeed, NativeSystemPressureSummary summary)
+    {
+        _nativePressureSummaries[starSeed] = summary.Clone();
+    }
+
+    /// <summary>
+    /// Returns a cached native-pressure summary when present.
+    /// </summary>
+    public NativeSystemPressureSummary? GetCachedNativePressureSummary(int starSeed)
+    {
+        if (_nativePressureSummaries.ContainsKey(starSeed))
+        {
+            return _nativePressureSummaries[starSeed].Clone();
+        }
+
+        return null;
+    }
+
+    /// <summary>
+    /// Returns whether a native-pressure summary is cached for the supplied star.
+    /// </summary>
+    public bool HasCachedNativePressureSummary(int starSeed)
+    {
+        return _nativePressureSummaries.ContainsKey(starSeed);
+    }
+
+    /// <summary>
+    /// Caches a colonization simulation state by region id.
+    /// </summary>
+    public void CacheColonizationSimulationState(ColonizationSimulationState state)
+    {
+        if (state == null || string.IsNullOrWhiteSpace(state.RegionId))
+        {
+            return;
+        }
+
+        _colonizationSimulationStates[state.RegionId] = ColonizationSimulationState.FromDictionary(state.ToDictionary());
+    }
+
+    /// <summary>
+    /// Returns a cached colonization simulation state by region id.
+    /// </summary>
+    public ColonizationSimulationState? GetColonizationSimulationState(string regionId)
+    {
+        if (string.IsNullOrWhiteSpace(regionId))
+        {
+            return null;
+        }
+
+        if (!_colonizationSimulationStates.ContainsKey(regionId))
+        {
+            return null;
+        }
+
+        return ColonizationSimulationState.FromDictionary(_colonizationSimulationStates[regionId].ToDictionary());
+    }
+
+    /// <summary>
+    /// Returns all cached colonization simulation states.
+    /// </summary>
+    public Godot.Collections.Array<ColonizationSimulationState> GetColonizationSimulationStates()
+    {
+        Godot.Collections.Array<ColonizationSimulationState> result = new();
+        foreach (ColonizationSimulationState state in _colonizationSimulationStates.Values)
+        {
+            result.Add(ColonizationSimulationState.FromDictionary(state.ToDictionary()));
+        }
+
+        return result;
+    }
+
+    /// <summary>
+    /// Replaces all cached colonization simulation states.
+    /// </summary>
+    public void SetColonizationSimulationStates(Godot.Collections.Array<ColonizationSimulationState> states)
+    {
+        _colonizationSimulationStates.Clear();
+        foreach (ColonizationSimulationState state in states)
+        {
+            CacheColonizationSimulationState(state);
+        }
+    }
+
+    /// <summary>
+    /// Returns settlement records for the supplied destination system id across all cached simulations.
+    /// </summary>
+    public Godot.Collections.Array<ColonizationSettlementRecord> GetColonizationSettlementsForDestination(string destinationSystemId)
+    {
+        Godot.Collections.Array<ColonizationSettlementRecord> settlements = new();
+        foreach (ColonizationSimulationState state in _colonizationSimulationStates.Values)
+        {
+            foreach (ColonizationSettlementRecord settlement in state.Settlements)
+            {
+                if (settlement.DestinationSystemId == destinationSystemId)
+                {
+                    settlements.Add(ColonizationSettlementRecord.FromDictionary(settlement.ToDictionary()));
+                }
+            }
+        }
+
+        return settlements;
     }
 
     /// <summary>

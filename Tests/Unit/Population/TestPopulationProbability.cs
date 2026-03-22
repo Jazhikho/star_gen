@@ -36,10 +36,16 @@ public static class TestPopulationProbability
         PlanetProfile profileLow = new();
         profileLow.HabitabilityScore = 3;
         profileLow.HasLiquidWater = true;
+        profileLow.HasAtmosphere = true;
+        profileLow.AvgTemperatureK = 289.0;
+        profileLow.RadiationLevel = 0.18;
 
         PlanetProfile profileHigh = new();
         profileHigh.HabitabilityScore = 8;
         profileHigh.HasLiquidWater = true;
+        profileHigh.HasAtmosphere = true;
+        profileHigh.AvgTemperatureK = 289.0;
+        profileHigh.RadiationLevel = 0.18;
 
         double probLow = PopulationProbability.CalculateNativeProbability(profileLow);
         double probHigh = PopulationProbability.CalculateNativeProbability(profileHigh);
@@ -53,12 +59,20 @@ public static class TestPopulationProbability
     public static void TestLiquidWaterBonus()
     {
         PlanetProfile profileDry = new();
-        profileDry.HabitabilityScore = 5;
+        profileDry.HabitabilityScore = 7;
         profileDry.HasLiquidWater = false;
+        profileDry.HasAtmosphere = true;
+        profileDry.HasBreathableAtmosphere = true;
+        profileDry.AvgTemperatureK = 289.0;
+        profileDry.RadiationLevel = 0.18;
 
         PlanetProfile profileWet = new();
-        profileWet.HabitabilityScore = 5;
+        profileWet.HabitabilityScore = 7;
         profileWet.HasLiquidWater = true;
+        profileWet.HasAtmosphere = true;
+        profileWet.HasBreathableAtmosphere = true;
+        profileWet.AvgTemperatureK = 289.0;
+        profileWet.RadiationLevel = 0.18;
 
         double probDry = PopulationProbability.CalculateNativeProbability(profileDry);
         double probWet = PopulationProbability.CalculateNativeProbability(profileWet);
@@ -72,16 +86,20 @@ public static class TestPopulationProbability
     public static void TestBreathableAtmosphereBonus()
     {
         PlanetProfile profileNo = new();
-        profileNo.HabitabilityScore = 5;
+        profileNo.HabitabilityScore = 7;
         profileNo.HasLiquidWater = true;
         profileNo.HasBreathableAtmosphere = false;
         profileNo.HasAtmosphere = true;
+        profileNo.AvgTemperatureK = 289.0;
+        profileNo.RadiationLevel = 0.18;
 
         PlanetProfile profileYes = new();
-        profileYes.HabitabilityScore = 5;
+        profileYes.HabitabilityScore = 7;
         profileYes.HasLiquidWater = true;
         profileYes.HasBreathableAtmosphere = true;
         profileYes.HasAtmosphere = true;
+        profileYes.AvgTemperatureK = 289.0;
+        profileYes.RadiationLevel = 0.18;
 
         double probNo = PopulationProbability.CalculateNativeProbability(profileNo);
         double probYes = PopulationProbability.CalculateNativeProbability(profileYes);
@@ -95,16 +113,22 @@ public static class TestPopulationProbability
     public static void TestTidalLockingPenalty()
     {
         PlanetProfile profileFree = new();
-        profileFree.HabitabilityScore = 5;
+        profileFree.HabitabilityScore = 7;
         profileFree.HasLiquidWater = true;
         profileFree.HasAtmosphere = true;
+        profileFree.HasBreathableAtmosphere = true;
         profileFree.IsTidallyLocked = false;
+        profileFree.AvgTemperatureK = 289.0;
+        profileFree.RadiationLevel = 0.18;
 
         PlanetProfile profileLocked = new();
-        profileLocked.HabitabilityScore = 5;
+        profileLocked.HabitabilityScore = 7;
         profileLocked.HasLiquidWater = true;
         profileLocked.HasAtmosphere = true;
+        profileLocked.HasBreathableAtmosphere = true;
         profileLocked.IsTidallyLocked = true;
+        profileLocked.AvgTemperatureK = 289.0;
+        profileLocked.RadiationLevel = 0.18;
 
         double probFree = PopulationProbability.CalculateNativeProbability(profileFree);
         double probLocked = PopulationProbability.CalculateNativeProbability(profileLocked);
@@ -113,7 +137,7 @@ public static class TestPopulationProbability
     }
 
     /// <summary>
-    /// Tests that probability is clamped to [0, 0.95].
+    /// Tests that probability is clamped to the documented native-life ceiling.
     /// </summary>
     public static void TestProbabilityClamped()
     {
@@ -123,7 +147,9 @@ public static class TestPopulationProbability
         profile.HasBreathableAtmosphere = true;
 
         double probability = PopulationProbability.CalculateNativeProbability(profile);
-        DotNetNativeTestSuite.AssertTrue(probability <= 0.95, "Probability should not exceed 0.95");
+        DotNetNativeTestSuite.AssertTrue(
+            probability <= PopulationProbability.MaxNativeProbability,
+            $"Probability should not exceed {PopulationProbability.MaxNativeProbability:0.00}");
         DotNetNativeTestSuite.AssertTrue(probability >= 0.0, "Probability should not be negative");
     }
 
@@ -168,17 +194,37 @@ public static class TestPopulationProbability
     public static void TestLifePermissivenessAffectsMarginalWorlds()
     {
         PlanetProfile profile = new();
-        profile.HabitabilityScore = 4;
+        profile.HabitabilityScore = 5;
         profile.HasLiquidWater = true;
         profile.HasAtmosphere = true;
         profile.HasBreathableAtmosphere = false;
-        profile.RadiationLevel = 0.45;
+        profile.RadiationLevel = 0.30;
+        profile.AvgTemperatureK = 300.0;
 
         double strictProbability = PopulationProbability.CalculateNativeProbability(profile, 0.0);
         double permissiveProbability = PopulationProbability.CalculateNativeProbability(profile, 1.0);
 
-        DotNetNativeTestSuite.AssertTrue(strictProbability < 0.05, "Strict life settings should nearly suppress marginal biospheres");
+        DotNetNativeTestSuite.AssertFloatNear(0.0, strictProbability, 0.001, "Strict life settings should reject non-earthlike habitability-five worlds");
         DotNetNativeTestSuite.AssertTrue(permissiveProbability > strictProbability, "Permissive life settings should raise marginal biosphere probability");
+        DotNetNativeTestSuite.AssertTrue(permissiveProbability >= 0.65, "Space-opera life settings should give habitability-five wet worlds a high life chance");
+    }
+
+    /// <summary>
+    /// Tests that strict life settings preserve high odds only for earthlike prime worlds.
+    /// </summary>
+    public static void TestStrictLifeSettingsFavorEarthlikeWorlds()
+    {
+        PlanetProfile profile = new();
+        profile.HabitabilityScore = 9;
+        profile.HasLiquidWater = true;
+        profile.HasAtmosphere = true;
+        profile.HasBreathableAtmosphere = true;
+        profile.RadiationLevel = 0.10;
+        profile.AvgTemperatureK = 288.0;
+        profile.GravityG = 1.0;
+
+        double strictProbability = PopulationProbability.CalculateNativeProbability(profile, 0.0);
+        DotNetNativeTestSuite.AssertTrue(strictProbability >= 0.80, "Strict life settings should still strongly favor earthlike prime worlds");
     }
 
     /// <summary>
@@ -200,7 +246,39 @@ public static class TestPopulationProbability
         double permissiveProbability = PopulationProbability.CalculateColonyProbability(profile, harshSuitability, 1.0);
 
         DotNetNativeTestSuite.AssertFloatNear(0.0, strictProbability, 0.001, "Strict settlement settings should reject harsh colony targets");
-        DotNetNativeTestSuite.AssertTrue(permissiveProbability > 0.0, "Permissive settlement settings should allow harsh colony targets");
+        DotNetNativeTestSuite.AssertTrue(permissiveProbability > 0.10, "Permissive settlement settings should materially allow harsh colony targets");
+    }
+
+    /// <summary>
+    /// Tests that native-pressure context can materially raise colony probability for harsh moon targets.
+    /// </summary>
+    public static void TestNativePressureRaisesColonyProbability()
+    {
+        PlanetProfile profile = new();
+        profile.BodyId = "harsh_moon";
+        profile.HabitabilityScore = 1;
+        profile.IsMoon = true;
+
+        ColonySuitability harshSuitability = new();
+        harshSuitability.OverallScore = 20;
+        harshSuitability.RequiresLifeSupport = true;
+        harshSuitability.RequiresPressureSuit = true;
+        harshSuitability.RequiresRadiationShielding = false;
+
+        ColonyPressureContext pressureContext = new ColonyPressureContext
+        {
+            LocalNativePressure = 1.0,
+            NearbySystemNativePressure = 0.8,
+            LocalNativeWorldCount = 1,
+            NearbyNativeWorldCount = 2,
+        };
+
+        double strictProbability = PopulationProbability.CalculateColonyProbability(profile, harshSuitability, 0.0, null);
+        double pressuredProbability = PopulationProbability.CalculateColonyProbability(profile, harshSuitability, 0.0, pressureContext);
+
+        DotNetNativeTestSuite.AssertFloatNear(0.0, strictProbability, 0.001, "Strict settings without native pressure should still reject harsh targets");
+        DotNetNativeTestSuite.AssertTrue(pressuredProbability > strictProbability, "Native pressure should raise colony probability");
+        DotNetNativeTestSuite.AssertTrue(pressuredProbability > 0.0, "Strong native pressure should make at least some harsh targets colonizable");
     }
 
     /// <summary>

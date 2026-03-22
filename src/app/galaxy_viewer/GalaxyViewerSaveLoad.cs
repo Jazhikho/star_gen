@@ -2,6 +2,7 @@ using System;
 using System.IO;
 using Godot;
 using StarGen.App;
+using StarGen.Domain.Colonization;
 using StarGen.Services.Persistence;
 using StarGen.Domain.Galaxy;
 using StarGen.Domain.Jumplanes;
@@ -320,6 +321,13 @@ public partial class GalaxyViewerSaveLoad : RefCounted
             data.JumpLaneResultData = jumpLaneResult.ToDictionary();
         }
 
+        data.SetColonizationSimulationSettings(viewer.GetColonizationSimulationSettings());
+        Galaxy? viewerGalaxy = viewer.GetGalaxy();
+        if (viewerGalaxy != null)
+        {
+            data.SetColonizationSimulationStates(viewerGalaxy.GetColonizationSimulationStates());
+        }
+
         MainApp? mainApp = viewer.GetParent()?.GetParent() as MainApp;
         if (mainApp != null)
         {
@@ -444,12 +452,35 @@ public partial class GalaxyViewerSaveLoad : RefCounted
         viewer.SetJumpLaneRegion(null);
         viewer.SetJumpLaneResult(null);
 
-        if (data.JumpLaneRegionData.Count > 0)
+        if (data.HasColonizationSimulationSettings())
+        {
+            viewer.SetColonizationSimulationSettings(data.GetColonizationSimulationSettings());
+        }
+
+        Galaxy? galaxy = viewer.GetGalaxy();
+        if (galaxy != null)
+        {
+            galaxy.SetColonizationSimulationStates(data.GetColonizationSimulationStates());
+        }
+
+        ColonizationSimulationState? activeSimulation = null;
+        string? visibleRegionId = viewer.GetVisibleJumpRouteRegionId();
+        if (galaxy != null && !string.IsNullOrEmpty(visibleRegionId))
+        {
+            activeSimulation = galaxy.GetColonizationSimulationState(visibleRegionId);
+        }
+
+        if (activeSimulation != null)
+        {
+            viewer.SetJumpLaneRegion(activeSimulation.ToJumpLaneRegion());
+            viewer.SetJumpLaneResult(activeSimulation.ToJumpLaneResult());
+        }
+        else if (data.JumpLaneRegionData.Count > 0)
         {
             viewer.SetJumpLaneRegion(JumpLaneRegion.FromDictionary(data.JumpLaneRegionData));
         }
 
-        if (data.JumpLaneResultData.Count > 0)
+        if (activeSimulation == null && data.JumpLaneResultData.Count > 0)
         {
             viewer.SetJumpLaneResult(JumpLaneResult.FromDictionary(data.JumpLaneResultData));
         }

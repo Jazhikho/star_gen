@@ -82,6 +82,7 @@ public partial class GalaxyGenerationScreen : Control
 	private Label? _lifePermissivenessValueLabel;
 	private HSlider? _populationPermissivenessInput;
 	private Label? _populationPermissivenessValueLabel;
+	private HBoxContainer? _populationPermissivenessRow;
 	private Button? _advancedAssumptionsInfoButton;
 	private VBoxContainer? _settingsVBox;
 	private VBoxContainer? _rulesVBox;
@@ -94,10 +95,11 @@ public partial class GalaxyGenerationScreen : Control
 	private GenerationParameterIssueSet _currentIssues = new();
 	private bool _showSeedControls;
 
-	private const string StudioRootPath = "MarginContainer/MainPanel/MarginContainer/VBox";
-	private const string ParameterRootPath = "MarginContainer/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox";
-	private const string RulesRootPath = "MarginContainer/MainPanel/MarginContainer/VBox/StudioRow/RulesPanel/MarginContainer/RulesVBox/ScrollContainer/RulesContent";
-	private const string SummaryRootPath = "MarginContainer/MainPanel/MarginContainer/VBox/StudioRow/SummaryPanel/MarginContainer/SummaryVBox";
+	private const string HeroRootPath = "MarginContainer/ScrollContainer/Layout/HeroPanel/MarginContainer/HeroVBox";
+	private const string StudioRootPath = "MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox";
+	private const string ParameterRootPath = "MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox";
+	private const string RulesRootPath = "MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/RulesPanel/MarginContainer/RulesVBox/ScrollContainer/RulesContent";
+	private const string SummaryRootPath = "MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SummaryPanel/MarginContainer/SummaryVBox";
 	private const float GalaxyStudioCompactBreakpoint = 1080.0f;
 
 	/// <summary>
@@ -283,14 +285,14 @@ public partial class GalaxyGenerationScreen : Control
 		_settingsPanel = GetNodeOrNull<Control>($"{StudioRootPath}/StudioRow/SettingsPanel");
 		_rulesPanel = GetNodeOrNull<Control>($"{StudioRootPath}/StudioRow/RulesPanel");
 		_summaryPanel = GetNodeOrNull<Control>($"{StudioRootPath}/StudioRow/SummaryPanel");
-		_versionLabel = GetNodeOrNull<Label>($"{StudioRootPath}/HeaderRow/VersionLabel");
+		_versionLabel = GetNodeOrNull<Label>($"{HeroRootPath}/HeaderRow/VersionLabel");
 		_summaryLabel = GetNodeOrNull<Label>($"{SummaryRootPath}/SummaryScroll/SummaryContent/SummaryLabel");
 		_assumptionsLabel = GetNodeOrNull<Label>($"{SummaryRootPath}/SummaryScroll/SummaryContent/AssumptionsLabel");
 		_issuesContainer = GetNodeOrNull<VBoxContainer>($"{SummaryRootPath}/SummaryScroll/SummaryContent/IssuesContainer");
 		_startButton = GetNodeOrNull<Button>($"{SummaryRootPath}/Buttons/StartButton");
 		_loadButton = GetNodeOrNull<Button>($"{SummaryRootPath}/Buttons/LoadButton");
 		_quitButton = GetNodeOrNull<Button>($"{SummaryRootPath}/Buttons/QuitButton");
-		_backButton = GetNodeOrNull<Button>($"{StudioRootPath}/HeaderRow/BackButton");
+		_backButton = GetNodeOrNull<Button>($"{HeroRootPath}/HeaderRow/BackButton");
 		_seedContainer = GetNodeOrNull<HBoxContainer>($"{ParameterRootPath}/SeedContainer");
 		_randomizeButton = GetNodeOrNull<Button>($"{ParameterRootPath}/SeedContainer/RandomizeButton");
 		_presetOption = GetNodeOrNull<OptionButton>($"{ParameterRootPath}/PresetContainer/PresetOption");
@@ -327,9 +329,10 @@ public partial class GalaxyGenerationScreen : Control
 		_showTravellerReadoutsCheck = GetNodeOrNull<CheckBox>($"{RulesRootPath}/UseCaseSection/ShowTravellerReadoutsCheck");
 		_advancedAssumptionsInfoButton = GetNodeOrNull<Button>($"{RulesRootPath}/UseCaseSection/AdvancedHeaderRow/AdvancedAssumptionsInfoButton");
 		_lifePermissivenessInput = GetNodeOrNull<HSlider>($"{RulesRootPath}/UseCaseSection/LifeRow/LifePermissivenessInput");
-		_lifePermissivenessValueLabel = GetNodeOrNull<Label>($"{RulesRootPath}/UseCaseSection/LifeRow/LifePermissivenessValue");
+		_lifePermissivenessValueLabel = GetNodeOrNull<Label>($"{RulesRootPath}/UseCaseSection/LifePermissivenessValue");
+		_populationPermissivenessRow = GetNodeOrNull<HBoxContainer>($"{RulesRootPath}/UseCaseSection/PopulationRow");
 		_populationPermissivenessInput = GetNodeOrNull<HSlider>($"{RulesRootPath}/UseCaseSection/PopulationRow/PopulationPermissivenessInput");
-		_populationPermissivenessValueLabel = GetNodeOrNull<Label>($"{RulesRootPath}/UseCaseSection/PopulationRow/PopulationPermissivenessValue");
+		_populationPermissivenessValueLabel = GetNodeOrNull<Label>($"{RulesRootPath}/UseCaseSection/PopulationPermissivenessValue");
 	}
 
 	private void ConnectSignals()
@@ -356,7 +359,6 @@ public partial class GalaxyGenerationScreen : Control
 		if (_rulesetModeOption != null) _rulesetModeOption.ItemSelected += OnRulesetModeSelected;
 		if (_showTravellerReadoutsCheck != null) _showTravellerReadoutsCheck.Toggled += _ => RefreshValidationIssues();
 		if (_lifePermissivenessInput != null) _lifePermissivenessInput.ValueChanged += OnLifePermissivenessChanged;
-		if (_populationPermissivenessInput != null) _populationPermissivenessInput.ValueChanged += OnPopulationPermissivenessChanged;
 	}
 
 	private void ApplyLayoutPolish()
@@ -379,6 +381,16 @@ public partial class GalaxyGenerationScreen : Control
 		if (_rulesVBox != null)
 		{
 			ApplyRowSpacing(_rulesVBox);
+		}
+
+		if (_populationPermissivenessRow != null)
+		{
+			_populationPermissivenessRow.Visible = false;
+		}
+
+		if (_populationPermissivenessValueLabel != null)
+		{
+			_populationPermissivenessValueLabel.Visible = false;
 		}
 
 		VBoxContainer? buttonsContainer = GetNodeOrNull<VBoxContainer>($"{SummaryRootPath}/Buttons");
@@ -654,6 +666,16 @@ public partial class GalaxyGenerationScreen : Control
 		ApplyTooltip("galaxy_seed", _seedSpin, $"{ParameterRootPath}/SeedContainer/SeedLabel");
 		ApplyDynamicTooltip(_rulesetModeOption, "ruleset_mode");
 		ApplyDynamicTooltip(_showTravellerReadoutsCheck, "show_traveller_readouts");
+		ApplyTooltip("life_permissiveness", _lifePermissivenessInput, $"{RulesRootPath}/UseCaseSection/LifeRow/LifeLabel");
+		if (_lifePermissivenessValueLabel != null)
+		{
+			_lifePermissivenessValueLabel.TooltipText = PermissivenessScaleHelper.GetTooltipText("life");
+		}
+
+		if (_advancedAssumptionsInfoButton != null)
+		{
+			_advancedAssumptionsInfoButton.TooltipText = PermissivenessScaleHelper.GetAdvancedLegendTooltip();
+		}
 	}
 
 	private void ApplyTooltip(string parameterId, Control? inputControl, string labelPath)
@@ -729,11 +751,6 @@ public partial class GalaxyGenerationScreen : Control
 			settings.LifePermissiveness = _lifePermissivenessInput.Value;
 		}
 
-		if (_populationPermissivenessInput != null)
-		{
-			settings.PopulationPermissiveness = _populationPermissivenessInput.Value;
-		}
-
 		return settings;
 	}
 
@@ -753,11 +770,6 @@ public partial class GalaxyGenerationScreen : Control
 		if (_lifePermissivenessInput != null)
 		{
 			_lifePermissivenessInput.Value = resolvedSettings.LifePermissiveness;
-		}
-
-		if (_populationPermissivenessInput != null)
-		{
-			_populationPermissivenessInput.Value = resolvedSettings.PopulationPermissiveness;
 		}
 
 		UpdatePermissivenessValueLabels();
@@ -792,41 +804,48 @@ public partial class GalaxyGenerationScreen : Control
 		if (_summaryLabel != null)
 		{
 			string typeName = config.GetTypeName();
-			string hintsText;
+			string morphologyText;
 			if (config.Type == GalaxySpec.GalaxyType.Spiral)
 			{
-				hintsText = $"Arms {config.NumArms}";
+				morphologyText =
+					$"{typeName}: {config.NumArms} arms, {config.ArmPitchAngleDeg:0.0} deg pitch, {config.ArmAmplitude:0.00} arm definition";
 			}
 			else if (config.Type == GalaxySpec.GalaxyType.Elliptical)
 			{
-				hintsText = $"Ellipticity {config.Ellipticity:0.00}";
+				morphologyText =
+					$"{typeName}: ellipticity {config.Ellipticity:0.00}, bulge {config.BulgeIntensity:0.00}, core radius {config.BulgeRadiusPc:0} pc";
 			}
 			else
 			{
-				hintsText = $"Irregularity {config.IrregularityScale:0.00}";
+				morphologyText =
+					$"{typeName}: irregularity {config.IrregularityScale:0.00}, density {config.StarDensityMultiplier:0.0}x, radius {config.RadiusPc / 1000.0:0.0} kpc";
 			}
 
 			System.Collections.Generic.List<string> lines = new();
+			lines.Add(morphologyText);
+			lines.Add($"Structure Radius {config.RadiusPc / 1000.0:0.0} kpc | Disk {config.DiskScaleLengthPc:0}/{config.DiskScaleHeightPc:0} pc | Density {config.StarDensityMultiplier:0.0}x");
+			lines.Add($"Ruleset {GenerationUseCasePresentation.GetRulesetLabel(settings.RulesetMode)}");
+			string readoutVisibility = "Hidden";
+			if (settings.ShowTravellerReadouts)
+			{
+				readoutVisibility = "Visible";
+			}
+
+			lines.Add($"Readouts {readoutVisibility}");
+			lines.Add($"Life Potential: {GetLifePotentialBandLabel(settings.LifePermissiveness)}");
 			if (_showSeedControls && _seedSpin != null)
 			{
 				lines.Add($"Seed {(int)_seedSpin.Value}");
 			}
 
-			lines.Add($"Type {typeName}");
-			lines.Add(hintsText);
-			lines.Add($"Radius {config.RadiusPc / 1000.0:0.0} kpc");
-			lines.Add($"Density {config.StarDensityMultiplier:0.0}x");
-			lines.Add($"Ruleset {settings.RulesetMode}");
-			lines.Add($"Traveller Readouts {(settings.ShowTravellerReadouts ? "On" : "Off")}");
-			lines.Add($"Life Potential {settings.LifePermissiveness:0.00} {PermissivenessScaleHelper.GetBandLabel(settings.LifePermissiveness)}");
-			lines.Add($"Settlement Density {settings.PopulationPermissiveness:0.00} {PermissivenessScaleHelper.GetBandLabel(settings.PopulationPermissiveness)}");
 			_summaryLabel.Text = string.Join("\n", lines);
 		}
 
 		if (_assumptionsLabel != null)
 		{
-			_assumptionsLabel.Text = BuildAssumptionsSummary(config);
-			_assumptionsLabel.TooltipText = BuildAssumptionsTooltip();
+			_assumptionsLabel.Text = string.Empty;
+			_assumptionsLabel.Visible = false;
+			_assumptionsLabel.TooltipText = string.Empty;
 		}
 	}
 
@@ -840,13 +859,6 @@ public partial class GalaxyGenerationScreen : Control
 			}
 		}
 
-		if (_populationPermissivenessInput != null)
-		{
-			if (Math.Abs(_populationPermissivenessInput.Value - GenerationUseCaseSettings.NeutralPermissiveness) < 0.001)
-			{
-				_populationPermissivenessInput.Value = GenerationUseCaseSettings.TravellerPopulationPermissiveness;
-			}
-		}
 	}
 
 	private void OnLifePermissivenessChanged(double _value)
@@ -857,7 +869,6 @@ public partial class GalaxyGenerationScreen : Control
 
 	private void OnPopulationPermissivenessChanged(double _value)
 	{
-		UpdatePermissivenessValueLabels();
 		RefreshValidationIssues();
 	}
 
@@ -866,60 +877,29 @@ public partial class GalaxyGenerationScreen : Control
 		if (_lifePermissivenessInput != null && _lifePermissivenessValueLabel != null)
 		{
 			_lifePermissivenessValueLabel.Text =
-				$"{_lifePermissivenessInput.Value:0.00} {PermissivenessScaleHelper.GetBandLabel(_lifePermissivenessInput.Value)}";
+				$"{_lifePermissivenessInput.Value:0.00} ({GetLifePotentialBandLabel(_lifePermissivenessInput.Value)})";
 		}
 
-		if (_populationPermissivenessInput != null && _populationPermissivenessValueLabel != null)
-		{
-			_populationPermissivenessValueLabel.Text =
-				$"{_populationPermissivenessInput.Value:0.00} {PermissivenessScaleHelper.GetBandLabel(_populationPermissivenessInput.Value)}";
-		}
 	}
 
-	private static string BuildAssumptionsSummary(GalaxyConfig config)
+	private static string GetLifePotentialBandLabel(double value)
 	{
-		System.Collections.Generic.List<string> lines = new();
-		lines.Add(GetMorphologySummary(config));
-		lines.Add(GetActiveParameterSummary(config));
-		lines.Add("Life Potential changes how permissive the generator is about native biospheres on difficult but still plausible worlds.");
-		lines.Add("Settlement Density changes how readily colonies appear on marginal worlds, moons, and sealed habitats once expansion is technically viable.");
-		lines.Add("Current morphology assumptions are summarized from astronomy references listed under Sources on the main menu.");
-		return string.Join("\n\n", lines);
-	}
-
-	private static string BuildAssumptionsTooltip()
-	{
-		return "Traveller mode enables Traveller readouts and applies a slightly settlement-friendlier baseline without claiming a full Traveller sector simulation.";
-	}
-
-	private static string GetMorphologySummary(GalaxyConfig config)
-	{
-		if (config.Type == GalaxySpec.GalaxyType.Spiral)
+		if (value < 0.25)
 		{
-			return "Spiral galaxies use an exponential stellar disk, a Gaussian bulge, and logarithmic arm modulation. Arm count, arm pitch, arm definition, and core settings all change where stars concentrate across the map.";
+			return "Rare";
 		}
 
-		if (config.Type == GalaxySpec.GalaxyType.Elliptical)
+		if (value < 0.50)
 		{
-			return "Elliptical galaxies use a smooth triaxial ellipsoid. Ellipticity changes the axis ratio, while bulge intensity, radius, and overall size reshape the central stellar concentration.";
+			return "Uncommon";
 		}
 
-		return "Irregular galaxies use an off-center clumpy falloff with layered noise. Irregularity changes asymmetry, clumping, and how patchy the stellar distribution becomes.";
-	}
-
-	private static string GetActiveParameterSummary(GalaxyConfig config)
-	{
-		if (config.Type == GalaxySpec.GalaxyType.Spiral)
+		if (value < 0.75)
 		{
-			return $"Active controls: {config.NumArms} arms, {config.ArmPitchAngleDeg:0.0} deg pitch, and {config.ArmAmplitude:0.00} arm contrast.";
+			return "Common";
 		}
 
-		if (config.Type == GalaxySpec.GalaxyType.Elliptical)
-		{
-			return $"Active controls: ellipticity {config.Ellipticity:0.00}, bulge radius {config.BulgeRadiusPc:0} pc, and density {config.StarDensityMultiplier:0.0}x.";
-		}
-
-		return $"Active controls: irregularity {config.IrregularityScale:0.00}, core intensity {config.BulgeIntensity:0.00}, and radius {config.RadiusPc / 1000.0:0.0} kpc.";
+		return "Plentiful";
 	}
 
 	private void RefreshValidationIssues()

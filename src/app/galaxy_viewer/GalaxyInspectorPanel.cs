@@ -1,6 +1,7 @@
 using Godot;
 using StarGen.App.Shared;
 using StarGen.App.Viewer;
+using StarGen.Domain.Colonization;
 using StarGen.Domain.Concepts;
 using StarGen.Domain.Generation;
 using StarGen.Domain.Generation.Parameters;
@@ -65,8 +66,8 @@ public partial class GalaxyInspectorPanel : VBoxContainer
 	private OptionButton? _rulesetModeOption;
 	private CheckBox? _showTravellerReadoutsCheck;
 	private SpinBox? _lifePermissivenessInput;
-	private SpinBox? _populationPermissivenessInput;
 	private OptionButton? _mainworldPolicyOption;
+	private SpinBox? _colonizationPermissivenessInput;
 	private VBoxContainer? _configIssuesContainer;
 	private VBoxContainer? _selectionContainer;
 	private VBoxContainer? _previewContainer;
@@ -430,11 +431,11 @@ public partial class GalaxyInspectorPanel : VBoxContainer
 			_calculateRoutesButton.Disabled = calculating;
 			if (calculating)
 			{
-				_calculateRoutesButton.Text = "Calculating...";
+				_calculateRoutesButton.Text = "Simulating...";
 			}
 			else
 			{
-				_calculateRoutesButton.Text = "Recalculate Jump Routes";
+				_calculateRoutesButton.Text = "Run Colonization Simulation";
 			}
 		}
 
@@ -443,7 +444,7 @@ public partial class GalaxyInspectorPanel : VBoxContainer
 			_jumpRoutesProgressLabel.Visible = calculating;
 			if (calculating)
 			{
-				_jumpRoutesProgressLabel.Text = "Preparing jump routes...";
+				_jumpRoutesProgressLabel.Text = "Preparing colonization simulation...";
 			}
 		}
 
@@ -480,11 +481,11 @@ public partial class GalaxyInspectorPanel : VBoxContainer
 			_calculateRoutesButton.Disabled = false;
 			if (available)
 			{
-				_calculateRoutesButton.Text = "Recalculate Jump Routes";
+				_calculateRoutesButton.Text = "Rerun Colonization Simulation";
 			}
 			else
 			{
-				_calculateRoutesButton.Text = "Calculate Jump Routes";
+				_calculateRoutesButton.Text = "Run Colonization Simulation";
 			}
 		}
 		_isCalculating = false;
@@ -669,12 +670,33 @@ public partial class GalaxyInspectorPanel : VBoxContainer
 
 		AddChild(new HSeparator());
 
-		AddSectionLabel("Jump Routes");
+		AddSectionLabel("Colonization Simulator");
+
+		HBoxContainer colonizationSettingsRow = new HBoxContainer();
+		colonizationSettingsRow.AddThemeConstantOverride("separation", 8);
+		Label colonizationLabel = new Label
+		{
+			Text = "Expansion:",
+			CustomMinimumSize = new Vector2(100.0f, 0.0f),
+			TooltipText = "Controls how readily the explicit colonization simulation spreads settlements from viable exporter systems.",
+		};
+		colonizationSettingsRow.AddChild(colonizationLabel);
+		_colonizationPermissivenessInput = new SpinBox
+		{
+			MinValue = 0.0,
+			MaxValue = 1.0,
+			Step = 0.01,
+			Value = GenerationUseCaseSettings.NeutralPermissiveness,
+			TooltipText = colonizationLabel.TooltipText,
+			SizeFlagsHorizontal = SizeFlags.ExpandFill,
+		};
+		colonizationSettingsRow.AddChild(_colonizationPermissivenessInput);
+		AddChild(colonizationSettingsRow);
 
 		_calculateRoutesButton = new Button
 		{
 			Name = "CalculateRoutesButton",
-			Text = "Calculate Jump Routes",
+			Text = "Run Colonization Simulation",
 		};
 		_calculateRoutesButton.Pressed += OnCalculateRoutesPressed;
 		AddChild(_calculateRoutesButton);
@@ -682,7 +704,7 @@ public partial class GalaxyInspectorPanel : VBoxContainer
 		_showRoutesCheck = new CheckBox
 		{
 			Name = "ShowRoutesCheck",
-			Text = "Show Jump Routes",
+			Text = "Show Colonization Routes",
 			ButtonPressed = true,
 			Disabled = true,
 		};
@@ -692,7 +714,7 @@ public partial class GalaxyInspectorPanel : VBoxContainer
 		_jumpRoutesProgressLabel = new Label
 		{
 			Name = "JumpRoutesProgressLabel",
-			Text = "Preparing jump routes...",
+			Text = "Preparing colonization simulation...",
 			Visible = false,
 		};
 		_jumpRoutesProgressLabel.AddThemeFontSizeOverride("font_size", 11);
@@ -928,7 +950,6 @@ public partial class GalaxyInspectorPanel : VBoxContainer
 		SetControlEditable(_rulesetModeOption, editable);
 		SetControlEditable(_showTravellerReadoutsCheck, editable);
 		SetControlEditable(_lifePermissivenessInput, editable);
-		SetControlEditable(_populationPermissivenessInput, editable);
 		SetControlEditable(_mainworldPolicyOption, editable);
 	}
 
@@ -976,11 +997,6 @@ public partial class GalaxyInspectorPanel : VBoxContainer
 			settings.LifePermissiveness = _lifePermissivenessInput.Value;
 		}
 
-		if (_populationPermissivenessInput != null)
-		{
-			settings.PopulationPermissiveness = _populationPermissivenessInput.Value;
-		}
-
 		if (_mainworldPolicyOption != null)
 		{
 			settings.MainworldPolicy = (GenerationUseCaseSettings.MainworldPolicyType)_mainworldPolicyOption.Selected;
@@ -1005,11 +1021,6 @@ public partial class GalaxyInspectorPanel : VBoxContainer
 		if (_lifePermissivenessInput != null)
 		{
 			_lifePermissivenessInput.Value = resolvedSettings.LifePermissiveness;
-		}
-
-		if (_populationPermissivenessInput != null)
-		{
-			_populationPermissivenessInput.Value = resolvedSettings.PopulationPermissiveness;
 		}
 
 		if (_mainworldPolicyOption != null)
@@ -1047,17 +1058,38 @@ public partial class GalaxyInspectorPanel : VBoxContainer
 			readoutText = "Off";
 		}
 
-		AddProperty(container, "Ruleset", resolvedSettings.RulesetMode.ToString());
+		AddProperty(container, "Ruleset", GenerationUseCasePresentation.GetRulesetLabel(resolvedSettings.RulesetMode));
 		AddProperty(container, "Traveller Readouts", readoutText);
 		AddProperty(
 			container,
 			"Life Potential",
 			$"{resolvedSettings.LifePermissiveness:0.00} {PermissivenessScaleHelper.GetBandLabel(resolvedSettings.LifePermissiveness)}");
-		AddProperty(
-			container,
-			"Settlement Density",
-			$"{resolvedSettings.PopulationPermissiveness:0.00} {PermissivenessScaleHelper.GetBandLabel(resolvedSettings.PopulationPermissiveness)}");
 		AddProperty(container, "Mainworld Policy", resolvedSettings.MainworldPolicy.ToString());
+	}
+
+	/// <summary>
+	/// Returns the current colonization-simulation settings from the tool UI.
+	/// </summary>
+	public ColonizationSimulationSettings GetColonizationSimulationSettings()
+	{
+		ColonizationSimulationSettings settings = ColonizationSimulationSettings.CreateDefault();
+		if (_colonizationPermissivenessInput != null)
+		{
+			settings.ExpansionPermissiveness = _colonizationPermissivenessInput.Value;
+		}
+
+		return settings;
+	}
+
+	/// <summary>
+	/// Applies colonization-simulation settings to the tool UI.
+	/// </summary>
+	public void SetColonizationSimulationSettings(ColonizationSimulationSettings settings)
+	{
+		if (_colonizationPermissivenessInput != null)
+		{
+			_colonizationPermissivenessInput.Value = settings.ExpansionPermissiveness;
+		}
 	}
 
 	private void AddEditorRow(string labelText, Control inputControl, string parameterId)

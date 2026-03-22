@@ -17,6 +17,11 @@ public partial class SystemViewer
     /// </summary>
     private void OnBackPressed()
     {
+        if (!_backNavigationVisible)
+        {
+            return;
+        }
+
         EmitSignal(SignalName.BackToGalaxyRequested);
     }
 
@@ -46,8 +51,11 @@ public partial class SystemViewer
 
         if (keyEvent.Keycode == Key.Escape)
         {
-            OnBackPressed();
-            GetViewport()?.SetInputAsHandled();
+            if (_backNavigationVisible)
+            {
+                OnBackPressed();
+                GetViewport()?.SetInputAsHandled();
+            }
         }
     }
 
@@ -56,6 +64,11 @@ public partial class SystemViewer
     /// </summary>
     private void OnGeneratePressed()
     {
+        if (!_generationActionsVisible)
+        {
+            return;
+        }
+
         SolarSystemSpec spec = BuildCurrentSpecFromControls();
         _startupState = ViewerStartupState.ViewingExistingContent;
         _sourceStarSeed = 0;
@@ -67,6 +80,11 @@ public partial class SystemViewer
     /// </summary>
     private void OnRerollPressed()
     {
+        if (!_generationActionsVisible)
+        {
+            return;
+        }
+
         int newSeed = (int)(GD.Randi() % 1000000);
         if (_seedInput != null)
         {

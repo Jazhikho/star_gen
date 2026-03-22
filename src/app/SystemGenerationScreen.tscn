@@ -38,119 +38,147 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-theme_override_constants/margin_left = 16
-theme_override_constants/margin_top = 14
-theme_override_constants/margin_right = 16
-theme_override_constants/margin_bottom = 14
+theme_override_constants/margin_left = 22
+theme_override_constants/margin_top = 18
+theme_override_constants/margin_right = 22
+theme_override_constants/margin_bottom = 18
 
-[node name="MainPanel" type="PanelContainer" parent="MarginContainer"]
+[node name="ScrollContainer" type="ScrollContainer" parent="MarginContainer" unique_id=1182366927]
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
+horizontal_scroll_mode = 0
 
-[node name="MarginContainer" type="MarginContainer" parent="MarginContainer/MainPanel"]
+[node name="Layout" type="VBoxContainer" parent="MarginContainer/ScrollContainer" unique_id=394200759]
 layout_mode = 2
-theme_override_constants/margin_left = 18
-theme_override_constants/margin_top = 18
-theme_override_constants/margin_right = 18
-theme_override_constants/margin_bottom = 18
-
-[node name="VBox" type="VBoxContainer" parent="MarginContainer/MainPanel/MarginContainer"]
-layout_mode = 2
+size_flags_horizontal = 3
 size_flags_vertical = 3
+theme_override_constants/separation = 22
+
+[node name="HeroPanel" type="PanelContainer" parent="MarginContainer/ScrollContainer/Layout" unique_id=383770090]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="MarginContainer" type="MarginContainer" parent="MarginContainer/ScrollContainer/Layout/HeroPanel" unique_id=2054306994]
+layout_mode = 2
+theme_override_constants/margin_left = 10
+theme_override_constants/margin_top = 10
+theme_override_constants/margin_right = 10
+theme_override_constants/margin_bottom = 10
+
+[node name="HeroVBox" type="VBoxContainer" parent="MarginContainer/ScrollContainer/Layout/HeroPanel/MarginContainer" unique_id=597820825]
+layout_mode = 2
 theme_override_constants/separation = 14
 
-[node name="HeaderRow" type="HBoxContainer" parent="MarginContainer/MainPanel/MarginContainer/VBox"]
+[node name="HeaderRow" type="HBoxContainer" parent="MarginContainer/ScrollContainer/Layout/HeroPanel/MarginContainer/HeroVBox"]
 layout_mode = 2
 theme_override_constants/separation = 12
 
-[node name="BackButton" type="Button" parent="MarginContainer/MainPanel/MarginContainer/VBox/HeaderRow"]
+[node name="BackButton" type="Button" parent="MarginContainer/ScrollContainer/Layout/HeroPanel/MarginContainer/HeroVBox/HeaderRow"]
 layout_mode = 2
 text = "<- Main Menu"
 
-[node name="VersionLabel" type="Label" parent="MarginContainer/MainPanel/MarginContainer/VBox/HeaderRow"]
+[node name="VersionLabel" type="Label" parent="MarginContainer/ScrollContainer/Layout/HeroPanel/MarginContainer/HeroVBox/HeaderRow"]
 layout_mode = 2
 size_flags_horizontal = 3
 horizontal_alignment = 2
 theme_override_colors/font_color = Color(0.631373, 0.701961, 0.772549, 1)
 text = "Version"
 
-[node name="TitleLabel" type="Label" parent="MarginContainer/MainPanel/MarginContainer/VBox"]
+[node name="TitleLabel" type="Label" parent="MarginContainer/ScrollContainer/Layout/HeroPanel/MarginContainer/HeroVBox"]
 layout_mode = 2
 theme_override_font_sizes/font_size = 34
 text = "System Generation Studio"
 
-[node name="SubtitleLabel" type="Label" parent="MarginContainer/MainPanel/MarginContainer/VBox"]
-custom_minimum_size = Vector2(320, 0)
+[node name="SubtitleLabel" type="Label" parent="MarginContainer/ScrollContainer/Layout/HeroPanel/MarginContainer/HeroVBox"]
+custom_minimum_size = Vector2(420, 0)
 layout_mode = 2
 autowrap_mode = 2
 theme_override_colors/font_color = Color(0.72, 0.76, 0.82, 1)
 text = "Configure a deterministic system before you enter the viewer."
 
-[node name="StudioRow" type="BoxContainer" parent="MarginContainer/MainPanel/MarginContainer/VBox"]
-layout_mode = 2
-size_flags_vertical = 3
-vertical = false
-theme_override_constants/separation = 18
-
-[node name="SettingsPanel" type="PanelContainer" parent="MarginContainer/MainPanel/MarginContainer/VBox/StudioRow"]
+[node name="MainPanel" type="PanelContainer" parent="MarginContainer/ScrollContainer/Layout"]
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
 
-[node name="MarginContainer" type="MarginContainer" parent="MarginContainer/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel"]
+[node name="MarginContainer" type="MarginContainer" parent="MarginContainer/ScrollContainer/Layout/MainPanel"]
 layout_mode = 2
 theme_override_constants/margin_left = 18
 theme_override_constants/margin_top = 18
 theme_override_constants/margin_right = 18
 theme_override_constants/margin_bottom = 18
 
-[node name="SettingsVBox" type="VBoxContainer" parent="MarginContainer/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer"]
+[node name="VBox" type="VBoxContainer" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer"]
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_constants/separation = 14
+
+[node name="StudioRow" type="BoxContainer" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox"]
+layout_mode = 2
+size_flags_vertical = 3
+vertical = false
+theme_override_constants/separation = 18
+
+[node name="SettingsPanel" type="PanelContainer" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow"]
+custom_minimum_size = Vector2(420, 0)
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+
+[node name="MarginContainer" type="MarginContainer" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel"]
+layout_mode = 2
+theme_override_constants/margin_left = 18
+theme_override_constants/margin_top = 18
+theme_override_constants/margin_right = 18
+theme_override_constants/margin_bottom = 18
+
+[node name="SettingsVBox" type="VBoxContainer" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer"]
 layout_mode = 2
 size_flags_vertical = 3
 theme_override_constants/separation = 12
 
-[node name="SettingsTitle" type="Label" parent="MarginContainer/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox"]
+[node name="SettingsTitle" type="Label" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox"]
 layout_mode = 2
 theme_override_font_sizes/font_size = 18
 text = "Parameters"
 
-[node name="ScrollContainer" type="ScrollContainer" parent="MarginContainer/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox"]
+[node name="ScrollContainer" type="ScrollContainer" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox"]
 layout_mode = 2
 size_flags_vertical = 3
 horizontal_scroll_mode = 0
 
-[node name="ParameterVBox" type="VBoxContainer" parent="MarginContainer/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer"]
+[node name="ParameterVBox" type="VBoxContainer" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer"]
 layout_mode = 2
 size_flags_horizontal = 3
 theme_override_constants/separation = 10
 
-[node name="SeedRow" type="HBoxContainer" parent="MarginContainer/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox"]
+[node name="SeedRow" type="HBoxContainer" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox"]
 layout_mode = 2
 theme_override_constants/separation = 10
 
-[node name="SeedLabel" type="Label" parent="MarginContainer/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/SeedRow"]
+[node name="SeedLabel" type="Label" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/SeedRow"]
 layout_mode = 2
 custom_minimum_size = Vector2(96, 0)
 text = "Seed"
 
-[node name="SeedInput" type="SpinBox" parent="MarginContainer/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/SeedRow"]
+[node name="SeedInput" type="SpinBox" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/SeedRow"]
 layout_mode = 2
 size_flags_horizontal = 3
 min_value = 1.0
 max_value = 999999.0
 value = 12345.0
 
-[node name="StarCountMinRow" type="HBoxContainer" parent="MarginContainer/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox"]
+[node name="StarCountMinRow" type="HBoxContainer" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox"]
 layout_mode = 2
 theme_override_constants/separation = 10
 
-[node name="StarCountMinLabel" type="Label" parent="MarginContainer/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/StarCountMinRow"]
+[node name="StarCountMinLabel" type="Label" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/StarCountMinRow"]
 layout_mode = 2
 custom_minimum_size = Vector2(96, 0)
 text = "Min Stars"
 
-[node name="StarCountMinInput" type="SpinBox" parent="MarginContainer/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/StarCountMinRow"]
+[node name="StarCountMinInput" type="SpinBox" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/StarCountMinRow"]
 layout_mode = 2
 size_flags_horizontal = 3
 min_value = 1.0
@@ -159,16 +187,16 @@ step = 1.0
 rounded = true
 value = 1.0
 
-[node name="StarCountMaxRow" type="HBoxContainer" parent="MarginContainer/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox"]
+[node name="StarCountMaxRow" type="HBoxContainer" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox"]
 layout_mode = 2
 theme_override_constants/separation = 10
 
-[node name="StarCountMaxLabel" type="Label" parent="MarginContainer/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/StarCountMaxRow"]
+[node name="StarCountMaxLabel" type="Label" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/StarCountMaxRow"]
 layout_mode = 2
 custom_minimum_size = Vector2(96, 0)
 text = "Max Stars"
 
-[node name="StarCountMaxInput" type="SpinBox" parent="MarginContainer/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/StarCountMaxRow"]
+[node name="StarCountMaxInput" type="SpinBox" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/StarCountMaxRow"]
 layout_mode = 2
 size_flags_horizontal = 3
 min_value = 1.0
@@ -177,30 +205,30 @@ step = 1.0
 rounded = true
 value = 1.0
 
-[node name="SpectralHintsRow" type="HBoxContainer" parent="MarginContainer/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox"]
+[node name="SpectralHintsRow" type="HBoxContainer" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox"]
 layout_mode = 2
 theme_override_constants/separation = 10
 
-[node name="SpectralHintsLabel" type="Label" parent="MarginContainer/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/SpectralHintsRow"]
+[node name="SpectralHintsLabel" type="Label" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/SpectralHintsRow"]
 layout_mode = 2
 custom_minimum_size = Vector2(96, 0)
 text = "Spectral"
 
-[node name="SpectralHintsInput" type="LineEdit" parent="MarginContainer/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/SpectralHintsRow"]
+[node name="SpectralHintsInput" type="LineEdit" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/SpectralHintsRow"]
 layout_mode = 2
 size_flags_horizontal = 3
 placeholder_text = "G,K,M"
 
-[node name="SystemAgeRow" type="HBoxContainer" parent="MarginContainer/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox"]
+[node name="SystemAgeRow" type="HBoxContainer" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox"]
 layout_mode = 2
 theme_override_constants/separation = 10
 
-[node name="SystemAgeLabel" type="Label" parent="MarginContainer/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/SystemAgeRow"]
+[node name="SystemAgeLabel" type="Label" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/SystemAgeRow"]
 layout_mode = 2
 custom_minimum_size = Vector2(96, 0)
 text = "Age (Gyr)"
 
-[node name="SystemAgeInput" type="SpinBox" parent="MarginContainer/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/SystemAgeRow"]
+[node name="SystemAgeInput" type="SpinBox" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/SystemAgeRow"]
 layout_mode = 2
 size_flags_horizontal = 3
 min_value = -1.0
@@ -208,16 +236,16 @@ max_value = 13.5
 step = 0.1
 value = -1.0
 
-[node name="SystemMetallicityRow" type="HBoxContainer" parent="MarginContainer/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox"]
+[node name="SystemMetallicityRow" type="HBoxContainer" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox"]
 layout_mode = 2
 theme_override_constants/separation = 10
 
-[node name="SystemMetallicityLabel" type="Label" parent="MarginContainer/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/SystemMetallicityRow"]
+[node name="SystemMetallicityLabel" type="Label" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/SystemMetallicityRow"]
 layout_mode = 2
 custom_minimum_size = Vector2(96, 0)
 text = "Metallicity"
 
-[node name="SystemMetallicityInput" type="SpinBox" parent="MarginContainer/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/SystemMetallicityRow"]
+[node name="SystemMetallicityInput" type="SpinBox" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/SystemMetallicityRow"]
 layout_mode = 2
 size_flags_horizontal = 3
 min_value = -1.0
@@ -225,24 +253,57 @@ max_value = 2.0
 step = 0.05
 value = -1.0
 
-[node name="IncludeBeltsCheck" type="CheckBox" parent="MarginContainer/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox"]
+[node name="IncludeBeltsCheck" type="CheckBox" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox"]
 layout_mode = 2
 text = "Asteroid Belts"
 
-[node name="GeneratePopulationCheck" type="CheckBox" parent="MarginContainer/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox"]
+[node name="RulesPanel" type="PanelContainer" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow"]
+custom_minimum_size = Vector2(360, 0)
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+
+[node name="MarginContainer" type="MarginContainer" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/RulesPanel"]
+layout_mode = 2
+theme_override_constants/margin_left = 18
+theme_override_constants/margin_top = 18
+theme_override_constants/margin_right = 18
+theme_override_constants/margin_bottom = 18
+
+[node name="RulesVBox" type="VBoxContainer" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/RulesPanel/MarginContainer"]
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_constants/separation = 12
+
+[node name="RulesTitle" type="Label" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/RulesPanel/MarginContainer/RulesVBox"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 18
+text = "Generation Rules"
+
+[node name="ScrollContainer" type="ScrollContainer" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/RulesPanel/MarginContainer/RulesVBox"]
+layout_mode = 2
+size_flags_vertical = 3
+horizontal_scroll_mode = 0
+
+[node name="RulesContent" type="VBoxContainer" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/RulesPanel/MarginContainer/RulesVBox/ScrollContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 10
+
+[node name="GeneratePopulationCheck" type="CheckBox" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/RulesPanel/MarginContainer/RulesVBox/ScrollContainer/RulesContent"]
 layout_mode = 2
 text = "Population"
 
-[node name="RulesetModeRow" type="HBoxContainer" parent="MarginContainer/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox"]
+[node name="RulesetModeRow" type="HBoxContainer" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/RulesPanel/MarginContainer/RulesVBox/ScrollContainer/RulesContent"]
 layout_mode = 2
 theme_override_constants/separation = 10
 
-[node name="RulesetModeLabel" type="Label" parent="MarginContainer/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/RulesetModeRow"]
+[node name="RulesetModeLabel" type="Label" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/RulesPanel/MarginContainer/RulesVBox/ScrollContainer/RulesContent/RulesetModeRow"]
 layout_mode = 2
 custom_minimum_size = Vector2(96, 0)
 text = "Ruleset"
 
-[node name="RulesetModeOption" type="OptionButton" parent="MarginContainer/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/RulesetModeRow"]
+[node name="RulesetModeOption" type="OptionButton" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/RulesPanel/MarginContainer/RulesVBox/ScrollContainer/RulesContent/RulesetModeRow"]
 layout_mode = 2
 size_flags_horizontal = 3
 item_count = 2
@@ -252,11 +313,11 @@ popup/item_0/id = 0
 popup/item_1/text = "Traveller"
 popup/item_1/id = 1
 
-[node name="ShowTravellerReadoutsCheck" type="CheckBox" parent="MarginContainer/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox"]
+[node name="ShowTravellerReadoutsCheck" type="CheckBox" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/RulesPanel/MarginContainer/RulesVBox/ScrollContainer/RulesContent"]
 layout_mode = 2
 text = "Traveller Readouts"
 
-[node name="PermissivenessLegend" type="Label" parent="MarginContainer/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox"]
+[node name="PermissivenessLegend" type="Label" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/RulesPanel/MarginContainer/RulesVBox/ScrollContainer/RulesContent"]
 custom_minimum_size = Vector2(220, 0)
 layout_mode = 2
 autowrap_mode = 3
@@ -264,60 +325,60 @@ theme_override_colors/font_color = Color(0.62, 0.7, 0.8, 1)
 theme_override_font_sizes/font_size = 10
 text = "Rare | Less common, still plentiful | Traveller normal | Space opera"
 
-[node name="LifePermissivenessRow" type="HBoxContainer" parent="MarginContainer/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox"]
+[node name="LifePermissivenessRow" type="HBoxContainer" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/RulesPanel/MarginContainer/RulesVBox/ScrollContainer/RulesContent"]
 layout_mode = 2
 theme_override_constants/separation = 10
 
-[node name="LifePermissivenessLabel" type="Label" parent="MarginContainer/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/LifePermissivenessRow"]
+[node name="LifePermissivenessLabel" type="Label" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/RulesPanel/MarginContainer/RulesVBox/ScrollContainer/RulesContent/LifePermissivenessRow"]
 layout_mode = 2
 custom_minimum_size = Vector2(120, 0)
 text = "Life Potential"
 
-[node name="LifePermissivenessInput" type="HSlider" parent="MarginContainer/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/LifePermissivenessRow"]
+[node name="LifePermissivenessInput" type="HSlider" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/RulesPanel/MarginContainer/RulesVBox/ScrollContainer/RulesContent/LifePermissivenessRow"]
 layout_mode = 2
 size_flags_horizontal = 3
 max_value = 1.0
 step = 0.05
 value = 0.5
 
-[node name="LifePermissivenessValue" type="Label" parent="MarginContainer/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/LifePermissivenessRow"]
+[node name="LifePermissivenessValue" type="Label" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/RulesPanel/MarginContainer/RulesVBox/ScrollContainer/RulesContent/LifePermissivenessRow"]
 custom_minimum_size = Vector2(156, 0)
 layout_mode = 2
 horizontal_alignment = 2
 text = "0.50 Neutral"
 
-[node name="PopulationPermissivenessRow" type="HBoxContainer" parent="MarginContainer/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox"]
+[node name="PopulationPermissivenessRow" type="HBoxContainer" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/RulesPanel/MarginContainer/RulesVBox/ScrollContainer/RulesContent"]
 layout_mode = 2
 theme_override_constants/separation = 10
 
-[node name="PopulationPermissivenessLabel" type="Label" parent="MarginContainer/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/PopulationPermissivenessRow"]
+[node name="PopulationPermissivenessLabel" type="Label" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/RulesPanel/MarginContainer/RulesVBox/ScrollContainer/RulesContent/PopulationPermissivenessRow"]
 layout_mode = 2
 custom_minimum_size = Vector2(120, 0)
-text = "Settlement Density"
+text = "Expansion Pressure"
 
-[node name="PopulationPermissivenessInput" type="HSlider" parent="MarginContainer/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/PopulationPermissivenessRow"]
+[node name="PopulationPermissivenessInput" type="HSlider" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/RulesPanel/MarginContainer/RulesVBox/ScrollContainer/RulesContent/PopulationPermissivenessRow"]
 layout_mode = 2
 size_flags_horizontal = 3
 max_value = 1.0
 step = 0.05
 value = 0.5
 
-[node name="PopulationPermissivenessValue" type="Label" parent="MarginContainer/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/PopulationPermissivenessRow"]
+[node name="PopulationPermissivenessValue" type="Label" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/RulesPanel/MarginContainer/RulesVBox/ScrollContainer/RulesContent/PopulationPermissivenessRow"]
 custom_minimum_size = Vector2(156, 0)
 layout_mode = 2
 horizontal_alignment = 2
 text = "0.50 Neutral"
 
-[node name="MainworldPolicyRow" type="HBoxContainer" parent="MarginContainer/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox"]
+[node name="MainworldPolicyRow" type="HBoxContainer" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/RulesPanel/MarginContainer/RulesVBox/ScrollContainer/RulesContent"]
 layout_mode = 2
 theme_override_constants/separation = 10
 
-[node name="MainworldPolicyLabel" type="Label" parent="MarginContainer/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/MainworldPolicyRow"]
+[node name="MainworldPolicyLabel" type="Label" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/RulesPanel/MarginContainer/RulesVBox/ScrollContainer/RulesContent/MainworldPolicyRow"]
 layout_mode = 2
 custom_minimum_size = Vector2(96, 0)
 text = "Mainworld"
 
-[node name="MainworldPolicyOption" type="OptionButton" parent="MarginContainer/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/MainworldPolicyRow"]
+[node name="MainworldPolicyOption" type="OptionButton" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/RulesPanel/MarginContainer/RulesVBox/ScrollContainer/RulesContent/MainworldPolicyRow"]
 layout_mode = 2
 size_flags_horizontal = 3
 item_count = 3
@@ -329,45 +390,75 @@ popup/item_1/id = 1
 popup/item_2/text = "Require"
 popup/item_2/id = 2
 
-[node name="FooterVBox" type="VBoxContainer" parent="MarginContainer/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox"]
+[node name="SummaryPanel" type="PanelContainer" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow"]
+custom_minimum_size = Vector2(360, 0)
 layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+
+[node name="MarginContainer" type="MarginContainer" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SummaryPanel"]
+layout_mode = 2
+theme_override_constants/margin_left = 18
+theme_override_constants/margin_top = 18
+theme_override_constants/margin_right = 18
+theme_override_constants/margin_bottom = 18
+
+[node name="SummaryVBox" type="VBoxContainer" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SummaryPanel/MarginContainer"]
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_constants/separation = 12
+
+[node name="SummaryTitle" type="Label" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SummaryPanel/MarginContainer/SummaryVBox"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 18
+text = "Active Profile"
+
+[node name="SummaryScroll" type="ScrollContainer" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SummaryPanel/MarginContainer/SummaryVBox"]
+layout_mode = 2
+size_flags_vertical = 3
+horizontal_scroll_mode = 0
+
+[node name="SummaryContent" type="VBoxContainer" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SummaryPanel/MarginContainer/SummaryVBox/SummaryScroll"]
+layout_mode = 2
+size_flags_horizontal = 3
 theme_override_constants/separation = 10
 
-[node name="SummaryLabel" type="Label" parent="MarginContainer/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/FooterVBox"]
-visible = false
+[node name="SummaryLabel" type="Label" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SummaryPanel/MarginContainer/SummaryVBox/SummaryScroll/SummaryContent"]
 custom_minimum_size = Vector2(220, 0)
 layout_mode = 2
 autowrap_mode = 2
 theme_override_colors/font_color = Color(0.72, 0.76, 0.82, 1)
 text = ""
 
-[node name="AssumptionsLabel" type="Label" parent="MarginContainer/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/FooterVBox"]
-visible = false
+[node name="AssumptionsLabel" type="Label" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SummaryPanel/MarginContainer/SummaryVBox/SummaryScroll/SummaryContent"]
 custom_minimum_size = Vector2(220, 0)
 layout_mode = 2
 autowrap_mode = 2
 theme_override_colors/font_color = Color(0.631373, 0.701961, 0.772549, 1)
 text = ""
 
-[node name="IssuesTitle" type="Label" parent="MarginContainer/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/FooterVBox"]
+[node name="IssuesTitle" type="Label" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SummaryPanel/MarginContainer/SummaryVBox/SummaryScroll/SummaryContent"]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.921569, 0.768627, 0.470588, 1)
 text = "Validation"
 
-[node name="IssuesContainer" type="VBoxContainer" parent="MarginContainer/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/FooterVBox"]
+[node name="IssuesContainer" type="VBoxContainer" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SummaryPanel/MarginContainer/SummaryVBox/SummaryScroll/SummaryContent"]
 layout_mode = 2
 theme_override_constants/separation = 4
 
-[node name="Buttons" type="VBoxContainer" parent="MarginContainer/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/FooterVBox"]
+[node name="Buttons" type="VBoxContainer" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SummaryPanel/MarginContainer/SummaryVBox"]
 layout_mode = 2
 theme_override_constants/separation = 10
 
-[node name="StartButton" type="Button" parent="MarginContainer/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/FooterVBox/Buttons"]
+[node name="StartButton" type="Button" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SummaryPanel/MarginContainer/SummaryVBox/Buttons"]
 layout_mode = 2
 size_flags_horizontal = 3
 text = "Open System Viewer"
 
-[node name="LoadButton" type="Button" parent="MarginContainer/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/FooterVBox/Buttons"]
+[node name="LoadButton" type="Button" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SummaryPanel/MarginContainer/SummaryVBox/Buttons"]
 layout_mode = 2
 size_flags_horizontal = 3
 text = "Load System"
+
+
+

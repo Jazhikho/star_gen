@@ -11,6 +11,7 @@ Guiding principles:
 - Determinism and test coverage as non-negotiables
 - Finish vertical slices, do not balloon scope
 - **Scientific realism is the default:** Generation is driven by scientific documentation and established ranges by default. The eventual goal is to expose the assumption levers that drive generation so users can adjust them to fit their desired outcome (e.g. hard sci-fi vs space opera vs grim frontier).
+- **Generation vs simulation is explicit:** generation establishes initial conditions from top down (galaxy → system → world, studio-driven specs and assumptions). Emergent behavior belongs in simulation tools that run bottom up from local conditions. Do not hide emergent structures inside the initial-condition generators unless the user explicitly wants that collapsed into generation.
 
 Recent refactor:
 - The core codebase has been refactored to C#; new work should favor C# implementations that fit the existing architecture.
@@ -44,6 +45,7 @@ Never domain → services/app.
 - All randomness goes through a single injected RNG wrapper.
 - Generators must accept (spec, rng) and return data without touching global state.
 - Every generated entity stores provenance: seed, generator version, spec snapshot.
+- Simulations must also be deterministic: same seed + same initial conditions + same simulation settings must yield identical outcomes, even when the simulation is staged, batched, or backgrounded.
 
 ---
 

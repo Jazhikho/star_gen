@@ -2,6 +2,7 @@
 #nullable disable warnings
 using System;
 using Godot;
+using StarGen.Domain.Generation.Traveller;
 using StarGen.Domain.Jumplanes;
 
 namespace StarGen.Tests.Unit.JumpLanes;
@@ -189,6 +190,12 @@ public static class TestJumpLaneSystem
     {
         JumpLaneSystem system = new("sys_001", new Vector3(10, 5, 3), 75000);
         system.MakeBridge(100000);
+        system.CanExportColonists = true;
+        system.ExportPressure = 0.8;
+        system.ColonyTargetScore = 0.6;
+        system.ColonyTargetCapacity = 1200000;
+        system.ColonizationRangePc = 7.0;
+        system.RouteTechnologyLevel = 10;
 
         Godot.Collections.Dictionary data = system.ToDictionary();
         JumpLaneSystem restored = JumpLaneSystem.FromDictionary(data);
@@ -212,6 +219,89 @@ public static class TestJumpLaneSystem
         if (!restored.IsBridge)
         {
             throw new InvalidOperationException("Expected is_bridge to be true");
+        }
+        if (!restored.CanExportColonists)
+        {
+            throw new InvalidOperationException("Expected export capability to round-trip");
+        }
+        if (System.Math.Abs(restored.ExportPressure - 0.8) > 0.0001)
+        {
+            throw new InvalidOperationException($"Expected export_pressure 0.8, got {restored.ExportPressure}");
+        }
+        if (System.Math.Abs(restored.ColonyTargetScore - 0.6) > 0.0001)
+        {
+            throw new InvalidOperationException($"Expected colony_target_score 0.6, got {restored.ColonyTargetScore}");
+        }
+        if (restored.ColonyTargetCapacity != 1200000)
+        {
+            throw new InvalidOperationException($"Expected colony_target_capacity 1200000, got {restored.ColonyTargetCapacity}");
+        }
+        if (System.Math.Abs(restored.ColonizationRangePc - 7.0) > 0.0001)
+        {
+            throw new InvalidOperationException($"Expected colonization_range_pc 7.0, got {restored.ColonizationRangePc}");
+        }
+        if (restored.RouteTechnologyLevel != 10)
+        {
+            throw new InvalidOperationException($"Expected route_technology_level 10, got {restored.RouteTechnologyLevel}");
+        }
+    }
+
+    public static void TestSerializationRoundTripPreservesTravellerProfile()
+    {
+        JumpLaneSystem system = new("sys_001", new Vector3(2, 0, 0), 5000000);
+        system.TravellerProfile = new TravellerSystemProfile
+        {
+            MainworldBodyId = "planet_1",
+            MainworldName = "Route World",
+            SelectionReason = "Fixture",
+            WorldProfile = new TravellerWorldProfile
+            {
+                StarportCode = "B",
+                SizeCode = 7,
+                AtmosphereCode = 6,
+                HydrographicsCode = 7,
+                PopulationCode = 8,
+                GovernmentCode = 4,
+                LawCode = 5,
+                TechLevelCode = 10,
+            },
+            TradeCodes = TravellerTradeCodeSet.FromDictionary(new Godot.Collections.Dictionary
+            {
+                ["codes"] = new Godot.Collections.Array<string> { "Ag", "Ri" },
+            }),
+            RouteProfile = new TravellerRouteProfile
+            {
+                EstimatedPopulation = 500000000,
+                PopulationCode = 8,
+                StarportCode = "B",
+                TechLevelCode = 10,
+                Importance = 2,
+                MaxJumpNumber = 1,
+                RouteWeight = 3,
+            },
+        };
+
+        Godot.Collections.Dictionary data = system.ToDictionary();
+        JumpLaneSystem restored = JumpLaneSystem.FromDictionary(data);
+
+        if (restored.TravellerProfile == null)
+        {
+            throw new InvalidOperationException("Traveller route profile should round-trip");
+        }
+
+        if (restored.TravellerProfile.MainworldName != "Route World")
+        {
+            throw new InvalidOperationException("Traveller system name should round-trip");
+        }
+
+        if (!restored.TravellerProfile.TradeCodes.Contains("Ag"))
+        {
+            throw new InvalidOperationException("Traveller trade codes should round-trip");
+        }
+
+        if (restored.TravellerProfile.RouteProfile.MaxJumpNumber != 1)
+        {
+            throw new InvalidOperationException("Traveller route metrics should round-trip");
         }
     }
 }

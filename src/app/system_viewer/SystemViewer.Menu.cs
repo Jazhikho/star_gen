@@ -11,7 +11,9 @@ public partial class SystemViewer
 {
     private const int FileMenuSaveId = 1;
     private const int FileMenuLoadId = 2;
-    private const int FileMenuReturnId = 3;
+    private const int FileMenuNewSystemId = 3;
+    private const int FileMenuMainMenuId = 4;
+    private const int FileMenuReturnId = 5;
     private const int EditMenuGenerateId = 10;
     private const int EditMenuRerollId = 11;
     private const int ViewMenuShowOrbitsId = 20;
@@ -59,8 +61,8 @@ public partial class SystemViewer
     {
         PopupMenu popup = menuButton.GetPopup();
         popup.IdPressed += OnEditMenuIdPressed;
-        popup.AddItem("Generate", EditMenuGenerateId);
-        popup.AddItem("Re-roll", EditMenuRerollId);
+        popup.AboutToPopup += () => RebuildEditMenu(popup);
+        RebuildEditMenu(popup);
     }
 
     private void ConfigureViewMenu(MenuButton menuButton)
@@ -93,7 +95,25 @@ public partial class SystemViewer
         popup.SetItemDisabled(popup.ItemCount - 1, _currentSystem == null);
         popup.AddItem("Load...", FileMenuLoadId);
         popup.AddSeparator();
-        popup.AddItem(_backNavigationText, FileMenuReturnId);
+        popup.AddItem("New System...", FileMenuNewSystemId);
+        popup.AddItem("Return to Main Menu", FileMenuMainMenuId);
+        if (_backNavigationVisible)
+        {
+            popup.AddSeparator();
+            popup.AddItem(_backNavigationText, FileMenuReturnId);
+        }
+    }
+
+    private void RebuildEditMenu(PopupMenu popup)
+    {
+        popup.Clear();
+        if (!_generationActionsVisible)
+        {
+            return;
+        }
+
+        popup.AddItem("Generate", EditMenuGenerateId);
+        popup.AddItem("Re-roll", EditMenuRerollId);
     }
 
     private void RebuildViewMenu(PopupMenu popup)
@@ -139,6 +159,18 @@ public partial class SystemViewer
         if (id == FileMenuLoadId)
         {
             OnLoadPressed();
+            return;
+        }
+
+        if (id == FileMenuNewSystemId)
+        {
+            EmitSignal(SignalName.NewSystemRequested);
+            return;
+        }
+
+        if (id == FileMenuMainMenuId)
+        {
+            EmitSignal(SignalName.MainMenuRequested);
             return;
         }
 

@@ -1,5 +1,6 @@
 using Godot;
 using Godot.Collections;
+using StarGen.Domain.Generation.Traveller;
 using StarGen.Domain.Utils;
 
 namespace StarGen.Domain.Jumplanes;
@@ -33,6 +34,61 @@ public partial class JumpLaneSystem : RefCounted
     /// Whether this system is acting as a bridge.
     /// </summary>
     public bool IsBridge;
+
+    /// <summary>
+    /// Traveller route and mainworld data when the region was built in Traveller mode.
+    /// </summary>
+    public TravellerSystemProfile? TravellerProfile;
+
+    /// <summary>
+    /// Whether this system can export interstellar colonists in realistic mode.
+    /// </summary>
+    public bool CanExportColonists;
+
+    /// <summary>
+    /// Export pressure in the inclusive range [0, 1].
+    /// </summary>
+    public double ExportPressure;
+
+    /// <summary>
+    /// Best colony-target desirability score in the inclusive range [0, 1].
+    /// </summary>
+    public double ColonyTargetScore;
+
+    /// <summary>
+    /// Best colony-target carrying capacity within the system.
+    /// </summary>
+    public int ColonyTargetCapacity;
+
+    /// <summary>
+    /// Interstellar colonization range available to this system in parsecs.
+    /// </summary>
+    public double ColonizationRangePc;
+
+    /// <summary>
+    /// Highest exporting technology level recorded for this system, or -1 when unavailable.
+    /// </summary>
+    public int RouteTechnologyLevel = -1;
+
+    /// <summary>
+    /// Source body identifier for exports from this system.
+    /// </summary>
+    public string ExportBodyId = string.Empty;
+
+    /// <summary>
+    /// Preferred colonization target body identifier in this system.
+    /// </summary>
+    public string ColonyTargetBodyId = string.Empty;
+
+    /// <summary>
+    /// Exporting civilization identifier for this system.
+    /// </summary>
+    public string ExportCivilizationId = string.Empty;
+
+    /// <summary>
+    /// Exporting civilization display name for this system.
+    /// </summary>
+    public string ExportCivilizationName = string.Empty;
 
     /// <summary>
     /// Creates a new jump-lane system.
@@ -91,7 +147,7 @@ public partial class JumpLaneSystem : RefCounted
     /// </summary>
     public Dictionary ToDictionary()
     {
-        return new Dictionary
+        Dictionary data = new Dictionary
         {
             ["id"] = Id,
             ["position"] = new Dictionary
@@ -103,7 +159,24 @@ public partial class JumpLaneSystem : RefCounted
             ["population"] = Population,
             ["false_population"] = FalsePopulation,
             ["is_bridge"] = IsBridge,
+            ["can_export_colonists"] = CanExportColonists,
+            ["export_pressure"] = ExportPressure,
+            ["colony_target_score"] = ColonyTargetScore,
+            ["colony_target_capacity"] = ColonyTargetCapacity,
+            ["colonization_range_pc"] = ColonizationRangePc,
+            ["route_technology_level"] = RouteTechnologyLevel,
+            ["export_body_id"] = ExportBodyId,
+            ["colony_target_body_id"] = ColonyTargetBodyId,
+            ["export_civilization_id"] = ExportCivilizationId,
+            ["export_civilization_name"] = ExportCivilizationName,
         };
+
+        if (TravellerProfile != null)
+        {
+            data["traveller_profile"] = TravellerProfile.ToDictionary();
+        }
+
+        return data;
     }
 
     /// <summary>
@@ -127,6 +200,20 @@ public partial class JumpLaneSystem : RefCounted
             DomainDictionaryUtils.GetInt(data, "population", 0));
         system.FalsePopulation = DomainDictionaryUtils.GetInt(data, "false_population", -1);
         system.IsBridge = DomainDictionaryUtils.GetBool(data, "is_bridge", false);
+        system.CanExportColonists = DomainDictionaryUtils.GetBool(data, "can_export_colonists", false);
+        system.ExportPressure = DomainDictionaryUtils.GetDouble(data, "export_pressure", 0.0);
+        system.ColonyTargetScore = DomainDictionaryUtils.GetDouble(data, "colony_target_score", 0.0);
+        system.ColonyTargetCapacity = DomainDictionaryUtils.GetInt(data, "colony_target_capacity", 0);
+        system.ColonizationRangePc = DomainDictionaryUtils.GetDouble(data, "colonization_range_pc", 0.0);
+        system.RouteTechnologyLevel = DomainDictionaryUtils.GetInt(data, "route_technology_level", -1);
+        system.ExportBodyId = DomainDictionaryUtils.GetString(data, "export_body_id", string.Empty);
+        system.ColonyTargetBodyId = DomainDictionaryUtils.GetString(data, "colony_target_body_id", string.Empty);
+        system.ExportCivilizationId = DomainDictionaryUtils.GetString(data, "export_civilization_id", string.Empty);
+        system.ExportCivilizationName = DomainDictionaryUtils.GetString(data, "export_civilization_name", string.Empty);
+        if (data.ContainsKey("traveller_profile") && data["traveller_profile"].VariantType == Variant.Type.Dictionary)
+        {
+            system.TravellerProfile = TravellerSystemProfile.FromDictionary((Dictionary)data["traveller_profile"]);
+        }
         return system;
     }
 

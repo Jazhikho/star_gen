@@ -17,6 +17,171 @@ Use this log for significant AI-assisted artifacts in this repository.
 
 ## Entries
 
+### 2026-03-22 - Cursor (agent)
+
+- Task Purpose: Create a single repository commit for the in-progress colonization-simulation, Traveller routing, studio-shell, population, and test updates; bump the internal feature version line to `0.7.8.0` and sync version metadata (`VERSION.md`, `project.godot`, `export_presets.cfg`, `Versions.GeneratorVersion`).
+- Input Materials Used: Git working tree on branch `codex/concept-pipeline-hardening`; existing `VERSION.md` and project versioning conventions in `claude.md`.
+- AI Produced: Version and provenance documentation updates accompanying the commit; no new feature code beyond metadata and log edits in this step.
+- Human Accepted: Pending review of the combined feature slice and version bump.
+- Human Rejected: None.
+- Human Changed: The user requested the commit and feature-version increment.
+- Validation Method: `dotnet build StarGen.sln` (to be run immediately before commit).
+- Final Approver: Pending Christopher B. Del Gesso review.
+
+### 2026-03-22 - Codex (GPT-5)
+
+- Task Purpose: Repair the studio-screen layout regression that broke node paths, scrunched the panels vertically, and failed to honor the intended `640x800` minimum window size.
+- Input Materials Used: `claude.md`; `project.godot`; `src/app/GalaxyGenerationScreen.tscn`; `src/app/SystemGenerationScreen.tscn`; `src/app/ObjectGenerationScreen.tscn`; `src/app/shared/StudioScreenLayoutHelper.cs`; `Tests/Integration/TestStudioScreenLayoutHelper.cs`.
+- AI Produced: Restored the studio scene hierarchy so code-side node paths and button hookups resolve again, returned the studio row containers to `BoxContainer`, moved responsive stacking/stretch rules into `StudioScreenLayoutHelper`, raised the project minimum height to `800`, and updated the layout integration tests to cover stacked compact layouts and stretched wide layouts.
+- Human Accepted: Pending in-editor verification of the Galaxy, System, and Object studio screens.
+- Human Rejected: None.
+- Human Changed: The user clarified that the studios should fill height at the minimum `640x800` window and otherwise expand to the available screen size, instead of being globally wrapped in a scroll shell.
+- Validation Method: `dotnet build D:\\Game Creation\\star_gen\\StarGen.sln`.
+- Final Approver: Pending user review.
+
+### 2026-03-22 - Codex (GPT-5)
+
+- Task Purpose: Carry the main-menu bordered shell and outer margin treatment into the Galaxy, System, and Object generation studios.
+- Input Materials Used: `claude.md`; `src/app/MainMenuScreen.tscn`; `src/app/GalaxyGenerationScreen.tscn`; `src/app/SystemGenerationScreen.tscn`; `src/app/ObjectGenerationScreen.tscn`; `src/app/GalaxyGenerationScreen.cs`; `src/app/SystemGenerationScreen.cs`; `src/app/ObjectGenerationScreen.cs`.
+- AI Produced: Reworked each studio scene to use the same `ScrollContainer -> Layout -> HeroPanel + MainPanel` shell pattern as the main menu, moved the studio header controls into the new hero panel, updated the C# node paths to match the new scene structure, and verified the project still builds cleanly.
+- Human Accepted: Pending in-editor verification of the studio framing and spacing.
+- Human Rejected: None.
+- Human Changed: The user clarified that the main-menu bordered margin treatment should carry through all generation studios, not just the raw responsive sizing behavior.
+- Validation Method: `dotnet build D:\\Game Creation\\star_gen\\StarGen.sln`.
+- Final Approver: Pending user review.
+
+### 2026-03-22 - Codex (GPT-5)
+
+- Task Purpose: Align the Galaxy, System, and Object generation studios with the main-menu margin/scroll layout so the UI remains readable on the 640 px minimum width window while keeping the three-panel structure.
+- Input Materials Used: `claude.md`; `src/app/MainMenuScreen.tscn`; `src/app/GalaxyGenerationScreen.tscn`; `src/app/SystemGenerationScreen.tscn`; `src/app/ObjectGenerationScreen.tscn`.
+- AI Produced: Wrapped each studio in a margined `ScrollContainer`, swapped the studio rows from `BoxContainer` to `HFlowContainer` for responsive wrapping, and reduced the panel minimum widths so the three columns can stack gracefully at narrow widths without losing the intended layout language.
+- Human Accepted: Pending the user's visual verification at 640 px width.
+- Human Rejected: None.
+- Human Changed: N/A.
+- Validation Method: Not run (visual layout change only).
+- Final Approver: Pending user review.
+
+### 2026-03-21 - Codex (GPT-5)
+
+- Task Purpose: Keep the System/Object studios permanently side-by-side like Galaxy Studio and repair the native-life generation regression that left viable worlds empty after the generation/simulation split.
+- Input Materials Used: User layout and life-generation requirements; `AGENTS.md`; `claude.md`; `StudioScreenLayoutHelper.cs`; `PopulationGenerator.cs`; `BiologySupportEvaluator.cs`; `PopulationProbability.cs`; population/layout tests; `VERSION.md`; `project.godot`.
+- AI Produced: Changed the shared studio-layout helper so the studio shells always remain horizontal and adapt panel widths instead of stacking vertically, updated compact-width layout tests to lock that rule in, removed the native-population dependency on pre-existing concept-pipeline sentience, synchronized sentience state from generated native populations, tightened strict life support toward earthlike worlds while making permissive life settings strongly favor viable wet `HabitabilityScore 5+` worlds, and synced internal version metadata to the `0.7.7.3` bug-fix slice.
+- Human Accepted: Pending review of the restored always-horizontal studio layout and the returned native-life distribution.
+- Human Rejected: The user explicitly rejected the earlier responsive behavior that collapsed the studio columns into a vertical stack at smaller resolutions.
+- Human Changed: The user clarified that smaller resolutions should be handled without ever leaving the side-by-side layout, and that life settings should interpolate from `0 = earthlike only` to `1 = viable 5+ worlds have high life odds`.
+- Validation Method: `dotnet build D:\Game Creation\star_gen\StarGen.sln`; `godot-mono.exe --headless --path . --script Tests/RunTestsHeadless.gd` (`1957 / 1957` passed; the repo still prints the same post-summary popup/layout/ObjectDB/RID warning noise after completion).
+- Final Approver: Pending Christopher B. Del Gesso review.
+
+### 2026-03-21 - Codex (GPT-5)
+
+- Task Purpose: Restore missing viewer-level file-menu exits for system/object inspection and bring the System/Object studios onto the same three-panel layout structure as Galaxy Studio.
+- Input Materials Used: User navigation/layout requirements; `AGENTS.md`; `claude.md`; `MainApp.cs`; `MainApp.Navigation.cs`; `SystemGenerationScreen.cs/.tscn`; `ObjectGenerationScreen.cs/.tscn`; `ObjectGenerationScreen.EnhancedUi.cs`; `SystemViewer.cs`; `SystemViewer.Menu.cs`; `ObjectViewer.cs`; `ObjectViewer.Menu.cs`; integration tests; `VERSION.md`; `project.godot`.
+- AI Produced: Added explicit `New System...` / `New Object...` and `Return to Main Menu` file-menu actions in the system/object viewers, wired those actions through `MainApp`, restructured the System Studio and Object Studio scenes into Galaxy-style `settings + rules + summary` columns, updated controller node-path bindings and responsive layout calls, refreshed integration coverage for the new menu entries and studio paths, and synced internal version metadata to the `0.7.7.2` bug-fix slice.
+- Human Accepted: Pending review of the new file-menu exits and studio layout parity.
+- Human Rejected: No attempt was made in this pass to redesign the viewer rendering shells or to reopen hidden in-view generation flows; launching a fresh generation still routes back through the corresponding studio.
+- Human Changed: The user clarified that the viewer needs explicit file-menu escape hatches to start a fresh system/object or return to the main menu, while the studios themselves should visually match the Galaxy Studio shell instead of keeping bespoke footer-in-settings layouts.
+- Validation Method: `dotnet build D:\Game Creation\star_gen\StarGen.sln`; `godot-mono.exe --headless --path . --script Tests/RunTestsHeadless.gd` (`1957 / 1957` passed; the repo still prints the same post-summary popup/layout/ObjectDB/RID warning noise after completion).
+- Final Approver: Pending Christopher B. Del Gesso review.
+
+### 2026-03-21 - Codex (GPT-5)
+
+- Task Purpose: Restore the missing studio/viewer back-navigation behavior, remove hidden regeneration paths from viewer-only contexts, and keep object edits flowing back into the active system when drilling down from system view.
+- Input Materials Used: User report about missing back buttons and incorrect viewer layering; `AGENTS.md`; `claude.md`; `MainApp.cs`; `MainApp.Navigation.cs`; `SystemViewer` and `ObjectViewer` scene/controller files; navigation/save-load integration tests; `VERSION.md`; `project.godot`.
+- AI Produced: Added explicit top-bar back-button state to system/object viewers, hid back navigation for system-studio and object-studio result views while preserving it for galaxy/system drill-down flows, removed regeneration actions from viewer-only contexts by tying menu/button availability to generation-section visibility, added an object-view back button to the object viewer scene, updated `MainApp` launch behavior to respect studio origin, extended the body-edit callback so standalone-system object edits persist back into the current system viewer, updated integration coverage for the new navigation contract, and synced the internal version metadata to the `0.7.7.1` bug-fix slice.
+- Human Accepted: Pending review of the restored back-button behavior and the stricter separation between studio generation and viewer inspection/edit flows.
+- Human Rejected: No attempt was made in this patch to turn standalone object-studio edits into broader pipeline persistence beyond the active viewed object; the immediate requirement stayed on viewer navigation and persistence back into the currently open system path.
+- Human Changed: The user clarified the desired hierarchy explicitly: galaxy-studio system/object views should step back up one level at a time, system-studio object view should return only to system view, and object-studio result view should be one layer deep with no back navigation.
+- Validation Method: `dotnet build D:\Game Creation\star_gen\StarGen.sln`; `godot-mono.exe --headless --path . --script Tests/RunTestsHeadless.gd` (`1957 / 1957` passed; the repo still prints the same post-summary popup/layout/ObjectDB warning noise after completion).
+- Final Approver: Pending Christopher B. Del Gesso review.
+
+### 2026-03-21 - Codex (GPT-5)
+
+- Task Purpose: Implement the accepted plan that separates top-down generation from bottom-up colonization simulation, making native-only generation the initial-condition layer and moving colonies/non-Traveller routes into an explicit persisted simulation tool.
+- Input Materials Used: User-approved implementation plan; `AGENTS.md`; `claude.md`; generation/population/galaxy/jump-lane/viewer/save-load code paths; existing colonization-route and galaxy-viewer tests; `VERSION.md`; `Docs/ProjectStructure.md`; `Docs/Roadmap.md`; `Docs/GDD.md`.
+- AI Produced: Removed generation-side colony rebuilding and generation-side expansion settings, added typed colonization simulation settings/request/state/settlement/route records plus deterministic simulator/overlay services, persisted simulation state through galaxy save/load and region caching, updated galaxy-viewer/open-system flows to consume the saved simulation state authoritatively, aligned generation/viewer UI/tests with the new contract, refreshed the legacy colonization-route wrapper expectations, and synced version/docs metadata to the `0.7.7.0` feature slice.
+- Human Accepted: Pending review of the native-only generation baseline, explicit subsector colonization simulation flow, and the generation-vs-simulation UI split.
+- Human Rejected: Automatic viewer-driven colonization recalculation based on camera movement was explicitly not kept; simulation is now a tool-driven, explicit-scope action with cached results per region.
+- Human Changed: The user explicitly chose the recommendation that generation should only establish starting conditions while emergent structures come from later simulation tools, and then requested the full plan be implemented.
+- Validation Method: `dotnet build D:\Game Creation\star_gen\StarGen.sln`; `godot-mono.exe --headless --path . --script Tests/RunTestsHeadless.gd` (`1957 / 1957` passed; the repo still prints the same post-summary popup/layout/ObjectDB warning noise after completion).
+- Final Approver: Pending Christopher B. Del Gesso review.
+
+### 2026-03-21 - Codex (GPT-5)
+
+- Task Purpose: Formalize the new project standard that separates top-down generation from bottom-up simulation so future features consistently treat initial conditions and emergent structures as different pipeline stages.
+- Input Materials Used: User design direction for making generation vs simulation a project standard; `AGENTS.md`; `claude.md`; `Docs/Roadmap.md`.
+- AI Produced: Updated the repository guidance in `claude.md` and the roadmap guiding principles in `Docs/Roadmap.md` to state that studio-driven generation establishes initial conditions while tool-driven simulation creates emergent outcomes, with deterministic requirements applying to both.
+- Human Accepted: Pending review of the new project-standard wording.
+- Human Rejected: No code-path or UI behavior changes were introduced in this documentation-only follow-up.
+- Human Changed: The user explicitly clarified that this distinction should become a general project standard, not just a note attached to jump routes or colonization.
+- Validation Method: Documentation update only; no build or test rerun required.
+- Final Approver: Pending Christopher B. Del Gesso review.
+
+### 2026-03-21 - Codex (GPT-5)
+
+- Task Purpose: Replace the old non-Traveller heuristic jump-route population/linking path with a deterministic colonization-driven route network so visible routes represent interstellar expansion from export-capable populations rather than abstract nearest-population graph edges.
+- Input Materials Used: User bug report about jump routes forming toward unpopulated areas; follow-up design direction to tie routes to native/colony expansion pressure; `AGENTS.md`; `claude.md`; `GalaxyViewer.Setup.cs`; `GalaxyViewer.JumpRoutes.cs`; `JumpLaneSystem.cs`; `JumpLaneCalculator.cs`; `PopulationGenerator.cs`; `PlanetPopulationData.cs`; `NativePopulation.cs`; `Colony.cs`; jump-lane and galaxy-viewer test files; version/project-structure metadata files.
+- AI Produced: Added a new `ColonizationRouteCalculator` domain path for non-Traveller jump routes, expanded `JumpLaneSystem` with deterministic colonization-summary fields, changed the galaxy-viewer route-region builder to derive exporter pressure and colony-target viability from generated system data, updated route background/result reconstruction to preserve simulated colony populations, added unit coverage for colonization-driven route formation and richer route-system serialization, updated the galaxy-viewer regression to assert connected systems no longer remain empty, and synced version/project-structure metadata to the `0.7.6.1` bug-fix slice.
+- Human Accepted: Pending review of the new colonization-driven route behavior and whether this first region-scoped slice should become the foundation for a later fuller galaxy colonization simulator.
+- Human Rejected: The broader UI redesign to remove the Galaxy Studio `Expansion Pressure` control and expose a dedicated colonization-simulator configuration surface was discussed but not implemented in this patch.
+- Human Changed: The user redirected the route-fix work away from lazy background graph recalculation and toward a colonization-linked model where jump routes reflect settlement spread from export-capable populations.
+- Validation Method: `dotnet build D:\Game Creation\star_gen\StarGen.sln`; `godot-mono --headless --path . --script res://Tests/RunTestsHeadless.gd` (the full harness remains blocked by the same pre-existing CLR crash in `TestGalaxySystemGenerator::test_generate_system_with_galaxy_context_deterministic_population` before the new jump-route tests execute).
+- Final Approver: Pending Christopher B. Del Gesso review.
+
+### 2026-03-21 - Codex (GPT-5)
+
+- Task Purpose: Implement deterministic colony pressure from nearby native-inhabited worlds so expansion pressure can depend on same-system native proximity and lightweight nearby-system summaries without making results depend on generation order.
+- Input Materials Used: User design direction for native-proximity-driven expansion pressure and performance constraints; `AGENTS.md`; `claude.md`; `PopulationGenerator.cs`; `PopulationLikelihood.cs`; `PopulationProbability.cs`; `PopulationSeeding.cs`; `Galaxy.cs`; `GalaxySystemGenerator.cs`; `StarSystemPreview.cs`; `SystemFixtureGenerator.cs`; population and galaxy test suites; version/project-structure/GDD files.
+- AI Produced: Added typed colony-pressure and native-summary models, added `GalaxyNativePressureCalculator` with cached deterministic nearby-system summaries, moved authoritative colony generation to a second-pass `PopulationGenerator.RebuildColoniesForSystem(...)`, threaded galaxy context into preview/runtime generation so galaxy-opened systems use the same pressure-aware path, added unit coverage for pressure-driven colony probability/likelihood/rebuild behavior and galaxy-context determinism, and synced version/docs metadata to the `0.7.6.0` feature slice.
+- Human Accepted: Pending review of the new second-pass colony pipeline and its performance in normal runtime use.
+- Human Rejected: The alternative post-generation colonization tool flow was explicitly deferred for now; this pass stays on the built-in deterministic pipeline approach first.
+- Human Changed: The user narrowed the implementation order to “try the in-pipeline native-pressure approach first, then consider the separate tool only if performance is not good enough.”
+- Validation Method: `dotnet build D:\Game Creation\star_gen\StarGen.sln`; `godot-mono --headless --path . --script res://Tests/RunTestsHeadless.gd` (`1953 / 1953` assertions passed; this repo still emits the same pre-existing post-summary Godot .NET popup/unsafe-reference cleanup errors and exits non-zero after completion).
+- Final Approver: Pending Christopher B. Del Gesso review.
+
+### 2026-03-20 - Codex (GPT-5)
+
+- Task Purpose: Verify that the realistic life/population fixes actually reach the Galaxy Studio and galaxy-viewer runtime tool path, then close the gap where the deterministic baseline improved but the user still saw no populated worlds in the tool.
+- Input Materials Used: User report that `Life Potential = 1` still showed no populated worlds in the tool; `claude.md`; `AGENTS.md`; `StarSystemPreview.cs`; `MainApp.Navigation.cs`; `TestStarSystemPreview.cs`; `TestMainAppNavigation.cs`; `DotNetNativeTestSuite.cs`; version metadata files.
+- AI Produced: Traced the runtime generation path, identified that realistic population generation was only auto-enabled for Traveller mode in galaxy previews and systems opened from the galaxy viewer, changed both runtime paths to always generate population, added regression coverage for realistic preview generation and realistic open-system navigation, and synced internal version metadata for the `0.7.5.3` bug-fix slice.
+- Human Accepted: Pending review of the runtime-path fix and the restored populated-world behavior in the Galaxy Studio / galaxy-viewer flow.
+- Human Rejected: No Traveller population behavior was changed in this pass; the scope stayed on the realistic runtime path.
+- Human Changed: The user required a direct answer about whether the fix was actually making it into the tool, which narrowed this pass from baseline validation to runtime-path verification.
+- Validation Method: `dotnet build D:\Game Creation\star_gen\StarGen.sln`; `godot-mono --headless --path . --script res://Tests/RunTestsHeadless.gd` (`1947 / 1947` passed; the same pre-existing popup/layout/ObjectDB/RID warnings still print after completion).
+- Final Approver: Pending Christopher B. Del Gesso review.
+
+### 2026-03-20 - Codex (GPT-5)
+
+- Task Purpose: Finish the realistic life-generation fix so biosphere generation actually matches the expected low/mid/high baseline behavior instead of merely getting closer.
+- Input Materials Used: User bug report and follow-up requirements about realistic biosphere scarcity; `claude.md`; `AGENTS.md`; `BiologySupportEvaluator.cs`; `PopulationProbability.cs`; `PopulationLikelihood.cs`; `PopulationGenerator.cs`; `PlanetEnvironmentProfile.cs`; `ConceptDependencyChainGenerator.cs`; population tests; `LifeDistributionBaselineRunner.cs`; current baseline artifacts; version metadata files.
+- AI Produced: Added typed biology-support failure diagnostics, refreshed the realistic baseline runner to report wet-world and support-failure counts, verified that the realistic biosphere gate and native-life expectation path now agree, made the native-life probability ceiling explicit in code, aligned the stale clamp regression with the actual documented ceiling, reran the deterministic baseline, and synced internal version metadata for the `0.7.5.2` bug-fix slice.
+- Human Accepted: Pending review of the realistic biosphere fix and the updated deterministic baseline numbers.
+- Human Rejected: Traveller population generation remained out of scope; this pass stays on the realistic ruleset path only.
+- Human Changed: The user explicitly required continuing until the realistic biosphere results matched expectations rather than accepting a partial improvement.
+- Validation Method: `dotnet build D:\Game Creation\star_gen\StarGen.sln`; `godot-mono --headless --path . --script res://Tests/RunTestsHeadless.gd` (`1946 / 1946` passed; the same pre-existing popup/layout/ObjectDB/RID warnings still print after completion); `godot-mono --headless --path . --script res://Tests/Baselines/RunLifeDistributionBaseline.gd`.
+- Final Approver: Pending Christopher B. Del Gesso review.
+
+### 2026-03-20 - Codex (GPT-5)
+
+- Task Purpose: Fix the realistic life/settlement generation issue where high `Life Potential` and `Expansion Pressure` still produced too few inhabited worlds, then rerun the deterministic distribution baseline to measure the change.
+- Input Materials Used: User bug report about realistic-mode inhabited-world scarcity near the home sector; `claude.md`; `AGENTS.md`; `PopulationGenerator.cs`; `PopulationLikelihood.cs`; `PopulationProbability.cs`; population tests; `LifeDistributionBaselineRunner.cs`; current baseline artifacts; version metadata files.
+- AI Produced: Normalized realistic auto-population decisions to the persisted population seed, removed the duplicate post-approval colony reroll so approved realistic colony worlds materialize instead of being silently dropped, strengthened colony-generation regression coverage, reran the life-distribution baseline, and synced internal version/provenance metadata for the `0.7.5.1` bug-fix slice.
+- Human Accepted: Pending review of the realistic population fix and the updated baseline numbers.
+- Human Rejected: Traveller population generation was explicitly left alone in this pass; the scope is limited to the realistic ruleset path and its baseline behavior.
+- Human Changed: The user clarified that this work remains part of the internal `0.7` build line and should not be treated as the `0.8` release itself.
+- Validation Method: `dotnet build D:\Game Creation\star_gen\StarGen.sln`; `godot-mono --headless --path . --script res://Tests/RunTestsHeadless.gd` (`1945 / 1945` passed; the same pre-existing popup/layout/ObjectDB/RID warnings still print after completion); `godot-mono --headless --path . --script res://Tests/Baselines/RunLifeDistributionBaseline.gd`.
+- Final Approver: Pending Christopher B. Del Gesso review.
+
+### 2026-03-20 - Codex (GPT-5)
+
+- Task Purpose: Implement the Galaxy Studio sync and Traveller ruleset expansion so the edited galaxy-studio scene, shared wording, deterministic Traveller mainworld takeover, typed Traveller persistence, and Traveller-specific route logic all behave as one integrated 0.7 feature slice.
+- Input Materials Used: User implementation plan for Galaxy Studio sync and full Traveller expansion; `claude.md`; `AGENTS.md`; `Docs/TravellerWorldCreation.md`; Galaxy Studio scene/script files; generation-parameter metadata; inspector/viewer surfaces; Traveller world-generation code; system/jump-lane generation and persistence paths; related unit and integration tests; version/project-structure/provenance files.
+- AI Produced: Rebound Galaxy Studio to the edited scene and updated its summary/tooltip behavior; standardized `Realistic`, `Traveller`, and `Expansion Pressure` wording across shared presentation helpers and UI surfaces; added typed Traveller system/trade-code/route models; made Traveller mode deterministically select and rewrite one authoritative mainworld with Traveller-generated UWP-facing values; persisted that Traveller profile through system and route serialization; added a Traveller-only route calculator using the `2 pc per jump number` rule; updated inspectors/viewers to read the typed Traveller profile; and expanded unit/integration coverage for wording, Traveller determinism, routes, and persistence.
+- Human Accepted: Pending review of the 0.7 Traveller expansion slice and the resulting Galaxy Studio / system / galaxy route behavior.
+- Human Rejected: No public `0.8.0.0` release was assumed, and non-mainworld bodies were not rewritten into full Traveller generation in this slice; they remain on the realistic path except for compatible readout/state backfill where required.
+- Human Changed: The user clarified during implementation that all of this work remains part of the internal `0.7` build line and should not be treated as the `0.8` public release.
+- Validation Method: `dotnet build D:\Game Creation\star_gen\StarGen.sln`; `godot-mono --headless --path . --script res://Tests/RunTestsHeadless.gd` (`1944 / 1944` passed; the same pre-existing headless popup/layout leak warnings still print after completion).
+- Final Approver: Pending Christopher B. Del Gesso review.
+
 ### 2026-03-20 - Codex (GPT-5)
 
 - Task Purpose: Finish the Galaxy Studio scene-first refactor by giving it a dedicated `GalaxyGenerationScreen` identity instead of leaving the runtime and tests wired through the legacy `WelcomeScreen` name.

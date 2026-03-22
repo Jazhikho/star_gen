@@ -6,6 +6,7 @@ using Godot.Collections;
 using StarGen.Domain.Celestial;
 using StarGen.Domain.Celestial.Components;
 using StarGen.Domain.Galaxy;
+using StarGen.Domain.Generation;
 using StarGen.Domain.Systems;
 using StarGen.Tests.Framework;
 
@@ -282,5 +283,41 @@ public static class TestGalaxySystemGenerator
             CelestialBody b = patched.GetPlanets()[0];
             DotNetNativeTestSuite.AssertFloatNear(a.Physical.MassKg, b.Physical.MassKg, 0.0, "wrong-seed override must not affect generation");
         }
+    }
+
+    /// <summary>
+    /// Tests that generating the same system with galaxy-context native pressure remains deterministic.
+    /// </summary>
+    public static void TestGenerateSystemWithGalaxyContextDeterministicPopulation()
+    {
+        GenerationUseCaseSettings settings = GenerationUseCaseSettings.CreateDefault();
+        settings.LifePermissiveness = 1.0;
+
+        GalaxyConfig config = GalaxyConfig.CreateDefault();
+        config.UseCaseSettings = settings.Clone();
+        Galaxy galaxy = new Galaxy(config, 42);
+        GalaxyStar star = GalaxyStar.CreateWithDerivedProperties(new Vector3(8000.0f, 0.0f, 0.0f), 24680, galaxy.Spec);
+
+        SolarSystem systemA = GalaxySystemGenerator.GenerateSystem(
+            star,
+            includeAsteroids: true,
+            enablePopulation: true,
+            overrides: null,
+            useCaseSettings: settings,
+            galaxy: galaxy);
+        SolarSystem systemB = GalaxySystemGenerator.GenerateSystem(
+            star,
+            includeAsteroids: true,
+            enablePopulation: true,
+            overrides: null,
+            useCaseSettings: settings,
+            galaxy: galaxy);
+
+        DotNetNativeTestSuite.AssertNotNull(systemA, "First galaxy-context generation should succeed");
+        DotNetNativeTestSuite.AssertNotNull(systemB, "Second galaxy-context generation should succeed");
+        DotNetNativeTestSuite.AssertEqual(systemA.GetPlanetCount(), systemB.GetPlanetCount(), "Galaxy-context generation should keep planet counts deterministic");
+        DotNetNativeTestSuite.AssertEqual(systemA.GetMoonCount(), systemB.GetMoonCount(), "Galaxy-context generation should keep moon counts deterministic");
+        DotNetNativeTestSuite.AssertEqual(systemA.GetTotalPopulation(), systemB.GetTotalPopulation(), "Galaxy-context generation should keep total population deterministic");
+        DotNetNativeTestSuite.AssertEqual(systemA.IsInhabited(), systemB.IsInhabited(), "Galaxy-context generation should keep inhabited state deterministic");
     }
 }

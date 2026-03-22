@@ -389,11 +389,13 @@ public static class TestObjectViewer
             DotNetNativeTestSuite.AssertNotNull(generateButton, "Generate button should exist");
 
             Button? backButton = FindBackButton(viewer);
-            DotNetNativeTestSuite.AssertNull(backButton, "Standalone mode should not show a duplicate header back button");
+            DotNetNativeTestSuite.AssertNotNull(backButton, "Standalone mode should expose a header back button");
+            DotNetNativeTestSuite.AssertTrue(backButton!.Visible, "Standalone mode should show the header back button");
 
             PopupMenu? fileMenu = GetFileMenu(viewer);
             DotNetNativeTestSuite.AssertNotNull(fileMenu, "Standalone mode should expose a file menu");
             fileMenu!.EmitSignal(PopupMenu.SignalName.AboutToPopup);
+            DotNetNativeTestSuite.AssertTrue(PopupContainsText(fileMenu, "New Object"), "Standalone mode should expose a new-object file action");
             DotNetNativeTestSuite.AssertTrue(PopupContainsText(fileMenu, "Return to Main Menu"), "Standalone mode should route return through the file menu");
 
             generateButton!.EmitSignal(Button.SignalName.Pressed);
@@ -442,7 +444,9 @@ public static class TestObjectViewer
             DotNetNativeTestSuite.AssertNotNull(viewer.GetNodeOrNull<OptionButton>($"{basePath}/RulesetContainer/RulesetModeOption"), "Object viewer should expose a ruleset selector");
             DotNetNativeTestSuite.AssertNotNull(viewer.GetNodeOrNull<CheckBox>($"{basePath}/ShowTravellerReadoutsCheck"), "Object viewer should expose a Traveller readout toggle");
             DotNetNativeTestSuite.AssertNotNull(viewer.GetNodeOrNull<SpinBox>($"{basePath}/LifePermissivenessContainer/LifePermissivenessInput"), "Object viewer should expose a life-bias control");
-            DotNetNativeTestSuite.AssertNotNull(viewer.GetNodeOrNull<SpinBox>($"{basePath}/PopulationPermissivenessContainer/PopulationPermissivenessInput"), "Object viewer should expose a population-bias control");
+            Control? populationContainer = viewer.GetNodeOrNull<Control>($"{basePath}/PopulationPermissivenessContainer");
+            DotNetNativeTestSuite.AssertNotNull(populationContainer, "Object viewer should retain the legacy population container for scene compatibility");
+            DotNetNativeTestSuite.AssertFalse(populationContainer!.Visible, "Object viewer should hide colonization controls from generation surfaces");
         }
         finally
         {
@@ -550,21 +554,7 @@ public static class TestObjectViewer
 
     private static Button? FindBackButton(ObjectViewer viewer)
     {
-        HBoxContainer? headerRow = viewer.GetNodeOrNull<HBoxContainer>("UI/TopBar/MarginContainer/TopBarVBox/HeaderRow");
-        if (headerRow == null)
-        {
-            return null;
-        }
-
-        foreach (Node child in headerRow.GetChildren())
-        {
-            if (child is Button typedButton && typedButton.Text.Contains("Back"))
-            {
-                return typedButton;
-            }
-        }
-
-        return null;
+        return viewer.GetNodeOrNull<Button>("UI/TopBar/MarginContainer/TopBarVBox/HeaderRow/BackButton");
     }
 
     private static PopupMenu? GetFileMenu(ObjectViewer viewer)

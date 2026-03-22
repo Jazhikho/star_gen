@@ -22,6 +22,8 @@ public static class TestGalaxyGenerationScreen
         runner.RunNativeTest("TestGalaxyGenerationScreen::test_set_current_config_round_trips", TestSetCurrentConfigRoundTrips);
         runner.RunNativeTest("TestGalaxyGenerationScreen::test_start_blocks_when_validation_errors_exist", TestStartBlocksWhenValidationErrorsExist);
         runner.RunNativeTest("TestGalaxyGenerationScreen::test_exposes_three_column_studio_layout", TestGalaxyGenerationScreenExposesThreeColumnStudioLayout);
+        runner.RunNativeTest("TestGalaxyGenerationScreen::test_active_profile_summary_is_concise_and_uses_updated_labels", TestActiveProfileSummaryIsConciseAndUsesUpdatedLabels);
+        runner.RunNativeTest("TestGalaxyGenerationScreen::test_tooltips_use_updated_wording", TestTooltipsUseUpdatedWording);
     }
 
     private static GalaxyGenerationScreen CreateGalaxyGenerationScreen()
@@ -154,6 +156,54 @@ public static class TestGalaxyGenerationScreen
             DotNetNativeTestSuite.AssertNotNull(infoButton, "Advanced assumptions should expose an info button");
             DotNetNativeTestSuite.AssertEqual("Generate Galaxy", startButton!.Text, "Galaxy studio start button should use the user-facing generation label");
             DotNetNativeTestSuite.AssertNull(mainworldOption, "Galaxy studio should not expose the misleading mainworld control");
+        }
+        finally
+        {
+            IntegrationTestUtils.CleanupNode(screen);
+        }
+    }
+
+    private static void TestActiveProfileSummaryIsConciseAndUsesUpdatedLabels()
+    {
+        GalaxyGenerationScreen screen = CreateGalaxyGenerationScreen();
+        try
+        {
+            Label? summaryLabel = screen.GetNodeOrNull<Label>("MarginContainer/MainPanel/MarginContainer/VBox/StudioRow/SummaryPanel/MarginContainer/SummaryVBox/SummaryScroll/SummaryContent/SummaryLabel");
+            Label? assumptionsLabel = screen.GetNodeOrNull<Label>("MarginContainer/MainPanel/MarginContainer/VBox/StudioRow/SummaryPanel/MarginContainer/SummaryVBox/SummaryScroll/SummaryContent/AssumptionsLabel");
+
+            DotNetNativeTestSuite.AssertNotNull(summaryLabel, "Galaxy studio should expose the active profile summary label");
+            DotNetNativeTestSuite.AssertTrue(summaryLabel!.Text.Contains("Ruleset Realistic"), "Summary should use the Realistic ruleset label");
+            DotNetNativeTestSuite.AssertFalse(summaryLabel.Text.Contains("Expansion Pressure"), "Summary should not expose colonization controls on the generation surface");
+            DotNetNativeTestSuite.AssertFalse(summaryLabel.Text.Contains("worldbuilding permissiveness scale"), "Summary should not include explanation paragraphs");
+            DotNetNativeTestSuite.AssertNotNull(assumptionsLabel, "Galaxy studio should still have the assumptions label node");
+            DotNetNativeTestSuite.AssertEqual("", assumptionsLabel!.Text, "Assumptions label should not carry explanation paragraphs");
+            DotNetNativeTestSuite.AssertFalse(assumptionsLabel.Visible, "Assumptions label should be hidden in the concise summary layout");
+        }
+        finally
+        {
+            IntegrationTestUtils.CleanupNode(screen);
+        }
+    }
+
+    private static void TestTooltipsUseUpdatedWording()
+    {
+        GalaxyGenerationScreen screen = CreateGalaxyGenerationScreen();
+        try
+        {
+            Label? lifeValue = screen.FindChild("LifePermissivenessValue", recursive: true, owned: false) as Label;
+            Control? populationRow = screen.FindChild("PopulationRow", recursive: true, owned: false) as Control;
+            OptionButton? rulesetOption = screen.FindChild("RulesetModeOption", recursive: true, owned: false) as OptionButton;
+            Button? advancedInfo = screen.FindChild("AdvancedAssumptionsInfoButton", recursive: true, owned: false) as Button;
+
+            DotNetNativeTestSuite.AssertNotNull(lifeValue, "Life value label should exist");
+            DotNetNativeTestSuite.AssertNotNull(populationRow, "Population row should still exist in the scene for compatibility");
+            DotNetNativeTestSuite.AssertNotNull(rulesetOption, "Ruleset selector should exist");
+            DotNetNativeTestSuite.AssertNotNull(advancedInfo, "Advanced assumptions info button should exist");
+
+            DotNetNativeTestSuite.AssertTrue(lifeValue!.TooltipText.Contains("native life"), "Life tooltip should explain life potential");
+            DotNetNativeTestSuite.AssertFalse(populationRow!.Visible, "Colonization controls should be hidden from the generation screen");
+            DotNetNativeTestSuite.AssertTrue(rulesetOption!.TooltipText.Contains("Realistic"), "Ruleset tooltip should use the Realistic label");
+            DotNetNativeTestSuite.AssertFalse(advancedInfo!.TooltipText.Contains("Expansion Pressure"), "Advanced assumptions tooltip should stop describing colonization as generation");
         }
         finally
         {

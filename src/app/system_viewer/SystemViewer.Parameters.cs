@@ -46,10 +46,8 @@ public partial class SystemViewer
             ?? throw new System.InvalidOperationException("SystemViewer scene is missing LifePermissivenessInput.");
         _lifePermissivenessValueLabel = GetNodeOrNull<Label>("UI/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/GenerationSection/LifePermissivenessContainer/LifePermissivenessValueLabel")
             ?? throw new System.InvalidOperationException("SystemViewer scene is missing LifePermissivenessValueLabel.");
-        _populationPermissivenessInput = GetNodeOrNull<HSlider>("UI/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/GenerationSection/PopulationPermissivenessContainer/PopulationPermissivenessInput")
-            ?? throw new System.InvalidOperationException("SystemViewer scene is missing PopulationPermissivenessInput.");
-        _populationPermissivenessValueLabel = GetNodeOrNull<Label>("UI/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/GenerationSection/PopulationPermissivenessContainer/PopulationPermissivenessValueLabel")
-            ?? throw new System.InvalidOperationException("SystemViewer scene is missing PopulationPermissivenessValueLabel.");
+        _populationPermissivenessInput = GetNodeOrNull<HSlider>("UI/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/GenerationSection/PopulationPermissivenessContainer/PopulationPermissivenessInput");
+        _populationPermissivenessValueLabel = GetNodeOrNull<Label>("UI/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/GenerationSection/PopulationPermissivenessContainer/PopulationPermissivenessValueLabel");
         _mainworldPolicyOption = GetNodeOrNull<OptionButton>("UI/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/GenerationSection/MainworldPolicyContainer/MainworldPolicyOption")
             ?? throw new System.InvalidOperationException("SystemViewer scene is missing MainworldPolicyOption.");
         _generationAssumptionsLabel = GetNodeOrNull<Label>("UI/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/GenerationSection/GenerationAssumptionsLabel")
@@ -69,8 +67,7 @@ public partial class SystemViewer
             ?? throw new System.InvalidOperationException("SystemViewer scene is missing RulesetModeLabel.");
         Label lifePermissivenessLabel = GetNodeOrNull<Label>("UI/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/GenerationSection/LifePermissivenessContainer/LifePermissivenessLabel")
             ?? throw new System.InvalidOperationException("SystemViewer scene is missing LifePermissivenessLabel.");
-        Label populationPermissivenessLabel = GetNodeOrNull<Label>("UI/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/GenerationSection/PopulationPermissivenessContainer/PopulationPermissivenessLabel")
-            ?? throw new System.InvalidOperationException("SystemViewer scene is missing PopulationPermissivenessLabel.");
+        Label? populationPermissivenessLabel = GetNodeOrNull<Label>("UI/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/GenerationSection/PopulationPermissivenessContainer/PopulationPermissivenessLabel");
         Label mainworldPolicyLabel = GetNodeOrNull<Label>("UI/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/GenerationSection/MainworldPolicyContainer/MainworldPolicyLabel")
             ?? throw new System.InvalidOperationException("SystemViewer scene is missing MainworldPolicyLabel.");
         Label permissivenessLegendLabel = GetNodeOrNull<Label>("UI/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/GenerationSection/PermissivenessLegendLabel")
@@ -85,7 +82,6 @@ public partial class SystemViewer
         string rulesetModeAssumption = GetSystemAssumption("ruleset_mode");
         string showTravellerAssumption = GetSystemAssumption("show_traveller_readouts");
         string lifeAssumption = PermissivenessScaleHelper.GetTooltipText("life");
-        string settlementAssumption = PermissivenessScaleHelper.GetTooltipText("settlement");
         string mainworldAssumption = GetSystemAssumption("mainworld_policy");
 
         starCountMaxLabel.TooltipText = starCountMaxAssumption;
@@ -104,16 +100,17 @@ public partial class SystemViewer
         lifePermissivenessLabel.TooltipText = lifeAssumption;
         _lifePermissivenessInput.TooltipText = lifeAssumption;
         _lifePermissivenessValueLabel.TooltipText = lifeAssumption;
-        populationPermissivenessLabel.TooltipText = settlementAssumption;
-        _populationPermissivenessInput.TooltipText = settlementAssumption;
-        _populationPermissivenessValueLabel.TooltipText = settlementAssumption;
+        if (populationPermissivenessLabel != null)
+        {
+            populationPermissivenessLabel.GetParent<Control>()?.Hide();
+        }
         mainworldPolicyLabel.TooltipText = mainworldAssumption;
         _mainworldPolicyOption.TooltipText = mainworldAssumption;
         permissivenessLegendLabel.Text = PermissivenessScaleHelper.GetLegendText();
 
         if (_rulesetModeOption.ItemCount == 0)
         {
-            _rulesetModeOption.AddItem("Default", (int)GenerationUseCaseSettings.RulesetModeType.Default);
+            _rulesetModeOption.AddItem(GenerationUseCasePresentation.RealisticRulesetLabel, (int)GenerationUseCaseSettings.RulesetModeType.Default);
             _rulesetModeOption.AddItem("Traveller", (int)GenerationUseCaseSettings.RulesetModeType.Traveller);
         }
 
@@ -336,11 +333,6 @@ public partial class SystemViewer
             settings.LifePermissiveness = _lifePermissivenessInput.Value;
         }
 
-        if (_populationPermissivenessInput != null)
-        {
-            settings.PopulationPermissiveness = _populationPermissivenessInput.Value;
-        }
-
         if (_mainworldPolicyOption != null)
         {
             settings.MainworldPolicy = (GenerationUseCaseSettings.MainworldPolicyType)_mainworldPolicyOption.GetSelectedId();
@@ -364,11 +356,6 @@ public partial class SystemViewer
         if (_lifePermissivenessInput != null)
         {
             _lifePermissivenessInput.Value = settings.LifePermissiveness;
-        }
-
-        if (_populationPermissivenessInput != null)
-        {
-            _populationPermissivenessInput.Value = settings.PopulationPermissiveness;
         }
 
         if (_mainworldPolicyOption != null)
@@ -404,13 +391,6 @@ public partial class SystemViewer
             }
         }
 
-        if (_populationPermissivenessInput != null)
-        {
-            if (System.Math.Abs(_populationPermissivenessInput.Value - GenerationUseCaseSettings.NeutralPermissiveness) < 0.001)
-            {
-                _populationPermissivenessInput.Value = GenerationUseCaseSettings.TravellerPopulationPermissiveness;
-            }
-        }
     }
 
     private void RefreshGenerationValidationFromControls()
@@ -429,11 +409,6 @@ public partial class SystemViewer
                 $"{_lifePermissivenessInput.Value:0.00} {PermissivenessScaleHelper.GetBandLabel(_lifePermissivenessInput.Value)}";
         }
 
-        if (_populationPermissivenessInput != null && _populationPermissivenessValueLabel != null)
-        {
-            _populationPermissivenessValueLabel.Text =
-                $"{_populationPermissivenessInput.Value:0.00} {PermissivenessScaleHelper.GetBandLabel(_populationPermissivenessInput.Value)}";
-        }
     }
 
     private static Array<int> ParseSpectralHints(string text)

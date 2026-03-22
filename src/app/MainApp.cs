@@ -574,6 +574,8 @@ public partial class MainApp : Node
 		_systemViewer.OpenBodyInViewer += OnOpenInObjectViewer;
 		_systemViewer.OpenConceptAtlasRequested += OnSystemConceptAtlasRequested;
 		_systemViewer.BackToGalaxyRequested += OnBackToGalaxy;
+		_systemViewer.NewSystemRequested += OnMainMenuSystemGenerationRequested;
+		_systemViewer.MainMenuRequested += OnViewerMainMenuRequested;
 	}
 
 	/// <summary>
@@ -602,7 +604,8 @@ public partial class MainApp : Node
 
 		_objectViewer.Name = "ObjectViewer";
 		_objectViewer.BackToSystemRequested += OnBackToSystem;
-		_objectViewer.BackToMainMenuRequested += ShowMainMenu;
+		_objectViewer.BackToMainMenuRequested += OnViewerMainMenuRequested;
+		_objectViewer.NewObjectRequested += OnMainMenuObjectGenerationRequested;
 		_objectViewer.OpenConceptAtlasRequested += OnObjectConceptAtlasRequested;
 		_objectViewer.BodyEdited += OnBodyEdited;
 	}
@@ -651,14 +654,15 @@ public partial class MainApp : Node
 		RemoveFromViewerContainer(_galaxyViewer);
 		RemoveFromViewerContainer(_objectViewer);
 		AddToViewerContainer(_systemViewer);
-		if (_systemOrigin == NavigationOrigin.Menu)
+		if (_systemOrigin == NavigationOrigin.Galaxy)
 		{
-			_systemViewer?.ConfigureBackNavigation("Return to Main Menu", "Return to the main menu (Esc)");
+			_systemViewer?.SetBackNavigationVisibility(true, "Back to Galaxy Viewer", "Return to the galaxy viewer (Esc)");
 		}
 		else
 		{
-			_systemViewer?.ConfigureBackNavigation("Return to Galaxy Viewer", "Return to the galaxy viewer (Esc)");
+			_systemViewer?.SetBackNavigationVisibility(false);
 		}
+		_systemViewer?.SetGenerationSectionVisible(false);
 
 		_activeViewer = ViewerType.System;
 	}
@@ -684,10 +688,15 @@ public partial class MainApp : Node
 		RemoveFromViewerContainer(_galaxyViewer);
 		RemoveFromViewerContainer(_systemViewer);
 		AddToViewerContainer(_objectViewer);
-		if (_objectOrigin == NavigationOrigin.Menu)
+		if (_objectOrigin == NavigationOrigin.System)
 		{
-			_objectViewer?.SetBackNavigationVisibility(true, "Return to Main Menu", "Return to the main menu", true);
+			_objectViewer?.SetBackNavigationVisibility(true, "Back to System Viewer", "Return to the system viewer");
 		}
+		else
+		{
+			_objectViewer?.SetBackNavigationVisibility(false);
+		}
+		_objectViewer?.SetGenerationSectionVisible(false);
 
 		_activeViewer = ViewerType.Object;
 	}

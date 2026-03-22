@@ -15,7 +15,7 @@ compatibility/default_parent_skeleton_in_mesh_instance_3d=true
 [application]
 
 config/name="StarGen"
-config/version="0.7.4.0"
+config/version="0.7.8.0"
 run/main_scene="res://src/app/MainApp.tscn"
 config/features=PackedStringArray("4.6", "C#", "Forward Plus")
 config/icon="res://StarGen.png"
@@ -26,7 +26,7 @@ config/public_version_label="0.8.0.0"
 window/stretch/mode="canvas_items"
 window/stretch/aspect="expand"
 window/size/min_width=640
-window/size/min_height=480
+window/size/min_height=800
 
 [dotnet]
 

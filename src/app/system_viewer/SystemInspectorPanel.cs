@@ -3,6 +3,7 @@ using StarGen.App.Viewer;
 using StarGen.Domain.Celestial;
 using StarGen.Domain.Celestial.Components;
 using StarGen.Domain.Generation;
+using StarGen.Domain.Generation.Traveller;
 using StarGen.Domain.Math;
 using StarGen.Domain.Population;
 using StarGen.Domain.Systems;
@@ -526,8 +527,18 @@ public partial class SystemInspectorPanel : VBoxContainer
     /// </summary>
     private static int ComparePopulatedBodies(CelestialBody left, CelestialBody right)
     {
-        int leftPopulation = left.PopulationData != null ? left.PopulationData.GetTotalPopulation() : 0;
-        int rightPopulation = right.PopulationData != null ? right.PopulationData.GetTotalPopulation() : 0;
+        int leftPopulation = 0;
+        if (left.PopulationData != null)
+        {
+            leftPopulation = left.PopulationData.GetTotalPopulation();
+        }
+
+        int rightPopulation = 0;
+        if (right.PopulationData != null)
+        {
+            rightPopulation = right.PopulationData.GetTotalPopulation();
+        }
+
         int populationComparison = rightPopulation.CompareTo(leftPopulation);
         if (populationComparison != 0)
         {
@@ -564,8 +575,30 @@ public partial class SystemInspectorPanel : VBoxContainer
     {
         AddSeparator(_overviewSection);
         AddHeader(_overviewSection, "Traveller");
-        AddProperty(_overviewSection, "Ruleset", GetRulesetLabel(spec.UseCaseSettings.RulesetMode));
+        AddProperty(_overviewSection, "Ruleset", GenerationUseCasePresentation.GetRulesetLabel(spec.UseCaseSettings.RulesetMode));
         AddProperty(_overviewSection, "Mainworld Policy", GetMainworldPolicyLabel(spec.UseCaseSettings.MainworldPolicy));
+
+        if (system.TravellerProfile != null)
+        {
+            AddProperty(_overviewSection, "Mainworld", system.TravellerProfile.MainworldName);
+            AddProperty(_overviewSection, "Reason", system.TravellerProfile.SelectionReason);
+            AddProperty(_overviewSection, "UWP", system.TravellerProfile.GetUwp());
+            AddProperty(_overviewSection, "Trade Codes", system.TravellerProfile.TradeCodes.ToDisplayString());
+            string travelZone = "None";
+            if (!string.IsNullOrEmpty(system.TravellerProfile.TravelZone))
+            {
+                travelZone = system.TravellerProfile.TravelZone;
+            }
+
+            AddProperty(
+                _overviewSection,
+                "Travel Zone",
+                travelZone);
+            AddProperty(_overviewSection, "Starport", system.TravellerProfile.WorldProfile.StarportCode);
+            AddProperty(_overviewSection, "Tech Level", TravellerWorldProfile.ToHexDigit(system.TravellerProfile.WorldProfile.TechLevelCode));
+            AddProperty(_overviewSection, "Route Importance", system.TravellerProfile.RouteProfile.Importance.ToString(CultureInfo.InvariantCulture));
+            return;
+        }
 
         TravellerMainworldSelector.SelectionResult selection = TravellerMainworldSelector.Select(system);
         if (!selection.HasCandidate() || selection.Body == null)
@@ -675,16 +708,6 @@ public partial class SystemInspectorPanel : VBoxContainer
             CelestialType.Type.Asteroid => "Asteroid",
             _ => "Unknown",
         };
-    }
-
-    private static string GetRulesetLabel(GenerationUseCaseSettings.RulesetModeType rulesetMode)
-    {
-        if (rulesetMode == GenerationUseCaseSettings.RulesetModeType.Traveller)
-        {
-            return "Traveller";
-        }
-
-        return "Default";
     }
 
     private static string GetMainworldPolicyLabel(GenerationUseCaseSettings.MainworldPolicyType policy)

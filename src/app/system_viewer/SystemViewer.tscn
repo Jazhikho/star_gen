@@ -273,7 +273,7 @@ size_flags_horizontal = 3
 
 [node name="ShowTravellerReadoutsCheck" type="CheckBox" parent="UI/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/GenerationSection"]
 layout_mode = 2
-text = "Show Traveller / UWP Readouts"
+text = "Show Traveller Readouts"
 
 [node name="TravellerAdvancedHeader" type="Label" parent="UI/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/GenerationSection"]
 layout_mode = 2
@@ -317,7 +317,7 @@ theme_override_constants/separation = 8
 [node name="PopulationPermissivenessLabel" type="Label" parent="UI/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/GenerationSection/PopulationPermissivenessContainer"]
 custom_minimum_size = Vector2(120, 0)
 layout_mode = 2
-text = "Settlement Density:"
+text = "Expansion Pressure:"
 
 [node name="PopulationPermissivenessInput" type="HSlider" parent="UI/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/GenerationSection/PopulationPermissivenessContainer"]
 layout_mode = 2

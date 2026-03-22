@@ -7,7 +7,29 @@ Each scenario evaluates the same first 1000 generated planets and moons from det
 ## 0.00 Strict
 
 - Total worlds: 1000
-- Worlds with biospheres: 27 (2.7%)
+- Wet worlds: 378
+- Ecology-capable worlds: 9
+- Waterless worlds: 622
+- Wet worlds blocked by habitability: 312
+- Wet worlds blocked by radiation: 36
+- Wet worlds blocked as too cold: 13
+- Wet worlds blocked as too hot: 8
+- Native-life candidates: 0
+- Expected biospheres from probability sum: 0.0
+- Ecology-capable native candidates: 0
+- Expected biospheres within ecology-capable worlds: 0.0
+- Worlds approved by native roll: 0
+- Native candidates avg probability: 0.000
+- Native candidates avg roll: 0.000
+- Native candidates rejected by roll: 0
+- Native approvals blocked by ecology support: 0
+- Native candidates blocked by ecology temperature gate: 0
+- Worlds with biospheres: 0 (0.0%)
+- Colony candidates: 7
+- Expected colony worlds from probability sum: 0.4
+- Worlds approved by colony roll: 0
+- Colony candidates avg probability: 0.063
+- Colony candidates avg roll: 0.399
 - Worlds with sentient native life: 0 (0.0%)
 - Worlds with any settlement: 0 (0.0%)
 - Worlds with colonies: 0 (0.0%)
@@ -15,39 +37,83 @@ Each scenario evaluates the same first 1000 generated planets and moons from det
 | Habitability Band | Total | Biospheres | Sentient | Settled | Colonies | Distribution |
 | --- | ---: | ---: | ---: | ---: | ---: | --- |
 | Hostile (0-1) | 565 | 0 | 0 | 0 | 0 | ############## |
-| Marginal (2-3) | 357 | 21 | 0 | 0 | 0 | ######### |
-| Viable (4-5) | 77 | 5 | 0 | 0 | 0 | ## |
-| Habitable (6-7) | 1 | 1 | 0 | 0 | 0 | # |
+| Marginal (2-3) | 357 | 0 | 0 | 0 | 0 | ######### |
+| Viable (4-5) | 77 | 0 | 0 | 0 | 0 | ## |
+| Habitable (6-7) | 1 | 0 | 0 | 0 | 0 | # |
 | Prime (8-10) | 0 | 0 | 0 | 0 | 0 |  |
 
 ## 0.50 Neutral
 
 - Total worlds: 1000
-- Worlds with biospheres: 27 (2.7%)
+- Wet worlds: 378
+- Ecology-capable worlds: 14
+- Waterless worlds: 622
+- Wet worlds blocked by habitability: 312
+- Wet worlds blocked by radiation: 34
+- Wet worlds blocked as too cold: 13
+- Wet worlds blocked as too hot: 5
+- Native-life candidates: 8
+- Expected biospheres from probability sum: 1.3
+- Ecology-capable native candidates: 8
+- Expected biospheres within ecology-capable worlds: 1.3
+- Worlds approved by native roll: 1
+- Native candidates avg probability: 0.162
+- Native candidates avg roll: 0.602
+- Native candidates rejected by roll: 7
+- Native approvals blocked by ecology support: 0
+- Native candidates blocked by ecology temperature gate: 0
+- Worlds with biospheres: 1 (0.1%)
+- Colony candidates: 134
+- Expected colony worlds from probability sum: 14.2
+- Worlds approved by colony roll: 17
+- Colony candidates avg probability: 0.106
+- Colony candidates avg roll: 0.505
 - Worlds with sentient native life: 0 (0.0%)
-- Worlds with any settlement: 11 (1.1%)
-- Worlds with colonies: 11 (1.1%)
+- Worlds with any settlement: 16 (1.6%)
+- Worlds with colonies: 16 (1.6%)
 
 | Habitability Band | Total | Biospheres | Sentient | Settled | Colonies | Distribution |
 | --- | ---: | ---: | ---: | ---: | ---: | --- |
 | Hostile (0-1) | 565 | 0 | 0 | 0 | 0 | ############## |
-| Marginal (2-3) | 357 | 21 | 0 | 3 | 3 | ######### |
-| Viable (4-5) | 77 | 5 | 0 | 8 | 8 | ## |
-| Habitable (6-7) | 1 | 1 | 0 | 0 | 0 | # |
+| Marginal (2-3) | 357 | 0 | 0 | 8 | 8 | ######### |
+| Viable (4-5) | 77 | 1 | 0 | 8 | 8 | ## |
+| Habitable (6-7) | 1 | 0 | 0 | 0 | 0 | # |
 | Prime (8-10) | 0 | 0 | 0 | 0 | 0 |  |
 
 ## 1.00 Space Opera
 
 - Total worlds: 1000
-- Worlds with biospheres: 27 (2.7%)
+- Wet worlds: 378
+- Ecology-capable worlds: 27
+- Waterless worlds: 622
+- Wet worlds blocked by habitability: 187
+- Wet worlds blocked by radiation: 148
+- Wet worlds blocked as too cold: 13
+- Wet worlds blocked as too hot: 3
+- Native-life candidates: 27
+- Expected biospheres from probability sum: 11.9
+- Ecology-capable native candidates: 27
+- Expected biospheres within ecology-capable worlds: 11.9
+- Worlds approved by native roll: 12
+- Native candidates avg probability: 0.439
+- Native candidates avg roll: 0.498
+- Native candidates rejected by roll: 15
+- Native approvals blocked by ecology support: 0
+- Native candidates blocked by ecology temperature gate: 0
+- Worlds with biospheres: 12 (1.2%)
+- Colony candidates: 352
+- Expected colony worlds from probability sum: 145.1
+- Worlds approved by colony roll: 142
+- Colony candidates avg probability: 0.412
+- Colony candidates avg roll: 0.502
 - Worlds with sentient native life: 0 (0.0%)
-- Worlds with any settlement: 138 (13.8%)
-- Worlds with colonies: 138 (13.8%)
+- Worlds with any settlement: 137 (13.7%)
+- Worlds with colonies: 137 (13.7%)
 
 | Habitability Band | Total | Biospheres | Sentient | Settled | Colonies | Distribution |
 | --- | ---: | ---: | ---: | ---: | ---: | --- |
 | Hostile (0-1) | 565 | 0 | 0 | 11 | 11 | ############## |
-| Marginal (2-3) | 357 | 21 | 0 | 88 | 88 | ######### |
-| Viable (4-5) | 77 | 5 | 0 | 39 | 39 | ## |
+| Marginal (2-3) | 357 | 6 | 0 | 92 | 92 | ######### |
+| Viable (4-5) | 77 | 5 | 0 | 34 | 34 | ## |
 | Habitable (6-7) | 1 | 1 | 0 | 0 | 0 | # |
 | Prime (8-10) | 0 | 0 | 0 | 0 | 0 |  |

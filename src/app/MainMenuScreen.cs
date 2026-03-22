@@ -294,7 +294,7 @@ public partial class MainMenuScreen : Control
 		return
 			"Version 0.8.0.0\n\n" +
 			"- Reworked Galaxy Studio around clearer shape controls, separated generation rules, and a stronger active-profile summary.\n" +
-			"- Life Potential and Settlement Density now change generation behavior instead of acting like decorative labels.\n" +
+			"- Life Potential now shapes generation, while colonization settings have moved into simulation tooling.\n" +
 			"- Added in-app source notes for the astronomy references guiding galaxy morphology and related assumptions.\n\n" +
 			"Version 0.7.0.0\n\n" +
 			"- Added the Concept Atlas as a standalone tool for ecology, civilisation, language, religion, disease, and evolution exploration.\n" +

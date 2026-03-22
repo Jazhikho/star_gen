@@ -36,6 +36,18 @@ public partial class SystemViewer : Node3D, ISystemViewerSaveLoadHost
 	public delegate void BackToGalaxyRequestedEventHandler();
 
 	/// <summary>
+	/// Emitted when the user wants to open the standalone system studio.
+	/// </summary>
+	[Signal]
+	public delegate void NewSystemRequestedEventHandler();
+
+	/// <summary>
+	/// Emitted when the user wants to return directly to the main menu.
+	/// </summary>
+	[Signal]
+	public delegate void MainMenuRequestedEventHandler();
+
+	/// <summary>
 	/// Emitted when the user wants to open the concept atlas for the selected body.
 	/// </summary>
 	[Signal]
@@ -48,6 +60,7 @@ public partial class SystemViewer : Node3D, ISystemViewerSaveLoadHost
 	internal Control? _uiRoot;
 	internal Control? _topBar;
 	internal Control? _sidePanel;
+	internal Button? _backButton;
 	internal Node? _inspectorPanel;
 	internal VBoxContainer? _generationSection;
 	internal Label? _starCountLabel;
@@ -97,8 +110,10 @@ public partial class SystemViewer : Node3D, ISystemViewerSaveLoadHost
 	internal SolarSystemSpec? _currentSpec;
 	internal GenerationParameterIssueSet _currentGenerationIssues = new();
 	internal ViewerStartupState _startupState = ViewerStartupState.UnconfiguredStandalone;
+	internal bool _backNavigationVisible;
 	internal string _backNavigationText = "Return";
 	internal string _backNavigationTooltip = "Return";
+	internal bool _generationActionsVisible = true;
 
 	/// <summary>
 	/// Reused scratch list for removing stale body node IDs during the animation update.
@@ -122,6 +137,7 @@ public partial class SystemViewer : Node3D, ISystemViewerSaveLoadHost
 		SetupTopMenu();
 		SetupTooltips();
 		ConnectSignals();
+		UpdateBackNavigationUi();
 
 		SetStatus("System viewer initialized");
 		_isReady = true;
@@ -252,6 +268,11 @@ public partial class SystemViewer : Node3D, ISystemViewerSaveLoadHost
 	private void AppendTravellerGenerationIssues(SolarSystem system, SolarSystemSpec spec)
 	{
 		if (spec.UseCaseSettings.MainworldPolicy != GenerationUseCaseSettings.MainworldPolicyType.Require)
+		{
+			return;
+		}
+
+		if (spec.UseCaseSettings.IsTravellerMode() && system.TravellerProfile != null)
 		{
 			return;
 		}
@@ -490,6 +511,7 @@ public partial class SystemViewer : Node3D, ISystemViewerSaveLoadHost
 		_startupState = ViewerStartupState.UnconfiguredStandalone;
 		_sourceStarSeed = 0;
 		SetGenerationSectionVisible(true);
+		SetBackNavigationVisibility(false);
 		ApplySpecToControls(seedSpec);
 		ClearDisplay();
 	}
@@ -499,6 +521,7 @@ public partial class SystemViewer : Node3D, ISystemViewerSaveLoadHost
 	/// </summary>
 	public void SetGenerationSectionVisible(bool visible)
 	{
+		_generationActionsVisible = visible;
 		if (_generationSection != null)
 		{
 			_generationSection.Visible = visible;
@@ -526,8 +549,30 @@ public partial class SystemViewer : Node3D, ISystemViewerSaveLoadHost
 	/// </summary>
 	public void ConfigureBackNavigation(string buttonText, string tooltipText)
 	{
+		SetBackNavigationVisibility(true, buttonText, tooltipText);
+	}
+
+	/// <summary>
+	/// Shows or hides the top-level back button and matching file-menu action.
+	/// </summary>
+	public void SetBackNavigationVisibility(bool visible, string buttonText = "Return", string tooltipText = "Return")
+	{
+		_backNavigationVisible = visible;
 		_backNavigationText = buttonText;
 		_backNavigationTooltip = tooltipText;
+		UpdateBackNavigationUi();
+	}
+
+	private void UpdateBackNavigationUi()
+	{
+		if (_backButton == null)
+		{
+			return;
+		}
+
+		_backButton.Visible = _backNavigationVisible;
+		_backButton.Text = _backNavigationText;
+		_backButton.TooltipText = _backNavigationTooltip;
 	}
 
 	/// <summary>

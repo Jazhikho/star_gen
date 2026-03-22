@@ -97,6 +97,56 @@ public static class TravellerMainworldSelector
         };
     }
 
+    /// <summary>
+    /// Selects the deterministic Traveller takeover candidate before Traveller world generation runs.
+    /// </summary>
+    public static SelectionResult SelectForTravellerGeneration(SolarSystem? system)
+    {
+        if (system == null)
+        {
+            return new SelectionResult
+            {
+                Reason = "No system generated",
+            };
+        }
+
+        List<CelestialBody> candidates = GetCandidates(system);
+        if (candidates.Count == 0)
+        {
+            return new SelectionResult
+            {
+                Reason = "No planets or moons are available for Traveller mainworld selection",
+            };
+        }
+
+        List<CelestialBody> viable = new();
+        foreach (CelestialBody candidate in candidates)
+        {
+            if (IsTerrestrialCandidate(candidate) || candidate.HasSurface())
+            {
+                viable.Add(candidate);
+            }
+        }
+
+        if (viable.Count == 0)
+        {
+            viable = candidates;
+        }
+
+        viable.Sort(CompareTravellerGenerationCandidates);
+        if (viable.Count == 0)
+        {
+            return new SelectionResult
+            {
+                Reason = "No plausible mainworld candidate was found for Traveller generation",
+            };
+        }
+
+        return BuildResult(
+            viable[0],
+            "Selected highest-scoring Traveller mainworld candidate from deterministic environmental readiness");
+    }
+
     private static List<CelestialBody> GetCandidates(SolarSystem system)
     {
         List<CelestialBody> candidates = new();
@@ -139,6 +189,35 @@ public static class TravellerMainworldSelector
         if (populationComparison != 0)
         {
             return populationComparison;
+        }
+
+        int habitabilityComparison = GetHabitabilityScore(right).CompareTo(GetHabitabilityScore(left));
+        if (habitabilityComparison != 0)
+        {
+            return habitabilityComparison;
+        }
+
+        int suitabilityComparison = GetSuitabilityScore(right).CompareTo(GetSuitabilityScore(left));
+        if (suitabilityComparison != 0)
+        {
+            return suitabilityComparison;
+        }
+
+        int distanceComparison = GetStableDistance(left).CompareTo(GetStableDistance(right));
+        if (distanceComparison != 0)
+        {
+            return distanceComparison;
+        }
+
+        return string.CompareOrdinal(left.Id, right.Id);
+    }
+
+    private static int CompareTravellerGenerationCandidates(CelestialBody left, CelestialBody right)
+    {
+        int scoreComparison = GetTravellerGenerationScore(right).CompareTo(GetTravellerGenerationScore(left));
+        if (scoreComparison != 0)
+        {
+            return scoreComparison;
         }
 
         int habitabilityComparison = GetHabitabilityScore(right).CompareTo(GetHabitabilityScore(left));
@@ -238,5 +317,56 @@ public static class TravellerMainworldSelector
         double diameterKm = body.Physical.RadiusM * 2.0 / 1000.0;
         string sizeToken = TravellerSizeCode.ToStringUwp(TravellerSizeCode.DiameterKmToCode(diameterKm));
         return sizeToken != "D" && sizeToken != "E";
+    }
+
+    private static int GetTravellerGenerationScore(CelestialBody body)
+    {
+        int score = 0;
+        if (body.Type == CelestialType.Type.Planet)
+        {
+            score += 12;
+        }
+        else if (body.Type == CelestialType.Type.Moon)
+        {
+            score += 8;
+        }
+
+        if (IsTerrestrialCandidate(body))
+        {
+            score += 30;
+        }
+
+        if (body.HasSurface())
+        {
+            score += 12;
+        }
+
+        if (body.HasAtmosphere())
+        {
+            score += 8;
+        }
+
+        if (body.PopulationData?.Profile != null)
+        {
+            PlanetProfile profile = body.PopulationData.Profile;
+            if (profile.HasLiquidWater)
+            {
+                score += 10;
+            }
+
+            if (profile.HasBreathableAtmosphere)
+            {
+                score += 10;
+            }
+
+            score += profile.HabitabilityScore / 5;
+        }
+
+        if (body.PopulationData?.Suitability != null)
+        {
+            score += body.PopulationData.Suitability.OverallScore / 8;
+        }
+
+        return score;
     }
 }

@@ -45,10 +45,11 @@ public static class PopulationLikelihood
     public static double EstimateColonyLikelihood(
         PlanetProfile profile,
         ColonySuitability suitability,
-        GenerationUseCaseSettings? useCaseSettings = null)
+        GenerationUseCaseSettings? useCaseSettings = null,
+        ColonyPressureContext? pressureContext = null)
     {
-        double permissiveness = ResolvePopulationPermissiveness(useCaseSettings);
-        return PopulationProbability.CalculateColonyProbability(profile, suitability, permissiveness);
+        double permissiveness = GenerationUseCaseSettings.NeutralPermissiveness;
+        return PopulationProbability.CalculateColonyProbability(profile, suitability, permissiveness, pressureContext);
     }
 
     /// <summary>
@@ -70,6 +71,11 @@ public static class PopulationLikelihood
         long populationSeed,
         GenerationUseCaseSettings? useCaseSettings = null)
     {
+        if (ShouldGuaranteeNatives(profile, useCaseSettings))
+        {
+            return true;
+        }
+
         double likelihood = EstimateNativeLikelihood(profile, useCaseSettings);
         if (likelihood <= 0.0)
         {
@@ -87,9 +93,10 @@ public static class PopulationLikelihood
         PlanetProfile profile,
         ColonySuitability suitability,
         long populationSeed,
-        GenerationUseCaseSettings? useCaseSettings = null)
+        GenerationUseCaseSettings? useCaseSettings = null,
+        ColonyPressureContext? pressureContext = null)
     {
-        double likelihood = EstimateColonyLikelihood(profile, suitability, useCaseSettings);
+        double likelihood = EstimateColonyLikelihood(profile, suitability, useCaseSettings, pressureContext);
         if (likelihood <= 0.0)
         {
             return false;
@@ -109,14 +116,37 @@ public static class PopulationLikelihood
         return useCaseSettings.LifePermissiveness;
     }
 
-    private static double ResolvePopulationPermissiveness(GenerationUseCaseSettings? useCaseSettings)
+    private static bool ShouldGuaranteeNatives(
+        PlanetProfile profile,
+        GenerationUseCaseSettings? useCaseSettings)
     {
-        if (useCaseSettings == null)
+        if (!profile.HasLiquidWater)
         {
-            return GenerationUseCaseSettings.NeutralPermissiveness;
+            return false;
         }
 
-        return useCaseSettings.PopulationPermissiveness;
+        if (profile.HabitabilityScore < 8)
+        {
+            return false;
+        }
+
+        if (profile.RadiationLevel >= 0.95)
+        {
+            return false;
+        }
+
+        double permissiveness = ResolveLifePermissiveness(useCaseSettings);
+        if (permissiveness <= 0.25 && profile.HabitabilityScore >= 8)
+        {
+            return true;
+        }
+
+        if (profile.HabitabilityScore >= 9)
+        {
+            return true;
+        }
+
+        return false;
     }
 
     private static long MixSeed(long seedValue, long saltValue)

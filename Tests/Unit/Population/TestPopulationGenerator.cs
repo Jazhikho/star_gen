@@ -4,8 +4,10 @@ using System;
 using Godot.Collections;
 using StarGen.Domain.Celestial;
 using StarGen.Domain.Celestial.Components;
+using StarGen.Domain.Concepts;
 using StarGen.Domain.Generation;
 using StarGen.Domain.Population;
+using StarGen.Domain.Systems;
 using StarGen.Tests.Framework;
 
 namespace StarGen.Tests.Unit.Population;
@@ -166,6 +168,35 @@ public static class TestPopulationGenerator
         profile.Resources[(int)ResourceType.Type.Organics] = 0.5;
         profile.Resources[(int)ResourceType.Type.RareElements] = 0.3;
 
+        return profile;
+    }
+
+    /// <summary>
+    /// Creates a harsh moon colony target that strict settings reject without extra pressure.
+    /// </summary>
+    private static PlanetProfile CreateHarshMoonProfile()
+    {
+        PlanetProfile profile = new();
+        profile.BodyId = "moon_target";
+        profile.HabitabilityScore = 1;
+        profile.IsMoon = true;
+        profile.AvgTemperatureK = 205.0;
+        profile.PressureAtm = 0.02;
+        profile.HasLiquidWater = false;
+        profile.HasAtmosphere = false;
+        profile.HasBreathableAtmosphere = false;
+        profile.OceanCoverage = 0.0;
+        profile.LandCoverage = 1.0;
+        profile.GravityG = 0.16;
+        profile.RadiationLevel = 0.28;
+        profile.WeatherSeverity = 0.05;
+        profile.VolcanismLevel = 0.02;
+        profile.TectonicActivity = 0.02;
+        profile.DayLengthHours = 48.0;
+        profile.AxialTiltDeg = 2.0;
+        profile.Resources[(int)ResourceType.Type.Metals] = 0.7;
+        profile.Resources[(int)ResourceType.Type.Silicates] = 0.8;
+        profile.Resources[(int)ResourceType.Type.RareElements] = 0.4;
         return profile;
     }
 
@@ -387,6 +418,8 @@ public static class TestPopulationGenerator
             existingSuitability: null);
 
         DotNetNativeTestSuite.AssertTrue(data.Profile.CanSupportNativeLife(), "Profile should support life");
+        DotNetNativeTestSuite.AssertTrue(data.NativePopulations.Count > 0, "Habitable worlds should now generate native populations when native generation is enabled");
+        DotNetNativeTestSuite.AssertTrue(data.SentienceAssessment != null && data.SentienceAssessment.HasSentientLife, "Generated native populations should mark the world as hosting sentient life");
     }
 
     /// <summary>
@@ -406,6 +439,246 @@ public static class TestPopulationGenerator
 
         DotNetNativeTestSuite.AssertNotNull(data.Suitability, "Suitability should not be null");
         DotNetNativeTestSuite.AssertTrue(data.Suitability.IsColonizable(), "Should be colonizable");
+        DotNetNativeTestSuite.AssertTrue(data.HasColonies(), "Colonizable profile should materialize at least one colony when colony generation is enabled");
+    }
+
+    /// <summary>
+    /// Tests that life permissiveness widens the authoritative ecology gate for marginal hot worlds.
+    /// </summary>
+    public static void TestLifePermissivenessWidensEcologyEnvelope()
+    {
+        PlanetProfile profile = new();
+        profile.BodyId = "hot_ocean";
+        profile.HabitabilityScore = 4;
+        profile.AvgTemperatureK = 450.0;
+        profile.PressureAtm = 2.1;
+        profile.HasLiquidWater = true;
+        profile.HasAtmosphere = true;
+        profile.HasBreathableAtmosphere = false;
+        profile.OceanCoverage = 0.92;
+        profile.LandCoverage = 0.05;
+        profile.GravityG = 1.1;
+        profile.RadiationLevel = 0.30;
+        profile.WeatherSeverity = 0.4;
+        profile.VolcanismLevel = 0.3;
+        profile.TectonicActivity = 0.4;
+        profile.Biomes[(int)BiomeType.Type.Ocean] = 1.0;
+
+        GenerationUseCaseSettings strictSettings = GenerationUseCaseSettings.CreateDefault();
+        strictSettings.LifePermissiveness = 0.0;
+
+        GenerationUseCaseSettings permissiveSettings = GenerationUseCaseSettings.CreateDefault();
+        permissiveSettings.LifePermissiveness = 1.0;
+
+        PlanetPopulationData strictData = PopulationGenerator.GenerateFromProfile(
+            profile,
+            generationSeed: 24680,
+            generateNatives: true,
+            generateColonies: false,
+            currentYear: 0,
+            existingSuitability: null,
+            useCaseSettings: strictSettings);
+        PlanetPopulationData permissiveData = PopulationGenerator.GenerateFromProfile(
+            profile,
+            generationSeed: 24680,
+            generateNatives: true,
+            generateColonies: false,
+            currentYear: 0,
+            existingSuitability: null,
+            useCaseSettings: permissiveSettings);
+
+        DotNetNativeTestSuite.AssertEqual(ConceptRunStatus.NotApplicable, strictData.EcologyState!.Status, "Strict life settings should still reject a very hot marginal world");
+        DotNetNativeTestSuite.AssertEqual(ConceptRunStatus.Generated, permissiveData.EcologyState!.Status, "Space-opera life settings should allow biology on a marginal but wet hot world");
+    }
+
+    /// <summary>
+    /// Tests that strict settings still preserve a biosphere on prime wet worlds.
+    /// </summary>
+    public static void TestStrictPrimeWorldStillGeneratesEcology()
+    {
+        PlanetProfile profile = CreateHabitableProfile();
+        profile.HabitabilityScore = 8;
+        profile.AvgTemperatureK = 430.0;
+        profile.HasBreathableAtmosphere = false;
+        profile.RadiationLevel = 0.20;
+
+        GenerationUseCaseSettings strictSettings = GenerationUseCaseSettings.CreateDefault();
+        strictSettings.LifePermissiveness = 0.0;
+
+        PlanetPopulationData data = PopulationGenerator.GenerateFromProfile(
+            profile,
+            generationSeed: 13579,
+            generateNatives: true,
+            generateColonies: false,
+            currentYear: 0,
+            existingSuitability: null,
+            useCaseSettings: strictSettings);
+
+        DotNetNativeTestSuite.AssertEqual(ConceptRunStatus.Generated, data.EcologyState!.Status, "Strict life settings should still preserve biospheres on prime wet worlds");
+    }
+
+    /// <summary>
+    /// Tests that strict life settings reject non-earthlike marginal worlds while permissive settings allow them.
+    /// </summary>
+    public static void TestLifePermissivenessControlsNativeGenerationThreshold()
+    {
+        PlanetProfile profile = new();
+        profile.BodyId = "viable_five";
+        profile.HabitabilityScore = 5;
+        profile.AvgTemperatureK = 298.0;
+        profile.PressureAtm = 0.8;
+        profile.HasLiquidWater = true;
+        profile.HasAtmosphere = true;
+        profile.HasBreathableAtmosphere = false;
+        profile.OceanCoverage = 0.45;
+        profile.LandCoverage = 0.45;
+        profile.GravityG = 0.9;
+        profile.RadiationLevel = 0.25;
+        profile.WeatherSeverity = 0.4;
+        profile.VolcanismLevel = 0.2;
+        profile.TectonicActivity = 0.3;
+        profile.Biomes[(int)BiomeType.Type.Ocean] = 0.45;
+        profile.Biomes[(int)BiomeType.Type.Grassland] = 0.30;
+
+        GenerationUseCaseSettings strictSettings = GenerationUseCaseSettings.CreateDefault();
+        strictSettings.LifePermissiveness = 0.0;
+
+        GenerationUseCaseSettings permissiveSettings = GenerationUseCaseSettings.CreateDefault();
+        permissiveSettings.LifePermissiveness = 1.0;
+
+        PlanetPopulationData strictData = PopulationGenerator.GenerateFromProfile(
+            profile,
+            generationSeed: 97531,
+            generateNatives: true,
+            generateColonies: false,
+            currentYear: 0,
+            existingSuitability: null,
+            useCaseSettings: strictSettings);
+        PlanetPopulationData permissiveData = PopulationGenerator.GenerateFromProfile(
+            profile,
+            generationSeed: 97531,
+            generateNatives: true,
+            generateColonies: false,
+            currentYear: 0,
+            existingSuitability: null,
+            useCaseSettings: permissiveSettings);
+
+        DotNetNativeTestSuite.AssertEqual(ConceptRunStatus.NotApplicable, strictData.EcologyState!.Status, "Strict life settings should reject non-earthlike habitability-five worlds");
+        DotNetNativeTestSuite.AssertEqual(0, strictData.NativePopulations.Count, "Strict life settings should not generate natives on those worlds");
+        DotNetNativeTestSuite.AssertEqual(ConceptRunStatus.Generated, permissiveData.EcologyState!.Status, "Permissive life settings should allow biology on viable habitability-five worlds");
+        DotNetNativeTestSuite.AssertTrue(permissiveData.NativePopulations.Count > 0, "Permissive life settings should generate natives on viable habitability-five worlds");
+    }
+
+    /// <summary>
+    /// Tests that the second-pass colony rebuild can use nearby native pressure to establish colonies.
+    /// </summary>
+    public static void TestRebuildColoniesForSystemUsesNativePressure()
+    {
+        GenerationUseCaseSettings strictSettings = GenerationUseCaseSettings.CreateDefault();
+
+        PlanetProfile targetProfile = CreateHarshMoonProfile();
+        ColonySuitability harshSuitability = new();
+        harshSuitability.BodyId = targetProfile.BodyId;
+        harshSuitability.OverallScore = 30;
+        harshSuitability.RequiresLifeSupport = true;
+        harshSuitability.RequiresPressureSuit = true;
+        harshSuitability.RequiresRadiationShielding = false;
+
+        ColonyPressureContext pressureContext = new ColonyPressureContext
+        {
+            LocalNativePressure = 0.57,
+            NearbySystemNativePressure = 1.0,
+            LocalNativeWorldCount = 1,
+            NearbyNativeWorldCount = 2,
+        };
+
+        int matchingSeed = -1;
+        for (int populationSeed = 1; populationSeed <= 10000; populationSeed += 1)
+        {
+            bool strictResult = PopulationLikelihood.ShouldGenerateColony(
+                targetProfile,
+                harshSuitability,
+                populationSeed,
+                strictSettings);
+            bool pressuredResult = PopulationLikelihood.ShouldGenerateColony(
+                targetProfile,
+                harshSuitability,
+                populationSeed,
+                strictSettings,
+                pressureContext);
+            if (!strictResult && pressuredResult)
+            {
+                matchingSeed = populationSeed;
+                break;
+            }
+        }
+
+        DotNetNativeTestSuite.AssertTrue(matchingSeed > 0, "A deterministic seed should exist for native-pressure-assisted colony generation");
+
+        SolarSystem system = new SolarSystem("system_native_pressure", "Native Pressure Test");
+
+        CelestialBody star = new CelestialBody("star_001", "Test Star", CelestialType.Type.Star, new PhysicalProps(1.989e30, 6.96e8), null);
+        CelestialBody nativePlanet = new CelestialBody("planet_native", "Native Planet", CelestialType.Type.Planet, new PhysicalProps(5.972e24, 6.371e6), null);
+        nativePlanet.Orbital = new OrbitalProps(1.496e11, 0.01, 0.0, 0.0, 0.0, 0.0, "star_001");
+
+        CelestialBody targetMoon = new CelestialBody("moon_target", "Target Moon", CelestialType.Type.Moon, new PhysicalProps(7.35e22, 1.74e6), null);
+        targetMoon.Orbital = new OrbitalProps(4.2e8, 0.01, 0.0, 0.0, 0.0, 0.0, "planet_native");
+
+        PlanetProfile sourceProfile = CreateHabitableProfile();
+        sourceProfile.BodyId = "planet_native";
+        PlanetPopulationData sourceData = PopulationGenerator.GenerateFromProfile(
+            sourceProfile,
+            generationSeed: 1234,
+            generateNatives: false,
+            generateColonies: false,
+            currentYear: 0,
+            existingSuitability: null,
+            useCaseSettings: strictSettings);
+
+        NativePopulation nativePopulation = new NativePopulation
+        {
+            Id = "native_001",
+            Name = "Test Natives",
+            BodyId = "planet_native",
+            OriginYear = -5000,
+            Population = 900000000,
+            PeakPopulation = 900000000,
+            PeakPopulationYear = 0,
+            TechLevel = TechnologyLevel.Level.Interstellar,
+            IsExtant = true,
+            TerritorialControl = 0.7,
+        };
+        sourceData.NativePopulations.Add(nativePopulation);
+        sourceData.Population = sourceData.GetTotalPopulation();
+        sourceData.IsActive = true;
+        nativePlanet.PopulationData = sourceData;
+
+        PlanetPopulationData targetData = PopulationGenerator.GenerateFromProfile(
+            targetProfile,
+            generationSeed: matchingSeed,
+            generateNatives: false,
+            generateColonies: false,
+            currentYear: 0,
+            existingSuitability: harshSuitability,
+            useCaseSettings: strictSettings);
+        DotNetNativeTestSuite.AssertFalse(targetData.HasColonies(), "Harsh moon target should start without colonies");
+        targetMoon.PopulationData = targetData;
+
+        system.AddBody(star);
+        system.AddBody(nativePlanet);
+        system.AddBody(targetMoon);
+
+        NativeSystemPressureSummary nearbySummary = new NativeSystemPressureSummary
+        {
+            NativeWorldCount = 2,
+            PressureSignal = 1.0,
+        };
+
+        PopulationGenerator.RebuildColoniesForSystem(system, strictSettings, nearbySummary);
+
+        DotNetNativeTestSuite.AssertTrue(
+            targetMoon.PopulationData != null && targetMoon.PopulationData.HasColonies(),
+            "Second-pass colony rebuild should establish a colony when native pressure is present");
     }
 
     /// <summary>

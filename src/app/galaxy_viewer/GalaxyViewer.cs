@@ -1,6 +1,7 @@
 using Godot;
 using System.Collections.Generic;
 using StarGen.Domain.Galaxy;
+using StarGen.Domain.Colonization;
 using StarGen.Domain.Jumplanes;
 using StarGen.Domain.Rng;
 
@@ -116,7 +117,8 @@ public partial class GalaxyViewer : Node3D, IGalaxyViewerSavedStateHost
 
 	internal JumpLaneRegion? _jumpLaneRegion;
 	internal JumpLaneResult? _jumpLaneResult;
-	internal readonly Dictionary<int, int> _jumpRoutePopulationCache = new();
+	internal ColonizationSimulationSettings _colonizationSimulationSettings = ColonizationSimulationSettings.CreateDefault();
+	internal readonly Dictionary<int, JumpLaneSystem> _jumpRouteSystemCache = new();
 	internal readonly HashSet<string> _jumpRouteCalculatedRegionIds = new();
 	internal int _jumpRouteCalculationGeneration;
 	internal readonly GalaxyViewerSaveLoad _saveLoad = new();
