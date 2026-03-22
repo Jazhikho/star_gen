@@ -174,6 +174,7 @@ public partial class SystemViewer
             SetBodyNodeSelected(_bodyNodes[_selectedBodyId], false);
         }
 
+        ClearCameraFollowTarget();
         _selectedBodyId = string.Empty;
         _selectedBeltId = beltId;
         if (_orbitRenderer is OrbitRenderer typedOrbitRenderer)

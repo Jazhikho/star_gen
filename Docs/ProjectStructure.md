@@ -17,10 +17,13 @@ UI layout baseline:
 - Wrapped labels should have a panel-appropriate minimum width rather than relying on autowrap alone; large full-width headers can be broader, while sidebar/footer text should usually stay closer to the 180-320 px range.
 
 Current development line:
-- `0.7.7.0`
+- `0.7.8.1`
 
 Current public release target:
 - `0.8.0.0`
+
+Recent 0.7.8.1 additions:
+- `src/app/system_viewer/SystemCameraController.cs` / `SystemViewer.cs` / `SystemViewer.Rendering.cs` / `SystemViewer.Interaction.cs` (when a body is selected in system view, the camera focus tracks the body node as it moves so framing stays consistent; manual orbit/pan, origin focus, fit-to-system, clearing bodies, belt selection, and deselect clear follow); `Tests/Integration/TestSystemCameraController.cs` (follow-motion and `ApplyViewState` clear regressions)
 
 Recent 0.7.7.0 additions:
 - `src/domain/colonization/ColonizationSimulationSettings.cs` / `src/domain/colonization/ColonizationSimulationRequest.cs` / `src/domain/colonization/ColonizationSimulationState.cs` / `src/domain/colonization/ColonizationSettlementRecord.cs` / `src/domain/colonization/ColonizationRouteRecord.cs` / `src/domain/colonization/ColonizationSimulator.cs` / `src/domain/colonization/ColonizationSimulationOverlay.cs` (colonies and non-Traveller routes now come from an explicit deterministic colonization simulation layer with persisted settings, event records, and body-level reconstruction when a system is opened)

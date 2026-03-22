@@ -400,6 +400,7 @@ public partial class SystemViewer
     /// </summary>
     private void ClearBodies()
     {
+        ClearCameraFollowTarget();
         _bodyNodes.Clear();
         if (_bodiesContainer == null)
         {

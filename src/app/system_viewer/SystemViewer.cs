@@ -386,10 +386,12 @@ public partial class SystemViewer : Node3D, ISystemViewerSaveLoadHost
 			if (_cameraController is SystemCameraController typedCameraController)
 			{
 				typedCameraController.FocusOnPosition(node.GlobalPosition);
+				typedCameraController.SetFollowFocusTarget(node);
 			}
 			else
 			{
 				_cameraController?.Call("focus_on_position", node.GlobalPosition);
+				_cameraController?.Call("set_follow_focus_target", node);
 			}
 		}
 
@@ -406,6 +408,23 @@ public partial class SystemViewer : Node3D, ISystemViewerSaveLoadHost
 	}
 
 	/// <summary>
+	/// Stops the system camera from tracking a body's motion (e.g. after deselect or when clearing the scene).
+	/// </summary>
+	private void ClearCameraFollowTarget()
+	{
+		if (_cameraController is SystemCameraController typedCameraController)
+		{
+			typedCameraController.SetFollowFocusTarget(null);
+			return;
+		}
+
+		if (_cameraController != null && _cameraController.HasMethod("set_follow_focus_target"))
+		{
+			_cameraController.Call("set_follow_focus_target", default(Variant));
+		}
+	}
+
+	/// <summary>
 	/// Deselects the current body.
 	/// </summary>
 	public void DeselectBody()
@@ -417,6 +436,7 @@ public partial class SystemViewer : Node3D, ISystemViewerSaveLoadHost
 			SetBodyNodeSelected(_bodyNodes[_selectedBodyId], false);
 		}
 
+		ClearCameraFollowTarget();
 		_selectedBodyId = string.Empty;
 		if (_orbitRenderer is OrbitRenderer typedOrbitRenderer)
 		{

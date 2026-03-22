@@ -80,6 +80,11 @@ public partial class SystemCameraController : Camera3D
     private Vector2 _lastMousePosition = Vector2.Zero;
 
     /// <summary>
+    /// When set, the focus point tracks this node each frame so the camera keeps the same offset, height, and orbit angles.
+    /// </summary>
+    private Node3D? _followFocusTarget;
+
+    /// <summary>
     /// Initializes the camera transform.
     /// </summary>
     public override void _Ready()
@@ -158,12 +163,22 @@ public partial class SystemCameraController : Camera3D
             Vector2 delta = motionEvent.Position - _lastMousePosition;
             if (_orbiting)
             {
+                if (delta.LengthSquared() > 0.000001f)
+                {
+                    ClearFollowFocusTarget();
+                }
+
                 _yaw -= delta.X * OrbitSpeed * 0.005f;
                 _targetPitch += delta.Y * OrbitSpeed * 0.005f;
                 _targetPitch = Mathf.Clamp(_targetPitch, Mathf.DegToRad(MinPitchDeg), Mathf.DegToRad(MaxPitchDeg));
             }
             else if (_panning)
             {
+                if (delta.LengthSquared() > 0.000001f)
+                {
+                    ClearFollowFocusTarget();
+                }
+
                 float panScale = _height * PanSpeed * 0.002f;
                 float panX = -delta.X * panScale;
                 float panZ = -delta.Y * panScale;
@@ -196,6 +211,7 @@ public partial class SystemCameraController : Camera3D
     public override void _Process(double delta)
     {
         float step = (float)delta;
+        ApplyFollowFocusTarget();
         _height = Mathf.Lerp(_height, _targetHeight, ZoomSmooth * step);
         _pitch = Mathf.Lerp(_pitch, _targetPitch, MoveSmooth * step);
         _smoothTarget = _smoothTarget.Lerp(_targetPosition, MoveSmooth * step);
@@ -224,6 +240,15 @@ public partial class SystemCameraController : Camera3D
         {
             _targetHeight = Mathf.Clamp(zoomToDistance * 1.5f, MinHeight, MaxHeight);
         }
+    }
+
+    /// <summary>
+    /// When set to a scene body node, the camera focus point follows that node each frame until cleared, origin focus, view reset, or manual orbit/pan.
+    /// </summary>
+    /// <param name="target">The node to track on the XZ plane, or null to stop following.</param>
+    public void SetFollowFocusTarget(Node3D? target)
+    {
+        _followFocusTarget = target;
     }
 
     /// <summary>
@@ -256,6 +281,7 @@ public partial class SystemCameraController : Camera3D
     /// </summary>
     public void ApplyViewState(Vector3 targetPosition, float height, float pitchRadians, float yaw)
     {
+        _followFocusTarget = null;
         _targetPosition = new Vector3(targetPosition.X, 0.0f, targetPosition.Z);
         _smoothTarget = _targetPosition;
         _targetHeight = Mathf.Clamp(height, MinHeight, MaxHeight);
@@ -264,6 +290,36 @@ public partial class SystemCameraController : Camera3D
         _pitch = _targetPitch;
         _yaw = yaw;
         UpdateTransform();
+    }
+
+    /// <summary>
+    /// Stops tracking a focused body; does not change the current view.
+    /// </summary>
+    private void ClearFollowFocusTarget()
+    {
+        _followFocusTarget = null;
+    }
+
+    /// <summary>
+    /// Moves the focus point to match the followed node so distance and orbit angles stay fixed while the body moves.
+    /// </summary>
+    private void ApplyFollowFocusTarget()
+    {
+        if (_followFocusTarget == null)
+        {
+            return;
+        }
+
+        if (!GodotObject.IsInstanceValid(_followFocusTarget))
+        {
+            _followFocusTarget = null;
+            return;
+        }
+
+        Vector3 world = _followFocusTarget.GlobalPosition;
+        Vector3 flat = new(world.X, 0.0f, world.Z);
+        _targetPosition = flat;
+        _smoothTarget = flat;
     }
 
     /// <summary>
@@ -414,5 +470,26 @@ public partial class SystemCameraController : Camera3D
     public void focus_on_position(Vector3 target, float zoomToDistance = -1.0f)
     {
         FocusOnPosition(target, zoomToDistance);
+    }
+
+    /// <summary>
+    /// GDScript-compatible follow-target wrapper.
+    /// </summary>
+    /// <param name="target">A Node3D to follow, or null to stop.</param>
+    public void set_follow_focus_target(GodotObject? target)
+    {
+        if (target == null)
+        {
+            SetFollowFocusTarget(null);
+            return;
+        }
+
+        if (target is Node3D node3D)
+        {
+            SetFollowFocusTarget(node3D);
+            return;
+        }
+
+        throw new System.ArgumentException("Follow focus target must be a Node3D or null.", nameof(target));
     }
 }

@@ -1,6 +1,6 @@
 # Version
 
-Current version: `0.7.8.0`
+Current version: `0.7.8.1`
 
 Date: `2026-03-22`
 
@@ -9,6 +9,10 @@ Versioning method: release/refactor `+0.1`, feature `+0.0.1`, bug fix `+0.0.0.1`
 Current public release target: `0.8.0.0`
 
 User-facing app label: `0.8.0.0`
+
+## 0.7.8.1
+
+- Feature: System view camera follows the selected body while it moves on its orbit, preserving zoom and orbit angles until the user pans, orbits, resets the view, or changes selection; `SystemCameraController` exposes follow state and integration tests cover follow motion and reset behavior.
 
 ## 0.7.8.0
 

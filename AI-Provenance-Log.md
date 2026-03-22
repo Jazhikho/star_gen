@@ -19,6 +19,17 @@ Use this log for significant AI-assisted artifacts in this repository.
 
 ### 2026-03-22 - Cursor (agent)
 
+- Task Purpose: Commit the system-viewer camera follow-focus feature with full repository commit discipline: document the change, bump internal version to `0.7.8.1`, sync `project.godot` and `export_presets.cfg`, update `Docs/ProjectStructure.md`, and record provenance.
+- Input Materials Used: Prior implementation on branch `codex/concept-pipeline-hardening` (`SystemCameraController`, `SystemViewer` partials, `TestSystemCameraController`); `VERSION.md` versioning rules; `CLAUDE.md` workflow notes.
+- AI Produced: Version metadata and documentation sync (`0.7.8.0` → `0.7.8.1`); `export_presets.cfg` Android `version/code` `70800` → `70801`; this log entry; Project Structure “Recent 0.7.8.1 additions” bullet.
+- Human Accepted: Pending review of the combined commit.
+- Human Rejected: None.
+- Human Changed: The user requested commit discipline for this slice.
+- Validation Method: `dotnet build StarGen.sln` (run before commit).
+- Final Approver: Pending Christopher B. Del Gesso review.
+
+### 2026-03-22 - Cursor (agent)
+
 - Task Purpose: Create a single repository commit for the in-progress colonization-simulation, Traveller routing, studio-shell, population, and test updates; bump the internal feature version line to `0.7.8.0` and sync version metadata (`VERSION.md`, `project.godot`, `export_presets.cfg`, `Versions.GeneratorVersion`).
 - Input Materials Used: Git working tree on branch `codex/concept-pipeline-hardening`; existing `VERSION.md` and project versioning conventions in `claude.md`.
 - AI Produced: Version and provenance documentation updates accompanying the commit; no new feature code beyond metadata and log edits in this step.
