@@ -937,7 +937,6 @@ public partial class GalaxyGenerationScreen : Control
 		{
 			Label issueLabel = new Label();
 			issueLabel.AutowrapMode = TextServer.AutowrapMode.Word;
-			issueLabel.CustomMinimumSize = new Vector2(220.0f, 0.0f);
 			issueLabel.AddThemeFontSizeOverride("font_size", 10);
 			if (issue.Severity == GenerationParameterIssue.IssueSeverity.Error)
 			{

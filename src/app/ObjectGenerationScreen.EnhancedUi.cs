@@ -604,7 +604,6 @@ public partial class ObjectGenerationScreen
 
         Label noteLabel = new Label();
         noteLabel.AutowrapMode = TextServer.AutowrapMode.Word;
-        noteLabel.CustomMinimumSize = new Vector2(220.0f, 0.0f);
         noteLabel.Modulate = new Color(0.85f, 0.7f, 0.3f, 1.0f);
         noteLabel.Text = text;
         _issuesContainer.AddChild(noteLabel);
@@ -672,7 +671,6 @@ public partial class ObjectGenerationScreen
 
         row.AddThemeConstantOverride("separation", 10);
         Label label = GetRequiredChild<Label>(row, $"{rowName}Label");
-        label.CustomMinimumSize = new Vector2(112.0f, 0.0f);
         label.AutowrapMode = TextServer.AutowrapMode.WordSmart;
         _rows[rowName] = row;
         _rowLabels[rowName] = label;

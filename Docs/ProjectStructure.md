@@ -17,10 +17,31 @@ UI layout baseline:
 - Wrapped labels should have a panel-appropriate minimum width rather than relying on autowrap alone; large full-width headers can be broader, while sidebar/footer text should usually stay closer to the 180-320 px range.
 
 Current development line:
-- `0.7.8.2`
+- `0.7.9.5`
 
 Current public release target:
 - `0.8.0.0`
+
+Recent 0.7.9.5 additions:
+- `src/app/GalaxyGenerationScreen.tscn` / `src/app/SystemGenerationScreen.tscn` / `src/app/ObjectGenerationScreen.tscn` (set all three studio panels to a scene-owned `200 px` minimum width and removed child label minimums that were forcing the rules/summary columns wider than intended)
+- `src/app/shared/StudioScreenLayoutHelper.cs` (responsive helper now only switches layout orientation and no longer imposes panel widths or stretch sizing in code)
+- `src/app/GalaxyGenerationScreen.cs` / `src/app/SystemGenerationScreen.cs` / `src/app/ObjectGenerationScreen.cs` / `src/app/ObjectGenerationScreen.EnhancedUi.cs` (removed runtime-created width minimums from validation/preset note labels so the scene tree remains the source of truth for studio sizing)
+- `Tests/Integration/TestStudioScreenLayoutHelper.cs` (regressions now assert scene-owned `200 px` panel widths across Galaxy/System/Object studios and stop encoding helper-owned sizing expectations)
+
+Recent 0.7.9.4 additions:
+- `src/app/GalaxyGenerationScreen.tscn` / `src/app/SystemGenerationScreen.tscn` / `src/app/ObjectGenerationScreen.tscn` (set the studio `MainPanel` left/right inset to `18 px`, matching the top and bottom shell spacing for an even border around the content); `Tests/Integration/TestGalaxyGenerationScreen.cs` (inset regression aligned with the equal-spacing shell)
+
+Recent 0.7.9.3 additions:
+- `src/app/GalaxyGenerationScreen.tscn` / `src/app/SystemGenerationScreen.tscn` / `src/app/ObjectGenerationScreen.tscn` (reversed the prior spacing increase and tightened the studio `MainPanel` left/right inset to `10 px` so the content shell sits closer to the main-menu reference); `Tests/Integration/TestGalaxyGenerationScreen.cs` (updated the inset regression source to the tighter shell value)
+
+Recent 0.7.9.2 additions:
+- `src/app/GalaxyGenerationScreen.tscn` / `src/app/SystemGenerationScreen.tscn` / `src/app/ObjectGenerationScreen.tscn` (increased the studio `MainPanel` left/right inset again to `32 px` so the columns pull inward more clearly from the screen edge); `Tests/Integration/TestGalaxyGenerationScreen.cs` (kept the inset regression aligned with the stronger scene value)
+
+Recent 0.7.9.1 additions:
+- `src/app/GalaxyGenerationScreen.tscn` / `src/app/SystemGenerationScreen.tscn` / `src/app/ObjectGenerationScreen.tscn` (widened the main-panel left/right inset so the generator studios sit off the viewport edges more like the main menu shell); `Tests/Integration/TestGalaxyGenerationScreen.cs` (updated the current scene paths and added a horizontal-inset regression)
+
+Recent 0.7.9.0 additions:
+- `src/app/MainMenuScreen.tscn` / `src/app/MainMenuScreen.cs` (moved the shared info/options utility dialogs into the scene tree so the main-menu shell is scene-first and the script only populates text, settings state, and visibility) ; `Tests/Integration/TestMainMenuScreen.cs` (regression now asserts the dialogs are scene-backed nodes instead of runtime-created controls)
 
 Recent 0.7.8.2 additions:
 - `src/app/galaxy_viewer/GalaxyInspectorPanel.cs` / `src/app/system_viewer/SystemInspectorPanel.cs` / `MainApp.cs` / `MainApp.Navigation.cs` / `MainApp.GdCompat.cs` (removed Concept Atlas entry points from galaxy and system viewers; atlas remains on the main menu and object-viewer inspector); `Tests/Integration/TestGalaxyViewerUI.cs` / `TestSystemViewer.cs` / `TestMainAppNavigation.cs` (dropped obsolete atlas wiring tests)

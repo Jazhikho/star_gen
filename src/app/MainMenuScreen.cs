@@ -67,6 +67,8 @@ public partial class MainMenuScreen : Control
 	private Window? _infoDialog;
 	private RichTextLabel? _infoDialogText;
 	private Window? _optionsDialog;
+	private Button? _infoDialogCloseButton;
+	private Button? _optionsDialogCloseButton;
 
 	/// <summary>
 	/// Initializes menu wiring and static content.
@@ -165,6 +167,36 @@ public partial class MainMenuScreen : Control
 		_resolutionOption = GetNodeOrNull<OptionButton>($"{Root}/HBoxContainer/UtilityRow/ContentPanel/MarginContainer/ContentStack/OptionsPanel/OptionsVBox/ResolutionRow/ResolutionOption");
 		_applyOptionsButton = GetNodeOrNull<Button>($"{Root}/HBoxContainer/UtilityRow/ContentPanel/MarginContainer/ContentStack/OptionsPanel/OptionsVBox/ApplyOptionsButton");
 		_optionsStatusLabel = GetNodeOrNull<Label>($"{Root}/HBoxContainer/UtilityRow/ContentPanel/MarginContainer/ContentStack/OptionsPanel/OptionsVBox/OptionsStatusLabel");
+		_infoDialog = GetNodeOrNull<Window>("InfoDialog");
+		_infoDialogText = GetNodeOrNull<RichTextLabel>("InfoDialog/MarginContainer/InfoVBox/InfoDialogText");
+		_infoDialogCloseButton = GetNodeOrNull<Button>("InfoDialog/MarginContainer/InfoVBox/CloseButton");
+		_optionsDialog = GetNodeOrNull<Window>("OptionsDialog");
+		if (_fullscreenCheck == null)
+		{
+			_fullscreenCheck = GetNodeOrNull<CheckButton>("OptionsDialog/MarginContainer/OptionsVBox/FullscreenCheck");
+		}
+
+		if (_showSeedControlsCheck == null)
+		{
+			_showSeedControlsCheck = GetNodeOrNull<CheckButton>("OptionsDialog/MarginContainer/OptionsVBox/ShowSeedControlsCheck");
+		}
+
+		if (_resolutionOption == null)
+		{
+			_resolutionOption = GetNodeOrNull<OptionButton>("OptionsDialog/MarginContainer/OptionsVBox/ResolutionRow/ResolutionOption");
+		}
+
+		if (_applyOptionsButton == null)
+		{
+			_applyOptionsButton = GetNodeOrNull<Button>("OptionsDialog/MarginContainer/OptionsVBox/ApplyOptionsButton");
+		}
+
+		if (_optionsStatusLabel == null)
+		{
+			_optionsStatusLabel = GetNodeOrNull<Label>("OptionsDialog/MarginContainer/OptionsVBox/OptionsStatusLabel");
+		}
+
+		_optionsDialogCloseButton = GetNodeOrNull<Button>("OptionsDialog/MarginContainer/OptionsVBox/CloseButton");
 	}
 
 	private void ConnectSignals()
@@ -181,6 +213,8 @@ public partial class MainMenuScreen : Control
 		if (_optionsButton != null) _optionsButton.Connect(Button.SignalName.Pressed, Callable.From(OnOptionsButtonPressed));
 		if (_quitButton != null) _quitButton.Connect(Button.SignalName.Pressed, Callable.From(OnQuitButtonPressed));
 		if (_applyOptionsButton != null) _applyOptionsButton.Connect(Button.SignalName.Pressed, Callable.From(ApplyWindowSettings));
+		if (_infoDialogCloseButton != null && _infoDialog != null) _infoDialogCloseButton.Pressed += _infoDialog.Hide;
+		if (_optionsDialogCloseButton != null && _optionsDialog != null) _optionsDialogCloseButton.Pressed += _optionsDialog.Hide;
 		if (_fullscreenCheck != null) _fullscreenCheck.Toggled += enabled =>
 		{
 			if (_resolutionOption != null)
@@ -422,7 +456,6 @@ public partial class MainMenuScreen : Control
 
 	private void ShowInfoDialog(string title, string body)
 	{
-		EnsureInfoDialog();
 		if (_infoDialog == null || _infoDialogText == null)
 		{
 			return;
@@ -430,166 +463,22 @@ public partial class MainMenuScreen : Control
 
 		_infoDialog.Title = title;
 		_infoDialogText.Text = body;
-		_infoDialog.PopupCentered(new Vector2I(720, 520));
-	}
-
-	private void EnsureInfoDialog()
-	{
-		if (_infoDialog != null)
-		{
-			return;
-		}
-
-		Window dialog = new();
-		dialog.Name = "InfoDialog";
-		dialog.Title = "Information";
-		dialog.MinSize = new Vector2I(520, 360);
-		dialog.Transient = true;
-		dialog.Exclusive = true;
-
-		MarginContainer margin = new();
-		margin.AnchorRight = 1.0f;
-		margin.AnchorBottom = 1.0f;
-		margin.OffsetLeft = 0.0f;
-		margin.OffsetTop = 0.0f;
-		margin.OffsetRight = 0.0f;
-		margin.OffsetBottom = 0.0f;
-		margin.AddThemeConstantOverride("margin_left", 16);
-		margin.AddThemeConstantOverride("margin_top", 16);
-		margin.AddThemeConstantOverride("margin_right", 16);
-		margin.AddThemeConstantOverride("margin_bottom", 16);
-
-		VBoxContainer vbox = new();
-		vbox.SizeFlagsHorizontal = Control.SizeFlags.ExpandFill;
-		vbox.SizeFlagsVertical = Control.SizeFlags.ExpandFill;
-		vbox.AddThemeConstantOverride("separation", 12);
-
-		RichTextLabel text = new();
-		text.SizeFlagsHorizontal = Control.SizeFlags.ExpandFill;
-		text.SizeFlagsVertical = Control.SizeFlags.ExpandFill;
-		text.FitContent = false;
-		text.ScrollActive = true;
-		text.SelectionEnabled = true;
-		text.AutowrapMode = TextServer.AutowrapMode.WordSmart;
-		text.CustomMinimumSize = new Vector2(360.0f, 0.0f);
-
-		Button closeButton = new();
-		closeButton.Text = "Close";
-		closeButton.Pressed += dialog.Hide;
-
-		vbox.AddChild(text);
-		vbox.AddChild(closeButton);
-		margin.AddChild(vbox);
-		dialog.AddChild(margin);
-		AddChild(dialog);
-
-		_infoDialog = dialog;
-		_infoDialogText = text;
+		ShowWindow(_infoDialog, new Vector2I(720, 520));
 	}
 
 	private void ShowOptionsDialog()
 	{
-		EnsureOptionsDialog();
 		RefreshOptionsState();
 		if (_optionsDialog != null)
 		{
-			_optionsDialog.PopupCentered(new Vector2I(520, 320));
+			ShowWindow(_optionsDialog, new Vector2I(520, 320));
 		}
 	}
 
-	private void EnsureOptionsDialog()
+	private static void ShowWindow(Window window, Vector2I size)
 	{
-		if (_optionsDialog != null)
-		{
-			return;
-		}
-
-		Window dialog = new();
-		dialog.Name = "OptionsDialog";
-		dialog.Title = "Options";
-		dialog.MinSize = new Vector2I(460, 260);
-		dialog.Transient = true;
-		dialog.Exclusive = true;
-
-		MarginContainer margin = new();
-		margin.AnchorRight = 1.0f;
-		margin.AnchorBottom = 1.0f;
-		margin.OffsetLeft = 0.0f;
-		margin.OffsetTop = 0.0f;
-		margin.OffsetRight = 0.0f;
-		margin.OffsetBottom = 0.0f;
-		margin.AddThemeConstantOverride("margin_left", 16);
-		margin.AddThemeConstantOverride("margin_top", 16);
-		margin.AddThemeConstantOverride("margin_right", 16);
-		margin.AddThemeConstantOverride("margin_bottom", 16);
-
-		VBoxContainer optionsVBox = new();
-		optionsVBox.SizeFlagsHorizontal = Control.SizeFlags.ExpandFill;
-		optionsVBox.SizeFlagsVertical = Control.SizeFlags.ExpandFill;
-		optionsVBox.AddThemeConstantOverride("separation", 10);
-
-		CheckButton fullscreenCheck = new();
-		fullscreenCheck.Text = "Fullscreen";
-
-		CheckButton showSeedControlsCheck = new();
-		showSeedControlsCheck.Text = "Show studio seed controls";
-
-		HBoxContainer resolutionRow = new();
-		resolutionRow.AddThemeConstantOverride("separation", 10);
-
-		Label resolutionLabel = new();
-		resolutionLabel.Text = "Resolution";
-		resolutionLabel.SizeFlagsHorizontal = Control.SizeFlags.ExpandFill;
-
-		OptionButton resolutionOption = new();
-		resolutionOption.CustomMinimumSize = new Vector2(180.0f, 0.0f);
-
-		Button applyButton = new();
-		applyButton.Text = "Apply Display Settings";
-
-		Label statusLabel = new();
-		statusLabel.AutowrapMode = TextServer.AutowrapMode.Word;
-		statusLabel.CustomMinimumSize = new Vector2(220.0f, 0.0f);
-
-		Button closeButton = new();
-		closeButton.Text = "Close";
-		closeButton.Pressed += dialog.Hide;
-
-		resolutionRow.AddChild(resolutionLabel);
-		resolutionRow.AddChild(resolutionOption);
-		optionsVBox.AddChild(fullscreenCheck);
-		optionsVBox.AddChild(showSeedControlsCheck);
-		optionsVBox.AddChild(resolutionRow);
-		optionsVBox.AddChild(applyButton);
-		optionsVBox.AddChild(statusLabel);
-		optionsVBox.AddChild(closeButton);
-		margin.AddChild(optionsVBox);
-		dialog.AddChild(margin);
-		AddChild(dialog);
-
-		_optionsDialog = dialog;
-		_fullscreenCheck = fullscreenCheck;
-		_showSeedControlsCheck = showSeedControlsCheck;
-		_resolutionOption = resolutionOption;
-		_applyOptionsButton = applyButton;
-		_optionsStatusLabel = statusLabel;
-
-		PopulateResolutionOptions();
-		if (_applyOptionsButton != null)
-		{
-			_applyOptionsButton.Pressed += ApplyWindowSettings;
-		}
-
-		if (_fullscreenCheck != null)
-		{
-			_fullscreenCheck.Toggled += enabled =>
-			{
-				if (_resolutionOption != null)
-				{
-					_resolutionOption.Disabled = enabled;
-				}
-			};
-		}
+		window.Size = size;
+		window.Visible = true;
 	}
 
 	private static string BuildHelpFallbackText()

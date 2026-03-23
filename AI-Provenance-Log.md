@@ -17,6 +17,72 @@ Use this log for significant AI-assisted artifacts in this repository.
 
 ## Entries
 
+### 2026-03-22 - Codex (GPT-5)
+
+- Task Purpose: Lock in the now-correct generator-studio UI by moving panel minimum widths fully back into the scene tree, removing helper-side width overrides, and updating regressions so they protect the current visual layout instead of older code-driven sizing behavior.
+- Input Materials Used: User direction that the current UI is correct and must not regress; `claude.md`; `src/app/shared/StudioScreenLayoutHelper.cs`; `src/app/GalaxyGenerationScreen.tscn`; `src/app/SystemGenerationScreen.tscn`; `src/app/ObjectGenerationScreen.tscn`; `src/app/GalaxyGenerationScreen.cs`; `src/app/SystemGenerationScreen.cs`; `src/app/ObjectGenerationScreen.cs`; `src/app/ObjectGenerationScreen.EnhancedUi.cs`; `Tests/Integration/TestStudioScreenLayoutHelper.cs`; `VERSION.md`; `project.godot`; `export_presets.cfg`; `Docs/ProjectStructure.md`.
+- AI Produced: Set all studio panels to scene-owned `200 px` minimum widths, removed child and runtime-created label minimums that were effectively overriding those widths, reduced `StudioScreenLayoutHelper` to orientation-only behavior, updated studio regressions to assert the scene-owned contract, and bumped the internal bugfix version to `0.7.9.5`.
+- Human Accepted: Pending review of the scene-owned studio sizing and the updated regression contract.
+- Human Rejected: Earlier helper-driven or test-driven assumptions that code should own studio sizing were rejected; the user explicitly confirmed the visual target in the running UI and directed that regressions should preserve that state instead of reshaping it.
+- Human Changed: The user clarified that the current UI appearance is the correct reference point and that any further work should avoid regressions in the UI space, which redirected the fix from margin tweaking to scene/test alignment.
+- Validation Method: `dotnet build StarGen.sln` (passed); `godot-mono.exe --path . --headless --script res://Tests/RunTestsHeadless.gd` (`1956 / 1962` passed, with only the repo's existing unrelated population/concept failures remaining and the studio layout regressions passing).
+- Final Approver: Pending Christopher B. Del Gesso review.
+
+### 2026-03-22 - Codex (GPT-5)
+
+- Task Purpose: Finish the generator-studio border adjustment by matching the horizontal inset to the already-correct top and bottom shell spacing after iterative user review.
+- Input Materials Used: User feedback that the studio side border existed but did not visually match the top/bottom margin; `src/app/GalaxyGenerationScreen.tscn`; `src/app/SystemGenerationScreen.tscn`; `src/app/ObjectGenerationScreen.tscn`; `Tests/Integration/TestGalaxyGenerationScreen.cs`; `VERSION.md`; `project.godot`; `export_presets.cfg`; `Docs/ProjectStructure.md`.
+- AI Produced: Set the studio `MainPanel` left/right inset to `18 px` so it matches the top/bottom shell spacing, kept the galaxy-studio inset regression aligned with that equal-spacing value, and bumped the internal bugfix version to `0.7.9.4`.
+- Human Accepted: Pending review of the equalized studio border spacing.
+- Human Rejected: Earlier `32 px` and `10 px` attempts were rejected or superseded during iterative review.
+- Human Changed: The user clarified that the correct target was equal visual border size on all four sides, not simply more or less left/right inset.
+- Validation Method: `dotnet build StarGen.sln` (passed); the full Godot headless harness remains blocked by the repo's existing unrelated population and concept-pipeline failures.
+- Final Approver: Pending Christopher B. Del Gesso review.
+
+### 2026-03-22 - Codex (GPT-5)
+
+- Task Purpose: Correct the follow-up studio spacing pass after user review showed the stronger inset moved in the wrong direction, keeping the adjustment scene-first and narrowly scoped to the generator studio shell.
+- Input Materials Used: User feedback that the previous change made the spacing worse; `src/app/GalaxyGenerationScreen.tscn`; `src/app/SystemGenerationScreen.tscn`; `src/app/ObjectGenerationScreen.tscn`; `Tests/Integration/TestGalaxyGenerationScreen.cs`; `VERSION.md`; `project.godot`; `export_presets.cfg`; `Docs/ProjectStructure.md`.
+- AI Produced: Reduced the generator-studio `MainPanel` left/right inset to `10 px`, updated the matching galaxy-studio inset regression source, and bumped the internal bugfix version line to `0.7.9.3`.
+- Human Accepted: Pending review of the tighter studio-shell spacing.
+- Human Rejected: The previous `32 px` inset increase was rejected by the user as making the spacing worse.
+- Human Changed: The user explicitly redirected the fix after seeing the stronger inset, so the correction was reversed instead of iterating further in the same direction.
+- Validation Method: `dotnet build StarGen.sln` (passed); full Godot headless harness rerun, with remaining failures still confined to the repo's unrelated population and concept suites.
+- Final Approver: Pending Christopher B. Del Gesso review.
+
+### 2026-03-22 - Codex (GPT-5)
+
+- Task Purpose: Apply a follow-up spacing correction after the first studio inset adjustment still looked too edge-tight in user review, keeping the fix scene-first and limited to the generator studio shells.
+- Input Materials Used: User feedback that the first spacing pass still did not border correctly; `src/app/GalaxyGenerationScreen.tscn`; `src/app/SystemGenerationScreen.tscn`; `src/app/ObjectGenerationScreen.tscn`; `Tests/Integration/TestGalaxyGenerationScreen.cs`; `VERSION.md`; `project.godot`; `export_presets.cfg`; `Docs/ProjectStructure.md`.
+- AI Produced: Increased the generator-studio `MainPanel` left/right inset from `24 px` to `32 px`, kept the galaxy-studio inset regression aligned with the stronger value, and bumped the internal bugfix line to `0.7.9.2`.
+- Human Accepted: Pending review of the stronger inset correction.
+- Human Rejected: No helper-based spacing hack or broader layout redesign was introduced; the adjustment stayed as a scene-defined shell change.
+- Human Changed: The user explicitly rejected the first inset pass as still incorrect, so the correction was made stronger instead of being left at the earlier value.
+- Validation Method: `dotnet build StarGen.sln` (passed); Godot headless validation rerun after the inset change, with remaining failures still confined to the repo's unrelated population/concept suites.
+- Final Approver: Pending Christopher B. Del Gesso review.
+
+### 2026-03-22 - Codex (GPT-5)
+
+- Task Purpose: Match the generator-studio edge spacing to the main menu shell by widening the scene-defined horizontal inset on the studio main panels, then sync patch-version metadata and regression coverage.
+- Input Materials Used: User screenshots comparing the generator studios against the main menu; `claude.md`; `src/app/GalaxyGenerationScreen.tscn`; `src/app/SystemGenerationScreen.tscn`; `src/app/ObjectGenerationScreen.tscn`; `Tests/Integration/TestGalaxyGenerationScreen.cs`; `VERSION.md`; `project.godot`; `export_presets.cfg`; `Docs/ProjectStructure.md`.
+- AI Produced: Increased the `MainPanel` left/right margin in the galaxy/system/object studio scenes, updated the galaxy-studio integration test to target the current scene structure and assert the widened inset, and bumped the internal bugfix line to `0.7.9.1`.
+- Human Accepted: Pending review of the studio spacing adjustment and metadata sync.
+- Human Rejected: No broader redesign of studio panel sizing, breakpoint behavior, or theme styling was added; the change stayed focused on the horizontal edge spacing.
+- Human Changed: The user-defined visual target for the spacing was the main menu shell, and the fix was kept scene-first rather than moving the adjustment into shared code.
+- Validation Method: `dotnet build StarGen.sln` (passed); `godot-mono.exe --path . --headless --script res://Tests/RunTestsHeadless.gd` (`1953 / 1959` passed, with only the same unrelated population and concept-pipeline failures remaining).
+- Final Approver: Pending Christopher B. Del Gesso review.
+
+### 2026-03-22 - Codex (GPT-5)
+
+- Task Purpose: Continue the scene-first UI cleanup by moving the main menu's utility dialog shell out of runtime C# construction and into the Godot scene tree, then sync version/provenance metadata for the refactor.
+- Input Materials Used: User direction that screen structure should live in `.tscn` files whenever possible; `claude.md`; `src/app/MainMenuScreen.cs/.tscn`; `Tests/Integration/TestMainMenuScreen.cs`; `VERSION.md`; `project.godot`; `export_presets.cfg`; `Docs/ProjectStructure.md`.
+- AI Produced: Added scene-owned `InfoDialog` and `OptionsDialog` nodes to `MainMenuScreen.tscn`, removed the corresponding runtime dialog builders from `MainMenuScreen.cs`, updated the main-menu regression to assert scene-backed dialog nodes, and synced the internal refactor version line to `0.7.9.0` across metadata/docs.
+- Human Accepted: Pending review of the main-menu scene-first refactor and metadata sync.
+- Human Rejected: No broader redesign of the main menu layout or conversion to embedded utility content panels was added; the change stayed focused on moving fixed dialog structure into the scene.
+- Human Changed: The user-set rule for this pass was that if a screen element can live in the `.tscn`, it should be defined there instead of being constructed in script.
+- Validation Method: `dotnet build StarGen.sln` (passed); `godot-mono.exe --path . --headless --script res://Tests/RunTestsHeadless.gd` (`1948 / 1958` passed, with remaining failures in unrelated population/concept-pipeline/galaxy-generation suites and the updated main-menu dialog regression passing).
+- Final Approver: Pending Christopher B. Del Gesso review.
+
 ### 2026-03-22 - Cursor (agent)
 
 - Task Purpose: Remove Concept Atlas entry points from the galaxy and system viewers (keep main menu and object viewer); bump internal version to `0.7.8.2` and sync documentation; create a focused git commit (exclude unrelated working-tree edits).

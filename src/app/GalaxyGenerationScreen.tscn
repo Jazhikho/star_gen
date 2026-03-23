@@ -122,7 +122,7 @@ vertical = false
 theme_override_constants/separation = 18
 
 [node name="SettingsPanel" type="PanelContainer" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow" unique_id=507435645]
-custom_minimum_size = Vector2(420, 0)
+custom_minimum_size = Vector2(200, 0)
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
@@ -524,7 +524,7 @@ layout_mode = 2
 text = "Randomize"
 
 [node name="RulesPanel" type="PanelContainer" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow" unique_id=1352149952]
-custom_minimum_size = Vector2(360, 0)
+custom_minimum_size = Vector2(200, 0)
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
@@ -652,7 +652,7 @@ text = "0.50 (Colonization Common)"
 horizontal_alignment = 1
 
 [node name="SummaryPanel" type="PanelContainer" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow" unique_id=2053494642]
-custom_minimum_size = Vector2(360, 0)
+custom_minimum_size = Vector2(200, 0)
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
@@ -685,13 +685,11 @@ size_flags_horizontal = 3
 theme_override_constants/separation = 10
 
 [node name="SummaryLabel" type="Label" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SummaryPanel/MarginContainer/SummaryVBox/SummaryScroll/SummaryContent" unique_id=924066259]
-custom_minimum_size = Vector2(220, 0)
 layout_mode = 2
 theme_override_colors/font_color = Color(0.72, 0.76, 0.82, 1)
 autowrap_mode = 2
 
 [node name="AssumptionsLabel" type="Label" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SummaryPanel/MarginContainer/SummaryVBox/SummaryScroll/SummaryContent" unique_id=781791816]
-custom_minimum_size = Vector2(220, 0)
 layout_mode = 2
 theme_override_colors/font_color = Color(0.631373, 0.701961, 0.772549, 1)
 autowrap_mode = 2

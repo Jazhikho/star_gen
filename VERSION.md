@@ -1,6 +1,6 @@
 # Version
 
-Current version: `0.7.8.2`
+Current version: `0.7.9.5`
 
 Date: `2026-03-22`
 
@@ -9,6 +9,36 @@ Versioning method: release/refactor `+0.1`, feature `+0.0.1`, bug fix `+0.0.0.1`
 Current public release target: `0.8.0.0`
 
 User-facing app label: `0.8.0.0`
+
+## 0.7.9.5
+
+- Bug fix: Galaxy, System, and Object studios now keep panel minimum widths scene-owned at `200 px`, remove child label minimums that were forcing the rules/summary columns wider, and stop the shared helper from overriding studio sizing in code.
+- Test: Updated the studio layout regressions to assert scene-owned panel widths and reran `dotnet build StarGen.sln` plus the full Godot headless harness; the studio UI tests now pass and the remaining 6 failures are still the repo's unrelated population/concept cases.
+
+## 0.7.9.4
+
+- Bug fix: Galaxy, System, and Object studio `MainPanel` content now uses `18 px` left/right inset, matching the existing top/bottom shell spacing so the border reads even on all four sides.
+- Test: `dotnet build StarGen.sln` passes after the scene spacing correction; the full headless harness still carries the repo's existing unrelated population/concept failures.
+
+## 0.7.9.3
+
+- Bug fix: Reversed the prior studio-shell spacing change and tightened the generator-studio `MainPanel` left/right inset to `10 px`, pulling the first and last content panels back toward the main-menu shell look instead of padding them farther inward.
+- Test: `dotnet build StarGen.sln` passes; the full headless harness still carries the repo's existing unrelated population/concept failures, and the updated studio inset regression source is on disk alongside this spacing correction.
+
+## 0.7.9.2
+
+- Bug fix: Galaxy, System, and Object studio main panels now use an even wider `32 px` scene-defined left/right inset so the first and last studio columns pull inward and stop reading as edge-flush.
+- Test: Revalidated the current galaxy-studio scene paths and inset assertion; `dotnet build StarGen.sln` passes, and the full Godot headless harness remains blocked only by the same unrelated population/concept failures.
+
+## 0.7.9.1
+
+- Bug fix: Galaxy, System, and Object studio main panels now use a wider scene-defined left/right inset so the column layout sits off the screen edges more like the main menu shell.
+- Test: Updated the galaxy-studio integration test to use the current scene structure and assert the widened panel inset; `dotnet build StarGen.sln` passes, and the full Godot headless harness is now down to the same six unrelated population/concept failures (`1953 / 1959` passed).
+
+## 0.7.9.0
+
+- Refactor: `MainMenuScreen` utility dialogs now live in `MainMenuScreen.tscn` as scene-owned window nodes, so the static menu UI shell is editor-visible and the script only binds content, options state, and visibility.
+- Test: `dotnet build StarGen.sln` succeeds cleanly; the full Godot headless harness still reports pre-existing unrelated failures in population, concept-pipeline, and galaxy-generation suites (`1948 / 1958` passed), while the updated main-menu dialog regression now passes.
 
 ## 0.7.8.2
 

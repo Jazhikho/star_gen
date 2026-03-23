@@ -332,7 +332,6 @@ public partial class SystemGenerationScreen : Control
 		{
 			Label label = new Label();
 			label.AutowrapMode = TextServer.AutowrapMode.Word;
-			label.CustomMinimumSize = new Vector2(220.0f, 0.0f);
 			if (issue.Severity == GenerationParameterIssue.IssueSeverity.Error)
 			{
 				label.Modulate = new Color(1.0f, 0.45f, 0.45f, 1.0f);

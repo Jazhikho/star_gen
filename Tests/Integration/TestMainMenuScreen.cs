@@ -15,7 +15,7 @@ public static class TestMainMenuScreen
     {
         runner.RunNativeTest("TestMainMenuScreen::test_mode_buttons_emit_navigation_signals", TestModeButtonsEmitNavigationSignals);
         runner.RunNativeTest("TestMainMenuScreen::test_concept_atlas_button_emits_signal", TestConceptAtlasButtonEmitsSignal);
-        runner.RunNativeTest("TestMainMenuScreen::test_utility_buttons_open_fallback_dialogs", TestUtilityButtonsOpenFallbackDialogs);
+        runner.RunNativeTest("TestMainMenuScreen::test_utility_buttons_open_scene_backed_dialogs", TestUtilityButtonsOpenSceneBackedDialogs);
         runner.RunNativeTest("TestMainMenuScreen::test_help_credits_and_sources_copy_are_user_facing", TestHelpCreditsAndSourcesCopyAreUserFacing);
         runner.RunNativeTest("TestMainMenuScreen::test_main_menu_uses_user_facing_version_label", TestMainMenuUsesUserFacingVersionLabel);
     }
@@ -85,7 +85,7 @@ public static class TestMainMenuScreen
         }
     }
 
-    private static void TestUtilityButtonsOpenFallbackDialogs()
+    private static void TestUtilityButtonsOpenSceneBackedDialogs()
     {
         MainMenuScreen screen = IntegrationTestUtils.InstantiateScene<MainMenuScreen>(ScenePath);
         try
@@ -100,17 +100,21 @@ public static class TestMainMenuScreen
             DotNetNativeTestSuite.AssertNotNull(sourcesButton, "Sources button should exist");
             DotNetNativeTestSuite.AssertNotNull(optionsButton, "Options button should exist");
 
-            helpButton!.EmitSignal(BaseButton.SignalName.Pressed);
             Window? infoDialog = screen.GetNodeOrNull<Window>("InfoDialog");
-            DotNetNativeTestSuite.AssertNotNull(infoDialog, "Help fallback should create an info dialog");
+            DotNetNativeTestSuite.AssertNotNull(infoDialog, "Main menu scene should define the shared info dialog");
+            DotNetNativeTestSuite.AssertFalse(infoDialog!.Visible, "Info dialog should start hidden");
+
+            helpButton!.EmitSignal(BaseButton.SignalName.Pressed);
             DotNetNativeTestSuite.AssertTrue(infoDialog!.Visible, "Help fallback dialog should be visible");
 
             sourcesButton!.EmitSignal(BaseButton.SignalName.Pressed);
             DotNetNativeTestSuite.AssertTrue(infoDialog.Visible, "Sources fallback dialog should reuse the info dialog");
 
-            optionsButton!.EmitSignal(BaseButton.SignalName.Pressed);
             Window? optionsDialog = screen.GetNodeOrNull<Window>("OptionsDialog");
-            DotNetNativeTestSuite.AssertNotNull(optionsDialog, "Options fallback should create an options dialog");
+            DotNetNativeTestSuite.AssertNotNull(optionsDialog, "Main menu scene should define the options dialog");
+            DotNetNativeTestSuite.AssertFalse(optionsDialog!.Visible, "Options dialog should start hidden");
+
+            optionsButton!.EmitSignal(BaseButton.SignalName.Pressed);
             DotNetNativeTestSuite.AssertTrue(optionsDialog!.Visible, "Options fallback dialog should be visible");
         }
         finally

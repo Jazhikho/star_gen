@@ -198,7 +198,6 @@ public partial class ObjectGenerationScreen : Control
 
         Label noteLabel = new Label();
         noteLabel.AutowrapMode = TextServer.AutowrapMode.Word;
-        noteLabel.CustomMinimumSize = new Vector2(220.0f, 0.0f);
         noteLabel.Modulate = new Color(0.85f, 0.7f, 0.3f, 1.0f);
         noteLabel.Text = GetPresetAssumptionText(GetSelectedObjectType(), _presetOption?.GetSelectedId() ?? 0);
         _issuesContainer.AddChild(noteLabel);
