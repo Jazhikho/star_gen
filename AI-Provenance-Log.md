@@ -697,3 +697,14 @@ Use this log for significant AI-assisted artifacts in this repository.
 - Human Changed: Kept the work inside the existing population and concept dependency pipeline seams instead of introducing a separate prototype, and adapted preview tests to track biosphere-bearing worlds directly rather than using inhabited-world counts as a proxy for life.
 - Validation Method: `dotnet build StarGen.sln` and the Godot headless harness (`Total: 1962 | Passed: 1962 | Failed: 0`).
 - Final Approver: Pending Christopher B. Del Gesso review.
+
+### 2026-03-26 - Codex (GPT-5)
+
+- Task Purpose: Finalize the `0.8.0.0` release merge on `master`, review the merged payload, correct export packaging so shipped builds exclude archived local release folders, and prepare the Windows/Linux release artifacts for git and itch publication.
+- Input Materials Used: User-approved release plan and follow-up corrections, local `master` merge state, `export_presets.cfg`, `VERSION.md`, `README.md`, `AI-Provenance-Log.md`, Godot export presets, the local release directory structure, and the itch target `jazhikho/stargen`.
+- AI Produced: Reviewed the merged release payload, found that Godot exports were embedding repository `release/` folders, patched all export presets to exclude `release/*` and `release/**`, rebuilt the Windows and Linux release artifacts with the corrected filter, updated release notes to document the packaging fix, and prepared artifacts/notes for push and itch publication.
+- Human Accepted: Pending user review of the final `0.8.0.0` release payload and the published builds.
+- Human Rejected: Did not treat AI as the final release authority; the release proceeded only from the user-approved plan and user-supplied itch project target.
+- Human Changed: User clarified that `test.tscn` should be deleted, Concept Atlas should remain menu-scoped and hidden elsewhere, only failing tests should be rerun rather than the full suite, and the music attribution is substantively correct but should simply be presented neatly in credits.
+- Validation Method: `dotnet build StarGen.sln`, release export verification for Windows and Linux, and merged-diff review against `origin/master`; no additional full-suite rerun was performed after the user's instruction to avoid it.
+- Final Approver: Pending Christopher B. Del Gesso review.

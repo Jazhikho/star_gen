@@ -9,6 +9,7 @@ Versioning method: release/refactor `+0.1`, feature `+0.0.1`, bug fix `+0.0.0.1`
 ## 0.8.0.0
 
 - Release: Promoted the concept-pipeline hardening branch to the public `0.8.0.0` release baseline and collapsed internal/docs/project/user-facing version surfaces back into one shipped version.
+- Bug fix: Export presets now exclude the repository `release/` directories so Windows and Linux release packages do not embed archived local build outputs.
 - Feature: Startup now uses the root intro video and optional root `.ogg` music hook, cross-fades directly into the StarGen logo, and then fades to black before returning on the main menu.
 - Feature: Station Studio now runs the production station-generation flow with live summaries and detail views instead of the older placeholder shell.
 - Feature: The Concept Atlas remains available from the main menu, while non-menu launch points were removed so Atlas access stays menu-scoped.
