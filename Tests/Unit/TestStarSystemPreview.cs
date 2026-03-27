@@ -181,7 +181,7 @@ public static class TestStarSystemPreview
     }
 
     /// <summary>
-    /// Tests realistic use-case settings actually generate populated previews when permissiveness is high.
+    /// Tests realistic use-case settings actually generate biosphere-bearing previews when life permissiveness is high.
     /// </summary>
     public static void TestGenerateUsesRealisticPopulationSettings()
     {
@@ -192,7 +192,7 @@ public static class TestStarSystemPreview
         config.UseCaseSettings = settings.Clone();
         Galaxy galaxy = new Galaxy(config, 42);
 
-        bool foundPopulatedPreview = false;
+        bool foundLifeBearingPreview = false;
         Vector3 worldPosition = new Vector3(8000.0f, 0.0f, 0.0f);
         for (int seedValue = 1; seedValue <= 400; seedValue += 1)
         {
@@ -201,16 +201,16 @@ public static class TestStarSystemPreview
                 worldPosition,
                 galaxy.Spec,
                 settings);
-            if (result != null && result.TotalPopulation > 0)
+            if (result != null && result.BiosphereWorldCount > 0)
             {
-                foundPopulatedPreview = true;
+                foundLifeBearingPreview = true;
                 break;
             }
         }
 
         DotNetNativeTestSuite.AssertTrue(
-            foundPopulatedPreview,
-            "High realistic life settings should allow populated galaxy previews");
+            foundLifeBearingPreview,
+            "High realistic life settings should allow life-bearing galaxy previews even when sentient populations stay rare");
     }
 
     /// <summary>

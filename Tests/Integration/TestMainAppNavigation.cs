@@ -34,7 +34,6 @@ public static class TestMainAppNavigation
         runner.RunNativeTest("TestMainAppNavigation::test_main_menu_station_generation_opens_studio", TestMainMenuStationGenerationOpensStudio);
         runner.RunNativeTest("TestMainAppNavigation::test_main_menu_concept_atlas_opens_screen", TestMainMenuConceptAtlasOpensScreen);
         runner.RunNativeTest("TestMainAppNavigation::test_concept_atlas_return_from_menu_goes_to_main_menu", TestConceptAtlasReturnFromMenuGoesToMainMenu);
-        runner.RunNativeTest("TestMainAppNavigation::test_object_viewer_can_open_concept_atlas", TestObjectViewerCanOpenConceptAtlas);
         runner.RunNativeTest("TestMainAppNavigation::test_system_studio_launch_generates_before_viewer", TestSystemStudioLaunchGeneratesBeforeViewer);
         runner.RunNativeTest("TestMainAppNavigation::test_object_studio_launch_generates_before_viewer", TestObjectStudioLaunchGeneratesBeforeViewer);
         runner.RunNativeTest("TestMainAppNavigation::test_system_studio_viewer_has_no_back_navigation", TestSystemStudioViewerHasNoBackNavigation);
@@ -379,30 +378,6 @@ public static class TestMainAppNavigation
 
             screen!.EmitSignal(StarGen.App.Concepts.ConceptAtlasScreen.SignalName.BackRequested);
             DotNetNativeTestSuite.AssertEqual("menu", app.get_active_viewer(), "Returning from main-menu atlas should restore the menu");
-        }
-        finally
-        {
-            IntegrationTestUtils.CleanupNode(app);
-        }
-    }
-
-    private static void TestObjectViewerCanOpenConceptAtlas()
-    {
-        MainApp app = CreateStartedApp();
-        try
-        {
-            app._on_open_system_requested(12345, Vector3.Zero);
-            CelestialBody body = IntegrationTestUtils.CreateTestBody(name: "Mira", type: CelestialType.Type.Planet);
-            app._on_open_in_object_viewer(body);
-            app._on_object_concept_atlas_requested(body, 12345);
-
-            DotNetNativeTestSuite.AssertEqual("conceptatlas", app.get_active_viewer(), "Object viewer atlas request should open the concept atlas");
-            StarGen.App.Concepts.ConceptAtlasScreen? screen = app.get_concept_atlas_screen();
-            DotNetNativeTestSuite.AssertNotNull(screen, "Concept atlas should exist");
-            DotNetNativeTestSuite.AssertEqual("Mira", screen!.GetContextSnapshot().BodyName, "Object atlas context should preserve the current body");
-
-            screen.EmitSignal(StarGen.App.Concepts.ConceptAtlasScreen.SignalName.BackRequested);
-            DotNetNativeTestSuite.AssertEqual("object", app.get_active_viewer(), "Returning from object atlas should restore the object viewer");
         }
         finally
         {

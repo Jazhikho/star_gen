@@ -13,14 +13,23 @@ Partial-class splits (large files broken into focused parts):
 - `ObjectViewer.cs` / `ObjectViewer.Display.cs` / `ObjectViewer.Parameters.cs` / `ObjectViewer.SaveLoad.cs`
 
 UI layout baseline:
-- The supported minimum app width is `640 px` (`480 px` height floor for windowed mode).
+- The supported minimum app width is `640 px` (`800 px` height floor for windowed mode).
 - Wrapped labels should have a panel-appropriate minimum width rather than relying on autowrap alone; large full-width headers can be broader, while sidebar/footer text should usually stay closer to the 180-320 px range.
 
-Current development line:
-- `0.7.9.5`
-
-Current public release target:
+Current release line:
 - `0.8.0.0`
+
+Recent 0.8.0.0 additions:
+- `src/app/SplashScreen.cs` / `src/app/SplashScreen.tscn` / `src/app/MainApp.cs` / `src/app/MainApp.Navigation.cs` / `src/app/MainApp.tscn` (intro video splash now resolves into the logo inside a shared media frame and transitions through a dedicated startup fade layer before the main menu)
+- `src/app/StationStudioScreen.cs` / `src/app/StationStudioScreen.tscn` (station studio now exposes the production generation flow, live summary, and detail surfaces instead of the placeholder shell)
+- `src/domain/concepts/pipeline/ConceptDependencyChainGenerator.cs` / `PlanetEnvironmentProfile.cs` / `src/domain/population/BiologySupportEvaluator.cs` / `PopulationProbability.cs` / `src/domain/galaxy/StarSystemPreview.cs` / `src/services/concepts/ConceptContextBuilder.cs` (concept and biosphere generation now use the hardened deterministic dependency chain and Earth-like atlas baseline snapshot)
+- `Tests/Integration/TestSplashScreen.cs` / `Tests/Integration/TestMainApp.cs` / `Tests/Unit/Population/TestPopulationGenerator.cs` / `Tests/Unit/Population/TestPopulationProbability.cs` / `Tests/Unit/TestStarSystemPreview.cs` / `Tests/Baselines/LifeDistributionBaselineRunner.cs` (release regressions updated for splash behavior, startup flow, biosphere gating, preview counts, and the richer life-distribution baseline)
+
+Recent 0.7.10.0 additions:
+- `src/domain/population/BiologySupportEvaluator.cs` / `PlanetProfile.cs` / `ProfileGenerator.cs` / `src/domain/concepts/pipeline/PlanetEnvironmentProfile.cs` / `ConceptDependencyChainGenerator.cs` / `PopulationGenerator.cs` / `PopulationProbability.cs` (native life now flows through one deterministic biosphere assessment with chemistry fit, abiogenesis odds, complex-life gating, rarer sentience rolls, and subsurface-moon support instead of separate drifting gates)
+- `src/domain/galaxy/StarSystemPreview.cs` / `StarSystemPreviewData.cs` (system previews now count biosphere-bearing and sentient worlds separately from total population so life settings no longer have to be inferred through inhabited-world counts alone)
+- `Tests/Unit/Population/TestPlanetProfile.cs` / `TestPopulationProbability.cs` / `TestPopulationGenerator.cs` / `Tests/Unit/TestStarSystemPreview.cs` / `Tests/Framework/DotNetNativeTestSuite.Concepts.cs` (regressions updated for biosphere-without-sentience cases, alternative-chemistry permissiveness, subsurface ocean moons, and preview biosphere coverage)
+- `Tests/TestSceneCSharp.cs` / `Tests/TestRegistry.cs` / `Tests/Framework/DotNetNativeTestSuite.Population.cs` / `Tests/RunTestsHeadless.gd` (headless harness now has a population-focused entry path available for narrower validation when needed)
 
 Recent 0.7.9.5 additions:
 - `src/app/GalaxyGenerationScreen.tscn` / `src/app/SystemGenerationScreen.tscn` / `src/app/ObjectGenerationScreen.tscn` (set all three studio panels to a scene-owned `200 px` minimum width and removed child label minimums that were forcing the rules/summary columns wider than intended)

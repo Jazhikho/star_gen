@@ -59,86 +59,32 @@ public static class PopulationProbability
         double permissiveness = ClampPermissiveness(lifePermissiveness);
         GenerationUseCaseSettings settings = GenerationUseCaseSettings.CreateDefault();
         settings.LifePermissiveness = permissiveness;
-        if (!CanSupportBiologyAtAll(profile, settings))
+        BiologySupportEvaluator.Assessment assessment = BiologySupportEvaluator.Evaluate(profile, settings);
+        if (!assessment.IsSupported)
         {
             return 0.0;
         }
 
-        double minimumHabitability = Lerp(8.0, 5.0, permissiveness);
-        if (profile.HabitabilityScore < minimumHabitability)
-        {
-            return 0.0;
-        }
-
-        double normalizedHabitability = Normalize(profile.HabitabilityScore, minimumHabitability, 10.0);
-        double probability = Lerp(0.02, 0.30, permissiveness);
-        probability += normalizedHabitability * Lerp(0.18, 0.48, permissiveness);
-        probability += LiquidWaterBonus;
-
-        if (profile.HasBreathableAtmosphere)
-        {
-            probability += Lerp(BreathableAtmosphereBonus + 0.14, BreathableAtmosphereBonus + 0.04, permissiveness);
-        }
-        else if (profile.HasAtmosphere)
-        {
-            probability -= Lerp(0.20, -0.02, permissiveness);
-        }
-        else
-        {
-            probability -= Lerp(0.35, 0.06, permissiveness);
-        }
-
-        if (profile.IsMoon && profile.TidalHeatingFactor > 0.3)
-        {
-            probability += Lerp(0.02, TidalHeatingBonus + 0.05, permissiveness);
-        }
+        double probability = assessment.AbiogenesisChance;
 
         if (profile.IsTidallyLocked)
         {
             probability -= Lerp(TidalLockingPenalty + 0.04, 0.04, permissiveness);
         }
 
-        if (profile.RadiationLevel > 0.7)
+        if (profile.HasLiquidWater)
         {
-            probability -= Lerp(0.22, 0.10, permissiveness);
+            probability += LiquidWaterBonus * Lerp(0.70, 0.40, permissiveness);
         }
 
-        if (profile.AvgTemperatureK > 0.0)
+        if (profile.HasBreathableAtmosphere)
         {
-            double temperaturePenalty = GetDeviationPenalty(profile.AvgTemperatureK, 288.0, 18.0, 90.0);
-            probability -= temperaturePenalty * Lerp(0.22, 0.08, permissiveness);
+            probability += BreathableAtmosphereBonus * Lerp(0.80, 0.30, permissiveness);
         }
 
-        if (profile.GravityG > 0.0)
+        if (profile.IsMoon && profile.TidalHeatingFactor > 0.30)
         {
-            double gravityPenalty = GetDeviationPenalty(profile.GravityG, 1.0, 0.25, 1.25);
-            probability -= gravityPenalty * Lerp(0.12, 0.04, permissiveness);
-        }
-
-        if (profile.HabitabilityScore >= 4 && profile.HasLiquidWater)
-        {
-            probability += Lerp(0.03, 0.14, permissiveness);
-        }
-
-        if (profile.HabitabilityScore >= 5 && profile.HasLiquidWater)
-        {
-            probability += Lerp(0.0, 0.14, permissiveness);
-            probability = System.Math.Max(probability, Lerp(0.0, 0.68, permissiveness));
-        }
-
-        if (profile.HabitabilityScore >= 6)
-        {
-            probability = System.Math.Max(probability, Lerp(0.18, 0.78, permissiveness));
-        }
-
-        if (profile.HabitabilityScore >= 7)
-        {
-            probability = System.Math.Max(probability, Lerp(0.35, 0.88, permissiveness));
-        }
-
-        if (profile.HabitabilityScore >= 8)
-        {
-            probability = System.Math.Max(probability, Lerp(0.82, 0.96, permissiveness));
+            probability += Lerp(0.01, TidalHeatingBonus + 0.04, permissiveness);
         }
 
         return System.Math.Clamp(probability, 0.0, MaxNativeProbability);
@@ -238,29 +184,6 @@ public static class PopulationProbability
         }
 
         return System.Math.Clamp(probability, 0.0, MaxColonyProbability);
-    }
-
-    private static bool CanSupportBiologyAtAll(
-        PlanetProfile profile,
-        GenerationUseCaseSettings? useCaseSettings)
-    {
-        return BiologySupportEvaluator.SupportsBiology(profile, useCaseSettings);
-    }
-
-    private static double GetDeviationPenalty(double value, double idealValue, double idealTolerance, double maxTolerance)
-    {
-        double deviation = System.Math.Abs(value - idealValue);
-        if (deviation <= idealTolerance)
-        {
-            return 0.0;
-        }
-
-        if (deviation >= maxTolerance)
-        {
-            return 1.0;
-        }
-
-        return Normalize(deviation, idealTolerance, maxTolerance);
     }
 
     private static double Normalize(double value, double minValue, double maxValue)

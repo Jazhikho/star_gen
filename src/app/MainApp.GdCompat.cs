@@ -106,18 +106,6 @@ public partial class MainApp
 	}
 
 	/// <summary>
-	/// GDScript-compatible object-viewer concept-atlas wrapper.
-	/// </summary>
-	public void _on_object_concept_atlas_requested(Variant bodyVariant, int starSeed = 0)
-	{
-		GodotObject? bodyObject = bodyVariant.AsGodotObject();
-		if (bodyObject != null)
-		{
-			OnObjectConceptAtlasRequested(bodyObject, starSeed);
-		}
-	}
-
-	/// <summary>
 	/// Returns the current object viewer instance for test compatibility.
 	/// </summary>
 	public StarGen.App.Viewer.ObjectViewer? get_object_viewer()

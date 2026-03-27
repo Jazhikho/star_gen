@@ -676,6 +676,7 @@ public partial class GalaxyInspectorPanel : VBoxContainer
 		{
 			Name = "CalculateRoutesButton",
 			Text = "Run Colonization Simulation",
+			Visible = false,
 		};
 		_calculateRoutesButton.Pressed += OnCalculateRoutesPressed;
 		AddChild(_calculateRoutesButton);

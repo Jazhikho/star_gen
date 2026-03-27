@@ -131,7 +131,8 @@ public static class TestPopulationGenerator
         return new ParentContext(
             stellarMassKg: 1.989e30,
             stellarLuminosityWatts: 3.828e26,
-            stellarTemperatureK: 5778.0);
+            stellarTemperatureK: 5778.0,
+            stellarAgeYears: 4.6e9);
     }
 
     /// <summary>
@@ -143,6 +144,7 @@ public static class TestPopulationGenerator
         profile.BodyId = "habitable_001";
         profile.HabitabilityScore = 9;
         profile.AvgTemperatureK = 290.0;
+        profile.StellarAgeYears = 5.2e9;
         profile.PressureAtm = 1.0;
         profile.HasLiquidWater = true;
         profile.HasBreathableAtmosphere = true;
@@ -198,6 +200,31 @@ public static class TestPopulationGenerator
         profile.Resources[(int)ResourceType.Type.Silicates] = 0.8;
         profile.Resources[(int)ResourceType.Type.RareElements] = 0.4;
         return profile;
+    }
+
+    /// <summary>
+    /// Finds a deterministic seed that yields sentient natives on the provided profile.
+    /// </summary>
+    private static int FindSeedForSentientNatives(PlanetProfile profile, int maxSeed = 20000)
+    {
+        for (int seed = 1; seed <= maxSeed; seed += 1)
+        {
+            PlanetPopulationData data = PopulationGenerator.GenerateFromProfile(
+                profile,
+                generationSeed: seed,
+                generateNatives: true,
+                generateColonies: false,
+                currentYear: 0,
+                existingSuitability: null);
+            if (data.SentienceAssessment != null
+                && data.SentienceAssessment.HasSentientLife
+                && data.NativePopulations.Count > 0)
+            {
+                return seed;
+            }
+        }
+
+        return -1;
     }
 
     /// <summary>
@@ -403,9 +430,9 @@ public static class TestPopulationGenerator
     }
 
     /// <summary>
-    /// Tests habitable world can produce natives.
+    /// Tests habitable worlds can keep a biosphere without automatically producing sentient natives.
     /// </summary>
-    public static void TestHabitableWorldCanHaveNatives()
+    public static void TestHabitableWorldCanHaveBiosphereWithoutSentients()
     {
         PlanetProfile profile = CreateHabitableProfile();
 
@@ -418,8 +445,39 @@ public static class TestPopulationGenerator
             existingSuitability: null);
 
         DotNetNativeTestSuite.AssertTrue(data.Profile.CanSupportNativeLife(), "Profile should support life");
-        DotNetNativeTestSuite.AssertTrue(data.NativePopulations.Count > 0, "Habitable worlds should now generate native populations when native generation is enabled");
-        DotNetNativeTestSuite.AssertTrue(data.SentienceAssessment != null && data.SentienceAssessment.HasSentientLife, "Generated native populations should mark the world as hosting sentient life");
+        DotNetNativeTestSuite.AssertEqual(ConceptRunStatus.Generated, data.EcologyState!.Status, "Habitable worlds should still produce a biosphere");
+        DotNetNativeTestSuite.AssertEqual(0, data.NativePopulations.Count, "Most biospheres should not automatically become sentient native populations");
+        DotNetNativeTestSuite.AssertTrue(data.SentienceAssessment != null && !data.SentienceAssessment.HasSentientLife, "The sentience gate should remain separate from biosphere generation");
+    }
+
+    /// <summary>
+    /// Tests prime worlds can still yield sentient native populations for some deterministic seeds.
+    /// </summary>
+    public static void TestPrimeWorldCanStillProduceSentientNatives()
+    {
+        PlanetProfile profile = CreateHabitableProfile();
+        int sentientSeed = FindSeedForSentientNatives(profile);
+
+        DotNetNativeTestSuite.AssertTrue(sentientSeed > 0, "A deterministic seed should exist that yields sentient natives on a prime world");
+
+        PlanetPopulationData data = PopulationGenerator.GenerateFromProfile(
+            profile,
+            generationSeed: sentientSeed,
+            generateNatives: true,
+            generateColonies: false,
+            currentYear: 0,
+            existingSuitability: null);
+
+        DotNetNativeTestSuite.AssertTrue(data.NativePopulations.Count > 0, "Sentient worlds should still materialize native populations");
+        DotNetNativeTestSuite.AssertTrue(data.SentienceAssessment != null && data.SentienceAssessment.HasSentientLife, "Sentient worlds should preserve the sentience assessment");
+    }
+
+    /// <summary>
+    /// Legacy parity alias for the former direct-native-generation expectation.
+    /// </summary>
+    public static void TestHabitableWorldCanHaveNatives()
+    {
+        TestPrimeWorldCanStillProduceSentientNatives();
     }
 
     /// <summary>
@@ -498,7 +556,8 @@ public static class TestPopulationGenerator
     {
         PlanetProfile profile = CreateHabitableProfile();
         profile.HabitabilityScore = 8;
-        profile.AvgTemperatureK = 430.0;
+        profile.AvgTemperatureK = 326.0;
+        profile.PressureAtm = 2.6;
         profile.HasBreathableAtmosphere = false;
         profile.RadiationLevel = 0.20;
 
@@ -518,27 +577,29 @@ public static class TestPopulationGenerator
     }
 
     /// <summary>
-    /// Tests that strict life settings reject non-earthlike marginal worlds while permissive settings allow them.
+    /// Tests that permissive life settings unlock cold alternative-biology worlds that strict settings still reject.
     /// </summary>
     public static void TestLifePermissivenessControlsNativeGenerationThreshold()
     {
         PlanetProfile profile = new();
-        profile.BodyId = "viable_five";
-        profile.HabitabilityScore = 5;
-        profile.AvgTemperatureK = 298.0;
-        profile.PressureAtm = 0.8;
-        profile.HasLiquidWater = true;
+        profile.BodyId = "methane_world";
+        profile.HabitabilityScore = 2;
+        profile.AvgTemperatureK = 130.0;
+        profile.StellarAgeYears = 6.0e9;
+        profile.PressureAtm = 1.4;
+        profile.HasLiquidWater = false;
         profile.HasAtmosphere = true;
         profile.HasBreathableAtmosphere = false;
-        profile.OceanCoverage = 0.45;
-        profile.LandCoverage = 0.45;
-        profile.GravityG = 0.9;
-        profile.RadiationLevel = 0.25;
-        profile.WeatherSeverity = 0.4;
-        profile.VolcanismLevel = 0.2;
-        profile.TectonicActivity = 0.3;
-        profile.Biomes[(int)BiomeType.Type.Ocean] = 0.45;
-        profile.Biomes[(int)BiomeType.Type.Grassland] = 0.30;
+        profile.OceanCoverage = 0.0;
+        profile.LandCoverage = 0.15;
+        profile.IceCoverage = 0.80;
+        profile.GravityG = 0.55;
+        profile.RadiationLevel = 0.12;
+        profile.WeatherSeverity = 0.2;
+        profile.VolcanismLevel = 0.05;
+        profile.TectonicActivity = 0.1;
+        profile.Biomes[(int)BiomeType.Type.IceSheet] = 0.80;
+        profile.Biomes[(int)BiomeType.Type.Tundra] = 0.20;
 
         GenerationUseCaseSettings strictSettings = GenerationUseCaseSettings.CreateDefault();
         strictSettings.LifePermissiveness = 0.0;
@@ -563,10 +624,10 @@ public static class TestPopulationGenerator
             existingSuitability: null,
             useCaseSettings: permissiveSettings);
 
-        DotNetNativeTestSuite.AssertEqual(ConceptRunStatus.NotApplicable, strictData.EcologyState!.Status, "Strict life settings should reject non-earthlike habitability-five worlds");
+        DotNetNativeTestSuite.AssertEqual(ConceptRunStatus.NotApplicable, strictData.EcologyState!.Status, "Strict life settings should reject worlds that need alternative chemistry assumptions");
         DotNetNativeTestSuite.AssertEqual(0, strictData.NativePopulations.Count, "Strict life settings should not generate natives on those worlds");
-        DotNetNativeTestSuite.AssertEqual(ConceptRunStatus.Generated, permissiveData.EcologyState!.Status, "Permissive life settings should allow biology on viable habitability-five worlds");
-        DotNetNativeTestSuite.AssertTrue(permissiveData.NativePopulations.Count > 0, "Permissive life settings should generate natives on viable habitability-five worlds");
+        DotNetNativeTestSuite.AssertEqual(ConceptRunStatus.Generated, permissiveData.EcologyState!.Status, "Permissive life settings should allow biology on cold alternative-chemistry worlds");
+        DotNetNativeTestSuite.AssertEqual(0, permissiveData.NativePopulations.Count, "Alternative biospheres should not automatically imply sentient natives");
     }
 
     /// <summary>

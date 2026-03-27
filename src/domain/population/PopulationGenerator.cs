@@ -132,8 +132,9 @@ public static class PopulationGenerator
 
         SeededRng rng = new(generationSeed);
         bool allowNativePopulations = generateNatives
-            && data.EcologyState != null
-            && data.EcologyState.Status == ConceptRunStatus.Generated;
+            && data.SentienceAssessment != null
+            && data.SentienceAssessment.Status == ConceptRunStatus.Generated
+            && data.SentienceAssessment.HasSentientLife;
         if (allowNativePopulations)
         {
             data.NativePopulations = GenerateNatives(profile, currentYear, rng, true);
@@ -570,12 +571,11 @@ public static class PopulationGenerator
         }
 
         data.SentienceAssessment.Status = ConceptRunStatus.Generated;
-        data.SentienceAssessment.HasSentientLife = true;
         if (string.IsNullOrWhiteSpace(data.SentienceAssessment.CandidateSpeciesName))
         {
             data.SentienceAssessment.CandidateSpeciesName = data.NativePopulations[0].Name;
         }
 
-        data.SentienceAssessment.StatusReason = "Native population generation confirmed a sentient lineage on this world.";
+        data.SentienceAssessment.StatusReason = "Sentience assessment and native population generation both confirm a sentient lineage on this world.";
     }
 }

@@ -6,6 +6,7 @@ using StarGen.Domain.Concepts.Ecology;
 using StarGen.Domain.Concepts.Evolution;
 using StarGen.Domain.Ecology;
 using StarGen.Domain.Generation;
+using StarGen.Domain.Population;
 
 namespace StarGen.Domain.Concepts.Pipeline;
 
@@ -28,14 +29,15 @@ public static class ConceptDependencyChainGenerator
         out SentienceAssessment sentienceAssessment,
         GenerationUseCaseSettings? useCaseSettings = null)
     {
-        ecologyState = GenerateEcology(environment, useCaseSettings);
-        speciesEvolutionState = GenerateSpecies(environment, ecologyState);
-        sentienceAssessment = GenerateSentience(environment, speciesEvolutionState);
+        BiologySupportEvaluator.Assessment biologyAssessment = BiologySupportEvaluator.Evaluate(environment, useCaseSettings);
+        ecologyState = GenerateEcology(environment, biologyAssessment);
+        speciesEvolutionState = GenerateSpecies(environment, ecologyState, biologyAssessment);
+        sentienceAssessment = GenerateSentience(environment, speciesEvolutionState, biologyAssessment);
     }
 
     private static EcologyState GenerateEcology(
         PlanetEnvironmentProfile environment,
-        GenerationUseCaseSettings? useCaseSettings)
+        BiologySupportEvaluator.Assessment biologyAssessment)
     {
         EcologyState state = new EcologyState();
         state.Provenance = BuildProvenance(
@@ -45,14 +47,14 @@ public static class ConceptDependencyChainGenerator
             environment.BodyName,
             new List<string> { "environment:" + environment.BodyId });
 
-        if (!environment.SupportsBiology(useCaseSettings))
+        if (!biologyAssessment.IsSupported)
         {
             state.Status = ConceptRunStatus.NotApplicable;
             state.StatusReason = "Environment does not support a stable biosphere.";
             return state;
         }
 
-        EnvironmentSpec spec = BuildEcologySpec(environment);
+        EnvironmentSpec spec = BuildEcologySpec(environment, biologyAssessment);
         EcologyWeb web = EcologyGenerator.Generate(spec, new EcologyRng(spec.Seed));
         EcologyConceptSnapshot snapshot = new EcologyConceptSnapshot();
         snapshot.SlotCount = web.Slots.Count;
@@ -79,7 +81,10 @@ public static class ConceptDependencyChainGenerator
         return state;
     }
 
-    private static SpeciesEvolutionState GenerateSpecies(PlanetEnvironmentProfile environment, EcologyState ecologyState)
+    private static SpeciesEvolutionState GenerateSpecies(
+        PlanetEnvironmentProfile environment,
+        EcologyState ecologyState,
+        BiologySupportEvaluator.Assessment biologyAssessment)
     {
         SpeciesEvolutionState state = new SpeciesEvolutionState();
         state.Provenance = BuildProvenance(
@@ -93,6 +98,13 @@ public static class ConceptDependencyChainGenerator
         {
             state.Status = ConceptRunStatus.NotApplicable;
             state.StatusReason = "Species evolution requires an ecological baseline.";
+            return state;
+        }
+
+        if (!biologyAssessment.SupportsComplexLife)
+        {
+            state.Status = ConceptRunStatus.NotApplicable;
+            state.StatusReason = "The biosphere remains microbial or simple; no complex lineage emerges.";
             return state;
         }
 
@@ -113,7 +125,8 @@ public static class ConceptDependencyChainGenerator
 
     private static SentienceAssessment GenerateSentience(
         PlanetEnvironmentProfile environment,
-        SpeciesEvolutionState speciesEvolutionState)
+        SpeciesEvolutionState speciesEvolutionState,
+        BiologySupportEvaluator.Assessment biologyAssessment)
     {
         SentienceAssessment assessment = new SentienceAssessment();
         assessment.Provenance = BuildProvenance(
@@ -136,14 +149,16 @@ public static class ConceptDependencyChainGenerator
         assessment.SocialComplexity = ResolveSocialComplexity(species);
         assessment.CommunicationScore = ResolveCommunicationScore(species);
         assessment.ManipulationScore = ResolveManipulationScore(species);
-        bool supportsSentientCivilization = environment.HabitabilityScore >= 5;
+        bool supportsSentientCivilization = biologyAssessment.SentienceChance > 0.0;
         if (supportsSentientCivilization)
         {
+            double sentienceRoll = DeriveDeterministicRoll(environment.Seed, 0x53454E54);
             assessment.HasSentientLife = speciesEvolutionState.HasSentientCandidate
                 && assessment.CognitionScore >= 0.48
                 && assessment.SocialComplexity >= 0.40
                 && assessment.CommunicationScore >= 0.32
-                && assessment.ManipulationScore >= 0.32;
+                && assessment.ManipulationScore >= 0.32
+                && sentienceRoll < biologyAssessment.SentienceChance;
         }
         else
         {
@@ -167,7 +182,9 @@ public static class ConceptDependencyChainGenerator
         return assessment;
     }
 
-    private static EnvironmentSpec BuildEcologySpec(PlanetEnvironmentProfile environment)
+    private static EnvironmentSpec BuildEcologySpec(
+        PlanetEnvironmentProfile environment,
+        BiologySupportEvaluator.Assessment biologyAssessment)
     {
         float averageTemperature = (float)environment.AvgTemperatureK;
         float temperatureRange = 8.0f + ((10 - environment.HabitabilityScore) * 1.5f);
@@ -187,21 +204,22 @@ public static class ConceptDependencyChainGenerator
         spec.Seed = unchecked((ulong)environment.Seed);
         spec.TemperatureMin = temperatureMin;
         spec.TemperatureMax = temperatureMax;
-        spec.WaterAvailability = System.Math.Clamp((float)environment.OceanCoverage, 0.0f, 1.0f);
-        spec.LightLevel = System.Math.Clamp(0.55f + (environment.HabitabilityScore / 20.0f), 0.0f, 1.0f);
+        spec.WaterAvailability = ResolveSolventAvailability(environment, biologyAssessment);
+        spec.LightLevel = ResolveLightLevel(environment, biologyAssessment);
         spec.NutrientLevel = System.Math.Clamp(0.20f + (float)(environment.TectonicActivity * 0.22) + (float)(environment.VolcanismLevel * 0.12), 0.0f, 1.0f);
         spec.Gravity = (float)System.Math.Clamp(environment.GravityG, 0.2, 3.0);
         spec.RadiationLevel = System.Math.Clamp((float)environment.RadiationLevel, 0.0f, 1.0f);
-        if (environment.HasBreathableAtmosphere)
+        if (biologyAssessment.PreferredChemistry == BiologySupportEvaluator.Biochemistry.CarbonWater
+            && environment.HasBreathableAtmosphere)
         {
             spec.OxygenLevel = 0.21f;
         }
         else
         {
-            spec.OxygenLevel = 0.03f;
+            spec.OxygenLevel = ResolveOxygenLevel(biologyAssessment);
         }
         spec.SeasonalVariation = System.Math.Clamp((float)(0.12 + (environment.WeatherSeverity * 0.30)), 0.0f, 1.0f);
-        spec.Biome = ResolveEcologyBiome(environment);
+        spec.Biome = ResolveEcologyBiome(environment, biologyAssessment);
         spec.GeneratorVersion = EcologyGeneratorVersion;
         return spec;
     }
@@ -298,7 +316,66 @@ public static class ConceptDependencyChainGenerator
         return System.Math.Clamp(score, 0.0, 1.0);
     }
 
-    private static StarGen.Domain.Ecology.BiomeType ResolveEcologyBiome(PlanetEnvironmentProfile environment)
+    private static float ResolveSolventAvailability(
+        PlanetEnvironmentProfile environment,
+        BiologySupportEvaluator.Assessment biologyAssessment)
+    {
+        if (biologyAssessment.PreferredChemistry == BiologySupportEvaluator.Biochemistry.CarbonWater)
+        {
+            return System.Math.Clamp((float)(environment.OceanCoverage + (environment.IceCoverage * 0.25)), 0.0f, 1.0f);
+        }
+
+        if (biologyAssessment.PreferredChemistry == BiologySupportEvaluator.Biochemistry.CarbonAmmonia
+            || biologyAssessment.PreferredChemistry == BiologySupportEvaluator.Biochemistry.CarbonMethane)
+        {
+            return System.Math.Clamp((float)(0.10 + (environment.IceCoverage * 0.75)), 0.05f, 0.85f);
+        }
+
+        if (biologyAssessment.PreferredChemistry == BiologySupportEvaluator.Biochemistry.SulfurChemistry)
+        {
+            return System.Math.Clamp((float)(0.08 + (environment.VolcanismLevel * 0.40)), 0.05f, 0.55f);
+        }
+
+        return System.Math.Clamp((float)(0.05 + (biologyAssessment.BiosphereCoverage * 0.35)), 0.05f, 0.45f);
+    }
+
+    private static float ResolveLightLevel(
+        PlanetEnvironmentProfile environment,
+        BiologySupportEvaluator.Assessment biologyAssessment)
+    {
+        float lightLevel = System.Math.Clamp(0.55f + (environment.HabitabilityScore / 20.0f), 0.0f, 1.0f);
+        if (biologyAssessment.PreferredChemistry == BiologySupportEvaluator.Biochemistry.CarbonMethane)
+        {
+            lightLevel *= 0.65f;
+        }
+
+        if (environment.IsMoon && environment.TidalHeatingFactor > 0.20)
+        {
+            lightLevel = System.Math.Max(lightLevel, 0.30f);
+        }
+
+        return lightLevel;
+    }
+
+    private static float ResolveOxygenLevel(BiologySupportEvaluator.Assessment biologyAssessment)
+    {
+        if (biologyAssessment.PreferredChemistry == BiologySupportEvaluator.Biochemistry.CarbonWater)
+        {
+            return 0.03f;
+        }
+
+        if (biologyAssessment.PreferredChemistry == BiologySupportEvaluator.Biochemistry.CarbonAmmonia
+            || biologyAssessment.PreferredChemistry == BiologySupportEvaluator.Biochemistry.CarbonMethane)
+        {
+            return 0.01f;
+        }
+
+        return 0.0f;
+    }
+
+    private static StarGen.Domain.Ecology.BiomeType ResolveEcologyBiome(
+        PlanetEnvironmentProfile environment,
+        BiologySupportEvaluator.Assessment biologyAssessment)
     {
         string normalized = environment.DominantBiome.Trim().ToLowerInvariant();
         if (normalized == "barren")
@@ -308,7 +385,18 @@ public static class ConceptDependencyChainGenerator
                 return StarGen.Domain.Ecology.BiomeType.Subterranean;
             }
 
-            throw new InvalidOperationException("Ecology cannot be mapped from barren biome context.");
+            if (biologyAssessment.PreferredChemistry == BiologySupportEvaluator.Biochemistry.CarbonAmmonia
+                || biologyAssessment.PreferredChemistry == BiologySupportEvaluator.Biochemistry.CarbonMethane)
+            {
+                return StarGen.Domain.Ecology.BiomeType.Tundra;
+            }
+
+            if (biologyAssessment.PreferredChemistry == BiologySupportEvaluator.Biochemistry.SulfurChemistry)
+            {
+                return StarGen.Domain.Ecology.BiomeType.Volcanic;
+            }
+
+            return StarGen.Domain.Ecology.BiomeType.Subterranean;
         }
 
         return MapEcologyBiome(environment.DominantBiome);
@@ -436,5 +524,25 @@ public static class ConceptDependencyChainGenerator
         }
 
         return char.ToUpperInvariant(normalized[0]) + normalized.Substring(1).ToLowerInvariant();
+    }
+
+    private static double DeriveDeterministicRoll(int seed, int salt)
+    {
+        long mixed = MixSeed(seed, salt);
+        long positive = System.Math.Abs(mixed);
+        double normalized = (positive % 0x7FFFFFFF) / 2147483648.0;
+        return System.Math.Clamp(normalized, 0.0, 0.9999999);
+    }
+
+    private static long MixSeed(long seedValue, long saltValue)
+    {
+        const long primeA = 2654435761;
+        const long primeB = 2246822519;
+
+        long hash = (seedValue ^ saltValue) * primeA;
+        hash ^= hash >> 16;
+        hash *= primeB;
+        hash ^= hash >> 13;
+        return hash;
     }
 }

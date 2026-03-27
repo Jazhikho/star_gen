@@ -256,6 +256,7 @@ public partial class MainMenuScreen : Control
 				"Design and direction: Jazhikho\n\n" +
 				"AI assistance: OpenAI Codex / GPT models, Anthropic Claude, and Cursor were used under human direction for exploration, drafting, refactoring, testing support, UI copy iteration, documentation/provenance upkeep, and focused implementation assistance. Human review remained responsible for design, realism, licensing, and release decisions.\n\n" +
 				"App icon: Galaxy icon by Freepik via Flaticon, used with attribution.\n\n" +
+				"Music: \"Thus Spoke Zarathustra\" (Introduction / Sunrise), adapted from the Kevin MacLeod source archived on Free Music Archive.\n\n" +
 				"Astronomy and worldbuilding references can be reviewed from Sources on the main menu.";
 		}
 
@@ -327,12 +328,16 @@ public partial class MainMenuScreen : Control
 	{
 		return
 			"Version 0.8.0.0\n\n" +
+			"- Replaced the timer-based splash with the root intro video, a clean fade into the StarGen logo, and skip behavior that still resolves through the branded transition.\n" +
+			"- Kept startup audio wiring local to the splash and auto-loads the single root `.ogg` intro track when exactly one is present.\n" +
+			"- Added a fade-to-black handoff from the splash into the main menu.\n" +
+			"- Kept Concept Atlas entry on the main menu while removing non-menu launch paths.\n" +
+			"- Replaced the Station Studio placeholder with the production station generation flow and live detail views.\n" +
 			"- Reworked Galaxy Studio around clearer shape controls, separated generation rules, and a stronger active-profile summary.\n" +
-			"- Life Potential now shapes generation, while colonization settings have moved into simulation tooling.\n" +
-			"- Added in-app source notes for the astronomy references guiding galaxy morphology and related assumptions.\n\n" +
+			"- Life Potential now shapes generation, while colonization settings have moved into simulation tooling.\n\n" +
 			"Version 0.7.0.0\n\n" +
 			"- Added the Concept Atlas as a standalone tool for ecology, civilisation, language, religion, disease, and evolution exploration.\n" +
-			"- Added context-aware Atlas launch points from viewer inspection surfaces.\n\n" +
+			"- Brought the first deterministic concept-tool baseline into the main application.\n\n" +
 			"Version 0.6.0.0\n\n" +
 			"- Brought the first showcase set of concept tools into StarGen.\n" +
 			"- Framed the atlas as a worldbuilding tool in development rather than a final simulation layer.\n\n" +
@@ -500,6 +505,7 @@ public partial class MainMenuScreen : Control
 			"Design and direction: Jazhikho\n\n" +
 			"AI assistance: OpenAI Codex / GPT models, Anthropic Claude, and Cursor were used under human direction for exploration, drafting, refactoring, testing support, UI copy iteration, documentation/provenance upkeep, and focused implementation assistance. Human review remained responsible for design, realism, licensing, and release decisions.\n\n" +
 			"App icon: Galaxy icon by Freepik via Flaticon, used with attribution.\n\n" +
+			"Music: \"Thus Spoke Zarathustra\" (Introduction / Sunrise), adapted from the Kevin MacLeod source archived on Free Music Archive.\n\n" +
 			"Astronomy and worldbuilding references can be reviewed from Sources on the main menu.";
 	}
 

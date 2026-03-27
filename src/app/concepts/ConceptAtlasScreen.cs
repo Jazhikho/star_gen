@@ -10,395 +10,420 @@ namespace StarGen.App.Concepts;
 /// </summary>
 public partial class ConceptAtlasScreen : Control
 {
-    [Signal]
-    public delegate void BackRequestedEventHandler();
+	[Signal]
+	public delegate void BackRequestedEventHandler();
 
-    private ItemList _moduleList = null!;
-    private SpinBox _seedInput = null!;
-    private LineEdit _bodyNameInput = null!;
-    private SpinBox _populationInput = null!;
-    private HSlider _habitabilityInput = null!;
-    private OptionButton _biomeOption = null!;
-    private Label _contextLabel = null!;
-    private Label _titleLabel = null!;
-    private Label _subtitleLabel = null!;
-    private RichTextLabel _summaryText = null!;
-    private VBoxContainer _metricsContainer = null!;
-    private VBoxContainer _sectionsContainer = null!;
-    private Label _provenanceLabel = null!;
-    private ConceptContextSnapshot _contextSnapshot = new ConceptContextSnapshot();
-    private ConceptContextSnapshot _sourceSnapshot = new ConceptContextSnapshot();
+	private ItemList _moduleList = null!;
+	private SpinBox _seedInput = null!;
+	private LineEdit _bodyNameInput = null!;
+	private SpinBox _populationInput = null!;
+	private HSlider _habitabilityInput = null!;
+	private OptionButton _biomeOption = null!;
+	private Label _contextLabel = null!;
+	private Label _titleLabel = null!;
+	private Label _subtitleLabel = null!;
+	private RichTextLabel _summaryText = null!;
+	private VBoxContainer _metricsContainer = null!;
+	private VBoxContainer _sectionsContainer = null!;
+	private Label _provenanceLabel = null!;
+	private ConceptContextSnapshot _contextSnapshot = new ConceptContextSnapshot();
+	private ConceptContextSnapshot _sourceSnapshot = new ConceptContextSnapshot();
+	private bool _isInitialized;
+	private bool _hasPendingContext;
+	private ConceptContextSnapshot _pendingSnapshot = new ConceptContextSnapshot();
+	private ConceptKind _pendingKind = ConceptKind.Ecology;
 
-    /// <summary>
-    /// Initializes the atlas UI.
-    /// </summary>
-    public override void _Ready()
-    {
-        CacheNodeReferences();
-        ConnectSignals();
-        PopulateBiomeOptions();
-        PopulateModuleList();
-        SetContext(ConceptContextBuilder.CreateDefault(424242), ConceptKind.Ecology);
-    }
+	/// <summary>
+	/// Initializes the atlas UI.
+	/// </summary>
+	public override void _Ready()
+	{
+		CacheNodeReferences();
+		ConnectSignals();
+		PopulateBiomeOptions();
+		PopulateModuleList();
+		_isInitialized = true;
+		if (_hasPendingContext)
+		{
+			ApplyContext(_pendingSnapshot, _pendingKind);
+			_hasPendingContext = false;
+			return;
+		}
 
-    /// <summary>
-    /// Applies context and optionally selects a concept.
-    /// </summary>
-    public void SetContext(ConceptContextSnapshot snapshot, ConceptKind initialKind)
-    {
-        _contextSnapshot = snapshot.Clone();
-        _sourceSnapshot = snapshot.Clone();
-        SyncControlsFromSnapshot();
-        SelectKind(initialKind);
-        RefreshDisplay();
-    }
+		ApplyContext(ConceptContextBuilder.CreateDefault(424242), ConceptKind.Ecology);
+	}
 
-    /// <summary>
-    /// Returns the most recently applied context snapshot.
-    /// </summary>
-    public ConceptContextSnapshot GetContextSnapshot()
-    {
-        return _contextSnapshot.Clone();
-    }
+	/// <summary>
+	/// Applies context and optionally selects a concept.
+	/// </summary>
+	public void SetContext(ConceptContextSnapshot snapshot, ConceptKind initialKind)
+	{
+		if (!_isInitialized)
+		{
+			_pendingSnapshot = snapshot.Clone();
+			_pendingKind = initialKind;
+			_hasPendingContext = true;
+			return;
+		}
 
-    private void CacheNodeReferences()
-    {
-        _moduleList = FindRequiredNode<ItemList>("MarginContainer/RootVBox/BodySplit/LeftPanel/LeftMargin/LeftScroll/LeftVBox/ModuleList", "ModuleList");
-        _seedInput = FindRequiredNode<SpinBox>("MarginContainer/RootVBox/BodySplit/LeftPanel/LeftMargin/LeftScroll/LeftVBox/SeedBox/SeedInput", "SeedInput");
-        _bodyNameInput = FindRequiredNode<LineEdit>("MarginContainer/RootVBox/BodySplit/LeftPanel/LeftMargin/LeftScroll/LeftVBox/WorldNameBox/WorldNameInput", "WorldNameInput");
-        _populationInput = FindRequiredNode<SpinBox>("MarginContainer/RootVBox/BodySplit/LeftPanel/LeftMargin/LeftScroll/LeftVBox/PopulationBox/PopulationInput", "PopulationInput");
-        _habitabilityInput = FindRequiredNode<HSlider>("MarginContainer/RootVBox/BodySplit/LeftPanel/LeftMargin/LeftScroll/LeftVBox/HabitabilityBox/HabitabilityInput", "HabitabilityInput");
-        _biomeOption = FindRequiredNode<OptionButton>("MarginContainer/RootVBox/BodySplit/LeftPanel/LeftMargin/LeftScroll/LeftVBox/BiomeBox/BiomeOption", "BiomeOption");
-        _contextLabel = FindRequiredNode<Label>("MarginContainer/RootVBox/HeaderRow/HeaderText/ContextLabel", "ContextLabel");
-        _titleLabel = FindRequiredNode<Label>("MarginContainer/RootVBox/BodySplit/RightPanel/RightMargin/RightScroll/RightVBox/TitleLabel", "TitleLabel");
-        _subtitleLabel = FindRequiredNode<Label>("MarginContainer/RootVBox/BodySplit/RightPanel/RightMargin/RightScroll/RightVBox/SubtitleLabel", "SubtitleLabel");
-        _summaryText = FindRequiredNode<RichTextLabel>("MarginContainer/RootVBox/BodySplit/RightPanel/RightMargin/RightScroll/RightVBox/SummaryText", "SummaryText");
-        _metricsContainer = FindRequiredNode<VBoxContainer>("MarginContainer/RootVBox/BodySplit/RightPanel/RightMargin/RightScroll/RightVBox/MetricsContainer", "MetricsContainer");
-        _sectionsContainer = FindRequiredNode<VBoxContainer>("MarginContainer/RootVBox/BodySplit/RightPanel/RightMargin/RightScroll/RightVBox/SectionsContainer", "SectionsContainer");
-        _provenanceLabel = FindRequiredNode<Label>("MarginContainer/RootVBox/BodySplit/RightPanel/RightMargin/RightScroll/RightVBox/ProvenanceLabel", "ProvenanceLabel");
-    }
+		ApplyContext(snapshot, initialKind);
+	}
 
-    private void ConnectSignals()
-    {
-        Button backButton = FindRequiredNode<Button>("MarginContainer/RootVBox/HeaderRow/BackButton", "BackButton");
-        backButton.Pressed += OnBackPressed;
+	/// <summary>
+	/// Returns the most recently applied context snapshot.
+	/// </summary>
+	public ConceptContextSnapshot GetContextSnapshot()
+	{
+		return _contextSnapshot.Clone();
+	}
 
-        _moduleList!.ItemSelected += OnModuleSelected;
-        _seedInput!.ValueChanged += OnManualInputChanged;
-        _bodyNameInput!.TextChanged += OnManualTextChanged;
-        _populationInput!.ValueChanged += OnManualInputChanged;
-        _habitabilityInput!.ValueChanged += OnManualInputChanged;
-        _biomeOption!.ItemSelected += OnBiomeSelected;
-    }
+	private void ApplyContext(ConceptContextSnapshot snapshot, ConceptKind initialKind)
+	{
+		_contextSnapshot = snapshot.Clone();
+		_sourceSnapshot = snapshot.Clone();
+		SyncControlsFromSnapshot();
+		SelectKind(initialKind);
+		RefreshDisplay();
+	}
 
-    private void PopulateBiomeOptions()
-    {
-        if (_biomeOption.ItemCount > 0)
-        {
-            return;
-        }
+	private void CacheNodeReferences()
+	{
+		_moduleList = FindRequiredNode<ItemList>("MarginContainer/RootVBox/BodySplit/LeftPanel/LeftMargin/LeftScroll/LeftVBox/ModuleList", "ModuleList");
+		_seedInput = FindRequiredNode<SpinBox>("MarginContainer/RootVBox/BodySplit/LeftPanel/LeftMargin/LeftScroll/LeftVBox/SeedBox/SeedInput", "SeedInput");
+		_bodyNameInput = FindRequiredNode<LineEdit>("MarginContainer/RootVBox/BodySplit/LeftPanel/LeftMargin/LeftScroll/LeftVBox/WorldNameBox/WorldNameInput", "WorldNameInput");
+		_populationInput = FindRequiredNode<SpinBox>("MarginContainer/RootVBox/BodySplit/LeftPanel/LeftMargin/LeftScroll/LeftVBox/PopulationBox/PopulationInput", "PopulationInput");
+		_habitabilityInput = FindRequiredNode<HSlider>("MarginContainer/RootVBox/BodySplit/LeftPanel/LeftMargin/LeftScroll/LeftVBox/HabitabilityBox/HabitabilityInput", "HabitabilityInput");
+		_biomeOption = FindRequiredNode<OptionButton>("MarginContainer/RootVBox/BodySplit/LeftPanel/LeftMargin/LeftScroll/LeftVBox/BiomeBox/BiomeOption", "BiomeOption");
+		_contextLabel = FindRequiredNode<Label>("MarginContainer/RootVBox/HeaderRow/HeaderText/ContextLabel", "ContextLabel");
+		_titleLabel = FindRequiredNode<Label>("MarginContainer/RootVBox/BodySplit/RightPanel/RightMargin/RightScroll/RightVBox/TitleLabel", "TitleLabel");
+		_subtitleLabel = FindRequiredNode<Label>("MarginContainer/RootVBox/BodySplit/RightPanel/RightMargin/RightScroll/RightVBox/SubtitleLabel", "SubtitleLabel");
+		_summaryText = FindRequiredNode<RichTextLabel>("MarginContainer/RootVBox/BodySplit/RightPanel/RightMargin/RightScroll/RightVBox/SummaryText", "SummaryText");
+		_metricsContainer = FindRequiredNode<VBoxContainer>("MarginContainer/RootVBox/BodySplit/RightPanel/RightMargin/RightScroll/RightVBox/MetricsContainer", "MetricsContainer");
+		_sectionsContainer = FindRequiredNode<VBoxContainer>("MarginContainer/RootVBox/BodySplit/RightPanel/RightMargin/RightScroll/RightVBox/SectionsContainer", "SectionsContainer");
+		_provenanceLabel = FindRequiredNode<Label>("MarginContainer/RootVBox/BodySplit/RightPanel/RightMargin/RightScroll/RightVBox/ProvenanceLabel", "ProvenanceLabel");
+	}
 
-        string[] biomeOptions = new string[] { "Barren", "Temperate", "Forest", "Grassland", "Desert", "Tundra", "Oceanic" };
-        foreach (string biome in biomeOptions)
-        {
-            _biomeOption.AddItem(biome);
-        }
-    }
+	private void ConnectSignals()
+	{
+		Button backButton = FindRequiredNode<Button>("MarginContainer/RootVBox/HeaderRow/BackButton", "BackButton");
+		backButton.Pressed += OnBackPressed;
 
-    private void PopulateModuleList()
-    {
-        _moduleList.Clear();
-        foreach (ConceptModuleDescriptor descriptor in ConceptAtlasModuleRegistry.GetDescriptors())
-        {
-            _moduleList.AddItem(descriptor.DisplayName);
-            _moduleList.SetItemMetadata(_moduleList.ItemCount - 1, (int)descriptor.Kind);
-        }
-    }
+		_moduleList!.ItemSelected += OnModuleSelected;
+		_seedInput!.ValueChanged += OnManualInputChanged;
+		_bodyNameInput!.TextChanged += OnManualTextChanged;
+		_populationInput!.ValueChanged += OnManualInputChanged;
+		_habitabilityInput!.ValueChanged += OnManualInputChanged;
+		_biomeOption!.ItemSelected += OnBiomeSelected;
+	}
 
-    private void RefreshDisplay()
-    {
-        if (_moduleList.GetSelectedItems().Length == 0)
-        {
-            return;
-        }
+	private void PopulateBiomeOptions()
+	{
+		if (_biomeOption.ItemCount > 0)
+		{
+			return;
+		}
 
-        ConceptKind kind = GetSelectedKind();
-        ConceptContextSnapshot snapshot = BuildSnapshotFromControls();
-        ConceptRunResult result = ResolveDisplayResult(kind, snapshot);
+		string[] biomeOptions = new string[] { "Barren", "Temperate", "Forest", "Grassland", "Desert", "Tundra", "Oceanic" };
+		foreach (string biome in biomeOptions)
+		{
+			_biomeOption.AddItem(biome);
+		}
+	}
 
-        _contextLabel.Text = "Context: " + snapshot.SourceLabel;
-        _titleLabel.Text = result.Title;
-        _subtitleLabel.Text = result.Subtitle;
-        _summaryText.Text = result.Summary;
+	private void PopulateModuleList()
+	{
+		_moduleList.Clear();
+		foreach (ConceptModuleDescriptor descriptor in ConceptAtlasModuleRegistry.GetDescriptors())
+		{
+			_moduleList.AddItem(descriptor.DisplayName);
+			_moduleList.SetItemMetadata(_moduleList.ItemCount - 1, (int)descriptor.Kind);
+		}
+	}
 
-        RenderMetrics(result.Metrics);
-        RenderSections(result.Sections);
+	private void RefreshDisplay()
+	{
+		if (_moduleList.GetSelectedItems().Length == 0)
+		{
+			return;
+		}
 
-        _provenanceLabel.Text =
-            $"Seed {result.Provenance.Seed} | {result.Provenance.GeneratorVersion} | {result.Provenance.SourceContext}";
-    }
+		ConceptKind kind = GetSelectedKind();
+		ConceptContextSnapshot snapshot = BuildSnapshotFromControls();
+		ConceptRunResult result = ResolveDisplayResult(kind, snapshot);
 
-    private void RenderMetrics(List<ConceptMetric> metrics)
-    {
-        foreach (Node child in _metricsContainer.GetChildren())
-        {
-            child.QueueFree();
-        }
+		_contextLabel.Text = "Context: " + snapshot.SourceLabel;
+		_titleLabel.Text = result.Title;
+		_subtitleLabel.Text = result.Subtitle;
+		_summaryText.Text = result.Summary;
 
-        foreach (ConceptMetric metric in metrics)
-        {
-            VBoxContainer row = new VBoxContainer();
-            row.AddThemeConstantOverride("separation", 4);
+		RenderMetrics(result.Metrics);
+		RenderSections(result.Sections);
 
-            Label label = new Label();
-            string displayText = metric.DisplayText;
-            if (string.IsNullOrEmpty(displayText))
-            {
-                displayText = metric.Value.ToString("0.##");
-            }
+		_provenanceLabel.Text =
+			$"Seed {result.Provenance.Seed} | {result.Provenance.GeneratorVersion} | {result.Provenance.SourceContext}";
+	}
 
-            label.Text = metric.Label + ": " + displayText;
-            row.AddChild(label);
+	private void RenderMetrics(List<ConceptMetric> metrics)
+	{
+		foreach (Node child in _metricsContainer.GetChildren())
+		{
+			child.QueueFree();
+		}
 
-            ProgressBar bar = new ProgressBar();
-            bar.MinValue = 0.0;
-            bar.MaxValue = 1.0;
-            if (metric.MaxValue > 0.0)
-            {
-                bar.MaxValue = metric.MaxValue;
-            }
+		foreach (ConceptMetric metric in metrics)
+		{
+			VBoxContainer row = new VBoxContainer();
+			row.AddThemeConstantOverride("separation", 4);
 
-            bar.Value = metric.Value;
-            bar.ShowPercentage = false;
-            row.AddChild(bar);
+			Label label = new Label();
+			string displayText = metric.DisplayText;
+			if (string.IsNullOrEmpty(displayText))
+			{
+				displayText = metric.Value.ToString("0.##");
+			}
 
-            _metricsContainer.AddChild(row);
-        }
-    }
+			label.Text = metric.Label + ": " + displayText;
+			row.AddChild(label);
 
-    private void RenderSections(List<ConceptSection> sections)
-    {
-        foreach (Node child in _sectionsContainer.GetChildren())
-        {
-            child.QueueFree();
-        }
+			ProgressBar bar = new ProgressBar();
+			bar.MinValue = 0.0;
+			bar.MaxValue = 1.0;
+			if (metric.MaxValue > 0.0)
+			{
+				bar.MaxValue = metric.MaxValue;
+			}
 
-        foreach (ConceptSection section in sections)
-        {
-            VBoxContainer sectionBox = new VBoxContainer();
-            sectionBox.AddThemeConstantOverride("separation", 6);
+			bar.Value = metric.Value;
+			bar.ShowPercentage = false;
+			row.AddChild(bar);
 
-            Label title = new Label();
-            title.Text = section.Title;
-            title.AddThemeFontSizeOverride("font_size", 16);
-            sectionBox.AddChild(title);
+			_metricsContainer.AddChild(row);
+		}
+	}
 
-            foreach (string item in section.Items)
-            {
-                Label line = new Label();
-                line.Text = "- " + item;
-                line.AutowrapMode = TextServer.AutowrapMode.WordSmart;
-                line.CustomMinimumSize = new Vector2(560.0f, 0.0f);
-                sectionBox.AddChild(line);
-            }
+	private void RenderSections(List<ConceptSection> sections)
+	{
+		foreach (Node child in _sectionsContainer.GetChildren())
+		{
+			child.QueueFree();
+		}
 
-            _sectionsContainer.AddChild(sectionBox);
-        }
-    }
+		foreach (ConceptSection section in sections)
+		{
+			VBoxContainer sectionBox = new VBoxContainer();
+			sectionBox.AddThemeConstantOverride("separation", 6);
 
-    private void SyncControlsFromSnapshot()
-    {
-        _seedInput.Value = _contextSnapshot.Seed;
+			Label title = new Label();
+			title.Text = section.Title;
+			title.AddThemeFontSizeOverride("font_size", 16);
+			sectionBox.AddChild(title);
 
-        if (!string.IsNullOrEmpty(_contextSnapshot.BodyName))
-        {
-            _bodyNameInput.Text = _contextSnapshot.BodyName;
-        }
-        else
-        {
-            _bodyNameInput.Text = _contextSnapshot.SourceLabel;
-        }
+			foreach (string item in section.Items)
+			{
+				Label line = new Label();
+				line.Text = "- " + item;
+				line.AutowrapMode = TextServer.AutowrapMode.WordSmart;
+				line.CustomMinimumSize = new Vector2(560.0f, 0.0f);
+				sectionBox.AddChild(line);
+			}
 
-        _populationInput.Value = _contextSnapshot.Population;
-        _habitabilityInput.Value = _contextSnapshot.HabitabilityScore;
+			_sectionsContainer.AddChild(sectionBox);
+		}
+	}
 
-        int biomeIndex = FindBiomeIndex(_contextSnapshot.DominantBiome);
-        if (biomeIndex >= 0)
-        {
-            _biomeOption.Select(biomeIndex);
-        }
-        else
-        {
-            _biomeOption.Select(0);
-        }
-    }
+	private void SyncControlsFromSnapshot()
+	{
+		_seedInput.Value = _contextSnapshot.Seed;
 
-    private void SelectKind(ConceptKind kind)
-    {
-        for (int index = 0; index < _moduleList.ItemCount; index += 1)
-        {
-            Variant metadata = _moduleList.GetItemMetadata(index);
-            if (metadata.VariantType == Variant.Type.Int && (int)metadata == (int)kind)
-            {
-                _moduleList.Select(index);
-                return;
-            }
-        }
+		if (!string.IsNullOrEmpty(_contextSnapshot.BodyName))
+		{
+			_bodyNameInput.Text = _contextSnapshot.BodyName;
+		}
+		else
+		{
+			_bodyNameInput.Text = _contextSnapshot.SourceLabel;
+		}
 
-        if (_moduleList.ItemCount > 0)
-        {
-            _moduleList.Select(0);
-        }
-    }
+		_populationInput.Value = _contextSnapshot.Population;
+		_habitabilityInput.Value = _contextSnapshot.HabitabilityScore;
 
-    private ConceptKind GetSelectedKind()
-    {
-        if (_moduleList.GetSelectedItems().Length == 0)
-        {
-            return ConceptKind.Ecology;
-        }
+		int biomeIndex = FindBiomeIndex(_contextSnapshot.DominantBiome);
+		if (biomeIndex >= 0)
+		{
+			_biomeOption.Select(biomeIndex);
+		}
+		else
+		{
+			_biomeOption.Select(0);
+		}
+	}
 
-        int selectedIndex = _moduleList.GetSelectedItems()[0];
-        Variant metadata = _moduleList.GetItemMetadata(selectedIndex);
-        if (metadata.VariantType == Variant.Type.Int)
-        {
-            return (ConceptKind)(int)metadata;
-        }
+	private void SelectKind(ConceptKind kind)
+	{
+		for (int index = 0; index < _moduleList.ItemCount; index += 1)
+		{
+			Variant metadata = _moduleList.GetItemMetadata(index);
+			if (metadata.VariantType == Variant.Type.Int && (int)metadata == (int)kind)
+			{
+				_moduleList.Select(index);
+				return;
+			}
+		}
 
-        return ConceptKind.Ecology;
-    }
+		if (_moduleList.ItemCount > 0)
+		{
+			_moduleList.Select(0);
+		}
+	}
 
-    private ConceptContextSnapshot BuildSnapshotFromControls()
-    {
-        ConceptContextSnapshot snapshot = _sourceSnapshot.Clone();
-        snapshot.Seed = (int)_seedInput.Value;
+	private ConceptKind GetSelectedKind()
+	{
+		if (_moduleList.GetSelectedItems().Length == 0)
+		{
+			return ConceptKind.Ecology;
+		}
 
-        snapshot.BodyName = _bodyNameInput.Text;
-        if (!string.IsNullOrEmpty(_bodyNameInput.Text))
-        {
-            snapshot.SourceLabel = _bodyNameInput.Text;
-        }
+		int selectedIndex = _moduleList.GetSelectedItems()[0];
+		Variant metadata = _moduleList.GetItemMetadata(selectedIndex);
+		if (metadata.VariantType == Variant.Type.Int)
+		{
+			return (ConceptKind)(int)metadata;
+		}
 
-        snapshot.Population = (int)_populationInput.Value;
-        snapshot.HabitabilityScore = (int)_habitabilityInput.Value;
-        if (_biomeOption.Selected >= 0)
-        {
-            snapshot.DominantBiome = _biomeOption.GetItemText(_biomeOption.Selected);
-        }
+		return ConceptKind.Ecology;
+	}
 
-        return snapshot;
-    }
+	private ConceptContextSnapshot BuildSnapshotFromControls()
+	{
+		ConceptContextSnapshot snapshot = _sourceSnapshot.Clone();
+		snapshot.Seed = (int)_seedInput.Value;
 
-    private ConceptRunResult ResolveDisplayResult(ConceptKind kind, ConceptContextSnapshot snapshot)
-    {
-        if (!HasManualOverrides(snapshot))
-        {
-            ConceptRunResult? persisted = snapshot.PersistedResults.Get(kind);
-            if (persisted != null)
-            {
-                return persisted;
-            }
-        }
+		snapshot.BodyName = _bodyNameInput.Text;
+		if (!string.IsNullOrEmpty(_bodyNameInput.Text))
+		{
+			snapshot.SourceLabel = _bodyNameInput.Text;
+		}
 
-        return ConceptAtlasModuleRegistry.Run(new ConceptRunRequest
-        {
-            Kind = kind,
-            Context = snapshot,
-        });
-    }
+		snapshot.Population = (int)_populationInput.Value;
+		snapshot.HabitabilityScore = (int)_habitabilityInput.Value;
+		if (_biomeOption.Selected >= 0)
+		{
+			snapshot.DominantBiome = _biomeOption.GetItemText(_biomeOption.Selected);
+		}
 
-    private bool HasManualOverrides(ConceptContextSnapshot snapshot)
-    {
-        if (snapshot.Seed != _sourceSnapshot.Seed)
-        {
-            return true;
-        }
+		return snapshot;
+	}
 
-        if (!string.Equals(snapshot.BodyName, GetControlBaselineBodyName(_sourceSnapshot), System.StringComparison.Ordinal))
-        {
-            return true;
-        }
+	private ConceptRunResult ResolveDisplayResult(ConceptKind kind, ConceptContextSnapshot snapshot)
+	{
+		if (!HasManualOverrides(snapshot))
+		{
+			ConceptRunResult? persisted = snapshot.PersistedResults.Get(kind);
+			if (persisted != null)
+			{
+				return persisted;
+			}
+		}
 
-        if (snapshot.Population != _sourceSnapshot.Population)
-        {
-            return true;
-        }
+		return ConceptAtlasModuleRegistry.Run(new ConceptRunRequest
+		{
+			Kind = kind,
+			Context = snapshot,
+		});
+	}
 
-        if (snapshot.HabitabilityScore != _sourceSnapshot.HabitabilityScore)
-        {
-            return true;
-        }
+	private bool HasManualOverrides(ConceptContextSnapshot snapshot)
+	{
+		if (snapshot.Seed != _sourceSnapshot.Seed)
+		{
+			return true;
+		}
 
-        if (!string.Equals(snapshot.DominantBiome, _sourceSnapshot.DominantBiome, System.StringComparison.Ordinal))
-        {
-            return true;
-        }
+		if (!string.Equals(snapshot.BodyName, GetControlBaselineBodyName(_sourceSnapshot), System.StringComparison.Ordinal))
+		{
+			return true;
+		}
 
-        return false;
-    }
+		if (snapshot.Population != _sourceSnapshot.Population)
+		{
+			return true;
+		}
 
-    private static string GetControlBaselineBodyName(ConceptContextSnapshot snapshot)
-    {
-        if (!string.IsNullOrEmpty(snapshot.BodyName))
-        {
-            return snapshot.BodyName;
-        }
+		if (snapshot.HabitabilityScore != _sourceSnapshot.HabitabilityScore)
+		{
+			return true;
+		}
 
-        return snapshot.SourceLabel;
-    }
+		if (!string.Equals(snapshot.DominantBiome, _sourceSnapshot.DominantBiome, System.StringComparison.Ordinal))
+		{
+			return true;
+		}
 
-    private int FindBiomeIndex(string biomeName)
-    {
-        for (int index = 0; index < _biomeOption.ItemCount; index += 1)
-        {
-            if (_biomeOption.GetItemText(index).Equals(biomeName))
-            {
-                return index;
-            }
-        }
+		return false;
+	}
 
-        return -1;
-    }
+	private static string GetControlBaselineBodyName(ConceptContextSnapshot snapshot)
+	{
+		if (!string.IsNullOrEmpty(snapshot.BodyName))
+		{
+			return snapshot.BodyName;
+		}
 
-    private void OnBackPressed()
-    {
-        EmitSignal(SignalName.BackRequested);
-    }
+		return snapshot.SourceLabel;
+	}
 
-    private void OnModuleSelected(long _index)
-    {
-        RefreshDisplay();
-    }
+	private int FindBiomeIndex(string biomeName)
+	{
+		for (int index = 0; index < _biomeOption.ItemCount; index += 1)
+		{
+			if (_biomeOption.GetItemText(index).Equals(biomeName))
+			{
+				return index;
+			}
+		}
 
-    private void OnManualInputChanged(double _value)
-    {
-        RefreshDisplay();
-    }
+		return -1;
+	}
 
-    private void OnManualTextChanged(string _value)
-    {
-        RefreshDisplay();
-    }
+	private void OnBackPressed()
+	{
+		EmitSignal(SignalName.BackRequested);
+	}
 
-    private void OnBiomeSelected(long _index)
-    {
-        RefreshDisplay();
-    }
+	private void OnModuleSelected(long _index)
+	{
+		RefreshDisplay();
+	}
 
-    private T FindRequiredNode<T>(string path, string nodeName) where T : Node
-    {
-        T typedNode = GetNodeOrNull<T>(path);
-        if (typedNode != null)
-        {
-            return typedNode;
-        }
+	private void OnManualInputChanged(double _value)
+	{
+		RefreshDisplay();
+	}
 
-        Node discoveredNode = FindChild(nodeName, recursive: true, owned: false);
-        if (discoveredNode is T discoveredTypedNode)
-        {
-            return discoveredTypedNode;
-        }
+	private void OnManualTextChanged(string _value)
+	{
+		RefreshDisplay();
+	}
 
-        throw new System.InvalidOperationException($"ConceptAtlasScreen scene is missing {nodeName}.");
-    }
+	private void OnBiomeSelected(long _index)
+	{
+		RefreshDisplay();
+	}
+
+	private T FindRequiredNode<T>(string path, string nodeName) where T : Node
+	{
+		T typedNode = GetNodeOrNull<T>(path);
+		if (typedNode != null)
+		{
+			return typedNode;
+		}
+
+		Node discoveredNode = FindChild(nodeName, recursive: true, owned: false);
+		if (discoveredNode is T discoveredTypedNode)
+		{
+			return discoveredTypedNode;
+		}
+
+		throw new System.InvalidOperationException($"ConceptAtlasScreen scene is missing {nodeName}.");
+	}
 }

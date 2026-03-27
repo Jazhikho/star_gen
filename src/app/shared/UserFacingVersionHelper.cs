@@ -9,7 +9,7 @@ public static class UserFacingVersionHelper
 {
     private const string PublicVersionSettingPath = "application/config/public_version_label";
     private const string InternalVersionSettingPath = "application/config/version";
-    private const string DefaultVersion = "0.5.0.0";
+    private const string DefaultVersion = "0.8.0.0";
 
     /// <summary>
     /// Returns the version string intended for user-facing UI.

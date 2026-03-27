@@ -1,14 +1,32 @@
 # Version
 
-Current version: `0.7.9.5`
+Current version: `0.8.0.0`
 
-Date: `2026-03-22`
+Date: `2026-03-26`
 
 Versioning method: release/refactor `+0.1`, feature `+0.0.1`, bug fix `+0.0.0.1`, save-breaking release `+1.0`.
 
-Current public release target: `0.8.0.0`
+## 0.8.0.0
 
-User-facing app label: `0.8.0.0`
+- Release: Promoted the concept-pipeline hardening branch to the public `0.8.0.0` release baseline and collapsed internal/docs/project/user-facing version surfaces back into one shipped version.
+- Feature: Startup now uses the root intro video and optional root `.ogg` music hook, cross-fades directly into the StarGen logo, and then fades to black before returning on the main menu.
+- Feature: Station Studio now runs the production station-generation flow with live summaries and detail views instead of the older placeholder shell.
+- Feature: The Concept Atlas remains available from the main menu, while non-menu launch points were removed so Atlas access stays menu-scoped.
+- Feature: Native-life and concept generation now follow the deterministic environment-to-ecology-to-species-to-sentience chain that this branch hardened across the domain, previews, and inspectors.
+- Test: `dotnet build StarGen.sln` passed, and the Godot headless harness passed cleanly (`1962 / 1962`) in the last full validation run for this release prep.
+
+## 0.7.10.1
+
+- Bug fix: Splash startup now plays the root `stargen.ogv` inside a scene-defined centered `512 px` media frame, so the video shares the logo height and resolves directly into the StarGen icon instead of stretching across the full screen.
+- Bug fix: Splash wiring now keeps the video-to-logo transition and the intro-audio hook local to the splash, auto-loading the single root `.ogg` track when exactly one music file is present.
+- Test: Updated startup regressions for splash media wiring, shared media-frame sizing, root music loading, and the initial `MainApp` splash state; `dotnet build StarGen.sln` passed, and the full Godot headless harness reached `1962 / 1963` passing with one remaining unrelated object-viewer Concept Atlas failure.
+
+## 0.7.10.0
+
+- Feature: Native life now runs through a single deterministic biosphere assessment that selects a viable chemistry, scores biosphere suitability, derives abiogenesis odds, and separates complex-life and sentience potential instead of letting the ecology gate, native-likelihood curve, and native-population materialization drift apart.
+- Feature: Planet and environment profiles now carry stellar age and moon-specific biosphere inputs through the concept pipeline, allowing subsurface ocean moons to remain valid biosphere candidates while keeping sentient life materially rarer than mere biospheres.
+- Feature: Star-system previews now distinguish life-bearing worlds from inhabited worlds by tracking biosphere and sentient-world counts separately, so high `Life Potential` can surface native biospheres without implying automatic sentient populations.
+- Test: Added and updated population, concept-pipeline, and preview regressions for low-human-habitability biospheres, non-sentient biosphere worlds, alternative-chemistry permissiveness, subsurface moons, and preview biosphere counting; revalidated with `dotnet build StarGen.sln` and the full Godot headless harness (`Total: 1962 | Passed: 1962 | Failed: 0`).
 
 ## 0.7.9.5
 

@@ -22,6 +22,8 @@ public sealed class PlanetEnvironmentProfile
 
     public double AvgTemperatureK { get; set; }
 
+    public double StellarAgeYears { get; set; }
+
     public double PressureAtm { get; set; }
 
     public double OceanCoverage { get; set; }
@@ -42,11 +44,17 @@ public sealed class PlanetEnvironmentProfile
 
     public double RadiationLevel { get; set; }
 
+    public double TidalHeatingFactor { get; set; }
+
+    public double ParentRadiationExposure { get; set; }
+
     public bool HasAtmosphere { get; set; }
 
     public bool HasLiquidWater { get; set; }
 
     public bool HasBreathableAtmosphere { get; set; }
+
+    public bool HasMagneticField { get; set; }
 
     public bool IsMoon { get; set; }
 
@@ -70,6 +78,7 @@ public sealed class PlanetEnvironmentProfile
             ["body_type"] = BodyType,
             ["habitability_score"] = HabitabilityScore,
             ["avg_temperature_k"] = AvgTemperatureK,
+            ["stellar_age_years"] = StellarAgeYears,
             ["pressure_atm"] = PressureAtm,
             ["ocean_coverage"] = OceanCoverage,
             ["land_coverage"] = LandCoverage,
@@ -80,9 +89,12 @@ public sealed class PlanetEnvironmentProfile
             ["weather_severity"] = WeatherSeverity,
             ["magnetic_field_strength"] = MagneticFieldStrength,
             ["radiation_level"] = RadiationLevel,
+            ["tidal_heating_factor"] = TidalHeatingFactor,
+            ["parent_radiation_exposure"] = ParentRadiationExposure,
             ["has_atmosphere"] = HasAtmosphere,
             ["has_liquid_water"] = HasLiquidWater,
             ["has_breathable_atmosphere"] = HasBreathableAtmosphere,
+            ["has_magnetic_field"] = HasMagneticField,
             ["is_moon"] = IsMoon,
             ["dominant_biome"] = DominantBiome,
             ["biome_coverage"] = biomeCoverage,
@@ -98,6 +110,7 @@ public sealed class PlanetEnvironmentProfile
         profile.BodyType = ConceptSerializationUtils.ReadString(data, "body_type");
         profile.HabitabilityScore = ConceptSerializationUtils.ReadInt(data, "habitability_score");
         profile.AvgTemperatureK = ConceptSerializationUtils.ReadDouble(data, "avg_temperature_k");
+        profile.StellarAgeYears = ConceptSerializationUtils.ReadDouble(data, "stellar_age_years");
         profile.PressureAtm = ConceptSerializationUtils.ReadDouble(data, "pressure_atm");
         profile.OceanCoverage = ConceptSerializationUtils.ReadDouble(data, "ocean_coverage");
         profile.LandCoverage = ConceptSerializationUtils.ReadDouble(data, "land_coverage");
@@ -108,9 +121,12 @@ public sealed class PlanetEnvironmentProfile
         profile.WeatherSeverity = ConceptSerializationUtils.ReadDouble(data, "weather_severity");
         profile.MagneticFieldStrength = ConceptSerializationUtils.ReadDouble(data, "magnetic_field_strength");
         profile.RadiationLevel = ConceptSerializationUtils.ReadDouble(data, "radiation_level");
+        profile.TidalHeatingFactor = ConceptSerializationUtils.ReadDouble(data, "tidal_heating_factor");
+        profile.ParentRadiationExposure = ConceptSerializationUtils.ReadDouble(data, "parent_radiation_exposure");
         profile.HasAtmosphere = ConceptSerializationUtils.ReadBool(data, "has_atmosphere");
         profile.HasLiquidWater = ConceptSerializationUtils.ReadBool(data, "has_liquid_water");
         profile.HasBreathableAtmosphere = ConceptSerializationUtils.ReadBool(data, "has_breathable_atmosphere");
+        profile.HasMagneticField = ConceptSerializationUtils.ReadBool(data, "has_magnetic_field");
         profile.IsMoon = ConceptSerializationUtils.ReadBool(data, "is_moon");
         profile.DominantBiome = ConceptSerializationUtils.ReadString(data, "dominant_biome");
         Dictionary? biomeCoverage = ConceptSerializationUtils.ReadDictionary(data, "biome_coverage");
@@ -152,6 +168,7 @@ public sealed class PlanetEnvironmentProfile
         environment.BodyType = bodyType;
         environment.HabitabilityScore = profile.HabitabilityScore;
         environment.AvgTemperatureK = profile.AvgTemperatureK;
+        environment.StellarAgeYears = profile.StellarAgeYears;
         environment.PressureAtm = profile.PressureAtm;
         environment.OceanCoverage = profile.OceanCoverage;
         environment.LandCoverage = profile.LandCoverage;
@@ -162,9 +179,12 @@ public sealed class PlanetEnvironmentProfile
         environment.WeatherSeverity = profile.WeatherSeverity;
         environment.MagneticFieldStrength = profile.MagneticFieldStrength;
         environment.RadiationLevel = profile.RadiationLevel;
+        environment.TidalHeatingFactor = profile.TidalHeatingFactor;
+        environment.ParentRadiationExposure = profile.ParentRadiationExposure;
         environment.HasAtmosphere = profile.HasAtmosphere;
         environment.HasLiquidWater = profile.HasLiquidWater;
         environment.HasBreathableAtmosphere = profile.HasBreathableAtmosphere;
+        environment.HasMagneticField = profile.HasMagneticField;
         environment.IsMoon = profile.IsMoon;
         environment.DominantBiome = BiomeType.ToStringName(profile.GetDominantBiome());
 

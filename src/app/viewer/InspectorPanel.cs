@@ -31,12 +31,6 @@ public partial class InspectorPanel : VBoxContainer
 	[Signal]
 	public delegate void EditRequestedEventHandler();
 
-	/// <summary>
-	/// Emitted when the user requests the concept atlas for the current body or moon.
-	/// </summary>
-	[Signal]
-	public delegate void OpenConceptAtlasRequestedEventHandler();
-
 	private VBoxContainer? _inspectorContainer;
 
 	/// <summary>
@@ -763,12 +757,6 @@ public partial class InspectorPanel : VBoxContainer
 		button.TooltipText = "Edit and regenerate this body using validated parameters";
 		button.Pressed += () => EmitSignal(SignalName.EditRequested);
 		_inspectorContainer.AddChild(button);
-
-		Button conceptAtlasButton = new Button();
-		conceptAtlasButton.Text = "Open Concept Atlas";
-		conceptAtlasButton.TooltipText = "Explore concept modules seeded from the current body or moon";
-		conceptAtlasButton.Pressed += () => EmitSignal(SignalName.OpenConceptAtlasRequested);
-		_inspectorContainer.AddChild(conceptAtlasButton);
 	}
 
 	private static string FormatDistance(double meters)

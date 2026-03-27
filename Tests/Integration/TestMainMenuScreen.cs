@@ -3,6 +3,7 @@
 using Godot;
 using System.Reflection;
 using StarGen.App;
+using StarGen.App.Shared;
 using StarGen.Tests.Framework;
 
 namespace StarGen.Tests.Integration;
@@ -159,7 +160,9 @@ public static class TestMainMenuScreen
 
             Label? versionLabel = screen.GetNodeOrNull<Label>("MarginContainer/ScrollContainer/Layout/HeroPanel/MarginContainer/HeroVBox/TopRow/VersionLabel");
             DotNetNativeTestSuite.AssertNotNull(versionLabel, "Version label should exist");
-            DotNetNativeTestSuite.AssertTrue(versionLabel!.Text.Contains("0.8.0.0"), "Main menu should show the user-facing upcoming release label");
+            DotNetNativeTestSuite.AssertTrue(
+                versionLabel!.Text.Contains(UserFacingVersionHelper.GetDisplayVersion()),
+                "Main menu should show the user-facing upcoming release label");
         }
         finally
         {

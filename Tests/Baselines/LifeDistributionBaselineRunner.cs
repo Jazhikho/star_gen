@@ -9,6 +9,9 @@ using StarGen.Domain.Concepts;
 using StarGen.Domain.Concepts.Pipeline;
 using StarGen.Domain.Galaxy;
 using StarGen.Domain.Generation;
+using StarGen.Domain.Generation.Archetypes;
+using StarGen.Domain.Generation.Tables;
+using StarGen.Domain.Math;
 using StarGen.Domain.Population;
 using StarGen.Domain.Systems;
 
@@ -22,7 +25,7 @@ public partial class LifeDistributionBaselineRunner : Node
     [Signal]
     public delegate void RunCompletedEventHandler(int exitCode);
 
-    private const int TargetWorldCount = 1000;
+    private const int TargetWorldCount = 10000;
     private const int SeedBase = 120000;
 
     private static readonly double[] ScenarioValues =
@@ -46,11 +49,9 @@ public partial class LifeDistributionBaselineRunner : Node
         "1.00 Space Opera",
     };
 
-    private sealed class BandStats
+    private sealed class ScoreStats
     {
-        public string Label = string.Empty;
-        public int MinimumHabitability;
-        public int MaximumHabitability;
+        public int HabitabilityScore;
         public int TotalWorlds;
         public int BiosphereWorlds;
         public int SentientWorlds;
@@ -58,11 +59,45 @@ public partial class LifeDistributionBaselineRunner : Node
         public int ColonyWorlds;
     }
 
+    private sealed class RemainingWorldStats
+    {
+        public int WorldCount;
+        public int WetWorldCount;
+        public int AtmosphereWorldCount;
+        public int BreathableAtmosphereWorldCount;
+        public int MoonWorldCount;
+        public int PlanetWorldCount;
+        public int MinHabitability = int.MaxValue;
+        public int MaxHabitability = int.MinValue;
+        public double HabitabilitySum;
+        public double MinTemperatureK = double.MaxValue;
+        public double MaxTemperatureK = double.MinValue;
+        public double TemperatureSumK;
+        public double MinPressureAtm = double.MaxValue;
+        public double MaxPressureAtm = double.MinValue;
+        public double PressureSumAtm;
+        public double MinGravityG = double.MaxValue;
+        public double MaxGravityG = double.MinValue;
+        public double GravitySumG;
+    }
+
+    private sealed class SizeBlockedWorld
+    {
+        public string BodyId = string.Empty;
+        public string BodyType = string.Empty;
+        public string BlockReason = string.Empty;
+        public string SizeCategory = string.Empty;
+        public double MassEarth;
+        public int HabitabilityScore;
+        public double TemperatureK;
+    }
+
     private sealed class ScenarioResult
     {
         public string Key = string.Empty;
         public string Label = string.Empty;
         public int TotalWorlds;
+        public int RemainingWorlds;
         public int WetWorlds;
         public int BiologySupportWorlds;
         public int WaterlessWorlds;
@@ -89,14 +124,25 @@ public partial class LifeDistributionBaselineRunner : Node
         public double ExpectedColonyWorlds;
         public double ColonyCandidateProbabilitySum;
         public double ColonyCandidateRollSum;
-        public List<BandStats> Bands = new();
+        public int SizeBlockedWorlds;
+        public int GasGiantBlockedWorlds;
+        public int IceGiantBlockedWorlds;
+        public List<SizeBlockedWorld> SizeBlockedWorldDetails = new();
+        public RemainingWorldStats RemainingStats = new();
+        public List<ScoreStats> ScoreBuckets = new();
     }
 
     private sealed class WorldSample
     {
+        public string BodyId = string.Empty;
+        public string BodyType = string.Empty;
         public PlanetProfile Profile = new();
         public ColonySuitability Suitability = new();
         public int GenerationSeed;
+        public bool IsBlockedBySize;
+        public string BlockReason = string.Empty;
+        public string SizeCategory = string.Empty;
+        public double MassEarth;
     }
 
     public void start_headless()
@@ -192,7 +238,7 @@ public partial class LifeDistributionBaselineRunner : Node
         {
             Key = key,
             Label = label,
-            Bands = CreateBands(),
+            ScoreBuckets = CreateScoreBuckets(),
         };
 
         GenerationUseCaseSettings settings = GenerationUseCaseSettings.CreateDefault();
@@ -206,16 +252,17 @@ public partial class LifeDistributionBaselineRunner : Node
         return result;
     }
 
-    private static List<BandStats> CreateBands()
+    private static List<ScoreStats> CreateScoreBuckets()
     {
-        return new List<BandStats>
+        List<ScoreStats> buckets = new List<ScoreStats>();
+        for (int score = 0; score <= 10; score += 1)
         {
-            new BandStats { Label = "Hostile (0-1)", MinimumHabitability = 0, MaximumHabitability = 1 },
-            new BandStats { Label = "Marginal (2-3)", MinimumHabitability = 2, MaximumHabitability = 3 },
-            new BandStats { Label = "Viable (4-5)", MinimumHabitability = 4, MaximumHabitability = 5 },
-            new BandStats { Label = "Habitable (6-7)", MinimumHabitability = 6, MaximumHabitability = 7 },
-            new BandStats { Label = "Prime (8-10)", MinimumHabitability = 8, MaximumHabitability = 10 },
-        };
+            ScoreStats stats = new ScoreStats();
+            stats.HabitabilityScore = score;
+            buckets.Add(stats);
+        }
+
+        return buckets;
     }
 
     private static void AddWorldSample(List<WorldSample> samples, CelestialBody body)
@@ -232,9 +279,25 @@ public partial class LifeDistributionBaselineRunner : Node
         }
 
         WorldSample sample = new WorldSample();
+        sample.BodyId = body.Id;
+        sample.BodyType = body.GetTypeString();
         sample.Profile = PlanetProfile.FromDictionary(populationData.Profile.ToDictionary());
         sample.Suitability = ColonySuitability.FromDictionary(populationData.Suitability.ToDictionary());
         sample.GenerationSeed = populationData.GenerationSeed;
+        sample.MassEarth = body.Physical.MassKg / Units.EarthMassKg;
+        sample.SizeCategory = ResolveSizeCategoryLabel(sample.MassEarth);
+        sample.IsBlockedBySize = IsBlockedBySizeCategory(sample.SizeCategory);
+        if (sample.IsBlockedBySize)
+        {
+            if (sample.SizeCategory == "GasGiant")
+            {
+                sample.BlockReason = "Gas giant";
+            }
+            else
+            {
+                sample.BlockReason = "Ice giant";
+            }
+        }
         samples.Add(sample);
     }
 
@@ -243,6 +306,13 @@ public partial class LifeDistributionBaselineRunner : Node
         WorldSample sample,
         GenerationUseCaseSettings settings)
     {
+        result.TotalWorlds += 1;
+        if (sample.IsBlockedBySize)
+        {
+            RecordBlockedWorld(result, sample);
+            return;
+        }
+
         PlanetEnvironmentProfile environmentProfile = PlanetEnvironmentProfile.FromPlanetProfile(
             sample.Profile,
             sample.GenerationSeed,
@@ -265,8 +335,8 @@ public partial class LifeDistributionBaselineRunner : Node
             existingSuitability: ColonySuitability.FromDictionary(sample.Suitability.ToDictionary()),
             useCaseSettings: settings);
         PlanetProfile profile = populationData.Profile;
-
-        result.TotalWorlds += 1;
+        result.RemainingWorlds += 1;
+        UpdateRemainingWorldStats(result.RemainingStats, profile);
         if (sample.Profile.HasLiquidWater)
         {
             result.WetWorlds += 1;
@@ -342,15 +412,15 @@ public partial class LifeDistributionBaselineRunner : Node
 
         result.ExpectedBiosphereWorlds += nativeLikelihood;
         result.ExpectedColonyWorlds += colonyLikelihood;
-        BandStats band = GetBand(result.Bands, profile.HabitabilityScore);
-        band.TotalWorlds += 1;
+        ScoreStats scoreStats = GetScoreBucket(result.ScoreBuckets, profile.HabitabilityScore);
+        scoreStats.TotalWorlds += 1;
 
         bool hasBiosphere = populationData.EcologyState != null
             && populationData.EcologyState.Status == ConceptRunStatus.Generated;
         if (hasBiosphere)
         {
             result.BiosphereWorlds += 1;
-            band.BiosphereWorlds += 1;
+            scoreStats.BiosphereWorlds += 1;
         }
 
         bool hasSentientLife = populationData.SentienceAssessment != null
@@ -359,34 +429,35 @@ public partial class LifeDistributionBaselineRunner : Node
         if (hasSentientLife)
         {
             result.SentientWorlds += 1;
-            band.SentientWorlds += 1;
+            scoreStats.SentientWorlds += 1;
         }
 
         bool hasSettlements = populationData.HasExtantNatives() || populationData.HasActiveColonies();
         if (hasSettlements)
         {
             result.SettledWorlds += 1;
-            band.SettledWorlds += 1;
+            scoreStats.SettledWorlds += 1;
         }
 
         if (populationData.HasActiveColonies())
         {
             result.ColonyWorlds += 1;
-            band.ColonyWorlds += 1;
+            scoreStats.ColonyWorlds += 1;
         }
     }
 
-    private static BandStats GetBand(List<BandStats> bands, int habitabilityScore)
+    private static ScoreStats GetScoreBucket(List<ScoreStats> buckets, int habitabilityScore)
     {
-        foreach (BandStats band in bands)
+        int clampedScore = Math.Clamp(habitabilityScore, 0, 10);
+        foreach (ScoreStats bucket in buckets)
         {
-            if (habitabilityScore >= band.MinimumHabitability && habitabilityScore <= band.MaximumHabitability)
+            if (bucket.HabitabilityScore == clampedScore)
             {
-                return band;
+                return bucket;
             }
         }
 
-        return bands[bands.Count - 1];
+        return buckets[buckets.Count - 1];
     }
 
     private static string BuildMarkdownReport(List<ScenarioResult> scenarios)
@@ -404,6 +475,19 @@ public partial class LifeDistributionBaselineRunner : Node
             lines.Add("## " + scenario.Label);
             lines.Add(string.Empty);
             lines.Add($"- Total worlds: {scenario.TotalWorlds}");
+            lines.Add($"- Size-blocked worlds (gas/ice giants): {scenario.SizeBlockedWorlds} ({FormatPercent(scenario.SizeBlockedWorlds, scenario.TotalWorlds)})");
+            lines.Add($"- Remaining evaluated worlds: {scenario.RemainingWorlds}");
+            lines.Add($"- Gas giants blocked: {scenario.GasGiantBlockedWorlds}");
+            lines.Add($"- Ice giants blocked: {scenario.IceGiantBlockedWorlds}");
+            lines.Add($"- Remaining worlds (planets): {scenario.RemainingStats.PlanetWorldCount}");
+            lines.Add($"- Remaining worlds (moons): {scenario.RemainingStats.MoonWorldCount}");
+            lines.Add($"- Remaining worlds with water: {scenario.RemainingStats.WetWorldCount}");
+            lines.Add($"- Remaining worlds with atmosphere: {scenario.RemainingStats.AtmosphereWorldCount}");
+            lines.Add($"- Remaining worlds with breathable atmosphere: {scenario.RemainingStats.BreathableAtmosphereWorldCount}");
+            lines.Add($"- Remaining worlds habitability min/max/avg: {FormatRangeWithAverageInt(scenario.RemainingStats.MinHabitability, scenario.RemainingStats.MaxHabitability, scenario.RemainingStats.HabitabilitySum, scenario.RemainingStats.WorldCount)}");
+            lines.Add($"- Remaining worlds temperature K min/max/avg: {FormatRangeWithAverageDouble(scenario.RemainingStats.MinTemperatureK, scenario.RemainingStats.MaxTemperatureK, scenario.RemainingStats.TemperatureSumK, scenario.RemainingStats.WorldCount)}");
+            lines.Add($"- Remaining worlds pressure atm min/max/avg: {FormatRangeWithAverageDouble(scenario.RemainingStats.MinPressureAtm, scenario.RemainingStats.MaxPressureAtm, scenario.RemainingStats.PressureSumAtm, scenario.RemainingStats.WorldCount)}");
+            lines.Add($"- Remaining worlds gravity g min/max/avg: {FormatRangeWithAverageDouble(scenario.RemainingStats.MinGravityG, scenario.RemainingStats.MaxGravityG, scenario.RemainingStats.GravitySumG, scenario.RemainingStats.WorldCount)}");
             lines.Add($"- Wet worlds: {scenario.WetWorlds}");
             lines.Add($"- Ecology-capable worlds: {scenario.BiologySupportWorlds}");
             lines.Add($"- Waterless worlds: {scenario.WaterlessWorlds}");
@@ -421,25 +505,34 @@ public partial class LifeDistributionBaselineRunner : Node
             lines.Add($"- Native candidates rejected by roll: {scenario.NativeRollRejectedWorlds}");
             lines.Add($"- Native approvals blocked by ecology support: {scenario.NativeEcologyBlockedWorlds}");
             lines.Add($"- Native candidates blocked by ecology temperature gate: {scenario.NativeCandidateTemperatureBlockedWorlds}");
-            lines.Add($"- Worlds with biospheres: {scenario.BiosphereWorlds} ({FormatPercent(scenario.BiosphereWorlds, scenario.TotalWorlds)})");
+            lines.Add($"- Worlds with biospheres: {scenario.BiosphereWorlds} ({FormatPercent(scenario.BiosphereWorlds, scenario.RemainingWorlds)})");
             lines.Add($"- Colony candidates: {scenario.ColonyCandidateWorlds}");
             lines.Add($"- Expected colony worlds from probability sum: {scenario.ExpectedColonyWorlds:0.0}");
             lines.Add($"- Worlds approved by colony roll: {scenario.ColonyApprovedWorlds}");
             lines.Add($"- Colony candidates avg probability: {FormatAverage(scenario.ColonyCandidateProbabilitySum, scenario.ColonyCandidateWorlds)}");
             lines.Add($"- Colony candidates avg roll: {FormatAverage(scenario.ColonyCandidateRollSum, scenario.ColonyCandidateWorlds)}");
-            lines.Add($"- Worlds with sentient native life: {scenario.SentientWorlds} ({FormatPercent(scenario.SentientWorlds, scenario.TotalWorlds)})");
-            lines.Add($"- Worlds with any settlement: {scenario.SettledWorlds} ({FormatPercent(scenario.SettledWorlds, scenario.TotalWorlds)})");
-            lines.Add($"- Worlds with colonies: {scenario.ColonyWorlds} ({FormatPercent(scenario.ColonyWorlds, scenario.TotalWorlds)})");
+            lines.Add($"- Worlds with sentient native life: {scenario.SentientWorlds} ({FormatPercent(scenario.SentientWorlds, scenario.RemainingWorlds)})");
+            lines.Add($"- Worlds with any settlement: {scenario.SettledWorlds} ({FormatPercent(scenario.SettledWorlds, scenario.RemainingWorlds)})");
+            lines.Add($"- Worlds with colonies: {scenario.ColonyWorlds} ({FormatPercent(scenario.ColonyWorlds, scenario.RemainingWorlds)})");
             lines.Add(string.Empty);
-            lines.Add("| Habitability Band | Total | Biospheres | Sentient | Settled | Colonies | Distribution |");
+            lines.Add("| Habitability Score | Total | Biospheres | Sentient | Settled | Colonies | Distribution |");
             lines.Add("| --- | ---: | ---: | ---: | ---: | ---: | --- |");
 
-            foreach (BandStats band in scenario.Bands)
+            foreach (ScoreStats scoreStats in scenario.ScoreBuckets)
             {
                 lines.Add(
-                    $"| {band.Label} | {band.TotalWorlds} | {band.BiosphereWorlds} | {band.SentientWorlds} | {band.SettledWorlds} | {band.ColonyWorlds} | {BuildBar(band.TotalWorlds, scenario.TotalWorlds)} |");
+                    $"| {scoreStats.HabitabilityScore} | {scoreStats.TotalWorlds} | {scoreStats.BiosphereWorlds} | {scoreStats.SentientWorlds} | {scoreStats.SettledWorlds} | {scoreStats.ColonyWorlds} | {BuildBar(scoreStats.TotalWorlds, scenario.RemainingWorlds)} |");
             }
 
+            lines.Add(string.Empty);
+            lines.Add("### Size-blocked worlds");
+            lines.Add(string.Empty);
+            lines.Add("| Body ID | Type | Block | Size Category | Mass (Earth) | Habitability | Temp K |");
+            lines.Add("| --- | --- | --- | --- | ---: | ---: | ---: |");
+            foreach (SizeBlockedWorld blockedWorld in scenario.SizeBlockedWorldDetails)
+            {
+                lines.Add($"| {blockedWorld.BodyId} | {blockedWorld.BodyType} | {blockedWorld.BlockReason} | {blockedWorld.SizeCategory} | {blockedWorld.MassEarth:0.000} | {blockedWorld.HabitabilityScore} | {blockedWorld.TemperatureK:0.0} |");
+            }
             lines.Add(string.Empty);
         }
 
@@ -449,13 +542,13 @@ public partial class LifeDistributionBaselineRunner : Node
     private static string BuildCsvReport(List<ScenarioResult> scenarios)
     {
         List<string> lines = new List<string>();
-        lines.Add("scenario_key,scenario_label,wet_worlds,biology_support_worlds,waterless_worlds,wet_habitability_blocked_worlds,wet_radiation_blocked_worlds,wet_too_cold_worlds,wet_too_hot_worlds,native_candidate_worlds,native_ecology_capable_candidate_worlds,native_approved_worlds,native_roll_rejected_worlds,native_ecology_blocked_worlds,native_candidate_temperature_blocked_worlds,expected_biosphere_worlds,expected_ecology_capable_biosphere_worlds,native_candidate_avg_probability,native_candidate_avg_roll,colony_candidate_worlds,colony_approved_worlds,expected_colony_worlds,colony_candidate_avg_probability,colony_candidate_avg_roll,band,total_worlds,biosphere_worlds,sentient_worlds,settled_worlds,colony_worlds");
+        lines.Add("scenario_key,scenario_label,total_worlds,remaining_worlds,size_blocked_worlds,gas_giant_blocked_worlds,ice_giant_blocked_worlds,wet_worlds,biology_support_worlds,waterless_worlds,wet_habitability_blocked_worlds,wet_radiation_blocked_worlds,wet_too_cold_worlds,wet_too_hot_worlds,native_candidate_worlds,native_ecology_capable_candidate_worlds,native_approved_worlds,native_roll_rejected_worlds,native_ecology_blocked_worlds,native_candidate_temperature_blocked_worlds,expected_biosphere_worlds,expected_ecology_capable_biosphere_worlds,native_candidate_avg_probability,native_candidate_avg_roll,colony_candidate_worlds,colony_approved_worlds,expected_colony_worlds,colony_candidate_avg_probability,colony_candidate_avg_roll,habitability_score,score_worlds,biosphere_worlds,sentient_worlds,settled_worlds,colony_worlds");
         foreach (ScenarioResult scenario in scenarios)
         {
-            foreach (BandStats band in scenario.Bands)
+            foreach (ScoreStats scoreStats in scenario.ScoreBuckets)
             {
                 lines.Add(
-                    $"{scenario.Key},{EscapeCsv(scenario.Label)},{scenario.WetWorlds},{scenario.BiologySupportWorlds},{scenario.WaterlessWorlds},{scenario.WetHabitabilityBlockedWorlds},{scenario.WetRadiationBlockedWorlds},{scenario.WetTooColdWorlds},{scenario.WetTooHotWorlds},{scenario.NativeCandidateWorlds},{scenario.NativeEcologyCapableCandidateWorlds},{scenario.NativeApprovedWorlds},{scenario.NativeRollRejectedWorlds},{scenario.NativeEcologyBlockedWorlds},{scenario.NativeCandidateTemperatureBlockedWorlds},{scenario.ExpectedBiosphereWorlds:0.000},{scenario.ExpectedEcologyCapableBiosphereWorlds:0.000},{FormatAverage(scenario.NativeCandidateProbabilitySum, scenario.NativeCandidateWorlds)},{FormatAverage(scenario.NativeCandidateRollSum, scenario.NativeCandidateWorlds)},{scenario.ColonyCandidateWorlds},{scenario.ColonyApprovedWorlds},{scenario.ExpectedColonyWorlds:0.000},{FormatAverage(scenario.ColonyCandidateProbabilitySum, scenario.ColonyCandidateWorlds)},{FormatAverage(scenario.ColonyCandidateRollSum, scenario.ColonyCandidateWorlds)},{EscapeCsv(band.Label)},{band.TotalWorlds},{band.BiosphereWorlds},{band.SentientWorlds},{band.SettledWorlds},{band.ColonyWorlds}");
+                    $"{scenario.Key},{EscapeCsv(scenario.Label)},{scenario.TotalWorlds},{scenario.RemainingWorlds},{scenario.SizeBlockedWorlds},{scenario.GasGiantBlockedWorlds},{scenario.IceGiantBlockedWorlds},{scenario.WetWorlds},{scenario.BiologySupportWorlds},{scenario.WaterlessWorlds},{scenario.WetHabitabilityBlockedWorlds},{scenario.WetRadiationBlockedWorlds},{scenario.WetTooColdWorlds},{scenario.WetTooHotWorlds},{scenario.NativeCandidateWorlds},{scenario.NativeEcologyCapableCandidateWorlds},{scenario.NativeApprovedWorlds},{scenario.NativeRollRejectedWorlds},{scenario.NativeEcologyBlockedWorlds},{scenario.NativeCandidateTemperatureBlockedWorlds},{scenario.ExpectedBiosphereWorlds:0.000},{scenario.ExpectedEcologyCapableBiosphereWorlds:0.000},{FormatAverage(scenario.NativeCandidateProbabilitySum, scenario.NativeCandidateWorlds)},{FormatAverage(scenario.NativeCandidateRollSum, scenario.NativeCandidateWorlds)},{scenario.ColonyCandidateWorlds},{scenario.ColonyApprovedWorlds},{scenario.ExpectedColonyWorlds:0.000},{FormatAverage(scenario.ColonyCandidateProbabilitySum, scenario.ColonyCandidateWorlds)},{FormatAverage(scenario.ColonyCandidateRollSum, scenario.ColonyCandidateWorlds)},{scoreStats.HabitabilityScore},{scoreStats.TotalWorlds},{scoreStats.BiosphereWorlds},{scoreStats.SentientWorlds},{scoreStats.SettledWorlds},{scoreStats.ColonyWorlds}");
             }
         }
 
@@ -467,19 +560,32 @@ public partial class LifeDistributionBaselineRunner : Node
         Array<Dictionary> scenarioArray = new Array<Dictionary>();
         foreach (ScenarioResult scenario in scenarios)
         {
-            Array<Dictionary> bandArray = new Array<Dictionary>();
-            foreach (BandStats band in scenario.Bands)
+            Array<Dictionary> scoreArray = new Array<Dictionary>();
+            foreach (ScoreStats scoreStats in scenario.ScoreBuckets)
             {
-                bandArray.Add(new Dictionary
+                scoreArray.Add(new Dictionary
                 {
-                    ["label"] = band.Label,
-                    ["minimum_habitability"] = band.MinimumHabitability,
-                    ["maximum_habitability"] = band.MaximumHabitability,
-                    ["total_worlds"] = band.TotalWorlds,
-                    ["biosphere_worlds"] = band.BiosphereWorlds,
-                    ["sentient_worlds"] = band.SentientWorlds,
-                    ["settled_worlds"] = band.SettledWorlds,
-                    ["colony_worlds"] = band.ColonyWorlds,
+                    ["habitability_score"] = scoreStats.HabitabilityScore,
+                    ["total_worlds"] = scoreStats.TotalWorlds,
+                    ["biosphere_worlds"] = scoreStats.BiosphereWorlds,
+                    ["sentient_worlds"] = scoreStats.SentientWorlds,
+                    ["settled_worlds"] = scoreStats.SettledWorlds,
+                    ["colony_worlds"] = scoreStats.ColonyWorlds,
+                });
+            }
+
+            Array<Dictionary> blockedArray = new Array<Dictionary>();
+            foreach (SizeBlockedWorld blockedWorld in scenario.SizeBlockedWorldDetails)
+            {
+                blockedArray.Add(new Dictionary
+                {
+                    ["body_id"] = blockedWorld.BodyId,
+                    ["body_type"] = blockedWorld.BodyType,
+                    ["block_reason"] = blockedWorld.BlockReason,
+                    ["size_category"] = blockedWorld.SizeCategory,
+                    ["mass_earth"] = blockedWorld.MassEarth,
+                    ["habitability_score"] = blockedWorld.HabitabilityScore,
+                    ["temperature_k"] = blockedWorld.TemperatureK,
                 });
             }
 
@@ -488,6 +594,10 @@ public partial class LifeDistributionBaselineRunner : Node
                 ["key"] = scenario.Key,
                 ["label"] = scenario.Label,
                 ["total_worlds"] = scenario.TotalWorlds,
+                ["remaining_worlds"] = scenario.RemainingWorlds,
+                ["size_blocked_worlds"] = scenario.SizeBlockedWorlds,
+                ["gas_giant_blocked_worlds"] = scenario.GasGiantBlockedWorlds,
+                ["ice_giant_blocked_worlds"] = scenario.IceGiantBlockedWorlds,
                 ["wet_worlds"] = scenario.WetWorlds,
                 ["biology_support_worlds"] = scenario.BiologySupportWorlds,
                 ["waterless_worlds"] = scenario.WaterlessWorlds,
@@ -514,7 +624,9 @@ public partial class LifeDistributionBaselineRunner : Node
                 ["sentient_worlds"] = scenario.SentientWorlds,
                 ["settled_worlds"] = scenario.SettledWorlds,
                 ["colony_worlds"] = scenario.ColonyWorlds,
-                ["bands"] = bandArray,
+                ["score_buckets"] = scoreArray,
+                ["size_blocked_world_details"] = blockedArray,
+                ["remaining_world_stats"] = BuildRemainingWorldStatsDictionary(scenario.RemainingStats),
             });
         }
 
@@ -563,6 +675,188 @@ public partial class LifeDistributionBaselineRunner : Node
         }
 
         return (totalValue / count).ToString("0.000");
+    }
+
+    private static string ResolveSizeCategoryLabel(double massEarth)
+    {
+        SizeCategory.Category category = SizeTable.CategoryFromMass(massEarth);
+        return category.ToString();
+    }
+
+    private static bool IsBlockedBySizeCategory(string sizeCategory)
+    {
+        if (sizeCategory == SizeCategory.Category.MiniNeptune.ToString())
+        {
+            return true;
+        }
+
+        if (sizeCategory == SizeCategory.Category.NeptuneClass.ToString())
+        {
+            return true;
+        }
+
+        if (sizeCategory == SizeCategory.Category.GasGiant.ToString())
+        {
+            return true;
+        }
+
+        return false;
+    }
+
+    private static void RecordBlockedWorld(ScenarioResult result, WorldSample sample)
+    {
+        result.SizeBlockedWorlds += 1;
+        if (sample.SizeCategory == SizeCategory.Category.GasGiant.ToString())
+        {
+            result.GasGiantBlockedWorlds += 1;
+        }
+        else
+        {
+            result.IceGiantBlockedWorlds += 1;
+        }
+
+        SizeBlockedWorld blockedWorld = new SizeBlockedWorld();
+        blockedWorld.BodyId = sample.BodyId;
+        blockedWorld.BodyType = sample.BodyType;
+        blockedWorld.BlockReason = sample.BlockReason;
+        blockedWorld.SizeCategory = sample.SizeCategory;
+        blockedWorld.MassEarth = sample.MassEarth;
+        blockedWorld.HabitabilityScore = sample.Profile.HabitabilityScore;
+        blockedWorld.TemperatureK = sample.Profile.AvgTemperatureK;
+        result.SizeBlockedWorldDetails.Add(blockedWorld);
+    }
+
+    private static void UpdateRemainingWorldStats(RemainingWorldStats stats, PlanetProfile profile)
+    {
+        stats.WorldCount += 1;
+        if (profile.HasLiquidWater)
+        {
+            stats.WetWorldCount += 1;
+        }
+
+        if (profile.HasAtmosphere)
+        {
+            stats.AtmosphereWorldCount += 1;
+        }
+
+        if (profile.HasBreathableAtmosphere)
+        {
+            stats.BreathableAtmosphereWorldCount += 1;
+        }
+
+        if (profile.IsMoon)
+        {
+            stats.MoonWorldCount += 1;
+        }
+        else
+        {
+            stats.PlanetWorldCount += 1;
+        }
+
+        stats.HabitabilitySum += profile.HabitabilityScore;
+        if (profile.HabitabilityScore < stats.MinHabitability)
+        {
+            stats.MinHabitability = profile.HabitabilityScore;
+        }
+
+        if (profile.HabitabilityScore > stats.MaxHabitability)
+        {
+            stats.MaxHabitability = profile.HabitabilityScore;
+        }
+
+        stats.TemperatureSumK += profile.AvgTemperatureK;
+        if (profile.AvgTemperatureK < stats.MinTemperatureK)
+        {
+            stats.MinTemperatureK = profile.AvgTemperatureK;
+        }
+
+        if (profile.AvgTemperatureK > stats.MaxTemperatureK)
+        {
+            stats.MaxTemperatureK = profile.AvgTemperatureK;
+        }
+
+        stats.PressureSumAtm += profile.PressureAtm;
+        if (profile.PressureAtm < stats.MinPressureAtm)
+        {
+            stats.MinPressureAtm = profile.PressureAtm;
+        }
+
+        if (profile.PressureAtm > stats.MaxPressureAtm)
+        {
+            stats.MaxPressureAtm = profile.PressureAtm;
+        }
+
+        stats.GravitySumG += profile.GravityG;
+        if (profile.GravityG < stats.MinGravityG)
+        {
+            stats.MinGravityG = profile.GravityG;
+        }
+
+        if (profile.GravityG > stats.MaxGravityG)
+        {
+            stats.MaxGravityG = profile.GravityG;
+        }
+    }
+
+    private static string FormatRangeWithAverageInt(int minimum, int maximum, double sum, int count)
+    {
+        if (count <= 0)
+        {
+            return "n/a";
+        }
+
+        return $"{minimum} / {maximum} / {(sum / count):0.000}";
+    }
+
+    private static string FormatRangeWithAverageDouble(double minimum, double maximum, double sum, int count)
+    {
+        if (count <= 0)
+        {
+            return "n/a";
+        }
+
+        return $"{minimum:0.000} / {maximum:0.000} / {(sum / count):0.000}";
+    }
+
+    private static Dictionary BuildRemainingWorldStatsDictionary(RemainingWorldStats stats)
+    {
+        Dictionary dictionary = new Dictionary();
+        dictionary["world_count"] = stats.WorldCount;
+        dictionary["wet_world_count"] = stats.WetWorldCount;
+        dictionary["atmosphere_world_count"] = stats.AtmosphereWorldCount;
+        dictionary["breathable_atmosphere_world_count"] = stats.BreathableAtmosphereWorldCount;
+        dictionary["moon_world_count"] = stats.MoonWorldCount;
+        dictionary["planet_world_count"] = stats.PlanetWorldCount;
+        if (stats.WorldCount <= 0)
+        {
+            dictionary["min_habitability"] = 0;
+            dictionary["max_habitability"] = 0;
+            dictionary["avg_habitability"] = 0.0;
+            dictionary["min_temperature_k"] = 0.0;
+            dictionary["max_temperature_k"] = 0.0;
+            dictionary["avg_temperature_k"] = 0.0;
+            dictionary["min_pressure_atm"] = 0.0;
+            dictionary["max_pressure_atm"] = 0.0;
+            dictionary["avg_pressure_atm"] = 0.0;
+            dictionary["min_gravity_g"] = 0.0;
+            dictionary["max_gravity_g"] = 0.0;
+            dictionary["avg_gravity_g"] = 0.0;
+            return dictionary;
+        }
+
+        dictionary["min_habitability"] = stats.MinHabitability;
+        dictionary["max_habitability"] = stats.MaxHabitability;
+        dictionary["avg_habitability"] = stats.HabitabilitySum / stats.WorldCount;
+        dictionary["min_temperature_k"] = stats.MinTemperatureK;
+        dictionary["max_temperature_k"] = stats.MaxTemperatureK;
+        dictionary["avg_temperature_k"] = stats.TemperatureSumK / stats.WorldCount;
+        dictionary["min_pressure_atm"] = stats.MinPressureAtm;
+        dictionary["max_pressure_atm"] = stats.MaxPressureAtm;
+        dictionary["avg_pressure_atm"] = stats.PressureSumAtm / stats.WorldCount;
+        dictionary["min_gravity_g"] = stats.MinGravityG;
+        dictionary["max_gravity_g"] = stats.MaxGravityG;
+        dictionary["avg_gravity_g"] = stats.GravitySumG / stats.WorldCount;
+        return dictionary;
     }
 
     private static string EscapeCsv(string value)

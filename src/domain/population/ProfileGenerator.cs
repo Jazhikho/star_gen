@@ -19,6 +19,7 @@ public static class ProfileGenerator
         {
             BodyId = body.Id,
             IsMoon = body.Type == CelestialType.Type.Moon,
+            StellarAgeYears = context.StellarAgeYears,
         };
 
         ExtractPhysicalProperties(profile, body);

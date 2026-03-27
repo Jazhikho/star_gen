@@ -1,30 +1,66 @@
 using Godot;
 using StarGen.App.Shared;
+using System.Collections.Generic;
 
 namespace StarGen.App;
 
 /// <summary>
-/// Lightweight startup splash that holds for a short duration and can be skipped by input.
+/// Startup splash that plays the intro video, then cross-fades into the StarGen logo.
 /// </summary>
 public partial class SplashScreen : Control
 {
 	[Signal]
 	public delegate void splash_finishedEventHandler();
 
-	private Timer? _revealTimer;
+	/// <summary>The resource path for optional intro music, left blank until music is added.</summary>
+	[Export]
+	private string IntroMusicResourcePath { get; set; } = string.Empty;
+
+	/// <summary>The resource path for the StarGen logo shown after the intro video.</summary>
+	[Export]
+	private string LogoTextureResourcePath { get; set; } = "res://StarGen.png";
+
+	/// <summary>The duration of the video-to-logo cross-fade.</summary>
+	[Export]
+	private float TransitionDurationSeconds { get; set; } = 0.9f;
+
+	/// <summary>The hold time for the logo after the transition completes.</summary>
+	[Export]
+	private float LogoHoldSeconds { get; set; } = 0.65f;
+
+	/// <summary>The playback volume for optional intro music.</summary>
+	[Export]
+	private float MusicVolumeDb { get; set; } = -6.0f;
+
+	private VideoStreamPlayer? _videoPlayer;
+	private Control? _videoLayer;
+	private CenterContainer? _logoLayer;
+	private TextureRect? _logoTexture;
 	private Label? _versionLabel;
 	private Label? _statusLabel;
+	private Label? _skipLabel;
+	private AudioStreamPlayer? _introMusicPlayer;
 	private bool _finished;
-	private double _elapsed;
+	private bool _transitionStarted;
 
 	/// <summary>
 	/// Initializes the splash sequence.
 	/// </summary>
 	public override void _Ready()
 	{
-		_revealTimer = GetNodeOrNull<Timer>("RevealTimer");
-		_versionLabel = GetNodeOrNull<Label>("MarginContainer/ScrollContainer/Layout/WordmarkBlock/VersionLabel");
-		_statusLabel = GetNodeOrNull<Label>("MarginContainer/ScrollContainer/Layout/WordmarkBlock/StatusLabel");
+		_videoLayer = GetNodeOrNull<Control>("CenterStage/StageVBox/MediaFrame/VideoLayer");
+		_videoPlayer = GetNodeOrNull<VideoStreamPlayer>("CenterStage/StageVBox/MediaFrame/VideoLayer/VideoPlayer");
+		_logoLayer = GetNodeOrNull<CenterContainer>("CenterStage/StageVBox/MediaFrame/LogoLayer");
+		_logoTexture = GetNodeOrNull<TextureRect>("CenterStage/StageVBox/MediaFrame/LogoLayer/LogoTexture");
+		_versionLabel = GetNodeOrNull<Label>("CenterStage/StageVBox/LogoVBox/VersionLabel");
+		_statusLabel = GetNodeOrNull<Label>("CenterStage/StageVBox/LogoVBox/StatusLabel");
+		_skipLabel = GetNodeOrNull<Label>("SkipLabel");
+		_introMusicPlayer = GetNodeOrNull<AudioStreamPlayer>("IntroMusicPlayer");
+
+		if (_videoPlayer != null)
+		{
+			_videoPlayer.Connect("finished", Callable.From(OnVideoFinished));
+		}
 
 		string version = UserFacingVersionHelper.GetDisplayVersion();
 		if (_versionLabel != null)
@@ -34,54 +70,350 @@ public partial class SplashScreen : Control
 
 		if (_statusLabel != null)
 		{
-			_statusLabel.Text = "Preparing star charts...";
+			_statusLabel.Text = "Receiving star charts...";
 		}
 
-		if (_revealTimer != null)
+		if (_skipLabel != null)
 		{
-			_revealTimer.Timeout += Finish;
-			if (_revealTimer.IsInsideTree())
-			{
-				_revealTimer.Start();
-			}
+			_skipLabel.Text = "Press any key or click to skip";
+		}
+
+		if (_logoLayer != null)
+		{
+			_logoLayer.Modulate = new Color(1.0f, 1.0f, 1.0f, 0.0f);
+		}
+
+		if (_introMusicPlayer != null)
+		{
+			_introMusicPlayer.VolumeDb = MusicVolumeDb;
+		}
+
+		LoadLogoTexture();
+		LoadIntroVideo();
+		LoadIntroMusic();
+
+		if (IsInsideTree())
+		{
+			StartPlayback();
 		}
 	}
 
 	/// <summary>
-	/// Provides a subtle pulse to keep the splash from feeling static.
-	/// </summary>
-	public override void _Process(double delta)
-	{
-		_elapsed += delta;
-		Label? brandGlyph = GetNodeOrNull<Label>("MarginContainer/ScrollContainer/Layout/WordmarkBlock/GlyphLabel");
-		if (brandGlyph != null)
-		{
-			float alpha = 0.75f + (0.25f * Mathf.Sin((float)_elapsed * 2.2f));
-			brandGlyph.Modulate = new Color(0.74f, 0.88f, 1.0f, alpha);
-		}
-	}
-
-	/// <summary>
-	/// Allows skipping the splash with any key or click.
+	/// Allows skipping the intro with any key or click.
 	/// </summary>
 	public override void _UnhandledInput(InputEvent @event)
 	{
-		if (_finished)
+		if (_finished || _transitionStarted)
 		{
 			return;
 		}
 
 		if (@event is InputEventKey keyEvent && keyEvent.Pressed && !keyEvent.Echo)
 		{
-			Finish();
+			BeginLogoTransition();
 			GetViewport()?.SetInputAsHandled();
 			return;
 		}
 
 		if (@event is InputEventMouseButton mouseEvent && mouseEvent.Pressed)
 		{
-			Finish();
+			BeginLogoTransition();
 			GetViewport()?.SetInputAsHandled();
+		}
+	}
+
+	private void LoadIntroVideo()
+	{
+		if (_videoPlayer == null)
+		{
+			GD.PushError("SplashScreen: VideoPlayer node is missing.");
+			return;
+		}
+
+		if (_videoPlayer.Stream != null)
+		{
+			return;
+		}
+
+		string resolvedVideoPath = ResolveIntroVideoResourcePath();
+		if (string.IsNullOrWhiteSpace(resolvedVideoPath))
+		{
+			return;
+		}
+
+		VideoStream? introVideo = ResourceLoader.Load<VideoStream>(resolvedVideoPath);
+		if (introVideo == null)
+		{
+			GD.PushError($"SplashScreen: failed to load intro video '{resolvedVideoPath}'.");
+			return;
+		}
+
+		_videoPlayer.Stream = introVideo;
+	}
+
+	private void LoadIntroMusic()
+	{
+		if (_introMusicPlayer == null)
+		{
+			GD.PushError("SplashScreen: IntroMusicPlayer node is missing.");
+			return;
+		}
+
+		string resolvedMusicPath = ResolveIntroMusicResourcePath();
+		if (string.IsNullOrWhiteSpace(resolvedMusicPath))
+		{
+			return;
+		}
+
+		AudioStream? introMusic = ResourceLoader.Load<AudioStream>(resolvedMusicPath);
+		if (introMusic == null)
+		{
+			GD.PushError($"SplashScreen: failed to load intro music '{resolvedMusicPath}'.");
+			return;
+		}
+
+		_introMusicPlayer.Stream = introMusic;
+	}
+
+	private void LoadLogoTexture()
+	{
+		if (_logoTexture == null)
+		{
+			GD.PushError("SplashScreen: LogoTexture node is missing.");
+			return;
+		}
+
+		if (string.IsNullOrWhiteSpace(LogoTextureResourcePath))
+		{
+			GD.PushError("SplashScreen: logo texture path is empty.");
+			return;
+		}
+
+		Texture2D? logoTexture = ResourceLoader.Load<Texture2D>(LogoTextureResourcePath);
+		if (logoTexture == null)
+		{
+			GD.PushError($"SplashScreen: failed to load logo texture '{LogoTextureResourcePath}'.");
+			return;
+		}
+
+		_logoTexture.Texture = logoTexture;
+	}
+
+	private string ResolveIntroVideoResourcePath()
+	{
+		DirAccess? rootDir = DirAccess.Open("res://");
+		if (rootDir == null)
+		{
+			GD.PushError("SplashScreen: failed to open root directory while searching for intro video.");
+			return string.Empty;
+		}
+
+		List<string> ogvFiles = new List<string>();
+		rootDir.ListDirBegin();
+		while (true)
+		{
+			string fileName = rootDir.GetNext();
+			if (string.IsNullOrEmpty(fileName))
+			{
+				break;
+			}
+
+			if (rootDir.CurrentIsDir())
+			{
+				continue;
+			}
+
+			if (fileName.EndsWith(".ogv"))
+			{
+				ogvFiles.Add(fileName);
+			}
+		}
+		rootDir.ListDirEnd();
+
+		if (ogvFiles.Count == 0)
+		{
+			GD.PushError("SplashScreen: no root .ogv file was found for intro video.");
+			return string.Empty;
+		}
+
+		if (ogvFiles.Count > 1)
+		{
+			GD.PushError("SplashScreen: multiple root .ogv files were found; keep only one intro video in the project root.");
+			return string.Empty;
+		}
+
+		return "res://" + ogvFiles[0];
+	}
+
+	private string ResolveIntroMusicResourcePath()
+	{
+		if (!string.IsNullOrWhiteSpace(IntroMusicResourcePath))
+		{
+			return IntroMusicResourcePath;
+		}
+
+		DirAccess? rootDir = DirAccess.Open("res://");
+		if (rootDir == null)
+		{
+			GD.PushError("SplashScreen: failed to open root directory while searching for intro music.");
+			return string.Empty;
+		}
+
+		List<string> oggFiles = new List<string>();
+		rootDir.ListDirBegin();
+		while (true)
+		{
+			string fileName = rootDir.GetNext();
+			if (string.IsNullOrEmpty(fileName))
+			{
+				break;
+			}
+
+			if (rootDir.CurrentIsDir())
+			{
+				continue;
+			}
+
+			if (fileName.EndsWith(".ogg"))
+			{
+				oggFiles.Add(fileName);
+			}
+		}
+		rootDir.ListDirEnd();
+
+		if (oggFiles.Count == 0)
+		{
+			GD.PushError("SplashScreen: no root .ogg file was found for intro music.");
+			return string.Empty;
+		}
+
+		if (oggFiles.Count > 1)
+		{
+			GD.PushError("SplashScreen: multiple root .ogg files were found; set IntroMusicResourcePath explicitly.");
+			return string.Empty;
+		}
+
+		return "res://" + oggFiles[0];
+	}
+
+	private void StartPlayback()
+	{
+		if (_videoPlayer == null)
+		{
+			BeginLogoTransition();
+			return;
+		}
+
+		if (_videoPlayer.Stream == null)
+		{
+			BeginLogoTransition();
+			return;
+		}
+
+		_videoPlayer.Play();
+
+		if (_introMusicPlayer != null && _introMusicPlayer.Stream != null)
+		{
+			_introMusicPlayer.Play();
+		}
+	}
+
+	private void OnVideoFinished()
+	{
+		BeginLogoTransition();
+	}
+
+	private async void BeginLogoTransition()
+	{
+		if (_finished || _transitionStarted)
+		{
+			return;
+		}
+
+		_transitionStarted = true;
+
+		if (_statusLabel != null)
+		{
+			_statusLabel.Text = "Loading main menu...";
+		}
+
+		if (_skipLabel != null)
+		{
+			_skipLabel.Text = string.Empty;
+		}
+
+		if (!IsInsideTree())
+		{
+			StopPlayback();
+			Finish();
+			return;
+		}
+
+		Tween transitionTween = CreateTween();
+		transitionTween.SetParallel(true);
+
+		if (_videoPlayer != null)
+		{
+			transitionTween.TweenProperty(_videoPlayer, "modulate:a", 0.0f, TransitionDurationSeconds);
+		}
+
+		if (_videoLayer != null)
+		{
+			transitionTween.TweenProperty(_videoLayer, "modulate:a", 0.0f, TransitionDurationSeconds);
+		}
+
+		if (_logoLayer != null)
+		{
+			transitionTween.TweenProperty(_logoLayer, "modulate:a", 1.0f, TransitionDurationSeconds);
+		}
+
+		if (_skipLabel != null)
+		{
+			transitionTween.TweenProperty(_skipLabel, "modulate:a", 0.0f, TransitionDurationSeconds * 0.5f);
+		}
+
+		if (_introMusicPlayer != null && _introMusicPlayer.Stream != null && _introMusicPlayer.Playing)
+		{
+			transitionTween.TweenProperty(_introMusicPlayer, "volume_db", -40.0f, TransitionDurationSeconds);
+		}
+
+		await ToSignal(transitionTween, Tween.SignalName.Finished);
+		StopPlayback();
+
+		if (_logoLayer != null)
+		{
+			_logoLayer.Modulate = new Color(1.0f, 1.0f, 1.0f, 1.0f);
+		}
+
+		if (LogoHoldSeconds <= 0.0f)
+		{
+			Finish();
+			return;
+		}
+
+		SceneTree? tree = GetTree();
+		if (tree == null)
+		{
+			Finish();
+			return;
+		}
+
+		SceneTreeTimer holdTimer = tree.CreateTimer(LogoHoldSeconds);
+		await ToSignal(holdTimer, SceneTreeTimer.SignalName.Timeout);
+		Finish();
+	}
+
+	private void StopPlayback()
+	{
+		if (_videoPlayer != null && _videoPlayer.IsPlaying())
+		{
+			_videoPlayer.Stop();
+		}
+
+		if (_introMusicPlayer != null && _introMusicPlayer.Playing)
+		{
+			_introMusicPlayer.Stop();
+			_introMusicPlayer.VolumeDb = MusicVolumeDb;
 		}
 	}
 

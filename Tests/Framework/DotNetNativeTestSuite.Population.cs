@@ -12,6 +12,14 @@ namespace StarGen.Tests.Framework;
 public static partial class DotNetNativeTestSuite
 {
     /// <summary>
+    /// Runs only the Population domain tests.
+    /// </summary>
+    public static void RunPopulationHeadless(DotNetTestRunner runner)
+    {
+        RunPopulationTests(runner);
+    }
+
+    /// <summary>
     /// Runs all Population domain tests.
     /// </summary>
     private static void RunPopulationTests(DotNetTestRunner runner)

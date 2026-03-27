@@ -38,7 +38,6 @@ public static class TestObjectViewer
         runner.RunNativeTest("TestObjectViewer::test_use_case_controls_exist", TestUseCaseControlsExist);
         runner.RunNativeTest("TestObjectViewer::test_traveller_readout_visibility_tracks_settings", TestTravellerReadoutVisibilityTracksSettings);
         runner.RunNativeTest("TestObjectViewer::test_inspector_shows_uwp_for_planets", TestInspectorShowsUwpForPlanets);
-        runner.RunNativeTest("TestObjectViewer::test_inspector_concept_atlas_button_emits_viewer_signal", TestInspectorConceptAtlasButtonEmitsViewerSignal);
     }
 
     private static ObjectViewer CreateViewer()
@@ -493,40 +492,6 @@ public static class TestObjectViewer
 
             DotNetNativeTestSuite.AssertTrue(InspectorContainsText(inspectorContainer!, "World Profile"), "Planet inspector should show a world-profile section");
             DotNetNativeTestSuite.AssertTrue(InspectorContainsText(inspectorContainer, "UWP"), "Planet inspector should surface UWP near the top of the readout");
-        }
-        finally
-        {
-            IntegrationTestUtils.CleanupNode(viewer);
-        }
-    }
-
-    private static void TestInspectorConceptAtlasButtonEmitsViewerSignal()
-    {
-        ObjectViewer viewer = CreateViewer();
-        try
-        {
-            viewer.generate_object(ObjectViewer.ObjectType.Planet, 24680);
-
-            bool signaled = false;
-            string emittedBodyId = string.Empty;
-            viewer.Connect(
-                ObjectViewer.SignalName.OpenConceptAtlasRequested,
-                Callable.From<GodotObject, int>((body, _) =>
-                {
-                    signaled = true;
-                    if (body is CelestialBody typedBody)
-                    {
-                        emittedBodyId = typedBody.Id;
-                    }
-                }));
-
-            Button? conceptAtlasButton = FindInspectorButtonByText(viewer, "Open Concept Atlas");
-            DotNetNativeTestSuite.AssertNotNull(conceptAtlasButton, "Object inspector should expose a concept-atlas button");
-
-            conceptAtlasButton!.EmitSignal(Button.SignalName.Pressed);
-
-            DotNetNativeTestSuite.AssertTrue(signaled, "Concept-atlas button should bubble through the object viewer signal");
-            DotNetNativeTestSuite.AssertEqual(viewer.current_body!.Id, emittedBodyId, "Viewer signal should preserve the current body");
         }
         finally
         {

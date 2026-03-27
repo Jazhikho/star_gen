@@ -47,6 +47,7 @@ Contributors pick an effort and work against master. Efforts can run in parallel
 | Galactic polish | Galaxy save/load UI polish, backward compat, performance | Galactic tools | — |
 | Jump lanes optimization and polish | Optimize and polish jump-lane rendering in galaxy viewer; population data; line/orphan visuals | — | — |
 | Code quality & simplifications | TODOs, placeholder replacements, simplified formulas to redo | — | — |
+| Startup presentation and shell polish | Replace the static splash with intro media, branded transition polish, and optional startup audio hooks | — | — |
 | Population detail (civilisation/regime) | Enrich population with tech level, regime type, and transitions; align with CivilisationEngine concept (Concepts/CivilisationEngine/) | — | — |
 | Concept Atlas and concept tool fold-in | Keep every selected concept prototype accessible inside StarGen through a dedicated atlas, manual sandbox, and context-aware launch points | — | `codex/concept-atlas-fold-in` (showcase surface complete; remains the atlas-facing baseline) |
 | Concept dependency pipeline and determinism hardening | Replace flattened concept context with an explicit deterministic dependency chain from environment through ecology, species, sentience, and society layers | Concept Atlas and concept tool fold-in | `codex/concept-pipeline-hardening` (active 0.7 internal iteration) |
@@ -252,6 +253,22 @@ Recently completed on `master` and included in the `0.5.0.0` release rollup:
 
 ---
 
+### Startup presentation and shell polish
+
+**Goal:** Replace the timer-driven startup splash with intro media that feels branded, deliberate, and ready for later audio work.
+
+**Deliverables:**
+- Video-driven startup splash using the root intro asset (`stargen.ogv`).
+- Cross-fade/tween from the video into the StarGen logo before the app reaches the main menu.
+- Optional intro-music hook kept inside splash wiring so later audio can be added without changing `MainApp`.
+- Skip behavior that still lands on the logo transition rather than hard-cutting directly to the menu.
+
+**Tests:** Splash scene exposes intro media nodes and branding assets; `MainApp` still starts on the splash viewer before later navigation.
+
+**Acceptance:** Launch app -> intro video plays -> logo fades in cleanly -> main menu opens; skip input still uses the branded transition.
+
+---
+
 ### Population detail (civilisation/regime)
 
 **Goal:** Enrich the population framework with civilisation detail: tech level, regime type, and regime transitions. Use the CivilisationEngine concept (`Concepts/CivilisationEngine/`) as the reference model so natives, colonies, and history can be driven by or displayed with tech levels and regimes.
@@ -287,7 +304,7 @@ Recently completed on `master` and included in the `0.5.0.0` release rollup:
 • Subtle user-facing framing in help/release/docs, not a separate “mode”.
 • Tests covering atlas navigation, concept launch, and deterministic outputs for each folded-in concept.
 
-**Acceptance:** From the main menu and relevant viewers, users can open the Concept Atlas and inspect every current concept module without leaving StarGen.
+**Acceptance:** From the main menu, users can open the Concept Atlas and inspect every current concept module without leaving StarGen.
 
 ---
 
@@ -297,7 +314,7 @@ Recently completed on `master` and included in the `0.5.0.0` release rollup:
 
 **Gates:** Concept Atlas and concept tool fold-in.
 
-**Status:** Active on `codex/concept-pipeline-hardening` as the 0.7 internal iteration line. This branch introduces typed environment, ecology, species/evolution, sentience, society, religion, language, and disease states; reworks native-population generation so sentience is explicit; and restores persisted runtime concept state only behind applicability rules and richer provenance.
+**Status:** Merged into the `0.8.0.0` release baseline on `master`. The hardening branch introduced typed environment, ecology, species/evolution, sentience, society, religion, language, and disease states; reworked native-population generation so sentience is explicit; and restored persisted runtime concept state behind applicability rules and richer provenance.
 
 **Deliverables:**
 • Typed dependency inputs/outputs: `PlanetEnvironmentProfile`, `EcologyState`, `SpeciesEvolutionState`, `SentienceAssessment`, `SocietyState`, `ReligionState`, `LanguageState`, and `DiseaseState`.
@@ -316,7 +333,7 @@ Recently completed on `master` and included in the `0.5.0.0` release rollup:
 
 **Gates:** Concept Atlas and concept tool fold-in; Concept dependency pipeline and determinism hardening.
 
-**Status:** Active rework on `codex/concept-pipeline-hardening`, but not yet public-release ready. Runtime concept persistence is back on the hardening branch for deterministic testing, while realism controls, prototype-parity cleanup, and human-audit gates still block an `0.8.0.0` release.
+**Status:** Merged into the `0.8.0.0` release baseline on `master`. Persisted concept state, inspector exposure, and atlas/runtime wiring are now part of the shipped baseline, while follow-on realism tuning and audit work continue as separate efforts rather than as release blockers for this branch.
 
 **Deliverables:**
 • Persisted ecology/species, civilisation, religion, language, and disease data in normal world/system/population payloads.

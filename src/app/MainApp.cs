@@ -15,6 +15,7 @@ namespace StarGen.App;
 /// </summary>
 public partial class MainApp : Node
 {
+	private const float StartupScreenFadeDurationSeconds = 0.45f;
 	private const string SplashScreenScenePath = "res://src/app/SplashScreen.tscn";
 	private const string MainMenuScreenScenePath = "res://src/app/MainMenuScreen.tscn";
 	private const string GalaxyGenerationScreenScenePath = "res://src/app/GalaxyGenerationScreen.tscn";
@@ -31,6 +32,7 @@ public partial class MainApp : Node
 
 	private ViewerType _activeViewer = ViewerType.None;
 	private Node? _viewerContainer;
+	private ColorRect? _startupTransitionRect;
 	private SplashScreen? _splashScreen;
 	private MainMenuScreen? _mainMenuScreen;
 	private GalaxyGenerationScreen? _galaxyGenerationScreen;
@@ -50,6 +52,7 @@ public partial class MainApp : Node
 	private int _currentStarSeed;
 	private Godot.Vector3 _currentStarPosition = Godot.Vector3.Zero;
 	private GalaxyBodyOverrides _bodyOverrides = new();
+	private bool _startupTransitionRunning;
 
 	/// <summary>
 	/// Initializes the root app state.
@@ -57,6 +60,12 @@ public partial class MainApp : Node
 	public override void _Ready()
 	{
 		_viewerContainer = GetNodeOrNull<Node>("ViewerContainer");
+		_startupTransitionRect = GetNodeOrNull<ColorRect>("TransitionLayer/StartupFadeRect");
+		if (_startupTransitionRect != null)
+		{
+			_startupTransitionRect.Color = new Color(0.0f, 0.0f, 0.0f, 0.0f);
+		}
+
 		WindowSettingsService.ApplySavedOrCurrent();
 		_startupRng = CreateStartupRng();
 		CreateSplashScreen();
@@ -598,7 +607,6 @@ public partial class MainApp : Node
 		_objectViewer.BackToSystemRequested += OnBackToSystem;
 		_objectViewer.BackToMainMenuRequested += OnViewerMainMenuRequested;
 		_objectViewer.NewObjectRequested += OnMainMenuObjectGenerationRequested;
-		_objectViewer.OpenConceptAtlasRequested += OnObjectConceptAtlasRequested;
 		_objectViewer.BodyEdited += OnBodyEdited;
 	}
 

@@ -48,6 +48,28 @@ public static class StarSystemPreview
             }
         }
 
+        int biosphereWorldCount = 0;
+        int sentientWorldCount = 0;
+        foreach (CelestialBody body in system.Bodies.Values)
+        {
+            if (!body.HasPopulationData() || body.PopulationData == null)
+            {
+                continue;
+            }
+
+            if (body.PopulationData.EcologyState != null
+                && body.PopulationData.EcologyState.Status == Domain.Concepts.ConceptRunStatus.Generated)
+            {
+                biosphereWorldCount += 1;
+            }
+
+            if (body.PopulationData.SentienceAssessment != null
+                && body.PopulationData.SentienceAssessment.HasSentientLife)
+            {
+                sentientWorldCount += 1;
+            }
+        }
+
         return new StarSystemPreviewData
         {
             StarSeed = starSeed,
@@ -60,6 +82,8 @@ public static class StarSystemPreview
             BeltCount = system.AsteroidBelts.Count,
             Metallicity = star.Metallicity,
             TotalPopulation = system.GetTotalPopulation(),
+            BiosphereWorldCount = biosphereWorldCount,
+            SentientWorldCount = sentientWorldCount,
             IsInhabited = system.IsInhabited(),
             System = system,
         };

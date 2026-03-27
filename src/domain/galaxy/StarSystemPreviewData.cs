@@ -59,6 +59,16 @@ public partial class StarSystemPreviewData : RefCounted
     public int TotalPopulation;
 
     /// <summary>
+    /// Number of bodies with a generated native biosphere.
+    /// </summary>
+    public int BiosphereWorldCount;
+
+    /// <summary>
+    /// Number of bodies with sentient native life.
+    /// </summary>
+    public int SentientWorldCount;
+
+    /// <summary>
     /// Returns whether the previewed system is inhabited.
     /// </summary>
     public bool IsInhabited;

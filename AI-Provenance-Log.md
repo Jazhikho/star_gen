@@ -17,6 +17,50 @@ Use this log for significant AI-assisted artifacts in this repository.
 
 ## Entries
 
+### 2026-03-26 - Codex (GPT-5)
+
+- Task Purpose: Convert the concept-pipeline hardening branch from its pre-release split state into the actual `0.8.0.0` release candidate, remove the non-menu Concept Atlas entrypoint after user clarification, sync release-facing docs/metadata, and prepare the branch for merge/review/publish.
+- Input Materials Used: User-approved merge/release plan; follow-up user clarification that Concept Atlas should only exist on the main menu; `AGENTS.md`; `claude.md`; release/version/docs files; splash/main-app/object-viewer files; headless/build validation results; root media assets in the repo.
+- AI Produced: Removed the object-viewer Concept Atlas signal path and its obsolete tests, kept the splash/video transition scene-owned while adding the fade-to-black main-menu handoff, fixed the splash scene's direct video resource reference, collapsed the remaining internal/docs/release notes text to the shipped `0.8.0.0` line, tightened the credits/release copy for the intro media, and prepared the branch for a local release merge/review flow.
+- Human Accepted: Pending final review of the merged release candidate and publication steps.
+- Human Rejected: The object-viewer Concept Atlas path and the reintroduced inspector button were explicitly rejected after the user clarified that Atlas access should stay hidden outside the main menu.
+- Human Changed: The user corrected the intended UI contract mid-pass: Concept Atlas is main-menu-only, not available from the object viewer or other viewers, and confirmed that the substantive music attribution remains correct but should be presented more neatly.
+- Validation Method: `dotnet build StarGen.sln` (passed); `godot-mono.exe --path . --headless --script res://Tests/RunTestsHeadless.gd` passed cleanly (`1962 / 1962`) before the user limited further reruns to targeted failures only.
+- Final Approver: Pending Christopher B. Del Gesso review.
+
+### 2026-03-26 - Codex (GPT-5)
+
+- Task Purpose: Correct the intro presentation after review by constraining the video to the logo footprint and wiring the new root `.ogg` music file into the splash automatically.
+- Input Materials Used: User feedback that the intro video was visually wrong, needed to match the icon height, should resolve directly into the icon, and should use the only root `.ogg` file for music; `AGENTS.md`; `claude.md`; `src/app/SplashScreen.cs/.tscn`; splash integration tests; version/export metadata files.
+- AI Produced: Reworked the splash layout so video and logo share a centered `512 px` media frame, made the logo resolve in place over that frame, added root-directory `.ogg` discovery for the intro music player when exactly one file is present, updated splash regressions, and synced the internal hardening line to `0.7.10.1` while keeping the app/project label on `0.8.0.0`.
+- Human Accepted: Pending review of the corrected intro sizing, transition feel, and music playback.
+- Human Rejected: The earlier full-screen video presentation was implicitly rejected by the user as visually incorrect.
+- Human Changed: The user explicitly set the new acceptance bar: video height must match the icon height, the transition must resolve into the icon itself, and the intro music should use the only `.ogg` in the repo root.
+- Validation Method: `dotnet build StarGen.sln` (passed); `godot-mono.exe --path . --headless --script res://Tests/RunTestsHeadless.gd` reached `1962 / 1963` passing, with one remaining unrelated object-viewer Concept Atlas failure.
+- Final Approver: Pending Christopher B. Del Gesso review.
+
+### 2026-03-26 - Codex (GPT-5)
+
+- Task Purpose: Replace the timer-based startup splash with the root intro video, leave an explicit hook for future music, add a logo fade transition, and sync the related version/docs metadata.
+- Input Materials Used: User request for an `.ogv` intro splash and logo transition; `AGENTS.md`; `claude.md`; `Docs/Roadmap.md`; `src/app/MainApp.cs`; `src/app/MainApp.Navigation.cs`; `src/app/SplashScreen.cs/.tscn`; `src/app/MainMenuScreen.cs/.tscn`; integration tests; version/export metadata files.
+- AI Produced: Rebuilt `SplashScreen` around a `VideoStreamPlayer`, logo overlay, optional `AudioStreamPlayer`, skip-aware transition tweening, and root-asset loading; added startup regressions for splash media wiring and initial `MainApp` splash state; added a roadmap effort entry for startup presentation polish; and later folded the change into the internal `0.7.10.1` hardening line while keeping the app/project label on `0.8.0.0`.
+- Human Accepted: Pending review of the intro playback, fade timing, and the metadata sync.
+- Human Rejected: No broader main-menu redesign or startup-sequence branching beyond the requested video/logo transition was added.
+- Human Changed: The user explicitly directed that the root `.ogv` replace the normal splash and that the splash wiring keep space for future music rather than baking in a temporary soundtrack choice.
+- Validation Method: `dotnet build StarGen.sln` (passed); `godot-mono.exe --path . --headless --script res://Tests/RunTestsHeadless.gd` reached `1962 / 1963` passing, with one remaining failure in the unrelated object-viewer Concept Atlas test.
+- Final Approver: Pending Christopher B. Del Gesso review.
+
+### 2026-03-23 - Codex (GPT-5)
+
+- Task Purpose: Prepare the 0.8 UI/wiring pass by moving Concept Atlas access to main-menu-only usage, wiring Station Studio to live generation at prototype parity, hiding the galaxy jump-routes tool button, and syncing version metadata to `0.8.0.0`.
+- Input Materials Used: User-approved implementation plan; `CLAUDE.md`; `AI-Use-Statement.md`; `src/app/viewer/InspectorPanel.cs`; `src/services/concepts/ConceptContextBuilder.cs`; `src/app/StationStudioScreen.cs`; `src/app/StationStudioScreen.tscn`; `src/app/prototypes/StationGeneratorPrototype.cs/.tscn`; `src/app/galaxy_viewer/GalaxyInspectorPanel.cs`; `VERSION.md`; `project.godot`; `src/app/shared/UserFacingVersionHelper.cs`; `src/app/MainMenuScreen.tscn`; `src/app/SplashScreen.tscn`; `README.md`; `Docs/ProjectStructure.md`.
+- AI Produced: Removed the object-view Concept Atlas button while retaining underlying wiring, strengthened the default Concept Atlas snapshot toward an Earth-like baseline, replaced the Station Studio placeholder with an interactive generation/results studio flow based on the existing prototype logic, hid the galaxy colonization simulation button without removing signal/callback code paths, and synchronized internal/user-facing version strings and docs to `0.8.0.0`.
+- Human Accepted: Pending review of the 0.8 prep UI behavior and metadata sync.
+- Human Rejected: No removal of latent jump-route wiring or broader Station Studio scope beyond prototype parity was included.
+- Human Changed: The user selected exact scope (prototype parity for Station Studio and internal/user-facing version both set to `0.8.0.0`) before implementation.
+- Validation Method: Pending full validation run in this pass (`dotnet build StarGen.sln`, targeted navigation tests, and lint checks on edited files).
+- Final Approver: Pending Christopher B. Del Gesso review.
+
 ### 2026-03-22 - Codex (GPT-5)
 
 - Task Purpose: Lock in the now-correct generator-studio UI by moving panel minimum widths fully back into the scene tree, removing helper-side width overrides, and updating regressions so they protect the current visual layout instead of older code-driven sizing behavior.
@@ -641,4 +685,15 @@ Use this log for significant AI-assisted artifacts in this repository.
 - Human Rejected: No attempt was made to force fully data-driven inspector/property-list content into static scenes; those rows remain runtime-built because they vary by generated body, validation state, or concept output.
 - Human Changed: The refactor stayed focused on live runtime screens and did not remove unrelated untracked prototype/baseline artifacts from the working tree.
 - Validation Method: `dotnet build StarGen.sln` and the Godot headless harness (`Total: 1935 | Passed: 1935 | Failed: 0`).
+- Final Approver: Pending Christopher B. Del Gesso review.
+
+### 2026-03-23 - Codex (GPT-5)
+
+- Task Purpose: Improve the native-life pipeline so biosphere support, complexity, and sentience stay deterministic and internally consistent across population generation, concept generation, and preview summaries.
+- Input Materials Used: User-provided design brief contrasting rare-earth and space-opera life assumptions; `claude.md`; `Docs/Roadmap.md`; current population and concept pipeline files; `StarSystemPreview*`; population/concept/unit tests; version and provenance docs.
+- AI Produced: Replaced the split native-life logic with a unified biosphere assessment in `BiologySupportEvaluator`, propagated stellar age and moon biosphere inputs through planet/environment profiles, made species and sentience depend on the shared assessment, stopped biosphere generation from automatically materializing sentient native populations, added preview-side biosphere/sentient-world counts, added a population-focused headless test path, updated regressions, and synced metadata to `0.7.10.0`.
+- Human Accepted: Pending user review of the revised native-life calibration, the stricter biosphere-versus-sentience separation, and the preview-summary changes.
+- Human Rejected: No attempt was made to turn AI output into final scientific authority; alternative-biochemistry calibration remains a deterministic game-model approximation that still requires human review against source materials before merge or release.
+- Human Changed: Kept the work inside the existing population and concept dependency pipeline seams instead of introducing a separate prototype, and adapted preview tests to track biosphere-bearing worlds directly rather than using inhabited-world counts as a proxy for life.
+- Validation Method: `dotnet build StarGen.sln` and the Godot headless harness (`Total: 1962 | Passed: 1962 | Failed: 0`).
 - Final Approver: Pending Christopher B. Del Gesso review.

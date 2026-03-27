@@ -24,6 +24,11 @@ public partial class PlanetProfile : RefCounted
     public double AvgTemperatureK;
 
     /// <summary>
+    /// Age of the parent star in years when known.
+    /// </summary>
+    public double StellarAgeYears;
+
+    /// <summary>
     /// Atmospheric pressure in Earth atmospheres.
     /// </summary>
     public double PressureAtm;
@@ -236,22 +241,7 @@ public partial class PlanetProfile : RefCounted
     /// </summary>
     public bool CanSupportNativeLife()
     {
-        if (!HasLiquidWater && OceanCoverage < 0.01)
-        {
-            return false;
-        }
-
-        if (AvgTemperatureK < 200.0 || AvgTemperatureK > 400.0)
-        {
-            return false;
-        }
-
-        if (PressureAtm < 0.01)
-        {
-            return false;
-        }
-
-        return HabitabilityScore >= 3;
+        return BiologySupportEvaluator.SupportsBiology(this);
     }
 
     /// <summary>
@@ -291,6 +281,7 @@ public partial class PlanetProfile : RefCounted
             ["body_id"] = BodyId,
             ["habitability_score"] = HabitabilityScore,
             ["avg_temperature_k"] = AvgTemperatureK,
+            ["stellar_age_years"] = StellarAgeYears,
             ["pressure_atm"] = PressureAtm,
             ["ocean_coverage"] = OceanCoverage,
             ["land_coverage"] = LandCoverage,
@@ -332,6 +323,7 @@ public partial class PlanetProfile : RefCounted
             BodyId = GetString(data, "body_id", string.Empty),
             HabitabilityScore = GetInt(data, "habitability_score", 0),
             AvgTemperatureK = GetDouble(data, "avg_temperature_k", 0.0),
+            StellarAgeYears = GetDouble(data, "stellar_age_years", 0.0),
             PressureAtm = GetDouble(data, "pressure_atm", 0.0),
             OceanCoverage = GetDouble(data, "ocean_coverage", 0.0),
             LandCoverage = GetDouble(data, "land_coverage", 0.0),

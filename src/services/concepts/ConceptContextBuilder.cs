@@ -20,15 +20,15 @@ public static class ConceptContextBuilder
         return new ConceptContextSnapshot
         {
             Seed = seed,
-            HabitabilityScore = 5,
+            HabitabilityScore = 7,
             AvgTemperatureK = 288.15,
-            WaterAvailability = 0.55,
+            WaterAvailability = 0.71,
             OxygenLevel = 0.21,
             GravityG = 1.0,
             RadiationLevel = 0.1,
-            Population = 2500000,
+            Population = 800000000,
             DominantBiome = "Temperate",
-            SourceLabel = "Manual concept sandbox",
+            SourceLabel = "Earth-like baseline world",
             TechnologyLevel = Domain.Population.TechnologyLevel.Level.Information,
             Regime = GovernmentType.Regime.Constitutional,
         };

@@ -1,5 +1,6 @@
 using Godot;
 using Godot.Collections;
+using System.Threading.Tasks;
 using StarGen.Domain.Celestial;
 using StarGen.Domain.Concepts;
 using StarGen.Domain.Celestial.Serialization;
@@ -21,9 +22,24 @@ public partial class MainApp
     /// <summary>
     /// Handles splash-screen completion.
     /// </summary>
-    private void OnSplashFinished()
+    private async void OnSplashFinished()
     {
+        if (_startupTransitionRunning)
+        {
+            return;
+        }
+
+        if (!IsInsideTree() || _startupTransitionRect == null)
+        {
+            ShowMainMenu();
+            return;
+        }
+
+        _startupTransitionRunning = true;
+        await TweenStartupFadeToAlpha(1.0f);
         ShowMainMenu();
+        await TweenStartupFadeToAlpha(0.0f);
+        _startupTransitionRunning = false;
     }
 
 	/// <summary>
@@ -497,27 +513,6 @@ public partial class MainApp
     }
 
     /// <summary>
-    /// Opens the concept atlas for the current object-viewer target.
-    /// </summary>
-    private void OnObjectConceptAtlasRequested(GodotObject bodyObject, int starSeed)
-    {
-        CelestialBody? body = CoerceToCelestialBody(bodyObject);
-        if (body == null)
-        {
-            return;
-        }
-
-        SolarSystem? system = null;
-        if (_systemViewer != null && starSeed != 0 && _currentStarSeed == starSeed)
-        {
-            system = _systemViewer.GetCurrentSystem();
-        }
-
-        ConceptContextSnapshot snapshot = ConceptContextBuilder.FromBody(body, system, _galaxySeed);
-        OpenConceptAtlas(snapshot, ChooseAtlasKind(snapshot), ViewerType.Object);
-    }
-
-    /// <summary>
     /// Converts a runtime payload into a C# celestial body.
     /// </summary>
     private static CelestialBody? CoerceToCelestialBody(GodotObject? value)
@@ -628,5 +623,20 @@ public partial class MainApp
     {
         CreateGalaxyViewer(GenerateRandomSeed(), GalaxyConfig.CreateDefault());
         ShowGalaxyViewer();
+    }
+
+    /// <summary>
+    /// Tweens the startup fade overlay to the requested alpha.
+    /// </summary>
+    private async Task TweenStartupFadeToAlpha(float targetAlpha)
+    {
+        if (_startupTransitionRect == null || !IsInsideTree())
+        {
+            return;
+        }
+
+        Tween tween = CreateTween();
+        tween.TweenProperty(_startupTransitionRect, "color:a", targetAlpha, StartupScreenFadeDurationSeconds);
+        await ToSignal(tween, Tween.SignalName.Finished);
     }
 }
