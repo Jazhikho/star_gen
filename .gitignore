@@ -28,6 +28,8 @@ Thumbs.db
 *.exe
 *.pck
 *.zip
+release/
+releases/
 
 # Temporary files
 *.tmp

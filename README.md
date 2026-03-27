@@ -60,6 +60,11 @@ godot-mono.exe --path . --headless --script res://Tests/Baselines/RunLifeDistrib
 - [AI-Use-Statement.md](AI-Use-Statement.md) for the repository AI-use policy
 - [AI-Provenance-Log.md](AI-Provenance-Log.md) for significant AI-assisted artifacts
 
+## Repository Maintenance Note
+
+- Release output folders are now ignored by git (`release/` and `releases/`).
+- On the next push/cleanup cycle, remove any release artifacts that were already uploaded to the remote repository/server.
+
 ## License
 
 MIT. See [LICENSE](LICENSE).
