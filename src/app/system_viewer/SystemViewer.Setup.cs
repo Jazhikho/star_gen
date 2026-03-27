@@ -18,6 +18,7 @@ public partial class SystemViewer
         _uiRoot = GetNodeOrNull<Control>("UI");
         _topBar = GetNodeOrNull<Control>("UI/TopBar");
         _sidePanel = GetNodeOrNull<Control>("UI/SidePanel");
+        _backButton = GetNodeOrNull<Button>("UI/TopBar/MarginContainer/TopBarVBox/HeaderRow/BackButton");
         _statusLabel = GetNodeOrNull<Label>("UI/TopBar/MarginContainer/TopBarVBox/HeaderRow/StatusLabel");
         _inspectorPanel = GetNodeOrNull<Node>("UI/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/InspectorPanel");
         _generationSection = GetNodeOrNull<VBoxContainer>("UI/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/GenerationSection");
@@ -30,6 +31,7 @@ public partial class SystemViewer
         _loadButton = GetNodeOrNull<Button>("UI/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/SaveLoadSection/ButtonContainer/LoadButton");
         _showOrbitsCheck = GetNodeOrNull<CheckBox>("UI/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/ViewSection/ShowOrbitsCheck");
         _showZonesCheck = GetNodeOrNull<CheckBox>("UI/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/ViewSection/ShowZonesCheck");
+        _emptyStateLabel = GetNodeOrNull<Label>("UI/EmptyStateLabel");
         _cameraController = GetNodeOrNull<Node>("CameraRig/Camera3D");
         _bodiesContainer = GetNodeOrNull<Node3D>("BodiesContainer");
         _orbitsContainer = GetNodeOrNull<Node3D>("OrbitsContainer");
@@ -154,32 +156,15 @@ public partial class SystemViewer
     /// </summary>
     private void SetupEmptyStateUi()
     {
-        if (_uiRoot == null || _emptyStateLabel != null)
+        if (_emptyStateLabel == null)
         {
-            return;
+            throw new System.InvalidOperationException("SystemViewer scene is missing EmptyStateLabel.");
         }
 
-        Label emptyStateLabel = new Label();
-        emptyStateLabel.Name = "EmptyStateLabel";
-        emptyStateLabel.Text = "Set parameters in the side panel, then click Generate.";
-        emptyStateLabel.HorizontalAlignment = HorizontalAlignment.Center;
-        emptyStateLabel.VerticalAlignment = VerticalAlignment.Center;
-        emptyStateLabel.AutowrapMode = TextServer.AutowrapMode.Word;
-        emptyStateLabel.CustomMinimumSize = new Vector2(280.0f, 0.0f);
-        emptyStateLabel.SizeFlagsHorizontal = Control.SizeFlags.ExpandFill;
-        emptyStateLabel.SizeFlagsVertical = Control.SizeFlags.ExpandFill;
-        emptyStateLabel.AnchorLeft = 0.0f;
-        emptyStateLabel.AnchorTop = 0.0f;
-        emptyStateLabel.AnchorRight = 1.0f;
-        emptyStateLabel.AnchorBottom = 1.0f;
-        emptyStateLabel.OffsetLeft = 180.0f;
-        emptyStateLabel.OffsetTop = 120.0f;
-        emptyStateLabel.OffsetRight = -180.0f;
-        emptyStateLabel.OffsetBottom = -120.0f;
-        emptyStateLabel.MouseFilter = Control.MouseFilterEnum.Ignore;
-        emptyStateLabel.Modulate = new Color(0.74f, 0.78f, 0.84f, 0.9f);
-        _uiRoot.AddChild(emptyStateLabel);
-        _emptyStateLabel = emptyStateLabel;
+        _emptyStateLabel.HorizontalAlignment = HorizontalAlignment.Center;
+        _emptyStateLabel.VerticalAlignment = VerticalAlignment.Center;
+        _emptyStateLabel.AutowrapMode = TextServer.AutowrapMode.Word;
+        _emptyStateLabel.CustomMinimumSize = new Vector2(280.0f, 0.0f);
         UpdateEmptyStateVisibility();
     }
 
@@ -226,6 +211,11 @@ public partial class SystemViewer
         if (_loadButton != null)
         {
             _loadButton.TooltipText = "Load system from file (Ctrl+O)";
+        }
+
+        if (_backButton != null)
+        {
+            _backButton.TooltipText = _backNavigationTooltip;
         }
 
         if (_rulesetModeOption != null)
@@ -289,6 +279,11 @@ public partial class SystemViewer
             _loadButton.Pressed += OnLoadPressed;
         }
 
+        if (_backButton != null)
+        {
+            _backButton.Pressed += OnBackPressed;
+        }
+
         if (_rulesetModeOption != null)
         {
             _rulesetModeOption.ItemSelected += OnRulesetModeSelected;
@@ -322,16 +317,11 @@ public partial class SystemViewer
         if (_inspectorPanel is SystemInspectorPanel typedInspectorPanel)
         {
             typedInspectorPanel.OpenInViewerRequested += OnOpenBodyInViewer;
-            typedInspectorPanel.OpenConceptAtlasRequested += OnOpenBodyInConceptAtlas;
             typedInspectorPanel.FocusBodyRequested += OnFocusBodyRequested;
         }
         else if (_inspectorPanel != null && _inspectorPanel.HasSignal("open_in_viewer_requested"))
         {
             _inspectorPanel.Connect("open_in_viewer_requested", Callable.From<CelestialBody>(OnOpenBodyInViewer));
-            if (_inspectorPanel.HasSignal("open_concept_atlas_requested"))
-            {
-                _inspectorPanel.Connect("open_concept_atlas_requested", Callable.From<CelestialBody>(OnOpenBodyInConceptAtlas));
-            }
 
             if (_inspectorPanel.HasSignal("focus_body_requested"))
             {

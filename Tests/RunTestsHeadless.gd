@@ -3,6 +3,7 @@ extends SceneTree
 const CSHARP_TEST_SCENE_PATH := "res://Tests/TestSceneCSharp.tscn"
 const SUPPORTED_GODOT_MAJOR := 4
 const SUPPORTED_GODOT_MINOR := 6
+const POPULATION_FILTER := "population"
 
 var _csharp_harness = null
 
@@ -45,6 +46,12 @@ func _start_csharp_harness() -> void:
 		push_error("C# test harness is missing RunCompleted/run_completed signal")
 		quit(1)
 		return
+
+	var user_args := OS.get_cmdline_user_args()
+	if user_args.has(POPULATION_FILTER) and harness.has_method("start_population_headless"):
+		harness.start_population_headless()
+		return
+
 	harness.start_headless()
 
 func _on_csharp_headless_completed(exit_code: int) -> void:

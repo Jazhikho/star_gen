@@ -1,4 +1,5 @@
 using StarGen.Domain.Population;
+using StarGen.Domain.Concepts.Pipeline;
 
 namespace StarGen.Domain.Concepts;
 
@@ -11,6 +12,46 @@ public sealed class ConceptContextSnapshot
     /// Persisted concept results associated with the source context.
     /// </summary>
     public ConceptResultStore PersistedResults { get; set; } = new ConceptResultStore();
+
+    /// <summary>
+    /// Resolved environment profile when the context comes from persisted world state.
+    /// </summary>
+    public PlanetEnvironmentProfile? EnvironmentProfile { get; set; }
+
+    /// <summary>
+    /// Resolved ecology state when available.
+    /// </summary>
+    public EcologyState? EcologyState { get; set; }
+
+    /// <summary>
+    /// Resolved species and evolution state when available.
+    /// </summary>
+    public SpeciesEvolutionState? SpeciesEvolution { get; set; }
+
+    /// <summary>
+    /// Resolved sentience assessment when available.
+    /// </summary>
+    public SentienceAssessment? SentienceAssessment { get; set; }
+
+    /// <summary>
+    /// Resolved society state when available.
+    /// </summary>
+    public SocietyState? SocietyState { get; set; }
+
+    /// <summary>
+    /// Resolved religion state when available.
+    /// </summary>
+    public ReligionState? ReligionState { get; set; }
+
+    /// <summary>
+    /// Resolved language state when available.
+    /// </summary>
+    public LanguageState? LanguageState { get; set; }
+
+    /// <summary>
+    /// Resolved disease state when available.
+    /// </summary>
+    public DiseaseState? DiseaseState { get; set; }
 
     /// <summary>
     /// Seed to use when no stronger context exists.
@@ -102,7 +143,7 @@ public sealed class ConceptContextSnapshot
     /// </summary>
     public ConceptContextSnapshot Clone()
     {
-        return new ConceptContextSnapshot
+        ConceptContextSnapshot clone = new ConceptContextSnapshot
         {
             PersistedResults = PersistedResults.Clone(),
             Seed = Seed,
@@ -123,5 +164,95 @@ public sealed class ConceptContextSnapshot
             TechnologyLevel = TechnologyLevel,
             SourceLabel = SourceLabel,
         };
+
+        clone.EnvironmentProfile = CloneEnvironmentProfile(EnvironmentProfile);
+        clone.EcologyState = CloneEcologyState(EcologyState);
+        clone.SpeciesEvolution = CloneSpeciesEvolutionState(SpeciesEvolution);
+        clone.SentienceAssessment = CloneSentienceAssessment(SentienceAssessment);
+        clone.SocietyState = CloneSocietyState(SocietyState);
+        clone.ReligionState = CloneReligionState(ReligionState);
+        clone.LanguageState = CloneLanguageState(LanguageState);
+        clone.DiseaseState = CloneDiseaseState(DiseaseState);
+        return clone;
+    }
+
+    private static PlanetEnvironmentProfile? CloneEnvironmentProfile(PlanetEnvironmentProfile? profile)
+    {
+        if (profile == null)
+        {
+            return null;
+        }
+
+        return PlanetEnvironmentProfile.FromDictionary(profile.ToDictionary());
+    }
+
+    private static EcologyState? CloneEcologyState(EcologyState? state)
+    {
+        if (state == null)
+        {
+            return null;
+        }
+
+        return global::StarGen.Domain.Concepts.Pipeline.EcologyState.FromDictionary(state.ToDictionary());
+    }
+
+    private static SpeciesEvolutionState? CloneSpeciesEvolutionState(SpeciesEvolutionState? state)
+    {
+        if (state == null)
+        {
+            return null;
+        }
+
+        return global::StarGen.Domain.Concepts.Pipeline.SpeciesEvolutionState.FromDictionary(state.ToDictionary());
+    }
+
+    private static SentienceAssessment? CloneSentienceAssessment(SentienceAssessment? assessment)
+    {
+        if (assessment == null)
+        {
+            return null;
+        }
+
+        return global::StarGen.Domain.Concepts.Pipeline.SentienceAssessment.FromDictionary(assessment.ToDictionary());
+    }
+
+    private static SocietyState? CloneSocietyState(SocietyState? state)
+    {
+        if (state == null)
+        {
+            return null;
+        }
+
+        return global::StarGen.Domain.Concepts.Pipeline.SocietyState.FromDictionary(state.ToDictionary());
+    }
+
+    private static ReligionState? CloneReligionState(ReligionState? state)
+    {
+        if (state == null)
+        {
+            return null;
+        }
+
+        return global::StarGen.Domain.Concepts.Pipeline.ReligionState.FromDictionary(state.ToDictionary());
+    }
+
+    private static LanguageState? CloneLanguageState(LanguageState? state)
+    {
+        if (state == null)
+        {
+            return null;
+        }
+
+        return global::StarGen.Domain.Concepts.Pipeline.LanguageState.FromDictionary(state.ToDictionary());
+    }
+
+    private static DiseaseState? CloneDiseaseState(DiseaseState? state)
+    {
+        if (state == null)
+        {
+            return null;
+        }
+
+        return global::StarGen.Domain.Concepts.Pipeline.DiseaseState.FromDictionary(state.ToDictionary());
     }
 }

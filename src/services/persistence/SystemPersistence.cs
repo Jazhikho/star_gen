@@ -5,6 +5,7 @@ using Godot;
 using Godot.Collections;
 using StarGen.Domain.Systems;
 using StarGen.Domain.Systems.Fixtures;
+using StarGen.Services.Concepts;
 
 namespace StarGen.Services.Persistence;
 
@@ -100,6 +101,8 @@ public static class SystemPersistence
                 result.ErrorMessage = "Failed to deserialize system";
                 return result;
             }
+
+            ConceptWorldStateGenerator.EnsureSystemConcepts(system);
 
             result.System = system;
             result.Success = true;

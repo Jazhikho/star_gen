@@ -32,6 +32,12 @@ public partial class ObjectViewer : Node3D
 	public delegate void BackToMainMenuRequestedEventHandler();
 
 	/// <summary>
+	/// Emitted when the user wants to open the standalone object studio.
+	/// </summary>
+	[Signal]
+	public delegate void NewObjectRequestedEventHandler();
+
+	/// <summary>
 	/// Emitted when focus shifts to a moon. Null means focus returned to the primary body.
 	/// </summary>
 	[Signal]
@@ -42,12 +48,6 @@ public partial class ObjectViewer : Node3D
 	/// </summary>
 	[Signal]
 	public delegate void BodyEditedEventHandler(GodotObject body, int starSeed);
-
-	/// <summary>
-	/// Emitted when the user wants to open the concept atlas for the current body or moon.
-	/// </summary>
-	[Signal]
-	public delegate void OpenConceptAtlasRequestedEventHandler(GodotObject body, int starSeed);
 
 	/// <summary>
 	/// Whether the primary body should rotate.
@@ -65,6 +65,7 @@ public partial class ObjectViewer : Node3D
 	internal Control? _uiRoot;
 	internal Control? _topBar;
 	internal Control? _sidePanel;
+	internal Button? _backButton;
 	internal Node? _inspectorPanel;
 	internal Control? _generationSection;
 	internal OptionButton? _typeOption;
@@ -108,6 +109,7 @@ public partial class ObjectViewer : Node3D
 	internal string _backNavigationText = "Return";
 	internal string _backNavigationTooltip = "Return";
 	internal bool _backNavigationReturnsToMainMenu;
+	internal bool _generationActionsVisible = true;
 
 	/// <summary>
 	/// Initializes the viewer state.
@@ -121,6 +123,7 @@ public partial class ObjectViewer : Node3D
 		SetupControls();
 		SetupTopMenu();
 		ConnectSignals();
+		UpdateBackNavigationUi();
 		SetGenerationControlsEnabled(false);
 		SetFileControlState(false, false);
 		SetupEmptyStateUi();
@@ -218,13 +221,9 @@ public partial class ObjectViewer : Node3D
 			}
 		}
 
-		if (_navigatedFromSystem)
+		if (_backNavigationVisible)
 		{
-			ShowBackButton("Return to System Viewer", "Return to the system viewer");
-		}
-		else if (_backNavigationVisible)
-		{
-			ShowBackButton(_backNavigationText, _backNavigationTooltip);
+			ShowBackButton(_backNavigationText, _backNavigationTooltip, _backNavigationReturnsToMainMenu);
 		}
 		else
 		{
@@ -393,9 +392,12 @@ public partial class ObjectViewer : Node3D
 	/// </summary>
 	public void SetGenerationSectionVisible(bool visible)
 	{
+		_generationActionsVisible = visible;
 		if (_generationSection != null)
 		{
 			_generationSection.Visible = visible;
 		}
+
+		SetGenerationControlsEnabled(visible);
 	}
 }

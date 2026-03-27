@@ -75,50 +75,14 @@ public partial class ObjectViewer
             return;
         }
 
-        Node? generationSectionNode = GetNodeOrNull<Node>("UI/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/GenerationSection");
-        if (generationSectionNode is not VBoxContainer generationSection)
+        if (_presetOption == null)
         {
-            return;
+            throw new System.InvalidOperationException("ObjectViewer scene is missing PresetOption.");
         }
 
-        HBoxContainer? existingRow = generationSection.GetNodeOrNull<HBoxContainer>("PresetContainer");
-        if (existingRow == null)
+        if (_presetAssumptionsLabel == null)
         {
-            HBoxContainer presetContainer = new HBoxContainer();
-            presetContainer.Name = "PresetContainer";
-            Label presetLabel = new Label();
-            presetLabel.Text = "Preset:";
-            presetLabel.CustomMinimumSize = new Vector2(60.0f, 0.0f);
-            presetContainer.AddChild(presetLabel);
-
-            OptionButton presetOption = new OptionButton();
-            presetOption.Name = "PresetOption";
-            presetOption.SizeFlagsHorizontal = Control.SizeFlags.ExpandFill;
-            presetContainer.AddChild(presetOption);
-            generationSection.AddChild(presetContainer);
-            int buttonIndex = generationSection.GetNode("ButtonContainer").GetIndex();
-            generationSection.MoveChild(presetContainer, buttonIndex);
-            _presetOption = presetOption;
-
-            Label assumptionsLabel = new Label();
-            assumptionsLabel.Name = "PresetAssumptionsLabel";
-            assumptionsLabel.AutowrapMode = TextServer.AutowrapMode.Word;
-            assumptionsLabel.CustomMinimumSize = new Vector2(220.0f, 0.0f);
-            assumptionsLabel.AddThemeFontSizeOverride("font_size", 10);
-            assumptionsLabel.Modulate = new Color(0.6f, 0.7f, 0.8f, 1.0f);
-            generationSection.AddChild(assumptionsLabel);
-            generationSection.MoveChild(assumptionsLabel, buttonIndex + 1);
-            _presetAssumptionsLabel = assumptionsLabel;
-        }
-        else
-        {
-            _presetOption = existingRow.GetNodeOrNull<OptionButton>("PresetOption");
-            if (_presetOption == null && existingRow.GetChildCount() > 1)
-            {
-                _presetOption = existingRow.GetChild(1) as OptionButton;
-            }
-
-            _presetAssumptionsLabel = generationSection.GetNodeOrNull<Label>("PresetAssumptionsLabel");
+            throw new System.InvalidOperationException("ObjectViewer scene is missing PresetAssumptionsLabel.");
         }
 
         if (_typeOption != null)
@@ -148,6 +112,11 @@ public partial class ObjectViewer
 
     private void OnGeneratePressed()
     {
+        if (!_generationActionsVisible)
+        {
+            return;
+        }
+
         int seedValue = 0;
         if (_seedInput != null)
         {
@@ -166,6 +135,11 @@ public partial class ObjectViewer
 
     private void OnRerollPressed()
     {
+        if (!_generationActionsVisible)
+        {
+            return;
+        }
+
         int seedValue = unchecked((int)GD.Randi());
         if (_seedInput != null)
         {
@@ -254,7 +228,7 @@ public partial class ObjectViewer
         _gdMoonById.Clear();
         _sourceStarSeed = 0;
 
-        SetGenerationControlsEnabled(true);
+        SetGenerationControlsEnabled(_generationActionsVisible);
         _startupState = ViewerStartupState.ViewingExistingContent;
         TryApplyUseCaseSettingsFromBody(result.Body);
         ApplyUseCaseSettingsToControls(_activeUseCaseSettings);
@@ -284,7 +258,7 @@ public partial class ObjectViewer
         {
             DisplayExternalBody(result.Body, [], 0);
             _navigatedFromSystem = false;
-            SetGenerationControlsEnabled(true);
+            SetGenerationControlsEnabled(_generationActionsVisible);
             SetFileControlState(true, true);
             UpdateFileInfo(Path.GetFileName(path), result.Body);
         }
@@ -786,7 +760,7 @@ public partial class ObjectViewer
         DisplayExternalBody(body, [], 0);
         _navigatedFromSystem = false;
         _startupState = ViewerStartupState.ViewingExistingContent;
-        SetGenerationControlsEnabled(true);
+        SetGenerationControlsEnabled(_generationActionsVisible);
         SetFileControlState(true, true);
         string presetLabel = "Random";
         if (_presetOption != null && _presetOption.ItemCount > 0)

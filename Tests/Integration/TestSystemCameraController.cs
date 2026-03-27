@@ -23,6 +23,8 @@ public static class TestSystemCameraController
         runner.RunNativeTest("TestSystemCameraController::test_rapid_height_changes_no_nan", TestRapidHeightChangesNoNan);
         runner.RunNativeTest("TestSystemCameraController::test_focus_zero_distance", TestFocusZeroDistance);
         runner.RunNativeTest("TestSystemCameraController::test_focus_negative_distance", TestFocusNegativeDistance);
+        runner.RunNativeTest("TestSystemCameraController::test_follow_focus_moves_with_target", TestFollowFocusMovesWithTarget);
+        runner.RunNativeTest("TestSystemCameraController::test_apply_view_state_clears_follow", TestApplyViewStateClearsFollow);
     }
 
     private static SystemCameraController CreateCamera()
@@ -245,6 +247,55 @@ public static class TestSystemCameraController
         finally
         {
             IntegrationTestUtils.CleanupNode(camera);
+        }
+    }
+
+    private static void TestFollowFocusMovesWithTarget()
+    {
+        SystemCameraController camera = CreateCamera();
+        Node3D target = new();
+        try
+        {
+            target.Position = new Vector3(10.0f, 0.0f, 5.0f);
+            camera.focus_on_position(target.Position);
+            camera.set_follow_focus_target(target);
+            Advance(camera, 60);
+            Vector3 before = camera.Position;
+            target.Position = new Vector3(40.0f, 0.0f, 12.0f);
+            Advance(camera, 10);
+            Vector3 after = camera.Position;
+            float deltaMove = before.DistanceTo(after);
+            DotNetNativeTestSuite.AssertTrue(deltaMove > 5.0f, $"Camera should move with follow target: {deltaMove}");
+        }
+        finally
+        {
+            IntegrationTestUtils.CleanupNode(camera);
+            IntegrationTestUtils.CleanupNode(target);
+        }
+    }
+
+    private static void TestApplyViewStateClearsFollow()
+    {
+        SystemCameraController camera = CreateCamera();
+        Node3D target = new();
+        try
+        {
+            target.Position = new Vector3(10.0f, 0.0f, 5.0f);
+            camera.focus_on_position(target.Position);
+            camera.set_follow_focus_target(target);
+            Advance(camera, 10);
+            camera.ApplyViewState(Vector3.Zero, 20.0f, Mathf.DegToRad(60.0f), 0.0f);
+            Vector3 before = camera.Position;
+            target.Position = new Vector3(99.0f, 0.0f, 99.0f);
+            Advance(camera, 10);
+            Vector3 after = camera.Position;
+            float deltaMove = before.DistanceTo(after);
+            DotNetNativeTestSuite.AssertTrue(deltaMove < 0.5f, $"Camera should not track after ApplyViewState: {deltaMove}");
+        }
+        finally
+        {
+            IntegrationTestUtils.CleanupNode(camera);
+            IntegrationTestUtils.CleanupNode(target);
         }
     }
 }

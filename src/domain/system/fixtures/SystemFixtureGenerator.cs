@@ -2,7 +2,9 @@ using System.Collections.Generic;
 using Godot;
 using Godot.Collections;
 using StarGen.Domain.Celestial;
+using StarGen.Domain.Generation.Traveller;
 using StarGen.Domain.Generation.Archetypes;
+using StarGen.Domain.Population;
 using StarGen.Domain.Rng;
 
 namespace StarGen.Domain.Systems.Fixtures;
@@ -36,9 +38,17 @@ public static class SystemFixtureGenerator
     /// <summary>
     /// Generates a complete solar system from a specification.
     /// </summary>
-    public static SolarSystem? GenerateSystem(SolarSystemSpec spec, bool? enablePopulation = null)
+    public static SolarSystem? GenerateSystem(
+        SolarSystemSpec spec,
+        bool? enablePopulation = null,
+        NativeSystemPressureSummary? colonyPressureSummary = null)
     {
         bool generatePopulation = enablePopulation ?? spec.GeneratePopulation;
+        if (spec.UseCaseSettings != null && spec.UseCaseSettings.IsTravellerMode())
+        {
+            generatePopulation = true;
+            spec.GeneratePopulation = true;
+        }
         SeededRng rng = new(spec.GenerationSeed);
         SolarSystem? system = StellarConfigGenerator.Generate(spec, rng);
         if (system == null)
@@ -120,6 +130,8 @@ public static class SystemFixtureGenerator
         {
             system.Provenance.SpecSnapshot = spec.ToDictionary();
         }
+
+        TravellerSystemGenerator.ApplyTravellerMainworld(system);
 
         return system;
     }

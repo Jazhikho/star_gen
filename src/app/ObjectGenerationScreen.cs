@@ -22,6 +22,7 @@ public partial class ObjectGenerationScreen : Control
     private VBoxContainer? _parameterVBox;
     private BoxContainer? _studioRow;
     private Control? _settingsPanel;
+    private Control? _rulesPanel;
     private Control? _summaryPanel;
     private Label? _versionLabel;
     private Label? _summaryLabel;
@@ -104,18 +105,20 @@ public partial class ObjectGenerationScreen : Control
 
     private void CacheNodeReferences()
     {
-        const string Root = "MarginContainer/MainPanel/MarginContainer/VBox";
+        const string Root = "MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox";
+        const string HeroRoot = "MarginContainer/ScrollContainer/Layout/HeroPanel/MarginContainer/HeroVBox";
         _studioRow = GetNodeOrNull<BoxContainer>($"{Root}/StudioRow");
         _settingsPanel = GetNodeOrNull<Control>($"{Root}/StudioRow/SettingsPanel");
-        _summaryPanel = null;
-        _versionLabel = GetNodeOrNull<Label>($"{Root}/HeaderRow/VersionLabel");
+        _rulesPanel = GetNodeOrNull<Control>($"{Root}/StudioRow/RulesPanel");
+        _summaryPanel = GetNodeOrNull<Control>($"{Root}/StudioRow/SummaryPanel");
+        _versionLabel = GetNodeOrNull<Label>($"{HeroRoot}/HeaderRow/VersionLabel");
         _parameterVBox = GetNodeOrNull<VBoxContainer>($"{Root}/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox");
-        _summaryLabel = GetNodeOrNull<Label>($"{Root}/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/FooterVBox/SummaryLabel");
-        _assumptionsLabel = GetNodeOrNull<Label>($"{Root}/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/FooterVBox/AssumptionsLabel");
-        _issuesContainer = GetNodeOrNull<VBoxContainer>($"{Root}/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/FooterVBox/IssuesContainer");
-        _startButton = GetNodeOrNull<Button>($"{Root}/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/FooterVBox/Buttons/StartButton");
-        _loadButton = GetNodeOrNull<Button>($"{Root}/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/FooterVBox/Buttons/LoadButton");
-        _backButton = GetNodeOrNull<Button>($"{Root}/HeaderRow/BackButton");
+        _summaryLabel = GetNodeOrNull<Label>($"{Root}/StudioRow/SummaryPanel/MarginContainer/SummaryVBox/SummaryScroll/SummaryContent/SummaryLabel");
+        _assumptionsLabel = GetNodeOrNull<Label>($"{Root}/StudioRow/SummaryPanel/MarginContainer/SummaryVBox/SummaryScroll/SummaryContent/AssumptionsLabel");
+        _issuesContainer = GetNodeOrNull<VBoxContainer>($"{Root}/StudioRow/SummaryPanel/MarginContainer/SummaryVBox/SummaryScroll/SummaryContent/IssuesContainer");
+        _startButton = GetNodeOrNull<Button>($"{Root}/StudioRow/SummaryPanel/MarginContainer/SummaryVBox/Buttons/StartButton");
+        _loadButton = GetNodeOrNull<Button>($"{Root}/StudioRow/SummaryPanel/MarginContainer/SummaryVBox/Buttons/LoadButton");
+        _backButton = GetNodeOrNull<Button>($"{HeroRoot}/HeaderRow/BackButton");
     }
 
     private void BuildParameterUi()
@@ -123,51 +126,9 @@ public partial class ObjectGenerationScreen : Control
         BuildEnhancedParameterUi();
     }
 
-    private SpinBox AddSpinRow(string labelText, double minValue, double maxValue, double step)
-    {
-        HBoxContainer row = CreateRow(labelText);
-        SpinBox spinBox = new SpinBox();
-        spinBox.MinValue = minValue;
-        spinBox.MaxValue = maxValue;
-        spinBox.Step = step;
-        spinBox.Rounded = step >= 1.0;
-        spinBox.SizeFlagsHorizontal = Control.SizeFlags.ExpandFill;
-        row.AddChild(spinBox);
-        return spinBox;
-    }
-
-    private CheckBox AddCheckRow(string labelText)
-    {
-        CheckBox checkBox = new CheckBox();
-        checkBox.Text = labelText;
-        _parameterVBox!.AddChild(checkBox);
-        return checkBox;
-    }
-
-    private OptionButton AddOptionRow(string labelText)
-    {
-        HBoxContainer row = CreateRow(labelText);
-        OptionButton optionButton = new OptionButton();
-        optionButton.SizeFlagsHorizontal = Control.SizeFlags.ExpandFill;
-        row.AddChild(optionButton);
-        return optionButton;
-    }
-
-    private HBoxContainer CreateRow(string labelText)
-    {
-        HBoxContainer row = new HBoxContainer();
-        row.AddThemeConstantOverride("separation", 10);
-        Label label = new Label();
-        label.Text = labelText;
-        label.CustomMinimumSize = new Vector2(96.0f, 0.0f);
-        row.AddChild(label);
-        _parameterVBox!.AddChild(row);
-        return row;
-    }
-
     private void ApplyResponsiveLayout()
     {
-        StudioScreenLayoutHelper.ApplyResponsiveStudioLayout(this, _studioRow, _settingsPanel, _summaryPanel);
+        StudioScreenLayoutHelper.ApplyResponsiveStudioLayout(this, _studioRow, _settingsPanel, _rulesPanel, _summaryPanel);
     }
 
     private void ConnectSignals()
@@ -179,7 +140,7 @@ public partial class ObjectGenerationScreen : Control
     {
         if (_versionLabel != null)
         {
-			string version = ProjectSettings.GetSetting("application/config/version", "0.5.0.0").AsString();
+			string version = UserFacingVersionHelper.GetDisplayVersion();
             _versionLabel.Text = $"Version {version}";
         }
     }
@@ -221,15 +182,6 @@ public partial class ObjectGenerationScreen : Control
 
     private void ApplyLayoutPolish()
     {
-        if (_summaryLabel != null)
-        {
-            _summaryLabel.Visible = false;
-        }
-
-        if (_assumptionsLabel != null)
-        {
-            _assumptionsLabel.Visible = false;
-        }
     }
 
     private void RefreshIssuesUi()
@@ -246,7 +198,6 @@ public partial class ObjectGenerationScreen : Control
 
         Label noteLabel = new Label();
         noteLabel.AutowrapMode = TextServer.AutowrapMode.Word;
-        noteLabel.CustomMinimumSize = new Vector2(220.0f, 0.0f);
         noteLabel.Modulate = new Color(0.85f, 0.7f, 0.3f, 1.0f);
         noteLabel.Text = GetPresetAssumptionText(GetSelectedObjectType(), _presetOption?.GetSelectedId() ?? 0);
         _issuesContainer.AddChild(noteLabel);

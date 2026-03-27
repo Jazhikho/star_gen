@@ -24,4 +24,14 @@ public sealed class ConceptProvenance
     /// Human-readable source context summary.
     /// </summary>
     public string SourceContext { get; set; } = string.Empty;
+
+    /// <summary>
+    /// Stable signature describing the resolved upstream input values.
+    /// </summary>
+    public string InputSignature { get; set; } = string.Empty;
+
+    /// <summary>
+    /// Stable identifiers for upstream dependency layers.
+    /// </summary>
+    public System.Collections.Generic.List<string> UpstreamDependencies { get; set; } = new System.Collections.Generic.List<string>();
 }

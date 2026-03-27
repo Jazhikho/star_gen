@@ -16,6 +16,7 @@ public partial class ObjectViewer
 		_uiRoot = GetNodeOrNull<Control>("UI");
 		_topBar = GetNodeOrNull<Control>("UI/TopBar");
 		_sidePanel = GetNodeOrNull<Control>("UI/SidePanel");
+		_backButton = GetNodeOrNull<Button>("UI/TopBar/MarginContainer/TopBarVBox/HeaderRow/BackButton");
 		_statusLabel = GetNodeOrNull<Label>("UI/TopBar/MarginContainer/TopBarVBox/HeaderRow/StatusLabel");
 		_inspectorPanel = GetNodeOrNull<Node>("UI/SidePanel/MarginContainer/ScrollContainer/VBoxContainer");
 		_generationSection = GetNodeOrNull<Control>("UI/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/GenerationSection");
@@ -23,11 +24,19 @@ public partial class ObjectViewer
 		_seedInput = GetNodeOrNull<SpinBox>("UI/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/GenerationSection/SeedContainer/SeedInput");
 		_populationContainer = GetNodeOrNull<HBoxContainer>("UI/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/GenerationSection/PopulationContainer");
 		_populationOption = GetNodeOrNull<OptionButton>("UI/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/GenerationSection/PopulationContainer/PopulationOption");
+		_presetOption = GetNodeOrNull<OptionButton>("UI/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/GenerationSection/PresetContainer/PresetOption");
+		_presetAssumptionsLabel = GetNodeOrNull<Label>("UI/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/GenerationSection/PresetAssumptionsLabel");
+		_rulesetModeOption = GetNodeOrNull<OptionButton>("UI/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/GenerationSection/RulesetContainer/RulesetModeOption");
+		_showTravellerReadoutsCheck = GetNodeOrNull<CheckBox>("UI/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/GenerationSection/ShowTravellerReadoutsCheck");
+		_lifePermissivenessInput = GetNodeOrNull<SpinBox>("UI/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/GenerationSection/LifePermissivenessContainer/LifePermissivenessInput");
+		_populationPermissivenessInput = GetNodeOrNull<SpinBox>("UI/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/GenerationSection/PopulationPermissivenessContainer/PopulationPermissivenessInput");
+		_useCaseAssumptionsLabel = GetNodeOrNull<Label>("UI/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/GenerationSection/UseCaseAssumptionsLabel");
 		_generateButton = GetNodeOrNull<Button>("UI/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/GenerationSection/ButtonContainer/GenerateButton");
 		_rerollButton = GetNodeOrNull<Button>("UI/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/GenerationSection/ButtonContainer/RerollButton");
 		_saveButton = GetNodeOrNull<Button>("UI/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/FileSection/FileButtonContainer/SaveButton");
 		_loadButton = GetNodeOrNull<Button>("UI/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/FileSection/FileButtonContainer/LoadButton");
 		_fileInfo = GetNodeOrNull<Label>("UI/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/FileSection/FileInfo");
+		_emptyStateLabel = GetNodeOrNull<Label>("UI/EmptyStateLabel");
 		_saveFileDialog = GetNodeOrNull<FileDialog>("SaveFileDialog");
 		_loadFileDialog = GetNodeOrNull<FileDialog>("LoadFileDialog");
 		_cameraRig = GetNodeOrNull<Node3D>("CameraRig");
@@ -102,7 +111,6 @@ public partial class ObjectViewer
 		{
 			typedInspectorPanel.MoonSelected += OnInspectorMoonSelectedVariant;
 			typedInspectorPanel.EditRequested += OnInspectorEditRequested;
-			typedInspectorPanel.OpenConceptAtlasRequested += OnInspectorConceptAtlasRequested;
 		}
 		else if (_inspectorPanel != null && _inspectorPanel.HasSignal("moon_selected"))
 		{
@@ -111,10 +119,11 @@ public partial class ObjectViewer
 			{
 				_inspectorPanel.Connect("edit_requested", Callable.From(OnInspectorEditRequested));
 			}
-			if (_inspectorPanel.HasSignal("open_concept_atlas_requested"))
-			{
-				_inspectorPanel.Connect("open_concept_atlas_requested", Callable.From(OnInspectorConceptAtlasRequested));
-			}
+		}
+
+		if (_backButton != null)
+		{
+			_backButton.Pressed += OnBackPressed;
 		}
 	}
 
@@ -426,6 +435,7 @@ public partial class ObjectViewer
 		_backNavigationText = buttonText;
 		_backNavigationTooltip = tooltipText;
 		_backNavigationReturnsToMainMenu = returnToMainMenu;
+		UpdateBackNavigationUi();
 	}
 
 	private void HideBackButton()
@@ -434,10 +444,16 @@ public partial class ObjectViewer
 		_backNavigationText = "Return";
 		_backNavigationTooltip = "Return";
 		_backNavigationReturnsToMainMenu = false;
+		UpdateBackNavigationUi();
 	}
 
 	private void OnBackPressed()
 	{
+		if (!_backNavigationVisible)
+		{
+			return;
+		}
+
 		_navigatedFromSystem = false;
 		bool returnToMainMenu = _backNavigationReturnsToMainMenu;
 		HideBackButton();
@@ -451,15 +467,16 @@ public partial class ObjectViewer
 		EmitSignal(SignalName.BackToSystemRequested);
 	}
 
-	private void OnInspectorConceptAtlasRequested()
+	private void UpdateBackNavigationUi()
 	{
-		CelestialBody? targetBody = GetCurrentTargetBody();
-		if (targetBody == null)
+		if (_backButton == null)
 		{
 			return;
 		}
 
-		EmitSignal(SignalName.OpenConceptAtlasRequested, targetBody, _sourceStarSeed);
+		_backButton.Visible = _backNavigationVisible;
+		_backButton.Text = _backNavigationText;
+		_backButton.TooltipText = _backNavigationTooltip;
 	}
 
 	private void SetGenerationControlsEnabled(bool enabled)

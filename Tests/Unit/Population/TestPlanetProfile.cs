@@ -22,6 +22,7 @@ public static class TestPlanetProfile
         profile.BodyId = "test_planet_001";
         profile.HabitabilityScore = 7;
         profile.AvgTemperatureK = 288.0;
+        profile.StellarAgeYears = 4.6e9;
         profile.PressureAtm = 1.0;
         profile.OceanCoverage = 0.7;
         profile.LandCoverage = 0.25;
@@ -79,6 +80,7 @@ public static class TestPlanetProfile
         DotNetNativeTestSuite.AssertEqual("", profile.BodyId, "Default body_id should be empty");
         DotNetNativeTestSuite.AssertEqual(0, profile.HabitabilityScore, "Default habitability_score should be 0");
         DotNetNativeTestSuite.AssertFloatNear(0.0, profile.AvgTemperatureK, 0.001, "Default avg_temperature_k should be 0");
+        DotNetNativeTestSuite.AssertFloatNear(0.0, profile.StellarAgeYears, 0.001, "Default stellar_age_years should be 0");
     }
 
     /// <summary>
@@ -206,9 +208,9 @@ public static class TestPlanetProfile
     }
 
     /// <summary>
-    /// Tests can_support_native_life requires minimum habitability.
+    /// Tests can_support_native_life uses physical viability instead of human-habitability score alone.
     /// </summary>
-    public static void TestCanSupportNativeLifeRequiresMinHab()
+    public static void TestCanSupportNativeLifeAllowsLowHumanHabitability()
     {
         PlanetProfile profile = new();
         profile.HabitabilityScore = 2;
@@ -216,8 +218,19 @@ public static class TestPlanetProfile
         profile.OceanCoverage = 0.5;
         profile.AvgTemperatureK = 290.0;
         profile.PressureAtm = 1.0;
+        profile.HasAtmosphere = true;
+        profile.GravityG = 1.0;
+        profile.RadiationLevel = 0.2;
 
-        DotNetNativeTestSuite.AssertFalse(profile.CanSupportNativeLife(), "Score 2 should not support native life (minimum is 3)");
+        DotNetNativeTestSuite.AssertTrue(profile.CanSupportNativeLife(), "Low human habitability should not automatically reject a physically viable biosphere");
+    }
+
+    /// <summary>
+    /// Legacy parity alias for the former minimum-habitability gate test.
+    /// </summary>
+    public static void TestCanSupportNativeLifeRequiresMinHab()
+    {
+        TestCanSupportNativeLifeAllowsLowHumanHabitability();
     }
 
     /// <summary>
@@ -253,6 +266,7 @@ public static class TestPlanetProfile
         DotNetNativeTestSuite.AssertEqual(original.BodyId, restored.BodyId, "BodyId should match");
         DotNetNativeTestSuite.AssertEqual(original.HabitabilityScore, restored.HabitabilityScore, "HabitabilityScore should match");
         DotNetNativeTestSuite.AssertFloatNear(original.AvgTemperatureK, restored.AvgTemperatureK, 0.001, "AvgTemperatureK should match");
+        DotNetNativeTestSuite.AssertFloatNear(original.StellarAgeYears, restored.StellarAgeYears, 0.001, "StellarAgeYears should match");
         DotNetNativeTestSuite.AssertFloatNear(original.PressureAtm, restored.PressureAtm, 0.001, "PressureAtm should match");
         DotNetNativeTestSuite.AssertFloatNear(original.OceanCoverage, restored.OceanCoverage, 0.001, "OceanCoverage should match");
         DotNetNativeTestSuite.AssertFloatNear(original.LandCoverage, restored.LandCoverage, 0.001, "LandCoverage should match");

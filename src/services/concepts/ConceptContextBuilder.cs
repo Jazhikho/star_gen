@@ -1,5 +1,6 @@
 using StarGen.Domain.Celestial;
 using StarGen.Domain.Concepts;
+using StarGen.Domain.Concepts.Pipeline;
 using StarGen.Domain.Galaxy;
 using StarGen.Domain.Population;
 using StarGen.Domain.Systems;
@@ -19,15 +20,15 @@ public static class ConceptContextBuilder
         return new ConceptContextSnapshot
         {
             Seed = seed,
-            HabitabilityScore = 5,
+            HabitabilityScore = 7,
             AvgTemperatureK = 288.15,
-            WaterAvailability = 0.55,
+            WaterAvailability = 0.71,
             OxygenLevel = 0.21,
             GravityG = 1.0,
             RadiationLevel = 0.1,
-            Population = 2500000,
+            Population = 800000000,
             DominantBiome = "Temperate",
-            SourceLabel = "Manual concept sandbox",
+            SourceLabel = "Earth-like baseline world",
             TechnologyLevel = Domain.Population.TechnologyLevel.Level.Information,
             Regime = GovernmentType.Regime.Constitutional,
         };
@@ -40,14 +41,31 @@ public static class ConceptContextBuilder
     {
         ConceptContextSnapshot snapshot = CreateDefault(GetSeedFromBody(body));
         snapshot.GalaxySeed = galaxySeed;
-        snapshot.SystemName = system?.Name ?? string.Empty;
+        if (system != null)
+        {
+            snapshot.SystemName = system.Name;
+        }
+        else
+        {
+            snapshot.SystemName = string.Empty;
+        }
         snapshot.BodyId = body.Id;
         snapshot.BodyName = body.Name;
         snapshot.BodyType = body.GetTypeString();
-        snapshot.SourceLabel = !string.IsNullOrEmpty(snapshot.SystemName)
-            ? $"{snapshot.SystemName} / {snapshot.BodyName}"
-            : snapshot.BodyName;
+        if (!string.IsNullOrEmpty(snapshot.SystemName))
+        {
+            snapshot.SourceLabel = snapshot.SystemName + " / " + snapshot.BodyName;
+        }
+        else
+        {
+            snapshot.SourceLabel = snapshot.BodyName;
+        }
         snapshot.PersistedResults = body.ConceptResults.Clone();
+        snapshot.EnvironmentProfile = CloneEnvironmentProfile(body.EnvironmentProfile);
+        snapshot.EcologyState = CloneEcologyState(body.Ecology);
+        snapshot.SpeciesEvolution = CloneSpeciesEvolutionState(body.SpeciesEvolution);
+        snapshot.SentienceAssessment = CloneSentienceAssessment(body.Sentience);
+        snapshot.DiseaseState = CloneDiseaseState(body.Disease);
 
         if (body.HasPopulationData() && body.PopulationData != null)
         {
@@ -76,7 +94,13 @@ public static class ConceptContextBuilder
     /// </summary>
     public static ConceptContextSnapshot FromGalaxy(GalaxyConfig? config, int galaxySeed, int starSeed)
     {
-        ConceptContextSnapshot snapshot = CreateDefault(starSeed != 0 ? starSeed : galaxySeed);
+        int snapshotSeed = galaxySeed;
+        if (starSeed != 0)
+        {
+            snapshotSeed = starSeed;
+        }
+
+        ConceptContextSnapshot snapshot = CreateDefault(snapshotSeed);
         snapshot.GalaxySeed = galaxySeed;
         snapshot.SourceLabel = $"Galaxy seed {galaxySeed}";
         if (config != null)
@@ -100,11 +124,18 @@ public static class ConceptContextBuilder
         snapshot.Seed = StableStringHash(nativePopulation.Id) ^ GetSeedFromBody(body);
         snapshot.BodyName = nativePopulation.Name;
         snapshot.Population = nativePopulation.Population;
-        snapshot.DominantBiome = nativePopulation.PrimaryBiome != string.Empty ? nativePopulation.PrimaryBiome : snapshot.DominantBiome;
+        if (nativePopulation.PrimaryBiome != string.Empty)
+        {
+            snapshot.DominantBiome = nativePopulation.PrimaryBiome;
+        }
         snapshot.Regime = nativePopulation.GetRegime();
         snapshot.TechnologyLevel = nativePopulation.TechLevel;
         snapshot.SourceLabel = BuildPopulationSourceLabel(system, body, nativePopulation.Name);
         snapshot.PersistedResults = nativePopulation.ConceptResults.Clone();
+        snapshot.SocietyState = CloneSocietyState(nativePopulation.SocietyState);
+        snapshot.ReligionState = CloneReligionState(nativePopulation.ReligionState);
+        snapshot.LanguageState = CloneLanguageState(nativePopulation.LanguageState);
+        snapshot.DiseaseState = CloneDiseaseState(nativePopulation.DiseaseState);
         return snapshot;
     }
 
@@ -125,6 +156,10 @@ public static class ConceptContextBuilder
         snapshot.TechnologyLevel = colony.TechLevel;
         snapshot.SourceLabel = BuildPopulationSourceLabel(system, body, colony.Name);
         snapshot.PersistedResults = colony.ConceptResults.Clone();
+        snapshot.SocietyState = CloneSocietyState(colony.SocietyState);
+        snapshot.ReligionState = CloneReligionState(colony.ReligionState);
+        snapshot.LanguageState = CloneLanguageState(colony.LanguageState);
+        snapshot.DiseaseState = CloneDiseaseState(colony.DiseaseState);
         return snapshot;
     }
 
@@ -146,6 +181,31 @@ public static class ConceptContextBuilder
     private static void ApplyPopulationData(ConceptContextSnapshot snapshot, PlanetPopulationData data)
     {
         snapshot.Population = data.GetTotalPopulation();
+        if (data.EnvironmentProfile != null)
+        {
+            snapshot.EnvironmentProfile = PlanetEnvironmentProfile.FromDictionary(data.EnvironmentProfile.ToDictionary());
+        }
+
+        if (data.EcologyState != null)
+        {
+            snapshot.EcologyState = global::StarGen.Domain.Concepts.Pipeline.EcologyState.FromDictionary(data.EcologyState.ToDictionary());
+        }
+
+        if (data.SpeciesEvolution != null)
+        {
+            snapshot.SpeciesEvolution = SpeciesEvolutionState.FromDictionary(data.SpeciesEvolution.ToDictionary());
+        }
+
+        if (data.SentienceAssessment != null)
+        {
+            snapshot.SentienceAssessment = SentienceAssessment.FromDictionary(data.SentienceAssessment.ToDictionary());
+        }
+
+        if (data.DiseaseState != null)
+        {
+            snapshot.DiseaseState = DiseaseState.FromDictionary(data.DiseaseState.ToDictionary());
+        }
+
         if (data.Profile != null)
         {
             PlanetProfile profile = data.Profile;
@@ -154,7 +214,14 @@ public static class ConceptContextBuilder
             snapshot.GravityG = profile.GravityG;
             snapshot.RadiationLevel = profile.RadiationLevel;
             snapshot.WaterAvailability = profile.OceanCoverage;
-            snapshot.OxygenLevel = profile.HasBreathableAtmosphere ? 0.21 : 0.02;
+            if (profile.HasBreathableAtmosphere)
+            {
+                snapshot.OxygenLevel = 0.21;
+            }
+            else
+            {
+                snapshot.OxygenLevel = 0.02;
+            }
             snapshot.DominantBiome = BiomeType.ToStringName(profile.GetDominantBiome());
         }
 
@@ -208,5 +275,85 @@ public static class ConceptContextBuilder
         }
 
         return unchecked((int)hash);
+    }
+
+    private static PlanetEnvironmentProfile? CloneEnvironmentProfile(PlanetEnvironmentProfile? profile)
+    {
+        if (profile == null)
+        {
+            return null;
+        }
+
+        return PlanetEnvironmentProfile.FromDictionary(profile.ToDictionary());
+    }
+
+    private static EcologyState? CloneEcologyState(EcologyState? state)
+    {
+        if (state == null)
+        {
+            return null;
+        }
+
+        return EcologyState.FromDictionary(state.ToDictionary());
+    }
+
+    private static SpeciesEvolutionState? CloneSpeciesEvolutionState(SpeciesEvolutionState? state)
+    {
+        if (state == null)
+        {
+            return null;
+        }
+
+        return SpeciesEvolutionState.FromDictionary(state.ToDictionary());
+    }
+
+    private static SentienceAssessment? CloneSentienceAssessment(SentienceAssessment? state)
+    {
+        if (state == null)
+        {
+            return null;
+        }
+
+        return SentienceAssessment.FromDictionary(state.ToDictionary());
+    }
+
+    private static SocietyState? CloneSocietyState(SocietyState? state)
+    {
+        if (state == null)
+        {
+            return null;
+        }
+
+        return SocietyState.FromDictionary(state.ToDictionary());
+    }
+
+    private static ReligionState? CloneReligionState(ReligionState? state)
+    {
+        if (state == null)
+        {
+            return null;
+        }
+
+        return ReligionState.FromDictionary(state.ToDictionary());
+    }
+
+    private static LanguageState? CloneLanguageState(LanguageState? state)
+    {
+        if (state == null)
+        {
+            return null;
+        }
+
+        return LanguageState.FromDictionary(state.ToDictionary());
+    }
+
+    private static DiseaseState? CloneDiseaseState(DiseaseState? state)
+    {
+        if (state == null)
+        {
+            return null;
+        }
+
+        return DiseaseState.FromDictionary(state.ToDictionary());
     }
 }

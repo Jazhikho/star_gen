@@ -10,9 +10,9 @@ using StarGen.Services.Persistence;
 namespace StarGen.App;
 
 /// <summary>
-/// Startup screen for galaxy generation with presets and exposed tuning controls.
+/// Galaxy-generation studio screen with presets and exposed tuning controls.
 /// </summary>
-public partial class WelcomeScreen : Control
+public partial class GalaxyGenerationScreen : Control
 {
 	[Signal]
 	public delegate void start_new_galaxyEventHandler(GalaxyConfig config, int seedValue);
@@ -36,15 +36,9 @@ public partial class WelcomeScreen : Control
 		LargeMagellanicCloud = 5,
 	}
 
-	private const string ArrowCollapsed = ">";
-	private const string ArrowExpanded = "v";
-
 	private SeededRng? _seededRng;
 	private GodotObject? _seededRngObject;
 	private bool _isUpdatingUi;
-	private bool _typeSectionExpanded = true;
-	private bool _structureSectionExpanded;
-	private bool _sizeSectionExpanded;
 
 	private Button? _startButton;
 	private Button? _loadButton;
@@ -54,14 +48,10 @@ public partial class WelcomeScreen : Control
 	private OptionButton? _presetOption;
 	private Label? _versionLabel;
 	private Label? _summaryLabel;
-	private Button? _typeHeader;
-	private MarginContainer? _typeContent;
 	private OptionButton? _typeOption;
 	private HBoxContainer? _armsRow;
 	private HSlider? _armsSlider;
 	private Label? _armsValue;
-	private Button? _structureHeader;
-	private MarginContainer? _structureContent;
 	private HSlider? _pitchSlider;
 	private Label? _pitchValue;
 	private HSlider? _amplitudeSlider;
@@ -76,8 +66,6 @@ public partial class WelcomeScreen : Control
 	private HBoxContainer? _irregularityRow;
 	private HSlider? _irregularitySlider;
 	private Label? _irregularityValue;
-	private Button? _sizeHeader;
-	private MarginContainer? _sizeContent;
 	private HSlider? _radiusSlider;
 	private Label? _radiusValue;
 	private HSlider? _diskLengthSlider;
@@ -94,19 +82,25 @@ public partial class WelcomeScreen : Control
 	private Label? _lifePermissivenessValueLabel;
 	private HSlider? _populationPermissivenessInput;
 	private Label? _populationPermissivenessValueLabel;
-	private OptionButton? _mainworldPolicyOption;
+	private HBoxContainer? _populationPermissivenessRow;
+	private Button? _advancedAssumptionsInfoButton;
 	private VBoxContainer? _settingsVBox;
+	private VBoxContainer? _rulesVBox;
 	private BoxContainer? _studioRow;
 	private Control? _settingsPanel;
+	private Control? _rulesPanel;
 	private Control? _summaryPanel;
 	private Label? _assumptionsLabel;
 	private VBoxContainer? _issuesContainer;
 	private GenerationParameterIssueSet _currentIssues = new();
 	private bool _showSeedControls;
 
-	private const string StudioRootPath = "MarginContainer/MainPanel/MarginContainer/VBox";
-	private const string ParameterRootPath = "MarginContainer/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox";
-	private const string SummaryRootPath = "MarginContainer/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/FooterVBox";
+	private const string HeroRootPath = "MarginContainer/ScrollContainer/Layout/HeroPanel/MarginContainer/HeroVBox";
+	private const string StudioRootPath = "MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox";
+	private const string ParameterRootPath = "MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox";
+	private const string RulesRootPath = "MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/RulesPanel/MarginContainer/RulesVBox/ScrollContainer/RulesContent";
+	private const string SummaryRootPath = "MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SummaryPanel/MarginContainer/SummaryVBox";
+	private const float GalaxyStudioCompactBreakpoint = 1080.0f;
 
 	/// <summary>
 	/// Initializes UI wiring.
@@ -115,11 +109,10 @@ public partial class WelcomeScreen : Control
 	{
 		CacheNodeReferences();
 		ApplyLayoutPolish();
-		BuildParameterSupportUi();
 		ConnectSignals();
 		ApplyParameterTooltips();
 		ApplyVersionLabel();
-		UpdateSectionVisibility();
+		ApplyUseCaseSettingsToControls(GenerationUseCaseSettings.CreateDefault());
 		UpdateTypeSpecificControls();
 		UpdateAllValueLabels();
 		ApplySeedVisibilityPreference(rerollHiddenSeed: true);
@@ -187,7 +180,7 @@ public partial class WelcomeScreen : Control
 	}
 
 	/// <summary>
-	/// Applies a typed galaxy configuration to the welcome-screen controls.
+	/// Applies a typed galaxy configuration to the galaxy-studio controls.
 	/// </summary>
 	public void SetCurrentConfig(GalaxyConfig config)
 	{
@@ -290,26 +283,23 @@ public partial class WelcomeScreen : Control
 	{
 		_studioRow = GetNodeOrNull<BoxContainer>($"{StudioRootPath}/StudioRow");
 		_settingsPanel = GetNodeOrNull<Control>($"{StudioRootPath}/StudioRow/SettingsPanel");
-		_summaryPanel = null;
-		_versionLabel = GetNodeOrNull<Label>($"{StudioRootPath}/HeaderRow/VersionLabel");
-		_summaryLabel = GetNodeOrNull<Label>($"{SummaryRootPath}/SummaryLabel");
-		_assumptionsLabel = GetNodeOrNull<Label>($"{SummaryRootPath}/AssumptionsLabel");
-		_issuesContainer = GetNodeOrNull<VBoxContainer>($"{SummaryRootPath}/IssuesContainer");
+		_rulesPanel = GetNodeOrNull<Control>($"{StudioRootPath}/StudioRow/RulesPanel");
+		_summaryPanel = GetNodeOrNull<Control>($"{StudioRootPath}/StudioRow/SummaryPanel");
+		_versionLabel = GetNodeOrNull<Label>($"{HeroRootPath}/HeaderRow/VersionLabel");
+		_summaryLabel = GetNodeOrNull<Label>($"{SummaryRootPath}/SummaryScroll/SummaryContent/SummaryLabel");
+		_assumptionsLabel = GetNodeOrNull<Label>($"{SummaryRootPath}/SummaryScroll/SummaryContent/AssumptionsLabel");
+		_issuesContainer = GetNodeOrNull<VBoxContainer>($"{SummaryRootPath}/SummaryScroll/SummaryContent/IssuesContainer");
 		_startButton = GetNodeOrNull<Button>($"{SummaryRootPath}/Buttons/StartButton");
 		_loadButton = GetNodeOrNull<Button>($"{SummaryRootPath}/Buttons/LoadButton");
 		_quitButton = GetNodeOrNull<Button>($"{SummaryRootPath}/Buttons/QuitButton");
-		_backButton = GetNodeOrNull<Button>($"{StudioRootPath}/HeaderRow/BackButton");
+		_backButton = GetNodeOrNull<Button>($"{HeroRootPath}/HeaderRow/BackButton");
 		_seedContainer = GetNodeOrNull<HBoxContainer>($"{ParameterRootPath}/SeedContainer");
 		_randomizeButton = GetNodeOrNull<Button>($"{ParameterRootPath}/SeedContainer/RandomizeButton");
 		_presetOption = GetNodeOrNull<OptionButton>($"{ParameterRootPath}/PresetContainer/PresetOption");
-		_typeHeader = GetNodeOrNull<Button>($"{ParameterRootPath}/TypeSection/TypeHeader");
-		_typeContent = GetNodeOrNull<MarginContainer>($"{ParameterRootPath}/TypeSection/TypeContent");
 		_typeOption = GetNodeOrNull<OptionButton>($"{ParameterRootPath}/TypeSection/TypeContent/TypeVBox/TypeRow/TypeOption");
 		_armsRow = GetNodeOrNull<HBoxContainer>($"{ParameterRootPath}/TypeSection/TypeContent/TypeVBox/ArmsRow");
 		_armsSlider = GetNodeOrNull<HSlider>($"{ParameterRootPath}/TypeSection/TypeContent/TypeVBox/ArmsRow/ArmsSlider");
 		_armsValue = GetNodeOrNull<Label>($"{ParameterRootPath}/TypeSection/TypeContent/TypeVBox/ArmsRow/ArmsValue");
-		_structureHeader = GetNodeOrNull<Button>($"{ParameterRootPath}/StructureSection/StructureHeader");
-		_structureContent = GetNodeOrNull<MarginContainer>($"{ParameterRootPath}/StructureSection/StructureContent");
 		_pitchSlider = GetNodeOrNull<HSlider>($"{ParameterRootPath}/StructureSection/StructureContent/StructureVBox/PitchRow/PitchSlider");
 		_pitchValue = GetNodeOrNull<Label>($"{ParameterRootPath}/StructureSection/StructureContent/StructureVBox/PitchRow/PitchValue");
 		_amplitudeSlider = GetNodeOrNull<HSlider>($"{ParameterRootPath}/StructureSection/StructureContent/StructureVBox/AmplitudeRow/AmplitudeSlider");
@@ -324,8 +314,6 @@ public partial class WelcomeScreen : Control
 		_irregularityRow = GetNodeOrNull<HBoxContainer>($"{ParameterRootPath}/StructureSection/StructureContent/StructureVBox/IrregularityRow");
 		_irregularitySlider = GetNodeOrNull<HSlider>($"{ParameterRootPath}/StructureSection/StructureContent/StructureVBox/IrregularityRow/IrregularitySlider");
 		_irregularityValue = GetNodeOrNull<Label>($"{ParameterRootPath}/StructureSection/StructureContent/StructureVBox/IrregularityRow/IrregularityValue");
-		_sizeHeader = GetNodeOrNull<Button>($"{ParameterRootPath}/SizeSection/SizeHeader");
-		_sizeContent = GetNodeOrNull<MarginContainer>($"{ParameterRootPath}/SizeSection/SizeContent");
 		_radiusSlider = GetNodeOrNull<HSlider>($"{ParameterRootPath}/SizeSection/SizeContent/SizeVBox/RadiusRow/RadiusSlider");
 		_radiusValue = GetNodeOrNull<Label>($"{ParameterRootPath}/SizeSection/SizeContent/SizeVBox/RadiusRow/RadiusValue");
 		_diskLengthSlider = GetNodeOrNull<HSlider>($"{ParameterRootPath}/SizeSection/SizeContent/SizeVBox/DiskLengthRow/DiskLengthSlider");
@@ -336,6 +324,15 @@ public partial class WelcomeScreen : Control
 		_densityValue = GetNodeOrNull<Label>($"{ParameterRootPath}/SizeSection/SizeContent/SizeVBox/DensityRow/DensityValue");
 		_seedSpin = GetNodeOrNull<SpinBox>($"{ParameterRootPath}/SeedContainer/SeedSpin");
 		_settingsVBox = GetNodeOrNull<VBoxContainer>(ParameterRootPath);
+		_rulesVBox = GetNodeOrNull<VBoxContainer>(RulesRootPath);
+		_rulesetModeOption = GetNodeOrNull<OptionButton>($"{RulesRootPath}/UseCaseSection/RulesetRow/RulesetModeOption");
+		_showTravellerReadoutsCheck = GetNodeOrNull<CheckBox>($"{RulesRootPath}/UseCaseSection/ShowTravellerReadoutsCheck");
+		_advancedAssumptionsInfoButton = GetNodeOrNull<Button>($"{RulesRootPath}/UseCaseSection/AdvancedHeaderRow/AdvancedAssumptionsInfoButton");
+		_lifePermissivenessInput = GetNodeOrNull<HSlider>($"{RulesRootPath}/UseCaseSection/LifeRow/LifePermissivenessInput");
+		_lifePermissivenessValueLabel = GetNodeOrNull<Label>($"{RulesRootPath}/UseCaseSection/LifePermissivenessValue");
+		_populationPermissivenessRow = GetNodeOrNull<HBoxContainer>($"{RulesRootPath}/UseCaseSection/PopulationRow");
+		_populationPermissivenessInput = GetNodeOrNull<HSlider>($"{RulesRootPath}/UseCaseSection/PopulationRow/PopulationPermissivenessInput");
+		_populationPermissivenessValueLabel = GetNodeOrNull<Label>($"{RulesRootPath}/UseCaseSection/PopulationPermissivenessValue");
 	}
 
 	private void ConnectSignals()
@@ -346,9 +343,6 @@ public partial class WelcomeScreen : Control
 		if (_quitButton != null) _quitButton.Pressed += OnQuitPressed;
 		if (_randomizeButton != null) _randomizeButton.Pressed += OnRandomizePressed;
 		if (_presetOption != null) _presetOption.ItemSelected += OnPresetSelected;
-		if (_typeHeader != null) _typeHeader.Pressed += OnTypeHeaderPressed;
-		if (_structureHeader != null) _structureHeader.Pressed += OnStructureHeaderPressed;
-		if (_sizeHeader != null) _sizeHeader.Pressed += OnSizeHeaderPressed;
 		if (_typeOption != null) _typeOption.ItemSelected += OnTypeChanged;
 		ConnectSlider(_armsSlider, OnArmsChanged);
 		ConnectSlider(_pitchSlider, OnPitchChanged);
@@ -365,25 +359,38 @@ public partial class WelcomeScreen : Control
 		if (_rulesetModeOption != null) _rulesetModeOption.ItemSelected += OnRulesetModeSelected;
 		if (_showTravellerReadoutsCheck != null) _showTravellerReadoutsCheck.Toggled += _ => RefreshValidationIssues();
 		if (_lifePermissivenessInput != null) _lifePermissivenessInput.ValueChanged += OnLifePermissivenessChanged;
-		if (_populationPermissivenessInput != null) _populationPermissivenessInput.ValueChanged += OnPopulationPermissivenessChanged;
-		if (_mainworldPolicyOption != null) _mainworldPolicyOption.ItemSelected += _ => RefreshValidationIssues();
 	}
 
 	private void ApplyLayoutPolish()
 	{
 		if (_summaryLabel != null)
 		{
-			_summaryLabel.Visible = false;
+			_summaryLabel.Visible = true;
 		}
 
 		if (_assumptionsLabel != null)
 		{
-			_assumptionsLabel.Visible = false;
+			_assumptionsLabel.Visible = true;
 		}
 
 		if (_settingsVBox != null)
 		{
 			ApplyRowSpacing(_settingsVBox);
+		}
+
+		if (_rulesVBox != null)
+		{
+			ApplyRowSpacing(_rulesVBox);
+		}
+
+		if (_populationPermissivenessRow != null)
+		{
+			_populationPermissivenessRow.Visible = false;
+		}
+
+		if (_populationPermissivenessValueLabel != null)
+		{
+			_populationPermissivenessValueLabel.Visible = false;
 		}
 
 		VBoxContainer? buttonsContainer = GetNodeOrNull<VBoxContainer>($"{SummaryRootPath}/Buttons");
@@ -421,63 +428,20 @@ public partial class WelcomeScreen : Control
 	{
 		if (_versionLabel != null)
 		{
-			string version = ProjectSettings.GetSetting("application/config/version", "0.5.0.0").AsString();
+			string version = UserFacingVersionHelper.GetDisplayVersion();
 			_versionLabel.Text = $"Version {version}";
 		}
 	}
 
 	private void ApplyResponsiveLayout()
 	{
-		StudioScreenLayoutHelper.ApplyResponsiveStudioLayout(this, _studioRow, _settingsPanel, _summaryPanel);
-	}
-
-	private void UpdateSectionVisibility()
-	{
-		if (_typeContent != null) _typeContent.Visible = _typeSectionExpanded;
-		if (_typeHeader != null)
-		{
-			string arrow;
-			if (_typeSectionExpanded)
-			{
-				arrow = ArrowExpanded;
-			}
-			else
-			{
-				arrow = ArrowCollapsed;
-			}
-
-			_typeHeader.Text = $"{arrow}  Galaxy Type";
-		}
-		if (_structureContent != null) _structureContent.Visible = _structureSectionExpanded;
-		if (_structureHeader != null)
-		{
-			string arrow;
-			if (_structureSectionExpanded)
-			{
-				arrow = ArrowExpanded;
-			}
-			else
-			{
-				arrow = ArrowCollapsed;
-			}
-
-			_structureHeader.Text = $"{arrow}  Structure";
-		}
-		if (_sizeContent != null) _sizeContent.Visible = _sizeSectionExpanded;
-		if (_sizeHeader != null)
-		{
-			string arrow;
-			if (_sizeSectionExpanded)
-			{
-				arrow = ArrowExpanded;
-			}
-			else
-			{
-				arrow = ArrowCollapsed;
-			}
-
-			_sizeHeader.Text = $"{arrow}  Size & Density";
-		}
+		StudioScreenLayoutHelper.ApplyResponsiveStudioLayout(
+			this,
+			_studioRow,
+			_settingsPanel,
+			_rulesPanel,
+			_summaryPanel,
+			GalaxyStudioCompactBreakpoint);
 	}
 
 	private void UpdateTypeSpecificControls()
@@ -666,24 +630,6 @@ public partial class WelcomeScreen : Control
 
 	private void OnPresetSelected(long index) => ApplyPreset((int)index);
 
-	private void OnTypeHeaderPressed()
-	{
-		_typeSectionExpanded = !_typeSectionExpanded;
-		UpdateSectionVisibility();
-	}
-
-	private void OnStructureHeaderPressed()
-	{
-		_structureSectionExpanded = !_structureSectionExpanded;
-		UpdateSectionVisibility();
-	}
-
-	private void OnSizeHeaderPressed()
-	{
-		_sizeSectionExpanded = !_sizeSectionExpanded;
-		UpdateSectionVisibility();
-	}
-
 	private void OnTypeChanged(long _index)
 	{
 		UpdateTypeSpecificControls();
@@ -703,129 +649,6 @@ public partial class WelcomeScreen : Control
 	private void OnDiskHeightChanged(double _value) { UpdateIntLabel(_diskHeightValue, _diskHeightSlider, " pc"); MarkAsCustom(); RefreshValidationIssues(); }
 	private void OnDensityChanged(double _value) { UpdateFloatLabel(_densityValue, _densitySlider, "0.0", "x"); MarkAsCustom(); RefreshValidationIssues(); }
 
-	private void BuildParameterSupportUi()
-	{
-		if (_settingsVBox == null || _rulesetModeOption != null)
-		{
-			return;
-		}
-
-		VBoxContainer useCaseSection = new VBoxContainer();
-		useCaseSection.Name = "UseCaseSection";
-		useCaseSection.AddThemeConstantOverride("separation", 8);
-
-		Label useCaseHeader = new Label();
-		useCaseHeader.Text = "Traveller / Ruleset";
-		useCaseHeader.AddThemeFontSizeOverride("font_size", 12);
-		useCaseHeader.Modulate = new Color(0.82f, 0.82f, 0.55f, 1.0f);
-		useCaseSection.AddChild(useCaseHeader);
-
-		HBoxContainer rulesetRow = new HBoxContainer();
-		rulesetRow.AddThemeConstantOverride("separation", 12);
-		Label rulesetLabel = new Label();
-		rulesetLabel.Text = "Ruleset";
-		rulesetLabel.CustomMinimumSize = new Vector2(96.0f, 0.0f);
-		rulesetRow.AddChild(rulesetLabel);
-		OptionButton rulesetModeOption = new OptionButton();
-		rulesetModeOption.Name = "RulesetModeOption";
-		rulesetModeOption.SizeFlagsHorizontal = Control.SizeFlags.ExpandFill;
-		rulesetModeOption.AddItem("Default", (int)GenerationUseCaseSettings.RulesetModeType.Default);
-		rulesetModeOption.AddItem("Traveller", (int)GenerationUseCaseSettings.RulesetModeType.Traveller);
-		rulesetRow.AddChild(rulesetModeOption);
-		_rulesetModeOption = rulesetModeOption;
-		useCaseSection.AddChild(rulesetRow);
-
-		CheckBox showTravellerReadoutsCheck = new CheckBox();
-		showTravellerReadoutsCheck.Name = "ShowTravellerReadoutsCheck";
-		showTravellerReadoutsCheck.Text = "Show Traveller / UWP Readouts";
-		_showTravellerReadoutsCheck = showTravellerReadoutsCheck;
-		useCaseSection.AddChild(showTravellerReadoutsCheck);
-
-		Label advancedHeader = new Label();
-		advancedHeader.Text = "Advanced Assumptions";
-		advancedHeader.AddThemeFontSizeOverride("font_size", 12);
-		advancedHeader.Modulate = new Color(0.82f, 0.82f, 0.55f, 1.0f);
-		useCaseSection.AddChild(advancedHeader);
-
-		Label legendLabel = new Label();
-		legendLabel.Text = PermissivenessScaleHelper.GetLegendText();
-		legendLabel.AutowrapMode = TextServer.AutowrapMode.WordSmart;
-		legendLabel.CustomMinimumSize = new Vector2(220.0f, 0.0f);
-		legendLabel.AddThemeFontSizeOverride("font_size", 10);
-		legendLabel.Modulate = new Color(0.62f, 0.7f, 0.8f, 1.0f);
-		useCaseSection.AddChild(legendLabel);
-
-		HBoxContainer lifeRow = new HBoxContainer();
-		lifeRow.AddThemeConstantOverride("separation", 12);
-		Label lifeLabel = new Label();
-		lifeLabel.Text = "Life Potential";
-		lifeLabel.CustomMinimumSize = new Vector2(120.0f, 0.0f);
-		lifeLabel.TooltipText = PermissivenessScaleHelper.GetTooltipText("life");
-		lifeRow.AddChild(lifeLabel);
-		HSlider lifePermissivenessInput = new HSlider();
-		lifePermissivenessInput.Name = "LifePermissivenessInput";
-		lifePermissivenessInput.MinValue = 0.0;
-		lifePermissivenessInput.MaxValue = 1.0;
-		lifePermissivenessInput.Step = 0.05;
-		lifePermissivenessInput.SizeFlagsHorizontal = Control.SizeFlags.ExpandFill;
-		lifePermissivenessInput.TooltipText = lifeLabel.TooltipText;
-		lifeRow.AddChild(lifePermissivenessInput);
-		Label lifeValueLabel = new Label();
-		lifeValueLabel.Name = "LifePermissivenessValue";
-		lifeValueLabel.CustomMinimumSize = new Vector2(156.0f, 0.0f);
-		lifeValueLabel.HorizontalAlignment = HorizontalAlignment.Right;
-		lifeValueLabel.TooltipText = lifeLabel.TooltipText;
-		lifeRow.AddChild(lifeValueLabel);
-		_lifePermissivenessInput = lifePermissivenessInput;
-		_lifePermissivenessValueLabel = lifeValueLabel;
-		useCaseSection.AddChild(lifeRow);
-
-		HBoxContainer populationRow = new HBoxContainer();
-		populationRow.AddThemeConstantOverride("separation", 12);
-		Label populationLabel = new Label();
-		populationLabel.Text = "Settlement Density";
-		populationLabel.CustomMinimumSize = new Vector2(120.0f, 0.0f);
-		populationLabel.TooltipText = PermissivenessScaleHelper.GetTooltipText("settlement");
-		populationRow.AddChild(populationLabel);
-		HSlider populationPermissivenessInput = new HSlider();
-		populationPermissivenessInput.Name = "PopulationPermissivenessInput";
-		populationPermissivenessInput.MinValue = 0.0;
-		populationPermissivenessInput.MaxValue = 1.0;
-		populationPermissivenessInput.Step = 0.05;
-		populationPermissivenessInput.SizeFlagsHorizontal = Control.SizeFlags.ExpandFill;
-		populationPermissivenessInput.TooltipText = populationLabel.TooltipText;
-		populationRow.AddChild(populationPermissivenessInput);
-		Label populationValueLabel = new Label();
-		populationValueLabel.Name = "PopulationPermissivenessValue";
-		populationValueLabel.CustomMinimumSize = new Vector2(156.0f, 0.0f);
-		populationValueLabel.HorizontalAlignment = HorizontalAlignment.Right;
-		populationValueLabel.TooltipText = populationLabel.TooltipText;
-		populationRow.AddChild(populationValueLabel);
-		_populationPermissivenessInput = populationPermissivenessInput;
-		_populationPermissivenessValueLabel = populationValueLabel;
-		useCaseSection.AddChild(populationRow);
-
-		HBoxContainer mainworldRow = new HBoxContainer();
-		mainworldRow.AddThemeConstantOverride("separation", 12);
-		Label mainworldLabel = new Label();
-		mainworldLabel.Text = "Mainworld";
-		mainworldLabel.CustomMinimumSize = new Vector2(96.0f, 0.0f);
-		mainworldRow.AddChild(mainworldLabel);
-		OptionButton mainworldPolicyOption = new OptionButton();
-		mainworldPolicyOption.Name = "MainworldPolicyOption";
-		mainworldPolicyOption.SizeFlagsHorizontal = Control.SizeFlags.ExpandFill;
-		mainworldPolicyOption.AddItem("None", (int)GenerationUseCaseSettings.MainworldPolicyType.None);
-		mainworldPolicyOption.AddItem("Prefer", (int)GenerationUseCaseSettings.MainworldPolicyType.Prefer);
-		mainworldPolicyOption.AddItem("Require", (int)GenerationUseCaseSettings.MainworldPolicyType.Require);
-		mainworldRow.AddChild(mainworldPolicyOption);
-		_mainworldPolicyOption = mainworldPolicyOption;
-		useCaseSection.AddChild(mainworldRow);
-
-		_settingsVBox.AddChild(useCaseSection);
-
-		ApplyUseCaseSettingsToControls(GenerationUseCaseSettings.CreateDefault());
-	}
-
 	private void ApplyParameterTooltips()
 	{
 		ApplyTooltip("galaxy_type", _typeOption, $"{ParameterRootPath}/TypeSection/TypeContent/TypeVBox/TypeRow/TypeLabel");
@@ -843,9 +666,16 @@ public partial class WelcomeScreen : Control
 		ApplyTooltip("galaxy_seed", _seedSpin, $"{ParameterRootPath}/SeedContainer/SeedLabel");
 		ApplyDynamicTooltip(_rulesetModeOption, "ruleset_mode");
 		ApplyDynamicTooltip(_showTravellerReadoutsCheck, "show_traveller_readouts");
-		ApplyDynamicTooltip(_lifePermissivenessInput, "life_permissiveness");
-		ApplyDynamicTooltip(_populationPermissivenessInput, "population_permissiveness");
-		ApplyDynamicTooltip(_mainworldPolicyOption, "mainworld_policy");
+		ApplyTooltip("life_permissiveness", _lifePermissivenessInput, $"{RulesRootPath}/UseCaseSection/LifeRow/LifeLabel");
+		if (_lifePermissivenessValueLabel != null)
+		{
+			_lifePermissivenessValueLabel.TooltipText = PermissivenessScaleHelper.GetTooltipText("life");
+		}
+
+		if (_advancedAssumptionsInfoButton != null)
+		{
+			_advancedAssumptionsInfoButton.TooltipText = PermissivenessScaleHelper.GetAdvancedLegendTooltip();
+		}
 	}
 
 	private void ApplyTooltip(string parameterId, Control? inputControl, string labelPath)
@@ -921,16 +751,6 @@ public partial class WelcomeScreen : Control
 			settings.LifePermissiveness = _lifePermissivenessInput.Value;
 		}
 
-		if (_populationPermissivenessInput != null)
-		{
-			settings.PopulationPermissiveness = _populationPermissivenessInput.Value;
-		}
-
-		if (_mainworldPolicyOption != null)
-		{
-			settings.MainworldPolicy = (GenerationUseCaseSettings.MainworldPolicyType)_mainworldPolicyOption.Selected;
-		}
-
 		return settings;
 	}
 
@@ -952,16 +772,6 @@ public partial class WelcomeScreen : Control
 			_lifePermissivenessInput.Value = resolvedSettings.LifePermissiveness;
 		}
 
-		if (_populationPermissivenessInput != null)
-		{
-			_populationPermissivenessInput.Value = resolvedSettings.PopulationPermissiveness;
-		}
-
-		if (_mainworldPolicyOption != null)
-		{
-			_mainworldPolicyOption.Select((int)resolvedSettings.MainworldPolicy);
-		}
-
 		UpdatePermissivenessValueLabels();
 	}
 
@@ -980,11 +790,6 @@ public partial class WelcomeScreen : Control
 				_showTravellerReadoutsCheck.ButtonPressed = true;
 			}
 
-			if (_mainworldPolicyOption != null)
-			{
-				_mainworldPolicyOption.Select((int)GenerationUseCaseSettings.MainworldPolicyType.Require);
-			}
-
 			ApplyTravellerDefaultsToControls();
 		}
 
@@ -999,41 +804,48 @@ public partial class WelcomeScreen : Control
 		if (_summaryLabel != null)
 		{
 			string typeName = config.GetTypeName();
-			string hintsText;
+			string morphologyText;
 			if (config.Type == GalaxySpec.GalaxyType.Spiral)
 			{
-				hintsText = $"Arms {config.NumArms}";
+				morphologyText =
+					$"{typeName}: {config.NumArms} arms, {config.ArmPitchAngleDeg:0.0} deg pitch, {config.ArmAmplitude:0.00} arm definition";
 			}
 			else if (config.Type == GalaxySpec.GalaxyType.Elliptical)
 			{
-				hintsText = $"Ellipticity {config.Ellipticity:0.00}";
+				morphologyText =
+					$"{typeName}: ellipticity {config.Ellipticity:0.00}, bulge {config.BulgeIntensity:0.00}, core radius {config.BulgeRadiusPc:0} pc";
 			}
 			else
 			{
-				hintsText = $"Irregularity {config.IrregularityScale:0.00}";
+				morphologyText =
+					$"{typeName}: irregularity {config.IrregularityScale:0.00}, density {config.StarDensityMultiplier:0.0}x, radius {config.RadiusPc / 1000.0:0.0} kpc";
 			}
 
 			System.Collections.Generic.List<string> lines = new();
+			lines.Add(morphologyText);
+			lines.Add($"Structure Radius {config.RadiusPc / 1000.0:0.0} kpc | Disk {config.DiskScaleLengthPc:0}/{config.DiskScaleHeightPc:0} pc | Density {config.StarDensityMultiplier:0.0}x");
+			lines.Add($"Ruleset {GenerationUseCasePresentation.GetRulesetLabel(settings.RulesetMode)}");
+			string readoutVisibility = "Hidden";
+			if (settings.ShowTravellerReadouts)
+			{
+				readoutVisibility = "Visible";
+			}
+
+			lines.Add($"Readouts {readoutVisibility}");
+			lines.Add($"Life Potential: {GetLifePotentialBandLabel(settings.LifePermissiveness)}");
 			if (_showSeedControls && _seedSpin != null)
 			{
 				lines.Add($"Seed {(int)_seedSpin.Value}");
 			}
 
-			lines.Add($"Type {typeName}");
-			lines.Add(hintsText);
-			lines.Add($"Radius {config.RadiusPc / 1000.0:0.0} kpc");
-			lines.Add($"Density {config.StarDensityMultiplier:0.0}x");
-			lines.Add($"Ruleset {settings.RulesetMode}");
-			lines.Add($"Traveller Readouts {(settings.ShowTravellerReadouts ? "On" : "Off")}");
-			lines.Add($"Life Potential {PermissivenessScaleHelper.GetBandLabel(settings.LifePermissiveness)}");
-			lines.Add($"Settlement Density {PermissivenessScaleHelper.GetBandLabel(settings.PopulationPermissiveness)}");
 			_summaryLabel.Text = string.Join("\n", lines);
 		}
 
 		if (_assumptionsLabel != null)
 		{
 			_assumptionsLabel.Text = string.Empty;
-			_assumptionsLabel.TooltipText = "Galaxy parameters live in this studio. Traveller mode here applies a moderately settlement-friendly profile, enables Traveller readouts, and tightens the mainworld policy without claiming full Traveller sector simulation.";
+			_assumptionsLabel.Visible = false;
+			_assumptionsLabel.TooltipText = string.Empty;
 		}
 	}
 
@@ -1047,13 +859,6 @@ public partial class WelcomeScreen : Control
 			}
 		}
 
-		if (_populationPermissivenessInput != null)
-		{
-			if (Math.Abs(_populationPermissivenessInput.Value - GenerationUseCaseSettings.NeutralPermissiveness) < 0.001)
-			{
-				_populationPermissivenessInput.Value = GenerationUseCaseSettings.TravellerPopulationPermissiveness;
-			}
-		}
 	}
 
 	private void OnLifePermissivenessChanged(double _value)
@@ -1064,7 +869,6 @@ public partial class WelcomeScreen : Control
 
 	private void OnPopulationPermissivenessChanged(double _value)
 	{
-		UpdatePermissivenessValueLabels();
 		RefreshValidationIssues();
 	}
 
@@ -1073,14 +877,29 @@ public partial class WelcomeScreen : Control
 		if (_lifePermissivenessInput != null && _lifePermissivenessValueLabel != null)
 		{
 			_lifePermissivenessValueLabel.Text =
-				$"{_lifePermissivenessInput.Value:0.00} {PermissivenessScaleHelper.GetBandLabel(_lifePermissivenessInput.Value)}";
+				$"{_lifePermissivenessInput.Value:0.00} ({GetLifePotentialBandLabel(_lifePermissivenessInput.Value)})";
 		}
 
-		if (_populationPermissivenessInput != null && _populationPermissivenessValueLabel != null)
+	}
+
+	private static string GetLifePotentialBandLabel(double value)
+	{
+		if (value < 0.25)
 		{
-			_populationPermissivenessValueLabel.Text =
-				$"{_populationPermissivenessInput.Value:0.00} {PermissivenessScaleHelper.GetBandLabel(_populationPermissivenessInput.Value)}";
+			return "Rare";
 		}
+
+		if (value < 0.50)
+		{
+			return "Uncommon";
+		}
+
+		if (value < 0.75)
+		{
+			return "Common";
+		}
+
+		return "Plentiful";
 	}
 
 	private void RefreshValidationIssues()
@@ -1118,7 +937,6 @@ public partial class WelcomeScreen : Control
 		{
 			Label issueLabel = new Label();
 			issueLabel.AutowrapMode = TextServer.AutowrapMode.Word;
-			issueLabel.CustomMinimumSize = new Vector2(220.0f, 0.0f);
 			issueLabel.AddThemeFontSizeOverride("font_size", 10);
 			if (issue.Severity == GenerationParameterIssue.IssueSeverity.Error)
 			{

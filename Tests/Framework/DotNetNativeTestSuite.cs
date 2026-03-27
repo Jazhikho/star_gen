@@ -941,6 +941,9 @@ public static partial class DotNetNativeTestSuite
             "TestGalaxySystemGenerator::test_generate_system_ignores_overrides_for_other_seeds",
             Tests.Unit.TestGalaxySystemGenerator.TestGenerateSystemIgnoresOverridesForOtherSeeds);
         runner.RunNativeTest(
+            "TestGalaxySystemGenerator::test_generate_system_with_galaxy_context_deterministic_population",
+            Tests.Unit.TestGalaxySystemGenerator.TestGenerateSystemWithGalaxyContextDeterministicPopulation);
+        runner.RunNativeTest(
             "TestGasGiantShaderParams::test_jupiter_like_params",
             Tests.Unit.TestGasGiantShaderParams.TestJupiterLikeParams);
         runner.RunNativeTest(
@@ -2084,6 +2087,12 @@ public static partial class DotNetNativeTestSuite
             "TestStarSystemPreview::test_generate_metallicity_positive",
             Tests.Unit.TestStarSystemPreview.TestGenerateMetallicityPositive);
         runner.RunNativeTest(
+            "TestStarSystemPreview::test_generate_uses_realistic_population_settings",
+            Tests.Unit.TestStarSystemPreview.TestGenerateUsesRealisticPopulationSettings);
+        runner.RunNativeTest(
+            "TestStarSystemPreview::test_generate_with_galaxy_context_matches_system_population",
+            Tests.Unit.TestStarSystemPreview.TestGenerateWithGalaxyContextMatchesSystemPopulation);
+        runner.RunNativeTest(
             "TestStarTable::test_mass_ranges",
             Tests.Unit.TestStarTable.TestMassRanges);
         runner.RunNativeTest(
@@ -2573,6 +2582,9 @@ public static partial class DotNetNativeTestSuite
             "TestSystemSerializer::test_schema_version_included",
             Tests.Unit.TestSystemSerializer.TestSchemaVersionIncluded);
         runner.RunNativeTest(
+            "TestSystemSerializer::test_traveller_profile_round_trip",
+            Tests.Unit.TestSystemSerializer.TestTravellerProfileRoundTrip);
+        runner.RunNativeTest(
             "TestSystemValidator::test_validate_valid_system",
             Tests.Unit.TestSystemValidator.TestValidateValidSystem);
         runner.RunNativeTest(
@@ -2683,6 +2695,12 @@ public static partial class DotNetNativeTestSuite
         runner.RunNativeTest(
             "TestTravellerWorldGenerator::test_generate_planet_profile_avoids_all_zero_auto_world",
             Tests.Unit.TestTravellerWorldGenerator.TestGeneratePlanetProfileAvoidsAllZeroAutoWorld);
+        runner.RunNativeTest(
+            "TestTravellerWorldGenerator::test_generate_trade_codes_and_travel_zone_from_supported_uwp_elements",
+            Tests.Unit.TestTravellerWorldGenerator.TestGenerateTradeCodesAndTravelZoneFromSupportedUwpElements);
+        runner.RunNativeTest(
+            "TestTravellerWorldGenerator::test_traveller_system_takeover_is_deterministic",
+            Tests.Unit.TestTravellerWorldGenerator.TestTravellerSystemTakeoverIsDeterministic);
         runner.RunNativeTest(
             "TestUnits::test_solar_mass_round_trip",
             Tests.Unit.TestUnits.TestSolarMassRoundTrip);

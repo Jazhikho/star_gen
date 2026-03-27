@@ -5,6 +5,9 @@ using StarGen.Domain.Generation.Archetypes;
 using StarGen.Domain.Generation.Specs;
 using StarGen.Domain.Generation.Traveller;
 using StarGen.Domain.Rng;
+using StarGen.Domain.Generation;
+using StarGen.Domain.Systems;
+using StarGen.Domain.Systems.Fixtures;
 
 namespace StarGen.Tests.Unit;
 
@@ -121,5 +124,109 @@ public static class TestTravellerWorldGenerator
         {
             throw new System.InvalidOperationException("Auto Traveller world generation should avoid the all-zero blank-world edge case");
         }
+    }
+
+    public static void TestGenerateTradeCodesAndTravelZoneFromSupportedUwpElements()
+    {
+        TravellerWorldProfile profile = new TravellerWorldProfile
+        {
+            StarportCode = "B",
+            SizeCode = 8,
+            AtmosphereCode = 10,
+            HydrographicsCode = 10,
+            PopulationCode = 9,
+            GovernmentCode = 10,
+            LawCode = 9,
+            TechLevelCode = 12,
+        };
+
+        TravellerTradeCodeSet tradeCodes = TravellerWorldGenerator.GenerateTradeCodes(profile);
+        string travelZone = TravellerWorldGenerator.DetermineTravelZone(profile);
+        TravellerRouteProfile routeProfile = TravellerWorldGenerator.BuildRouteProfile(profile, tradeCodes);
+
+        if (!tradeCodes.Contains("Hi"))
+        {
+            throw new System.InvalidOperationException("High-population profile should produce Hi");
+        }
+
+        if (!tradeCodes.Contains("Ht"))
+        {
+            throw new System.InvalidOperationException("High-tech profile should produce Ht");
+        }
+
+        if (!tradeCodes.Contains("Fl"))
+        {
+            throw new System.InvalidOperationException("Exotic wet atmosphere should produce Fl");
+        }
+
+        if (!tradeCodes.Contains("Wa"))
+        {
+            throw new System.InvalidOperationException("Hydrographics A should produce Wa");
+        }
+
+        if (travelZone != "Amber")
+        {
+            throw new System.InvalidOperationException($"Expected Amber travel zone, got '{travelZone}'");
+        }
+
+        if (routeProfile.MaxJumpNumber != 2)
+        {
+            throw new System.InvalidOperationException($"Expected max jump number 2, got {routeProfile.MaxJumpNumber}");
+        }
+    }
+
+    public static void TestTravellerSystemTakeoverIsDeterministic()
+    {
+        SolarSystemSpec spec = SolarSystemSpec.Binary(24680);
+        spec.IncludeAsteroidBelts = true;
+        spec.GeneratePopulation = true;
+        spec.UseCaseSettings = CreateTravellerSettings();
+
+        SolarSystem? first = SystemFixtureGenerator.GenerateSystem(spec);
+        SolarSystem? second = SystemFixtureGenerator.GenerateSystem(SolarSystemSpec.FromDictionary(spec.ToDictionary()));
+
+        if (first == null || second == null)
+        {
+            throw new System.InvalidOperationException("Traveller fixture systems should generate");
+        }
+
+        if (first.TravellerProfile == null || second.TravellerProfile == null)
+        {
+            throw new System.InvalidOperationException("Traveller mode should produce a typed Traveller system profile");
+        }
+
+        if (first.TravellerProfile.MainworldBodyId != second.TravellerProfile.MainworldBodyId)
+        {
+            throw new System.InvalidOperationException("Traveller mainworld selection should be deterministic");
+        }
+
+        if (first.TravellerProfile.GetUwp() != second.TravellerProfile.GetUwp())
+        {
+            throw new System.InvalidOperationException("Traveller UWP should be deterministic for the same seed");
+        }
+
+        if (first.TravellerProfile.TradeCodes.ToDisplayString() != second.TravellerProfile.TradeCodes.ToDisplayString())
+        {
+            throw new System.InvalidOperationException("Traveller trade codes should be deterministic");
+        }
+
+        if (first.TravellerProfile.RouteProfile.ToDictionary().Count != second.TravellerProfile.RouteProfile.ToDictionary().Count)
+        {
+            throw new System.InvalidOperationException("Traveller route profile shape should be deterministic");
+        }
+
+        if (first.TravellerProfile.RouteProfile.MaxJumpNumber != second.TravellerProfile.RouteProfile.MaxJumpNumber)
+        {
+            throw new System.InvalidOperationException("Traveller route profile should be deterministic");
+        }
+    }
+
+    private static GenerationUseCaseSettings CreateTravellerSettings()
+    {
+        GenerationUseCaseSettings settings = GenerationUseCaseSettings.CreateDefault();
+        settings.RulesetMode = GenerationUseCaseSettings.RulesetModeType.Traveller;
+        settings.ShowTravellerReadouts = true;
+        settings.MainworldPolicy = GenerationUseCaseSettings.MainworldPolicyType.Require;
+        return settings;
     }
 }

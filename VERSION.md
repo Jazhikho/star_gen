@@ -1,10 +1,187 @@
 # Version
 
-Current version: `0.7.0.0`
+Current version: `0.8.0.0`
 
-Date: `2026-03-19`
+Date: `2026-03-26`
 
 Versioning method: release/refactor `+0.1`, feature `+0.0.1`, bug fix `+0.0.0.1`, save-breaking release `+1.0`.
+
+## 0.8.0.0
+
+- Release: Promoted the concept-pipeline hardening branch to the public `0.8.0.0` release baseline and collapsed internal/docs/project/user-facing version surfaces back into one shipped version.
+- Feature: Startup now uses the root intro video and optional root `.ogg` music hook, cross-fades directly into the StarGen logo, and then fades to black before returning on the main menu.
+- Feature: Station Studio now runs the production station-generation flow with live summaries and detail views instead of the older placeholder shell.
+- Feature: The Concept Atlas remains available from the main menu, while non-menu launch points were removed so Atlas access stays menu-scoped.
+- Feature: Native-life and concept generation now follow the deterministic environment-to-ecology-to-species-to-sentience chain that this branch hardened across the domain, previews, and inspectors.
+- Test: `dotnet build StarGen.sln` passed, and the Godot headless harness passed cleanly (`1962 / 1962`) in the last full validation run for this release prep.
+
+## 0.7.10.1
+
+- Bug fix: Splash startup now plays the root `stargen.ogv` inside a scene-defined centered `512 px` media frame, so the video shares the logo height and resolves directly into the StarGen icon instead of stretching across the full screen.
+- Bug fix: Splash wiring now keeps the video-to-logo transition and the intro-audio hook local to the splash, auto-loading the single root `.ogg` track when exactly one music file is present.
+- Test: Updated startup regressions for splash media wiring, shared media-frame sizing, root music loading, and the initial `MainApp` splash state; `dotnet build StarGen.sln` passed, and the full Godot headless harness reached `1962 / 1963` passing with one remaining unrelated object-viewer Concept Atlas failure.
+
+## 0.7.10.0
+
+- Feature: Native life now runs through a single deterministic biosphere assessment that selects a viable chemistry, scores biosphere suitability, derives abiogenesis odds, and separates complex-life and sentience potential instead of letting the ecology gate, native-likelihood curve, and native-population materialization drift apart.
+- Feature: Planet and environment profiles now carry stellar age and moon-specific biosphere inputs through the concept pipeline, allowing subsurface ocean moons to remain valid biosphere candidates while keeping sentient life materially rarer than mere biospheres.
+- Feature: Star-system previews now distinguish life-bearing worlds from inhabited worlds by tracking biosphere and sentient-world counts separately, so high `Life Potential` can surface native biospheres without implying automatic sentient populations.
+- Test: Added and updated population, concept-pipeline, and preview regressions for low-human-habitability biospheres, non-sentient biosphere worlds, alternative-chemistry permissiveness, subsurface moons, and preview biosphere counting; revalidated with `dotnet build StarGen.sln` and the full Godot headless harness (`Total: 1962 | Passed: 1962 | Failed: 0`).
+
+## 0.7.9.5
+
+- Bug fix: Galaxy, System, and Object studios now keep panel minimum widths scene-owned at `200 px`, remove child label minimums that were forcing the rules/summary columns wider, and stop the shared helper from overriding studio sizing in code.
+- Test: Updated the studio layout regressions to assert scene-owned panel widths and reran `dotnet build StarGen.sln` plus the full Godot headless harness; the studio UI tests now pass and the remaining 6 failures are still the repo's unrelated population/concept cases.
+
+## 0.7.9.4
+
+- Bug fix: Galaxy, System, and Object studio `MainPanel` content now uses `18 px` left/right inset, matching the existing top/bottom shell spacing so the border reads even on all four sides.
+- Test: `dotnet build StarGen.sln` passes after the scene spacing correction; the full headless harness still carries the repo's existing unrelated population/concept failures.
+
+## 0.7.9.3
+
+- Bug fix: Reversed the prior studio-shell spacing change and tightened the generator-studio `MainPanel` left/right inset to `10 px`, pulling the first and last content panels back toward the main-menu shell look instead of padding them farther inward.
+- Test: `dotnet build StarGen.sln` passes; the full headless harness still carries the repo's existing unrelated population/concept failures, and the updated studio inset regression source is on disk alongside this spacing correction.
+
+## 0.7.9.2
+
+- Bug fix: Galaxy, System, and Object studio main panels now use an even wider `32 px` scene-defined left/right inset so the first and last studio columns pull inward and stop reading as edge-flush.
+- Test: Revalidated the current galaxy-studio scene paths and inset assertion; `dotnet build StarGen.sln` passes, and the full Godot headless harness remains blocked only by the same unrelated population/concept failures.
+
+## 0.7.9.1
+
+- Bug fix: Galaxy, System, and Object studio main panels now use a wider scene-defined left/right inset so the column layout sits off the screen edges more like the main menu shell.
+- Test: Updated the galaxy-studio integration test to use the current scene structure and assert the widened panel inset; `dotnet build StarGen.sln` passes, and the full Godot headless harness is now down to the same six unrelated population/concept failures (`1953 / 1959` passed).
+
+## 0.7.9.0
+
+- Refactor: `MainMenuScreen` utility dialogs now live in `MainMenuScreen.tscn` as scene-owned window nodes, so the static menu UI shell is editor-visible and the script only binds content, options state, and visibility.
+- Test: `dotnet build StarGen.sln` succeeds cleanly; the full Godot headless harness still reports pre-existing unrelated failures in population, concept-pipeline, and galaxy-generation suites (`1948 / 1958` passed), while the updated main-menu dialog regression now passes.
+
+## 0.7.8.2
+
+- Feature: Concept Atlas is no longer launched from the galaxy viewer or system viewer; it remains available from the main menu and from the object viewer inspector.
+
+## 0.7.8.1
+
+- Feature: System view camera follows the selected body while it moves on its orbit, preserving zoom and orbit angles until the user pans, orbits, resets the view, or changes selection; `SystemCameraController` exposes follow state and integration tests cover follow motion and reset behavior.
+
+## 0.7.8.0
+
+- Feature: Deterministic colonization simulation (settings, state, settlement routes, overlays) layered on saved galaxy data; galaxy native-pressure summaries and colonization-route calculators drive non-Traveller jump networks and viewer overlays.
+- Feature: Traveller-oriented routing and system typing (`TravellerRouteProfile`, `TravellerSystemProfile`, `TravellerTradeCodeSet`, calculators) integrated with generation and jump-lane plumbing.
+- Feature: Generation studios use the main-menu bordered `ScrollContainer` shell and hero/main panel layout; shared `StudioScreenLayoutHelper` rules keep three-column studios readable at the minimum window size.
+- Refactor: Population and preview paths updated for native-pressure context, biology gates, and serialization; life-distribution baseline artifacts and harness coverage refreshed.
+- Test: Expanded unit and integration coverage for colonization routes, Traveller routes, population, serializers, and studio layout; run `dotnet build StarGen.sln` before shipping.
+
+## 0.7.7.3
+
+- Bug fix: System Studio and Object Studio now stay in a horizontal side-by-side column layout at all resolutions instead of collapsing into a vertical stack, relying on adaptive panel widths and each panel's own scrolling behavior when space gets tight.
+- Bug fix: Native life generation once again appears on viable worlds after the generation/simulation split; native-population materialization now follows the ecology/native-life gate instead of waiting for the concept pipeline to predeclare sentience, and the life-permissiveness curve now scales from near-earthlike-only at `0.0` to strong odds for viable `HabitabilityScore 5+` wet worlds at `1.0`.
+- Test: Revalidated with `dotnet build StarGen.sln` and the full Godot headless harness (`1957 / 1957` passed). The harness still prints the repo's existing post-summary popup/layout/ObjectDB/RID warning noise after completion, but the run itself is green.
+
+## 0.7.7.2
+
+- Bug fix: System view and object view now expose explicit `New System...` / `New Object...` and `Return to Main Menu` actions in the File menu, so viewers no longer trap the user inside the current inspection path.
+- Bug fix: System Studio and Object Studio now use the same three-panel `Parameters / Generation Rules / Active Profile` layout pattern as Galaxy Studio, with launch actions and validation moved into the summary column instead of being buried under the settings form.
+- Test: Revalidated with `dotnet build StarGen.sln` and the full Godot headless harness (`1957 / 1957` passed). The harness still prints the repo's existing post-summary popup/layout/ObjectDB/RID warning noise after completion, but the run itself is green.
+
+## 0.7.7.1
+
+- Bug fix: Restored explicit top-bar back buttons for galaxy-opened system/object views, removed regeneration actions from studio-launched viewer contexts, and aligned file-menu/Escape navigation so only views with an actual upstream parent expose back navigation.
+- Bug fix: Object edits made from object view now persist back into the currently open standalone system viewer even when there is no galaxy star-seed context, keeping system-studio object inspection/editing usable as a one-level-deep flow.
+- Test: Revalidated with `dotnet build StarGen.sln` and the full Godot headless harness (`1957 / 1957` passed). The harness still prints the repo's existing post-summary popup/layout/ObjectDB warning noise after completion, but the test run itself is green.
+
+## 0.7.7.0
+
+- Feature: Generation now stops at initial conditions plus extant native populations, while colonies and non-Traveller jump routes are produced by an explicit deterministic colonization simulation layered on top of saved galaxy state.
+- Feature: Added persisted colonization simulation settings/state/settlement-route records, authoritative colony overlays when opening systems, and subsector-scoped simulation caching so revisiting a simulated region restores the same emergent structures without rerunning generation.
+- Refactor: Removed generation-side `Expansion Pressure` from use-case settings and generation UI surfaces, keeping `Life Potential` in generation while moving colonization controls into the simulation/tool layer.
+- Test: Revalidated with `dotnet build StarGen.sln` and the full Godot headless harness (`1957 / 1957` passed). The harness still prints the repo's existing post-summary popup/layout/ObjectDB warning noise, but the test run itself is green.
+
+## 0.7.6.1
+
+- Bug fix: Non-Traveller galaxy jump routes now derive from a deterministic colonization network instead of the older heuristic nearest-population graph, so routes form only from systems with interstellar-capable export pressure and viable colony targets.
+- Bug fix: Route-region systems now carry explicit colonization summaries from generated system data, allowing connected empty systems to receive simulated colony population instead of appearing as route endpoints with zero population.
+- Test: Added `ColonizationRouteCalculator` unit coverage plus viewer regressions for connected-system population baselines; `dotnet build StarGen.sln` succeeds cleanly, while the full Godot headless harness is still blocked by the same pre-existing CLR crash in `TestGalaxySystemGenerator::test_generate_system_with_galaxy_context_deterministic_population` before the run reaches the new jump-route cases.
+
+## 0.7.6.0
+
+- Feature: Colony generation now runs as a deterministic second pass over completed systems, so same-system native worlds and cached nearby-system native summaries can raise expansion pressure without making outcomes depend on generation order.
+- Feature: Added deterministic native-pressure summary caching at the galaxy layer plus runtime-path updates so galaxy previews and opened systems use the same colony-pressure pipeline while standalone fixture generation keeps the same-system-only pass.
+- Test: Added colony-pressure probability/likelihood regressions plus system/preview determinism coverage, then revalidated with `dotnet build StarGen.sln` and the full Godot headless harness (`1953 / 1953` assertions passed; the run still ends with the same pre-existing post-summary Godot .NET cleanup/leak errors in this repo).
+
+## 0.7.5.3
+
+- Bug fix: Galaxy-view realistic generation now actually enables population generation in the runtime tool path, instead of only doing so for Traveller mode while the baseline harness continued to generate realistic population correctly.
+- Bug fix: Opening a system from the galaxy viewer now preserves realistic `Life Potential` / `Expansion Pressure` population generation, so populated-world outcomes can make it from Galaxy Studio settings into the generated system data.
+- Test: Added regressions for both `StarSystemPreview.Generate(...)` and `MainApp -> GalaxyViewer -> open system` to prove that realistic mode with high life/population settings yields populated runtime systems, then revalidated with `dotnet build StarGen.sln` and the full Godot headless harness (`1947 / 1947` passed).
+
+## 0.7.5.2
+
+- Bug fix: Realistic biosphere support and native-life expectation tracking now use the same deterministic biology gate, eliminating the earlier collapse where high `Life Potential` approved biosphere candidates that the ecology layer later rejected.
+- Bug fix: Re-ran the 1000-world life-distribution baseline with support-failure diagnostics; realistic biospheres now track the expected counts across the sampled bands (`0.50 Neutral`: expected `1.3`, actual `1`; `1.00 Space Opera`: expected `11.9`, actual `12`).
+- Test: Made the native-life probability ceiling explicit in code and aligned the probability clamp regression with the documented `0.98` maximum, then revalidated with `dotnet build StarGen.sln`, the full Godot headless harness (`1946 / 1946` passed), and a fresh `RunLifeDistributionBaseline.gd` run.
+
+## 0.7.5.1
+
+- Bug fix: Realistic auto-colony generation now uses the persisted population seed consistently and no longer rerolls away colony worlds after the deterministic likelihood gate has already approved them.
+- Bug fix: Re-ran the 1000-world life-distribution baseline after the realistic population fix; at `1.00 Space Opera`, active colony worlds rose from `49` to `137`, while native biospheres remained unchanged on the current sample.
+- Test: Revalidated with `dotnet build StarGen.sln` and the full Godot headless harness (`1945 / 1945` passed), alongside a fresh `RunLifeDistributionBaseline.gd` artifact refresh.
+
+## 0.7.5.0
+
+- Feature: Galaxy Studio now binds the edited scene layout directly, uses `Realistic` / `Traveller` wording consistently, renames `Settlement Density` to `Expansion Pressure`, moves rules explanations into tooltips, and keeps the active profile column to a concise output-intent summary.
+- Feature: Traveller mode now performs deterministic mainworld takeover with typed `TravellerSystemProfile`, `TravellerTradeCodeSet`, and `TravellerRouteProfile` data, applying Traveller world-generation rules across supported UWP-facing elements for the selected mainworld while keeping non-mainworld bodies on the realistic path.
+- Feature: Traveller mode now builds jump routes from Traveller-specific world data with the `2 pc per jump number` distance rule, persists the typed Traveller profile through save/load, and updates inspectors/viewers to read the authoritative Traveller profile instead of older fallback strings.
+- Test: Revalidated the Traveller/UI expansion with `dotnet build StarGen.sln` and the full Godot headless harness (`1944 / 1944` passed).
+
+## 0.7.4.0
+
+- Refactor: Promoted Galaxy Studio to a first-class `GalaxyGenerationScreen` scene/controller instead of leaving it hidden behind the legacy `WelcomeScreen` identity.
+- Refactor: Updated `MainApp`, GDScript compatibility accessors, and integration coverage to instantiate and exercise `GalaxyGenerationScreen.tscn` directly, then removed the obsolete `WelcomeScreen` scene/script pair from the active UI layer.
+- Test: Revalidated the renamed galaxy-studio screen through the full headless suite after the navigation and scene-path cleanup.
+
+## 0.7.3.0
+
+- Refactor: Moved the fixed `SystemViewer`, `ObjectViewer`, `ConceptAtlasScreen`, and `EditDialog` shells into their `.tscn` scene trees so the stable viewer/editor UI is now scene-first and editor-visible instead of being rebuilt in C#.
+- Refactor: Reduced the remaining viewer/atlas scripts to node binding, option population, signal wiring, and data-driven row rendering while keeping dynamic creation only for variable inspector/detail content and validation/result rows.
+- Test: Updated the concept-atlas persisted-result regression to mount the real scene in the tree and revalidated the full headless suite after the scene-backed refactor.
+
+## 0.7.2.0
+
+- Refactor: Moved the fixed Galaxy, System, and Object studio control shells out of runtime C# construction and into their `.tscn` scene trees so those screens are now scene-first and editor-visible.
+- Refactor: Reduced `WelcomeScreen`, `SystemGenerationScreen`, and `ObjectGenerationScreen` to node binding, state wiring, and summary logic while keeping only truly data-driven rows generated at runtime.
+- Test: Verified the studio scene refactor against the existing headless integration suite to ensure the generated request/spec flows still behave identically after the UI restructuring.
+
+## 0.7.1.3
+
+- Bug fix: Galaxy Studio now keeps the three-panel layout in actual columns at normal desktop widths instead of stacking them into rows too aggressively.
+- Bug fix: Tightened the three-column responsive breakpoint and minimum panel widths so the parameters, generation rules, and active profile sections stay side by side until the window is genuinely narrow.
+
+## 0.7.1.2
+
+- Bug fix: The splash screen, main menu, and galaxy studio all now use the upcoming public release label `0.8.0.0`, while the internal hardening line advances separately as `0.7.1.2`.
+- Bug fix: Main-menu Help, Credits, Release Notes, Station Studio, and Sources copy were cleaned to stay user-facing, with direct icon attribution and a dedicated Sources button instead of repo-path references.
+- Bug fix: Galaxy Studio now uses a three-column layout that separates parameters, generation rules, and the active profile; the galaxy-only `Mainworld` control was removed because it was not meaningfully shaping galaxy generation.
+- Bug fix: The life-assumptions tooltip now reads cleanly from the in-app helper copy, and the 1000-world baseline now evaluates the same generated world sample across scenarios instead of silently changing the sample set between runs.
+- Bug fix: Native-life absence now correctly suppresses ecology, evolution, and sentience states in runtime population data, preventing concept layers from appearing on worlds where native life never emerged.
+
+## 0.7.1.1
+
+- Bug fix: Main-menu and studio version labels now read from a dedicated public-version setting so the user-facing UI can advertise the upcoming public release while internal 0.7 hardening continues.
+- Bug fix: Galaxy Studio is back on a real split layout, with a dedicated summary panel, better use of horizontal space, a hoverable advanced-assumptions info button, and corrected checkbox highlighting that no longer obscures nearby controls.
+- Feature: Galaxy morphology controls now explain their actual density-model impact in-app, and the project source notes now include review targets for spiral, elliptical, bulge, and irregular-galaxy structure references.
+- Feature: `Life Potential` and `Settlement Density` now affect native-life and colony generation instead of acting as mostly cosmetic labels, and a separate 1000-world baseline runner now records the resulting distribution for future regression review.
+- Docs: Added Cursor to the in-app AI credits text, documented the user-facing `0.8.0.0` label policy, and added baseline-runner guidance plus galaxy-morphology review sources.
+
+## 0.7.1.0
+
+- Refactor: Replaced the flattened concept showcase context with a typed dependency pipeline spanning `PlanetEnvironmentProfile`, `EcologyState`, `SpeciesEvolutionState`, `SentienceAssessment`, `SocietyState`, `ReligionState`, `LanguageState`, and `DiseaseState`.
+- Feature: Reworked native-life generation so ecology and evolution attach only to biological worlds, sentience is evaluated explicitly, and civilisation/religion/language now generate only for extant sentient populations.
+- Feature: Reintroduced persisted concept state on the hardening branch behind deterministic applicability gates, richer provenance, and atlas reuse of typed runtime results instead of fabricated summaries.
+- Quality: Removed ternary operators from the concept path, tightened concept serialization and registry failures, and added concept-pipeline regression coverage for lifeless, non-sentient, and sentient worlds plus a static ternary scan.
+- Internal milestone: `0.7.1.0` is part of the private 0.7 hardening line. The next public release target remains `0.8.0.0` after realism tuning and explicit human audit on culture-, religion-, language-, civilisation-, and species-adjacent outputs.
 
 ## 0.7.0.0
 

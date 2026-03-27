@@ -32,18 +32,7 @@ public static class ConceptAtlasModuleRegistry
             return module.Run(request);
         }
 
-        return new ConceptRunResult
-        {
-            Title = request.Kind.ToString(),
-            Summary = "No concept presenter is registered for this module.",
-            Provenance = new ConceptProvenance
-            {
-                ConceptId = request.Kind.ToString(),
-                Seed = request.Context.Seed,
-                GeneratorVersion = "atlas-missing-module",
-                SourceContext = request.Context.SourceLabel,
-            },
-        };
+        throw new System.InvalidOperationException("No concept presenter is registered for module '" + request.Kind + "'.");
     }
 
     private static Dictionary<ConceptKind, IConceptModulePresenter> CreateModules()

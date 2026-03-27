@@ -1,6 +1,7 @@
 #nullable enable annotations
 #nullable disable warnings
 using System;
+using StarGen.Domain.Generation;
 using StarGen.Domain.Population;
 using StarGen.Tests.Framework;
 
@@ -105,6 +106,115 @@ public static class TestPopulationLikelihood
 
         bool result = PopulationLikelihood.ShouldGenerateNatives(profile, 99999);
         DotNetNativeTestSuite.AssertFalse(result, "Very low habitability should never produce natives");
+    }
+
+    /// <summary>
+    /// Tests that life permissiveness changes deterministic native-generation outcomes for the same seed.
+    /// </summary>
+    public static void TestShouldGenerateNativesRespectsLifePermissiveness()
+    {
+        PlanetProfile profile = new();
+        profile.BodyId = "marginal";
+        profile.HabitabilityScore = 4;
+        profile.HasLiquidWater = true;
+        profile.HasAtmosphere = true;
+        profile.HasBreathableAtmosphere = false;
+        profile.IsTidallyLocked = false;
+        profile.RadiationLevel = 0.35;
+        profile.AvgTemperatureK = 450.0;
+
+        GenerationUseCaseSettings strictSettings = GenerationUseCaseSettings.CreateDefault();
+        strictSettings.LifePermissiveness = 0.0;
+
+        GenerationUseCaseSettings permissiveSettings = GenerationUseCaseSettings.CreateDefault();
+        permissiveSettings.LifePermissiveness = 1.0;
+
+        long matchingSeed = -1;
+        for (long populationSeed = 1; populationSeed <= 10000; populationSeed += 1)
+        {
+            bool strictResult = PopulationLikelihood.ShouldGenerateNatives(profile, populationSeed, strictSettings);
+            bool permissiveResult = PopulationLikelihood.ShouldGenerateNatives(profile, populationSeed, permissiveSettings);
+            if (!strictResult && permissiveResult)
+            {
+                matchingSeed = populationSeed;
+                break;
+            }
+        }
+
+        DotNetNativeTestSuite.AssertTrue(matchingSeed > 0, "A deterministic seed should exist where permissive life settings admit the same world that strict settings reject");
+    }
+
+    /// <summary>
+    /// Tests that prime wet worlds always get a biosphere even under strict settings.
+    /// </summary>
+    public static void TestShouldGenerateNativesGuaranteesPrimeWorldsAtStrict()
+    {
+        PlanetProfile profile = new();
+        profile.BodyId = "prime";
+        profile.HabitabilityScore = 8;
+        profile.HasLiquidWater = true;
+        profile.HasAtmosphere = true;
+        profile.HasBreathableAtmosphere = true;
+        profile.RadiationLevel = 0.2;
+        profile.IsTidallyLocked = false;
+
+        GenerationUseCaseSettings strictSettings = GenerationUseCaseSettings.CreateDefault();
+        strictSettings.LifePermissiveness = 0.0;
+
+        bool result = PopulationLikelihood.ShouldGenerateNatives(profile, 1, strictSettings);
+        DotNetNativeTestSuite.AssertTrue(result, "Strict life settings should still guarantee a biosphere on prime wet worlds");
+    }
+
+    /// <summary>
+    /// Tests that the same deterministic colony roll can fail without native pressure and pass with it.
+    /// </summary>
+    public static void TestShouldGenerateColonyRespectsNativePressure()
+    {
+        PlanetProfile profile = new();
+        profile.BodyId = "harsh_moon";
+        profile.HabitabilityScore = 1;
+        profile.IsMoon = true;
+
+        ColonySuitability harshSuitability = new();
+        harshSuitability.OverallScore = 20;
+        harshSuitability.RequiresLifeSupport = true;
+        harshSuitability.RequiresPressureSuit = true;
+        harshSuitability.RequiresRadiationShielding = false;
+
+        GenerationUseCaseSettings strictSettings = GenerationUseCaseSettings.CreateDefault();
+
+        ColonyPressureContext pressureContext = new ColonyPressureContext
+        {
+            LocalNativePressure = 1.0,
+            NearbySystemNativePressure = 0.8,
+            LocalNativeWorldCount = 1,
+            NearbyNativeWorldCount = 2,
+        };
+
+        long matchingSeed = -1;
+        for (long populationSeed = 1; populationSeed <= 10000; populationSeed += 1)
+        {
+            bool strictResult = PopulationLikelihood.ShouldGenerateColony(
+                profile,
+                harshSuitability,
+                populationSeed,
+                strictSettings);
+            bool pressuredResult = PopulationLikelihood.ShouldGenerateColony(
+                profile,
+                harshSuitability,
+                populationSeed,
+                strictSettings,
+                pressureContext);
+            if (!strictResult && pressuredResult)
+            {
+                matchingSeed = populationSeed;
+                break;
+            }
+        }
+
+        DotNetNativeTestSuite.AssertTrue(
+            matchingSeed > 0,
+            "A deterministic seed should exist where native pressure admits the same harsh target that the baseline colony check rejects");
     }
 
     /// <summary>

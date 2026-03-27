@@ -42,6 +42,17 @@ Links and short coverage notes so you can grab full text (PDF) at your leisure. 
 
 ---
 
+## Galaxy morphology and structure
+
+| Title | Authors | Year | Link | Covers | Note |
+|-------|---------|------|------|--------|------|
+| The Galaxy in Context: Structural, Kinematic, and Integrated Properties | Bland-Hawthorn, J., Gerhard, O. | 2016 | [ADS](https://ui.adsabs.harvard.edu/abs/2016ARA%26A..54..529B/abstract) / [DOI 10.1146/annurev-astro-081915-023441](https://doi.org/10.1146/annurev-astro-081915-023441) | Milky Way structural review: disk scale lengths, disk heights, bulge and bar properties, stellar mass distribution, and comparison with other spirals. | Review article. Good anchor for StarGen spiral defaults and bulge/disk ranges. |
+| Galaxy Disks | van der Kruit, P. C., Freeman, K. C. | 2011 | [ADS](https://ui.adsabs.harvard.edu/abs/2011ARA%26A..49..301V/abstract) / [DOI 10.1146/annurev-astro-081710-102529](https://doi.org/10.1146/annurev-astro-081710-102529) | Disk structure, exponential profiles, scale lengths, scale heights, truncations, and observational properties of spiral disks. | Review article. Supports the exponential-disk assumptions used in the spiral density model. |
+| Mapping the Three-Dimensional Density of the Galactic Bulge with VVV Red Clump Stars | Wegg, C., Gerhard, O. | 2013 | [ADS](https://ui.adsabs.harvard.edu/abs/2013MNRAS.435.1874W/abstract) / [arXiv:1308.4385](https://arxiv.org/abs/1308.4385) | 3D density map of the Milky Way bulge and bar from VVV red-clump stars; boxy and peanut bulge structure plus orientation. | Primary paper. Useful for checking how far StarGen's bulge simplification can reasonably go before it becomes decoration. |
+| The Evolution of Galaxy Structure Over Cosmic Time | Conselice, C. J. | 2014 | [ADS](https://ui.adsabs.harvard.edu/abs/2014ARA%26A..52..291C/abstract) / [DOI 10.1146/annurev-astro-081913-040037](https://doi.org/10.1146/annurev-astro-081913-040037) | Galaxy morphology overview across spirals, ellipticals, irregulars, mergers, and structural diagnostics over cosmic time. | Review article. Useful for human review of how StarGen's broad morphology categories line up with astronomical usage. |
+
+---
+
 ## Adding full-text copies
 
 After you obtain a PDF (or HTML), extract plain text (e.g. `pdftotext paper.pdf`) and save as `Sources/Texts/AuthorYear.txt` (e.g. `Chambers1996.txt`, `Bovy2017.txt`). Then add or update the corresponding entry in [AnnotatedBibliography.md](AnnotatedBibliography.md) with the full citation and “Used in” locations.

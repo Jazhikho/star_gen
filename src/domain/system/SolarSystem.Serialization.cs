@@ -3,6 +3,7 @@ using Godot.Collections;
 using StarGen.Domain.Celestial;
 using StarGen.Domain.Celestial.Serialization;
 using StarGen.Domain.Concepts;
+using StarGen.Domain.Generation.Traveller;
 
 namespace StarGen.Domain.Systems;
 
@@ -69,6 +70,11 @@ public partial class SolarSystem
         if (HasConceptResults())
         {
             data["concept_results"] = ConceptResults.ToDictionary();
+        }
+
+        if (TravellerProfile != null)
+        {
+            data["traveller_profile"] = TravellerProfile.ToDictionary();
         }
 
         return data;
@@ -147,6 +153,11 @@ public partial class SolarSystem
         if (data.ContainsKey("concept_results") && data["concept_results"].VariantType == Variant.Type.Dictionary)
         {
             system.ConceptResults = ConceptResultStore.FromDictionary((Dictionary)data["concept_results"]);
+        }
+
+        if (data.ContainsKey("traveller_profile") && data["traveller_profile"].VariantType == Variant.Type.Dictionary)
+        {
+            system.TravellerProfile = TravellerSystemProfile.FromDictionary((Dictionary)data["traveller_profile"]);
         }
 
         return system;

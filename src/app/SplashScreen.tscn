@@ -2,6 +2,7 @@
 
 [ext_resource type="Script" uid="uid://b4n5jwrhxucc4" path="res://src/app/SplashScreen.cs" id="1"]
 [ext_resource type="Theme" uid="uid://c6a5io6e0kwn8" path="res://src/app/themes/DarkTheme.tres" id="2"]
+[ext_resource type="VideoStream" path="res://stargen.ogv" id="3_ys8yg"]
 
 [node name="SplashScreen" type="Control" unique_id=1424037811]
 layout_mode = 3
@@ -20,87 +21,103 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-color = Color(0.027451, 0.0431373, 0.0823529, 1)
+color = Color(0.00784314, 0.0117647, 0.027451, 1)
 
-[node name="NebulaGlow" type="ColorRect" parent="." unique_id=1923992376]
-layout_mode = 1
-anchors_preset = -1
-anchor_left = 0.2
-anchor_top = 0.12
-anchor_right = 0.8
-anchor_bottom = 0.88
-grow_horizontal = 2
-grow_vertical = 2
-color = Color(0.121569, 0.278431, 0.392157, 0.3)
-
-[node name="MarginContainer" type="MarginContainer" parent="." unique_id=965507594]
+[node name="CenterStage" type="CenterContainer" parent="." unique_id=128633031]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-theme_override_constants/margin_left = 28
-theme_override_constants/margin_top = 24
-theme_override_constants/margin_right = 28
-theme_override_constants/margin_bottom = 24
+mouse_filter = 2
 
-[node name="ScrollContainer" type="ScrollContainer" parent="MarginContainer" unique_id=80689174]
+[node name="StageVBox" type="VBoxContainer" parent="CenterStage" unique_id=1182308742]
 layout_mode = 2
-size_flags_horizontal = 3
-size_flags_vertical = 3
-horizontal_scroll_mode = 0
-
-[node name="Layout" type="VBoxContainer" parent="MarginContainer/ScrollContainer" unique_id=1414520964]
-layout_mode = 2
-size_flags_horizontal = 3
-size_flags_vertical = 3
-theme_override_constants/separation = 24
+theme_override_constants/separation = 14
 alignment = 1
 
-[node name="WordmarkBlock" type="VBoxContainer" parent="MarginContainer/ScrollContainer/Layout" unique_id=714381058]
+[node name="MediaFrame" type="Control" parent="CenterStage/StageVBox" unique_id=177113421]
+clip_contents = true
+custom_minimum_size = Vector2(910.222, 512)
 layout_mode = 2
-size_flags_vertical = 4
-theme_override_constants/separation = 8
+size_flags_horizontal = 4
+mouse_filter = 2
 
-[node name="TitleLabel" type="Label" parent="MarginContainer/ScrollContainer/Layout/WordmarkBlock" unique_id=2058676209]
+[node name="VideoLayer" type="Control" parent="CenterStage/StageVBox/MediaFrame" unique_id=581743216]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+
+[node name="VideoPlayer" type="VideoStreamPlayer" parent="CenterStage/StageVBox/MediaFrame/VideoLayer" unique_id=189115417]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+stream = ExtResource("3_ys8yg")
+expand = true
+
+[node name="LogoLayer" type="CenterContainer" parent="CenterStage/StageVBox/MediaFrame" unique_id=144218032]
+modulate = Color(1, 1, 1, 0)
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+
+[node name="LogoTexture" type="TextureRect" parent="CenterStage/StageVBox/MediaFrame/LogoLayer" unique_id=944671224]
+custom_minimum_size = Vector2(512, 512)
 layout_mode = 2
-theme_override_font_sizes/font_size = 46
-text = "STARGEN"
+mouse_filter = 2
+expand_mode = 1
+stretch_mode = 5
+
+[node name="LogoVBox" type="VBoxContainer" parent="CenterStage/StageVBox" unique_id=2048877753]
+layout_mode = 2
+theme_override_constants/separation = 12
+alignment = 1
+
+[node name="VersionLabel" type="Label" parent="CenterStage/StageVBox/LogoVBox" unique_id=532410013]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.929412, 0.784314, 0.494118, 1)
+text = "Release 0.8.0.0"
 horizontal_alignment = 1
 
-[node name="TaglineLabel" type="Label" parent="MarginContainer/ScrollContainer/Layout/WordmarkBlock" unique_id=2019933573]
-custom_minimum_size = Vector2(320, 0)
+[node name="StatusLabel" type="Label" parent="CenterStage/StageVBox/LogoVBox" unique_id=1803741947]
+custom_minimum_size = Vector2(300, 0)
 layout_mode = 2
-theme_override_colors/font_color = Color(0.760784, 0.823529, 0.886275, 1)
-theme_override_font_sizes/font_size = 20
-text = "Holistic sci-fi procedural generation"
-horizontal_alignment = 1
+theme_override_colors/font_color = Color(0.768627, 0.835294, 0.905882, 1)
+theme_override_font_sizes/font_size = 18
+text = "Now loading..."
+horizontal_alignment = 2
 autowrap_mode = 2
 
-[node name="VersionLabel" type="Label" parent="MarginContainer/ScrollContainer/Layout/WordmarkBlock" unique_id=532410013]
-layout_mode = 2
-theme_override_colors/font_color = Color(0.921569, 0.768627, 0.470588, 1)
-text = "Release 0.5.0.0"
-horizontal_alignment = 1
-vertical_alignment = 1
-
-[node name="StatusLabel" type="Label" parent="MarginContainer/ScrollContainer/Layout/WordmarkBlock" unique_id=1803741947]
+[node name="SkipLabel" type="Label" parent="." unique_id=734863720]
 custom_minimum_size = Vector2(260, 0)
-layout_mode = 2
-theme_override_colors/font_color = Color(0.619608, 0.694118, 0.772549, 1)
-text = "Initializing..."
+layout_mode = 1
+anchors_preset = 7
+anchor_left = 0.5
+anchor_top = 1.0
+anchor_right = 0.5
+anchor_bottom = 1.0
+offset_left = -170.0
+offset_top = -58.0
+offset_right = 170.0
+offset_bottom = -24.0
+grow_horizontal = 2
+grow_vertical = 0
+theme_override_colors/font_color = Color(0.741176, 0.792157, 0.854902, 0.92)
+text = "Press any key or click to skip"
 horizontal_alignment = 1
 autowrap_mode = 2
 
-[node name="FooterLabel" type="Label" parent="MarginContainer/ScrollContainer/Layout" unique_id=734863720]
-custom_minimum_size = Vector2(220, 0)
-layout_mode = 2
-theme_override_colors/font_color = Color(0.556863, 0.619608, 0.694118, 1)
-text = "Press any key to skip"
-horizontal_alignment = 1
-autowrap_mode = 2
-
-[node name="RevealTimer" type="Timer" parent="." unique_id=1749788765]
-wait_time = 1.6
-one_shot = true
+[node name="IntroMusicPlayer" type="AudioStreamPlayer" parent="." unique_id=1588793017]

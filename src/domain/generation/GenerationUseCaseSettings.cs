@@ -19,11 +19,6 @@ public partial class GenerationUseCaseSettings : RefCounted
     public const double TravellerLifePermissiveness = 0.55;
 
     /// <summary>
-    /// Traveller-leaning settlement permissiveness baseline.
-    /// </summary>
-    public const double TravellerPopulationPermissiveness = 0.65;
-
-    /// <summary>
     /// Supported ruleset modes.
     /// </summary>
     public enum RulesetModeType
@@ -56,11 +51,6 @@ public partial class GenerationUseCaseSettings : RefCounted
     /// User-adjustable life permissiveness in the inclusive range [0, 1].
     /// </summary>
     public double LifePermissiveness { get; set; } = NeutralPermissiveness;
-
-    /// <summary>
-    /// User-adjustable population permissiveness in the inclusive range [0, 1].
-    /// </summary>
-    public double PopulationPermissiveness { get; set; } = NeutralPermissiveness;
 
     /// <summary>
     /// Desired mainworld policy for system and galaxy flows.
@@ -96,10 +86,6 @@ public partial class GenerationUseCaseSettings : RefCounted
             LifePermissiveness = TravellerLifePermissiveness;
         }
 
-        if (IsApproximatelyNeutral(PopulationPermissiveness))
-        {
-            PopulationPermissiveness = TravellerPopulationPermissiveness;
-        }
     }
 
     /// <summary>
@@ -112,7 +98,7 @@ public partial class GenerationUseCaseSettings : RefCounted
             return false;
         }
 
-        return IsApproximatelyNeutral(PopulationPermissiveness);
+        return true;
     }
 
     /// <summary>
@@ -125,7 +111,6 @@ public partial class GenerationUseCaseSettings : RefCounted
             RulesetMode = RulesetMode,
             ShowTravellerReadouts = ShowTravellerReadouts,
             LifePermissiveness = LifePermissiveness,
-            PopulationPermissiveness = PopulationPermissiveness,
             MainworldPolicy = MainworldPolicy,
         };
     }
@@ -140,7 +125,6 @@ public partial class GenerationUseCaseSettings : RefCounted
             ["ruleset_mode"] = (int)RulesetMode,
             ["show_traveller_readouts"] = ShowTravellerReadouts,
             ["life_permissiveness"] = System.Math.Clamp(LifePermissiveness, 0.0, 1.0),
-            ["population_permissiveness"] = System.Math.Clamp(PopulationPermissiveness, 0.0, 1.0),
             ["mainworld_policy"] = (int)MainworldPolicy,
         };
     }
@@ -164,8 +148,6 @@ public partial class GenerationUseCaseSettings : RefCounted
 
         settings.ShowTravellerReadouts = GetBool(data, "show_traveller_readouts", false);
         settings.LifePermissiveness = System.Math.Clamp(GetDouble(data, "life_permissiveness", NeutralPermissiveness), 0.0, 1.0);
-        settings.PopulationPermissiveness = System.Math.Clamp(GetDouble(data, "population_permissiveness", NeutralPermissiveness), 0.0, 1.0);
-
         int mainworldPolicyValue = GetInt(data, "mainworld_policy", (int)MainworldPolicyType.None);
         if (System.Enum.IsDefined(typeof(MainworldPolicyType), mainworldPolicyValue))
         {

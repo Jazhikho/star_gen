@@ -16,6 +16,7 @@ This roadmap builds StarGen in three layers: (1) viewable celestial objects (edi
 •	Keep domain logic pure (no scene tree / Nodes / file I/O inside domain).
 •	Ship tests with features. Golden-master fixtures cover regression for known seeds.
 •	Prefer composition over inheritance. Small services and data components over "manager" classes.
+•	Generation sets initial conditions; simulation produces emergent structure. Studio-driven generation should define the starting state top down, while tool-driven simulations should evolve outcomes bottom up from local conditions.
 •	Any feature request that does not directly support an active effort is added as a new effort in this roadmap.
 
 ## Definition of Done (per effort)
@@ -46,9 +47,11 @@ Contributors pick an effort and work against master. Efforts can run in parallel
 | Galactic polish | Galaxy save/load UI polish, backward compat, performance | Galactic tools | — |
 | Jump lanes optimization and polish | Optimize and polish jump-lane rendering in galaxy viewer; population data; line/orphan visuals | — | — |
 | Code quality & simplifications | TODOs, placeholder replacements, simplified formulas to redo | — | — |
+| Startup presentation and shell polish | Replace the static splash with intro media, branded transition polish, and optional startup audio hooks | — | — |
 | Population detail (civilisation/regime) | Enrich population with tech level, regime type, and transitions; align with CivilisationEngine concept (Concepts/CivilisationEngine/) | — | — |
-| Concept Atlas and concept tool fold-in | Bring the current Concepts/ modules into StarGen as in-app, deterministic, end-user-visible tools with manual and context-aware entry points | — | `codex/concept-atlas-fold-in` (Release 1 showcase surface complete; Release 2 persistence parity complete in branch) |
-| Cross-layer concept integration | Persist and wire concept outputs into population, history, body, system, and atlas flows after the showcase-first fold-in lands | Concept Atlas and concept tool fold-in | `codex/concept-atlas-fold-in` (implementation complete; `0.7.0.0` prep in branch, public audit pending) |
+| Concept Atlas and concept tool fold-in | Keep every selected concept prototype accessible inside StarGen through a dedicated atlas, manual sandbox, and context-aware launch points | — | `codex/concept-atlas-fold-in` (showcase surface complete; remains the atlas-facing baseline) |
+| Concept dependency pipeline and determinism hardening | Replace flattened concept context with an explicit deterministic dependency chain from environment through ecology, species, sentience, and society layers | Concept Atlas and concept tool fold-in | `codex/concept-pipeline-hardening` (active 0.7 internal iteration) |
+| Cross-layer concept integration | Persist and wire concept outputs into population, history, body, system, and atlas flows only after the dependency pipeline and applicability gates are stable | Concept Atlas and concept tool fold-in; Concept dependency pipeline and determinism hardening | `codex/concept-pipeline-hardening` (active rework; not public-release ready) |
 | Engine/tool integration | Minimal Unity/Unreal sample importer or plugin for real workflow evaluation | — | — |
 | Export function | Clean JSON/CSV export for design/UI iteration and technical wiring | — | — |
 | Filters that match game needs | Presets (frontier, dense core, mystery zone, resource rich, dangerous) for missions and worldbuilding | — | — |
@@ -250,6 +253,22 @@ Recently completed on `master` and included in the `0.5.0.0` release rollup:
 
 ---
 
+### Startup presentation and shell polish
+
+**Goal:** Replace the timer-driven startup splash with intro media that feels branded, deliberate, and ready for later audio work.
+
+**Deliverables:**
+- Video-driven startup splash using the root intro asset (`stargen.ogv`).
+- Cross-fade/tween from the video into the StarGen logo before the app reaches the main menu.
+- Optional intro-music hook kept inside splash wiring so later audio can be added without changing `MainApp`.
+- Skip behavior that still lands on the logo transition rather than hard-cutting directly to the menu.
+
+**Tests:** Splash scene exposes intro media nodes and branding assets; `MainApp` still starts on the splash viewer before later navigation.
+
+**Acceptance:** Launch app -> intro video plays -> logo fades in cleanly -> main menu opens; skip input still uses the branded transition.
+
+---
+
 ### Population detail (civilisation/regime)
 
 **Goal:** Enrich the population framework with civilisation detail: tech level, regime type, and regime transitions. Use the CivilisationEngine concept (`Concepts/CivilisationEngine/`) as the reference model so natives, colonies, and history can be driven by or displayed with tech levels and regimes.
@@ -276,7 +295,7 @@ Recently completed on `master` and included in the `0.5.0.0` release rollup:
 
 **Goal:** Make every current concept prototype accessible inside StarGen for the digital-humanities showcase through a dedicated Concept Atlas and context-aware launch points from the main app.
 
-**Status:** Release 1 showcase surface is complete on `codex/concept-atlas-fold-in`: all currently selected concept modules are accessible in-app from the main menu and relevant viewer inspectors. Post-review polish keeps the atlas clearly framed as a standalone tool in development, with prototype-folder retirement still gated on explicit human audit and cleanup.
+**Status:** Release 1 showcase surface is complete on `codex/concept-atlas-fold-in`: all currently selected concept modules are accessible in-app from the main menu and relevant viewer inspectors. The atlas remains the user-facing front end while `codex/concept-pipeline-hardening` replaces the original flattened concept wiring underneath it.
 
 **Deliverables:**
 • Shared concept types and registry (`ConceptContextSnapshot`, `ConceptProvenance`, `ConceptModuleDescriptor`, run request/result plumbing).
@@ -285,7 +304,26 @@ Recently completed on `master` and included in the `0.5.0.0` release rollup:
 • Subtle user-facing framing in help/release/docs, not a separate “mode”.
 • Tests covering atlas navigation, concept launch, and deterministic outputs for each folded-in concept.
 
-**Acceptance:** From the main menu and relevant viewers, users can open the Concept Atlas and inspect every current concept module without leaving StarGen.
+**Acceptance:** From the main menu, users can open the Concept Atlas and inspect every current concept module without leaving StarGen.
+
+---
+
+### Concept dependency pipeline and determinism hardening
+
+**Goal:** Rebuild concept integration around explicit deterministic dependencies so worldbuilding layers derive from one another instead of being fabricated from a thin shared snapshot.
+
+**Gates:** Concept Atlas and concept tool fold-in.
+
+**Status:** Merged into the `0.8.0.0` release baseline on `master`. The hardening branch introduced typed environment, ecology, species/evolution, sentience, society, religion, language, and disease states; reworked native-population generation so sentience is explicit; and restored persisted runtime concept state behind applicability rules and richer provenance.
+
+**Deliverables:**
+• Typed dependency inputs/outputs: `PlanetEnvironmentProfile`, `EcologyState`, `SpeciesEvolutionState`, `SentienceAssessment`, `SocietyState`, `ReligionState`, `LanguageState`, and `DiseaseState`.
+• Runtime generation order that respects applicability: no ecology on lifeless worlds, no species without ecology, no society/religion/language without sentience, and disease only where biological hosts or inhabited populations exist.
+• Deterministic native C# ports and hardening passes for evolution, civilisation, language, and disease, plus deeper runtime use of the stronger ecology and religion generators.
+• Failure behavior that is explicit instead of silent, with richer provenance and input-signature tracking on persisted concept state.
+• Regression coverage for lifeless, non-sentient, and sentient world paths plus static checks for concept-path ternary operators.
+
+**Acceptance:** For a fixed seed, concept results remain deterministic and follow the dependency chain. Lifeless worlds stop at non-applicable ecology/species/society states, non-sentient worlds stop before society layers, and sentient worlds produce downstream society-layer outputs without hidden fallbacks.
 
 ---
 
@@ -293,9 +331,9 @@ Recently completed on `master` and included in the `0.5.0.0` release rollup:
 
 **Goal:** Move concept outputs from on-demand showcase runs into normal generated world state, persistence, inspectors, and histories.
 
-**Gates:** Concept Atlas and concept tool fold-in.
+**Gates:** Concept Atlas and concept tool fold-in; Concept dependency pipeline and determinism hardening.
 
-**Status:** Deferred on the current showcase branch. Earlier fold-in experiments remain available as in-tree scaffolding, but the automatic generation/save/load/inspector wiring has been removed for now so the Concept Atlas stays a standalone tool until applicability rules, realism controls, and integration scope are ready.
+**Status:** Merged into the `0.8.0.0` release baseline on `master`. Persisted concept state, inspector exposure, and atlas/runtime wiring are now part of the shipped baseline, while follow-on realism tuning and audit work continue as separate efforts rather than as release blockers for this branch.
 
 **Deliverables:**
 • Persisted ecology/species, civilisation, religion, language, and disease data in normal world/system/population payloads.
@@ -303,7 +341,7 @@ Recently completed on `master` and included in the `0.5.0.0` release rollup:
 • Inspector and timeline surfaces that expose persisted concept data outside the atlas.
 • Save/load migration for pre-concept saves.
 
-**Acceptance:** A future branch can reintroduce concept outputs as persisted world state only after applicability rules are explicit, deterministic coverage is in place, and the atlas can reflect those results without overclaiming world-state completeness.
+**Acceptance:** Concept outputs may count as normal world state only when the dependency pipeline is stable, persisted results survive save/load and atlas inspection, and the branch no longer relies on showcase-era fabricated summaries or broad applicability shortcuts.
 
 ---
 
@@ -453,7 +491,7 @@ Recently completed on `master` and included in the `0.5.0.0` release rollup:
 
 **Context:** Traveller uses a **UWP** string (e.g. `X56789A-7`) for each world: Starport (A–E, X), Size (0–9), Atmosphere (0–15), Hydrographics (0–10), Population (0–15, digit = exponent), Government (0–15), Law Level (0–9), Tech Level (0–15). Optional: bases (Naval, Scout, etc.), trade codes (Ag, Hi, In, etc.). StarGen already has: physical size, atmosphere pressure/composition, hydrographics (ocean coverage), population and government (GovernmentType), tech level (TechnologyLevel), and station classes (U/O/B/A/S). Gaps: explicit Law Level, starport grade (Traveller A–X) vs station class, and numeric UWP digits with Traveller’s tables and trade-code rules.
 
-**Current master foundation:** Config-first galaxy/system/object generation is now in place. Shared `GenerationUseCaseSettings` carries ruleset mode, Traveller readout visibility, life/population permissiveness, and mainworld policy through UI, specs, and persistence. Current inspectors expose derived Traveller readouts and deterministic mainworld readiness summaries, but full UWP generation, Traveller trade routes, and subsector export remain future work in this effort.
+**Current master foundation:** Config-first galaxy/system/object generation is now in place. Shared `GenerationUseCaseSettings` carries ruleset mode, Traveller readout visibility, life permissiveness, and mainworld policy through UI, specs, and persistence. Colonies and non-Traveller jump routes now live in an explicit colonization-simulation layer with persisted subsector-scoped state instead of being treated as generation assumptions. Current inspectors expose derived Traveller readouts and deterministic mainworld readiness summaries, but full UWP generation, Traveller trade routes, and subsector export remain future work in this effort.
 
 **Deliverables:**
 •	**Use-case toggle:** A generation/spec option (e.g. “Traveller use case”) that enables Traveller-specific outputs and rules. No change to default (non-Traveller) behaviour.

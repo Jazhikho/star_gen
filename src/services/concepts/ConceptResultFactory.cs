@@ -1,6 +1,7 @@
 using System;
 using System.Text;
 using StarGen.Domain.Concepts;
+using StarGen.Domain.Concepts.Pipeline;
 
 namespace StarGen.Services.Concepts;
 
@@ -54,18 +55,7 @@ public static partial class ConceptResultFactory
             return BuildEvolutionResult(request.Context);
         }
 
-        return new ConceptRunResult
-        {
-            Title = request.Kind.ToString(),
-            Summary = "No concept presenter is registered for this module.",
-            Provenance = new ConceptProvenance
-            {
-                ConceptId = request.Kind.ToString(),
-                Seed = request.Context.Seed,
-                GeneratorVersion = "atlas-missing-module",
-                SourceContext = request.Context.SourceLabel,
-            },
-        };
+        throw new InvalidOperationException("No concept result factory is registered for kind '" + request.Kind + "'.");
     }
 
     /// <summary>
@@ -103,5 +93,63 @@ public static partial class ConceptResultFactory
         }
 
         return char.ToUpperInvariant(lowered[0]) + lowered.Substring(1);
+    }
+
+    private static ConceptRunResult BuildNotApplicableResult(
+        ConceptKind kind,
+        int seed,
+        string title,
+        string sourceContext,
+        string reason,
+        string generatorVersion)
+    {
+        ConceptRunResult result = new ConceptRunResult();
+        result.Status = ConceptRunStatus.NotApplicable;
+        result.StatusReason = reason;
+        result.Title = title;
+        result.Subtitle = "Not applicable";
+        result.Summary = reason;
+        result.Provenance = new ConceptProvenance
+        {
+            ConceptId = kind.ToString(),
+            Seed = seed,
+            GeneratorVersion = generatorVersion,
+            SourceContext = sourceContext,
+        };
+        return result;
+    }
+
+    private static ConceptRunResult BuildFailedResult(
+        ConceptKind kind,
+        int seed,
+        string title,
+        string sourceContext,
+        string reason,
+        string generatorVersion)
+    {
+        ConceptRunResult result = new ConceptRunResult();
+        result.Status = ConceptRunStatus.Failed;
+        result.StatusReason = reason;
+        result.Title = title;
+        result.Subtitle = "Generation failed";
+        result.Summary = reason;
+        result.Provenance = new ConceptProvenance
+        {
+            ConceptId = kind.ToString(),
+            Seed = seed,
+            GeneratorVersion = generatorVersion,
+            SourceContext = sourceContext,
+        };
+        return result;
+    }
+
+    private static string BuildContextTitle(string bodyName, string sandboxTitle, string suffix)
+    {
+        if (string.IsNullOrEmpty(bodyName))
+        {
+            return sandboxTitle;
+        }
+
+        return bodyName + suffix;
     }
 }

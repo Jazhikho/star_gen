@@ -48,8 +48,8 @@ public static class TestSystemPersistence
             "TestSystemPersistence::test_round_trip_full_data",
             TestRoundTripFullData);
         runner.RunNativeTest(
-            "TestSystemPersistence::test_generated_system_without_auto_concepts_saves_compact_payload",
-            TestGeneratedSystemWithoutAutoConceptsSavesCompactPayload);
+            "TestSystemPersistence::test_generated_system_compact_payload_rehydrates_runtime_concepts",
+            TestGeneratedSystemCompactPayloadRehydratesRuntimeConcepts);
     }
 
     /// <summary>
@@ -217,9 +217,9 @@ public static class TestSystemPersistence
     }
 
     /// <summary>
-    /// Tests generated systems stay on the compact save path when concept layers are not auto-persisted.
+    /// Tests generated systems stay on the compact save path and regenerate runtime concept layers on load.
     /// </summary>
-    private static void TestGeneratedSystemWithoutAutoConceptsSavesCompactPayload()
+    private static void TestGeneratedSystemCompactPayloadRehydratesRuntimeConcepts()
     {
         try
         {
@@ -249,12 +249,15 @@ public static class TestSystemPersistence
             DotNetNativeTestSuite.AssertEqual(generated.StarIds.Count, result.System.StarIds.Count, "Loaded compact system should preserve star count");
             DotNetNativeTestSuite.AssertNotNull(result.System.Provenance, "Loaded compact system should preserve provenance");
             DotNetNativeTestSuite.AssertTrue(result.System.Provenance.SpecSnapshot.ContainsKey("use_case_settings"), "Compact system payload should keep use-case settings in the spec snapshot");
-            DotNetNativeTestSuite.AssertFalse(result.System.HasConceptResults(), "Loaded system should remain free of auto-generated concept state");
+            DotNetNativeTestSuite.AssertTrue(result.System.HasConceptResults(), "Loaded system should regenerate aggregate concept state during load");
 
             Godot.Collections.Dictionary settingsData = (Godot.Collections.Dictionary)result.System.Provenance.SpecSnapshot["use_case_settings"];
             GenerationUseCaseSettings settings = GenerationUseCaseSettings.FromDictionary(settingsData);
             DotNetNativeTestSuite.AssertEqual(GenerationUseCaseSettings.RulesetModeType.Traveller, settings.RulesetMode, "Compact system persistence should preserve ruleset mode");
             DotNetNativeTestSuite.AssertEqual(GenerationUseCaseSettings.MainworldPolicyType.Require, settings.MainworldPolicy, "Compact system persistence should preserve mainworld policy");
+            DotNetNativeTestSuite.AssertNotNull(result.System.TravellerProfile, "Compact Traveller systems should regenerate the typed Traveller system profile");
+            DotNetNativeTestSuite.AssertTrue(!string.IsNullOrEmpty(result.System.TravellerProfile!.GetUwp()), "Compact Traveller systems should regenerate UWP data");
+            DotNetNativeTestSuite.AssertTrue(result.System.TravellerProfile.TradeCodes.Codes.Count > 0 || result.System.TravellerProfile.WorldProfile.PopulationCode == 0, "Compact Traveller systems should regenerate trade codes when populated");
         }
         finally
         {
@@ -268,7 +271,6 @@ public static class TestSystemPersistence
         settings.RulesetMode = GenerationUseCaseSettings.RulesetModeType.Traveller;
         settings.ShowTravellerReadouts = true;
         settings.LifePermissiveness = 0.65;
-        settings.PopulationPermissiveness = 0.8;
         settings.MainworldPolicy = GenerationUseCaseSettings.MainworldPolicyType.Require;
         return settings;
     }

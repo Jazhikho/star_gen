@@ -1,9 +1,15 @@
 #nullable enable annotations
 #nullable disable warnings
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Text.RegularExpressions;
 using Godot;
 using StarGen.App.Concepts;
 using StarGen.Domain.Celestial;
+using StarGen.Domain.Celestial.Components;
 using StarGen.Domain.Concepts;
+using StarGen.Domain.Concepts.Pipeline;
 using StarGen.Domain.Population;
 using StarGen.Domain.Systems;
 using StarGen.Services.Concepts;
@@ -44,6 +50,30 @@ public static partial class DotNetNativeTestSuite
         runner.RunNativeTest(
             "DotNetNativeTestSuite::test_concept_atlas_prefers_persisted_results_when_context_matches",
             TestConceptAtlasPrefersPersistedResultsWhenContextMatches);
+        runner.RunNativeTest(
+            "DotNetNativeTestSuite::test_concept_pipeline_marks_lifeless_world_not_applicable",
+            TestConceptPipelineMarksLifelessWorldNotApplicable);
+        runner.RunNativeTest(
+            "DotNetNativeTestSuite::test_concept_pipeline_maps_subsurface_biology_without_surface_biome_failure",
+            TestConceptPipelineMapsSubsurfaceBiologyWithoutSurfaceBiomeFailure);
+        runner.RunNativeTest(
+            "DotNetNativeTestSuite::test_concept_pipeline_blocks_sentience_on_marginal_worlds",
+            TestConceptPipelineBlocksSentienceOnMarginalWorlds);
+        runner.RunNativeTest(
+            "DotNetNativeTestSuite::test_concept_pipeline_marks_world_without_native_life_not_applicable",
+            TestConceptPipelineMarksWorldWithoutNativeLifeNotApplicable);
+        runner.RunNativeTest(
+            "DotNetNativeTestSuite::test_concept_pipeline_keeps_non_sentient_worlds_pre_society",
+            TestConceptPipelineKeepsNonSentientWorldsPreSociety);
+        runner.RunNativeTest(
+            "DotNetNativeTestSuite::test_concept_pipeline_generates_society_for_sentient_worlds",
+            TestConceptPipelineGeneratesSocietyForSentientWorlds);
+        runner.RunNativeTest(
+            "DotNetNativeTestSuite::test_concept_manual_runs_respect_applicability",
+            TestConceptManualRunsRespectApplicability);
+        runner.RunNativeTest(
+            "DotNetNativeTestSuite::test_concept_paths_have_no_ternary_operators",
+            TestConceptPathsHaveNoTernaryOperators);
     }
 
     private static void TestEcologyAtlasPresenterIsDeterministic()
@@ -320,8 +350,11 @@ public static partial class DotNetNativeTestSuite
                 },
             });
 
-        ConceptAtlasScreen screen = new ConceptAtlasScreen();
-        screen._Ready();
+        PackedScene atlasScene = ResourceLoader.Load<PackedScene>("res://src/app/concepts/ConceptAtlasScreen.tscn")
+            ?? throw new InvalidOperationException("Concept atlas scene could not be loaded for tests.");
+        ConceptAtlasScreen screen = atlasScene.Instantiate<ConceptAtlasScreen>();
+        SceneTree sceneTree = (SceneTree)Engine.GetMainLoop();
+        sceneTree.Root.AddChild(screen);
         screen.SetContext(context, ConceptKind.Ecology);
 
         RichTextLabel? summary = screen.FindChild("SummaryText", recursive: true, owned: false) as RichTextLabel;
@@ -329,5 +362,290 @@ public static partial class DotNetNativeTestSuite
         AssertEqual("Persisted summary text", summary!.Text, "Concept atlas should use persisted results before rerunning");
 
         screen.QueueFree();
+    }
+
+    private static void TestConceptPipelineMarksLifelessWorldNotApplicable()
+    {
+        PlanetProfile profile = CreateBarrenProfile();
+        PlanetPopulationData data = PopulationGenerator.GenerateFromProfile(profile, 40102, generateNatives: true, generateColonies: false);
+
+        AssertNotNull(data.EnvironmentProfile, "Lifeless world should still produce an environment profile");
+        AssertNotNull(data.EcologyState, "Lifeless world should still persist ecology applicability");
+        AssertEqual(ConceptRunStatus.NotApplicable, data.EcologyState!.Status, "Lifeless world should not generate ecology");
+        AssertNotNull(data.SpeciesEvolution, "Lifeless world should still persist species applicability");
+        AssertEqual(ConceptRunStatus.NotApplicable, data.SpeciesEvolution!.Status, "Lifeless world should not generate species evolution");
+        AssertNotNull(data.SentienceAssessment, "Lifeless world should still persist sentience applicability");
+        AssertEqual(ConceptRunStatus.NotApplicable, data.SentienceAssessment!.Status, "Lifeless world should not generate sentience");
+        AssertEqual(0, data.NativePopulations.Count, "Lifeless world should not create native populations");
+
+        SolarSystem system = CreateSystemWithBody("body_lifeless", "Cinder", profile, data, 40102);
+        ConceptWorldStateGenerator.EnsureSystemConcepts(system);
+
+        CelestialBody body = system.GetBody("body_lifeless");
+        AssertTrue(body.ConceptResults.Has(ConceptKind.Ecology), "Body should persist ecology applicability result");
+        AssertTrue(body.ConceptResults.Has(ConceptKind.Evolution), "Body should persist evolution applicability result");
+        AssertFalse(body.ConceptResults.Has(ConceptKind.Civilization), "Body should not fabricate civilisation for lifeless worlds");
+        AssertFalse(system.ConceptResults.Has(ConceptKind.Civilization), "System should not fabricate civilisation without population");
+    }
+
+    private static void TestConceptPipelineMapsSubsurfaceBiologyWithoutSurfaceBiomeFailure()
+    {
+        PlanetProfile profile = new PlanetProfile();
+        profile.BodyId = "profile_subsurface";
+        profile.HabitabilityScore = 3;
+        profile.AvgTemperatureK = 245.0;
+        profile.PressureAtm = 0.0;
+        profile.OceanCoverage = 0.0;
+        profile.LandCoverage = 1.0;
+        profile.IceCoverage = 0.8;
+        profile.GravityG = 0.15;
+        profile.TectonicActivity = 0.22;
+        profile.VolcanismLevel = 0.08;
+        profile.WeatherSeverity = 0.0;
+        profile.MagneticFieldStrength = 0.18;
+        profile.RadiationLevel = 0.28;
+        profile.HasAtmosphere = false;
+        profile.HasLiquidWater = true;
+        profile.HasBreathableAtmosphere = false;
+        profile.IsMoon = true;
+        profile.Biomes[(int)BiomeType.Type.Barren] = 1.0;
+
+        PlanetPopulationData data = PopulationGenerator.GenerateFromProfile(profile, 44012, generateNatives: true, generateColonies: false);
+
+        AssertNotNull(data.EcologyState, "Subsurface world should evaluate ecology");
+        AssertEqual(ConceptRunStatus.Generated, data.EcologyState!.Status, "Subsurface ocean worlds should map to a non-surface ecology instead of failing");
+        AssertNotNull(data.EcologyState.Snapshot, "Generated subsurface ecology should include a snapshot");
+    }
+
+    private static void TestConceptPipelineBlocksSentienceOnMarginalWorlds()
+    {
+        PlanetProfile profile = CreateHabitableProfile();
+        profile.HabitabilityScore = 3;
+        profile.HasBreathableAtmosphere = false;
+        profile.RadiationLevel = 0.28;
+
+        int seed = FindSeedForSentience(profile, shouldBeSentient: false);
+        PlanetPopulationData data = PopulationGenerator.GenerateFromProfile(profile, seed, generateNatives: true, generateColonies: false);
+
+        AssertNotNull(data.SentienceAssessment, "Marginal world should still evaluate sentience");
+        AssertEqual(ConceptRunStatus.Generated, data.SentienceAssessment!.Status, "Marginal world should record sentience evaluation");
+        AssertFalse(data.SentienceAssessment.HasSentientLife, "Marginal worlds should not graduate into sentient civilizations");
+    }
+
+    private static void TestConceptPipelineMarksWorldWithoutNativeLifeNotApplicable()
+    {
+        PlanetProfile profile = CreateHabitableProfile();
+        PlanetPopulationData data = PopulationGenerator.GenerateFromProfile(profile, 12021, generateNatives: false, generateColonies: true);
+
+        AssertEqual(ConceptRunStatus.NotApplicable, data.EcologyState!.Status, "Worlds without native life should not keep ecology as generated");
+        AssertEqual(ConceptRunStatus.NotApplicable, data.SpeciesEvolution!.Status, "Worlds without native life should not keep species evolution as generated");
+        AssertEqual(ConceptRunStatus.NotApplicable, data.SentienceAssessment!.Status, "Worlds without native life should not keep sentience as generated");
+        AssertEqual(0, data.NativePopulations.Count, "Worlds without native life should not create native populations");
+    }
+
+    private static void TestConceptPipelineKeepsNonSentientWorldsPreSociety()
+    {
+        PlanetProfile profile = CreateHabitableProfile();
+        int seed = FindSeedForSentience(profile, shouldBeSentient: false);
+        PlanetPopulationData data = PopulationGenerator.GenerateFromProfile(profile, seed, generateNatives: true, generateColonies: false);
+
+        AssertEqual(ConceptRunStatus.Generated, data.EcologyState!.Status, "Life-bearing world should generate ecology");
+        AssertEqual(ConceptRunStatus.Generated, data.SpeciesEvolution!.Status, "Life-bearing world should generate species evolution");
+        AssertEqual(ConceptRunStatus.Generated, data.SentienceAssessment!.Status, "Life-bearing world should record sentience evaluation");
+        AssertFalse(data.SentienceAssessment.HasSentientLife, "Selected seed should stay below sentience threshold");
+        AssertEqual(0, data.NativePopulations.Count, "Non-sentient worlds should not generate society-bearing native populations");
+
+        SolarSystem system = CreateSystemWithBody("body_nonsentient", "Viridia", profile, data, seed);
+        ConceptWorldStateGenerator.EnsureSystemConcepts(system);
+
+        CelestialBody body = system.GetBody("body_nonsentient");
+        AssertTrue(body.ConceptResults.Has(ConceptKind.Ecology), "Body should retain ecology results");
+        AssertTrue(body.ConceptResults.Has(ConceptKind.Evolution), "Body should retain evolution results");
+        AssertFalse(body.ConceptResults.Has(ConceptKind.Civilization), "Body should not carry aggregate civilisation without sentient population");
+        AssertFalse(system.ConceptResults.Has(ConceptKind.Civilization), "System should not carry aggregate civilisation without population");
+    }
+
+    private static void TestConceptPipelineGeneratesSocietyForSentientWorlds()
+    {
+        PlanetProfile profile = CreateHabitableProfile();
+        int seed = FindSeedForSentience(profile, shouldBeSentient: true);
+        PlanetPopulationData data = PopulationGenerator.GenerateFromProfile(profile, seed, generateNatives: true, generateColonies: false);
+
+        AssertEqual(ConceptRunStatus.Generated, data.EcologyState!.Status, "Sentient world should generate ecology");
+        AssertEqual(ConceptRunStatus.Generated, data.SpeciesEvolution!.Status, "Sentient world should generate species evolution");
+        AssertEqual(ConceptRunStatus.Generated, data.SentienceAssessment!.Status, "Sentient world should record sentience evaluation");
+        AssertTrue(data.SentienceAssessment.HasSentientLife, "Selected seed should produce a sentient lineage");
+        AssertTrue(data.NativePopulations.Count > 0, "Sentient world should generate native populations");
+
+        SolarSystem system = CreateSystemWithBody("body_sentient", "Haven", profile, data, seed);
+        ConceptWorldStateGenerator.EnsureSystemConcepts(system);
+
+        NativePopulation nativePopulation = data.NativePopulations[0];
+        AssertNotNull(nativePopulation.SocietyState, "Sentient native population should persist society state");
+        AssertEqual(ConceptRunStatus.Generated, nativePopulation.SocietyState!.Status, "Society state should generate for sentient population");
+        AssertTrue(nativePopulation.ConceptResults.Has(ConceptKind.Civilization), "Native population should store civilisation results");
+        AssertTrue(nativePopulation.ConceptResults.Has(ConceptKind.Religion), "Native population should store religion results");
+        AssertTrue(nativePopulation.ConceptResults.Has(ConceptKind.Language), "Native population should store language results");
+        AssertTrue(nativePopulation.ConceptResults.Has(ConceptKind.Disease), "Native population should store disease results");
+        AssertTrue(system.ConceptResults.Has(ConceptKind.Civilization), "Inhabited system should carry aggregate civilisation results");
+    }
+
+    private static void TestConceptManualRunsRespectApplicability()
+    {
+        ConceptContextSnapshot context = ConceptContextBuilder.CreateDefault(99881);
+        context.BodyName = "Dry Rock";
+        context.SourceLabel = "Dry Rock";
+        context.DominantBiome = "Barren";
+        context.WaterAvailability = 0.0;
+        context.HabitabilityScore = 0;
+        context.Population = 0;
+
+        ConceptRunResult ecology = ConceptResultFactory.Run(new ConceptRunRequest
+        {
+            Kind = ConceptKind.Ecology,
+            Context = context,
+        });
+        ConceptRunResult evolution = ConceptResultFactory.Run(new ConceptRunRequest
+        {
+            Kind = ConceptKind.Evolution,
+            Context = context,
+        });
+        ConceptRunResult civilization = ConceptResultFactory.Run(new ConceptRunRequest
+        {
+            Kind = ConceptKind.Civilization,
+            Context = context,
+        });
+
+        AssertEqual(ConceptRunStatus.NotApplicable, ecology.Status, "Manual ecology should not fabricate a biosphere for barren worlds");
+        AssertEqual(ConceptRunStatus.NotApplicable, evolution.Status, "Manual evolution should not fabricate a lineage without ecology");
+        AssertEqual(ConceptRunStatus.NotApplicable, civilization.Status, "Manual civilisation should require population context");
+    }
+
+    private static void TestConceptPathsHaveNoTernaryOperators()
+    {
+        List<string> directories = new List<string>
+        {
+            ProjectSettings.GlobalizePath("res://src/domain/concepts"),
+            ProjectSettings.GlobalizePath("res://src/services/concepts"),
+            ProjectSettings.GlobalizePath("res://src/app/concepts"),
+        };
+        Regex ternaryPattern = new Regex(@"\?.*:", RegexOptions.Compiled);
+
+        foreach (string directory in directories)
+        {
+            string[] files = Directory.GetFiles(directory, "*.cs", SearchOption.AllDirectories);
+            foreach (string file in files)
+            {
+                string[] lines = File.ReadAllLines(file);
+                for (int index = 0; index < lines.Length; index += 1)
+                {
+                    if (ternaryPattern.IsMatch(lines[index]))
+                    {
+                        throw new Exception("Concept-path ternary operator found in " + file + " at line " + (index + 1) + ".");
+                    }
+                }
+            }
+        }
+    }
+
+    private static PlanetProfile CreateHabitableProfile()
+    {
+        PlanetProfile profile = new PlanetProfile();
+        profile.BodyId = "profile_world";
+        profile.HabitabilityScore = 7;
+        profile.AvgTemperatureK = 289.0;
+        profile.PressureAtm = 1.02;
+        profile.OceanCoverage = 0.58;
+        profile.LandCoverage = 0.34;
+        profile.IceCoverage = 0.08;
+        profile.ContinentCount = 4;
+        profile.GravityG = 0.98;
+        profile.TectonicActivity = 0.44;
+        profile.VolcanismLevel = 0.21;
+        profile.WeatherSeverity = 0.38;
+        profile.MagneticFieldStrength = 0.77;
+        profile.RadiationLevel = 0.16;
+        profile.HasAtmosphere = true;
+        profile.HasLiquidWater = true;
+        profile.HasBreathableAtmosphere = true;
+        profile.Biomes[(int)BiomeType.Type.Forest] = 0.36;
+        profile.Biomes[(int)BiomeType.Type.Grassland] = 0.30;
+        profile.Biomes[(int)BiomeType.Type.Ocean] = 0.24;
+        profile.Biomes[(int)BiomeType.Type.Wetland] = 0.10;
+        return profile;
+    }
+
+    private static PlanetProfile CreateBarrenProfile()
+    {
+        PlanetProfile profile = new PlanetProfile();
+        profile.BodyId = "profile_barren";
+        profile.HabitabilityScore = 1;
+        profile.AvgTemperatureK = 150.0;
+        profile.PressureAtm = 0.0;
+        profile.OceanCoverage = 0.0;
+        profile.LandCoverage = 1.0;
+        profile.IceCoverage = 0.0;
+        profile.GravityG = 0.42;
+        profile.TectonicActivity = 0.05;
+        profile.VolcanismLevel = 0.01;
+        profile.WeatherSeverity = 0.0;
+        profile.MagneticFieldStrength = 0.0;
+        profile.RadiationLevel = 0.82;
+        profile.HasAtmosphere = false;
+        profile.HasLiquidWater = false;
+        profile.HasBreathableAtmosphere = false;
+        profile.Biomes[(int)BiomeType.Type.Barren] = 1.0;
+        return profile;
+    }
+
+    private static int FindSeedForSentience(PlanetProfile profile, bool shouldBeSentient)
+    {
+        for (int seed = 1000; seed < 20000; seed += 1)
+        {
+            PlanetEnvironmentProfile environment = PlanetEnvironmentProfile.FromPlanetProfile(profile, seed, "Search", "Planet");
+            ConceptDependencyChainGenerator.PopulatePreSocietyStates(
+                environment,
+                out EcologyState ecologyState,
+                out SpeciesEvolutionState speciesEvolutionState,
+                out SentienceAssessment sentienceAssessment);
+
+            if (ecologyState.Status != ConceptRunStatus.Generated)
+            {
+                continue;
+            }
+
+            if (speciesEvolutionState.Status != ConceptRunStatus.Generated)
+            {
+                continue;
+            }
+
+            if (sentienceAssessment.Status != ConceptRunStatus.Generated)
+            {
+                continue;
+            }
+
+            if (sentienceAssessment.HasSentientLife == shouldBeSentient)
+            {
+                return seed;
+            }
+        }
+
+        throw new Exception("Could not find deterministic seed for sentience target " + shouldBeSentient + ".");
+    }
+
+    private static SolarSystem CreateSystemWithBody(string bodyId, string bodyName, PlanetProfile profile, PlanetPopulationData data, int seed)
+    {
+        SolarSystem system = new SolarSystem("concept_test_system", "Concept Test System");
+        system.Provenance = Provenance.CreateCurrent(seed);
+
+        CelestialBody body = new CelestialBody(bodyId, bodyName, CelestialType.Type.Planet, new PhysicalProps(), Provenance.CreateCurrent(seed));
+        body.PopulationData = data;
+        body.EnvironmentProfile = data.EnvironmentProfile;
+        body.Ecology = data.EcologyState;
+        body.SpeciesEvolution = data.SpeciesEvolution;
+        body.Sentience = data.SentienceAssessment;
+        body.Disease = data.DiseaseState;
+        system.AddBody(body);
+        return system;
     }
 }

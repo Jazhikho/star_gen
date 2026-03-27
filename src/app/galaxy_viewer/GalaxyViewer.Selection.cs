@@ -161,7 +161,7 @@ public partial class GalaxyViewer
 		}
 		else
 		{
-			_starPreview = StarSystemPreview.Generate(starSeed, worldPosition, _spec, _galaxyConfig?.UseCaseSettings);
+		_starPreview = StarSystemPreview.Generate(starSeed, worldPosition, _spec, _galaxyConfig?.UseCaseSettings, _galaxy);
 		}
 		_selectionIndicator?.ShowAt(worldPosition);
 		if (_inspectorPanel is GalaxyInspectorPanel typedInspectorPanel)
@@ -291,21 +291,6 @@ public partial class GalaxyViewer
 		_selectedStarSeed = starSeed;
 		_selectedStarPosition = worldPosition;
 		TryOpenSelectedSystem();
-	}
-
-	/// <summary>
-	/// Forwards the inspector's concept-atlas request through the viewer signal.
-	/// </summary>
-	private void OnInspectorOpenConceptAtlasRequested(int starSeed, Vector3 worldPosition)
-	{
-		if (starSeed == 0)
-		{
-			return;
-		}
-
-		_selectedStarSeed = starSeed;
-		_selectedStarPosition = worldPosition;
-		EmitSignal(SignalName.OpenConceptAtlasRequested, _selectedStarSeed, _selectedStarPosition);
 	}
 
 	/// <summary>

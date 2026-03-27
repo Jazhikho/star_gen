@@ -19,6 +19,14 @@ namespace StarGen.Tests
 		}
 
 		/// <summary>
+		/// Registers only the population-focused headless-safe C# suites.
+		/// </summary>
+		public static void RunPopulationHeadlessSuites(DotNetTestRunner runner)
+		{
+			DotNetNativeTestSuite.RunPopulationHeadless(runner);
+		}
+
+		/// <summary>
 		/// Registers the full interactive C# suite set, including scene-only tests.
 		/// </summary>
 		public static void RunInteractiveSuites(DotNetTestRunner runner)

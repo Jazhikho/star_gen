@@ -4,6 +4,7 @@ using StarGen.Domain.Systems;
 using StarGen.Domain.Systems.Fixtures;
 using StarGen.Domain.Generation.Parameters;
 using System.Collections.Generic;
+using StarGen.Services.Concepts;
 
 namespace StarGen.App.SystemViewer;
 
@@ -35,10 +36,16 @@ public partial class SystemViewer : Node3D, ISystemViewerSaveLoadHost
 	public delegate void BackToGalaxyRequestedEventHandler();
 
 	/// <summary>
-	/// Emitted when the user wants to open the concept atlas for the selected body.
+	/// Emitted when the user wants to open the standalone system studio.
 	/// </summary>
 	[Signal]
-	public delegate void OpenConceptAtlasRequestedEventHandler(GodotObject body);
+	public delegate void NewSystemRequestedEventHandler();
+
+	/// <summary>
+	/// Emitted when the user wants to return directly to the main menu.
+	/// </summary>
+	[Signal]
+	public delegate void MainMenuRequestedEventHandler();
 
 	internal static readonly Vector3 InvalidPosition = new(1.0e20f, 1.0e20f, 1.0e20f);
 	internal const string SystemBodyNodeScenePath = "res://src/app/system_viewer/SystemBodyNode.tscn";
@@ -47,6 +54,7 @@ public partial class SystemViewer : Node3D, ISystemViewerSaveLoadHost
 	internal Control? _uiRoot;
 	internal Control? _topBar;
 	internal Control? _sidePanel;
+	internal Button? _backButton;
 	internal Node? _inspectorPanel;
 	internal VBoxContainer? _generationSection;
 	internal Label? _starCountLabel;
@@ -96,8 +104,10 @@ public partial class SystemViewer : Node3D, ISystemViewerSaveLoadHost
 	internal SolarSystemSpec? _currentSpec;
 	internal GenerationParameterIssueSet _currentGenerationIssues = new();
 	internal ViewerStartupState _startupState = ViewerStartupState.UnconfiguredStandalone;
+	internal bool _backNavigationVisible;
 	internal string _backNavigationText = "Return";
 	internal string _backNavigationTooltip = "Return";
+	internal bool _generationActionsVisible = true;
 
 	/// <summary>
 	/// Reused scratch list for removing stale body node IDs during the animation update.
@@ -121,6 +131,7 @@ public partial class SystemViewer : Node3D, ISystemViewerSaveLoadHost
 		SetupTopMenu();
 		SetupTooltips();
 		ConnectSignals();
+		UpdateBackNavigationUi();
 
 		SetStatus("System viewer initialized");
 		_isReady = true;
@@ -227,16 +238,18 @@ public partial class SystemViewer : Node3D, ISystemViewerSaveLoadHost
 
 		_currentSpec = spec;
 		SetStatus($"Generating system with seed {spec.GenerationSeed}...");
-		SolarSystem? system = SystemFixtureGenerator.GenerateSystem(spec, null);
-		if (system == null)
-		{
-			SetError("Failed to generate system");
-			return;
-		}
+        SolarSystem? system = SystemFixtureGenerator.GenerateSystem(spec, null);
+        if (system == null)
+        {
+            SetError("Failed to generate system");
+            return;
+        }
 
-		AppendTravellerGenerationIssues(system, spec);
-		UpdateGenerationIssuesUi();
-		DisplaySystem(system);
+        ConceptWorldStateGenerator.EnsureSystemConcepts(system);
+
+        AppendTravellerGenerationIssues(system, spec);
+        UpdateGenerationIssuesUi();
+        DisplaySystem(system);
 		if (_currentGenerationIssues.Issues.Count > 0)
 		{
 			SetStatus($"Generated with {_currentGenerationIssues.Issues.Count} advisory issue(s): {system.GetSummary()}");
@@ -249,6 +262,11 @@ public partial class SystemViewer : Node3D, ISystemViewerSaveLoadHost
 	private void AppendTravellerGenerationIssues(SolarSystem system, SolarSystemSpec spec)
 	{
 		if (spec.UseCaseSettings.MainworldPolicy != GenerationUseCaseSettings.MainworldPolicyType.Require)
+		{
+			return;
+		}
+
+		if (spec.UseCaseSettings.IsTravellerMode() && system.TravellerProfile != null)
 		{
 			return;
 		}
@@ -362,10 +380,12 @@ public partial class SystemViewer : Node3D, ISystemViewerSaveLoadHost
 			if (_cameraController is SystemCameraController typedCameraController)
 			{
 				typedCameraController.FocusOnPosition(node.GlobalPosition);
+				typedCameraController.SetFollowFocusTarget(node);
 			}
 			else
 			{
 				_cameraController?.Call("focus_on_position", node.GlobalPosition);
+				_cameraController?.Call("set_follow_focus_target", node);
 			}
 		}
 
@@ -382,6 +402,23 @@ public partial class SystemViewer : Node3D, ISystemViewerSaveLoadHost
 	}
 
 	/// <summary>
+	/// Stops the system camera from tracking a body's motion (e.g. after deselect or when clearing the scene).
+	/// </summary>
+	private void ClearCameraFollowTarget()
+	{
+		if (_cameraController is SystemCameraController typedCameraController)
+		{
+			typedCameraController.SetFollowFocusTarget(null);
+			return;
+		}
+
+		if (_cameraController != null && _cameraController.HasMethod("set_follow_focus_target"))
+		{
+			_cameraController.Call("set_follow_focus_target", default(Variant));
+		}
+	}
+
+	/// <summary>
 	/// Deselects the current body.
 	/// </summary>
 	public void DeselectBody()
@@ -393,6 +430,7 @@ public partial class SystemViewer : Node3D, ISystemViewerSaveLoadHost
 			SetBodyNodeSelected(_bodyNodes[_selectedBodyId], false);
 		}
 
+		ClearCameraFollowTarget();
 		_selectedBodyId = string.Empty;
 		if (_orbitRenderer is OrbitRenderer typedOrbitRenderer)
 		{
@@ -487,6 +525,7 @@ public partial class SystemViewer : Node3D, ISystemViewerSaveLoadHost
 		_startupState = ViewerStartupState.UnconfiguredStandalone;
 		_sourceStarSeed = 0;
 		SetGenerationSectionVisible(true);
+		SetBackNavigationVisibility(false);
 		ApplySpecToControls(seedSpec);
 		ClearDisplay();
 	}
@@ -496,6 +535,7 @@ public partial class SystemViewer : Node3D, ISystemViewerSaveLoadHost
 	/// </summary>
 	public void SetGenerationSectionVisible(bool visible)
 	{
+		_generationActionsVisible = visible;
 		if (_generationSection != null)
 		{
 			_generationSection.Visible = visible;
@@ -523,8 +563,30 @@ public partial class SystemViewer : Node3D, ISystemViewerSaveLoadHost
 	/// </summary>
 	public void ConfigureBackNavigation(string buttonText, string tooltipText)
 	{
+		SetBackNavigationVisibility(true, buttonText, tooltipText);
+	}
+
+	/// <summary>
+	/// Shows or hides the top-level back button and matching file-menu action.
+	/// </summary>
+	public void SetBackNavigationVisibility(bool visible, string buttonText = "Return", string tooltipText = "Return")
+	{
+		_backNavigationVisible = visible;
 		_backNavigationText = buttonText;
 		_backNavigationTooltip = tooltipText;
+		UpdateBackNavigationUi();
+	}
+
+	private void UpdateBackNavigationUi()
+	{
+		if (_backButton == null)
+		{
+			return;
+		}
+
+		_backButton.Visible = _backNavigationVisible;
+		_backButton.Text = _backNavigationText;
+		_backButton.TooltipText = _backNavigationTooltip;
 	}
 
 	/// <summary>

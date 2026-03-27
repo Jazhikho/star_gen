@@ -289,7 +289,6 @@ public static class TestGalaxyPersistence
         settings.RulesetMode = GenerationUseCaseSettings.RulesetModeType.Traveller;
         settings.ShowTravellerReadouts = true;
         settings.LifePermissiveness = 0.7;
-        settings.PopulationPermissiveness = 0.8;
         settings.MainworldPolicy = GenerationUseCaseSettings.MainworldPolicyType.Require;
         return settings;
     }

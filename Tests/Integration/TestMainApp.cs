@@ -17,6 +17,8 @@ public static class TestMainApp
         runner.RunNativeTest("TestMainApp::test_scene_loads", TestSceneLoads);
         runner.RunNativeTest("TestMainApp::test_instantiates", TestInstantiates);
         runner.RunNativeTest("TestMainApp::test_has_viewer_container", TestHasViewerContainer);
+        runner.RunNativeTest("TestMainApp::test_has_startup_transition_overlay", TestHasStartupTransitionOverlay);
+        runner.RunNativeTest("TestMainApp::test_ready_starts_on_splash_screen", TestReadyStartsOnSplashScreen);
         runner.RunNativeTest("TestMainApp::test_object_viewer_return_menu_emits_signal", TestObjectViewerReturnMenuEmitsSignal);
         runner.RunNativeTest("TestMainApp::test_object_viewer_main_menu_return_emits_signal", TestObjectViewerMainMenuReturnEmitsSignal);
         runner.RunNativeTest("TestMainApp::test_object_viewer_display_external_body_sets_state", TestObjectViewerDisplayExternalBodySetsState);
@@ -47,6 +49,40 @@ public static class TestMainApp
         {
             Node? container = app.GetNodeOrNull<Node>("ViewerContainer");
             DotNetNativeTestSuite.AssertNotNull(container, "MainApp should include ViewerContainer");
+        }
+        finally
+        {
+            IntegrationTestUtils.CleanupNode(app);
+        }
+    }
+
+    private static void TestHasStartupTransitionOverlay()
+    {
+        MainApp app = IntegrationTestUtils.CreateMainAppReady();
+        try
+        {
+            CanvasLayer? transitionLayer = app.GetNodeOrNull<CanvasLayer>("TransitionLayer");
+            ColorRect? fadeRect = app.GetNodeOrNull<ColorRect>("TransitionLayer/StartupFadeRect");
+            DotNetNativeTestSuite.AssertNotNull(transitionLayer, "MainApp should define a startup transition layer");
+            DotNetNativeTestSuite.AssertNotNull(fadeRect, "MainApp should define a full-screen startup fade rect");
+            DotNetNativeTestSuite.AssertTrue(Mathf.IsZeroApprox(fadeRect!.Color.A), "Startup fade rect should start transparent");
+        }
+        finally
+        {
+            IntegrationTestUtils.CleanupNode(app);
+        }
+    }
+
+    private static void TestReadyStartsOnSplashScreen()
+    {
+        MainApp app = IntegrationTestUtils.CreateMainAppReady();
+        try
+        {
+            Node? container = app.GetNodeOrNull<Node>("ViewerContainer");
+            DotNetNativeTestSuite.AssertNotNull(container, "MainApp should include ViewerContainer");
+            DotNetNativeTestSuite.AssertEqual("splash", app.get_active_viewer(), "MainApp should start on the splash screen");
+            DotNetNativeTestSuite.AssertEqual(1, container!.GetChildCount(), "ViewerContainer should contain the splash screen after ready");
+            DotNetNativeTestSuite.AssertEqual("SplashScreen", container.GetChild(0).Name, "Splash screen should be the active startup child");
         }
         finally
         {

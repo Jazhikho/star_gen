@@ -151,7 +151,7 @@ Core calculations:
   - `PlanetPhysicalGenerator` (`src/domain/generation/generators/planet/PlanetPhysicalGenerator.gd`)
   - `PlanetAtmosphereGenerator` (`src/domain/generation/generators/planet/PlanetAtmosphereGenerator.gd`)
   - `PlanetSurfaceGenerator` (`src/domain/generation/generators/planet/PlanetSurfaceGenerator.gd`)
-- **Population** (when `enable_population` true): `PopulationLikelihood` (`src/domain/population/PopulationLikelihood.gd`) estimates likelihood from profile/suitability; a deterministic roll is derived from the body’s population seed; if roll < likelihood, natives and/or colony are generated via `PopulationGenerator`.
+- **Population** (when `enable_population` true): the body still gets deterministic profile, suitability, and native-life evaluation from its population seed, but authoritative colony generation is now rebuilt in a later system-level pass after native worlds are known. `PopulationLikelihood` / `PopulationGenerator` still drive the deterministic roll logic, and the later colony pass can incorporate same-system native proximity plus cached nearby-system native-pressure summaries.
 - **Tables**
   - `SizeTable` (`src/domain/generation/tables/SizeTable.gd`)
   - `OrbitTable` (`src/domain/generation/tables/OrbitTable.gd`)
@@ -196,7 +196,8 @@ Core calculations:
 9. **Assemble `CelestialBody`**
    - Type PLANET; `orbital`, `atmosphere`, `surface`, and optional `ring_system` components set.
 10. **Population** (optional)
-   - If `enable_population` true: order-independent population seed from `PopulationSeeding.generate_population_seed(body.id, base_seed)`; profile and suitability always generated; then `PopulationLikelihood` (or override) decides natives/colony; `PopulationGenerator` produces `PlanetPopulationData` and body gets `population_data` set.
+   - If `enable_population` true: order-independent population seed from `PopulationSeeding.generate_population_seed(body.id, base_seed)`; profile and suitability always generated; then `PopulationLikelihood` (or override) decides native life for the body-local pass.
+   - Generation stops at initial conditions plus extant native populations. Colonies and non-Traveller jump routes are created later by an explicit deterministic colonization simulation pass that operates over a declared region and persists settlement/route records separately from generation.
 
 #### Moons (`MoonGenerator`)
 
@@ -223,7 +224,7 @@ Core calculations:
 6. Surface temperature from equilibrium + greenhouse (same as planets).
 7. Surface generation (moons always get a surface component here) via `MoonSurfaceGenerator.generate_surface(...)`.
 8. Assemble `CelestialBody` type MOON.
-9. **Population** (optional): same as planets — if `enable_population` true, `PopulationLikelihood` / override and `PopulationGenerator` set `population_data`.
+9. **Population** (optional): same as planets — if `enable_population` true, the moon receives deterministic profile/suitability/native evaluation immediately, and colony output is finalized later by the system-level rebuild that can see neighboring native worlds.
 
 #### Asteroids (`AsteroidGenerator`)
 

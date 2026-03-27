@@ -94,7 +94,7 @@ custom_minimum_size = Vector2(100, 0)
 layout_mode = 2
 size_flags_vertical = 1
 theme_override_colors/font_color = Color(0.631373, 0.701961, 0.772549, 1)
-text = "Version 0.5.0.0"
+text = "Version 0.8.0.0"
 vertical_alignment = 1
 autowrap_mode = 2
 
@@ -140,6 +140,10 @@ text = "Help"
 [node name="CreditsButton" type="Button" parent="MarginContainer/ScrollContainer/Layout/HBoxContainer/UtilityRow/UtilityPanel/MarginContainer/UtilityVBox/SecondaryButtons" unique_id=443343265]
 layout_mode = 2
 text = "Credits"
+
+[node name="SourcesButton" type="Button" parent="MarginContainer/ScrollContainer/Layout/HBoxContainer/UtilityRow/UtilityPanel/MarginContainer/UtilityVBox/SecondaryButtons"]
+layout_mode = 2
+text = "Sources"
 
 [node name="ReleaseNotesButton" type="Button" parent="MarginContainer/ScrollContainer/Layout/HBoxContainer/UtilityRow/UtilityPanel/MarginContainer/UtilityVBox/SecondaryButtons" unique_id=359455689]
 layout_mode = 2
@@ -376,3 +380,105 @@ custom_minimum_size = Vector2(0, 48)
 layout_mode = 2
 size_flags_horizontal = 3
 text = "Open Concept Atlas"
+
+[node name="InfoDialog" type="Window" parent="."]
+visible = false
+theme = ExtResource("2")
+title = "Information"
+initial_position = 2
+size = Vector2i(720, 520)
+transient = true
+exclusive = true
+wrap_controls = true
+
+[node name="MarginContainer" type="MarginContainer" parent="InfoDialog"]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/margin_left = 16
+theme_override_constants/margin_top = 16
+theme_override_constants/margin_right = 16
+theme_override_constants/margin_bottom = 16
+
+[node name="InfoVBox" type="VBoxContainer" parent="InfoDialog/MarginContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+theme_override_constants/separation = 12
+
+[node name="InfoDialogText" type="RichTextLabel" parent="InfoDialog/MarginContainer/InfoVBox"]
+custom_minimum_size = Vector2(360, 0)
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+fit_content = false
+selection_enabled = true
+scroll_active = true
+autowrap_mode = 3
+
+[node name="CloseButton" type="Button" parent="InfoDialog/MarginContainer/InfoVBox"]
+layout_mode = 2
+text = "Close"
+
+[node name="OptionsDialog" type="Window" parent="."]
+visible = false
+theme = ExtResource("2")
+title = "Options"
+initial_position = 2
+size = Vector2i(520, 320)
+transient = true
+exclusive = true
+wrap_controls = true
+
+[node name="MarginContainer" type="MarginContainer" parent="OptionsDialog"]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/margin_left = 16
+theme_override_constants/margin_top = 16
+theme_override_constants/margin_right = 16
+theme_override_constants/margin_bottom = 16
+
+[node name="OptionsVBox" type="VBoxContainer" parent="OptionsDialog/MarginContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+theme_override_constants/separation = 10
+
+[node name="FullscreenCheck" type="CheckButton" parent="OptionsDialog/MarginContainer/OptionsVBox"]
+layout_mode = 2
+text = "Fullscreen"
+
+[node name="ShowSeedControlsCheck" type="CheckButton" parent="OptionsDialog/MarginContainer/OptionsVBox"]
+layout_mode = 2
+text = "Show studio seed controls"
+
+[node name="ResolutionRow" type="HBoxContainer" parent="OptionsDialog/MarginContainer/OptionsVBox"]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="ResolutionLabel" type="Label" parent="OptionsDialog/MarginContainer/OptionsVBox/ResolutionRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Resolution"
+
+[node name="ResolutionOption" type="OptionButton" parent="OptionsDialog/MarginContainer/OptionsVBox/ResolutionRow"]
+custom_minimum_size = Vector2(180, 0)
+layout_mode = 2
+
+[node name="ApplyOptionsButton" type="Button" parent="OptionsDialog/MarginContainer/OptionsVBox"]
+layout_mode = 2
+text = "Apply Display Settings"
+
+[node name="OptionsStatusLabel" type="Label" parent="OptionsDialog/MarginContainer/OptionsVBox"]
+custom_minimum_size = Vector2(220, 0)
+layout_mode = 2
+autowrap_mode = 2
+
+[node name="CloseButton" type="Button" parent="OptionsDialog/MarginContainer/OptionsVBox"]
+layout_mode = 2
+text = "Close"

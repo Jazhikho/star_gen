@@ -7,6 +7,7 @@ using StarGen.Domain.Celestial;
 using StarGen.Domain.Celestial.Components;
 using StarGen.Domain.Generation.Generators;
 using StarGen.Domain.Generation.Specs;
+using StarGen.Domain.Generation.Traveller;
 using StarGen.Domain.Rng;
 using StarGen.Domain.Math;
 using StarGen.Domain.Systems;
@@ -318,6 +319,71 @@ public static class TestSystemSerializer
         if (data["type"].AsString() != "solar_system")
         {
             throw new InvalidOperationException("Type should be solar_system");
+        }
+    }
+
+    public static void TestTravellerProfileRoundTrip()
+    {
+        SolarSystem system = CreateTestSystem();
+        system.TravellerProfile = new TravellerSystemProfile
+        {
+            MainworldBodyId = "planet_1",
+            MainworldName = "Test Planet",
+            SelectionReason = "Deterministic fixture",
+            WorldProfile = new TravellerWorldProfile
+            {
+                StarportCode = "A",
+                SizeCode = 8,
+                AtmosphereCode = 6,
+                HydrographicsCode = 7,
+                PopulationCode = 9,
+                GovernmentCode = 4,
+                LawCode = 5,
+                TechLevelCode = 12,
+            },
+            TradeCodes = TravellerTradeCodeSet.FromDictionary(new Godot.Collections.Dictionary
+            {
+                ["codes"] = new Godot.Collections.Array<string> { "Hi", "Ht" },
+            }),
+            TravelZone = "Amber",
+            RouteProfile = new TravellerRouteProfile
+            {
+                EstimatedPopulation = 500000000,
+                PopulationCode = 9,
+                StarportCode = "A",
+                TechLevelCode = 12,
+                Importance = 3,
+                MaxJumpNumber = 2,
+                RouteWeight = 5,
+            },
+        };
+
+        Godot.Collections.Dictionary data = SystemSerializer.ToDictionary(system);
+        SolarSystem? restored = SystemSerializer.FromDictionary(data);
+
+        if (restored == null || restored.TravellerProfile == null)
+        {
+            throw new InvalidOperationException("Traveller profile should round-trip through the system serializer");
+        }
+
+        if (restored.TravellerProfile.MainworldBodyId != "planet_1")
+        {
+            throw new InvalidOperationException("Traveller mainworld id should round-trip");
+        }
+
+        if (restored.TravellerProfile.GetUwp() != "A867945-C")
+        {
+            throw new InvalidOperationException($"Expected UWP A867945-C, got {restored.TravellerProfile.GetUwp()}");
+        }
+
+        if (!restored.TravellerProfile.TradeCodes.Contains("Hi"))
+        {
+            throw new InvalidOperationException("Traveller trade codes should round-trip");
+        }
+
+        if (restored.TravellerProfile.RouteProfile.MaxJumpNumber != 2)
+        {
+            throw new InvalidOperationException("Traveller route profile should round-trip");
         }
     }
 }

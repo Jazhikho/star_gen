@@ -2,10 +2,15 @@ using System;
 using System.Globalization;
 using System.Threading.Tasks;
 using Godot;
+using StarGen.Domain.Colonization;
+using StarGen.Domain.Celestial;
 using StarGen.Domain.Galaxy;
+using StarGen.Domain.Generation.Traveller;
 using StarGen.Domain.Jumplanes;
+using StarGen.Domain.Population;
 using StarGen.Domain.Rng;
 using StarGen.Domain.Systems;
+using StarGen.Domain.Systems.Fixtures;
 
 namespace StarGen.App.GalaxyViewer;
 
@@ -40,6 +45,7 @@ public partial class GalaxyViewer
 	private void InitializeState()
 	{
 		_galaxyConfig ??= GalaxyConfig.CreateDefault();
+		_colonizationSimulationSettings ??= ColonizationSimulationSettings.CreateDefault();
 		_galaxy = new Galaxy(_galaxyConfig, GalaxySeed);
 		_spec = _galaxy.Spec;
 		_zoomMachine = new ZoomStateMachine();
@@ -114,10 +120,10 @@ public partial class GalaxyViewer
 		if (_inspectorPanel is GalaxyInspectorPanel typedInspectorPanel)
 		{
 			typedInspectorPanel.OpenSystemRequested += OnInspectorOpenSystemRequested;
-			typedInspectorPanel.OpenConceptAtlasRequested += OnInspectorOpenConceptAtlasRequested;
 			typedInspectorPanel.CalculateJumpRoutesRequested += OnCalculateJumpRoutesRequested;
 			typedInspectorPanel.JumpRoutesVisibilityToggled += OnJumpRoutesVisibilityToggled;
 			typedInspectorPanel.ApplyGalaxyConfigRequested += OnApplyGalaxyConfigRequested;
+			typedInspectorPanel.SetColonizationSimulationSettings(_colonizationSimulationSettings);
 		}
 	}
 
@@ -170,6 +176,21 @@ public partial class GalaxyViewer
 			GalaxySeed,
 			_galaxy.DensityModel,
 			_galaxy.ReferenceDensity);
+		string? regionId = GetCurrentJumpRouteRegionId();
+		if (_galaxy != null && !string.IsNullOrEmpty(regionId))
+		{
+			ColonizationSimulationState? cachedSimulation = _galaxy.GetColonizationSimulationState(regionId);
+			if (cachedSimulation != null)
+			{
+				_jumpLaneRegion = cachedSimulation.ToJumpLaneRegion();
+				_jumpLaneResult = cachedSimulation.ToJumpLaneResult();
+			}
+			else if (!UseTravellerRouteMode())
+			{
+				_jumpLaneRegion = null;
+				_jumpLaneResult = null;
+			}
+		}
 		ClearStarSelection();
 		UpdateJumpRoutePresentation();
 	}
@@ -215,6 +236,7 @@ public partial class GalaxyViewer
 		_jumpRouteCalculationGeneration += 1;
 		_jumpLaneRegion = null;
 		_jumpLaneResult = null;
+		_jumpRouteSystemCache.Clear();
 		_jumpRouteCalculatedRegionIds.Clear();
 		UpdateJumpRoutePresentation();
 	}
@@ -223,8 +245,28 @@ public partial class GalaxyViewer
 	{
 		GalaxyInspectorPanel? inspectorPanel = GetInspectorPanel();
 		bool subsectorActive = IsSubsectorActive();
+		string? currentRegionId = GetCurrentJumpRouteRegionId();
 
 		if (!subsectorActive)
+		{
+			if (_sectorJumpLaneRenderer != null)
+			{
+				_sectorJumpLaneRenderer.Clear();
+				_sectorJumpLaneRenderer.Visible = false;
+			}
+
+			if (inspectorPanel != null)
+			{
+				inspectorPanel.SetJumpRoutesAvailable(false);
+			}
+
+			return;
+		}
+
+		if (_jumpLaneRegion != null
+			&& !string.IsNullOrEmpty(currentRegionId)
+			&& !string.IsNullOrEmpty(_jumpLaneRegion.RegionId)
+			&& !string.Equals(currentRegionId, _jumpLaneRegion.RegionId, StringComparison.Ordinal))
 		{
 			if (_sectorJumpLaneRenderer != null)
 			{
@@ -306,14 +348,6 @@ public partial class GalaxyViewer
 
 		try
 		{
-			string? currentRegionId = GetCurrentJumpRouteRegionId();
-			if (_jumpLaneRegion != null && !string.IsNullOrEmpty(currentRegionId) && _jumpRouteCalculatedRegionIds.Contains(currentRegionId))
-			{
-				UpdateJumpRoutePresentation();
-				SetStatus("Jump routes already calculated for visible subsectors");
-				return;
-			}
-
 			JumpLaneRegion? region = BuildJumpLaneRegionSynchronously(calculationGeneration);
 			if (calculationGeneration != _jumpRouteCalculationGeneration)
 			{
@@ -334,62 +368,62 @@ public partial class GalaxyViewer
 				return;
 			}
 
-			JumpLaneRegion combinedRegion;
-			int newSystemCount;
-			if (_jumpLaneRegion != null)
+			if (inspectorPanel != null)
 			{
-				if (inspectorPanel != null)
+				inspectorPanel.SetJumpRoutesStage("Running explicit route simulation", 2, JumpRoutePipelineStageCount);
+			}
+
+			if (UseTravellerRouteMode())
+			{
+				JumpRouteBackgroundResult graphResult = CalculateJumpRouteGraphSynchronously(region);
+				if (calculationGeneration != _jumpRouteCalculationGeneration)
 				{
-					inspectorPanel.SetJumpRoutesStage("Merging visible subsectors", 2, JumpRoutePipelineStageCount);
+					return;
 				}
 
-				combinedRegion = CloneJumpLaneRegion(_jumpLaneRegion);
-				newSystemCount = MergeJumpLaneRegion(combinedRegion, region);
+				if (inspectorPanel != null)
+				{
+					inspectorPanel.SetJumpRoutesStage("Rendering jump routes", 3, JumpRoutePipelineStageCount);
+				}
+
+				_jumpLaneRegion = BuildJumpLaneRegionFromBackground(region, graphResult);
+				_jumpLaneResult = BuildJumpLaneResultFromBackground(graphResult);
+				_jumpRouteCalculatedRegionIds.Clear();
+				if (!string.IsNullOrEmpty(region.RegionId))
+				{
+					_jumpRouteCalculatedRegionIds.Add(region.RegionId);
+				}
 			}
 			else
 			{
-				if (inspectorPanel != null)
+				ColonizationSimulationState simulationState = CalculateColonizationSimulationSynchronously(region);
+				if (calculationGeneration != _jumpRouteCalculationGeneration)
 				{
-					inspectorPanel.SetJumpRoutesStage("Creating route region", 2, JumpRoutePipelineStageCount);
+					return;
 				}
 
-				combinedRegion = region;
-				newSystemCount = region.GetSystemCount();
+				if (_galaxy != null)
+				{
+					_galaxy.CacheColonizationSimulationState(simulationState);
+				}
+
+				if (inspectorPanel != null)
+				{
+					inspectorPanel.SetJumpRoutesStage("Rendering simulated routes", 3, JumpRoutePipelineStageCount);
+				}
+
+				_jumpLaneRegion = simulationState.ToJumpLaneRegion();
+				_jumpLaneResult = simulationState.ToJumpLaneResult();
+				_jumpRouteCalculatedRegionIds.Clear();
+				if (!string.IsNullOrEmpty(region.RegionId))
+				{
+					_jumpRouteCalculatedRegionIds.Add(region.RegionId);
+				}
 			}
 
-			if (newSystemCount == 0)
-			{
-				UpdateJumpRoutePresentation();
-				SetStatus("Jump routes already calculated for visible subsectors");
-				return;
-			}
-
-			if (inspectorPanel != null)
-			{
-				inspectorPanel.SetJumpRoutesStage("Calculating route graph", 3, JumpRoutePipelineStageCount);
-			}
-
-			JumpRouteBackgroundResult graphResult = CalculateJumpRouteGraphSynchronously(combinedRegion);
-			if (calculationGeneration != _jumpRouteCalculationGeneration)
-			{
-				return;
-			}
-
-			if (inspectorPanel != null)
-			{
-				inspectorPanel.SetJumpRoutesStage("Rendering jump routes", 4, JumpRoutePipelineStageCount);
-			}
-
-			_jumpLaneRegion = BuildJumpLaneRegionFromBackground(combinedRegion, graphResult);
-			_jumpLaneResult = BuildJumpLaneResultFromBackground(graphResult);
-			if (!string.IsNullOrEmpty(region.RegionId))
-			{
-				_jumpRouteCalculatedRegionIds.Add(region.RegionId);
-			}
 			UpdateJumpRoutePresentation();
-
 			SetStatus(
-				$"Calculated {_jumpLaneResult.GetTotalConnections()} jump routes across {_jumpLaneRegion.GetSystemCount()} systems ({newSystemCount} new, {_jumpLaneResult.GetTotalOrphans()} orphans)");
+				$"Calculated {_jumpLaneResult.GetTotalConnections()} jump routes across {_jumpLaneRegion.GetSystemCount()} systems ({_jumpLaneResult.GetTotalOrphans()} orphans)");
 		}
 		finally
 		{
@@ -419,14 +453,6 @@ public partial class GalaxyViewer
 
 		try
 		{
-			string? currentRegionId = GetCurrentJumpRouteRegionId();
-			if (_jumpLaneRegion != null && !string.IsNullOrEmpty(currentRegionId) && _jumpRouteCalculatedRegionIds.Contains(currentRegionId))
-			{
-				UpdateJumpRoutePresentation();
-				SetStatus("Jump routes already calculated for visible subsectors");
-				return;
-			}
-
 			JumpLaneRegion? region = await BuildJumpLaneRegionAsync(calculationGeneration, yieldBetweenBatches);
 			if (calculationGeneration != _jumpRouteCalculationGeneration)
 			{
@@ -447,34 +473,80 @@ public partial class GalaxyViewer
 				return;
 			}
 
-			JumpLaneRegion combinedRegion;
-			int newSystemCount;
-			if (_jumpLaneRegion != null)
+			if (yieldBetweenBatches)
 			{
-				if (inspectorPanel != null)
+				await ToSignal(GetTree(), SceneTree.SignalName.ProcessFrame);
+			}
+
+			if (inspectorPanel != null)
+			{
+				inspectorPanel.SetJumpRoutesStage("Running explicit route simulation", 2, JumpRoutePipelineStageCount);
+			}
+
+			if (UseTravellerRouteMode())
+			{
+				Task<JumpRouteBackgroundResult> graphTask = CalculateJumpRouteGraphAsync(region);
+				if (yieldBetweenBatches)
 				{
-					inspectorPanel.SetJumpRoutesStage("Merging visible subsectors", 2, JumpRoutePipelineStageCount);
+					while (!graphTask.IsCompleted)
+					{
+						if (calculationGeneration != _jumpRouteCalculationGeneration)
+						{
+							return;
+						}
+
+						await ToSignal(GetTree(), SceneTree.SignalName.ProcessFrame);
+					}
 				}
 
-				combinedRegion = CloneJumpLaneRegion(_jumpLaneRegion);
-				newSystemCount = MergeJumpLaneRegion(combinedRegion, region);
+				JumpRouteBackgroundResult graphResult = await graphTask;
+				if (calculationGeneration != _jumpRouteCalculationGeneration)
+				{
+					return;
+				}
+
+				if (inspectorPanel != null)
+				{
+					inspectorPanel.SetJumpRoutesStage("Rendering jump routes", 3, JumpRoutePipelineStageCount);
+				}
+
+				_jumpLaneRegion = BuildJumpLaneRegionFromBackground(region, graphResult);
+				_jumpLaneResult = BuildJumpLaneResultFromBackground(graphResult);
 			}
 			else
 			{
+				Task<ColonizationSimulationState> simulationTask = CalculateColonizationSimulationAsync(region);
+				if (yieldBetweenBatches)
+				{
+					while (!simulationTask.IsCompleted)
+					{
+						if (calculationGeneration != _jumpRouteCalculationGeneration)
+						{
+							return;
+						}
+
+						await ToSignal(GetTree(), SceneTree.SignalName.ProcessFrame);
+					}
+				}
+
+				ColonizationSimulationState simulationState = await simulationTask;
+				if (calculationGeneration != _jumpRouteCalculationGeneration)
+				{
+					return;
+				}
+
+				if (_galaxy != null)
+				{
+					_galaxy.CacheColonizationSimulationState(simulationState);
+				}
+
 				if (inspectorPanel != null)
 				{
-					inspectorPanel.SetJumpRoutesStage("Creating route region", 2, JumpRoutePipelineStageCount);
+					inspectorPanel.SetJumpRoutesStage("Rendering simulated routes", 3, JumpRoutePipelineStageCount);
 				}
 
-				combinedRegion = region;
-				newSystemCount = region.GetSystemCount();
-			}
-
-			if (newSystemCount == 0)
-			{
-				UpdateJumpRoutePresentation();
-				SetStatus("Jump routes already calculated for visible subsectors");
-				return;
+				_jumpLaneRegion = simulationState.ToJumpLaneRegion();
+				_jumpLaneResult = simulationState.ToJumpLaneResult();
 			}
 
 			if (yieldBetweenBatches)
@@ -482,51 +554,15 @@ public partial class GalaxyViewer
 				await ToSignal(GetTree(), SceneTree.SignalName.ProcessFrame);
 			}
 
-			if (inspectorPanel != null)
-			{
-				inspectorPanel.SetJumpRoutesStage("Calculating route graph", 3, JumpRoutePipelineStageCount);
-			}
-
-			Task<JumpRouteBackgroundResult> graphTask = CalculateJumpRouteGraphAsync(combinedRegion);
-			if (yieldBetweenBatches)
-			{
-				while (!graphTask.IsCompleted)
-				{
-					if (calculationGeneration != _jumpRouteCalculationGeneration)
-					{
-						return;
-					}
-
-					await ToSignal(GetTree(), SceneTree.SignalName.ProcessFrame);
-				}
-			}
-
-			JumpRouteBackgroundResult graphResult = await graphTask;
-			if (calculationGeneration != _jumpRouteCalculationGeneration)
-			{
-				return;
-			}
-
-			if (inspectorPanel != null)
-			{
-				inspectorPanel.SetJumpRoutesStage("Rendering jump routes", 4, JumpRoutePipelineStageCount);
-			}
-
-			if (yieldBetweenBatches)
-			{
-				await ToSignal(GetTree(), SceneTree.SignalName.ProcessFrame);
-			}
-
-			_jumpLaneRegion = BuildJumpLaneRegionFromBackground(combinedRegion, graphResult);
-			_jumpLaneResult = BuildJumpLaneResultFromBackground(graphResult);
+			_jumpRouteCalculatedRegionIds.Clear();
 			if (!string.IsNullOrEmpty(region.RegionId))
 			{
 				_jumpRouteCalculatedRegionIds.Add(region.RegionId);
 			}
-			UpdateJumpRoutePresentation();
 
+			UpdateJumpRoutePresentation();
 			SetStatus(
-				$"Calculated {_jumpLaneResult.GetTotalConnections()} jump routes across {_jumpLaneRegion.GetSystemCount()} systems ({newSystemCount} new, {_jumpLaneResult.GetTotalOrphans()} orphans)");
+				$"Calculated {_jumpLaneResult.GetTotalConnections()} jump routes across {_jumpLaneRegion.GetSystemCount()} systems ({_jumpLaneResult.GetTotalOrphans()} orphans)");
 		}
 		finally
 		{
@@ -584,12 +620,7 @@ public partial class GalaxyViewer
 			}
 
 			long starSeed = neighborhoodData.StarSeeds[index];
-			int population = EstimateJumpRoutePopulation(neighborhoodData.StarPositions[index], starSeed);
-
-			JumpLaneSystem system = new(
-				starSeed.ToString(CultureInfo.InvariantCulture),
-				neighborhoodData.StarPositions[index],
-				population);
+			JumpLaneSystem system = CreateJumpLaneSystemForRoutes(neighborhoodData.StarPositions[index], starSeed);
 			region.AddSystem(system);
 
 			int completed = index + 1;
@@ -644,11 +675,7 @@ public partial class GalaxyViewer
 			}
 
 			long starSeed = neighborhoodData.StarSeeds[index];
-			int population = EstimateJumpRoutePopulation(neighborhoodData.StarPositions[index], starSeed);
-			JumpLaneSystem system = new(
-				starSeed.ToString(CultureInfo.InvariantCulture),
-				neighborhoodData.StarPositions[index],
-				population);
+			JumpLaneSystem system = CreateJumpLaneSystemForRoutes(neighborhoodData.StarPositions[index], starSeed);
 			region.AddSystem(system);
 
 			int completed = index + 1;
@@ -678,87 +705,296 @@ public partial class GalaxyViewer
 			$"{neighborhoodData.CenterOrigin.X:0.###},{neighborhoodData.CenterOrigin.Y:0.###},{neighborhoodData.CenterOrigin.Z:0.###}");
 	}
 
-	private int EstimateJumpRoutePopulation(Vector3 worldPosition, long starSeed)
+	private JumpLaneSystem CreateJumpLaneSystemForRoutes(Vector3 worldPosition, long starSeed)
 	{
-		if (_spec == null)
+		if (_spec == null || starSeed < int.MinValue || starSeed > int.MaxValue)
 		{
-			return 0;
-		}
-
-		if (starSeed < int.MinValue || starSeed > int.MaxValue)
-		{
-			return 0;
+			return new JumpLaneSystem(
+				starSeed.ToString(CultureInfo.InvariantCulture),
+				worldPosition,
+				0);
 		}
 
 		int typedSeed = (int)starSeed;
-		if (_jumpRoutePopulationCache.TryGetValue(typedSeed, out int cachedPopulation))
+		if (_jumpRouteSystemCache.TryGetValue(typedSeed, out JumpLaneSystem? cachedSystem))
 		{
-			return cachedPopulation;
+			return CloneRouteSystem(cachedSystem);
 		}
 
 		GalaxyStar star = GalaxyStar.CreateWithDerivedProperties(worldPosition, typedSeed, _spec);
-		int population = EstimateJumpRoutePopulationHeuristically(star);
+		SolarSystem? system = GenerateJumpRoutePopulationSystem(star);
 
-		_jumpRoutePopulationCache[typedSeed] = population;
-		return population;
+		JumpLaneSystem routeSystem = new(
+			starSeed.ToString(CultureInfo.InvariantCulture),
+			worldPosition,
+			0);
+
+		if (system != null)
+		{
+			if (UseTravellerRouteMode() && system.TravellerProfile != null)
+			{
+				routeSystem.Population = system.TravellerProfile.RouteProfile.EstimatedPopulation;
+				routeSystem.TravellerProfile = TravellerSystemProfile.FromDictionary(system.TravellerProfile.ToDictionary());
+			}
+			else
+			{
+				routeSystem.Population = system.GetTotalPopulation();
+				ApplyColonizationSummary(routeSystem, system);
+			}
+		}
+
+		_jumpRouteSystemCache[typedSeed] = CloneRouteSystem(routeSystem);
+		return routeSystem;
 	}
 
-	private int EstimateJumpRoutePopulationHeuristically(GalaxyStar star)
+	private SolarSystem? GenerateJumpRoutePopulationSystem(GalaxyStar star)
 	{
-		if (_spec == null)
+		SolarSystemSpec spec = SolarSystemSpec.RandomSmall(star.StarSeed);
+		spec.SystemMetallicity = star.Metallicity;
+		spec.IncludeAsteroidBelts = false;
+		spec.GeneratePopulation = true;
+		if (_galaxyConfig != null && _galaxyConfig.UseCaseSettings != null)
 		{
-			return 0;
+			spec.UseCaseSettings = _galaxyConfig.UseCaseSettings.Clone();
 		}
 
-		SeededRng rng = new(unchecked(star.StarSeed ^ GalaxySeed ^ 0x4A50524F));
-		double radialDistancePc = star.GetRadialDistance();
-		double ghzCenterPc = 8000.0;
-		double ghzSigmaPc = 3500.0;
-		double radialOffset = radialDistancePc - ghzCenterPc;
-		double radialFactor = Math.Exp(-(radialOffset * radialOffset) / (2.0 * ghzSigmaPc * ghzSigmaPc));
-
-		double scaleHeightPc;
-		if (_spec.DiskScaleHeightPc > 0.0)
-		{
-			scaleHeightPc = _spec.DiskScaleHeightPc;
-		}
-		else
-		{
-			scaleHeightPc = 300.0;
-		}
-
-		double heightFactor = Math.Exp(-Math.Abs(star.GetHeight()) / scaleHeightPc);
-		double metallicityFactor = Math.Clamp((star.Metallicity - 0.25) / 1.35, 0.0, 1.0);
-		double ageBiasDistance = Math.Abs(star.AgeBias - 1.0);
-		double ageFactor = Math.Clamp(1.0 - (ageBiasDistance * 0.6), 0.2, 1.0);
-
-		double habitabilityScore =
-			(radialFactor * 0.45) +
-			(heightFactor * 0.20) +
-			(metallicityFactor * 0.25) +
-			(ageFactor * 0.10);
-		habitabilityScore = Math.Clamp(habitabilityScore, 0.0, 1.0);
-
-		double inhabitedChance = Math.Clamp((habitabilityScore * 0.70) - 0.10, 0.0, 0.65);
-		if (rng.Randf() >= inhabitedChance)
-		{
-			return 0;
-		}
-
-		double populationTier = Math.Clamp(
-			(habitabilityScore * 0.75) +
-			(metallicityFactor * 0.15) +
-			((1.0 - ageBiasDistance) * 0.10),
-			0.05,
-			1.0);
-		double jitter = rng.RandfRange(-0.35f, 0.35f);
-		double logPopulation = 3.5 + (populationTier * 6.0) + jitter;
-		double populationValue = Math.Pow(10.0, logPopulation);
-		if (populationValue > int.MaxValue)
-		{
-			return int.MaxValue;
-		}
-
-		return Math.Max(1, (int)populationValue);
+		return SystemFixtureGenerator.GenerateSystem(spec, true);
 	}
+
+	private static void ApplyColonizationSummary(JumpLaneSystem routeSystem, SolarSystem system)
+	{
+		double bestExportPressure = 0.0;
+		int bestExportTech = -1;
+		string bestExportBodyId = string.Empty;
+		string bestExportCivilizationId = string.Empty;
+		string bestExportCivilizationName = string.Empty;
+		double bestTargetScore = 0.0;
+		int bestTargetCapacity = 0;
+		string bestTargetBodyId = string.Empty;
+
+		foreach (CelestialBody body in system.Bodies.Values)
+		{
+			if (body.PopulationData == null)
+			{
+				continue;
+			}
+
+			PlanetPopulationData data = body.PopulationData;
+			ColonySuitability? suitability = data.Suitability;
+			if (suitability != null)
+			{
+				double targetScore = ColonizationRouteCalculator.CalculateColonyTargetScore(suitability);
+				int targetCapacity = suitability.CarryingCapacity;
+				bool replaceTarget = false;
+				if (targetScore > bestTargetScore)
+				{
+					replaceTarget = true;
+				}
+				else if (System.Math.Abs(targetScore - bestTargetScore) < 0.0001 && targetCapacity > bestTargetCapacity)
+				{
+					replaceTarget = true;
+				}
+				else if (System.Math.Abs(targetScore - bestTargetScore) < 0.0001
+					&& targetCapacity == bestTargetCapacity
+					&& string.CompareOrdinal(body.Id, bestTargetBodyId) < 0)
+				{
+					replaceTarget = true;
+				}
+
+				if (replaceTarget)
+				{
+					bestTargetScore = targetScore;
+					bestTargetCapacity = targetCapacity;
+					bestTargetBodyId = body.Id;
+				}
+			}
+
+			int bodyPopulation = data.GetTotalPopulation();
+			if (bodyPopulation <= 0 || suitability == null)
+			{
+				continue;
+			}
+
+			int carryingCapacity = suitability.CarryingCapacity;
+			int exportTech = ResolveHighestExportTechLevel(data);
+			if (exportTech < (int)TechnologyLevel.Level.Interstellar)
+			{
+				continue;
+			}
+
+			double exportPressure = ColonizationRouteCalculator.CalculateExportPressure(bodyPopulation, carryingCapacity);
+			if (exportPressure <= 0.0)
+			{
+				continue;
+			}
+
+			bool replaceExporter = false;
+			if (exportPressure > bestExportPressure)
+			{
+				replaceExporter = true;
+			}
+			else if (System.Math.Abs(exportPressure - bestExportPressure) < 0.0001 && exportTech > bestExportTech)
+			{
+				replaceExporter = true;
+			}
+			else if (System.Math.Abs(exportPressure - bestExportPressure) < 0.0001
+				&& exportTech == bestExportTech
+				&& string.CompareOrdinal(body.Id, bestExportBodyId) < 0)
+			{
+				replaceExporter = true;
+			}
+
+			if (replaceExporter)
+			{
+				bestExportPressure = exportPressure;
+				bestExportTech = exportTech;
+				bestExportBodyId = body.Id;
+				ResolveExportCivilization(data, out bestExportCivilizationId, out bestExportCivilizationName);
+			}
+		}
+
+		routeSystem.ColonyTargetScore = bestTargetScore;
+		routeSystem.ColonyTargetCapacity = bestTargetCapacity;
+		routeSystem.ColonyTargetBodyId = bestTargetBodyId;
+		if (bestExportTech >= (int)TechnologyLevel.Level.Interstellar)
+		{
+			routeSystem.CanExportColonists = true;
+			routeSystem.ExportPressure = bestExportPressure;
+			routeSystem.RouteTechnologyLevel = bestExportTech;
+			routeSystem.ColonizationRangePc = ColonizationRouteCalculator.DetermineColonizationRange(bestExportTech);
+			routeSystem.ExportBodyId = bestExportBodyId;
+			routeSystem.ExportCivilizationId = bestExportCivilizationId;
+			routeSystem.ExportCivilizationName = bestExportCivilizationName;
+		}
+	}
+
+	private static void ResolveExportCivilization(
+		PlanetPopulationData data,
+		out string civilizationId,
+		out string civilizationName)
+	{
+		civilizationId = string.Empty;
+		civilizationName = string.Empty;
+		int bestTech = -1;
+		int bestPopulation = -1;
+
+		foreach (NativePopulation nativePopulation in data.NativePopulations)
+		{
+			if (!nativePopulation.IsExtant)
+			{
+				continue;
+			}
+
+			int tech = (int)nativePopulation.TechLevel;
+			bool replace = false;
+			if (tech > bestTech)
+			{
+				replace = true;
+			}
+			else if (tech == bestTech && nativePopulation.Population > bestPopulation)
+			{
+				replace = true;
+			}
+
+			if (replace)
+			{
+				bestTech = tech;
+				bestPopulation = nativePopulation.Population;
+				civilizationId = nativePopulation.Id;
+				civilizationName = nativePopulation.Name;
+			}
+		}
+
+		foreach (Colony colony in data.Colonies)
+		{
+			if (!colony.IsActive)
+			{
+				continue;
+			}
+
+			int tech = (int)colony.TechLevel;
+			bool replace = false;
+			if (tech > bestTech)
+			{
+				replace = true;
+			}
+			else if (tech == bestTech && colony.Population > bestPopulation)
+			{
+				replace = true;
+			}
+
+			if (replace)
+			{
+				bestTech = tech;
+				bestPopulation = colony.Population;
+				civilizationId = colony.FoundingCivilizationId;
+				civilizationName = colony.FoundingCivilizationName;
+			}
+		}
+	}
+
+	private static int ResolveHighestExportTechLevel(PlanetPopulationData data)
+	{
+		int highestTech = -1;
+		foreach (NativePopulation nativePopulation in data.NativePopulations)
+		{
+			if (!nativePopulation.IsExtant)
+			{
+				continue;
+			}
+
+			int nativeTech = (int)nativePopulation.TechLevel;
+			if (nativeTech > highestTech)
+			{
+				highestTech = nativeTech;
+			}
+		}
+
+		foreach (Colony colony in data.Colonies)
+		{
+			if (!colony.IsActive)
+			{
+				continue;
+			}
+
+			int colonyTech = (int)colony.TechLevel;
+			if (colonyTech > highestTech)
+			{
+				highestTech = colonyTech;
+			}
+		}
+
+		return highestTech;
+	}
+
+	private bool UseTravellerRouteMode()
+	{
+		return _galaxyConfig != null
+			&& _galaxyConfig.UseCaseSettings != null
+			&& _galaxyConfig.UseCaseSettings.IsTravellerMode();
+	}
+
+	private static JumpLaneSystem CloneRouteSystem(JumpLaneSystem source)
+	{
+		JumpLaneSystem clone = new(source.Id, source.Position, source.Population);
+		clone.FalsePopulation = source.FalsePopulation;
+		clone.IsBridge = source.IsBridge;
+		clone.CanExportColonists = source.CanExportColonists;
+		clone.ExportPressure = source.ExportPressure;
+		clone.ColonyTargetScore = source.ColonyTargetScore;
+		clone.ColonyTargetCapacity = source.ColonyTargetCapacity;
+		clone.ColonizationRangePc = source.ColonizationRangePc;
+		clone.RouteTechnologyLevel = source.RouteTechnologyLevel;
+		clone.ExportBodyId = source.ExportBodyId;
+		clone.ColonyTargetBodyId = source.ColonyTargetBodyId;
+		clone.ExportCivilizationId = source.ExportCivilizationId;
+		clone.ExportCivilizationName = source.ExportCivilizationName;
+		if (source.TravellerProfile != null)
+		{
+			clone.TravellerProfile = TravellerSystemProfile.FromDictionary(source.TravellerProfile.ToDictionary());
+		}
+
+		return clone;
+	}
+
 }

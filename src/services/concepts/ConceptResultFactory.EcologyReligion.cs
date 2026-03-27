@@ -5,6 +5,7 @@ using System.Linq;
 using StarGen.Concepts.ReligionGenerator;
 using StarGen.Domain.Concepts;
 using StarGen.Domain.Concepts.Ecology;
+using StarGen.Domain.Concepts.Pipeline;
 using StarGen.Domain.Concepts.Religion;
 using StarGen.Domain.Ecology;
 using StarGen.Domain.Population;
@@ -20,15 +21,52 @@ public static partial class ConceptResultFactory
 
     private static ConceptRunResult BuildEcologyResult(ConceptContextSnapshot context)
     {
+        if (context.EcologyState != null)
+        {
+            if (context.EcologyState.Status == ConceptRunStatus.NotApplicable)
+            {
+                return BuildNotApplicableResult(
+                    ConceptKind.Ecology,
+                    context.Seed,
+                    BuildContextTitle(context.BodyName, "Ecology Sandbox", " Ecology"),
+                    context.SourceLabel,
+                    context.EcologyState.StatusReason,
+                    context.EcologyState.Provenance.GeneratorVersion);
+            }
+
+            if (context.EcologyState.Status == ConceptRunStatus.Failed)
+            {
+                return BuildFailedResult(
+                    ConceptKind.Ecology,
+                    context.Seed,
+                    BuildContextTitle(context.BodyName, "Ecology Sandbox", " Ecology"),
+                    context.SourceLabel,
+                    context.EcologyState.StatusReason,
+                    context.EcologyState.Provenance.GeneratorVersion);
+            }
+
+            return BuildEcologyResultFromState(context, context.EcologyState);
+        }
+
+        string ecologyTitle = BuildContextTitle(context.BodyName, "Ecology Sandbox", " Ecology");
+        if (!SupportsManualEcology(context))
+        {
+            return BuildNotApplicableResult(
+                ConceptKind.Ecology,
+                context.Seed,
+                ecologyTitle,
+                context.SourceLabel,
+                "Ecology requires a life-supporting environment with liquid water, tolerable temperature, and a non-barren biome.",
+                EcologyGeneratorVersion);
+        }
+
         EnvironmentSpec spec = BuildEcologySpec(context);
         EcologyWeb web = EcologyGenerator.Generate(spec, new EcologyRng(spec.Seed));
         EcologyConceptSnapshot snapshot = BuildEcologySnapshot(web);
 
         return new ConceptRunResult
         {
-            Title = string.IsNullOrEmpty(context.BodyName)
-                ? "Ecology Sandbox"
-                : context.BodyName + " Ecology",
+            Title = ecologyTitle,
             Subtitle = $"Biome: {spec.Biome} | Context: {context.SourceLabel}",
             Summary = BuildEcologySummary(spec, snapshot),
             Metrics = BuildEcologyMetrics(snapshot),
@@ -41,6 +79,53 @@ public static partial class ConceptResultFactory
                 SourceContext = context.SourceLabel,
             },
         };
+    }
+
+    private static ConceptRunResult BuildEcologyResultFromState(ConceptContextSnapshot context, EcologyState state)
+    {
+        EcologyConceptSnapshot snapshot = state.Snapshot;
+        string bodyTitle = BuildContextTitle(context.BodyName, "Ecology Sandbox", " Ecology");
+        string subtitle = "Context: " + context.SourceLabel;
+        if (context.EnvironmentProfile != null)
+        {
+            subtitle = "Biome: " + context.EnvironmentProfile.DominantBiome + " | Context: " + context.SourceLabel;
+        }
+
+        ConceptRunResult result = new ConceptRunResult();
+        result.Status = ConceptRunStatus.Generated;
+        result.Title = bodyTitle;
+        result.Subtitle = subtitle;
+        result.Summary = "Generated a biosphere with "
+            + snapshot.SlotCount.ToString(CultureInfo.InvariantCulture)
+            + " trophic slots, "
+            + snapshot.ConnectionCount.ToString(CultureInfo.InvariantCulture)
+            + " feeding links, and a maximum chain length of "
+            + snapshot.MaxChainLength.ToString(CultureInfo.InvariantCulture)
+            + ".";
+        result.Metrics = BuildEcologyMetrics(snapshot);
+        if (context.EnvironmentProfile != null)
+        {
+            result.Sections = BuildEcologySections(BuildEcologySpec(context), snapshot);
+        }
+        else
+        {
+            result.Sections = new List<ConceptSection>
+            {
+                new ConceptSection
+                {
+                    Title = "Trophic profile",
+                    Items = snapshot.LevelCounts.Select(entry => entry.Key + ": " + entry.Value.ToString(CultureInfo.InvariantCulture)).ToList(),
+                },
+                new ConceptSection
+                {
+                    Title = "Dominant niches",
+                    Items = snapshot.HighlightedNiches,
+                },
+            };
+        }
+
+        result.Provenance = state.Provenance;
+        return result;
     }
 
     private static EnvironmentSpec BuildEcologySpec(ConceptContextSnapshot context)
@@ -154,23 +239,164 @@ public static partial class ConceptResultFactory
     private static StarGen.Domain.Ecology.BiomeType MapEcologyBiome(string biomeName)
     {
         string normalized = biomeName.Trim().ToLowerInvariant();
-        return normalized switch
+        if (normalized == "temperate")
         {
-            "oceanic" => StarGen.Domain.Ecology.BiomeType.Aquatic,
-            "desert" => StarGen.Domain.Ecology.BiomeType.Desert,
-            "forest" => StarGen.Domain.Ecology.BiomeType.Forest,
-            "grassland" => StarGen.Domain.Ecology.BiomeType.Grassland,
-            "tundra" => StarGen.Domain.Ecology.BiomeType.Tundra,
-            "volcanic" => StarGen.Domain.Ecology.BiomeType.Volcanic,
-            "subterranean" => StarGen.Domain.Ecology.BiomeType.Subterranean,
-            "wetland" => StarGen.Domain.Ecology.BiomeType.Wetland,
-            "reef" => StarGen.Domain.Ecology.BiomeType.Reef,
-            _ => StarGen.Domain.Ecology.BiomeType.Grassland,
-        };
+            return StarGen.Domain.Ecology.BiomeType.Grassland;
+        }
+
+        if (normalized == "oceanic")
+        {
+            return StarGen.Domain.Ecology.BiomeType.Aquatic;
+        }
+
+        if (normalized == "ocean")
+        {
+            return StarGen.Domain.Ecology.BiomeType.Aquatic;
+        }
+
+        if (normalized == "desert")
+        {
+            return StarGen.Domain.Ecology.BiomeType.Desert;
+        }
+
+        if (normalized == "forest")
+        {
+            return StarGen.Domain.Ecology.BiomeType.Forest;
+        }
+
+        if (normalized == "taiga")
+        {
+            return StarGen.Domain.Ecology.BiomeType.Forest;
+        }
+
+        if (normalized == "jungle")
+        {
+            return StarGen.Domain.Ecology.BiomeType.Forest;
+        }
+
+        if (normalized == "grassland")
+        {
+            return StarGen.Domain.Ecology.BiomeType.Grassland;
+        }
+
+        if (normalized == "savanna")
+        {
+            return StarGen.Domain.Ecology.BiomeType.Grassland;
+        }
+
+        if (normalized == "mountain")
+        {
+            return StarGen.Domain.Ecology.BiomeType.Grassland;
+        }
+
+        if (normalized == "tundra")
+        {
+            return StarGen.Domain.Ecology.BiomeType.Tundra;
+        }
+
+        if (normalized == "ice sheet")
+        {
+            return StarGen.Domain.Ecology.BiomeType.Tundra;
+        }
+
+        if (normalized == "volcanic")
+        {
+            return StarGen.Domain.Ecology.BiomeType.Volcanic;
+        }
+
+        if (normalized == "subterranean")
+        {
+            return StarGen.Domain.Ecology.BiomeType.Subterranean;
+        }
+
+        if (normalized == "subsurface")
+        {
+            return StarGen.Domain.Ecology.BiomeType.Subterranean;
+        }
+
+        if (normalized == "wetland")
+        {
+            return StarGen.Domain.Ecology.BiomeType.Wetland;
+        }
+
+        if (normalized == "reef")
+        {
+            return StarGen.Domain.Ecology.BiomeType.Reef;
+        }
+
+        if (normalized == "barren")
+        {
+            throw new InvalidOperationException("Ecology cannot be mapped from barren biome context.");
+        }
+
+        throw new InvalidOperationException("Unsupported ecology biome '" + biomeName + "'.");
+    }
+
+    private static bool SupportsManualEcology(ConceptContextSnapshot context)
+    {
+        if (context.WaterAvailability <= 0.02)
+        {
+            return false;
+        }
+
+        if (context.AvgTemperatureK < 180.0 || context.AvgTemperatureK > 390.0)
+        {
+            return false;
+        }
+
+        if (context.HabitabilityScore < 2)
+        {
+            return false;
+        }
+
+        if (string.Equals(context.DominantBiome, "Barren", StringComparison.OrdinalIgnoreCase))
+        {
+            return false;
+        }
+
+        return true;
     }
 
     private static ConceptRunResult BuildReligionResult(ConceptContextSnapshot context)
     {
+        if (context.ReligionState != null)
+        {
+            if (context.ReligionState.Status == ConceptRunStatus.NotApplicable)
+            {
+                return BuildNotApplicableResult(
+                    ConceptKind.Religion,
+                    context.Seed,
+                    BuildContextTitle(context.BodyName, "Religion Sandbox", " Belief System"),
+                    context.SourceLabel,
+                    context.ReligionState.StatusReason,
+                    context.ReligionState.Provenance.GeneratorVersion);
+            }
+
+            if (context.ReligionState.Status == ConceptRunStatus.Failed)
+            {
+                return BuildFailedResult(
+                    ConceptKind.Religion,
+                    context.Seed,
+                    BuildContextTitle(context.BodyName, "Religion Sandbox", " Belief System"),
+                    context.SourceLabel,
+                    context.ReligionState.StatusReason,
+                    context.ReligionState.Provenance.GeneratorVersion);
+            }
+
+            return BuildReligionResultFromState(context, context.ReligionState);
+        }
+
+        if (context.Population <= 0)
+        {
+            return BuildNotApplicableResult(
+                ConceptKind.Religion,
+                context.Seed,
+                BuildContextTitle(context.BodyName, "Religion Sandbox", " Belief System"),
+                context.SourceLabel,
+                "Religion requires an extant sentient population.",
+                ReligionGenerator.GeneratorVersion);
+        }
+
         ReligionParams parameters = BuildReligionParams(context);
         ReligionResult result = ReligionGenerator.Generate(parameters);
         ReligionConceptSnapshot snapshot = new ReligionConceptSnapshot
@@ -189,9 +415,7 @@ public static partial class ConceptResultFactory
 
         return new ConceptRunResult
         {
-            Title = string.IsNullOrEmpty(context.BodyName)
-                ? "Religion Sandbox"
-                : context.BodyName + " Belief System",
+            Title = BuildContextTitle(context.BodyName, "Religion Sandbox", " Belief System"),
             Subtitle = $"{FormatIdentifierForDisplay(parameters.SocialOrg)} | {FormatIdentifierForDisplay(parameters.Settlement)} | {FormatIdentifierForDisplay(parameters.Environment)}",
             Summary = $"{snapshot.Deity} religion with {snapshot.Specialist.ToLowerInvariant()} leadership, {snapshot.Authority.ToLowerInvariant()} authority, and a {result.Landscape.HegemonyPct.ToString(CultureInfo.InvariantCulture)}% hegemony estimate.",
             Metrics = BuildReligionMetrics(result),
@@ -204,6 +428,59 @@ public static partial class ConceptResultFactory
                 SourceContext = context.SourceLabel,
             },
         };
+    }
+
+    private static ConceptRunResult BuildReligionResultFromState(ConceptContextSnapshot context, ReligionState state)
+    {
+        ReligionConceptSnapshot snapshot = state.Snapshot;
+        ConceptRunResult result = new ConceptRunResult();
+        result.Status = ConceptRunStatus.Generated;
+        if (string.IsNullOrEmpty(context.BodyName))
+        {
+            result.Title = "Religion Sandbox";
+        }
+        else
+        {
+            result.Title = context.BodyName + " Belief System";
+        }
+        result.Subtitle = context.SourceLabel;
+        result.Summary = snapshot.Deity + " religion with "
+            + snapshot.Specialist.ToLowerInvariant()
+            + " leadership and "
+            + snapshot.Authority.ToLowerInvariant()
+            + " authority.";
+        result.Metrics = new List<ConceptMetric>
+        {
+            new ConceptMetric { Label = "Ritual breadth", Value = snapshot.Rituals.Count, MaxValue = 8.0, DisplayText = snapshot.Rituals.Count.ToString(CultureInfo.InvariantCulture) },
+            new ConceptMetric { Label = "Ethical emphases", Value = snapshot.Ethics.Count, MaxValue = 8.0, DisplayText = snapshot.Ethics.Count.ToString(CultureInfo.InvariantCulture) },
+            new ConceptMetric { Label = "Landscape notes", Value = snapshot.Landscape.Count, MaxValue = 8.0, DisplayText = snapshot.Landscape.Count.ToString(CultureInfo.InvariantCulture) },
+        };
+        result.Sections = new List<ConceptSection>
+        {
+            new ConceptSection
+            {
+                Title = "Structure",
+                Items = new List<string>
+                {
+                    "Deity frame: " + snapshot.Deity,
+                    "Cosmology: " + snapshot.Cosmology,
+                    "Authority: " + snapshot.Authority,
+                    "Specialists: " + snapshot.Specialist,
+                },
+            },
+            new ConceptSection
+            {
+                Title = "Rituals and ethics",
+                Items = MergeLists(snapshot.Rituals, snapshot.Ethics),
+            },
+            new ConceptSection
+            {
+                Title = "Landscape",
+                Items = new List<string>(snapshot.Landscape),
+            },
+        };
+        result.Provenance = state.Provenance;
+        return result;
     }
 
     private static ReligionParams BuildReligionParams(ConceptContextSnapshot context)
@@ -219,10 +496,30 @@ public static partial class ConceptResultFactory
             Isolation = MapReligionIsolation(context),
             PoliticalPower = MapReligionPoliticalPower(context),
             WritingSystem = MapReligionWriting(context),
-            PriorTraditions = context.Population > 10000000 ? "syncretic" : "indigenous_only",
+            PriorTraditions = ResolvePriorTraditions(context),
             GenderSystem = MapReligionGenderSystem(context),
-            KinshipStructure = context.Population > 5000000 ? "lineage_corporate" : "extended_clan",
+            KinshipStructure = ResolveKinshipStructure(context),
         };
+    }
+
+    private static string ResolvePriorTraditions(ConceptContextSnapshot context)
+    {
+        if (context.Population > 10000000)
+        {
+            return "syncretic";
+        }
+
+        return "indigenous_only";
+    }
+
+    private static string ResolveKinshipStructure(ConceptContextSnapshot context)
+    {
+        if (context.Population > 5000000)
+        {
+            return "lineage_corporate";
+        }
+
+        return "extended_clan";
     }
 
     private static List<ConceptMetric> BuildReligionMetrics(ReligionResult result)

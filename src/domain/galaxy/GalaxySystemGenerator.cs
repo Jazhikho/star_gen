@@ -1,6 +1,8 @@
 using Godot.Collections;
 using StarGen.Domain.Celestial;
 using StarGen.Domain.Generation;
+using StarGen.Domain.Generation.Traveller;
+using StarGen.Domain.Population;
 using StarGen.Domain.Systems;
 using StarGen.Domain.Rng;
 
@@ -19,7 +21,8 @@ public static class GalaxySystemGenerator
         bool includeAsteroids = true,
         bool enablePopulation = false,
         GalaxyBodyOverrides? overrides = null,
-        GenerationUseCaseSettings? useCaseSettings = null)
+        GenerationUseCaseSettings? useCaseSettings = null,
+        Galaxy? galaxy = null)
     {
         if (star == null)
         {
@@ -31,6 +34,7 @@ public static class GalaxySystemGenerator
         {
             spec.GeneratePopulation = true;
         }
+        bool generatePopulation = enablePopulation || spec.GeneratePopulation;
         SeededRng rng = new(spec.GenerationSeed);
         SolarSystem? system = StellarConfigGenerator.Generate(spec, rng);
         if (system == null)
@@ -57,7 +61,7 @@ public static class GalaxySystemGenerator
             hosts,
             stars,
             rng,
-            enablePopulation,
+            generatePopulation,
             spec.UseCaseSettings);
         foreach (CelestialBody planet in planetResult.Planets)
         {
@@ -69,7 +73,7 @@ public static class GalaxySystemGenerator
             hosts,
             stars,
             rng,
-            enablePopulation,
+            generatePopulation,
             spec.UseCaseSettings);
         foreach (CelestialBody moon in moonResult.Moons)
         {
@@ -105,6 +109,8 @@ public static class GalaxySystemGenerator
         {
             ApplyOverridesToSystem(system, star.StarSeed, overrides);
         }
+
+        TravellerSystemGenerator.ApplyTravellerMainworld(system);
 
         return system;
     }

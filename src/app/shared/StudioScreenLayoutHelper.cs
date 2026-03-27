@@ -10,7 +10,7 @@ public static class StudioScreenLayoutHelper
     /// <summary>
     /// Width below which the studio columns should stack vertically.
     /// </summary>
-    public const float CompactBreakpoint = 1280.0f;
+    public const float CompactBreakpoint = 1040.0f;
 
     /// <summary>
     /// Applies responsive orientation and panel minimum sizes for a studio layout.
@@ -19,7 +19,30 @@ public static class StudioScreenLayoutHelper
         Control? owner,
         BoxContainer? studioRow,
         Control? settingsPanel,
-        Control? summaryPanel)
+        Control? summaryPanel,
+        float compactBreakpoint = CompactBreakpoint)
+    {
+        ApplyResponsiveStudioOrientation(owner, studioRow, compactBreakpoint);
+    }
+
+    /// <summary>
+    /// Applies responsive orientation and panel minimum sizes for a three-column studio layout.
+    /// </summary>
+    public static void ApplyResponsiveStudioLayout(
+        Control? owner,
+        BoxContainer? studioRow,
+        Control? settingsPanel,
+        Control? rulesPanel,
+        Control? summaryPanel,
+        float compactBreakpoint = CompactBreakpoint)
+    {
+        ApplyResponsiveStudioOrientation(owner, studioRow, compactBreakpoint);
+    }
+
+    private static void ApplyResponsiveStudioOrientation(
+        Control? owner,
+        BoxContainer? studioRow,
+        float compactBreakpoint)
     {
         if (owner == null || studioRow == null)
         {
@@ -27,29 +50,8 @@ public static class StudioScreenLayoutHelper
         }
 
         Vector2 viewportSize = ResolveAvailableSize(owner);
-        bool stackPanels = viewportSize.X < CompactBreakpoint;
-        studioRow.Vertical = stackPanels;
-
-        if (settingsPanel != null)
-        {
-            settingsPanel.SizeFlagsHorizontal = Control.SizeFlags.ExpandFill;
-            settingsPanel.SizeFlagsVertical = Control.SizeFlags.ExpandFill;
-            settingsPanel.CustomMinimumSize = Vector2.Zero;
-        }
-
-        if (summaryPanel != null)
-        {
-            summaryPanel.SizeFlagsHorizontal = Control.SizeFlags.ExpandFill;
-            summaryPanel.SizeFlagsVertical = Control.SizeFlags.ExpandFill;
-            if (stackPanels)
-            {
-                summaryPanel.CustomMinimumSize = new Vector2(0.0f, 260.0f);
-            }
-            else
-            {
-                summaryPanel.CustomMinimumSize = new Vector2(280.0f, 0.0f);
-            }
-        }
+        float availableWidth = ResolveAvailableWidth(viewportSize.X);
+        studioRow.Vertical = availableWidth < compactBreakpoint;
     }
 
     private static Vector2 ResolveAvailableSize(Control owner)
@@ -74,5 +76,10 @@ public static class StudioScreenLayoutHelper
         }
 
         return new Vector2(1440.0f, 900.0f);
+    }
+
+    private static float ResolveAvailableWidth(float viewportWidth)
+    {
+        return Mathf.Max(viewportWidth - 64.0f, 320.0f);
     }
 }

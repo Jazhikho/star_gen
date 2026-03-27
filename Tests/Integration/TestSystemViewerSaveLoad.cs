@@ -127,6 +127,8 @@ public static partial class TestSystemViewerSaveLoad
         SystemViewer viewer = IntegrationTestUtils.InstantiateScene<SystemViewer>(SystemViewerScenePath);
         try
         {
+            viewer._Ready();
+            viewer.SetBackNavigationVisibility(true, "Back to Galaxy Viewer", "Return to the galaxy viewer (Esc)");
             bool requestedReturn = false;
             viewer.Connect(SystemViewer.SignalName.BackToGalaxyRequested, Callable.From(() => requestedReturn = true));
 

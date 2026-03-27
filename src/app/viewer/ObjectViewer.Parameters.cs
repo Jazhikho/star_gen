@@ -12,123 +12,50 @@ public partial class ObjectViewer
 {
     private void SetupUseCaseControls()
     {
-        Node? generationSectionNode = GetNodeOrNull<Node>("UI/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/GenerationSection");
-        if (generationSectionNode is not VBoxContainer generationSection)
+        if (_rulesetModeOption == null)
         {
-            return;
+            throw new System.InvalidOperationException("ObjectViewer scene is missing RulesetModeOption.");
         }
 
-        if (_rulesetModeOption != null)
+        if (_showTravellerReadoutsCheck == null)
         {
-            return;
+            throw new System.InvalidOperationException("ObjectViewer scene is missing ShowTravellerReadoutsCheck.");
         }
 
-        HBoxContainer rulesetContainer = new HBoxContainer();
-        rulesetContainer.Name = "RulesetContainer";
-        Label rulesetLabel = new Label();
-        rulesetLabel.Text = "Ruleset:";
-        rulesetLabel.CustomMinimumSize = new Vector2(60.0f, 0.0f);
-        rulesetContainer.AddChild(rulesetLabel);
+        if (_lifePermissivenessInput == null)
+        {
+            throw new System.InvalidOperationException("ObjectViewer scene is missing LifePermissivenessInput.");
+        }
 
-        OptionButton rulesetModeOption = new OptionButton();
-        rulesetModeOption.Name = "RulesetModeOption";
-        rulesetModeOption.SizeFlagsHorizontal = Control.SizeFlags.ExpandFill;
-        rulesetModeOption.AddItem("Default", (int)GenerationUseCaseSettings.RulesetModeType.Default);
-        rulesetModeOption.AddItem("Traveller", (int)GenerationUseCaseSettings.RulesetModeType.Traveller);
-        rulesetModeOption.ItemSelected += OnRulesetModeSelected;
-        rulesetContainer.AddChild(rulesetModeOption);
-        _rulesetModeOption = rulesetModeOption;
+        if (_useCaseAssumptionsLabel == null)
+        {
+            throw new System.InvalidOperationException("ObjectViewer scene is missing UseCaseAssumptionsLabel.");
+        }
 
-        CheckBox showTravellerReadoutsCheck = new CheckBox();
-        showTravellerReadoutsCheck.Name = "ShowTravellerReadoutsCheck";
-        showTravellerReadoutsCheck.Text = "Show Traveller / UWP Readouts";
-        showTravellerReadoutsCheck.Toggled += enabled => _activeUseCaseSettings.ShowTravellerReadouts = enabled;
-        _showTravellerReadoutsCheck = showTravellerReadoutsCheck;
+        if (_rulesetModeOption.ItemCount == 0)
+        {
+            _rulesetModeOption.AddItem(GenerationUseCasePresentation.RealisticRulesetLabel, (int)GenerationUseCaseSettings.RulesetModeType.Default);
+            _rulesetModeOption.AddItem("Traveller", (int)GenerationUseCaseSettings.RulesetModeType.Traveller);
+        }
 
-        HBoxContainer lifeContainer = new HBoxContainer();
-        lifeContainer.Name = "LifePermissivenessContainer";
-        Label lifeLabel = new Label();
-        lifeLabel.Text = "Life Potential:";
-        lifeLabel.CustomMinimumSize = new Vector2(60.0f, 0.0f);
-        lifeContainer.AddChild(lifeLabel);
-
-        SpinBox lifePermissivenessInput = new SpinBox();
-        lifePermissivenessInput.Name = "LifePermissivenessInput";
-        lifePermissivenessInput.MinValue = 0.0;
-        lifePermissivenessInput.MaxValue = 1.0;
-        lifePermissivenessInput.Step = 0.05;
-        lifePermissivenessInput.SizeFlagsHorizontal = Control.SizeFlags.ExpandFill;
-        lifePermissivenessInput.ValueChanged += value => _activeUseCaseSettings.LifePermissiveness = value;
-        lifeContainer.AddChild(lifePermissivenessInput);
-        _lifePermissivenessInput = lifePermissivenessInput;
-
-        HBoxContainer populationContainer = new HBoxContainer();
-        populationContainer.Name = "PopulationPermissivenessContainer";
-        Label populationLabel = new Label();
-        populationLabel.Text = "Settlement Density:";
-        populationLabel.CustomMinimumSize = new Vector2(60.0f, 0.0f);
-        populationContainer.AddChild(populationLabel);
-
-        SpinBox populationPermissivenessInput = new SpinBox();
-        populationPermissivenessInput.Name = "PopulationPermissivenessInput";
-        populationPermissivenessInput.MinValue = 0.0;
-        populationPermissivenessInput.MaxValue = 1.0;
-        populationPermissivenessInput.Step = 0.05;
-        populationPermissivenessInput.SizeFlagsHorizontal = Control.SizeFlags.ExpandFill;
-        populationPermissivenessInput.ValueChanged += value => _activeUseCaseSettings.PopulationPermissiveness = value;
-        populationContainer.AddChild(populationPermissivenessInput);
-        _populationPermissivenessInput = populationPermissivenessInput;
-
-        Label useCaseAssumptionsLabel = new Label();
-        useCaseAssumptionsLabel.Name = "UseCaseAssumptionsLabel";
-        useCaseAssumptionsLabel.AutowrapMode = TextServer.AutowrapMode.Word;
-        useCaseAssumptionsLabel.CustomMinimumSize = new Vector2(220.0f, 0.0f);
-        useCaseAssumptionsLabel.AddThemeFontSizeOverride("font_size", 10);
-        useCaseAssumptionsLabel.Modulate = new Color(0.6f, 0.7f, 0.8f, 1.0f);
-        useCaseAssumptionsLabel.Text = "Ruleset and assumption settings are persisted with generated bodies so downstream system and export work can honor the same assumptions.";
-        _useCaseAssumptionsLabel = useCaseAssumptionsLabel;
-
-        int buttonIndex = generationSection.GetNode("ButtonContainer").GetIndex();
-        generationSection.AddChild(rulesetContainer);
-        generationSection.MoveChild(rulesetContainer, buttonIndex);
-        generationSection.AddChild(showTravellerReadoutsCheck);
-        generationSection.MoveChild(showTravellerReadoutsCheck, buttonIndex + 1);
-        generationSection.AddChild(lifeContainer);
-        generationSection.MoveChild(lifeContainer, buttonIndex + 2);
-        generationSection.AddChild(populationContainer);
-        generationSection.MoveChild(populationContainer, buttonIndex + 3);
-        generationSection.AddChild(useCaseAssumptionsLabel);
-        generationSection.MoveChild(useCaseAssumptionsLabel, buttonIndex + 4);
-
+        _rulesetModeOption.ItemSelected += OnRulesetModeSelected;
+        _showTravellerReadoutsCheck.Toggled += OnShowTravellerReadoutsToggled;
+        _lifePermissivenessInput.ValueChanged += OnLifePermissivenessChanged;
         ApplyUseCaseSettingsToControls(_activeUseCaseSettings);
+        _populationPermissivenessInput?.GetParent<Control>()?.Hide();
     }
 
     private void SetupEmptyStateUi()
     {
-        if (_uiRoot == null || _emptyStateLabel != null)
+        if (_emptyStateLabel == null)
         {
-            return;
+            throw new System.InvalidOperationException("ObjectViewer scene is missing EmptyStateLabel.");
         }
 
-        Label emptyStateLabel = new Label();
-        emptyStateLabel.Name = "EmptyStateLabel";
-        emptyStateLabel.Text = "Set parameters in the side panel, then click Generate.";
-        emptyStateLabel.AnchorLeft = 0.0f;
-        emptyStateLabel.AnchorTop = 0.0f;
-        emptyStateLabel.AnchorRight = 1.0f;
-        emptyStateLabel.AnchorBottom = 1.0f;
-        emptyStateLabel.OffsetLeft = 180.0f;
-        emptyStateLabel.OffsetTop = 120.0f;
-        emptyStateLabel.OffsetRight = -180.0f;
-        emptyStateLabel.OffsetBottom = -120.0f;
-        emptyStateLabel.HorizontalAlignment = HorizontalAlignment.Center;
-        emptyStateLabel.VerticalAlignment = VerticalAlignment.Center;
-        emptyStateLabel.AutowrapMode = TextServer.AutowrapMode.Word;
-        emptyStateLabel.CustomMinimumSize = new Vector2(280.0f, 0.0f);
-        emptyStateLabel.MouseFilter = Control.MouseFilterEnum.Ignore;
-        emptyStateLabel.Modulate = new Color(0.74f, 0.78f, 0.84f, 0.9f);
-        _uiRoot.AddChild(emptyStateLabel);
-        _emptyStateLabel = emptyStateLabel;
+        _emptyStateLabel.HorizontalAlignment = HorizontalAlignment.Center;
+        _emptyStateLabel.VerticalAlignment = VerticalAlignment.Center;
+        _emptyStateLabel.AutowrapMode = TextServer.AutowrapMode.Word;
+        _emptyStateLabel.CustomMinimumSize = new Vector2(280.0f, 0.0f);
         UpdateEmptyStateVisibility();
     }
 
@@ -198,10 +125,6 @@ public partial class ObjectViewer
             _lifePermissivenessInput.Value = _activeUseCaseSettings.LifePermissiveness;
         }
 
-        if (_populationPermissivenessInput != null)
-        {
-            _populationPermissivenessInput.Value = _activeUseCaseSettings.PopulationPermissiveness;
-        }
     }
 
     private void TryApplyUseCaseSettingsFromBody(CelestialBody body)
@@ -233,4 +156,16 @@ public partial class ObjectViewer
 
         ApplyUseCaseSettingsToControls(_activeUseCaseSettings);
     }
+
+    private void OnShowTravellerReadoutsToggled(bool enabled)
+    {
+        _activeUseCaseSettings.ShowTravellerReadouts = enabled;
+    }
+
+    private void OnLifePermissivenessChanged(double value)
+    {
+        _activeUseCaseSettings.LifePermissiveness = value;
+    }
+
+    private void OnPopulationPermissivenessChanged(double value) { }
 }

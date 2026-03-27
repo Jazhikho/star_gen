@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using Godot.Collections;
 
 namespace StarGen.Domain.Concepts.Religion;
 
@@ -41,4 +42,37 @@ public sealed class ReligionConceptSnapshot
     /// Religious landscape notes.
     /// </summary>
     public List<string> Landscape { get; set; } = new List<string>();
+}
+
+/// <summary>
+/// Serialization helpers for religion snapshots.
+/// </summary>
+public static class ReligionConceptSnapshotSerialization
+{
+    public static Dictionary ToDictionary(ReligionConceptSnapshot snapshot)
+    {
+        return new Dictionary
+        {
+            ["deity"] = snapshot.Deity,
+            ["cosmology"] = snapshot.Cosmology,
+            ["authority"] = snapshot.Authority,
+            ["specialist"] = snapshot.Specialist,
+            ["rituals"] = ConceptSerializationUtils.ToArray(snapshot.Rituals),
+            ["ethics"] = ConceptSerializationUtils.ToArray(snapshot.Ethics),
+            ["landscape"] = ConceptSerializationUtils.ToArray(snapshot.Landscape),
+        };
+    }
+
+    public static ReligionConceptSnapshot FromDictionary(Dictionary data)
+    {
+        ReligionConceptSnapshot snapshot = new ReligionConceptSnapshot();
+        snapshot.Deity = ConceptSerializationUtils.ReadString(data, "deity");
+        snapshot.Cosmology = ConceptSerializationUtils.ReadString(data, "cosmology");
+        snapshot.Authority = ConceptSerializationUtils.ReadString(data, "authority");
+        snapshot.Specialist = ConceptSerializationUtils.ReadString(data, "specialist");
+        snapshot.Rituals = ConceptSerializationUtils.ReadStringList(data, "rituals");
+        snapshot.Ethics = ConceptSerializationUtils.ReadStringList(data, "ethics");
+        snapshot.Landscape = ConceptSerializationUtils.ReadStringList(data, "landscape");
+        return snapshot;
+    }
 }

@@ -50,6 +50,14 @@ public partial class TestSceneCSharp : Node
 	}
 
 	/// <summary>
+	/// Starts only the population-focused headless-safe suite.
+	/// </summary>
+	public void start_population_headless()
+	{
+		_ = RunPopulationHeadlessAsync();
+	}
+
+	/// <summary>
 	/// Starts the full interactive test suite.
 	/// </summary>
 	public void start_interactive()
@@ -69,6 +77,22 @@ public partial class TestSceneCSharp : Node
 			exitCode = 1;
 		}
 
+		EmitSignal(SignalName.RunCompleted, exitCode);
+	}
+
+	private async Task RunPopulationHeadlessAsync()
+	{
+		GD.Print("Using C# population-focused test harness");
+		GD.Print(string.Empty);
+		TestRegistry.RunPopulationHeadlessSuites(_runner);
+		_runner.PrintSummary();
+		int exitCode = 0;
+		if (_runner.GetFailCount() != 0)
+		{
+			exitCode = 1;
+		}
+
+		await Task.CompletedTask;
 		EmitSignal(SignalName.RunCompleted, exitCode);
 	}
 

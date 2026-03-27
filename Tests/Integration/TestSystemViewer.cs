@@ -33,7 +33,6 @@ public static class TestSystemViewer
         runner.RunNativeTest("TestSystemViewer::test_standalone_startup_waits_for_generate", TestStandaloneStartupWaitsForGenerate);
         runner.RunNativeTest("TestSystemViewer::test_traveller_controls_exist", TestTravellerControlsExist);
         runner.RunNativeTest("TestSystemViewer::test_traveller_ruleset_applies_defaults", TestTravellerRulesetAppliesDefaults);
-        runner.RunNativeTest("TestSystemViewer::test_inspector_concept_atlas_button_emits_viewer_signal", TestInspectorConceptAtlasButtonEmitsViewerSignal);
         runner.RunNativeTest("TestSystemViewer::test_populated_world_button_focuses_body", TestPopulatedWorldButtonFocusesBody);
     }
 
@@ -290,7 +289,9 @@ public static class TestSystemViewer
             DotNetNativeTestSuite.AssertNotNull(viewer.GetNodeOrNull<OptionButton>($"{basePath}/RulesetModeContainer/RulesetModeOption"), "System viewer should expose a ruleset selector");
             DotNetNativeTestSuite.AssertNotNull(viewer.GetNodeOrNull<CheckBox>($"{basePath}/ShowTravellerReadoutsCheck"), "System viewer should expose a Traveller readout toggle");
             DotNetNativeTestSuite.AssertNotNull(viewer.GetNodeOrNull<HSlider>($"{basePath}/LifePermissivenessContainer/LifePermissivenessInput"), "System viewer should expose a life-potential control");
-            DotNetNativeTestSuite.AssertNotNull(viewer.GetNodeOrNull<HSlider>($"{basePath}/PopulationPermissivenessContainer/PopulationPermissivenessInput"), "System viewer should expose a settlement-density control");
+            Control? populationContainer = viewer.GetNodeOrNull<Control>($"{basePath}/PopulationPermissivenessContainer");
+            DotNetNativeTestSuite.AssertNotNull(populationContainer, "System viewer should retain the legacy population container for scene compatibility");
+            DotNetNativeTestSuite.AssertFalse(populationContainer!.Visible, "System viewer should hide colonization controls from generation surfaces");
             DotNetNativeTestSuite.AssertNotNull(viewer.GetNodeOrNull<OptionButton>($"{basePath}/MainworldPolicyContainer/MainworldPolicyOption"), "System viewer should expose a mainworld-policy selector");
         }
         finally
@@ -321,43 +322,6 @@ public static class TestSystemViewer
             DotNetNativeTestSuite.AssertTrue(readoutsCheck!.ButtonPressed, "Traveller mode should enable Traveller readouts by default");
             DotNetNativeTestSuite.AssertTrue(populationCheck!.ButtonPressed, "Traveller mode should enable population generation by default");
             DotNetNativeTestSuite.AssertEqual(2, mainworldOption!.Selected, "Traveller mode should require a mainworld by default");
-        }
-        finally
-        {
-            IntegrationTestUtils.CleanupNode(viewer);
-        }
-    }
-
-    private static void TestInspectorConceptAtlasButtonEmitsViewerSignal()
-    {
-        SystemViewer viewer = CreateViewer();
-        try
-        {
-            SystemInspectorPanel? panel = viewer.GetNodeOrNull<SystemInspectorPanel>("UI/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/InspectorPanel");
-            DotNetNativeTestSuite.AssertNotNull(panel, "Inspector panel should exist");
-
-            CelestialBody body = IntegrationTestUtils.CreateTestBody(name: "Kepler", type: CelestialType.Type.Planet);
-            bool signaled = false;
-            string emittedBodyId = string.Empty;
-            viewer.Connect(
-                SystemViewer.SignalName.OpenConceptAtlasRequested,
-                Callable.From<GodotObject>(emittedBody =>
-                {
-                    signaled = true;
-                    if (emittedBody is CelestialBody typedBody)
-                    {
-                        emittedBodyId = typedBody.Id;
-                    }
-                }));
-
-            panel!.DisplaySelectedBody(body);
-            Button? button = FindButtonByText(panel, "Open Concept Atlas");
-            DotNetNativeTestSuite.AssertNotNull(button, "System inspector should expose a concept-atlas button for selected bodies");
-
-            button!.EmitSignal(Button.SignalName.Pressed);
-
-            DotNetNativeTestSuite.AssertTrue(signaled, "Concept-atlas button should bubble through the system viewer signal");
-            DotNetNativeTestSuite.AssertEqual(body.Id, emittedBodyId, "Viewer signal should preserve the selected body");
         }
         finally
         {

@@ -52,6 +52,19 @@ Chambers, J. E., Wetherill, G. W., & Boss, A. P. (1996). The stability of multi-
 
 ---
 
+## Galaxy morphology and structure
+
+**Current use in StarGen:** `src/domain/galaxy/GalaxySpec.cs`, `src/domain/galaxy/SpiralDensityModel.cs`, `src/domain/galaxy/EllipticalDensityModel.cs`, `src/domain/galaxy/IrregularDensityModel.cs`, `src/domain/galaxy/SubSectorGenerator.cs`, `src/domain/generation/parameters/GenerationParameterCatalog.cs`, and `src/app/GalaxyGenerationScreen.cs`.
+
+| Citation | Summary | Used in |
+|----------|----------|---------|
+| Bland-Hawthorn, J., & Gerhard, O. (2016). The Galaxy in context: Structural, kinematic, and integrated properties. *Annual Review of Astronomy and Astrophysics*, *54*, 529-596. https://doi.org/10.1146/annurev-astro-081915-023441 | Milky Way structural review covering disk scale lengths and heights, bulge and bar properties, stellar mass distribution, and comparison against other spirals. Supports StarGen's use of an exponential disk plus central bulge for the spiral profile. | GalaxySpec.cs; SpiralDensityModel.cs; GalaxyGenerationScreen.cs parameter explanations |
+| van der Kruit, P. C., & Freeman, K. C. (2011). Galaxy disks. *Annual Review of Astronomy and Astrophysics*, *49*, 301-371. https://doi.org/10.1146/annurev-astro-081710-102529 | Review of exponential disks, scale lengths, scale heights, truncations, and observed disk structure. Supports the disk falloff assumptions and user-facing arm and disk controls. | SpiralDensityModel.cs; GenerationParameterCatalog.cs |
+| Wegg, C., & Gerhard, O. (2013). Mapping the three-dimensional density of the Galactic bulge with VVV red clump stars. *Monthly Notices of the Royal Astronomical Society*, *435*(3), 1874-1887. https://arxiv.org/abs/1308.4385 | 3D bulge and bar density map for the Milky Way showing boxy and peanut bulge structure, orientation, and concentration. Supports treating StarGen's bulge controls as a simplified stand-in for a richer central stellar concentration model rather than pure decoration. | GalaxySpec.cs; SpiralDensityModel.cs; EllipticalDensityModel.cs |
+| Conselice, C. J. (2014). The evolution of galaxy structure over cosmic time. *Annual Review of Astronomy and Astrophysics*, *52*, 291-337. https://doi.org/10.1146/annurev-astro-081913-040037 | Review of morphology classes across spirals, ellipticals, irregulars, and mergers, including how the categories are used observationally. Supports the broad galaxy-type categories exposed in the Galaxy Studio while clarifying that StarGen is using coarse deterministic proxies rather than a full cosmological formation model. | GalaxySpec.cs; EllipticalDensityModel.cs; IrregularDensityModel.cs; GalaxyGenerationScreen.cs |
+
+---
+
 ## Orbital stability (planet spacing)
 
 **Current use in StarGen:** ~10 mutual Hill radii for long-term stability. [src/domain/system/OrbitalMechanics.gd](../src/domain/system/OrbitalMechanics.gd) (line 424), [OrbitSlotGenerator.gd](../src/domain/system/OrbitSlotGenerator.gd) (line 139), [SystemValidator.gd](../src/domain/system/SystemValidator.gd) (line 268).

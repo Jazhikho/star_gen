@@ -144,7 +144,6 @@ public static class TestGenerationParameters
         settings.RulesetMode = GenerationUseCaseSettings.RulesetModeType.Traveller;
         settings.ShowTravellerReadouts = true;
         settings.LifePermissiveness = 0.75;
-        settings.PopulationPermissiveness = 0.85;
         settings.MainworldPolicy = GenerationUseCaseSettings.MainworldPolicyType.Require;
         return settings;
     }
@@ -154,7 +153,6 @@ public static class TestGenerationParameters
         DotNetNativeTestSuite.AssertEqual(expected.RulesetMode, actual.RulesetMode, messagePrefix + ": ruleset mode should match");
         DotNetNativeTestSuite.AssertEqual(expected.ShowTravellerReadouts, actual.ShowTravellerReadouts, messagePrefix + ": readout visibility should match");
         DotNetNativeTestSuite.AssertEqual(expected.LifePermissiveness, actual.LifePermissiveness, messagePrefix + ": life permissiveness should match");
-        DotNetNativeTestSuite.AssertEqual(expected.PopulationPermissiveness, actual.PopulationPermissiveness, messagePrefix + ": population permissiveness should match");
         DotNetNativeTestSuite.AssertEqual(expected.MainworldPolicy, actual.MainworldPolicy, messagePrefix + ": mainworld policy should match");
     }
 }

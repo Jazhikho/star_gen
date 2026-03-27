@@ -2,6 +2,8 @@ using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Godot;
+using StarGen.Domain.Colonization;
+using StarGen.Domain.Generation.Traveller;
 using StarGen.Domain.Jumplanes;
 
 namespace StarGen.App.GalaxyViewer;
@@ -18,6 +20,17 @@ public partial class GalaxyViewer
 		public int Population;
 		public int FalsePopulation;
 		public bool IsBridge;
+		public TravellerSystemProfile? TravellerProfile;
+		public bool CanExportColonists;
+		public double ExportPressure;
+		public double ColonyTargetScore;
+		public int ColonyTargetCapacity;
+		public double ColonizationRangePc;
+		public int RouteTechnologyLevel;
+		public string ExportBodyId = string.Empty;
+		public string ColonyTargetBodyId = string.Empty;
+		public string ExportCivilizationId = string.Empty;
+		public string ExportCivilizationName = string.Empty;
 
 		public JumpRouteWorkingSystem(string id, Vector3 position, int population)
 		{
@@ -33,6 +46,17 @@ public partial class GalaxyViewer
 			JumpRouteWorkingSystem clone = new(Id, Position, Population);
 			clone.FalsePopulation = FalsePopulation;
 			clone.IsBridge = IsBridge;
+			clone.TravellerProfile = CloneTravellerProfile(TravellerProfile);
+			clone.CanExportColonists = CanExportColonists;
+			clone.ExportPressure = ExportPressure;
+			clone.ColonyTargetScore = ColonyTargetScore;
+			clone.ColonyTargetCapacity = ColonyTargetCapacity;
+			clone.ColonizationRangePc = ColonizationRangePc;
+			clone.RouteTechnologyLevel = RouteTechnologyLevel;
+			clone.ExportBodyId = ExportBodyId;
+			clone.ColonyTargetBodyId = ColonyTargetBodyId;
+			clone.ExportCivilizationId = ExportCivilizationId;
+			clone.ExportCivilizationName = ExportCivilizationName;
 			return clone;
 		}
 
@@ -109,14 +133,65 @@ public partial class GalaxyViewer
 
 	private Task<JumpRouteBackgroundResult> CalculateJumpRouteGraphAsync(JumpLaneRegion region)
 	{
-		List<JumpRouteWorkingSystem> systems = CreateWorkingSystems(region);
-		return Task.Run(() => CalculateJumpRouteGraph(systems));
+		JumpLaneRegion clonedRegion = CloneJumpLaneRegion(region);
+		if (UseTravellerRouteMode())
+		{
+			return Task.Run(() =>
+			{
+				TravellerRouteCalculator calculator = new();
+				JumpLaneResult result = calculator.Calculate(clonedRegion);
+				return BuildBackgroundResultFromJumpLaneResult(clonedRegion, result);
+			});
+		}
+
+		return Task.Run(() =>
+		{
+			ColonizationRouteCalculator calculator = new();
+			JumpLaneResult result = calculator.Calculate(clonedRegion);
+			return BuildBackgroundResultFromJumpLaneResult(clonedRegion, result);
+		});
+	}
+
+	private Task<ColonizationSimulationState> CalculateColonizationSimulationAsync(JumpLaneRegion region)
+	{
+		JumpLaneRegion clonedRegion = CloneJumpLaneRegion(region);
+		ColonizationSimulationRequest request = BuildColonizationSimulationRequest(clonedRegion);
+		return Task.Run(() => ColonizationSimulator.Run(request));
 	}
 
 	private JumpRouteBackgroundResult CalculateJumpRouteGraphSynchronously(JumpLaneRegion region)
 	{
-		List<JumpRouteWorkingSystem> systems = CreateWorkingSystems(region);
-		return CalculateJumpRouteGraph(systems);
+		JumpLaneRegion clonedRegion = CloneJumpLaneRegion(region);
+		if (UseTravellerRouteMode())
+		{
+			TravellerRouteCalculator calculator = new();
+			JumpLaneResult result = calculator.Calculate(clonedRegion);
+			return BuildBackgroundResultFromJumpLaneResult(clonedRegion, result);
+		}
+
+		ColonizationRouteCalculator nonTravellerCalculator = new();
+		JumpLaneResult nonTravellerResult = nonTravellerCalculator.Calculate(clonedRegion);
+		return BuildBackgroundResultFromJumpLaneResult(clonedRegion, nonTravellerResult);
+	}
+
+	private ColonizationSimulationState CalculateColonizationSimulationSynchronously(JumpLaneRegion region)
+	{
+		ColonizationSimulationRequest request = BuildColonizationSimulationRequest(CloneJumpLaneRegion(region));
+		return ColonizationSimulator.Run(request);
+	}
+
+	private ColonizationSimulationRequest BuildColonizationSimulationRequest(JumpLaneRegion region)
+	{
+		ColonizationSimulationRequest request = new ColonizationSimulationRequest();
+		request.RegionId = region.RegionId;
+		request.Scope = region.Scope;
+		request.Settings = GetColonizationSimulationSettings();
+		foreach (JumpLaneSystem system in region.Systems)
+		{
+			request.Systems.Add(CloneJumpLaneSystem(system));
+		}
+
+		return request;
 	}
 
 	private static List<JumpRouteWorkingSystem> CreateWorkingSystems(JumpLaneRegion region)
@@ -127,6 +202,17 @@ public partial class GalaxyViewer
 			JumpRouteWorkingSystem workingSystem = new(system.Id, system.Position, system.Population);
 			workingSystem.FalsePopulation = system.FalsePopulation;
 			workingSystem.IsBridge = system.IsBridge;
+			workingSystem.TravellerProfile = CloneTravellerProfile(system.TravellerProfile);
+			workingSystem.CanExportColonists = system.CanExportColonists;
+			workingSystem.ExportPressure = system.ExportPressure;
+			workingSystem.ColonyTargetScore = system.ColonyTargetScore;
+			workingSystem.ColonyTargetCapacity = system.ColonyTargetCapacity;
+			workingSystem.ColonizationRangePc = system.ColonizationRangePc;
+			workingSystem.RouteTechnologyLevel = system.RouteTechnologyLevel;
+			workingSystem.ExportBodyId = system.ExportBodyId;
+			workingSystem.ColonyTargetBodyId = system.ColonyTargetBodyId;
+			workingSystem.ExportCivilizationId = system.ExportCivilizationId;
+			workingSystem.ExportCivilizationName = system.ExportCivilizationName;
 			systems.Add(workingSystem);
 		}
 
@@ -1065,10 +1151,7 @@ public partial class GalaxyViewer
 		JumpLaneRegion clone = new(sourceRegion.Scope, sourceRegion.RegionId);
 		foreach (JumpLaneSystem system in sourceRegion.Systems)
 		{
-			JumpLaneSystem copy = new(system.Id, system.Position, system.Population);
-			copy.FalsePopulation = system.FalsePopulation;
-			copy.IsBridge = system.IsBridge;
-			clone.AddSystem(copy);
+			clone.AddSystem(CloneJumpLaneSystem(system));
 		}
 
 		return clone;
@@ -1090,9 +1173,7 @@ public partial class GalaxyViewer
 				continue;
 			}
 
-			JumpLaneSystem copy = new(incomingSystem.Id, incomingSystem.Position, incomingSystem.Population);
-			copy.FalsePopulation = incomingSystem.FalsePopulation;
-			copy.IsBridge = incomingSystem.IsBridge;
+			JumpLaneSystem copy = CloneJumpLaneSystem(incomingSystem);
 			targetRegion.AddSystem(copy);
 			existingIds.Add(copy.Id);
 			addedCount += 1;
@@ -1133,6 +1214,101 @@ public partial class GalaxyViewer
 		JumpLaneSystem system = new(workingSystem.Id, workingSystem.Position, workingSystem.Population);
 		system.FalsePopulation = workingSystem.FalsePopulation;
 		system.IsBridge = workingSystem.IsBridge;
+		system.TravellerProfile = CloneTravellerProfile(workingSystem.TravellerProfile);
+		system.CanExportColonists = workingSystem.CanExportColonists;
+		system.ExportPressure = workingSystem.ExportPressure;
+		system.ColonyTargetScore = workingSystem.ColonyTargetScore;
+		system.ColonyTargetCapacity = workingSystem.ColonyTargetCapacity;
+		system.ColonizationRangePc = workingSystem.ColonizationRangePc;
+		system.RouteTechnologyLevel = workingSystem.RouteTechnologyLevel;
+		system.ExportBodyId = workingSystem.ExportBodyId;
+		system.ColonyTargetBodyId = workingSystem.ColonyTargetBodyId;
+		system.ExportCivilizationId = workingSystem.ExportCivilizationId;
+		system.ExportCivilizationName = workingSystem.ExportCivilizationName;
 		return system;
+	}
+
+	private static JumpRouteBackgroundResult BuildBackgroundResultFromJumpLaneResult(
+		JumpLaneRegion region,
+		JumpLaneResult result)
+	{
+		List<JumpRouteWorkingSystem> systems = new(region.Systems.Count);
+		foreach (JumpLaneSystem regionSystem in region.Systems)
+		{
+			JumpLaneSystem? registeredSystem = result.GetSystem(regionSystem.Id);
+			if (registeredSystem == null)
+			{
+				registeredSystem = regionSystem;
+			}
+
+			JumpRouteWorkingSystem workingSystem = new(
+				registeredSystem.Id,
+				registeredSystem.Position,
+				registeredSystem.Population);
+			workingSystem.FalsePopulation = registeredSystem.FalsePopulation;
+			workingSystem.IsBridge = registeredSystem.IsBridge;
+			workingSystem.TravellerProfile = CloneTravellerProfile(registeredSystem.TravellerProfile);
+			workingSystem.CanExportColonists = registeredSystem.CanExportColonists;
+			workingSystem.ExportPressure = registeredSystem.ExportPressure;
+			workingSystem.ColonyTargetScore = registeredSystem.ColonyTargetScore;
+			workingSystem.ColonyTargetCapacity = registeredSystem.ColonyTargetCapacity;
+			workingSystem.ColonizationRangePc = registeredSystem.ColonizationRangePc;
+			workingSystem.RouteTechnologyLevel = registeredSystem.RouteTechnologyLevel;
+			workingSystem.ExportBodyId = registeredSystem.ExportBodyId;
+			workingSystem.ColonyTargetBodyId = registeredSystem.ColonyTargetBodyId;
+			workingSystem.ExportCivilizationId = registeredSystem.ExportCivilizationId;
+			workingSystem.ExportCivilizationName = registeredSystem.ExportCivilizationName;
+			systems.Add(workingSystem);
+		}
+
+		List<JumpRouteConnectionData> connections = new(result.Connections.Count);
+		foreach (JumpLaneConnection connection in result.Connections)
+		{
+			JumpRouteConnectionData connectionData = new()
+			{
+				SourceId = connection.SourceId,
+				DestinationId = connection.DestinationId,
+				ConnectionType = connection.Type,
+				DistancePc = connection.DistancePc,
+			};
+			connections.Add(connectionData);
+		}
+
+		HashSet<string> orphanIds = new(StringComparer.Ordinal);
+		foreach (string orphanId in result.OrphanIds)
+		{
+			orphanIds.Add(orphanId);
+		}
+
+		return new JumpRouteBackgroundResult(systems, connections, orphanIds);
+	}
+
+	private static JumpLaneSystem CloneJumpLaneSystem(JumpLaneSystem source)
+	{
+		JumpLaneSystem copy = new(source.Id, source.Position, source.Population);
+		copy.FalsePopulation = source.FalsePopulation;
+		copy.IsBridge = source.IsBridge;
+		copy.TravellerProfile = CloneTravellerProfile(source.TravellerProfile);
+		copy.CanExportColonists = source.CanExportColonists;
+		copy.ExportPressure = source.ExportPressure;
+		copy.ColonyTargetScore = source.ColonyTargetScore;
+		copy.ColonyTargetCapacity = source.ColonyTargetCapacity;
+		copy.ColonizationRangePc = source.ColonizationRangePc;
+		copy.RouteTechnologyLevel = source.RouteTechnologyLevel;
+		copy.ExportBodyId = source.ExportBodyId;
+		copy.ColonyTargetBodyId = source.ColonyTargetBodyId;
+		copy.ExportCivilizationId = source.ExportCivilizationId;
+		copy.ExportCivilizationName = source.ExportCivilizationName;
+		return copy;
+	}
+
+	private static TravellerSystemProfile? CloneTravellerProfile(TravellerSystemProfile? source)
+	{
+		if (source == null)
+		{
+			return null;
+		}
+
+		return TravellerSystemProfile.FromDictionary(source.ToDictionary());
 	}
 }

@@ -117,7 +117,9 @@ public static class MoonGenerator
                 context,
                 spec.GenerationSeed,
                 populationOverride,
-                parentBody);
+                parentBody,
+                spec.UseCaseSettings);
+            CopyConceptPipelineState(body);
         }
 
         return body;
@@ -263,5 +265,19 @@ public static class MoonGenerator
 
         int randomPart = (int)(rng.Randi() % 1_000_000u);
         return GeneratorUtils.GenerateIdFromRandomPart("moon", randomPart);
+    }
+
+    private static void CopyConceptPipelineState(CelestialBody body)
+    {
+        if (body.PopulationData == null)
+        {
+            return;
+        }
+
+        body.EnvironmentProfile = body.PopulationData.EnvironmentProfile;
+        body.Ecology = body.PopulationData.EcologyState;
+        body.SpeciesEvolution = body.PopulationData.SpeciesEvolution;
+        body.Sentience = body.PopulationData.SentienceAssessment;
+        body.Disease = body.PopulationData.DiseaseState;
     }
 }

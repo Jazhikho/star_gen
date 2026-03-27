@@ -10,17 +10,18 @@ It is aimed at science-fiction worldbuilding, setting design, and procedural exp
 - Explore generated results in viewers with scientific and worldbuilding readouts.
 - Save and load generated content.
 - Use Traveller-oriented world profile support where available.
-- Open the Concept Atlas to experiment with in-development ecology, religion, civilisation, language, disease, and evolution tools in a standalone sandbox.
+- Open the Concept Atlas to experiment with in-development ecology, species, sentience, religion, civilisation, language, and disease tools.
 
 ## Current Status
 
-StarGen is in active development. The core generation and viewer flow is working, but many areas are still being expanded or refined.
+StarGen `0.8.0.0` is the current public release baseline.
 
 - The galaxy, system, and object studios are the main supported entry points.
-- Stations are present as an in-progress studio and broader population/station systems exist in the project.
-- The Concept Atlas is a tool in development. It is intended to grow into a realistic, user-adjustable set of worldbuilding models, but for now it should be treated as a standalone exploration surface rather than a fully integrated simulation layer.
+- The station studio now uses the production station-generation flow rather than a placeholder shell.
+- The Concept Atlas remains available from the main menu as an in-development worldbuilding tool.
+- The concept pipeline now follows a deterministic dependency chain from environment through ecology, species, sentience, and downstream society layers.
 
-The current user-facing version is `0.7.0.0`. Detailed version history and patch notes live in [VERSION.md](VERSION.md).
+The current release version is `0.8.0.0`. Detailed version history and patch notes live in [VERSION.md](VERSION.md).
 
 ## Running StarGen
 
@@ -43,6 +44,12 @@ Run the main automated checks with:
 ```bash
 dotnet build StarGen.sln
 godot-mono.exe --path . --headless --script res://Tests/RunTestsHeadless.gd
+```
+
+To regenerate the current life-and-settlement baseline outside the main test suite, run:
+
+```bash
+godot-mono.exe --path . --headless --script res://Tests/Baselines/RunLifeDistributionBaseline.gd
 ```
 
 ## Project Docs

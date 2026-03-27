@@ -1,3 +1,5 @@
+using StarGen.Domain.Generation;
+
 namespace StarGen.Domain.Population;
 
 /// <summary>
@@ -31,17 +33,23 @@ public static class PopulationLikelihood
     /// <summary>
     /// Estimates the native-life likelihood.
     /// </summary>
-    public static double EstimateNativeLikelihood(PlanetProfile profile)
+    public static double EstimateNativeLikelihood(PlanetProfile profile, GenerationUseCaseSettings? useCaseSettings = null)
     {
-        return PopulationProbability.CalculateNativeProbability(profile);
+        double permissiveness = ResolveLifePermissiveness(useCaseSettings);
+        return PopulationProbability.CalculateNativeProbability(profile, permissiveness);
     }
 
     /// <summary>
     /// Estimates the colony likelihood.
     /// </summary>
-    public static double EstimateColonyLikelihood(PlanetProfile profile, ColonySuitability suitability)
+    public static double EstimateColonyLikelihood(
+        PlanetProfile profile,
+        ColonySuitability suitability,
+        GenerationUseCaseSettings? useCaseSettings = null,
+        ColonyPressureContext? pressureContext = null)
     {
-        return PopulationProbability.CalculateColonyProbability(profile, suitability);
+        double permissiveness = GenerationUseCaseSettings.NeutralPermissiveness;
+        return PopulationProbability.CalculateColonyProbability(profile, suitability, permissiveness, pressureContext);
     }
 
     /// <summary>
@@ -58,9 +66,17 @@ public static class PopulationLikelihood
     /// <summary>
     /// Returns whether natives should be generated.
     /// </summary>
-    public static bool ShouldGenerateNatives(PlanetProfile profile, long populationSeed)
+    public static bool ShouldGenerateNatives(
+        PlanetProfile profile,
+        long populationSeed,
+        GenerationUseCaseSettings? useCaseSettings = null)
     {
-        double likelihood = EstimateNativeLikelihood(profile);
+        if (ShouldGuaranteeNatives(profile, useCaseSettings))
+        {
+            return true;
+        }
+
+        double likelihood = EstimateNativeLikelihood(profile, useCaseSettings);
         if (likelihood <= 0.0)
         {
             return false;
@@ -76,9 +92,11 @@ public static class PopulationLikelihood
     public static bool ShouldGenerateColony(
         PlanetProfile profile,
         ColonySuitability suitability,
-        long populationSeed)
+        long populationSeed,
+        GenerationUseCaseSettings? useCaseSettings = null,
+        ColonyPressureContext? pressureContext = null)
     {
-        double likelihood = EstimateColonyLikelihood(profile, suitability);
+        double likelihood = EstimateColonyLikelihood(profile, suitability, useCaseSettings, pressureContext);
         if (likelihood <= 0.0)
         {
             return false;
@@ -86,6 +104,49 @@ public static class PopulationLikelihood
 
         double roll = DeriveRollValue(populationSeed, ColonyRollSalt);
         return roll < likelihood;
+    }
+
+    private static double ResolveLifePermissiveness(GenerationUseCaseSettings? useCaseSettings)
+    {
+        if (useCaseSettings == null)
+        {
+            return GenerationUseCaseSettings.NeutralPermissiveness;
+        }
+
+        return useCaseSettings.LifePermissiveness;
+    }
+
+    private static bool ShouldGuaranteeNatives(
+        PlanetProfile profile,
+        GenerationUseCaseSettings? useCaseSettings)
+    {
+        if (!profile.HasLiquidWater)
+        {
+            return false;
+        }
+
+        if (profile.HabitabilityScore < 8)
+        {
+            return false;
+        }
+
+        if (profile.RadiationLevel >= 0.95)
+        {
+            return false;
+        }
+
+        double permissiveness = ResolveLifePermissiveness(useCaseSettings);
+        if (permissiveness <= 0.25 && profile.HabitabilityScore >= 8)
+        {
+            return true;
+        }
+
+        if (profile.HabitabilityScore >= 9)
+        {
+            return true;
+        }
+
+        return false;
     }
 
     private static long MixSeed(long seedValue, long saltValue)

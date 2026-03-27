@@ -106,38 +106,6 @@ public partial class MainApp
 	}
 
 	/// <summary>
-	/// GDScript-compatible galaxy-viewer concept-atlas wrapper.
-	/// </summary>
-	public void _on_galaxy_concept_atlas_requested(int starSeed, Vector3 worldPosition)
-	{
-		OnGalaxyConceptAtlasRequested(starSeed, worldPosition);
-	}
-
-	/// <summary>
-	/// GDScript-compatible system-viewer concept-atlas wrapper.
-	/// </summary>
-	public void _on_system_concept_atlas_requested(Variant bodyVariant)
-	{
-		GodotObject? bodyObject = bodyVariant.AsGodotObject();
-		if (bodyObject != null)
-		{
-			OnSystemConceptAtlasRequested(bodyObject);
-		}
-	}
-
-	/// <summary>
-	/// GDScript-compatible object-viewer concept-atlas wrapper.
-	/// </summary>
-	public void _on_object_concept_atlas_requested(Variant bodyVariant, int starSeed = 0)
-	{
-		GodotObject? bodyObject = bodyVariant.AsGodotObject();
-		if (bodyObject != null)
-		{
-			OnObjectConceptAtlasRequested(bodyObject, starSeed);
-		}
-	}
-
-	/// <summary>
 	/// Returns the current object viewer instance for test compatibility.
 	/// </summary>
 	public StarGen.App.Viewer.ObjectViewer? get_object_viewer()
@@ -148,9 +116,9 @@ public partial class MainApp
 	/// <summary>
 	/// Returns the current galaxy-generation screen for test compatibility.
 	/// </summary>
-	public WelcomeScreen? get_galaxy_generation_screen()
+	public GalaxyGenerationScreen? get_galaxy_generation_screen()
 	{
-		return _welcomeScreen;
+		return _galaxyGenerationScreen;
 	}
 
 	/// <summary>

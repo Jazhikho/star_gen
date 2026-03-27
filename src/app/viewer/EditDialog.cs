@@ -152,6 +152,9 @@ public partial class EditDialog : Window
 		_revertButton = GetNodeOrNull<Button>("MarginContainer/VBoxContainer/ButtonContainer/RevertButton");
 		_confirmButton = GetNodeOrNull<Button>("MarginContainer/VBoxContainer/ButtonContainer/ConfirmButton");
 		_cancelButton = GetNodeOrNull<Button>("MarginContainer/VBoxContainer/ButtonContainer/CancelButton");
+		_regenerateBtn = GetNodeOrNull<Button>("MarginContainer/VBoxContainer/ButtonContainer/RegenerateButton");
+		_saveBtn = GetNodeOrNull<Button>("MarginContainer/VBoxContainer/ButtonContainer/SaveAsButton");
+		_saveDialog = GetNodeOrNull<FileDialog>("SaveFileDialog");
 
 		if (_revertButton != null)
 			_revertButton.Pressed += OnRevertPressed;
@@ -159,7 +162,7 @@ public partial class EditDialog : Window
 			_confirmButton.Pressed += OnConfirmPressed;
 		if (_cancelButton != null)
 			_cancelButton.Pressed += OnCancelPressed;
-		SetupExtraButtons();
+		SetupActionButtons();
 	}
 
 	/// <summary>Opens the dialog for editing the given body.</summary>
@@ -839,29 +842,17 @@ public partial class EditDialog : Window
 		Hide();
 	}
 
-	private void SetupExtraButtons()
+	private void SetupActionButtons()
 	{
-		HBoxContainer? btnBox = GetNodeOrNull<HBoxContainer>("MarginContainer/VBoxContainer/ButtonContainer");
-		if (btnBox == null)
-			return;
-		_regenerateBtn = new Button
-		{
-			Text = "Regenerate Unlocked",
-			TooltipText = "Re-roll unlocked properties; locked ones stay fixed",
-			CustomMinimumSize = new Vector2(160, 35),
-		};
+		if (_regenerateBtn == null)
+			throw new InvalidOperationException("EditDialog scene is missing RegenerateButton.");
+		if (_saveBtn == null)
+			throw new InvalidOperationException("EditDialog scene is missing SaveAsButton.");
+		if (_saveDialog == null)
+			throw new InvalidOperationException("EditDialog scene is missing SaveFileDialog.");
 		_regenerateBtn.Pressed += OnRegeneratePressed;
-		btnBox.AddChild(_regenerateBtn);
-		btnBox.MoveChild(_regenerateBtn, 0);
-		_saveBtn = new Button
-		{
-			Text = "Save As\u2026",
-			TooltipText = "Save this edited body to a file",
-			CustomMinimumSize = new Vector2(100, 35),
-		};
 		_saveBtn.Pressed += OnSavePressed;
-		btnBox.AddChild(_saveBtn);
-		btnBox.MoveChild(_saveBtn, 1);
+		_saveDialog.FileSelected += OnSavePathSelected;
 	}
 
 	private void OnRegeneratePressed()
@@ -912,18 +903,9 @@ public partial class EditDialog : Window
 		if (_body == null)
 			return;
 		if (_saveDialog == null)
-		{
-			_saveDialog = new FileDialog
-			{
-				Title = "Save Edited Body",
-				FileMode = FileDialog.FileModeEnum.SaveFile,
-				Access = FileDialog.AccessEnum.Filesystem,
-			};
-			_saveDialog.Filters = SaveData.GetFileFilters(_body.Type, includeLegacy: true);
-			_saveDialog.CurrentDir = OS.GetUserDataDir();
-			_saveDialog.FileSelected += OnSavePathSelected;
-			AddChild(_saveDialog);
-		}
+			throw new InvalidOperationException("EditDialog scene is missing SaveFileDialog.");
+		_saveDialog.Filters = SaveData.GetFileFilters(_body.Type, includeLegacy: true);
+		_saveDialog.CurrentDir = OS.GetUserDataDir();
 		string rawName;
 		if (string.IsNullOrEmpty(_body.Name))
 		{

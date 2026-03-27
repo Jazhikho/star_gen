@@ -1,7 +1,11 @@
+using System.Collections.Generic;
 using Godot.Collections;
 using StarGen.Domain.Celestial;
+using StarGen.Domain.Concepts;
+using StarGen.Domain.Concepts.Pipeline;
 using StarGen.Domain.Generation;
 using StarGen.Domain.Rng;
+using StarGen.Domain.Systems;
 
 namespace StarGen.Domain.Population;
 
@@ -14,8 +18,6 @@ public static class PopulationGenerator
     private const int DefaultMaxNativePopulations = 3;
     private const int DefaultNativeMinHistoryYears = 1000;
     private const int DefaultNativeMaxHistoryYears = 50000;
-    private const int DefaultMaxAutoColonies = 2;
-    private const double DefaultColonyChance = 0.3;
     private const int DefaultColonyMinHistoryYears = 50;
     private const int DefaultColonyMaxHistoryYears = 500;
 
@@ -26,18 +28,35 @@ public static class PopulationGenerator
         CelestialBody body,
         ParentContext context,
         int generationSeed = 0,
-        CelestialBody? parentBody = null)
+        CelestialBody? parentBody = null,
+        GenerationUseCaseSettings? useCaseSettings = null)
     {
         PlanetProfile profile = ProfileGenerator.Generate(body, context, parentBody);
         ColonySuitability suitability = SuitabilityCalculator.Calculate(profile);
-
-        return new PlanetPopulationData
+        PlanetPopulationData data = new PlanetPopulationData
         {
             BodyId = body.Id,
             GenerationSeed = generationSeed,
             Profile = profile,
             Suitability = suitability,
         };
+
+        PlanetEnvironmentProfile environmentProfile = PlanetEnvironmentProfile.FromPlanetProfile(
+            profile,
+            generationSeed,
+            body.Name,
+            body.GetTypeString());
+        ConceptDependencyChainGenerator.PopulatePreSocietyStates(
+            environmentProfile,
+            out EcologyState ecologyState,
+            out SpeciesEvolutionState speciesEvolutionState,
+            out SentienceAssessment sentienceAssessment,
+            useCaseSettings);
+        data.EnvironmentProfile = environmentProfile;
+        data.EcologyState = ecologyState;
+        data.SpeciesEvolution = speciesEvolutionState;
+        data.SentienceAssessment = sentienceAssessment;
+        return data;
     }
 
     /// <summary>
@@ -48,11 +67,12 @@ public static class PopulationGenerator
         ParentContext context,
         int generationSeed = 0,
         bool generateNatives = true,
-        bool generateColonies = true,
+        bool generateColonies = false,
         CelestialBody? parentBody = null,
-        int currentYear = DefaultCurrentYear)
+        int currentYear = DefaultCurrentYear,
+        GenerationUseCaseSettings? useCaseSettings = null)
     {
-        PlanetPopulationData data = BuildProfileOnlyData(body, context, generationSeed, parentBody);
+        PlanetPopulationData data = BuildProfileOnlyData(body, context, generationSeed, parentBody, useCaseSettings);
         if (data.Profile == null || data.Suitability == null)
         {
             return data;
@@ -64,7 +84,8 @@ public static class PopulationGenerator
             generateNatives,
             generateColonies,
             currentYear,
-            data.Suitability);
+            data.Suitability,
+            useCaseSettings);
     }
 
     /// <summary>
@@ -74,9 +95,10 @@ public static class PopulationGenerator
         PlanetProfile profile,
         int generationSeed = 0,
         bool generateNatives = true,
-        bool generateColonies = true,
+        bool generateColonies = false,
         int currentYear = DefaultCurrentYear,
-        ColonySuitability? existingSuitability = null)
+        ColonySuitability? existingSuitability = null,
+        GenerationUseCaseSettings? useCaseSettings = null)
     {
         ColonySuitability suitability = existingSuitability ?? SuitabilityCalculator.Calculate(profile);
         PlanetPopulationData data = new()
@@ -87,10 +109,36 @@ public static class PopulationGenerator
             Suitability = suitability,
         };
 
-        SeededRng rng = new(generationSeed);
-        if (generateNatives)
+        PlanetEnvironmentProfile environmentProfile = PlanetEnvironmentProfile.FromPlanetProfile(
+            profile,
+            generationSeed,
+            profile.BodyId,
+            "Planet");
+        ConceptDependencyChainGenerator.PopulatePreSocietyStates(
+            environmentProfile,
+            out EcologyState ecologyState,
+            out SpeciesEvolutionState speciesEvolutionState,
+            out SentienceAssessment sentienceAssessment,
+            useCaseSettings);
+        data.EnvironmentProfile = environmentProfile;
+        data.EcologyState = ecologyState;
+        data.SpeciesEvolution = speciesEvolutionState;
+        data.SentienceAssessment = sentienceAssessment;
+
+        if (!generateNatives)
         {
-            data.NativePopulations = GenerateNatives(profile, currentYear, rng);
+            MarkNativeLifeAbsent(data);
+        }
+
+        SeededRng rng = new(generationSeed);
+        bool allowNativePopulations = generateNatives
+            && data.SentienceAssessment != null
+            && data.SentienceAssessment.Status == ConceptRunStatus.Generated
+            && data.SentienceAssessment.HasSentientLife;
+        if (allowNativePopulations)
+        {
+            data.NativePopulations = GenerateNatives(profile, currentYear, rng, true);
+            HarmonizeSentienceAssessmentWithNativePopulations(data);
         }
 
         if (generateColonies)
@@ -100,7 +148,8 @@ public static class PopulationGenerator
                 suitability,
                 data.NativePopulations,
                 currentYear,
-                rng);
+                rng,
+                useCaseSettings);
         }
 
         return data;
@@ -114,34 +163,30 @@ public static class PopulationGenerator
         ParentContext context,
         int baseSeed,
         int populationOverride = 0,
-        CelestialBody? parentBody = null)
+        CelestialBody? parentBody = null,
+        GenerationUseCaseSettings? useCaseSettings = null)
     {
         if (populationOverride == (int)PopulationLikelihood.Override.None)
         {
             return null;
         }
 
-        long populationSeed = PopulationSeeding.GeneratePopulationSeed(body.Id, baseSeed);
-        PlanetPopulationData data = BuildProfileOnlyData(body, context, (int)populationSeed, parentBody);
+        int populationSeed = unchecked((int)PopulationSeeding.GeneratePopulationSeed(body.Id, baseSeed));
+        PlanetPopulationData data = BuildProfileOnlyData(body, context, populationSeed, parentBody, useCaseSettings);
 
         bool generateNatives;
-        bool generateColony;
         if (populationOverride == (int)PopulationLikelihood.Override.ForceNatives)
         {
             generateNatives = true;
-            generateColony = false;
         }
         else if (populationOverride == (int)PopulationLikelihood.Override.ForceColony)
         {
             generateNatives = false;
-            generateColony = data.Suitability != null && data.Suitability.IsColonizable();
         }
         else
         {
-            generateNatives = data.Profile != null && PopulationLikelihood.ShouldGenerateNatives(data.Profile, populationSeed);
-            generateColony = data.Profile != null
-                && data.Suitability != null
-                && PopulationLikelihood.ShouldGenerateColony(data.Profile, data.Suitability, populationSeed);
+            generateNatives = data.Profile != null
+                && PopulationLikelihood.ShouldGenerateNatives(data.Profile, populationSeed, useCaseSettings);
         }
 
         if (data.Profile == null || data.Suitability == null)
@@ -151,18 +196,21 @@ public static class PopulationGenerator
 
         PlanetPopulationData generated = GenerateFromProfile(
             data.Profile,
-            (int)populationSeed,
+            populationSeed,
             generateNatives,
-            generateColony,
+            false,
             DefaultCurrentYear,
-            data.Suitability);
+            data.Suitability,
+            useCaseSettings);
+        generated.EnvironmentProfile = data.EnvironmentProfile;
         return generated;
     }
 
     private static Array<NativePopulation> GenerateNatives(
         PlanetProfile profile,
         int currentYear,
-        SeededRng rng)
+        SeededRng rng,
+        bool forcePopulation)
     {
         SeededRng nativeRng = rng.Fork();
         return NativePopulationGenerator.Generate(
@@ -170,7 +218,7 @@ public static class PopulationGenerator
             nativeRng,
             currentYear,
             DefaultMaxNativePopulations,
-            false,
+            forcePopulation,
             DefaultNativeMinHistoryYears,
             DefaultNativeMaxHistoryYears);
     }
@@ -180,7 +228,9 @@ public static class PopulationGenerator
         ColonySuitability suitability,
         Array<NativePopulation> existingNatives,
         int currentYear,
-        SeededRng rng)
+        SeededRng rng,
+        GenerationUseCaseSettings? useCaseSettings,
+        ColonyPressureContext? pressureContext = null)
     {
         Array<Colony> colonies = new();
         if (!suitability.IsColonizable())
@@ -189,7 +239,7 @@ public static class PopulationGenerator
         }
 
         SeededRng colonyRng = rng.Fork();
-        int colonyCount = DetermineAutoColonyCount(suitability, colonyRng);
+        int colonyCount = DetermineAutoColonyCount(profile, suitability, colonyRng, useCaseSettings, pressureContext);
         for (int index = 0; index < colonyCount; index += 1)
         {
             Colony? colony = ColonyGenerator.Generate(
@@ -212,23 +262,320 @@ public static class PopulationGenerator
         return colonies;
     }
 
-    private static int DetermineAutoColonyCount(ColonySuitability suitability, SeededRng rng)
+    private static int DetermineAutoColonyCount(
+        PlanetProfile profile,
+        ColonySuitability suitability,
+        SeededRng rng,
+        GenerationUseCaseSettings? useCaseSettings,
+        ColonyPressureContext? pressureContext = null)
     {
-        int count = 0;
-        double adjustedChance = DefaultColonyChance * (suitability.OverallScore / 50.0);
-        adjustedChance = System.Math.Clamp(adjustedChance, 0.0, 0.9);
+        double permissiveness = GenerationUseCaseSettings.NeutralPermissiveness;
 
-        if (rng.Randf() < adjustedChance)
+        int count = 1;
+        double adjustedChance = PopulationProbability.CalculateColonyProbability(profile, suitability, permissiveness, pressureContext);
+        int maxColonies = 1 + (int)System.Math.Round(3.0 * permissiveness);
+        double additionalChance = adjustedChance * Lerp(0.12, 0.40, permissiveness);
+        while (count < maxColonies && rng.Randf() < additionalChance)
         {
-            count = 1;
-            double additionalChance = adjustedChance * 0.3;
-            while (count < DefaultMaxAutoColonies && rng.Randf() < additionalChance)
-            {
-                count += 1;
-                additionalChance *= 0.3;
-            }
+            count += 1;
+            additionalChance *= Lerp(0.18, 0.45, permissiveness);
         }
 
         return count;
+    }
+
+    /// <summary>
+    /// Rebuilds colony generation for every populated body in a completed solar system.
+    /// </summary>
+    public static void RebuildColoniesForSystem(
+        SolarSystem? system,
+        GenerationUseCaseSettings? useCaseSettings = null,
+        NativeSystemPressureSummary? nearbySystemSummary = null,
+        int currentYear = DefaultCurrentYear)
+    {
+        if (system == null)
+        {
+            return;
+        }
+
+        NativeSystemPressureSummary externalSummary = nearbySystemSummary ?? NativeSystemPressureSummary.Empty;
+        List<CelestialBody> nativeSourceBodies = GetNativeSourceBodies(system);
+        List<CelestialBody> targetBodies = GetColonyTargetBodies(system);
+
+        foreach (CelestialBody body in targetBodies)
+        {
+            PlanetPopulationData data = body.PopulationData!;
+            if (data.Profile == null || data.Suitability == null)
+            {
+                continue;
+            }
+
+            ColonyPressureContext pressureContext = BuildColonyPressureContext(system, body, nativeSourceBodies, externalSummary);
+            bool shouldGenerateColony = PopulationLikelihood.ShouldGenerateColony(
+                data.Profile,
+                data.Suitability,
+                data.GenerationSeed,
+                useCaseSettings,
+                pressureContext);
+
+            data.Colonies.Clear();
+            if (shouldGenerateColony)
+            {
+                SeededRng rng = new(data.GenerationSeed);
+                data.Colonies = GenerateColonies(
+                    data.Profile,
+                    data.Suitability,
+                    data.NativePopulations,
+                    currentYear,
+                    rng,
+                    useCaseSettings,
+                    pressureContext);
+            }
+
+            data.Population = data.GetTotalPopulation();
+            data.IsActive = data.GetTotalPopulation() > 0;
+        }
+    }
+
+    private static double Lerp(double minValue, double maxValue, double factor)
+    {
+        return minValue + ((maxValue - minValue) * factor);
+    }
+
+    private static List<CelestialBody> GetNativeSourceBodies(SolarSystem system)
+    {
+        List<CelestialBody> nativeBodies = new();
+        foreach (CelestialBody body in system.Bodies.Values)
+        {
+            if (!body.HasPopulationData() || body.PopulationData == null || !body.PopulationData.HasExtantNatives())
+            {
+                continue;
+            }
+
+            nativeBodies.Add(body);
+        }
+
+        nativeBodies.Sort((left, right) => string.CompareOrdinal(left.Id, right.Id));
+        return nativeBodies;
+    }
+
+    private static List<CelestialBody> GetColonyTargetBodies(SolarSystem system)
+    {
+        List<CelestialBody> targetBodies = new();
+        foreach (CelestialBody body in system.Bodies.Values)
+        {
+            if (!body.HasPopulationData() || body.PopulationData == null)
+            {
+                continue;
+            }
+
+            targetBodies.Add(body);
+        }
+
+        targetBodies.Sort((left, right) => string.CompareOrdinal(left.Id, right.Id));
+        return targetBodies;
+    }
+
+    private static ColonyPressureContext BuildColonyPressureContext(
+        SolarSystem system,
+        CelestialBody targetBody,
+        List<CelestialBody> nativeSourceBodies,
+        NativeSystemPressureSummary nearbySystemSummary)
+    {
+        List<(double DistanceAu, string BodyId, CelestialBody Body)> orderedSources = new();
+        foreach (CelestialBody sourceBody in nativeSourceBodies)
+        {
+            double distanceAu = CalculateNativeDistanceAu(system, targetBody, sourceBody);
+            orderedSources.Add((distanceAu, sourceBody.Id, sourceBody));
+        }
+
+        orderedSources.Sort((left, right) =>
+        {
+            int distanceComparison = left.DistanceAu.CompareTo(right.DistanceAu);
+            if (distanceComparison != 0)
+            {
+                return distanceComparison;
+            }
+
+            return string.CompareOrdinal(left.BodyId, right.BodyId);
+        });
+
+        int localNativeWorldCount = 0;
+        double rawLocalPressure = 0.0;
+        foreach ((double distanceAu, string _, CelestialBody sourceBody) in orderedSources)
+        {
+            double distanceFactor = CalculateDistanceFactor(system, targetBody, sourceBody, distanceAu);
+            if (distanceFactor <= 0.0)
+            {
+                continue;
+            }
+
+            localNativeWorldCount += 1;
+            int nativePopulation = sourceBody.PopulationData!.GetNativePopulation();
+            double populationFactor = NormalizePopulation(nativePopulation);
+            rawLocalPressure += distanceFactor * populationFactor;
+        }
+
+        return new ColonyPressureContext
+        {
+            LocalNativeWorldCount = localNativeWorldCount,
+            LocalNativePressure = 1.0 - System.Math.Exp(-rawLocalPressure * 0.85),
+            NearbyNativeWorldCount = nearbySystemSummary.NativeWorldCount,
+            NearbySystemNativePressure = System.Math.Clamp(nearbySystemSummary.PressureSignal, 0.0, 1.0),
+        };
+    }
+
+    private static double CalculateNativeDistanceAu(SolarSystem system, CelestialBody targetBody, CelestialBody sourceBody)
+    {
+        if (targetBody.Id == sourceBody.Id)
+        {
+            return 0.0;
+        }
+
+        double targetAnchorAu = ResolveStarAnchorDistanceAu(system, targetBody);
+        double sourceAnchorAu = ResolveStarAnchorDistanceAu(system, sourceBody);
+        return System.Math.Abs(targetAnchorAu - sourceAnchorAu);
+    }
+
+    private static double ResolveStarAnchorDistanceAu(SolarSystem system, CelestialBody body)
+    {
+        if (!body.HasOrbital() || body.Orbital == null)
+        {
+            return 0.0;
+        }
+
+        if (body.Type == CelestialType.Type.Moon && !string.IsNullOrWhiteSpace(body.Orbital.ParentId))
+        {
+            CelestialBody? parentBody = system.GetBody(body.Orbital.ParentId);
+            if (parentBody != null && parentBody.HasOrbital() && parentBody.Orbital != null)
+            {
+                return parentBody.Orbital.SemiMajorAxisM / 149597870700.0;
+            }
+        }
+
+        return body.Orbital.SemiMajorAxisM / 149597870700.0;
+    }
+
+    private static double CalculateDistanceFactor(
+        SolarSystem system,
+        CelestialBody targetBody,
+        CelestialBody sourceBody,
+        double distanceAu)
+    {
+        if (targetBody.Id == sourceBody.Id)
+        {
+            return 1.0;
+        }
+
+        double distanceFactor = 1.0 - System.Math.Clamp(distanceAu / 12.0, 0.0, 1.0);
+        if (SharesSameParentBody(targetBody, sourceBody))
+        {
+            distanceFactor = System.Math.Max(distanceFactor, 0.90);
+        }
+        else if (IsParentChildPair(targetBody, sourceBody))
+        {
+            distanceFactor = System.Math.Max(distanceFactor, 0.85);
+        }
+        else if (OrbitsDifferentParents(system, targetBody, sourceBody))
+        {
+            distanceFactor *= 0.75;
+        }
+
+        return System.Math.Clamp(distanceFactor, 0.0, 1.0);
+    }
+
+    private static bool SharesSameParentBody(CelestialBody left, CelestialBody right)
+    {
+        if (!left.HasOrbital() || left.Orbital == null || !right.HasOrbital() || right.Orbital == null)
+        {
+            return false;
+        }
+
+        if (string.IsNullOrWhiteSpace(left.Orbital.ParentId) || string.IsNullOrWhiteSpace(right.Orbital.ParentId))
+        {
+            return false;
+        }
+
+        return left.Orbital.ParentId == right.Orbital.ParentId;
+    }
+
+    private static bool IsParentChildPair(CelestialBody left, CelestialBody right)
+    {
+        if (!left.HasOrbital() || left.Orbital == null || !right.HasOrbital() || right.Orbital == null)
+        {
+            return false;
+        }
+
+        return left.Orbital.ParentId == right.Id || right.Orbital.ParentId == left.Id;
+    }
+
+    private static bool OrbitsDifferentParents(SolarSystem system, CelestialBody left, CelestialBody right)
+    {
+        double leftAnchorAu = ResolveStarAnchorDistanceAu(system, left);
+        double rightAnchorAu = ResolveStarAnchorDistanceAu(system, right);
+        return System.Math.Abs(leftAnchorAu - rightAnchorAu) > 0.0;
+    }
+
+    private static double NormalizePopulation(int nativePopulation)
+    {
+        if (nativePopulation <= 0)
+        {
+            return 0.35;
+        }
+
+        return 0.35 + (0.65 * System.Math.Clamp(System.Math.Log10(nativePopulation + 1.0) / 9.0, 0.0, 1.0));
+    }
+
+    private static void MarkNativeLifeAbsent(PlanetPopulationData data)
+    {
+        string reason = "Native life did not emerge for this world under the current generation assumptions.";
+
+        EcologyState ecologyState = new EcologyState();
+        ecologyState.Status = ConceptRunStatus.NotApplicable;
+        ecologyState.StatusReason = reason;
+        if (data.EcologyState != null)
+        {
+            ecologyState.Provenance = data.EcologyState.Provenance;
+        }
+        data.EcologyState = ecologyState;
+
+        SpeciesEvolutionState speciesEvolutionState = new SpeciesEvolutionState();
+        speciesEvolutionState.Status = ConceptRunStatus.NotApplicable;
+        speciesEvolutionState.StatusReason = reason;
+        if (data.SpeciesEvolution != null)
+        {
+            speciesEvolutionState.Provenance = data.SpeciesEvolution.Provenance;
+        }
+        data.SpeciesEvolution = speciesEvolutionState;
+
+        SentienceAssessment sentienceAssessment = new SentienceAssessment();
+        sentienceAssessment.Status = ConceptRunStatus.NotApplicable;
+        sentienceAssessment.StatusReason = reason;
+        if (data.SentienceAssessment != null)
+        {
+            sentienceAssessment.Provenance = data.SentienceAssessment.Provenance;
+        }
+        data.SentienceAssessment = sentienceAssessment;
+    }
+
+    private static void HarmonizeSentienceAssessmentWithNativePopulations(PlanetPopulationData data)
+    {
+        if (data.NativePopulations.Count <= 0)
+        {
+            return;
+        }
+
+        if (data.SentienceAssessment == null)
+        {
+            data.SentienceAssessment = new SentienceAssessment();
+        }
+
+        data.SentienceAssessment.Status = ConceptRunStatus.Generated;
+        if (string.IsNullOrWhiteSpace(data.SentienceAssessment.CandidateSpeciesName))
+        {
+            data.SentienceAssessment.CandidateSpeciesName = data.NativePopulations[0].Name;
+        }
+
+        data.SentienceAssessment.StatusReason = "Sentience assessment and native population generation both confirm a sentient lineage on this world.";
     }
 }

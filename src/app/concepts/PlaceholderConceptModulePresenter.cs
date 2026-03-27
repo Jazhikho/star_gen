@@ -22,6 +22,12 @@ public sealed class PlaceholderConceptModulePresenter : IConceptModulePresenter
     /// <inheritdoc />
     public ConceptRunResult Run(ConceptRunRequest request)
     {
+        string bodyText = request.Context.BodyName;
+        if (string.IsNullOrEmpty(bodyText))
+        {
+            bodyText = "Manual";
+        }
+
         return new ConceptRunResult
         {
             Title = Descriptor.DisplayName,
@@ -41,7 +47,7 @@ public sealed class PlaceholderConceptModulePresenter : IConceptModulePresenter
                     Items = new List<string>
                     {
                         "Source: " + request.Context.SourceLabel,
-                        "Body: " + (string.IsNullOrEmpty(request.Context.BodyName) ? "Manual" : request.Context.BodyName),
+                        "Body: " + bodyText,
                         "Biome: " + request.Context.DominantBiome,
                     },
                 },

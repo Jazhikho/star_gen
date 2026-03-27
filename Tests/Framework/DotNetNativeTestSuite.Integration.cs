@@ -43,6 +43,7 @@ public static partial class DotNetNativeTestSuite
         TestObjectGenerationStudio.RunAll(runner);
         TestObjectViewerMoons.RunAll(runner);
         TestMainMenuScreen.RunAll(runner);
+        TestSplashScreen.RunAll(runner);
         TestStudioScreenLayoutHelper.RunAll(runner);
         TestViewerLayoutHelper.RunAll(runner);
         TestGalaxyViewerUI.RunAll(runner);
@@ -50,6 +51,7 @@ public static partial class DotNetNativeTestSuite
         TestStationDesignIntegration.RunAll(runner);
         TestSystemViewer.RunAll(runner);
         TestSystemViewerSaveLoad.RunAll(runner);
+        TestGalaxyGenerationScreen.RunAll(runner);
     }
 
     /// <summary>
@@ -65,6 +67,5 @@ public static partial class DotNetNativeTestSuite
         TestMainAppNavigation.RunAll(runner);
         TestStarSystemPreviewIntegration.RunAll(runner);
         TestSystemCameraController.RunAll(runner);
-        TestWelcomeScreen.RunAll(runner);
     }
 }

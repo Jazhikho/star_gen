@@ -11,7 +11,9 @@ public partial class ObjectViewer
 {
 	private const int FileMenuSaveId = 1;
 	private const int FileMenuLoadId = 2;
-	private const int FileMenuReturnId = 3;
+	private const int FileMenuNewObjectId = 3;
+	private const int FileMenuMainMenuId = 4;
+	private const int FileMenuReturnId = 5;
 	private const int EditMenuGenerateId = 10;
 	private const int EditMenuRerollId = 11;
 	private const int EditMenuEditBodyId = 12;
@@ -93,17 +95,25 @@ public partial class ObjectViewer
 		popup.SetItemDisabled(popup.ItemCount - 1, GetCurrentSaveTargetBody() == null);
 		popup.AddItem("Load...", FileMenuLoadId);
 		popup.AddSeparator();
-		popup.AddItem(GetReturnMenuText(), FileMenuReturnId);
-		popup.SetItemDisabled(popup.ItemCount - 1, !_backNavigationVisible);
+		popup.AddItem("New Object...", FileMenuNewObjectId);
+		popup.AddItem("Return to Main Menu", FileMenuMainMenuId);
+		if (_backNavigationVisible)
+		{
+			popup.AddSeparator();
+			popup.AddItem(GetReturnMenuText(), FileMenuReturnId);
+		}
 	}
 
 	private void RebuildEditMenu(PopupMenu popup)
 	{
 		bool hasBody = GetCurrentTargetBody() != null;
 		popup.Clear();
-		popup.AddItem("Generate", EditMenuGenerateId);
-		popup.AddItem("Re-roll", EditMenuRerollId);
-		popup.AddSeparator();
+		if (_generationActionsVisible)
+		{
+			popup.AddItem("Generate", EditMenuGenerateId);
+			popup.AddItem("Re-roll", EditMenuRerollId);
+			popup.AddSeparator();
+		}
 		popup.AddItem("Edit Current Object...", EditMenuEditBodyId);
 		popup.SetItemDisabled(popup.ItemCount - 1, !hasBody);
 	}
@@ -163,6 +173,18 @@ public partial class ObjectViewer
 			return;
 		}
 
+		if (id == FileMenuNewObjectId)
+		{
+			EmitSignal(SignalName.NewObjectRequested);
+			return;
+		}
+
+		if (id == FileMenuMainMenuId)
+		{
+			EmitSignal(SignalName.BackToMainMenuRequested);
+			return;
+		}
+
 		if (id == FileMenuReturnId)
 		{
 			OnBackPressed();
@@ -173,12 +195,22 @@ public partial class ObjectViewer
 	{
 		if (id == EditMenuGenerateId)
 		{
+			if (!_generationActionsVisible)
+			{
+				return;
+			}
+
 			OnGeneratePressed();
 			return;
 		}
 
 		if (id == EditMenuRerollId)
 		{
+			if (!_generationActionsVisible)
+			{
+				return;
+			}
+
 			OnRerollPressed();
 			return;
 		}

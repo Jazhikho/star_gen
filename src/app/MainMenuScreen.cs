@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using Godot;
+using StarGen.App.Shared;
 using StarGen.Services.Persistence;
 
 namespace StarGen.App;
@@ -32,6 +33,7 @@ public partial class MainMenuScreen : Control
 		Overview,
 		Help,
 		Credits,
+		Sources,
 		ReleaseNotes,
 		Options,
 	}
@@ -45,6 +47,7 @@ public partial class MainMenuScreen : Control
 	private Button? _conceptAtlasButton;
 	private Button? _helpButton;
 	private Button? _creditsButton;
+	private Button? _sourcesButton;
 	private Button? _releaseNotesButton;
 	private Button? _optionsButton;
 	private Button? _quitButton;
@@ -64,6 +67,8 @@ public partial class MainMenuScreen : Control
 	private Window? _infoDialog;
 	private RichTextLabel? _infoDialogText;
 	private Window? _optionsDialog;
+	private Button? _infoDialogCloseButton;
+	private Button? _optionsDialogCloseButton;
 
 	/// <summary>
 	/// Initializes menu wiring and static content.
@@ -145,6 +150,7 @@ public partial class MainMenuScreen : Control
 		_conceptAtlasButton = GetNodeOrNull<Button>($"{Root}/HBoxContainer/ModesPanel/MarginContainer/ModesVBox/ModeCards/CardConceptAtlas/MarginContainer/VBoxContainer/ConceptAtlasButton");
 		_helpButton = GetNodeOrNull<Button>($"{Root}/HBoxContainer/UtilityRow/UtilityPanel/MarginContainer/UtilityVBox/SecondaryButtons/HelpButton");
 		_creditsButton = GetNodeOrNull<Button>($"{Root}/HBoxContainer/UtilityRow/UtilityPanel/MarginContainer/UtilityVBox/SecondaryButtons/CreditsButton");
+		_sourcesButton = GetNodeOrNull<Button>($"{Root}/HBoxContainer/UtilityRow/UtilityPanel/MarginContainer/UtilityVBox/SecondaryButtons/SourcesButton");
 		_releaseNotesButton = GetNodeOrNull<Button>($"{Root}/HBoxContainer/UtilityRow/UtilityPanel/MarginContainer/UtilityVBox/SecondaryButtons/ReleaseNotesButton");
 		_optionsButton = GetNodeOrNull<Button>($"{Root}/HBoxContainer/UtilityRow/UtilityPanel/MarginContainer/UtilityVBox/SecondaryButtons/OptionsButton");
 		_quitButton = GetNodeOrNull<Button>($"{Root}/HBoxContainer/UtilityRow/UtilityPanel/MarginContainer/UtilityVBox/QuitButton");
@@ -161,6 +167,36 @@ public partial class MainMenuScreen : Control
 		_resolutionOption = GetNodeOrNull<OptionButton>($"{Root}/HBoxContainer/UtilityRow/ContentPanel/MarginContainer/ContentStack/OptionsPanel/OptionsVBox/ResolutionRow/ResolutionOption");
 		_applyOptionsButton = GetNodeOrNull<Button>($"{Root}/HBoxContainer/UtilityRow/ContentPanel/MarginContainer/ContentStack/OptionsPanel/OptionsVBox/ApplyOptionsButton");
 		_optionsStatusLabel = GetNodeOrNull<Label>($"{Root}/HBoxContainer/UtilityRow/ContentPanel/MarginContainer/ContentStack/OptionsPanel/OptionsVBox/OptionsStatusLabel");
+		_infoDialog = GetNodeOrNull<Window>("InfoDialog");
+		_infoDialogText = GetNodeOrNull<RichTextLabel>("InfoDialog/MarginContainer/InfoVBox/InfoDialogText");
+		_infoDialogCloseButton = GetNodeOrNull<Button>("InfoDialog/MarginContainer/InfoVBox/CloseButton");
+		_optionsDialog = GetNodeOrNull<Window>("OptionsDialog");
+		if (_fullscreenCheck == null)
+		{
+			_fullscreenCheck = GetNodeOrNull<CheckButton>("OptionsDialog/MarginContainer/OptionsVBox/FullscreenCheck");
+		}
+
+		if (_showSeedControlsCheck == null)
+		{
+			_showSeedControlsCheck = GetNodeOrNull<CheckButton>("OptionsDialog/MarginContainer/OptionsVBox/ShowSeedControlsCheck");
+		}
+
+		if (_resolutionOption == null)
+		{
+			_resolutionOption = GetNodeOrNull<OptionButton>("OptionsDialog/MarginContainer/OptionsVBox/ResolutionRow/ResolutionOption");
+		}
+
+		if (_applyOptionsButton == null)
+		{
+			_applyOptionsButton = GetNodeOrNull<Button>("OptionsDialog/MarginContainer/OptionsVBox/ApplyOptionsButton");
+		}
+
+		if (_optionsStatusLabel == null)
+		{
+			_optionsStatusLabel = GetNodeOrNull<Label>("OptionsDialog/MarginContainer/OptionsVBox/OptionsStatusLabel");
+		}
+
+		_optionsDialogCloseButton = GetNodeOrNull<Button>("OptionsDialog/MarginContainer/OptionsVBox/CloseButton");
 	}
 
 	private void ConnectSignals()
@@ -172,10 +208,13 @@ public partial class MainMenuScreen : Control
 		if (_conceptAtlasButton != null) _conceptAtlasButton.Connect(Button.SignalName.Pressed, Callable.From(OnConceptAtlasButtonPressed));
 		if (_helpButton != null) _helpButton.Connect(Button.SignalName.Pressed, Callable.From(OnHelpButtonPressed));
 		if (_creditsButton != null) _creditsButton.Connect(Button.SignalName.Pressed, Callable.From(OnCreditsButtonPressed));
+		if (_sourcesButton != null) _sourcesButton.Connect(Button.SignalName.Pressed, Callable.From(OnSourcesButtonPressed));
 		if (_releaseNotesButton != null) _releaseNotesButton.Connect(Button.SignalName.Pressed, Callable.From(OnReleaseNotesButtonPressed));
 		if (_optionsButton != null) _optionsButton.Connect(Button.SignalName.Pressed, Callable.From(OnOptionsButtonPressed));
 		if (_quitButton != null) _quitButton.Connect(Button.SignalName.Pressed, Callable.From(OnQuitButtonPressed));
 		if (_applyOptionsButton != null) _applyOptionsButton.Connect(Button.SignalName.Pressed, Callable.From(ApplyWindowSettings));
+		if (_infoDialogCloseButton != null && _infoDialog != null) _infoDialogCloseButton.Pressed += _infoDialog.Hide;
+		if (_optionsDialogCloseButton != null && _optionsDialog != null) _optionsDialogCloseButton.Pressed += _optionsDialog.Hide;
 		if (_fullscreenCheck != null) _fullscreenCheck.Toggled += enabled =>
 		{
 			if (_resolutionOption != null)
@@ -187,7 +226,7 @@ public partial class MainMenuScreen : Control
 
 	private void PopulateStaticText()
 	{
-			string version = ProjectSettings.GetSetting("application/config/version", "0.7.0.0").AsString();
+		string version = UserFacingVersionHelper.GetDisplayVersion();
 		if (_versionLabel != null)
 		{
 			_versionLabel.Text = $"Version {version}";
@@ -202,11 +241,12 @@ public partial class MainMenuScreen : Control
 		{
 			_helpText.Text =
 				"How to use StarGen\n\n" +
-				"- Galaxy Studio: Configure a galaxy profile first, then open the galaxy viewer to explore sectors and star systems.\n\n" +
-				"- System Studio: Set stellar counts, seed, and Traveller assumptions before opening the system viewer.\n\n" +
+				"- Galaxy Studio: Configure galaxy shape, generation rules, and worldbuilding assumptions before generating the galaxy viewer.\n\n" +
+				"- System Studio: Set stellar counts, seed, and worldbuilding assumptions before opening the system viewer.\n\n" +
 				"- Object Studio: Choose a star, planet, moon, or asteroid preset before launching the object viewer.\n\n" +
-				"- Station Studio: Open the in-progress station tool to configure individualized space stations.\n\n" +
-				"- Concept Atlas: Open the standalone concept tool in development from the main menu or inspector surfaces to explore ecology, civilisation, language, religion, disease, and evolution layers. The long-term goal is realistic, user-adjustable worldbuilding models grounded in the same seed-driven context.";
+				"- Station Studio: Configure an individual station concept and review the current station workflow.\n\n" +
+				"- Concept Atlas: Explore ecology, civilisation, language, religion, disease, and evolution layers as a worldbuilding tool in development.\n\n" +
+				"- Sources: Review the astronomy and worldbuilding references currently guiding the generator's assumptions.";
 		}
 
 		if (_creditsText != null)
@@ -214,9 +254,10 @@ public partial class MainMenuScreen : Control
 			_creditsText.Text =
 				"Credits\n\n" +
 				"Design and direction: Jazhikho\n\n" +
-				"AI assistance: OpenAI Codex / GPT models and Anthropic Claude were used under human direction for exploration, drafting, refactoring, testing support, UI copy iteration, and documentation/provenance upkeep. Human review remained responsible for design, realism, licensing, and release decisions.\n\n" +
-				"App icon (Galaxy): Freepik (Flaticon). Used under Flaticon License; attribution required. See Docs/Assets.md.\n\n" +
-				"StarGen uses astronomy and worldbuilding references for its generation parameters. See the project's Sources folder for further reading.";
+				"AI assistance: OpenAI Codex / GPT models, Anthropic Claude, and Cursor were used under human direction for exploration, drafting, refactoring, testing support, UI copy iteration, documentation/provenance upkeep, and focused implementation assistance. Human review remained responsible for design, realism, licensing, and release decisions.\n\n" +
+				"App icon: Galaxy icon by Freepik via Flaticon, used with attribution.\n\n" +
+				"Music: \"Thus Spoke Zarathustra\" (Introduction / Sunrise), adapted from the Kevin MacLeod source archived on Free Music Archive.\n\n" +
+				"Astronomy and worldbuilding references can be reviewed from Sources on the main menu.";
 		}
 
 		if (_releaseNotesText != null)
@@ -260,6 +301,11 @@ public partial class MainMenuScreen : Control
 		ShowPanel(ContentPanel.Credits);
 	}
 
+	private void OnSourcesButtonPressed()
+	{
+		ShowPanel(ContentPanel.Sources);
+	}
+
 	private void OnReleaseNotesButtonPressed()
 	{
 		ShowPanel(ContentPanel.ReleaseNotes);
@@ -281,110 +327,24 @@ public partial class MainMenuScreen : Control
 	private static string GetReleaseNotesContent()
 	{
 		return
-				"Version 0.7.0.0\n\n" +
-			"- Current showcase branch milestone: the user-facing `0.7.0.0` label remains in place while the concept tools stay presented as a standalone atlas in development.\n" +
-			"- Refined the showcase presentation with a Generation Studios entry for Concept Atlas, clearer help and credits copy, sentence-case concept display text, and scroll-safe atlas navigation.\n" +
-			"- Broader simulation and persistence integration for concept layers is deferred until applicability rules, realism controls, and tuning are ready.\n" +
-			"- Cultural, religious, language, civilisation, and species-facing outputs remain subject to explicit human audit before public release sign-off.\n\n" +
-				"Version 0.6.1.0\n\n" +
-			"- Post-review showcase patch cycle: removed automatic concept generation from the normal generation, save/load, preview, and viewer pipelines so the Concept Atlas remains a standalone feature for now.\n" +
-			"- Replaced the system-view `Concept Layers` overview with populated-world shortcuts that jump the current selection and camera.\n" +
-			"- Keeps the atlas context-aware and sandbox-friendly while avoiding misleading main-pipeline concept coverage on worlds that should not yet generate those layers.\n" +
-			"- Cultural, religious, language, civilisation, and species-facing outputs remain subject to explicit human audit before public release sign-off.\n\n" +
-				"Version 0.6.0.0\n\n" +
-			"- Release 1 showcase milestone: every selected concept prototype is now accessible inside StarGen through the Concept Atlas and relevant viewer inspection surfaces.\n" +
-			"- Keeps the digital-humanities framing subtle in-app while making the atlas a reliable demonstration surface for ecology, civilisation, language, religion, disease, and evolution layers.\n" +
-			"- Marks the atlas as a tool in development, intended to grow into realistic, user-adjustable worldbuilding models.\n" +
-			"- Cultural, religious, language, civilisation, and species-facing outputs remain subject to explicit human audit before public release sign-off.\n\n" +
-				"Version 0.5.8.0\n\n" +
-			"- Added Concept Atlas launch points from galaxy, system, and object inspection surfaces so showcase visitors can move directly from generated worlds into the concept layers.\n" +
-			"- Added context-aware atlas return navigation so the atlas sends users back to the originating viewer instead of always resetting to the main menu.\n" +
-			"- Added regression coverage for inspector-driven atlas launch paths across the main app and the viewer surfaces.\n\n" +
-				"Version 0.5.7.0\n\n" +
-			"- Folded the evolution concept into the Concept Atlas with deterministic lineage, trait, and species-profile generation driven by environmental pressures.\n" +
-			"- Added atlas-specific deterministic regression coverage for the evolution presenter.\n\n" +
-				"Version 0.5.6.0\n\n" +
-			"- Folded the disease concept into the Concept Atlas with deterministic outbreak traits, symptom bundles, and epidemic summary metrics derived from world and population context.\n" +
-			"- Added atlas-specific deterministic regression coverage for the disease presenter.\n\n" +
-				"Version 0.5.5.0\n\n" +
-			"- Folded the language concept into the Concept Atlas with deterministic phonology, grammar, lexicon, and sample utterance generation for showcase-ready cultural presentation.\n" +
-			"- Added atlas-specific deterministic regression coverage for the language presenter.\n\n" +
-				"Version 0.5.4.0\n\n" +
-			"- Folded the civilisation concept into the Concept Atlas with deterministic polity, economy, culture, and timeline summaries seeded from StarGen population context.\n" +
-			"- Added atlas-specific deterministic regression coverage for the civilisation presenter.\n\n" +
-				"Version 0.5.3.0\n\n" +
-			"- Folded the religion concept into the Concept Atlas with deterministic belief-system generation, doctrine and landscape summaries, and context-seeded atlas readouts.\n" +
-			"- Added atlas-specific deterministic regression coverage for the religion presenter.\n\n" +
-				"Version 0.5.2.0\n\n" +
-			"- Folded the ecology concept into the Concept Atlas with deterministic environment-to-food-web generation, trophic metrics, and highlighted niche summaries.\n" +
-			"- Added atlas-specific concept regression coverage for the ecology presenter.\n\n" +
-				"Version 0.5.1.0\n\n" +
-			"- Added the first Concept Atlas shell, including shared concept context/provenance plumbing, a manual sandbox input surface, and a main-menu entry point for the concept fold-in work.\n" +
-			"- Added initial regression coverage for the new Concept Atlas menu and navigation path.\n\n" +
-				"Version 0.5.0.0\n\n" +
-			"- First public release since 0.3.0, rolling up the internal 0.4.x work into a single release build.\n" +
-			"- Adds config-first galaxy, system, and object studios; Traveller-aligned launch settings and UWP/world-profile readouts; and broad UI/navigation polish.\n" +
-			"- Folds detailed station design into the main population framework with deterministic presets, classification, persistence, export, regression fixtures, and a Station Studio entry point marked as in-progress.\n\n" +
-				"Version 0.4.3.5\n\n" +
-			"- Fixed the main-menu scene/script mismatch after the recent layout rewrite so the studio buttons and utility actions work again.\n" +
-			"- Added direct main-menu integration coverage for mode-button signal wiring and fallback utility dialogs.\n\n" +
-				"Version 0.4.3.4\n\n" +
-			"- Reformatted the AI provenance log into readable sectioned entries, documented the 640 px minimum supported UI width, and aligned wrap-ready controls with sensible minimum widths.\n" +
-			"- Fixed object-viewer main-menu return routing after recent menu changes and updated the stale system-viewer Traveller-controls regression to match the current slider UI.\n" +
-			"- Added wrap minimum sizes across the main menu, splash, studios, station placeholder, object viewer file info, and edit-dialog validation labels so wrapped text stays readable instead of stretching layouts.\n\n" +
-				"Version 0.4.3.3\n\n" +
-			"- Removed the studio launch-summary clutter, tightened studio chrome at smaller window sizes, and kept launch actions reachable in the footer.\n" +
-			"- Hid studio seeds behind the Options preference, rerolled hidden seeds on fresh launches, and exposed the placeholder Station Studio entry point on the main menu.\n" +
-			"- Kept the galaxy viewer on a single `New Galaxy...` path and marked windowed-resolution behavior for post-release build verification.\n\n" +
-			"Version 0.4.3.2\n\n" +
-			"- Moved viewer menus below the header row, removed duplicate header-level return affordances from the object/system viewers, and kept return navigation menu-scoped.\n" +
-			"- Fixed Traveller object-generation edge cases so fully auto Traveller worlds avoid the blank all-zero profile, optional feature controls read `Auto / Yes / No`, and viewer summaries show `None` instead of `Forbidden`.\n" +
-			"- Renamed permissiveness controls to `Life Potential` and `Settlement Density`, applied Traveller-leaning defaults across galaxy/system/object flows, and added regression coverage for the updated navigation and Traveller launch paths.\n\n" +
-			"Version 0.4.3.1\n\n" +
-			"- Reworked the launch studio layouts to stack responsively on narrower windows and added summary-panel scrolling.\n" +
-			"- Moved more explanatory copy into tooltips, trimmed oversized labels, and reduced fixed chrome across the menu and splash screens.\n" +
-			"- Added shared studio-layout regression coverage so the responsive structure stays intact.\n\n" +
-			"Version 0.4.3.0\n\n" +
-			"- Reworked object generation into an explicit spec builder, added Traveller planet profile generation/UWP output, and moved UWP world-profile readouts to the top of the inspector.\n\n" +
-			"Version 0.4.2.3\n\n" +
-			"- Fixed window and fullscreen settings to apply to the active root window immediately.\n" +
-			"- Relaxed the galaxy studio split layout so the parameter panel has more breathing room at typical desktop widths.\n" +
-			"- Added direct window-application regression coverage for windowed and fullscreen mode changes.\n\n" +
-			"Version 0.4.2.2\n\n" +
-			"- Moved galaxy parameter editing fully into the Galaxy Generation Studio.\n" +
-			"- Converted the galaxy viewer profile area into a read-only active-profile summary and added a dedicated main-menu return action.\n" +
-			"- Expanded the object viewer inspector to surface richer world, orbit, population, and Traveller context already present in generated bodies.\n\n" +
-			"Version 0.4.2.1\n\n" +
-			"- Fixed compact station-design reloads to preserve non-default design spec fields.\n" +
-			"- Fixed detailed hull-band sizing to use the generated station class.\n" +
-			"- Added regression coverage for legacy scalar reloads and explicit small-class hull mapping.\n\n" +
-			"Version 0.4.2.0\n\n" +
-			"- Folded detailed station design into the main station framework.\n" +
-			"- Added deterministic classification, persistence, export, and regression coverage for station designs.\n" +
-			"- Retired the SpaceStationBuilder prototype and synced roadmap and project structure docs.\n\n" +
-			"Version 0.4.1.1\n\n" +
-			"- Added a regression test for galaxy star snapshots surviving garbage collection.\n" +
-			"- Consolidated the 0.4.0 MVP scope and Traveller integration notes into the active docs set.\n\n" +
-			"Version 0.4.1.0\n\n" +
-			"- Reworked the app entry flow around dedicated galaxy, system, and object generation studios.\n" +
-			"- Main-menu launches now open viewers with generated content instead of empty setup states.\n\n" +
-			"Version 0.4.0.1\n\n" +
-			"- Fixed galaxy-sector star snapshot lifetime so returned stars remain valid under full headless test runs.\n" +
-			"- Added regression coverage for detached galaxy-sector star snapshots.\n\n" +
-			"Version 0.4.0\n\n" +
-				"- New Main Menu and Release Notes.\n" +
-				"- Save/load: save and load body files (.sgt, .sgp, .sga, .sgb) and system files (.sgs) from the object and system viewers.\n" +
-				"- Gas giant variety: gas giants in the system viewer now use varied archetypes and per-planet variation.\n" +
-				"- Edit and save: edit a body in the object viewer (Edit dialog) and save as file; optional Traveller UWP size code in the editor.\n\n" +
-			"Version 0.2.0\n\n" +
-				"- Asteroid belt generation and rendering in the system viewer.\n" +
-				"- Scientific calibration: GenerationRealismProfile, benchmarks, ensemble harness, and distribution tests.\n" +
-				"- Belt renderer and generator integration; OrbitSlotGenerator, OrbitalMechanics, StellarConfigGenerator, and SystemValidator updates.\n" +
-				"- GalaxyInspectorPanel and test suite updates. Removed Concepts/AsteroidBelt demo scenes and Tests/RunGalaxyTests.gd.\n\n" +
-			"Version 0.1.0\n\n" +
-				"- First unofficial release.\n" +
-				"- Object and system viewers; galaxy data model and viewer (welcome screen, GalaxyConfig, density models, save/load).\n" +
-				"- Population framework, stations, and jump lanes (domain and prototype).";
+			"Version 0.8.0.0\n\n" +
+			"- Replaced the timer-based splash with the root intro video, a clean fade into the StarGen logo, and skip behavior that still resolves through the branded transition.\n" +
+			"- Kept startup audio wiring local to the splash and auto-loads the single root `.ogg` intro track when exactly one is present.\n" +
+			"- Added a fade-to-black handoff from the splash into the main menu.\n" +
+			"- Kept Concept Atlas entry on the main menu while removing non-menu launch paths.\n" +
+			"- Replaced the Station Studio placeholder with the production station generation flow and live detail views.\n" +
+			"- Reworked Galaxy Studio around clearer shape controls, separated generation rules, and a stronger active-profile summary.\n" +
+			"- Life Potential now shapes generation, while colonization settings have moved into simulation tooling.\n\n" +
+			"Version 0.7.0.0\n\n" +
+			"- Added the Concept Atlas as a standalone tool for ecology, civilisation, language, religion, disease, and evolution exploration.\n" +
+			"- Brought the first deterministic concept-tool baseline into the main application.\n\n" +
+			"Version 0.6.0.0\n\n" +
+			"- Brought the first showcase set of concept tools into StarGen.\n" +
+			"- Framed the atlas as a worldbuilding tool in development rather than a final simulation layer.\n\n" +
+			"Version 0.5.0.0\n\n" +
+			"- Expanded the current studio lineup with galaxy, system, object, and station entry points.\n" +
+			"- Added Traveller-aligned launch settings, world-profile readouts, and broad navigation polish.\n" +
+			"- Introduced the station studio entry point and deterministic station-design support.";
 	}
 
 	private void PopulateResolutionOptions()
@@ -403,6 +363,12 @@ public partial class MainMenuScreen : Control
 
 	private void ShowPanel(ContentPanel panel)
 	{
+		if (panel == ContentPanel.Sources)
+		{
+			ShowFallbackPanel(panel);
+			return;
+		}
+
 		if (!HasEmbeddedContentPanels())
 		{
 			ShowFallbackPanel(panel);
@@ -475,6 +441,12 @@ public partial class MainMenuScreen : Control
 			return;
 		}
 
+		if (panel == ContentPanel.Sources)
+		{
+			ShowInfoDialog("Sources", BuildSourcesFallbackText());
+			return;
+		}
+
 		if (panel == ContentPanel.ReleaseNotes)
 		{
 			ShowInfoDialog("Release Notes", _releaseNotesText?.Text ?? GetReleaseNotesContent());
@@ -489,7 +461,6 @@ public partial class MainMenuScreen : Control
 
 	private void ShowInfoDialog(string title, string body)
 	{
-		EnsureInfoDialog();
 		if (_infoDialog == null || _infoDialogText == null)
 		{
 			return;
@@ -497,177 +468,34 @@ public partial class MainMenuScreen : Control
 
 		_infoDialog.Title = title;
 		_infoDialogText.Text = body;
-		_infoDialog.PopupCentered(new Vector2I(720, 520));
-	}
-
-	private void EnsureInfoDialog()
-	{
-		if (_infoDialog != null)
-		{
-			return;
-		}
-
-		Window dialog = new();
-		dialog.Name = "InfoDialog";
-		dialog.Title = "Information";
-		dialog.MinSize = new Vector2I(520, 360);
-		dialog.Transient = true;
-		dialog.Exclusive = true;
-
-		MarginContainer margin = new();
-		margin.AnchorRight = 1.0f;
-		margin.AnchorBottom = 1.0f;
-		margin.OffsetLeft = 0.0f;
-		margin.OffsetTop = 0.0f;
-		margin.OffsetRight = 0.0f;
-		margin.OffsetBottom = 0.0f;
-		margin.AddThemeConstantOverride("margin_left", 16);
-		margin.AddThemeConstantOverride("margin_top", 16);
-		margin.AddThemeConstantOverride("margin_right", 16);
-		margin.AddThemeConstantOverride("margin_bottom", 16);
-
-		VBoxContainer vbox = new();
-		vbox.SizeFlagsHorizontal = Control.SizeFlags.ExpandFill;
-		vbox.SizeFlagsVertical = Control.SizeFlags.ExpandFill;
-		vbox.AddThemeConstantOverride("separation", 12);
-
-		RichTextLabel text = new();
-		text.SizeFlagsHorizontal = Control.SizeFlags.ExpandFill;
-		text.SizeFlagsVertical = Control.SizeFlags.ExpandFill;
-		text.FitContent = false;
-		text.ScrollActive = true;
-		text.SelectionEnabled = true;
-		text.AutowrapMode = TextServer.AutowrapMode.WordSmart;
-		text.CustomMinimumSize = new Vector2(360.0f, 0.0f);
-
-		Button closeButton = new();
-		closeButton.Text = "Close";
-		closeButton.Pressed += dialog.Hide;
-
-		vbox.AddChild(text);
-		vbox.AddChild(closeButton);
-		margin.AddChild(vbox);
-		dialog.AddChild(margin);
-		AddChild(dialog);
-
-		_infoDialog = dialog;
-		_infoDialogText = text;
+		ShowWindow(_infoDialog, new Vector2I(720, 520));
 	}
 
 	private void ShowOptionsDialog()
 	{
-		EnsureOptionsDialog();
 		RefreshOptionsState();
 		if (_optionsDialog != null)
 		{
-			_optionsDialog.PopupCentered(new Vector2I(520, 320));
+			ShowWindow(_optionsDialog, new Vector2I(520, 320));
 		}
 	}
 
-	private void EnsureOptionsDialog()
+	private static void ShowWindow(Window window, Vector2I size)
 	{
-		if (_optionsDialog != null)
-		{
-			return;
-		}
-
-		Window dialog = new();
-		dialog.Name = "OptionsDialog";
-		dialog.Title = "Options";
-		dialog.MinSize = new Vector2I(460, 260);
-		dialog.Transient = true;
-		dialog.Exclusive = true;
-
-		MarginContainer margin = new();
-		margin.AnchorRight = 1.0f;
-		margin.AnchorBottom = 1.0f;
-		margin.OffsetLeft = 0.0f;
-		margin.OffsetTop = 0.0f;
-		margin.OffsetRight = 0.0f;
-		margin.OffsetBottom = 0.0f;
-		margin.AddThemeConstantOverride("margin_left", 16);
-		margin.AddThemeConstantOverride("margin_top", 16);
-		margin.AddThemeConstantOverride("margin_right", 16);
-		margin.AddThemeConstantOverride("margin_bottom", 16);
-
-		VBoxContainer optionsVBox = new();
-		optionsVBox.SizeFlagsHorizontal = Control.SizeFlags.ExpandFill;
-		optionsVBox.SizeFlagsVertical = Control.SizeFlags.ExpandFill;
-		optionsVBox.AddThemeConstantOverride("separation", 10);
-
-		CheckButton fullscreenCheck = new();
-		fullscreenCheck.Text = "Fullscreen";
-
-		CheckButton showSeedControlsCheck = new();
-		showSeedControlsCheck.Text = "Show studio seed controls";
-
-		HBoxContainer resolutionRow = new();
-		resolutionRow.AddThemeConstantOverride("separation", 10);
-
-		Label resolutionLabel = new();
-		resolutionLabel.Text = "Resolution";
-		resolutionLabel.SizeFlagsHorizontal = Control.SizeFlags.ExpandFill;
-
-		OptionButton resolutionOption = new();
-		resolutionOption.CustomMinimumSize = new Vector2(180.0f, 0.0f);
-
-		Button applyButton = new();
-		applyButton.Text = "Apply Display Settings";
-
-		Label statusLabel = new();
-		statusLabel.AutowrapMode = TextServer.AutowrapMode.Word;
-		statusLabel.CustomMinimumSize = new Vector2(220.0f, 0.0f);
-
-		Button closeButton = new();
-		closeButton.Text = "Close";
-		closeButton.Pressed += dialog.Hide;
-
-		resolutionRow.AddChild(resolutionLabel);
-		resolutionRow.AddChild(resolutionOption);
-		optionsVBox.AddChild(fullscreenCheck);
-		optionsVBox.AddChild(showSeedControlsCheck);
-		optionsVBox.AddChild(resolutionRow);
-		optionsVBox.AddChild(applyButton);
-		optionsVBox.AddChild(statusLabel);
-		optionsVBox.AddChild(closeButton);
-		margin.AddChild(optionsVBox);
-		dialog.AddChild(margin);
-		AddChild(dialog);
-
-		_optionsDialog = dialog;
-		_fullscreenCheck = fullscreenCheck;
-		_showSeedControlsCheck = showSeedControlsCheck;
-		_resolutionOption = resolutionOption;
-		_applyOptionsButton = applyButton;
-		_optionsStatusLabel = statusLabel;
-
-		PopulateResolutionOptions();
-		if (_applyOptionsButton != null)
-		{
-			_applyOptionsButton.Pressed += ApplyWindowSettings;
-		}
-
-		if (_fullscreenCheck != null)
-		{
-			_fullscreenCheck.Toggled += enabled =>
-			{
-				if (_resolutionOption != null)
-				{
-					_resolutionOption.Disabled = enabled;
-				}
-			};
-		}
+		window.Size = size;
+		window.Visible = true;
 	}
 
 	private static string BuildHelpFallbackText()
 	{
 		return
 			"How to use StarGen\n\n" +
-			"- Galaxy Studio: Configure a galaxy profile first, then open the galaxy viewer to explore sectors and star systems.\n\n" +
-			"- System Studio: Set stellar counts, seed, and Traveller assumptions before opening the system viewer.\n\n" +
+			"- Galaxy Studio: Configure galaxy shape, generation rules, and worldbuilding assumptions before generating the galaxy viewer.\n\n" +
+			"- System Studio: Set stellar counts, seed, and worldbuilding assumptions before opening the system viewer.\n\n" +
 			"- Object Studio: Choose a star, planet, moon, or asteroid preset before launching the object viewer.\n\n" +
-			"- Station Studio: Open the in-progress station tool to configure individualized space stations.\n\n" +
-			"- Concept Atlas: Open the standalone concept tool in development from the main menu or inspector surfaces to explore ecology, civilisation, language, religion, disease, and evolution layers. The long-term goal is realistic, user-adjustable worldbuilding models grounded in the same seed-driven context.";
+			"- Station Studio: Configure an individual station concept and review the current station workflow.\n\n" +
+			"- Concept Atlas: Explore ecology, civilisation, language, religion, disease, and evolution layers as a worldbuilding tool in development.\n\n" +
+			"- Sources: Review the astronomy and worldbuilding references currently guiding the generator's assumptions.";
 	}
 
 	private static string BuildCreditsFallbackText()
@@ -675,9 +503,22 @@ public partial class MainMenuScreen : Control
 		return
 			"Credits\n\n" +
 			"Design and direction: Jazhikho\n\n" +
-			"AI assistance: OpenAI Codex / GPT models and Anthropic Claude were used under human direction for exploration, drafting, refactoring, testing support, UI copy iteration, and documentation/provenance upkeep. Human review remained responsible for design, realism, licensing, and release decisions.\n\n" +
-			"App icon (Galaxy): Freepik (Flaticon). Used under Flaticon License; attribution required. See Docs/Assets.md.\n\n" +
-			"StarGen uses astronomy and worldbuilding references for its generation parameters. See the project's Sources folder for further reading.";
+			"AI assistance: OpenAI Codex / GPT models, Anthropic Claude, and Cursor were used under human direction for exploration, drafting, refactoring, testing support, UI copy iteration, documentation/provenance upkeep, and focused implementation assistance. Human review remained responsible for design, realism, licensing, and release decisions.\n\n" +
+			"App icon: Galaxy icon by Freepik via Flaticon, used with attribution.\n\n" +
+			"Music: \"Thus Spoke Zarathustra\" (Introduction / Sunrise), adapted from the Kevin MacLeod source archived on Free Music Archive.\n\n" +
+			"Astronomy and worldbuilding references can be reviewed from Sources on the main menu.";
+	}
+
+	private static string BuildSourcesFallbackText()
+	{
+		return
+			"Sources\n\n" +
+			"StarGen's galaxy-morphology defaults are currently informed by astronomy reviews and structure papers, including:\n\n" +
+			"- Bland-Hawthorn and Gerhard (2016) on Milky Way structure and context.\n" +
+			"- van der Kruit and Freeman (2011) on galaxy disks.\n" +
+			"- Wegg and Gerhard (2013) on the Galactic bulge.\n" +
+			"- Conselice (2014) on galaxy structure over cosmic time.\n\n" +
+			"These source notes are provided so you can review what the current assumptions are based on while the generator continues to be refined.";
 	}
 
 	private void ApplyWindowSettings()

@@ -1,4 +1,5 @@
 using Godot;
+using StarGen.Domain.Colonization;
 using StarGen.Domain.Galaxy;
 using StarGen.Domain.Jumplanes;
 
@@ -178,6 +179,32 @@ public partial class GalaxyViewer
 
 	/// <summary>Refreshes jump-route renderer and control state.</summary>
 	public void RefreshJumpRoutePresentationState() => UpdateJumpRoutePresentation();
+
+	/// <summary>Returns the currently visible explicit jump-route region id.</summary>
+	public string? GetVisibleJumpRouteRegionId() => GetCurrentJumpRouteRegionId();
+
+	/// <summary>Returns the current colonization-simulation settings.</summary>
+	public ColonizationSimulationSettings GetColonizationSimulationSettings()
+	{
+		GalaxyInspectorPanel? inspectorPanel = GetInspectorPanel();
+		if (inspectorPanel != null)
+		{
+			_colonizationSimulationSettings = inspectorPanel.GetColonizationSimulationSettings();
+		}
+
+		return _colonizationSimulationSettings.Clone();
+	}
+
+	/// <summary>Sets the current colonization-simulation settings.</summary>
+	public void SetColonizationSimulationSettings(ColonizationSimulationSettings settings)
+	{
+		_colonizationSimulationSettings = settings?.Clone() ?? ColonizationSimulationSettings.CreateDefault();
+		GalaxyInspectorPanel? inspectorPanel = GetInspectorPanel();
+		if (inspectorPanel != null)
+		{
+			inspectorPanel.SetColonizationSimulationSettings(_colonizationSimulationSettings);
+		}
+	}
 
 	/// <summary>Triggers jump-route calculation for the current subsector.</summary>
 	public void CalculateJumpRoutesForCurrentSubsector()

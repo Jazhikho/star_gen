@@ -1,8 +1,10 @@
 using Godot;
 using Godot.Collections;
+using System.Threading.Tasks;
 using StarGen.Domain.Celestial;
 using StarGen.Domain.Concepts;
 using StarGen.Domain.Celestial.Serialization;
+using StarGen.Domain.Colonization;
 using StarGen.Domain.Galaxy;
 using StarGen.Domain.Generation;
 using StarGen.Domain.Systems;
@@ -20,19 +22,34 @@ public partial class MainApp
     /// <summary>
     /// Handles splash-screen completion.
     /// </summary>
-    private void OnSplashFinished()
+    private async void OnSplashFinished()
     {
+        if (_startupTransitionRunning)
+        {
+            return;
+        }
+
+        if (!IsInsideTree() || _startupTransitionRect == null)
+        {
+            ShowMainMenu();
+            return;
+        }
+
+        _startupTransitionRunning = true;
+        await TweenStartupFadeToAlpha(1.0f);
         ShowMainMenu();
+        await TweenStartupFadeToAlpha(0.0f);
+        _startupTransitionRunning = false;
     }
 
-    /// <summary>
-    /// Opens the galaxy-generation screen from the main menu.
-    /// </summary>
-    private void OnMainMenuGalaxyGenerationRequested()
-    {
-        _welcomeScreen?.SetNavigationVisibility(showBackButton: true, showQuitButton: false);
-        ShowWelcomeScreen();
-    }
+	/// <summary>
+	/// Opens the galaxy-generation screen from the main menu.
+	/// </summary>
+	private void OnMainMenuGalaxyGenerationRequested()
+	{
+		_galaxyGenerationScreen?.SetNavigationVisibility(showBackButton: true, showQuitButton: false);
+		ShowGalaxyGenerationScreen();
+	}
 
     /// <summary>
     /// Opens the standalone system generator from the main menu.
@@ -58,42 +75,42 @@ public partial class MainApp
         ShowObjectGenerationScreen();
     }
 
-    /// <summary>
-    /// Handles startup-screen start requests.
-    /// </summary>
-    private void OnWelcomeStartNewGalaxy(GalaxyConfig config, int seedValue)
-    {
-        CreateGalaxyViewer(seedValue, config);
-        ShowGalaxyViewer();
-    }
+	/// <summary>
+	/// Handles galaxy-studio start requests.
+	/// </summary>
+	private void OnGalaxyGenerationStarted(GalaxyConfig config, int seedValue)
+	{
+		CreateGalaxyViewer(seedValue, config);
+		ShowGalaxyViewer();
+	}
 
-    /// <summary>
-    /// Handles startup-screen load requests.
-    /// </summary>
-    private void OnWelcomeLoadGalaxyRequested()
-    {
-        FileDialog dialog = new()
+	/// <summary>
+	/// Handles galaxy-studio load requests.
+	/// </summary>
+	private void OnGalaxyLoadRequested()
+	{
+		FileDialog dialog = new()
         {
             FileMode = FileDialog.FileModeEnum.OpenFile,
             Access = FileDialog.AccessEnum.Userdata,
             Filters = new string[] { "*.sgg ; StarGen Galaxy", "*.json ; JSON Debug" },
-        };
-        dialog.FileSelected += path =>
-        {
-            OnWelcomeLoadFileSelected(path);
-            dialog.QueueFree();
-        };
+		};
+		dialog.FileSelected += path =>
+		{
+			OnGalaxyLoadFileSelected(path);
+			dialog.QueueFree();
+		};
         dialog.Canceled += dialog.QueueFree;
         AddChild(dialog);
         dialog.PopupCentered(new Vector2I(800, 600));
     }
 
-    /// <summary>
-    /// Handles file selection from the load dialog.
-    /// </summary>
-    private void OnWelcomeLoadFileSelected(string path)
-    {
-        GalaxySaveData? data = GalaxyPersistence.LoadAuto(path);
+	/// <summary>
+	/// Handles file selection from the galaxy load dialog.
+	/// </summary>
+	private void OnGalaxyLoadFileSelected(string path)
+	{
+		GalaxySaveData? data = GalaxyPersistence.LoadAuto(path);
         if (data == null || !data.IsValid())
         {
             GD.PushError($"MainApp: invalid or missing save file: {path}");
@@ -108,13 +125,13 @@ public partial class MainApp
         _galaxyViewer?.ApplySaveData(data);
     }
 
-    /// <summary>
-    /// Returns from the galaxy-generation screen to the main menu.
-    /// </summary>
-    private void OnWelcomeBackRequested()
-    {
-        ShowMainMenu();
-    }
+	/// <summary>
+	/// Returns from the galaxy-generation studio to the main menu.
+	/// </summary>
+	private void OnGalaxyGenerationBackRequested()
+	{
+		ShowMainMenu();
+	}
 
     /// <summary>
     /// Returns from the system-generation studio to the main menu.
@@ -132,19 +149,19 @@ public partial class MainApp
         ShowMainMenu();
     }
 
-    /// <summary>
-    /// Handles startup-screen quit requests.
-    /// </summary>
-    private void OnWelcomeQuitRequested()
-    {
-        GetTree().Quit();
-    }
+	/// <summary>
+	/// Handles app quit requests from the menu-driven screens.
+	/// </summary>
+	private void OnGalaxyGenerationQuitRequested()
+	{
+		GetTree().Quit();
+	}
 
-    /// <summary>
-    /// Returns to the startup screen for a new galaxy.
-    /// </summary>
-    private void OnNewGalaxyRequested()
-    {
+	/// <summary>
+	/// Returns to the galaxy-generation studio for a new galaxy.
+	/// </summary>
+	private void OnNewGalaxyRequested()
+	{
         RemoveFromViewerContainer(_galaxyViewer);
         if (_galaxyViewer != null)
         {
@@ -158,13 +175,23 @@ public partial class MainApp
         _currentStarPosition = Godot.Vector3.Zero;
         _systemOrigin = NavigationOrigin.None;
         _objectOrigin = NavigationOrigin.None;
-        ShowWelcomeScreen();
-    }
+		ShowGalaxyGenerationScreen();
+	}
 
     /// <summary>
     /// Returns from the galaxy viewer directly to the main menu.
     /// </summary>
     private void OnGalaxyViewerMainMenuRequested()
+    {
+        _systemOrigin = NavigationOrigin.None;
+        _objectOrigin = NavigationOrigin.None;
+        ShowMainMenu();
+    }
+
+    /// <summary>
+    /// Returns directly to the main menu from a viewer-level file menu action.
+    /// </summary>
+    private void OnViewerMainMenuRequested()
     {
         _systemOrigin = NavigationOrigin.None;
         _objectOrigin = NavigationOrigin.None;
@@ -181,7 +208,6 @@ public partial class MainApp
         _currentStarSeed = 0;
         _currentStarPosition = Godot.Vector3.Zero;
         ShowSystemViewer();
-        _systemViewer?.SetGenerationSectionVisible(false);
         _systemViewer?.GenerateSystem(spec);
     }
 
@@ -193,7 +219,6 @@ public partial class MainApp
         _systemOrigin = NavigationOrigin.None;
         _objectOrigin = NavigationOrigin.Menu;
         ShowObjectViewer();
-        _objectViewer?.SetBackNavigationVisibility(true, "Return to Main Menu", "Return to the main menu", true);
         _objectViewer?.LaunchStandaloneGeneration(request);
     }
 
@@ -254,7 +279,7 @@ public partial class MainApp
         _systemOrigin = NavigationOrigin.Menu;
         _objectOrigin = NavigationOrigin.None;
         ShowSystemViewer();
-        _systemViewer?.SetGenerationSectionVisible(false);
+        ConceptWorldStateGenerator.EnsureSystemConcepts(result.System);
         _systemViewer?.DisplaySystem(result.System);
         if (result.System.Provenance != null)
         {
@@ -270,8 +295,6 @@ public partial class MainApp
         _systemOrigin = NavigationOrigin.None;
         _objectOrigin = NavigationOrigin.Menu;
         ShowObjectViewer();
-        _objectViewer?.SetBackNavigationVisibility(true, "Return to Main Menu", "Return to the main menu", true);
-        _objectViewer?.SetGenerationSectionVisible(false);
         SaveDataLoadResult result = _objectViewer?.LoadBodyFromPath(path) ?? new SaveDataLoadResult();
         if (!result.Success)
         {
@@ -300,7 +323,9 @@ public partial class MainApp
         if (preview != null && preview.StarSeed == starSeed && preview.System != null)
         {
             system = preview.System;
+            ConceptWorldStateGenerator.EnsureSystemConcepts(system, _galaxySeed);
             ApplyOverridesToSystem(system, starSeed);
+            ApplyColonizationSimulationToSystem(system, starSeed);
             _systemCache.PutSystem(starSeed, system);
         }
         else
@@ -309,16 +334,20 @@ public partial class MainApp
             if (system == null)
             {
                 GenerationUseCaseSettings? useCaseSettings = _galaxyViewer?.GetGalaxyConfig()?.UseCaseSettings;
-                system = GenerateSystemFromSeed(starSeed, useCaseSettings);
+                system = GenerateSystemFromSeed(starSeed, useCaseSettings, worldPosition, _galaxyViewer?.GetGalaxy());
                 if (system != null)
                 {
+                    ConceptWorldStateGenerator.EnsureSystemConcepts(system, _galaxySeed);
                     ApplyOverridesToSystem(system, starSeed);
+                    ApplyColonizationSimulationToSystem(system, starSeed);
                     _systemCache.PutSystem(starSeed, system);
                 }
             }
             else
             {
+                ConceptWorldStateGenerator.EnsureSystemConcepts(system, _galaxySeed);
                 ApplyOverridesToSystem(system, starSeed);
+                ApplyColonizationSimulationToSystem(system, starSeed);
             }
         }
 
@@ -335,34 +364,32 @@ public partial class MainApp
     }
 
     /// <summary>
-    /// Opens the concept atlas from a galaxy-level star selection or preview.
-    /// </summary>
-    private void OnGalaxyConceptAtlasRequested(int starSeed, Godot.Vector3 worldPosition)
-    {
-        StarSystemPreviewData? preview = _galaxyViewer?.get_star_preview();
-        if (preview != null && preview.StarSeed == starSeed && preview.System != null)
-        {
-            ConceptContextSnapshot snapshot = ConceptContextBuilder.FromSystem(preview.System, starSeed);
-            snapshot.GalaxySeed = _galaxySeed;
-            snapshot.SourceLabel = $"{preview.System.Name} (galaxy preview)";
-            OpenConceptAtlas(snapshot, ChooseAtlasKind(snapshot), ViewerType.Galaxy);
-            return;
-        }
-
-        ConceptContextSnapshot fallback = ConceptContextBuilder.FromGalaxy(_galaxyViewer?.GetGalaxyConfig(), _galaxySeed, starSeed);
-        if (starSeed != 0)
-        {
-            fallback.SourceLabel = $"Star seed {starSeed} at ({worldPosition.X:0.0}, {worldPosition.Y:0.0}, {worldPosition.Z:0.0}) pc";
-        }
-
-        OpenConceptAtlas(fallback, ChooseAtlasKind(fallback), ViewerType.Galaxy);
-    }
-
-    /// <summary>
     /// Generates a system from a star seed.
     /// </summary>
-    private static SolarSystem? GenerateSystemFromSeed(int starSeed, GenerationUseCaseSettings? useCaseSettings = null)
+    private static SolarSystem? GenerateSystemFromSeed(
+        int starSeed,
+        GenerationUseCaseSettings? useCaseSettings = null,
+        Vector3? worldPosition = null,
+        Galaxy? galaxy = null)
     {
+        if (galaxy != null && worldPosition.HasValue)
+        {
+            GalaxyStar star = GalaxyStar.CreateWithDerivedProperties(worldPosition.Value, starSeed, galaxy.Spec);
+            SolarSystem? galaxySystem = GalaxySystemGenerator.GenerateSystem(
+                star,
+                includeAsteroids: true,
+                enablePopulation: true,
+                overrides: null,
+                useCaseSettings: useCaseSettings,
+                galaxy: galaxy);
+            if (galaxySystem != null)
+            {
+                ConceptWorldStateGenerator.EnsureSystemConcepts(galaxySystem);
+                ColonizationSimulationOverlay.ApplyToSystem(galaxySystem, starSeed, galaxy);
+                return galaxySystem;
+            }
+        }
+
         RandomNumberGenerator rng = new()
         {
             Seed = unchecked((ulong)starSeed),
@@ -380,17 +407,27 @@ public partial class MainApp
         }
 
         SolarSystemSpec spec = new(starSeed, starCount, starCount);
+        spec.GeneratePopulation = true;
         if (useCaseSettings != null)
         {
             spec.UseCaseSettings = useCaseSettings.Clone();
-            if (useCaseSettings.IsTravellerMode())
-            {
-                spec.GeneratePopulation = true;
-            }
         }
 
         SolarSystem? system = SystemFixtureGenerator.GenerateSystem(spec);
+        if (system != null)
+        {
+            ConceptWorldStateGenerator.EnsureSystemConcepts(system);
+            ColonizationSimulationOverlay.ApplyToSystem(system, starSeed, galaxy);
+        }
         return system;
+    }
+
+    /// <summary>
+    /// Applies authoritative colonization simulation state to an opened system.
+    /// </summary>
+    private void ApplyColonizationSimulationToSystem(SolarSystem system, int starSeed)
+    {
+        ColonizationSimulationOverlay.ApplyToSystem(system, starSeed, _galaxyViewer?.GetGalaxy());
     }
 
     /// <summary>
@@ -472,46 +509,7 @@ public partial class MainApp
             return;
         }
 
-        _objectViewer.SetBackNavigationVisibility(true, "Return to System Viewer", "Return to the system viewer");
-        _objectViewer.SetGenerationSectionVisible(false);
         _objectViewer.DisplayExternalBody(typedBody, moonPayload, starSeed);
-    }
-
-    /// <summary>
-    /// Opens the concept atlas for the body currently selected in the system viewer.
-    /// </summary>
-    private void OnSystemConceptAtlasRequested(GodotObject bodyObject)
-    {
-        CelestialBody? body = CoerceToCelestialBody(bodyObject);
-        if (body == null)
-        {
-            return;
-        }
-
-        SolarSystem? system = _systemViewer?.GetCurrentSystem();
-        ConceptContextSnapshot snapshot = ConceptContextBuilder.FromBody(body, system, _galaxySeed);
-        OpenConceptAtlas(snapshot, ChooseAtlasKind(snapshot), ViewerType.System);
-    }
-
-    /// <summary>
-    /// Opens the concept atlas for the current object-viewer target.
-    /// </summary>
-    private void OnObjectConceptAtlasRequested(GodotObject bodyObject, int starSeed)
-    {
-        CelestialBody? body = CoerceToCelestialBody(bodyObject);
-        if (body == null)
-        {
-            return;
-        }
-
-        SolarSystem? system = null;
-        if (_systemViewer != null && starSeed != 0 && _currentStarSeed == starSeed)
-        {
-            system = _systemViewer.GetCurrentSystem();
-        }
-
-        ConceptContextSnapshot snapshot = ConceptContextBuilder.FromBody(body, system, _galaxySeed);
-        OpenConceptAtlas(snapshot, ChooseAtlasKind(snapshot), ViewerType.Object);
     }
 
     /// <summary>
@@ -581,23 +579,28 @@ public partial class MainApp
     private void OnBodyEdited(GodotObject bodyObject, int starSeed)
     {
         CelestialBody? body = CoerceToCelestialBody(bodyObject);
-        if (body == null || starSeed == 0)
+        if (body == null)
+        {
+            return;
+        }
+
+        if (_objectOrigin == NavigationOrigin.System && _systemViewer != null)
+        {
+            SolarSystem? system = _systemViewer.GetCurrentSystem();
+            if (system != null && system.GetBody(body.Id) != null)
+            {
+                system.AddBody(body);
+                _systemViewer.DisplaySystem(system);
+            }
+        }
+
+        if (starSeed == 0)
         {
             return;
         }
 
         _bodyOverrides.SetOverride(starSeed, body);
         _systemCache.Evict(starSeed);
-
-        if (_systemViewer != null && _currentStarSeed == starSeed)
-        {
-            SolarSystem? system = _systemViewer.GetCurrentSystem();
-            if (system != null)
-            {
-                system.AddBody(body);
-                _systemViewer.DisplaySystem(system);
-            }
-        }
     }
 
     /// <summary>
@@ -620,5 +623,20 @@ public partial class MainApp
     {
         CreateGalaxyViewer(GenerateRandomSeed(), GalaxyConfig.CreateDefault());
         ShowGalaxyViewer();
+    }
+
+    /// <summary>
+    /// Tweens the startup fade overlay to the requested alpha.
+    /// </summary>
+    private async Task TweenStartupFadeToAlpha(float targetAlpha)
+    {
+        if (_startupTransitionRect == null || !IsInsideTree())
+        {
+            return;
+        }
+
+        Tween tween = CreateTween();
+        tween.TweenProperty(_startupTransitionRect, "color:a", targetAlpha, StartupScreenFadeDurationSeconds);
+        await ToSignal(tween, Tween.SignalName.Finished);
     }
 }

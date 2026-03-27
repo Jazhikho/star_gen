@@ -4,6 +4,8 @@ using System;
 using Godot;
 using Godot.Collections;
 using StarGen.Domain.Galaxy;
+using StarGen.Domain.Generation;
+using StarGen.Domain.Systems;
 using StarGen.Tests.Framework;
 
 namespace StarGen.Tests.Unit;
@@ -176,5 +178,76 @@ public static class TestStarSystemPreview
         {
             throw new InvalidOperationException("Metallicity must be positive");
         }
+    }
+
+    /// <summary>
+    /// Tests realistic use-case settings actually generate biosphere-bearing previews when life permissiveness is high.
+    /// </summary>
+    public static void TestGenerateUsesRealisticPopulationSettings()
+    {
+        GenerationUseCaseSettings settings = GenerationUseCaseSettings.CreateDefault();
+        settings.LifePermissiveness = 1.0;
+
+        GalaxyConfig config = GalaxyConfig.CreateDefault();
+        config.UseCaseSettings = settings.Clone();
+        Galaxy galaxy = new Galaxy(config, 42);
+
+        bool foundLifeBearingPreview = false;
+        Vector3 worldPosition = new Vector3(8000.0f, 0.0f, 0.0f);
+        for (int seedValue = 1; seedValue <= 400; seedValue += 1)
+        {
+            StarSystemPreviewData? result = StarSystemPreview.Generate(
+                seedValue,
+                worldPosition,
+                galaxy.Spec,
+                settings);
+            if (result != null && result.BiosphereWorldCount > 0)
+            {
+                foundLifeBearingPreview = true;
+                break;
+            }
+        }
+
+        DotNetNativeTestSuite.AssertTrue(
+            foundLifeBearingPreview,
+            "High realistic life settings should allow life-bearing galaxy previews even when sentient populations stay rare");
+    }
+
+    /// <summary>
+    /// Tests that preview generation with galaxy context matches direct system generation totals.
+    /// </summary>
+    public static void TestGenerateWithGalaxyContextMatchesSystemPopulation()
+    {
+        GenerationUseCaseSettings settings = GenerationUseCaseSettings.CreateDefault();
+        settings.LifePermissiveness = 1.0;
+
+        GalaxyConfig config = GalaxyConfig.CreateDefault();
+        config.UseCaseSettings = settings.Clone();
+        Galaxy galaxy = new Galaxy(config, 42);
+
+        int seedValue = 54321;
+        Vector3 worldPosition = new Vector3(8000.0f, 0.0f, 0.0f);
+        StarSystemPreviewData preview = StarSystemPreview.Generate(
+            seedValue,
+            worldPosition,
+            galaxy.Spec,
+            settings,
+            galaxy);
+
+        GalaxyStar star = GalaxyStar.CreateWithDerivedProperties(worldPosition, seedValue, galaxy.Spec);
+        SolarSystem system = GalaxySystemGenerator.GenerateSystem(
+            star,
+            includeAsteroids: true,
+            enablePopulation: true,
+            overrides: null,
+            useCaseSettings: settings,
+            galaxy: galaxy);
+
+        DotNetNativeTestSuite.AssertNotNull(preview, "Galaxy-context preview should be generated");
+        DotNetNativeTestSuite.AssertNotNull(system, "Direct galaxy-context system generation should succeed");
+        DotNetNativeTestSuite.AssertEqual(system.GetPlanetCount(), preview.PlanetCount, "Preview should report the direct system planet count");
+        DotNetNativeTestSuite.AssertEqual(system.GetMoonCount(), preview.MoonCount, "Preview should report the direct system moon count");
+        DotNetNativeTestSuite.AssertEqual(system.GetTotalPopulation(), preview.TotalPopulation, "Preview population should match direct system generation");
+        DotNetNativeTestSuite.AssertEqual(system.IsInhabited(), preview.IsInhabited, "Preview inhabited flag should match direct system generation");
     }
 }

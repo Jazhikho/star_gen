@@ -12,7 +12,12 @@ public static class StarSystemPreview
     /// <summary>
     /// Generates a preview for the given star seed and world position.
     /// </summary>
-    public static StarSystemPreviewData? Generate(int starSeed, Godot.Vector3 worldPosition, GalaxySpec galaxySpec, GenerationUseCaseSettings? useCaseSettings = null)
+    public static StarSystemPreviewData? Generate(
+        int starSeed,
+        Godot.Vector3 worldPosition,
+        GalaxySpec galaxySpec,
+        GenerationUseCaseSettings? useCaseSettings = null,
+        Galaxy? galaxy = null)
     {
         if (starSeed == 0 || galaxySpec == null)
         {
@@ -20,8 +25,8 @@ public static class StarSystemPreview
         }
 
         GalaxyStar star = GalaxyStar.CreateWithDerivedProperties(worldPosition, starSeed, galaxySpec);
-        bool enablePopulation = useCaseSettings != null && useCaseSettings.IsTravellerMode();
-        StarGen.Domain.Systems.SolarSystem? system = GalaxySystemGenerator.GenerateSystem(star, true, enablePopulation, null, useCaseSettings);
+        bool enablePopulation = true;
+        StarGen.Domain.Systems.SolarSystem? system = GalaxySystemGenerator.GenerateSystem(star, true, enablePopulation, null, useCaseSettings, galaxy);
         if (system == null)
         {
             return null;
@@ -43,6 +48,28 @@ public static class StarSystemPreview
             }
         }
 
+        int biosphereWorldCount = 0;
+        int sentientWorldCount = 0;
+        foreach (CelestialBody body in system.Bodies.Values)
+        {
+            if (!body.HasPopulationData() || body.PopulationData == null)
+            {
+                continue;
+            }
+
+            if (body.PopulationData.EcologyState != null
+                && body.PopulationData.EcologyState.Status == Domain.Concepts.ConceptRunStatus.Generated)
+            {
+                biosphereWorldCount += 1;
+            }
+
+            if (body.PopulationData.SentienceAssessment != null
+                && body.PopulationData.SentienceAssessment.HasSentientLife)
+            {
+                sentientWorldCount += 1;
+            }
+        }
+
         return new StarSystemPreviewData
         {
             StarSeed = starSeed,
@@ -55,6 +82,8 @@ public static class StarSystemPreview
             BeltCount = system.AsteroidBelts.Count,
             Metallicity = star.Metallicity,
             TotalPopulation = system.GetTotalPopulation(),
+            BiosphereWorldCount = biosphereWorldCount,
+            SentientWorldCount = sentientWorldCount,
             IsInhabited = system.IsInhabited(),
             System = system,
         };
