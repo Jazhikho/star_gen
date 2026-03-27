@@ -5,6 +5,7 @@ Current structure snapshot for major project folders and key entry files.
 Notes:
 - Excludes generated/cache metadata such as `.uid`, `.godot/`, `.mono/`, and `.git/`.
 - `release/` and `releases/` are local build output folders and are git-ignored.
+- `Docs/galactic_formation.md` is optional local reference material and is not tracked (see root `.gitignore`).
 
 ```
 star_gen/
@@ -23,8 +24,7 @@ star_gen/
 |   |-- ProjectStructure.md
 |   |-- RegimeChangeModel.md
 |   |-- Roadmap.md
-|   |-- TravellerWorldCreation.md
-|   `-- galactic_formation.md
+|   `-- TravellerWorldCreation.md
 |-- NuGet/
 |   `-- Migrations/
 |-- Sources/

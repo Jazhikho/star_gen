@@ -35,3 +35,6 @@ releases/
 *.tmp
 *.bak
 *.log
+
+# Local / non-repo copy of galactic formation reference (not versioned)
+Docs/galactic_formation.md
