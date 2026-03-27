@@ -12,10 +12,7 @@ Guiding principles:
 - Finish vertical slices, do not balloon scope
 - **Scientific realism is the default:** Generation is driven by scientific documentation and established ranges by default. The eventual goal is to expose the assumption levers that drive generation so users can adjust them to fit their desired outcome (e.g. hard sci-fi vs space opera vs grim frontier).
 - **Generation vs simulation is explicit:** generation establishes initial conditions from top down (galaxy → system → world, studio-driven specs and assumptions). Emergent behavior belongs in simulation tools that run bottom up from local conditions. Do not hide emergent structures inside the initial-condition generators unless the user explicitly wants that collapsed into generation.
-
-Recent refactor:
-- The core codebase has been refactored to C#; new work should favor C# implementations that fit the existing architecture.
-- Any regressions or errors introduced by this refactor are **high-priority fixes** and should be addressed before adding new features.
+  **ENGINE FIRST CODING** Where the UI is concerned especially, things that can be handled within the .tscn files should be done there rather than hardcoding it in the attached scripts, or put another way, the UI should not be created dynamically from code. Scripts should handle behaviors, not appearance.
 
 ---
 
@@ -23,9 +20,7 @@ Recent refactor:
 
 Work is organized by **async efforts** in `Docs/Roadmap.md`. Contributors pick an effort and work against master.
 
-**Efforts:** Save format and compatibility (ZSTD binary saves); Solar system constraints; System viewer rendering improvements; Object editing; Object rendering v2; Galactic generator refinement; Solar system tools; Galactic tools; Galactic polish; Jump lanes optimization and polish; Code quality & simplifications; Population detail (civilisation/regime). C# refactor is complete; galaxy data model & lazy generation is complete. See Docs/Roadmap.md for the full table (name, summary, gates) and completed efforts.
-
-**Claude:** When asked for new features, map them to the relevant effort in the roadmap. If out-of-scope for all existing efforts, add a new effort to the roadmap and do NOT implement until that effort is picked.
+**Efforts:** Save format and compatibility (ZSTD binary saves); Solar system constraints; System viewer rendering improvements; Object editing; Object rendering v2; Galactic generator refinement; Solar system tools; Galactic tools; Galactic polish; Jump lanes optimization and polish; Code quality & simplifications; Population detail (civilisation/regime). C# refactor is complete; galaxy data model & lazy generation is complete. See Docs/Roadmap.md for the full table (name, summary, gates) and completed efforts. When asked for new features, map them to the relevant effort in the roadmap. If out-of-scope for all existing efforts, add a new effort to the roadmap and do NOT implement until that effort is picked.
 
 ---
 
@@ -90,13 +85,14 @@ When proposing implementation, include:
 
 ## Versioning
 - App and release versions must follow the repository versioning method from the global agent instructions.
-- **Features:** increment by `0.0.1`
 - **Bug fixes:** increment by `0.0.0.1`
+- **Features:** increment by `0.0.1`
 - **Refactors:** increment by `0.1`
 - **Release builds:** increment by `0.1`, or by `1.0` if the release breaks previous user saves or a contributor is explicitly instructed otherwise.
+- Higher level version patches reset lower level version numbers.
 - Keep `VERSION.md`, `project.godot`, export preset version metadata, and user-facing version labels in sync whenever a version changes.
+- User facing releases are always release builds, or hot fixes built on the initial release build. Internal working versions are the only things that are incremented while working. (i.e., if the current working versions are v0.4.x, the user facing version is v0.5 in anticipation of the build's release)
 
----
 
 ## Effort discipline
 Proposed changes that do not fit any existing effort are added as a **new effort** in Docs/Roadmap.md. Each new effort should include: name, summary, gates (if any), deliverables, tests, and acceptance criteria. Do not implement until that effort is explicitly picked by a contributor.
