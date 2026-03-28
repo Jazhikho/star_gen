@@ -97,4 +97,16 @@ public static class TestStellarGenerationProfile
             DotNetNativeTestSuite.AssertNotNull(StellarScienceReferenceCatalog.GetSource(sourceId), $"Help-panel source '{sourceId}' should resolve");
         }
     }
+
+    /// <summary>
+    /// Tests that the stellar help copy explains terms and practical outcomes in plain language.
+    /// </summary>
+    public static void TestHelpCopyUsesPlainLanguage()
+    {
+        string helpText = StellarScienceReferenceCatalog.BuildHelpPanelBbCode();
+
+        DotNetNativeTestSuite.AssertTrue(helpText.Contains("What changing it does"), "Stellar help should explain practical outcomes");
+        DotNetNativeTestSuite.AssertTrue(helpText.Contains("red dwarfs"), "Stellar help should give non-experts a practical example");
+        DotNetNativeTestSuite.AssertTrue(!helpText.Contains("galactic_formation.md"), "Stellar help should not cite the internal paper");
+    }
 }

@@ -142,4 +142,17 @@ public static class TestGalaxyConfig
             DotNetNativeTestSuite.AssertNotNull(GalaxyScienceReferenceCatalog.GetSource(sourceId), $"science panel source '{sourceId}' should resolve");
         }
     }
+
+    /// <summary>
+    /// Tests that the galaxy help copy explains both terms and practical outcomes in plain language.
+    /// </summary>
+    public static void TestGalaxyScienceHelpUsesPlainLanguage()
+    {
+        string helpText = GalaxyScienceReferenceCatalog.BuildSciencePanelBbCode();
+
+        DotNetNativeTestSuite.AssertTrue(helpText.Contains("What changing it does"), "Galaxy help should explain practical outcomes");
+        DotNetNativeTestSuite.AssertTrue(helpText.Contains("heavy elements"), "Galaxy help should define metallicity in plain language");
+        DotNetNativeTestSuite.AssertTrue(helpText.Contains("Grand design"), "Galaxy help should explain spiral arm terms");
+        DotNetNativeTestSuite.AssertTrue(!helpText.Contains("galactic_formation.md"), "Galaxy help should not cite the internal paper");
+    }
 }

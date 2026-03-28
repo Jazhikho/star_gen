@@ -775,6 +775,9 @@ public static partial class DotNetNativeTestSuite
             "TestGalaxyConfig::test_galaxy_science_reference_catalog_covers_exposed_parameters",
             Tests.Unit.TestGalaxyConfig.TestGalaxyScienceReferenceCatalogCoversExposedParameters);
         runner.RunNativeTest(
+            "TestGalaxyConfig::test_galaxy_science_help_uses_plain_language",
+            Tests.Unit.TestGalaxyConfig.TestGalaxyScienceHelpUsesPlainLanguage);
+        runner.RunNativeTest(
             "TestStellarGenerationProfile::test_round_trip",
             Tests.Unit.TestStellarGenerationProfile.TestRoundTrip);
         runner.RunNativeTest(
@@ -783,6 +786,9 @@ public static partial class DotNetNativeTestSuite
         runner.RunNativeTest(
             "TestStellarGenerationProfile::test_reference_catalog_covers_exposed_parameters",
             Tests.Unit.TestStellarGenerationProfile.TestReferenceCatalogCoversExposedParameters);
+        runner.RunNativeTest(
+            "TestStellarGenerationProfile::test_help_copy_uses_plain_language",
+            Tests.Unit.TestStellarGenerationProfile.TestHelpCopyUsesPlainLanguage);
         runner.RunNativeTest(
             "TestGalaxyStar::test_derived_stars_receive_galaxy_origin_context",
             Tests.Unit.TestGalaxyStar.TestDerivedStarsReceiveGalaxyOriginContext);

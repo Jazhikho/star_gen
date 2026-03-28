@@ -72,10 +72,6 @@ public static class StellarScienceReferenceCatalog
 {
     private static readonly Dictionary<string, StellarScienceSource> Sources = new()
     {
-        ["generator-paper"] = new StellarScienceSource(
-            "generator-paper",
-            "StarGen galactic_formation.md: internal design paper for stellar population and multiplicity modeling.",
-            "Docs/galactic_formation.md"),
         ["kroupa2001"] = new StellarScienceSource(
             "kroupa2001",
             "Kroupa (2001), broken-power-law initial mass function.",
@@ -118,25 +114,24 @@ public static class StellarScienceReferenceCatalog
     {
         new StellarScienceParameterReference(
             "stellar_imf_form",
-            "IMF means initial mass function. It is the rule for how many small, medium, and large stars form. Kroupa and Chabrier are two research-backed ways to model that rule.",
-            new[] { "generator-paper", "kroupa2001", "chabrier2003" }),
+            "IMF means initial mass function: the rule for how many small, medium, and large stars form.\nKroupa and Chabrier mostly change the balance of red dwarfs versus larger stars.",
+            new[] { "kroupa2001", "chabrier2003" }),
         new StellarScienceParameterReference(
             "stellar_imf_variation_mode",
-            "Canonical keeps the same mass rule everywhere. Metallicity and age modulated lets older or more metal-poor regions shift that rule a little.",
-            new[] { "generator-paper", "li2023" }),
+            "Canonical keeps that mass mix the same everywhere.\nMetallicity and age modulated lets old or metal-poor regions shift the mix a little, so some places favor different star sizes.",
+            new[] { "li2023" }),
         new StellarScienceParameterReference(
             "stellar_isochrone_model",
-            "A stellar model turns mass, age, and chemistry into star size, heat, and brightness. MIST and PARSEC are two well-known model families.",
-            new[] { "generator-paper", "choi2016", "bressan2012" }),
+            "This is the star-evolution chart used to turn mass, age, and chemistry into brightness, heat, and size.\nSwitching models changes the exact numbers more than the big picture.",
+            new[] { "choi2016", "bressan2012" }),
         new StellarScienceParameterReference(
             "stellar_multiplicity_scale",
-            "Multiplicity means how often a star has companions. Higher values make binaries and larger star groups more common. Lower values make lone stars more common.",
-            new[] { "generator-paper", "duchene2013", "tokovinin2021", "raghavan2010" }),
+            "Multiplicity means whether stars form alone or with companions.\nRaise this for more binaries and triples.\nLower it for more lone stars.",
+            new[] { "duchene2013", "tokovinin2021", "raghavan2010" }),
     };
 
     private static readonly List<string> PanelSourceIds = new()
     {
-        "generator-paper",
         "kroupa2001",
         "chabrier2003",
         "li2023",
@@ -220,45 +215,85 @@ public static class StellarScienceReferenceCatalog
     }
 
     /// <summary>
-    /// Builds the plain-language stellar-help content displayed in the galaxy help popup.
+    /// Builds the plain-language stellar-help content displayed in the help popups.
     /// </summary>
     public static string BuildHelpPanelBbCode()
     {
         StringBuilder builder = new StringBuilder();
-        builder.AppendLine("[b]Stellar science[/b]");
-        builder.AppendLine("After StarGen places a system in a galaxy, it still has to decide what kinds of stars form there.");
+        builder.AppendLine("[b][color=#f0c46a]Star controls[/color][/b]");
+        builder.AppendLine("[color=#c8d6e5]These settings decide what kinds of stars are common, how many companion stars show up, and how star mass and age turn into brightness, size, and heat.[/color]");
         builder.AppendLine();
-        builder.AppendLine("[b]Key ideas[/b]");
-        builder.AppendLine("IMF means initial mass function. It is the rule for how many low-mass, medium-mass, and high-mass stars form.");
-        builder.AppendLine("Isochrone model means the star-evolution chart used to turn mass, age, and chemistry into brightness, size, and temperature.");
-        builder.AppendLine("Multiplicity means whether a star is alone or part of a binary, triple, or larger group.");
+
+        AppendGuideSection(
+            builder,
+            "IMF Form",
+            "IMF means initial mass function. It is the rule for how many tiny stars, Sun-like stars, and massive stars are born.",
+            "Switching IMF form changes the balance of common low-mass stars versus rarer high-mass stars. In practice, that changes how often you see long-lived red dwarfs compared with brighter, shorter-lived stars.");
+
+        AppendGuideSection(
+            builder,
+            "IMF Shift",
+            "This decides whether every region uses one fixed mass rule or whether old and metal-poor regions can tilt that rule a little.",
+            "Use canonical if you want the same mass mix everywhere. Use metallicity and age modulated if you want different parts of a galaxy to nudge star sizes in different directions.");
+
+        AppendGuideSection(
+            builder,
+            "Star Model",
+            "A star model is the chart that turns mass, age, and chemistry into temperature, brightness, and radius.",
+            "Switching between MIST and PARSEC usually changes the exact numbers, not the broad type of system. It matters most when you care about the fine details of star properties.");
+
+        AppendGuideSection(
+            builder,
+            "Companions",
+            "Multiplicity means how often stars are alone versus paired up in binaries, triples, or larger groups.",
+            "Raising this value makes multi-star systems more common. Lowering it makes single-star systems more common.");
+
+        builder.AppendLine("[b][color=#f0c46a]What StarGen actually does with this[/color][/b]");
+        builder.AppendLine("1. It chooses a mass distribution for the stars that can form.");
+        builder.AppendLine("2. It optionally lets age and metallicity nudge that distribution.");
+        builder.AppendLine("3. It turns each star's mass, age, and chemistry into visible properties.");
+        builder.AppendLine("4. It decides how often stars get companion stars and builds stable hierarchies up to the app limit.");
         builder.AppendLine();
-        builder.AppendLine("[b]How StarGen uses this[/b]");
-        builder.AppendLine("1. The stellar profile picks an IMF family.");
-        builder.AppendLine("2. Galaxy age and metallicity can leave the IMF alone or shift it a little.");
-        builder.AppendLine("3. A stellar model then turns mass, age, and chemistry into the star's visible properties.");
-        builder.AppendLine("4. Multiplicity settings decide how often systems get companion stars.");
+
+        builder.AppendLine("[b][color=#f0c46a]Model limits[/color][/b]");
+        builder.AppendLine("StarGen uses deterministic approximations shaped by these research models.");
+        builder.AppendLine("It does not ship the full raw MIST or PARSEC tables in this branch.");
         builder.AppendLine();
-        builder.AppendLine("[b]Modeling limits[/b]");
-        builder.AppendLine("StarGen uses deterministic approximations tuned to these research models. It does not ship the full raw MIST or PARSEC tables in this branch.");
-        builder.AppendLine();
-        builder.AppendLine("[b]Sources[/b]");
+
+        builder.AppendLine("[b][color=#f0c46a]Sources[/color][/b]");
         foreach (string sourceId in PanelSourceIds)
         {
             StellarScienceSource source = Sources[sourceId];
-            builder.Append("[i]");
-            builder.Append(source.Citation);
-            builder.Append("[/i]");
+            builder.Append("- ");
             if (!string.IsNullOrWhiteSpace(source.Url))
             {
-                builder.Append(" ");
+                builder.Append("[url=");
                 builder.Append(source.Url);
+                builder.Append("]");
+                builder.Append(source.Citation);
+                builder.Append("[/url]");
+            }
+            else
+            {
+                builder.Append(source.Citation);
             }
 
             builder.AppendLine();
         }
 
         return builder.ToString().TrimEnd();
+    }
+
+    private static void AppendGuideSection(StringBuilder builder, string title, string meaning, string effect)
+    {
+        builder.Append("[b]");
+        builder.Append(title);
+        builder.AppendLine("[/b]");
+        builder.Append("[color=#9cc4ff]What it means:[/color] ");
+        builder.AppendLine(meaning);
+        builder.Append("[color=#9cc4ff]What changing it does:[/color] ");
+        builder.AppendLine(effect);
+        builder.AppendLine();
     }
 
     private static StellarScienceParameterReference? FindParameterReference(string parameterId)

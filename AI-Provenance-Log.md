@@ -19,6 +19,28 @@ Use this log for significant AI-assisted artifacts in this repository.
 
 ### 2026-03-28 - Codex (GPT-5)
 
+- Task Purpose: Apply the `0.8.3.2` tooltip-formatting patch by turning the science-facing tooltip copy into multiline text so each sentence appears on its own line.
+- Input Materials Used: User request to make tooltips multiline if Godot supports it; current galaxy/system tooltip wiring and science-reference catalogs; `AGENTS.md`; `claude.md`.
+- AI Produced: Updated the galaxy and stellar science tooltip strings, related system and galaxy parameter assumption text, and the two `Help` button tooltips so sentence breaks are explicit newline breaks in the tooltip text; synced the internal patch metadata to `0.8.3.2`.
+- Human Accepted: Pending review of the in-editor tooltip presentation.
+- Human Rejected: The user implicitly rejected keeping the tooltip text as single wrapped paragraphs when a clearer sentence-per-line layout was possible.
+- Human Changed: The user specified the exact formatting behavior desired for this patch: one sentence per tooltip line.
+- Validation Method: `dotnet build StarGen.sln`.
+- Final Approver: Pending Christopher B. Del Gesso review.
+
+### 2026-03-28 - Codex (GPT-5)
+
+- Task Purpose: Apply the `0.8.3.1` help-surface patch by removing the internal `galactic_formation.md` document from the app's source lists, rewriting the galaxy and stellar help text/tooltips for non-experts, cleaning up the help-popup presentation, and adding a matching `Help` popup to System Studio.
+- Input Materials Used: User patch direction to remove `galactic_formation.md` as a source, improve the popup visuals, expand the plain-language explanations so non-experts understand what changing settings actually does, and add System Studio help; `AGENTS.md`; `claude.md`; current galaxy/system studio scenes and controllers; `GalaxyScienceReferenceCatalog`; `StellarScienceReferenceCatalog`; studio integration tests.
+- AI Produced: Reworked both science catalogs so they cite only external research sources, rewrote tooltip and popup copy around practical outcomes rather than jargon, upgraded the galaxy help window layout in `.tscn`, added a scene-owned help popup to System Studio, added non-UI unit checks for the revised help copy, and updated the studio help integration tests to cover the new system help surface.
+- Human Accepted: Pending review of the revised wording, popup presentation, and the expanded system help flow.
+- Human Rejected: The user explicitly rejected using the internal `Docs/galactic_formation.md` file as a visible help/source citation and rejected help copy that defined terms without explaining what changing the controls would do.
+- Human Changed: The user clarified that the help text must work for non-experts at roughly an eighth-grade reading level, that the tooltip copy must stay brief but still actionable, and that System Studio should expose the same kind of help entry point as Galaxy Studio.
+- Validation Method: `dotnet build StarGen.sln`; `godot-mono.exe --path . --headless --script res://Tests/RunTestsHeadless.gd` (`1768 / 1768` passed when rerun on its own after one transient Godot crash during an overlapping build/test run).
+- Final Approver: Pending Christopher B. Del Gesso review.
+
+### 2026-03-28 - Codex (GPT-5)
+
 - Task Purpose: Implement the `0.8.3.0` follow-up feature slice by checkpointing the `0.8.2.0` branch state, replacing the galaxy studio's inline science panel with a plain-language `Help` popup, adding the stellar-tier science model and controls, and removing the old `4`-star UI cap in favor of the supported `10`-star limit.
 - Input Materials Used: User-approved `StarGen 0.8.3 Plan: Checkpoint, Plain-Language Help, and Stellar-Tier Science`; `AGENTS.md`; `claude.md`; existing galaxy/system/star generation code and tests; `Docs/galactic_formation.md`; the current `0.8.2.0` branch state that had already implemented galaxy-tier science and citations.
 - AI Produced: Created a focused `0.8.2.0` checkpoint commit before feature work; moved galaxy help into a scene-owned header popup with a scrollable `RichTextLabel` and close controls; rewrote galaxy science tooltips/help in plain language for non-experts; added a shared `StellarGenerationProfile`, deterministic IMF-driven stellar mass sampling, lightweight isochrone-style stellar property lookup, and downstream profile propagation from galaxies into systems and stars; exposed stellar model controls in both Galaxy Studio and System Studio; raised the system-studio star-count UI limit from `4` to `10`; and added non-visual UI plus stellar-science regression coverage.

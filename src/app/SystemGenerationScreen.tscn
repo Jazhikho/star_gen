@@ -78,12 +78,95 @@ theme_override_constants/separation = 12
 layout_mode = 2
 text = "<- Main Menu"
 
+[node name="HelpButton" type="Button" parent="MarginContainer/ScrollContainer/Layout/HeroPanel/MarginContainer/HeroVBox/HeaderRow" unique_id=1804492876]
+layout_mode = 2
+text = "Help"
+
 [node name="VersionLabel" type="Label" parent="MarginContainer/ScrollContainer/Layout/HeroPanel/MarginContainer/HeroVBox/HeaderRow" unique_id=1269565507]
 layout_mode = 2
 size_flags_horizontal = 3
 theme_override_colors/font_color = Color(0.631373, 0.701961, 0.772549, 1)
 text = "Version"
 horizontal_alignment = 2
+
+[node name="HelpDialog" type="Window" parent="."]
+visible = false
+theme = ExtResource("2")
+title = "System and Star Help"
+initial_position = 2
+size = Vector2i(760, 580)
+transient = true
+exclusive = true
+wrap_controls = true
+
+[node name="MarginContainer" type="MarginContainer" parent="HelpDialog"]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 16.0
+offset_top = 16.0
+offset_right = -16.0
+offset_bottom = -16.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="HelpVBox" type="VBoxContainer" parent="HelpDialog/MarginContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+theme_override_constants/separation = 12
+
+[node name="HelpHeaderLabel" type="Label" parent="HelpDialog/MarginContainer/HelpVBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.921569, 0.768627, 0.470588, 1)
+theme_override_font_sizes/font_size = 24
+text = "System and Star Guide"
+
+[node name="HelpIntroLabel" type="Label" parent="HelpDialog/MarginContainer/HelpVBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.72, 0.76, 0.82, 1)
+text = "Plain-language notes that explain what the settings mean and how changing them will affect the system you generate."
+autowrap_mode = 2
+
+[node name="HelpCard" type="PanelContainer" parent="HelpDialog/MarginContainer/HelpVBox"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+
+[node name="MarginContainer" type="MarginContainer" parent="HelpDialog/MarginContainer/HelpVBox/HelpCard"]
+layout_mode = 2
+theme_override_constants/margin_left = 14
+theme_override_constants/margin_top = 14
+theme_override_constants/margin_right = 14
+theme_override_constants/margin_bottom = 14
+
+[node name="HelpDialogText" type="RichTextLabel" parent="HelpDialog/MarginContainer/HelpVBox/HelpCard/MarginContainer"]
+custom_minimum_size = Vector2(420, 0)
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+bbcode_enabled = true
+fit_content = false
+selection_enabled = true
+scroll_active = true
+autowrap_mode = 3
+
+[node name="HelpHintLabel" type="Label" parent="HelpDialog/MarginContainer/HelpVBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.631373, 0.701961, 0.772549, 1)
+text = "Scroll for the full guide and research sources."
+autowrap_mode = 2
+
+[node name="ButtonRow" type="HBoxContainer" parent="HelpDialog/MarginContainer/HelpVBox"]
+layout_mode = 2
+
+[node name="ButtonSpacer" type="Control" parent="HelpDialog/MarginContainer/HelpVBox/ButtonRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="CloseButton" type="Button" parent="HelpDialog/MarginContainer/HelpVBox/ButtonRow"]
+layout_mode = 2
+text = "Close"
 
 [node name="TitleLabel" type="Label" parent="MarginContainer/ScrollContainer/Layout/HeroPanel/MarginContainer/HeroVBox" unique_id=686725852]
 layout_mode = 2

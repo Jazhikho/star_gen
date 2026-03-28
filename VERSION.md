@@ -1,12 +1,25 @@
 # Version
 
-Current version: `0.8.3.0`
+Current version: `0.8.3.2`
 
 Current user-facing version: `0.9d`
 
 Date: `2026-03-28`
 
 Versioning method: release/refactor `+0.1`, feature `+0.0.1`, bug fix `+0.0.0.1`, save-breaking release `+1.0`.
+
+## 0.8.3.2
+
+- Bug fix: Converted the science-facing tooltips in the galaxy and system studios to multiline text so each sentence appears on its own line, making the brief help easier to scan.
+- Bug fix: Kept the user-facing release line at `0.9d` while syncing the internal patch metadata to `0.8.3.2`.
+- Test: `dotnet build StarGen.sln` passed after the tooltip-formatting patch.
+
+## 0.8.3.1
+
+- Bug fix: Removed `Docs/galactic_formation.md` from the in-app science/help source lists so the help surfaces now cite only the external research sources that back the current galaxy and stellar controls.
+- Bug fix: Reworked the galaxy help popup into a cleaner scene-owned guide window with stronger section formatting, clearer scrolling/close affordances, and plain-language explanations that focus on what changing each setting will do in practice.
+- Bug fix: Added the same header-level `Help` popup flow to System Studio and expanded the system and stellar help/tooltips so non-experts get actionable explanations for star count, spectral hints, metallicity, IMF choices, and multiplicity.
+- Test: Added plain-language content assertions for the galaxy and stellar help catalogs and updated the studio help integration checks; `dotnet build StarGen.sln` passed, and the mainline headless harness passed (`1768 / 1768`).
 
 ## 0.8.3.0
 

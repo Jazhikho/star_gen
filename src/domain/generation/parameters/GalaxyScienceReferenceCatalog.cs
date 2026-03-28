@@ -73,10 +73,6 @@ public static class GalaxyScienceReferenceCatalog
 {
     private static readonly Dictionary<string, GalaxyScienceSource> Sources = new()
     {
-        ["generator-paper"] = new GalaxyScienceSource(
-            "generator-paper",
-            "StarGen galactic_formation.md: internal design paper for the scientifically grounded galaxy generator.",
-            "Docs/galactic_formation.md"),
         ["park2007"] = new GalaxyScienceSource(
             "park2007",
             "Park et al. (2007), morphology-density relations from SDSS environment measures.",
@@ -127,97 +123,96 @@ public static class GalaxyScienceReferenceCatalog
     {
         new GalaxyScienceParameterReference(
             "galaxy_type",
-            "Galaxy family means the big shape group. Spiral, elliptical, lenticular, and irregular galaxies form stars in different ways, so this choice changes more than looks.",
-            new[] { "generator-paper", "park2007", "behroozi2019" }),
+            "This is the galaxy's big shape family.\nSpiral gives a disk and arms.\nElliptical is smoother and center-heavy.\nLenticular sits between disk and smooth.\nIrregular or dwarf is smaller and clumpier.",
+            new[] { "park2007", "behroozi2019", "oohama2009", "laurikainen2010" }),
         new GalaxyScienceParameterReference(
             "subtype_mode",
-            "Subtype bias nudges the family toward earlier or later forms. Earlier usually means bigger bulges and smoother structure. Later usually means smaller bulges and looser structure.",
-            new[] { "generator-paper", "oohama2009", "laurikainen2010" }),
+            "Subtype bias pushes the family toward smoother, center-heavy forms or looser, more disk-dominated forms.\nEarlier types usually mean a stronger middle.\nLater types usually mean more disk structure and star-forming gas.",
+            new[] { "oohama2009", "laurikainen2010" }),
         new GalaxyScienceParameterReference(
             "num_arms",
-            "This sets how many main spiral arms are visible when the galaxy family supports arms.",
-            new[] { "generator-paper" }),
+            "This sets how many main spiral lanes the disk can have.\nFewer arms make the pattern cleaner.\nMore arms spread star-forming structure around the disk.",
+            System.Array.Empty<string>()),
         new GalaxyScienceParameterReference(
             "arm_pitch_angle_deg",
-            "Pitch angle tells you how tightly the arms wind. Small values mean tighter arms. Large values mean looser arms.",
-            new[] { "generator-paper" }),
+            "This controls how tightly the arms wrap around the center.\nSmaller values make tightly wound arms.\nLarger values open the arms up and make the disk look looser.",
+            System.Array.Empty<string>()),
         new GalaxyScienceParameterReference(
             "arm_amplitude",
-            "Arm amplitude means how much denser the arms are than the spaces between them. Higher values make the arms stand out more strongly.",
-            new[] { "generator-paper", "kennicutt1998" }),
+            "This controls how strongly the arms stand out from the rest of the disk.\nHigher values pack more stars and star-forming activity into the arms instead of spreading them evenly.",
+            new[] { "kennicutt1998" }),
         new GalaxyScienceParameterReference(
             "bar_mode",
-            "A barred galaxy has a straight, bright bar of stars through the center. This setting lets the generator prefer barred or unbarred disk galaxies.",
-            new[] { "generator-paper", "diazgarcia2016" }),
+            "A barred galaxy has a straight bar of stars through the center.\nPushing this upward makes that bar more likely, which can change how strongly the center and inner arms stand out.",
+            new[] { "diazgarcia2016" }),
         new GalaxyScienceParameterReference(
             "arm_mechanism_preference",
-            "Grand design means a galaxy has a few clear main arms. Multi-armed means several strong arms. Flocculent means patchy, broken, fluffy-looking arms instead of long clean ones.",
-            new[] { "generator-paper" }),
+            "Grand design means a few long, clean arms.\nMulti-armed means several strong arms.\nFlocculent means short, patchy arm pieces.\nThis changes how orderly or broken the spiral pattern looks.",
+            System.Array.Empty<string>()),
         new GalaxyScienceParameterReference(
             "halo_mass_log10_solar",
-            "Halo mass is the size of the galaxy's dark-matter halo. It helps set how large the galaxy is and which internal forms are more likely.",
-            new[] { "generator-paper", "behroozi2019" }),
+            "Halo mass is the size of the invisible dark-matter halo holding the galaxy together.\nHigher values usually favor bigger, heavier galaxies.\nLower values trend toward smaller systems and dwarf-like behavior.",
+            new[] { "behroozi2019" }),
         new GalaxyScienceParameterReference(
             "environment_density_index",
-            "Environment density means how crowded the galaxy's neighborhood is. A lonely field galaxy and a galaxy inside a crowded cluster do not evolve the same way.",
-            new[] { "generator-paper", "park2007", "tanaka2004" }),
+            "Environment density means how crowded the galaxy's neighborhood is.\nHigher values act more like cluster environments, which favor smoother, gas-poorer galaxies.\nLower values act more like quieter field environments, which favor disks.",
+            new[] { "park2007", "tanaka2004" }),
         new GalaxyScienceParameterReference(
             "bulge_intensity",
-            "The bulge is the bright central star-rich region. This controls how dominant that central region is compared with the rest of the galaxy.",
-            new[] { "generator-paper", "oohama2009", "laurikainen2010" }),
+            "The bulge is the bright star-packed middle.\nRaising this makes the center more dominant.\nLowering it lets the disk matter more.",
+            new[] { "oohama2009", "laurikainen2010" }),
         new GalaxyScienceParameterReference(
             "bulge_radius_pc",
-            "This sets the size of the central bulge in parsecs. A parsec is a standard astronomy distance unit.",
-            new[] { "generator-paper", "oohama2009", "laurikainen2010" }),
+            "This sets how far the central bulge spreads.\nA larger bulge means the bright center influences more of the inner galaxy.",
+            new[] { "oohama2009", "laurikainen2010" }),
         new GalaxyScienceParameterReference(
             "radius_pc",
-            "This sets the rough outer size of the galaxy in parsecs.",
-            new[] { "generator-paper", "behroozi2019" }),
+            "This is the galaxy's rough outer size.\nLarger values spread stars over a wider region.\nSmaller values keep the whole galaxy more compact.",
+            new[] { "behroozi2019" }),
         new GalaxyScienceParameterReference(
             "disk_scale_length_pc",
-            "Disk scale length tells the generator how quickly the disk thins out as you move away from the center.",
-            new[] { "generator-paper", "laurikainen2010" }),
+            "This controls how quickly the disk thins out as you move away from the center.\nA larger value keeps the main disk important farther out.",
+            new[] { "laurikainen2010" }),
         new GalaxyScienceParameterReference(
             "disk_scale_height_pc",
-            "Disk scale height tells the generator how thick the disk is above and below the galaxy's main plane.",
-            new[] { "generator-paper", "laurikainen2010" }),
+            "This controls disk thickness above and below the main plane.\nHigher values make the disk puffier.\nLower values keep it flatter and thinner.",
+            new[] { "laurikainen2010" }),
         new GalaxyScienceParameterReference(
             "star_density_multiplier",
-            "This is a global density knob. It raises or lowers how crowded the whole galaxy feels without replacing the science-based structure underneath.",
-            new[] { "generator-paper", "kennicutt1998" }),
+            "This is a global crowding knob.\nRaising it makes the whole galaxy feel fuller.\nLowering it makes the whole galaxy feel emptier without removing the science-based shape underneath.",
+            new[] { "kennicutt1998" }),
         new GalaxyScienceParameterReference(
             "ellipticity",
-            "Ellipticity tells you how stretched an elliptical galaxy looks. Low values are rounder. High values are flatter.",
-            new[] { "generator-paper" }),
+            "Ellipticity means how stretched the galaxy looks instead of round.\nHigher values flatten it more.\nLower values keep it rounder.",
+            System.Array.Empty<string>()),
         new GalaxyScienceParameterReference(
             "irregularity_scale",
-            "Irregularity controls how lopsided and clumpy an irregular or dwarf galaxy looks.",
-            new[] { "generator-paper", "behroozi2019" }),
+            "This controls how lopsided and clumpy an irregular or dwarf galaxy looks.\nRaising it gives you a messier, less symmetric shape.",
+            new[] { "behroozi2019" }),
         new GalaxyScienceParameterReference(
             "ghz_inner_radius_pc",
-            "GHZ means galactic habitable zone. This inner edge marks where the galaxy starts to become safer and more chemistry-friendly than the crowded center.",
-            new[] { "generator-paper", "forgan2017", "spitoni2017" }),
+            "GHZ means galactic habitable zone.\nThis inner edge marks where the center starts to become less overwhelmingly crowded and dangerous.\nRaising it pushes the safer sweet spot farther out.",
+            new[] { "forgan2017", "spitoni2017" }),
         new GalaxyScienceParameterReference(
             "ghz_outer_radius_pc",
-            "This outer edge marks where the galactic habitable zone starts to fade in the thin outer disk, where heavy elements are often less common.",
-            new[] { "generator-paper", "forgan2017", "spitoni2017" }),
+            "This outer edge marks where the galaxy starts to run thin on heavy elements and long-term chemistry.\nRaising it lets the habitable sweet spot reach farther into the disk.",
+            new[] { "forgan2017", "spitoni2017" }),
         new GalaxyScienceParameterReference(
             "ghz_transition_width_pc",
-            "This controls how softly the galactic habitable zone fades in and out instead of switching on like a hard wall.",
-            new[] { "generator-paper", "forgan2017" }),
+            "This softens the edge of the habitable zone.\nSmall values make the change sharper.\nLarger values make the zone fade in and out more gradually.",
+            new[] { "forgan2017" }),
         new GalaxyScienceParameterReference(
             "metallicity_gradient_dex_per_kpc",
-            "A metallicity gradient describes how metal content changes with distance from the center. In astronomy, metals means elements heavier than hydrogen and helium.",
-            new[] { "generator-paper", "apogee2024", "cmetall2024" }),
+            "This says how fast heavy-element content drops from the center to the edge.\nMore negative values make the inner galaxy much richer in planet-building material.\nFlatter values spread those ingredients farther outward.",
+            new[] { "apogee2024", "cmetall2024" }),
         new GalaxyScienceParameterReference(
             "star_formation_efficiency",
-            "Star formation efficiency means how easily gas turns into stars. Higher values make young star-forming regions and cluster scaffolds more common.",
-            new[] { "generator-paper", "kennicutt1998" }),
+            "This controls how easily gas turns into new stars.\nHigher values mean more young star-forming patches and clustering.\nLower values make the galaxy feel calmer and more settled.",
+            new[] { "kennicutt1998" }),
     };
 
     private static readonly List<string> PanelSourceIds = new()
     {
-        "generator-paper",
         "park2007",
         "tanaka2004",
         "behroozi2019",
@@ -308,41 +303,86 @@ public static class GalaxyScienceReferenceCatalog
     public static string BuildSciencePanelBbCode()
     {
         StringBuilder builder = new StringBuilder();
-        builder.AppendLine("[b]Galaxy science[/b]");
-        builder.AppendLine("StarGen builds a galaxy as a set of starting conditions. It does not run a full galaxy history simulation.");
+        builder.AppendLine("[b][color=#f0c46a]Galaxy controls[/color][/b]");
+        builder.AppendLine("[color=#c8d6e5]Use these settings to choose what kind of galaxy forms, where its stars cluster, and which parts of it are richer in the ingredients that build planets and complex chemistry.[/color]");
         builder.AppendLine();
-        builder.AppendLine("[b]Important terms[/b]");
-        builder.AppendLine("Halo mass: the size of the dark-matter halo around the galaxy.");
-        builder.AppendLine("Environment density: how crowded the galaxy's neighborhood is.");
-        builder.AppendLine("Barred galaxy: a galaxy with a straight bar of stars through the center.");
-        builder.AppendLine("Grand design spiral: a galaxy with a few clear, long main arms.");
-        builder.AppendLine("Multi-armed spiral: a galaxy with several strong arms.");
-        builder.AppendLine("Flocculent spiral: a galaxy with patchy, broken arm fragments.");
-        builder.AppendLine("Metallicity gradient: how metal content changes from the center to the edge.");
-        builder.AppendLine("GHZ: galactic habitable zone, a soft band where the balance of chemistry and hazards is more favorable.");
-        builder.AppendLine("Star formation efficiency: how easily gas turns into new stars.");
+
+        AppendGuideSection(
+            builder,
+            "Galaxy Family",
+            "This is the galaxy's big shape group.",
+            "Changing it changes the entire starting point. Spiral gives you a disk with arms. Elliptical gives you a smoother ball-like shape with a strong center. Lenticular keeps a disk but loses obvious arms. Irregular or dwarf makes the galaxy smaller, messier, and clumpier.");
+
+        AppendGuideSection(
+            builder,
+            "Subtype Bias",
+            "Subtype bias nudges the chosen family toward earlier or later forms.",
+            "Moving toward earlier types usually grows the central bulge and smooths things out. Moving toward later types usually gives the disk more say and makes ongoing star-forming structure more likely.");
+
+        AppendGuideSection(
+            builder,
+            "Bar Bias and Arm Mode",
+            "A bar is a straight lane of stars through the center. Arm mode is the style of the spiral pattern.",
+            "Prefer barred if you want the inner galaxy to look more structured around a central bar. Use Grand design for a few long clear arms, Multi-armed for several strong arms, and Flocculent for broken, patchy arm pieces.");
+
+        AppendGuideSection(
+            builder,
+            "Halo Mass",
+            "The dark-matter halo is the invisible mass that helps hold the galaxy together.",
+            "Raising halo mass generally supports larger, heavier galaxies. Lowering it makes smaller galaxies and dwarf-like outcomes more likely.");
+
+        AppendGuideSection(
+            builder,
+            "Environment Density",
+            "This is how crowded the galaxy's neighborhood is with other galaxies.",
+            "Higher values behave more like a busy galaxy cluster. That tends to favor smoother, more gas-poor forms. Lower values behave more like a quieter neighborhood, which helps disk structure survive.");
+
+        AppendGuideSection(
+            builder,
+            "GHZ",
+            "GHZ means galactic habitable zone. It is not a magic safe ring. It is a soft best-compromise band between the crowded center and the thin outer edge.",
+            "Moving the inner edge outward says the center stays too intense for longer. Moving the outer edge outward says useful chemistry stays available farther into the disk.");
+
+        AppendGuideSection(
+            builder,
+            "Metallicity Gradient",
+            "In astronomy, metals means every element heavier than hydrogen and helium. Those heavy elements are the raw material for dust, rock, and many planet-building ingredients.",
+            "A steeper negative gradient makes the inner galaxy much richer in heavy elements than the edge. That means the center has more rocky-world ingredients, while the outer disk gets poorer faster. A flatter gradient spreads those ingredients farther out.");
+
+        AppendGuideSection(
+            builder,
+            "Star Formation Efficiency",
+            "This controls how easily gas turns into new stars.",
+            "Higher values make young star-forming patches and cluster scaffolds more common. Lower values give a calmer galaxy with less fresh star birth.");
+
+        builder.AppendLine("[b][color=#f0c46a]What StarGen actually does with this[/color][/b]");
+        builder.AppendLine("1. Your family choice locks in the broad kind of galaxy.");
+        builder.AppendLine("2. Halo mass, environment, subtype bias, bar bias, and arm mode help shape the final structure inside that family.");
+        builder.AppendLine("3. The generator builds fields for crowding, metallicity, GHZ weighting, and star-forming activity.");
+        builder.AppendLine("4. Those fields then influence which stars and systems form in different parts of the galaxy.");
         builder.AppendLine();
-        builder.AppendLine("[b]How StarGen uses this[/b]");
-        builder.AppendLine("1. You choose the top-level galaxy family.");
-        builder.AppendLine("2. Halo mass and environment density help choose the internal form of that family.");
-        builder.AppendLine("3. The generator then builds the galaxy's bulge, disk, arms, metallicity pattern, GHZ weighting, and star-forming regions.");
-        builder.AppendLine("4. Those galaxy-level fields are passed down into stellar and system generation.");
+
+        builder.AppendLine("[b][color=#f0c46a]Model limits[/color][/b]");
+        builder.AppendLine("StarGen is generating believable starting conditions, not replaying billions of years of galaxy history.");
+        builder.AppendLine("Some defaults are inspired by the Milky Way and nearby galaxies. They are useful starting points, not universal laws.");
         builder.AppendLine();
-        builder.AppendLine("[b]Limits[/b]");
-        builder.AppendLine("Clustered star formation is represented as deterministic scaffolding, not as a full moving cluster simulation.");
-        builder.AppendLine("Some defaults are based on Milky Way and nearby-galaxy research. They are good starting points, not universal truths.");
-        builder.AppendLine();
-        builder.AppendLine("[b]Sources[/b]");
+
+        builder.AppendLine("[b][color=#f0c46a]Sources[/color][/b]");
         foreach (string sourceId in PanelSourceIds)
         {
             GalaxyScienceSource source = Sources[sourceId];
-            builder.Append("[i]");
-            builder.Append(source.Citation);
-            builder.Append("[/i]");
+            builder.Append("- ");
             if (!string.IsNullOrWhiteSpace(source.Url))
             {
-                builder.Append(" ");
+                builder.Append("[url=");
                 builder.Append(source.Url);
+                builder.Append("]");
+                builder.Append(source.Citation);
+                builder.Append("[/url]");
+            }
+            else
+            {
+                builder.Append(source.Citation);
             }
 
             builder.AppendLine();
@@ -357,10 +397,10 @@ public static class GalaxyScienceReferenceCatalog
     public static string BuildProfileSummary(GalaxyConfig config, GalaxyRealismProfile profile)
     {
         string subtypeLabel = GalaxyRealismProfileBuilder.GetSubtypeLabel(profile.ResolvedSubtype);
-        string barLabel = "Unbarred";
+        string barLabel = "No central bar";
         if (profile.IsBarred)
         {
-            barLabel = $"Barred ({profile.BarStrength:0.00})";
+            barLabel = $"Central bar {profile.BarStrength:0.00}";
         }
 
         string armLabel = "No main spiral arms";
@@ -368,7 +408,7 @@ public static class GalaxyScienceReferenceCatalog
         {
             if (profile.ArmMechanism == GalaxyArmMechanism.GrandDesign)
             {
-                armLabel = "Grand design arms";
+                armLabel = "Grand design spiral";
             }
             else if (profile.ArmMechanism == GalaxyArmMechanism.MultiArmed)
             {
@@ -385,9 +425,22 @@ public static class GalaxyScienceReferenceCatalog
         }
 
         return
-            $"Resolved galaxy: {config.GetTypeName()} | Subtype {subtypeLabel} | Halo {profile.HaloMassLog10Solar:0.0} | Environment {profile.EnvironmentDensityIndex:0.00}\n" +
-            $"Structure: {barLabel} | {armLabel} | Sersic n {profile.SersicIndex:0.0} | Bulge fraction {profile.BulgeToTotal:0.00}\n" +
-            $"Fields: GHZ {profile.GhzInnerRadiusPc / 1000.0:0.0}-{profile.GhzOuterRadiusPc / 1000.0:0.0} kpc | Metallicity gradient {profile.MetallicityGradientDexPerKpc:0.000} dex/kpc | SFE {profile.StarFormationEfficiency:0.00}";
+            $"Resolved galaxy: {config.GetTypeName()} | Subtype {subtypeLabel}\n" +
+            $"Structure: {barLabel} | {armLabel} | Bulge share {profile.BulgeToTotal:0.00}\n" +
+            $"Environment: Halo {profile.HaloMassLog10Solar:0.0} | Neighborhood {profile.EnvironmentDensityIndex:0.00}\n" +
+            $"Chemistry: GHZ {profile.GhzInnerRadiusPc / 1000.0:0.0}-{profile.GhzOuterRadiusPc / 1000.0:0.0} kpc | Metal drop {profile.MetallicityGradientDexPerKpc:0.000} dex/kpc | Star birth {profile.StarFormationEfficiency:0.00}";
+    }
+
+    private static void AppendGuideSection(StringBuilder builder, string title, string meaning, string effect)
+    {
+        builder.Append("[b]");
+        builder.Append(title);
+        builder.AppendLine("[/b]");
+        builder.Append("[color=#9cc4ff]What it means:[/color] ");
+        builder.AppendLine(meaning);
+        builder.Append("[color=#9cc4ff]What changing it does:[/color] ");
+        builder.AppendLine(effect);
+        builder.AppendLine();
     }
 
     private static GalaxyScienceParameterReference? FindParameterReference(string parameterId)

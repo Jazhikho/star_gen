@@ -63,6 +63,7 @@ public partial class SystemGenerationScreen : Control
 		ApplyVersionLabel();
 		ApplyDefaults();
 		ApplyStellarParameterTooltips();
+		InitializeScienceHelpUi();
 		ApplySeedVisibilityPreference(rerollHiddenSeed: true);
 		RefreshSummary();
 		ApplyResponsiveLayout();
@@ -184,6 +185,7 @@ public partial class SystemGenerationScreen : Control
 		_populationPermissivenessValueLabel = GetNodeOrNull<Label>($"{Root}/StudioRow/RulesPanel/MarginContainer/RulesVBox/ScrollContainer/RulesContent/PopulationPermissivenessRow/PopulationPermissivenessValue");
 		_mainworldPolicyOption = GetNodeOrNull<OptionButton>($"{Root}/StudioRow/RulesPanel/MarginContainer/RulesVBox/ScrollContainer/RulesContent/MainworldPolicyRow/MainworldPolicyOption");
 		CacheStellarNodeReferences();
+		CacheScienceHelpNodeReferences();
 	}
 
 	private void ApplyResponsiveLayout()
@@ -208,6 +210,7 @@ public partial class SystemGenerationScreen : Control
 		if (_mainworldPolicyOption != null) _mainworldPolicyOption.ItemSelected += _ => RefreshSummary();
 		if (_rulesetModeOption != null) _rulesetModeOption.ItemSelected += OnRulesetModeSelected;
 		ConnectStellarSignals();
+		ConnectScienceHelpSignals();
 	}
 
 	private void ApplyVersionLabel()
@@ -434,6 +437,12 @@ public partial class SystemGenerationScreen : Control
 	private partial void ApplyStellarDefaults();
 
 	private partial void ApplyStellarParameterTooltips();
+
+	private partial void CacheScienceHelpNodeReferences();
+
+	private partial void ConnectScienceHelpSignals();
+
+	private partial void InitializeScienceHelpUi();
 
 	private partial StellarGenerationProfile BuildStellarProfileFromControls();
 

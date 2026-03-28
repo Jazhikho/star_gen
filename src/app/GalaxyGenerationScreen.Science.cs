@@ -71,8 +71,8 @@ public partial class GalaxyGenerationScreen
         _stellarMultiplicityScaleValue = GetNodeOrNull<Label>($"{ParameterRootPath}/StellarSection/StellarContent/StellarVBox/MultiplicityRow/MultiplicityValue");
         _helpButton = GetNodeOrNull<Button>($"{HeroRootPath}/HeaderRow/HelpButton");
         _helpDialog = GetNodeOrNull<Window>("HelpDialog");
-        _helpDialogText = GetNodeOrNull<RichTextLabel>("HelpDialog/MarginContainer/HelpVBox/HelpDialogText");
-        _helpDialogCloseButton = GetNodeOrNull<Button>("HelpDialog/MarginContainer/HelpVBox/CloseButton");
+        _helpDialogText = GetNodeOrNull<RichTextLabel>("HelpDialog/MarginContainer/HelpVBox/HelpCard/MarginContainer/HelpDialogText");
+        _helpDialogCloseButton = GetNodeOrNull<Button>("HelpDialog/MarginContainer/HelpVBox/ButtonRow/CloseButton");
     }
 
     private void ConnectScienceSignals()
@@ -130,7 +130,7 @@ public partial class GalaxyGenerationScreen
         ApplyTooltip("stellar_multiplicity_scale", _stellarMultiplicityScaleSlider, $"{ParameterRootPath}/StellarSection/StellarContent/StellarVBox/MultiplicityRow/MultiplicityLabel");
         if (_helpButton != null)
         {
-            _helpButton.TooltipText = "Open plain-language help that explains these galaxy and star settings and shows the science sources.";
+            _helpButton.TooltipText = "Open plain-language help.\nThis guide explains what these galaxy and star settings actually change.";
         }
     }
 
@@ -350,6 +350,11 @@ public partial class GalaxyGenerationScreen
         }
 
         _helpDialog.Size = new Vector2I(760, 580);
+        if (_helpDialogText != null)
+        {
+            _helpDialogText.ScrollToLine(0);
+        }
+
         _helpDialog.Visible = true;
     }
 
