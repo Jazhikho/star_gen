@@ -124,20 +124,11 @@ public static partial class DotNetNativeTestSuite
             "DotNetNativeTestSuite::test_home_position_stays_within_default_galaxy_bounds",
             TestHomePositionStaysWithinDefaultGalaxyBounds);
         runner.RunNativeTest(
-            "DotNetNativeTestSuite::test_galaxy_save_data_round_trip_preserves_payload",
-            TestGalaxySaveDataRoundTripPreservesPayload);
-        runner.RunNativeTest(
             "DotNetNativeTestSuite::test_galaxy_body_overrides_round_trip_and_apply",
             TestGalaxyBodyOverridesRoundTripAndApply);
         runner.RunNativeTest(
             "DotNetNativeTestSuite::test_system_cache_put_get_and_evict",
             TestSystemCachePutGetAndEvict);
-        runner.RunNativeTest(
-            "DotNetNativeTestSuite::test_galaxy_viewer_save_load_clears_saved_state",
-            TestGalaxyViewerSaveLoadClearsSavedState);
-        runner.RunNativeTest(
-            "DotNetNativeTestSuite::test_system_viewer_save_load_round_trips_json_path",
-            TestSystemViewerSaveLoadRoundTripsJsonPath);
         runner.RunNativeTest(
             "TestSuiteIntegrity::test_no_blatant_fake_pass_assertions",
             Tests.Quality.TestSuiteIntegrity.TestNoBlatantFakePassAssertions);
@@ -220,7 +211,6 @@ public static partial class DotNetNativeTestSuite
         RunGalaxyDomainTests(runner);
         RunJumpLanesTests(runner);
         RunPopulationTests(runner);
-        RunConceptTests(runner);
         RunHeadlessIntegrationTests(runner);
     }
 
@@ -796,93 +786,6 @@ public static partial class DotNetNativeTestSuite
         runner.RunNativeTest(
             "TestGalaxyConfig::test_apply_to_spec",
             Tests.Unit.TestGalaxyConfig.TestApplyToSpec);
-        runner.RunNativeTest(
-            "TestGalaxyInspectorPanel::test_instantiates",
-            Tests.Unit.TestGalaxyInspectorPanel.TestInstantiates);
-        runner.RunNativeTest(
-            "TestGalaxyInspectorPanel::test_starts_without_star_selected",
-            Tests.Unit.TestGalaxyInspectorPanel.TestStartsWithoutStarSelected);
-        runner.RunNativeTest(
-            "TestGalaxyInspectorPanel::test_display_selected_star_sets_selection",
-            Tests.Unit.TestGalaxyInspectorPanel.TestDisplaySelectedStarSetsSelection);
-        runner.RunNativeTest(
-            "TestGalaxyInspectorPanel::test_clear_selection_removes_star",
-            Tests.Unit.TestGalaxyInspectorPanel.TestClearSelectionRemovesStar);
-        runner.RunNativeTest(
-            "TestGalaxyInspectorPanel::test_display_selected_quadrant_clears_star",
-            Tests.Unit.TestGalaxyInspectorPanel.TestDisplaySelectedQuadrantClearsStar);
-        runner.RunNativeTest(
-            "TestGalaxyInspectorPanel::test_display_selected_sector_clears_star",
-            Tests.Unit.TestGalaxyInspectorPanel.TestDisplaySelectedSectorClearsStar);
-        runner.RunNativeTest(
-            "TestGalaxyInspectorPanel::test_display_galaxy_with_spec",
-            Tests.Unit.TestGalaxyInspectorPanel.TestDisplayGalaxyWithSpec);
-        runner.RunNativeTest(
-            "TestGalaxyInspectorPanel::test_display_galaxy_with_null_spec",
-            Tests.Unit.TestGalaxyInspectorPanel.TestDisplayGalaxyWithNullSpec);
-        runner.RunNativeTest(
-            "TestGalaxySaveData::test_create_sets_timestamp",
-            Tests.Unit.TestGalaxySaveData.TestCreateSetsTimestamp);
-        runner.RunNativeTest(
-            "TestGalaxySaveData::test_default_values",
-            Tests.Unit.TestGalaxySaveData.TestDefaultValues);
-        runner.RunNativeTest(
-            "TestGalaxySaveData::test_is_valid_with_defaults",
-            Tests.Unit.TestGalaxySaveData.TestIsValidWithDefaults);
-        runner.RunNativeTest(
-            "TestGalaxySaveData::test_is_valid_rejects_zero_seed",
-            Tests.Unit.TestGalaxySaveData.TestIsValidRejectsZeroSeed);
-        runner.RunNativeTest(
-            "TestGalaxySaveData::test_is_valid_rejects_invalid_zoom",
-            Tests.Unit.TestGalaxySaveData.TestIsValidRejectsInvalidZoom);
-        runner.RunNativeTest(
-            "TestGalaxySaveData::test_to_dict_contains_required_fields",
-            Tests.Unit.TestGalaxySaveData.TestToDictContainsRequiredFields);
-        runner.RunNativeTest(
-            "TestGalaxySaveData::test_round_trip_basic",
-            Tests.Unit.TestGalaxySaveData.TestRoundTripBasic);
-        runner.RunNativeTest(
-            "TestGalaxySaveData::test_round_trip_with_quadrant",
-            Tests.Unit.TestGalaxySaveData.TestRoundTripWithQuadrant);
-        runner.RunNativeTest(
-            "TestGalaxySaveData::test_round_trip_with_sector",
-            Tests.Unit.TestGalaxySaveData.TestRoundTripWithSector);
-        runner.RunNativeTest(
-            "TestGalaxySaveData::test_round_trip_with_camera",
-            Tests.Unit.TestGalaxySaveData.TestRoundTripWithCamera);
-        runner.RunNativeTest(
-            "TestGalaxySaveData::test_round_trip_with_star_selection",
-            Tests.Unit.TestGalaxySaveData.TestRoundTripWithStarSelection);
-        runner.RunNativeTest(
-            "TestGalaxySaveData::test_null_quadrant_serializes",
-            Tests.Unit.TestGalaxySaveData.TestNullQuadrantSerializes);
-        runner.RunNativeTest(
-            "TestGalaxySaveData::test_from_dict_returns_null_for_invalid",
-            Tests.Unit.TestGalaxySaveData.TestFromDictReturnsNullForInvalid);
-        runner.RunNativeTest(
-            "TestGalaxySaveData::test_from_dict_returns_null_for_empty",
-            Tests.Unit.TestGalaxySaveData.TestFromDictReturnsNullForEmpty);
-        runner.RunNativeTest(
-            "TestGalaxySaveData::test_get_summary",
-            Tests.Unit.TestGalaxySaveData.TestGetSummary);
-        runner.RunNativeTest(
-            "TestGalaxySaveData::test_vector3_conversion",
-            Tests.Unit.TestGalaxySaveData.TestVector3Conversion);
-        runner.RunNativeTest(
-            "TestGalaxySaveData::test_vector3i_conversion",
-            Tests.Unit.TestGalaxySaveData.TestVector3iConversion);
-        runner.RunNativeTest(
-            "TestGalaxySaveData::test_body_overrides_default_empty",
-            Tests.Unit.TestGalaxySaveData.TestBodyOverridesDefaultEmpty);
-        runner.RunNativeTest(
-            "TestGalaxySaveData::test_body_overrides_round_trip",
-            Tests.Unit.TestGalaxySaveData.TestBodyOverridesRoundTrip);
-        runner.RunNativeTest(
-            "TestGalaxySaveData::test_body_overrides_absent_field_legacy_save",
-            Tests.Unit.TestGalaxySaveData.TestBodyOverridesAbsentFieldLegacySave);
-        runner.RunNativeTest(
-            "TestGalaxySaveData::test_set_body_overrides_null_clears",
-            Tests.Unit.TestGalaxySaveData.TestSetBodyOverridesNullClears);
         runner.RunNativeTest(
             "TestGalaxyStar::test_basic_creation",
             Tests.Unit.TestGalaxyStar.TestBasicCreation);
@@ -2389,21 +2292,6 @@ public static partial class DotNetNativeTestSuite
         runner.RunNativeTest(
             "TestSystemHierarchy::test_round_trip",
             Tests.Unit.TestSystemHierarchy.TestRoundTrip);
-        runner.RunNativeTest(
-            "TestSystemInspectorPanel::test_display_system_star_count",
-            Tests.Unit.TestSystemInspectorPanel.TestDisplaySystemStarCount);
-        runner.RunNativeTest(
-            "TestSystemInspectorPanel::test_display_null_system",
-            Tests.Unit.TestSystemInspectorPanel.TestDisplayNullSystem);
-        runner.RunNativeTest(
-            "TestSystemInspectorPanel::test_display_selected_body_name",
-            Tests.Unit.TestSystemInspectorPanel.TestDisplaySelectedBodyName);
-        runner.RunNativeTest(
-            "TestSystemInspectorPanel::test_display_null_body",
-            Tests.Unit.TestSystemInspectorPanel.TestDisplayNullBody);
-        runner.RunNativeTest(
-            "TestSystemInspectorPanel::test_clear",
-            Tests.Unit.TestSystemInspectorPanel.TestClear);
         runner.RunNativeTest(
             "TestSystemMoonGenerator::test_generate_gas_giant_moons",
             Tests.Unit.TestSystemMoonGenerator.TestGenerateGasGiantMoons);

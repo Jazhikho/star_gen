@@ -68,6 +68,7 @@ public partial class ObjectViewer : Node3D
 	internal Button? _backButton;
 	internal Node? _inspectorPanel;
 	internal Control? _generationSection;
+	internal Control? _fileSection;
 	internal OptionButton? _typeOption;
 	internal OptionButton? _presetOption;
 	internal Label? _presetAssumptionsLabel;

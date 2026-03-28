@@ -98,14 +98,6 @@ public partial class MainApp
 	}
 
 	/// <summary>
-	/// GDScript-compatible main-menu concept-atlas wrapper.
-	/// </summary>
-	public void _on_main_menu_concept_atlas_requested()
-	{
-		OnMainMenuConceptAtlasRequested();
-	}
-
-	/// <summary>
 	/// Returns the current object viewer instance for test compatibility.
 	/// </summary>
 	public StarGen.App.Viewer.ObjectViewer? get_object_viewer()
@@ -145,11 +137,4 @@ public partial class MainApp
 		return _stationStudioScreen;
 	}
 
-	/// <summary>
-	/// Returns the current concept-atlas screen for test compatibility.
-	/// </summary>
-	public Concepts.ConceptAtlasScreen? get_concept_atlas_screen()
-	{
-		return _conceptAtlasScreen;
-	}
 }

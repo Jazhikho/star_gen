@@ -103,38 +103,8 @@ public partial class StationStudioScreen : Control
 		{
 			_seedSpinbox.Value = GD.Randi() % 100000;
 		}
-		if (_densitySlider != null)
-		{
-			_densitySlider.Value = 1.0;
-		}
 		UpdateDensityLabel();
-		if (_resourceSlider != null)
-		{
-			_resourceSlider.Value = 0.3;
-		}
 		UpdateResourceLabel();
-
-		if (_allowUtilityCheck != null)
-		{
-			_allowUtilityCheck.ButtonPressed = true;
-		}
-		if (_allowOutpostsCheck != null)
-		{
-			_allowOutpostsCheck.ButtonPressed = true;
-		}
-		if (_allowLargeCheck != null)
-		{
-			_allowLargeCheck.ButtonPressed = true;
-		}
-		if (_nativeCheck != null)
-		{
-			_nativeCheck.ButtonPressed = false;
-		}
-		if (_nativeSpacefaringCheck != null)
-		{
-			_nativeSpacefaringCheck.ButtonPressed = false;
-			_nativeSpacefaringCheck.Disabled = true;
-		}
 	}
 
 	private void ConnectSignals()

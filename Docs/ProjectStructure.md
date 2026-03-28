@@ -30,8 +30,8 @@ star_gen/
 |-- Sources/
 |-- src/
 |   |-- app/
-|   |   |-- components/
-|   |   |-- concepts/
+|   |   |-- components/                # reusable scene-authored UI fragments/templates for shipped viewers and editors
+|   |   |-- concepts/                  # parked mainline-inactive concept UI/runtime pending migration work
 |   |   |-- galaxy_viewer/
 |   |   |-- jumplanes_prototype/
 |   |   |-- prototypes/
@@ -44,7 +44,7 @@ star_gen/
 |   |   |-- bootstrap/
 |   |   |-- celestial/
 |   |   |-- colonization/
-|   |   |-- concepts/
+|   |   |-- concepts/                  # parked concept domain modules not shipped in the 0.9 mainline path
 |   |   |-- constants/
 |   |   |-- editing/
 |   |   |-- galaxy/
@@ -57,9 +57,9 @@ star_gen/
 |   |   |-- utils/
 |   |   `-- validation/
 |   `-- services/
-|       |-- concepts/
+|       |-- concepts/                  # parked/migration-facing helpers
 |       |-- export/
-|       `-- persistence/
+|       `-- persistence/               # retained for export branch compatibility, not shipped in 0.9 mainline UI
 |-- Tests/
 |   |-- Baselines/
 |   |   `-- Artifacts/

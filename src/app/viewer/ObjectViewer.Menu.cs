@@ -9,11 +9,9 @@ namespace StarGen.App.Viewer;
 /// </summary>
 public partial class ObjectViewer
 {
-	private const int FileMenuSaveId = 1;
-	private const int FileMenuLoadId = 2;
-	private const int FileMenuNewObjectId = 3;
-	private const int FileMenuMainMenuId = 4;
-	private const int FileMenuReturnId = 5;
+	private const int FileMenuNewObjectId = 1;
+	private const int FileMenuMainMenuId = 2;
+	private const int FileMenuReturnId = 3;
 	private const int EditMenuGenerateId = 10;
 	private const int EditMenuRerollId = 11;
 	private const int EditMenuEditBodyId = 12;
@@ -91,10 +89,6 @@ public partial class ObjectViewer
 	private void RebuildFileMenu(PopupMenu popup)
 	{
 		popup.Clear();
-		popup.AddItem("Save...", FileMenuSaveId);
-		popup.SetItemDisabled(popup.ItemCount - 1, GetCurrentSaveTargetBody() == null);
-		popup.AddItem("Load...", FileMenuLoadId);
-		popup.AddSeparator();
 		popup.AddItem("New Object...", FileMenuNewObjectId);
 		popup.AddItem("Return to Main Menu", FileMenuMainMenuId);
 		if (_backNavigationVisible)
@@ -161,18 +155,6 @@ public partial class ObjectViewer
 
 	private void OnFileMenuIdPressed(long id)
 	{
-		if (id == FileMenuSaveId)
-		{
-			OnSavePressed();
-			return;
-		}
-
-		if (id == FileMenuLoadId)
-		{
-			OnLoadPressed();
-			return;
-		}
-
 		if (id == FileMenuNewObjectId)
 		{
 			EmitSignal(SignalName.NewObjectRequested);

@@ -75,6 +75,7 @@ public partial class GalaxyViewer : Node3D, IGalaxyViewerSavedStateHost
 	internal SpinBox? _seedInput;
 	internal CheckBox? _showCompassCheck;
 	internal Node? _inspectorPanel;
+	internal Control? _saveLoadSection;
 	internal Button? _saveButton;
 	internal Button? _loadButton;
 	internal Button? _newGalaxyButton;

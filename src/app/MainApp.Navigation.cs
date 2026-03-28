@@ -2,15 +2,12 @@ using Godot;
 using Godot.Collections;
 using System.Threading.Tasks;
 using StarGen.Domain.Celestial;
-using StarGen.Domain.Concepts;
 using StarGen.Domain.Celestial.Serialization;
 using StarGen.Domain.Colonization;
 using StarGen.Domain.Galaxy;
 using StarGen.Domain.Generation;
 using StarGen.Domain.Systems;
 using StarGen.Domain.Systems.Fixtures;
-using StarGen.Services.Concepts;
-using StarGen.Services.Persistence;
 
 namespace StarGen.App;
 
@@ -83,47 +80,6 @@ public partial class MainApp
 		CreateGalaxyViewer(seedValue, config);
 		ShowGalaxyViewer();
 	}
-
-	/// <summary>
-	/// Handles galaxy-studio load requests.
-	/// </summary>
-	private void OnGalaxyLoadRequested()
-	{
-		FileDialog dialog = new()
-        {
-            FileMode = FileDialog.FileModeEnum.OpenFile,
-            Access = FileDialog.AccessEnum.Userdata,
-            Filters = new string[] { "*.sgg ; StarGen Galaxy", "*.json ; JSON Debug" },
-		};
-		dialog.FileSelected += path =>
-		{
-			OnGalaxyLoadFileSelected(path);
-			dialog.QueueFree();
-		};
-        dialog.Canceled += dialog.QueueFree;
-        AddChild(dialog);
-        dialog.PopupCentered(new Vector2I(800, 600));
-    }
-
-	/// <summary>
-	/// Handles file selection from the galaxy load dialog.
-	/// </summary>
-	private void OnGalaxyLoadFileSelected(string path)
-	{
-		GalaxySaveData? data = GalaxyPersistence.LoadAuto(path);
-        if (data == null || !data.IsValid())
-        {
-            GD.PushError($"MainApp: invalid or missing save file: {path}");
-            return;
-        }
-
-        _galaxySeed = data.GalaxySeed;
-        CreateGalaxyViewer(_galaxySeed, data.GetConfig());
-        _bodyOverrides = data.GetBodyOverrides();
-
-        ShowGalaxyViewer();
-        _galaxyViewer?.ApplySaveData(data);
-    }
 
 	/// <summary>
 	/// Returns from the galaxy-generation studio to the main menu.
@@ -223,86 +179,6 @@ public partial class MainApp
     }
 
     /// <summary>
-    /// Opens a load dialog for standalone system files from the studio.
-    /// </summary>
-    private void OnSystemGenerationLoadRequested()
-    {
-        FileDialog dialog = new()
-        {
-            FileMode = FileDialog.FileModeEnum.OpenFile,
-            Access = FileDialog.AccessEnum.Userdata,
-            Filters = new string[] { "*.sgs ; StarGen System", "*.json ; JSON Debug" },
-        };
-        dialog.FileSelected += path =>
-        {
-            OnSystemGenerationLoadFileSelected(path);
-            dialog.QueueFree();
-        };
-        dialog.Canceled += dialog.QueueFree;
-        AddChild(dialog);
-        dialog.PopupCentered(new Vector2I(800, 600));
-    }
-
-    /// <summary>
-    /// Opens a load dialog for standalone body files from the studio.
-    /// </summary>
-    private void OnObjectGenerationLoadRequested()
-    {
-        FileDialog dialog = new()
-        {
-            FileMode = FileDialog.FileModeEnum.OpenFile,
-            Access = FileDialog.AccessEnum.Userdata,
-            Filters = SaveData.GetFileFilters(includeLegacy: true),
-        };
-        dialog.FileSelected += path =>
-        {
-            OnObjectGenerationLoadFileSelected(path);
-            dialog.QueueFree();
-        };
-        dialog.Canceled += dialog.QueueFree;
-        AddChild(dialog);
-        dialog.PopupCentered(new Vector2I(800, 600));
-    }
-
-    /// <summary>
-    /// Loads a system selected in the standalone system studio.
-    /// </summary>
-    private void OnSystemGenerationLoadFileSelected(string path)
-    {
-        SystemPersistenceLoadResult result = SystemPersistence.Load(path);
-        if (!result.Success || result.System == null)
-        {
-            GD.PushError($"MainApp: failed to load system save '{path}': {result.ErrorMessage}");
-            return;
-        }
-
-        _systemOrigin = NavigationOrigin.Menu;
-        _objectOrigin = NavigationOrigin.None;
-        ShowSystemViewer();
-        ConceptWorldStateGenerator.EnsureSystemConcepts(result.System);
-        _systemViewer?.DisplaySystem(result.System);
-        if (result.System.Provenance != null)
-        {
-            _systemViewer?.UpdateSeedDisplay((int)result.System.Provenance.GenerationSeed);
-        }
-    }
-
-    /// <summary>
-    /// Loads an object selected in the standalone object studio.
-    /// </summary>
-    private void OnObjectGenerationLoadFileSelected(string path)
-    {
-        _systemOrigin = NavigationOrigin.None;
-        _objectOrigin = NavigationOrigin.Menu;
-        ShowObjectViewer();
-        SaveDataLoadResult result = _objectViewer?.LoadBodyFromPath(path) ?? new SaveDataLoadResult();
-        if (!result.Success)
-        {
-            GD.PushError($"MainApp: failed to load body save '{path}': {result.ErrorMessage}");
-        }
-    }
-
-    /// <summary>
     /// Opens a selected system from the galaxy viewer.
     /// </summary>
     private void OnOpenSystemRequested(int starSeed, Godot.Vector3 worldPosition)
@@ -323,7 +199,6 @@ public partial class MainApp
         if (preview != null && preview.StarSeed == starSeed && preview.System != null)
         {
             system = preview.System;
-            ConceptWorldStateGenerator.EnsureSystemConcepts(system, _galaxySeed);
             ApplyOverridesToSystem(system, starSeed);
             ApplyColonizationSimulationToSystem(system, starSeed);
             _systemCache.PutSystem(starSeed, system);
@@ -337,7 +212,6 @@ public partial class MainApp
                 system = GenerateSystemFromSeed(starSeed, useCaseSettings, worldPosition, _galaxyViewer?.GetGalaxy());
                 if (system != null)
                 {
-                    ConceptWorldStateGenerator.EnsureSystemConcepts(system, _galaxySeed);
                     ApplyOverridesToSystem(system, starSeed);
                     ApplyColonizationSimulationToSystem(system, starSeed);
                     _systemCache.PutSystem(starSeed, system);
@@ -345,7 +219,6 @@ public partial class MainApp
             }
             else
             {
-                ConceptWorldStateGenerator.EnsureSystemConcepts(system, _galaxySeed);
                 ApplyOverridesToSystem(system, starSeed);
                 ApplyColonizationSimulationToSystem(system, starSeed);
             }
@@ -384,7 +257,6 @@ public partial class MainApp
                 galaxy: galaxy);
             if (galaxySystem != null)
             {
-                ConceptWorldStateGenerator.EnsureSystemConcepts(galaxySystem);
                 ColonizationSimulationOverlay.ApplyToSystem(galaxySystem, starSeed, galaxy);
                 return galaxySystem;
             }
@@ -416,7 +288,6 @@ public partial class MainApp
         SolarSystem? system = SystemFixtureGenerator.GenerateSystem(spec);
         if (system != null)
         {
-            ConceptWorldStateGenerator.EnsureSystemConcepts(system);
             ColonizationSimulationOverlay.ApplyToSystem(system, starSeed, galaxy);
         }
         return system;
@@ -601,19 +472,6 @@ public partial class MainApp
 
         _bodyOverrides.SetOverride(starSeed, body);
         _systemCache.Evict(starSeed);
-    }
-
-    /// <summary>
-    /// Picks the best default concept module for the provided context.
-    /// </summary>
-    private static ConceptKind ChooseAtlasKind(ConceptContextSnapshot snapshot)
-    {
-        if (snapshot.Population > 0)
-        {
-            return ConceptKind.Civilization;
-        }
-
-        return ConceptKind.Ecology;
     }
 
     /// <summary>

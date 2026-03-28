@@ -1,10 +1,26 @@
 # Version
 
-Current version: `0.8.0.0`
+Current version: `0.8.1.0`
 
-Date: `2026-03-26`
+Current user-facing version: `0.9d`
+
+Date: `2026-03-28`
 
 Versioning method: release/refactor `+0.1`, feature `+0.0.1`, bug fix `+0.0.0.1`, save-breaking release `+1.0`.
+
+## 0.8.1.0
+
+- Feature: Checkpointed the current mainline branch state around the `0.8.1.0` feature update so the ongoing branch split, scene-first UI migration, version-channel plumbing, and mainline scope reductions are preserved in git while the user-facing release line remains `0.9d`.
+- Feature: Pushed the shipped UI further toward `.tscn` ownership by moving inspector/editor shells, reusable rows, validation labels, and fixed defaults/tooltips into scene resources and shared UI templates.
+- Feature: Mainline remains generation-and-view focused, with Concept Atlas and save/load/export paths removed from the shipped runtime flow while related parked or compatibility code stays in-repo for branch-specific follow-up.
+- Test: The current checkpoint still builds and passes the trimmed mainline headless harness (`1774 / 1774`) after the UI audit and test-suite rewrite.
+
+## 0.9.0.0
+
+- Release: Cut the `0.9` mainline release branch around generation-and-view workflows only, with branch-aware user-facing version composition now resolving to `0.9.0.0d` on mainline and `0.9.0.0e` on the export branch.
+- Release: Removed shipped Concept Atlas entry points and concept-summary runtime surfaces from the mainline app flow; concept-heavy systems remain parked in-repo for later migration, while `Concepts/Additions.md` stays the StarGen-only prototype backlog.
+- Release: Removed mainline load/save/export entry points from studios, viewers, and the object edit dialog so the public `0.9` line no longer exposes persistence behavior.
+- Test: Rewrote the mainline harness around deterministic generation, realism, provenance, and non-UI integration coverage; UI-focused tests, concept harness registration, and mainline persistence/save-load suites were discarded from the `0.9` branch.
 
 ## 0.8.0.0
 

@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using Godot;
 using Godot.Collections;
+using StarGen.App.Components;
 using StarGen.App.Shared;
 using StarGen.Domain.Generation;
 using StarGen.Domain.Generation.Archetypes;
@@ -19,11 +20,6 @@ public partial class SystemViewer
         if (_generationSection == null)
         {
             return;
-        }
-
-        if (_starCountLabel != null)
-        {
-            _starCountLabel.Text = "Min Stars:";
         }
 
         _starCountMaxSpin = GetNodeOrNull<SpinBox>("UI/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/GenerationSection/StarCountMaxContainer/StarCountMaxSpin")
@@ -70,9 +66,6 @@ public partial class SystemViewer
         Label? populationPermissivenessLabel = GetNodeOrNull<Label>("UI/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/GenerationSection/PopulationPermissivenessContainer/PopulationPermissivenessLabel");
         Label mainworldPolicyLabel = GetNodeOrNull<Label>("UI/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/GenerationSection/MainworldPolicyContainer/MainworldPolicyLabel")
             ?? throw new System.InvalidOperationException("SystemViewer scene is missing MainworldPolicyLabel.");
-        Label permissivenessLegendLabel = GetNodeOrNull<Label>("UI/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/GenerationSection/PermissivenessLegendLabel")
-            ?? throw new System.InvalidOperationException("SystemViewer scene is missing PermissivenessLegendLabel.");
-
         string starCountMaxAssumption = GetSystemAssumption("star_count_max");
         string spectralHintsAssumption = GetSystemAssumption("spectral_class_hints");
         string systemAgeAssumption = GetSystemAssumption("system_age_years");
@@ -106,8 +99,6 @@ public partial class SystemViewer
         }
         mainworldPolicyLabel.TooltipText = mainworldAssumption;
         _mainworldPolicyOption.TooltipText = mainworldAssumption;
-        permissivenessLegendLabel.Text = PermissivenessScaleHelper.GetLegendText();
-
         if (_rulesetModeOption.ItemCount == 0)
         {
             _rulesetModeOption.AddItem(GenerationUseCasePresentation.RealisticRulesetLabel, (int)GenerationUseCaseSettings.RulesetModeType.Default);
@@ -288,9 +279,8 @@ public partial class SystemViewer
 
         if (_currentGenerationIssues.Issues.Count == 0)
         {
-            Label cleanLabel = new Label();
+            Label cleanLabel = UiSceneTemplates.InstantiateMessageLabel();
             cleanLabel.Text = "No parameter issues.";
-            cleanLabel.AddThemeFontSizeOverride("font_size", 10);
             cleanLabel.Modulate = new Color(0.55f, 0.75f, 0.55f, 1.0f);
             _generationIssuesContainer.AddChild(cleanLabel);
             return;
@@ -298,10 +288,7 @@ public partial class SystemViewer
 
         foreach (GenerationParameterIssue issue in _currentGenerationIssues.Issues)
         {
-            Label issueLabel = new Label();
-            issueLabel.AutowrapMode = TextServer.AutowrapMode.Word;
-            issueLabel.CustomMinimumSize = new Vector2(220.0f, 0.0f);
-            issueLabel.AddThemeFontSizeOverride("font_size", 10);
+            Label issueLabel = UiSceneTemplates.InstantiateMessageLabel();
             string prefix = "Warning";
             issueLabel.Modulate = new Color(0.85f, 0.7f, 0.3f, 1.0f);
             if (issue.Severity == GenerationParameterIssue.IssueSeverity.Error)

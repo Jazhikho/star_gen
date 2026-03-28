@@ -22,6 +22,7 @@ public partial class SystemViewer
         _statusLabel = GetNodeOrNull<Label>("UI/TopBar/MarginContainer/TopBarVBox/HeaderRow/StatusLabel");
         _inspectorPanel = GetNodeOrNull<Node>("UI/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/InspectorPanel");
         _generationSection = GetNodeOrNull<VBoxContainer>("UI/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/GenerationSection");
+        _saveLoadSection = GetNodeOrNull<Control>("UI/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/SaveLoadSection");
         _starCountLabel = GetNodeOrNull<Label>("UI/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/GenerationSection/StarCountContainer/StarCountLabel");
         _starCountSpin = GetNodeOrNull<SpinBox>("UI/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/GenerationSection/StarCountContainer/StarCountSpin");
         _seedInput = GetNodeOrNull<SpinBox>("UI/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/GenerationSection/SeedContainer/SeedInput");
@@ -71,13 +72,6 @@ public partial class SystemViewer
     /// </summary>
     private void SetupGenerationUi()
     {
-        if (_starCountSpin != null)
-        {
-            _starCountSpin.MinValue = 1;
-            _starCountSpin.MaxValue = 10;
-            _starCountSpin.Value = 1;
-        }
-
         if (_seedInput != null)
         {
             _seedInput.Value = GD.Randi() % 1000000;
@@ -95,15 +89,6 @@ public partial class SystemViewer
     /// </summary>
     private void SetupViewUi()
     {
-        if (_showOrbitsCheck != null)
-        {
-            _showOrbitsCheck.ButtonPressed = true;
-        }
-
-        if (_showZonesCheck != null)
-        {
-            _showZonesCheck.ButtonPressed = false;
-        }
     }
 
     /// <summary>
@@ -147,6 +132,11 @@ public partial class SystemViewer
     /// </summary>
     private void SetupSaveLoadUi()
     {
+        if (_saveLoadSection != null)
+        {
+            _saveLoadSection.Visible = false;
+        }
+
         SetupEmptyStateUi();
         UpdateSaveButtonState();
     }
@@ -154,93 +144,29 @@ public partial class SystemViewer
     /// <summary>
     /// Creates the empty-state placeholder shown before the first standalone generation.
     /// </summary>
-    private void SetupEmptyStateUi()
-    {
-        if (_emptyStateLabel == null)
-        {
-            throw new System.InvalidOperationException("SystemViewer scene is missing EmptyStateLabel.");
-        }
+	private void SetupEmptyStateUi()
+	{
+		if (_emptyStateLabel == null)
+		{
+			throw new System.InvalidOperationException("SystemViewer scene is missing EmptyStateLabel.");
+		}
 
-        _emptyStateLabel.HorizontalAlignment = HorizontalAlignment.Center;
-        _emptyStateLabel.VerticalAlignment = VerticalAlignment.Center;
-        _emptyStateLabel.AutowrapMode = TextServer.AutowrapMode.Word;
-        _emptyStateLabel.CustomMinimumSize = new Vector2(280.0f, 0.0f);
-        UpdateEmptyStateVisibility();
-    }
+		UpdateEmptyStateVisibility();
+	}
 
     /// <summary>
     /// Applies tooltip text to interactive controls.
     /// </summary>
-    private void SetupTooltips()
-    {
-        if (_generateButton != null)
-        {
-            _generateButton.TooltipText = "Generate system with current settings";
-        }
-
-        if (_rerollButton != null)
-        {
-            _rerollButton.TooltipText = "Generate with a new random seed";
-        }
-
-        if (_starCountSpin != null)
-        {
-            _starCountSpin.TooltipText = "Number of stars in the system (1-10)";
-        }
-
-        if (_seedInput != null)
-        {
-            _seedInput.TooltipText = "Generation seed for deterministic results";
-        }
-
-        if (_showOrbitsCheck != null)
-        {
-            _showOrbitsCheck.TooltipText = "Toggle orbital path visibility";
-        }
-
-        if (_showZonesCheck != null)
-        {
-            _showZonesCheck.TooltipText = "Toggle habitable zone visibility";
-        }
-
-        if (_saveButton != null)
-        {
-            _saveButton.TooltipText = "Save current system to file (Ctrl+S)";
-        }
-
-        if (_loadButton != null)
-        {
-            _loadButton.TooltipText = "Load system from file (Ctrl+O)";
-        }
-
-        if (_backButton != null)
-        {
-            _backButton.TooltipText = _backNavigationTooltip;
-        }
-
-        if (_rulesetModeOption != null)
-        {
-            _rulesetModeOption.TooltipText = GetSystemAssumption("ruleset_mode");
-        }
-
-        if (_showTravellerReadoutsCheck != null)
-        {
-            _showTravellerReadoutsCheck.TooltipText = GetSystemAssumption("show_traveller_readouts");
-        }
-
-        if (_lifePermissivenessInput != null)
-        {
-            _lifePermissivenessInput.TooltipText = PermissivenessScaleHelper.GetTooltipText("life");
+	private void SetupTooltips()
+	{
+		if (_backButton != null)
+		{
+			_backButton.TooltipText = _backNavigationTooltip;
         }
 
         if (_populationPermissivenessInput != null)
         {
             _populationPermissivenessInput.TooltipText = PermissivenessScaleHelper.GetTooltipText("settlement");
-        }
-
-        if (_mainworldPolicyOption != null)
-        {
-            _mainworldPolicyOption.TooltipText = GetSystemAssumption("mainworld_policy");
         }
     }
 
@@ -267,16 +193,6 @@ public partial class SystemViewer
         if (_showZonesCheck != null)
         {
             _showZonesCheck.Toggled += OnShowZonesToggled;
-        }
-
-        if (_saveButton != null)
-        {
-            _saveButton.Pressed += OnSavePressed;
-        }
-
-        if (_loadButton != null)
-        {
-            _loadButton.Pressed += OnLoadPressed;
         }
 
         if (_backButton != null)

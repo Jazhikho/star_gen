@@ -252,6 +252,7 @@ value = -1.0
 
 [node name="IncludeBeltsCheck" type="CheckBox" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox" unique_id=666668619]
 layout_mode = 2
+button_pressed = true
 text = "Asteroid Belts"
 
 [node name="RulesPanel" type="PanelContainer" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow" unique_id=1483027816]
@@ -428,6 +429,7 @@ autowrap_mode = 2
 layout_mode = 2
 theme_override_colors/font_color = Color(0.631373, 0.701961, 0.772549, 1)
 autowrap_mode = 2
+tooltip_text = "Traveller mode raises life permissiveness, enables Traveller readouts, and requires a mainworld candidate when possible while leaving non-Traveller system details to the normal deterministic generator."
 
 [node name="IssuesTitle" type="Label" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SummaryPanel/MarginContainer/SummaryVBox/SummaryScroll/SummaryContent" unique_id=1674242346]
 layout_mode = 2

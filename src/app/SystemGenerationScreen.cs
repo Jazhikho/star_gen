@@ -1,5 +1,6 @@
 using Godot;
 using Godot.Collections;
+using StarGen.App.Components;
 using StarGen.App.Shared;
 using StarGen.Domain.Generation;
 using StarGen.Domain.Generation.Parameters;
@@ -15,9 +16,6 @@ public partial class SystemGenerationScreen : Control
 {
 	[Signal]
 	public delegate void start_system_generationEventHandler(SolarSystemSpec spec);
-
-	[Signal]
-	public delegate void load_system_requestedEventHandler();
 
 	[Signal]
 	public delegate void back_requestedEventHandler();
@@ -193,7 +191,6 @@ public partial class SystemGenerationScreen : Control
 	private void ConnectSignals()
 	{
 		if (_startButton != null) _startButton.Pressed += OnStartPressed;
-		if (_loadButton != null) _loadButton.Pressed += () => EmitSignal(SignalName.load_system_requested);
 		if (_backButton != null) _backButton.Pressed += () => EmitSignal(SignalName.back_requested);
 		if (_seedInput != null) _seedInput.ValueChanged += _ => RefreshSummary();
 		if (_starCountMinInput != null) _starCountMinInput.ValueChanged += _ => RefreshSummary();
@@ -220,17 +217,6 @@ public partial class SystemGenerationScreen : Control
 
 	private void ApplyDefaults()
 	{
-		if (_seedInput != null) _seedInput.Value = 12345.0;
-		if (_starCountMinInput != null) _starCountMinInput.Value = 1.0;
-		if (_starCountMaxInput != null) _starCountMaxInput.Value = 1.0;
-		if (_systemAgeInput != null) _systemAgeInput.Value = -1.0;
-		if (_systemMetallicityInput != null) _systemMetallicityInput.Value = -1.0;
-		if (_includeBeltsCheck != null) _includeBeltsCheck.ButtonPressed = true;
-		if (_generatePopulationCheck != null) _generatePopulationCheck.ButtonPressed = false;
-		if (_rulesetModeOption != null) _rulesetModeOption.Select((int)GenerationUseCaseSettings.RulesetModeType.Default);
-		if (_showTravellerReadoutsCheck != null) _showTravellerReadoutsCheck.ButtonPressed = false;
-		if (_lifePermissivenessInput != null) _lifePermissivenessInput.Value = GenerationUseCaseSettings.NeutralPermissiveness;
-		if (_mainworldPolicyOption != null) _mainworldPolicyOption.Select((int)GenerationUseCaseSettings.MainworldPolicyType.None);
 		UpdatePermissivenessValueLabels();
 	}
 
@@ -301,7 +287,6 @@ public partial class SystemGenerationScreen : Control
 		if (_assumptionsLabel != null)
 		{
 			_assumptionsLabel.Text = string.Empty;
-			_assumptionsLabel.TooltipText = "Traveller mode raises life permissiveness, enables Traveller readouts, and requires a mainworld candidate when possible while leaving non-Traveller system details to the normal deterministic generator.";
 		}
 
 		RefreshIssuesUi();
@@ -321,7 +306,7 @@ public partial class SystemGenerationScreen : Control
 
 		if (_currentIssues.Issues.Count == 0)
 		{
-			Label label = new Label();
+			Label label = UiSceneTemplates.InstantiateMessageLabel();
 			label.Text = "No parameter issues.";
 			label.Modulate = new Color(0.55f, 0.75f, 0.55f, 1.0f);
 			_issuesContainer.AddChild(label);
@@ -330,8 +315,7 @@ public partial class SystemGenerationScreen : Control
 
 		foreach (GenerationParameterIssue issue in _currentIssues.Issues)
 		{
-			Label label = new Label();
-			label.AutowrapMode = TextServer.AutowrapMode.Word;
+			Label label = UiSceneTemplates.InstantiateMessageLabel();
 			if (issue.Severity == GenerationParameterIssue.IssueSeverity.Error)
 			{
 				label.Modulate = new Color(1.0f, 0.45f, 0.45f, 1.0f);
@@ -429,6 +413,11 @@ public partial class SystemGenerationScreen : Control
 		if (_populationPermissivenessRow != null)
 		{
 			_populationPermissivenessRow.Visible = false;
+		}
+
+		if (_loadButton != null)
+		{
+			_loadButton.Visible = false;
 		}
 	}
 

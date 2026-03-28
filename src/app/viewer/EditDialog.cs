@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using Godot;
 using Godot.Collections;
+using StarGen.App.Components;
 using StarGen.Domain.Celestial;
 using StarGen.Domain.Celestial.Components;
 using StarGen.Domain.Celestial.Validation;
@@ -10,7 +11,6 @@ using StarGen.Domain.Generation;
 using StarGen.Domain.Generation.Archetypes;
 using StarGen.Domain.Math;
 using StarGen.App.Rendering;
-using StarGen.Services.Persistence;
 
 namespace StarGen.App.Viewer;
 
@@ -34,22 +34,12 @@ public partial class EditDialog : Window
 	/// <summary>ParentContext to use when regenerating. Set by the caller (ObjectViewer) if the body was generated in a known context; null = use type default.</summary>
 	public ParentContext? RegenerationContext { get; set; }
 
-	private const float SectionColorR = 0.9f;
-	private const float SectionColorG = 0.9f;
-	private const float SectionColorB = 0.9f;
-	private const float LabelColorR = 0.6f;
-	private const float LabelColorG = 0.6f;
-	private const float LabelColorB = 0.6f;
-	private const float DerivedColorR = 0.5f;
-	private const float DerivedColorG = 0.6f;
-	private const float DerivedColorB = 0.7f;
 	private const float WarningColorR = 0.9f;
 	private const float WarningColorG = 0.6f;
 	private const float WarningColorB = 0.2f;
 	private const float LockedColorR = 0.9f;
 	private const float LockedColorG = 0.7f;
 	private const float LockedColorB = 0.3f;
-	private const float LabelMinWidth = 120.0f;
 	private const float DefaultDisplayStep = 0.001f;
 
 	private static readonly System.Collections.Generic.Dictionary<string, double> DisplayFactors = new()
@@ -127,9 +117,7 @@ public partial class EditDialog : Window
 	private OptionButton? _travellerOption;
 	private Button? _travellerApply;
 	private Button? _travellerClear;
-	private FileDialog? _saveDialog;
 	private Button? _regenerateBtn;
-	private Button? _saveBtn;
 	private VBoxContainer? _validationIssuesContainer;
 
 	private VBoxContainer? _content;
@@ -153,8 +141,17 @@ public partial class EditDialog : Window
 		_confirmButton = GetNodeOrNull<Button>("MarginContainer/VBoxContainer/ButtonContainer/ConfirmButton");
 		_cancelButton = GetNodeOrNull<Button>("MarginContainer/VBoxContainer/ButtonContainer/CancelButton");
 		_regenerateBtn = GetNodeOrNull<Button>("MarginContainer/VBoxContainer/ButtonContainer/RegenerateButton");
-		_saveBtn = GetNodeOrNull<Button>("MarginContainer/VBoxContainer/ButtonContainer/SaveAsButton");
-		_saveDialog = GetNodeOrNull<FileDialog>("SaveFileDialog");
+		Button? saveButton = GetNodeOrNull<Button>("MarginContainer/VBoxContainer/ButtonContainer/SaveAsButton");
+		FileDialog? saveDialog = GetNodeOrNull<FileDialog>("SaveFileDialog");
+		if (saveButton != null)
+		{
+			saveButton.Visible = false;
+		}
+
+		if (saveDialog != null)
+		{
+			saveDialog.Visible = false;
+		}
 
 		if (_revertButton != null)
 			_revertButton.Pressed += OnRevertPressed;
@@ -381,9 +378,7 @@ public partial class EditDialog : Window
 			AddNumericEditor("surface.volcanism_level", "Volcanism Level");
 		}
 		AddSection("Validation");
-		_validationIssuesContainer = new VBoxContainer();
-		_validationIssuesContainer.AddThemeConstantOverride("separation", 2);
-		_currentSectionContent?.AddChild(_validationIssuesContainer);
+		_validationIssuesContainer = _currentSectionContent;
 		UpdateValidationIssues();
 	}
 
@@ -391,16 +386,10 @@ public partial class EditDialog : Window
 	{
 		if (_content == null)
 			return;
-		VBoxContainer section = new VBoxContainer();
-		section.AddThemeConstantOverride("separation", 5);
-		Label header = new Label { Text = titleText };
-		header.AddThemeFontSizeOverride("font_size", 16);
-		header.AddThemeColorOverride("font_color", new Color(SectionColorR, SectionColorG, SectionColorB));
-		section.AddChild(header);
-		section.AddChild(new HSeparator());
-		VBoxContainer content = new VBoxContainer();
-		content.AddThemeConstantOverride("separation", 12);
-		section.AddChild(content);
+		VBoxContainer section = UiSceneTemplates.InstantiateEditSection();
+		Label header = UiSceneTemplates.GetRequiredChild<Label>(section, "TitleLabel");
+		VBoxContainer content = UiSceneTemplates.GetRequiredChild<VBoxContainer>(section, "Content");
+		header.Text = titleText;
 		_content.AddChild(section);
 		_currentSectionContent = content;
 	}
@@ -412,11 +401,10 @@ public partial class EditDialog : Window
 			return;
 		}
 
-		HBoxContainer row = new HBoxContainer();
-		Label lbl = new Label { Text = "Name:" };
-		lbl.CustomMinimumSize = new Vector2(LabelMinWidth, 0);
-		lbl.AddThemeColorOverride("font_color", new Color(LabelColorR, LabelColorG, LabelColorB));
-		row.AddChild(lbl);
+		HBoxContainer row = UiSceneTemplates.InstantiateLabeledInputRow();
+		Label lbl = UiSceneTemplates.GetRequiredChild<Label>(row, "Label");
+		HBoxContainer inputHost = UiSceneTemplates.GetRequiredChild<HBoxContainer>(row, "InputHost");
+		lbl.Text = "Name:";
 		LineEdit edit = new LineEdit();
 		edit.Text = DictGetString(_workingValues, "name", "");
 		edit.SizeFlagsHorizontal = Control.SizeFlags.ExpandFill;
@@ -425,7 +413,7 @@ public partial class EditDialog : Window
 			_workingValues["name"] = t;
 			ApplyValuesToBody();
 		};
-		row.AddChild(edit);
+		inputHost.AddChild(edit);
 		_currentSectionContent.AddChild(row);
 	}
 
@@ -435,20 +423,17 @@ public partial class EditDialog : Window
 			return;
 		if (!_constraints.HasConstraint(propertyPath))
 			return;
-		VBoxContainer container = new VBoxContainer();
-		container.AddThemeConstantOverride("separation", 4);
-		Label lbl = new Label { Text = labelText };
-		lbl.AddThemeColorOverride("font_color", new Color(LabelColorR, LabelColorG, LabelColorB));
-		lbl.AddThemeFontSizeOverride("font_size", 13);
-		container.AddChild(lbl);
-		HBoxContainer controls = new HBoxContainer();
-		controls.AddThemeConstantOverride("separation", 8);
-		CheckButton lockBtn = new CheckButton { Text = "Lock", TooltipText = "Lock this property (constrains dependent properties)" };
-		lockBtn.CustomMinimumSize = new Vector2(50, 0);
+		VBoxContainer container = UiSceneTemplates.InstantiateNumericEditorRow();
+		Label lbl = UiSceneTemplates.GetRequiredChild<Label>(container, "TitleLabel");
+		HBoxContainer controls = UiSceneTemplates.GetRequiredChild<HBoxContainer>(container, "ControlsRow");
+		CheckButton lockBtn = UiSceneTemplates.GetRequiredChild<CheckButton>(container, "ControlsRow/LockButton");
+		HSlider slider = UiSceneTemplates.GetRequiredChild<HSlider>(container, "ControlsRow/Slider");
+		SpinBox spin = UiSceneTemplates.GetRequiredChild<SpinBox>(container, "ControlsRow/SpinBox");
+		Label rangeLabel = UiSceneTemplates.GetRequiredChild<Label>(container, "RangeLabel");
+		lbl.Text = labelText;
 		lockBtn.ButtonPressed = _lockedPaths.Contains(propertyPath);
 		string pathCapture = propertyPath;
 		lockBtn.Toggled += pressed => OnLockToggled(pressed, pathCapture);
-		controls.AddChild(lockBtn);
 		Vector2 rangeBase = _constraints.GetRange(propertyPath, Vector2.Zero);
 		double factor = DisplayFactorFor(propertyPath);
 		float dispMin = (float)(rangeBase.X * factor);
@@ -464,20 +449,16 @@ public partial class EditDialog : Window
 			step = (float)DefaultDisplayStep;
 		}
 		string suffix = SuffixFor(propertyPath);
-		HSlider slider = new HSlider { MinValue = dispMin, MaxValue = dispMax, Step = step, Value = dispVal };
-		slider.SizeFlagsHorizontal = Control.SizeFlags.ExpandFill;
-		slider.CustomMinimumSize = new Vector2(100, 0);
-		controls.AddChild(slider);
-		SpinBox spin = new SpinBox { MinValue = dispMin, MaxValue = dispMax, Step = step, Value = dispVal, Suffix = suffix };
-		spin.CustomMinimumSize = new Vector2(140, 0);
-		spin.SizeFlagsHorizontal = Control.SizeFlags.ExpandFill;
-		controls.AddChild(spin);
-		container.AddChild(controls);
-		Label rangeLabel = new Label();
-		rangeLabel.AddThemeFontSizeOverride("font_size", 10);
-		rangeLabel.AddThemeColorOverride("font_color", new Color(0.5f, 0.5f, 0.5f));
+		slider.MinValue = dispMin;
+		slider.MaxValue = dispMax;
+		slider.Step = step;
+		slider.Value = dispVal;
+		spin.MinValue = dispMin;
+		spin.MaxValue = dispMax;
+		spin.Step = step;
+		spin.Value = dispVal;
+		spin.Suffix = suffix;
 		rangeLabel.Text = FmtRangeLabel(propertyPath, rangeBase);
-		container.AddChild(rangeLabel);
 		_currentSectionContent.AddChild(container);
 		slider.ValueChanged += v => OnSliderChanged(v, propertyPath, spin);
 		spin.ValueChanged += v => OnSpinChanged(v, propertyPath, slider);
@@ -496,21 +477,12 @@ public partial class EditDialog : Window
 			return;
 		}
 
-		HBoxContainer row = new HBoxContainer();
-		Label lbl = new Label { Text = labelText + ":" };
-		lbl.CustomMinimumSize = new Vector2(LabelMinWidth, 0);
-		lbl.AddThemeColorOverride("font_color", new Color(LabelColorR, LabelColorG, LabelColorB));
-		lbl.AddThemeFontSizeOverride("font_size", 12);
-		row.AddChild(lbl);
-		Label val = new Label { Text = valueText };
-		val.SizeFlagsHorizontal = Control.SizeFlags.ExpandFill;
-		val.AddThemeColorOverride("font_color", new Color(DerivedColorR, DerivedColorG, DerivedColorB));
-		val.AddThemeFontSizeOverride("font_size", 12);
-		row.AddChild(val);
-		Label tag = new Label { Text = "(derived)" };
-		tag.AddThemeFontSizeOverride("font_size", 10);
-		tag.AddThemeColorOverride("font_color", new Color(0.4f, 0.4f, 0.5f));
-		row.AddChild(tag);
+		HBoxContainer row = UiSceneTemplates.InstantiateEditDerivedPropertyRow();
+		Label lbl = UiSceneTemplates.GetRequiredChild<Label>(row, "Key");
+		Label val = UiSceneTemplates.GetRequiredChild<Label>(row, "Value");
+		Label tag = UiSceneTemplates.GetRequiredChild<Label>(row, "Tag");
+		lbl.Text = labelText + ":";
+		val.Text = valueText;
 		_currentSectionContent.AddChild(row);
 		if (!string.IsNullOrEmpty(trackKey))
 			_derivedLabels[trackKey] = val;
@@ -520,14 +492,11 @@ public partial class EditDialog : Window
 	{
 		if (_currentSectionContent == null)
 			return;
-		HBoxContainer row = new HBoxContainer();
-		row.AddThemeConstantOverride("separation", 8);
-		Label lbl = new Label { Text = "Size Code:" };
-		lbl.CustomMinimumSize = new Vector2(LabelMinWidth, 0);
-		lbl.AddThemeColorOverride("font_color", new Color(LabelColorR, LabelColorG, LabelColorB));
-		row.AddChild(lbl);
-		_travellerOption = new OptionButton();
-		_travellerOption.SizeFlagsHorizontal = Control.SizeFlags.ExpandFill;
+		VBoxContainer travellerPanel = UiSceneTemplates.InstantiateTravellerConstraintRow();
+		_travellerOption = UiSceneTemplates.GetRequiredChild<OptionButton>(travellerPanel, "Row/Option");
+		_travellerApply = UiSceneTemplates.GetRequiredChild<Button>(travellerPanel, "Row/ApplyButton");
+		_travellerClear = UiSceneTemplates.GetRequiredChild<Button>(travellerPanel, "Row/ClearButton");
+		Label status = UiSceneTemplates.GetRequiredChild<Label>(travellerPanel, "StatusLabel");
 		Godot.Collections.Array codes = TravellerConstraintBuilder.AllCodes();
 		Variant currentCode = TravellerConstraintBuilder.CodeForRadius(Wv("physical.radius_m", 6.371e6));
 		int selIdx = 0;
@@ -540,20 +509,11 @@ public partial class EditDialog : Window
 				selIdx = i;
 		}
 		_travellerOption.Selected = selIdx;
-		row.AddChild(_travellerOption);
-		_travellerApply = new Button { Text = "Apply", TooltipText = "Constrain radius and mass to this Traveller size code" };
 		_travellerApply.Pressed += OnTravellerApply;
-		row.AddChild(_travellerApply);
-		_travellerClear = new Button { Text = "Clear", TooltipText = "Remove Traveller constraint" };
 		_travellerClear.Disabled = _travellerCode.VariantType == Variant.Type.Nil;
 		_travellerClear.Pressed += OnTravellerClear;
-		row.AddChild(_travellerClear);
-		_currentSectionContent.AddChild(row);
-		Label status = new Label();
-		status.AddThemeFontSizeOverride("font_size", 10);
-		status.AddThemeColorOverride("font_color", new Color(0.5f, 0.5f, 0.5f));
 		status.Text = TravellerStatusText();
-		_currentSectionContent.AddChild(status);
+		_currentSectionContent.AddChild(travellerPanel);
 		_derivedLabels["TravellerStatus"] = status;
 	}
 
@@ -732,11 +692,8 @@ public partial class EditDialog : Window
 		ValidationResult validation = CelestialValidator.Validate(_body);
 		if (validation.IsClean())
 		{
-			Label cleanLabel = new Label
-			{
-				Text = "No validation issues",
-			};
-			cleanLabel.AddThemeFontSizeOverride("font_size", 11);
+			Label cleanLabel = UiSceneTemplates.InstantiateEditValidationMessageLabel();
+			cleanLabel.Text = "No validation issues";
 			cleanLabel.AddThemeColorOverride("font_color", new Color(0.55f, 0.75f, 0.55f));
 			_validationIssuesContainer.AddChild(cleanLabel);
 			return;
@@ -744,10 +701,7 @@ public partial class EditDialog : Window
 
 		foreach (ValidationError issue in validation.Errors)
 		{
-			Label label = new Label();
-			label.CustomMinimumSize = new Vector2(240.0f, 0.0f);
-			label.AutowrapMode = TextServer.AutowrapMode.Word;
-			label.AddThemeFontSizeOverride("font_size", 11);
+			Label label = UiSceneTemplates.InstantiateEditValidationMessageLabel();
 			if (issue.Severity == ValidationError.SeverityLevel.Error)
 			{
 				label.Text = "Error: " + issue.Message;
@@ -846,13 +800,7 @@ public partial class EditDialog : Window
 	{
 		if (_regenerateBtn == null)
 			throw new InvalidOperationException("EditDialog scene is missing RegenerateButton.");
-		if (_saveBtn == null)
-			throw new InvalidOperationException("EditDialog scene is missing SaveAsButton.");
-		if (_saveDialog == null)
-			throw new InvalidOperationException("EditDialog scene is missing SaveFileDialog.");
 		_regenerateBtn.Pressed += OnRegeneratePressed;
-		_saveBtn.Pressed += OnSavePressed;
-		_saveDialog.FileSelected += OnSavePathSelected;
 	}
 
 	private void OnRegeneratePressed()
@@ -896,43 +844,6 @@ public partial class EditDialog : Window
 
 		Title = "Edit: " + regenDisplayName + " (regenerated)";
 		EmitSignal(SignalName.BodyRegenerated, _body);
-	}
-
-	private void OnSavePressed()
-	{
-		if (_body == null)
-			return;
-		if (_saveDialog == null)
-			throw new InvalidOperationException("EditDialog scene is missing SaveFileDialog.");
-		_saveDialog.Filters = SaveData.GetFileFilters(_body.Type, includeLegacy: true);
-		_saveDialog.CurrentDir = OS.GetUserDataDir();
-		string rawName;
-		if (string.IsNullOrEmpty(_body.Name))
-		{
-			rawName = "edited_body";
-		}
-		else
-		{
-			rawName = _body.Name;
-		}
-
-		string defaultName = rawName.Replace(" ", "_").ToLowerInvariant();
-		_saveDialog.CurrentFile = defaultName + "." + SaveData.GetPreferredBinaryExtension(_body.Type);
-		_saveDialog.PopupCentered(new Vector2I(600, 400));
-	}
-
-	private void OnSavePathSelected(string path)
-	{
-		ApplyValuesToBody();
-		if (_body == null)
-			return;
-		bool useCompression = !path.EndsWith(".json", StringComparison.OrdinalIgnoreCase);
-		string savePath = SaveData.ResolveSavePath(_body, path, useCompression);
-		Error err = SaveData.SaveEditedBody(_body, savePath, useCompression);
-		if (err != Error.Ok)
-			Title = "Save failed: " + err.ToString();
-		else
-			Title = "Saved: " + System.IO.Path.GetFileName(savePath);
 	}
 
 	private double DisplayFactorFor(string propertyPath)

@@ -1,10 +1,10 @@
 using System;
 using Godot;
+using StarGen.App.Components;
 using StarGen.Domain.Celestial;
 using StarGen.Domain.Celestial.Components;
 using StarGen.Domain.Celestial.Serialization;
 using StarGen.Domain.Celestial.Validation;
-using StarGen.Domain.Concepts;
 using StarGen.Domain.Generation;
 using StarGen.Domain.Generation.Archetypes;
 using StarGen.Domain.Generation.Traveller;
@@ -32,6 +32,7 @@ public partial class InspectorPanel : VBoxContainer
 	public delegate void EditRequestedEventHandler();
 
 	private VBoxContainer? _inspectorContainer;
+	private VBoxContainer? _currentSectionContent;
 
 	/// <summary>
 	/// Caches the dynamic content container.
@@ -63,6 +64,8 @@ public partial class InspectorPanel : VBoxContainer
 		{
 			child.QueueFree();
 		}
+
+		_currentSectionContent = null;
 	}
 
 	/// <summary>
@@ -145,7 +148,7 @@ public partial class InspectorPanel : VBoxContainer
 
 	private void AddBodySummarySection(CelestialBody body, string? headerOverride = null)
 	{
-		AddSectionHeader(headerOverride ?? "Body");
+		BeginSection(headerOverride ?? "Body");
 		string nameValue;
 		if (string.IsNullOrEmpty(body.Name))
 		{
@@ -175,8 +178,6 @@ public partial class InspectorPanel : VBoxContainer
 		AddGenerationSnapshot(body);
 		AddTravellerReadout(body);
 		AddPopulationSummary(body);
-		AddConceptSummary(body);
-		AddConceptHistorySummary(body);
 		AddValidationSummary(body);
 		AddEditButton();
 	}
@@ -204,7 +205,7 @@ public partial class InspectorPanel : VBoxContainer
 			profile = TravellerWorldGenerator.DeriveFromBody(body);
 		}
 
-		AddSectionHeader("World Profile");
+		BeginSection("World Profile");
 		AddProperty("UWP", profile.ToUwpString());
 		AddProperty("Starport", profile.StarportCode);
 		AddProperty(
@@ -259,18 +260,15 @@ public partial class InspectorPanel : VBoxContainer
 			return;
 		}
 
-		VBoxContainer section = new();
-		section.AddThemeConstantOverride("separation", 2);
-
-		Label title = new();
+		VBoxContainer section = UiSceneTemplates.InstantiateSection();
+		Label title = UiSceneTemplates.GetRequiredChild<Label>(section, "TitleLabel");
+		VBoxContainer content = UiSceneTemplates.GetRequiredChild<VBoxContainer>(section, "Content");
 		title.Text = $"Moons ({moons.Count})";
-		title.AddThemeFontSizeOverride("font_size", 14);
-		section.AddChild(title);
 
 		for (int index = 0; index < moons.Count; index++)
 		{
 			CelestialBody moon = moons[index];
-			Button button = new();
+			Button button = UiSceneTemplates.InstantiateActionButton();
 			if (focusedMoon != null && moon.Id == focusedMoon.Id)
 			{
 				button.Text = $"* {moon.Name}";
@@ -291,7 +289,8 @@ public partial class InspectorPanel : VBoxContainer
 				emitValue = Variant.From((GodotObject?)null);
 			}
 			button.Pressed += () => EmitSignal(SignalName.MoonSelected, emitValue);
-			section.AddChild(button);
+			button.Alignment = HorizontalAlignment.Left;
+			content.AddChild(button);
 		}
 
 		_inspectorContainer.AddChild(section);
@@ -304,7 +303,7 @@ public partial class InspectorPanel : VBoxContainer
 			return;
 		}
 
-		Button button = new();
+		Button button = UiSceneTemplates.InstantiateActionButton();
 		if (planet == null)
 		{
 			button.Text = "Back to Planet";
@@ -317,51 +316,48 @@ public partial class InspectorPanel : VBoxContainer
 		_inspectorContainer.AddChild(button);
 	}
 
-	private void AddSectionHeader(string title)
+	private void BeginSection(string title)
 	{
 		if (_inspectorContainer == null)
 		{
 			return;
 		}
 
-		Label label = new();
-		label.Text = title;
-		label.AddThemeFontSizeOverride("font_size", 14);
-		_inspectorContainer.AddChild(label);
+		VBoxContainer section = UiSceneTemplates.InstantiateSection();
+		Label titleLabel = UiSceneTemplates.GetRequiredChild<Label>(section, "TitleLabel");
+		VBoxContainer content = UiSceneTemplates.GetRequiredChild<VBoxContainer>(section, "Content");
+		titleLabel.Text = title;
+		_inspectorContainer.AddChild(section);
+		_currentSectionContent = content;
 	}
 
 	private void AddProperty(string labelText, string valueText)
 	{
-		if (_inspectorContainer == null)
+		VBoxContainer? targetContainer = _currentSectionContent ?? _inspectorContainer;
+		if (targetContainer == null)
 		{
 			return;
 		}
 
-		HBoxContainer row = new();
-
-		Label label = new();
+		HBoxContainer row = UiSceneTemplates.InstantiatePropertyRow();
+		Label label = UiSceneTemplates.GetRequiredChild<Label>(row, "Key");
+		Label value = UiSceneTemplates.GetRequiredChild<Label>(row, "Value");
 		label.Text = $"{labelText}:";
-		label.CustomMinimumSize = new Vector2(120.0f, 0.0f);
-		row.AddChild(label);
-
-		Label value = new();
 		value.Text = valueText;
-		value.SizeFlagsHorizontal = SizeFlags.ExpandFill;
-		row.AddChild(value);
-
-		_inspectorContainer.AddChild(row);
+		targetContainer.AddChild(row);
 	}
 
 	private void AddInfoLabel(string text)
 	{
-		if (_inspectorContainer == null)
+		VBoxContainer? targetContainer = _currentSectionContent ?? _inspectorContainer;
+		if (targetContainer == null)
 		{
 			return;
 		}
 
-		Label label = new();
+		Label label = UiSceneTemplates.InstantiateMessageLabel();
 		label.Text = text;
-		_inspectorContainer.AddChild(label);
+		targetContainer.AddChild(label);
 	}
 
 	private void AddGenerationSnapshot(CelestialBody body)
@@ -371,7 +367,7 @@ public partial class InspectorPanel : VBoxContainer
 			return;
 		}
 
-		AddSectionHeader("Generation Targets");
+		BeginSection("Generation Targets");
 		if (body.Provenance.SpecSnapshot.ContainsKey("spec_type"))
 		{
 			AddProperty("Spec", body.Provenance.SpecSnapshot["spec_type"].ToString());
@@ -453,7 +449,7 @@ public partial class InspectorPanel : VBoxContainer
 			profile = TravellerWorldGenerator.DeriveFromBody(body);
 		}
 
-		AddSectionHeader("Traveller");
+		BeginSection("Traveller");
 		AddProperty("Ruleset", GenerationUseCasePresentation.GetRulesetLabel(settings.RulesetMode));
 		AddProperty("UWP", profile.ToUwpString());
 		AddProperty("Size Code", TravellerWorldProfile.ToHexDigit(profile.SizeCode));
@@ -515,7 +511,7 @@ public partial class InspectorPanel : VBoxContainer
 			return;
 		}
 
-		AddSectionHeader("Orbit");
+		BeginSection("Orbit");
 		AddProperty("Semi-major Axis", FormatDistance(body.Orbital.SemiMajorAxisM));
 		AddProperty("Eccentricity", $"{body.Orbital.Eccentricity:0.0000}");
 		AddProperty("Periapsis", FormatDistance(body.Orbital.GetPeriapsisM()));
@@ -534,7 +530,7 @@ public partial class InspectorPanel : VBoxContainer
 			return;
 		}
 
-		AddSectionHeader("Surface");
+		BeginSection("Surface");
 		AddProperty("Temperature", $"{body.Surface.TemperatureK:0.0} K");
 		AddProperty("Albedo", $"{body.Surface.Albedo:0.00}");
 		if (!string.IsNullOrWhiteSpace(body.Surface.SurfaceType))
@@ -572,7 +568,7 @@ public partial class InspectorPanel : VBoxContainer
 			return;
 		}
 
-		AddSectionHeader("Atmosphere");
+		BeginSection("Atmosphere");
 		AddProperty("Surface Pressure", $"{body.Atmosphere.SurfacePressurePa / 101325.0:0.###} atm");
 		AddProperty("Scale Height", FormatDistance(body.Atmosphere.ScaleHeightM));
 		AddProperty("Greenhouse", $"{body.Atmosphere.GreenhouseFactor:0.00}x");
@@ -589,7 +585,7 @@ public partial class InspectorPanel : VBoxContainer
 			return;
 		}
 
-		AddSectionHeader("Rings");
+		BeginSection("Rings");
 		AddProperty("Bands", body.RingSystem.GetBandCount().ToString());
 		AddProperty("Inner Radius", FormatDistance(body.RingSystem.GetInnerRadiusM()));
 		AddProperty("Outer Radius", FormatDistance(body.RingSystem.GetOuterRadiusM()));
@@ -603,7 +599,7 @@ public partial class InspectorPanel : VBoxContainer
 			return;
 		}
 
-		AddSectionHeader("Population");
+		BeginSection("Population");
 		AddProperty("Total Population", PropertyFormatter.FormatPopulation(body.PopulationData.GetTotalPopulation()));
 		AddProperty("Situation", body.PopulationData.GetPoliticalSituation());
 		AddProperty("Colonies", body.PopulationData.GetActiveColonyCount().ToString());
@@ -619,97 +615,6 @@ public partial class InspectorPanel : VBoxContainer
 		}
 	}
 
-	private void AddConceptSummary(CelestialBody body)
-	{
-		if (_inspectorContainer == null)
-		{
-			return;
-		}
-
-		bool hasPopulationConcepts = body.PopulationData != null && body.PopulationData.HasConceptResults();
-		if (!body.HasConceptResults() && !hasPopulationConcepts)
-		{
-			return;
-		}
-
-		AddSectionHeader("Concept Summary");
-		AddConceptProperties(body.ConceptResults);
-		if (body.PopulationData != null)
-		{
-			AddConceptProperties(body.PopulationData.ConceptResults);
-		}
-	}
-
-	private void AddConceptProperties(ConceptResultStore store)
-	{
-		foreach (ConceptKind kind in store.GetAll().Keys)
-		{
-			ConceptRunResult? result = store.Get(kind);
-			if (result == null)
-			{
-				continue;
-			}
-
-			string label = kind.ToString();
-			string value;
-			if (!string.IsNullOrEmpty(result.Subtitle))
-			{
-				value = result.Subtitle;
-			}
-			else
-			{
-				value = result.Title;
-			}
-
-			AddProperty(label, value);
-		}
-	}
-
-	private void AddConceptHistorySummary(CelestialBody body)
-	{
-		if (_inspectorContainer == null || body.PopulationData == null)
-		{
-			return;
-		}
-
-		Godot.Collections.Array<StarGen.Domain.Population.HistoryEvent> events = new();
-		foreach (StarGen.Domain.Population.NativePopulation nativePopulation in body.PopulationData.NativePopulations)
-		{
-			foreach (StarGen.Domain.Population.HistoryEvent historyEvent in nativePopulation.History.GetAllEvents())
-			{
-				if (historyEvent.Metadata.ContainsKey("concept_kind"))
-				{
-					events.Add(historyEvent);
-				}
-			}
-		}
-
-		foreach (StarGen.Domain.Population.Colony colony in body.PopulationData.Colonies)
-		{
-			foreach (StarGen.Domain.Population.HistoryEvent historyEvent in colony.History.GetAllEvents())
-			{
-				if (historyEvent.Metadata.ContainsKey("concept_kind"))
-				{
-					events.Add(historyEvent);
-				}
-			}
-		}
-
-		if (events.Count == 0)
-		{
-			return;
-		}
-
-		AddSectionHeader("History Highlights");
-		int startIndex = Mathf.Max(0, events.Count - 4);
-		for (int index = startIndex; index < events.Count; index += 1)
-		{
-			StarGen.Domain.Population.HistoryEvent historyEvent = events[index];
-			string label = StarGen.Domain.Population.HistoryEvent.TypeToString(historyEvent.Type);
-			AddProperty(label, historyEvent.Title);
-		}
-	}
-
 	private void AddValidationSummary(CelestialBody body)
 	{
 		if (_inspectorContainer == null)
@@ -718,7 +623,7 @@ public partial class InspectorPanel : VBoxContainer
 		}
 
 		ValidationResult validation = CelestialValidator.Validate(body);
-		AddSectionHeader("Validation");
+		BeginSection("Validation");
 		if (validation.IsClean())
 		{
 			AddInfoLabel("No validation issues");
@@ -727,9 +632,7 @@ public partial class InspectorPanel : VBoxContainer
 
 		foreach (ValidationError warning in validation.Errors)
 		{
-			Label label = new Label();
-			label.AutowrapMode = TextServer.AutowrapMode.Word;
-			label.CustomMinimumSize = new Vector2(220.0f, 0.0f);
+			Label label = UiSceneTemplates.InstantiateMessageLabel();
 			if (warning.Severity == ValidationError.SeverityLevel.Error)
 			{
 				label.Text = $"Error: {warning.Message}";
@@ -741,22 +644,26 @@ public partial class InspectorPanel : VBoxContainer
 				label.Modulate = new Color(0.85f, 0.7f, 0.3f, 1.0f);
 			}
 
-			_inspectorContainer.AddChild(label);
+			if (_currentSectionContent != null)
+			{
+				_currentSectionContent.AddChild(label);
+			}
 		}
 	}
 
 	private void AddEditButton()
 	{
-		if (_inspectorContainer == null)
+		VBoxContainer? targetContainer = _currentSectionContent ?? _inspectorContainer;
+		if (targetContainer == null)
 		{
 			return;
 		}
 
-		Button button = new Button();
+		Button button = UiSceneTemplates.InstantiateActionButton();
 		button.Text = "Open Parameter Editor";
 		button.TooltipText = "Edit and regenerate this body using validated parameters";
 		button.Pressed += () => EmitSignal(SignalName.EditRequested);
-		_inspectorContainer.AddChild(button);
+		targetContainer.AddChild(button);
 	}
 
 	private static string FormatDistance(double meters)

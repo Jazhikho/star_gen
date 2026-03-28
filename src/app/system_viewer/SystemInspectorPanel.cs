@@ -1,4 +1,6 @@
 using Godot;
+using System;
+using StarGen.App.Components;
 using StarGen.App.Viewer;
 using StarGen.Domain.Celestial;
 using StarGen.Domain.Celestial.Components;
@@ -36,11 +38,11 @@ public partial class SystemInspectorPanel : VBoxContainer
     private CelestialBody? _selectedBody;
 
     /// <summary>
-    /// Builds the panel UI on scene entry.
+    /// Binds scene-authored panel nodes on scene entry.
     /// </summary>
     public override void _Ready()
     {
-        BuildUi();
+        CacheUi();
     }
 
     /// <summary>
@@ -269,21 +271,18 @@ public partial class SystemInspectorPanel : VBoxContainer
     }
 
     /// <summary>
-    /// Builds the UI structure if needed.
+    /// Caches the scene-authored UI structure.
     /// </summary>
-    private void BuildUi()
+    private void CacheUi()
     {
-        if (_overviewSection != null && _bodySection != null)
+        _overviewSection = GetNodeOrNull<VBoxContainer>("OverviewSection/Content");
+        _bodySection = GetNodeOrNull<VBoxContainer>("SelectedBodySection/Content");
+        _openViewerButton = GetNodeOrNull<Button>("SelectedBodySection/OpenViewerButton");
+        if (_openViewerButton != null)
         {
-            return;
+            _openViewerButton.Pressed += OnOpenViewerPressed;
+            _openViewerButton.Visible = false;
         }
-
-        _overviewSection = CreateSection("System Overview");
-        AddChild(_overviewSection);
-        AddChild(new HSeparator());
-
-        _bodySection = CreateSection("Selected Body");
-        AddChild(_bodySection);
     }
 
     /// <summary>
@@ -551,12 +550,11 @@ public partial class SystemInspectorPanel : VBoxContainer
             return;
         }
 
-        Button button = new();
+        Button button = UiSceneTemplates.InstantiateActionButton();
         button.Text = "Focus " + body.Name + " (" + PropertyFormatter.FormatPopulation(body.PopulationData.GetTotalPopulation()) + ")";
         button.TooltipText = "Jump the system selection and camera to " + body.Name;
         button.Alignment = HorizontalAlignment.Left;
         button.AutowrapMode = TextServer.AutowrapMode.WordSmart;
-        button.SizeFlagsHorizontal = Control.SizeFlags.ExpandFill;
         button.Pressed += () => EmitSignal(SignalName.FocusBodyRequested, body);
         _overviewSection.AddChild(button);
     }
@@ -719,24 +717,7 @@ public partial class SystemInspectorPanel : VBoxContainer
     }
 
     /// <summary>
-    /// Creates a section container with a header label.
-    /// </summary>
-    private static VBoxContainer CreateSection(string title)
-    {
-        VBoxContainer section = new();
-        section.AddThemeConstantOverride("separation", 4);
-
-        Label header = new();
-        header.Text = title;
-        header.AddThemeFontSizeOverride("font_size", 14);
-        header.AddThemeColorOverride("font_color", new Color(0.9f, 0.9f, 0.9f));
-        section.AddChild(header);
-
-        return section;
-    }
-
-    /// <summary>
-    /// Clears all section content while preserving the header.
+    /// Clears all section content.
     /// </summary>
     private static void ClearSectionContent(VBoxContainer? section)
     {
@@ -745,10 +726,8 @@ public partial class SystemInspectorPanel : VBoxContainer
             return;
         }
 
-        while (section.GetChildCount() > 1)
+        foreach (Node child in section.GetChildren())
         {
-            Node child = section.GetChild(section.GetChildCount() - 1);
-            section.RemoveChild(child);
             child.QueueFree();
         }
     }
@@ -763,23 +742,11 @@ public partial class SystemInspectorPanel : VBoxContainer
             return;
         }
 
-        HBoxContainer row = new();
-
-        Label label = new();
+        HBoxContainer row = UiSceneTemplates.InstantiatePropertyRow();
+        Label label = UiSceneTemplates.GetRequiredChild<Label>(row, "Key");
+        Label value = UiSceneTemplates.GetRequiredChild<Label>(row, "Value");
         label.Text = labelText + ":";
-        label.CustomMinimumSize = new Vector2(100.0f, 0.0f);
-        label.AddThemeFontSizeOverride("font_size", 12);
-        label.AddThemeColorOverride("font_color", new Color(0.7f, 0.7f, 0.7f));
-        row.AddChild(label);
-
-        Label value = new();
         value.Text = valueText;
-        value.AddThemeFontSizeOverride("font_size", 12);
-        value.SizeFlagsHorizontal = Control.SizeFlags.ExpandFill;
-        value.AutowrapMode = TextServer.AutowrapMode.Word;
-        value.CustomMinimumSize = new Vector2(180.0f, 0.0f);
-        row.AddChild(value);
-
         section.AddChild(row);
     }
 
@@ -793,10 +760,8 @@ public partial class SystemInspectorPanel : VBoxContainer
             return;
         }
 
-        Label header = new();
+        Label header = UiSceneTemplates.InstantiateSubheaderLabel();
         header.Text = text;
-        header.AddThemeFontSizeOverride("font_size", 12);
-        header.AddThemeColorOverride("font_color", new Color(0.8f, 0.8f, 0.5f));
         section.AddChild(header);
     }
 
@@ -807,7 +772,7 @@ public partial class SystemInspectorPanel : VBoxContainer
     {
         if (section != null)
         {
-            section.AddChild(new HSeparator());
+            section.AddChild(UiSceneTemplates.InstantiateDivider());
         }
     }
 
@@ -816,25 +781,12 @@ public partial class SystemInspectorPanel : VBoxContainer
     /// </summary>
     private void AddOpenViewerButton()
     {
-        RemoveOpenViewerButton();
-        if (_bodySection == null)
+        if (_openViewerButton == null)
         {
             return;
         }
 
-        Control spacer = new()
-        {
-            CustomMinimumSize = new Vector2(0.0f, 5.0f),
-        };
-        _bodySection.AddChild(spacer);
-
-        _openViewerButton = new Button
-        {
-            Text = "Open in Object Viewer",
-            TooltipText = "View this body in detail",
-        };
-        _openViewerButton.Pressed += OnOpenViewerPressed;
-        _bodySection.AddChild(_openViewerButton);
+        _openViewerButton.Visible = true;
     }
 
     /// <summary>
@@ -847,15 +799,7 @@ public partial class SystemInspectorPanel : VBoxContainer
             return;
         }
 
-        if (!GodotObject.IsInstanceValid(_openViewerButton))
-        {
-            _openViewerButton = null;
-            return;
-        }
-
-        _openViewerButton.Pressed -= OnOpenViewerPressed;
-        _openViewerButton.QueueFree();
-        _openViewerButton = null;
+        _openViewerButton.Visible = false;
     }
 
     /// <summary>
@@ -868,14 +812,7 @@ public partial class SystemInspectorPanel : VBoxContainer
             return;
         }
 
-        if (!GodotObject.IsInstanceValid(_openViewerButton))
-        {
-            _openViewerButton = null;
-            return;
-        }
-
-        _openViewerButton.Pressed -= OnOpenViewerPressed;
-        _openViewerButton = null;
+        _openViewerButton.Visible = false;
     }
 
     /// <summary>
@@ -894,6 +831,14 @@ public partial class SystemInspectorPanel : VBoxContainer
     /// </summary>
     private void EnsureUi()
     {
-        BuildUi();
+        if (_overviewSection == null || _bodySection == null || _openViewerButton == null)
+        {
+            CacheUi();
+        }
+
+        if (_overviewSection == null || _bodySection == null || _openViewerButton == null)
+        {
+            throw new InvalidOperationException("SystemInspectorPanel scene is missing required inspector nodes.");
+        }
     }
 }

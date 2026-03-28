@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using Godot;
+using StarGen.App.Components;
 using StarGen.App.Shared;
 using StarGen.App.Viewer;
 using StarGen.Domain.Generation;
@@ -162,11 +163,6 @@ public partial class ObjectGenerationScreen
             _startButton.Pressed += OnStartPressed;
         }
 
-        if (_loadButton != null)
-        {
-            _loadButton.Pressed += () => EmitSignal(SignalName.load_object_requested);
-        }
-
         if (_backButton != null)
         {
             _backButton.Pressed += () => EmitSignal(SignalName.back_requested);
@@ -261,34 +257,9 @@ public partial class ObjectGenerationScreen
             SelectOptionById(_typeOption, (int)ObjectViewer.ObjectType.Planet);
         }
 
-        if (_seedInput != null)
-        {
-            _seedInput.Value = 12345.0;
-        }
-
         if (_rulesetModeOption != null)
         {
             SelectOptionById(_rulesetModeOption, (int)GenerationUseCaseSettings.RulesetModeType.Default);
-        }
-
-        if (_showTravellerReadoutsCheck != null)
-        {
-            _showTravellerReadoutsCheck.ButtonPressed = false;
-        }
-
-        if (_showAdvancedControlsCheck != null)
-        {
-            _showAdvancedControlsCheck.ButtonPressed = false;
-        }
-
-        if (_useTravellerWorldProfileCheck != null)
-        {
-            _useTravellerWorldProfileCheck.ButtonPressed = false;
-        }
-
-        if (_lifePermissivenessInput != null)
-        {
-            _lifePermissivenessInput.Value = GenerationUseCaseSettings.NeutralPermissiveness;
         }
 
         ResetEnhancedOptionalInputs();
@@ -592,7 +563,7 @@ public partial class ObjectGenerationScreen
             return "Advanced controls use the same override keys as the object editor, so creation and later editing stay aligned.";
         }
 
-        return "Preset assumptions and use-case settings are persisted into the generated body so downstream inspection and save/load flows stay aligned.";
+        return "Preset assumptions and use-case settings are persisted into the generated body so downstream inspection stays aligned.";
     }
 
     private void AddEnhancedIssueLabel(string text)
@@ -602,8 +573,7 @@ public partial class ObjectGenerationScreen
             return;
         }
 
-        Label noteLabel = new Label();
-        noteLabel.AutowrapMode = TextServer.AutowrapMode.Word;
+        Label noteLabel = UiSceneTemplates.InstantiateMessageLabel();
         noteLabel.Modulate = new Color(0.85f, 0.7f, 0.3f, 1.0f);
         noteLabel.Text = text;
         _issuesContainer.AddChild(noteLabel);

@@ -8,20 +8,18 @@ It is aimed at science-fiction worldbuilding, setting design, and procedural exp
 
 - Generate galaxies, star systems, and individual celestial bodies from dedicated studios on the main menu.
 - Explore generated results in viewers with scientific and worldbuilding readouts.
-- Save and load generated content.
 - Use Traveller-oriented world profile support where available.
-- Open the Concept Atlas to experiment with in-development ecology, species, sentience, religion, civilisation, language, and disease tools.
 
 ## Current Status
 
-StarGen `0.8.0.0` is the current public release baseline.
+StarGen `0.9d` is the current mainline checkpoint baseline.
 
 - The galaxy, system, and object studios are the main supported entry points.
 - The station studio now uses the production station-generation flow rather than a placeholder shell.
-- The Concept Atlas remains available from the main menu as an in-development worldbuilding tool.
-- The concept pipeline now follows a deterministic dependency chain from environment through ecology, species, sentience, and downstream society layers.
+- Mainline is generation-and-view focused; save/load/export flows are reserved for the export branch.
+- Mainline no longer ships the Concept Atlas path. `Concepts/Additions.md` remains the StarGen prototype backlog for future work that stays in scope.
 
-The current release version is `0.8.0.0`. Detailed version history and patch notes live in [VERSION.md](VERSION.md).
+The current user-facing release version is `0.9d`, while the current internal checkpoint version is `0.8.1.0`. Detailed version history and patch notes live in [VERSION.md](VERSION.md).
 
 ## Running StarGen
 

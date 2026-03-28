@@ -1,8 +1,9 @@
+using System;
 using Godot;
+using StarGen.App.Components;
 using StarGen.App.Shared;
 using StarGen.App.Viewer;
 using StarGen.Domain.Colonization;
-using StarGen.Domain.Concepts;
 using StarGen.Domain.Generation;
 using StarGen.Domain.Generation.Parameters;
 using StarGen.Domain.Galaxy;
@@ -74,11 +75,12 @@ public partial class GalaxyInspectorPanel : VBoxContainer
 	private GalaxyConfig? _editableConfig;
 
 	/// <summary>
-	/// Builds the inspector UI.
+	/// Binds the scene-authored inspector UI.
 	/// </summary>
 	public override void _Ready()
 	{
-		BuildUi();
+		CacheUi();
+		InitializeUi();
 	}
 
 	/// <summary>
@@ -358,21 +360,6 @@ public partial class GalaxyInspectorPanel : VBoxContainer
 		{
 			AddProperty(_previewContainer, "Population", PropertyFormatter.FormatPopulation(preview.TotalPopulation));
 		}
-
-		if (preview.System != null && preview.System.HasConceptResults())
-		{
-			foreach (ConceptKind kind in preview.System.ConceptResults.GetAll().Keys)
-			{
-				ConceptRunResult? result = preview.System.ConceptResults.Get(kind);
-				if (result == null)
-				{
-					continue;
-				}
-
-				string value = string.IsNullOrEmpty(result.Subtitle) ? result.Title : result.Subtitle;
-				AddProperty(_previewContainer, kind.ToString(), value);
-			}
-		}
 	}
 
 	/// <summary>
@@ -608,119 +595,53 @@ public partial class GalaxyInspectorPanel : VBoxContainer
 		return _currentPreview;
 	}
 
-	private void BuildUi()
+	private void CacheUi()
 	{
-		AddThemeConstantOverride("separation", 4);
+		_configEditorContainer = GetNodeOrNull<VBoxContainer>("ConfigSection/Content/ConfigEditorContainer");
+		_profileSummaryContainer = GetNodeOrNull<VBoxContainer>("ConfigSection/Content/ConfigEditorContainer/ProfileSummaryContainer");
+		_configIssuesContainer = GetNodeOrNull<VBoxContainer>("ConfigSection/Content/ConfigEditorContainer/ConfigIssuesContainer");
+		_overviewContainer = GetNodeOrNull<VBoxContainer>("OverviewSection/Content");
+		_selectionContainer = GetNodeOrNull<VBoxContainer>("SelectionSection/Content");
+		_previewContainer = GetNodeOrNull<VBoxContainer>("PreviewSection/Content");
+		_openSystemButton = GetNodeOrNull<Button>("PreviewSection/OpenSystemButton");
+		_colonizationPermissivenessInput = GetNodeOrNull<SpinBox>("ColonizationSection/Content/ColonizationSettingsRow/ColonizationPermissivenessInput");
+		_calculateRoutesButton = GetNodeOrNull<Button>("ColonizationSection/Content/CalculateRoutesButton");
+		_showRoutesCheck = GetNodeOrNull<CheckBox>("ColonizationSection/Content/ShowRoutesCheck");
+		_jumpRoutesProgressLabel = GetNodeOrNull<Label>("ColonizationSection/Content/JumpRoutesProgressLabel");
+		_jumpRoutesProgressBar = GetNodeOrNull<ProgressBar>("ColonizationSection/Content/JumpRoutesProgressBar");
 
-		AddTitle("Galaxy Inspector", 14);
-		AddChild(new HSeparator());
-
-		AddSectionLabel("Active Profile");
-		_configEditorContainer = CreateSectionContainer("ConfigEditorContainer");
-		AddChild(_configEditorContainer);
-		BuildConfigEditorUi();
-
-		AddChild(new HSeparator());
-
-		AddSectionLabel("Overview");
-		_overviewContainer = CreateSectionContainer("OverviewContainer");
-		AddChild(_overviewContainer);
-
-		AddChild(new HSeparator());
-
-		AddSectionLabel("Selection");
-		_selectionContainer = CreateSectionContainer("SelectionContainer");
-		AddChild(_selectionContainer);
-
-		AddChild(new HSeparator());
-
-		AddSectionLabel("System Preview");
-		_previewContainer = CreateSectionContainer("PreviewContainer");
-		AddChild(_previewContainer);
-
-		_openSystemButton = new Button
+		if (_openSystemButton != null)
 		{
-			Name = "OpenSystemButton",
-			Text = "Open System",
-			Visible = false,
-		};
-		_openSystemButton.Pressed += OnOpenSystemPressed;
-		AddChild(_openSystemButton);
-
-		AddChild(new HSeparator());
-
-		AddSectionLabel("Colonization Simulator");
-
-		HBoxContainer colonizationSettingsRow = new HBoxContainer();
-		colonizationSettingsRow.AddThemeConstantOverride("separation", 8);
-		Label colonizationLabel = new Label
-		{
-			Text = "Expansion:",
-			CustomMinimumSize = new Vector2(100.0f, 0.0f),
-			TooltipText = "Controls how readily the explicit colonization simulation spreads settlements from viable exporter systems.",
-		};
-		colonizationSettingsRow.AddChild(colonizationLabel);
-		_colonizationPermissivenessInput = new SpinBox
-		{
-			MinValue = 0.0,
-			MaxValue = 1.0,
-			Step = 0.01,
-			Value = GenerationUseCaseSettings.NeutralPermissiveness,
-			TooltipText = colonizationLabel.TooltipText,
-			SizeFlagsHorizontal = SizeFlags.ExpandFill,
-		};
-		colonizationSettingsRow.AddChild(_colonizationPermissivenessInput);
-		AddChild(colonizationSettingsRow);
-
-		_calculateRoutesButton = new Button
-		{
-			Name = "CalculateRoutesButton",
-			Text = "Run Colonization Simulation",
-			Visible = false,
-		};
-		_calculateRoutesButton.Pressed += OnCalculateRoutesPressed;
-		AddChild(_calculateRoutesButton);
-
-		_showRoutesCheck = new CheckBox
-		{
-			Name = "ShowRoutesCheck",
-			Text = "Show Colonization Routes",
-			ButtonPressed = true,
-			Disabled = true,
-		};
-		_showRoutesCheck.Toggled += OnShowRoutesToggled;
-		AddChild(_showRoutesCheck);
-
-		_jumpRoutesProgressLabel = new Label
-		{
-			Name = "JumpRoutesProgressLabel",
-			Text = "Preparing colonization simulation...",
-			Visible = false,
-		};
-		_jumpRoutesProgressLabel.AddThemeFontSizeOverride("font_size", 11);
-		AddChild(_jumpRoutesProgressLabel);
-
-		_jumpRoutesProgressBar = new ProgressBar
-		{
-			Name = "JumpRoutesProgressBar",
-			Visible = false,
-			ShowPercentage = false,
-			MinValue = 0.0,
-			MaxValue = 1.0,
-			Value = 0.0,
-			CustomMinimumSize = new Vector2(0.0f, 18.0f),
-			SizeFlagsHorizontal = SizeFlags.ExpandFill,
-		};
-		AddChild(_jumpRoutesProgressBar);
-
-		if (_selectionContainer != null)
-		{
-			AddProperty(_selectionContainer, "Status", "Nothing selected");
+			_openSystemButton.Pressed += OnOpenSystemPressed;
 		}
-		if (_previewContainer != null)
+
+		if (_calculateRoutesButton != null)
 		{
-			AddProperty(_previewContainer, "Status", "Select a star to preview");
+			_calculateRoutesButton.Pressed += OnCalculateRoutesPressed;
 		}
+
+		if (_showRoutesCheck != null)
+		{
+			_showRoutesCheck.Toggled += OnShowRoutesToggled;
+		}
+	}
+
+	private void InitializeUi()
+	{
+		if (_selectionContainer == null
+			|| _previewContainer == null
+			|| _profileSummaryContainer == null
+			|| _configIssuesContainer == null)
+		{
+			throw new InvalidOperationException("GalaxyInspectorPanel scene is missing required inspector nodes.");
+		}
+
+		ClearContainer(_selectionContainer);
+		ClearContainer(_previewContainer);
+		AddProperty(_selectionContainer, "Status", "Nothing selected");
+		AddProperty(_previewContainer, "Status", "Select a star to preview");
+		SetConfigIssues(new GenerationParameterIssueSet());
+		RebuildProfileSummary();
 	}
 
 	/// <summary>
@@ -767,9 +688,8 @@ public partial class GalaxyInspectorPanel : VBoxContainer
 
 		if (issues.Issues.Count == 0)
 		{
-			Label cleanLabel = new Label();
+			Label cleanLabel = UiSceneTemplates.InstantiateMessageLabel();
 			cleanLabel.Text = "No parameter issues.";
-			cleanLabel.AddThemeFontSizeOverride("font_size", 10);
 			cleanLabel.Modulate = new Color(0.55f, 0.75f, 0.55f, 1.0f);
 			_configIssuesContainer.AddChild(cleanLabel);
 			return;
@@ -777,10 +697,7 @@ public partial class GalaxyInspectorPanel : VBoxContainer
 
 		foreach (GenerationParameterIssue issue in issues.Issues)
 		{
-			Label issueLabel = new Label();
-			issueLabel.AutowrapMode = TextServer.AutowrapMode.Word;
-			issueLabel.CustomMinimumSize = new Vector2(220.0f, 0.0f);
-			issueLabel.AddThemeFontSizeOverride("font_size", 10);
+			Label issueLabel = UiSceneTemplates.InstantiateMessageLabel();
 			if (issue.Severity == GenerationParameterIssue.IssueSeverity.Error)
 			{
 				issueLabel.Modulate = new Color(1.0f, 0.45f, 0.45f, 1.0f);
@@ -826,40 +743,6 @@ public partial class GalaxyInspectorPanel : VBoxContainer
 	private void OnShowRoutesToggled(bool enabled)
 	{
 		EmitSignal(SignalName.JumpRoutesVisibilityToggled, enabled);
-	}
-
-	private static VBoxContainer CreateSectionContainer(string name)
-	{
-		VBoxContainer container = new()
-		{
-			Name = name,
-		};
-		container.AddThemeConstantOverride("separation", 2);
-		return container;
-	}
-
-	private void BuildConfigEditorUi()
-	{
-		if (_configEditorContainer == null)
-		{
-			return;
-		}
-
-		_profileSummaryContainer = CreateSectionContainer("ProfileSummaryContainer");
-		_configEditorContainer.AddChild(_profileSummaryContainer);
-
-		Label noteLabel = new Label();
-		noteLabel.Text = "Galaxy parameters are configured in Galaxy Generation Studio. This viewer only shows the active profile while you inspect stars, previews, and jump routes.";
-		noteLabel.AutowrapMode = TextServer.AutowrapMode.Word;
-		noteLabel.CustomMinimumSize = new Vector2(220.0f, 0.0f);
-		noteLabel.AddThemeFontSizeOverride("font_size", 10);
-		noteLabel.Modulate = new Color(0.6f, 0.7f, 0.8f, 1.0f);
-		_configEditorContainer.AddChild(noteLabel);
-
-		_configIssuesContainer = CreateSectionContainer("ConfigIssuesContainer");
-		_configEditorContainer.AddChild(_configIssuesContainer);
-		SetConfigIssues(new GenerationParameterIssueSet());
-		RebuildProfileSummary();
 	}
 
 	private void RebuildProfileSummary()
@@ -1060,70 +943,6 @@ public partial class GalaxyInspectorPanel : VBoxContainer
 		}
 	}
 
-	private void AddEditorRow(string labelText, Control inputControl, string parameterId)
-	{
-		if (_configEditorContainer == null)
-		{
-			return;
-		}
-
-		HBoxContainer row = new HBoxContainer();
-		row.AddThemeConstantOverride("separation", 8);
-		Label label = new Label();
-		label.Text = labelText + ":";
-		label.CustomMinimumSize = new Vector2(100.0f, 0.0f);
-		label.TooltipText = GetConfigAssumption(parameterId);
-		row.AddChild(label);
-		inputControl.SizeFlagsHorizontal = Control.SizeFlags.ExpandFill;
-		inputControl.TooltipText = label.TooltipText;
-		row.AddChild(inputControl);
-		_configEditorContainer.AddChild(row);
-	}
-
-	private SpinBox CreateSpinBox(double minValue, double maxValue, double step, string suffix)
-	{
-		SpinBox spinBox = new SpinBox();
-		spinBox.MinValue = minValue;
-		spinBox.MaxValue = maxValue;
-		spinBox.Step = step;
-		spinBox.Suffix = suffix;
-		return spinBox;
-	}
-
-	private string GetConfigAssumption(string parameterId)
-	{
-		foreach (GenerationParameterDefinition definition in GenerationParameterCatalog.GetGalaxyDefinitions())
-		{
-			if (definition.Id == parameterId)
-			{
-				return definition.AssumptionText;
-			}
-		}
-
-		return string.Empty;
-	}
-
-	private void AddTitle(string text, int fontSize)
-	{
-		Label label = new()
-		{
-			Text = text,
-		};
-		label.AddThemeFontSizeOverride("font_size", fontSize);
-		AddChild(label);
-	}
-
-	private void AddSectionLabel(string text)
-	{
-		Label label = new()
-		{
-			Text = text,
-			Modulate = new Color(0.8f, 0.8f, 0.8f),
-		};
-		label.AddThemeFontSizeOverride("font_size", 12);
-		AddChild(label);
-	}
-
 	private static void ClearContainer(VBoxContainer? container)
 	{
 		if (container == null)
@@ -1139,26 +958,11 @@ public partial class GalaxyInspectorPanel : VBoxContainer
 
 	private static void AddProperty(VBoxContainer container, string key, string value)
 	{
-		HBoxContainer row = new();
-
-		Label keyLabel = new()
-		{
-			Name = "Key",
-			Text = $"{key}:",
-			Modulate = new Color(0.7f, 0.7f, 0.7f),
-			CustomMinimumSize = new Vector2(100.0f, 0.0f),
-		};
-		keyLabel.AddThemeFontSizeOverride("font_size", 11);
-		row.AddChild(keyLabel);
-
-		Label valueLabel = new()
-		{
-			Name = "Value",
-			Text = value,
-		};
-		valueLabel.AddThemeFontSizeOverride("font_size", 11);
-		row.AddChild(valueLabel);
-
+		HBoxContainer row = UiSceneTemplates.InstantiatePropertyRow();
+		Label keyLabel = UiSceneTemplates.GetRequiredChild<Label>(row, "Key");
+		Label valueLabel = UiSceneTemplates.GetRequiredChild<Label>(row, "Value");
+		keyLabel.Text = key + ":";
+		valueLabel.Text = value;
 		container.AddChild(row);
 	}
 

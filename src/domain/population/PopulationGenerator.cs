@@ -46,7 +46,7 @@ public static class PopulationGenerator
             generationSeed,
             body.Name,
             body.GetTypeString());
-        ConceptDependencyChainGenerator.PopulatePreSocietyStates(
+        PopulateSummaryPreSocietyStates(
             environmentProfile,
             out EcologyState ecologyState,
             out SpeciesEvolutionState speciesEvolutionState,
@@ -114,7 +114,7 @@ public static class PopulationGenerator
             generationSeed,
             profile.BodyId,
             "Planet");
-        ConceptDependencyChainGenerator.PopulatePreSocietyStates(
+        PopulateSummaryPreSocietyStates(
             environmentProfile,
             out EcologyState ecologyState,
             out SpeciesEvolutionState speciesEvolutionState,
@@ -340,6 +340,38 @@ public static class PopulationGenerator
     private static double Lerp(double minValue, double maxValue, double factor)
     {
         return minValue + ((maxValue - minValue) * factor);
+    }
+
+    private static void PopulateSummaryPreSocietyStates(
+        PlanetEnvironmentProfile environmentProfile,
+        out EcologyState ecologyState,
+        out SpeciesEvolutionState speciesEvolutionState,
+        out SentienceAssessment sentienceAssessment,
+        GenerationUseCaseSettings? useCaseSettings)
+    {
+        bool supportsBiology = environmentProfile.SupportsBiology(useCaseSettings);
+        string unavailableReason = "Mainline v0.9 parks the detailed concept dependency chain; summary-only biology assessment remains active.";
+
+        ecologyState = new EcologyState
+        {
+            Status = supportsBiology ? ConceptRunStatus.Generated : ConceptRunStatus.NotApplicable,
+            StatusReason = supportsBiology ? unavailableReason : "Biology support requirements are not met for this world.",
+        };
+
+        speciesEvolutionState = new SpeciesEvolutionState
+        {
+            Status = supportsBiology ? ConceptRunStatus.Generated : ConceptRunStatus.NotApplicable,
+            StatusReason = supportsBiology ? unavailableReason : "No supported biosphere is available for species evolution.",
+            HasSentientCandidate = supportsBiology,
+        };
+
+        sentienceAssessment = new SentienceAssessment
+        {
+            Status = supportsBiology ? ConceptRunStatus.Generated : ConceptRunStatus.NotApplicable,
+            StatusReason = supportsBiology ? unavailableReason : "No supported biosphere is available for sentience assessment.",
+            HasSentientLife = supportsBiology,
+            CandidateSpeciesName = environmentProfile.BodyName,
+        };
     }
 
     private static List<CelestialBody> GetNativeSourceBodies(SolarSystem system)

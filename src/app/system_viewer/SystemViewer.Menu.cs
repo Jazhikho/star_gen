@@ -9,11 +9,9 @@ namespace StarGen.App.SystemViewer;
 /// </summary>
 public partial class SystemViewer
 {
-    private const int FileMenuSaveId = 1;
-    private const int FileMenuLoadId = 2;
-    private const int FileMenuNewSystemId = 3;
-    private const int FileMenuMainMenuId = 4;
-    private const int FileMenuReturnId = 5;
+    private const int FileMenuNewSystemId = 1;
+    private const int FileMenuMainMenuId = 2;
+    private const int FileMenuReturnId = 3;
     private const int EditMenuGenerateId = 10;
     private const int EditMenuRerollId = 11;
     private const int ViewMenuShowOrbitsId = 20;
@@ -91,10 +89,6 @@ public partial class SystemViewer
     private void RebuildFileMenu(PopupMenu popup)
     {
         popup.Clear();
-        popup.AddItem("Save...", FileMenuSaveId);
-        popup.SetItemDisabled(popup.ItemCount - 1, _currentSystem == null);
-        popup.AddItem("Load...", FileMenuLoadId);
-        popup.AddSeparator();
         popup.AddItem("New System...", FileMenuNewSystemId);
         popup.AddItem("Return to Main Menu", FileMenuMainMenuId);
         if (_backNavigationVisible)
@@ -150,18 +144,6 @@ public partial class SystemViewer
 
     private void OnFileMenuIdPressed(long id)
     {
-        if (id == FileMenuSaveId)
-        {
-            OnSavePressed();
-            return;
-        }
-
-        if (id == FileMenuLoadId)
-        {
-            OnLoadPressed();
-            return;
-        }
-
         if (id == FileMenuNewSystemId)
         {
             EmitSignal(SignalName.NewSystemRequested);

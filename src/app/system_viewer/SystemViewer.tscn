@@ -153,13 +153,14 @@ layout_mode = 2
 [node name="StarCountLabel" type="Label" parent="UI/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/GenerationSection/StarCountContainer"]
 custom_minimum_size = Vector2(60, 0)
 layout_mode = 2
-text = "Stars:"
+text = "Min Stars:"
 
 [node name="StarCountSpin" type="SpinBox" parent="UI/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/GenerationSection/StarCountContainer"]
 layout_mode = 2
 size_flags_horizontal = 3
+tooltip_text = "Number of stars in the system (1-10)"
 min_value = 1.0
-max_value = 4.0
+max_value = 10.0
 value = 1.0
 rounded = true
 
@@ -174,6 +175,7 @@ text = "Seed:"
 [node name="SeedInput" type="SpinBox" parent="UI/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/GenerationSection/SeedContainer"]
 layout_mode = 2
 size_flags_horizontal = 3
+tooltip_text = "Generation seed for deterministic results"
 max_value = 999999.0
 value = 12345.0
 rounded = true
@@ -246,6 +248,7 @@ suffix = " Zsun"
 
 [node name="IncludeBeltsCheck" type="CheckBox" parent="UI/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/GenerationSection"]
 layout_mode = 2
+button_pressed = true
 text = "Generate Asteroid Belts"
 
 [node name="GeneratePopulationCheck" type="CheckBox" parent="UI/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/GenerationSection"]
@@ -287,6 +290,7 @@ layout_mode = 2
 theme_override_font_sizes/font_size = 10
 modulate = Color(0.62, 0.7, 0.8, 1)
 autowrap_mode = 2
+text = "Rare | Less common, still plentiful | Traveller normal | Space opera"
 
 [node name="LifePermissivenessContainer" type="HBoxContainer" parent="UI/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/GenerationSection"]
 layout_mode = 2
@@ -364,12 +368,13 @@ theme_override_constants/separation = 10
 [node name="GenerateButton" type="Button" parent="UI/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/GenerationSection/ButtonContainer"]
 layout_mode = 2
 size_flags_horizontal = 3
+tooltip_text = "Generate system with current settings"
 text = "Generate"
 
 [node name="RerollButton" type="Button" parent="UI/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/GenerationSection/ButtonContainer"]
 layout_mode = 2
 size_flags_horizontal = 3
-tooltip_text = "Generate with random seed"
+tooltip_text = "Generate with a new random seed"
 text = "Re-roll"
 
 [node name="HSeparator1" type="HSeparator" parent="UI/SidePanel/MarginContainer/ScrollContainer/VBoxContainer"]
@@ -386,12 +391,13 @@ text = "View Options"
 
 [node name="ShowOrbitsCheck" type="CheckBox" parent="UI/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/ViewSection"]
 layout_mode = 2
+tooltip_text = "Toggle orbital path visibility"
 button_pressed = true
 text = "Show Orbits"
 
 [node name="ShowZonesCheck" type="CheckBox" parent="UI/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/ViewSection"]
 layout_mode = 2
-button_pressed = true
+tooltip_text = "Toggle habitable zone visibility"
 text = "Show Zones"
 
 [node name="HSeparator2a" type="HSeparator" parent="UI/SidePanel/MarginContainer/ScrollContainer/VBoxContainer"]
@@ -429,6 +435,46 @@ size_flags_horizontal = 3
 theme_override_constants/separation = 4
 script = ExtResource("3")
 
+[node name="OverviewSection" type="VBoxContainer" parent="UI/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/InspectorPanel"]
+layout_mode = 2
+theme_override_constants/separation = 5
+
+[node name="TitleLabel" type="Label" parent="UI/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/InspectorPanel/OverviewSection"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.9, 0.9, 0.9, 1)
+theme_override_font_sizes/font_size = 14
+text = "System Overview"
+
+[node name="Divider" type="HSeparator" parent="UI/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/InspectorPanel/OverviewSection"]
+layout_mode = 2
+
+[node name="Content" type="VBoxContainer" parent="UI/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/InspectorPanel/OverviewSection"]
+layout_mode = 2
+theme_override_constants/separation = 4
+
+[node name="SelectedBodySection" type="VBoxContainer" parent="UI/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/InspectorPanel"]
+layout_mode = 2
+theme_override_constants/separation = 5
+
+[node name="TitleLabel" type="Label" parent="UI/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/InspectorPanel/SelectedBodySection"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.9, 0.9, 0.9, 1)
+theme_override_font_sizes/font_size = 14
+text = "Selected Body"
+
+[node name="Divider" type="HSeparator" parent="UI/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/InspectorPanel/SelectedBodySection"]
+layout_mode = 2
+
+[node name="Content" type="VBoxContainer" parent="UI/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/InspectorPanel/SelectedBodySection"]
+layout_mode = 2
+theme_override_constants/separation = 4
+
+[node name="OpenViewerButton" type="Button" parent="UI/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/InspectorPanel/SelectedBodySection"]
+visible = false
+layout_mode = 2
+tooltip_text = "View this body in detail"
+text = "Open in Object Viewer"
+
 [node name="HSeparator3" type="HSeparator" parent="UI/SidePanel/MarginContainer/ScrollContainer/VBoxContainer"]
 layout_mode = 2
 
@@ -449,6 +495,7 @@ text = "• Left Mouse: Orbit
 • Click body: Select + focus"
 [node name="EmptyStateLabel" type="Label" parent="UI"]
 visible = false
+custom_minimum_size = Vector2(280, 0)
 layout_mode = 0
 anchor_right = 1.0
 anchor_bottom = 1.0

@@ -34,6 +34,7 @@ public partial class GalaxyViewer
 		_seedInput = GetNodeOrNull<SpinBox>("UI/UIRoot/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/GenerationSection/SeedContainer/SeedInput");
 		_showCompassCheck = GetNodeOrNull<CheckBox>("UI/UIRoot/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/ViewSection/ShowCompassCheck");
 		_inspectorPanel = GetNodeOrNull<Node>("UI/UIRoot/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/InspectorPanel");
+		_saveLoadSection = GetNodeOrNull<Control>("UI/UIRoot/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/SaveLoadSection");
 		_saveButton = GetNodeOrNull<Button>("UI/UIRoot/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/SaveLoadSection/ButtonContainer/SaveButton");
 		_loadButton = GetNodeOrNull<Button>("UI/UIRoot/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/SaveLoadSection/ButtonContainer/LoadButton");
 		_newGalaxyButton = GetNodeOrNull<Button>("UI/UIRoot/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/SaveLoadSection/NewGalaxyButton");
@@ -102,14 +103,14 @@ public partial class GalaxyViewer
 	/// </summary>
 	private void ConnectUiSignals()
 	{
+		if (_saveLoadSection != null)
+		{
+			_saveLoadSection.Visible = false;
+		}
+
 		if (_showCompassCheck != null)
 		{
 			_showCompassCheck.Toggled += OnShowCompassToggled;
-		}
-
-		if (_newGalaxyButton != null)
-		{
-			_newGalaxyButton.Pressed += () => EmitSignal(SignalName.NewGalaxyRequested);
 		}
 
 		if (_starCamera != null)

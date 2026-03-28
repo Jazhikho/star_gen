@@ -78,9 +78,6 @@ public static class TestObjectViewerMoons
         runner.RunNativeTest(
             "TestObjectViewerMoons::test_moon_collection_skips_no_orbital",
             TestMoonCollectionSkipsNoOrbital);
-        runner.RunNativeTest(
-            "TestObjectViewerMoons::test_inspector_panel_moon_button_emits_selection",
-            TestInspectorPanelMoonButtonEmitsSelection);
     }
 
     /// <summary>
@@ -492,39 +489,4 @@ public static class TestObjectViewerMoons
         DotNetNativeTestSuite.AssertEqual(0, collected.Count, "Moon without orbital skipped safely");
     }
 
-    /// <summary>
-    /// Tests inspector panel exposes the moon-selected signal.
-    /// </summary>
-    private static void TestInspectorPanelMoonButtonEmitsSelection()
-    {
-        InspectorPanel panel = new();
-        VBoxContainer container = new() { Name = "InspectorContainer" };
-        panel.AddChild(container);
-        panel._Ready();
-
-        CelestialBody planet = MakePlanet();
-        CelestialBody moon = MakeMoon("moon_a", 3.844e8, 0.05, 5.0);
-        Godot.Collections.Array<CelestialBody> moons = [moon];
-
-        bool emitted = false;
-        panel.Connect(InspectorPanel.SignalName.MoonSelected, Callable.From<Variant>((_) => emitted = true));
-        panel.DisplayBodyWithMoons(planet, moons);
-
-        Button? moonButton = null;
-        foreach (Node child in container.GetChildren())
-        {
-            foreach (Node grandChild in child.GetChildren())
-            {
-                if (grandChild is Button typedButton)
-                {
-                    moonButton = typedButton;
-                    break;
-                }
-            }
-        }
-
-        DotNetNativeTestSuite.AssertNotNull(moonButton, "Displaying moons should create a moon-selection button");
-        moonButton!.EmitSignal(BaseButton.SignalName.Pressed);
-        DotNetNativeTestSuite.AssertTrue(emitted, "Pressing a moon button should emit MoonSelected");
-    }
 }

@@ -9,10 +9,8 @@ namespace StarGen.App.GalaxyViewer;
 /// </summary>
 public partial class GalaxyViewer
 {
-	private const int FileMenuSaveId = 1;
-	private const int FileMenuLoadId = 2;
-	private const int FileMenuNewGalaxyId = 3;
-	private const int FileMenuReturnToMainMenuId = 4;
+	private const int FileMenuNewGalaxyId = 1;
+	private const int FileMenuReturnToMainMenuId = 2;
 	private const int ViewMenuShowCompassId = 20;
 	private const int ViewMenuCalculateRoutesId = 21;
 	private const int WindowMenuFullscreenId = 30;
@@ -48,9 +46,6 @@ public partial class GalaxyViewer
 	{
 		PopupMenu popup = menuButton.GetPopup();
 		popup.IdPressed += OnFileMenuIdPressed;
-		popup.AddItem("Save...", FileMenuSaveId);
-		popup.AddItem("Load...", FileMenuLoadId);
-		popup.AddSeparator();
 		popup.AddItem("New Galaxy...", FileMenuNewGalaxyId);
 		popup.AddItem("Return to Main Menu", FileMenuReturnToMainMenuId);
 	}
@@ -110,18 +105,6 @@ public partial class GalaxyViewer
 
 	private void OnFileMenuIdPressed(long id)
 	{
-		if (id == FileMenuSaveId)
-		{
-			_saveLoad.OnSavePressed(this);
-			return;
-		}
-
-		if (id == FileMenuLoadId)
-		{
-			_saveLoad.OnLoadPressed(this);
-			return;
-		}
-
 		if (id == FileMenuNewGalaxyId)
 		{
 			EmitSignal(SignalName.NewGalaxyRequested);

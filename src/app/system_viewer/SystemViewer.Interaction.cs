@@ -35,20 +35,6 @@ public partial class SystemViewer
             return;
         }
 
-        if (keyEvent.Keycode == Key.S && keyEvent.CtrlPressed)
-        {
-            OnSavePressed();
-            GetViewport()?.SetInputAsHandled();
-            return;
-        }
-
-        if (keyEvent.Keycode == Key.O && keyEvent.CtrlPressed)
-        {
-            OnLoadPressed();
-            GetViewport()?.SetInputAsHandled();
-            return;
-        }
-
         if (keyEvent.Keycode == Key.Escape)
         {
             if (_backNavigationVisible)
@@ -114,22 +100,6 @@ public partial class SystemViewer
         {
             _zonesContainer.Visible = enabled;
         }
-    }
-
-    /// <summary>
-    /// Handles save-button presses.
-    /// </summary>
-    private void OnSavePressed()
-    {
-        _saveLoad.OnSavePressed(this);
-    }
-
-    /// <summary>
-    /// Handles load-button presses.
-    /// </summary>
-    private void OnLoadPressed()
-    {
-        _saveLoad.OnLoadPressed(this);
     }
 
     /// <summary>

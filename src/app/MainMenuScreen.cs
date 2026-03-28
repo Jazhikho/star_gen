@@ -23,9 +23,6 @@ public partial class MainMenuScreen : Control
 	public delegate void station_generation_requestedEventHandler();
 
 	[Signal]
-	public delegate void concept_atlas_requestedEventHandler();
-
-	[Signal]
 	public delegate void quit_requestedEventHandler();
 
 	private enum ContentPanel
@@ -44,7 +41,7 @@ public partial class MainMenuScreen : Control
 	private Button? _systemButton;
 	private Button? _objectButton;
 	private Button? _stationButton;
-	private Button? _conceptAtlasButton;
+	private Control? _conceptAtlasCard;
 	private Button? _helpButton;
 	private Button? _creditsButton;
 	private Button? _sourcesButton;
@@ -147,7 +144,7 @@ public partial class MainMenuScreen : Control
 		_systemButton = GetNodeOrNull<Button>($"{Root}/HBoxContainer/ModesPanel/MarginContainer/ModesVBox/ModeCards/CardSystem/MarginContainer/VBoxContainer/SystemButton");
 		_objectButton = GetNodeOrNull<Button>($"{Root}/HBoxContainer/ModesPanel/MarginContainer/ModesVBox/ModeCards/CardObject/MarginContainer/VBoxContainer/ObjectButton");
 		_stationButton = GetNodeOrNull<Button>($"{Root}/HBoxContainer/ModesPanel/MarginContainer/ModesVBox/ModeCards/CardStation/MarginContainer/VBoxContainer/StationButton");
-		_conceptAtlasButton = GetNodeOrNull<Button>($"{Root}/HBoxContainer/ModesPanel/MarginContainer/ModesVBox/ModeCards/CardConceptAtlas/MarginContainer/VBoxContainer/ConceptAtlasButton");
+		_conceptAtlasCard = GetNodeOrNull<Control>($"{Root}/HBoxContainer/ModesPanel/MarginContainer/ModesVBox/ModeCards/CardConceptAtlas");
 		_helpButton = GetNodeOrNull<Button>($"{Root}/HBoxContainer/UtilityRow/UtilityPanel/MarginContainer/UtilityVBox/SecondaryButtons/HelpButton");
 		_creditsButton = GetNodeOrNull<Button>($"{Root}/HBoxContainer/UtilityRow/UtilityPanel/MarginContainer/UtilityVBox/SecondaryButtons/CreditsButton");
 		_sourcesButton = GetNodeOrNull<Button>($"{Root}/HBoxContainer/UtilityRow/UtilityPanel/MarginContainer/UtilityVBox/SecondaryButtons/SourcesButton");
@@ -205,7 +202,6 @@ public partial class MainMenuScreen : Control
 		if (_systemButton != null) _systemButton.Connect(Button.SignalName.Pressed, Callable.From(OnSystemButtonPressed));
 		if (_objectButton != null) _objectButton.Connect(Button.SignalName.Pressed, Callable.From(OnObjectButtonPressed));
 		if (_stationButton != null) _stationButton.Connect(Button.SignalName.Pressed, Callable.From(OnStationButtonPressed));
-		if (_conceptAtlasButton != null) _conceptAtlasButton.Connect(Button.SignalName.Pressed, Callable.From(OnConceptAtlasButtonPressed));
 		if (_helpButton != null) _helpButton.Connect(Button.SignalName.Pressed, Callable.From(OnHelpButtonPressed));
 		if (_creditsButton != null) _creditsButton.Connect(Button.SignalName.Pressed, Callable.From(OnCreditsButtonPressed));
 		if (_sourcesButton != null) _sourcesButton.Connect(Button.SignalName.Pressed, Callable.From(OnSourcesButtonPressed));
@@ -226,6 +222,11 @@ public partial class MainMenuScreen : Control
 
 	private void PopulateStaticText()
 	{
+		if (_conceptAtlasCard != null)
+		{
+			_conceptAtlasCard.Visible = false;
+		}
+
 		string version = UserFacingVersionHelper.GetDisplayVersion();
 		if (_versionLabel != null)
 		{
@@ -245,8 +246,7 @@ public partial class MainMenuScreen : Control
 				"- System Studio: Set stellar counts, seed, and worldbuilding assumptions before opening the system viewer.\n\n" +
 				"- Object Studio: Choose a star, planet, moon, or asteroid preset before launching the object viewer.\n\n" +
 				"- Station Studio: Configure an individual station concept and review the current station workflow.\n\n" +
-				"- Concept Atlas: Explore ecology, civilisation, language, religion, disease, and evolution layers as a worldbuilding tool in development.\n\n" +
-				"- Sources: Review the astronomy and worldbuilding references currently guiding the generator's assumptions.";
+				"- Sources: Review the astronomy and worldbuilding references currently guiding the generator's assumptions and realism goals.";
 		}
 
 		if (_creditsText != null)
@@ -286,11 +286,6 @@ public partial class MainMenuScreen : Control
 		EmitSignal(SignalName.station_generation_requested);
 	}
 
-	private void OnConceptAtlasButtonPressed()
-	{
-		EmitSignal(SignalName.concept_atlas_requested);
-	}
-
 	private void OnHelpButtonPressed()
 	{
 		ShowPanel(ContentPanel.Help);
@@ -327,24 +322,19 @@ public partial class MainMenuScreen : Control
 	private static string GetReleaseNotesContent()
 	{
 		return
+			"Version 0.9d\n\n" +
+			"- Checkpointed the current mainline branch state so the branch split, scene-first UI migration, and scope reductions are preserved in git.\n" +
+			"- Moved more shipped viewer and editor presentation into .tscn scenes and reusable UI templates.\n" +
+			"- Mainline remains focused on generation and viewing workflows across galaxy, system, object, and station tools.\n" +
+			"- Concept Atlas and mainline save/load/export affordances remain removed from the shipped runtime path.\n" +
+			"- The trimmed mainline automated suite stays focused on deterministic generation and non-UI behavioral coverage.\n\n" +
 			"Version 0.8.0.0\n\n" +
 			"- Replaced the timer-based splash with the root intro video, a clean fade into the StarGen logo, and skip behavior that still resolves through the branded transition.\n" +
 			"- Kept startup audio wiring local to the splash and auto-loads the single root `.ogg` intro track when exactly one is present.\n" +
 			"- Added a fade-to-black handoff from the splash into the main menu.\n" +
-			"- Kept Concept Atlas entry on the main menu while removing non-menu launch paths.\n" +
 			"- Replaced the Station Studio placeholder with the production station generation flow and live detail views.\n" +
 			"- Reworked Galaxy Studio around clearer shape controls, separated generation rules, and a stronger active-profile summary.\n" +
-			"- Life Potential now shapes generation, while colonization settings have moved into simulation tooling.\n\n" +
-			"Version 0.7.0.0\n\n" +
-			"- Added the Concept Atlas as a standalone tool for ecology, civilisation, language, religion, disease, and evolution exploration.\n" +
-			"- Brought the first deterministic concept-tool baseline into the main application.\n\n" +
-			"Version 0.6.0.0\n\n" +
-			"- Brought the first showcase set of concept tools into StarGen.\n" +
-			"- Framed the atlas as a worldbuilding tool in development rather than a final simulation layer.\n\n" +
-			"Version 0.5.0.0\n\n" +
-			"- Expanded the current studio lineup with galaxy, system, object, and station entry points.\n" +
-			"- Added Traveller-aligned launch settings, world-profile readouts, and broad navigation polish.\n" +
-			"- Introduced the station studio entry point and deterministic station-design support.";
+			"- Life Potential now shapes generation, while colonization settings have moved into simulation tooling.";
 	}
 
 	private void PopulateResolutionOptions()
@@ -494,8 +484,7 @@ public partial class MainMenuScreen : Control
 			"- System Studio: Set stellar counts, seed, and worldbuilding assumptions before opening the system viewer.\n\n" +
 			"- Object Studio: Choose a star, planet, moon, or asteroid preset before launching the object viewer.\n\n" +
 			"- Station Studio: Configure an individual station concept and review the current station workflow.\n\n" +
-			"- Concept Atlas: Explore ecology, civilisation, language, religion, disease, and evolution layers as a worldbuilding tool in development.\n\n" +
-			"- Sources: Review the astronomy and worldbuilding references currently guiding the generator's assumptions.";
+			"- Sources: Review the astronomy and worldbuilding references currently guiding the generator's assumptions and realism goals.";
 	}
 
 	private static string BuildCreditsFallbackText()

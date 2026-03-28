@@ -208,3 +208,156 @@ layout_mode = 2
 size_flags_horizontal = 3
 theme_override_constants/separation = 4
 script = ExtResource("2")
+
+[node name="ConfigSection" type="VBoxContainer" parent="UI/UIRoot/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/InspectorPanel"]
+layout_mode = 2
+theme_override_constants/separation = 5
+
+[node name="TitleLabel" type="Label" parent="UI/UIRoot/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/InspectorPanel/ConfigSection"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.9, 0.9, 0.9, 1)
+theme_override_font_sizes/font_size = 14
+text = "Active Profile"
+
+[node name="Divider" type="HSeparator" parent="UI/UIRoot/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/InspectorPanel/ConfigSection"]
+layout_mode = 2
+
+[node name="Content" type="VBoxContainer" parent="UI/UIRoot/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/InspectorPanel/ConfigSection"]
+layout_mode = 2
+theme_override_constants/separation = 4
+
+[node name="ConfigEditorContainer" type="VBoxContainer" parent="UI/UIRoot/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/InspectorPanel/ConfigSection/Content"]
+layout_mode = 2
+theme_override_constants/separation = 4
+
+[node name="ProfileSummaryContainer" type="VBoxContainer" parent="UI/UIRoot/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/InspectorPanel/ConfigSection/Content/ConfigEditorContainer"]
+layout_mode = 2
+theme_override_constants/separation = 2
+
+[node name="ConfigNoteLabel" type="Label" parent="UI/UIRoot/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/InspectorPanel/ConfigSection/Content/ConfigEditorContainer"]
+custom_minimum_size = Vector2(220, 0)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.6, 0.7, 0.8, 1)
+theme_override_font_sizes/font_size = 10
+autowrap_mode = 2
+text = "Galaxy parameters are configured in Galaxy Generation Studio. This viewer only shows the active profile while you inspect stars, previews, and jump routes."
+
+[node name="ConfigIssuesContainer" type="VBoxContainer" parent="UI/UIRoot/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/InspectorPanel/ConfigSection/Content/ConfigEditorContainer"]
+layout_mode = 2
+theme_override_constants/separation = 2
+
+[node name="OverviewSection" type="VBoxContainer" parent="UI/UIRoot/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/InspectorPanel"]
+layout_mode = 2
+theme_override_constants/separation = 5
+
+[node name="TitleLabel" type="Label" parent="UI/UIRoot/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/InspectorPanel/OverviewSection"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.9, 0.9, 0.9, 1)
+theme_override_font_sizes/font_size = 14
+text = "Overview"
+
+[node name="Divider" type="HSeparator" parent="UI/UIRoot/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/InspectorPanel/OverviewSection"]
+layout_mode = 2
+
+[node name="Content" type="VBoxContainer" parent="UI/UIRoot/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/InspectorPanel/OverviewSection"]
+layout_mode = 2
+theme_override_constants/separation = 2
+
+[node name="SelectionSection" type="VBoxContainer" parent="UI/UIRoot/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/InspectorPanel"]
+layout_mode = 2
+theme_override_constants/separation = 5
+
+[node name="TitleLabel" type="Label" parent="UI/UIRoot/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/InspectorPanel/SelectionSection"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.9, 0.9, 0.9, 1)
+theme_override_font_sizes/font_size = 14
+text = "Selection"
+
+[node name="Divider" type="HSeparator" parent="UI/UIRoot/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/InspectorPanel/SelectionSection"]
+layout_mode = 2
+
+[node name="Content" type="VBoxContainer" parent="UI/UIRoot/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/InspectorPanel/SelectionSection"]
+layout_mode = 2
+theme_override_constants/separation = 2
+
+[node name="PreviewSection" type="VBoxContainer" parent="UI/UIRoot/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/InspectorPanel"]
+layout_mode = 2
+theme_override_constants/separation = 5
+
+[node name="TitleLabel" type="Label" parent="UI/UIRoot/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/InspectorPanel/PreviewSection"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.9, 0.9, 0.9, 1)
+theme_override_font_sizes/font_size = 14
+text = "System Preview"
+
+[node name="Divider" type="HSeparator" parent="UI/UIRoot/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/InspectorPanel/PreviewSection"]
+layout_mode = 2
+
+[node name="Content" type="VBoxContainer" parent="UI/UIRoot/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/InspectorPanel/PreviewSection"]
+layout_mode = 2
+theme_override_constants/separation = 2
+
+[node name="OpenSystemButton" type="Button" parent="UI/UIRoot/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/InspectorPanel/PreviewSection"]
+visible = false
+layout_mode = 2
+text = "Open System"
+
+[node name="ColonizationSection" type="VBoxContainer" parent="UI/UIRoot/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/InspectorPanel"]
+layout_mode = 2
+theme_override_constants/separation = 5
+
+[node name="TitleLabel" type="Label" parent="UI/UIRoot/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/InspectorPanel/ColonizationSection"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.9, 0.9, 0.9, 1)
+theme_override_font_sizes/font_size = 14
+text = "Colonization Simulator"
+
+[node name="Divider" type="HSeparator" parent="UI/UIRoot/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/InspectorPanel/ColonizationSection"]
+layout_mode = 2
+
+[node name="Content" type="VBoxContainer" parent="UI/UIRoot/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/InspectorPanel/ColonizationSection"]
+layout_mode = 2
+theme_override_constants/separation = 4
+
+[node name="ColonizationSettingsRow" type="HBoxContainer" parent="UI/UIRoot/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/InspectorPanel/ColonizationSection/Content"]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="ColonizationPermissivenessLabel" type="Label" parent="UI/UIRoot/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/InspectorPanel/ColonizationSection/Content/ColonizationSettingsRow"]
+custom_minimum_size = Vector2(100, 0)
+layout_mode = 2
+tooltip_text = "Controls how readily the explicit colonization simulation spreads settlements from viable exporter systems."
+text = "Expansion:"
+
+[node name="ColonizationPermissivenessInput" type="SpinBox" parent="UI/UIRoot/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/InspectorPanel/ColonizationSection/Content/ColonizationSettingsRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+tooltip_text = "Controls how readily the explicit colonization simulation spreads settlements from viable exporter systems."
+max_value = 1.0
+step = 0.01
+value = 0.5
+
+[node name="CalculateRoutesButton" type="Button" parent="UI/UIRoot/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/InspectorPanel/ColonizationSection/Content"]
+visible = false
+layout_mode = 2
+text = "Run Colonization Simulation"
+
+[node name="ShowRoutesCheck" type="CheckBox" parent="UI/UIRoot/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/InspectorPanel/ColonizationSection/Content"]
+layout_mode = 2
+button_pressed = true
+disabled = true
+text = "Show Colonization Routes"
+
+[node name="JumpRoutesProgressLabel" type="Label" parent="UI/UIRoot/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/InspectorPanel/ColonizationSection/Content"]
+visible = false
+layout_mode = 2
+theme_override_font_sizes/font_size = 11
+text = "Preparing colonization simulation..."
+
+[node name="JumpRoutesProgressBar" type="ProgressBar" parent="UI/UIRoot/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/InspectorPanel/ColonizationSection/Content"]
+visible = false
+custom_minimum_size = Vector2(0, 18)
+layout_mode = 2
+size_flags_horizontal = 3
+show_percentage = false
+max_value = 1.0

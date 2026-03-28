@@ -52,10 +52,6 @@ public partial class ObjectViewer
             throw new System.InvalidOperationException("ObjectViewer scene is missing EmptyStateLabel.");
         }
 
-        _emptyStateLabel.HorizontalAlignment = HorizontalAlignment.Center;
-        _emptyStateLabel.VerticalAlignment = VerticalAlignment.Center;
-        _emptyStateLabel.AutowrapMode = TextServer.AutowrapMode.Word;
-        _emptyStateLabel.CustomMinimumSize = new Vector2(280.0f, 0.0f);
         UpdateEmptyStateVisibility();
     }
 
@@ -71,6 +67,11 @@ public partial class ObjectViewer
 
     private void SetFileControlState(bool saveEnabled, bool loadEnabled)
     {
+        if (_fileSection != null)
+        {
+            _fileSection.Visible = false;
+        }
+
         if (_saveButton != null)
         {
             _saveButton.Disabled = !saveEnabled;

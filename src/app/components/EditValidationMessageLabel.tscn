@@ -1,0 +1,8 @@
+[gd_scene format=3]
+
+[node name="EditValidationMessageLabel" type="Label"]
+custom_minimum_size = Vector2(240, 0)
+layout_mode = 2
+theme_override_font_sizes/font_size = 11
+autowrap_mode = 2
+text = "Message"

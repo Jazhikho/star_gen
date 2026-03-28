@@ -17,6 +17,17 @@ Use this log for significant AI-assisted artifacts in this repository.
 
 ## Entries
 
+### 2026-03-27 - Codex (GPT-5)
+
+- Task Purpose: Implement the first `0.9` mainline release-branch slice by removing shipped concept/persistence runtime paths, switching user-facing versioning to branch-channel suffixes, trimming the test suite to non-UI mainline coverage, and syncing release docs to the new scope.
+- Input Materials Used: User-approved `StarGen v0.9 Release Branch Plan`; follow-up user directives that the authoritative branch point is the latest local `master`, UI tests should be discarded, and tests conflicting with `0.9` goals should be removed; `AGENTS.md`; `Claude.md`; current mainline app/viewer/test/doc files.
+- AI Produced: Removed Concept Atlas launch/runtime integration from the shipped mainline app flow; removed mainline load/save/export affordances from studios, viewers, menus, and the object edit dialog; changed `UserFacingVersionHelper` to compose the display label from base version plus release channel (`d` mainline / `e` export); updated `project.godot`, export metadata, README, VERSION notes, and v0.9 docs; rewrote harness registration to drop concept, persistence, and UI-focused suites from mainline.
+- Human Accepted: Pending review of the `0.9` mainline branch cut, the narrowed test policy, and the synced release docs/metadata.
+- Human Rejected: UI-focused tests were explicitly rejected for migration; mainline persistence/save-load/export behavior was explicitly rejected for the shipped `0.9` line; concept additions were explicitly kept constrained to StarGen-relevant prototype work only.
+- Human Changed: The user clarified that the branch point must track the latest local `master`, not the earlier prep commit, and that tests should be deleted when they no longer protect real `0.9` behavior or conflict with the release goals.
+- Validation Method: Pending final `dotnet build StarGen.sln` and reduced-scope test-harness validation after the remaining stale test files are removed.
+- Final Approver: Pending Christopher B. Del Gesso review.
+
 ### 2026-03-26 - Codex (GPT-5)
 
 - Task Purpose: Convert the concept-pipeline hardening branch from its pre-release split state into the actual `0.8.0.0` release candidate, remove the non-menu Concept Atlas entrypoint after user clarification, sync release-facing docs/metadata, and prepare the branch for merge/review/publish.
@@ -707,4 +718,26 @@ Use this log for significant AI-assisted artifacts in this repository.
 - Human Rejected: Did not treat AI as the final release authority; the release proceeded only from the user-approved plan and user-supplied itch project target.
 - Human Changed: User clarified that `test.tscn` should be deleted, Concept Atlas should remain menu-scoped and hidden elsewhere, only failing tests should be rerun rather than the full suite, and the music attribution is substantively correct but should simply be presented neatly in credits.
 - Validation Method: `dotnet build StarGen.sln`, release export verification for Windows and Linux, and merged-diff review against `origin/master`; no additional full-suite rerun was performed after the user's instruction to avoid it.
+- Final Approver: Pending Christopher B. Del Gesso review.
+
+### 2026-03-27 - Codex (GPT-5)
+
+- Task Purpose: Push the v0.9 scene-first UI requirement further by moving shipped inspector/editor presentation and fixed UI settings out of runtime C# and into `.tscn` scenes/templates.
+- Input Materials Used: User instruction to aggressively favor `.tscn` over `.cs` for UI structure and settings; `claude.md`; `Docs/V0.9Plan.md`; shipped viewer/studio scenes and scripts under `src/app/`; `Tests/Integration/TestObjectViewerMoons.cs`; build and headless harness outputs.
+- AI Produced: Added reusable scene-authored UI templates for sections, property rows, message labels, action buttons, labeled input rows, and edit-dialog rows; rewired `GalaxyInspectorPanel`, `SystemInspectorPanel`, `InspectorPanel`, and `EditDialog` to consume those templates instead of constructing fixed UI directly in C#; moved the fixed galaxy/system inspector shells into the viewer `.tscn` files; moved several static viewer empty-state and tooltip settings into scene files; updated generation screens to use scene-authored message labels; and removed one brittle moon-button UI assertion from the integration suite in line with the branch policy to discard UI-surface tests.
+- Human Accepted: Pending user review of the scene-first refactor breadth and the updated viewer/editor presentation.
+- Human Rejected: No attempt was made to force inherently variable property lists or body-specific editor inputs into a single static scene tree; those remain runtime-populated but now use scene-authored row templates where practical.
+- Human Changed: The refactor was kept on the shipped mainline screens and did not try to revive parked concept runtime paths or reintroduce removed persistence UI.
+- Validation Method: `dotnet build StarGen.sln` and `godot-mono.exe --path . --headless --script res://Tests/RunTestsHeadless.gd` (`Total: 1774 | Passed: 1774 | Failed: 0`).
+- Final Approver: Pending Christopher B. Del Gesso review.
+
+### 2026-03-27 - Codex (GPT-5)
+
+- Task Purpose: Complete a second scene-first audit pass for the shipped mainline UI, removing leftover static scene defaults and generic presentation helpers from C# and reviewing the remaining app-layer UI code for misses.
+- Input Materials Used: User instruction to continue the `.tscn`-first pass and explicitly review for anything missed; `claude.md`; current `src/app/` viewer/studio scenes and scripts; `Docs/ProjectStructure.md`; `Docs/V0.9Plan.md`; prior scene-template refactor state; build and headless harness outputs.
+- AI Produced: Added scene-authored templates for subheaders, dividers, edit sections, edit derived-property rows, and edit validation messages; rewired `SystemInspectorPanel`, `GalaxyInspectorPanel`, `EditDialog`, and `SystemViewer.Parameters` to use templates or existing scene content instead of creating generic controls in code; deleted dead galaxy-inspector UI-construction helpers; moved remaining fixed defaults such as min-star labels, star-count limits, include-belts defaults, viewer zone visibility, and system-studio assumption tooltip text into `.tscn` files; removed redundant startup-state assignments from `SystemGenerationScreen`, `StationStudioScreen`, and `ObjectGenerationScreen.EnhancedUi`; and performed a grep-based review of shipped app scripts to confirm that remaining C# UI writes are predominantly behavioral or state-driven.
+- Human Accepted: Pending user review of the second-pass cleanup and the residual review assessment.
+- Human Rejected: No attempt was made to move inherently stateful runtime messages, dynamic constraint-bound slider ranges, or generated-content strings out of code when those values depend on current data or interaction state.
+- Human Changed: The user explicitly raised the bar from an implementation pass to an implementation-plus-review pass, which drove the second audit and cleanup sweep after the first template migration.
+- Validation Method: `dotnet build StarGen.sln` and `godot-mono.exe --path . --headless --script res://Tests/RunTestsHeadless.gd` (`Total: 1774 | Passed: 1774 | Failed: 0`); additional grep review across shipped `src/app/` scripts excluding parked concepts/prototypes.
 - Final Approver: Pending Christopher B. Del Gesso review.

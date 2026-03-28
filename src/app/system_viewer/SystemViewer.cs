@@ -4,7 +4,6 @@ using StarGen.Domain.Systems;
 using StarGen.Domain.Systems.Fixtures;
 using StarGen.Domain.Generation.Parameters;
 using System.Collections.Generic;
-using StarGen.Services.Concepts;
 
 namespace StarGen.App.SystemViewer;
 
@@ -56,6 +55,7 @@ public partial class SystemViewer : Node3D, ISystemViewerSaveLoadHost
 	internal Control? _sidePanel;
 	internal Button? _backButton;
 	internal Node? _inspectorPanel;
+	internal Control? _saveLoadSection;
 	internal VBoxContainer? _generationSection;
 	internal Label? _starCountLabel;
 	internal SpinBox? _starCountSpin;
@@ -244,8 +244,6 @@ public partial class SystemViewer : Node3D, ISystemViewerSaveLoadHost
             SetError("Failed to generate system");
             return;
         }
-
-        ConceptWorldStateGenerator.EnsureSystemConcepts(system);
 
         AppendTravellerGenerationIssues(system, spec);
         UpdateGenerationIssuesUi();

@@ -1,4 +1,5 @@
 using Godot;
+using StarGen.App.Components;
 using StarGen.App.Shared;
 using StarGen.App.Viewer;
 using StarGen.Domain.Generation;
@@ -12,9 +13,6 @@ public partial class ObjectGenerationScreen : Control
 {
     [Signal]
     public delegate void start_object_generationEventHandler(ObjectGenerationRequest request);
-
-    [Signal]
-    public delegate void load_object_requestedEventHandler();
 
     [Signal]
     public delegate void back_requestedEventHandler();
@@ -182,6 +180,10 @@ public partial class ObjectGenerationScreen : Control
 
     private void ApplyLayoutPolish()
     {
+        if (_loadButton != null)
+        {
+            _loadButton.Visible = false;
+        }
     }
 
     private void RefreshIssuesUi()
@@ -196,8 +198,7 @@ public partial class ObjectGenerationScreen : Control
             child.QueueFree();
         }
 
-        Label noteLabel = new Label();
-        noteLabel.AutowrapMode = TextServer.AutowrapMode.Word;
+        Label noteLabel = UiSceneTemplates.InstantiateMessageLabel();
         noteLabel.Modulate = new Color(0.85f, 0.7f, 0.3f, 1.0f);
         noteLabel.Text = GetPresetAssumptionText(GetSelectedObjectType(), _presetOption?.GetSelectedId() ?? 0);
         _issuesContainer.AddChild(noteLabel);

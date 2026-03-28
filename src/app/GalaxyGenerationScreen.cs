@@ -1,5 +1,6 @@
 using System;
 using Godot;
+using StarGen.App.Components;
 using StarGen.App.Shared;
 using StarGen.Domain.Generation;
 using StarGen.Domain.Generation.Parameters;
@@ -16,9 +17,6 @@ public partial class GalaxyGenerationScreen : Control
 {
 	[Signal]
 	public delegate void start_new_galaxyEventHandler(GalaxyConfig config, int seedValue);
-
-	[Signal]
-	public delegate void load_galaxy_requestedEventHandler();
 
 	[Signal]
 	public delegate void back_requestedEventHandler();
@@ -338,7 +336,6 @@ public partial class GalaxyGenerationScreen : Control
 	private void ConnectSignals()
 	{
 		if (_startButton != null) _startButton.Pressed += OnStartPressed;
-		if (_loadButton != null) _loadButton.Pressed += OnLoadPressed;
 		if (_backButton != null) _backButton.Pressed += OnBackPressed;
 		if (_quitButton != null) _quitButton.Pressed += OnQuitPressed;
 		if (_randomizeButton != null) _randomizeButton.Pressed += OnRandomizePressed;
@@ -391,6 +388,11 @@ public partial class GalaxyGenerationScreen : Control
 		if (_populationPermissivenessValueLabel != null)
 		{
 			_populationPermissivenessValueLabel.Visible = false;
+		}
+
+		if (_loadButton != null)
+		{
+			_loadButton.Visible = false;
 		}
 
 		VBoxContainer? buttonsContainer = GetNodeOrNull<VBoxContainer>($"{SummaryRootPath}/Buttons");
@@ -618,7 +620,6 @@ public partial class GalaxyGenerationScreen : Control
 		EmitSignal("start_new_galaxy", config, seedValue);
 	}
 
-	private void OnLoadPressed() => EmitSignal("load_galaxy_requested");
 	private void OnBackPressed() => EmitSignal("back_requested");
 	private void OnQuitPressed() => EmitSignal("quit_requested");
 
@@ -925,9 +926,8 @@ public partial class GalaxyGenerationScreen : Control
 
 		if (_currentIssues.Issues.Count == 0)
 		{
-			Label cleanLabel = new Label();
+			Label cleanLabel = UiSceneTemplates.InstantiateMessageLabel();
 			cleanLabel.Text = "No parameter issues.";
-			cleanLabel.AddThemeFontSizeOverride("font_size", 10);
 			cleanLabel.Modulate = new Color(0.55f, 0.75f, 0.55f, 1.0f);
 			_issuesContainer.AddChild(cleanLabel);
 			return;
@@ -935,9 +935,7 @@ public partial class GalaxyGenerationScreen : Control
 
 		foreach (GenerationParameterIssue issue in _currentIssues.Issues)
 		{
-			Label issueLabel = new Label();
-			issueLabel.AutowrapMode = TextServer.AutowrapMode.Word;
-			issueLabel.AddThemeFontSizeOverride("font_size", 10);
+			Label issueLabel = UiSceneTemplates.InstantiateMessageLabel();
 			if (issue.Severity == GenerationParameterIssue.IssueSeverity.Error)
 			{
 				issueLabel.Modulate = new Color(1.0f, 0.45f, 0.45f, 1.0f);
