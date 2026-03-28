@@ -84,3 +84,14 @@ star_gen/
 |-- StarGen.sln
 `-- VERSION.md
 ```
+
+## Recent Major Additions
+
+- `src/app/GalaxyGenerationScreen.Science.cs`: partial controller for galaxy-studio scientific controls, tooltips, and the expandable in-studio science/citations panel.
+- `src/domain/galaxy/GalaxyEnums.cs`: shared galaxy-science enums covering family/subtype/bar and related scientific-choice modes.
+- `src/domain/galaxy/GalaxyOriginContext.cs`: serializable galaxy-origin context passed downstream into star and system generation.
+- `src/domain/galaxy/GalaxyRealismProfile.cs`: derived galaxy realism profile carrying morphology, GHZ, metallicity, and star-formation priors.
+- `src/domain/galaxy/GalaxyRealismProfileBuilder.cs`: deterministic builder that resolves the scientific galaxy profile from user config and seed.
+- `src/domain/galaxy/GalaxyScientificFieldEvaluator.cs`: evaluates region, metallicity, age, GHZ, and cluster-scaffold context for generated galaxy stars.
+- `src/domain/galaxy/LenticularDensityModel.cs`: galaxy-density evaluator for the new lenticular family.
+- `src/domain/generation/parameters/GalaxyScienceReferenceCatalog.cs`: source registry and user-facing assumption/citation content for the galaxy studio.

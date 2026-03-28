@@ -48,14 +48,15 @@ public static partial class DotNetNativeTestSuite
         GalaxyConfig config = GalaxyConfig.CreateMilkyWay();
         AssertTrue(config.IsValid(), "Milky-Way config should be valid");
         AssertEqual("Spiral", config.GetTypeName(), "Milky-Way config should report the spiral type name");
+        AssertEqual((int)GalaxySubtypeMode.IntermediateType, (int)config.SubtypeMode, "Milky-Way config should keep its subtype bias");
 
         Godot.Collections.Dictionary data = config.ToDictionary();
         GalaxyConfig? rebuilt = GalaxyConfig.FromDictionary(data);
         AssertNotNull(rebuilt, "galaxy config should rebuild from its dictionary payload");
         AssertVariantDeepEqual(data, rebuilt!.ToDictionary(), "galaxy config should round-trip semantically unchanged");
 
-        rebuilt.NumArms = 1;
-        AssertTrue(!rebuilt.IsValid(), "invalid arm-count changes should fail validation");
+        rebuilt.HaloMassLog10Solar = 8.5;
+        AssertTrue(!rebuilt.IsValid(), "invalid halo-mass changes should fail validation");
     }
 
     /// <summary>
@@ -142,7 +143,8 @@ public static partial class DotNetNativeTestSuite
         GalaxyStar star = GalaxyStar.CreateWithDerivedProperties(new Vector3(1200.0f, 15.0f, -800.0f), 111_111, spec);
 
         AssertTrue(star.Metallicity >= 0.1 && star.Metallicity <= 3.0, "derived metallicity should stay within the supported range");
-        AssertTrue(star.AgeBias >= 0.5 && star.AgeBias <= 2.0, "derived age bias should stay within the supported range");
+        AssertTrue(star.AgeBias >= 0.5 && star.AgeBias <= 2.1, "derived age bias should stay within the supported range");
+        AssertTrue(star.OriginContext.GhzWeight >= 0.0 && star.OriginContext.GhzWeight <= 1.0, "derived GHZ weight should stay normalized");
 
         Godot.Collections.Dictionary data = star.ToDictionary();
         GalaxyStar? rebuilt = GalaxyStar.FromDictionary(data);

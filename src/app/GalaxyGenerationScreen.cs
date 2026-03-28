@@ -110,6 +110,7 @@ public partial class GalaxyGenerationScreen : Control
 		ConnectSignals();
 		ApplyParameterTooltips();
 		ApplyVersionLabel();
+		ApplySciencePanelText();
 		ApplyUseCaseSettingsToControls(GenerationUseCaseSettings.CreateDefault());
 		UpdateTypeSpecificControls();
 		UpdateAllValueLabels();
@@ -151,7 +152,7 @@ public partial class GalaxyGenerationScreen : Control
 	/// </summary>
 	public GalaxyConfig GetCurrentConfig()
 	{
-		return new GalaxyConfig
+		GalaxyConfig config = new GalaxyConfig
 		{
 			Type = (GalaxySpec.GalaxyType)(_typeOption?.Selected ?? (int)GalaxySpec.GalaxyType.Spiral),
 			NumArms = (int)(_armsSlider?.Value ?? 4.0),
@@ -167,6 +168,8 @@ public partial class GalaxyGenerationScreen : Control
 			IrregularityScale = _irregularitySlider?.Value ?? 0.5,
 			UseCaseSettings = BuildUseCaseSettingsFromControls(),
 		};
+		ApplyScientificValuesToConfig(config);
+		return config;
 	}
 
 	/// <summary>
@@ -331,6 +334,7 @@ public partial class GalaxyGenerationScreen : Control
 		_populationPermissivenessRow = GetNodeOrNull<HBoxContainer>($"{RulesRootPath}/UseCaseSection/PopulationRow");
 		_populationPermissivenessInput = GetNodeOrNull<HSlider>($"{RulesRootPath}/UseCaseSection/PopulationRow/PopulationPermissivenessInput");
 		_populationPermissivenessValueLabel = GetNodeOrNull<Label>($"{RulesRootPath}/UseCaseSection/PopulationPermissivenessValue");
+		CacheScienceNodeReferences();
 	}
 
 	private void ConnectSignals()
@@ -356,6 +360,7 @@ public partial class GalaxyGenerationScreen : Control
 		if (_rulesetModeOption != null) _rulesetModeOption.ItemSelected += OnRulesetModeSelected;
 		if (_showTravellerReadoutsCheck != null) _showTravellerReadoutsCheck.Toggled += _ => RefreshValidationIssues();
 		if (_lifePermissivenessInput != null) _lifePermissivenessInput.ValueChanged += OnLifePermissivenessChanged;
+		ConnectScienceSignals();
 	}
 
 	private void ApplyLayoutPolish()
@@ -394,6 +399,8 @@ public partial class GalaxyGenerationScreen : Control
 		{
 			_loadButton.Visible = false;
 		}
+
+		ApplyScienceLayoutPolish();
 
 		VBoxContainer? buttonsContainer = GetNodeOrNull<VBoxContainer>($"{SummaryRootPath}/Buttons");
 		if (buttonsContainer != null)
@@ -452,6 +459,7 @@ public partial class GalaxyGenerationScreen : Control
 		if (_armsRow != null) _armsRow.Visible = galaxyType == (int)GalaxySpec.GalaxyType.Spiral;
 		if (_ellipticityRow != null) _ellipticityRow.Visible = galaxyType == (int)GalaxySpec.GalaxyType.Elliptical;
 		if (_irregularityRow != null) _irregularityRow.Visible = galaxyType == (int)GalaxySpec.GalaxyType.Irregular;
+		UpdateScienceTypeSpecificControls(galaxyType);
 	}
 
 	private void UpdateAllValueLabels()
@@ -467,6 +475,7 @@ public partial class GalaxyGenerationScreen : Control
 		UpdateIntLabel(_diskLengthValue, _diskLengthSlider, " pc");
 		UpdateIntLabel(_diskHeightValue, _diskHeightSlider, " pc");
 		UpdateFloatLabel(_densityValue, _densitySlider, "0.0", "x");
+		UpdateScienceValueLabels();
 	}
 
 	private void ApplyPreset(int preset)
@@ -482,6 +491,7 @@ public partial class GalaxyGenerationScreen : Control
 	private static GalaxyConfig BuildPresetConfig(Preset preset)
 	{
 		GalaxyConfig config = GalaxyConfig.CreateDefault();
+		ApplyScientificPresetValues(preset, config);
 		if (preset == Preset.Andromeda)
 		{
 			config.Type = GalaxySpec.GalaxyType.Spiral;
@@ -513,7 +523,7 @@ public partial class GalaxyGenerationScreen : Control
 
 		if (preset == Preset.Sombrero)
 		{
-			config.Type = GalaxySpec.GalaxyType.Elliptical;
+			config.Type = GalaxySpec.GalaxyType.Lenticular;
 			config.BulgeIntensity = 1.2;
 			config.BulgeRadiusPc = 2500.0;
 			config.Ellipticity = 0.6;
@@ -677,6 +687,8 @@ public partial class GalaxyGenerationScreen : Control
 		{
 			_advancedAssumptionsInfoButton.TooltipText = PermissivenessScaleHelper.GetAdvancedLegendTooltip();
 		}
+
+		ApplyScienceParameterTooltips();
 	}
 
 	private void ApplyTooltip(string parameterId, Control? inputControl, string labelPath)
@@ -731,6 +743,7 @@ public partial class GalaxyGenerationScreen : Control
 		SetSlider(_diskLengthSlider, config.DiskScaleLengthPc);
 		SetSlider(_diskHeightSlider, config.DiskScaleHeightPc);
 		SetSlider(_densitySlider, config.StarDensityMultiplier);
+		ApplyScienceConfig(config);
 		ApplyUseCaseSettingsToControls(config.UseCaseSettings);
 	}
 
@@ -804,26 +817,8 @@ public partial class GalaxyGenerationScreen : Control
 
 		if (_summaryLabel != null)
 		{
-			string typeName = config.GetTypeName();
-			string morphologyText;
-			if (config.Type == GalaxySpec.GalaxyType.Spiral)
-			{
-				morphologyText =
-					$"{typeName}: {config.NumArms} arms, {config.ArmPitchAngleDeg:0.0} deg pitch, {config.ArmAmplitude:0.00} arm definition";
-			}
-			else if (config.Type == GalaxySpec.GalaxyType.Elliptical)
-			{
-				morphologyText =
-					$"{typeName}: ellipticity {config.Ellipticity:0.00}, bulge {config.BulgeIntensity:0.00}, core radius {config.BulgeRadiusPc:0} pc";
-			}
-			else
-			{
-				morphologyText =
-					$"{typeName}: irregularity {config.IrregularityScale:0.00}, density {config.StarDensityMultiplier:0.0}x, radius {config.RadiusPc / 1000.0:0.0} kpc";
-			}
-
 			System.Collections.Generic.List<string> lines = new();
-			lines.Add(morphologyText);
+			lines.Add(BuildScienceSummary(config));
 			lines.Add($"Structure Radius {config.RadiusPc / 1000.0:0.0} kpc | Disk {config.DiskScaleLengthPc:0}/{config.DiskScaleHeightPc:0} pc | Density {config.StarDensityMultiplier:0.0}x");
 			lines.Add($"Ruleset {GenerationUseCasePresentation.GetRulesetLabel(settings.RulesetMode)}");
 			string readoutVisibility = "Hidden";
@@ -844,9 +839,7 @@ public partial class GalaxyGenerationScreen : Control
 
 		if (_assumptionsLabel != null)
 		{
-			_assumptionsLabel.Text = string.Empty;
-			_assumptionsLabel.Visible = false;
-			_assumptionsLabel.TooltipText = string.Empty;
+			ApplyScienceAssumptionSummary();
 		}
 	}
 

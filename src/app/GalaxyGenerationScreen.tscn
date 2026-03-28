@@ -214,13 +214,37 @@ text = "Type"
 layout_mode = 2
 size_flags_horizontal = 3
 selected = 0
-item_count = 3
+item_count = 4
 popup/item_0/text = "Spiral"
 popup/item_0/id = 0
 popup/item_1/text = "Elliptical"
 popup/item_1/id = 1
-popup/item_2/text = "Irregular"
+popup/item_2/text = "Lenticular"
 popup/item_2/id = 2
+popup/item_3/text = "Irregular / Dwarf"
+popup/item_3/id = 3
+
+[node name="SubtypeModeRow" type="HBoxContainer" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/TypeSection/TypeContent/TypeVBox" unique_id=1871639001]
+layout_mode = 2
+
+[node name="SubtypeModeLabel" type="Label" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/TypeSection/TypeContent/TypeVBox/SubtypeModeRow" unique_id=1280240365]
+custom_minimum_size = Vector2(96, 0)
+layout_mode = 2
+text = "Subtype Bias"
+
+[node name="SubtypeModeOption" type="OptionButton" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/TypeSection/TypeContent/TypeVBox/SubtypeModeRow" unique_id=908555171]
+layout_mode = 2
+size_flags_horizontal = 3
+selected = 0
+item_count = 4
+popup/item_0/text = "Automatic"
+popup/item_0/id = 0
+popup/item_1/text = "Early"
+popup/item_1/id = 1
+popup/item_2/text = "Intermediate"
+popup/item_2/id = 2
+popup/item_3/text = "Late"
+popup/item_3/id = 3
 
 [node name="ArmsRow" type="HBoxContainer" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/TypeSection/TypeContent/TypeVBox" unique_id=1722520696]
 layout_mode = 2
@@ -241,6 +265,134 @@ value = 4.0
 custom_minimum_size = Vector2(36, 0)
 layout_mode = 2
 text = "4"
+horizontal_alignment = 2
+
+[node name="BarModeRow" type="HBoxContainer" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/TypeSection/TypeContent/TypeVBox" unique_id=1234070612]
+layout_mode = 2
+
+[node name="BarModeLabel" type="Label" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/TypeSection/TypeContent/TypeVBox/BarModeRow" unique_id=1203788904]
+custom_minimum_size = Vector2(96, 0)
+layout_mode = 2
+text = "Bar Bias"
+
+[node name="BarModeOption" type="OptionButton" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/TypeSection/TypeContent/TypeVBox/BarModeRow" unique_id=738496119]
+layout_mode = 2
+size_flags_horizontal = 3
+selected = 0
+item_count = 3
+popup/item_0/text = "Auto"
+popup/item_0/id = 0
+popup/item_1/text = "Prefer Barred"
+popup/item_1/id = 1
+popup/item_2/text = "Prefer Unbarred"
+popup/item_2/id = 2
+
+[node name="ArmMechanismRow" type="HBoxContainer" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/TypeSection/TypeContent/TypeVBox" unique_id=1869946322]
+layout_mode = 2
+
+[node name="ArmMechanismLabel" type="Label" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/TypeSection/TypeContent/TypeVBox/ArmMechanismRow" unique_id=1492336792]
+custom_minimum_size = Vector2(96, 0)
+layout_mode = 2
+text = "Arm Mode"
+
+[node name="ArmMechanismOption" type="OptionButton" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/TypeSection/TypeContent/TypeVBox/ArmMechanismRow" unique_id=1537930121]
+layout_mode = 2
+size_flags_horizontal = 3
+selected = 0
+item_count = 4
+popup/item_0/text = "Auto"
+popup/item_0/id = 0
+popup/item_1/text = "Grand Design"
+popup/item_1/id = 1
+popup/item_2/text = "Multi-Armed"
+popup/item_2/id = 2
+popup/item_3/text = "Flocculent"
+popup/item_3/id = 3
+
+[node name="ScienceSection" type="VBoxContainer" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox" unique_id=867369427]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="ScienceHeader" type="Label" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/ScienceSection" unique_id=1384865528]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.921569, 0.768627, 0.470588, 1)
+theme_override_font_sizes/font_size = 16
+text = "Scientific Priors"
+
+[node name="ScienceContent" type="MarginContainer" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/ScienceSection" unique_id=884982844]
+layout_mode = 2
+theme_override_constants/margin_left = 16
+theme_override_constants/margin_top = 4
+theme_override_constants/margin_right = 8
+theme_override_constants/margin_bottom = 8
+
+[node name="ScienceVBox" type="VBoxContainer" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/ScienceSection/ScienceContent" unique_id=629284580]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="HaloMassRow" type="HBoxContainer" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/ScienceSection/ScienceContent/ScienceVBox" unique_id=92973018]
+layout_mode = 2
+
+[node name="HaloMassLabel" type="Label" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/ScienceSection/ScienceContent/ScienceVBox/HaloMassRow" unique_id=949842964]
+custom_minimum_size = Vector2(96, 0)
+layout_mode = 2
+text = "Halo Mass"
+
+[node name="HaloMassSlider" type="HSlider" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/ScienceSection/ScienceContent/ScienceVBox/HaloMassRow" unique_id=741940766]
+layout_mode = 2
+size_flags_horizontal = 3
+min_value = 9.0
+max_value = 13.8
+step = 0.1
+value = 12.0
+
+[node name="HaloMassValue" type="Label" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/ScienceSection/ScienceContent/ScienceVBox/HaloMassRow" unique_id=112732668]
+custom_minimum_size = Vector2(60, 0)
+layout_mode = 2
+text = "12.0"
+horizontal_alignment = 2
+
+[node name="EnvironmentRow" type="HBoxContainer" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/ScienceSection/ScienceContent/ScienceVBox" unique_id=110502076]
+layout_mode = 2
+
+[node name="EnvironmentLabel" type="Label" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/ScienceSection/ScienceContent/ScienceVBox/EnvironmentRow" unique_id=750846636]
+custom_minimum_size = Vector2(96, 0)
+layout_mode = 2
+text = "Environment"
+
+[node name="EnvironmentSlider" type="HSlider" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/ScienceSection/ScienceContent/ScienceVBox/EnvironmentRow" unique_id=858448902]
+layout_mode = 2
+size_flags_horizontal = 3
+max_value = 1.0
+step = 0.05
+value = 0.25
+
+[node name="EnvironmentValue" type="Label" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/ScienceSection/ScienceContent/ScienceVBox/EnvironmentRow" unique_id=620316472]
+custom_minimum_size = Vector2(60, 0)
+layout_mode = 2
+text = "0.25"
+horizontal_alignment = 2
+
+[node name="StarFormationEfficiencyRow" type="HBoxContainer" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/ScienceSection/ScienceContent/ScienceVBox" unique_id=518699651]
+layout_mode = 2
+
+[node name="StarFormationEfficiencyLabel" type="Label" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/ScienceSection/ScienceContent/ScienceVBox/StarFormationEfficiencyRow" unique_id=44368773]
+custom_minimum_size = Vector2(96, 0)
+layout_mode = 2
+text = "SFE"
+
+[node name="StarFormationEfficiencySlider" type="HSlider" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/ScienceSection/ScienceContent/ScienceVBox/StarFormationEfficiencyRow" unique_id=848316704]
+layout_mode = 2
+size_flags_horizontal = 3
+min_value = 0.05
+max_value = 0.65
+step = 0.01
+value = 0.1
+
+[node name="StarFormationEfficiencyValue" type="Label" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/ScienceSection/ScienceContent/ScienceVBox/StarFormationEfficiencyRow" unique_id=1712732809]
+custom_minimum_size = Vector2(60, 0)
+layout_mode = 2
+text = "0.10"
 horizontal_alignment = 2
 
 [node name="StructureSection" type="VBoxContainer" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox" unique_id=831138717]
@@ -504,6 +656,94 @@ layout_mode = 2
 text = "1.0x"
 horizontal_alignment = 2
 
+[node name="GhzInnerRow" type="HBoxContainer" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/SizeSection/SizeContent/SizeVBox" unique_id=1954728080]
+layout_mode = 2
+
+[node name="GhzInnerLabel" type="Label" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/SizeSection/SizeContent/SizeVBox/GhzInnerRow" unique_id=1771880177]
+custom_minimum_size = Vector2(96, 0)
+layout_mode = 2
+text = "GHZ Inner"
+
+[node name="GhzInnerSlider" type="HSlider" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/SizeSection/SizeContent/SizeVBox/GhzInnerRow" unique_id=128090283]
+layout_mode = 2
+size_flags_horizontal = 3
+min_value = 2000.0
+max_value = 15000.0
+step = 250.0
+value = 4000.0
+
+[node name="GhzInnerValue" type="Label" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/SizeSection/SizeContent/SizeVBox/GhzInnerRow" unique_id=566839134]
+custom_minimum_size = Vector2(72, 0)
+layout_mode = 2
+text = "4000 pc"
+horizontal_alignment = 2
+
+[node name="GhzOuterRow" type="HBoxContainer" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/SizeSection/SizeContent/SizeVBox" unique_id=1246583727]
+layout_mode = 2
+
+[node name="GhzOuterLabel" type="Label" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/SizeSection/SizeContent/SizeVBox/GhzOuterRow" unique_id=603192295]
+custom_minimum_size = Vector2(96, 0)
+layout_mode = 2
+text = "GHZ Outer"
+
+[node name="GhzOuterSlider" type="HSlider" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/SizeSection/SizeContent/SizeVBox/GhzOuterRow" unique_id=1938463449]
+layout_mode = 2
+size_flags_horizontal = 3
+min_value = 4000.0
+max_value = 30000.0
+step = 250.0
+value = 12000.0
+
+[node name="GhzOuterValue" type="Label" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/SizeSection/SizeContent/SizeVBox/GhzOuterRow" unique_id=2106018727]
+custom_minimum_size = Vector2(72, 0)
+layout_mode = 2
+text = "12000 pc"
+horizontal_alignment = 2
+
+[node name="GhzWidthRow" type="HBoxContainer" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/SizeSection/SizeContent/SizeVBox" unique_id=1236839687]
+layout_mode = 2
+
+[node name="GhzWidthLabel" type="Label" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/SizeSection/SizeContent/SizeVBox/GhzWidthRow" unique_id=1808978238]
+custom_minimum_size = Vector2(96, 0)
+layout_mode = 2
+text = "GHZ Width"
+
+[node name="GhzWidthSlider" type="HSlider" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/SizeSection/SizeContent/SizeVBox/GhzWidthRow" unique_id=1988224331]
+layout_mode = 2
+size_flags_horizontal = 3
+min_value = 500.0
+max_value = 8000.0
+step = 100.0
+value = 2000.0
+
+[node name="GhzWidthValue" type="Label" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/SizeSection/SizeContent/SizeVBox/GhzWidthRow" unique_id=1171746842]
+custom_minimum_size = Vector2(72, 0)
+layout_mode = 2
+text = "2000 pc"
+horizontal_alignment = 2
+
+[node name="MetallicityGradientRow" type="HBoxContainer" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/SizeSection/SizeContent/SizeVBox" unique_id=753029073]
+layout_mode = 2
+
+[node name="MetallicityGradientLabel" type="Label" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/SizeSection/SizeContent/SizeVBox/MetallicityGradientRow" unique_id=689551025]
+custom_minimum_size = Vector2(96, 0)
+layout_mode = 2
+text = "[M/H] Grad"
+
+[node name="MetallicityGradientSlider" type="HSlider" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/SizeSection/SizeContent/SizeVBox/MetallicityGradientRow" unique_id=708871137]
+layout_mode = 2
+size_flags_horizontal = 3
+min_value = -0.12
+max_value = -0.005
+step = 0.005
+value = -0.05
+
+[node name="MetallicityGradientValue" type="Label" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/SizeSection/SizeContent/SizeVBox/MetallicityGradientRow" unique_id=251486166]
+custom_minimum_size = Vector2(96, 0)
+layout_mode = 2
+text = "-0.050 dex/kpc"
+horizontal_alignment = 2
+
 [node name="SeedContainer" type="HBoxContainer" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox" unique_id=2089843329]
 layout_mode = 2
 theme_override_constants/separation = 8
@@ -650,6 +890,44 @@ custom_minimum_size = Vector2(156, 0)
 layout_mode = 2
 text = "0.50 (Colonization Common)"
 horizontal_alignment = 1
+
+[node name="GalaxyScienceSection" type="VBoxContainer" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/RulesPanel/MarginContainer/RulesVBox/ScrollContainer/RulesContent" unique_id=860250234]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="GalaxyScienceHeaderRow" type="HBoxContainer" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/RulesPanel/MarginContainer/RulesVBox/ScrollContainer/RulesContent/GalaxyScienceSection" unique_id=699063446]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="GalaxyScienceHeader" type="Label" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/RulesPanel/MarginContainer/RulesVBox/ScrollContainer/RulesContent/GalaxyScienceSection/GalaxyScienceHeaderRow" unique_id=1597466522]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.82, 0.82, 0.55, 1)
+theme_override_font_sizes/font_size = 12
+text = "Galaxy Science"
+
+[node name="ScienceInfoButton" type="Button" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/RulesPanel/MarginContainer/RulesVBox/ScrollContainer/RulesContent/GalaxyScienceSection/GalaxyScienceHeaderRow" unique_id=592447462]
+layout_mode = 2
+size_flags_horizontal = 8
+text = "Show Science"
+
+[node name="GalaxySciencePanel" type="PanelContainer" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/RulesPanel/MarginContainer/RulesVBox/ScrollContainer/RulesContent/GalaxyScienceSection" unique_id=786810993]
+visible = false
+layout_mode = 2
+
+[node name="MarginContainer" type="MarginContainer" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/RulesPanel/MarginContainer/RulesVBox/ScrollContainer/RulesContent/GalaxyScienceSection/GalaxySciencePanel" unique_id=1920818787]
+layout_mode = 2
+theme_override_constants/margin_left = 10
+theme_override_constants/margin_top = 10
+theme_override_constants/margin_right = 10
+theme_override_constants/margin_bottom = 10
+
+[node name="GalaxyScienceText" type="RichTextLabel" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/RulesPanel/MarginContainer/RulesVBox/ScrollContainer/RulesContent/GalaxyScienceSection/GalaxySciencePanel/MarginContainer" unique_id=864785041]
+custom_minimum_size = Vector2(0, 220)
+layout_mode = 2
+bbcode_enabled = true
+fit_content = true
+scroll_active = false
+autowrap_mode = 2
 
 [node name="SummaryPanel" type="PanelContainer" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow" unique_id=2053494642]
 custom_minimum_size = Vector2(200, 0)

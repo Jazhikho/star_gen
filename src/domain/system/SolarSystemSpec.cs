@@ -1,5 +1,6 @@
 using Godot;
 using Godot.Collections;
+using StarGen.Domain.Galaxy;
 using StarGen.Domain.Generation;
 using StarGen.Domain.Generation.Archetypes;
 
@@ -44,6 +45,11 @@ public partial class SolarSystemSpec : RefCounted
     /// Shared system metallicity, or -1 for per-star randomization.
     /// </summary>
     public double SystemMetallicity = -1.0;
+
+    /// <summary>
+    /// Galaxy-derived context for the parent star and region.
+    /// </summary>
+    public GalaxyOriginContext GalaxyContext = new GalaxyOriginContext();
 
     /// <summary>
     /// Whether asteroid belts should be generated.
@@ -178,6 +184,7 @@ public partial class SolarSystemSpec : RefCounted
             ["spectral_class_hints"] = hints,
             ["system_age_years"] = SystemAgeYears,
             ["system_metallicity"] = SystemMetallicity,
+            ["galaxy_context"] = GalaxyContext.ToDictionary(),
             ["include_asteroid_belts"] = IncludeAsteroidBelts,
             ["generate_population"] = GeneratePopulation,
             ["overrides"] = CloneDictionary(Overrides),
@@ -197,6 +204,10 @@ public partial class SolarSystemSpec : RefCounted
         spec.NameHint = GetString(data, "name_hint", string.Empty);
         spec.SystemAgeYears = GetDouble(data, "system_age_years", -1.0);
         spec.SystemMetallicity = GetDouble(data, "system_metallicity", -1.0);
+        if (data.ContainsKey("galaxy_context") && data["galaxy_context"].VariantType == Variant.Type.Dictionary)
+        {
+            spec.GalaxyContext = GalaxyOriginContext.FromDictionary((Dictionary)data["galaxy_context"]);
+        }
         spec.IncludeAsteroidBelts = GetBool(data, "include_asteroid_belts", true);
         spec.GeneratePopulation = GetBool(data, "generate_population", false);
 

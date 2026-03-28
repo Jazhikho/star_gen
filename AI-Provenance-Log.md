@@ -17,6 +17,17 @@ Use this log for significant AI-assisted artifacts in this repository.
 
 ## Entries
 
+### 2026-03-28 - Codex (GPT-5)
+
+- Task Purpose: Implement the `0.8.2.0` scientifically grounded galaxy-generation feature by replacing the older galaxy shape-only model with a deterministic science-backed profile, propagating galaxy-origin context into downstream star/system generation, exposing cited scientific assumptions in the galaxy studio, and rewriting tests around the new behavior.
+- Input Materials Used: User-approved `StarGen 0.8.2 Scientifically Grounded Galaxy Generation` plan; `AGENTS.md`; `claude.md`; existing galaxy/system/star generation code and tests; `Docs/galactic_formation.md`; source list supplied in the approved plan, including Park et al. 2007, Tanaka et al. 2004, Behroozi et al. 2019, the UniverseMachine dwarf extension paper, Oohama et al. 2009, Laurikainen et al. 2010, Diaz-Garcia et al. 2016, Kennicutt 1998, Forgan et al. 2017, Spitoni et al. 2017, APOGEE 2024 metallicity-gradient work, and C-MetaLL 2024.
+- AI Produced: Added galaxy-science enums, realism-profile and galaxy-origin-context types, deterministic profile-building and scientific-field evaluation services, a lenticular density model, expanded `GalaxyConfig`/`GalaxySpec`/`GalaxyStar`, propagated galaxy context into `SolarSystemSpec`, `StarSpec`, `StellarConfigGenerator`, and `StarGenerator`, expanded galaxy parameter metadata and validation, added a scene-first galaxy-studio science panel plus scientific control wiring, and replaced the older galaxy/unit test coverage with deterministic scientific and downstream-propagation tests.
+- Human Accepted: Pending review of the scientific defaults, citations, control language, and downstream biasing behavior before merge or release.
+- Human Rejected: The user explicitly rejected turning StarGen into a time-evolving galaxy simulation; clustered spatial star placement beyond scaffolding was kept out of `0.8.2`. The user also maintained the policy that UI-surface tests should remain discarded rather than reintroduced for the new science panel.
+- Human Changed: The user set the scope and acceptance criteria: scientifically sound principles rather than full simulation, explicit user family choice with variation inside that family, user-facing info surfaces that explain the science and cite sources, explicit handling of paper gaps via additional sources, and downstream coupling so galaxy-level priors shape star/system generation.
+- Validation Method: `dotnet clean StarGen.sln`; `dotnet build StarGen.sln`; `godot-mono.exe --path . --headless --script res://Tests/RunTestsHeadless.gd` (`1756 / 1756` passed after a clean rebuild).
+- Final Approver: Pending Christopher B. Del Gesso review.
+
 ### 2026-03-27 - Codex (GPT-5)
 
 - Task Purpose: Implement the first `0.9` mainline release-branch slice by removing shipped concept/persistence runtime paths, switching user-facing versioning to branch-channel suffixes, trimming the test suite to non-UI mainline coverage, and syncing release docs to the new scope.

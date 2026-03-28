@@ -3,6 +3,7 @@ using Godot;
 using Godot.Collections;
 using StarGen.Domain.Celestial;
 using StarGen.Domain.Celestial.Components;
+using StarGen.Domain.Galaxy;
 using StarGen.Domain.Generation.Archetypes;
 using StarGen.Domain.Generation.Specs;
 using StarGen.Domain.Generation.Tables;
@@ -73,7 +74,9 @@ public static class StarGenerator
         return body;
     }
 
-    /// <summary>Picks spectral class from spec override or weighted RNG.</summary>
+    /// <summary>
+    /// Picks spectral class from spec override or galaxy-conditioned weighted RNG.
+    /// </summary>
     private static StarClass.SpectralClass DetermineSpectralClass(StarSpec spec, SeededRng rng)
     {
         if (spec.HasSpectralClass())
@@ -81,17 +84,20 @@ public static class StarGenerator
             return (StarClass.SpectralClass)spec.SpectralClass;
         }
 
-        StarClass.SpectralClass? selected = rng.WeightedChoice(SpectralClasses, SpectralWeights);
+        float[] adjustedWeights = BuildSpectralWeights(spec.GalaxyContext);
+        StarClass.SpectralClass? selected = rng.WeightedChoice(SpectralClasses, adjustedWeights);
         if (selected == null)
         {
-            GD.PushError("StarGenerator.DetermineSpectralClass: WeightedChoice returned null — spectral weight table may be empty or invalid.");
+            GD.PushError("StarGenerator.DetermineSpectralClass: WeightedChoice returned null because the spectral weight table is invalid.");
             throw new InvalidOperationException("WeightedChoice returned null for SpectralClass.");
         }
 
         return selected.Value;
     }
 
-    /// <summary>Picks subclass from spec override or random 0–9.</summary>
+    /// <summary>
+    /// Picks subclass from spec override or random 0-9.
+    /// </summary>
     private static int DetermineSubclass(StarSpec spec, SeededRng rng)
     {
         if (spec.HasSubclass())
@@ -102,7 +108,9 @@ public static class StarGenerator
         return rng.RandiRange(0, 9);
     }
 
-    /// <summary>Computes stellar mass in solar units from table and overrides.</summary>
+    /// <summary>
+    /// Computes stellar mass in solar units from table and overrides.
+    /// </summary>
     private static double CalculateMass(
         StarSpec spec,
         StarClass.SpectralClass spectralClass,
@@ -134,7 +142,9 @@ public static class StarGenerator
         return baseLuminosity * variation;
     }
 
-    /// <summary>Derives radius from luminosity and temperature (or override).</summary>
+    /// <summary>
+    /// Derives radius from luminosity and temperature or applies an override.
+    /// </summary>
     private static double CalculateRadiusFromLuminosityTemperature(
         StarSpec spec,
         double luminositySolar,
@@ -150,7 +160,9 @@ public static class StarGenerator
         return System.Math.Sqrt(luminositySolar) * System.Math.Pow(solarTemperature / temperatureK, 2.0);
     }
 
-    /// <summary>Computes effective temperature from table and overrides.</summary>
+    /// <summary>
+    /// Computes effective temperature from table and overrides.
+    /// </summary>
     private static double CalculateTemperature(
         StarSpec spec,
         StarClass.SpectralClass spectralClass,
@@ -170,10 +182,7 @@ public static class StarGenerator
     }
 
     /// <summary>
-    /// Picks age in years from spec or biased random within stellar lifetime.
-    /// Capped at 13.5 Gyr (current age of the universe, Planck 2018) to prevent
-    /// physically impossible ages for long-lived M-stars whose lifetimes far exceed
-    /// the universe's current age.
+    /// Picks age in years from spec or galaxy-conditioned randomization.
     /// </summary>
     private static double DetermineAge(
         StarSpec spec,
@@ -186,16 +195,27 @@ public static class StarGenerator
         }
 
         const double MaxUniverseAgeYears = 13.5e9;
-
         (double minLifetime, double maxLifetime) = StarTable.GetLifetimeRangeTuple(spectralClass);
         double maxAge = System.Math.Min(maxLifetime * 0.9, MaxUniverseAgeYears);
-        double minAge = minLifetime * 0.1;
+        double contextAgeMeanYears = spec.GalaxyContext.AgeMeanGyr * 1.0e9;
+
+        if (contextAgeMeanYears > 0.0)
+        {
+            double clampedMean = System.Math.Clamp(contextAgeMeanYears, 1.0e6, maxAge);
+            double spreadYears = ResolveAgeSpreadYears(spec.GalaxyContext, clampedMean, maxAge);
+            double sampledAge = clampedMean + (rng.Randfn(0.0f, 1.0f) * spreadYears);
+            return System.Math.Clamp(sampledAge, 1.0e6, maxAge);
+        }
+
+        double minAge = System.Math.Max(1.0e6, minLifetime * 0.1);
         double raw = rng.Randf();
         double biased = System.Math.Pow(raw, 0.7);
-        return minAge + (maxAge - minAge) * biased;
+        return minAge + ((maxAge - minAge) * biased);
     }
 
-    /// <summary>Picks metallicity from spec or log-normal random.</summary>
+    /// <summary>
+    /// Picks metallicity from spec or galaxy-conditioned log-normal randomization.
+    /// </summary>
     private static double DetermineMetallicity(StarSpec spec, SeededRng rng)
     {
         if (spec.HasMetallicity())
@@ -203,14 +223,18 @@ public static class StarGenerator
             return spec.Metallicity;
         }
 
-        double logMetallicity = rng.Randfn(0.0f, 0.2f);
+        double baseline = spec.GalaxyContext.MetallicityPrior;
+        if (baseline <= 0.0)
+        {
+            baseline = 1.0;
+        }
+
+        double logMetallicity = System.Math.Log(baseline) + rng.Randfn(0.0f, 0.12f);
         return System.Math.Clamp(System.Math.Exp(logMetallicity), 0.1, 3.0);
     }
 
     /// <summary>
     /// Builds physical properties from mass, radius, spectral class, and spec overrides.
-    /// Rotation period is sampled from spectral-class-dependent ranges based on
-    /// observational surveys (McQuillan et al. 2014; Reinhold &amp; Gizon 2015).
     /// </summary>
     private static PhysicalProps GeneratePhysicalProps(
         StarSpec spec,
@@ -240,7 +264,9 @@ public static class StarGenerator
             internalHeatWatts);
     }
 
-    /// <summary>Produces a unique star id from spec override or RNG.</summary>
+    /// <summary>
+    /// Produces a unique star id from spec override or RNG.
+    /// </summary>
     private static string GenerateId(StarSpec spec, SeededRng rng)
     {
         Variant overrideId = spec.GetOverride("id", default);
@@ -255,5 +281,100 @@ public static class StarGenerator
 
         int randomPart = (int)(rng.Randi() % 1_000_000u);
         return GeneratorUtils.GenerateIdFromRandomPart("star", randomPart);
+    }
+
+    private static float[] BuildSpectralWeights(GalaxyOriginContext galaxyContext)
+    {
+        float[] weights = new float[SpectralWeights.Length];
+        for (int index = 0; index < SpectralWeights.Length; index += 1)
+        {
+            weights[index] = SpectralWeights[index];
+        }
+
+        ApplyAgeCohortWeights(weights, galaxyContext.AgeCohort);
+        ApplyRegionWeights(weights, galaxyContext.RegionKind, galaxyContext.ClusterProbability);
+        return weights;
+    }
+
+    private static void ApplyAgeCohortWeights(float[] weights, GalaxyAgeCohort ageCohort)
+    {
+        if (ageCohort == GalaxyAgeCohort.Young)
+        {
+            weights[0] *= 4.0f;
+            weights[1] *= 3.0f;
+            weights[2] *= 2.0f;
+            weights[3] *= 1.2f;
+            weights[4] *= 0.95f;
+            weights[5] *= 0.8f;
+            weights[6] *= 0.7f;
+            return;
+        }
+
+        if (ageCohort == GalaxyAgeCohort.Mature)
+        {
+            weights[0] *= 0.35f;
+            weights[1] *= 0.55f;
+            weights[2] *= 0.85f;
+            weights[3] *= 1.0f;
+            weights[4] *= 1.05f;
+            weights[5] *= 1.1f;
+            weights[6] *= 1.08f;
+            return;
+        }
+
+        if (ageCohort == GalaxyAgeCohort.Old)
+        {
+            weights[0] *= 0.02f;
+            weights[1] *= 0.08f;
+            weights[2] *= 0.35f;
+            weights[3] *= 0.7f;
+            weights[4] *= 0.95f;
+            weights[5] *= 1.15f;
+            weights[6] *= 1.25f;
+            return;
+        }
+
+        weights[0] *= 0.005f;
+        weights[1] *= 0.03f;
+        weights[2] *= 0.18f;
+        weights[3] *= 0.45f;
+        weights[4] *= 0.9f;
+        weights[5] *= 1.2f;
+        weights[6] *= 1.35f;
+    }
+
+    private static void ApplyRegionWeights(float[] weights, GalaxyRegionKind regionKind, double clusterProbability)
+    {
+        if (regionKind == GalaxyRegionKind.SpiralArm || regionKind == GalaxyRegionKind.IrregularBody)
+        {
+            float clusterBoost = (float)System.Math.Clamp(clusterProbability, 0.0, 1.0);
+            weights[0] *= 1.0f + (clusterBoost * 1.8f);
+            weights[1] *= 1.0f + (clusterBoost * 1.4f);
+            weights[2] *= 1.0f + (clusterBoost * 0.8f);
+            weights[3] *= 1.0f + (clusterBoost * 0.2f);
+            return;
+        }
+
+        if (regionKind == GalaxyRegionKind.Core || regionKind == GalaxyRegionKind.Bulge || regionKind == GalaxyRegionKind.Halo)
+        {
+            weights[0] *= 0.25f;
+            weights[1] *= 0.4f;
+            weights[2] *= 0.7f;
+        }
+    }
+
+    private static double ResolveAgeSpreadYears(GalaxyOriginContext galaxyContext, double meanYears, double maxAge)
+    {
+        double spreadYears = System.Math.Max(meanYears * 0.2, 0.15e9);
+        if (galaxyContext.AgeCohort == GalaxyAgeCohort.Young)
+        {
+            spreadYears *= 0.7;
+        }
+        else if (galaxyContext.AgeCohort == GalaxyAgeCohort.Ancient)
+        {
+            spreadYears *= 0.5;
+        }
+
+        return System.Math.Min(spreadYears, maxAge * 0.35);
     }
 }

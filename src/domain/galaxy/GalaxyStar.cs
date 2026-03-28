@@ -20,14 +20,19 @@ public partial class GalaxyStar : RefCounted
     public int StarSeed { get; set; }
 
     /// <summary>
-    /// Galactic metallicity modifier.
+    /// Galactic metallicity modifier retained for compatibility with existing downstream callers.
     /// </summary>
     public double Metallicity { get; set; } = 1.0;
 
     /// <summary>
-    /// Age bias factor.
+    /// Legacy age-bias factor retained for compatibility with existing downstream callers.
     /// </summary>
     public double AgeBias { get; set; } = 1.0;
+
+    /// <summary>
+    /// Structured galaxy-origin context used by downstream star and system generation.
+    /// </summary>
+    public GalaxyOriginContext OriginContext { get; set; } = new GalaxyOriginContext();
 
     /// <summary>
     /// Parent sector quadrant coordinates.
@@ -54,11 +59,11 @@ public partial class GalaxyStar : RefCounted
     }
 
     /// <summary>
-    /// Creates a star with metallicity and age derived from galactic position.
+    /// Creates a star with metallicity and galaxy-origin context derived from galactic position.
     /// </summary>
     public static GalaxyStar CreateWithDerivedProperties(Vector3 position, int seed, GalaxySpec galaxySpec)
     {
-        GalaxyStar star = new(position, seed);
+        GalaxyStar star = new GalaxyStar(position, seed);
         star.DerivePropertiesFromPosition(galaxySpec);
         return star;
     }
@@ -72,6 +77,7 @@ public partial class GalaxyStar : RefCounted
         {
             Metallicity = Metallicity,
             AgeBias = AgeBias,
+            OriginContext = OriginContext.Clone(),
             SectorQuadrant = SectorQuadrant,
             SectorLocal = SectorLocal,
             SubsectorCoords = SubsectorCoords,
@@ -79,23 +85,13 @@ public partial class GalaxyStar : RefCounted
     }
 
     /// <summary>
-    /// Derives metallicity and age bias from galactic position.
+    /// Derives metallicity and downstream galaxy context from galactic position.
     /// </summary>
     public void DerivePropertiesFromPosition(GalaxySpec galaxySpec)
     {
-        double radialDistance = System.Math.Sqrt((Position.X * Position.X) + (Position.Z * Position.Z));
-        double height = System.Math.Abs(Position.Y);
-        double normalizedRadius;
-        if (galaxySpec.DiskScaleLengthPc > 0.0)
-        {
-            normalizedRadius = radialDistance / galaxySpec.DiskScaleLengthPc;
-        }
-        else
-        {
-            normalizedRadius = 0.0;
-        }
-        Metallicity = CalculateMetallicity(normalizedRadius, height, galaxySpec);
-        AgeBias = CalculateAgeBias(normalizedRadius, height, galaxySpec);
+        OriginContext = GalaxyScientificFieldEvaluator.Evaluate(Position, galaxySpec);
+        Metallicity = OriginContext.MetallicityPrior;
+        AgeBias = OriginContext.AgeBias;
     }
 
     /// <summary>
@@ -127,7 +123,7 @@ public partial class GalaxyStar : RefCounted
     /// </summary>
     public override string ToString()
     {
-        return $"GalaxyStar(seed={StarSeed}, pos={Position}, [Fe/H]={Metallicity:0.###}, age_bias={AgeBias:0.###})";
+        return $"GalaxyStar(seed={StarSeed}, pos={Position}, subtype={OriginContext.ResolvedSubtype}, [Fe/H]={Metallicity:0.###}, age_bias={AgeBias:0.###})";
     }
 
     /// <summary>
@@ -141,6 +137,7 @@ public partial class GalaxyStar : RefCounted
             ["star_seed"] = StarSeed,
             ["metallicity"] = Metallicity,
             ["age_bias"] = AgeBias,
+            ["origin_context"] = OriginContext.ToDictionary(),
             ["sector_quadrant"] = SectorQuadrant,
             ["sector_local"] = SectorLocal,
             ["subsector_coords"] = SubsectorCoords,
@@ -157,68 +154,27 @@ public partial class GalaxyStar : RefCounted
             return null;
         }
 
-        GalaxyStar star = new((Vector3)data["position"], DomainDictionaryUtils.GetInt(data, "star_seed", 0))
+        GalaxyStar star = new GalaxyStar((Vector3)data["position"], DomainDictionaryUtils.GetInt(data, "star_seed", 0));
+        star.Metallicity = DomainDictionaryUtils.GetDouble(data, "metallicity", 1.0);
+        star.AgeBias = DomainDictionaryUtils.GetDouble(data, "age_bias", 1.0);
+        star.SectorQuadrant = GetVector3I(data, "sector_quadrant", Vector3I.Zero);
+        star.SectorLocal = GetVector3I(data, "sector_local", Vector3I.Zero);
+        star.SubsectorCoords = GetVector3I(data, "subsector_coords", Vector3I.Zero);
+
+        if (data.ContainsKey("origin_context") && data["origin_context"].VariantType == Variant.Type.Dictionary)
         {
-            Metallicity = DomainDictionaryUtils.GetDouble(data, "metallicity", 1.0),
-            AgeBias = DomainDictionaryUtils.GetDouble(data, "age_bias", 1.0),
-            SectorQuadrant = GetVector3I(data, "sector_quadrant", Vector3I.Zero),
-            SectorLocal = GetVector3I(data, "sector_local", Vector3I.Zero),
-            SubsectorCoords = GetVector3I(data, "subsector_coords", Vector3I.Zero),
-        };
+            star.OriginContext = GalaxyOriginContext.FromDictionary((Dictionary)data["origin_context"]);
+        }
+        else
+        {
+            star.OriginContext = new GalaxyOriginContext
+            {
+                MetallicityPrior = star.Metallicity,
+                AgeBias = star.AgeBias,
+            };
+        }
+
         return star;
-    }
-
-    /// <summary>
-    /// Calculates metallicity based on galactic position.
-    /// </summary>
-    private double CalculateMetallicity(double normalizedRadius, double height, GalaxySpec galaxySpec)
-    {
-        double radialFactor = System.Math.Exp(-0.3 * normalizedRadius) + 0.3;
-        double normalizedHeight;
-        if (galaxySpec.BulgeHeightPc > 0.0)
-        {
-            normalizedHeight = height / galaxySpec.BulgeHeightPc;
-        }
-        else
-        {
-            normalizedHeight = 0.0;
-        }
-        double verticalFactor = System.Math.Exp(-0.5 * normalizedHeight);
-        double rawMetallicity = radialFactor * verticalFactor * 1.2;
-        return System.Math.Clamp(rawMetallicity, 0.1, 3.0);
-    }
-
-    /// <summary>
-    /// Calculates age bias based on galactic position.
-    /// </summary>
-    private double CalculateAgeBias(double normalizedRadius, double height, GalaxySpec galaxySpec)
-    {
-        double bulgeRadiusSq = galaxySpec.BulgeRadiusPc * galaxySpec.BulgeRadiusPc;
-        double bulgeHeightSq = galaxySpec.BulgeHeightPc * galaxySpec.BulgeHeightPc;
-        double bulgeDistance;
-        if (bulgeRadiusSq > 0.0 && bulgeHeightSq > 0.0)
-        {
-            bulgeDistance = System.Math.Sqrt(
-                (((Position.X * Position.X) + (Position.Z * Position.Z)) / bulgeRadiusSq) +
-                ((Position.Y * Position.Y) / bulgeHeightSq));
-        }
-        else
-        {
-            bulgeDistance = 0.0;
-        }
-        double bulgeFactor = System.Math.Exp(-bulgeDistance) * 0.5;
-        double normalizedHeight;
-        if (galaxySpec.BulgeHeightPc > 0.0)
-        {
-            normalizedHeight = height / galaxySpec.BulgeHeightPc;
-        }
-        else
-        {
-            normalizedHeight = 0.0;
-        }
-        double haloFactor = 0.3 * (1.0 - System.Math.Exp(-normalizedHeight));
-        double diskFactor = -0.2 * (1.0 - System.Math.Exp(-normalizedRadius * 0.5));
-        return System.Math.Clamp(1.0 + bulgeFactor + haloFactor + diskFactor, 0.5, 2.0);
     }
 
     /// <summary>

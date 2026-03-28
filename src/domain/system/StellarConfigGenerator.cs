@@ -147,6 +147,8 @@ public static class StellarConfigGenerator
                     useCaseSettings: spec.UseCaseSettings);
             }
 
+            starSpec.GalaxyContext = spec.GalaxyContext.Clone();
+
             CelestialBody star = StarGenerator.Generate(starSpec, starRng);
             star.Id = $"star_{index}";
             if (string.IsNullOrEmpty(star.Name))

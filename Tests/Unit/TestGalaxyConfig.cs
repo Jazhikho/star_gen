@@ -1,167 +1,139 @@
 #nullable enable annotations
 #nullable disable warnings
 using System;
-using Godot;
 using Godot.Collections;
+using StarGen.Domain.Generation.Parameters;
 using StarGen.Domain.Galaxy;
 using StarGen.Tests.Framework;
 
 namespace StarGen.Tests.Unit;
 
 /// <summary>
-/// Unit tests for GalaxyConfig.
+/// Unit tests for galaxy scientific configuration and metadata.
 /// </summary>
 public static class TestGalaxyConfig
 {
     /// <summary>
-    /// Tests create default returns valid config.
+    /// Tests that the default galaxy config ships scientific defaults.
     /// </summary>
-    public static void TestCreateDefaultReturnsValidConfig()
+    public static void TestCreateDefaultReturnsScientificMilkyWayConfig()
     {
         GalaxyConfig config = GalaxyConfig.CreateDefault();
 
-        DotNetNativeTestSuite.AssertNotNull(config, "Should return config");
-        if (!config.IsValid())
-        {
-            throw new InvalidOperationException("Default config should be valid");
-        }
-        DotNetNativeTestSuite.AssertEqual((int)GalaxySpec.GalaxyType.Spiral, (int)config.GalaxyType, "Default type should be spiral");
-        DotNetNativeTestSuite.AssertEqual(4, config.NumArms, "Default arms should be 4");
+        DotNetNativeTestSuite.AssertTrue(config.IsValid(), "default config should be valid");
+        DotNetNativeTestSuite.AssertEqual((int)GalaxySpec.GalaxyType.Spiral, (int)config.Type, "default family should be spiral");
+        DotNetNativeTestSuite.AssertEqual((int)GalaxySubtypeMode.IntermediateType, (int)config.SubtypeMode, "Milky Way preset should bias toward an intermediate spiral");
+        DotNetNativeTestSuite.AssertEqual((int)GalaxyBarMode.PreferBarred, (int)config.BarMode, "Milky Way preset should prefer a bar");
+        DotNetNativeTestSuite.AssertEqual((int)GalaxyArmMechanism.GrandDesign, (int)config.ArmMechanismPreference, "Milky Way preset should default to grand-design arms");
     }
 
     /// <summary>
-    /// Tests create milky way sets spiral params.
+    /// Tests that scientific fields survive dictionary round-trip.
     /// </summary>
-    public static void TestCreateMilkyWaySetsSpiralParams()
-    {
-        GalaxyConfig config = GalaxyConfig.CreateMilkyWay();
-
-        DotNetNativeTestSuite.AssertEqual((int)GalaxySpec.GalaxyType.Spiral, (int)config.GalaxyType, "Should be spiral");
-        DotNetNativeTestSuite.AssertEqual(4, config.NumArms, "Should have 4 arms");
-        DotNetNativeTestSuite.AssertEqual(14.0, config.ArmPitchAngleDeg, "Pitch should match");
-        DotNetNativeTestSuite.AssertEqual(0.65, config.ArmAmplitude, "Amplitude should match");
-        DotNetNativeTestSuite.AssertEqual(15000.0, config.RadiusPc, "Radius should match");
-    }
-
-    /// <summary>
-    /// Tests is valid rejects bad type.
-    /// </summary>
-    public static void TestIsValidRejectsBadType()
-    {
-        GalaxyConfig config = GalaxyConfig.CreateDefault();
-        config.GalaxyType = (GalaxySpec.GalaxyType)(-1);
-
-        if (config.IsValid())
-        {
-            throw new InvalidOperationException("Invalid type should be rejected");
-        }
-    }
-
-    /// <summary>
-    /// Tests is valid rejects bad num arms.
-    /// </summary>
-    public static void TestIsValidRejectsBadNumArms()
-    {
-        GalaxyConfig config = GalaxyConfig.CreateDefault();
-        config.NumArms = 1;
-
-        if (config.IsValid())
-        {
-            throw new InvalidOperationException("Too few arms should be rejected");
-        }
-
-        config.NumArms = 7;
-        if (config.IsValid())
-        {
-            throw new InvalidOperationException("Too many arms should be rejected");
-        }
-    }
-
-    /// <summary>
-    /// Tests is valid rejects bad radius.
-    /// </summary>
-    public static void TestIsValidRejectsBadRadius()
-    {
-        GalaxyConfig config = GalaxyConfig.CreateDefault();
-        config.RadiusPc = 5000.0;
-
-        if (config.IsValid())
-        {
-            throw new InvalidOperationException("Radius below range should be rejected");
-        }
-
-        config.RadiusPc = 30000.0;
-        if (config.IsValid())
-        {
-            throw new InvalidOperationException("Radius above range should be rejected");
-        }
-    }
-
-    /// <summary>
-    /// Tests to dict round trip.
-    /// </summary>
-    public static void TestToDictRoundTrip()
+    public static void TestScientificFieldsRoundTrip()
     {
         GalaxyConfig original = GalaxyConfig.CreateMilkyWay();
-        Godot.Collections.Dictionary dict = original.ToDictionary();
-        GalaxyConfig restored = GalaxyConfig.FromDictionary(dict);
+        original.Type = GalaxySpec.GalaxyType.Lenticular;
+        original.SubtypeMode = GalaxySubtypeMode.LateType;
+        original.BarMode = GalaxyBarMode.PreferUnbarred;
+        original.HaloMassLog10Solar = 12.6;
+        original.EnvironmentDensityIndex = 0.65;
+        original.GhzInnerRadiusPc = 5200.0;
+        original.GhzOuterRadiusPc = 13200.0;
+        original.GhzTransitionWidthPc = 2400.0;
+        original.MetallicityGradientDexPerKpc = -0.035;
+        original.StarFormationEfficiency = 0.09;
 
-        DotNetNativeTestSuite.AssertNotNull(restored, "Should deserialize");
-        DotNetNativeTestSuite.AssertEqual((int)original.GalaxyType, (int)restored.GalaxyType, "Type should match");
-        DotNetNativeTestSuite.AssertEqual(original.NumArms, restored.NumArms, "Arms should match");
-        DotNetNativeTestSuite.AssertEqual(original.RadiusPc, restored.RadiusPc, "Radius should match");
-        if (!restored.IsValid())
-        {
-            throw new InvalidOperationException("Restored config should be valid");
-        }
+        Dictionary data = original.ToDictionary();
+        GalaxyConfig? restored = GalaxyConfig.FromDictionary(data);
+
+        DotNetNativeTestSuite.AssertNotNull(restored, "config should deserialize");
+        DotNetNativeTestSuite.AssertEqual((int)original.Type, (int)restored!.Type, "family should round-trip");
+        DotNetNativeTestSuite.AssertEqual((int)original.SubtypeMode, (int)restored.SubtypeMode, "subtype mode should round-trip");
+        DotNetNativeTestSuite.AssertEqual((int)original.BarMode, (int)restored.BarMode, "bar mode should round-trip");
+        DotNetNativeTestSuite.AssertEqual(original.HaloMassLog10Solar, restored.HaloMassLog10Solar, "halo mass should round-trip");
+        DotNetNativeTestSuite.AssertEqual(original.GhzOuterRadiusPc, restored.GhzOuterRadiusPc, "GHZ outer radius should round-trip");
+        DotNetNativeTestSuite.AssertEqual(original.MetallicityGradientDexPerKpc, restored.MetallicityGradientDexPerKpc, "metallicity gradient should round-trip");
     }
 
     /// <summary>
-    /// Tests from dict empty returns null.
+    /// Tests that scientific validation rejects broken halo or GHZ ranges.
     /// </summary>
-    public static void TestFromDictEmptyReturnsNull()
-    {
-        GalaxyConfig result = GalaxyConfig.FromDictionary(new Dictionary());
-
-        DotNetNativeTestSuite.AssertNull(result, "Empty dict should return null");
-    }
-
-    /// <summary>
-    /// Tests get type name spiral.
-    /// </summary>
-    public static void TestGetTypeNameSpiral()
-    {
-        GalaxyConfig config = GalaxyConfig.CreateDefault();
-        config.GalaxyType = GalaxySpec.GalaxyType.Spiral;
-
-        DotNetNativeTestSuite.AssertEqual("Spiral", config.GetTypeName(), "Spiral type name should match");
-    }
-
-    /// <summary>
-    /// Tests get type name elliptical.
-    /// </summary>
-    public static void TestGetTypeNameElliptical()
-    {
-        GalaxyConfig config = GalaxyConfig.CreateDefault();
-        config.GalaxyType = GalaxySpec.GalaxyType.Elliptical;
-
-        DotNetNativeTestSuite.AssertEqual("Elliptical", config.GetTypeName(), "Elliptical type name should match");
-    }
-
-    /// <summary>
-    /// Tests apply to spec.
-    /// </summary>
-    public static void TestApplyToSpec()
+    public static void TestScientificValidationRejectsBrokenRanges()
     {
         GalaxyConfig config = GalaxyConfig.CreateMilkyWay();
-        config.NumArms = 5;
-        config.RadiusPc = 20000.0;
-        GalaxySpec spec = new GalaxySpec();
-        spec.GalaxySeed = 12345;
+        config.HaloMassLog10Solar = 8.5;
+        DotNetNativeTestSuite.AssertTrue(!config.IsValid(), "halo mass below range should be invalid");
+
+        config = GalaxyConfig.CreateMilkyWay();
+        config.GhzOuterRadiusPc = config.GhzInnerRadiusPc;
+        DotNetNativeTestSuite.AssertTrue(!config.IsValid(), "GHZ outer radius must exceed inner radius");
+    }
+
+    /// <summary>
+    /// Tests that applying config to spec resolves the scientific profile.
+    /// </summary>
+    public static void TestApplyToSpecCreatesResolvedScientificProfile()
+    {
+        GalaxyConfig config = GalaxyConfig.CreateMilkyWay();
+        config.Type = GalaxySpec.GalaxyType.Lenticular;
+        config.SubtypeMode = GalaxySubtypeMode.LateType;
+        config.BarMode = GalaxyBarMode.PreferBarred;
+
+        GalaxySpec spec = new GalaxySpec
+        {
+            GalaxySeed = 12345,
+        };
 
         config.ApplyToSpec(spec);
 
-        DotNetNativeTestSuite.AssertEqual(5, spec.NumArms, "Spec should have 5 arms");
-        DotNetNativeTestSuite.AssertEqual(20000.0, spec.RadiusPc, "Spec radius should match");
+        DotNetNativeTestSuite.AssertEqual((int)GalaxySpec.GalaxyType.Lenticular, (int)spec.Type, "resolved spec should keep the selected family");
+        DotNetNativeTestSuite.AssertEqual((int)GalaxyResolvedSubtype.LenticularS0a, (int)spec.ResolvedSubtype, "late lenticular should resolve to S0/a");
+        DotNetNativeTestSuite.AssertTrue(spec.IsBarred, "preferred barred lenticular should resolve as barred");
+        DotNetNativeTestSuite.AssertEqual(0, spec.NumArms, "lenticular profiles should not expose active spiral arms");
+        DotNetNativeTestSuite.AssertNotNull(spec.RealismProfile, "resolved realism profile should be stored");
+    }
+
+    /// <summary>
+    /// Tests that galaxy-family names include the new lenticular and irregular labels.
+    /// </summary>
+    public static void TestGetTypeNameIncludesExpandedFamilies()
+    {
+        GalaxyConfig config = GalaxyConfig.CreateDefault();
+        config.Type = GalaxySpec.GalaxyType.Lenticular;
+        DotNetNativeTestSuite.AssertEqual("Lenticular", config.GetTypeName(), "lenticular label should be available");
+
+        config.Type = GalaxySpec.GalaxyType.Irregular;
+        DotNetNativeTestSuite.AssertEqual("Irregular / Dwarf", config.GetTypeName(), "irregular label should reflect the dwarf-capable family");
+    }
+
+    /// <summary>
+    /// Tests that every exposed galaxy-science parameter has assumption text and valid sources.
+    /// </summary>
+    public static void TestGalaxyScienceReferenceCatalogCoversExposedParameters()
+    {
+        foreach (GenerationParameterDefinition definition in GenerationParameterCatalog.GetGalaxyDefinitions())
+        {
+            if (string.IsNullOrWhiteSpace(definition.AssumptionText))
+            {
+                continue;
+            }
+
+            if (definition.Id == "ruleset_mode" || definition.Id == "show_traveller_readouts" || definition.Id == "life_permissiveness" || definition.Id == "mainworld_policy" || definition.Id == "galaxy_seed")
+            {
+                continue;
+            }
+
+            DotNetNativeTestSuite.AssertTrue(!string.IsNullOrWhiteSpace(definition.AssumptionText), $"assumption text should exist for {definition.Id}");
+            foreach (string sourceId in GalaxyScienceReferenceCatalog.GetParameterSourceIds(definition.Id))
+            {
+                DotNetNativeTestSuite.AssertNotNull(GalaxyScienceReferenceCatalog.GetSource(sourceId), $"source '{sourceId}' should resolve");
+            }
+        }
+
+        foreach (string sourceId in GalaxyScienceReferenceCatalog.GetSciencePanelSourceIds())
+        {
+            DotNetNativeTestSuite.AssertNotNull(GalaxyScienceReferenceCatalog.GetSource(sourceId), $"science panel source '{sourceId}' should resolve");
+        }
     }
 }

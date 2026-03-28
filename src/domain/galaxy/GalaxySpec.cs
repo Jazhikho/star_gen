@@ -10,13 +10,14 @@ namespace StarGen.Domain.Galaxy;
 public partial class GalaxySpec : RefCounted
 {
     /// <summary>
-    /// Supported galaxy morphologies.
+    /// Supported galaxy families.
     /// </summary>
     public enum GalaxyType
     {
-        Spiral,
-        Elliptical,
-        Irregular,
+        Spiral = 0,
+        Elliptical = 1,
+        Lenticular = 2,
+        Irregular = 3,
     }
 
     /// <summary>
@@ -25,12 +26,32 @@ public partial class GalaxySpec : RefCounted
     public int GalaxySeed { get; set; }
 
     /// <summary>
-    /// Morphological type.
+    /// Top-level galaxy family.
     /// </summary>
     public GalaxyType Type { get; set; } = GalaxyType.Spiral;
 
     /// <summary>
-    /// Radius of the galactic disk in parsecs.
+    /// User-selected subtype bias mode.
+    /// </summary>
+    public GalaxySubtypeMode SubtypeMode { get; set; } = GalaxySubtypeMode.Automatic;
+
+    /// <summary>
+    /// User-selected bar preference.
+    /// </summary>
+    public GalaxyBarMode BarMode { get; set; } = GalaxyBarMode.Auto;
+
+    /// <summary>
+    /// User-selected spiral-arm preference.
+    /// </summary>
+    public GalaxyArmMechanism ArmMechanismPreference { get; set; } = GalaxyArmMechanism.Auto;
+
+    /// <summary>
+    /// Scientifically resolved subtype.
+    /// </summary>
+    public GalaxyResolvedSubtype ResolvedSubtype { get; set; } = GalaxyResolvedSubtype.SpiralSb;
+
+    /// <summary>
+    /// Radius of the galactic footprint in parsecs.
     /// </summary>
     public double RadiusPc { get; set; } = 15000.0;
 
@@ -85,80 +106,116 @@ public partial class GalaxySpec : RefCounted
     public double DiskScaleHeightPc { get; set; } = 300.0;
 
     /// <summary>
-    /// Ellipticity for elliptical galaxies.
+    /// Ellipticity for spheroidal galaxies.
     /// </summary>
     public double Ellipticity { get; set; } = 0.3;
 
     /// <summary>
-    /// Irregularity scale for irregular galaxies.
+    /// Irregularity scale for irregular and dwarf galaxies.
     /// </summary>
     public double IrregularityScale { get; set; } = 0.5;
+
+    /// <summary>
+    /// Halo-mass proxy in log10 solar masses.
+    /// </summary>
+    public double HaloMassLog10Solar { get; set; } = 12.0;
+
+    /// <summary>
+    /// Normalized environment-density index spanning field-like to cluster-like host conditions.
+    /// </summary>
+    public double EnvironmentDensityIndex { get; set; } = 0.25;
+
+    /// <summary>
+    /// Resolved arm mechanism after scientific variation is applied.
+    /// </summary>
+    public GalaxyArmMechanism ArmMechanism { get; set; } = GalaxyArmMechanism.GrandDesign;
+
+    /// <summary>
+    /// Whether the resolved galaxy includes a central bar.
+    /// </summary>
+    public bool IsBarred { get; set; }
+
+    /// <summary>
+    /// Relative bar strength on a normalized 0-1 scale.
+    /// </summary>
+    public double BarStrength { get; set; } = 0.0;
+
+    /// <summary>
+    /// Sérsic index of the dominant spheroid.
+    /// </summary>
+    public double SersicIndex { get; set; } = 2.5;
+
+    /// <summary>
+    /// Effective radius of the dominant spheroid in parsecs.
+    /// </summary>
+    public double EffectiveRadiusPc { get; set; } = 2500.0;
+
+    /// <summary>
+    /// Bulge-to-total stellar-light proxy.
+    /// </summary>
+    public double BulgeToTotal { get; set; } = 0.2;
+
+    /// <summary>
+    /// Inner galactic habitable-zone radius in parsecs.
+    /// </summary>
+    public double GhzInnerRadiusPc { get; set; } = 4000.0;
+
+    /// <summary>
+    /// Outer galactic habitable-zone radius in parsecs.
+    /// </summary>
+    public double GhzOuterRadiusPc { get; set; } = 12000.0;
+
+    /// <summary>
+    /// Soft galactic habitable-zone transition width in parsecs.
+    /// </summary>
+    public double GhzTransitionWidthPc { get; set; } = 2000.0;
+
+    /// <summary>
+    /// Radial metallicity gradient in dex per kiloparsec.
+    /// </summary>
+    public double MetallicityGradientDexPerKpc { get; set; } = -0.05;
+
+    /// <summary>
+    /// Star-formation-efficiency prior used for cluster scaffolding and downstream coupling.
+    /// </summary>
+    public double StarFormationEfficiency { get; set; } = 0.1;
+
+    /// <summary>
+    /// Embedded-cluster mass-function slope.
+    /// </summary>
+    public double ClusterMassFunctionSlope { get; set; } = 2.0;
+
+    /// <summary>
+    /// Characteristic dissolution timescale for unbound clusters in megayears.
+    /// </summary>
+    public double ClusterDissolutionTimescaleMyr { get; set; } = 10.0;
+
+    /// <summary>
+    /// Resolved realism profile backing the galaxy specification.
+    /// </summary>
+    public GalaxyRealismProfile RealismProfile { get; set; } = new GalaxyRealismProfile();
 
     /// <summary>
     /// Creates a Milky-Way-like spiral galaxy specification.
     /// </summary>
     public static GalaxySpec CreateMilkyWay(int galaxySeed)
     {
-        return new GalaxySpec
-        {
-            GalaxySeed = galaxySeed,
-            Type = GalaxyType.Spiral,
-            RadiusPc = 15000.0,
-            HeightPc = 1000.0,
-            NumArms = 4,
-            ArmPitchAngleDeg = 14.0,
-            ArmWidth = 0.4,
-            ArmAmplitude = 0.65,
-            BulgeRadiusPc = 1500.0,
-            BulgeHeightPc = 800.0,
-            BulgeIntensity = 0.8,
-            DiskScaleLengthPc = 4000.0,
-            DiskScaleHeightPc = 300.0,
-        };
+        return CreateFromConfig(GalaxyConfig.CreateMilkyWay(), galaxySeed);
     }
 
     /// <summary>
     /// Creates a galaxy specification from a configuration object and seed.
-    /// Derived quantities:
-    /// <list type="bullet">
-    ///   <item>
-    ///     <term>HeightPc</term>
-    ///     <description>
-    ///       Set to RadiusPc / 15. The Milky Way disk has a radius-to-half-height ratio of ~15:1
-    ///       for the total stellar distribution (Bland-Hawthorn &amp; Gerhard 2016, ARA&amp;A 54).
-    ///     </description>
-    ///   </item>
-    ///   <item>
-    ///     <term>BulgeHeightPc</term>
-    ///     <description>
-    ///       Set to BulgeRadiusPc × 0.53. Milky Way bar/bulge observations give a vertical-to-planar
-    ///       half-axis ratio in the range 0.4–0.6 (Wegg, Gerhard &amp; Portail 2015, MNRAS 450; Portail
-    ///       et al. 2017, MNRAS 465). A factor of 0.53 represents a moderately flattened prolate bulge.
-    ///     </description>
-    ///   </item>
-    /// </list>
     /// </summary>
     public static GalaxySpec CreateFromConfig(GalaxyConfig? config, int galaxySeed)
     {
         GalaxyConfig effectiveConfig = config ?? GalaxyConfig.CreateDefault();
-        return new GalaxySpec
+        GalaxySpec spec = new GalaxySpec
         {
             GalaxySeed = galaxySeed,
-            Type = effectiveConfig.Type,
-            RadiusPc = effectiveConfig.RadiusPc,
-            HeightPc = effectiveConfig.RadiusPc / 15.0,
-            NumArms = effectiveConfig.NumArms,
-            ArmPitchAngleDeg = effectiveConfig.ArmPitchAngleDeg,
-            ArmWidth = 0.4,
-            ArmAmplitude = effectiveConfig.ArmAmplitude,
-            BulgeRadiusPc = effectiveConfig.BulgeRadiusPc,
-            BulgeHeightPc = effectiveConfig.BulgeRadiusPc * 0.53,
-            BulgeIntensity = effectiveConfig.BulgeIntensity,
-            DiskScaleLengthPc = effectiveConfig.DiskScaleLengthPc,
-            DiskScaleHeightPc = effectiveConfig.DiskScaleHeightPc,
-            Ellipticity = effectiveConfig.Ellipticity,
-            IrregularityScale = effectiveConfig.IrregularityScale,
         };
+        GalaxyRealismProfile profile = GalaxyRealismProfileBuilder.Build(effectiveConfig, galaxySeed);
+        GalaxyRealismProfileBuilder.ApplyToSpec(effectiveConfig, profile, spec);
+        return spec;
     }
 
     /// <summary>
@@ -170,6 +227,10 @@ public partial class GalaxySpec : RefCounted
         {
             ["galaxy_seed"] = GalaxySeed,
             ["galaxy_type"] = (int)Type,
+            ["subtype_mode"] = (int)SubtypeMode,
+            ["bar_mode"] = (int)BarMode,
+            ["arm_mechanism_preference"] = (int)ArmMechanismPreference,
+            ["resolved_subtype"] = (int)ResolvedSubtype,
             ["radius_pc"] = RadiusPc,
             ["height_pc"] = HeightPc,
             ["num_arms"] = NumArms,
@@ -183,6 +244,22 @@ public partial class GalaxySpec : RefCounted
             ["disk_scale_height_pc"] = DiskScaleHeightPc,
             ["ellipticity"] = Ellipticity,
             ["irregularity_scale"] = IrregularityScale,
+            ["halo_mass_log10_solar"] = HaloMassLog10Solar,
+            ["environment_density_index"] = EnvironmentDensityIndex,
+            ["arm_mechanism"] = (int)ArmMechanism,
+            ["is_barred"] = IsBarred,
+            ["bar_strength"] = BarStrength,
+            ["sersic_index"] = SersicIndex,
+            ["effective_radius_pc"] = EffectiveRadiusPc,
+            ["bulge_to_total"] = BulgeToTotal,
+            ["ghz_inner_radius_pc"] = GhzInnerRadiusPc,
+            ["ghz_outer_radius_pc"] = GhzOuterRadiusPc,
+            ["ghz_transition_width_pc"] = GhzTransitionWidthPc,
+            ["metallicity_gradient_dex_per_kpc"] = MetallicityGradientDexPerKpc,
+            ["star_formation_efficiency"] = StarFormationEfficiency,
+            ["cluster_mass_function_slope"] = ClusterMassFunctionSlope,
+            ["cluster_dissolution_timescale_myr"] = ClusterDissolutionTimescaleMyr,
+            ["realism_profile"] = RealismProfile.ToDictionary(),
         };
     }
 
@@ -191,7 +268,7 @@ public partial class GalaxySpec : RefCounted
     /// </summary>
     public static GalaxySpec FromDictionary(Dictionary data)
     {
-        GalaxySpec spec = new()
+        GalaxySpec spec = new GalaxySpec
         {
             GalaxySeed = DomainDictionaryUtils.GetInt(data, "galaxy_seed", 0),
             RadiusPc = DomainDictionaryUtils.GetDouble(data, "radius_pc", 15000.0),
@@ -207,6 +284,20 @@ public partial class GalaxySpec : RefCounted
             DiskScaleHeightPc = DomainDictionaryUtils.GetDouble(data, "disk_scale_height_pc", 300.0),
             Ellipticity = DomainDictionaryUtils.GetDouble(data, "ellipticity", 0.3),
             IrregularityScale = DomainDictionaryUtils.GetDouble(data, "irregularity_scale", 0.5),
+            HaloMassLog10Solar = DomainDictionaryUtils.GetDouble(data, "halo_mass_log10_solar", 12.0),
+            EnvironmentDensityIndex = DomainDictionaryUtils.GetDouble(data, "environment_density_index", 0.25),
+            IsBarred = DomainDictionaryUtils.GetBool(data, "is_barred", false),
+            BarStrength = DomainDictionaryUtils.GetDouble(data, "bar_strength", 0.0),
+            SersicIndex = DomainDictionaryUtils.GetDouble(data, "sersic_index", 2.5),
+            EffectiveRadiusPc = DomainDictionaryUtils.GetDouble(data, "effective_radius_pc", 2500.0),
+            BulgeToTotal = DomainDictionaryUtils.GetDouble(data, "bulge_to_total", 0.2),
+            GhzInnerRadiusPc = DomainDictionaryUtils.GetDouble(data, "ghz_inner_radius_pc", 4000.0),
+            GhzOuterRadiusPc = DomainDictionaryUtils.GetDouble(data, "ghz_outer_radius_pc", 12000.0),
+            GhzTransitionWidthPc = DomainDictionaryUtils.GetDouble(data, "ghz_transition_width_pc", 2000.0),
+            MetallicityGradientDexPerKpc = DomainDictionaryUtils.GetDouble(data, "metallicity_gradient_dex_per_kpc", -0.05),
+            StarFormationEfficiency = DomainDictionaryUtils.GetDouble(data, "star_formation_efficiency", 0.1),
+            ClusterMassFunctionSlope = DomainDictionaryUtils.GetDouble(data, "cluster_mass_function_slope", 2.0),
+            ClusterDissolutionTimescaleMyr = DomainDictionaryUtils.GetDouble(data, "cluster_dissolution_timescale_myr", 10.0),
         };
 
         int typeValue = DomainDictionaryUtils.GetInt(data, "galaxy_type", (int)GalaxyType.Spiral);
@@ -214,11 +305,46 @@ public partial class GalaxySpec : RefCounted
         {
             spec.Type = (GalaxyType)typeValue;
         }
+
+        int subtypeModeValue = DomainDictionaryUtils.GetInt(data, "subtype_mode", (int)GalaxySubtypeMode.Automatic);
+        if (System.Enum.IsDefined(typeof(GalaxySubtypeMode), subtypeModeValue))
+        {
+            spec.SubtypeMode = (GalaxySubtypeMode)subtypeModeValue;
+        }
+
+        int barModeValue = DomainDictionaryUtils.GetInt(data, "bar_mode", (int)GalaxyBarMode.Auto);
+        if (System.Enum.IsDefined(typeof(GalaxyBarMode), barModeValue))
+        {
+            spec.BarMode = (GalaxyBarMode)barModeValue;
+        }
+
+        int armPreferenceValue = DomainDictionaryUtils.GetInt(data, "arm_mechanism_preference", (int)GalaxyArmMechanism.Auto);
+        if (System.Enum.IsDefined(typeof(GalaxyArmMechanism), armPreferenceValue))
+        {
+            spec.ArmMechanismPreference = (GalaxyArmMechanism)armPreferenceValue;
+        }
+
+        int resolvedSubtypeValue = DomainDictionaryUtils.GetInt(data, "resolved_subtype", (int)GalaxyResolvedSubtype.SpiralSb);
+        if (System.Enum.IsDefined(typeof(GalaxyResolvedSubtype), resolvedSubtypeValue))
+        {
+            spec.ResolvedSubtype = (GalaxyResolvedSubtype)resolvedSubtypeValue;
+        }
+
+        int armMechanismValue = DomainDictionaryUtils.GetInt(data, "arm_mechanism", (int)GalaxyArmMechanism.GrandDesign);
+        if (System.Enum.IsDefined(typeof(GalaxyArmMechanism), armMechanismValue))
+        {
+            spec.ArmMechanism = (GalaxyArmMechanism)armMechanismValue;
+        }
+
+        if (data.ContainsKey("realism_profile") && data["realism_profile"].VariantType == Variant.Type.Dictionary)
+        {
+            spec.RealismProfile = GalaxyRealismProfile.FromDictionary((Dictionary)data["realism_profile"]);
+        }
         else
         {
-            spec.Type = GalaxyType.Spiral;
+            spec.RealismProfile = GalaxyRealismProfileBuilder.Build(GalaxyConfig.CreateMilkyWay(), spec.GalaxySeed);
         }
+
         return spec;
     }
-
 }

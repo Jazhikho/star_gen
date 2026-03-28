@@ -1,12 +1,19 @@
 # Version
 
-Current version: `0.8.1.0`
+Current version: `0.8.2.0`
 
 Current user-facing version: `0.9d`
 
 Date: `2026-03-28`
 
 Versioning method: release/refactor `+0.1`, feature `+0.0.1`, bug fix `+0.0.0.1`, save-breaking release `+1.0`.
+
+## 0.8.2.0
+
+- Feature: Rebuilt galaxy-tier generation around a scientifically grounded realism profile with explicit galaxy families, subtype and bar selection, halo-mass and environment priors, GHZ and metallicity-gradient fields, and literature-backed defaults that remain documented as tunable priors rather than universal laws.
+- Feature: Galaxy-origin science now propagates downstream into generated stars and systems through structured origin context, allowing stellar age, metallicity, and related generation biases to follow the authoritative galaxy-level model instead of independent fallback heuristics.
+- Feature: Galaxy Studio now exposes the new science-facing controls and a scene-owned in-app science panel with tooltip summaries, assumption text, and source citations for the galactic generator model.
+- Test: Replaced the older generic galaxy-behavior coverage with deterministic and propagation-focused scientific regressions across galaxy config, galaxy-origin context, galaxy-to-system handoff, star generation biasing, and science-reference metadata; `dotnet build StarGen.sln` and the mainline headless harness passed (`1756 / 1756`).
 
 ## 0.8.1.0
 

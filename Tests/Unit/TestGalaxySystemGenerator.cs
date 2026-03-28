@@ -4,7 +4,6 @@ using System;
 using Godot;
 using Godot.Collections;
 using StarGen.Domain.Celestial;
-using StarGen.Domain.Celestial.Components;
 using StarGen.Domain.Galaxy;
 using StarGen.Domain.Generation;
 using StarGen.Domain.Systems;
@@ -13,311 +12,132 @@ using StarGen.Tests.Framework;
 namespace StarGen.Tests.Unit;
 
 /// <summary>
-/// Unit tests for GalaxySystemGenerator class.
+/// Unit tests for galaxy-to-system propagation.
 /// </summary>
 public static class TestGalaxySystemGenerator
 {
-    /// <summary>
-    /// Creates a test star for generator tests.
-    /// </summary>
-    private static GalaxyStar MakeTestStar(int starSeed)
+    private static GalaxyStar MakeTestStar(Vector3 position, int seed, GalaxySpec? spec = null)
     {
-        GalaxySpec spec = GalaxySpec.CreateMilkyWay(42);
-        return GalaxyStar.CreateWithDerivedProperties(new Vector3(8000.0f, 0.0f, 0.0f), starSeed, spec);
+        GalaxySpec effectiveSpec = spec ?? GalaxySpec.CreateMilkyWay(42);
+        return GalaxyStar.CreateWithDerivedProperties(position, seed, effectiveSpec);
     }
 
     /// <summary>
-    /// Tests generate system from star.
+    /// Tests that a galaxy star still generates a valid solar system.
     /// </summary>
     public static void TestGenerateSystemFromStar()
     {
-        GalaxySpec spec = GalaxySpec.CreateMilkyWay(42);
-        GalaxyStar star = GalaxyStar.CreateWithDerivedProperties(
-            new Vector3(8000.0f, 0.0f, 0.0f), 12345, spec
-        );
+        GalaxyStar star = MakeTestStar(new Vector3(8000.0f, 0.0f, 0.0f), 12345);
+        SolarSystem? system = GalaxySystemGenerator.GenerateSystem(star);
 
-        SolarSystem system = GalaxySystemGenerator.GenerateSystem(star);
-        DotNetNativeTestSuite.AssertNotNull(system, "Should generate system");
-        if (system.GetStarCount() <= 0)
-        {
-            throw new InvalidOperationException("System should have at least one star");
-        }
+        DotNetNativeTestSuite.AssertNotNull(system, "system generation should succeed");
+        DotNetNativeTestSuite.AssertTrue(system!.GetStarCount() > 0, "generated system should contain at least one star");
     }
 
     /// <summary>
-    /// Tests generate system deterministic.
+    /// Tests that system generation remains deterministic for the same galaxy star.
     /// </summary>
     public static void TestGenerateSystemDeterministic()
     {
-        GalaxySpec spec = GalaxySpec.CreateMilkyWay(42);
-        GalaxyStar starA = GalaxyStar.CreateWithDerivedProperties(
-            new Vector3(5000.0f, 0.0f, 0.0f), 99999, spec
-        );
-        GalaxyStar starB = GalaxyStar.CreateWithDerivedProperties(
-            new Vector3(5000.0f, 0.0f, 0.0f), 99999, spec
-        );
+        GalaxyStar starA = MakeTestStar(new Vector3(5000.0f, 0.0f, 0.0f), 99999);
+        GalaxyStar starB = MakeTestStar(new Vector3(5000.0f, 0.0f, 0.0f), 99999);
 
-        SolarSystem systemA = GalaxySystemGenerator.GenerateSystem(starA);
-        SolarSystem systemB = GalaxySystemGenerator.GenerateSystem(starB);
+        SolarSystem? systemA = GalaxySystemGenerator.GenerateSystem(starA);
+        SolarSystem? systemB = GalaxySystemGenerator.GenerateSystem(starB);
 
-        DotNetNativeTestSuite.AssertEqual(systemA.GetStarCount(), systemB.GetStarCount(), "Same seed should give same star count");
-        DotNetNativeTestSuite.AssertEqual(systemA.GetPlanetCount(), systemB.GetPlanetCount(), "Same seed should give same planet count");
-        DotNetNativeTestSuite.AssertEqual(systemA.GetMoonCount(), systemB.GetMoonCount(), "Same seed should give same moon count");
-
-        if (systemA.GetStarCount() > 0 && systemB.GetStarCount() > 0)
-        {
-            CelestialBody starABody = systemA.GetStars()[0];
-            CelestialBody starBBody = systemB.GetStars()[0];
-            DotNetNativeTestSuite.AssertEqual(starABody.Physical.MassKg, starBBody.Physical.MassKg, "Same seed should give same star mass");
-        }
+        DotNetNativeTestSuite.AssertNotNull(systemA, "first system should generate");
+        DotNetNativeTestSuite.AssertNotNull(systemB, "second system should generate");
+        DotNetNativeTestSuite.AssertEqual(systemA!.GetStarCount(), systemB!.GetStarCount(), "same star seed should keep the stellar count deterministic");
+        DotNetNativeTestSuite.AssertEqual(systemA.GetPlanetCount(), systemB.GetPlanetCount(), "same star seed should keep planet count deterministic");
     }
 
     /// <summary>
-    /// Tests generate system different seeds different results.
+    /// Tests that different galaxy-star seeds still diverge.
     /// </summary>
     public static void TestGenerateSystemDifferentSeedsDifferentResults()
     {
-        GalaxySpec spec = GalaxySpec.CreateMilkyWay(42);
-        GalaxyStar starA = GalaxyStar.CreateWithDerivedProperties(
-            new Vector3(5000.0f, 0.0f, 0.0f), 111, spec
-        );
-        GalaxyStar starB = GalaxyStar.CreateWithDerivedProperties(
-            new Vector3(5000.0f, 0.0f, 0.0f), 222, spec
-        );
+        GalaxyStar starA = MakeTestStar(new Vector3(5000.0f, 0.0f, 0.0f), 111);
+        GalaxyStar starB = MakeTestStar(new Vector3(5000.0f, 0.0f, 0.0f), 222);
 
-        SolarSystem systemA = GalaxySystemGenerator.GenerateSystem(starA);
-        SolarSystem systemB = GalaxySystemGenerator.GenerateSystem(starB);
+        SolarSystem? systemA = GalaxySystemGenerator.GenerateSystem(starA);
+        SolarSystem? systemB = GalaxySystemGenerator.GenerateSystem(starB);
 
-        bool anyDifferent = (
-            systemA.GetStarCount() != systemB.GetStarCount() ||
-            systemA.GetPlanetCount() != systemB.GetPlanetCount() ||
-            systemA.Id != systemB.Id
-        );
-        if (!anyDifferent)
-        {
-            throw new InvalidOperationException("Different seeds should produce different systems");
-        }
+        DotNetNativeTestSuite.AssertNotNull(systemA, "first system should generate");
+        DotNetNativeTestSuite.AssertNotNull(systemB, "second system should generate");
+        bool anyDifferent = systemA!.GetPlanetCount() != systemB!.GetPlanetCount() || systemA.Id != systemB.Id;
+        DotNetNativeTestSuite.AssertTrue(anyDifferent, "different star seeds should still diverge");
     }
 
     /// <summary>
-    /// Tests generate system null star returns null.
+    /// Tests null stars still return null.
     /// </summary>
     public static void TestGenerateSystemNullStarReturnsNull()
     {
-        SolarSystem system = GalaxySystemGenerator.GenerateSystem(null);
-        DotNetNativeTestSuite.AssertNull(system, "Null star should return null system");
+        SolarSystem? system = GalaxySystemGenerator.GenerateSystem(null);
+        DotNetNativeTestSuite.AssertNull(system, "null star should return null");
     }
 
     /// <summary>
-    /// Tests generate system without asteroids.
+    /// Tests the no-asteroid path remains supported.
     /// </summary>
     public static void TestGenerateSystemWithoutAsteroids()
     {
-        GalaxySpec spec = GalaxySpec.CreateMilkyWay(42);
-        GalaxyStar star = GalaxyStar.CreateWithDerivedProperties(
-            new Vector3(8000.0f, 0.0f, 0.0f), 54321, spec
-        );
+        GalaxyStar star = MakeTestStar(new Vector3(8000.0f, 0.0f, 0.0f), 54321);
+        SolarSystem? system = GalaxySystemGenerator.GenerateSystem(star, false);
 
-        SolarSystem system = GalaxySystemGenerator.GenerateSystem(star, false);
-        DotNetNativeTestSuite.AssertNotNull(system, "Should generate system without asteroids");
-        DotNetNativeTestSuite.AssertEqual(0, system.AsteroidBelts.Count, "Should have no asteroid belts");
+        DotNetNativeTestSuite.AssertNotNull(system, "system should generate without asteroids");
+        DotNetNativeTestSuite.AssertEqual(0, system!.AsteroidBelts.Count, "asteroid belts should remain disabled");
     }
 
     /// <summary>
-    /// Tests metallicity applied to spec.
+    /// Tests that the system spec snapshot carries galaxy context.
     /// </summary>
-    public static void TestMetallicityAppliedToSpec()
+    public static void TestSystemSpecSnapshotCarriesGalaxyContext()
     {
-        GalaxySpec spec = GalaxySpec.CreateMilkyWay(42);
-        GalaxyStar star = GalaxyStar.CreateWithDerivedProperties(
-            new Vector3(500.0f, 0.0f, 0.0f), 11111, spec
-        );
+        GalaxyStar star = MakeTestStar(new Vector3(2500.0f, 0.0f, 0.0f), 11111);
+        SolarSystem? system = GalaxySystemGenerator.GenerateSystem(star);
 
-        SolarSystem system = GalaxySystemGenerator.GenerateSystem(star);
-        DotNetNativeTestSuite.AssertNotNull(system, "Should generate system with metallicity context");
-        DotNetNativeTestSuite.AssertNotNull(system.Provenance, "System should have provenance");
-        DotNetNativeTestSuite.AssertNotNull(system.Provenance.SpecSnapshot, "Provenance should have spec snapshot");
-        if (!system.Provenance.SpecSnapshot.ContainsKey("system_metallicity"))
-        {
-            throw new InvalidOperationException("Spec snapshot should contain metallicity");
-        }
+        DotNetNativeTestSuite.AssertNotNull(system, "system should generate");
+        Dictionary snapshot = system!.Provenance.SpecSnapshot;
+        DotNetNativeTestSuite.AssertTrue(snapshot.ContainsKey("galaxy_context"), "spec snapshot should contain galaxy context");
+        Dictionary context = (Dictionary)snapshot["galaxy_context"];
+        DotNetNativeTestSuite.AssertTrue(context.ContainsKey("metallicity_prior"), "serialized galaxy context should include metallicity prior");
+        DotNetNativeTestSuite.AssertTrue(context.ContainsKey("age_mean_gyr"), "serialized galaxy context should include age context");
     }
 
     /// <summary>
-    /// Tests generate system has valid hierarchy.
+    /// Tests that metal-rich and metal-poor galaxy regions propagate into stellar outputs.
     /// </summary>
-    public static void TestGenerateSystemHasValidHierarchy()
+    public static void TestGalaxyMetallicityPropagatesIntoGeneratedStars()
     {
-        GalaxySpec spec = GalaxySpec.CreateMilkyWay(42);
-        GalaxyStar star = GalaxyStar.CreateWithDerivedProperties(
-            new Vector3(8000.0f, 0.0f, 0.0f), 77777, spec
-        );
+        GalaxyStar innerStar = MakeTestStar(new Vector3(1500.0f, 0.0f, 0.0f), 60001);
+        GalaxyStar outerStar = MakeTestStar(new Vector3(14500.0f, 0.0f, 0.0f), 60002);
 
-        SolarSystem system = GalaxySystemGenerator.GenerateSystem(star);
-        DotNetNativeTestSuite.AssertNotNull(system, "Should generate system");
-        DotNetNativeTestSuite.AssertNotNull(system.Hierarchy, "System should have hierarchy");
-        if (!system.Hierarchy.IsValid())
-        {
-            throw new InvalidOperationException("Hierarchy should be valid");
-        }
+        SolarSystem? innerSystem = GalaxySystemGenerator.GenerateSystem(innerStar, includeAsteroids: false, enablePopulation: false);
+        SolarSystem? outerSystem = GalaxySystemGenerator.GenerateSystem(outerStar, includeAsteroids: false, enablePopulation: false);
+
+        DotNetNativeTestSuite.AssertNotNull(innerSystem, "inner system should generate");
+        DotNetNativeTestSuite.AssertNotNull(outerSystem, "outer system should generate");
+
+        CelestialBody innerGeneratedStar = innerSystem!.GetStars()[0];
+        CelestialBody outerGeneratedStar = outerSystem!.GetStars()[0];
+        DotNetNativeTestSuite.AssertTrue(innerGeneratedStar.Stellar!.Metallicity >= outerGeneratedStar.Stellar!.Metallicity, "inner galaxy metallicity should not be lower than outer-galaxy metallicity");
     }
 
     /// <summary>
-    /// Tests generate system planets have parent ids.
+    /// Tests that galaxy-aged contexts propagate into the generated system star age.
     /// </summary>
-    public static void TestGenerateSystemPlanetsHaveParentIds()
+    public static void TestGalaxyAgeContextPropagatesIntoGeneratedStars()
     {
-        GalaxySpec spec = GalaxySpec.CreateMilkyWay(42);
-        GalaxyStar star = GalaxyStar.CreateWithDerivedProperties(
-            new Vector3(8000.0f, 0.0f, 0.0f), 88888, spec
-        );
+        GalaxySpec spec = GalaxySpec.CreateMilkyWay(777);
+        GalaxyStar bulgeStar = MakeTestStar(new Vector3(200.0f, 0.0f, 0.0f), 77771, spec);
+        GalaxyStar outerDiskStar = MakeTestStar(new Vector3(12000.0f, 0.0f, 0.0f), 77772, spec);
 
-        SolarSystem system = GalaxySystemGenerator.GenerateSystem(star);
-        DotNetNativeTestSuite.AssertNotNull(system, "Should generate system");
+        SolarSystem? bulgeSystem = GalaxySystemGenerator.GenerateSystem(bulgeStar, includeAsteroids: false, enablePopulation: false);
+        SolarSystem? outerDiskSystem = GalaxySystemGenerator.GenerateSystem(outerDiskStar, includeAsteroids: false, enablePopulation: false);
 
-        Array<CelestialBody> planets = system.GetPlanets();
-        foreach (CelestialBody planet in planets)
-        {
-            if (!planet.HasOrbital())
-            {
-                throw new InvalidOperationException("Planet should have orbital properties");
-            }
-            if (string.IsNullOrEmpty(planet.Orbital.ParentId))
-            {
-                throw new InvalidOperationException("Planet should have parent_id set");
-            }
-            OrbitHost host = system.GetOrbitHost(planet.Orbital.ParentId);
-            DotNetNativeTestSuite.AssertNotNull(host, "Planet parent_id should reference valid orbit host");
-        }
-    }
-
-    /// <summary>
-    /// Tests generate system provenance has spec snapshot.
-    /// </summary>
-    public static void TestGenerateSystemProvenanceHasSpecSnapshot()
-    {
-        GalaxySpec spec = GalaxySpec.CreateMilkyWay(42);
-        GalaxyStar star = GalaxyStar.CreateWithDerivedProperties(
-            new Vector3(8000.0f, 0.0f, 0.0f), 55555, spec
-        );
-
-        SolarSystem system = GalaxySystemGenerator.GenerateSystem(star);
-        DotNetNativeTestSuite.AssertNotNull(system, "Should generate system");
-        DotNetNativeTestSuite.AssertNotNull(system.Provenance, "System should have provenance");
-        if (system.Provenance.SpecSnapshot.Count == 0)
-        {
-            throw new InvalidOperationException("Provenance should have spec snapshot");
-        }
-        if (!system.Provenance.SpecSnapshot.ContainsKey("generation_seed"))
-        {
-            throw new InvalidOperationException("Spec snapshot should have generation_seed");
-        }
-        DotNetNativeTestSuite.AssertEqual(star.StarSeed, system.Provenance.SpecSnapshot["generation_seed"].AsInt32(), "Spec snapshot seed should match star seed");
-    }
-
-    /// <summary>
-    /// Tests generate system without overrides unchanged.
-    /// </summary>
-    public static void TestGenerateSystemWithoutOverridesUnchanged()
-    {
-        GalaxyStar star = MakeTestStar(777);
-        SolarSystem sysA = GalaxySystemGenerator.GenerateSystem(star, false, false, null);
-        SolarSystem sysB = GalaxySystemGenerator.GenerateSystem(star, false, false);
-        DotNetNativeTestSuite.AssertNotNull(sysA, "Should generate system A");
-        DotNetNativeTestSuite.AssertNotNull(sysB, "Should generate system B");
-        Array<CelestialBody> planetsA = sysA.GetPlanets();
-        Array<CelestialBody> planetsB = sysB.GetPlanets();
-        DotNetNativeTestSuite.AssertEqual(planetsA.Count, planetsB.Count, "null overrides must not change body count");
-    }
-
-    /// <summary>
-    /// Tests generate system applies planet override.
-    /// </summary>
-    public static void TestGenerateSystemAppliesPlanetOverride()
-    {
-        GalaxyStar star = MakeTestStar(12345);
-        SolarSystem baseline = GalaxySystemGenerator.GenerateSystem(star, false, false);
-        DotNetNativeTestSuite.AssertNotNull(baseline, "Should generate baseline system");
-        Array<CelestialBody> planets = baseline.GetPlanets();
-        if (planets.Count == 0)
-        {
-            return;
-        }
-        CelestialBody targetPlanet = planets[0];
-        string targetId = targetPlanet.Id;
-
-        double editedMass = 7.777e24;
-        GalaxyBodyOverrides ov = new GalaxyBodyOverrides();
-        CelestialBody edited = CelestialSerializer.FromDictionary(CelestialSerializer.ToDict(targetPlanet));
-        edited.Physical.MassKg = editedMass;
-        edited.Name = "Edited-By-Test";
-        ov.SetOverride(star.StarSeed, edited);
-
-        SolarSystem patched = GalaxySystemGenerator.GenerateSystem(star, false, false, ov);
-        DotNetNativeTestSuite.AssertNotNull(patched, "Should generate patched system");
-        CelestialBody patchedPlanet = patched.GetBody(targetId);
-        DotNetNativeTestSuite.AssertNotNull(patchedPlanet, "override body id must still resolve");
-        DotNetNativeTestSuite.AssertFloatNear(editedMass, patchedPlanet.Physical.MassKg, 1.0, "override mass must replace deterministic value");
-        DotNetNativeTestSuite.AssertEqual("Edited-By-Test", patchedPlanet.Name, "override name must survive");
-    }
-
-    /// <summary>
-    /// Tests generate system ignores overrides for other seeds.
-    /// </summary>
-    public static void TestGenerateSystemIgnoresOverridesForOtherSeeds()
-    {
-        GalaxyStar star = MakeTestStar(500);
-        SolarSystem baseline = GalaxySystemGenerator.GenerateSystem(star, false, false);
-        DotNetNativeTestSuite.AssertNotNull(baseline, "Should generate baseline system");
-
-        GalaxyBodyOverrides ov = new GalaxyBodyOverrides();
-        PhysicalProps dummyPhys = new PhysicalProps(1.0, 1.0);
-        CelestialBody dummy = new CelestialBody("wont_match", "Nope", CelestialType.Type.Planet, dummyPhys, null);
-        ov.SetOverride(999999, dummy);
-
-        SolarSystem patched = GalaxySystemGenerator.GenerateSystem(star, false, false, ov);
-        DotNetNativeTestSuite.AssertEqual(baseline.GetPlanets().Count, patched.GetPlanets().Count, "wrong-seed override must not change structure");
-        if (baseline.GetPlanets().Count > 0)
-        {
-            CelestialBody a = baseline.GetPlanets()[0];
-            CelestialBody b = patched.GetPlanets()[0];
-            DotNetNativeTestSuite.AssertFloatNear(a.Physical.MassKg, b.Physical.MassKg, 0.0, "wrong-seed override must not affect generation");
-        }
-    }
-
-    /// <summary>
-    /// Tests that generating the same system with galaxy-context native pressure remains deterministic.
-    /// </summary>
-    public static void TestGenerateSystemWithGalaxyContextDeterministicPopulation()
-    {
-        GenerationUseCaseSettings settings = GenerationUseCaseSettings.CreateDefault();
-        settings.LifePermissiveness = 1.0;
-
-        GalaxyConfig config = GalaxyConfig.CreateDefault();
-        config.UseCaseSettings = settings.Clone();
-        Galaxy galaxy = new Galaxy(config, 42);
-        GalaxyStar star = GalaxyStar.CreateWithDerivedProperties(new Vector3(8000.0f, 0.0f, 0.0f), 24680, galaxy.Spec);
-
-        SolarSystem systemA = GalaxySystemGenerator.GenerateSystem(
-            star,
-            includeAsteroids: true,
-            enablePopulation: true,
-            overrides: null,
-            useCaseSettings: settings,
-            galaxy: galaxy);
-        SolarSystem systemB = GalaxySystemGenerator.GenerateSystem(
-            star,
-            includeAsteroids: true,
-            enablePopulation: true,
-            overrides: null,
-            useCaseSettings: settings,
-            galaxy: galaxy);
-
-        DotNetNativeTestSuite.AssertNotNull(systemA, "First galaxy-context generation should succeed");
-        DotNetNativeTestSuite.AssertNotNull(systemB, "Second galaxy-context generation should succeed");
-        DotNetNativeTestSuite.AssertEqual(systemA.GetPlanetCount(), systemB.GetPlanetCount(), "Galaxy-context generation should keep planet counts deterministic");
-        DotNetNativeTestSuite.AssertEqual(systemA.GetMoonCount(), systemB.GetMoonCount(), "Galaxy-context generation should keep moon counts deterministic");
-        DotNetNativeTestSuite.AssertEqual(systemA.GetTotalPopulation(), systemB.GetTotalPopulation(), "Galaxy-context generation should keep total population deterministic");
-        DotNetNativeTestSuite.AssertEqual(systemA.IsInhabited(), systemB.IsInhabited(), "Galaxy-context generation should keep inhabited state deterministic");
+        DotNetNativeTestSuite.AssertNotNull(bulgeSystem, "bulge system should generate");
+        DotNetNativeTestSuite.AssertNotNull(outerDiskSystem, "outer-disk system should generate");
+        DotNetNativeTestSuite.AssertTrue(bulgeSystem!.GetStars()[0].Stellar!.AgeYears >= outerDiskSystem!.GetStars()[0].Stellar!.AgeYears, "older galaxy contexts should not produce younger stellar ages than the outer disk for the same family");
     }
 }

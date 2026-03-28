@@ -170,6 +170,8 @@ public static class GalaxySystemGenerator
     {
         SolarSystemSpec spec = SolarSystemSpec.RandomSmall(star.StarSeed);
         spec.SystemMetallicity = star.Metallicity;
+        spec.SystemAgeYears = star.OriginContext.AgeMeanGyr * 1.0e9;
+        spec.GalaxyContext = star.OriginContext.Clone();
         spec.IncludeAsteroidBelts = includeAsteroids;
         if (useCaseSettings != null)
         {
