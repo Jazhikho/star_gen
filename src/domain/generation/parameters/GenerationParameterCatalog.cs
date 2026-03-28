@@ -14,12 +14,16 @@ public static class GenerationParameterCatalog
     {
         return new List<GenerationParameterDefinition>
         {
-            new GenerationParameterDefinition("generation_seed", "Seed", string.Empty, GenerationParameterControlType.Number, "Master deterministic input for the whole system."),
-            new GenerationParameterDefinition("star_count_min", "Min Stars", string.Empty, GenerationParameterControlType.Number, "Sets the lower bound for stellar multiplicity."),
-            new GenerationParameterDefinition("star_count_max", "Max Stars", string.Empty, GenerationParameterControlType.Number, "Sets the upper bound for stellar multiplicity."),
+            new GenerationParameterDefinition("generation_seed", "Seed", string.Empty, GenerationParameterControlType.Number, "The seed is the master number that makes generation repeatable. The same seed and the same settings give you the same system again."),
+            new GenerationParameterDefinition("star_count_min", "Min Stars", string.Empty, GenerationParameterControlType.Number, "Sets the fewest stars the system is allowed to have. StarGen supports 1 to 10 stars, but high-count systems are rare."),
+            new GenerationParameterDefinition("star_count_max", "Max Stars", string.Empty, GenerationParameterControlType.Number, "Sets the most stars the system is allowed to have. High-count systems are possible, but they are much rarer and usually more chaotic."),
             new GenerationParameterDefinition("spectral_class_hints", "Spectral Hints", string.Empty, GenerationParameterControlType.Text, "Ordered star-class targets; extra stars still use generator defaults.", supportsTarget: true),
             new GenerationParameterDefinition("system_age_years", "System Age", "Gyr", GenerationParameterControlType.Number, "When set, all stars share an age target instead of rolling independently.", supportsTarget: true),
             new GenerationParameterDefinition("system_metallicity", "System Metallicity", "Zsun", GenerationParameterControlType.Number, "When set, all stars share a metallicity target instead of rolling independently.", supportsTarget: true),
+            new GenerationParameterDefinition("stellar_imf_form", "IMF Form", string.Empty, GenerationParameterControlType.Choice, StellarScienceReferenceCatalog.GetTooltipSummary("stellar_imf_form")),
+            new GenerationParameterDefinition("stellar_imf_variation_mode", "IMF Shift", string.Empty, GenerationParameterControlType.Choice, StellarScienceReferenceCatalog.GetTooltipSummary("stellar_imf_variation_mode")),
+            new GenerationParameterDefinition("stellar_isochrone_model", "Star Model", string.Empty, GenerationParameterControlType.Choice, StellarScienceReferenceCatalog.GetTooltipSummary("stellar_isochrone_model")),
+            new GenerationParameterDefinition("stellar_multiplicity_scale", "Companions", string.Empty, GenerationParameterControlType.Number, StellarScienceReferenceCatalog.GetTooltipSummary("stellar_multiplicity_scale")),
             new GenerationParameterDefinition("include_asteroid_belts", "Asteroid Belts", string.Empty, GenerationParameterControlType.Toggle, "Controls whether the belt stage participates in generation."),
             new GenerationParameterDefinition("generate_population", "Generate Population", string.Empty, GenerationParameterControlType.Toggle, "Enables the downstream population pipeline for planets and moons."),
             new GenerationParameterDefinition("ruleset_mode", "Ruleset", string.Empty, GenerationParameterControlType.Choice, "Selects the downstream generation pipeline. Realistic keeps StarGen's default scientific and physical worldbuilding path, while Traveller keeps normal galaxy structure but uses Traveller world-generation rules for supported mainworld outputs."),
@@ -36,7 +40,7 @@ public static class GenerationParameterCatalog
     {
         return new List<GenerationParameterDefinition>
         {
-            new GenerationParameterDefinition("galaxy_seed", "Seed", string.Empty, GenerationParameterControlType.Number, "Master deterministic input for galaxy sampling."),
+            new GenerationParameterDefinition("galaxy_seed", "Seed", string.Empty, GenerationParameterControlType.Number, "The seed is the master number that makes generation repeatable. The same seed and the same settings give you the same galaxy again."),
             new GenerationParameterDefinition("galaxy_type", "Galaxy Family", string.Empty, GenerationParameterControlType.Choice, GalaxyScienceReferenceCatalog.GetTooltipSummary("galaxy_type")),
             new GenerationParameterDefinition("subtype_mode", "Subtype Bias", string.Empty, GenerationParameterControlType.Choice, GalaxyScienceReferenceCatalog.GetTooltipSummary("subtype_mode")),
             new GenerationParameterDefinition("num_arms", "Spiral Arms", string.Empty, GenerationParameterControlType.Number, GalaxyScienceReferenceCatalog.GetTooltipSummary("num_arms")),
@@ -59,6 +63,10 @@ public static class GenerationParameterCatalog
             new GenerationParameterDefinition("ghz_transition_width_pc", "GHZ Width", "pc", GenerationParameterControlType.Number, GalaxyScienceReferenceCatalog.GetTooltipSummary("ghz_transition_width_pc")),
             new GenerationParameterDefinition("metallicity_gradient_dex_per_kpc", "Metallicity Gradient", "dex/kpc", GenerationParameterControlType.Number, GalaxyScienceReferenceCatalog.GetTooltipSummary("metallicity_gradient_dex_per_kpc")),
             new GenerationParameterDefinition("star_formation_efficiency", "Star Formation Efficiency", string.Empty, GenerationParameterControlType.Number, GalaxyScienceReferenceCatalog.GetTooltipSummary("star_formation_efficiency")),
+            new GenerationParameterDefinition("stellar_imf_form", "IMF Form", string.Empty, GenerationParameterControlType.Choice, StellarScienceReferenceCatalog.GetTooltipSummary("stellar_imf_form")),
+            new GenerationParameterDefinition("stellar_imf_variation_mode", "IMF Shift", string.Empty, GenerationParameterControlType.Choice, StellarScienceReferenceCatalog.GetTooltipSummary("stellar_imf_variation_mode")),
+            new GenerationParameterDefinition("stellar_isochrone_model", "Star Model", string.Empty, GenerationParameterControlType.Choice, StellarScienceReferenceCatalog.GetTooltipSummary("stellar_isochrone_model")),
+            new GenerationParameterDefinition("stellar_multiplicity_scale", "Companions", string.Empty, GenerationParameterControlType.Number, StellarScienceReferenceCatalog.GetTooltipSummary("stellar_multiplicity_scale")),
             new GenerationParameterDefinition("ruleset_mode", "Ruleset", string.Empty, GenerationParameterControlType.Choice, "Selects the downstream generation pipeline. Realistic keeps StarGen's default scientific and physical worldbuilding path, while Traveller keeps normal galaxy structure but uses Traveller world-generation rules for supported mainworld outputs."),
             new GenerationParameterDefinition("show_traveller_readouts", "Traveller Readouts", string.Empty, GenerationParameterControlType.Toggle, "Shows derived Traveller/UWP-oriented readouts when the current flow has enough information."),
             new GenerationParameterDefinition("life_permissiveness", "Life Potential", string.Empty, GenerationParameterControlType.Number, "Controls native-life permissiveness. Low values require near-Earthlike conditions and penalize hostile factors hard; high values allow biospheres on marginal but still biologically plausible worlds."),

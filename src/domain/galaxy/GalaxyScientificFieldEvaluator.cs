@@ -1,4 +1,5 @@
 using Godot;
+using StarGen.Domain.Generation;
 
 namespace StarGen.Domain.Galaxy;
 
@@ -44,7 +45,28 @@ public static class GalaxyScientificFieldEvaluator
         context.HaloMassLog10Solar = profile.HaloMassLog10Solar;
         context.LocalDensityRatio = CalculateLocalDensityRatio(normalizedRadius, normalizedHeight, galaxySpec, context);
         context.LocalStarFormationEfficiency = CalculateLocalStarFormationEfficiency(context, profile);
+        context.StellarProfile = ResolveLocalStellarProfile(galaxySpec, context);
         return context;
+    }
+
+    private static StellarGenerationProfile ResolveLocalStellarProfile(GalaxySpec galaxySpec, GalaxyOriginContext context)
+    {
+        StellarGenerationProfile profile = galaxySpec.StellarProfile.Clone();
+        double multiplicityScale = profile.MultiplicityScale;
+        multiplicityScale *= 0.85 + (context.ClusterProbability * 0.45);
+        multiplicityScale *= 0.90 + (context.LocalStarFormationEfficiency * 0.35);
+
+        if (context.RegionKind == GalaxyRegionKind.Halo || context.RegionKind == GalaxyRegionKind.DwarfEnvelope)
+        {
+            multiplicityScale *= 0.90;
+        }
+        else if (context.RegionKind == GalaxyRegionKind.SpiralArm || context.RegionKind == GalaxyRegionKind.IrregularBody)
+        {
+            multiplicityScale *= 1.08;
+        }
+
+        profile.MultiplicityScale = System.Math.Clamp(multiplicityScale, 0.35, 2.0);
+        return profile;
     }
 
     private static GalaxyRegionKind ResolveRegion(

@@ -14,6 +14,7 @@ public static partial class DotNetNativeTestSuite
         TestPopulationGoldenMasters.RunAll(runner);
         TestPopulationIntegration.RunAll(runner);
         TestGenerationParameters.RunAll(runner);
+        TestStudioScienceUi.RunAll(runner);
         TestWindowSettingsService.RunAll(runner);
         TestObjectViewerMoons.RunAll(runner);
         TestStationDesignIntegration.RunAll(runner);

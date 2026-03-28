@@ -5,9 +5,11 @@ using Godot.Collections;
 using StarGen.Domain.Celestial;
 using StarGen.Domain.Celestial.Components;
 using StarGen.Domain.Constants;
+using StarGen.Domain.Galaxy;
 using StarGen.Domain.Generation;
 using StarGen.Domain.Generation.Generators;
 using StarGen.Domain.Generation.Specs;
+using StarGen.Domain.Generation.Tables;
 using StarGen.Domain.Math;
 using StarGen.Domain.Rng;
 
@@ -102,12 +104,27 @@ public static class StellarConfigGenerator
             return spec.StarCountMin;
         }
 
+        double primaryMassProxy = EstimatePrimaryMassProxy(spec);
+        double multiplicityScale = System.Math.Clamp(spec.StellarProfile.MultiplicityScale, 0.35, 2.0);
+        double massBias = System.Math.Clamp(primaryMassProxy / 1.0, 0.35, 8.0);
+
         List<int> options = new();
         List<float> weights = new();
         for (int count = spec.StarCountMin; count <= spec.StarCountMax; count += 1)
         {
             options.Add(count);
-            weights.Add((float)(1.0 / System.Math.Pow(2.0, count - 1)));
+            double baseWeight = 1.0 / System.Math.Pow(2.35, count - 1);
+            if (count >= 2)
+            {
+                baseWeight *= multiplicityScale * (0.75 + (massBias * 0.20));
+            }
+
+            if (count >= 4)
+            {
+                baseWeight *= multiplicityScale * (0.60 + (massBias * 0.12));
+            }
+
+            weights.Add((float)baseWeight);
         }
 
         int? selected = rng.WeightedChoice(options, weights);
@@ -148,6 +165,7 @@ public static class StellarConfigGenerator
             }
 
             starSpec.GalaxyContext = spec.GalaxyContext.Clone();
+            starSpec.StellarProfile = spec.StellarProfile.Clone();
 
             CelestialBody star = StarGenerator.Generate(starSpec, starRng);
             star.Id = $"star_{index}";
@@ -560,5 +578,40 @@ public static class StellarConfigGenerator
     private static string GenerateSystemId(SeededRng rng)
     {
         return $"system_{rng.Randi()}";
+    }
+
+    private static double EstimatePrimaryMassProxy(SolarSystemSpec spec)
+    {
+        if (spec.SpectralClassHints.Count > 0)
+        {
+            int firstHint = spec.SpectralClassHints[0];
+            if (System.Enum.IsDefined(typeof(StarClass.SpectralClass), firstHint))
+            {
+                (double minMass, double maxMass) = StarTable.GetMassRangeTuple((StarClass.SpectralClass)firstHint);
+                return (minMass + maxMass) * 0.5;
+            }
+        }
+
+        double massProxy = 0.9;
+        if (spec.GalaxyContext.ClusterProbability > 0.25)
+        {
+            massProxy += 0.4;
+        }
+
+        if (spec.GalaxyContext.AgeCohort == GalaxyAgeCohort.Young)
+        {
+            massProxy += 0.3;
+        }
+        else if (spec.GalaxyContext.AgeCohort == GalaxyAgeCohort.Ancient)
+        {
+            massProxy -= 0.2;
+        }
+
+        if (spec.SystemMetallicity > 0.0 && spec.SystemMetallicity < 0.7)
+        {
+            massProxy += 0.1;
+        }
+
+        return System.Math.Clamp(massProxy, 0.2, 6.0);
     }
 }

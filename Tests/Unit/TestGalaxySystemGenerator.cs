@@ -100,6 +100,7 @@ public static class TestGalaxySystemGenerator
         DotNetNativeTestSuite.AssertNotNull(system, "system should generate");
         Dictionary snapshot = system!.Provenance.SpecSnapshot;
         DotNetNativeTestSuite.AssertTrue(snapshot.ContainsKey("galaxy_context"), "spec snapshot should contain galaxy context");
+        DotNetNativeTestSuite.AssertTrue(snapshot.ContainsKey("stellar_profile"), "spec snapshot should contain stellar profile");
         Dictionary context = (Dictionary)snapshot["galaxy_context"];
         DotNetNativeTestSuite.AssertTrue(context.ContainsKey("metallicity_prior"), "serialized galaxy context should include metallicity prior");
         DotNetNativeTestSuite.AssertTrue(context.ContainsKey("age_mean_gyr"), "serialized galaxy context should include age context");

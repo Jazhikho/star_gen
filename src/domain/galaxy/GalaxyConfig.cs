@@ -135,6 +135,11 @@ public partial class GalaxyConfig : RefCounted
     public GenerationUseCaseSettings UseCaseSettings { get; set; } = GenerationUseCaseSettings.CreateDefault();
 
     /// <summary>
+    /// Shared stellar-generation profile used for downstream star and system generation.
+    /// </summary>
+    public StellarGenerationProfile StellarProfile { get; set; } = StellarGenerationProfile.CreateDefault();
+
+    /// <summary>
     /// Creates a default configuration.
     /// </summary>
     public static GalaxyConfig CreateDefault()
@@ -171,6 +176,7 @@ public partial class GalaxyConfig : RefCounted
             RadiusPc = 15000.0,
             Ellipticity = 0.3,
             IrregularityScale = 0.5,
+            StellarProfile = StellarGenerationProfile.CreateDefault(),
         };
     }
 
@@ -298,6 +304,11 @@ public partial class GalaxyConfig : RefCounted
             return false;
         }
 
+        if (StellarProfile == null || !StellarProfile.IsValid())
+        {
+            return false;
+        }
+
         return true;
     }
 
@@ -331,6 +342,7 @@ public partial class GalaxyConfig : RefCounted
             ["ellipticity"] = Ellipticity,
             ["irregularity_scale"] = IrregularityScale,
             ["use_case_settings"] = UseCaseSettings.ToDictionary(),
+            ["stellar_profile"] = StellarProfile.ToDictionary(),
         };
     }
 
@@ -371,6 +383,15 @@ public partial class GalaxyConfig : RefCounted
             config.UseCaseSettings = GenerationUseCaseSettings.FromDictionary((Dictionary)data["use_case_settings"]);
         }
 
+        if (data.ContainsKey("stellar_profile") && data["stellar_profile"].VariantType == Variant.Type.Dictionary)
+        {
+            config.StellarProfile = StellarGenerationProfile.FromDictionary((Dictionary)data["stellar_profile"]);
+        }
+        else
+        {
+            config.StellarProfile = StellarGenerationProfile.CreateDefault();
+        }
+
         int typeValue = DomainDictionaryUtils.GetInt(data, "galaxy_type", (int)GalaxySpec.GalaxyType.Spiral);
         if (System.Enum.IsDefined(typeof(GalaxySpec.GalaxyType), typeValue))
         {
@@ -397,6 +418,11 @@ public partial class GalaxyConfig : RefCounted
         if (System.Enum.IsDefined(typeof(GalaxyArmMechanism), armMechanismValue))
         {
             config.ArmMechanismPreference = (GalaxyArmMechanism)armMechanismValue;
+        }
+
+        if (!config.StellarProfile.IsValid())
+        {
+            config.StellarProfile = StellarGenerationProfile.CreateDefault();
         }
 
         return config;

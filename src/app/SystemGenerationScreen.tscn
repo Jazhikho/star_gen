@@ -181,7 +181,7 @@ text = "Min Stars"
 layout_mode = 2
 size_flags_horizontal = 3
 min_value = 1.0
-max_value = 4.0
+max_value = 10.0
 value = 1.0
 rounded = true
 
@@ -198,7 +198,7 @@ text = "Max Stars"
 layout_mode = 2
 size_flags_horizontal = 3
 min_value = 1.0
-max_value = 4.0
+max_value = 10.0
 value = 1.0
 rounded = true
 
@@ -249,6 +249,103 @@ min_value = -1.0
 max_value = 2.0
 step = 0.05
 value = -1.0
+
+[node name="StellarSection" type="VBoxContainer" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox" unique_id=1506440214]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="StellarHeader" type="Label" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/StellarSection" unique_id=2019847145]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.921569, 0.768627, 0.470588, 1)
+theme_override_font_sizes/font_size = 16
+text = "Stellar Priors"
+
+[node name="StellarContent" type="MarginContainer" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/StellarSection" unique_id=1626853447]
+layout_mode = 2
+theme_override_constants/margin_left = 16
+theme_override_constants/margin_top = 4
+theme_override_constants/margin_right = 8
+theme_override_constants/margin_bottom = 8
+
+[node name="StellarVBox" type="VBoxContainer" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/StellarSection/StellarContent" unique_id=2102555321]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="ImfFormRow" type="HBoxContainer" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/StellarSection/StellarContent/StellarVBox" unique_id=742498540]
+layout_mode = 2
+
+[node name="ImfFormLabel" type="Label" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/StellarSection/StellarContent/StellarVBox/ImfFormRow" unique_id=466404916]
+custom_minimum_size = Vector2(96, 0)
+layout_mode = 2
+text = "IMF Form"
+
+[node name="ImfFormOption" type="OptionButton" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/StellarSection/StellarContent/StellarVBox/ImfFormRow" unique_id=835595600]
+layout_mode = 2
+size_flags_horizontal = 3
+selected = 0
+item_count = 2
+popup/item_0/text = "Kroupa"
+popup/item_0/id = 0
+popup/item_1/text = "Chabrier"
+popup/item_1/id = 1
+
+[node name="ImfVariationRow" type="HBoxContainer" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/StellarSection/StellarContent/StellarVBox" unique_id=1133093237]
+layout_mode = 2
+
+[node name="ImfVariationLabel" type="Label" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/StellarSection/StellarContent/StellarVBox/ImfVariationRow" unique_id=2016165102]
+custom_minimum_size = Vector2(96, 0)
+layout_mode = 2
+text = "IMF Shift"
+
+[node name="ImfVariationOption" type="OptionButton" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/StellarSection/StellarContent/StellarVBox/ImfVariationRow" unique_id=1654089099]
+layout_mode = 2
+size_flags_horizontal = 3
+selected = 0
+item_count = 2
+popup/item_0/text = "Canonical"
+popup/item_0/id = 0
+popup/item_1/text = "Metallicity and Age"
+popup/item_1/id = 1
+
+[node name="IsochroneRow" type="HBoxContainer" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/StellarSection/StellarContent/StellarVBox" unique_id=1690689762]
+layout_mode = 2
+
+[node name="IsochroneLabel" type="Label" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/StellarSection/StellarContent/StellarVBox/IsochroneRow" unique_id=780599942]
+custom_minimum_size = Vector2(96, 0)
+layout_mode = 2
+text = "Star Model"
+
+[node name="IsochroneOption" type="OptionButton" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/StellarSection/StellarContent/StellarVBox/IsochroneRow" unique_id=1430468064]
+layout_mode = 2
+size_flags_horizontal = 3
+selected = 0
+item_count = 2
+popup/item_0/text = "MIST"
+popup/item_0/id = 0
+popup/item_1/text = "PARSEC"
+popup/item_1/id = 1
+
+[node name="MultiplicityRow" type="HBoxContainer" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/StellarSection/StellarContent/StellarVBox" unique_id=1963548119]
+layout_mode = 2
+
+[node name="MultiplicityLabel" type="Label" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/StellarSection/StellarContent/StellarVBox/MultiplicityRow" unique_id=1429947857]
+custom_minimum_size = Vector2(96, 0)
+layout_mode = 2
+text = "Companions"
+
+[node name="MultiplicityInput" type="HSlider" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/StellarSection/StellarContent/StellarVBox/MultiplicityRow" unique_id=1221957818]
+layout_mode = 2
+size_flags_horizontal = 3
+min_value = 0.35
+max_value = 2.0
+step = 0.05
+value = 1.0
+
+[node name="MultiplicityValue" type="Label" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/StellarSection/StellarContent/StellarVBox/MultiplicityRow" unique_id=1116627682]
+custom_minimum_size = Vector2(52, 0)
+layout_mode = 2
+text = "1.00x"
+horizontal_alignment = 2
 
 [node name="IncludeBeltsCheck" type="CheckBox" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox" unique_id=666668619]
 layout_mode = 2

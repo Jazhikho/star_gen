@@ -6,6 +6,7 @@ using StarGen.Domain.Celestial.Components;
 using StarGen.Domain.Celestial.Validation;
 using StarGen.Domain.Constants;
 using StarGen.Domain.Galaxy;
+using StarGen.Domain.Generation;
 using StarGen.Domain.Generation.Archetypes;
 using StarGen.Domain.Generation.Generators;
 using StarGen.Domain.Generation.Specs;
@@ -213,6 +214,115 @@ public static class TestStarGenerator
         }
     }
 
+    /// <summary>
+    /// Tests that different IMF families produce measurably different mass tendencies.
+    /// </summary>
+    public static void TestImfFamiliesShiftAverageMass()
+    {
+        double kroupaAverage = CalculateAverageMassSolar(StellarImfForm.Kroupa, StellarImfVariationMode.Canonical, 41000);
+        double chabrierAverage = CalculateAverageMassSolar(StellarImfForm.Chabrier, StellarImfVariationMode.Canonical, 42000);
+
+        if (System.Math.Abs(kroupaAverage - chabrierAverage) < 0.01)
+        {
+            throw new InvalidOperationException("different IMF families should not collapse to the same average mass");
+        }
+    }
+
+    /// <summary>
+    /// Tests that metallicity and age modulation changes the sampled stellar mass.
+    /// </summary>
+    public static void TestImfVariationModeChangesMassSampling()
+    {
+        StarSpec canonicalSpec = StarSpec.Random(43000);
+        canonicalSpec.GalaxyContext = new GalaxyOriginContext
+        {
+            MetallicityPrior = 0.4,
+            AgeMeanGyr = 1.5,
+            AgeCohort = GalaxyAgeCohort.Young,
+            ClusterProbability = 0.45,
+        };
+        canonicalSpec.StellarProfile = new StellarGenerationProfile
+        {
+            ImfForm = StellarImfForm.Kroupa,
+            ImfVariationMode = StellarImfVariationMode.Canonical,
+            IsochroneModel = StellarIsochroneModel.Mist,
+            MultiplicityScale = 1.0,
+        };
+
+        StarSpec modulatedSpec = StarSpec.Random(43000);
+        modulatedSpec.GalaxyContext = canonicalSpec.GalaxyContext.Clone();
+        modulatedSpec.StellarProfile = new StellarGenerationProfile
+        {
+            ImfForm = StellarImfForm.Kroupa,
+            ImfVariationMode = StellarImfVariationMode.MetallicityAgeModulated,
+            IsochroneModel = StellarIsochroneModel.Mist,
+            MultiplicityScale = 1.0,
+        };
+
+        CelestialBody canonicalStar = StarGenerator.Generate(canonicalSpec, new SeededRng(canonicalSpec.GenerationSeed));
+        CelestialBody modulatedStar = StarGenerator.Generate(modulatedSpec, new SeededRng(modulatedSpec.GenerationSeed));
+
+        if (System.Math.Abs(canonicalStar.Physical.MassKg - modulatedStar.Physical.MassKg) < 1.0)
+        {
+            throw new InvalidOperationException("IMF variation mode should change the resulting stellar mass in a biased environment");
+        }
+    }
+
+    /// <summary>
+    /// Tests that isochrone-model choices produce different resolved stellar properties.
+    /// </summary>
+    public static void TestIsochroneModelChangesResolvedProperties()
+    {
+        StarSpec mistSpec = StarSpec.Random(44000);
+        mistSpec.SetOverride("physical.mass_solar", 1.1);
+        mistSpec.StellarProfile = new StellarGenerationProfile
+        {
+            ImfForm = StellarImfForm.Kroupa,
+            ImfVariationMode = StellarImfVariationMode.Canonical,
+            IsochroneModel = StellarIsochroneModel.Mist,
+            MultiplicityScale = 1.0,
+        };
+
+        StarSpec parsecSpec = StarSpec.Random(44000);
+        parsecSpec.SetOverride("physical.mass_solar", 1.1);
+        parsecSpec.StellarProfile = new StellarGenerationProfile
+        {
+            ImfForm = StellarImfForm.Kroupa,
+            ImfVariationMode = StellarImfVariationMode.Canonical,
+            IsochroneModel = StellarIsochroneModel.Parsec,
+            MultiplicityScale = 1.0,
+        };
+
+        CelestialBody mistStar = StarGenerator.Generate(mistSpec, new SeededRng(mistSpec.GenerationSeed));
+        CelestialBody parsecStar = StarGenerator.Generate(parsecSpec, new SeededRng(parsecSpec.GenerationSeed));
+
+        if (System.Math.Abs(mistStar.Stellar.LuminosityWatts - parsecStar.Stellar.LuminosityWatts) < 1.0)
+        {
+            throw new InvalidOperationException("different isochrone models should produce different stellar-property outputs");
+        }
+    }
+
+    /// <summary>
+    /// Tests that hard spectral hints still override the profile-driven sampler.
+    /// </summary>
+    public static void TestSpectralHintsOverrideProfile()
+    {
+        StarSpec spec = new StarSpec(45000, (int)StarClass.SpectralClass.G);
+        spec.StellarProfile = new StellarGenerationProfile
+        {
+            ImfForm = StellarImfForm.Chabrier,
+            ImfVariationMode = StellarImfVariationMode.MetallicityAgeModulated,
+            IsochroneModel = StellarIsochroneModel.Parsec,
+            MultiplicityScale = 1.4,
+        };
+
+        CelestialBody star = StarGenerator.Generate(spec, new SeededRng(spec.GenerationSeed));
+        if (!star.Stellar.SpectralClass.StartsWith("G"))
+        {
+            throw new InvalidOperationException("explicit spectral hints should still win over the profile-driven sampler");
+        }
+    }
+
     private static int CountHotStarsForContext(GalaxyAgeCohort ageCohort, GalaxyRegionKind regionKind, int baseSeed)
     {
         int hotCount = 0;
@@ -238,5 +348,27 @@ public static class TestStarGenerator
         }
 
         return hotCount;
+    }
+
+    private static double CalculateAverageMassSolar(StellarImfForm imfForm, StellarImfVariationMode variationMode, int baseSeed)
+    {
+        double totalMassSolar = 0.0;
+        for (int index = 0; index < 128; index += 1)
+        {
+            int seed = baseSeed + index;
+            StarSpec spec = StarSpec.Random(seed);
+            spec.StellarProfile = new StellarGenerationProfile
+            {
+                ImfForm = imfForm,
+                ImfVariationMode = variationMode,
+                IsochroneModel = StellarIsochroneModel.Mist,
+                MultiplicityScale = 1.0,
+            };
+
+            CelestialBody star = StarGenerator.Generate(spec, new SeededRng(seed));
+            totalMassSolar += star.Physical.MassKg / Units.SolarMassKg;
+        }
+
+        return totalMassSolar / 128.0;
     }
 }

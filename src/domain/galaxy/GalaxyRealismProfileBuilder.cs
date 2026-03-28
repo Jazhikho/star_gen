@@ -72,6 +72,7 @@ public static class GalaxyRealismProfileBuilder
         spec.ClusterMassFunctionSlope = profile.ClusterMassFunctionSlope;
         spec.ClusterDissolutionTimescaleMyr = profile.ClusterDissolutionTimescaleMyr;
         spec.RealismProfile = profile;
+        spec.StellarProfile = config.StellarProfile.Clone();
 
         spec.NumArms = config.NumArms;
         spec.ArmPitchAngleDeg = config.ArmPitchAngleDeg;

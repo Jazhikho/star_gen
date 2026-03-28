@@ -1,5 +1,6 @@
 using Godot;
 using Godot.Collections;
+using StarGen.Domain.Generation;
 using StarGen.Domain.Utils;
 
 namespace StarGen.Domain.Galaxy;
@@ -196,6 +197,11 @@ public partial class GalaxySpec : RefCounted
     public GalaxyRealismProfile RealismProfile { get; set; } = new GalaxyRealismProfile();
 
     /// <summary>
+    /// Shared stellar-generation profile inherited by systems spawned from this galaxy.
+    /// </summary>
+    public StellarGenerationProfile StellarProfile { get; set; } = StellarGenerationProfile.CreateDefault();
+
+    /// <summary>
     /// Creates a Milky-Way-like spiral galaxy specification.
     /// </summary>
     public static GalaxySpec CreateMilkyWay(int galaxySeed)
@@ -260,6 +266,7 @@ public partial class GalaxySpec : RefCounted
             ["cluster_mass_function_slope"] = ClusterMassFunctionSlope,
             ["cluster_dissolution_timescale_myr"] = ClusterDissolutionTimescaleMyr,
             ["realism_profile"] = RealismProfile.ToDictionary(),
+            ["stellar_profile"] = StellarProfile.ToDictionary(),
         };
     }
 
@@ -343,6 +350,15 @@ public partial class GalaxySpec : RefCounted
         else
         {
             spec.RealismProfile = GalaxyRealismProfileBuilder.Build(GalaxyConfig.CreateMilkyWay(), spec.GalaxySeed);
+        }
+
+        if (data.ContainsKey("stellar_profile") && data["stellar_profile"].VariantType == Variant.Type.Dictionary)
+        {
+            spec.StellarProfile = StellarGenerationProfile.FromDictionary((Dictionary)data["stellar_profile"]);
+        }
+        else
+        {
+            spec.StellarProfile = StellarGenerationProfile.CreateDefault();
         }
 
         return spec;

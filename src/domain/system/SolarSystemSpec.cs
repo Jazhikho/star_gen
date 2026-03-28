@@ -52,6 +52,11 @@ public partial class SolarSystemSpec : RefCounted
     public GalaxyOriginContext GalaxyContext = new GalaxyOriginContext();
 
     /// <summary>
+    /// Shared stellar-generation profile used for stars in this system.
+    /// </summary>
+    public StellarGenerationProfile StellarProfile = StellarGenerationProfile.CreateDefault();
+
+    /// <summary>
     /// Whether asteroid belts should be generated.
     /// </summary>
     public bool IncludeAsteroidBelts = true;
@@ -185,6 +190,7 @@ public partial class SolarSystemSpec : RefCounted
             ["system_age_years"] = SystemAgeYears,
             ["system_metallicity"] = SystemMetallicity,
             ["galaxy_context"] = GalaxyContext.ToDictionary(),
+            ["stellar_profile"] = StellarProfile.ToDictionary(),
             ["include_asteroid_belts"] = IncludeAsteroidBelts,
             ["generate_population"] = GeneratePopulation,
             ["overrides"] = CloneDictionary(Overrides),
@@ -207,6 +213,10 @@ public partial class SolarSystemSpec : RefCounted
         if (data.ContainsKey("galaxy_context") && data["galaxy_context"].VariantType == Variant.Type.Dictionary)
         {
             spec.GalaxyContext = GalaxyOriginContext.FromDictionary((Dictionary)data["galaxy_context"]);
+        }
+        if (data.ContainsKey("stellar_profile") && data["stellar_profile"].VariantType == Variant.Type.Dictionary)
+        {
+            spec.StellarProfile = StellarGenerationProfile.FromDictionary((Dictionary)data["stellar_profile"]);
         }
         spec.IncludeAsteroidBelts = GetBool(data, "include_asteroid_belts", true);
         spec.GeneratePopulation = GetBool(data, "generate_population", false);

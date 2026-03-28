@@ -172,6 +172,7 @@ public static class GalaxySystemGenerator
         spec.SystemMetallicity = star.Metallicity;
         spec.SystemAgeYears = star.OriginContext.AgeMeanGyr * 1.0e9;
         spec.GalaxyContext = star.OriginContext.Clone();
+        spec.StellarProfile = star.OriginContext.StellarProfile.Clone();
         spec.IncludeAsteroidBelts = includeAsteroids;
         if (useCaseSettings != null)
         {

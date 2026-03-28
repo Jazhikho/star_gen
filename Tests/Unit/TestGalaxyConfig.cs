@@ -2,6 +2,7 @@
 #nullable disable warnings
 using System;
 using Godot.Collections;
+using StarGen.Domain.Generation;
 using StarGen.Domain.Generation.Parameters;
 using StarGen.Domain.Galaxy;
 using StarGen.Tests.Framework;
@@ -43,6 +44,9 @@ public static class TestGalaxyConfig
         original.GhzTransitionWidthPc = 2400.0;
         original.MetallicityGradientDexPerKpc = -0.035;
         original.StarFormationEfficiency = 0.09;
+        original.StellarProfile.ImfForm = StellarImfForm.Chabrier;
+        original.StellarProfile.IsochroneModel = StellarIsochroneModel.Parsec;
+        original.StellarProfile.MultiplicityScale = 1.15;
 
         Dictionary data = original.ToDictionary();
         GalaxyConfig? restored = GalaxyConfig.FromDictionary(data);
@@ -54,6 +58,8 @@ public static class TestGalaxyConfig
         DotNetNativeTestSuite.AssertEqual(original.HaloMassLog10Solar, restored.HaloMassLog10Solar, "halo mass should round-trip");
         DotNetNativeTestSuite.AssertEqual(original.GhzOuterRadiusPc, restored.GhzOuterRadiusPc, "GHZ outer radius should round-trip");
         DotNetNativeTestSuite.AssertEqual(original.MetallicityGradientDexPerKpc, restored.MetallicityGradientDexPerKpc, "metallicity gradient should round-trip");
+        DotNetNativeTestSuite.AssertEqual((int)original.StellarProfile.ImfForm, (int)restored.StellarProfile.ImfForm, "stellar IMF should round-trip");
+        DotNetNativeTestSuite.AssertEqual(original.StellarProfile.MultiplicityScale, restored.StellarProfile.MultiplicityScale, "stellar multiplicity should round-trip");
     }
 
     /// <summary>

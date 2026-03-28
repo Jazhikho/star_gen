@@ -1,5 +1,6 @@
 using Godot;
 using Godot.Collections;
+using StarGen.Domain.Generation;
 using StarGen.Domain.Utils;
 
 namespace StarGen.Domain.Galaxy;
@@ -85,6 +86,11 @@ public partial class GalaxyOriginContext : RefCounted
     public double LocalStarFormationEfficiency { get; set; } = 0.1;
 
     /// <summary>
+    /// Concrete stellar-generation profile inherited from the host galaxy and local environment.
+    /// </summary>
+    public StellarGenerationProfile StellarProfile { get; set; } = StellarGenerationProfile.CreateDefault();
+
+    /// <summary>
     /// Creates a detached copy of the context.
     /// </summary>
     public GalaxyOriginContext Clone()
@@ -106,6 +112,7 @@ public partial class GalaxyOriginContext : RefCounted
             HaloMassLog10Solar = HaloMassLog10Solar,
             LocalDensityRatio = LocalDensityRatio,
             LocalStarFormationEfficiency = LocalStarFormationEfficiency,
+            StellarProfile = StellarProfile.Clone(),
         };
     }
 
@@ -131,6 +138,7 @@ public partial class GalaxyOriginContext : RefCounted
             ["halo_mass_log10_solar"] = HaloMassLog10Solar,
             ["local_density_ratio"] = LocalDensityRatio,
             ["local_star_formation_efficiency"] = LocalStarFormationEfficiency,
+            ["stellar_profile"] = StellarProfile.ToDictionary(),
         };
     }
 
@@ -170,6 +178,15 @@ public partial class GalaxyOriginContext : RefCounted
         context.HaloMassLog10Solar = DomainDictionaryUtils.GetDouble(data, "halo_mass_log10_solar", 12.0);
         context.LocalDensityRatio = DomainDictionaryUtils.GetDouble(data, "local_density_ratio", 1.0);
         context.LocalStarFormationEfficiency = DomainDictionaryUtils.GetDouble(data, "local_star_formation_efficiency", 0.1);
+        if (data.ContainsKey("stellar_profile") && data["stellar_profile"].VariantType == Variant.Type.Dictionary)
+        {
+            context.StellarProfile = StellarGenerationProfile.FromDictionary((Dictionary)data["stellar_profile"]);
+        }
+        else
+        {
+            context.StellarProfile = StellarGenerationProfile.CreateDefault();
+        }
+
         return context;
     }
 }

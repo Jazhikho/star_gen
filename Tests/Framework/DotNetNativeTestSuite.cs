@@ -775,6 +775,15 @@ public static partial class DotNetNativeTestSuite
             "TestGalaxyConfig::test_galaxy_science_reference_catalog_covers_exposed_parameters",
             Tests.Unit.TestGalaxyConfig.TestGalaxyScienceReferenceCatalogCoversExposedParameters);
         runner.RunNativeTest(
+            "TestStellarGenerationProfile::test_round_trip",
+            Tests.Unit.TestStellarGenerationProfile.TestRoundTrip);
+        runner.RunNativeTest(
+            "TestStellarGenerationProfile::test_profile_propagates_through_galaxy_and_system_specs",
+            Tests.Unit.TestStellarGenerationProfile.TestProfilePropagatesThroughGalaxyAndSystemSpecs);
+        runner.RunNativeTest(
+            "TestStellarGenerationProfile::test_reference_catalog_covers_exposed_parameters",
+            Tests.Unit.TestStellarGenerationProfile.TestReferenceCatalogCoversExposedParameters);
+        runner.RunNativeTest(
             "TestGalaxyStar::test_derived_stars_receive_galaxy_origin_context",
             Tests.Unit.TestGalaxyStar.TestDerivedStarsReceiveGalaxyOriginContext);
         runner.RunNativeTest(
@@ -1884,6 +1893,18 @@ public static partial class DotNetNativeTestSuite
         runner.RunNativeTest(
             "TestStarGenerator::test_star_type",
             Tests.Unit.TestStarGenerator.TestStarType);
+        runner.RunNativeTest(
+            "TestStarGenerator::test_imf_families_shift_average_mass",
+            Tests.Unit.TestStarGenerator.TestImfFamiliesShiftAverageMass);
+        runner.RunNativeTest(
+            "TestStarGenerator::test_imf_variation_mode_changes_mass_sampling",
+            Tests.Unit.TestStarGenerator.TestImfVariationModeChangesMassSampling);
+        runner.RunNativeTest(
+            "TestStarGenerator::test_isochrone_model_changes_resolved_properties",
+            Tests.Unit.TestStarGenerator.TestIsochroneModelChangesResolvedProperties);
+        runner.RunNativeTest(
+            "TestStarGenerator::test_spectral_hints_override_profile",
+            Tests.Unit.TestStarGenerator.TestSpectralHintsOverrideProfile);
         runner.RunNativeTest(
             "TestStarGeneratorDistributions::test_spectral_type_distribution_reasonable",
             Tests.Unit.TestStarGeneratorDistributions.TestSpectralTypeDistributionReasonable);

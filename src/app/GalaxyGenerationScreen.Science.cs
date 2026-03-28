@@ -1,12 +1,12 @@
-using System.Collections.Generic;
 using Godot;
+using StarGen.Domain.Generation;
 using StarGen.Domain.Generation.Parameters;
 using StarGen.Domain.Galaxy;
 
 namespace StarGen.App;
 
 /// <summary>
-/// Scientific galaxy-parameter wiring for the galaxy-generation studio.
+/// Scientific galaxy-parameter and stellar-profile wiring for the galaxy-generation studio.
 /// </summary>
 public partial class GalaxyGenerationScreen
 {
@@ -31,9 +31,15 @@ public partial class GalaxyGenerationScreen
     private Label? _ghzWidthValue;
     private HSlider? _metallicityGradientSlider;
     private Label? _metallicityGradientValue;
-    private Button? _scienceInfoButton;
-    private PanelContainer? _sciencePanel;
-    private RichTextLabel? _scienceText;
+    private OptionButton? _stellarImfFormOption;
+    private OptionButton? _stellarImfVariationModeOption;
+    private OptionButton? _stellarIsochroneModelOption;
+    private HSlider? _stellarMultiplicityScaleSlider;
+    private Label? _stellarMultiplicityScaleValue;
+    private Button? _helpButton;
+    private Window? _helpDialog;
+    private RichTextLabel? _helpDialogText;
+    private Button? _helpDialogCloseButton;
 
     private void CacheScienceNodeReferences()
     {
@@ -58,9 +64,15 @@ public partial class GalaxyGenerationScreen
         _ghzWidthValue = GetNodeOrNull<Label>($"{ParameterRootPath}/SizeSection/SizeContent/SizeVBox/GhzWidthRow/GhzWidthValue");
         _metallicityGradientSlider = GetNodeOrNull<HSlider>($"{ParameterRootPath}/SizeSection/SizeContent/SizeVBox/MetallicityGradientRow/MetallicityGradientSlider");
         _metallicityGradientValue = GetNodeOrNull<Label>($"{ParameterRootPath}/SizeSection/SizeContent/SizeVBox/MetallicityGradientRow/MetallicityGradientValue");
-        _scienceInfoButton = GetNodeOrNull<Button>($"{RulesRootPath}/GalaxyScienceSection/GalaxyScienceHeaderRow/ScienceInfoButton");
-        _sciencePanel = GetNodeOrNull<PanelContainer>($"{RulesRootPath}/GalaxyScienceSection/GalaxySciencePanel");
-        _scienceText = GetNodeOrNull<RichTextLabel>($"{RulesRootPath}/GalaxyScienceSection/GalaxySciencePanel/MarginContainer/GalaxyScienceText");
+        _stellarImfFormOption = GetNodeOrNull<OptionButton>($"{ParameterRootPath}/StellarSection/StellarContent/StellarVBox/ImfFormRow/ImfFormOption");
+        _stellarImfVariationModeOption = GetNodeOrNull<OptionButton>($"{ParameterRootPath}/StellarSection/StellarContent/StellarVBox/ImfVariationRow/ImfVariationOption");
+        _stellarIsochroneModelOption = GetNodeOrNull<OptionButton>($"{ParameterRootPath}/StellarSection/StellarContent/StellarVBox/IsochroneRow/IsochroneOption");
+        _stellarMultiplicityScaleSlider = GetNodeOrNull<HSlider>($"{ParameterRootPath}/StellarSection/StellarContent/StellarVBox/MultiplicityRow/MultiplicitySlider");
+        _stellarMultiplicityScaleValue = GetNodeOrNull<Label>($"{ParameterRootPath}/StellarSection/StellarContent/StellarVBox/MultiplicityRow/MultiplicityValue");
+        _helpButton = GetNodeOrNull<Button>($"{HeroRootPath}/HeaderRow/HelpButton");
+        _helpDialog = GetNodeOrNull<Window>("HelpDialog");
+        _helpDialogText = GetNodeOrNull<RichTextLabel>("HelpDialog/MarginContainer/HelpVBox/HelpDialogText");
+        _helpDialogCloseButton = GetNodeOrNull<Button>("HelpDialog/MarginContainer/HelpVBox/CloseButton");
     }
 
     private void ConnectScienceSignals()
@@ -68,6 +80,9 @@ public partial class GalaxyGenerationScreen
         if (_subtypeModeOption != null) _subtypeModeOption.ItemSelected += _ => OnScienceControlChanged();
         if (_barModeOption != null) _barModeOption.ItemSelected += _ => OnScienceControlChanged();
         if (_armMechanismOption != null) _armMechanismOption.ItemSelected += _ => OnScienceControlChanged();
+        if (_stellarImfFormOption != null) _stellarImfFormOption.ItemSelected += _ => OnScienceControlChanged();
+        if (_stellarImfVariationModeOption != null) _stellarImfVariationModeOption.ItemSelected += _ => OnScienceControlChanged();
+        if (_stellarIsochroneModelOption != null) _stellarIsochroneModelOption.ItemSelected += _ => OnScienceControlChanged();
         ConnectSlider(_haloMassSlider, OnHaloMassChanged);
         ConnectSlider(_environmentSlider, OnEnvironmentChanged);
         ConnectSlider(_starFormationEfficiencySlider, OnStarFormationEfficiencyChanged);
@@ -75,22 +90,25 @@ public partial class GalaxyGenerationScreen
         ConnectSlider(_ghzOuterSlider, OnGhzOuterChanged);
         ConnectSlider(_ghzWidthSlider, OnGhzWidthChanged);
         ConnectSlider(_metallicityGradientSlider, OnMetallicityGradientChanged);
-        if (_scienceInfoButton != null) _scienceInfoButton.Pressed += OnScienceInfoPressed;
+        ConnectSlider(_stellarMultiplicityScaleSlider, OnStellarMultiplicityChanged);
+        if (_helpButton != null) _helpButton.Pressed += OnScienceInfoPressed;
+        if (_helpDialogCloseButton != null) _helpDialogCloseButton.Pressed += HideHelpDialog;
+        if (_helpDialog != null) _helpDialog.CloseRequested += HideHelpDialog;
     }
 
     private void ApplyScienceLayoutPolish()
     {
-        if (_sciencePanel != null)
+        if (_helpDialog != null)
         {
-            _sciencePanel.Visible = false;
+            _helpDialog.Visible = false;
         }
     }
 
     private void ApplySciencePanelText()
     {
-        if (_scienceText != null)
+        if (_helpDialogText != null)
         {
-            _scienceText.Text = GalaxyScienceReferenceCatalog.BuildSciencePanelBbCode();
+            _helpDialogText.Text = BuildHelpDialogBbCode();
         }
     }
 
@@ -106,9 +124,13 @@ public partial class GalaxyGenerationScreen
         ApplyTooltip("ghz_outer_radius_pc", _ghzOuterSlider, $"{ParameterRootPath}/SizeSection/SizeContent/SizeVBox/GhzOuterRow/GhzOuterLabel");
         ApplyTooltip("ghz_transition_width_pc", _ghzWidthSlider, $"{ParameterRootPath}/SizeSection/SizeContent/SizeVBox/GhzWidthRow/GhzWidthLabel");
         ApplyTooltip("metallicity_gradient_dex_per_kpc", _metallicityGradientSlider, $"{ParameterRootPath}/SizeSection/SizeContent/SizeVBox/MetallicityGradientRow/MetallicityGradientLabel");
-        if (_scienceInfoButton != null)
+        ApplyTooltip("stellar_imf_form", _stellarImfFormOption, $"{ParameterRootPath}/StellarSection/StellarContent/StellarVBox/ImfFormRow/ImfFormLabel");
+        ApplyTooltip("stellar_imf_variation_mode", _stellarImfVariationModeOption, $"{ParameterRootPath}/StellarSection/StellarContent/StellarVBox/ImfVariationRow/ImfVariationLabel");
+        ApplyTooltip("stellar_isochrone_model", _stellarIsochroneModelOption, $"{ParameterRootPath}/StellarSection/StellarContent/StellarVBox/IsochroneRow/IsochroneLabel");
+        ApplyTooltip("stellar_multiplicity_scale", _stellarMultiplicityScaleSlider, $"{ParameterRootPath}/StellarSection/StellarContent/StellarVBox/MultiplicityRow/MultiplicityLabel");
+        if (_helpButton != null)
         {
-            _scienceInfoButton.TooltipText = "Show the science model, assumptions, and citations for galaxy generation.";
+            _helpButton.TooltipText = "Open plain-language help that explains these galaxy and star settings and shows the science sources.";
         }
     }
 
@@ -135,6 +157,7 @@ public partial class GalaxyGenerationScreen
         UpdateIntLabel(_ghzOuterValue, _ghzOuterSlider, " pc");
         UpdateIntLabel(_ghzWidthValue, _ghzWidthSlider, " pc");
         UpdateFloatLabel(_metallicityGradientValue, _metallicityGradientSlider, "0.000", " dex/kpc");
+        UpdateFloatLabel(_stellarMultiplicityScaleValue, _stellarMultiplicityScaleSlider, "0.00", "x");
     }
 
     private void ApplyScientificValuesToConfig(GalaxyConfig config)
@@ -161,6 +184,7 @@ public partial class GalaxyGenerationScreen
         if (_ghzOuterSlider != null) config.GhzOuterRadiusPc = _ghzOuterSlider.Value;
         if (_ghzWidthSlider != null) config.GhzTransitionWidthPc = _ghzWidthSlider.Value;
         if (_metallicityGradientSlider != null) config.MetallicityGradientDexPerKpc = _metallicityGradientSlider.Value;
+        config.StellarProfile = BuildStellarProfileFromControls();
     }
 
     private void ApplyScienceConfig(GalaxyConfig config)
@@ -175,6 +199,7 @@ public partial class GalaxyGenerationScreen
         SetSlider(_ghzOuterSlider, config.GhzOuterRadiusPc);
         SetSlider(_ghzWidthSlider, config.GhzTransitionWidthPc);
         SetSlider(_metallicityGradientSlider, config.MetallicityGradientDexPerKpc);
+        ApplyStellarProfileToControls(config.StellarProfile);
     }
 
     private static void ApplyScientificPresetValues(Preset preset, GalaxyConfig config)
@@ -221,6 +246,7 @@ public partial class GalaxyGenerationScreen
             config.GhzOuterRadiusPc = 11000.0;
             config.GhzTransitionWidthPc = 1800.0;
             config.MetallicityGradientDexPerKpc = -0.035;
+            config.StellarProfile.MultiplicityScale = 0.9;
             return;
         }
 
@@ -234,6 +260,8 @@ public partial class GalaxyGenerationScreen
             config.GhzOuterRadiusPc = 7000.0;
             config.GhzTransitionWidthPc = 1800.0;
             config.MetallicityGradientDexPerKpc = -0.030;
+            config.StellarProfile.ImfVariationMode = StellarImfVariationMode.MetallicityAgeModulated;
+            config.StellarProfile.MultiplicityScale = 1.1;
         }
     }
 
@@ -246,14 +274,16 @@ public partial class GalaxyGenerationScreen
         }
 
         GalaxyRealismProfile profile = GalaxyRealismProfileBuilder.Build(config, seedValue);
-        return GalaxyScienceReferenceCatalog.BuildProfileSummary(config, profile);
+        string galaxySummary = GalaxyScienceReferenceCatalog.BuildProfileSummary(config, profile);
+        string stellarSummary = BuildStellarProfileSummary(config.StellarProfile);
+        return $"{galaxySummary}\n{stellarSummary}";
     }
 
     private void ApplyScienceAssumptionSummary()
     {
         if (_assumptionsLabel != null)
         {
-            _assumptionsLabel.Text = "Defaults are literature-backed priors, not universal laws. Open the science panel for the model scope and citations.";
+            _assumptionsLabel.Text = "The Help button explains what each science term means in plain language. The defaults are research-backed starting points, not universal laws.";
             _assumptionsLabel.Visible = true;
         }
     }
@@ -306,22 +336,92 @@ public partial class GalaxyGenerationScreen
         OnScienceControlChanged();
     }
 
+    private void OnStellarMultiplicityChanged(double _value)
+    {
+        UpdateFloatLabel(_stellarMultiplicityScaleValue, _stellarMultiplicityScaleSlider, "0.00", "x");
+        OnScienceControlChanged();
+    }
+
     private void OnScienceInfoPressed()
     {
-        if (_sciencePanel == null || _scienceInfoButton == null)
+        if (_helpDialog == null)
         {
             return;
         }
 
-        _sciencePanel.Visible = !_sciencePanel.Visible;
-        if (_sciencePanel.Visible)
+        _helpDialog.Size = new Vector2I(760, 580);
+        _helpDialog.Visible = true;
+    }
+
+    private void HideHelpDialog()
+    {
+        if (_helpDialog != null)
         {
-            _scienceInfoButton.Text = "Hide Science";
+            _helpDialog.Visible = false;
         }
-        else
+    }
+
+    private StellarGenerationProfile BuildStellarProfileFromControls()
+    {
+        StellarGenerationProfile profile = StellarGenerationProfile.CreateDefault();
+
+        if (_stellarImfFormOption != null)
         {
-            _scienceInfoButton.Text = "Show Science";
+            profile.ImfForm = (StellarImfForm)_stellarImfFormOption.GetItemId(_stellarImfFormOption.Selected);
         }
+
+        if (_stellarImfVariationModeOption != null)
+        {
+            profile.ImfVariationMode = (StellarImfVariationMode)_stellarImfVariationModeOption.GetItemId(_stellarImfVariationModeOption.Selected);
+        }
+
+        if (_stellarIsochroneModelOption != null)
+        {
+            profile.IsochroneModel = (StellarIsochroneModel)_stellarIsochroneModelOption.GetItemId(_stellarIsochroneModelOption.Selected);
+        }
+
+        if (_stellarMultiplicityScaleSlider != null)
+        {
+            profile.MultiplicityScale = _stellarMultiplicityScaleSlider.Value;
+        }
+
+        return profile;
+    }
+
+    private void ApplyStellarProfileToControls(StellarGenerationProfile profile)
+    {
+        SetOptionSelection(_stellarImfFormOption, (int)profile.ImfForm);
+        SetOptionSelection(_stellarImfVariationModeOption, (int)profile.ImfVariationMode);
+        SetOptionSelection(_stellarIsochroneModelOption, (int)profile.IsochroneModel);
+        SetSlider(_stellarMultiplicityScaleSlider, profile.MultiplicityScale);
+    }
+
+    private static string BuildStellarProfileSummary(StellarGenerationProfile profile)
+    {
+        string imfLabel = "Kroupa";
+        if (profile.ImfForm == StellarImfForm.Chabrier)
+        {
+            imfLabel = "Chabrier";
+        }
+
+        string variationLabel = "canonical";
+        if (profile.ImfVariationMode == StellarImfVariationMode.MetallicityAgeModulated)
+        {
+            variationLabel = "metallicity and age modulated";
+        }
+
+        string isochroneLabel = "MIST";
+        if (profile.IsochroneModel == StellarIsochroneModel.Parsec)
+        {
+            isochroneLabel = "PARSEC";
+        }
+
+        return $"Stellar model: IMF {imfLabel} | Variation {variationLabel} | Tracks {isochroneLabel} | Multiplicity {profile.MultiplicityScale:0.00}x";
+    }
+
+    private static string BuildHelpDialogBbCode()
+    {
+        return $"{GalaxyScienceReferenceCatalog.BuildSciencePanelBbCode()}\n\n{StellarScienceReferenceCatalog.BuildHelpPanelBbCode()}";
     }
 
     private static void SetOptionSelection(OptionButton? optionButton, int itemId)

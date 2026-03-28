@@ -36,7 +36,7 @@ public static class SystemGenerationParameterValidator
             issues.AddError("star_count_max", "Maximum star count must be greater than or equal to minimum star count.");
         }
 
-        if (spec.StarCountMax >= 4)
+        if (spec.StarCountMax >= 5)
         {
             issues.AddWarning("star_count_max", "High-multiplicity systems are allowed, but they are much rarer and produce more chaotic layouts.");
         }
@@ -73,6 +73,11 @@ public static class SystemGenerationParameterValidator
         if (spec.SystemMetallicity > 0.0 && spec.SystemMetallicity > 3.0)
         {
             issues.AddWarning("system_metallicity", "Very high metallicity values are allowed, but they bend realism for most observed stars.");
+        }
+
+        if (!spec.StellarProfile.IsValid())
+        {
+            issues.AddError("stellar_profile", "The stellar-model settings must stay within the supported ranges.");
         }
 
         if (spec.GeneratePopulation && spec.StarCountMax >= 5)

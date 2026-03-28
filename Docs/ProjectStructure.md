@@ -87,11 +87,18 @@ star_gen/
 
 ## Recent Major Additions
 
-- `src/app/GalaxyGenerationScreen.Science.cs`: partial controller for galaxy-studio scientific controls, tooltips, and the expandable in-studio science/citations panel.
+- `src/app/GalaxyGenerationScreen.Science.cs`: partial controller for galaxy-studio scientific controls, plain-language tooltips, the header `Help` popup, and scene-bound science/help content.
+- `src/app/SystemGenerationScreen.Stellar.cs`: scene-first system-studio controller for stellar science controls and summaries.
 - `src/domain/galaxy/GalaxyEnums.cs`: shared galaxy-science enums covering family/subtype/bar and related scientific-choice modes.
-- `src/domain/galaxy/GalaxyOriginContext.cs`: serializable galaxy-origin context passed downstream into star and system generation.
+- `src/domain/galaxy/GalaxyOriginContext.cs`: serializable galaxy-origin context passed downstream into star and system generation, now including the resolved stellar-generation profile.
 - `src/domain/galaxy/GalaxyRealismProfile.cs`: derived galaxy realism profile carrying morphology, GHZ, metallicity, and star-formation priors.
 - `src/domain/galaxy/GalaxyRealismProfileBuilder.cs`: deterministic builder that resolves the scientific galaxy profile from user config and seed.
-- `src/domain/galaxy/GalaxyScientificFieldEvaluator.cs`: evaluates region, metallicity, age, GHZ, and cluster-scaffold context for generated galaxy stars.
+- `src/domain/galaxy/GalaxyScientificFieldEvaluator.cs`: evaluates region, metallicity, age, GHZ, cluster-scaffold context, and local stellar-profile adjustments for generated galaxy stars.
 - `src/domain/galaxy/LenticularDensityModel.cs`: galaxy-density evaluator for the new lenticular family.
-- `src/domain/generation/parameters/GalaxyScienceReferenceCatalog.cs`: source registry and user-facing assumption/citation content for the galaxy studio.
+- `src/domain/generation/StellarGenerationProfile.cs`: shared serializable stellar-generation settings used by both galaxy and system generation flows.
+- `src/domain/generation/generators/StellarMassSampler.cs`: deterministic IMF-driven stellar mass sampler with Kroupa/Chabrier support and context-aware variation.
+- `src/domain/generation/generators/StellarIsochroneApproximator.cs`: lightweight deterministic stellar-property resolver inspired by MIST/PARSEC model families.
+- `src/domain/generation/parameters/GalaxyScienceReferenceCatalog.cs`: source registry and user-facing plain-language science/help content for the galaxy studio.
+- `src/domain/generation/parameters/StellarScienceReferenceCatalog.cs`: source registry and plain-language stellar science/help content shared by the galaxy and system studios.
+- `Tests/Integration/TestStudioScienceUi.cs`: non-visual integration coverage for the galaxy help popup and the `1..10` stellar controls in the studios.
+- `Tests/Unit/TestStellarGenerationProfile.cs`: deterministic unit coverage for stellar-profile serialization and metadata wiring.

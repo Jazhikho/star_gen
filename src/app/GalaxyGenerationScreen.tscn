@@ -79,12 +79,58 @@ visible = false
 layout_mode = 2
 text = "<- Main Menu"
 
+[node name="HelpButton" type="Button" parent="MarginContainer/ScrollContainer/Layout/HeroPanel/MarginContainer/HeroVBox/HeaderRow" unique_id=175901104]
+layout_mode = 2
+text = "Help"
+
 [node name="VersionLabel" type="Label" parent="MarginContainer/ScrollContainer/Layout/HeroPanel/MarginContainer/HeroVBox/HeaderRow" unique_id=1597077026]
 layout_mode = 2
 size_flags_horizontal = 3
 theme_override_colors/font_color = Color(0.631373, 0.701961, 0.772549, 1)
 text = "Version"
 horizontal_alignment = 2
+
+[node name="HelpDialog" type="Window" parent="."]
+visible = false
+theme = ExtResource("2")
+title = "Galaxy and Star Help"
+initial_position = 2
+size = Vector2i(760, 580)
+transient = true
+exclusive = true
+wrap_controls = true
+
+[node name="MarginContainer" type="MarginContainer" parent="HelpDialog"]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 16.0
+offset_top = 16.0
+offset_right = -16.0
+offset_bottom = -16.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="HelpVBox" type="VBoxContainer" parent="HelpDialog/MarginContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+theme_override_constants/separation = 12
+
+[node name="HelpDialogText" type="RichTextLabel" parent="HelpDialog/MarginContainer/HelpVBox"]
+custom_minimum_size = Vector2(420, 0)
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+bbcode_enabled = true
+fit_content = false
+selection_enabled = true
+scroll_active = true
+autowrap_mode = 3
+
+[node name="CloseButton" type="Button" parent="HelpDialog/MarginContainer/HelpVBox"]
+layout_mode = 2
+text = "Close"
 
 [node name="TitleLabel" type="Label" parent="MarginContainer/ScrollContainer/Layout/HeroPanel/MarginContainer/HeroVBox" unique_id=1965270629]
 layout_mode = 2
@@ -744,6 +790,103 @@ layout_mode = 2
 text = "-0.050 dex/kpc"
 horizontal_alignment = 2
 
+[node name="StellarSection" type="VBoxContainer" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox" unique_id=120844771]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="StellarHeader" type="Label" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/StellarSection" unique_id=1947174208]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.921569, 0.768627, 0.470588, 1)
+theme_override_font_sizes/font_size = 16
+text = "Stellar Priors"
+
+[node name="StellarContent" type="MarginContainer" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/StellarSection" unique_id=1631323836]
+layout_mode = 2
+theme_override_constants/margin_left = 16
+theme_override_constants/margin_top = 4
+theme_override_constants/margin_right = 8
+theme_override_constants/margin_bottom = 8
+
+[node name="StellarVBox" type="VBoxContainer" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/StellarSection/StellarContent" unique_id=755287447]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="ImfFormRow" type="HBoxContainer" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/StellarSection/StellarContent/StellarVBox" unique_id=652280919]
+layout_mode = 2
+
+[node name="ImfFormLabel" type="Label" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/StellarSection/StellarContent/StellarVBox/ImfFormRow" unique_id=1223959355]
+custom_minimum_size = Vector2(96, 0)
+layout_mode = 2
+text = "IMF Form"
+
+[node name="ImfFormOption" type="OptionButton" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/StellarSection/StellarContent/StellarVBox/ImfFormRow" unique_id=703177313]
+layout_mode = 2
+size_flags_horizontal = 3
+selected = 0
+item_count = 2
+popup/item_0/text = "Kroupa"
+popup/item_0/id = 0
+popup/item_1/text = "Chabrier"
+popup/item_1/id = 1
+
+[node name="ImfVariationRow" type="HBoxContainer" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/StellarSection/StellarContent/StellarVBox" unique_id=545607370]
+layout_mode = 2
+
+[node name="ImfVariationLabel" type="Label" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/StellarSection/StellarContent/StellarVBox/ImfVariationRow" unique_id=1267405502]
+custom_minimum_size = Vector2(96, 0)
+layout_mode = 2
+text = "IMF Shift"
+
+[node name="ImfVariationOption" type="OptionButton" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/StellarSection/StellarContent/StellarVBox/ImfVariationRow" unique_id=1219759963]
+layout_mode = 2
+size_flags_horizontal = 3
+selected = 0
+item_count = 2
+popup/item_0/text = "Canonical"
+popup/item_0/id = 0
+popup/item_1/text = "Metallicity and Age"
+popup/item_1/id = 1
+
+[node name="IsochroneRow" type="HBoxContainer" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/StellarSection/StellarContent/StellarVBox" unique_id=62834324]
+layout_mode = 2
+
+[node name="IsochroneLabel" type="Label" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/StellarSection/StellarContent/StellarVBox/IsochroneRow" unique_id=1848182070]
+custom_minimum_size = Vector2(96, 0)
+layout_mode = 2
+text = "Star Model"
+
+[node name="IsochroneOption" type="OptionButton" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/StellarSection/StellarContent/StellarVBox/IsochroneRow" unique_id=1278786629]
+layout_mode = 2
+size_flags_horizontal = 3
+selected = 0
+item_count = 2
+popup/item_0/text = "MIST"
+popup/item_0/id = 0
+popup/item_1/text = "PARSEC"
+popup/item_1/id = 1
+
+[node name="MultiplicityRow" type="HBoxContainer" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/StellarSection/StellarContent/StellarVBox" unique_id=2032398597]
+layout_mode = 2
+
+[node name="MultiplicityLabel" type="Label" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/StellarSection/StellarContent/StellarVBox/MultiplicityRow" unique_id=972684738]
+custom_minimum_size = Vector2(96, 0)
+layout_mode = 2
+text = "Companions"
+
+[node name="MultiplicitySlider" type="HSlider" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/StellarSection/StellarContent/StellarVBox/MultiplicityRow" unique_id=2080903059]
+layout_mode = 2
+size_flags_horizontal = 3
+min_value = 0.35
+max_value = 2.0
+step = 0.05
+value = 1.0
+
+[node name="MultiplicityValue" type="Label" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/StellarSection/StellarContent/StellarVBox/MultiplicityRow" unique_id=208542936]
+custom_minimum_size = Vector2(52, 0)
+layout_mode = 2
+text = "1.00x"
+horizontal_alignment = 2
+
 [node name="SeedContainer" type="HBoxContainer" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox" unique_id=2089843329]
 layout_mode = 2
 theme_override_constants/separation = 8
@@ -890,44 +1033,6 @@ custom_minimum_size = Vector2(156, 0)
 layout_mode = 2
 text = "0.50 (Colonization Common)"
 horizontal_alignment = 1
-
-[node name="GalaxyScienceSection" type="VBoxContainer" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/RulesPanel/MarginContainer/RulesVBox/ScrollContainer/RulesContent" unique_id=860250234]
-layout_mode = 2
-theme_override_constants/separation = 8
-
-[node name="GalaxyScienceHeaderRow" type="HBoxContainer" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/RulesPanel/MarginContainer/RulesVBox/ScrollContainer/RulesContent/GalaxyScienceSection" unique_id=699063446]
-layout_mode = 2
-theme_override_constants/separation = 8
-
-[node name="GalaxyScienceHeader" type="Label" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/RulesPanel/MarginContainer/RulesVBox/ScrollContainer/RulesContent/GalaxyScienceSection/GalaxyScienceHeaderRow" unique_id=1597466522]
-layout_mode = 2
-theme_override_colors/font_color = Color(0.82, 0.82, 0.55, 1)
-theme_override_font_sizes/font_size = 12
-text = "Galaxy Science"
-
-[node name="ScienceInfoButton" type="Button" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/RulesPanel/MarginContainer/RulesVBox/ScrollContainer/RulesContent/GalaxyScienceSection/GalaxyScienceHeaderRow" unique_id=592447462]
-layout_mode = 2
-size_flags_horizontal = 8
-text = "Show Science"
-
-[node name="GalaxySciencePanel" type="PanelContainer" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/RulesPanel/MarginContainer/RulesVBox/ScrollContainer/RulesContent/GalaxyScienceSection" unique_id=786810993]
-visible = false
-layout_mode = 2
-
-[node name="MarginContainer" type="MarginContainer" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/RulesPanel/MarginContainer/RulesVBox/ScrollContainer/RulesContent/GalaxyScienceSection/GalaxySciencePanel" unique_id=1920818787]
-layout_mode = 2
-theme_override_constants/margin_left = 10
-theme_override_constants/margin_top = 10
-theme_override_constants/margin_right = 10
-theme_override_constants/margin_bottom = 10
-
-[node name="GalaxyScienceText" type="RichTextLabel" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/RulesPanel/MarginContainer/RulesVBox/ScrollContainer/RulesContent/GalaxyScienceSection/GalaxySciencePanel/MarginContainer" unique_id=864785041]
-custom_minimum_size = Vector2(0, 220)
-layout_mode = 2
-bbcode_enabled = true
-fit_content = true
-scroll_active = false
-autowrap_mode = 2
 
 [node name="SummaryPanel" type="PanelContainer" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow" unique_id=2053494642]
 custom_minimum_size = Vector2(200, 0)

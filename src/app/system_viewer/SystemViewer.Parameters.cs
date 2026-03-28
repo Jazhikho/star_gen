@@ -148,6 +148,12 @@ public partial class SystemViewer
         }
 
         SolarSystemSpec spec = new SolarSystemSpec(seedValue, minStars, maxStars);
+        if (_currentSpec != null)
+        {
+            spec.GalaxyContext = _currentSpec.GalaxyContext.Clone();
+            spec.StellarProfile = _currentSpec.StellarProfile.Clone();
+        }
+
         if (_spectralHintsInput != null)
         {
             spec.SpectralClassHints = ParseSpectralHints(_spectralHintsInput.Text);

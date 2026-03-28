@@ -1,12 +1,20 @@
 # Version
 
-Current version: `0.8.2.0`
+Current version: `0.8.3.0`
 
 Current user-facing version: `0.9d`
 
 Date: `2026-03-28`
 
 Versioning method: release/refactor `+0.1`, feature `+0.0.1`, bug fix `+0.0.0.1`, save-breaking release `+1.0`.
+
+## 0.8.3.0
+
+- Feature: Replaced the galaxy studio's inline science section with a scene-owned `Help` popup in the header, including scrollable plain-language explanations, close controls, and source-backed citations for the galactic generator model.
+- Feature: Rewrote galaxy science tooltips and help text for non-experts so key terms such as halo mass, environment density, barred galaxies, arm modes, metallicity gradient, GHZ, and star formation efficiency are defined in simple language before explaining their effect.
+- Feature: Added a shared stellar-generation profile that now flows from galaxy generation into system and star generation, with deterministic IMF selection, metallicity/age-sensitive variation, empirical multiplicity tuning, and lightweight MIST/PARSEC-inspired stellar property lookup.
+- Feature: Galaxy Studio and System Studio now both expose the stellar science controls for IMF form, IMF variation mode, isochrone model, and multiplicity scale, while system-generation star-count controls now support the full `1..10` app limit instead of the old artificial `4`-star UI cap.
+- Test: Added stellar-profile, help-surface, and scientific propagation coverage; `dotnet build StarGen.sln` passed, and the mainline headless harness passed (`1765 / 1765`).
 
 ## 0.8.2.0
 

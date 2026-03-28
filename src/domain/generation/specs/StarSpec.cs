@@ -36,6 +36,11 @@ public partial class StarSpec : BaseSpec
     public GalaxyOriginContext GalaxyContext { get; set; } = new GalaxyOriginContext();
 
     /// <summary>
+    /// Shared stellar-generation profile applied when no hard spectral override is supplied.
+    /// </summary>
+    public StellarGenerationProfile StellarProfile { get; set; } = StellarGenerationProfile.CreateDefault();
+
+    /// <summary>
     /// Creates a new star specification.
     /// </summary>
     public StarSpec(
@@ -132,6 +137,7 @@ public partial class StarSpec : BaseSpec
         data["metallicity"] = Metallicity;
         data["age_years"] = AgeYears;
         data["galaxy_context"] = GalaxyContext.ToDictionary();
+        data["stellar_profile"] = StellarProfile.ToDictionary();
         return data;
     }
 
@@ -190,6 +196,10 @@ public partial class StarSpec : BaseSpec
         if (data.ContainsKey("galaxy_context") && data["galaxy_context"].VariantType == Godot.Variant.Type.Dictionary)
         {
             spec.GalaxyContext = GalaxyOriginContext.FromDictionary((Dictionary)data["galaxy_context"]);
+        }
+        if (data.ContainsKey("stellar_profile") && data["stellar_profile"].VariantType == Godot.Variant.Type.Dictionary)
+        {
+            spec.StellarProfile = StellarGenerationProfile.FromDictionary((Dictionary)data["stellar_profile"]);
         }
         return spec;
     }

@@ -62,6 +62,7 @@ public partial class SystemGenerationScreen : Control
 		ConnectSignals();
 		ApplyVersionLabel();
 		ApplyDefaults();
+		ApplyStellarParameterTooltips();
 		ApplySeedVisibilityPreference(rerollHiddenSeed: true);
 		RefreshSummary();
 		ApplyResponsiveLayout();
@@ -145,6 +146,7 @@ public partial class SystemGenerationScreen : Control
 		}
 
 		spec.UseCaseSettings = BuildUseCaseSettingsFromControls();
+		spec.StellarProfile = BuildStellarProfileFromControls();
 		return spec;
 	}
 
@@ -181,6 +183,7 @@ public partial class SystemGenerationScreen : Control
 		_populationPermissivenessInput = GetNodeOrNull<HSlider>($"{Root}/StudioRow/RulesPanel/MarginContainer/RulesVBox/ScrollContainer/RulesContent/PopulationPermissivenessRow/PopulationPermissivenessInput");
 		_populationPermissivenessValueLabel = GetNodeOrNull<Label>($"{Root}/StudioRow/RulesPanel/MarginContainer/RulesVBox/ScrollContainer/RulesContent/PopulationPermissivenessRow/PopulationPermissivenessValue");
 		_mainworldPolicyOption = GetNodeOrNull<OptionButton>($"{Root}/StudioRow/RulesPanel/MarginContainer/RulesVBox/ScrollContainer/RulesContent/MainworldPolicyRow/MainworldPolicyOption");
+		CacheStellarNodeReferences();
 	}
 
 	private void ApplyResponsiveLayout()
@@ -204,6 +207,7 @@ public partial class SystemGenerationScreen : Control
 		if (_lifePermissivenessInput != null) _lifePermissivenessInput.ValueChanged += OnLifePermissivenessChanged;
 		if (_mainworldPolicyOption != null) _mainworldPolicyOption.ItemSelected += _ => RefreshSummary();
 		if (_rulesetModeOption != null) _rulesetModeOption.ItemSelected += OnRulesetModeSelected;
+		ConnectStellarSignals();
 	}
 
 	private void ApplyVersionLabel()
@@ -218,6 +222,7 @@ public partial class SystemGenerationScreen : Control
 	private void ApplyDefaults()
 	{
 		UpdatePermissivenessValueLabels();
+		ApplyStellarDefaults();
 	}
 
 	private void OnStartPressed()
@@ -277,6 +282,7 @@ public partial class SystemGenerationScreen : Control
 
 			lines.Add($"Stars {spec.StarCountMin}-{spec.StarCountMax}");
 			lines.Add($"Spectral {hintsText}");
+			lines.Add(BuildStellarProfileSummary(BuildStellarProfileFromControls()));
 			lines.Add($"Belts {(spec.IncludeAsteroidBelts ? "On" : "Off")}");
 			lines.Add($"Population {(spec.GeneratePopulation ? "On" : "Off")}");
 			lines.Add($"Ruleset {GenerationUseCasePresentation.GetRulesetLabel(spec.UseCaseSettings.RulesetMode)}");
@@ -420,6 +426,18 @@ public partial class SystemGenerationScreen : Control
 			_loadButton.Visible = false;
 		}
 	}
+
+	private partial void CacheStellarNodeReferences();
+
+	private partial void ConnectStellarSignals();
+
+	private partial void ApplyStellarDefaults();
+
+	private partial void ApplyStellarParameterTooltips();
+
+	private partial StellarGenerationProfile BuildStellarProfileFromControls();
+
+	private partial string BuildStellarProfileSummary(StellarGenerationProfile profile);
 
 	private static void ApplyRowSpacing(Node root)
 	{
