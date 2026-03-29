@@ -63,8 +63,7 @@ public static class PlanetGenerator
         bool enablePopulation = false,
         int populationOverride = 0)
     {
-        SizeCategory.Category sizeCategory = DetermineSizeCategory(spec, rng);
-        OrbitZone.Zone zone = DetermineOrbitZone(spec, rng);
+        DetermineResolvedPlanetProfile(spec, context, rng, out SizeCategory.Category sizeCategory, out OrbitZone.Zone zone);
         OrbitalProps orbital = GenerateOrbitalProps(spec, context, zone, rng);
         PhysicalProps physical = PlanetPhysicalGenerator.GeneratePhysicalProps(spec, context, sizeCategory, orbital, rng);
         double equilibriumTempK = context.GetEquilibriumTemperatureK(0.3);
@@ -109,7 +108,7 @@ public static class PlanetGenerator
             physical,
             CreateProvenance(spec, context))
         {
-            Orbital = orbital,
+            Orbital = spec.OrbitMode == PlanetOrbitMode.Rogue ? null : orbital,
             Atmosphere = atmosphere,
             Surface = surface,
             RingSystem = ringSystem,
@@ -137,6 +136,31 @@ public static class PlanetGenerator
             return (SizeCategory.Category)spec.SizeCategory;
         }
 
+        if (spec.ClassBias == PlanetClassBias.GasGiant)
+        {
+            return SizeCategory.Category.GasGiant;
+        }
+
+        if (spec.ClassBias == PlanetClassBias.SubNeptune)
+        {
+            return SizeCategory.Category.MiniNeptune;
+        }
+
+        if (spec.ClassBias == PlanetClassBias.StrippedCore)
+        {
+            return SizeCategory.Category.SuperEarth;
+        }
+
+        if (spec.ClassBias == PlanetClassBias.Rocky)
+        {
+            return rng.Randf() < 0.6f ? SizeCategory.Category.Terrestrial : SizeCategory.Category.SuperEarth;
+        }
+
+        if (spec.ClassBias == PlanetClassBias.WaterRich)
+        {
+            return rng.Randf() < 0.55f ? SizeCategory.Category.Terrestrial : SizeCategory.Category.NeptuneClass;
+        }
+
         SizeCategory.Category? selected = rng.WeightedChoice(PlanetSizes, SizeCategoryWeights);
         return selected ?? SizeCategory.Category.Terrestrial;
     }
@@ -146,6 +170,11 @@ public static class PlanetGenerator
         if (spec.HasOrbitZone())
         {
             return (OrbitZone.Zone)spec.OrbitZone;
+        }
+
+        if (spec.OrbitMode == PlanetOrbitMode.Rogue)
+        {
+            return OrbitZone.Zone.Cold;
         }
 
         OrbitZone.Zone? selected = rng.WeightedChoice(PlanetZones, OrbitZoneWeights);
@@ -161,7 +190,9 @@ public static class PlanetGenerator
         double semiMajorAxisM = spec.GetOverrideFloat("orbital.semi_major_axis_m", -1.0);
         if (semiMajorAxisM < 0.0)
         {
-            semiMajorAxisM = OrbitTable.RandomDistance(zone, context.StellarLuminosityWatts, rng);
+            semiMajorAxisM = spec.OrbitMode == PlanetOrbitMode.Rogue
+                ? rng.RandfRange(300.0f, 1500.0f) * Units.AuMeters
+                : OrbitTable.RandomDistance(zone, context.StellarLuminosityWatts, rng);
         }
 
         double eccentricity = spec.GetOverrideFloat("orbital.eccentricity", -1.0);
@@ -204,6 +235,108 @@ public static class PlanetGenerator
         }
 
         return SizeCategory.IsGaseous(sizeCategory);
+    }
+
+    private static void DetermineResolvedPlanetProfile(
+        PlanetSpec spec,
+        ParentContext context,
+        SeededRng rng,
+        out SizeCategory.Category sizeCategory,
+        out OrbitZone.Zone zone)
+    {
+        ApplyDirectPlanetOverrides(spec);
+        zone = DetermineOrbitZone(spec, rng);
+        sizeCategory = DetermineSizeCategory(spec, rng);
+
+        spec.FormationTrace["resolved_zone"] = zone.ToString();
+        spec.FormationTrace["resolved_size_category"] = sizeCategory.ToString();
+        spec.FormationTrace["orbit_mode"] = spec.OrbitMode.ToString();
+        spec.FormationTrace["class_bias"] = spec.ClassBias.ToString();
+        spec.FormationTrace["composition_bias"] = spec.CompositionBias.ToString();
+        spec.FormationTrace["envelope_override"] = spec.EnvelopeOverride.ToString();
+        spec.FormationTrace["volatile_richness"] = spec.VolatileRichness.ToString();
+        spec.FormationTrace["hydrosphere_tendency"] = spec.HydrosphereTendency.ToString();
+        spec.FormationTrace["context_luminosity_solar"] = context.StellarLuminosityWatts / StellarProps.SolarLuminosityWatts;
+    }
+
+    private static void ApplyDirectPlanetOverrides(PlanetSpec spec)
+    {
+        if (spec.CompositionBias == PlanetCompositionBias.IcyWaterRich)
+        {
+            if (!spec.HasOverride("surface.hydrosphere.ice_coverage"))
+            {
+                spec.SetOverride("surface.hydrosphere.ice_coverage", 0.55);
+            }
+
+            if (!spec.HasOverride("surface.hydrosphere.ocean_coverage"))
+            {
+                spec.SetOverride("surface.hydrosphere.ocean_coverage", 0.45);
+            }
+        }
+        else if (spec.CompositionBias == PlanetCompositionBias.Rocky)
+        {
+            if (!spec.HasOverride("surface.hydrosphere.ocean_coverage"))
+            {
+                spec.SetOverride("surface.hydrosphere.ocean_coverage", 0.15);
+            }
+        }
+        else if (spec.CompositionBias == PlanetCompositionBias.GasEnvelope)
+        {
+            spec.HasAtmosphere = true;
+        }
+
+        if (spec.EnvelopeOverride == PlanetEnvelopeOverride.Thin && !spec.HasOverride("atmosphere.surface_pressure_pa"))
+        {
+            spec.SetOverride("atmosphere.surface_pressure_pa", 40000.0);
+        }
+        else if (spec.EnvelopeOverride == PlanetEnvelopeOverride.Retained && !spec.HasOverride("atmosphere.surface_pressure_pa"))
+        {
+            spec.SetOverride("atmosphere.surface_pressure_pa", 350000.0);
+            spec.HasAtmosphere = true;
+        }
+        else if (spec.EnvelopeOverride == PlanetEnvelopeOverride.Stripped)
+        {
+            spec.HasAtmosphere = false;
+            spec.SetOverride("atmosphere.surface_pressure_pa", 500.0);
+        }
+
+        if (spec.VolatileRichness == PlanetVolatileRichness.Poor)
+        {
+            if (!spec.HasOverride("surface.hydrosphere.ocean_coverage"))
+            {
+                spec.SetOverride("surface.hydrosphere.ocean_coverage", 0.05);
+            }
+
+            if (!spec.HasOverride("surface.hydrosphere.ice_coverage"))
+            {
+                spec.SetOverride("surface.hydrosphere.ice_coverage", 0.05);
+            }
+        }
+        else if (spec.VolatileRichness == PlanetVolatileRichness.Rich)
+        {
+            if (!spec.HasOverride("surface.hydrosphere.ocean_coverage"))
+            {
+                spec.SetOverride("surface.hydrosphere.ocean_coverage", 0.65);
+            }
+
+            if (!spec.HasOverride("surface.hydrosphere.ice_coverage"))
+            {
+                spec.SetOverride("surface.hydrosphere.ice_coverage", 0.35);
+            }
+        }
+
+        if (spec.HydrosphereTendency == PlanetHydrosphereTendency.Dry && !spec.HasOverride("surface.hydrosphere.ocean_coverage"))
+        {
+            spec.SetOverride("surface.hydrosphere.ocean_coverage", 0.02);
+        }
+        else if (spec.HydrosphereTendency == PlanetHydrosphereTendency.Mixed && !spec.HasOverride("surface.hydrosphere.ocean_coverage"))
+        {
+            spec.SetOverride("surface.hydrosphere.ocean_coverage", 0.35);
+        }
+        else if (spec.HydrosphereTendency == PlanetHydrosphereTendency.Oceanic && !spec.HasOverride("surface.hydrosphere.ocean_coverage"))
+        {
+            spec.SetOverride("surface.hydrosphere.ocean_coverage", 0.8);
+        }
     }
 
     private static Provenance CreateProvenance(PlanetSpec spec, ParentContext context)

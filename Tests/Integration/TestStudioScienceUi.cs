@@ -3,7 +3,9 @@
 using Godot;
 using StarGen.App;
 using StarGen.App.Viewer;
+using StarGen.Domain.Galaxy;
 using StarGen.Domain.Generation;
+using StarGen.Domain.Generation.Specs;
 using StarGen.Domain.Systems;
 using StarGen.Tests.Framework;
 
@@ -31,17 +33,27 @@ public static class TestStudioScienceUi
         Window? helpDialog = screen.GetNodeOrNull<Window>("HelpDialog");
         RichTextLabel? helpText = screen.GetNodeOrNull<RichTextLabel>("HelpDialog/MarginContainer/HelpVBox/HelpCard/MarginContainer/HelpDialogText");
         Button? closeButton = screen.GetNodeOrNull<Button>("HelpDialog/MarginContainer/HelpVBox/ButtonRow/CloseButton");
+        OptionButton? gasGiantFormationOption = screen.GetNodeOrNull<OptionButton>("MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/PlanetarySection/PlanetaryContent/PlanetaryVBox/GasGiantFormationRow/GasGiantFormationOption");
+        OptionButton? moonBiasOption = screen.GetNodeOrNull<OptionButton>("MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/PlanetarySection/PlanetaryContent/PlanetaryVBox/MoonFormationBiasRow/MoonFormationBiasOption");
 
         DotNetNativeTestSuite.AssertNotNull(helpButton, "Galaxy screen should expose a Help button");
         DotNetNativeTestSuite.AssertNotNull(helpDialog, "Galaxy screen should expose a Help popup window");
         DotNetNativeTestSuite.AssertNotNull(helpText, "Galaxy Help popup should contain scrollable text");
         DotNetNativeTestSuite.AssertNotNull(closeButton, "Galaxy Help popup should expose a Close button");
+        DotNetNativeTestSuite.AssertNotNull(gasGiantFormationOption, "Galaxy studio should expose aggregate planetary gas-giant controls");
+        DotNetNativeTestSuite.AssertNotNull(moonBiasOption, "Galaxy studio should expose aggregate moon-formation controls");
 
         helpButton!.EmitSignal(Button.SignalName.Pressed);
         DotNetNativeTestSuite.AssertTrue(helpDialog!.Visible, "Help popup should open when the Help button is pressed");
 
         closeButton!.EmitSignal(Button.SignalName.Pressed);
         DotNetNativeTestSuite.AssertFalse(helpDialog.Visible, "Help popup should close when the Close button is pressed");
+
+        SelectOptionById(gasGiantFormationOption!, (int)GasGiantFormationModel.PebbleAssisted);
+        SelectOptionById(moonBiasOption!, (int)PlanetMoonFormationBias.CapturedRich);
+        GalaxyConfig config = screen.GetCurrentConfig();
+        DotNetNativeTestSuite.AssertEqual((int)GasGiantFormationModel.PebbleAssisted, (int)config.PlanetaryProfile.GasGiantFormationModel, "Galaxy studio should write the selected gas-giant model into the config");
+        DotNetNativeTestSuite.AssertEqual((int)PlanetMoonFormationBias.CapturedRich, (int)config.PlanetaryProfile.MoonFormationBias, "Galaxy studio should write the selected moon-formation bias into the config");
 
         IntegrationTestUtils.CleanupNode(screen);
     }
@@ -56,6 +68,9 @@ public static class TestStudioScienceUi
         OptionButton? imfFormOption = screen.GetNodeOrNull<OptionButton>("MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/StellarSection/StellarContent/StellarVBox/ImfFormRow/ImfFormOption");
         OptionButton? isochroneOption = screen.GetNodeOrNull<OptionButton>("MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/StellarSection/StellarContent/StellarVBox/IsochroneRow/IsochroneOption");
         HSlider? multiplicityInput = screen.GetNodeOrNull<HSlider>("MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/StellarSection/StellarContent/StellarVBox/MultiplicityRow/MultiplicityInput");
+        OptionButton? envelopeLossOption = screen.GetNodeOrNull<OptionButton>("MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/PlanetarySection/PlanetaryContent/PlanetaryVBox/EnvelopeLossRow/EnvelopeLossOption");
+        OptionButton? gasGiantFormationOption = screen.GetNodeOrNull<OptionButton>("MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/PlanetarySection/PlanetaryContent/PlanetaryVBox/GasGiantFormationRow/GasGiantFormationOption");
+        OptionButton? rogueAllowanceOption = screen.GetNodeOrNull<OptionButton>("MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/PlanetarySection/PlanetaryContent/PlanetaryVBox/RogueAllowanceRow/RogueAllowanceOption");
 
         DotNetNativeTestSuite.AssertNotNull(starCountMinInput, "System studio should expose a minimum star-count input");
         DotNetNativeTestSuite.AssertNotNull(starCountMaxInput, "System studio should expose a maximum star-count input");
@@ -64,10 +79,19 @@ public static class TestStudioScienceUi
         DotNetNativeTestSuite.AssertNotNull(imfFormOption, "System studio should expose an IMF selector");
         DotNetNativeTestSuite.AssertNotNull(isochroneOption, "System studio should expose an isochrone selector");
         DotNetNativeTestSuite.AssertNotNull(multiplicityInput, "System studio should expose a multiplicity slider");
+        DotNetNativeTestSuite.AssertNotNull(envelopeLossOption, "System studio should expose aggregate planetary envelope-loss controls");
+        DotNetNativeTestSuite.AssertNotNull(gasGiantFormationOption, "System studio should expose aggregate gas-giant formation controls");
+        DotNetNativeTestSuite.AssertNotNull(rogueAllowanceOption, "System studio should expose aggregate rogue-planet controls");
 
         starCountMaxInput.Value = 10.0;
+        SelectOptionById(envelopeLossOption!, (int)PlanetEnvelopeLossModel.CorePowered);
+        SelectOptionById(gasGiantFormationOption!, (int)GasGiantFormationModel.PebbleAssisted);
+        SelectOptionById(rogueAllowanceOption!, (int)PlanetRoguePlanetAllowance.Standard);
         SolarSystemSpec spec = screen.GetCurrentSpec();
         DotNetNativeTestSuite.AssertEqual(10, spec.StarCountMax, "System studio should build specs that allow up to 10 stars");
+        DotNetNativeTestSuite.AssertEqual((int)PlanetEnvelopeLossModel.CorePowered, (int)spec.PlanetaryProfile.EnvelopeLossModel, "System studio should write the selected envelope-loss model into the system spec");
+        DotNetNativeTestSuite.AssertEqual((int)GasGiantFormationModel.PebbleAssisted, (int)spec.PlanetaryProfile.GasGiantFormationModel, "System studio should write the selected gas-giant model into the system spec");
+        DotNetNativeTestSuite.AssertEqual((int)PlanetRoguePlanetAllowance.Standard, (int)spec.PlanetaryProfile.RoguePlanetAllowance, "System studio should write the selected rogue allowance into the system spec");
 
         IntegrationTestUtils.CleanupNode(screen);
     }
@@ -91,6 +115,14 @@ public static class TestStudioScienceUi
         HBoxContainer? moonTargetCountRow = screen.GetNodeOrNull<HBoxContainer>("MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/PlanetSection/MoonTargetCountRow");
         HBoxContainer? moonCapturedRow = screen.GetNodeOrNull<HBoxContainer>("MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/PlanetSection/MoonCapturedRow");
         OptionButton? moonTargetCountOption = screen.GetNodeOrNull<OptionButton>("MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/PlanetSection/MoonTargetCountRow/MoonTargetCountOption");
+        HBoxContainer? planetOrbitModeRow = screen.GetNodeOrNull<HBoxContainer>("MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/PlanetSection/PlanetOrbitModeRow");
+        HBoxContainer? planetClassBiasRow = screen.GetNodeOrNull<HBoxContainer>("MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/PlanetSection/PlanetClassBiasRow");
+        HBoxContainer? planetCompositionBiasRow = screen.GetNodeOrNull<HBoxContainer>("MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/PlanetSection/PlanetCompositionBiasRow");
+        HBoxContainer? planetEnvelopeOverrideRow = screen.GetNodeOrNull<HBoxContainer>("MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/PlanetSection/PlanetEnvelopeOverrideRow");
+        HBoxContainer? planetVolatileRichnessRow = screen.GetNodeOrNull<HBoxContainer>("MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/PlanetSection/PlanetVolatileRichnessRow");
+        HBoxContainer? planetHydrosphereTendencyRow = screen.GetNodeOrNull<HBoxContainer>("MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/PlanetSection/PlanetHydrosphereTendencyRow");
+        OptionButton? planetOrbitModeOption = screen.GetNodeOrNull<OptionButton>("MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/PlanetSection/PlanetOrbitModeRow/PlanetOrbitModeOption");
+        VBoxContainer? strayAggregatePlanetarySection = screen.GetNodeOrNull<VBoxContainer>("MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/PlanetarySection");
         OptionButton? starSubclassOption = screen.GetNodeOrNull<OptionButton>("MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/StarSection/StarSubclassRow/StarSubclassOption");
         HBoxContainer? starMetallicityRow = screen.GetNodeOrNull<HBoxContainer>("MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/StarSection/StarMetallicityRow");
         HBoxContainer? starAgeRow = screen.GetNodeOrNull<HBoxContainer>("MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/StarSection/StarAgeGyrRow");
@@ -113,6 +145,14 @@ public static class TestStudioScienceUi
         DotNetNativeTestSuite.AssertNotNull(moonTargetCountRow, "Planet controls should include a moon target-count row");
         DotNetNativeTestSuite.AssertNotNull(moonCapturedRow, "Planet controls should include a captured moon row");
         DotNetNativeTestSuite.AssertNotNull(moonTargetCountOption, "Planet controls should expose a moon target-count selector");
+        DotNetNativeTestSuite.AssertNotNull(planetOrbitModeRow, "Object studio should expose a direct orbit-mode row for planets");
+        DotNetNativeTestSuite.AssertNotNull(planetClassBiasRow, "Object studio should expose a direct class-bias row for planets");
+        DotNetNativeTestSuite.AssertNotNull(planetCompositionBiasRow, "Object studio should expose a direct composition-bias row for planets");
+        DotNetNativeTestSuite.AssertNotNull(planetEnvelopeOverrideRow, "Object studio should expose a direct envelope row for planets");
+        DotNetNativeTestSuite.AssertNotNull(planetVolatileRichnessRow, "Object studio should expose a direct volatile-richness row for planets");
+        DotNetNativeTestSuite.AssertNotNull(planetHydrosphereTendencyRow, "Object studio should expose a direct hydrosphere row for planets");
+        DotNetNativeTestSuite.AssertNotNull(planetOrbitModeOption, "Object studio should expose a direct orbit-mode selector for planets");
+        DotNetNativeTestSuite.AssertNull(strayAggregatePlanetarySection, "Object studio should not expose aggregate planetary formation controls");
         DotNetNativeTestSuite.AssertNotNull(starSubclassOption, "Star controls should expose a subclass selector");
         DotNetNativeTestSuite.AssertNull(starMetallicityRow, "Object studio should not expose star metallicity editing");
         DotNetNativeTestSuite.AssertNull(starAgeRow, "Object studio should not expose star age editing");
@@ -132,6 +172,18 @@ public static class TestStudioScienceUi
         DotNetNativeTestSuite.AssertTrue(OptionContainsText(typeOption, "Comet"), "Comet should appear as a top-level object type");
         DotNetNativeTestSuite.AssertFalse(moonTargetCountRow!.Visible, "Moon target-count row should stay hidden until moon generation is enabled");
         DotNetNativeTestSuite.AssertFalse(moonCapturedRow!.Visible, "Captured moon row should stay hidden until moon generation is enabled");
+        DotNetNativeTestSuite.AssertTrue(planetOrbitModeRow!.Visible, "Direct planet orbit-mode controls should be visible for planets");
+        DotNetNativeTestSuite.AssertTrue(planetClassBiasRow!.Visible, "Direct class-bias controls should be visible for planets");
+        DotNetNativeTestSuite.AssertTrue(planetCompositionBiasRow!.Visible, "Direct composition-bias controls should be visible for planets");
+        DotNetNativeTestSuite.AssertTrue(planetEnvelopeOverrideRow!.Visible, "Direct envelope controls should be visible for planets");
+        DotNetNativeTestSuite.AssertTrue(planetVolatileRichnessRow!.Visible, "Direct volatile-richness controls should be visible for planets");
+        DotNetNativeTestSuite.AssertTrue(planetHydrosphereTendencyRow!.Visible, "Direct hydrosphere controls should be visible for planets");
+
+        SelectOptionById(planetOrbitModeOption!, (int)PlanetOrbitMode.Rogue);
+        HBoxContainer? planetOrbitZoneRow = screen.GetNodeOrNull<HBoxContainer>("MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/PlanetSection/PlanetOrbitZoneRow");
+        DotNetNativeTestSuite.AssertNotNull(planetOrbitZoneRow, "Object studio should still define an orbit-zone row");
+        DotNetNativeTestSuite.AssertFalse(planetOrbitZoneRow!.Visible, "Orbit-zone controls should hide for rogue planets because they no longer orbit a star");
+        SelectOptionById(planetOrbitModeOption, (int)PlanetOrbitMode.Bound);
 
         planetGenerateMoonCheck!.ButtonPressed = true;
         planetGenerateMoonCheck.EmitSignal(CheckBox.SignalName.Toggled, true);

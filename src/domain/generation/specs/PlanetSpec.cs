@@ -8,6 +8,73 @@ using SizeCategoryArchetype = StarGen.Domain.Generation.Archetypes.SizeCategory;
 namespace StarGen.Domain.Generation.Specs;
 
 /// <summary>
+/// Orbit-mode intent for a directly generated planet.
+/// </summary>
+public enum PlanetOrbitMode
+{
+    Auto = 0,
+    Bound = 1,
+    Rogue = 2,
+}
+
+/// <summary>
+/// Direct composition bias for a single planet.
+/// </summary>
+public enum PlanetCompositionBias
+{
+    Auto = 0,
+    Rocky = 1,
+    IcyWaterRich = 2,
+    GasEnvelope = 3,
+}
+
+/// <summary>
+/// Direct atmosphere or envelope override for a single planet.
+/// </summary>
+public enum PlanetEnvelopeOverride
+{
+    Auto = 0,
+    Thin = 1,
+    Retained = 2,
+    Stripped = 3,
+}
+
+/// <summary>
+/// Direct volatile-richness tendency for a single planet.
+/// </summary>
+public enum PlanetVolatileRichness
+{
+    Auto = 0,
+    Poor = 1,
+    Moderate = 2,
+    Rich = 3,
+}
+
+/// <summary>
+/// Direct hydrosphere tendency for a single planet.
+/// </summary>
+public enum PlanetHydrosphereTendency
+{
+    Auto = 0,
+    Dry = 1,
+    Mixed = 2,
+    Oceanic = 3,
+}
+
+/// <summary>
+/// Direct class bias for a single planet.
+/// </summary>
+public enum PlanetClassBias
+{
+    Auto = 0,
+    Rocky = 1,
+    WaterRich = 2,
+    SubNeptune = 3,
+    GasGiant = 4,
+    StrippedCore = 5,
+}
+
+/// <summary>
 /// Specification for planet generation.
 /// </summary>
 public partial class PlanetSpec : BaseSpec
@@ -36,6 +103,56 @@ public partial class PlanetSpec : BaseSpec
     /// Ring complexity, or -1 for random.
     /// </summary>
     public int RingComplexity { get; set; }
+
+    /// <summary>
+    /// Whether the planet should stay bound to a star or behave like a rogue world.
+    /// </summary>
+    public PlanetOrbitMode OrbitMode { get; set; } = PlanetOrbitMode.Auto;
+
+    /// <summary>
+    /// Direct bias for what the planet is mostly made of.
+    /// </summary>
+    public PlanetCompositionBias CompositionBias { get; set; } = PlanetCompositionBias.Auto;
+
+    /// <summary>
+    /// Direct override for how much atmosphere or envelope the planet keeps.
+    /// </summary>
+    public PlanetEnvelopeOverride EnvelopeOverride { get; set; } = PlanetEnvelopeOverride.Auto;
+
+    /// <summary>
+    /// Direct volatile-richness tendency.
+    /// </summary>
+    public PlanetVolatileRichness VolatileRichness { get; set; } = PlanetVolatileRichness.Auto;
+
+    /// <summary>
+    /// Direct hydrosphere tendency.
+    /// </summary>
+    public PlanetHydrosphereTendency HydrosphereTendency { get; set; } = PlanetHydrosphereTendency.Auto;
+
+    /// <summary>
+    /// Direct broad class bias.
+    /// </summary>
+    public PlanetClassBias ClassBias { get; set; } = PlanetClassBias.Auto;
+
+    /// <summary>
+    /// Whether moon generation should be attempted for this single planet.
+    /// </summary>
+    public bool GenerateMoonBundle { get; set; }
+
+    /// <summary>
+    /// Requested target moon count for object-level generation.
+    /// </summary>
+    public int TargetMoonCount { get; set; }
+
+    /// <summary>
+    /// Whether captured moons should be favored for object-level generation.
+    /// </summary>
+    public bool PreferCapturedMoons { get; set; }
+
+    /// <summary>
+    /// Derived formation trace used for provenance and later inspection.
+    /// </summary>
+    public Dictionary FormationTrace { get; set; } = new();
 
     /// <summary>
     /// Creates a new planet specification.
@@ -226,6 +343,16 @@ public partial class PlanetSpec : BaseSpec
         data["has_atmosphere"] = HasAtmosphere;
         data["has_rings"] = HasRings;
         data["ring_complexity"] = RingComplexity;
+        data["orbit_mode"] = (int)OrbitMode;
+        data["composition_bias"] = (int)CompositionBias;
+        data["envelope_override"] = (int)EnvelopeOverride;
+        data["volatile_richness"] = (int)VolatileRichness;
+        data["hydrosphere_tendency"] = (int)HydrosphereTendency;
+        data["class_bias"] = (int)ClassBias;
+        data["generate_moon_bundle"] = GenerateMoonBundle;
+        data["target_moon_count"] = TargetMoonCount;
+        data["prefer_captured_moons"] = PreferCapturedMoons;
+        data["formation_trace"] = FormationTrace.Duplicate(true);
         return data;
     }
 
@@ -292,7 +419,50 @@ public partial class PlanetSpec : BaseSpec
 
         PlanetSpec spec = new PlanetSpec(generationSeed, sizeCategory, orbitZone, GetVariant(data, "has_atmosphere"), GetVariant(data, "has_rings"), ringComplexity, nameHint, overrides);
         spec.ApplyBaseFromDictionary(data);
+        spec.OrbitMode = ReadEnum(data, "orbit_mode", PlanetOrbitMode.Auto);
+        spec.CompositionBias = ReadEnum(data, "composition_bias", PlanetCompositionBias.Auto);
+        spec.EnvelopeOverride = ReadEnum(data, "envelope_override", PlanetEnvelopeOverride.Auto);
+        spec.VolatileRichness = ReadEnum(data, "volatile_richness", PlanetVolatileRichness.Auto);
+        spec.HydrosphereTendency = ReadEnum(data, "hydrosphere_tendency", PlanetHydrosphereTendency.Auto);
+        spec.ClassBias = ReadEnum(data, "class_bias", PlanetClassBias.Auto);
+        if (data.ContainsKey("generate_moon_bundle"))
+        {
+            spec.GenerateMoonBundle = (bool)data["generate_moon_bundle"];
+        }
+
+        if (data.ContainsKey("target_moon_count"))
+        {
+            spec.TargetMoonCount = (int)data["target_moon_count"];
+        }
+
+        if (data.ContainsKey("prefer_captured_moons"))
+        {
+            spec.PreferCapturedMoons = (bool)data["prefer_captured_moons"];
+        }
+
+        if (data.ContainsKey("formation_trace") && data["formation_trace"].VariantType == Variant.Type.Dictionary)
+        {
+            spec.FormationTrace = ((Dictionary)data["formation_trace"]).Duplicate(true);
+        }
+
         return spec;
+    }
+
+    private static TEnum ReadEnum<TEnum>(Dictionary data, string key, TEnum fallback)
+        where TEnum : struct, System.Enum
+    {
+        if (!data.ContainsKey(key))
+        {
+            return fallback;
+        }
+
+        int value = (int)data[key];
+        if (System.Enum.IsDefined(typeof(TEnum), value))
+        {
+            return (TEnum)System.Enum.ToObject(typeof(TEnum), value);
+        }
+
+        return fallback;
     }
 
     private static Variant GetVariant(Dictionary data, string key)

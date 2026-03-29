@@ -140,6 +140,11 @@ public partial class GalaxyConfig : RefCounted
     public StellarGenerationProfile StellarProfile { get; set; } = StellarGenerationProfile.CreateDefault();
 
     /// <summary>
+    /// Shared aggregate planetary-generation profile used for downstream system generation.
+    /// </summary>
+    public PlanetaryGenerationProfile PlanetaryProfile { get; set; } = PlanetaryGenerationProfile.CreateDefault();
+
+    /// <summary>
     /// Creates a default configuration.
     /// </summary>
     public static GalaxyConfig CreateDefault()
@@ -177,6 +182,7 @@ public partial class GalaxyConfig : RefCounted
             Ellipticity = 0.3,
             IrregularityScale = 0.5,
             StellarProfile = StellarGenerationProfile.CreateDefault(),
+            PlanetaryProfile = PlanetaryGenerationProfile.CreateDefault(),
         };
     }
 
@@ -309,6 +315,11 @@ public partial class GalaxyConfig : RefCounted
             return false;
         }
 
+        if (PlanetaryProfile == null || !PlanetaryProfile.IsValid())
+        {
+            return false;
+        }
+
         return true;
     }
 
@@ -343,6 +354,7 @@ public partial class GalaxyConfig : RefCounted
             ["irregularity_scale"] = IrregularityScale,
             ["use_case_settings"] = UseCaseSettings.ToDictionary(),
             ["stellar_profile"] = StellarProfile.ToDictionary(),
+            ["planetary_profile"] = PlanetaryProfile.ToDictionary(),
         };
     }
 
@@ -392,6 +404,15 @@ public partial class GalaxyConfig : RefCounted
             config.StellarProfile = StellarGenerationProfile.CreateDefault();
         }
 
+        if (data.ContainsKey("planetary_profile") && data["planetary_profile"].VariantType == Variant.Type.Dictionary)
+        {
+            config.PlanetaryProfile = PlanetaryGenerationProfile.FromDictionary((Dictionary)data["planetary_profile"]);
+        }
+        else
+        {
+            config.PlanetaryProfile = PlanetaryGenerationProfile.CreateDefault();
+        }
+
         int typeValue = DomainDictionaryUtils.GetInt(data, "galaxy_type", (int)GalaxySpec.GalaxyType.Spiral);
         if (System.Enum.IsDefined(typeof(GalaxySpec.GalaxyType), typeValue))
         {
@@ -423,6 +444,11 @@ public partial class GalaxyConfig : RefCounted
         if (!config.StellarProfile.IsValid())
         {
             config.StellarProfile = StellarGenerationProfile.CreateDefault();
+        }
+
+        if (!config.PlanetaryProfile.IsValid())
+        {
+            config.PlanetaryProfile = PlanetaryGenerationProfile.CreateDefault();
         }
 
         return config;

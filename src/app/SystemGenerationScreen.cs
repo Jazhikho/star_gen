@@ -63,6 +63,7 @@ public partial class SystemGenerationScreen : Control
 		ApplyVersionLabel();
 		ApplyDefaults();
 		ApplyStellarParameterTooltips();
+		ApplyPlanetaryParameterTooltips();
 		InitializeScienceHelpUi();
 		ApplySeedVisibilityPreference(rerollHiddenSeed: true);
 		RefreshSummary();
@@ -148,6 +149,7 @@ public partial class SystemGenerationScreen : Control
 
 		spec.UseCaseSettings = BuildUseCaseSettingsFromControls();
 		spec.StellarProfile = BuildStellarProfileFromControls();
+		spec.PlanetaryProfile = BuildPlanetaryProfileFromControls();
 		return spec;
 	}
 
@@ -185,6 +187,7 @@ public partial class SystemGenerationScreen : Control
 		_populationPermissivenessValueLabel = GetNodeOrNull<Label>($"{Root}/StudioRow/RulesPanel/MarginContainer/RulesVBox/ScrollContainer/RulesContent/PopulationPermissivenessRow/PopulationPermissivenessValue");
 		_mainworldPolicyOption = GetNodeOrNull<OptionButton>($"{Root}/StudioRow/RulesPanel/MarginContainer/RulesVBox/ScrollContainer/RulesContent/MainworldPolicyRow/MainworldPolicyOption");
 		CacheStellarNodeReferences();
+		CachePlanetaryNodeReferences();
 		CacheScienceHelpNodeReferences();
 	}
 
@@ -210,6 +213,7 @@ public partial class SystemGenerationScreen : Control
 		if (_mainworldPolicyOption != null) _mainworldPolicyOption.ItemSelected += _ => RefreshSummary();
 		if (_rulesetModeOption != null) _rulesetModeOption.ItemSelected += OnRulesetModeSelected;
 		ConnectStellarSignals();
+		ConnectPlanetarySignals();
 		ConnectScienceHelpSignals();
 	}
 
@@ -226,6 +230,7 @@ public partial class SystemGenerationScreen : Control
 	{
 		UpdatePermissivenessValueLabels();
 		ApplyStellarDefaults();
+		ApplyPlanetaryDefaults();
 	}
 
 	private void OnStartPressed()
@@ -286,6 +291,7 @@ public partial class SystemGenerationScreen : Control
 			lines.Add($"Stars {spec.StarCountMin}-{spec.StarCountMax}");
 			lines.Add($"Spectral {hintsText}");
 			lines.Add(BuildStellarProfileSummary(BuildStellarProfileFromControls()));
+			lines.Add(BuildPlanetaryProfileSummary(BuildPlanetaryProfileFromControls()));
 			lines.Add($"Belts {(spec.IncludeAsteroidBelts ? "On" : "Off")}");
 			lines.Add($"Population {(spec.GeneratePopulation ? "On" : "Off")}");
 			lines.Add($"Ruleset {GenerationUseCasePresentation.GetRulesetLabel(spec.UseCaseSettings.RulesetMode)}");
@@ -474,26 +480,26 @@ public partial class SystemGenerationScreen : Control
 		return string.Empty;
 	}
 
-    private static Array<int> ParseSpectralHints(string text)
-    {
-        Array<int> result = new();
-        if (string.IsNullOrWhiteSpace(text))
-        {
+	private static Array<int> ParseSpectralHints(string text)
+	{
+		Array<int> result = new();
+		if (string.IsNullOrWhiteSpace(text))
+		{
 			return result;
 		}
 
-        string[] parts = text.Split(',', System.StringSplitOptions.RemoveEmptyEntries | System.StringSplitOptions.TrimEntries);
-        foreach (string rawPart in parts)
-        {
-            string part = rawPart.ToUpperInvariant();
-            if (StarClass.TryParseLetter(part, out StarClass.SpectralClass spectralClass))
-            {
-                result.Add((int)spectralClass);
-            }
-        }
+		string[] parts = text.Split(',', System.StringSplitOptions.RemoveEmptyEntries | System.StringSplitOptions.TrimEntries);
+		foreach (string rawPart in parts)
+		{
+			string part = rawPart.ToUpperInvariant();
+			if (StarClass.TryParseLetter(part, out StarClass.SpectralClass spectralClass))
+			{
+				result.Add((int)spectralClass);
+			}
+		}
 
-        return result;
-    }
+		return result;
+	}
 
 	private static string FormatSpectralHints(Array<int> hints)
 	{

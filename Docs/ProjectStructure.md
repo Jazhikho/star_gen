@@ -87,6 +87,14 @@ star_gen/
 
 ## Recent Major Additions
 
+- `src/domain/generation/PlanetaryGenerationProfile.cs`: shared serializable aggregate planetary-formation profile used by galaxy and system generation to carry mass-radius, envelope-loss, gas-giant, metallicity-coupling, rogue-planet, moon-bias, and outer-system-bias assumptions.
+- `src/domain/generation/PlanetarySystemState.cs`: derived per-system planetary state built once from stellar context plus the shared planetary profile so downstream planet generation can react to snow-line, solid/gas budget, escape-pressure, and migration/stirring surrogates.
+- `src/domain/generation/parameters/PlanetaryScienceReferenceCatalog.cs`: source registry and plain-language help/tooltips for the aggregate planetary controls shared by Galaxy Studio and System Studio.
+- `src/app/SystemGenerationScreen.Planetary.cs`: system-studio partial controller for aggregate planetary controls, summaries, and profile serialization.
+- `src/domain/generation/specs/PlanetSpec.cs`: expanded with direct single-planet controls such as orbit mode, class bias, composition bias, envelope override, volatile richness, hydrosphere tendency, moon-bundle settings, and formation trace metadata.
+- `src/domain/system/SystemPlanetGenerator.cs`: retrofit layer that consumes the shared upstream planetary profile without replacing the existing system planet-generation entrypoint.
+- `Tests/Unit/TestPlanetaryGenerationProfile.cs`: deterministic serialization, propagation, and planetary-help metadata coverage for the shared planetary retrofit.
+- `Sources/Texts/planets.md`: implementation-oriented deterministic planet-formation specification used as the design target for the upstream planetary retrofit.
 - `src/domain/generation/specs/CometSpec.cs`: serializable comet-generation spec carrying family, activity-state, and large-nucleus controls for object and viewer generation.
 - `src/domain/generation/generators/CometGenerator.cs`: deterministic comet generator that produces Jupiter-family and long-period comet bodies with comet-specific defaults and metadata.
 - `src/app/ObjectGenerationScreen.tscn`: Object Studio scene now behaves as a context-sensitive single-object editor, with moon generation folded under planets, richer asteroid and planet controls, and a dedicated comet section.

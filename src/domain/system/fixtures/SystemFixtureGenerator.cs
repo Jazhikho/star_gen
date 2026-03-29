@@ -83,7 +83,8 @@ public static class SystemFixtureGenerator
             stars,
             rng,
             generatePopulation,
-            spec.UseCaseSettings);
+            spec.UseCaseSettings,
+            spec);
         foreach (CelestialBody planet in planetResult.Planets)
         {
             system.AddBody(planet);

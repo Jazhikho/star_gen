@@ -161,6 +161,11 @@ public static class GalaxyGenerationParameterValidator
             issues.AddWarning("bar_mode", "Bar mode only affects disk galaxies; this choice is ignored for the current family.");
         }
 
+        if (!config.PlanetaryProfile.IsValid())
+        {
+            issues.AddError("planetary_profile", "The shared planetary-model settings must stay within the supported ranges.");
+        }
+
         if (config.StarFormationEfficiency > 0.35)
         {
             issues.AddWarning("star_formation_efficiency", "High star-formation efficiency is allowed, but it shifts the generator toward unusually active star-forming regions.");

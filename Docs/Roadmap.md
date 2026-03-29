@@ -52,15 +52,23 @@ Release notes and version summaries are in the [README](../README.md#version-his
 - Keep realism consistency across galaxy, stellar, planetary, and life-distribution outputs rather than applying realism to isolated tiers only.
 - Any realism-related changes require documentation updates and human verification against reviewed sources before acceptance.
 
-### Active effort: Planetary and minor-body taxonomy expansion (`0.8.5.0`)
+### Active effort: Planetary retrofit and upstream formation models (`0.8.6.0`)
 
-- Expand Object Studio so it behaves as a true single-object authoring surface, showing only the controls that match the currently selected object type instead of exposing unrelated presets and parameters all at once.
-- Remove standalone moon generation from the Object Studio top-level picker and move moon generation under planets, with context-sensitive moon controls that only appear when moon generation is enabled.
-- Add comet generation as a real celestial-body path, including generation, rendering, save/load metadata, viewer display, and Object Studio controls.
-- Broaden asteroid authoring beyond type-only selection by exposing practical orbit-band, density, and albedo shaping controls that materially change the generated result.
-- Expand planet object controls toward a richer profile-driven surface so users can shape outcomes such as atmosphere, ocean/ice coverage, albedo, volcanism, and moon generation more directly.
-- Keep upstream Galaxy Studio and System Studio planetary-model exposure as follow-on work within this effort, so shared research-backed planet assumptions eventually shape higher-level generation too.
-- Add deterministic and non-visual integration coverage proving the Object Studio context gating, comet support, expanded asteroid tuning, and planet moon controls behave correctly.
+- Retrofit the existing planet-generation spine instead of replacing it, keeping `GalaxyConfig -> SolarSystemSpec -> SystemPlanetGenerator -> PlanetSpec -> PlanetGenerator` intact while threading a shared aggregate planetary-formation profile through the upstream tiers.
+- Keep aggregate planetary-formation assumptions at Galaxy Studio and System Studio only, exposing model choices such as mass-radius handling, envelope loss, gas-giant formation, metallicity coupling, rogue-planet allowance, moon-formation bias, and outer-system small-body bias with plain-language help.
+- Keep Object Studio limited to direct single-planet controls, including orbit mode, class bias, composition bias, envelope override, volatile richness, hydrosphere tendency, and moon-bundle settings, without surfacing disk- or system-level formation knobs there.
+- Derive a deterministic `PlanetarySystemState` once per system so orbit-slot weighting and broad class preconditions can respond to snow-line position, solid/gas budget surrogates, escape pressure, metallicity enrichment, migration strength, and impact stirring without rewriting the generator into a simulation.
+- Store enough formation trace and provenance on generated planets to explain why a world became rocky, water-rich, sub-Neptune-like, gas-giant-like, or stripped-core-like, while preserving current save/load compatibility through additive fields and defaults.
+- Keep this pass grounded in `Sources/Texts/planets.md` as a deterministic implementation spec, not a mandate to mirror every latent variable or rewrite the whole planetary stack into a full formation simulator.
+
+### Recently completed effort: Planetary and minor-body taxonomy expansion (`0.8.5.0`)
+
+- Expanded Object Studio so it behaves as a true single-object authoring surface, showing only the controls that match the currently selected object type instead of exposing unrelated presets and parameters all at once.
+- Removed standalone moon generation from the Object Studio top-level picker and moved moon generation under planets, with context-sensitive moon controls that only appear when moon generation is enabled.
+- Added comet generation as a real celestial-body path, including generation, rendering, save/load metadata, viewer display, and Object Studio controls.
+- Broadened asteroid authoring beyond type-only selection by exposing practical orbit-band, density, and albedo shaping controls that materially change the generated result.
+- Expanded planet object controls toward a richer profile-driven surface so users can shape outcomes such as atmosphere, ocean/ice coverage, albedo, volcanism, and moon generation more directly.
+- Added deterministic and non-visual integration coverage proving the Object Studio context gating, comet support, expanded asteroid tuning, and planet moon controls behave correctly.
 
 ### Recently completed effort: Stellar population expansion (`0.8.4.0`)
 

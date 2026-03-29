@@ -80,6 +80,16 @@ public static class SystemGenerationParameterValidator
             issues.AddError("stellar_profile", "The stellar-model settings must stay within the supported ranges.");
         }
 
+        if (!spec.PlanetaryProfile.IsValid())
+        {
+            issues.AddError("planetary_profile", "The planetary-model settings must stay within the supported ranges.");
+        }
+
+        if (spec.PlanetaryProfile.RoguePlanetAllowance == PlanetRoguePlanetAllowance.Standard && spec.StarCountMax >= 5)
+        {
+            issues.AddWarning("planet_rogue_planet_allowance", "Strong ejection pressure plus many stars is allowed, but it tends to reduce orderly bound-planet layouts.");
+        }
+
         if (spec.GeneratePopulation && spec.StarCountMax >= 5)
         {
             issues.AddWarning("generate_population", "Population generation on very high-multiplicity systems is supported, but habitability outcomes become less intuitive.");

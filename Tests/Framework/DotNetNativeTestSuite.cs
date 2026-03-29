@@ -802,6 +802,21 @@ public static partial class DotNetNativeTestSuite
             "TestStellarGenerationProfile::test_help_copy_uses_plain_language",
             Tests.Unit.TestStellarGenerationProfile.TestHelpCopyUsesPlainLanguage);
         runner.RunNativeTest(
+            "TestPlanetaryGenerationProfile::test_round_trip",
+            Tests.Unit.TestPlanetaryGenerationProfile.TestRoundTrip);
+        runner.RunNativeTest(
+            "TestPlanetaryGenerationProfile::test_derived_state_round_trip",
+            Tests.Unit.TestPlanetaryGenerationProfile.TestDerivedStateRoundTrip);
+        runner.RunNativeTest(
+            "TestPlanetaryGenerationProfile::test_profile_propagates_through_galaxy_and_system_specs",
+            Tests.Unit.TestPlanetaryGenerationProfile.TestProfilePropagatesThroughGalaxyAndSystemSpecs);
+        runner.RunNativeTest(
+            "TestPlanetaryGenerationProfile::test_reference_catalog_covers_exposed_parameters",
+            Tests.Unit.TestPlanetaryGenerationProfile.TestReferenceCatalogCoversExposedParameters);
+        runner.RunNativeTest(
+            "TestPlanetaryGenerationProfile::test_help_copy_uses_plain_language",
+            Tests.Unit.TestPlanetaryGenerationProfile.TestHelpCopyUsesPlainLanguage);
+        runner.RunNativeTest(
             "TestGalaxyStar::test_derived_stars_receive_galaxy_origin_context",
             Tests.Unit.TestGalaxyStar.TestDerivedStarsReceiveGalaxyOriginContext);
         runner.RunNativeTest(
@@ -2343,6 +2358,12 @@ public static partial class DotNetNativeTestSuite
         runner.RunNativeTest(
             "TestSystemPlanetGenerator::test_planets_pass_validation",
             Tests.Unit.TestSystemPlanetGenerator.TestPlanetsPassValidation);
+        runner.RunNativeTest(
+            "TestSystemPlanetGenerator::test_aggregate_planetary_profile_changes_outcomes",
+            Tests.Unit.TestSystemPlanetGenerator.TestAggregatePlanetaryProfileChangesOutcomes);
+        runner.RunNativeTest(
+            "TestSystemPlanetGenerator::test_direct_planet_rogue_mode_clears_orbit",
+            Tests.Unit.TestSystemPlanetGenerator.TestDirectPlanetRogueModeClearsOrbit);
         runner.RunNativeTest(
             "TestSystemPlanetDistributions::test_hot_jupiter_fraction_rare",
             Tests.Unit.TestSystemPlanetDistributions.TestHotJupiterFractionRare);

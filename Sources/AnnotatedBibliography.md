@@ -57,6 +57,16 @@ Chambers, J. E., Wetherill, G. W., & Boss, A. P. (1996). The stability of multi-
 
 ---
 
+## Planetary retrofit and deterministic formation surrogates
+
+**Current use in StarGen:** `Sources/Texts/planets.md`, `src/domain/generation/PlanetaryGenerationProfile.cs`, `src/domain/generation/PlanetarySystemState.cs`, `src/domain/system/SystemPlanetGenerator.cs`, `src/domain/generation/generators/PlanetGenerator.cs`, `src/app/GalaxyGenerationScreen.Science.cs`, `src/app/SystemGenerationScreen.Planetary.cs`.
+
+| Citation | Summary | Used in |
+|----------|----------|---------|
+| *StarGen deterministic planet formation specification* (2026). [Texts/planets.md](Texts/planets.md). | Internal implementation-facing design specification translating the planetary research review into a deterministic pipeline for StarGen. Defines the recommended stage order, the shared system-level latent variables, provenance expectations, and the distinction between aggregate upstream formation controls and direct single-planet controls. **Supports:** the `0.8.6.0` retrofit that adds a shared aggregate planetary profile and derived planetary-system state without rewriting the existing generator stack. | PlanetaryGenerationProfile.cs; PlanetarySystemState.cs; SystemPlanetGenerator.cs; PlanetGenerator.cs; Galaxy/System studio planetary controls |
+
+---
+
 ## Exoplanet demographics (hot Jupiters, giant planets)
 
 **Current use in StarGen:** [Tests/ScientificBenchmarks.gd](../Tests/ScientificBenchmarks.gd) — hot Jupiter fraction &lt;5%. [Roadmap](../Docs/Roadmap.md): inner vs outer large-planet fractions. [Tests/Unit/TestSystemPlanetDistributions.gd](../Tests/Unit/TestSystemPlanetDistributions.gd): close-in gas giants rare.
@@ -92,6 +102,7 @@ Chambers, J. E., Wetherill, G. W., & Boss, A. P. (1996). The stability of multi-
 
 ## Changelog
 
+- Added `Sources/Texts/planets.md` under Planetary retrofit and deterministic formation surrogates to document the `0.8.6.0` aggregate planetary retrofit and its upstream-vs-object control split.
 - Cummings et al. (2018), Kirkpatrick et al. (2000, 2011, 2024), Moe & Di Stefano (2017), and Tokovinin (2021) added under Expanded stellar populations to support the `0.8.4.0` stellar-offerings pass (brown dwarfs, evolved stars, white dwarfs, and stronger multiplicity architecture).
 - Li et al. (2023) added: reviewed from abridged full text in Texts/Li2023.txt; annotated under Stellar distribution (supports current M-dwarf band; fidelity: metallicity/age-dependent IMF).
 - Bovy (2017) added: reviewed from abridged full text in Texts/Bovy2017.txt; annotated under Stellar distribution and Solar neighborhood density (supports current use; fidelity notes for mass density and dn/dM).

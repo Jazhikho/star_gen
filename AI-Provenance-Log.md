@@ -19,6 +19,17 @@ Use this log for significant AI-assisted artifacts in this repository.
 
 ### 2026-03-29 - Codex (GPT-5)
 
+- Task Purpose: Implement the `0.8.6.0` planetary retrofit by threading a shared aggregate planetary-formation profile through galaxy and system generation, exposing the new upstream controls in Galaxy Studio and System Studio, and keeping Object Studio limited to direct single-planet controls.
+- Input Materials Used: User-approved `StarGen Planetary Retrofit Plan`; follow-up user correction that aggregate planetary-formation parameters belong only at galaxy/system scope while object-level controls must stay direct; `AGENTS.md`; `claude.md`; `Sources/Texts/planets.md`; existing galaxy/system/object generation, UI, and test files on `codex/release-0.9-mainline`.
+- AI Produced: Added `PlanetaryGenerationProfile`, `PlanetarySystemState`, and `PlanetaryScienceReferenceCatalog`; extended `GalaxyConfig`, `SolarSystemSpec`, `SystemPlanetGenerator`, `PlanetGenerator`, and `PlanetSpec` to support shared aggregate planetary assumptions plus additive direct planet overrides and provenance; added matching aggregate planetary controls and help text to Galaxy Studio and System Studio; expanded Object Studio planet controls only with direct single-planet settings; added deterministic serialization, propagation, help-catalog, and generator regressions; and synced internal version/docs metadata to `0.8.6.0`.
+- Human Accepted: Pending review of the aggregate-control defaults, the retrofit-level generator behavior shifts, and the wording of the new planetary help surfaces before merge or release.
+- Human Rejected: The user explicitly rejected putting aggregate planetary-formation controls into Object Studio and rejected treating `Sources/Texts/planets.md` as a mandate to rewrite the full planetary architecture from scratch.
+- Human Changed: The user clarified the studio-boundary rule after the initial retrofit planning pass: Galaxy/System own population-level formation priors, while Object Studio owns only direct planet-facing controls.
+- Validation Method: `dotnet build StarGen.sln`; `godot-mono.exe --path . --headless --script res://Tests/RunTestsHeadless.gd` (`1789 / 1789` passed).
+- Final Approver: Pending Christopher B. Del Gesso review.
+
+### 2026-03-29 - Codex (GPT-5)
+
 - Task Purpose: Apply the `0.8.5.1` patch update for Object Studio moon controls and checkbox visibility by adding a moon-count target selector, carrying that target into deterministic moon generation, and making unchecked checkboxes visibly readable in the dark theme.
 - Input Materials Used: User follow-up patch request clarifying that this work should be treated as a patch update, that moon generation needs a target-count control rather than a pure boolean, and that the current checkbox styling makes unchecked boxes effectively invisible; `AGENTS.md`; `claude.md`; the existing `0.8.5.0` Object Studio, Object Viewer, theme, and test files.
 - AI Produced: Added a scene-owned moon target-count dropdown under the planet moon controls, updated Object Studio visibility and summary logic for the new moon-count control, carried the selected target count into `PlanetSpec` overrides, expanded the object-viewer generation path so planet launches can generate multiple moons deterministically with planet-size-based caps, updated the dark theme checkbox styles so unchecked boxes remain visible, added regression coverage for the new UI row and moon-count resolution logic, and synced internal patch metadata to `0.8.5.1`.

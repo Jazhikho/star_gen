@@ -221,6 +221,84 @@ text = "Planet Profile"
 [node name="PlanetSectionDivider" type="HSeparator" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/PlanetSection"]
 layout_mode = 2
 
+[node name="PlanetOrbitModeRow" type="HBoxContainer" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/PlanetSection"]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="PlanetOrbitModeRowLabel" type="Label" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/PlanetSection/PlanetOrbitModeRow"]
+layout_mode = 2
+custom_minimum_size = Vector2(112, 0)
+text = "Orbit Mode"
+
+[node name="PlanetOrbitModeOption" type="OptionButton" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/PlanetSection/PlanetOrbitModeRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="PlanetClassBiasRow" type="HBoxContainer" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/PlanetSection"]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="PlanetClassBiasRowLabel" type="Label" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/PlanetSection/PlanetClassBiasRow"]
+layout_mode = 2
+custom_minimum_size = Vector2(112, 0)
+text = "Class Bias"
+
+[node name="PlanetClassBiasOption" type="OptionButton" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/PlanetSection/PlanetClassBiasRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="PlanetCompositionBiasRow" type="HBoxContainer" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/PlanetSection"]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="PlanetCompositionBiasRowLabel" type="Label" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/PlanetSection/PlanetCompositionBiasRow"]
+layout_mode = 2
+custom_minimum_size = Vector2(112, 0)
+text = "Composition"
+
+[node name="PlanetCompositionBiasOption" type="OptionButton" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/PlanetSection/PlanetCompositionBiasRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="PlanetEnvelopeOverrideRow" type="HBoxContainer" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/PlanetSection"]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="PlanetEnvelopeOverrideRowLabel" type="Label" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/PlanetSection/PlanetEnvelopeOverrideRow"]
+layout_mode = 2
+custom_minimum_size = Vector2(112, 0)
+text = "Envelope"
+
+[node name="PlanetEnvelopeOverrideOption" type="OptionButton" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/PlanetSection/PlanetEnvelopeOverrideRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="PlanetVolatileRichnessRow" type="HBoxContainer" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/PlanetSection"]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="PlanetVolatileRichnessRowLabel" type="Label" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/PlanetSection/PlanetVolatileRichnessRow"]
+layout_mode = 2
+custom_minimum_size = Vector2(112, 0)
+text = "Volatiles"
+
+[node name="PlanetVolatileRichnessOption" type="OptionButton" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/PlanetSection/PlanetVolatileRichnessRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="PlanetHydrosphereTendencyRow" type="HBoxContainer" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/PlanetSection"]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="PlanetHydrosphereTendencyRowLabel" type="Label" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/PlanetSection/PlanetHydrosphereTendencyRow"]
+layout_mode = 2
+custom_minimum_size = Vector2(112, 0)
+text = "Hydrosphere"
+
+[node name="PlanetHydrosphereTendencyOption" type="OptionButton" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/PlanetSection/PlanetHydrosphereTendencyRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+
 [node name="PlanetSizeCategoryRow" type="HBoxContainer" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/PlanetSection"]
 layout_mode = 2
 theme_override_constants/separation = 10

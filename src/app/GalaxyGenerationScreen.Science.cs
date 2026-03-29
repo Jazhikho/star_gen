@@ -36,6 +36,13 @@ public partial class GalaxyGenerationScreen
     private OptionButton? _stellarIsochroneModelOption;
     private HSlider? _stellarMultiplicityScaleSlider;
     private Label? _stellarMultiplicityScaleValue;
+    private OptionButton? _planetMassRadiusModelOption;
+    private OptionButton? _planetEnvelopeLossModelOption;
+    private OptionButton? _planetGasGiantFormationModelOption;
+    private OptionButton? _planetMetallicityCouplingOption;
+    private OptionButton? _planetRogueAllowanceOption;
+    private OptionButton? _planetMoonFormationBiasOption;
+    private OptionButton? _planetMinorBodyOuterBiasOption;
     private Button? _helpButton;
     private Window? _helpDialog;
     private RichTextLabel? _helpDialogText;
@@ -69,6 +76,13 @@ public partial class GalaxyGenerationScreen
         _stellarIsochroneModelOption = GetNodeOrNull<OptionButton>($"{ParameterRootPath}/StellarSection/StellarContent/StellarVBox/IsochroneRow/IsochroneOption");
         _stellarMultiplicityScaleSlider = GetNodeOrNull<HSlider>($"{ParameterRootPath}/StellarSection/StellarContent/StellarVBox/MultiplicityRow/MultiplicitySlider");
         _stellarMultiplicityScaleValue = GetNodeOrNull<Label>($"{ParameterRootPath}/StellarSection/StellarContent/StellarVBox/MultiplicityRow/MultiplicityValue");
+        _planetMassRadiusModelOption = GetNodeOrNull<OptionButton>($"{ParameterRootPath}/PlanetarySection/PlanetaryContent/PlanetaryVBox/MassRadiusRow/MassRadiusOption");
+        _planetEnvelopeLossModelOption = GetNodeOrNull<OptionButton>($"{ParameterRootPath}/PlanetarySection/PlanetaryContent/PlanetaryVBox/EnvelopeLossRow/EnvelopeLossOption");
+        _planetGasGiantFormationModelOption = GetNodeOrNull<OptionButton>($"{ParameterRootPath}/PlanetarySection/PlanetaryContent/PlanetaryVBox/GasGiantFormationRow/GasGiantFormationOption");
+        _planetMetallicityCouplingOption = GetNodeOrNull<OptionButton>($"{ParameterRootPath}/PlanetarySection/PlanetaryContent/PlanetaryVBox/MetallicityCouplingRow/MetallicityCouplingOption");
+        _planetRogueAllowanceOption = GetNodeOrNull<OptionButton>($"{ParameterRootPath}/PlanetarySection/PlanetaryContent/PlanetaryVBox/RogueAllowanceRow/RogueAllowanceOption");
+        _planetMoonFormationBiasOption = GetNodeOrNull<OptionButton>($"{ParameterRootPath}/PlanetarySection/PlanetaryContent/PlanetaryVBox/MoonFormationBiasRow/MoonFormationBiasOption");
+        _planetMinorBodyOuterBiasOption = GetNodeOrNull<OptionButton>($"{ParameterRootPath}/PlanetarySection/PlanetaryContent/PlanetaryVBox/OuterBodyBiasRow/OuterBodyBiasOption");
         _helpButton = GetNodeOrNull<Button>($"{HeroRootPath}/HeaderRow/HelpButton");
         _helpDialog = GetNodeOrNull<Window>("HelpDialog");
         _helpDialogText = GetNodeOrNull<RichTextLabel>("HelpDialog/MarginContainer/HelpVBox/HelpCard/MarginContainer/HelpDialogText");
@@ -83,6 +97,13 @@ public partial class GalaxyGenerationScreen
         if (_stellarImfFormOption != null) _stellarImfFormOption.ItemSelected += _ => OnScienceControlChanged();
         if (_stellarImfVariationModeOption != null) _stellarImfVariationModeOption.ItemSelected += _ => OnScienceControlChanged();
         if (_stellarIsochroneModelOption != null) _stellarIsochroneModelOption.ItemSelected += _ => OnScienceControlChanged();
+        if (_planetMassRadiusModelOption != null) _planetMassRadiusModelOption.ItemSelected += _ => OnScienceControlChanged();
+        if (_planetEnvelopeLossModelOption != null) _planetEnvelopeLossModelOption.ItemSelected += _ => OnScienceControlChanged();
+        if (_planetGasGiantFormationModelOption != null) _planetGasGiantFormationModelOption.ItemSelected += _ => OnScienceControlChanged();
+        if (_planetMetallicityCouplingOption != null) _planetMetallicityCouplingOption.ItemSelected += _ => OnScienceControlChanged();
+        if (_planetRogueAllowanceOption != null) _planetRogueAllowanceOption.ItemSelected += _ => OnScienceControlChanged();
+        if (_planetMoonFormationBiasOption != null) _planetMoonFormationBiasOption.ItemSelected += _ => OnScienceControlChanged();
+        if (_planetMinorBodyOuterBiasOption != null) _planetMinorBodyOuterBiasOption.ItemSelected += _ => OnScienceControlChanged();
         ConnectSlider(_haloMassSlider, OnHaloMassChanged);
         ConnectSlider(_environmentSlider, OnEnvironmentChanged);
         ConnectSlider(_starFormationEfficiencySlider, OnStarFormationEfficiencyChanged);
@@ -128,9 +149,16 @@ public partial class GalaxyGenerationScreen
         ApplyTooltip("stellar_imf_variation_mode", _stellarImfVariationModeOption, $"{ParameterRootPath}/StellarSection/StellarContent/StellarVBox/ImfVariationRow/ImfVariationLabel");
         ApplyTooltip("stellar_isochrone_model", _stellarIsochroneModelOption, $"{ParameterRootPath}/StellarSection/StellarContent/StellarVBox/IsochroneRow/IsochroneLabel");
         ApplyTooltip("stellar_multiplicity_scale", _stellarMultiplicityScaleSlider, $"{ParameterRootPath}/StellarSection/StellarContent/StellarVBox/MultiplicityRow/MultiplicityLabel");
+        ApplyTooltip("planet_mass_radius_model", _planetMassRadiusModelOption, $"{ParameterRootPath}/PlanetarySection/PlanetaryContent/PlanetaryVBox/MassRadiusRow/MassRadiusLabel");
+        ApplyTooltip("planet_envelope_loss_model", _planetEnvelopeLossModelOption, $"{ParameterRootPath}/PlanetarySection/PlanetaryContent/PlanetaryVBox/EnvelopeLossRow/EnvelopeLossLabel");
+        ApplyTooltip("planet_gas_giant_formation_model", _planetGasGiantFormationModelOption, $"{ParameterRootPath}/PlanetarySection/PlanetaryContent/PlanetaryVBox/GasGiantFormationRow/GasGiantFormationLabel");
+        ApplyTooltip("planet_metallicity_coupling_strength", _planetMetallicityCouplingOption, $"{ParameterRootPath}/PlanetarySection/PlanetaryContent/PlanetaryVBox/MetallicityCouplingRow/MetallicityCouplingLabel");
+        ApplyTooltip("planet_rogue_planet_allowance", _planetRogueAllowanceOption, $"{ParameterRootPath}/PlanetarySection/PlanetaryContent/PlanetaryVBox/RogueAllowanceRow/RogueAllowanceLabel");
+        ApplyTooltip("planet_moon_formation_bias", _planetMoonFormationBiasOption, $"{ParameterRootPath}/PlanetarySection/PlanetaryContent/PlanetaryVBox/MoonFormationBiasRow/MoonFormationBiasLabel");
+        ApplyTooltip("planet_minor_body_outer_system_bias", _planetMinorBodyOuterBiasOption, $"{ParameterRootPath}/PlanetarySection/PlanetaryContent/PlanetaryVBox/OuterBodyBiasRow/OuterBodyBiasLabel");
         if (_helpButton != null)
         {
-            _helpButton.TooltipText = "Open plain-language help.\nThis guide explains what these galaxy and star settings actually change.";
+            _helpButton.TooltipText = "Open plain-language help.\nThis guide explains what these galaxy, star, and planet settings actually change.";
         }
     }
 
@@ -185,6 +213,7 @@ public partial class GalaxyGenerationScreen
         if (_ghzWidthSlider != null) config.GhzTransitionWidthPc = _ghzWidthSlider.Value;
         if (_metallicityGradientSlider != null) config.MetallicityGradientDexPerKpc = _metallicityGradientSlider.Value;
         config.StellarProfile = BuildStellarProfileFromControls();
+        config.PlanetaryProfile = BuildPlanetaryProfileFromControls();
     }
 
     private void ApplyScienceConfig(GalaxyConfig config)
@@ -200,6 +229,7 @@ public partial class GalaxyGenerationScreen
         SetSlider(_ghzWidthSlider, config.GhzTransitionWidthPc);
         SetSlider(_metallicityGradientSlider, config.MetallicityGradientDexPerKpc);
         ApplyStellarProfileToControls(config.StellarProfile);
+        ApplyPlanetaryProfileToControls(config.PlanetaryProfile);
     }
 
     private static void ApplyScientificPresetValues(Preset preset, GalaxyConfig config)
@@ -276,7 +306,8 @@ public partial class GalaxyGenerationScreen
         GalaxyRealismProfile profile = GalaxyRealismProfileBuilder.Build(config, seedValue);
         string galaxySummary = GalaxyScienceReferenceCatalog.BuildProfileSummary(config, profile);
         string stellarSummary = BuildStellarProfileSummary(config.StellarProfile);
-        return $"{galaxySummary}\n{stellarSummary}";
+        string planetarySummary = BuildPlanetaryProfileSummary(config.PlanetaryProfile);
+        return $"{galaxySummary}\n{stellarSummary}\n{planetarySummary}";
     }
 
     private void ApplyScienceAssumptionSummary()
@@ -426,7 +457,64 @@ public partial class GalaxyGenerationScreen
 
     private static string BuildHelpDialogBbCode()
     {
-        return $"{GalaxyScienceReferenceCatalog.BuildSciencePanelBbCode()}\n\n{StellarScienceReferenceCatalog.BuildHelpPanelBbCode()}";
+        return $"{GalaxyScienceReferenceCatalog.BuildSciencePanelBbCode()}\n\n{StellarScienceReferenceCatalog.BuildHelpPanelBbCode()}\n\n{PlanetaryScienceReferenceCatalog.BuildHelpPanelBbCode()}";
+    }
+
+    private PlanetaryGenerationProfile BuildPlanetaryProfileFromControls()
+    {
+        PlanetaryGenerationProfile profile = PlanetaryGenerationProfile.CreateDefault();
+        if (_planetMassRadiusModelOption != null)
+        {
+            profile.MassRadiusModel = (PlanetMassRadiusModel)_planetMassRadiusModelOption.GetSelectedId();
+        }
+
+        if (_planetEnvelopeLossModelOption != null)
+        {
+            profile.EnvelopeLossModel = (PlanetEnvelopeLossModel)_planetEnvelopeLossModelOption.GetSelectedId();
+        }
+
+        if (_planetGasGiantFormationModelOption != null)
+        {
+            profile.GasGiantFormationModel = (GasGiantFormationModel)_planetGasGiantFormationModelOption.GetSelectedId();
+        }
+
+        if (_planetMetallicityCouplingOption != null)
+        {
+            profile.MetallicityCouplingStrength = (PlanetMetallicityCouplingStrength)_planetMetallicityCouplingOption.GetSelectedId();
+        }
+
+        if (_planetRogueAllowanceOption != null)
+        {
+            profile.RoguePlanetAllowance = (PlanetRoguePlanetAllowance)_planetRogueAllowanceOption.GetSelectedId();
+        }
+
+        if (_planetMoonFormationBiasOption != null)
+        {
+            profile.MoonFormationBias = (PlanetMoonFormationBias)_planetMoonFormationBiasOption.GetSelectedId();
+        }
+
+        if (_planetMinorBodyOuterBiasOption != null)
+        {
+            profile.MinorBodyOuterSystemBias = (PlanetMinorBodyOuterSystemBias)_planetMinorBodyOuterBiasOption.GetSelectedId();
+        }
+
+        return profile;
+    }
+
+    private void ApplyPlanetaryProfileToControls(PlanetaryGenerationProfile profile)
+    {
+        SetOptionSelection(_planetMassRadiusModelOption, (int)profile.MassRadiusModel);
+        SetOptionSelection(_planetEnvelopeLossModelOption, (int)profile.EnvelopeLossModel);
+        SetOptionSelection(_planetGasGiantFormationModelOption, (int)profile.GasGiantFormationModel);
+        SetOptionSelection(_planetMetallicityCouplingOption, (int)profile.MetallicityCouplingStrength);
+        SetOptionSelection(_planetRogueAllowanceOption, (int)profile.RoguePlanetAllowance);
+        SetOptionSelection(_planetMoonFormationBiasOption, (int)profile.MoonFormationBias);
+        SetOptionSelection(_planetMinorBodyOuterBiasOption, (int)profile.MinorBodyOuterSystemBias);
+    }
+
+    private static string BuildPlanetaryProfileSummary(PlanetaryGenerationProfile profile)
+    {
+        return $"Planet model: Loss {profile.EnvelopeLossModel} | Giants {profile.GasGiantFormationModel} | Metallicity {profile.MetallicityCouplingStrength} | Rogue {profile.RoguePlanetAllowance} | Moons {profile.MoonFormationBias}";
     }
 
     private static void SetOptionSelection(OptionButton? optionButton, int itemId)

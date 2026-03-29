@@ -1,12 +1,19 @@
 # Version
 
-Current version: `0.8.5.1`
+Current version: `0.8.6.0`
 
 Current user-facing version: `0.9d`
 
 Date: `2026-03-29`
 
 Versioning method: release/refactor `+0.1`, feature `+0.0.1`, bug fix `+0.0.0.1`, save-breaking release `+1.0`.
+
+## 0.8.6.0
+
+- Feature: Added a shared aggregate `PlanetaryGenerationProfile` and derived `PlanetarySystemState` so galaxy and system generation now carry deterministic planetary-formation assumptions such as mass-radius model, envelope-loss model, gas-giant formation emphasis, metallicity coupling, rogue-planet allowance, moon-formation bias, and outer-system small-body bias without rewriting the existing planet generator spine.
+- Feature: Retrofitted galaxy and system generation to consume the new aggregate planetary state upstream, letting system-level planet outcomes respond to shared formation context and storing formation-trace metadata on generated planets for later inspection and provenance.
+- Feature: Galaxy Studio and System Studio now expose the same aggregate planetary model controls with plain-language help, while Object Studio stays limited to direct single-planet controls such as orbit mode, class bias, composition bias, envelope override, volatile richness, hydrosphere tendency, and moon-bundle settings.
+- Test: Added deterministic serialization, propagation, help-catalog, and planet-generation regressions for the new planetary retrofit, and revalidated with `dotnet build StarGen.sln` plus the headless harness (`1789 / 1789` passed).
 
 ## 0.8.5.1
 

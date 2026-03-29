@@ -45,7 +45,7 @@ public partial class SystemGenerationScreen
 	{
         if (_helpButton != null)
         {
-            _helpButton.TooltipText = "Open plain-language help for system and star settings.\nThis guide includes examples of what changing each one does.";
+            _helpButton.TooltipText = "Open plain-language help for system, star, and planet settings.\nThis guide includes examples of what changing each one does.";
         }
 
 		if (_helpDialog != null)
@@ -85,7 +85,7 @@ public partial class SystemGenerationScreen
 
 	private static string BuildSystemHelpDialogBbCode()
 	{
-		return $"{BuildSystemStudioBasicsBbCode()}\n\n{StellarScienceReferenceCatalog.BuildHelpPanelBbCode()}";
+		return $"{BuildSystemStudioBasicsBbCode()}\n\n{StellarScienceReferenceCatalog.BuildHelpPanelBbCode()}\n\n{PlanetaryScienceReferenceCatalog.BuildHelpPanelBbCode()}";
 	}
 
 	private static string BuildSystemStudioBasicsBbCode()

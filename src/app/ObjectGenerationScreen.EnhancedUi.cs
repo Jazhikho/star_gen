@@ -6,6 +6,7 @@ using StarGen.App.Shared;
 using StarGen.App.Viewer;
 using StarGen.Domain.Generation;
 using StarGen.Domain.Generation.Archetypes;
+using StarGen.Domain.Generation.Specs;
 using StarGen.Domain.Generation.Traveller;
 
 namespace StarGen.App;
@@ -21,6 +22,12 @@ public partial class ObjectGenerationScreen
     private LineEdit? _nameInput;
 
     private VBoxContainer? _planetSection;
+    private OptionButton? _planetOrbitModeOption;
+    private OptionButton? _planetClassBiasOption;
+    private OptionButton? _planetCompositionBiasOption;
+    private OptionButton? _planetEnvelopeOverrideOption;
+    private OptionButton? _planetVolatileRichnessOption;
+    private OptionButton? _planetHydrosphereTendencyOption;
     private OptionButton? _planetSizeCategoryOption;
     private OptionButton? _planetOrbitZoneOption;
     private OptionButton? _planetAtmosphereOption;
@@ -101,6 +108,12 @@ public partial class ObjectGenerationScreen
         _cometSection = GetOptionalSection("CometSection");
         _advancedSection = GetOptionalSection("AdvancedSection");
 
+        _planetOrbitModeOption = GetRequiredOptionButton("PlanetOrbitModeRow", "PlanetOrbitModeOption");
+        _planetClassBiasOption = GetRequiredOptionButton("PlanetClassBiasRow", "PlanetClassBiasOption");
+        _planetCompositionBiasOption = GetRequiredOptionButton("PlanetCompositionBiasRow", "PlanetCompositionBiasOption");
+        _planetEnvelopeOverrideOption = GetRequiredOptionButton("PlanetEnvelopeOverrideRow", "PlanetEnvelopeOverrideOption");
+        _planetVolatileRichnessOption = GetRequiredOptionButton("PlanetVolatileRichnessRow", "PlanetVolatileRichnessOption");
+        _planetHydrosphereTendencyOption = GetRequiredOptionButton("PlanetHydrosphereTendencyRow", "PlanetHydrosphereTendencyOption");
         _planetSizeCategoryOption = GetRequiredOptionButton("PlanetSizeCategoryRow", "PlanetSizeCategoryOption");
         _planetOrbitZoneOption = GetRequiredOptionButton("PlanetOrbitZoneRow", "PlanetOrbitZoneOption");
         _planetAtmosphereOption = GetRequiredOptionButton("PlanetAtmosphereRow", "PlanetAtmosphereOption");
@@ -234,6 +247,19 @@ public partial class ObjectGenerationScreen
             _lifePermissivenessInput.ValueChanged += OnLifePermissivenessChanged;
         }
 
+        if (_planetOrbitModeOption != null)
+        {
+            _planetOrbitModeOption.ItemSelected += _ =>
+            {
+                RefreshEnhancedParameterVisibility();
+                RefreshSummary();
+            };
+        }
+        ConnectOptionToSummary(_planetClassBiasOption);
+        ConnectOptionToSummary(_planetCompositionBiasOption);
+        ConnectOptionToSummary(_planetEnvelopeOverrideOption);
+        ConnectOptionToSummary(_planetVolatileRichnessOption);
+        ConnectOptionToSummary(_planetHydrosphereTendencyOption);
         ConnectOptionToSummary(_planetSizeCategoryOption);
         ConnectOptionToSummary(_planetOrbitZoneOption);
         ConnectOptionToSummary(_planetAtmosphereOption);
@@ -458,7 +484,17 @@ public partial class ObjectGenerationScreen
         SetEnhancedSectionVisible(_advancedSection, showAdvanced);
 
         SetEnhancedRowVisible("ShowTravellerReadoutsRow", travellerMode);
+        SetEnhancedRowVisible("PlanetOrbitModeRow", objectType == ObjectViewer.ObjectType.Planet);
+        SetEnhancedRowVisible("PlanetClassBiasRow", objectType == ObjectViewer.ObjectType.Planet);
+        SetEnhancedRowVisible("PlanetCompositionBiasRow", objectType == ObjectViewer.ObjectType.Planet);
+        SetEnhancedRowVisible("PlanetEnvelopeOverrideRow", objectType == ObjectViewer.ObjectType.Planet);
+        SetEnhancedRowVisible("PlanetVolatileRichnessRow", objectType == ObjectViewer.ObjectType.Planet);
+        SetEnhancedRowVisible("PlanetHydrosphereTendencyRow", objectType == ObjectViewer.ObjectType.Planet);
+        bool rogueMode = objectType == ObjectViewer.ObjectType.Planet
+            && _planetOrbitModeOption != null
+            && _planetOrbitModeOption.GetSelectedId() == (int)PlanetOrbitMode.Rogue;
         SetEnhancedRowVisible("PlanetSizeCategoryRow", !useTravellerProfile && objectType == ObjectViewer.ObjectType.Planet);
+        SetEnhancedRowVisible("PlanetOrbitZoneRow", !useTravellerProfile && objectType == ObjectViewer.ObjectType.Planet && !rogueMode);
         SetEnhancedRowVisible("PlanetAtmosphereRow", !useTravellerProfile && objectType == ObjectViewer.ObjectType.Planet);
         SetEnhancedRowVisible("PlanetSurfacePressureRow", objectType == ObjectViewer.ObjectType.Planet);
         SetEnhancedRowVisible("PlanetOceanCoverageRow", objectType == ObjectViewer.ObjectType.Planet);
@@ -597,6 +633,12 @@ public partial class ObjectGenerationScreen
 
     private void PopulatePlanetSection()
     {
+        PopulatePlanetOrbitModeOptions(_planetOrbitModeOption);
+        PopulatePlanetClassBiasOptions(_planetClassBiasOption);
+        PopulatePlanetCompositionBiasOptions(_planetCompositionBiasOption);
+        PopulatePlanetEnvelopeOverrideOptions(_planetEnvelopeOverrideOption);
+        PopulatePlanetVolatileRichnessOptions(_planetVolatileRichnessOption);
+        PopulatePlanetHydrosphereTendencyOptions(_planetHydrosphereTendencyOption);
         PopulateAutoSizeOptions(_planetSizeCategoryOption);
         PopulateAutoOrbitZoneOptions(_planetOrbitZoneOption);
         PopulateAutoBoolOptions(_planetAtmosphereOption);
@@ -610,6 +652,12 @@ public partial class ObjectGenerationScreen
         PopulateProfileLevelOptions(_planetAlbedoProfileOption, "Auto", "Dark", "Balanced", "Bright");
         PopulateProfileLevelOptions(_planetVolcanismOption, "Auto", "Quiet", "Active", "Extreme");
         PopulateMoonTargetCountOptions(_moonTargetCountOption);
+        ApplyDirectPlanetTooltip("PlanetOrbitModeRow", _planetOrbitModeOption, "Choose Bound for a normal orbiting planet.\nChoose Rogue for a free-floating world with no final parent orbit shown.");
+        ApplyDirectPlanetTooltip("PlanetClassBiasRow", _planetClassBiasOption, "This nudges the broad planet kind.\nRocky favors denser land-heavy worlds.\nWater-rich favors wetter or icier worlds.\nSub-Neptune favors puffier volatile-rich worlds.\nGas Giant favors very large gas-rich worlds.\nStripped Core favors denser worlds that lost more gas.");
+        ApplyDirectPlanetTooltip("PlanetCompositionBiasRow", _planetCompositionBiasOption, "This nudges what the planet is mostly made of.\nRocky favors silicates and metal.\nIce or Water-rich favors more volatiles.\nGas Envelope favors thicker gas around the planet.");
+        ApplyDirectPlanetTooltip("PlanetEnvelopeOverrideRow", _planetEnvelopeOverrideOption, "This directly nudges how much gas the planet keeps.\nThin keeps some air.\nRetained keeps a thicker envelope.\nStripped favors a denser planet with far less gas left.");
+        ApplyDirectPlanetTooltip("PlanetVolatileRichnessRow", _planetVolatileRichnessOption, "Volatiles are materials like water and other ices that are easier to lose or freeze.\nHigher richness makes oceans, ice, and thicker atmospheres easier to get.\nPoor richness makes drier worlds easier to get.");
+        ApplyDirectPlanetTooltip("PlanetHydrosphereTendencyRow", _planetHydrosphereTendencyOption, "Hydrosphere means surface water and ice.\nDry favors little surface water.\nMixed favors partial oceans.\nOceanic favors water-heavy worlds.");
     }
 
     private void PopulateTravellerSection()
@@ -872,6 +920,91 @@ public partial class ObjectGenerationScreen
         }
     }
 
+    private void PopulatePlanetOrbitModeOptions(OptionButton? optionButton)
+    {
+        if (optionButton == null)
+        {
+            return;
+        }
+
+        optionButton.Clear();
+        optionButton.AddItem("Auto", (int)PlanetOrbitMode.Auto);
+        optionButton.AddItem("Bound", (int)PlanetOrbitMode.Bound);
+        optionButton.AddItem("Rogue", (int)PlanetOrbitMode.Rogue);
+    }
+
+    private void PopulatePlanetClassBiasOptions(OptionButton? optionButton)
+    {
+        if (optionButton == null)
+        {
+            return;
+        }
+
+        optionButton.Clear();
+        optionButton.AddItem("Auto", (int)PlanetClassBias.Auto);
+        optionButton.AddItem("Rocky", (int)PlanetClassBias.Rocky);
+        optionButton.AddItem("Water-rich", (int)PlanetClassBias.WaterRich);
+        optionButton.AddItem("Sub-Neptune", (int)PlanetClassBias.SubNeptune);
+        optionButton.AddItem("Gas Giant", (int)PlanetClassBias.GasGiant);
+        optionButton.AddItem("Stripped Core", (int)PlanetClassBias.StrippedCore);
+    }
+
+    private void PopulatePlanetCompositionBiasOptions(OptionButton? optionButton)
+    {
+        if (optionButton == null)
+        {
+            return;
+        }
+
+        optionButton.Clear();
+        optionButton.AddItem("Auto", (int)PlanetCompositionBias.Auto);
+        optionButton.AddItem("Rocky", (int)PlanetCompositionBias.Rocky);
+        optionButton.AddItem("Ice or Water-rich", (int)PlanetCompositionBias.IcyWaterRich);
+        optionButton.AddItem("Gas Envelope", (int)PlanetCompositionBias.GasEnvelope);
+    }
+
+    private void PopulatePlanetEnvelopeOverrideOptions(OptionButton? optionButton)
+    {
+        if (optionButton == null)
+        {
+            return;
+        }
+
+        optionButton.Clear();
+        optionButton.AddItem("Auto", (int)PlanetEnvelopeOverride.Auto);
+        optionButton.AddItem("Thin", (int)PlanetEnvelopeOverride.Thin);
+        optionButton.AddItem("Retained", (int)PlanetEnvelopeOverride.Retained);
+        optionButton.AddItem("Stripped", (int)PlanetEnvelopeOverride.Stripped);
+    }
+
+    private void PopulatePlanetVolatileRichnessOptions(OptionButton? optionButton)
+    {
+        if (optionButton == null)
+        {
+            return;
+        }
+
+        optionButton.Clear();
+        optionButton.AddItem("Auto", (int)PlanetVolatileRichness.Auto);
+        optionButton.AddItem("Poor", (int)PlanetVolatileRichness.Poor);
+        optionButton.AddItem("Moderate", (int)PlanetVolatileRichness.Moderate);
+        optionButton.AddItem("Rich", (int)PlanetVolatileRichness.Rich);
+    }
+
+    private void PopulatePlanetHydrosphereTendencyOptions(OptionButton? optionButton)
+    {
+        if (optionButton == null)
+        {
+            return;
+        }
+
+        optionButton.Clear();
+        optionButton.AddItem("Auto", (int)PlanetHydrosphereTendency.Auto);
+        optionButton.AddItem("Dry", (int)PlanetHydrosphereTendency.Dry);
+        optionButton.AddItem("Mixed", (int)PlanetHydrosphereTendency.Mixed);
+        optionButton.AddItem("Oceanic", (int)PlanetHydrosphereTendency.Oceanic);
+    }
+
     private void PopulateAutoRingComplexityOptions(OptionButton? optionButton)
     {
         if (optionButton == null)
@@ -983,6 +1116,19 @@ public partial class ObjectGenerationScreen
 
         string tooltip = $"Auto lets seeded generation decide when {subject} makes sense. Yes forces it on. No leaves it out.";
         optionButton.TooltipText = tooltip;
+        if (_rowLabels.TryGetValue(rowName, out Label? label))
+        {
+            label.TooltipText = tooltip;
+        }
+    }
+
+    private void ApplyDirectPlanetTooltip(string rowName, OptionButton? optionButton, string tooltip)
+    {
+        if (optionButton != null)
+        {
+            optionButton.TooltipText = tooltip;
+        }
+
         if (_rowLabels.TryGetValue(rowName, out Label? label))
         {
             label.TooltipText = tooltip;

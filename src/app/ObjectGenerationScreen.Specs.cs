@@ -84,11 +84,20 @@ public partial class ObjectGenerationScreen
     {
         PlanetSpec spec = CreatePlanetPresetSpec(request.SeedValue, request.PresetId);
         ApplyCommonSpecFields(spec, request.UseCaseSettings);
+        spec.OrbitMode = (PlanetOrbitMode)(_planetOrbitModeOption?.GetSelectedId() ?? (int)PlanetOrbitMode.Auto);
+        spec.ClassBias = (PlanetClassBias)(_planetClassBiasOption?.GetSelectedId() ?? (int)PlanetClassBias.Auto);
+        spec.CompositionBias = (PlanetCompositionBias)(_planetCompositionBiasOption?.GetSelectedId() ?? (int)PlanetCompositionBias.Auto);
+        spec.EnvelopeOverride = (PlanetEnvelopeOverride)(_planetEnvelopeOverrideOption?.GetSelectedId() ?? (int)PlanetEnvelopeOverride.Auto);
+        spec.VolatileRichness = (PlanetVolatileRichness)(_planetVolatileRichnessOption?.GetSelectedId() ?? (int)PlanetVolatileRichness.Auto);
+        spec.HydrosphereTendency = (PlanetHydrosphereTendency)(_planetHydrosphereTendencyOption?.GetSelectedId() ?? (int)PlanetHydrosphereTendency.Auto);
         spec.SizeCategory = _planetSizeCategoryOption?.GetSelectedId() ?? spec.SizeCategory;
         spec.OrbitZone = _planetOrbitZoneOption?.GetSelectedId() ?? spec.OrbitZone;
         spec.HasAtmosphere = GetTriStatePreference(_planetAtmosphereOption);
         spec.HasRings = GetTriStatePreference(_planetRingsOption);
         spec.RingComplexity = _planetRingComplexityOption?.GetSelectedId() ?? spec.RingComplexity;
+        spec.GenerateMoonBundle = _planetGenerateMoonCheck?.ButtonPressed ?? false;
+        spec.TargetMoonCount = _moonTargetCountOption?.GetSelectedId() ?? 0;
+        spec.PreferCapturedMoons = _moonCapturedCheck?.ButtonPressed ?? false;
 
         Godot.Collections.Dictionary travellerData = BuildTravellerWorldProfileData(request);
         if (travellerData.Count > 0)
@@ -382,6 +391,12 @@ public partial class ObjectGenerationScreen
         if (objectType == ObjectViewer.ObjectType.Planet)
         {
             PlanetSpec spec = CreatePlanetPresetSpec(seedValue, _presetOption?.GetSelectedId() ?? 0);
+            SelectOptionById(_planetOrbitModeOption, (int)PlanetOrbitMode.Auto);
+            SelectOptionById(_planetClassBiasOption, (int)PlanetClassBias.Auto);
+            SelectOptionById(_planetCompositionBiasOption, (int)PlanetCompositionBias.Auto);
+            SelectOptionById(_planetEnvelopeOverrideOption, (int)PlanetEnvelopeOverride.Auto);
+            SelectOptionById(_planetVolatileRichnessOption, (int)PlanetVolatileRichness.Auto);
+            SelectOptionById(_planetHydrosphereTendencyOption, (int)PlanetHydrosphereTendency.Auto);
             SelectOptionById(_planetSizeCategoryOption, spec.HasSizeCategory() ? spec.SizeCategory : -1);
             SelectOptionById(_planetOrbitZoneOption, spec.HasOrbitZone() ? spec.OrbitZone : -1);
             SelectOptionByVariantPreference(_planetAtmosphereOption, spec.HasAtmosphere);

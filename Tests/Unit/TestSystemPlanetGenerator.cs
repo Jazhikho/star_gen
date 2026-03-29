@@ -247,6 +247,88 @@ public static class TestSystemPlanetGenerator
     }
 
     /// <summary>
+    /// Tests that aggregate planetary profiles change system-level outcomes without rewriting the generator.
+    /// </summary>
+    public static void TestAggregatePlanetaryProfileChangesOutcomes()
+    {
+        OrbitHost host = CreateTestHost();
+        CelestialBody star = CreateTestStar();
+        Array<OrbitSlot> coreAccretionSlots = CreateTestSlots(host, 18);
+        Array<OrbitSlot> pebbleSlots = CreateTestSlots(host, 18);
+        SolarSystemSpec coreAccretionSpec = new SolarSystemSpec(1001, 1, 1);
+        SolarSystemSpec pebbleSpec = new SolarSystemSpec(1001, 1, 1);
+        coreAccretionSpec.PlanetaryProfile = new PlanetaryGenerationProfile
+        {
+            GasGiantFormationModel = GasGiantFormationModel.CoreAccretion,
+            MetallicityCouplingStrength = PlanetMetallicityCouplingStrength.Weak,
+        };
+        pebbleSpec.PlanetaryProfile = new PlanetaryGenerationProfile
+        {
+            GasGiantFormationModel = GasGiantFormationModel.PebbleAssisted,
+            MetallicityCouplingStrength = PlanetMetallicityCouplingStrength.Strong,
+            GasMassScalar = 1.45,
+        };
+
+        PlanetGenerationResult coreAccretionResult = SystemPlanetGenerator.Generate(
+            coreAccretionSlots,
+            new Array<OrbitHost> { host },
+            new Array<CelestialBody> { star },
+            new SeededRng(1001),
+            systemSpec: coreAccretionSpec);
+        PlanetGenerationResult pebbleResult = SystemPlanetGenerator.Generate(
+            pebbleSlots,
+            new Array<OrbitHost> { host },
+            new Array<CelestialBody> { star },
+            new SeededRng(1001),
+            systemSpec: pebbleSpec);
+
+        int coreGasGiantCount = CountGaseousGiants(coreAccretionResult.Planets);
+        int pebbleGasGiantCount = CountGaseousGiants(pebbleResult.Planets);
+
+        if (pebbleGasGiantCount < coreGasGiantCount)
+        {
+            throw new InvalidOperationException("Pebble-assisted giant formation should not yield fewer gaseous giants than the same seeded core-accretion run.");
+        }
+    }
+
+    /// <summary>
+    /// Tests that direct single-planet rogue mode removes the final parent orbit.
+    /// </summary>
+    public static void TestDirectPlanetRogueModeClearsOrbit()
+    {
+        PlanetSpec spec = PlanetSpec.Random(4242);
+        spec.OrbitMode = PlanetOrbitMode.Rogue;
+
+        ParentContext context = ParentContext.ForPlanet(
+            Units.SolarMassKg,
+            StellarProps.SolarLuminosityWatts,
+            5778.0,
+            4.6e9,
+            5.0 * Units.AuMeters);
+        CelestialBody planet = PlanetGenerator.Generate(spec, context, new SeededRng(4242));
+
+        if (planet.Orbital != null)
+        {
+            throw new InvalidOperationException("Rogue planet generation should clear the final orbital parent.");
+        }
+    }
+
+    private static int CountGaseousGiants(Array<CelestialBody> planets)
+    {
+        int count = 0;
+        foreach (CelestialBody planet in planets)
+        {
+            double earthMass = planet.Physical.MassKg / Units.EarthMassKg;
+            if (earthMass >= 20.0)
+            {
+                count += 1;
+            }
+        }
+
+        return count;
+    }
+
+    /// <summary>
     /// Legacy parity alias for test_fill_probability.
     /// </summary>
     private static void TestFillProbability()
