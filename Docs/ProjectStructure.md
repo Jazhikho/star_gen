@@ -87,6 +87,11 @@ star_gen/
 
 ## Recent Major Additions
 
+- `Sources/Texts/Cummings2018.txt`, `Sources/Texts/Kirkpatrick2000.txt`, `Sources/Texts/Kirkpatrick2011.txt`, `Sources/Texts/Kirkpatrick2024.txt`, `Sources/Texts/MoeDiStefano2017.txt`, `Sources/Texts/Tokovinin2021.txt`: reviewed source notes added for the stellar-population expansion covering white dwarfs, brown dwarfs, and multiplicity.
+- `src/domain/generation/archetypes/StarClass.cs`: expanded stellar spectral support to include the practical brown-dwarf classes `L`, `T`, and `Y`.
+- `src/domain/generation/tables/StarTable.cs`: widened the stellar lookup tables to cover substellar classes and align the hydrogen-burning boundary with the expanded stellar offerings.
+- `src/domain/generation/generators/StarGenerator.cs`: now resolves brown dwarfs, evolved stars, and white dwarfs instead of limiting output to main-sequence stars.
+- `src/domain/system/StellarConfigGenerator.cs`: now uses stronger empirical multiplicity shaping, coeval companion handling, and wider hierarchical system layouts for multi-star generation.
 - `src/app/GalaxyGenerationScreen.Science.cs`: partial controller for galaxy-studio scientific controls, plain-language tooltips, the header `Help` popup, and scene-bound science/help content.
 - `src/app/SystemGenerationScreen.Help.cs`: system-studio help popup controller for plain-language star/system explanations and shared science references.
 - `src/app/SystemGenerationScreen.Stellar.cs`: scene-first system-studio controller for stellar science controls and summaries.

@@ -8,7 +8,7 @@ namespace StarGen.Domain.Generation.Generators;
 /// </summary>
 public static class StellarMassSampler
 {
-    private const double MinimumMassSolar = 0.08;
+    private const double MinimumMassSolar = 0.01;
     private const double MaximumMassSolar = 60.0;
 
     /// <summary>
@@ -38,18 +38,24 @@ public static class StellarMassSampler
 
     private static double SampleKroupaMassSolar(SeededRng rng)
     {
-        double lowSegmentWeight = IntegratePowerLaw(0.08, 0.5, 1.45) * 1.12;
+        double substellarWeight = IntegratePowerLaw(0.01, 0.075, 0.7);
+        double lowSegmentWeight = IntegratePowerLaw(0.075, 0.5, 1.3);
         double midSegmentWeight = IntegratePowerLaw(0.5, 1.0, 2.3);
         double highSegmentWeight = IntegratePowerLaw(1.0, MaximumMassSolar, 2.3);
-        double totalWeight = lowSegmentWeight + midSegmentWeight + highSegmentWeight;
+        double totalWeight = substellarWeight + lowSegmentWeight + midSegmentWeight + highSegmentWeight;
         double roll = rng.Randf() * totalWeight;
 
-        if (roll < lowSegmentWeight)
+        if (roll < substellarWeight)
         {
-            return SamplePowerLaw(0.08, 0.5, 1.45, rng);
+            return SamplePowerLaw(0.01, 0.075, 0.7, rng);
         }
 
-        if (roll < lowSegmentWeight + midSegmentWeight)
+        if (roll < substellarWeight + lowSegmentWeight)
+        {
+            return SamplePowerLaw(0.075, 0.5, 1.3, rng);
+        }
+
+        if (roll < substellarWeight + lowSegmentWeight + midSegmentWeight)
         {
             return SamplePowerLaw(0.5, 1.0, 2.3, rng);
         }
@@ -59,10 +65,10 @@ public static class StellarMassSampler
 
     private static double SampleChabrierMassSolar(SeededRng rng)
     {
-        if (rng.Randf() < 0.88f)
+        if (rng.Randf() < 0.93f)
         {
-            double mu = System.Math.Log(0.22);
-            double sigma = 0.57;
+            double mu = System.Math.Log(0.16);
+            double sigma = 0.58;
             double sample = System.Math.Exp(mu + (sigma * rng.Randfn(0.0f, 1.0f)));
             return System.Math.Clamp(sample, MinimumMassSolar, 1.0);
         }

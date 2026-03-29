@@ -1,0 +1,22 @@
+Source note for StarGen research review
+
+Citation:
+Kirkpatrick, J. D., Marocco, F., Gelino, C. R., et al. (2024).
+The Initial Mass Function Based on the Full-sky 20 pc Census of ~3600 Stars and Brown Dwarfs.
+The Astrophysical Journal Supplement Series, 271(2), 55.
+ADS abstract: https://ui.adsabs.harvard.edu/abs/2024ApJS..271...55K/abstract
+arXiv: https://arxiv.org/abs/2312.03639
+DOI: https://doi.org/10.3847/1538-4365/ad24e2
+
+What was reviewed:
+- ADS abstract and source metadata on 2026-03-28.
+
+Key implementation notes used in StarGen:
+- The abstract describes a 20 pc census that measures the IMF across both stellar and substellar regimes.
+- The fitted IMF keeps the familiar high-mass and intermediate-mass slopes but adds low-mass substellar segments below 0.22 solar masses.
+- The abstract reports a current star-to-brown-dwarf number ratio of about 4:1.
+- The census is intended to include objects down to the low-mass brown-dwarf regime rather than ending at the hydrogen-burning limit.
+
+How StarGen uses this:
+- As a modern observational check on how many brown dwarfs should appear relative to stars in a present-day nearby population.
+- As support for extending the low-mass IMF below 0.08 solar masses instead of artificially cutting off all substellar objects.

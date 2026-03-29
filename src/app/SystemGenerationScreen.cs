@@ -474,29 +474,26 @@ public partial class SystemGenerationScreen : Control
 		return string.Empty;
 	}
 
-	private static Array<int> ParseSpectralHints(string text)
-	{
-		Array<int> result = new();
-		if (string.IsNullOrWhiteSpace(text))
-		{
+    private static Array<int> ParseSpectralHints(string text)
+    {
+        Array<int> result = new();
+        if (string.IsNullOrWhiteSpace(text))
+        {
 			return result;
 		}
 
-		string[] parts = text.Split(',', System.StringSplitOptions.RemoveEmptyEntries | System.StringSplitOptions.TrimEntries);
-		foreach (string rawPart in parts)
-		{
-			string part = rawPart.ToUpperInvariant();
-			if (part == "O") result.Add((int)StarClass.SpectralClass.O);
-			else if (part == "B") result.Add((int)StarClass.SpectralClass.B);
-			else if (part == "A") result.Add((int)StarClass.SpectralClass.A);
-			else if (part == "F") result.Add((int)StarClass.SpectralClass.F);
-			else if (part == "G") result.Add((int)StarClass.SpectralClass.G);
-			else if (part == "K") result.Add((int)StarClass.SpectralClass.K);
-			else if (part == "M") result.Add((int)StarClass.SpectralClass.M);
-		}
+        string[] parts = text.Split(',', System.StringSplitOptions.RemoveEmptyEntries | System.StringSplitOptions.TrimEntries);
+        foreach (string rawPart in parts)
+        {
+            string part = rawPart.ToUpperInvariant();
+            if (StarClass.TryParseLetter(part, out StarClass.SpectralClass spectralClass))
+            {
+                result.Add((int)spectralClass);
+            }
+        }
 
-		return result;
-	}
+        return result;
+    }
 
 	private static string FormatSpectralHints(Array<int> hints)
 	{

@@ -32,7 +32,10 @@ public static class StarTable
             StarClass.SpectralClass.F => (1.04, 1.4),
             StarClass.SpectralClass.G => (0.8, 1.04),
             StarClass.SpectralClass.K => (0.45, 0.8),
-            StarClass.SpectralClass.M => (0.08, 0.45),
+            StarClass.SpectralClass.M => (0.075, 0.45),
+            StarClass.SpectralClass.L => (0.045, 0.075),
+            StarClass.SpectralClass.T => (0.012, 0.045),
+            StarClass.SpectralClass.Y => (0.005, 0.012),
             _ => (0.0, 0.0),
         };
     }
@@ -62,6 +65,9 @@ public static class StarTable
             StarClass.SpectralClass.G => (5200.0, 6000.0),
             StarClass.SpectralClass.K => (3700.0, 5200.0),
             StarClass.SpectralClass.M => (2400.0, 3700.0),
+            StarClass.SpectralClass.L => (1300.0, 2400.0),
+            StarClass.SpectralClass.T => (500.0, 1300.0),
+            StarClass.SpectralClass.Y => (250.0, 500.0),
             _ => (0.0, 0.0),
         };
     }
@@ -91,6 +97,9 @@ public static class StarTable
             StarClass.SpectralClass.G => (0.6, 1.5),
             StarClass.SpectralClass.K => (0.08, 0.6),
             StarClass.SpectralClass.M => (0.0001, 0.08),
+            StarClass.SpectralClass.L => (0.000005, 0.0006),
+            StarClass.SpectralClass.T => (0.0000002, 0.00005),
+            StarClass.SpectralClass.Y => (0.000000005, 0.000001),
             _ => (0.0, 0.0),
         };
     }
@@ -120,6 +129,9 @@ public static class StarTable
             StarClass.SpectralClass.G => (0.96, 1.15),
             StarClass.SpectralClass.K => (0.7, 0.96),
             StarClass.SpectralClass.M => (0.1, 0.7),
+            StarClass.SpectralClass.L => (0.09, 0.12),
+            StarClass.SpectralClass.T => (0.085, 0.11),
+            StarClass.SpectralClass.Y => (0.08, 0.105),
             _ => (0.0, 0.0),
         };
     }
@@ -149,6 +161,9 @@ public static class StarTable
             StarClass.SpectralClass.G => (4.0e9, 10.0e9),
             StarClass.SpectralClass.K => (15.0e9, 50.0e9),
             StarClass.SpectralClass.M => (50.0e9, 200.0e9),
+            StarClass.SpectralClass.L => (2.0e11, 8.0e11),
+            StarClass.SpectralClass.T => (4.0e11, 1.2e12),
+            StarClass.SpectralClass.Y => (6.0e11, 1.5e12),
             _ => (0.0, 0.0),
         };
     }
@@ -236,6 +251,9 @@ public static class StarTable
             StarClass.SpectralClass.G => (15.0, 35.0),
             StarClass.SpectralClass.K => (20.0, 55.0),
             StarClass.SpectralClass.M => (30.0, 150.0),
+            StarClass.SpectralClass.L => (0.10, 0.60),
+            StarClass.SpectralClass.T => (0.08, 0.45),
+            StarClass.SpectralClass.Y => (0.08, 0.35),
             _ => (10.0, 50.0),
         };
     }
@@ -255,7 +273,10 @@ public static class StarTable
             > 6000.0 => StarClass.SpectralClass.F,
             > 5200.0 => StarClass.SpectralClass.G,
             > 3700.0 => StarClass.SpectralClass.K,
-            _ => StarClass.SpectralClass.M,
+            > 2400.0 => StarClass.SpectralClass.M,
+            > 1300.0 => StarClass.SpectralClass.L,
+            > 500.0 => StarClass.SpectralClass.T,
+            _ => StarClass.SpectralClass.Y,
         };
     }
 

@@ -52,6 +52,15 @@ Release notes and version summaries are in the [README](../README.md#version-his
 - Keep realism consistency across galaxy, stellar, planetary, and life-distribution outputs rather than applying realism to isolated tiers only.
 - Any realism-related changes require documentation updates and human verification against reviewed sources before acceptance.
 
+### Active effort: Stellar population expansion (`0.8.4.0`)
+
+- Expand the stellar generator beyond main-sequence OBAFGKM output so it can also produce practical, research-backed brown dwarfs, evolved stars, white dwarfs, and more realistic multi-star architectures.
+- Keep the implementation generation-focused rather than simulation-focused: use deterministic approximations grounded in reviewed IMF, isochrone, white-dwarf, brown-dwarf, and multiplicity literature.
+- Carry the expanded stellar offerings through galaxy generation, standalone system generation, viewer readouts, and help surfaces so the same stellar model is used everywhere.
+- Where multiple research-backed model families exist, expose the supported choices in Galaxy Studio and System Studio rather than hardcoding one hidden assumption.
+- Treat unsupported end states such as neutron stars and black holes as out of scope for this effort unless new reviewed sources and explicit user direction expand the model further.
+- Add deterministic and statistical tests that verify the expanded stellar population behaves within the expected scientific bands and that new spectral and stellar-type outputs survive serialization, rendering hints, and system generation.
+
 ### Scope split: StarGen vs MythicWorldGen
 
 - StarGen mainline scope narrows to generation functions and generation-time modification workflows.

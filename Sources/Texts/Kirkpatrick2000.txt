@@ -1,0 +1,19 @@
+Source note for StarGen research review
+
+Citation:
+Kirkpatrick, J. D., Reid, I. N., Liebert, J., Gizis, J. E., Burgasser, A. J., Monet, D. G., Dahn, C. C., Nelson, B., & Williams, R. J. (2000).
+Sixty-seven additional L dwarfs discovered by the Two Micron All Sky Survey (2MASS).
+The Astronomical Journal, 120(1), 447-472.
+arXiv: https://arxiv.org/abs/astro-ph/0003317
+DOI: https://doi.org/10.1086/301427
+
+What was reviewed:
+- arXiv abstract and source metadata on 2026-03-28.
+
+Key implementation notes used in StarGen:
+- The abstract states that L dwarfs span roughly 1300 K to 2000 K in effective temperature.
+- It also notes that the transition from the coolest L dwarfs to the warmest T dwarfs occupies a relatively small temperature interval.
+
+How StarGen uses this:
+- As the warm-end anchor for the brown-dwarf temperature ladder.
+- As support for treating L dwarfs as a physically distinct output class instead of folding all substellar objects into late M dwarfs.

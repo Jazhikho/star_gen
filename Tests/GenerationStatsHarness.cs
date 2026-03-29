@@ -19,6 +19,7 @@ public static class GenerationStatsHarness
 {
     public sealed class StarSpectralHistogram
     {
+        public int D;
         public int O;
         public int B;
         public int A;
@@ -26,6 +27,9 @@ public static class GenerationStatsHarness
         public int G;
         public int K;
         public int M;
+        public int L;
+        public int T;
+        public int Y;
         public int Total;
     }
 
@@ -59,6 +63,12 @@ public static class GenerationStatsHarness
 
             histogram.Total += 1;
             char letter = char.ToUpperInvariant(spectral[0]);
+            if (letter == 'D')
+            {
+                histogram.D += 1;
+                continue;
+            }
+
             if (letter == 'O')
             {
                 histogram.O += 1;
@@ -98,6 +108,24 @@ public static class GenerationStatsHarness
             if (letter == 'M')
             {
                 histogram.M += 1;
+                continue;
+            }
+
+            if (letter == 'L')
+            {
+                histogram.L += 1;
+                continue;
+            }
+
+            if (letter == 'T')
+            {
+                histogram.T += 1;
+                continue;
+            }
+
+            if (letter == 'Y')
+            {
+                histogram.Y += 1;
             }
         }
 

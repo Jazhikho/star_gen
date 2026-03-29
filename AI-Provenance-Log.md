@@ -19,6 +19,17 @@ Use this log for significant AI-assisted artifacts in this repository.
 
 ### 2026-03-28 - Codex (GPT-5)
 
+- Task Purpose: Implement the `0.8.4.0` stellar-population expansion by broadening practical stellar outputs beyond main-sequence stars, adding supporting research notes to `Sources/`, updating downstream system-generation behavior, and rewriting tests around the expanded offerings.
+- Input Materials Used: User request to expand the stellar offerings and add any needed research to `Sources/`; `AGENTS.md`; `claude.md`; existing stellar generation, system generation, rendering, help, and test files; reviewed source notes and source metadata for Cummings et al. 2018, Kirkpatrick et al. 2000, Kirkpatrick et al. 2011, Kirkpatrick et al. 2024, Moe and Di Stefano 2017, and Tokovinin 2021.
+- AI Produced: Added the new roadmap effort and reviewed source-note files for the stellar expansion; extended spectral support to `L/T/Y`; expanded `StarTable`, `StellarMassSampler`, `StarGenerator`, `ColorUtils`, and `StellarConfigGenerator` so brown dwarfs, evolved stars, white dwarfs, and stronger hierarchical multiplicity are generated deterministically; updated parameter/help text for the broader stellar outputs; rewrote scientific benchmark handling to cover brown-dwarf and white-dwarf populations; added new unit/statistical coverage for the expanded stellar model; and synced internal version/docs metadata to `0.8.4.0`.
+- Human Accepted: Pending review of the broadened stellar defaults, the practical scope chosen for evolved/compact outcomes, and the updated scientific benchmark ranges before merge or release.
+- Human Rejected: The prior effectively main-sequence-only stellar offering was rejected as too narrow for the current research-backed scope. Unsupported compact-remnant end states such as neutron stars and black holes were kept out of this pass.
+- Human Changed: The user explicitly required practical stellar expansion rather than discussion-only planning, required any extra research used to be added into the repository `Sources/` folder, and pushed the implementation toward all practical offerings now supported by the reviewed research set.
+- Validation Method: `dotnet build StarGen.sln`; `godot-mono.exe --path . --headless --script res://Tests/RunTestsHeadless.gd` (`1776 / 1776` passed after the stellar-expansion pass).
+- Final Approver: Pending Christopher B. Del Gesso review.
+
+### 2026-03-28 - Codex (GPT-5)
+
 - Task Purpose: Apply the `0.8.3.2` tooltip-formatting patch by turning the science-facing tooltip copy into multiline text so each sentence appears on its own line.
 - Input Materials Used: User request to make tooltips multiline if Godot supports it; current galaxy/system tooltip wiring and science-reference catalogs; `AGENTS.md`; `claude.md`.
 - AI Produced: Updated the galaxy and stellar science tooltip strings, related system and galaxy parameter assumption text, and the two `Help` button tooltips so sentence breaks are explicit newline breaks in the tooltip text; synced the internal patch metadata to `0.8.3.2`.

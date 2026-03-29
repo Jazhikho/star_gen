@@ -514,6 +514,9 @@ public static partial class DotNetNativeTestSuite
             "TestColorUtils::test_spectral_class_colors",
             Tests.Unit.TestColorUtils.TestSpectralClassColors);
         runner.RunNativeTest(
+            "TestColorUtils::test_extended_spectral_class_colors",
+            Tests.Unit.TestColorUtils.TestExtendedSpectralClassColors);
+        runner.RunNativeTest(
             "TestColorUtils::test_atmosphere_nitrogen_is_blue",
             Tests.Unit.TestColorUtils.TestAtmosphereNitrogenIsBlue);
         runner.RunNativeTest(
@@ -1912,6 +1915,15 @@ public static partial class DotNetNativeTestSuite
             "TestStarGenerator::test_spectral_hints_override_profile",
             Tests.Unit.TestStarGenerator.TestSpectralHintsOverrideProfile);
         runner.RunNativeTest(
+            "TestStarGenerator::test_brown_dwarf_hints_generate_brown_dwarfs",
+            Tests.Unit.TestStarGenerator.TestBrownDwarfHintsGenerateBrownDwarfs);
+        runner.RunNativeTest(
+            "TestStarGenerator::test_old_intermediate_mass_stars_become_giants",
+            Tests.Unit.TestStarGenerator.TestOldIntermediateMassStarsBecomeGiants);
+        runner.RunNativeTest(
+            "TestStarGenerator::test_ancient_populations_produce_white_dwarfs",
+            Tests.Unit.TestStarGenerator.TestAncientPopulationsProduceWhiteDwarfs);
+        runner.RunNativeTest(
             "TestStarGeneratorDistributions::test_spectral_type_distribution_reasonable",
             Tests.Unit.TestStarGeneratorDistributions.TestSpectralTypeDistributionReasonable);
         runner.RunNativeTest(
@@ -1990,6 +2002,9 @@ public static partial class DotNetNativeTestSuite
             "TestStarTable::test_lifetime_ranges",
             Tests.Unit.TestStarTable.TestLifetimeRanges);
         runner.RunNativeTest(
+            "TestStarTable::test_brown_dwarf_mass_ranges",
+            Tests.Unit.TestStarTable.TestBrownDwarfMassRanges);
+        runner.RunNativeTest(
             "TestStellarConfigGenerator::test_generate_single_star",
             Tests.Unit.TestStellarConfigGenerator.TestGenerateSingleStar);
         runner.RunNativeTest(
@@ -2026,6 +2041,12 @@ public static partial class DotNetNativeTestSuite
             "TestStellarConfigGenerator::test_maximum_stars",
             Tests.Unit.TestStellarConfigGenerator.TestMaximumStars);
         runner.RunNativeTest(
+            "TestStellarConfigGenerator::test_companions_share_age_and_metallicity",
+            Tests.Unit.TestStellarConfigGenerator.TestCompanionsShareAgeAndMetallicity);
+        runner.RunNativeTest(
+            "TestStellarConfigGenerator::test_hierarchy_separations_widen_outward",
+            Tests.Unit.TestStellarConfigGenerator.TestHierarchySeparationsWidenOutward);
+        runner.RunNativeTest(
             "TestStellarProps::test_default_values",
             Tests.Unit.TestStellarProps.TestDefaultValues);
         runner.RunNativeTest(
@@ -2049,6 +2070,9 @@ public static partial class DotNetNativeTestSuite
         runner.RunNativeTest(
             "TestStellarProps::test_spectral_letter",
             Tests.Unit.TestStellarProps.TestSpectralLetter);
+        runner.RunNativeTest(
+            "TestStellarProps::test_expanded_spectral_helpers",
+            Tests.Unit.TestStellarProps.TestExpandedSpectralHelpers);
         runner.RunNativeTest(
             "TestStellarProps::test_round_trip",
             Tests.Unit.TestStellarProps.TestRoundTrip);

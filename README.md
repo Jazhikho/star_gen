@@ -17,10 +17,11 @@ StarGen `0.9d` is the current mainline checkpoint baseline.
 - The galaxy, system, and object studios are the main supported entry points.
 - The station studio now uses the production station-generation flow rather than a placeholder shell.
 - The galaxy studio now uses a scientifically grounded galaxy-generation profile with family-locked variation, cited assumptions, and downstream galaxy-context propagation into stars and systems.
+- The stellar generator now supports a broader practical population, including brown dwarfs, evolved stars, white dwarfs, and stronger multi-star hierarchies instead of only main-sequence stars.
 - Mainline is generation-and-view focused; save/load/export flows are reserved for the export branch.
 - Mainline no longer ships the Concept Atlas path. `Concepts/Additions.md` remains the StarGen prototype backlog for future work that stays in scope.
 
-The current user-facing release version is `0.9d`, while the current internal checkpoint version is `0.8.3.2`. Detailed version history and patch notes live in [VERSION.md](VERSION.md).
+The current user-facing release version is `0.9d`, while the current internal checkpoint version is `0.8.4.0`. Detailed version history and patch notes live in [VERSION.md](VERSION.md).
 
 ## Running StarGen
 

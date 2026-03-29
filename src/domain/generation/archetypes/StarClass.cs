@@ -20,6 +20,9 @@ public static class StarClass
         G,
         K,
         M,
+        L,
+        T,
+        Y,
     }
 
     /// <summary>
@@ -36,6 +39,9 @@ public static class StarClass
             SpectralClass.G => "G",
             SpectralClass.K => "K",
             SpectralClass.M => "M",
+            SpectralClass.L => "L",
+            SpectralClass.T => "T",
+            SpectralClass.Y => "Y",
             _ => "?",
         };
     }
@@ -67,6 +73,15 @@ public static class StarClass
                 return true;
             case "M":
                 spectralClass = SpectralClass.M;
+                return true;
+            case "L":
+                spectralClass = SpectralClass.L;
+                return true;
+            case "T":
+                spectralClass = SpectralClass.T;
+                return true;
+            case "Y":
+                spectralClass = SpectralClass.Y;
                 return true;
             default:
                 spectralClass = default;
@@ -142,5 +157,5 @@ public static class StarClass
     /// <summary>
     /// Returns the number of spectral classes.
     /// </summary>
-    public static int Count() => 7;
+    public static int Count() => 10;
 }

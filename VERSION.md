@@ -1,12 +1,19 @@
 # Version
 
-Current version: `0.8.3.2`
+Current version: `0.8.4.0`
 
 Current user-facing version: `0.9d`
 
 Date: `2026-03-28`
 
 Versioning method: release/refactor `+0.1`, feature `+0.0.1`, bug fix `+0.0.0.1`, save-breaking release `+1.0`.
+
+## 0.8.4.0
+
+- Feature: Expanded the stellar generator beyond main-sequence-only output so it now supports practical brown dwarfs (`L/T/Y`), evolved stars (subgiants, giants, supergiants), white dwarfs, and stronger hierarchical multi-star generation.
+- Feature: Recalibrated stellar mass sampling and stellar lookup tables around a research-backed substellar floor, practical white-dwarf progenitor handling, broader stellar color mapping, and downstream coeval-companion behavior in standalone system generation.
+- Feature: Added reviewed source notes under `Sources/Texts/` for white dwarfs, brown dwarfs, and multiplicity work, and updated the in-app/help-facing stellar science text to reflect the broader stellar offerings.
+- Test: Added and updated unit/statistical coverage for brown-dwarf classes, evolved/white-dwarf generation, expanded spectral helpers/colors, richer hierarchy behavior, and the revised stellar distribution benchmarks; `dotnet build StarGen.sln` passed, and the headless harness passed (`1776 / 1776`).
 
 ## 0.8.3.2
 

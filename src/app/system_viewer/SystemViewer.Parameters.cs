@@ -416,45 +416,9 @@ public partial class SystemViewer
         foreach (string rawPart in parts)
         {
             string part = rawPart.ToUpperInvariant();
-            if (part == "O")
+            if (StarClass.TryParseLetter(part, out StarClass.SpectralClass spectralClass))
             {
-                result.Add((int)StarClass.SpectralClass.O);
-                continue;
-            }
-
-            if (part == "B")
-            {
-                result.Add((int)StarClass.SpectralClass.B);
-                continue;
-            }
-
-            if (part == "A")
-            {
-                result.Add((int)StarClass.SpectralClass.A);
-                continue;
-            }
-
-            if (part == "F")
-            {
-                result.Add((int)StarClass.SpectralClass.F);
-                continue;
-            }
-
-            if (part == "G")
-            {
-                result.Add((int)StarClass.SpectralClass.G);
-                continue;
-            }
-
-            if (part == "K")
-            {
-                result.Add((int)StarClass.SpectralClass.K);
-                continue;
-            }
-
-            if (part == "M")
-            {
-                result.Add((int)StarClass.SpectralClass.M);
+                result.Add((int)spectralClass);
             }
         }
 

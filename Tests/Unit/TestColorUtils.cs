@@ -118,6 +118,34 @@ public static class TestColorUtils
     }
 
     /// <summary>
+    /// Tests extended stellar classes map to distinct colors.
+    /// </summary>
+    public static void TestExtendedSpectralClassColors()
+    {
+        Color whiteDwarfColor = ColorUtils.SpectralClassToColor("DA4");
+        Color lColor = ColorUtils.SpectralClassToColor("L5");
+        Color tColor = ColorUtils.SpectralClassToColor("T6");
+        Color yColor = ColorUtils.SpectralClassToColor("Y2");
+
+        if (whiteDwarfColor.B <= whiteDwarfColor.R)
+        {
+            throw new InvalidOperationException("White dwarfs should keep a cool-white to blue-white tint");
+        }
+        if (lColor.R <= lColor.B)
+        {
+            throw new InvalidOperationException("L dwarfs should read as warm brown-red objects");
+        }
+        if (tColor.R <= yColor.R)
+        {
+            throw new InvalidOperationException("T dwarfs should remain brighter than colder Y dwarfs");
+        }
+        if (yColor.G >= lColor.G)
+        {
+            throw new InvalidOperationException("Y dwarfs should be darker and less saturated than L dwarfs");
+        }
+    }
+
+    /// <summary>
     /// Tests atmosphere nitrogen is blue.
     /// </summary>
     public static void TestAtmosphereNitrogenIsBlue()

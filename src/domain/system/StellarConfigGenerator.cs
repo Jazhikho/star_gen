@@ -107,6 +107,7 @@ public static class StellarConfigGenerator
         double primaryMassProxy = EstimatePrimaryMassProxy(spec);
         double multiplicityScale = System.Math.Clamp(spec.StellarProfile.MultiplicityScale, 0.35, 2.0);
         double massBias = System.Math.Clamp(primaryMassProxy / 1.0, 0.35, 8.0);
+        double multiplicityBias = ResolveMultiplicityBias(primaryMassProxy) * multiplicityScale;
 
         List<int> options = new();
         List<float> weights = new();
@@ -114,14 +115,21 @@ public static class StellarConfigGenerator
         {
             options.Add(count);
             double baseWeight = 1.0 / System.Math.Pow(2.35, count - 1);
-            if (count >= 2)
+            if (count == 1)
             {
-                baseWeight *= multiplicityScale * (0.75 + (massBias * 0.20));
+                baseWeight *= System.Math.Clamp(1.7 - (multiplicityBias * 0.55), 0.25, 2.2);
             }
-
-            if (count >= 4)
+            else
             {
-                baseWeight *= multiplicityScale * (0.60 + (massBias * 0.12));
+                baseWeight *= multiplicityBias * (0.70 + (massBias * 0.18));
+                if (count >= 3)
+                {
+                    baseWeight *= multiplicityBias * 0.78;
+                }
+                if (count >= 4)
+                {
+                    baseWeight *= multiplicityBias * (0.48 + (massBias * 0.08));
+                }
             }
 
             weights.Add((float)baseWeight);
@@ -137,6 +145,9 @@ public static class StellarConfigGenerator
     private static Array<CelestialBody> GenerateStars(SolarSystemSpec spec, int count, SeededRng rng)
     {
         Array<CelestialBody> stars = new();
+        double primaryMassSolar = -1.0;
+        double sharedAgeYears = spec.SystemAgeYears;
+        double sharedMetallicity = spec.SystemMetallicity;
         for (int index = 0; index < count; index += 1)
         {
             int starSeed = unchecked((int)rng.Randi());
@@ -166,6 +177,21 @@ public static class StellarConfigGenerator
 
             starSpec.GalaxyContext = spec.GalaxyContext.Clone();
             starSpec.StellarProfile = spec.StellarProfile.Clone();
+            if (index > 0 && index >= spec.SpectralClassHints.Count && primaryMassSolar > 0.0)
+            {
+                double companionMassSolar = SampleCompanionMassSolar(primaryMassSolar, index, spec.StellarProfile, starRng);
+                starSpec.SetOverride("physical.mass_solar", companionMassSolar);
+            }
+
+            if (index > 0 && sharedAgeYears > 0.0 && !starSpec.HasAge())
+            {
+                starSpec.AgeYears = SampleCoevalAgeYears(sharedAgeYears, index, starRng);
+            }
+
+            if (index > 0 && sharedMetallicity > 0.0 && !starSpec.HasMetallicity())
+            {
+                starSpec.Metallicity = sharedMetallicity;
+            }
 
             CelestialBody star = StarGenerator.Generate(starSpec, starRng);
             star.Id = $"star_{index}";
@@ -175,6 +201,30 @@ public static class StellarConfigGenerator
             }
 
             stars.Add(star);
+            if (index == 0)
+            {
+                primaryMassSolar = star.Physical.MassKg / Units.SolarMassKg;
+                StellarProps? stellar = star.Stellar;
+                if (sharedAgeYears <= 0.0)
+                {
+                    if (stellar == null)
+                    {
+                        throw new InvalidOperationException("Generated star is missing stellar properties.");
+                    }
+
+                    sharedAgeYears = stellar.AgeYears;
+                }
+
+                if (sharedMetallicity <= 0.0)
+                {
+                    if (stellar == null)
+                    {
+                        throw new InvalidOperationException("Generated star is missing stellar properties.");
+                    }
+
+                    sharedMetallicity = stellar.Metallicity;
+                }
+            }
         }
 
         return stars;
@@ -213,46 +263,59 @@ public static class StellarConfigGenerator
             return null;
         }
 
-        List<HierarchyNode> nodes = new();
-        for (int index = 0; index < stars.Count; index += 1)
+        List<CelestialBody> orderedStars = new();
+        foreach (CelestialBody star in stars)
         {
-            nodes.Add(HierarchyNode.CreateStar($"node_star_{index}", stars[index].Id));
+            orderedStars.Add(star);
         }
 
-        if (nodes.Count == 1)
+        orderedStars.Sort((left, right) => right.Physical.MassKg.CompareTo(left.Physical.MassKg));
+
+        List<HierarchyNode> starNodes = new();
+        for (int index = 0; index < orderedStars.Count; index += 1)
         {
-            return new SystemHierarchy(nodes[0]);
+            starNodes.Add(HierarchyNode.CreateStar($"node_star_{index}", orderedStars[index].Id));
+        }
+
+        if (starNodes.Count == 1)
+        {
+            return new SystemHierarchy(starNodes[0]);
         }
 
         int barycenterIndex = 0;
-        while (nodes.Count > 1)
+        if (starNodes.Count == 2)
         {
-            int indexA = rng.RandiRange(0, nodes.Count - 1);
-            HierarchyNode nodeA = nodes[indexA];
-            nodes.RemoveAt(indexA);
-
-            int indexB = rng.RandiRange(0, nodes.Count - 1);
-            HierarchyNode nodeB = nodes[indexB];
-            nodes.RemoveAt(indexB);
-
-            double separationM = GenerateBinarySeparation(nodeA, nodeB, rng);
-            double eccentricity = GenerateBinaryEccentricity(separationM, rng);
-            double massA = GetNodeMass(nodeA, stars);
-            double massB = GetNodeMass(nodeB, stars);
-            double periodS = OrbitalMechanics.CalculateOrbitalPeriod(separationM, massA + massB);
-
-            HierarchyNode barycenter = HierarchyNode.CreateBarycenter(
-                $"node_barycenter_{barycenterIndex}",
-                nodeA,
-                nodeB,
-                separationM,
-                eccentricity);
-            barycenter.OrbitalPeriodS = periodS;
-            barycenterIndex += 1;
-            nodes.Add(barycenter);
+            HierarchyNode binary = CreateHierarchyBinary(starNodes[0], starNodes[1], stars, rng, ref barycenterIndex, 3.5, 0.03, 40.0);
+            return new SystemHierarchy(binary);
         }
 
-        return new SystemHierarchy(nodes[0]);
+        HierarchyNode root;
+        if (starNodes.Count == 3)
+        {
+            HierarchyNode innerBinary = CreateHierarchyBinary(starNodes[0], starNodes[1], stars, rng, ref barycenterIndex, 3.5, 0.03, 40.0);
+            root = CreateHierarchyBinary(innerBinary, starNodes[2], stars, rng, ref barycenterIndex, 12.0, 5.0, 5000.0);
+            return new SystemHierarchy(root);
+        }
+
+        if (starNodes.Count == 4 && rng.Randf() < 0.55f)
+        {
+            HierarchyNode leftBinary = CreateHierarchyBinary(starNodes[0], starNodes[1], stars, rng, ref barycenterIndex, 3.5, 0.03, 30.0);
+            HierarchyNode rightBinary = CreateHierarchyBinary(starNodes[2], starNodes[3], stars, rng, ref barycenterIndex, 3.5, 0.10, 80.0);
+            root = CreateHierarchyBinary(leftBinary, rightBinary, stars, rng, ref barycenterIndex, 15.0, 10.0, 8000.0);
+            return new SystemHierarchy(root);
+        }
+
+        HierarchyNode coreBinary = CreateHierarchyBinary(starNodes[0], starNodes[1], stars, rng, ref barycenterIndex, 3.5, 0.03, 40.0);
+        root = coreBinary;
+        for (int index = 2; index < starNodes.Count; index += 1)
+        {
+            double spacingFactor = 12.0 + ((index - 2) * 4.0);
+            double minimumAu = 5.0 * System.Math.Pow(2.0, index - 2);
+            double maximumAu = 5000.0 * System.Math.Pow(1.6, index - 2);
+            root = CreateHierarchyBinary(root, starNodes[index], stars, rng, ref barycenterIndex, spacingFactor, minimumAu, maximumAu);
+        }
+
+        return new SystemHierarchy(root);
     }
 
     /// <summary>
@@ -354,6 +417,72 @@ public static class StellarConfigGenerator
 
         double logMin = System.Math.Log(minAu);
         double logMax = System.Math.Log(maxAu);
+        double logSeparation = rng.RandfRange((float)logMin, (float)logMax);
+        return System.Math.Exp(logSeparation) * Units.AuMeters;
+    }
+
+    private static HierarchyNode CreateHierarchyBinary(
+        HierarchyNode nodeA,
+        HierarchyNode nodeB,
+        Array<CelestialBody> stars,
+        SeededRng rng,
+        ref int barycenterIndex,
+        double minimumInnerMultiplier,
+        double preferredMinAu,
+        double preferredMaxAu)
+    {
+        double separationM = GenerateHierarchySeparation(nodeA, nodeB, stars, rng, minimumInnerMultiplier, preferredMinAu, preferredMaxAu);
+        double eccentricity = GenerateBinaryEccentricity(separationM, rng);
+        double massA = GetNodeMass(nodeA, stars);
+        double massB = GetNodeMass(nodeB, stars);
+        double periodS = OrbitalMechanics.CalculateOrbitalPeriod(separationM, massA + massB);
+        HierarchyNode barycenter = HierarchyNode.CreateBarycenter(
+            $"node_barycenter_{barycenterIndex}",
+            nodeA,
+            nodeB,
+            separationM,
+            eccentricity);
+        barycenter.OrbitalPeriodS = periodS;
+        barycenterIndex += 1;
+        return barycenter;
+    }
+
+    private static double GenerateHierarchySeparation(
+        HierarchyNode nodeA,
+        HierarchyNode nodeB,
+        Array<CelestialBody> stars,
+        SeededRng rng,
+        double minimumInnerMultiplier,
+        double preferredMinAu,
+        double preferredMaxAu)
+    {
+        double minimumAu = preferredMinAu;
+        double maximumAu = preferredMaxAu;
+        double largestChildSeparationAu = 0.0;
+
+        if (nodeA.IsBarycenter())
+        {
+            largestChildSeparationAu = System.Math.Max(largestChildSeparationAu, nodeA.SeparationM / Units.AuMeters);
+        }
+
+        if (nodeB.IsBarycenter())
+        {
+            largestChildSeparationAu = System.Math.Max(largestChildSeparationAu, nodeB.SeparationM / Units.AuMeters);
+        }
+
+        if (largestChildSeparationAu > 0.0)
+        {
+            minimumAu = System.Math.Max(minimumAu, largestChildSeparationAu * minimumInnerMultiplier);
+            maximumAu = System.Math.Max(maximumAu, minimumAu * 12.0);
+        }
+
+        double totalMassSolar = (GetNodeMass(nodeA, stars) + GetNodeMass(nodeB, stars)) / Units.SolarMassKg;
+        double massFactor = System.Math.Clamp(System.Math.Sqrt(System.Math.Max(totalMassSolar, 0.05)), 0.35, 6.0);
+        minimumAu *= 0.75 + (massFactor * 0.12);
+        maximumAu *= 0.90 + (massFactor * 0.20);
+
+        double logMin = System.Math.Log(minimumAu);
+        double logMax = System.Math.Log(maximumAu);
         double logSeparation = rng.RandfRange((float)logMin, (float)logMax);
         return System.Math.Exp(logSeparation) * Units.AuMeters;
     }
@@ -613,5 +742,86 @@ public static class StellarConfigGenerator
         }
 
         return System.Math.Clamp(massProxy, 0.2, 6.0);
+    }
+
+    private static double ResolveMultiplicityBias(double primaryMassSolar)
+    {
+        if (primaryMassSolar < 0.25)
+        {
+            return 0.55;
+        }
+
+        if (primaryMassSolar < 0.8)
+        {
+            return 0.78;
+        }
+
+        if (primaryMassSolar < 1.5)
+        {
+            return 1.0;
+        }
+
+        if (primaryMassSolar < 5.0)
+        {
+            return 1.35;
+        }
+
+        return 1.85;
+    }
+
+    private static double SampleCompanionMassSolar(double primaryMassSolar, int companionIndex, StellarGenerationProfile profile, SeededRng rng)
+    {
+        double minimumRatio = 0.04;
+        double qExponent = 1.0;
+        if (primaryMassSolar < 0.4)
+        {
+            minimumRatio = 0.20;
+            qExponent = 0.55;
+        }
+        else if (primaryMassSolar < 1.5)
+        {
+            minimumRatio = 0.08;
+            qExponent = 0.90;
+        }
+        else if (primaryMassSolar < 5.0)
+        {
+            minimumRatio = 0.05;
+            qExponent = 0.70;
+        }
+        else
+        {
+            minimumRatio = 0.10;
+            qExponent = 0.45;
+        }
+
+        if (companionIndex >= 2)
+        {
+            minimumRatio *= 0.85;
+        }
+
+        double raw = rng.Randf();
+        double ratio = System.Math.Pow(raw, qExponent);
+        ratio = minimumRatio + ((1.0 - minimumRatio) * ratio);
+        ratio *= System.Math.Clamp(profile.MultiplicityScale, 0.75, 1.35);
+        if (ratio > 1.0)
+        {
+            ratio = 1.0;
+        }
+
+        double companionMassSolar = primaryMassSolar * ratio;
+        if (companionMassSolar > primaryMassSolar)
+        {
+            companionMassSolar = primaryMassSolar;
+        }
+
+        return System.Math.Clamp(companionMassSolar, 0.01, primaryMassSolar);
+    }
+
+    private static double SampleCoevalAgeYears(double referenceAgeYears, int companionIndex, SeededRng rng)
+    {
+        double spreadFraction = 0.04 + (companionIndex * 0.01);
+        double spreadYears = System.Math.Max(referenceAgeYears * spreadFraction, 2.0e6);
+        double sampledAge = referenceAgeYears + (rng.Randfn(0.0f, 1.0f) * spreadYears);
+        return System.Math.Clamp(sampledAge, 1.0e6, 13.5e9);
     }
 }

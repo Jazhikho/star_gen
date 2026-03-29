@@ -31,6 +31,21 @@ Chambers, J. E., Wetherill, G. W., & Boss, A. P. (1996). The stability of multi-
 
 ---
 
+## Expanded stellar populations (brown dwarfs, white dwarfs, multiplicity)
+
+**Current use in StarGen:** `src/domain/generation/generators/StarGenerator.cs`, `src/domain/generation/generators/StellarMassSampler.cs`, `src/domain/system/StellarConfigGenerator.cs`, `src/domain/generation/parameters/StellarScienceReferenceCatalog.cs`, and stellar-generation/system-generation tests.
+
+| Citation | Summary | Used in |
+|----------|----------|---------|
+| Cummings, J. D., Kalirai, J. S., Tremblay, P.-E., Ramirez-Ruiz, E., & Choi, J. (2018). *The white dwarf initial-final mass relation for progenitor stars from 0.85 to 7.5 M☉*. *The Astrophysical Journal*, *866*(1), 21. https://arxiv.org/abs/1809.01673 — Notes: [Texts/Cummings2018.txt](Texts/Cummings2018.txt). | Cluster-calibrated initial-final mass relation (IFMR) across 0.85–7.5 M☉; low/intermediate/high-mass slope changes; weak metallicity dependence across moderate [Fe/H]. **Supports:** deterministic white-dwarf mass estimation from an older progenitor star in StarGen. | StarGenerator.cs white-dwarf generation; stellar help/source notes |
+| Kirkpatrick, J. D., Reid, I. N., Liebert, J., Gizis, J. E., Burgasser, A. J., Monet, D. G., Dahn, C. C., Nelson, B., & Williams, R. J. (2000). *Sixty-seven additional L dwarfs discovered by the Two Micron All Sky Survey (2MASS)*. *The Astronomical Journal*, *120*(1), 447–472. https://arxiv.org/abs/astro-ph/0003317 — Notes: [Texts/Kirkpatrick2000.txt](Texts/Kirkpatrick2000.txt). | Early L-dwarf census; notes that L dwarfs span roughly 1300–2000 K and helps anchor the warm end of the brown-dwarf sequence. **Supports:** approximate L-class temperature band in StarGen. | StarTable.cs brown-dwarf spectral ranges; StarGenerator.cs brown-dwarf classification |
+| Kirkpatrick, J. D., Cushing, M. C., Gelino, C. R., et al. (2011). *The first hundred brown dwarfs discovered by the Wide-field Infrared Survey Explorer (WISE)*. *The Astrophysical Journal Supplement Series*, *197*(2), 19. https://arxiv.org/abs/1108.4677 — Notes: [Texts/Kirkpatrick2011.txt](Texts/Kirkpatrick2011.txt). | WISE verification of L, T, and Y dwarfs; color/spectral trends; first volume-limited late-T and Y-dwarf census step. **Supports:** extending StarGen beyond M stars into T and Y brown-dwarf classes. | StarTable.cs brown-dwarf spectral ranges; ColorUtils.cs; stellar help/source notes |
+| Kirkpatrick, J. D., Marocco, F., Gelino, C. R., et al. (2024). *The Initial Mass Function Based on the Full-sky 20 pc Census of ∼3600 Stars and Brown Dwarfs*. *The Astrophysical Journal Supplement Series*, *271*(2), 55. https://ui.adsabs.harvard.edu/abs/2024ApJS..271...55K/abstract — Notes: [Texts/Kirkpatrick2024.txt](Texts/Kirkpatrick2024.txt). | 20 pc census spanning stars and brown dwarfs; quadripartite IMF with low-mass substellar segments; star-to-brown-dwarf number ratio about 4:1. **Supports:** practical brown-dwarf frequency and low-mass IMF shaping in StarGen. | StellarMassSampler.cs; StarGenerator brown-dwarf frequency tests |
+| Moe, M., & Di Stefano, R. (2017). *Mind your Ps and Qs: The interrelation between period (P) and mass-ratio (Q) distributions of binary stars*. *The Astrophysical Journal Supplement Series*, *230*(2), 15. https://arxiv.org/abs/1606.05347 — Notes: [Texts/MoeDiStefano2017.txt](Texts/MoeDiStefano2017.txt). | Meta-analysis of binary populations across techniques; period and mass-ratio distributions depend strongly on primary mass. **Supports:** moving StarGen companions away from independent random stars toward primary-conditioned companion masses and hierarchical layouts. | StellarConfigGenerator.cs multiplicity architecture; system-generation tests |
+| Tokovinin, A. (2021). *Architecture of hierarchical stellar systems and their formation*. *Universe*, *7*(9), 352. https://arxiv.org/abs/2109.09118 — Notes: [Texts/Tokovinin2021.txt](Texts/Tokovinin2021.txt). | Review of hierarchical-system families; orbit alignment trends; comparable masses inside the same hierarchy; architecture as a clue to formation path. **Supports:** building deterministic nested binaries instead of arbitrary random pairing in StarGen. | StellarConfigGenerator.cs hierarchy builder; system-generation tests |
+
+---
+
 ## Solar neighborhood density
 
 **Current use in StarGen:** [src/domain/galaxy/SubSectorGenerator.gd](../src/domain/galaxy/SubSectorGenerator.gd) — ~0.004 systems/pc³ (SOLAR_NEIGHBORHOOD_DENSITY). [Tests/domain/galaxy/TestSubSectorGenerator.gd](../Tests/domain/galaxy/TestSubSectorGenerator.gd): solar-neighborhood density test.
@@ -77,6 +92,7 @@ Chambers, J. E., Wetherill, G. W., & Boss, A. P. (1996). The stability of multi-
 
 ## Changelog
 
+- Cummings et al. (2018), Kirkpatrick et al. (2000, 2011, 2024), Moe & Di Stefano (2017), and Tokovinin (2021) added under Expanded stellar populations to support the `0.8.4.0` stellar-offerings pass (brown dwarfs, evolved stars, white dwarfs, and stronger multiplicity architecture).
 - Li et al. (2023) added: reviewed from abridged full text in Texts/Li2023.txt; annotated under Stellar distribution (supports current M-dwarf band; fidelity: metallicity/age-dependent IMF).
 - Bovy (2017) added: reviewed from abridged full text in Texts/Bovy2017.txt; annotated under Stellar distribution and Solar neighborhood density (supports current use; fidelity notes for mass density and dn/dM).
 - Initial structure and APA 7; placeholders for Chambers 1996 and benchmark topics (stellar, density, exoplanets). ToReview.md holds abstract-only papers until full text is added.

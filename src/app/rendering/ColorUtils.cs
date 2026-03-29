@@ -83,10 +83,14 @@ public static class ColorUtils
             "O" => new Color(0.6f, 0.7f, 1.0f),
             "B" => new Color(0.7f, 0.8f, 1.0f),
             "A" => new Color(0.9f, 0.9f, 1.0f),
+            "D" => new Color(0.86f, 0.9f, 1.0f),
             "F" => new Color(1.0f, 1.0f, 0.9f),
             "G" => new Color(1.0f, 1.0f, 0.8f),
             "K" => new Color(1.0f, 0.85f, 0.6f),
             "M" => new Color(1.0f, 0.6f, 0.4f),
+            "L" => new Color(0.86f, 0.46f, 0.22f),
+            "T" => new Color(0.63f, 0.28f, 0.34f),
+            "Y" => new Color(0.46f, 0.24f, 0.28f),
             _ => Colors.White,
         };
     }

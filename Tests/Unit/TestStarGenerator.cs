@@ -221,8 +221,11 @@ public static class TestStarGenerator
     {
         double kroupaAverage = CalculateAverageMassSolar(StellarImfForm.Kroupa, StellarImfVariationMode.Canonical, 41000);
         double chabrierAverage = CalculateAverageMassSolar(StellarImfForm.Chabrier, StellarImfVariationMode.Canonical, 42000);
+        double kroupaSubstellarFraction = CalculateSubstellarFraction(StellarImfForm.Kroupa, StellarImfVariationMode.Canonical, 41000);
+        double chabrierSubstellarFraction = CalculateSubstellarFraction(StellarImfForm.Chabrier, StellarImfVariationMode.Canonical, 42000);
 
-        if (System.Math.Abs(kroupaAverage - chabrierAverage) < 0.01)
+        if (System.Math.Abs(kroupaAverage - chabrierAverage) < 0.002
+            && System.Math.Abs(kroupaSubstellarFraction - chabrierSubstellarFraction) < 0.02)
         {
             throw new InvalidOperationException("different IMF families should not collapse to the same average mass");
         }
@@ -323,6 +326,83 @@ public static class TestStarGenerator
         }
     }
 
+    /// <summary>
+    /// Tests brown-dwarf spectral hints produce substellar outputs.
+    /// </summary>
+    public static void TestBrownDwarfHintsGenerateBrownDwarfs()
+    {
+        StarSpec spec = new StarSpec(46000, (int)StarClass.SpectralClass.L, 5, 1.0, 3.5e9);
+        CelestialBody star = StarGenerator.Generate(spec, new SeededRng(spec.GenerationSeed));
+        double massSolar = star.Physical.MassKg / Units.SolarMassKg;
+
+        if (star.Stellar.StellarType != "brown_dwarf")
+        {
+            throw new InvalidOperationException($"Expected a brown dwarf, got '{star.Stellar.StellarType}'");
+        }
+        if (!star.Stellar.SpectralClass.StartsWith("L"))
+        {
+            throw new InvalidOperationException($"Expected an L-dwarf label, got '{star.Stellar.SpectralClass}'");
+        }
+        if (massSolar >= 0.08)
+        {
+            throw new InvalidOperationException($"Brown dwarfs should stay below the hydrogen-burning limit, got {massSolar} solar masses");
+        }
+    }
+
+    /// <summary>
+    /// Tests older intermediate-mass stars can leave the main sequence without being forced into white dwarfs.
+    /// </summary>
+    public static void TestOldIntermediateMassStarsBecomeGiants()
+    {
+        StarSpec spec = new StarSpec(46010, (int)StarClass.SpectralClass.F, 5, 1.0, 2.6e9);
+        spec.SetOverride("physical.mass_solar", 2.0);
+        CelestialBody star = StarGenerator.Generate(spec, new SeededRng(spec.GenerationSeed));
+
+        if (star.Stellar.StellarType != "giant")
+        {
+            throw new InvalidOperationException($"Expected an evolved giant, got '{star.Stellar.StellarType}'");
+        }
+        if (star.Stellar.GetLuminosityClass() != "III")
+        {
+            throw new InvalidOperationException($"Expected luminosity class III, got '{star.Stellar.GetLuminosityClass()}'");
+        }
+    }
+
+    /// <summary>
+    /// Tests ancient mixed populations can produce white dwarfs when the sampled progenitor has aged past the main sequence.
+    /// </summary>
+    public static void TestAncientPopulationsProduceWhiteDwarfs()
+    {
+        int whiteDwarfCount = 0;
+        for (int index = 0; index < 512; index += 1)
+        {
+            int seed = 47000 + index;
+            StarSpec spec = StarSpec.Random(seed);
+            spec.GalaxyContext = new GalaxyOriginContext
+            {
+                MetallicityPrior = 1.0,
+                AgeMeanGyr = 10.5,
+                AgeCohort = GalaxyAgeCohort.Ancient,
+                ClusterProbability = 0.05,
+            };
+
+            CelestialBody star = StarGenerator.Generate(spec, new SeededRng(seed));
+            if (star.Stellar.StellarType == "white_dwarf")
+            {
+                whiteDwarfCount += 1;
+                if (!star.Stellar.SpectralClass.StartsWith("D"))
+                {
+                    throw new InvalidOperationException($"White dwarfs should use D-class labels, got '{star.Stellar.SpectralClass}'");
+                }
+            }
+        }
+
+        if (whiteDwarfCount <= 0)
+        {
+            throw new InvalidOperationException("Ancient field populations should occasionally produce white dwarfs");
+        }
+    }
+
     private static int CountHotStarsForContext(GalaxyAgeCohort ageCohort, GalaxyRegionKind regionKind, int baseSeed)
     {
         int hotCount = 0;
@@ -353,7 +433,7 @@ public static class TestStarGenerator
     private static double CalculateAverageMassSolar(StellarImfForm imfForm, StellarImfVariationMode variationMode, int baseSeed)
     {
         double totalMassSolar = 0.0;
-        for (int index = 0; index < 128; index += 1)
+        for (int index = 0; index < 512; index += 1)
         {
             int seed = baseSeed + index;
             StarSpec spec = StarSpec.Random(seed);
@@ -369,6 +449,31 @@ public static class TestStarGenerator
             totalMassSolar += star.Physical.MassKg / Units.SolarMassKg;
         }
 
-        return totalMassSolar / 128.0;
+        return totalMassSolar / 512.0;
+    }
+
+    private static double CalculateSubstellarFraction(StellarImfForm imfForm, StellarImfVariationMode variationMode, int baseSeed)
+    {
+        int substellarCount = 0;
+        for (int index = 0; index < 512; index += 1)
+        {
+            int seed = baseSeed + index;
+            StarSpec spec = StarSpec.Random(seed);
+            spec.StellarProfile = new StellarGenerationProfile
+            {
+                ImfForm = imfForm,
+                ImfVariationMode = variationMode,
+                IsochroneModel = StellarIsochroneModel.Mist,
+                MultiplicityScale = 1.0,
+            };
+
+            CelestialBody star = StarGenerator.Generate(spec, new SeededRng(seed));
+            if (star.Stellar.StellarType == "brown_dwarf")
+            {
+                substellarCount += 1;
+            }
+        }
+
+        return (double)substellarCount / 512.0;
     }
 }

@@ -210,6 +210,34 @@ public static class TestStellarProps
     }
 
     /// <summary>
+    /// Tests spectral helpers handle brown-dwarf and white-dwarf labels.
+    /// </summary>
+    public static void TestExpandedSpectralHelpers()
+    {
+        StellarProps props = new StellarProps();
+
+        props.SpectralClass = "L5";
+        if (props.GetSpectralLetter() != "L")
+        {
+            throw new InvalidOperationException($"Expected spectral letter 'L', got '{props.GetSpectralLetter()}'");
+        }
+        if (props.GetLuminosityClass() != string.Empty)
+        {
+            throw new InvalidOperationException("Brown-dwarf spectral labels should not report a luminosity class");
+        }
+
+        props.SpectralClass = "DA4";
+        if (props.GetSpectralLetter() != "D")
+        {
+            throw new InvalidOperationException($"Expected spectral letter 'D', got '{props.GetSpectralLetter()}'");
+        }
+        if (props.GetLuminosityClass() != string.Empty)
+        {
+            throw new InvalidOperationException("White-dwarf spectral labels should not report a normal luminosity class");
+        }
+    }
+
+    /// <summary>
     /// Tests round-trip serialization.
     /// </summary>
     public static void TestRoundTrip()

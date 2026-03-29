@@ -351,6 +351,97 @@ public static class TestStellarConfigGenerator
     }
 
     /// <summary>
+    /// Tests companions inherit nearly coeval ages and shared metallicity when no explicit system values are forced.
+    /// </summary>
+    public static void TestCompanionsShareAgeAndMetallicity()
+    {
+        SolarSystemSpec spec = new SolarSystemSpec(55555, 3, 3);
+        SeededRng rng = new SeededRng(55555);
+
+        SolarSystem system = StellarConfigGenerator.Generate(spec, rng);
+        if (system == null)
+        {
+            throw new InvalidOperationException("System should be generated");
+        }
+
+        Array<CelestialBody> stars = system.GetStars();
+        if (stars.Count != 3)
+        {
+            throw new InvalidOperationException("Expected a triple system");
+        }
+
+        CelestialBody primary = stars[0];
+        CelestialBody secondary = stars[1];
+        CelestialBody tertiary = stars[2];
+
+        double primaryAgeYears = primary.Stellar.AgeYears;
+        double secondaryAgeDelta = System.Math.Abs(secondary.Stellar.AgeYears - primaryAgeYears);
+        double tertiaryAgeDelta = System.Math.Abs(tertiary.Stellar.AgeYears - primaryAgeYears);
+        if (secondaryAgeDelta > primaryAgeYears * 0.15)
+        {
+            throw new InvalidOperationException("Companion ages should remain close to the primary age");
+        }
+        if (tertiaryAgeDelta > primaryAgeYears * 0.20)
+        {
+            throw new InvalidOperationException("Outer companions should remain broadly coeval with the primary age");
+        }
+
+        if (System.Math.Abs(primary.Stellar.Metallicity - secondary.Stellar.Metallicity) > 0.000001)
+        {
+            throw new InvalidOperationException("Companion metallicity should match the primary metallicity");
+        }
+        if (System.Math.Abs(primary.Stellar.Metallicity - tertiary.Stellar.Metallicity) > 0.000001)
+        {
+            throw new InvalidOperationException("Outer companion metallicity should match the primary metallicity");
+        }
+    }
+
+    /// <summary>
+    /// Tests hierarchy separations widen outward for higher-order systems.
+    /// </summary>
+    public static void TestHierarchySeparationsWidenOutward()
+    {
+        SolarSystemSpec spec = new SolarSystemSpec(66666, 5, 5);
+        SeededRng rng = new SeededRng(66666);
+
+        SolarSystem system = StellarConfigGenerator.Generate(spec, rng);
+        if (system == null)
+        {
+            throw new InvalidOperationException("System should be generated");
+        }
+
+        Array<HierarchyNode> barycenters = system.Hierarchy.GetAllBarycenters();
+        if (barycenters.Count < 2)
+        {
+            throw new InvalidOperationException("Higher-order systems should contain multiple barycenters");
+        }
+
+        double smallestSeparation = double.MaxValue;
+        double largestSeparation = 0.0;
+        foreach (HierarchyNode barycenter in barycenters)
+        {
+            if (barycenter.SeparationM <= 0.0)
+            {
+                throw new InvalidOperationException("Barycenter separations must be positive");
+            }
+
+            if (barycenter.SeparationM < smallestSeparation)
+            {
+                smallestSeparation = barycenter.SeparationM;
+            }
+            if (barycenter.SeparationM > largestSeparation)
+            {
+                largestSeparation = barycenter.SeparationM;
+            }
+        }
+
+        if (largestSeparation <= smallestSeparation)
+        {
+            throw new InvalidOperationException("Outer hierarchy levels should have wider separations than the innermost pair");
+        }
+    }
+
+    /// <summary>
     /// Legacy parity alias for test_binary_orbit_hosts.
     /// </summary>
     private static void TestBinaryOrbitHosts()

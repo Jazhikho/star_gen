@@ -20,10 +20,17 @@ public static class TestStarGeneratorDistributions
             throw new InvalidOperationException("Sampling must produce at least one classified star");
         }
 
+        double brownDwarfFraction = (double)(histogram.L + histogram.T + histogram.Y) / (double)histogram.Total;
         double mFraction = (double)histogram.M / (double)histogram.Total;
         double gkFraction = (double)(histogram.G + histogram.K) / (double)histogram.Total;
         double obafFraction = (double)(histogram.O + histogram.B + histogram.A + histogram.F) / (double)histogram.Total;
+        double whiteDwarfFraction = (double)histogram.D / (double)histogram.Total;
 
+        if (brownDwarfFraction < ScientificBenchmarks.BrownDwarfFractionMin || brownDwarfFraction > ScientificBenchmarks.BrownDwarfFractionMax)
+        {
+            throw new InvalidOperationException(
+                $"Brown-dwarf fraction should match benchmark range [{ScientificBenchmarks.BrownDwarfFractionMin}, {ScientificBenchmarks.BrownDwarfFractionMax}], got {brownDwarfFraction}");
+        }
         if (mFraction < ScientificBenchmarks.MDwarfFractionMin || mFraction > ScientificBenchmarks.MDwarfFractionMax)
         {
             throw new InvalidOperationException(
@@ -38,6 +45,11 @@ public static class TestStarGeneratorDistributions
         {
             throw new InvalidOperationException(
                 $"OBAF fraction should remain within benchmark max {ScientificBenchmarks.ObafFractionMax}, got {obafFraction}");
+        }
+        if (whiteDwarfFraction < 0.0 || whiteDwarfFraction > ScientificBenchmarks.WhiteDwarfFractionMax)
+        {
+            throw new InvalidOperationException(
+                $"White-dwarf fraction should remain within benchmark max {ScientificBenchmarks.WhiteDwarfFractionMax}, got {whiteDwarfFraction}");
         }
     }
 }
