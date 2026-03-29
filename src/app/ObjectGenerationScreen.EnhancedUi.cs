@@ -32,6 +32,7 @@ public partial class ObjectGenerationScreen
     private OptionButton? _planetAlbedoProfileOption;
     private OptionButton? _planetVolcanismOption;
     private CheckBox? _planetGenerateMoonCheck;
+    private OptionButton? _moonTargetCountOption;
 
     private VBoxContainer? _travellerSection;
     private CheckBox? _useTravellerWorldProfileCheck;
@@ -111,6 +112,7 @@ public partial class ObjectGenerationScreen
         _planetAlbedoProfileOption = GetRequiredOptionButton("PlanetAlbedoProfileRow", "PlanetAlbedoProfileOption");
         _planetVolcanismOption = GetRequiredOptionButton("PlanetVolcanismRow", "PlanetVolcanismOption");
         _planetGenerateMoonCheck = GetRequiredCheckBox("PlanetGenerateMoonRow", "PlanetGenerateMoonCheck");
+        _moonTargetCountOption = GetRequiredOptionButton("MoonTargetCountRow", "MoonTargetCountOption");
 
         _useTravellerWorldProfileCheck = GetRequiredCheckBox("UseTravellerWorldProfileRow", "UseTravellerWorldProfileCheck");
         _travellerSizeCodeOption = GetRequiredOptionButton("TravellerSizeCodeRow", "TravellerSizeCodeOption");
@@ -242,6 +244,7 @@ public partial class ObjectGenerationScreen
         ConnectOptionToSummary(_planetIceCoverageOption);
         ConnectOptionToSummary(_planetAlbedoProfileOption);
         ConnectOptionToSummary(_planetVolcanismOption);
+        ConnectOptionToSummary(_moonTargetCountOption);
         ConnectOptionToSummary(_travellerSizeCodeOption);
         ConnectOptionToSummary(_travellerAtmosphereCodeOption);
         ConnectOptionToSummary(_travellerHydrographicsCodeOption);
@@ -372,6 +375,22 @@ public partial class ObjectGenerationScreen
             lines.Add($"Ruleset {GenerationUseCasePresentation.GetRulesetLabel(request.UseCaseSettings.RulesetMode)}");
             lines.Add($"Traveller Readouts {(request.UseCaseSettings.ShowTravellerReadouts ? "On" : "Off")}");
             lines.Add($"Life Potential {PermissivenessScaleHelper.GetBandLabel(request.UseCaseSettings.LifePermissiveness)}");
+            if (_planetGenerateMoonCheck != null && _planetGenerateMoonCheck.ButtonPressed)
+            {
+                lines.Add($"Moon Target {GetSelectedMoonTargetLabel()}");
+                if (_moonCapturedCheck != null)
+                {
+                    if (_moonCapturedCheck.ButtonPressed)
+                    {
+                        lines.Add("Moon Bias Captured");
+                    }
+                    else
+                    {
+                        lines.Add("Moon Bias Regular");
+                    }
+                }
+            }
+
             if (request.TravellerWorldProfileData.Count > 0)
             {
                 TravellerWorldProfile profile = TravellerWorldProfile.FromDictionary(request.TravellerWorldProfileData);
@@ -448,6 +467,11 @@ public partial class ObjectGenerationScreen
         SetEnhancedRowVisible("PlanetVolcanismRow", objectType == ObjectViewer.ObjectType.Planet);
         SetEnhancedRowVisible("PlanetGenerateMoonRow", objectType == ObjectViewer.ObjectType.Planet);
         SetEnhancedRowVisible(
+            "MoonTargetCountRow",
+            objectType == ObjectViewer.ObjectType.Planet
+                && _planetGenerateMoonCheck != null
+                && _planetGenerateMoonCheck.ButtonPressed);
+        SetEnhancedRowVisible(
             "MoonCapturedRow",
             objectType == ObjectViewer.ObjectType.Planet
                 && _planetGenerateMoonCheck != null
@@ -518,7 +542,7 @@ public partial class ObjectGenerationScreen
 
         if (_planetGenerateMoonCheck != null && _planetGenerateMoonCheck.ButtonPressed)
         {
-            AddEnhancedIssueLabel("Planet launch will also generate one moon using the same seed family.");
+            AddEnhancedIssueLabel($"Planet launch will also generate {GetSelectedMoonTargetDescription()} using the same seed family, then cap the final count by planet size.");
         }
 
         if (_showAdvancedControlsCheck != null && _showAdvancedControlsCheck.ButtonPressed)
@@ -585,6 +609,7 @@ public partial class ObjectGenerationScreen
         PopulateProfileLevelOptions(_planetIceCoverageOption, "Auto", "Ice-free", "Seasonal", "Frozen");
         PopulateProfileLevelOptions(_planetAlbedoProfileOption, "Auto", "Dark", "Balanced", "Bright");
         PopulateProfileLevelOptions(_planetVolcanismOption, "Auto", "Quiet", "Active", "Extreme");
+        PopulateMoonTargetCountOptions(_moonTargetCountOption);
     }
 
     private void PopulateTravellerSection()
@@ -629,7 +654,7 @@ public partial class ObjectGenerationScreen
 
         if (_planetGenerateMoonCheck != null && _planetGenerateMoonCheck.ButtonPressed)
         {
-            return "Planet launch includes one linked moon.";
+            return $"Planet launch targets {GetSelectedMoonTargetLabel().ToLowerInvariant()} and caps the final moon count by planet size.";
         }
 
         if (_showAdvancedControlsCheck != null && _showAdvancedControlsCheck.ButtonPressed)
@@ -649,7 +674,7 @@ public partial class ObjectGenerationScreen
 
         if (_planetGenerateMoonCheck != null && _planetGenerateMoonCheck.ButtonPressed)
         {
-            return "The planet generator will also create one moon from the same seed family. Captured mode biases that moon toward an irregular outsider rather than a regular formed-with-the-planet satellite.";
+            return $"The planet generator will also create {GetSelectedMoonTargetDescription()} from the same seed family. The target count is capped by the generated planet size so small worlds do not end up with giant-planet moon counts. Captured mode biases those moons toward irregular outsider satellites rather than regular formed-with-the-planet moons.";
         }
 
         if (_showAdvancedControlsCheck != null && _showAdvancedControlsCheck.ButtonPressed)
@@ -919,6 +944,21 @@ public partial class ObjectGenerationScreen
         }
     }
 
+    private void PopulateMoonTargetCountOptions(OptionButton? optionButton)
+    {
+        if (optionButton == null)
+        {
+            return;
+        }
+
+        optionButton.Clear();
+        optionButton.AddItem("Auto", -1);
+        for (int targetCount = 1; targetCount <= 12; targetCount += 1)
+        {
+            optionButton.AddItem(targetCount.ToString(), targetCount);
+        }
+    }
+
     private void PopulateStarSubclassOptions(OptionButton? optionButton)
     {
         if (optionButton == null)
@@ -985,5 +1025,42 @@ public partial class ObjectGenerationScreen
 
             optionButton.AddItem(label, code);
         }
+    }
+
+    private string GetSelectedMoonTargetLabel()
+    {
+        if (_moonTargetCountOption == null)
+        {
+            return "Auto";
+        }
+
+        int selectedId = _moonTargetCountOption.GetSelectedId();
+        if (selectedId < 1)
+        {
+            return "Auto";
+        }
+
+        return selectedId.ToString();
+    }
+
+    private string GetSelectedMoonTargetDescription()
+    {
+        if (_moonTargetCountOption == null)
+        {
+            return "an automatic moon count";
+        }
+
+        int selectedId = _moonTargetCountOption.GetSelectedId();
+        if (selectedId < 1)
+        {
+            return "an automatic moon count based on planet size";
+        }
+
+        if (selectedId == 1)
+        {
+            return "1 moon";
+        }
+
+        return $"{selectedId} moons";
     }
 }

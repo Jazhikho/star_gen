@@ -392,6 +392,7 @@ public partial class ObjectGenerationScreen
             SelectOptionById(_planetIceCoverageOption, -1);
             SelectOptionById(_planetAlbedoProfileOption, -1);
             SelectOptionById(_planetVolcanismOption, -1);
+            SelectOptionById(_moonTargetCountOption, -1);
             if (_planetGenerateMoonCheck != null)
             {
                 _planetGenerateMoonCheck.ButtonPressed = false;
@@ -642,6 +643,11 @@ public partial class ObjectGenerationScreen
         if (_planetGenerateMoonCheck != null)
         {
             spec.SetOverride("studio.generate_moon", _planetGenerateMoonCheck.ButtonPressed);
+        }
+
+        if (_moonTargetCountOption != null)
+        {
+            spec.SetOverride("studio.moon_target_count", _moonTargetCountOption.GetSelectedId());
         }
 
         if (_moonCapturedCheck != null)

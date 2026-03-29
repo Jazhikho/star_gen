@@ -19,6 +19,17 @@ Use this log for significant AI-assisted artifacts in this repository.
 
 ### 2026-03-29 - Codex (GPT-5)
 
+- Task Purpose: Apply the `0.8.5.1` patch update for Object Studio moon controls and checkbox visibility by adding a moon-count target selector, carrying that target into deterministic moon generation, and making unchecked checkboxes visibly readable in the dark theme.
+- Input Materials Used: User follow-up patch request clarifying that this work should be treated as a patch update, that moon generation needs a target-count control rather than a pure boolean, and that the current checkbox styling makes unchecked boxes effectively invisible; `AGENTS.md`; `claude.md`; the existing `0.8.5.0` Object Studio, Object Viewer, theme, and test files.
+- AI Produced: Added a scene-owned moon target-count dropdown under the planet moon controls, updated Object Studio visibility and summary logic for the new moon-count control, carried the selected target count into `PlanetSpec` overrides, expanded the object-viewer generation path so planet launches can generate multiple moons deterministically with planet-size-based caps, updated the dark theme checkbox styles so unchecked boxes remain visible, added regression coverage for the new UI row and moon-count resolution logic, and synced internal patch metadata to `0.8.5.1`.
+- Human Accepted: Pending review of the new moon-count UX, the size-based cap behavior, and the checkbox visibility fix before merge or release.
+- Human Rejected: The earlier all-or-nothing moon checkbox was rejected as too limited, and the earlier invisible unchecked checkbox presentation was rejected as unusable.
+- Human Changed: The user clarified that the moon count should be a target rather than an unconditional exact promise, because the final generated count must still respect the generated planet size.
+- Validation Method: `dotnet build StarGen.sln`; `godot-mono.exe --path . --headless --script res://Tests/RunTestsHeadless.gd` (`1780 / 1780` passed).
+- Final Approver: Pending Christopher B. Del Gesso review.
+
+### 2026-03-29 - Codex (GPT-5)
+
 - Task Purpose: Implement the current `0.8.5.0` object-taxonomy and Object Studio patch by making Object Studio context-sensitive, moving moon generation under planets, adding comet support, and broadening the practical asteroid and planet controls.
 - Input Materials Used: User-approved `0.8.5.0` object-taxonomy plan; follow-up user correction that upstream planetary models must eventually surface in higher-level studios; follow-up user patch request describing the remaining Object Studio problems; `AGENTS.md`; `claude.md`; the existing object generation, viewer, rendering, persistence, and test files already on the `codex/release-0.9-mainline` branch.
 - AI Produced: Added `CometSpec` and `CometGenerator`; introduced comet handling across celestial typing, rendering, persistence, viewer generation, and save/load metadata; expanded asteroid taxonomy and added orbit-band, density, and albedo shaping controls; removed standalone moon selection from the Object Studio top-level picker and moved moon generation under planets with context-sensitive moon controls; expanded planet profile overrides in Object Studio; simplified star object editing to subclass-first controls while dropping unreliable direct metallicity and age fields; updated Object Studio visibility logic and assumptions text; added comet and Object Studio context-gating tests; and synced roadmap/version/project-structure metadata to `0.8.5.0`.

@@ -363,6 +363,19 @@ text = "Generate Moon"
 [node name="PlanetGenerateMoonCheck" type="CheckBox" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/PlanetSection/PlanetGenerateMoonRow"]
 layout_mode = 2
 
+[node name="MoonTargetCountRow" type="HBoxContainer" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/PlanetSection"]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="MoonTargetCountRowLabel" type="Label" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/PlanetSection/MoonTargetCountRow"]
+layout_mode = 2
+custom_minimum_size = Vector2(112, 0)
+text = "Target Moons"
+
+[node name="MoonTargetCountOption" type="OptionButton" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/PlanetSection/MoonTargetCountRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+
 [node name="MoonCapturedRow" type="HBoxContainer" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/PlanetSection"]
 layout_mode = 2
 theme_override_constants/separation = 10

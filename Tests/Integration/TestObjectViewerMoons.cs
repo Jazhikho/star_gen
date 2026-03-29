@@ -5,6 +5,7 @@ using Godot;
 using StarGen.App.Viewer;
 using StarGen.Domain.Celestial;
 using StarGen.Domain.Celestial.Components;
+using StarGen.Domain.Generation.Specs;
 using StarGen.Domain.Math;
 using StarGen.Tests.Framework;
 
@@ -78,6 +79,12 @@ public static class TestObjectViewerMoons
         runner.RunNativeTest(
             "TestObjectViewerMoons::test_moon_collection_skips_no_orbital",
             TestMoonCollectionSkipsNoOrbital);
+        runner.RunNativeTest(
+            "TestObjectViewerMoons::test_moon_target_count_clamps_to_planet_size",
+            TestMoonTargetCountClampsToPlanetSize);
+        runner.RunNativeTest(
+            "TestObjectViewerMoons::test_auto_moon_target_scales_with_planet_size",
+            TestAutoMoonTargetScalesWithPlanetSize);
     }
 
     /// <summary>
@@ -487,6 +494,49 @@ public static class TestObjectViewerMoons
         }
 
         DotNetNativeTestSuite.AssertEqual(0, collected.Count, "Moon without orbital skipped safely");
+    }
+
+    /// <summary>
+    /// Tests requested moon counts clamp down for smaller planets.
+    /// </summary>
+    private static void TestMoonTargetCountClampsToPlanetSize()
+    {
+        CelestialBody planet = MakePlanet();
+        PlanetSpec spec = PlanetSpec.EarthLike(12345);
+        spec.SetOverride("studio.moon_target_count", 12);
+
+        int resolvedCount = ObjectViewer.ResolveMoonTargetCount(spec, planet);
+        int countCap = ObjectViewer.DetermineMoonCountCap(planet);
+
+        DotNetNativeTestSuite.AssertEqual(3, countCap, "Earth-sized planets should have a modest moon-count cap");
+        DotNetNativeTestSuite.AssertEqual(countCap, resolvedCount, "Requested moon count should clamp to the planet-size cap");
+    }
+
+    /// <summary>
+    /// Tests automatic moon targeting increases for larger planets.
+    /// </summary>
+    private static void TestAutoMoonTargetScalesWithPlanetSize()
+    {
+        CelestialBody smallPlanet = MakePlanet();
+        CelestialBody giantPlanet = MakePlanet();
+        giantPlanet.Physical = new PhysicalProps(
+            Units.JupiterMassKg,
+            Units.JupiterRadiusMeters,
+            40000.0,
+            3.0,
+            0.048,
+            1.0e22,
+            0.0);
+
+        PlanetSpec autoSpec = PlanetSpec.Random(67890);
+        autoSpec.SetOverride("studio.moon_target_count", -1);
+
+        int smallTarget = ObjectViewer.ResolveMoonTargetCount(autoSpec, smallPlanet);
+        int giantTarget = ObjectViewer.ResolveMoonTargetCount(autoSpec, giantPlanet);
+
+        DotNetNativeTestSuite.AssertTrue(giantTarget > smallTarget, "Auto moon target should scale upward for giant planets");
+        DotNetNativeTestSuite.AssertEqual(1, smallTarget, "Earth-sized planets should default to a small automatic moon target");
+        DotNetNativeTestSuite.AssertEqual(6, giantTarget, "Giant planets should default to a larger automatic moon target");
     }
 
 }

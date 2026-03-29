@@ -1,12 +1,19 @@
 # Version
 
-Current version: `0.8.5.0`
+Current version: `0.8.5.1`
 
 Current user-facing version: `0.9d`
 
 Date: `2026-03-29`
 
 Versioning method: release/refactor `+0.1`, feature `+0.0.1`, bug fix `+0.0.0.1`, save-breaking release `+1.0`.
+
+## 0.8.5.1
+
+- Bug fix: Planet moon generation in Object Studio now supports a context-sensitive target moon-count selector instead of a simple yes/no moon toggle, with the final count capped by the generated planet size so small worlds cannot request giant-planet moon counts.
+- Bug fix: Object Studio now carries the moon-count target through to viewer generation, producing multiple linked moons deterministically when the target and planet size allow it.
+- Bug fix: Updated the shared dark theme so unchecked checkboxes remain visibly boxed instead of disappearing against the background unless they were already checked.
+- Test: Expanded Object Studio and moon-generation regressions around the new moon target-count control and size-based moon-count resolution; `dotnet build StarGen.sln` passed, and the headless harness passed (`1780 / 1780`).
 
 ## 0.8.5.0
 

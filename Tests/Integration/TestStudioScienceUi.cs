@@ -88,7 +88,9 @@ public static class TestStudioScienceUi
         VBoxContainer? cometSection = screen.GetNodeOrNull<VBoxContainer>("MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/CometSection");
         HBoxContainer? showTravellerReadoutsRow = screen.GetNodeOrNull<HBoxContainer>("MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/RulesPanel/MarginContainer/RulesVBox/ScrollContainer/RulesContent/ShowTravellerReadoutsRow");
         HBoxContainer? planetGenerateMoonRow = screen.GetNodeOrNull<HBoxContainer>("MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/PlanetSection/PlanetGenerateMoonRow");
+        HBoxContainer? moonTargetCountRow = screen.GetNodeOrNull<HBoxContainer>("MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/PlanetSection/MoonTargetCountRow");
         HBoxContainer? moonCapturedRow = screen.GetNodeOrNull<HBoxContainer>("MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/PlanetSection/MoonCapturedRow");
+        OptionButton? moonTargetCountOption = screen.GetNodeOrNull<OptionButton>("MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/PlanetSection/MoonTargetCountRow/MoonTargetCountOption");
         OptionButton? starSubclassOption = screen.GetNodeOrNull<OptionButton>("MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/StarSection/StarSubclassRow/StarSubclassOption");
         HBoxContainer? starMetallicityRow = screen.GetNodeOrNull<HBoxContainer>("MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/StarSection/StarMetallicityRow");
         HBoxContainer? starAgeRow = screen.GetNodeOrNull<HBoxContainer>("MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/StarSection/StarAgeGyrRow");
@@ -108,7 +110,9 @@ public static class TestStudioScienceUi
         DotNetNativeTestSuite.AssertNotNull(cometSection, "Object studio should expose a comet section");
         DotNetNativeTestSuite.AssertNotNull(showTravellerReadoutsRow, "Traveller readout control should exist in the rules panel");
         DotNetNativeTestSuite.AssertNotNull(planetGenerateMoonRow, "Planet controls should include a moon checkbox");
+        DotNetNativeTestSuite.AssertNotNull(moonTargetCountRow, "Planet controls should include a moon target-count row");
         DotNetNativeTestSuite.AssertNotNull(moonCapturedRow, "Planet controls should include a captured moon row");
+        DotNetNativeTestSuite.AssertNotNull(moonTargetCountOption, "Planet controls should expose a moon target-count selector");
         DotNetNativeTestSuite.AssertNotNull(starSubclassOption, "Star controls should expose a subclass selector");
         DotNetNativeTestSuite.AssertNull(starMetallicityRow, "Object studio should not expose star metallicity editing");
         DotNetNativeTestSuite.AssertNull(starAgeRow, "Object studio should not expose star age editing");
@@ -126,13 +130,17 @@ public static class TestStudioScienceUi
         DotNetNativeTestSuite.AssertFalse(OptionContainsText(presetOption, "Sun-like"), "Star presets should not appear while planet type is selected");
         DotNetNativeTestSuite.AssertFalse(OptionContainsText(typeOption!, "Moon"), "Moon should not appear as a top-level object type");
         DotNetNativeTestSuite.AssertTrue(OptionContainsText(typeOption, "Comet"), "Comet should appear as a top-level object type");
+        DotNetNativeTestSuite.AssertFalse(moonTargetCountRow!.Visible, "Moon target-count row should stay hidden until moon generation is enabled");
         DotNetNativeTestSuite.AssertFalse(moonCapturedRow!.Visible, "Captured moon row should stay hidden until moon generation is enabled");
 
         planetGenerateMoonCheck!.ButtonPressed = true;
         planetGenerateMoonCheck.EmitSignal(CheckBox.SignalName.Toggled, true);
+        DotNetNativeTestSuite.AssertTrue(moonTargetCountRow.Visible, "Moon target-count row should appear when moon generation is enabled");
         DotNetNativeTestSuite.AssertTrue(moonCapturedRow.Visible, "Captured moon row should appear when moon generation is enabled");
+        DotNetNativeTestSuite.AssertTrue(OptionContainsText(moonTargetCountOption!, "12"), "Moon target-count selector should expose a higher target range");
         planetGenerateMoonCheck.ButtonPressed = false;
         planetGenerateMoonCheck.EmitSignal(CheckBox.SignalName.Toggled, false);
+        DotNetNativeTestSuite.AssertFalse(moonTargetCountRow.Visible, "Moon target-count row should hide when moon generation is disabled");
         DotNetNativeTestSuite.AssertFalse(moonCapturedRow.Visible, "Captured moon row should hide when moon generation is disabled");
 
         SelectOptionById(typeOption!, (int)ObjectViewer.ObjectType.Star);

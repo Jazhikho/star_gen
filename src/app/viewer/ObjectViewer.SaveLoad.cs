@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.IO;
 using Godot;
 using StarGen.Domain.Celestial;
@@ -589,12 +590,18 @@ public partial class ObjectViewer
         if (spec.GetOverride("studio.generate_moon", false).VariantType == Variant.Type.Bool
             && (bool)spec.GetOverride("studio.generate_moon", false))
         {
-            MoonSpec moonSpec = BuildMoonSpecForPlanet(spec, body);
-            SeededRng moonRng = new SeededRng(spec.GenerationSeed + 1);
+            int moonCount = ResolveMoonTargetCount(spec, body);
             ParentContext moonContext = BuildMoonContextForPlanet(body);
-            CelestialBody? moon = MoonGenerator.Generate(moonSpec, moonContext, moonRng);
-            if (moon != null)
+            for (int moonIndex = 0; moonIndex < moonCount; moonIndex += 1)
             {
+                MoonSpec moonSpec = BuildMoonSpecForPlanet(spec, body, moonIndex);
+                SeededRng moonRng = new SeededRng(spec.GenerationSeed + moonIndex + 1);
+                CelestialBody? moon = MoonGenerator.Generate(moonSpec, moonContext, moonRng);
+                if (moon == null)
+                {
+                    continue;
+                }
+
                 if (moon.Orbital != null)
                 {
                     moon.Orbital.ParentId = body.Id;
@@ -602,6 +609,8 @@ public partial class ObjectViewer
 
                 moons.Add(moon);
             }
+
+            SortMoonsByDistance(moons);
         }
 
         DisplayGeneratedBody(body, ObjectType.Planet, presetId, moons);
@@ -894,18 +903,144 @@ public partial class ObjectViewer
         SetStatus($"Generated {objectType}: {presetLabel}");
     }
 
-    private static MoonSpec BuildMoonSpecForPlanet(PlanetSpec planetSpec, CelestialBody planetBody)
+    internal static int ResolveMoonTargetCount(PlanetSpec planetSpec, CelestialBody planetBody)
+    {
+        int moonCountCap = DetermineMoonCountCap(planetBody);
+        int requestedTargetCount = -1;
+        Variant targetCountVariant = planetSpec.GetOverride("studio.moon_target_count", -1);
+        if (targetCountVariant.VariantType == Variant.Type.Int)
+        {
+            requestedTargetCount = (int)targetCountVariant;
+        }
+
+        if (requestedTargetCount < 1)
+        {
+            requestedTargetCount = DetermineAutoMoonTargetCount(planetBody, moonCountCap);
+        }
+
+        if (requestedTargetCount > moonCountCap)
+        {
+            requestedTargetCount = moonCountCap;
+        }
+
+        if (requestedTargetCount < 1)
+        {
+            requestedTargetCount = 1;
+        }
+
+        return requestedTargetCount;
+    }
+
+    internal static int DetermineMoonCountCap(CelestialBody planetBody)
+    {
+        double radiusInEarthRadii = planetBody.Physical.RadiusM / Units.EarthRadiusMeters;
+        if (radiusInEarthRadii < 0.45)
+        {
+            return 1;
+        }
+
+        if (radiusInEarthRadii < 0.9)
+        {
+            return 2;
+        }
+
+        if (radiusInEarthRadii < 1.6)
+        {
+            return 3;
+        }
+
+        if (radiusInEarthRadii < 2.8)
+        {
+            return 4;
+        }
+
+        if (radiusInEarthRadii < 4.5)
+        {
+            return 6;
+        }
+
+        if (radiusInEarthRadii < 7.0)
+        {
+            return 8;
+        }
+
+        return 12;
+    }
+
+    private static int DetermineAutoMoonTargetCount(CelestialBody planetBody, int moonCountCap)
+    {
+        double radiusInEarthRadii = planetBody.Physical.RadiusM / Units.EarthRadiusMeters;
+        int targetCount = 1;
+        if (radiusInEarthRadii >= 1.4)
+        {
+            targetCount = 2;
+        }
+
+        if (radiusInEarthRadii >= 3.5)
+        {
+            targetCount = 4;
+        }
+
+        if (radiusInEarthRadii >= 7.0)
+        {
+            targetCount = 6;
+        }
+
+        if (targetCount > moonCountCap)
+        {
+            targetCount = moonCountCap;
+        }
+
+        return targetCount;
+    }
+
+    private static void SortMoonsByDistance(Godot.Collections.Array<CelestialBody> moons)
+    {
+        List<CelestialBody> sortedMoons = new();
+        foreach (CelestialBody moon in moons)
+        {
+            sortedMoons.Add(moon);
+        }
+
+        sortedMoons.Sort(new MoonDistanceComparer());
+        moons.Clear();
+        foreach (CelestialBody moon in sortedMoons)
+        {
+            moons.Add(moon);
+        }
+    }
+
+    private sealed class MoonDistanceComparer : IComparer<CelestialBody>
+    {
+        public int Compare(CelestialBody? left, CelestialBody? right)
+        {
+            if (left == null || right == null)
+            {
+                return 0;
+            }
+
+            if (left.Orbital == null || right.Orbital == null)
+            {
+                return 0;
+            }
+
+            return left.Orbital.SemiMajorAxisM.CompareTo(right.Orbital.SemiMajorAxisM);
+        }
+    }
+
+    private static MoonSpec BuildMoonSpecForPlanet(PlanetSpec planetSpec, CelestialBody planetBody, int moonIndex)
     {
         bool captured = planetSpec.GetOverride("studio.moon_captured", false).VariantType == Variant.Type.Bool
             && (bool)planetSpec.GetOverride("studio.moon_captured", false);
         MoonSpec moonSpec;
+        int moonSeed = planetSpec.GenerationSeed + moonIndex + 1;
         if (captured)
         {
-            moonSpec = MoonSpec.Captured(planetSpec.GenerationSeed + 1);
+            moonSpec = MoonSpec.Captured(moonSeed);
         }
         else
         {
-            moonSpec = MoonSpec.Random(planetSpec.GenerationSeed + 1);
+            moonSpec = MoonSpec.Random(moonSeed);
         }
 
         moonSpec.UseCaseSettings = planetSpec.UseCaseSettings.Clone();
