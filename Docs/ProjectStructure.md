@@ -87,6 +87,13 @@ star_gen/
 
 ## Recent Major Additions
 
+- `src/domain/generation/specs/CometSpec.cs`: serializable comet-generation spec carrying family, activity-state, and large-nucleus controls for object and viewer generation.
+- `src/domain/generation/generators/CometGenerator.cs`: deterministic comet generator that produces Jupiter-family and long-period comet bodies with comet-specific defaults and metadata.
+- `src/app/ObjectGenerationScreen.tscn`: Object Studio scene now behaves as a context-sensitive single-object editor, with moon generation folded under planets, richer asteroid and planet controls, and a dedicated comet section.
+- `src/app/ObjectGenerationScreen.EnhancedUi.cs`: scene-first Object Studio controller that hides unrelated controls by object type, keeps Traveller-only rows under generation rules, and binds the new comet, asteroid, planet, and star-specific authoring flow.
+- `src/app/viewer/ObjectViewer.SaveLoad.cs`: object-viewer generation and preset plumbing now support comets, planet-plus-moon generation requests, and the expanded object taxonomy.
+- `Tests/Unit/TestCometGenerator.cs`: deterministic comet-generation coverage for type identity, preset behavior, and repeatability.
+- `Tests/Integration/TestStudioScienceUi.cs`: non-visual integration coverage for Object Studio context gating, comet availability, moon-under-planet controls, and the relocated Traveller rules rows.
 - `Sources/Texts/Cummings2018.txt`, `Sources/Texts/Kirkpatrick2000.txt`, `Sources/Texts/Kirkpatrick2011.txt`, `Sources/Texts/Kirkpatrick2024.txt`, `Sources/Texts/MoeDiStefano2017.txt`, `Sources/Texts/Tokovinin2021.txt`: reviewed source notes added for the stellar-population expansion covering white dwarfs, brown dwarfs, and multiplicity.
 - `src/domain/generation/archetypes/StarClass.cs`: expanded stellar spectral support to include the practical brown-dwarf classes `L`, `T`, and `Y`.
 - `src/domain/generation/tables/StarTable.cs`: widened the stellar lookup tables to cover substellar classes and align the hydrogen-burning boundary with the expanded stellar offerings.

@@ -202,6 +202,9 @@ public static class ColorUtils
             "carbonaceous" => new Color(0.15f, 0.12f, 0.1f),
             "silicaceous" => new Color(0.5f, 0.45f, 0.4f),
             "metallic" => new Color(0.6f, 0.6f, 0.55f),
+            "dark_red" => new Color(0.28f, 0.18f, 0.16f),
+            "basaltic" => new Color(0.45f, 0.34f, 0.30f),
+            "cometary" => new Color(0.25f, 0.24f, 0.22f),
             _ => new Color(0.4f, 0.4f, 0.4f),
         };
 

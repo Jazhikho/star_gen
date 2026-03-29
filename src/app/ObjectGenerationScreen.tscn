@@ -286,144 +286,94 @@ text = "Ring Complexity"
 layout_mode = 2
 size_flags_horizontal = 3
 
-[node name="TravellerSection" type="VBoxContainer" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox"]
-layout_mode = 2
-theme_override_constants/separation = 8
-
-[node name="TravellerSectionTitle" type="Label" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/TravellerSection"]
-layout_mode = 2
-theme_override_font_sizes/font_size = 16
-text = "Traveller World Profile"
-
-[node name="TravellerSectionDivider" type="HSeparator" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/TravellerSection"]
-layout_mode = 2
-
-[node name="UseTravellerWorldProfileRow" type="HBoxContainer" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/TravellerSection"]
+[node name="PlanetSurfacePressureRow" type="HBoxContainer" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/PlanetSection"]
 layout_mode = 2
 theme_override_constants/separation = 10
 
-[node name="UseTravellerWorldProfileRowLabel" type="Label" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/TravellerSection/UseTravellerWorldProfileRow"]
+[node name="PlanetSurfacePressureRowLabel" type="Label" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/PlanetSection/PlanetSurfacePressureRow"]
 layout_mode = 2
 custom_minimum_size = Vector2(112, 0)
-text = "Traveller Worldgen"
+text = "Pressure Profile"
 
-[node name="UseTravellerWorldProfileCheck" type="CheckBox" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/TravellerSection/UseTravellerWorldProfileRow"]
-layout_mode = 2
-
-[node name="TravellerSizeCodeRow" type="HBoxContainer" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/TravellerSection"]
-layout_mode = 2
-theme_override_constants/separation = 10
-
-[node name="TravellerSizeCodeRowLabel" type="Label" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/TravellerSection/TravellerSizeCodeRow"]
-layout_mode = 2
-custom_minimum_size = Vector2(112, 0)
-text = "Size Code"
-
-[node name="TravellerSizeCodeOption" type="OptionButton" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/TravellerSection/TravellerSizeCodeRow"]
+[node name="PlanetSurfacePressureOption" type="OptionButton" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/PlanetSection/PlanetSurfacePressureRow"]
 layout_mode = 2
 size_flags_horizontal = 3
 
-[node name="TravellerAtmosphereCodeRow" type="HBoxContainer" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/TravellerSection"]
+[node name="PlanetOceanCoverageRow" type="HBoxContainer" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/PlanetSection"]
 layout_mode = 2
 theme_override_constants/separation = 10
 
-[node name="TravellerAtmosphereCodeRowLabel" type="Label" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/TravellerSection/TravellerAtmosphereCodeRow"]
+[node name="PlanetOceanCoverageRowLabel" type="Label" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/PlanetSection/PlanetOceanCoverageRow"]
 layout_mode = 2
 custom_minimum_size = Vector2(112, 0)
-text = "Atmosphere"
+text = "Ocean Coverage"
 
-[node name="TravellerAtmosphereCodeOption" type="OptionButton" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/TravellerSection/TravellerAtmosphereCodeRow"]
+[node name="PlanetOceanCoverageOption" type="OptionButton" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/PlanetSection/PlanetOceanCoverageRow"]
 layout_mode = 2
 size_flags_horizontal = 3
 
-[node name="TravellerHydrographicsCodeRow" type="HBoxContainer" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/TravellerSection"]
+[node name="PlanetIceCoverageRow" type="HBoxContainer" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/PlanetSection"]
 layout_mode = 2
 theme_override_constants/separation = 10
 
-[node name="TravellerHydrographicsCodeRowLabel" type="Label" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/TravellerSection/TravellerHydrographicsCodeRow"]
+[node name="PlanetIceCoverageRowLabel" type="Label" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/PlanetSection/PlanetIceCoverageRow"]
 layout_mode = 2
 custom_minimum_size = Vector2(112, 0)
-text = "Hydrographics"
+text = "Ice Coverage"
 
-[node name="TravellerHydrographicsCodeOption" type="OptionButton" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/TravellerSection/TravellerHydrographicsCodeRow"]
+[node name="PlanetIceCoverageOption" type="OptionButton" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/PlanetSection/PlanetIceCoverageRow"]
 layout_mode = 2
 size_flags_horizontal = 3
 
-[node name="TravellerPopulationCodeRow" type="HBoxContainer" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/TravellerSection"]
+[node name="PlanetAlbedoProfileRow" type="HBoxContainer" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/PlanetSection"]
 layout_mode = 2
 theme_override_constants/separation = 10
 
-[node name="TravellerPopulationCodeRowLabel" type="Label" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/TravellerSection/TravellerPopulationCodeRow"]
+[node name="PlanetAlbedoProfileRowLabel" type="Label" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/PlanetSection/PlanetAlbedoProfileRow"]
 layout_mode = 2
 custom_minimum_size = Vector2(112, 0)
-text = "Population"
+text = "Surface Brightness"
 
-[node name="TravellerPopulationCodeOption" type="OptionButton" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/TravellerSection/TravellerPopulationCodeRow"]
+[node name="PlanetAlbedoProfileOption" type="OptionButton" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/PlanetSection/PlanetAlbedoProfileRow"]
 layout_mode = 2
 size_flags_horizontal = 3
 
-[node name="MoonSection" type="VBoxContainer" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox"]
-layout_mode = 2
-theme_override_constants/separation = 8
-
-[node name="MoonSectionTitle" type="Label" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/MoonSection"]
-layout_mode = 2
-theme_override_font_sizes/font_size = 16
-text = "Moon Profile"
-
-[node name="MoonSectionDivider" type="HSeparator" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/MoonSection"]
-layout_mode = 2
-
-[node name="MoonSizeCategoryRow" type="HBoxContainer" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/MoonSection"]
+[node name="PlanetVolcanismRow" type="HBoxContainer" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/PlanetSection"]
 layout_mode = 2
 theme_override_constants/separation = 10
 
-[node name="MoonSizeCategoryRowLabel" type="Label" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/MoonSection/MoonSizeCategoryRow"]
+[node name="PlanetVolcanismRowLabel" type="Label" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/PlanetSection/PlanetVolcanismRow"]
 layout_mode = 2
 custom_minimum_size = Vector2(112, 0)
-text = "Size Category"
+text = "Volcanism"
 
-[node name="MoonSizeCategoryOption" type="OptionButton" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/MoonSection/MoonSizeCategoryRow"]
+[node name="PlanetVolcanismOption" type="OptionButton" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/PlanetSection/PlanetVolcanismRow"]
 layout_mode = 2
 size_flags_horizontal = 3
 
-[node name="MoonCapturedRow" type="HBoxContainer" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/MoonSection"]
+[node name="PlanetGenerateMoonRow" type="HBoxContainer" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/PlanetSection"]
 layout_mode = 2
 theme_override_constants/separation = 10
 
-[node name="MoonCapturedRowLabel" type="Label" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/MoonSection/MoonCapturedRow"]
+[node name="PlanetGenerateMoonRowLabel" type="Label" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/PlanetSection/PlanetGenerateMoonRow"]
+layout_mode = 2
+custom_minimum_size = Vector2(112, 0)
+text = "Generate Moon"
+
+[node name="PlanetGenerateMoonCheck" type="CheckBox" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/PlanetSection/PlanetGenerateMoonRow"]
+layout_mode = 2
+
+[node name="MoonCapturedRow" type="HBoxContainer" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/PlanetSection"]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="MoonCapturedRowLabel" type="Label" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/PlanetSection/MoonCapturedRow"]
 layout_mode = 2
 custom_minimum_size = Vector2(112, 0)
 text = "Captured Moon"
 
-[node name="MoonCapturedCheck" type="CheckBox" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/MoonSection/MoonCapturedRow"]
+[node name="MoonCapturedCheck" type="CheckBox" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/PlanetSection/MoonCapturedRow"]
 layout_mode = 2
-
-[node name="MoonAtmosphereRow" type="HBoxContainer" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/MoonSection"]
-layout_mode = 2
-theme_override_constants/separation = 10
-
-[node name="MoonAtmosphereRowLabel" type="Label" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/MoonSection/MoonAtmosphereRow"]
-layout_mode = 2
-custom_minimum_size = Vector2(112, 0)
-text = "Atmosphere"
-
-[node name="MoonAtmosphereOption" type="OptionButton" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/MoonSection/MoonAtmosphereRow"]
-layout_mode = 2
-size_flags_horizontal = 3
-
-[node name="MoonOceanRow" type="HBoxContainer" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/MoonSection"]
-layout_mode = 2
-theme_override_constants/separation = 10
-
-[node name="MoonOceanRowLabel" type="Label" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/MoonSection/MoonOceanRow"]
-layout_mode = 2
-custom_minimum_size = Vector2(112, 0)
-text = "Subsurface Ocean"
-
-[node name="MoonOceanOption" type="OptionButton" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/MoonSection/MoonOceanRow"]
-layout_mode = 2
-size_flags_horizontal = 3
 
 [node name="StarSection" type="VBoxContainer" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox"]
 layout_mode = 2
@@ -459,59 +409,9 @@ layout_mode = 2
 custom_minimum_size = Vector2(112, 0)
 text = "Subclass"
 
-[node name="StarSubclassToggle" type="CheckBox" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/StarSection/StarSubclassRow"]
-layout_mode = 2
-text = "Set"
-
-[node name="StarSubclassInput" type="SpinBox" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/StarSection/StarSubclassRow"]
+[node name="StarSubclassOption" type="OptionButton" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/StarSection/StarSubclassRow"]
 layout_mode = 2
 size_flags_horizontal = 3
-max_value = 9.0
-step = 1.0
-rounded = true
-editable = false
-
-[node name="StarMetallicityRow" type="HBoxContainer" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/StarSection"]
-layout_mode = 2
-theme_override_constants/separation = 10
-
-[node name="StarMetallicityRowLabel" type="Label" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/StarSection/StarMetallicityRow"]
-layout_mode = 2
-custom_minimum_size = Vector2(112, 0)
-text = "Metallicity"
-
-[node name="StarMetallicityToggle" type="CheckBox" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/StarSection/StarMetallicityRow"]
-layout_mode = 2
-text = "Set"
-
-[node name="StarMetallicityInput" type="SpinBox" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/StarSection/StarMetallicityRow"]
-layout_mode = 2
-size_flags_horizontal = 3
-min_value = 0.01
-max_value = 3.0
-step = 0.01
-editable = false
-
-[node name="StarAgeGyrRow" type="HBoxContainer" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/StarSection"]
-layout_mode = 2
-theme_override_constants/separation = 10
-
-[node name="StarAgeGyrRowLabel" type="Label" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/StarSection/StarAgeGyrRow"]
-layout_mode = 2
-custom_minimum_size = Vector2(112, 0)
-text = "Age (Gyr)"
-
-[node name="StarAgeGyrToggle" type="CheckBox" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/StarSection/StarAgeGyrRow"]
-layout_mode = 2
-text = "Set"
-
-[node name="StarAgeGyrInput" type="SpinBox" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/StarSection/StarAgeGyrRow"]
-layout_mode = 2
-size_flags_horizontal = 3
-min_value = 0.001
-max_value = 15.0
-step = 0.01
-editable = false
 
 [node name="AsteroidSection" type="VBoxContainer" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox"]
 layout_mode = 2
@@ -548,6 +448,95 @@ custom_minimum_size = Vector2(112, 0)
 text = "Large Body"
 
 [node name="AsteroidLargeCheck" type="CheckBox" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/AsteroidSection/AsteroidLargeRow"]
+layout_mode = 2
+
+[node name="AsteroidOrbitBandRow" type="HBoxContainer" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/AsteroidSection"]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="AsteroidOrbitBandRowLabel" type="Label" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/AsteroidSection/AsteroidOrbitBandRow"]
+layout_mode = 2
+custom_minimum_size = Vector2(112, 0)
+text = "Orbit Band"
+
+[node name="AsteroidOrbitBandOption" type="OptionButton" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/AsteroidSection/AsteroidOrbitBandRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="AsteroidDensityProfileRow" type="HBoxContainer" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/AsteroidSection"]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="AsteroidDensityProfileRowLabel" type="Label" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/AsteroidSection/AsteroidDensityProfileRow"]
+layout_mode = 2
+custom_minimum_size = Vector2(112, 0)
+text = "Density Profile"
+
+[node name="AsteroidDensityProfileOption" type="OptionButton" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/AsteroidSection/AsteroidDensityProfileRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="AsteroidAlbedoProfileRow" type="HBoxContainer" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/AsteroidSection"]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="AsteroidAlbedoProfileRowLabel" type="Label" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/AsteroidSection/AsteroidAlbedoProfileRow"]
+layout_mode = 2
+custom_minimum_size = Vector2(112, 0)
+text = "Brightness"
+
+[node name="AsteroidAlbedoProfileOption" type="OptionButton" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/AsteroidSection/AsteroidAlbedoProfileRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="CometSection" type="VBoxContainer" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox"]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="CometSectionTitle" type="Label" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/CometSection"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 16
+text = "Comet Profile"
+
+[node name="CometSectionDivider" type="HSeparator" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/CometSection"]
+layout_mode = 2
+
+[node name="CometFamilyRow" type="HBoxContainer" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/CometSection"]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="CometFamilyRowLabel" type="Label" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/CometSection/CometFamilyRow"]
+layout_mode = 2
+custom_minimum_size = Vector2(112, 0)
+text = "Family"
+
+[node name="CometFamilyOption" type="OptionButton" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/CometSection/CometFamilyRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="CometActivityRow" type="HBoxContainer" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/CometSection"]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="CometActivityRowLabel" type="Label" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/CometSection/CometActivityRow"]
+layout_mode = 2
+custom_minimum_size = Vector2(112, 0)
+text = "Activity"
+
+[node name="CometActivityOption" type="OptionButton" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/CometSection/CometActivityRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="CometLargeRow" type="HBoxContainer" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/CometSection"]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="CometLargeRowLabel" type="Label" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/CometSection/CometLargeRow"]
+layout_mode = 2
+custom_minimum_size = Vector2(112, 0)
+text = "Large Nucleus"
+
+[node name="CometLargeCheck" type="CheckBox" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/CometSection/CometLargeRow"]
 layout_mode = 2
 
 [node name="AdvancedSection" type="VBoxContainer" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox"]
@@ -867,6 +856,82 @@ text = "Traveller Readouts"
 
 [node name="ShowTravellerReadoutsCheck" type="CheckBox" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/RulesPanel/MarginContainer/RulesVBox/ScrollContainer/RulesContent/ShowTravellerReadoutsRow"]
 layout_mode = 2
+
+[node name="TravellerSection" type="VBoxContainer" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/RulesPanel/MarginContainer/RulesVBox/ScrollContainer/RulesContent"]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="TravellerSectionTitle" type="Label" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/RulesPanel/MarginContainer/RulesVBox/ScrollContainer/RulesContent/TravellerSection"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 16
+text = "Traveller World Rules"
+
+[node name="TravellerSectionDivider" type="HSeparator" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/RulesPanel/MarginContainer/RulesVBox/ScrollContainer/RulesContent/TravellerSection"]
+layout_mode = 2
+
+[node name="UseTravellerWorldProfileRow" type="HBoxContainer" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/RulesPanel/MarginContainer/RulesVBox/ScrollContainer/RulesContent/TravellerSection"]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="UseTravellerWorldProfileRowLabel" type="Label" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/RulesPanel/MarginContainer/RulesVBox/ScrollContainer/RulesContent/TravellerSection/UseTravellerWorldProfileRow"]
+layout_mode = 2
+custom_minimum_size = Vector2(112, 0)
+text = "Traveller Worldgen"
+
+[node name="UseTravellerWorldProfileCheck" type="CheckBox" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/RulesPanel/MarginContainer/RulesVBox/ScrollContainer/RulesContent/TravellerSection/UseTravellerWorldProfileRow"]
+layout_mode = 2
+
+[node name="TravellerSizeCodeRow" type="HBoxContainer" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/RulesPanel/MarginContainer/RulesVBox/ScrollContainer/RulesContent/TravellerSection"]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="TravellerSizeCodeRowLabel" type="Label" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/RulesPanel/MarginContainer/RulesVBox/ScrollContainer/RulesContent/TravellerSection/TravellerSizeCodeRow"]
+layout_mode = 2
+custom_minimum_size = Vector2(112, 0)
+text = "Size Code"
+
+[node name="TravellerSizeCodeOption" type="OptionButton" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/RulesPanel/MarginContainer/RulesVBox/ScrollContainer/RulesContent/TravellerSection/TravellerSizeCodeRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="TravellerAtmosphereCodeRow" type="HBoxContainer" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/RulesPanel/MarginContainer/RulesVBox/ScrollContainer/RulesContent/TravellerSection"]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="TravellerAtmosphereCodeRowLabel" type="Label" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/RulesPanel/MarginContainer/RulesVBox/ScrollContainer/RulesContent/TravellerSection/TravellerAtmosphereCodeRow"]
+layout_mode = 2
+custom_minimum_size = Vector2(112, 0)
+text = "Atmosphere"
+
+[node name="TravellerAtmosphereCodeOption" type="OptionButton" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/RulesPanel/MarginContainer/RulesVBox/ScrollContainer/RulesContent/TravellerSection/TravellerAtmosphereCodeRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="TravellerHydrographicsCodeRow" type="HBoxContainer" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/RulesPanel/MarginContainer/RulesVBox/ScrollContainer/RulesContent/TravellerSection"]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="TravellerHydrographicsCodeRowLabel" type="Label" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/RulesPanel/MarginContainer/RulesVBox/ScrollContainer/RulesContent/TravellerSection/TravellerHydrographicsCodeRow"]
+layout_mode = 2
+custom_minimum_size = Vector2(112, 0)
+text = "Hydrographics"
+
+[node name="TravellerHydrographicsCodeOption" type="OptionButton" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/RulesPanel/MarginContainer/RulesVBox/ScrollContainer/RulesContent/TravellerSection/TravellerHydrographicsCodeRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="TravellerPopulationCodeRow" type="HBoxContainer" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/RulesPanel/MarginContainer/RulesVBox/ScrollContainer/RulesContent/TravellerSection"]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="TravellerPopulationCodeRowLabel" type="Label" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/RulesPanel/MarginContainer/RulesVBox/ScrollContainer/RulesContent/TravellerSection/TravellerPopulationCodeRow"]
+layout_mode = 2
+custom_minimum_size = Vector2(112, 0)
+text = "Population"
+
+[node name="TravellerPopulationCodeOption" type="OptionButton" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/RulesPanel/MarginContainer/RulesVBox/ScrollContainer/RulesContent/TravellerSection/TravellerPopulationCodeRow"]
+layout_mode = 2
+size_flags_horizontal = 3
 
 [node name="ShowAdvancedControlsRow" type="HBoxContainer" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/RulesPanel/MarginContainer/RulesVBox/ScrollContainer/RulesContent"]
 layout_mode = 2

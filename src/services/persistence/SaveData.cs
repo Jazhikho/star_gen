@@ -24,6 +24,11 @@ public static partial class SaveData
     public const string AsteroidBinaryExtension = "sga";
 
     /// <summary>
+    /// Compressed comet-body extension.
+    /// </summary>
+    public const string CometBinaryExtension = "sgc";
+
+    /// <summary>
     /// Compressed planet/moon-body extension.
     /// </summary>
     public const string WorldBinaryExtension = "sgp";
@@ -99,6 +104,7 @@ public static partial class SaveData
         {
             CelestialType.Type.Star => StarBinaryExtension,
             CelestialType.Type.Asteroid => AsteroidBinaryExtension,
+            CelestialType.Type.Comet => CometBinaryExtension,
             CelestialType.Type.Planet => WorldBinaryExtension,
             CelestialType.Type.Moon => WorldBinaryExtension,
             _ => LegacyBinaryExtension,
@@ -120,6 +126,7 @@ public static partial class SaveData
                     "*.sgt ; StarGen Star",
                     "*.sgp ; StarGen Planet or Moon",
                     "*.sga ; StarGen Asteroid",
+                    "*.sgc ; StarGen Comet",
                     "*.sgb ; StarGen Legacy Body",
                     "*.json ; JSON Debug",
                 ];
@@ -130,6 +137,7 @@ public static partial class SaveData
                 "*.sgt ; StarGen Star",
                 "*.sgp ; StarGen Planet or Moon",
                 "*.sga ; StarGen Asteroid",
+                "*.sgc ; StarGen Comet",
                 "*.json ; JSON Debug",
             ];
         }
@@ -138,6 +146,7 @@ public static partial class SaveData
         {
             CelestialType.Type.Star => "*.sgt ; StarGen Star",
             CelestialType.Type.Asteroid => "*.sga ; StarGen Asteroid",
+            CelestialType.Type.Comet => "*.sgc ; StarGen Comet",
             CelestialType.Type.Planet => "*.sgp ; StarGen Planet or Moon",
             CelestialType.Type.Moon => "*.sgp ; StarGen Planet or Moon",
             _ => "*.sgb ; StarGen Body",
@@ -539,6 +548,7 @@ public static partial class SaveData
     {
         return extension == LegacyBinaryExtension
             || extension == AsteroidBinaryExtension
+            || extension == CometBinaryExtension
             || extension == WorldBinaryExtension
             || extension == StarBinaryExtension;
     }

@@ -289,35 +289,65 @@ public partial class ObjectGenerationScreen : Control
                 return "Ice Giant targets a Neptune-class world in the cold zone and prefers trace rings.";
             }
 
-            return "Random leaves size, orbit zone, atmosphere, and ring targets open.";
+            return "Random leaves size, orbit zone, atmosphere, ring state, and the extra profile sliders open.";
         }
 
-        if (objectType == ObjectViewer.ObjectType.Moon)
+        if (objectType == ObjectViewer.ObjectType.Asteroid)
         {
             if (presetId == 1)
             {
-                return "Luna-like targets a dry sub-terrestrial moon with no atmosphere or subsurface ocean.";
+                return "Carbonaceous biases toward dark, carbon-rich rock.";
             }
 
             if (presetId == 2)
             {
-                return "Europa-like targets a cold moon with a subsurface ocean and no atmosphere.";
+                return "Metallic biases toward dense, iron-rich material.";
             }
 
             if (presetId == 3)
             {
-                return "Titan-like targets a moon with atmosphere and subsurface-ocean preferences.";
+                return "Stony biases toward silicate-rich rock.";
             }
 
             if (presetId == 4)
             {
-                return "Captured biases toward a smaller irregular moon marked as captured.";
+                return "Dark Red biases toward primitive outer-system material.";
             }
 
-            return "Random leaves capture state, atmosphere, and ocean targets open.";
+            if (presetId == 5)
+            {
+                return "Basaltic biases toward differentiated, brighter rock.";
+            }
+
+            if (presetId == 6)
+            {
+                return "Ceres-like biases toward a larger dwarf-like asteroid.";
+            }
+
+            return "Random asteroid generation leaves type, orbit band, density, and brightness open.";
         }
 
-        return "Random asteroid generation leaves composition and size open for the seed to resolve.";
+        if (presetId == 1)
+        {
+            return "Jupiter-family biases toward a shorter-period inner-system comet.";
+        }
+
+        if (presetId == 2)
+        {
+            return "Long-period biases toward a distant icy comet on a stretched orbit.";
+        }
+
+        if (presetId == 3)
+        {
+            return "Dormant keeps a comet body but biases away from active outgassing.";
+        }
+
+        if (presetId == 4)
+        {
+            return "Extinct biases toward a spent comet with a darker, dustier surface.";
+        }
+
+        return "Random comet generation leaves family, activity, and nucleus size open.";
     }
 
     private static int GenerateHiddenSeed()

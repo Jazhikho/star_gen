@@ -194,6 +194,11 @@ public partial class ObjectViewer
 			return (float)(radiusM / 1000.0);
 		}
 
+		if (body.Type == CelestialType.Type.Comet)
+		{
+			return (float)(radiusM / 1000.0);
+		}
+
 		return 1.0f;
 	}
 
@@ -528,6 +533,10 @@ public partial class ObjectViewer
 		else if (body.Type == CelestialType.Type.Asteroid)
 		{
 			directionalLight.LightEnergy = 1.0f;
+		}
+		else if (body.Type == CelestialType.Type.Comet)
+		{
+			directionalLight.LightEnergy = 0.8f;
 		}
 		else
 		{

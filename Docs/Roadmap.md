@@ -52,7 +52,17 @@ Release notes and version summaries are in the [README](../README.md#version-his
 - Keep realism consistency across galaxy, stellar, planetary, and life-distribution outputs rather than applying realism to isolated tiers only.
 - Any realism-related changes require documentation updates and human verification against reviewed sources before acceptance.
 
-### Active effort: Stellar population expansion (`0.8.4.0`)
+### Active effort: Planetary and minor-body taxonomy expansion (`0.8.5.0`)
+
+- Expand Object Studio so it behaves as a true single-object authoring surface, showing only the controls that match the currently selected object type instead of exposing unrelated presets and parameters all at once.
+- Remove standalone moon generation from the Object Studio top-level picker and move moon generation under planets, with context-sensitive moon controls that only appear when moon generation is enabled.
+- Add comet generation as a real celestial-body path, including generation, rendering, save/load metadata, viewer display, and Object Studio controls.
+- Broaden asteroid authoring beyond type-only selection by exposing practical orbit-band, density, and albedo shaping controls that materially change the generated result.
+- Expand planet object controls toward a richer profile-driven surface so users can shape outcomes such as atmosphere, ocean/ice coverage, albedo, volcanism, and moon generation more directly.
+- Keep upstream Galaxy Studio and System Studio planetary-model exposure as follow-on work within this effort, so shared research-backed planet assumptions eventually shape higher-level generation too.
+- Add deterministic and non-visual integration coverage proving the Object Studio context gating, comet support, expanded asteroid tuning, and planet moon controls behave correctly.
+
+### Recently completed effort: Stellar population expansion (`0.8.4.0`)
 
 - Expand the stellar generator beyond main-sequence OBAFGKM output so it can also produce practical, research-backed brown dwarfs, evolved stars, white dwarfs, and more realistic multi-star architectures.
 - Keep the implementation generation-focused rather than simulation-focused: use deterministic approximations grounded in reviewed IMF, isochrone, white-dwarf, brown-dwarf, and multiplicity literature.

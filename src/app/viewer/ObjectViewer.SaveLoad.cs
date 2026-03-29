@@ -1,6 +1,7 @@
 using System.IO;
 using Godot;
 using StarGen.Domain.Celestial;
+using StarGen.Domain.Celestial.Components;
 using StarGen.Domain.Generation;
 using StarGen.Domain.Generation.Generators;
 using StarGen.Domain.Generation.Specs;
@@ -63,8 +64,8 @@ public partial class ObjectViewer
 
         _typeOption.AddItem("Star", (int)ObjectType.Star);
         _typeOption.AddItem("Planet", (int)ObjectType.Planet);
-        _typeOption.AddItem("Moon", (int)ObjectType.Moon);
         _typeOption.AddItem("Asteroid", (int)ObjectType.Asteroid);
+        _typeOption.AddItem("Comet", (int)ObjectType.Comet);
         _typeOption.Selected = (int)ObjectType.Planet;
     }
 
@@ -346,6 +347,7 @@ public partial class ObjectViewer
             CelestialType.Type.Planet => "Planet",
             CelestialType.Type.Moon => "Moon",
             CelestialType.Type.Asteroid => "Asteroid",
+            CelestialType.Type.Comet => "Comet",
             _ => "Object",
         };
 
@@ -399,17 +401,23 @@ public partial class ObjectViewer
             _presetOption.AddItem("Dwarf Planet", 5);
             _presetOption.AddItem("Ice Giant", 6);
         }
-        else if (objectType == ObjectType.Moon)
+        else if (objectType == ObjectType.Asteroid)
         {
             _presetOption.AddItem("Random", 0);
-            _presetOption.AddItem("Luna-like", 1);
-            _presetOption.AddItem("Europa-like", 2);
-            _presetOption.AddItem("Titan-like", 3);
-            _presetOption.AddItem("Captured", 4);
+            _presetOption.AddItem("Carbonaceous", 1);
+            _presetOption.AddItem("Metallic", 2);
+            _presetOption.AddItem("Stony", 3);
+            _presetOption.AddItem("Dark Red", 4);
+            _presetOption.AddItem("Basaltic", 5);
+            _presetOption.AddItem("Ceres-like", 6);
         }
         else
         {
             _presetOption.AddItem("Random", 0);
+            _presetOption.AddItem("Jupiter-family", 1);
+            _presetOption.AddItem("Long-period", 2);
+            _presetOption.AddItem("Dormant", 3);
+            _presetOption.AddItem("Extinct", 4);
         }
 
         _presetOption.Selected = 0;
@@ -430,15 +438,21 @@ public partial class ObjectViewer
             return;
         }
 
-        if (objectType == ObjectType.Moon)
-        {
-            GenerateMoonFromPreset(seedValue);
-            return;
-        }
-
         if (objectType == ObjectType.Asteroid)
         {
             GenerateAsteroidFromPreset(seedValue);
+            return;
+        }
+
+        if (objectType == ObjectType.Comet)
+        {
+            GenerateCometFromPreset(seedValue);
+            return;
+        }
+
+        if (objectType == ObjectType.Moon)
+        {
+            GenerateMoonFromPreset(seedValue);
             return;
         }
 
@@ -460,13 +474,6 @@ public partial class ObjectViewer
             return;
         }
 
-        if (request.ObjectType == ObjectType.Moon)
-        {
-            MoonSpec spec = MoonSpec.FromDictionary(request.SpecData);
-            GenerateMoonFromSpec(spec, request.PresetId);
-            return;
-        }
-
         if (request.ObjectType == ObjectType.Star)
         {
             StarSpec spec = StarSpec.FromDictionary(request.SpecData);
@@ -478,6 +485,20 @@ public partial class ObjectViewer
         {
             AsteroidSpec spec = AsteroidSpec.FromDictionary(request.SpecData);
             GenerateAsteroidFromSpec(spec, request.PresetId);
+            return;
+        }
+
+        if (request.ObjectType == ObjectType.Comet)
+        {
+            CometSpec spec = CometSpec.FromDictionary(request.SpecData);
+            GenerateCometFromSpec(spec, request.PresetId);
+            return;
+        }
+
+        if (request.ObjectType == ObjectType.Moon)
+        {
+            MoonSpec spec = MoonSpec.FromDictionary(request.SpecData);
+            GenerateMoonFromSpec(spec, request.PresetId);
             return;
         }
 
@@ -557,6 +578,7 @@ public partial class ObjectViewer
     {
         SeededRng rng = new SeededRng(spec.GenerationSeed);
         CelestialBody body = PlanetGenerator.Generate(spec, ParentContext.SunLike(), rng);
+        Godot.Collections.Array<CelestialBody> moons = [];
         if (travellerWorldProfileData.Count > 0 && body.Provenance != null)
         {
             body.Provenance.SpecSnapshot["traveller_world_profile"] = travellerWorldProfileData.Duplicate(true);
@@ -564,7 +586,25 @@ public partial class ObjectViewer
             body.Name = ApplyTravellerDisplayName(body.Name, travellerProfile);
         }
 
-        DisplayGeneratedBody(body, ObjectType.Planet, presetId);
+        if (spec.GetOverride("studio.generate_moon", false).VariantType == Variant.Type.Bool
+            && (bool)spec.GetOverride("studio.generate_moon", false))
+        {
+            MoonSpec moonSpec = BuildMoonSpecForPlanet(spec, body);
+            SeededRng moonRng = new SeededRng(spec.GenerationSeed + 1);
+            ParentContext moonContext = BuildMoonContextForPlanet(body);
+            CelestialBody? moon = MoonGenerator.Generate(moonSpec, moonContext, moonRng);
+            if (moon != null)
+            {
+                if (moon.Orbital != null)
+                {
+                    moon.Orbital.ParentId = body.Id;
+                }
+
+                moons.Add(moon);
+            }
+        }
+
+        DisplayGeneratedBody(body, ObjectType.Planet, presetId, moons);
     }
 
     private void GenerateMoonFromPreset(int seedValue)
@@ -635,6 +675,14 @@ public partial class ObjectViewer
         }
         else if (presetId == 4)
         {
+            spec = AsteroidSpec.DarkRedPrimitive(seedValue);
+        }
+        else if (presetId == 5)
+        {
+            spec = AsteroidSpec.Basaltic(seedValue);
+        }
+        else if (presetId == 6)
+        {
             spec = AsteroidSpec.CeresLike(seedValue);
         }
         else
@@ -651,6 +699,42 @@ public partial class ObjectViewer
         SeededRng rng = new SeededRng(spec.GenerationSeed);
         CelestialBody body = AsteroidGenerator.Generate(spec, ParentContext.SunLike(), rng);
         DisplayGeneratedBody(body, ObjectType.Asteroid, presetId);
+    }
+
+    private void GenerateCometFromPreset(int seedValue)
+    {
+        int presetId = _presetOption?.GetSelectedId() ?? 0;
+        CometSpec spec;
+        if (presetId == 1)
+        {
+            spec = CometSpec.JupiterFamily(seedValue);
+        }
+        else if (presetId == 2)
+        {
+            spec = CometSpec.LongPeriod(seedValue);
+        }
+        else if (presetId == 3)
+        {
+            spec = new CometSpec(seedValue, -1, (int)CometGenerator.ActivityType.Dormant);
+        }
+        else if (presetId == 4)
+        {
+            spec = new CometSpec(seedValue, -1, (int)CometGenerator.ActivityType.Extinct);
+        }
+        else
+        {
+            spec = CometSpec.Random(seedValue);
+        }
+
+        spec.UseCaseSettings = _activeUseCaseSettings.Clone();
+        GenerateCometFromSpec(spec, presetId);
+    }
+
+    private void GenerateCometFromSpec(CometSpec spec, int presetId)
+    {
+        SeededRng rng = new SeededRng(spec.GenerationSeed);
+        CelestialBody body = CometGenerator.Generate(spec, ParentContext.SunLike(5.0 * Units.AuMeters), rng);
+        DisplayGeneratedBody(body, ObjectType.Comet, presetId);
     }
 
     private void UpdatePresetAssumptions()
@@ -727,37 +811,76 @@ public partial class ObjectViewer
             return "Random leaves size, orbit zone, atmosphere, and ring targets open for a fully seed-driven planet roll.";
         }
 
-        if (objectType == ObjectType.Moon)
+        if (objectType == ObjectType.Asteroid)
         {
             if (presetId == 1)
             {
-                return "Luna-like targets a dry sub-terrestrial moon with no atmosphere and no subsurface ocean.";
+                return "Carbonaceous biases toward dark, carbon-rich rock and a typical main-belt orbit.";
             }
 
             if (presetId == 2)
             {
-                return "Europa-like targets a cold sub-terrestrial moon with a subsurface ocean but no atmosphere.";
+                return "Metallic biases toward dense, iron-rich material with a brighter reflective surface.";
             }
 
             if (presetId == 3)
             {
-                return "Titan-like targets a sub-terrestrial moon with atmosphere and subsurface-ocean preferences.";
+                return "Stony biases toward silicate-rich rock with a balanced reflectivity profile.";
             }
 
             if (presetId == 4)
             {
-                return "Captured marks the moon as captured and biases toward a smaller irregular body.";
+                return "Dark Red biases toward primitive outer-system material with low reflectivity.";
             }
 
-            return "Random leaves capture state, atmosphere, and ocean targets open for a fully seed-driven moon roll.";
+            if (presetId == 5)
+            {
+                return "Basaltic biases toward differentiated rock, denser material, and a brighter surface.";
+            }
+
+            if (presetId == 6)
+            {
+                return "Ceres-like biases toward a larger carbonaceous body with more dwarf-like proportions.";
+            }
+
+            return "Random asteroid generation leaves type, orbit band, density, and brightness open for the seed to resolve.";
         }
 
-        return "Random asteroid generation leaves composition and size open for the seed to resolve.";
+        if (presetId == 1)
+        {
+            return "Jupiter-family biases toward a shorter-period comet shaped by the giant-planet region.";
+        }
+
+        if (presetId == 2)
+        {
+            return "Long-period biases toward a distant icy body on a much more stretched orbit.";
+        }
+
+        if (presetId == 3)
+        {
+            return "Dormant keeps comet structure but biases away from a bright, active state.";
+        }
+
+        if (presetId == 4)
+        {
+            return "Extinct biases toward a spent comet with darker, dustier surface behavior.";
+        }
+
+        return "Random comet generation leaves family, activity, and nucleus size open for the seed to resolve.";
     }
 
-    private void DisplayGeneratedBody(CelestialBody body, ObjectType objectType, int presetId)
+    private void DisplayGeneratedBody(CelestialBody body, ObjectType objectType, int presetId, Godot.Collections.Array<CelestialBody>? moons = null)
     {
-        DisplayExternalBody(body, [], 0);
+        Godot.Collections.Array moonPayload = [];
+        if (moons != null)
+        {
+            foreach (CelestialBody moon in moons)
+            {
+                moonPayload.Add(moon);
+            }
+        }
+
+        DisplayExternalBody(body, moonPayload, 0);
         _navigatedFromSystem = false;
         _startupState = ViewerStartupState.ViewingExistingContent;
         SetGenerationControlsEnabled(_generationActionsVisible);
@@ -769,6 +892,44 @@ public partial class ObjectViewer
         }
 
         SetStatus($"Generated {objectType}: {presetLabel}");
+    }
+
+    private static MoonSpec BuildMoonSpecForPlanet(PlanetSpec planetSpec, CelestialBody planetBody)
+    {
+        bool captured = planetSpec.GetOverride("studio.moon_captured", false).VariantType == Variant.Type.Bool
+            && (bool)planetSpec.GetOverride("studio.moon_captured", false);
+        MoonSpec moonSpec;
+        if (captured)
+        {
+            moonSpec = MoonSpec.Captured(planetSpec.GenerationSeed + 1);
+        }
+        else
+        {
+            moonSpec = MoonSpec.Random(planetSpec.GenerationSeed + 1);
+        }
+
+        moonSpec.UseCaseSettings = planetSpec.UseCaseSettings.Clone();
+        return moonSpec;
+    }
+
+    private static ParentContext BuildMoonContextForPlanet(CelestialBody planetBody)
+    {
+        double planetOrbitalDistanceM = Units.AuMeters;
+        if (planetBody.Orbital != null && planetBody.Orbital.SemiMajorAxisM > 0.0)
+        {
+            planetOrbitalDistanceM = planetBody.Orbital.SemiMajorAxisM;
+        }
+
+        double moonOrbitDistanceM = System.Math.Max(planetBody.Physical.RadiusM * 12.0, 2.0e8);
+        return ParentContext.ForMoon(
+            Units.SolarMassKg,
+            StellarProps.SolarLuminosityWatts,
+            5778.0,
+            4.6e9,
+            planetOrbitalDistanceM,
+            planetBody.Physical.MassKg,
+            planetBody.Physical.RadiusM,
+            moonOrbitDistanceM);
     }
 
     private static string ApplyTravellerDisplayName(string currentName, TravellerWorldProfile profile)

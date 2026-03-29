@@ -1,12 +1,21 @@
 # Version
 
-Current version: `0.8.4.0`
+Current version: `0.8.5.0`
 
 Current user-facing version: `0.9d`
 
-Date: `2026-03-28`
+Date: `2026-03-29`
 
 Versioning method: release/refactor `+0.1`, feature `+0.0.1`, bug fix `+0.0.0.1`, save-breaking release `+1.0`.
+
+## 0.8.5.0
+
+- Feature: Reworked Object Studio into a context-sensitive single-object flow so only the controls and presets for the selected object type stay visible, while Traveller-only controls now live under Generation Rules and only appear when the Traveller ruleset is active.
+- Feature: Removed standalone moon generation from the Object Studio top-level type picker and moved moon generation under planets, including a planet-only moon checkbox and context-sensitive captured-moon option.
+- Feature: Added comet support as a real generated body type, with comet specs, generator logic, rendering/display handling, save/load metadata, viewer support, and top-level Object Studio controls and presets.
+- Feature: Expanded Object Studio asteroid and planet authoring with richer shaping controls, including broader asteroid taxonomy plus orbit-band, density, and albedo tuning, and broader planet profile overrides such as pressure, ocean/ice coverage, albedo, volcanism, and optional moon generation.
+- Feature: Simplified Object Studio star editing so users directly choose subclass while metallicity and age remain generator-resolved instead of exposing partially coupled fields that were not behaving as reliable direct controls.
+- Test: Added and updated deterministic and non-visual Object Studio/comet coverage; `dotnet build StarGen.sln` passed, and the headless harness passed (`1780 / 1780`).
 
 ## 0.8.4.0
 

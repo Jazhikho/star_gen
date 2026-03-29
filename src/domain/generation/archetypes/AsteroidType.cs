@@ -13,6 +13,8 @@ public static class AsteroidType
         CType,
         SType,
         MType,
+        DType,
+        VType,
     }
 
     /// <summary>
@@ -25,6 +27,8 @@ public static class AsteroidType
             Type.CType => "C-Type (Carbonaceous)",
             Type.SType => "S-Type (Silicaceous)",
             Type.MType => "M-Type (Metallic)",
+            Type.DType => "D-Type (Dark Red Primitive)",
+            Type.VType => "V-Type (Basaltic)",
             _ => "Unknown",
         };
     }
@@ -39,6 +43,8 @@ public static class AsteroidType
             Type.CType => "C",
             Type.SType => "S",
             Type.MType => "M",
+            Type.DType => "D",
+            Type.VType => "V",
             _ => "?",
         };
     }
@@ -71,6 +77,18 @@ public static class AsteroidType
             case "metallic":
                 asteroidType = Type.MType;
                 return true;
+            case "d":
+            case "d_type":
+            case "dark_red":
+            case "primitive":
+                asteroidType = Type.DType;
+                return true;
+            case "v":
+            case "v_type":
+            case "basaltic":
+            case "differentiated":
+                asteroidType = Type.VType;
+                return true;
             default:
                 asteroidType = default;
                 return false;
@@ -87,6 +105,8 @@ public static class AsteroidType
             Type.CType => 0.05,
             Type.SType => 0.20,
             Type.MType => 0.15,
+            Type.DType => 0.04,
+            Type.VType => 0.30,
             _ => 0.10,
         };
     }
@@ -94,5 +114,5 @@ public static class AsteroidType
     /// <summary>
     /// Returns the number of asteroid types.
     /// </summary>
-    public static int Count() => 3;
+    public static int Count() => 5;
 }

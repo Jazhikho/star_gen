@@ -292,6 +292,15 @@ public static partial class DotNetNativeTestSuite
             "TestAsteroidGenerator::test_different_seeds_produce_different_asteroids",
             Tests.Unit.TestAsteroidGenerator.TestDifferentSeedsProduceDifferentAsteroids);
         runner.RunNativeTest(
+            "TestCometGenerator::test_generate_returns_comet_body",
+            Tests.Unit.TestCometGenerator.TestGenerateReturnsCometBody);
+        runner.RunNativeTest(
+            "TestCometGenerator::test_generate_is_deterministic",
+            Tests.Unit.TestCometGenerator.TestGenerateIsDeterministic);
+        runner.RunNativeTest(
+            "TestCometGenerator::test_long_period_preset_biases_outer_orbit",
+            Tests.Unit.TestCometGenerator.TestLongPeriodPresetBiasesOuterOrbit);
+        runner.RunNativeTest(
             "TestAtmosphereProps::test_default_values",
             Tests.Unit.TestAtmosphereProps.TestDefaultValues);
         runner.RunNativeTest(

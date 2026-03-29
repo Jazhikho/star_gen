@@ -4,6 +4,7 @@ using Godot;
 using StarGen.App.Viewer;
 using StarGen.Domain.Generation;
 using StarGen.Domain.Generation.Archetypes;
+using StarGen.Domain.Generation.Generators;
 using StarGen.Domain.Generation.Specs;
 using StarGen.Domain.Generation.Traveller;
 using StarGen.Domain.Math;
@@ -41,11 +42,6 @@ public partial class ObjectGenerationScreen
             return CreatePlanetSpec(request).ToDictionary();
         }
 
-        if (request.ObjectType == ObjectViewer.ObjectType.Moon)
-        {
-            return CreateMoonSpec(request).ToDictionary();
-        }
-
         if (request.ObjectType == ObjectViewer.ObjectType.Star)
         {
             return CreateStarSpec(request).ToDictionary();
@@ -54,6 +50,11 @@ public partial class ObjectGenerationScreen
         if (request.ObjectType == ObjectViewer.ObjectType.Asteroid)
         {
             return CreateAsteroidSpec(request).ToDictionary();
+        }
+
+        if (request.ObjectType == ObjectViewer.ObjectType.Comet)
+        {
+            return CreateCometSpec(request).ToDictionary();
         }
 
         return new Godot.Collections.Dictionary();
@@ -101,23 +102,7 @@ public partial class ObjectGenerationScreen
             TravellerWorldGenerator.ApplyToPlanetSpec(spec, profile, new SeededRng(request.SeedValue));
         }
 
-        ApplySharedAdvancedOverrides(spec, request.ObjectType);
-        ApplySurfaceOverrides(spec);
-        return spec;
-    }
-
-    private MoonSpec CreateMoonSpec(ObjectGenerationRequest request)
-    {
-        MoonSpec spec = CreateMoonPresetSpec(request.SeedValue, request.PresetId);
-        ApplyCommonSpecFields(spec, request.UseCaseSettings);
-        spec.SizeCategory = _moonSizeCategoryOption?.GetSelectedId() ?? spec.SizeCategory;
-        if (_moonCapturedCheck != null)
-        {
-            spec.IsCaptured = _moonCapturedCheck.ButtonPressed;
-        }
-
-        spec.HasAtmosphere = GetTriStatePreference(_moonAtmosphereOption);
-        spec.HasSubsurfaceOcean = GetTriStatePreference(_moonOceanOption);
+        ApplyPlanetProfileOverrides(spec);
         ApplySharedAdvancedOverrides(spec, request.ObjectType);
         ApplySurfaceOverrides(spec);
         return spec;
@@ -128,33 +113,9 @@ public partial class ObjectGenerationScreen
         StarSpec spec = CreateStarPresetSpec(request.SeedValue, request.PresetId);
         ApplyCommonSpecFields(spec, request.UseCaseSettings);
         spec.SpectralClass = _starSpectralClassOption?.GetSelectedId() ?? spec.SpectralClass;
-
-        if (TryGetOptionalValue("StarSubclass", out double subclass))
-        {
-            spec.Subclass = (int)subclass;
-        }
-        else
-        {
-            spec.Subclass = -1;
-        }
-
-        if (TryGetOptionalValue("StarMetallicity", out double metallicity))
-        {
-            spec.Metallicity = metallicity;
-        }
-        else
-        {
-            spec.Metallicity = -1.0;
-        }
-
-        if (TryGetOptionalValue("StarAgeGyr", out double ageGyr))
-        {
-            spec.AgeYears = ageGyr * 1.0e9;
-        }
-        else
-        {
-            spec.AgeYears = -1.0;
-        }
+        spec.Subclass = _starSubclassOption?.GetSelectedId() ?? spec.Subclass;
+        spec.Metallicity = -1.0;
+        spec.AgeYears = -1.0;
 
         ApplySharedAdvancedOverrides(spec, request.ObjectType);
         if (TryGetOptionalValue("TemperatureOverride", out double temperatureK))
@@ -178,6 +139,30 @@ public partial class ObjectGenerationScreen
         if (_asteroidLargeCheck != null)
         {
             spec.IsLarge = _asteroidLargeCheck.ButtonPressed;
+        }
+
+        spec.OrbitBand = _asteroidOrbitBandOption?.GetSelectedId() ?? spec.OrbitBand;
+        spec.DensityProfile = _asteroidDensityProfileOption?.GetSelectedId() ?? spec.DensityProfile;
+        spec.AlbedoProfile = _asteroidAlbedoProfileOption?.GetSelectedId() ?? spec.AlbedoProfile;
+
+        ApplySharedAdvancedOverrides(spec, request.ObjectType);
+        if (TryGetOptionalValue("AlbedoOverride", out double albedo))
+        {
+            spec.SetOverride("surface.albedo", albedo);
+        }
+
+        return spec;
+    }
+
+    private CometSpec CreateCometSpec(ObjectGenerationRequest request)
+    {
+        CometSpec spec = CreateCometPresetSpec(request.SeedValue, request.PresetId);
+        ApplyCommonSpecFields(spec, request.UseCaseSettings);
+        spec.Family = _cometFamilyOption?.GetSelectedId() ?? spec.Family;
+        spec.ActivityState = _cometActivityOption?.GetSelectedId() ?? spec.ActivityState;
+        if (_cometLargeCheck != null)
+        {
+            spec.IsLarge = _cometLargeCheck.ButtonPressed;
         }
 
         ApplySharedAdvancedOverrides(spec, request.ObjectType);
@@ -307,6 +292,11 @@ public partial class ObjectGenerationScreen
             return value * 1.0e15;
         }
 
+        if (objectType == ObjectViewer.ObjectType.Comet)
+        {
+            return value * 1.0e15;
+        }
+
         return value * Units.EarthMassKg;
     }
 
@@ -318,6 +308,11 @@ public partial class ObjectGenerationScreen
         }
 
         if (objectType == ObjectViewer.ObjectType.Asteroid)
+        {
+            return value * 1000.0;
+        }
+
+        if (objectType == ObjectViewer.ObjectType.Comet)
         {
             return value * 1000.0;
         }
@@ -351,21 +346,23 @@ public partial class ObjectGenerationScreen
             _presetOption.AddItem("Dwarf Planet", 5);
             _presetOption.AddItem("Ice Giant", 6);
         }
-        else if (objectType == ObjectViewer.ObjectType.Moon)
-        {
-            _presetOption.AddItem("Random", 0);
-            _presetOption.AddItem("Luna-like", 1);
-            _presetOption.AddItem("Europa-like", 2);
-            _presetOption.AddItem("Titan-like", 3);
-            _presetOption.AddItem("Captured", 4);
-        }
-        else
+        else if (objectType == ObjectViewer.ObjectType.Asteroid)
         {
             _presetOption.AddItem("Random", 0);
             _presetOption.AddItem("Carbonaceous", 1);
             _presetOption.AddItem("Metallic", 2);
             _presetOption.AddItem("Stony", 3);
-            _presetOption.AddItem("Ceres-like", 4);
+            _presetOption.AddItem("Dark Red", 4);
+            _presetOption.AddItem("Basaltic", 5);
+            _presetOption.AddItem("Ceres-like", 6);
+        }
+        else
+        {
+            _presetOption.AddItem("Random", 0);
+            _presetOption.AddItem("Jupiter-family", 1);
+            _presetOption.AddItem("Long-period", 2);
+            _presetOption.AddItem("Dormant", 3);
+            _presetOption.AddItem("Extinct", 4);
         }
 
         _presetOption.Select(0);
@@ -390,20 +387,19 @@ public partial class ObjectGenerationScreen
             SelectOptionByVariantPreference(_planetAtmosphereOption, spec.HasAtmosphere);
             SelectOptionByVariantPreference(_planetRingsOption, spec.HasRings);
             SelectOptionById(_planetRingComplexityOption, spec.RingComplexity);
-            return;
-        }
-
-        if (objectType == ObjectViewer.ObjectType.Moon)
-        {
-            MoonSpec spec = CreateMoonPresetSpec(seedValue, _presetOption?.GetSelectedId() ?? 0);
-            SelectOptionById(_moonSizeCategoryOption, spec.HasSizeCategory() ? spec.SizeCategory : -1);
+            SelectOptionById(_planetSurfacePressureOption, -1);
+            SelectOptionById(_planetOceanCoverageOption, -1);
+            SelectOptionById(_planetIceCoverageOption, -1);
+            SelectOptionById(_planetAlbedoProfileOption, -1);
+            SelectOptionById(_planetVolcanismOption, -1);
+            if (_planetGenerateMoonCheck != null)
+            {
+                _planetGenerateMoonCheck.ButtonPressed = false;
+            }
             if (_moonCapturedCheck != null)
             {
-                _moonCapturedCheck.ButtonPressed = spec.IsCaptured;
+                _moonCapturedCheck.ButtonPressed = false;
             }
-
-            SelectOptionByVariantPreference(_moonAtmosphereOption, spec.HasAtmosphere);
-            SelectOptionByVariantPreference(_moonOceanOption, spec.HasSubsurfaceOcean);
             return;
         }
 
@@ -411,17 +407,31 @@ public partial class ObjectGenerationScreen
         {
             StarSpec spec = CreateStarPresetSpec(seedValue, _presetOption?.GetSelectedId() ?? 0);
             SelectOptionById(_starSpectralClassOption, spec.SpectralClass);
-            SetOptionalValue("StarSubclass", spec.HasSubclass(), spec.Subclass);
-            SetOptionalValue("StarMetallicity", spec.HasMetallicity(), spec.Metallicity);
-            SetOptionalValue("StarAgeGyr", spec.HasAge(), spec.AgeYears / 1.0e9);
+            SelectOptionById(_starSubclassOption, spec.HasSubclass() ? spec.Subclass : -1);
             return;
         }
 
-        AsteroidSpec asteroidSpec = CreateAsteroidPresetSpec(seedValue, _presetOption?.GetSelectedId() ?? 0);
-        SelectOptionById(_asteroidTypeOption, asteroidSpec.AsteroidType);
-        if (_asteroidLargeCheck != null)
+        if (objectType == ObjectViewer.ObjectType.Asteroid)
         {
-            _asteroidLargeCheck.ButtonPressed = asteroidSpec.IsLarge;
+            AsteroidSpec asteroidSpec = CreateAsteroidPresetSpec(seedValue, _presetOption?.GetSelectedId() ?? 0);
+            SelectOptionById(_asteroidTypeOption, asteroidSpec.AsteroidType);
+            SelectOptionById(_asteroidOrbitBandOption, asteroidSpec.OrbitBand);
+            SelectOptionById(_asteroidDensityProfileOption, asteroidSpec.DensityProfile);
+            SelectOptionById(_asteroidAlbedoProfileOption, asteroidSpec.AlbedoProfile);
+            if (_asteroidLargeCheck != null)
+            {
+                _asteroidLargeCheck.ButtonPressed = asteroidSpec.IsLarge;
+            }
+
+            return;
+        }
+
+        CometSpec cometSpec = CreateCometPresetSpec(seedValue, _presetOption?.GetSelectedId() ?? 0);
+        SelectOptionById(_cometFamilyOption, cometSpec.Family);
+        SelectOptionById(_cometActivityOption, cometSpec.ActivityState);
+        if (_cometLargeCheck != null)
+        {
+            _cometLargeCheck.ButtonPressed = cometSpec.IsLarge;
         }
     }
 
@@ -541,31 +551,6 @@ public partial class ObjectGenerationScreen
         return PlanetSpec.Random(seedValue);
     }
 
-    private MoonSpec CreateMoonPresetSpec(int seedValue, int presetId)
-    {
-        if (presetId == 1)
-        {
-            return MoonSpec.LunaLike(seedValue);
-        }
-
-        if (presetId == 2)
-        {
-            return MoonSpec.EuropaLike(seedValue);
-        }
-
-        if (presetId == 3)
-        {
-            return MoonSpec.TitanLike(seedValue);
-        }
-
-        if (presetId == 4)
-        {
-            return MoonSpec.Captured(seedValue);
-        }
-
-        return MoonSpec.Random(seedValue);
-    }
-
     private StarSpec CreateStarPresetSpec(int seedValue, int presetId)
     {
         if (presetId == 1)
@@ -605,9 +590,91 @@ public partial class ObjectGenerationScreen
 
         if (presetId == 4)
         {
+            return AsteroidSpec.DarkRedPrimitive(seedValue);
+        }
+
+        if (presetId == 5)
+        {
+            return AsteroidSpec.Basaltic(seedValue);
+        }
+
+        if (presetId == 6)
+        {
             return AsteroidSpec.CeresLike(seedValue);
         }
 
         return AsteroidSpec.Random(seedValue);
+    }
+
+    private CometSpec CreateCometPresetSpec(int seedValue, int presetId)
+    {
+        if (presetId == 1)
+        {
+            return CometSpec.JupiterFamily(seedValue);
+        }
+
+        if (presetId == 2)
+        {
+            return CometSpec.LongPeriod(seedValue);
+        }
+
+        if (presetId == 3)
+        {
+            return new CometSpec(seedValue, -1, (int)CometGenerator.ActivityType.Dormant);
+        }
+
+        if (presetId == 4)
+        {
+            return new CometSpec(seedValue, -1, (int)CometGenerator.ActivityType.Extinct);
+        }
+
+        return CometSpec.Random(seedValue);
+    }
+
+    private void ApplyPlanetProfileOverrides(PlanetSpec spec)
+    {
+        ApplyPlanetProfileChoice(spec, _planetSurfacePressureOption, "atmosphere.surface_pressure_pa", 0.02 * 101325.0, 1.0 * 101325.0, 5.0 * 101325.0);
+        ApplyPlanetProfileChoice(spec, _planetOceanCoverageOption, "surface.hydrosphere.ocean_coverage", 0.05, 0.35, 0.85);
+        ApplyPlanetProfileChoice(spec, _planetIceCoverageOption, "surface.hydrosphere.ice_coverage", 0.0, 0.15, 0.75);
+        ApplyPlanetProfileChoice(spec, _planetAlbedoProfileOption, "surface.albedo", 0.12, 0.30, 0.65);
+        ApplyPlanetProfileChoice(spec, _planetVolcanismOption, "surface.volcanism_level", 0.10, 0.40, 0.85);
+
+        if (_planetGenerateMoonCheck != null)
+        {
+            spec.SetOverride("studio.generate_moon", _planetGenerateMoonCheck.ButtonPressed);
+        }
+
+        if (_moonCapturedCheck != null)
+        {
+            spec.SetOverride("studio.moon_captured", _moonCapturedCheck.ButtonPressed);
+        }
+    }
+
+    private void ApplyPlanetProfileChoice(PlanetSpec spec, OptionButton? optionButton, string overrideKey, double lowValue, double mediumValue, double highValue)
+    {
+        if (optionButton == null)
+        {
+            return;
+        }
+
+        int selectedId = optionButton.GetSelectedId();
+        if (selectedId < 0)
+        {
+            return;
+        }
+
+        if (selectedId == 0)
+        {
+            spec.SetOverride(overrideKey, lowValue);
+            return;
+        }
+
+        if (selectedId == 1)
+        {
+            spec.SetOverride(overrideKey, mediumValue);
+            return;
+        }
+
+        spec.SetOverride(overrideKey, highValue);
     }
 }

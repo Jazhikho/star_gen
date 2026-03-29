@@ -17,6 +17,17 @@ Use this log for significant AI-assisted artifacts in this repository.
 
 ## Entries
 
+### 2026-03-29 - Codex (GPT-5)
+
+- Task Purpose: Implement the current `0.8.5.0` object-taxonomy and Object Studio patch by making Object Studio context-sensitive, moving moon generation under planets, adding comet support, and broadening the practical asteroid and planet controls.
+- Input Materials Used: User-approved `0.8.5.0` object-taxonomy plan; follow-up user correction that upstream planetary models must eventually surface in higher-level studios; follow-up user patch request describing the remaining Object Studio problems; `AGENTS.md`; `claude.md`; the existing object generation, viewer, rendering, persistence, and test files already on the `codex/release-0.9-mainline` branch.
+- AI Produced: Added `CometSpec` and `CometGenerator`; introduced comet handling across celestial typing, rendering, persistence, viewer generation, and save/load metadata; expanded asteroid taxonomy and added orbit-band, density, and albedo shaping controls; removed standalone moon selection from the Object Studio top-level picker and moved moon generation under planets with context-sensitive moon controls; expanded planet profile overrides in Object Studio; simplified star object editing to subclass-first controls while dropping unreliable direct metallicity and age fields; updated Object Studio visibility logic and assumptions text; added comet and Object Studio context-gating tests; and synced roadmap/version/project-structure metadata to `0.8.5.0`.
+- Human Accepted: Pending review of the new comet defaults, the broadened Object Studio control surface, and the partial `0.8.5.0` scope implemented in this checkpoint before merge or release.
+- Human Rejected: The user explicitly rejected keeping moon generation as a top-level Object Studio type, rejected showing Traveller-only parameters in the general Parameters section, rejected the earlier star UI that exposed metallicity and age even though they were intertwined and not reliably direct-editable, and rejected the earlier limited asteroid/planet control surfaces.
+- Human Changed: The user clarified that patches and feature slices must be committed as checkpoints, that Object Studio should expose exactly one object context at a time, that moons belong under planets in the UI, that comets must actually exist in the tool, and that asteroid/planet authoring should expose materially richer controls than the earlier limited profile.
+- Validation Method: `dotnet build StarGen.sln`; `godot-mono.exe --path . --headless --script res://Tests/RunTestsHeadless.gd` (`1780 / 1780` passed).
+- Final Approver: Pending Christopher B. Del Gesso review.
+
 ### 2026-03-28 - Codex (GPT-5)
 
 - Task Purpose: Implement the `0.8.4.0` stellar-population expansion by broadening practical stellar outputs beyond main-sequence stars, adding supporting research notes to `Sources/`, updating downstream system-generation behavior, and rewriting tests around the expanded offerings.
