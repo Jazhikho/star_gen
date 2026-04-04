@@ -2125,6 +2125,9 @@ public static partial class DotNetNativeTestSuite
             "TestSystemAsteroidGenerator::test_asteroid_names",
             Tests.Unit.TestSystemAsteroidGenerator.TestAsteroidNames);
         runner.RunNativeTest(
+            "TestSystemAsteroidGenerator::test_outer_system_bias_changes_icy_belts",
+            Tests.Unit.TestSystemAsteroidGenerator.TestOuterSystemBiasChangesIcyBelts);
+        runner.RunNativeTest(
             "TestSystemBodyNode::test_setup_planet",
             Tests.Unit.TestSystemBodyNode.TestSetupPlanet);
         runner.RunNativeTest(
@@ -2341,6 +2344,9 @@ public static partial class DotNetNativeTestSuite
             "TestSystemMoonGenerator::test_moon_ids_unique",
             Tests.Unit.TestSystemMoonGenerator.TestMoonIdsUnique);
         runner.RunNativeTest(
+            "TestSystemMoonGenerator::test_moon_formation_bias_changes_captured_share",
+            Tests.Unit.TestSystemMoonGenerator.TestMoonFormationBiasChangesCapturedShare);
+        runner.RunNativeTest(
             "TestSystemPlanetGenerator::test_generate_planets",
             Tests.Unit.TestSystemPlanetGenerator.TestGeneratePlanets);
         runner.RunNativeTest(
@@ -2364,6 +2370,12 @@ public static partial class DotNetNativeTestSuite
         runner.RunNativeTest(
             "TestSystemPlanetGenerator::test_direct_planet_rogue_mode_clears_orbit",
             Tests.Unit.TestSystemPlanetGenerator.TestDirectPlanetRogueModeClearsOrbit);
+        runner.RunNativeTest(
+            "TestSystemPlanetGenerator::test_envelope_loss_model_changes_hot_planet_atmospheres",
+            Tests.Unit.TestSystemPlanetGenerator.TestEnvelopeLossModelChangesHotPlanetAtmospheres);
+        runner.RunNativeTest(
+            "TestSystemPlanetGenerator::test_volatile_delivery_changes_watery_rocky_worlds",
+            Tests.Unit.TestSystemPlanetGenerator.TestVolatileDeliveryChangesWateryRockyWorlds);
         runner.RunNativeTest(
             "TestSystemPlanetDistributions::test_hot_jupiter_fraction_rare",
             Tests.Unit.TestSystemPlanetDistributions.TestHotJupiterFractionRare);

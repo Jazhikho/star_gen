@@ -1,12 +1,20 @@
 # Version
 
-Current version: `0.8.6.0`
+Current version: `0.8.7.0`
 
 Current user-facing version: `0.9d`
 
-Date: `2026-03-29`
+Date: `2026-04-03`
 
 Versioning method: release/refactor `+0.1`, feature `+0.0.1`, bug fix `+0.0.0.1`, save-breaking release `+1.0`.
+
+## 0.8.7.0
+
+- Feature: Enriched `PlanetarySystemState` with habitable-zone, stellar-flux, XUV, volatile-delivery, bombardment, and outer-reservoir fields so aggregate planetary assumptions now impose real downstream constraints instead of stopping at planet-class weighting.
+- Feature: Retrofitted system-planet and atmosphere generation so hot inner worlds, volatile-rich temperate worlds, and outer-system ice-rich worlds now branch differently in class bias, envelope retention, hydrosphere tendency, and rocky-atmosphere outcomes based on aggregate formation context.
+- Feature: Moon and small-body generation now react to upstream state, with regular-vs-captured moon tendencies, giant-host moon richness, outer-belt mass/composition, and icy primitive reservoir bias all driven by the same deterministic system context.
+- Feature: Population/environment profiles now carry stellar flux, habitable-zone alignment, and XUV exposure, and the biology-support evaluator uses those together with bounded tidal-heating effects so biosphere support and native-life likelihood follow system context without becoming a simulation.
+- Test: Added and expanded deterministic regressions for planetary-state serialization, hot-world atmosphere stripping, volatile-delivery effects, moon-bias changes, outer-belt composition shifts, profile/environment field propagation, and XUV/tidal-heating biology behavior; `dotnet build StarGen.sln` passed, and the headless harness passed (`1796 / 1796`).
 
 ## 0.8.6.0
 

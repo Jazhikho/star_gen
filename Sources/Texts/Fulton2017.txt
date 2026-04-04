@@ -1,0 +1,20 @@
+Source note for StarGen research review
+
+Citation:
+Fulton, B. J., Petigura, E. A., Howard, A. W., Isaacson, H., Marcy, G. W., Cargile, P. A., Hebb, L., Weiss, L. M., Johnson, J. A., Morton, T. D., Sinukoff, E., Crossfield, I. J. M., & Hirsch, L. A. (2017).
+The California-Kepler Survey. III. A gap in the radius distribution of small planets.
+The Astronomical Journal, 154(3), 109.
+arXiv: https://arxiv.org/abs/1703.10375
+DOI: https://doi.org/10.3847/1538-3881/aa80eb
+
+What was reviewed:
+- Abstract and source metadata on 2026-04-03.
+
+Key implementation notes used in StarGen:
+- The paper reports that close-in small planets do not form one smooth size family. Instead, the observed distribution splits into a smaller rocky group and a larger gas-envelope group with a radius gap between them.
+- The gap is strongest for planets that receive significant irradiation, which supports treating hot close-in worlds as more likely to lose or strongly thin their envelopes.
+- For StarGen, the useful takeaway is not an exact observed fraction. It is the causal constraint that stellar flux and loss-model assumptions should materially affect whether a close-in world lands as rocky, stripped, or sub-Neptune-like.
+
+How StarGen uses this:
+- As the basis for biasing hot inner-system worlds away from stable mini-Neptune outcomes and toward rocky or stripped-core outcomes when the aggregate planetary state indicates a strong envelope-loss regime.
+- As support for making atmosphere retention and thin-air outcomes depend on stellar flux and loss context instead of only planet mass or cosmetic preset choice.

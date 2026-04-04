@@ -238,7 +238,7 @@ public static class TestPopulationProbability
 
         DotNetNativeTestSuite.AssertTrue(strictProbability > 0.0, "Strict life settings should still allow a non-zero abiogenesis chance on viable wet worlds");
         DotNetNativeTestSuite.AssertTrue(permissiveProbability > strictProbability, "Permissive life settings should raise marginal biosphere probability");
-        DotNetNativeTestSuite.AssertTrue(permissiveProbability >= 0.55, "Space-opera life settings should give viable wet marginal worlds a high life chance");
+        DotNetNativeTestSuite.AssertTrue(permissiveProbability >= 0.55, $"Space-opera life settings should give viable wet marginal worlds a high life chance | strict={strictProbability:0.000} permissive={permissiveProbability:0.000}");
     }
 
     /// <summary>

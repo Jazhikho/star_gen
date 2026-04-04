@@ -80,6 +80,10 @@ public static class TestPlanetaryGenerationProfile
         DotNetNativeTestSuite.AssertEqual((int)state.Profile.EnvelopeLossModel, (int)rebuilt.Profile.EnvelopeLossModel, "Derived state should preserve envelope-loss model");
         DotNetNativeTestSuite.AssertEqual(state.SnowLineAu, rebuilt.SnowLineAu, "Derived state should preserve the snow line");
         DotNetNativeTestSuite.AssertEqual(state.GasGiantWeight, rebuilt.GasGiantWeight, "Derived state should preserve gas-giant weighting");
+        DotNetNativeTestSuite.AssertEqual(state.HabitableZoneInnerAu, rebuilt.HabitableZoneInnerAu, "Derived state should preserve habitable-zone inner edge");
+        DotNetNativeTestSuite.AssertEqual(state.HabitableZoneOuterAu, rebuilt.HabitableZoneOuterAu, "Derived state should preserve habitable-zone outer edge");
+        DotNetNativeTestSuite.AssertEqual(state.VolatileDeliveryScalar, rebuilt.VolatileDeliveryScalar, "Derived state should preserve volatile delivery");
+        DotNetNativeTestSuite.AssertEqual(state.XuvActivityScalar, rebuilt.XuvActivityScalar, "Derived state should preserve XUV activity");
     }
 
     /// <summary>

@@ -252,24 +252,37 @@ public static class BiologySupportEvaluator
         }
 
         double temperatureScore = Trap(environment.AvgTemperatureK, 215.0, 245.0, 315.0, 350.0);
+        if (hasSubsurfaceOcean)
+        {
+            double subsurfaceTemperatureScore = 0.45 + (System.Math.Min(environment.TidalHeatingFactor, 0.35) * 1.55);
+            temperatureScore = System.Math.Max(temperatureScore, Clamp01(subsurfaceTemperatureScore));
+        }
+
         double pressureScore = Trap(environment.PressureAtm, 0.01, 0.08, 4.0, 14.0);
         if (hasSubsurfaceOcean && !environment.HasAtmosphere)
         {
-            pressureScore = 0.70;
+            pressureScore = 0.82;
         }
 
         double gravityScore = Trap(environment.GravityG, 0.20, 0.45, 1.80, 2.80);
         if (hasSubsurfaceOcean && environment.GravityG > 0.05)
         {
-            gravityScore = System.Math.Max(gravityScore, 0.55);
+            gravityScore = System.Math.Max(gravityScore, 0.70);
         }
 
         double radiationScore = 1.0 - Clamp01(environment.RadiationLevel * 1.10);
+        double xuvScore = 1.0 - Clamp01(environment.XuvExposure * (environment.HasAtmosphere ? 0.25 : 0.50));
         double stabilityScore = Clamp01(1.0 - (environment.WeatherSeverity * 0.18) - (environment.VolcanismLevel * 0.12));
+        double orbitScore = CalculateHabitableOrbitScore(environment);
+        double tidalScore = CalculateTidalHabitabilityScore(environment);
         double magneticBonus = 0.85;
         if (environment.HasMagneticField || environment.MagneticFieldStrength >= 0.10)
         {
             magneticBonus = 1.0;
+        }
+        else if (hasSubsurfaceOcean)
+        {
+            magneticBonus = 0.95;
         }
 
         double solventScore = Clamp01(environment.OceanCoverage + (environment.IceCoverage * 0.30) + 0.20);
@@ -280,14 +293,17 @@ public static class BiologySupportEvaluator
 
         if (hasSubsurfaceOcean)
         {
-            solventScore = System.Math.Max(solventScore, 0.55);
+            solventScore = System.Math.Max(solventScore, 0.72);
         }
 
         return temperatureScore
             * pressureScore
             * gravityScore
             * radiationScore
+            * xuvScore
             * stabilityScore
+            * orbitScore
+            * tidalScore
             * magneticBonus
             * Clamp01(solventScore);
     }
@@ -304,7 +320,8 @@ public static class BiologySupportEvaluator
         double pressureScore = Trap(environment.PressureAtm, 0.20, 0.60, 8.0, 24.0);
         double gravityScore = Trap(environment.GravityG, 0.15, 0.35, 2.10, 3.10);
         double radiationScore = 1.0 - Clamp01(environment.RadiationLevel * 0.95);
-        return temperatureScore * pressureScore * gravityScore * radiationScore * coldVolatileScore * 0.82;
+        double xuvScore = 1.0 - Clamp01(environment.XuvExposure * 0.35);
+        return temperatureScore * pressureScore * gravityScore * radiationScore * xuvScore * coldVolatileScore * 0.82;
     }
 
     private static double ScoreCarbonMethane(PlanetEnvironmentProfile environment)
@@ -319,7 +336,8 @@ public static class BiologySupportEvaluator
         double pressureScore = Trap(environment.PressureAtm, 0.30, 0.80, 6.0, 18.0);
         double gravityScore = Trap(environment.GravityG, 0.08, 0.20, 1.60, 2.30);
         double radiationScore = 1.0 - Clamp01(environment.RadiationLevel);
-        return temperatureScore * pressureScore * gravityScore * radiationScore * volatileScore * 0.70;
+        double xuvScore = 1.0 - Clamp01(environment.XuvExposure * 0.30);
+        return temperatureScore * pressureScore * gravityScore * radiationScore * xuvScore * volatileScore * 0.70;
     }
 
     private static double ScoreSulfurChemistry(PlanetEnvironmentProfile environment)
@@ -333,7 +351,8 @@ public static class BiologySupportEvaluator
         double temperatureScore = Trap(environment.AvgTemperatureK, 290.0, 330.0, 430.0, 520.0);
         double pressureScore = Trap(environment.PressureAtm, 0.20, 0.90, 12.0, 55.0);
         double radiationScore = 1.0 - Clamp01(environment.RadiationLevel * 1.15);
-        return temperatureScore * pressureScore * volcanismScore * radiationScore * 0.62;
+        double xuvScore = 1.0 - Clamp01(environment.XuvExposure * 0.25);
+        return temperatureScore * pressureScore * volcanismScore * radiationScore * xuvScore * 0.62;
     }
 
     private static double ScoreExotic(PlanetEnvironmentProfile environment)
@@ -387,10 +406,18 @@ public static class BiologySupportEvaluator
             chance += Lerp(0.01, 0.03, permissiveness);
         }
 
+        if (environment.HasLiquidWater && environment.PressureAtm >= 0.20)
+        {
+            chance += Lerp(0.00, 0.08, permissiveness);
+        }
+
         if (environment.IsMoon && environment.TidalHeatingFactor > 0.20)
         {
             chance += Lerp(0.00, 0.06, permissiveness);
         }
+
+        chance *= 0.90 + (0.10 * CalculateHabitableOrbitScore(environment));
+        chance *= 1.0 - (Clamp01(environment.XuvExposure * 0.35) * Lerp(0.08, 0.03, permissiveness));
 
         if (environment.RadiationLevel > 0.75)
         {
@@ -399,7 +426,10 @@ public static class BiologySupportEvaluator
 
         if (environment.HabitabilityScore >= 8)
         {
-            chance = System.Math.Max(chance, Lerp(0.10, 0.90, permissiveness));
+            double primeWorldFloor = Lerp(0.05, 0.34, permissiveness);
+            double xuvPenalty = 1.0 - (Clamp01(environment.XuvExposure * 0.22) * Lerp(0.14, 0.06, permissiveness));
+            double orbitBonus = 0.92 + (0.08 * CalculateHabitableOrbitScore(environment));
+            chance = System.Math.Max(chance, primeWorldFloor * xuvPenalty * orbitBonus);
         }
 
         return Clamp01(chance);
@@ -413,9 +443,12 @@ public static class BiologySupportEvaluator
         double stabilityFactor = Clamp01(1.0
             - (environment.WeatherSeverity * 0.28)
             - (environment.VolcanismLevel * 0.18)
-            - (environment.RadiationLevel * 0.24));
+            - (environment.RadiationLevel * 0.24)
+            - (environment.XuvExposure * 0.09));
         double diversityFactor = CalculateSurfaceDiversity(environment);
-        double chance = chemistryScore * ageFactor * stabilityFactor * diversityFactor;
+        double orbitFactor = 0.82 + (0.18 * CalculateHabitableOrbitScore(environment));
+        double tidalFactor = CalculateTidalHabitabilityScore(environment);
+        double chance = chemistryScore * ageFactor * stabilityFactor * diversityFactor * orbitFactor * tidalFactor;
         return Clamp01(chance);
     }
 
@@ -482,6 +515,70 @@ public static class BiologySupportEvaluator
         }
 
         return Clamp01(factor);
+    }
+
+    private static double CalculateHabitableOrbitScore(PlanetEnvironmentProfile environment)
+    {
+        if (environment.HabitableZoneAlignment > 0.0)
+        {
+            return Clamp01(0.55 + (environment.HabitableZoneAlignment * 0.45));
+        }
+
+        if (environment.IsMoon && environment.TidalHeatingFactor > 0.12 && environment.IceCoverage > 0.10)
+        {
+            return Clamp01(0.58 + (System.Math.Min(environment.TidalHeatingFactor, 0.45) * 0.55));
+        }
+
+        if (environment.StellarFluxEarth > 0.0)
+        {
+            double fluxScore = Trap(environment.StellarFluxEarth, 0.15, 0.35, 1.80, 2.80);
+            return Clamp01(0.40 + (fluxScore * 0.60));
+        }
+
+        if (environment.HasLiquidWater)
+        {
+            return 0.82;
+        }
+
+        if (environment.HasAtmosphere)
+        {
+            return 0.70;
+        }
+
+        return 0.55;
+    }
+
+    private static double CalculateTidalHabitabilityScore(PlanetEnvironmentProfile environment)
+    {
+        if (!environment.IsMoon)
+        {
+            return 1.0;
+        }
+
+        if (environment.TidalHeatingFactor <= 0.02)
+        {
+            if (environment.HasLiquidWater && environment.IceCoverage > 0.50)
+            {
+                return 0.72;
+            }
+
+            return environment.HasLiquidWater ? 0.88 : 0.55;
+        }
+
+        if (environment.TidalHeatingFactor <= 0.30)
+        {
+            double ramp = Normalize(environment.TidalHeatingFactor, 0.02, 0.30);
+            return Clamp01(0.75 + (ramp * 0.25));
+        }
+
+        if (environment.TidalHeatingFactor <= 0.65)
+        {
+            double decline = Normalize(environment.TidalHeatingFactor, 0.30, 0.65);
+            return Clamp01(1.0 - (decline * 0.35));
+        }
+
+        double overload = Normalize(environment.TidalHeatingFactor, 0.65, 1.10);
+        return Clamp01(0.65 - (overload * 0.40));
     }
 
     private static double CalculateAgeFactor(

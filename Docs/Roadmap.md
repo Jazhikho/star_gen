@@ -52,7 +52,7 @@ Release notes and version summaries are in the [README](../README.md#version-his
 - Keep realism consistency across galaxy, stellar, planetary, and life-distribution outputs rather than applying realism to isolated tiers only.
 - Any realism-related changes require documentation updates and human verification against reviewed sources before acceptance.
 
-### Active effort: Planetary retrofit and upstream formation models (`0.8.6.0`)
+### Active effort: Planetary retrofit and downstream environmental constraints (`0.8.7.0`)
 
 - Retrofit the existing planet-generation spine instead of replacing it, keeping `GalaxyConfig -> SolarSystemSpec -> SystemPlanetGenerator -> PlanetSpec -> PlanetGenerator` intact while threading a shared aggregate planetary-formation profile through the upstream tiers.
 - Keep aggregate planetary-formation assumptions at Galaxy Studio and System Studio only, exposing model choices such as mass-radius handling, envelope loss, gas-giant formation, metallicity coupling, rogue-planet allowance, moon-formation bias, and outer-system small-body bias with plain-language help.
@@ -60,6 +60,9 @@ Release notes and version summaries are in the [README](../README.md#version-his
 - Derive a deterministic `PlanetarySystemState` once per system so orbit-slot weighting and broad class preconditions can respond to snow-line position, solid/gas budget surrogates, escape pressure, metallicity enrichment, migration strength, and impact stirring without rewriting the generator into a simulation.
 - Store enough formation trace and provenance on generated planets to explain why a world became rocky, water-rich, sub-Neptune-like, gas-giant-like, or stripped-core-like, while preserving current save/load compatibility through additive fields and defaults.
 - Keep this pass grounded in `Sources/Texts/planets.md` as a deterministic implementation spec, not a mandate to mirror every latent variable or rewrite the whole planetary stack into a full formation simulator.
+- Use the aggregate planetary state to drive non-cosmetic downstream consequences, especially atmosphere retention, volatile delivery, moon architecture, outer-belt and comet-leaning small-body placement, and biosphere support.
+- Add flux-, habitable-zone-, XUV-, and tidal-heating-aware environment scoring so habitability and native-biology outcomes follow system context rather than only standalone planet readouts.
+- Calibrate these constraints against reviewed literature for planet demographics, moon formation, asteroid/comet structure, and habitability windows, and keep the implementation additive instead of rewriting the current generator stack.
 
 ### Recently completed effort: Planetary and minor-body taxonomy expansion (`0.8.5.0`)
 

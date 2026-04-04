@@ -82,6 +82,65 @@ public static class TestSystemPlanetGenerator
     }
 
     /// <summary>
+    /// Creates close-in hot slots suited for envelope-loss comparisons.
+    /// </summary>
+    private static Array<OrbitSlot> CreateHotLossSlots(OrbitHost host, int count)
+    {
+        Array<OrbitSlot> slots = new Array<OrbitSlot>();
+        for (int i = 0; i < count; i += 1)
+        {
+            double distance = (0.08 + (i * 0.04)) * Units.AuMeters;
+            OrbitSlot slot = new OrbitSlot($"hot_slot_{i}", host.NodeId, distance)
+            {
+                IsStable = true,
+                FillProbability = 1.0,
+                Zone = OrbitZone.Zone.Hot,
+            };
+            slots.Add(slot);
+        }
+
+        return slots;
+    }
+
+    /// <summary>
+    /// Creates temperate and near-snow-line slots for volatile-delivery comparisons.
+    /// </summary>
+    private static Array<OrbitSlot> CreateTemperateAndColdSlots(OrbitHost host)
+    {
+        double[] distancesAu =
+        {
+            0.85, 1.00, 1.20, 1.45, 1.80, 2.20, 2.80, 3.40, 4.10, 5.20,
+        };
+        Array<OrbitSlot> slots = new Array<OrbitSlot>();
+        for (int i = 0; i < distancesAu.Length; i += 1)
+        {
+            double distance = distancesAu[i] * Units.AuMeters;
+            OrbitSlot slot = new OrbitSlot($"mix_slot_{i}", host.NodeId, distance)
+            {
+                IsStable = true,
+                FillProbability = 1.0,
+            };
+
+            if (distance < host.HabitableZoneInnerM)
+            {
+                slot.Zone = OrbitZone.Zone.Hot;
+            }
+            else if (distance > host.FrostLineM)
+            {
+                slot.Zone = OrbitZone.Zone.Cold;
+            }
+            else
+            {
+                slot.Zone = OrbitZone.Zone.Temperate;
+            }
+
+            slots.Add(slot);
+        }
+
+        return slots;
+    }
+
+    /// <summary>
     /// Tests basic planet generation.
     /// </summary>
     public static void TestGeneratePlanets()
@@ -292,6 +351,106 @@ public static class TestSystemPlanetGenerator
     }
 
     /// <summary>
+    /// Tests that hot close-in worlds strip more easily under the photoevaporation model.
+    /// </summary>
+    public static void TestEnvelopeLossModelChangesHotPlanetAtmospheres()
+    {
+        OrbitHost host = CreateTestHost();
+        CelestialBody star = CreateTestStar();
+        Array<OrbitSlot> photoSlots = CreateHotLossSlots(host, 12);
+        Array<OrbitSlot> coreSlots = CreateHotLossSlots(host, 12);
+        SolarSystemSpec photoSpec = new SolarSystemSpec(2222, 1, 1)
+        {
+            PlanetaryProfile = new PlanetaryGenerationProfile
+            {
+                EnvelopeLossModel = PlanetEnvelopeLossModel.Photoevaporation,
+                GasMassScalar = 1.10,
+                MigrationStrength = 1.10,
+            },
+        };
+        SolarSystemSpec coreSpec = new SolarSystemSpec(2222, 1, 1)
+        {
+            PlanetaryProfile = new PlanetaryGenerationProfile
+            {
+                EnvelopeLossModel = PlanetEnvelopeLossModel.CorePowered,
+                GasMassScalar = 1.10,
+                MigrationStrength = 1.10,
+            },
+        };
+
+        PlanetGenerationResult photoResult = SystemPlanetGenerator.Generate(
+            photoSlots,
+            new Array<OrbitHost> { host },
+            new Array<CelestialBody> { star },
+            new SeededRng(2222),
+            systemSpec: photoSpec);
+        PlanetGenerationResult coreResult = SystemPlanetGenerator.Generate(
+            coreSlots,
+            new Array<OrbitHost> { host },
+            new Array<CelestialBody> { star },
+            new SeededRng(2222),
+            systemSpec: coreSpec);
+
+        int photoThinCount = CountThinOrAirlessHotPlanets(photoResult.Planets);
+        int coreThinCount = CountThinOrAirlessHotPlanets(coreResult.Planets);
+        if (photoThinCount < coreThinCount)
+        {
+            throw new InvalidOperationException("Photoevaporation should not leave fewer thin or stripped hot planets than the same seeded core-powered run.");
+        }
+    }
+
+    /// <summary>
+    /// Tests that volatile-delivery-rich systems yield more watery rocky worlds.
+    /// </summary>
+    public static void TestVolatileDeliveryChangesWateryRockyWorlds()
+    {
+        OrbitHost host = CreateTestHost();
+        CelestialBody star = CreateTestStar();
+        Array<OrbitSlot> drySlots = CreateTemperateAndColdSlots(host);
+        Array<OrbitSlot> wetSlots = CreateTemperateAndColdSlots(host);
+        SolarSystemSpec drySpec = new SolarSystemSpec(3333, 1, 1)
+        {
+            PlanetaryProfile = new PlanetaryGenerationProfile
+            {
+                MinorBodyOuterSystemBias = PlanetMinorBodyOuterSystemBias.AsteroidLeaning,
+                GasMassScalar = 0.85,
+                MigrationStrength = 0.75,
+                ImpactStirring = 0.80,
+            },
+        };
+        SolarSystemSpec wetSpec = new SolarSystemSpec(3333, 1, 1)
+        {
+            PlanetaryProfile = new PlanetaryGenerationProfile
+            {
+                MinorBodyOuterSystemBias = PlanetMinorBodyOuterSystemBias.CometLeaning,
+                GasMassScalar = 1.30,
+                MigrationStrength = 1.25,
+                ImpactStirring = 1.10,
+            },
+        };
+
+        PlanetGenerationResult dryResult = SystemPlanetGenerator.Generate(
+            drySlots,
+            new Array<OrbitHost> { host },
+            new Array<CelestialBody> { star },
+            new SeededRng(3333),
+            systemSpec: drySpec);
+        PlanetGenerationResult wetResult = SystemPlanetGenerator.Generate(
+            wetSlots,
+            new Array<OrbitHost> { host },
+            new Array<CelestialBody> { star },
+            new SeededRng(3333),
+            systemSpec: wetSpec);
+
+        int dryWateryRocky = CountWateryRockyWorlds(dryResult.Planets);
+        int wetWateryRocky = CountWateryRockyWorlds(wetResult.Planets);
+        if (wetWateryRocky < dryWateryRocky)
+        {
+            throw new InvalidOperationException("A volatile-delivery-rich system should not yield fewer watery rocky worlds than the same seeded dry-leaning run.");
+        }
+    }
+
+    /// <summary>
     /// Tests that direct single-planet rogue mode removes the final parent orbit.
     /// </summary>
     public static void TestDirectPlanetRogueModeClearsOrbit()
@@ -320,6 +479,57 @@ public static class TestSystemPlanetGenerator
         {
             double earthMass = planet.Physical.MassKg / Units.EarthMassKg;
             if (earthMass >= 20.0)
+            {
+                count += 1;
+            }
+        }
+
+        return count;
+    }
+
+    private static int CountThinOrAirlessHotPlanets(Array<CelestialBody> planets)
+    {
+        int count = 0;
+        foreach (CelestialBody planet in planets)
+        {
+            if (!planet.HasOrbital())
+            {
+                continue;
+            }
+
+            double orbitAu = planet.Orbital!.SemiMajorAxisM / Units.AuMeters;
+            if (orbitAu > 0.65)
+            {
+                continue;
+            }
+
+            if (!planet.HasAtmosphere())
+            {
+                count += 1;
+                continue;
+            }
+
+            if (planet.Atmosphere!.SurfacePressurePa < 4.0e4)
+            {
+                count += 1;
+            }
+        }
+
+        return count;
+    }
+
+    private static int CountWateryRockyWorlds(Array<CelestialBody> planets)
+    {
+        int count = 0;
+        foreach (CelestialBody planet in planets)
+        {
+            double massEarth = planet.Physical.MassKg / Units.EarthMassKg;
+            if (massEarth >= 10.0 || !planet.HasSurface() || !planet.Surface!.HasHydrosphere())
+            {
+                continue;
+            }
+
+            if (planet.Surface.Hydrosphere!.OceanCoverage >= 0.20)
             {
                 count += 1;
             }

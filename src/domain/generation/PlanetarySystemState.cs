@@ -74,6 +74,36 @@ public partial class PlanetarySystemState : RefCounted
     public double GasGiantWeight { get; set; } = 1.0;
 
     /// <summary>
+    /// Inner edge of the habitable zone in AU.
+    /// </summary>
+    public double HabitableZoneInnerAu { get; set; } = 0.95;
+
+    /// <summary>
+    /// Outer edge of the habitable zone in AU.
+    /// </summary>
+    public double HabitableZoneOuterAu { get; set; } = 1.37;
+
+    /// <summary>
+    /// Relative stellar high-energy activity proxy used for close-in atmosphere stripping.
+    /// </summary>
+    public double XuvActivityScalar { get; set; } = 1.0;
+
+    /// <summary>
+    /// How massive and comet-rich the outer volatile reservoir is likely to be.
+    /// </summary>
+    public double OuterReservoirScalar { get; set; } = 1.0;
+
+    /// <summary>
+    /// System-wide volatile-delivery proxy used for oceans, icy worlds, and atmosphere retention.
+    /// </summary>
+    public double VolatileDeliveryScalar { get; set; } = 1.0;
+
+    /// <summary>
+    /// Late bombardment and stirring proxy used for stripping and delivery events.
+    /// </summary>
+    public double BombardmentScalar { get; set; } = 1.0;
+
+    /// <summary>
     /// Creates a default derived state.
     /// </summary>
     public static PlanetarySystemState CreateDefault()
@@ -91,6 +121,7 @@ public partial class PlanetarySystemState : RefCounted
         double luminositySolar = 0.0;
         double metallicity = spec?.SystemMetallicity ?? -1.0;
         double ageYears = spec?.SystemAgeYears ?? -1.0;
+        double effectiveTempK = 5778.0;
 
         if (stars != null)
         {
@@ -103,6 +134,11 @@ public partial class PlanetarySystemState : RefCounted
                     if (metallicity <= 0.0)
                     {
                         metallicity = star.Stellar.Metallicity;
+                    }
+
+                    if (effectiveTempK <= 0.0 || effectiveTempK == 5778.0)
+                    {
+                        effectiveTempK = star.Stellar.EffectiveTemperatureK;
                     }
 
                     if (ageYears <= 0.0)
@@ -165,6 +201,48 @@ public partial class PlanetarySystemState : RefCounted
             escapeProxy *= 0.92;
         }
 
+        double ageActivityFactor = 1.0;
+        if (ageYears > 0.0)
+        {
+            ageActivityFactor = System.Math.Clamp(System.Math.Pow(1.8e9 / ageYears, 0.18), 0.65, 1.8);
+        }
+
+        double lowMassActivityFactor;
+        if (massSolar < 0.85)
+        {
+            lowMassActivityFactor = System.Math.Clamp(1.42 - (massSolar * 0.40), 1.0, 1.35);
+        }
+        else
+        {
+            lowMassActivityFactor = System.Math.Clamp(1.02 - ((massSolar - 0.85) * 0.10), 0.82, 1.02);
+        }
+
+        double xuvActivity = System.Math.Clamp(ageActivityFactor * lowMassActivityFactor * (0.92 + (0.08 * luminositySolar)), 0.45, 1.85);
+        double outerBias = profile.MinorBodyOuterSystemBias switch
+        {
+            PlanetMinorBodyOuterSystemBias.AsteroidLeaning => 0.82,
+            PlanetMinorBodyOuterSystemBias.CometLeaning => 1.24,
+            _ => 1.0,
+        };
+        double outerReservoir = System.Math.Clamp(
+            outerBias * (0.78 + (0.30 * gasBudget) + (0.22 * solidBudget)),
+            0.45,
+            2.60);
+        double volatileDelivery = System.Math.Clamp(
+            outerReservoir * (0.72 + (0.18 * profile.MigrationStrength) + (0.15 * profile.ImpactStirring)),
+            0.35,
+            2.75);
+        double bombardment = System.Math.Clamp(
+            profile.ImpactStirring * (0.75 + (0.35 * outerReservoir)),
+            0.30,
+            3.00);
+        double habitableZoneInnerAu = OrbitalMechanics.CalculateHabitableZoneInner(
+            luminositySolar * StellarProps.SolarLuminosityWatts,
+            effectiveTempK) / Units.AuMeters;
+        double habitableZoneOuterAu = OrbitalMechanics.CalculateHabitableZoneOuter(
+            luminositySolar * StellarProps.SolarLuminosityWatts,
+            effectiveTempK) / Units.AuMeters;
+
         return new PlanetarySystemState
         {
             Profile = profile,
@@ -179,7 +257,51 @@ public partial class PlanetarySystemState : RefCounted
             ImpactStirring = profile.ImpactStirring,
             MetallicityEnrichment = metallicityEnrichment,
             GasGiantWeight = gasGiantWeight,
+            HabitableZoneInnerAu = habitableZoneInnerAu,
+            HabitableZoneOuterAu = habitableZoneOuterAu,
+            XuvActivityScalar = xuvActivity,
+            OuterReservoirScalar = outerReservoir,
+            VolatileDeliveryScalar = volatileDelivery,
+            BombardmentScalar = bombardment,
         };
+    }
+
+    /// <summary>
+    /// Returns the stellar flux at the supplied orbit in Earth-equivalent units.
+    /// </summary>
+    public double GetFluxEarth(double orbitAu)
+    {
+        if (orbitAu <= 0.0)
+        {
+            return 0.0;
+        }
+
+        return StellarLuminositySolar / System.Math.Max(orbitAu * orbitAu, 0.01);
+    }
+
+    /// <summary>
+    /// Returns how well the supplied orbit aligns with the classical habitable zone.
+    /// </summary>
+    public double GetHabitableZoneAlignment(double orbitAu)
+    {
+        if (orbitAu <= 0.0 || HabitableZoneInnerAu <= 0.0 || HabitableZoneOuterAu <= HabitableZoneInnerAu)
+        {
+            return 0.0;
+        }
+
+        if (orbitAu >= HabitableZoneInnerAu && orbitAu <= HabitableZoneOuterAu)
+        {
+            return 1.0;
+        }
+
+        double innerDecayFloor = HabitableZoneInnerAu * 0.45;
+        double outerDecayCeiling = HabitableZoneOuterAu * 1.80;
+        if (orbitAu < HabitableZoneInnerAu)
+        {
+            return System.Math.Clamp((orbitAu - innerDecayFloor) / System.Math.Max(HabitableZoneInnerAu - innerDecayFloor, 0.01), 0.0, 1.0);
+        }
+
+        return System.Math.Clamp((outerDecayCeiling - orbitAu) / System.Math.Max(outerDecayCeiling - HabitableZoneOuterAu, 0.01), 0.0, 1.0);
     }
 
     /// <summary>
@@ -201,6 +323,12 @@ public partial class PlanetarySystemState : RefCounted
             ImpactStirring = ImpactStirring,
             MetallicityEnrichment = MetallicityEnrichment,
             GasGiantWeight = GasGiantWeight,
+            HabitableZoneInnerAu = HabitableZoneInnerAu,
+            HabitableZoneOuterAu = HabitableZoneOuterAu,
+            XuvActivityScalar = XuvActivityScalar,
+            OuterReservoirScalar = OuterReservoirScalar,
+            VolatileDeliveryScalar = VolatileDeliveryScalar,
+            BombardmentScalar = BombardmentScalar,
         };
     }
 
@@ -223,6 +351,12 @@ public partial class PlanetarySystemState : RefCounted
             ["impact_stirring"] = ImpactStirring,
             ["metallicity_enrichment"] = MetallicityEnrichment,
             ["gas_giant_weight"] = GasGiantWeight,
+            ["habitable_zone_inner_au"] = HabitableZoneInnerAu,
+            ["habitable_zone_outer_au"] = HabitableZoneOuterAu,
+            ["xuv_activity_scalar"] = XuvActivityScalar,
+            ["outer_reservoir_scalar"] = OuterReservoirScalar,
+            ["volatile_delivery_scalar"] = VolatileDeliveryScalar,
+            ["bombardment_scalar"] = BombardmentScalar,
         };
     }
 
@@ -248,6 +382,12 @@ public partial class PlanetarySystemState : RefCounted
         state.ImpactStirring = DomainDictionaryUtils.GetDouble(data, "impact_stirring", 1.0);
         state.MetallicityEnrichment = DomainDictionaryUtils.GetDouble(data, "metallicity_enrichment", 1.0);
         state.GasGiantWeight = DomainDictionaryUtils.GetDouble(data, "gas_giant_weight", 1.0);
+        state.HabitableZoneInnerAu = DomainDictionaryUtils.GetDouble(data, "habitable_zone_inner_au", 0.95);
+        state.HabitableZoneOuterAu = DomainDictionaryUtils.GetDouble(data, "habitable_zone_outer_au", 1.37);
+        state.XuvActivityScalar = DomainDictionaryUtils.GetDouble(data, "xuv_activity_scalar", 1.0);
+        state.OuterReservoirScalar = DomainDictionaryUtils.GetDouble(data, "outer_reservoir_scalar", 1.0);
+        state.VolatileDeliveryScalar = DomainDictionaryUtils.GetDouble(data, "volatile_delivery_scalar", 1.0);
+        state.BombardmentScalar = DomainDictionaryUtils.GetDouble(data, "bombardment_scalar", 1.0);
         return state;
     }
 }

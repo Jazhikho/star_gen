@@ -1,0 +1,20 @@
+Source note for StarGen research review
+
+Citation:
+Kopparapu, R. K., Ramirez, R. M., SchottelKotte, J., Kasting, J. F., Domagal-Goldman, S., & Eymet, V. (2014).
+Habitable zones around main-sequence stars: Dependence on planetary mass.
+The Astrophysical Journal Letters, 787(2), L29.
+arXiv: https://arxiv.org/abs/1404.5292
+DOI: https://doi.org/10.1088/2041-8205/787/2/L29
+
+What was reviewed:
+- Abstract and source metadata on 2026-04-03.
+
+Key implementation notes used in StarGen:
+- The paper updates habitable-zone boundaries to account for planetary mass, showing that the same star does not imply one universal habitable band for every world.
+- The habitable zone remains a useful high-level guide, but it should influence probability and constraints rather than act as a binary yes/no switch for biospheres.
+- For StarGen, the practical takeaway is that stellar flux and habitable-zone alignment should matter to atmosphere, volatile retention, and biology-support scoring without becoming the only factor.
+
+How StarGen uses this:
+- As the basis for adding habitable-zone boundary fields and habitable-zone alignment into derived planetary and biology profiles.
+- As support for treating biosphere support as a weighted function of flux, orbit, atmosphere, and moon heating rather than a pure human-habitability shortcut.

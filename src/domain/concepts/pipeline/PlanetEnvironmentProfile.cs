@@ -44,6 +44,16 @@ public sealed class PlanetEnvironmentProfile
 
     public double RadiationLevel { get; set; }
 
+    public double StellarFluxEarth { get; set; }
+
+    public double HabitableZoneInnerAu { get; set; }
+
+    public double HabitableZoneOuterAu { get; set; }
+
+    public double HabitableZoneAlignment { get; set; }
+
+    public double XuvExposure { get; set; }
+
     public double TidalHeatingFactor { get; set; }
 
     public double ParentRadiationExposure { get; set; }
@@ -89,6 +99,11 @@ public sealed class PlanetEnvironmentProfile
             ["weather_severity"] = WeatherSeverity,
             ["magnetic_field_strength"] = MagneticFieldStrength,
             ["radiation_level"] = RadiationLevel,
+            ["stellar_flux_earth"] = StellarFluxEarth,
+            ["habitable_zone_inner_au"] = HabitableZoneInnerAu,
+            ["habitable_zone_outer_au"] = HabitableZoneOuterAu,
+            ["habitable_zone_alignment"] = HabitableZoneAlignment,
+            ["xuv_exposure"] = XuvExposure,
             ["tidal_heating_factor"] = TidalHeatingFactor,
             ["parent_radiation_exposure"] = ParentRadiationExposure,
             ["has_atmosphere"] = HasAtmosphere,
@@ -121,6 +136,11 @@ public sealed class PlanetEnvironmentProfile
         profile.WeatherSeverity = ConceptSerializationUtils.ReadDouble(data, "weather_severity");
         profile.MagneticFieldStrength = ConceptSerializationUtils.ReadDouble(data, "magnetic_field_strength");
         profile.RadiationLevel = ConceptSerializationUtils.ReadDouble(data, "radiation_level");
+        profile.StellarFluxEarth = ConceptSerializationUtils.ReadDouble(data, "stellar_flux_earth");
+        profile.HabitableZoneInnerAu = ConceptSerializationUtils.ReadDouble(data, "habitable_zone_inner_au");
+        profile.HabitableZoneOuterAu = ConceptSerializationUtils.ReadDouble(data, "habitable_zone_outer_au");
+        profile.HabitableZoneAlignment = ConceptSerializationUtils.ReadDouble(data, "habitable_zone_alignment");
+        profile.XuvExposure = ConceptSerializationUtils.ReadDouble(data, "xuv_exposure");
         profile.TidalHeatingFactor = ConceptSerializationUtils.ReadDouble(data, "tidal_heating_factor");
         profile.ParentRadiationExposure = ConceptSerializationUtils.ReadDouble(data, "parent_radiation_exposure");
         profile.HasAtmosphere = ConceptSerializationUtils.ReadBool(data, "has_atmosphere");
@@ -179,6 +199,11 @@ public sealed class PlanetEnvironmentProfile
         environment.WeatherSeverity = profile.WeatherSeverity;
         environment.MagneticFieldStrength = profile.MagneticFieldStrength;
         environment.RadiationLevel = profile.RadiationLevel;
+        environment.StellarFluxEarth = profile.StellarFluxEarth;
+        environment.HabitableZoneInnerAu = profile.HabitableZoneInnerAu;
+        environment.HabitableZoneOuterAu = profile.HabitableZoneOuterAu;
+        environment.HabitableZoneAlignment = profile.HabitableZoneAlignment;
+        environment.XuvExposure = profile.XuvExposure;
         environment.TidalHeatingFactor = profile.TidalHeatingFactor;
         environment.ParentRadiationExposure = profile.ParentRadiationExposure;
         environment.HasAtmosphere = profile.HasAtmosphere;

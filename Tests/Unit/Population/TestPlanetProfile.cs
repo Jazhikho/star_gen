@@ -37,6 +37,11 @@ public static class TestPlanetProfile
         profile.WeatherSeverity = 0.4;
         profile.MagneticFieldStrength = 0.8;
         profile.RadiationLevel = 0.2;
+        profile.StellarFluxEarth = 1.0;
+        profile.HabitableZoneInnerAu = 0.95;
+        profile.HabitableZoneOuterAu = 1.37;
+        profile.HabitableZoneAlignment = 1.0;
+        profile.XuvExposure = 0.25;
         profile.Albedo = 0.3;
         profile.GreenhouseFactor = 1.15;
         profile.IsTidallyLocked = false;
@@ -221,8 +226,11 @@ public static class TestPlanetProfile
         profile.HasAtmosphere = true;
         profile.GravityG = 1.0;
         profile.RadiationLevel = 0.2;
+        BiologySupportEvaluator.Assessment assessment = BiologySupportEvaluator.Evaluate(profile);
 
-        DotNetNativeTestSuite.AssertTrue(profile.CanSupportNativeLife(), "Low human habitability should not automatically reject a physically viable biosphere");
+        DotNetNativeTestSuite.AssertTrue(
+            profile.CanSupportNativeLife(),
+            $"Low human habitability should not automatically reject a physically viable biosphere | score={assessment.BiosphereSuitability:0.000} abiogenesis={assessment.AbiogenesisChance:0.000} complex={assessment.ComplexLifeChance:0.000} reason={assessment.Reason}");
     }
 
     /// <summary>
@@ -278,6 +286,9 @@ public static class TestPlanetProfile
         DotNetNativeTestSuite.AssertEqual(original.HasAtmosphere, restored.HasAtmosphere, "HasAtmosphere should match");
         DotNetNativeTestSuite.AssertEqual(original.HasLiquidWater, restored.HasLiquidWater, "HasLiquidWater should match");
         DotNetNativeTestSuite.AssertEqual(original.IsMoon, restored.IsMoon, "IsMoon should match");
+        DotNetNativeTestSuite.AssertFloatNear(original.StellarFluxEarth, restored.StellarFluxEarth, 0.001, "StellarFluxEarth should match");
+        DotNetNativeTestSuite.AssertFloatNear(original.HabitableZoneAlignment, restored.HabitableZoneAlignment, 0.001, "HabitableZoneAlignment should match");
+        DotNetNativeTestSuite.AssertFloatNear(original.XuvExposure, restored.XuvExposure, 0.001, "XuvExposure should match");
     }
 
     /// <summary>

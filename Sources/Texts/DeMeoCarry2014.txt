@@ -1,0 +1,20 @@
+Source note for StarGen research review
+
+Citation:
+DeMeo, F. E., & Carry, B. (2014).
+Solar System evolution from compositional mapping of the asteroid belt.
+Nature, 505, 629-634.
+arXiv: https://arxiv.org/abs/1310.3846
+DOI: https://doi.org/10.1038/nature12908
+
+What was reviewed:
+- Abstract and source metadata on 2026-04-03.
+
+Key implementation notes used in StarGen:
+- The paper maps asteroid-belt composition by heliocentric distance and shows that the belt is not compositionally uniform.
+- Broadly, inner regions are more dominated by rocky and differentiated material, while outer regions retain more primitive and volatile-rich bodies.
+- For StarGen, the important constraint is that small-body composition and belt placement should respond to system structure, especially frost-line and outer-reservoir context, rather than being assigned independently per belt.
+
+How StarGen uses this:
+- As the basis for shifting outer belts and cold small-body reservoirs toward icier and more primitive compositions when outer-system bias is stronger.
+- As support for making asteroid/comet placement a system-level consequence of planetary-state scalars rather than a cosmetic label on otherwise identical belts.

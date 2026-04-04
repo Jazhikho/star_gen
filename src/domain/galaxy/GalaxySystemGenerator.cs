@@ -75,7 +75,8 @@ public static class GalaxySystemGenerator
             stars,
             rng,
             generatePopulation,
-            spec.UseCaseSettings);
+            spec.UseCaseSettings,
+            spec);
         foreach (CelestialBody moon in moonResult.Moons)
         {
             system.AddBody(moon);
@@ -88,7 +89,8 @@ public static class GalaxySystemGenerator
                 planetResult.Slots,
                 stars,
                 rng,
-                spec.UseCaseSettings);
+                spec.UseCaseSettings,
+                spec);
 
             foreach (AsteroidBelt belt in beltResult.Belts)
             {

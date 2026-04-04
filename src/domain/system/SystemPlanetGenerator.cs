@@ -481,6 +481,9 @@ public static class SystemPlanetGenerator
 
         double orbitAu = slot.GetSemiMajorAxisAu();
         bool beyondSnowLine = orbitAu >= planetaryState.SnowLineAu;
+        double fluxEarth = planetaryState.GetFluxEarth(orbitAu);
+        double habitableAlignment = planetaryState.GetHabitableZoneAlignment(orbitAu);
+        bool insideLossRegime = fluxEarth >= 1.8 || orbitAu <= (planetaryState.HabitableZoneInnerAu * 0.85);
 
         weights[SizeCategory.Category.GasGiant] = (float)(weights[SizeCategory.Category.GasGiant] * planetaryState.GasGiantWeight * (beyondSnowLine ? 1.35 : 0.55));
         weights[SizeCategory.Category.NeptuneClass] = (float)(weights[SizeCategory.Category.NeptuneClass] * (planetaryState.GasBudgetScalar * (beyondSnowLine ? 1.2 : 0.85)));
@@ -489,6 +492,33 @@ public static class SystemPlanetGenerator
         weights[SizeCategory.Category.SuperEarth] = (float)(weights[SizeCategory.Category.SuperEarth] * (0.75 + (planetaryState.SolidBudgetScalar * 0.35) + (planetaryState.MigrationStrength * 0.12)));
         weights[SizeCategory.Category.Dwarf] = (float)(weights[SizeCategory.Category.Dwarf] * (0.85 + (planetaryState.ImpactStirring * 0.18)));
         weights[SizeCategory.Category.SubTerrestrial] = (float)(weights[SizeCategory.Category.SubTerrestrial] * (0.88 + (planetaryState.ImpactStirring * 0.15)));
+
+        if (insideLossRegime)
+        {
+            weights[SizeCategory.Category.MiniNeptune] *= planetaryState.Profile.EnvelopeLossModel switch
+            {
+                PlanetEnvelopeLossModel.Photoevaporation => 0.45f,
+                PlanetEnvelopeLossModel.CorePowered => 0.65f,
+                _ => 0.55f,
+            };
+            weights[SizeCategory.Category.NeptuneClass] *= 0.75f;
+            weights[SizeCategory.Category.SuperEarth] *= 1.18f;
+            weights[SizeCategory.Category.SubTerrestrial] *= 1.10f;
+        }
+
+        if (!beyondSnowLine && habitableAlignment > 0.60 && planetaryState.VolatileDeliveryScalar > 1.0)
+        {
+            weights[SizeCategory.Category.Terrestrial] *= 1.15f;
+            weights[SizeCategory.Category.SuperEarth] *= 1.10f;
+            weights[SizeCategory.Category.MiniNeptune] *= 0.90f;
+        }
+
+        if (beyondSnowLine && planetaryState.OuterReservoirScalar > 1.0)
+        {
+            weights[SizeCategory.Category.NeptuneClass] *= 1.10f;
+            weights[SizeCategory.Category.GasGiant] *= 1.08f;
+            weights[SizeCategory.Category.Terrestrial] *= 0.88f;
+        }
 
         if (planetaryState.Profile.RoguePlanetAllowance == PlanetRoguePlanetAllowance.Standard)
         {
@@ -517,11 +547,26 @@ public static class SystemPlanetGenerator
     {
         double orbitAu = slot.GetSemiMajorAxisAu();
         bool beyondSnowLine = orbitAu >= state.SnowLineAu;
+        double fluxEarth = state.GetFluxEarth(orbitAu);
+        double habitableAlignment = state.GetHabitableZoneAlignment(orbitAu);
+        bool insideLossRegime = fluxEarth >= 1.8 || orbitAu <= (state.HabitableZoneInnerAu * 0.85);
+        double localVolatileDelivery = state.VolatileDeliveryScalar
+            * (beyondSnowLine ? 1.15 : (habitableAlignment > 0.35 ? 1.0 : 0.85));
+        double localBombardment = state.BombardmentScalar * (beyondSnowLine ? 1.05 : 0.95);
 
         spec.FormationTrace["system_state"] = state.ToDictionary();
         spec.FormationTrace["slot_au"] = orbitAu;
         spec.FormationTrace["snow_line_au"] = state.SnowLineAu;
         spec.FormationTrace["beyond_snow_line"] = beyondSnowLine;
+        spec.FormationTrace["stellar_flux_earth"] = fluxEarth;
+        spec.FormationTrace["habitable_zone_inner_au"] = state.HabitableZoneInnerAu;
+        spec.FormationTrace["habitable_zone_outer_au"] = state.HabitableZoneOuterAu;
+        spec.FormationTrace["habitable_zone_alignment"] = habitableAlignment;
+        spec.FormationTrace["inside_radius_valley_regime"] = insideLossRegime;
+        spec.FormationTrace["xuv_activity_scalar"] = state.XuvActivityScalar;
+        spec.FormationTrace["outer_reservoir_scalar"] = state.OuterReservoirScalar;
+        spec.FormationTrace["volatile_delivery_scalar"] = localVolatileDelivery;
+        spec.FormationTrace["bombardment_scalar"] = localBombardment;
 
         if (state.Profile.MassRadiusModel == PlanetMassRadiusModel.ChenKipping)
         {
@@ -537,14 +582,23 @@ public static class SystemPlanetGenerator
         spec.FormationTrace["moon_formation_bias"] = state.Profile.MoonFormationBias.ToString();
         spec.FormationTrace["rogue_planet_allowance"] = state.Profile.RoguePlanetAllowance.ToString();
 
-        if (slot.Zone == OrbitZone.Zone.Hot && state.Profile.EnvelopeLossModel != PlanetEnvelopeLossModel.Auto)
+        if (insideLossRegime && state.Profile.EnvelopeLossModel != PlanetEnvelopeLossModel.Auto)
         {
             spec.EnvelopeOverride = state.Profile.EnvelopeLossModel == PlanetEnvelopeLossModel.Photoevaporation
                 ? PlanetEnvelopeOverride.Stripped
                 : PlanetEnvelopeOverride.Thin;
         }
 
-        if (beyondSnowLine && spec.ClassBias == PlanetClassBias.Auto)
+        if (insideLossRegime && spec.ClassBias == PlanetClassBias.Auto && rng.Randf() < 0.35f)
+        {
+            spec.ClassBias = state.Profile.EnvelopeLossModel switch
+            {
+                PlanetEnvelopeLossModel.Photoevaporation => PlanetClassBias.StrippedCore,
+                PlanetEnvelopeLossModel.CorePowered => PlanetClassBias.Rocky,
+                _ => PlanetClassBias.StrippedCore,
+            };
+        }
+        else if (beyondSnowLine && spec.ClassBias == PlanetClassBias.Auto)
         {
             if (state.GasBudgetScalar >= 1.15 && rng.Randf() < 0.45f)
             {
@@ -567,6 +621,36 @@ public static class SystemPlanetGenerator
         if (state.SolidBudgetScalar > 1.1 && spec.CompositionBias == PlanetCompositionBias.Auto && spec.ClassBias != PlanetClassBias.GasGiant)
         {
             spec.CompositionBias = beyondSnowLine ? PlanetCompositionBias.IcyWaterRich : PlanetCompositionBias.Rocky;
+        }
+
+        if (spec.VolatileRichness == PlanetVolatileRichness.Auto)
+        {
+            if (beyondSnowLine || localVolatileDelivery >= 1.35)
+            {
+                spec.VolatileRichness = PlanetVolatileRichness.Rich;
+            }
+            else if (insideLossRegime || localVolatileDelivery <= 0.75)
+            {
+                spec.VolatileRichness = PlanetVolatileRichness.Poor;
+            }
+            else if (habitableAlignment > 0.50)
+            {
+                spec.VolatileRichness = PlanetVolatileRichness.Moderate;
+            }
+        }
+
+        if (spec.HydrosphereTendency == PlanetHydrosphereTendency.Auto && spec.ClassBias != PlanetClassBias.GasGiant)
+        {
+            if (!beyondSnowLine && habitableAlignment > 0.55 && localVolatileDelivery >= 1.10)
+            {
+                spec.HydrosphereTendency = localVolatileDelivery >= 1.35
+                    ? PlanetHydrosphereTendency.Oceanic
+                    : PlanetHydrosphereTendency.Mixed;
+            }
+            else if (insideLossRegime || localVolatileDelivery <= 0.70)
+            {
+                spec.HydrosphereTendency = PlanetHydrosphereTendency.Dry;
+            }
         }
 
         if (state.Profile.MoonFormationBias == PlanetMoonFormationBias.CapturedRich)

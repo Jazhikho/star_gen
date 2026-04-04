@@ -48,7 +48,8 @@ public static class PlanetAtmosphereGenerator
         SeededRng rng)
     {
         double surfacePressurePa = CalculateSurfacePressure(spec, sizeCategory, rng);
-        Dictionary composition = GenerateAtmosphereComposition(sizeCategory, zone, equilibriumTempK, rng);
+        surfacePressurePa = ApplyFormationPressureModifiers(spec, sizeCategory, surfacePressurePa);
+        Dictionary composition = GenerateAtmosphereComposition(spec, sizeCategory, zone, equilibriumTempK, rng);
 
         double averageMolecularMass = AtmosphereUtils.GetAverageMolecularMass(composition);
         double gravity = physical.GetSurfaceGravityMS2();
@@ -87,7 +88,9 @@ public static class PlanetAtmosphereGenerator
             return false;
         }
 
-        return rng.Randf() < GetAtmosphereProbability(sizeCategory);
+        double probability = GetAtmosphereProbability(sizeCategory);
+        probability = ApplyFormationAtmosphereProbabilityModifiers(spec, probability, context);
+        return rng.Randf() < System.Math.Clamp(probability, 0.0, 1.0);
     }
 
     /// <summary>
@@ -159,8 +162,57 @@ public static class PlanetAtmosphereGenerator
         };
     }
 
+    private static double ApplyFormationPressureModifiers(
+        PlanetSpec spec,
+        SizeCategory.Category sizeCategory,
+        double surfacePressurePa)
+    {
+        if (SizeCategory.IsGaseous(sizeCategory))
+        {
+            return surfacePressurePa;
+        }
+
+        double fluxEarth = ReadFormationDouble(spec, "stellar_flux_earth", 1.0);
+        double xuvActivity = ReadFormationDouble(spec, "xuv_activity_scalar", 1.0);
+        double volatileDelivery = ReadFormationDouble(spec, "volatile_delivery_scalar", 1.0);
+        double habitableAlignment = ReadFormationDouble(spec, "habitable_zone_alignment", 0.0);
+        bool insideLossRegime = ReadFormationBool(spec, "inside_radius_valley_regime", false);
+        double modifier = 1.0;
+
+        if (spec.ClassBias == PlanetClassBias.StrippedCore || spec.EnvelopeOverride == PlanetEnvelopeOverride.Stripped)
+        {
+            modifier *= 0.05;
+        }
+        else if (spec.EnvelopeOverride == PlanetEnvelopeOverride.Thin)
+        {
+            modifier *= 0.45;
+        }
+        else if (spec.EnvelopeOverride == PlanetEnvelopeOverride.Retained)
+        {
+            modifier *= 1.35;
+        }
+
+        if (insideLossRegime || (fluxEarth * xuvActivity) > 2.2)
+        {
+            modifier *= 0.55;
+        }
+
+        if (volatileDelivery >= 1.15)
+        {
+            modifier *= 1.20;
+        }
+
+        if (habitableAlignment >= 0.55)
+        {
+            modifier *= 1.10;
+        }
+
+        return surfacePressurePa * System.Math.Clamp(modifier, 0.03, 3.0);
+    }
+
     /// <summary>Builds normalized gas composition for gas giants or rocky atmospheres.</summary>
     private static Dictionary GenerateAtmosphereComposition(
+        PlanetSpec spec,
         SizeCategory.Category sizeCategory,
         OrbitZone.Zone zone,
         double equilibriumTempK,
@@ -173,7 +225,7 @@ public static class PlanetAtmosphereGenerator
         }
         else
         {
-            composition = GenerateRockyAtmosphereComposition(zone, equilibriumTempK, rng);
+            composition = GenerateRockyAtmosphereComposition(spec, zone, equilibriumTempK, rng);
         }
 
         double total = 0.0;
@@ -217,18 +269,53 @@ public static class PlanetAtmosphereGenerator
 
     /// <summary>Generates composition for rocky planet atmospheres by zone.</summary>
     private static Dictionary GenerateRockyAtmosphereComposition(
+        PlanetSpec spec,
         OrbitZone.Zone zone,
         double equilibriumTempK,
         SeededRng rng)
     {
         Dictionary composition = new();
         double roll = rng.Randf();
+        double fluxEarth = ReadFormationDouble(spec, "stellar_flux_earth", zone == OrbitZone.Zone.Hot ? 4.0 : 1.0);
+        double volatileDelivery = ReadFormationDouble(spec, "volatile_delivery_scalar", 1.0);
+        double habitableAlignment = ReadFormationDouble(spec, "habitable_zone_alignment", 0.0);
+        bool stripped = spec.ClassBias == PlanetClassBias.StrippedCore
+            || spec.EnvelopeOverride == PlanetEnvelopeOverride.Stripped
+            || ReadFormationBool(spec, "inside_radius_valley_regime", false);
+
+        if (stripped || fluxEarth > 3.5)
+        {
+            composition["CO2"] = rng.RandfRange(0.70f, 0.94f);
+            composition["N2"] = rng.RandfRange(0.04f, 0.22f);
+            composition["SO2"] = rng.RandfRange(0.001f, 0.04f);
+            return composition;
+        }
 
         if (zone == OrbitZone.Zone.Hot || equilibriumTempK > 500.0)
         {
             composition["CO2"] = rng.RandfRange(0.80f, 0.98f);
             composition["N2"] = rng.RandfRange(0.01f, 0.15f);
             composition["SO2"] = rng.RandfRange(0.001f, 0.05f);
+        }
+        else if (habitableAlignment > 0.55 && volatileDelivery >= 1.0)
+        {
+            composition["N2"] = rng.RandfRange(0.62f, 0.80f);
+            composition["H2O"] = rng.RandfRange(0.01f, 0.07f);
+            if (roll < 0.20)
+            {
+                composition["O2"] = rng.RandfRange(0.12f, 0.24f);
+                composition["CO2"] = rng.RandfRange(0.0002f, 0.01f);
+            }
+            else if (roll < 0.65)
+            {
+                composition["CO2"] = rng.RandfRange(0.01f, 0.12f);
+                composition["Ar"] = rng.RandfRange(0.005f, 0.03f);
+            }
+            else
+            {
+                composition["CO2"] = rng.RandfRange(0.12f, 0.30f);
+                composition["Ar"] = rng.RandfRange(0.005f, 0.02f);
+            }
         }
         else if (zone == OrbitZone.Zone.Temperate)
         {
@@ -255,7 +342,13 @@ public static class PlanetAtmosphereGenerator
         }
         else
         {
-            if (roll < 0.4)
+            if (volatileDelivery > 1.05 && roll < 0.60)
+            {
+                composition["N2"] = rng.RandfRange(0.70f, 0.88f);
+                composition["CH4"] = rng.RandfRange(0.04f, 0.14f);
+                composition["CO2"] = rng.RandfRange(0.02f, 0.10f);
+            }
+            else if (roll < 0.4)
             {
                 composition["N2"] = rng.RandfRange(0.90f, 0.98f);
                 composition["CH4"] = rng.RandfRange(0.01f, 0.06f);
@@ -268,6 +361,75 @@ public static class PlanetAtmosphereGenerator
         }
 
         return composition;
+    }
+
+    private static double ApplyFormationAtmosphereProbabilityModifiers(
+        PlanetSpec spec,
+        double probability,
+        ParentContext context)
+    {
+        double fluxEarth = ReadFormationDouble(spec, "stellar_flux_earth", 1.0);
+        double xuvActivity = ReadFormationDouble(spec, "xuv_activity_scalar", 1.0);
+        double volatileDelivery = ReadFormationDouble(spec, "volatile_delivery_scalar", 1.0);
+        double habitableAlignment = ReadFormationDouble(spec, "habitable_zone_alignment", 0.0);
+        bool insideLossRegime = ReadFormationBool(spec, "inside_radius_valley_regime", false);
+        double modifier = 1.0;
+
+        if (spec.ClassBias == PlanetClassBias.StrippedCore)
+        {
+            modifier *= 0.28;
+        }
+
+        if (insideLossRegime || (fluxEarth * xuvActivity) > 2.2)
+        {
+            modifier *= 0.55;
+        }
+
+        if (volatileDelivery >= 1.15)
+        {
+            modifier *= 1.18;
+        }
+
+        if (habitableAlignment >= 0.55)
+        {
+            modifier *= 1.08;
+        }
+
+        if (context.StellarAgeYears > 0.0 && context.StellarAgeYears < 7.5e8)
+        {
+            modifier *= 0.92;
+        }
+
+        return probability * modifier;
+    }
+
+    private static double ReadFormationDouble(PlanetSpec spec, string key, double fallback)
+    {
+        if (spec.FormationTrace.ContainsKey(key))
+        {
+            Variant value = spec.FormationTrace[key];
+            if (value.VariantType == Variant.Type.Float)
+            {
+                return (double)value;
+            }
+
+            if (value.VariantType == Variant.Type.Int)
+            {
+                return (int)value;
+            }
+        }
+
+        return fallback;
+    }
+
+    private static bool ReadFormationBool(PlanetSpec spec, string key, bool fallback)
+    {
+        if (spec.FormationTrace.ContainsKey(key) && spec.FormationTrace[key].VariantType == Variant.Type.Bool)
+        {
+            return (bool)spec.FormationTrace[key];
+        }
+
+        return fallback;
     }
 
 }

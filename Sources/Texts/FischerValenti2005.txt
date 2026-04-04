@@ -1,0 +1,20 @@
+Source note for StarGen research review
+
+Citation:
+Fischer, D. A., & Valenti, J. (2005).
+The planet-metallicity correlation.
+The Astrophysical Journal, 622(2), 1102-1117.
+PDF: https://www.astro.ucla.edu/~aes/AST278/reading/Fischer_2005_ApJ_622_1102.pdf
+DOI: https://doi.org/10.1086/428383
+
+What was reviewed:
+- Abstract and source metadata on 2026-04-03.
+
+Key implementation notes used in StarGen:
+- The paper finds a strong empirical correlation between host-star metallicity and the occurrence of detectable giant planets.
+- Metal-rich systems are more likely to form or retain giant planets than metal-poor systems under otherwise similar broad conditions.
+- For StarGen, the practical value is that metallicity should not be cosmetic once aggregate planetary models are in play. It should affect giant-planet weighting and, by extension, the architecture of the whole system.
+
+How StarGen uses this:
+- As the scientific basis for letting system metallicity enrichment and metallicity-coupling strength alter giant-planet likelihood in the upstream planetary state.
+- As support for treating metallicity as a downstream constraint on moon-rich giant systems and outer-system reservoir structure rather than leaving it as a viewer-only number.

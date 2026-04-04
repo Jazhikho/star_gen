@@ -6,6 +6,7 @@ using StarGen.Domain;
 using StarGen.Domain.Celestial;
 using StarGen.Domain.Celestial.Components;
 using StarGen.Domain.Celestial.Validation;
+using StarGen.Domain.Generation;
 using StarGen.Domain.Generation.Generators;
 using StarGen.Domain.Generation.Specs;
 using StarGen.Domain.Rng;
@@ -377,6 +378,76 @@ public static class TestSystemMoonGenerator
             }
             ids[moon.Id] = true;
         }
+    }
+
+    /// <summary>
+    /// Tests that captured-rich systems yield more captured moons than regular-disk-favored systems.
+    /// </summary>
+    public static void TestMoonFormationBiasChangesCapturedShare()
+    {
+        CelestialBody planet = CreateGasGiant();
+        CelestialBody star = CreateTestStar();
+        int capturedRichTotal = 0;
+        int regularDiskTotal = 0;
+
+        for (int seed = 1200; seed < 1210; seed += 1)
+        {
+            SolarSystemSpec capturedSpec = new SolarSystemSpec(seed, 1, 1)
+            {
+                PlanetaryProfile = new PlanetaryGenerationProfile
+                {
+                    MoonFormationBias = PlanetMoonFormationBias.CapturedRich,
+                    ImpactStirring = 1.30,
+                },
+            };
+            SolarSystemSpec regularSpec = new SolarSystemSpec(seed, 1, 1)
+            {
+                PlanetaryProfile = new PlanetaryGenerationProfile
+                {
+                    MoonFormationBias = PlanetMoonFormationBias.RegularDiskFavored,
+                    ImpactStirring = 1.30,
+                },
+            };
+
+            MoonGenerationResult capturedResult = SystemMoonGenerator.Generate(
+                new Array<CelestialBody> { planet },
+                new Array<OrbitHost>(),
+                new Array<CelestialBody> { star },
+                new SeededRng(seed),
+                false,
+                null,
+                capturedSpec);
+            MoonGenerationResult regularResult = SystemMoonGenerator.Generate(
+                new Array<CelestialBody> { planet },
+                new Array<OrbitHost>(),
+                new Array<CelestialBody> { star },
+                new SeededRng(seed),
+                false,
+                null,
+                regularSpec);
+
+            capturedRichTotal += CountCapturedMoons(capturedResult.Moons);
+            regularDiskTotal += CountCapturedMoons(regularResult.Moons);
+        }
+
+        if (capturedRichTotal <= regularDiskTotal)
+        {
+            throw new InvalidOperationException("Captured-rich moon bias should yield more captured moons across the same seeded sample.");
+        }
+    }
+
+    private static int CountCapturedMoons(Array<CelestialBody> moons)
+    {
+        int count = 0;
+        foreach (CelestialBody moon in moons)
+        {
+            if (moon.Name.Contains("(captured)", StringComparison.Ordinal))
+            {
+                count += 1;
+            }
+        }
+
+        return count;
     }
 
     /// <summary>

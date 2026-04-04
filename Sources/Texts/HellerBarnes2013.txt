@@ -1,0 +1,20 @@
+Source note for StarGen research review
+
+Citation:
+Heller, R., & Barnes, R. (2013).
+Exomoon habitability constrained by illumination and tidal heating.
+Astrobiology, 13(1), 18-46.
+arXiv: https://arxiv.org/abs/1209.5323
+DOI: https://doi.org/10.1089/ast.2012.0859
+
+What was reviewed:
+- Abstract and source metadata on 2026-04-03.
+
+Key implementation notes used in StarGen:
+- Exomoon habitability is constrained by more than starlight alone. Tidal heating, eclipses, planetary illumination, and system architecture can all move a moon toward or away from biologically useful conditions.
+- Moderate tidal heating can help maintain subsurface or temperate habitable environments, while excessive heating can become destabilizing.
+- For StarGen, the valuable constraint is the shape of the curve: too little heating can leave icy moons inert, moderate heating can help, and too much can become harmful.
+
+How StarGen uses this:
+- As support for making moon biology and moon-supporting habitability respond to a bounded tidal-heating window rather than a flat moon bonus.
+- As the scientific basis for letting icy-moon support, complex-life odds, and captured-vs-regular moon consequences depend on system context in a deterministic way.

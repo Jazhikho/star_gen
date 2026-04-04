@@ -99,6 +99,31 @@ public partial class PlanetProfile : RefCounted
     public double RadiationLevel;
 
     /// <summary>
+    /// Stellar flux at the body relative to Earth's insolation.
+    /// </summary>
+    public double StellarFluxEarth;
+
+    /// <summary>
+    /// Inner habitable-zone boundary in AU for the parent star.
+    /// </summary>
+    public double HabitableZoneInnerAu;
+
+    /// <summary>
+    /// Outer habitable-zone boundary in AU for the parent star.
+    /// </summary>
+    public double HabitableZoneOuterAu;
+
+    /// <summary>
+    /// Relative alignment with the classical habitable zone in the inclusive range [0, 1].
+    /// </summary>
+    public double HabitableZoneAlignment;
+
+    /// <summary>
+    /// Relative XUV and flare exposure proxy used for atmospheric and biosphere penalties.
+    /// </summary>
+    public double XuvExposure;
+
+    /// <summary>
     /// Bond albedo.
     /// </summary>
     public double Albedo;
@@ -296,6 +321,11 @@ public partial class PlanetProfile : RefCounted
             ["weather_severity"] = WeatherSeverity,
             ["magnetic_field_strength"] = MagneticFieldStrength,
             ["radiation_level"] = RadiationLevel,
+            ["stellar_flux_earth"] = StellarFluxEarth,
+            ["habitable_zone_inner_au"] = HabitableZoneInnerAu,
+            ["habitable_zone_outer_au"] = HabitableZoneOuterAu,
+            ["habitable_zone_alignment"] = HabitableZoneAlignment,
+            ["xuv_exposure"] = XuvExposure,
             ["albedo"] = Albedo,
             ["greenhouse_factor"] = GreenhouseFactor,
             ["climate_zones"] = climateZoneData,
@@ -338,6 +368,11 @@ public partial class PlanetProfile : RefCounted
             WeatherSeverity = GetDouble(data, "weather_severity", 0.0),
             MagneticFieldStrength = GetDouble(data, "magnetic_field_strength", 0.0),
             RadiationLevel = GetDouble(data, "radiation_level", 0.0),
+            StellarFluxEarth = GetDouble(data, "stellar_flux_earth", 0.0),
+            HabitableZoneInnerAu = GetDouble(data, "habitable_zone_inner_au", 0.0),
+            HabitableZoneOuterAu = GetDouble(data, "habitable_zone_outer_au", 0.0),
+            HabitableZoneAlignment = GetDouble(data, "habitable_zone_alignment", 0.0),
+            XuvExposure = GetDouble(data, "xuv_exposure", 0.0),
             Albedo = GetDouble(data, "albedo", 0.0),
             GreenhouseFactor = GetDouble(data, "greenhouse_factor", 1.0),
             IsTidallyLocked = GetBool(data, "is_tidally_locked", false),

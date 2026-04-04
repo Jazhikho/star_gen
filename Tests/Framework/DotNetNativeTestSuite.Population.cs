@@ -132,6 +132,9 @@ public static partial class DotNetNativeTestSuite
         runner.RunNativeTest("TestProfileGenerator::test_determinism", TestProfileGenerator.TestDeterminism);
         runner.RunNativeTest("TestProfileGenerator::test_body_without_surface", TestProfileGenerator.TestBodyWithoutSurface);
         runner.RunNativeTest("TestProfileGenerator::test_serialization_round_trip", TestProfileGenerator.TestSerializationRoundTrip);
+        runner.RunNativeTest("TestBiologySupportEvaluator::test_high_xuv_penalizes_biosphere_support", TestBiologySupportEvaluator.TestHighXuvPenalizesBiosphereSupport);
+        runner.RunNativeTest("TestBiologySupportEvaluator::test_moderate_tidal_heating_supports_icy_moon_biology", TestBiologySupportEvaluator.TestModerateTidalHeatingSupportsIcyMoonBiology);
+        runner.RunNativeTest("TestBiologySupportEvaluator::test_extreme_tidal_heating_hurts_moon_complex_life", TestBiologySupportEvaluator.TestExtremeTidalHeatingHurtsMoonComplexLife);
 
         runner.RunNativeTest("TestColonySuitability::test_creation", TestColonySuitability.TestCreation);
         runner.RunNativeTest("TestColonySuitability::test_get_category_ranges", TestColonySuitability.TestGetCategoryRanges);
