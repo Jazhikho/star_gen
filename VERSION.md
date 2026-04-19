@@ -1,12 +1,19 @@
 # Version
 
-Current version: `0.8.11.0`
+Current version: `0.8.12.0`
 
 Current user-facing version: `0.9d`
 
 Date: `2026-04-19`
 
 Versioning method: release/refactor `+0.1`, feature `+0.0.1`, bug fix `+0.0.0.1`, save-breaking release `+1.0`.
+
+## 0.8.12.0
+
+- Feature: System Studio now follows the same audited science-control contract as Galaxy Studio for life settings, replacing the old coarse life slider with the sourced `Life Framework`, `Abiogenesis Model`, `Complex Life Model`, `Civilization Model`, and `Environmental Window Weight` stack while keeping those controls in the left scientific-assumptions column.
+- Feature: Object Studio now follows the direct-control standard explicitly: aggregate life/population sliders are gone, `Generation Overrides` only holds ruleset-facing controls, and direct planet, star, asteroid, and comet controls now use a shared object-parameter catalog with plain-language tooltips tied to what those controls actually change.
+- Feature: Added request-level coverage proving Object Studio direct planet controls survive into `PlanetSpec`, while System Studio and Object Studio integration tests now enforce the `Generation Overrides` naming, `Show UWP Code` wording, context-sensitive surfaces, and absence of unsupported aggregate controls.
+- Test: `dotnet build StarGen.sln` passed, and the headless harness passed (`1812 / 1812`).
 
 ## 0.8.10.0
 
@@ -118,8 +125,6 @@ Versioning method: release/refactor `+0.1`, feature `+0.0.1`, bug fix `+0.0.0.1`
 
 - Feature: Checkpointed the current mainline branch state around the `0.8.1.0` feature update so the ongoing branch split, scene-first UI migration, version-channel plumbing, and mainline scope reductions are preserved in git while the user-facing release line remains `0.9d`.
 - Feature: Pushed the shipped UI further toward `.tscn` ownership by moving inspector/editor shells, reusable rows, validation labels, and fixed defaults/tooltips into scene resources and shared UI templates.
-- Feature: Mainline remains generation-and-view focused, with Concept Atlas and save/load/export paths removed from the shipped runtime flow while related parked or compatibility code stays in-repo for branch-specific follow-up.
-- Test: The current checkpoint still builds and passes the trimmed mainline headless harness (`1774 / 1774`) after the UI audit and test-suite rewrite.
 
 ## 0.9.0.0
 

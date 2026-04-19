@@ -35,10 +35,6 @@ public partial class ObjectGenerationScreen : Control
     private SpinBox? _seedInput;
     private OptionButton? _rulesetModeOption;
     private CheckBox? _showTravellerReadoutsCheck;
-    private HSlider? _lifePermissivenessInput;
-    private Label? _lifePermissivenessValueLabel;
-    private HSlider? _populationPermissivenessInput;
-    private Label? _populationPermissivenessValueLabel;
     private bool _showSeedControls;
 
     /// <summary>

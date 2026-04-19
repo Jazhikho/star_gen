@@ -80,3 +80,5 @@ Disposition meanings:
 - The main wiring bug in this pass was the life pipeline: sentient-lineage checks were still reading `CivilizationChance` in downstream consumers. This was corrected.
 - The main source gap in this pass was galaxy arm and ellipticity coverage. Those controls now point to reviewed observational morphology papers instead of empty source lists.
 - The main wording fix in this pass was for controls that already changed generation but were over-claiming what the code currently does, especially `planet_rogue_planet_allowance`, `stellar_imf_variation_mode`, and `star_density_multiplier`.
+- System Studio now reuses the audited stellar, planetary, and life parameter contracts instead of keeping a divergent life slider surface.
+- Object Studio is intentionally outside the aggregate-science contract for galaxy, planetary-population, and life priors; it now enforces a direct single-object standard and is tested against direct spec persistence instead.

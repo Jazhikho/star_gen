@@ -18,13 +18,15 @@ StarGen `0.9d` is the current mainline checkpoint baseline.
 - The station studio now uses the production station-generation flow rather than a placeholder shell.
 - The galaxy studio now uses a scientifically grounded galaxy-generation profile with family-locked variation, cited assumptions, and downstream galaxy-context propagation into stars and systems.
 - Galaxy Studio now keeps scientific assumptions in the left column and generation overrides in the center column, including a source-aligned life-model stack for abiogenesis, complex life, civilization emergence, and environmental-window weighting.
+- System Studio now mirrors the audited science surfaces for stellar, planetary, and life controls, so its left column carries the same kind of source-backed assumptions instead of a mixed science/override layout.
 - The stellar generator now supports a broader practical population, including brown dwarfs, evolved stars, white dwarfs, and stronger multi-star hierarchies instead of only main-sequence stars.
 - Galaxy Studio and System Studio now share aggregate planetary-formation controls, so envelope loss, gas-giant formation, metallicity coupling, rogue-planet allowance, moon-formation bias, and outer-system small-body bias can shape downstream planet populations without turning Object Studio into a disk-physics editor.
+- Object Studio now stays scoped to direct single-object authoring: aggregate formation and life sliders are removed, direct object controls carry explicit tooltips, and the generated request persists those direct choices into the outgoing spec payload.
 - Planet, moon, small-body, and biology generation now respond more directly to the upstream planetary state: hot worlds are more sensitive to envelope loss, volatile delivery changes wet vs dry outcomes, moon families react to host class and snow-line context, outer belts shift with primitive icy reservoir strength, and biosphere support now considers stellar flux, habitable-zone alignment, XUV exposure, and tidal heating.
 - Mainline is generation-and-view focused; save/load/export flows are reserved for the export branch.
 - Mainline no longer ships the Concept Atlas path. `Concepts/Additions.md` remains the StarGen prototype backlog for future work that stays in scope.
 
-The current user-facing release version is `0.9d`, while the current internal checkpoint version is `0.8.11.0`. Detailed version history and patch notes live in [VERSION.md](VERSION.md).
+The current user-facing release version is `0.9d`, while the current internal checkpoint version is `0.8.12.0`. Detailed version history and patch notes live in [VERSION.md](VERSION.md).
 
 ## Running StarGen
 

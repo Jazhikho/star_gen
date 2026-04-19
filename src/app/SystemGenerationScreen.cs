@@ -43,8 +43,6 @@ public partial class SystemGenerationScreen : Control
 	private CheckBox? _generatePopulationCheck;
 	private OptionButton? _rulesetModeOption;
 	private CheckBox? _showTravellerReadoutsCheck;
-	private HSlider? _lifePermissivenessInput;
-	private Label? _lifePermissivenessValueLabel;
 	private HSlider? _populationPermissivenessInput;
 	private Label? _populationPermissivenessValueLabel;
 	private HBoxContainer? _populationPermissivenessRow;
@@ -64,6 +62,7 @@ public partial class SystemGenerationScreen : Control
 		ApplyDefaults();
 		ApplyStellarParameterTooltips();
 		ApplyPlanetaryParameterTooltips();
+		ApplyLifeParameterTooltips();
 		InitializeScienceHelpUi();
 		ApplySeedVisibilityPreference(rerollHiddenSeed: true);
 		RefreshSummary();
@@ -180,14 +179,13 @@ public partial class SystemGenerationScreen : Control
 		_generatePopulationCheck = GetNodeOrNull<CheckBox>($"{Root}/StudioRow/RulesPanel/MarginContainer/RulesVBox/ScrollContainer/RulesContent/GeneratePopulationCheck");
 		_rulesetModeOption = GetNodeOrNull<OptionButton>($"{Root}/StudioRow/RulesPanel/MarginContainer/RulesVBox/ScrollContainer/RulesContent/RulesetModeRow/RulesetModeOption");
 		_showTravellerReadoutsCheck = GetNodeOrNull<CheckBox>($"{Root}/StudioRow/RulesPanel/MarginContainer/RulesVBox/ScrollContainer/RulesContent/ShowTravellerReadoutsCheck");
-		_lifePermissivenessInput = GetNodeOrNull<HSlider>($"{Root}/StudioRow/RulesPanel/MarginContainer/RulesVBox/ScrollContainer/RulesContent/LifePermissivenessRow/LifePermissivenessInput");
-		_lifePermissivenessValueLabel = GetNodeOrNull<Label>($"{Root}/StudioRow/RulesPanel/MarginContainer/RulesVBox/ScrollContainer/RulesContent/LifePermissivenessRow/LifePermissivenessValue");
 		_populationPermissivenessRow = GetNodeOrNull<HBoxContainer>($"{Root}/StudioRow/RulesPanel/MarginContainer/RulesVBox/ScrollContainer/RulesContent/PopulationPermissivenessRow");
 		_populationPermissivenessInput = GetNodeOrNull<HSlider>($"{Root}/StudioRow/RulesPanel/MarginContainer/RulesVBox/ScrollContainer/RulesContent/PopulationPermissivenessRow/PopulationPermissivenessInput");
 		_populationPermissivenessValueLabel = GetNodeOrNull<Label>($"{Root}/StudioRow/RulesPanel/MarginContainer/RulesVBox/ScrollContainer/RulesContent/PopulationPermissivenessRow/PopulationPermissivenessValue");
 		_mainworldPolicyOption = GetNodeOrNull<OptionButton>($"{Root}/StudioRow/RulesPanel/MarginContainer/RulesVBox/ScrollContainer/RulesContent/MainworldPolicyRow/MainworldPolicyOption");
 		CacheStellarNodeReferences();
 		CachePlanetaryNodeReferences();
+		CacheLifeNodeReferences();
 		CacheScienceHelpNodeReferences();
 	}
 
@@ -209,11 +207,11 @@ public partial class SystemGenerationScreen : Control
 		if (_includeBeltsCheck != null) _includeBeltsCheck.Toggled += _ => RefreshSummary();
 		if (_generatePopulationCheck != null) _generatePopulationCheck.Toggled += _ => RefreshSummary();
 		if (_showTravellerReadoutsCheck != null) _showTravellerReadoutsCheck.Toggled += _ => RefreshSummary();
-		if (_lifePermissivenessInput != null) _lifePermissivenessInput.ValueChanged += OnLifePermissivenessChanged;
 		if (_mainworldPolicyOption != null) _mainworldPolicyOption.ItemSelected += _ => RefreshSummary();
 		if (_rulesetModeOption != null) _rulesetModeOption.ItemSelected += OnRulesetModeSelected;
 		ConnectStellarSignals();
 		ConnectPlanetarySignals();
+		ConnectLifeSignals();
 		ConnectScienceHelpSignals();
 	}
 
@@ -228,9 +226,9 @@ public partial class SystemGenerationScreen : Control
 
 	private void ApplyDefaults()
 	{
-		UpdatePermissivenessValueLabels();
 		ApplyStellarDefaults();
 		ApplyPlanetaryDefaults();
+		ApplyLifeDefaults();
 	}
 
 	private void OnStartPressed()
@@ -295,7 +293,9 @@ public partial class SystemGenerationScreen : Control
 			lines.Add($"Belts {(spec.IncludeAsteroidBelts ? "On" : "Off")}");
 			lines.Add($"Population {(spec.GeneratePopulation ? "On" : "Off")}");
 			lines.Add($"Ruleset {GenerationUseCasePresentation.GetRulesetLabel(spec.UseCaseSettings.RulesetMode)}");
-			lines.Add($"Life Potential {PermissivenessScaleHelper.GetBandLabel(spec.UseCaseSettings.LifePermissiveness)}");
+			lines.Add($"Life Framework {LifeScienceReferenceCatalog.GetFrameworkLabel(spec.UseCaseSettings.LifeFramework)}");
+			lines.Add($"Abiogenesis {LifeScienceReferenceCatalog.GetAbiogenesisLabel(spec.UseCaseSettings.AbiogenesisModel)} | Complex Life {LifeScienceReferenceCatalog.GetComplexLifeLabel(spec.UseCaseSettings.ComplexLifeModel)}");
+			lines.Add($"Civilization {LifeScienceReferenceCatalog.GetCivilizationLabel(spec.UseCaseSettings.CivilizationModel)} | Window Weight {LifeScienceReferenceCatalog.GetEnvironmentalWindowWeightLabel(spec.UseCaseSettings.EnvironmentalWindowWeight)}");
 			_summaryLabel.Text = string.Join("\n", lines);
 		}
 
@@ -359,10 +359,7 @@ public partial class SystemGenerationScreen : Control
 			settings.ShowTravellerReadouts = _showTravellerReadoutsCheck.ButtonPressed;
 		}
 
-		if (_lifePermissivenessInput != null)
-		{
-			settings.LifePermissiveness = _lifePermissivenessInput.Value;
-		}
+		ApplyLifeSettingsFromControls(settings);
 
 		if (_mainworldPolicyOption != null)
 		{
@@ -374,35 +371,12 @@ public partial class SystemGenerationScreen : Control
 
 	private void ApplyTravellerDefaultsToControls()
 	{
-		if (_lifePermissivenessInput != null)
-		{
-			if (System.Math.Abs(_lifePermissivenessInput.Value - GenerationUseCaseSettings.NeutralPermissiveness) < 0.001)
-			{
-				_lifePermissivenessInput.Value = GenerationUseCaseSettings.TravellerLifePermissiveness;
-			}
-		}
-
-	}
-
-	private void OnLifePermissivenessChanged(double _value)
-	{
-		UpdatePermissivenessValueLabels();
-		RefreshSummary();
+		ApplyTravellerLifeDefaultsToControls();
 	}
 
 	private void OnPopulationPermissivenessChanged(double _value)
 	{
 		RefreshSummary();
-	}
-
-	private void UpdatePermissivenessValueLabels()
-	{
-		if (_lifePermissivenessInput != null && _lifePermissivenessValueLabel != null)
-		{
-			_lifePermissivenessValueLabel.Text =
-				$"{_lifePermissivenessInput.Value:0.00} {PermissivenessScaleHelper.GetBandLabel(_lifePermissivenessInput.Value)}";
-		}
-
 	}
 
 	private static int GenerateHiddenSeed()
@@ -443,6 +417,18 @@ public partial class SystemGenerationScreen : Control
 	private partial void ApplyStellarDefaults();
 
 	private partial void ApplyStellarParameterTooltips();
+
+	private partial void CacheLifeNodeReferences();
+
+	private partial void ConnectLifeSignals();
+
+	private partial void ApplyLifeDefaults();
+
+	private partial void ApplyLifeParameterTooltips();
+
+	private partial void ApplyLifeSettingsFromControls(GenerationUseCaseSettings settings);
+
+	private partial void ApplyTravellerLifeDefaultsToControls();
 
 	private partial void CacheScienceHelpNodeReferences();
 

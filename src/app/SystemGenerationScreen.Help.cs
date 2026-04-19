@@ -85,7 +85,7 @@ public partial class SystemGenerationScreen
 
 	private static string BuildSystemHelpDialogBbCode()
 	{
-		return $"{BuildSystemStudioBasicsBbCode()}\n\n{StellarScienceReferenceCatalog.BuildHelpPanelBbCode()}\n\n{PlanetaryScienceReferenceCatalog.BuildHelpPanelBbCode()}";
+		return $"{BuildSystemStudioBasicsBbCode()}\n\n{StellarScienceReferenceCatalog.BuildHelpPanelBbCode()}\n\n{PlanetaryScienceReferenceCatalog.BuildHelpPanelBbCode()}\n\n{LifeScienceReferenceCatalog.BuildHelpPanelBbCode()}";
 	}
 
 	private static string BuildSystemStudioBasicsBbCode()
