@@ -9,8 +9,8 @@ namespace StarGen.Domain.Generation;
 /// </summary>
 public enum PlanetMassRadiusModel
 {
-    Legacy = 0,
     ChenKipping = 1,
+    Otegi = 2,
 }
 
 /// <summary>
@@ -81,7 +81,7 @@ public partial class PlanetaryGenerationProfile : RefCounted
     /// <summary>
     /// Mass-radius family used when resolving broad class outcomes into physical sizes.
     /// </summary>
-    public PlanetMassRadiusModel MassRadiusModel { get; set; } = PlanetMassRadiusModel.Legacy;
+    public PlanetMassRadiusModel MassRadiusModel { get; set; } = PlanetMassRadiusModel.ChenKipping;
 
     /// <summary>
     /// Envelope-loss family used for close-in volatile-rich worlds.
@@ -289,7 +289,12 @@ public partial class PlanetaryGenerationProfile : RefCounted
     {
         PlanetaryGenerationProfile profile = new PlanetaryGenerationProfile();
 
-        int massRadiusValue = DomainDictionaryUtils.GetInt(data, "mass_radius_model", (int)PlanetMassRadiusModel.Legacy);
+        int massRadiusValue = DomainDictionaryUtils.GetInt(data, "mass_radius_model", (int)PlanetMassRadiusModel.ChenKipping);
+        if (massRadiusValue == 0)
+        {
+            massRadiusValue = (int)PlanetMassRadiusModel.ChenKipping;
+        }
+
         if (System.Enum.IsDefined(typeof(PlanetMassRadiusModel), massRadiusValue))
         {
             profile.MassRadiusModel = (PlanetMassRadiusModel)massRadiusValue;

@@ -1,0 +1,20 @@
+Source note for StarGen research review
+
+Citation:
+Ginzburg, S., Schlichting, H. E., & Sari, R. (2018).
+Core-powered mass loss and the radius distribution of small exoplanets.
+Monthly Notices of the Royal Astronomical Society, 476(1), 759-765.
+arXiv: https://arxiv.org/abs/1708.01621
+DOI: https://doi.org/10.1093/mnras/sty290
+
+What was reviewed:
+- Abstract and source metadata on 2026-04-19.
+
+Key implementation notes used in StarGen:
+- The paper gives an alternative explanation for the small-planet radius valley in which the cooling rocky core powers loss of light envelopes.
+- The practical takeaway is that not all close-in stripping has to be driven by stellar XUV radiation alone.
+- This gives StarGen a defensible second loss branch for hot small planets.
+
+How StarGen uses this:
+- As the named support for the `Core-powered` gas-loss option in aggregate planetary priors.
+- As the basis for a second hot-planet stripping branch that is less tied to stellar high-energy flux and more tied to planetary cooling and equilibrium temperature.

@@ -48,18 +48,30 @@ public static class PlanetaryScienceReferenceCatalog
             "chenkipping2017",
             "Chen and Kipping (2017), probabilistic mass-radius regimes for planets.",
             "https://arxiv.org/abs/1603.08614"),
+        ["otegi2020"] = new PlanetaryScienceSource(
+            "otegi2020",
+            "Otegi, Bouchy, and Helled (2020), separate rocky and volatile-rich mass-radius relations below 120 Earth masses.",
+            "https://arxiv.org/abs/1911.04745"),
         ["fulton2017"] = new PlanetaryScienceSource(
             "fulton2017",
             "Fulton et al. (2017), the small-planet radius gap.",
             "https://ui.adsabs.harvard.edu/abs/2017AJ....154..109F/abstract"),
-        ["cumming2008"] = new PlanetaryScienceSource(
-            "cumming2008",
-            "Cumming et al. (2008), giant-planet occurrence and orbital distribution.",
-            "https://arxiv.org/abs/0803.3357"),
-        ["wright2012"] = new PlanetaryScienceSource(
-            "wright2012",
-            "Wright et al. (2012), hot-Jupiter occurrence.",
-            "https://arxiv.org/abs/1205.2273"),
+        ["owenwu2017"] = new PlanetaryScienceSource(
+            "owenwu2017",
+            "Owen and Wu (2017), photoevaporation and the evaporation valley.",
+            "https://arxiv.org/abs/1705.10810"),
+        ["ginzburg2018"] = new PlanetaryScienceSource(
+            "ginzburg2018",
+            "Ginzburg, Schlichting, and Sari (2018), core-powered mass loss.",
+            "https://arxiv.org/abs/1708.01621"),
+        ["mordasini2007"] = new PlanetaryScienceSource(
+            "mordasini2007",
+            "Mordasini, Alibert, Benz, and Naef (2007), giant-planet formation by core accretion.",
+            "https://arxiv.org/abs/0710.5667"),
+        ["lambrechtsjohansen2012"] = new PlanetaryScienceSource(
+            "lambrechtsjohansen2012",
+            "Lambrechts and Johansen (2012), rapid giant-core growth by pebble accretion.",
+            "https://arxiv.org/abs/1205.3030"),
         ["fischervalenti2005"] = new PlanetaryScienceSource(
             "fischervalenti2005",
             "Fischer and Valenti (2005), planet-metallicity correlation.",
@@ -76,60 +88,63 @@ public static class PlanetaryScienceReferenceCatalog
             "demeocarry2013",
             "DeMeo and Carry (2013), asteroid compositional structure.",
             "https://arxiv.org/abs/1307.2424"),
+        ["lamy2004"] = new PlanetaryScienceSource(
+            "lamy2004",
+            "Lamy, Toth, Fernandez, and Weaver (2004), comet nucleus sizes, albedos, and colors.",
+            "https://physics.ucf.edu/~yfernandez/papers/comets2chapter/comets2reprint.pdf"),
         ["mroz2020"] = new PlanetaryScienceSource(
             "mroz2020",
             "Mroz et al. (2020), free-floating or wide-orbit planet constraints.",
             "https://arxiv.org/abs/2009.12377"),
-        ["starplanetsmd"] = new PlanetaryScienceSource(
-            "starplanetsmd",
-            "StarGen planets.md retrofit notes, deterministic surrogate formation model.",
-            string.Empty),
     };
 
     private static readonly List<PlanetaryScienceParameterReference> ParameterReferences = new()
     {
         new PlanetaryScienceParameterReference(
             "planet_mass_radius_model",
-            "This chooses the rule used to turn a planet class into a size and density.\nLegacy stays close to older StarGen behavior.\nChen-Kipping leans harder on observed planet size bands.",
-            new[] { "chenkipping2017", "starplanetsmd" }),
+            "This picks the mass-radius curve used to turn planet mass into planet size.\nChen-Kipping is the broad all-planet default.\nOtegi splits smaller planets into rocky and volatile-rich branches.\nChanging this mainly shifts radius, density, gravity, and atmosphere retention.",
+            new[] { "chenkipping2017", "otegi2020" }),
         new PlanetaryScienceParameterReference(
             "planet_envelope_loss_model",
-            "This controls how close-in planets lose thick gas envelopes.\nPhotoevaporation means harsh starlight strips gas away.\nCore-powered means a hot young planet can blow off some of its own gas.\nChanging this shifts how often close-in worlds stay puffy versus ending up as denser stripped cores.",
-            new[] { "fulton2017", "starplanetsmd" }),
+            "This picks the gas-loss model for hot close-in planets.\nPhotoevaporation uses high-energy starlight as the main stripping engine.\nCore-powered uses the young planet's own cooling heat.\nAuto blends the two ideas as the default.\nChanging this shifts how often hot planets stay puffy or end up as stripped cores.",
+            new[] { "fulton2017", "owenwu2017", "ginzburg2018" }),
         new PlanetaryScienceParameterReference(
             "planet_gas_giant_formation_model",
-            "This decides how easily a system grows giant planets.\nCore accretion grows them more slowly from heavy cores.\nPebble-assisted lets small solids build giants faster.\nMixed stays between those two ideas.",
-            new[] { "cumming2008", "wright2012", "starplanetsmd" }),
+            "This picks the giant-planet growth model used for system weighting.\nCore Accretion follows the standard heavy-core-first picture.\nPebble-assisted follows the faster pebble-growth picture.\nMixed stays between the two.\nChanging this mainly shifts how easily systems grow Neptune-to-Jupiter scale planets.",
+            new[] { "mordasini2007", "lambrechtsjohansen2012" }),
         new PlanetaryScienceParameterReference(
             "planet_metallicity_coupling_strength",
-            "Metallicity means how rich the system is in heavy elements like iron, silicon, and oxygen.\nStronger coupling means metal-rich systems make giant planets more easily.\nWeaker coupling keeps metallicity important, but less dominant.",
-            new[] { "fischervalenti2005", "starplanetsmd" }),
+            "Metallicity means how rich the system is in heavy elements like iron, silicon, and oxygen.\nWeak keeps the metal-rich giant-planet effect mild.\nObserved Default uses the baseline empirical trend.\nStrong makes metallicity matter more than that baseline.\nChanging this mainly shifts giant-planet odds and outer-system architecture.",
+            new[] { "fischervalenti2005" }),
         new PlanetaryScienceParameterReference(
             "planet_rogue_planet_allowance",
-            "Rogue planets are planets that got kicked out or never stayed in a normal orbit.\nHigher allowance means the generator assumes more ejection pressure, so tidy bound systems become a little less common and stripped or disturbed outcomes become a little more common.",
-            new[] { "mroz2020", "starplanetsmd" }),
+            "Rogue planets are planets that got kicked out or never stayed in a stable orbit.\nOff favors orderly bound systems.\nRare uses a low free-floating baseline.\nStandard assumes more scattering and ejection.\nChanging this mainly shifts how disrupted the system can become.",
+            new[] { "mroz2020" }),
         new PlanetaryScienceParameterReference(
             "planet_moon_formation_bias",
-            "Regular moons form in a disk around a giant planet.\nCaptured moons are outsiders that got trapped later.\nChanging this shifts whether big planets tend to have orderly moon families or more irregular captured companions.",
-            new[] { "canupward2006", "jewitthaghighipour2007", "starplanetsmd" }),
+            "Regular moons form in a disk around a giant planet.\nCaptured moons are outsiders that got trapped later.\nRegular-disk favored leans toward orderly moon families.\nCaptured-rich leans toward irregular outer moons.\nChanging this mainly affects moon counts, spacing, and how tidy large moon systems look.",
+            new[] { "canupward2006", "jewitthaghighipour2007" }),
         new PlanetaryScienceParameterReference(
             "planet_minor_body_outer_system_bias",
-            "This controls whether leftover outer-system debris leans more rocky like asteroids or more icy like comet reservoirs.\nChanging it shifts the small-body feel of the colder system outskirts.",
-            new[] { "demeocarry2013", "starplanetsmd" }),
+            "This biases cold outer leftovers between rockier belts and icier reservoirs.\nAsteroid-leaning favors drier rocky debris.\nBalanced keeps neither branch dominant.\nComet-leaning favors icy primitive reservoirs.\nChanging this affects volatile delivery, comet supply, and outer-belt composition.",
+            new[] { "demeocarry2013", "lamy2004" }),
     };
 
     private static readonly List<string> PanelSourceIds = new()
     {
         "chenkipping2017",
+        "otegi2020",
         "fulton2017",
-        "cumming2008",
-        "wright2012",
+        "owenwu2017",
+        "ginzburg2018",
+        "mordasini2007",
+        "lambrechtsjohansen2012",
         "fischervalenti2005",
         "canupward2006",
         "jewitthaghighipour2007",
         "demeocarry2013",
+        "lamy2004",
         "mroz2020",
-        "starplanetsmd",
     };
 
     public static string GetTooltipSummary(string parameterId)
@@ -186,48 +201,49 @@ public static class PlanetaryScienceReferenceCatalog
             builder,
             "Mass-Radius Model",
             "This is the rule that connects a planet's broad class to its size and density.",
-            "Legacy stays closer to older StarGen outputs. Chen-Kipping pulls the sizes closer to observed planet-size bands, especially around the sub-Neptune and giant-planet ranges.");
+            "Chen-Kipping is the broad empirical default across rocky planets, Neptunes, and giants. Otegi adds a separate rocky branch and a separate volatile-rich branch for smaller planets, so transition worlds split more clearly. In practice, this changes planet radius, density, gravity, and how easily a planet keeps gas.");
 
         AppendGuideSection(
             builder,
             "Envelope Loss",
             "Some close-in planets start with more gas than they can keep.",
-            "Photoevaporation makes harsh starlight do most of the stripping. Core-powered lets the hot planet itself drive some gas away. Changing this mostly affects whether close-in volatile-rich planets stay puffy or end up as denser stripped worlds.");
+            "Photoevaporation makes harsh high-energy starlight do most of the stripping. Core-powered lets the hot young planet itself drive some gas away as it cools. Auto blends both ideas. In practice, this changes whether hot close-in worlds stay puffy or end up as bare or thin-atmosphere cores.");
 
         AppendGuideSection(
             builder,
             "Gas-Giant Formation",
             "This is the growth style the generator assumes for giant planets.",
-            "Core accretion slows giant growth and usually makes giants a bit less common. Pebble-assisted makes it easier for systems with enough material to grow bigger planets sooner. Mixed sits in the middle.");
+            "Core Accretion follows the standard heavy-core-first picture. Pebble-assisted uses fast pebble growth to help giant cores form sooner. Mixed sits between them. In practice, this changes how often systems cross the line from Neptune-scale planets into true giants.");
 
         AppendGuideSection(
             builder,
             "Metallicity Coupling",
             "Metallicity is how rich the star-forming material is in heavy elements that help build dust, rock, and cores.",
-            "A stronger coupling makes metal-rich systems much better at growing giant planets. A weaker coupling still allows the effect, but it changes outcomes less sharply.");
+            "Observed Default uses the baseline giant-planet metallicity trend. Weak softens that trend. Strong sharpens it. In practice, this changes giant-planet odds and how much metal-rich systems build heavier outer architectures.");
 
         AppendGuideSection(
             builder,
             "Rogue Allowance",
             "Rogue planets are worlds that do not stay in a normal stable orbit around a star.",
-            "Higher allowance means the generator assumes more ejection and disturbance. That does not fill your system with free-floaters, but it does make orderly bound layouts a little less favored.");
+            "Off favors tidy bound systems. Rare keeps a low ejection baseline close to current free-floating constraints. Standard assumes more scattering and ejection. In practice, this changes how much the generator favors orderly systems versus disturbed ones.");
 
         AppendGuideSection(
             builder,
             "Moon Bias",
             "Regular moons grow with the planet in a disk. Captured moons are outsiders that get trapped later.",
-            "Changing this shifts whether giant planets lean toward tidy moon families or more irregular captured companions.");
+            "Regular-disk favored leans toward tidy moon families with shared origins. Captured-rich leans toward more irregular outer moons. Mixed stays between them. In practice, this changes moon counts, spacing, and whether the system looks orderly or capture-heavy.");
 
         AppendGuideSection(
             builder,
             "Outer Small-Body Bias",
             "Cold leftovers can lean more rocky like asteroids or more icy like comet reservoirs.",
-            "Changing this alters the small-body flavor of outer systems without rewriting the whole planet generator.");
+            "Asteroid-leaning favors drier rocky debris. Comet-leaning favors icy primitive reservoirs. Balanced stays in the middle. In practice, this changes volatile delivery, comet supply, and the composition of cold belts.");
 
         builder.AppendLine("[b][color=#f0c46a]What StarGen actually does with this[/color][/b]");
         builder.AppendLine("1. It builds one aggregate system state from the stars plus these formation assumptions.");
         builder.AppendLine("2. It uses that state to shift broad planet-class odds before it resolves each planet's detailed properties.");
-        builder.AppendLine("3. It keeps the current generation spine intact instead of replacing it with a full formation simulation.");
+        builder.AppendLine("3. It resolves planet size and density from the selected mass-radius model unless the user directly overrides them.");
+        builder.AppendLine("4. It keeps the current generation spine intact instead of replacing it with a full formation simulation.");
         builder.AppendLine();
 
         builder.AppendLine("[b][color=#f0c46a]Sources[/color][/b]");

@@ -1,12 +1,19 @@
 # Version
 
-Current version: `0.8.7.2`
+Current version: `0.8.8.0`
 
 Current user-facing version: `0.9d`
 
-Date: `2026-04-03`
+Date: `2026-04-19`
 
 Versioning method: release/refactor `+0.1`, feature `+0.0.1`, bug fix `+0.0.0.1`, save-breaking release `+1.0`.
+
+## 0.8.8.0
+
+- Feature: Removed the legacy planetary mass-radius option from Galaxy Studio and System Studio, made Chen-Kipping the default supported model, and added Otegi as a second cited mass-radius model for rocky versus volatile-rich transition worlds.
+- Feature: Planet physical generation now applies the selected mass-radius model in the actual pipeline instead of only carrying the choice as metadata, with compatibility mapping so older saved `Legacy` values resolve to Chen-Kipping.
+- Feature: Reworked planetary-prior help text and citations so Gas Loss, Giant Growth, Metal Link, Rogue Worlds, Moon Bias, and Outer Debris now point to explicit model families or observed trends instead of legacy StarGen notes.
+- Test: Added compatibility, mass-radius model, and fallback regressions; `dotnet build StarGen.sln` passed, and the headless harness passed (`1800 / 1800`) after a Godot solution rebuild.
 
 ## 0.8.7.2
 

@@ -1,0 +1,21 @@
+Source note for StarGen research review
+
+Citation:
+Chen, J., & Kipping, D. (2017).
+Probabilistic forecasting of the masses and radii of other worlds.
+The Astrophysical Journal, 834(1), 17.
+arXiv: https://arxiv.org/abs/1603.08614
+DOI: https://doi.org/10.3847/1538-4357/834/1/17
+
+What was reviewed:
+- Abstract and source metadata on 2026-04-19.
+
+Key implementation notes used in StarGen:
+- The paper presents a probabilistic mass-radius relation spanning dwarf planets through stars, with regime changes between Terran, Neptunian, Jovian, and stellar scales.
+- The broad practical takeaway for StarGen is that one empirical curve can cover rocky planets, Neptunes, and gas giants without forcing a separate hard-coded size table for each one.
+- The paper's regime-based approach is especially useful for a deterministic generator because it gives a stable default curve even when a planet has not been hand-authored.
+
+How StarGen uses this:
+- As the default mass-radius model for aggregate planetary priors in Galaxy Studio and System Studio.
+- As the default physical-size resolver for generated planets when the user has not directly overridden mass, radius, or density.
+- As the fallback branch when the optional Otegi small-planet model is selected but the planet lies outside the mass range where that paper is appropriate.

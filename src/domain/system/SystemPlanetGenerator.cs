@@ -568,13 +568,13 @@ public static class SystemPlanetGenerator
         spec.FormationTrace["volatile_delivery_scalar"] = localVolatileDelivery;
         spec.FormationTrace["bombardment_scalar"] = localBombardment;
 
-        if (state.Profile.MassRadiusModel == PlanetMassRadiusModel.ChenKipping)
+        if (state.Profile.MassRadiusModel == PlanetMassRadiusModel.Otegi)
         {
-            spec.FormationTrace["mass_radius_model"] = "chen_kipping";
+            spec.FormationTrace["requested_mass_radius_model"] = "otegi_2020";
         }
         else
         {
-            spec.FormationTrace["mass_radius_model"] = "legacy";
+            spec.FormationTrace["requested_mass_radius_model"] = "chen_kipping";
         }
 
         spec.FormationTrace["envelope_loss_model"] = state.Profile.EnvelopeLossModel.ToString();

@@ -1029,17 +1029,17 @@ layout_mode = 2
 [node name="MassRadiusLabel" type="Label" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/PlanetarySection/PlanetaryContent/PlanetaryVBox/MassRadiusRow"]
 custom_minimum_size = Vector2(96, 0)
 layout_mode = 2
-text = "Size Model"
+text = "Mass-Radius"
 
 [node name="MassRadiusOption" type="OptionButton" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/PlanetarySection/PlanetaryContent/PlanetaryVBox/MassRadiusRow"]
 layout_mode = 2
 size_flags_horizontal = 3
 selected = 0
 item_count = 2
-popup/item_0/text = "Legacy"
-popup/item_0/id = 0
-popup/item_1/text = "Chen-Kipping"
-popup/item_1/id = 1
+popup/item_0/text = "Chen-Kipping"
+popup/item_0/id = 1
+popup/item_1/text = "Otegi"
+popup/item_1/id = 2
 
 [node name="EnvelopeLossRow" type="HBoxContainer" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/PlanetarySection/PlanetaryContent/PlanetaryVBox"]
 layout_mode = 2

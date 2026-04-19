@@ -56,6 +56,20 @@ public static class TestPlanetaryGenerationProfile
     }
 
     /// <summary>
+    /// Tests that legacy serialized mass-radius values map onto the Chen-Kipping default.
+    /// </summary>
+    public static void TestLegacyMassRadiusValueMapsToChenKipping()
+    {
+        Dictionary payload = new Dictionary
+        {
+            ["mass_radius_model"] = 0,
+        };
+
+        PlanetaryGenerationProfile rebuilt = PlanetaryGenerationProfile.FromDictionary(payload);
+        DotNetNativeTestSuite.AssertEqual((int)PlanetMassRadiusModel.ChenKipping, (int)rebuilt.MassRadiusModel, "Legacy serialized size-model values should map to Chen-Kipping.");
+    }
+
+    /// <summary>
     /// Tests that derived planetary-system state round-trips through serialization.
     /// </summary>
     public static void TestDerivedStateRoundTrip()
@@ -157,6 +171,8 @@ public static class TestPlanetaryGenerationProfile
         DotNetNativeTestSuite.AssertTrue(helpText.Contains("What changing it does"), "Planetary help should explain practical outcomes");
         DotNetNativeTestSuite.AssertTrue(helpText.Contains("rocky worlds"), "Planetary help should mention practical world outcomes");
         DotNetNativeTestSuite.AssertTrue(helpText.Contains("system state"), "Planetary help should explain the aggregate retrofit approach");
+        DotNetNativeTestSuite.AssertTrue(!helpText.Contains("Legacy"), "Planetary help should not mention the retired legacy size model");
+        DotNetNativeTestSuite.AssertTrue(!helpText.Contains("StarGen planets.md"), "Planetary help should not cite internal retrofit notes as a user-facing source");
     }
 
     private static CelestialBody CreateTestStar()

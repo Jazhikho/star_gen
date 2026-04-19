@@ -805,6 +805,9 @@ public static partial class DotNetNativeTestSuite
             "TestPlanetaryGenerationProfile::test_round_trip",
             Tests.Unit.TestPlanetaryGenerationProfile.TestRoundTrip);
         runner.RunNativeTest(
+            "TestPlanetaryGenerationProfile::test_legacy_mass_radius_value_maps_to_chen_kipping",
+            Tests.Unit.TestPlanetaryGenerationProfile.TestLegacyMassRadiusValueMapsToChenKipping);
+        runner.RunNativeTest(
             "TestPlanetaryGenerationProfile::test_derived_state_round_trip",
             Tests.Unit.TestPlanetaryGenerationProfile.TestDerivedStateRoundTrip);
         runner.RunNativeTest(
@@ -2370,6 +2373,12 @@ public static partial class DotNetNativeTestSuite
         runner.RunNativeTest(
             "TestSystemPlanetGenerator::test_direct_planet_rogue_mode_clears_orbit",
             Tests.Unit.TestSystemPlanetGenerator.TestDirectPlanetRogueModeClearsOrbit);
+        runner.RunNativeTest(
+            "TestSystemPlanetGenerator::test_mass_radius_models_change_transition_world_scale",
+            Tests.Unit.TestSystemPlanetGenerator.TestMassRadiusModelsChangeTransitionWorldScale);
+        runner.RunNativeTest(
+            "TestSystemPlanetGenerator::test_otegi_falls_back_to_chen_kipping_for_giants",
+            Tests.Unit.TestSystemPlanetGenerator.TestOtegiFallsBackToChenKippingForGiants);
         runner.RunNativeTest(
             "TestSystemPlanetGenerator::test_envelope_loss_model_changes_hot_planet_atmospheres",
             Tests.Unit.TestSystemPlanetGenerator.TestEnvelopeLossModelChangesHotPlanetAtmospheres);

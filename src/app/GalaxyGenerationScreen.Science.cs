@@ -529,7 +529,7 @@ public partial class GalaxyGenerationScreen
 
     private static string BuildPlanetaryProfileSummary(PlanetaryGenerationProfile profile)
     {
-        return $"Planet model: Loss {profile.EnvelopeLossModel} | Giants {profile.GasGiantFormationModel} | Metallicity {profile.MetallicityCouplingStrength} | Rogue {profile.RoguePlanetAllowance} | Moons {profile.MoonFormationBias}";
+        return $"Planet model: Size {profile.MassRadiusModel} | Loss {profile.EnvelopeLossModel} | Giants {profile.GasGiantFormationModel} | Metallicity {profile.MetallicityCouplingStrength} | Rogue {profile.RoguePlanetAllowance} | Moons {profile.MoonFormationBias}";
     }
 
     private static void SetOptionSelection(OptionButton? optionButton, int itemId)

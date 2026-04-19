@@ -9,6 +9,7 @@ using StarGen.Domain.Celestial.Validation;
 using StarGen.Domain.Generation;
 using StarGen.Domain.Generation.Generators;
 using StarGen.Domain.Generation.Specs;
+using StarGen.Domain.Generation.Tables;
 using StarGen.Domain.Rng;
 using StarGen.Domain.Generation.Archetypes;
 using StarGen.Domain.Math;
@@ -470,6 +471,80 @@ public static class TestSystemPlanetGenerator
         {
             throw new InvalidOperationException("Rogue planet generation should clear the final orbital parent.");
         }
+    }
+
+    /// <summary>
+    /// Tests that the Otegi model separates rocky and volatile-rich transition worlds more strongly than Chen-Kipping.
+    /// </summary>
+    public static void TestMassRadiusModelsChangeTransitionWorldScale()
+    {
+        PlanetSpec rockySpec = PlanetSpec.Random(5150);
+        rockySpec.ClassBias = PlanetClassBias.Rocky;
+        rockySpec.CompositionBias = PlanetCompositionBias.Rocky;
+        rockySpec.VolatileRichness = PlanetVolatileRichness.Poor;
+
+        PlanetSpec volatileSpec = PlanetSpec.Random(5151);
+        volatileSpec.ClassBias = PlanetClassBias.SubNeptune;
+        volatileSpec.CompositionBias = PlanetCompositionBias.GasEnvelope;
+        volatileSpec.VolatileRichness = PlanetVolatileRichness.Rich;
+
+        PlanetMassRadiusResolution chenRockyResolution = PlanetMassRadiusTable.Resolve(
+            PlanetMassRadiusModel.ChenKipping,
+            rockySpec,
+            SizeCategory.Category.SuperEarth,
+            12.0);
+        PlanetMassRadiusResolution chenResolution = PlanetMassRadiusTable.Resolve(
+            PlanetMassRadiusModel.ChenKipping,
+            volatileSpec,
+            SizeCategory.Category.MiniNeptune,
+            12.0);
+        PlanetMassRadiusResolution otegiRockyResolution = PlanetMassRadiusTable.Resolve(
+            PlanetMassRadiusModel.Otegi,
+            rockySpec,
+            SizeCategory.Category.SuperEarth,
+            12.0);
+        PlanetMassRadiusResolution otegiResolution = PlanetMassRadiusTable.Resolve(
+            PlanetMassRadiusModel.Otegi,
+            volatileSpec,
+            SizeCategory.Category.MiniNeptune,
+            12.0);
+
+        double chenSeparation = chenResolution.RadiusEarth - chenRockyResolution.RadiusEarth;
+        double otegiSeparation = otegiResolution.RadiusEarth - otegiRockyResolution.RadiusEarth;
+        if (otegiSeparation <= chenSeparation)
+        {
+            throw new InvalidOperationException("Otegi should separate rocky and volatile-rich 12 Earth-mass transition worlds more strongly than Chen-Kipping.");
+        }
+
+        if (otegiResolution.DensityKgM3 >= otegiRockyResolution.DensityKgM3)
+        {
+            throw new InvalidOperationException("Under Otegi, the volatile-rich transition world should come out less dense than the rocky one.");
+        }
+    }
+
+    /// <summary>
+    /// Tests that the Otegi option falls back to Chen-Kipping for giant planets outside its intended range.
+    /// </summary>
+    public static void TestOtegiFallsBackToChenKippingForGiants()
+    {
+        PlanetSpec giantSpec = PlanetSpec.Random(6262);
+        giantSpec.ClassBias = PlanetClassBias.GasGiant;
+        giantSpec.CompositionBias = PlanetCompositionBias.GasEnvelope;
+
+        PlanetMassRadiusResolution chenResolution = PlanetMassRadiusTable.Resolve(
+            PlanetMassRadiusModel.ChenKipping,
+            giantSpec,
+            SizeCategory.Category.GasGiant,
+            300.0);
+        PlanetMassRadiusResolution otegiResolution = PlanetMassRadiusTable.Resolve(
+            PlanetMassRadiusModel.Otegi,
+            giantSpec,
+            SizeCategory.Category.GasGiant,
+            300.0);
+
+        DotNetNativeTestSuite.AssertEqual(chenResolution.AppliedModelId, otegiResolution.AppliedModelId, "Gas giants should fall back to the same applied model");
+        DotNetNativeTestSuite.AssertEqual(chenResolution.AppliedRegimeId, otegiResolution.AppliedRegimeId, "Gas giants should fall back to the same applied regime");
+        DotNetNativeTestSuite.AssertEqual(chenResolution.RadiusEarth, otegiResolution.RadiusEarth, "Gas giants should resolve to the same radius when Otegi falls back");
     }
 
     private static int CountGaseousGiants(Array<CelestialBody> planets)

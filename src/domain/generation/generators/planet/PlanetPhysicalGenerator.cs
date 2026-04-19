@@ -1,4 +1,5 @@
 using Godot;
+using System;
 using StarGen.Domain.Celestial.Components;
 using StarGen.Domain.Generation;
 using StarGen.Domain.Generation.Archetypes;
@@ -25,10 +26,6 @@ public static class PlanetPhysicalGenerator
         SeededRng rng)
     {
         double densityKgM3 = spec.GetOverrideFloat("physical.density_kg_m3", -1.0);
-        if (densityKgM3 < 0.0)
-        {
-            densityKgM3 = SizeTable.RandomDensity(sizeCategory, rng);
-        }
 
         double massKg = spec.GetOverrideFloat("physical.mass_kg", -1.0);
         double massEarth;
@@ -53,12 +50,31 @@ public static class PlanetPhysicalGenerator
             double radiusEarth = spec.GetOverrideFloat("physical.radius_earth", -1.0);
             if (radiusEarth < 0.0)
             {
-                radiusM = SizeTable.RadiusFromMassDensity(massKg, densityKgM3);
+                if (densityKgM3 >= 0.0)
+                {
+                    radiusM = SizeTable.RadiusFromMassDensity(massKg, densityKgM3);
+                }
+                else
+                {
+                    PlanetMassRadiusModel massRadiusModel = ResolveRequestedMassRadiusModel(spec);
+                    PlanetMassRadiusResolution resolution = PlanetMassRadiusTable.Resolve(massRadiusModel, spec, sizeCategory, massEarth);
+                    radiusM = resolution.RadiusEarth * Units.EarthRadiusMeters;
+                    densityKgM3 = resolution.DensityKgM3;
+                    spec.FormationTrace["mass_radius_model_applied"] = resolution.AppliedModelId;
+                    spec.FormationTrace["mass_radius_regime"] = resolution.AppliedRegimeId;
+                    spec.FormationTrace["radius_model_radius_earth"] = resolution.RadiusEarth;
+                    spec.FormationTrace["radius_model_density_kg_m3"] = resolution.DensityKgM3;
+                }
             }
             else
             {
                 radiusM = radiusEarth * Units.EarthRadiusMeters;
             }
+        }
+
+        if (densityKgM3 < 0.0)
+        {
+            densityKgM3 = CalculateDensityKgM3(massKg, radiusM);
         }
 
         bool isLocked = OrbitTable.IsTidallyLocked(
@@ -261,5 +277,44 @@ public static class PlanetPhysicalGenerator
         double baseHeat = earthHeat * System.Math.Pow(massEarth, 0.9) * ageFactor;
         double variation = rng.RandfRange(0.5f, 2.0f);
         return baseHeat * variation;
+    }
+
+    private static PlanetMassRadiusModel ResolveRequestedMassRadiusModel(PlanetSpec spec)
+    {
+        if (spec.FormationTrace.ContainsKey("requested_mass_radius_model"))
+        {
+            string? requested = spec.FormationTrace["requested_mass_radius_model"].AsString();
+            if (requested == "otegi_2020")
+            {
+                return PlanetMassRadiusModel.Otegi;
+            }
+
+            if (requested == "chen_kipping" || requested == "legacy")
+            {
+                return PlanetMassRadiusModel.ChenKipping;
+            }
+        }
+
+        if (spec.FormationTrace.ContainsKey("mass_radius_model"))
+        {
+            string? requested = spec.FormationTrace["mass_radius_model"].AsString();
+            if (requested == "otegi_2020")
+            {
+                return PlanetMassRadiusModel.Otegi;
+            }
+        }
+
+        return PlanetMassRadiusModel.ChenKipping;
+    }
+
+    private static double CalculateDensityKgM3(double massKg, double radiusM)
+    {
+        if (radiusM <= 0.0)
+        {
+            throw new InvalidOperationException("PlanetPhysicalGenerator.CalculateDensityKgM3 requires a positive radius.");
+        }
+
+        double volume = (4.0 / 3.0) * System.Math.PI * radiusM * radiusM * radiusM;
+        return massKg / volume;
     }
 }

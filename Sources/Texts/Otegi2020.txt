@@ -1,0 +1,21 @@
+Source note for StarGen research review
+
+Citation:
+Otegi, J. F., Bouchy, F., & Helled, R. (2020).
+Revisited mass-radius relations for exoplanets below 120 Earth masses.
+Astronomy & Astrophysics, 634, A43.
+arXiv: https://arxiv.org/abs/1911.04745
+DOI: https://doi.org/10.1051/0004-6361/201936482
+
+What was reviewed:
+- Abstract and source metadata on 2026-04-19.
+
+Key implementation notes used in StarGen:
+- The paper argues that planets below 120 Earth masses are better represented by two overlapping empirical branches rather than one smooth small-planet curve.
+- Those two branches are rocky planets and volatile-rich planets, separated observationally with a pure-water composition line.
+- The practical value for StarGen is that the model gives a real small-planet alternative to Chen & Kipping when the generator already knows whether it is leaning rocky or volatile-rich.
+
+How StarGen uses this:
+- As an optional mass-radius model in Galaxy Studio and System Studio.
+- When selected, StarGen uses the rocky branch for rocky and stripped-core outcomes and the volatile-rich branch for water-rich and sub-Neptune-like outcomes in the small-to-intermediate planet regime.
+- Gas giants and planets outside the paper's intended mass range fall back to the Chen & Kipping broad curve so the pipeline stays continuous.
