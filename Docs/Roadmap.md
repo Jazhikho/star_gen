@@ -64,6 +64,26 @@ Release notes and version summaries are in the [README](../README.md#version-his
 - Add flux-, habitable-zone-, XUV-, and tidal-heating-aware environment scoring so habitability and native-biology outcomes follow system context rather than only standalone planet readouts.
 - Calibrate these constraints against reviewed literature for planet demographics, moon formation, asteroid/comet structure, and habitability windows, and keep the implementation additive instead of rewriting the current generator stack.
 
+### Planned effort: RPG compatibility overrides
+
+- Expand the current `Generation Overrides` seam beyond the existing Traveller-leaning clean-room mode into a small set of explicitly supported RPG compatibility profiles.
+- Keep this layer compatibility-oriented rather than lore-oriented: it should bias generated outputs toward usable mainworlds, settlement structures, readouts, and constraints for a target game family without copying protected setting material or implying endorsement.
+- Use only systems with reviewed source and licensing support in the repo for first-class built-in overrides. Current first-wave candidates are:
+  - Cepheus Engine
+  - Ironsworn: Starforged
+  - Starfinder, but only as a clean-room compatibility profile unless and until more ORC-designated primary material is reviewed
+- Keep Traveller support clean-room unless a separate human-reviewed licensing path broadens what can be shipped.
+- Avoid shipping unsupported built-in overrides for Stars Without Number or GURPS until a clearer reviewed rights basis exists.
+- Build the override layer on top of the existing `GenerationUseCaseSettings` / `RulesetMode` seam so the same controls can apply consistently in Galaxy Studio, System Studio, and Object Studio.
+- Override profiles should materially change generation:
+  - settlement density and mainworld policy
+  - atmosphere and hydrographics permissiveness
+  - life and civilization forcing or relaxation
+  - starport or hub-world bias
+  - debris, frontier, and hazard pressure
+  - export and readout mappings
+- Do not reproduce rules text or proprietary tables verbatim unless the reviewed source explicitly permits it.
+
 ### Recently completed effort: Planetary and minor-body taxonomy expansion (`0.8.5.0`)
 
 - Expanded Object Studio so it behaves as a true single-object authoring surface, showing only the controls that match the currently selected object type instead of exposing unrelated presets and parameters all at once.

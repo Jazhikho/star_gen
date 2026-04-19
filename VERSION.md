@@ -1,12 +1,18 @@
 # Version
 
-Current version: `0.8.14.1`
+Current version: `0.8.14.2`
 
 Current user-facing version: `0.9d`
 
 Date: `2026-04-19`
 
 Versioning method: release/refactor `+0.1`, feature `+0.0.1`, bug fix `+0.0.0.1`, save-breaking release `+1.0`.
+
+## 0.8.14.2
+
+- Docs: Added reviewed source notes for Traveller licensing, Cepheus Engine SRD world generation, Starforged licensing and free primer material, and Starfinder compatibility or playtest material so the repo now has a defended source basis for future RPG override work.
+- Docs: Added an explicit `RPG compatibility overrides` planned effort to the roadmap and documented the first-wave clean-room candidates and licensing boundaries.
+- Docs: Updated the bibliography and project-structure docs so the new override-supporting source notes are tracked with the rest of the reviewed material.
 
 ## 0.8.14.1
 

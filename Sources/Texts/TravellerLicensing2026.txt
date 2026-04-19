@@ -1,0 +1,20 @@
+Source note for StarGen ruleset and licensing review
+
+Citation:
+Mongoose Publishing. (2026).
+Traveller Licensing.
+https://www.mongoosepublishing.com/pages/traveller-licensing
+
+What was reviewed:
+- Official Traveller licensing page on 2026-04-19.
+- Existing repository clean-room notes in `Docs/TravellerWorldCreation.md`.
+
+Key implementation notes used in StarGen:
+- Mongoose describes three publishing paths: the Fair Use Policy for non-commercial fan material and small game aids, the TAS Programme for commercial material tied to the current edition and Charted Space, and the Traveller Compatibility Licence for original-universe commercial works derived from a growing system reference document.
+- The Traveller Compatibility Licence explicitly excludes the Charted Space universe and is aimed at generic or wholly original universes.
+- Mongoose states that the Traveller Compatibility Licence is currently only being accepted from established publishers.
+
+How StarGen should use this:
+- StarGen can continue to support a clean-room Traveller-style compatibility mode for generation overrides, UWP-style readouts, and route-friendly output without relying on Charted Space setting material.
+- StarGen should not import or present official Traveller setting lore, logos, or endorsement language under this source alone.
+- Future Traveller-compatible overrides should remain framed as compatibility-oriented output unless a separate human-reviewed publishing arrangement changes the licensing position.

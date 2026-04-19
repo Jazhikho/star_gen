@@ -950,3 +950,14 @@ Use this log for significant AI-assisted artifacts in this repository.
 - Human Changed: The user specified that each generation step should only lock exact Solar values after the expected Solar-compatible value remains in range and that failures must point directly to the broken stage.
 - Validation Method: `dotnet build StarGen.sln` and `godot-mono.exe --path . --headless --script res://Tests/RunTestsHeadless.gd` (`Total: 1815 | Passed: 1815 | Failed: 0`). Godot still emitted the repo's known shutdown leak warnings after the green run.
 - Final Approver: Pending Christopher B. Del Gesso review.
+
+### 2026-04-19 - Codex (GPT-5)
+
+- Task Purpose: Add reviewed ruleset and licensing source notes for the RPG systems that currently have the clearest path to built-in compatibility overrides, then record the planned override effort in the roadmap without implementing the generator changes yet.
+- Input Materials Used: User request to pull the rule sets into the repo and sketch how they would override generation; `claude.md`; `AGENTS.md`; current `GenerationUseCaseSettings` and studio override wiring; official licensing and rules pages for Mongoose Traveller, Cepheus Engine SRD, Tomkin Press Starforged, and Paizo Starfinder; `Sources/AnnotatedBibliography.md`; `Docs/Roadmap.md`; `Docs/ProjectStructure.md`; `VERSION.md`; `project.godot`; and `README.md`.
+- AI Produced: Added reviewed source notes for Traveller licensing, Cepheus Engine SRD world generation, Starforged licensing and free-primer material, and Starfinder compatibility/playtest material; added a new roadmap effort for RPG compatibility overrides; updated bibliography and project-structure tracking; and synced internal version metadata to `0.8.14.2`.
+- Human Accepted: Pending user review of the selected systems, the clean-room licensing boundaries, and the override-design sketch.
+- Human Rejected: Did not pull in Stars Without Number or GURPS material because the current reviewed rights basis is not strong enough for a built-in override path; did not implement override code in this pass.
+- Human Changed: The user narrowed the work from a general licensing discussion to putting the defendable ruleset basis into the repo first and then sketching how the overrides should map onto the existing main-program generation seam.
+- Validation Method: `dotnet build StarGen.sln` (build passed with 0 warnings and 0 errors). User review of the selected systems and override design is still pending.
+- Final Approver: Pending Christopher B. Del Gesso review.

@@ -105,6 +105,19 @@ Chambers, J. E., Wetherill, G. W., & Boss, A. P. (1996). The stability of multi-
 
 ---
 
+## RPG compatibility override sources
+
+**Current use in StarGen:** planning and licensing basis for the future expansion of `Generation Overrides` beyond the current Traveller-leaning clean-room mode.
+
+| Citation | Summary | Used in |
+|----------|----------|---------|
+| Mongoose Publishing. (2026). *Traveller Licensing*. https://www.mongoosepublishing.com/pages/traveller-licensing - Notes: [Texts/TravellerLicensing2026.txt](Texts/TravellerLicensing2026.txt). | Official licensing page for Traveller-compatible publishing. **Supports:** maintaining StarGen's existing Traveller-style clean-room compatibility path while keeping it separate from Charted Space setting use and official branding. | Future `Generation Overrides` expansion planning; current clean-room Traveller framing |
+| Kemp, J. F. (n.d.). *Cepheus Engine SRD: Legal* and *Chapter 12: Worlds*. https://www.orffenspace.com/cepheus-srd/legal.html and https://www.orffenspace.com/cepheus-srd/book3/worlds.html - Notes: [Texts/CepheusEngineSRD2026.txt](Texts/CepheusEngineSRD2026.txt). | Openly licensed Cepheus compatibility and world-generation reference. **Supports:** a first-class Cepheus override with UWP-compatible mainworlds, travel-zone readouts, starports, and subsector-friendly density assumptions. | Future `Generation Overrides` expansion planning |
+| Tomkin Press. (2026). *Licensing*; *Ironsworn: Starforged - Rules & Setting Primer*; *Ironsworn: Starforged - Truths Workbook*. https://tomkinpress.com/pages/licensing ; https://tomkinpress.com/products/ironsworn-starforged-rules-setting-primer ; https://tomkinpress.com/products/ironsworn-starforged-truths-workbook - Notes: [Texts/StarforgedLicensing2026.txt](Texts/StarforgedLicensing2026.txt). | Official Starforged licensing and preview material. **Supports:** a Starforged override centered on frontier pressure, truth-style setting assumptions, oracle-friendly hooks, and challenge-rich worlds, while avoiding Tomkin Press trade dress and official implication. | Future `Generation Overrides` expansion planning |
+| Paizo Inc. (2026). *Paizo Compatibility License FAQ*; *Starfinder Compatibility License*; Paizo Inc. (2024). *Starfinder Second Edition Playtest Rulebook*. https://paizo.com/licenses/compatibility/faq ; https://paizo.com/starfinder/compatibility ; https://downloads.paizo.com/240801_Starfinder_2E_Playtest.pdf - Notes: [Texts/StarfinderCompatibility2026.txt](Texts/StarfinderCompatibility2026.txt). | Official compatibility and playtest sources for Starfinder. **Supports:** a clean-room Starfinder-compatible override aimed at broad science-fantasy output assumptions, while explicitly avoiding direct reuse of restricted setting content or unsupported mechanical table copying. | Future `Generation Overrides` expansion planning |
+
+---
+
 ## Exoplanet demographics (hot Jupiters, giant planets)
 
 **Current use in StarGen:** [Tests/ScientificBenchmarks.gd](../Tests/ScientificBenchmarks.gd) — hot Jupiter fraction &lt;5%. [Roadmap](../Docs/Roadmap.md): inner vs outer large-planet fractions. [Tests/Unit/TestSystemPlanetDistributions.gd](../Tests/Unit/TestSystemPlanetDistributions.gd): close-in gas giants rare.
@@ -144,6 +157,7 @@ Chambers, J. E., Wetherill, G. W., & Boss, A. P. (1996). The stability of multi-
 ## Changelog
 
 - Hart et al. (2017), Lingard et al. (2021), and Rodriguez & Padilla (2013) added under Galaxy morphology and structure to support the `0.8.11.0` scientific-parameter audit pass that tightened source coverage for spiral arm count, pitch, arm mechanisms, and ellipticity.
+- Traveller Licensing (2026), Cepheus Engine SRD (legal + worlds), Starforged licensing/primer/truths pages, and Starfinder compatibility/playtest sources added under RPG compatibility override sources to support the planned `Generation Overrides` expansion toward clean-room Cepheus, Starforged, and Starfinder-compatible output profiles.
 - Lineweaver & Davis (2002), Spiegel & Turner (2012), Forgan & Rice (2010), Mills et al. (2024), and Balbi & Frank (2023) added under Life potential, biospheres, and civilization filters to support the `0.8.9.0` life-model replacement that moves Galaxy Studio from a `Life Potential` slider to sourced model selection and threads those models into biology, complex-life, and sentience gating.
 - Fulton et al. (2017), Fischer & Valenti (2005), Canup & Ward (2006), DeMeo & Carry (2014), Lamy et al. (2004), Kopparapu et al. (2014), and Heller & Barnes (2013) added under Planet demographics, small-body placement, moons, and habitability calibration to support the `0.8.7.0` follow-on pass that tied atmosphere retention, moon architecture, outer-belt composition, and biosphere gating more tightly to upstream planetary-system state.
 - Chen & Kipping (2017), Otegi et al. (2020), Owen & Wu (2017), Ginzburg et al. (2018), Mordasini et al. (2007), Lambrechts & Johansen (2012), and Mróz et al. (2020) added under Planetary retrofit and deterministic formation surrogates to support the `0.8.8.0` cleanup that removed the uncited `Legacy` size model, added Otegi as the second supported mass-radius option, and rewrote planetary-prior help around named literature-backed model branches.
