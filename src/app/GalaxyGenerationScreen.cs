@@ -675,6 +675,11 @@ public partial class GalaxyGenerationScreen : Control
 
 	private void ApplyParameterTooltips()
 	{
+		if (_rulesetModeOption != null && _rulesetModeOption.ItemCount <= 2)
+		{
+			GenerationUseCasePresentation.PopulateRulesetOptions(_rulesetModeOption);
+		}
+
 		ApplyTooltip("galaxy_type", _typeOption, $"{ParameterRootPath}/TypeSection/TypeContent/TypeVBox/TypeRow/TypeLabel");
 		ApplyTooltip("num_arms", _armsSlider, $"{ParameterRootPath}/TypeSection/TypeContent/TypeVBox/ArmsRow/ArmsLabel");
 		ApplyTooltip("arm_pitch_angle_deg", _pitchSlider, $"{ParameterRootPath}/StructureSection/StructureContent/StructureVBox/PitchRow/PitchLabel");
@@ -808,7 +813,7 @@ public partial class GalaxyGenerationScreen : Control
 			settings.EnvironmentalWindowWeight = (GenerationUseCaseSettings.EnvironmentalWindowWeightType)_environmentalWindowWeightOption.GetSelectedId();
 		}
 
-		if (settings.RulesetMode == GenerationUseCaseSettings.RulesetModeType.Traveller)
+		if (settings.GetCompatibilityProfile().UsesUwpLikeReadouts)
 		{
 			settings.ShowTravellerReadouts = true;
 		}
@@ -868,14 +873,18 @@ public partial class GalaxyGenerationScreen : Control
 			return;
 		}
 
-		if ((GenerationUseCaseSettings.RulesetModeType)selectedId == GenerationUseCaseSettings.RulesetModeType.Traveller)
+		GenerationUseCaseSettings rulesetDefaults = GenerationUseCaseSettings.CreateDefault();
+		rulesetDefaults.RulesetMode = (GenerationUseCaseSettings.RulesetModeType)selectedId;
+		rulesetDefaults.ApplyRulesetDefaults();
+		RpgCompatibilityProfile compatibilityProfile = rulesetDefaults.GetCompatibilityProfile();
+		if (compatibilityProfile.IsActive)
 		{
 			if (_showTravellerReadoutsCheck != null)
 			{
-				_showTravellerReadoutsCheck.ButtonPressed = true;
+				_showTravellerReadoutsCheck.ButtonPressed = compatibilityProfile.UsesUwpLikeReadouts;
 			}
 
-			ApplyTravellerDefaultsToControls();
+			ApplyRulesetDefaultsToControls(rulesetDefaults);
 		}
 
 		RefreshValidationIssues();
@@ -919,39 +928,42 @@ public partial class GalaxyGenerationScreen : Control
 
 	private void ApplyTravellerDefaultsToControls()
 	{
+		GenerationUseCaseSettings settings = GenerationUseCaseSettings.CreateDefault();
+		settings.RulesetMode = GenerationUseCaseSettings.RulesetModeType.Traveller;
+		settings.ApplyRulesetDefaults();
+		ApplyRulesetDefaultsToControls(settings);
+	}
+
+	private void ApplyRulesetDefaultsToControls(GenerationUseCaseSettings settings)
+	{
 		if (_lifeFrameworkOption != null)
 		{
-			SetOptionSelection(
-				_lifeFrameworkOption,
-				(int)GenerationUseCaseSettings.LifeFrameworkType.RapidBiospheres);
+			SetOptionSelection(_lifeFrameworkOption, (int)settings.LifeFramework);
 		}
 
 		if (_abiogenesisModelOption != null)
 		{
-			SetOptionSelection(
-				_abiogenesisModelOption,
-				(int)GenerationUseCaseSettings.AbiogenesisModelType.FollowFramework);
+			SetOptionSelection(_abiogenesisModelOption, (int)settings.AbiogenesisModel);
 		}
 
 		if (_complexLifeModelOption != null)
 		{
-			SetOptionSelection(
-				_complexLifeModelOption,
-				(int)GenerationUseCaseSettings.ComplexLifeModelType.FollowFramework);
+			SetOptionSelection(_complexLifeModelOption, (int)settings.ComplexLifeModel);
 		}
 
 		if (_civilizationModelOption != null)
 		{
-			SetOptionSelection(
-				_civilizationModelOption,
-				(int)GenerationUseCaseSettings.CivilizationModelType.FollowFramework);
+			SetOptionSelection(_civilizationModelOption, (int)settings.CivilizationModel);
 		}
 
 		if (_environmentalWindowWeightOption != null)
 		{
-			SetOptionSelection(
-				_environmentalWindowWeightOption,
-				(int)GenerationUseCaseSettings.EnvironmentalWindowWeightType.FollowFramework);
+			SetOptionSelection(_environmentalWindowWeightOption, (int)settings.EnvironmentalWindowWeight);
+		}
+
+		if (_forceLifeOnSupportableWorldsCheck != null)
+		{
+			_forceLifeOnSupportableWorldsCheck.ButtonPressed = settings.ForceLifeOnSupportableWorlds;
 		}
 	}
 

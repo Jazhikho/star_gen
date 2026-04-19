@@ -594,6 +594,77 @@ public static class TestSystemPlanetGenerator
         DotNetNativeTestSuite.AssertEqual(chenResolution.RadiusEarth, otegiResolution.RadiusEarth, "Gas giants should resolve to the same radius when Otegi falls back");
     }
 
+    /// <summary>
+    /// Tests that RPG compatibility profiles materially change system-level orbit fill pressure.
+    /// </summary>
+    public static void TestCompatibilityProfilesShiftSystemFillPressure()
+    {
+        OrbitHost host = CreateTestHost();
+        CelestialBody star = CreateTestStar();
+        Array<OrbitHost> hosts = new Array<OrbitHost> { host };
+        Array<CelestialBody> stars = new Array<CelestialBody> { star };
+        int temperateFilledDefault = 0;
+        int temperateFilledSpaceOpera = 0;
+        int harshFilledDefault = 0;
+        int harshFilledStarforged = 0;
+
+        for (int seed = 7000; seed < 7120; seed += 1)
+        {
+            Array<OrbitSlot> defaultSlots = CreateTestSlots(host, 6);
+            Array<OrbitSlot> spaceOperaSlots = CreateTestSlots(host, 6);
+            Array<OrbitSlot> starforgedSlots = CreateTestSlots(host, 6);
+            SolarSystemSpec defaultSpec = new SolarSystemSpec(seed, 1, 1);
+            SolarSystemSpec spaceOperaSpec = new SolarSystemSpec(seed, 1, 1);
+            SolarSystemSpec starforgedSpec = new SolarSystemSpec(seed, 1, 1);
+            spaceOperaSpec.UseCaseSettings = GenerationUseCaseSettings.CreateDefault();
+            spaceOperaSpec.UseCaseSettings.RulesetMode = GenerationUseCaseSettings.RulesetModeType.Traveller;
+            spaceOperaSpec.UseCaseSettings.ApplyRulesetDefaults();
+            starforgedSpec.UseCaseSettings = GenerationUseCaseSettings.CreateDefault();
+            starforgedSpec.UseCaseSettings.RulesetMode = GenerationUseCaseSettings.RulesetModeType.Starforged;
+            starforgedSpec.UseCaseSettings.ApplyRulesetDefaults();
+
+            PlanetGenerationResult defaultResult = SystemPlanetGenerator.Generate(
+                defaultSlots,
+                hosts,
+                stars,
+                new SeededRng(seed),
+                false,
+                defaultSpec.UseCaseSettings,
+                defaultSpec);
+            PlanetGenerationResult spaceOperaResult = SystemPlanetGenerator.Generate(
+                spaceOperaSlots,
+                hosts,
+                stars,
+                new SeededRng(seed),
+                false,
+                spaceOperaSpec.UseCaseSettings,
+                spaceOperaSpec);
+            PlanetGenerationResult starforgedResult = SystemPlanetGenerator.Generate(
+                starforgedSlots,
+                hosts,
+                stars,
+                new SeededRng(seed),
+                false,
+                starforgedSpec.UseCaseSettings,
+                starforgedSpec);
+
+            temperateFilledDefault += CountFilledSlotsByZone(defaultResult.Slots, OrbitZone.Zone.Temperate);
+            temperateFilledSpaceOpera += CountFilledSlotsByZone(spaceOperaResult.Slots, OrbitZone.Zone.Temperate);
+            harshFilledDefault += CountFilledSlotsByZone(defaultResult.Slots, OrbitZone.Zone.Hot) + CountFilledSlotsByZone(defaultResult.Slots, OrbitZone.Zone.Cold);
+            harshFilledStarforged += CountFilledSlotsByZone(starforgedResult.Slots, OrbitZone.Zone.Hot) + CountFilledSlotsByZone(starforgedResult.Slots, OrbitZone.Zone.Cold);
+        }
+
+        if (temperateFilledSpaceOpera <= temperateFilledDefault)
+        {
+            throw new InvalidOperationException($"Space Opera should fill more temperate slots than default. Default={temperateFilledDefault} SpaceOpera={temperateFilledSpaceOpera}");
+        }
+
+        if (harshFilledStarforged <= harshFilledDefault)
+        {
+            throw new InvalidOperationException($"Starforged should fill more harsh slots than default. Default={harshFilledDefault} Starforged={harshFilledStarforged}");
+        }
+    }
+
     private static int CountGaseousGiants(Array<CelestialBody> planets)
     {
         int count = 0;
@@ -667,6 +738,20 @@ public static class TestSystemPlanetGenerator
         {
             double massEarth = planet.Physical.MassKg / Units.EarthMassKg;
             if (massEarth <= 1.2)
+            {
+                count += 1;
+            }
+        }
+
+        return count;
+    }
+
+    private static int CountFilledSlotsByZone(Array<OrbitSlot> slots, OrbitZone.Zone zone)
+    {
+        int count = 0;
+        foreach (OrbitSlot slot in slots)
+        {
+            if (slot.Zone == zone && slot.IsFilled)
             {
                 count += 1;
             }

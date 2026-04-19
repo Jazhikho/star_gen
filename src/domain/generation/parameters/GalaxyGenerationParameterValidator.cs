@@ -181,20 +181,22 @@ public static class GalaxyGenerationParameterValidator
             issues.AddWarning("ghz_outer_radius_pc", "A very narrow galactic habitable zone is allowed, but it makes downstream habitability weighting unusually sharp.");
         }
 
-        if (config.UseCaseSettings.IsTravellerMode() && config.StarDensityMultiplier < 0.8)
+        RpgCompatibilityProfile compatibilityProfile = config.UseCaseSettings.GetCompatibilityProfile();
+
+        if (compatibilityProfile.IsActive && config.StarDensityMultiplier < 0.8)
         {
-            issues.AddWarning("star_density_multiplier", "Traveller mode on a sparse galaxy can work, but it may produce fewer plausible mainworld candidates per region.");
+            issues.AddWarning("star_density_multiplier", $"{compatibilityProfile.Label} on a sparse galaxy can work, but it may produce fewer plausible mainworld candidates per region.");
         }
 
-        if (config.UseCaseSettings.ShowTravellerReadouts && !config.UseCaseSettings.IsTravellerMode())
+        if (config.UseCaseSettings.ShowTravellerReadouts && !compatibilityProfile.UsesUwpLikeReadouts)
         {
-            issues.AddWarning("show_traveller_readouts", "Traveller readouts are enabled while the default ruleset remains active; values shown will be derived mappings only.");
+            issues.AddWarning("show_traveller_readouts", "UWP code is enabled while the active ruleset does not natively use UWP-like readouts; values shown will be derived mappings only.");
         }
 
         if (config.UseCaseSettings.MainworldPolicy == GenerationUseCaseSettings.MainworldPolicyType.Require
-            && !config.UseCaseSettings.IsTravellerMode())
+            && !compatibilityProfile.IsActive)
         {
-            issues.AddWarning("mainworld_policy", "Requiring a mainworld is mainly intended for Traveller-oriented flows.");
+            issues.AddWarning("mainworld_policy", "Requiring a mainworld is mainly intended for compatibility-oriented flows.");
         }
 
         return issues;

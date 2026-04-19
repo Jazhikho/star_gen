@@ -182,9 +182,7 @@ public partial class ObjectGenerationScreen
         _typeOption.AddItem("Planet", (int)ObjectViewer.ObjectType.Planet);
         _typeOption.AddItem("Asteroid", (int)ObjectViewer.ObjectType.Asteroid);
         _typeOption.AddItem("Comet", (int)ObjectViewer.ObjectType.Comet);
-        _rulesetModeOption.Clear();
-        _rulesetModeOption.AddItem(GenerationUseCasePresentation.RealisticRulesetLabel, (int)GenerationUseCaseSettings.RulesetModeType.Default);
-		_rulesetModeOption.AddItem("Space Opera", (int)GenerationUseCaseSettings.RulesetModeType.Traveller);
+        GenerationUseCasePresentation.PopulateRulesetOptions(_rulesetModeOption);
         PopulatePlanetSection();
         PopulateObjectLifeSection();
         PopulateTravellerSection();
@@ -349,32 +347,28 @@ public partial class ObjectGenerationScreen
 
     private void OnEnhancedRulesetModeSelected(long selectedId)
     {
+        GenerationUseCaseSettings rulesetDefaults = GenerationUseCaseSettings.CreateDefault();
+        rulesetDefaults.RulesetMode = (GenerationUseCaseSettings.RulesetModeType)selectedId;
+        rulesetDefaults.ApplyRulesetDefaults();
+        RpgCompatibilityProfile compatibilityProfile = rulesetDefaults.GetCompatibilityProfile();
+
+        if (_showTravellerReadoutsCheck != null)
+        {
+            _showTravellerReadoutsCheck.ButtonPressed = compatibilityProfile.UsesUwpLikeReadouts;
+        }
+
         if (selectedId == (long)GenerationUseCaseSettings.RulesetModeType.Traveller)
         {
-            if (_showTravellerReadoutsCheck != null)
+            if (_useTravellerWorldProfileCheck != null)
             {
-                _showTravellerReadoutsCheck.ButtonPressed = true;
-            }
-
-            if (_useTravellerWorldProfileCheck != null && GetSelectedObjectType() == ObjectViewer.ObjectType.Planet)
-            {
-                _useTravellerWorldProfileCheck.ButtonPressed = true;
+                _useTravellerWorldProfileCheck.ButtonPressed = GetSelectedObjectType() == ObjectViewer.ObjectType.Planet;
             }
 
             ApplyTravellerObjectLifeDefaultsToControls();
-
         }
-        else
+        else if (_useTravellerWorldProfileCheck != null)
         {
-            if (_showTravellerReadoutsCheck != null)
-            {
-                _showTravellerReadoutsCheck.ButtonPressed = false;
-            }
-
-            if (_useTravellerWorldProfileCheck != null)
-            {
-                _useTravellerWorldProfileCheck.ButtonPressed = false;
-            }
+            _useTravellerWorldProfileCheck.ButtonPressed = false;
         }
 
         RefreshEnhancedParameterVisibility();
@@ -454,7 +448,7 @@ public partial class ObjectGenerationScreen
             settings.ShowTravellerReadouts = _showTravellerReadoutsCheck.ButtonPressed;
         }
 
-        if (settings.IsTravellerMode())
+        if (settings.GetCompatibilityProfile().UsesUwpLikeReadouts)
         {
             settings.ShowTravellerReadouts = true;
         }
@@ -476,6 +470,13 @@ public partial class ObjectGenerationScreen
         ObjectViewer.ObjectType objectType = GetSelectedObjectType();
         bool showAdvanced = _showAdvancedControlsCheck != null && _showAdvancedControlsCheck.ButtonPressed;
         bool travellerMode = IsTravellerModeSelected();
+        bool usesUwpLikeReadouts = false;
+        if (_rulesetModeOption != null)
+        {
+            GenerationUseCaseSettings.RulesetModeType rulesetMode = (GenerationUseCaseSettings.RulesetModeType)_rulesetModeOption.GetSelectedId();
+            usesUwpLikeReadouts = RpgCompatibilityProfile.Resolve(rulesetMode).UsesUwpLikeReadouts;
+        }
+
         bool useTravellerProfile = travellerMode
             && _useTravellerWorldProfileCheck != null
             && _useTravellerWorldProfileCheck.ButtonPressed;
@@ -489,7 +490,7 @@ public partial class ObjectGenerationScreen
         SetEnhancedSectionVisible(_cometSection, objectType == ObjectViewer.ObjectType.Comet);
         SetEnhancedSectionVisible(_advancedSection, showAdvanced);
 
-        SetEnhancedRowVisible("ShowTravellerReadoutsRow", travellerMode);
+        SetEnhancedRowVisible("ShowTravellerReadoutsRow", usesUwpLikeReadouts);
         SetEnhancedRowVisible("PlanetOrbitModeRow", objectType == ObjectViewer.ObjectType.Planet);
         SetEnhancedRowVisible("PlanetClassBiasRow", objectType == ObjectViewer.ObjectType.Planet);
         SetEnhancedRowVisible("PlanetCompositionBiasRow", objectType == ObjectViewer.ObjectType.Planet);
@@ -774,7 +775,7 @@ public partial class ObjectGenerationScreen
     {
         if (ShouldUseTravellerWorldGeneration())
         {
-            return "Traveller mode builds a world profile first, then maps that profile into the body generator while keeping the result deterministic.";
+            return "Space Opera mode builds a world profile first, then maps that profile into the body generator while keeping the result deterministic.";
         }
 
         if (_planetGenerateMoonCheck != null && _planetGenerateMoonCheck.ButtonPressed)

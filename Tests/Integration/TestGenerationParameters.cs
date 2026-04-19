@@ -20,6 +20,7 @@ public static class TestGenerationParameters
         runner.RunNativeTest("TestGenerationParameters::test_galaxy_validator_warns_on_showcase_spiral", TestGalaxyValidatorWarnsOnShowcaseSpiral);
         runner.RunNativeTest("TestGenerationParameters::test_system_validator_warns_when_traveller_mode_disables_population", TestSystemValidatorWarnsWhenTravellerModeDisablesPopulation);
         runner.RunNativeTest("TestGenerationParameters::test_galaxy_validator_warns_when_default_ruleset_shows_traveller_readouts", TestGalaxyValidatorWarnsWhenDefaultRulesetShowsTravellerReadouts);
+        runner.RunNativeTest("TestGenerationParameters::test_ruleset_profiles_apply_expected_defaults", TestRulesetProfilesApplyExpectedDefaults);
         runner.RunNativeTest("TestGenerationParameters::test_use_case_settings_round_trip_through_galaxy_config", TestUseCaseSettingsRoundTripThroughGalaxyConfig);
         runner.RunNativeTest("TestGenerationParameters::test_use_case_settings_round_trip_through_system_spec", TestUseCaseSettingsRoundTripThroughSystemSpec);
         runner.RunNativeTest("TestGenerationParameters::test_use_case_settings_round_trip_through_object_specs", TestUseCaseSettingsRoundTripThroughObjectSpecs);
@@ -81,6 +82,34 @@ public static class TestGenerationParameters
         DotNetNativeTestSuite.AssertTrue(ContainsIssue(issues, "show_traveller_readouts"), "Default ruleset with Traveller readouts should raise an advisory warning");
     }
 
+    private static void TestRulesetProfilesApplyExpectedDefaults()
+    {
+        AssertRulesetDefaults(
+            GenerationUseCaseSettings.RulesetModeType.Traveller,
+            GenerationUseCaseSettings.MainworldPolicyType.Require,
+            true,
+            GenerationUseCaseSettings.LifeFrameworkType.RapidBiospheres,
+            0.58);
+        AssertRulesetDefaults(
+            GenerationUseCaseSettings.RulesetModeType.Cepheus,
+            GenerationUseCaseSettings.MainworldPolicyType.Require,
+            true,
+            GenerationUseCaseSettings.LifeFrameworkType.EarthAnchoredComposite,
+            0.50);
+        AssertRulesetDefaults(
+            GenerationUseCaseSettings.RulesetModeType.Starfinder,
+            GenerationUseCaseSettings.MainworldPolicyType.Prefer,
+            false,
+            GenerationUseCaseSettings.LifeFrameworkType.EnvironmentalWindows,
+            0.60);
+        AssertRulesetDefaults(
+            GenerationUseCaseSettings.RulesetModeType.Starforged,
+            GenerationUseCaseSettings.MainworldPolicyType.Prefer,
+            false,
+            GenerationUseCaseSettings.LifeFrameworkType.EarthAnchoredComposite,
+            0.45);
+    }
+
     private static void TestUseCaseSettingsRoundTripThroughGalaxyConfig()
     {
         GalaxyConfig config = GalaxyConfig.CreateDefault();
@@ -136,6 +165,25 @@ public static class TestGenerationParameters
         }
 
         return false;
+    }
+
+    private static void AssertRulesetDefaults(
+        GenerationUseCaseSettings.RulesetModeType rulesetMode,
+        GenerationUseCaseSettings.MainworldPolicyType expectedMainworldPolicy,
+        bool expectedUwpLikeReadouts,
+        GenerationUseCaseSettings.LifeFrameworkType expectedLifeFramework,
+        double expectedLifePermissiveness)
+    {
+        GenerationUseCaseSettings settings = GenerationUseCaseSettings.CreateDefault();
+        settings.RulesetMode = rulesetMode;
+        settings.ApplyRulesetDefaults();
+        RpgCompatibilityProfile profile = settings.GetCompatibilityProfile();
+
+        DotNetNativeTestSuite.AssertTrue(profile.IsActive, $"{rulesetMode} should resolve to an active compatibility profile");
+        DotNetNativeTestSuite.AssertEqual(expectedMainworldPolicy, settings.MainworldPolicy, $"{rulesetMode} should apply its mainworld default");
+        DotNetNativeTestSuite.AssertEqual(expectedUwpLikeReadouts, settings.ShowTravellerReadouts, $"{rulesetMode} should apply the expected UWP-readout default");
+        DotNetNativeTestSuite.AssertEqual(expectedLifeFramework, settings.LifeFramework, $"{rulesetMode} should apply the expected life framework");
+        DotNetNativeTestSuite.AssertFloatNear(expectedLifePermissiveness, settings.LifePermissiveness, 0.0001, $"{rulesetMode} should apply the expected life permissiveness");
     }
 
     private static GenerationUseCaseSettings CreateTravellerSettings()

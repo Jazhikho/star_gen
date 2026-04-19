@@ -25,6 +25,9 @@ public partial class GenerationUseCaseSettings : RefCounted
     {
         Default = 0,
         Traveller = 1,
+        Cepheus = 2,
+        Starfinder = 3,
+        Starforged = 4,
     }
 
     /// <summary>
@@ -179,23 +182,62 @@ public partial class GenerationUseCaseSettings : RefCounted
     }
 
     /// <summary>
+    /// Returns whether any RPG compatibility override is active.
+    /// </summary>
+    public bool IsRpgOverrideMode()
+    {
+        return RulesetMode != RulesetModeType.Default;
+    }
+
+    /// <summary>
+    /// Resolves the active RPG compatibility profile.
+    /// </summary>
+    public RpgCompatibilityProfile GetCompatibilityProfile()
+    {
+        return RpgCompatibilityProfile.Resolve(RulesetMode);
+    }
+
+    /// <summary>
+    /// Returns whether the active ruleset uses UWP-like readouts.
+    /// </summary>
+    public bool UsesUwpLikeReadouts()
+    {
+        if (ShowTravellerReadouts)
+        {
+            return true;
+        }
+
+        return GetCompatibilityProfile().UsesUwpLikeReadouts;
+    }
+
+    /// <summary>
     /// Applies Traveller-oriented defaults while preserving explicit slider values.
     /// </summary>
     public void ApplyTravellerDefaults()
     {
         RulesetMode = RulesetModeType.Traveller;
-        ShowTravellerReadouts = true;
-        MainworldPolicy = MainworldPolicyType.Require;
-        if (IsApproximatelyNeutral(LifePermissiveness))
+        ApplyRulesetDefaults();
+    }
+
+    /// <summary>
+    /// Applies the defaults for the currently selected ruleset mode.
+    /// </summary>
+    public void ApplyRulesetDefaults()
+    {
+        RpgCompatibilityProfile profile = GetCompatibilityProfile();
+        if (!profile.IsActive)
         {
-            LifeFramework = LifeFrameworkType.RapidBiospheres;
+            return;
         }
 
+        ShowTravellerReadouts = profile.UsesUwpLikeReadouts;
+        MainworldPolicy = profile.RecommendedMainworldPolicy;
+        LifeFramework = profile.RecommendedLifeFramework;
         AbiogenesisModel = AbiogenesisModelType.FollowFramework;
         ComplexLifeModel = ComplexLifeModelType.FollowFramework;
         CivilizationModel = CivilizationModelType.FollowFramework;
         EnvironmentalWindowWeight = EnvironmentalWindowWeightType.FollowFramework;
-        LifePermissiveness = TravellerLifePermissiveness;
+        LifePermissiveness = profile.RecommendedLifePermissiveness;
     }
 
     /// <summary>

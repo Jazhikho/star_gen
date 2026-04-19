@@ -229,6 +229,11 @@ public partial class SystemGenerationScreen : Control
 
 	private void ApplyDefaults()
 	{
+		if (_rulesetModeOption != null)
+		{
+			GenerationUseCasePresentation.PopulateRulesetOptions(_rulesetModeOption);
+		}
+
 		ApplyStellarDefaults();
 		ApplyPlanetaryDefaults();
 		ApplyLifeDefaults();
@@ -252,26 +257,22 @@ public partial class SystemGenerationScreen : Control
 
 	private void OnRulesetModeSelected(long selectedId)
 	{
-		if (selectedId == (long)GenerationUseCaseSettings.RulesetModeType.Traveller)
+		GenerationUseCaseSettings rulesetDefaults = GenerationUseCaseSettings.CreateDefault();
+		rulesetDefaults.RulesetMode = (GenerationUseCaseSettings.RulesetModeType)selectedId;
+		rulesetDefaults.ApplyRulesetDefaults();
+		RpgCompatibilityProfile compatibilityProfile = rulesetDefaults.GetCompatibilityProfile();
+
+		if (_showTravellerReadoutsCheck != null)
 		{
-			if (_showTravellerReadoutsCheck != null)
-			{
-				_showTravellerReadoutsCheck.ButtonPressed = true;
-			}
-
-			if (_mainworldPolicyOption != null)
-			{
-				_mainworldPolicyOption.Select((int)GenerationUseCaseSettings.MainworldPolicyType.Require);
-			}
-
-			if (_generatePopulationCheck != null)
-			{
-				_generatePopulationCheck.ButtonPressed = true;
-			}
-
-			ApplyTravellerDefaultsToControls();
+			_showTravellerReadoutsCheck.ButtonPressed = compatibilityProfile.UsesUwpLikeReadouts;
 		}
 
+		if (_generatePopulationCheck != null && compatibilityProfile.ForcePopulationGeneration)
+		{
+			_generatePopulationCheck.ButtonPressed = true;
+		}
+
+		ApplyRulesetDefaultsToControls(rulesetDefaults);
 		RefreshSummary();
 	}
 
@@ -375,12 +376,29 @@ public partial class SystemGenerationScreen : Control
 			settings.MainworldPolicy = (GenerationUseCaseSettings.MainworldPolicyType)_mainworldPolicyOption.GetSelectedId();
 		}
 
+		if (settings.GetCompatibilityProfile().UsesUwpLikeReadouts)
+		{
+			settings.ShowTravellerReadouts = true;
+		}
+
 		return settings;
 	}
 
 	private void ApplyTravellerDefaultsToControls()
 	{
-		ApplyTravellerLifeDefaultsToControls();
+		GenerationUseCaseSettings settings = GenerationUseCaseSettings.CreateDefault();
+		settings.RulesetMode = GenerationUseCaseSettings.RulesetModeType.Traveller;
+		settings.ApplyRulesetDefaults();
+		ApplyRulesetDefaultsToControls(settings);
+	}
+
+	private void ApplyRulesetDefaultsToControls(GenerationUseCaseSettings settings)
+	{
+		ApplyLifeSettingsToControls(settings);
+		if (_mainworldPolicyOption != null)
+		{
+			_mainworldPolicyOption.Select((int)settings.MainworldPolicy);
+		}
 	}
 
 	private void OnPopulationPermissivenessChanged(double _value)

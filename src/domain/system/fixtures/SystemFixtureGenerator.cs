@@ -44,7 +44,7 @@ public static class SystemFixtureGenerator
         NativeSystemPressureSummary? colonyPressureSummary = null)
     {
         bool generatePopulation = enablePopulation ?? spec.GeneratePopulation;
-        if (spec.UseCaseSettings != null && spec.UseCaseSettings.IsTravellerMode())
+        if (spec.UseCaseSettings != null && spec.UseCaseSettings.GetCompatibilityProfile().ForcePopulationGeneration)
         {
             generatePopulation = true;
             spec.GeneratePopulation = true;

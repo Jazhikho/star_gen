@@ -47,8 +47,7 @@ public static class PopulationLikelihood
         GenerationUseCaseSettings? useCaseSettings = null,
         ColonyPressureContext? pressureContext = null)
     {
-        double permissiveness = GenerationUseCaseSettings.NeutralPermissiveness;
-        return PopulationProbability.CalculateColonyProbability(profile, suitability, permissiveness, pressureContext);
+        return PopulationProbability.CalculateColonyProbability(profile, suitability, useCaseSettings, pressureContext);
     }
 
     /// <summary>

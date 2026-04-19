@@ -270,9 +270,13 @@ public static class PopulationGenerator
         ColonyPressureContext? pressureContext = null)
     {
         double permissiveness = GenerationUseCaseSettings.NeutralPermissiveness;
+        if (useCaseSettings != null)
+        {
+            permissiveness = System.Math.Clamp(useCaseSettings.LifePermissiveness, 0.0, 1.0);
+        }
 
         int count = 1;
-        double adjustedChance = PopulationProbability.CalculateColonyProbability(profile, suitability, permissiveness, pressureContext);
+        double adjustedChance = PopulationProbability.CalculateColonyProbability(profile, suitability, useCaseSettings, pressureContext);
         int maxColonies = 1 + (int)System.Math.Round(3.0 * permissiveness);
         double additionalChance = adjustedChance * Lerp(0.12, 0.40, permissiveness);
         while (count < maxColonies && rng.Randf() < additionalChance)

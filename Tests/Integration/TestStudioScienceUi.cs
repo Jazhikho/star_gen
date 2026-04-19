@@ -40,6 +40,7 @@ public static class TestStudioScienceUi
         Button? planetarySourcesButton = screen.GetNodeOrNull<Button>("MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/PlanetarySection/PlanetaryHeaderRow/PlanetarySourcesButton");
         Button? lifeSourcesButton = screen.GetNodeOrNull<Button>("MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/LifeSection/LifeHeaderRow/LifeSourcesButton");
         OptionButton? lifeFrameworkOption = screen.GetNodeOrNull<OptionButton>("MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/LifeSection/LifeContent/LifeVBox/LifeFrameworkRow/LifeFrameworkOption");
+        OptionButton? rulesetModeOption = screen.GetNodeOrNull<OptionButton>("MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/RulesPanel/MarginContainer/RulesVBox/ScrollContainer/RulesContent/UseCaseSection/RulesetRow/RulesetModeOption");
         OptionButton? abiogenesisOption = screen.GetNodeOrNull<OptionButton>("MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/LifeSection/LifeContent/LifeVBox/AbiogenesisModelRow/AbiogenesisModelOption");
         OptionButton? complexLifeOption = screen.GetNodeOrNull<OptionButton>("MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/LifeSection/LifeContent/LifeVBox/ComplexLifeModelRow/ComplexLifeModelOption");
         OptionButton? civilizationOption = screen.GetNodeOrNull<OptionButton>("MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/LifeSection/LifeContent/LifeVBox/CivilizationModelRow/CivilizationModelOption");
@@ -69,6 +70,7 @@ public static class TestStudioScienceUi
         DotNetNativeTestSuite.AssertNotNull(rulesTitle, "Galaxy screen should expose the rules title label");
         DotNetNativeTestSuite.AssertNotNull(showUwpCheck, "Galaxy screen should expose the UWP code checkbox");
         DotNetNativeTestSuite.AssertNotNull(forceLifeCheck, "Galaxy screen should expose the force-life override checkbox");
+        DotNetNativeTestSuite.AssertNotNull(rulesetModeOption, "Galaxy screen should expose the ruleset selector");
         DotNetNativeTestSuite.AssertNotNull(gasGiantFormationOption, "Galaxy studio should expose aggregate planetary gas-giant controls");
         DotNetNativeTestSuite.AssertNotNull(moonBiasOption, "Galaxy studio should expose aggregate moon-formation controls");
 
@@ -84,6 +86,9 @@ public static class TestStudioScienceUi
         DotNetNativeTestSuite.AssertTrue(forceLifeCheck!.TooltipText.Contains("Generation override, not a scientific model."), "Galaxy screen should explain that force life is an override");
         DotNetNativeTestSuite.AssertTrue(OptionContainsText(lifeFrameworkOption!, "Earth-Anchored Composite"), "Galaxy screen should expose the Earth-Anchored Composite life framework");
         DotNetNativeTestSuite.AssertTrue(OptionContainsText(lifeFrameworkOption, "Rapid Biospheres"), "Galaxy screen should expose the Rapid Biospheres life framework");
+        DotNetNativeTestSuite.AssertTrue(OptionContainsText(rulesetModeOption!, "Cepheus"), "Galaxy screen should expose the Cepheus compatibility profile");
+        DotNetNativeTestSuite.AssertTrue(OptionContainsText(rulesetModeOption, "Starfinder"), "Galaxy screen should expose the Starfinder compatibility profile");
+        DotNetNativeTestSuite.AssertTrue(OptionContainsText(rulesetModeOption, "Starforged"), "Galaxy screen should expose the Starforged compatibility profile");
         DotNetNativeTestSuite.AssertTrue(OptionContainsText(abiogenesisOption!, "Rapid Start"), "Galaxy screen should expose the Rapid Start abiogenesis model");
         DotNetNativeTestSuite.AssertTrue(OptionContainsText(complexLifeOption!, "Rare Earth Filters"), "Galaxy screen should expose the Rare Earth Filters complex-life model");
         DotNetNativeTestSuite.AssertTrue(OptionContainsText(civilizationOption!, "Technosphere Oxygen Bottleneck"), "Galaxy screen should expose the technosphere bottleneck civilization model");
@@ -138,6 +143,7 @@ public static class TestStudioScienceUi
         OptionButton? complexLifeOption = screen.GetNodeOrNull<OptionButton>("MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/LifeSection/LifeContent/LifeVBox/ComplexLifeModelRow/ComplexLifeModelOption");
         OptionButton? civilizationOption = screen.GetNodeOrNull<OptionButton>("MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/LifeSection/LifeContent/LifeVBox/CivilizationModelRow/CivilizationModelOption");
         OptionButton? windowWeightOption = screen.GetNodeOrNull<OptionButton>("MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/LifeSection/LifeContent/LifeVBox/EnvironmentalWindowWeightRow/EnvironmentalWindowWeightOption");
+        OptionButton? rulesetModeOption = screen.GetNodeOrNull<OptionButton>("MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/RulesPanel/MarginContainer/RulesVBox/ScrollContainer/RulesContent/RulesetModeRow/RulesetModeOption");
         Label? rulesTitle = screen.GetNodeOrNull<Label>("MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/RulesPanel/MarginContainer/RulesVBox/RulesTitle");
         CheckBox? showUwpCheck = screen.GetNodeOrNull<CheckBox>("MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/RulesPanel/MarginContainer/RulesVBox/ScrollContainer/RulesContent/ShowTravellerReadoutsCheck");
         CheckBox? forceLifeCheck = screen.GetNodeOrNull<CheckBox>("MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/RulesPanel/MarginContainer/RulesVBox/ScrollContainer/RulesContent/ForceLifeOnSupportableWorldsCheck");
@@ -157,6 +163,7 @@ public static class TestStudioScienceUi
         DotNetNativeTestSuite.AssertNotNull(complexLifeOption, "System studio should expose the complex-life selector");
         DotNetNativeTestSuite.AssertNotNull(civilizationOption, "System studio should expose the civilization selector");
         DotNetNativeTestSuite.AssertNotNull(windowWeightOption, "System studio should expose the environmental-window selector");
+        DotNetNativeTestSuite.AssertNotNull(rulesetModeOption, "System studio should expose the ruleset selector");
         DotNetNativeTestSuite.AssertNotNull(rulesTitle, "System studio should expose the rules title");
         DotNetNativeTestSuite.AssertNotNull(showUwpCheck, "System studio should expose the Show UWP Code checkbox");
         DotNetNativeTestSuite.AssertNotNull(forceLifeCheck, "System studio should expose the force-life override checkbox");
@@ -165,6 +172,9 @@ public static class TestStudioScienceUi
         DotNetNativeTestSuite.AssertTrue(forceLifeCheck!.TooltipText.Contains("Generation override, not a scientific model."), "System studio should explain that force life is an override");
         DotNetNativeTestSuite.AssertTrue(OptionContainsText(lifeFrameworkOption!, "Earth-Anchored Composite"), "System studio should expose the Earth-Anchored Composite life framework");
         DotNetNativeTestSuite.AssertFalse(OptionContainsText(lifeFrameworkOption, "Earth History"), "System studio should not expose the old Earth History label");
+        DotNetNativeTestSuite.AssertTrue(OptionContainsText(rulesetModeOption!, "Cepheus"), "System studio should expose the Cepheus compatibility profile");
+        DotNetNativeTestSuite.AssertTrue(OptionContainsText(rulesetModeOption, "Starfinder"), "System studio should expose the Starfinder compatibility profile");
+        DotNetNativeTestSuite.AssertTrue(OptionContainsText(rulesetModeOption, "Starforged"), "System studio should expose the Starforged compatibility profile");
 
         starCountMaxInput.Value = 10.0;
         SelectOptionById(envelopeLossOption!, (int)PlanetEnvelopeLossModel.CorePowered);
@@ -251,6 +261,9 @@ public static class TestStudioScienceUi
         DotNetNativeTestSuite.AssertNotNull(showTravellerReadoutsRow, "Traveller readout control should exist in the rules panel");
         DotNetNativeTestSuite.AssertNotNull(showTravellerReadoutsLabel, "Object studio should expose the Show UWP Code row label");
         DotNetNativeTestSuite.AssertNotNull(showTravellerReadoutsCheck, "Object studio should expose the Show UWP Code checkbox");
+        DotNetNativeTestSuite.AssertTrue(OptionContainsText(rulesetOption!, "Cepheus"), "Object studio should expose the Cepheus compatibility profile");
+        DotNetNativeTestSuite.AssertTrue(OptionContainsText(rulesetOption, "Starfinder"), "Object studio should expose the Starfinder compatibility profile");
+        DotNetNativeTestSuite.AssertTrue(OptionContainsText(rulesetOption, "Starforged"), "Object studio should expose the Starforged compatibility profile");
         DotNetNativeTestSuite.AssertNotNull(planetGenerateMoonRow, "Planet controls should include a moon checkbox");
         DotNetNativeTestSuite.AssertNotNull(moonTargetCountRow, "Planet controls should include a moon target-count row");
         DotNetNativeTestSuite.AssertNotNull(moonCapturedRow, "Planet controls should include a captured moon row");

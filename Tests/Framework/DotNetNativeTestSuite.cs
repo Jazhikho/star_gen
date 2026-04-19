@@ -2404,6 +2404,9 @@ public static partial class DotNetNativeTestSuite
             "TestSystemPlanetGenerator::test_otegi_falls_back_to_chen_kipping_for_giants",
             Tests.Unit.TestSystemPlanetGenerator.TestOtegiFallsBackToChenKippingForGiants);
         runner.RunNativeTest(
+            "TestSystemPlanetGenerator::test_compatibility_profiles_shift_system_fill_pressure",
+            Tests.Unit.TestSystemPlanetGenerator.TestCompatibilityProfilesShiftSystemFillPressure);
+        runner.RunNativeTest(
             "TestSystemPlanetGenerator::test_envelope_loss_model_changes_hot_planet_atmospheres",
             Tests.Unit.TestSystemPlanetGenerator.TestEnvelopeLossModelChangesHotPlanetAtmospheres);
         runner.RunNativeTest(

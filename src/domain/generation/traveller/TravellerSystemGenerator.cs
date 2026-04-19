@@ -11,12 +11,12 @@ using StarGen.Domain.Systems;
 namespace StarGen.Domain.Generation.Traveller;
 
 /// <summary>
-/// Applies Traveller mainworld takeover to a generated system while keeping non-mainworld bodies on the realistic path.
+/// Applies a UWP-compatible mainworld takeover to a generated system while keeping non-mainworld bodies on the realistic path.
 /// </summary>
 public static class TravellerSystemGenerator
 {
     /// <summary>
-    /// Applies Traveller generation to the selected mainworld when Traveller mode is active.
+    /// Applies UWP-compatible mainworld generation to the selected mainworld when the active override uses UWP-like readouts.
     /// </summary>
     public static void ApplyTravellerMainworld(SolarSystem? system)
     {
@@ -26,7 +26,7 @@ public static class TravellerSystemGenerator
         }
 
         GenerationUseCaseSettings? settings = ResolveUseCaseSettings(system);
-        if (settings == null || !settings.IsTravellerMode())
+        if (settings == null || !settings.UsesUwpLikeReadouts())
         {
             system.TravellerProfile = null;
             return;

@@ -30,7 +30,7 @@ public static class GalaxySystemGenerator
         }
 
         SolarSystemSpec spec = CreateSpecFromStar(star, includeAsteroids, useCaseSettings, galaxy);
-        if (useCaseSettings != null && useCaseSettings.IsTravellerMode())
+        if (useCaseSettings != null && useCaseSettings.GetCompatibilityProfile().ForcePopulationGeneration)
         {
             spec.GeneratePopulation = true;
         }

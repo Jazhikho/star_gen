@@ -9,7 +9,7 @@ public static class ObjectGenerationParameterCatalog
 {
     private static readonly Dictionary<string, string> Tooltips = new()
     {
-        ["ruleset_mode"] = "Realistic keeps StarGen's normal direct object generation.\nSpace Opera enables RPG-facing shortcuts like Traveller world-profile shaping where supported.",
+        ["ruleset_mode"] = "Realistic keeps StarGen's normal direct object generation.\nSpace Opera, Cepheus, Starfinder, and Starforged set compatibility-oriented defaults when the object path supports them.\nOnly Space Opera currently exposes pre-body world-profile shaping in Object Studio.",
         ["show_traveller_readouts"] = "Shows Universal World Profile code when the generated object has enough information to derive one.\nThis changes the readout, not the physical body by itself.",
         ["use_traveller_world_profile"] = "Build a Traveller-style world profile first, then map that profile into the generated planet.\nUse this when you want an RPG-facing mainworld rather than a purely physical roll.",
         ["traveller_size_code"] = "This directly biases the Traveller size code used before planet generation.\nLeave it on Auto if you want the preset and seed to decide.",

@@ -63,6 +63,7 @@ public static class PopulationProbability
         }
 
         double permissiveness = ResolveLifePermissiveness(useCaseSettings);
+        RpgCompatibilityProfile compatibilityProfile = ResolveCompatibilityProfile(useCaseSettings);
         double probability = assessment.AbiogenesisChance;
 
         if (profile.IsTidallyLocked)
@@ -85,6 +86,7 @@ public static class PopulationProbability
             probability += Lerp(0.01, TidalHeatingBonus + 0.04, permissiveness);
         }
 
+        probability *= compatibilityProfile.NativeLifeProbabilityMultiplier;
         return System.Math.Clamp(probability, 0.0, MaxNativeProbability);
     }
 
@@ -195,6 +197,22 @@ public static class PopulationProbability
         return System.Math.Clamp(probability, 0.0, MaxColonyProbability);
     }
 
+    /// <summary>
+    /// Calculates the probability that colonization is attempted using active use-case settings.
+    /// </summary>
+    public static double CalculateColonyProbability(
+        PlanetProfile profile,
+        ColonySuitability suitability,
+        GenerationUseCaseSettings? settings,
+        ColonyPressureContext? pressureContext = null)
+    {
+        double permissiveness = ResolveLifePermissiveness(settings);
+        double probability = CalculateColonyProbability(profile, suitability, permissiveness, pressureContext);
+        RpgCompatibilityProfile compatibilityProfile = ResolveCompatibilityProfile(settings);
+        probability *= compatibilityProfile.ColonyProbabilityMultiplier;
+        return System.Math.Clamp(probability, 0.0, MaxColonyProbability);
+    }
+
     private static double Normalize(double value, double minValue, double maxValue)
     {
         if (value <= minValue)
@@ -233,6 +251,16 @@ public static class PopulationProbability
         }
 
         return ClampPermissiveness(settings.LifePermissiveness);
+    }
+
+    private static RpgCompatibilityProfile ResolveCompatibilityProfile(GenerationUseCaseSettings? settings)
+    {
+        if (settings == null)
+        {
+            return RpgCompatibilityProfile.Resolve(GenerationUseCaseSettings.RulesetModeType.Default);
+        }
+
+        return settings.GetCompatibilityProfile();
     }
 
     private static double ResolveEffectivePermissiveness(double basePermissiveness, ColonyPressureContext? pressureContext)

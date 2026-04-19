@@ -1,6 +1,7 @@
 #nullable enable annotations
 #nullable disable warnings
 using System;
+using StarGen.Domain.Generation;
 using StarGen.Domain.Population;
 using StarGen.Domain.Rng;
 using StarGen.Tests.Framework;
@@ -313,6 +314,46 @@ public static class TestPopulationProbability
         DotNetNativeTestSuite.AssertFloatNear(0.0, strictProbability, 0.001, "Strict settings without native pressure should still reject harsh targets");
         DotNetNativeTestSuite.AssertTrue(pressuredProbability > strictProbability, "Native pressure should raise colony probability");
         DotNetNativeTestSuite.AssertTrue(pressuredProbability > 0.0, "Strong native pressure should make at least some harsh targets colonizable");
+    }
+
+    /// <summary>
+    /// Tests that RPG compatibility profiles materially change colony and native-life pressure.
+    /// </summary>
+    public static void TestCompatibilityProfilesAffectPopulationPressure()
+    {
+        PlanetProfile profile = new();
+        profile.BodyId = "temperate_world";
+        profile.HabitabilityScore = 5;
+        profile.HasLiquidWater = true;
+        profile.HasAtmosphere = true;
+        profile.HasBreathableAtmosphere = false;
+        profile.PressureAtm = 0.9;
+        profile.OceanCoverage = 0.30;
+        profile.GravityG = 0.95;
+        profile.AvgTemperatureK = 296.0;
+        profile.RadiationLevel = 0.22;
+
+        ColonySuitability suitability = new();
+        suitability.OverallScore = 42;
+        suitability.RequiresLifeSupport = false;
+        suitability.RequiresPressureSuit = false;
+        suitability.RequiresRadiationShielding = false;
+
+        GenerationUseCaseSettings defaultSettings = GenerationUseCaseSettings.CreateDefault();
+        GenerationUseCaseSettings spaceOperaSettings = GenerationUseCaseSettings.CreateDefault();
+        spaceOperaSettings.RulesetMode = GenerationUseCaseSettings.RulesetModeType.Traveller;
+        spaceOperaSettings.ApplyRulesetDefaults();
+        GenerationUseCaseSettings starforgedSettings = GenerationUseCaseSettings.CreateDefault();
+        starforgedSettings.RulesetMode = GenerationUseCaseSettings.RulesetModeType.Starforged;
+        starforgedSettings.ApplyRulesetDefaults();
+
+        double defaultNativeProbability = PopulationProbability.CalculateNativeProbability(profile, defaultSettings);
+        double spaceOperaNativeProbability = PopulationProbability.CalculateNativeProbability(profile, spaceOperaSettings);
+        double defaultColonyProbability = PopulationProbability.CalculateColonyProbability(profile, suitability, defaultSettings);
+        double starforgedColonyProbability = PopulationProbability.CalculateColonyProbability(profile, suitability, starforgedSettings);
+
+        DotNetNativeTestSuite.AssertTrue(spaceOperaNativeProbability > defaultNativeProbability, "Space Opera should raise native-life pressure on supportable marginal worlds");
+        DotNetNativeTestSuite.AssertTrue(defaultColonyProbability > starforgedColonyProbability, "Starforged should apply lower colony pressure than the default profile");
     }
 
     /// <summary>
