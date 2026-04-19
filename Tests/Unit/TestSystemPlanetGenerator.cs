@@ -452,6 +452,53 @@ public static class TestSystemPlanetGenerator
     }
 
     /// <summary>
+    /// Tests that higher rogue-world allowance materially nudges the system toward more low-mass disrupted outcomes.
+    /// </summary>
+    public static void TestRogueAllowanceChangesLowMassOutcomeBias()
+    {
+        OrbitHost host = CreateTestHost();
+        CelestialBody star = CreateTestStar();
+        Array<OrbitSlot> orderlySlots = CreateTestSlots(host, 20);
+        Array<OrbitSlot> disruptedSlots = CreateTestSlots(host, 20);
+        SolarSystemSpec orderlySpec = new SolarSystemSpec(3636, 1, 1)
+        {
+            PlanetaryProfile = new PlanetaryGenerationProfile
+            {
+                RoguePlanetAllowance = PlanetRoguePlanetAllowance.Off,
+            },
+        };
+        SolarSystemSpec disruptedSpec = new SolarSystemSpec(3636, 1, 1)
+        {
+            PlanetaryProfile = new PlanetaryGenerationProfile
+            {
+                RoguePlanetAllowance = PlanetRoguePlanetAllowance.Standard,
+            },
+        };
+
+        PlanetGenerationResult orderlyResult = SystemPlanetGenerator.GenerateTargeted(
+            orderlySlots,
+            new Array<OrbitHost> { host },
+            new Array<CelestialBody> { star },
+            12,
+            new SeededRng(3636),
+            systemSpec: orderlySpec);
+        PlanetGenerationResult disruptedResult = SystemPlanetGenerator.GenerateTargeted(
+            disruptedSlots,
+            new Array<OrbitHost> { host },
+            new Array<CelestialBody> { star },
+            12,
+            new SeededRng(3636),
+            systemSpec: disruptedSpec);
+
+        int orderlyLowMassCount = CountLowMassPlanets(orderlyResult.Planets);
+        int disruptedLowMassCount = CountLowMassPlanets(disruptedResult.Planets);
+        if (disruptedLowMassCount < orderlyLowMassCount)
+        {
+            throw new InvalidOperationException("Higher rogue-world allowance should not reduce the generator's low-mass disrupted-planet bias on the same seeded slot set.");
+        }
+    }
+
+    /// <summary>
     /// Tests that direct single-planet rogue mode removes the final parent orbit.
     /// </summary>
     public static void TestDirectPlanetRogueModeClearsOrbit()
@@ -605,6 +652,21 @@ public static class TestSystemPlanetGenerator
             }
 
             if (planet.Surface.Hydrosphere!.OceanCoverage >= 0.20)
+            {
+                count += 1;
+            }
+        }
+
+        return count;
+    }
+
+    private static int CountLowMassPlanets(Array<CelestialBody> planets)
+    {
+        int count = 0;
+        foreach (CelestialBody planet in planets)
+        {
+            double massEarth = planet.Physical.MassKg / Units.EarthMassKg;
+            if (massEarth <= 1.2)
             {
                 count += 1;
             }

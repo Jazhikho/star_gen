@@ -135,6 +135,9 @@ public static partial class DotNetNativeTestSuite
         runner.RunNativeTest("TestBiologySupportEvaluator::test_high_xuv_penalizes_biosphere_support", TestBiologySupportEvaluator.TestHighXuvPenalizesBiosphereSupport);
         runner.RunNativeTest("TestBiologySupportEvaluator::test_moderate_tidal_heating_supports_icy_moon_biology", TestBiologySupportEvaluator.TestModerateTidalHeatingSupportsIcyMoonBiology);
         runner.RunNativeTest("TestBiologySupportEvaluator::test_extreme_tidal_heating_hurts_moon_complex_life", TestBiologySupportEvaluator.TestExtremeTidalHeatingHurtsMoonComplexLife);
+        runner.RunNativeTest("TestBiologySupportEvaluator::test_rapid_start_raises_abiogenesis_without_direct_civilization_boost", TestBiologySupportEvaluator.TestRapidStartRaisesAbiogenesisWithoutDirectCivilizationBoost);
+        runner.RunNativeTest("TestBiologySupportEvaluator::test_technosphere_bottleneck_suppresses_civilization_later_than_sentience", TestBiologySupportEvaluator.TestTechnosphereBottleneckSuppressesCivilizationLaterThanSentience);
+        runner.RunNativeTest("TestBiologySupportEvaluator::test_population_summary_distinguishes_sentience_from_civilization", TestBiologySupportEvaluator.TestPopulationSummaryDistinguishesSentienceFromCivilization);
 
         runner.RunNativeTest("TestColonySuitability::test_creation", TestColonySuitability.TestCreation);
         runner.RunNativeTest("TestColonySuitability::test_get_category_ranges", TestColonySuitability.TestGetCategoryRanges);

@@ -101,7 +101,7 @@ public static class LifePotentialModeling
         double supportThresholdOffset = ResolveSupportThresholdOffset(framework);
         double abiogenesisMultiplier = ResolveAbiogenesisMultiplier(abiogenesisModel, stabilityWindow);
         double complexLifeMultiplier = ResolveComplexLifeMultiplier(complexLifeModel, stabilityWindow);
-        double sentienceMultiplier = ResolveSentienceMultiplier(complexLifeModel, civilizationModel, stabilityWindow);
+        double sentienceMultiplier = ResolveSentienceMultiplier(complexLifeModel, stabilityWindow);
         double civilizationMultiplier = ResolveCivilizationMultiplier(civilizationModel, stabilityWindow);
         double environmentalWindowMultiplier = ResolveEnvironmentalWindowMultiplier(environmentalWindowWeight, stabilityWindow);
         bool requiresBreathableAtmosphereForComplexLife = complexLifeModel != GenerationUseCaseSettings.ComplexLifeModelType.FollowFramework
@@ -278,28 +278,15 @@ public static class LifePotentialModeling
 
     private static double ResolveSentienceMultiplier(
         GenerationUseCaseSettings.ComplexLifeModelType complexLifeModel,
-        GenerationUseCaseSettings.CivilizationModelType civilizationModel,
         double stabilityWindow)
     {
-        double multiplier = complexLifeModel switch
+        return complexLifeModel switch
         {
             GenerationUseCaseSettings.ComplexLifeModelType.EnvironmentalWindows => 0.78 + (0.44 * stabilityWindow),
             GenerationUseCaseSettings.ComplexLifeModelType.RareEarthFilters => 0.28 + (0.22 * stabilityWindow),
             GenerationUseCaseSettings.ComplexLifeModelType.EarthAnchoredComposite => 0.86 + (0.18 * stabilityWindow),
             _ => 1.0,
         };
-
-        if (civilizationModel == GenerationUseCaseSettings.CivilizationModelType.RareCivilizations)
-        {
-            multiplier *= 0.72;
-        }
-
-        if (civilizationModel == GenerationUseCaseSettings.CivilizationModelType.TechnosphereOxygenBottleneck)
-        {
-            multiplier *= 0.90;
-        }
-
-        return multiplier;
     }
 
     private static double ResolveCivilizationMultiplier(

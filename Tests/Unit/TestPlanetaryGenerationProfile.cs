@@ -130,6 +130,11 @@ public static class TestPlanetaryGenerationProfile
     /// </summary>
     public static void TestReferenceCatalogCoversExposedParameters()
     {
+        foreach (PlanetaryScienceParameterReference reference in PlanetaryScienceReferenceCatalog.GetParameterReferences())
+        {
+            DotNetNativeTestSuite.AssertTrue(reference.SourceIds.Count > 0, $"planetary science parameter '{reference.ParameterId}' should resolve at least one source");
+        }
+
         foreach (GenerationParameterDefinition definition in GenerationParameterCatalog.GetGalaxyDefinitions())
         {
             if (!definition.Id.StartsWith("planet_"))

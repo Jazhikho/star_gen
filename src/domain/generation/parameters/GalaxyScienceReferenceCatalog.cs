@@ -97,6 +97,18 @@ public static class GalaxyScienceReferenceCatalog
             "diazgarcia2016",
             "Diaz-Garcia et al. (2016), nearby barred-disk fractions and bar-strength caveats.",
             "https://www.oulu.fi/astronomy/S4G_BARFORCE/AA_astroph_paper_bars_2015_diazgarcia_simon.pdf"),
+        ["hart2017"] = new GalaxyScienceSource(
+            "hart2017",
+            "Hart et al. (2017), spiral arm number and pitch-angle trends constrain arm-formation mechanisms.",
+            "https://arxiv.org/abs/1708.04628"),
+        ["lingard2021"] = new GalaxyScienceSource(
+            "lingard2021",
+            "Lingard et al. (2021), pitch-angle behavior is consistent with transient and recurrent spiral winding.",
+            "https://arxiv.org/abs/2105.04500"),
+        ["rodriguezpadilla2013"] = new GalaxyScienceSource(
+            "rodriguezpadilla2013",
+            "Rodriguez and Padilla (2013), intrinsic galaxy shapes and disc ellipticity from SDSS and Galaxy Zoo.",
+            "https://arxiv.org/abs/1306.3264"),
         ["kennicutt1998"] = new GalaxyScienceSource(
             "kennicutt1998",
             "Kennicutt (1998), star-formation surface-density scaling used for cluster scaffolding.",
@@ -132,11 +144,11 @@ public static class GalaxyScienceReferenceCatalog
         new GalaxyScienceParameterReference(
             "num_arms",
             "This sets how many main spiral lanes the disk can have.\nFewer arms make the pattern cleaner.\nMore arms spread star-forming structure around the disk.",
-            System.Array.Empty<string>()),
+            new[] { "hart2017" }),
         new GalaxyScienceParameterReference(
             "arm_pitch_angle_deg",
             "This controls how tightly the arms wrap around the center.\nSmaller values make tightly wound arms.\nLarger values open the arms up and make the disk look looser.",
-            System.Array.Empty<string>()),
+            new[] { "hart2017", "lingard2021" }),
         new GalaxyScienceParameterReference(
             "arm_amplitude",
             "This controls how strongly the arms stand out from the rest of the disk.\nHigher values pack more stars and star-forming activity into the arms instead of spreading them evenly.",
@@ -148,7 +160,7 @@ public static class GalaxyScienceReferenceCatalog
         new GalaxyScienceParameterReference(
             "arm_mechanism_preference",
             "Grand design means a few long, clean arms.\nMulti-armed means several strong arms.\nFlocculent means short, patchy arm pieces.\nThis changes how orderly or broken the spiral pattern looks.",
-            System.Array.Empty<string>()),
+            new[] { "hart2017", "lingard2021" }),
         new GalaxyScienceParameterReference(
             "halo_mass_log10_solar",
             "Halo mass is the size of the invisible dark-matter halo holding the galaxy together.\nHigher values usually favor bigger, heavier galaxies.\nLower values trend toward smaller systems and dwarf-like behavior.",
@@ -179,12 +191,12 @@ public static class GalaxyScienceReferenceCatalog
             new[] { "laurikainen2010" }),
         new GalaxyScienceParameterReference(
             "star_density_multiplier",
-            "This is a global crowding knob.\nRaising it makes the whole galaxy feel fuller.\nLowering it makes the whole galaxy feel emptier without removing the science-based shape underneath.",
+            "This is a generator crowding scale layered on top of the science-backed structure.\nRaising it makes the whole galaxy feel fuller.\nLowering it makes it feel emptier without changing the underlying morphology model.",
             new[] { "kennicutt1998" }),
         new GalaxyScienceParameterReference(
             "ellipticity",
             "Ellipticity means how stretched the galaxy looks instead of round.\nHigher values flatten it more.\nLower values keep it rounder.",
-            System.Array.Empty<string>()),
+            new[] { "rodriguezpadilla2013" }),
         new GalaxyScienceParameterReference(
             "irregularity_scale",
             "This controls how lopsided and clumpy an irregular or dwarf galaxy looks.\nRaising it gives you a messier, less symmetric shape.",
@@ -219,6 +231,9 @@ public static class GalaxyScienceReferenceCatalog
         "oohama2009",
         "laurikainen2010",
         "diazgarcia2016",
+        "hart2017",
+        "lingard2021",
+        "rodriguezpadilla2013",
         "kennicutt1998",
         "forgan2017",
         "spitoni2017",

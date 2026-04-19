@@ -2,6 +2,7 @@
 #nullable disable warnings
 using StarGen.Domain.Concepts.Pipeline;
 using StarGen.Domain.Population;
+using StarGen.Domain.Generation;
 using StarGen.Tests.Framework;
 
 namespace StarGen.Tests.Unit.Population;
@@ -71,6 +72,104 @@ public static class TestBiologySupportEvaluator
             $"Excess tidal heating should reduce complex-life odds | moderate={moderateAssessment.ComplexLifeChance:0.000} overheated={overheatedAssessment.ComplexLifeChance:0.000}");
     }
 
+    /// <summary>
+    /// Tests that rapid abiogenesis raises biosphere odds without directly boosting civilization-stage odds.
+    /// </summary>
+    public static void TestRapidStartRaisesAbiogenesisWithoutDirectCivilizationBoost()
+    {
+        PlanetEnvironmentProfile world = CreatePrimeSentientWorld();
+        GenerationUseCaseSettings rapidSettings = CreateLifeSettings(
+            GenerationUseCaseSettings.AbiogenesisModelType.RapidStart,
+            GenerationUseCaseSettings.ComplexLifeModelType.EarthAnchoredComposite,
+            GenerationUseCaseSettings.CivilizationModelType.EarthAnchoredComposite,
+            GenerationUseCaseSettings.EnvironmentalWindowWeightType.Moderate);
+        GenerationUseCaseSettings conservativeSettings = CreateLifeSettings(
+            GenerationUseCaseSettings.AbiogenesisModelType.Conservative,
+            GenerationUseCaseSettings.ComplexLifeModelType.EarthAnchoredComposite,
+            GenerationUseCaseSettings.CivilizationModelType.EarthAnchoredComposite,
+            GenerationUseCaseSettings.EnvironmentalWindowWeightType.Moderate);
+
+        BiologySupportEvaluator.Assessment rapidAssessment = BiologySupportEvaluator.Evaluate(world, rapidSettings);
+        BiologySupportEvaluator.Assessment conservativeAssessment = BiologySupportEvaluator.Evaluate(world, conservativeSettings);
+
+        DotNetNativeTestSuite.AssertTrue(rapidAssessment.AbiogenesisChance > conservativeAssessment.AbiogenesisChance, "Rapid Start should raise abiogenesis chance");
+        DotNetNativeTestSuite.AssertEqual(rapidAssessment.SentienceChance, conservativeAssessment.SentienceChance, "Changing only abiogenesis should not directly alter sentience chance");
+        DotNetNativeTestSuite.AssertEqual(rapidAssessment.CivilizationChance, conservativeAssessment.CivilizationChance, "Changing only abiogenesis should not directly alter civilization chance");
+    }
+
+    /// <summary>
+    /// Tests that the technosphere bottleneck suppresses civilization later than sentience.
+    /// </summary>
+    public static void TestTechnosphereBottleneckSuppressesCivilizationLaterThanSentience()
+    {
+        PlanetEnvironmentProfile world = CreateTemperateWaterWorld();
+        GenerationUseCaseSettings compositeSettings = CreateLifeSettings(
+            GenerationUseCaseSettings.AbiogenesisModelType.Conservative,
+            GenerationUseCaseSettings.ComplexLifeModelType.EarthAnchoredComposite,
+            GenerationUseCaseSettings.CivilizationModelType.EarthAnchoredComposite,
+            GenerationUseCaseSettings.EnvironmentalWindowWeightType.Moderate);
+        GenerationUseCaseSettings bottleneckSettings = CreateLifeSettings(
+            GenerationUseCaseSettings.AbiogenesisModelType.Conservative,
+            GenerationUseCaseSettings.ComplexLifeModelType.EarthAnchoredComposite,
+            GenerationUseCaseSettings.CivilizationModelType.TechnosphereOxygenBottleneck,
+            GenerationUseCaseSettings.EnvironmentalWindowWeightType.Moderate);
+
+        BiologySupportEvaluator.Assessment compositeAssessment = BiologySupportEvaluator.Evaluate(world, compositeSettings);
+        BiologySupportEvaluator.Assessment bottleneckAssessment = BiologySupportEvaluator.Evaluate(world, bottleneckSettings);
+
+        DotNetNativeTestSuite.AssertEqual(compositeAssessment.SentienceChance, bottleneckAssessment.SentienceChance, "Civilization-stage bottlenecks should not directly change sentience chance");
+        DotNetNativeTestSuite.AssertTrue(compositeAssessment.CivilizationChance > bottleneckAssessment.CivilizationChance, "Technosphere bottlenecks should suppress civilization chance");
+    }
+
+    /// <summary>
+    /// Tests that different life stages can now resolve separately for the same class of world.
+    /// </summary>
+    public static void TestPopulationSummaryDistinguishesSentienceFromCivilization()
+    {
+        PlanetEnvironmentProfile world = CreatePrimeSentientWorld();
+        world.BodyId = "stage_split_world";
+        world.BodyName = "Stage Split World";
+
+        bool foundSentientWithoutCivilization = false;
+        bool foundTechnologicalCivilization = false;
+        GenerationUseCaseSettings stageSplitSettings = CreateLifeSettings(
+            GenerationUseCaseSettings.AbiogenesisModelType.RapidStart,
+            GenerationUseCaseSettings.ComplexLifeModelType.EnvironmentalWindows,
+            GenerationUseCaseSettings.CivilizationModelType.EarthAnchoredComposite,
+            GenerationUseCaseSettings.EnvironmentalWindowWeightType.High);
+
+        BiologySupportEvaluator.Assessment assessment = BiologySupportEvaluator.Evaluate(world, stageSplitSettings);
+        DotNetNativeTestSuite.AssertTrue(assessment.SentienceChance > 0.0, "Prime sentient world should retain a non-zero sentience chance");
+        DotNetNativeTestSuite.AssertTrue(assessment.CivilizationChance > 0.0, "Prime sentient world should retain a non-zero civilization chance");
+
+        for (int index = 0; index < 131072; index += 1)
+        {
+            int seed = 60000 + index;
+            double sentienceRoll = PopulationLikelihood.DeriveRollValue(seed, 0x53454E54);
+            double civilizationRoll = PopulationLikelihood.DeriveRollValue(seed, 0x43495649);
+            bool hasSentientLife = sentienceRoll < assessment.SentienceChance;
+            bool hasTechnologicalCivilization = hasSentientLife && civilizationRoll < assessment.CivilizationChance;
+
+            if (hasSentientLife && !hasTechnologicalCivilization)
+            {
+                foundSentientWithoutCivilization = true;
+            }
+
+            if (hasTechnologicalCivilization)
+            {
+                foundTechnologicalCivilization = true;
+            }
+
+            if (foundSentientWithoutCivilization && foundTechnologicalCivilization)
+            {
+                break;
+            }
+        }
+
+        DotNetNativeTestSuite.AssertTrue(foundSentientWithoutCivilization, "A sentient but non-technological outcome should exist for some deterministic seed");
+        DotNetNativeTestSuite.AssertTrue(foundTechnologicalCivilization, "A technological-civilization outcome should still exist for some deterministic seed");
+    }
+
     private static PlanetEnvironmentProfile CreateTemperateWaterWorld()
     {
         return new PlanetEnvironmentProfile
@@ -136,6 +235,56 @@ public static class TestBiologySupportEvaluator
             HasBreathableAtmosphere = false,
             HasMagneticField = false,
             IsMoon = true,
+        };
+    }
+
+    private static PlanetEnvironmentProfile CreatePrimeSentientWorld()
+    {
+        return new PlanetEnvironmentProfile
+        {
+            BodyId = "prime_sentient_world",
+            BodyName = "Prime Sentient World",
+            BodyType = "Planet",
+            HabitabilityScore = 10,
+            AvgTemperatureK = 288.0,
+            StellarAgeYears = 6.4e9,
+            PressureAtm = 1.05,
+            OceanCoverage = 0.42,
+            LandCoverage = 0.54,
+            IceCoverage = 0.04,
+            GravityG = 1.0,
+            TectonicActivity = 0.30,
+            VolcanismLevel = 0.08,
+            WeatherSeverity = 0.12,
+            MagneticFieldStrength = 0.90,
+            RadiationLevel = 0.04,
+            StellarFluxEarth = 1.0,
+            HabitableZoneInnerAu = 0.94,
+            HabitableZoneOuterAu = 1.38,
+            HabitableZoneAlignment = 1.0,
+            XuvExposure = 0.06,
+            HasAtmosphere = true,
+            HasLiquidWater = true,
+            HasBreathableAtmosphere = true,
+            HasMagneticField = true,
+            IsMoon = false,
+        };
+    }
+
+    private static GenerationUseCaseSettings CreateLifeSettings(
+        GenerationUseCaseSettings.AbiogenesisModelType abiogenesisModel,
+        GenerationUseCaseSettings.ComplexLifeModelType complexLifeModel,
+        GenerationUseCaseSettings.CivilizationModelType civilizationModel,
+        GenerationUseCaseSettings.EnvironmentalWindowWeightType environmentalWindowWeight)
+    {
+        return new GenerationUseCaseSettings
+        {
+            LifeFramework = GenerationUseCaseSettings.LifeFrameworkType.EarthAnchoredComposite,
+            AbiogenesisModel = abiogenesisModel,
+            ComplexLifeModel = complexLifeModel,
+            CivilizationModel = civilizationModel,
+            EnvironmentalWindowWeight = environmentalWindowWeight,
+            LifePermissiveness = GenerationUseCaseSettings.GetRecommendedLifePermissiveness(GenerationUseCaseSettings.LifeFrameworkType.EarthAnchoredComposite),
         };
     }
 }

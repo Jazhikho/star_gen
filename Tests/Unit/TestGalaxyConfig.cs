@@ -1,6 +1,7 @@
 #nullable enable annotations
 #nullable disable warnings
 using System;
+using Godot;
 using Godot.Collections;
 using StarGen.Domain.Concepts.Pipeline;
 using StarGen.Domain.Generation;
@@ -120,6 +121,11 @@ public static class TestGalaxyConfig
     /// </summary>
     public static void TestGalaxyScienceReferenceCatalogCoversExposedParameters()
     {
+        foreach (GalaxyScienceParameterReference reference in GalaxyScienceReferenceCatalog.GetParameterReferences())
+        {
+            DotNetNativeTestSuite.AssertTrue(reference.SourceIds.Count > 0, $"galaxy science parameter '{reference.ParameterId}' should resolve at least one source");
+        }
+
         foreach (GenerationParameterDefinition definition in GenerationParameterCatalog.GetGalaxyDefinitions())
         {
             if (string.IsNullOrWhiteSpace(definition.AssumptionText))
@@ -146,6 +152,77 @@ public static class TestGalaxyConfig
     }
 
     /// <summary>
+    /// Tests that spiral arm controls materially change how much of the disk resolves as arm structure.
+    /// </summary>
+    public static void TestArmControlsChangeArmCoverage()
+    {
+        GalaxySpec sparseSpec = BuildSpiralSpec(2, 12.0, 11001);
+        GalaxySpec richSpec = BuildSpiralSpec(6, 28.0, 11001);
+
+        int sparseArmSamples = CountArmSamples(sparseSpec, 7200.0, 180);
+        int richArmSamples = CountArmSamples(richSpec, 7200.0, 180);
+
+        DotNetNativeTestSuite.AssertTrue(richArmSamples > sparseArmSamples, "more open multi-arm spirals should cover more sampled disk positions with arm influence");
+    }
+
+    /// <summary>
+    /// Tests that denser environments bias automatic spiral subtype resolution toward earlier forms.
+    /// </summary>
+    public static void TestEnvironmentDensityBiasChangesResolvedSubtype()
+    {
+        GalaxyConfig quietConfig = GalaxyConfig.CreateMilkyWay();
+        quietConfig.Type = GalaxySpec.GalaxyType.Spiral;
+        quietConfig.SubtypeMode = GalaxySubtypeMode.Automatic;
+        quietConfig.HaloMassLog10Solar = 11.4;
+        quietConfig.EnvironmentDensityIndex = 0.05;
+
+        GalaxyConfig crowdedConfig = GalaxyConfig.CreateMilkyWay();
+        crowdedConfig.Type = GalaxySpec.GalaxyType.Spiral;
+        crowdedConfig.SubtypeMode = GalaxySubtypeMode.Automatic;
+        crowdedConfig.HaloMassLog10Solar = 11.4;
+        crowdedConfig.EnvironmentDensityIndex = 0.95;
+
+        GalaxyRealismProfile quietProfile = GalaxyRealismProfileBuilder.Build(quietConfig, 12001);
+        GalaxyRealismProfile crowdedProfile = GalaxyRealismProfileBuilder.Build(crowdedConfig, 12001);
+
+        DotNetNativeTestSuite.AssertTrue((int)crowdedProfile.ResolvedSubtype < (int)quietProfile.ResolvedSubtype, "crowded environments should bias automatic spiral resolution toward earlier types");
+    }
+
+    /// <summary>
+    /// Tests that ellipticity materially changes the resolved axis ratio for elliptical galaxies.
+    /// </summary>
+    public static void TestEllipticityChangesEllipticalAxisRatio()
+    {
+        GalaxySpec rounderSpec = BuildEllipticalSpec(0.05, 13001);
+        GalaxySpec flatterSpec = BuildEllipticalSpec(0.35, 13001);
+
+        EllipticalDensityModel rounderModel = new EllipticalDensityModel(rounderSpec);
+        EllipticalDensityModel flatterModel = new EllipticalDensityModel(flatterSpec);
+
+        DotNetNativeTestSuite.AssertTrue(flatterModel.GetAxisRatio() < rounderModel.GetAxisRatio(), "higher ellipticity should lower the resolved minor-axis ratio");
+    }
+
+    /// <summary>
+    /// Tests that steeper metallicity gradients materially reduce outer-disk metallicity.
+    /// </summary>
+    public static void TestMetallicityGradientChangesOuterDiskChemistry()
+    {
+        GalaxySpec steepSpec = BuildSpiralSpec(4, 18.0, 14001);
+        steepSpec.MetallicityGradientDexPerKpc = -0.08;
+        steepSpec.RealismProfile!.MetallicityGradientDexPerKpc = -0.08;
+
+        GalaxySpec shallowSpec = BuildSpiralSpec(4, 18.0, 14001);
+        shallowSpec.MetallicityGradientDexPerKpc = -0.015;
+        shallowSpec.RealismProfile!.MetallicityGradientDexPerKpc = -0.015;
+
+        Vector3 outerDiskPosition = new Vector3(11000.0f, 0.0f, 0.0f);
+        GalaxyOriginContext steepContext = GalaxyScientificFieldEvaluator.Evaluate(outerDiskPosition, steepSpec);
+        GalaxyOriginContext shallowContext = GalaxyScientificFieldEvaluator.Evaluate(outerDiskPosition, shallowSpec);
+
+        DotNetNativeTestSuite.AssertTrue(steepContext.MetallicityPrior < shallowContext.MetallicityPrior, "steeper metallicity gradients should reduce outer-disk metallicity more strongly");
+    }
+
+    /// <summary>
     /// Tests that the galaxy help copy explains both terms and practical outcomes in plain language.
     /// </summary>
     public static void TestGalaxyScienceHelpUsesPlainLanguage()
@@ -163,6 +240,18 @@ public static class TestGalaxyConfig
     /// </summary>
     public static void TestLifeScienceReferenceCatalogCoversLifeModels()
     {
+        foreach (LifeScienceParameterReference reference in new[]
+        {
+            new LifeScienceParameterReference("life_framework", LifeScienceReferenceCatalog.GetTooltipSummary("life_framework"), LifeScienceReferenceCatalog.GetParameterSourceIds("life_framework")),
+            new LifeScienceParameterReference("abiogenesis_model", LifeScienceReferenceCatalog.GetTooltipSummary("abiogenesis_model"), LifeScienceReferenceCatalog.GetParameterSourceIds("abiogenesis_model")),
+            new LifeScienceParameterReference("complex_life_model", LifeScienceReferenceCatalog.GetTooltipSummary("complex_life_model"), LifeScienceReferenceCatalog.GetParameterSourceIds("complex_life_model")),
+            new LifeScienceParameterReference("civilization_model", LifeScienceReferenceCatalog.GetTooltipSummary("civilization_model"), LifeScienceReferenceCatalog.GetParameterSourceIds("civilization_model")),
+            new LifeScienceParameterReference("environmental_window_weight", LifeScienceReferenceCatalog.GetTooltipSummary("environmental_window_weight"), LifeScienceReferenceCatalog.GetParameterSourceIds("environmental_window_weight")),
+        })
+        {
+            DotNetNativeTestSuite.AssertTrue(reference.SourceIds.Count > 0, $"life science parameter '{reference.ParameterId}' should resolve at least one source");
+        }
+
         GenerationParameterDefinition? lifeFrameworkDefinition = null;
         GenerationParameterDefinition? abiogenesisDefinition = null;
         GenerationParameterDefinition? civilizationDefinition = null;
@@ -264,5 +353,55 @@ public static class TestGalaxyConfig
         DotNetNativeTestSuite.AssertTrue(rapidAssessment.ComplexLifeChance > rareAssessment.ComplexLifeChance, "Rapid-biosphere model should remain more permissive than rare-complex-life for complex ecosystems");
         DotNetNativeTestSuite.AssertTrue(rapidAssessment.SentienceChance > rareAssessment.SentienceChance, "Rapid-biosphere model should permit higher sentience odds than rare-complex-life");
         DotNetNativeTestSuite.AssertTrue(rapidAssessment.CivilizationChance > rareAssessment.CivilizationChance, "Rapid-biosphere model should remain more permissive than rare-complex-life for civilizations");
+    }
+
+    private static GalaxySpec BuildSpiralSpec(int numArms, double pitchAngleDeg, int seed)
+    {
+        GalaxyConfig config = GalaxyConfig.CreateMilkyWay();
+        config.Type = GalaxySpec.GalaxyType.Spiral;
+        config.NumArms = numArms;
+        config.ArmPitchAngleDeg = pitchAngleDeg;
+        config.ArmAmplitude = 0.40;
+
+        GalaxySpec spec = new GalaxySpec
+        {
+            GalaxySeed = seed,
+        };
+        config.ApplyToSpec(spec);
+        return spec;
+    }
+
+    private static GalaxySpec BuildEllipticalSpec(double ellipticity, int seed)
+    {
+        GalaxyConfig config = GalaxyConfig.CreateMilkyWay();
+        config.Type = GalaxySpec.GalaxyType.Elliptical;
+        config.Ellipticity = ellipticity;
+
+        GalaxySpec spec = new GalaxySpec
+        {
+            GalaxySeed = seed,
+        };
+        config.ApplyToSpec(spec);
+        return spec;
+    }
+
+    private static int CountArmSamples(GalaxySpec spec, double radiusPc, int sampleCount)
+    {
+        int hits = 0;
+        for (int index = 0; index < sampleCount; index += 1)
+        {
+            double theta = (Math.PI * 2.0 * index) / sampleCount;
+            Vector3 sample = new Vector3(
+                (float)(Math.Cos(theta) * radiusPc),
+                0.0f,
+                (float)(Math.Sin(theta) * radiusPc));
+            GalaxyOriginContext context = GalaxyScientificFieldEvaluator.Evaluate(sample, spec);
+            if (context.RegionKind == GalaxyRegionKind.SpiralArm)
+            {
+                hits += 1;
+            }
+        }
+
+        return hits;
     }
 }

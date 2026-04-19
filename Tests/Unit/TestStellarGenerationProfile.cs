@@ -64,6 +64,11 @@ public static class TestStellarGenerationProfile
     /// </summary>
     public static void TestReferenceCatalogCoversExposedParameters()
     {
+        foreach (StellarScienceParameterReference reference in StellarScienceReferenceCatalog.GetParameterReferences())
+        {
+            DotNetNativeTestSuite.AssertTrue(reference.SourceIds.Count > 0, $"stellar science parameter '{reference.ParameterId}' should resolve at least one source");
+        }
+
         foreach (GenerationParameterDefinition definition in GenerationParameterCatalog.GetGalaxyDefinitions())
         {
             if (!definition.Id.StartsWith("stellar_"))

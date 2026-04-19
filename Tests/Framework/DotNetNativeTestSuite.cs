@@ -796,6 +796,18 @@ public static partial class DotNetNativeTestSuite
             "TestGalaxyConfig::test_life_models_change_biology_assessment",
             Tests.Unit.TestGalaxyConfig.TestLifeModelsChangeBiologyAssessment);
         runner.RunNativeTest(
+            "TestGalaxyConfig::test_arm_controls_change_arm_coverage",
+            Tests.Unit.TestGalaxyConfig.TestArmControlsChangeArmCoverage);
+        runner.RunNativeTest(
+            "TestGalaxyConfig::test_environment_density_bias_changes_resolved_subtype",
+            Tests.Unit.TestGalaxyConfig.TestEnvironmentDensityBiasChangesResolvedSubtype);
+        runner.RunNativeTest(
+            "TestGalaxyConfig::test_ellipticity_changes_elliptical_axis_ratio",
+            Tests.Unit.TestGalaxyConfig.TestEllipticityChangesEllipticalAxisRatio);
+        runner.RunNativeTest(
+            "TestGalaxyConfig::test_metallicity_gradient_changes_outer_disk_chemistry",
+            Tests.Unit.TestGalaxyConfig.TestMetallicityGradientChangesOuterDiskChemistry);
+        runner.RunNativeTest(
             "TestStellarGenerationProfile::test_round_trip",
             Tests.Unit.TestStellarGenerationProfile.TestRoundTrip);
         runner.RunNativeTest(
@@ -2080,6 +2092,9 @@ public static partial class DotNetNativeTestSuite
             "TestStellarConfigGenerator::test_hierarchy_separations_widen_outward",
             Tests.Unit.TestStellarConfigGenerator.TestHierarchySeparationsWidenOutward);
         runner.RunNativeTest(
+            "TestStellarConfigGenerator::test_multiplicity_scale_changes_average_star_count",
+            Tests.Unit.TestStellarConfigGenerator.TestMultiplicityScaleChangesAverageStarCount);
+        runner.RunNativeTest(
             "TestStellarProps::test_default_values",
             Tests.Unit.TestStellarProps.TestDefaultValues);
         runner.RunNativeTest(
@@ -2391,6 +2406,9 @@ public static partial class DotNetNativeTestSuite
         runner.RunNativeTest(
             "TestSystemPlanetGenerator::test_volatile_delivery_changes_watery_rocky_worlds",
             Tests.Unit.TestSystemPlanetGenerator.TestVolatileDeliveryChangesWateryRockyWorlds);
+        runner.RunNativeTest(
+            "TestSystemPlanetGenerator::test_rogue_allowance_changes_low_mass_outcome_bias",
+            Tests.Unit.TestSystemPlanetGenerator.TestRogueAllowanceChangesLowMassOutcomeBias);
         runner.RunNativeTest(
             "TestSystemPlanetDistributions::test_hot_jupiter_fraction_rare",
             Tests.Unit.TestSystemPlanetDistributions.TestHotJupiterFractionRare);

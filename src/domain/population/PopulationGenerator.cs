@@ -342,7 +342,7 @@ public static class PopulationGenerator
         return minValue + ((maxValue - minValue) * factor);
     }
 
-    private static void PopulateSummaryPreSocietyStates(
+    internal static void PopulateSummaryPreSocietyStates(
         PlanetEnvironmentProfile environmentProfile,
         out EcologyState ecologyState,
         out SpeciesEvolutionState speciesEvolutionState,
@@ -352,8 +352,11 @@ public static class PopulationGenerator
         BiologySupportEvaluator.Assessment biologyAssessment = BiologySupportEvaluator.Evaluate(environmentProfile, useCaseSettings);
         bool supportsBiology = biologyAssessment.IsSupported;
         bool hasSentientLineage = biologyAssessment.SupportsComplexLife
+            && biologyAssessment.SentienceChance > 0.0
+            && PopulationLikelihood.DeriveRollValue(environmentProfile.Seed, 0x53454E54) < biologyAssessment.SentienceChance;
+        bool hasTechnologicalCivilization = hasSentientLineage
             && biologyAssessment.CivilizationChance > 0.0
-            && PopulationLikelihood.DeriveRollValue(environmentProfile.Seed, 0x53454E54) < biologyAssessment.CivilizationChance;
+            && PopulationLikelihood.DeriveRollValue(environmentProfile.Seed, 0x43495649) < biologyAssessment.CivilizationChance;
         string unavailableReason = "Mainline v0.9 parks the detailed concept dependency chain; summary-only biology assessment remains active.";
 
         ecologyState = new EcologyState
@@ -373,11 +376,14 @@ public static class PopulationGenerator
         {
             Status = supportsBiology ? ConceptRunStatus.Generated : ConceptRunStatus.NotApplicable,
             StatusReason = supportsBiology
-                ? hasSentientLineage
+                ? hasTechnologicalCivilization
                     ? unavailableReason
-                    : "A biosphere is possible here, but this seed did not produce a sentient native lineage."
+                    : hasSentientLineage
+                        ? "A sentient lineage emerged here, but it did not cross the later bottlenecks for a technological civilization."
+                        : "A biosphere is possible here, but this seed did not produce a sentient native lineage."
                 : "No supported biosphere is available for sentience assessment.",
             HasSentientLife = hasSentientLineage,
+            HasTechnologicalCivilization = hasTechnologicalCivilization,
             CandidateSpeciesName = environmentProfile.BodyName,
         };
     }
@@ -611,6 +617,7 @@ public static class PopulationGenerator
         }
 
         data.SentienceAssessment.Status = ConceptRunStatus.Generated;
+        data.SentienceAssessment.HasSentientLife = true;
         if (string.IsNullOrWhiteSpace(data.SentienceAssessment.CandidateSpeciesName))
         {
             data.SentienceAssessment.CandidateSpeciesName = data.NativePopulations[0].Name;

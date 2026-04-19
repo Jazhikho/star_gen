@@ -1,6 +1,6 @@
 # Version
 
-Current version: `0.8.10.0`
+Current version: `0.8.11.0`
 
 Current user-facing version: `0.9d`
 
@@ -14,6 +14,13 @@ Versioning method: release/refactor `+0.1`, feature `+0.0.1`, bug fix `+0.0.0.1`
 - Feature: Replaced the single Galaxy Studio life selector with a source-aligned stack for `Life Framework`, `Abiogenesis Model`, `Complex Life Model`, `Civilization Model`, and `Environmental Window Weight`, with separate downstream tuning for biospheres, complex life, sentience, and technological civilizations.
 - Feature: Replaced the vague `Earth History` wording with `Earth-Anchored Composite`, documented it as an explicit synthesis of the reviewed life papers, and moved oxygen or technosphere bottlenecks to the civilization stage instead of treating them as early-life assumptions.
 - Test: Added legacy-compatibility, Galaxy Studio UI, and life-model behavior regressions for the new split life pipeline; `dotnet build StarGen.sln` passed, and the headless harness passed (`1803 / 1803`).
+
+## 0.8.11.0
+
+- Feature: Added `Docs/ScientificParameterAudit.md` as the tracked audit matrix for the shipped galaxy, stellar, planetary, and life science controls, mapping each parameter to its scientific claim, cited sources, consuming generator code, expected outcome change, coverage status, and disposition.
+- Feature: Tightened science-source coverage across Galaxy Studio by adding reviewed citations for arm count, pitch, arm-mechanism framing, and ellipticity, and narrowed generator-facing wording where controls are still bounded StarGen tuning layered on top of the literature-backed model rather than direct laws of nature.
+- Feature: Finished the life-stage separation on the shipped population path so civilization-stage assumptions no longer directly suppress sentience chance, and summary generation now distinguishes sentient-but-non-technological outcomes from technological civilizations.
+- Test: Upgraded source-resolution and materiality coverage for galaxy, stellar, planetary, and life settings, including new directional tests for morphology, multiplicity, rogue-world bias wording, and life-stage separation; `dotnet build StarGen.sln` passed, and the headless harness passed (`1812 / 1812`).
 
 ## 0.8.9.0
 

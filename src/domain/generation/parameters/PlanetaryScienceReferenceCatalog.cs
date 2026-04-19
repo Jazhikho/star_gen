@@ -118,7 +118,7 @@ public static class PlanetaryScienceReferenceCatalog
             new[] { "fischervalenti2005" }),
         new PlanetaryScienceParameterReference(
             "planet_rogue_planet_allowance",
-            "Rogue planets are planets that got kicked out or never stayed in a stable orbit.\nOff favors orderly bound systems.\nRare uses a low free-floating baseline.\nStandard assumes more scattering and ejection.\nChanging this mainly shifts how disrupted the system can become.",
+            "Rogue planets are planets that got kicked out or never stayed in a stable orbit.\nOff favors tidier bound architectures.\nRare uses a low free-floating baseline.\nStandard allows more disturbed low-mass outcomes and ejection pressure.\nThis is an upstream disruption setting, not a full rogue-planet population simulator by itself.",
             new[] { "mroz2020" }),
         new PlanetaryScienceParameterReference(
             "planet_moon_formation_bias",
@@ -225,7 +225,7 @@ public static class PlanetaryScienceReferenceCatalog
             builder,
             "Rogue Allowance",
             "Rogue planets are worlds that do not stay in a normal stable orbit around a star.",
-            "Off favors tidy bound systems. Rare keeps a low ejection baseline close to current free-floating constraints. Standard assumes more scattering and ejection. In practice, this changes how much the generator favors orderly systems versus disturbed ones.");
+            "Off favors tidy bound systems. Rare keeps a low ejection baseline close to current free-floating constraints. Standard assumes more scattering and ejection pressure. In practice, this changes how much the generator favors orderly systems versus disturbed low-mass outcomes. It is not a full stand-alone rogue-population simulator.");
 
         AppendGuideSection(
             builder,

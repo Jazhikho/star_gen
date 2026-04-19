@@ -149,8 +149,8 @@ public static class ConceptDependencyChainGenerator
         assessment.SocialComplexity = ResolveSocialComplexity(species);
         assessment.CommunicationScore = ResolveCommunicationScore(species);
         assessment.ManipulationScore = ResolveManipulationScore(species);
-        bool supportsSentientCivilization = biologyAssessment.CivilizationChance > 0.0;
-        if (supportsSentientCivilization)
+        bool supportsSentience = biologyAssessment.SentienceChance > 0.0;
+        if (supportsSentience)
         {
             double sentienceRoll = DeriveDeterministicRoll(environment.Seed, 0x53454E54);
             assessment.HasSentientLife = speciesEvolutionState.HasSentientCandidate
@@ -158,21 +158,29 @@ public static class ConceptDependencyChainGenerator
                 && assessment.SocialComplexity >= 0.40
                 && assessment.CommunicationScore >= 0.32
                 && assessment.ManipulationScore >= 0.32
-                && sentienceRoll < biologyAssessment.CivilizationChance;
+                && sentienceRoll < biologyAssessment.SentienceChance;
         }
         else
         {
             assessment.HasSentientLife = false;
         }
 
+        assessment.HasTechnologicalCivilization = assessment.HasSentientLife
+            && biologyAssessment.CivilizationChance > 0.0
+            && DeriveDeterministicRoll(environment.Seed, 0x43495649) < biologyAssessment.CivilizationChance;
+
         assessment.Status = ConceptRunStatus.Generated;
-        if (assessment.HasSentientLife)
+        if (assessment.HasTechnologicalCivilization)
         {
-            assessment.StatusReason = "Cognition, communication, and manipulation thresholds support sentient populations.";
+            assessment.StatusReason = "Cognition, communication, manipulation, and later civilization-stage bottlenecks all resolve positively for this world.";
         }
-        else if (!supportsSentientCivilization)
+        else if (assessment.HasSentientLife)
         {
-            assessment.StatusReason = "Complex life may exist, but the current environment is too marginal to support a sentient civilization.";
+            assessment.StatusReason = "A sentient lineage emerges here, but it does not cross the later bottlenecks for a technological civilization.";
+        }
+        else if (!supportsSentience)
+        {
+            assessment.StatusReason = "Complex life may exist, but the current environment is too marginal to support a sentient lineage.";
         }
         else
         {

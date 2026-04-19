@@ -442,6 +442,48 @@ public static class TestStellarConfigGenerator
     }
 
     /// <summary>
+    /// Tests that multiplicity scale materially changes the average star count in the supported direction.
+    /// </summary>
+    public static void TestMultiplicityScaleChangesAverageStarCount()
+    {
+        double lowAverage = CalculateAverageStarCountForMultiplicityScale(0.45, 78000);
+        double highAverage = CalculateAverageStarCountForMultiplicityScale(1.75, 79000);
+
+        if (highAverage <= lowAverage)
+        {
+            throw new InvalidOperationException($"Higher multiplicity scale should increase average star count (low={lowAverage:0.00}, high={highAverage:0.00})");
+        }
+    }
+
+    private static double CalculateAverageStarCountForMultiplicityScale(double multiplicityScale, int baseSeed)
+    {
+        double totalStars = 0.0;
+        const int sampleCount = 96;
+        for (int index = 0; index < sampleCount; index += 1)
+        {
+            int seed = baseSeed + index;
+            SolarSystemSpec spec = new SolarSystemSpec(seed, 1, 6);
+            spec.StellarProfile = new StellarGenerationProfile
+            {
+                ImfForm = StellarImfForm.Kroupa,
+                ImfVariationMode = StellarImfVariationMode.Canonical,
+                IsochroneModel = StellarIsochroneModel.Mist,
+                MultiplicityScale = multiplicityScale,
+            };
+
+            SolarSystem system = StellarConfigGenerator.Generate(spec, new SeededRng(seed));
+            if (system == null)
+            {
+                throw new InvalidOperationException("System should be generated");
+            }
+
+            totalStars += system.GetStarCount();
+        }
+
+        return totalStars / sampleCount;
+    }
+
+    /// <summary>
     /// Legacy parity alias for test_binary_orbit_hosts.
     /// </summary>
     private static void TestBinaryOrbitHosts()
