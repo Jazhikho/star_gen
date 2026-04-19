@@ -1,12 +1,18 @@
 # Version
 
-Current version: `0.8.14.0`
+Current version: `0.8.14.1`
 
 Current user-facing version: `0.9d`
 
 Date: `2026-04-19`
 
 Versioning method: release/refactor `+0.1`, feature `+0.0.1`, bug fix `+0.0.0.1`, save-breaking release `+1.0`.
+
+## 0.8.14.1
+
+- Bug fix: Added a staged Solar-System reference-chain regression that uses the live star, orbit-slot, and planet generators to preflight Sun and the eight major planets, then locks exact Solar values only after each stage remains within the expected Solar-compatible range.
+- Bug fix: The new regression fails loudly by stage (`stellar preflight`, `orbital slot`, and per-planet `candidate`/`lock` stages) so generator drift now points directly to the broken link instead of failing later as a vague count mismatch.
+- Test: Registered the Solar reference-chain regression in the native headless suite and revalidated with `dotnet build StarGen.sln` plus the full Godot headless harness.
 
 ## 0.8.14.0
 

@@ -939,3 +939,14 @@ Use this log for significant AI-assisted artifacts in this repository.
 - Human Changed: The user explicitly constrained the feature so worlds that cannot support life must remain lifeless, which drove the implementation to sit after the support gate instead of bypassing it.
 - Validation Method: `dotnet build StarGen.sln` and `godot-mono.exe --path . --headless --script res://Tests/RunTestsHeadless.gd` (`Total: 1814 | Passed: 1814 | Failed: 0`).
 - Final Approver: Pending Christopher B. Del Gesso review.
+
+### 2026-04-19 - Codex (GPT-5)
+
+- Task Purpose: Add a staged regression that forces a Solar-System-like generation chain through the live system generators and fails loudly at the exact stage where Solar compatibility breaks.
+- Input Materials Used: User request for a Solar System forcing test; `claude.md`; `AGENTS.md`; `Tests/Unit/TestSystemGoldenMasters.cs`; `Tests/Unit/TestSystemPlanetGenerator.cs`; `src/domain/system/fixtures/SystemFixtureGenerator.cs`; `src/domain/system/OrbitSlotGenerator.cs`; `src/domain/generation/specs/StarSpec.cs`; `src/domain/generation/specs/PlanetSpec.cs`; `src/domain/generation/generators/StarGenerator.cs`; `src/domain/generation/generators/PlanetGenerator.cs`; `src/domain/generation/generators/planet/PlanetPhysicalGenerator.cs`; `src/domain/generation/generators/planet/PlanetSurfaceGenerator.cs`; `src/domain/generation/generators/planet/PlanetAtmosphereGenerator.cs`; and the native test-suite registration in `Tests/Framework/DotNetNativeTestSuite.cs`.
+- AI Produced: Added `Tests/Unit/TestSolarSystemReferenceChain.cs`, a staged Solar reference-chain regression that preflights a Sun analogue, matches solar-compatible orbit slots, validates per-planet candidate worlds against Solar-target ranges, then locks exact Solar orbital and physical values only after each stage remains in range; registered the test in the native suite; and updated version/project-structure metadata for `0.8.14.1`.
+- Human Accepted: Pending user review of the staged Solar reference-chain contract and its failure wording.
+- Human Rejected: Did not add Solar-specific branches or overrides to production generation code; the forcing logic is test-only and uses the existing override pathways already honored by the live generators.
+- Human Changed: The user specified that each generation step should only lock exact Solar values after the expected Solar-compatible value remains in range and that failures must point directly to the broken stage.
+- Validation Method: `dotnet build StarGen.sln` and `godot-mono.exe --path . --headless --script res://Tests/RunTestsHeadless.gd` (`Total: 1815 | Passed: 1815 | Failed: 0`). Godot still emitted the repo's known shutdown leak warnings after the green run.
+- Final Approver: Pending Christopher B. Del Gesso review.

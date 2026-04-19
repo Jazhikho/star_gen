@@ -2317,6 +2317,9 @@ public static partial class DotNetNativeTestSuite
             "TestSystemGoldenMasters::test_fixture_serialization_roundtrip",
             Tests.Unit.TestSystemGoldenMasters.TestFixtureSerializationRoundtrip);
         runner.RunNativeTest(
+            "TestSolarSystemReferenceChain::test_solar_reference_chain_builds_expected_system",
+            Tests.Unit.TestSolarSystemReferenceChain.TestSolarReferenceChainBuildsExpectedSystem);
+        runner.RunNativeTest(
             "TestSystemHierarchy::test_empty_hierarchy",
             Tests.Unit.TestSystemHierarchy.TestEmptyHierarchy);
         runner.RunNativeTest(
