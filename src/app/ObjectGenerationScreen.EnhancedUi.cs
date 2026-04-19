@@ -23,6 +23,7 @@ public partial class ObjectGenerationScreen
     private LineEdit? _nameInput;
 
     private VBoxContainer? _planetSection;
+    private VBoxContainer? _lifeSection;
     private OptionButton? _planetOrbitModeOption;
     private OptionButton? _planetClassBiasOption;
     private OptionButton? _planetCompositionBiasOption;
@@ -41,6 +42,11 @@ public partial class ObjectGenerationScreen
     private OptionButton? _planetVolcanismOption;
     private CheckBox? _planetGenerateMoonCheck;
     private OptionButton? _moonTargetCountOption;
+    private OptionButton? _lifeFrameworkOption;
+    private OptionButton? _abiogenesisModelOption;
+    private OptionButton? _complexLifeModelOption;
+    private OptionButton? _civilizationModelOption;
+    private OptionButton? _environmentalWindowWeightOption;
 
     private VBoxContainer? _travellerSection;
     private CheckBox? _useTravellerWorldProfileCheck;
@@ -103,6 +109,7 @@ public partial class ObjectGenerationScreen
         _showAdvancedControlsCheck = GetRequiredCheckBox("ShowAdvancedControlsRow", "ShowAdvancedControlsCheck");
 
         _planetSection = GetOptionalSection("PlanetSection");
+        _lifeSection = GetOptionalSection("LifeSection");
         _travellerSection = GetOptionalSection("TravellerSection");
         _starSection = GetOptionalSection("StarSection");
         _asteroidSection = GetOptionalSection("AsteroidSection");
@@ -179,6 +186,7 @@ public partial class ObjectGenerationScreen
         _rulesetModeOption.AddItem(GenerationUseCasePresentation.RealisticRulesetLabel, (int)GenerationUseCaseSettings.RulesetModeType.Default);
 		_rulesetModeOption.AddItem("Space Opera", (int)GenerationUseCaseSettings.RulesetModeType.Traveller);
         PopulatePlanetSection();
+        PopulateObjectLifeSection();
         PopulateTravellerSection();
         PopulateStarSection();
         PopulateAsteroidSection();
@@ -262,6 +270,7 @@ public partial class ObjectGenerationScreen
         ConnectOptionToSummary(_planetAlbedoProfileOption);
         ConnectOptionToSummary(_planetVolcanismOption);
         ConnectOptionToSummary(_moonTargetCountOption);
+        ConnectObjectLifeSignals();
         ConnectOptionToSummary(_travellerSizeCodeOption);
         ConnectOptionToSummary(_travellerAtmosphereCodeOption);
         ConnectOptionToSummary(_travellerHydrographicsCodeOption);
@@ -324,6 +333,7 @@ public partial class ObjectGenerationScreen
         }
 
         ResetEnhancedOptionalInputs();
+        ApplyObjectLifeDefaults();
         RebuildEnhancedPresetOptions();
         RefreshEnhancedFieldPresentation();
         RefreshEnhancedParameterVisibility();
@@ -350,6 +360,8 @@ public partial class ObjectGenerationScreen
             {
                 _useTravellerWorldProfileCheck.ButtonPressed = true;
             }
+
+            ApplyTravellerObjectLifeDefaultsToControls();
 
         }
         else
@@ -389,6 +401,11 @@ public partial class ObjectGenerationScreen
 
             lines.Add($"Ruleset {GenerationUseCasePresentation.GetRulesetLabel(request.UseCaseSettings.RulesetMode)}");
             lines.Add($"Show UWP Code {(request.UseCaseSettings.ShowTravellerReadouts ? "On" : "Off")}");
+            string lifeSummary = BuildObjectLifeSummary();
+            if (!string.IsNullOrWhiteSpace(lifeSummary))
+            {
+                lines.Add(lifeSummary);
+            }
             if (_planetGenerateMoonCheck != null && _planetGenerateMoonCheck.ButtonPressed)
             {
                 lines.Add($"Moon Target {GetSelectedMoonTargetLabel()}");
@@ -446,6 +463,11 @@ public partial class ObjectGenerationScreen
             settings.ShowTravellerReadouts = false;
         }
 
+        if (GetSelectedObjectType() == ObjectViewer.ObjectType.Planet)
+        {
+            ApplyObjectLifeSettingsFromControls(settings);
+        }
+
         return settings;
     }
 
@@ -460,6 +482,7 @@ public partial class ObjectGenerationScreen
 
         SetEnhancedRowVisible("SeedRow", _showSeedControls);
         SetEnhancedSectionVisible(_planetSection, objectType == ObjectViewer.ObjectType.Planet);
+        SetEnhancedSectionVisible(_lifeSection, objectType == ObjectViewer.ObjectType.Planet);
         SetEnhancedSectionVisible(_travellerSection, objectType == ObjectViewer.ObjectType.Planet && travellerMode);
         SetEnhancedSectionVisible(_starSection, objectType == ObjectViewer.ObjectType.Star);
         SetEnhancedSectionVisible(_asteroidSection, objectType == ObjectViewer.ObjectType.Asteroid);
@@ -566,6 +589,8 @@ public partial class ObjectGenerationScreen
         {
             AddEnhancedIssueLabel("Advanced overrides match the editor override keys.");
         }
+
+        AddPlanetScienceIssueNotes();
     }
 
     private void OnEnhancedAdvancedToggled()
@@ -687,6 +712,39 @@ public partial class ObjectGenerationScreen
         ApplyCatalogTooltip("show_traveller_readouts", "ShowTravellerReadoutsRow", _showTravellerReadoutsCheck);
     }
 
+    private void AddPlanetScienceIssueNotes()
+    {
+        if (GetSelectedObjectType() != ObjectViewer.ObjectType.Planet)
+        {
+            return;
+        }
+
+        Variant atmospherePreference = GetTriStatePreference(_planetAtmosphereOption);
+        bool atmosphereForcedOff = atmospherePreference.VariantType == Variant.Type.Bool && !(bool)atmospherePreference;
+        PlanetEnvelopeOverride envelopeOverride = (PlanetEnvelopeOverride)(_planetEnvelopeOverrideOption?.GetSelectedId() ?? (int)PlanetEnvelopeOverride.Auto);
+        PlanetHydrosphereTendency hydrosphereTendency = (PlanetHydrosphereTendency)(_planetHydrosphereTendencyOption?.GetSelectedId() ?? (int)PlanetHydrosphereTendency.Auto);
+        int oceanCoverageId = _planetOceanCoverageOption?.GetSelectedId() ?? -1;
+        int surfacePressureId = _planetSurfacePressureOption?.GetSelectedId() ?? -1;
+        PlanetClassBias classBias = (PlanetClassBias)(_planetClassBiasOption?.GetSelectedId() ?? (int)PlanetClassBias.Auto);
+        GenerationUseCaseSettings.CivilizationModelType civilizationModel =
+            (GenerationUseCaseSettings.CivilizationModelType)(_civilizationModelOption?.GetSelectedId()
+            ?? (int)GenerationUseCaseSettings.CivilizationModelType.FollowFramework);
+
+        IReadOnlyList<ObjectScienceIssueNote> notes = ObjectScienceReferenceCatalog.BuildPlanetIssueNotes(
+            atmosphereForcedOff,
+            envelopeOverride,
+            hydrosphereTendency,
+            oceanCoverageId,
+            surfacePressureId,
+            classBias,
+            civilizationModel);
+
+        foreach (ObjectScienceIssueNote note in notes)
+        {
+            AddEnhancedIssueLabel(note.Text, note.Tooltip);
+        }
+    }
+
     private string BuildEnhancedAssumptionText()
     {
         if (ShouldUseTravellerWorldGeneration())
@@ -697,6 +755,11 @@ public partial class ObjectGenerationScreen
         if (_planetGenerateMoonCheck != null && _planetGenerateMoonCheck.ButtonPressed)
         {
             return $"Planet launch targets {GetSelectedMoonTargetLabel().ToLowerInvariant()} and caps the final moon count by planet size.";
+        }
+
+        if (GetSelectedObjectType() == ObjectViewer.ObjectType.Planet)
+        {
+            return "Direct planet controls and local life settings persist into the generated world.";
         }
 
         if (_showAdvancedControlsCheck != null && _showAdvancedControlsCheck.ButtonPressed)
@@ -719,6 +782,11 @@ public partial class ObjectGenerationScreen
             return $"The planet generator will also create {GetSelectedMoonTargetDescription()} from the same seed family. The target count is capped by the generated planet size so small worlds do not end up with giant-planet moon counts. Captured mode biases those moons toward irregular outsider satellites rather than regular formed-with-the-planet moons.";
         }
 
+        if (GetSelectedObjectType() == ObjectViewer.ObjectType.Planet)
+        {
+            return "Planet life settings apply only to this one world. Conflict notes call out when direct atmosphere, hydrosphere, envelope, moon, or civilization choices pull against the reviewed science behind the normal generator.";
+        }
+
         if (_showAdvancedControlsCheck != null && _showAdvancedControlsCheck.ButtonPressed)
         {
             return "Advanced controls use the same override keys as the object editor, so creation and later editing stay aligned for this one object.";
@@ -729,6 +797,11 @@ public partial class ObjectGenerationScreen
 
     private void AddEnhancedIssueLabel(string text)
     {
+        AddEnhancedIssueLabel(text, string.Empty);
+    }
+
+    private void AddEnhancedIssueLabel(string text, string tooltipText)
+    {
         if (_issuesContainer == null || string.IsNullOrWhiteSpace(text))
         {
             return;
@@ -737,6 +810,7 @@ public partial class ObjectGenerationScreen
         Label noteLabel = UiSceneTemplates.InstantiateMessageLabel();
         noteLabel.Modulate = new Color(0.85f, 0.7f, 0.3f, 1.0f);
         noteLabel.Text = text;
+        noteLabel.TooltipText = tooltipText;
         _issuesContainer.AddChild(noteLabel);
     }
 

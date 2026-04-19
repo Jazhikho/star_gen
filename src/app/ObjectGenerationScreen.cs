@@ -113,6 +113,8 @@ public partial class ObjectGenerationScreen : Control
         _startButton = GetNodeOrNull<Button>($"{Root}/StudioRow/SummaryPanel/MarginContainer/SummaryVBox/Buttons/StartButton");
         _loadButton = GetNodeOrNull<Button>($"{Root}/StudioRow/SummaryPanel/MarginContainer/SummaryVBox/Buttons/LoadButton");
         _backButton = GetNodeOrNull<Button>($"{HeroRoot}/HeaderRow/BackButton");
+        CacheObjectLifeNodeReferences();
+        CacheHelpNodeReferences();
     }
 
     private void BuildParameterUi()
@@ -128,6 +130,7 @@ public partial class ObjectGenerationScreen : Control
     private void ConnectSignals()
     {
         ConnectEnhancedSignals();
+        ConnectObjectHelpSignals();
     }
 
     private void ApplyVersionLabel()
@@ -142,6 +145,7 @@ public partial class ObjectGenerationScreen : Control
     private void ApplyDefaults()
     {
         ApplyEnhancedDefaults();
+        InitializeObjectHelpUi();
     }
 
     private void OnStartPressed()

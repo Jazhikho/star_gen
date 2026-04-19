@@ -1,12 +1,20 @@
 # Version
 
-Current version: `0.8.12.0`
+Current version: `0.8.13.0`
 
 Current user-facing version: `0.9d`
 
 Date: `2026-04-19`
 
 Versioning method: release/refactor `+0.1`, feature `+0.0.1`, bug fix `+0.0.0.1`, save-breaking release `+1.0`.
+
+## 0.8.13.0
+
+- Feature: Object Studio now exposes planet-local life settings using the same sourced `Life Framework`, `Abiogenesis Model`, `Complex Life Model`, `Civilization Model`, and `Environmental Window Weight` stack already used upstream, but scoped to one directly authored planet instead of aggregate galaxy or system behavior.
+- Feature: Added a scene-owned Help popup to Object Studio and introduced a shared help-dialog layout helper so the Galaxy, System, and Object help popups stay small enough for the close controls to remain visible on tighter windows.
+- Feature: Object Studio now emits source-backed conflict notes for direct planet-setting combinations that fight known atmospheric, hydrosphere, and civilization-stage constraints, including airless or stripped worlds paired with dense-ocean targets and oxygen-bottleneck civilization assumptions on airless worlds.
+- Docs: Added `Wordsworth & Kreidberg (2022)` to the reviewed source set and wired the new Object Studio conflict and help surfaces to the relevant academic sources.
+- Test: `dotnet build StarGen.sln` passed, and the headless harness passed (`1813 / 1813`). One earlier headless attempt hit Godot’s intermittent native finalizer crash before completion; the immediate rerun was clean.
 
 ## 0.8.12.0
 

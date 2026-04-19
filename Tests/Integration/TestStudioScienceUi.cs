@@ -20,6 +20,7 @@ public static class TestStudioScienceUi
     {
         runner.RunNativeTest("TestStudioScienceUi::test_galaxy_help_popup_exists_and_toggles", TestGalaxyHelpPopupExistsAndToggles);
         runner.RunNativeTest("TestStudioScienceUi::test_object_studio_filters_presets_and_traveller_rules_by_context", TestObjectStudioFiltersPresetsAndTravellerRulesByContext);
+        runner.RunNativeTest("TestStudioScienceUi::test_object_help_popup_and_planet_life_controls", TestObjectHelpPopupAndPlanetLifeControls);
         runner.RunNativeTest("TestStudioScienceUi::test_system_studio_supports_ten_star_cap_and_science_controls", TestSystemStudioSupportsTenStarCapAndScienceControls);
         runner.RunNativeTest("TestStudioScienceUi::test_system_help_popup_exists_and_toggles", TestSystemHelpPopupExistsAndToggles);
     }
@@ -88,6 +89,8 @@ public static class TestStudioScienceUi
 
         helpButton!.EmitSignal(Button.SignalName.Pressed);
         DotNetNativeTestSuite.AssertTrue(helpDialog!.Visible, "Help popup should open when the Help button is pressed");
+        DotNetNativeTestSuite.AssertTrue(helpDialog.Size.X <= 700, "Galaxy Help popup should stay narrow enough for smaller windows");
+        DotNetNativeTestSuite.AssertTrue(helpDialog.Size.Y <= 520, "Galaxy Help popup should stay short enough for smaller windows");
 
         closeButton!.EmitSignal(Button.SignalName.Pressed);
         DotNetNativeTestSuite.AssertFalse(helpDialog.Visible, "Help popup should close when the Close button is pressed");
@@ -374,9 +377,97 @@ public static class TestStudioScienceUi
 
         helpButton!.EmitSignal(Button.SignalName.Pressed);
         DotNetNativeTestSuite.AssertTrue(helpDialog!.Visible, "System Help popup should open when the Help button is pressed");
+        DotNetNativeTestSuite.AssertTrue(helpDialog.Size.X <= 700, "System Help popup should stay narrow enough for smaller windows");
+        DotNetNativeTestSuite.AssertTrue(helpDialog.Size.Y <= 520, "System Help popup should stay short enough for smaller windows");
 
         closeButton!.EmitSignal(Button.SignalName.Pressed);
         DotNetNativeTestSuite.AssertFalse(helpDialog.Visible, "System Help popup should close when the Close button is pressed");
+
+        IntegrationTestUtils.CleanupNode(screen);
+    }
+
+    private static void TestObjectHelpPopupAndPlanetLifeControls()
+    {
+        ObjectGenerationScreen screen = IntegrationTestUtils.InstantiateScene<ObjectGenerationScreen>("res://src/app/ObjectGenerationScreen.tscn");
+        screen._Ready();
+
+        Button? helpButton = screen.GetNodeOrNull<Button>("MarginContainer/ScrollContainer/Layout/HeroPanel/MarginContainer/HeroVBox/HeaderRow/HelpButton");
+        Window? helpDialog = screen.GetNodeOrNull<Window>("HelpDialog");
+        RichTextLabel? helpText = screen.GetNodeOrNull<RichTextLabel>("HelpDialog/MarginContainer/HelpVBox/HelpCard/MarginContainer/HelpDialogText");
+        Button? closeButton = screen.GetNodeOrNull<Button>("HelpDialog/MarginContainer/HelpVBox/ButtonRow/CloseButton");
+        VBoxContainer? lifeSection = screen.GetNodeOrNull<VBoxContainer>("MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/LifeSection");
+        OptionButton? typeOption = screen.GetNodeOrNull<OptionButton>("MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/TypeRow/TypeOption");
+        OptionButton? lifeFrameworkOption = screen.GetNodeOrNull<OptionButton>("MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/LifeSection/LifeContent/LifeVBox/LifeFrameworkRow/LifeFrameworkOption");
+        OptionButton? abiogenesisOption = screen.GetNodeOrNull<OptionButton>("MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/LifeSection/LifeContent/LifeVBox/AbiogenesisModelRow/AbiogenesisModelOption");
+        OptionButton? complexLifeOption = screen.GetNodeOrNull<OptionButton>("MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/LifeSection/LifeContent/LifeVBox/ComplexLifeModelRow/ComplexLifeModelOption");
+        OptionButton? civilizationOption = screen.GetNodeOrNull<OptionButton>("MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/LifeSection/LifeContent/LifeVBox/CivilizationModelRow/CivilizationModelOption");
+        OptionButton? windowWeightOption = screen.GetNodeOrNull<OptionButton>("MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/LifeSection/LifeContent/LifeVBox/EnvironmentalWindowWeightRow/EnvironmentalWindowWeightOption");
+        OptionButton? atmosphereOption = screen.GetNodeOrNull<OptionButton>("MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/PlanetSection/PlanetAtmosphereRow/PlanetAtmosphereOption");
+        OptionButton? envelopeOption = screen.GetNodeOrNull<OptionButton>("MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/PlanetSection/PlanetEnvelopeOverrideRow/PlanetEnvelopeOverrideOption");
+        OptionButton? hydrosphereOption = screen.GetNodeOrNull<OptionButton>("MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/PlanetSection/PlanetHydrosphereTendencyRow/PlanetHydrosphereTendencyOption");
+        OptionButton? pressureOption = screen.GetNodeOrNull<OptionButton>("MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/PlanetSection/PlanetSurfacePressureRow/PlanetSurfacePressureOption");
+        VBoxContainer? issuesContainer = screen.GetNodeOrNull<VBoxContainer>("MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SummaryPanel/MarginContainer/SummaryVBox/SummaryScroll/SummaryContent/IssuesContainer");
+
+        DotNetNativeTestSuite.AssertNotNull(helpButton, "Object studio should expose a Help button");
+        DotNetNativeTestSuite.AssertNotNull(helpDialog, "Object studio should expose a Help popup window");
+        DotNetNativeTestSuite.AssertNotNull(helpText, "Object studio Help popup should contain scrollable text");
+        DotNetNativeTestSuite.AssertNotNull(closeButton, "Object studio Help popup should expose a Close button");
+        DotNetNativeTestSuite.AssertNotNull(lifeSection, "Object studio should expose a planet life section");
+        DotNetNativeTestSuite.AssertNotNull(lifeFrameworkOption, "Object studio should expose a life framework selector");
+        DotNetNativeTestSuite.AssertNotNull(abiogenesisOption, "Object studio should expose an abiogenesis selector");
+        DotNetNativeTestSuite.AssertNotNull(complexLifeOption, "Object studio should expose a complex-life selector");
+        DotNetNativeTestSuite.AssertNotNull(civilizationOption, "Object studio should expose a civilization selector");
+        DotNetNativeTestSuite.AssertNotNull(windowWeightOption, "Object studio should expose an environmental-window selector");
+        DotNetNativeTestSuite.AssertNotNull(atmosphereOption, "Object studio should expose a direct atmosphere selector");
+        DotNetNativeTestSuite.AssertNotNull(envelopeOption, "Object studio should expose a direct envelope selector");
+        DotNetNativeTestSuite.AssertNotNull(hydrosphereOption, "Object studio should expose a direct hydrosphere selector");
+        DotNetNativeTestSuite.AssertNotNull(pressureOption, "Object studio should expose a direct surface-pressure selector");
+        DotNetNativeTestSuite.AssertNotNull(issuesContainer, "Object studio should expose an issues container");
+
+        DotNetNativeTestSuite.AssertTrue(lifeSection!.Visible, "Object studio life settings should be visible for planet authoring");
+        DotNetNativeTestSuite.AssertTrue(OptionContainsText(lifeFrameworkOption!, "Earth-Anchored Composite"), "Object studio should expose Earth-Anchored Composite");
+        DotNetNativeTestSuite.AssertTrue(OptionContainsText(civilizationOption!, "Technosphere Oxygen Bottleneck"), "Object studio should expose the technosphere bottleneck option");
+
+        helpButton!.EmitSignal(Button.SignalName.Pressed);
+        DotNetNativeTestSuite.AssertTrue(helpDialog!.Visible, "Object studio Help popup should open when the Help button is pressed");
+        DotNetNativeTestSuite.AssertTrue(helpDialog.Size.X <= 700, "Object studio Help popup should stay narrow enough for smaller windows");
+        DotNetNativeTestSuite.AssertTrue(helpDialog.Size.Y <= 520, "Object studio Help popup should stay short enough for smaller windows");
+        DotNetNativeTestSuite.AssertTrue(helpText!.Text.Contains("Object Studio"), "Object studio help should explain the direct-authoring surface");
+        DotNetNativeTestSuite.AssertTrue(helpText.Text.Contains("Wordsworth"), "Object studio help should include the conflict-note science sources");
+
+        closeButton!.EmitSignal(Button.SignalName.Pressed);
+        DotNetNativeTestSuite.AssertFalse(helpDialog.Visible, "Object studio Help popup should close when the Close button is pressed");
+
+        SelectOptionById(lifeFrameworkOption!, (int)GenerationUseCaseSettings.LifeFrameworkType.EnvironmentalWindows);
+        SelectOptionById(abiogenesisOption!, (int)GenerationUseCaseSettings.AbiogenesisModelType.Conservative);
+        SelectOptionById(complexLifeOption!, (int)GenerationUseCaseSettings.ComplexLifeModelType.RareEarthFilters);
+        SelectOptionById(civilizationOption!, (int)GenerationUseCaseSettings.CivilizationModelType.TechnosphereOxygenBottleneck);
+        SelectOptionById(windowWeightOption!, (int)GenerationUseCaseSettings.EnvironmentalWindowWeightType.High);
+
+        ObjectGenerationRequest request = screen.GetCurrentRequest();
+        DotNetNativeTestSuite.AssertEqual((int)GenerationUseCaseSettings.LifeFrameworkType.EnvironmentalWindows, (int)request.UseCaseSettings.LifeFramework, "Object studio should write the selected life framework into the request");
+        DotNetNativeTestSuite.AssertEqual((int)GenerationUseCaseSettings.AbiogenesisModelType.Conservative, (int)request.UseCaseSettings.AbiogenesisModel, "Object studio should write the selected abiogenesis model into the request");
+        DotNetNativeTestSuite.AssertEqual((int)GenerationUseCaseSettings.ComplexLifeModelType.RareEarthFilters, (int)request.UseCaseSettings.ComplexLifeModel, "Object studio should write the selected complex-life model into the request");
+        DotNetNativeTestSuite.AssertEqual((int)GenerationUseCaseSettings.CivilizationModelType.TechnosphereOxygenBottleneck, (int)request.UseCaseSettings.CivilizationModel, "Object studio should write the selected civilization model into the request");
+        DotNetNativeTestSuite.AssertEqual((int)GenerationUseCaseSettings.EnvironmentalWindowWeightType.High, (int)request.UseCaseSettings.EnvironmentalWindowWeight, "Object studio should write the selected environmental-window weight into the request");
+
+        SelectOptionById(atmosphereOption!, 0);
+        SelectOptionById(envelopeOption!, (int)PlanetEnvelopeOverride.Stripped);
+        SelectOptionById(hydrosphereOption!, (int)PlanetHydrosphereTendency.Oceanic);
+        SelectOptionById(pressureOption!, 2);
+
+        DotNetNativeTestSuite.AssertTrue(ContainerHasLabelText(issuesContainer!, "Airless planets"), "Object studio should flag the airless-versus-ocean conflict");
+        DotNetNativeTestSuite.AssertTrue(ContainerHasLabelText(issuesContainer, "Technosphere Oxygen Bottleneck"), "Object studio should flag the late civilization bottleneck conflict");
+
+        Label? airlessConflict = FindLabelByTextFragment(issuesContainer, "Airless planets");
+        Label? bottleneckConflict = FindLabelByTextFragment(issuesContainer, "Technosphere Oxygen Bottleneck");
+        DotNetNativeTestSuite.AssertNotNull(airlessConflict, "Object studio should create a label for the atmosphere conflict");
+        DotNetNativeTestSuite.AssertNotNull(bottleneckConflict, "Object studio should create a label for the civilization conflict");
+        DotNetNativeTestSuite.AssertTrue(airlessConflict!.TooltipText.Contains("Wordsworth and Kreidberg (2022)"), "Atmosphere conflict note should cite Wordsworth and Kreidberg (2022)");
+        DotNetNativeTestSuite.AssertTrue(bottleneckConflict!.TooltipText.Contains("Balbi and Frank (2023)"), "Civilization conflict note should cite Balbi and Frank (2023)");
+
+        SelectOptionById(typeOption!, (int)ObjectViewer.ObjectType.Star);
+        DotNetNativeTestSuite.AssertFalse(lifeSection.Visible, "Object studio life settings should hide when the user switches away from planets");
 
         IntegrationTestUtils.CleanupNode(screen);
     }
@@ -407,5 +498,23 @@ public static class TestStudioScienceUi
         }
 
         return false;
+    }
+
+    private static bool ContainerHasLabelText(VBoxContainer container, string fragment)
+    {
+        return FindLabelByTextFragment(container, fragment) != null;
+    }
+
+    private static Label? FindLabelByTextFragment(VBoxContainer container, string fragment)
+    {
+        foreach (Node child in container.GetChildren())
+        {
+            if (child is Label label && label.Text.Contains(fragment))
+            {
+                return label;
+            }
+        }
+
+        return null;
     }
 }

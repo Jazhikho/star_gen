@@ -1,5 +1,6 @@
 using System.Text;
 using Godot;
+using StarGen.App.Shared;
 using StarGen.Domain.Generation.Parameters;
 
 namespace StarGen.App;
@@ -66,7 +67,7 @@ public partial class SystemGenerationScreen
 			return;
 		}
 
-		_helpDialog.Size = new Vector2I(760, 580);
+		HelpDialogLayoutHelper.Prepare(_helpDialog);
 		if (_helpDialogText != null)
 		{
 			_helpDialogText.ScrollToLine(0);

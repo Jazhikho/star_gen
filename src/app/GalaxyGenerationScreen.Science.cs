@@ -3,6 +3,7 @@ using Godot;
 using StarGen.Domain.Generation;
 using StarGen.Domain.Generation.Parameters;
 using StarGen.Domain.Galaxy;
+using StarGen.App.Shared;
 
 namespace StarGen.App;
 
@@ -402,7 +403,7 @@ public partial class GalaxyGenerationScreen
             return;
         }
 
-        _helpDialog.Size = new Vector2I(760, 580);
+        HelpDialogLayoutHelper.Prepare(_helpDialog);
         if (_helpDialogText != null)
         {
             _helpDialogText.ScrollToLine(0);
