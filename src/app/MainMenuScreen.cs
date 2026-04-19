@@ -262,7 +262,7 @@ public partial class MainMenuScreen : Control
 		{
 			_helpText.Text =
 				"How to use StarGen\n\n" +
-				"- Galaxy Studio: Configure galaxy shape, generation rules, and worldbuilding assumptions before generating the galaxy viewer.\n\n" +
+				"- Galaxy Studio: Configure galaxy shape, scientific assumptions, and generation overrides before generating the galaxy viewer.\n\n" +
 				"- System Studio: Set stellar counts, seed, and worldbuilding assumptions before opening the system viewer.\n\n" +
 				"- Object Studio: Choose a star, planet, asteroid, or comet preset before launching the object viewer.\n\n" +
 				"- Station Studio: Configure an individual station concept and review the current station workflow.\n\n" +
@@ -346,8 +346,9 @@ public partial class MainMenuScreen : Control
 		return
 			"Version 0.9d\n\n" +
 			"- Added a persisted intro-skip option, restored intro music through the shared audio controller, and made click or key input skip the splash reliably.\n" +
-			"- Galaxy Studio now labels the center column as Generator Overrides, uses Space Opera wording for the RPG-facing ruleset, and renames the UWP readout toggle clearly.\n" +
-			"- Life Potential in Galaxy Studio is now a sourced model selector instead of a scalar slider, with research-backed biosphere and civilization assumptions.\n" +
+			"- Galaxy Studio now labels the center column as Generation Overrides, keeps the left column for scientific assumptions, uses Space Opera wording for the RPG-facing ruleset, and renames the UWP readout toggle clearly.\n" +
+			"- Galaxy Studio life generation now uses a source-aligned stack of models for abiogenesis, complex life, civilization emergence, and environmental windows instead of a single Life Potential selector.\n" +
+			"- Earth-Anchored Composite is now documented as a synthesis preset built from the reviewed life papers instead of the older Earth History wording.\n" +
 			"- Credits now include Patreon thanks for Leo.\n" +
 			"\n" +
 			"- Checkpointed the current mainline branch state so the branch split, scene-first UI migration, and scope reductions are preserved in git.\n" +
@@ -507,7 +508,7 @@ public partial class MainMenuScreen : Control
 	{
 		return
 			"How to use StarGen\n\n" +
-			"- Galaxy Studio: Configure galaxy shape, generation rules, and worldbuilding assumptions before generating the galaxy viewer.\n\n" +
+			"- Galaxy Studio: Configure galaxy shape, scientific assumptions, and generation overrides before generating the galaxy viewer.\n\n" +
 			"- System Studio: Set stellar counts, seed, and worldbuilding assumptions before opening the system viewer.\n\n" +
 			"- Object Studio: Choose a star, planet, asteroid, or comet preset before launching the object viewer.\n\n" +
 			"- Station Studio: Configure an individual station concept and review the current station workflow.\n\n" +

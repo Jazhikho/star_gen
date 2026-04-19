@@ -159,40 +159,57 @@ public static class TestGalaxyConfig
     }
 
     /// <summary>
-    /// Tests that the life-model selector has plain-language help and resolvable sources.
+    /// Tests that the life-model controls have plain-language help and resolvable sources.
     /// </summary>
-    public static void TestLifeScienceReferenceCatalogCoversLifeModel()
+    public static void TestLifeScienceReferenceCatalogCoversLifeModels()
     {
-        GenerationParameterDefinition? lifeDefinition = null;
+        GenerationParameterDefinition? lifeFrameworkDefinition = null;
+        GenerationParameterDefinition? abiogenesisDefinition = null;
+        GenerationParameterDefinition? civilizationDefinition = null;
         foreach (GenerationParameterDefinition definition in GenerationParameterCatalog.GetGalaxyDefinitions())
         {
-            if (definition.Id == "life_potential_model")
+            if (definition.Id == "life_framework")
             {
-                lifeDefinition = definition;
-                break;
+                lifeFrameworkDefinition = definition;
+            }
+
+            if (definition.Id == "abiogenesis_model")
+            {
+                abiogenesisDefinition = definition;
+            }
+
+            if (definition.Id == "civilization_model")
+            {
+                civilizationDefinition = definition;
             }
         }
 
-        DotNetNativeTestSuite.AssertNotNull(lifeDefinition, "Galaxy parameters should expose a life-potential model selector");
-        DotNetNativeTestSuite.AssertTrue(!string.IsNullOrWhiteSpace(lifeDefinition!.AssumptionText), "Life-potential selector should have help text");
-        DotNetNativeTestSuite.AssertTrue(lifeDefinition.AssumptionText.Contains("Rapid Biospheres"), "Life help should explain the available model families");
-        DotNetNativeTestSuite.AssertTrue(lifeDefinition.AssumptionText.Contains("civilizations"), "Life help should explain downstream civilization impact");
+        DotNetNativeTestSuite.AssertNotNull(lifeFrameworkDefinition, "Galaxy parameters should expose a life-framework selector");
+        DotNetNativeTestSuite.AssertNotNull(abiogenesisDefinition, "Galaxy parameters should expose an abiogenesis selector");
+        DotNetNativeTestSuite.AssertNotNull(civilizationDefinition, "Galaxy parameters should expose a civilization selector");
+        DotNetNativeTestSuite.AssertTrue(!string.IsNullOrWhiteSpace(lifeFrameworkDefinition!.AssumptionText), "Life framework selector should have help text");
+        DotNetNativeTestSuite.AssertTrue(lifeFrameworkDefinition.AssumptionText.Contains("Earth-Anchored Composite"), "Life framework help should explain the composite option");
+        DotNetNativeTestSuite.AssertTrue(abiogenesisDefinition!.AssumptionText.Contains("Rapid Start"), "Abiogenesis help should explain the rapid-start option");
+        DotNetNativeTestSuite.AssertTrue(civilizationDefinition!.AssumptionText.Contains("Technosphere"), "Civilization help should explain the technosphere bottleneck option");
 
-        foreach (string sourceId in LifeScienceReferenceCatalog.GetParameterSourceIds("life_potential_model"))
+        foreach (string sourceId in LifeScienceReferenceCatalog.GetParameterSourceIds("life_framework"))
         {
-            DotNetNativeTestSuite.AssertNotNull(LifeScienceReferenceCatalog.GetSource(sourceId), $"life-model source '{sourceId}' should resolve");
+            DotNetNativeTestSuite.AssertNotNull(LifeScienceReferenceCatalog.GetSource(sourceId), $"life-framework source '{sourceId}' should resolve");
         }
 
         string helpText = LifeScienceReferenceCatalog.BuildHelpPanelBbCode();
         DotNetNativeTestSuite.AssertTrue(helpText.Contains("What changing it does"), "Life help should explain practical outcomes");
+        DotNetNativeTestSuite.AssertTrue(helpText.Contains("What this composite assumes"), "Life help should explain the composite assumptions explicitly");
+        DotNetNativeTestSuite.AssertTrue(helpText.Contains("Earth-Anchored Composite"), "Life help should use the Earth-Anchored Composite label");
         DotNetNativeTestSuite.AssertTrue(helpText.Contains("Rapid Biospheres"), "Life help should include the rapid-biosphere model");
         DotNetNativeTestSuite.AssertTrue(helpText.Contains("Rare Complex Life"), "Life help should include the rare-complex-life model");
+        DotNetNativeTestSuite.AssertFalse(helpText.Contains("Earth History"), "Life help should not use the old Earth History label");
     }
 
     /// <summary>
     /// Tests that life models materially change biology and civilization gating for the same world.
     /// </summary>
-    public static void TestLifePotentialModelsChangeBiologyAssessment()
+    public static void TestLifeModelsChangeBiologyAssessment()
     {
         PlanetEnvironmentProfile environment = new PlanetEnvironmentProfile
         {
@@ -230,12 +247,13 @@ public static class TestGalaxyConfig
         environment.BiomeCoverage["arid"] = 0.08;
 
         GenerationUseCaseSettings rapidSettings = GenerationUseCaseSettings.CreateDefault();
-        rapidSettings.LifePotentialModel = GenerationUseCaseSettings.LifePotentialModelType.RapidBiospheres;
-        rapidSettings.LifePermissiveness = GenerationUseCaseSettings.GetRecommendedLifePermissiveness(rapidSettings.LifePotentialModel);
+        rapidSettings.LifeFramework = GenerationUseCaseSettings.LifeFrameworkType.RapidBiospheres;
+        rapidSettings.LifePermissiveness = GenerationUseCaseSettings.GetRecommendedLifePermissiveness(rapidSettings.LifeFramework);
 
         GenerationUseCaseSettings rareSettings = GenerationUseCaseSettings.CreateDefault();
-        rareSettings.LifePotentialModel = GenerationUseCaseSettings.LifePotentialModelType.RareComplexLife;
-        rareSettings.LifePermissiveness = GenerationUseCaseSettings.GetRecommendedLifePermissiveness(rareSettings.LifePotentialModel);
+        rareSettings.LifeFramework = GenerationUseCaseSettings.LifeFrameworkType.RareComplexLife;
+        rareSettings.LifePermissiveness = GenerationUseCaseSettings.GetRecommendedLifePermissiveness(rareSettings.LifeFramework);
+        rareSettings.CivilizationModel = GenerationUseCaseSettings.CivilizationModelType.RareCivilizations;
 
         BiologySupportEvaluator.Assessment rapidAssessment = BiologySupportEvaluator.Evaluate(environment, rapidSettings);
         BiologySupportEvaluator.Assessment rareAssessment = BiologySupportEvaluator.Evaluate(environment, rareSettings);
@@ -245,5 +263,6 @@ public static class TestGalaxyConfig
         DotNetNativeTestSuite.AssertTrue(rapidAssessment.AbiogenesisChance > rareAssessment.AbiogenesisChance, "Rapid-biosphere model should make simple life easier to start");
         DotNetNativeTestSuite.AssertTrue(rapidAssessment.ComplexLifeChance > rareAssessment.ComplexLifeChance, "Rapid-biosphere model should remain more permissive than rare-complex-life for complex ecosystems");
         DotNetNativeTestSuite.AssertTrue(rapidAssessment.SentienceChance > rareAssessment.SentienceChance, "Rapid-biosphere model should permit higher sentience odds than rare-complex-life");
+        DotNetNativeTestSuite.AssertTrue(rapidAssessment.CivilizationChance > rareAssessment.CivilizationChance, "Rapid-biosphere model should remain more permissive than rare-complex-life for civilizations");
     }
 }

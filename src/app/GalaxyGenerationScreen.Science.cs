@@ -171,7 +171,11 @@ public partial class GalaxyGenerationScreen
         ApplyTooltip("planet_rogue_planet_allowance", _planetRogueAllowanceOption, $"{ParameterRootPath}/PlanetarySection/PlanetaryContent/PlanetaryVBox/RogueAllowanceRow/RogueAllowanceLabel");
         ApplyTooltip("planet_moon_formation_bias", _planetMoonFormationBiasOption, $"{ParameterRootPath}/PlanetarySection/PlanetaryContent/PlanetaryVBox/MoonFormationBiasRow/MoonFormationBiasLabel");
         ApplyTooltip("planet_minor_body_outer_system_bias", _planetMinorBodyOuterBiasOption, $"{ParameterRootPath}/PlanetarySection/PlanetaryContent/PlanetaryVBox/OuterBodyBiasRow/OuterBodyBiasLabel");
-        ApplyTooltip("life_potential_model", _lifePotentialModelOption, $"{ParameterRootPath}/LifeSection/LifeContent/LifeVBox/LifeModelRow/LifeModelLabel");
+        ApplyTooltip("life_framework", _lifeFrameworkOption, $"{ParameterRootPath}/LifeSection/LifeContent/LifeVBox/LifeFrameworkRow/LifeFrameworkLabel");
+        ApplyTooltip("abiogenesis_model", _abiogenesisModelOption, $"{ParameterRootPath}/LifeSection/LifeContent/LifeVBox/AbiogenesisModelRow/AbiogenesisModelLabel");
+        ApplyTooltip("complex_life_model", _complexLifeModelOption, $"{ParameterRootPath}/LifeSection/LifeContent/LifeVBox/ComplexLifeModelRow/ComplexLifeModelLabel");
+        ApplyTooltip("civilization_model", _civilizationModelOption, $"{ParameterRootPath}/LifeSection/LifeContent/LifeVBox/CivilizationModelRow/CivilizationModelLabel");
+        ApplyTooltip("environmental_window_weight", _environmentalWindowWeightOption, $"{ParameterRootPath}/LifeSection/LifeContent/LifeVBox/EnvironmentalWindowWeightRow/EnvironmentalWindowWeightLabel");
         if (_helpButton != null)
         {
             _helpButton.TooltipText = "Open plain-language help.\nThis guide explains what these galaxy, star, and planet settings actually change.";
@@ -611,10 +615,14 @@ public partial class GalaxyGenerationScreen
         ApplySectionTooltip(
             _lifeSourcesButton,
             BuildLifeSectionSourceTooltip(
-                "Life Potential",
+                "Life Models",
                 new[]
                 {
-                    "life_potential_model",
+                    "life_framework",
+                    "abiogenesis_model",
+                    "complex_life_model",
+                    "civilization_model",
+                    "environmental_window_weight",
                 }));
 
         ApplySectionTooltip(

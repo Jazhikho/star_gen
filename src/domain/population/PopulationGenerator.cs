@@ -352,8 +352,8 @@ public static class PopulationGenerator
         BiologySupportEvaluator.Assessment biologyAssessment = BiologySupportEvaluator.Evaluate(environmentProfile, useCaseSettings);
         bool supportsBiology = biologyAssessment.IsSupported;
         bool hasSentientLineage = biologyAssessment.SupportsComplexLife
-            && biologyAssessment.SentienceChance > 0.0
-            && PopulationLikelihood.DeriveRollValue(environmentProfile.Seed, 0x53454E54) < biologyAssessment.SentienceChance;
+            && biologyAssessment.CivilizationChance > 0.0
+            && PopulationLikelihood.DeriveRollValue(environmentProfile.Seed, 0x53454E54) < biologyAssessment.CivilizationChance;
         string unavailableReason = "Mainline v0.9 parks the detailed concept dependency chain; summary-only biology assessment remains active.";
 
         ecologyState = new EcologyState

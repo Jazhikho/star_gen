@@ -149,7 +149,7 @@ public static class ConceptDependencyChainGenerator
         assessment.SocialComplexity = ResolveSocialComplexity(species);
         assessment.CommunicationScore = ResolveCommunicationScore(species);
         assessment.ManipulationScore = ResolveManipulationScore(species);
-        bool supportsSentientCivilization = biologyAssessment.SentienceChance > 0.0;
+        bool supportsSentientCivilization = biologyAssessment.CivilizationChance > 0.0;
         if (supportsSentientCivilization)
         {
             double sentienceRoll = DeriveDeterministicRoll(environment.Seed, 0x53454E54);
@@ -158,7 +158,7 @@ public static class ConceptDependencyChainGenerator
                 && assessment.SocialComplexity >= 0.40
                 && assessment.CommunicationScore >= 0.32
                 && assessment.ManipulationScore >= 0.32
-                && sentienceRoll < biologyAssessment.SentienceChance;
+                && sentienceRoll < biologyAssessment.CivilizationChance;
         }
         else
         {

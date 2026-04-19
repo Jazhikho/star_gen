@@ -144,6 +144,11 @@ public static class TestGenerationParameters
         settings.RulesetMode = GenerationUseCaseSettings.RulesetModeType.Traveller;
         settings.ShowTravellerReadouts = true;
         settings.LifePermissiveness = 0.75;
+        settings.LifeFramework = GenerationUseCaseSettings.LifeFrameworkType.RapidBiospheres;
+        settings.AbiogenesisModel = GenerationUseCaseSettings.AbiogenesisModelType.FollowFramework;
+        settings.ComplexLifeModel = GenerationUseCaseSettings.ComplexLifeModelType.FollowFramework;
+        settings.CivilizationModel = GenerationUseCaseSettings.CivilizationModelType.FollowFramework;
+        settings.EnvironmentalWindowWeight = GenerationUseCaseSettings.EnvironmentalWindowWeightType.FollowFramework;
         settings.MainworldPolicy = GenerationUseCaseSettings.MainworldPolicyType.Require;
         return settings;
     }
@@ -153,6 +158,11 @@ public static class TestGenerationParameters
         DotNetNativeTestSuite.AssertEqual(expected.RulesetMode, actual.RulesetMode, messagePrefix + ": ruleset mode should match");
         DotNetNativeTestSuite.AssertEqual(expected.ShowTravellerReadouts, actual.ShowTravellerReadouts, messagePrefix + ": readout visibility should match");
         DotNetNativeTestSuite.AssertEqual(expected.LifePermissiveness, actual.LifePermissiveness, messagePrefix + ": life permissiveness should match");
+        DotNetNativeTestSuite.AssertEqual(expected.LifeFramework, actual.LifeFramework, messagePrefix + ": life framework should match");
+        DotNetNativeTestSuite.AssertEqual(expected.AbiogenesisModel, actual.AbiogenesisModel, messagePrefix + ": abiogenesis model should match");
+        DotNetNativeTestSuite.AssertEqual(expected.ComplexLifeModel, actual.ComplexLifeModel, messagePrefix + ": complex-life model should match");
+        DotNetNativeTestSuite.AssertEqual(expected.CivilizationModel, actual.CivilizationModel, messagePrefix + ": civilization model should match");
+        DotNetNativeTestSuite.AssertEqual(expected.EnvironmentalWindowWeight, actual.EnvironmentalWindowWeight, messagePrefix + ": environmental-window weight should match");
         DotNetNativeTestSuite.AssertEqual(expected.MainworldPolicy, actual.MainworldPolicy, messagePrefix + ": mainworld policy should match");
     }
 }

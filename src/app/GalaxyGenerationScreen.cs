@@ -76,7 +76,11 @@ public partial class GalaxyGenerationScreen : Control
 	private HBoxContainer? _seedContainer;
 	private OptionButton? _rulesetModeOption;
 	private BaseButton? _showTravellerReadoutsCheck;
-	private OptionButton? _lifePotentialModelOption;
+	private OptionButton? _lifeFrameworkOption;
+	private OptionButton? _abiogenesisModelOption;
+	private OptionButton? _complexLifeModelOption;
+	private OptionButton? _civilizationModelOption;
+	private OptionButton? _environmentalWindowWeightOption;
 	private HSlider? _populationPermissivenessInput;
 	private Label? _populationPermissivenessValueLabel;
 	private HBoxContainer? _populationPermissivenessRow;
@@ -328,7 +332,11 @@ public partial class GalaxyGenerationScreen : Control
 		_rulesetModeOption = GetNodeOrNull<OptionButton>($"{RulesRootPath}/UseCaseSection/RulesetRow/RulesetModeOption");
 		_showTravellerReadoutsCheck = GetNodeOrNull<BaseButton>($"{RulesRootPath}/UseCaseSection/ShowTravellerReadoutsCheck");
 		_advancedAssumptionsInfoButton = GetNodeOrNull<Button>($"{RulesRootPath}/UseCaseSection/AdvancedHeaderRow/AdvancedAssumptionsInfoButton");
-		_lifePotentialModelOption = GetNodeOrNull<OptionButton>($"{ParameterRootPath}/LifeSection/LifeContent/LifeVBox/LifeModelRow/LifeModelOption");
+		_lifeFrameworkOption = GetNodeOrNull<OptionButton>($"{ParameterRootPath}/LifeSection/LifeContent/LifeVBox/LifeFrameworkRow/LifeFrameworkOption");
+		_abiogenesisModelOption = GetNodeOrNull<OptionButton>($"{ParameterRootPath}/LifeSection/LifeContent/LifeVBox/AbiogenesisModelRow/AbiogenesisModelOption");
+		_complexLifeModelOption = GetNodeOrNull<OptionButton>($"{ParameterRootPath}/LifeSection/LifeContent/LifeVBox/ComplexLifeModelRow/ComplexLifeModelOption");
+		_civilizationModelOption = GetNodeOrNull<OptionButton>($"{ParameterRootPath}/LifeSection/LifeContent/LifeVBox/CivilizationModelRow/CivilizationModelOption");
+		_environmentalWindowWeightOption = GetNodeOrNull<OptionButton>($"{ParameterRootPath}/LifeSection/LifeContent/LifeVBox/EnvironmentalWindowWeightRow/EnvironmentalWindowWeightOption");
 		_populationPermissivenessRow = GetNodeOrNull<HBoxContainer>($"{RulesRootPath}/UseCaseSection/PopulationRow");
 		_populationPermissivenessInput = GetNodeOrNull<HSlider>($"{RulesRootPath}/UseCaseSection/PopulationRow/PopulationPermissivenessInput");
 		_populationPermissivenessValueLabel = GetNodeOrNull<Label>($"{RulesRootPath}/UseCaseSection/PopulationPermissivenessValue");
@@ -357,7 +365,11 @@ public partial class GalaxyGenerationScreen : Control
 		if (_seedSpin != null) _seedSpin.ValueChanged += _ => RefreshValidationIssues();
 		if (_rulesetModeOption != null) _rulesetModeOption.ItemSelected += OnRulesetModeSelected;
 		if (_showTravellerReadoutsCheck != null) _showTravellerReadoutsCheck.Toggled += _ => RefreshValidationIssues();
-		if (_lifePotentialModelOption != null) _lifePotentialModelOption.ItemSelected += _ => OnLifePotentialModelChanged();
+		if (_lifeFrameworkOption != null) _lifeFrameworkOption.ItemSelected += _ => OnLifeModelChanged();
+		if (_abiogenesisModelOption != null) _abiogenesisModelOption.ItemSelected += _ => OnLifeModelChanged();
+		if (_complexLifeModelOption != null) _complexLifeModelOption.ItemSelected += _ => OnLifeModelChanged();
+		if (_civilizationModelOption != null) _civilizationModelOption.ItemSelected += _ => OnLifeModelChanged();
+		if (_environmentalWindowWeightOption != null) _environmentalWindowWeightOption.ItemSelected += _ => OnLifeModelChanged();
 		ConnectScienceSignals();
 	}
 
@@ -675,11 +687,11 @@ public partial class GalaxyGenerationScreen : Control
 		ApplyTooltip("galaxy_seed", _seedSpin, $"{ParameterRootPath}/SeedContainer/SeedLabel");
 		ApplyDynamicTooltip(_rulesetModeOption, "ruleset_mode");
 		ApplyDynamicTooltip(_showTravellerReadoutsCheck, "show_traveller_readouts");
-		ApplyTooltip("life_potential_model", _lifePotentialModelOption, $"{ParameterRootPath}/LifeSection/LifeContent/LifeVBox/LifeModelRow/LifeModelLabel");
-		if (_lifePotentialModelOption != null)
-		{
-			_lifePotentialModelOption.TooltipText = LifeScienceReferenceCatalog.GetTooltipSummary("life_potential_model");
-		}
+		ApplyTooltip("life_framework", _lifeFrameworkOption, $"{ParameterRootPath}/LifeSection/LifeContent/LifeVBox/LifeFrameworkRow/LifeFrameworkLabel");
+		ApplyTooltip("abiogenesis_model", _abiogenesisModelOption, $"{ParameterRootPath}/LifeSection/LifeContent/LifeVBox/AbiogenesisModelRow/AbiogenesisModelLabel");
+		ApplyTooltip("complex_life_model", _complexLifeModelOption, $"{ParameterRootPath}/LifeSection/LifeContent/LifeVBox/ComplexLifeModelRow/ComplexLifeModelLabel");
+		ApplyTooltip("civilization_model", _civilizationModelOption, $"{ParameterRootPath}/LifeSection/LifeContent/LifeVBox/CivilizationModelRow/CivilizationModelLabel");
+		ApplyTooltip("environmental_window_weight", _environmentalWindowWeightOption, $"{ParameterRootPath}/LifeSection/LifeContent/LifeVBox/EnvironmentalWindowWeightRow/EnvironmentalWindowWeightLabel");
 
 		if (_advancedAssumptionsInfoButton != null)
 		{
@@ -758,10 +770,30 @@ public partial class GalaxyGenerationScreen : Control
 			settings.ShowTravellerReadouts = _showTravellerReadoutsCheck.ButtonPressed;
 		}
 
-		if (_lifePotentialModelOption != null)
+		if (_lifeFrameworkOption != null)
 		{
-			settings.LifePotentialModel = (GenerationUseCaseSettings.LifePotentialModelType)_lifePotentialModelOption.GetSelectedId();
-			settings.LifePermissiveness = GenerationUseCaseSettings.GetRecommendedLifePermissiveness(settings.LifePotentialModel);
+			settings.LifeFramework = (GenerationUseCaseSettings.LifeFrameworkType)_lifeFrameworkOption.GetSelectedId();
+			settings.LifePermissiveness = GenerationUseCaseSettings.GetRecommendedLifePermissiveness(settings.LifeFramework);
+		}
+
+		if (_abiogenesisModelOption != null)
+		{
+			settings.AbiogenesisModel = (GenerationUseCaseSettings.AbiogenesisModelType)_abiogenesisModelOption.GetSelectedId();
+		}
+
+		if (_complexLifeModelOption != null)
+		{
+			settings.ComplexLifeModel = (GenerationUseCaseSettings.ComplexLifeModelType)_complexLifeModelOption.GetSelectedId();
+		}
+
+		if (_civilizationModelOption != null)
+		{
+			settings.CivilizationModel = (GenerationUseCaseSettings.CivilizationModelType)_civilizationModelOption.GetSelectedId();
+		}
+
+		if (_environmentalWindowWeightOption != null)
+		{
+			settings.EnvironmentalWindowWeight = (GenerationUseCaseSettings.EnvironmentalWindowWeightType)_environmentalWindowWeightOption.GetSelectedId();
 		}
 
 		if (settings.RulesetMode == GenerationUseCaseSettings.RulesetModeType.Traveller)
@@ -785,9 +817,29 @@ public partial class GalaxyGenerationScreen : Control
 			_showTravellerReadoutsCheck.ButtonPressed = resolvedSettings.ShowTravellerReadouts;
 		}
 
-		if (_lifePotentialModelOption != null)
+		if (_lifeFrameworkOption != null)
 		{
-			SetOptionSelection(_lifePotentialModelOption, (int)resolvedSettings.LifePotentialModel);
+			SetOptionSelection(_lifeFrameworkOption, (int)resolvedSettings.LifeFramework);
+		}
+
+		if (_abiogenesisModelOption != null)
+		{
+			SetOptionSelection(_abiogenesisModelOption, (int)resolvedSettings.AbiogenesisModel);
+		}
+
+		if (_complexLifeModelOption != null)
+		{
+			SetOptionSelection(_complexLifeModelOption, (int)resolvedSettings.ComplexLifeModel);
+		}
+
+		if (_civilizationModelOption != null)
+		{
+			SetOptionSelection(_civilizationModelOption, (int)resolvedSettings.CivilizationModel);
+		}
+
+		if (_environmentalWindowWeightOption != null)
+		{
+			SetOptionSelection(_environmentalWindowWeightOption, (int)resolvedSettings.EnvironmentalWindowWeight);
 		}
 	}
 
@@ -830,7 +882,9 @@ public partial class GalaxyGenerationScreen : Control
 			}
 
 			lines.Add($"UWP Code {readoutVisibility}");
-			lines.Add($"Life Model: {LifeScienceReferenceCatalog.GetModelLabel(settings.LifePotentialModel)}");
+			lines.Add($"Life Framework: {LifeScienceReferenceCatalog.GetFrameworkLabel(settings.LifeFramework)}");
+			lines.Add($"Abiogenesis: {LifeScienceReferenceCatalog.GetAbiogenesisLabel(settings.AbiogenesisModel)} | Complex Life: {LifeScienceReferenceCatalog.GetComplexLifeLabel(settings.ComplexLifeModel)}");
+			lines.Add($"Civilization: {LifeScienceReferenceCatalog.GetCivilizationLabel(settings.CivilizationModel)} | Window Weight: {LifeScienceReferenceCatalog.GetEnvironmentalWindowWeightLabel(settings.EnvironmentalWindowWeight)}");
 			if (_showSeedControls && _seedSpin != null)
 			{
 				lines.Add($"Seed {(int)_seedSpin.Value}");
@@ -847,15 +901,43 @@ public partial class GalaxyGenerationScreen : Control
 
 	private void ApplyTravellerDefaultsToControls()
 	{
-		if (_lifePotentialModelOption != null)
+		if (_lifeFrameworkOption != null)
 		{
 			SetOptionSelection(
-				_lifePotentialModelOption,
-				(int)GenerationUseCaseSettings.LifePotentialModelType.RapidBiospheres);
+				_lifeFrameworkOption,
+				(int)GenerationUseCaseSettings.LifeFrameworkType.RapidBiospheres);
+		}
+
+		if (_abiogenesisModelOption != null)
+		{
+			SetOptionSelection(
+				_abiogenesisModelOption,
+				(int)GenerationUseCaseSettings.AbiogenesisModelType.FollowFramework);
+		}
+
+		if (_complexLifeModelOption != null)
+		{
+			SetOptionSelection(
+				_complexLifeModelOption,
+				(int)GenerationUseCaseSettings.ComplexLifeModelType.FollowFramework);
+		}
+
+		if (_civilizationModelOption != null)
+		{
+			SetOptionSelection(
+				_civilizationModelOption,
+				(int)GenerationUseCaseSettings.CivilizationModelType.FollowFramework);
+		}
+
+		if (_environmentalWindowWeightOption != null)
+		{
+			SetOptionSelection(
+				_environmentalWindowWeightOption,
+				(int)GenerationUseCaseSettings.EnvironmentalWindowWeightType.FollowFramework);
 		}
 	}
 
-	private void OnLifePotentialModelChanged()
+	private void OnLifeModelChanged()
 	{
 		MarkAsCustom();
 		RefreshValidationIssues();

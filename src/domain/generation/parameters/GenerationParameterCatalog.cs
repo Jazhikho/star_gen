@@ -83,7 +83,11 @@ public static class GenerationParameterCatalog
             new GenerationParameterDefinition("planet_minor_body_outer_system_bias", "Outer Small Bodies", string.Empty, GenerationParameterControlType.Choice, PlanetaryScienceReferenceCatalog.GetTooltipSummary("planet_minor_body_outer_system_bias")),
             new GenerationParameterDefinition("ruleset_mode", "Ruleset", string.Empty, GenerationParameterControlType.Choice, "Selects the downstream generation pipeline.\nRealistic keeps StarGen's default scientific and physical worldbuilding path.\nSpace Opera keeps the same broad structure but uses RPG-facing world-generation shortcuts for supported mainworld outputs."),
             new GenerationParameterDefinition("show_traveller_readouts", "Show UWP Code", string.Empty, GenerationParameterControlType.Toggle, "Shows Universal World Profile code when the current flow has enough information to derive it."),
-            new GenerationParameterDefinition("life_potential_model", "Life Potential", string.Empty, GenerationParameterControlType.Choice, LifeScienceReferenceCatalog.GetTooltipSummary("life_potential_model")),
+            new GenerationParameterDefinition("life_framework", "Life Framework", string.Empty, GenerationParameterControlType.Choice, LifeScienceReferenceCatalog.GetTooltipSummary("life_framework")),
+            new GenerationParameterDefinition("abiogenesis_model", "Abiogenesis Model", string.Empty, GenerationParameterControlType.Choice, LifeScienceReferenceCatalog.GetTooltipSummary("abiogenesis_model")),
+            new GenerationParameterDefinition("complex_life_model", "Complex Life Model", string.Empty, GenerationParameterControlType.Choice, LifeScienceReferenceCatalog.GetTooltipSummary("complex_life_model")),
+            new GenerationParameterDefinition("civilization_model", "Civilization Model", string.Empty, GenerationParameterControlType.Choice, LifeScienceReferenceCatalog.GetTooltipSummary("civilization_model")),
+            new GenerationParameterDefinition("environmental_window_weight", "Environmental Window Weight", string.Empty, GenerationParameterControlType.Choice, LifeScienceReferenceCatalog.GetTooltipSummary("environmental_window_weight")),
             new GenerationParameterDefinition("mainworld_policy", "Mainworld Policy", string.Empty, GenerationParameterControlType.Choice, "Controls whether Traveller-oriented flows should ignore, prefer, or require plausible mainworld-ready systems."),
         };
     }

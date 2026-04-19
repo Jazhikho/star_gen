@@ -5,7 +5,7 @@ using StarGen.Domain.Generation;
 namespace StarGen.Domain.Generation.Parameters;
 
 /// <summary>
-/// Source citation metadata used by life-potential help surfaces and tests.
+/// Source citation metadata used by life-model help surfaces and tests.
 /// </summary>
 public sealed class LifeScienceSource
 {
@@ -39,7 +39,7 @@ public sealed class LifeScienceParameterReference
 }
 
 /// <summary>
-/// Canonical science notes and source registry for life-potential controls.
+/// Canonical science notes and source registry for life-model controls.
 /// </summary>
 public static class LifeScienceReferenceCatalog
 {
@@ -74,9 +74,25 @@ public static class LifeScienceReferenceCatalog
     private static readonly List<LifeScienceParameterReference> ParameterReferences = new()
     {
         new LifeScienceParameterReference(
-            "life_potential_model",
-            "This chooses how strict StarGen is about biospheres and civilizations.\nEarth History keeps life plausible on good worlds but makes complex life and civilizations depend on long stable conditions.\nRapid Biospheres makes simple life easier to start.\nEnvironmental Windows boosts worlds with long calm habitable periods.\nRare Complex Life keeps simple life possible but makes complex life and civilizations much rarer.",
-            new[] { "kopparapu2014", "lineweaverdavis2002", "spiegelturner2012", "forganrice2010", "mills2024", "balbi2023" }),
+            "life_framework",
+            "This is the top-level life preset for the universe.\nIt decides the default stance for how easily life starts, how selective complex life is, and how hard civilizations are to get.\nEarth-Anchored Composite is a documented blend of the reviewed papers, not a one-paper default.",
+            new[] { "lineweaverdavis2002", "spiegelturner2012", "forganrice2010", "mills2024", "balbi2023", "kopparapu2014" }),
+        new LifeScienceParameterReference(
+            "abiogenesis_model",
+            "Abiogenesis means life starting from non-living chemistry.\nRapid Start makes simple life easier to appear once water and energy are present.\nConservative keeps early life possible, but treats Earth's fast start as weak evidence.",
+            new[] { "lineweaverdavis2002", "spiegelturner2012" }),
+        new LifeScienceParameterReference(
+            "complex_life_model",
+            "This sets how hard it is for simple life to become rich, complex ecosystems.\nEnvironmental Windows rewards long calm habitable periods.\nRare Earth Filters make complex life much pickier than microbes.",
+            new[] { "mills2024", "forganrice2010", "lineweaverdavis2002", "spiegelturner2012" }),
+        new LifeScienceParameterReference(
+            "civilization_model",
+            "This sets the extra bottlenecks between a sentient lineage and a technological civilization.\nRare Civilizations keeps advanced societies uncommon even when life exists.\nTechnosphere Oxygen Bottleneck makes oxygen-rich atmospheres more important at that late stage.",
+            new[] { "forganrice2010", "balbi2023" }),
+        new LifeScienceParameterReference(
+            "environmental_window_weight",
+            "This controls how strongly long stable habitable windows matter.\nHigher weights reward worlds with long calm climates, moderate radiation, and durable surface habitability more strongly.",
+            new[] { "mills2024" }),
     };
 
     private static readonly List<string> PanelSourceIds = new()
@@ -92,7 +108,12 @@ public static class LifeScienceReferenceCatalog
     public static string GetTooltipSummary(string parameterId)
     {
         LifeScienceParameterReference? reference = FindParameterReference(parameterId);
-        return reference?.TooltipSummary ?? string.Empty;
+        if (reference == null)
+        {
+            return string.Empty;
+        }
+
+        return reference.TooltipSummary;
     }
 
     public static IReadOnlyList<string> GetParameterSourceIds(string parameterId)
@@ -116,53 +137,103 @@ public static class LifeScienceReferenceCatalog
         return null;
     }
 
-    public static string GetModelLabel(GenerationUseCaseSettings.LifePotentialModelType model)
+    public static string GetFrameworkLabel(GenerationUseCaseSettings.LifeFrameworkType framework)
+    {
+        return framework switch
+        {
+            GenerationUseCaseSettings.LifeFrameworkType.EarthAnchoredComposite => "Earth-Anchored Composite",
+            GenerationUseCaseSettings.LifeFrameworkType.RapidBiospheres => "Rapid Biospheres",
+            GenerationUseCaseSettings.LifeFrameworkType.EnvironmentalWindows => "Environmental Windows",
+            GenerationUseCaseSettings.LifeFrameworkType.RareComplexLife => "Rare Complex Life",
+            _ => "Earth-Anchored Composite",
+        };
+    }
+
+    public static string GetAbiogenesisLabel(GenerationUseCaseSettings.AbiogenesisModelType model)
     {
         return model switch
         {
-            GenerationUseCaseSettings.LifePotentialModelType.EarthHistory => "Earth History",
-            GenerationUseCaseSettings.LifePotentialModelType.RapidBiospheres => "Rapid Biospheres",
-            GenerationUseCaseSettings.LifePotentialModelType.EnvironmentalWindows => "Environmental Windows",
-            GenerationUseCaseSettings.LifePotentialModelType.RareComplexLife => "Rare Complex Life",
-            _ => "Earth History",
+            GenerationUseCaseSettings.AbiogenesisModelType.RapidStart => "Rapid Start",
+            GenerationUseCaseSettings.AbiogenesisModelType.Conservative => "Conservative",
+            _ => "Follow Framework",
+        };
+    }
+
+    public static string GetComplexLifeLabel(GenerationUseCaseSettings.ComplexLifeModelType model)
+    {
+        return model switch
+        {
+            GenerationUseCaseSettings.ComplexLifeModelType.EarthAnchoredComposite => "Earth-Anchored Composite",
+            GenerationUseCaseSettings.ComplexLifeModelType.EnvironmentalWindows => "Environmental Windows",
+            GenerationUseCaseSettings.ComplexLifeModelType.RareEarthFilters => "Rare Earth Filters",
+            _ => "Follow Framework",
+        };
+    }
+
+    public static string GetCivilizationLabel(GenerationUseCaseSettings.CivilizationModelType model)
+    {
+        return model switch
+        {
+            GenerationUseCaseSettings.CivilizationModelType.EarthAnchoredComposite => "Earth-Anchored Composite",
+            GenerationUseCaseSettings.CivilizationModelType.RareCivilizations => "Rare Civilizations",
+            GenerationUseCaseSettings.CivilizationModelType.TechnosphereOxygenBottleneck => "Technosphere Oxygen Bottleneck",
+            _ => "Follow Framework",
+        };
+    }
+
+    public static string GetEnvironmentalWindowWeightLabel(GenerationUseCaseSettings.EnvironmentalWindowWeightType weight)
+    {
+        return weight switch
+        {
+            GenerationUseCaseSettings.EnvironmentalWindowWeightType.Low => "Low",
+            GenerationUseCaseSettings.EnvironmentalWindowWeightType.Moderate => "Moderate",
+            GenerationUseCaseSettings.EnvironmentalWindowWeightType.High => "High",
+            _ => "Follow Framework",
         };
     }
 
     public static string BuildHelpPanelBbCode()
     {
         StringBuilder builder = new StringBuilder();
-        builder.AppendLine("[b][color=#f0c46a]Life potential models[/color][/b]");
-        builder.AppendLine("[color=#c8d6e5]This setting is not a flavor slider. It changes how easily worlds get biospheres, how hard it is for complex life to survive, and how often StarGen allows native civilizations to emerge.[/color]");
+        builder.AppendLine("[b][color=#f0c46a]Life models[/color][/b]");
+        builder.AppendLine("[color=#c8d6e5]These controls do more than rename outcomes. They change how easily StarGen allows biospheres, complex life, sentient lineages, and technological civilizations to appear on generated worlds.[/color]");
         builder.AppendLine();
 
         AppendGuideSection(
             builder,
-            "Earth History",
-            "Use Earth as the rough baseline.",
-            "Simple life can appear on good worlds, but complex life and civilizations still need long-lived water, moderate radiation, and stable surface conditions. This is the realistic default.");
+            "Earth-Anchored Composite",
+            "Use a documented Earth-anchored synthesis instead of pretending one paper answers everything.",
+            "This is a composite preset built from the reviewed papers in the repo. It keeps simple life plausible on wet energy-rich worlds, makes complex life depend on long stable windows, keeps advanced life more selective than microbes, and adds an extra late bottleneck for technological civilizations.");
+        builder.AppendLine("[color=#9cc4ff]What this composite assumes:[/color]");
+        builder.AppendLine("- Simple life is plausible on suitable wet, energy-rich worlds, but not automatically common everywhere. [Lineweaver & Davis; Spiegel & Turner]");
+        builder.AppendLine("- Complex life benefits from long stable habitable windows and favorable surface conditions. [Mills et al.]");
+        builder.AppendLine("- Complex or intelligent life stays more selective than simple life. [Forgan & Rice]");
+        builder.AppendLine("- Technological civilizations face extra atmospheric and oxygen bottlenecks beyond basic biosphere success. [Balbi et al.]");
+        builder.AppendLine("- Planetary mass and stellar flux still gate whether a world sits in a viable environmental envelope at all. [Kopparapu et al.]");
+        builder.AppendLine();
 
         AppendGuideSection(
             builder,
             "Rapid Biospheres",
             "Assume life starts fairly easily once water and energy are in place.",
-            "More habitable worlds pick up biospheres. Complex life and civilizations are still filtered later, so this raises living worlds more than it raises advanced civilizations.");
+            "More habitable worlds pick up biospheres. Complex life and civilizations are still filtered later, so this mostly raises living worlds rather than advanced ones.");
 
         AppendGuideSection(
             builder,
             "Environmental Windows",
-            "Assume complex life depends on long calm windows rather than pure luck.",
-            "Worlds with long stable climates, moderate radiation, good surface diversity, and breathable atmospheres get a bigger boost. This raises the odds of complex ecosystems and native civilizations on especially stable worlds.");
+            "Assume complex life depends strongly on long calm windows rather than pure luck alone.",
+            "Worlds with long stable climates, moderate radiation, good surface diversity, and durable habitability get a bigger boost toward complex ecosystems and civilizations.");
 
         AppendGuideSection(
             builder,
             "Rare Complex Life",
-            "Assume microbes may be common but complex life needs unusually Earth-like conditions.",
-            "This model keeps tight limits on radiation, climate stability, and long-lived surface habitability. Biospheres still happen, but advanced life and civilizations become much rarer.");
+            "Assume microbes may be common but complex life needs unusually favorable conditions.",
+            "Biospheres still happen, but complex ecosystems and civilizations become much rarer because the later filters stay tight.");
 
         builder.AppendLine("[b][color=#f0c46a]What StarGen actually does with this[/color][/b]");
-        builder.AppendLine("1. It changes the biology-support threshold, not just the text label.");
-        builder.AppendLine("2. It changes abiogenesis, complex-life, and sentience or civilization chances separately.");
-        builder.AppendLine("3. It changes which worlds count as good long-term homes for native civilizations.");
+        builder.AppendLine("1. It separates biosphere support, abiogenesis, complex life, sentient lineages, and technological civilizations.");
+        builder.AppendLine("2. It applies oxygen-rich atmospheric bottlenecks at the civilization stage instead of folding them into early life.");
+        builder.AppendLine("3. It keeps Kopparapu-style habitability limits as environmental gating, not as a selectable life theory.");
         builder.AppendLine();
 
         builder.AppendLine("[b][color=#f0c46a]Sources[/color][/b]");

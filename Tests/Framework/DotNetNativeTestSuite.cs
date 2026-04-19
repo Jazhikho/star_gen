@@ -790,11 +790,11 @@ public static partial class DotNetNativeTestSuite
             "TestGalaxyConfig::test_galaxy_science_help_uses_plain_language",
             Tests.Unit.TestGalaxyConfig.TestGalaxyScienceHelpUsesPlainLanguage);
         runner.RunNativeTest(
-            "TestGalaxyConfig::test_life_science_reference_catalog_covers_life_model",
-            Tests.Unit.TestGalaxyConfig.TestLifeScienceReferenceCatalogCoversLifeModel);
+            "TestGalaxyConfig::test_life_science_reference_catalog_covers_life_models",
+            Tests.Unit.TestGalaxyConfig.TestLifeScienceReferenceCatalogCoversLifeModels);
         runner.RunNativeTest(
-            "TestGalaxyConfig::test_life_potential_models_change_biology_assessment",
-            Tests.Unit.TestGalaxyConfig.TestLifePotentialModelsChangeBiologyAssessment);
+            "TestGalaxyConfig::test_life_models_change_biology_assessment",
+            Tests.Unit.TestGalaxyConfig.TestLifeModelsChangeBiologyAssessment);
         runner.RunNativeTest(
             "TestStellarGenerationProfile::test_round_trip",
             Tests.Unit.TestStellarGenerationProfile.TestRoundTrip);

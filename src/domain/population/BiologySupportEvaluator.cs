@@ -62,6 +62,11 @@ public static class BiologySupportEvaluator
         public double SentienceChance { get; init; }
 
         /// <summary>
+        /// Probability that a sentient lineage crosses the additional bottlenecks for a technological civilization.
+        /// </summary>
+        public double CivilizationChance { get; init; }
+
+        /// <summary>
         /// Approximate fraction of the world engaged in the biosphere.
         /// </summary>
         public double BiosphereCoverage { get; init; }
@@ -147,6 +152,7 @@ public static class BiologySupportEvaluator
         double abiogenesisChance = CalculateAbiogenesisChance(environment, chemistryScore, permissiveness, lifeTuning);
         double complexLifeChance = CalculateComplexLifeChance(environment, chemistryScore, lifeTuning);
         double sentienceChance = CalculateSentienceChance(environment, complexLifeChance, lifeTuning);
+        double civilizationChance = CalculateCivilizationChance(environment, sentienceChance, lifeTuning);
         double biosphereCoverage = CalculateBiosphereCoverage(environment, bestChemistry, chemistryScore, permissiveness);
         bool supportsComplexLife = complexLifeChance >= 0.12;
 
@@ -159,6 +165,7 @@ public static class BiologySupportEvaluator
             AbiogenesisChance = abiogenesisChance,
             ComplexLifeChance = complexLifeChance,
             SentienceChance = sentienceChance,
+            CivilizationChance = civilizationChance,
             BiosphereCoverage = biosphereCoverage,
             SupportsComplexLife = supportsComplexLife,
         };
@@ -453,14 +460,14 @@ public static class BiologySupportEvaluator
         double orbitFactor = 0.82 + (0.18 * CalculateHabitableOrbitScore(environment));
         double tidalFactor = CalculateTidalHabitabilityScore(environment);
         double chance = chemistryScore * ageFactor * stabilityFactor * diversityFactor * orbitFactor * tidalFactor;
-        if (LifePotentialModeling.RequiresBreathableAtmosphereForComplexLife(lifeTuning.Model) && !environment.HasBreathableAtmosphere)
+        if (LifePotentialModeling.RequiresBreathableAtmosphereForComplexLife(lifeTuning) && !environment.HasBreathableAtmosphere)
         {
             chance *= environment.HasAtmosphere ? 0.35 : 0.12;
         }
 
-        if (LifePotentialModeling.RewardsStableWindows(lifeTuning.Model))
+        if (LifePotentialModeling.RewardsStableWindows(lifeTuning))
         {
-            chance *= 0.82 + (0.38 * CalculateEnvironmentalWindowScore(environment));
+            chance *= lifeTuning.EnvironmentalWindowMultiplier;
         }
 
         chance *= lifeTuning.ComplexLifeMultiplier;
@@ -483,15 +490,58 @@ public static class BiologySupportEvaluator
             - (environment.VolcanismLevel * 0.10)
             - (environment.RadiationLevel * 0.18));
         double dryLandFactor = 0.35 + (Clamp01(environment.LandCoverage) * 0.55);
-        double oxygenFactor = environment.HasBreathableAtmosphere ? 1.0 : 0.38;
+        double oxygenFactor = environment.HasBreathableAtmosphere ? 1.0 : 0.55;
         double baselineChance = 0.008 + (0.028 * ageFactor * stabilityFactor * dryLandFactor * oxygenFactor);
-        if (LifePotentialModeling.RewardsStableWindows(lifeTuning.Model))
+        if (LifePotentialModeling.RewardsStableWindows(lifeTuning))
         {
-            baselineChance *= 0.78 + (0.52 * CalculateEnvironmentalWindowScore(environment));
+            baselineChance *= 0.84 + (0.32 * CalculateEnvironmentalWindowScore(environment));
         }
 
         baselineChance *= lifeTuning.SentienceMultiplier;
         return Clamp01(baselineChance);
+    }
+
+    private static double CalculateCivilizationChance(
+        PlanetEnvironmentProfile environment,
+        double sentienceChance,
+        LifePotentialModeling.Tuning lifeTuning)
+    {
+        if (sentienceChance <= 0.0)
+        {
+            return 0.0;
+        }
+
+        double ageFactor = CalculateAgeFactor(environment.StellarAgeYears, 3.0e9, 6.2e9, 0.60);
+        double stabilityFactor = Clamp01(1.0
+            - (environment.WeatherSeverity * 0.18)
+            - (environment.VolcanismLevel * 0.08)
+            - (environment.RadiationLevel * 0.12));
+        double landFactor = 0.28 + (Clamp01(environment.LandCoverage) * 0.62);
+        double oxygenFactor = 1.0;
+        if (lifeTuning.RequiresOxygenRichAtmosphereForCivilization && !environment.HasBreathableAtmosphere)
+        {
+            if (environment.HasAtmosphere)
+            {
+                oxygenFactor = 0.18;
+            }
+            else
+            {
+                oxygenFactor = 0.05;
+            }
+        }
+        else if (!environment.HasBreathableAtmosphere)
+        {
+            oxygenFactor = 0.42;
+        }
+
+        double civilizationChance = sentienceChance
+            * (0.30 + (0.18 * ageFactor))
+            * stabilityFactor
+            * landFactor
+            * oxygenFactor;
+        civilizationChance *= lifeTuning.EnvironmentalWindowMultiplier;
+        civilizationChance *= lifeTuning.CivilizationMultiplier;
+        return Clamp01(civilizationChance);
     }
 
     private static double CalculateBiosphereCoverage(
@@ -672,21 +722,6 @@ public static class BiologySupportEvaluator
         return FailureReason.LowHabitability;
     }
 
-    private static double ResolveLifePermissiveness(GenerationUseCaseSettings? useCaseSettings)
-    {
-        if (useCaseSettings == null)
-        {
-            return GenerationUseCaseSettings.NeutralPermissiveness;
-        }
-
-        if (!useCaseSettings.HasLifePermissivenessOverride())
-        {
-            return GenerationUseCaseSettings.GetRecommendedLifePermissiveness(useCaseSettings.LifePotentialModel);
-        }
-
-        return useCaseSettings.LifePermissiveness;
-    }
-
     private static double CalculateEnvironmentalWindowScore(PlanetEnvironmentProfile environment)
     {
         double score = 0.0;
@@ -757,6 +792,7 @@ public static class BiologySupportEvaluator
             AbiogenesisChance = 0.0,
             ComplexLifeChance = 0.0,
             SentienceChance = 0.0,
+            CivilizationChance = 0.0,
             BiosphereCoverage = 0.0,
             SupportsComplexLife = false,
         };

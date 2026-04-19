@@ -28,14 +28,69 @@ public partial class GenerationUseCaseSettings : RefCounted
     }
 
     /// <summary>
-    /// Supported life-potential model families.
+    /// Legacy life-potential model families retained for save compatibility.
     /// </summary>
     public enum LifePotentialModelType
     {
+        EarthAnchoredComposite = 0,
         EarthHistory = 0,
         RapidBiospheres = 1,
         EnvironmentalWindows = 2,
         RareComplexLife = 3,
+    }
+
+    /// <summary>
+    /// Top-level life framework presets.
+    /// </summary>
+    public enum LifeFrameworkType
+    {
+        EarthAnchoredComposite = 0,
+        RapidBiospheres = 1,
+        EnvironmentalWindows = 2,
+        RareComplexLife = 3,
+    }
+
+    /// <summary>
+    /// Source-aligned abiogenesis assumptions.
+    /// </summary>
+    public enum AbiogenesisModelType
+    {
+        FollowFramework = 0,
+        RapidStart = 1,
+        Conservative = 2,
+    }
+
+    /// <summary>
+    /// Source-aligned complex-life assumptions.
+    /// </summary>
+    public enum ComplexLifeModelType
+    {
+        FollowFramework = 0,
+        EarthAnchoredComposite = 1,
+        EnvironmentalWindows = 2,
+        RareEarthFilters = 3,
+    }
+
+    /// <summary>
+    /// Source-aligned civilization assumptions.
+    /// </summary>
+    public enum CivilizationModelType
+    {
+        FollowFramework = 0,
+        EarthAnchoredComposite = 1,
+        RareCivilizations = 2,
+        TechnosphereOxygenBottleneck = 3,
+    }
+
+    /// <summary>
+    /// Weighting strength for long stable environmental windows.
+    /// </summary>
+    public enum EnvironmentalWindowWeightType
+    {
+        FollowFramework = 0,
+        Low = 1,
+        Moderate = 2,
+        High = 3,
     }
 
     /// <summary>
@@ -64,9 +119,38 @@ public partial class GenerationUseCaseSettings : RefCounted
     public double LifePermissiveness { get; set; } = NeutralPermissiveness;
 
     /// <summary>
-    /// Selected life-potential model used by model-aware generation flows.
+    /// Selected top-level life framework used by model-aware generation flows.
     /// </summary>
-    public LifePotentialModelType LifePotentialModel { get; set; } = LifePotentialModelType.EarthHistory;
+    public LifeFrameworkType LifeFramework { get; set; } = LifeFrameworkType.EarthAnchoredComposite;
+
+    /// <summary>
+    /// Abiogenesis assumption used by model-aware generation flows.
+    /// </summary>
+    public AbiogenesisModelType AbiogenesisModel { get; set; } = AbiogenesisModelType.FollowFramework;
+
+    /// <summary>
+    /// Complex-life assumption used by model-aware generation flows.
+    /// </summary>
+    public ComplexLifeModelType ComplexLifeModel { get; set; } = ComplexLifeModelType.FollowFramework;
+
+    /// <summary>
+    /// Civilization assumption used by model-aware generation flows.
+    /// </summary>
+    public CivilizationModelType CivilizationModel { get; set; } = CivilizationModelType.FollowFramework;
+
+    /// <summary>
+    /// Stable-window weighting assumption used by model-aware generation flows.
+    /// </summary>
+    public EnvironmentalWindowWeightType EnvironmentalWindowWeight { get; set; } = EnvironmentalWindowWeightType.FollowFramework;
+
+    /// <summary>
+    /// Legacy compatibility property that maps to the new life framework.
+    /// </summary>
+    public LifePotentialModelType LifePotentialModel
+    {
+        get => MapFrameworkToLegacyLifeModel(LifeFramework);
+        set => LifeFramework = MapLegacyLifeModelToFramework(value);
+    }
 
     /// <summary>
     /// Desired mainworld policy for system and galaxy flows.
@@ -99,10 +183,14 @@ public partial class GenerationUseCaseSettings : RefCounted
         MainworldPolicy = MainworldPolicyType.Require;
         if (IsApproximatelyNeutral(LifePermissiveness))
         {
-            LifePotentialModel = LifePotentialModelType.RapidBiospheres;
-            LifePermissiveness = TravellerLifePermissiveness;
+            LifeFramework = LifeFrameworkType.RapidBiospheres;
         }
 
+        AbiogenesisModel = AbiogenesisModelType.FollowFramework;
+        ComplexLifeModel = ComplexLifeModelType.FollowFramework;
+        CivilizationModel = CivilizationModelType.FollowFramework;
+        EnvironmentalWindowWeight = EnvironmentalWindowWeightType.FollowFramework;
+        LifePermissiveness = TravellerLifePermissiveness;
     }
 
     /// <summary>
@@ -128,7 +216,11 @@ public partial class GenerationUseCaseSettings : RefCounted
             RulesetMode = RulesetMode,
             ShowTravellerReadouts = ShowTravellerReadouts,
             LifePermissiveness = LifePermissiveness,
-            LifePotentialModel = LifePotentialModel,
+            LifeFramework = LifeFramework,
+            AbiogenesisModel = AbiogenesisModel,
+            ComplexLifeModel = ComplexLifeModel,
+            CivilizationModel = CivilizationModel,
+            EnvironmentalWindowWeight = EnvironmentalWindowWeight,
             MainworldPolicy = MainworldPolicy,
         };
     }
@@ -144,6 +236,11 @@ public partial class GenerationUseCaseSettings : RefCounted
             ["show_traveller_readouts"] = ShowTravellerReadouts,
             ["life_permissiveness"] = System.Math.Clamp(LifePermissiveness, 0.0, 1.0),
             ["life_potential_model"] = (int)LifePotentialModel,
+            ["life_framework"] = (int)LifeFramework,
+            ["abiogenesis_model"] = (int)AbiogenesisModel,
+            ["complex_life_model"] = (int)ComplexLifeModel,
+            ["civilization_model"] = (int)CivilizationModel,
+            ["environmental_window_weight"] = (int)EnvironmentalWindowWeight,
             ["mainworld_policy"] = (int)MainworldPolicy,
         };
     }
@@ -167,14 +264,46 @@ public partial class GenerationUseCaseSettings : RefCounted
 
         settings.ShowTravellerReadouts = GetBool(data, "show_traveller_readouts", false);
         settings.LifePermissiveness = System.Math.Clamp(GetDouble(data, "life_permissiveness", NeutralPermissiveness), 0.0, 1.0);
-        int lifePotentialModelValue = GetInt(data, "life_potential_model", -1);
-        if (System.Enum.IsDefined(typeof(LifePotentialModelType), lifePotentialModelValue))
+        int lifeFrameworkValue = GetInt(data, "life_framework", -1);
+        if (System.Enum.IsDefined(typeof(LifeFrameworkType), lifeFrameworkValue))
         {
-            settings.LifePotentialModel = (LifePotentialModelType)lifePotentialModelValue;
+            settings.LifeFramework = (LifeFrameworkType)lifeFrameworkValue;
         }
         else
         {
-            settings.LifePotentialModel = MapPermissivenessToLifeModel(settings.LifePermissiveness);
+            int lifePotentialModelValue = GetInt(data, "life_potential_model", -1);
+            if (System.Enum.IsDefined(typeof(LifePotentialModelType), lifePotentialModelValue))
+            {
+                settings.LifeFramework = MapLegacyLifeModelToFramework((LifePotentialModelType)lifePotentialModelValue);
+            }
+            else
+            {
+                settings.LifeFramework = MapPermissivenessToFramework(settings.LifePermissiveness);
+            }
+        }
+
+        int abiogenesisModelValue = GetInt(data, "abiogenesis_model", (int)AbiogenesisModelType.FollowFramework);
+        if (System.Enum.IsDefined(typeof(AbiogenesisModelType), abiogenesisModelValue))
+        {
+            settings.AbiogenesisModel = (AbiogenesisModelType)abiogenesisModelValue;
+        }
+
+        int complexLifeModelValue = GetInt(data, "complex_life_model", (int)ComplexLifeModelType.FollowFramework);
+        if (System.Enum.IsDefined(typeof(ComplexLifeModelType), complexLifeModelValue))
+        {
+            settings.ComplexLifeModel = (ComplexLifeModelType)complexLifeModelValue;
+        }
+
+        int civilizationModelValue = GetInt(data, "civilization_model", (int)CivilizationModelType.FollowFramework);
+        if (System.Enum.IsDefined(typeof(CivilizationModelType), civilizationModelValue))
+        {
+            settings.CivilizationModel = (CivilizationModelType)civilizationModelValue;
+        }
+
+        int environmentalWindowWeightValue = GetInt(data, "environmental_window_weight", (int)EnvironmentalWindowWeightType.FollowFramework);
+        if (System.Enum.IsDefined(typeof(EnvironmentalWindowWeightType), environmentalWindowWeightValue))
+        {
+            settings.EnvironmentalWindowWeight = (EnvironmentalWindowWeightType)environmentalWindowWeightValue;
         }
 
         int mainworldPolicyValue = GetInt(data, "mainworld_policy", (int)MainworldPolicyType.None);
@@ -238,14 +367,30 @@ public partial class GenerationUseCaseSettings : RefCounted
     /// </summary>
     public static double GetRecommendedLifePermissiveness(LifePotentialModelType model)
     {
-        return model switch
+        return GetRecommendedLifePermissiveness(MapLegacyLifeModelToFramework(model));
+    }
+
+    /// <summary>
+    /// Returns the baseline permissiveness value associated with a life framework.
+    /// </summary>
+    public static double GetRecommendedLifePermissiveness(LifeFrameworkType framework)
+    {
+        return framework switch
         {
-            LifePotentialModelType.EarthHistory => 0.50,
-            LifePotentialModelType.RapidBiospheres => 0.68,
-            LifePotentialModelType.EnvironmentalWindows => 0.56,
-            LifePotentialModelType.RareComplexLife => 0.34,
+            LifeFrameworkType.EarthAnchoredComposite => 0.50,
+            LifeFrameworkType.RapidBiospheres => 0.68,
+            LifeFrameworkType.EnvironmentalWindows => 0.56,
+            LifeFrameworkType.RareComplexLife => 0.34,
             _ => NeutralPermissiveness,
         };
+    }
+
+    /// <summary>
+    /// Infers the closest life framework for a raw permissiveness value.
+    /// </summary>
+    public static LifeFrameworkType InferLifeFrameworkFromPermissiveness(double permissiveness)
+    {
+        return MapPermissivenessToFramework(permissiveness);
     }
 
     /// <summary>
@@ -253,26 +398,48 @@ public partial class GenerationUseCaseSettings : RefCounted
     /// </summary>
     public bool HasLifePermissivenessOverride()
     {
-        return System.Math.Abs(LifePermissiveness - GetRecommendedLifePermissiveness(LifePotentialModel)) > 0.001;
+        return System.Math.Abs(LifePermissiveness - GetRecommendedLifePermissiveness(LifeFramework)) > 0.001;
     }
 
-    private static LifePotentialModelType MapPermissivenessToLifeModel(double permissiveness)
+    private static LifeFrameworkType MapPermissivenessToFramework(double permissiveness)
     {
         if (permissiveness <= 0.40)
         {
-            return LifePotentialModelType.RareComplexLife;
+            return LifeFrameworkType.RareComplexLife;
         }
 
         if (permissiveness >= 0.62)
         {
-            return LifePotentialModelType.RapidBiospheres;
+            return LifeFrameworkType.RapidBiospheres;
         }
 
         if (permissiveness >= 0.53)
         {
-            return LifePotentialModelType.EnvironmentalWindows;
+            return LifeFrameworkType.EnvironmentalWindows;
         }
 
-        return LifePotentialModelType.EarthHistory;
+        return LifeFrameworkType.EarthAnchoredComposite;
+    }
+
+    private static LifeFrameworkType MapLegacyLifeModelToFramework(LifePotentialModelType model)
+    {
+        return model switch
+        {
+            LifePotentialModelType.RapidBiospheres => LifeFrameworkType.RapidBiospheres,
+            LifePotentialModelType.EnvironmentalWindows => LifeFrameworkType.EnvironmentalWindows,
+            LifePotentialModelType.RareComplexLife => LifeFrameworkType.RareComplexLife,
+            _ => LifeFrameworkType.EarthAnchoredComposite,
+        };
+    }
+
+    private static LifePotentialModelType MapFrameworkToLegacyLifeModel(LifeFrameworkType framework)
+    {
+        return framework switch
+        {
+            LifeFrameworkType.RapidBiospheres => LifePotentialModelType.RapidBiospheres,
+            LifeFrameworkType.EnvironmentalWindows => LifePotentialModelType.EnvironmentalWindows,
+            LifeFrameworkType.RareComplexLife => LifePotentialModelType.RareComplexLife,
+            _ => LifePotentialModelType.EarthAnchoredComposite,
+        };
     }
 }
