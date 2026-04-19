@@ -47,6 +47,7 @@ public static class TestStudioScienceUi
         Label? settingsTitle = screen.GetNodeOrNull<Label>("MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/SettingsTitle");
         Label? rulesTitle = screen.GetNodeOrNull<Label>("MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/RulesPanel/MarginContainer/RulesVBox/RulesTitle");
         CheckButton? showUwpCheck = screen.GetNodeOrNull<CheckButton>("MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/RulesPanel/MarginContainer/RulesVBox/ScrollContainer/RulesContent/UseCaseSection/ShowTravellerReadoutsCheck");
+        CheckButton? forceLifeCheck = screen.GetNodeOrNull<CheckButton>("MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/RulesPanel/MarginContainer/RulesVBox/ScrollContainer/RulesContent/UseCaseSection/ForceLifeOnSupportableWorldsCheck");
         OptionButton? gasGiantFormationOption = screen.GetNodeOrNull<OptionButton>("MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/PlanetarySection/PlanetaryContent/PlanetaryVBox/GasGiantFormationRow/GasGiantFormationOption");
         OptionButton? moonBiasOption = screen.GetNodeOrNull<OptionButton>("MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/PlanetarySection/PlanetaryContent/PlanetaryVBox/MoonFormationBiasRow/MoonFormationBiasOption");
 
@@ -67,6 +68,7 @@ public static class TestStudioScienceUi
         DotNetNativeTestSuite.AssertNotNull(settingsTitle, "Galaxy screen should expose the settings title label");
         DotNetNativeTestSuite.AssertNotNull(rulesTitle, "Galaxy screen should expose the rules title label");
         DotNetNativeTestSuite.AssertNotNull(showUwpCheck, "Galaxy screen should expose the UWP code checkbox");
+        DotNetNativeTestSuite.AssertNotNull(forceLifeCheck, "Galaxy screen should expose the force-life override checkbox");
         DotNetNativeTestSuite.AssertNotNull(gasGiantFormationOption, "Galaxy studio should expose aggregate planetary gas-giant controls");
         DotNetNativeTestSuite.AssertNotNull(moonBiasOption, "Galaxy studio should expose aggregate moon-formation controls");
 
@@ -79,6 +81,7 @@ public static class TestStudioScienceUi
         DotNetNativeTestSuite.AssertEqual("Scientific Assumptions", settingsTitle!.Text, "Galaxy screen should label the left column as scientific assumptions");
         DotNetNativeTestSuite.AssertEqual("Generation Overrides", rulesTitle!.Text, "Galaxy screen should rename the center column to Generation Overrides");
         DotNetNativeTestSuite.AssertEqual("Show UWP Code", showUwpCheck!.Text, "Galaxy screen should rename Traveller readouts to Show UWP Code");
+        DotNetNativeTestSuite.AssertTrue(forceLifeCheck!.TooltipText.Contains("Generation override, not a scientific model."), "Galaxy screen should explain that force life is an override");
         DotNetNativeTestSuite.AssertTrue(OptionContainsText(lifeFrameworkOption!, "Earth-Anchored Composite"), "Galaxy screen should expose the Earth-Anchored Composite life framework");
         DotNetNativeTestSuite.AssertTrue(OptionContainsText(lifeFrameworkOption, "Rapid Biospheres"), "Galaxy screen should expose the Rapid Biospheres life framework");
         DotNetNativeTestSuite.AssertTrue(OptionContainsText(abiogenesisOption!, "Rapid Start"), "Galaxy screen should expose the Rapid Start abiogenesis model");
@@ -102,12 +105,15 @@ public static class TestStudioScienceUi
         SelectOptionById(windowWeightOption!, (int)GenerationUseCaseSettings.EnvironmentalWindowWeightType.High);
         SelectOptionById(gasGiantFormationOption!, (int)GasGiantFormationModel.PebbleAssisted);
         SelectOptionById(moonBiasOption!, (int)PlanetMoonFormationBias.CapturedRich);
+        forceLifeCheck.ButtonPressed = true;
+        forceLifeCheck.EmitSignal(CheckButton.SignalName.Toggled, true);
         GalaxyConfig config = screen.GetCurrentConfig();
         DotNetNativeTestSuite.AssertEqual((int)GenerationUseCaseSettings.LifeFrameworkType.EnvironmentalWindows, (int)config.UseCaseSettings.LifeFramework, "Galaxy studio should write the selected life framework into the config");
         DotNetNativeTestSuite.AssertEqual((int)GenerationUseCaseSettings.AbiogenesisModelType.Conservative, (int)config.UseCaseSettings.AbiogenesisModel, "Galaxy studio should write the selected abiogenesis model into the config");
         DotNetNativeTestSuite.AssertEqual((int)GenerationUseCaseSettings.ComplexLifeModelType.EnvironmentalWindows, (int)config.UseCaseSettings.ComplexLifeModel, "Galaxy studio should write the selected complex-life model into the config");
         DotNetNativeTestSuite.AssertEqual((int)GenerationUseCaseSettings.CivilizationModelType.TechnosphereOxygenBottleneck, (int)config.UseCaseSettings.CivilizationModel, "Galaxy studio should write the selected civilization model into the config");
         DotNetNativeTestSuite.AssertEqual((int)GenerationUseCaseSettings.EnvironmentalWindowWeightType.High, (int)config.UseCaseSettings.EnvironmentalWindowWeight, "Galaxy studio should write the selected window weight into the config");
+        DotNetNativeTestSuite.AssertTrue(config.UseCaseSettings.ForceLifeOnSupportableWorlds, "Galaxy studio should write the force-life override into the config");
         DotNetNativeTestSuite.AssertEqual((int)GasGiantFormationModel.PebbleAssisted, (int)config.PlanetaryProfile.GasGiantFormationModel, "Galaxy studio should write the selected gas-giant model into the config");
         DotNetNativeTestSuite.AssertEqual((int)PlanetMoonFormationBias.CapturedRich, (int)config.PlanetaryProfile.MoonFormationBias, "Galaxy studio should write the selected moon-formation bias into the config");
 
@@ -134,6 +140,7 @@ public static class TestStudioScienceUi
         OptionButton? windowWeightOption = screen.GetNodeOrNull<OptionButton>("MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/LifeSection/LifeContent/LifeVBox/EnvironmentalWindowWeightRow/EnvironmentalWindowWeightOption");
         Label? rulesTitle = screen.GetNodeOrNull<Label>("MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/RulesPanel/MarginContainer/RulesVBox/RulesTitle");
         CheckBox? showUwpCheck = screen.GetNodeOrNull<CheckBox>("MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/RulesPanel/MarginContainer/RulesVBox/ScrollContainer/RulesContent/ShowTravellerReadoutsCheck");
+        CheckBox? forceLifeCheck = screen.GetNodeOrNull<CheckBox>("MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/RulesPanel/MarginContainer/RulesVBox/ScrollContainer/RulesContent/ForceLifeOnSupportableWorldsCheck");
 
         DotNetNativeTestSuite.AssertNotNull(starCountMinInput, "System studio should expose a minimum star-count input");
         DotNetNativeTestSuite.AssertNotNull(starCountMaxInput, "System studio should expose a maximum star-count input");
@@ -152,8 +159,10 @@ public static class TestStudioScienceUi
         DotNetNativeTestSuite.AssertNotNull(windowWeightOption, "System studio should expose the environmental-window selector");
         DotNetNativeTestSuite.AssertNotNull(rulesTitle, "System studio should expose the rules title");
         DotNetNativeTestSuite.AssertNotNull(showUwpCheck, "System studio should expose the Show UWP Code checkbox");
+        DotNetNativeTestSuite.AssertNotNull(forceLifeCheck, "System studio should expose the force-life override checkbox");
         DotNetNativeTestSuite.AssertEqual("Generation Overrides", rulesTitle!.Text, "System studio should name the center column Generation Overrides");
         DotNetNativeTestSuite.AssertEqual("Show UWP Code", showUwpCheck!.Text, "System studio should use the Show UWP Code label");
+        DotNetNativeTestSuite.AssertTrue(forceLifeCheck!.TooltipText.Contains("Generation override, not a scientific model."), "System studio should explain that force life is an override");
         DotNetNativeTestSuite.AssertTrue(OptionContainsText(lifeFrameworkOption!, "Earth-Anchored Composite"), "System studio should expose the Earth-Anchored Composite life framework");
         DotNetNativeTestSuite.AssertFalse(OptionContainsText(lifeFrameworkOption, "Earth History"), "System studio should not expose the old Earth History label");
 
@@ -166,6 +175,8 @@ public static class TestStudioScienceUi
         SelectOptionById(complexLifeOption!, (int)GenerationUseCaseSettings.ComplexLifeModelType.EnvironmentalWindows);
         SelectOptionById(civilizationOption!, (int)GenerationUseCaseSettings.CivilizationModelType.TechnosphereOxygenBottleneck);
         SelectOptionById(windowWeightOption!, (int)GenerationUseCaseSettings.EnvironmentalWindowWeightType.High);
+        forceLifeCheck.ButtonPressed = true;
+        forceLifeCheck.EmitSignal(CheckBox.SignalName.Toggled, true);
         SolarSystemSpec spec = screen.GetCurrentSpec();
         DotNetNativeTestSuite.AssertEqual(10, spec.StarCountMax, "System studio should build specs that allow up to 10 stars");
         DotNetNativeTestSuite.AssertEqual((int)PlanetEnvelopeLossModel.CorePowered, (int)spec.PlanetaryProfile.EnvelopeLossModel, "System studio should write the selected envelope-loss model into the system spec");
@@ -176,6 +187,7 @@ public static class TestStudioScienceUi
         DotNetNativeTestSuite.AssertEqual((int)GenerationUseCaseSettings.ComplexLifeModelType.EnvironmentalWindows, (int)spec.UseCaseSettings.ComplexLifeModel, "System studio should write the selected complex-life model into the system spec");
         DotNetNativeTestSuite.AssertEqual((int)GenerationUseCaseSettings.CivilizationModelType.TechnosphereOxygenBottleneck, (int)spec.UseCaseSettings.CivilizationModel, "System studio should write the selected civilization model into the system spec");
         DotNetNativeTestSuite.AssertEqual((int)GenerationUseCaseSettings.EnvironmentalWindowWeightType.High, (int)spec.UseCaseSettings.EnvironmentalWindowWeight, "System studio should write the selected environmental-window weight into the system spec");
+        DotNetNativeTestSuite.AssertTrue(spec.UseCaseSettings.ForceLifeOnSupportableWorlds, "System studio should write the force-life override into the system spec");
 
         IntegrationTestUtils.CleanupNode(screen);
     }
@@ -402,6 +414,7 @@ public static class TestStudioScienceUi
         OptionButton? complexLifeOption = screen.GetNodeOrNull<OptionButton>("MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/LifeSection/LifeContent/LifeVBox/ComplexLifeModelRow/ComplexLifeModelOption");
         OptionButton? civilizationOption = screen.GetNodeOrNull<OptionButton>("MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/LifeSection/LifeContent/LifeVBox/CivilizationModelRow/CivilizationModelOption");
         OptionButton? windowWeightOption = screen.GetNodeOrNull<OptionButton>("MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/LifeSection/LifeContent/LifeVBox/EnvironmentalWindowWeightRow/EnvironmentalWindowWeightOption");
+        CheckBox? forceLifeCheck = screen.GetNodeOrNull<CheckBox>("MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/LifeSection/LifeContent/LifeVBox/ForceLifeOnSupportableWorldsRow/ForceLifeOnSupportableWorldsCheck");
         OptionButton? atmosphereOption = screen.GetNodeOrNull<OptionButton>("MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/PlanetSection/PlanetAtmosphereRow/PlanetAtmosphereOption");
         OptionButton? envelopeOption = screen.GetNodeOrNull<OptionButton>("MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/PlanetSection/PlanetEnvelopeOverrideRow/PlanetEnvelopeOverrideOption");
         OptionButton? hydrosphereOption = screen.GetNodeOrNull<OptionButton>("MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/PlanetSection/PlanetHydrosphereTendencyRow/PlanetHydrosphereTendencyOption");
@@ -418,6 +431,7 @@ public static class TestStudioScienceUi
         DotNetNativeTestSuite.AssertNotNull(complexLifeOption, "Object studio should expose a complex-life selector");
         DotNetNativeTestSuite.AssertNotNull(civilizationOption, "Object studio should expose a civilization selector");
         DotNetNativeTestSuite.AssertNotNull(windowWeightOption, "Object studio should expose an environmental-window selector");
+        DotNetNativeTestSuite.AssertNotNull(forceLifeCheck, "Object studio should expose a direct force-life override");
         DotNetNativeTestSuite.AssertNotNull(atmosphereOption, "Object studio should expose a direct atmosphere selector");
         DotNetNativeTestSuite.AssertNotNull(envelopeOption, "Object studio should expose a direct envelope selector");
         DotNetNativeTestSuite.AssertNotNull(hydrosphereOption, "Object studio should expose a direct hydrosphere selector");
@@ -427,6 +441,7 @@ public static class TestStudioScienceUi
         DotNetNativeTestSuite.AssertTrue(lifeSection!.Visible, "Object studio life settings should be visible for planet authoring");
         DotNetNativeTestSuite.AssertTrue(OptionContainsText(lifeFrameworkOption!, "Earth-Anchored Composite"), "Object studio should expose Earth-Anchored Composite");
         DotNetNativeTestSuite.AssertTrue(OptionContainsText(civilizationOption!, "Technosphere Oxygen Bottleneck"), "Object studio should expose the technosphere bottleneck option");
+        DotNetNativeTestSuite.AssertTrue(forceLifeCheck!.TooltipText.Contains("Generation override, not a scientific model."), "Object studio should explain that force life is an override");
 
         helpButton!.EmitSignal(Button.SignalName.Pressed);
         DotNetNativeTestSuite.AssertTrue(helpDialog!.Visible, "Object studio Help popup should open when the Help button is pressed");
@@ -443,6 +458,8 @@ public static class TestStudioScienceUi
         SelectOptionById(complexLifeOption!, (int)GenerationUseCaseSettings.ComplexLifeModelType.RareEarthFilters);
         SelectOptionById(civilizationOption!, (int)GenerationUseCaseSettings.CivilizationModelType.TechnosphereOxygenBottleneck);
         SelectOptionById(windowWeightOption!, (int)GenerationUseCaseSettings.EnvironmentalWindowWeightType.High);
+        forceLifeCheck.ButtonPressed = true;
+        forceLifeCheck.EmitSignal(CheckBox.SignalName.Toggled, true);
 
         ObjectGenerationRequest request = screen.GetCurrentRequest();
         DotNetNativeTestSuite.AssertEqual((int)GenerationUseCaseSettings.LifeFrameworkType.EnvironmentalWindows, (int)request.UseCaseSettings.LifeFramework, "Object studio should write the selected life framework into the request");
@@ -450,6 +467,7 @@ public static class TestStudioScienceUi
         DotNetNativeTestSuite.AssertEqual((int)GenerationUseCaseSettings.ComplexLifeModelType.RareEarthFilters, (int)request.UseCaseSettings.ComplexLifeModel, "Object studio should write the selected complex-life model into the request");
         DotNetNativeTestSuite.AssertEqual((int)GenerationUseCaseSettings.CivilizationModelType.TechnosphereOxygenBottleneck, (int)request.UseCaseSettings.CivilizationModel, "Object studio should write the selected civilization model into the request");
         DotNetNativeTestSuite.AssertEqual((int)GenerationUseCaseSettings.EnvironmentalWindowWeightType.High, (int)request.UseCaseSettings.EnvironmentalWindowWeight, "Object studio should write the selected environmental-window weight into the request");
+        DotNetNativeTestSuite.AssertTrue(request.UseCaseSettings.ForceLifeOnSupportableWorlds, "Object studio should write the direct force-life override into the request");
 
         SelectOptionById(atmosphereOption!, 0);
         SelectOptionById(envelopeOption!, (int)PlanetEnvelopeOverride.Stripped);

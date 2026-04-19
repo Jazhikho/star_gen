@@ -928,3 +928,14 @@ Use this log for significant AI-assisted artifacts in this repository.
 - Human Changed: The user clarified that Object Studio needed source-backed notes about contradictory direct settings rather than aggregate science controls, and that help popups across the studios needed to be shrunk so the close button stayed visible.
 - Validation Method: `dotnet build StarGen.sln` and `godot-mono.exe --path . --headless --script res://Tests/RunTestsHeadless.gd` (`Total: 1813 | Passed: 1813 | Failed: 0`). One earlier headless attempt hit Godot's intermittent native finalizer crash before completion; the immediate rerun was clean.
 - Final Approver: Pending Christopher B. Del Gesso review.
+
+### 2026-04-19 - Codex (GPT-5)
+
+- Task Purpose: Add a generation override that forces native life to appear on worlds that pass the biology support gate, while keeping unsupported worlds lifeless.
+- Input Materials Used: User request for a force-life setting; `claude.md`; `AGENTS.md`; `GenerationUseCaseSettings`; `PopulationLikelihood`; `BiologySupportEvaluator`; Galaxy/System/Object studio scenes and controllers; integration and population test suites; and version/provenance metadata files.
+- AI Produced: Added `ForceLifeOnSupportableWorlds` to `GenerationUseCaseSettings` serialization, wired the override into `PopulationLikelihood.ShouldGenerateNatives(...)`, surfaced the control in Galaxy Studio, System Studio, and Object Studio, added studio integration coverage for the new control, added a population unit test proving the override respects the biology support gate, and updated internal version metadata to `0.8.14.0`.
+- Human Accepted: Pending user review of the new force-life override behavior and studio placement.
+- Human Rejected: No attempt was made to classify the override as a science-backed life model; it remains documented as a generation override, not an academic assumption.
+- Human Changed: The user explicitly constrained the feature so worlds that cannot support life must remain lifeless, which drove the implementation to sit after the support gate instead of bypassing it.
+- Validation Method: `dotnet build StarGen.sln` and `godot-mono.exe --path . --headless --script res://Tests/RunTestsHeadless.gd` (`Total: 1814 | Passed: 1814 | Failed: 0`).
+- Final Approver: Pending Christopher B. Del Gesso review.

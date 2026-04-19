@@ -440,6 +440,7 @@ public static partial class DotNetNativeTestSuite
         runner.RunNativeTest("TestPopulationLikelihood::test_should_generate_natives_zero_when_uninhabitable", TestPopulationLikelihood.TestShouldGenerateNativesZeroWhenUninhabitable);
         runner.RunNativeTest("TestPopulationLikelihood::test_should_generate_natives_respects_life_permissiveness", TestPopulationLikelihood.TestShouldGenerateNativesRespectsLifePermissiveness);
         runner.RunNativeTest("TestPopulationLikelihood::test_should_generate_natives_guarantees_prime_worlds_at_strict", TestPopulationLikelihood.TestShouldGenerateNativesGuaranteesPrimeWorldsAtStrict);
+        runner.RunNativeTest("TestPopulationLikelihood::test_force_life_on_supportable_worlds_respects_support_gate", TestPopulationLikelihood.TestForceLifeOnSupportableWorldsRespectsSupportGate);
         runner.RunNativeTest("TestPopulationLikelihood::test_should_generate_colony_respects_native_pressure", TestPopulationLikelihood.TestShouldGenerateColonyRespectsNativePressure);
         runner.RunNativeTest("TestPopulationLikelihood::test_override_enum_values", TestPopulationLikelihood.TestOverrideEnumValues);
 

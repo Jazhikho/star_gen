@@ -1389,6 +1389,11 @@ layout_mode = 2
 size_flags_horizontal = 3
 text = "Show UWP Code"
 
+[node name="ForceLifeOnSupportableWorldsCheck" type="CheckButton" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/RulesPanel/MarginContainer/RulesVBox/ScrollContainer/RulesContent/UseCaseSection"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Force Life If Supportable"
+
 [node name="AdvancedHeaderRow" type="HBoxContainer" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/RulesPanel/MarginContainer/RulesVBox/ScrollContainer/RulesContent/UseCaseSection" unique_id=886843777]
 layout_mode = 2
 theme_override_constants/separation = 8

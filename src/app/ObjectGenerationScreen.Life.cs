@@ -10,6 +10,8 @@ namespace StarGen.App;
 /// </summary>
 public partial class ObjectGenerationScreen
 {
+    private CheckBox? _forceLifeOnSupportableWorldsCheck;
+
     private void CacheObjectLifeNodeReferences()
     {
         const string Root = "MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/LifeSection/LifeContent/LifeVBox";
@@ -19,6 +21,7 @@ public partial class ObjectGenerationScreen
         _complexLifeModelOption = GetNodeOrNull<OptionButton>($"{Root}/ComplexLifeModelRow/ComplexLifeModelOption");
         _civilizationModelOption = GetNodeOrNull<OptionButton>($"{Root}/CivilizationModelRow/CivilizationModelOption");
         _environmentalWindowWeightOption = GetNodeOrNull<OptionButton>($"{Root}/EnvironmentalWindowWeightRow/EnvironmentalWindowWeightOption");
+        _forceLifeOnSupportableWorldsCheck = GetNodeOrNull<CheckBox>($"{Root}/ForceLifeOnSupportableWorldsRow/ForceLifeOnSupportableWorldsCheck");
     }
 
     private void PopulateObjectLifeSection()
@@ -38,6 +41,10 @@ public partial class ObjectGenerationScreen
         ConnectOptionToSummary(_complexLifeModelOption);
         ConnectOptionToSummary(_civilizationModelOption);
         ConnectOptionToSummary(_environmentalWindowWeightOption);
+        if (_forceLifeOnSupportableWorldsCheck != null)
+        {
+            _forceLifeOnSupportableWorldsCheck.Toggled += _ => RefreshSummary();
+        }
     }
 
     private void ApplyObjectLifeDefaults()
@@ -72,6 +79,11 @@ public partial class ObjectGenerationScreen
         {
             settings.EnvironmentalWindowWeight = (GenerationUseCaseSettings.EnvironmentalWindowWeightType)_environmentalWindowWeightOption.GetSelectedId();
         }
+
+        if (_forceLifeOnSupportableWorldsCheck != null)
+        {
+            settings.ForceLifeOnSupportableWorlds = _forceLifeOnSupportableWorldsCheck.ButtonPressed;
+        }
     }
 
     private void ApplyTravellerObjectLifeDefaultsToControls()
@@ -81,6 +93,10 @@ public partial class ObjectGenerationScreen
         SelectOptionById(_complexLifeModelOption, (int)GenerationUseCaseSettings.ComplexLifeModelType.FollowFramework);
         SelectOptionById(_civilizationModelOption, (int)GenerationUseCaseSettings.CivilizationModelType.FollowFramework);
         SelectOptionById(_environmentalWindowWeightOption, (int)GenerationUseCaseSettings.EnvironmentalWindowWeightType.FollowFramework);
+        if (_forceLifeOnSupportableWorldsCheck != null)
+        {
+            _forceLifeOnSupportableWorldsCheck.ButtonPressed = false;
+        }
     }
 
     private void ApplyObjectLifeSettingsToControls(GenerationUseCaseSettings settings)
@@ -90,6 +106,10 @@ public partial class ObjectGenerationScreen
         SelectOptionById(_complexLifeModelOption, (int)settings.ComplexLifeModel);
         SelectOptionById(_civilizationModelOption, (int)settings.CivilizationModel);
         SelectOptionById(_environmentalWindowWeightOption, (int)settings.EnvironmentalWindowWeight);
+        if (_forceLifeOnSupportableWorldsCheck != null)
+        {
+            _forceLifeOnSupportableWorldsCheck.ButtonPressed = settings.ForceLifeOnSupportableWorlds;
+        }
     }
 
     private void ApplyObjectLifeParameterTooltips()
@@ -100,6 +120,7 @@ public partial class ObjectGenerationScreen
         ApplyObjectLifeTooltip("complex_life_model", _complexLifeModelOption, $"{Root}/ComplexLifeModelRow/ComplexLifeModelLabel");
         ApplyObjectLifeTooltip("civilization_model", _civilizationModelOption, $"{Root}/CivilizationModelRow/CivilizationModelLabel");
         ApplyObjectLifeTooltip("environmental_window_weight", _environmentalWindowWeightOption, $"{Root}/EnvironmentalWindowWeightRow/EnvironmentalWindowWeightLabel");
+        ApplyObjectLifeOverrideTooltip($"{Root}/ForceLifeOnSupportableWorldsRow/ForceLifeOnSupportableWorldsLabel");
     }
 
     private void ApplyObjectLifeTooltip(string parameterId, Control? inputControl, string labelPath)
@@ -124,7 +145,24 @@ public partial class ObjectGenerationScreen
             return string.Empty;
         }
 
-        return $"Life {LifeScienceReferenceCatalog.GetFrameworkLabel((GenerationUseCaseSettings.LifeFrameworkType)(_lifeFrameworkOption?.GetSelectedId() ?? 0))}";
+        string framework = LifeScienceReferenceCatalog.GetFrameworkLabel((GenerationUseCaseSettings.LifeFrameworkType)(_lifeFrameworkOption?.GetSelectedId() ?? 0));
+        string forceLife = _forceLifeOnSupportableWorldsCheck != null && _forceLifeOnSupportableWorldsCheck.ButtonPressed ? " | Force Life On" : string.Empty;
+        return $"Life {framework}{forceLife}";
+    }
+
+    private void ApplyObjectLifeOverrideTooltip(string labelPath)
+    {
+        string tooltip = "Generation override, not a scientific model.\nWhen enabled, this planet keeps native life if it already passes the biology support gate.\nIt still does not create life on worlds that fail support.";
+        if (_forceLifeOnSupportableWorldsCheck != null)
+        {
+            _forceLifeOnSupportableWorldsCheck.TooltipText = tooltip;
+        }
+
+        Label? label = GetNodeOrNull<Label>(labelPath);
+        if (label != null)
+        {
+            label.TooltipText = tooltip;
+        }
     }
 
     private void PopulateLifeFrameworkOptions(OptionButton? optionButton)

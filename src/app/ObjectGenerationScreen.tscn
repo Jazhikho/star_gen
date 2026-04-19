@@ -621,6 +621,20 @@ text = "Window Weight"
 layout_mode = 2
 size_flags_horizontal = 3
 
+[node name="ForceLifeOnSupportableWorldsRow" type="HBoxContainer" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/LifeSection/LifeContent/LifeVBox"]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="ForceLifeOnSupportableWorldsLabel" type="Label" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/LifeSection/LifeContent/LifeVBox/ForceLifeOnSupportableWorldsRow"]
+custom_minimum_size = Vector2(112, 0)
+layout_mode = 2
+text = "Force Life"
+
+[node name="ForceLifeOnSupportableWorldsCheck" type="CheckBox" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/LifeSection/LifeContent/LifeVBox/ForceLifeOnSupportableWorldsRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "If Supportable"
+
 [node name="StarSection" type="VBoxContainer" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox"]
 layout_mode = 2
 theme_override_constants/separation = 8

@@ -76,6 +76,7 @@ public partial class GalaxyGenerationScreen : Control
 	private HBoxContainer? _seedContainer;
 	private OptionButton? _rulesetModeOption;
 	private BaseButton? _showTravellerReadoutsCheck;
+	private BaseButton? _forceLifeOnSupportableWorldsCheck;
 	private OptionButton? _lifeFrameworkOption;
 	private OptionButton? _abiogenesisModelOption;
 	private OptionButton? _complexLifeModelOption;
@@ -331,6 +332,7 @@ public partial class GalaxyGenerationScreen : Control
 		_rulesVBox = GetNodeOrNull<VBoxContainer>(RulesRootPath);
 		_rulesetModeOption = GetNodeOrNull<OptionButton>($"{RulesRootPath}/UseCaseSection/RulesetRow/RulesetModeOption");
 		_showTravellerReadoutsCheck = GetNodeOrNull<BaseButton>($"{RulesRootPath}/UseCaseSection/ShowTravellerReadoutsCheck");
+		_forceLifeOnSupportableWorldsCheck = GetNodeOrNull<BaseButton>($"{RulesRootPath}/UseCaseSection/ForceLifeOnSupportableWorldsCheck");
 		_advancedAssumptionsInfoButton = GetNodeOrNull<Button>($"{RulesRootPath}/UseCaseSection/AdvancedHeaderRow/AdvancedAssumptionsInfoButton");
 		_lifeFrameworkOption = GetNodeOrNull<OptionButton>($"{ParameterRootPath}/LifeSection/LifeContent/LifeVBox/LifeFrameworkRow/LifeFrameworkOption");
 		_abiogenesisModelOption = GetNodeOrNull<OptionButton>($"{ParameterRootPath}/LifeSection/LifeContent/LifeVBox/AbiogenesisModelRow/AbiogenesisModelOption");
@@ -365,6 +367,7 @@ public partial class GalaxyGenerationScreen : Control
 		if (_seedSpin != null) _seedSpin.ValueChanged += _ => RefreshValidationIssues();
 		if (_rulesetModeOption != null) _rulesetModeOption.ItemSelected += OnRulesetModeSelected;
 		if (_showTravellerReadoutsCheck != null) _showTravellerReadoutsCheck.Toggled += _ => RefreshValidationIssues();
+		if (_forceLifeOnSupportableWorldsCheck != null) _forceLifeOnSupportableWorldsCheck.Toggled += _ => RefreshValidationIssues();
 		if (_lifeFrameworkOption != null) _lifeFrameworkOption.ItemSelected += _ => OnLifeModelChanged();
 		if (_abiogenesisModelOption != null) _abiogenesisModelOption.ItemSelected += _ => OnLifeModelChanged();
 		if (_complexLifeModelOption != null) _complexLifeModelOption.ItemSelected += _ => OnLifeModelChanged();
@@ -687,6 +690,10 @@ public partial class GalaxyGenerationScreen : Control
 		ApplyTooltip("galaxy_seed", _seedSpin, $"{ParameterRootPath}/SeedContainer/SeedLabel");
 		ApplyDynamicTooltip(_rulesetModeOption, "ruleset_mode");
 		ApplyDynamicTooltip(_showTravellerReadoutsCheck, "show_traveller_readouts");
+		if (_forceLifeOnSupportableWorldsCheck != null)
+		{
+			_forceLifeOnSupportableWorldsCheck.TooltipText = "Generation override, not a scientific model.\nWhen enabled, supportable worlds keep native life instead of losing it to the later life-roll.\nWorlds that fail the biology support gate still stay lifeless.";
+		}
 		ApplyTooltip("life_framework", _lifeFrameworkOption, $"{ParameterRootPath}/LifeSection/LifeContent/LifeVBox/LifeFrameworkRow/LifeFrameworkLabel");
 		ApplyTooltip("abiogenesis_model", _abiogenesisModelOption, $"{ParameterRootPath}/LifeSection/LifeContent/LifeVBox/AbiogenesisModelRow/AbiogenesisModelLabel");
 		ApplyTooltip("complex_life_model", _complexLifeModelOption, $"{ParameterRootPath}/LifeSection/LifeContent/LifeVBox/ComplexLifeModelRow/ComplexLifeModelLabel");
@@ -770,6 +777,11 @@ public partial class GalaxyGenerationScreen : Control
 			settings.ShowTravellerReadouts = _showTravellerReadoutsCheck.ButtonPressed;
 		}
 
+		if (_forceLifeOnSupportableWorldsCheck != null)
+		{
+			settings.ForceLifeOnSupportableWorlds = _forceLifeOnSupportableWorldsCheck.ButtonPressed;
+		}
+
 		if (_lifeFrameworkOption != null)
 		{
 			settings.LifeFramework = (GenerationUseCaseSettings.LifeFrameworkType)_lifeFrameworkOption.GetSelectedId();
@@ -815,6 +827,11 @@ public partial class GalaxyGenerationScreen : Control
 		if (_showTravellerReadoutsCheck != null)
 		{
 			_showTravellerReadoutsCheck.ButtonPressed = resolvedSettings.ShowTravellerReadouts;
+		}
+
+		if (_forceLifeOnSupportableWorldsCheck != null)
+		{
+			_forceLifeOnSupportableWorldsCheck.ButtonPressed = resolvedSettings.ForceLifeOnSupportableWorlds;
 		}
 
 		if (_lifeFrameworkOption != null)
@@ -885,6 +902,7 @@ public partial class GalaxyGenerationScreen : Control
 			lines.Add($"Life Framework: {LifeScienceReferenceCatalog.GetFrameworkLabel(settings.LifeFramework)}");
 			lines.Add($"Abiogenesis: {LifeScienceReferenceCatalog.GetAbiogenesisLabel(settings.AbiogenesisModel)} | Complex Life: {LifeScienceReferenceCatalog.GetComplexLifeLabel(settings.ComplexLifeModel)}");
 			lines.Add($"Civilization: {LifeScienceReferenceCatalog.GetCivilizationLabel(settings.CivilizationModel)} | Window Weight: {LifeScienceReferenceCatalog.GetEnvironmentalWindowWeightLabel(settings.EnvironmentalWindowWeight)}");
+			lines.Add($"Force Life On Supportable Worlds: {(settings.ForceLifeOnSupportableWorlds ? "On" : "Off")}");
 			if (_showSeedControls && _seedSpin != null)
 			{
 				lines.Add($"Seed {(int)_seedSpin.Value}");

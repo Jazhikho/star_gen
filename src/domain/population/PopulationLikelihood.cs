@@ -70,6 +70,12 @@ public static class PopulationLikelihood
         long populationSeed,
         GenerationUseCaseSettings? useCaseSettings = null)
     {
+        if (useCaseSettings?.ForceLifeOnSupportableWorlds == true
+            && BiologySupportEvaluator.SupportsBiology(profile, useCaseSettings))
+        {
+            return true;
+        }
+
         if (ShouldGuaranteeNatives(profile, useCaseSettings))
         {
             return true;

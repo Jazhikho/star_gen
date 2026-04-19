@@ -144,6 +144,11 @@ public partial class GenerationUseCaseSettings : RefCounted
     public EnvironmentalWindowWeightType EnvironmentalWindowWeight { get; set; } = EnvironmentalWindowWeightType.FollowFramework;
 
     /// <summary>
+    /// When true, supportable worlds are forced to keep native life instead of rolling it stochastically.
+    /// </summary>
+    public bool ForceLifeOnSupportableWorlds { get; set; }
+
+    /// <summary>
     /// Legacy compatibility property that maps to the new life framework.
     /// </summary>
     public LifePotentialModelType LifePotentialModel
@@ -221,6 +226,7 @@ public partial class GenerationUseCaseSettings : RefCounted
             ComplexLifeModel = ComplexLifeModel,
             CivilizationModel = CivilizationModel,
             EnvironmentalWindowWeight = EnvironmentalWindowWeight,
+            ForceLifeOnSupportableWorlds = ForceLifeOnSupportableWorlds,
             MainworldPolicy = MainworldPolicy,
         };
     }
@@ -241,6 +247,7 @@ public partial class GenerationUseCaseSettings : RefCounted
             ["complex_life_model"] = (int)ComplexLifeModel,
             ["civilization_model"] = (int)CivilizationModel,
             ["environmental_window_weight"] = (int)EnvironmentalWindowWeight,
+            ["force_life_on_supportable_worlds"] = ForceLifeOnSupportableWorlds,
             ["mainworld_policy"] = (int)MainworldPolicy,
         };
     }
@@ -305,6 +312,8 @@ public partial class GenerationUseCaseSettings : RefCounted
         {
             settings.EnvironmentalWindowWeight = (EnvironmentalWindowWeightType)environmentalWindowWeightValue;
         }
+
+        settings.ForceLifeOnSupportableWorlds = GetBool(data, "force_life_on_supportable_worlds", false);
 
         int mainworldPolicyValue = GetInt(data, "mainworld_policy", (int)MainworldPolicyType.None);
         if (System.Enum.IsDefined(typeof(MainworldPolicyType), mainworldPolicyValue))

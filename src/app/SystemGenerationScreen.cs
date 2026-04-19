@@ -43,6 +43,7 @@ public partial class SystemGenerationScreen : Control
 	private CheckBox? _generatePopulationCheck;
 	private OptionButton? _rulesetModeOption;
 	private CheckBox? _showTravellerReadoutsCheck;
+	private CheckBox? _forceLifeOnSupportableWorldsCheck;
 	private HSlider? _populationPermissivenessInput;
 	private Label? _populationPermissivenessValueLabel;
 	private HBoxContainer? _populationPermissivenessRow;
@@ -179,6 +180,7 @@ public partial class SystemGenerationScreen : Control
 		_generatePopulationCheck = GetNodeOrNull<CheckBox>($"{Root}/StudioRow/RulesPanel/MarginContainer/RulesVBox/ScrollContainer/RulesContent/GeneratePopulationCheck");
 		_rulesetModeOption = GetNodeOrNull<OptionButton>($"{Root}/StudioRow/RulesPanel/MarginContainer/RulesVBox/ScrollContainer/RulesContent/RulesetModeRow/RulesetModeOption");
 		_showTravellerReadoutsCheck = GetNodeOrNull<CheckBox>($"{Root}/StudioRow/RulesPanel/MarginContainer/RulesVBox/ScrollContainer/RulesContent/ShowTravellerReadoutsCheck");
+		_forceLifeOnSupportableWorldsCheck = GetNodeOrNull<CheckBox>($"{Root}/StudioRow/RulesPanel/MarginContainer/RulesVBox/ScrollContainer/RulesContent/ForceLifeOnSupportableWorldsCheck");
 		_populationPermissivenessRow = GetNodeOrNull<HBoxContainer>($"{Root}/StudioRow/RulesPanel/MarginContainer/RulesVBox/ScrollContainer/RulesContent/PopulationPermissivenessRow");
 		_populationPermissivenessInput = GetNodeOrNull<HSlider>($"{Root}/StudioRow/RulesPanel/MarginContainer/RulesVBox/ScrollContainer/RulesContent/PopulationPermissivenessRow/PopulationPermissivenessInput");
 		_populationPermissivenessValueLabel = GetNodeOrNull<Label>($"{Root}/StudioRow/RulesPanel/MarginContainer/RulesVBox/ScrollContainer/RulesContent/PopulationPermissivenessRow/PopulationPermissivenessValue");
@@ -207,6 +209,7 @@ public partial class SystemGenerationScreen : Control
 		if (_includeBeltsCheck != null) _includeBeltsCheck.Toggled += _ => RefreshSummary();
 		if (_generatePopulationCheck != null) _generatePopulationCheck.Toggled += _ => RefreshSummary();
 		if (_showTravellerReadoutsCheck != null) _showTravellerReadoutsCheck.Toggled += _ => RefreshSummary();
+		if (_forceLifeOnSupportableWorldsCheck != null) _forceLifeOnSupportableWorldsCheck.Toggled += _ => RefreshSummary();
 		if (_mainworldPolicyOption != null) _mainworldPolicyOption.ItemSelected += _ => RefreshSummary();
 		if (_rulesetModeOption != null) _rulesetModeOption.ItemSelected += OnRulesetModeSelected;
 		ConnectStellarSignals();
@@ -296,6 +299,7 @@ public partial class SystemGenerationScreen : Control
 			lines.Add($"Life Framework {LifeScienceReferenceCatalog.GetFrameworkLabel(spec.UseCaseSettings.LifeFramework)}");
 			lines.Add($"Abiogenesis {LifeScienceReferenceCatalog.GetAbiogenesisLabel(spec.UseCaseSettings.AbiogenesisModel)} | Complex Life {LifeScienceReferenceCatalog.GetComplexLifeLabel(spec.UseCaseSettings.ComplexLifeModel)}");
 			lines.Add($"Civilization {LifeScienceReferenceCatalog.GetCivilizationLabel(spec.UseCaseSettings.CivilizationModel)} | Window Weight {LifeScienceReferenceCatalog.GetEnvironmentalWindowWeightLabel(spec.UseCaseSettings.EnvironmentalWindowWeight)}");
+			lines.Add($"Force Life On Supportable Worlds {(spec.UseCaseSettings.ForceLifeOnSupportableWorlds ? "On" : "Off")}");
 			_summaryLabel.Text = string.Join("\n", lines);
 		}
 
@@ -359,6 +363,11 @@ public partial class SystemGenerationScreen : Control
 			settings.ShowTravellerReadouts = _showTravellerReadoutsCheck.ButtonPressed;
 		}
 
+		if (_forceLifeOnSupportableWorldsCheck != null)
+		{
+			settings.ForceLifeOnSupportableWorlds = _forceLifeOnSupportableWorldsCheck.ButtonPressed;
+		}
+
 		ApplyLifeSettingsFromControls(settings);
 
 		if (_mainworldPolicyOption != null)
@@ -407,6 +416,11 @@ public partial class SystemGenerationScreen : Control
 		if (_loadButton != null)
 		{
 			_loadButton.Visible = false;
+		}
+
+		if (_forceLifeOnSupportableWorldsCheck != null)
+		{
+			_forceLifeOnSupportableWorldsCheck.TooltipText = "Generation override, not a scientific model.\nWhen enabled, supportable worlds keep native life instead of losing it to the later life-roll.\nWorlds that fail the biology support gate still stay lifeless.";
 		}
 	}
 

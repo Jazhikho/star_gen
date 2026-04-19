@@ -1,12 +1,18 @@
 # Version
 
-Current version: `0.8.13.0`
+Current version: `0.8.14.0`
 
 Current user-facing version: `0.9d`
 
 Date: `2026-04-19`
 
 Versioning method: release/refactor `+0.1`, feature `+0.0.1`, bug fix `+0.0.0.1`, save-breaking release `+1.0`.
+
+## 0.8.14.0
+
+- Feature: Added a `Force Life On Supportable Worlds` generation override to Galaxy Studio, System Studio, and Object Studio so supportable worlds can be forced to retain native life without bypassing the underlying biology support gate.
+- Feature: Wired the override through `GenerationUseCaseSettings` serialization and the deterministic native-life pipeline so it materially changes generation instead of only changing UI state.
+- Test: Added settings round-trip coverage, studio integration coverage proving each surface writes the override through, and a population unit test proving the override admits supportable worlds while still rejecting unsupported ones; `dotnet build StarGen.sln` passed, and the headless harness passed (`1814 / 1814`).
 
 ## 0.8.13.0
 
