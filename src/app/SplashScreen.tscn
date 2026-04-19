@@ -119,5 +119,3 @@ theme_override_colors/font_color = Color(0.741176, 0.792157, 0.854902, 0.92)
 text = "Press any key or click to skip"
 horizontal_alignment = 1
 autowrap_mode = 2
-
-[node name="IntroMusicPlayer" type="AudioStreamPlayer" parent="." unique_id=1588793017]

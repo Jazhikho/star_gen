@@ -330,7 +330,7 @@ public partial class MainMenuScreen : Control
 			"- The trimmed mainline automated suite stays focused on deterministic generation and non-UI behavioral coverage.\n\n" +
 			"Version 0.8.0.0\n\n" +
 			"- Replaced the timer-based splash with the root intro video, a clean fade into the StarGen logo, and skip behavior that still resolves through the branded transition.\n" +
-			"- Kept startup audio wiring local to the splash and auto-loads the single root `.ogg` intro track when exactly one is present.\n" +
+			"- Moved startup audio onto the shared app audio controller and library so the intro track is an explicit exported resource instead of a runtime directory scan.\n" +
 			"- Added a fade-to-black handoff from the splash into the main menu.\n" +
 			"- Replaced the Station Studio placeholder with the production station generation flow and live detail views.\n" +
 			"- Reworked Galaxy Studio around clearer shape controls, separated generation rules, and a stronger active-profile summary.\n" +

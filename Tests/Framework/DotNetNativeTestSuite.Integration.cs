@@ -11,6 +11,7 @@ public static partial class DotNetNativeTestSuite
     /// </summary>
     public static void RunHeadlessIntegrationTests(DotNetTestRunner runner)
     {
+        TestAppAudio.RunAll(runner);
         TestPopulationGoldenMasters.RunAll(runner);
         TestPopulationIntegration.RunAll(runner);
         TestGenerationParameters.RunAll(runner);

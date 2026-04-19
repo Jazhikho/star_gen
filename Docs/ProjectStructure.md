@@ -28,8 +28,11 @@ star_gen/
 |-- NuGet/
 |   `-- Migrations/
 |-- Sources/
+|-- Resources/
+|   `-- Audio/
 |-- src/
 |   |-- app/
+|   |   |-- audio/                     # shared app-level audio controller and cue library used by splash/menu/UI playback
 |   |   |-- components/                # reusable scene-authored UI fragments/templates for shipped viewers and editors
 |   |   |-- concepts/                  # parked mainline-inactive concept UI/runtime pending migration work
 |   |   |-- galaxy_viewer/
@@ -87,6 +90,11 @@ star_gen/
 
 ## Recent Major Additions
 
+- `src/app/audio/AppAudioController.cs`: shared app-level audio controller that owns reusable music and UI players so startup/menu/UI playback uses explicit exported resources instead of ad hoc runtime file scans.
+- `src/app/audio/AppAudioLibrary.cs`: global-class resource declaring the application's shared music and UI cue streams and their default playback volumes.
+- `src/app/audio/AppAudioCueId.cs`: stable cue identifiers used by the controller and callers such as the splash screen.
+- `Resources/Audio/MainAudioLibrary.tres`: default shared audio library resource, currently binding the intro music cue so desktop exports include the startup audio as a real dependency.
+- `Tests/Integration/TestAppAudio.cs`: non-visual regression coverage proving `MainApp` owns the shared audio controller and that intro music is configured through the shared library rather than a splash-local player.
 - `src/domain/generation/PlanetaryGenerationProfile.cs`: shared serializable aggregate planetary-formation profile used by galaxy and system generation to carry mass-radius, envelope-loss, gas-giant, metallicity-coupling, rogue-planet, moon-bias, and outer-system-bias assumptions.
 - `src/domain/generation/PlanetarySystemState.cs`: derived per-system planetary state built once from stellar context plus the shared planetary profile so downstream planet generation can react to snow-line, solid/gas budget, escape-pressure, migration/stirring surrogates, habitable-zone alignment, XUV activity, volatile delivery, and outer-reservoir strength.
 - `src/domain/generation/parameters/PlanetaryScienceReferenceCatalog.cs`: source registry and plain-language help/tooltips for the aggregate planetary controls shared by Galaxy Studio and System Studio.

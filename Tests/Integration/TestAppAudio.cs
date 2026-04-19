@@ -1,0 +1,44 @@
+#nullable enable annotations
+#nullable disable warnings
+using Godot;
+using StarGen.App;
+using StarGen.App.Audio;
+using StarGen.Tests.Framework;
+
+namespace StarGen.Tests.Integration;
+
+/// <summary>
+/// Non-visual integration tests for shared application audio wiring.
+/// </summary>
+public static class TestAppAudio
+{
+    public static void RunAll(DotNetTestRunner runner)
+    {
+        runner.RunNativeTest("TestAppAudio::test_main_app_exposes_shared_intro_audio", TestMainAppExposesSharedIntroAudio);
+    }
+
+    private static void TestMainAppExposesSharedIntroAudio()
+    {
+        MainApp app = IntegrationTestUtils.CreateMainAppReady();
+
+        AppAudioController? audioController = app.GetNodeOrNull<AppAudioController>("AudioController");
+        SplashScreen? splashScreen = app.GetNodeOrNull<SplashScreen>("ViewerContainer/SplashScreen");
+        AudioStreamPlayer? musicPlayer = app.GetNodeOrNull<AudioStreamPlayer>("AudioController/MusicPlayer");
+        AudioStreamPlayer? uiPlayer = app.GetNodeOrNull<AudioStreamPlayer>("AudioController/UiPlayer");
+        AudioStreamPlayer? legacySplashPlayer = app.GetNodeOrNull<AudioStreamPlayer>("ViewerContainer/SplashScreen/IntroMusicPlayer");
+
+        DotNetNativeTestSuite.AssertNotNull(audioController, "MainApp should own a shared audio controller node");
+        DotNetNativeTestSuite.AssertNotNull(splashScreen, "MainApp should still create the splash screen");
+        DotNetNativeTestSuite.AssertNotNull(musicPlayer, "Audio controller should expose a shared music player");
+        DotNetNativeTestSuite.AssertNotNull(uiPlayer, "Audio controller should expose a shared UI player");
+        DotNetNativeTestSuite.AssertNull(legacySplashPlayer, "Splash screen should no longer own a private intro music player");
+
+        audioController!._Ready();
+
+        DotNetNativeTestSuite.AssertNotNull(audioController.Library, "Audio controller should have a shared audio library resource");
+        DotNetNativeTestSuite.AssertTrue(audioController.HasCue(AppAudioCueId.IntroMusic), "Shared audio library should configure the intro music cue");
+        DotNetNativeTestSuite.AssertNotNull(audioController.Library!.GetStream(AppAudioCueId.IntroMusic), "Intro music cue should point at a real audio stream");
+
+        IntegrationTestUtils.CleanupNode(app);
+    }
+}

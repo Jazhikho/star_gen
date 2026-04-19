@@ -19,6 +19,17 @@ Use this log for significant AI-assisted artifacts in this repository.
 
 ### 2026-04-19 - Codex (GPT-5)
 
+- Task Purpose: Replace the splash screen's fragile root-directory intro audio scan with a shared application audio controller and exported audio library so desktop builds reliably include startup audio and the app has an extendable audio foundation.
+- Input Materials Used: User report that the desktop build did not export the intro sounds and request to add an audio controller plus audio resource; `AGENTS.md`; `claude.md`; `src/app/SplashScreen.cs`; `src/app/SplashScreen.tscn`; `src/app/MainApp.cs`; `src/app/MainApp.tscn`; `src/app/MainMenuScreen.cs`; `export_presets.cfg`; existing root `.ogg` audio asset; integration test harness files; version/docs metadata.
+- AI Produced: Added `AppAudioCueId`, `AppAudioLibrary`, and `AppAudioController`; added `Resources/Audio/MainAudioLibrary.tres` referencing the intro `.ogg`; attached the controller and shared players to `MainApp.tscn`; rewired `SplashScreen` to use the shared controller for intro playback and fade-out instead of scanning for `.ogg` files or owning a local player; updated the release-notes copy and project-structure docs; added `TestAppAudio` integration coverage; and bumped internal patch metadata to `0.8.7.2`.
+- Human Accepted: Pending review of the shared audio architecture, the exported-library resource path, and the decision to move startup music ownership from the splash into `MainApp`.
+- Human Rejected: The user explicitly did not want another one-off local splash fix and asked for an audio controller plus audio resource that remains extendable as more sounds are added later.
+- Human Changed: The user framed this as a patch-level fix but also required the solution to be extendable, which drove the shared controller/library design instead of only hard-wiring the current intro track.
+- Validation Method: `dotnet build StarGen.sln`; `godot-mono.exe --path . --headless --script res://Tests/RunTestsHeadless.gd`.
+- Final Approver: Pending Christopher B. Del Gesso review.
+
+### 2026-04-19 - Codex (GPT-5)
+
 - Task Purpose: Add section-level source affordances to Galaxy Studio so each major galaxy-parameter heading exposes the relevant cited sources on hover, and inventory the current `Sources/` directory contents for the user.
 - Input Materials Used: User request to list all source files and add per-heading source tooltips in `GalaxyGenerationScreen`; `AGENTS.md`; `claude.md`; `src/app/GalaxyGenerationScreen.tscn`; `src/app/GalaxyGenerationScreen.Science.cs`; `GalaxyScienceReferenceCatalog.cs`; `StellarScienceReferenceCatalog.cs`; `PlanetaryScienceReferenceCatalog.cs`; `Tests/Integration/TestStudioScienceUi.cs`; current version metadata files.
 - AI Produced: Added scene-owned `(i)` buttons beside the Galaxy Type, Scientific Priors, Structure, Size and Density, Stellar Priors, and Planetary Priors headings in `GalaxyGenerationScreen.tscn`; wired those controls in `GalaxyGenerationScreen.Science.cs` to build multiline source tooltips from the existing science catalogs; added missing planetary catalog helpers for parameter-to-source lookup; expanded the galaxy-studio integration test to assert that the new source buttons exist and expose expected citations; and synced internal patch metadata to `0.8.7.1`.

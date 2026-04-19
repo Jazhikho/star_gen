@@ -1,12 +1,18 @@
 # Version
 
-Current version: `0.8.7.1`
+Current version: `0.8.7.2`
 
 Current user-facing version: `0.9d`
 
 Date: `2026-04-03`
 
 Versioning method: release/refactor `+0.1`, feature `+0.0.1`, bug fix `+0.0.0.1`, save-breaking release `+1.0`.
+
+## 0.8.7.2
+
+- Bug fix: Replaced the splash screen's root-directory `.ogg` scan with a shared app-level audio controller and exported audio library resource, so intro music is now a declared dependency that exports with desktop builds instead of relying on runtime file discovery.
+- Bug fix: `MainApp` now owns reusable music and UI audio players plus a shared cue library, giving the project one extendable place to add later menu, UI, or ambient sounds without reintroducing screen-local audio hacks.
+- Test: Added shared-audio integration coverage and revalidated with `dotnet build StarGen.sln` plus the headless harness.
 
 ## 0.8.7.1
 

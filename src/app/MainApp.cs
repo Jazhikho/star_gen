@@ -1,4 +1,5 @@
 using Godot;
+using StarGen.App.Audio;
 using StarGen.Domain.Galaxy;
 using StarGen.Domain.Rng;
 using StarGen.Domain.Systems;
@@ -29,6 +30,7 @@ public partial class MainApp : Node
 	private ViewerType _activeViewer = ViewerType.None;
 	private Node? _viewerContainer;
 	private ColorRect? _startupTransitionRect;
+	private AppAudioController? _audioController;
 	private SplashScreen? _splashScreen;
 	private MainMenuScreen? _mainMenuScreen;
 	private GalaxyGenerationScreen? _galaxyGenerationScreen;
@@ -55,6 +57,7 @@ public partial class MainApp : Node
 	{
 		_viewerContainer = GetNodeOrNull<Node>("ViewerContainer");
 		_startupTransitionRect = GetNodeOrNull<ColorRect>("TransitionLayer/StartupFadeRect");
+		_audioController = GetNodeOrNull<AppAudioController>("AudioController");
 		if (_startupTransitionRect != null)
 		{
 			_startupTransitionRect.Color = new Color(0.0f, 0.0f, 0.0f, 0.0f);
@@ -106,6 +109,9 @@ public partial class MainApp : Node
 
 	/// <summary>Returns the current body-override collection.</summary>
 	public GalaxyBodyOverrides GetBodyOverrides() => _bodyOverrides;
+
+	/// <summary>Returns the shared application audio controller.</summary>
+	public AppAudioController? GetAudioController() => _audioController;
 
 	/// <summary>GDScript-compatible body overrides accessor.</summary>
 	public GalaxyBodyOverrides get_body_overrides() => GetBodyOverrides();
