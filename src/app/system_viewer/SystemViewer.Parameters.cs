@@ -102,7 +102,7 @@ public partial class SystemViewer
         if (_rulesetModeOption.ItemCount == 0)
         {
             _rulesetModeOption.AddItem(GenerationUseCasePresentation.RealisticRulesetLabel, (int)GenerationUseCaseSettings.RulesetModeType.Default);
-            _rulesetModeOption.AddItem("Traveller", (int)GenerationUseCaseSettings.RulesetModeType.Traveller);
+            _rulesetModeOption.AddItem("Space Opera", (int)GenerationUseCaseSettings.RulesetModeType.Traveller);
         }
 
         if (_mainworldPolicyOption.ItemCount == 0)

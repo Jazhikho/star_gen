@@ -130,22 +130,23 @@ public static class BiologySupportEvaluator
         PlanetEnvironmentProfile environment,
         GenerationUseCaseSettings? useCaseSettings = null)
     {
-        double permissiveness = ResolveLifePermissiveness(useCaseSettings);
+        LifePotentialModeling.Tuning lifeTuning = LifePotentialModeling.Resolve(environment, useCaseSettings);
+        double permissiveness = lifeTuning.Permissiveness;
         Biochemistry bestChemistry = SelectBiochemistry(environment, permissiveness, out double chemistryScore);
         if (bestChemistry == Biochemistry.None)
         {
             return CreateFailure(DetermineFailureReason(environment, permissiveness));
         }
 
-        double supportThreshold = Lerp(0.18, 0.04, permissiveness);
+        double supportThreshold = Lerp(0.18, 0.04, permissiveness) + lifeTuning.SupportThresholdOffset;
         if (chemistryScore < supportThreshold)
         {
             return CreateFailure(DetermineFailureReason(environment, permissiveness));
         }
 
-        double abiogenesisChance = CalculateAbiogenesisChance(environment, chemistryScore, permissiveness);
-        double complexLifeChance = CalculateComplexLifeChance(environment, chemistryScore);
-        double sentienceChance = CalculateSentienceChance(environment, complexLifeChance);
+        double abiogenesisChance = CalculateAbiogenesisChance(environment, chemistryScore, permissiveness, lifeTuning);
+        double complexLifeChance = CalculateComplexLifeChance(environment, chemistryScore, lifeTuning);
+        double sentienceChance = CalculateSentienceChance(environment, complexLifeChance, lifeTuning);
         double biosphereCoverage = CalculateBiosphereCoverage(environment, bestChemistry, chemistryScore, permissiveness);
         bool supportsComplexLife = complexLifeChance >= 0.12;
 
@@ -395,7 +396,8 @@ public static class BiologySupportEvaluator
     private static double CalculateAbiogenesisChance(
         PlanetEnvironmentProfile environment,
         double chemistryScore,
-        double permissiveness)
+        double permissiveness,
+        LifePotentialModeling.Tuning lifeTuning)
     {
         double baseChance = Lerp(0.08, 0.96, permissiveness);
         double habitabilityExponent = Lerp(3.10, 0.55, permissiveness);
@@ -432,12 +434,14 @@ public static class BiologySupportEvaluator
             chance = System.Math.Max(chance, primeWorldFloor * xuvPenalty * orbitBonus);
         }
 
+        chance *= lifeTuning.AbiogenesisMultiplier;
         return Clamp01(chance);
     }
 
     private static double CalculateComplexLifeChance(
         PlanetEnvironmentProfile environment,
-        double chemistryScore)
+        double chemistryScore,
+        LifePotentialModeling.Tuning lifeTuning)
     {
         double ageFactor = CalculateAgeFactor(environment.StellarAgeYears, 0.9e9, 3.2e9, 0.78);
         double stabilityFactor = Clamp01(1.0
@@ -449,12 +453,24 @@ public static class BiologySupportEvaluator
         double orbitFactor = 0.82 + (0.18 * CalculateHabitableOrbitScore(environment));
         double tidalFactor = CalculateTidalHabitabilityScore(environment);
         double chance = chemistryScore * ageFactor * stabilityFactor * diversityFactor * orbitFactor * tidalFactor;
+        if (LifePotentialModeling.RequiresBreathableAtmosphereForComplexLife(lifeTuning.Model) && !environment.HasBreathableAtmosphere)
+        {
+            chance *= environment.HasAtmosphere ? 0.35 : 0.12;
+        }
+
+        if (LifePotentialModeling.RewardsStableWindows(lifeTuning.Model))
+        {
+            chance *= 0.82 + (0.38 * CalculateEnvironmentalWindowScore(environment));
+        }
+
+        chance *= lifeTuning.ComplexLifeMultiplier;
         return Clamp01(chance);
     }
 
     private static double CalculateSentienceChance(
         PlanetEnvironmentProfile environment,
-        double complexLifeChance)
+        double complexLifeChance,
+        LifePotentialModeling.Tuning lifeTuning)
     {
         if (complexLifeChance < 0.12)
         {
@@ -467,7 +483,14 @@ public static class BiologySupportEvaluator
             - (environment.VolcanismLevel * 0.10)
             - (environment.RadiationLevel * 0.18));
         double dryLandFactor = 0.35 + (Clamp01(environment.LandCoverage) * 0.55);
-        double baselineChance = 0.008 + (0.028 * ageFactor * stabilityFactor * dryLandFactor);
+        double oxygenFactor = environment.HasBreathableAtmosphere ? 1.0 : 0.38;
+        double baselineChance = 0.008 + (0.028 * ageFactor * stabilityFactor * dryLandFactor * oxygenFactor);
+        if (LifePotentialModeling.RewardsStableWindows(lifeTuning.Model))
+        {
+            baselineChance *= 0.78 + (0.52 * CalculateEnvironmentalWindowScore(environment));
+        }
+
+        baselineChance *= lifeTuning.SentienceMultiplier;
         return Clamp01(baselineChance);
     }
 
@@ -656,7 +679,26 @@ public static class BiologySupportEvaluator
             return GenerationUseCaseSettings.NeutralPermissiveness;
         }
 
+        if (!useCaseSettings.HasLifePermissivenessOverride())
+        {
+            return GenerationUseCaseSettings.GetRecommendedLifePermissiveness(useCaseSettings.LifePotentialModel);
+        }
+
         return useCaseSettings.LifePermissiveness;
+    }
+
+    private static double CalculateEnvironmentalWindowScore(PlanetEnvironmentProfile environment)
+    {
+        double score = 0.0;
+        score += Clamp01(environment.HabitableZoneAlignment) * 0.24;
+        score += Clamp01(1.0 - environment.RadiationLevel) * 0.16;
+        score += Clamp01(1.0 - environment.XuvExposure) * 0.12;
+        score += Clamp01(1.0 - (environment.WeatherSeverity * 0.75)) * 0.11;
+        score += Clamp01(1.0 - (environment.VolcanismLevel * 0.65)) * 0.08;
+        score += Clamp01(environment.HasBreathableAtmosphere ? 1.0 : 0.0) * 0.10;
+        score += Clamp01(environment.OceanCoverage + environment.LandCoverage) * 0.09;
+        score += Clamp01(environment.StellarAgeYears / 6.0e9) * 0.10;
+        return Clamp01(score);
     }
 
     private static double Trap(double x, double a, double b, double c, double d)

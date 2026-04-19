@@ -2,9 +2,11 @@
 #nullable disable warnings
 using System;
 using Godot.Collections;
+using StarGen.Domain.Concepts.Pipeline;
 using StarGen.Domain.Generation;
 using StarGen.Domain.Generation.Parameters;
 using StarGen.Domain.Galaxy;
+using StarGen.Domain.Population;
 using StarGen.Tests.Framework;
 
 namespace StarGen.Tests.Unit;
@@ -154,5 +156,94 @@ public static class TestGalaxyConfig
         DotNetNativeTestSuite.AssertTrue(helpText.Contains("heavy elements"), "Galaxy help should define metallicity in plain language");
         DotNetNativeTestSuite.AssertTrue(helpText.Contains("Grand design"), "Galaxy help should explain spiral arm terms");
         DotNetNativeTestSuite.AssertTrue(!helpText.Contains("galactic_formation.md"), "Galaxy help should not cite the internal paper");
+    }
+
+    /// <summary>
+    /// Tests that the life-model selector has plain-language help and resolvable sources.
+    /// </summary>
+    public static void TestLifeScienceReferenceCatalogCoversLifeModel()
+    {
+        GenerationParameterDefinition? lifeDefinition = null;
+        foreach (GenerationParameterDefinition definition in GenerationParameterCatalog.GetGalaxyDefinitions())
+        {
+            if (definition.Id == "life_potential_model")
+            {
+                lifeDefinition = definition;
+                break;
+            }
+        }
+
+        DotNetNativeTestSuite.AssertNotNull(lifeDefinition, "Galaxy parameters should expose a life-potential model selector");
+        DotNetNativeTestSuite.AssertTrue(!string.IsNullOrWhiteSpace(lifeDefinition!.AssumptionText), "Life-potential selector should have help text");
+        DotNetNativeTestSuite.AssertTrue(lifeDefinition.AssumptionText.Contains("Rapid Biospheres"), "Life help should explain the available model families");
+        DotNetNativeTestSuite.AssertTrue(lifeDefinition.AssumptionText.Contains("civilizations"), "Life help should explain downstream civilization impact");
+
+        foreach (string sourceId in LifeScienceReferenceCatalog.GetParameterSourceIds("life_potential_model"))
+        {
+            DotNetNativeTestSuite.AssertNotNull(LifeScienceReferenceCatalog.GetSource(sourceId), $"life-model source '{sourceId}' should resolve");
+        }
+
+        string helpText = LifeScienceReferenceCatalog.BuildHelpPanelBbCode();
+        DotNetNativeTestSuite.AssertTrue(helpText.Contains("What changing it does"), "Life help should explain practical outcomes");
+        DotNetNativeTestSuite.AssertTrue(helpText.Contains("Rapid Biospheres"), "Life help should include the rapid-biosphere model");
+        DotNetNativeTestSuite.AssertTrue(helpText.Contains("Rare Complex Life"), "Life help should include the rare-complex-life model");
+    }
+
+    /// <summary>
+    /// Tests that life models materially change biology and civilization gating for the same world.
+    /// </summary>
+    public static void TestLifePotentialModelsChangeBiologyAssessment()
+    {
+        PlanetEnvironmentProfile environment = new PlanetEnvironmentProfile
+        {
+            Seed = 42,
+            BodyId = "life_test_world",
+            BodyName = "Life Test World",
+            BodyType = "Planet",
+            HabitabilityScore = 9,
+            AvgTemperatureK = 289.0,
+            StellarAgeYears = 5.4e9,
+            PressureAtm = 1.0,
+            OceanCoverage = 0.58,
+            LandCoverage = 0.32,
+            IceCoverage = 0.04,
+            GravityG = 1.0,
+            VolcanismLevel = 0.22,
+            WeatherSeverity = 0.18,
+            MagneticFieldStrength = 0.72,
+            RadiationLevel = 0.12,
+            StellarFluxEarth = 1.02,
+            HabitableZoneInnerAu = 0.95,
+            HabitableZoneOuterAu = 1.65,
+            HabitableZoneAlignment = 0.92,
+            XuvExposure = 0.10,
+            TidalHeatingFactor = 0.0,
+            ParentRadiationExposure = 0.0,
+            HasAtmosphere = true,
+            HasLiquidWater = true,
+            HasBreathableAtmosphere = true,
+            HasMagneticField = true,
+            IsMoon = false,
+        };
+        environment.BiomeCoverage["ocean"] = 0.58;
+        environment.BiomeCoverage["temperate"] = 0.26;
+        environment.BiomeCoverage["arid"] = 0.08;
+
+        GenerationUseCaseSettings rapidSettings = GenerationUseCaseSettings.CreateDefault();
+        rapidSettings.LifePotentialModel = GenerationUseCaseSettings.LifePotentialModelType.RapidBiospheres;
+        rapidSettings.LifePermissiveness = GenerationUseCaseSettings.GetRecommendedLifePermissiveness(rapidSettings.LifePotentialModel);
+
+        GenerationUseCaseSettings rareSettings = GenerationUseCaseSettings.CreateDefault();
+        rareSettings.LifePotentialModel = GenerationUseCaseSettings.LifePotentialModelType.RareComplexLife;
+        rareSettings.LifePermissiveness = GenerationUseCaseSettings.GetRecommendedLifePermissiveness(rareSettings.LifePotentialModel);
+
+        BiologySupportEvaluator.Assessment rapidAssessment = BiologySupportEvaluator.Evaluate(environment, rapidSettings);
+        BiologySupportEvaluator.Assessment rareAssessment = BiologySupportEvaluator.Evaluate(environment, rareSettings);
+
+        DotNetNativeTestSuite.AssertTrue(rapidAssessment.IsSupported, "Rapid-biosphere model should still support a good temperate world");
+        DotNetNativeTestSuite.AssertTrue(rareAssessment.IsSupported, "Rare-complex-life model should still allow a prime habitable world");
+        DotNetNativeTestSuite.AssertTrue(rapidAssessment.AbiogenesisChance > rareAssessment.AbiogenesisChance, "Rapid-biosphere model should make simple life easier to start");
+        DotNetNativeTestSuite.AssertTrue(rapidAssessment.ComplexLifeChance > rareAssessment.ComplexLifeChance, "Rapid-biosphere model should remain more permissive than rare-complex-life for complex ecosystems");
+        DotNetNativeTestSuite.AssertTrue(rapidAssessment.SentienceChance > rareAssessment.SentienceChance, "Rapid-biosphere model should permit higher sentience odds than rare-complex-life");
     }
 }

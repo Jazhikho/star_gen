@@ -28,6 +28,17 @@ public partial class GenerationUseCaseSettings : RefCounted
     }
 
     /// <summary>
+    /// Supported life-potential model families.
+    /// </summary>
+    public enum LifePotentialModelType
+    {
+        EarthHistory = 0,
+        RapidBiospheres = 1,
+        EnvironmentalWindows = 2,
+        RareComplexLife = 3,
+    }
+
+    /// <summary>
     /// Mainworld policy strength for system and galaxy flows.
     /// </summary>
     public enum MainworldPolicyType
@@ -51,6 +62,11 @@ public partial class GenerationUseCaseSettings : RefCounted
     /// User-adjustable life permissiveness in the inclusive range [0, 1].
     /// </summary>
     public double LifePermissiveness { get; set; } = NeutralPermissiveness;
+
+    /// <summary>
+    /// Selected life-potential model used by model-aware generation flows.
+    /// </summary>
+    public LifePotentialModelType LifePotentialModel { get; set; } = LifePotentialModelType.EarthHistory;
 
     /// <summary>
     /// Desired mainworld policy for system and galaxy flows.
@@ -83,6 +99,7 @@ public partial class GenerationUseCaseSettings : RefCounted
         MainworldPolicy = MainworldPolicyType.Require;
         if (IsApproximatelyNeutral(LifePermissiveness))
         {
+            LifePotentialModel = LifePotentialModelType.RapidBiospheres;
             LifePermissiveness = TravellerLifePermissiveness;
         }
 
@@ -111,6 +128,7 @@ public partial class GenerationUseCaseSettings : RefCounted
             RulesetMode = RulesetMode,
             ShowTravellerReadouts = ShowTravellerReadouts,
             LifePermissiveness = LifePermissiveness,
+            LifePotentialModel = LifePotentialModel,
             MainworldPolicy = MainworldPolicy,
         };
     }
@@ -125,6 +143,7 @@ public partial class GenerationUseCaseSettings : RefCounted
             ["ruleset_mode"] = (int)RulesetMode,
             ["show_traveller_readouts"] = ShowTravellerReadouts,
             ["life_permissiveness"] = System.Math.Clamp(LifePermissiveness, 0.0, 1.0),
+            ["life_potential_model"] = (int)LifePotentialModel,
             ["mainworld_policy"] = (int)MainworldPolicy,
         };
     }
@@ -148,6 +167,16 @@ public partial class GenerationUseCaseSettings : RefCounted
 
         settings.ShowTravellerReadouts = GetBool(data, "show_traveller_readouts", false);
         settings.LifePermissiveness = System.Math.Clamp(GetDouble(data, "life_permissiveness", NeutralPermissiveness), 0.0, 1.0);
+        int lifePotentialModelValue = GetInt(data, "life_potential_model", -1);
+        if (System.Enum.IsDefined(typeof(LifePotentialModelType), lifePotentialModelValue))
+        {
+            settings.LifePotentialModel = (LifePotentialModelType)lifePotentialModelValue;
+        }
+        else
+        {
+            settings.LifePotentialModel = MapPermissivenessToLifeModel(settings.LifePermissiveness);
+        }
+
         int mainworldPolicyValue = GetInt(data, "mainworld_policy", (int)MainworldPolicyType.None);
         if (System.Enum.IsDefined(typeof(MainworldPolicyType), mainworldPolicyValue))
         {
@@ -202,5 +231,48 @@ public partial class GenerationUseCaseSettings : RefCounted
     private static bool IsApproximatelyNeutral(double value)
     {
         return System.Math.Abs(value - NeutralPermissiveness) < 0.001;
+    }
+
+    /// <summary>
+    /// Returns the baseline permissiveness value associated with a life-potential model.
+    /// </summary>
+    public static double GetRecommendedLifePermissiveness(LifePotentialModelType model)
+    {
+        return model switch
+        {
+            LifePotentialModelType.EarthHistory => 0.50,
+            LifePotentialModelType.RapidBiospheres => 0.68,
+            LifePotentialModelType.EnvironmentalWindows => 0.56,
+            LifePotentialModelType.RareComplexLife => 0.34,
+            _ => NeutralPermissiveness,
+        };
+    }
+
+    /// <summary>
+    /// Returns whether the stored permissiveness differs from the selected model baseline.
+    /// </summary>
+    public bool HasLifePermissivenessOverride()
+    {
+        return System.Math.Abs(LifePermissiveness - GetRecommendedLifePermissiveness(LifePotentialModel)) > 0.001;
+    }
+
+    private static LifePotentialModelType MapPermissivenessToLifeModel(double permissiveness)
+    {
+        if (permissiveness <= 0.40)
+        {
+            return LifePotentialModelType.RareComplexLife;
+        }
+
+        if (permissiveness >= 0.62)
+        {
+            return LifePotentialModelType.RapidBiospheres;
+        }
+
+        if (permissiveness >= 0.53)
+        {
+            return LifePotentialModelType.EnvironmentalWindows;
+        }
+
+        return LifePotentialModelType.EarthHistory;
     }
 }

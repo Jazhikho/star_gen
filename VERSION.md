@@ -1,12 +1,19 @@
 # Version
 
-Current version: `0.8.8.0`
+Current version: `0.8.9.0`
 
 Current user-facing version: `0.9d`
 
 Date: `2026-04-19`
 
 Versioning method: release/refactor `+0.1`, feature `+0.0.1`, bug fix `+0.0.0.1`, save-breaking release `+1.0`.
+
+## 0.8.9.0
+
+- Feature: Intro startup now respects a persisted `Skip intro on startup` option, splash clicks and key presses trigger the skip path reliably, intro audio resolves through the shared app audio controller again, and main-menu credits now include the Patreon thanks for Leo.
+- Feature: Galaxy Studio now labels the center column `Generator Overrides`, renames the RPG-facing ruleset to `Space Opera`, renames the readout toggle to `Show UWP Code`, and moves `Life Potential` into the left column as a sourced life-model selector instead of a scalar slider.
+- Feature: Added research-backed life-potential models (`Earth History`, `Rapid Biospheres`, `Environmental Windows`, `Rare Complex Life`) and threaded them into biology-support, complex-life, and sentience gating so the choice now materially changes biosphere and civilization outcomes.
+- Test: Added intro-preference, Galaxy Studio life-model, and life-model unit regressions; `dotnet build StarGen.sln`, Godot solution rebuild, and the full headless harness passed after the patch.
 
 ## 0.8.8.0
 

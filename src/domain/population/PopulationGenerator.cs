@@ -349,7 +349,11 @@ public static class PopulationGenerator
         out SentienceAssessment sentienceAssessment,
         GenerationUseCaseSettings? useCaseSettings)
     {
-        bool supportsBiology = environmentProfile.SupportsBiology(useCaseSettings);
+        BiologySupportEvaluator.Assessment biologyAssessment = BiologySupportEvaluator.Evaluate(environmentProfile, useCaseSettings);
+        bool supportsBiology = biologyAssessment.IsSupported;
+        bool hasSentientLineage = biologyAssessment.SupportsComplexLife
+            && biologyAssessment.SentienceChance > 0.0
+            && PopulationLikelihood.DeriveRollValue(environmentProfile.Seed, 0x53454E54) < biologyAssessment.SentienceChance;
         string unavailableReason = "Mainline v0.9 parks the detailed concept dependency chain; summary-only biology assessment remains active.";
 
         ecologyState = new EcologyState
@@ -362,14 +366,18 @@ public static class PopulationGenerator
         {
             Status = supportsBiology ? ConceptRunStatus.Generated : ConceptRunStatus.NotApplicable,
             StatusReason = supportsBiology ? unavailableReason : "No supported biosphere is available for species evolution.",
-            HasSentientCandidate = supportsBiology,
+            HasSentientCandidate = biologyAssessment.SupportsComplexLife,
         };
 
         sentienceAssessment = new SentienceAssessment
         {
             Status = supportsBiology ? ConceptRunStatus.Generated : ConceptRunStatus.NotApplicable,
-            StatusReason = supportsBiology ? unavailableReason : "No supported biosphere is available for sentience assessment.",
-            HasSentientLife = supportsBiology,
+            StatusReason = supportsBiology
+                ? hasSentientLineage
+                    ? unavailableReason
+                    : "A biosphere is possible here, but this seed did not produce a sentient native lineage."
+                : "No supported biosphere is available for sentience assessment.",
+            HasSentientLife = hasSentientLineage,
             CandidateSpeciesName = environmentProfile.BodyName,
         };
     }

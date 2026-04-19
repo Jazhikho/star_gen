@@ -1,0 +1,16 @@
+Spiegel, D. S., & Turner, E. L. (2012).
+Bayesian analysis of the astrobiological implications of life's early emergence on Earth.
+arXiv:1107.3835
+https://arxiv.org/abs/1107.3835
+
+Why this source matters for StarGen
+- This paper is the cautionary counterweight to rapid-biogenesis optimism.
+- It argues that early life on Earth, by itself, does not strongly prove that abiogenesis is easy on other worlds.
+- In StarGen, this supports keeping the realistic default cautious and prevents the optimistic model from becoming the only interpretation.
+
+How it is used
+- Justifies the "Earth History" default and the idea that favorable habitability does not automatically imply high abiogenesis probability.
+- Supports keeping separate controls for simple-life onset versus complex-life and civilization emergence.
+
+Human review notes
+- Use as a guardrail against overclaiming from the Earth example.

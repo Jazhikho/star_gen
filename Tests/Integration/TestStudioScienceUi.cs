@@ -37,6 +37,10 @@ public static class TestStudioScienceUi
         Button? scienceSourcesButton = screen.GetNodeOrNull<Button>("MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/ScienceSection/ScienceHeaderRow/ScienceSourcesButton");
         Button? stellarSourcesButton = screen.GetNodeOrNull<Button>("MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/StellarSection/StellarHeaderRow/StellarSourcesButton");
         Button? planetarySourcesButton = screen.GetNodeOrNull<Button>("MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/PlanetarySection/PlanetaryHeaderRow/PlanetarySourcesButton");
+        Button? lifeSourcesButton = screen.GetNodeOrNull<Button>("MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/LifeSection/LifeHeaderRow/LifeSourcesButton");
+        OptionButton? lifeModelOption = screen.GetNodeOrNull<OptionButton>("MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/LifeSection/LifeContent/LifeVBox/LifeModelRow/LifeModelOption");
+        Label? settingsTitle = screen.GetNodeOrNull<Label>("MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/SettingsTitle");
+        CheckButton? showUwpCheck = screen.GetNodeOrNull<CheckButton>("MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/RulesPanel/MarginContainer/RulesVBox/ScrollContainer/RulesContent/UseCaseSection/ShowTravellerReadoutsCheck");
         OptionButton? gasGiantFormationOption = screen.GetNodeOrNull<OptionButton>("MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/PlanetarySection/PlanetaryContent/PlanetaryVBox/GasGiantFormationRow/GasGiantFormationOption");
         OptionButton? moonBiasOption = screen.GetNodeOrNull<OptionButton>("MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/PlanetarySection/PlanetaryContent/PlanetaryVBox/MoonFormationBiasRow/MoonFormationBiasOption");
 
@@ -46,16 +50,27 @@ public static class TestStudioScienceUi
         DotNetNativeTestSuite.AssertNotNull(closeButton, "Galaxy Help popup should expose a Close button");
         DotNetNativeTestSuite.AssertNotNull(typeSourcesButton, "Galaxy Type heading should expose a sources tooltip button");
         DotNetNativeTestSuite.AssertNotNull(scienceSourcesButton, "Scientific Priors heading should expose a sources tooltip button");
+        DotNetNativeTestSuite.AssertNotNull(lifeSourcesButton, "Life Potential heading should expose a sources tooltip button");
         DotNetNativeTestSuite.AssertNotNull(stellarSourcesButton, "Stellar heading should expose a sources tooltip button");
         DotNetNativeTestSuite.AssertNotNull(planetarySourcesButton, "Planetary heading should expose a sources tooltip button");
+        DotNetNativeTestSuite.AssertNotNull(lifeModelOption, "Galaxy screen should expose the life-potential model selector");
+        DotNetNativeTestSuite.AssertNotNull(settingsTitle, "Galaxy screen should expose the settings title label");
+        DotNetNativeTestSuite.AssertNotNull(showUwpCheck, "Galaxy screen should expose the UWP code checkbox");
         DotNetNativeTestSuite.AssertNotNull(gasGiantFormationOption, "Galaxy studio should expose aggregate planetary gas-giant controls");
         DotNetNativeTestSuite.AssertNotNull(moonBiasOption, "Galaxy studio should expose aggregate moon-formation controls");
 
         DotNetNativeTestSuite.AssertTrue(typeSourcesButton!.TooltipText.Contains("Sources for Galaxy Type"), "Galaxy Type sources tooltip should identify the section");
         DotNetNativeTestSuite.AssertTrue(typeSourcesButton.TooltipText.Contains("Park et al. (2007)"), "Galaxy Type sources tooltip should list galaxy-type references");
         DotNetNativeTestSuite.AssertTrue(scienceSourcesButton!.TooltipText.Contains("Kennicutt (1998)"), "Scientific Priors sources tooltip should list science references");
+        DotNetNativeTestSuite.AssertTrue(lifeSourcesButton!.TooltipText.Contains("Lineweaver and Davis (2002)"), "Life Potential sources tooltip should list life-model references");
         DotNetNativeTestSuite.AssertTrue(stellarSourcesButton!.TooltipText.Contains("Kroupa (2001)"), "Stellar sources tooltip should list stellar references");
         DotNetNativeTestSuite.AssertTrue(planetarySourcesButton!.TooltipText.Contains("Chen and Kipping (2017)"), "Planetary sources tooltip should list planetary references");
+        DotNetNativeTestSuite.AssertEqual("Generator Overrides", settingsTitle!.Text, "Galaxy screen should rename the center column to Generator Overrides");
+        DotNetNativeTestSuite.AssertEqual("Show UWP Code", showUwpCheck!.Text, "Galaxy screen should rename Traveller readouts to Show UWP Code");
+        DotNetNativeTestSuite.AssertTrue(OptionContainsText(lifeModelOption!, "Earth History"), "Galaxy screen should expose the Earth History life model");
+        DotNetNativeTestSuite.AssertTrue(OptionContainsText(lifeModelOption, "Rapid Biospheres"), "Galaxy screen should expose the Rapid Biospheres life model");
+        DotNetNativeTestSuite.AssertTrue(OptionContainsText(lifeModelOption, "Environmental Windows"), "Galaxy screen should expose the Environmental Windows life model");
+        DotNetNativeTestSuite.AssertTrue(OptionContainsText(lifeModelOption, "Rare Complex Life"), "Galaxy screen should expose the Rare Complex Life model");
 
         helpButton!.EmitSignal(Button.SignalName.Pressed);
         DotNetNativeTestSuite.AssertTrue(helpDialog!.Visible, "Help popup should open when the Help button is pressed");
@@ -63,9 +78,11 @@ public static class TestStudioScienceUi
         closeButton!.EmitSignal(Button.SignalName.Pressed);
         DotNetNativeTestSuite.AssertFalse(helpDialog.Visible, "Help popup should close when the Close button is pressed");
 
+        SelectOptionById(lifeModelOption!, (int)GenerationUseCaseSettings.LifePotentialModelType.EnvironmentalWindows);
         SelectOptionById(gasGiantFormationOption!, (int)GasGiantFormationModel.PebbleAssisted);
         SelectOptionById(moonBiasOption!, (int)PlanetMoonFormationBias.CapturedRich);
         GalaxyConfig config = screen.GetCurrentConfig();
+        DotNetNativeTestSuite.AssertEqual((int)GenerationUseCaseSettings.LifePotentialModelType.EnvironmentalWindows, (int)config.UseCaseSettings.LifePotentialModel, "Galaxy studio should write the selected life model into the config");
         DotNetNativeTestSuite.AssertEqual((int)GasGiantFormationModel.PebbleAssisted, (int)config.PlanetaryProfile.GasGiantFormationModel, "Galaxy studio should write the selected gas-giant model into the config");
         DotNetNativeTestSuite.AssertEqual((int)PlanetMoonFormationBias.CapturedRich, (int)config.PlanetaryProfile.MoonFormationBias, "Galaxy studio should write the selected moon-formation bias into the config");
 

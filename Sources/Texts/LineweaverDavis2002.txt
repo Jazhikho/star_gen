@@ -1,0 +1,16 @@
+Lineweaver, C. H., & Davis, T. M. (2002).
+Does the rapid appearance of life on Earth suggest that life is common in the Universe?
+arXiv:astro-ph/0205014
+https://arxiv.org/abs/astro-ph/0205014
+
+Why this source matters for StarGen
+- This paper is useful for an optimistic simple-life model.
+- It argues that rapid biogenesis on Earth can be treated as evidence that simple life may not be extremely rare on Earth-like worlds, while still being careful about selection effects.
+- In StarGen, this supports the "Rapid Biospheres" life-potential model as a research-backed way to raise abiogenesis odds without automatically making complex life or civilizations common.
+
+How it is used
+- Supports higher abiogenesis weighting for worlds that already meet water, energy, and habitability requirements.
+- Does not justify making intelligent life easy; it only informs the simple-life side of the model.
+
+Human review notes
+- Treat as a bounded optimistic prior, not a proof that life is common everywhere.

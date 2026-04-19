@@ -71,6 +71,13 @@ public partial class MainApp : Node
 		CreateSystemGenerationScreen();
 		CreateObjectGenerationScreen();
 		CreateStationStudioScreen();
+		StudioUiPreferencesService.StudioUiPreferences studioPreferences = StudioUiPreferencesService.LoadOrDefault();
+		if (studioPreferences.SkipIntro)
+		{
+			ShowMainMenu();
+			return;
+		}
+
 		ShowSplashScreen();
 	}
 

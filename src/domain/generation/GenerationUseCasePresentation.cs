@@ -11,9 +11,9 @@ public static class GenerationUseCasePresentation
     public const string RealisticRulesetLabel = "Realistic";
 
     /// <summary>
-    /// User-facing label for Traveller mode.
+    /// User-facing label for Space Opera mode.
     /// </summary>
-    public const string TravellerRulesetLabel = "Traveller";
+    public const string TravellerRulesetLabel = "Space Opera";
 
     /// <summary>
     /// Returns the user-facing ruleset label.

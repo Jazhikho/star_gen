@@ -90,6 +90,20 @@ Chambers, J. E., Wetherill, G. W., & Boss, A. P. (1996). The stability of multi-
 
 ---
 
+## Life potential, biospheres, and civilization filters
+
+**Current use in StarGen:** `src/domain/generation/GenerationUseCaseSettings.cs`, `src/domain/generation/parameters/LifeScienceReferenceCatalog.cs`, `src/domain/population/LifePotentialModeling.cs`, `src/domain/population/BiologySupportEvaluator.cs`, `src/domain/population/PopulationLikelihood.cs`, `src/domain/population/PopulationProbability.cs`, `src/domain/population/PopulationGenerator.cs`, and Galaxy Studio life-model controls.
+
+| Citation | Summary | Used in |
+|----------|----------|---------|
+| Lineweaver, C. H., & Davis, T. M. (2002). *Does the rapid appearance of life on Earth suggest that life is common in the Universe?* arXiv:astro-ph/0205014. Notes: [Texts/LineweaverDavis2002.txt](Texts/LineweaverDavis2002.txt). | Early terrestrial biogenesis can be read as support for an optimistic simple-life prior on Earth-like worlds, with explicit caution about assumptions and selection effects. **Supports:** the `Rapid Biospheres` model raising abiogenesis odds without automatically making complex life or civilizations common. | LifeScienceReferenceCatalog.cs; LifePotentialModeling.cs; BiologySupportEvaluator.cs |
+| Spiegel, D. S., & Turner, E. L. (2012). *Bayesian analysis of the astrobiological implications of life's early emergence on Earth*. arXiv:1107.3835. Notes: [Texts/SpiegelTurner2012.txt](Texts/SpiegelTurner2012.txt). | Early life on Earth alone does not strongly prove that abiogenesis is easy everywhere. **Supports:** keeping the default life model cautious and separating habitable conditions from guaranteed biosphere emergence. | LifeScienceReferenceCatalog.cs; LifePotentialModeling.cs; BiologySupportEvaluator.cs |
+| Forgan, D. H., & Rice, K. (2010). *Numerical Testing of The Rare Earth Hypothesis using Monte Carlo Realisation Techniques*. arXiv:1001.1680. Notes: [Texts/ForganRice2010.txt](Texts/ForganRice2010.txt). | Rare Earth style filters can still allow microbial life while making complex or intelligent life much rarer. **Supports:** the `Rare Complex Life` model family. | LifeScienceReferenceCatalog.cs; LifePotentialModeling.cs; BiologySupportEvaluator.cs; PopulationGenerator.cs |
+| Mills, D. B., Macalady, J. L., Frank, A., & Wright, J. T. (2024). *A reassessment of the "hard-steps" model for the evolution of intelligent life*. arXiv:2408.10293. Notes: [Texts/Mills2024.txt](Texts/Mills2024.txt). | Argues that long environmental windows may matter more than intrinsically improbable hard steps. **Supports:** the `Environmental Windows` model, where long stable habitable periods materially improve complex-life and civilization odds. | LifeScienceReferenceCatalog.cs; LifePotentialModeling.cs; BiologySupportEvaluator.cs |
+| Balbi, A., & Frank, A. (2023). *The Oxygen Bottleneck for Technospheres*. arXiv:2308.01160. Notes: [Texts/Balbi2023.txt](Texts/Balbi2023.txt). | Technological civilizations may require stronger oxygen-rich atmospheric conditions than complex life alone. **Supports:** stricter civilization gating on breathable or oxygen-rich worlds. | LifeScienceReferenceCatalog.cs; BiologySupportEvaluator.cs; PopulationGenerator.cs |
+
+---
+
 ## Exoplanet demographics (hot Jupiters, giant planets)
 
 **Current use in StarGen:** [Tests/ScientificBenchmarks.gd](../Tests/ScientificBenchmarks.gd) — hot Jupiter fraction &lt;5%. [Roadmap](../Docs/Roadmap.md): inner vs outer large-planet fractions. [Tests/Unit/TestSystemPlanetDistributions.gd](../Tests/Unit/TestSystemPlanetDistributions.gd): close-in gas giants rare.
@@ -125,6 +139,7 @@ Chambers, J. E., Wetherill, G. W., & Boss, A. P. (1996). The stability of multi-
 
 ## Changelog
 
+- Lineweaver & Davis (2002), Spiegel & Turner (2012), Forgan & Rice (2010), Mills et al. (2024), and Balbi & Frank (2023) added under Life potential, biospheres, and civilization filters to support the `0.8.9.0` life-model replacement that moves Galaxy Studio from a `Life Potential` slider to sourced model selection and threads those models into biology, complex-life, and sentience gating.
 - Fulton et al. (2017), Fischer & Valenti (2005), Canup & Ward (2006), DeMeo & Carry (2014), Lamy et al. (2004), Kopparapu et al. (2014), and Heller & Barnes (2013) added under Planet demographics, small-body placement, moons, and habitability calibration to support the `0.8.7.0` follow-on pass that tied atmosphere retention, moon architecture, outer-belt composition, and biosphere gating more tightly to upstream planetary-system state.
 - Chen & Kipping (2017), Otegi et al. (2020), Owen & Wu (2017), Ginzburg et al. (2018), Mordasini et al. (2007), Lambrechts & Johansen (2012), and Mróz et al. (2020) added under Planetary retrofit and deterministic formation surrogates to support the `0.8.8.0` cleanup that removed the uncited `Legacy` size model, added Otegi as the second supported mass-radius option, and rewrote planetary-prior help around named literature-backed model branches.
 - Added `Sources/Texts/planets.md` under Planetary retrofit and deterministic formation surrogates to document the `0.8.6.0` aggregate planetary retrofit and its upstream-vs-object control split.

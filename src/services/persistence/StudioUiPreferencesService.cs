@@ -10,6 +10,7 @@ public static class StudioUiPreferencesService
 	private const string ConfigPath = "user://studio_ui_preferences.cfg";
 	private const string SectionName = "studio_ui";
 	private const string ShowSeedsKey = "show_seed_controls";
+	private const string SkipIntroKey = "skip_intro";
 
 	/// <summary>
 	/// Immutable snapshot of the current studio UI preferences.
@@ -19,15 +20,21 @@ public static class StudioUiPreferencesService
 		/// <summary>
 		/// Creates a new studio preference snapshot.
 		/// </summary>
-		public StudioUiPreferences(bool showSeedControls)
+		public StudioUiPreferences(bool showSeedControls, bool skipIntro)
 		{
 			ShowSeedControls = showSeedControls;
+			SkipIntro = skipIntro;
 		}
 
 		/// <summary>
 		/// Whether deterministic seed fields should be shown in the studios.
 		/// </summary>
 		public bool ShowSeedControls { get; }
+
+		/// <summary>
+		/// Whether the startup intro should be skipped and the app should open directly to the main menu.
+		/// </summary>
+		public bool SkipIntro { get; }
 	}
 
 	/// <summary>
@@ -43,7 +50,8 @@ public static class StudioUiPreferencesService
 		}
 
 		bool showSeedControls = configFile.GetValue(SectionName, ShowSeedsKey, false).AsBool();
-		return new StudioUiPreferences(showSeedControls);
+		bool skipIntro = configFile.GetValue(SectionName, SkipIntroKey, false).AsBool();
+		return new StudioUiPreferences(showSeedControls, skipIntro);
 	}
 
 	/// <summary>
@@ -53,6 +61,7 @@ public static class StudioUiPreferencesService
 	{
 		ConfigFile configFile = new();
 		configFile.SetValue(SectionName, ShowSeedsKey, preferences.ShowSeedControls);
+		configFile.SetValue(SectionName, SkipIntroKey, preferences.SkipIntro);
 		Error error = configFile.Save(ConfigPath);
 		if (error != Error.Ok)
 		{
@@ -65,6 +74,6 @@ public static class StudioUiPreferencesService
 	/// </summary>
 	public static StudioUiPreferences CreateDefault()
 	{
-		return new StudioUiPreferences(false);
+		return new StudioUiPreferences(false, false);
 	}
 }

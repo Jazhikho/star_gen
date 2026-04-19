@@ -181,7 +181,7 @@ public partial class ObjectGenerationScreen
         _typeOption.AddItem("Comet", (int)ObjectViewer.ObjectType.Comet);
         _rulesetModeOption.Clear();
         _rulesetModeOption.AddItem(GenerationUseCasePresentation.RealisticRulesetLabel, (int)GenerationUseCaseSettings.RulesetModeType.Default);
-        _rulesetModeOption.AddItem("Traveller", (int)GenerationUseCaseSettings.RulesetModeType.Traveller);
+		_rulesetModeOption.AddItem("Space Opera", (int)GenerationUseCaseSettings.RulesetModeType.Traveller);
         PopulatePlanetSection();
         PopulateTravellerSection();
         PopulateStarSection();

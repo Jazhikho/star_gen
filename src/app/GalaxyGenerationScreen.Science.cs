@@ -52,6 +52,7 @@ public partial class GalaxyGenerationScreen
     private Button? _scienceSourcesButton;
     private Button? _structureSourcesButton;
     private Button? _sizeSourcesButton;
+    private Button? _lifeSourcesButton;
     private Button? _stellarSourcesButton;
     private Button? _planetarySourcesButton;
 
@@ -98,6 +99,7 @@ public partial class GalaxyGenerationScreen
         _scienceSourcesButton = GetNodeOrNull<Button>($"{ParameterRootPath}/ScienceSection/ScienceHeaderRow/ScienceSourcesButton");
         _structureSourcesButton = GetNodeOrNull<Button>($"{ParameterRootPath}/StructureSection/StructureHeaderRow/StructureSourcesButton");
         _sizeSourcesButton = GetNodeOrNull<Button>($"{ParameterRootPath}/SizeSection/SizeHeaderRow/SizeSourcesButton");
+        _lifeSourcesButton = GetNodeOrNull<Button>($"{ParameterRootPath}/LifeSection/LifeHeaderRow/LifeSourcesButton");
         _stellarSourcesButton = GetNodeOrNull<Button>($"{ParameterRootPath}/StellarSection/StellarHeaderRow/StellarSourcesButton");
         _planetarySourcesButton = GetNodeOrNull<Button>($"{ParameterRootPath}/PlanetarySection/PlanetaryHeaderRow/PlanetarySourcesButton");
     }
@@ -169,6 +171,7 @@ public partial class GalaxyGenerationScreen
         ApplyTooltip("planet_rogue_planet_allowance", _planetRogueAllowanceOption, $"{ParameterRootPath}/PlanetarySection/PlanetaryContent/PlanetaryVBox/RogueAllowanceRow/RogueAllowanceLabel");
         ApplyTooltip("planet_moon_formation_bias", _planetMoonFormationBiasOption, $"{ParameterRootPath}/PlanetarySection/PlanetaryContent/PlanetaryVBox/MoonFormationBiasRow/MoonFormationBiasLabel");
         ApplyTooltip("planet_minor_body_outer_system_bias", _planetMinorBodyOuterBiasOption, $"{ParameterRootPath}/PlanetarySection/PlanetaryContent/PlanetaryVBox/OuterBodyBiasRow/OuterBodyBiasLabel");
+        ApplyTooltip("life_potential_model", _lifePotentialModelOption, $"{ParameterRootPath}/LifeSection/LifeContent/LifeVBox/LifeModelRow/LifeModelLabel");
         if (_helpButton != null)
         {
             _helpButton.TooltipText = "Open plain-language help.\nThis guide explains what these galaxy, star, and planet settings actually change.";
@@ -472,7 +475,7 @@ public partial class GalaxyGenerationScreen
 
     private static string BuildHelpDialogBbCode()
     {
-        return $"{GalaxyScienceReferenceCatalog.BuildSciencePanelBbCode()}\n\n{StellarScienceReferenceCatalog.BuildHelpPanelBbCode()}\n\n{PlanetaryScienceReferenceCatalog.BuildHelpPanelBbCode()}";
+        return $"{GalaxyScienceReferenceCatalog.BuildSciencePanelBbCode()}\n\n{LifeScienceReferenceCatalog.BuildHelpPanelBbCode()}\n\n{StellarScienceReferenceCatalog.BuildHelpPanelBbCode()}\n\n{PlanetaryScienceReferenceCatalog.BuildHelpPanelBbCode()}";
     }
 
     private PlanetaryGenerationProfile BuildPlanetaryProfileFromControls()
@@ -606,6 +609,15 @@ public partial class GalaxyGenerationScreen
                 }));
 
         ApplySectionTooltip(
+            _lifeSourcesButton,
+            BuildLifeSectionSourceTooltip(
+                "Life Potential",
+                new[]
+                {
+                    "life_potential_model",
+                }));
+
+        ApplySectionTooltip(
             _stellarSourcesButton,
             BuildStellarSectionSourceTooltip(
                 "Stellar",
@@ -689,6 +701,25 @@ public partial class GalaxyGenerationScreen
             static sourceId =>
             {
                 PlanetaryScienceSource? source = PlanetaryScienceReferenceCatalog.GetSource(sourceId);
+                if (source == null)
+                {
+                    return string.Empty;
+                }
+
+                return source.Citation;
+            });
+
+        return BuildSectionTooltipText(sectionLabel, citations);
+    }
+
+    private static string BuildLifeSectionSourceTooltip(string sectionLabel, IReadOnlyList<string> parameterIds)
+    {
+        List<string> citations = CollectUniqueSourceCitations(
+            parameterIds,
+            LifeScienceReferenceCatalog.GetParameterSourceIds,
+            static sourceId =>
+            {
+                LifeScienceSource? source = LifeScienceReferenceCatalog.GetSource(sourceId);
                 if (source == null)
                 {
                     return string.Empty;

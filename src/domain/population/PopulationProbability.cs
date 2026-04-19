@@ -52,19 +52,17 @@ public static class PopulationProbability
     }
 
     /// <summary>
-    /// Calculates the probability that native life emerged on a body using a user-facing permissiveness value.
+    /// Calculates the probability that native life emerged on a body using the active use-case settings.
     /// </summary>
-    public static double CalculateNativeProbability(PlanetProfile profile, double lifePermissiveness)
+    public static double CalculateNativeProbability(PlanetProfile profile, GenerationUseCaseSettings? useCaseSettings)
     {
-        double permissiveness = ClampPermissiveness(lifePermissiveness);
-        GenerationUseCaseSettings settings = GenerationUseCaseSettings.CreateDefault();
-        settings.LifePermissiveness = permissiveness;
-        BiologySupportEvaluator.Assessment assessment = BiologySupportEvaluator.Evaluate(profile, settings);
+        BiologySupportEvaluator.Assessment assessment = BiologySupportEvaluator.Evaluate(profile, useCaseSettings);
         if (!assessment.IsSupported)
         {
             return 0.0;
         }
 
+        double permissiveness = ResolveLifePermissiveness(useCaseSettings);
         double probability = assessment.AbiogenesisChance;
 
         if (profile.IsTidallyLocked)
@@ -88,6 +86,17 @@ public static class PopulationProbability
         }
 
         return System.Math.Clamp(probability, 0.0, MaxNativeProbability);
+    }
+
+    /// <summary>
+    /// Calculates the probability that native life emerged on a body using a user-facing permissiveness value.
+    /// </summary>
+    public static double CalculateNativeProbability(PlanetProfile profile, double lifePermissiveness)
+    {
+        double permissiveness = ClampPermissiveness(lifePermissiveness);
+        GenerationUseCaseSettings settings = GenerationUseCaseSettings.CreateDefault();
+        settings.LifePermissiveness = permissiveness;
+        return CalculateNativeProbability(profile, settings);
     }
 
     /// <summary>
@@ -209,6 +218,21 @@ public static class PopulationProbability
     private static double ClampPermissiveness(double permissiveness)
     {
         return System.Math.Clamp(permissiveness, 0.0, 1.0);
+    }
+
+    private static double ResolveLifePermissiveness(GenerationUseCaseSettings? settings)
+    {
+        if (settings == null)
+        {
+            return GenerationUseCaseSettings.NeutralPermissiveness;
+        }
+
+        if (!settings.HasLifePermissivenessOverride())
+        {
+            return GenerationUseCaseSettings.GetRecommendedLifePermissiveness(settings.LifePotentialModel);
+        }
+
+        return ClampPermissiveness(settings.LifePermissiveness);
     }
 
     private static double ResolveEffectivePermissiveness(double basePermissiveness, ColonyPressureContext? pressureContext)

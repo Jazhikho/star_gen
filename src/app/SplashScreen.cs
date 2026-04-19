@@ -48,7 +48,7 @@ public partial class SplashScreen : Control
 		_versionLabel = GetNodeOrNull<Label>("CenterStage/StageVBox/LogoVBox/VersionLabel");
 		_statusLabel = GetNodeOrNull<Label>("CenterStage/StageVBox/LogoVBox/StatusLabel");
 		_skipLabel = GetNodeOrNull<Label>("SkipLabel");
-		_audioController = GetNodeOrNull<AppAudioController>("../AudioController");
+		_audioController = GetNodeOrNull<AppAudioController>("../../AudioController");
 
 		if (_videoPlayer != null)
 		{
@@ -88,7 +88,7 @@ public partial class SplashScreen : Control
 	/// <summary>
 	/// Allows skipping the intro with any key or click.
 	/// </summary>
-	public override void _UnhandledInput(InputEvent @event)
+	public override void _Input(InputEvent @event)
 	{
 		if (_finished || _transitionStarted)
 		{

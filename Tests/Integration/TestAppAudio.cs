@@ -3,6 +3,7 @@
 using Godot;
 using StarGen.App;
 using StarGen.App.Audio;
+using StarGen.Services.Persistence;
 using StarGen.Tests.Framework;
 
 namespace StarGen.Tests.Integration;
@@ -15,6 +16,7 @@ public static class TestAppAudio
     public static void RunAll(DotNetTestRunner runner)
     {
         runner.RunNativeTest("TestAppAudio::test_main_app_exposes_shared_intro_audio", TestMainAppExposesSharedIntroAudio);
+        runner.RunNativeTest("TestAppAudio::test_main_app_respects_skip_intro_preference", TestMainAppRespectsSkipIntroPreference);
     }
 
     private static void TestMainAppExposesSharedIntroAudio()
@@ -40,5 +42,26 @@ public static class TestAppAudio
         DotNetNativeTestSuite.AssertNotNull(audioController.Library!.GetStream(AppAudioCueId.IntroMusic), "Intro music cue should point at a real audio stream");
 
         IntegrationTestUtils.CleanupNode(app);
+    }
+
+    private static void TestMainAppRespectsSkipIntroPreference()
+    {
+        StudioUiPreferencesService.Save(new StudioUiPreferencesService.StudioUiPreferences(false, true));
+
+        try
+        {
+            MainApp app = IntegrationTestUtils.CreateMainAppReady();
+            SplashScreen? splashScreen = app.GetNodeOrNull<SplashScreen>("ViewerContainer/SplashScreen");
+            MainMenuScreen? mainMenuScreen = app.GetNodeOrNull<MainMenuScreen>("ViewerContainer/MainMenuScreen");
+
+            DotNetNativeTestSuite.AssertNull(splashScreen, "Splash screen should not be attached when Skip Intro is enabled");
+            DotNetNativeTestSuite.AssertNotNull(mainMenuScreen, "Main menu should open immediately when Skip Intro is enabled");
+
+            IntegrationTestUtils.CleanupNode(app);
+        }
+        finally
+        {
+            StudioUiPreferencesService.Save(StudioUiPreferencesService.CreateDefault());
+        }
     }
 }

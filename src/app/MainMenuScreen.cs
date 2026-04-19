@@ -58,6 +58,7 @@ public partial class MainMenuScreen : Control
 	private RichTextLabel? _releaseNotesText;
 	private CheckButton? _fullscreenCheck;
 	private CheckButton? _showSeedControlsCheck;
+	private CheckButton? _skipIntroCheck;
 	private OptionButton? _resolutionOption;
 	private Button? _applyOptionsButton;
 	private Label? _optionsStatusLabel;
@@ -111,6 +112,10 @@ public partial class MainMenuScreen : Control
 		{
 			_showSeedControlsCheck.ButtonPressed = studioPreferences.ShowSeedControls;
 		}
+		if (_skipIntroCheck != null)
+		{
+			_skipIntroCheck.ButtonPressed = studioPreferences.SkipIntro;
+		}
 
 		if (_optionsStatusLabel != null)
 		{
@@ -131,6 +136,15 @@ public partial class MainMenuScreen : Control
 			else
 			{
 				_optionsStatusLabel.Text = $"{modeText}. Studio seeds are hidden and reroll on each launch.";
+			}
+
+			if (studioPreferences.SkipIntro)
+			{
+				_optionsStatusLabel.Text += " Intro is skipped on startup.";
+			}
+			else
+			{
+				_optionsStatusLabel.Text += " Intro plays on startup.";
 			}
 		}
 	}
@@ -161,6 +175,7 @@ public partial class MainMenuScreen : Control
 		_releaseNotesText = GetNodeOrNull<RichTextLabel>($"{Root}/HBoxContainer/UtilityRow/ContentPanel/MarginContainer/ContentStack/ReleaseNotesPanel/ReleaseNotesText");
 		_fullscreenCheck = GetNodeOrNull<CheckButton>($"{Root}/HBoxContainer/UtilityRow/ContentPanel/MarginContainer/ContentStack/OptionsPanel/OptionsVBox/FullscreenCheck");
 		_showSeedControlsCheck = GetNodeOrNull<CheckButton>($"{Root}/HBoxContainer/UtilityRow/ContentPanel/MarginContainer/ContentStack/OptionsPanel/OptionsVBox/ShowSeedControlsCheck");
+		_skipIntroCheck = GetNodeOrNull<CheckButton>($"{Root}/HBoxContainer/UtilityRow/ContentPanel/MarginContainer/ContentStack/OptionsPanel/OptionsVBox/SkipIntroCheck");
 		_resolutionOption = GetNodeOrNull<OptionButton>($"{Root}/HBoxContainer/UtilityRow/ContentPanel/MarginContainer/ContentStack/OptionsPanel/OptionsVBox/ResolutionRow/ResolutionOption");
 		_applyOptionsButton = GetNodeOrNull<Button>($"{Root}/HBoxContainer/UtilityRow/ContentPanel/MarginContainer/ContentStack/OptionsPanel/OptionsVBox/ApplyOptionsButton");
 		_optionsStatusLabel = GetNodeOrNull<Label>($"{Root}/HBoxContainer/UtilityRow/ContentPanel/MarginContainer/ContentStack/OptionsPanel/OptionsVBox/OptionsStatusLabel");
@@ -176,6 +191,11 @@ public partial class MainMenuScreen : Control
 		if (_showSeedControlsCheck == null)
 		{
 			_showSeedControlsCheck = GetNodeOrNull<CheckButton>("OptionsDialog/MarginContainer/OptionsVBox/ShowSeedControlsCheck");
+		}
+
+		if (_skipIntroCheck == null)
+		{
+			_skipIntroCheck = GetNodeOrNull<CheckButton>("OptionsDialog/MarginContainer/OptionsVBox/SkipIntroCheck");
 		}
 
 		if (_resolutionOption == null)
@@ -244,7 +264,7 @@ public partial class MainMenuScreen : Control
 				"How to use StarGen\n\n" +
 				"- Galaxy Studio: Configure galaxy shape, generation rules, and worldbuilding assumptions before generating the galaxy viewer.\n\n" +
 				"- System Studio: Set stellar counts, seed, and worldbuilding assumptions before opening the system viewer.\n\n" +
-				"- Object Studio: Choose a star, planet, moon, or asteroid preset before launching the object viewer.\n\n" +
+				"- Object Studio: Choose a star, planet, asteroid, or comet preset before launching the object viewer.\n\n" +
 				"- Station Studio: Configure an individual station concept and review the current station workflow.\n\n" +
 				"- Sources: Review the astronomy and worldbuilding references currently guiding the generator's assumptions and realism goals.";
 		}
@@ -257,6 +277,8 @@ public partial class MainMenuScreen : Control
 				"AI assistance: OpenAI Codex / GPT models, Anthropic Claude, and Cursor were used under human direction for exploration, drafting, refactoring, testing support, UI copy iteration, documentation/provenance upkeep, and focused implementation assistance. Human review remained responsible for design, realism, licensing, and release decisions.\n\n" +
 				"App icon: Galaxy icon by Freepik via Flaticon, used with attribution.\n\n" +
 				"Music: \"Thus Spoke Zarathustra\" (Introduction / Sunrise), adapted from the Kevin MacLeod source archived on Free Music Archive.\n\n" +
+				"Patreon support\n\n" +
+				"Thank you to Leo for supporting StarGen on Patreon.\n\n" +
 				"Astronomy and worldbuilding references can be reviewed from Sources on the main menu.";
 		}
 
@@ -323,6 +345,11 @@ public partial class MainMenuScreen : Control
 	{
 		return
 			"Version 0.9d\n\n" +
+			"- Added a persisted intro-skip option, restored intro music through the shared audio controller, and made click or key input skip the splash reliably.\n" +
+			"- Galaxy Studio now labels the center column as Generator Overrides, uses Space Opera wording for the RPG-facing ruleset, and renames the UWP readout toggle clearly.\n" +
+			"- Life Potential in Galaxy Studio is now a sourced model selector instead of a scalar slider, with research-backed biosphere and civilization assumptions.\n" +
+			"- Credits now include Patreon thanks for Leo.\n" +
+			"\n" +
 			"- Checkpointed the current mainline branch state so the branch split, scene-first UI migration, and scope reductions are preserved in git.\n" +
 			"- Moved more shipped viewer and editor presentation into .tscn scenes and reusable UI templates.\n" +
 			"- Mainline remains focused on generation and viewing workflows across galaxy, system, object, and station tools.\n" +
@@ -482,7 +509,7 @@ public partial class MainMenuScreen : Control
 			"How to use StarGen\n\n" +
 			"- Galaxy Studio: Configure galaxy shape, generation rules, and worldbuilding assumptions before generating the galaxy viewer.\n\n" +
 			"- System Studio: Set stellar counts, seed, and worldbuilding assumptions before opening the system viewer.\n\n" +
-			"- Object Studio: Choose a star, planet, moon, or asteroid preset before launching the object viewer.\n\n" +
+			"- Object Studio: Choose a star, planet, asteroid, or comet preset before launching the object viewer.\n\n" +
 			"- Station Studio: Configure an individual station concept and review the current station workflow.\n\n" +
 			"- Sources: Review the astronomy and worldbuilding references currently guiding the generator's assumptions and realism goals.";
 	}
@@ -495,6 +522,8 @@ public partial class MainMenuScreen : Control
 			"AI assistance: OpenAI Codex / GPT models, Anthropic Claude, and Cursor were used under human direction for exploration, drafting, refactoring, testing support, UI copy iteration, documentation/provenance upkeep, and focused implementation assistance. Human review remained responsible for design, realism, licensing, and release decisions.\n\n" +
 			"App icon: Galaxy icon by Freepik via Flaticon, used with attribution.\n\n" +
 			"Music: \"Thus Spoke Zarathustra\" (Introduction / Sunrise), adapted from the Kevin MacLeod source archived on Free Music Archive.\n\n" +
+			"Patreon support\n\n" +
+			"Thank you to Leo for supporting StarGen on Patreon.\n\n" +
 			"Astronomy and worldbuilding references can be reviewed from Sources on the main menu.";
 	}
 
@@ -541,12 +570,18 @@ public partial class MainMenuScreen : Control
 	private void ApplyStudioPreferences()
 	{
 		bool showSeedControls = false;
+		bool skipIntro = false;
 		if (_showSeedControlsCheck != null)
 		{
 			showSeedControls = _showSeedControlsCheck.ButtonPressed;
 		}
 
-		StudioUiPreferencesService.Save(new StudioUiPreferencesService.StudioUiPreferences(showSeedControls));
+		if (_skipIntroCheck != null)
+		{
+			skipIntro = _skipIntroCheck.ButtonPressed;
+		}
+
+		StudioUiPreferencesService.Save(new StudioUiPreferencesService.StudioUiPreferences(showSeedControls, skipIntro));
 	}
 
 	private Vector2I GetSelectedResolution()

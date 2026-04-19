@@ -75,9 +75,8 @@ public partial class GalaxyGenerationScreen : Control
 	private SpinBox? _seedSpin;
 	private HBoxContainer? _seedContainer;
 	private OptionButton? _rulesetModeOption;
-	private CheckBox? _showTravellerReadoutsCheck;
-	private HSlider? _lifePermissivenessInput;
-	private Label? _lifePermissivenessValueLabel;
+	private BaseButton? _showTravellerReadoutsCheck;
+	private OptionButton? _lifePotentialModelOption;
 	private HSlider? _populationPermissivenessInput;
 	private Label? _populationPermissivenessValueLabel;
 	private HBoxContainer? _populationPermissivenessRow;
@@ -327,10 +326,9 @@ public partial class GalaxyGenerationScreen : Control
 		_settingsVBox = GetNodeOrNull<VBoxContainer>(ParameterRootPath);
 		_rulesVBox = GetNodeOrNull<VBoxContainer>(RulesRootPath);
 		_rulesetModeOption = GetNodeOrNull<OptionButton>($"{RulesRootPath}/UseCaseSection/RulesetRow/RulesetModeOption");
-		_showTravellerReadoutsCheck = GetNodeOrNull<CheckBox>($"{RulesRootPath}/UseCaseSection/ShowTravellerReadoutsCheck");
+		_showTravellerReadoutsCheck = GetNodeOrNull<BaseButton>($"{RulesRootPath}/UseCaseSection/ShowTravellerReadoutsCheck");
 		_advancedAssumptionsInfoButton = GetNodeOrNull<Button>($"{RulesRootPath}/UseCaseSection/AdvancedHeaderRow/AdvancedAssumptionsInfoButton");
-		_lifePermissivenessInput = GetNodeOrNull<HSlider>($"{RulesRootPath}/UseCaseSection/LifeRow/LifePermissivenessInput");
-		_lifePermissivenessValueLabel = GetNodeOrNull<Label>($"{RulesRootPath}/UseCaseSection/LifePermissivenessValue");
+		_lifePotentialModelOption = GetNodeOrNull<OptionButton>($"{ParameterRootPath}/LifeSection/LifeContent/LifeVBox/LifeModelRow/LifeModelOption");
 		_populationPermissivenessRow = GetNodeOrNull<HBoxContainer>($"{RulesRootPath}/UseCaseSection/PopulationRow");
 		_populationPermissivenessInput = GetNodeOrNull<HSlider>($"{RulesRootPath}/UseCaseSection/PopulationRow/PopulationPermissivenessInput");
 		_populationPermissivenessValueLabel = GetNodeOrNull<Label>($"{RulesRootPath}/UseCaseSection/PopulationPermissivenessValue");
@@ -359,7 +357,7 @@ public partial class GalaxyGenerationScreen : Control
 		if (_seedSpin != null) _seedSpin.ValueChanged += _ => RefreshValidationIssues();
 		if (_rulesetModeOption != null) _rulesetModeOption.ItemSelected += OnRulesetModeSelected;
 		if (_showTravellerReadoutsCheck != null) _showTravellerReadoutsCheck.Toggled += _ => RefreshValidationIssues();
-		if (_lifePermissivenessInput != null) _lifePermissivenessInput.ValueChanged += OnLifePermissivenessChanged;
+		if (_lifePotentialModelOption != null) _lifePotentialModelOption.ItemSelected += _ => OnLifePotentialModelChanged();
 		ConnectScienceSignals();
 	}
 
@@ -677,10 +675,10 @@ public partial class GalaxyGenerationScreen : Control
 		ApplyTooltip("galaxy_seed", _seedSpin, $"{ParameterRootPath}/SeedContainer/SeedLabel");
 		ApplyDynamicTooltip(_rulesetModeOption, "ruleset_mode");
 		ApplyDynamicTooltip(_showTravellerReadoutsCheck, "show_traveller_readouts");
-		ApplyTooltip("life_permissiveness", _lifePermissivenessInput, $"{RulesRootPath}/UseCaseSection/LifeRow/LifeLabel");
-		if (_lifePermissivenessValueLabel != null)
+		ApplyTooltip("life_potential_model", _lifePotentialModelOption, $"{ParameterRootPath}/LifeSection/LifeContent/LifeVBox/LifeModelRow/LifeModelLabel");
+		if (_lifePotentialModelOption != null)
 		{
-			_lifePermissivenessValueLabel.TooltipText = PermissivenessScaleHelper.GetTooltipText("life");
+			_lifePotentialModelOption.TooltipText = LifeScienceReferenceCatalog.GetTooltipSummary("life_potential_model");
 		}
 
 		if (_advancedAssumptionsInfoButton != null)
@@ -760,9 +758,15 @@ public partial class GalaxyGenerationScreen : Control
 			settings.ShowTravellerReadouts = _showTravellerReadoutsCheck.ButtonPressed;
 		}
 
-		if (_lifePermissivenessInput != null)
+		if (_lifePotentialModelOption != null)
 		{
-			settings.LifePermissiveness = _lifePermissivenessInput.Value;
+			settings.LifePotentialModel = (GenerationUseCaseSettings.LifePotentialModelType)_lifePotentialModelOption.GetSelectedId();
+			settings.LifePermissiveness = GenerationUseCaseSettings.GetRecommendedLifePermissiveness(settings.LifePotentialModel);
+		}
+
+		if (settings.RulesetMode == GenerationUseCaseSettings.RulesetModeType.Traveller)
+		{
+			settings.ShowTravellerReadouts = true;
 		}
 
 		return settings;
@@ -781,12 +785,10 @@ public partial class GalaxyGenerationScreen : Control
 			_showTravellerReadoutsCheck.ButtonPressed = resolvedSettings.ShowTravellerReadouts;
 		}
 
-		if (_lifePermissivenessInput != null)
+		if (_lifePotentialModelOption != null)
 		{
-			_lifePermissivenessInput.Value = resolvedSettings.LifePermissiveness;
+			SetOptionSelection(_lifePotentialModelOption, (int)resolvedSettings.LifePotentialModel);
 		}
-
-		UpdatePermissivenessValueLabels();
 	}
 
 	private void OnRulesetModeSelected(long selectedId)
@@ -827,8 +829,8 @@ public partial class GalaxyGenerationScreen : Control
 				readoutVisibility = "Visible";
 			}
 
-			lines.Add($"Readouts {readoutVisibility}");
-			lines.Add($"Life Potential: {GetLifePotentialBandLabel(settings.LifePermissiveness)}");
+			lines.Add($"UWP Code {readoutVisibility}");
+			lines.Add($"Life Model: {LifeScienceReferenceCatalog.GetModelLabel(settings.LifePotentialModel)}");
 			if (_showSeedControls && _seedSpin != null)
 			{
 				lines.Add($"Seed {(int)_seedSpin.Value}");
@@ -845,55 +847,23 @@ public partial class GalaxyGenerationScreen : Control
 
 	private void ApplyTravellerDefaultsToControls()
 	{
-		if (_lifePermissivenessInput != null)
+		if (_lifePotentialModelOption != null)
 		{
-			if (Math.Abs(_lifePermissivenessInput.Value - GenerationUseCaseSettings.NeutralPermissiveness) < 0.001)
-			{
-				_lifePermissivenessInput.Value = GenerationUseCaseSettings.TravellerLifePermissiveness;
-			}
+			SetOptionSelection(
+				_lifePotentialModelOption,
+				(int)GenerationUseCaseSettings.LifePotentialModelType.RapidBiospheres);
 		}
-
 	}
 
-	private void OnLifePermissivenessChanged(double _value)
+	private void OnLifePotentialModelChanged()
 	{
-		UpdatePermissivenessValueLabels();
+		MarkAsCustom();
 		RefreshValidationIssues();
 	}
 
 	private void OnPopulationPermissivenessChanged(double _value)
 	{
 		RefreshValidationIssues();
-	}
-
-	private void UpdatePermissivenessValueLabels()
-	{
-		if (_lifePermissivenessInput != null && _lifePermissivenessValueLabel != null)
-		{
-			_lifePermissivenessValueLabel.Text =
-				$"{_lifePermissivenessInput.Value:0.00} ({GetLifePotentialBandLabel(_lifePermissivenessInput.Value)})";
-		}
-
-	}
-
-	private static string GetLifePotentialBandLabel(double value)
-	{
-		if (value < 0.25)
-		{
-			return "Rare";
-		}
-
-		if (value < 0.50)
-		{
-			return "Uncommon";
-		}
-
-		if (value < 0.75)
-		{
-			return "Common";
-		}
-
-		return "Plentiful";
 	}
 
 	private void RefreshValidationIssues()

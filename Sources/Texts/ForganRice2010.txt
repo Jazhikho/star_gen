@@ -1,0 +1,16 @@
+Forgan, D. H., & Rice, K. (2010).
+Numerical Testing of The Rare Earth Hypothesis using Monte Carlo Realisation Techniques.
+arXiv:1001.1680
+https://arxiv.org/abs/1001.1680
+
+Why this source matters for StarGen
+- This paper is directly useful for a "microbes may be common, complex life may still be rare" model family.
+- It treats Rare Earth style filters as something that can suppress intelligent civilizations even when terrestrial planets and simple life are not vanishingly rare.
+- In StarGen, this supports the "Rare Complex Life" model.
+
+How it is used
+- Justifies stronger filters on complex ecosystems and sentient or technological lineages.
+- Supports leaving biospheres possible while making civilization-bearing worlds much less frequent.
+
+Human review notes
+- Use as a scenario model, not as settled consensus.
