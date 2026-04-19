@@ -143,6 +143,28 @@ public static class PlanetaryScienceReferenceCatalog
         return ParameterReferences;
     }
 
+    /// <summary>
+    /// Returns the source identifiers backing a planetary parameter tooltip.
+    /// </summary>
+    public static IReadOnlyList<string> GetParameterSourceIds(string parameterId)
+    {
+        PlanetaryScienceParameterReference? reference = FindParameterReference(parameterId);
+        if (reference == null)
+        {
+            return System.Array.Empty<string>();
+        }
+
+        return reference.SourceIds;
+    }
+
+    /// <summary>
+    /// Returns the ordered source identifiers surfaced in the help panel.
+    /// </summary>
+    public static IReadOnlyList<string> GetHelpPanelSourceIds()
+    {
+        return PanelSourceIds;
+    }
+
     public static PlanetaryScienceSource? GetSource(string sourceId)
     {
         if (Sources.ContainsKey(sourceId))

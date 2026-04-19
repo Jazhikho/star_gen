@@ -17,6 +17,17 @@ Use this log for significant AI-assisted artifacts in this repository.
 
 ## Entries
 
+### 2026-04-19 - Codex (GPT-5)
+
+- Task Purpose: Add section-level source affordances to Galaxy Studio so each major galaxy-parameter heading exposes the relevant cited sources on hover, and inventory the current `Sources/` directory contents for the user.
+- Input Materials Used: User request to list all source files and add per-heading source tooltips in `GalaxyGenerationScreen`; `AGENTS.md`; `claude.md`; `src/app/GalaxyGenerationScreen.tscn`; `src/app/GalaxyGenerationScreen.Science.cs`; `GalaxyScienceReferenceCatalog.cs`; `StellarScienceReferenceCatalog.cs`; `PlanetaryScienceReferenceCatalog.cs`; `Tests/Integration/TestStudioScienceUi.cs`; current version metadata files.
+- AI Produced: Added scene-owned `(i)` buttons beside the Galaxy Type, Scientific Priors, Structure, Size and Density, Stellar Priors, and Planetary Priors headings in `GalaxyGenerationScreen.tscn`; wired those controls in `GalaxyGenerationScreen.Science.cs` to build multiline source tooltips from the existing science catalogs; added missing planetary catalog helpers for parameter-to-source lookup; expanded the galaxy-studio integration test to assert that the new source buttons exist and expose expected citations; and synced internal patch metadata to `0.8.7.1`.
+- Human Accepted: Pending review of the tooltip wording, section-to-source grouping, and the overall usefulness of the new hover affordances in Galaxy Studio.
+- Human Rejected: No separate popups or duplicated hard-coded source strings were introduced; the user asked specifically for lightweight tooltip affordances next to section headings.
+- Human Changed: The user narrowed the request to section-level source visibility in Galaxy Studio rather than a broader help-surface redesign, and asked for the current contents of the `Sources/` area to be listed first.
+- Validation Method: `dotnet build StarGen.sln`; `godot-mono.exe --path . --headless --script res://Tests/RunTestsHeadless.gd`.
+- Final Approver: Pending Christopher B. Del Gesso review.
+
 ### 2026-03-29 - Codex (GPT-5)
 
 - Task Purpose: Implement the `0.8.6.0` planetary retrofit by threading a shared aggregate planetary-formation profile through galaxy and system generation, exposing the new upstream controls in Galaxy Studio and System Studio, and keeping Object Studio limited to direct single-planet controls.

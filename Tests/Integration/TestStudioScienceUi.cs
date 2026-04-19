@@ -33,6 +33,10 @@ public static class TestStudioScienceUi
         Window? helpDialog = screen.GetNodeOrNull<Window>("HelpDialog");
         RichTextLabel? helpText = screen.GetNodeOrNull<RichTextLabel>("HelpDialog/MarginContainer/HelpVBox/HelpCard/MarginContainer/HelpDialogText");
         Button? closeButton = screen.GetNodeOrNull<Button>("HelpDialog/MarginContainer/HelpVBox/ButtonRow/CloseButton");
+        Button? typeSourcesButton = screen.GetNodeOrNull<Button>("MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/TypeSection/TypeHeaderRow/TypeSourcesButton");
+        Button? scienceSourcesButton = screen.GetNodeOrNull<Button>("MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/ScienceSection/ScienceHeaderRow/ScienceSourcesButton");
+        Button? stellarSourcesButton = screen.GetNodeOrNull<Button>("MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/StellarSection/StellarHeaderRow/StellarSourcesButton");
+        Button? planetarySourcesButton = screen.GetNodeOrNull<Button>("MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/PlanetarySection/PlanetaryHeaderRow/PlanetarySourcesButton");
         OptionButton? gasGiantFormationOption = screen.GetNodeOrNull<OptionButton>("MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/PlanetarySection/PlanetaryContent/PlanetaryVBox/GasGiantFormationRow/GasGiantFormationOption");
         OptionButton? moonBiasOption = screen.GetNodeOrNull<OptionButton>("MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/PlanetarySection/PlanetaryContent/PlanetaryVBox/MoonFormationBiasRow/MoonFormationBiasOption");
 
@@ -40,8 +44,18 @@ public static class TestStudioScienceUi
         DotNetNativeTestSuite.AssertNotNull(helpDialog, "Galaxy screen should expose a Help popup window");
         DotNetNativeTestSuite.AssertNotNull(helpText, "Galaxy Help popup should contain scrollable text");
         DotNetNativeTestSuite.AssertNotNull(closeButton, "Galaxy Help popup should expose a Close button");
+        DotNetNativeTestSuite.AssertNotNull(typeSourcesButton, "Galaxy Type heading should expose a sources tooltip button");
+        DotNetNativeTestSuite.AssertNotNull(scienceSourcesButton, "Scientific Priors heading should expose a sources tooltip button");
+        DotNetNativeTestSuite.AssertNotNull(stellarSourcesButton, "Stellar heading should expose a sources tooltip button");
+        DotNetNativeTestSuite.AssertNotNull(planetarySourcesButton, "Planetary heading should expose a sources tooltip button");
         DotNetNativeTestSuite.AssertNotNull(gasGiantFormationOption, "Galaxy studio should expose aggregate planetary gas-giant controls");
         DotNetNativeTestSuite.AssertNotNull(moonBiasOption, "Galaxy studio should expose aggregate moon-formation controls");
+
+        DotNetNativeTestSuite.AssertTrue(typeSourcesButton!.TooltipText.Contains("Sources for Galaxy Type"), "Galaxy Type sources tooltip should identify the section");
+        DotNetNativeTestSuite.AssertTrue(typeSourcesButton.TooltipText.Contains("Park et al. (2007)"), "Galaxy Type sources tooltip should list galaxy-type references");
+        DotNetNativeTestSuite.AssertTrue(scienceSourcesButton!.TooltipText.Contains("Kennicutt (1998)"), "Scientific Priors sources tooltip should list science references");
+        DotNetNativeTestSuite.AssertTrue(stellarSourcesButton!.TooltipText.Contains("Kroupa (2001)"), "Stellar sources tooltip should list stellar references");
+        DotNetNativeTestSuite.AssertTrue(planetarySourcesButton!.TooltipText.Contains("Chen and Kipping (2017)"), "Planetary sources tooltip should list planetary references");
 
         helpButton!.EmitSignal(Button.SignalName.Pressed);
         DotNetNativeTestSuite.AssertTrue(helpDialog!.Visible, "Help popup should open when the Help button is pressed");

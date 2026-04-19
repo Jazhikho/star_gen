@@ -23,7 +23,7 @@ StarGen `0.9d` is the current mainline checkpoint baseline.
 - Mainline is generation-and-view focused; save/load/export flows are reserved for the export branch.
 - Mainline no longer ships the Concept Atlas path. `Concepts/Additions.md` remains the StarGen prototype backlog for future work that stays in scope.
 
-The current user-facing release version is `0.9d`, while the current internal checkpoint version is `0.8.7.0`. Detailed version history and patch notes live in [VERSION.md](VERSION.md).
+The current user-facing release version is `0.9d`, while the current internal checkpoint version is `0.8.7.1`. Detailed version history and patch notes live in [VERSION.md](VERSION.md).
 
 ## Running StarGen
 

@@ -1,12 +1,18 @@
 # Version
 
-Current version: `0.8.7.0`
+Current version: `0.8.7.1`
 
 Current user-facing version: `0.9d`
 
 Date: `2026-04-03`
 
 Versioning method: release/refactor `+0.1`, feature `+0.0.1`, bug fix `+0.0.0.1`, save-breaking release `+1.0`.
+
+## 0.8.7.1
+
+- Bug fix: Galaxy Studio section headings now expose hoverable `(i)` source buttons for Galaxy Type, Scientific Priors, Structure, Size and Density, Stellar Priors, and Planetary Priors, with tooltip text listing the cited sources relevant to each section.
+- Bug fix: Reused the existing galaxy, stellar, and planetary science-reference catalogs for the new section-level source tooltips so citation wiring stays centralized and testable instead of duplicating source strings in the scene code.
+- Test: Added galaxy-studio integration coverage for the new section source buttons and tooltip content; `dotnet build StarGen.sln` and the headless harness passed after the patch.
 
 ## 0.8.7.0
 

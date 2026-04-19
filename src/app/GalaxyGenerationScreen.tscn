@@ -268,11 +268,24 @@ popup/item_5/id = 5
 layout_mode = 2
 theme_override_constants/separation = 8
 
-[node name="TypeHeader" type="Label" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/TypeSection" unique_id=89115453]
+[node name="TypeHeaderRow" type="HBoxContainer" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/TypeSection"]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="TypeHeader" type="Label" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/TypeSection/TypeHeaderRow" unique_id=89115453]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.921569, 0.768627, 0.470588, 1)
 theme_override_font_sizes/font_size = 16
 text = "Galaxy Type"
+
+[node name="TypeSourcesButton" type="Button" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/TypeSection/TypeHeaderRow"]
+custom_minimum_size = Vector2(24, 24)
+layout_mode = 2
+size_flags_horizontal = 8
+focus_mode = 0
+theme_override_font_sizes/font_size = 12
+text = "(i)"
+flat = true
 
 [node name="TypeContent" type="MarginContainer" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/TypeSection" unique_id=1769717945]
 layout_mode = 2
@@ -396,11 +409,24 @@ popup/item_3/id = 3
 layout_mode = 2
 theme_override_constants/separation = 8
 
-[node name="ScienceHeader" type="Label" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/ScienceSection" unique_id=1384865528]
+[node name="ScienceHeaderRow" type="HBoxContainer" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/ScienceSection"]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="ScienceHeader" type="Label" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/ScienceSection/ScienceHeaderRow" unique_id=1384865528]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.921569, 0.768627, 0.470588, 1)
 theme_override_font_sizes/font_size = 16
 text = "Scientific Priors"
+
+[node name="ScienceSourcesButton" type="Button" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/ScienceSection/ScienceHeaderRow"]
+custom_minimum_size = Vector2(24, 24)
+layout_mode = 2
+size_flags_horizontal = 8
+focus_mode = 0
+theme_override_font_sizes/font_size = 12
+text = "(i)"
+flat = true
 
 [node name="ScienceContent" type="MarginContainer" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/ScienceSection" unique_id=884982844]
 layout_mode = 2
@@ -482,11 +508,24 @@ horizontal_alignment = 2
 layout_mode = 2
 theme_override_constants/separation = 8
 
-[node name="StructureHeader" type="Label" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/StructureSection" unique_id=1683934372]
+[node name="StructureHeaderRow" type="HBoxContainer" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/StructureSection"]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="StructureHeader" type="Label" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/StructureSection/StructureHeaderRow" unique_id=1683934372]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.921569, 0.768627, 0.470588, 1)
 theme_override_font_sizes/font_size = 16
 text = "Structure"
+
+[node name="StructureSourcesButton" type="Button" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/StructureSection/StructureHeaderRow"]
+custom_minimum_size = Vector2(24, 24)
+layout_mode = 2
+size_flags_horizontal = 8
+focus_mode = 0
+theme_override_font_sizes/font_size = 12
+text = "(i)"
+flat = true
 
 [node name="StructureContent" type="MarginContainer" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/StructureSection" unique_id=1588914931]
 layout_mode = 2
@@ -634,11 +673,24 @@ horizontal_alignment = 2
 layout_mode = 2
 theme_override_constants/separation = 8
 
-[node name="SizeHeader" type="Label" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/SizeSection" unique_id=376142801]
+[node name="SizeHeaderRow" type="HBoxContainer" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/SizeSection"]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="SizeHeader" type="Label" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/SizeSection/SizeHeaderRow" unique_id=376142801]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.921569, 0.768627, 0.470588, 1)
 theme_override_font_sizes/font_size = 16
 text = "Size and Density"
+
+[node name="SizeSourcesButton" type="Button" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/SizeSection/SizeHeaderRow"]
+custom_minimum_size = Vector2(24, 24)
+layout_mode = 2
+size_flags_horizontal = 8
+focus_mode = 0
+theme_override_font_sizes/font_size = 12
+text = "(i)"
+flat = true
 
 [node name="SizeContent" type="MarginContainer" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/SizeSection" unique_id=48275777]
 layout_mode = 2
@@ -831,11 +883,24 @@ horizontal_alignment = 2
 layout_mode = 2
 theme_override_constants/separation = 8
 
-[node name="StellarHeader" type="Label" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/StellarSection" unique_id=1947174208]
+[node name="StellarHeaderRow" type="HBoxContainer" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/StellarSection"]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="StellarHeader" type="Label" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/StellarSection/StellarHeaderRow" unique_id=1947174208]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.921569, 0.768627, 0.470588, 1)
 theme_override_font_sizes/font_size = 16
 text = "Stellar Priors"
+
+[node name="StellarSourcesButton" type="Button" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/StellarSection/StellarHeaderRow"]
+custom_minimum_size = Vector2(24, 24)
+layout_mode = 2
+size_flags_horizontal = 8
+focus_mode = 0
+theme_override_font_sizes/font_size = 12
+text = "(i)"
+flat = true
 
 [node name="StellarContent" type="MarginContainer" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/StellarSection" unique_id=1631323836]
 layout_mode = 2
@@ -928,11 +993,24 @@ horizontal_alignment = 2
 layout_mode = 2
 theme_override_constants/separation = 8
 
-[node name="PlanetaryHeader" type="Label" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/PlanetarySection"]
+[node name="PlanetaryHeaderRow" type="HBoxContainer" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/PlanetarySection"]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="PlanetaryHeader" type="Label" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/PlanetarySection/PlanetaryHeaderRow"]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.921569, 0.768627, 0.470588, 1)
 theme_override_font_sizes/font_size = 16
 text = "Planetary Priors"
+
+[node name="PlanetarySourcesButton" type="Button" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/PlanetarySection/PlanetaryHeaderRow"]
+custom_minimum_size = Vector2(24, 24)
+layout_mode = 2
+size_flags_horizontal = 8
+focus_mode = 0
+theme_override_font_sizes/font_size = 12
+text = "(i)"
+flat = true
 
 [node name="PlanetaryContent" type="MarginContainer" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/PlanetarySection"]
 layout_mode = 2

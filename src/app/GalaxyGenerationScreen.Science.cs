@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using Godot;
 using StarGen.Domain.Generation;
 using StarGen.Domain.Generation.Parameters;
@@ -47,6 +48,12 @@ public partial class GalaxyGenerationScreen
     private Window? _helpDialog;
     private RichTextLabel? _helpDialogText;
     private Button? _helpDialogCloseButton;
+    private Button? _typeSourcesButton;
+    private Button? _scienceSourcesButton;
+    private Button? _structureSourcesButton;
+    private Button? _sizeSourcesButton;
+    private Button? _stellarSourcesButton;
+    private Button? _planetarySourcesButton;
 
     private void CacheScienceNodeReferences()
     {
@@ -87,6 +94,12 @@ public partial class GalaxyGenerationScreen
         _helpDialog = GetNodeOrNull<Window>("HelpDialog");
         _helpDialogText = GetNodeOrNull<RichTextLabel>("HelpDialog/MarginContainer/HelpVBox/HelpCard/MarginContainer/HelpDialogText");
         _helpDialogCloseButton = GetNodeOrNull<Button>("HelpDialog/MarginContainer/HelpVBox/ButtonRow/CloseButton");
+        _typeSourcesButton = GetNodeOrNull<Button>($"{ParameterRootPath}/TypeSection/TypeHeaderRow/TypeSourcesButton");
+        _scienceSourcesButton = GetNodeOrNull<Button>($"{ParameterRootPath}/ScienceSection/ScienceHeaderRow/ScienceSourcesButton");
+        _structureSourcesButton = GetNodeOrNull<Button>($"{ParameterRootPath}/StructureSection/StructureHeaderRow/StructureSourcesButton");
+        _sizeSourcesButton = GetNodeOrNull<Button>($"{ParameterRootPath}/SizeSection/SizeHeaderRow/SizeSourcesButton");
+        _stellarSourcesButton = GetNodeOrNull<Button>($"{ParameterRootPath}/StellarSection/StellarHeaderRow/StellarSourcesButton");
+        _planetarySourcesButton = GetNodeOrNull<Button>($"{ParameterRootPath}/PlanetarySection/PlanetaryHeaderRow/PlanetarySourcesButton");
     }
 
     private void ConnectScienceSignals()
@@ -160,6 +173,8 @@ public partial class GalaxyGenerationScreen
         {
             _helpButton.TooltipText = "Open plain-language help.\nThis guide explains what these galaxy, star, and planet settings actually change.";
         }
+
+        ApplyScienceSectionSourceTooltips();
     }
 
     private void UpdateScienceTypeSpecificControls(int galaxyType)
@@ -532,5 +547,208 @@ public partial class GalaxyGenerationScreen
                 return;
             }
         }
+    }
+
+    private void ApplyScienceSectionSourceTooltips()
+    {
+        ApplySectionTooltip(
+            _typeSourcesButton,
+            BuildGalaxySectionSourceTooltip(
+                "Galaxy Type",
+                new[]
+                {
+                    "galaxy_type",
+                    "subtype_mode",
+                    "bar_mode",
+                    "arm_mechanism_preference",
+                }));
+
+        ApplySectionTooltip(
+            _scienceSourcesButton,
+            BuildGalaxySectionSourceTooltip(
+                "Scientific Priors",
+                new[]
+                {
+                    "halo_mass_log10_solar",
+                    "environment_density_index",
+                    "star_formation_efficiency",
+                }));
+
+        ApplySectionTooltip(
+            _structureSourcesButton,
+            BuildGalaxySectionSourceTooltip(
+                "Structure",
+                new[]
+                {
+                    "num_arms",
+                    "arm_pitch_angle_deg",
+                    "arm_amplitude",
+                    "bulge_intensity",
+                    "bulge_radius_pc",
+                    "ellipticity",
+                    "irregularity_scale",
+                }));
+
+        ApplySectionTooltip(
+            _sizeSourcesButton,
+            BuildGalaxySectionSourceTooltip(
+                "Size",
+                new[]
+                {
+                    "radius_pc",
+                    "disk_scale_length_pc",
+                    "disk_scale_height_pc",
+                    "star_density_multiplier",
+                    "ghz_inner_radius_pc",
+                    "ghz_outer_radius_pc",
+                    "ghz_transition_width_pc",
+                    "metallicity_gradient_dex_per_kpc",
+                }));
+
+        ApplySectionTooltip(
+            _stellarSourcesButton,
+            BuildStellarSectionSourceTooltip(
+                "Stellar",
+                new[]
+                {
+                    "stellar_imf_form",
+                    "stellar_imf_variation_mode",
+                    "stellar_isochrone_model",
+                    "stellar_multiplicity_scale",
+                }));
+
+        ApplySectionTooltip(
+            _planetarySourcesButton,
+            BuildPlanetarySectionSourceTooltip(
+                "Planetary",
+                new[]
+                {
+                    "planet_mass_radius_model",
+                    "planet_envelope_loss_model",
+                    "planet_gas_giant_formation_model",
+                    "planet_metallicity_coupling_strength",
+                    "planet_rogue_planet_allowance",
+                    "planet_moon_formation_bias",
+                    "planet_minor_body_outer_system_bias",
+                }));
+    }
+
+    private static void ApplySectionTooltip(Control? control, string tooltipText)
+    {
+        if (control == null)
+        {
+            return;
+        }
+
+        control.TooltipText = tooltipText;
+    }
+
+    private static string BuildGalaxySectionSourceTooltip(string sectionLabel, IReadOnlyList<string> parameterIds)
+    {
+        List<string> citations = CollectUniqueSourceCitations(
+            parameterIds,
+            GalaxyScienceReferenceCatalog.GetParameterSourceIds,
+            static sourceId =>
+            {
+                GalaxyScienceSource? source = GalaxyScienceReferenceCatalog.GetSource(sourceId);
+                if (source == null)
+                {
+                    return string.Empty;
+                }
+
+                return source.Citation;
+            });
+
+        return BuildSectionTooltipText(sectionLabel, citations);
+    }
+
+    private static string BuildStellarSectionSourceTooltip(string sectionLabel, IReadOnlyList<string> parameterIds)
+    {
+        List<string> citations = CollectUniqueSourceCitations(
+            parameterIds,
+            StellarScienceReferenceCatalog.GetParameterSourceIds,
+            static sourceId =>
+            {
+                StellarScienceSource? source = StellarScienceReferenceCatalog.GetSource(sourceId);
+                if (source == null)
+                {
+                    return string.Empty;
+                }
+
+                return source.Citation;
+            });
+
+        return BuildSectionTooltipText(sectionLabel, citations);
+    }
+
+    private static string BuildPlanetarySectionSourceTooltip(string sectionLabel, IReadOnlyList<string> parameterIds)
+    {
+        List<string> citations = CollectUniqueSourceCitations(
+            parameterIds,
+            PlanetaryScienceReferenceCatalog.GetParameterSourceIds,
+            static sourceId =>
+            {
+                PlanetaryScienceSource? source = PlanetaryScienceReferenceCatalog.GetSource(sourceId);
+                if (source == null)
+                {
+                    return string.Empty;
+                }
+
+                return source.Citation;
+            });
+
+        return BuildSectionTooltipText(sectionLabel, citations);
+    }
+
+    private static List<string> CollectUniqueSourceCitations(
+        IReadOnlyList<string> parameterIds,
+        System.Func<string, IReadOnlyList<string>> sourceIdResolver,
+        System.Func<string, string> citationResolver)
+    {
+        List<string> citations = new();
+        HashSet<string> seenSourceIds = new();
+        foreach (string parameterId in parameterIds)
+        {
+            IReadOnlyList<string> sourceIds = sourceIdResolver(parameterId);
+            foreach (string sourceId in sourceIds)
+            {
+                if (!seenSourceIds.Add(sourceId))
+                {
+                    continue;
+                }
+
+                string citation = citationResolver(sourceId);
+                if (string.IsNullOrWhiteSpace(citation))
+                {
+                    continue;
+                }
+
+                citations.Add(citation);
+            }
+        }
+
+        return citations;
+    }
+
+    private static string BuildSectionTooltipText(string sectionLabel, IReadOnlyList<string> citations)
+    {
+        System.Text.StringBuilder builder = new();
+        builder.Append("Sources for ");
+        builder.Append(sectionLabel);
+        builder.Append(':');
+
+        if (citations.Count == 0)
+        {
+            builder.Append("\nNo linked external source notes for this section yet.");
+            return builder.ToString();
+        }
+
+        foreach (string citation in citations)
+        {
+            builder.Append("\n- ");
+            builder.Append(citation);
+        }
+
+        return builder.ToString();
     }
 }
