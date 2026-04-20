@@ -1,12 +1,21 @@
 # Version
 
-Current version: `0.8.17.1`
+Current version: `0.8.17.3`
 
 Current user-facing version: `0.9d`
 
 Date: `2026-04-20`
 
 Versioning method: release/refactor `+0.1`, feature `+0.0.1`, bug fix `+0.0.0.1`, save-breaking release `+1.0`.
+
+## 0.8.17.3
+
+- Bug fix: Removed the jump-route tools section from the Galaxy View inspector so the panel is limited to the requested selection and preview information instead of mixing in route controls.
+
+## 0.8.17.2
+
+- Bug fix: Hid the legacy `Active Profile` and `Overview` sections in the Galaxy View inspector so the panel now surfaces the trimmed selection and preview information directly instead of burying it below profile data.
+- Test: Added a viewer-level regression proving the Galaxy inspector keeps the legacy profile and overview sections hidden.
 
 ## 0.8.17.1
 

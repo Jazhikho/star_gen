@@ -28,6 +28,28 @@ Use this log for significant AI-assisted artifacts in this repository.
 - Validation Method: `dotnet build StarGen.sln`; `godot-mono.exe --path . --headless --script res://Tests/RunTestsHeadless.gd` (`Total: 1828 | Passed: 1828 | Failed: 0`).
 - Final Approver: Pending Christopher B. Del Gesso review.
 
+### 2026-04-20 - Codex (GPT-5)
+
+- Task Purpose: Correct the Galaxy View inspector patch after confirming the visible issue was the still-present legacy `Active Profile` and `Overview` sections, which kept the trimmed selection details buried below unrelated profile content.
+- Input Materials Used: User follow-up with screenshot showing the unchanged visible Galaxy View inspector; `GalaxyViewerCSharp.tscn`; `GalaxyInspectorPanel`; existing viewer accessors; headless test harness; and current version metadata.
+- AI Produced: Hid the legacy config and overview sections directly in `GalaxyInspectorPanel` initialization, exposed small visibility accessors for regression testing, added a viewer-level test that instantiates `GalaxyViewerCSharp.tscn` and asserts those sections stay hidden, and bumped patch metadata to `0.8.17.2`.
+- Human Accepted: Pending review of the final visible Galaxy inspector layout now that the legacy sections no longer occupy the top of the panel.
+- Human Rejected: The user explicitly rejected a patch that only changed the buried selection subsection while leaving the visible top of the Galaxy inspector filled with profile and overview data.
+- Human Changed: The user's screenshot clarified that the real requirement was to simplify the actual visible Galaxy View inspector, not just the deeper star-selection block.
+- Validation Method: Pending `dotnet build StarGen.sln` and `godot-mono.exe --path . --headless --script res://Tests/RunTestsHeadless.gd`.
+- Final Approver: Pending Christopher B. Del Gesso review.
+
+### 2026-04-20 - Codex (GPT-5)
+
+- Task Purpose: Finish simplifying the Galaxy View inspector by removing the remaining jump-route tools after the user clarified that the inspector should contain only the requested informational fields.
+- Input Materials Used: User clarification excluding jump-route tools from the inspector window; current `GalaxyInspectorPanel`; current viewer-level inspector regression; and version/provenance metadata.
+- AI Produced: Hid the `ColonizationSection` in `GalaxyInspectorPanel`, added a visibility accessor for regression coverage, extended the viewer-level inspector test to assert the jump-route tools stay hidden, and bumped patch metadata to `0.8.17.3`.
+- Human Accepted: Pending review of the final minimal Galaxy inspector surface.
+- Human Rejected: The user explicitly rejected leaving jump-route tools in the inspector window.
+- Human Changed: The user clarified that the target surface is informational only and should not include the route-control tools.
+- Validation Method: Pending `dotnet build StarGen.sln` and `godot-mono.exe --path . --headless --script res://Tests/RunTestsHeadless.gd`.
+- Final Approver: Pending Christopher B. Del Gesso review.
+
 ### 2026-04-19 - Codex (GPT-5)
 
 - Task Purpose: Finish wiring the fixed non-Space-Opera RPG compatibility profiles so `Cepheus`, `Starfinder`, and `Starforged` materially change system and population generation instead of collapsing into near-identical variants of the same small bias set.

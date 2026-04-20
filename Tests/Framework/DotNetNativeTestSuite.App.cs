@@ -211,6 +211,32 @@ public static partial class DotNetNativeTestSuite
     }
 
     /// <summary>
+    /// Verifies the galaxy viewer inspector hides the legacy profile and overview sections.
+    /// </summary>
+    private static void TestGalaxyInspectorPanelHidesLegacySections()
+    {
+        PackedScene? scene = ResourceLoader.Load<PackedScene>("res://src/app/galaxy_viewer/GalaxyViewerCSharp.tscn");
+        AssertNotNull(scene, "galaxy viewer scene should load for inspector testing");
+
+        GalaxyViewer? viewer = scene!.Instantiate() as GalaxyViewer;
+        AssertNotNull(viewer, "galaxy viewer scene should instantiate for inspector testing");
+
+        try
+        {
+            viewer!._Ready();
+            GalaxyInspectorPanel? panel = viewer.GetInspectorPanel();
+            AssertNotNull(panel, "galaxy viewer should expose the typed inspector panel");
+            AssertTrue(!panel!.IsConfigSectionVisible(), "galaxy viewer inspector should hide the legacy active-profile section");
+            AssertTrue(!panel.IsOverviewSectionVisible(), "galaxy viewer inspector should hide the legacy overview section");
+            AssertTrue(!panel.IsColonizationSectionVisible(), "galaxy viewer inspector should hide the jump-route tools section");
+        }
+        finally
+        {
+            viewer?.QueueFree();
+        }
+    }
+
+    /// <summary>
     /// Verifies realism-profile slider mapping and preset constructors.
     /// </summary>
     private static void TestGenerationRealismProfileSliderAndPresets()

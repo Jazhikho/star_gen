@@ -66,6 +66,9 @@ public partial class GalaxyInspectorPanel : VBoxContainer
 	private VBoxContainer? _configIssuesContainer;
 	private VBoxContainer? _selectionContainer;
 	private VBoxContainer? _previewContainer;
+	private Control? _configSection;
+	private Control? _overviewSection;
+	private Control? _colonizationSection;
 	private Button? _openSystemButton;
 	private Button? _calculateRoutesButton;
 	private CheckBox? _showRoutesCheck;
@@ -553,8 +556,35 @@ public partial class GalaxyInspectorPanel : VBoxContainer
 		return _currentPreview;
 	}
 
+	/// <summary>
+	/// Returns whether the legacy active-profile section is visible.
+	/// </summary>
+	public bool IsConfigSectionVisible()
+	{
+		return _configSection?.Visible ?? false;
+	}
+
+	/// <summary>
+	/// Returns whether the legacy overview section is visible.
+	/// </summary>
+	public bool IsOverviewSectionVisible()
+	{
+		return _overviewSection?.Visible ?? false;
+	}
+
+	/// <summary>
+	/// Returns whether the legacy jump-route tools section is visible.
+	/// </summary>
+	public bool IsColonizationSectionVisible()
+	{
+		return _colonizationSection?.Visible ?? false;
+	}
+
 	private void CacheUi()
 	{
+		_configSection = GetNodeOrNull<Control>("ConfigSection");
+		_overviewSection = GetNodeOrNull<Control>("OverviewSection");
+		_colonizationSection = GetNodeOrNull<Control>("ColonizationSection");
 		_configEditorContainer = GetNodeOrNull<VBoxContainer>("ConfigSection/Content/ConfigEditorContainer");
 		_profileSummaryContainer = GetNodeOrNull<VBoxContainer>("ConfigSection/Content/ConfigEditorContainer/ProfileSummaryContainer");
 		_configIssuesContainer = GetNodeOrNull<VBoxContainer>("ConfigSection/Content/ConfigEditorContainer/ConfigIssuesContainer");
@@ -592,6 +622,21 @@ public partial class GalaxyInspectorPanel : VBoxContainer
 			|| _configIssuesContainer == null)
 		{
 			throw new InvalidOperationException("GalaxyInspectorPanel scene is missing required inspector nodes.");
+		}
+
+		if (_configSection != null)
+		{
+			_configSection.Visible = false;
+		}
+
+		if (_overviewSection != null)
+		{
+			_overviewSection.Visible = false;
+		}
+
+		if (_colonizationSection != null)
+		{
+			_colonizationSection.Visible = false;
 		}
 
 		ClearContainer(_selectionContainer);

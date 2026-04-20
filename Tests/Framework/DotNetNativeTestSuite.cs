@@ -61,6 +61,9 @@ public static partial class DotNetNativeTestSuite
             "DotNetNativeTestSuite::test_selection_indicator_show_hide_wrappers",
             TestSelectionIndicatorShowHideWrappers);
         runner.RunNativeTest(
+            "DotNetNativeTestSuite::test_galaxy_inspector_panel_hides_legacy_sections",
+            TestGalaxyInspectorPanelHidesLegacySections);
+        runner.RunNativeTest(
             "DotNetNativeTestSuite::test_galaxy_config_round_trip_and_validation",
             TestGalaxyConfigRoundTripAndValidation);
         runner.RunNativeTest(
