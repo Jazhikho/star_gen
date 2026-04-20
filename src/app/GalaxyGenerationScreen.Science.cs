@@ -403,13 +403,11 @@ public partial class GalaxyGenerationScreen
             return;
         }
 
-        HelpDialogLayoutHelper.Prepare(_helpDialog);
+        HelpDialogLayoutHelper.Open(_helpDialog);
         if (_helpDialogText != null)
         {
             _helpDialogText.ScrollToLine(0);
         }
-
-        _helpDialog.Visible = true;
     }
 
     private void HideHelpDialog()

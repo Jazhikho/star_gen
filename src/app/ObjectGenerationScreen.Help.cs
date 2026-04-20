@@ -67,13 +67,11 @@ public partial class ObjectGenerationScreen
             return;
         }
 
-        HelpDialogLayoutHelper.Prepare(_helpDialog);
+        HelpDialogLayoutHelper.Open(_helpDialog);
         if (_helpDialogText != null)
         {
             _helpDialogText.ScrollToLine(0);
         }
-
-        _helpDialog.Visible = true;
     }
 
     private void HideObjectHelpDialog()

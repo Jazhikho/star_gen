@@ -18,11 +18,27 @@ public static class TestStudioScienceUi
 {
     public static void RunAll(DotNetTestRunner runner)
     {
+        runner.RunNativeTest("TestStudioScienceUi::test_checkbox_theme_uses_compact_white_box_icons", TestCheckboxThemeUsesCompactWhiteBoxIcons);
         runner.RunNativeTest("TestStudioScienceUi::test_galaxy_help_popup_exists_and_toggles", TestGalaxyHelpPopupExistsAndToggles);
         runner.RunNativeTest("TestStudioScienceUi::test_object_studio_filters_presets_and_traveller_rules_by_context", TestObjectStudioFiltersPresetsAndTravellerRulesByContext);
         runner.RunNativeTest("TestStudioScienceUi::test_object_help_popup_and_planet_life_controls", TestObjectHelpPopupAndPlanetLifeControls);
         runner.RunNativeTest("TestStudioScienceUi::test_system_studio_supports_ten_star_cap_and_science_controls", TestSystemStudioSupportsTenStarCapAndScienceControls);
         runner.RunNativeTest("TestStudioScienceUi::test_system_help_popup_exists_and_toggles", TestSystemHelpPopupExistsAndToggles);
+    }
+
+    private static void TestCheckboxThemeUsesCompactWhiteBoxIcons()
+    {
+        Theme? theme = ResourceLoader.Load<Theme>("res://src/app/themes/DarkTheme.tres");
+        DotNetNativeTestSuite.AssertNotNull(theme, "DarkTheme should load for checkbox-style validation");
+
+        StyleBoxFlat? checkBoxNormal = theme!.GetStylebox("normal", "CheckBox") as StyleBoxFlat;
+        StyleBoxFlat? checkButtonNormal = theme.GetStylebox("normal", "CheckButton") as StyleBoxFlat;
+        DotNetNativeTestSuite.AssertNotNull(checkBoxNormal, "CheckBox should use a flat theme style");
+        DotNetNativeTestSuite.AssertNotNull(checkButtonNormal, "CheckButton should use a flat theme style");
+        DotNetNativeTestSuite.AssertFalse(checkBoxNormal!.DrawCenter, "CheckBox should not draw a button-like filled background");
+        DotNetNativeTestSuite.AssertFalse(checkButtonNormal!.DrawCenter, "CheckButton should not draw a button-like filled background");
+        DotNetNativeTestSuite.AssertEqual(8, theme.GetConstant("h_separation", "CheckBox"), "CheckBox should keep compact text spacing");
+        DotNetNativeTestSuite.AssertEqual(8, theme.GetConstant("h_separation", "CheckButton"), "CheckButton should keep compact text spacing");
     }
 
     private static void TestGalaxyHelpPopupExistsAndToggles()
@@ -464,16 +480,33 @@ public static class TestStudioScienceUi
         Window? helpDialog = screen.GetNodeOrNull<Window>("HelpDialog");
         RichTextLabel? helpText = screen.GetNodeOrNull<RichTextLabel>("HelpDialog/MarginContainer/HelpVBox/HelpCard/MarginContainer/HelpDialogText");
         Button? closeButton = screen.GetNodeOrNull<Button>("HelpDialog/MarginContainer/HelpVBox/ButtonRow/CloseButton");
+        Label? settingsTitle = screen.GetNodeOrNull<Label>("MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/SettingsTitle");
+        Button? systemSourcesButton = screen.GetNodeOrNull<Button>("MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/SystemHeaderRow/SystemSourcesButton");
+        Button? stellarSourcesButton = screen.GetNodeOrNull<Button>("MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/StellarSection/StellarHeaderRow/StellarSourcesButton");
+        Button? planetarySourcesButton = screen.GetNodeOrNull<Button>("MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/PlanetarySection/PlanetaryHeaderRow/PlanetarySourcesButton");
+        Button? lifeSourcesButton = screen.GetNodeOrNull<Button>("MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/LifeSection/LifeHeaderRow/LifeSourcesButton");
 
         DotNetNativeTestSuite.AssertNotNull(helpButton, "System screen should expose a Help button");
         DotNetNativeTestSuite.AssertNotNull(helpDialog, "System screen should expose a Help popup window");
         DotNetNativeTestSuite.AssertNotNull(helpText, "System Help popup should contain scrollable text");
         DotNetNativeTestSuite.AssertNotNull(closeButton, "System Help popup should expose a Close button");
+        DotNetNativeTestSuite.AssertNotNull(settingsTitle, "System screen should expose the scientific assumptions title");
+        DotNetNativeTestSuite.AssertNotNull(systemSourcesButton, "System screen should expose a system-controls sources button");
+        DotNetNativeTestSuite.AssertNotNull(stellarSourcesButton, "System screen should expose a stellar sources button");
+        DotNetNativeTestSuite.AssertNotNull(planetarySourcesButton, "System screen should expose a planetary sources button");
+        DotNetNativeTestSuite.AssertNotNull(lifeSourcesButton, "System screen should expose a life sources button");
+        DotNetNativeTestSuite.AssertEqual("Scientific Assumptions", settingsTitle!.Text, "System screen should label the left column as scientific assumptions");
+        DotNetNativeTestSuite.AssertTrue(systemSourcesButton!.TooltipText.Contains("deterministic generator controls"), "System controls sources tooltip should explain the mixed deterministic/system-target section");
+        DotNetNativeTestSuite.AssertTrue(stellarSourcesButton!.TooltipText.Contains("Kroupa (2001)"), "System stellar sources tooltip should list stellar references");
+        DotNetNativeTestSuite.AssertTrue(planetarySourcesButton!.TooltipText.Contains("Chen and Kipping (2017)"), "System planetary sources tooltip should list planetary references");
+        DotNetNativeTestSuite.AssertTrue(lifeSourcesButton!.TooltipText.Contains("Lineweaver and Davis (2002)"), "System life sources tooltip should list life references");
 
         helpButton!.EmitSignal(Button.SignalName.Pressed);
         DotNetNativeTestSuite.AssertTrue(helpDialog!.Visible, "System Help popup should open when the Help button is pressed");
         DotNetNativeTestSuite.AssertTrue(helpDialog.Size.X <= 700, "System Help popup should stay narrow enough for smaller windows");
         DotNetNativeTestSuite.AssertTrue(helpDialog.Size.Y <= 520, "System Help popup should stay short enough for smaller windows");
+        DotNetNativeTestSuite.AssertTrue(helpDialog.Position.X >= 0, "System Help popup should stay on-screen horizontally");
+        DotNetNativeTestSuite.AssertTrue(helpDialog.Position.Y >= 0, "System Help popup should stay on-screen vertically");
 
         closeButton!.EmitSignal(Button.SignalName.Pressed);
         DotNetNativeTestSuite.AssertFalse(helpDialog.Visible, "System Help popup should close when the Close button is pressed");

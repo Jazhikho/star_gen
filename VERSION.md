@@ -1,12 +1,19 @@
 # Version
 
-Current version: `0.8.18.1`
+Current version: `0.8.18.2`
 
 Current user-facing version: `0.9d`
 
 Date: `2026-04-20`
 
 Versioning method: release/refactor `+0.1`, feature `+0.0.1`, bug fix `+0.0.0.1`, save-breaking release `+1.0`.
+
+## 0.8.18.2
+
+- Bug fix: System Studio help now opens within a tighter shared viewport clamp so the close button stays reachable, and the same smaller modal sizing is reused by the Galaxy and Object studio help popups.
+- Bug fix: System Studio now mirrors the Galaxy Studio science-panel standard more closely, including a `Scientific Assumptions` title and section-level source `(i)` buttons for system, stellar, planetary, and life controls.
+- Bug fix: Checkboxes and check buttons now use compact transparent theme chrome with visible default checkbox glyphs instead of large filled toggle backgrounds, making unchecked boxes readable across the UI.
+- Test: Added theme and System Studio UI regressions for the compact checkbox styling, source buttons, and clamped help popup behavior.
 
 ## 0.8.18.1
 

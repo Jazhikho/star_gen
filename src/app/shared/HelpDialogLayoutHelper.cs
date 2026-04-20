@@ -14,16 +14,30 @@ public static class HelpDialogLayoutHelper
     {
         Vector2I viewportSize = ResolveViewportSize(window);
 
-        int width = System.Math.Min(preferredWidth, viewportSize.X - 96);
-        int height = System.Math.Min(preferredHeight, viewportSize.Y - 96);
+        int width = System.Math.Min(preferredWidth, viewportSize.X - 160);
+        int height = System.Math.Min(preferredHeight, viewportSize.Y - 160);
 
         width = System.Math.Max(width, 420);
         height = System.Math.Max(height, 340);
+
+        int maxWidth = System.Math.Max(viewportSize.X - 48, 420);
+        int maxHeight = System.Math.Max(viewportSize.Y - 48, 340);
+        width = System.Math.Min(width, maxWidth);
+        height = System.Math.Min(height, maxHeight);
 
         window.Size = new Vector2I(width, height);
         window.Position = new Vector2I(
             System.Math.Max((viewportSize.X - width) / 2, 24),
             System.Math.Max((viewportSize.Y - height) / 2, 24));
+    }
+
+    /// <summary>
+    /// Sizes, centers, and opens a help dialog within the current viewport.
+    /// </summary>
+    public static void Open(Window window, int preferredWidth = 640, int preferredHeight = 460)
+    {
+        Prepare(window, preferredWidth, preferredHeight);
+        window.Visible = true;
     }
 
     private static Vector2I ResolveViewportSize(Window window)
