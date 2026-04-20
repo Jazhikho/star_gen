@@ -89,25 +89,45 @@ public static class TestGenerationParameters
             GenerationUseCaseSettings.MainworldPolicyType.Require,
             true,
             GenerationUseCaseSettings.LifeFrameworkType.RapidBiospheres,
-            0.58);
+            0.58,
+            1.35,
+            0.85,
+            1.25,
+            1.15,
+            1.35);
         AssertRulesetDefaults(
             GenerationUseCaseSettings.RulesetModeType.Cepheus,
             GenerationUseCaseSettings.MainworldPolicyType.Require,
             true,
             GenerationUseCaseSettings.LifeFrameworkType.EarthAnchoredComposite,
-            0.50);
+            0.50,
+            1.18,
+            0.92,
+            1.15,
+            1.00,
+            1.15);
         AssertRulesetDefaults(
             GenerationUseCaseSettings.RulesetModeType.Starfinder,
             GenerationUseCaseSettings.MainworldPolicyType.Prefer,
             false,
             GenerationUseCaseSettings.LifeFrameworkType.EnvironmentalWindows,
-            0.60);
+            0.60,
+            1.25,
+            1.05,
+            1.18,
+            1.08,
+            1.45);
         AssertRulesetDefaults(
             GenerationUseCaseSettings.RulesetModeType.Starforged,
             GenerationUseCaseSettings.MainworldPolicyType.Prefer,
             false,
             GenerationUseCaseSettings.LifeFrameworkType.EarthAnchoredComposite,
-            0.45);
+            0.45,
+            0.95,
+            1.15,
+            0.95,
+            0.92,
+            0.85);
     }
 
     private static void TestUseCaseSettingsRoundTripThroughGalaxyConfig()
@@ -172,7 +192,12 @@ public static class TestGenerationParameters
         GenerationUseCaseSettings.MainworldPolicyType expectedMainworldPolicy,
         bool expectedUwpLikeReadouts,
         GenerationUseCaseSettings.LifeFrameworkType expectedLifeFramework,
-        double expectedLifePermissiveness)
+        double expectedLifePermissiveness,
+        double expectedTemperateMultiplier,
+        double expectedHarshMultiplier,
+        double expectedTerrestrialMultiplier,
+        double expectedNativeLifeMultiplier,
+        double expectedColonyMultiplier)
     {
         GenerationUseCaseSettings settings = GenerationUseCaseSettings.CreateDefault();
         settings.RulesetMode = rulesetMode;
@@ -184,6 +209,11 @@ public static class TestGenerationParameters
         DotNetNativeTestSuite.AssertEqual(expectedUwpLikeReadouts, settings.ShowTravellerReadouts, $"{rulesetMode} should apply the expected UWP-readout default");
         DotNetNativeTestSuite.AssertEqual(expectedLifeFramework, settings.LifeFramework, $"{rulesetMode} should apply the expected life framework");
         DotNetNativeTestSuite.AssertFloatNear(expectedLifePermissiveness, settings.LifePermissiveness, 0.0001, $"{rulesetMode} should apply the expected life permissiveness");
+        DotNetNativeTestSuite.AssertFloatNear(expectedTemperateMultiplier, profile.TemperateSlotFillMultiplier, 0.0001, $"{rulesetMode} should apply the expected temperate-world multiplier");
+        DotNetNativeTestSuite.AssertFloatNear(expectedHarshMultiplier, profile.HarshSlotFillMultiplier, 0.0001, $"{rulesetMode} should apply the expected harsh-world multiplier");
+        DotNetNativeTestSuite.AssertFloatNear(expectedTerrestrialMultiplier, profile.TerrestrialWorldWeightMultiplier, 0.0001, $"{rulesetMode} should apply the expected mainworld-class multiplier");
+        DotNetNativeTestSuite.AssertFloatNear(expectedNativeLifeMultiplier, profile.NativeLifeProbabilityMultiplier, 0.0001, $"{rulesetMode} should apply the expected native-life multiplier");
+        DotNetNativeTestSuite.AssertFloatNear(expectedColonyMultiplier, profile.ColonyProbabilityMultiplier, 0.0001, $"{rulesetMode} should apply the expected settlement multiplier");
     }
 
     private static GenerationUseCaseSettings CreateTravellerSettings()
@@ -199,6 +229,11 @@ public static class TestGenerationParameters
         settings.CivilizationModel = GenerationUseCaseSettings.CivilizationModelType.FollowFramework;
         settings.EnvironmentalWindowWeight = GenerationUseCaseSettings.EnvironmentalWindowWeightType.FollowFramework;
         settings.MainworldPolicy = GenerationUseCaseSettings.MainworldPolicyType.Require;
+        settings.CompatibilityTemperateSlotFillMultiplier = 1.42;
+        settings.CompatibilityHarshSlotFillMultiplier = 0.78;
+        settings.CompatibilityTerrestrialWorldWeightMultiplier = 1.31;
+        settings.CompatibilityNativeLifeProbabilityMultiplier = 1.17;
+        settings.CompatibilityColonyProbabilityMultiplier = 1.44;
         return settings;
     }
 
@@ -214,5 +249,10 @@ public static class TestGenerationParameters
         DotNetNativeTestSuite.AssertEqual(expected.CivilizationModel, actual.CivilizationModel, messagePrefix + ": civilization model should match");
         DotNetNativeTestSuite.AssertEqual(expected.EnvironmentalWindowWeight, actual.EnvironmentalWindowWeight, messagePrefix + ": environmental-window weight should match");
         DotNetNativeTestSuite.AssertEqual(expected.MainworldPolicy, actual.MainworldPolicy, messagePrefix + ": mainworld policy should match");
+        DotNetNativeTestSuite.AssertEqual(expected.CompatibilityTemperateSlotFillMultiplier, actual.CompatibilityTemperateSlotFillMultiplier, messagePrefix + ": temperate-world multiplier should match");
+        DotNetNativeTestSuite.AssertEqual(expected.CompatibilityHarshSlotFillMultiplier, actual.CompatibilityHarshSlotFillMultiplier, messagePrefix + ": harsh-world multiplier should match");
+        DotNetNativeTestSuite.AssertEqual(expected.CompatibilityTerrestrialWorldWeightMultiplier, actual.CompatibilityTerrestrialWorldWeightMultiplier, messagePrefix + ": mainworld-class multiplier should match");
+        DotNetNativeTestSuite.AssertEqual(expected.CompatibilityNativeLifeProbabilityMultiplier, actual.CompatibilityNativeLifeProbabilityMultiplier, messagePrefix + ": native-life multiplier should match");
+        DotNetNativeTestSuite.AssertEqual(expected.CompatibilityColonyProbabilityMultiplier, actual.CompatibilityColonyProbabilityMultiplier, messagePrefix + ": settlement multiplier should match");
     }
 }

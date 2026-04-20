@@ -77,6 +77,20 @@ public partial class GalaxyGenerationScreen : Control
 	private OptionButton? _rulesetModeOption;
 	private BaseButton? _showTravellerReadoutsCheck;
 	private BaseButton? _forceLifeOnSupportableWorldsCheck;
+	private HBoxContainer? _mainworldPolicyRow;
+	private OptionButton? _mainworldPolicyOption;
+	private HBoxContainer? _temperateWorldBiasRow;
+	private HSlider? _temperateWorldBiasSlider;
+	private Label? _temperateWorldBiasValue;
+	private HBoxContainer? _harshWorldBiasRow;
+	private HSlider? _harshWorldBiasSlider;
+	private Label? _harshWorldBiasValue;
+	private HBoxContainer? _terrestrialWorldBiasRow;
+	private HSlider? _terrestrialWorldBiasSlider;
+	private Label? _terrestrialWorldBiasValue;
+	private HBoxContainer? _nativeLifeBiasRow;
+	private HSlider? _nativeLifeBiasSlider;
+	private Label? _nativeLifeBiasValue;
 	private OptionButton? _lifeFrameworkOption;
 	private OptionButton? _abiogenesisModelOption;
 	private OptionButton? _complexLifeModelOption;
@@ -333,6 +347,20 @@ public partial class GalaxyGenerationScreen : Control
 		_rulesetModeOption = GetNodeOrNull<OptionButton>($"{RulesRootPath}/UseCaseSection/RulesetRow/RulesetModeOption");
 		_showTravellerReadoutsCheck = GetNodeOrNull<BaseButton>($"{RulesRootPath}/UseCaseSection/ShowTravellerReadoutsCheck");
 		_forceLifeOnSupportableWorldsCheck = GetNodeOrNull<BaseButton>($"{RulesRootPath}/UseCaseSection/ForceLifeOnSupportableWorldsCheck");
+		_mainworldPolicyRow = GetNodeOrNull<HBoxContainer>($"{RulesRootPath}/UseCaseSection/MainworldPolicyRow");
+		_mainworldPolicyOption = GetNodeOrNull<OptionButton>($"{RulesRootPath}/UseCaseSection/MainworldPolicyRow/MainworldPolicyOption");
+		_temperateWorldBiasRow = GetNodeOrNull<HBoxContainer>($"{RulesRootPath}/UseCaseSection/TemperateWorldBiasRow");
+		_temperateWorldBiasSlider = GetNodeOrNull<HSlider>($"{RulesRootPath}/UseCaseSection/TemperateWorldBiasRow/TemperateWorldBiasSlider");
+		_temperateWorldBiasValue = GetNodeOrNull<Label>($"{RulesRootPath}/UseCaseSection/TemperateWorldBiasRow/TemperateWorldBiasValue");
+		_harshWorldBiasRow = GetNodeOrNull<HBoxContainer>($"{RulesRootPath}/UseCaseSection/HarshWorldBiasRow");
+		_harshWorldBiasSlider = GetNodeOrNull<HSlider>($"{RulesRootPath}/UseCaseSection/HarshWorldBiasRow/HarshWorldBiasSlider");
+		_harshWorldBiasValue = GetNodeOrNull<Label>($"{RulesRootPath}/UseCaseSection/HarshWorldBiasRow/HarshWorldBiasValue");
+		_terrestrialWorldBiasRow = GetNodeOrNull<HBoxContainer>($"{RulesRootPath}/UseCaseSection/TerrestrialWorldBiasRow");
+		_terrestrialWorldBiasSlider = GetNodeOrNull<HSlider>($"{RulesRootPath}/UseCaseSection/TerrestrialWorldBiasRow/TerrestrialWorldBiasSlider");
+		_terrestrialWorldBiasValue = GetNodeOrNull<Label>($"{RulesRootPath}/UseCaseSection/TerrestrialWorldBiasRow/TerrestrialWorldBiasValue");
+		_nativeLifeBiasRow = GetNodeOrNull<HBoxContainer>($"{RulesRootPath}/UseCaseSection/NativeLifeBiasRow");
+		_nativeLifeBiasSlider = GetNodeOrNull<HSlider>($"{RulesRootPath}/UseCaseSection/NativeLifeBiasRow/NativeLifeBiasSlider");
+		_nativeLifeBiasValue = GetNodeOrNull<Label>($"{RulesRootPath}/UseCaseSection/NativeLifeBiasRow/NativeLifeBiasValue");
 		_advancedAssumptionsInfoButton = GetNodeOrNull<Button>($"{RulesRootPath}/UseCaseSection/AdvancedHeaderRow/AdvancedAssumptionsInfoButton");
 		_lifeFrameworkOption = GetNodeOrNull<OptionButton>($"{ParameterRootPath}/LifeSection/LifeContent/LifeVBox/LifeFrameworkRow/LifeFrameworkOption");
 		_abiogenesisModelOption = GetNodeOrNull<OptionButton>($"{ParameterRootPath}/LifeSection/LifeContent/LifeVBox/AbiogenesisModelRow/AbiogenesisModelOption");
@@ -368,6 +396,12 @@ public partial class GalaxyGenerationScreen : Control
 		if (_rulesetModeOption != null) _rulesetModeOption.ItemSelected += OnRulesetModeSelected;
 		if (_showTravellerReadoutsCheck != null) _showTravellerReadoutsCheck.Toggled += _ => RefreshValidationIssues();
 		if (_forceLifeOnSupportableWorldsCheck != null) _forceLifeOnSupportableWorldsCheck.Toggled += _ => RefreshValidationIssues();
+		if (_mainworldPolicyOption != null) _mainworldPolicyOption.ItemSelected += _ => RefreshValidationIssues();
+		ConnectSlider(_temperateWorldBiasSlider, OnCompatibilityPressureChanged);
+		ConnectSlider(_harshWorldBiasSlider, OnCompatibilityPressureChanged);
+		ConnectSlider(_terrestrialWorldBiasSlider, OnCompatibilityPressureChanged);
+		ConnectSlider(_nativeLifeBiasSlider, OnCompatibilityPressureChanged);
+		ConnectSlider(_populationPermissivenessInput, OnCompatibilityPressureChanged);
 		if (_lifeFrameworkOption != null) _lifeFrameworkOption.ItemSelected += _ => OnLifeModelChanged();
 		if (_abiogenesisModelOption != null) _abiogenesisModelOption.ItemSelected += _ => OnLifeModelChanged();
 		if (_complexLifeModelOption != null) _complexLifeModelOption.ItemSelected += _ => OnLifeModelChanged();
@@ -407,6 +441,8 @@ public partial class GalaxyGenerationScreen : Control
 		{
 			_populationPermissivenessValueLabel.Visible = false;
 		}
+
+		HideSpaceOperaOverrideRows();
 
 		if (_loadButton != null)
 		{
@@ -710,6 +746,17 @@ public partial class GalaxyGenerationScreen : Control
 			_advancedAssumptionsInfoButton.TooltipText = PermissivenessScaleHelper.GetAdvancedLegendTooltip();
 		}
 
+		if (_mainworldPolicyOption != null)
+		{
+			_mainworldPolicyOption.TooltipText = "This tells Space Opera generation whether it should ignore, prefer, or require a strong mainworld candidate.\nRequire makes the generator push harder for one clearly playable focal world.";
+		}
+
+		ApplyCompatibilityTooltip(_temperateWorldBiasSlider, _temperateWorldBiasValue, "Higher values fill more good temperate slots with worlds.\nLower values leave more of those slots empty.");
+		ApplyCompatibilityTooltip(_harshWorldBiasSlider, _harshWorldBiasValue, "Higher values allow more hot, cold, and otherwise harsh worlds to survive slot filling.\nLower values prune harsh slots more aggressively.");
+		ApplyCompatibilityTooltip(_terrestrialWorldBiasSlider, _terrestrialWorldBiasValue, "Higher values favor rocky and super-Earth mainworld candidates over mini-Neptunes and giants.\nLower values relax that bias.");
+		ApplyCompatibilityTooltip(_nativeLifeBiasSlider, _nativeLifeBiasValue, "Higher values make supportable worlds more likely to keep native life.\nLower values make life rarer even when the world can support it.");
+		ApplyCompatibilityTooltip(_populationPermissivenessInput, _populationPermissivenessValueLabel, "Higher values make colonies and inhabited outposts more common.\nLower values make settled worlds sparser.");
+
 		ApplyScienceParameterTooltips();
 	}
 
@@ -774,7 +821,7 @@ public partial class GalaxyGenerationScreen : Control
 		GenerationUseCaseSettings settings = GenerationUseCaseSettings.CreateDefault();
 		if (_rulesetModeOption != null)
 		{
-			settings.RulesetMode = (GenerationUseCaseSettings.RulesetModeType)_rulesetModeOption.Selected;
+			settings.RulesetMode = (GenerationUseCaseSettings.RulesetModeType)_rulesetModeOption.GetSelectedId();
 		}
 
 		if (_showTravellerReadoutsCheck != null)
@@ -811,6 +858,36 @@ public partial class GalaxyGenerationScreen : Control
 		if (_environmentalWindowWeightOption != null)
 		{
 			settings.EnvironmentalWindowWeight = (GenerationUseCaseSettings.EnvironmentalWindowWeightType)_environmentalWindowWeightOption.GetSelectedId();
+		}
+
+		if (_mainworldPolicyOption != null)
+		{
+			settings.MainworldPolicy = (GenerationUseCaseSettings.MainworldPolicyType)_mainworldPolicyOption.GetSelectedId();
+		}
+
+		if (_temperateWorldBiasSlider != null)
+		{
+			settings.CompatibilityTemperateSlotFillMultiplier = _temperateWorldBiasSlider.Value;
+		}
+
+		if (_harshWorldBiasSlider != null)
+		{
+			settings.CompatibilityHarshSlotFillMultiplier = _harshWorldBiasSlider.Value;
+		}
+
+		if (_terrestrialWorldBiasSlider != null)
+		{
+			settings.CompatibilityTerrestrialWorldWeightMultiplier = _terrestrialWorldBiasSlider.Value;
+		}
+
+		if (_nativeLifeBiasSlider != null)
+		{
+			settings.CompatibilityNativeLifeProbabilityMultiplier = _nativeLifeBiasSlider.Value;
+		}
+
+		if (_populationPermissivenessInput != null)
+		{
+			settings.CompatibilityColonyProbabilityMultiplier = _populationPermissivenessInput.Value;
 		}
 
 		if (settings.GetCompatibilityProfile().UsesUwpLikeReadouts)
@@ -863,6 +940,18 @@ public partial class GalaxyGenerationScreen : Control
 		{
 			SetOptionSelection(_environmentalWindowWeightOption, (int)resolvedSettings.EnvironmentalWindowWeight);
 		}
+
+		if (_mainworldPolicyOption != null)
+		{
+			SetOptionSelection(_mainworldPolicyOption, (int)resolvedSettings.MainworldPolicy);
+		}
+
+		SetCompatibilitySliderValue(_temperateWorldBiasSlider, _temperateWorldBiasValue, resolvedSettings.CompatibilityTemperateSlotFillMultiplier);
+		SetCompatibilitySliderValue(_harshWorldBiasSlider, _harshWorldBiasValue, resolvedSettings.CompatibilityHarshSlotFillMultiplier);
+		SetCompatibilitySliderValue(_terrestrialWorldBiasSlider, _terrestrialWorldBiasValue, resolvedSettings.CompatibilityTerrestrialWorldWeightMultiplier);
+		SetCompatibilitySliderValue(_nativeLifeBiasSlider, _nativeLifeBiasValue, resolvedSettings.CompatibilityNativeLifeProbabilityMultiplier);
+		SetCompatibilitySliderValue(_populationPermissivenessInput, _populationPermissivenessValueLabel, resolvedSettings.CompatibilityColonyProbabilityMultiplier);
+		UpdateCompatibilityOverrideVisibility(resolvedSettings);
 	}
 
 	private void OnRulesetModeSelected(long selectedId)
@@ -885,6 +974,10 @@ public partial class GalaxyGenerationScreen : Control
 			}
 
 			ApplyRulesetDefaultsToControls(rulesetDefaults);
+		}
+		else
+		{
+			UpdateCompatibilityOverrideVisibility(rulesetDefaults);
 		}
 
 		RefreshValidationIssues();
@@ -912,6 +1005,11 @@ public partial class GalaxyGenerationScreen : Control
 			lines.Add($"Abiogenesis: {LifeScienceReferenceCatalog.GetAbiogenesisLabel(settings.AbiogenesisModel)} | Complex Life: {LifeScienceReferenceCatalog.GetComplexLifeLabel(settings.ComplexLifeModel)}");
 			lines.Add($"Civilization: {LifeScienceReferenceCatalog.GetCivilizationLabel(settings.CivilizationModel)} | Window Weight: {LifeScienceReferenceCatalog.GetEnvironmentalWindowWeightLabel(settings.EnvironmentalWindowWeight)}");
 			lines.Add($"Force Life On Supportable Worlds: {(settings.ForceLifeOnSupportableWorlds ? "On" : "Off")}");
+			if (settings.RulesetMode == GenerationUseCaseSettings.RulesetModeType.Traveller)
+			{
+				lines.Add($"Space Opera Overrides: Mainworld {settings.MainworldPolicy} | Temperate {settings.CompatibilityTemperateSlotFillMultiplier:0.00}x | Harsh {settings.CompatibilityHarshSlotFillMultiplier:0.00}x");
+				lines.Add($"Mainworld Class {settings.CompatibilityTerrestrialWorldWeightMultiplier:0.00}x | Native Life {settings.CompatibilityNativeLifeProbabilityMultiplier:0.00}x | Settlements {settings.CompatibilityColonyProbabilityMultiplier:0.00}x");
+			}
 			if (_showSeedControls && _seedSpin != null)
 			{
 				lines.Add($"Seed {(int)_seedSpin.Value}");
@@ -965,6 +1063,18 @@ public partial class GalaxyGenerationScreen : Control
 		{
 			_forceLifeOnSupportableWorldsCheck.ButtonPressed = settings.ForceLifeOnSupportableWorlds;
 		}
+
+		if (_mainworldPolicyOption != null)
+		{
+			SetOptionSelection(_mainworldPolicyOption, (int)settings.MainworldPolicy);
+		}
+
+		SetCompatibilitySliderValue(_temperateWorldBiasSlider, _temperateWorldBiasValue, settings.CompatibilityTemperateSlotFillMultiplier);
+		SetCompatibilitySliderValue(_harshWorldBiasSlider, _harshWorldBiasValue, settings.CompatibilityHarshSlotFillMultiplier);
+		SetCompatibilitySliderValue(_terrestrialWorldBiasSlider, _terrestrialWorldBiasValue, settings.CompatibilityTerrestrialWorldWeightMultiplier);
+		SetCompatibilitySliderValue(_nativeLifeBiasSlider, _nativeLifeBiasValue, settings.CompatibilityNativeLifeProbabilityMultiplier);
+		SetCompatibilitySliderValue(_populationPermissivenessInput, _populationPermissivenessValueLabel, settings.CompatibilityColonyProbabilityMultiplier);
+		UpdateCompatibilityOverrideVisibility(settings);
 	}
 
 	private void OnLifeModelChanged()
@@ -973,9 +1083,87 @@ public partial class GalaxyGenerationScreen : Control
 		RefreshValidationIssues();
 	}
 
-	private void OnPopulationPermissivenessChanged(double _value)
+	private void OnCompatibilityPressureChanged(double _value)
 	{
+		UpdateCompatibilityValueLabels();
 		RefreshValidationIssues();
+	}
+
+	private void UpdateCompatibilityOverrideVisibility(GenerationUseCaseSettings settings)
+	{
+		bool showSpaceOperaOverrides = settings.RulesetMode == GenerationUseCaseSettings.RulesetModeType.Traveller;
+		SetRowVisible(_mainworldPolicyRow, showSpaceOperaOverrides);
+		SetRowVisible(_temperateWorldBiasRow, showSpaceOperaOverrides);
+		SetRowVisible(_harshWorldBiasRow, showSpaceOperaOverrides);
+		SetRowVisible(_terrestrialWorldBiasRow, showSpaceOperaOverrides);
+		SetRowVisible(_nativeLifeBiasRow, showSpaceOperaOverrides);
+		SetRowVisible(_populationPermissivenessRow, showSpaceOperaOverrides);
+		if (_populationPermissivenessValueLabel != null)
+		{
+			_populationPermissivenessValueLabel.Visible = showSpaceOperaOverrides;
+		}
+
+		UpdateCompatibilityValueLabels();
+	}
+
+	private void UpdateCompatibilityValueLabels()
+	{
+		UpdateCompatibilityValueLabel(_temperateWorldBiasSlider, _temperateWorldBiasValue);
+		UpdateCompatibilityValueLabel(_harshWorldBiasSlider, _harshWorldBiasValue);
+		UpdateCompatibilityValueLabel(_terrestrialWorldBiasSlider, _terrestrialWorldBiasValue);
+		UpdateCompatibilityValueLabel(_nativeLifeBiasSlider, _nativeLifeBiasValue);
+		UpdateCompatibilityValueLabel(_populationPermissivenessInput, _populationPermissivenessValueLabel);
+	}
+
+	private static void UpdateCompatibilityValueLabel(Godot.Range? slider, Label? label)
+	{
+		if (slider == null || label == null)
+		{
+			return;
+		}
+
+		label.Text = $"{slider.Value:0.00}x";
+	}
+
+	private static void SetCompatibilitySliderValue(Godot.Range? slider, Label? label, double value)
+	{
+		if (slider != null)
+		{
+			slider.Value = value;
+		}
+
+		UpdateCompatibilityValueLabel(slider, label);
+	}
+
+	private static void SetRowVisible(Control? row, bool isVisible)
+	{
+		if (row != null)
+		{
+			row.Visible = isVisible;
+		}
+	}
+
+	private void HideSpaceOperaOverrideRows()
+	{
+		SetRowVisible(_mainworldPolicyRow, false);
+		SetRowVisible(_temperateWorldBiasRow, false);
+		SetRowVisible(_harshWorldBiasRow, false);
+		SetRowVisible(_terrestrialWorldBiasRow, false);
+		SetRowVisible(_nativeLifeBiasRow, false);
+		SetRowVisible(_populationPermissivenessRow, false);
+	}
+
+	private static void ApplyCompatibilityTooltip(Control? inputControl, Control? valueLabel, string tooltip)
+	{
+		if (inputControl != null)
+		{
+			inputControl.TooltipText = tooltip;
+		}
+
+		if (valueLabel != null)
+		{
+			valueLabel.TooltipText = tooltip;
+		}
 	}
 
 	private void RefreshValidationIssues()

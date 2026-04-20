@@ -83,6 +83,55 @@ public static class TestSystemPlanetGenerator
     }
 
     /// <summary>
+    /// Applies a deterministic shared fill probability to a slot set so compatibility multipliers
+    /// have enough headroom to change outcomes materially in tests.
+    /// </summary>
+    private static void SetSlotFillProbability(Array<OrbitSlot> slots, double fillProbability)
+    {
+        foreach (OrbitSlot slot in slots)
+        {
+            slot.FillProbability = fillProbability;
+        }
+    }
+
+    /// <summary>
+    /// Creates a slot mix with multiple viable temperate candidates plus hot/cold competition so
+    /// RPG compatibility pressures can materially change fill outcomes.
+    /// </summary>
+    private static Array<OrbitSlot> CreateCompatibilityPressureSlots(OrbitHost host)
+    {
+        Array<OrbitSlot> slots = new Array<OrbitSlot>();
+        double[] distancesAu = new double[] { 0.35, 0.85, 1.10, 1.45, 1.95, 3.10, 4.60, 6.20 };
+
+        for (int index = 0; index < distancesAu.Length; index += 1)
+        {
+            double distance = distancesAu[index] * Units.AuMeters;
+            OrbitSlot slot = new OrbitSlot($"compat_slot_{index}", host.NodeId, distance)
+            {
+                IsStable = true,
+                FillProbability = 0.42,
+            };
+
+            if (distance < host.HabitableZoneInnerM)
+            {
+                slot.Zone = OrbitZone.Zone.Hot;
+            }
+            else if (distance > host.FrostLineM)
+            {
+                slot.Zone = OrbitZone.Zone.Cold;
+            }
+            else
+            {
+                slot.Zone = OrbitZone.Zone.Temperate;
+            }
+
+            slots.Add(slot);
+        }
+
+        return slots;
+    }
+
+    /// <summary>
     /// Creates close-in hot slots suited for envelope-loss comparisons.
     /// </summary>
     private static Array<OrbitSlot> CreateHotLossSlots(OrbitHost host, int count)
@@ -610,9 +659,9 @@ public static class TestSystemPlanetGenerator
 
         for (int seed = 7000; seed < 7120; seed += 1)
         {
-            Array<OrbitSlot> defaultSlots = CreateTestSlots(host, 6);
-            Array<OrbitSlot> spaceOperaSlots = CreateTestSlots(host, 6);
-            Array<OrbitSlot> starforgedSlots = CreateTestSlots(host, 6);
+            Array<OrbitSlot> defaultSlots = CreateCompatibilityPressureSlots(host);
+            Array<OrbitSlot> spaceOperaSlots = CreateCompatibilityPressureSlots(host);
+            Array<OrbitSlot> starforgedSlots = CreateCompatibilityPressureSlots(host);
             SolarSystemSpec defaultSpec = new SolarSystemSpec(seed, 1, 1);
             SolarSystemSpec spaceOperaSpec = new SolarSystemSpec(seed, 1, 1);
             SolarSystemSpec starforgedSpec = new SolarSystemSpec(seed, 1, 1);
@@ -662,6 +711,68 @@ public static class TestSystemPlanetGenerator
         if (harshFilledStarforged <= harshFilledDefault)
         {
             throw new InvalidOperationException($"Starforged should fill more harsh slots than default. Default={harshFilledDefault} Starforged={harshFilledStarforged}");
+        }
+    }
+
+    /// <summary>
+    /// Tests that custom Space Opera compatibility multipliers override the default scaffold values.
+    /// </summary>
+    public static void TestCustomSpaceOperaOverridesShiftSystemFillPressure()
+    {
+        OrbitHost host = CreateTestHost();
+        CelestialBody star = CreateTestStar();
+        Array<OrbitHost> hosts = new Array<OrbitHost> { host };
+        Array<CelestialBody> stars = new Array<CelestialBody> { star };
+        int temperateFilledDefaultSpaceOpera = 0;
+        int temperateFilledCustomSpaceOpera = 0;
+        int harshFilledDefaultSpaceOpera = 0;
+        int harshFilledCustomSpaceOpera = 0;
+
+        for (int seed = 7120; seed < 7240; seed += 1)
+        {
+            Array<OrbitSlot> defaultSlots = CreateCompatibilityPressureSlots(host);
+            Array<OrbitSlot> customSlots = CreateCompatibilityPressureSlots(host);
+            SolarSystemSpec defaultSpec = new SolarSystemSpec(seed, 1, 1);
+            SolarSystemSpec customSpec = new SolarSystemSpec(seed, 1, 1);
+            defaultSpec.UseCaseSettings = GenerationUseCaseSettings.CreateDefault();
+            defaultSpec.UseCaseSettings.RulesetMode = GenerationUseCaseSettings.RulesetModeType.Traveller;
+            defaultSpec.UseCaseSettings.ApplyRulesetDefaults();
+            defaultSpec.UseCaseSettings.MainworldPolicy = GenerationUseCaseSettings.MainworldPolicyType.Prefer;
+            customSpec.UseCaseSettings = defaultSpec.UseCaseSettings.Clone();
+            customSpec.UseCaseSettings.CompatibilityTemperateSlotFillMultiplier = 0.75;
+            customSpec.UseCaseSettings.CompatibilityHarshSlotFillMultiplier = 1.35;
+
+            PlanetGenerationResult defaultResult = SystemPlanetGenerator.Generate(
+                defaultSlots,
+                hosts,
+                stars,
+                new SeededRng(seed),
+                false,
+                defaultSpec.UseCaseSettings,
+                defaultSpec);
+            PlanetGenerationResult customResult = SystemPlanetGenerator.Generate(
+                customSlots,
+                hosts,
+                stars,
+                new SeededRng(seed),
+                false,
+                customSpec.UseCaseSettings,
+                customSpec);
+
+            temperateFilledDefaultSpaceOpera += CountFilledSlotsByZone(defaultResult.Slots, OrbitZone.Zone.Temperate);
+            temperateFilledCustomSpaceOpera += CountFilledSlotsByZone(customResult.Slots, OrbitZone.Zone.Temperate);
+            harshFilledDefaultSpaceOpera += CountFilledSlotsByZone(defaultResult.Slots, OrbitZone.Zone.Hot) + CountFilledSlotsByZone(defaultResult.Slots, OrbitZone.Zone.Cold);
+            harshFilledCustomSpaceOpera += CountFilledSlotsByZone(customResult.Slots, OrbitZone.Zone.Hot) + CountFilledSlotsByZone(customResult.Slots, OrbitZone.Zone.Cold);
+        }
+
+        if (temperateFilledCustomSpaceOpera >= temperateFilledDefaultSpaceOpera)
+        {
+            throw new InvalidOperationException($"Lower custom Space Opera temperate bias should reduce temperate fill. Default={temperateFilledDefaultSpaceOpera} Custom={temperateFilledCustomSpaceOpera}");
+        }
+
+        if (harshFilledCustomSpaceOpera <= harshFilledDefaultSpaceOpera)
+        {
+            throw new InvalidOperationException($"Higher custom Space Opera harsh bias should increase harsh fill. Default={harshFilledDefaultSpaceOpera} Custom={harshFilledCustomSpaceOpera}");
         }
     }
 

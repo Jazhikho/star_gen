@@ -166,6 +166,31 @@ public partial class GenerationUseCaseSettings : RefCounted
     public MainworldPolicyType MainworldPolicy { get; set; } = MainworldPolicyType.None;
 
     /// <summary>
+    /// Multiplier applied to temperate-slot fill pressure for compatibility-oriented generation.
+    /// </summary>
+    public double CompatibilityTemperateSlotFillMultiplier { get; set; } = 1.0;
+
+    /// <summary>
+    /// Multiplier applied to harsh-slot fill pressure for compatibility-oriented generation.
+    /// </summary>
+    public double CompatibilityHarshSlotFillMultiplier { get; set; } = 1.0;
+
+    /// <summary>
+    /// Multiplier applied to terrestrial-world weighting near mainworld-favored slots.
+    /// </summary>
+    public double CompatibilityTerrestrialWorldWeightMultiplier { get; set; } = 1.0;
+
+    /// <summary>
+    /// Multiplier applied to native-life probability in compatibility-oriented generation.
+    /// </summary>
+    public double CompatibilityNativeLifeProbabilityMultiplier { get; set; } = 1.0;
+
+    /// <summary>
+    /// Multiplier applied to colony probability in compatibility-oriented generation.
+    /// </summary>
+    public double CompatibilityColonyProbabilityMultiplier { get; set; } = 1.0;
+
+    /// <summary>
     /// Returns a new default settings instance.
     /// </summary>
     public static GenerationUseCaseSettings CreateDefault()
@@ -194,7 +219,28 @@ public partial class GenerationUseCaseSettings : RefCounted
     /// </summary>
     public RpgCompatibilityProfile GetCompatibilityProfile()
     {
-        return RpgCompatibilityProfile.Resolve(RulesetMode);
+        RpgCompatibilityProfile resolvedProfile = RpgCompatibilityProfile.Resolve(RulesetMode);
+        if (!resolvedProfile.IsActive)
+        {
+            return resolvedProfile;
+        }
+
+        return new RpgCompatibilityProfile
+        {
+            RulesetMode = resolvedProfile.RulesetMode,
+            Label = resolvedProfile.Label,
+            IsActive = resolvedProfile.IsActive,
+            UsesUwpLikeReadouts = resolvedProfile.UsesUwpLikeReadouts,
+            ForcePopulationGeneration = resolvedProfile.ForcePopulationGeneration,
+            RecommendedMainworldPolicy = MainworldPolicy,
+            RecommendedLifeFramework = resolvedProfile.RecommendedLifeFramework,
+            RecommendedLifePermissiveness = resolvedProfile.RecommendedLifePermissiveness,
+            TemperateSlotFillMultiplier = CompatibilityTemperateSlotFillMultiplier,
+            HarshSlotFillMultiplier = CompatibilityHarshSlotFillMultiplier,
+            TerrestrialWorldWeightMultiplier = CompatibilityTerrestrialWorldWeightMultiplier,
+            NativeLifeProbabilityMultiplier = CompatibilityNativeLifeProbabilityMultiplier,
+            ColonyProbabilityMultiplier = CompatibilityColonyProbabilityMultiplier,
+        };
     }
 
     /// <summary>
@@ -224,7 +270,7 @@ public partial class GenerationUseCaseSettings : RefCounted
     /// </summary>
     public void ApplyRulesetDefaults()
     {
-        RpgCompatibilityProfile profile = GetCompatibilityProfile();
+        RpgCompatibilityProfile profile = RpgCompatibilityProfile.Resolve(RulesetMode);
         if (!profile.IsActive)
         {
             return;
@@ -238,6 +284,11 @@ public partial class GenerationUseCaseSettings : RefCounted
         CivilizationModel = CivilizationModelType.FollowFramework;
         EnvironmentalWindowWeight = EnvironmentalWindowWeightType.FollowFramework;
         LifePermissiveness = profile.RecommendedLifePermissiveness;
+        CompatibilityTemperateSlotFillMultiplier = profile.TemperateSlotFillMultiplier;
+        CompatibilityHarshSlotFillMultiplier = profile.HarshSlotFillMultiplier;
+        CompatibilityTerrestrialWorldWeightMultiplier = profile.TerrestrialWorldWeightMultiplier;
+        CompatibilityNativeLifeProbabilityMultiplier = profile.NativeLifeProbabilityMultiplier;
+        CompatibilityColonyProbabilityMultiplier = profile.ColonyProbabilityMultiplier;
     }
 
     /// <summary>
@@ -270,6 +321,11 @@ public partial class GenerationUseCaseSettings : RefCounted
             EnvironmentalWindowWeight = EnvironmentalWindowWeight,
             ForceLifeOnSupportableWorlds = ForceLifeOnSupportableWorlds,
             MainworldPolicy = MainworldPolicy,
+            CompatibilityTemperateSlotFillMultiplier = CompatibilityTemperateSlotFillMultiplier,
+            CompatibilityHarshSlotFillMultiplier = CompatibilityHarshSlotFillMultiplier,
+            CompatibilityTerrestrialWorldWeightMultiplier = CompatibilityTerrestrialWorldWeightMultiplier,
+            CompatibilityNativeLifeProbabilityMultiplier = CompatibilityNativeLifeProbabilityMultiplier,
+            CompatibilityColonyProbabilityMultiplier = CompatibilityColonyProbabilityMultiplier,
         };
     }
 
@@ -291,6 +347,11 @@ public partial class GenerationUseCaseSettings : RefCounted
             ["environmental_window_weight"] = (int)EnvironmentalWindowWeight,
             ["force_life_on_supportable_worlds"] = ForceLifeOnSupportableWorlds,
             ["mainworld_policy"] = (int)MainworldPolicy,
+            ["compatibility_temperate_slot_fill_multiplier"] = CompatibilityTemperateSlotFillMultiplier,
+            ["compatibility_harsh_slot_fill_multiplier"] = CompatibilityHarshSlotFillMultiplier,
+            ["compatibility_terrestrial_world_weight_multiplier"] = CompatibilityTerrestrialWorldWeightMultiplier,
+            ["compatibility_native_life_probability_multiplier"] = CompatibilityNativeLifeProbabilityMultiplier,
+            ["compatibility_colony_probability_multiplier"] = CompatibilityColonyProbabilityMultiplier,
         };
     }
 
@@ -357,11 +418,37 @@ public partial class GenerationUseCaseSettings : RefCounted
 
         settings.ForceLifeOnSupportableWorlds = GetBool(data, "force_life_on_supportable_worlds", false);
 
-        int mainworldPolicyValue = GetInt(data, "mainworld_policy", (int)MainworldPolicyType.None);
+        RpgCompatibilityProfile baseProfile = RpgCompatibilityProfile.Resolve(settings.RulesetMode);
+
+        int mainworldPolicyDefault = baseProfile.IsActive
+            ? (int)baseProfile.RecommendedMainworldPolicy
+            : (int)MainworldPolicyType.None;
+        int mainworldPolicyValue = GetInt(data, "mainworld_policy", mainworldPolicyDefault);
         if (System.Enum.IsDefined(typeof(MainworldPolicyType), mainworldPolicyValue))
         {
             settings.MainworldPolicy = (MainworldPolicyType)mainworldPolicyValue;
         }
+
+        settings.CompatibilityTemperateSlotFillMultiplier = GetDouble(
+            data,
+            "compatibility_temperate_slot_fill_multiplier",
+            baseProfile.TemperateSlotFillMultiplier);
+        settings.CompatibilityHarshSlotFillMultiplier = GetDouble(
+            data,
+            "compatibility_harsh_slot_fill_multiplier",
+            baseProfile.HarshSlotFillMultiplier);
+        settings.CompatibilityTerrestrialWorldWeightMultiplier = GetDouble(
+            data,
+            "compatibility_terrestrial_world_weight_multiplier",
+            baseProfile.TerrestrialWorldWeightMultiplier);
+        settings.CompatibilityNativeLifeProbabilityMultiplier = GetDouble(
+            data,
+            "compatibility_native_life_probability_multiplier",
+            baseProfile.NativeLifeProbabilityMultiplier);
+        settings.CompatibilityColonyProbabilityMultiplier = GetDouble(
+            data,
+            "compatibility_colony_probability_multiplier",
+            baseProfile.ColonyProbabilityMultiplier);
 
         return settings;
     }

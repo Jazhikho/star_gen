@@ -432,6 +432,7 @@ public static partial class DotNetNativeTestSuite
         runner.RunNativeTest("TestPopulationProbability::test_settlement_permissiveness_affects_harsh_worlds", TestPopulationProbability.TestSettlementPermissivenessAffectsHarshWorlds);
         runner.RunNativeTest("TestPopulationProbability::test_native_pressure_raises_colony_probability", TestPopulationProbability.TestNativePressureRaisesColonyProbability);
         runner.RunNativeTest("TestPopulationProbability::test_compatibility_profiles_affect_population_pressure", TestPopulationProbability.TestCompatibilityProfilesAffectPopulationPressure);
+        runner.RunNativeTest("TestPopulationProbability::test_custom_space_opera_overrides_affect_population_pressure", TestPopulationProbability.TestCustomSpaceOperaOverridesAffectPopulationPressure);
 
         runner.RunNativeTest("TestPopulationLikelihood::test_estimate_native_likelihood_matches_probability", TestPopulationLikelihood.TestEstimateNativeLikelihoodMatchesProbability);
         runner.RunNativeTest("TestPopulationLikelihood::test_derive_roll_value_deterministic", TestPopulationLikelihood.TestDeriveRollValueDeterministic);

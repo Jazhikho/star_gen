@@ -49,6 +49,18 @@ public static class TestStudioScienceUi
         Label? rulesTitle = screen.GetNodeOrNull<Label>("MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/RulesPanel/MarginContainer/RulesVBox/RulesTitle");
         CheckButton? showUwpCheck = screen.GetNodeOrNull<CheckButton>("MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/RulesPanel/MarginContainer/RulesVBox/ScrollContainer/RulesContent/UseCaseSection/ShowTravellerReadoutsCheck");
         CheckButton? forceLifeCheck = screen.GetNodeOrNull<CheckButton>("MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/RulesPanel/MarginContainer/RulesVBox/ScrollContainer/RulesContent/UseCaseSection/ForceLifeOnSupportableWorldsCheck");
+        HBoxContainer? mainworldPolicyRow = screen.GetNodeOrNull<HBoxContainer>("MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/RulesPanel/MarginContainer/RulesVBox/ScrollContainer/RulesContent/UseCaseSection/MainworldPolicyRow");
+        OptionButton? mainworldPolicyOption = screen.GetNodeOrNull<OptionButton>("MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/RulesPanel/MarginContainer/RulesVBox/ScrollContainer/RulesContent/UseCaseSection/MainworldPolicyRow/MainworldPolicyOption");
+        HBoxContainer? temperateWorldBiasRow = screen.GetNodeOrNull<HBoxContainer>("MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/RulesPanel/MarginContainer/RulesVBox/ScrollContainer/RulesContent/UseCaseSection/TemperateWorldBiasRow");
+        HSlider? temperateWorldBiasSlider = screen.GetNodeOrNull<HSlider>("MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/RulesPanel/MarginContainer/RulesVBox/ScrollContainer/RulesContent/UseCaseSection/TemperateWorldBiasRow/TemperateWorldBiasSlider");
+        HBoxContainer? harshWorldBiasRow = screen.GetNodeOrNull<HBoxContainer>("MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/RulesPanel/MarginContainer/RulesVBox/ScrollContainer/RulesContent/UseCaseSection/HarshWorldBiasRow");
+        HSlider? harshWorldBiasSlider = screen.GetNodeOrNull<HSlider>("MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/RulesPanel/MarginContainer/RulesVBox/ScrollContainer/RulesContent/UseCaseSection/HarshWorldBiasRow/HarshWorldBiasSlider");
+        HBoxContainer? terrestrialWorldBiasRow = screen.GetNodeOrNull<HBoxContainer>("MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/RulesPanel/MarginContainer/RulesVBox/ScrollContainer/RulesContent/UseCaseSection/TerrestrialWorldBiasRow");
+        HSlider? terrestrialWorldBiasSlider = screen.GetNodeOrNull<HSlider>("MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/RulesPanel/MarginContainer/RulesVBox/ScrollContainer/RulesContent/UseCaseSection/TerrestrialWorldBiasRow/TerrestrialWorldBiasSlider");
+        HBoxContainer? nativeLifeBiasRow = screen.GetNodeOrNull<HBoxContainer>("MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/RulesPanel/MarginContainer/RulesVBox/ScrollContainer/RulesContent/UseCaseSection/NativeLifeBiasRow");
+        HSlider? nativeLifeBiasSlider = screen.GetNodeOrNull<HSlider>("MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/RulesPanel/MarginContainer/RulesVBox/ScrollContainer/RulesContent/UseCaseSection/NativeLifeBiasRow/NativeLifeBiasSlider");
+        HBoxContainer? settlementBiasRow = screen.GetNodeOrNull<HBoxContainer>("MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/RulesPanel/MarginContainer/RulesVBox/ScrollContainer/RulesContent/UseCaseSection/PopulationRow");
+        HSlider? settlementBiasSlider = screen.GetNodeOrNull<HSlider>("MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/RulesPanel/MarginContainer/RulesVBox/ScrollContainer/RulesContent/UseCaseSection/PopulationRow/PopulationPermissivenessInput");
         OptionButton? gasGiantFormationOption = screen.GetNodeOrNull<OptionButton>("MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/PlanetarySection/PlanetaryContent/PlanetaryVBox/GasGiantFormationRow/GasGiantFormationOption");
         OptionButton? moonBiasOption = screen.GetNodeOrNull<OptionButton>("MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/PlanetarySection/PlanetaryContent/PlanetaryVBox/MoonFormationBiasRow/MoonFormationBiasOption");
 
@@ -71,6 +83,12 @@ public static class TestStudioScienceUi
         DotNetNativeTestSuite.AssertNotNull(showUwpCheck, "Galaxy screen should expose the UWP code checkbox");
         DotNetNativeTestSuite.AssertNotNull(forceLifeCheck, "Galaxy screen should expose the force-life override checkbox");
         DotNetNativeTestSuite.AssertNotNull(rulesetModeOption, "Galaxy screen should expose the ruleset selector");
+        DotNetNativeTestSuite.AssertNotNull(mainworldPolicyRow, "Galaxy screen should define the Space Opera mainworld override row");
+        DotNetNativeTestSuite.AssertNotNull(temperateWorldBiasRow, "Galaxy screen should define the Space Opera temperate-world override row");
+        DotNetNativeTestSuite.AssertNotNull(harshWorldBiasRow, "Galaxy screen should define the Space Opera harsh-world override row");
+        DotNetNativeTestSuite.AssertNotNull(terrestrialWorldBiasRow, "Galaxy screen should define the Space Opera mainworld-class override row");
+        DotNetNativeTestSuite.AssertNotNull(nativeLifeBiasRow, "Galaxy screen should define the Space Opera native-life override row");
+        DotNetNativeTestSuite.AssertNotNull(settlementBiasRow, "Galaxy screen should define the Space Opera settlement override row");
         DotNetNativeTestSuite.AssertNotNull(gasGiantFormationOption, "Galaxy studio should expose aggregate planetary gas-giant controls");
         DotNetNativeTestSuite.AssertNotNull(moonBiasOption, "Galaxy studio should expose aggregate moon-formation controls");
 
@@ -94,6 +112,8 @@ public static class TestStudioScienceUi
         DotNetNativeTestSuite.AssertTrue(OptionContainsText(civilizationOption!, "Technosphere Oxygen Bottleneck"), "Galaxy screen should expose the technosphere bottleneck civilization model");
         DotNetNativeTestSuite.AssertTrue(OptionContainsText(windowWeightOption!, "High"), "Galaxy screen should expose environmental-window weighting levels");
         DotNetNativeTestSuite.AssertFalse(OptionContainsText(lifeFrameworkOption, "Earth History"), "Galaxy screen should not expose the old Earth History label");
+        DotNetNativeTestSuite.AssertFalse(mainworldPolicyRow!.Visible, "Galaxy screen should hide Space Opera override rows until Space Opera is selected");
+        DotNetNativeTestSuite.AssertFalse(temperateWorldBiasRow!.Visible, "Galaxy screen should hide Space Opera temperate-world bias until Space Opera is selected");
 
         helpButton!.EmitSignal(Button.SignalName.Pressed);
         DotNetNativeTestSuite.AssertTrue(helpDialog!.Visible, "Help popup should open when the Help button is pressed");
@@ -103,6 +123,9 @@ public static class TestStudioScienceUi
         closeButton!.EmitSignal(Button.SignalName.Pressed);
         DotNetNativeTestSuite.AssertFalse(helpDialog.Visible, "Help popup should close when the Close button is pressed");
 
+        SelectOptionById(rulesetModeOption!, (int)GenerationUseCaseSettings.RulesetModeType.Traveller);
+        DotNetNativeTestSuite.AssertTrue(mainworldPolicyRow.Visible, "Galaxy screen should show Space Opera override rows when Space Opera is selected");
+        DotNetNativeTestSuite.AssertTrue(settlementBiasRow!.Visible, "Galaxy screen should show settlement override rows when Space Opera is selected");
         SelectOptionById(lifeFrameworkOption!, (int)GenerationUseCaseSettings.LifeFrameworkType.EnvironmentalWindows);
         SelectOptionById(abiogenesisOption!, (int)GenerationUseCaseSettings.AbiogenesisModelType.Conservative);
         SelectOptionById(complexLifeOption!, (int)GenerationUseCaseSettings.ComplexLifeModelType.EnvironmentalWindows);
@@ -112,6 +135,12 @@ public static class TestStudioScienceUi
         SelectOptionById(moonBiasOption!, (int)PlanetMoonFormationBias.CapturedRich);
         forceLifeCheck.ButtonPressed = true;
         forceLifeCheck.EmitSignal(CheckButton.SignalName.Toggled, true);
+        SelectOptionById(mainworldPolicyOption!, (int)GenerationUseCaseSettings.MainworldPolicyType.Require);
+        temperateWorldBiasSlider!.Value = 1.60;
+        harshWorldBiasSlider!.Value = 0.70;
+        terrestrialWorldBiasSlider!.Value = 1.40;
+        nativeLifeBiasSlider!.Value = 1.25;
+        settlementBiasSlider!.Value = 1.55;
         GalaxyConfig config = screen.GetCurrentConfig();
         DotNetNativeTestSuite.AssertEqual((int)GenerationUseCaseSettings.LifeFrameworkType.EnvironmentalWindows, (int)config.UseCaseSettings.LifeFramework, "Galaxy studio should write the selected life framework into the config");
         DotNetNativeTestSuite.AssertEqual((int)GenerationUseCaseSettings.AbiogenesisModelType.Conservative, (int)config.UseCaseSettings.AbiogenesisModel, "Galaxy studio should write the selected abiogenesis model into the config");
@@ -119,6 +148,12 @@ public static class TestStudioScienceUi
         DotNetNativeTestSuite.AssertEqual((int)GenerationUseCaseSettings.CivilizationModelType.TechnosphereOxygenBottleneck, (int)config.UseCaseSettings.CivilizationModel, "Galaxy studio should write the selected civilization model into the config");
         DotNetNativeTestSuite.AssertEqual((int)GenerationUseCaseSettings.EnvironmentalWindowWeightType.High, (int)config.UseCaseSettings.EnvironmentalWindowWeight, "Galaxy studio should write the selected window weight into the config");
         DotNetNativeTestSuite.AssertTrue(config.UseCaseSettings.ForceLifeOnSupportableWorlds, "Galaxy studio should write the force-life override into the config");
+        DotNetNativeTestSuite.AssertEqual((int)GenerationUseCaseSettings.MainworldPolicyType.Require, (int)config.UseCaseSettings.MainworldPolicy, "Galaxy studio should write the selected mainworld override into the config");
+        DotNetNativeTestSuite.AssertFloatNear(1.60, config.UseCaseSettings.CompatibilityTemperateSlotFillMultiplier, 0.001, "Galaxy studio should write the selected temperate-world multiplier into the config");
+        DotNetNativeTestSuite.AssertFloatNear(0.70, config.UseCaseSettings.CompatibilityHarshSlotFillMultiplier, 0.001, "Galaxy studio should write the selected harsh-world multiplier into the config");
+        DotNetNativeTestSuite.AssertFloatNear(1.40, config.UseCaseSettings.CompatibilityTerrestrialWorldWeightMultiplier, 0.001, "Galaxy studio should write the selected mainworld-class multiplier into the config");
+        DotNetNativeTestSuite.AssertFloatNear(1.25, config.UseCaseSettings.CompatibilityNativeLifeProbabilityMultiplier, 0.001, "Galaxy studio should write the selected native-life multiplier into the config");
+        DotNetNativeTestSuite.AssertFloatNear(1.55, config.UseCaseSettings.CompatibilityColonyProbabilityMultiplier, 0.001, "Galaxy studio should write the selected settlement multiplier into the config");
         DotNetNativeTestSuite.AssertEqual((int)GasGiantFormationModel.PebbleAssisted, (int)config.PlanetaryProfile.GasGiantFormationModel, "Galaxy studio should write the selected gas-giant model into the config");
         DotNetNativeTestSuite.AssertEqual((int)PlanetMoonFormationBias.CapturedRich, (int)config.PlanetaryProfile.MoonFormationBias, "Galaxy studio should write the selected moon-formation bias into the config");
 
@@ -147,6 +182,18 @@ public static class TestStudioScienceUi
         Label? rulesTitle = screen.GetNodeOrNull<Label>("MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/RulesPanel/MarginContainer/RulesVBox/RulesTitle");
         CheckBox? showUwpCheck = screen.GetNodeOrNull<CheckBox>("MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/RulesPanel/MarginContainer/RulesVBox/ScrollContainer/RulesContent/ShowTravellerReadoutsCheck");
         CheckBox? forceLifeCheck = screen.GetNodeOrNull<CheckBox>("MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/RulesPanel/MarginContainer/RulesVBox/ScrollContainer/RulesContent/ForceLifeOnSupportableWorldsCheck");
+        HBoxContainer? temperateWorldBiasRow = screen.GetNodeOrNull<HBoxContainer>("MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/RulesPanel/MarginContainer/RulesVBox/ScrollContainer/RulesContent/TemperateWorldBiasRow");
+        HSlider? temperateWorldBiasInput = screen.GetNodeOrNull<HSlider>("MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/RulesPanel/MarginContainer/RulesVBox/ScrollContainer/RulesContent/TemperateWorldBiasRow/TemperateWorldBiasInput");
+        HBoxContainer? harshWorldBiasRow = screen.GetNodeOrNull<HBoxContainer>("MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/RulesPanel/MarginContainer/RulesVBox/ScrollContainer/RulesContent/HarshWorldBiasRow");
+        HSlider? harshWorldBiasInput = screen.GetNodeOrNull<HSlider>("MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/RulesPanel/MarginContainer/RulesVBox/ScrollContainer/RulesContent/HarshWorldBiasRow/HarshWorldBiasInput");
+        HBoxContainer? terrestrialWorldBiasRow = screen.GetNodeOrNull<HBoxContainer>("MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/RulesPanel/MarginContainer/RulesVBox/ScrollContainer/RulesContent/TerrestrialWorldBiasRow");
+        HSlider? terrestrialWorldBiasInput = screen.GetNodeOrNull<HSlider>("MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/RulesPanel/MarginContainer/RulesVBox/ScrollContainer/RulesContent/TerrestrialWorldBiasRow/TerrestrialWorldBiasInput");
+        HBoxContainer? nativeLifeBiasRow = screen.GetNodeOrNull<HBoxContainer>("MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/RulesPanel/MarginContainer/RulesVBox/ScrollContainer/RulesContent/NativeLifeBiasRow");
+        HSlider? nativeLifeBiasInput = screen.GetNodeOrNull<HSlider>("MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/RulesPanel/MarginContainer/RulesVBox/ScrollContainer/RulesContent/NativeLifeBiasRow/NativeLifeBiasInput");
+        HBoxContainer? populationPermissivenessRow = screen.GetNodeOrNull<HBoxContainer>("MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/RulesPanel/MarginContainer/RulesVBox/ScrollContainer/RulesContent/PopulationPermissivenessRow");
+        HSlider? populationPermissivenessInput = screen.GetNodeOrNull<HSlider>("MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/RulesPanel/MarginContainer/RulesVBox/ScrollContainer/RulesContent/PopulationPermissivenessRow/PopulationPermissivenessInput");
+        HBoxContainer? mainworldPolicyRow = screen.GetNodeOrNull<HBoxContainer>("MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/RulesPanel/MarginContainer/RulesVBox/ScrollContainer/RulesContent/MainworldPolicyRow");
+        OptionButton? mainworldPolicyOption = screen.GetNodeOrNull<OptionButton>("MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/RulesPanel/MarginContainer/RulesVBox/ScrollContainer/RulesContent/MainworldPolicyRow/MainworldPolicyOption");
 
         DotNetNativeTestSuite.AssertNotNull(starCountMinInput, "System studio should expose a minimum star-count input");
         DotNetNativeTestSuite.AssertNotNull(starCountMaxInput, "System studio should expose a maximum star-count input");
@@ -167,6 +214,12 @@ public static class TestStudioScienceUi
         DotNetNativeTestSuite.AssertNotNull(rulesTitle, "System studio should expose the rules title");
         DotNetNativeTestSuite.AssertNotNull(showUwpCheck, "System studio should expose the Show UWP Code checkbox");
         DotNetNativeTestSuite.AssertNotNull(forceLifeCheck, "System studio should expose the force-life override checkbox");
+        DotNetNativeTestSuite.AssertNotNull(temperateWorldBiasRow, "System studio should define the Space Opera temperate-world override row");
+        DotNetNativeTestSuite.AssertNotNull(harshWorldBiasRow, "System studio should define the Space Opera harsh-world override row");
+        DotNetNativeTestSuite.AssertNotNull(terrestrialWorldBiasRow, "System studio should define the Space Opera mainworld-class override row");
+        DotNetNativeTestSuite.AssertNotNull(nativeLifeBiasRow, "System studio should define the Space Opera native-life override row");
+        DotNetNativeTestSuite.AssertNotNull(populationPermissivenessRow, "System studio should define the Space Opera settlement override row");
+        DotNetNativeTestSuite.AssertNotNull(mainworldPolicyRow, "System studio should define the Space Opera mainworld-policy row");
         DotNetNativeTestSuite.AssertEqual("Generation Overrides", rulesTitle!.Text, "System studio should name the center column Generation Overrides");
         DotNetNativeTestSuite.AssertEqual("Show UWP Code", showUwpCheck!.Text, "System studio should use the Show UWP Code label");
         DotNetNativeTestSuite.AssertTrue(forceLifeCheck!.TooltipText.Contains("Generation override, not a scientific model."), "System studio should explain that force life is an override");
@@ -175,16 +228,27 @@ public static class TestStudioScienceUi
         DotNetNativeTestSuite.AssertTrue(OptionContainsText(rulesetModeOption!, "Cepheus"), "System studio should expose the Cepheus compatibility profile");
         DotNetNativeTestSuite.AssertTrue(OptionContainsText(rulesetModeOption, "Starfinder"), "System studio should expose the Starfinder compatibility profile");
         DotNetNativeTestSuite.AssertTrue(OptionContainsText(rulesetModeOption, "Starforged"), "System studio should expose the Starforged compatibility profile");
+        DotNetNativeTestSuite.AssertFalse(temperateWorldBiasRow!.Visible, "System studio should hide Space Opera override rows until Space Opera is selected");
+        DotNetNativeTestSuite.AssertFalse(mainworldPolicyRow!.Visible, "System studio should hide Space Opera mainworld-policy rows until Space Opera is selected");
 
         starCountMaxInput.Value = 10.0;
         SelectOptionById(envelopeLossOption!, (int)PlanetEnvelopeLossModel.CorePowered);
         SelectOptionById(gasGiantFormationOption!, (int)GasGiantFormationModel.PebbleAssisted);
         SelectOptionById(rogueAllowanceOption!, (int)PlanetRoguePlanetAllowance.Standard);
+        SelectOptionById(rulesetModeOption!, (int)GenerationUseCaseSettings.RulesetModeType.Traveller);
+        DotNetNativeTestSuite.AssertTrue(temperateWorldBiasRow.Visible, "System studio should show Space Opera override rows when Space Opera is selected");
+        DotNetNativeTestSuite.AssertTrue(mainworldPolicyRow.Visible, "System studio should show Space Opera mainworld-policy rows when Space Opera is selected");
         SelectOptionById(lifeFrameworkOption!, (int)GenerationUseCaseSettings.LifeFrameworkType.EnvironmentalWindows);
         SelectOptionById(abiogenesisOption!, (int)GenerationUseCaseSettings.AbiogenesisModelType.Conservative);
         SelectOptionById(complexLifeOption!, (int)GenerationUseCaseSettings.ComplexLifeModelType.EnvironmentalWindows);
         SelectOptionById(civilizationOption!, (int)GenerationUseCaseSettings.CivilizationModelType.TechnosphereOxygenBottleneck);
         SelectOptionById(windowWeightOption!, (int)GenerationUseCaseSettings.EnvironmentalWindowWeightType.High);
+        SelectOptionById(mainworldPolicyOption!, (int)GenerationUseCaseSettings.MainworldPolicyType.Require);
+        temperateWorldBiasInput!.Value = 1.58;
+        harshWorldBiasInput!.Value = 0.72;
+        terrestrialWorldBiasInput!.Value = 1.36;
+        nativeLifeBiasInput!.Value = 1.18;
+        populationPermissivenessInput!.Value = 1.48;
         forceLifeCheck.ButtonPressed = true;
         forceLifeCheck.EmitSignal(CheckBox.SignalName.Toggled, true);
         SolarSystemSpec spec = screen.GetCurrentSpec();
@@ -198,6 +262,12 @@ public static class TestStudioScienceUi
         DotNetNativeTestSuite.AssertEqual((int)GenerationUseCaseSettings.CivilizationModelType.TechnosphereOxygenBottleneck, (int)spec.UseCaseSettings.CivilizationModel, "System studio should write the selected civilization model into the system spec");
         DotNetNativeTestSuite.AssertEqual((int)GenerationUseCaseSettings.EnvironmentalWindowWeightType.High, (int)spec.UseCaseSettings.EnvironmentalWindowWeight, "System studio should write the selected environmental-window weight into the system spec");
         DotNetNativeTestSuite.AssertTrue(spec.UseCaseSettings.ForceLifeOnSupportableWorlds, "System studio should write the force-life override into the system spec");
+        DotNetNativeTestSuite.AssertEqual((int)GenerationUseCaseSettings.MainworldPolicyType.Require, (int)spec.UseCaseSettings.MainworldPolicy, "System studio should write the selected mainworld override into the system spec");
+        DotNetNativeTestSuite.AssertFloatNear(1.58, spec.UseCaseSettings.CompatibilityTemperateSlotFillMultiplier, 0.001, "System studio should write the selected temperate-world multiplier into the system spec");
+        DotNetNativeTestSuite.AssertFloatNear(0.72, spec.UseCaseSettings.CompatibilityHarshSlotFillMultiplier, 0.001, "System studio should write the selected harsh-world multiplier into the system spec");
+        DotNetNativeTestSuite.AssertFloatNear(1.36, spec.UseCaseSettings.CompatibilityTerrestrialWorldWeightMultiplier, 0.001, "System studio should write the selected mainworld-class multiplier into the system spec");
+        DotNetNativeTestSuite.AssertFloatNear(1.18, spec.UseCaseSettings.CompatibilityNativeLifeProbabilityMultiplier, 0.001, "System studio should write the selected native-life multiplier into the system spec");
+        DotNetNativeTestSuite.AssertFloatNear(1.48, spec.UseCaseSettings.CompatibilityColonyProbabilityMultiplier, 0.001, "System studio should write the selected settlement multiplier into the system spec");
 
         IntegrationTestUtils.CleanupNode(screen);
     }

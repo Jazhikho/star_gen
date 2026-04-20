@@ -1394,6 +1394,119 @@ layout_mode = 2
 size_flags_horizontal = 3
 text = "Force Life If Supportable"
 
+[node name="MainworldPolicyRow" type="HBoxContainer" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/RulesPanel/MarginContainer/RulesVBox/ScrollContainer/RulesContent/UseCaseSection"]
+layout_mode = 2
+theme_override_constants/separation = 12
+
+[node name="MainworldPolicyLabel" type="Label" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/RulesPanel/MarginContainer/RulesVBox/ScrollContainer/RulesContent/UseCaseSection/MainworldPolicyRow"]
+custom_minimum_size = Vector2(120, 0)
+layout_mode = 2
+text = "Mainworld"
+
+[node name="MainworldPolicyOption" type="OptionButton" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/RulesPanel/MarginContainer/RulesVBox/ScrollContainer/RulesContent/UseCaseSection/MainworldPolicyRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+selected = 0
+item_count = 3
+popup/item_0/text = "None"
+popup/item_0/id = 0
+popup/item_1/text = "Prefer"
+popup/item_1/id = 1
+popup/item_2/text = "Require"
+popup/item_2/id = 2
+
+[node name="TemperateWorldBiasRow" type="HBoxContainer" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/RulesPanel/MarginContainer/RulesVBox/ScrollContainer/RulesContent/UseCaseSection"]
+layout_mode = 2
+theme_override_constants/separation = 12
+
+[node name="TemperateWorldBiasLabel" type="Label" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/RulesPanel/MarginContainer/RulesVBox/ScrollContainer/RulesContent/UseCaseSection/TemperateWorldBiasRow"]
+custom_minimum_size = Vector2(120, 0)
+layout_mode = 2
+text = "Temperate Worlds"
+
+[node name="TemperateWorldBiasSlider" type="HSlider" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/RulesPanel/MarginContainer/RulesVBox/ScrollContainer/RulesContent/UseCaseSection/TemperateWorldBiasRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+min_value = 0.5
+max_value = 1.8
+step = 0.01
+value = 1.35
+
+[node name="TemperateWorldBiasValue" type="Label" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/RulesPanel/MarginContainer/RulesVBox/ScrollContainer/RulesContent/UseCaseSection/TemperateWorldBiasRow"]
+custom_minimum_size = Vector2(64, 0)
+layout_mode = 2
+text = "1.35x"
+horizontal_alignment = 2
+
+[node name="HarshWorldBiasRow" type="HBoxContainer" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/RulesPanel/MarginContainer/RulesVBox/ScrollContainer/RulesContent/UseCaseSection"]
+layout_mode = 2
+theme_override_constants/separation = 12
+
+[node name="HarshWorldBiasLabel" type="Label" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/RulesPanel/MarginContainer/RulesVBox/ScrollContainer/RulesContent/UseCaseSection/HarshWorldBiasRow"]
+custom_minimum_size = Vector2(120, 0)
+layout_mode = 2
+text = "Harsh Worlds"
+
+[node name="HarshWorldBiasSlider" type="HSlider" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/RulesPanel/MarginContainer/RulesVBox/ScrollContainer/RulesContent/UseCaseSection/HarshWorldBiasRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+min_value = 0.5
+max_value = 1.8
+step = 0.01
+value = 0.85
+
+[node name="HarshWorldBiasValue" type="Label" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/RulesPanel/MarginContainer/RulesVBox/ScrollContainer/RulesContent/UseCaseSection/HarshWorldBiasRow"]
+custom_minimum_size = Vector2(64, 0)
+layout_mode = 2
+text = "0.85x"
+horizontal_alignment = 2
+
+[node name="TerrestrialWorldBiasRow" type="HBoxContainer" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/RulesPanel/MarginContainer/RulesVBox/ScrollContainer/RulesContent/UseCaseSection"]
+layout_mode = 2
+theme_override_constants/separation = 12
+
+[node name="TerrestrialWorldBiasLabel" type="Label" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/RulesPanel/MarginContainer/RulesVBox/ScrollContainer/RulesContent/UseCaseSection/TerrestrialWorldBiasRow"]
+custom_minimum_size = Vector2(120, 0)
+layout_mode = 2
+text = "Mainworld Class"
+
+[node name="TerrestrialWorldBiasSlider" type="HSlider" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/RulesPanel/MarginContainer/RulesVBox/ScrollContainer/RulesContent/UseCaseSection/TerrestrialWorldBiasRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+min_value = 0.5
+max_value = 1.8
+step = 0.01
+value = 1.25
+
+[node name="TerrestrialWorldBiasValue" type="Label" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/RulesPanel/MarginContainer/RulesVBox/ScrollContainer/RulesContent/UseCaseSection/TerrestrialWorldBiasRow"]
+custom_minimum_size = Vector2(64, 0)
+layout_mode = 2
+text = "1.25x"
+horizontal_alignment = 2
+
+[node name="NativeLifeBiasRow" type="HBoxContainer" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/RulesPanel/MarginContainer/RulesVBox/ScrollContainer/RulesContent/UseCaseSection"]
+layout_mode = 2
+theme_override_constants/separation = 12
+
+[node name="NativeLifeBiasLabel" type="Label" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/RulesPanel/MarginContainer/RulesVBox/ScrollContainer/RulesContent/UseCaseSection/NativeLifeBiasRow"]
+custom_minimum_size = Vector2(120, 0)
+layout_mode = 2
+text = "Native Life"
+
+[node name="NativeLifeBiasSlider" type="HSlider" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/RulesPanel/MarginContainer/RulesVBox/ScrollContainer/RulesContent/UseCaseSection/NativeLifeBiasRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+min_value = 0.5
+max_value = 1.8
+step = 0.01
+value = 1.15
+
+[node name="NativeLifeBiasValue" type="Label" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/RulesPanel/MarginContainer/RulesVBox/ScrollContainer/RulesContent/UseCaseSection/NativeLifeBiasRow"]
+custom_minimum_size = Vector2(64, 0)
+layout_mode = 2
+text = "1.15x"
+horizontal_alignment = 2
+
 [node name="AdvancedHeaderRow" type="HBoxContainer" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/RulesPanel/MarginContainer/RulesVBox/ScrollContainer/RulesContent/UseCaseSection" unique_id=886843777]
 layout_mode = 2
 theme_override_constants/separation = 8
@@ -1420,18 +1533,20 @@ theme_override_constants/separation = 12
 [node name="PopulationLabel" type="Label" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/RulesPanel/MarginContainer/RulesVBox/ScrollContainer/RulesContent/UseCaseSection/PopulationRow" unique_id=1003887621]
 custom_minimum_size = Vector2(120, 0)
 layout_mode = 2
-text = "Expansion Pressure"
+text = "Settlements"
 
 [node name="PopulationPermissivenessInput" type="HSlider" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/RulesPanel/MarginContainer/RulesVBox/ScrollContainer/RulesContent/UseCaseSection/PopulationRow" unique_id=1607257347]
 layout_mode = 2
 size_flags_horizontal = 3
-max_value = 1.0
-step = 0.05
+min_value = 0.5
+max_value = 1.8
+step = 0.01
+value = 1.35
 
 [node name="PopulationPermissivenessValue" type="Label" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/RulesPanel/MarginContainer/RulesVBox/ScrollContainer/RulesContent/UseCaseSection" unique_id=1340750675]
 custom_minimum_size = Vector2(156, 0)
 layout_mode = 2
-text = "0.50 (Colonization Common)"
+text = "1.35x"
 horizontal_alignment = 1
 
 [node name="SummaryPanel" type="PanelContainer" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow" unique_id=2053494642]

@@ -1,6 +1,6 @@
 # Version
 
-Current version: `0.8.15.0`
+Current version: `0.8.16.0`
 
 Current user-facing version: `0.9d`
 
@@ -8,11 +8,12 @@ Date: `2026-04-19`
 
 Versioning method: release/refactor `+0.1`, feature `+0.0.1`, bug fix `+0.0.0.1`, save-breaking release `+1.0`.
 
-## 0.8.14.2
+## 0.8.16.0
 
-- Docs: Added reviewed source notes for Traveller licensing, Cepheus Engine SRD world generation, Starforged licensing and free primer material, and Starfinder compatibility or playtest material so the repo now has a defended source basis for future RPG override work.
-- Docs: Added an explicit `RPG compatibility overrides` planned effort to the roadmap and documented the first-wave clean-room candidates and licensing boundaries.
-- Docs: Updated the bibliography and project-structure docs so the new override-supporting source notes are tracked with the rest of the reviewed material.
+- Feature: Exposed the actual `Space Opera` compatibility levers in Galaxy Studio and System Studio so users can tune the same generation pressures the RPG override profile applies instead of being locked to the baked defaults.
+- Feature: Added persisted override fields for mainworld policy, temperate-world bias, harsh-world bias, mainworld-class bias, native-life bias, and settlement bias, and wired those fields through the shared compatibility-profile contract used by system and population generation.
+- Feature: Tightened the Space Opera override UI so the controls stay hidden outside the `Space Opera` profile, use finer slider resolution, and keep the default realistic path untouched when no RPG override is active.
+- Test: Expanded the compatibility-profile tests to prove ruleset defaults, studio wiring, custom override serialization, and custom slot-fill or population-pressure effects; `dotnet build StarGen.sln` passed, and the headless harness passed (`1820 / 1820`).
 
 ## 0.8.15.0
 
@@ -20,6 +21,12 @@ Versioning method: release/refactor `+0.1`, feature `+0.0.1`, bug fix `+0.0.0.1`
 - Feature: System generation now materially responds to the selected compatibility profile by biasing mainworld targeting, temperate or harsh slot fill pressure, terrestrial-world weighting, and population pressure instead of treating the ruleset selector as UI-only state.
 - Feature: Population generation and UWP-like handling now flow through the shared compatibility profile contract so compatibility-oriented modes can force population generation where appropriate and reuse the same guarded UWP-style path without expanding output or export scope in `0.9d`.
 - Test: Added compatibility-profile integration and unit coverage for studio option wiring, default application, system fill pressure, and population-probability shifts; `dotnet build StarGen.sln` passed, and the headless harness passed (`1818 / 1818`).
+
+## 0.8.14.2
+
+- Docs: Added reviewed source notes for Traveller licensing, Cepheus Engine SRD world generation, Starforged licensing and free primer material, and Starfinder compatibility or playtest material so the repo now has a defended source basis for future RPG override work.
+- Docs: Added an explicit `RPG compatibility overrides` planned effort to the roadmap and documented the first-wave clean-room candidates and licensing boundaries.
+- Docs: Updated the bibliography and project-structure docs so the new override-supporting source notes are tracked with the rest of the reviewed material.
 
 ## 0.8.14.1
 

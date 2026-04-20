@@ -219,6 +219,42 @@ public static class TestPopulationProbability
     }
 
     /// <summary>
+    /// Tests that custom Space Opera compatibility multipliers override native-life and colony pressure.
+    /// </summary>
+    public static void TestCustomSpaceOperaOverridesAffectPopulationPressure()
+    {
+        PlanetProfile profile = new();
+        profile.HabitabilityScore = 7;
+        profile.HasLiquidWater = true;
+        profile.HasAtmosphere = true;
+        profile.HasBreathableAtmosphere = true;
+        profile.PressureAtm = 1.0;
+        profile.OceanCoverage = 0.55;
+        profile.GravityG = 1.0;
+        profile.AvgTemperatureK = 289.0;
+        profile.RadiationLevel = 0.18;
+
+        ColonySuitability suitability = new();
+        suitability.OverallScore = 60;
+
+        GenerationUseCaseSettings defaultSettings = GenerationUseCaseSettings.CreateDefault();
+        defaultSettings.RulesetMode = GenerationUseCaseSettings.RulesetModeType.Traveller;
+        defaultSettings.ApplyRulesetDefaults();
+
+        GenerationUseCaseSettings customSettings = defaultSettings.Clone();
+        customSettings.CompatibilityNativeLifeProbabilityMultiplier = 0.70;
+        customSettings.CompatibilityColonyProbabilityMultiplier = 1.55;
+
+        double defaultNative = PopulationProbability.CalculateNativeProbability(profile, defaultSettings);
+        double customNative = PopulationProbability.CalculateNativeProbability(profile, customSettings);
+        double defaultColony = PopulationProbability.CalculateColonyProbability(profile, suitability, defaultSettings);
+        double customColony = PopulationProbability.CalculateColonyProbability(profile, suitability, customSettings);
+
+        DotNetNativeTestSuite.AssertTrue(customNative < defaultNative, "Lower custom native-life bias should reduce native-life probability");
+        DotNetNativeTestSuite.AssertTrue(customColony > defaultColony, "Higher custom settlement bias should increase colony probability");
+    }
+
+    /// <summary>
     /// Tests that high life permissiveness materially raises native-life probability on marginal worlds.
     /// </summary>
     public static void TestLifePermissivenessAffectsMarginalWorlds()
