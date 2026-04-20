@@ -1,12 +1,19 @@
 # Version
 
-Current version: `0.8.18.2`
+Current version: `0.8.18.3`
 
 Current user-facing version: `0.9d`
 
 Date: `2026-04-20`
 
 Versioning method: release/refactor `+0.1`, feature `+0.0.1`, bug fix `+0.0.0.1`, save-breaking release `+1.0`.
+
+## 0.8.18.3
+
+- Bug fix: Galaxy Viewer options now labels the seed toggle as `Show all studio seeds`, matching the actual preference behavior instead of implying a narrower studio-only surface.
+- Bug fix: Galaxy Viewer options can now be closed from the window `X` as well as the explicit `Close` button, and the dialog open path now works safely in both runtime and off-tree test contexts.
+- Bug fix: Main Menu options now uses the same `Show all studio seeds` wording and supports closing its window from the titlebar close affordance as well as the explicit button.
+- Test: Added Galaxy Viewer regression coverage for the renamed seed toggle, the updated options status wording, and the options-dialog open/close contract; also hardened the shared intro-audio test so it resets persisted intro-skip preferences before asserting splash behavior.
 
 ## 0.8.18.2
 

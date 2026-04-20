@@ -21,27 +21,36 @@ public static class TestAppAudio
 
     private static void TestMainAppExposesSharedIntroAudio()
     {
-        MainApp app = IntegrationTestUtils.CreateMainAppReady();
+        StudioUiPreferencesService.Save(StudioUiPreferencesService.CreateDefault());
 
-        AppAudioController? audioController = app.GetNodeOrNull<AppAudioController>("AudioController");
-        SplashScreen? splashScreen = app.GetNodeOrNull<SplashScreen>("ViewerContainer/SplashScreen");
-        AudioStreamPlayer? musicPlayer = app.GetNodeOrNull<AudioStreamPlayer>("AudioController/MusicPlayer");
-        AudioStreamPlayer? uiPlayer = app.GetNodeOrNull<AudioStreamPlayer>("AudioController/UiPlayer");
-        AudioStreamPlayer? legacySplashPlayer = app.GetNodeOrNull<AudioStreamPlayer>("ViewerContainer/SplashScreen/IntroMusicPlayer");
+        try
+        {
+            MainApp app = IntegrationTestUtils.CreateMainAppReady();
 
-        DotNetNativeTestSuite.AssertNotNull(audioController, "MainApp should own a shared audio controller node");
-        DotNetNativeTestSuite.AssertNotNull(splashScreen, "MainApp should still create the splash screen");
-        DotNetNativeTestSuite.AssertNotNull(musicPlayer, "Audio controller should expose a shared music player");
-        DotNetNativeTestSuite.AssertNotNull(uiPlayer, "Audio controller should expose a shared UI player");
-        DotNetNativeTestSuite.AssertNull(legacySplashPlayer, "Splash screen should no longer own a private intro music player");
+            AppAudioController? audioController = app.GetNodeOrNull<AppAudioController>("AudioController");
+            SplashScreen? splashScreen = app.GetNodeOrNull<SplashScreen>("ViewerContainer/SplashScreen");
+            AudioStreamPlayer? musicPlayer = app.GetNodeOrNull<AudioStreamPlayer>("AudioController/MusicPlayer");
+            AudioStreamPlayer? uiPlayer = app.GetNodeOrNull<AudioStreamPlayer>("AudioController/UiPlayer");
+            AudioStreamPlayer? legacySplashPlayer = app.GetNodeOrNull<AudioStreamPlayer>("ViewerContainer/SplashScreen/IntroMusicPlayer");
 
-        audioController!._Ready();
+            DotNetNativeTestSuite.AssertNotNull(audioController, "MainApp should own a shared audio controller node");
+            DotNetNativeTestSuite.AssertNotNull(splashScreen, "MainApp should still create the splash screen");
+            DotNetNativeTestSuite.AssertNotNull(musicPlayer, "Audio controller should expose a shared music player");
+            DotNetNativeTestSuite.AssertNotNull(uiPlayer, "Audio controller should expose a shared UI player");
+            DotNetNativeTestSuite.AssertNull(legacySplashPlayer, "Splash screen should no longer own a private intro music player");
 
-        DotNetNativeTestSuite.AssertNotNull(audioController.Library, "Audio controller should have a shared audio library resource");
-        DotNetNativeTestSuite.AssertTrue(audioController.HasCue(AppAudioCueId.IntroMusic), "Shared audio library should configure the intro music cue");
-        DotNetNativeTestSuite.AssertNotNull(audioController.Library!.GetStream(AppAudioCueId.IntroMusic), "Intro music cue should point at a real audio stream");
+            audioController!._Ready();
 
-        IntegrationTestUtils.CleanupNode(app);
+            DotNetNativeTestSuite.AssertNotNull(audioController.Library, "Audio controller should have a shared audio library resource");
+            DotNetNativeTestSuite.AssertTrue(audioController.HasCue(AppAudioCueId.IntroMusic), "Shared audio library should configure the intro music cue");
+            DotNetNativeTestSuite.AssertNotNull(audioController.Library!.GetStream(AppAudioCueId.IntroMusic), "Intro music cue should point at a real audio stream");
+
+            IntegrationTestUtils.CleanupNode(app);
+        }
+        finally
+        {
+            StudioUiPreferencesService.Save(StudioUiPreferencesService.CreateDefault());
+        }
     }
 
     private static void TestMainAppRespectsSkipIntroPreference()

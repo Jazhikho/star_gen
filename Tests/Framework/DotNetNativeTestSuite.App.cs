@@ -253,6 +253,20 @@ public static partial class DotNetNativeTestSuite
 
             Window? optionsDialog = viewer.GetNodeOrNull<Window>("OptionsDialog");
             AssertNotNull(optionsDialog, "galaxy viewer should expose the shared options dialog");
+            CheckButton? showSeedControlsCheck = viewer.GetNodeOrNull<CheckButton>("OptionsDialog/MarginContainer/OptionsVBox/ShowSeedControlsCheck");
+            AssertNotNull(showSeedControlsCheck, "galaxy viewer options should expose the studio-seed preference toggle");
+            AssertEqual("Show all studio seeds", showSeedControlsCheck!.Text, "galaxy viewer should label the seed toggle as showing all studio seeds");
+
+            Label? optionsStatusLabel = viewer.GetNodeOrNull<Label>("OptionsDialog/MarginContainer/OptionsVBox/OptionsStatusLabel");
+            AssertNotNull(optionsStatusLabel, "galaxy viewer options should expose the options status label");
+            AssertTrue(optionsStatusLabel!.Text.Contains("All studio seeds"), "galaxy viewer options status should describe the all-studio-seeds preference");
+
+            Button? optionsButton = menuRow.GetChild(2) as Button;
+            AssertNotNull(optionsButton, "galaxy viewer should expose an Options menu action button");
+            optionsButton!.EmitSignal(BaseButton.SignalName.Pressed);
+            AssertTrue(optionsDialog!.Visible, "pressing Options should show the viewer options dialog");
+            optionsDialog.EmitSignal(Window.SignalName.CloseRequested);
+            AssertTrue(!optionsDialog.Visible, "the viewer options dialog should close when the window close signal is emitted");
 
             Window? localSpaceDialog = viewer.GetNodeOrNull<Window>("BuildLocalSpaceDialog");
             AssertNotNull(localSpaceDialog, "galaxy viewer should expose the build-local-space dialog");

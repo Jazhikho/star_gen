@@ -21,9 +21,14 @@ public partial class GalaxyViewer
 			_applyOptionsButton.Pressed += ApplyOptionsSettings;
 		}
 
-		if (_optionsDialogCloseButton != null && _optionsDialog != null)
+		if (_optionsDialogCloseButton != null)
 		{
-			_optionsDialogCloseButton.Pressed += _optionsDialog.Hide;
+			_optionsDialogCloseButton.Pressed += HideOptionsDialog;
+		}
+
+		if (_optionsDialog != null)
+		{
+			_optionsDialog.CloseRequested += HideOptionsDialog;
 		}
 
 		if (_fullscreenCheck != null)
@@ -54,9 +59,14 @@ public partial class GalaxyViewer
 			_buildLocalSpaceRunButton.Pressed += OnBuildLocalSpaceRunPressed;
 		}
 
-		if (_buildLocalSpaceCloseButton != null && _buildLocalSpaceDialog != null)
+		if (_buildLocalSpaceCloseButton != null)
 		{
-			_buildLocalSpaceCloseButton.Pressed += _buildLocalSpaceDialog.Hide;
+			_buildLocalSpaceCloseButton.Pressed += HideBuildLocalSpaceDialog;
+		}
+
+		if (_buildLocalSpaceDialog != null)
+		{
+			_buildLocalSpaceDialog.CloseRequested += HideBuildLocalSpaceDialog;
 		}
 
 		InitializeLocalSpaceDialogInputs();
@@ -142,11 +152,11 @@ public partial class GalaxyViewer
 			string seedSummary;
 			if (preferences.ShowSeedControls)
 			{
-				seedSummary = "Studio seed controls are visible.";
+				seedSummary = "All studio seeds are visible.";
 			}
 			else
 			{
-				seedSummary = "Studio seed controls are hidden.";
+				seedSummary = "All studio seeds are hidden.";
 			}
 
 			string introSummary;
@@ -172,7 +182,15 @@ public partial class GalaxyViewer
 		}
 
 		RefreshOptionsState();
-		_optionsDialog.PopupCentered(new Vector2I(460, 280));
+		ShowViewerDialog(_optionsDialog, new Vector2I(460, 280));
+	}
+
+	private void HideOptionsDialog()
+	{
+		if (_optionsDialog != null)
+		{
+			_optionsDialog.Hide();
+		}
 	}
 
 	private void OnOptionsFullscreenToggled(bool fullscreen)
@@ -228,7 +246,27 @@ public partial class GalaxyViewer
 		}
 
 		RefreshLocalSpacePreview();
-		_buildLocalSpaceDialog.PopupCentered(new Vector2I(520, 340));
+		ShowViewerDialog(_buildLocalSpaceDialog, new Vector2I(520, 340));
+	}
+
+	private static void ShowViewerDialog(Window dialog, Vector2I size)
+	{
+		if (dialog.IsInsideTree())
+		{
+			dialog.PopupCentered(size);
+			return;
+		}
+
+		dialog.Size = size;
+		dialog.Visible = true;
+	}
+
+	private void HideBuildLocalSpaceDialog()
+	{
+		if (_buildLocalSpaceDialog != null)
+		{
+			_buildLocalSpaceDialog.Hide();
+		}
 	}
 
 	private void RefreshLocalSpacePreview()

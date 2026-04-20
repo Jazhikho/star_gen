@@ -131,11 +131,11 @@ public partial class MainMenuScreen : Control
 
 			if (studioPreferences.ShowSeedControls)
 			{
-				_optionsStatusLabel.Text = $"{modeText}. Studio seeds are visible.";
+				_optionsStatusLabel.Text = $"{modeText}. All studio seeds are visible.";
 			}
 			else
 			{
-				_optionsStatusLabel.Text = $"{modeText}. Studio seeds are hidden and reroll on each launch.";
+				_optionsStatusLabel.Text = $"{modeText}. All studio seeds are hidden and reroll on each launch.";
 			}
 
 			if (studioPreferences.SkipIntro)
@@ -231,6 +231,8 @@ public partial class MainMenuScreen : Control
 		if (_applyOptionsButton != null) _applyOptionsButton.Connect(Button.SignalName.Pressed, Callable.From(ApplyWindowSettings));
 		if (_infoDialogCloseButton != null && _infoDialog != null) _infoDialogCloseButton.Pressed += _infoDialog.Hide;
 		if (_optionsDialogCloseButton != null && _optionsDialog != null) _optionsDialogCloseButton.Pressed += _optionsDialog.Hide;
+		if (_infoDialog != null) _infoDialog.CloseRequested += _infoDialog.Hide;
+		if (_optionsDialog != null) _optionsDialog.CloseRequested += _optionsDialog.Hide;
 		if (_fullscreenCheck != null) _fullscreenCheck.Toggled += enabled =>
 		{
 			if (_resolutionOption != null)

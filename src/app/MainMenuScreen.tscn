@@ -455,7 +455,7 @@ text = "Fullscreen"
 
 [node name="ShowSeedControlsCheck" type="CheckButton" parent="OptionsDialog/MarginContainer/OptionsVBox"]
 layout_mode = 2
-text = "Show studio seed controls"
+text = "Show all studio seeds"
 
 [node name="SkipIntroCheck" type="CheckButton" parent="OptionsDialog/MarginContainer/OptionsVBox"]
 layout_mode = 2
