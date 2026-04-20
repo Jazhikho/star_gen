@@ -242,6 +242,26 @@ public static partial class DotNetNativeTestSuite
             Label? overviewTitle = viewer.GetNodeOrNull<Label>("UI/UIRoot/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/InspectorPanel/SelectionSection/TitleLabel");
             AssertNotNull(overviewTitle, "galaxy viewer should still expose the overview title label");
             AssertEqual("Overview", overviewTitle!.Text, "galaxy viewer inspector should label the live location block as Overview");
+
+            HBoxContainer? menuRow = viewer.GetNodeOrNull<HBoxContainer>("UI/UIRoot/TopBar/MarginContainer/TopBarVBox/MenuRow");
+            AssertNotNull(menuRow, "galaxy viewer should expose the top menu row");
+            AssertEqual(4, menuRow!.GetChildCount(), "galaxy viewer should expose File, Tools, Options, and Help in the menu row");
+            AssertEqual("File", ((Button)menuRow.GetChild(0)).Text, "first top-level viewer menu should remain File");
+            AssertEqual("Tools", ((Button)menuRow.GetChild(1)).Text, "second top-level viewer menu should be Tools");
+            AssertEqual("Options", ((Button)menuRow.GetChild(2)).Text, "third top-level viewer menu should be Options");
+            AssertEqual("Help", ((Button)menuRow.GetChild(3)).Text, "fourth top-level viewer menu should remain Help");
+
+            Window? optionsDialog = viewer.GetNodeOrNull<Window>("OptionsDialog");
+            AssertNotNull(optionsDialog, "galaxy viewer should expose the shared options dialog");
+
+            Window? localSpaceDialog = viewer.GetNodeOrNull<Window>("BuildLocalSpaceDialog");
+            AssertNotNull(localSpaceDialog, "galaxy viewer should expose the build-local-space dialog");
+
+            bool builtLocalSpace = viewer.BuildLocalSpaceSynchronouslyForTesting(new Vector3I(1, 1, 1));
+            AssertTrue(builtLocalSpace, "galaxy viewer should be able to build a local-space cache in subsector view");
+            GalaxyLocalSpaceCache? localSpaceCache = viewer.GetLocalSpaceCache();
+            AssertNotNull(localSpaceCache, "local-space build should retain a cache profile");
+            AssertTrue(localSpaceCache!.Region.GetSystemCount() > 0, "local-space cache should contain generated systems");
         }
         finally
         {

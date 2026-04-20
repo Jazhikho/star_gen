@@ -191,6 +191,14 @@ public partial class GalaxyViewer
 			return _selectedStarPosition;
 		}
 
+		return GetActiveViewPosition();
+	}
+
+	/// <summary>
+	/// Returns the current live view position without forcing selection state into the result.
+	/// </summary>
+	private Vector3 GetActiveViewPosition()
+	{
 		if (_starCamera != null && IsSubsectorActive())
 		{
 			return _starCamera.GetCurrentPosition();

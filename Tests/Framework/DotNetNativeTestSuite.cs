@@ -2752,6 +2752,9 @@ public static partial class DotNetNativeTestSuite
             "TestGalaxyInspectorSelectionFormatter::test_format_distance_from_core_uses_pc_and_kpc_thresholds",
             Tests.Unit.TestGalaxyInspectorSelectionFormatter.TestFormatDistanceFromCoreUsesPcAndKpcThresholds);
         runner.RunNativeTest(
+            "TestGalaxyInspectorSelectionFormatter::test_format_hierarchical_coordinates_uses_quadrant_sector_and_local_triples",
+            Tests.Unit.TestGalaxyInspectorSelectionFormatter.TestFormatHierarchicalCoordinatesUsesQuadrantSectorAndLocalTriples);
+        runner.RunNativeTest(
             "TestVersions::test_generator_version_is_semver_format",
             Tests.Unit.TestVersions.TestGeneratorVersionIsSemverFormat);
         runner.RunNativeTest(

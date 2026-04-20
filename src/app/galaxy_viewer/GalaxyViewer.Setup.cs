@@ -36,6 +36,24 @@ public partial class GalaxyViewer
 		_saveButton = GetNodeOrNull<Button>("UI/UIRoot/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/SaveLoadSection/ButtonContainer/SaveButton");
 		_loadButton = GetNodeOrNull<Button>("UI/UIRoot/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/SaveLoadSection/ButtonContainer/LoadButton");
 		_newGalaxyButton = GetNodeOrNull<Button>("UI/UIRoot/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/SaveLoadSection/NewGalaxyButton");
+		_optionsDialog = GetNodeOrNull<Window>("OptionsDialog");
+		_fullscreenCheck = GetNodeOrNull<CheckButton>("OptionsDialog/MarginContainer/OptionsVBox/FullscreenCheck");
+		_showSeedControlsCheck = GetNodeOrNull<CheckButton>("OptionsDialog/MarginContainer/OptionsVBox/ShowSeedControlsCheck");
+		_skipIntroCheck = GetNodeOrNull<CheckButton>("OptionsDialog/MarginContainer/OptionsVBox/SkipIntroCheck");
+		_resolutionOption = GetNodeOrNull<OptionButton>("OptionsDialog/MarginContainer/OptionsVBox/ResolutionRow/ResolutionOption");
+		_applyOptionsButton = GetNodeOrNull<Button>("OptionsDialog/MarginContainer/OptionsVBox/ApplyOptionsButton");
+		_optionsStatusLabel = GetNodeOrNull<Label>("OptionsDialog/MarginContainer/OptionsVBox/OptionsStatusLabel");
+		_optionsDialogCloseButton = GetNodeOrNull<Button>("OptionsDialog/MarginContainer/OptionsVBox/CloseButton");
+		_buildLocalSpaceDialog = GetNodeOrNull<Window>("BuildLocalSpaceDialog");
+		_localSpaceExtentXInput = GetNodeOrNull<SpinBox>("BuildLocalSpaceDialog/MarginContainer/LocalSpaceVBox/ExtentGrid/XSpinBox");
+		_localSpaceExtentYInput = GetNodeOrNull<SpinBox>("BuildLocalSpaceDialog/MarginContainer/LocalSpaceVBox/ExtentGrid/YSpinBox");
+		_localSpaceExtentZInput = GetNodeOrNull<SpinBox>("BuildLocalSpaceDialog/MarginContainer/LocalSpaceVBox/ExtentGrid/ZSpinBox");
+		_localSpaceAreaLabel = GetNodeOrNull<Label>("BuildLocalSpaceDialog/MarginContainer/LocalSpaceVBox/AreaLabel");
+		_localSpaceStarCountLabel = GetNodeOrNull<Label>("BuildLocalSpaceDialog/MarginContainer/LocalSpaceVBox/StarCountLabel");
+		_localSpaceWarningLabel = GetNodeOrNull<Label>("BuildLocalSpaceDialog/MarginContainer/LocalSpaceVBox/WarningLabel");
+		_localSpaceStatusLabel = GetNodeOrNull<Label>("BuildLocalSpaceDialog/MarginContainer/LocalSpaceVBox/StatusLabel");
+		_buildLocalSpaceRunButton = GetNodeOrNull<Button>("BuildLocalSpaceDialog/MarginContainer/LocalSpaceVBox/ButtonRow/BuildButton");
+		_buildLocalSpaceCloseButton = GetNodeOrNull<Button>("BuildLocalSpaceDialog/MarginContainer/LocalSpaceVBox/ButtonRow/CloseButton");
 	}
 
 	/// <summary>
@@ -109,6 +127,11 @@ public partial class GalaxyViewer
 		{
 			_starCamera.SubsectorChanged += OnSubsectorChanged;
 		}
+
+		PopulateResolutionOptions();
+		RefreshOptionsState();
+		ConnectOptionsSignals();
+		ConnectLocalSpaceDialogSignals();
 
 		if (_inspectorPanel is GalaxyInspectorPanel typedInspectorPanel)
 		{
@@ -186,19 +209,10 @@ public partial class GalaxyViewer
 			_galaxy.DensityModel,
 			_galaxy.ReferenceDensity);
 		string? regionId = GetCurrentJumpRouteRegionId();
-		if (_galaxy != null && !string.IsNullOrEmpty(regionId))
+		if (_localSpaceCache == null || string.IsNullOrEmpty(regionId))
 		{
-			ColonizationSimulationState? cachedSimulation = _galaxy.GetColonizationSimulationState(regionId);
-			if (cachedSimulation != null)
-			{
-				_jumpLaneRegion = cachedSimulation.ToJumpLaneRegion();
-				_jumpLaneResult = cachedSimulation.ToJumpLaneResult();
-			}
-			else if (!UseTravellerRouteMode())
-			{
-				_jumpLaneRegion = null;
-				_jumpLaneResult = null;
-			}
+			_jumpLaneRegion = null;
+			_jumpLaneResult = null;
 		}
 		ClearStarSelection();
 		UpdateJumpRoutePresentation();
@@ -355,7 +369,7 @@ public partial class GalaxyViewer
 			if (region == null)
 			{
 				InvalidateJumpRoutes();
-				SetStatus("Jump-route data unavailable for the current subsector");
+				SetStatus("Build local space around the current location before calculating jump routes");
 				return;
 			}
 
@@ -460,7 +474,7 @@ public partial class GalaxyViewer
 			if (region == null)
 			{
 				InvalidateJumpRoutes();
-				SetStatus("Jump-route data unavailable for the current subsector");
+				SetStatus("Build local space around the current location before calculating jump routes");
 				return;
 			}
 
@@ -583,124 +597,50 @@ public partial class GalaxyViewer
 
 	private async Task<JumpLaneRegion?> BuildJumpLaneRegionAsync(int calculationGeneration, bool yieldBetweenBatches)
 	{
-		if (!IsSubsectorActive())
+		GalaxyLocalSpaceCache? activeCache = GetActiveLocalSpaceCache();
+		if (!IsSubsectorActive() || activeCache == null)
 		{
 			return null;
 		}
 
-		if (_spec == null || _neighborhoodRenderer is not NeighborhoodRenderer neighborhoodRenderer)
+		if (calculationGeneration != _jumpRouteCalculationGeneration)
 		{
 			return null;
 		}
 
-		SubSectorNeighborhoodData? neighborhoodData = neighborhoodRenderer.get_neighborhood_data();
-		if (neighborhoodData == null)
+		if (yieldBetweenBatches)
 		{
-			return null;
+			await ToSignal(GetTree(), SceneTree.SignalName.ProcessFrame);
 		}
 
-		string regionId = FormattableString.Invariant(
-			$"{neighborhoodData.CenterOrigin.X:0.###},{neighborhoodData.CenterOrigin.Y:0.###},{neighborhoodData.CenterOrigin.Z:0.###}");
-		JumpLaneRegion region = new(JumpLaneRegion.RegionScope.Subsector, regionId);
-		int starCount = Math.Min(neighborhoodData.StarPositions.Length, neighborhoodData.StarSeeds.Length);
-		GalaxyInspectorPanel? inspectorPanel = GetInspectorPanel();
-
-		if (inspectorPanel != null)
-		{
-			inspectorPanel.SetJumpRoutesProgress("Scanning subsector stars", 0, starCount);
-		}
-
-		for (int index = 0; index < starCount; index++)
-		{
-			if (calculationGeneration != _jumpRouteCalculationGeneration)
-			{
-				return null;
-			}
-
-			long starSeed = neighborhoodData.StarSeeds[index];
-			JumpLaneSystem system = CreateJumpLaneSystemForRoutes(neighborhoodData.StarPositions[index], starSeed);
-			region.AddSystem(system);
-
-			int completed = index + 1;
-			if (inspectorPanel != null && (completed == starCount || (completed % JumpRouteProgressBatchSize) == 0))
-			{
-				inspectorPanel.SetJumpRoutesProgress("Scanning subsector stars", completed, starCount);
-			}
-
-			if (yieldBetweenBatches && completed < starCount && (completed % JumpRouteProgressBatchSize) == 0)
-			{
-				await ToSignal(GetTree(), SceneTree.SignalName.ProcessFrame);
-			}
-		}
-
-		return region;
+		return CloneJumpLaneRegion(activeCache.Region);
 	}
 
 	private JumpLaneRegion? BuildJumpLaneRegionSynchronously(int calculationGeneration)
 	{
-		if (!IsSubsectorActive())
+		GalaxyLocalSpaceCache? activeCache = GetActiveLocalSpaceCache();
+		if (!IsSubsectorActive() || activeCache == null)
 		{
 			return null;
 		}
 
-		if (_spec == null || _neighborhoodRenderer is not NeighborhoodRenderer neighborhoodRenderer)
+		if (calculationGeneration != _jumpRouteCalculationGeneration)
 		{
 			return null;
 		}
 
-		SubSectorNeighborhoodData? neighborhoodData = neighborhoodRenderer.get_neighborhood_data();
-		if (neighborhoodData == null)
-		{
-			return null;
-		}
-
-		string regionId = FormattableString.Invariant(
-			$"{neighborhoodData.CenterOrigin.X:0.###},{neighborhoodData.CenterOrigin.Y:0.###},{neighborhoodData.CenterOrigin.Z:0.###}");
-		JumpLaneRegion region = new(JumpLaneRegion.RegionScope.Subsector, regionId);
-		int starCount = Math.Min(neighborhoodData.StarPositions.Length, neighborhoodData.StarSeeds.Length);
-		GalaxyInspectorPanel? inspectorPanel = GetInspectorPanel();
-
-		if (inspectorPanel != null)
-		{
-			inspectorPanel.SetJumpRoutesProgress("Scanning subsector stars", 0, starCount);
-		}
-
-		for (int index = 0; index < starCount; index += 1)
-		{
-			if (calculationGeneration != _jumpRouteCalculationGeneration)
-			{
-				return null;
-			}
-
-			long starSeed = neighborhoodData.StarSeeds[index];
-			JumpLaneSystem system = CreateJumpLaneSystemForRoutes(neighborhoodData.StarPositions[index], starSeed);
-			region.AddSystem(system);
-
-			int completed = index + 1;
-			if (inspectorPanel != null && (completed == starCount || (completed % JumpRouteProgressBatchSize) == 0))
-			{
-				inspectorPanel.SetJumpRoutesProgress("Scanning subsector stars", completed, starCount);
-			}
-		}
-
-		return region;
+		return CloneJumpLaneRegion(activeCache.Region);
 	}
 
 	private string? GetCurrentJumpRouteRegionId()
 	{
-		if (_neighborhoodRenderer is not NeighborhoodRenderer neighborhoodRenderer)
+		GalaxyLocalSpaceCache? activeCache = GetActiveLocalSpaceCache();
+		if (activeCache == null)
 		{
 			return null;
 		}
 
-		SubSectorNeighborhoodData? neighborhoodData = neighborhoodRenderer.get_neighborhood_data();
-		if (neighborhoodData == null)
-		{
-			return null;
-		}
-
-		return FormattableString.Invariant(
-			$"{neighborhoodData.CenterOrigin.X:0.###},{neighborhoodData.CenterOrigin.Y:0.###},{neighborhoodData.CenterOrigin.Z:0.###}");
+		return activeCache.Region.RegionId;
 	}
 
 	private JumpLaneSystem CreateJumpLaneSystemForRoutes(Vector3 worldPosition, long starSeed)
@@ -733,6 +673,9 @@ public partial class GalaxyViewer
 			{
 				routeSystem.Population = system.TravellerProfile.RouteProfile.EstimatedPopulation;
 				routeSystem.TravellerProfile = TravellerSystemProfile.FromDictionary(system.TravellerProfile.ToDictionary());
+				routeSystem.RouteTechnologyLevel = system.TravellerProfile.WorldProfile.TechLevelCode;
+				routeSystem.GovernmentSummary = $"Gov {TravellerWorldProfile.ToHexDigit(system.TravellerProfile.WorldProfile.GovernmentCode)}";
+				routeSystem.TradeCodesSummary = system.TravellerProfile.TradeCodes.ToDisplayString();
 			}
 			else
 			{
@@ -763,12 +706,17 @@ public partial class GalaxyViewer
 	{
 		double bestExportPressure = 0.0;
 		int bestExportTech = -1;
+		int bestObservedTech = -1;
 		string bestExportBodyId = string.Empty;
 		string bestExportCivilizationId = string.Empty;
 		string bestExportCivilizationName = string.Empty;
 		double bestTargetScore = 0.0;
 		int bestTargetCapacity = 0;
 		string bestTargetBodyId = string.Empty;
+		int bestHabitabilityScore = -1;
+		int bestResourceScore = -1;
+		int bestSummaryPopulation = -1;
+		string bestGovernmentSummary = string.Empty;
 
 		foreach (CelestialBody body in system.Bodies.Values)
 		{
@@ -779,8 +727,22 @@ public partial class GalaxyViewer
 
 			PlanetPopulationData data = body.PopulationData;
 			ColonySuitability? suitability = data.Suitability;
+			if (data.Profile != null)
+			{
+				if (data.Profile.HabitabilityScore > bestHabitabilityScore)
+				{
+					bestHabitabilityScore = data.Profile.HabitabilityScore;
+				}
+			}
+
 			if (suitability != null)
 			{
+				int resourceScore = suitability.GetFactorScore(ColonySuitability.FactorType.Resources);
+				if (resourceScore > bestResourceScore)
+				{
+					bestResourceScore = resourceScore;
+				}
+
 				double targetScore = ColonizationRouteCalculator.CalculateColonyTargetScore(suitability);
 				int targetCapacity = suitability.CarryingCapacity;
 				bool replaceTarget = false;
@@ -808,13 +770,26 @@ public partial class GalaxyViewer
 			}
 
 			int bodyPopulation = data.GetTotalPopulation();
+			int bodyTech = ResolveHighestExportTechLevel(data);
+			if (bodyTech > bestObservedTech)
+			{
+				bestObservedTech = bodyTech;
+			}
+
+			string governmentSummary = ResolveDominantGovernmentSummary(data);
+			if (bodyPopulation > bestSummaryPopulation && !string.IsNullOrEmpty(governmentSummary))
+			{
+				bestSummaryPopulation = bodyPopulation;
+				bestGovernmentSummary = governmentSummary;
+			}
+
 			if (bodyPopulation <= 0 || suitability == null)
 			{
 				continue;
 			}
 
 			int carryingCapacity = suitability.CarryingCapacity;
-			int exportTech = ResolveHighestExportTechLevel(data);
+			int exportTech = bodyTech;
 			if (exportTech < (int)TechnologyLevel.Level.Interstellar)
 			{
 				continue;
@@ -854,6 +829,10 @@ public partial class GalaxyViewer
 		routeSystem.ColonyTargetScore = bestTargetScore;
 		routeSystem.ColonyTargetCapacity = bestTargetCapacity;
 		routeSystem.ColonyTargetBodyId = bestTargetBodyId;
+		routeSystem.HabitabilityScore = bestHabitabilityScore;
+		routeSystem.ResourceScore = bestResourceScore;
+		routeSystem.GovernmentSummary = bestGovernmentSummary;
+		routeSystem.RouteTechnologyLevel = bestObservedTech;
 		if (bestExportTech >= (int)TechnologyLevel.Level.Interstellar)
 		{
 			routeSystem.CanExportColonists = true;
@@ -965,6 +944,42 @@ public partial class GalaxyViewer
 		return highestTech;
 	}
 
+	private static string ResolveDominantGovernmentSummary(PlanetPopulationData data)
+	{
+		int bestPopulation = -1;
+		string regime = string.Empty;
+
+		foreach (NativePopulation nativePopulation in data.NativePopulations)
+		{
+			if (!nativePopulation.IsExtant)
+			{
+				continue;
+			}
+
+			if (nativePopulation.Population > bestPopulation)
+			{
+				bestPopulation = nativePopulation.Population;
+				regime = GovernmentType.ToStringName(nativePopulation.GetRegime());
+			}
+		}
+
+		foreach (Colony colony in data.Colonies)
+		{
+			if (!colony.IsActive)
+			{
+				continue;
+			}
+
+			if (colony.Population > bestPopulation)
+			{
+				bestPopulation = colony.Population;
+				regime = GovernmentType.ToStringName(colony.GetRegime());
+			}
+		}
+
+		return regime;
+	}
+
 	private bool UseTravellerRouteMode()
 	{
 		return _galaxyConfig != null
@@ -987,6 +1002,10 @@ public partial class GalaxyViewer
 		clone.ColonyTargetBodyId = source.ColonyTargetBodyId;
 		clone.ExportCivilizationId = source.ExportCivilizationId;
 		clone.ExportCivilizationName = source.ExportCivilizationName;
+		clone.HabitabilityScore = source.HabitabilityScore;
+		clone.ResourceScore = source.ResourceScore;
+		clone.GovernmentSummary = source.GovernmentSummary;
+		clone.TradeCodesSummary = source.TradeCodesSummary;
 		if (source.TravellerProfile != null)
 		{
 			clone.TravellerProfile = TravellerSystemProfile.FromDictionary(source.TravellerProfile.ToDictionary());

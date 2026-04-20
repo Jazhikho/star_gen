@@ -1,12 +1,19 @@
 # Version
 
-Current version: `0.8.17.4`
+Current version: `0.8.18.0`
 
 Current user-facing version: `0.9d`
 
 Date: `2026-04-20`
 
 Versioning method: release/refactor `+0.1`, feature `+0.0.1`, bug fix `+0.0.0.1`, save-breaking release `+1.0`.
+
+## 0.8.18.0
+
+- Feature: Galaxy Viewer now reports live `Quadrant`, `Sector`, and `Local` coordinates in the overview block, and selected stars now add full hierarchical system coordinates to `System Preview`.
+- Feature: Replaced the old `View`/`Window` menu split with `Tools` and `Options`, added a viewer-local options dialog, and introduced `Build Local Space` so lazy nearby systems can be explicitly profiled and cached before follow-up tools run.
+- Feature: Local-space caching now builds and retains system summaries per nearby star, including population, tech, government, trade-code, habitability, resource, and desirability data through the existing jump-lane region payload.
+- Test: Added viewer-scene regression coverage for the new menu layout and local-space cache build path, plus formatter coverage for sector-aware overview coordinates and hierarchical system-coordinate formatting; `dotnet build StarGen.sln` passed, and the headless harness passed (`1830 / 1830`).
 
 ## 0.8.17.4
 

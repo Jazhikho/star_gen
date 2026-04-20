@@ -77,6 +77,24 @@ public partial class GalaxyViewer : Node3D, IGalaxyViewerSavedStateHost
 	internal Button? _saveButton;
 	internal Button? _loadButton;
 	internal Button? _newGalaxyButton;
+	internal Window? _optionsDialog;
+	internal CheckButton? _fullscreenCheck;
+	internal CheckButton? _showSeedControlsCheck;
+	internal CheckButton? _skipIntroCheck;
+	internal OptionButton? _resolutionOption;
+	internal Button? _applyOptionsButton;
+	internal Label? _optionsStatusLabel;
+	internal Button? _optionsDialogCloseButton;
+	internal Window? _buildLocalSpaceDialog;
+	internal SpinBox? _localSpaceExtentXInput;
+	internal SpinBox? _localSpaceExtentYInput;
+	internal SpinBox? _localSpaceExtentZInput;
+	internal Label? _localSpaceAreaLabel;
+	internal Label? _localSpaceStarCountLabel;
+	internal Label? _localSpaceWarningLabel;
+	internal Label? _localSpaceStatusLabel;
+	internal Button? _buildLocalSpaceRunButton;
+	internal Button? _buildLocalSpaceCloseButton;
 
 	internal Galaxy? _galaxy;
 	internal GalaxySpec? _spec;
@@ -119,6 +137,9 @@ public partial class GalaxyViewer : Node3D, IGalaxyViewerSavedStateHost
 	internal Vector3 _lastInspectorDisplayPosition = Vector3.Zero;
 	internal int _lastInspectorSelectedStarSeed = -1;
 	internal int _lastInspectorZoomLevel = -1;
+	internal GalaxyLocalSpaceCache? _localSpaceCache;
+	internal SubSectorNeighborhoodData? _localSpacePreviewData;
+	internal bool _isBuildingLocalSpace;
 
 	/// <summary>
 	/// Initializes controller state and helper objects.

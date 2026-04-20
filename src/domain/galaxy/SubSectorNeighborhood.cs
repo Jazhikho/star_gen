@@ -27,19 +27,41 @@ public static class SubSectorNeighborhood
         DensityModelInterface densityModel,
         float referenceDensity)
     {
+        return Build(
+            cameraPosition,
+            galaxySeed,
+            densityModel,
+            referenceDensity,
+            new Vector3I(Extent, Extent, Extent));
+    }
+
+    /// <summary>
+    /// Builds the full neighborhood around a camera position for custom subsector extents.
+    /// </summary>
+    public static SubSectorNeighborhoodData Build(
+        Vector3 cameraPosition,
+        long galaxySeed,
+        DensityModelInterface densityModel,
+        float referenceDensity,
+        Vector3I extent)
+    {
         Vector3 centerOrigin = GalaxyCoordinates.GetSubsectorWorldOrigin(cameraPosition);
         float subsectorSize = (float)GalaxyCoordinates.SubsectorSizePc;
         List<Vector3> starPositions = new();
         List<long> starSeeds = new();
         List<int> starShells = new();
-        List<Vector3> subsectorOrigins = new(TotalSubsectors);
-        List<int> subsectorShells = new(TotalSubsectors);
+        Vector3I clampedExtent = new(
+            System.Math.Max(extent.X, 0),
+            System.Math.Max(extent.Y, 0),
+            System.Math.Max(extent.Z, 0));
+        List<Vector3> subsectorOrigins = new(GetTotalSubsectors(clampedExtent));
+        List<int> subsectorShells = new(GetTotalSubsectors(clampedExtent));
 
-        for (int dx = -Extent; dx <= Extent; dx += 1)
+        for (int dx = -clampedExtent.X; dx <= clampedExtent.X; dx += 1)
         {
-            for (int dy = -Extent; dy <= Extent; dy += 1)
+            for (int dy = -clampedExtent.Y; dy <= clampedExtent.Y; dy += 1)
             {
-                for (int dz = -Extent; dz <= Extent; dz += 1)
+                for (int dz = -clampedExtent.Z; dz <= clampedExtent.Z; dz += 1)
                 {
                     int shell = GetChebyshevDistance(dx, dy, dz);
                     Vector3 offsetOrigin = centerOrigin + new Vector3(dx * subsectorSize, dy * subsectorSize, dz * subsectorSize);
@@ -64,6 +86,7 @@ public static class SubSectorNeighborhood
 
         return new SubSectorNeighborhoodData
         {
+            Extent = clampedExtent,
             StarPositions = starPositions.ToArray(),
             StarSeeds = starSeeds.ToArray(),
             StarShells = starShells.ToArray(),
@@ -71,6 +94,17 @@ public static class SubSectorNeighborhood
             SubsectorShells = subsectorShells.ToArray(),
             CenterOrigin = centerOrigin,
         };
+    }
+
+    /// <summary>
+    /// Returns the total number of subsectors covered by the supplied extents.
+    /// </summary>
+    public static int GetTotalSubsectors(Vector3I extent)
+    {
+        int width = (System.Math.Max(extent.X, 0) * 2) + 1;
+        int height = (System.Math.Max(extent.Y, 0) * 2) + 1;
+        int depth = (System.Math.Max(extent.Z, 0) * 2) + 1;
+        return width * height * depth;
     }
 
     /// <summary>

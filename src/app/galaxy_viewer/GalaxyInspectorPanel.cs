@@ -194,6 +194,7 @@ public partial class GalaxyInspectorPanel : VBoxContainer
 			AddProperty(_selectionContainer, "Seed", spec.GalaxySeed.ToString());
 		}
 		AddProperty(_selectionContainer, "Quadrant", FormatVector3I(locationSummary.Quadrant));
+		AddProperty(_selectionContainer, "Sector", FormatVector3I(locationSummary.Sector));
 		AddProperty(_selectionContainer, "Local", FormatVector3I(locationSummary.LocalGrid));
 		AddProperty(_selectionContainer, "Density", density.ToString("0.0000"));
 		AddProperty(_selectionContainer, "Azimuth", $"{locationSummary.AzimuthDegrees:0.0} deg");
@@ -259,6 +260,12 @@ public partial class GalaxyInspectorPanel : VBoxContainer
 			return;
 		}
 
+		GalaxyInspectorSelectionFormatter.SelectionLocationSummary locationSummary =
+			GalaxyInspectorSelectionFormatter.Build(_selectedStarPosition);
+		AddProperty(
+			_previewContainer,
+			"Coordinates",
+			GalaxyInspectorSelectionFormatter.FormatHierarchicalCoordinates(locationSummary));
 		AddProperty(_previewContainer, "Stars", BuildStarPreviewSummary(preview));
 		AddProperty(_previewContainer, "Bodies", $"{preview.PlanetCount} planets, {preview.MoonCount} moons, {preview.BeltCount} belts");
 		AddProperty(_previewContainer, "Settlement", BuildSettlementPreviewSummary(preview));

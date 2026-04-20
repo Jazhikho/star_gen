@@ -8,6 +8,11 @@ namespace StarGen.Domain.Galaxy;
 public partial class SubSectorNeighborhoodData : RefCounted
 {
     /// <summary>
+    /// Inclusive subsector extents from the center origin in each direction.
+    /// </summary>
+    public Vector3I Extent = Vector3I.Zero;
+
+    /// <summary>
     /// Combined star positions across the neighborhood.
     /// </summary>
     public Vector3[] StarPositions = System.Array.Empty<Vector3>();

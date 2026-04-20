@@ -13,12 +13,14 @@ internal static class GalaxyInspectorSelectionFormatter
 	{
 		public SelectionLocationSummary(
 			Vector3I quadrant,
+			Vector3I sector,
 			Vector3I localGrid,
 			double azimuthDegrees,
 			double inclinationDegrees,
 			double distanceFromCorePc)
 		{
 			Quadrant = quadrant;
+			Sector = sector;
 			LocalGrid = localGrid;
 			AzimuthDegrees = azimuthDegrees;
 			InclinationDegrees = inclinationDegrees;
@@ -26,6 +28,8 @@ internal static class GalaxyInspectorSelectionFormatter
 		}
 
 		public Vector3I Quadrant { get; }
+
+		public Vector3I Sector { get; }
 
 		public Vector3I LocalGrid { get; }
 
@@ -41,7 +45,7 @@ internal static class GalaxyInspectorSelectionFormatter
 	/// </summary>
 	public static SelectionLocationSummary Build(Vector3 worldPosition)
 	{
-		Vector3I quadrant = GalaxyCoordinates.ParsecToQuadrant(worldPosition);
+		HierarchyCoords hierarchy = GalaxyCoordinates.ParsecToHierarchy(worldPosition);
 		Vector3 subsectorOrigin = GalaxyCoordinates.GetSubsectorWorldOrigin(worldPosition);
 		Vector3 localOffset = worldPosition - subsectorOrigin;
 		Vector3I localGrid = new(
@@ -61,11 +65,20 @@ internal static class GalaxyInspectorSelectionFormatter
 		}
 
 		return new SelectionLocationSummary(
-			quadrant,
+			hierarchy.QuadrantCoords,
+			hierarchy.SectorLocalCoords,
 			localGrid,
 			ComputeAzimuthDegreesFromHome(worldPosition),
 			inclinationDegrees,
 			planarDistance);
+	}
+
+	/// <summary>
+	/// Formats a hierarchy summary as a compact nine-component coordinate string.
+	/// </summary>
+	public static string FormatHierarchicalCoordinates(SelectionLocationSummary summary)
+	{
+		return $"Q{FormatVector(summary.Quadrant)} S{FormatVector(summary.Sector)} L{FormatVector(summary.LocalGrid)}";
 	}
 
 	/// <summary>
@@ -104,5 +117,10 @@ internal static class GalaxyInspectorSelectionFormatter
 	private static int ClampGridCoordinate(float value)
 	{
 		return Math.Clamp((int)Math.Floor(value), 0, 9);
+	}
+
+	private static string FormatVector(Vector3I value)
+	{
+		return $"({value.X}, {value.Y}, {value.Z})";
 	}
 }

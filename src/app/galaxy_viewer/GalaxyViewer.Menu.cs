@@ -1,6 +1,4 @@
-using System.Collections.Generic;
 using Godot;
-using StarGen.Services.Persistence;
 
 namespace StarGen.App.GalaxyViewer;
 
@@ -11,9 +9,8 @@ public partial class GalaxyViewer
 {
 	private const int FileMenuNewGalaxyId = 1;
 	private const int FileMenuReturnToMainMenuId = 2;
-	private const int ViewMenuCalculateRoutesId = 20;
-	private const int WindowMenuFullscreenId = 30;
-	private const int WindowMenuResolutionBaseId = 100;
+	private const int ToolsMenuBuildLocalSpaceId = 20;
+	private const int ToolsMenuCalculateRoutesId = 21;
 	private const int HelpMenuControlsId = 40;
 
 	private void SetupTopMenu()
@@ -25,8 +22,8 @@ public partial class GalaxyViewer
 		}
 
 		ConfigureFileMenu(CreateMenuButton(menuRow, "File"));
-		ConfigureViewMenu(CreateMenuButton(menuRow, "View"));
-		ConfigureWindowMenu(CreateMenuButton(menuRow, "Window"));
+		ConfigureToolsMenu(CreateMenuButton(menuRow, "Tools"));
+		ConfigureOptionsButton(CreateActionButton(menuRow, "Options"));
 		ConfigureHelpMenu(CreateMenuButton(menuRow, "Help"));
 	}
 
@@ -41,6 +38,18 @@ public partial class GalaxyViewer
 		return button;
 	}
 
+	private static Button CreateActionButton(HBoxContainer menuRow, string title)
+	{
+		Button button = new()
+		{
+			Text = title,
+			FocusMode = Control.FocusModeEnum.None,
+			Flat = true,
+		};
+		menuRow.AddChild(button);
+		return button;
+	}
+
 	private void ConfigureFileMenu(MenuButton menuButton)
 	{
 		PopupMenu popup = menuButton.GetPopup();
@@ -49,20 +58,17 @@ public partial class GalaxyViewer
 		popup.AddItem("Return to Main Menu", FileMenuReturnToMainMenuId);
 	}
 
-	private void ConfigureViewMenu(MenuButton menuButton)
+	private void ConfigureToolsMenu(MenuButton menuButton)
 	{
 		PopupMenu popup = menuButton.GetPopup();
-		popup.IdPressed += OnViewMenuIdPressed;
-		popup.AboutToPopup += () => RebuildViewMenu(popup);
-		RebuildViewMenu(popup);
+		popup.IdPressed += OnToolsMenuIdPressed;
+		popup.AboutToPopup += () => RebuildToolsMenu(popup);
+		RebuildToolsMenu(popup);
 	}
 
-	private void ConfigureWindowMenu(MenuButton menuButton)
+	private void ConfigureOptionsButton(Button button)
 	{
-		PopupMenu popup = menuButton.GetPopup();
-		popup.IdPressed += OnWindowMenuIdPressed;
-		popup.AboutToPopup += () => RebuildWindowMenu(popup);
-		RebuildWindowMenu(popup);
+		button.Pressed += OpenOptionsDialog;
 	}
 
 	private void ConfigureHelpMenu(MenuButton menuButton)
@@ -72,30 +78,20 @@ public partial class GalaxyViewer
 		popup.IdPressed += OnHelpMenuIdPressed;
 	}
 
-	private void RebuildViewMenu(PopupMenu popup)
+	private void RebuildToolsMenu(PopupMenu popup)
 	{
 		popup.Clear();
-		popup.AddItem("Calculate Jump Routes", ViewMenuCalculateRoutesId);
-	}
-
-	private void RebuildWindowMenu(PopupMenu popup)
-	{
-		popup.Clear();
-		WindowSettingsService.WindowSettingsState currentSettings = WindowSettingsService.CaptureCurrent();
-		popup.AddCheckItem("Fullscreen", WindowMenuFullscreenId);
-		popup.SetItemChecked(popup.ItemCount - 1, currentSettings.Fullscreen);
-		popup.AddSeparator();
-
-		IReadOnlyList<Vector2I> resolutions = WindowSettingsService.GetCommonResolutions();
-		for (int index = 0; index < resolutions.Count; index += 1)
+		popup.AddItem("Build Local Space...", ToolsMenuBuildLocalSpaceId);
+		if (!IsSubsectorActive())
 		{
-			Vector2I resolution = resolutions[index];
-			popup.AddCheckItem(
-				WindowSettingsService.FormatResolutionLabel(resolution),
-				WindowMenuResolutionBaseId + index);
-			bool isChecked = !currentSettings.Fullscreen && resolution == currentSettings.Resolution;
-			popup.SetItemChecked(popup.ItemCount - 1, isChecked);
-			popup.SetItemDisabled(popup.ItemCount - 1, currentSettings.Fullscreen);
+			popup.SetItemDisabled(popup.ItemCount - 1, true);
+		}
+
+		popup.AddSeparator();
+		popup.AddItem("Calculate Jump Routes", ToolsMenuCalculateRoutesId);
+		if (GetActiveLocalSpaceCache() == null)
+		{
+			popup.SetItemDisabled(popup.ItemCount - 1, true);
 		}
 	}
 
@@ -113,49 +109,18 @@ public partial class GalaxyViewer
 		}
 	}
 
-	private void OnViewMenuIdPressed(long id)
+	private void OnToolsMenuIdPressed(long id)
 	{
-		if (id == ViewMenuCalculateRoutesId)
+		if (id == ToolsMenuBuildLocalSpaceId)
+		{
+			OpenBuildLocalSpaceDialog();
+			return;
+		}
+
+		if (id == ToolsMenuCalculateRoutesId)
 		{
 			CalculateJumpRoutesForCurrentSubsector();
 		}
-	}
-
-	private void OnWindowMenuIdPressed(long id)
-	{
-		if (id == WindowMenuFullscreenId)
-		{
-			WindowSettingsService.WindowSettingsState currentSettings = WindowSettingsService.CaptureCurrent();
-			WindowSettingsService.WindowSettingsState updatedSettings =
-				new WindowSettingsService.WindowSettingsState(!currentSettings.Fullscreen, currentSettings.Resolution);
-			WindowSettingsService.ApplyAndSave(updatedSettings);
-			if (updatedSettings.Fullscreen)
-			{
-				SetStatus("Window menu applied fullscreen mode");
-			}
-			else
-			{
-				SetStatus($"Window menu applied {updatedSettings.Resolution.X} x {updatedSettings.Resolution.Y}");
-			}
-
-			return;
-		}
-
-		if (id < WindowMenuResolutionBaseId)
-		{
-			return;
-		}
-
-		int resolutionIndex = (int)(id - WindowMenuResolutionBaseId);
-		IReadOnlyList<Vector2I> resolutions = WindowSettingsService.GetCommonResolutions();
-		if (resolutionIndex < 0 || resolutionIndex >= resolutions.Count)
-		{
-			return;
-		}
-
-		Vector2I resolution = resolutions[resolutionIndex];
-		WindowSettingsService.ApplyAndSave(new WindowSettingsService.WindowSettingsState(false, resolution));
-		SetStatus($"Window menu applied {resolution.X} x {resolution.Y}");
 	}
 
 	private void OnHelpMenuIdPressed(long id)
