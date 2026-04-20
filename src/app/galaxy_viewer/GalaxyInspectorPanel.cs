@@ -7,6 +7,7 @@ using StarGen.Domain.Colonization;
 using StarGen.Domain.Generation;
 using StarGen.Domain.Generation.Parameters;
 using StarGen.Domain.Galaxy;
+using StarGen.Services.Persistence;
 
 namespace StarGen.App.GalaxyViewer;
 
@@ -42,6 +43,7 @@ public partial class GalaxyInspectorPanel : VBoxContainer
 	private int _selectedStarSeed;
 	private Vector3 _selectedStarPosition = Vector3.Zero;
 	private StarSystemPreviewData? _currentPreview;
+	private bool _showSeedControls;
 
 	private VBoxContainer? _overviewContainer;
 	private VBoxContainer? _configEditorContainer;
@@ -167,74 +169,39 @@ public partial class GalaxyInspectorPanel : VBoxContainer
 	}
 
 	/// <summary>
-	/// Displays selected quadrant information.
+	/// Displays the live overview details for the active galaxy location.
 	/// </summary>
-	public void display_selected_quadrant(Vector3I coords, float density)
-	{
-		DisplaySelectedQuadrant(coords, density);
-	}
-
-	/// <summary>
-	/// Displays selected quadrant information.
-	/// </summary>
-	public void DisplaySelectedQuadrant(Vector3I coords, float density)
+	public void DisplayOverview(GalaxySpec? spec, Vector3 worldPosition, float density)
 	{
 		ClearContainer(_selectionContainer);
-		ClearStarSelection();
 		if (_selectionContainer == null)
 		{
 			return;
 		}
 
-		AddProperty(_selectionContainer, "Type", "Quadrant");
-		AddProperty(_selectionContainer, "Coordinates", FormatVector3I(coords));
-		AddProperty(_selectionContainer, "Density", density.ToString("0.0000"));
-
-		Vector3 center = GalaxyCoordinates.QuadrantToParsecCenter(coords);
-		double distKpc = center.Length() / 1000.0;
-		AddProperty(_selectionContainer, "Distance", $"{distKpc:0.00} kpc");
-	}
-
-	/// <summary>
-	/// Compatibility overload accepting double density.
-	/// </summary>
-	public void DisplaySelectedQuadrant(Vector3I coords, double density)
-	{
-		DisplaySelectedQuadrant(coords, (float)density);
-	}
-
-	/// <summary>
-	/// Displays selected sector information.
-	/// </summary>
-	public void display_selected_sector(Vector3I quadrantCoords, Vector3I sectorCoords, float density)
-	{
-		DisplaySelectedSector(quadrantCoords, sectorCoords, density);
-	}
-
-	/// <summary>
-	/// Displays selected sector information.
-	/// </summary>
-	public void DisplaySelectedSector(Vector3I quadrantCoords, Vector3I sectorCoords, float density)
-	{
-		ClearContainer(_selectionContainer);
-		ClearStarSelection();
-		if (_selectionContainer == null)
+		if (spec == null)
 		{
+			AddProperty(_selectionContainer, "Status", "No galaxy loaded");
 			return;
 		}
 
-		AddProperty(_selectionContainer, "Type", "Sector");
-		AddProperty(_selectionContainer, "Quadrant", FormatVector3I(quadrantCoords));
-		AddProperty(_selectionContainer, "Local", FormatVector3I(sectorCoords));
-		AddProperty(_selectionContainer, "Density", density.ToString("0.0000"));
-	}
+		GalaxyInspectorSelectionFormatter.SelectionLocationSummary locationSummary =
+			GalaxyInspectorSelectionFormatter.Build(worldPosition);
 
-	/// <summary>
-	/// Compatibility overload accepting double density.
-	/// </summary>
-	public void DisplaySelectedSector(Vector3I quadrantCoords, Vector3I sectorCoords, double density)
-	{
-		DisplaySelectedSector(quadrantCoords, sectorCoords, (float)density);
+		AddProperty(_selectionContainer, "Type", GetGalaxyTypeName(spec.Type));
+		if (_showSeedControls)
+		{
+			AddProperty(_selectionContainer, "Seed", spec.GalaxySeed.ToString());
+		}
+		AddProperty(_selectionContainer, "Quadrant", FormatVector3I(locationSummary.Quadrant));
+		AddProperty(_selectionContainer, "Local", FormatVector3I(locationSummary.LocalGrid));
+		AddProperty(_selectionContainer, "Density", density.ToString("0.0000"));
+		AddProperty(_selectionContainer, "Azimuth", $"{locationSummary.AzimuthDegrees:0.0} deg");
+		AddProperty(_selectionContainer, "Inclination", $"{locationSummary.InclinationDegrees:0.0} deg");
+		AddProperty(
+			_selectionContainer,
+			"Distance from Core",
+			GalaxyInspectorSelectionFormatter.FormatDistanceFromCore(locationSummary.DistanceFromCorePc));
 	}
 
 	/// <summary>
@@ -250,35 +217,9 @@ public partial class GalaxyInspectorPanel : VBoxContainer
 	/// </summary>
 	public void DisplaySelectedStar(Vector3 worldPosition, int starSeed)
 	{
-		DisplaySelectedStar(worldPosition, starSeed, worldPosition);
-	}
-
-	/// <summary>
-	/// Displays selected star information relative to the active view position.
-	/// </summary>
-	public void DisplaySelectedStar(Vector3 worldPosition, int starSeed, Vector3 referencePosition)
-	{
-		ClearContainer(_selectionContainer);
 		_selectedStarSeed = starSeed;
 		_currentPreview = null;
 		_selectedStarPosition = worldPosition;
-
-		if (_selectionContainer != null)
-		{
-			GalaxyInspectorSelectionFormatter.SelectionLocationSummary locationSummary =
-				GalaxyInspectorSelectionFormatter.Build(worldPosition, referencePosition);
-
-			AddProperty(_selectionContainer, "Type", "Star System");
-			AddProperty(_selectionContainer, "Seed", starSeed.ToString());
-			AddProperty(_selectionContainer, "Quadrant", FormatVector3I(locationSummary.CurrentQuadrant));
-			AddProperty(_selectionContainer, "Local XYZ", FormatVector3I(locationSummary.LocalGrid));
-			AddProperty(_selectionContainer, "Azimuth", $"{locationSummary.AzimuthDegrees:0.0} deg");
-			AddProperty(_selectionContainer, "Inclination", $"{locationSummary.InclinationDegrees:0.0} deg");
-			AddProperty(
-				_selectionContainer,
-				"Distance from Core",
-				GalaxyInspectorSelectionFormatter.FormatDistanceFromCore(locationSummary.DistanceFromCorePc));
-		}
 
 		if (_openSystemButton != null)
 		{
@@ -336,16 +277,11 @@ public partial class GalaxyInspectorPanel : VBoxContainer
 	/// </summary>
 	public void ClearSelection()
 	{
-		ClearContainer(_selectionContainer);
 		ClearContainer(_previewContainer);
 		ClearStarSelection();
-		if (_selectionContainer != null)
-		{
-			AddProperty(_selectionContainer, "Status", "Nothing selected");
-		}
 		if (_previewContainer != null)
 		{
-			AddProperty(_previewContainer, "Status", "Select a star to preview");
+			AddProperty(_previewContainer, "Status", "No system selected");
 		}
 	}
 
@@ -639,10 +575,11 @@ public partial class GalaxyInspectorPanel : VBoxContainer
 			_colonizationSection.Visible = false;
 		}
 
+		_showSeedControls = StudioUiPreferencesService.LoadOrDefault().ShowSeedControls;
 		ClearContainer(_selectionContainer);
 		ClearContainer(_previewContainer);
-		AddProperty(_selectionContainer, "Status", "Nothing selected");
-		AddProperty(_previewContainer, "Status", "Select a star to preview");
+		AddProperty(_selectionContainer, "Status", "No galaxy loaded");
+		AddProperty(_previewContainer, "Status", "No system selected");
 		SetConfigIssues(new GenerationParameterIssueSet());
 		RebuildProfileSummary();
 	}
@@ -975,6 +912,7 @@ public partial class GalaxyInspectorPanel : VBoxContainer
 		{
 			GalaxySpec.GalaxyType.Spiral => "Spiral",
 			GalaxySpec.GalaxyType.Elliptical => "Elliptical",
+			GalaxySpec.GalaxyType.Lenticular => "Lenticular",
 			GalaxySpec.GalaxyType.Irregular => "Irregular",
 			_ => "Unknown",
 		};

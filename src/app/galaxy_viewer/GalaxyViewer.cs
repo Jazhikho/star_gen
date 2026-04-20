@@ -72,8 +72,6 @@ public partial class GalaxyViewer : Node3D, IGalaxyViewerSavedStateHost
 	internal Control? _uiRoot;
 	internal Control? _topBar;
 	internal Control? _sidePanel;
-	internal SpinBox? _seedInput;
-	internal CheckBox? _showCompassCheck;
 	internal Node? _inspectorPanel;
 	internal Control? _saveLoadSection;
 	internal Button? _saveButton;
@@ -91,7 +89,6 @@ public partial class GalaxyViewer : Node3D, IGalaxyViewerSavedStateHost
 	internal GridCursor? _sectorCursor;
 	internal OrbitCamera? _orbitCamera;
 	internal StarViewCamera? _starCamera;
-	internal NavigationCompass? _compass;
 	internal SelectionIndicator? _selectionIndicator;
 	internal Node? _sectorRenderer;
 	internal Node? _neighborhoodRenderer;
@@ -118,6 +115,10 @@ public partial class GalaxyViewer : Node3D, IGalaxyViewerSavedStateHost
 	internal int _jumpRouteCalculationGeneration;
 	internal readonly GalaxyViewerSaveLoad _saveLoad = new();
 	internal Rect2 _renderAreaRect = new Rect2();
+	internal bool _hasInspectorDisplayPosition;
+	internal Vector3 _lastInspectorDisplayPosition = Vector3.Zero;
+	internal int _lastInspectorSelectedStarSeed = -1;
+	internal int _lastInspectorZoomLevel = -1;
 
 	/// <summary>
 	/// Initializes controller state and helper objects.
@@ -129,7 +130,6 @@ public partial class GalaxyViewer : Node3D, IGalaxyViewerSavedStateHost
 		BuildStaticRenderers();
 		SetupTopMenu();
 		ConnectUiSignals();
-		UpdateSeedDisplay();
 
 		if (StartAtHome)
 		{
@@ -149,11 +149,7 @@ public partial class GalaxyViewer : Node3D, IGalaxyViewerSavedStateHost
 	public override void _Process(double delta)
 	{
 		UpdatePanelAwareFraming();
-
-		if (_compass != null && _compass.Visible && _orbitCamera != null)
-		{
-			_compass.SyncRotation(_orbitCamera.GetYawDeg(), _orbitCamera.GetPitchDeg());
-		}
+		UpdateInspectorForMovement();
 	}
 
 	/// <summary>

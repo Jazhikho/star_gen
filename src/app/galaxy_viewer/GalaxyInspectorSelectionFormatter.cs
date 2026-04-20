@@ -12,20 +12,20 @@ internal static class GalaxyInspectorSelectionFormatter
 	internal readonly struct SelectionLocationSummary
 	{
 		public SelectionLocationSummary(
-			Vector3I currentQuadrant,
+			Vector3I quadrant,
 			Vector3I localGrid,
 			double azimuthDegrees,
 			double inclinationDegrees,
 			double distanceFromCorePc)
 		{
-			CurrentQuadrant = currentQuadrant;
+			Quadrant = quadrant;
 			LocalGrid = localGrid;
 			AzimuthDegrees = azimuthDegrees;
 			InclinationDegrees = inclinationDegrees;
 			DistanceFromCorePc = distanceFromCorePc;
 		}
 
-		public Vector3I CurrentQuadrant { get; }
+		public Vector3I Quadrant { get; }
 
 		public Vector3I LocalGrid { get; }
 
@@ -37,11 +37,11 @@ internal static class GalaxyInspectorSelectionFormatter
 	}
 
 	/// <summary>
-	/// Builds the selection summary from the active view position and the selected star-system position.
+	/// Builds the selection summary from the active overview position.
 	/// </summary>
-	public static SelectionLocationSummary Build(Vector3 worldPosition, Vector3 referencePosition)
+	public static SelectionLocationSummary Build(Vector3 worldPosition)
 	{
-		Vector3I currentQuadrant = GalaxyCoordinates.ParsecToQuadrant(referencePosition);
+		Vector3I quadrant = GalaxyCoordinates.ParsecToQuadrant(worldPosition);
 		Vector3 subsectorOrigin = GalaxyCoordinates.GetSubsectorWorldOrigin(worldPosition);
 		Vector3 localOffset = worldPosition - subsectorOrigin;
 		Vector3I localGrid = new(
@@ -61,7 +61,7 @@ internal static class GalaxyInspectorSelectionFormatter
 		}
 
 		return new SelectionLocationSummary(
-			currentQuadrant,
+			quadrant,
 			localGrid,
 			ComputeAzimuthDegreesFromHome(worldPosition),
 			inclinationDegrees,

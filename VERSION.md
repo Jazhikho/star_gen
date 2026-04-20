@@ -1,12 +1,18 @@
 # Version
 
-Current version: `0.8.17.3`
+Current version: `0.8.17.4`
 
 Current user-facing version: `0.9d`
 
 Date: `2026-04-20`
 
 Versioning method: release/refactor `+0.1`, feature `+0.0.1`, bug fix `+0.0.0.1`, save-breaking release `+1.0`.
+
+## 0.8.17.4
+
+- Bug fix: Reworked the Galaxy View inspector into a live overview block that tracks the active location continuously, uses the selected system position only when a system is selected, reports the galaxy type instead of sector/star type, and keeps all system-specific details in the `System Preview` section.
+- Bug fix: Removed the unused top-level galaxy seed control, `Show Compass` control, and compass viewport from the live Galaxy Viewer scene and menu so the inspector only shows the requested overview and preview information.
+- Test: Expanded the Galaxy Viewer regression coverage to assert the old top-level seed and compass controls are gone and that the live inspector block is labeled `Overview`.
 
 ## 0.8.17.3
 

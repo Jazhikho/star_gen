@@ -13,21 +13,19 @@ public static class TestGalaxyInspectorSelectionFormatter
 {
 	public static void TestBuildUsesCurrentQuadrantAndSubsectorGrid()
 	{
-		Vector3 referencePosition = new(1542.0f, 35.0f, -245.0f);
-		Vector3 selectedPosition = new(8123.4f, 27.8f, -45.6f);
+		Vector3 activePosition = new(8123.4f, 27.8f, -45.6f);
 
-		var summary = GalaxyInspectorSelectionFormatter.Build(selectedPosition, referencePosition);
+		var summary = GalaxyInspectorSelectionFormatter.Build(activePosition);
 
-		DotNetNativeTestSuite.AssertEqual(new Vector3I(1, 0, -1), summary.CurrentQuadrant, "quadrant should come from the current local view position");
-		DotNetNativeTestSuite.AssertEqual(new Vector3I(3, 7, 4), summary.LocalGrid, "local XYZ should reflect the selected system position within its subsector grid");
+		DotNetNativeTestSuite.AssertEqual(new Vector3I(8, 0, -1), summary.Quadrant, "quadrant should come from the active overview position");
+		DotNetNativeTestSuite.AssertEqual(new Vector3I(3, 7, 4), summary.LocalGrid, "local coordinates should reflect the active position within its subsector grid");
 	}
 
 	public static void TestBuildComputesHomeRelativePolarReadout()
 	{
-		Vector3 referencePosition = Vector3.Zero;
-		Vector3 selectedPosition = new(0.0f, 100.0f, 100.0f);
+		Vector3 activePosition = new(0.0f, 100.0f, 100.0f);
 
-		var summary = GalaxyInspectorSelectionFormatter.Build(selectedPosition, referencePosition);
+		var summary = GalaxyInspectorSelectionFormatter.Build(activePosition);
 
 		DotNetNativeTestSuite.AssertFloatNear(90.0, summary.AzimuthDegrees, 0.01, "azimuth should measure disk angle from the Earth-home reference direction");
 		DotNetNativeTestSuite.AssertFloatNear(45.0, summary.InclinationDegrees, 0.01, "inclination should measure angle above the galactic center plane");

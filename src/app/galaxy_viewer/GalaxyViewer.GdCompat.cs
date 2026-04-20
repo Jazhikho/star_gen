@@ -113,7 +113,6 @@ public partial class GalaxyViewer
         _spec = _galaxy.Spec;
         InvalidateJumpRoutes();
         BuildStaticRenderers();
-        UpdateSeedDisplay();
         UpdateInspectorState();
         EmitSignal(SignalName.GalaxySeedChanged, GalaxySeed);
     }

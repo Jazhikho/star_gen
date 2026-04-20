@@ -1,4 +1,4 @@
-[gd_scene load_steps=13 format=3]
+[gd_scene load_steps=12 format=3]
 
 [ext_resource type="Script" path="res://src/app/galaxy_viewer/GalaxyViewer.cs" id="1"]
 [ext_resource type="Script" path="res://src/app/galaxy_viewer/GalaxyInspectorPanel.cs" id="2"]
@@ -10,7 +10,6 @@
 [ext_resource type="Script" path="res://src/app/galaxy_viewer/SelectionIndicator.cs" id="8"]
 [ext_resource type="Script" path="res://src/app/galaxy_viewer/OrbitCamera.cs" id="9"]
 [ext_resource type="Script" path="res://src/app/galaxy_viewer/StarViewCamera.cs" id="10"]
-[ext_resource type="Script" path="res://src/app/galaxy_viewer/NavigationCompass.cs" id="11"]
 [ext_resource type="Theme" path="res://src/app/themes/DarkTheme.tres" id="12"]
 
 [sub_resource type="Environment" id="Environment_1"]
@@ -67,14 +66,6 @@ script = ExtResource("10")
 
 [node name="UI" type="CanvasLayer" parent="."]
 layer = 5
-
-[node name="Compass" type="SubViewportContainer" parent="UI"]
-visible = false
-offset_left = 1080.0
-offset_top = 560.0
-offset_right = 1230.0
-offset_bottom = 710.0
-script = ExtResource("11")
 
 [node name="UIRoot" type="Control" parent="UI"]
 layout_mode = 3
@@ -156,30 +147,6 @@ mouse_filter = 0
 layout_mode = 2
 size_flags_horizontal = 3
 theme_override_constants/separation = 8
-
-[node name="GenerationSection" type="VBoxContainer" parent="UI/UIRoot/SidePanel/MarginContainer/ScrollContainer/VBoxContainer"]
-layout_mode = 2
-theme_override_constants/separation = 5
-
-[node name="SeedContainer" type="HBoxContainer" parent="UI/UIRoot/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/GenerationSection"]
-layout_mode = 2
-
-[node name="SeedInput" type="SpinBox" parent="UI/UIRoot/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/GenerationSection/SeedContainer"]
-layout_mode = 2
-size_flags_horizontal = 3
-max_value = 999999.0
-value = 42.0
-rounded = true
-editable = true
-
-[node name="ViewSection" type="VBoxContainer" parent="UI/UIRoot/SidePanel/MarginContainer/ScrollContainer/VBoxContainer"]
-layout_mode = 2
-theme_override_constants/separation = 5
-
-[node name="ShowCompassCheck" type="CheckBox" parent="UI/UIRoot/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/ViewSection"]
-layout_mode = 2
-button_pressed = true
-text = "Show Compass"
 
 [node name="SaveLoadSection" type="VBoxContainer" parent="UI/UIRoot/SidePanel/MarginContainer/ScrollContainer/VBoxContainer"]
 layout_mode = 2
@@ -271,7 +238,7 @@ theme_override_constants/separation = 5
 layout_mode = 2
 theme_override_colors/font_color = Color(0.9, 0.9, 0.9, 1)
 theme_override_font_sizes/font_size = 14
-text = "Selection"
+text = "Overview"
 
 [node name="Divider" type="HSeparator" parent="UI/UIRoot/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/InspectorPanel/SelectionSection"]
 layout_mode = 2

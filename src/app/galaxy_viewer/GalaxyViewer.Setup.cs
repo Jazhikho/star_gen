@@ -31,8 +31,6 @@ public partial class GalaxyViewer
 		_topBar = GetNodeOrNull<Control>("UI/UIRoot/TopBar");
 		_sidePanel = GetNodeOrNull<Control>("UI/UIRoot/SidePanel");
 		_statusLabel = GetNodeOrNull<Label>("UI/UIRoot/TopBar/MarginContainer/TopBarVBox/HeaderRow/StatusLabel");
-		_seedInput = GetNodeOrNull<SpinBox>("UI/UIRoot/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/GenerationSection/SeedContainer/SeedInput");
-		_showCompassCheck = GetNodeOrNull<CheckBox>("UI/UIRoot/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/ViewSection/ShowCompassCheck");
 		_inspectorPanel = GetNodeOrNull<Node>("UI/UIRoot/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/InspectorPanel");
 		_saveLoadSection = GetNodeOrNull<Control>("UI/UIRoot/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/SaveLoadSection");
 		_saveButton = GetNodeOrNull<Button>("UI/UIRoot/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/SaveLoadSection/ButtonContainer/SaveButton");
@@ -57,7 +55,6 @@ public partial class GalaxyViewer
 		_sectorCursor = new GridCursor();
 		_orbitCamera = GetNodeOrNull<OrbitCamera>("OrbitCamera");
 		_starCamera = GetNodeOrNull<StarViewCamera>("StarCamera");
-		_compass = GetNodeOrNull<NavigationCompass>("UI/Compass");
 		_selectionIndicator = GetNodeOrNull<SelectionIndicator>("SelectionIndicator");
 		_sectorRenderer = GetNodeOrNull<Node>("SectorRenderer");
 		_neighborhoodRenderer = GetNodeOrNull<Node>("NeighborhoodRenderer");
@@ -108,11 +105,6 @@ public partial class GalaxyViewer
 			_saveLoadSection.Visible = false;
 		}
 
-		if (_showCompassCheck != null)
-		{
-			_showCompassCheck.Toggled += OnShowCompassToggled;
-		}
-
 		if (_starCamera != null)
 		{
 			_starCamera.SubsectorChanged += OnSubsectorChanged;
@@ -129,17 +121,6 @@ public partial class GalaxyViewer
 	}
 
 	/// <summary>
-	/// Updates the seed display in the sidebar.
-	/// </summary>
-	private void UpdateSeedDisplay()
-	{
-		if (_seedInput != null)
-		{
-			_seedInput.Value = GalaxySeed;
-		}
-	}
-
-	/// <summary>
 	/// Updates orbit-camera framing to account for the left panel and top bar.
 	/// </summary>
 	private void UpdatePanelAwareFraming()
@@ -150,6 +131,33 @@ public partial class GalaxyViewer
 		{
 			_orbitCamera.SetFramingOffset(framingOffset);
 		}
+	}
+
+	/// <summary>
+	/// Refreshes the inspector when the live overview position changes.
+	/// </summary>
+	private void UpdateInspectorForMovement()
+	{
+		if (_inspectorPanel == null || _spec == null || _zoomMachine == null)
+		{
+			return;
+		}
+
+		Vector3 displayPosition = GetInspectorDisplayPosition();
+		int zoomLevel = _zoomMachine.GetCurrentLevel();
+		if (_hasInspectorDisplayPosition
+			&& displayPosition.IsEqualApprox(_lastInspectorDisplayPosition)
+			&& _lastInspectorSelectedStarSeed == _selectedStarSeed
+			&& _lastInspectorZoomLevel == zoomLevel)
+		{
+			return;
+		}
+
+		_hasInspectorDisplayPosition = true;
+		_lastInspectorDisplayPosition = displayPosition;
+		_lastInspectorSelectedStarSeed = _selectedStarSeed;
+		_lastInspectorZoomLevel = zoomLevel;
+		UpdateInspector();
 	}
 
 	/// <summary>
@@ -194,17 +202,6 @@ public partial class GalaxyViewer
 		}
 		ClearStarSelection();
 		UpdateJumpRoutePresentation();
-	}
-
-	/// <summary>
-	/// Toggles compass visibility.
-	/// </summary>
-	private void OnShowCompassToggled(bool visible)
-	{
-		if (_compass != null)
-		{
-			_compass.Visible = visible;
-		}
 	}
 
 	private bool IsSubsectorActive()

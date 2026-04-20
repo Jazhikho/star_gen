@@ -261,13 +261,6 @@ public partial class GalaxyViewer
 			_selectionIndicator?.HideIndicator();
 		}
 
-		if (_compass != null)
-		{
-			_compass.Visible = _showCompassCheck?.ButtonPressed == true
-				&& (level == (int)GalaxyCoordinates.ZoomLevel.Quadrant
-				|| level == (int)GalaxyCoordinates.ZoomLevel.Sector);
-		}
-
 		UpdateInspector();
 	}
 }

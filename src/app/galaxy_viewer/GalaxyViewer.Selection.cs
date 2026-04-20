@@ -46,12 +46,7 @@ public partial class GalaxyViewer
 			sectorRenderer.SetHighlight(default);
 		}
 
-		if (_inspectorPanel is GalaxyInspectorPanel typedInspectorPanel)
-		{
-			float density = _galaxy?.DensityModel.GetDensity(GalaxyCoordinates.QuadrantToParsecCenter(coords)) ?? 0.0f;
-			typedInspectorPanel.DisplaySelectedQuadrant(coords, density);
-		}
-
+		UpdateInspector();
 		SetStatus($"Selected quadrant ({coords.X}, {coords.Y}, {coords.Z})");
 	}
 
@@ -109,19 +104,7 @@ public partial class GalaxyViewer
 			sectorRenderer.SetHighlight(_selectedSector);
 		}
 
-		if (
-			_inspectorPanel is GalaxyInspectorPanel typedInspectorPanel &&
-			_quadrantSelector != null &&
-			_quadrantSelector.HasSelection() &&
-			_quadrantSelector.SelectedCoords.VariantType == Variant.Type.Vector3I)
-		{
-			Vector3I quadrantCoords = (Vector3I)_quadrantSelector.SelectedCoords;
-			Vector3 sectorCenter = GalaxyCoordinates.SectorWorldOrigin(quadrantCoords, coords)
-				+ (Vector3.One * ((float)GalaxyCoordinates.SectorSizePc * 0.5f));
-			float density = _galaxy?.DensityModel.GetDensity(sectorCenter) ?? 0.0f;
-			typedInspectorPanel.DisplaySelectedSector(quadrantCoords, coords, density);
-		}
-
+		UpdateInspector();
 		SetStatus($"Selected sector ({coords.X}, {coords.Y}, {coords.Z})");
 	}
 
@@ -161,28 +144,10 @@ public partial class GalaxyViewer
 		}
 		else
 		{
-		_starPreview = StarSystemPreview.Generate(starSeed, worldPosition, _spec, _galaxyConfig?.UseCaseSettings, _galaxy);
+			_starPreview = StarSystemPreview.Generate(starSeed, worldPosition, _spec, _galaxyConfig?.UseCaseSettings, _galaxy);
 		}
 		_selectionIndicator?.ShowAt(worldPosition);
-		if (_inspectorPanel is GalaxyInspectorPanel typedInspectorPanel)
-		{
-			typedInspectorPanel.DisplaySelectedStar(worldPosition, starSeed, GetCurrentInspectorReferencePosition());
-			typedInspectorPanel.DisplaySystemPreview(_starPreview);
-		}
-		else
-		{
-			_inspectorPanel?.Call("display_selected_star", worldPosition, starSeed);
-			Variant previewVariant;
-			if (_starPreview == null)
-			{
-				previewVariant = default;
-			}
-			else
-			{
-				previewVariant = Variant.CreateFrom(_starPreview);
-			}
-			_inspectorPanel?.Call("display_system_preview", previewVariant);
-		}
+		UpdateInspector();
 	}
 
 	/// <summary>
@@ -198,44 +163,14 @@ public partial class GalaxyViewer
 		if (_inspectorPanel is GalaxyInspectorPanel typedInspectorPanel)
 		{
 			typedInspectorPanel.SetEditableConfig(_galaxyConfig);
-			typedInspectorPanel.DisplayGalaxy(_spec, _zoomMachine.GetCurrentLevel());
+			Vector3 displayPosition = GetInspectorDisplayPosition();
+			float density = _galaxy?.DensityModel.GetDensity(displayPosition) ?? 0.0f;
+			typedInspectorPanel.DisplayOverview(_spec, displayPosition, density);
 
 			if (_selectedStarSeed != 0)
 			{
-				typedInspectorPanel.DisplaySelectedStar(_selectedStarPosition, _selectedStarSeed, GetCurrentInspectorReferencePosition());
-				if (_starPreview != null)
-				{
-					typedInspectorPanel.DisplaySystemPreview(_starPreview);
-				}
-				return;
-			}
-
-			if (
-				(_zoomMachine.GetCurrentLevel() == (int)GalaxyCoordinates.ZoomLevel.Sector
-				|| _zoomMachine.GetCurrentLevel() == (int)GalaxyCoordinates.ZoomLevel.Subsector) &&
-				_selectedSector.VariantType == Variant.Type.Vector3I &&
-				_quadrantSelector != null &&
-				_quadrantSelector.HasSelection() &&
-				_quadrantSelector.SelectedCoords.VariantType == Variant.Type.Vector3I)
-			{
-				Vector3I quadrantCoords = (Vector3I)_quadrantSelector.SelectedCoords;
-				Vector3I sectorCoords = (Vector3I)_selectedSector;
-				Vector3 sectorCenter = GalaxyCoordinates.SectorWorldOrigin(quadrantCoords, sectorCoords)
-					+ (Vector3.One * ((float)GalaxyCoordinates.SectorSizePc * 0.5f));
-				float density = _galaxy?.DensityModel.GetDensity(sectorCenter) ?? 0.0f;
-				typedInspectorPanel.DisplaySelectedSector(quadrantCoords, sectorCoords, density);
-				return;
-			}
-
-			if (
-				_zoomMachine.GetCurrentLevel() == (int)GalaxyCoordinates.ZoomLevel.Quadrant &&
-				_quadrantSelector != null &&
-				_quadrantSelector.HasSelection() &&
-				_quadrantSelector.SelectedCoords.VariantType == Variant.Type.Vector3I)
-			{
-				Vector3I quadrantCoords = (Vector3I)_quadrantSelector.SelectedCoords;
-				float density = _galaxy?.DensityModel.GetDensity(GalaxyCoordinates.QuadrantToParsecCenter(quadrantCoords)) ?? 0.0f;
-				typedInspectorPanel.DisplaySelectedQuadrant(quadrantCoords, density);
+				typedInspectorPanel.DisplaySelectedStar(_selectedStarPosition, _selectedStarSeed);
+				typedInspectorPanel.DisplaySystemPreview(_starPreview);
 				return;
 			}
 
@@ -247,13 +182,23 @@ public partial class GalaxyViewer
 	}
 
 	/// <summary>
-	/// Returns the position that defines the viewer's current local context for inspector readouts.
+	/// Returns the position that defines the live inspector overview.
 	/// </summary>
-	private Vector3 GetCurrentInspectorReferencePosition()
+	private Vector3 GetInspectorDisplayPosition()
 	{
+		if (_selectedStarSeed != 0)
+		{
+			return _selectedStarPosition;
+		}
+
 		if (_starCamera != null && IsSubsectorActive())
 		{
 			return _starCamera.GetCurrentPosition();
+		}
+
+		if (_orbitCamera != null)
+		{
+			return _orbitCamera.GetTarget();
 		}
 
 		if (

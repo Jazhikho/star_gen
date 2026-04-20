@@ -229,6 +229,19 @@ public static partial class DotNetNativeTestSuite
             AssertTrue(!panel!.IsConfigSectionVisible(), "galaxy viewer inspector should hide the legacy active-profile section");
             AssertTrue(!panel.IsOverviewSectionVisible(), "galaxy viewer inspector should hide the legacy overview section");
             AssertTrue(!panel.IsColonizationSectionVisible(), "galaxy viewer inspector should hide the jump-route tools section");
+
+            SpinBox? seedInput = viewer.GetNodeOrNull<SpinBox>("UI/UIRoot/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/GenerationSection/SeedContainer/SeedInput");
+            AssertTrue(seedInput == null, "galaxy viewer should not expose the old top-level seed input");
+
+            CheckBox? showCompassCheck = viewer.GetNodeOrNull<CheckBox>("UI/UIRoot/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/ViewSection/ShowCompassCheck");
+            AssertTrue(showCompassCheck == null, "galaxy viewer should not expose the old show-compass checkbox");
+
+            Node? compass = viewer.GetNodeOrNull<Node>("UI/Compass");
+            AssertTrue(compass == null, "galaxy viewer should not mount the unused compass viewport");
+
+            Label? overviewTitle = viewer.GetNodeOrNull<Label>("UI/UIRoot/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/InspectorPanel/SelectionSection/TitleLabel");
+            AssertNotNull(overviewTitle, "galaxy viewer should still expose the overview title label");
+            AssertEqual("Overview", overviewTitle!.Text, "galaxy viewer inspector should label the live location block as Overview");
         }
         finally
         {

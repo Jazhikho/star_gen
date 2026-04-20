@@ -11,8 +11,7 @@ public partial class GalaxyViewer
 {
 	private const int FileMenuNewGalaxyId = 1;
 	private const int FileMenuReturnToMainMenuId = 2;
-	private const int ViewMenuShowCompassId = 20;
-	private const int ViewMenuCalculateRoutesId = 21;
+	private const int ViewMenuCalculateRoutesId = 20;
 	private const int WindowMenuFullscreenId = 30;
 	private const int WindowMenuResolutionBaseId = 100;
 	private const int HelpMenuControlsId = 40;
@@ -76,9 +75,6 @@ public partial class GalaxyViewer
 	private void RebuildViewMenu(PopupMenu popup)
 	{
 		popup.Clear();
-		popup.AddCheckItem("Show Compass", ViewMenuShowCompassId);
-		popup.SetItemChecked(popup.ItemCount - 1, _showCompassCheck != null && _showCompassCheck.ButtonPressed);
-		popup.AddSeparator();
 		popup.AddItem("Calculate Jump Routes", ViewMenuCalculateRoutesId);
 	}
 
@@ -119,14 +115,6 @@ public partial class GalaxyViewer
 
 	private void OnViewMenuIdPressed(long id)
 	{
-		if (id == ViewMenuShowCompassId && _showCompassCheck != null)
-		{
-			bool visible = !_showCompassCheck.ButtonPressed;
-			_showCompassCheck.ButtonPressed = visible;
-			OnShowCompassToggled(visible);
-			return;
-		}
-
 		if (id == ViewMenuCalculateRoutesId)
 		{
 			CalculateJumpRoutesForCurrentSubsector();
