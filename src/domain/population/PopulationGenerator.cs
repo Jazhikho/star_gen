@@ -238,6 +238,8 @@ public static class PopulationGenerator
             return colonies;
         }
 
+        RpgCompatibilityProfile compatibilityProfile = useCaseSettings?.GetCompatibilityProfile()
+            ?? RpgCompatibilityProfile.Resolve(GenerationUseCaseSettings.RulesetModeType.Default);
         SeededRng colonyRng = rng.Fork();
         int colonyCount = DetermineAutoColonyCount(profile, suitability, colonyRng, useCaseSettings, pressureContext);
         for (int index = 0; index < colonyCount; index += 1)
@@ -252,7 +254,8 @@ public static class PopulationGenerator
                 DefaultColonyMaxHistoryYears,
                 TechnologyLevel.Level.Interstellar,
                 $"civ_auto_{index}",
-                "Unknown Civilization");
+                "Unknown Civilization",
+                compatibilityProfile);
             if (colony != null)
             {
                 colonies.Add(colony);

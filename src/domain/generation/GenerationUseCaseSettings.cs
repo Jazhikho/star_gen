@@ -240,6 +240,16 @@ public partial class GenerationUseCaseSettings : RefCounted
             TerrestrialWorldWeightMultiplier = CompatibilityTerrestrialWorldWeightMultiplier,
             NativeLifeProbabilityMultiplier = CompatibilityNativeLifeProbabilityMultiplier,
             ColonyProbabilityMultiplier = CompatibilityColonyProbabilityMultiplier,
+            HarshColonyProbabilityMultiplier = resolvedProfile.HarshColonyProbabilityMultiplier,
+            SettlementColonyTypeMultiplier = resolvedProfile.SettlementColonyTypeMultiplier,
+            AgriculturalColonyTypeMultiplier = resolvedProfile.AgriculturalColonyTypeMultiplier,
+            IndustrialColonyTypeMultiplier = resolvedProfile.IndustrialColonyTypeMultiplier,
+            CorporateColonyTypeMultiplier = resolvedProfile.CorporateColonyTypeMultiplier,
+            ScientificColonyTypeMultiplier = resolvedProfile.ScientificColonyTypeMultiplier,
+            MilitaryColonyTypeMultiplier = resolvedProfile.MilitaryColonyTypeMultiplier,
+            RefugeeColonyTypeMultiplier = resolvedProfile.RefugeeColonyTypeMultiplier,
+            SeparatistColonyTypeMultiplier = resolvedProfile.SeparatistColonyTypeMultiplier,
+            MainworldHydrosphereBias = resolvedProfile.MainworldHydrosphereBias,
         };
     }
 

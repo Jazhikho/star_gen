@@ -1,12 +1,19 @@
 # Version
 
-Current version: `0.8.16.0`
+Current version: `0.8.17.0`
 
 Current user-facing version: `0.9d`
 
 Date: `2026-04-19`
 
 Versioning method: release/refactor `+0.1`, feature `+0.0.1`, bug fix `+0.0.0.1`, save-breaking release `+1.0`.
+
+## 0.8.17.0
+
+- Feature: Fully wired the fixed `Cepheus`, `Starfinder`, and `Starforged` compatibility profiles into real generation behavior instead of leaving them as near-cosmetic variations on the same small bias set.
+- Feature: Colony generation now uses profile-specific harsh-world settlement tolerance and profile-specific colony-type weighting, so `Cepheus` leans toward classic civil settlements, `Starfinder` leans toward scientific/corporate/industrial harsh-world footholds, and `Starforged` leans toward frontier outposts, scientific footholds, and refugee/separatist colonies.
+- Feature: Mainworld candidate shaping now carries profile-specific hydrosphere leanings, letting `Starfinder` favor wetter focal worlds and `Starforged` favor drier frontier-leaning focal worlds without changing readout/export scope.
+- Test: Added contract tests proving the non-Space-Opera profiles now diverge in harsh-world colony tolerance, colony-type distribution, and system-level orbit-fill behavior; `dotnet build StarGen.sln` passed, and the headless harness passed (`1825 / 1825`).
 
 ## 0.8.16.0
 

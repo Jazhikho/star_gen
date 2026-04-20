@@ -393,6 +393,46 @@ public static class TestPopulationProbability
     }
 
     /// <summary>
+    /// Tests that non-Space-Opera profiles now have distinct harsh-world colony tolerance.
+    /// </summary>
+    public static void TestCompatibilityProfilesDifferentiateHarshColonyTolerance()
+    {
+        PlanetProfile profile = new();
+        profile.BodyId = "harsh_colony_target";
+        profile.HabitabilityScore = 1;
+        profile.IsMoon = true;
+        profile.HasLiquidWater = false;
+        profile.HasAtmosphere = false;
+        profile.RadiationLevel = 0.45;
+
+        ColonySuitability harshSuitability = new();
+        harshSuitability.OverallScore = 28;
+        harshSuitability.RequiresLifeSupport = true;
+        harshSuitability.RequiresPressureSuit = true;
+        harshSuitability.RequiresRadiationShielding = true;
+
+        GenerationUseCaseSettings defaultSettings = GenerationUseCaseSettings.CreateDefault();
+        GenerationUseCaseSettings cepheusSettings = GenerationUseCaseSettings.CreateDefault();
+        cepheusSettings.RulesetMode = GenerationUseCaseSettings.RulesetModeType.Cepheus;
+        cepheusSettings.ApplyRulesetDefaults();
+        GenerationUseCaseSettings starfinderSettings = GenerationUseCaseSettings.CreateDefault();
+        starfinderSettings.RulesetMode = GenerationUseCaseSettings.RulesetModeType.Starfinder;
+        starfinderSettings.ApplyRulesetDefaults();
+        GenerationUseCaseSettings starforgedSettings = GenerationUseCaseSettings.CreateDefault();
+        starforgedSettings.RulesetMode = GenerationUseCaseSettings.RulesetModeType.Starforged;
+        starforgedSettings.ApplyRulesetDefaults();
+
+        double defaultProbability = PopulationProbability.CalculateColonyProbability(profile, harshSuitability, defaultSettings);
+        double cepheusProbability = PopulationProbability.CalculateColonyProbability(profile, harshSuitability, cepheusSettings);
+        double starfinderProbability = PopulationProbability.CalculateColonyProbability(profile, harshSuitability, starfinderSettings);
+        double starforgedProbability = PopulationProbability.CalculateColonyProbability(profile, harshSuitability, starforgedSettings);
+
+        DotNetNativeTestSuite.AssertTrue(cepheusProbability < defaultProbability, "Cepheus should be stricter than the default profile on harsh colony targets");
+        DotNetNativeTestSuite.AssertTrue(starfinderProbability > defaultProbability, "Starfinder should be more tolerant than the default profile on harsh colony targets");
+        DotNetNativeTestSuite.AssertTrue(starforgedProbability > cepheusProbability, "Starforged should tolerate harsh frontier targets more than Cepheus");
+    }
+
+    /// <summary>
     /// Legacy parity alias for test_should_generate_natives_determinism.
     /// </summary>
     private static void TestShouldGenerateNativesDeterminism()

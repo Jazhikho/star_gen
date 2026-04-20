@@ -209,6 +209,17 @@ public static class PopulationProbability
         double permissiveness = ResolveLifePermissiveness(settings);
         double probability = CalculateColonyProbability(profile, suitability, permissiveness, pressureContext);
         RpgCompatibilityProfile compatibilityProfile = ResolveCompatibilityProfile(settings);
+        if (RequiresHarshSettlementSupport(profile, suitability))
+        {
+            if (compatibilityProfile.HarshColonyProbabilityMultiplier > 1.0)
+            {
+                double harshFloor = 0.05 * (compatibilityProfile.HarshColonyProbabilityMultiplier - 1.0);
+                probability = System.Math.Max(probability, harshFloor);
+            }
+
+            probability *= compatibilityProfile.HarshColonyProbabilityMultiplier;
+        }
+
         probability *= compatibilityProfile.ColonyProbabilityMultiplier;
         return System.Math.Clamp(probability, 0.0, MaxColonyProbability);
     }
@@ -261,6 +272,31 @@ public static class PopulationProbability
         }
 
         return settings.GetCompatibilityProfile();
+    }
+
+    private static bool RequiresHarshSettlementSupport(PlanetProfile profile, ColonySuitability suitability)
+    {
+        if (suitability.RequiresLifeSupport)
+        {
+            return true;
+        }
+
+        if (suitability.RequiresPressureSuit)
+        {
+            return true;
+        }
+
+        if (suitability.RequiresRadiationShielding)
+        {
+            return true;
+        }
+
+        if (profile.HabitabilityScore <= 2)
+        {
+            return true;
+        }
+
+        return false;
     }
 
     private static double ResolveEffectivePermissiveness(double basePermissiveness, ColonyPressureContext? pressureContext)

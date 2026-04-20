@@ -371,6 +371,9 @@ public static partial class DotNetNativeTestSuite
         runner.RunNativeTest("TestColonyGenerator::test_history_has_founding", TestColonyGenerator.TestHistoryHasFounding);
         runner.RunNativeTest("TestColonyGenerator::test_tech_level_inherited", TestColonyGenerator.TestTechLevelInherited);
         runner.RunNativeTest("TestColonyGenerator::test_multiple_native_relations", TestColonyGenerator.TestMultipleNativeRelations);
+        runner.RunNativeTest("TestColonyGenerator::test_cepheus_favors_civil_settlement_colony_types", TestColonyGenerator.TestCepheusFavorsCivilSettlementColonyTypes);
+        runner.RunNativeTest("TestColonyGenerator::test_starfinder_favors_scientific_corporate_harsh_colonies", TestColonyGenerator.TestStarfinderFavorsScientificCorporateHarshColonies);
+        runner.RunNativeTest("TestColonyGenerator::test_starforged_favors_frontier_harsh_colonies", TestColonyGenerator.TestStarforgedFavorsFrontierHarshColonies);
 
         runner.RunNativeTest("TestPlanetPopulationData::test_creation_default", TestPlanetPopulationData.TestCreationDefault);
         runner.RunNativeTest("TestPlanetPopulationData::test_get_total_population_empty", TestPlanetPopulationData.TestGetTotalPopulationEmpty);
@@ -432,6 +435,7 @@ public static partial class DotNetNativeTestSuite
         runner.RunNativeTest("TestPopulationProbability::test_settlement_permissiveness_affects_harsh_worlds", TestPopulationProbability.TestSettlementPermissivenessAffectsHarshWorlds);
         runner.RunNativeTest("TestPopulationProbability::test_native_pressure_raises_colony_probability", TestPopulationProbability.TestNativePressureRaisesColonyProbability);
         runner.RunNativeTest("TestPopulationProbability::test_compatibility_profiles_affect_population_pressure", TestPopulationProbability.TestCompatibilityProfilesAffectPopulationPressure);
+        runner.RunNativeTest("TestPopulationProbability::test_compatibility_profiles_differentiate_harsh_colony_tolerance", TestPopulationProbability.TestCompatibilityProfilesDifferentiateHarshColonyTolerance);
         runner.RunNativeTest("TestPopulationProbability::test_custom_space_opera_overrides_affect_population_pressure", TestPopulationProbability.TestCustomSpaceOperaOverridesAffectPopulationPressure);
 
         runner.RunNativeTest("TestPopulationLikelihood::test_estimate_native_likelihood_matches_probability", TestPopulationLikelihood.TestEstimateNativeLikelihoodMatchesProbability);

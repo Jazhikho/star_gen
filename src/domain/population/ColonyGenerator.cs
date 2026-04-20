@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using Godot.Collections;
+using StarGen.Domain.Generation;
 using StarGen.Domain.Rng;
 
 namespace StarGen.Domain.Population;
@@ -60,16 +61,19 @@ public static class ColonyGenerator
         int maxHistoryYears = 500,
         TechnologyLevel.Level foundingTechLevel = TechnologyLevel.Level.Interstellar,
         string foundingCivilizationId = "civ_unknown",
-        string foundingCivilizationName = "Unknown Civilization")
+        string foundingCivilizationName = "Unknown Civilization",
+        RpgCompatibilityProfile? compatibilityProfile = null)
     {
         if (!suitability.IsColonizable())
         {
             return null;
         }
 
+        RpgCompatibilityProfile activeCompatibilityProfile = compatibilityProfile
+            ?? RpgCompatibilityProfile.Resolve(GenerationUseCaseSettings.RulesetModeType.Default);
         Colony colony = new();
         colony.Id = $"colony_{profile.BodyId}_{rng.Randi()}";
-        colony.Type = DetermineColonyType(profile, suitability, rng);
+        colony.Type = DetermineColonyType(profile, suitability, rng, activeCompatibilityProfile);
         colony.BodyId = profile.BodyId;
         colony.FoundingCivilizationId = foundingCivilizationId;
         colony.FoundingCivilizationName = foundingCivilizationName;
@@ -130,7 +134,8 @@ public static class ColonyGenerator
     private static ColonyType.Type DetermineColonyType(
         PlanetProfile profile,
         ColonySuitability suitability,
-        SeededRng rng)
+        SeededRng rng,
+        RpgCompatibilityProfile compatibilityProfile)
     {
         int typeCount = ColonyType.Count();
         double[] weights = new double[typeCount];
@@ -164,6 +169,8 @@ public static class ColonyGenerator
             weights[(int)ColonyType.Type.Agricultural] *= 1.5;
         }
 
+        ApplyCompatibilityTypeWeights(weights, suitability, compatibilityProfile);
+
         List<int> types = new(typeCount);
         List<float> weightValues = new(typeCount);
         for (int i = 0; i < typeCount; i += 1)
@@ -179,6 +186,53 @@ public static class ColonyGenerator
         }
 
         return ColonyType.Type.Settlement;
+    }
+
+    private static void ApplyCompatibilityTypeWeights(
+        double[] weights,
+        ColonySuitability suitability,
+        RpgCompatibilityProfile compatibilityProfile)
+    {
+        weights[(int)ColonyType.Type.Settlement] *= compatibilityProfile.SettlementColonyTypeMultiplier;
+        weights[(int)ColonyType.Type.Agricultural] *= compatibilityProfile.AgriculturalColonyTypeMultiplier;
+        weights[(int)ColonyType.Type.Industrial] *= compatibilityProfile.IndustrialColonyTypeMultiplier;
+        weights[(int)ColonyType.Type.Corporate] *= compatibilityProfile.CorporateColonyTypeMultiplier;
+        weights[(int)ColonyType.Type.Scientific] *= compatibilityProfile.ScientificColonyTypeMultiplier;
+        weights[(int)ColonyType.Type.Military] *= compatibilityProfile.MilitaryColonyTypeMultiplier;
+        weights[(int)ColonyType.Type.Refugee] *= compatibilityProfile.RefugeeColonyTypeMultiplier;
+        weights[(int)ColonyType.Type.Separatist] *= compatibilityProfile.SeparatistColonyTypeMultiplier;
+
+        if (compatibilityProfile.RulesetMode == GenerationUseCaseSettings.RulesetModeType.Starfinder)
+        {
+            if (suitability.RequiresLifeSupport || suitability.RequiresPressureSuit || suitability.RequiresRadiationShielding)
+            {
+                weights[(int)ColonyType.Type.Scientific] *= 1.20;
+                weights[(int)ColonyType.Type.Corporate] *= 1.15;
+                weights[(int)ColonyType.Type.Industrial] *= 1.10;
+            }
+        }
+
+        if (compatibilityProfile.RulesetMode == GenerationUseCaseSettings.RulesetModeType.Starforged)
+        {
+            if (suitability.RequiresLifeSupport || suitability.RequiresPressureSuit || suitability.RequiresRadiationShielding)
+            {
+                weights[(int)ColonyType.Type.Military] *= 1.15;
+                weights[(int)ColonyType.Type.Scientific] *= 1.10;
+                weights[(int)ColonyType.Type.Refugee] *= 1.10;
+                weights[(int)ColonyType.Type.Separatist] *= 1.10;
+                weights[(int)ColonyType.Type.Settlement] *= 0.85;
+            }
+        }
+
+        if (compatibilityProfile.RulesetMode == GenerationUseCaseSettings.RulesetModeType.Cepheus)
+        {
+            if (suitability.OverallScore >= 55)
+            {
+                weights[(int)ColonyType.Type.Settlement] *= 1.10;
+                weights[(int)ColonyType.Type.Agricultural] *= 1.10;
+                weights[(int)ColonyType.Type.Industrial] *= 1.05;
+            }
+        }
     }
 
     private static string GenerateColonyName(ColonyType.Type type, SeededRng rng)

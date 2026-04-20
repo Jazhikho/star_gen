@@ -2410,6 +2410,9 @@ public static partial class DotNetNativeTestSuite
             "TestSystemPlanetGenerator::test_custom_space_opera_overrides_shift_system_fill_pressure",
             Tests.Unit.TestSystemPlanetGenerator.TestCustomSpaceOperaOverridesShiftSystemFillPressure);
         runner.RunNativeTest(
+            "TestSystemPlanetGenerator::test_non_space_opera_profiles_differentiate_system_bias",
+            Tests.Unit.TestSystemPlanetGenerator.TestNonSpaceOperaProfilesDifferentiateSystemBias);
+        runner.RunNativeTest(
             "TestSystemPlanetGenerator::test_envelope_loss_model_changes_hot_planet_atmospheres",
             Tests.Unit.TestSystemPlanetGenerator.TestEnvelopeLossModelChangesHotPlanetAtmospheres);
         runner.RunNativeTest(

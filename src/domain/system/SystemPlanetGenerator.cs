@@ -719,9 +719,24 @@ public static class SystemPlanetGenerator
 
             if (spec.HydrosphereTendency == PlanetHydrosphereTendency.Auto && habitableAlignment > 0.50)
             {
-                if (compatibilityProfile.RulesetMode == GenerationUseCaseSettings.RulesetModeType.Starfinder)
+                if (compatibilityProfile.MainworldHydrosphereBias == RpgCompatibilityProfile.MainworldHydrosphereBiasType.Oceanic)
                 {
                     spec.HydrosphereTendency = PlanetHydrosphereTendency.Oceanic;
+                }
+                else if (compatibilityProfile.MainworldHydrosphereBias == RpgCompatibilityProfile.MainworldHydrosphereBiasType.DryLeaning)
+                {
+                    if (localVolatileDelivery >= 1.15 && habitableAlignment >= 0.75)
+                    {
+                        spec.HydrosphereTendency = PlanetHydrosphereTendency.Mixed;
+                    }
+                    else
+                    {
+                        spec.HydrosphereTendency = PlanetHydrosphereTendency.Dry;
+                    }
+                }
+                else if (compatibilityProfile.MainworldHydrosphereBias == RpgCompatibilityProfile.MainworldHydrosphereBiasType.Mixed)
+                {
+                    spec.HydrosphereTendency = PlanetHydrosphereTendency.Mixed;
                 }
                 else
                 {

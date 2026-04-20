@@ -6,6 +6,17 @@ namespace StarGen.Domain.Generation;
 public sealed class RpgCompatibilityProfile
 {
     /// <summary>
+    /// Mainworld hydrosphere leaning applied when a compatibility profile is choosing a focal world.
+    /// </summary>
+    public enum MainworldHydrosphereBiasType
+    {
+        Auto = 0,
+        DryLeaning = 1,
+        Mixed = 2,
+        Oceanic = 3,
+    }
+
+    /// <summary>
     /// Active ruleset mode represented by this profile.
     /// </summary>
     public GenerationUseCaseSettings.RulesetModeType RulesetMode { get; init; }
@@ -71,6 +82,56 @@ public sealed class RpgCompatibilityProfile
     public double ColonyProbabilityMultiplier { get; init; } = 1.0;
 
     /// <summary>
+    /// Multiplier applied to harsh-world colony probability when life support or shielding is required.
+    /// </summary>
+    public double HarshColonyProbabilityMultiplier { get; init; } = 1.0;
+
+    /// <summary>
+    /// Multiplier applied to general civilian settlement colony types.
+    /// </summary>
+    public double SettlementColonyTypeMultiplier { get; init; } = 1.0;
+
+    /// <summary>
+    /// Multiplier applied to agricultural colony types.
+    /// </summary>
+    public double AgriculturalColonyTypeMultiplier { get; init; } = 1.0;
+
+    /// <summary>
+    /// Multiplier applied to industrial colony types.
+    /// </summary>
+    public double IndustrialColonyTypeMultiplier { get; init; } = 1.0;
+
+    /// <summary>
+    /// Multiplier applied to corporate colony types.
+    /// </summary>
+    public double CorporateColonyTypeMultiplier { get; init; } = 1.0;
+
+    /// <summary>
+    /// Multiplier applied to scientific colony types.
+    /// </summary>
+    public double ScientificColonyTypeMultiplier { get; init; } = 1.0;
+
+    /// <summary>
+    /// Multiplier applied to military colony types.
+    /// </summary>
+    public double MilitaryColonyTypeMultiplier { get; init; } = 1.0;
+
+    /// <summary>
+    /// Multiplier applied to refugee colony types.
+    /// </summary>
+    public double RefugeeColonyTypeMultiplier { get; init; } = 1.0;
+
+    /// <summary>
+    /// Multiplier applied to separatist colony types.
+    /// </summary>
+    public double SeparatistColonyTypeMultiplier { get; init; } = 1.0;
+
+    /// <summary>
+    /// Preferred mainworld hydrosphere leaning for the profile.
+    /// </summary>
+    public MainworldHydrosphereBiasType MainworldHydrosphereBias { get; init; } = MainworldHydrosphereBiasType.Auto;
+
+    /// <summary>
     /// Returns the resolved profile for a ruleset mode.
     /// </summary>
     public static RpgCompatibilityProfile Resolve(GenerationUseCaseSettings.RulesetModeType rulesetMode)
@@ -92,6 +153,11 @@ public sealed class RpgCompatibilityProfile
                 TerrestrialWorldWeightMultiplier = 1.25,
                 NativeLifeProbabilityMultiplier = 1.15,
                 ColonyProbabilityMultiplier = 1.35,
+                HarshColonyProbabilityMultiplier = 0.95,
+                SettlementColonyTypeMultiplier = 1.15,
+                AgriculturalColonyTypeMultiplier = 1.10,
+                IndustrialColonyTypeMultiplier = 1.05,
+                MainworldHydrosphereBias = MainworldHydrosphereBiasType.Mixed,
             };
         }
 
@@ -112,6 +178,16 @@ public sealed class RpgCompatibilityProfile
                 TerrestrialWorldWeightMultiplier = 1.15,
                 NativeLifeProbabilityMultiplier = 1.00,
                 ColonyProbabilityMultiplier = 1.15,
+                HarshColonyProbabilityMultiplier = 0.75,
+                SettlementColonyTypeMultiplier = 1.35,
+                AgriculturalColonyTypeMultiplier = 1.25,
+                IndustrialColonyTypeMultiplier = 1.20,
+                CorporateColonyTypeMultiplier = 1.05,
+                MilitaryColonyTypeMultiplier = 1.05,
+                ScientificColonyTypeMultiplier = 0.95,
+                RefugeeColonyTypeMultiplier = 0.90,
+                SeparatistColonyTypeMultiplier = 0.95,
+                MainworldHydrosphereBias = MainworldHydrosphereBiasType.Mixed,
             };
         }
 
@@ -132,6 +208,14 @@ public sealed class RpgCompatibilityProfile
                 TerrestrialWorldWeightMultiplier = 1.18,
                 NativeLifeProbabilityMultiplier = 1.08,
                 ColonyProbabilityMultiplier = 1.45,
+                HarshColonyProbabilityMultiplier = 1.50,
+                SettlementColonyTypeMultiplier = 0.95,
+                AgriculturalColonyTypeMultiplier = 0.85,
+                IndustrialColonyTypeMultiplier = 1.30,
+                CorporateColonyTypeMultiplier = 1.35,
+                ScientificColonyTypeMultiplier = 1.40,
+                MilitaryColonyTypeMultiplier = 1.10,
+                MainworldHydrosphereBias = MainworldHydrosphereBiasType.Oceanic,
             };
         }
 
@@ -152,6 +236,16 @@ public sealed class RpgCompatibilityProfile
                 TerrestrialWorldWeightMultiplier = 0.95,
                 NativeLifeProbabilityMultiplier = 0.92,
                 ColonyProbabilityMultiplier = 0.85,
+                HarshColonyProbabilityMultiplier = 1.60,
+                SettlementColonyTypeMultiplier = 0.80,
+                AgriculturalColonyTypeMultiplier = 0.70,
+                IndustrialColonyTypeMultiplier = 0.85,
+                CorporateColonyTypeMultiplier = 0.85,
+                ScientificColonyTypeMultiplier = 1.25,
+                MilitaryColonyTypeMultiplier = 1.20,
+                RefugeeColonyTypeMultiplier = 1.25,
+                SeparatistColonyTypeMultiplier = 1.30,
+                MainworldHydrosphereBias = MainworldHydrosphereBiasType.DryLeaning,
             };
         }
 

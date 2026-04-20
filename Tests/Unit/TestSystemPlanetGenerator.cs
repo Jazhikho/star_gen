@@ -776,6 +776,83 @@ public static class TestSystemPlanetGenerator
         }
     }
 
+    /// <summary>
+    /// Tests that Cepheus, Starfinder, and Starforged now have distinct system-level orbit-fill signatures.
+    /// </summary>
+    public static void TestNonSpaceOperaProfilesDifferentiateSystemBias()
+    {
+        OrbitHost host = CreateTestHost();
+        CelestialBody star = CreateTestStar();
+        Array<OrbitHost> hosts = new Array<OrbitHost> { host };
+        Array<CelestialBody> stars = new Array<CelestialBody> { star };
+        int cepheusTemperateFilled = 0;
+        int starforgedTemperateFilled = 0;
+        int cepheusHarshFilled = 0;
+        int starfinderHarshFilled = 0;
+
+        for (int seed = 7240; seed < 7360; seed += 1)
+        {
+            Array<OrbitSlot> cepheusSlots = CreateCompatibilityPressureSlots(host);
+            Array<OrbitSlot> starfinderSlots = CreateCompatibilityPressureSlots(host);
+            Array<OrbitSlot> starforgedSlots = CreateCompatibilityPressureSlots(host);
+
+            SolarSystemSpec cepheusSpec = new SolarSystemSpec(seed, 1, 1);
+            cepheusSpec.UseCaseSettings = GenerationUseCaseSettings.CreateDefault();
+            cepheusSpec.UseCaseSettings.RulesetMode = GenerationUseCaseSettings.RulesetModeType.Cepheus;
+            cepheusSpec.UseCaseSettings.ApplyRulesetDefaults();
+
+            SolarSystemSpec starfinderSpec = new SolarSystemSpec(seed, 1, 1);
+            starfinderSpec.UseCaseSettings = GenerationUseCaseSettings.CreateDefault();
+            starfinderSpec.UseCaseSettings.RulesetMode = GenerationUseCaseSettings.RulesetModeType.Starfinder;
+            starfinderSpec.UseCaseSettings.ApplyRulesetDefaults();
+
+            SolarSystemSpec starforgedSpec = new SolarSystemSpec(seed, 1, 1);
+            starforgedSpec.UseCaseSettings = GenerationUseCaseSettings.CreateDefault();
+            starforgedSpec.UseCaseSettings.RulesetMode = GenerationUseCaseSettings.RulesetModeType.Starforged;
+            starforgedSpec.UseCaseSettings.ApplyRulesetDefaults();
+
+            PlanetGenerationResult cepheusResult = SystemPlanetGenerator.Generate(
+                cepheusSlots,
+                hosts,
+                stars,
+                new SeededRng(seed),
+                false,
+                cepheusSpec.UseCaseSettings,
+                cepheusSpec);
+            PlanetGenerationResult starfinderResult = SystemPlanetGenerator.Generate(
+                starfinderSlots,
+                hosts,
+                stars,
+                new SeededRng(seed),
+                false,
+                starfinderSpec.UseCaseSettings,
+                starfinderSpec);
+            PlanetGenerationResult starforgedResult = SystemPlanetGenerator.Generate(
+                starforgedSlots,
+                hosts,
+                stars,
+                new SeededRng(seed),
+                false,
+                starforgedSpec.UseCaseSettings,
+                starforgedSpec);
+
+            cepheusTemperateFilled += CountFilledSlotsByZone(cepheusResult.Slots, OrbitZone.Zone.Temperate);
+            starforgedTemperateFilled += CountFilledSlotsByZone(starforgedResult.Slots, OrbitZone.Zone.Temperate);
+            cepheusHarshFilled += CountFilledSlotsByZone(cepheusResult.Slots, OrbitZone.Zone.Hot) + CountFilledSlotsByZone(cepheusResult.Slots, OrbitZone.Zone.Cold);
+            starfinderHarshFilled += CountFilledSlotsByZone(starfinderResult.Slots, OrbitZone.Zone.Hot) + CountFilledSlotsByZone(starfinderResult.Slots, OrbitZone.Zone.Cold);
+        }
+
+        if (cepheusTemperateFilled <= starforgedTemperateFilled)
+        {
+            throw new InvalidOperationException($"Cepheus should fill more temperate slots than Starforged. Cepheus={cepheusTemperateFilled} Starforged={starforgedTemperateFilled}");
+        }
+
+        if (starfinderHarshFilled <= cepheusHarshFilled)
+        {
+            throw new InvalidOperationException($"Starfinder should fill more harsh slots than Cepheus. Cepheus={cepheusHarshFilled} Starfinder={starfinderHarshFilled}");
+        }
+    }
+
     private static int CountGaseousGiants(Array<CelestialBody> planets)
     {
         int count = 0;
