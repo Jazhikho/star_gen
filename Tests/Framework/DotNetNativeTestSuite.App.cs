@@ -270,6 +270,62 @@ public static partial class DotNetNativeTestSuite
     }
 
     /// <summary>
+    /// Verifies local-space cache coverage persists across movement and subsequent builds append systems.
+    /// </summary>
+    private static void TestGalaxyViewerLocalSpaceCachePersistsAndAppends()
+    {
+        PackedScene? scene = ResourceLoader.Load<PackedScene>("res://src/app/galaxy_viewer/GalaxyViewerCSharp.tscn");
+        AssertNotNull(scene, "galaxy viewer scene should load for local-space cache testing");
+
+        GalaxyViewer? viewer = scene!.Instantiate() as GalaxyViewer;
+        AssertNotNull(viewer, "galaxy viewer scene should instantiate for local-space cache testing");
+
+        try
+        {
+            viewer!._Ready();
+            Vector3I testExtent = new Vector3I(1, 1, 1);
+            bool initialBuild = viewer.BuildLocalSpaceSynchronouslyForTesting(testExtent);
+            AssertTrue(initialBuild, "initial local-space build should succeed");
+
+            GalaxyLocalSpaceCache? initialCache = viewer.GetLocalSpaceCache();
+            AssertNotNull(initialCache, "initial local-space build should create a cache");
+
+            int initialSystemCount = initialCache!.Region.GetSystemCount();
+            AssertEqual(1, initialCache.CoverageAreaCount, "initial local-space cache should track one coverage area");
+            AssertTrue(!string.IsNullOrEmpty(viewer.GetVisibleJumpRouteRegionId()), "current position should be covered immediately after the initial build");
+
+            StarViewCamera? starCamera = viewer.GetStarCamera();
+            AssertNotNull(starCamera, "galaxy viewer should expose the star camera for movement testing");
+
+            Vector3 initialPosition = starCamera!.GetCurrentPosition();
+            Vector3 shiftedPosition = initialPosition + new Vector3((float)GalaxyCoordinates.SubsectorSizePc * 4.0f, 0.0f, 0.0f);
+            starCamera.Configure(shiftedPosition);
+
+            GalaxyLocalSpaceCache? cacheAfterMove = viewer.GetLocalSpaceCache();
+            AssertNotNull(cacheAfterMove, "moving outside cached coverage should not delete the cache");
+            AssertEqual(initialSystemCount, cacheAfterMove!.Region.GetSystemCount(), "moving should not change cached system count");
+            AssertTrue(cacheAfterMove.ContainsPosition(initialPosition), "cache should still cover the original built position after movement");
+            AssertTrue(!cacheAfterMove.ContainsPosition(shiftedPosition), "shifted position should start outside the original coverage");
+            AssertTrue(string.IsNullOrEmpty(viewer.GetVisibleJumpRouteRegionId()), "jump-route region should be unavailable until the new position is built into the cache");
+
+            bool appendedBuild = viewer.BuildLocalSpaceSynchronouslyForTesting(testExtent);
+            AssertTrue(appendedBuild, "second local-space build should succeed after movement");
+
+            GalaxyLocalSpaceCache? appendedCache = viewer.GetLocalSpaceCache();
+            AssertNotNull(appendedCache, "cache should still exist after appending a new area");
+            AssertEqual(2, appendedCache!.CoverageAreaCount, "second build at a new location should append a second coverage area");
+            AssertTrue(appendedCache.Region.GetSystemCount() > initialSystemCount, "appending a second local-space build should grow the cached system set");
+            AssertTrue(appendedCache.ContainsPosition(initialPosition), "expanded cache should still cover the original built position");
+            AssertTrue(appendedCache.ContainsPosition(shiftedPosition), "expanded cache should also cover the newly built position");
+            AssertTrue(!string.IsNullOrEmpty(viewer.GetVisibleJumpRouteRegionId()), "jump-route region should become available again once the new position is cached");
+        }
+        finally
+        {
+            viewer?.QueueFree();
+        }
+    }
+
+    /// <summary>
     /// Verifies realism-profile slider mapping and preset constructors.
     /// </summary>
     private static void TestGenerationRealismProfileSliderAndPresets()

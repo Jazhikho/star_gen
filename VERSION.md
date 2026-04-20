@@ -1,12 +1,18 @@
 # Version
 
-Current version: `0.8.18.0`
+Current version: `0.8.18.1`
 
 Current user-facing version: `0.9d`
 
 Date: `2026-04-20`
 
 Versioning method: release/refactor `+0.1`, feature `+0.0.1`, bug fix `+0.0.0.1`, save-breaking release `+1.0`.
+
+## 0.8.18.1
+
+- Bug fix: Galaxy Viewer local-space caches now persist when the viewer moves outside the last built area, instead of behaving like the cache vanished as soon as the current position left the cached bounds.
+- Bug fix: Rebuilding local space now appends newly covered systems into the existing temporary cache instead of replacing the old region, so adjacent builds grow one aggregate local-space working set for later tools.
+- Test: Added a Galaxy Viewer regression that moves outside the first cached area, proves the cache survives, then rebuilds and verifies the second local-space pass appends coverage and restores jump-route availability.
 
 ## 0.8.18.0
 

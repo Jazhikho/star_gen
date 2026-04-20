@@ -272,7 +272,18 @@ public partial class GalaxyViewer
 
 		if (_localSpaceStatusLabel != null)
 		{
-			_localSpaceStatusLabel.Text = "Build local space to cache system summaries for nearby stars.";
+			if (_localSpaceCache == null)
+			{
+				_localSpaceStatusLabel.Text = "Build local space to cache system summaries for nearby stars.";
+			}
+			else if (_localSpaceCache.ContainsPosition(GetActiveViewPosition()))
+			{
+				_localSpaceStatusLabel.Text = "Build local space again to append any still-uncached nearby systems around this location.";
+			}
+			else
+			{
+				_localSpaceStatusLabel.Text = "Build local space here to append this new area to the existing local-space cache.";
+			}
 		}
 
 		SetLocalSpaceDialogEnabled(true);
@@ -352,22 +363,34 @@ public partial class GalaxyViewer
 				return;
 			}
 
-			_localSpaceCache = new GalaxyLocalSpaceCache(
-				region,
-				_localSpacePreviewData.CenterOrigin,
-				extent,
-				_localSpacePreviewData.GetStarCount());
-			_jumpLaneRegion = CloneJumpLaneRegion(region);
+			int appendedSystems;
+			if (_localSpaceCache == null)
+			{
+				_localSpaceCache = new GalaxyLocalSpaceCache(
+					region,
+					_localSpacePreviewData.CenterOrigin,
+					extent);
+				appendedSystems = _localSpaceCache.Region.GetSystemCount();
+			}
+			else
+			{
+				appendedSystems = _localSpaceCache.AppendRegion(
+					region,
+					_localSpacePreviewData.CenterOrigin,
+					extent);
+			}
+
+			_jumpLaneRegion = CloneJumpLaneRegion(_localSpaceCache.Region);
 			_jumpLaneResult = null;
 			_jumpRouteCalculatedRegionIds.Clear();
 			UpdateJumpRoutePresentation();
 
 			if (_localSpaceStatusLabel != null)
 			{
-				_localSpaceStatusLabel.Text = $"Cached {region.GetSystemCount()} systems from {_localSpaceCache.StarCount} stars.";
+				_localSpaceStatusLabel.Text = $"Appended {appendedSystems} systems. Cache now covers {_localSpaceCache.StarCount} systems across {_localSpaceCache.CoverageAreaCount} local areas.";
 			}
 
-			SetStatus($"Built local space for {region.GetSystemCount()} systems from {_localSpaceCache.StarCount} stars");
+			SetStatus($"Built local space: appended {appendedSystems} systems. Cache now covers {_localSpaceCache.StarCount} systems.");
 		}
 		finally
 		{
@@ -461,8 +484,16 @@ public partial class GalaxyViewer
 			region.AddSystem(CreateJumpLaneSystemForRoutes(previewData.StarPositions[index], previewData.StarSeeds[index]));
 		}
 
-		_localSpaceCache = new GalaxyLocalSpaceCache(region, previewData.CenterOrigin, extent, previewData.GetStarCount());
-		_jumpLaneRegion = CloneJumpLaneRegion(region);
+		if (_localSpaceCache == null)
+		{
+			_localSpaceCache = new GalaxyLocalSpaceCache(region, previewData.CenterOrigin, extent);
+		}
+		else
+		{
+			_localSpaceCache.AppendRegion(region, previewData.CenterOrigin, extent);
+		}
+
+		_jumpLaneRegion = CloneJumpLaneRegion(_localSpaceCache.Region);
 		_jumpLaneResult = null;
 		_jumpRouteCalculatedRegionIds.Clear();
 		return true;
