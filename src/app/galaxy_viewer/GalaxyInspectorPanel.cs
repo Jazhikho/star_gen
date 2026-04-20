@@ -247,6 +247,14 @@ public partial class GalaxyInspectorPanel : VBoxContainer
 	/// </summary>
 	public void DisplaySelectedStar(Vector3 worldPosition, int starSeed)
 	{
+		DisplaySelectedStar(worldPosition, starSeed, worldPosition);
+	}
+
+	/// <summary>
+	/// Displays selected star information relative to the active view position.
+	/// </summary>
+	public void DisplaySelectedStar(Vector3 worldPosition, int starSeed, Vector3 referencePosition)
+	{
 		ClearContainer(_selectionContainer);
 		_selectedStarSeed = starSeed;
 		_currentPreview = null;
@@ -254,27 +262,19 @@ public partial class GalaxyInspectorPanel : VBoxContainer
 
 		if (_selectionContainer != null)
 		{
+			GalaxyInspectorSelectionFormatter.SelectionLocationSummary locationSummary =
+				GalaxyInspectorSelectionFormatter.Build(worldPosition, referencePosition);
+
 			AddProperty(_selectionContainer, "Type", "Star System");
 			AddProperty(_selectionContainer, "Seed", starSeed.ToString());
-			AddProperty(_selectionContainer, "X", $"{worldPosition.X:0.00} pc");
-			AddProperty(_selectionContainer, "Y", $"{worldPosition.Y:0.00} pc");
-			AddProperty(_selectionContainer, "Z", $"{worldPosition.Z:0.00} pc");
-
-			float distPc = worldPosition.Length();
-			string fromCenterText;
-			if (distPc > 1000.0f)
-			{
-				fromCenterText = $"{distPc / 1000.0f:0.00} kpc";
-			}
-			else
-			{
-				fromCenterText = $"{distPc:0.0} pc";
-			}
-
+			AddProperty(_selectionContainer, "Quadrant", FormatVector3I(locationSummary.CurrentQuadrant));
+			AddProperty(_selectionContainer, "Local XYZ", FormatVector3I(locationSummary.LocalGrid));
+			AddProperty(_selectionContainer, "Azimuth", $"{locationSummary.AzimuthDegrees:0.0} deg");
+			AddProperty(_selectionContainer, "Inclination", $"{locationSummary.InclinationDegrees:0.0} deg");
 			AddProperty(
 				_selectionContainer,
-				"From Center",
-				fromCenterText);
+				"Distance from Core",
+				GalaxyInspectorSelectionFormatter.FormatDistanceFromCore(locationSummary.DistanceFromCorePc));
 		}
 
 		if (_openSystemButton != null)
@@ -315,51 +315,9 @@ public partial class GalaxyInspectorPanel : VBoxContainer
 			return;
 		}
 
-		AddProperty(_previewContainer, "Stars", preview.StarCount.ToString());
-		for (int index = 0; index < preview.SpectralClasses.Length; index++)
-		{
-			string spectral = preview.SpectralClasses[index];
-			float temp;
-			if (index < preview.StarTemperatures.Length)
-			{
-				temp = preview.StarTemperatures[index];
-			}
-			else
-			{
-				temp = 0.0f;
-			}
-
-			string tempText;
-			if (temp > 0.0f)
-			{
-				tempText = $"{(int)temp} K";
-			}
-			else
-			{
-				tempText = "?";
-			}
-			AddProperty(_previewContainer, $"  Star {index + 1}", $"{spectral}  {tempText}");
-		}
-
-		AddProperty(_previewContainer, "Planets", preview.PlanetCount.ToString());
-		AddProperty(_previewContainer, "Moons", preview.MoonCount.ToString());
-		AddProperty(_previewContainer, "Belts", preview.BeltCount.ToString());
-		AddProperty(_previewContainer, "Metallicity", $"{preview.Metallicity:0.00} Zsun");
-		string inhabitedText;
-		if (preview.IsInhabited)
-		{
-			inhabitedText = "Yes";
-		}
-		else
-		{
-			inhabitedText = "No";
-		}
-
-		AddProperty(_previewContainer, "Inhabited", inhabitedText);
-		if (preview.IsInhabited)
-		{
-			AddProperty(_previewContainer, "Population", PropertyFormatter.FormatPopulation(preview.TotalPopulation));
-		}
+		AddProperty(_previewContainer, "Stars", BuildStarPreviewSummary(preview));
+		AddProperty(_previewContainer, "Bodies", $"{preview.PlanetCount} planets, {preview.MoonCount} moons, {preview.BeltCount} belts");
+		AddProperty(_previewContainer, "Settlement", BuildSettlementPreviewSummary(preview));
 	}
 
 	/// <summary>
@@ -992,6 +950,52 @@ public partial class GalaxyInspectorPanel : VBoxContainer
 	private static string FormatVector3I(Vector3I value)
 	{
 		return $"({value.X}, {value.Y}, {value.Z})";
+	}
+
+	private static string BuildStarPreviewSummary(StarSystemPreviewData preview)
+	{
+		if (preview.StarCount <= 0)
+		{
+			return "Unknown";
+		}
+
+		string spectralSummary;
+		if (preview.SpectralClasses.Length == 0)
+		{
+			spectralSummary = "type unknown";
+		}
+		else
+		{
+			int maxSpectralCount = Math.Min(preview.SpectralClasses.Length, 3);
+			string[] entries = new string[maxSpectralCount];
+			for (int index = 0; index < maxSpectralCount; index += 1)
+			{
+				entries[index] = preview.SpectralClasses[index];
+			}
+
+			spectralSummary = string.Join(", ", entries);
+			if (preview.SpectralClasses.Length > maxSpectralCount)
+			{
+				spectralSummary += ", ...";
+			}
+		}
+
+		if (preview.StarCount == 1)
+		{
+			return $"1 ({spectralSummary})";
+		}
+
+		return $"{preview.StarCount} ({spectralSummary})";
+	}
+
+	private static string BuildSettlementPreviewSummary(StarSystemPreviewData preview)
+	{
+		if (!preview.IsInhabited)
+		{
+			return "Uninhabited";
+		}
+
+		return $"Inhabited ({PropertyFormatter.FormatPopulation(preview.TotalPopulation)})";
 	}
 
 	private static GalaxySpec? ConvertVariantToGalaxySpec(Variant specVariant)

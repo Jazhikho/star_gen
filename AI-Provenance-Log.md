@@ -17,6 +17,17 @@ Use this log for significant AI-assisted artifacts in this repository.
 
 ## Entries
 
+### 2026-04-20 - Codex (GPT-5)
+
+- Task Purpose: Trim the Galaxy View inspector down to the requested selection fields and make its location readout reflect the active local view context instead of dumping raw world-space coordinates and oversized preview detail.
+- Input Materials Used: User request specifying the desired Galaxy View inspector fields; `AGENTS.md`; repo `claude.md`; `GalaxyInspectorPanel`; `GalaxyViewer.Selection`; `GalaxyViewer.Setup`; `StarViewCamera`; `GalaxyCoordinates`; `HomePosition`; current version metadata; and the existing headless test harness.
+- AI Produced: Added `GalaxyInspectorSelectionFormatter` to derive current-quadrant context, subsector-local `0..9` grid coordinates, home-relative polar angle, inclination, and distance-from-core formatting; rewired `GalaxyInspectorPanel` so selected star systems now show only type, seed, quadrant, local XYZ, azimuth, inclination, and distance from core; reduced system preview output to a compact stars/bodies/settlement summary; updated `GalaxyViewer.Selection` to pass the active local view position into the inspector instead of only the selected star position; added unit tests covering quadrant context, subsector-grid mapping, polar readout, and distance formatting; and synced version metadata to `0.8.17.1`.
+- Human Accepted: Pending review of the exact compact preview shape and the choice to measure `Distance from Core` as planar radial distance while reporting inclination separately.
+- Human Rejected: The user explicitly rejected the previous verbose inspector output, including the raw parsec XYZ dump and other unnecessary details.
+- Human Changed: The user required that location be framed from the current local view context without mentioning the camera and that local XYZ be represented as subsector-grid coordinates from `0` to `9`.
+- Validation Method: `dotnet build StarGen.sln`; `godot-mono.exe --path . --headless --script res://Tests/RunTestsHeadless.gd` (`Total: 1828 | Passed: 1828 | Failed: 0`).
+- Final Approver: Pending Christopher B. Del Gesso review.
+
 ### 2026-04-19 - Codex (GPT-5)
 
 - Task Purpose: Finish wiring the fixed non-Space-Opera RPG compatibility profiles so `Cepheus`, `Starfinder`, and `Starforged` materially change system and population generation instead of collapsing into near-identical variants of the same small bias set.

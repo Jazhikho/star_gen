@@ -2740,6 +2740,15 @@ public static partial class DotNetNativeTestSuite
             "TestVersions::test_generator_version_is_non_empty_string",
             Tests.Unit.TestVersions.TestGeneratorVersionIsNonEmptyString);
         runner.RunNativeTest(
+            "TestGalaxyInspectorSelectionFormatter::test_build_uses_current_quadrant_and_subsector_grid",
+            Tests.Unit.TestGalaxyInspectorSelectionFormatter.TestBuildUsesCurrentQuadrantAndSubsectorGrid);
+        runner.RunNativeTest(
+            "TestGalaxyInspectorSelectionFormatter::test_build_computes_home_relative_polar_readout",
+            Tests.Unit.TestGalaxyInspectorSelectionFormatter.TestBuildComputesHomeRelativePolarReadout);
+        runner.RunNativeTest(
+            "TestGalaxyInspectorSelectionFormatter::test_format_distance_from_core_uses_pc_and_kpc_thresholds",
+            Tests.Unit.TestGalaxyInspectorSelectionFormatter.TestFormatDistanceFromCoreUsesPcAndKpcThresholds);
+        runner.RunNativeTest(
             "TestVersions::test_generator_version_is_semver_format",
             Tests.Unit.TestVersions.TestGeneratorVersionIsSemverFormat);
         runner.RunNativeTest(

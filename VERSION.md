@@ -1,12 +1,18 @@
 # Version
 
-Current version: `0.8.17.0`
+Current version: `0.8.17.1`
 
 Current user-facing version: `0.9d`
 
-Date: `2026-04-19`
+Date: `2026-04-20`
 
 Versioning method: release/refactor `+0.1`, feature `+0.0.1`, bug fix `+0.0.0.1`, save-breaking release `+1.0`.
+
+## 0.8.17.1
+
+- Bug fix: Reduced the Galaxy View inspector selection readout to the requested essentials by replacing raw parsec XYZ and extra preview detail with type, seed, current quadrant, subsector-local grid position, home-relative polar angle, inclination, distance from core, and a compact system preview summary.
+- Bug fix: Current location in the Galaxy View inspector now resolves from the active local view context instead of echoing stale raw selection metadata, while the selected system `Local XYZ` now displays subsector-grid coordinates clamped to the expected `0..9` range on each axis.
+- Test: Added unit coverage for the inspector selection formatter so quadrant context, subsector-grid mapping, home-relative polar readouts, and parsec-vs-kiloparsec formatting stay stable.
 
 ## 0.8.17.0
 

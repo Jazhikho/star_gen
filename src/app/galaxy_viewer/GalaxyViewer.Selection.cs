@@ -166,7 +166,7 @@ public partial class GalaxyViewer
 		_selectionIndicator?.ShowAt(worldPosition);
 		if (_inspectorPanel is GalaxyInspectorPanel typedInspectorPanel)
 		{
-			typedInspectorPanel.DisplaySelectedStar(worldPosition, starSeed);
+			typedInspectorPanel.DisplaySelectedStar(worldPosition, starSeed, GetCurrentInspectorReferencePosition());
 			typedInspectorPanel.DisplaySystemPreview(_starPreview);
 		}
 		else
@@ -202,7 +202,7 @@ public partial class GalaxyViewer
 
 			if (_selectedStarSeed != 0)
 			{
-				typedInspectorPanel.DisplaySelectedStar(_selectedStarPosition, _selectedStarSeed);
+				typedInspectorPanel.DisplaySelectedStar(_selectedStarPosition, _selectedStarSeed, GetCurrentInspectorReferencePosition());
 				if (_starPreview != null)
 				{
 					typedInspectorPanel.DisplaySystemPreview(_starPreview);
@@ -244,6 +244,36 @@ public partial class GalaxyViewer
 		}
 
 		_inspectorPanel.Call("display_galaxy", _spec, _zoomMachine.GetCurrentLevel());
+	}
+
+	/// <summary>
+	/// Returns the position that defines the viewer's current local context for inspector readouts.
+	/// </summary>
+	private Vector3 GetCurrentInspectorReferencePosition()
+	{
+		if (_starCamera != null && IsSubsectorActive())
+		{
+			return _starCamera.GetCurrentPosition();
+		}
+
+		if (
+			_selectedSector.VariantType == Variant.Type.Vector3I &&
+			_quadrantSelector != null &&
+			_quadrantSelector.HasSelection() &&
+			_quadrantSelector.SelectedCoords.VariantType == Variant.Type.Vector3I)
+		{
+			Vector3I quadrantCoords = (Vector3I)_quadrantSelector.SelectedCoords;
+			Vector3I sectorCoords = (Vector3I)_selectedSector;
+			return GalaxyCoordinates.SectorWorldOrigin(quadrantCoords, sectorCoords)
+				+ (Vector3.One * ((float)GalaxyCoordinates.SectorSizePc * 0.5f));
+		}
+
+		if (_quadrantSelector != null && _quadrantSelector.HasSelection() && _quadrantSelector.SelectedCoords.VariantType == Variant.Type.Vector3I)
+		{
+			return GalaxyCoordinates.QuadrantToParsecCenter((Vector3I)_quadrantSelector.SelectedCoords);
+		}
+
+		return HomePosition.GetDefaultPosition();
 	}
 
 	/// <summary>
