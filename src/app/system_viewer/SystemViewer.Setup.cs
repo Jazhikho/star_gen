@@ -21,15 +21,6 @@ public partial class SystemViewer
         _backButton = GetNodeOrNull<Button>("UI/TopBar/MarginContainer/TopBarVBox/HeaderRow/BackButton");
         _statusLabel = GetNodeOrNull<Label>("UI/TopBar/MarginContainer/TopBarVBox/HeaderRow/StatusLabel");
         _inspectorPanel = GetNodeOrNull<Node>("UI/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/InspectorPanel");
-        _generationSection = GetNodeOrNull<VBoxContainer>("UI/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/GenerationSection");
-        _saveLoadSection = GetNodeOrNull<Control>("UI/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/SaveLoadSection");
-        _starCountLabel = GetNodeOrNull<Label>("UI/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/GenerationSection/StarCountContainer/StarCountLabel");
-        _starCountSpin = GetNodeOrNull<SpinBox>("UI/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/GenerationSection/StarCountContainer/StarCountSpin");
-        _seedInput = GetNodeOrNull<SpinBox>("UI/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/GenerationSection/SeedContainer/SeedInput");
-        _generateButton = GetNodeOrNull<Button>("UI/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/GenerationSection/ButtonContainer/GenerateButton");
-        _rerollButton = GetNodeOrNull<Button>("UI/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/GenerationSection/ButtonContainer/RerollButton");
-        _saveButton = GetNodeOrNull<Button>("UI/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/SaveLoadSection/ButtonContainer/SaveButton");
-        _loadButton = GetNodeOrNull<Button>("UI/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/SaveLoadSection/ButtonContainer/LoadButton");
         _optionsDialog = GetNodeOrNull<Window>("OptionsDialog");
         _fullscreenCheck = GetNodeOrNull<CheckBox>("OptionsDialog/MarginContainer/OptionsVBox/FullscreenCheck");
         _showSeedControlsCheck = GetNodeOrNull<CheckBox>("OptionsDialog/MarginContainer/OptionsVBox/ShowSeedControlsCheck");
@@ -77,19 +68,13 @@ public partial class SystemViewer
     }
 
     /// <summary>
-    /// Initializes generation UI defaults.
+    /// Initializes viewer defaults for a detached standalone instance.
     /// </summary>
     private void SetupGenerationUi()
     {
-        if (_seedInput != null)
-        {
-            _seedInput.Value = GD.Randi() % 1000000;
-        }
-
-        BuildParameterEditorUi();
         if (_currentSpec == null)
         {
-            ApplySpecToControls(new SolarSystemSpec((int)(_seedInput?.Value ?? 1.0), 1, 1));
+            ApplySpecToControls(new SolarSystemSpec((int)(GD.Randi() % 1000000), 1, 1));
         }
     }
 
@@ -141,13 +126,7 @@ public partial class SystemViewer
     /// </summary>
     private void SetupSaveLoadUi()
     {
-        if (_saveLoadSection != null)
-        {
-            _saveLoadSection.Visible = false;
-        }
-
         SetupEmptyStateUi();
-        UpdateSaveButtonState();
     }
 
     /// <summary>
@@ -197,31 +176,6 @@ public partial class SystemViewer
         if (_backButton != null)
         {
             _backButton.Pressed += OnBackPressed;
-        }
-
-        if (_rulesetModeOption != null)
-        {
-            _rulesetModeOption.ItemSelected += OnRulesetModeSelected;
-        }
-
-        if (_showTravellerReadoutsCheck != null)
-        {
-            _showTravellerReadoutsCheck.Toggled += _ => RefreshGenerationValidationFromControls();
-        }
-
-        if (_lifePermissivenessInput != null)
-        {
-            _lifePermissivenessInput.ValueChanged += _ => RefreshGenerationValidationFromControls();
-        }
-
-        if (_populationPermissivenessInput != null)
-        {
-            _populationPermissivenessInput.ValueChanged += _ => RefreshGenerationValidationFromControls();
-        }
-
-        if (_mainworldPolicyOption != null)
-        {
-            _mainworldPolicyOption.ItemSelected += _ => RefreshGenerationValidationFromControls();
         }
 
         if (_inspectorPanel is SystemInspectorPanel typedInspectorPanel)

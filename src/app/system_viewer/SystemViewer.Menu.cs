@@ -7,11 +7,9 @@ namespace StarGen.App.SystemViewer;
 /// </summary>
 public partial class SystemViewer
 {
-    private const int FileMenuNewSystemId = 1;
-    private const int FileMenuMainMenuId = 2;
-    private const int FileMenuReturnId = 3;
-	private const int ToolsMenuGenerateId = 10;
-	private const int ToolsMenuRerollId = 11;
+	private const int FileMenuNewSystemId = 1;
+	private const int FileMenuMainMenuId = 2;
+	private const int FileMenuReturnId = 3;
 	private const int ToolsMenuShowOrbitsId = 20;
 	private const int ToolsMenuFocusOriginId = 22;
     private const int HelpMenuControlsId = 40;
@@ -96,13 +94,6 @@ public partial class SystemViewer
     private void RebuildToolsMenu(PopupMenu popup)
     {
 		popup.Clear();
-		if (_generationActionsVisible)
-		{
-			popup.AddItem("Generate", ToolsMenuGenerateId);
-            popup.AddItem("Re-roll", ToolsMenuRerollId);
-            popup.AddSeparator();
-        }
-
 		popup.AddCheckItem("Show Orbits", ToolsMenuShowOrbitsId);
 		popup.SetItemChecked(popup.ItemCount - 1, _showOrbitsVisible);
 		popup.AddSeparator();
@@ -131,18 +122,6 @@ public partial class SystemViewer
 
     private void OnToolsMenuIdPressed(long id)
     {
-        if (id == ToolsMenuGenerateId)
-        {
-            OnGeneratePressed();
-            return;
-        }
-
-        if (id == ToolsMenuRerollId)
-        {
-            OnRerollPressed();
-            return;
-        }
-
         if (id == ToolsMenuShowOrbitsId)
         {
             bool enabled = !_showOrbitsVisible;

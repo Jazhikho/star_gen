@@ -33,10 +33,12 @@ Purpose: track the remaining work needed to keep the active viewer stack aligned
 - Converted in this patch:
   - top-level menu buttons are now scene-owned instead of being created at runtime
   - controls panel now expands upward from a scene-owned header/content stack
+  - the old embedded generation/editor stack was removed from the active `SystemViewer.tscn`
+  - the old embedded save/load block was removed from the active `SystemViewer.tscn`
+  - viewer scripts now treat the spec as studio-owned input instead of building a second parameter editor
 - Still violating engine-first expectations:
-  - the viewer still contains a large standalone generation/editor panel on the left
-  - many generator controls that belong to System Studio are duplicated in the viewer scene
-  - save/load and generation actions are still embedded into the viewer instead of being viewer-only tools
+  - overview and selection rows are still created in code rather than using reusable scene fragments
+  - orbit preview entries are still fully controller-built instead of using scene-owned row templates
 
 ### Object Viewer
 - Scene-owned already:
@@ -56,8 +58,8 @@ Purpose: track the remaining work needed to keep the active viewer stack aligned
 
 ### High Priority
 1. Remove viewer-side generation editors from System Viewer.
-   - Keep viewer functions in the viewer.
-   - Route generation/editing back through System Studio.
+   - Done for the active `SystemViewer.tscn`.
+   - Follow-up is limited to inspector row templating, not more generator stripping.
 2. Remove viewer-side generation editors from Object Viewer.
    - Keep inspection, fit/focus, and file operations in the viewer.
    - Route object authoring back through Object Studio.
@@ -81,7 +83,7 @@ Purpose: track the remaining work needed to keep the active viewer stack aligned
 
 ## Recommended Next Refactor Order
 
-1. System Viewer: remove embedded generation/editor controls and keep viewer-only tooling.
-2. Object Viewer: remove embedded generation/editor controls and keep viewer-only tooling.
-3. Shared viewer menu/dialog components: factor repeated scene shells into reusable assets.
-4. Inspector row template pass: migrate repeated dynamic rows to reusable `.tscn` fragments where it reduces code without freezing dynamic behavior.
+1. Object Viewer: remove embedded generation/editor controls and keep viewer-only tooling.
+2. Shared viewer menu/dialog components: factor repeated scene shells into reusable assets.
+3. Inspector row template pass: migrate repeated dynamic rows to reusable `.tscn` fragments where it reduces code without freezing dynamic behavior.
+4. System Viewer: convert reusable inspector row/button templates from controller-built helpers into `.tscn` fragments where it reduces runtime mutation.

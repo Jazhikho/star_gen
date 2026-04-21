@@ -1,12 +1,19 @@
 # Version
 
-Current version: `0.8.18.5`
+Current version: `0.8.18.6`
 
 Current user-facing version: `0.9d`
 
 Date: `2026-04-21`
 
 Versioning method: release/refactor `+0.1`, feature `+0.0.1`, bug fix `+0.0.0.1`, save-breaking release `+1.0`.
+
+## 0.8.18.6
+
+- Bug fix: Removed the embedded generation and save/load editor stack from the active `SystemViewer.tscn`, so the runtime System Viewer now matches the engine scene and no longer carries a second hidden copy of System Studio.
+- Bug fix: Simplified the System Viewer controller so it treats generation specs as studio-owned input, keeps only viewer tools in the top menu, and stops binding runtime behavior to deleted viewer-side generator controls.
+- Docs: Updated `Docs/ViewerSceneOwnershipAudit.md` to mark the System Viewer generator-strip pass complete and narrow the remaining engine-first migration work to inspector row templating and the Object Viewer cleanup.
+- Test: Added a viewer-scene regression proving the active System Viewer no longer mounts the old generation or save/load sections; `dotnet build StarGen.sln` passed, and the headless harness passed (`1835 / 1835`) before Godot emitted its known shutdown leak noise.
 
 ## 0.8.18.5
 

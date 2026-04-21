@@ -461,6 +461,11 @@ public static partial class DotNetNativeTestSuite
             AssertEqual("Options", ((Button)menuRow.GetChild(2)).Text, "system viewer third menu should be Options");
             AssertEqual("Help", ((Button)menuRow.GetChild(3)).Text, "system viewer fourth menu should be Help");
 
+            Node? generationSection = viewer.GetNodeOrNull<Node>("UI/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/GenerationSection");
+            Node? saveLoadSection = viewer.GetNodeOrNull<Node>("UI/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/SaveLoadSection");
+            AssertTrue(generationSection == null, "system viewer should not embed the old generator panel");
+            AssertTrue(saveLoadSection == null, "system viewer should not embed the old save-load panel");
+
             Window? optionsDialog = viewer.GetNodeOrNull<Window>("OptionsDialog");
             CheckBox? showSeedsCheck = viewer.GetNodeOrNull<CheckBox>("OptionsDialog/MarginContainer/OptionsVBox/ShowSeedControlsCheck");
             Button? optionsButton = menuRow.GetChild(2) as Button;

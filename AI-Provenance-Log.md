@@ -17,6 +17,17 @@ Use this log for significant AI-assisted artifacts in this repository.
 
 ## Entries
 
+### 2026-04-21 - Codex (GPT-5)
+
+- Task Purpose: Remove the stale viewer-side generator and save/load stack from the active System Viewer so the runtime scene matches the `.tscn` shown in the engine, and record what `.tscn` migration work still remains after that cleanup.
+- Input Materials Used: User report and screenshots showing that the live `SystemViewer.tscn` still rendered an old generation/editor stack at runtime; `AGENTS.md`; repo `claude.md`; `src/app/system_viewer/SystemViewer.tscn`; `SystemViewer.cs`; `SystemViewer.Setup.cs`; `SystemViewer.Parameters.cs`; `SystemViewer.Menu.cs`; `SystemViewer.Interaction.cs`; `Tests/Framework/DotNetNativeTestSuite.App.cs`; `Docs/ViewerSceneOwnershipAudit.md`; and version/project-structure metadata files.
+- AI Produced: Removed the embedded generation and save/load nodes from the active `SystemViewer.tscn`; simplified the System Viewer controller so it no longer binds to deleted generator controls and now treats the current `SolarSystemSpec` as studio-owned input; removed generator actions from the System Viewer `Tools` menu; added a regression proving the active viewer scene no longer mounts the old generation/save-load sections; updated the viewer scene-ownership audit to mark the System Viewer strip-out complete and focus remaining engine-first work on inspector-row templating and Object Viewer cleanup; and synced internal version metadata to `0.8.18.6`.
+- Human Accepted: Pending Christopher B. Del Gesso review of the live System Viewer scene/runtime alignment and the remaining `.tscn` migration assessment.
+- Human Rejected: The user rejected the earlier state where System Viewer still contained a large viewer-side generation/editor panel and save/load block that did not belong in the runtime viewer and made the editor scene diverge from the actual in-game UI.
+- Human Changed: The user explicitly directed that anything in the active System Viewer scene that should not be there must be removed and that anything still being created in code that can live in `.tscn` should be moved toward scene ownership instead.
+- Validation Method: `dotnet build StarGen.sln`; `godot-mono.exe --path . --headless --script res://Tests/RunTestsHeadless.gd` (`Total: 1835 | Passed: 1835 | Failed: 0`; Godot still emitted its known shutdown leak warnings after the green run).
+- Final Approver: Pending Christopher B. Del Gesso review.
+
 ### 2026-04-20 - Codex (GPT-5)
 
 - Task Purpose: Bring the main menu/viewer options dialogs, checkbox styling, System Viewer inspector, and studio override surfaces up to the same standard as the Galaxy Viewer and studios, including fixing the explicit `Apply`/`Close` dialog behavior and replacing the System Viewer inspector with a focus-oriented orbit preview.

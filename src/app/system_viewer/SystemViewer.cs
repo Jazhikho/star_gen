@@ -249,16 +249,16 @@ public partial class SystemViewer : Node3D, ISystemViewerSaveLoadHost
 
 		_currentSpec = spec;
 		SetStatus($"Generating system with seed {spec.GenerationSeed}...");
-        SolarSystem? system = SystemFixtureGenerator.GenerateSystem(spec, null);
-        if (system == null)
-        {
-            SetError("Failed to generate system");
-            return;
-        }
+		SolarSystem? system = SystemFixtureGenerator.GenerateSystem(spec, null);
+		if (system == null)
+		{
+			SetError("Failed to generate system");
+			return;
+		}
 
-        AppendTravellerGenerationIssues(system, spec);
-        UpdateGenerationIssuesUi();
-        DisplaySystem(system);
+		AppendTravellerGenerationIssues(system, spec);
+		UpdateGenerationIssuesUi();
+		DisplaySystem(system);
 		if (_currentGenerationIssues.Issues.Count > 0)
 		{
 			SetStatus($"Generated with {_currentGenerationIssues.Issues.Count} advisory issue(s): {system.GetSummary()}");
@@ -529,7 +529,6 @@ public partial class SystemViewer : Node3D, ISystemViewerSaveLoadHost
 
 		_startupState = ViewerStartupState.UnconfiguredStandalone;
 		_sourceStarSeed = 0;
-		SetGenerationSectionVisible(true);
 		SetBackNavigationVisibility(false);
 		ApplySpecToControls(seedSpec);
 		ClearDisplay();
@@ -541,10 +540,6 @@ public partial class SystemViewer : Node3D, ISystemViewerSaveLoadHost
 	public void SetGenerationSectionVisible(bool visible)
 	{
 		_generationActionsVisible = visible;
-		if (_generationSection != null)
-		{
-			_generationSection.Visible = visible;
-		}
 	}
 
 	/// <summary>

@@ -51,11 +51,6 @@ public partial class SystemViewer
     /// </summary>
     private void OnGeneratePressed()
     {
-        if (!_generationActionsVisible)
-        {
-            return;
-        }
-
         SolarSystemSpec spec = BuildCurrentSpecFromControls();
         _startupState = ViewerStartupState.ViewingExistingContent;
         _sourceStarSeed = 0;
@@ -67,18 +62,11 @@ public partial class SystemViewer
     /// </summary>
     private void OnRerollPressed()
     {
-        if (!_generationActionsVisible)
-        {
-            return;
-        }
-
-        int newSeed = (int)(GD.Randi() % 1000000);
-        if (_seedInput != null)
-        {
-            _seedInput.Value = newSeed;
-        }
-
-        OnGeneratePressed();
+        SolarSystemSpec spec = BuildCurrentSpecFromControls();
+        spec.GenerationSeed = (int)(GD.Randi() % 1000000);
+        _startupState = ViewerStartupState.ViewingExistingContent;
+        _sourceStarSeed = 0;
+        GenerateSystem(spec);
     }
 
     /// <summary>
@@ -98,10 +86,6 @@ public partial class SystemViewer
     /// </summary>
     private void UpdateSaveButtonState()
     {
-        if (_saveButton != null)
-        {
-            _saveButton.Disabled = _currentSystem == null;
-        }
     }
 
     /// <summary>
@@ -366,19 +350,6 @@ public partial class SystemViewer
         }
 
         return null;
-    }
-
-    /// <summary>
-    /// Applies ruleset defaults when the user switches to Traveller mode.
-    /// </summary>
-    private void OnRulesetModeSelected(long selectedId)
-    {
-        if (selectedId == (long)GenerationUseCaseSettings.RulesetModeType.Traveller)
-        {
-            ApplyTravellerDefaultsToControls();
-        }
-
-        RefreshGenerationValidationFromControls();
     }
 
 }
