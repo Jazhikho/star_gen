@@ -39,7 +39,15 @@ public partial class InspectorPanel : VBoxContainer
 	/// </summary>
 	public override void _Ready()
 	{
-		_inspectorContainer = GetNodeOrNull<VBoxContainer>("InspectorContainer");
+		EnsureInspectorContainer();
+	}
+
+	private void EnsureInspectorContainer()
+	{
+		if (_inspectorContainer == null)
+		{
+			_inspectorContainer = GetNodeOrNull<VBoxContainer>("InspectorContainer");
+		}
 	}
 
 	/// <summary>
@@ -55,6 +63,7 @@ public partial class InspectorPanel : VBoxContainer
 	/// </summary>
 	public void Clear()
 	{
+		EnsureInspectorContainer();
 		if (_inspectorContainer == null)
 		{
 			return;
@@ -87,6 +96,7 @@ public partial class InspectorPanel : VBoxContainer
 		Godot.Collections.Array? originalMoonVariants = null)
 	{
 		Clear();
+		EnsureInspectorContainer();
 		if (_inspectorContainer == null)
 		{
 			return;
@@ -127,6 +137,7 @@ public partial class InspectorPanel : VBoxContainer
 		Godot.Collections.Array? originalMoonVariants = null)
 	{
 		Clear();
+		EnsureInspectorContainer();
 		if (_inspectorContainer == null || moon == null)
 		{
 			return;
@@ -162,7 +173,6 @@ public partial class InspectorPanel : VBoxContainer
 		AddProperty("Name", nameValue);
 		AddProperty("Type", body.GetTypeString());
 		AddProperty("ID", body.Id);
-		AddWorldProfileSummary(body);
 		AddPhysicalSummary(body.Physical);
 
 		if (body.HasStellar() && body.Stellar != null)
@@ -175,70 +185,10 @@ public partial class InspectorPanel : VBoxContainer
 		AddSurfaceSummary(body);
 		AddAtmosphereSummary(body);
 		AddRingSummary(body);
-		AddGenerationSnapshot(body);
 		AddTravellerReadout(body);
 		AddPopulationSummary(body);
 		AddValidationSummary(body);
 		AddEditButton();
-	}
-
-	private void AddWorldProfileSummary(CelestialBody body)
-	{
-		if (_inspectorContainer == null)
-		{
-			return;
-		}
-
-		if (body.Type != CelestialType.Type.Planet && body.Type != CelestialType.Type.Moon)
-		{
-			return;
-		}
-
-		TravellerWorldProfile profile;
-		TravellerWorldProfile? stored = TravellerWorldGenerator.TryGetStoredProfile(body);
-		if (stored != null)
-		{
-			profile = stored;
-		}
-		else
-		{
-			profile = TravellerWorldGenerator.DeriveFromBody(body);
-		}
-
-		BeginSection("World Profile");
-		AddProperty("UWP", profile.ToUwpString());
-		AddProperty("Starport", profile.StarportCode);
-		AddProperty(
-			"Atmosphere",
-			TravellerWorldProfile.ToHexDigit(profile.AtmosphereCode) + " " + TravellerWorldGenerator.DescribeAtmosphereCode(profile.AtmosphereCode));
-		AddProperty("Hydrographics", $"{TravellerWorldProfile.ToHexDigit(profile.HydrographicsCode)} ({profile.HydrographicsCode * 10}% nominal)");
-		AddProperty("Population", TravellerWorldProfile.ToHexDigit(profile.PopulationCode));
-		AddProperty("Government", TravellerWorldProfile.ToHexDigit(profile.GovernmentCode));
-		AddProperty("Law", TravellerWorldProfile.ToHexDigit(profile.LawCode));
-		AddProperty("Tech Level", TravellerWorldProfile.ToHexDigit(profile.TechLevelCode));
-		TravellerTradeCodeSet? tradeCodes = TryGetStoredTradeCodes(body);
-		if (tradeCodes != null)
-		{
-			AddProperty("Trade Codes", tradeCodes.ToDisplayString());
-		}
-
-		string travelZone = TryGetStoredTravelZone(body);
-		if (!string.IsNullOrEmpty(travelZone))
-		{
-			AddProperty("Travel Zone", travelZone);
-		}
-
-		AddProperty("Gravity (g)", $"{body.Physical.GetSurfaceGravityMS2() / 9.80665:0.00} g");
-		if (body.HasSurface() && body.Surface != null)
-		{
-			double celsius = body.Surface.TemperatureK - 273.15;
-			AddProperty("Climate", $"{body.Surface.TemperatureK:0.0} K / {celsius:0.0} C");
-		}
-
-		if (body.HasPopulationData() && body.PopulationData != null && body.PopulationData.Suitability != null)
-		{
-			AddProperty("Suitability", body.PopulationData.Suitability.OverallScore.ToString());
-		}
 	}
 
 	private void AddPhysicalSummary(PhysicalProps physical)
@@ -360,60 +310,6 @@ public partial class InspectorPanel : VBoxContainer
 		targetContainer.AddChild(label);
 	}
 
-	private void AddGenerationSnapshot(CelestialBody body)
-	{
-		if (_inspectorContainer == null || body.Provenance == null || body.Provenance.SpecSnapshot.Count == 0)
-		{
-			return;
-		}
-
-		BeginSection("Generation Targets");
-		if (body.Provenance.SpecSnapshot.ContainsKey("spec_type"))
-		{
-			AddProperty("Spec", body.Provenance.SpecSnapshot["spec_type"].ToString());
-		}
-
-		if (body.Provenance.SpecSnapshot.ContainsKey("size_category"))
-		{
-			AddProperty("Size Target", FormatSizeCategory(body.Provenance.SpecSnapshot["size_category"]));
-		}
-
-		if (body.Provenance.SpecSnapshot.ContainsKey("orbit_zone"))
-		{
-			AddProperty("Orbit Target", FormatOrbitZone(body.Provenance.SpecSnapshot["orbit_zone"]));
-		}
-
-		if (body.Provenance.SpecSnapshot.ContainsKey("spectral_class"))
-		{
-			AddProperty("Spectral Target", body.Provenance.SpecSnapshot["spectral_class"].ToString());
-		}
-
-		if (body.Provenance.SpecSnapshot.ContainsKey("has_atmosphere"))
-		{
-			AddProperty("Atmosphere Target", FormatOptionalBool(body.Provenance.SpecSnapshot["has_atmosphere"]));
-		}
-
-		if (body.Provenance.SpecSnapshot.ContainsKey("has_rings"))
-		{
-			AddProperty("Rings Target", FormatOptionalBool(body.Provenance.SpecSnapshot["has_rings"]));
-		}
-
-		if (body.Provenance.SpecSnapshot.ContainsKey("ring_complexity"))
-		{
-			AddProperty("Ring Complexity", FormatRingComplexity(body.Provenance.SpecSnapshot["ring_complexity"]));
-		}
-
-		if (body.Provenance.SpecSnapshot.ContainsKey("is_captured"))
-		{
-			AddProperty("Captured Target", (bool)body.Provenance.SpecSnapshot["is_captured"] ? "Yes" : "No");
-		}
-
-		if (body.Provenance.SpecSnapshot.ContainsKey("has_subsurface_ocean"))
-		{
-			AddProperty("Ocean Target", FormatOptionalBool(body.Provenance.SpecSnapshot["has_subsurface_ocean"]));
-		}
-	}
-
 	private void AddTravellerReadout(CelestialBody body)
 	{
 		if (_inspectorContainer == null || body.Provenance == null || body.Provenance.SpecSnapshot.Count == 0)
@@ -421,19 +317,11 @@ public partial class InspectorPanel : VBoxContainer
 			return;
 		}
 
-		if (!body.Provenance.SpecSnapshot.ContainsKey("use_case_settings"))
-		{
-			return;
-		}
-
-		Variant settingsVariant = body.Provenance.SpecSnapshot["use_case_settings"];
-		if (settingsVariant.VariantType != Variant.Type.Dictionary)
-		{
-			return;
-		}
-
-		GenerationUseCaseSettings settings = GenerationUseCaseSettings.FromDictionary((Godot.Collections.Dictionary)settingsVariant);
-		if (!settings.ShowTravellerReadouts && !settings.IsTravellerMode())
+		GenerationUseCaseSettings? settings = ResolveUseCaseSettings(body);
+		bool shouldShowTravellerReadout = settings != null
+			? settings.ShowTravellerReadouts || settings.IsTravellerMode()
+			: ResolveLegacyTravellerInspectorVisibility(body);
+		if (!shouldShowTravellerReadout)
 		{
 			return;
 		}
@@ -450,7 +338,10 @@ public partial class InspectorPanel : VBoxContainer
 		}
 
 		BeginSection("Traveller");
-		AddProperty("Ruleset", GenerationUseCasePresentation.GetRulesetLabel(settings.RulesetMode));
+		if (settings != null)
+		{
+			AddProperty("Ruleset", GenerationUseCasePresentation.GetRulesetLabel(settings.RulesetMode));
+		}
 		AddProperty("UWP", profile.ToUwpString());
 		AddProperty("Size Code", TravellerWorldProfile.ToHexDigit(profile.SizeCode));
 		AddProperty("Atmosphere Code", TravellerWorldProfile.ToHexDigit(profile.AtmosphereCode));
@@ -470,6 +361,53 @@ public partial class InspectorPanel : VBoxContainer
 		{
 			AddProperty("Travel Zone", travelZone);
 		}
+	}
+
+	private static GenerationUseCaseSettings? ResolveUseCaseSettings(CelestialBody body)
+	{
+		if (body.Provenance == null || !body.Provenance.SpecSnapshot.ContainsKey("use_case_settings"))
+		{
+			return null;
+		}
+
+		Variant settingsVariant = body.Provenance.SpecSnapshot["use_case_settings"];
+		if (settingsVariant.VariantType != Variant.Type.Dictionary)
+		{
+			return null;
+		}
+
+		return GenerationUseCaseSettings.FromDictionary((Godot.Collections.Dictionary)settingsVariant);
+	}
+
+	private static bool ResolveLegacyTravellerInspectorVisibility(CelestialBody body)
+	{
+		if (body.Provenance == null)
+		{
+			return false;
+		}
+
+		if (body.Provenance.SpecSnapshot.ContainsKey("show_traveller_readouts"))
+		{
+			Variant showVariant = body.Provenance.SpecSnapshot["show_traveller_readouts"];
+			if (showVariant.VariantType == Variant.Type.Bool && (bool)showVariant)
+			{
+				return true;
+			}
+		}
+
+		if (!body.Provenance.SpecSnapshot.ContainsKey("ruleset_mode"))
+		{
+			return false;
+		}
+
+		Variant rulesetVariant = body.Provenance.SpecSnapshot["ruleset_mode"];
+		if (rulesetVariant.VariantType != Variant.Type.Int)
+		{
+			return false;
+		}
+
+		int rulesetValue = (int)rulesetVariant;
+		return rulesetValue == (int)GenerationUseCaseSettings.RulesetModeType.Traveller;
 	}
 
 	private static TravellerTradeCodeSet? TryGetStoredTradeCodes(CelestialBody body)

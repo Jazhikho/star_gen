@@ -13,10 +13,14 @@ public partial class GalaxyViewer
 {
 	private const int DefaultLocalSpaceExtent = 5;
 	private const int MaximumLocalSpaceExtent = 10;
-    private const float CameraPanelAnimationDurationSeconds = 0.18f;
-    private const float CameraPanelCornerMarginPixels = 16.0f;
-    private const float CameraPanelCollapsedWidthPaddingPixels = 18.0f;
-    private const float CameraPanelCollapsedHeightPaddingPixels = 10.0f;
+private const float CameraPanelAnimationDurationSeconds = 0.18f;
+private const float CameraPanelCornerMarginPixels = 16.0f;
+private const float CameraPanelCollapsedWidthPaddingPixels = 8.0f;
+private const float CameraPanelCollapsedHeightPaddingPixels = 4.0f;
+private const float CameraPanelExpandedWidthPaddingPixels = 10.0f;
+private const float CameraPanelExpandedHeightPaddingPixels = 8.0f;
+private const float CameraPanelCollapsedMinimumWidthPixels = 88.0f;
+private const float CameraPanelCollapsedMinimumHeightPixels = 26.0f;
 
 	private void ConnectOptionsSignals()
 	{
@@ -286,7 +290,7 @@ public partial class GalaxyViewer
 
 		if (_cameraPanelExpandedSize == Vector2.Zero)
 		{
-			_cameraPanelExpandedSize = MeasureCurrentPanelSize();
+			_cameraPanelExpandedSize = MeasureExpandedPanelSize();
 		}
 
 		if (_cameraPanelTween != null && GodotObject.IsInstanceValid(_cameraPanelTween))
@@ -353,6 +357,28 @@ public partial class GalaxyViewer
 		return new Vector2(width, height);
 	}
 
+	private Vector2 MeasureExpandedPanelSize()
+	{
+		if (_cameraPanel == null)
+		{
+			return Vector2.Zero;
+		}
+
+		Vector2 fallback = MeasureCurrentPanelSize();
+		VBoxContainer? panelVBox = _cameraPanel.GetNodeOrNull<VBoxContainer>("CameraPanelVBox");
+		Vector2 headerSize = MeasureCameraPanelHeaderSize();
+		Vector2 contentSize = MeasureCameraPanelContentSize();
+		if (panelVBox == null || headerSize == Vector2.Zero || contentSize == Vector2.Zero)
+		{
+			return fallback;
+		}
+
+		float separation = panelVBox.GetThemeConstant("separation");
+		float width = Mathf.Ceil(Mathf.Max(headerSize.X, contentSize.X) + CameraPanelExpandedWidthPaddingPixels);
+		float height = Mathf.Ceil(headerSize.Y + separation + contentSize.Y + CameraPanelExpandedHeightPaddingPixels);
+		return new Vector2(width, height);
+	}
+
 	private Vector2 MeasureCollapsedPanelSize()
 	{
 		if (_cameraPanelHeaderButton == null)
@@ -361,9 +387,33 @@ public partial class GalaxyViewer
 		}
 
 		Vector2 headerSize = _cameraPanelHeaderButton.GetCombinedMinimumSize();
-		float width = Mathf.Ceil(headerSize.X + CameraPanelCollapsedWidthPaddingPixels);
-		float height = Mathf.Ceil(headerSize.Y + CameraPanelCollapsedHeightPaddingPixels);
+		float width = Mathf.Ceil(Mathf.Max(CameraPanelCollapsedMinimumWidthPixels, headerSize.X + CameraPanelCollapsedWidthPaddingPixels));
+		float height = Mathf.Ceil(Mathf.Max(CameraPanelCollapsedMinimumHeightPixels, headerSize.Y + CameraPanelCollapsedHeightPaddingPixels));
 		return new Vector2(width, height);
+	}
+
+	private Vector2 MeasureCameraPanelHeaderSize()
+	{
+		if (_cameraPanelHeaderButton == null)
+		{
+			return Vector2.Zero;
+		}
+
+		return _cameraPanelHeaderButton.GetCombinedMinimumSize();
+	}
+
+	private Vector2 MeasureCameraPanelContentSize()
+	{
+		if (_cameraPanelContent == null)
+		{
+			return Vector2.Zero;
+		}
+
+		bool contentWasVisible = _cameraPanelContent.Visible;
+		_cameraPanelContent.Visible = true;
+		Vector2 minimumSize = _cameraPanelContent.GetCombinedMinimumSize();
+		_cameraPanelContent.Visible = contentWasVisible;
+		return minimumSize;
 	}
 
 	private void ApplyCameraPanelSize(Vector2 size)
@@ -389,12 +439,15 @@ public partial class GalaxyViewer
 
 	private void InitializeCameraPanelLayout()
 	{
-		if (_cameraPanel == null)
+		if (_cameraPanel == null || _cameraPanelHeaderButton == null)
 		{
 			return;
 		}
 
-		_cameraPanelExpandedSize = MeasureCurrentPanelSize();
+		string originalText = _cameraPanelHeaderButton.Text;
+		_cameraPanelHeaderButton.Text = "^ Controls";
+		_cameraPanelExpandedSize = MeasureExpandedPanelSize();
+		_cameraPanelHeaderButton.Text = originalText;
 		SetCameraPanelCollapsed(true, false);
 	}
 

@@ -18,7 +18,7 @@ public partial class ObjectViewer
 		_sidePanel = GetNodeOrNull<Control>("UI/SidePanel");
 		_backButton = GetNodeOrNull<Button>("UI/TopBar/MarginContainer/TopBarVBox/HeaderRow/BackButton");
 		_statusLabel = GetNodeOrNull<Label>("UI/TopBar/MarginContainer/TopBarVBox/HeaderRow/StatusLabel");
-		_inspectorPanel = GetNodeOrNull<Node>("UI/SidePanel/MarginContainer/ScrollContainer/VBoxContainer");
+		_inspectorPanel = GetNodeOrNull<Node>("UI/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/InspectorPanel");
 		_generationSection = GetNodeOrNull<Control>("UI/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/GenerationSection");
 		_fileSection = GetNodeOrNull<Control>("UI/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/FileSection");
 		_typeOption = GetNodeOrNull<OptionButton>("UI/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/GenerationSection/TypeContainer/TypeOption");

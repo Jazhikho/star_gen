@@ -46,13 +46,16 @@ Purpose: track the remaining work needed to keep the active viewer stack aligned
   - side panel shell
   - options dialog shell
   - compact controls panel shell
-  - file and generation section shells
+  - file section shell
+  - dedicated `InspectorPanel` node shell
 - Converted in this patch:
   - top-level menu buttons are now scene-owned instead of being created at runtime
   - controls panel now expands upward from a scene-owned header/content stack
+  - the old embedded generation/editor stack was removed from the active `ObjectViewer.tscn`
+  - the duplicate inspector-script attachment on the outer side-panel container was removed, leaving the dedicated `InspectorPanel` node as the active inspector controller
 - Still violating engine-first expectations:
-  - the viewer still contains a large direct-generation panel
-  - ruleset/generation controls are mixed into the viewer instead of being limited to Object Studio
+  - inspector rows and section contents are still created in code rather than from reusable scene-owned row templates
+  - file-operation and object-summary blocks are still assembled mostly from controller logic rather than a richer scene-owned template set
 
 ## Priority Gaps
 
@@ -60,10 +63,7 @@ Purpose: track the remaining work needed to keep the active viewer stack aligned
 1. Remove viewer-side generation editors from System Viewer.
    - Done for the active `SystemViewer.tscn`.
    - Follow-up is limited to inspector row templating, not more generator stripping.
-2. Remove viewer-side generation editors from Object Viewer.
-   - Keep inspection, fit/focus, and file operations in the viewer.
-   - Route object authoring back through Object Studio.
-3. Standardize shared viewer menu scenes.
+2. Standardize shared viewer menu scenes.
    - Current button shells are scene-owned, but popup structure still lives in code.
    - Next step should be to decide whether popup contents remain controller-owned or move into reusable scene/menu templates.
 
@@ -83,7 +83,7 @@ Purpose: track the remaining work needed to keep the active viewer stack aligned
 
 ## Recommended Next Refactor Order
 
-1. Object Viewer: remove embedded generation/editor controls and keep viewer-only tooling.
-2. Shared viewer menu/dialog components: factor repeated scene shells into reusable assets.
-3. Inspector row template pass: migrate repeated dynamic rows to reusable `.tscn` fragments where it reduces code without freezing dynamic behavior.
-4. System Viewer: convert reusable inspector row/button templates from controller-built helpers into `.tscn` fragments where it reduces runtime mutation.
+1. Shared viewer menu/dialog components: factor repeated scene shells into reusable assets.
+2. Inspector row template pass: migrate repeated dynamic rows to reusable `.tscn` fragments where it reduces code without freezing dynamic behavior.
+3. System Viewer: convert reusable inspector row/button templates from controller-built helpers into `.tscn` fragments where it reduces runtime mutation.
+4. Object Viewer: convert reusable file/summary/inspector row templates from controller-built helpers into `.tscn` fragments where it reduces runtime mutation.

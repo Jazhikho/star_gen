@@ -20,10 +20,13 @@ public partial class ObjectViewer
 {
     private void SetupControls()
     {
-        SetupTypeOptions();
-        SetupPresetOptions();
-        SetupPopulationOptions();
-        SetupUseCaseControls();
+        if (_generationSection != null)
+        {
+            SetupTypeOptions();
+            SetupPresetOptions();
+            SetupPopulationOptions();
+            SetupUseCaseControls();
+        }
 
         if (_generateButton != null)
         {
@@ -72,19 +75,9 @@ public partial class ObjectViewer
 
     private void SetupPresetOptions()
     {
-        if (_typeOption == null)
+        if (_typeOption == null || _presetOption == null || _presetAssumptionsLabel == null)
         {
             return;
-        }
-
-        if (_presetOption == null)
-        {
-            throw new System.InvalidOperationException("ObjectViewer scene is missing PresetOption.");
-        }
-
-        if (_presetAssumptionsLabel == null)
-        {
-            throw new System.InvalidOperationException("ObjectViewer scene is missing PresetAssumptionsLabel.");
         }
 
         if (_typeOption != null)

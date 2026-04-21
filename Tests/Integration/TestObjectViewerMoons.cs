@@ -2,10 +2,13 @@
 #nullable disable warnings
 using System;
 using Godot;
+using Godot.Collections;
 using StarGen.App.Viewer;
 using StarGen.Domain.Celestial;
 using StarGen.Domain.Celestial.Components;
+using StarGen.Domain.Generation;
 using StarGen.Domain.Generation.Specs;
+using StarGen.Domain.Generation.Traveller;
 using StarGen.Domain.Math;
 using StarGen.Tests.Framework;
 
@@ -85,6 +88,12 @@ public static class TestObjectViewerMoons
         runner.RunNativeTest(
             "TestObjectViewerMoons::test_auto_moon_target_scales_with_planet_size",
             TestAutoMoonTargetScalesWithPlanetSize);
+        runner.RunNativeTest(
+            "TestObjectViewerMoons::test_object_viewer_hides_traveller_sections_by_default",
+            TestObjectViewerHidesTravellerSectionsByDefault);
+        runner.RunNativeTest(
+            "TestObjectViewerMoons::test_object_viewer_accepts_uwp_enabled_provenance_without_legacy_sections",
+            TestObjectViewerAcceptsUwpEnabledProvenanceWithoutLegacySections);
     }
 
     /// <summary>
@@ -109,6 +118,42 @@ public static class TestObjectViewerMoons
             null
         );
         return body;
+    }
+
+    private static CelestialBody MakeInspectablePlanet(bool showUwpReadouts)
+    {
+        CelestialBody body = MakePlanet();
+        GenerationUseCaseSettings settings = GenerationUseCaseSettings.CreateDefault();
+        settings.ShowTravellerReadouts = showUwpReadouts;
+        if (showUwpReadouts)
+        {
+            settings.RulesetMode = GenerationUseCaseSettings.RulesetModeType.Traveller;
+        }
+        TravellerWorldProfile profile = TravellerWorldGenerator.DeriveFromBody(body);
+        Dictionary specSnapshot = new()
+        {
+            ["use_case_settings"] = settings.ToDictionary(),
+            ["show_traveller_readouts"] = showUwpReadouts,
+            ["ruleset_mode"] = (int)settings.RulesetMode,
+            ["size_category"] = "terrestrial",
+            ["orbit_zone"] = "temperate",
+            ["traveller_world_profile"] = profile.ToDictionary(),
+        };
+        body.Provenance = Provenance.CreateCurrent(12345, specSnapshot);
+        return body;
+    }
+
+    private static bool InspectorHasSectionTitle(Node root, string title)
+    {
+        foreach (Node child in root.FindChildren("TitleLabel", "Label", true, false))
+        {
+            if (child is Label label && label.Text == title)
+            {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     /// <summary>
@@ -537,6 +582,58 @@ public static class TestObjectViewerMoons
         DotNetNativeTestSuite.AssertTrue(giantTarget > smallTarget, "Auto moon target should scale upward for giant planets");
         DotNetNativeTestSuite.AssertEqual(1, smallTarget, "Earth-sized planets should default to a small automatic moon target");
         DotNetNativeTestSuite.AssertEqual(6, giantTarget, "Giant planets should default to a larger automatic moon target");
+    }
+
+    private static void TestObjectViewerHidesTravellerSectionsByDefault()
+    {
+        ObjectViewer? viewer = null;
+        try
+        {
+            PackedScene? scene = ResourceLoader.Load<PackedScene>("res://src/app/viewer/ObjectViewer.tscn");
+            DotNetNativeTestSuite.AssertNotNull(scene, "object viewer scene should load for inspector testing");
+            viewer = scene!.Instantiate() as ObjectViewer;
+            DotNetNativeTestSuite.AssertNotNull(viewer, "object viewer should instantiate for inspector testing");
+            viewer!._Ready();
+
+            CelestialBody body = MakeInspectablePlanet(false);
+            viewer.DisplayExternalBody(Variant.From(body), new Godot.Collections.Array(), 0);
+
+            VBoxContainer? inspectorContainer = viewer.FindChild("InspectorContainer", true, false) as VBoxContainer;
+            DotNetNativeTestSuite.AssertNotNull(inspectorContainer, "object viewer should expose the inspector container");
+            DotNetNativeTestSuite.AssertFalse(InspectorHasSectionTitle(inspectorContainer!, "Traveller"), "UWP readouts should stay hidden by default");
+            DotNetNativeTestSuite.AssertFalse(InspectorHasSectionTitle(inspectorContainer, "World Profile"), "legacy world-profile section should not appear in the viewer inspector");
+            DotNetNativeTestSuite.AssertFalse(InspectorHasSectionTitle(inspectorContainer, "Generation Targets"), "generation-target diagnostics should not appear in the viewer inspector");
+        }
+        finally
+        {
+            viewer?.QueueFree();
+        }
+    }
+
+    private static void TestObjectViewerAcceptsUwpEnabledProvenanceWithoutLegacySections()
+    {
+        ObjectViewer? viewer = null;
+        try
+        {
+            PackedScene? scene = ResourceLoader.Load<PackedScene>("res://src/app/viewer/ObjectViewer.tscn");
+            DotNetNativeTestSuite.AssertNotNull(scene, "object viewer scene should load for traveller inspector testing");
+            viewer = scene!.Instantiate() as ObjectViewer;
+            DotNetNativeTestSuite.AssertNotNull(viewer, "object viewer should instantiate for traveller inspector testing");
+            viewer!._Ready();
+
+            CelestialBody body = MakeInspectablePlanet(true);
+            viewer.DisplayExternalBody(Variant.From(body), new Godot.Collections.Array(), 0);
+
+            VBoxContainer? inspectorContainer = viewer.FindChild("InspectorContainer", true, false) as VBoxContainer;
+            DotNetNativeTestSuite.AssertNotNull(inspectorContainer, "object viewer should expose the inspector container");
+            DotNetNativeTestSuite.AssertTrue(InspectorHasSectionTitle(inspectorContainer!, "Traveller"), "UWP readouts should appear when explicitly enabled");
+            DotNetNativeTestSuite.AssertFalse(InspectorHasSectionTitle(inspectorContainer!, "World Profile"), "legacy world-profile section should stay removed when UWP provenance is present");
+            DotNetNativeTestSuite.AssertFalse(InspectorHasSectionTitle(inspectorContainer, "Generation Targets"), "generation-target diagnostics should stay removed when UWP provenance is present");
+        }
+        finally
+        {
+            viewer?.QueueFree();
+        }
     }
 
 }

@@ -799,266 +799,6 @@ text = "Large Nucleus"
 [node name="CometLargeCheck" type="CheckBox" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/CometSection/CometLargeRow"]
 layout_mode = 2
 
-[node name="AdvancedSection" type="VBoxContainer" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox"]
-layout_mode = 2
-theme_override_constants/separation = 8
-
-[node name="AdvancedSectionTitle" type="Label" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/AdvancedSection"]
-layout_mode = 2
-theme_override_font_sizes/font_size = 16
-text = "Advanced Overrides"
-
-[node name="AdvancedSectionDivider" type="HSeparator" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/AdvancedSection"]
-layout_mode = 2
-
-
-[node name="MassOverrideRow" type="HBoxContainer" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/AdvancedSection"]
-layout_mode = 2
-theme_override_constants/separation = 10
-
-[node name="MassOverrideRowLabel" type="Label" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/AdvancedSection/MassOverrideRow"]
-layout_mode = 2
-custom_minimum_size = Vector2(112, 0)
-text = "Mass"
-
-[node name="MassOverrideToggle" type="CheckBox" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/AdvancedSection/MassOverrideRow"]
-layout_mode = 2
-text = "Set"
-
-[node name="MassOverrideInput" type="SpinBox" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/AdvancedSection/MassOverrideRow"]
-layout_mode = 2
-size_flags_horizontal = 3
-min_value = 1e-05
-max_value = 5000.0
-step = 0.0001
-editable = false
-
-[node name="RadiusOverrideRow" type="HBoxContainer" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/AdvancedSection"]
-layout_mode = 2
-theme_override_constants/separation = 10
-
-[node name="RadiusOverrideRowLabel" type="Label" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/AdvancedSection/RadiusOverrideRow"]
-layout_mode = 2
-custom_minimum_size = Vector2(112, 0)
-text = "Radius"
-
-[node name="RadiusOverrideToggle" type="CheckBox" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/AdvancedSection/RadiusOverrideRow"]
-layout_mode = 2
-text = "Set"
-
-[node name="RadiusOverrideInput" type="SpinBox" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/AdvancedSection/RadiusOverrideRow"]
-layout_mode = 2
-size_flags_horizontal = 3
-min_value = 0.001
-max_value = 500.0
-step = 0.001
-editable = false
-
-[node name="RotationOverrideRow" type="HBoxContainer" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/AdvancedSection"]
-layout_mode = 2
-theme_override_constants/separation = 10
-
-[node name="RotationOverrideRowLabel" type="Label" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/AdvancedSection/RotationOverrideRow"]
-layout_mode = 2
-custom_minimum_size = Vector2(112, 0)
-text = "Rotation Period (hrs)"
-
-[node name="RotationOverrideToggle" type="CheckBox" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/AdvancedSection/RotationOverrideRow"]
-layout_mode = 2
-text = "Set"
-
-[node name="RotationOverrideInput" type="SpinBox" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/AdvancedSection/RotationOverrideRow"]
-layout_mode = 2
-size_flags_horizontal = 3
-min_value = 0.1
-max_value = 10000.0
-step = 0.1
-editable = false
-
-[node name="AxialTiltOverrideRow" type="HBoxContainer" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/AdvancedSection"]
-layout_mode = 2
-theme_override_constants/separation = 10
-
-[node name="AxialTiltOverrideRowLabel" type="Label" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/AdvancedSection/AxialTiltOverrideRow"]
-layout_mode = 2
-custom_minimum_size = Vector2(112, 0)
-text = "Axial Tilt (deg)"
-
-[node name="AxialTiltOverrideToggle" type="CheckBox" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/AdvancedSection/AxialTiltOverrideRow"]
-layout_mode = 2
-text = "Set"
-
-[node name="AxialTiltOverrideInput" type="SpinBox" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/AdvancedSection/AxialTiltOverrideRow"]
-layout_mode = 2
-size_flags_horizontal = 3
-max_value = 180.0
-step = 0.1
-editable = false
-
-[node name="SemiMajorAxisOverrideRow" type="HBoxContainer" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/AdvancedSection"]
-layout_mode = 2
-theme_override_constants/separation = 10
-
-[node name="SemiMajorAxisOverrideRowLabel" type="Label" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/AdvancedSection/SemiMajorAxisOverrideRow"]
-layout_mode = 2
-custom_minimum_size = Vector2(112, 0)
-text = "Semi-major Axis (AU)"
-
-[node name="SemiMajorAxisOverrideToggle" type="CheckBox" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/AdvancedSection/SemiMajorAxisOverrideRow"]
-layout_mode = 2
-text = "Set"
-
-[node name="SemiMajorAxisOverrideInput" type="SpinBox" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/AdvancedSection/SemiMajorAxisOverrideRow"]
-layout_mode = 2
-size_flags_horizontal = 3
-min_value = 0.001
-max_value = 1000.0
-step = 0.001
-editable = false
-
-[node name="EccentricityOverrideRow" type="HBoxContainer" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/AdvancedSection"]
-layout_mode = 2
-theme_override_constants/separation = 10
-
-[node name="EccentricityOverrideRowLabel" type="Label" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/AdvancedSection/EccentricityOverrideRow"]
-layout_mode = 2
-custom_minimum_size = Vector2(112, 0)
-text = "Eccentricity"
-
-[node name="EccentricityOverrideToggle" type="CheckBox" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/AdvancedSection/EccentricityOverrideRow"]
-layout_mode = 2
-text = "Set"
-
-[node name="EccentricityOverrideInput" type="SpinBox" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/AdvancedSection/EccentricityOverrideRow"]
-layout_mode = 2
-size_flags_horizontal = 3
-max_value = 0.99
-step = 0.001
-editable = false
-
-[node name="InclinationOverrideRow" type="HBoxContainer" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/AdvancedSection"]
-layout_mode = 2
-theme_override_constants/separation = 10
-
-[node name="InclinationOverrideRowLabel" type="Label" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/AdvancedSection/InclinationOverrideRow"]
-layout_mode = 2
-custom_minimum_size = Vector2(112, 0)
-text = "Inclination (deg)"
-
-[node name="InclinationOverrideToggle" type="CheckBox" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/AdvancedSection/InclinationOverrideRow"]
-layout_mode = 2
-text = "Set"
-
-[node name="InclinationOverrideInput" type="SpinBox" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/AdvancedSection/InclinationOverrideRow"]
-layout_mode = 2
-size_flags_horizontal = 3
-max_value = 180.0
-step = 0.1
-editable = false
-
-[node name="SurfacePressureOverrideRow" type="HBoxContainer" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/AdvancedSection"]
-layout_mode = 2
-theme_override_constants/separation = 10
-
-[node name="SurfacePressureOverrideRowLabel" type="Label" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/AdvancedSection/SurfacePressureOverrideRow"]
-layout_mode = 2
-custom_minimum_size = Vector2(112, 0)
-text = "Surface Pressure (atm)"
-
-[node name="SurfacePressureOverrideToggle" type="CheckBox" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/AdvancedSection/SurfacePressureOverrideRow"]
-layout_mode = 2
-text = "Set"
-
-[node name="SurfacePressureOverrideInput" type="SpinBox" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/AdvancedSection/SurfacePressureOverrideRow"]
-layout_mode = 2
-size_flags_horizontal = 3
-max_value = 20.0
-step = 0.001
-editable = false
-
-[node name="AlbedoOverrideRow" type="HBoxContainer" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/AdvancedSection"]
-layout_mode = 2
-theme_override_constants/separation = 10
-
-[node name="AlbedoOverrideRowLabel" type="Label" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/AdvancedSection/AlbedoOverrideRow"]
-layout_mode = 2
-custom_minimum_size = Vector2(112, 0)
-text = "Albedo"
-
-[node name="AlbedoOverrideToggle" type="CheckBox" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/AdvancedSection/AlbedoOverrideRow"]
-layout_mode = 2
-text = "Set"
-
-[node name="AlbedoOverrideInput" type="SpinBox" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/AdvancedSection/AlbedoOverrideRow"]
-layout_mode = 2
-size_flags_horizontal = 3
-max_value = 1.0
-step = 0.001
-editable = false
-
-[node name="VolcanismOverrideRow" type="HBoxContainer" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/AdvancedSection"]
-layout_mode = 2
-theme_override_constants/separation = 10
-
-[node name="VolcanismOverrideRowLabel" type="Label" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/AdvancedSection/VolcanismOverrideRow"]
-layout_mode = 2
-custom_minimum_size = Vector2(112, 0)
-text = "Volcanism"
-
-[node name="VolcanismOverrideToggle" type="CheckBox" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/AdvancedSection/VolcanismOverrideRow"]
-layout_mode = 2
-text = "Set"
-
-[node name="VolcanismOverrideInput" type="SpinBox" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/AdvancedSection/VolcanismOverrideRow"]
-layout_mode = 2
-size_flags_horizontal = 3
-max_value = 1.0
-step = 0.01
-editable = false
-
-[node name="TemperatureOverrideRow" type="HBoxContainer" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/AdvancedSection"]
-layout_mode = 2
-theme_override_constants/separation = 10
-
-[node name="TemperatureOverrideRowLabel" type="Label" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/AdvancedSection/TemperatureOverrideRow"]
-layout_mode = 2
-custom_minimum_size = Vector2(112, 0)
-text = "Temperature (K)"
-
-[node name="TemperatureOverrideToggle" type="CheckBox" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/AdvancedSection/TemperatureOverrideRow"]
-layout_mode = 2
-text = "Set"
-
-[node name="TemperatureOverrideInput" type="SpinBox" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/AdvancedSection/TemperatureOverrideRow"]
-layout_mode = 2
-size_flags_horizontal = 3
-min_value = 100.0
-max_value = 50000.0
-step = 1.0
-rounded = true
-editable = false
-
-[node name="LuminosityOverrideRow" type="HBoxContainer" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/AdvancedSection"]
-layout_mode = 2
-theme_override_constants/separation = 10
-
-[node name="LuminosityOverrideRowLabel" type="Label" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/AdvancedSection/LuminosityOverrideRow"]
-layout_mode = 2
-custom_minimum_size = Vector2(112, 0)
-text = "Luminosity (Solar)"
-
-[node name="LuminosityOverrideToggle" type="CheckBox" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/AdvancedSection/LuminosityOverrideRow"]
-layout_mode = 2
-text = "Set"
-
-[node name="LuminosityOverrideInput" type="SpinBox" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/AdvancedSection/LuminosityOverrideRow"]
-layout_mode = 2
-size_flags_horizontal = 3
-min_value = 0.0001
-max_value = 1000000.0
-step = 0.0001
-editable = false
-
 [node name="RulesPanel" type="PanelContainer" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow"]
 custom_minimum_size = Vector2(200, 0)
 layout_mode = 2
@@ -1205,6 +945,267 @@ text = "Advanced Controls"
 [node name="ShowAdvancedControlsCheck" type="CheckBox" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/RulesPanel/MarginContainer/RulesVBox/ScrollContainer/RulesContent/ShowAdvancedControlsRow"]
 layout_mode = 2
 
+[node name="AdvancedSection" type="VBoxContainer" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/RulesPanel/MarginContainer/RulesVBox/ScrollContainer/RulesContent"]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="AdvancedSectionTitle" type="Label" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/RulesPanel/MarginContainer/RulesVBox/ScrollContainer/RulesContent/AdvancedSection"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 16
+text = "Advanced Overrides"
+
+[node name="AdvancedSectionDivider" type="HSeparator" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/RulesPanel/MarginContainer/RulesVBox/ScrollContainer/RulesContent/AdvancedSection"]
+layout_mode = 2
+
+
+[node name="MassOverrideRow" type="HBoxContainer" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/RulesPanel/MarginContainer/RulesVBox/ScrollContainer/RulesContent/AdvancedSection"]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="MassOverrideRowLabel" type="Label" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/RulesPanel/MarginContainer/RulesVBox/ScrollContainer/RulesContent/AdvancedSection/MassOverrideRow"]
+layout_mode = 2
+custom_minimum_size = Vector2(112, 0)
+text = "Mass"
+
+[node name="MassOverrideToggle" type="CheckBox" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/RulesPanel/MarginContainer/RulesVBox/ScrollContainer/RulesContent/AdvancedSection/MassOverrideRow"]
+layout_mode = 2
+text = "Set"
+
+[node name="MassOverrideInput" type="SpinBox" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/RulesPanel/MarginContainer/RulesVBox/ScrollContainer/RulesContent/AdvancedSection/MassOverrideRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+min_value = 1e-05
+max_value = 5000.0
+step = 0.0001
+editable = false
+
+[node name="RadiusOverrideRow" type="HBoxContainer" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/RulesPanel/MarginContainer/RulesVBox/ScrollContainer/RulesContent/AdvancedSection"]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="RadiusOverrideRowLabel" type="Label" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/RulesPanel/MarginContainer/RulesVBox/ScrollContainer/RulesContent/AdvancedSection/RadiusOverrideRow"]
+layout_mode = 2
+custom_minimum_size = Vector2(112, 0)
+text = "Radius"
+
+[node name="RadiusOverrideToggle" type="CheckBox" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/RulesPanel/MarginContainer/RulesVBox/ScrollContainer/RulesContent/AdvancedSection/RadiusOverrideRow"]
+layout_mode = 2
+text = "Set"
+
+[node name="RadiusOverrideInput" type="SpinBox" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/RulesPanel/MarginContainer/RulesVBox/ScrollContainer/RulesContent/AdvancedSection/RadiusOverrideRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+min_value = 0.001
+max_value = 500.0
+step = 0.001
+editable = false
+
+[node name="RotationOverrideRow" type="HBoxContainer" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/RulesPanel/MarginContainer/RulesVBox/ScrollContainer/RulesContent/AdvancedSection"]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="RotationOverrideRowLabel" type="Label" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/RulesPanel/MarginContainer/RulesVBox/ScrollContainer/RulesContent/AdvancedSection/RotationOverrideRow"]
+layout_mode = 2
+custom_minimum_size = Vector2(112, 0)
+text = "Rotation Period (hrs)"
+
+[node name="RotationOverrideToggle" type="CheckBox" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/RulesPanel/MarginContainer/RulesVBox/ScrollContainer/RulesContent/AdvancedSection/RotationOverrideRow"]
+layout_mode = 2
+text = "Set"
+
+[node name="RotationOverrideInput" type="SpinBox" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/RulesPanel/MarginContainer/RulesVBox/ScrollContainer/RulesContent/AdvancedSection/RotationOverrideRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+min_value = 0.1
+max_value = 10000.0
+step = 0.1
+editable = false
+
+[node name="AxialTiltOverrideRow" type="HBoxContainer" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/RulesPanel/MarginContainer/RulesVBox/ScrollContainer/RulesContent/AdvancedSection"]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="AxialTiltOverrideRowLabel" type="Label" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/RulesPanel/MarginContainer/RulesVBox/ScrollContainer/RulesContent/AdvancedSection/AxialTiltOverrideRow"]
+layout_mode = 2
+custom_minimum_size = Vector2(112, 0)
+text = "Axial Tilt (deg)"
+
+[node name="AxialTiltOverrideToggle" type="CheckBox" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/RulesPanel/MarginContainer/RulesVBox/ScrollContainer/RulesContent/AdvancedSection/AxialTiltOverrideRow"]
+layout_mode = 2
+text = "Set"
+
+[node name="AxialTiltOverrideInput" type="SpinBox" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/RulesPanel/MarginContainer/RulesVBox/ScrollContainer/RulesContent/AdvancedSection/AxialTiltOverrideRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+max_value = 180.0
+step = 0.1
+editable = false
+
+[node name="SemiMajorAxisOverrideRow" type="HBoxContainer" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/RulesPanel/MarginContainer/RulesVBox/ScrollContainer/RulesContent/AdvancedSection"]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="SemiMajorAxisOverrideRowLabel" type="Label" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/RulesPanel/MarginContainer/RulesVBox/ScrollContainer/RulesContent/AdvancedSection/SemiMajorAxisOverrideRow"]
+layout_mode = 2
+custom_minimum_size = Vector2(112, 0)
+text = "Semi-major Axis (AU)"
+
+[node name="SemiMajorAxisOverrideToggle" type="CheckBox" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/RulesPanel/MarginContainer/RulesVBox/ScrollContainer/RulesContent/AdvancedSection/SemiMajorAxisOverrideRow"]
+layout_mode = 2
+text = "Set"
+
+[node name="SemiMajorAxisOverrideInput" type="SpinBox" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/RulesPanel/MarginContainer/RulesVBox/ScrollContainer/RulesContent/AdvancedSection/SemiMajorAxisOverrideRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+min_value = 0.001
+max_value = 1000.0
+step = 0.001
+editable = false
+
+[node name="EccentricityOverrideRow" type="HBoxContainer" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/RulesPanel/MarginContainer/RulesVBox/ScrollContainer/RulesContent/AdvancedSection"]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="EccentricityOverrideRowLabel" type="Label" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/RulesPanel/MarginContainer/RulesVBox/ScrollContainer/RulesContent/AdvancedSection/EccentricityOverrideRow"]
+layout_mode = 2
+custom_minimum_size = Vector2(112, 0)
+text = "Eccentricity"
+
+[node name="EccentricityOverrideToggle" type="CheckBox" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/RulesPanel/MarginContainer/RulesVBox/ScrollContainer/RulesContent/AdvancedSection/EccentricityOverrideRow"]
+layout_mode = 2
+text = "Set"
+
+[node name="EccentricityOverrideInput" type="SpinBox" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/RulesPanel/MarginContainer/RulesVBox/ScrollContainer/RulesContent/AdvancedSection/EccentricityOverrideRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+max_value = 0.99
+step = 0.001
+editable = false
+
+[node name="InclinationOverrideRow" type="HBoxContainer" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/RulesPanel/MarginContainer/RulesVBox/ScrollContainer/RulesContent/AdvancedSection"]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="InclinationOverrideRowLabel" type="Label" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/RulesPanel/MarginContainer/RulesVBox/ScrollContainer/RulesContent/AdvancedSection/InclinationOverrideRow"]
+layout_mode = 2
+custom_minimum_size = Vector2(112, 0)
+text = "Inclination (deg)"
+
+[node name="InclinationOverrideToggle" type="CheckBox" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/RulesPanel/MarginContainer/RulesVBox/ScrollContainer/RulesContent/AdvancedSection/InclinationOverrideRow"]
+layout_mode = 2
+text = "Set"
+
+[node name="InclinationOverrideInput" type="SpinBox" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/RulesPanel/MarginContainer/RulesVBox/ScrollContainer/RulesContent/AdvancedSection/InclinationOverrideRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+max_value = 180.0
+step = 0.1
+editable = false
+
+[node name="SurfacePressureOverrideRow" type="HBoxContainer" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/RulesPanel/MarginContainer/RulesVBox/ScrollContainer/RulesContent/AdvancedSection"]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="SurfacePressureOverrideRowLabel" type="Label" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/RulesPanel/MarginContainer/RulesVBox/ScrollContainer/RulesContent/AdvancedSection/SurfacePressureOverrideRow"]
+layout_mode = 2
+custom_minimum_size = Vector2(112, 0)
+text = "Surface Pressure (atm)"
+
+[node name="SurfacePressureOverrideToggle" type="CheckBox" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/RulesPanel/MarginContainer/RulesVBox/ScrollContainer/RulesContent/AdvancedSection/SurfacePressureOverrideRow"]
+layout_mode = 2
+text = "Set"
+
+[node name="SurfacePressureOverrideInput" type="SpinBox" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/RulesPanel/MarginContainer/RulesVBox/ScrollContainer/RulesContent/AdvancedSection/SurfacePressureOverrideRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+max_value = 20.0
+step = 0.001
+editable = false
+
+[node name="AlbedoOverrideRow" type="HBoxContainer" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/RulesPanel/MarginContainer/RulesVBox/ScrollContainer/RulesContent/AdvancedSection"]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="AlbedoOverrideRowLabel" type="Label" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/RulesPanel/MarginContainer/RulesVBox/ScrollContainer/RulesContent/AdvancedSection/AlbedoOverrideRow"]
+layout_mode = 2
+custom_minimum_size = Vector2(112, 0)
+text = "Albedo"
+
+[node name="AlbedoOverrideToggle" type="CheckBox" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/RulesPanel/MarginContainer/RulesVBox/ScrollContainer/RulesContent/AdvancedSection/AlbedoOverrideRow"]
+layout_mode = 2
+text = "Set"
+
+[node name="AlbedoOverrideInput" type="SpinBox" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/RulesPanel/MarginContainer/RulesVBox/ScrollContainer/RulesContent/AdvancedSection/AlbedoOverrideRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+max_value = 1.0
+step = 0.001
+editable = false
+
+[node name="VolcanismOverrideRow" type="HBoxContainer" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/RulesPanel/MarginContainer/RulesVBox/ScrollContainer/RulesContent/AdvancedSection"]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="VolcanismOverrideRowLabel" type="Label" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/RulesPanel/MarginContainer/RulesVBox/ScrollContainer/RulesContent/AdvancedSection/VolcanismOverrideRow"]
+layout_mode = 2
+custom_minimum_size = Vector2(112, 0)
+text = "Volcanism"
+
+[node name="VolcanismOverrideToggle" type="CheckBox" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/RulesPanel/MarginContainer/RulesVBox/ScrollContainer/RulesContent/AdvancedSection/VolcanismOverrideRow"]
+layout_mode = 2
+text = "Set"
+
+[node name="VolcanismOverrideInput" type="SpinBox" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/RulesPanel/MarginContainer/RulesVBox/ScrollContainer/RulesContent/AdvancedSection/VolcanismOverrideRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+max_value = 1.0
+step = 0.01
+editable = false
+
+[node name="TemperatureOverrideRow" type="HBoxContainer" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/RulesPanel/MarginContainer/RulesVBox/ScrollContainer/RulesContent/AdvancedSection"]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="TemperatureOverrideRowLabel" type="Label" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/RulesPanel/MarginContainer/RulesVBox/ScrollContainer/RulesContent/AdvancedSection/TemperatureOverrideRow"]
+layout_mode = 2
+custom_minimum_size = Vector2(112, 0)
+text = "Temperature (K)"
+
+[node name="TemperatureOverrideToggle" type="CheckBox" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/RulesPanel/MarginContainer/RulesVBox/ScrollContainer/RulesContent/AdvancedSection/TemperatureOverrideRow"]
+layout_mode = 2
+text = "Set"
+
+[node name="TemperatureOverrideInput" type="SpinBox" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/RulesPanel/MarginContainer/RulesVBox/ScrollContainer/RulesContent/AdvancedSection/TemperatureOverrideRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+min_value = 100.0
+max_value = 50000.0
+step = 1.0
+rounded = true
+editable = false
+
+[node name="LuminosityOverrideRow" type="HBoxContainer" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/RulesPanel/MarginContainer/RulesVBox/ScrollContainer/RulesContent/AdvancedSection"]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="LuminosityOverrideRowLabel" type="Label" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/RulesPanel/MarginContainer/RulesVBox/ScrollContainer/RulesContent/AdvancedSection/LuminosityOverrideRow"]
+layout_mode = 2
+custom_minimum_size = Vector2(112, 0)
+text = "Luminosity (Solar)"
+
+[node name="LuminosityOverrideToggle" type="CheckBox" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/RulesPanel/MarginContainer/RulesVBox/ScrollContainer/RulesContent/AdvancedSection/LuminosityOverrideRow"]
+layout_mode = 2
+text = "Set"
+
+[node name="LuminosityOverrideInput" type="SpinBox" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/RulesPanel/MarginContainer/RulesVBox/ScrollContainer/RulesContent/AdvancedSection/LuminosityOverrideRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+min_value = 0.0001
+max_value = 1000000.0
+step = 0.0001
+editable = false
+
+
 [node name="SummaryPanel" type="PanelContainer" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow"]
 custom_minimum_size = Vector2(200, 0)
 layout_mode = 2
@@ -1272,6 +1273,7 @@ text = "Open Object Viewer"
 layout_mode = 2
 size_flags_horizontal = 3
 text = "Load Object"
+
 
 
 

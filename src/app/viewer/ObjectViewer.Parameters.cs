@@ -12,24 +12,12 @@ public partial class ObjectViewer
 {
     private void SetupUseCaseControls()
     {
-        if (_rulesetModeOption == null)
+        if (_rulesetModeOption == null
+            || _showTravellerReadoutsCheck == null
+            || _lifePermissivenessInput == null
+            || _useCaseAssumptionsLabel == null)
         {
-            throw new System.InvalidOperationException("ObjectViewer scene is missing RulesetModeOption.");
-        }
-
-        if (_showTravellerReadoutsCheck == null)
-        {
-            throw new System.InvalidOperationException("ObjectViewer scene is missing ShowTravellerReadoutsCheck.");
-        }
-
-        if (_lifePermissivenessInput == null)
-        {
-            throw new System.InvalidOperationException("ObjectViewer scene is missing LifePermissivenessInput.");
-        }
-
-        if (_useCaseAssumptionsLabel == null)
-        {
-            throw new System.InvalidOperationException("ObjectViewer scene is missing UseCaseAssumptionsLabel.");
+            return;
         }
 
         if (_rulesetModeOption.ItemCount == 0)

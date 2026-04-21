@@ -1,12 +1,20 @@
 # Version
 
-Current version: `0.8.18.7`
+Current version: `0.8.18.8`
 
 Current user-facing version: `0.9d`
 
 Date: `2026-04-21`
 
 Versioning method: release/refactor `+0.1`, feature `+0.0.1`, bug fix `+0.0.0.1`, save-breaking release `+1.0`.
+
+## 0.8.18.8
+
+- Bug fix: Galaxy, System, and Object viewer `Controls` panels now size themselves from the actual header and help-content minimums, so the collapsed panel hugs the `> Controls` label more closely and the expanded panel fits the full help text and bottom `^ Controls` toggle without clipping.
+- Bug fix: Removed the duplicate inspector-script attachment from the outer Object Viewer side-panel container and kept the dedicated `InspectorPanel` node as the only active inspector controller, bringing the runtime Object Viewer scene closer to the engine-visible `.tscn` ownership model.
+- Bug fix: Object Viewer inspector UWP sections now stay hidden by default, appear only when explicitly enabled through the carried use-case settings or legacy Traveller provenance, and no longer leak the removed legacy `World Profile` or `Generation Targets` sections.
+- Bug fix: `Advanced Controls` in Object Generation Studio now lives under `Generation Overrides` in the active scene instead of reopening inside the `Parameters` column.
+- Test: Strengthened Object Viewer and studio regressions to prove the duplicate outer inspector script is gone, UWP sections only appear when enabled, the removed legacy sections stay gone, and `Advanced Controls` remains under `Generation Overrides`; `dotnet build StarGen.sln` passed and the headless harness passed (`1837 / 1837`).
 
 ## 0.8.18.7
 

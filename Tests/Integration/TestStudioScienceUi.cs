@@ -330,6 +330,8 @@ public static class TestStudioScienceUi
         HBoxContainer? showTravellerReadoutsRow = screen.GetNodeOrNull<HBoxContainer>("MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/RulesPanel/MarginContainer/RulesVBox/ScrollContainer/RulesContent/ShowTravellerReadoutsRow");
         Label? showTravellerReadoutsLabel = screen.GetNodeOrNull<Label>("MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/RulesPanel/MarginContainer/RulesVBox/ScrollContainer/RulesContent/ShowTravellerReadoutsRow/ShowTravellerReadoutsRowLabel");
         CheckBox? showTravellerReadoutsCheck = screen.GetNodeOrNull<CheckBox>("MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/RulesPanel/MarginContainer/RulesVBox/ScrollContainer/RulesContent/ShowTravellerReadoutsRow/ShowTravellerReadoutsCheck");
+        VBoxContainer? advancedRulesSection = screen.GetNodeOrNull<VBoxContainer>("MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/RulesPanel/MarginContainer/RulesVBox/ScrollContainer/RulesContent/AdvancedSection");
+        VBoxContainer? strayAdvancedParameterSection = screen.GetNodeOrNull<VBoxContainer>("MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/AdvancedSection");
         HBoxContainer? planetGenerateMoonRow = screen.GetNodeOrNull<HBoxContainer>("MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/PlanetSection/PlanetGenerateMoonRow");
         HBoxContainer? moonTargetCountRow = screen.GetNodeOrNull<HBoxContainer>("MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/PlanetSection/MoonTargetCountRow");
         HBoxContainer? moonCapturedRow = screen.GetNodeOrNull<HBoxContainer>("MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/PlanetSection/MoonCapturedRow");
@@ -371,6 +373,8 @@ public static class TestStudioScienceUi
         DotNetNativeTestSuite.AssertNotNull(showTravellerReadoutsRow, "Traveller readout control should exist in the rules panel");
         DotNetNativeTestSuite.AssertNotNull(showTravellerReadoutsLabel, "Object studio should expose the Show UWP Code row label");
         DotNetNativeTestSuite.AssertNotNull(showTravellerReadoutsCheck, "Object studio should expose the Show UWP Code checkbox");
+        DotNetNativeTestSuite.AssertNotNull(advancedRulesSection, "Advanced controls should live in the Generation Overrides panel");
+        DotNetNativeTestSuite.AssertNull(strayAdvancedParameterSection, "Advanced controls should not remain under Parameters");
         DotNetNativeTestSuite.AssertTrue(OptionContainsText(rulesetOption!, "Cepheus"), "Object studio should expose the Cepheus compatibility profile");
         DotNetNativeTestSuite.AssertTrue(OptionContainsText(rulesetOption, "Starfinder"), "Object studio should expose the Starfinder compatibility profile");
         DotNetNativeTestSuite.AssertTrue(OptionContainsText(rulesetOption, "Starforged"), "Object studio should expose the Starforged compatibility profile");
