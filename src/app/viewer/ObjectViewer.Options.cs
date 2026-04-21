@@ -8,6 +8,11 @@ namespace StarGen.App.Viewer;
 /// </summary>
 public partial class ObjectViewer
 {
+    private const float CameraPanelAnimationDurationSeconds = 0.18f;
+    private const float CameraPanelCornerMarginPixels = 16.0f;
+    private const float CameraPanelCollapsedWidthPaddingPixels = 18.0f;
+    private const float CameraPanelCollapsedHeightPaddingPixels = 10.0f;
+
 	private void SetupOptionsUi()
 	{
 		PopulateResolutionOptions();
@@ -190,20 +195,133 @@ public partial class ObjectViewer
 
 	private void ToggleCameraPanel()
 	{
-		bool collapsed = _cameraPanelContent == null || _cameraPanelContent.Visible;
-		SetCameraPanelCollapsed(collapsed);
+		SetCameraPanelCollapsed(!_cameraPanelCollapsed, true);
 	}
 
 	private void SetCameraPanelCollapsed(bool collapsed)
+	{
+		SetCameraPanelCollapsed(collapsed, false);
+	}
+
+	private void SetCameraPanelCollapsed(bool collapsed, bool animate)
+	{
+		_cameraPanelCollapsed = collapsed;
+		if (_cameraPanel == null || _cameraPanelHeaderButton == null)
+		{
+			return;
+		}
+
+		if (_cameraPanelExpandedSize == Vector2.Zero)
+		{
+			_cameraPanelExpandedSize = MeasureCurrentPanelSize();
+		}
+
+		if (_cameraPanelTween != null && GodotObject.IsInstanceValid(_cameraPanelTween))
+		{
+			_cameraPanelTween.Kill();
+			_cameraPanelTween = null;
+		}
+
+		_cameraPanel.ClipContents = true;
+		Vector2 targetSize;
+		if (collapsed)
+		{
+			targetSize = MeasureCollapsedPanelSize();
+		}
+		else
+		{
+			targetSize = _cameraPanelExpandedSize;
+			if (_cameraPanelContent != null)
+			{
+				_cameraPanelContent.Visible = true;
+			}
+		}
+
+		_cameraPanelHeaderButton.Text = collapsed ? "> Controls" : "^ Controls";
+		if (!animate || !IsInsideTree())
+		{
+			ApplyCameraPanelSize(targetSize);
+			if (_cameraPanelContent != null)
+			{
+				_cameraPanelContent.Visible = !collapsed;
+			}
+
+			return;
+		}
+
+		_cameraPanelTween = CreateTween();
+		_cameraPanelTween.SetTrans(Tween.TransitionType.Cubic);
+		_cameraPanelTween.SetEase(Tween.EaseType.Out);
+		Vector2 targetOffsets = ComputeCameraPanelTopLeft(targetSize);
+		_cameraPanelTween.TweenProperty(_cameraPanel, "offset_left", targetOffsets.X, CameraPanelAnimationDurationSeconds);
+		_cameraPanelTween.Parallel().TweenProperty(_cameraPanel, "offset_top", targetOffsets.Y, CameraPanelAnimationDurationSeconds);
+		_cameraPanelTween.TweenCallback(Callable.From(() => FinalizeCameraPanelAnimation(collapsed)));
+	}
+
+	private void FinalizeCameraPanelAnimation(bool collapsed)
 	{
 		if (_cameraPanelContent != null)
 		{
 			_cameraPanelContent.Visible = !collapsed;
 		}
 
-		if (_cameraPanelHeaderButton != null)
+		_cameraPanelTween = null;
+	}
+
+	private Vector2 MeasureCurrentPanelSize()
+	{
+		if (_cameraPanel == null)
 		{
-			_cameraPanelHeaderButton.Text = collapsed ? "> Controls" : "v Controls";
+			return Vector2.Zero;
 		}
+
+		float width = _cameraPanel.OffsetRight - _cameraPanel.OffsetLeft;
+		float height = _cameraPanel.OffsetBottom - _cameraPanel.OffsetTop;
+		return new Vector2(width, height);
+	}
+
+	private Vector2 MeasureCollapsedPanelSize()
+	{
+		if (_cameraPanelHeaderButton == null)
+		{
+			return new Vector2(110.0f, 34.0f);
+		}
+
+		Vector2 headerSize = _cameraPanelHeaderButton.GetCombinedMinimumSize();
+		float width = Mathf.Ceil(headerSize.X + CameraPanelCollapsedWidthPaddingPixels);
+		float height = Mathf.Ceil(headerSize.Y + CameraPanelCollapsedHeightPaddingPixels);
+		return new Vector2(width, height);
+	}
+
+	private void ApplyCameraPanelSize(Vector2 size)
+	{
+		if (_cameraPanel == null)
+		{
+			return;
+		}
+
+		Vector2 topLeft = ComputeCameraPanelTopLeft(size);
+		_cameraPanel.OffsetLeft = topLeft.X;
+		_cameraPanel.OffsetTop = topLeft.Y;
+		_cameraPanel.OffsetRight = -CameraPanelCornerMarginPixels;
+		_cameraPanel.OffsetBottom = -CameraPanelCornerMarginPixels;
+	}
+
+	private static Vector2 ComputeCameraPanelTopLeft(Vector2 size)
+	{
+		float left = -CameraPanelCornerMarginPixels - size.X;
+		float top = -CameraPanelCornerMarginPixels - size.Y;
+		return new Vector2(left, top);
+	}
+
+	private void InitializeCameraPanelLayout()
+	{
+		if (_cameraPanel == null)
+		{
+			return;
+		}
+
+		_cameraPanelExpandedSize = MeasureCurrentPanelSize();
+		SetCameraPanelCollapsed(true, false);
 	}
 }

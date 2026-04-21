@@ -138,11 +138,11 @@ public partial class ObjectViewer
 			_backButton.Pressed += OnBackPressed;
 		}
 
-		if (_cameraPanelHeaderButton != null)
-		{
-			_cameraPanelHeaderButton.Pressed += ToggleCameraPanel;
-			SetCameraPanelCollapsed(true);
-		}
+        if (_cameraPanelHeaderButton != null)
+        {
+            _cameraPanelHeaderButton.Pressed += ToggleCameraPanel;
+            InitializeCameraPanelLayout();
+        }
 	}
 
 	private void DisplayBodyWithMoons(CelestialBody body, Godot.Collections.Array<CelestialBody> moons)

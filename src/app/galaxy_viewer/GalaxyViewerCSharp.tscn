@@ -348,7 +348,7 @@ show_percentage = false
 max_value = 1.0
 
 [node name="CameraPanel" type="PanelContainer" parent="UI/UIRoot"]
-custom_minimum_size = Vector2(210, 0)
+custom_minimum_size = Vector2(0, 0)
 layout_mode = 0
 anchors_preset = 10
 anchor_left = 1.0

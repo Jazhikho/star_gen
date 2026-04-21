@@ -202,7 +202,7 @@ public partial class SystemViewer
         if (_cameraPanelHeaderButton != null)
         {
             _cameraPanelHeaderButton.Pressed += ToggleCameraPanel;
-            SetCameraPanelCollapsed(true);
+            InitializeCameraPanelLayout();
         }
     }
 

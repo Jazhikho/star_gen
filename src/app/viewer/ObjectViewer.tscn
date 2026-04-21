@@ -385,7 +385,7 @@ autowrap_mode = 2
 text = "Set parameters in the side panel, then click Generate."
 
 [node name="CameraPanel" type="PanelContainer" parent="UI"]
-custom_minimum_size = Vector2(210, 0)
+custom_minimum_size = Vector2(0, 0)
 layout_mode = 0
 anchors_preset = 10
 anchor_left = 1.0

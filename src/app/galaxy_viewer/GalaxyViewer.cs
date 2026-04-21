@@ -143,6 +143,9 @@ public partial class GalaxyViewer : Node3D, IGalaxyViewerSavedStateHost
 	internal GalaxyLocalSpaceCache? _localSpaceCache;
 	internal SubSectorNeighborhoodData? _localSpacePreviewData;
 	internal bool _isBuildingLocalSpace;
+	internal Vector2 _cameraPanelExpandedSize = Vector2.Zero;
+	internal Tween? _cameraPanelTween;
+	internal bool _cameraPanelCollapsed = true;
 
 	/// <summary>
 	/// Initializes controller state and helper objects.

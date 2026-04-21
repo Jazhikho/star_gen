@@ -118,6 +118,9 @@ public partial class SystemViewer : Node3D, ISystemViewerSaveLoadHost
 	internal string _backNavigationText = "Return";
 	internal string _backNavigationTooltip = "Return";
 	internal bool _generationActionsVisible = true;
+	internal Vector2 _cameraPanelExpandedSize = Vector2.Zero;
+	internal Tween? _cameraPanelTween;
+	internal bool _cameraPanelCollapsed = true;
 
 	/// <summary>
 	/// Reused scratch list for removing stale body node IDs during the animation update.

@@ -300,6 +300,13 @@ public static partial class DotNetNativeTestSuite
             AssertEqual("> Controls", cameraHeaderButton!.Text, "galaxy viewer camera panel should start collapsed");
             AssertFalse(cameraPanelContent!.Visible, "galaxy viewer camera panel should start collapsed");
             AssertEqual("CameraPanelContent", ((Node)cameraHeaderButton.GetParent()).GetChild(0).Name, "galaxy viewer camera panel content should sit above the header toggle");
+            float collapsedGalaxyWidth = cameraPanel!.OffsetRight - cameraPanel.OffsetLeft;
+            AssertTrue(collapsedGalaxyWidth < 140.0f, "galaxy viewer collapsed controls box should shrink close to the header width");
+            cameraHeaderButton.EmitSignal(BaseButton.SignalName.Pressed);
+            AssertEqual("^ Controls", cameraHeaderButton.Text, "galaxy viewer controls box should use the expanded caret label");
+            AssertTrue(cameraPanelContent.Visible, "galaxy viewer controls content should appear when expanded");
+            float expandedGalaxyWidth = cameraPanel.OffsetRight - cameraPanel.OffsetLeft;
+            AssertTrue(expandedGalaxyWidth > collapsedGalaxyWidth, "galaxy viewer controls box should widen when expanded");
 
             bool builtLocalSpace = viewer.BuildLocalSpaceSynchronouslyForTesting(new Vector3I(1, 1, 1));
             AssertTrue(builtLocalSpace, "galaxy viewer should be able to build a local-space cache in subsector view");
@@ -488,6 +495,13 @@ public static partial class DotNetNativeTestSuite
             AssertEqual("> Controls", cameraHeaderButton!.Text, "system viewer camera panel should start collapsed");
             AssertFalse(cameraPanelContent!.Visible, "system viewer camera panel should start collapsed");
             AssertEqual("CameraPanelContent", ((Node)cameraHeaderButton.GetParent()).GetChild(0).Name, "system viewer camera panel content should sit above the header toggle");
+            float collapsedSystemWidth = cameraPanel!.OffsetRight - cameraPanel.OffsetLeft;
+            AssertTrue(collapsedSystemWidth < 140.0f, "system viewer collapsed controls box should shrink close to the header width");
+            cameraHeaderButton.EmitSignal(BaseButton.SignalName.Pressed);
+            AssertEqual("^ Controls", cameraHeaderButton.Text, "system viewer controls box should use the expanded caret label");
+            AssertTrue(cameraPanelContent.Visible, "system viewer controls content should appear when expanded");
+            float expandedSystemWidth = cameraPanel.OffsetRight - cameraPanel.OffsetLeft;
+            AssertTrue(expandedSystemWidth > collapsedSystemWidth, "system viewer controls box should widen when expanded");
 
             optionsButton!.EmitSignal(BaseButton.SignalName.Pressed);
             AssertTrue(optionsDialog!.Visible, "system viewer options should open from the options action");
@@ -557,6 +571,13 @@ public static partial class DotNetNativeTestSuite
             AssertEqual("> Controls", cameraHeaderButton!.Text, "object viewer camera panel should start collapsed");
             AssertFalse(cameraPanelContent!.Visible, "object viewer camera panel should start collapsed");
             AssertEqual("CameraPanelContent", ((Node)cameraHeaderButton.GetParent()).GetChild(0).Name, "object viewer camera panel content should sit above the header toggle");
+            float collapsedObjectWidth = cameraPanel!.OffsetRight - cameraPanel.OffsetLeft;
+            AssertTrue(collapsedObjectWidth < 140.0f, "object viewer collapsed controls box should shrink close to the header width");
+            cameraHeaderButton.EmitSignal(BaseButton.SignalName.Pressed);
+            AssertEqual("^ Controls", cameraHeaderButton.Text, "object viewer controls box should use the expanded caret label");
+            AssertTrue(cameraPanelContent.Visible, "object viewer controls content should appear when expanded");
+            float expandedObjectWidth = cameraPanel.OffsetRight - cameraPanel.OffsetLeft;
+            AssertTrue(expandedObjectWidth > collapsedObjectWidth, "object viewer controls box should widen when expanded");
 
             optionsButton!.EmitSignal(BaseButton.SignalName.Pressed);
             AssertTrue(optionsDialog!.Visible, "object viewer options should open from the options action");

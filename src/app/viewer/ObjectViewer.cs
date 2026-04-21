@@ -122,6 +122,9 @@ public partial class ObjectViewer : Node3D
 	internal string _backNavigationTooltip = "Return";
 	internal bool _backNavigationReturnsToMainMenu;
 	internal bool _generationActionsVisible = true;
+	internal Vector2 _cameraPanelExpandedSize = Vector2.Zero;
+	internal Tween? _cameraPanelTween;
+	internal bool _cameraPanelCollapsed = true;
 
 	/// <summary>
 	/// Initializes the viewer state.

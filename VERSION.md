@@ -1,12 +1,18 @@
 # Version
 
-Current version: `0.8.18.6`
+Current version: `0.8.18.7`
 
 Current user-facing version: `0.9d`
 
 Date: `2026-04-21`
 
 Versioning method: release/refactor `+0.1`, feature `+0.0.1`, bug fix `+0.0.0.1`, save-breaking release `+1.0`.
+
+## 0.8.18.7
+
+- Bug fix: Galaxy, System, and Object viewer `Controls` panels now collapse down to a compact bottom-right box sized around the `> Controls` label instead of reserving the full expanded panel footprint while hidden.
+- Bug fix: Expanding a viewer `Controls` panel now slides the panel upward into place, keeps the content clipped during motion, and uses `^ Controls` as the expanded bottom toggle; collapsing reverses the same slide animation back to the compact corner box.
+- Test: Expanded the viewer regressions so Galaxy, System, and Object viewer control panels now prove the collapsed box is compact and that pressing the toggle expands the panel, reveals the content, and changes the label to `^ Controls`.
 
 ## 0.8.18.6
 

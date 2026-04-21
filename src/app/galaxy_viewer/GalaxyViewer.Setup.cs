@@ -138,7 +138,7 @@ public partial class GalaxyViewer
 		if (_cameraPanelHeaderButton != null)
 		{
 			_cameraPanelHeaderButton.Pressed += ToggleCameraPanel;
-			SetCameraPanelCollapsed(true);
+			InitializeCameraPanelLayout();
 		}
 
 		if (_inspectorPanel is GalaxyInspectorPanel typedInspectorPanel)
