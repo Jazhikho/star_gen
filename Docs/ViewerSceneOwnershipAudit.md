@@ -1,0 +1,87 @@
+# Viewer Scene Ownership Audit
+
+Date: 2026-04-21
+
+Purpose: track the remaining work needed to keep the active viewer stack aligned with the repo's `.tscn`-first, engine-first UI standard.
+
+## Current State
+
+### Galaxy Viewer
+- Scene-owned already:
+  - top bar layout
+  - side panel shell
+  - inspector section shells
+  - options dialog shell
+  - build-local-space dialog shell
+  - compact controls panel shell
+- Converted in this patch:
+  - top-level menu buttons are now scene-owned instead of being created at runtime
+  - controls panel now expands upward from a scene-owned header/content stack
+- Still code-owned by design:
+  - menu popup contents
+  - inspector row content
+  - local-space preview text
+  - route/cache state presentation
+
+### System Viewer
+- Scene-owned already:
+  - top bar layout
+  - side panel shell
+  - options dialog shell
+  - compact controls panel shell
+  - inspector section shells
+- Converted in this patch:
+  - top-level menu buttons are now scene-owned instead of being created at runtime
+  - controls panel now expands upward from a scene-owned header/content stack
+- Still violating engine-first expectations:
+  - the viewer still contains a large standalone generation/editor panel on the left
+  - many generator controls that belong to System Studio are duplicated in the viewer scene
+  - save/load and generation actions are still embedded into the viewer instead of being viewer-only tools
+
+### Object Viewer
+- Scene-owned already:
+  - top bar layout
+  - side panel shell
+  - options dialog shell
+  - compact controls panel shell
+  - file and generation section shells
+- Converted in this patch:
+  - top-level menu buttons are now scene-owned instead of being created at runtime
+  - controls panel now expands upward from a scene-owned header/content stack
+- Still violating engine-first expectations:
+  - the viewer still contains a large direct-generation panel
+  - ruleset/generation controls are mixed into the viewer instead of being limited to Object Studio
+
+## Priority Gaps
+
+### High Priority
+1. Remove viewer-side generation editors from System Viewer.
+   - Keep viewer functions in the viewer.
+   - Route generation/editing back through System Studio.
+2. Remove viewer-side generation editors from Object Viewer.
+   - Keep inspection, fit/focus, and file operations in the viewer.
+   - Route object authoring back through Object Studio.
+3. Standardize shared viewer menu scenes.
+   - Current button shells are scene-owned, but popup structure still lives in code.
+   - Next step should be to decide whether popup contents remain controller-owned or move into reusable scene/menu templates.
+
+### Medium Priority
+1. Move more inspector row templates into `.tscn`.
+   - Current inspectors use scene-owned sections but still assemble row content mostly in code.
+   - This is acceptable for dynamic data, but reusable row templates should be scene-owned where possible.
+2. Standardize viewer dialog scenes.
+   - Galaxy, System, and Object viewers all have near-duplicate options dialog shells.
+   - A shared scene or reusable dialog shell would reduce drift.
+3. Standardize compact controls panels.
+   - The shell is aligned now, but text/content still differs ad hoc by viewer.
+
+### Low Priority
+1. Review whether save/load buttons in viewers should stay visible in version `0.9d`.
+2. Review whether remaining dynamic menu enable/disable logic should be wrapped in a shared helper.
+
+## Recommended Next Refactor Order
+
+1. System Viewer: remove embedded generation/editor controls and keep viewer-only tooling.
+2. Object Viewer: remove embedded generation/editor controls and keep viewer-only tooling.
+3. Shared viewer menu/dialog components: factor repeated scene shells into reusable assets.
+4. Inspector row template pass: migrate repeated dynamic rows to reusable `.tscn` fragments where it reduces code without freezing dynamic behavior.

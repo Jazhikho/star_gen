@@ -19,44 +19,29 @@ public partial class ObjectViewer
 
 	private void SetupTopMenu()
 	{
-		HBoxContainer? menuRow = GetNodeOrNull<HBoxContainer>("UI/TopBar/MarginContainer/TopBarVBox/MenuRow");
-		if (menuRow == null || menuRow.GetChildCount() > 0)
+		MenuButton? fileMenuButton = GetNodeOrNull<MenuButton>("UI/TopBar/MarginContainer/TopBarVBox/MenuRow/FileMenuButton");
+		MenuButton? toolsMenuButton = GetNodeOrNull<MenuButton>("UI/TopBar/MarginContainer/TopBarVBox/MenuRow/ToolsMenuButton");
+		Button? optionsButton = GetNodeOrNull<Button>("UI/TopBar/MarginContainer/TopBarVBox/MenuRow/OptionsButton");
+		MenuButton? helpMenuButton = GetNodeOrNull<MenuButton>("UI/TopBar/MarginContainer/TopBarVBox/MenuRow/HelpMenuButton");
+		if (fileMenuButton == null || toolsMenuButton == null || optionsButton == null || helpMenuButton == null)
 		{
 			return;
 		}
 
-		ConfigureFileMenu(CreateMenuButton(menuRow, "File"));
-		ConfigureToolsMenu(CreateMenuButton(menuRow, "Tools"));
-		ConfigureOptionsButton(CreateActionButton(menuRow, "Options"));
-		ConfigureHelpMenu(CreateMenuButton(menuRow, "Help"));
-	}
-
-	private static MenuButton CreateMenuButton(HBoxContainer menuRow, string title)
-	{
-		MenuButton button = new()
-		{
-			Text = title,
-			FocusMode = Control.FocusModeEnum.None,
-		};
-		menuRow.AddChild(button);
-		return button;
-	}
-
-	private static Button CreateActionButton(HBoxContainer menuRow, string title)
-	{
-		Button button = new()
-		{
-			Text = title,
-			FocusMode = Control.FocusModeEnum.None,
-			Flat = true,
-		};
-		menuRow.AddChild(button);
-		return button;
+		ConfigureFileMenu(fileMenuButton);
+		ConfigureToolsMenu(toolsMenuButton);
+		ConfigureOptionsButton(optionsButton);
+		ConfigureHelpMenu(helpMenuButton);
 	}
 
 	private void ConfigureFileMenu(MenuButton menuButton)
 	{
 		PopupMenu popup = menuButton.GetPopup();
+		if (popup.ItemCount > 0)
+		{
+			return;
+		}
+
 		popup.IdPressed += OnFileMenuIdPressed;
 		popup.AboutToPopup += () => RebuildFileMenu(popup);
 		RebuildFileMenu(popup);
@@ -65,6 +50,11 @@ public partial class ObjectViewer
 	private void ConfigureToolsMenu(MenuButton menuButton)
 	{
 		PopupMenu popup = menuButton.GetPopup();
+		if (popup.ItemCount > 0)
+		{
+			return;
+		}
+
 		popup.IdPressed += OnToolsMenuIdPressed;
 		popup.AboutToPopup += () => RebuildToolsMenu(popup);
 		RebuildToolsMenu(popup);
@@ -72,12 +62,22 @@ public partial class ObjectViewer
 
 	private void ConfigureOptionsButton(Button button)
 	{
+		if (button.IsConnected(BaseButton.SignalName.Pressed, Callable.From(OpenOptionsDialog)))
+		{
+			return;
+		}
+
 		button.Pressed += OpenOptionsDialog;
 	}
 
 	private void ConfigureHelpMenu(MenuButton menuButton)
 	{
 		PopupMenu popup = menuButton.GetPopup();
+		if (popup.ItemCount > 0)
+		{
+			return;
+		}
+
 		popup.AddItem("Controls Summary", HelpMenuControlsId);
 		popup.IdPressed += OnHelpMenuIdPressed;
 	}

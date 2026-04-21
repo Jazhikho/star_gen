@@ -25,6 +25,7 @@ star_gen/
 |   |-- RegimeChangeModel.md
 |   |-- Roadmap.md
 |   |-- ScientificParameterAudit.md
+|   |-- ViewerSceneOwnershipAudit.md
 |   `-- TravellerWorldCreation.md
 |-- NuGet/
 |   `-- Migrations/

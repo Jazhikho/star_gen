@@ -1,12 +1,20 @@
 # Version
 
-Current version: `0.8.18.4`
+Current version: `0.8.18.5`
 
 Current user-facing version: `0.9d`
 
-Date: `2026-04-20`
+Date: `2026-04-21`
 
 Versioning method: release/refactor `+0.1`, feature `+0.0.1`, bug fix `+0.0.0.1`, save-breaking release `+1.0`.
+
+## 0.8.18.5
+
+- Bug fix: Galaxy, System, and Object viewer camera panels are now labeled `Controls`, expand upward from the bottom-right corner, and use scene-owned panel ordering so the toggle sits below the revealed controls instead of above them.
+- Bug fix: Galaxy, System, and Object viewer top menus now use scene-owned button shells instead of creating the menu chrome in code at runtime, reducing viewer-side UI construction and making the active scenes align better with the engine-first `.tscn` standard.
+- Bug fix: Galaxy Studio and System Studio now use labeled override rows for `Show UWP Code` and `Force Life If Supportable`, keeping those checkboxes aligned on the same side as the rest of the override controls.
+- Docs: Added `Docs/ViewerSceneOwnershipAudit.md` to track the remaining `.tscn` migration gaps, with System Viewer and Object Viewer generation panels called out as the highest-priority engine-first cleanup still outstanding.
+- Test: `dotnet build StarGen.sln` passed, and the full headless harness passed (`1835 / 1835`) before Godot emitted its known shutdown leak noise.
 
 ## 0.8.18.4
 

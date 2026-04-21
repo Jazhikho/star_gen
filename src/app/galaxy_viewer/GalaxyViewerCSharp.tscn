@@ -121,6 +121,24 @@ text = "Ready"
 layout_mode = 2
 theme_override_constants/separation = 6
 
+[node name="FileMenuButton" type="MenuButton" parent="UI/UIRoot/TopBar/MarginContainer/TopBarVBox/MenuRow"]
+layout_mode = 2
+text = "File"
+
+[node name="ToolsMenuButton" type="MenuButton" parent="UI/UIRoot/TopBar/MarginContainer/TopBarVBox/MenuRow"]
+layout_mode = 2
+text = "Tools"
+
+[node name="OptionsButton" type="Button" parent="UI/UIRoot/TopBar/MarginContainer/TopBarVBox/MenuRow"]
+layout_mode = 2
+focus_mode = 0
+flat = true
+text = "Options"
+
+[node name="HelpMenuButton" type="MenuButton" parent="UI/UIRoot/TopBar/MarginContainer/TopBarVBox/MenuRow"]
+layout_mode = 2
+text = "Help"
+
 [node name="SidePanel" type="Panel" parent="UI/UIRoot"]
 layout_mode = 0
 custom_minimum_size = Vector2(332, 0)
@@ -346,12 +364,6 @@ offset_bottom = -12.0
 layout_mode = 2
 theme_override_constants/separation = 8
 
-[node name="CameraPanelHeaderButton" type="Button" parent="UI/UIRoot/CameraPanel/CameraPanelVBox"]
-layout_mode = 2
-alignment = 0
-flat = true
-text = "> Camera"
-
 [node name="CameraPanelContent" type="MarginContainer" parent="UI/UIRoot/CameraPanel/CameraPanelVBox"]
 visible = false
 layout_mode = 2
@@ -366,6 +378,12 @@ theme_override_font_sizes/font_size = 11
 modulate = Color(0.84, 0.86, 0.92, 1)
 autowrap_mode = 2
 text = "Scroll: Change zoom level\nLeft Mouse: Select star\nRight Mouse: Orbit local view\nMiddle Mouse: Pan local view"
+
+[node name="CameraPanelHeaderButton" type="Button" parent="UI/UIRoot/CameraPanel/CameraPanelVBox"]
+layout_mode = 2
+alignment = 0
+flat = true
+text = "> Controls"
 
 [node name="OptionsDialog" type="Window" parent="."]
 visible = false

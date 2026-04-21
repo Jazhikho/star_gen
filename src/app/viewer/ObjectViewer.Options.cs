@@ -203,7 +203,7 @@ public partial class ObjectViewer
 
 		if (_cameraPanelHeaderButton != null)
 		{
-			_cameraPanelHeaderButton.Text = collapsed ? "> Camera" : "v Camera";
+			_cameraPanelHeaderButton.Text = collapsed ? "> Controls" : "v Controls";
 		}
 	}
 }

@@ -345,8 +345,8 @@ public partial class GalaxyGenerationScreen : Control
 		_settingsVBox = GetNodeOrNull<VBoxContainer>(ParameterRootPath);
 		_rulesVBox = GetNodeOrNull<VBoxContainer>(RulesRootPath);
 		_rulesetModeOption = GetNodeOrNull<OptionButton>($"{RulesRootPath}/UseCaseSection/RulesetRow/RulesetModeOption");
-		_showTravellerReadoutsCheck = GetNodeOrNull<BaseButton>($"{RulesRootPath}/UseCaseSection/ShowTravellerReadoutsCheck");
-		_forceLifeOnSupportableWorldsCheck = GetNodeOrNull<BaseButton>($"{RulesRootPath}/UseCaseSection/ForceLifeOnSupportableWorldsCheck");
+		_showTravellerReadoutsCheck = GetNodeOrNull<BaseButton>($"{RulesRootPath}/UseCaseSection/ShowTravellerReadoutsRow/ShowTravellerReadoutsCheck");
+		_forceLifeOnSupportableWorldsCheck = GetNodeOrNull<BaseButton>($"{RulesRootPath}/UseCaseSection/ForceLifeOnSupportableWorldsRow/ForceLifeOnSupportableWorldsCheck");
 		_mainworldPolicyRow = GetNodeOrNull<HBoxContainer>($"{RulesRootPath}/UseCaseSection/MainworldPolicyRow");
 		_mainworldPolicyOption = GetNodeOrNull<OptionButton>($"{RulesRootPath}/UseCaseSection/MainworldPolicyRow/MainworldPolicyOption");
 		_temperateWorldBiasRow = GetNodeOrNull<HBoxContainer>($"{RulesRootPath}/UseCaseSection/TemperateWorldBiasRow");

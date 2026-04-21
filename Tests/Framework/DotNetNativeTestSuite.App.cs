@@ -297,8 +297,9 @@ public static partial class DotNetNativeTestSuite
             AssertNotNull(cameraPanel, "galaxy viewer should expose the compact camera panel");
             AssertNotNull(cameraHeaderButton, "galaxy viewer camera panel should expose the collapse toggle");
             AssertNotNull(cameraPanelContent, "galaxy viewer camera panel should expose collapsible content");
-            AssertEqual("> Camera", cameraHeaderButton!.Text, "galaxy viewer camera panel should start collapsed");
+            AssertEqual("> Controls", cameraHeaderButton!.Text, "galaxy viewer camera panel should start collapsed");
             AssertFalse(cameraPanelContent!.Visible, "galaxy viewer camera panel should start collapsed");
+            AssertEqual("CameraPanelContent", ((Node)cameraHeaderButton.GetParent()).GetChild(0).Name, "galaxy viewer camera panel content should sit above the header toggle");
 
             bool builtLocalSpace = viewer.BuildLocalSpaceSynchronouslyForTesting(new Vector3I(1, 1, 1));
             AssertTrue(builtLocalSpace, "galaxy viewer should be able to build a local-space cache in subsector view");
@@ -479,8 +480,9 @@ public static partial class DotNetNativeTestSuite
             AssertNotNull(cameraPanel, "system viewer should expose the compact camera panel");
             AssertNotNull(cameraHeaderButton, "system viewer camera panel should expose a collapse toggle");
             AssertNotNull(cameraPanelContent, "system viewer camera panel should expose collapsible content");
-            AssertEqual("> Camera", cameraHeaderButton!.Text, "system viewer camera panel should start collapsed");
+            AssertEqual("> Controls", cameraHeaderButton!.Text, "system viewer camera panel should start collapsed");
             AssertFalse(cameraPanelContent!.Visible, "system viewer camera panel should start collapsed");
+            AssertEqual("CameraPanelContent", ((Node)cameraHeaderButton.GetParent()).GetChild(0).Name, "system viewer camera panel content should sit above the header toggle");
 
             optionsButton!.EmitSignal(BaseButton.SignalName.Pressed);
             AssertTrue(optionsDialog!.Visible, "system viewer options should open from the options action");
@@ -547,8 +549,9 @@ public static partial class DotNetNativeTestSuite
             AssertNotNull(cameraPanel, "object viewer should expose the compact camera panel");
             AssertNotNull(cameraHeaderButton, "object viewer camera panel should expose a collapse toggle");
             AssertNotNull(cameraPanelContent, "object viewer camera panel should expose collapsible content");
-            AssertEqual("> Camera", cameraHeaderButton!.Text, "object viewer camera panel should start collapsed");
+            AssertEqual("> Controls", cameraHeaderButton!.Text, "object viewer camera panel should start collapsed");
             AssertFalse(cameraPanelContent!.Visible, "object viewer camera panel should start collapsed");
+            AssertEqual("CameraPanelContent", ((Node)cameraHeaderButton.GetParent()).GetChild(0).Name, "object viewer camera panel content should sit above the header toggle");
 
             optionsButton!.EmitSignal(BaseButton.SignalName.Pressed);
             AssertTrue(optionsDialog!.Visible, "object viewer options should open from the options action");

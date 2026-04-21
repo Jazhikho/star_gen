@@ -126,6 +126,24 @@ text = "Ready"
 layout_mode = 2
 theme_override_constants/separation = 6
 
+[node name="FileMenuButton" type="MenuButton" parent="UI/TopBar/MarginContainer/TopBarVBox/MenuRow"]
+layout_mode = 2
+text = "File"
+
+[node name="ToolsMenuButton" type="MenuButton" parent="UI/TopBar/MarginContainer/TopBarVBox/MenuRow"]
+layout_mode = 2
+text = "Tools"
+
+[node name="OptionsButton" type="Button" parent="UI/TopBar/MarginContainer/TopBarVBox/MenuRow"]
+layout_mode = 2
+focus_mode = 0
+flat = true
+text = "Options"
+
+[node name="HelpMenuButton" type="MenuButton" parent="UI/TopBar/MarginContainer/TopBarVBox/MenuRow"]
+layout_mode = 2
+text = "Help"
+
 [node name="SidePanel" type="Panel" parent="UI"]
 custom_minimum_size = Vector2(360, 0)
 layout_mode = 0
@@ -383,12 +401,6 @@ offset_bottom = -12.0
 layout_mode = 2
 theme_override_constants/separation = 8
 
-[node name="CameraPanelHeaderButton" type="Button" parent="UI/CameraPanel/CameraPanelVBox"]
-layout_mode = 2
-alignment = 0
-flat = true
-text = "> Camera"
-
 [node name="CameraPanelContent" type="MarginContainer" parent="UI/CameraPanel/CameraPanelVBox"]
 visible = false
 layout_mode = 2
@@ -403,6 +415,12 @@ theme_override_font_sizes/font_size = 11
 modulate = Color(0.84, 0.86, 0.92, 1)
 autowrap_mode = 2
 text = "Left Mouse: Orbit\nRight Mouse: Pan\nScroll: Zoom\nF: Focus primary body"
+
+[node name="CameraPanelHeaderButton" type="Button" parent="UI/CameraPanel/CameraPanelVBox"]
+layout_mode = 2
+alignment = 0
+flat = true
+text = "> Controls"
 
 [node name="OptionsDialog" type="Window" parent="."]
 visible = false

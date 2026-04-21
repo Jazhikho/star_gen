@@ -185,8 +185,8 @@ public partial class SystemGenerationScreen : Control
 		_systemMetallicityInput = GetNodeOrNull<SpinBox>($"{Root}/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/SystemMetallicityRow/SystemMetallicityInput");
 		_includeBeltsCheck = GetNodeOrNull<CheckBox>($"{Root}/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/IncludeBeltsCheck");
 		_rulesetModeOption = GetNodeOrNull<OptionButton>($"{Root}/StudioRow/RulesPanel/MarginContainer/RulesVBox/ScrollContainer/RulesContent/RulesetModeRow/RulesetModeOption");
-		_showTravellerReadoutsCheck = GetNodeOrNull<CheckBox>($"{Root}/StudioRow/RulesPanel/MarginContainer/RulesVBox/ScrollContainer/RulesContent/ShowTravellerReadoutsCheck");
-		_forceLifeOnSupportableWorldsCheck = GetNodeOrNull<CheckBox>($"{Root}/StudioRow/RulesPanel/MarginContainer/RulesVBox/ScrollContainer/RulesContent/ForceLifeOnSupportableWorldsCheck");
+		_showTravellerReadoutsCheck = GetNodeOrNull<CheckBox>($"{Root}/StudioRow/RulesPanel/MarginContainer/RulesVBox/ScrollContainer/RulesContent/ShowTravellerReadoutsRow/ShowTravellerReadoutsCheck");
+		_forceLifeOnSupportableWorldsCheck = GetNodeOrNull<CheckBox>($"{Root}/StudioRow/RulesPanel/MarginContainer/RulesVBox/ScrollContainer/RulesContent/ForceLifeOnSupportableWorldsRow/ForceLifeOnSupportableWorldsCheck");
 		_temperateWorldBiasRow = GetNodeOrNull<HBoxContainer>($"{Root}/StudioRow/RulesPanel/MarginContainer/RulesVBox/ScrollContainer/RulesContent/TemperateWorldBiasRow");
 		_temperateWorldBiasInput = GetNodeOrNull<HSlider>($"{Root}/StudioRow/RulesPanel/MarginContainer/RulesVBox/ScrollContainer/RulesContent/TemperateWorldBiasRow/TemperateWorldBiasInput");
 		_temperateWorldBiasValueLabel = GetNodeOrNull<Label>($"{Root}/StudioRow/RulesPanel/MarginContainer/RulesVBox/ScrollContainer/RulesContent/TemperateWorldBiasRow/TemperateWorldBiasValue");
