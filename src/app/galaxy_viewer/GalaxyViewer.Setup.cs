@@ -36,14 +36,17 @@ public partial class GalaxyViewer
 		_saveButton = GetNodeOrNull<Button>("UI/UIRoot/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/SaveLoadSection/ButtonContainer/SaveButton");
 		_loadButton = GetNodeOrNull<Button>("UI/UIRoot/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/SaveLoadSection/ButtonContainer/LoadButton");
 		_newGalaxyButton = GetNodeOrNull<Button>("UI/UIRoot/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/SaveLoadSection/NewGalaxyButton");
+		_cameraPanel = GetNodeOrNull<Control>("UI/UIRoot/CameraPanel");
+		_cameraPanelHeaderButton = GetNodeOrNull<Button>("UI/UIRoot/CameraPanel/CameraPanelVBox/CameraPanelHeaderButton");
+		_cameraPanelContent = GetNodeOrNull<Control>("UI/UIRoot/CameraPanel/CameraPanelVBox/CameraPanelContent");
 		_optionsDialog = GetNodeOrNull<Window>("OptionsDialog");
-		_fullscreenCheck = GetNodeOrNull<CheckButton>("OptionsDialog/MarginContainer/OptionsVBox/FullscreenCheck");
-		_showSeedControlsCheck = GetNodeOrNull<CheckButton>("OptionsDialog/MarginContainer/OptionsVBox/ShowSeedControlsCheck");
-		_skipIntroCheck = GetNodeOrNull<CheckButton>("OptionsDialog/MarginContainer/OptionsVBox/SkipIntroCheck");
+		_fullscreenCheck = GetNodeOrNull<CheckBox>("OptionsDialog/MarginContainer/OptionsVBox/FullscreenCheck");
+		_showSeedControlsCheck = GetNodeOrNull<CheckBox>("OptionsDialog/MarginContainer/OptionsVBox/ShowSeedControlsCheck");
+		_skipIntroCheck = GetNodeOrNull<CheckBox>("OptionsDialog/MarginContainer/OptionsVBox/SkipIntroCheck");
 		_resolutionOption = GetNodeOrNull<OptionButton>("OptionsDialog/MarginContainer/OptionsVBox/ResolutionRow/ResolutionOption");
-		_applyOptionsButton = GetNodeOrNull<Button>("OptionsDialog/MarginContainer/OptionsVBox/ApplyOptionsButton");
+		_applyOptionsButton = GetNodeOrNull<Button>("OptionsDialog/MarginContainer/OptionsVBox/ButtonRow/ApplyOptionsButton");
 		_optionsStatusLabel = GetNodeOrNull<Label>("OptionsDialog/MarginContainer/OptionsVBox/OptionsStatusLabel");
-		_optionsDialogCloseButton = GetNodeOrNull<Button>("OptionsDialog/MarginContainer/OptionsVBox/CloseButton");
+		_optionsDialogCloseButton = GetNodeOrNull<Button>("OptionsDialog/MarginContainer/OptionsVBox/ButtonRow/CloseButton");
 		_buildLocalSpaceDialog = GetNodeOrNull<Window>("BuildLocalSpaceDialog");
 		_localSpaceExtentXInput = GetNodeOrNull<SpinBox>("BuildLocalSpaceDialog/MarginContainer/LocalSpaceVBox/ExtentGrid/XSpinBox");
 		_localSpaceExtentYInput = GetNodeOrNull<SpinBox>("BuildLocalSpaceDialog/MarginContainer/LocalSpaceVBox/ExtentGrid/YSpinBox");
@@ -132,6 +135,11 @@ public partial class GalaxyViewer
 		RefreshOptionsState();
 		ConnectOptionsSignals();
 		ConnectLocalSpaceDialogSignals();
+		if (_cameraPanelHeaderButton != null)
+		{
+			_cameraPanelHeaderButton.Pressed += ToggleCameraPanel;
+			SetCameraPanelCollapsed(true);
+		}
 
 		if (_inspectorPanel is GalaxyInspectorPanel typedInspectorPanel)
 		{

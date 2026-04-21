@@ -1,4 +1,7 @@
-[gd_resource type="Theme" format=3 uid="uid://c6a5io6e0kwn8"]
+[gd_resource type="Theme" load_steps=3 format=3 uid="uid://c6a5io6e0kwn8"]
+
+[ext_resource type="Texture2D" path="res://src/app/themes/icons/CheckboxUnchecked.svg" id="1_q11"]
+[ext_resource type="Texture2D" path="res://src/app/themes/icons/CheckboxChecked.svg" id="2_q12"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_button_disabled"]
 content_margin_left = 12.0
@@ -251,6 +254,10 @@ CheckBox/colors/font_hover_color = Color(1, 1, 1, 1)
 CheckBox/colors/font_pressed_color = Color(1, 1, 1, 1)
 CheckBox/constants/check_v_offset = 0
 CheckBox/constants/h_separation = 8
+CheckBox/icons/checked = ExtResource("2_q12")
+CheckBox/icons/checked_disabled = ExtResource("2_q12")
+CheckBox/icons/unchecked = ExtResource("1_q11")
+CheckBox/icons/unchecked_disabled = ExtResource("1_q11")
 CheckBox/styles/focus = SubResource("StyleBoxFlat_checkbox_focus")
 CheckBox/styles/hover = SubResource("StyleBoxFlat_checkbox_hover")
 CheckBox/styles/normal = SubResource("StyleBoxFlat_checkbox_normal")
@@ -260,6 +267,10 @@ CheckButton/colors/font_hover_color = Color(1, 1, 1, 1)
 CheckButton/colors/font_pressed_color = Color(1, 1, 1, 1)
 CheckButton/constants/check_v_offset = 0
 CheckButton/constants/h_separation = 8
+CheckButton/icons/checked = ExtResource("2_q12")
+CheckButton/icons/checked_disabled = ExtResource("2_q12")
+CheckButton/icons/unchecked = ExtResource("1_q11")
+CheckButton/icons/unchecked_disabled = ExtResource("1_q11")
 CheckButton/styles/focus = SubResource("StyleBoxFlat_checkbox_focus")
 CheckButton/styles/hover = SubResource("StyleBoxFlat_checkbox_hover")
 CheckButton/styles/normal = SubResource("StyleBoxFlat_checkbox_normal")

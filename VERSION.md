@@ -1,12 +1,20 @@
 # Version
 
-Current version: `0.8.18.3`
+Current version: `0.8.18.4`
 
 Current user-facing version: `0.9d`
 
 Date: `2026-04-20`
 
 Versioning method: release/refactor `+0.1`, feature `+0.0.1`, bug fix `+0.0.0.1`, save-breaking release `+1.0`.
+
+## 0.8.18.4
+
+- Bug fix: Viewer options dialogs in Galaxy, System, Object, and Main Menu now persist the `Show all studio seeds` and `Skip intro on startup` preferences through the explicit `Apply` button and close cleanly from both the titlebar `X` and the explicit `Close` button.
+- Bug fix: Galaxy, System, and Object viewer windows now share the same compact camera-panel pattern, and unchecked checkboxes use explicit white bordered glyphs so they remain visible across the app.
+- Bug fix: System Viewer selection now behaves like a preview-and-focus panel instead of duplicating object-detail output, with clickable stars and orbit entries, numbered asteroid belts, compact selected-body summaries, and no bogus system name or orbit-host dump.
+- Bug fix: System Studio removed the duplicate population toggle, Object Studio keeps `Advanced Controls` and other override checkboxes in `Generation Overrides` with the same checkbox-side presentation as System Studio, and Galaxy Studio now uses the same visible checkbox style for override toggles.
+- Test: `dotnet build StarGen.sln` passed, and the headless harness reported `1835 / 1835` passing before Godot emitted its known mono shutdown leak noise.
 
 ## 0.8.18.3
 

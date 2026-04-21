@@ -1,4 +1,5 @@
 using Godot;
+using StarGen.Domain.Celestial;
 using StarGen.Domain.Generation;
 using StarGen.Domain.Systems;
 using StarGen.Domain.Systems.Fixtures;
@@ -65,7 +66,6 @@ public partial class SystemViewer : Node3D, ISystemViewerSaveLoadHost
 	internal SpinBox? _systemAgeInput;
 	internal SpinBox? _systemMetallicityInput;
 	internal CheckBox? _includeBeltsCheck;
-	internal CheckBox? _generatePopulationCheck;
 	internal OptionButton? _rulesetModeOption;
 	internal CheckBox? _showTravellerReadoutsCheck;
 	internal HSlider? _lifePermissivenessInput;
@@ -79,8 +79,17 @@ public partial class SystemViewer : Node3D, ISystemViewerSaveLoadHost
 	internal Button? _rerollButton;
 	internal Button? _saveButton;
 	internal Button? _loadButton;
-	internal CheckBox? _showOrbitsCheck;
-	internal CheckBox? _showZonesCheck;
+	internal Window? _optionsDialog;
+	internal CheckBox? _fullscreenCheck;
+	internal CheckBox? _showSeedControlsCheck;
+	internal CheckBox? _skipIntroCheck;
+	internal OptionButton? _resolutionOption;
+	internal Button? _applyOptionsButton;
+	internal Label? _optionsStatusLabel;
+	internal Button? _optionsDialogCloseButton;
+	internal Control? _cameraPanel;
+	internal Button? _cameraPanelHeaderButton;
+	internal Control? _cameraPanelContent;
 	internal Node? _cameraController;
 	internal Node3D? _bodiesContainer;
 	internal Node3D? _orbitsContainer;
@@ -98,6 +107,7 @@ public partial class SystemViewer : Node3D, ISystemViewerSaveLoadHost
 	internal bool _animationEnabled = true;
 	internal bool _isUpdatingSystem;
 	internal bool _isReady;
+	internal bool _showOrbitsVisible = true;
 	internal int _sourceStarSeed;
 	internal readonly SystemViewerSaveLoad _saveLoad = new();
 	internal Rect2 _renderAreaRect = new Rect2();
@@ -129,6 +139,7 @@ public partial class SystemViewer : Node3D, ISystemViewerSaveLoadHost
 		SetupBeltRenderer();
 		SetupSaveLoadUi();
 		SetupTopMenu();
+		SetupOptionsUi();
 		SetupTooltips();
 		ConnectSignals();
 		UpdateBackNavigationUi();
@@ -310,22 +321,10 @@ public partial class SystemViewer : Node3D, ISystemViewerSaveLoadHost
 		CreateOrbitVisualizations();
 		UpdateEmptyStateVisibility();
 
-		if (_showZonesCheck != null && _showZonesCheck.ButtonPressed)
-		{
-			CreateZoneVisualizations();
-		}
-
 		UpdateInspectorSystem();
 		FitCameraToSystem();
 
-		if (!string.IsNullOrEmpty(system.Name))
-		{
-			SetStatus($"Viewing: {system.Name}");
-		}
-		else
-		{
-			SetStatus($"Generated: {system.GetSummary()}");
-		}
+		SetStatus($"Generated: {system.GetSummary()}");
 
 		_isUpdatingSystem = false;
 	}
@@ -396,7 +395,15 @@ public partial class SystemViewer : Node3D, ISystemViewerSaveLoadHost
 			_orbitRenderer?.Call("highlight_orbit", bodyId);
 		}
 		UpdateInspectorBody();
-		SetStatus($"Selected: {bodyId}");
+		CelestialBody? selectedBody = _currentSystem?.GetBody(bodyId);
+		if (selectedBody != null && !string.IsNullOrWhiteSpace(selectedBody.Name))
+		{
+			SetStatus($"Selected: {selectedBody.Name}");
+		}
+		else
+		{
+			SetStatus($"Selected: {bodyId}");
+		}
 	}
 
 	/// <summary>

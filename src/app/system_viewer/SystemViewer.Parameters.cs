@@ -32,8 +32,6 @@ public partial class SystemViewer
             ?? throw new System.InvalidOperationException("SystemViewer scene is missing SystemMetallicityInput.");
         _includeBeltsCheck = GetNodeOrNull<CheckBox>("UI/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/GenerationSection/IncludeBeltsCheck")
             ?? throw new System.InvalidOperationException("SystemViewer scene is missing IncludeBeltsCheck.");
-        _generatePopulationCheck = GetNodeOrNull<CheckBox>("UI/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/GenerationSection/GeneratePopulationCheck")
-            ?? throw new System.InvalidOperationException("SystemViewer scene is missing GeneratePopulationCheck.");
         _rulesetModeOption = GetNodeOrNull<OptionButton>("UI/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/GenerationSection/RulesetModeContainer/RulesetModeOption")
             ?? throw new System.InvalidOperationException("SystemViewer scene is missing RulesetModeOption.");
         _showTravellerReadoutsCheck = GetNodeOrNull<CheckBox>("UI/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/GenerationSection/ShowTravellerReadoutsCheck")
@@ -71,7 +69,6 @@ public partial class SystemViewer
         string systemAgeAssumption = GetSystemAssumption("system_age_years");
         string systemMetallicityAssumption = GetSystemAssumption("system_metallicity");
         string includeBeltsAssumption = GetSystemAssumption("include_asteroid_belts");
-        string generatePopulationAssumption = GetSystemAssumption("generate_population");
         string rulesetModeAssumption = GetSystemAssumption("ruleset_mode");
         string showTravellerAssumption = GetSystemAssumption("show_traveller_readouts");
         string lifeAssumption = PermissivenessScaleHelper.GetTooltipText("life");
@@ -86,7 +83,6 @@ public partial class SystemViewer
         metallicityLabel.TooltipText = systemMetallicityAssumption;
         _systemMetallicityInput.TooltipText = systemMetallicityAssumption;
         _includeBeltsCheck.TooltipText = includeBeltsAssumption;
-        _generatePopulationCheck.TooltipText = generatePopulationAssumption;
         rulesetModeLabel.TooltipText = rulesetModeAssumption;
         _rulesetModeOption.TooltipText = rulesetModeAssumption;
         _showTravellerReadoutsCheck.TooltipText = showTravellerAssumption;
@@ -188,10 +184,7 @@ public partial class SystemViewer
             spec.IncludeAsteroidBelts = _includeBeltsCheck.ButtonPressed;
         }
 
-        if (_generatePopulationCheck != null)
-        {
-            spec.GeneratePopulation = _generatePopulationCheck.ButtonPressed;
-        }
+        spec.GeneratePopulation = true;
 
         spec.UseCaseSettings = BuildUseCaseSettingsFromControls();
 
@@ -248,11 +241,6 @@ public partial class SystemViewer
         if (_includeBeltsCheck != null)
         {
             _includeBeltsCheck.ButtonPressed = spec.IncludeAsteroidBelts;
-        }
-
-        if (_generatePopulationCheck != null)
-        {
-            _generatePopulationCheck.ButtonPressed = spec.GeneratePopulation;
         }
 
         ApplyUseCaseSettingsToControls(spec.UseCaseSettings);
@@ -369,11 +357,6 @@ public partial class SystemViewer
         if (_mainworldPolicyOption != null)
         {
             _mainworldPolicyOption.Select((int)GenerationUseCaseSettings.MainworldPolicyType.Require);
-        }
-
-        if (_generatePopulationCheck != null)
-        {
-            _generatePopulationCheck.ButtonPressed = true;
         }
 
         if (_lifePermissivenessInput != null)

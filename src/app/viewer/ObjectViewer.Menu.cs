@@ -1,6 +1,4 @@
-using System.Collections.Generic;
 using Godot;
-using StarGen.Services.Persistence;
 
 namespace StarGen.App.Viewer;
 
@@ -12,13 +10,11 @@ public partial class ObjectViewer
 	private const int FileMenuNewObjectId = 1;
 	private const int FileMenuMainMenuId = 2;
 	private const int FileMenuReturnId = 3;
-	private const int EditMenuGenerateId = 10;
-	private const int EditMenuRerollId = 11;
-	private const int EditMenuEditBodyId = 12;
-	private const int ViewMenuFitId = 20;
-	private const int ViewMenuFocusPrimaryId = 21;
-	private const int WindowMenuFullscreenId = 30;
-	private const int WindowMenuResolutionBaseId = 100;
+	private const int ToolsMenuGenerateId = 10;
+	private const int ToolsMenuRerollId = 11;
+	private const int ToolsMenuEditBodyId = 12;
+	private const int ToolsMenuFitId = 20;
+	private const int ToolsMenuFocusPrimaryId = 21;
 	private const int HelpMenuControlsId = 40;
 
 	private void SetupTopMenu()
@@ -30,9 +26,8 @@ public partial class ObjectViewer
 		}
 
 		ConfigureFileMenu(CreateMenuButton(menuRow, "File"));
-		ConfigureEditMenu(CreateMenuButton(menuRow, "Edit"));
-		ConfigureViewMenu(CreateMenuButton(menuRow, "View"));
-		ConfigureWindowMenu(CreateMenuButton(menuRow, "Window"));
+		ConfigureToolsMenu(CreateMenuButton(menuRow, "Tools"));
+		ConfigureOptionsButton(CreateActionButton(menuRow, "Options"));
 		ConfigureHelpMenu(CreateMenuButton(menuRow, "Help"));
 	}
 
@@ -47,6 +42,18 @@ public partial class ObjectViewer
 		return button;
 	}
 
+	private static Button CreateActionButton(HBoxContainer menuRow, string title)
+	{
+		Button button = new()
+		{
+			Text = title,
+			FocusMode = Control.FocusModeEnum.None,
+			Flat = true,
+		};
+		menuRow.AddChild(button);
+		return button;
+	}
+
 	private void ConfigureFileMenu(MenuButton menuButton)
 	{
 		PopupMenu popup = menuButton.GetPopup();
@@ -55,28 +62,17 @@ public partial class ObjectViewer
 		RebuildFileMenu(popup);
 	}
 
-	private void ConfigureEditMenu(MenuButton menuButton)
+	private void ConfigureToolsMenu(MenuButton menuButton)
 	{
 		PopupMenu popup = menuButton.GetPopup();
-		popup.IdPressed += OnEditMenuIdPressed;
-		popup.AboutToPopup += () => RebuildEditMenu(popup);
-		RebuildEditMenu(popup);
+		popup.IdPressed += OnToolsMenuIdPressed;
+		popup.AboutToPopup += () => RebuildToolsMenu(popup);
+		RebuildToolsMenu(popup);
 	}
 
-	private void ConfigureViewMenu(MenuButton menuButton)
+	private void ConfigureOptionsButton(Button button)
 	{
-		PopupMenu popup = menuButton.GetPopup();
-		popup.IdPressed += OnViewMenuIdPressed;
-		popup.AboutToPopup += () => RebuildViewMenu(popup);
-		RebuildViewMenu(popup);
-	}
-
-	private void ConfigureWindowMenu(MenuButton menuButton)
-	{
-		PopupMenu popup = menuButton.GetPopup();
-		popup.IdPressed += OnWindowMenuIdPressed;
-		popup.AboutToPopup += () => RebuildWindowMenu(popup);
-		RebuildWindowMenu(popup);
+		button.Pressed += OpenOptionsDialog;
 	}
 
 	private void ConfigureHelpMenu(MenuButton menuButton)
@@ -98,49 +94,24 @@ public partial class ObjectViewer
 		}
 	}
 
-	private void RebuildEditMenu(PopupMenu popup)
+	private void RebuildToolsMenu(PopupMenu popup)
 	{
 		bool hasBody = GetCurrentTargetBody() != null;
 		popup.Clear();
 		if (_generationActionsVisible)
 		{
-			popup.AddItem("Generate", EditMenuGenerateId);
-			popup.AddItem("Re-roll", EditMenuRerollId);
+			popup.AddItem("Generate", ToolsMenuGenerateId);
+			popup.AddItem("Re-roll", ToolsMenuRerollId);
 			popup.AddSeparator();
 		}
-		popup.AddItem("Edit Current Object...", EditMenuEditBodyId);
-		popup.SetItemDisabled(popup.ItemCount - 1, !hasBody);
-	}
 
-	private void RebuildViewMenu(PopupMenu popup)
-	{
-		bool hasBody = _currentBody != null;
-		popup.Clear();
-		popup.AddItem("Fit View", ViewMenuFitId);
+		popup.AddItem("Edit Current Object...", ToolsMenuEditBodyId);
 		popup.SetItemDisabled(popup.ItemCount - 1, !hasBody);
-		popup.AddItem("Focus Primary Body", ViewMenuFocusPrimaryId);
-		popup.SetItemDisabled(popup.ItemCount - 1, !hasBody);
-	}
-
-	private void RebuildWindowMenu(PopupMenu popup)
-	{
-		popup.Clear();
-		WindowSettingsService.WindowSettingsState currentSettings = WindowSettingsService.CaptureCurrent();
-		popup.AddCheckItem("Fullscreen", WindowMenuFullscreenId);
-		popup.SetItemChecked(popup.ItemCount - 1, currentSettings.Fullscreen);
 		popup.AddSeparator();
-
-		IReadOnlyList<Vector2I> resolutions = WindowSettingsService.GetCommonResolutions();
-		for (int index = 0; index < resolutions.Count; index += 1)
-		{
-			Vector2I resolution = resolutions[index];
-			popup.AddCheckItem(
-				WindowSettingsService.FormatResolutionLabel(resolution),
-				WindowMenuResolutionBaseId + index);
-			bool isChecked = !currentSettings.Fullscreen && resolution == currentSettings.Resolution;
-			popup.SetItemChecked(popup.ItemCount - 1, isChecked);
-			popup.SetItemDisabled(popup.ItemCount - 1, currentSettings.Fullscreen);
-		}
+		popup.AddItem("Fit View", ToolsMenuFitId);
+		popup.SetItemDisabled(popup.ItemCount - 1, !hasBody);
+		popup.AddItem("Focus Primary Body", ToolsMenuFocusPrimaryId);
+		popup.SetItemDisabled(popup.ItemCount - 1, !hasBody);
 	}
 
 	private string GetReturnMenuText()
@@ -173,9 +144,9 @@ public partial class ObjectViewer
 		}
 	}
 
-	private void OnEditMenuIdPressed(long id)
+	private void OnToolsMenuIdPressed(long id)
 	{
-		if (id == EditMenuGenerateId)
+		if (id == ToolsMenuGenerateId)
 		{
 			if (!_generationActionsVisible)
 			{
@@ -186,7 +157,7 @@ public partial class ObjectViewer
 			return;
 		}
 
-		if (id == EditMenuRerollId)
+		if (id == ToolsMenuRerollId)
 		{
 			if (!_generationActionsVisible)
 			{
@@ -197,60 +168,22 @@ public partial class ObjectViewer
 			return;
 		}
 
-		if (id == EditMenuEditBodyId)
+		if (id == ToolsMenuEditBodyId)
 		{
 			OnInspectorEditRequested();
+			return;
 		}
-	}
 
-	private void OnViewMenuIdPressed(long id)
-	{
-		if (id == ViewMenuFitId)
+		if (id == ToolsMenuFitId)
 		{
 			FitCamera();
 			return;
 		}
 
-		if (id == ViewMenuFocusPrimaryId)
+		if (id == ToolsMenuFocusPrimaryId)
 		{
 			FocusOnPlanet();
 		}
-	}
-
-	private void OnWindowMenuIdPressed(long id)
-	{
-		if (id == WindowMenuFullscreenId)
-		{
-			WindowSettingsService.WindowSettingsState currentSettings = WindowSettingsService.CaptureCurrent();
-			WindowSettingsService.WindowSettingsState updatedSettings =
-				new WindowSettingsService.WindowSettingsState(!currentSettings.Fullscreen, currentSettings.Resolution);
-			WindowSettingsService.ApplyAndSave(updatedSettings);
-			if (updatedSettings.Fullscreen)
-			{
-				SetStatus("Window menu applied fullscreen mode");
-			}
-			else
-			{
-				SetStatus($"Window menu applied {updatedSettings.Resolution.X} x {updatedSettings.Resolution.Y}");
-			}
-			return;
-		}
-
-		if (id < WindowMenuResolutionBaseId)
-		{
-			return;
-		}
-
-		int resolutionIndex = (int)(id - WindowMenuResolutionBaseId);
-		IReadOnlyList<Vector2I> resolutions = WindowSettingsService.GetCommonResolutions();
-		if (resolutionIndex < 0 || resolutionIndex >= resolutions.Count)
-		{
-			return;
-		}
-
-		Vector2I resolution = resolutions[resolutionIndex];
-		WindowSettingsService.ApplyAndSave(new WindowSettingsService.WindowSettingsState(false, resolution));
-		SetStatus($"Window menu applied {resolution.X} x {resolution.Y}");
 	}
 
 	private void OnHelpMenuIdPressed(long id)

@@ -1,13 +1,10 @@
 using Godot;
-using System;
 using StarGen.App.Components;
 using StarGen.App.Viewer;
 using StarGen.Domain.Celestial;
-using StarGen.Domain.Celestial.Components;
 using StarGen.Domain.Generation;
 using StarGen.Domain.Generation.Traveller;
 using StarGen.Domain.Math;
-using StarGen.Domain.Population;
 using StarGen.Domain.Systems;
 using System.Collections.Generic;
 using System.Globalization;
@@ -16,37 +13,33 @@ namespace StarGen.App.SystemViewer;
 
 /// <summary>
 /// Side panel for the solar-system viewer.
+/// Keeps the viewer focused on system preview and selection handoff rather than duplicating object-level detail.
 /// </summary>
 public partial class SystemInspectorPanel : VBoxContainer
 {
-    /// <summary>
-    /// Emitted when the user requests to open a body in the object viewer.
-    /// </summary>
     [Signal]
     public delegate void OpenInViewerRequestedEventHandler(CelestialBody body);
 
-    /// <summary>
-    /// Emitted when the user requests that the viewer focus a populated world from the overview section.
-    /// </summary>
     [Signal]
     public delegate void FocusBodyRequestedEventHandler(CelestialBody body);
+
+    [Signal]
+    public delegate void FocusBeltRequestedEventHandler(string beltId);
 
     private VBoxContainer? _overviewSection;
     private VBoxContainer? _bodySection;
     private Button? _openViewerButton;
     private SolarSystem? _currentSystem;
     private CelestialBody? _selectedBody;
+    private string _selectedBeltId = string.Empty;
 
-    /// <summary>
-    /// Binds scene-authored panel nodes on scene entry.
-    /// </summary>
     public override void _Ready()
     {
         CacheUi();
     }
 
     /// <summary>
-    /// Displays system overview information.
+    /// Displays system-level preview information and clears the current selection.
     /// </summary>
     public void DisplaySystem(SolarSystem? system, SolarSystemSpec? spec = null)
     {
@@ -54,203 +47,85 @@ public partial class SystemInspectorPanel : VBoxContainer
 
         _currentSystem = system;
         _selectedBody = null;
+        _selectedBeltId = string.Empty;
         ResetOpenViewerButtonState();
-        ClearSectionContent(_overviewSection);
-        ClearSectionContent(_bodySection);
-        AddProperty(_bodySection, "Status", "Click a body to inspect");
-
-        if (system == null)
-        {
-            AddProperty(_overviewSection, "Status", "No system generated");
-            return;
-        }
-
-        AddProperty(_overviewSection, "Name", system.Name);
-        AddProperty(_overviewSection, "Stars", system.GetStarCount().ToString(CultureInfo.InvariantCulture));
-        AddProperty(_overviewSection, "Planets", system.GetPlanetCount().ToString(CultureInfo.InvariantCulture));
-        AddProperty(_overviewSection, "Moons", system.GetMoonCount().ToString(CultureInfo.InvariantCulture));
-        AddProperty(_overviewSection, "Asteroids", system.GetAsteroidCount().ToString(CultureInfo.InvariantCulture));
-        AddProperty(_overviewSection, "Asteroid Belts", system.AsteroidBelts.Count.ToString(CultureInfo.InvariantCulture));
-
-        AddSeparator(_overviewSection);
-        AddHeader(_overviewSection, "Population");
-        if (system.IsInhabited())
-        {
-            AddProperty(_overviewSection, "Inhabited", "Yes");
-            AddProperty(_overviewSection, "Total Pop.", PropertyFormatter.FormatPopulation(system.GetTotalPopulation()));
-            AddProperty(_overviewSection, "  Native", PropertyFormatter.FormatPopulation(system.GetNativePopulation()));
-            AddProperty(_overviewSection, "  Colony", PropertyFormatter.FormatPopulation(system.GetColonyPopulation()));
-        }
-        else
-        {
-            AddProperty(_overviewSection, "Inhabited", "No");
-            AddProperty(_overviewSection, "Total Pop.", "0");
-        }
-
-        if (system.GetStars().Count > 0)
-        {
-            AddSeparator(_overviewSection);
-            AddHeader(_overviewSection, "Stars");
-            foreach (CelestialBody star in system.GetStars())
-            {
-                AddProperty(_overviewSection, star.Name, FormatStarInfo(star));
-            }
-        }
-
-        if (system.OrbitHosts.Count > 0)
-        {
-            AddSeparator(_overviewSection);
-            AddHeader(_overviewSection, "Orbit Hosts");
-            foreach (OrbitHost host in system.OrbitHosts)
-            {
-                string hostInfo = string.Format(
-                    CultureInfo.InvariantCulture,
-                    "{0} ({1:0.00} - {2:0.00} AU)",
-                    host.GetTypeString(),
-                    host.InnerStabilityM / Units.AuMeters,
-                    host.OuterStabilityM / Units.AuMeters);
-                AddProperty(_overviewSection, host.NodeId, hostInfo);
-            }
-        }
-
-        if (system.AsteroidBelts.Count > 0)
-        {
-            AddSeparator(_overviewSection);
-            AddHeader(_overviewSection, "Asteroid Belts");
-            foreach (AsteroidBelt belt in system.AsteroidBelts)
-            {
-                string beltInfo = string.Format(
-                    CultureInfo.InvariantCulture,
-                    "{0} | {1:0.00}-{2:0.00} AU | center {3:0.00} AU | majors {4}",
-                    belt.GetCompositionString(),
-                    belt.InnerRadiusM / Units.AuMeters,
-                    belt.OuterRadiusM / Units.AuMeters,
-                    belt.GetCenterAu(),
-                    belt.GetMajorAsteroidCount());
-                AddProperty(_overviewSection, belt.Name, beltInfo);
-            }
-        }
-
-        if (spec != null && (spec.UseCaseSettings.IsTravellerMode() || spec.UseCaseSettings.ShowTravellerReadouts))
-        {
-            AddTravellerSummary(system, spec);
-        }
-
-        AddPopulatedWorldSummary(system);
+        RenderOverview();
+        RenderSelectionPrompt();
     }
 
     /// <summary>
-    /// Displays details for a selected body.
+    /// Displays a selected body summary and keeps the overview in sync with the current selection.
     /// </summary>
     public void DisplaySelectedBody(CelestialBody? body)
     {
         EnsureUi();
 
         _selectedBody = body;
+        _selectedBeltId = string.Empty;
         ResetOpenViewerButtonState();
+        RenderOverview();
         ClearSectionContent(_bodySection);
 
         if (body == null)
         {
-            AddProperty(_bodySection, "Status", "Click a body to inspect");
-            RemoveOpenViewerButton();
+            RenderSelectionPrompt();
             return;
         }
 
-        AddProperty(_bodySection, "Name", body.Name);
+        AddProperty(_bodySection, "Name", GetBodyDisplayName(body));
         AddProperty(_bodySection, "Type", GetTypeDisplay(body.Type));
-        AddProperty(_bodySection, "ID", body.Id);
+        AddProperty(_bodySection, "Class", DescribeBodyClass(body));
 
-        AddSeparator(_bodySection);
-        AddHeader(_bodySection, "Physical");
-        AddPhysicalProperties(body);
-
-        if (body.HasOrbital())
+        if (body.HasOrbital() && body.Orbital != null && !string.IsNullOrWhiteSpace(body.Orbital.ParentId))
         {
-            AddSeparator(_bodySection);
-            AddHeader(_bodySection, "Orbital");
-            AddOrbitalProperties(body);
+            AddProperty(_bodySection, "Orbits", ResolveOrbitHostName(body.Orbital.ParentId));
+            AddProperty(
+                _bodySection,
+                "Distance",
+                string.Format(CultureInfo.InvariantCulture, "{0:0.0000} AU", body.Orbital.SemiMajorAxisM / Units.AuMeters));
         }
 
-        if (body.HasStellar())
+        if (body.Type == CelestialType.Type.Planet && _currentSystem != null)
         {
-            AddSeparator(_bodySection);
-            AddHeader(_bodySection, "Stellar");
-            AddStellarProperties(body);
+            int moonCount = _currentSystem.GetMoonsOfPlanet(body.Id).Count;
+            AddProperty(_bodySection, "Moons", moonCount.ToString(CultureInfo.InvariantCulture));
         }
 
-        if (body.HasAtmosphere())
-        {
-            AddSeparator(_bodySection);
-            AddHeader(_bodySection, "Atmosphere");
-            AddAtmosphereProperties(body);
-        }
-
-        if (body.HasPopulationData())
-        {
-            AddSeparator(_bodySection);
-            AddHeader(_bodySection, "Population");
-            AddPopulationSummary(body);
-        }
-
+        AddPopulationSelectionSummary(body);
+        AddTravellerSelectionSummary(body);
         AddOpenViewerButton();
     }
 
     /// <summary>
-    /// Displays details for a selected asteroid belt.
+    /// Displays a selected belt summary.
     /// </summary>
     public void DisplaySelectedBelt(AsteroidBelt? belt, SolarSystem? system)
     {
         EnsureUi();
 
+        if (system != null)
+        {
+            _currentSystem = system;
+        }
+
         _selectedBody = null;
+        _selectedBeltId = belt?.Id ?? string.Empty;
         ResetOpenViewerButtonState();
+        RenderOverview();
         ClearSectionContent(_bodySection);
 
         if (belt == null)
         {
-            AddProperty(_bodySection, "Status", "Click a body to inspect");
-            RemoveOpenViewerButton();
+            RenderSelectionPrompt();
             return;
         }
 
-        AddProperty(_bodySection, "Name", belt.Name);
+        AddProperty(_bodySection, "Name", GetBeltDisplayName(belt));
         AddProperty(_bodySection, "Type", "Asteroid Belt");
-        AddProperty(_bodySection, "ID", belt.Id);
-
-        AddSeparator(_bodySection);
-        AddHeader(_bodySection, "Orbital Extent");
-        AddProperty(_bodySection, "Inner Edge", string.Format(CultureInfo.InvariantCulture, "{0:0.0000} AU", belt.InnerRadiusM / Units.AuMeters));
-        AddProperty(_bodySection, "Outer Edge", string.Format(CultureInfo.InvariantCulture, "{0:0.0000} AU", belt.OuterRadiusM / Units.AuMeters));
+        AddProperty(_bodySection, "Class", belt.GetCompositionString() + " belt");
         AddProperty(_bodySection, "Center", string.Format(CultureInfo.InvariantCulture, "{0:0.0000} AU", belt.GetCenterAu()));
         AddProperty(_bodySection, "Width", string.Format(CultureInfo.InvariantCulture, "{0:0.0000} AU", belt.GetWidthAu()));
-
-        AddSeparator(_bodySection);
-        AddHeader(_bodySection, "Properties");
-        AddProperty(_bodySection, "Composition", belt.GetCompositionString());
-        AddProperty(_bodySection, "Total Mass", FormatMassKg(belt.TotalMassKg));
         AddProperty(_bodySection, "Major Bodies", belt.GetMajorAsteroidCount().ToString(CultureInfo.InvariantCulture));
-
-        if (system != null && belt.MajorAsteroidIds.Count > 0)
-        {
-            AddSeparator(_bodySection);
-            AddHeader(_bodySection, "Major Asteroids");
-            foreach (string asteroidId in belt.MajorAsteroidIds)
-            {
-                CelestialBody? asteroid = system.GetBody(asteroidId);
-                if (asteroid == null)
-                {
-                    continue;
-                }
-
-                double radiusKm = asteroid.Physical.RadiusM / 1000.0;
-                AddProperty(
-                    _bodySection,
-                    asteroid.Name,
-                    string.Format(CultureInfo.InvariantCulture, "{0:0} km radius", radiusKm));
-            }
-        }
-
         RemoveOpenViewerButton();
     }
 
@@ -263,16 +138,12 @@ public partial class SystemInspectorPanel : VBoxContainer
 
         _currentSystem = null;
         _selectedBody = null;
+        _selectedBeltId = string.Empty;
         ResetOpenViewerButtonState();
-        ClearSectionContent(_overviewSection);
-        ClearSectionContent(_bodySection);
-        AddProperty(_overviewSection, "Status", "No system generated");
-        AddProperty(_bodySection, "Status", "Click a body to inspect");
+        RenderOverview();
+        RenderSelectionPrompt();
     }
 
-    /// <summary>
-    /// Caches the scene-authored UI structure.
-    /// </summary>
     private void CacheUi()
     {
         _overviewSection = GetNodeOrNull<VBoxContainer>("OverviewSection/Content");
@@ -285,335 +156,330 @@ public partial class SystemInspectorPanel : VBoxContainer
         }
     }
 
-    /// <summary>
-    /// Adds physical property rows for a body.
-    /// </summary>
-    private void AddPhysicalProperties(CelestialBody body)
+    private void RenderOverview()
     {
-        PhysicalProps physical = body.Physical;
-        AddProperty(_bodySection, "Mass", PropertyFormatter.FormatMass(physical.MassKg, body.Type));
-        AddProperty(_bodySection, "Radius", PropertyFormatter.FormatRadius(physical.RadiusM, body.Type));
-        AddProperty(
-            _bodySection,
-            "Density",
-            string.Format(CultureInfo.InvariantCulture, "{0:0.0} kg/m^3", physical.GetDensityKgM3()));
-
-        if (physical.RotationPeriodS != 0.0)
+        ClearSectionContent(_overviewSection);
+        if (_currentSystem == null)
         {
-            double hours = System.Math.Abs(physical.RotationPeriodS) / 3600.0;
-            string retrograde;
-            if (physical.RotationPeriodS < 0.0)
-            {
-                retrograde = " (retrograde)";
-            }
-            else
-            {
-                retrograde = string.Empty;
-            }
-            AddProperty(
-                _bodySection,
-                "Rotation",
-                string.Format(CultureInfo.InvariantCulture, "{0:0.0} hours{1}", hours, retrograde));
-        }
-
-        if (physical.AxialTiltDeg != 0.0)
-        {
-            AddProperty(
-                _bodySection,
-                "Axial Tilt",
-                string.Format(CultureInfo.InvariantCulture, "{0:0.0}\u00B0", physical.AxialTiltDeg));
-        }
-    }
-
-    /// <summary>
-    /// Formats a mass value for belt display.
-    /// </summary>
-    private static string FormatMassKg(double massKg)
-    {
-        if (massKg >= 1.0e24)
-        {
-            return string.Format(CultureInfo.InvariantCulture, "{0:0.00} M\u2295", massKg / Units.EarthMassKg);
-        }
-
-        return string.Format(CultureInfo.InvariantCulture, "{0:0.00e+0} kg", massKg);
-    }
-
-    /// <summary>
-    /// Adds orbital property rows for a body.
-    /// </summary>
-    private void AddOrbitalProperties(CelestialBody body)
-    {
-        if (!body.HasOrbital() || body.Orbital == null)
-        {
+            AddProperty(_overviewSection, "Status", "No system generated");
             return;
         }
 
-        OrbitalProps orbital = body.Orbital;
-        double semiMajorAxisAu = orbital.SemiMajorAxisM / Units.AuMeters;
-        if (semiMajorAxisAu > 0.01)
-        {
-            AddProperty(
-                _bodySection,
-                "Semi-major Axis",
-                string.Format(CultureInfo.InvariantCulture, "{0:0.0000} AU", semiMajorAxisAu));
-        }
-        else
-        {
-            AddProperty(
-                _bodySection,
-                "Semi-major Axis",
-                string.Format(CultureInfo.InvariantCulture, "{0:0} km", orbital.SemiMajorAxisM / 1000.0));
-        }
-
-        AddProperty(_bodySection, "Eccentricity", string.Format(CultureInfo.InvariantCulture, "{0:0.0000}", orbital.Eccentricity));
-        AddProperty(_bodySection, "Inclination", string.Format(CultureInfo.InvariantCulture, "{0:0.00}\u00B0", orbital.InclinationDeg));
-        if (!string.IsNullOrEmpty(orbital.ParentId))
-        {
-            AddProperty(_bodySection, "Orbits", orbital.ParentId);
-        }
-    }
-
-    /// <summary>
-    /// Adds stellar property rows for a body.
-    /// </summary>
-    private void AddStellarProperties(CelestialBody body)
-    {
-        if (!body.HasStellar() || body.Stellar == null)
-        {
-            return;
-        }
-
-        StellarProps stellar = body.Stellar;
-        AddProperty(_bodySection, "Spectral Class", stellar.SpectralClass);
-        AddProperty(_bodySection, "Temperature", string.Format(CultureInfo.InvariantCulture, "{0} K", (int)stellar.EffectiveTemperatureK));
+        AddProperty(_overviewSection, "Stars", _currentSystem.GetStarCount().ToString(CultureInfo.InvariantCulture));
         AddProperty(
-            _bodySection,
-            "Luminosity",
-            string.Format(CultureInfo.InvariantCulture, "{0:0.0000} L\u2609", stellar.LuminosityWatts / StellarProps.SolarLuminosityWatts));
+            _overviewSection,
+            "Bodies",
+            string.Format(
+                CultureInfo.InvariantCulture,
+                "{0} planets, {1} moons, {2} belts",
+                _currentSystem.GetPlanetCount(),
+                _currentSystem.GetMoonCount(),
+                _currentSystem.AsteroidBelts.Count));
+        AddProperty(_overviewSection, "Settlement", GetSystemSettlementSummary(_currentSystem));
 
-        if (stellar.AgeYears > 0.0)
-        {
-            AddProperty(
-                _bodySection,
-                "Age",
-                string.Format(CultureInfo.InvariantCulture, "{0:0.00} Gyr", stellar.AgeYears / 1.0e9));
-        }
-    }
-
-    /// <summary>
-    /// Adds atmosphere property rows for a body.
-    /// </summary>
-    private void AddAtmosphereProperties(CelestialBody body)
-    {
-        if (!body.HasAtmosphere() || body.Atmosphere == null)
-        {
-            return;
-        }
-
-        AtmosphereProps atmosphere = body.Atmosphere;
-        AddProperty(
-            _bodySection,
-            "Pressure",
-            string.Format(CultureInfo.InvariantCulture, "{0:0.0000} atm", atmosphere.SurfacePressurePa / 101325.0));
-
-        if (body.HasSurface() && body.Surface != null && body.Surface.TemperatureK > 0.0)
-        {
-            AddProperty(
-                _bodySection,
-                "Temperature",
-                string.Format(CultureInfo.InvariantCulture, "{0:0} K", body.Surface.TemperatureK));
-        }
-
-        if (atmosphere.GreenhouseFactor > 1.0)
-        {
-            AddProperty(
-                _bodySection,
-                "Greenhouse",
-                string.Format(CultureInfo.InvariantCulture, "{0:0.00}x", atmosphere.GreenhouseFactor));
-        }
-    }
-
-    /// <summary>
-    /// Adds population summary rows for a body.
-    /// </summary>
-    private void AddPopulationSummary(CelestialBody body)
-    {
-        if (body.PopulationData == null)
-        {
-            return;
-        }
-
-        PlanetPopulationData populationData = body.PopulationData;
-        if (populationData.Profile != null)
-        {
-            AddProperty(
-                _bodySection,
-                "Habitability",
-                PropertyFormatter.FormatHabitability(populationData.Profile.HabitabilityScore));
-        }
-
-        if (populationData.Suitability != null)
-        {
-            AddProperty(
-                _bodySection,
-                "Suitability",
-                PropertyFormatter.FormatSuitability(populationData.Suitability.OverallScore));
-        }
-
-        AddProperty(
-            _bodySection,
-            "Status",
-            PropertyFormatter.FormatPoliticalSituation(GetPoliticalSituation(populationData)));
-
-        int totalPopulation = populationData.GetTotalPopulation();
-        if (totalPopulation > 0)
-        {
-            AddProperty(_bodySection, "Total Pop.", PropertyFormatter.FormatPopulation(totalPopulation));
-            AddProperty(_bodySection, "Dominant", GetDominantPopulationName(populationData));
-        }
-    }
-
-    /// <summary>
-    /// Adds a populated-world summary with quick-focus buttons.
-    /// </summary>
-    private void AddPopulatedWorldSummary(SolarSystem system)
-    {
         AddSeparator(_overviewSection);
-        AddHeader(_overviewSection, "Populated Worlds");
+        AddHeader(_overviewSection, "System Preview");
+        AddOrbitPreviewRows(_currentSystem);
+    }
 
-        List<CelestialBody> populatedBodies = GetPopulatedBodies(system);
-        if (populatedBodies.Count == 0)
+    private void RenderSelectionPrompt()
+    {
+        ClearSectionContent(_bodySection);
+        AddProperty(_bodySection, "Status", "Select a star or orbit entry");
+        RemoveOpenViewerButton();
+    }
+
+    private void AddOrbitPreviewRows(SolarSystem system)
+    {
+        AddHeader(_overviewSection, "Stars");
+        Godot.Collections.Array<CelestialBody> stars = system.GetStars();
+        for (int index = 0; index < stars.Count; index += 1)
         {
-            AddProperty(_overviewSection, "Worlds", "No populated worlds");
+            CelestialBody star = stars[index];
+            string label = $"Star {index + 1}: {DescribeBodyClass(star)}";
+            AddBodyFocusButton(label, star, star.Id == _selectedBody?.Id);
+        }
+
+        List<OrbitPreviewEntry> orbitEntries = BuildOrbitPreviewEntries(system);
+        if (orbitEntries.Count == 0)
+        {
+            AddInfoLabel(_overviewSection, "No orbiting bodies");
             return;
         }
 
-        foreach (CelestialBody body in populatedBodies)
+        AddSeparator(_overviewSection);
+        AddHeader(_overviewSection, "Orbits");
+        for (int index = 0; index < orbitEntries.Count; index += 1)
         {
-            AddPopulatedWorldButton(body);
-        }
-    }
-
-    /// <summary>
-    /// Returns the currently populated worlds in display order.
-    /// </summary>
-    private static List<CelestialBody> GetPopulatedBodies(SolarSystem system)
-    {
-        List<CelestialBody> populatedBodies = new List<CelestialBody>();
-        foreach (CelestialBody body in system.Bodies.Values)
-        {
-            if (!body.HasPopulationData() || body.PopulationData == null || !body.PopulationData.IsInhabited())
+            OrbitPreviewEntry entry = orbitEntries[index];
+            if (entry.Body != null)
             {
-                continue;
+                string label = $"Orbit {index + 1}: {GetBodyDisplayName(entry.Body)} - {DescribeBodyClass(entry.Body)}";
+                AddBodyFocusButton(label, entry.Body, entry.Body.Id == _selectedBody?.Id);
             }
-
-            populatedBodies.Add(body);
+            else if (entry.Belt != null)
+            {
+                string label = $"Orbit {index + 1}: {GetBeltDisplayName(entry.Belt)} - {entry.Belt.GetCompositionString()} belt";
+                AddBeltFocusButton(label, entry.Belt, entry.Belt.Id == _selectedBeltId);
+            }
         }
-
-        populatedBodies.Sort(ComparePopulatedBodies);
-        return populatedBodies;
     }
 
-    /// <summary>
-    /// Sorts populated worlds by total population, then by name.
-    /// </summary>
-    private static int ComparePopulatedBodies(CelestialBody left, CelestialBody right)
+    private void AddBodyFocusButton(string text, CelestialBody body, bool selected)
     {
-        int leftPopulation = 0;
-        if (left.PopulationData != null)
-        {
-            leftPopulation = left.PopulationData.GetTotalPopulation();
-        }
-
-        int rightPopulation = 0;
-        if (right.PopulationData != null)
-        {
-            rightPopulation = right.PopulationData.GetTotalPopulation();
-        }
-
-        int populationComparison = rightPopulation.CompareTo(leftPopulation);
-        if (populationComparison != 0)
-        {
-            return populationComparison;
-        }
-
-        return string.Compare(left.Name, right.Name, System.StringComparison.Ordinal);
-    }
-
-    /// <summary>
-    /// Adds one populated-world focus button to the overview.
-    /// </summary>
-    private void AddPopulatedWorldButton(CelestialBody body)
-    {
-        if (_overviewSection == null || body.PopulationData == null)
+        if (_overviewSection == null)
         {
             return;
         }
 
         Button button = UiSceneTemplates.InstantiateActionButton();
-        button.Text = "Focus " + body.Name + " (" + PropertyFormatter.FormatPopulation(body.PopulationData.GetTotalPopulation()) + ")";
-        button.TooltipText = "Jump the system selection and camera to " + body.Name;
         button.Alignment = HorizontalAlignment.Left;
-        button.AutowrapMode = TextServer.AutowrapMode.WordSmart;
+        button.Text = selected ? "* " + text : text;
+        button.TooltipText = "Focus " + GetBodyDisplayName(body);
         button.Pressed += () => EmitSignal(SignalName.FocusBodyRequested, body);
         _overviewSection.AddChild(button);
     }
 
-    /// <summary>
-    /// Adds Traveller-oriented mainworld readiness summary rows.
-    /// </summary>
-    private void AddTravellerSummary(SolarSystem system, SolarSystemSpec spec)
+    private void AddBeltFocusButton(string text, AsteroidBelt belt, bool selected)
     {
-        AddSeparator(_overviewSection);
-        AddHeader(_overviewSection, "Traveller");
-        AddProperty(_overviewSection, "Ruleset", GenerationUseCasePresentation.GetRulesetLabel(spec.UseCaseSettings.RulesetMode));
-        AddProperty(_overviewSection, "Mainworld Policy", GetMainworldPolicyLabel(spec.UseCaseSettings.MainworldPolicy));
-
-        if (system.TravellerProfile != null)
+        if (_overviewSection == null)
         {
-            AddProperty(_overviewSection, "Mainworld", system.TravellerProfile.MainworldName);
-            AddProperty(_overviewSection, "Reason", system.TravellerProfile.SelectionReason);
-            AddProperty(_overviewSection, "UWP", system.TravellerProfile.GetUwp());
-            AddProperty(_overviewSection, "Trade Codes", system.TravellerProfile.TradeCodes.ToDisplayString());
-            string travelZone = "None";
-            if (!string.IsNullOrEmpty(system.TravellerProfile.TravelZone))
-            {
-                travelZone = system.TravellerProfile.TravelZone;
-            }
-
-            AddProperty(
-                _overviewSection,
-                "Travel Zone",
-                travelZone);
-            AddProperty(_overviewSection, "Starport", system.TravellerProfile.WorldProfile.StarportCode);
-            AddProperty(_overviewSection, "Tech Level", TravellerWorldProfile.ToHexDigit(system.TravellerProfile.WorldProfile.TechLevelCode));
-            AddProperty(_overviewSection, "Route Importance", system.TravellerProfile.RouteProfile.Importance.ToString(CultureInfo.InvariantCulture));
             return;
         }
 
-        TravellerMainworldSelector.SelectionResult selection = TravellerMainworldSelector.Select(system);
-        if (!selection.HasCandidate() || selection.Body == null)
-        {
-            AddProperty(_overviewSection, "Mainworld", "No candidate");
-            AddProperty(_overviewSection, "Readiness", "Mainworld candidate missing");
-            AddProperty(_overviewSection, "Reason", selection.Reason);
-            return;
-        }
-
-        AddProperty(_overviewSection, "Mainworld", selection.Body.Name);
-        AddProperty(_overviewSection, "Reason", selection.Reason);
-        AddProperty(_overviewSection, "Population", PropertyFormatter.FormatPopulation(selection.Population));
-        AddProperty(_overviewSection, "Habitability", PropertyFormatter.FormatHabitability(selection.HabitabilityScore));
-        AddProperty(_overviewSection, "Suitability", PropertyFormatter.FormatSuitability(selection.SuitabilityScore));
+        Button button = UiSceneTemplates.InstantiateActionButton();
+        button.Alignment = HorizontalAlignment.Left;
+        button.Text = selected ? "* " + text : text;
+        button.TooltipText = "Focus " + GetBeltDisplayName(belt);
+        button.Pressed += () => EmitSignal(SignalName.FocusBeltRequested, belt.Id);
+        _overviewSection.AddChild(button);
     }
 
-    /// <summary>
-    /// Derives the current political situation for display.
-    /// </summary>
-    private static string GetPoliticalSituation(PlanetPopulationData populationData)
+    private static List<OrbitPreviewEntry> BuildOrbitPreviewEntries(SolarSystem system)
     {
-        int nativePopulation = populationData.GetNativePopulation();
-        int colonyPopulation = populationData.GetColonyPopulation();
+        List<OrbitPreviewEntry> entries = new();
+        foreach (CelestialBody planet in system.GetPlanets())
+        {
+            double distance = 0.0;
+            if (planet.HasOrbital() && planet.Orbital != null)
+            {
+                distance = planet.Orbital.SemiMajorAxisM;
+            }
+
+            entries.Add(new OrbitPreviewEntry(distance, planet, null));
+        }
+
+        foreach (AsteroidBelt belt in system.AsteroidBelts)
+        {
+            entries.Add(new OrbitPreviewEntry(belt.GetCenterM(), null, belt));
+        }
+
+        entries.Sort(static (left, right) => left.DistanceM.CompareTo(right.DistanceM));
+        return entries;
+    }
+
+    private void AddPopulationSelectionSummary(CelestialBody body)
+    {
+        if (!body.HasPopulationData() || body.PopulationData == null)
+        {
+            return;
+        }
+
+        if (!body.PopulationData.IsInhabited())
+        {
+            AddProperty(_bodySection, "Settlement", "Uninhabited");
+            return;
+        }
+
+        AddProperty(
+            _bodySection,
+            "Settlement",
+            PropertyFormatter.FormatPopulation(body.PopulationData.GetTotalPopulation()) + " inhabited");
+        AddProperty(_bodySection, "Situation", PropertyFormatter.FormatPoliticalSituation(GetPoliticalSituation(body)));
+    }
+
+    private void AddTravellerSelectionSummary(CelestialBody body)
+    {
+        if (body.Type != CelestialType.Type.Planet && body.Type != CelestialType.Type.Moon)
+        {
+            return;
+        }
+
+        TravellerWorldProfile profile;
+        TravellerWorldProfile? stored = TravellerWorldGenerator.TryGetStoredProfile(body);
+        if (stored != null)
+        {
+            profile = stored;
+        }
+        else
+        {
+            profile = TravellerWorldGenerator.DeriveFromBody(body);
+        }
+
+        AddProperty(_bodySection, "UWP", profile.ToUwpString());
+        TravellerTradeCodeSet? tradeCodes = TryGetStoredTradeCodes(body);
+        if (tradeCodes != null)
+        {
+            AddProperty(_bodySection, "Trade Codes", tradeCodes.ToDisplayString());
+        }
+    }
+
+    private string GetSystemSettlementSummary(SolarSystem system)
+    {
+        if (!system.IsInhabited())
+        {
+            return "Uninhabited";
+        }
+
+        return PropertyFormatter.FormatPopulation(system.GetTotalPopulation()) + " inhabited";
+    }
+
+    private string GetBodyDisplayName(CelestialBody body)
+    {
+        if (string.IsNullOrWhiteSpace(body.Name))
+        {
+            return body.Id;
+        }
+
+        return body.Name;
+    }
+
+    private string GetBeltDisplayName(AsteroidBelt belt)
+    {
+        if (_currentSystem == null)
+        {
+            return "Asteroid Belt";
+        }
+
+        List<AsteroidBelt> sortedBelts = new();
+        foreach (AsteroidBelt candidate in _currentSystem.AsteroidBelts)
+        {
+            sortedBelts.Add(candidate);
+        }
+
+        sortedBelts.Sort(static (left, right) => left.GetCenterM().CompareTo(right.GetCenterM()));
+        for (int index = 0; index < sortedBelts.Count; index += 1)
+        {
+            if (sortedBelts[index].Id == belt.Id)
+            {
+                return $"Asteroid Belt {index + 1}";
+            }
+        }
+
+        return "Asteroid Belt";
+    }
+
+    private string ResolveOrbitHostName(string parentId)
+    {
+        if (_currentSystem == null || string.IsNullOrWhiteSpace(parentId))
+        {
+            return parentId;
+        }
+
+        CelestialBody? parentBody = _currentSystem.GetBody(parentId);
+        if (parentBody != null)
+        {
+            return GetBodyDisplayName(parentBody);
+        }
+
+        AsteroidBelt? parentBelt = FindBeltById(parentId);
+        if (parentBelt != null)
+        {
+            return GetBeltDisplayName(parentBelt);
+        }
+
+        return parentId;
+    }
+
+    private AsteroidBelt? FindBeltById(string beltId)
+    {
+        if (_currentSystem == null)
+        {
+            return null;
+        }
+
+        foreach (AsteroidBelt belt in _currentSystem.AsteroidBelts)
+        {
+            if (belt.Id == beltId)
+            {
+                return belt;
+            }
+        }
+
+        return null;
+    }
+
+    private static string DescribeBodyClass(CelestialBody body)
+    {
+        if (body.HasStellar() && body.Stellar != null && !string.IsNullOrWhiteSpace(body.Stellar.SpectralClass))
+        {
+            return body.Stellar.SpectralClass;
+        }
+
+        if (body.HasSurface() && body.Surface != null && !string.IsNullOrWhiteSpace(body.Surface.SurfaceType))
+        {
+            return body.Surface.SurfaceType;
+        }
+
+        if (body.HasAtmosphere() && body.Atmosphere != null && body.Atmosphere.SurfacePressurePa < 100.0)
+        {
+            return "Airless world";
+        }
+
+        double earthRadii = body.Physical.RadiusM / Units.EarthRadiusMeters;
+        if (body.Type == CelestialType.Type.Moon)
+        {
+            if (earthRadii >= 0.75)
+            {
+                return "Large moon";
+            }
+
+            return "Rocky moon";
+        }
+
+        if (earthRadii >= 6.0)
+        {
+            return "Giant planet";
+        }
+
+        if (earthRadii >= 3.0)
+        {
+            return "Large planet";
+        }
+
+        if (earthRadii >= 1.25)
+        {
+            return "Terrestrial world";
+        }
+
+        return body.GetTypeString();
+    }
+
+    private static TravellerTradeCodeSet? TryGetStoredTradeCodes(CelestialBody body)
+    {
+        if (body.Provenance == null || !body.Provenance.SpecSnapshot.ContainsKey("traveller_trade_codes"))
+        {
+            return null;
+        }
+
+        Variant codesVariant = body.Provenance.SpecSnapshot["traveller_trade_codes"];
+        if (codesVariant.VariantType != Variant.Type.Dictionary)
+        {
+            return null;
+        }
+
+        return TravellerTradeCodeSet.FromDictionary((Godot.Collections.Dictionary)codesVariant);
+    }
+
+    private static string GetPoliticalSituation(CelestialBody body)
+    {
+        if (body.PopulationData == null)
+        {
+            return "uninhabited";
+        }
+
+        int nativePopulation = body.PopulationData.GetNativePopulation();
+        int colonyPopulation = body.PopulationData.GetColonyPopulation();
         if (nativePopulation <= 0 && colonyPopulation <= 0)
         {
             return "uninhabited";
@@ -629,66 +495,9 @@ public partial class SystemInspectorPanel : VBoxContainer
             return "colony_only";
         }
 
-        foreach (Colony colony in populationData.Colonies)
-        {
-            if (colony.IsActive && colony.HasHostileNativeRelations())
-            {
-                return "conflict";
-            }
-        }
-
         return "coexisting";
     }
 
-    /// <summary>
-    /// Returns the largest active population name.
-    /// </summary>
-    private static string GetDominantPopulationName(PlanetPopulationData populationData)
-    {
-        string dominantName = "Unknown";
-        int dominantCount = 0;
-
-        foreach (NativePopulation nativePopulation in populationData.NativePopulations)
-        {
-            if (nativePopulation.IsExtant && nativePopulation.Population > dominantCount)
-            {
-                dominantCount = nativePopulation.Population;
-                dominantName = nativePopulation.Name;
-            }
-        }
-
-        foreach (Colony colony in populationData.Colonies)
-        {
-            if (colony.IsActive && colony.Population > dominantCount)
-            {
-                dominantCount = colony.Population;
-                dominantName = colony.Name;
-            }
-        }
-
-        return dominantName;
-    }
-
-    /// <summary>
-    /// Formats star info for overview display.
-    /// </summary>
-    private static string FormatStarInfo(CelestialBody star)
-    {
-        if (star.HasStellar() && star.Stellar != null)
-        {
-            return string.Format(
-                CultureInfo.InvariantCulture,
-                "{0} ({1:0} K)",
-                star.Stellar.SpectralClass,
-                star.Stellar.EffectiveTemperatureK);
-        }
-
-        return "Unknown type";
-    }
-
-    /// <summary>
-    /// Gets the display string for a body type.
-    /// </summary>
     private static string GetTypeDisplay(CelestialType.Type bodyType)
     {
         return bodyType switch
@@ -701,24 +510,6 @@ public partial class SystemInspectorPanel : VBoxContainer
         };
     }
 
-    private static string GetMainworldPolicyLabel(GenerationUseCaseSettings.MainworldPolicyType policy)
-    {
-        if (policy == GenerationUseCaseSettings.MainworldPolicyType.Prefer)
-        {
-            return "Prefer";
-        }
-
-        if (policy == GenerationUseCaseSettings.MainworldPolicyType.Require)
-        {
-            return "Require";
-        }
-
-        return "None";
-    }
-
-    /// <summary>
-    /// Clears all section content.
-    /// </summary>
     private static void ClearSectionContent(VBoxContainer? section)
     {
         if (section == null)
@@ -732,9 +523,6 @@ public partial class SystemInspectorPanel : VBoxContainer
         }
     }
 
-    /// <summary>
-    /// Adds one property row to a section.
-    /// </summary>
     private static void AddProperty(VBoxContainer? section, string labelText, string valueText)
     {
         if (section == null)
@@ -750,9 +538,6 @@ public partial class SystemInspectorPanel : VBoxContainer
         section.AddChild(row);
     }
 
-    /// <summary>
-    /// Adds a sub-header label to a section.
-    /// </summary>
     private static void AddHeader(VBoxContainer? section, string text)
     {
         if (section == null)
@@ -765,9 +550,6 @@ public partial class SystemInspectorPanel : VBoxContainer
         section.AddChild(header);
     }
 
-    /// <summary>
-    /// Adds a separator to a section.
-    /// </summary>
     private static void AddSeparator(VBoxContainer? section)
     {
         if (section != null)
@@ -776,48 +558,42 @@ public partial class SystemInspectorPanel : VBoxContainer
         }
     }
 
-    /// <summary>
-    /// Adds the open-in-viewer button.
-    /// </summary>
+    private static void AddInfoLabel(VBoxContainer? section, string text)
+    {
+        if (section == null)
+        {
+            return;
+        }
+
+        Label label = UiSceneTemplates.InstantiateMessageLabel();
+        label.Text = text;
+        section.AddChild(label);
+    }
+
     private void AddOpenViewerButton()
     {
-        if (_openViewerButton == null)
+        if (_openViewerButton != null)
         {
-            return;
+            _openViewerButton.Visible = true;
         }
-
-        _openViewerButton.Visible = true;
     }
 
-    /// <summary>
-    /// Removes the open-in-viewer button.
-    /// </summary>
     private void RemoveOpenViewerButton()
     {
-        if (_openViewerButton == null)
+        if (_openViewerButton != null)
         {
-            return;
+            _openViewerButton.Visible = false;
         }
-
-        _openViewerButton.Visible = false;
     }
 
-    /// <summary>
-    /// Clears the tracked open-in-viewer button reference before section rebuilds.
-    /// </summary>
     private void ResetOpenViewerButtonState()
     {
-        if (_openViewerButton == null)
+        if (_openViewerButton != null)
         {
-            return;
+            _openViewerButton.Visible = false;
         }
-
-        _openViewerButton.Visible = false;
     }
 
-    /// <summary>
-    /// Handles the open-in-viewer button press.
-    /// </summary>
     private void OnOpenViewerPressed()
     {
         if (_selectedBody != null)
@@ -826,9 +602,6 @@ public partial class SystemInspectorPanel : VBoxContainer
         }
     }
 
-    /// <summary>
-    /// Ensures the panel UI exists before display calls.
-    /// </summary>
     private void EnsureUi()
     {
         if (_overviewSection == null || _bodySection == null || _openViewerButton == null)
@@ -838,7 +611,23 @@ public partial class SystemInspectorPanel : VBoxContainer
 
         if (_overviewSection == null || _bodySection == null || _openViewerButton == null)
         {
-            throw new InvalidOperationException("SystemInspectorPanel scene is missing required inspector nodes.");
+            throw new System.InvalidOperationException("SystemInspectorPanel scene is missing required inspector nodes.");
         }
+    }
+
+    private readonly struct OrbitPreviewEntry
+    {
+        public OrbitPreviewEntry(double distanceM, CelestialBody? body, AsteroidBelt? belt)
+        {
+            DistanceM = distanceM;
+            Body = body;
+            Belt = belt;
+        }
+
+        public double DistanceM { get; }
+
+        public CelestialBody? Body { get; }
+
+        public AsteroidBelt? Belt { get; }
     }
 }

@@ -15,7 +15,7 @@ compatibility/default_parent_skeleton_in_mesh_instance_3d=true
 [application]
 
 config/name="StarGen"
-config/version="0.8.18.3"
+config/version="0.8.18.4"
 run/main_scene="res://src/app/MainApp.tscn"
 config/features=PackedStringArray("4.6", "C#", "Forward Plus")
 config/icon="res://StarGen.png"

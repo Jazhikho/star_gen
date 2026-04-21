@@ -182,29 +182,6 @@ text = "Re-roll"
 [node name="HSeparator1" type="HSeparator" parent="UI/SidePanel/MarginContainer/ScrollContainer/VBoxContainer"]
 layout_mode = 2
 
-[node name="ViewSection" type="VBoxContainer" parent="UI/SidePanel/MarginContainer/ScrollContainer/VBoxContainer"]
-layout_mode = 2
-theme_override_constants/separation = 5
-
-[node name="ViewLabel" type="Label" parent="UI/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/ViewSection"]
-layout_mode = 2
-theme_override_font_sizes/font_size = 14
-text = "View Options"
-
-[node name="ShowOrbitsCheck" type="CheckBox" parent="UI/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/ViewSection"]
-layout_mode = 2
-tooltip_text = "Toggle orbital path visibility"
-button_pressed = true
-text = "Show Orbits"
-
-[node name="ShowZonesCheck" type="CheckBox" parent="UI/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/ViewSection"]
-layout_mode = 2
-tooltip_text = "Toggle habitable zone visibility"
-text = "Show Zones"
-
-[node name="HSeparator2a" type="HSeparator" parent="UI/SidePanel/MarginContainer/ScrollContainer/VBoxContainer"]
-layout_mode = 2
-
 [node name="SaveLoadSection" type="VBoxContainer" parent="UI/SidePanel/MarginContainer/ScrollContainer/VBoxContainer"]
 layout_mode = 2
 theme_override_constants/separation = 5

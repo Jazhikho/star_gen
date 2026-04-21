@@ -1,4 +1,5 @@
 using Godot;
+using System.Collections.Generic;
 using StarGen.Domain.Celestial;
 using StarGen.Domain.Generation;
 using StarGen.Domain.Celestial.Serialization;
@@ -85,20 +86,10 @@ public partial class SystemViewer
     /// </summary>
     private void OnShowOrbitsToggled(bool enabled)
     {
+        _showOrbitsVisible = enabled;
         if (_orbitsContainer != null)
         {
             _orbitsContainer.Visible = enabled;
-        }
-    }
-
-    /// <summary>
-    /// Handles zone-visibility toggles.
-    /// </summary>
-    private void OnShowZonesToggled(bool enabled)
-    {
-        if (_zonesContainer != null)
-        {
-            _zonesContainer.Visible = enabled;
         }
     }
 
@@ -165,6 +156,7 @@ public partial class SystemViewer
                     if (belt.Id == beltId)
                     {
                         typedInspectorPanel.DisplaySelectedBelt(belt, _currentSystem);
+                        SetStatus($"Selected: {GetDisplayNameForBelt(belt)}");
                         break;
                     }
                 }
@@ -175,7 +167,6 @@ public partial class SystemViewer
             }
         }
 
-        SetStatus($"Selected: {beltId}");
     }
 
     /// <summary>
@@ -267,6 +258,44 @@ public partial class SystemViewer
         }
 
         SelectBody(body.Id);
+    }
+
+    /// <summary>
+    /// Handles asteroid-belt focus requests from the inspector overview.
+    /// </summary>
+    private void OnFocusBeltRequested(string beltId)
+    {
+        if (string.IsNullOrWhiteSpace(beltId))
+        {
+            return;
+        }
+
+        OnBeltClicked(beltId);
+    }
+
+    private string GetDisplayNameForBelt(AsteroidBelt belt)
+    {
+        if (_currentSystem == null)
+        {
+            return "Asteroid Belt";
+        }
+
+        List<AsteroidBelt> sortedBelts = new();
+        foreach (AsteroidBelt candidate in _currentSystem.AsteroidBelts)
+        {
+            sortedBelts.Add(candidate);
+        }
+
+        sortedBelts.Sort(static (left, right) => left.GetCenterM().CompareTo(right.GetCenterM()));
+        for (int index = 0; index < sortedBelts.Count; index += 1)
+        {
+            if (sortedBelts[index].Id == belt.Id)
+            {
+                return $"Asteroid Belt {index + 1}";
+            }
+        }
+
+        return "Asteroid Belt";
     }
 
     /// <summary>

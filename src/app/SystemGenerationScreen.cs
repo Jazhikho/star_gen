@@ -40,7 +40,6 @@ public partial class SystemGenerationScreen : Control
 	private SpinBox? _systemAgeInput;
 	private SpinBox? _systemMetallicityInput;
 	private CheckBox? _includeBeltsCheck;
-	private CheckBox? _generatePopulationCheck;
 	private OptionButton? _rulesetModeOption;
 	private CheckBox? _showTravellerReadoutsCheck;
 	private CheckBox? _forceLifeOnSupportableWorldsCheck;
@@ -155,11 +154,6 @@ public partial class SystemGenerationScreen : Control
 			spec.IncludeAsteroidBelts = _includeBeltsCheck.ButtonPressed;
 		}
 
-		if (_generatePopulationCheck != null)
-		{
-			spec.GeneratePopulation = _generatePopulationCheck.ButtonPressed;
-		}
-
 		spec.UseCaseSettings = BuildUseCaseSettingsFromControls();
 		spec.StellarProfile = BuildStellarProfileFromControls();
 		spec.PlanetaryProfile = BuildPlanetaryProfileFromControls();
@@ -190,7 +184,6 @@ public partial class SystemGenerationScreen : Control
 		_systemAgeInput = GetNodeOrNull<SpinBox>($"{Root}/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/SystemAgeRow/SystemAgeInput");
 		_systemMetallicityInput = GetNodeOrNull<SpinBox>($"{Root}/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/SystemMetallicityRow/SystemMetallicityInput");
 		_includeBeltsCheck = GetNodeOrNull<CheckBox>($"{Root}/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/IncludeBeltsCheck");
-		_generatePopulationCheck = GetNodeOrNull<CheckBox>($"{Root}/StudioRow/RulesPanel/MarginContainer/RulesVBox/ScrollContainer/RulesContent/GeneratePopulationCheck");
 		_rulesetModeOption = GetNodeOrNull<OptionButton>($"{Root}/StudioRow/RulesPanel/MarginContainer/RulesVBox/ScrollContainer/RulesContent/RulesetModeRow/RulesetModeOption");
 		_showTravellerReadoutsCheck = GetNodeOrNull<CheckBox>($"{Root}/StudioRow/RulesPanel/MarginContainer/RulesVBox/ScrollContainer/RulesContent/ShowTravellerReadoutsCheck");
 		_forceLifeOnSupportableWorldsCheck = GetNodeOrNull<CheckBox>($"{Root}/StudioRow/RulesPanel/MarginContainer/RulesVBox/ScrollContainer/RulesContent/ForceLifeOnSupportableWorldsCheck");
@@ -233,7 +226,6 @@ public partial class SystemGenerationScreen : Control
 		if (_systemAgeInput != null) _systemAgeInput.ValueChanged += _ => RefreshSummary();
 		if (_systemMetallicityInput != null) _systemMetallicityInput.ValueChanged += _ => RefreshSummary();
 		if (_includeBeltsCheck != null) _includeBeltsCheck.Toggled += _ => RefreshSummary();
-		if (_generatePopulationCheck != null) _generatePopulationCheck.Toggled += _ => RefreshSummary();
 		if (_showTravellerReadoutsCheck != null) _showTravellerReadoutsCheck.Toggled += _ => RefreshSummary();
 		if (_forceLifeOnSupportableWorldsCheck != null) _forceLifeOnSupportableWorldsCheck.Toggled += _ => RefreshSummary();
 		if (_mainworldPolicyOption != null) _mainworldPolicyOption.ItemSelected += _ => RefreshSummary();
@@ -298,11 +290,6 @@ public partial class SystemGenerationScreen : Control
 			_showTravellerReadoutsCheck.ButtonPressed = compatibilityProfile.UsesUwpLikeReadouts;
 		}
 
-		if (_generatePopulationCheck != null && compatibilityProfile.ForcePopulationGeneration)
-		{
-			_generatePopulationCheck.ButtonPressed = true;
-		}
-
 		ApplyRulesetDefaultsToControls(rulesetDefaults);
 		if (!compatibilityProfile.IsActive)
 		{
@@ -330,7 +317,6 @@ public partial class SystemGenerationScreen : Control
 			lines.Add(BuildStellarProfileSummary(BuildStellarProfileFromControls()));
 			lines.Add(BuildPlanetaryProfileSummary(BuildPlanetaryProfileFromControls()));
 			lines.Add($"Belts {(spec.IncludeAsteroidBelts ? "On" : "Off")}");
-			lines.Add($"Population {(spec.GeneratePopulation ? "On" : "Off")}");
 			lines.Add($"Ruleset {GenerationUseCasePresentation.GetRulesetLabel(spec.UseCaseSettings.RulesetMode)}");
 			lines.Add($"Life Framework {LifeScienceReferenceCatalog.GetFrameworkLabel(spec.UseCaseSettings.LifeFramework)}");
 			lines.Add($"Abiogenesis {LifeScienceReferenceCatalog.GetAbiogenesisLabel(spec.UseCaseSettings.AbiogenesisModel)} | Complex Life {LifeScienceReferenceCatalog.GetComplexLifeLabel(spec.UseCaseSettings.ComplexLifeModel)}");

@@ -117,7 +117,7 @@ public partial class GalaxyViewer
 			return;
 		}
 
-		WindowSettingsService.WindowSettingsState currentSettings = WindowSettingsService.CaptureCurrent();
+		WindowSettingsService.WindowSettingsState currentSettings = WindowSettingsService.LoadOrCaptureCurrent();
 		_fullscreenCheck.ButtonPressed = currentSettings.Fullscreen;
 		int index = WindowSettingsService.FindResolutionIndex(currentSettings.Resolution);
 		if (index >= 0)
@@ -229,6 +229,7 @@ public partial class GalaxyViewer
 		RefreshOptionsState();
 		UpdateInspector();
 		SetStatus("Viewer options updated");
+		HideOptionsDialog();
 	}
 
 	private void OpenBuildLocalSpaceDialog()
@@ -259,6 +260,25 @@ public partial class GalaxyViewer
 
 		dialog.Size = size;
 		dialog.Visible = true;
+	}
+
+	private void ToggleCameraPanel()
+	{
+		bool collapsed = _cameraPanelContent == null || _cameraPanelContent.Visible;
+		SetCameraPanelCollapsed(collapsed);
+	}
+
+	private void SetCameraPanelCollapsed(bool collapsed)
+	{
+		if (_cameraPanelContent != null)
+		{
+			_cameraPanelContent.Visible = !collapsed;
+		}
+
+		if (_cameraPanelHeaderButton != null)
+		{
+			_cameraPanelHeaderButton.Text = collapsed ? "> Camera" : "v Camera";
+		}
 	}
 
 	private void HideBuildLocalSpaceDialog()

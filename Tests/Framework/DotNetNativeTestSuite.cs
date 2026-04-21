@@ -67,6 +67,15 @@ public static partial class DotNetNativeTestSuite
             "DotNetNativeTestSuite::test_galaxy_viewer_local_space_cache_persists_and_appends",
             TestGalaxyViewerLocalSpaceCachePersistsAndAppends);
         runner.RunNativeTest(
+            "DotNetNativeTestSuite::test_main_menu_options_dialog_applies_and_closes",
+            TestMainMenuOptionsDialogAppliesAndCloses);
+        runner.RunNativeTest(
+            "DotNetNativeTestSuite::test_system_viewer_menu_matches_galaxy_viewer_standard",
+            TestSystemViewerMenuMatchesGalaxyViewerStandard);
+        runner.RunNativeTest(
+            "DotNetNativeTestSuite::test_object_viewer_menu_matches_galaxy_viewer_standard",
+            TestObjectViewerMenuMatchesGalaxyViewerStandard);
+        runner.RunNativeTest(
             "DotNetNativeTestSuite::test_galaxy_config_round_trip_and_validation",
             TestGalaxyConfigRoundTripAndValidation);
         runner.RunNativeTest(

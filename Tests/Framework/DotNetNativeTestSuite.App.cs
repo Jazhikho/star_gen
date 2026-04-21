@@ -1,6 +1,7 @@
 #nullable enable annotations
 #nullable disable warnings
 using Godot;
+using StarGen.App;
 using StarGen.App.GalaxyViewer;
 using StarGen.App.Rendering;
 using StarGen.App.SystemViewer;
@@ -9,6 +10,7 @@ using StarGen.Domain.Celestial.Components;
 using StarGen.Domain.Galaxy;
 using StarGen.Domain.Generation;
 using StarGen.Domain.Math;
+using StarGen.Services.Persistence;
 
 namespace StarGen.Tests.Framework;
 
@@ -215,6 +217,7 @@ public static partial class DotNetNativeTestSuite
     /// </summary>
     private static void TestGalaxyInspectorPanelHidesLegacySections()
     {
+        StudioUiPreferencesService.StudioUiPreferences originalPreferences = StudioUiPreferencesService.LoadOrDefault();
         PackedScene? scene = ResourceLoader.Load<PackedScene>("res://src/app/galaxy_viewer/GalaxyViewerCSharp.tscn");
         AssertNotNull(scene, "galaxy viewer scene should load for inspector testing");
 
@@ -223,6 +226,7 @@ public static partial class DotNetNativeTestSuite
 
         try
         {
+            StudioUiPreferencesService.Save(StudioUiPreferencesService.CreateDefault());
             viewer!._Ready();
             GalaxyInspectorPanel? panel = viewer.GetInspectorPanel();
             AssertNotNull(panel, "galaxy viewer should expose the typed inspector panel");
@@ -253,8 +257,14 @@ public static partial class DotNetNativeTestSuite
 
             Window? optionsDialog = viewer.GetNodeOrNull<Window>("OptionsDialog");
             AssertNotNull(optionsDialog, "galaxy viewer should expose the shared options dialog");
-            CheckButton? showSeedControlsCheck = viewer.GetNodeOrNull<CheckButton>("OptionsDialog/MarginContainer/OptionsVBox/ShowSeedControlsCheck");
+            CheckBox? showSeedControlsCheck = viewer.GetNodeOrNull<CheckBox>("OptionsDialog/MarginContainer/OptionsVBox/ShowSeedControlsCheck");
+            CheckBox? skipIntroCheck = viewer.GetNodeOrNull<CheckBox>("OptionsDialog/MarginContainer/OptionsVBox/SkipIntroCheck");
+            Button? applyButton = viewer.GetNodeOrNull<Button>("OptionsDialog/MarginContainer/OptionsVBox/ButtonRow/ApplyOptionsButton");
+            Button? closeButton = viewer.GetNodeOrNull<Button>("OptionsDialog/MarginContainer/OptionsVBox/ButtonRow/CloseButton");
             AssertNotNull(showSeedControlsCheck, "galaxy viewer options should expose the studio-seed preference toggle");
+            AssertNotNull(skipIntroCheck, "galaxy viewer options should expose the skip-intro checkbox");
+            AssertNotNull(applyButton, "galaxy viewer options should expose the apply button");
+            AssertNotNull(closeButton, "galaxy viewer options should expose the close button");
             AssertEqual("Show all studio seeds", showSeedControlsCheck!.Text, "galaxy viewer should label the seed toggle as showing all studio seeds");
 
             Label? optionsStatusLabel = viewer.GetNodeOrNull<Label>("OptionsDialog/MarginContainer/OptionsVBox/OptionsStatusLabel");
@@ -265,11 +275,30 @@ public static partial class DotNetNativeTestSuite
             AssertNotNull(optionsButton, "galaxy viewer should expose an Options menu action button");
             optionsButton!.EmitSignal(BaseButton.SignalName.Pressed);
             AssertTrue(optionsDialog!.Visible, "pressing Options should show the viewer options dialog");
+            showSeedControlsCheck.ButtonPressed = true;
+            skipIntroCheck!.ButtonPressed = true;
+            applyButton!.EmitSignal(BaseButton.SignalName.Pressed);
+            StudioUiPreferencesService.StudioUiPreferences updatedPreferences = StudioUiPreferencesService.LoadOrDefault();
+            AssertTrue(updatedPreferences.ShowSeedControls, "galaxy viewer apply should persist the all-studio-seeds preference");
+            AssertTrue(updatedPreferences.SkipIntro, "galaxy viewer apply should persist the skip-intro preference");
+            AssertFalse(optionsDialog.Visible, "galaxy viewer apply should close the viewer options dialog");
+            optionsButton.EmitSignal(BaseButton.SignalName.Pressed);
+            closeButton!.EmitSignal(BaseButton.SignalName.Pressed);
+            AssertFalse(optionsDialog.Visible, "galaxy viewer close button should close the viewer options dialog");
+            optionsButton.EmitSignal(BaseButton.SignalName.Pressed);
             optionsDialog.EmitSignal(Window.SignalName.CloseRequested);
             AssertTrue(!optionsDialog.Visible, "the viewer options dialog should close when the window close signal is emitted");
 
             Window? localSpaceDialog = viewer.GetNodeOrNull<Window>("BuildLocalSpaceDialog");
             AssertNotNull(localSpaceDialog, "galaxy viewer should expose the build-local-space dialog");
+            Control? cameraPanel = viewer.GetNodeOrNull<Control>("UI/UIRoot/CameraPanel");
+            Button? cameraHeaderButton = viewer.GetNodeOrNull<Button>("UI/UIRoot/CameraPanel/CameraPanelVBox/CameraPanelHeaderButton");
+            Control? cameraPanelContent = viewer.GetNodeOrNull<Control>("UI/UIRoot/CameraPanel/CameraPanelVBox/CameraPanelContent");
+            AssertNotNull(cameraPanel, "galaxy viewer should expose the compact camera panel");
+            AssertNotNull(cameraHeaderButton, "galaxy viewer camera panel should expose the collapse toggle");
+            AssertNotNull(cameraPanelContent, "galaxy viewer camera panel should expose collapsible content");
+            AssertEqual("> Camera", cameraHeaderButton!.Text, "galaxy viewer camera panel should start collapsed");
+            AssertFalse(cameraPanelContent!.Visible, "galaxy viewer camera panel should start collapsed");
 
             bool builtLocalSpace = viewer.BuildLocalSpaceSynchronouslyForTesting(new Vector3I(1, 1, 1));
             AssertTrue(builtLocalSpace, "galaxy viewer should be able to build a local-space cache in subsector view");
@@ -280,6 +309,7 @@ public static partial class DotNetNativeTestSuite
         finally
         {
             viewer?.QueueFree();
+            StudioUiPreferencesService.Save(originalPreferences);
         }
     }
 
@@ -336,6 +366,207 @@ public static partial class DotNetNativeTestSuite
         finally
         {
             viewer?.QueueFree();
+        }
+    }
+
+    /// <summary>
+    /// Verifies the main-menu options dialog applies persisted preferences and closes from both affordances.
+    /// </summary>
+    private static void TestMainMenuOptionsDialogAppliesAndCloses()
+    {
+        StudioUiPreferencesService.StudioUiPreferences originalPreferences = StudioUiPreferencesService.LoadOrDefault();
+        try
+        {
+            StudioUiPreferencesService.Save(StudioUiPreferencesService.CreateDefault());
+
+            PackedScene? scene = ResourceLoader.Load<PackedScene>("res://src/app/MainMenuScreen.tscn");
+            AssertNotNull(scene, "main menu scene should load for options testing");
+
+            MainMenuScreen? screen = scene!.Instantiate() as MainMenuScreen;
+            AssertNotNull(screen, "main menu scene should instantiate for options testing");
+
+            try
+            {
+                screen!._Ready();
+                Button? optionsButton = screen.GetNodeOrNull<Button>("MarginContainer/ScrollContainer/Layout/HBoxContainer/UtilityRow/UtilityPanel/MarginContainer/UtilityVBox/SecondaryButtons/OptionsButton");
+                Window? optionsDialog = screen.GetNodeOrNull<Window>("OptionsDialog");
+                CheckBox? showSeedsCheck = screen.GetNodeOrNull<CheckBox>("OptionsDialog/MarginContainer/OptionsVBox/ShowSeedControlsCheck");
+                CheckBox? skipIntroCheck = screen.GetNodeOrNull<CheckBox>("OptionsDialog/MarginContainer/OptionsVBox/SkipIntroCheck");
+                Button? applyButton = screen.GetNodeOrNull<Button>("OptionsDialog/MarginContainer/OptionsVBox/ApplyOptionsButton");
+                Button? closeButton = screen.GetNodeOrNull<Button>("OptionsDialog/MarginContainer/OptionsVBox/CloseButton");
+
+                AssertNotNull(optionsButton, "main menu should expose the options button");
+                AssertNotNull(optionsDialog, "main menu should expose the options dialog");
+                AssertNotNull(showSeedsCheck, "main menu options should expose the show-seeds toggle");
+                AssertNotNull(skipIntroCheck, "main menu options should expose the skip-intro toggle");
+                AssertNotNull(applyButton, "main menu options should expose the apply button");
+                AssertNotNull(closeButton, "main menu options should expose the close button");
+                AssertEqual("Show all studio seeds", showSeedsCheck!.Text, "main menu should use the all-studio-seeds wording");
+
+                optionsButton!.EmitSignal(BaseButton.SignalName.Pressed);
+                AssertTrue(optionsDialog!.Visible, "main menu options should open from the options button");
+
+                showSeedsCheck.ButtonPressed = true;
+                skipIntroCheck!.ButtonPressed = true;
+                applyButton!.EmitSignal(BaseButton.SignalName.Pressed);
+
+                StudioUiPreferencesService.StudioUiPreferences updatedPreferences = StudioUiPreferencesService.LoadOrDefault();
+                AssertTrue(updatedPreferences.ShowSeedControls, "main menu apply should persist the show-seeds preference");
+                AssertTrue(updatedPreferences.SkipIntro, "main menu apply should persist the skip-intro preference");
+                AssertFalse(optionsDialog.Visible, "main menu apply should close the options dialog after saving");
+
+                optionsButton.EmitSignal(BaseButton.SignalName.Pressed);
+                closeButton!.EmitSignal(BaseButton.SignalName.Pressed);
+                AssertTrue(!optionsDialog.Visible, "main menu options should close from the explicit close button");
+
+                optionsButton.EmitSignal(BaseButton.SignalName.Pressed);
+                optionsDialog.EmitSignal(Window.SignalName.CloseRequested);
+                AssertTrue(!optionsDialog.Visible, "main menu options should close from the titlebar close affordance");
+            }
+            finally
+            {
+                screen?.QueueFree();
+            }
+        }
+        finally
+        {
+            StudioUiPreferencesService.Save(originalPreferences);
+        }
+    }
+
+    /// <summary>
+    /// Verifies the system viewer uses the shared viewer menu standard and options dialog.
+    /// </summary>
+    private static void TestSystemViewerMenuMatchesGalaxyViewerStandard()
+    {
+        StudioUiPreferencesService.StudioUiPreferences originalPreferences = StudioUiPreferencesService.LoadOrDefault();
+        SystemViewer? viewer = null;
+        try
+        {
+            StudioUiPreferencesService.Save(StudioUiPreferencesService.CreateDefault());
+
+            PackedScene? scene = ResourceLoader.Load<PackedScene>("res://src/app/system_viewer/SystemViewer.tscn");
+            AssertNotNull(scene, "system viewer scene should load for menu testing");
+
+            viewer = scene!.Instantiate() as SystemViewer;
+            AssertNotNull(viewer, "system viewer scene should instantiate for menu testing");
+
+            viewer!._Ready();
+            HBoxContainer? menuRow = viewer.GetNodeOrNull<HBoxContainer>("UI/TopBar/MarginContainer/TopBarVBox/MenuRow");
+            AssertNotNull(menuRow, "system viewer should expose the top menu row");
+            AssertEqual(4, menuRow!.GetChildCount(), "system viewer should expose File, Tools, Options, and Help");
+            AssertEqual("File", ((Button)menuRow.GetChild(0)).Text, "system viewer first menu should be File");
+            AssertEqual("Tools", ((Button)menuRow.GetChild(1)).Text, "system viewer second menu should be Tools");
+            AssertEqual("Options", ((Button)menuRow.GetChild(2)).Text, "system viewer third menu should be Options");
+            AssertEqual("Help", ((Button)menuRow.GetChild(3)).Text, "system viewer fourth menu should be Help");
+
+            Window? optionsDialog = viewer.GetNodeOrNull<Window>("OptionsDialog");
+            CheckBox? showSeedsCheck = viewer.GetNodeOrNull<CheckBox>("OptionsDialog/MarginContainer/OptionsVBox/ShowSeedControlsCheck");
+            Button? optionsButton = menuRow.GetChild(2) as Button;
+            Button? closeButton = viewer.GetNodeOrNull<Button>("OptionsDialog/MarginContainer/OptionsVBox/ButtonRow/CloseButton");
+            Button? applyButton = viewer.GetNodeOrNull<Button>("OptionsDialog/MarginContainer/OptionsVBox/ButtonRow/ApplyOptionsButton");
+            CheckBox? skipIntroCheck = viewer.GetNodeOrNull<CheckBox>("OptionsDialog/MarginContainer/OptionsVBox/SkipIntroCheck");
+            Control? cameraPanel = viewer.GetNodeOrNull<Control>("UI/CameraPanel");
+            Button? cameraHeaderButton = viewer.GetNodeOrNull<Button>("UI/CameraPanel/CameraPanelVBox/CameraPanelHeaderButton");
+            Control? cameraPanelContent = viewer.GetNodeOrNull<Control>("UI/CameraPanel/CameraPanelVBox/CameraPanelContent");
+
+            AssertNotNull(optionsDialog, "system viewer should expose an options dialog");
+            AssertNotNull(showSeedsCheck, "system viewer options should expose the all-studio-seeds toggle");
+            AssertNotNull(closeButton, "system viewer options should expose the close button");
+            AssertNotNull(applyButton, "system viewer options should expose the apply button");
+            AssertNotNull(skipIntroCheck, "system viewer options should expose the skip-intro checkbox");
+            AssertEqual("Show all studio seeds", showSeedsCheck!.Text, "system viewer should use the all-studio-seeds wording");
+            AssertNotNull(cameraPanel, "system viewer should expose the compact camera panel");
+            AssertNotNull(cameraHeaderButton, "system viewer camera panel should expose a collapse toggle");
+            AssertNotNull(cameraPanelContent, "system viewer camera panel should expose collapsible content");
+            AssertEqual("> Camera", cameraHeaderButton!.Text, "system viewer camera panel should start collapsed");
+            AssertFalse(cameraPanelContent!.Visible, "system viewer camera panel should start collapsed");
+
+            optionsButton!.EmitSignal(BaseButton.SignalName.Pressed);
+            AssertTrue(optionsDialog!.Visible, "system viewer options should open from the options action");
+            showSeedsCheck.ButtonPressed = true;
+            skipIntroCheck!.ButtonPressed = true;
+            applyButton!.EmitSignal(BaseButton.SignalName.Pressed);
+            StudioUiPreferencesService.StudioUiPreferences preferences = StudioUiPreferencesService.LoadOrDefault();
+            AssertTrue(preferences.ShowSeedControls, "system viewer apply should persist the all-studio-seeds preference");
+            AssertTrue(preferences.SkipIntro, "system viewer apply should persist the skip-intro preference");
+            AssertFalse(optionsDialog.Visible, "system viewer apply should close the dialog after saving");
+            optionsButton.EmitSignal(BaseButton.SignalName.Pressed);
+            closeButton!.EmitSignal(BaseButton.SignalName.Pressed);
+            AssertTrue(!optionsDialog.Visible, "system viewer options should close from the explicit close button");
+        }
+        finally
+        {
+            viewer?.QueueFree();
+            StudioUiPreferencesService.Save(originalPreferences);
+        }
+    }
+
+    /// <summary>
+    /// Verifies the object viewer uses the shared viewer menu standard and options dialog.
+    /// </summary>
+    private static void TestObjectViewerMenuMatchesGalaxyViewerStandard()
+    {
+        StudioUiPreferencesService.StudioUiPreferences originalPreferences = StudioUiPreferencesService.LoadOrDefault();
+        ObjectViewer? viewer = null;
+        try
+        {
+            StudioUiPreferencesService.Save(StudioUiPreferencesService.CreateDefault());
+
+            PackedScene? scene = ResourceLoader.Load<PackedScene>("res://src/app/viewer/ObjectViewer.tscn");
+            AssertNotNull(scene, "object viewer scene should load for menu testing");
+
+            viewer = scene!.Instantiate() as ObjectViewer;
+            AssertNotNull(viewer, "object viewer scene should instantiate for menu testing");
+
+            viewer!._Ready();
+            HBoxContainer? menuRow = viewer.GetNodeOrNull<HBoxContainer>("UI/TopBar/MarginContainer/TopBarVBox/MenuRow");
+            AssertNotNull(menuRow, "object viewer should expose the top menu row");
+            AssertEqual(4, menuRow!.GetChildCount(), "object viewer should expose File, Tools, Options, and Help");
+            AssertEqual("File", ((Button)menuRow.GetChild(0)).Text, "object viewer first menu should be File");
+            AssertEqual("Tools", ((Button)menuRow.GetChild(1)).Text, "object viewer second menu should be Tools");
+            AssertEqual("Options", ((Button)menuRow.GetChild(2)).Text, "object viewer third menu should be Options");
+            AssertEqual("Help", ((Button)menuRow.GetChild(3)).Text, "object viewer fourth menu should be Help");
+
+            Window? optionsDialog = viewer.GetNodeOrNull<Window>("OptionsDialog");
+            CheckBox? showSeedsCheck = viewer.GetNodeOrNull<CheckBox>("OptionsDialog/MarginContainer/OptionsVBox/ShowSeedControlsCheck");
+            Button? optionsButton = menuRow.GetChild(2) as Button;
+            Button? closeButton = viewer.GetNodeOrNull<Button>("OptionsDialog/MarginContainer/OptionsVBox/ButtonRow/CloseButton");
+            Button? applyButton = viewer.GetNodeOrNull<Button>("OptionsDialog/MarginContainer/OptionsVBox/ButtonRow/ApplyOptionsButton");
+            CheckBox? skipIntroCheck = viewer.GetNodeOrNull<CheckBox>("OptionsDialog/MarginContainer/OptionsVBox/SkipIntroCheck");
+            Control? cameraPanel = viewer.GetNodeOrNull<Control>("UI/CameraPanel");
+            Button? cameraHeaderButton = viewer.GetNodeOrNull<Button>("UI/CameraPanel/CameraPanelVBox/CameraPanelHeaderButton");
+            Control? cameraPanelContent = viewer.GetNodeOrNull<Control>("UI/CameraPanel/CameraPanelVBox/CameraPanelContent");
+
+            AssertNotNull(optionsDialog, "object viewer should expose an options dialog");
+            AssertNotNull(showSeedsCheck, "object viewer options should expose the all-studio-seeds toggle");
+            AssertNotNull(closeButton, "object viewer options should expose the close button");
+            AssertNotNull(applyButton, "object viewer options should expose the apply button");
+            AssertNotNull(skipIntroCheck, "object viewer options should expose the skip-intro checkbox");
+            AssertEqual("Show all studio seeds", showSeedsCheck!.Text, "object viewer should use the all-studio-seeds wording");
+            AssertNotNull(cameraPanel, "object viewer should expose the compact camera panel");
+            AssertNotNull(cameraHeaderButton, "object viewer camera panel should expose a collapse toggle");
+            AssertNotNull(cameraPanelContent, "object viewer camera panel should expose collapsible content");
+            AssertEqual("> Camera", cameraHeaderButton!.Text, "object viewer camera panel should start collapsed");
+            AssertFalse(cameraPanelContent!.Visible, "object viewer camera panel should start collapsed");
+
+            optionsButton!.EmitSignal(BaseButton.SignalName.Pressed);
+            AssertTrue(optionsDialog!.Visible, "object viewer options should open from the options action");
+            showSeedsCheck.ButtonPressed = true;
+            skipIntroCheck!.ButtonPressed = true;
+            applyButton!.EmitSignal(BaseButton.SignalName.Pressed);
+            StudioUiPreferencesService.StudioUiPreferences preferences = StudioUiPreferencesService.LoadOrDefault();
+            AssertTrue(preferences.ShowSeedControls, "object viewer apply should persist the all-studio-seeds preference");
+            AssertTrue(preferences.SkipIntro, "object viewer apply should persist the skip-intro preference");
+            AssertFalse(optionsDialog.Visible, "object viewer apply should close the dialog after saving");
+            optionsButton.EmitSignal(BaseButton.SignalName.Pressed);
+            closeButton!.EmitSignal(BaseButton.SignalName.Pressed);
+            AssertTrue(!optionsDialog.Visible, "object viewer options should close from the explicit close button");
+        }
+        finally
+        {
+            viewer?.QueueFree();
+            StudioUiPreferencesService.Save(originalPreferences);
         }
     }
 

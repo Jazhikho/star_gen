@@ -38,6 +38,17 @@ public partial class ObjectViewer
 		_loadButton = GetNodeOrNull<Button>("UI/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/FileSection/FileButtonContainer/LoadButton");
 		_fileInfo = GetNodeOrNull<Label>("UI/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/FileSection/FileInfo");
 		_emptyStateLabel = GetNodeOrNull<Label>("UI/EmptyStateLabel");
+		_optionsDialog = GetNodeOrNull<Window>("OptionsDialog");
+		_fullscreenCheck = GetNodeOrNull<CheckBox>("OptionsDialog/MarginContainer/OptionsVBox/FullscreenCheck");
+		_showSeedControlsCheck = GetNodeOrNull<CheckBox>("OptionsDialog/MarginContainer/OptionsVBox/ShowSeedControlsCheck");
+		_skipIntroCheck = GetNodeOrNull<CheckBox>("OptionsDialog/MarginContainer/OptionsVBox/SkipIntroCheck");
+		_resolutionOption = GetNodeOrNull<OptionButton>("OptionsDialog/MarginContainer/OptionsVBox/ResolutionRow/ResolutionOption");
+		_applyOptionsButton = GetNodeOrNull<Button>("OptionsDialog/MarginContainer/OptionsVBox/ButtonRow/ApplyOptionsButton");
+		_optionsStatusLabel = GetNodeOrNull<Label>("OptionsDialog/MarginContainer/OptionsVBox/OptionsStatusLabel");
+		_optionsDialogCloseButton = GetNodeOrNull<Button>("OptionsDialog/MarginContainer/OptionsVBox/ButtonRow/CloseButton");
+		_cameraPanel = GetNodeOrNull<Control>("UI/CameraPanel");
+		_cameraPanelHeaderButton = GetNodeOrNull<Button>("UI/CameraPanel/CameraPanelVBox/CameraPanelHeaderButton");
+		_cameraPanelContent = GetNodeOrNull<Control>("UI/CameraPanel/CameraPanelVBox/CameraPanelContent");
 		_saveFileDialog = GetNodeOrNull<FileDialog>("SaveFileDialog");
 		_loadFileDialog = GetNodeOrNull<FileDialog>("LoadFileDialog");
 		_cameraRig = GetNodeOrNull<Node3D>("CameraRig");
@@ -125,6 +136,12 @@ public partial class ObjectViewer
 		if (_backButton != null)
 		{
 			_backButton.Pressed += OnBackPressed;
+		}
+
+		if (_cameraPanelHeaderButton != null)
+		{
+			_cameraPanelHeaderButton.Pressed += ToggleCameraPanel;
+			SetCameraPanelCollapsed(true);
 		}
 	}
 

@@ -37,6 +37,14 @@ public static class TestStudioScienceUi
         DotNetNativeTestSuite.AssertNotNull(checkButtonNormal, "CheckButton should use a flat theme style");
         DotNetNativeTestSuite.AssertFalse(checkBoxNormal!.DrawCenter, "CheckBox should not draw a button-like filled background");
         DotNetNativeTestSuite.AssertFalse(checkButtonNormal!.DrawCenter, "CheckButton should not draw a button-like filled background");
+        Texture2D? checkBoxUnchecked = theme.GetIcon("unchecked", "CheckBox");
+        Texture2D? checkBoxChecked = theme.GetIcon("checked", "CheckBox");
+        Texture2D? checkButtonUnchecked = theme.GetIcon("unchecked", "CheckButton");
+        Texture2D? checkButtonChecked = theme.GetIcon("checked", "CheckButton");
+        DotNetNativeTestSuite.AssertNotNull(checkBoxUnchecked, "CheckBox should expose a visible unchecked icon");
+        DotNetNativeTestSuite.AssertNotNull(checkBoxChecked, "CheckBox should expose a visible checked icon");
+        DotNetNativeTestSuite.AssertNotNull(checkButtonUnchecked, "CheckButton should expose a visible unchecked icon");
+        DotNetNativeTestSuite.AssertNotNull(checkButtonChecked, "CheckButton should expose a visible checked icon");
         DotNetNativeTestSuite.AssertEqual(8, theme.GetConstant("h_separation", "CheckBox"), "CheckBox should keep compact text spacing");
         DotNetNativeTestSuite.AssertEqual(8, theme.GetConstant("h_separation", "CheckButton"), "CheckButton should keep compact text spacing");
     }
@@ -63,8 +71,8 @@ public static class TestStudioScienceUi
         OptionButton? windowWeightOption = screen.GetNodeOrNull<OptionButton>("MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/LifeSection/LifeContent/LifeVBox/EnvironmentalWindowWeightRow/EnvironmentalWindowWeightOption");
         Label? settingsTitle = screen.GetNodeOrNull<Label>("MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/SettingsTitle");
         Label? rulesTitle = screen.GetNodeOrNull<Label>("MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/RulesPanel/MarginContainer/RulesVBox/RulesTitle");
-        CheckButton? showUwpCheck = screen.GetNodeOrNull<CheckButton>("MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/RulesPanel/MarginContainer/RulesVBox/ScrollContainer/RulesContent/UseCaseSection/ShowTravellerReadoutsCheck");
-        CheckButton? forceLifeCheck = screen.GetNodeOrNull<CheckButton>("MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/RulesPanel/MarginContainer/RulesVBox/ScrollContainer/RulesContent/UseCaseSection/ForceLifeOnSupportableWorldsCheck");
+        CheckBox? showUwpCheck = screen.GetNodeOrNull<CheckBox>("MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/RulesPanel/MarginContainer/RulesVBox/ScrollContainer/RulesContent/UseCaseSection/ShowTravellerReadoutsCheck");
+        CheckBox? forceLifeCheck = screen.GetNodeOrNull<CheckBox>("MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/RulesPanel/MarginContainer/RulesVBox/ScrollContainer/RulesContent/UseCaseSection/ForceLifeOnSupportableWorldsCheck");
         HBoxContainer? mainworldPolicyRow = screen.GetNodeOrNull<HBoxContainer>("MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/RulesPanel/MarginContainer/RulesVBox/ScrollContainer/RulesContent/UseCaseSection/MainworldPolicyRow");
         OptionButton? mainworldPolicyOption = screen.GetNodeOrNull<OptionButton>("MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/RulesPanel/MarginContainer/RulesVBox/ScrollContainer/RulesContent/UseCaseSection/MainworldPolicyRow/MainworldPolicyOption");
         HBoxContainer? temperateWorldBiasRow = screen.GetNodeOrNull<HBoxContainer>("MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/RulesPanel/MarginContainer/RulesVBox/ScrollContainer/RulesContent/UseCaseSection/TemperateWorldBiasRow");
@@ -150,7 +158,7 @@ public static class TestStudioScienceUi
         SelectOptionById(gasGiantFormationOption!, (int)GasGiantFormationModel.PebbleAssisted);
         SelectOptionById(moonBiasOption!, (int)PlanetMoonFormationBias.CapturedRich);
         forceLifeCheck.ButtonPressed = true;
-        forceLifeCheck.EmitSignal(CheckButton.SignalName.Toggled, true);
+        forceLifeCheck.EmitSignal(CheckBox.SignalName.Toggled, true);
         SelectOptionById(mainworldPolicyOption!, (int)GenerationUseCaseSettings.MainworldPolicyType.Require);
         temperateWorldBiasSlider!.Value = 1.60;
         harshWorldBiasSlider!.Value = 0.70;

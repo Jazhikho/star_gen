@@ -341,12 +341,8 @@ theme_override_constants/separation = 5
 [node name="HSeparator2" type="HSeparator" parent="UI/SidePanel/MarginContainer/ScrollContainer/VBoxContainer"]
 layout_mode = 2
 
-[node name="ControlsLabel" type="Label" parent="UI/SidePanel/MarginContainer/ScrollContainer/VBoxContainer"]
-layout_mode = 2
-theme_override_font_sizes/font_size = 16
-text = "Camera Controls"
-
 [node name="CameraInfo" type="Label" parent="UI/SidePanel/MarginContainer/ScrollContainer/VBoxContainer"]
+visible = false
 modulate = Color(0.8, 0.8, 0.8, 1)
 layout_mode = 2
 text = "• Left Mouse: Orbit
@@ -369,3 +365,107 @@ horizontal_alignment = 1
 vertical_alignment = 1
 autowrap_mode = 2
 text = "Set parameters in the side panel, then click Generate."
+
+[node name="CameraPanel" type="PanelContainer" parent="UI"]
+custom_minimum_size = Vector2(210, 0)
+layout_mode = 0
+anchors_preset = 10
+anchor_left = 1.0
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -222.0
+offset_top = -108.0
+offset_right = -12.0
+offset_bottom = -12.0
+
+[node name="CameraPanelVBox" type="VBoxContainer" parent="UI/CameraPanel"]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="CameraPanelHeaderButton" type="Button" parent="UI/CameraPanel/CameraPanelVBox"]
+layout_mode = 2
+alignment = 0
+flat = true
+text = "> Camera"
+
+[node name="CameraPanelContent" type="MarginContainer" parent="UI/CameraPanel/CameraPanelVBox"]
+visible = false
+layout_mode = 2
+theme_override_constants/margin_left = 10
+theme_override_constants/margin_top = 0
+theme_override_constants/margin_right = 10
+theme_override_constants/margin_bottom = 10
+
+[node name="CameraHelpLabel" type="Label" parent="UI/CameraPanel/CameraPanelVBox/CameraPanelContent"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 11
+modulate = Color(0.84, 0.86, 0.92, 1)
+autowrap_mode = 2
+text = "Left Mouse: Orbit\nRight Mouse: Pan\nScroll: Zoom\nF: Focus primary body"
+
+[node name="OptionsDialog" type="Window" parent="."]
+visible = false
+theme = ExtResource("5")
+title = "Options"
+size = Vector2i(460, 280)
+
+[node name="MarginContainer" type="MarginContainer" parent="OptionsDialog"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/margin_left = 16
+theme_override_constants/margin_top = 16
+theme_override_constants/margin_right = 16
+theme_override_constants/margin_bottom = 16
+
+[node name="OptionsVBox" type="VBoxContainer" parent="OptionsDialog/MarginContainer"]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="FullscreenCheck" type="CheckBox" parent="OptionsDialog/MarginContainer/OptionsVBox"]
+layout_mode = 2
+text = "Fullscreen"
+
+[node name="ShowSeedControlsCheck" type="CheckBox" parent="OptionsDialog/MarginContainer/OptionsVBox"]
+layout_mode = 2
+text = "Show all studio seeds"
+
+[node name="SkipIntroCheck" type="CheckBox" parent="OptionsDialog/MarginContainer/OptionsVBox"]
+layout_mode = 2
+text = "Skip intro on startup"
+
+[node name="ResolutionRow" type="HBoxContainer" parent="OptionsDialog/MarginContainer/OptionsVBox"]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="ResolutionLabel" type="Label" parent="OptionsDialog/MarginContainer/OptionsVBox/ResolutionRow"]
+custom_minimum_size = Vector2(100, 0)
+layout_mode = 2
+text = "Resolution"
+
+[node name="ResolutionOption" type="OptionButton" parent="OptionsDialog/MarginContainer/OptionsVBox/ResolutionRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="OptionsStatusLabel" type="Label" parent="OptionsDialog/MarginContainer/OptionsVBox"]
+custom_minimum_size = Vector2(0, 48)
+layout_mode = 2
+autowrap_mode = 2
+text = "Viewer options are ready."
+
+[node name="ButtonRow" type="HBoxContainer" parent="OptionsDialog/MarginContainer/OptionsVBox"]
+layout_mode = 2
+alignment = 2
+theme_override_constants/separation = 8
+
+[node name="ApplyOptionsButton" type="Button" parent="OptionsDialog/MarginContainer/OptionsVBox/ButtonRow"]
+layout_mode = 2
+text = "Apply"
+
+[node name="CloseButton" type="Button" parent="OptionsDialog/MarginContainer/OptionsVBox/ButtonRow"]
+layout_mode = 2
+text = "Close"

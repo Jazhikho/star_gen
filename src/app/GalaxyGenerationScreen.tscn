@@ -1384,12 +1384,12 @@ popup/item_0/id = 0
 popup/item_1/text = "Space Opera"
 popup/item_1/id = 1
 
-[node name="ShowTravellerReadoutsCheck" type="CheckButton" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/RulesPanel/MarginContainer/RulesVBox/ScrollContainer/RulesContent/UseCaseSection" unique_id=1282765454]
+[node name="ShowTravellerReadoutsCheck" type="CheckBox" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/RulesPanel/MarginContainer/RulesVBox/ScrollContainer/RulesContent/UseCaseSection" unique_id=1282765454]
 layout_mode = 2
 size_flags_horizontal = 3
 text = "Show UWP Code"
 
-[node name="ForceLifeOnSupportableWorldsCheck" type="CheckButton" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/RulesPanel/MarginContainer/RulesVBox/ScrollContainer/RulesContent/UseCaseSection"]
+[node name="ForceLifeOnSupportableWorldsCheck" type="CheckBox" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/RulesPanel/MarginContainer/RulesVBox/ScrollContainer/RulesContent/UseCaseSection"]
 layout_mode = 2
 size_flags_horizontal = 3
 text = "Force Life If Supportable"

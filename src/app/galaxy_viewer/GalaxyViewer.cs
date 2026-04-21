@@ -77,10 +77,13 @@ public partial class GalaxyViewer : Node3D, IGalaxyViewerSavedStateHost
 	internal Button? _saveButton;
 	internal Button? _loadButton;
 	internal Button? _newGalaxyButton;
+	internal Control? _cameraPanel;
+	internal Button? _cameraPanelHeaderButton;
+	internal Control? _cameraPanelContent;
 	internal Window? _optionsDialog;
-	internal CheckButton? _fullscreenCheck;
-	internal CheckButton? _showSeedControlsCheck;
-	internal CheckButton? _skipIntroCheck;
+	internal CheckBox? _fullscreenCheck;
+	internal CheckBox? _showSeedControlsCheck;
+	internal CheckBox? _skipIntroCheck;
 	internal OptionButton? _resolutionOption;
 	internal Button? _applyOptionsButton;
 	internal Label? _optionsStatusLabel;

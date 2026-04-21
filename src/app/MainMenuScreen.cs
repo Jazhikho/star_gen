@@ -56,9 +56,9 @@ public partial class MainMenuScreen : Control
 	private RichTextLabel? _helpText;
 	private RichTextLabel? _creditsText;
 	private RichTextLabel? _releaseNotesText;
-	private CheckButton? _fullscreenCheck;
-	private CheckButton? _showSeedControlsCheck;
-	private CheckButton? _skipIntroCheck;
+	private CheckBox? _fullscreenCheck;
+	private CheckBox? _showSeedControlsCheck;
+	private CheckBox? _skipIntroCheck;
 	private OptionButton? _resolutionOption;
 	private Button? _applyOptionsButton;
 	private Label? _optionsStatusLabel;
@@ -91,7 +91,7 @@ public partial class MainMenuScreen : Control
 			return;
 		}
 
-		WindowSettingsService.WindowSettingsState currentSettings = WindowSettingsService.CaptureCurrent();
+		WindowSettingsService.WindowSettingsState currentSettings = WindowSettingsService.LoadOrCaptureCurrent();
 		_fullscreenCheck.ButtonPressed = currentSettings.Fullscreen;
 
 		int index = FindResolutionIndex(currentSettings.Resolution);
@@ -173,9 +173,9 @@ public partial class MainMenuScreen : Control
 		_helpText = GetNodeOrNull<RichTextLabel>($"{Root}/HBoxContainer/UtilityRow/ContentPanel/MarginContainer/ContentStack/HelpPanel/HelpText");
 		_creditsText = GetNodeOrNull<RichTextLabel>($"{Root}/HBoxContainer/UtilityRow/ContentPanel/MarginContainer/ContentStack/CreditsPanel/CreditsText");
 		_releaseNotesText = GetNodeOrNull<RichTextLabel>($"{Root}/HBoxContainer/UtilityRow/ContentPanel/MarginContainer/ContentStack/ReleaseNotesPanel/ReleaseNotesText");
-		_fullscreenCheck = GetNodeOrNull<CheckButton>($"{Root}/HBoxContainer/UtilityRow/ContentPanel/MarginContainer/ContentStack/OptionsPanel/OptionsVBox/FullscreenCheck");
-		_showSeedControlsCheck = GetNodeOrNull<CheckButton>($"{Root}/HBoxContainer/UtilityRow/ContentPanel/MarginContainer/ContentStack/OptionsPanel/OptionsVBox/ShowSeedControlsCheck");
-		_skipIntroCheck = GetNodeOrNull<CheckButton>($"{Root}/HBoxContainer/UtilityRow/ContentPanel/MarginContainer/ContentStack/OptionsPanel/OptionsVBox/SkipIntroCheck");
+		_fullscreenCheck = GetNodeOrNull<CheckBox>($"{Root}/HBoxContainer/UtilityRow/ContentPanel/MarginContainer/ContentStack/OptionsPanel/OptionsVBox/FullscreenCheck");
+		_showSeedControlsCheck = GetNodeOrNull<CheckBox>($"{Root}/HBoxContainer/UtilityRow/ContentPanel/MarginContainer/ContentStack/OptionsPanel/OptionsVBox/ShowSeedControlsCheck");
+		_skipIntroCheck = GetNodeOrNull<CheckBox>($"{Root}/HBoxContainer/UtilityRow/ContentPanel/MarginContainer/ContentStack/OptionsPanel/OptionsVBox/SkipIntroCheck");
 		_resolutionOption = GetNodeOrNull<OptionButton>($"{Root}/HBoxContainer/UtilityRow/ContentPanel/MarginContainer/ContentStack/OptionsPanel/OptionsVBox/ResolutionRow/ResolutionOption");
 		_applyOptionsButton = GetNodeOrNull<Button>($"{Root}/HBoxContainer/UtilityRow/ContentPanel/MarginContainer/ContentStack/OptionsPanel/OptionsVBox/ApplyOptionsButton");
 		_optionsStatusLabel = GetNodeOrNull<Label>($"{Root}/HBoxContainer/UtilityRow/ContentPanel/MarginContainer/ContentStack/OptionsPanel/OptionsVBox/OptionsStatusLabel");
@@ -185,17 +185,17 @@ public partial class MainMenuScreen : Control
 		_optionsDialog = GetNodeOrNull<Window>("OptionsDialog");
 		if (_fullscreenCheck == null)
 		{
-			_fullscreenCheck = GetNodeOrNull<CheckButton>("OptionsDialog/MarginContainer/OptionsVBox/FullscreenCheck");
+			_fullscreenCheck = GetNodeOrNull<CheckBox>("OptionsDialog/MarginContainer/OptionsVBox/FullscreenCheck");
 		}
 
 		if (_showSeedControlsCheck == null)
 		{
-			_showSeedControlsCheck = GetNodeOrNull<CheckButton>("OptionsDialog/MarginContainer/OptionsVBox/ShowSeedControlsCheck");
+			_showSeedControlsCheck = GetNodeOrNull<CheckBox>("OptionsDialog/MarginContainer/OptionsVBox/ShowSeedControlsCheck");
 		}
 
 		if (_skipIntroCheck == null)
 		{
-			_skipIntroCheck = GetNodeOrNull<CheckButton>("OptionsDialog/MarginContainer/OptionsVBox/SkipIntroCheck");
+			_skipIntroCheck = GetNodeOrNull<CheckBox>("OptionsDialog/MarginContainer/OptionsVBox/SkipIntroCheck");
 		}
 
 		if (_resolutionOption == null)
@@ -229,10 +229,10 @@ public partial class MainMenuScreen : Control
 		if (_optionsButton != null) _optionsButton.Connect(Button.SignalName.Pressed, Callable.From(OnOptionsButtonPressed));
 		if (_quitButton != null) _quitButton.Connect(Button.SignalName.Pressed, Callable.From(OnQuitButtonPressed));
 		if (_applyOptionsButton != null) _applyOptionsButton.Connect(Button.SignalName.Pressed, Callable.From(ApplyWindowSettings));
-		if (_infoDialogCloseButton != null && _infoDialog != null) _infoDialogCloseButton.Pressed += _infoDialog.Hide;
-		if (_optionsDialogCloseButton != null && _optionsDialog != null) _optionsDialogCloseButton.Pressed += _optionsDialog.Hide;
-		if (_infoDialog != null) _infoDialog.CloseRequested += _infoDialog.Hide;
-		if (_optionsDialog != null) _optionsDialog.CloseRequested += _optionsDialog.Hide;
+		if (_infoDialogCloseButton != null) _infoDialogCloseButton.Pressed += HideInfoDialog;
+		if (_optionsDialogCloseButton != null) _optionsDialogCloseButton.Pressed += HideOptionsDialog;
+		if (_infoDialog != null) _infoDialog.CloseRequested += HideInfoDialog;
+		if (_optionsDialog != null) _optionsDialog.CloseRequested += HideOptionsDialog;
 		if (_fullscreenCheck != null) _fullscreenCheck.Toggled += enabled =>
 		{
 			if (_resolutionOption != null)
@@ -491,6 +491,14 @@ public partial class MainMenuScreen : Control
 		ShowWindow(_infoDialog, new Vector2I(720, 520));
 	}
 
+	private void HideInfoDialog()
+	{
+		if (_infoDialog != null)
+		{
+			_infoDialog.Hide();
+		}
+	}
+
 	private void ShowOptionsDialog()
 	{
 		RefreshOptionsState();
@@ -500,8 +508,22 @@ public partial class MainMenuScreen : Control
 		}
 	}
 
+	private void HideOptionsDialog()
+	{
+		if (_optionsDialog != null)
+		{
+			_optionsDialog.Hide();
+		}
+	}
+
 	private static void ShowWindow(Window window, Vector2I size)
 	{
+		if (window.IsInsideTree())
+		{
+			window.PopupCentered(size);
+			return;
+		}
+
 		window.Size = size;
 		window.Visible = true;
 	}
@@ -553,21 +575,25 @@ public partial class MainMenuScreen : Control
 		{
 			WindowSettingsService.ApplyAndSave(new WindowSettingsService.WindowSettingsState(true, GetSelectedResolution()));
 			ApplyStudioPreferences();
+			RefreshOptionsState();
 			if (_optionsStatusLabel != null)
 			{
-				_optionsStatusLabel.Text = "Applied fullscreen mode";
+				_optionsStatusLabel.Text = "Fullscreen active. All studio and intro preferences were saved.";
 			}
-
+			HideOptionsDialog();
 			return;
 		}
 
 		Vector2I resolution = GetSelectedResolution();
 		WindowSettingsService.ApplyAndSave(new WindowSettingsService.WindowSettingsState(false, resolution));
 		ApplyStudioPreferences();
+		RefreshOptionsState();
 		if (_optionsStatusLabel != null)
 		{
-			_optionsStatusLabel.Text = $"Applied windowed mode at {resolution.X} x {resolution.Y}";
+			_optionsStatusLabel.Text = $"Windowed at {resolution.X} x {resolution.Y}. All studio and intro preferences were saved.";
 		}
+
+		HideOptionsDialog();
 	}
 
 	private void ApplyStudioPreferences()

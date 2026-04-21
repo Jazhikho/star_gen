@@ -86,6 +86,17 @@ public partial class ObjectViewer : Node3D
 	internal Button? _loadButton;
 	internal Label? _fileInfo;
 	internal Label? _emptyStateLabel;
+	internal Window? _optionsDialog;
+	internal CheckBox? _fullscreenCheck;
+	internal CheckBox? _showSeedControlsCheck;
+	internal CheckBox? _skipIntroCheck;
+	internal OptionButton? _resolutionOption;
+	internal Button? _applyOptionsButton;
+	internal Label? _optionsStatusLabel;
+	internal Button? _optionsDialogCloseButton;
+	internal Control? _cameraPanel;
+	internal Button? _cameraPanelHeaderButton;
+	internal Control? _cameraPanelContent;
 	internal FileDialog? _saveFileDialog;
 	internal FileDialog? _loadFileDialog;
 	internal CameraController? _camera;
@@ -123,6 +134,7 @@ public partial class ObjectViewer : Node3D
 		SetupMoonSystem();
 		SetupControls();
 		SetupTopMenu();
+		SetupOptionsUi();
 		ConnectSignals();
 		UpdateBackNavigationUi();
 		SetGenerationControlsEnabled(false);

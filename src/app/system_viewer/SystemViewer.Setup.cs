@@ -30,8 +30,17 @@ public partial class SystemViewer
         _rerollButton = GetNodeOrNull<Button>("UI/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/GenerationSection/ButtonContainer/RerollButton");
         _saveButton = GetNodeOrNull<Button>("UI/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/SaveLoadSection/ButtonContainer/SaveButton");
         _loadButton = GetNodeOrNull<Button>("UI/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/SaveLoadSection/ButtonContainer/LoadButton");
-        _showOrbitsCheck = GetNodeOrNull<CheckBox>("UI/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/ViewSection/ShowOrbitsCheck");
-        _showZonesCheck = GetNodeOrNull<CheckBox>("UI/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/ViewSection/ShowZonesCheck");
+        _optionsDialog = GetNodeOrNull<Window>("OptionsDialog");
+        _fullscreenCheck = GetNodeOrNull<CheckBox>("OptionsDialog/MarginContainer/OptionsVBox/FullscreenCheck");
+        _showSeedControlsCheck = GetNodeOrNull<CheckBox>("OptionsDialog/MarginContainer/OptionsVBox/ShowSeedControlsCheck");
+        _skipIntroCheck = GetNodeOrNull<CheckBox>("OptionsDialog/MarginContainer/OptionsVBox/SkipIntroCheck");
+        _resolutionOption = GetNodeOrNull<OptionButton>("OptionsDialog/MarginContainer/OptionsVBox/ResolutionRow/ResolutionOption");
+        _applyOptionsButton = GetNodeOrNull<Button>("OptionsDialog/MarginContainer/OptionsVBox/ButtonRow/ApplyOptionsButton");
+        _optionsStatusLabel = GetNodeOrNull<Label>("OptionsDialog/MarginContainer/OptionsVBox/OptionsStatusLabel");
+        _optionsDialogCloseButton = GetNodeOrNull<Button>("OptionsDialog/MarginContainer/OptionsVBox/ButtonRow/CloseButton");
+        _cameraPanel = GetNodeOrNull<Control>("UI/CameraPanel");
+        _cameraPanelHeaderButton = GetNodeOrNull<Button>("UI/CameraPanel/CameraPanelVBox/CameraPanelHeaderButton");
+        _cameraPanelContent = GetNodeOrNull<Control>("UI/CameraPanel/CameraPanelVBox/CameraPanelContent");
         _emptyStateLabel = GetNodeOrNull<Label>("UI/EmptyStateLabel");
         _cameraController = GetNodeOrNull<Node>("CameraRig/Camera3D");
         _bodiesContainer = GetNodeOrNull<Node3D>("BodiesContainer");
@@ -185,16 +194,6 @@ public partial class SystemViewer
             _rerollButton.Pressed += OnRerollPressed;
         }
 
-        if (_showOrbitsCheck != null)
-        {
-            _showOrbitsCheck.Toggled += OnShowOrbitsToggled;
-        }
-
-        if (_showZonesCheck != null)
-        {
-            _showZonesCheck.Toggled += OnShowZonesToggled;
-        }
-
         if (_backButton != null)
         {
             _backButton.Pressed += OnBackPressed;
@@ -225,15 +224,11 @@ public partial class SystemViewer
             _mainworldPolicyOption.ItemSelected += _ => RefreshGenerationValidationFromControls();
         }
 
-        if (_generatePopulationCheck != null)
-        {
-            _generatePopulationCheck.Toggled += _ => RefreshGenerationValidationFromControls();
-        }
-
         if (_inspectorPanel is SystemInspectorPanel typedInspectorPanel)
         {
             typedInspectorPanel.OpenInViewerRequested += OnOpenBodyInViewer;
             typedInspectorPanel.FocusBodyRequested += OnFocusBodyRequested;
+            typedInspectorPanel.FocusBeltRequested += OnFocusBeltRequested;
         }
         else if (_inspectorPanel != null && _inspectorPanel.HasSignal("open_in_viewer_requested"))
         {
@@ -243,8 +238,18 @@ public partial class SystemViewer
             {
                 _inspectorPanel.Connect("focus_body_requested", Callable.From<CelestialBody>(OnFocusBodyRequested));
             }
+
+            if (_inspectorPanel.HasSignal("focus_belt_requested"))
+            {
+                _inspectorPanel.Connect("focus_belt_requested", Callable.From<string>(OnFocusBeltRequested));
+            }
         }
 
+        if (_cameraPanelHeaderButton != null)
+        {
+            _cameraPanelHeaderButton.Pressed += ToggleCameraPanel;
+            SetCameraPanelCollapsed(true);
+        }
     }
 
     /// <summary>

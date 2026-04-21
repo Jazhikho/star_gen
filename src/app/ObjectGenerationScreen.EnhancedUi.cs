@@ -668,6 +668,7 @@ public partial class ObjectGenerationScreen
         PopulateTravellerCodeOptions(_travellerAtmosphereCodeOption, "atmosphere");
         PopulateTravellerCodeOptions(_travellerHydrographicsCodeOption, "hydrographics");
         PopulateTravellerCodeOptions(_travellerPopulationCodeOption, "population");
+        ConfigureEnhancedCheckboxRow("UseTravellerWorldProfileRow", _useTravellerWorldProfileCheck, "Traveller Worldgen");
         ApplyCatalogTooltip("use_traveller_world_profile", "UseTravellerWorldProfileRow", _useTravellerWorldProfileCheck);
         ApplyCatalogTooltip("traveller_size_code", "TravellerSizeCodeRow", _travellerSizeCodeOption);
         ApplyCatalogTooltip("traveller_atmosphere_code", "TravellerAtmosphereCodeRow", _travellerAtmosphereCodeOption);
@@ -707,7 +708,8 @@ public partial class ObjectGenerationScreen
 
     private void PopulateAdvancedSection()
     {
-        SetEnhancedRowLabel("ShowTravellerReadoutsRow", "Show UWP Code");
+        ConfigureEnhancedCheckboxRow("ShowTravellerReadoutsRow", _showTravellerReadoutsCheck, "Show UWP Code");
+        ConfigureEnhancedCheckboxRow("ShowAdvancedControlsRow", _showAdvancedControlsCheck, "Advanced Controls");
         ApplyCatalogTooltip("advanced_controls", "ShowAdvancedControlsRow", _showAdvancedControlsCheck);
         ApplyCatalogTooltip("ruleset_mode", "RulesetRow", _rulesetModeOption);
         ApplyCatalogTooltip("show_traveller_readouts", "ShowTravellerReadoutsRow", _showTravellerReadoutsCheck);
@@ -858,6 +860,23 @@ public partial class ObjectGenerationScreen
         {
             label.Text = text;
         }
+    }
+
+    private void ConfigureEnhancedCheckboxRow(string rowName, CheckBox? checkBox, string text)
+    {
+        SetEnhancedRowLabel(rowName, text);
+        if (checkBox == null)
+        {
+            return;
+        }
+
+        if (_rowLabels.TryGetValue(rowName, out Label? label))
+        {
+            label.Visible = false;
+        }
+
+        checkBox.Text = text;
+        checkBox.SizeFlagsHorizontal = Control.SizeFlags.ExpandFill;
     }
 
     private bool IsTravellerModeSelected()

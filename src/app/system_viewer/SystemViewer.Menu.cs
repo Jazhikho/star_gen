@@ -1,6 +1,4 @@
-using System.Collections.Generic;
 using Godot;
-using StarGen.Services.Persistence;
 
 namespace StarGen.App.SystemViewer;
 
@@ -12,13 +10,10 @@ public partial class SystemViewer
     private const int FileMenuNewSystemId = 1;
     private const int FileMenuMainMenuId = 2;
     private const int FileMenuReturnId = 3;
-    private const int EditMenuGenerateId = 10;
-    private const int EditMenuRerollId = 11;
-    private const int ViewMenuShowOrbitsId = 20;
-    private const int ViewMenuShowZonesId = 21;
-    private const int ViewMenuFocusOriginId = 22;
-    private const int WindowMenuFullscreenId = 30;
-    private const int WindowMenuResolutionBaseId = 100;
+	private const int ToolsMenuGenerateId = 10;
+	private const int ToolsMenuRerollId = 11;
+	private const int ToolsMenuShowOrbitsId = 20;
+	private const int ToolsMenuFocusOriginId = 22;
     private const int HelpMenuControlsId = 40;
 
     private void SetupTopMenu()
@@ -30,9 +25,8 @@ public partial class SystemViewer
         }
 
         ConfigureFileMenu(CreateMenuButton(menuRow, "File"));
-        ConfigureEditMenu(CreateMenuButton(menuRow, "Edit"));
-        ConfigureViewMenu(CreateMenuButton(menuRow, "View"));
-        ConfigureWindowMenu(CreateMenuButton(menuRow, "Window"));
+        ConfigureToolsMenu(CreateMenuButton(menuRow, "Tools"));
+        ConfigureOptionsButton(CreateActionButton(menuRow, "Options"));
         ConfigureHelpMenu(CreateMenuButton(menuRow, "Help"));
     }
 
@@ -47,6 +41,18 @@ public partial class SystemViewer
         return button;
     }
 
+    private static Button CreateActionButton(HBoxContainer menuRow, string title)
+    {
+        Button button = new()
+        {
+            Text = title,
+            FocusMode = Control.FocusModeEnum.None,
+            Flat = true,
+        };
+        menuRow.AddChild(button);
+        return button;
+    }
+
     private void ConfigureFileMenu(MenuButton menuButton)
     {
         PopupMenu popup = menuButton.GetPopup();
@@ -55,28 +61,17 @@ public partial class SystemViewer
         RebuildFileMenu(popup);
     }
 
-    private void ConfigureEditMenu(MenuButton menuButton)
+    private void ConfigureToolsMenu(MenuButton menuButton)
     {
         PopupMenu popup = menuButton.GetPopup();
-        popup.IdPressed += OnEditMenuIdPressed;
-        popup.AboutToPopup += () => RebuildEditMenu(popup);
-        RebuildEditMenu(popup);
+        popup.IdPressed += OnToolsMenuIdPressed;
+        popup.AboutToPopup += () => RebuildToolsMenu(popup);
+        RebuildToolsMenu(popup);
     }
 
-    private void ConfigureViewMenu(MenuButton menuButton)
+    private void ConfigureOptionsButton(Button button)
     {
-        PopupMenu popup = menuButton.GetPopup();
-        popup.IdPressed += OnViewMenuIdPressed;
-        popup.AboutToPopup += () => RebuildViewMenu(popup);
-        RebuildViewMenu(popup);
-    }
-
-    private void ConfigureWindowMenu(MenuButton menuButton)
-    {
-        PopupMenu popup = menuButton.GetPopup();
-        popup.IdPressed += OnWindowMenuIdPressed;
-        popup.AboutToPopup += () => RebuildWindowMenu(popup);
-        RebuildWindowMenu(popup);
+        button.Pressed += OpenOptionsDialog;
     }
 
     private void ConfigureHelpMenu(MenuButton menuButton)
@@ -98,48 +93,20 @@ public partial class SystemViewer
         }
     }
 
-    private void RebuildEditMenu(PopupMenu popup)
+    private void RebuildToolsMenu(PopupMenu popup)
     {
-        popup.Clear();
-        if (!_generationActionsVisible)
-        {
-            return;
+		popup.Clear();
+		if (_generationActionsVisible)
+		{
+			popup.AddItem("Generate", ToolsMenuGenerateId);
+            popup.AddItem("Re-roll", ToolsMenuRerollId);
+            popup.AddSeparator();
         }
 
-        popup.AddItem("Generate", EditMenuGenerateId);
-        popup.AddItem("Re-roll", EditMenuRerollId);
-    }
-
-    private void RebuildViewMenu(PopupMenu popup)
-    {
-        popup.Clear();
-        popup.AddCheckItem("Show Orbits", ViewMenuShowOrbitsId);
-        popup.SetItemChecked(popup.ItemCount - 1, _showOrbitsCheck != null && _showOrbitsCheck.ButtonPressed);
-        popup.AddCheckItem("Show Zones", ViewMenuShowZonesId);
-        popup.SetItemChecked(popup.ItemCount - 1, _showZonesCheck != null && _showZonesCheck.ButtonPressed);
-        popup.AddSeparator();
-        popup.AddItem("Focus Origin", ViewMenuFocusOriginId);
-    }
-
-    private void RebuildWindowMenu(PopupMenu popup)
-    {
-        popup.Clear();
-        WindowSettingsService.WindowSettingsState currentSettings = WindowSettingsService.CaptureCurrent();
-        popup.AddCheckItem("Fullscreen", WindowMenuFullscreenId);
-        popup.SetItemChecked(popup.ItemCount - 1, currentSettings.Fullscreen);
-        popup.AddSeparator();
-
-        IReadOnlyList<Vector2I> resolutions = WindowSettingsService.GetCommonResolutions();
-        for (int index = 0; index < resolutions.Count; index += 1)
-        {
-            Vector2I resolution = resolutions[index];
-            popup.AddCheckItem(
-                WindowSettingsService.FormatResolutionLabel(resolution),
-                WindowMenuResolutionBaseId + index);
-            bool isChecked = !currentSettings.Fullscreen && resolution == currentSettings.Resolution;
-            popup.SetItemChecked(popup.ItemCount - 1, isChecked);
-            popup.SetItemDisabled(popup.ItemCount - 1, currentSettings.Fullscreen);
-        }
+		popup.AddCheckItem("Show Orbits", ToolsMenuShowOrbitsId);
+		popup.SetItemChecked(popup.ItemCount - 1, _showOrbitsVisible);
+		popup.AddSeparator();
+		popup.AddItem("Focus Origin", ToolsMenuFocusOriginId);
     }
 
     private void OnFileMenuIdPressed(long id)
@@ -162,39 +129,28 @@ public partial class SystemViewer
         }
     }
 
-    private void OnEditMenuIdPressed(long id)
+    private void OnToolsMenuIdPressed(long id)
     {
-        if (id == EditMenuGenerateId)
+        if (id == ToolsMenuGenerateId)
         {
             OnGeneratePressed();
             return;
         }
 
-        if (id == EditMenuRerollId)
+        if (id == ToolsMenuRerollId)
         {
             OnRerollPressed();
+            return;
         }
-    }
 
-    private void OnViewMenuIdPressed(long id)
-    {
-        if (id == ViewMenuShowOrbitsId && _showOrbitsCheck != null)
+        if (id == ToolsMenuShowOrbitsId)
         {
-            bool enabled = !_showOrbitsCheck.ButtonPressed;
-            _showOrbitsCheck.ButtonPressed = enabled;
+            bool enabled = !_showOrbitsVisible;
             OnShowOrbitsToggled(enabled);
             return;
         }
 
-        if (id == ViewMenuShowZonesId && _showZonesCheck != null)
-        {
-            bool enabled = !_showZonesCheck.ButtonPressed;
-            _showZonesCheck.ButtonPressed = enabled;
-            OnShowZonesToggled(enabled);
-            return;
-        }
-
-        if (id == ViewMenuFocusOriginId)
+		if (id == ToolsMenuFocusOriginId)
         {
             if (_cameraController is SystemCameraController typedCameraController)
             {
@@ -205,43 +161,6 @@ public partial class SystemViewer
                 _cameraController?.Call("focus_on_origin");
             }
         }
-    }
-
-    private void OnWindowMenuIdPressed(long id)
-    {
-        if (id == WindowMenuFullscreenId)
-        {
-            WindowSettingsService.WindowSettingsState currentSettings = WindowSettingsService.CaptureCurrent();
-            WindowSettingsService.WindowSettingsState updatedSettings =
-                new WindowSettingsService.WindowSettingsState(!currentSettings.Fullscreen, currentSettings.Resolution);
-            WindowSettingsService.ApplyAndSave(updatedSettings);
-            if (updatedSettings.Fullscreen)
-            {
-                SetStatus("Window menu applied fullscreen mode");
-            }
-            else
-            {
-                SetStatus($"Window menu applied {updatedSettings.Resolution.X} x {updatedSettings.Resolution.Y}");
-            }
-
-            return;
-        }
-
-        if (id < WindowMenuResolutionBaseId)
-        {
-            return;
-        }
-
-        int resolutionIndex = (int)(id - WindowMenuResolutionBaseId);
-        IReadOnlyList<Vector2I> resolutions = WindowSettingsService.GetCommonResolutions();
-        if (resolutionIndex < 0 || resolutionIndex >= resolutions.Count)
-        {
-            return;
-        }
-
-        Vector2I resolution = resolutions[resolutionIndex];
-        WindowSettingsService.ApplyAndSave(new WindowSettingsService.WindowSettingsState(false, resolution));
-        SetStatus($"Window menu applied {resolution.X} x {resolution.Y}");
     }
 
     private void OnHelpMenuIdPressed(long id)

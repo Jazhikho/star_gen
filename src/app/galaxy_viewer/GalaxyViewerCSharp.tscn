@@ -329,6 +329,44 @@ size_flags_horizontal = 3
 show_percentage = false
 max_value = 1.0
 
+[node name="CameraPanel" type="PanelContainer" parent="UI/UIRoot"]
+custom_minimum_size = Vector2(210, 0)
+layout_mode = 0
+anchors_preset = 10
+anchor_left = 1.0
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -222.0
+offset_top = -108.0
+offset_right = -12.0
+offset_bottom = -12.0
+
+[node name="CameraPanelVBox" type="VBoxContainer" parent="UI/UIRoot/CameraPanel"]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="CameraPanelHeaderButton" type="Button" parent="UI/UIRoot/CameraPanel/CameraPanelVBox"]
+layout_mode = 2
+alignment = 0
+flat = true
+text = "> Camera"
+
+[node name="CameraPanelContent" type="MarginContainer" parent="UI/UIRoot/CameraPanel/CameraPanelVBox"]
+visible = false
+layout_mode = 2
+theme_override_constants/margin_left = 10
+theme_override_constants/margin_top = 0
+theme_override_constants/margin_right = 10
+theme_override_constants/margin_bottom = 10
+
+[node name="CameraHelpLabel" type="Label" parent="UI/UIRoot/CameraPanel/CameraPanelVBox/CameraPanelContent"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 11
+modulate = Color(0.84, 0.86, 0.92, 1)
+autowrap_mode = 2
+text = "Scroll: Change zoom level\nLeft Mouse: Select star\nRight Mouse: Orbit local view\nMiddle Mouse: Pan local view"
+
 [node name="OptionsDialog" type="Window" parent="."]
 visible = false
 theme = ExtResource("12")
@@ -351,15 +389,15 @@ theme_override_constants/margin_bottom = 16
 layout_mode = 2
 theme_override_constants/separation = 10
 
-[node name="FullscreenCheck" type="CheckButton" parent="OptionsDialog/MarginContainer/OptionsVBox"]
+[node name="FullscreenCheck" type="CheckBox" parent="OptionsDialog/MarginContainer/OptionsVBox"]
 layout_mode = 2
 text = "Fullscreen"
 
-[node name="ShowSeedControlsCheck" type="CheckButton" parent="OptionsDialog/MarginContainer/OptionsVBox"]
+[node name="ShowSeedControlsCheck" type="CheckBox" parent="OptionsDialog/MarginContainer/OptionsVBox"]
 layout_mode = 2
 text = "Show all studio seeds"
 
-[node name="SkipIntroCheck" type="CheckButton" parent="OptionsDialog/MarginContainer/OptionsVBox"]
+[node name="SkipIntroCheck" type="CheckBox" parent="OptionsDialog/MarginContainer/OptionsVBox"]
 layout_mode = 2
 text = "Skip intro on startup"
 
