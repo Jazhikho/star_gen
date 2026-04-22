@@ -19,6 +19,17 @@ Use this log for significant AI-assisted artifacts in this repository.
 
 ### 2026-04-22 - Codex (GPT-5)
 
+- Task Purpose: Fix the studio help dialogs so they cannot open larger than the active resolution can comfortably show, keeping the close controls reachable on smaller selected window sizes.
+- Input Materials Used: User report that studio help windows were too large and could hide the close controls; repo `claude.md`; `src/app/shared/HelpDialogLayoutHelper.cs`; `src/app/GalaxyGenerationScreen.Science.cs`; `src/app/SystemGenerationScreen.Help.cs`; `src/app/ObjectGenerationScreen.Help.cs`; the corresponding `.tscn` help-dialog nodes; and `Tests/Integration/TestStudioScienceUi.cs`.
+- AI Produced: Reworked the shared `HelpDialogLayoutHelper` to cap studio help dialogs at 70% of the active viewport dimensions, marked the studio help `Window` nodes as unresizable in their `.tscn` scenes so they cannot be stretched past that scene-authored layout, and updated the studio integration tests so Galaxy, System, and Object help windows are all checked against the live viewport-relative limit instead of fixed pixel ceilings.
+- Human Accepted: Pending Christopher B. Del Gesso review.
+- Human Rejected: The user rejected the previous oversized studio help behavior where the close option could fall out of view at smaller resolutions.
+- Human Changed: The user explicitly required all studio help windows to stay under approximately 70% of the selected resolution.
+- Validation Method: `dotnet build StarGen.sln`; `godot-mono.exe --path . --headless --script res://Tests/RunTestsHeadless.gd`.
+- Final Approver: Pending Christopher B. Del Gesso review.
+
+### 2026-04-22 - Codex (GPT-5)
+
 - Task Purpose: Correct the version discipline after the user clarified that no `0.9` release has been approved yet, so release-target metadata must stay at `0.9.0.0` while the internal working checkpoint remains on the unreleased `0.8.x` line.
 - Input Materials Used: User clarification on release-target versioning and commit/version discipline; `README.md`; `VERSION.md`; `project.godot`; `export_presets.cfg`; `src/app/shared/UserFacingVersionHelper.cs`; and the existing release-prep docs and helper script.
 - AI Produced: Restored the release-target surfaces to `0.9.0.0` while moving the internal working checkpoint back to `0.8.21.1`; updated README wording to distinguish the `0.9.0.0` release target from the internal checkpoint; corrected the top of `VERSION.md` so current work is tracked as unreleased `0.8.21.1` hardening instead of implying a shipped `0.9`; relabeled the older `0.9.0.0` block as a reserved release target; updated the `0.9` release checklist so internal and release-target surfaces are checked separately; and removed the stale local `release/0.9.1.1` artifact generated during the earlier release-prep pass.

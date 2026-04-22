@@ -1,12 +1,17 @@
 # Version
 
-Current version: `0.8.21.1`
+Current version: `0.8.21.2`
 
 Current user-facing version: `0.9d`
 
 Date: `2026-04-22`
 
 Versioning method: release/refactor `+0.1`, feature `+0.0.1`, bug fix `+0.0.0.1`, save-breaking release `+1.0`.
+
+## 0.8.21.2
+
+- Bug fix: Clamped all studio help dialogs to at most 70% of the active viewport size through the shared `HelpDialogLayoutHelper`, and marked the scene-authored help windows as unresizable so the close controls stay reachable at smaller selected resolutions.
+- Test: Tightened the studio help-popup integration tests so Galaxy, System, and Object studio dialogs are validated against the live viewport-relative 70% cap instead of a hard-coded pixel ceiling.
 
 ## 0.8.21.1
 

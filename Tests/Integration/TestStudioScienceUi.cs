@@ -149,8 +149,7 @@ public static class TestStudioScienceUi
 
         helpButton!.EmitSignal(Button.SignalName.Pressed);
         DotNetNativeTestSuite.AssertTrue(helpDialog!.Visible, "Help popup should open when the Help button is pressed");
-        DotNetNativeTestSuite.AssertTrue(helpDialog.Size.X <= 700, "Galaxy Help popup should stay narrow enough for smaller windows");
-        DotNetNativeTestSuite.AssertTrue(helpDialog.Size.Y <= 520, "Galaxy Help popup should stay short enough for smaller windows");
+        AssertHelpDialogFitsViewport(helpDialog, "Galaxy");
 
         closeButton!.EmitSignal(Button.SignalName.Pressed);
         DotNetNativeTestSuite.AssertFalse(helpDialog.Visible, "Help popup should close when the Close button is pressed");
@@ -531,10 +530,7 @@ public static class TestStudioScienceUi
 
         helpButton!.EmitSignal(Button.SignalName.Pressed);
         DotNetNativeTestSuite.AssertTrue(helpDialog!.Visible, "System Help popup should open when the Help button is pressed");
-        DotNetNativeTestSuite.AssertTrue(helpDialog.Size.X <= 700, "System Help popup should stay narrow enough for smaller windows");
-        DotNetNativeTestSuite.AssertTrue(helpDialog.Size.Y <= 520, "System Help popup should stay short enough for smaller windows");
-        DotNetNativeTestSuite.AssertTrue(helpDialog.Position.X >= 0, "System Help popup should stay on-screen horizontally");
-        DotNetNativeTestSuite.AssertTrue(helpDialog.Position.Y >= 0, "System Help popup should stay on-screen vertically");
+        AssertHelpDialogFitsViewport(helpDialog, "System");
 
         closeButton!.EmitSignal(Button.SignalName.Pressed);
         DotNetNativeTestSuite.AssertFalse(helpDialog.Visible, "System Help popup should close when the Close button is pressed");
@@ -589,8 +585,7 @@ public static class TestStudioScienceUi
 
         helpButton!.EmitSignal(Button.SignalName.Pressed);
         DotNetNativeTestSuite.AssertTrue(helpDialog!.Visible, "Object studio Help popup should open when the Help button is pressed");
-        DotNetNativeTestSuite.AssertTrue(helpDialog.Size.X <= 700, "Object studio Help popup should stay narrow enough for smaller windows");
-        DotNetNativeTestSuite.AssertTrue(helpDialog.Size.Y <= 520, "Object studio Help popup should stay short enough for smaller windows");
+        AssertHelpDialogFitsViewport(helpDialog, "Object studio");
         DotNetNativeTestSuite.AssertTrue(helpText!.Text.Contains("Object Studio"), "Object studio help should explain the direct-authoring surface");
         DotNetNativeTestSuite.AssertTrue(helpText.Text.Contains("Wordsworth"), "Object studio help should include the conflict-note science sources");
 
@@ -665,6 +660,39 @@ public static class TestStudioScienceUi
     private static bool ContainerHasLabelText(VBoxContainer container, string fragment)
     {
         return FindLabelByTextFragment(container, fragment) != null;
+    }
+
+    private static void AssertHelpDialogFitsViewport(Window helpDialog, string dialogLabel)
+    {
+        Vector2I viewportSize = ResolveViewportSize(helpDialog);
+        int maxWidth = (int)System.Math.Floor(viewportSize.X * 0.70);
+        int maxHeight = (int)System.Math.Floor(viewportSize.Y * 0.70);
+
+        DotNetNativeTestSuite.AssertTrue(helpDialog.Size.X <= maxWidth, $"{dialogLabel} Help popup should stay within 70% of the viewport width");
+        DotNetNativeTestSuite.AssertTrue(helpDialog.Size.Y <= maxHeight, $"{dialogLabel} Help popup should stay within 70% of the viewport height");
+        DotNetNativeTestSuite.AssertTrue(helpDialog.Position.X >= 0, $"{dialogLabel} Help popup should stay on-screen horizontally");
+        DotNetNativeTestSuite.AssertTrue(helpDialog.Position.Y >= 0, $"{dialogLabel} Help popup should stay on-screen vertically");
+    }
+
+    private static Vector2I ResolveViewportSize(Window helpDialog)
+    {
+        Viewport? viewport = helpDialog.GetViewport();
+        if (viewport != null)
+        {
+            Rect2 visibleRect = viewport.GetVisibleRect();
+            if (visibleRect.Size.X > 0.0f && visibleRect.Size.Y > 0.0f)
+            {
+                return new Vector2I((int)visibleRect.Size.X, (int)visibleRect.Size.Y);
+            }
+        }
+
+        Vector2I displaySize = DisplayServer.WindowGetSize();
+        if (displaySize.X > 0 && displaySize.Y > 0)
+        {
+            return displaySize;
+        }
+
+        return new Vector2I(1280, 720);
     }
 
     private static Label? FindLabelByTextFragment(VBoxContainer container, string fragment)
