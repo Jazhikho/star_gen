@@ -19,6 +19,17 @@ Use this log for significant AI-assisted artifacts in this repository.
 
 ### 2026-04-22 - Codex (GPT-5)
 
+- Task Purpose: Align the Galaxy Viewer `Build local space` cache path with the real galaxy-aware system-generation outputs so cached local systems use the same planet or moon pipeline as previewed and opened systems, instead of the older fixture shortcut.
+- Input Materials Used: User request to align the `Build local system` cache with planet outputs; `AGENTS.md`; repo `claude.md`; `src/app/galaxy_viewer/GalaxyViewer.Setup.cs`; `src/app/galaxy_viewer/GalaxyViewer.LocalSpace.cs`; `src/app/MainApp.Navigation.cs`; `src/domain/galaxy/StarSystemPreview.cs`; `src/domain/galaxy/GalaxySystemGenerator.cs`; `src/domain/galaxy/Galaxy.cs`; `src/domain/system/SystemSerializer.cs`; `Tests/Framework/DotNetNativeTestSuite.App.cs`; and the current version/provenance files.
+- AI Produced: Replaced the local-space jump-route system generation shortcut with the normal galaxy-aware `GalaxySystemGenerator` path, including population and colonization overlay application; added a reusable `SystemSerializer.Clone(...)` helper; made local-space builds populate the galaxy-level full-system cache; updated star-preview and open-system generation to consult that shared galaxy cache before regenerating; added a regression that builds local space, verifies the full-system cache is populated, and checks that a cached system matches direct galaxy-aware generation for planet count, moon count, and total population; and synced the internal version metadata to `0.8.21.3`.
+- Human Accepted: Pending Christopher B. Del Gesso review.
+- Human Rejected: The user rejected leaving the `Build local system` cache on a divergent generation path that could drift from the planet outputs shown elsewhere in the app.
+- Human Changed: The user explicitly required the cache system for `Build local system` to be correctly aligned with the planet outputs.
+- Validation Method: `dotnet build StarGen.sln`; `godot-mono.exe --path . --headless --script res://Tests/RunTestsHeadless.gd` (`Total: 1856 | Passed: 1856 | Failed: 0`; Godot still emitted the repo's known shutdown leak/resource warnings after the green run).
+- Final Approver: Pending Christopher B. Del Gesso review.
+
+### 2026-04-22 - Codex (GPT-5)
+
 - Task Purpose: Fix the studio help dialogs so they cannot open larger than the active resolution can comfortably show, keeping the close controls reachable on smaller selected window sizes.
 - Input Materials Used: User report that studio help windows were too large and could hide the close controls; repo `claude.md`; `src/app/shared/HelpDialogLayoutHelper.cs`; `src/app/GalaxyGenerationScreen.Science.cs`; `src/app/SystemGenerationScreen.Help.cs`; `src/app/ObjectGenerationScreen.Help.cs`; the corresponding `.tscn` help-dialog nodes; and `Tests/Integration/TestStudioScienceUi.cs`.
 - AI Produced: Reworked the shared `HelpDialogLayoutHelper` to cap studio help dialogs at 70% of the active viewport dimensions, marked the studio help `Window` nodes as unresizable in their `.tscn` scenes so they cannot be stretched past that scene-authored layout, and updated the studio integration tests so Galaxy, System, and Object help windows are all checked against the live viewport-relative limit instead of fixed pixel ceilings.

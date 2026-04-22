@@ -1,5 +1,6 @@
 #nullable enable annotations
 #nullable disable warnings
+using System.Globalization;
 using Godot;
 using StarGen.App;
 using StarGen.App.GalaxyViewer;
@@ -10,6 +11,8 @@ using StarGen.Domain.Celestial.Components;
 using StarGen.Domain.Galaxy;
 using StarGen.Domain.Generation;
 using StarGen.Domain.Math;
+using StarGen.Domain.Jumplanes;
+using StarGen.Domain.Systems;
 using StarGen.Services.Persistence;
 
 namespace StarGen.Tests.Framework;
@@ -324,6 +327,28 @@ public static partial class DotNetNativeTestSuite
             GalaxyLocalSpaceCache? localSpaceCache = viewer.GetLocalSpaceCache();
             AssertNotNull(localSpaceCache, "local-space build should retain a cache profile");
             AssertTrue(localSpaceCache!.Region.GetSystemCount() > 0, "local-space cache should contain generated systems");
+            Galaxy? galaxy = viewer.GetGalaxy();
+            AssertNotNull(galaxy, "galaxy viewer should expose the active galaxy after local-space build");
+            AssertTrue(galaxy!.GetCachedSystemCount() > 0, "building local space should also populate the galaxy-level system cache");
+
+            JumpLaneSystem cachedRouteSystem = localSpaceCache.Region.Systems[0];
+            int cachedStarSeed = int.Parse(cachedRouteSystem.Id, CultureInfo.InvariantCulture);
+            SolarSystem? cachedSystem = galaxy.GetCachedSystem(cachedStarSeed);
+            AssertNotNull(cachedSystem, "a route system produced during local-space build should have a matching full-system cache entry");
+
+            GalaxyStar cachedStar = GalaxyStar.CreateWithDerivedProperties(cachedRouteSystem.Position, cachedStarSeed, galaxy.Spec);
+            SolarSystem? directSystem = GalaxySystemGenerator.GenerateSystem(
+                cachedStar,
+                includeAsteroids: true,
+                enablePopulation: true,
+                overrides: null,
+                useCaseSettings: viewer.GetGalaxyConfig()?.UseCaseSettings,
+                galaxy: galaxy);
+            AssertNotNull(directSystem, "direct galaxy-aware regeneration should succeed for a cached local-space system");
+            AssertEqual(directSystem!.GetPlanetCount(), cachedSystem!.GetPlanetCount(), "local-space cache should store systems with the same planet count as the direct galaxy pipeline");
+            AssertEqual(directSystem.GetMoonCount(), cachedSystem.GetMoonCount(), "local-space cache should store systems with the same moon count as the direct galaxy pipeline");
+            AssertEqual(directSystem.GetTotalPopulation(), cachedSystem.GetTotalPopulation(), "local-space cache should store systems with the same total population as the direct galaxy pipeline");
+            AssertEqual(cachedSystem.GetTotalPopulation(), cachedRouteSystem.Population, "local-space route summaries should report the cached system population");
         }
         finally
         {

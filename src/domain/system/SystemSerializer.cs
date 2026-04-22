@@ -39,6 +39,19 @@ public static class SystemSerializer
     public static Dictionary ToDict(SolarSystem system) => ToDictionary(system);
 
     /// <summary>
+    /// Clones a solar system through the stable serialization payload.
+    /// </summary>
+    public static SolarSystem? Clone(SolarSystem? system)
+    {
+        if (system == null)
+        {
+            return null;
+        }
+
+        return FromDictionary(ToDictionary(system));
+    }
+
+    /// <summary>
     /// Deserializes a dictionary payload to a solar system.
     /// </summary>
     public static SolarSystem? FromDictionary(Dictionary data)

@@ -1,12 +1,18 @@
 # Version
 
-Current version: `0.8.21.2`
+Current version: `0.8.21.3`
 
 Current user-facing version: `0.9d`
 
 Date: `2026-04-22`
 
 Versioning method: release/refactor `+0.1`, feature `+0.0.1`, bug fix `+0.0.0.1`, save-breaking release `+1.0`.
+
+## 0.8.21.3
+
+- Bug fix: Rewired Galaxy Viewer local-space system building to use the same galaxy-aware `GalaxySystemGenerator` path as preview and open-system flows, so cached local systems now match the actual planet and moon outputs instead of using the older fixture shortcut.
+- Bug fix: Local-space builds now seed the galaxy-level full-system cache, and preview or open-system generation now consults that shared cache before regenerating, keeping local-space summaries aligned with the systems the app later opens.
+- Test: Added a galaxy-viewer regression that builds local space, asserts the galaxy-level system cache is populated, and verifies a cached system matches direct galaxy-aware generation for planet count, moon count, and total population.
 
 ## 0.8.21.2
 

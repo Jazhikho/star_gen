@@ -5,12 +5,12 @@ using Godot;
 using StarGen.Domain.Colonization;
 using StarGen.Domain.Celestial;
 using StarGen.Domain.Galaxy;
+using StarGen.Domain.Generation;
 using StarGen.Domain.Generation.Traveller;
 using StarGen.Domain.Jumplanes;
 using StarGen.Domain.Population;
 using StarGen.Domain.Rng;
 using StarGen.Domain.Systems;
-using StarGen.Domain.Systems.Fixtures;
 
 namespace StarGen.App.GalaxyViewer;
 
@@ -690,16 +690,44 @@ public partial class GalaxyViewer
 
 	private SolarSystem? GenerateJumpRoutePopulationSystem(GalaxyStar star)
 	{
-		SolarSystemSpec spec = SolarSystemSpec.RandomSmall(star.StarSeed);
-		spec.SystemMetallicity = star.Metallicity;
-		spec.IncludeAsteroidBelts = false;
-		spec.GeneratePopulation = true;
-		if (_galaxyConfig != null && _galaxyConfig.UseCaseSettings != null)
+		if (_galaxy != null)
 		{
-			spec.UseCaseSettings = _galaxyConfig.UseCaseSettings.Clone();
+			SolarSystem? cachedSystem = _galaxy.GetCachedSystem(star.StarSeed);
+			if (cachedSystem != null)
+			{
+				return cachedSystem;
+			}
 		}
 
-		return SystemFixtureGenerator.GenerateSystem(spec, true);
+		GenerationUseCaseSettings? useCaseSettings = null;
+		if (_galaxyConfig != null && _galaxyConfig.UseCaseSettings != null)
+		{
+			useCaseSettings = _galaxyConfig.UseCaseSettings.Clone();
+		}
+
+		SolarSystem? system = GalaxySystemGenerator.GenerateSystem(
+			star,
+			includeAsteroids: true,
+			enablePopulation: true,
+			overrides: null,
+			useCaseSettings: useCaseSettings,
+			galaxy: _galaxy);
+		if (system == null)
+		{
+			return null;
+		}
+
+		ColonizationSimulationOverlay.ApplyToSystem(system, star.StarSeed, _galaxy);
+		if (_galaxy != null)
+		{
+			SolarSystem? cachedCopy = SystemSerializer.Clone(system);
+			if (cachedCopy != null)
+			{
+				_galaxy.CacheSystem(star.StarSeed, cachedCopy);
+			}
+		}
+
+		return system;
 	}
 
 	private static void ApplyColonizationSummary(JumpLaneSystem routeSystem, SolarSystem system)

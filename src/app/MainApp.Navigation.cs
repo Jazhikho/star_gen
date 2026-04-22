@@ -245,6 +245,15 @@ public partial class MainApp
         Vector3? worldPosition = null,
         Galaxy? galaxy = null)
     {
+        if (galaxy != null)
+        {
+            SolarSystem? cachedSystem = galaxy.GetCachedSystem(starSeed);
+            if (cachedSystem != null)
+            {
+                return SystemSerializer.Clone(cachedSystem);
+            }
+        }
+
         if (galaxy != null && worldPosition.HasValue)
         {
             GalaxyStar star = GalaxyStar.CreateWithDerivedProperties(worldPosition.Value, starSeed, galaxy.Spec);
@@ -258,6 +267,12 @@ public partial class MainApp
             if (galaxySystem != null)
             {
                 ColonizationSimulationOverlay.ApplyToSystem(galaxySystem, starSeed, galaxy);
+                SolarSystem? cachedCopy = SystemSerializer.Clone(galaxySystem);
+                if (cachedCopy != null)
+                {
+                    galaxy.CacheSystem(starSeed, cachedCopy);
+                }
+
                 return galaxySystem;
             }
         }
