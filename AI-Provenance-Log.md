@@ -19,6 +19,17 @@ Use this log for significant AI-assisted artifacts in this repository.
 
 ### 2026-04-22 - Codex (GPT-5)
 
+- Task Purpose: Fix the remaining studio help-dialog overflow so the final popup rectangle stays fully within the usable application window and the Close button remains reachable after the modal actually opens.
+- Input Materials Used: User screenshot showing the Galaxy guide dialog still extending past the visible window; `AGENTS.md`; repo `claude.md`; `src/app/shared/HelpDialogLayoutHelper.cs`; `Tests/Integration/TestStudioScienceUi.cs`; and the scene help-dialog open paths in the Galaxy, System, and Object studio scripts.
+- AI Produced: Tightened the shared help-dialog sizing helper to reserve title-bar and window-frame space, clamp against the final usable viewport instead of only the nominal content fraction, apply a hard `MaxSize`, and reapply bounds after the modal becomes visible; updated the studio integration tests so they assert the popup's right and bottom edges remain inside the viewport rather than checking only raw size caps; and synced the internal version metadata to `0.8.21.4`.
+- Human Accepted: Pending Christopher B. Del Gesso review.
+- Human Rejected: The user rejected the previous help-dialog clamp because the Close button could still fall out of view at runtime even though the raw size cap looked correct on paper.
+- Human Changed: The user supplied a runtime screenshot showing the Galaxy guide still opened too tall, confirming that the fix must clamp the final on-screen rectangle rather than only the requested size.
+- Validation Method: `dotnet build StarGen.sln`; `godot-mono.exe --path . --headless --script res://Tests/RunTestsHeadless.gd` (`Total: 1856 | Passed: 1856 | Failed: 0`; Godot still emitted the repo's known shutdown leak/resource warnings after the green run).
+- Final Approver: Pending Christopher B. Del Gesso review.
+
+### 2026-04-22 - Codex (GPT-5)
+
 - Task Purpose: Align the Galaxy Viewer `Build local space` cache path with the real galaxy-aware system-generation outputs so cached local systems use the same planet or moon pipeline as previewed and opened systems, instead of the older fixture shortcut.
 - Input Materials Used: User request to align the `Build local system` cache with planet outputs; `AGENTS.md`; repo `claude.md`; `src/app/galaxy_viewer/GalaxyViewer.Setup.cs`; `src/app/galaxy_viewer/GalaxyViewer.LocalSpace.cs`; `src/app/MainApp.Navigation.cs`; `src/domain/galaxy/StarSystemPreview.cs`; `src/domain/galaxy/GalaxySystemGenerator.cs`; `src/domain/galaxy/Galaxy.cs`; `src/domain/system/SystemSerializer.cs`; `Tests/Framework/DotNetNativeTestSuite.App.cs`; and the current version/provenance files.
 - AI Produced: Replaced the local-space jump-route system generation shortcut with the normal galaxy-aware `GalaxySystemGenerator` path, including population and colonization overlay application; added a reusable `SystemSerializer.Clone(...)` helper; made local-space builds populate the galaxy-level full-system cache; updated star-preview and open-system generation to consult that shared galaxy cache before regenerating; added a regression that builds local space, verifies the full-system cache is populated, and checks that a cached system matches direct galaxy-aware generation for planet count, moon count, and total population; and synced the internal version metadata to `0.8.21.3`.

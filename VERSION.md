@@ -1,12 +1,18 @@
 # Version
 
-Current version: `0.8.21.3`
+Current version: `0.8.21.4`
 
 Current user-facing version: `0.9d`
 
 Date: `2026-04-22`
 
 Versioning method: release/refactor `+0.1`, feature `+0.0.1`, bug fix `+0.0.0.1`, save-breaking release `+1.0`.
+
+## 0.8.21.4
+
+- Bug fix: Tightened studio help-dialog clamping so the final on-screen window rectangle, not just the requested content size, stays inside the usable viewport after Godot opens the modal window.
+- Bug fix: Help dialogs now reserve frame and title-bar space, set a hard `MaxSize`, and reapply the clamp after opening so the Close button stays reachable at smaller selected resolutions.
+- Test: Strengthened the studio help-dialog regression to assert the popup's right and bottom edges remain inside the viewport, not only that its raw size stays under 70%.
 
 ## 0.8.21.3
 

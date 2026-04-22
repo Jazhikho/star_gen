@@ -672,6 +672,8 @@ public static class TestStudioScienceUi
         DotNetNativeTestSuite.AssertTrue(helpDialog.Size.Y <= maxHeight, $"{dialogLabel} Help popup should stay within 70% of the viewport height");
         DotNetNativeTestSuite.AssertTrue(helpDialog.Position.X >= 0, $"{dialogLabel} Help popup should stay on-screen horizontally");
         DotNetNativeTestSuite.AssertTrue(helpDialog.Position.Y >= 0, $"{dialogLabel} Help popup should stay on-screen vertically");
+        DotNetNativeTestSuite.AssertTrue(helpDialog.Position.X + helpDialog.Size.X <= viewportSize.X - 8, $"{dialogLabel} Help popup right edge should stay inside the viewport");
+        DotNetNativeTestSuite.AssertTrue(helpDialog.Position.Y + helpDialog.Size.Y <= viewportSize.Y - 8, $"{dialogLabel} Help popup bottom edge should stay inside the viewport");
     }
 
     private static Vector2I ResolveViewportSize(Window helpDialog)
