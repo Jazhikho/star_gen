@@ -126,8 +126,8 @@ star_gen/
 - `src/domain/population/SentientWorldProfile.cs`: neutral inhabited-world baseline that stores settlement pattern, logistics capacity, dominant regime, law-facing capacity fields, and the structural societal axes used by future RPG adapters.
 - `src/domain/population/SentientWorldProfileBuilder.cs`: deterministic builder that derives the neutral sentient-world baseline from active native and colony populations plus the body's environmental and suitability context.
 - `scripts/CreateReleaseBuild.ps1`: Windows-hosted release helper that runs the build and headless verification gates, exports the configured release presets, zips platform folders, and prints suggested itch `butler` commands.
-- `Docs/V0.9ReleaseChecklist.md`: concrete `0.9d` release-prep procedure covering version sync, verification gates, export flow, artifact review, and itch upload steps.
-- `Docs/V0.9AcceptanceChecklist.md`: live manual QA checklist for exported `0.9d` artifacts, covering startup, studios, viewers, mainline scope boundaries, and packaging validation.
+- `Docs/V0.9ReleaseChecklist.md`: concrete `0.9` release-prep procedure covering version sync, verification gates, export flow, artifact review, and itch upload steps.
+- `Docs/V0.9AcceptanceChecklist.md`: live manual QA checklist for exported `0.9` artifacts, covering startup, studios, viewers, mainline scope boundaries, and packaging validation.
 - `Docs/V1.0Checklist.md`: concrete checklist for the remaining scope lock, UI, realism, sentient-world audit, and release-hardening work before a defensible `1.0`.
 - `src/domain/population/BiologySupportEvaluator.cs`: summary biology support now uses weighted orbit, XUV, and tidal-heating constraints so biosphere support reflects system context without turning generation into a simulation.
 - `Tests/Unit/TestPlanetaryGenerationProfile.cs`: deterministic serialization, propagation, and planetary-help metadata coverage for the shared planetary retrofit.

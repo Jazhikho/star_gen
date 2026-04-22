@@ -339,7 +339,7 @@ public partial class MainMenuScreen : Control
 	private static string GetReleaseNotesContent()
 	{
 		return
-			"Version 0.9d\n\n" +
+			"Version 0.9\n\n" +
 			"- Mainline remains focused on deterministic generation and viewing across Galaxy, System, Object, and Station workflows.\n" +
 			"- Scientific assumptions, compatibility overrides, runtime toggles, and readout controls are now partitioned more clearly in the active studios.\n" +
 			"- Planetary generation, habitable-zone handling, life support, and sentient-world baseline fields now follow the audited science passes added during the 0.9 hardening line.\n" +

@@ -19,6 +19,17 @@ Use this log for significant AI-assisted artifacts in this repository.
 
 ### 2026-04-22 - Codex (GPT-5)
 
+- Task Purpose: Promote the repo from the pre-release `0.9d` labeling to the approved `0.9` release line, merge the release branch back into the primary branch, and push the updated primary branch to the remote server.
+- Input Materials Used: User request to change the version to `0.9`, merge back into the main branch, and make sure the server is up to date; `AGENTS.md`; repo `claude.md`; `VERSION.md`; `project.godot`; `export_presets.cfg`; `README.md`; `Docs/ProjectStructure.md`; `Docs/V0.9ReleaseChecklist.md`; `Docs/V0.9AcceptanceChecklist.md`; `src/app/shared/UserFacingVersionHelper.cs`; `src/app/MainMenuScreen.cs`; `src/app/MainMenuScreen.tscn`; `src/app/SplashScreen.tscn`; `src/app/StationStudioScreen.tscn`; and local git branch/remote state.
+- AI Produced: Updated the release-facing version surfaces from the old `0.9d` pre-release label to the approved `0.9` release label; promoted the internal version metadata to `0.9.0.0`; removed the display-version suffix logic so the application now shows plain `0.9`; synced export metadata and artifact paths to `0.9.0.0`; refreshed the release docs and UI scene text to match the approved release labeling; and prepared the repo for merge-back and remote synchronization.
+- Human Accepted: Pending Christopher B. Del Gesso review.
+- Human Rejected: The user rejected leaving the repo on the `0.9d` pre-release versioning path now that the merge-back and server update are being treated as the actual `0.9` release baseline.
+- Human Changed: The user explicitly instructed that the version should be changed to `0.9`, then merged back into the main branch, with the remote server brought up to date.
+- Validation Method: `dotnet build StarGen.sln`; `godot-mono.exe --path . --headless --script res://Tests/RunTestsHeadless.gd` (`Total: 1856 | Passed: 1856 | Failed: 0`; Godot still emitted the repo's known shutdown leak/resource warnings after the green run); pending merge into `master` and push to `origin/master`.
+- Final Approver: Pending Christopher B. Del Gesso review.
+
+### 2026-04-22 - Codex (GPT-5)
+
 - Task Purpose: Fix the remaining studio help-dialog overflow so the final popup rectangle stays fully within the usable application window and the Close button remains reachable after the modal actually opens.
 - Input Materials Used: User screenshot showing the Galaxy guide dialog still extending past the visible window; `AGENTS.md`; repo `claude.md`; `src/app/shared/HelpDialogLayoutHelper.cs`; `Tests/Integration/TestStudioScienceUi.cs`; and the scene help-dialog open paths in the Galaxy, System, and Object studio scripts.
 - AI Produced: Tightened the shared help-dialog sizing helper to reserve title-bar and window-frame space, clamp against the final usable viewport instead of only the nominal content fraction, apply a hard `MaxSize`, and reapply bounds after the modal becomes visible; updated the studio integration tests so they assert the popup's right and bottom edges remain inside the viewport rather than checking only raw size caps; and synced the internal version metadata to `0.8.21.4`.

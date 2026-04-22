@@ -9,8 +9,7 @@ public static class UserFacingVersionHelper
 {
     private const string InternalVersionSettingPath = "application/config/version";
     private const string UserFacingVersionSettingPath = "application/config/user_facing_version";
-    private const string ReleaseChannelSettingPath = "application/config/release_channel";
-    private const string DefaultInternalVersion = "0.8.21.4";
+    private const string DefaultInternalVersion = "0.9.0.0";
     private const string DefaultUserFacingVersion = "0.9";
 
     /// <summary>
@@ -18,40 +17,27 @@ public static class UserFacingVersionHelper
     /// </summary>
     public static string GetDisplayVersion()
     {
-        string version = DefaultUserFacingVersion;
+        string version = DefaultInternalVersion;
         Variant userFacingVersionValue = ProjectSettings.GetSetting(UserFacingVersionSettingPath, Variant.From(DefaultUserFacingVersion));
         if (userFacingVersionValue.VariantType == Variant.Type.String)
         {
             string configuredUserFacingVersion = userFacingVersionValue.AsString();
             if (!string.IsNullOrWhiteSpace(configuredUserFacingVersion))
             {
-                version = configuredUserFacingVersion;
-            }
-        }
-        else
-        {
-            Variant internalVersionValue = ProjectSettings.GetSetting(InternalVersionSettingPath, Variant.From(DefaultInternalVersion));
-            if (internalVersionValue.VariantType == Variant.Type.String)
-            {
-                string internalVersion = internalVersionValue.AsString();
-                if (!string.IsNullOrWhiteSpace(internalVersion))
-                {
-                    version = internalVersion;
-                }
+                return configuredUserFacingVersion;
             }
         }
 
-        string suffix = "d";
-        Variant releaseChannelValue = ProjectSettings.GetSetting(ReleaseChannelSettingPath, Variant.From("mainline"));
-        if (releaseChannelValue.VariantType == Variant.Type.String)
+        Variant internalVersionValue = ProjectSettings.GetSetting(InternalVersionSettingPath, Variant.From(DefaultInternalVersion));
+        if (internalVersionValue.VariantType == Variant.Type.String)
         {
-            string releaseChannel = releaseChannelValue.AsString().Trim().ToLowerInvariant();
-            if (releaseChannel == "export")
+            string internalVersion = internalVersionValue.AsString();
+            if (!string.IsNullOrWhiteSpace(internalVersion))
             {
-                suffix = "e";
+                version = internalVersion;
             }
         }
 
-        return version + suffix;
+        return version;
     }
 }

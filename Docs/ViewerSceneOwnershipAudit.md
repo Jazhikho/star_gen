@@ -79,7 +79,7 @@ Purpose: track the remaining work needed to keep the active viewer stack aligned
    - The shell is aligned now, but text/content still differs ad hoc by viewer.
 
 ### Low Priority
-1. Review whether save/load buttons in viewers should stay visible in version `0.9d`.
+1. Review whether save/load buttons in viewers should stay visible in version `0.9`.
 2. Review whether remaining dynamic menu enable/disable logic should be wrapped in a shared helper.
 
 ## Recommended Next Refactor Order

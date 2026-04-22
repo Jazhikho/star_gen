@@ -1,12 +1,20 @@
 # Version
 
-Current version: `0.8.21.4`
+Current version: `0.9.0.0`
 
-Current user-facing version: `0.9d`
+Current user-facing version: `0.9`
 
 Date: `2026-04-22`
 
 Versioning method: release/refactor `+0.1`, feature `+0.0.1`, bug fix `+0.0.0.1`, save-breaking release `+1.0`.
+
+## 0.9.0.0
+
+- Release: Promote the current generation-and-view baseline to the approved `0.9` release line and merge the release-hardening work back into the primary branch.
+- Release: Sync release-facing metadata and UI labels to plain `0.9`, retire the old `0.9d` display suffix, and keep the Windows export metadata and artifact paths aligned to `0.9.0.0`.
+- Bug fix: Keep the studio help dialogs fully within the usable viewport after opening, so the final on-screen rectangle leaves the Close button reachable at smaller selected resolutions.
+- Bug fix: Align Galaxy Viewer local-space system caching with the real galaxy-aware system-generation pipeline so built local systems match actual planet, moon, and population outputs.
+- Test: Verified the release baseline with `dotnet build StarGen.sln` and `godot-mono.exe --path . --headless --script res://Tests/RunTestsHeadless.gd` (`1856 / 1856`).
 
 ## 0.8.21.4
 

@@ -12,7 +12,7 @@ It is aimed at science-fiction worldbuilding, setting design, and procedural exp
 
 ## Current Status
 
-StarGen `0.9d` is the current mainline checkpoint baseline.
+StarGen `0.9` is the current release baseline.
 
 - The galaxy, system, and object studios are the main supported entry points.
 - The station studio now uses the production station-generation flow rather than a placeholder shell.
@@ -31,7 +31,7 @@ StarGen `0.9d` is the current mainline checkpoint baseline.
 - Mainline is generation-and-view focused; save/load/export flows are reserved for the export branch.
 - Mainline no longer ships the Concept Atlas path. `Concepts/Additions.md` remains the StarGen prototype backlog for future work that stays in scope.
 
-The current user-facing release target is `0.9d` / `0.9.0.0`, while the current internal checkpoint version is `0.8.21.1`. Detailed version history and patch notes live in [VERSION.md](VERSION.md).
+The current released version is `0.9` / `0.9.0.0`. Detailed version history and patch notes live in [VERSION.md](VERSION.md).
 
 ## Running StarGen
 
