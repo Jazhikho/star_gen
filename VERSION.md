@@ -1,12 +1,106 @@
 # Version
 
-Current version: `0.8.18.8`
+Current version: `0.8.21.1`
 
 Current user-facing version: `0.9d`
 
-Date: `2026-04-21`
+Date: `2026-04-22`
 
 Versioning method: release/refactor `+0.1`, feature `+0.0.1`, bug fix `+0.0.0.1`, save-breaking release `+1.0`.
+
+## 0.8.21.1
+
+- Bug fix: Synced the remaining release-facing metadata so `README.md`, `export_presets.cfg`, and the scene-authored version placeholders in the splash, main menu, and station studio no longer advertise stale `0.8.0.0` or `0.9.0.0` labels.
+- Bug fix: Tightened the export presets so shipped artifacts exclude non-runtime repo folders such as `Tests/`, `Docs/`, `Sources/`, and parked `Concepts/` content instead of bundling those into release packages.
+- Feature: Added a Windows-hosted release helper script at `scripts/CreateReleaseBuild.ps1` that runs the normal build and headless gates, exports release presets into a versioned `release/` folder, archives them, and prints suggested itch upload commands.
+- Docs: Added a dedicated `0.9` release checklist, a live acceptance checklist for exported builds, and a concrete `1.0` checklist so the mainline release and post-build review path are explicitly documented.
+- Refactor: Split the shared generation parameter surface into explicit `Generation prior`, `Generator override`, `Runtime/orchestration control`, and `Presentation/readout control` classes, keeping runtime and readout controls out of the shared generation catalog while preserving them as auxiliary editor definitions.
+- Refactor: Added a machine-readable `ParameterMaterialityRegistry` plus the new [Parameter materiality audit](Docs/ParameterMaterialityAudit.md), documenting how retained parameters and derived planetary-state fields actually flow from studios into generation, provenance, and viewer readouts.
+- Bug fix: Population permissiveness baseline resolution now follows the active `LifeFramework`, and deserialization now restores the framework-recommended baseline when no explicit permissiveness override was stored.
+- Test: Added catalog-partition and materiality-entry regressions, updated studio UI expectations for readout/override wording, and the full headless harness passed (`1856 / 1856`) after `dotnet build StarGen.sln` succeeded.
+
+## 0.8.21.0
+
+- Feature: Added academically grounded circumstellar habitable-zone model selection to the shared `PlanetaryGenerationProfile`, with `Kasting 1993`, `Kopparapu 2013 (Conservative)`, and `Kopparapu 2013 (Optimistic)` now exposed in both Galaxy Generation Studio and System Generation Studio.
+- Feature: Unified the actual HZ pipeline so orbit hosts, orbit-zone classification, derived planetary system state, and downstream environment-profile generation now all use the selected habitable-zone model instead of mixing the updated Kopparapu path with older fixed `0.95 / 1.37 * sqrt(L)` logic.
+- Docs: Added reviewed source notes for Kasting 1993 and Kopparapu 2013 and expanded the scientific parameter audit to track the new HZ parameter as a science-backed control.
+- Test: Added habitable-zone model regressions for orbital mechanics and stellar helpers, extended planetary-profile serialization coverage to the new model enum, and the headless harness passed (`1853 / 1853`) after the HZ parameter retrofit.
+
+## 0.8.20.1
+
+- Feature: Added a neutral `SentientWorldProfile` baseline for inhabited planets and moons so population-bearing worlds now carry settlement pattern, settlement rank, logistics capacity, dominant regime, and structural governance or law or technology axes before any RPG compatibility adapter compresses them into ruleset-specific outputs.
+- Feature: Object Viewer population inspection now hides the population block unless a body actually has active inhabitants, and when inhabited it surfaces the new sentient-world baseline fields alongside the existing population summary.
+- Docs: Added [Sentient world baseline grounding notes](Docs/SentientWorldBaseline.md), linked the RPG compatibility audit to the implemented baseline, and updated project-structure tracking and provenance for the new population model.
+- Test: Added focused sentient-world baseline derivation and serialization regressions plus object-viewer inspector checks for hidden uninhabited population sections and visible inhabited baseline fields; `dotnet build StarGen.sln` passed and the headless harness passed (`1849 / 1849`) before Godot emitted its known shutdown leak warnings.
+
+## 0.8.20.0
+
+- Feature: Reworked the life-support and sentient-world evaluator so abiogenesis, protected biospheres, surface biospheres, oxygenation, detectability, nutrient access, climatic variability, host-star desiccation risk, and prebiotic UV opportunity are modeled as explicit channels instead of being collapsed into a single habitability proxy.
+- Test: Added focused population regressions for nutrient accessibility, icy-moon protected biospheres, high-XUV desiccation suppression, detectability separation, and the updated population-likelihood expectations; the targeted population harness passed (`649 / 649`).
+- Docs: Added [RPG compatibility generation audit](Docs/RpgCompatibilityGenerationAudit.md), expanded the bibliography and review tracker with sentient-world governance, law, technology-diffusion, and cumulative-culture sources, and documented the current gap between StarGen's physical realism and its still-heuristic social-output layer.
+- Test: `dotnet build StarGen.sln` passed after the life-model tightening and again after the compatibility-audit documentation pass.
+
+## 0.8.19.0
+
+- Feature: Tightened the aggregate planetary-generation surrogates so disk lifetime and solids reservoir respond to host mass, giant-planet formation now peaks near the snow line rather than rising monotonically with distance, compact inner architectures react more directly to migration plus solids context, and inner volatile delivery now responds to giant-driven scattering.
+- Test: Added focused `PlanetarySystemState` and `SystemPlanetGenerator` regressions for host-mass disk or solids priors, snow-line giant-weight turnover, and migration-shaped compact inner architectures, and registered them in the native test suite.
+- Docs: Added a dedicated [Life science audit](Docs/LifeScienceAudit.md) plus new reviewed life-source notes and bibliography updates covering M-dwarf desiccation and abiotic oxygen, prebiotic UV constraints, nutrient access, ocean productivity, and biosignature context so the current life-model limitations and tightening path are explicit.
+- Test: `dotnet build StarGen.sln` passed. A full Godot headless harness run was attempted but hit an existing Godot-side `0xC0000005` finalization crash after hundreds of passing tests, before the new targeted planet tests were reached.
+
+## 0.8.18.16
+
+- Test: Reworked `TestSolarSystemRealization` so it now starts from galaxy inputs (`GalaxyConfig`, `Galaxy`, `GalaxyStar`, and the home galactic position) and exercises the real `GalaxySystemGenerator.GenerateSystem(...)` path instead of a direct hand-built system spec.
+- Test: Expanded the dedicated Solar realization suite to cover use-case settings, stellar profile models, and planetary profile models, with staged diagnostics that report where realization fails (`galaxy_config`, `galaxy_context`, `system_parameters`, `stellar_scaffold`, `system_generation`, `system_validation`, or Solar-shape mismatches).
+- Test: `dotnet build StarGen.sln` passed. The isolated Solar realization suite itself was not run because the user explicitly asked not to run any harness beyond compile verification until further instruction.
+
+## 0.8.18.17
+
+- Test: Replaced the broken exact-realization rewrite of `TestSolarSystemRealization` with a probabilistic Solar-analog suite focused on the scientific-assumption families only: Sun-like stellar scaffold frequency from galactic context, Solar-like rocky and giant planet analog frequency under a Sun-like scaffold, and Earth-like plus giant-planet moon-channel expectations.
+- Test: Updated the dedicated Solar-only native manifest so the isolated harness now runs the new probabilistic Solar-analog checks instead of the stale exact-realization method names.
+- Test: `dotnet build StarGen.sln` passed. The isolated Solar realization suite is being run separately from the default harness.
+
+## 0.8.18.11
+
+- Bug fix: Galaxy, System, and Object viewer `Controls` panels now cache the scene-authored expanded size at startup and reuse that stable footprint on the first and later opens, eliminating the remaining first-click geometry jump.
+- Bug fix: Galaxy Viewer `Controls` text now reflects the active camera mode again, restoring the correct local subsector instructions instead of showing the earlier mixed orbit or pan copy.
+- Test: `dotnet build StarGen.sln` passed, and the headless harness passed (`1837 / 1837`) before Godot emitted its known shutdown leak warnings.
+
+## 0.8.18.12
+
+- Bug fix: Galaxy Viewer now refreshes its expanded `Controls` footprint whenever the help copy changes, so the panel stays anchored correctly instead of dropping too low after the runtime text switches to the active mode-specific instructions.
+- Bug fix: Galaxy Viewer local-view movement help now spells out `forward`, `backward`, `left`, `right`, `up`, and `down` instead of assuming the `W / A / S / D / E / C` bindings are self-explanatory, and the scene-owned help block is wider to fit that copy cleanly.
+- Test: `dotnet build StarGen.sln` passed, and the headless harness passed (`1837 / 1837`) before Godot emitted its known shutdown leak warnings.
+
+## 0.8.18.13
+
+- Bug fix: Galaxy Viewer `Controls` now restores the editor-authored expanded panel rectangle directly from `GalaxyViewerCSharp.tscn` instead of recalculating that open state in script, bringing the box back under scene ownership and eliminating the mispositioned expanded state.
+- Bug fix: The Galaxy Viewer expanded controls panel was resized in the scene to fit the explicit movement text while keeping the compact collapsed corner behavior handled by the toggle script.
+- Test: `dotnet build StarGen.sln` passed, and the headless harness passed (`1837 / 1837`) before Godot emitted its known shutdown leak warnings.
+
+## 0.8.18.14
+
+- Bug fix: System Viewer and Object Viewer `Controls` now use the same scene-owned expanded panel layout pattern as Galaxy Viewer, restoring the editor-authored open rectangle directly from their `.tscn` scenes instead of recalculating expanded geometry in script.
+- Bug fix: System Viewer and Object Viewer control text is now explicit and accurate to the real inputs, including system-view middle-drag orbit plus view-angle toggle, and object-view moon selection plus primary-body focus wording.
+- Test: `dotnet build StarGen.sln` passed, and the headless harness passed (`1837 / 1837`) before Godot emitted its known shutdown leak warnings.
+
+## 0.8.18.15
+
+- Test: Added a dedicated `TestSolarSystemRealization` suite that searches the real top-level `SystemFixtureGenerator.GenerateSystem(...)` path for a Solar-reference scaffold instead of relying on the older manually assembled reference-chain test.
+- Test: Split the Solar realization coverage into its own native suite manifest and dedicated headless entrypoint so it can be run in isolation without invoking the rest of the headless harness.
+- Test: `dotnet build StarGen.sln` passed. The dedicated Solar realization suite was not run yet because the user explicitly asked not to run the other harnesses until further instruction.
+
+## 0.8.18.10
+
+- Bug fix: Galaxy, System, and Object viewer `Controls` panels now reopen from the correct bottom-right anchor on every click without reusing the stale first-open geometry, so the panel no longer jumps into the wrong place after the initial expand.
+- Bug fix: Object Viewer side-panel `File Operations` stays hidden again on the `0.9d` line, matching the current restriction that export and save flows remain disabled in this release channel.
+- Test: `dotnet build StarGen.sln` passed, and the headless harness passed (`1837 / 1837`) before Godot emitted its known shutdown leak warnings.
+
+## 0.8.18.9
+
+- Bug fix: Galaxy, System, and Object viewer `Controls` panels now expand from a wider scene-owned help block with shorter scene-owned copy, so the opened panel no longer turns into the narrow, over-tall instruction slab shown in the viewer screenshots.
+- Bug fix: The active `ObjectViewer.tscn` now visibly owns the file block, inspector navigation button, edit button, and inspector section shells directly in the editor, while the inspector script only clears editor placeholders, toggles section visibility, and fills dynamic moon buttons and property rows at runtime.
+- Docs: Updated `Docs/ViewerSceneOwnershipAudit.md` to reflect the Object Viewer inspector-shell migration and narrow the remaining engine-first gap to truly data-driven rows plus file-status glue.
+- Test: `dotnet build StarGen.sln` passed, and the headless harness passed (`1837 / 1837`) before Godot emitted its known shutdown leak warnings.
 
 ## 0.8.18.8
 
@@ -258,12 +352,13 @@ Versioning method: release/refactor `+0.1`, feature `+0.0.1`, bug fix `+0.0.0.1`
 - Feature: Checkpointed the current mainline branch state around the `0.8.1.0` feature update so the ongoing branch split, scene-first UI migration, version-channel plumbing, and mainline scope reductions are preserved in git while the user-facing release line remains `0.9d`.
 - Feature: Pushed the shipped UI further toward `.tscn` ownership by moving inspector/editor shells, reusable rows, validation labels, and fixed defaults/tooltips into scene resources and shared UI templates.
 
-## 0.9.0.0
+## 0.9.0.0 (Reserved Release Target)
 
-- Release: Cut the `0.9` mainline release branch around generation-and-view workflows only, with branch-aware user-facing version composition now resolving to `0.9.0.0d` on mainline and `0.9.0.0e` on the export branch.
-- Release: Removed shipped Concept Atlas entry points and concept-summary runtime surfaces from the mainline app flow; concept-heavy systems remain parked in-repo for later migration, while `Concepts/Additions.md` stays the StarGen-only prototype backlog.
-- Release: Removed mainline load/save/export entry points from studios, viewers, and the object edit dialog so the public `0.9` line no longer exposes persistence behavior.
-- Test: Rewrote the mainline harness around deterministic generation, realism, provenance, and non-UI integration coverage; UI-focused tests, concept harness registration, and mainline persistence/save-load suites were discarded from the `0.9` branch.
+- Release target: Reserve the first approved `0.9` mainline release for the generation-and-view workflow only, with branch-aware user-facing version composition resolving to `0.9.0.0d` on mainline and `0.9.0.0e` on the export branch.
+- Release target: Keep Concept Atlas entry points and other concept-summary runtime surfaces out of the approved `0.9` mainline app flow; concept-heavy systems remain parked in-repo for later migration, while `Concepts/Additions.md` stays the StarGen-only prototype backlog.
+- Release target: Keep mainline load/save/export entry points removed from studios, viewers, and the object edit dialog so the eventual public `0.9` line does not expose persistence behavior.
+- Release target: Keep the rewritten mainline harness focused on deterministic generation, realism, provenance, and non-UI integration coverage, without reviving concept-harness registration or mainline persistence/save-load suites.
+- Release target: Keep the obsolete app-facing Concept Atlas runtime files, old jump-lane and station prototype scenes/scripts, unreferenced legacy viewer/body-node scene variants, and the stale duplicate `Concepts/` audio asset out of the approved `0.9` release line.
 
 ## 0.8.0.0
 

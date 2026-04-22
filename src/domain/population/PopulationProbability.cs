@@ -86,6 +86,9 @@ public static class PopulationProbability
             probability += Lerp(0.01, TidalHeatingBonus + 0.04, permissiveness);
         }
 
+        probability += assessment.SurfaceBiosphereChance * Lerp(0.02, 0.08, permissiveness);
+        probability += assessment.ProtectedBiosphereChance * Lerp(0.00, 0.03, permissiveness);
+
         probability *= compatibilityProfile.NativeLifeProbabilityMultiplier;
         return System.Math.Clamp(probability, 0.0, MaxNativeProbability);
     }
@@ -258,7 +261,7 @@ public static class PopulationProbability
 
         if (!settings.HasLifePermissivenessOverride())
         {
-            return GenerationUseCaseSettings.GetRecommendedLifePermissiveness(settings.LifePotentialModel);
+            return GenerationUseCaseSettings.GetRecommendedLifePermissiveness(settings.LifeFramework);
         }
 
         return ClampPermissiveness(settings.LifePermissiveness);

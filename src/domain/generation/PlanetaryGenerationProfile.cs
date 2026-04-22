@@ -24,6 +24,16 @@ public enum PlanetEnvelopeLossModel
 }
 
 /// <summary>
+/// Supported circumstellar habitable-zone model families.
+/// </summary>
+public enum PlanetHabitableZoneModel
+{
+    Kasting1993Conservative = 0,
+    Kopparapu2013Conservative = 1,
+    Kopparapu2013Optimistic = 2,
+}
+
+/// <summary>
 /// Supported gas-giant formation emphases.
 /// </summary>
 public enum GasGiantFormationModel
@@ -87,6 +97,11 @@ public partial class PlanetaryGenerationProfile : RefCounted
     /// Envelope-loss family used for close-in volatile-rich worlds.
     /// </summary>
     public PlanetEnvelopeLossModel EnvelopeLossModel { get; set; } = PlanetEnvelopeLossModel.Auto;
+
+    /// <summary>
+    /// Circumstellar habitable-zone model family used for orbit weighting and profile context.
+    /// </summary>
+    public PlanetHabitableZoneModel HabitableZoneModel { get; set; } = PlanetHabitableZoneModel.Kopparapu2013Conservative;
 
     /// <summary>
     /// Gas-giant formation emphasis used for aggregate weighting.
@@ -165,6 +180,7 @@ public partial class PlanetaryGenerationProfile : RefCounted
         {
             MassRadiusModel = MassRadiusModel,
             EnvelopeLossModel = EnvelopeLossModel,
+            HabitableZoneModel = HabitableZoneModel,
             GasGiantFormationModel = GasGiantFormationModel,
             MetallicityCouplingStrength = MetallicityCouplingStrength,
             MoonFormationBias = MoonFormationBias,
@@ -191,6 +207,11 @@ public partial class PlanetaryGenerationProfile : RefCounted
         }
 
         if (!System.Enum.IsDefined(typeof(PlanetEnvelopeLossModel), (int)EnvelopeLossModel))
+        {
+            return false;
+        }
+
+        if (!System.Enum.IsDefined(typeof(PlanetHabitableZoneModel), (int)HabitableZoneModel))
         {
             return false;
         }
@@ -267,6 +288,7 @@ public partial class PlanetaryGenerationProfile : RefCounted
         {
             ["mass_radius_model"] = (int)MassRadiusModel,
             ["envelope_loss_model"] = (int)EnvelopeLossModel,
+            ["habitable_zone_model"] = (int)HabitableZoneModel,
             ["gas_giant_formation_model"] = (int)GasGiantFormationModel,
             ["metallicity_coupling_strength"] = (int)MetallicityCouplingStrength,
             ["moon_formation_bias"] = (int)MoonFormationBias,
@@ -304,6 +326,12 @@ public partial class PlanetaryGenerationProfile : RefCounted
         if (System.Enum.IsDefined(typeof(PlanetEnvelopeLossModel), envelopeLossValue))
         {
             profile.EnvelopeLossModel = (PlanetEnvelopeLossModel)envelopeLossValue;
+        }
+
+        int habitableZoneValue = DomainDictionaryUtils.GetInt(data, "habitable_zone_model", (int)PlanetHabitableZoneModel.Kopparapu2013Conservative);
+        if (System.Enum.IsDefined(typeof(PlanetHabitableZoneModel), habitableZoneValue))
+        {
+            profile.HabitableZoneModel = (PlanetHabitableZoneModel)habitableZoneValue;
         }
 
         int gasGiantValue = DomainDictionaryUtils.GetInt(data, "gas_giant_formation_model", (int)GasGiantFormationModel.Mixed);

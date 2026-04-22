@@ -599,7 +599,8 @@ public static class SystemMoonGenerator
             planetOrbitalDistanceM,
             planet.Physical.MassKg,
             planet.Physical.RadiusM,
-            moonDistance);
+            moonDistance,
+            planetaryState.Profile.HabitableZoneModel);
 
         SeededRng moonRng = new(moonSeed);
         CelestialBody? moon = MoonGenerator.Generate(spec, context, moonRng, enablePopulation, planet);

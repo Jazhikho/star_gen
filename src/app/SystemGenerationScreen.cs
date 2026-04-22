@@ -318,6 +318,7 @@ public partial class SystemGenerationScreen : Control
 			lines.Add(BuildPlanetaryProfileSummary(BuildPlanetaryProfileFromControls()));
 			lines.Add($"Belts {(spec.IncludeAsteroidBelts ? "On" : "Off")}");
 			lines.Add($"Ruleset {GenerationUseCasePresentation.GetRulesetLabel(spec.UseCaseSettings.RulesetMode)}");
+			lines.Add($"Readout UWP Code {(spec.UseCaseSettings.ShowTravellerReadouts ? "On" : "Off")}");
 			lines.Add($"Life Framework {LifeScienceReferenceCatalog.GetFrameworkLabel(spec.UseCaseSettings.LifeFramework)}");
 			lines.Add($"Abiogenesis {LifeScienceReferenceCatalog.GetAbiogenesisLabel(spec.UseCaseSettings.AbiogenesisModel)} | Complex Life {LifeScienceReferenceCatalog.GetComplexLifeLabel(spec.UseCaseSettings.ComplexLifeModel)}");
 			lines.Add($"Civilization {LifeScienceReferenceCatalog.GetCivilizationLabel(spec.UseCaseSettings.CivilizationModel)} | Window Weight {LifeScienceReferenceCatalog.GetEnvironmentalWindowWeightLabel(spec.UseCaseSettings.EnvironmentalWindowWeight)}");
@@ -506,6 +507,22 @@ public partial class SystemGenerationScreen : Control
 			_forceLifeOnSupportableWorldsCheck.TooltipText = "Generation override, not a scientific model.\nWhen enabled, supportable worlds keep native life instead of losing it to the later life-roll.\nWorlds that fail the biology support gate still stay lifeless.";
 		}
 
+		if (_showTravellerReadoutsCheck != null)
+		{
+			_showTravellerReadoutsCheck.TooltipText = "Presentation control, not a generation parameter.\nShows Universal World Profile code when the current flow has enough information to derive one.\nThis changes the viewer readout, not the generated system.";
+		}
+
+		if (_includeBeltsCheck != null)
+		{
+			_includeBeltsCheck.TooltipText = "Runtime control, not a scientific prior.\nThis only decides whether the asteroid-belt generator stage runs.\nIt does not reinterpret the underlying stellar or planetary science models.";
+		}
+
+		GenerationParameterDefinition? rulesetDefinition = GenerationParameterCatalog.FindSystemDefinition("ruleset_mode");
+		if (_rulesetModeOption != null && rulesetDefinition != null)
+		{
+			_rulesetModeOption.TooltipText = rulesetDefinition.AssumptionText;
+		}
+
 		if (_mainworldPolicyOption != null)
 		{
 			_mainworldPolicyOption.TooltipText = "This tells Space Opera generation whether it should ignore, prefer, or require a strong mainworld candidate.\nRequire pushes harder for one clearly playable focal world.";
@@ -625,15 +642,7 @@ public partial class SystemGenerationScreen : Control
 
 	private string GetAssumptionText(string parameterId)
 	{
-		foreach (GenerationParameterDefinition definition in GenerationParameterCatalog.GetSystemDefinitions())
-		{
-			if (definition.Id == parameterId)
-			{
-				return definition.AssumptionText;
-			}
-		}
-
-		return string.Empty;
+		return GenerationParameterCatalog.FindSystemDefinition(parameterId)?.AssumptionText ?? string.Empty;
 	}
 
 	private static Array<int> ParseSpectralHints(string text)

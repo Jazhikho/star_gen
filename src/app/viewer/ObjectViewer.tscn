@@ -1,10 +1,11 @@
-[gd_scene load_steps=9 format=3 uid="uid://65m6mp4m0yee"]
+[gd_scene load_steps=10 format=3 uid="uid://65m6mp4m0yee"]
 
 [ext_resource type="Script" path="res://src/app/viewer/ObjectViewer.cs" id="1"]
 [ext_resource type="Script" path="res://src/app/viewer/CameraController.cs" id="2"]
 [ext_resource type="Script" path="res://src/app/viewer/InspectorPanel.cs" id="3"]
 [ext_resource type="PackedScene" path="res://src/app/rendering/BodyRenderer.tscn" id="4"]
 [ext_resource type="Theme" path="res://src/app/themes/DarkTheme.tres" id="5"]
+[ext_resource type="PackedScene" path="res://src/app/components/UiSection.tscn" id="6"]
 
 [sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_1"]
 sky_top_color = Color(0.05, 0.05, 0.1, 1)
@@ -221,6 +222,155 @@ layout_mode = 2
 size_flags_horizontal = 3
 theme_override_constants/separation = 5
 
+[node name="InfoLabel" type="Label" parent="UI/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/InspectorPanel/InspectorContainer"]
+visible = false
+layout_mode = 2
+theme_override_colors/font_color = Color(0.8, 0.8, 0.8, 1)
+theme_override_font_sizes/font_size = 12
+autowrap_mode = 2
+text = "No object loaded"
+
+[node name="BackToBodyButton" type="Button" parent="UI/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/InspectorPanel/InspectorContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Back to Planet"
+
+[node name="MoonSection" parent="UI/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/InspectorPanel/InspectorContainer" instance=ExtResource("6")]
+layout_mode = 2
+
+[node name="TitleLabel" parent="UI/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/InspectorPanel/InspectorContainer/MoonSection"]
+layout_mode = 1
+text = "Moons"
+
+[node name="PlaceholderLabel" type="Label" parent="UI/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/InspectorPanel/InspectorContainer/MoonSection/Content"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.7, 0.7, 0.7, 1)
+theme_override_font_sizes/font_size = 12
+text = "Moon buttons populate here at runtime."
+
+[node name="BodySection" parent="UI/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/InspectorPanel/InspectorContainer" instance=ExtResource("6")]
+layout_mode = 2
+
+[node name="TitleLabel" parent="UI/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/InspectorPanel/InspectorContainer/BodySection"]
+layout_mode = 1
+text = "Body"
+
+[node name="PlaceholderLabel" type="Label" parent="UI/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/InspectorPanel/InspectorContainer/BodySection/Content"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.7, 0.7, 0.7, 1)
+theme_override_font_sizes/font_size = 12
+text = "Primary body summary rows populate here."
+
+[node name="ParentSection" parent="UI/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/InspectorPanel/InspectorContainer" instance=ExtResource("6")]
+layout_mode = 2
+
+[node name="TitleLabel" parent="UI/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/InspectorPanel/InspectorContainer/ParentSection"]
+layout_mode = 1
+text = "Parent"
+
+[node name="PlaceholderLabel" type="Label" parent="UI/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/InspectorPanel/InspectorContainer/ParentSection/Content"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.7, 0.7, 0.7, 1)
+theme_override_font_sizes/font_size = 12
+text = "Parent-body rows populate here when a moon is focused."
+
+[node name="OrbitSection" parent="UI/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/InspectorPanel/InspectorContainer" instance=ExtResource("6")]
+layout_mode = 2
+
+[node name="TitleLabel" parent="UI/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/InspectorPanel/InspectorContainer/OrbitSection"]
+layout_mode = 1
+text = "Orbit"
+
+[node name="PlaceholderLabel" type="Label" parent="UI/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/InspectorPanel/InspectorContainer/OrbitSection/Content"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.7, 0.7, 0.7, 1)
+theme_override_font_sizes/font_size = 12
+text = "Orbital rows populate here."
+
+[node name="SurfaceSection" parent="UI/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/InspectorPanel/InspectorContainer" instance=ExtResource("6")]
+layout_mode = 2
+
+[node name="TitleLabel" parent="UI/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/InspectorPanel/InspectorContainer/SurfaceSection"]
+layout_mode = 1
+text = "Surface"
+
+[node name="PlaceholderLabel" type="Label" parent="UI/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/InspectorPanel/InspectorContainer/SurfaceSection/Content"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.7, 0.7, 0.7, 1)
+theme_override_font_sizes/font_size = 12
+text = "Surface rows populate here."
+
+[node name="AtmosphereSection" parent="UI/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/InspectorPanel/InspectorContainer" instance=ExtResource("6")]
+layout_mode = 2
+
+[node name="TitleLabel" parent="UI/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/InspectorPanel/InspectorContainer/AtmosphereSection"]
+layout_mode = 1
+text = "Atmosphere"
+
+[node name="PlaceholderLabel" type="Label" parent="UI/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/InspectorPanel/InspectorContainer/AtmosphereSection/Content"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.7, 0.7, 0.7, 1)
+theme_override_font_sizes/font_size = 12
+text = "Atmosphere rows populate here."
+
+[node name="RingsSection" parent="UI/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/InspectorPanel/InspectorContainer" instance=ExtResource("6")]
+layout_mode = 2
+
+[node name="TitleLabel" parent="UI/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/InspectorPanel/InspectorContainer/RingsSection"]
+layout_mode = 1
+text = "Rings"
+
+[node name="PlaceholderLabel" type="Label" parent="UI/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/InspectorPanel/InspectorContainer/RingsSection/Content"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.7, 0.7, 0.7, 1)
+theme_override_font_sizes/font_size = 12
+text = "Ring-system rows populate here."
+
+[node name="TravellerSection" parent="UI/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/InspectorPanel/InspectorContainer" instance=ExtResource("6")]
+layout_mode = 2
+
+[node name="TitleLabel" parent="UI/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/InspectorPanel/InspectorContainer/TravellerSection"]
+layout_mode = 1
+text = "Traveller"
+
+[node name="PlaceholderLabel" type="Label" parent="UI/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/InspectorPanel/InspectorContainer/TravellerSection/Content"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.7, 0.7, 0.7, 1)
+theme_override_font_sizes/font_size = 12
+text = "Traveller readouts populate here when enabled."
+
+[node name="PopulationSection" parent="UI/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/InspectorPanel/InspectorContainer" instance=ExtResource("6")]
+layout_mode = 2
+
+[node name="TitleLabel" parent="UI/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/InspectorPanel/InspectorContainer/PopulationSection"]
+layout_mode = 1
+text = "Population"
+
+[node name="PlaceholderLabel" type="Label" parent="UI/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/InspectorPanel/InspectorContainer/PopulationSection/Content"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.7, 0.7, 0.7, 1)
+theme_override_font_sizes/font_size = 12
+text = "Population rows populate here when present."
+
+[node name="ValidationSection" parent="UI/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/InspectorPanel/InspectorContainer" instance=ExtResource("6")]
+layout_mode = 2
+
+[node name="TitleLabel" parent="UI/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/InspectorPanel/InspectorContainer/ValidationSection"]
+layout_mode = 1
+text = "Validation"
+
+[node name="PlaceholderLabel" type="Label" parent="UI/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/InspectorPanel/InspectorContainer/ValidationSection/Content"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.7, 0.7, 0.7, 1)
+theme_override_font_sizes/font_size = 12
+text = "Validation rows populate here."
+
+[node name="EditButton" type="Button" parent="UI/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/InspectorPanel/InspectorContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+tooltip_text = "Edit and regenerate this body using validated parameters"
+text = "Open Parameter Editor"
+
 [node name="HSeparator2" type="HSeparator" parent="UI/SidePanel/MarginContainer/ScrollContainer/VBoxContainer"]
 layout_mode = 2
 
@@ -257,10 +407,10 @@ anchor_left = 1.0
 anchor_top = 1.0
 anchor_right = 1.0
 anchor_bottom = 1.0
-offset_left = -222.0
-offset_top = -108.0
-offset_right = -12.0
-offset_bottom = -12.0
+offset_left = -280.0
+offset_top = -160.0
+offset_right = -16.0
+offset_bottom = -16.0
 
 [node name="CameraPanelVBox" type="VBoxContainer" parent="UI/CameraPanel"]
 layout_mode = 2
@@ -268,6 +418,7 @@ theme_override_constants/separation = 8
 
 [node name="CameraPanelContent" type="MarginContainer" parent="UI/CameraPanel/CameraPanelVBox"]
 visible = false
+custom_minimum_size = Vector2(236, 0)
 layout_mode = 2
 theme_override_constants/margin_left = 10
 theme_override_constants/margin_top = 0
@@ -279,7 +430,7 @@ layout_mode = 2
 theme_override_font_sizes/font_size = 11
 modulate = Color(0.84, 0.86, 0.92, 1)
 autowrap_mode = 2
-text = "Left Mouse: Orbit\nRight Mouse: Pan\nScroll: Zoom\nF: Focus primary body"
+text = "Left Drag: Orbit view\nRight Drag: Pan view\nWheel: Zoom\nLeft Click: Select moon\nF: Focus primary body"
 
 [node name="CameraPanelHeaderButton" type="Button" parent="UI/CameraPanel/CameraPanelVBox"]
 layout_mode = 2

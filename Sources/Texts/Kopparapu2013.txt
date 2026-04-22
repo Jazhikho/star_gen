@@ -1,0 +1,21 @@
+Source note for StarGen research review
+
+Citation:
+Kopparapu, R. K., Ramirez, R., Kasting, J. F., Eymet, V., Robinson, T. D., Mahadevan, S., Terrien, R. C., Domagal-Goldman, S., Meadows, V., & Deshpande, R. (2013).
+Habitable zones around main-sequence stars: New estimates.
+The Astrophysical Journal, 765(2), 131.
+arXiv: https://arxiv.org/abs/1301.6674
+DOI: https://doi.org/10.1088/0004-637X/765/2/131
+
+What was reviewed:
+- Abstract and source metadata on 2026-04-22.
+- Existing StarGen documentation already cited this paper for the updated cloud-free main-sequence habitable-zone limits.
+
+Key implementation notes used in StarGen:
+- The paper updates the classical habitable-zone limits with improved H2O and CO2 absorption data.
+- The conservative cloud-free solar anchors move to about 0.99 AU and 1.70 AU.
+- The paper also supports using broader empirical Recent Venus and Early Mars bounds as an optimistic habitable-zone framing.
+
+How StarGen uses this:
+- As the academic basis for the `Kopparapu2013Conservative` and `Kopparapu2013Optimistic` habitable-zone model options.
+- As the default circumstellar habitable-zone family used by new system and galaxy generation profiles.

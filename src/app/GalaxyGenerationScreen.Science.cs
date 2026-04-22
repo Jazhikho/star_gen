@@ -40,6 +40,7 @@ public partial class GalaxyGenerationScreen
     private Label? _stellarMultiplicityScaleValue;
     private OptionButton? _planetMassRadiusModelOption;
     private OptionButton? _planetEnvelopeLossModelOption;
+    private OptionButton? _planetHabitableZoneModelOption;
     private OptionButton? _planetGasGiantFormationModelOption;
     private OptionButton? _planetMetallicityCouplingOption;
     private OptionButton? _planetRogueAllowanceOption;
@@ -87,6 +88,7 @@ public partial class GalaxyGenerationScreen
         _stellarMultiplicityScaleValue = GetNodeOrNull<Label>($"{ParameterRootPath}/StellarSection/StellarContent/StellarVBox/MultiplicityRow/MultiplicityValue");
         _planetMassRadiusModelOption = GetNodeOrNull<OptionButton>($"{ParameterRootPath}/PlanetarySection/PlanetaryContent/PlanetaryVBox/MassRadiusRow/MassRadiusOption");
         _planetEnvelopeLossModelOption = GetNodeOrNull<OptionButton>($"{ParameterRootPath}/PlanetarySection/PlanetaryContent/PlanetaryVBox/EnvelopeLossRow/EnvelopeLossOption");
+        _planetHabitableZoneModelOption = GetNodeOrNull<OptionButton>($"{ParameterRootPath}/PlanetarySection/PlanetaryContent/PlanetaryVBox/HabitableZoneRow/HabitableZoneOption");
         _planetGasGiantFormationModelOption = GetNodeOrNull<OptionButton>($"{ParameterRootPath}/PlanetarySection/PlanetaryContent/PlanetaryVBox/GasGiantFormationRow/GasGiantFormationOption");
         _planetMetallicityCouplingOption = GetNodeOrNull<OptionButton>($"{ParameterRootPath}/PlanetarySection/PlanetaryContent/PlanetaryVBox/MetallicityCouplingRow/MetallicityCouplingOption");
         _planetRogueAllowanceOption = GetNodeOrNull<OptionButton>($"{ParameterRootPath}/PlanetarySection/PlanetaryContent/PlanetaryVBox/RogueAllowanceRow/RogueAllowanceOption");
@@ -115,6 +117,7 @@ public partial class GalaxyGenerationScreen
         if (_stellarIsochroneModelOption != null) _stellarIsochroneModelOption.ItemSelected += _ => OnScienceControlChanged();
         if (_planetMassRadiusModelOption != null) _planetMassRadiusModelOption.ItemSelected += _ => OnScienceControlChanged();
         if (_planetEnvelopeLossModelOption != null) _planetEnvelopeLossModelOption.ItemSelected += _ => OnScienceControlChanged();
+        if (_planetHabitableZoneModelOption != null) _planetHabitableZoneModelOption.ItemSelected += _ => OnScienceControlChanged();
         if (_planetGasGiantFormationModelOption != null) _planetGasGiantFormationModelOption.ItemSelected += _ => OnScienceControlChanged();
         if (_planetMetallicityCouplingOption != null) _planetMetallicityCouplingOption.ItemSelected += _ => OnScienceControlChanged();
         if (_planetRogueAllowanceOption != null) _planetRogueAllowanceOption.ItemSelected += _ => OnScienceControlChanged();
@@ -167,6 +170,7 @@ public partial class GalaxyGenerationScreen
         ApplyTooltip("stellar_multiplicity_scale", _stellarMultiplicityScaleSlider, $"{ParameterRootPath}/StellarSection/StellarContent/StellarVBox/MultiplicityRow/MultiplicityLabel");
         ApplyTooltip("planet_mass_radius_model", _planetMassRadiusModelOption, $"{ParameterRootPath}/PlanetarySection/PlanetaryContent/PlanetaryVBox/MassRadiusRow/MassRadiusLabel");
         ApplyTooltip("planet_envelope_loss_model", _planetEnvelopeLossModelOption, $"{ParameterRootPath}/PlanetarySection/PlanetaryContent/PlanetaryVBox/EnvelopeLossRow/EnvelopeLossLabel");
+        ApplyTooltip("planet_habitable_zone_model", _planetHabitableZoneModelOption, $"{ParameterRootPath}/PlanetarySection/PlanetaryContent/PlanetaryVBox/HabitableZoneRow/HabitableZoneLabel");
         ApplyTooltip("planet_gas_giant_formation_model", _planetGasGiantFormationModelOption, $"{ParameterRootPath}/PlanetarySection/PlanetaryContent/PlanetaryVBox/GasGiantFormationRow/GasGiantFormationLabel");
         ApplyTooltip("planet_metallicity_coupling_strength", _planetMetallicityCouplingOption, $"{ParameterRootPath}/PlanetarySection/PlanetaryContent/PlanetaryVBox/MetallicityCouplingRow/MetallicityCouplingLabel");
         ApplyTooltip("planet_rogue_planet_allowance", _planetRogueAllowanceOption, $"{ParameterRootPath}/PlanetarySection/PlanetaryContent/PlanetaryVBox/RogueAllowanceRow/RogueAllowanceLabel");
@@ -494,6 +498,11 @@ public partial class GalaxyGenerationScreen
             profile.EnvelopeLossModel = (PlanetEnvelopeLossModel)_planetEnvelopeLossModelOption.GetSelectedId();
         }
 
+        if (_planetHabitableZoneModelOption != null)
+        {
+            profile.HabitableZoneModel = (PlanetHabitableZoneModel)_planetHabitableZoneModelOption.GetSelectedId();
+        }
+
         if (_planetGasGiantFormationModelOption != null)
         {
             profile.GasGiantFormationModel = (GasGiantFormationModel)_planetGasGiantFormationModelOption.GetSelectedId();
@@ -526,6 +535,7 @@ public partial class GalaxyGenerationScreen
     {
         SetOptionSelection(_planetMassRadiusModelOption, (int)profile.MassRadiusModel);
         SetOptionSelection(_planetEnvelopeLossModelOption, (int)profile.EnvelopeLossModel);
+        SetOptionSelection(_planetHabitableZoneModelOption, (int)profile.HabitableZoneModel);
         SetOptionSelection(_planetGasGiantFormationModelOption, (int)profile.GasGiantFormationModel);
         SetOptionSelection(_planetMetallicityCouplingOption, (int)profile.MetallicityCouplingStrength);
         SetOptionSelection(_planetRogueAllowanceOption, (int)profile.RoguePlanetAllowance);
@@ -535,7 +545,7 @@ public partial class GalaxyGenerationScreen
 
     private static string BuildPlanetaryProfileSummary(PlanetaryGenerationProfile profile)
     {
-        return $"Planet model: Size {profile.MassRadiusModel} | Loss {profile.EnvelopeLossModel} | Giants {profile.GasGiantFormationModel} | Metallicity {profile.MetallicityCouplingStrength} | Rogue {profile.RoguePlanetAllowance} | Moons {profile.MoonFormationBias}";
+        return $"Planet model: Size {profile.MassRadiusModel} | Loss {profile.EnvelopeLossModel} | HZ {profile.HabitableZoneModel} | Giants {profile.GasGiantFormationModel} | Metallicity {profile.MetallicityCouplingStrength} | Rogue {profile.RoguePlanetAllowance} | Moons {profile.MoonFormationBias}";
     }
 
     private static void SetOptionSelection(OptionButton? optionButton, int itemId)
@@ -644,6 +654,7 @@ public partial class GalaxyGenerationScreen
                 {
                     "planet_mass_radius_model",
                     "planet_envelope_loss_model",
+                    "planet_habitable_zone_model",
                     "planet_gas_giant_formation_model",
                     "planet_metallicity_coupling_strength",
                     "planet_rogue_planet_allowance",

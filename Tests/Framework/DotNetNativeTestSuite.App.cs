@@ -294,9 +294,11 @@ public static partial class DotNetNativeTestSuite
             Control? cameraPanel = viewer.GetNodeOrNull<Control>("UI/UIRoot/CameraPanel");
             Button? cameraHeaderButton = viewer.GetNodeOrNull<Button>("UI/UIRoot/CameraPanel/CameraPanelVBox/CameraPanelHeaderButton");
             Control? cameraPanelContent = viewer.GetNodeOrNull<Control>("UI/UIRoot/CameraPanel/CameraPanelVBox/CameraPanelContent");
+            Label? cameraHelpLabel = viewer.GetNodeOrNull<Label>("UI/UIRoot/CameraPanel/CameraPanelVBox/CameraPanelContent/CameraHelpLabel");
             AssertNotNull(cameraPanel, "galaxy viewer should expose the compact camera panel");
             AssertNotNull(cameraHeaderButton, "galaxy viewer camera panel should expose the collapse toggle");
             AssertNotNull(cameraPanelContent, "galaxy viewer camera panel should expose collapsible content");
+            AssertNotNull(cameraHelpLabel, "galaxy viewer camera panel should expose a help label");
             AssertEqual("> Controls", cameraHeaderButton!.Text, "galaxy viewer camera panel should start collapsed");
             AssertFalse(cameraPanelContent!.Visible, "galaxy viewer camera panel should start collapsed");
             AssertEqual("CameraPanelContent", ((Node)cameraHeaderButton.GetParent()).GetChild(0).Name, "galaxy viewer camera panel content should sit above the header toggle");
@@ -306,8 +308,16 @@ public static partial class DotNetNativeTestSuite
             cameraHeaderButton.EmitSignal(BaseButton.SignalName.Pressed);
             AssertEqual("^ Controls", cameraHeaderButton.Text, "galaxy viewer controls box should use the expanded caret label");
             AssertTrue(cameraPanelContent.Visible, "galaxy viewer controls content should appear when expanded");
+            AssertEqual("Wheel: Change move speed\nRight Drag: Look around\nW / S: Move forward / backward\nA / D: Move left / right\nE / C: Move up / down\nLeft Click: Select star", cameraHelpLabel!.Text, "galaxy viewer controls text should match the active subsector camera mode");
+            float expandedGalaxyWidth = cameraPanel.OffsetRight - cameraPanel.OffsetLeft;
             float expandedGalaxyHeight = cameraPanel.OffsetBottom - cameraPanel.OffsetTop;
             AssertTrue(expandedGalaxyHeight > collapsedGalaxyHeight, "galaxy viewer controls box should grow taller when expanded");
+            cameraHeaderButton.EmitSignal(BaseButton.SignalName.Pressed);
+            cameraHeaderButton.EmitSignal(BaseButton.SignalName.Pressed);
+            float reopenedGalaxyWidth = cameraPanel.OffsetRight - cameraPanel.OffsetLeft;
+            float reopenedGalaxyHeight = cameraPanel.OffsetBottom - cameraPanel.OffsetTop;
+            AssertFloatNear(expandedGalaxyWidth, reopenedGalaxyWidth, 0.01, "galaxy viewer controls box should reopen to the same width on the first and second expansion");
+            AssertFloatNear(expandedGalaxyHeight, reopenedGalaxyHeight, 0.01, "galaxy viewer controls box should reopen to the same height on the first and second expansion");
 
             bool builtLocalSpace = viewer.BuildLocalSpaceSynchronouslyForTesting(new Vector3I(1, 1, 1));
             AssertTrue(builtLocalSpace, "galaxy viewer should be able to build a local-space cache in subsector view");
@@ -483,6 +493,7 @@ public static partial class DotNetNativeTestSuite
             Control? cameraPanel = viewer.GetNodeOrNull<Control>("UI/CameraPanel");
             Button? cameraHeaderButton = viewer.GetNodeOrNull<Button>("UI/CameraPanel/CameraPanelVBox/CameraPanelHeaderButton");
             Control? cameraPanelContent = viewer.GetNodeOrNull<Control>("UI/CameraPanel/CameraPanelVBox/CameraPanelContent");
+            Label? cameraHelpLabel = viewer.GetNodeOrNull<Label>("UI/CameraPanel/CameraPanelVBox/CameraPanelContent/CameraHelpLabel");
 
             AssertNotNull(optionsDialog, "system viewer should expose an options dialog");
             AssertNotNull(showSeedsCheck, "system viewer options should expose the all-studio-seeds toggle");
@@ -493,6 +504,7 @@ public static partial class DotNetNativeTestSuite
             AssertNotNull(cameraPanel, "system viewer should expose the compact camera panel");
             AssertNotNull(cameraHeaderButton, "system viewer camera panel should expose a collapse toggle");
             AssertNotNull(cameraPanelContent, "system viewer camera panel should expose collapsible content");
+            AssertNotNull(cameraHelpLabel, "system viewer camera panel should expose a help label");
             AssertEqual("> Controls", cameraHeaderButton!.Text, "system viewer camera panel should start collapsed");
             AssertFalse(cameraPanelContent!.Visible, "system viewer camera panel should start collapsed");
             AssertEqual("CameraPanelContent", ((Node)cameraHeaderButton.GetParent()).GetChild(0).Name, "system viewer camera panel content should sit above the header toggle");
@@ -502,8 +514,16 @@ public static partial class DotNetNativeTestSuite
             cameraHeaderButton.EmitSignal(BaseButton.SignalName.Pressed);
             AssertEqual("^ Controls", cameraHeaderButton.Text, "system viewer controls box should use the expanded caret label");
             AssertTrue(cameraPanelContent.Visible, "system viewer controls content should appear when expanded");
+            AssertEqual("Left Drag: Orbit view\nMiddle Drag: Orbit view\nRight Drag: Pan view\nWheel: Zoom\nLeft Click: Select body or belt\nF: Focus origin\nT: Toggle view angle", cameraHelpLabel!.Text, "system viewer controls text should match the active camera behavior");
+            float expandedSystemWidth = cameraPanel.OffsetRight - cameraPanel.OffsetLeft;
             float expandedSystemHeight = cameraPanel.OffsetBottom - cameraPanel.OffsetTop;
             AssertTrue(expandedSystemHeight > collapsedSystemHeight, "system viewer controls box should grow taller when expanded");
+            cameraHeaderButton.EmitSignal(BaseButton.SignalName.Pressed);
+            cameraHeaderButton.EmitSignal(BaseButton.SignalName.Pressed);
+            float reopenedSystemWidth = cameraPanel.OffsetRight - cameraPanel.OffsetLeft;
+            float reopenedSystemHeight = cameraPanel.OffsetBottom - cameraPanel.OffsetTop;
+            AssertFloatNear(expandedSystemWidth, reopenedSystemWidth, 0.01, "system viewer controls box should reopen to the same width on the first and second expansion");
+            AssertFloatNear(expandedSystemHeight, reopenedSystemHeight, 0.01, "system viewer controls box should reopen to the same height on the first and second expansion");
 
             optionsButton!.EmitSignal(BaseButton.SignalName.Pressed);
             AssertTrue(optionsDialog!.Visible, "system viewer options should open from the options action");
@@ -553,6 +573,9 @@ public static partial class DotNetNativeTestSuite
 
             Node? generationSection = viewer.GetNodeOrNull<Node>("UI/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/GenerationSection");
             VBoxContainer? sidePanelVBox = viewer.GetNodeOrNull<VBoxContainer>("UI/SidePanel/MarginContainer/ScrollContainer/VBoxContainer");
+            VBoxContainer? inspectorContainer = viewer.GetNodeOrNull<VBoxContainer>("UI/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/InspectorPanel/InspectorContainer");
+            Control? bodySection = viewer.GetNodeOrNull<Control>("UI/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/InspectorPanel/InspectorContainer/BodySection");
+            Control? travellerSection = viewer.GetNodeOrNull<Control>("UI/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/InspectorPanel/InspectorContainer/TravellerSection");
             Window? optionsDialog = viewer.GetNodeOrNull<Window>("OptionsDialog");
             CheckBox? showSeedsCheck = viewer.GetNodeOrNull<CheckBox>("OptionsDialog/MarginContainer/OptionsVBox/ShowSeedControlsCheck");
             Button? optionsButton = menuRow.GetChild(2) as Button;
@@ -562,11 +585,16 @@ public static partial class DotNetNativeTestSuite
             Control? cameraPanel = viewer.GetNodeOrNull<Control>("UI/CameraPanel");
             Button? cameraHeaderButton = viewer.GetNodeOrNull<Button>("UI/CameraPanel/CameraPanelVBox/CameraPanelHeaderButton");
             Control? cameraPanelContent = viewer.GetNodeOrNull<Control>("UI/CameraPanel/CameraPanelVBox/CameraPanelContent");
+            Label? cameraHelpLabel = viewer.GetNodeOrNull<Label>("UI/CameraPanel/CameraPanelVBox/CameraPanelContent/CameraHelpLabel");
 
             AssertNotNull(optionsDialog, "object viewer should expose an options dialog");
             AssertTrue(generationSection == null, "object viewer should not embed the old generator panel in the active scene");
             AssertNotNull(sidePanelVBox, "object viewer should expose the side-panel container from the scene");
             AssertTrue(sidePanelVBox!.GetScript().VariantType == Variant.Type.Nil, "object viewer side-panel container should not carry the inspector script");
+            AssertNotNull(inspectorContainer, "object viewer should expose the scene-owned inspector container");
+            AssertNotNull(bodySection, "object viewer should expose the scene-owned body summary section");
+            AssertNotNull(travellerSection, "object viewer should expose the scene-owned traveller section shell");
+            AssertFalse(travellerSection!.Visible, "object viewer traveller section should start hidden until a compatible body is displayed");
             AssertNotNull(showSeedsCheck, "object viewer options should expose the all-studio-seeds toggle");
             AssertNotNull(closeButton, "object viewer options should expose the close button");
             AssertNotNull(applyButton, "object viewer options should expose the apply button");
@@ -575,6 +603,7 @@ public static partial class DotNetNativeTestSuite
             AssertNotNull(cameraPanel, "object viewer should expose the compact camera panel");
             AssertNotNull(cameraHeaderButton, "object viewer camera panel should expose a collapse toggle");
             AssertNotNull(cameraPanelContent, "object viewer camera panel should expose collapsible content");
+            AssertNotNull(cameraHelpLabel, "object viewer camera panel should expose a help label");
             AssertEqual("> Controls", cameraHeaderButton!.Text, "object viewer camera panel should start collapsed");
             AssertFalse(cameraPanelContent!.Visible, "object viewer camera panel should start collapsed");
             AssertEqual("CameraPanelContent", ((Node)cameraHeaderButton.GetParent()).GetChild(0).Name, "object viewer camera panel content should sit above the header toggle");
@@ -584,8 +613,16 @@ public static partial class DotNetNativeTestSuite
             cameraHeaderButton.EmitSignal(BaseButton.SignalName.Pressed);
             AssertEqual("^ Controls", cameraHeaderButton.Text, "object viewer controls box should use the expanded caret label");
             AssertTrue(cameraPanelContent.Visible, "object viewer controls content should appear when expanded");
+            AssertEqual("Left Drag: Orbit view\nRight Drag: Pan view\nWheel: Zoom\nLeft Click: Select moon\nF: Focus primary body", cameraHelpLabel!.Text, "object viewer controls text should match the active camera behavior");
+            float expandedObjectWidth = cameraPanel.OffsetRight - cameraPanel.OffsetLeft;
             float expandedObjectHeight = cameraPanel.OffsetBottom - cameraPanel.OffsetTop;
             AssertTrue(expandedObjectHeight > collapsedObjectHeight, "object viewer controls box should grow taller when expanded");
+            cameraHeaderButton.EmitSignal(BaseButton.SignalName.Pressed);
+            cameraHeaderButton.EmitSignal(BaseButton.SignalName.Pressed);
+            float reopenedObjectWidth = cameraPanel.OffsetRight - cameraPanel.OffsetLeft;
+            float reopenedObjectHeight = cameraPanel.OffsetBottom - cameraPanel.OffsetTop;
+            AssertFloatNear(expandedObjectWidth, reopenedObjectWidth, 0.01, "object viewer controls box should reopen to the same width on the first and second expansion");
+            AssertFloatNear(expandedObjectHeight, reopenedObjectHeight, 0.01, "object viewer controls box should reopen to the same height on the first and second expansion");
 
             optionsButton!.EmitSignal(BaseButton.SignalName.Pressed);
             AssertTrue(optionsDialog!.Visible, "object viewer options should open from the options action");

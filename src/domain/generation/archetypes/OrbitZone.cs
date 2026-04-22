@@ -1,5 +1,7 @@
 using StarGen.Domain.Celestial.Components;
+using StarGen.Domain.Generation;
 using StarGen.Domain.Math;
+using StarGen.Domain.Systems;
 
 namespace StarGen.Domain.Generation.Archetypes;
 
@@ -58,17 +60,22 @@ public static class OrbitZone
     /// <summary>
     /// Determines the orbit zone from orbital distance and stellar luminosity.
     /// </summary>
-    public static Zone FromOrbitalDistance(double orbitalDistanceMeters, double stellarLuminosityWatts)
+    public static Zone FromOrbitalDistance(
+        double orbitalDistanceMeters,
+        double stellarLuminosityWatts,
+        double stellarEffectiveTemperatureK = 5778.0,
+        PlanetHabitableZoneModel habitableZoneModel = PlanetHabitableZoneModel.Kopparapu2013Conservative)
     {
         if (stellarLuminosityWatts <= 0.0 || orbitalDistanceMeters <= 0.0)
         {
             return Zone.Temperate;
         }
 
-        double solarLuminosityRatio = stellarLuminosityWatts / StellarProps.SolarLuminosityWatts;
-        double squareRootLuminosity = System.Math.Sqrt(solarLuminosityRatio);
-        double habitableZoneInnerMeters = 0.95 * StarGen.Domain.Math.Units.AuMeters * squareRootLuminosity;
-        double frostLineMeters = 2.7 * StarGen.Domain.Math.Units.AuMeters * squareRootLuminosity;
+        double habitableZoneInnerMeters = OrbitalMechanics.CalculateHabitableZoneInner(
+            stellarLuminosityWatts,
+            stellarEffectiveTemperatureK,
+            habitableZoneModel);
+        double frostLineMeters = OrbitalMechanics.CalculateFrostLine(stellarLuminosityWatts);
 
         if (orbitalDistanceMeters < habitableZoneInnerMeters)
         {

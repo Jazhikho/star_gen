@@ -10,6 +10,7 @@ using StarGen.Domain.Generation;
 using StarGen.Domain.Generation.Specs;
 using StarGen.Domain.Generation.Traveller;
 using StarGen.Domain.Math;
+using StarGen.Domain.Population;
 using StarGen.Tests.Framework;
 
 namespace StarGen.Tests.Integration;
@@ -94,6 +95,12 @@ public static class TestObjectViewerMoons
         runner.RunNativeTest(
             "TestObjectViewerMoons::test_object_viewer_accepts_uwp_enabled_provenance_without_legacy_sections",
             TestObjectViewerAcceptsUwpEnabledProvenanceWithoutLegacySections);
+        runner.RunNativeTest(
+            "TestObjectViewerMoons::test_object_viewer_hides_population_section_without_inhabitants",
+            TestObjectViewerHidesPopulationSectionWithoutInhabitants);
+        runner.RunNativeTest(
+            "TestObjectViewerMoons::test_object_viewer_shows_sentient_world_fields_for_inhabited_worlds",
+            TestObjectViewerShowsSentientWorldFieldsForInhabitedWorlds);
     }
 
     /// <summary>
@@ -143,17 +150,104 @@ public static class TestObjectViewerMoons
         return body;
     }
 
-    private static bool InspectorHasSectionTitle(Node root, string title)
+    private static PlanetPopulationData MakePopulationData(bool inhabited)
+    {
+        PlanetPopulationData populationData = new();
+        populationData.BodyId = "test_planet";
+        populationData.Profile = new PlanetProfile
+        {
+            BodyId = "test_planet",
+            HabitabilityScore = 8,
+            HasLiquidWater = true,
+            HasAtmosphere = true,
+            HasBreathableAtmosphere = true,
+            OceanCoverage = 0.64,
+            LandCoverage = 0.28,
+            ContinentCount = 5,
+        };
+        populationData.Profile.Resources[(int)ResourceType.Type.Water] = 0.9;
+        populationData.Profile.Resources[(int)ResourceType.Type.Metals] = 0.7;
+        populationData.Profile.Resources[(int)ResourceType.Type.Organics] = 0.8;
+        populationData.Profile.Resources[(int)ResourceType.Type.RareElements] = 0.4;
+        populationData.Suitability = new ColonySuitability
+        {
+            OverallScore = 76,
+        };
+
+        if (inhabited)
+        {
+            NativePopulation nativePopulation = new();
+            nativePopulation.Id = "native_test";
+            nativePopulation.Name = "Test Natives";
+            nativePopulation.Population = 550000;
+            nativePopulation.IsExtant = true;
+            nativePopulation.TechLevel = TechnologyLevel.Level.Information;
+            nativePopulation.OriginYear = -12000;
+            nativePopulation.Government.Regime = GovernmentType.Regime.EliteRepublic;
+            nativePopulation.Government.AdministrativeCapacity = 0.54;
+            nativePopulation.Government.CoercionCentralization = 0.34;
+            nativePopulation.Government.PoliticalInclusiveness = 0.57;
+            populationData.NativePopulations.Add(nativePopulation);
+
+            Colony colony = new();
+            colony.Id = "colony_test";
+            colony.Name = "Test Colony";
+            colony.Population = 850000;
+            colony.IsActive = true;
+            colony.TechLevel = TechnologyLevel.Level.Interstellar;
+            colony.FoundingYear = -180;
+            colony.SelfSufficiency = 0.66;
+            colony.Government.Regime = GovernmentType.Regime.Constitutional;
+            colony.Government.AdministrativeCapacity = 0.75;
+            colony.Government.CoercionCentralization = 0.37;
+            colony.Government.PoliticalInclusiveness = 0.70;
+            populationData.Colonies.Add(colony);
+        }
+
+        populationData.SentientWorldProfile = populationData.GetSentientWorldProfile();
+        return populationData;
+    }
+
+    private static bool InspectorHasVisibleSectionTitle(Node root, string title)
     {
         foreach (Node child in root.FindChildren("TitleLabel", "Label", true, false))
         {
-            if (child is Label label && label.Text == title)
+            if (child is Label label && label.Text == title && IsControlVisible(label))
             {
                 return true;
             }
         }
 
         return false;
+    }
+
+    private static bool InspectorHasVisibleLabelText(Node root, string text)
+    {
+        foreach (Node child in root.FindChildren("*", "Label", true, false))
+        {
+            if (child is Label label && label.Text == text && IsControlVisible(label))
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    private static bool IsControlVisible(Control control)
+    {
+        Node? current = control;
+        while (current is Control currentControl)
+        {
+            if (!currentControl.Visible)
+            {
+                return false;
+            }
+
+            current = currentControl.GetParent();
+        }
+
+        return true;
     }
 
     /// <summary>
@@ -600,9 +694,9 @@ public static class TestObjectViewerMoons
 
             VBoxContainer? inspectorContainer = viewer.FindChild("InspectorContainer", true, false) as VBoxContainer;
             DotNetNativeTestSuite.AssertNotNull(inspectorContainer, "object viewer should expose the inspector container");
-            DotNetNativeTestSuite.AssertFalse(InspectorHasSectionTitle(inspectorContainer!, "Traveller"), "UWP readouts should stay hidden by default");
-            DotNetNativeTestSuite.AssertFalse(InspectorHasSectionTitle(inspectorContainer, "World Profile"), "legacy world-profile section should not appear in the viewer inspector");
-            DotNetNativeTestSuite.AssertFalse(InspectorHasSectionTitle(inspectorContainer, "Generation Targets"), "generation-target diagnostics should not appear in the viewer inspector");
+            DotNetNativeTestSuite.AssertFalse(InspectorHasVisibleSectionTitle(inspectorContainer!, "Traveller"), "UWP readouts should stay hidden by default");
+            DotNetNativeTestSuite.AssertFalse(InspectorHasVisibleSectionTitle(inspectorContainer, "World Profile"), "legacy world-profile section should not appear in the viewer inspector");
+            DotNetNativeTestSuite.AssertFalse(InspectorHasVisibleSectionTitle(inspectorContainer, "Generation Targets"), "generation-target diagnostics should not appear in the viewer inspector");
         }
         finally
         {
@@ -626,9 +720,63 @@ public static class TestObjectViewerMoons
 
             VBoxContainer? inspectorContainer = viewer.FindChild("InspectorContainer", true, false) as VBoxContainer;
             DotNetNativeTestSuite.AssertNotNull(inspectorContainer, "object viewer should expose the inspector container");
-            DotNetNativeTestSuite.AssertTrue(InspectorHasSectionTitle(inspectorContainer!, "Traveller"), "UWP readouts should appear when explicitly enabled");
-            DotNetNativeTestSuite.AssertFalse(InspectorHasSectionTitle(inspectorContainer!, "World Profile"), "legacy world-profile section should stay removed when UWP provenance is present");
-            DotNetNativeTestSuite.AssertFalse(InspectorHasSectionTitle(inspectorContainer, "Generation Targets"), "generation-target diagnostics should stay removed when UWP provenance is present");
+            DotNetNativeTestSuite.AssertTrue(InspectorHasVisibleSectionTitle(inspectorContainer!, "Traveller"), "UWP readouts should appear when explicitly enabled");
+            DotNetNativeTestSuite.AssertFalse(InspectorHasVisibleSectionTitle(inspectorContainer!, "World Profile"), "legacy world-profile section should stay removed when UWP provenance is present");
+            DotNetNativeTestSuite.AssertFalse(InspectorHasVisibleSectionTitle(inspectorContainer, "Generation Targets"), "generation-target diagnostics should stay removed when UWP provenance is present");
+        }
+        finally
+        {
+            viewer?.QueueFree();
+        }
+    }
+
+    private static void TestObjectViewerHidesPopulationSectionWithoutInhabitants()
+    {
+        ObjectViewer? viewer = null;
+        try
+        {
+            PackedScene? scene = ResourceLoader.Load<PackedScene>("res://src/app/viewer/ObjectViewer.tscn");
+            DotNetNativeTestSuite.AssertNotNull(scene, "object viewer scene should load for population inspector testing");
+            viewer = scene!.Instantiate() as ObjectViewer;
+            DotNetNativeTestSuite.AssertNotNull(viewer, "object viewer should instantiate for population inspector testing");
+            viewer!._Ready();
+
+            CelestialBody body = MakeInspectablePlanet(false);
+            body.PopulationData = MakePopulationData(false);
+            viewer.DisplayExternalBody(Variant.From(body), new Godot.Collections.Array(), 0);
+
+            VBoxContainer? inspectorContainer = viewer.FindChild("InspectorContainer", true, false) as VBoxContainer;
+            DotNetNativeTestSuite.AssertNotNull(inspectorContainer, "object viewer should expose the inspector container");
+            DotNetNativeTestSuite.AssertFalse(InspectorHasVisibleSectionTitle(inspectorContainer!, "Population"), "Population section should stay hidden when no active inhabitants exist");
+            DotNetNativeTestSuite.AssertFalse(InspectorHasVisibleLabelText(inspectorContainer, "Settlement Pattern:"), "Sentient-world fields should stay hidden when no active inhabitants exist");
+        }
+        finally
+        {
+            viewer?.QueueFree();
+        }
+    }
+
+    private static void TestObjectViewerShowsSentientWorldFieldsForInhabitedWorlds()
+    {
+        ObjectViewer? viewer = null;
+        try
+        {
+            PackedScene? scene = ResourceLoader.Load<PackedScene>("res://src/app/viewer/ObjectViewer.tscn");
+            DotNetNativeTestSuite.AssertNotNull(scene, "object viewer scene should load for inhabited population inspector testing");
+            viewer = scene!.Instantiate() as ObjectViewer;
+            DotNetNativeTestSuite.AssertNotNull(viewer, "object viewer should instantiate for inhabited population inspector testing");
+            viewer!._Ready();
+
+            CelestialBody body = MakeInspectablePlanet(false);
+            body.PopulationData = MakePopulationData(true);
+            viewer.DisplayExternalBody(Variant.From(body), new Godot.Collections.Array(), 0);
+
+            VBoxContainer? inspectorContainer = viewer.FindChild("InspectorContainer", true, false) as VBoxContainer;
+            DotNetNativeTestSuite.AssertNotNull(inspectorContainer, "object viewer should expose the inspector container");
+            DotNetNativeTestSuite.AssertTrue(InspectorHasVisibleSectionTitle(inspectorContainer!, "Population"), "Population section should appear for inhabited worlds");
+            DotNetNativeTestSuite.AssertTrue(InspectorHasVisibleLabelText(inspectorContainer, "Settlement Pattern:"), "Population section should surface settlement baseline fields");
+            DotNetNativeTestSuite.AssertTrue(InspectorHasVisibleLabelText(inspectorContainer, "Legal Reach:"), "Population section should surface law-facing baseline fields");
+            DotNetNativeTestSuite.AssertTrue(InspectorHasVisibleLabelText(inspectorContainer, "Logistics Capacity:"), "Population section should surface logistics baseline fields");
         }
         finally
         {

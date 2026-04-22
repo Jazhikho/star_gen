@@ -11,6 +11,7 @@ public partial class SystemGenerationScreen
 {
 	private OptionButton? _planetMassRadiusModelOption;
 	private OptionButton? _planetEnvelopeLossModelOption;
+	private OptionButton? _planetHabitableZoneModelOption;
 	private OptionButton? _planetGasGiantFormationModelOption;
 	private OptionButton? _planetMetallicityCouplingOption;
 	private OptionButton? _planetRogueAllowanceOption;
@@ -22,6 +23,7 @@ public partial class SystemGenerationScreen
 		const string Root = "MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/PlanetarySection/PlanetaryContent/PlanetaryVBox";
 		_planetMassRadiusModelOption = GetNodeOrNull<OptionButton>($"{Root}/MassRadiusRow/MassRadiusOption");
 		_planetEnvelopeLossModelOption = GetNodeOrNull<OptionButton>($"{Root}/EnvelopeLossRow/EnvelopeLossOption");
+		_planetHabitableZoneModelOption = GetNodeOrNull<OptionButton>($"{Root}/HabitableZoneRow/HabitableZoneOption");
 		_planetGasGiantFormationModelOption = GetNodeOrNull<OptionButton>($"{Root}/GasGiantFormationRow/GasGiantFormationOption");
 		_planetMetallicityCouplingOption = GetNodeOrNull<OptionButton>($"{Root}/MetallicityCouplingRow/MetallicityCouplingOption");
 		_planetRogueAllowanceOption = GetNodeOrNull<OptionButton>($"{Root}/RogueAllowanceRow/RogueAllowanceOption");
@@ -33,6 +35,7 @@ public partial class SystemGenerationScreen
 	{
 		if (_planetMassRadiusModelOption != null) _planetMassRadiusModelOption.ItemSelected += _ => RefreshSummary();
 		if (_planetEnvelopeLossModelOption != null) _planetEnvelopeLossModelOption.ItemSelected += _ => RefreshSummary();
+		if (_planetHabitableZoneModelOption != null) _planetHabitableZoneModelOption.ItemSelected += _ => RefreshSummary();
 		if (_planetGasGiantFormationModelOption != null) _planetGasGiantFormationModelOption.ItemSelected += _ => RefreshSummary();
 		if (_planetMetallicityCouplingOption != null) _planetMetallicityCouplingOption.ItemSelected += _ => RefreshSummary();
 		if (_planetRogueAllowanceOption != null) _planetRogueAllowanceOption.ItemSelected += _ => RefreshSummary();
@@ -50,6 +53,7 @@ public partial class SystemGenerationScreen
 		const string Root = "MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/PlanetarySection/PlanetaryContent/PlanetaryVBox";
 		ApplyPlanetaryTooltip("planet_mass_radius_model", _planetMassRadiusModelOption, $"{Root}/MassRadiusRow/MassRadiusLabel");
 		ApplyPlanetaryTooltip("planet_envelope_loss_model", _planetEnvelopeLossModelOption, $"{Root}/EnvelopeLossRow/EnvelopeLossLabel");
+		ApplyPlanetaryTooltip("planet_habitable_zone_model", _planetHabitableZoneModelOption, $"{Root}/HabitableZoneRow/HabitableZoneLabel");
 		ApplyPlanetaryTooltip("planet_gas_giant_formation_model", _planetGasGiantFormationModelOption, $"{Root}/GasGiantFormationRow/GasGiantFormationLabel");
 		ApplyPlanetaryTooltip("planet_metallicity_coupling_strength", _planetMetallicityCouplingOption, $"{Root}/MetallicityCouplingRow/MetallicityCouplingLabel");
 		ApplyPlanetaryTooltip("planet_rogue_planet_allowance", _planetRogueAllowanceOption, $"{Root}/RogueAllowanceRow/RogueAllowanceLabel");
@@ -68,6 +72,11 @@ public partial class SystemGenerationScreen
 		if (_planetEnvelopeLossModelOption != null)
 		{
 			profile.EnvelopeLossModel = (PlanetEnvelopeLossModel)_planetEnvelopeLossModelOption.GetSelectedId();
+		}
+
+		if (_planetHabitableZoneModelOption != null)
+		{
+			profile.HabitableZoneModel = (PlanetHabitableZoneModel)_planetHabitableZoneModelOption.GetSelectedId();
 		}
 
 		if (_planetGasGiantFormationModelOption != null)
@@ -102,6 +111,7 @@ public partial class SystemGenerationScreen
 	{
 		SelectOptionId(_planetMassRadiusModelOption, (int)profile.MassRadiusModel);
 		SelectOptionId(_planetEnvelopeLossModelOption, (int)profile.EnvelopeLossModel);
+		SelectOptionId(_planetHabitableZoneModelOption, (int)profile.HabitableZoneModel);
 		SelectOptionId(_planetGasGiantFormationModelOption, (int)profile.GasGiantFormationModel);
 		SelectOptionId(_planetMetallicityCouplingOption, (int)profile.MetallicityCouplingStrength);
 		SelectOptionId(_planetRogueAllowanceOption, (int)profile.RoguePlanetAllowance);
@@ -111,7 +121,7 @@ public partial class SystemGenerationScreen
 
 	private static string BuildPlanetaryProfileSummary(PlanetaryGenerationProfile profile)
 	{
-		return $"Planet model: Size {profile.MassRadiusModel} | Loss {profile.EnvelopeLossModel} | Giants {profile.GasGiantFormationModel} | Metallicity {profile.MetallicityCouplingStrength} | Rogue {profile.RoguePlanetAllowance} | Moons {profile.MoonFormationBias}";
+		return $"Planet model: Size {profile.MassRadiusModel} | Loss {profile.EnvelopeLossModel} | HZ {profile.HabitableZoneModel} | Giants {profile.GasGiantFormationModel} | Metallicity {profile.MetallicityCouplingStrength} | Rogue {profile.RoguePlanetAllowance} | Moons {profile.MoonFormationBias}";
 	}
 
 	private void ApplyPlanetaryTooltip(string parameterId, Control? inputControl, string labelPath)
@@ -131,14 +141,6 @@ public partial class SystemGenerationScreen
 
 	private static string GetPlanetaryParameterAssumption(string parameterId)
 	{
-		foreach (GenerationParameterDefinition definition in GenerationParameterCatalog.GetSystemDefinitions())
-		{
-			if (definition.Id == parameterId)
-			{
-				return definition.AssumptionText;
-			}
-		}
-
-		return string.Empty;
+		return GenerationParameterCatalog.FindSystemDefinition(parameterId)?.AssumptionText ?? string.Empty;
 	}
 }

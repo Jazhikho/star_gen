@@ -295,6 +295,7 @@ public static class TravellerSystemGenerator
                 planetOrbitalDistanceM = parentBody.Orbital.SemiMajorAxisM;
             }
 
+            PlanetHabitableZoneModel habitableZoneModel = ResolveHabitableZoneModel(system);
             return ParentContext.ForMoon(
                 stellarMassKg,
                 stellarLuminosityWatts,
@@ -303,15 +304,18 @@ public static class TravellerSystemGenerator
                 planetOrbitalDistanceM,
                 parentBody.Physical.MassKg,
                 parentBody.Physical.RadiusM,
-                orbitalDistanceM);
+                orbitalDistanceM,
+                habitableZoneModel);
         }
 
+        PlanetHabitableZoneModel systemHabitableZoneModel = ResolveHabitableZoneModel(system);
         return ParentContext.ForPlanet(
             stellarMassKg,
             stellarLuminosityWatts,
             stellarTemperatureK,
             stellarAgeYears,
-            orbitalDistanceM);
+            orbitalDistanceM,
+            systemHabitableZoneModel);
     }
 
     private static OrbitZone.Zone ResolveOrbitZone(CelestialBody body, ParentContext context)
@@ -325,10 +329,36 @@ public static class TravellerSystemGenerator
 
         if (body.HasOrbital() && body.Orbital != null)
         {
-            return OrbitZone.FromOrbitalDistance(body.Orbital.SemiMajorAxisM, context.StellarLuminosityWatts);
+            return OrbitZone.FromOrbitalDistance(
+                body.Orbital.SemiMajorAxisM,
+                context.StellarLuminosityWatts,
+                context.StellarTemperatureK,
+                context.HabitableZoneModel);
         }
 
         return OrbitZone.Zone.Temperate;
+    }
+
+    private static PlanetHabitableZoneModel ResolveHabitableZoneModel(SolarSystem system)
+    {
+        if (system.Provenance == null || system.Provenance.SpecSnapshot.Count == 0)
+        {
+            return PlanetHabitableZoneModel.Kopparapu2013Conservative;
+        }
+
+        if (!system.Provenance.SpecSnapshot.ContainsKey("planetary_profile"))
+        {
+            return PlanetHabitableZoneModel.Kopparapu2013Conservative;
+        }
+
+        Variant planetaryProfileVariant = system.Provenance.SpecSnapshot["planetary_profile"];
+        if (planetaryProfileVariant.VariantType != Variant.Type.Dictionary)
+        {
+            return PlanetHabitableZoneModel.Kopparapu2013Conservative;
+        }
+
+        PlanetaryGenerationProfile profile = PlanetaryGenerationProfile.FromDictionary((Dictionary)planetaryProfileVariant);
+        return profile.HabitableZoneModel;
     }
 
     private static int ResolveSystemSeed(SolarSystem system)

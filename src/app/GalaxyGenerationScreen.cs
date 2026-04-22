@@ -730,7 +730,17 @@ public partial class GalaxyGenerationScreen : Control
 		ApplyTooltip("star_density_multiplier", _densitySlider, $"{ParameterRootPath}/SizeSection/SizeContent/SizeVBox/DensityRow/DensityLabel");
 		ApplyTooltip("galaxy_seed", _seedSpin, $"{ParameterRootPath}/SeedContainer/SeedLabel");
 		ApplyDynamicTooltip(_rulesetModeOption, "ruleset_mode");
-		ApplyDynamicTooltip(_showTravellerReadoutsCheck, "show_traveller_readouts");
+		if (_showTravellerReadoutsCheck != null)
+		{
+			_showTravellerReadoutsCheck.TooltipText = "Presentation control, not a generation parameter.\nShows Universal World Profile code when the current flow has enough information to derive one.\nThis changes what the viewer shows, not the generated galaxy itself.";
+		}
+
+		Label? showTravellerReadoutsLabel = GetNodeOrNull<Label>($"{RulesRootPath}/UseCaseSection/ShowTravellerReadoutsRow/ShowTravellerReadoutsLabel");
+		if (showTravellerReadoutsLabel != null)
+		{
+			showTravellerReadoutsLabel.TooltipText = "Presentation control, not a generation parameter.\nShows Universal World Profile code when the current flow has enough information to derive one.\nThis changes what the viewer shows, not the generated galaxy itself.";
+		}
+
 		if (_forceLifeOnSupportableWorldsCheck != null)
 		{
 			_forceLifeOnSupportableWorldsCheck.TooltipText = "Generation override, not a scientific model.\nWhen enabled, supportable worlds keep native life instead of losing it to the later life-roll.\nWorlds that fail the biology support gate still stay lifeless.";
@@ -777,15 +787,7 @@ public partial class GalaxyGenerationScreen : Control
 
 	private string GetParameterAssumption(string parameterId)
 	{
-		foreach (GenerationParameterDefinition definition in GenerationParameterCatalog.GetGalaxyDefinitions())
-		{
-			if (definition.Id == parameterId)
-			{
-				return definition.AssumptionText;
-			}
-		}
-
-		return string.Empty;
+		return GenerationParameterCatalog.FindGalaxyDefinition(parameterId)?.AssumptionText ?? string.Empty;
 	}
 
 	private void ApplyDynamicTooltip(Control? control, string parameterId)
@@ -1000,7 +1002,7 @@ public partial class GalaxyGenerationScreen : Control
 				readoutVisibility = "Visible";
 			}
 
-			lines.Add($"UWP Code {readoutVisibility}");
+			lines.Add($"Readout UWP Code {readoutVisibility}");
 			lines.Add($"Life Framework: {LifeScienceReferenceCatalog.GetFrameworkLabel(settings.LifeFramework)}");
 			lines.Add($"Abiogenesis: {LifeScienceReferenceCatalog.GetAbiogenesisLabel(settings.AbiogenesisModel)} | Complex Life: {LifeScienceReferenceCatalog.GetComplexLifeLabel(settings.ComplexLifeModel)}");
 			lines.Add($"Civilization: {LifeScienceReferenceCatalog.GetCivilizationLabel(settings.CivilizationModel)} | Window Weight: {LifeScienceReferenceCatalog.GetEnvironmentalWindowWeightLabel(settings.EnvironmentalWindowWeight)}");

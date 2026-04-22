@@ -534,6 +534,26 @@ popup/item_1/id = 1
 popup/item_2/text = "Core-powered"
 popup/item_2/id = 2
 
+[node name="HabitableZoneRow" type="HBoxContainer" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/PlanetarySection/PlanetaryContent/PlanetaryVBox"]
+layout_mode = 2
+
+[node name="HabitableZoneLabel" type="Label" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/PlanetarySection/PlanetaryContent/PlanetaryVBox/HabitableZoneRow"]
+custom_minimum_size = Vector2(96, 0)
+layout_mode = 2
+text = "HZ Model"
+
+[node name="HabitableZoneOption" type="OptionButton" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/PlanetarySection/PlanetaryContent/PlanetaryVBox/HabitableZoneRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+selected = 1
+item_count = 3
+popup/item_0/text = "Kasting 1993"
+popup/item_0/id = 0
+popup/item_1/text = "Kopparapu 2013 (Cons.)"
+popup/item_1/id = 1
+popup/item_2/text = "Kopparapu 2013 (Opt.)"
+popup/item_2/id = 2
+
 [node name="GasGiantFormationRow" type="HBoxContainer" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/PlanetarySection/PlanetaryContent/PlanetaryVBox"]
 layout_mode = 2
 
@@ -841,7 +861,7 @@ theme_override_constants/separation = 10
 custom_minimum_size = Vector2(112, 0)
 layout_mode = 2
 size_flags_horizontal = 3
-text = "Show UWP Code"
+text = "UWP Readout"
 
 [node name="ShowTravellerReadoutsCheck" type="CheckBox" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/RulesPanel/MarginContainer/RulesVBox/ScrollContainer/RulesContent/ShowTravellerReadoutsRow"]
 layout_mode = 2
@@ -958,7 +978,7 @@ theme_override_constants/separation = 10
 [node name="PopulationPermissivenessLabel" type="Label" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/RulesPanel/MarginContainer/RulesVBox/ScrollContainer/RulesContent/PopulationPermissivenessRow" unique_id=1206153599]
 custom_minimum_size = Vector2(120, 0)
 layout_mode = 2
-text = "Settlements"
+text = "Settlement Bias"
 
 [node name="PopulationPermissivenessInput" type="HSlider" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/RulesPanel/MarginContainer/RulesVBox/ScrollContainer/RulesContent/PopulationPermissivenessRow" unique_id=1260453743]
 layout_mode = 2
@@ -981,7 +1001,7 @@ theme_override_constants/separation = 10
 [node name="MainworldPolicyLabel" type="Label" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/RulesPanel/MarginContainer/RulesVBox/ScrollContainer/RulesContent/MainworldPolicyRow" unique_id=1155523126]
 custom_minimum_size = Vector2(96, 0)
 layout_mode = 2
-text = "Mainworld"
+text = "Mainworld Policy"
 
 [node name="MainworldPolicyOption" type="OptionButton" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/RulesPanel/MarginContainer/RulesVBox/ScrollContainer/RulesContent/MainworldPolicyRow" unique_id=2055756452]
 layout_mode = 2

@@ -383,6 +383,7 @@ public partial class GenerationUseCaseSettings : RefCounted
         }
 
         settings.ShowTravellerReadouts = GetBool(data, "show_traveller_readouts", false);
+        bool hasExplicitLifePermissiveness = data.ContainsKey("life_permissiveness");
         settings.LifePermissiveness = System.Math.Clamp(GetDouble(data, "life_permissiveness", NeutralPermissiveness), 0.0, 1.0);
         int lifeFrameworkValue = GetInt(data, "life_framework", -1);
         if (System.Enum.IsDefined(typeof(LifeFrameworkType), lifeFrameworkValue))
@@ -424,6 +425,11 @@ public partial class GenerationUseCaseSettings : RefCounted
         if (System.Enum.IsDefined(typeof(EnvironmentalWindowWeightType), environmentalWindowWeightValue))
         {
             settings.EnvironmentalWindowWeight = (EnvironmentalWindowWeightType)environmentalWindowWeightValue;
+        }
+
+        if (!hasExplicitLifePermissiveness)
+        {
+            settings.LifePermissiveness = GetRecommendedLifePermissiveness(settings.LifeFramework);
         }
 
         settings.ForceLifeOnSupportableWorlds = GetBool(data, "force_life_on_supportable_worlds", false);

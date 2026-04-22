@@ -128,12 +128,12 @@ public static class TestGalaxyConfig
 
         foreach (GenerationParameterDefinition definition in GenerationParameterCatalog.GetGalaxyDefinitions())
         {
-            if (string.IsNullOrWhiteSpace(definition.AssumptionText))
+            if (definition.Classification != GenerationParameterClassification.GenerationPrior)
             {
                 continue;
             }
 
-            if (definition.Id == "ruleset_mode" || definition.Id == "show_traveller_readouts" || definition.Id == "life_permissiveness" || definition.Id == "mainworld_policy" || definition.Id == "galaxy_seed")
+            if (string.IsNullOrWhiteSpace(definition.AssumptionText))
             {
                 continue;
             }

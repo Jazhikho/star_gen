@@ -36,7 +36,6 @@ public partial class SystemViewer
         _cameraController = GetNodeOrNull<Node>("CameraRig/Camera3D");
         _bodiesContainer = GetNodeOrNull<Node3D>("BodiesContainer");
         _orbitsContainer = GetNodeOrNull<Node3D>("OrbitsContainer");
-        _zonesContainer = GetNodeOrNull<Node3D>("ZonesContainer");
         _systemBodyNodeScene = ResourceLoader.Load<PackedScene>(SystemBodyNodeScenePath);
     }
 

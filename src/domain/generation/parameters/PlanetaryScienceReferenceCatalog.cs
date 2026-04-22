@@ -56,6 +56,18 @@ public static class PlanetaryScienceReferenceCatalog
             "fulton2017",
             "Fulton et al. (2017), the small-planet radius gap.",
             "https://ui.adsabs.harvard.edu/abs/2017AJ....154..109F/abstract"),
+        ["kasting1993"] = new PlanetaryScienceSource(
+            "kasting1993",
+            "Kasting, Whitmire, and Reynolds (1993), classical conservative habitable-zone climate limits.",
+            "https://doi.org/10.1006/icar.1993.1010"),
+        ["kopparapu2013"] = new PlanetaryScienceSource(
+            "kopparapu2013",
+            "Kopparapu et al. (2013), updated main-sequence habitable-zone limits with improved H2O and CO2 absorption.",
+            "https://arxiv.org/abs/1301.6674"),
+        ["kopparapu2014"] = new PlanetaryScienceSource(
+            "kopparapu2014",
+            "Kopparapu et al. (2014), habitable-zone dependence on planetary mass.",
+            "https://arxiv.org/abs/1404.5292"),
         ["owenwu2017"] = new PlanetaryScienceSource(
             "owenwu2017",
             "Owen and Wu (2017), photoevaporation and the evaporation valley.",
@@ -109,6 +121,10 @@ public static class PlanetaryScienceReferenceCatalog
             "This picks the gas-loss model for hot close-in planets.\nPhotoevaporation uses high-energy starlight as the main stripping engine.\nCore-powered uses the young planet's own cooling heat.\nAuto blends the two ideas as the default.\nChanging this shifts how often hot planets stay puffy or end up as stripped cores.",
             new[] { "fulton2017", "owenwu2017", "ginzburg2018" }),
         new PlanetaryScienceParameterReference(
+            "planet_habitable_zone_model",
+            "This picks the circumstellar habitable-zone reference band used when the generator scores orbit placement and downstream environment context.\nKasting 1993 keeps the older conservative moist-greenhouse and maximum-greenhouse limits.\nKopparapu 2013 Conservative uses the updated cloud-free climate coefficients for the inner and outer classical habitable zone.\nKopparapu 2013 Optimistic widens the band to the empirical Recent Venus and Early Mars limits.\nChanging this shifts which orbital slots count as more temperate or life-friendly without making habitability a simple yes or no switch.",
+            new[] { "kasting1993", "kopparapu2013", "kopparapu2014" }),
+        new PlanetaryScienceParameterReference(
             "planet_gas_giant_formation_model",
             "This picks the giant-planet growth model used for system weighting.\nCore Accretion follows the standard heavy-core-first picture.\nPebble-assisted follows the faster pebble-growth picture.\nMixed stays between the two.\nChanging this mainly shifts how easily systems grow Neptune-to-Jupiter scale planets.",
             new[] { "mordasini2007", "lambrechtsjohansen2012" }),
@@ -135,6 +151,9 @@ public static class PlanetaryScienceReferenceCatalog
         "chenkipping2017",
         "otegi2020",
         "fulton2017",
+        "kasting1993",
+        "kopparapu2013",
+        "kopparapu2014",
         "owenwu2017",
         "ginzburg2018",
         "mordasini2007",
@@ -208,6 +227,12 @@ public static class PlanetaryScienceReferenceCatalog
             "Envelope Loss",
             "Some close-in planets start with more gas than they can keep.",
             "Photoevaporation makes harsh high-energy starlight do most of the stripping. Core-powered lets the hot young planet itself drive some gas away as it cools. Auto blends both ideas. In practice, this changes whether hot close-in worlds stay puffy or end up as bare or thin-atmosphere cores.");
+
+        AppendGuideSection(
+            builder,
+            "Habitable Zone Model",
+            "This is the academic climate-model family StarGen uses for the classical circumstellar liquid-water reference band.",
+            "Kasting 1993 keeps the older conservative band. Kopparapu 2013 Conservative updates the inner and outer limits with newer absorption data. Kopparapu 2013 Optimistic widens the band to the empirical Recent Venus and Early Mars markers. In practice, this shifts which orbits get higher temperate or biosphere-friendly weighting, but it still remains one input among many.");
 
         AppendGuideSection(
             builder,

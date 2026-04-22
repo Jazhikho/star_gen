@@ -195,10 +195,12 @@ public static class ProfileGenerator
 
         profile.HabitableZoneInnerAu = OrbitalMechanics.CalculateHabitableZoneInner(
             context.StellarLuminosityWatts,
-            context.StellarTemperatureK) / Units.AuMeters;
+            context.StellarTemperatureK,
+            context.HabitableZoneModel) / Units.AuMeters;
         profile.HabitableZoneOuterAu = OrbitalMechanics.CalculateHabitableZoneOuter(
             context.StellarLuminosityWatts,
-            context.StellarTemperatureK) / Units.AuMeters;
+            context.StellarTemperatureK,
+            context.HabitableZoneModel) / Units.AuMeters;
         profile.HabitableZoneAlignment = CalculateHabitableZoneAlignment(
             orbitalDistanceAu,
             profile.HabitableZoneInnerAu,

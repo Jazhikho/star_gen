@@ -53,9 +53,10 @@ Purpose: track the remaining work needed to keep the active viewer stack aligned
   - controls panel now expands upward from a scene-owned header/content stack
   - the old embedded generation/editor stack was removed from the active `ObjectViewer.tscn`
   - the duplicate inspector-script attachment on the outer side-panel container was removed, leaving the dedicated `InspectorPanel` node as the active inspector controller
+  - inspector navigation buttons, file block, and section shells now live directly and visibly in the active `ObjectViewer.tscn`, with the script reduced to clearing editor placeholders, toggling visibility, and populating dynamic moon buttons and property rows
 - Still violating engine-first expectations:
-  - inspector rows and section contents are still created in code rather than from reusable scene-owned row templates
-  - file-operation and object-summary blocks are still assembled mostly from controller logic rather than a richer scene-owned template set
+  - inspector property rows, validation messages, and moon-list entries are still created in code because their counts and content are data-driven at runtime
+  - file-operation status text is still controller-populated rather than bound through a richer scene-owned template set
 
 ## Priority Gaps
 
@@ -86,4 +87,4 @@ Purpose: track the remaining work needed to keep the active viewer stack aligned
 1. Shared viewer menu/dialog components: factor repeated scene shells into reusable assets.
 2. Inspector row template pass: migrate repeated dynamic rows to reusable `.tscn` fragments where it reduces code without freezing dynamic behavior.
 3. System Viewer: convert reusable inspector row/button templates from controller-built helpers into `.tscn` fragments where it reduces runtime mutation.
-4. Object Viewer: convert reusable file/summary/inspector row templates from controller-built helpers into `.tscn` fragments where it reduces runtime mutation.
+4. Object Viewer: reduce the remaining controller-owned file-status and dynamic-row glue where a clearer scene-owned binding pattern exists without freezing data-driven sections.

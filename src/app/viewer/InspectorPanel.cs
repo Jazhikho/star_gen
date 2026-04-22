@@ -1,4 +1,3 @@
-using System;
 using Godot;
 using StarGen.App.Components;
 using StarGen.Domain.Celestial;
@@ -6,11 +5,8 @@ using StarGen.Domain.Celestial.Components;
 using StarGen.Domain.Celestial.Serialization;
 using StarGen.Domain.Celestial.Validation;
 using StarGen.Domain.Generation;
-using StarGen.Domain.Generation.Archetypes;
 using StarGen.Domain.Generation.Traveller;
-using OrbitZoneArchetype = StarGen.Domain.Generation.Archetypes.OrbitZone;
-using RingComplexityArchetype = StarGen.Domain.Generation.Archetypes.RingComplexity;
-using SizeCategoryArchetype = StarGen.Domain.Generation.Archetypes.SizeCategory;
+using StarGen.Domain.Population;
 
 namespace StarGen.App.Viewer;
 
@@ -31,23 +27,74 @@ public partial class InspectorPanel : VBoxContainer
 	[Signal]
 	public delegate void EditRequestedEventHandler();
 
+	private const string MoonSectionPath = "InspectorContainer/MoonSection";
+	private const string BodySectionPath = "InspectorContainer/BodySection";
+	private const string ParentSectionPath = "InspectorContainer/ParentSection";
+	private const string OrbitSectionPath = "InspectorContainer/OrbitSection";
+	private const string SurfaceSectionPath = "InspectorContainer/SurfaceSection";
+	private const string AtmosphereSectionPath = "InspectorContainer/AtmosphereSection";
+	private const string RingsSectionPath = "InspectorContainer/RingsSection";
+	private const string TravellerSectionPath = "InspectorContainer/TravellerSection";
+	private const string PopulationSectionPath = "InspectorContainer/PopulationSection";
+	private const string ValidationSectionPath = "InspectorContainer/ValidationSection";
+
 	private VBoxContainer? _inspectorContainer;
-	private VBoxContainer? _currentSectionContent;
+	private Label? _infoLabel;
+	private Button? _backToBodyButton;
+	private Button? _editButton;
+	private bool _staticSignalsConnected;
 
 	/// <summary>
-	/// Caches the dynamic content container.
+	/// Caches the scene-owned inspector nodes.
 	/// </summary>
 	public override void _Ready()
 	{
-		EnsureInspectorContainer();
+		EnsureSceneReferences();
+		ConnectStaticSignals();
+		Clear();
 	}
 
-	private void EnsureInspectorContainer()
+	private void EnsureSceneReferences()
 	{
 		if (_inspectorContainer == null)
 		{
 			_inspectorContainer = GetNodeOrNull<VBoxContainer>("InspectorContainer");
 		}
+
+		if (_infoLabel == null)
+		{
+			_infoLabel = GetNodeOrNull<Label>("InspectorContainer/InfoLabel");
+		}
+
+		if (_backToBodyButton == null)
+		{
+			_backToBodyButton = GetNodeOrNull<Button>("InspectorContainer/BackToBodyButton");
+		}
+
+		if (_editButton == null)
+		{
+			_editButton = GetNodeOrNull<Button>("InspectorContainer/EditButton");
+		}
+	}
+
+	private void ConnectStaticSignals()
+	{
+		if (_staticSignalsConnected)
+		{
+			return;
+		}
+
+		if (_backToBodyButton != null)
+		{
+			_backToBodyButton.Pressed += OnBackToBodyPressed;
+		}
+
+		if (_editButton != null)
+		{
+			_editButton.Pressed += OnEditButtonPressed;
+		}
+
+		_staticSignalsConnected = true;
 	}
 
 	/// <summary>
@@ -59,22 +106,29 @@ public partial class InspectorPanel : VBoxContainer
 	}
 
 	/// <summary>
-	/// Clears dynamic inspector content.
+	/// Clears scene-owned section content and returns the inspector to its empty state.
 	/// </summary>
 	public void Clear()
 	{
-		EnsureInspectorContainer();
+		EnsureSceneReferences();
 		if (_inspectorContainer == null)
 		{
 			return;
 		}
 
-		foreach (Node child in _inspectorContainer.GetChildren())
-		{
-			child.QueueFree();
-		}
-
-		_currentSectionContent = null;
+		ClearSection(MoonSectionPath);
+		ClearSection(BodySectionPath);
+		ClearSection(ParentSectionPath);
+		ClearSection(OrbitSectionPath);
+		ClearSection(SurfaceSectionPath);
+		ClearSection(AtmosphereSectionPath);
+		ClearSection(RingsSectionPath);
+		ClearSection(TravellerSectionPath);
+		ClearSection(PopulationSectionPath);
+		ClearSection(ValidationSectionPath);
+		HideInfoLabel();
+		HideBackButton();
+		HideEditButton();
 	}
 
 	/// <summary>
@@ -96,7 +150,7 @@ public partial class InspectorPanel : VBoxContainer
 		Godot.Collections.Array? originalMoonVariants = null)
 	{
 		Clear();
-		EnsureInspectorContainer();
+		EnsureSceneReferences();
 		if (_inspectorContainer == null)
 		{
 			return;
@@ -104,16 +158,18 @@ public partial class InspectorPanel : VBoxContainer
 
 		if (body == null)
 		{
-			AddInfoLabel("No object loaded");
+			ShowInfoLabel("No object loaded");
 			return;
 		}
 
 		if (moons.Count > 0)
 		{
-			AddMoonListSection(moons, originalMoonVariants ?? BuildVariantArray(moons), null);
+			Godot.Collections.Array moonValues = originalMoonVariants ?? BuildVariantArray(moons);
+			PopulateMoonSection(moons, moonValues, null);
 		}
 
-		AddBodySummarySection(body);
+		PopulatePrimaryBodySections(body, "Body");
+		ShowEditButton();
 	}
 
 	/// <summary>
@@ -128,7 +184,7 @@ public partial class InspectorPanel : VBoxContainer
 	}
 
 	/// <summary>
-	/// Displays a focused moon view with a back button.
+	/// Displays a focused moon view with a scene-owned back button.
 	/// </summary>
 	public void DisplayFocusedMoon(
 		CelestialBody? moon,
@@ -137,96 +193,63 @@ public partial class InspectorPanel : VBoxContainer
 		Godot.Collections.Array? originalMoonVariants = null)
 	{
 		Clear();
-		EnsureInspectorContainer();
+		EnsureSceneReferences();
 		if (_inspectorContainer == null || moon == null)
 		{
 			return;
 		}
 
-		AddBackToPlanetButton(planet);
-		AddBodySummarySection(moon, $"Moon: {moon.Name}");
-
+		ShowBackButton(planet);
+		PopulatePrimaryBodySections(moon, $"Moon: {moon.Name}");
 		if (allMoons.Count > 1)
 		{
-			AddMoonListSection(allMoons, originalMoonVariants ?? BuildVariantArray(allMoons), moon);
+			Godot.Collections.Array moonValues = originalMoonVariants ?? BuildVariantArray(allMoons);
+			PopulateMoonSection(allMoons, moonValues, moon);
 		}
 
 		if (planet != null)
 		{
-			AddBodySummarySection(planet, $"Parent: {planet.Name}");
+			PopulateParentSection(planet);
 		}
+
+		ShowEditButton();
 	}
 
-	private void AddBodySummarySection(CelestialBody body, string? headerOverride = null)
+	private void PopulatePrimaryBodySections(CelestialBody body, string header)
 	{
-		BeginSection(headerOverride ?? "Body");
-		string nameValue;
-		if (string.IsNullOrEmpty(body.Name))
-		{
-			nameValue = body.Id;
-		}
-		else
-		{
-			nameValue = body.Name;
-		}
-
-		AddProperty("Name", nameValue);
-		AddProperty("Type", body.GetTypeString());
-		AddProperty("ID", body.Id);
-		AddPhysicalSummary(body.Physical);
-
-		if (body.HasStellar() && body.Stellar != null)
-		{
-			AddProperty("Spectral Class", body.Stellar.SpectralClass);
-			AddProperty("Temperature", $"{body.Stellar.EffectiveTemperatureK:0} K");
-		}
-
-		AddOrbitalSummary(body);
-		AddSurfaceSummary(body);
-		AddAtmosphereSummary(body);
-		AddRingSummary(body);
-		AddTravellerReadout(body);
-		AddPopulationSummary(body);
-		AddValidationSummary(body);
-		AddEditButton();
+		PopulateBodySection(body, header, BodySectionPath);
+		PopulateOrbitSection(body);
+		PopulateSurfaceSection(body);
+		PopulateAtmosphereSection(body);
+		PopulateRingSection(body);
+		PopulateTravellerSection(body);
+		PopulatePopulationSection(body);
+		PopulateValidationSection(body);
 	}
 
-	private void AddPhysicalSummary(PhysicalProps physical)
-	{
-		AddProperty("Mass", $"{physical.MassKg:0.###e0} kg");
-		AddProperty("Radius", FormatDistance(physical.RadiusM));
-		AddProperty("Density", $"{physical.GetDensityKgM3():0.0} kg/m^3");
-		AddProperty("Gravity", $"{physical.GetSurfaceGravityMS2():0.00} m/s^2");
-		AddProperty("Escape Velocity", $"{physical.GetEscapeVelocityMS() / 1000.0:0.00} km/s");
-	}
-
-	private void AddMoonListSection(
+	private void PopulateMoonSection(
 		Godot.Collections.Array<CelestialBody> moons,
 		Godot.Collections.Array originalMoonVariants,
 		CelestialBody? focusedMoon)
 	{
-		if (_inspectorContainer == null)
+		SetSectionTitle(MoonSectionPath, $"Moons ({moons.Count})");
+		VBoxContainer? content = GetSectionContent(MoonSectionPath);
+		if (content == null)
 		{
 			return;
 		}
 
-		VBoxContainer section = UiSceneTemplates.InstantiateSection();
-		Label title = UiSceneTemplates.GetRequiredChild<Label>(section, "TitleLabel");
-		VBoxContainer content = UiSceneTemplates.GetRequiredChild<VBoxContainer>(section, "Content");
-		title.Text = $"Moons ({moons.Count})";
-
-		for (int index = 0; index < moons.Count; index++)
+		for (int index = 0; index < moons.Count; index += 1)
 		{
 			CelestialBody moon = moons[index];
 			Button button = UiSceneTemplates.InstantiateActionButton();
+			string buttonText = moon.Name;
 			if (focusedMoon != null && moon.Id == focusedMoon.Id)
 			{
-				button.Text = $"* {moon.Name}";
+				buttonText = $"* {moon.Name}";
 			}
-			else
-			{
-				button.Text = moon.Name;
-			}
+
+			button.Text = buttonText;
 			button.Flat = true;
 			button.Alignment = HorizontalAlignment.Left;
 			Variant emitValue;
@@ -238,128 +261,445 @@ public partial class InspectorPanel : VBoxContainer
 			{
 				emitValue = Variant.From((GodotObject?)null);
 			}
+
 			button.Pressed += () => EmitSignal(SignalName.MoonSelected, emitValue);
-			button.Alignment = HorizontalAlignment.Left;
 			content.AddChild(button);
 		}
 
-		_inspectorContainer.AddChild(section);
+		SetSectionVisible(MoonSectionPath, true);
 	}
 
-	private void AddBackToPlanetButton(CelestialBody? planet)
+	private void PopulateBodySection(CelestialBody body, string title, string sectionPath)
 	{
-		if (_inspectorContainer == null)
+		SetSectionTitle(sectionPath, title);
+		string nameValue = body.Id;
+		if (!string.IsNullOrEmpty(body.Name))
+		{
+			nameValue = body.Name;
+		}
+
+		AddPropertyToSection(sectionPath, "Name", nameValue);
+		AddPropertyToSection(sectionPath, "Type", body.GetTypeString());
+		AddPropertyToSection(sectionPath, "ID", body.Id);
+		AddPhysicalSummaryToSection(sectionPath, body.Physical);
+
+		if (body.HasStellar() && body.Stellar != null)
+		{
+			AddPropertyToSection(sectionPath, "Spectral Class", body.Stellar.SpectralClass);
+			AddPropertyToSection(sectionPath, "Temperature", $"{body.Stellar.EffectiveTemperatureK:0} K");
+		}
+	}
+
+	private void PopulateParentSection(CelestialBody parentBody)
+	{
+		string headerText = "Parent";
+		if (!string.IsNullOrWhiteSpace(parentBody.Name))
+		{
+			headerText = $"Parent: {parentBody.Name}";
+		}
+
+		PopulateBodySection(parentBody, headerText, ParentSectionPath);
+	}
+
+	private void PopulateOrbitSection(CelestialBody body)
+	{
+		if (!body.HasOrbital() || body.Orbital == null)
 		{
 			return;
 		}
 
-		Button button = UiSceneTemplates.InstantiateActionButton();
-		if (planet == null)
+		SetSectionTitle(OrbitSectionPath, "Orbit");
+		AddPropertyToSection(OrbitSectionPath, "Semi-major Axis", FormatDistance(body.Orbital.SemiMajorAxisM));
+		AddPropertyToSection(OrbitSectionPath, "Eccentricity", $"{body.Orbital.Eccentricity:0.0000}");
+		AddPropertyToSection(OrbitSectionPath, "Periapsis", FormatDistance(body.Orbital.GetPeriapsisM()));
+		AddPropertyToSection(OrbitSectionPath, "Apoapsis", FormatDistance(body.Orbital.GetApoapsisM()));
+		AddPropertyToSection(OrbitSectionPath, "Inclination", $"{body.Orbital.InclinationDeg:0.00} deg");
+		if (!string.IsNullOrWhiteSpace(body.Orbital.ParentId))
 		{
-			button.Text = "Back to Planet";
+			AddPropertyToSection(OrbitSectionPath, "Parent", body.Orbital.ParentId);
 		}
-		else
-		{
-			button.Text = $"Back to {planet.Name}";
-		}
-		button.Pressed += () => EmitSignal(SignalName.MoonSelected, new Variant());
-		_inspectorContainer.AddChild(button);
 	}
 
-	private void BeginSection(string title)
+	private void PopulateSurfaceSection(CelestialBody body)
 	{
-		if (_inspectorContainer == null)
+		if (!body.HasSurface() || body.Surface == null)
 		{
 			return;
 		}
 
-		VBoxContainer section = UiSceneTemplates.InstantiateSection();
-		Label titleLabel = UiSceneTemplates.GetRequiredChild<Label>(section, "TitleLabel");
-		VBoxContainer content = UiSceneTemplates.GetRequiredChild<VBoxContainer>(section, "Content");
-		titleLabel.Text = title;
-		_inspectorContainer.AddChild(section);
-		_currentSectionContent = content;
+		SetSectionTitle(SurfaceSectionPath, "Surface");
+		AddPropertyToSection(SurfaceSectionPath, "Temperature", $"{body.Surface.TemperatureK:0.0} K");
+		AddPropertyToSection(SurfaceSectionPath, "Albedo", $"{body.Surface.Albedo:0.00}");
+		if (!string.IsNullOrWhiteSpace(body.Surface.SurfaceType))
+		{
+			AddPropertyToSection(SurfaceSectionPath, "Surface Type", body.Surface.SurfaceType);
+		}
+
+		AddPropertyToSection(SurfaceSectionPath, "Volcanism", $"{body.Surface.VolcanismLevel:0.00}");
+		if (body.Surface.HasTerrain() && body.Surface.Terrain != null)
+		{
+			AddPropertyToSection(SurfaceSectionPath, "Terrain", body.Surface.Terrain.TerrainType);
+			AddPropertyToSection(SurfaceSectionPath, "Elevation Range", FormatDistance(body.Surface.Terrain.ElevationRangeM));
+			AddPropertyToSection(SurfaceSectionPath, "Tectonics", $"{body.Surface.Terrain.TectonicActivity:0.00}");
+		}
+
+		if (body.Surface.HasHydrosphere() && body.Surface.Hydrosphere != null)
+		{
+			AddPropertyToSection(SurfaceSectionPath, "Ocean Coverage", $"{body.Surface.Hydrosphere.OceanCoverage * 100.0:0.#}%");
+			AddPropertyToSection(SurfaceSectionPath, "Ice Coverage", $"{body.Surface.Hydrosphere.IceCoverage * 100.0:0.#}%");
+			AddPropertyToSection(SurfaceSectionPath, "Water Type", body.Surface.Hydrosphere.WaterType);
+		}
+
+		if (body.Surface.HasCryosphere() && body.Surface.Cryosphere != null)
+		{
+			AddPropertyToSection(SurfaceSectionPath, "Polar Caps", $"{body.Surface.Cryosphere.PolarCapCoverage * 100.0:0.#}%");
+			if (body.Surface.Cryosphere.HasSubsurfaceOcean)
+			{
+				AddPropertyToSection(SurfaceSectionPath, "Subsurface Ocean", "Yes");
+			}
+			else
+			{
+				AddPropertyToSection(SurfaceSectionPath, "Subsurface Ocean", "No");
+			}
+
+			AddPropertyToSection(SurfaceSectionPath, "Cryovolcanism", $"{body.Surface.Cryosphere.CryovolcanismLevel:0.00}");
+		}
 	}
 
-	private void AddProperty(string labelText, string valueText)
+	private void PopulateAtmosphereSection(CelestialBody body)
 	{
-		VBoxContainer? targetContainer = _currentSectionContent ?? _inspectorContainer;
-		if (targetContainer == null)
+		if (!body.HasAtmosphere() || body.Atmosphere == null)
 		{
 			return;
 		}
 
-		HBoxContainer row = UiSceneTemplates.InstantiatePropertyRow();
-		Label label = UiSceneTemplates.GetRequiredChild<Label>(row, "Key");
-		Label value = UiSceneTemplates.GetRequiredChild<Label>(row, "Value");
-		label.Text = $"{labelText}:";
-		value.Text = valueText;
-		targetContainer.AddChild(row);
+		SetSectionTitle(AtmosphereSectionPath, "Atmosphere");
+		AddPropertyToSection(AtmosphereSectionPath, "Surface Pressure", $"{body.Atmosphere.SurfacePressurePa / 101325.0:0.###} atm");
+		AddPropertyToSection(AtmosphereSectionPath, "Scale Height", FormatDistance(body.Atmosphere.ScaleHeightM));
+		AddPropertyToSection(AtmosphereSectionPath, "Greenhouse", $"{body.Atmosphere.GreenhouseFactor:0.00}x");
+		if (body.Atmosphere.Composition.Count > 0)
+		{
+			AddPropertyToSection(AtmosphereSectionPath, "Dominant Gas", body.Atmosphere.GetDominantGas());
+		}
 	}
 
-	private void AddInfoLabel(string text)
+	private void PopulateRingSection(CelestialBody body)
 	{
-		VBoxContainer? targetContainer = _currentSectionContent ?? _inspectorContainer;
-		if (targetContainer == null)
+		if (!body.HasRingSystem() || body.RingSystem == null)
 		{
 			return;
 		}
 
-		Label label = UiSceneTemplates.InstantiateMessageLabel();
-		label.Text = text;
-		targetContainer.AddChild(label);
+		SetSectionTitle(RingsSectionPath, "Rings");
+		AddPropertyToSection(RingsSectionPath, "Bands", body.RingSystem.GetBandCount().ToString());
+		AddPropertyToSection(RingsSectionPath, "Inner Radius", FormatDistance(body.RingSystem.GetInnerRadiusM()));
+		AddPropertyToSection(RingsSectionPath, "Outer Radius", FormatDistance(body.RingSystem.GetOuterRadiusM()));
+		AddPropertyToSection(RingsSectionPath, "Plane Tilt", $"{body.RingSystem.InclinationDeg:0.0} deg");
 	}
 
-	private void AddTravellerReadout(CelestialBody body)
+	private void PopulateTravellerSection(CelestialBody body)
 	{
-		if (_inspectorContainer == null || body.Provenance == null || body.Provenance.SpecSnapshot.Count == 0)
+		if (body.Provenance == null || body.Provenance.SpecSnapshot.Count == 0)
 		{
 			return;
 		}
 
 		GenerationUseCaseSettings? settings = ResolveUseCaseSettings(body);
-		bool shouldShowTravellerReadout = settings != null
-			? settings.ShowTravellerReadouts || settings.IsTravellerMode()
-			: ResolveLegacyTravellerInspectorVisibility(body);
+		bool shouldShowTravellerReadout = false;
+		if (settings != null)
+		{
+			if (settings.ShowTravellerReadouts || settings.IsTravellerMode())
+			{
+				shouldShowTravellerReadout = true;
+			}
+		}
+		else
+		{
+			shouldShowTravellerReadout = ResolveLegacyTravellerInspectorVisibility(body);
+		}
+
 		if (!shouldShowTravellerReadout)
 		{
 			return;
 		}
 
 		TravellerWorldProfile profile;
-		TravellerWorldProfile? stored = TravellerWorldGenerator.TryGetStoredProfile(body);
-		if (stored != null)
+		TravellerWorldProfile? storedProfile = TravellerWorldGenerator.TryGetStoredProfile(body);
+		if (storedProfile != null)
 		{
-			profile = stored;
+			profile = storedProfile;
 		}
 		else
 		{
 			profile = TravellerWorldGenerator.DeriveFromBody(body);
 		}
 
-		BeginSection("Traveller");
+		SetSectionTitle(TravellerSectionPath, "Traveller");
 		if (settings != null)
 		{
-			AddProperty("Ruleset", GenerationUseCasePresentation.GetRulesetLabel(settings.RulesetMode));
+			AddPropertyToSection(TravellerSectionPath, "Ruleset", GenerationUseCasePresentation.GetRulesetLabel(settings.RulesetMode));
 		}
-		AddProperty("UWP", profile.ToUwpString());
-		AddProperty("Size Code", TravellerWorldProfile.ToHexDigit(profile.SizeCode));
-		AddProperty("Atmosphere Code", TravellerWorldProfile.ToHexDigit(profile.AtmosphereCode));
-		AddProperty("Hydrographics Code", TravellerWorldProfile.ToHexDigit(profile.HydrographicsCode));
-		AddProperty("Population Code", TravellerWorldProfile.ToHexDigit(profile.PopulationCode));
-		AddProperty("Government Code", TravellerWorldProfile.ToHexDigit(profile.GovernmentCode));
-		AddProperty("Law Code", TravellerWorldProfile.ToHexDigit(profile.LawCode));
-		AddProperty("Tech Level", TravellerWorldProfile.ToHexDigit(profile.TechLevelCode));
+
+		AddPropertyToSection(TravellerSectionPath, "UWP", profile.ToUwpString());
+		AddPropertyToSection(TravellerSectionPath, "Size Code", TravellerWorldProfile.ToHexDigit(profile.SizeCode));
+		AddPropertyToSection(TravellerSectionPath, "Atmosphere Code", TravellerWorldProfile.ToHexDigit(profile.AtmosphereCode));
+		AddPropertyToSection(TravellerSectionPath, "Hydrographics Code", TravellerWorldProfile.ToHexDigit(profile.HydrographicsCode));
+		AddPropertyToSection(TravellerSectionPath, "Population Code", TravellerWorldProfile.ToHexDigit(profile.PopulationCode));
+		AddPropertyToSection(TravellerSectionPath, "Government Code", TravellerWorldProfile.ToHexDigit(profile.GovernmentCode));
+		AddPropertyToSection(TravellerSectionPath, "Law Code", TravellerWorldProfile.ToHexDigit(profile.LawCode));
+		AddPropertyToSection(TravellerSectionPath, "Tech Level", TravellerWorldProfile.ToHexDigit(profile.TechLevelCode));
+
 		TravellerTradeCodeSet? tradeCodes = TryGetStoredTradeCodes(body);
 		if (tradeCodes != null)
 		{
-			AddProperty("Trade Codes", tradeCodes.ToDisplayString());
+			AddPropertyToSection(TravellerSectionPath, "Trade Codes", tradeCodes.ToDisplayString());
 		}
 
 		string travelZone = TryGetStoredTravelZone(body);
 		if (!string.IsNullOrEmpty(travelZone))
 		{
-			AddProperty("Travel Zone", travelZone);
+			AddPropertyToSection(TravellerSectionPath, "Travel Zone", travelZone);
+		}
+	}
+
+	private void PopulatePopulationSection(CelestialBody body)
+	{
+		if (!body.HasPopulationData() || body.PopulationData == null)
+		{
+			return;
+		}
+
+		if (!body.PopulationData.IsInhabited())
+		{
+			return;
+		}
+
+		SetSectionTitle(PopulationSectionPath, "Population");
+		AddPropertyToSection(PopulationSectionPath, "Total Population", PropertyFormatter.FormatPopulation(body.PopulationData.GetTotalPopulation()));
+		AddPropertyToSection(PopulationSectionPath, "Situation", PropertyFormatter.FormatPoliticalSituation(body.PopulationData.GetPoliticalSituation()));
+		AddPropertyToSection(PopulationSectionPath, "Colonies", body.PopulationData.GetActiveColonyCount().ToString());
+		AddPropertyToSection(PopulationSectionPath, "Native Groups", body.PopulationData.GetExtantNativeCount().ToString());
+		AddPropertyToSection(PopulationSectionPath, "Dominant", body.PopulationData.GetDominantPopulationName());
+		AddPropertyToSection(PopulationSectionPath, "Highest Tech", PropertyFormatter.FormatTechLevel(body.PopulationData.GetHighestTechLevel()));
+		if (body.PopulationData.Profile != null)
+		{
+			AddPropertyToSection(PopulationSectionPath, "Habitability", PropertyFormatter.FormatHabitability(body.PopulationData.Profile.HabitabilityScore));
+		}
+
+		if (body.PopulationData.Suitability != null)
+		{
+			AddPropertyToSection(PopulationSectionPath, "Suitability", PropertyFormatter.FormatSuitability(body.PopulationData.Suitability.OverallScore));
+		}
+
+		SentientWorldProfile? sentientWorldProfile = body.PopulationData.GetSentientWorldProfile();
+		if (sentientWorldProfile != null)
+		{
+			AddPropertyToSection(PopulationSectionPath, "Dominant Regime", PropertyFormatter.FormatRegime(sentientWorldProfile.DominantRegime));
+			AddPropertyToSection(PopulationSectionPath, "Settlement Pattern", sentientWorldProfile.SettlementPattern);
+			AddPropertyToSection(PopulationSectionPath, "Primary Settlement", sentientWorldProfile.PrimarySettlementRank);
+			AddPropertyToSection(PopulationSectionPath, "Logistics Capacity", sentientWorldProfile.LogisticsCapacity);
+			AddPropertyToSection(PopulationSectionPath, "Urbanization", PropertyFormatter.FormatPercent(sentientWorldProfile.UrbanizationShare));
+			AddPropertyToSection(PopulationSectionPath, "Social Scale", PropertyFormatter.FormatPercent(sentientWorldProfile.SocialScale));
+			AddPropertyToSection(PopulationSectionPath, "Surplus Base", PropertyFormatter.FormatPercent(sentientWorldProfile.SurplusBase));
+			AddPropertyToSection(PopulationSectionPath, "Trade Connectivity", PropertyFormatter.FormatPercent(sentientWorldProfile.TradeConnectivity));
+			AddPropertyToSection(PopulationSectionPath, "External Threat", PropertyFormatter.FormatPercent(sentientWorldProfile.ExternalThreat));
+			AddPropertyToSection(PopulationSectionPath, "State Capacity", PropertyFormatter.FormatPercent(sentientWorldProfile.StateCapacity));
+			AddPropertyToSection(PopulationSectionPath, "Fiscal Contract", PropertyFormatter.FormatPercent(sentientWorldProfile.FiscalContract));
+			AddPropertyToSection(PopulationSectionPath, "Legal Centralization", PropertyFormatter.FormatPercent(sentientWorldProfile.LegalCentralization));
+			AddPropertyToSection(PopulationSectionPath, "Legal Reach", PropertyFormatter.FormatPercent(sentientWorldProfile.LegalReach));
+			AddPropertyToSection(PopulationSectionPath, "Restriction Pressure", PropertyFormatter.FormatPercent(sentientWorldProfile.RestrictionPressure));
+			AddPropertyToSection(PopulationSectionPath, "Cultural Accumulation", PropertyFormatter.FormatPercent(sentientWorldProfile.CulturalAccumulation));
+			AddPropertyToSection(PopulationSectionPath, "Tech Adoption", PropertyFormatter.FormatPercent(sentientWorldProfile.TechnologyAdoptionCapacity));
+			AddPropertyToSection(PopulationSectionPath, "Factional Fragmentation", PropertyFormatter.FormatPercent(sentientWorldProfile.FactionalFragmentation));
+			AddPropertyToSection(PopulationSectionPath, "Religious Centralization", PropertyFormatter.FormatPercent(sentientWorldProfile.ReligiousCentralization));
+		}
+	}
+
+	private void PopulateValidationSection(CelestialBody body)
+	{
+		ValidationResult validation = CelestialValidator.Validate(body);
+		SetSectionTitle(ValidationSectionPath, "Validation");
+		if (validation.IsClean())
+		{
+			AddInfoToSection(ValidationSectionPath, "No validation issues");
+			return;
+		}
+
+		foreach (ValidationError warning in validation.Errors)
+		{
+			Label label = UiSceneTemplates.InstantiateMessageLabel();
+			if (warning.Severity == ValidationError.SeverityLevel.Error)
+			{
+				label.Text = $"Error: {warning.Message}";
+				label.Modulate = new Color(1.0f, 0.45f, 0.45f, 1.0f);
+			}
+			else
+			{
+				label.Text = $"Warning: {warning.Message}";
+				label.Modulate = new Color(0.85f, 0.7f, 0.3f, 1.0f);
+			}
+
+			AddCustomControlToSection(ValidationSectionPath, label);
+		}
+	}
+
+	private void AddPhysicalSummaryToSection(string sectionPath, PhysicalProps physical)
+	{
+		AddPropertyToSection(sectionPath, "Mass", $"{physical.MassKg:0.###e0} kg");
+		AddPropertyToSection(sectionPath, "Radius", FormatDistance(physical.RadiusM));
+		AddPropertyToSection(sectionPath, "Density", $"{physical.GetDensityKgM3():0.0} kg/m^3");
+		AddPropertyToSection(sectionPath, "Gravity", $"{physical.GetSurfaceGravityMS2():0.00} m/s^2");
+		AddPropertyToSection(sectionPath, "Escape Velocity", $"{physical.GetEscapeVelocityMS() / 1000.0:0.00} km/s");
+	}
+
+	private void AddPropertyToSection(string sectionPath, string labelText, string valueText)
+	{
+		HBoxContainer row = UiSceneTemplates.InstantiatePropertyRow();
+		Label label = UiSceneTemplates.GetRequiredChild<Label>(row, "Key");
+		Label value = UiSceneTemplates.GetRequiredChild<Label>(row, "Value");
+		label.Text = $"{labelText}:";
+		value.Text = valueText;
+		AddCustomControlToSection(sectionPath, row);
+	}
+
+	private void AddInfoToSection(string sectionPath, string text)
+	{
+		Label label = UiSceneTemplates.InstantiateMessageLabel();
+		label.Text = text;
+		AddCustomControlToSection(sectionPath, label);
+	}
+
+	private void AddCustomControlToSection(string sectionPath, Control control)
+	{
+		VBoxContainer? content = GetSectionContent(sectionPath);
+		if (content == null)
+		{
+			control.QueueFree();
+			return;
+		}
+
+		content.AddChild(control);
+		SetSectionVisible(sectionPath, true);
+	}
+
+	private void SetSectionTitle(string sectionPath, string title)
+	{
+		Label? titleLabel = GetNodeOrNull<Label>($"{sectionPath}/TitleLabel");
+		if (titleLabel != null)
+		{
+			titleLabel.Text = title;
+		}
+	}
+
+	private VBoxContainer? GetSectionContent(string sectionPath)
+	{
+		return GetNodeOrNull<VBoxContainer>($"{sectionPath}/Content");
+	}
+
+	private void SetSectionVisible(string sectionPath, bool visible)
+	{
+		Control? section = GetNodeOrNull<Control>(sectionPath);
+		if (section != null)
+		{
+			section.Visible = visible;
+		}
+	}
+
+	private void ClearSection(string sectionPath)
+	{
+		VBoxContainer? content = GetSectionContent(sectionPath);
+		if (content != null)
+		{
+			ClearDynamicChildren(content);
+		}
+
+		SetSectionVisible(sectionPath, false);
+	}
+
+	private void ShowInfoLabel(string text)
+	{
+		if (_infoLabel == null)
+		{
+			return;
+		}
+
+		_infoLabel.Text = text;
+		_infoLabel.Visible = true;
+	}
+
+	private void HideInfoLabel()
+	{
+		if (_infoLabel != null)
+		{
+			_infoLabel.Visible = false;
+		}
+	}
+
+	private void ShowBackButton(CelestialBody? planet)
+	{
+		if (_backToBodyButton == null)
+		{
+			return;
+		}
+
+		if (planet == null || string.IsNullOrWhiteSpace(planet.Name))
+		{
+			_backToBodyButton.Text = "Back to Planet";
+		}
+		else
+		{
+			_backToBodyButton.Text = $"Back to {planet.Name}";
+		}
+
+		_backToBodyButton.Visible = true;
+	}
+
+	private void HideBackButton()
+	{
+		if (_backToBodyButton != null)
+		{
+			_backToBodyButton.Visible = false;
+		}
+	}
+
+	private void ShowEditButton()
+	{
+		if (_editButton != null)
+		{
+			_editButton.Visible = true;
+		}
+	}
+
+	private void HideEditButton()
+	{
+		if (_editButton != null)
+		{
+			_editButton.Visible = false;
+		}
+	}
+
+	private void OnBackToBodyPressed()
+	{
+		EmitSignal(SignalName.MoonSelected, new Variant());
+	}
+
+	private void OnEditButtonPressed()
+	{
+		EmitSignal(SignalName.EditRequested);
+	}
+
+	private static void ClearDynamicChildren(Node parent)
+	{
+		Godot.Collections.Array<Node> children = [];
+		foreach (Node child in parent.GetChildren())
+		{
+			children.Add(child);
+		}
+
+		foreach (Node child in children)
+		{
+			parent.RemoveChild(child);
+			child.QueueFree();
 		}
 	}
 
@@ -442,168 +782,6 @@ public partial class InspectorPanel : VBoxContainer
 		return string.Empty;
 	}
 
-	private void AddOrbitalSummary(CelestialBody body)
-	{
-		if (_inspectorContainer == null || !body.HasOrbital() || body.Orbital == null)
-		{
-			return;
-		}
-
-		BeginSection("Orbit");
-		AddProperty("Semi-major Axis", FormatDistance(body.Orbital.SemiMajorAxisM));
-		AddProperty("Eccentricity", $"{body.Orbital.Eccentricity:0.0000}");
-		AddProperty("Periapsis", FormatDistance(body.Orbital.GetPeriapsisM()));
-		AddProperty("Apoapsis", FormatDistance(body.Orbital.GetApoapsisM()));
-		AddProperty("Inclination", $"{body.Orbital.InclinationDeg:0.00} deg");
-		if (!string.IsNullOrWhiteSpace(body.Orbital.ParentId))
-		{
-			AddProperty("Parent", body.Orbital.ParentId);
-		}
-	}
-
-	private void AddSurfaceSummary(CelestialBody body)
-	{
-		if (_inspectorContainer == null || !body.HasSurface() || body.Surface == null)
-		{
-			return;
-		}
-
-		BeginSection("Surface");
-		AddProperty("Temperature", $"{body.Surface.TemperatureK:0.0} K");
-		AddProperty("Albedo", $"{body.Surface.Albedo:0.00}");
-		if (!string.IsNullOrWhiteSpace(body.Surface.SurfaceType))
-		{
-			AddProperty("Surface Type", body.Surface.SurfaceType);
-		}
-		AddProperty("Volcanism", $"{body.Surface.VolcanismLevel:0.00}");
-
-		if (body.Surface.HasTerrain() && body.Surface.Terrain != null)
-		{
-			AddProperty("Terrain", body.Surface.Terrain.TerrainType);
-			AddProperty("Elevation Range", FormatDistance(body.Surface.Terrain.ElevationRangeM));
-			AddProperty("Tectonics", $"{body.Surface.Terrain.TectonicActivity:0.00}");
-		}
-
-		if (body.Surface.HasHydrosphere() && body.Surface.Hydrosphere != null)
-		{
-			AddProperty("Ocean Coverage", $"{body.Surface.Hydrosphere.OceanCoverage * 100.0:0.#}%");
-			AddProperty("Ice Coverage", $"{body.Surface.Hydrosphere.IceCoverage * 100.0:0.#}%");
-			AddProperty("Water Type", body.Surface.Hydrosphere.WaterType);
-		}
-
-		if (body.Surface.HasCryosphere() && body.Surface.Cryosphere != null)
-		{
-			AddProperty("Polar Caps", $"{body.Surface.Cryosphere.PolarCapCoverage * 100.0:0.#}%");
-			AddProperty("Subsurface Ocean", body.Surface.Cryosphere.HasSubsurfaceOcean ? "Yes" : "No");
-			AddProperty("Cryovolcanism", $"{body.Surface.Cryosphere.CryovolcanismLevel:0.00}");
-		}
-	}
-
-	private void AddAtmosphereSummary(CelestialBody body)
-	{
-		if (_inspectorContainer == null || !body.HasAtmosphere() || body.Atmosphere == null)
-		{
-			return;
-		}
-
-		BeginSection("Atmosphere");
-		AddProperty("Surface Pressure", $"{body.Atmosphere.SurfacePressurePa / 101325.0:0.###} atm");
-		AddProperty("Scale Height", FormatDistance(body.Atmosphere.ScaleHeightM));
-		AddProperty("Greenhouse", $"{body.Atmosphere.GreenhouseFactor:0.00}x");
-		if (body.Atmosphere.Composition.Count > 0)
-		{
-			AddProperty("Dominant Gas", body.Atmosphere.GetDominantGas());
-		}
-	}
-
-	private void AddRingSummary(CelestialBody body)
-	{
-		if (_inspectorContainer == null || !body.HasRingSystem() || body.RingSystem == null)
-		{
-			return;
-		}
-
-		BeginSection("Rings");
-		AddProperty("Bands", body.RingSystem.GetBandCount().ToString());
-		AddProperty("Inner Radius", FormatDistance(body.RingSystem.GetInnerRadiusM()));
-		AddProperty("Outer Radius", FormatDistance(body.RingSystem.GetOuterRadiusM()));
-		AddProperty("Plane Tilt", $"{body.RingSystem.InclinationDeg:0.0} deg");
-	}
-
-	private void AddPopulationSummary(CelestialBody body)
-	{
-		if (_inspectorContainer == null || !body.HasPopulationData() || body.PopulationData == null)
-		{
-			return;
-		}
-
-		BeginSection("Population");
-		AddProperty("Total Population", PropertyFormatter.FormatPopulation(body.PopulationData.GetTotalPopulation()));
-		AddProperty("Situation", body.PopulationData.GetPoliticalSituation());
-		AddProperty("Colonies", body.PopulationData.GetActiveColonyCount().ToString());
-		AddProperty("Native Groups", body.PopulationData.GetExtantNativeCount().ToString());
-		AddProperty("Dominant", body.PopulationData.GetDominantPopulationName());
-		if (body.PopulationData.Profile != null)
-		{
-			AddProperty("Habitability", body.PopulationData.Profile.HabitabilityScore.ToString());
-		}
-		if (body.PopulationData.Suitability != null)
-		{
-			AddProperty("Suitability", body.PopulationData.Suitability.OverallScore.ToString());
-		}
-	}
-
-	private void AddValidationSummary(CelestialBody body)
-	{
-		if (_inspectorContainer == null)
-		{
-			return;
-		}
-
-		ValidationResult validation = CelestialValidator.Validate(body);
-		BeginSection("Validation");
-		if (validation.IsClean())
-		{
-			AddInfoLabel("No validation issues");
-			return;
-		}
-
-		foreach (ValidationError warning in validation.Errors)
-		{
-			Label label = UiSceneTemplates.InstantiateMessageLabel();
-			if (warning.Severity == ValidationError.SeverityLevel.Error)
-			{
-				label.Text = $"Error: {warning.Message}";
-				label.Modulate = new Color(1.0f, 0.45f, 0.45f, 1.0f);
-			}
-			else
-			{
-				label.Text = $"Warning: {warning.Message}";
-				label.Modulate = new Color(0.85f, 0.7f, 0.3f, 1.0f);
-			}
-
-			if (_currentSectionContent != null)
-			{
-				_currentSectionContent.AddChild(label);
-			}
-		}
-	}
-
-	private void AddEditButton()
-	{
-		VBoxContainer? targetContainer = _currentSectionContent ?? _inspectorContainer;
-		if (targetContainer == null)
-		{
-			return;
-		}
-
-		Button button = UiSceneTemplates.InstantiateActionButton();
-		button.Text = "Open Parameter Editor";
-		button.TooltipText = "Edit and regenerate this body using validated parameters";
-		button.Pressed += () => EmitSignal(SignalName.EditRequested);
-		targetContainer.AddChild(button);
-	}
-
 	private static string FormatDistance(double meters)
 	{
 		if (meters >= 1.0e9)
@@ -622,79 +800,6 @@ public partial class InspectorPanel : VBoxContainer
 		}
 
 		return $"{meters:0.###} m";
-	}
-
-	private static string FormatOptionalBool(Variant value)
-	{
-		if (value.VariantType == Variant.Type.Nil)
-		{
-			return "Auto";
-		}
-
-        if (value.VariantType == Variant.Type.Bool)
-        {
-            if ((bool)value)
-            {
-                return "Yes";
-            }
-
-            return "None";
-        }
-
-		return value.ToString();
-	}
-
-	private static string FormatSizeCategory(Variant value)
-	{
-		if (value.VariantType != Variant.Type.Int)
-		{
-			return value.ToString();
-		}
-
-		int intValue = (int)value;
-		if (!Enum.IsDefined(typeof(SizeCategoryArchetype.Category), intValue))
-		{
-			return intValue.ToString();
-		}
-
-		return ((SizeCategoryArchetype.Category)intValue).ToString();
-	}
-
-	private static string FormatOrbitZone(Variant value)
-	{
-		if (value.VariantType != Variant.Type.Int)
-		{
-			return value.ToString();
-		}
-
-		int intValue = (int)value;
-		if (!Enum.IsDefined(typeof(OrbitZoneArchetype.Zone), intValue))
-		{
-			return intValue.ToString();
-		}
-
-		return ((OrbitZoneArchetype.Zone)intValue).ToString();
-	}
-
-	private static string FormatRingComplexity(Variant value)
-	{
-		if (value.VariantType != Variant.Type.Int)
-		{
-			return value.ToString();
-		}
-
-		int intValue = (int)value;
-		if (intValue < 0)
-		{
-			return "Auto";
-		}
-
-		if (!Enum.IsDefined(typeof(RingComplexityArchetype.Level), intValue))
-		{
-			return intValue.ToString();
-		}
-
-		return ((RingComplexityArchetype.Level)intValue).ToString();
 	}
 
 	private static CelestialBody? ConvertVariantToCelestialBody(Variant value)

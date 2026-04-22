@@ -11,20 +11,22 @@ Notes:
 star_gen/
 |-- Concepts/
 |   |-- Additions.md
-|   |-- CivilisationEngine/
-|   |-- ConlangGenerator/
-|   |-- DiseaseSimulator/
-|   |-- EcologyGenerator/
-|   |-- EvoTechTree/
-|   `-- ReligionGenerator/
 |-- Docs/
 |   |-- Assets.md
 |   |-- CelestialBodyProperties.md
 |   |-- GDD.md
+|   |-- LifeScienceAudit.md
+|   |-- ParameterMaterialityAudit.md
 |   |-- ProjectStructure.md
+|   |-- RpgCompatibilityGenerationAudit.md
 |   |-- RegimeChangeModel.md
 |   |-- Roadmap.md
 |   |-- ScientificParameterAudit.md
+|   |-- SentientWorldBaseline.md
+|   |-- V0.9AcceptanceChecklist.md
+|   |-- V0.9Plan.md
+|   |-- V0.9ReleaseChecklist.md
+|   |-- V1.0Checklist.md
 |   |-- ViewerSceneOwnershipAudit.md
 |   `-- TravellerWorldCreation.md
 |-- NuGet/
@@ -32,14 +34,13 @@ star_gen/
 |-- Sources/
 |-- Resources/
 |   `-- Audio/
+|-- scripts/
+|   `-- CreateReleaseBuild.ps1
 |-- src/
 |   |-- app/
 |   |   |-- audio/                     # shared app-level audio controller and cue library used by splash/menu/UI playback
 |   |   |-- components/                # reusable scene-authored UI fragments/templates for shipped viewers and editors
-|   |   |-- concepts/                  # parked mainline-inactive concept UI/runtime pending migration work
 |   |   |-- galaxy_viewer/
-|   |   |-- jumplanes_prototype/
-|   |   |-- prototypes/
 |   |   |-- rendering/
 |   |   |-- shared/
 |   |   |-- system_viewer/
@@ -97,8 +98,10 @@ star_gen/
 - `src/app/audio/AppAudioCueId.cs`: stable cue identifiers used by the controller and callers such as the splash screen.
 - `Resources/Audio/MainAudioLibrary.tres`: default shared audio library resource, currently binding the intro music cue so desktop exports include the startup audio as a real dependency.
 - `Tests/Integration/TestAppAudio.cs`: non-visual regression coverage proving `MainApp` owns the shared audio controller, that intro music is configured through the shared library rather than a splash-local player, and that the persisted skip-intro preference opens directly to the main menu.
+- `Docs/RpgCompatibilityGenerationAudit.md`: audit of the target RPG systems' world-generation outputs, the current StarGen compatibility coverage gaps, and the proposed science-grounded sentient-world baseline for government, law, technology, settlement structure, and ruleset adapters.
+- `Docs/SentientWorldBaseline.md`: field-by-field grounding note for the neutral sentient-world baseline now carried on inhabited planets and moons, including why each inspector-facing population field is shown and which academic sources support its structural use.
 - `Docs/ScientificParameterAudit.md`: tracked audit matrix for the shipped galaxy, stellar, planetary, and life science controls, including source relevance, generator wiring, expected outcome direction, test coverage, and disposition.
-- `src/domain/generation/PlanetaryGenerationProfile.cs`: shared serializable aggregate planetary-formation profile used by galaxy and system generation to carry mass-radius, envelope-loss, gas-giant, metallicity-coupling, rogue-planet, moon-bias, and outer-system-bias assumptions.
+- `src/domain/generation/PlanetaryGenerationProfile.cs`: shared serializable aggregate planetary-formation profile used by galaxy and system generation to carry mass-radius, envelope-loss, habitable-zone model, gas-giant, metallicity-coupling, rogue-planet, moon-bias, and outer-system-bias assumptions.
 - `src/domain/generation/tables/PlanetMassRadiusTable.cs`: empirical planet mass-radius resolver that now applies the supported Chen-Kipping and Otegi model families directly to generated planet sizes and densities, with direct planet-facing overrides layered on top.
 - `src/domain/generation/PlanetarySystemState.cs`: derived per-system planetary state built once from stellar context plus the shared planetary profile so downstream planet generation can react to snow-line, solid/gas budget, escape-pressure, migration/stirring surrogates, habitable-zone alignment, XUV activity, volatile delivery, and outer-reservoir strength.
 - `src/domain/generation/parameters/PlanetaryScienceReferenceCatalog.cs`: source registry and plain-language help/tooltips for the aggregate planetary controls shared by Galaxy Studio and System Studio.
@@ -120,11 +123,21 @@ star_gen/
 - `src/domain/system/SystemMoonGenerator.cs`: moon generation now reacts to the shared planetary-system state so giant hosts, snow-line context, and moon-formation bias change regular-vs-captured architecture and count tendencies.
 - `src/domain/system/SystemAsteroidGenerator.cs`: asteroid-belt placement and composition now respond to solid budget, outer-reservoir strength, and comet-leaning outer-system bias instead of using flat belt assumptions.
 - `src/domain/population/ProfileGenerator.cs`: derived life-support profiles now carry stellar flux, habitable-zone alignment, and XUV exposure for downstream ecology and biosphere decisions.
+- `src/domain/population/SentientWorldProfile.cs`: neutral inhabited-world baseline that stores settlement pattern, logistics capacity, dominant regime, law-facing capacity fields, and the structural societal axes used by future RPG adapters.
+- `src/domain/population/SentientWorldProfileBuilder.cs`: deterministic builder that derives the neutral sentient-world baseline from active native and colony populations plus the body's environmental and suitability context.
+- `scripts/CreateReleaseBuild.ps1`: Windows-hosted release helper that runs the build and headless verification gates, exports the configured release presets, zips platform folders, and prints suggested itch `butler` commands.
+- `Docs/V0.9ReleaseChecklist.md`: concrete `0.9d` release-prep procedure covering version sync, verification gates, export flow, artifact review, and itch upload steps.
+- `Docs/V0.9AcceptanceChecklist.md`: live manual QA checklist for exported `0.9d` artifacts, covering startup, studios, viewers, mainline scope boundaries, and packaging validation.
+- `Docs/V1.0Checklist.md`: concrete checklist for the remaining scope lock, UI, realism, sentient-world audit, and release-hardening work before a defensible `1.0`.
 - `src/domain/population/BiologySupportEvaluator.cs`: summary biology support now uses weighted orbit, XUV, and tidal-heating constraints so biosphere support reflects system context without turning generation into a simulation.
 - `Tests/Unit/TestPlanetaryGenerationProfile.cs`: deterministic serialization, propagation, and planetary-help metadata coverage for the shared planetary retrofit.
 - `Tests/Unit/Population/TestBiologySupportEvaluator.cs`: population-side regression coverage for XUV penalties and bounded tidal-heating benefits on icy moons.
+- `Tests/Unit/Population/TestSentientWorldProfile.cs`: deterministic regression coverage for sentient-world baseline derivation and serialization, including the new settlement/logistics/governance summary fields.
 - `Sources/Texts/planets.md`: implementation-oriented deterministic planet-formation specification used as the design target for the upstream planetary retrofit.
 - `Sources/Texts/ChenKipping2017.txt`, `Sources/Texts/Otegi2020.txt`, `Sources/Texts/OwenWu2017.txt`, `Sources/Texts/Ginzburg2018.txt`, `Sources/Texts/Mordasini2007.txt`, `Sources/Texts/LambrechtsJohansen2012.txt`, `Sources/Texts/Mroz2020.txt`: reviewed source notes added for the `0.8.8.0` planetary-priors cleanup so every surfaced planetary-prior model points to an external paper-backed basis instead of legacy internal notes.
+- `Sources/Texts/Petigura2013.txt`, `Sources/Texts/Bryson2021.txt`, `Sources/Texts/Ribas2015.txt`, `Sources/Texts/Pascucci2016.txt`, `Sources/Texts/Izidoro2017.txt`, `Sources/Texts/Fernandes2019.txt`, `Sources/Texts/RaymondIzidoro2017.txt`: reviewed source notes added for the current planetary-grounding pass so terrestrial occurrence, habitable-zone rocky yield, disk lifetime, disk mass scaling, migration-shaped compact systems, snow-line giant-planet turnover, and volatile-delivery coupling all point to explicit academic anchors.
+- `Sources/Texts/Kasting1993.txt`, `Sources/Texts/Kopparapu2013.txt`: reviewed source notes added for the habitable-zone parameter pass so StarGen's explicit circumstellar habitable-zone model choices point to named academic climate-model families rather than a mixed legacy implementation.
+- `Sources/AnnotatedBibliography.md`, `Sources/ToReview.md`, `Sources/Texts/planets.md`: expanded planetary source-audit documents that now map StarGen’s aggregate planetary priors to concrete observational and disk-physics calibration anchors instead of treating the upstream sliders as generic heuristics.
 - `Sources/Texts/Fulton2017.txt`, `Sources/Texts/FischerValenti2005.txt`, `Sources/Texts/CanupWard2006.txt`, `Sources/Texts/DeMeoCarry2014.txt`, `Sources/Texts/Lamy2004.txt`, `Sources/Texts/Kopparapu2014.txt`, `Sources/Texts/HellerBarnes2013.txt`: reviewed source notes added for the `0.8.7.0` calibration pass across planet demographics, moon formation, small-body placement, and biosphere-support constraints.
 - `src/domain/generation/parameters/LifeScienceReferenceCatalog.cs`: source registry and plain-language help content for the galaxy-studio life-model stack, including the documented `Earth-Anchored Composite` synthesis preset and the per-stage abiogenesis, complex-life, civilization, and environmental-window controls.
 - `src/domain/generation/parameters/ObjectScienceReferenceCatalog.cs`: source registry and plain-language conflict-note/help content for Object Studio, tying direct-setting tensions such as airless versus ocean-heavy worlds to explicit academic sources.

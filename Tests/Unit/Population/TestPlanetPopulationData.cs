@@ -63,6 +63,25 @@ public static class TestPlanetPopulationData
     }
 
     /// <summary>
+    /// Creates a test sentient-world baseline.
+    /// </summary>
+    private static SentientWorldProfile CreateSentientWorldProfile()
+    {
+        SentientWorldProfile profile = new();
+        profile.TotalPopulation = 1200000;
+        profile.NativePopulation = 1000000;
+        profile.ColonyPopulation = 200000;
+        profile.HighestTechLevel = TechnologyLevel.Level.Interstellar;
+        profile.DominantRegime = GovernmentType.Regime.Constitutional;
+        profile.SettlementPattern = "Corridor";
+        profile.PrimarySettlementRank = "City";
+        profile.LogisticsCapacity = "Regional Port";
+        profile.TradeConnectivity = 0.61;
+        profile.StateCapacity = 0.57;
+        return profile;
+    }
+
+    /// <summary>
     /// Tests default creation.
     /// </summary>
     public static void TestCreationDefault()
@@ -431,6 +450,7 @@ public static class TestPlanetPopulationData
         data.Suitability = CreateTestSuitability();
         data.NativePopulations.Add(CreateTestNative("n1", 1000000));
         data.Colonies.Add(CreateTestColony("c1", 200000));
+        data.SentientWorldProfile = CreateSentientWorldProfile();
 
         Godot.Collections.Dictionary summary = data.GetSummary();
 
@@ -441,6 +461,8 @@ public static class TestPlanetPopulationData
         DotNetNativeTestSuite.AssertEqual("coexisting", summary["political_situation"].AsString(), "Political situation should match");
         DotNetNativeTestSuite.AssertEqual(8, summary["habitability_score"].AsInt32(), "Habitability score should match");
         DotNetNativeTestSuite.AssertEqual(75, summary["suitability_score"].AsInt32(), "Suitability score should match");
+        DotNetNativeTestSuite.AssertEqual("Corridor", summary["settlement_pattern"].AsString(), "Settlement pattern should match");
+        DotNetNativeTestSuite.AssertEqual("City", summary["primary_settlement_rank"].AsString(), "Settlement rank should match");
     }
 
     /// <summary>
@@ -455,6 +477,7 @@ public static class TestPlanetPopulationData
         original.Suitability = CreateTestSuitability();
         original.NativePopulations.Add(CreateTestNative("n1", 1000000));
         original.Colonies.Add(CreateTestColony("c1", 200000));
+        original.SentientWorldProfile = CreateSentientWorldProfile();
 
         Godot.Collections.Dictionary data = original.ToDictionary();
         PlanetPopulationData restored = PlanetPopulationData.FromDictionary(data);
@@ -467,6 +490,8 @@ public static class TestPlanetPopulationData
         DotNetNativeTestSuite.AssertEqual(original.Suitability.OverallScore, restored.Suitability.OverallScore, "Suitability score should match");
         DotNetNativeTestSuite.AssertEqual(1, restored.NativePopulations.Count, "Should have 1 native");
         DotNetNativeTestSuite.AssertEqual(1, restored.Colonies.Count, "Should have 1 colony");
+        DotNetNativeTestSuite.AssertNotNull(restored.SentientWorldProfile, "Sentient-world profile should round-trip");
+        DotNetNativeTestSuite.AssertEqual("Regional Port", restored.SentientWorldProfile!.LogisticsCapacity, "Logistics capacity should round-trip");
     }
 
     /// <summary>

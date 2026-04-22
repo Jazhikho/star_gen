@@ -32,13 +32,10 @@ public partial class GalaxyViewer
 		_sidePanel = GetNodeOrNull<Control>("UI/UIRoot/SidePanel");
 		_statusLabel = GetNodeOrNull<Label>("UI/UIRoot/TopBar/MarginContainer/TopBarVBox/HeaderRow/StatusLabel");
 		_inspectorPanel = GetNodeOrNull<Node>("UI/UIRoot/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/InspectorPanel");
-		_saveLoadSection = GetNodeOrNull<Control>("UI/UIRoot/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/SaveLoadSection");
-		_saveButton = GetNodeOrNull<Button>("UI/UIRoot/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/SaveLoadSection/ButtonContainer/SaveButton");
-		_loadButton = GetNodeOrNull<Button>("UI/UIRoot/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/SaveLoadSection/ButtonContainer/LoadButton");
-		_newGalaxyButton = GetNodeOrNull<Button>("UI/UIRoot/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/SaveLoadSection/NewGalaxyButton");
 		_cameraPanel = GetNodeOrNull<Control>("UI/UIRoot/CameraPanel");
 		_cameraPanelHeaderButton = GetNodeOrNull<Button>("UI/UIRoot/CameraPanel/CameraPanelVBox/CameraPanelHeaderButton");
 		_cameraPanelContent = GetNodeOrNull<Control>("UI/UIRoot/CameraPanel/CameraPanelVBox/CameraPanelContent");
+		_cameraHelpLabel = GetNodeOrNull<Label>("UI/UIRoot/CameraPanel/CameraPanelVBox/CameraPanelContent/CameraHelpLabel");
 		_optionsDialog = GetNodeOrNull<Window>("OptionsDialog");
 		_fullscreenCheck = GetNodeOrNull<CheckBox>("OptionsDialog/MarginContainer/OptionsVBox/FullscreenCheck");
 		_showSeedControlsCheck = GetNodeOrNull<CheckBox>("OptionsDialog/MarginContainer/OptionsVBox/ShowSeedControlsCheck");
@@ -121,11 +118,6 @@ public partial class GalaxyViewer
 	/// </summary>
 	private void ConnectUiSignals()
 	{
-		if (_saveLoadSection != null)
-		{
-			_saveLoadSection.Visible = false;
-		}
-
 		if (_starCamera != null)
 		{
 			_starCamera.SubsectorChanged += OnSubsectorChanged;

@@ -166,28 +166,6 @@ layout_mode = 2
 size_flags_horizontal = 3
 theme_override_constants/separation = 8
 
-[node name="SaveLoadSection" type="VBoxContainer" parent="UI/UIRoot/SidePanel/MarginContainer/ScrollContainer/VBoxContainer"]
-layout_mode = 2
-theme_override_constants/separation = 5
-
-[node name="ButtonContainer" type="HBoxContainer" parent="UI/UIRoot/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/SaveLoadSection"]
-layout_mode = 2
-theme_override_constants/separation = 10
-
-[node name="SaveButton" type="Button" parent="UI/UIRoot/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/SaveLoadSection/ButtonContainer"]
-layout_mode = 2
-size_flags_horizontal = 3
-text = "Save"
-
-[node name="LoadButton" type="Button" parent="UI/UIRoot/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/SaveLoadSection/ButtonContainer"]
-layout_mode = 2
-size_flags_horizontal = 3
-text = "Load"
-
-[node name="NewGalaxyButton" type="Button" parent="UI/UIRoot/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/SaveLoadSection"]
-layout_mode = 2
-text = "New Galaxy..."
-
 [node name="InspectorPanel" type="VBoxContainer" parent="UI/UIRoot/SidePanel/MarginContainer/ScrollContainer/VBoxContainer"]
 layout_mode = 2
 size_flags_horizontal = 3
@@ -355,10 +333,10 @@ anchor_left = 1.0
 anchor_top = 1.0
 anchor_right = 1.0
 anchor_bottom = 1.0
-offset_left = -222.0
-offset_top = -108.0
-offset_right = -12.0
-offset_bottom = -12.0
+offset_left = -264.0
+offset_top = -186.0
+offset_right = -16.0
+offset_bottom = -16.0
 
 [node name="CameraPanelVBox" type="VBoxContainer" parent="UI/UIRoot/CameraPanel"]
 layout_mode = 2
@@ -366,6 +344,7 @@ theme_override_constants/separation = 8
 
 [node name="CameraPanelContent" type="MarginContainer" parent="UI/UIRoot/CameraPanel/CameraPanelVBox"]
 visible = false
+custom_minimum_size = Vector2(224, 0)
 layout_mode = 2
 theme_override_constants/margin_left = 10
 theme_override_constants/margin_top = 0
@@ -377,7 +356,7 @@ layout_mode = 2
 theme_override_font_sizes/font_size = 11
 modulate = Color(0.84, 0.86, 0.92, 1)
 autowrap_mode = 2
-text = "Scroll: Change zoom level\nLeft Mouse: Select star\nRight Mouse: Orbit local view\nMiddle Mouse: Pan local view"
+text = "Wheel: Change move speed\nRight Drag: Look around\nW / S: Move forward / backward\nA / D: Move left / right\nE / C: Move up / down\nLeft Click: Select star"
 
 [node name="CameraPanelHeaderButton" type="Button" parent="UI/UIRoot/CameraPanel/CameraPanelVBox"]
 layout_mode = 2

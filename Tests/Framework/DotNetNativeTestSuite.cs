@@ -1153,11 +1153,20 @@ public static partial class DotNetNativeTestSuite
             "TestOrbitalMechanics::test_calculate_habitable_zone_solar",
             Tests.Unit.TestOrbitalMechanics.TestCalculateHabitableZoneSolar);
         runner.RunNativeTest(
+            "TestOrbitalMechanics::test_calculate_habitable_zone_solar_kasting_model",
+            Tests.Unit.TestOrbitalMechanics.TestCalculateHabitableZoneSolarKastingModel);
+        runner.RunNativeTest(
+            "TestOrbitalMechanics::test_calculate_habitable_zone_solar_optimistic_model",
+            Tests.Unit.TestOrbitalMechanics.TestCalculateHabitableZoneSolarOptimisticModel);
+        runner.RunNativeTest(
             "TestOrbitalMechanics::test_calculate_frost_line_solar",
             Tests.Unit.TestOrbitalMechanics.TestCalculateFrostLineSolar);
         runner.RunNativeTest(
             "TestOrbitalMechanics::test_get_orbital_zone",
             Tests.Unit.TestOrbitalMechanics.TestGetOrbitalZone);
+        runner.RunNativeTest(
+            "TestOrbitalMechanics::test_get_orbital_zone_respects_selected_habitable_zone_model",
+            Tests.Unit.TestOrbitalMechanics.TestGetOrbitalZoneRespectsSelectedHabitableZoneModel);
         runner.RunNativeTest(
             "TestOrbitalMechanics::test_get_orbital_zone_invalid_inputs",
             Tests.Unit.TestOrbitalMechanics.TestGetOrbitalZoneInvalidInputs);
@@ -2122,6 +2131,9 @@ public static partial class DotNetNativeTestSuite
             "TestStellarProps::test_habitable_zone_sun_like",
             Tests.Unit.TestStellarProps.TestHabitableZoneSunLike);
         runner.RunNativeTest(
+            "TestStellarProps::test_habitable_zone_kasting_override_sun_like",
+            Tests.Unit.TestStellarProps.TestHabitableZoneKastingOverrideSunLike);
+        runner.RunNativeTest(
             "TestStellarProps::test_habitable_zone_brighter_star",
             Tests.Unit.TestStellarProps.TestHabitableZoneBrighterStar);
         runner.RunNativeTest(
@@ -2409,6 +2421,15 @@ public static partial class DotNetNativeTestSuite
         runner.RunNativeTest(
             "TestSystemPlanetGenerator::test_aggregate_planetary_profile_changes_outcomes",
             Tests.Unit.TestSystemPlanetGenerator.TestAggregatePlanetaryProfileChangesOutcomes);
+        runner.RunNativeTest(
+            "TestSystemPlanetGenerator::test_host_mass_adjustments_change_disk_and_solid_priors",
+            Tests.Unit.TestSystemPlanetGenerator.TestHostMassAdjustmentsChangeDiskAndSolidPriors);
+        runner.RunNativeTest(
+            "TestSystemPlanetGenerator::test_snow_line_giant_formation_weight_turns_over_outside_peak",
+            Tests.Unit.TestSystemPlanetGenerator.TestSnowLineGiantFormationWeightTurnsOverOutsidePeak);
+        runner.RunNativeTest(
+            "TestSystemPlanetGenerator::test_migration_strength_favors_compact_inner_architecture",
+            Tests.Unit.TestSystemPlanetGenerator.TestMigrationStrengthFavorsCompactInnerArchitecture);
         runner.RunNativeTest(
             "TestSystemPlanetGenerator::test_direct_planet_rogue_mode_clears_orbit",
             Tests.Unit.TestSystemPlanetGenerator.TestDirectPlanetRogueModeClearsOrbit);

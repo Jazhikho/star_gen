@@ -261,6 +261,27 @@ public partial class GalaxyViewer
 			_selectionIndicator?.HideIndicator();
 		}
 
+		UpdateCameraHelpText();
 		UpdateInspector();
+	}
+
+	/// <summary>
+	/// Updates the on-screen controls help to match the current galaxy-viewer mode.
+	/// </summary>
+	private void UpdateCameraHelpText()
+	{
+		if (_cameraHelpLabel == null)
+		{
+			return;
+		}
+
+		if (IsSubsectorActive())
+		{
+			_cameraHelpLabel.Text = "Wheel: Change move speed\nRight Drag: Look around\nW / S: Move forward / backward\nA / D: Move left / right\nE / C: Move up / down\nLeft Click: Select star";
+		}
+		else
+		{
+			_cameraHelpLabel.Text = "Wheel: Zoom\nRight Drag: Orbit view\nLeft Click: Select region or star\n]: Zoom in\n[: Zoom out";
+		}
 	}
 }

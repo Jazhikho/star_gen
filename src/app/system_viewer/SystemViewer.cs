@@ -56,7 +56,6 @@ public partial class SystemViewer : Node3D, ISystemViewerSaveLoadHost
 	internal Control? _sidePanel;
 	internal Button? _backButton;
 	internal Node? _inspectorPanel;
-	internal Control? _saveLoadSection;
 	internal VBoxContainer? _generationSection;
 	internal Label? _starCountLabel;
 	internal SpinBox? _starCountSpin;
@@ -93,7 +92,6 @@ public partial class SystemViewer : Node3D, ISystemViewerSaveLoadHost
 	internal Node? _cameraController;
 	internal Node3D? _bodiesContainer;
 	internal Node3D? _orbitsContainer;
-	internal Node3D? _zonesContainer;
 	internal Node? _orbitRenderer;
 	internal Node3D? _beltRenderer;
 	internal Label? _emptyStateLabel;
@@ -119,6 +117,10 @@ public partial class SystemViewer : Node3D, ISystemViewerSaveLoadHost
 	internal string _backNavigationTooltip = "Return";
 	internal bool _generationActionsVisible = true;
 	internal Vector2 _cameraPanelExpandedSize = Vector2.Zero;
+	internal float _cameraPanelExpandedOffsetLeft;
+	internal float _cameraPanelExpandedOffsetTop;
+	internal float _cameraPanelExpandedOffsetRight;
+	internal float _cameraPanelExpandedOffsetBottom;
 	internal Tween? _cameraPanelTween;
 	internal bool _cameraPanelCollapsed = true;
 
@@ -317,8 +319,6 @@ public partial class SystemViewer : Node3D, ISystemViewerSaveLoadHost
 		UpdateSaveButtonState();
 		ClearOrbits();
 		ClearBelts();
-		ClearZones();
-
 		CreateBeltVisualizations();
 		CreateBodyNodes();
 		CreateOrbitVisualizations();
@@ -345,7 +345,6 @@ public partial class SystemViewer : Node3D, ISystemViewerSaveLoadHost
 		ClearBodies();
 		ClearOrbits();
 		ClearBelts();
-		ClearZones();
 		UpdateSaveButtonState();
 		UpdateEmptyStateVisibility();
 		UpdateInspectorSystem();

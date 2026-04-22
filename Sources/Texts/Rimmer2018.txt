@@ -1,0 +1,15 @@
+Rimmer, P. B., Xu, J., Thompson, S. J., Gillen, E., Sutherland, J. D., & Queloz, D. (2018).
+The origin of RNA precursors on exoplanets.
+PubMed PMID: 30083602
+https://pubmed.ncbi.nlm.nih.gov/30083602/
+
+Why this source matters for StarGen
+- This paper links one experimentally motivated prebiotic pathway to the stellar ultraviolet environment instead of treating abiogenesis as equivalent to generic surface habitability.
+- It introduces an "abiogenesis zone" framing that is narrower than the liquid-water habitable zone for the specific chemistry studied.
+
+How it is used
+- Supports adding a distinct prebiotic-UV or abiogenesis-opportunity channel in StarGen's life model.
+- Supports keeping abiogenesis separate from long-term biosphere persistence and complex-life filters.
+
+Human review notes
+- This does not prove all life needs the same UV environment; use it as evidence that abiogenesis opportunity should not be modeled as habitability alone.

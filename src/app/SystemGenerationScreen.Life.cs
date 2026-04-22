@@ -113,15 +113,7 @@ public partial class SystemGenerationScreen
 
 	private static string GetLifeParameterAssumption(string parameterId)
 	{
-		foreach (GenerationParameterDefinition definition in GenerationParameterCatalog.GetSystemDefinitions())
-		{
-			if (definition.Id == parameterId)
-			{
-				return definition.AssumptionText;
-			}
-		}
-
-		return string.Empty;
+		return GenerationParameterCatalog.FindSystemDefinition(parameterId)?.AssumptionText ?? string.Empty;
 	}
 
 	private static void SetOptionId(OptionButton? optionButton, int itemId)

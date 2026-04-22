@@ -74,6 +74,26 @@ public partial class PlanetarySystemState : RefCounted
     public double GasGiantWeight { get; set; } = 1.0;
 
     /// <summary>
+    /// Host-mass adjustment applied to the nominal disk lifetime prior.
+    /// </summary>
+    public double HostMassDiskLifetimeScalar { get; set; } = 1.0;
+
+    /// <summary>
+    /// Host-mass adjustment applied to the solids reservoir prior.
+    /// </summary>
+    public double HostMassSolidReservoirScalar { get; set; } = 1.0;
+
+    /// <summary>
+    /// How strongly giant-planet formation should peak around the snow line.
+    /// </summary>
+    public double SnowLineGiantFormationScalar { get; set; } = 1.0;
+
+    /// <summary>
+    /// How much volatile delivery is being boosted by giant-driven scattering channels.
+    /// </summary>
+    public double GiantScatteringScalar { get; set; } = 1.0;
+
+    /// <summary>
     /// Inner edge of the habitable zone in AU.
     /// </summary>
     public double HabitableZoneInnerAu { get; set; } = 0.95;
@@ -166,10 +186,29 @@ public partial class PlanetarySystemState : RefCounted
 
         double metallicityEnrichment = System.Math.Clamp(metallicity, 0.35, 2.5);
         double snowLineAu = 2.7 * System.Math.Sqrt(System.Math.Max(0.05, luminositySolar)) * profile.SnowLineScalar;
-        double diskLifetimeFactor = System.Math.Clamp(profile.DiskLifetimeMyr / 3.5, 0.4, 2.0);
-        double solidBudget = profile.SolidMassScalar * (0.72 + (0.28 * metallicityEnrichment)) * System.Math.Pow(profile.OxidationScalar, 0.35);
-        double gasBudget = profile.GasMassScalar * (0.80 + (0.12 * metallicityEnrichment)) * System.Math.Sqrt(diskLifetimeFactor);
-        double escapeProxy = System.Math.Clamp((luminositySolar * 0.55) + (profile.MigrationStrength * 0.25) + (profile.ImpactStirring * 0.15), 0.3, 3.5);
+        double hostMassDiskLifetimeScalar = ComputeHostMassDiskLifetimeScalar(massSolar);
+        double hostMassSolidReservoirScalar = System.Math.Clamp(System.Math.Pow(System.Math.Max(0.2, massSolar), 0.65), 0.45, 1.85);
+        double hostMassGasReservoirScalar = System.Math.Clamp(System.Math.Pow(System.Math.Max(0.2, massSolar), 0.25), 0.70, 1.35);
+        double adjustedDiskLifetimeMyr = profile.DiskLifetimeMyr * hostMassDiskLifetimeScalar;
+        double diskLifetimeFactor = System.Math.Clamp(adjustedDiskLifetimeMyr / 3.5, 0.35, 2.10);
+        double solidBudget = profile.SolidMassScalar
+            * hostMassSolidReservoirScalar
+            * (0.72 + (0.28 * metallicityEnrichment))
+            * System.Math.Pow(profile.OxidationScalar, 0.35);
+        double gasBudget = profile.GasMassScalar
+            * hostMassGasReservoirScalar
+            * (0.80 + (0.12 * metallicityEnrichment))
+            * System.Math.Sqrt(diskLifetimeFactor);
+        double effectiveMigrationStrength = System.Math.Clamp(
+            profile.MigrationStrength
+            * (0.78 + (0.18 * solidBudget) + (0.10 * gasBudget))
+            * System.Math.Pow(diskLifetimeFactor, 0.18),
+            0.45,
+            2.40);
+        double escapeProxy = System.Math.Clamp(
+            (luminositySolar * 0.55) + (effectiveMigrationStrength * 0.22) + (profile.ImpactStirring * 0.15),
+            0.3,
+            3.5);
         double gasGiantWeight = 1.0;
         if (profile.GasGiantFormationModel == GasGiantFormationModel.CoreAccretion)
         {
@@ -201,6 +240,17 @@ public partial class PlanetarySystemState : RefCounted
             escapeProxy *= 0.92;
         }
 
+        double snowLineGiantFormation = System.Math.Clamp(
+            gasGiantWeight
+            * (0.72 + (0.20 * gasBudget) + (0.16 * solidBudget))
+            * System.Math.Pow(diskLifetimeFactor, 0.20),
+            0.25,
+            3.00);
+        double giantScattering = System.Math.Clamp(
+            snowLineGiantFormation
+            * (0.62 + (0.20 * profile.ImpactStirring) + (0.12 * effectiveMigrationStrength)),
+            0.25,
+            3.25);
         double ageActivityFactor = 1.0;
         if (ageYears > 0.0)
         {
@@ -225,23 +275,25 @@ public partial class PlanetarySystemState : RefCounted
             _ => 1.0,
         };
         double outerReservoir = System.Math.Clamp(
-            outerBias * (0.78 + (0.30 * gasBudget) + (0.22 * solidBudget)),
+            outerBias * (0.74 + (0.26 * gasBudget) + (0.18 * solidBudget) + (0.08 * snowLineGiantFormation)),
             0.45,
-            2.60);
-        double volatileDelivery = System.Math.Clamp(
-            outerReservoir * (0.72 + (0.18 * profile.MigrationStrength) + (0.15 * profile.ImpactStirring)),
-            0.35,
             2.75);
+        double volatileDelivery = System.Math.Clamp(
+            outerReservoir * (0.56 + (0.22 * giantScattering) + (0.10 * profile.ImpactStirring)),
+            0.30,
+            3.00);
         double bombardment = System.Math.Clamp(
-            profile.ImpactStirring * (0.75 + (0.35 * outerReservoir)),
+            profile.ImpactStirring * (0.62 + (0.22 * outerReservoir) + (0.26 * giantScattering)),
             0.30,
             3.00);
         double habitableZoneInnerAu = OrbitalMechanics.CalculateHabitableZoneInner(
             luminositySolar * StellarProps.SolarLuminosityWatts,
-            effectiveTempK) / Units.AuMeters;
+            effectiveTempK,
+            profile.HabitableZoneModel) / Units.AuMeters;
         double habitableZoneOuterAu = OrbitalMechanics.CalculateHabitableZoneOuter(
             luminositySolar * StellarProps.SolarLuminosityWatts,
-            effectiveTempK) / Units.AuMeters;
+            effectiveTempK,
+            profile.HabitableZoneModel) / Units.AuMeters;
 
         return new PlanetarySystemState
         {
@@ -253,10 +305,14 @@ public partial class PlanetarySystemState : RefCounted
             SolidBudgetScalar = solidBudget,
             GasBudgetScalar = gasBudget,
             EscapePressureProxy = escapeProxy,
-            MigrationStrength = profile.MigrationStrength,
+            MigrationStrength = effectiveMigrationStrength,
             ImpactStirring = profile.ImpactStirring,
             MetallicityEnrichment = metallicityEnrichment,
             GasGiantWeight = gasGiantWeight,
+            HostMassDiskLifetimeScalar = hostMassDiskLifetimeScalar,
+            HostMassSolidReservoirScalar = hostMassSolidReservoirScalar,
+            SnowLineGiantFormationScalar = snowLineGiantFormation,
+            GiantScatteringScalar = giantScattering,
             HabitableZoneInnerAu = habitableZoneInnerAu,
             HabitableZoneOuterAu = habitableZoneOuterAu,
             XuvActivityScalar = xuvActivity,
@@ -264,6 +320,70 @@ public partial class PlanetarySystemState : RefCounted
             VolatileDeliveryScalar = volatileDelivery,
             BombardmentScalar = bombardment,
         };
+    }
+
+    /// <summary>
+    /// Returns how strongly giant-planet outcomes should be favored at a given orbit.
+    /// </summary>
+    public double GetSnowLineGiantFormationWeight(double orbitAu)
+    {
+        if (orbitAu <= 0.0)
+        {
+            return 0.0;
+        }
+
+        if (SnowLineAu <= 0.0)
+        {
+            return System.Math.Clamp(SnowLineGiantFormationScalar, 0.25, 1.70);
+        }
+
+        double ratio = orbitAu / System.Math.Max(SnowLineAu, 0.01);
+        double logDistance = System.Math.Abs(System.Math.Log10(System.Math.Max(0.05, ratio)));
+        double weight = 1.20 - (1.05 * logDistance);
+        if (ratio > 2.5)
+        {
+            weight *= 0.88;
+        }
+
+        if (ratio > 5.0)
+        {
+            weight *= 0.68;
+        }
+
+        weight *= 0.74 + (0.26 * SnowLineGiantFormationScalar);
+        return System.Math.Clamp(weight, 0.25, 1.70);
+    }
+
+    /// <summary>
+    /// Returns how strongly compact inner architectures should be favored at a given orbit.
+    /// </summary>
+    public double GetCompactInnerArchitectureWeight(double orbitAu)
+    {
+        if (orbitAu <= 0.0)
+        {
+            return 0.0;
+        }
+
+        double compactEdgeAu = SnowLineAu * 0.65;
+        if (HabitableZoneOuterAu > compactEdgeAu)
+        {
+            compactEdgeAu = HabitableZoneOuterAu;
+        }
+
+        if (compactEdgeAu <= 0.0)
+        {
+            return System.Math.Clamp(MigrationStrength, 0.35, 2.50);
+        }
+
+        double normalizedDistance = 1.0
+            - System.Math.Clamp((orbitAu - 0.10) / System.Math.Max(compactEdgeAu - 0.10, 0.10), 0.0, 1.0);
+        double weight = 0.70 + (normalizedDistance * (MigrationStrength - 0.70));
+        if (orbitAu > compactEdgeAu * 1.35)
+        {
+            weight *= 0.82;
+        }
+
+        return System.Math.Clamp(weight, 0.35, 2.50);
     }
 
     /// <summary>
@@ -323,6 +443,10 @@ public partial class PlanetarySystemState : RefCounted
             ImpactStirring = ImpactStirring,
             MetallicityEnrichment = MetallicityEnrichment,
             GasGiantWeight = GasGiantWeight,
+            HostMassDiskLifetimeScalar = HostMassDiskLifetimeScalar,
+            HostMassSolidReservoirScalar = HostMassSolidReservoirScalar,
+            SnowLineGiantFormationScalar = SnowLineGiantFormationScalar,
+            GiantScatteringScalar = GiantScatteringScalar,
             HabitableZoneInnerAu = HabitableZoneInnerAu,
             HabitableZoneOuterAu = HabitableZoneOuterAu,
             XuvActivityScalar = XuvActivityScalar,
@@ -351,6 +475,10 @@ public partial class PlanetarySystemState : RefCounted
             ["impact_stirring"] = ImpactStirring,
             ["metallicity_enrichment"] = MetallicityEnrichment,
             ["gas_giant_weight"] = GasGiantWeight,
+            ["host_mass_disk_lifetime_scalar"] = HostMassDiskLifetimeScalar,
+            ["host_mass_solid_reservoir_scalar"] = HostMassSolidReservoirScalar,
+            ["snow_line_giant_formation_scalar"] = SnowLineGiantFormationScalar,
+            ["giant_scattering_scalar"] = GiantScatteringScalar,
             ["habitable_zone_inner_au"] = HabitableZoneInnerAu,
             ["habitable_zone_outer_au"] = HabitableZoneOuterAu,
             ["xuv_activity_scalar"] = XuvActivityScalar,
@@ -382,6 +510,10 @@ public partial class PlanetarySystemState : RefCounted
         state.ImpactStirring = DomainDictionaryUtils.GetDouble(data, "impact_stirring", 1.0);
         state.MetallicityEnrichment = DomainDictionaryUtils.GetDouble(data, "metallicity_enrichment", 1.0);
         state.GasGiantWeight = DomainDictionaryUtils.GetDouble(data, "gas_giant_weight", 1.0);
+        state.HostMassDiskLifetimeScalar = DomainDictionaryUtils.GetDouble(data, "host_mass_disk_lifetime_scalar", 1.0);
+        state.HostMassSolidReservoirScalar = DomainDictionaryUtils.GetDouble(data, "host_mass_solid_reservoir_scalar", 1.0);
+        state.SnowLineGiantFormationScalar = DomainDictionaryUtils.GetDouble(data, "snow_line_giant_formation_scalar", 1.0);
+        state.GiantScatteringScalar = DomainDictionaryUtils.GetDouble(data, "giant_scattering_scalar", 1.0);
         state.HabitableZoneInnerAu = DomainDictionaryUtils.GetDouble(data, "habitable_zone_inner_au", 0.95);
         state.HabitableZoneOuterAu = DomainDictionaryUtils.GetDouble(data, "habitable_zone_outer_au", 1.37);
         state.XuvActivityScalar = DomainDictionaryUtils.GetDouble(data, "xuv_activity_scalar", 1.0);
@@ -389,5 +521,30 @@ public partial class PlanetarySystemState : RefCounted
         state.VolatileDeliveryScalar = DomainDictionaryUtils.GetDouble(data, "volatile_delivery_scalar", 1.0);
         state.BombardmentScalar = DomainDictionaryUtils.GetDouble(data, "bombardment_scalar", 1.0);
         return state;
+    }
+
+    private static double ComputeHostMassDiskLifetimeScalar(double stellarMassSolar)
+    {
+        if (stellarMassSolar <= 0.0)
+        {
+            return 1.0;
+        }
+
+        if (stellarMassSolar >= 2.0)
+        {
+            return System.Math.Clamp(0.74 - ((stellarMassSolar - 2.0) * 0.08), 0.55, 0.74);
+        }
+
+        if (stellarMassSolar >= 1.5)
+        {
+            return System.Math.Clamp(0.90 - ((stellarMassSolar - 1.5) * 0.32), 0.74, 0.90);
+        }
+
+        if (stellarMassSolar <= 0.6)
+        {
+            return System.Math.Clamp(1.14 + ((0.6 - stellarMassSolar) * 0.25), 1.0, 1.28);
+        }
+
+        return 1.0;
     }
 }

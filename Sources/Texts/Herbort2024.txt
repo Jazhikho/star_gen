@@ -1,0 +1,15 @@
+Herbort, O., Woitke, P., Helling, C., & Zerkle, A. L. (2024).
+Habitability constraints by nutrient availability in atmospheres of rocky exoplanets.
+arXiv:2404.04029
+https://arxiv.org/abs/2404.04029
+
+Why this source matters for StarGen
+- This paper emphasizes that water-bearing environments can still be nutrient-limited, especially for phosphorus and trace metals.
+- It is useful for keeping StarGen from equating condensates or solvent presence with sufficient biochemistry support in all cases.
+
+How it is used
+- Supports adding explicit nutrient-access penalties, especially for aerial or cloud biosphere scenarios.
+- Supports keeping atmospheric or cloud-habitat life branches separate from surface-ocean assumptions.
+
+Human review notes
+- The current StarGen life model is surface-biased; use this source to justify a separate nutrient gate, not a blanket downgrade of all non-surface biospheres.

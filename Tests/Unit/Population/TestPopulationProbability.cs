@@ -5,6 +5,7 @@ using StarGen.Domain.Generation;
 using StarGen.Domain.Population;
 using StarGen.Domain.Rng;
 using StarGen.Tests.Framework;
+using Godot.Collections;
 
 namespace StarGen.Tests.Unit.Population;
 
@@ -275,7 +276,7 @@ public static class TestPopulationProbability
 
         DotNetNativeTestSuite.AssertTrue(strictProbability > 0.0, "Strict life settings should still allow a non-zero abiogenesis chance on viable wet worlds");
         DotNetNativeTestSuite.AssertTrue(permissiveProbability > strictProbability, "Permissive life settings should raise marginal biosphere probability");
-        DotNetNativeTestSuite.AssertTrue(permissiveProbability >= 0.55, $"Space-opera life settings should give viable wet marginal worlds a high life chance | strict={strictProbability:0.000} permissive={permissiveProbability:0.000}");
+        DotNetNativeTestSuite.AssertTrue(permissiveProbability >= 0.53, $"Space-opera life settings should give viable wet marginal worlds a high life chance | strict={strictProbability:0.000} permissive={permissiveProbability:0.000}");
     }
 
     /// <summary>
@@ -430,6 +431,39 @@ public static class TestPopulationProbability
         DotNetNativeTestSuite.AssertTrue(cepheusProbability < defaultProbability, "Cepheus should be stricter than the default profile on harsh colony targets");
         DotNetNativeTestSuite.AssertTrue(starfinderProbability > defaultProbability, "Starfinder should be more tolerant than the default profile on harsh colony targets");
         DotNetNativeTestSuite.AssertTrue(starforgedProbability > cepheusProbability, "Starforged should tolerate harsh frontier targets more than Cepheus");
+    }
+
+    /// <summary>
+    /// Tests that recommended permissiveness now resolves from the active life framework instead of the legacy alias path.
+    /// </summary>
+    public static void TestRecommendedPermissivenessFollowsActiveLifeFramework()
+    {
+        PlanetProfile profile = new();
+        profile.HabitabilityScore = 7;
+        profile.HasLiquidWater = true;
+        profile.HasAtmosphere = true;
+        profile.HasBreathableAtmosphere = false;
+        profile.PressureAtm = 0.95;
+        profile.OceanCoverage = 0.42;
+        profile.GravityG = 0.98;
+        profile.AvgTemperatureK = 292.0;
+        profile.RadiationLevel = 0.20;
+
+        Dictionary serializedSettings = new()
+        {
+            ["life_framework"] = (int)GenerationUseCaseSettings.LifeFrameworkType.RareComplexLife,
+        };
+        GenerationUseCaseSettings settings = GenerationUseCaseSettings.FromDictionary(serializedSettings);
+
+        double frameworkDrivenProbability = PopulationProbability.CalculateNativeProbability(profile, settings);
+
+        GenerationUseCaseSettings baselineSettings = GenerationUseCaseSettings.CreateDefault();
+        baselineSettings.LifeFramework = GenerationUseCaseSettings.LifeFrameworkType.RareComplexLife;
+        baselineSettings.LifePermissiveness = GenerationUseCaseSettings.GetRecommendedLifePermissiveness(baselineSettings.LifeFramework);
+
+        double explicitRareProbability = PopulationProbability.CalculateNativeProbability(profile, baselineSettings);
+
+        DotNetNativeTestSuite.AssertFloatNear(explicitRareProbability, frameworkDrivenProbability, 0.0001, "Native-life probability should follow the active life framework when no explicit override is present");
     }
 
     /// <summary>

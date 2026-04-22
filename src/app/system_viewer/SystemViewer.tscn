@@ -49,8 +49,6 @@ script = ExtResource("2")
 
 [node name="OrbitsContainer" type="Node3D" parent="."]
 
-[node name="ZonesContainer" type="Node3D" parent="."]
-
 [node name="UI" type="Control" parent="."]
 layout_mode = 3
 anchors_preset = 15
@@ -227,10 +225,10 @@ anchor_left = 1.0
 anchor_top = 1.0
 anchor_right = 1.0
 anchor_bottom = 1.0
-offset_left = -222.0
-offset_top = -124.0
-offset_right = -12.0
-offset_bottom = -12.0
+offset_left = -292.0
+offset_top = -176.0
+offset_right = -16.0
+offset_bottom = -16.0
 
 [node name="CameraPanelVBox" type="VBoxContainer" parent="UI/CameraPanel"]
 layout_mode = 2
@@ -238,6 +236,7 @@ theme_override_constants/separation = 8
 
 [node name="CameraPanelContent" type="MarginContainer" parent="UI/CameraPanel/CameraPanelVBox"]
 visible = false
+custom_minimum_size = Vector2(248, 0)
 layout_mode = 2
 theme_override_constants/margin_left = 10
 theme_override_constants/margin_top = 0
@@ -249,7 +248,7 @@ layout_mode = 2
 theme_override_font_sizes/font_size = 11
 modulate = Color(0.84, 0.86, 0.92, 1)
 autowrap_mode = 2
-text = "Left Mouse: Orbit\nRight Mouse: Pan\nScroll: Zoom\nF: Focus origin\nClick body: Select + focus"
+text = "Left Drag: Orbit view\nMiddle Drag: Orbit view\nRight Drag: Pan view\nWheel: Zoom\nLeft Click: Select body or belt\nF: Focus origin\nT: Toggle view angle"
 
 [node name="CameraPanelHeaderButton" type="Button" parent="UI/CameraPanel/CameraPanelVBox"]
 layout_mode = 2

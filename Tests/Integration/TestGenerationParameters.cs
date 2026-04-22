@@ -1,5 +1,6 @@
 #nullable enable annotations
 #nullable disable warnings
+using System.Collections.Generic;
 using StarGen.Domain.Generation.Archetypes;
 using StarGen.Domain.Generation;
 using StarGen.Domain.Generation.Parameters;
@@ -20,6 +21,8 @@ public static class TestGenerationParameters
         runner.RunNativeTest("TestGenerationParameters::test_galaxy_validator_warns_on_showcase_spiral", TestGalaxyValidatorWarnsOnShowcaseSpiral);
         runner.RunNativeTest("TestGenerationParameters::test_system_validator_warns_when_traveller_mode_disables_population", TestSystemValidatorWarnsWhenTravellerModeDisablesPopulation);
         runner.RunNativeTest("TestGenerationParameters::test_galaxy_validator_warns_when_default_ruleset_shows_traveller_readouts", TestGalaxyValidatorWarnsWhenDefaultRulesetShowsTravellerReadouts);
+        runner.RunNativeTest("TestGenerationParameters::test_generation_catalog_partitions_generation_runtime_and_presentation_controls", TestGenerationCatalogPartitionsGenerationRuntimeAndPresentationControls);
+        runner.RunNativeTest("TestGenerationParameters::test_generation_catalog_parameters_have_materiality_entries", TestGenerationCatalogParametersHaveMaterialityEntries);
         runner.RunNativeTest("TestGenerationParameters::test_ruleset_profiles_apply_expected_defaults", TestRulesetProfilesApplyExpectedDefaults);
         runner.RunNativeTest("TestGenerationParameters::test_use_case_settings_round_trip_through_galaxy_config", TestUseCaseSettingsRoundTripThroughGalaxyConfig);
         runner.RunNativeTest("TestGenerationParameters::test_use_case_settings_round_trip_through_system_spec", TestUseCaseSettingsRoundTripThroughSystemSpec);
@@ -80,6 +83,37 @@ public static class TestGenerationParameters
         GenerationParameterIssueSet issues = GalaxyGenerationParameterValidator.Validate(42, config);
         DotNetNativeTestSuite.AssertFalse(issues.HasErrors(), "Derived Traveller readouts should remain advisory in default mode");
         DotNetNativeTestSuite.AssertTrue(ContainsIssue(issues, "show_traveller_readouts"), "Default ruleset with Traveller readouts should raise an advisory warning");
+    }
+
+    private static void TestGenerationCatalogPartitionsGenerationRuntimeAndPresentationControls()
+    {
+        List<GenerationParameterDefinition> systemGenerationDefinitions = GenerationParameterCatalog.GetSystemDefinitions();
+        DotNetNativeTestSuite.AssertFalse(ContainsDefinition(systemGenerationDefinitions, "show_traveller_readouts"), "System generation catalog should exclude presentation-only UWP readout controls");
+        DotNetNativeTestSuite.AssertFalse(ContainsDefinition(systemGenerationDefinitions, "generate_population"), "System generation catalog should exclude runtime population toggles");
+        DotNetNativeTestSuite.AssertFalse(ContainsDefinition(systemGenerationDefinitions, "include_asteroid_belts"), "System generation catalog should exclude runtime belt toggles");
+        DotNetNativeTestSuite.AssertTrue(ContainsDefinition(systemGenerationDefinitions, "ruleset_mode"), "System generation catalog should retain override seams that materially affect generation");
+        DotNetNativeTestSuite.AssertTrue(ContainsDefinition(systemGenerationDefinitions, "force_life_on_supportable_worlds"), "System generation catalog should retain generator overrides");
+
+        List<GenerationParameterDefinition> systemRuntimeDefinitions = GenerationParameterCatalog.GetSystemRuntimeDefinitions();
+        DotNetNativeTestSuite.AssertTrue(ContainsDefinition(systemRuntimeDefinitions, "generate_population"), "System runtime definitions should expose the population pipeline toggle");
+        DotNetNativeTestSuite.AssertTrue(ContainsDefinition(systemRuntimeDefinitions, "include_asteroid_belts"), "System runtime definitions should expose the asteroid-belt stage toggle");
+
+        List<GenerationParameterDefinition> systemPresentationDefinitions = GenerationParameterCatalog.GetSystemPresentationDefinitions();
+        DotNetNativeTestSuite.AssertTrue(ContainsDefinition(systemPresentationDefinitions, "show_traveller_readouts"), "System presentation definitions should expose the UWP readout toggle");
+
+        List<GenerationParameterDefinition> galaxyGenerationDefinitions = GenerationParameterCatalog.GetGalaxyDefinitions();
+        DotNetNativeTestSuite.AssertFalse(ContainsDefinition(galaxyGenerationDefinitions, "show_traveller_readouts"), "Galaxy generation catalog should exclude presentation-only UWP readout controls");
+        DotNetNativeTestSuite.AssertTrue(ContainsDefinition(galaxyGenerationDefinitions, "ruleset_mode"), "Galaxy generation catalog should retain compatibility overrides");
+        DotNetNativeTestSuite.AssertTrue(ContainsDefinition(GenerationParameterCatalog.GetGalaxyPresentationDefinitions(), "show_traveller_readouts"), "Galaxy presentation definitions should expose the UWP readout toggle");
+    }
+
+    private static void TestGenerationCatalogParametersHaveMaterialityEntries()
+    {
+        AssertDefinitionsHaveMaterialityEntries(GenerationParameterCatalog.GetSystemDefinitions(), "system generation catalog");
+        AssertDefinitionsHaveMaterialityEntries(GenerationParameterCatalog.GetGalaxyDefinitions(), "galaxy generation catalog");
+        AssertDefinitionsHaveMaterialityEntries(GenerationParameterCatalog.GetSystemRuntimeDefinitions(), "system runtime catalog");
+        AssertDefinitionsHaveMaterialityEntries(GenerationParameterCatalog.GetSystemPresentationDefinitions(), "system presentation catalog");
+        AssertDefinitionsHaveMaterialityEntries(GenerationParameterCatalog.GetGalaxyPresentationDefinitions(), "galaxy presentation catalog");
     }
 
     private static void TestRulesetProfilesApplyExpectedDefaults()
@@ -185,6 +219,33 @@ public static class TestGenerationParameters
         }
 
         return false;
+    }
+
+    private static bool ContainsDefinition(IEnumerable<GenerationParameterDefinition> definitions, string parameterId)
+    {
+        foreach (GenerationParameterDefinition definition in definitions)
+        {
+            if (definition.Id == parameterId)
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    private static void AssertDefinitionsHaveMaterialityEntries(IEnumerable<GenerationParameterDefinition> definitions, string catalogLabel)
+    {
+        foreach (GenerationParameterDefinition definition in definitions)
+        {
+            ParameterMaterialityRegistry.Entry? entry = ParameterMaterialityRegistry.GetEntry(definition.Id);
+            DotNetNativeTestSuite.AssertNotNull(entry, $"{catalogLabel} parameter '{definition.Id}' should have a materiality entry");
+            DotNetNativeTestSuite.AssertEqual(definition.Classification, entry!.Classification, $"{catalogLabel} parameter '{definition.Id}' should agree with the materiality classification");
+            DotNetNativeTestSuite.AssertTrue(entry.SurfacedIn.Count > 0, $"{catalogLabel} parameter '{definition.Id}' should record where it is surfaced");
+            DotNetNativeTestSuite.AssertTrue(entry.SerializedThrough.Count > 0, $"{catalogLabel} parameter '{definition.Id}' should record where it is serialized");
+            DotNetNativeTestSuite.AssertTrue(entry.Consumers.Count > 0, $"{catalogLabel} parameter '{definition.Id}' should record downstream consumers");
+            DotNetNativeTestSuite.AssertTrue(entry.Outputs.Count > 0, $"{catalogLabel} parameter '{definition.Id}' should record concrete outputs");
+        }
     }
 
     private static void AssertRulesetDefaults(

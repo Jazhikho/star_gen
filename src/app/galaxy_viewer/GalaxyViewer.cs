@@ -73,13 +73,10 @@ public partial class GalaxyViewer : Node3D, IGalaxyViewerSavedStateHost
 	internal Control? _topBar;
 	internal Control? _sidePanel;
 	internal Node? _inspectorPanel;
-	internal Control? _saveLoadSection;
-	internal Button? _saveButton;
-	internal Button? _loadButton;
-	internal Button? _newGalaxyButton;
 	internal Control? _cameraPanel;
 	internal Button? _cameraPanelHeaderButton;
 	internal Control? _cameraPanelContent;
+	internal Label? _cameraHelpLabel;
 	internal Window? _optionsDialog;
 	internal CheckBox? _fullscreenCheck;
 	internal CheckBox? _showSeedControlsCheck;
@@ -144,6 +141,10 @@ public partial class GalaxyViewer : Node3D, IGalaxyViewerSavedStateHost
 	internal SubSectorNeighborhoodData? _localSpacePreviewData;
 	internal bool _isBuildingLocalSpace;
 	internal Vector2 _cameraPanelExpandedSize = Vector2.Zero;
+	internal float _cameraPanelExpandedOffsetLeft;
+	internal float _cameraPanelExpandedOffsetTop;
+	internal float _cameraPanelExpandedOffsetRight;
+	internal float _cameraPanelExpandedOffsetBottom;
 	internal Tween? _cameraPanelTween;
 	internal bool _cameraPanelCollapsed = true;
 

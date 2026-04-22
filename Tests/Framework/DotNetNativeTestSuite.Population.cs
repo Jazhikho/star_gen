@@ -138,6 +138,10 @@ public static partial class DotNetNativeTestSuite
         runner.RunNativeTest("TestBiologySupportEvaluator::test_rapid_start_raises_abiogenesis_without_direct_civilization_boost", TestBiologySupportEvaluator.TestRapidStartRaisesAbiogenesisWithoutDirectCivilizationBoost);
         runner.RunNativeTest("TestBiologySupportEvaluator::test_technosphere_bottleneck_suppresses_civilization_later_than_sentience", TestBiologySupportEvaluator.TestTechnosphereBottleneckSuppressesCivilizationLaterThanSentience);
         runner.RunNativeTest("TestBiologySupportEvaluator::test_population_summary_distinguishes_sentience_from_civilization", TestBiologySupportEvaluator.TestPopulationSummaryDistinguishesSentienceFromCivilization);
+        runner.RunNativeTest("TestBiologySupportEvaluator::test_mixed_land_ocean_world_improves_nutrient_accessibility", TestBiologySupportEvaluator.TestMixedLandOceanWorldImprovesNutrientAccessibility);
+        runner.RunNativeTest("TestBiologySupportEvaluator::test_icy_moon_favors_protected_biosphere", TestBiologySupportEvaluator.TestIcyMoonFavorsProtectedBiosphere);
+        runner.RunNativeTest("TestBiologySupportEvaluator::test_high_xuv_raises_desiccation_risk_and_suppresses_abiogenesis", TestBiologySupportEvaluator.TestHighXuvRaisesDesiccationRiskAndSuppressesAbiogenesis);
+        runner.RunNativeTest("TestBiologySupportEvaluator::test_detectability_remains_separate_from_life_existence", TestBiologySupportEvaluator.TestDetectabilityRemainsSeparateFromLifeExistence);
 
         runner.RunNativeTest("TestColonySuitability::test_creation", TestColonySuitability.TestCreation);
         runner.RunNativeTest("TestColonySuitability::test_get_category_ranges", TestColonySuitability.TestGetCategoryRanges);
@@ -376,6 +380,9 @@ public static partial class DotNetNativeTestSuite
         runner.RunNativeTest("TestColonyGenerator::test_starforged_favors_frontier_harsh_colonies", TestColonyGenerator.TestStarforgedFavorsFrontierHarshColonies);
 
         runner.RunNativeTest("TestPlanetPopulationData::test_creation_default", TestPlanetPopulationData.TestCreationDefault);
+        runner.RunNativeTest("TestSentientWorldProfile::test_builder_returns_null_for_uninhabited_world", TestSentientWorldProfile.TestBuilderReturnsNullForUninhabitedWorld);
+        runner.RunNativeTest("TestSentientWorldProfile::test_builder_produces_baseline_for_inhabited_world", TestSentientWorldProfile.TestBuilderProducesBaselineForInhabitedWorld);
+        runner.RunNativeTest("TestSentientWorldProfile::test_serialization_round_trip", TestSentientWorldProfile.TestSerializationRoundTrip);
         runner.RunNativeTest("TestPlanetPopulationData::test_get_total_population_empty", TestPlanetPopulationData.TestGetTotalPopulationEmpty);
         runner.RunNativeTest("TestPlanetPopulationData::test_get_total_population_natives_only", TestPlanetPopulationData.TestGetTotalPopulationNativesOnly);
         runner.RunNativeTest("TestPlanetPopulationData::test_get_total_population_colonies_only", TestPlanetPopulationData.TestGetTotalPopulationColoniesOnly);
@@ -437,6 +444,7 @@ public static partial class DotNetNativeTestSuite
         runner.RunNativeTest("TestPopulationProbability::test_compatibility_profiles_affect_population_pressure", TestPopulationProbability.TestCompatibilityProfilesAffectPopulationPressure);
         runner.RunNativeTest("TestPopulationProbability::test_compatibility_profiles_differentiate_harsh_colony_tolerance", TestPopulationProbability.TestCompatibilityProfilesDifferentiateHarshColonyTolerance);
         runner.RunNativeTest("TestPopulationProbability::test_custom_space_opera_overrides_affect_population_pressure", TestPopulationProbability.TestCustomSpaceOperaOverridesAffectPopulationPressure);
+        runner.RunNativeTest("TestPopulationProbability::test_recommended_permissiveness_follows_active_life_framework", TestPopulationProbability.TestRecommendedPermissivenessFollowsActiveLifeFramework);
 
         runner.RunNativeTest("TestPopulationLikelihood::test_estimate_native_likelihood_matches_probability", TestPopulationLikelihood.TestEstimateNativeLikelihoodMatchesProbability);
         runner.RunNativeTest("TestPopulationLikelihood::test_derive_roll_value_deterministic", TestPopulationLikelihood.TestDeriveRollValueDeterministic);

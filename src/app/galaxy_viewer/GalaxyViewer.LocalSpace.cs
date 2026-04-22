@@ -11,8 +11,8 @@ namespace StarGen.App.GalaxyViewer;
 /// </summary>
 public partial class GalaxyViewer
 {
-	private const int DefaultLocalSpaceExtent = 5;
-	private const int MaximumLocalSpaceExtent = 10;
+private const int DefaultLocalSpaceExtent = 5;
+private const int MaximumLocalSpaceExtent = 10;
 private const float CameraPanelAnimationDurationSeconds = 0.18f;
 private const float CameraPanelCornerMarginPixels = 16.0f;
 private const float CameraPanelCollapsedWidthPaddingPixels = 8.0f;
@@ -288,11 +288,6 @@ private const float CameraPanelCollapsedMinimumHeightPixels = 26.0f;
 			return;
 		}
 
-		if (_cameraPanelExpandedSize == Vector2.Zero)
-		{
-			_cameraPanelExpandedSize = MeasureExpandedPanelSize();
-		}
-
 		if (_cameraPanelTween != null && GodotObject.IsInstanceValid(_cameraPanelTween))
 		{
 			_cameraPanelTween.Kill();
@@ -300,39 +295,41 @@ private const float CameraPanelCollapsedMinimumHeightPixels = 26.0f;
 		}
 
 		_cameraPanel.ClipContents = true;
-		Vector2 targetSize;
+		Vector2 targetSize = Vector2.Zero;
 		if (collapsed)
 		{
 			targetSize = MeasureCollapsedPanelSize();
 		}
 		else
 		{
-			targetSize = _cameraPanelExpandedSize;
 			if (_cameraPanelContent != null)
 			{
 				_cameraPanelContent.Visible = true;
 			}
 		}
 
-		_cameraPanelHeaderButton.Text = collapsed ? "> Controls" : "^ Controls";
-		if (!animate || !IsInsideTree())
+		if (collapsed)
 		{
-			ApplyCameraPanelSize(targetSize);
-			if (_cameraPanelContent != null)
-			{
-				_cameraPanelContent.Visible = !collapsed;
-			}
-
-			return;
+			_cameraPanelHeaderButton.Text = "> Controls";
+		}
+		else
+		{
+			_cameraPanelHeaderButton.Text = "^ Controls";
 		}
 
-		_cameraPanelTween = CreateTween();
-		_cameraPanelTween.SetTrans(Tween.TransitionType.Cubic);
-		_cameraPanelTween.SetEase(Tween.EaseType.Out);
-		Vector2 targetOffsets = ComputeCameraPanelTopLeft(targetSize);
-		_cameraPanelTween.TweenProperty(_cameraPanel, "offset_left", targetOffsets.X, CameraPanelAnimationDurationSeconds);
-		_cameraPanelTween.Parallel().TweenProperty(_cameraPanel, "offset_top", targetOffsets.Y, CameraPanelAnimationDurationSeconds);
-		_cameraPanelTween.TweenCallback(Callable.From(() => FinalizeCameraPanelAnimation(collapsed)));
+		if (collapsed)
+		{
+			ApplyCameraPanelSize(targetSize);
+		}
+		else
+		{
+			ApplyExpandedCameraPanelLayout();
+		}
+
+		if (_cameraPanelContent != null)
+		{
+			_cameraPanelContent.Visible = !collapsed;
+		}
 	}
 
 	private void FinalizeCameraPanelAnimation(bool collapsed)
@@ -444,11 +441,35 @@ private const float CameraPanelCollapsedMinimumHeightPixels = 26.0f;
 			return;
 		}
 
-		string originalText = _cameraPanelHeaderButton.Text;
-		_cameraPanelHeaderButton.Text = "^ Controls";
-		_cameraPanelExpandedSize = MeasureExpandedPanelSize();
-		_cameraPanelHeaderButton.Text = originalText;
+		CacheExpandedCameraPanelLayout();
 		SetCameraPanelCollapsed(true, false);
+	}
+
+	private void CacheExpandedCameraPanelLayout()
+	{
+		if (_cameraPanel == null || _cameraPanelHeaderButton == null)
+		{
+			return;
+		}
+
+		_cameraPanelExpandedOffsetLeft = _cameraPanel.OffsetLeft;
+		_cameraPanelExpandedOffsetTop = _cameraPanel.OffsetTop;
+		_cameraPanelExpandedOffsetRight = _cameraPanel.OffsetRight;
+		_cameraPanelExpandedOffsetBottom = _cameraPanel.OffsetBottom;
+		_cameraPanelExpandedSize = MeasureCurrentPanelSize();
+	}
+
+	private void ApplyExpandedCameraPanelLayout()
+	{
+		if (_cameraPanel == null)
+		{
+			return;
+		}
+
+		_cameraPanel.OffsetLeft = _cameraPanelExpandedOffsetLeft;
+		_cameraPanel.OffsetTop = _cameraPanelExpandedOffsetTop;
+		_cameraPanel.OffsetRight = _cameraPanelExpandedOffsetRight;
+		_cameraPanel.OffsetBottom = _cameraPanelExpandedOffsetBottom;
 	}
 
 	private void HideBuildLocalSpaceDialog()

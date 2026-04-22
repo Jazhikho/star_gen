@@ -1,0 +1,20 @@
+Source note for StarGen research review
+
+Citation:
+Kasting, J. F., Whitmire, D. P., & Reynolds, R. T. (1993).
+Habitable zones around main sequence stars.
+Icarus, 101(1), 108-128.
+DOI: https://doi.org/10.1006/icar.1993.1010
+
+What was reviewed:
+- Abstract and publication metadata on 2026-04-22.
+- Existing StarGen documentation already grounded the legacy classical habitable-zone implementation against this paper.
+
+Key implementation notes used in StarGen:
+- The paper defines the classical circumstellar habitable zone as the range where an Earth-like CO2/H2O/N2 atmosphere can sustain surface liquid water.
+- For StarGen, this remains a valid older conservative model family that users may still want to select explicitly for comparison against later updates.
+- It is appropriate as a user-facing academic option, but it should not be the only habitable-zone treatment exposed by the generator.
+
+How StarGen uses this:
+- As the academic basis for the `Kasting1993Conservative` habitable-zone model option.
+- As the tighter older comparison band against the later Kopparapu 2013 update.

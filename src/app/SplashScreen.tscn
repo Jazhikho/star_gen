@@ -89,7 +89,7 @@ alignment = 1
 [node name="VersionLabel" type="Label" parent="CenterStage/StageVBox/LogoVBox" unique_id=532410013]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.929412, 0.784314, 0.494118, 1)
-text = "Release 0.8.0.0"
+text = "Release 0.9d"
 horizontal_alignment = 1
 
 [node name="StatusLabel" type="Label" parent="CenterStage/StageVBox/LogoVBox" unique_id=1803741947]

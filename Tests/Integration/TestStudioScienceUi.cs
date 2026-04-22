@@ -132,7 +132,7 @@ public static class TestStudioScienceUi
         DotNetNativeTestSuite.AssertTrue(planetarySourcesButton!.TooltipText.Contains("Chen and Kipping (2017)"), "Planetary sources tooltip should list planetary references");
         DotNetNativeTestSuite.AssertEqual("Scientific Assumptions", settingsTitle!.Text, "Galaxy screen should label the left column as scientific assumptions");
         DotNetNativeTestSuite.AssertEqual("Generation Overrides", rulesTitle!.Text, "Galaxy screen should rename the center column to Generation Overrides");
-        DotNetNativeTestSuite.AssertEqual("Show UWP Code", showUwpLabel!.Text, "Galaxy screen should rename Traveller readouts to Show UWP Code");
+        DotNetNativeTestSuite.AssertEqual("UWP Readout", showUwpLabel!.Text, "Galaxy screen should mark the UWP toggle as a readout control");
         DotNetNativeTestSuite.AssertTrue(forceLifeCheck!.TooltipText.Contains("Generation override, not a scientific model."), "Galaxy screen should explain that force life is an override");
         DotNetNativeTestSuite.AssertTrue(OptionContainsText(lifeFrameworkOption!, "Earth-Anchored Composite"), "Galaxy screen should expose the Earth-Anchored Composite life framework");
         DotNetNativeTestSuite.AssertTrue(OptionContainsText(lifeFrameworkOption, "Rapid Biospheres"), "Galaxy screen should expose the Rapid Biospheres life framework");
@@ -250,7 +250,7 @@ public static class TestStudioScienceUi
         DotNetNativeTestSuite.AssertNotNull(rulesTitle, "System studio should expose the rules title");
         DotNetNativeTestSuite.AssertNotNull(showUwpRow, "System studio should expose a labeled row for the UWP toggle");
         DotNetNativeTestSuite.AssertNotNull(showUwpLabel, "System studio should expose a label for the UWP toggle");
-        DotNetNativeTestSuite.AssertNotNull(showUwpCheck, "System studio should expose the Show UWP Code checkbox");
+        DotNetNativeTestSuite.AssertNotNull(showUwpCheck, "System studio should expose the UWP readout checkbox");
         DotNetNativeTestSuite.AssertNotNull(forceLifeRow, "System studio should expose a labeled row for the force-life override");
         DotNetNativeTestSuite.AssertNotNull(forceLifeLabel, "System studio should expose a label for the force-life override");
         DotNetNativeTestSuite.AssertNotNull(forceLifeCheck, "System studio should expose the force-life override checkbox");
@@ -261,7 +261,7 @@ public static class TestStudioScienceUi
         DotNetNativeTestSuite.AssertNotNull(populationPermissivenessRow, "System studio should define the Space Opera settlement override row");
         DotNetNativeTestSuite.AssertNotNull(mainworldPolicyRow, "System studio should define the Space Opera mainworld-policy row");
         DotNetNativeTestSuite.AssertEqual("Generation Overrides", rulesTitle!.Text, "System studio should name the center column Generation Overrides");
-        DotNetNativeTestSuite.AssertEqual("Show UWP Code", showUwpLabel!.Text, "System studio should use the Show UWP Code label");
+        DotNetNativeTestSuite.AssertEqual("UWP Readout", showUwpLabel!.Text, "System studio should mark the UWP toggle as a readout control");
         DotNetNativeTestSuite.AssertTrue(forceLifeCheck!.TooltipText.Contains("Generation override, not a scientific model."), "System studio should explain that force life is an override");
         DotNetNativeTestSuite.AssertTrue(OptionContainsText(lifeFrameworkOption!, "Earth-Anchored Composite"), "System studio should expose the Earth-Anchored Composite life framework");
         DotNetNativeTestSuite.AssertFalse(OptionContainsText(lifeFrameworkOption, "Earth History"), "System studio should not expose the old Earth History label");

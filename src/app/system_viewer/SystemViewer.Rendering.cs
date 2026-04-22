@@ -386,16 +386,6 @@ public partial class SystemViewer
     }
 
     /// <summary>
-    /// Creates zone visualizations when enabled.
-    /// Stubbed pending the System Viewer Rendering effort; the call site is live
-    /// so the method must remain to avoid a missing-member error.
-    /// </summary>
-    private void CreateZoneVisualizations()
-    {
-        // Intentionally empty — zone visualization deferred to the rendering effort.
-    }
-
-    /// <summary>
     /// Clears body nodes while preserving the belt renderer.
     /// </summary>
     private void ClearBodies()
@@ -448,19 +438,4 @@ public partial class SystemViewer
         }
     }
 
-    /// <summary>
-    /// Clears zone visuals.
-    /// </summary>
-    private void ClearZones()
-    {
-        if (_zonesContainer == null)
-        {
-            return;
-        }
-
-        foreach (Node child in _zonesContainer.GetChildren())
-        {
-            child.QueueFree();
-        }
-    }
 }

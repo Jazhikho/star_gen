@@ -306,9 +306,26 @@ Provenance requirement: Retain feeding-zone bounds, merger count, giant-impact c
     - cooling
     - tidal migration proxy
 14. Write observables and provenance.
-12. Calibration and validation targets
+12. Observational calibration targets for aggregate parameters
+The deterministic surrogate is only useful if its upstream priors remain tethered to observed demographics and disk behavior. That means the aggregate parameters in `PlanetaryGenerationProfile` should not be treated as flavor controls alone. They should each point to one or more empirical anchors that constrain what ranges are plausible and what directional effects the generator should preserve.
+Table 11. Suggested calibration anchors for current StarGen planetary priors
+Parameter or generator seam	Academic anchor	Practical StarGen implication
+`disk_solid_mass_scalar`	Pascucci et al. (2016)	Disk solids should scale with host-star mass rather than staying universal; the shared system state should eventually inherit that dependence before planet-class weights are derived.
+`disk_lifetime_myr`	Ribas et al. (2015)	Disk lifetime should not be a single global constant. Higher-mass hosts should, on average, present shorter gas-retention windows and therefore narrower giant-growth and migration windows.
+`migration_strength`	Izidoro et al. (2017)	Migration should specifically raise the frequency of compact inner super-Earth or mini-Neptune architectures and later instability-prone resonant-chain descendants rather than acting as a generic global reshuffle scalar.
+Inner and temperate terrestrial occurrence	Petigura et al. (2013)	Sun-like stars should produce small rocky and super-Earth-class planets at non-negligible frequency across the observed inner-period range; these outcomes should not be tuned into rarity.
+Habitable-zone rocky occurrence	Bryson et al. (2021)	Habitable-zone rocky analog yield should be calibrated against a broad uncertainty band, not a single exact eta-Earth target. The generator should remain inside that band for solar-like hosts rather than pretending the literature is settled.
+Giant-planet radial weighting	Fernandes et al. (2019)	Cold giant occurrence should peak near the snow line and taper farther out, replacing any monotonic assumption that more distant orbits are always more giant-friendly.
+`volatile_delivery_scalar`	Raymond & Izidoro (2017)	Inner volatile delivery should react to whether cold giant formation and scattering channels actually formed, not only to smooth radial temperature or metallicity proxies.
+
+Recommended implementation direction:
+1. Keep the existing aggregate-profile architecture, because it is the correct place for these priors to live.
+2. Tighten each upstream scalar until it has an explicit observational role, a cited source note, and at least one regression or benchmark target tied to a measurable population-level effect.
+3. Prefer calibrating distributions and directional effects over trying to hard-code exact Solar-System outcomes.
+
+13. Calibration and validation targets
 StarGen should ship with regression tests tied to known Solar System anchors and to the literature domains from which its surrogates were derived. The point is not to force exact replication. The point is to keep the generator inside a defensible physical envelope.
-Table 11. Suggested validation set
+Table 12. Suggested validation set
 Target	What to test	Expected behavior
 Earth analog	Rocky interior solver	Radius, CMF, gravity, and water partition land in an Earth-like range.
 Venus analog	Dry/hot rocky atmosphere branch	Dense secondary atmosphere possible without requiring surface water.
@@ -318,23 +335,30 @@ Neptune/Uranus analog	Ice-giant branch	Heavy-element-rich world with moderate H/
 Earth-Moon analog	Impact moon surrogate	One large prograde moon outside Roche limit and inside stable Hill fraction.
 Compact multiplanet system	Spacing filters	No adjacent planets below the stability floor unless instability flag is set.
 
-13. Limits of the model
+14. Limits of the model
 Three limits should be stated explicitly.
 First, the Noack and Lasbleis rocky interior relations are calibrated for Earth-like mineralogy and a mass range centered on super-Earth-scale rocky bodies, not arbitrary massive planets. Use them confidently inside their stated range and with caution outside it.
 Second, atmosphere generation in StarGen is necessarily a surrogate model. It can be physically informed without resolving full chemistry, climate, and escape histories. That is acceptable, provided the generator stores enough latent state to support a later upgrade.
 Third, terrestrial moon generation is the most history-sensitive part of the system. Barr (2016) makes clear that moon-forming impacts occupy a constrained window. A single deterministic giant-impact surrogate is appropriate for a generator, but it should be documented as such rather than oversold as a solved origin model.
 Bottom line: The strongest version of StarGen is not the one with the most formulas. It is the one where every formula sits in the right place in the pipeline, every random draw has a parent cause, and the final planet can explain itself.
 
-14. AI use statement
+15. AI use statement
 This report was prepared using AI assistance. The AI system was used to gather, synthesize, and translate full-text academic literature into an implementation-oriented technical specification for StarGen. Source selection was restricted to academic materials whose full text was directly accessible during drafting, including user-supplied PDFs and openly accessible scholarly sources. The resulting specification should still be treated as a design document rather than as a substitute for direct numerical simulation or domain-expert peer review.
 References
+Bryson, S., Kunimoto, M., Kopparapu, R. K., Coughlin, J. L., Mullally, F., & Thompson, S. E. (2021). The occurrence of rocky habitable zone planets around solar-like stars from Kepler data. The Astronomical Journal, 161(1), 36. https://arxiv.org/abs/2010.14812
 Barr, A. C. (2016). On the origin of Earth’s Moon. Journal of Geophysical Research: Planets, 121, 1573–1601.. doi:10.1002/2016JE005098
 Catling, D. C., & Kasting, J. F. (2017). Escape of atmospheres to space. In Atmospheric Evolution on Inhabited and Lifeless Worlds (pp. 129–168). Cambridge University Press.
+Fernandes, R. B., Mulders, G. D., Pascucci, I., Mordasini, C., Emsenhuber, A., & Rice, K. (2019). Hints for a turnover at the snow line in the giant planet occurrence rate. The Astrophysical Journal, 874(1), 81. https://arxiv.org/abs/1812.05569
 Gillmann, C., Hakim, K., Lourenço, D., Quanz, S. P., & Sossi, P. A. (2024). Interior controls on the habitability of rocky planets. Space: Science & Technology, 4, 0075.. doi:10.34133/space.0075
 Heller, R., Williams, D., Kipping, D., Limbach, M. A., Turner, E., Greenberg, R., Sasaki, T., Bolmont, É., Grasset, O., Lewis, K., Barnes, R., & Zuluaga, J. I. (2014). Formation, habitability, and detection of extrasolar moons. Astrobiology, 14(9), 798–835.. doi:10.1089/ast.2014.1147
 Ikoma, M., Elkins-Tanton, L., Hamano, K., & Suckale, J. (2018). Water partitioning in planetary embryos and protoplanets with magma oceans. Space Science Reviews, 214(4), 76.. doi:10.1007/s11214-018-0508-3
+Izidoro, A., Raymond, S. N., Pierens, A., Morbidelli, A., Winter, O. C., & Nesvorný, D. (2017). Breaking the chains: hot super-Earth systems from migration and disruption of compact resonant chains. Monthly Notices of the Royal Astronomical Society, 470(2), 1750–1770. https://arxiv.org/abs/1703.03634
 Müller, S., Baron, J., Helled, R., Bouchy, F., & Parc, L. (2024). The mass-radius relation of exoplanets revisited. Astronomy & Astrophysics, 686, A296.. doi:10.1051/0004-6361/202348690
 Noack, L., & Lasbleis, M. (2020). Parameterisations of interior properties of rocky planets: An investigation of planets with Earth-like compositions but variable iron content. Astronomy & Astrophysics, 638, A129.. doi:10.1051/0004-6361/202037723
+Pascucci, I., Testi, L., Herczeg, G. J., Long, F., Manara, C. F., Hendler, N., Mulders, G. D., Krijt, S., Ciesla, F., Henning, T., Mohanty, S., Drabek-Maunder, E., Apai, D., Pascucci, S., Macías, E., Carpenter, J. M., Ménard, F., Sargent, A., Tazzari, M., Meeus, G., et al. (2016). A steeper than linear disk mass-stellar mass scaling relation. The Astrophysical Journal, 831(2), 125. https://arxiv.org/abs/1608.03621
+Petigura, E. A., Howard, A. W., & Marcy, G. W. (2013). Prevalence of Earth-size planets orbiting Sun-like stars. Proceedings of the National Academy of Sciences, 110(48), 19273–19278. https://arxiv.org/abs/1311.6806
+Raymond, S. N., & Izidoro, A. (2017). Origin of water in the inner Solar System: Planetesimals scattered inward during Jupiter and Saturn’s rapid gas accretion. Icarus, 297, 134–148. https://arxiv.org/abs/1707.01234
+Ribas, Á., Bouy, H., & Merín, B. (2015). Protoplanetary disk lifetimes vs. stellar mass and possible implications for giant planet populations. Astronomy & Astrophysics, 576, A52. https://arxiv.org/abs/1502.00631
 Tamayo, D., Cranmer, M., Hadden, S., Rein, H., Battaglia, P., Obertas, A., Armitage, P. J., Ho, S., Spergel, D., Gilbertson, C., Hussain, N., Silburt, A., Jontof-Hutter, D., & Menou, K. (2020). Predicting the long-term stability of compact multiplanet systems. Proceedings of the National Academy of Sciences, 117(31), 18194–18205.. doi:10.1073/pnas.2001258117
 Wordsworth, R., & Kreidberg, L. (2022). Atmospheres of rocky exoplanets. Annual Review of Astronomy and Astrophysics, 60, 159–201.. doi:10.1146/annurev-astro-052920-125632
 Helled, R., & Howard, S. (2024). Giant planet interiors and atmospheres. arXiv preprint arXiv:2407.05853.

@@ -239,7 +239,7 @@ public partial class MainApp : Node
 	}
 
 	/// <summary>
-	/// Creates the station-studio placeholder screen.
+	/// Creates the station-studio screen.
 	/// </summary>
 	private void CreateStationStudioScreen()
 	{
@@ -402,7 +402,7 @@ public partial class MainApp : Node
 	}
 
 	/// <summary>
-	/// Displays the station-studio placeholder.
+	/// Displays the station-studio screen.
 	/// </summary>
 	private void ShowStationStudioScreen()
 	{
@@ -419,7 +419,7 @@ public partial class MainApp : Node
 	}
 
 	/// <summary>
-	/// Opens the station-studio placeholder from the main menu.
+	/// Opens the station studio from the main menu.
 	/// </summary>
 	private void OnMainMenuStationGenerationRequested()
 	{

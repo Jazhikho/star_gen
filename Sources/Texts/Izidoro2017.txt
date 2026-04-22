@@ -1,0 +1,21 @@
+Source note for StarGen research review
+
+Citation:
+Izidoro, A., Ogihara, M., Raymond, S. N., Morbidelli, A., Pierens, A., Bitsch, B., Cossou, C., & Hersant, F. (2017).
+Breaking the chains: Hot super-Earth systems from migration and disruption of compact resonant chains.
+Monthly Notices of the Royal Astronomical Society, 470(2), 1750-1770.
+arXiv: https://arxiv.org/abs/1703.03634
+DOI: https://doi.org/10.1093/mnras/stx1232
+
+What was reviewed:
+- Abstract and source metadata on 2026-04-22.
+
+Key implementation notes used in StarGen:
+- The paper states that hot super-Earths or mini-Neptunes with radii between 1 and 4 Earth radii and periods shorter than 100 days orbit about 30-50% of Sun-like stars.
+- It argues that inward migration during the gas-disk phase naturally builds compact resonant chains, and that most of those chains must later become unstable to match the observed Kepler architecture.
+- The practical takeaway for StarGen is that migration strength should primarily shape the compact inner-system population and should not be modeled only as a vague generic architecture scalar.
+
+How StarGen should use this:
+- As support for making `MigrationStrength` materially affect the production of close-in super-Earth and mini-Neptune systems.
+- As a guide that stable compact resonant chains should be uncommon end states rather than the default final architecture.
+- As a source-backed reason to keep hot compact multiplanet systems common around Sun-like stars even though the Solar System lacks them.

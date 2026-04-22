@@ -805,7 +805,8 @@ public static class SystemAsteroidGenerator
             stellarLuminosityWatts,
             stellarTemperatureK,
             stellarAgeYears,
-            orbitalDistance);
+            orbitalDistance,
+            planetaryState.Profile.HabitableZoneModel);
 
         SeededRng asteroidRng = new(asteroidSeed);
         CelestialBody asteroid = AsteroidGenerator.Generate(spec, context, asteroidRng);

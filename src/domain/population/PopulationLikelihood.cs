@@ -119,7 +119,7 @@ public static class PopulationLikelihood
 
         if (!useCaseSettings.HasLifePermissivenessOverride())
         {
-            return GenerationUseCaseSettings.GetRecommendedLifePermissiveness(useCaseSettings.LifePotentialModel);
+            return GenerationUseCaseSettings.GetRecommendedLifePermissiveness(useCaseSettings.LifeFramework);
         }
 
         return useCaseSettings.LifePermissiveness;

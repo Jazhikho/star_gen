@@ -1,6 +1,7 @@
 using Godot;
 using Godot.Collections;
 using StarGen.Domain.Celestial.Components;
+using StarGen.Domain.Generation;
 using StarGen.Domain.Math;
 
 namespace StarGen.Domain.Systems;
@@ -151,7 +152,7 @@ public partial class OrbitHost : RefCounted
     /// <summary>
     /// Calculates derived temperature-based zones from luminosity.
     /// </summary>
-    public void CalculateZones()
+    public void CalculateZones(PlanetHabitableZoneModel habitableZoneModel = PlanetHabitableZoneModel.Kopparapu2013Conservative)
     {
         if (CombinedLuminosityWatts <= 0.0)
         {
@@ -161,11 +162,15 @@ public partial class OrbitHost : RefCounted
             return;
         }
 
-        double luminositySolar = CombinedLuminosityWatts / StellarProps.SolarLuminosityWatts;
-        double sqrtLuminosity = System.Math.Sqrt(luminositySolar);
-        HabitableZoneInnerM = 0.95 * Units.AuMeters * sqrtLuminosity;
-        HabitableZoneOuterM = 1.37 * Units.AuMeters * sqrtLuminosity;
-        FrostLineM = 2.7 * Units.AuMeters * sqrtLuminosity;
+        HabitableZoneInnerM = OrbitalMechanics.CalculateHabitableZoneInner(
+            CombinedLuminosityWatts,
+            EffectiveTemperatureK,
+            habitableZoneModel);
+        HabitableZoneOuterM = OrbitalMechanics.CalculateHabitableZoneOuter(
+            CombinedLuminosityWatts,
+            EffectiveTemperatureK,
+            habitableZoneModel);
+        FrostLineM = OrbitalMechanics.CalculateFrostLine(CombinedLuminosityWatts);
     }
 
     /// <summary>

@@ -114,15 +114,7 @@ public partial class SystemGenerationScreen
 
 	private static string GetStellarParameterAssumption(string parameterId)
 	{
-		foreach (GenerationParameterDefinition definition in GenerationParameterCatalog.GetSystemDefinitions())
-		{
-			if (definition.Id == parameterId)
-			{
-				return definition.AssumptionText;
-			}
-		}
-
-		return string.Empty;
+		return GenerationParameterCatalog.FindSystemDefinition(parameterId)?.AssumptionText ?? string.Empty;
 	}
 
 	private void ApplyStellarProfileToControls(StellarGenerationProfile profile)

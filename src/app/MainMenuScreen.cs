@@ -41,7 +41,6 @@ public partial class MainMenuScreen : Control
 	private Button? _systemButton;
 	private Button? _objectButton;
 	private Button? _stationButton;
-	private Control? _conceptAtlasCard;
 	private Button? _helpButton;
 	private Button? _creditsButton;
 	private Button? _sourcesButton;
@@ -158,7 +157,6 @@ public partial class MainMenuScreen : Control
 		_systemButton = GetNodeOrNull<Button>($"{Root}/HBoxContainer/ModesPanel/MarginContainer/ModesVBox/ModeCards/CardSystem/MarginContainer/VBoxContainer/SystemButton");
 		_objectButton = GetNodeOrNull<Button>($"{Root}/HBoxContainer/ModesPanel/MarginContainer/ModesVBox/ModeCards/CardObject/MarginContainer/VBoxContainer/ObjectButton");
 		_stationButton = GetNodeOrNull<Button>($"{Root}/HBoxContainer/ModesPanel/MarginContainer/ModesVBox/ModeCards/CardStation/MarginContainer/VBoxContainer/StationButton");
-		_conceptAtlasCard = GetNodeOrNull<Control>($"{Root}/HBoxContainer/ModesPanel/MarginContainer/ModesVBox/ModeCards/CardConceptAtlas");
 		_helpButton = GetNodeOrNull<Button>($"{Root}/HBoxContainer/UtilityRow/UtilityPanel/MarginContainer/UtilityVBox/SecondaryButtons/HelpButton");
 		_creditsButton = GetNodeOrNull<Button>($"{Root}/HBoxContainer/UtilityRow/UtilityPanel/MarginContainer/UtilityVBox/SecondaryButtons/CreditsButton");
 		_sourcesButton = GetNodeOrNull<Button>($"{Root}/HBoxContainer/UtilityRow/UtilityPanel/MarginContainer/UtilityVBox/SecondaryButtons/SourcesButton");
@@ -244,11 +242,6 @@ public partial class MainMenuScreen : Control
 
 	private void PopulateStaticText()
 	{
-		if (_conceptAtlasCard != null)
-		{
-			_conceptAtlasCard.Visible = false;
-		}
-
 		string version = UserFacingVersionHelper.GetDisplayVersion();
 		if (_versionLabel != null)
 		{
@@ -347,17 +340,12 @@ public partial class MainMenuScreen : Control
 	{
 		return
 			"Version 0.9d\n\n" +
-			"- Added a persisted intro-skip option, restored intro music through the shared audio controller, and made click or key input skip the splash reliably.\n" +
-			"- Galaxy Studio now labels the center column as Generation Overrides, keeps the left column for scientific assumptions, uses Space Opera wording for the RPG-facing ruleset, and renames the UWP readout toggle clearly.\n" +
-			"- Galaxy Studio life generation now uses a source-aligned stack of models for abiogenesis, complex life, civilization emergence, and environmental windows instead of a single Life Potential selector.\n" +
-			"- Earth-Anchored Composite is now documented as a synthesis preset built from the reviewed life papers instead of the older Earth History wording.\n" +
-			"- Credits now include Patreon thanks for Leo.\n" +
-			"\n" +
-			"- Checkpointed the current mainline branch state so the branch split, scene-first UI migration, and scope reductions are preserved in git.\n" +
-			"- Moved more shipped viewer and editor presentation into .tscn scenes and reusable UI templates.\n" +
-			"- Mainline remains focused on generation and viewing workflows across galaxy, system, object, and station tools.\n" +
-			"- Concept Atlas and mainline save/load/export affordances remain removed from the shipped runtime path.\n" +
-			"- The trimmed mainline automated suite stays focused on deterministic generation and non-UI behavioral coverage.\n\n" +
+			"- Mainline remains focused on deterministic generation and viewing across Galaxy, System, Object, and Station workflows.\n" +
+			"- Scientific assumptions, compatibility overrides, runtime toggles, and readout controls are now partitioned more clearly in the active studios.\n" +
+			"- Planetary generation, habitable-zone handling, life support, and sentient-world baseline fields now follow the audited science passes added during the 0.9 hardening line.\n" +
+			"- Galaxy, System, and Object viewers use scene-owned controls-panel geometry and more explicit input help.\n" +
+			"- Mainline save and load affordances remain removed from the shipped runtime path.\n" +
+			"- Release prep now includes a documented build path, a live acceptance checklist, and itch publishing guidance.\n\n" +
 			"Version 0.8.0.0\n\n" +
 			"- Replaced the timer-based splash with the root intro video, a clean fade into the StarGen logo, and skip behavior that still resolves through the branded transition.\n" +
 			"- Moved startup audio onto the shared app audio controller and library so the intro track is an explicit exported resource instead of a runtime directory scan.\n" +

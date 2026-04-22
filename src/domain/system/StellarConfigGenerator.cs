@@ -78,7 +78,7 @@ public static class StellarConfigGenerator
         }
 
         system.Hierarchy = hierarchy;
-        CalculateOrbitHosts(system, stars);
+        CalculateOrbitHosts(system, stars, spec.PlanetaryProfile.HabitableZoneModel);
         system.Provenance = new Provenance(
             spec.GenerationSeed,
             Versions.GeneratorVersion,
@@ -514,11 +514,14 @@ public static class StellarConfigGenerator
     /// <summary>
     /// Calculates orbit hosts for all hierarchy nodes.
     /// </summary>
-    private static void CalculateOrbitHosts(SolarSystem system, Array<CelestialBody> stars)
+    private static void CalculateOrbitHosts(
+        SolarSystem system,
+        Array<CelestialBody> stars,
+        PlanetHabitableZoneModel habitableZoneModel)
     {
         foreach (HierarchyNode node in system.Hierarchy.GetAllNodes())
         {
-            OrbitHost? host = CreateOrbitHostForNode(node, stars, system.Hierarchy);
+            OrbitHost? host = CreateOrbitHostForNode(node, stars, system.Hierarchy, habitableZoneModel);
             if (host != null && host.HasValidZone())
             {
                 system.AddOrbitHost(host);
@@ -529,7 +532,11 @@ public static class StellarConfigGenerator
     /// <summary>
     /// Creates an orbit host for a hierarchy node.
     /// </summary>
-    private static OrbitHost? CreateOrbitHostForNode(HierarchyNode node, Array<CelestialBody> stars, SystemHierarchy hierarchy)
+    private static OrbitHost? CreateOrbitHostForNode(
+        HierarchyNode node,
+        Array<CelestialBody> stars,
+        SystemHierarchy hierarchy,
+        PlanetHabitableZoneModel habitableZoneModel)
     {
         OrbitHost host;
         if (node.IsStar())
@@ -635,7 +642,7 @@ public static class StellarConfigGenerator
             }
         }
 
-        host.CalculateZones();
+        host.CalculateZones(habitableZoneModel);
         return host;
     }
 

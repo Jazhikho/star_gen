@@ -50,6 +50,32 @@ public static class TestSystemPlanetGenerator
     }
 
     /// <summary>
+    /// Creates a deterministic stellar fixture with explicit mass and luminosity.
+    /// </summary>
+    private static CelestialBody CreateStellarFixture(
+        string id,
+        double massSolar,
+        double luminositySolar,
+        double temperatureK,
+        double metallicity,
+        double ageYears)
+    {
+        CelestialBody star = new CelestialBody(
+            id,
+            id,
+            CelestialType.Type.Star,
+            new PhysicalProps(massSolar * Units.SolarMassKg, Units.SolarRadiusMeters));
+        star.Stellar = new StellarProps(
+            luminositySolar * StellarProps.SolarLuminosityWatts,
+            temperatureK,
+            "G",
+            "main_sequence",
+            metallicity,
+            ageYears);
+        return star;
+    }
+
+    /// <summary>
     /// Creates test slots.
     /// </summary>
     private static Array<OrbitSlot> CreateTestSlots(OrbitHost host, int count)
@@ -166,6 +192,44 @@ public static class TestSystemPlanetGenerator
         {
             double distance = distancesAu[i] * Units.AuMeters;
             OrbitSlot slot = new OrbitSlot($"mix_slot_{i}", host.NodeId, distance)
+            {
+                IsStable = true,
+                FillProbability = 1.0,
+            };
+
+            if (distance < host.HabitableZoneInnerM)
+            {
+                slot.Zone = OrbitZone.Zone.Hot;
+            }
+            else if (distance > host.FrostLineM)
+            {
+                slot.Zone = OrbitZone.Zone.Cold;
+            }
+            else
+            {
+                slot.Zone = OrbitZone.Zone.Temperate;
+            }
+
+            slots.Add(slot);
+        }
+
+        return slots;
+    }
+
+    /// <summary>
+    /// Creates a slot set that can reveal compact-inner-architecture biases.
+    /// </summary>
+    private static Array<OrbitSlot> CreateCompactArchitectureSlots(OrbitHost host)
+    {
+        double[] distancesAu =
+        {
+            0.12, 0.18, 0.27, 0.40, 0.60, 0.90, 1.30, 1.90, 2.70, 4.50,
+        };
+        Array<OrbitSlot> slots = new Array<OrbitSlot>();
+        for (int i = 0; i < distancesAu.Length; i += 1)
+        {
+            double distance = distancesAu[i] * Units.AuMeters;
+            OrbitSlot slot = new OrbitSlot($"compact_slot_{i}", host.NodeId, distance)
             {
                 IsStable = true,
                 FillProbability = 1.0,
@@ -397,6 +461,119 @@ public static class TestSystemPlanetGenerator
         if (pebbleGasGiantCount < coreGasGiantCount)
         {
             throw new InvalidOperationException("Pebble-assisted giant formation should not yield fewer gaseous giants than the same seeded core-accretion run.");
+        }
+    }
+
+    /// <summary>
+    /// Tests that host mass now changes the derived disk-lifetime and solids-reservoir priors.
+    /// </summary>
+    public static void TestHostMassAdjustmentsChangeDiskAndSolidPriors()
+    {
+        SolarSystemSpec spec = new SolarSystemSpec(8181, 1, 1)
+        {
+            PlanetaryProfile = PlanetaryGenerationProfile.CreateDefault(),
+        };
+        Array<CelestialBody> lowMassStars = new Array<CelestialBody>
+        {
+            CreateStellarFixture("low_mass_star", 0.45, 0.05, 3600.0, 1.0, 5.0e9),
+        };
+        Array<CelestialBody> highMassStars = new Array<CelestialBody>
+        {
+            CreateStellarFixture("high_mass_star", 2.20, 18.0, 8600.0, 1.0, 5.0e8),
+        };
+
+        PlanetarySystemState lowMassState = PlanetarySystemState.Build(spec, lowMassStars);
+        PlanetarySystemState highMassState = PlanetarySystemState.Build(spec, highMassStars);
+
+        if (lowMassState.HostMassDiskLifetimeScalar <= highMassState.HostMassDiskLifetimeScalar)
+        {
+            throw new InvalidOperationException("Lower-mass hosts should preserve disks longer than higher-mass hosts in the derived planetary state.");
+        }
+
+        if (highMassState.HostMassSolidReservoirScalar <= lowMassState.HostMassSolidReservoirScalar)
+        {
+            throw new InvalidOperationException("Higher-mass hosts should now carry a larger derived solids reservoir than lower-mass hosts.");
+        }
+    }
+
+    /// <summary>
+    /// Tests that giant-planet weighting now peaks near the snow line instead of rising monotonically outward.
+    /// </summary>
+    public static void TestSnowLineGiantFormationWeightTurnsOverOutsidePeak()
+    {
+        SolarSystemSpec spec = new SolarSystemSpec(8282, 1, 1)
+        {
+            PlanetaryProfile = PlanetaryGenerationProfile.CreateDefault(),
+        };
+        PlanetarySystemState state = PlanetarySystemState.Build(spec, new Array<CelestialBody> { CreateTestStar() });
+        double peakWeight = state.GetSnowLineGiantFormationWeight(state.SnowLineAu);
+        double innerWeight = state.GetSnowLineGiantFormationWeight(state.SnowLineAu * 0.35);
+        double farOuterWeight = state.GetSnowLineGiantFormationWeight(state.SnowLineAu * 5.0);
+
+        if (peakWeight <= innerWeight)
+        {
+            throw new InvalidOperationException("Snow-line giant weighting should exceed the inner-system weight at the same system state.");
+        }
+
+        if (peakWeight <= farOuterWeight)
+        {
+            throw new InvalidOperationException("Snow-line giant weighting should turn over and decline in the far outer system.");
+        }
+    }
+
+    /// <summary>
+    /// Tests that stronger migration now yields more compact inner intermediate-mass worlds.
+    /// </summary>
+    public static void TestMigrationStrengthFavorsCompactInnerArchitecture()
+    {
+        OrbitHost host = CreateTestHost();
+        CelestialBody star = CreateTestStar();
+        int weakCompactWorldCount = 0;
+        int strongCompactWorldCount = 0;
+
+        for (int seed = 9100; seed < 9180; seed += 1)
+        {
+            Array<OrbitSlot> weakSlots = CreateCompactArchitectureSlots(host);
+            Array<OrbitSlot> strongSlots = CreateCompactArchitectureSlots(host);
+            SolarSystemSpec weakSpec = new SolarSystemSpec(seed, 1, 1)
+            {
+                PlanetaryProfile = new PlanetaryGenerationProfile
+                {
+                    MigrationStrength = 0.65,
+                    SolidMassScalar = 0.95,
+                    GasMassScalar = 0.95,
+                },
+            };
+            SolarSystemSpec strongSpec = new SolarSystemSpec(seed, 1, 1)
+            {
+                PlanetaryProfile = new PlanetaryGenerationProfile
+                {
+                    MigrationStrength = 1.65,
+                    SolidMassScalar = 1.20,
+                    GasMassScalar = 1.10,
+                },
+            };
+
+            PlanetGenerationResult weakResult = SystemPlanetGenerator.Generate(
+                weakSlots,
+                new Array<OrbitHost> { host },
+                new Array<CelestialBody> { star },
+                new SeededRng(seed),
+                systemSpec: weakSpec);
+            PlanetGenerationResult strongResult = SystemPlanetGenerator.Generate(
+                strongSlots,
+                new Array<OrbitHost> { host },
+                new Array<CelestialBody> { star },
+                new SeededRng(seed),
+                systemSpec: strongSpec);
+
+            weakCompactWorldCount += CountIntermediateMassPlanetsInsideAu(weakResult.Planets, 1.60);
+            strongCompactWorldCount += CountIntermediateMassPlanetsInsideAu(strongResult.Planets, 1.60);
+        }
+
+        if (strongCompactWorldCount <= weakCompactWorldCount)
+        {
+            throw new InvalidOperationException($"Higher migration strength should now favor more compact inner super-Earth and mini-Neptune analogs. Weak={weakCompactWorldCount} Strong={strongCompactWorldCount}");
         }
     }
 
@@ -926,6 +1103,32 @@ public static class TestSystemPlanetGenerator
         {
             double massEarth = planet.Physical.MassKg / Units.EarthMassKg;
             if (massEarth <= 1.2)
+            {
+                count += 1;
+            }
+        }
+
+        return count;
+    }
+
+    private static int CountIntermediateMassPlanetsInsideAu(Array<CelestialBody> planets, double maxOrbitAu)
+    {
+        int count = 0;
+        foreach (CelestialBody planet in planets)
+        {
+            if (!planet.HasOrbital())
+            {
+                continue;
+            }
+
+            double orbitAu = planet.Orbital!.SemiMajorAxisM / Units.AuMeters;
+            if (orbitAu > maxOrbitAu)
+            {
+                continue;
+            }
+
+            double massEarth = planet.Physical.MassKg / Units.EarthMassKg;
+            if (massEarth >= 2.0 && massEarth <= 20.0)
             {
                 count += 1;
             }

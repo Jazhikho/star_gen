@@ -191,13 +191,69 @@ public static class TestOrbitalMechanics
         double hzInnerAu = hzInner / Units.AuMeters;
         double hzOuterAu = hzOuter / Units.AuMeters;
 
-        if (hzInnerAu < 0.9 || hzInnerAu > 1.0)
+        if (hzInnerAu < 0.97 || hzInnerAu > 1.02)
         {
-            throw new InvalidOperationException("Solar HZ inner edge ~0.95 AU");
+            throw new InvalidOperationException("Default solar HZ inner edge should follow Kopparapu 2013 conservative limits (~0.99 AU)");
         }
-        if (hzOuterAu < 1.3 || hzOuterAu > 1.5)
+        if (hzOuterAu < 1.65 || hzOuterAu > 1.75)
         {
-            throw new InvalidOperationException("Solar HZ outer edge ~1.37 AU");
+            throw new InvalidOperationException("Default solar HZ outer edge should follow Kopparapu 2013 conservative limits (~1.70 AU)");
+        }
+    }
+
+    /// <summary>
+    /// Tests the legacy Kasting-style conservative habitable zone for a Sun-like star.
+    /// </summary>
+    public static void TestCalculateHabitableZoneSolarKastingModel()
+    {
+        const double SolarEffectiveTempK = 5780.0;
+        double hzInner = OrbitalMechanics.CalculateHabitableZoneInner(
+            StellarProps.SolarLuminosityWatts,
+            SolarEffectiveTempK,
+            PlanetHabitableZoneModel.Kasting1993Conservative);
+        double hzOuter = OrbitalMechanics.CalculateHabitableZoneOuter(
+            StellarProps.SolarLuminosityWatts,
+            SolarEffectiveTempK,
+            PlanetHabitableZoneModel.Kasting1993Conservative);
+
+        double hzInnerAu = hzInner / Units.AuMeters;
+        double hzOuterAu = hzOuter / Units.AuMeters;
+        if (hzInnerAu < 0.93 || hzInnerAu > 0.97)
+        {
+            throw new InvalidOperationException("Kasting 1993 inner solar HZ edge should stay near 0.95 AU");
+        }
+
+        if (hzOuterAu < 1.33 || hzOuterAu > 1.41)
+        {
+            throw new InvalidOperationException("Kasting 1993 outer solar HZ edge should stay near 1.37 AU");
+        }
+    }
+
+    /// <summary>
+    /// Tests the optimistic Kopparapu habitable zone widens the solar band.
+    /// </summary>
+    public static void TestCalculateHabitableZoneSolarOptimisticModel()
+    {
+        const double SolarEffectiveTempK = 5780.0;
+        double hzInner = OrbitalMechanics.CalculateHabitableZoneInner(
+            StellarProps.SolarLuminosityWatts,
+            SolarEffectiveTempK,
+            PlanetHabitableZoneModel.Kopparapu2013Optimistic);
+        double hzOuter = OrbitalMechanics.CalculateHabitableZoneOuter(
+            StellarProps.SolarLuminosityWatts,
+            SolarEffectiveTempK,
+            PlanetHabitableZoneModel.Kopparapu2013Optimistic);
+
+        double hzInnerAu = hzInner / Units.AuMeters;
+        double hzOuterAu = hzOuter / Units.AuMeters;
+        if (hzInnerAu < 0.72 || hzInnerAu > 0.78)
+        {
+            throw new InvalidOperationException("Optimistic solar HZ inner edge should stay near the Recent Venus limit (~0.75 AU)");
+        }
+
+        if (hzOuterAu < 1.73 || hzOuterAu > 1.82)
+        {
+            throw new InvalidOperationException("Optimistic solar HZ outer edge should stay near the Early Mars limit (~1.77 AU)");
         }
     }
 
@@ -244,6 +300,36 @@ public static class TestOrbitalMechanics
         if (zoneCold != OrbitZone.Zone.Cold)
         {
             throw new InvalidOperationException("5.0 AU should be COLD");
+        }
+    }
+
+    /// <summary>
+    /// Tests orbit-zone classification responds to the selected habitable-zone model.
+    /// </summary>
+    public static void TestGetOrbitalZoneRespectsSelectedHabitableZoneModel()
+    {
+        double lum = StellarProps.SolarLuminosityWatts;
+        double orbitM = 0.85 * Units.AuMeters;
+
+        OrbitZone.Zone kastingZone = OrbitZone.FromOrbitalDistance(
+            orbitM,
+            lum,
+            5780.0,
+            PlanetHabitableZoneModel.Kasting1993Conservative);
+        OrbitZone.Zone optimisticZone = OrbitZone.FromOrbitalDistance(
+            orbitM,
+            lum,
+            5780.0,
+            PlanetHabitableZoneModel.Kopparapu2013Optimistic);
+
+        if (kastingZone != OrbitZone.Zone.Hot)
+        {
+            throw new InvalidOperationException("0.85 AU should remain inside the hot zone under the tighter Kasting 1993 model.");
+        }
+
+        if (optimisticZone != OrbitZone.Zone.Temperate)
+        {
+            throw new InvalidOperationException("0.85 AU should move into the temperate zone under the wider optimistic Kopparapu model.");
         }
     }
 
@@ -563,9 +649,9 @@ public static class TestOrbitalMechanics
         const double SolarEffectiveTempK = 5780.0;
         double hzInner = OrbitalMechanics.CalculateHabitableZoneInner(luminosity, SolarEffectiveTempK);
         double hzInnerAu = hzInner / Units.AuMeters;
-        if (hzInnerAu < 1.8 || hzInnerAu > 2.0)
+        if (hzInnerAu < 1.95 || hzInnerAu > 2.05)
         {
-            throw new InvalidOperationException("HZ inner for 4x solar should be ~1.9 AU");
+            throw new InvalidOperationException("Kopparapu-conservative HZ inner edge for 4x solar should be near 2.0 AU");
         }
     }
 

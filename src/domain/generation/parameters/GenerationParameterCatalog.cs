@@ -8,9 +8,130 @@ namespace StarGen.Domain.Generation.Parameters;
 public static class GenerationParameterCatalog
 {
     /// <summary>
-    /// Returns system-generation parameter definitions.
+    /// Returns generation-facing system parameter definitions.
     /// </summary>
     public static List<GenerationParameterDefinition> GetSystemDefinitions()
+    {
+        return FilterByClassification(
+            BuildSystemDefinitionSet(),
+            GenerationParameterClassification.GenerationPrior,
+            GenerationParameterClassification.GeneratorOverride);
+    }
+
+    /// <summary>
+    /// Returns science-backed system priors only.
+    /// </summary>
+    public static List<GenerationParameterDefinition> GetSystemScienceDefinitions()
+    {
+        return FilterByClassification(
+            BuildSystemDefinitionSet(),
+            GenerationParameterClassification.GenerationPrior);
+    }
+
+    /// <summary>
+    /// Returns non-scientific system override seams.
+    /// </summary>
+    public static List<GenerationParameterDefinition> GetSystemOverrideDefinitions()
+    {
+        return FilterByClassification(
+            BuildSystemDefinitionSet(),
+            GenerationParameterClassification.GeneratorOverride);
+    }
+
+    /// <summary>
+    /// Returns system runtime controls that should not be treated as science parameters.
+    /// </summary>
+    public static List<GenerationParameterDefinition> GetSystemRuntimeDefinitions()
+    {
+        return FilterByClassification(
+            BuildSystemDefinitionSet(),
+            GenerationParameterClassification.RuntimeOrchestrationControl);
+    }
+
+    /// <summary>
+    /// Returns system presentation controls that should not be treated as generation parameters.
+    /// </summary>
+    public static List<GenerationParameterDefinition> GetSystemPresentationDefinitions()
+    {
+        return FilterByClassification(
+            BuildSystemDefinitionSet(),
+            GenerationParameterClassification.PresentationReadoutControl);
+    }
+
+    /// <summary>
+    /// Returns all system editor definitions, including runtime and presentation controls.
+    /// </summary>
+    public static List<GenerationParameterDefinition> GetSystemEditorDefinitions()
+    {
+        return BuildSystemDefinitionSet();
+    }
+
+    /// <summary>
+    /// Returns generation-facing galaxy parameter definitions.
+    /// </summary>
+    public static List<GenerationParameterDefinition> GetGalaxyDefinitions()
+    {
+        return FilterByClassification(
+            BuildGalaxyDefinitionSet(),
+            GenerationParameterClassification.GenerationPrior,
+            GenerationParameterClassification.GeneratorOverride);
+    }
+
+    /// <summary>
+    /// Returns science-backed galaxy priors only.
+    /// </summary>
+    public static List<GenerationParameterDefinition> GetGalaxyScienceDefinitions()
+    {
+        return FilterByClassification(
+            BuildGalaxyDefinitionSet(),
+            GenerationParameterClassification.GenerationPrior);
+    }
+
+    /// <summary>
+    /// Returns non-scientific galaxy override seams.
+    /// </summary>
+    public static List<GenerationParameterDefinition> GetGalaxyOverrideDefinitions()
+    {
+        return FilterByClassification(
+            BuildGalaxyDefinitionSet(),
+            GenerationParameterClassification.GeneratorOverride);
+    }
+
+    /// <summary>
+    /// Returns galaxy presentation controls that should not be treated as generation parameters.
+    /// </summary>
+    public static List<GenerationParameterDefinition> GetGalaxyPresentationDefinitions()
+    {
+        return FilterByClassification(
+            BuildGalaxyDefinitionSet(),
+            GenerationParameterClassification.PresentationReadoutControl);
+    }
+
+    /// <summary>
+    /// Returns all galaxy editor definitions, including presentation controls.
+    /// </summary>
+    public static List<GenerationParameterDefinition> GetGalaxyEditorDefinitions()
+    {
+        return BuildGalaxyDefinitionSet();
+    }
+
+    /// <summary>
+    /// Finds a system-editor definition by identifier.
+    /// </summary>
+    public static GenerationParameterDefinition? FindSystemDefinition(string parameterId)
+    {
+        return FindDefinition(BuildSystemDefinitionSet(), parameterId);
+    }
+
+    /// <summary>
+    /// Finds a galaxy-editor definition by identifier.
+    /// </summary>
+    public static GenerationParameterDefinition? FindGalaxyDefinition(string parameterId)
+    {
+        return FindDefinition(BuildGalaxyDefinitionSet(), parameterId);
+    }
+
+    private static List<GenerationParameterDefinition> BuildSystemDefinitionSet()
     {
         return new List<GenerationParameterDefinition>
         {
@@ -26,28 +147,32 @@ public static class GenerationParameterCatalog
             new GenerationParameterDefinition("stellar_multiplicity_scale", "Companions", string.Empty, GenerationParameterControlType.Number, StellarScienceReferenceCatalog.GetTooltipSummary("stellar_multiplicity_scale")),
             new GenerationParameterDefinition("planet_mass_radius_model", "Mass-Radius Model", string.Empty, GenerationParameterControlType.Choice, PlanetaryScienceReferenceCatalog.GetTooltipSummary("planet_mass_radius_model")),
             new GenerationParameterDefinition("planet_envelope_loss_model", "Envelope Loss", string.Empty, GenerationParameterControlType.Choice, PlanetaryScienceReferenceCatalog.GetTooltipSummary("planet_envelope_loss_model")),
+            new GenerationParameterDefinition("planet_habitable_zone_model", "HZ Model", string.Empty, GenerationParameterControlType.Choice, PlanetaryScienceReferenceCatalog.GetTooltipSummary("planet_habitable_zone_model")),
             new GenerationParameterDefinition("planet_gas_giant_formation_model", "Giant Formation", string.Empty, GenerationParameterControlType.Choice, PlanetaryScienceReferenceCatalog.GetTooltipSummary("planet_gas_giant_formation_model")),
             new GenerationParameterDefinition("planet_metallicity_coupling_strength", "Metallicity Coupling", string.Empty, GenerationParameterControlType.Choice, PlanetaryScienceReferenceCatalog.GetTooltipSummary("planet_metallicity_coupling_strength")),
             new GenerationParameterDefinition("planet_rogue_planet_allowance", "Rogue Allowance", string.Empty, GenerationParameterControlType.Choice, PlanetaryScienceReferenceCatalog.GetTooltipSummary("planet_rogue_planet_allowance")),
             new GenerationParameterDefinition("planet_moon_formation_bias", "Moon Bias", string.Empty, GenerationParameterControlType.Choice, PlanetaryScienceReferenceCatalog.GetTooltipSummary("planet_moon_formation_bias")),
             new GenerationParameterDefinition("planet_minor_body_outer_system_bias", "Outer Small Bodies", string.Empty, GenerationParameterControlType.Choice, PlanetaryScienceReferenceCatalog.GetTooltipSummary("planet_minor_body_outer_system_bias")),
-            new GenerationParameterDefinition("include_asteroid_belts", "Asteroid Belts", string.Empty, GenerationParameterControlType.Toggle, "Controls whether the belt stage participates in generation."),
             new GenerationParameterDefinition("life_framework", "Life Framework", string.Empty, GenerationParameterControlType.Choice, LifeScienceReferenceCatalog.GetTooltipSummary("life_framework")),
             new GenerationParameterDefinition("abiogenesis_model", "Abiogenesis Model", string.Empty, GenerationParameterControlType.Choice, LifeScienceReferenceCatalog.GetTooltipSummary("abiogenesis_model")),
             new GenerationParameterDefinition("complex_life_model", "Complex Life Model", string.Empty, GenerationParameterControlType.Choice, LifeScienceReferenceCatalog.GetTooltipSummary("complex_life_model")),
             new GenerationParameterDefinition("civilization_model", "Civilization Model", string.Empty, GenerationParameterControlType.Choice, LifeScienceReferenceCatalog.GetTooltipSummary("civilization_model")),
             new GenerationParameterDefinition("environmental_window_weight", "Environmental Window Weight", string.Empty, GenerationParameterControlType.Choice, LifeScienceReferenceCatalog.GetTooltipSummary("environmental_window_weight")),
-            new GenerationParameterDefinition("generate_population", "Generate Population", string.Empty, GenerationParameterControlType.Toggle, "Enables the downstream population pipeline for planets and moons."),
-            new GenerationParameterDefinition("ruleset_mode", "Ruleset", string.Empty, GenerationParameterControlType.Choice, "Selects the downstream compatibility profile.\nRealistic keeps StarGen's default scientific and physical worldbuilding path.\nSpace Opera, Cepheus, Starfinder, and Starforged each apply different RPG-facing override pressure to mainworld selection, settlement likelihood, and system flavor without replacing the whole generator."),
-            new GenerationParameterDefinition("show_traveller_readouts", "Show UWP Code", string.Empty, GenerationParameterControlType.Toggle, "Shows Universal World Profile code when the current flow has enough information to derive it."),
-            new GenerationParameterDefinition("mainworld_policy", "Mainworld Policy", string.Empty, GenerationParameterControlType.Choice, "Controls whether compatibility-oriented generation should ignore, prefer, or require a plausible mainworld candidate."),
+            new GenerationParameterDefinition("ruleset_mode", "Ruleset", string.Empty, GenerationParameterControlType.Choice, "Generator override seam.\nSelects the downstream compatibility profile.\nRealistic keeps StarGen's default scientific and physical worldbuilding path.\nTraveller, Cepheus, Starfinder, and Starforged each apply different RPG-facing override pressure to mainworld selection, settlement likelihood, and system flavor without replacing the whole generator.", GenerationParameterClassification.GeneratorOverride),
+            new GenerationParameterDefinition("force_life_on_supportable_worlds", "Force Life If Supportable", string.Empty, GenerationParameterControlType.Toggle, "Generator override seam.\nWhen enabled, worlds that pass the biology support gate keep native life instead of rolling it stochastically.\nUnsupported worlds still remain lifeless.", GenerationParameterClassification.GeneratorOverride),
+            new GenerationParameterDefinition("mainworld_policy", "Mainworld Policy", string.Empty, GenerationParameterControlType.Choice, "Generator override seam.\nControls whether compatibility-oriented generation should ignore, prefer, or require a plausible mainworld candidate.", GenerationParameterClassification.GeneratorOverride),
+            new GenerationParameterDefinition("compatibility_temperate_slot_fill_multiplier", "Temperate World Bias", string.Empty, GenerationParameterControlType.Number, "Generator override seam.\nHigher values fill more temperate slots with worlds.\nLower values leave more of those slots empty in compatibility-oriented flows.", GenerationParameterClassification.GeneratorOverride),
+            new GenerationParameterDefinition("compatibility_harsh_slot_fill_multiplier", "Harsh World Bias", string.Empty, GenerationParameterControlType.Number, "Generator override seam.\nHigher values preserve more harsh-slot worlds.\nLower values prune harsh worlds more aggressively in compatibility-oriented flows.", GenerationParameterClassification.GeneratorOverride),
+            new GenerationParameterDefinition("compatibility_terrestrial_world_weight_multiplier", "Mainworld Class Bias", string.Empty, GenerationParameterControlType.Number, "Generator override seam.\nHigher values favor rocky and super-Earth mainworld candidates over mini-Neptunes and giants.", GenerationParameterClassification.GeneratorOverride),
+            new GenerationParameterDefinition("compatibility_native_life_probability_multiplier", "Native Life Bias", string.Empty, GenerationParameterControlType.Number, "Generator override seam.\nHigher values make supportable worlds more likely to keep native life in compatibility-oriented flows.", GenerationParameterClassification.GeneratorOverride),
+            new GenerationParameterDefinition("compatibility_colony_probability_multiplier", "Settlement Bias", string.Empty, GenerationParameterControlType.Number, "Generator override seam.\nHigher values make colonies and inhabited outposts more common in compatibility-oriented flows.", GenerationParameterClassification.GeneratorOverride),
+            new GenerationParameterDefinition("include_asteroid_belts", "Asteroid Belts", string.Empty, GenerationParameterControlType.Toggle, "Runtime control.\nEnables or skips the downstream asteroid-belt generation stage.", GenerationParameterClassification.RuntimeOrchestrationControl),
+            new GenerationParameterDefinition("generate_population", "Generate Population", string.Empty, GenerationParameterControlType.Toggle, "Runtime control.\nEnables or skips the downstream population pipeline for planets and moons.", GenerationParameterClassification.RuntimeOrchestrationControl),
+            new GenerationParameterDefinition("show_traveller_readouts", "Show UWP Code", string.Empty, GenerationParameterControlType.Toggle, "Presentation control.\nShows Universal World Profile code when the current flow has enough information to derive it.", GenerationParameterClassification.PresentationReadoutControl),
         };
     }
 
-    /// <summary>
-    /// Returns galaxy-generation parameter definitions.
-    /// </summary>
-    public static List<GenerationParameterDefinition> GetGalaxyDefinitions()
+    private static List<GenerationParameterDefinition> BuildGalaxyDefinitionSet()
     {
         return new List<GenerationParameterDefinition>
         {
@@ -80,19 +205,58 @@ public static class GenerationParameterCatalog
             new GenerationParameterDefinition("stellar_multiplicity_scale", "Companions", string.Empty, GenerationParameterControlType.Number, StellarScienceReferenceCatalog.GetTooltipSummary("stellar_multiplicity_scale")),
             new GenerationParameterDefinition("planet_mass_radius_model", "Mass-Radius Model", string.Empty, GenerationParameterControlType.Choice, PlanetaryScienceReferenceCatalog.GetTooltipSummary("planet_mass_radius_model")),
             new GenerationParameterDefinition("planet_envelope_loss_model", "Envelope Loss", string.Empty, GenerationParameterControlType.Choice, PlanetaryScienceReferenceCatalog.GetTooltipSummary("planet_envelope_loss_model")),
+            new GenerationParameterDefinition("planet_habitable_zone_model", "HZ Model", string.Empty, GenerationParameterControlType.Choice, PlanetaryScienceReferenceCatalog.GetTooltipSummary("planet_habitable_zone_model")),
             new GenerationParameterDefinition("planet_gas_giant_formation_model", "Giant Formation", string.Empty, GenerationParameterControlType.Choice, PlanetaryScienceReferenceCatalog.GetTooltipSummary("planet_gas_giant_formation_model")),
             new GenerationParameterDefinition("planet_metallicity_coupling_strength", "Metallicity Coupling", string.Empty, GenerationParameterControlType.Choice, PlanetaryScienceReferenceCatalog.GetTooltipSummary("planet_metallicity_coupling_strength")),
             new GenerationParameterDefinition("planet_rogue_planet_allowance", "Rogue Allowance", string.Empty, GenerationParameterControlType.Choice, PlanetaryScienceReferenceCatalog.GetTooltipSummary("planet_rogue_planet_allowance")),
             new GenerationParameterDefinition("planet_moon_formation_bias", "Moon Bias", string.Empty, GenerationParameterControlType.Choice, PlanetaryScienceReferenceCatalog.GetTooltipSummary("planet_moon_formation_bias")),
             new GenerationParameterDefinition("planet_minor_body_outer_system_bias", "Outer Small Bodies", string.Empty, GenerationParameterControlType.Choice, PlanetaryScienceReferenceCatalog.GetTooltipSummary("planet_minor_body_outer_system_bias")),
-            new GenerationParameterDefinition("ruleset_mode", "Ruleset", string.Empty, GenerationParameterControlType.Choice, "Selects the downstream compatibility profile.\nRealistic keeps StarGen's default scientific and physical worldbuilding path.\nSpace Opera, Cepheus, Starfinder, and Starforged each apply different RPG-facing override pressure to mainworld selection, settlement likelihood, and system flavor without replacing the whole generator."),
-            new GenerationParameterDefinition("show_traveller_readouts", "Show UWP Code", string.Empty, GenerationParameterControlType.Toggle, "Shows Universal World Profile code when the current flow has enough information to derive it."),
             new GenerationParameterDefinition("life_framework", "Life Framework", string.Empty, GenerationParameterControlType.Choice, LifeScienceReferenceCatalog.GetTooltipSummary("life_framework")),
             new GenerationParameterDefinition("abiogenesis_model", "Abiogenesis Model", string.Empty, GenerationParameterControlType.Choice, LifeScienceReferenceCatalog.GetTooltipSummary("abiogenesis_model")),
             new GenerationParameterDefinition("complex_life_model", "Complex Life Model", string.Empty, GenerationParameterControlType.Choice, LifeScienceReferenceCatalog.GetTooltipSummary("complex_life_model")),
             new GenerationParameterDefinition("civilization_model", "Civilization Model", string.Empty, GenerationParameterControlType.Choice, LifeScienceReferenceCatalog.GetTooltipSummary("civilization_model")),
             new GenerationParameterDefinition("environmental_window_weight", "Environmental Window Weight", string.Empty, GenerationParameterControlType.Choice, LifeScienceReferenceCatalog.GetTooltipSummary("environmental_window_weight")),
-            new GenerationParameterDefinition("mainworld_policy", "Mainworld Policy", string.Empty, GenerationParameterControlType.Choice, "Controls whether compatibility-oriented generation should ignore, prefer, or require plausible mainworld-ready systems."),
+            new GenerationParameterDefinition("ruleset_mode", "Ruleset", string.Empty, GenerationParameterControlType.Choice, "Generator override seam.\nSelects the downstream compatibility profile.\nRealistic keeps StarGen's default scientific and physical worldbuilding path.\nTraveller, Cepheus, Starfinder, and Starforged each apply different RPG-facing override pressure to mainworld selection, settlement likelihood, and region flavor without replacing the whole generator.", GenerationParameterClassification.GeneratorOverride),
+            new GenerationParameterDefinition("force_life_on_supportable_worlds", "Force Life If Supportable", string.Empty, GenerationParameterControlType.Toggle, "Generator override seam.\nWhen enabled, worlds that pass the biology support gate keep native life instead of rolling it stochastically.\nUnsupported worlds still remain lifeless.", GenerationParameterClassification.GeneratorOverride),
+            new GenerationParameterDefinition("mainworld_policy", "Mainworld Policy", string.Empty, GenerationParameterControlType.Choice, "Generator override seam.\nControls whether compatibility-oriented generation should ignore, prefer, or require plausible mainworld-ready systems.", GenerationParameterClassification.GeneratorOverride),
+            new GenerationParameterDefinition("compatibility_temperate_slot_fill_multiplier", "Temperate World Bias", string.Empty, GenerationParameterControlType.Number, "Generator override seam.\nHigher values fill more temperate slots with worlds.\nLower values leave more of those slots empty in compatibility-oriented flows.", GenerationParameterClassification.GeneratorOverride),
+            new GenerationParameterDefinition("compatibility_harsh_slot_fill_multiplier", "Harsh World Bias", string.Empty, GenerationParameterControlType.Number, "Generator override seam.\nHigher values preserve more harsh-slot worlds.\nLower values prune harsh worlds more aggressively in compatibility-oriented flows.", GenerationParameterClassification.GeneratorOverride),
+            new GenerationParameterDefinition("compatibility_terrestrial_world_weight_multiplier", "Mainworld Class Bias", string.Empty, GenerationParameterControlType.Number, "Generator override seam.\nHigher values favor rocky and super-Earth mainworld candidates over mini-Neptunes and giants.", GenerationParameterClassification.GeneratorOverride),
+            new GenerationParameterDefinition("compatibility_native_life_probability_multiplier", "Native Life Bias", string.Empty, GenerationParameterControlType.Number, "Generator override seam.\nHigher values make supportable worlds more likely to keep native life in compatibility-oriented flows.", GenerationParameterClassification.GeneratorOverride),
+            new GenerationParameterDefinition("compatibility_colony_probability_multiplier", "Settlement Bias", string.Empty, GenerationParameterControlType.Number, "Generator override seam.\nHigher values make colonies and inhabited outposts more common in compatibility-oriented flows.", GenerationParameterClassification.GeneratorOverride),
+            new GenerationParameterDefinition("show_traveller_readouts", "Show UWP Code", string.Empty, GenerationParameterControlType.Toggle, "Presentation control.\nShows Universal World Profile code when the current flow has enough information to derive it.", GenerationParameterClassification.PresentationReadoutControl),
         };
+    }
+
+    private static List<GenerationParameterDefinition> FilterByClassification(
+        IReadOnlyList<GenerationParameterDefinition> definitions,
+        params GenerationParameterClassification[] allowed)
+    {
+        HashSet<GenerationParameterClassification> allowedSet = new(allowed);
+        List<GenerationParameterDefinition> filtered = new();
+        foreach (GenerationParameterDefinition definition in definitions)
+        {
+            if (allowedSet.Contains(definition.Classification))
+            {
+                filtered.Add(definition);
+            }
+        }
+
+        return filtered;
+    }
+
+    private static GenerationParameterDefinition? FindDefinition(
+        IReadOnlyList<GenerationParameterDefinition> definitions,
+        string parameterId)
+    {
+        foreach (GenerationParameterDefinition definition in definitions)
+        {
+            if (definition.Id == parameterId)
+            {
+                return definition;
+            }
+        }
+
+        return null;
     }
 }

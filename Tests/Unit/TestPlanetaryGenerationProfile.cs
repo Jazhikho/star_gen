@@ -28,6 +28,7 @@ public static class TestPlanetaryGenerationProfile
         {
             MassRadiusModel = PlanetMassRadiusModel.ChenKipping,
             EnvelopeLossModel = PlanetEnvelopeLossModel.CorePowered,
+            HabitableZoneModel = PlanetHabitableZoneModel.Kasting1993Conservative,
             GasGiantFormationModel = GasGiantFormationModel.PebbleAssisted,
             MetallicityCouplingStrength = PlanetMetallicityCouplingStrength.Strong,
             MoonFormationBias = PlanetMoonFormationBias.CapturedRich,
@@ -46,6 +47,7 @@ public static class TestPlanetaryGenerationProfile
 
         DotNetNativeTestSuite.AssertEqual((int)profile.MassRadiusModel, (int)rebuilt.MassRadiusModel, "Mass-radius model should round-trip");
         DotNetNativeTestSuite.AssertEqual((int)profile.EnvelopeLossModel, (int)rebuilt.EnvelopeLossModel, "Envelope-loss model should round-trip");
+        DotNetNativeTestSuite.AssertEqual((int)profile.HabitableZoneModel, (int)rebuilt.HabitableZoneModel, "Habitable-zone model should round-trip");
         DotNetNativeTestSuite.AssertEqual((int)profile.GasGiantFormationModel, (int)rebuilt.GasGiantFormationModel, "Gas-giant model should round-trip");
         DotNetNativeTestSuite.AssertEqual((int)profile.MetallicityCouplingStrength, (int)rebuilt.MetallicityCouplingStrength, "Metallicity coupling should round-trip");
         DotNetNativeTestSuite.AssertEqual((int)profile.MoonFormationBias, (int)rebuilt.MoonFormationBias, "Moon-formation bias should round-trip");
@@ -80,6 +82,7 @@ public static class TestPlanetaryGenerationProfile
         spec.PlanetaryProfile = new PlanetaryGenerationProfile
         {
             EnvelopeLossModel = PlanetEnvelopeLossModel.Photoevaporation,
+            HabitableZoneModel = PlanetHabitableZoneModel.Kasting1993Conservative,
             GasGiantFormationModel = GasGiantFormationModel.PebbleAssisted,
             SolidMassScalar = 1.25,
             GasMassScalar = 1.40,
@@ -92,6 +95,7 @@ public static class TestPlanetaryGenerationProfile
         PlanetarySystemState rebuilt = PlanetarySystemState.FromDictionary(state.ToDictionary());
 
         DotNetNativeTestSuite.AssertEqual((int)state.Profile.EnvelopeLossModel, (int)rebuilt.Profile.EnvelopeLossModel, "Derived state should preserve envelope-loss model");
+        DotNetNativeTestSuite.AssertEqual((int)state.Profile.HabitableZoneModel, (int)rebuilt.Profile.HabitableZoneModel, "Derived state should preserve the habitable-zone model");
         DotNetNativeTestSuite.AssertEqual(state.SnowLineAu, rebuilt.SnowLineAu, "Derived state should preserve the snow line");
         DotNetNativeTestSuite.AssertEqual(state.GasGiantWeight, rebuilt.GasGiantWeight, "Derived state should preserve gas-giant weighting");
         DotNetNativeTestSuite.AssertEqual(state.HabitableZoneInnerAu, rebuilt.HabitableZoneInnerAu, "Derived state should preserve habitable-zone inner edge");
@@ -108,6 +112,7 @@ public static class TestPlanetaryGenerationProfile
         PlanetaryGenerationProfile profile = new PlanetaryGenerationProfile
         {
             EnvelopeLossModel = PlanetEnvelopeLossModel.CorePowered,
+            HabitableZoneModel = PlanetHabitableZoneModel.Kopparapu2013Optimistic,
             GasGiantFormationModel = GasGiantFormationModel.Mixed,
             MetallicityCouplingStrength = PlanetMetallicityCouplingStrength.Strong,
             RoguePlanetAllowance = PlanetRoguePlanetAllowance.Standard,
@@ -118,11 +123,13 @@ public static class TestPlanetaryGenerationProfile
         GalaxyConfig? rebuiltGalaxyConfig = GalaxyConfig.FromDictionary(galaxyConfig.ToDictionary());
         DotNetNativeTestSuite.AssertNotNull(rebuiltGalaxyConfig, "Galaxy config should deserialize");
         DotNetNativeTestSuite.AssertEqual((int)profile.EnvelopeLossModel, (int)rebuiltGalaxyConfig!.PlanetaryProfile.EnvelopeLossModel, "Galaxy config should preserve the planetary profile");
+        DotNetNativeTestSuite.AssertEqual((int)profile.HabitableZoneModel, (int)rebuiltGalaxyConfig.PlanetaryProfile.HabitableZoneModel, "Galaxy config should preserve the habitable-zone model");
 
         SolarSystemSpec systemSpec = new SolarSystemSpec(77, 1, 3);
         systemSpec.PlanetaryProfile = profile.Clone();
         SolarSystemSpec rebuiltSystemSpec = SolarSystemSpec.FromDictionary(systemSpec.ToDictionary());
         DotNetNativeTestSuite.AssertEqual((int)profile.RoguePlanetAllowance, (int)rebuiltSystemSpec.PlanetaryProfile.RoguePlanetAllowance, "System spec should preserve rogue-planet allowance");
+        DotNetNativeTestSuite.AssertEqual((int)profile.HabitableZoneModel, (int)rebuiltSystemSpec.PlanetaryProfile.HabitableZoneModel, "System spec should preserve the habitable-zone model");
     }
 
     /// <summary>

@@ -31,7 +31,7 @@ StarGen `0.9d` is the current mainline checkpoint baseline.
 - Mainline is generation-and-view focused; save/load/export flows are reserved for the export branch.
 - Mainline no longer ships the Concept Atlas path. `Concepts/Additions.md` remains the StarGen prototype backlog for future work that stays in scope.
 
-The current user-facing release version is `0.9d`, while the current internal checkpoint version is `0.8.18.8`. Detailed version history and patch notes live in [VERSION.md](VERSION.md).
+The current user-facing release target is `0.9d` / `0.9.0.0`, while the current internal checkpoint version is `0.8.21.1`. Detailed version history and patch notes live in [VERSION.md](VERSION.md).
 
 ## Running StarGen
 
@@ -46,6 +46,14 @@ You can also build the C# solution directly:
 ```bash
 dotnet build StarGen.sln
 ```
+
+For release exports and itch-ready packaging on Windows, use:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File .\scripts\CreateReleaseBuild.ps1 -GodotExe "C:\Path\To\Godot_v4.6-stable_mono_win64_console.exe"
+```
+
+That helper runs `dotnet build`, runs the headless harness by default, exports the configured release presets, writes artifacts under `release/<internal-version>/`, and prints suggested itch `butler` commands.
 
 ## Testing
 
@@ -67,6 +75,9 @@ godot-mono.exe --path . --headless --script res://Tests/Baselines/RunLifeDistrib
 - [VERSION.md](VERSION.md) for release notes and version history
 - [Docs/Roadmap.md](Docs/Roadmap.md) for planned efforts and development status
 - [Docs/ProjectStructure.md](Docs/ProjectStructure.md) for the codebase layout
+- [Docs/V0.9ReleaseChecklist.md](Docs/V0.9ReleaseChecklist.md) for the `0.9` build, packaging, and itch-release procedure
+- [Docs/V0.9AcceptanceChecklist.md](Docs/V0.9AcceptanceChecklist.md) for the live manual verification pass before publishing
+- [Docs/V1.0Checklist.md](Docs/V1.0Checklist.md) for the remaining work required before a defensible `1.0`
 - [AI-Use-Statement.md](AI-Use-Statement.md) for the repository AI-use policy
 - [AI-Provenance-Log.md](AI-Provenance-Log.md) for significant AI-assisted artifacts
 

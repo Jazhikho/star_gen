@@ -170,6 +170,92 @@ public static class TestBiologySupportEvaluator
         DotNetNativeTestSuite.AssertTrue(foundTechnologicalCivilization, "A technological-civilization outcome should still exist for some deterministic seed");
     }
 
+    /// <summary>
+    /// Tests that mixed land-ocean worlds expose better nutrient accessibility than ocean-dominated worlds.
+    /// </summary>
+    public static void TestMixedLandOceanWorldImprovesNutrientAccessibility()
+    {
+        PlanetEnvironmentProfile mixedWorld = CreatePrimeSentientWorld();
+        PlanetEnvironmentProfile oceanWorld = CreatePrimeSentientWorld();
+        oceanWorld.OceanCoverage = 0.97;
+        oceanWorld.LandCoverage = 0.02;
+        oceanWorld.ContinentCount = 1;
+
+        BiologySupportEvaluator.Assessment mixedAssessment = BiologySupportEvaluator.Evaluate(mixedWorld);
+        BiologySupportEvaluator.Assessment oceanAssessment = BiologySupportEvaluator.Evaluate(oceanWorld);
+
+        DotNetNativeTestSuite.AssertTrue(
+            mixedAssessment.NutrientAccessibility > oceanAssessment.NutrientAccessibility,
+            $"Mixed land-ocean worlds should improve nutrient accessibility | mixed={mixedAssessment.NutrientAccessibility:0.000} ocean={oceanAssessment.NutrientAccessibility:0.000}");
+        DotNetNativeTestSuite.AssertTrue(
+            mixedAssessment.OxygenationChance > oceanAssessment.OxygenationChance,
+            $"Mixed land-ocean worlds should improve oxygenation potential | mixed={mixedAssessment.OxygenationChance:0.000} ocean={oceanAssessment.OxygenationChance:0.000}");
+    }
+
+    /// <summary>
+    /// Tests that icy ocean moons favor protected biospheres over exposed surface ones.
+    /// </summary>
+    public static void TestIcyMoonFavorsProtectedBiosphere()
+    {
+        PlanetEnvironmentProfile icyMoon = CreateIcyOceanMoon();
+        icyMoon.TidalHeatingFactor = 0.24;
+
+        BiologySupportEvaluator.Assessment assessment = BiologySupportEvaluator.Evaluate(icyMoon);
+
+        DotNetNativeTestSuite.AssertTrue(
+            assessment.ProtectedBiosphereChance > assessment.SurfaceBiosphereChance,
+            $"Icy ocean moons should favor protected biospheres | protected={assessment.ProtectedBiosphereChance:0.000} surface={assessment.SurfaceBiosphereChance:0.000}");
+        DotNetNativeTestSuite.AssertTrue(
+            assessment.BiosignatureDetectabilityChance < assessment.ProtectedBiosphereChance,
+            $"Protected biospheres should be harder to detect remotely | detectability={assessment.BiosignatureDetectabilityChance:0.000} protected={assessment.ProtectedBiosphereChance:0.000}");
+    }
+
+    /// <summary>
+    /// Tests that strong XUV and weak protection increase desiccation risk and suppress abiogenesis.
+    /// </summary>
+    public static void TestHighXuvRaisesDesiccationRiskAndSuppressesAbiogenesis()
+    {
+        PlanetEnvironmentProfile mildWorld = CreateTemperateWaterWorld();
+        PlanetEnvironmentProfile harshWorld = CreateTemperateWaterWorld();
+        harshWorld.XuvExposure = 1.40;
+        harshWorld.PressureAtm = 0.15;
+        harshWorld.MagneticFieldStrength = 0.02;
+        harshWorld.HasMagneticField = false;
+
+        BiologySupportEvaluator.Assessment mildAssessment = BiologySupportEvaluator.Evaluate(mildWorld);
+        BiologySupportEvaluator.Assessment harshAssessment = BiologySupportEvaluator.Evaluate(harshWorld);
+
+        DotNetNativeTestSuite.AssertTrue(
+            harshAssessment.EarlyDesiccationRisk > mildAssessment.EarlyDesiccationRisk,
+            $"Harsh XUV worlds should have higher desiccation risk | mild={mildAssessment.EarlyDesiccationRisk:0.000} harsh={harshAssessment.EarlyDesiccationRisk:0.000}");
+        DotNetNativeTestSuite.AssertTrue(
+            mildAssessment.AbiogenesisChance > harshAssessment.AbiogenesisChance,
+            $"Harsh XUV worlds should have lower abiogenesis chance | mild={mildAssessment.AbiogenesisChance:0.000} harsh={harshAssessment.AbiogenesisChance:0.000}");
+    }
+
+    /// <summary>
+    /// Tests that abiogenesis, oxygenation, and detectability remain separate diagnostics.
+    /// </summary>
+    public static void TestDetectabilityRemainsSeparateFromLifeExistence()
+    {
+        PlanetEnvironmentProfile world = CreatePrimeSentientWorld();
+        world.HasBreathableAtmosphere = false;
+        world.PressureAtm = 0.55;
+        world.OceanCoverage = 0.88;
+        world.LandCoverage = 0.08;
+        world.ContinentCount = 1;
+        world.XuvExposure = 0.38;
+
+        BiologySupportEvaluator.Assessment assessment = BiologySupportEvaluator.Evaluate(world);
+
+        DotNetNativeTestSuite.AssertTrue(
+            assessment.AbiogenesisChance > assessment.BiosignatureDetectabilityChance,
+            $"Life existence should exceed biosignature detectability on weakly oxygenated worlds | abiogenesis={assessment.AbiogenesisChance:0.000} detectability={assessment.BiosignatureDetectabilityChance:0.000}");
+        DotNetNativeTestSuite.AssertTrue(
+            assessment.OxygenationChance < assessment.SurfaceBiosphereChance,
+            $"Oxygenation should remain a later bottleneck than surface biosphere support | oxygenation={assessment.OxygenationChance:0.000} surface={assessment.SurfaceBiosphereChance:0.000}");
+    }
+
     private static PlanetEnvironmentProfile CreateTemperateWaterWorld()
     {
         return new PlanetEnvironmentProfile
@@ -184,6 +270,9 @@ public static class TestBiologySupportEvaluator
             OceanCoverage = 0.65,
             LandCoverage = 0.30,
             IceCoverage = 0.05,
+            ContinentCount = 4,
+            DayLengthHours = 24.0,
+            AxialTiltDeg = 23.5,
             GravityG = 1.0,
             TectonicActivity = 0.45,
             VolcanismLevel = 0.20,
@@ -200,6 +289,9 @@ public static class TestBiologySupportEvaluator
             HasBreathableAtmosphere = true,
             HasMagneticField = true,
             IsMoon = false,
+            IsTidallyLocked = false,
+            ResourceRichness = 0.62,
+            ResourceDiversity = 0.58,
         };
     }
 
@@ -217,6 +309,9 @@ public static class TestBiologySupportEvaluator
             OceanCoverage = 0.0,
             LandCoverage = 0.0,
             IceCoverage = 0.92,
+            ContinentCount = 0,
+            DayLengthHours = 84.0,
+            AxialTiltDeg = 2.0,
             GravityG = 0.14,
             TectonicActivity = 0.10,
             VolcanismLevel = 0.12,
@@ -235,6 +330,9 @@ public static class TestBiologySupportEvaluator
             HasBreathableAtmosphere = false,
             HasMagneticField = false,
             IsMoon = true,
+            IsTidallyLocked = true,
+            ResourceRichness = 0.34,
+            ResourceDiversity = 0.25,
         };
     }
 
@@ -252,6 +350,9 @@ public static class TestBiologySupportEvaluator
             OceanCoverage = 0.42,
             LandCoverage = 0.54,
             IceCoverage = 0.04,
+            ContinentCount = 5,
+            DayLengthHours = 23.0,
+            AxialTiltDeg = 19.0,
             GravityG = 1.0,
             TectonicActivity = 0.30,
             VolcanismLevel = 0.08,
@@ -268,6 +369,9 @@ public static class TestBiologySupportEvaluator
             HasBreathableAtmosphere = true,
             HasMagneticField = true,
             IsMoon = false,
+            IsTidallyLocked = false,
+            ResourceRichness = 0.68,
+            ResourceDiversity = 0.64,
         };
     }
 

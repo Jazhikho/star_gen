@@ -1,0 +1,21 @@
+Source note for StarGen research review
+
+Citation:
+Bryson, S., Kunimoto, M., Kopparapu, R. K., Coughlin, J. L., Borucki, W. J., Koch, D., Silva Aguirre, V., Allen, C., Barentsen, G., Batalha, N. M., Berger, T., Boss, A., Buchhave, L. A., Burke, C. J., Caldwell, D. A., Campbell, J. R., Catanzarite, J., Chandrasekharan, H., Chaplin, W. J., et al. (2021).
+The occurrence of rocky habitable zone planets around solar-like stars from Kepler data.
+The Astronomical Journal, 161(1), 36.
+arXiv: https://arxiv.org/abs/2010.14812
+DOI: https://doi.org/10.3847/1538-3881/abc418
+
+What was reviewed:
+- Abstract and source metadata on 2026-04-22.
+
+Key implementation notes used in StarGen:
+- The paper defines eta_Earth for 0.5-1.5 Earth-radius rocky planets in the habitable zones of main-sequence stars with effective temperatures between 4800 K and 6300 K.
+- For the conservative habitable zone, the paper reports a broad occurrence interval between about 0.37 and 0.60 planets per star, with large uncertainties driven by completeness extrapolation.
+- The practical takeaway for StarGen is that habitable-zone rocky occurrence around solar-like stars is plausibly substantial, but uncertain enough that it should be treated as a banded calibration target rather than a hard exact rate.
+
+How StarGen should use this:
+- As a calibration envelope for habitable-zone rocky-world frequency in Sun-like systems.
+- As support for using `habitable_zone_alignment` as a weighting field instead of a hard yes/no gate.
+- As a warning that tests for habitable rocky worlds should use broad acceptable bands and should explicitly model uncertainty rather than overfit one point estimate.

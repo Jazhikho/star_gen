@@ -1,0 +1,16 @@
+Luger, R., & Barnes, R. (2015).
+Extreme Water Loss and Abiotic O2 Buildup On Planets Throughout the Habitable Zones of M Dwarfs.
+arXiv:1411.7412
+https://arxiv.org/abs/1411.7412
+
+Why this source matters for StarGen
+- This paper argues that many habitable-zone terrestrial planets around M dwarfs can experience prolonged early runaway-greenhouse phases during the host star's extended pre-main-sequence phase.
+- That process can remove large surface-water inventories and leave behind substantial abiotic oxygen, creating habitability penalties and oxygen false positives that do not appear in a simple present-day habitable-zone check.
+
+How it is used
+- Supports adding a host-star-history penalty for early desiccation risk in the life model.
+- Supports separating oxygen-rich atmospheres produced by biospheres from oxygen-rich atmospheres produced by water loss and escape.
+- Supports treating M-dwarf surface habitability as historically contingent rather than using only current flux and temperature.
+
+Human review notes
+- Use as a context-sensitive penalty, not a universal statement that all M-dwarf planets are sterile.
