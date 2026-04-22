@@ -1,0 +1,15 @@
+Balbi, A., & Frank, A. (2023).
+The Oxygen Bottleneck for Technospheres.
+arXiv:2308.01160
+https://arxiv.org/abs/2308.01160
+
+Why this source matters for StarGen
+- This paper argues that technological civilizations may require stronger atmospheric oxygen conditions than complex life alone.
+- In StarGen, this is useful for separating "complex biosphere present" from "native civilization likely."
+
+How it is used
+- Supports requiring breathable or oxygen-rich conditions as an important prior for higher sentience or civilization chances in the stricter life models.
+- Helps justify why some worlds can host rich ecosystems without commonly reaching technological civilization.
+
+Human review notes
+- Use as a bottleneck prior for technospheres, not as a claim that oxygen is the only imaginable path to advanced life.

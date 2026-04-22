@@ -13,11 +13,11 @@ namespace StarGen.App.Viewer;
 /// </summary>
 public partial class ObjectViewer : Node3D
 {
-    internal enum ViewerStartupState
-    {
-        ViewingExistingContent = 0,
-        UnconfiguredStandalone = 1,
-    }
+	internal enum ViewerStartupState
+	{
+		ViewingExistingContent = 0,
+		UnconfiguredStandalone = 1,
+	}
 
 	/// <summary>
 	/// Emitted when the user wants to return to the system viewer.
@@ -68,6 +68,7 @@ public partial class ObjectViewer : Node3D
 	internal Button? _backButton;
 	internal Node? _inspectorPanel;
 	internal Control? _generationSection;
+	internal Control? _fileSection;
 	internal OptionButton? _typeOption;
 	internal OptionButton? _presetOption;
 	internal Label? _presetAssumptionsLabel;
@@ -85,6 +86,17 @@ public partial class ObjectViewer : Node3D
 	internal Button? _loadButton;
 	internal Label? _fileInfo;
 	internal Label? _emptyStateLabel;
+	internal Window? _optionsDialog;
+	internal CheckBox? _fullscreenCheck;
+	internal CheckBox? _showSeedControlsCheck;
+	internal CheckBox? _skipIntroCheck;
+	internal OptionButton? _resolutionOption;
+	internal Button? _applyOptionsButton;
+	internal Label? _optionsStatusLabel;
+	internal Button? _optionsDialogCloseButton;
+	internal Control? _cameraPanel;
+	internal Button? _cameraPanelHeaderButton;
+	internal Control? _cameraPanelContent;
 	internal FileDialog? _saveFileDialog;
 	internal FileDialog? _loadFileDialog;
 	internal CameraController? _camera;
@@ -110,6 +122,13 @@ public partial class ObjectViewer : Node3D
 	internal string _backNavigationTooltip = "Return";
 	internal bool _backNavigationReturnsToMainMenu;
 	internal bool _generationActionsVisible = true;
+	internal Vector2 _cameraPanelExpandedSize = Vector2.Zero;
+	internal float _cameraPanelExpandedOffsetLeft;
+	internal float _cameraPanelExpandedOffsetTop;
+	internal float _cameraPanelExpandedOffsetRight;
+	internal float _cameraPanelExpandedOffsetBottom;
+	internal Tween? _cameraPanelTween;
+	internal bool _cameraPanelCollapsed = true;
 
 	/// <summary>
 	/// Initializes the viewer state.
@@ -122,12 +141,28 @@ public partial class ObjectViewer : Node3D
 		SetupMoonSystem();
 		SetupControls();
 		SetupTopMenu();
+		SetupOptionsUi();
 		ConnectSignals();
+		ClearInspectorPanelState();
 		UpdateBackNavigationUi();
 		SetGenerationControlsEnabled(false);
 		SetFileControlState(false, false);
 		SetupEmptyStateUi();
 		SetStatus("Object viewer initialized");
+	}
+
+	private void ClearInspectorPanelState()
+	{
+		if (_inspectorPanel is InspectorPanel typedInspectorPanel)
+		{
+			typedInspectorPanel.Clear();
+			return;
+		}
+
+		if (_inspectorPanel != null && _inspectorPanel.HasMethod("clear"))
+		{
+			_inspectorPanel.Call("clear");
+		}
 	}
 
 	/// <summary>

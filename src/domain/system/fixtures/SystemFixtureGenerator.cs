@@ -44,7 +44,7 @@ public static class SystemFixtureGenerator
         NativeSystemPressureSummary? colonyPressureSummary = null)
     {
         bool generatePopulation = enablePopulation ?? spec.GeneratePopulation;
-        if (spec.UseCaseSettings != null && spec.UseCaseSettings.IsTravellerMode())
+        if (spec.UseCaseSettings != null && spec.UseCaseSettings.GetCompatibilityProfile().ForcePopulationGeneration)
         {
             generatePopulation = true;
             spec.GeneratePopulation = true;
@@ -73,7 +73,7 @@ public static class SystemFixtureGenerator
         BeltReservationResult? beltReservation = null;
         if (spec.IncludeAsteroidBelts)
         {
-            beltReservation = SystemAsteroidGenerator.ReserveBeltSlots(hosts, allSlots, stars, rng);
+            beltReservation = SystemAsteroidGenerator.ReserveBeltSlots(hosts, allSlots, stars, rng, spec);
             SystemAsteroidGenerator.MarkReservedSlots(allSlots, beltReservation.ReservedSlotIds);
         }
 
@@ -83,7 +83,8 @@ public static class SystemFixtureGenerator
             stars,
             rng,
             generatePopulation,
-            spec.UseCaseSettings);
+            spec.UseCaseSettings,
+            spec);
         foreach (CelestialBody planet in planetResult.Planets)
         {
             system.AddBody(planet);
@@ -100,7 +101,8 @@ public static class SystemFixtureGenerator
             stars,
             rng,
             generatePopulation,
-            spec.UseCaseSettings);
+            spec.UseCaseSettings,
+            spec);
         foreach (CelestialBody moon in moonResult.Moons)
         {
             system.AddBody(moon);
@@ -113,7 +115,8 @@ public static class SystemFixtureGenerator
                 hosts,
                 stars,
                 rng,
-                spec.UseCaseSettings);
+                spec.UseCaseSettings,
+                spec);
 
             foreach (AsteroidBelt belt in beltResult.Belts)
             {

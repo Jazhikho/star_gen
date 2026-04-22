@@ -1,6 +1,8 @@
 using Godot;
 using Godot.Collections;
+using StarGen.Domain.Generation;
 using StarGen.Domain.Math;
+using StarGen.Domain.Systems;
 
 namespace StarGen.Domain.Celestial.Components;
 
@@ -85,13 +87,23 @@ public partial class StellarProps : RefCounted
     /// </summary>
     public double GetHabitableZoneInnerM()
     {
-        double luminositySolar = GetLuminositySolar();
-        if (luminositySolar <= 0.0)
+        return GetHabitableZoneInnerM(PlanetHabitableZoneModel.Kopparapu2013Conservative);
+    }
+
+    /// <summary>
+    /// Calculates the habitable-zone inner edge in meters for a selected academic model family.
+    /// </summary>
+    public double GetHabitableZoneInnerM(PlanetHabitableZoneModel habitableZoneModel)
+    {
+        if (LuminosityWatts <= 0.0)
         {
             return 0.0;
         }
 
-        return Units.AuToMeters(0.95 * System.Math.Sqrt(luminositySolar));
+        return OrbitalMechanics.CalculateHabitableZoneInner(
+            LuminosityWatts,
+            GetHabitableZoneTemperatureK(),
+            habitableZoneModel);
     }
 
     /// <summary>
@@ -99,13 +111,23 @@ public partial class StellarProps : RefCounted
     /// </summary>
     public double GetHabitableZoneOuterM()
     {
-        double luminositySolar = GetLuminositySolar();
-        if (luminositySolar <= 0.0)
+        return GetHabitableZoneOuterM(PlanetHabitableZoneModel.Kopparapu2013Conservative);
+    }
+
+    /// <summary>
+    /// Calculates the habitable-zone outer edge in meters for a selected academic model family.
+    /// </summary>
+    public double GetHabitableZoneOuterM(PlanetHabitableZoneModel habitableZoneModel)
+    {
+        if (LuminosityWatts <= 0.0)
         {
             return 0.0;
         }
 
-        return Units.AuToMeters(1.37 * System.Math.Sqrt(luminositySolar));
+        return OrbitalMechanics.CalculateHabitableZoneOuter(
+            LuminosityWatts,
+            GetHabitableZoneTemperatureK(),
+            habitableZoneModel);
     }
 
     /// <summary>
@@ -120,6 +142,16 @@ public partial class StellarProps : RefCounted
         }
 
         return Units.AuToMeters(2.7 * System.Math.Sqrt(luminositySolar));
+    }
+
+    private double GetHabitableZoneTemperatureK()
+    {
+        if (EffectiveTemperatureK > 0.0)
+        {
+            return EffectiveTemperatureK;
+        }
+
+        return 5778.0;
     }
 
     /// <summary>

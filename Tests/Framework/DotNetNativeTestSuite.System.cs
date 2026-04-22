@@ -172,47 +172,4 @@ public static partial class DotNetNativeTestSuite
         AssertEqual(0, cache.GetCacheSize(), "cache size should shrink after eviction");
     }
 
-    /// <summary>
-    /// Verifies JSON save/load round-trip behavior for the migrated system-viewer helper.
-    /// </summary>
-    private static void TestSystemViewerSaveLoadRoundTripsJsonPath()
-    {
-        StarGen.App.SystemViewer.SystemViewerSaveLoad saveLoad = new();
-        SolarSystem? original = GalaxySystemGenerator.GenerateSystem(CreateFixtureGalaxyStar(), includeAsteroids: false, enablePopulation: false);
-        AssertNotNull(original, "fixture galaxy star should generate a system for save/load testing");
-        StarGen.Services.Concepts.ConceptWorldStateGenerator.EnsureSystemConcepts(original);
-
-        string path = Path.Combine(
-            Godot.ProjectSettings.GlobalizePath("user://"),
-            $"dotnet_native_system_{System.Guid.NewGuid():N}.json");
-        MockSystemViewerNode viewer = new(original!);
-
-        try
-        {
-            Error saveError = saveLoad.SaveToPath(viewer, path, compress: false);
-            AssertEqual(Error.Ok, saveError, "system-viewer save helper should save JSON files successfully");
-
-            SystemPersistenceLoadResult result = saveLoad.LoadFromPath(path);
-            AssertTrue(result.Success, "system-viewer load helper should load the saved file");
-            AssertNotNull(result.System, "system-viewer load helper should rebuild a system");
-
-            Godot.Collections.Dictionary originalData = SystemSerializer.ToDictionary(original!);
-            Godot.Collections.Dictionary rebuiltData = SystemSerializer.ToDictionary(result.System!);
-            NormalizeTransientFields(originalData);
-            NormalizeTransientFields(rebuiltData);
-
-            AssertVariantDeepEqual(
-                originalData,
-                rebuiltData,
-                "system-viewer save/load helper should preserve system payloads");
-        }
-        finally
-        {
-            viewer.Free();
-            if (File.Exists(path))
-            {
-                File.Delete(path);
-            }
-        }
-    }
 }

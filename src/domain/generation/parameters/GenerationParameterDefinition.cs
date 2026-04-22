@@ -31,6 +31,11 @@ public sealed class GenerationParameterDefinition
     public string AssumptionText { get; }
 
     /// <summary>
+    /// Material role for the parameter within the pipeline.
+    /// </summary>
+    public GenerationParameterClassification Classification { get; }
+
+    /// <summary>
     /// Whether the parameter supports lock semantics.
     /// </summary>
     public bool SupportsLock { get; }
@@ -49,6 +54,7 @@ public sealed class GenerationParameterDefinition
         string units,
         GenerationParameterControlType controlType,
         string assumptionText,
+        GenerationParameterClassification classification = GenerationParameterClassification.GenerationPrior,
         bool supportsLock = false,
         bool supportsTarget = false)
     {
@@ -57,6 +63,7 @@ public sealed class GenerationParameterDefinition
         Units = units;
         ControlType = controlType;
         AssumptionText = assumptionText;
+        Classification = classification;
         SupportsLock = supportsLock;
         SupportsTarget = supportsTarget;
     }

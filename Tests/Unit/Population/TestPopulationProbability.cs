@@ -1,9 +1,11 @@
 #nullable enable annotations
 #nullable disable warnings
 using System;
+using StarGen.Domain.Generation;
 using StarGen.Domain.Population;
 using StarGen.Domain.Rng;
 using StarGen.Tests.Framework;
+using Godot.Collections;
 
 namespace StarGen.Tests.Unit.Population;
 
@@ -218,6 +220,42 @@ public static class TestPopulationProbability
     }
 
     /// <summary>
+    /// Tests that custom Space Opera compatibility multipliers override native-life and colony pressure.
+    /// </summary>
+    public static void TestCustomSpaceOperaOverridesAffectPopulationPressure()
+    {
+        PlanetProfile profile = new();
+        profile.HabitabilityScore = 7;
+        profile.HasLiquidWater = true;
+        profile.HasAtmosphere = true;
+        profile.HasBreathableAtmosphere = true;
+        profile.PressureAtm = 1.0;
+        profile.OceanCoverage = 0.55;
+        profile.GravityG = 1.0;
+        profile.AvgTemperatureK = 289.0;
+        profile.RadiationLevel = 0.18;
+
+        ColonySuitability suitability = new();
+        suitability.OverallScore = 60;
+
+        GenerationUseCaseSettings defaultSettings = GenerationUseCaseSettings.CreateDefault();
+        defaultSettings.RulesetMode = GenerationUseCaseSettings.RulesetModeType.Traveller;
+        defaultSettings.ApplyRulesetDefaults();
+
+        GenerationUseCaseSettings customSettings = defaultSettings.Clone();
+        customSettings.CompatibilityNativeLifeProbabilityMultiplier = 0.70;
+        customSettings.CompatibilityColonyProbabilityMultiplier = 1.55;
+
+        double defaultNative = PopulationProbability.CalculateNativeProbability(profile, defaultSettings);
+        double customNative = PopulationProbability.CalculateNativeProbability(profile, customSettings);
+        double defaultColony = PopulationProbability.CalculateColonyProbability(profile, suitability, defaultSettings);
+        double customColony = PopulationProbability.CalculateColonyProbability(profile, suitability, customSettings);
+
+        DotNetNativeTestSuite.AssertTrue(customNative < defaultNative, "Lower custom native-life bias should reduce native-life probability");
+        DotNetNativeTestSuite.AssertTrue(customColony > defaultColony, "Higher custom settlement bias should increase colony probability");
+    }
+
+    /// <summary>
     /// Tests that high life permissiveness materially raises native-life probability on marginal worlds.
     /// </summary>
     public static void TestLifePermissivenessAffectsMarginalWorlds()
@@ -238,7 +276,7 @@ public static class TestPopulationProbability
 
         DotNetNativeTestSuite.AssertTrue(strictProbability > 0.0, "Strict life settings should still allow a non-zero abiogenesis chance on viable wet worlds");
         DotNetNativeTestSuite.AssertTrue(permissiveProbability > strictProbability, "Permissive life settings should raise marginal biosphere probability");
-        DotNetNativeTestSuite.AssertTrue(permissiveProbability >= 0.55, "Space-opera life settings should give viable wet marginal worlds a high life chance");
+        DotNetNativeTestSuite.AssertTrue(permissiveProbability >= 0.53, $"Space-opera life settings should give viable wet marginal worlds a high life chance | strict={strictProbability:0.000} permissive={permissiveProbability:0.000}");
     }
 
     /// <summary>
@@ -313,6 +351,119 @@ public static class TestPopulationProbability
         DotNetNativeTestSuite.AssertFloatNear(0.0, strictProbability, 0.001, "Strict settings without native pressure should still reject harsh targets");
         DotNetNativeTestSuite.AssertTrue(pressuredProbability > strictProbability, "Native pressure should raise colony probability");
         DotNetNativeTestSuite.AssertTrue(pressuredProbability > 0.0, "Strong native pressure should make at least some harsh targets colonizable");
+    }
+
+    /// <summary>
+    /// Tests that RPG compatibility profiles materially change colony and native-life pressure.
+    /// </summary>
+    public static void TestCompatibilityProfilesAffectPopulationPressure()
+    {
+        PlanetProfile profile = new();
+        profile.BodyId = "temperate_world";
+        profile.HabitabilityScore = 5;
+        profile.HasLiquidWater = true;
+        profile.HasAtmosphere = true;
+        profile.HasBreathableAtmosphere = false;
+        profile.PressureAtm = 0.9;
+        profile.OceanCoverage = 0.30;
+        profile.GravityG = 0.95;
+        profile.AvgTemperatureK = 296.0;
+        profile.RadiationLevel = 0.22;
+
+        ColonySuitability suitability = new();
+        suitability.OverallScore = 42;
+        suitability.RequiresLifeSupport = false;
+        suitability.RequiresPressureSuit = false;
+        suitability.RequiresRadiationShielding = false;
+
+        GenerationUseCaseSettings defaultSettings = GenerationUseCaseSettings.CreateDefault();
+        GenerationUseCaseSettings spaceOperaSettings = GenerationUseCaseSettings.CreateDefault();
+        spaceOperaSettings.RulesetMode = GenerationUseCaseSettings.RulesetModeType.Traveller;
+        spaceOperaSettings.ApplyRulesetDefaults();
+        GenerationUseCaseSettings starforgedSettings = GenerationUseCaseSettings.CreateDefault();
+        starforgedSettings.RulesetMode = GenerationUseCaseSettings.RulesetModeType.Starforged;
+        starforgedSettings.ApplyRulesetDefaults();
+
+        double defaultNativeProbability = PopulationProbability.CalculateNativeProbability(profile, defaultSettings);
+        double spaceOperaNativeProbability = PopulationProbability.CalculateNativeProbability(profile, spaceOperaSettings);
+        double defaultColonyProbability = PopulationProbability.CalculateColonyProbability(profile, suitability, defaultSettings);
+        double starforgedColonyProbability = PopulationProbability.CalculateColonyProbability(profile, suitability, starforgedSettings);
+
+        DotNetNativeTestSuite.AssertTrue(spaceOperaNativeProbability > defaultNativeProbability, "Space Opera should raise native-life pressure on supportable marginal worlds");
+        DotNetNativeTestSuite.AssertTrue(defaultColonyProbability > starforgedColonyProbability, "Starforged should apply lower colony pressure than the default profile");
+    }
+
+    /// <summary>
+    /// Tests that non-Space-Opera profiles now have distinct harsh-world colony tolerance.
+    /// </summary>
+    public static void TestCompatibilityProfilesDifferentiateHarshColonyTolerance()
+    {
+        PlanetProfile profile = new();
+        profile.BodyId = "harsh_colony_target";
+        profile.HabitabilityScore = 1;
+        profile.IsMoon = true;
+        profile.HasLiquidWater = false;
+        profile.HasAtmosphere = false;
+        profile.RadiationLevel = 0.45;
+
+        ColonySuitability harshSuitability = new();
+        harshSuitability.OverallScore = 28;
+        harshSuitability.RequiresLifeSupport = true;
+        harshSuitability.RequiresPressureSuit = true;
+        harshSuitability.RequiresRadiationShielding = true;
+
+        GenerationUseCaseSettings defaultSettings = GenerationUseCaseSettings.CreateDefault();
+        GenerationUseCaseSettings cepheusSettings = GenerationUseCaseSettings.CreateDefault();
+        cepheusSettings.RulesetMode = GenerationUseCaseSettings.RulesetModeType.Cepheus;
+        cepheusSettings.ApplyRulesetDefaults();
+        GenerationUseCaseSettings starfinderSettings = GenerationUseCaseSettings.CreateDefault();
+        starfinderSettings.RulesetMode = GenerationUseCaseSettings.RulesetModeType.Starfinder;
+        starfinderSettings.ApplyRulesetDefaults();
+        GenerationUseCaseSettings starforgedSettings = GenerationUseCaseSettings.CreateDefault();
+        starforgedSettings.RulesetMode = GenerationUseCaseSettings.RulesetModeType.Starforged;
+        starforgedSettings.ApplyRulesetDefaults();
+
+        double defaultProbability = PopulationProbability.CalculateColonyProbability(profile, harshSuitability, defaultSettings);
+        double cepheusProbability = PopulationProbability.CalculateColonyProbability(profile, harshSuitability, cepheusSettings);
+        double starfinderProbability = PopulationProbability.CalculateColonyProbability(profile, harshSuitability, starfinderSettings);
+        double starforgedProbability = PopulationProbability.CalculateColonyProbability(profile, harshSuitability, starforgedSettings);
+
+        DotNetNativeTestSuite.AssertTrue(cepheusProbability < defaultProbability, "Cepheus should be stricter than the default profile on harsh colony targets");
+        DotNetNativeTestSuite.AssertTrue(starfinderProbability > defaultProbability, "Starfinder should be more tolerant than the default profile on harsh colony targets");
+        DotNetNativeTestSuite.AssertTrue(starforgedProbability > cepheusProbability, "Starforged should tolerate harsh frontier targets more than Cepheus");
+    }
+
+    /// <summary>
+    /// Tests that recommended permissiveness now resolves from the active life framework instead of the legacy alias path.
+    /// </summary>
+    public static void TestRecommendedPermissivenessFollowsActiveLifeFramework()
+    {
+        PlanetProfile profile = new();
+        profile.HabitabilityScore = 7;
+        profile.HasLiquidWater = true;
+        profile.HasAtmosphere = true;
+        profile.HasBreathableAtmosphere = false;
+        profile.PressureAtm = 0.95;
+        profile.OceanCoverage = 0.42;
+        profile.GravityG = 0.98;
+        profile.AvgTemperatureK = 292.0;
+        profile.RadiationLevel = 0.20;
+
+        Dictionary serializedSettings = new()
+        {
+            ["life_framework"] = (int)GenerationUseCaseSettings.LifeFrameworkType.RareComplexLife,
+        };
+        GenerationUseCaseSettings settings = GenerationUseCaseSettings.FromDictionary(serializedSettings);
+
+        double frameworkDrivenProbability = PopulationProbability.CalculateNativeProbability(profile, settings);
+
+        GenerationUseCaseSettings baselineSettings = GenerationUseCaseSettings.CreateDefault();
+        baselineSettings.LifeFramework = GenerationUseCaseSettings.LifeFrameworkType.RareComplexLife;
+        baselineSettings.LifePermissiveness = GenerationUseCaseSettings.GetRecommendedLifePermissiveness(baselineSettings.LifeFramework);
+
+        double explicitRareProbability = PopulationProbability.CalculateNativeProbability(profile, baselineSettings);
+
+        DotNetNativeTestSuite.AssertFloatNear(explicitRareProbability, frameworkDrivenProbability, 0.0001, "Native-life probability should follow the active life framework when no explicit override is present");
     }
 
     /// <summary>

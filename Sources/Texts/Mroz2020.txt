@@ -1,0 +1,20 @@
+Source note for StarGen research review
+
+Citation:
+Mróz, P., Poleski, R., Han, C., Udalski, A., Gould, A., Ryu, Y.-H., Yee, J. C., Shin, I.-G., Skowron, J., Szymański, M. K., et al. (2020).
+No large population of unbound or wide-orbit Jupiter-mass planets.
+The Astrophysical Journal Letters, 903(1), L11.
+arXiv: https://arxiv.org/abs/2009.12377
+DOI: https://doi.org/10.3847/2041-8213/abc4a3
+
+What was reviewed:
+- Abstract and source metadata on 2026-04-19.
+
+Key implementation notes used in StarGen:
+- The paper argues against a very large hidden population of Jupiter-mass free-floating or very wide-orbit planets.
+- The practical takeaway is that StarGen should treat rogue worlds as a bounded policy knob rather than a dominant default channel.
+- This supports keeping rogue outcomes possible, but not common.
+
+How StarGen uses this:
+- As the scientific support for the `Rogue Worlds` aggregate prior.
+- As the reason the default policy remains low-frequency rather than treating ejection as a normal outcome for most systems.

@@ -1,4 +1,4 @@
-[gd_scene load_steps=13 format=3]
+[gd_scene load_steps=12 format=3]
 
 [ext_resource type="Script" path="res://src/app/galaxy_viewer/GalaxyViewer.cs" id="1"]
 [ext_resource type="Script" path="res://src/app/galaxy_viewer/GalaxyInspectorPanel.cs" id="2"]
@@ -10,7 +10,6 @@
 [ext_resource type="Script" path="res://src/app/galaxy_viewer/SelectionIndicator.cs" id="8"]
 [ext_resource type="Script" path="res://src/app/galaxy_viewer/OrbitCamera.cs" id="9"]
 [ext_resource type="Script" path="res://src/app/galaxy_viewer/StarViewCamera.cs" id="10"]
-[ext_resource type="Script" path="res://src/app/galaxy_viewer/NavigationCompass.cs" id="11"]
 [ext_resource type="Theme" path="res://src/app/themes/DarkTheme.tres" id="12"]
 
 [sub_resource type="Environment" id="Environment_1"]
@@ -68,14 +67,6 @@ script = ExtResource("10")
 [node name="UI" type="CanvasLayer" parent="."]
 layer = 5
 
-[node name="Compass" type="SubViewportContainer" parent="UI"]
-visible = false
-offset_left = 1080.0
-offset_top = 560.0
-offset_right = 1230.0
-offset_bottom = 710.0
-script = ExtResource("11")
-
 [node name="UIRoot" type="Control" parent="UI"]
 layout_mode = 3
 anchors_preset = 15
@@ -130,6 +121,24 @@ text = "Ready"
 layout_mode = 2
 theme_override_constants/separation = 6
 
+[node name="FileMenuButton" type="MenuButton" parent="UI/UIRoot/TopBar/MarginContainer/TopBarVBox/MenuRow"]
+layout_mode = 2
+text = "File"
+
+[node name="ToolsMenuButton" type="MenuButton" parent="UI/UIRoot/TopBar/MarginContainer/TopBarVBox/MenuRow"]
+layout_mode = 2
+text = "Tools"
+
+[node name="OptionsButton" type="Button" parent="UI/UIRoot/TopBar/MarginContainer/TopBarVBox/MenuRow"]
+layout_mode = 2
+focus_mode = 0
+flat = true
+text = "Options"
+
+[node name="HelpMenuButton" type="MenuButton" parent="UI/UIRoot/TopBar/MarginContainer/TopBarVBox/MenuRow"]
+layout_mode = 2
+text = "Help"
+
 [node name="SidePanel" type="Panel" parent="UI/UIRoot"]
 layout_mode = 0
 custom_minimum_size = Vector2(332, 0)
@@ -157,54 +166,366 @@ layout_mode = 2
 size_flags_horizontal = 3
 theme_override_constants/separation = 8
 
-[node name="GenerationSection" type="VBoxContainer" parent="UI/UIRoot/SidePanel/MarginContainer/ScrollContainer/VBoxContainer"]
-layout_mode = 2
-theme_override_constants/separation = 5
-
-[node name="SeedContainer" type="HBoxContainer" parent="UI/UIRoot/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/GenerationSection"]
-layout_mode = 2
-
-[node name="SeedInput" type="SpinBox" parent="UI/UIRoot/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/GenerationSection/SeedContainer"]
-layout_mode = 2
-size_flags_horizontal = 3
-max_value = 999999.0
-value = 42.0
-rounded = true
-editable = true
-
-[node name="ViewSection" type="VBoxContainer" parent="UI/UIRoot/SidePanel/MarginContainer/ScrollContainer/VBoxContainer"]
-layout_mode = 2
-theme_override_constants/separation = 5
-
-[node name="ShowCompassCheck" type="CheckBox" parent="UI/UIRoot/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/ViewSection"]
-layout_mode = 2
-button_pressed = true
-text = "Show Compass"
-
-[node name="SaveLoadSection" type="VBoxContainer" parent="UI/UIRoot/SidePanel/MarginContainer/ScrollContainer/VBoxContainer"]
-layout_mode = 2
-theme_override_constants/separation = 5
-
-[node name="ButtonContainer" type="HBoxContainer" parent="UI/UIRoot/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/SaveLoadSection"]
-layout_mode = 2
-theme_override_constants/separation = 10
-
-[node name="SaveButton" type="Button" parent="UI/UIRoot/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/SaveLoadSection/ButtonContainer"]
-layout_mode = 2
-size_flags_horizontal = 3
-text = "Save"
-
-[node name="LoadButton" type="Button" parent="UI/UIRoot/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/SaveLoadSection/ButtonContainer"]
-layout_mode = 2
-size_flags_horizontal = 3
-text = "Load"
-
-[node name="NewGalaxyButton" type="Button" parent="UI/UIRoot/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/SaveLoadSection"]
-layout_mode = 2
-text = "New Galaxy..."
-
 [node name="InspectorPanel" type="VBoxContainer" parent="UI/UIRoot/SidePanel/MarginContainer/ScrollContainer/VBoxContainer"]
 layout_mode = 2
 size_flags_horizontal = 3
 theme_override_constants/separation = 4
 script = ExtResource("2")
+
+[node name="ConfigSection" type="VBoxContainer" parent="UI/UIRoot/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/InspectorPanel"]
+layout_mode = 2
+theme_override_constants/separation = 5
+
+[node name="TitleLabel" type="Label" parent="UI/UIRoot/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/InspectorPanel/ConfigSection"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.9, 0.9, 0.9, 1)
+theme_override_font_sizes/font_size = 14
+text = "Active Profile"
+
+[node name="Divider" type="HSeparator" parent="UI/UIRoot/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/InspectorPanel/ConfigSection"]
+layout_mode = 2
+
+[node name="Content" type="VBoxContainer" parent="UI/UIRoot/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/InspectorPanel/ConfigSection"]
+layout_mode = 2
+theme_override_constants/separation = 4
+
+[node name="ConfigEditorContainer" type="VBoxContainer" parent="UI/UIRoot/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/InspectorPanel/ConfigSection/Content"]
+layout_mode = 2
+theme_override_constants/separation = 4
+
+[node name="ProfileSummaryContainer" type="VBoxContainer" parent="UI/UIRoot/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/InspectorPanel/ConfigSection/Content/ConfigEditorContainer"]
+layout_mode = 2
+theme_override_constants/separation = 2
+
+[node name="ConfigNoteLabel" type="Label" parent="UI/UIRoot/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/InspectorPanel/ConfigSection/Content/ConfigEditorContainer"]
+custom_minimum_size = Vector2(220, 0)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.6, 0.7, 0.8, 1)
+theme_override_font_sizes/font_size = 10
+autowrap_mode = 2
+text = "Galaxy parameters are configured in Galaxy Generation Studio. This viewer only shows the active profile while you inspect stars, previews, and jump routes."
+
+[node name="ConfigIssuesContainer" type="VBoxContainer" parent="UI/UIRoot/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/InspectorPanel/ConfigSection/Content/ConfigEditorContainer"]
+layout_mode = 2
+theme_override_constants/separation = 2
+
+[node name="OverviewSection" type="VBoxContainer" parent="UI/UIRoot/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/InspectorPanel"]
+layout_mode = 2
+theme_override_constants/separation = 5
+
+[node name="TitleLabel" type="Label" parent="UI/UIRoot/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/InspectorPanel/OverviewSection"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.9, 0.9, 0.9, 1)
+theme_override_font_sizes/font_size = 14
+text = "Overview"
+
+[node name="Divider" type="HSeparator" parent="UI/UIRoot/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/InspectorPanel/OverviewSection"]
+layout_mode = 2
+
+[node name="Content" type="VBoxContainer" parent="UI/UIRoot/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/InspectorPanel/OverviewSection"]
+layout_mode = 2
+theme_override_constants/separation = 2
+
+[node name="SelectionSection" type="VBoxContainer" parent="UI/UIRoot/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/InspectorPanel"]
+layout_mode = 2
+theme_override_constants/separation = 5
+
+[node name="TitleLabel" type="Label" parent="UI/UIRoot/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/InspectorPanel/SelectionSection"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.9, 0.9, 0.9, 1)
+theme_override_font_sizes/font_size = 14
+text = "Overview"
+
+[node name="Divider" type="HSeparator" parent="UI/UIRoot/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/InspectorPanel/SelectionSection"]
+layout_mode = 2
+
+[node name="Content" type="VBoxContainer" parent="UI/UIRoot/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/InspectorPanel/SelectionSection"]
+layout_mode = 2
+theme_override_constants/separation = 2
+
+[node name="PreviewSection" type="VBoxContainer" parent="UI/UIRoot/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/InspectorPanel"]
+layout_mode = 2
+theme_override_constants/separation = 5
+
+[node name="TitleLabel" type="Label" parent="UI/UIRoot/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/InspectorPanel/PreviewSection"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.9, 0.9, 0.9, 1)
+theme_override_font_sizes/font_size = 14
+text = "System Preview"
+
+[node name="Divider" type="HSeparator" parent="UI/UIRoot/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/InspectorPanel/PreviewSection"]
+layout_mode = 2
+
+[node name="Content" type="VBoxContainer" parent="UI/UIRoot/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/InspectorPanel/PreviewSection"]
+layout_mode = 2
+theme_override_constants/separation = 2
+
+[node name="OpenSystemButton" type="Button" parent="UI/UIRoot/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/InspectorPanel/PreviewSection"]
+visible = false
+layout_mode = 2
+text = "Open System"
+
+[node name="ColonizationSection" type="VBoxContainer" parent="UI/UIRoot/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/InspectorPanel"]
+layout_mode = 2
+theme_override_constants/separation = 5
+
+[node name="TitleLabel" type="Label" parent="UI/UIRoot/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/InspectorPanel/ColonizationSection"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.9, 0.9, 0.9, 1)
+theme_override_font_sizes/font_size = 14
+text = "Colonization Simulator"
+
+[node name="Divider" type="HSeparator" parent="UI/UIRoot/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/InspectorPanel/ColonizationSection"]
+layout_mode = 2
+
+[node name="Content" type="VBoxContainer" parent="UI/UIRoot/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/InspectorPanel/ColonizationSection"]
+layout_mode = 2
+theme_override_constants/separation = 4
+
+[node name="ColonizationSettingsRow" type="HBoxContainer" parent="UI/UIRoot/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/InspectorPanel/ColonizationSection/Content"]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="ColonizationPermissivenessLabel" type="Label" parent="UI/UIRoot/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/InspectorPanel/ColonizationSection/Content/ColonizationSettingsRow"]
+custom_minimum_size = Vector2(100, 0)
+layout_mode = 2
+tooltip_text = "Controls how readily the explicit colonization simulation spreads settlements from viable exporter systems."
+text = "Expansion:"
+
+[node name="ColonizationPermissivenessInput" type="SpinBox" parent="UI/UIRoot/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/InspectorPanel/ColonizationSection/Content/ColonizationSettingsRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+tooltip_text = "Controls how readily the explicit colonization simulation spreads settlements from viable exporter systems."
+max_value = 1.0
+step = 0.01
+value = 0.5
+
+[node name="CalculateRoutesButton" type="Button" parent="UI/UIRoot/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/InspectorPanel/ColonizationSection/Content"]
+visible = false
+layout_mode = 2
+text = "Run Colonization Simulation"
+
+[node name="ShowRoutesCheck" type="CheckBox" parent="UI/UIRoot/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/InspectorPanel/ColonizationSection/Content"]
+layout_mode = 2
+button_pressed = true
+disabled = true
+text = "Show Colonization Routes"
+
+[node name="JumpRoutesProgressLabel" type="Label" parent="UI/UIRoot/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/InspectorPanel/ColonizationSection/Content"]
+visible = false
+layout_mode = 2
+theme_override_font_sizes/font_size = 11
+text = "Preparing colonization simulation..."
+
+[node name="JumpRoutesProgressBar" type="ProgressBar" parent="UI/UIRoot/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/InspectorPanel/ColonizationSection/Content"]
+visible = false
+custom_minimum_size = Vector2(0, 18)
+layout_mode = 2
+size_flags_horizontal = 3
+show_percentage = false
+max_value = 1.0
+
+[node name="CameraPanel" type="PanelContainer" parent="UI/UIRoot"]
+custom_minimum_size = Vector2(0, 0)
+layout_mode = 0
+anchors_preset = 10
+anchor_left = 1.0
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -264.0
+offset_top = -186.0
+offset_right = -16.0
+offset_bottom = -16.0
+
+[node name="CameraPanelVBox" type="VBoxContainer" parent="UI/UIRoot/CameraPanel"]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="CameraPanelContent" type="MarginContainer" parent="UI/UIRoot/CameraPanel/CameraPanelVBox"]
+visible = false
+custom_minimum_size = Vector2(224, 0)
+layout_mode = 2
+theme_override_constants/margin_left = 10
+theme_override_constants/margin_top = 0
+theme_override_constants/margin_right = 10
+theme_override_constants/margin_bottom = 10
+
+[node name="CameraHelpLabel" type="Label" parent="UI/UIRoot/CameraPanel/CameraPanelVBox/CameraPanelContent"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 11
+modulate = Color(0.84, 0.86, 0.92, 1)
+autowrap_mode = 2
+text = "Wheel: Change move speed\nRight Drag: Look around\nW / S: Move forward / backward\nA / D: Move left / right\nE / C: Move up / down\nLeft Click: Select star"
+
+[node name="CameraPanelHeaderButton" type="Button" parent="UI/UIRoot/CameraPanel/CameraPanelVBox"]
+layout_mode = 2
+alignment = 0
+flat = true
+text = "> Controls"
+
+[node name="OptionsDialog" type="Window" parent="."]
+visible = false
+theme = ExtResource("12")
+title = "Options"
+size = Vector2i(460, 280)
+
+[node name="MarginContainer" type="MarginContainer" parent="OptionsDialog"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/margin_left = 16
+theme_override_constants/margin_top = 16
+theme_override_constants/margin_right = 16
+theme_override_constants/margin_bottom = 16
+
+[node name="OptionsVBox" type="VBoxContainer" parent="OptionsDialog/MarginContainer"]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="FullscreenCheck" type="CheckBox" parent="OptionsDialog/MarginContainer/OptionsVBox"]
+layout_mode = 2
+text = "Fullscreen"
+
+[node name="ShowSeedControlsCheck" type="CheckBox" parent="OptionsDialog/MarginContainer/OptionsVBox"]
+layout_mode = 2
+text = "Show all studio seeds"
+
+[node name="SkipIntroCheck" type="CheckBox" parent="OptionsDialog/MarginContainer/OptionsVBox"]
+layout_mode = 2
+text = "Skip intro on startup"
+
+[node name="ResolutionRow" type="HBoxContainer" parent="OptionsDialog/MarginContainer/OptionsVBox"]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="ResolutionLabel" type="Label" parent="OptionsDialog/MarginContainer/OptionsVBox/ResolutionRow"]
+custom_minimum_size = Vector2(100, 0)
+layout_mode = 2
+text = "Resolution"
+
+[node name="ResolutionOption" type="OptionButton" parent="OptionsDialog/MarginContainer/OptionsVBox/ResolutionRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="OptionsStatusLabel" type="Label" parent="OptionsDialog/MarginContainer/OptionsVBox"]
+custom_minimum_size = Vector2(0, 48)
+layout_mode = 2
+autowrap_mode = 2
+text = "Viewer options are ready."
+
+[node name="ButtonRow" type="HBoxContainer" parent="OptionsDialog/MarginContainer/OptionsVBox"]
+layout_mode = 2
+alignment = 2
+theme_override_constants/separation = 8
+
+[node name="ApplyOptionsButton" type="Button" parent="OptionsDialog/MarginContainer/OptionsVBox/ButtonRow"]
+layout_mode = 2
+text = "Apply"
+
+[node name="CloseButton" type="Button" parent="OptionsDialog/MarginContainer/OptionsVBox/ButtonRow"]
+layout_mode = 2
+text = "Close"
+
+[node name="BuildLocalSpaceDialog" type="Window" parent="."]
+visible = false
+theme = ExtResource("12")
+title = "Build Local Space"
+size = Vector2i(520, 340)
+
+[node name="MarginContainer" type="MarginContainer" parent="BuildLocalSpaceDialog"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/margin_left = 16
+theme_override_constants/margin_top = 16
+theme_override_constants/margin_right = 16
+theme_override_constants/margin_bottom = 16
+
+[node name="LocalSpaceVBox" type="VBoxContainer" parent="BuildLocalSpaceDialog/MarginContainer"]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="HelpLabel" type="Label" parent="BuildLocalSpaceDialog/MarginContainer/LocalSpaceVBox"]
+custom_minimum_size = Vector2(0, 42)
+layout_mode = 2
+autowrap_mode = 2
+text = "Choose how many subsectors on each side of the current local view should be cached. The default is an 11 x 11 x 11 subsector cube."
+
+[node name="ExtentGrid" type="GridContainer" parent="BuildLocalSpaceDialog/MarginContainer/LocalSpaceVBox"]
+layout_mode = 2
+columns = 2
+theme_override_constants/h_separation = 10
+theme_override_constants/v_separation = 8
+
+[node name="XLabel" type="Label" parent="BuildLocalSpaceDialog/MarginContainer/LocalSpaceVBox/ExtentGrid"]
+layout_mode = 2
+text = "X extent"
+
+[node name="XSpinBox" type="SpinBox" parent="BuildLocalSpaceDialog/MarginContainer/LocalSpaceVBox/ExtentGrid"]
+layout_mode = 2
+min_value = 0.0
+max_value = 10.0
+step = 1.0
+value = 5.0
+
+[node name="YLabel" type="Label" parent="BuildLocalSpaceDialog/MarginContainer/LocalSpaceVBox/ExtentGrid"]
+layout_mode = 2
+text = "Y extent"
+
+[node name="YSpinBox" type="SpinBox" parent="BuildLocalSpaceDialog/MarginContainer/LocalSpaceVBox/ExtentGrid"]
+layout_mode = 2
+min_value = 0.0
+max_value = 10.0
+step = 1.0
+value = 5.0
+
+[node name="ZLabel" type="Label" parent="BuildLocalSpaceDialog/MarginContainer/LocalSpaceVBox/ExtentGrid"]
+layout_mode = 2
+text = "Z extent"
+
+[node name="ZSpinBox" type="SpinBox" parent="BuildLocalSpaceDialog/MarginContainer/LocalSpaceVBox/ExtentGrid"]
+layout_mode = 2
+min_value = 0.0
+max_value = 10.0
+step = 1.0
+value = 5.0
+
+[node name="AreaLabel" type="Label" parent="BuildLocalSpaceDialog/MarginContainer/LocalSpaceVBox"]
+layout_mode = 2
+text = "Coverage: 11 x 11 x 11 subsectors (1331 total)"
+
+[node name="StarCountLabel" type="Label" parent="BuildLocalSpaceDialog/MarginContainer/LocalSpaceVBox"]
+layout_mode = 2
+text = "Stars in area: 0"
+
+[node name="WarningLabel" type="Label" parent="BuildLocalSpaceDialog/MarginContainer/LocalSpaceVBox"]
+custom_minimum_size = Vector2(0, 36)
+layout_mode = 2
+autowrap_mode = 2
+text = "Larger areas retain more systems but increase cache build time."
+
+[node name="StatusLabel" type="Label" parent="BuildLocalSpaceDialog/MarginContainer/LocalSpaceVBox"]
+custom_minimum_size = Vector2(0, 36)
+layout_mode = 2
+autowrap_mode = 2
+text = "Build local space to cache nearby system summaries."
+
+[node name="ButtonRow" type="HBoxContainer" parent="BuildLocalSpaceDialog/MarginContainer/LocalSpaceVBox"]
+layout_mode = 2
+alignment = 2
+theme_override_constants/separation = 8
+
+[node name="BuildButton" type="Button" parent="BuildLocalSpaceDialog/MarginContainer/LocalSpaceVBox/ButtonRow"]
+layout_mode = 2
+text = "Build"
+
+[node name="CloseButton" type="Button" parent="BuildLocalSpaceDialog/MarginContainer/LocalSpaceVBox/ButtonRow"]
+layout_mode = 2
+text = "Close"

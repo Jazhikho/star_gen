@@ -1,0 +1,21 @@
+Source note for StarGen research review
+
+Citation:
+Raymond, S. N., & Izidoro, A. (2017).
+Origin of water in the inner Solar System: Planetesimals scattered inward during Jupiter and Saturn's rapid gas accretion.
+Icarus, 297, 134-148.
+arXiv: https://arxiv.org/abs/1707.01234
+DOI: https://doi.org/10.1016/j.icarus.2017.06.030
+
+What was reviewed:
+- Abstract and source metadata on 2026-04-22.
+
+Key implementation notes used in StarGen:
+- The paper argues that water delivery to the inner Solar System is a byproduct of giant-planet formation, not a special one-off Solar-System accident.
+- It reports that C-type asteroids can be sourced from a broad roughly 5-20 AU region and that scattered planetesimals can later cross the terrestrial-planet region as the disk dissipates.
+- The practical takeaway for StarGen is that volatile delivery should respond to whether a cold giant actually formed, not only to a smooth outer-reservoir or snow-line scalar.
+
+How StarGen should use this:
+- As support for coupling `VolatileDeliveryScalar` to giant-planet formation outcomes in addition to radial chemistry.
+- As a reason to bias inner rocky worlds toward wetter outcomes when cold giants form and scatter volatile-rich planetesimals inward.
+- As a source-backed link between outer small-body composition, asteroid-belt style remnants, and inner-system water delivery.

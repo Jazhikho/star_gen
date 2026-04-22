@@ -36,7 +36,7 @@ public static class SystemGenerationParameterValidator
             issues.AddError("star_count_max", "Maximum star count must be greater than or equal to minimum star count.");
         }
 
-        if (spec.StarCountMax >= 4)
+        if (spec.StarCountMax >= 5)
         {
             issues.AddWarning("star_count_max", "High-multiplicity systems are allowed, but they are much rarer and produce more chaotic layouts.");
         }
@@ -75,25 +75,42 @@ public static class SystemGenerationParameterValidator
             issues.AddWarning("system_metallicity", "Very high metallicity values are allowed, but they bend realism for most observed stars.");
         }
 
+        if (!spec.StellarProfile.IsValid())
+        {
+            issues.AddError("stellar_profile", "The stellar-model settings must stay within the supported ranges.");
+        }
+
+        if (!spec.PlanetaryProfile.IsValid())
+        {
+            issues.AddError("planetary_profile", "The planetary-model settings must stay within the supported ranges.");
+        }
+
+        if (spec.PlanetaryProfile.RoguePlanetAllowance == PlanetRoguePlanetAllowance.Standard && spec.StarCountMax >= 5)
+        {
+            issues.AddWarning("planet_rogue_planet_allowance", "Strong ejection pressure plus many stars is allowed, but it tends to reduce orderly bound-planet layouts.");
+        }
+
         if (spec.GeneratePopulation && spec.StarCountMax >= 5)
         {
             issues.AddWarning("generate_population", "Population generation on very high-multiplicity systems is supported, but habitability outcomes become less intuitive.");
         }
 
-        if (spec.UseCaseSettings.IsTravellerMode() && !spec.GeneratePopulation)
+        RpgCompatibilityProfile compatibilityProfile = spec.UseCaseSettings.GetCompatibilityProfile();
+
+        if (compatibilityProfile.ForcePopulationGeneration && !spec.GeneratePopulation)
         {
-            issues.AddWarning("generate_population", "Traveller mode works best with population enabled so mainworld and UWP-oriented readouts have meaningful data.");
+            issues.AddWarning("generate_population", $"{compatibilityProfile.Label} works best with population enabled so inhabited-world and compatibility readouts have meaningful data.");
         }
 
-        if (spec.UseCaseSettings.ShowTravellerReadouts && !spec.UseCaseSettings.IsTravellerMode())
+        if (spec.UseCaseSettings.ShowTravellerReadouts && !compatibilityProfile.UsesUwpLikeReadouts)
         {
-            issues.AddWarning("show_traveller_readouts", "Traveller readouts are enabled while the default ruleset remains active; values shown will be derived mappings only.");
+            issues.AddWarning("show_traveller_readouts", "UWP code is enabled while the active ruleset does not natively use UWP-like readouts; values shown will be derived mappings only.");
         }
 
         if (spec.UseCaseSettings.MainworldPolicy == GenerationUseCaseSettings.MainworldPolicyType.Require
-            && !spec.UseCaseSettings.IsTravellerMode())
+            && !compatibilityProfile.IsActive)
         {
-            issues.AddWarning("mainworld_policy", "Requiring a mainworld is mainly intended for Traveller-oriented flows.");
+            issues.AddWarning("mainworld_policy", "Requiring a mainworld is mainly intended for compatibility-oriented flows.");
         }
 
         return issues;

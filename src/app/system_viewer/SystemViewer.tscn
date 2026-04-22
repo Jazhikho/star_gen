@@ -49,8 +49,6 @@ script = ExtResource("2")
 
 [node name="OrbitsContainer" type="Node3D" parent="."]
 
-[node name="ZonesContainer" type="Node3D" parent="."]
-
 [node name="UI" type="Control" parent="."]
 layout_mode = 3
 anchors_preset = 15
@@ -111,6 +109,24 @@ text = "Ready"
 layout_mode = 2
 theme_override_constants/separation = 6
 
+[node name="FileMenuButton" type="MenuButton" parent="UI/TopBar/MarginContainer/TopBarVBox/MenuRow"]
+layout_mode = 2
+text = "File"
+
+[node name="ToolsMenuButton" type="MenuButton" parent="UI/TopBar/MarginContainer/TopBarVBox/MenuRow"]
+layout_mode = 2
+text = "Tools"
+
+[node name="OptionsButton" type="Button" parent="UI/TopBar/MarginContainer/TopBarVBox/MenuRow"]
+layout_mode = 2
+focus_mode = 0
+flat = true
+text = "Options"
+
+[node name="HelpMenuButton" type="MenuButton" parent="UI/TopBar/MarginContainer/TopBarVBox/MenuRow"]
+layout_mode = 2
+text = "Help"
+
 [node name="SidePanel" type="Panel" parent="UI"]
 custom_minimum_size = Vector2(332, 0)
 layout_mode = 0
@@ -138,317 +154,55 @@ layout_mode = 2
 size_flags_horizontal = 3
 theme_override_constants/separation = 8
 
-[node name="GenerationSection" type="VBoxContainer" parent="UI/SidePanel/MarginContainer/ScrollContainer/VBoxContainer"]
-layout_mode = 2
-theme_override_constants/separation = 5
-
-[node name="GenerationLabel" type="Label" parent="UI/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/GenerationSection"]
-layout_mode = 2
-theme_override_font_sizes/font_size = 14
-text = "System Generation"
-
-[node name="StarCountContainer" type="HBoxContainer" parent="UI/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/GenerationSection"]
-layout_mode = 2
-
-[node name="StarCountLabel" type="Label" parent="UI/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/GenerationSection/StarCountContainer"]
-custom_minimum_size = Vector2(60, 0)
-layout_mode = 2
-text = "Stars:"
-
-[node name="StarCountSpin" type="SpinBox" parent="UI/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/GenerationSection/StarCountContainer"]
-layout_mode = 2
-size_flags_horizontal = 3
-min_value = 1.0
-max_value = 4.0
-value = 1.0
-rounded = true
-
-[node name="SeedContainer" type="HBoxContainer" parent="UI/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/GenerationSection"]
-layout_mode = 2
-
-[node name="SeedLabel" type="Label" parent="UI/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/GenerationSection/SeedContainer"]
-custom_minimum_size = Vector2(60, 0)
-layout_mode = 2
-text = "Seed:"
-
-[node name="SeedInput" type="SpinBox" parent="UI/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/GenerationSection/SeedContainer"]
-layout_mode = 2
-size_flags_horizontal = 3
-max_value = 999999.0
-value = 12345.0
-rounded = true
-
-[node name="StarCountMaxContainer" type="HBoxContainer" parent="UI/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/GenerationSection"]
-layout_mode = 2
-theme_override_constants/separation = 8
-
-[node name="StarCountMaxLabel" type="Label" parent="UI/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/GenerationSection/StarCountMaxContainer"]
-custom_minimum_size = Vector2(90, 0)
-layout_mode = 2
-text = "Max Stars:"
-
-[node name="StarCountMaxSpin" type="SpinBox" parent="UI/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/GenerationSection/StarCountMaxContainer"]
-layout_mode = 2
-size_flags_horizontal = 3
-min_value = 1.0
-max_value = 10.0
-step = 1.0
-value = 1.0
-rounded = true
-
-[node name="SpectralHintsContainer" type="HBoxContainer" parent="UI/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/GenerationSection"]
-layout_mode = 2
-theme_override_constants/separation = 8
-
-[node name="SpectralHintsLabel" type="Label" parent="UI/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/GenerationSection/SpectralHintsContainer"]
-custom_minimum_size = Vector2(90, 0)
-layout_mode = 2
-text = "Spectral:"
-
-[node name="SpectralHintsInput" type="LineEdit" parent="UI/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/GenerationSection/SpectralHintsContainer"]
-layout_mode = 2
-size_flags_horizontal = 3
-placeholder_text = "G,K,M"
-
-[node name="SystemAgeContainer" type="HBoxContainer" parent="UI/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/GenerationSection"]
-layout_mode = 2
-theme_override_constants/separation = 8
-
-[node name="SystemAgeLabel" type="Label" parent="UI/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/GenerationSection/SystemAgeContainer"]
-custom_minimum_size = Vector2(90, 0)
-layout_mode = 2
-text = "Age:"
-
-[node name="SystemAgeInput" type="SpinBox" parent="UI/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/GenerationSection/SystemAgeContainer"]
-layout_mode = 2
-size_flags_horizontal = 3
-min_value = -1.0
-max_value = 13.0
-step = 0.1
-suffix = " Gyr"
-
-[node name="SystemMetallicityContainer" type="HBoxContainer" parent="UI/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/GenerationSection"]
-layout_mode = 2
-theme_override_constants/separation = 8
-
-[node name="SystemMetallicityLabel" type="Label" parent="UI/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/GenerationSection/SystemMetallicityContainer"]
-custom_minimum_size = Vector2(90, 0)
-layout_mode = 2
-text = "Metallicity:"
-
-[node name="SystemMetallicityInput" type="SpinBox" parent="UI/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/GenerationSection/SystemMetallicityContainer"]
-layout_mode = 2
-size_flags_horizontal = 3
-min_value = -1.0
-max_value = 5.0
-step = 0.05
-suffix = " Zsun"
-
-[node name="IncludeBeltsCheck" type="CheckBox" parent="UI/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/GenerationSection"]
-layout_mode = 2
-text = "Generate Asteroid Belts"
-
-[node name="GeneratePopulationCheck" type="CheckBox" parent="UI/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/GenerationSection"]
-layout_mode = 2
-text = "Generate Population"
-
-[node name="TravellerBasicHeader" type="Label" parent="UI/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/GenerationSection"]
-layout_mode = 2
-theme_override_font_sizes/font_size = 12
-modulate = Color(0.82, 0.82, 0.55, 1)
-text = "Traveller / Ruleset"
-
-[node name="RulesetModeContainer" type="HBoxContainer" parent="UI/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/GenerationSection"]
-layout_mode = 2
-theme_override_constants/separation = 8
-
-[node name="RulesetModeLabel" type="Label" parent="UI/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/GenerationSection/RulesetModeContainer"]
-custom_minimum_size = Vector2(90, 0)
-layout_mode = 2
-text = "Ruleset:"
-
-[node name="RulesetModeOption" type="OptionButton" parent="UI/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/GenerationSection/RulesetModeContainer"]
-layout_mode = 2
-size_flags_horizontal = 3
-
-[node name="ShowTravellerReadoutsCheck" type="CheckBox" parent="UI/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/GenerationSection"]
-layout_mode = 2
-text = "Show Traveller Readouts"
-
-[node name="TravellerAdvancedHeader" type="Label" parent="UI/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/GenerationSection"]
-layout_mode = 2
-theme_override_font_sizes/font_size = 12
-modulate = Color(0.82, 0.82, 0.55, 1)
-text = "Advanced Assumptions"
-
-[node name="PermissivenessLegendLabel" type="Label" parent="UI/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/GenerationSection"]
-custom_minimum_size = Vector2(220, 0)
-layout_mode = 2
-theme_override_font_sizes/font_size = 10
-modulate = Color(0.62, 0.7, 0.8, 1)
-autowrap_mode = 2
-
-[node name="LifePermissivenessContainer" type="HBoxContainer" parent="UI/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/GenerationSection"]
-layout_mode = 2
-theme_override_constants/separation = 8
-
-[node name="LifePermissivenessLabel" type="Label" parent="UI/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/GenerationSection/LifePermissivenessContainer"]
-custom_minimum_size = Vector2(120, 0)
-layout_mode = 2
-text = "Life Potential:"
-
-[node name="LifePermissivenessInput" type="HSlider" parent="UI/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/GenerationSection/LifePermissivenessContainer"]
-layout_mode = 2
-size_flags_horizontal = 3
-max_value = 1.0
-step = 0.05
-value = 0.5
-
-[node name="LifePermissivenessValueLabel" type="Label" parent="UI/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/GenerationSection/LifePermissivenessContainer"]
-custom_minimum_size = Vector2(156, 0)
-layout_mode = 2
-horizontal_alignment = 2
-text = "0.50 Neutral"
-
-[node name="PopulationPermissivenessContainer" type="HBoxContainer" parent="UI/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/GenerationSection"]
-layout_mode = 2
-theme_override_constants/separation = 8
-
-[node name="PopulationPermissivenessLabel" type="Label" parent="UI/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/GenerationSection/PopulationPermissivenessContainer"]
-custom_minimum_size = Vector2(120, 0)
-layout_mode = 2
-text = "Expansion Pressure:"
-
-[node name="PopulationPermissivenessInput" type="HSlider" parent="UI/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/GenerationSection/PopulationPermissivenessContainer"]
-layout_mode = 2
-size_flags_horizontal = 3
-max_value = 1.0
-step = 0.05
-value = 0.5
-
-[node name="PopulationPermissivenessValueLabel" type="Label" parent="UI/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/GenerationSection/PopulationPermissivenessContainer"]
-custom_minimum_size = Vector2(156, 0)
-layout_mode = 2
-horizontal_alignment = 2
-text = "0.50 Neutral"
-
-[node name="MainworldPolicyContainer" type="HBoxContainer" parent="UI/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/GenerationSection"]
-layout_mode = 2
-theme_override_constants/separation = 8
-
-[node name="MainworldPolicyLabel" type="Label" parent="UI/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/GenerationSection/MainworldPolicyContainer"]
-custom_minimum_size = Vector2(90, 0)
-layout_mode = 2
-text = "Mainworld:"
-
-[node name="MainworldPolicyOption" type="OptionButton" parent="UI/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/GenerationSection/MainworldPolicyContainer"]
-layout_mode = 2
-size_flags_horizontal = 3
-
-[node name="GenerationAssumptionsLabel" type="Label" parent="UI/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/GenerationSection"]
-custom_minimum_size = Vector2(220, 0)
-layout_mode = 2
-theme_override_font_sizes/font_size = 10
-modulate = Color(0.6, 0.7, 0.8, 1)
-autowrap_mode = 2
-text = "Targets bias star generation and shared chemistry, but orbit slots and body placement remain generator-driven in the current release."
-
-[node name="GenerationIssuesContainer" type="VBoxContainer" parent="UI/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/GenerationSection"]
-layout_mode = 2
-theme_override_constants/separation = 2
-
-[node name="ButtonContainer" type="HBoxContainer" parent="UI/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/GenerationSection"]
-layout_mode = 2
-theme_override_constants/separation = 10
-
-[node name="GenerateButton" type="Button" parent="UI/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/GenerationSection/ButtonContainer"]
-layout_mode = 2
-size_flags_horizontal = 3
-text = "Generate"
-
-[node name="RerollButton" type="Button" parent="UI/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/GenerationSection/ButtonContainer"]
-layout_mode = 2
-size_flags_horizontal = 3
-tooltip_text = "Generate with random seed"
-text = "Re-roll"
-
-[node name="HSeparator1" type="HSeparator" parent="UI/SidePanel/MarginContainer/ScrollContainer/VBoxContainer"]
-layout_mode = 2
-
-[node name="ViewSection" type="VBoxContainer" parent="UI/SidePanel/MarginContainer/ScrollContainer/VBoxContainer"]
-layout_mode = 2
-theme_override_constants/separation = 5
-
-[node name="ViewLabel" type="Label" parent="UI/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/ViewSection"]
-layout_mode = 2
-theme_override_font_sizes/font_size = 14
-text = "View Options"
-
-[node name="ShowOrbitsCheck" type="CheckBox" parent="UI/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/ViewSection"]
-layout_mode = 2
-button_pressed = true
-text = "Show Orbits"
-
-[node name="ShowZonesCheck" type="CheckBox" parent="UI/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/ViewSection"]
-layout_mode = 2
-button_pressed = true
-text = "Show Zones"
-
-[node name="HSeparator2a" type="HSeparator" parent="UI/SidePanel/MarginContainer/ScrollContainer/VBoxContainer"]
-layout_mode = 2
-
-[node name="SaveLoadSection" type="VBoxContainer" parent="UI/SidePanel/MarginContainer/ScrollContainer/VBoxContainer"]
-layout_mode = 2
-theme_override_constants/separation = 5
-
-[node name="SaveLoadLabel" type="Label" parent="UI/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/SaveLoadSection"]
-layout_mode = 2
-theme_override_font_sizes/font_size = 14
-text = "Save / Load"
-
-[node name="ButtonContainer" type="HBoxContainer" parent="UI/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/SaveLoadSection"]
-layout_mode = 2
-theme_override_constants/separation = 10
-
-[node name="SaveButton" type="Button" parent="UI/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/SaveLoadSection/ButtonContainer"]
-layout_mode = 2
-size_flags_horizontal = 3
-text = "Save..."
-
-[node name="LoadButton" type="Button" parent="UI/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/SaveLoadSection/ButtonContainer"]
-layout_mode = 2
-size_flags_horizontal = 3
-text = "Load..."
-
-[node name="HSeparator2" type="HSeparator" parent="UI/SidePanel/MarginContainer/ScrollContainer/VBoxContainer"]
-layout_mode = 2
-
 [node name="InspectorPanel" type="VBoxContainer" parent="UI/SidePanel/MarginContainer/ScrollContainer/VBoxContainer"]
 layout_mode = 2
 size_flags_horizontal = 3
 theme_override_constants/separation = 4
 script = ExtResource("3")
 
-[node name="HSeparator3" type="HSeparator" parent="UI/SidePanel/MarginContainer/ScrollContainer/VBoxContainer"]
+[node name="OverviewSection" type="VBoxContainer" parent="UI/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/InspectorPanel"]
 layout_mode = 2
+theme_override_constants/separation = 5
 
-[node name="ControlsLabel" type="Label" parent="UI/SidePanel/MarginContainer/ScrollContainer/VBoxContainer"]
+[node name="TitleLabel" type="Label" parent="UI/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/InspectorPanel/OverviewSection"]
 layout_mode = 2
+theme_override_colors/font_color = Color(0.9, 0.9, 0.9, 1)
 theme_override_font_sizes/font_size = 14
-text = "Camera Controls"
+text = "Overview"
 
-[node name="CameraInfo" type="Label" parent="UI/SidePanel/MarginContainer/ScrollContainer/VBoxContainer"]
-modulate = Color(0.8, 0.8, 0.8, 1)
+[node name="Divider" type="HSeparator" parent="UI/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/InspectorPanel/OverviewSection"]
 layout_mode = 2
-theme_override_font_sizes/font_size = 11
-text = "• Left Mouse: Orbit
-• Right Mouse: Pan
-• Scroll: Zoom
-• F: Focus origin
-• T: Toggle view angle
-• Click body: Select + focus"
+
+[node name="Content" type="VBoxContainer" parent="UI/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/InspectorPanel/OverviewSection"]
+layout_mode = 2
+theme_override_constants/separation = 4
+
+[node name="SelectedBodySection" type="VBoxContainer" parent="UI/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/InspectorPanel"]
+layout_mode = 2
+theme_override_constants/separation = 5
+
+[node name="TitleLabel" type="Label" parent="UI/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/InspectorPanel/SelectedBodySection"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.9, 0.9, 0.9, 1)
+theme_override_font_sizes/font_size = 14
+text = "Selection"
+
+[node name="Divider" type="HSeparator" parent="UI/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/InspectorPanel/SelectedBodySection"]
+layout_mode = 2
+
+[node name="Content" type="VBoxContainer" parent="UI/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/InspectorPanel/SelectedBodySection"]
+layout_mode = 2
+theme_override_constants/separation = 4
+
+[node name="OpenViewerButton" type="Button" parent="UI/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/InspectorPanel/SelectedBodySection"]
+visible = false
+layout_mode = 2
+tooltip_text = "View this body in detail"
+text = "Open in Object Viewer"
+
 [node name="EmptyStateLabel" type="Label" parent="UI"]
 visible = false
+custom_minimum_size = Vector2(280, 0)
 layout_mode = 0
 anchor_right = 1.0
 anchor_bottom = 1.0
@@ -462,3 +216,108 @@ horizontal_alignment = 1
 vertical_alignment = 1
 autowrap_mode = 2
 text = "Set parameters in the side panel, then click Generate."
+
+[node name="CameraPanel" type="PanelContainer" parent="UI"]
+custom_minimum_size = Vector2(0, 0)
+layout_mode = 0
+anchors_preset = 10
+anchor_left = 1.0
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -292.0
+offset_top = -176.0
+offset_right = -16.0
+offset_bottom = -16.0
+
+[node name="CameraPanelVBox" type="VBoxContainer" parent="UI/CameraPanel"]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="CameraPanelContent" type="MarginContainer" parent="UI/CameraPanel/CameraPanelVBox"]
+visible = false
+custom_minimum_size = Vector2(248, 0)
+layout_mode = 2
+theme_override_constants/margin_left = 10
+theme_override_constants/margin_top = 0
+theme_override_constants/margin_right = 10
+theme_override_constants/margin_bottom = 10
+
+[node name="CameraHelpLabel" type="Label" parent="UI/CameraPanel/CameraPanelVBox/CameraPanelContent"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 11
+modulate = Color(0.84, 0.86, 0.92, 1)
+autowrap_mode = 2
+text = "Left Drag: Orbit view\nMiddle Drag: Orbit view\nRight Drag: Pan view\nWheel: Zoom\nLeft Click: Select body or belt\nF: Focus origin\nT: Toggle view angle"
+
+[node name="CameraPanelHeaderButton" type="Button" parent="UI/CameraPanel/CameraPanelVBox"]
+layout_mode = 2
+alignment = 0
+flat = true
+text = "> Controls"
+
+[node name="OptionsDialog" type="Window" parent="."]
+visible = false
+theme = ExtResource("4")
+title = "Options"
+size = Vector2i(460, 280)
+
+[node name="MarginContainer" type="MarginContainer" parent="OptionsDialog"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/margin_left = 16
+theme_override_constants/margin_top = 16
+theme_override_constants/margin_right = 16
+theme_override_constants/margin_bottom = 16
+
+[node name="OptionsVBox" type="VBoxContainer" parent="OptionsDialog/MarginContainer"]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="FullscreenCheck" type="CheckBox" parent="OptionsDialog/MarginContainer/OptionsVBox"]
+layout_mode = 2
+text = "Fullscreen"
+
+[node name="ShowSeedControlsCheck" type="CheckBox" parent="OptionsDialog/MarginContainer/OptionsVBox"]
+layout_mode = 2
+text = "Show all studio seeds"
+
+[node name="SkipIntroCheck" type="CheckBox" parent="OptionsDialog/MarginContainer/OptionsVBox"]
+layout_mode = 2
+text = "Skip intro on startup"
+
+[node name="ResolutionRow" type="HBoxContainer" parent="OptionsDialog/MarginContainer/OptionsVBox"]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="ResolutionLabel" type="Label" parent="OptionsDialog/MarginContainer/OptionsVBox/ResolutionRow"]
+custom_minimum_size = Vector2(100, 0)
+layout_mode = 2
+text = "Resolution"
+
+[node name="ResolutionOption" type="OptionButton" parent="OptionsDialog/MarginContainer/OptionsVBox/ResolutionRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="OptionsStatusLabel" type="Label" parent="OptionsDialog/MarginContainer/OptionsVBox"]
+custom_minimum_size = Vector2(0, 48)
+layout_mode = 2
+autowrap_mode = 2
+text = "Viewer options are ready."
+
+[node name="ButtonRow" type="HBoxContainer" parent="OptionsDialog/MarginContainer/OptionsVBox"]
+layout_mode = 2
+alignment = 2
+theme_override_constants/separation = 8
+
+[node name="ApplyOptionsButton" type="Button" parent="OptionsDialog/MarginContainer/OptionsVBox/ButtonRow"]
+layout_mode = 2
+text = "Apply"
+
+[node name="CloseButton" type="Button" parent="OptionsDialog/MarginContainer/OptionsVBox/ButtonRow"]
+layout_mode = 2
+text = "Close"

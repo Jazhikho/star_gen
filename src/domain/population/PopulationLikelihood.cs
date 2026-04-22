@@ -35,8 +35,7 @@ public static class PopulationLikelihood
     /// </summary>
     public static double EstimateNativeLikelihood(PlanetProfile profile, GenerationUseCaseSettings? useCaseSettings = null)
     {
-        double permissiveness = ResolveLifePermissiveness(useCaseSettings);
-        return PopulationProbability.CalculateNativeProbability(profile, permissiveness);
+        return PopulationProbability.CalculateNativeProbability(profile, useCaseSettings);
     }
 
     /// <summary>
@@ -48,8 +47,7 @@ public static class PopulationLikelihood
         GenerationUseCaseSettings? useCaseSettings = null,
         ColonyPressureContext? pressureContext = null)
     {
-        double permissiveness = GenerationUseCaseSettings.NeutralPermissiveness;
-        return PopulationProbability.CalculateColonyProbability(profile, suitability, permissiveness, pressureContext);
+        return PopulationProbability.CalculateColonyProbability(profile, suitability, useCaseSettings, pressureContext);
     }
 
     /// <summary>
@@ -71,6 +69,12 @@ public static class PopulationLikelihood
         long populationSeed,
         GenerationUseCaseSettings? useCaseSettings = null)
     {
+        if (useCaseSettings?.ForceLifeOnSupportableWorlds == true
+            && BiologySupportEvaluator.SupportsBiology(profile, useCaseSettings))
+        {
+            return true;
+        }
+
         if (ShouldGuaranteeNatives(profile, useCaseSettings))
         {
             return true;
@@ -111,6 +115,11 @@ public static class PopulationLikelihood
         if (useCaseSettings == null)
         {
             return GenerationUseCaseSettings.NeutralPermissiveness;
+        }
+
+        if (!useCaseSettings.HasLifePermissivenessOverride())
+        {
+            return GenerationUseCaseSettings.GetRecommendedLifePermissiveness(useCaseSettings.LifeFramework);
         }
 
         return useCaseSettings.LifePermissiveness;

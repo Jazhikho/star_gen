@@ -32,6 +32,12 @@ public sealed class PlanetEnvironmentProfile
 
     public double IceCoverage { get; set; }
 
+    public int ContinentCount { get; set; }
+
+    public double DayLengthHours { get; set; }
+
+    public double AxialTiltDeg { get; set; }
+
     public double GravityG { get; set; }
 
     public double TectonicActivity { get; set; }
@@ -43,6 +49,16 @@ public sealed class PlanetEnvironmentProfile
     public double MagneticFieldStrength { get; set; }
 
     public double RadiationLevel { get; set; }
+
+    public double StellarFluxEarth { get; set; }
+
+    public double HabitableZoneInnerAu { get; set; }
+
+    public double HabitableZoneOuterAu { get; set; }
+
+    public double HabitableZoneAlignment { get; set; }
+
+    public double XuvExposure { get; set; }
 
     public double TidalHeatingFactor { get; set; }
 
@@ -57,6 +73,12 @@ public sealed class PlanetEnvironmentProfile
     public bool HasMagneticField { get; set; }
 
     public bool IsMoon { get; set; }
+
+    public bool IsTidallyLocked { get; set; }
+
+    public double ResourceRichness { get; set; }
+
+    public double ResourceDiversity { get; set; }
 
     public string DominantBiome { get; set; } = string.Empty;
 
@@ -83,12 +105,20 @@ public sealed class PlanetEnvironmentProfile
             ["ocean_coverage"] = OceanCoverage,
             ["land_coverage"] = LandCoverage,
             ["ice_coverage"] = IceCoverage,
+            ["continent_count"] = ContinentCount,
+            ["day_length_hours"] = DayLengthHours,
+            ["axial_tilt_deg"] = AxialTiltDeg,
             ["gravity_g"] = GravityG,
             ["tectonic_activity"] = TectonicActivity,
             ["volcanism_level"] = VolcanismLevel,
             ["weather_severity"] = WeatherSeverity,
             ["magnetic_field_strength"] = MagneticFieldStrength,
             ["radiation_level"] = RadiationLevel,
+            ["stellar_flux_earth"] = StellarFluxEarth,
+            ["habitable_zone_inner_au"] = HabitableZoneInnerAu,
+            ["habitable_zone_outer_au"] = HabitableZoneOuterAu,
+            ["habitable_zone_alignment"] = HabitableZoneAlignment,
+            ["xuv_exposure"] = XuvExposure,
             ["tidal_heating_factor"] = TidalHeatingFactor,
             ["parent_radiation_exposure"] = ParentRadiationExposure,
             ["has_atmosphere"] = HasAtmosphere,
@@ -96,6 +126,9 @@ public sealed class PlanetEnvironmentProfile
             ["has_breathable_atmosphere"] = HasBreathableAtmosphere,
             ["has_magnetic_field"] = HasMagneticField,
             ["is_moon"] = IsMoon,
+            ["is_tidally_locked"] = IsTidallyLocked,
+            ["resource_richness"] = ResourceRichness,
+            ["resource_diversity"] = ResourceDiversity,
             ["dominant_biome"] = DominantBiome,
             ["biome_coverage"] = biomeCoverage,
         };
@@ -115,12 +148,20 @@ public sealed class PlanetEnvironmentProfile
         profile.OceanCoverage = ConceptSerializationUtils.ReadDouble(data, "ocean_coverage");
         profile.LandCoverage = ConceptSerializationUtils.ReadDouble(data, "land_coverage");
         profile.IceCoverage = ConceptSerializationUtils.ReadDouble(data, "ice_coverage");
+        profile.ContinentCount = ConceptSerializationUtils.ReadOptionalInt(data, "continent_count", 0);
+        profile.DayLengthHours = ConceptSerializationUtils.ReadDouble(data, "day_length_hours");
+        profile.AxialTiltDeg = ConceptSerializationUtils.ReadDouble(data, "axial_tilt_deg");
         profile.GravityG = ConceptSerializationUtils.ReadDouble(data, "gravity_g");
         profile.TectonicActivity = ConceptSerializationUtils.ReadDouble(data, "tectonic_activity");
         profile.VolcanismLevel = ConceptSerializationUtils.ReadDouble(data, "volcanism_level");
         profile.WeatherSeverity = ConceptSerializationUtils.ReadDouble(data, "weather_severity");
         profile.MagneticFieldStrength = ConceptSerializationUtils.ReadDouble(data, "magnetic_field_strength");
         profile.RadiationLevel = ConceptSerializationUtils.ReadDouble(data, "radiation_level");
+        profile.StellarFluxEarth = ConceptSerializationUtils.ReadDouble(data, "stellar_flux_earth");
+        profile.HabitableZoneInnerAu = ConceptSerializationUtils.ReadDouble(data, "habitable_zone_inner_au");
+        profile.HabitableZoneOuterAu = ConceptSerializationUtils.ReadDouble(data, "habitable_zone_outer_au");
+        profile.HabitableZoneAlignment = ConceptSerializationUtils.ReadDouble(data, "habitable_zone_alignment");
+        profile.XuvExposure = ConceptSerializationUtils.ReadDouble(data, "xuv_exposure");
         profile.TidalHeatingFactor = ConceptSerializationUtils.ReadDouble(data, "tidal_heating_factor");
         profile.ParentRadiationExposure = ConceptSerializationUtils.ReadDouble(data, "parent_radiation_exposure");
         profile.HasAtmosphere = ConceptSerializationUtils.ReadBool(data, "has_atmosphere");
@@ -128,6 +169,9 @@ public sealed class PlanetEnvironmentProfile
         profile.HasBreathableAtmosphere = ConceptSerializationUtils.ReadBool(data, "has_breathable_atmosphere");
         profile.HasMagneticField = ConceptSerializationUtils.ReadBool(data, "has_magnetic_field");
         profile.IsMoon = ConceptSerializationUtils.ReadBool(data, "is_moon");
+        profile.IsTidallyLocked = ConceptSerializationUtils.ReadBool(data, "is_tidally_locked");
+        profile.ResourceRichness = ConceptSerializationUtils.ReadDouble(data, "resource_richness");
+        profile.ResourceDiversity = ConceptSerializationUtils.ReadDouble(data, "resource_diversity");
         profile.DominantBiome = ConceptSerializationUtils.ReadString(data, "dominant_biome");
         Dictionary? biomeCoverage = ConceptSerializationUtils.ReadDictionary(data, "biome_coverage");
         if (biomeCoverage != null)
@@ -173,12 +217,20 @@ public sealed class PlanetEnvironmentProfile
         environment.OceanCoverage = profile.OceanCoverage;
         environment.LandCoverage = profile.LandCoverage;
         environment.IceCoverage = profile.IceCoverage;
+        environment.ContinentCount = profile.ContinentCount;
+        environment.DayLengthHours = profile.DayLengthHours;
+        environment.AxialTiltDeg = profile.AxialTiltDeg;
         environment.GravityG = profile.GravityG;
         environment.TectonicActivity = profile.TectonicActivity;
         environment.VolcanismLevel = profile.VolcanismLevel;
         environment.WeatherSeverity = profile.WeatherSeverity;
         environment.MagneticFieldStrength = profile.MagneticFieldStrength;
         environment.RadiationLevel = profile.RadiationLevel;
+        environment.StellarFluxEarth = profile.StellarFluxEarth;
+        environment.HabitableZoneInnerAu = profile.HabitableZoneInnerAu;
+        environment.HabitableZoneOuterAu = profile.HabitableZoneOuterAu;
+        environment.HabitableZoneAlignment = profile.HabitableZoneAlignment;
+        environment.XuvExposure = profile.XuvExposure;
         environment.TidalHeatingFactor = profile.TidalHeatingFactor;
         environment.ParentRadiationExposure = profile.ParentRadiationExposure;
         environment.HasAtmosphere = profile.HasAtmosphere;
@@ -186,7 +238,10 @@ public sealed class PlanetEnvironmentProfile
         environment.HasBreathableAtmosphere = profile.HasBreathableAtmosphere;
         environment.HasMagneticField = profile.HasMagneticField;
         environment.IsMoon = profile.IsMoon;
+        environment.IsTidallyLocked = profile.IsTidallyLocked;
         environment.DominantBiome = BiomeType.ToStringName(profile.GetDominantBiome());
+        environment.ResourceRichness = CalculateResourceRichness(profile);
+        environment.ResourceDiversity = CalculateResourceDiversity(profile);
 
         foreach (Variant biomeKey in profile.Biomes.Keys)
         {
@@ -208,5 +263,49 @@ public sealed class PlanetEnvironmentProfile
     public bool SupportsBiology(GenerationUseCaseSettings? useCaseSettings = null)
     {
         return BiologySupportEvaluator.SupportsBiology(this, useCaseSettings);
+    }
+
+    private static double CalculateResourceRichness(PlanetProfile profile)
+    {
+        if (profile.Resources.Count == 0)
+        {
+            return 0.0;
+        }
+
+        double totalAbundance = 0.0;
+        int resourceCount = 0;
+        foreach (Variant resourceKey in profile.Resources.Keys)
+        {
+            Variant value = profile.Resources[resourceKey];
+            if (value.VariantType == Variant.Type.Float)
+            {
+                totalAbundance += (double)value;
+                resourceCount += 1;
+                continue;
+            }
+
+            if (value.VariantType == Variant.Type.Int)
+            {
+                totalAbundance += (int)value;
+                resourceCount += 1;
+            }
+        }
+
+        if (resourceCount == 0)
+        {
+            return 0.0;
+        }
+
+        return System.Math.Clamp(totalAbundance / resourceCount, 0.0, 1.0);
+    }
+
+    private static double CalculateResourceDiversity(PlanetProfile profile)
+    {
+        if (profile.Resources.Count == 0)
+        {
+            return 0.0;
+        }
+
+        return System.Math.Clamp(profile.Resources.Count / 8.0, 0.0, 1.0);
     }
 }

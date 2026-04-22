@@ -1,4 +1,5 @@
 using Godot;
+using StarGen.App.Audio;
 using StarGen.App.Shared;
 using System.Collections.Generic;
 
@@ -12,10 +13,6 @@ public partial class SplashScreen : Control
 	[Signal]
 	public delegate void splash_finishedEventHandler();
 
-	/// <summary>The resource path for optional intro music, left blank until music is added.</summary>
-	[Export]
-	private string IntroMusicResourcePath { get; set; } = string.Empty;
-
 	/// <summary>The resource path for the StarGen logo shown after the intro video.</summary>
 	[Export]
 	private string LogoTextureResourcePath { get; set; } = "res://StarGen.png";
@@ -28,10 +25,6 @@ public partial class SplashScreen : Control
 	[Export]
 	private float LogoHoldSeconds { get; set; } = 0.65f;
 
-	/// <summary>The playback volume for optional intro music.</summary>
-	[Export]
-	private float MusicVolumeDb { get; set; } = -6.0f;
-
 	private VideoStreamPlayer? _videoPlayer;
 	private Control? _videoLayer;
 	private CenterContainer? _logoLayer;
@@ -39,7 +32,7 @@ public partial class SplashScreen : Control
 	private Label? _versionLabel;
 	private Label? _statusLabel;
 	private Label? _skipLabel;
-	private AudioStreamPlayer? _introMusicPlayer;
+	private AppAudioController? _audioController;
 	private bool _finished;
 	private bool _transitionStarted;
 
@@ -55,7 +48,7 @@ public partial class SplashScreen : Control
 		_versionLabel = GetNodeOrNull<Label>("CenterStage/StageVBox/LogoVBox/VersionLabel");
 		_statusLabel = GetNodeOrNull<Label>("CenterStage/StageVBox/LogoVBox/StatusLabel");
 		_skipLabel = GetNodeOrNull<Label>("SkipLabel");
-		_introMusicPlayer = GetNodeOrNull<AudioStreamPlayer>("IntroMusicPlayer");
+		_audioController = GetNodeOrNull<AppAudioController>("../../AudioController");
 
 		if (_videoPlayer != null)
 		{
@@ -83,14 +76,8 @@ public partial class SplashScreen : Control
 			_logoLayer.Modulate = new Color(1.0f, 1.0f, 1.0f, 0.0f);
 		}
 
-		if (_introMusicPlayer != null)
-		{
-			_introMusicPlayer.VolumeDb = MusicVolumeDb;
-		}
-
 		LoadLogoTexture();
 		LoadIntroVideo();
-		LoadIntroMusic();
 
 		if (IsInsideTree())
 		{
@@ -101,7 +88,7 @@ public partial class SplashScreen : Control
 	/// <summary>
 	/// Allows skipping the intro with any key or click.
 	/// </summary>
-	public override void _UnhandledInput(InputEvent @event)
+	public override void _Input(InputEvent @event)
 	{
 		if (_finished || _transitionStarted)
 		{
@@ -149,30 +136,6 @@ public partial class SplashScreen : Control
 		}
 
 		_videoPlayer.Stream = introVideo;
-	}
-
-	private void LoadIntroMusic()
-	{
-		if (_introMusicPlayer == null)
-		{
-			GD.PushError("SplashScreen: IntroMusicPlayer node is missing.");
-			return;
-		}
-
-		string resolvedMusicPath = ResolveIntroMusicResourcePath();
-		if (string.IsNullOrWhiteSpace(resolvedMusicPath))
-		{
-			return;
-		}
-
-		AudioStream? introMusic = ResourceLoader.Load<AudioStream>(resolvedMusicPath);
-		if (introMusic == null)
-		{
-			GD.PushError($"SplashScreen: failed to load intro music '{resolvedMusicPath}'.");
-			return;
-		}
-
-		_introMusicPlayer.Stream = introMusic;
 	}
 
 	private void LoadLogoTexture()
@@ -245,57 +208,6 @@ public partial class SplashScreen : Control
 		return "res://" + ogvFiles[0];
 	}
 
-	private string ResolveIntroMusicResourcePath()
-	{
-		if (!string.IsNullOrWhiteSpace(IntroMusicResourcePath))
-		{
-			return IntroMusicResourcePath;
-		}
-
-		DirAccess? rootDir = DirAccess.Open("res://");
-		if (rootDir == null)
-		{
-			GD.PushError("SplashScreen: failed to open root directory while searching for intro music.");
-			return string.Empty;
-		}
-
-		List<string> oggFiles = new List<string>();
-		rootDir.ListDirBegin();
-		while (true)
-		{
-			string fileName = rootDir.GetNext();
-			if (string.IsNullOrEmpty(fileName))
-			{
-				break;
-			}
-
-			if (rootDir.CurrentIsDir())
-			{
-				continue;
-			}
-
-			if (fileName.EndsWith(".ogg"))
-			{
-				oggFiles.Add(fileName);
-			}
-		}
-		rootDir.ListDirEnd();
-
-		if (oggFiles.Count == 0)
-		{
-			GD.PushError("SplashScreen: no root .ogg file was found for intro music.");
-			return string.Empty;
-		}
-
-		if (oggFiles.Count > 1)
-		{
-			GD.PushError("SplashScreen: multiple root .ogg files were found; set IntroMusicResourcePath explicitly.");
-			return string.Empty;
-		}
-
-		return "res://" + oggFiles[0];
-	}
-
 	private void StartPlayback()
 	{
 		if (_videoPlayer == null)
@@ -312,10 +224,7 @@ public partial class SplashScreen : Control
 
 		_videoPlayer.Play();
 
-		if (_introMusicPlayer != null && _introMusicPlayer.Stream != null)
-		{
-			_introMusicPlayer.Play();
-		}
+		_audioController?.PlayMusic(AppAudioCueId.IntroMusic);
 	}
 
 	private void OnVideoFinished()
@@ -372,10 +281,7 @@ public partial class SplashScreen : Control
 			transitionTween.TweenProperty(_skipLabel, "modulate:a", 0.0f, TransitionDurationSeconds * 0.5f);
 		}
 
-		if (_introMusicPlayer != null && _introMusicPlayer.Stream != null && _introMusicPlayer.Playing)
-		{
-			transitionTween.TweenProperty(_introMusicPlayer, "volume_db", -40.0f, TransitionDurationSeconds);
-		}
+		_audioController?.FadeMusicTo(this, -40.0f, TransitionDurationSeconds);
 
 		await ToSignal(transitionTween, Tween.SignalName.Finished);
 		StopPlayback();
@@ -410,11 +316,7 @@ public partial class SplashScreen : Control
 			_videoPlayer.Stop();
 		}
 
-		if (_introMusicPlayer != null && _introMusicPlayer.Playing)
-		{
-			_introMusicPlayer.Stop();
-			_introMusicPlayer.VolumeDb = MusicVolumeDb;
-		}
+		_audioController?.StopMusic();
 	}
 
 	private void Finish()

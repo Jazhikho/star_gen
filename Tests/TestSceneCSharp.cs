@@ -58,6 +58,14 @@ public partial class TestSceneCSharp : Node
 	}
 
 	/// <summary>
+	/// Starts only the Solar-system realization headless-safe suite.
+	/// </summary>
+	public void start_solar_realization_headless()
+	{
+		_ = RunSolarRealizationHeadlessAsync();
+	}
+
+	/// <summary>
 	/// Starts the full interactive test suite.
 	/// </summary>
 	public void start_interactive()
@@ -93,6 +101,21 @@ public partial class TestSceneCSharp : Node
 		}
 
 		await Task.CompletedTask;
+		EmitSignal(SignalName.RunCompleted, exitCode);
+	}
+
+	private async Task RunSolarRealizationHeadlessAsync()
+	{
+		GD.Print("Using C# Solar realization test harness");
+		GD.Print(string.Empty);
+		await _runner.RunSolarRealizationHeadless();
+		_runner.PrintSummary();
+		int exitCode = 0;
+		if (_runner.GetFailCount() != 0)
+		{
+			exitCode = 1;
+		}
+
 		EmitSignal(SignalName.RunCompleted, exitCode);
 	}
 

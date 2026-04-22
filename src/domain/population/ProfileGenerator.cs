@@ -2,6 +2,7 @@ using Godot.Collections;
 using StarGen.Domain.Celestial;
 using StarGen.Domain.Generation;
 using StarGen.Domain.Math;
+using StarGen.Domain.Systems;
 
 namespace StarGen.Domain.Population;
 
@@ -180,10 +181,35 @@ public static class ProfileGenerator
             profile.PressureAtm,
             body.Physical.RotationPeriodS,
             profile.HasAtmosphere);
-        profile.RadiationLevel = ProfileCalculations.CalculateRadiationLevel(
+        double baseRadiation = ProfileCalculations.CalculateRadiationLevel(
             body.Physical.MagneticMoment,
             profile.PressureAtm,
             profile.HasAtmosphere);
+        double orbitalDistanceAu = context.OrbitalDistanceFromStarM / Units.AuMeters;
+        profile.StellarFluxEarth = 0.0;
+        if (context.StellarLuminosityWatts > 0.0 && orbitalDistanceAu > 0.0)
+        {
+            double luminositySolar = context.StellarLuminosityWatts / StellarProps.SolarLuminosityWatts;
+            profile.StellarFluxEarth = luminositySolar / System.Math.Max(orbitalDistanceAu * orbitalDistanceAu, 0.01);
+        }
+
+        profile.HabitableZoneInnerAu = OrbitalMechanics.CalculateHabitableZoneInner(
+            context.StellarLuminosityWatts,
+            context.StellarTemperatureK,
+            context.HabitableZoneModel) / Units.AuMeters;
+        profile.HabitableZoneOuterAu = OrbitalMechanics.CalculateHabitableZoneOuter(
+            context.StellarLuminosityWatts,
+            context.StellarTemperatureK,
+            context.HabitableZoneModel) / Units.AuMeters;
+        profile.HabitableZoneAlignment = CalculateHabitableZoneAlignment(
+            orbitalDistanceAu,
+            profile.HabitableZoneInnerAu,
+            profile.HabitableZoneOuterAu);
+        profile.XuvExposure = CalculateXuvExposure(profile, context);
+        double atmosphericShielding = profile.HasAtmosphere ? 0.35 : 1.0;
+        double magneticShielding = profile.HasMagneticField ? 0.45 : 1.0;
+        double xuvPenalty = profile.XuvExposure * atmosphericShielding * magneticShielding * 0.55;
+        profile.RadiationLevel = System.Math.Clamp(baseRadiation + xuvPenalty, 0.0, 1.0);
 
         profile.IsTidallyLocked = false;
         if (body.HasOrbital() && !profile.IsMoon)
@@ -249,6 +275,57 @@ public static class ProfileGenerator
             orbitalDistance,
             moonOrbitalPeriod,
             parentOrbitalPeriod);
+    }
+
+    private static double CalculateHabitableZoneAlignment(double orbitAu, double innerAu, double outerAu)
+    {
+        if (orbitAu <= 0.0 || innerAu <= 0.0 || outerAu <= innerAu)
+        {
+            return 0.0;
+        }
+
+        if (orbitAu >= innerAu && orbitAu <= outerAu)
+        {
+            return 1.0;
+        }
+
+        double innerDecayFloor = innerAu * 0.45;
+        double outerDecayCeiling = outerAu * 1.80;
+        if (orbitAu < innerAu)
+        {
+            return System.Math.Clamp((orbitAu - innerDecayFloor) / System.Math.Max(innerAu - innerDecayFloor, 0.01), 0.0, 1.0);
+        }
+
+        return System.Math.Clamp((outerDecayCeiling - orbitAu) / System.Math.Max(outerDecayCeiling - outerAu, 0.01), 0.0, 1.0);
+    }
+
+    private static double CalculateXuvExposure(PlanetProfile profile, ParentContext context)
+    {
+        double orbitAu = context.OrbitalDistanceFromStarM / Units.AuMeters;
+        if (orbitAu <= 0.0 || context.StellarMassKg <= 0.0)
+        {
+            return 0.0;
+        }
+
+        double massSolar = context.StellarMassKg / Units.SolarMassKg;
+        double ageFactor = 1.0;
+        if (context.StellarAgeYears > 0.0)
+        {
+            ageFactor = System.Math.Clamp(System.Math.Pow(1.6e9 / context.StellarAgeYears, 0.20), 0.65, 1.8);
+        }
+
+        double lowMassActivityFactor;
+        if (massSolar < 0.85)
+        {
+            lowMassActivityFactor = System.Math.Clamp(1.35 - (massSolar * 0.38), 1.0, 1.32);
+        }
+        else
+        {
+            lowMassActivityFactor = System.Math.Clamp(1.0 - ((massSolar - 0.85) * 0.08), 0.84, 1.0);
+        }
+
+        double fluxFactor = System.Math.Pow(System.Math.Max(profile.StellarFluxEarth, 0.02), 0.35);
+        return System.Math.Clamp(ageFactor * lowMassActivityFactor * fluxFactor, 0.0, 1.8);
     }
 
     private static bool IsGasGiantForProfile(CelestialBody body)

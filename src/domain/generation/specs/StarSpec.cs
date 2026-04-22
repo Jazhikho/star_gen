@@ -1,4 +1,5 @@
 using Godot.Collections;
+using StarGen.Domain.Galaxy;
 using StarGen.Domain.Generation;
 using StarGen.Domain.Generation.Archetypes;
 
@@ -28,6 +29,16 @@ public partial class StarSpec : BaseSpec
     /// Age hint in years, or -1 for random.
     /// </summary>
     public double AgeYears { get; set; }
+
+    /// <summary>
+    /// Optional galaxy-derived context for this star.
+    /// </summary>
+    public GalaxyOriginContext GalaxyContext { get; set; } = new GalaxyOriginContext();
+
+    /// <summary>
+    /// Shared stellar-generation profile applied when no hard spectral override is supplied.
+    /// </summary>
+    public StellarGenerationProfile StellarProfile { get; set; } = StellarGenerationProfile.CreateDefault();
 
     /// <summary>
     /// Creates a new star specification.
@@ -125,6 +136,8 @@ public partial class StarSpec : BaseSpec
         data["subclass"] = Subclass;
         data["metallicity"] = Metallicity;
         data["age_years"] = AgeYears;
+        data["galaxy_context"] = GalaxyContext.ToDictionary();
+        data["stellar_profile"] = StellarProfile.ToDictionary();
         return data;
     }
 
@@ -180,6 +193,14 @@ public partial class StarSpec : BaseSpec
 
         StarSpec spec = new StarSpec(generationSeed, spectralClass, subclass, GetDouble(data, "metallicity", -1.0), GetDouble(data, "age_years", -1.0), nameHint, overrides);
         spec.ApplyBaseFromDictionary(data);
+        if (data.ContainsKey("galaxy_context") && data["galaxy_context"].VariantType == Godot.Variant.Type.Dictionary)
+        {
+            spec.GalaxyContext = GalaxyOriginContext.FromDictionary((Dictionary)data["galaxy_context"]);
+        }
+        if (data.ContainsKey("stellar_profile") && data["stellar_profile"].VariantType == Godot.Variant.Type.Dictionary)
+        {
+            spec.StellarProfile = StellarGenerationProfile.FromDictionary((Dictionary)data["stellar_profile"]);
+        }
         return spec;
     }
 

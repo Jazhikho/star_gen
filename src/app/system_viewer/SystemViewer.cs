@@ -1,10 +1,10 @@
 using Godot;
+using StarGen.Domain.Celestial;
 using StarGen.Domain.Generation;
 using StarGen.Domain.Systems;
 using StarGen.Domain.Systems.Fixtures;
 using StarGen.Domain.Generation.Parameters;
 using System.Collections.Generic;
-using StarGen.Services.Concepts;
 
 namespace StarGen.App.SystemViewer;
 
@@ -65,7 +65,6 @@ public partial class SystemViewer : Node3D, ISystemViewerSaveLoadHost
 	internal SpinBox? _systemAgeInput;
 	internal SpinBox? _systemMetallicityInput;
 	internal CheckBox? _includeBeltsCheck;
-	internal CheckBox? _generatePopulationCheck;
 	internal OptionButton? _rulesetModeOption;
 	internal CheckBox? _showTravellerReadoutsCheck;
 	internal HSlider? _lifePermissivenessInput;
@@ -79,12 +78,20 @@ public partial class SystemViewer : Node3D, ISystemViewerSaveLoadHost
 	internal Button? _rerollButton;
 	internal Button? _saveButton;
 	internal Button? _loadButton;
-	internal CheckBox? _showOrbitsCheck;
-	internal CheckBox? _showZonesCheck;
+	internal Window? _optionsDialog;
+	internal CheckBox? _fullscreenCheck;
+	internal CheckBox? _showSeedControlsCheck;
+	internal CheckBox? _skipIntroCheck;
+	internal OptionButton? _resolutionOption;
+	internal Button? _applyOptionsButton;
+	internal Label? _optionsStatusLabel;
+	internal Button? _optionsDialogCloseButton;
+	internal Control? _cameraPanel;
+	internal Button? _cameraPanelHeaderButton;
+	internal Control? _cameraPanelContent;
 	internal Node? _cameraController;
 	internal Node3D? _bodiesContainer;
 	internal Node3D? _orbitsContainer;
-	internal Node3D? _zonesContainer;
 	internal Node? _orbitRenderer;
 	internal Node3D? _beltRenderer;
 	internal Label? _emptyStateLabel;
@@ -98,6 +105,7 @@ public partial class SystemViewer : Node3D, ISystemViewerSaveLoadHost
 	internal bool _animationEnabled = true;
 	internal bool _isUpdatingSystem;
 	internal bool _isReady;
+	internal bool _showOrbitsVisible = true;
 	internal int _sourceStarSeed;
 	internal readonly SystemViewerSaveLoad _saveLoad = new();
 	internal Rect2 _renderAreaRect = new Rect2();
@@ -108,6 +116,13 @@ public partial class SystemViewer : Node3D, ISystemViewerSaveLoadHost
 	internal string _backNavigationText = "Return";
 	internal string _backNavigationTooltip = "Return";
 	internal bool _generationActionsVisible = true;
+	internal Vector2 _cameraPanelExpandedSize = Vector2.Zero;
+	internal float _cameraPanelExpandedOffsetLeft;
+	internal float _cameraPanelExpandedOffsetTop;
+	internal float _cameraPanelExpandedOffsetRight;
+	internal float _cameraPanelExpandedOffsetBottom;
+	internal Tween? _cameraPanelTween;
+	internal bool _cameraPanelCollapsed = true;
 
 	/// <summary>
 	/// Reused scratch list for removing stale body node IDs during the animation update.
@@ -129,6 +144,7 @@ public partial class SystemViewer : Node3D, ISystemViewerSaveLoadHost
 		SetupBeltRenderer();
 		SetupSaveLoadUi();
 		SetupTopMenu();
+		SetupOptionsUi();
 		SetupTooltips();
 		ConnectSignals();
 		UpdateBackNavigationUi();
@@ -238,18 +254,16 @@ public partial class SystemViewer : Node3D, ISystemViewerSaveLoadHost
 
 		_currentSpec = spec;
 		SetStatus($"Generating system with seed {spec.GenerationSeed}...");
-        SolarSystem? system = SystemFixtureGenerator.GenerateSystem(spec, null);
-        if (system == null)
-        {
-            SetError("Failed to generate system");
-            return;
-        }
+		SolarSystem? system = SystemFixtureGenerator.GenerateSystem(spec, null);
+		if (system == null)
+		{
+			SetError("Failed to generate system");
+			return;
+		}
 
-        ConceptWorldStateGenerator.EnsureSystemConcepts(system);
-
-        AppendTravellerGenerationIssues(system, spec);
-        UpdateGenerationIssuesUi();
-        DisplaySystem(system);
+		AppendTravellerGenerationIssues(system, spec);
+		UpdateGenerationIssuesUi();
+		DisplaySystem(system);
 		if (_currentGenerationIssues.Issues.Count > 0)
 		{
 			SetStatus($"Generated with {_currentGenerationIssues.Issues.Count} advisory issue(s): {system.GetSummary()}");
@@ -305,29 +319,15 @@ public partial class SystemViewer : Node3D, ISystemViewerSaveLoadHost
 		UpdateSaveButtonState();
 		ClearOrbits();
 		ClearBelts();
-		ClearZones();
-
 		CreateBeltVisualizations();
 		CreateBodyNodes();
 		CreateOrbitVisualizations();
 		UpdateEmptyStateVisibility();
 
-		if (_showZonesCheck != null && _showZonesCheck.ButtonPressed)
-		{
-			CreateZoneVisualizations();
-		}
-
 		UpdateInspectorSystem();
 		FitCameraToSystem();
 
-		if (!string.IsNullOrEmpty(system.Name))
-		{
-			SetStatus($"Viewing: {system.Name}");
-		}
-		else
-		{
-			SetStatus($"Generated: {system.GetSummary()}");
-		}
+		SetStatus($"Generated: {system.GetSummary()}");
 
 		_isUpdatingSystem = false;
 	}
@@ -345,7 +345,6 @@ public partial class SystemViewer : Node3D, ISystemViewerSaveLoadHost
 		ClearBodies();
 		ClearOrbits();
 		ClearBelts();
-		ClearZones();
 		UpdateSaveButtonState();
 		UpdateEmptyStateVisibility();
 		UpdateInspectorSystem();
@@ -398,7 +397,15 @@ public partial class SystemViewer : Node3D, ISystemViewerSaveLoadHost
 			_orbitRenderer?.Call("highlight_orbit", bodyId);
 		}
 		UpdateInspectorBody();
-		SetStatus($"Selected: {bodyId}");
+		CelestialBody? selectedBody = _currentSystem?.GetBody(bodyId);
+		if (selectedBody != null && !string.IsNullOrWhiteSpace(selectedBody.Name))
+		{
+			SetStatus($"Selected: {selectedBody.Name}");
+		}
+		else
+		{
+			SetStatus($"Selected: {bodyId}");
+		}
 	}
 
 	/// <summary>
@@ -524,7 +531,6 @@ public partial class SystemViewer : Node3D, ISystemViewerSaveLoadHost
 
 		_startupState = ViewerStartupState.UnconfiguredStandalone;
 		_sourceStarSeed = 0;
-		SetGenerationSectionVisible(true);
 		SetBackNavigationVisibility(false);
 		ApplySpecToControls(seedSpec);
 		ClearDisplay();
@@ -536,10 +542,6 @@ public partial class SystemViewer : Node3D, ISystemViewerSaveLoadHost
 	public void SetGenerationSectionVisible(bool visible)
 	{
 		_generationActionsVisible = visible;
-		if (_generationSection != null)
-		{
-			_generationSection.Visible = visible;
-		}
 	}
 
 	/// <summary>

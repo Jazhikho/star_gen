@@ -253,6 +253,8 @@ public static class TestProfileGenerator
         DotNetNativeTestSuite.AssertFloatNear(1.0, profile.GravityG, 0.1, "Gravity should be ~1g");
         DotNetNativeTestSuite.AssertFloatNear(24.0, profile.DayLengthHours, 0.1, "Day should be ~24h");
         DotNetNativeTestSuite.AssertFloatNear(1.0, profile.PressureAtm, 0.01, "Pressure should be ~1 atm");
+        DotNetNativeTestSuite.AssertFloatNear(1.0, profile.StellarFluxEarth, 0.1, "Earth-like profile should receive about Earth-like flux");
+        DotNetNativeTestSuite.AssertGreaterThan(profile.HabitableZoneAlignment, 0.5, "Earth-like profile should align with the habitable zone");
     }
 
     /// <summary>
@@ -294,6 +296,7 @@ public static class TestProfileGenerator
 
         DotNetNativeTestSuite.AssertGreaterThan(profile.TidalHeatingFactor, 0.0, "Should have tidal heating");
         DotNetNativeTestSuite.AssertGreaterThan(profile.ParentRadiationExposure, 0.0, "Should have parent radiation");
+        DotNetNativeTestSuite.AssertGreaterThan(profile.XuvExposure, 0.0, "Moon profile should track stellar XUV exposure");
     }
 
     /// <summary>
@@ -435,5 +438,8 @@ public static class TestProfileGenerator
         DotNetNativeTestSuite.AssertEqual(original.ClimateZones.Count, restored.ClimateZones.Count, "ClimateZones count should match");
         DotNetNativeTestSuite.AssertEqual(original.Biomes.Count, restored.Biomes.Count, "Biomes count should match");
         DotNetNativeTestSuite.AssertEqual(original.Resources.Count, restored.Resources.Count, "Resources count should match");
+        DotNetNativeTestSuite.AssertFloatNear(original.StellarFluxEarth, restored.StellarFluxEarth, 0.001, "StellarFluxEarth should match");
+        DotNetNativeTestSuite.AssertFloatNear(original.HabitableZoneAlignment, restored.HabitableZoneAlignment, 0.001, "HabitableZoneAlignment should match");
+        DotNetNativeTestSuite.AssertFloatNear(original.XuvExposure, restored.XuvExposure, 0.001, "XuvExposure should match");
     }
 }

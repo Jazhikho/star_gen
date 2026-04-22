@@ -1,0 +1,19 @@
+Source note for StarGen research review
+
+Citation:
+Rodriguez, S., & Padilla, N. D. (2013).
+The Intrinsic Shape of Galaxies in SDSS/Galaxy Zoo.
+arXiv: https://arxiv.org/abs/1306.3264
+DOI: https://doi.org/10.48550/arXiv.1306.3264
+
+What was reviewed:
+- arXiv abstract and source metadata on 2026-04-19.
+
+Key implementation notes used in StarGen:
+- The paper estimates intrinsic 3D galaxy shapes using SDSS and Galaxy Zoo morphology data.
+- It reports mean disc ellipticity for spirals and axis-ratio behavior for ellipticals, showing that galaxy flattening and roundness are measurable population properties rather than pure visual style.
+- It also notes that shape depends on luminosity, size, and morphology, which fits StarGen's use of ellipticity as a broad structural control instead of a fixed constant.
+
+How StarGen uses this:
+- Supports the ellipticity control as a real structure parameter for disc and elliptical families.
+- Supports tightening the tooltip/help wording so ellipticity is presented as a simplified intrinsic-shape proxy rather than a cosmetic stretch knob.

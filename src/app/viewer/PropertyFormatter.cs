@@ -23,6 +23,7 @@ public static class PropertyFormatter
                 "{0:0.000} M\u2609",
                 massKg / Units.SolarMassKg),
             CelestialType.Type.Planet or CelestialType.Type.Moon => FormatPlanetaryMass(massKg),
+            CelestialType.Type.Comet => FormatScientific(massKg, "kg"),
             _ => FormatScientific(massKg, "kg"),
         };
     }
@@ -42,6 +43,7 @@ public static class PropertyFormatter
                 CultureInfo.InvariantCulture,
                 "{0:0.0000} R\u2295",
                 radiusM / Units.EarthRadiusMeters),
+            CelestialType.Type.Comet => FormatAsteroidRadius(radiusM),
             _ => FormatAsteroidRadius(radiusM),
         };
     }

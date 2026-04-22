@@ -1,0 +1,20 @@
+Source note for StarGen research review
+
+Citation:
+Lingard, T., Masters, K. L., Krawczyk, C., Lintott, C., Kruk, S., Simmons, B., Keel, W., Nichol, R., & Baeten, E. (2021).
+Galaxy Zoo Builder: Morphological Dependence of Spiral Galaxy Pitch Angle.
+Monthly Notices of the Royal Astronomical Society, 504(3), 3364-3374.
+arXiv: https://arxiv.org/abs/2105.04500
+DOI: https://doi.org/10.1093/mnras/stab1072
+
+What was reviewed:
+- arXiv abstract and source metadata on 2026-04-19.
+
+Key implementation notes used in StarGen:
+- The paper focuses on pitch angle as an observable tied to spiral-arm formation and evolution.
+- It finds observations consistent with transient and recurrent spiral winding models, which is useful when StarGen distinguishes between cleaner grand-design patterns and more recurrent or broken arm structures.
+- The paper also reinforces that pitch angle is a real morphology signal, even if it should not be oversold as a single-cause parameter.
+
+How StarGen uses this:
+- Supports the scientific framing for the spiral-arm pitch control.
+- Supports keeping arm-mechanism wording honest by treating the modes as simplified observational pattern families rather than exact formation proofs.

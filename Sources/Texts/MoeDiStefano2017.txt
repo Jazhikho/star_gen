@@ -1,0 +1,20 @@
+Source note for StarGen research review
+
+Citation:
+Moe, M., & Di Stefano, R. (2017).
+Mind your Ps and Qs: The interrelation between period (P) and mass-ratio (Q) distributions of binary stars.
+The Astrophysical Journal Supplement Series, 230(2), 15.
+arXiv: https://arxiv.org/abs/1606.05347
+DOI: https://doi.org/10.3847/1538-4365/aa6fb6
+
+What was reviewed:
+- arXiv abstract and source metadata on 2026-03-28.
+
+Key implementation notes used in StarGen:
+- The paper is a meta-analysis that combines spectroscopic, eclipsing, interferometric, and imaging surveys.
+- Its core framing is that binary-star period and mass-ratio distributions are linked and depend strongly on primary mass.
+- This supports moving away from treating every extra star in a system as a fully independent random draw from the same population.
+
+How StarGen uses this:
+- As the basis for sampling companion masses from a primary-conditioned mass-ratio distribution instead of generating companions as unrelated field stars.
+- As support for making close and wide companions part of one empirical multiplicity model rather than separate ad hoc heuristics.

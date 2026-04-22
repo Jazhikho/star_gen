@@ -18,13 +18,27 @@ public static class DensitySampler
     /// </summary>
     public static GalaxySample SampleGalaxy(GalaxySpec spec, int numPoints, SeededRng rng)
     {
-        return spec.Type switch
+        if (spec.Type == GalaxySpec.GalaxyType.Spiral)
         {
-            GalaxySpec.GalaxyType.Spiral => SampleSpiralGalaxy(spec, numPoints, rng),
-            GalaxySpec.GalaxyType.Elliptical => SampleEllipticalGalaxy(spec, numPoints, rng),
-            GalaxySpec.GalaxyType.Irregular => SampleIrregularGalaxy(spec, numPoints, rng),
-            _ => SampleSpiralGalaxy(spec, numPoints, rng),
-        };
+            return SampleSpiralGalaxy(spec, numPoints, rng);
+        }
+
+        if (spec.Type == GalaxySpec.GalaxyType.Elliptical)
+        {
+            return SampleEllipticalGalaxy(spec, numPoints, rng);
+        }
+
+        if (spec.Type == GalaxySpec.GalaxyType.Lenticular)
+        {
+            return SampleLenticularGalaxy(spec, numPoints, rng);
+        }
+
+        if (spec.Type == GalaxySpec.GalaxyType.Irregular)
+        {
+            return SampleIrregularGalaxy(spec, numPoints, rng);
+        }
+
+        return SampleSpiralGalaxy(spec, numPoints, rng);
     }
 
     /// <summary>
@@ -51,6 +65,20 @@ public static class DensitySampler
         EllipticalDensityModel densityModel = new(spec);
         sample.BulgePoints = SampleEllipsoid(densityModel, numPoints, rng);
         sample.DiskPoints = System.Array.Empty<Vector3>();
+        return sample;
+    }
+
+    /// <summary>
+    /// Samples a lenticular galaxy as a bulge plus smooth disk with no active spiral-arm filtering.
+    /// </summary>
+    private static GalaxySample SampleLenticularGalaxy(GalaxySpec spec, int numPoints, SeededRng rng)
+    {
+        GalaxySample sample = new GalaxySample();
+        LenticularDensityModel densityModel = new LenticularDensityModel(spec);
+        int bulgeCount = Mathf.RoundToInt(numPoints * Mathf.Clamp((float)spec.BulgeToTotal, 0.2f, 0.75f));
+        int diskCount = numPoints - bulgeCount;
+        sample.BulgePoints = SampleGaussianBulge(spec, bulgeCount, rng);
+        sample.DiskPoints = SampleSmoothDisk(spec, densityModel, diskCount, rng);
         return sample;
     }
 
@@ -229,6 +257,56 @@ public static class DensitySampler
 
             float density = densityModel.GetDensity(position);
             float acceptance = Mathf.Clamp(density / peakDensity, 0.0f, 1.0f);
+            if (rng.Randf() <= acceptance)
+            {
+                points[accepted] = position;
+                accepted += 1;
+            }
+        }
+
+        if (accepted < count)
+        {
+            System.Array.Resize(ref points, accepted);
+        }
+
+        return points;
+    }
+
+    /// <summary>
+    /// Samples a smooth disk without spiral-arm rejection filtering.
+    /// </summary>
+    private static Vector3[] SampleSmoothDisk(
+        GalaxySpec spec,
+        DensityModelInterface densityModel,
+        int count,
+        SeededRng rng)
+    {
+        Vector3[] points = new Vector3[count];
+        int accepted = 0;
+        int attempt = 0;
+        int maxAttempts = count * MaxAttemptsPerPoint;
+        float peakDensity = densityModel.GetPeakDensity();
+        while (accepted < count && attempt < maxAttempts)
+        {
+            attempt += 1;
+            float radialDistance = SampleGamma2((float)spec.DiskScaleLengthPc, rng);
+            if (radialDistance > spec.RadiusPc)
+            {
+                continue;
+            }
+
+            float theta = rng.Randf() * Mathf.Tau;
+            float height = SampleLaplace((float)spec.DiskScaleHeightPc, rng);
+            if (Mathf.Abs(height) > spec.HeightPc)
+            {
+                continue;
+            }
+
+            Vector3 position = new Vector3(
+                radialDistance * Mathf.Cos(theta),
+                height,
+                radialDistance * Mathf.Sin(theta));
+            float acceptance = Mathf.Clamp(densityModel.GetDensity(position) / peakDensity, 0.0f, 1.0f);
             if (rng.Randf() <= acceptance)
             {
                 points[accepted] = position;

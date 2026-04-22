@@ -18,8 +18,9 @@ public partial class ObjectViewer
 		_sidePanel = GetNodeOrNull<Control>("UI/SidePanel");
 		_backButton = GetNodeOrNull<Button>("UI/TopBar/MarginContainer/TopBarVBox/HeaderRow/BackButton");
 		_statusLabel = GetNodeOrNull<Label>("UI/TopBar/MarginContainer/TopBarVBox/HeaderRow/StatusLabel");
-		_inspectorPanel = GetNodeOrNull<Node>("UI/SidePanel/MarginContainer/ScrollContainer/VBoxContainer");
+		_inspectorPanel = GetNodeOrNull<Node>("UI/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/InspectorPanel");
 		_generationSection = GetNodeOrNull<Control>("UI/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/GenerationSection");
+		_fileSection = GetNodeOrNull<Control>("UI/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/FileSection");
 		_typeOption = GetNodeOrNull<OptionButton>("UI/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/GenerationSection/TypeContainer/TypeOption");
 		_seedInput = GetNodeOrNull<SpinBox>("UI/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/GenerationSection/SeedContainer/SeedInput");
 		_populationContainer = GetNodeOrNull<HBoxContainer>("UI/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/GenerationSection/PopulationContainer");
@@ -37,6 +38,17 @@ public partial class ObjectViewer
 		_loadButton = GetNodeOrNull<Button>("UI/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/FileSection/FileButtonContainer/LoadButton");
 		_fileInfo = GetNodeOrNull<Label>("UI/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/FileSection/FileInfo");
 		_emptyStateLabel = GetNodeOrNull<Label>("UI/EmptyStateLabel");
+		_optionsDialog = GetNodeOrNull<Window>("OptionsDialog");
+		_fullscreenCheck = GetNodeOrNull<CheckBox>("OptionsDialog/MarginContainer/OptionsVBox/FullscreenCheck");
+		_showSeedControlsCheck = GetNodeOrNull<CheckBox>("OptionsDialog/MarginContainer/OptionsVBox/ShowSeedControlsCheck");
+		_skipIntroCheck = GetNodeOrNull<CheckBox>("OptionsDialog/MarginContainer/OptionsVBox/SkipIntroCheck");
+		_resolutionOption = GetNodeOrNull<OptionButton>("OptionsDialog/MarginContainer/OptionsVBox/ResolutionRow/ResolutionOption");
+		_applyOptionsButton = GetNodeOrNull<Button>("OptionsDialog/MarginContainer/OptionsVBox/ButtonRow/ApplyOptionsButton");
+		_optionsStatusLabel = GetNodeOrNull<Label>("OptionsDialog/MarginContainer/OptionsVBox/OptionsStatusLabel");
+		_optionsDialogCloseButton = GetNodeOrNull<Button>("OptionsDialog/MarginContainer/OptionsVBox/ButtonRow/CloseButton");
+		_cameraPanel = GetNodeOrNull<Control>("UI/CameraPanel");
+		_cameraPanelHeaderButton = GetNodeOrNull<Button>("UI/CameraPanel/CameraPanelVBox/CameraPanelHeaderButton");
+		_cameraPanelContent = GetNodeOrNull<Control>("UI/CameraPanel/CameraPanelVBox/CameraPanelContent");
 		_saveFileDialog = GetNodeOrNull<FileDialog>("SaveFileDialog");
 		_loadFileDialog = GetNodeOrNull<FileDialog>("LoadFileDialog");
 		_cameraRig = GetNodeOrNull<Node3D>("CameraRig");
@@ -125,6 +137,12 @@ public partial class ObjectViewer
 		{
 			_backButton.Pressed += OnBackPressed;
 		}
+
+        if (_cameraPanelHeaderButton != null)
+        {
+            _cameraPanelHeaderButton.Pressed += ToggleCameraPanel;
+            InitializeCameraPanelLayout();
+        }
 	}
 
 	private void DisplayBodyWithMoons(CelestialBody body, Godot.Collections.Array<CelestialBody> moons)
@@ -189,6 +207,11 @@ public partial class ObjectViewer
 		}
 
 		if (body.Type == CelestialType.Type.Asteroid)
+		{
+			return (float)(radiusM / 1000.0);
+		}
+
+		if (body.Type == CelestialType.Type.Comet)
 		{
 			return (float)(radiusM / 1000.0);
 		}
@@ -527,6 +550,10 @@ public partial class ObjectViewer
 		else if (body.Type == CelestialType.Type.Asteroid)
 		{
 			directionalLight.LightEnergy = 1.0f;
+		}
+		else if (body.Type == CelestialType.Type.Comet)
+		{
+			directionalLight.LightEnergy = 0.8f;
 		}
 		else
 		{

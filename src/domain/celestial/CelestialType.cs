@@ -14,6 +14,7 @@ public static class CelestialType
         Planet,
         Moon,
         Asteroid,
+        Comet,
     }
 
     /// <summary>
@@ -27,6 +28,7 @@ public static class CelestialType
             Type.Planet => "Planet",
             Type.Moon => "Moon",
             Type.Asteroid => "Asteroid",
+            Type.Comet => "Comet",
             _ => "Unknown",
         };
     }
@@ -49,6 +51,9 @@ public static class CelestialType
                 return true;
             case "asteroid":
                 type = Type.Asteroid;
+                return true;
+            case "comet":
+                type = Type.Comet;
                 return true;
             default:
                 type = default;

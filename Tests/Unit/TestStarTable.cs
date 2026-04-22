@@ -100,6 +100,18 @@ public static class TestStarTable
         {
             throw new InvalidOperationException($"Expected O for 35000 K, got {StarTable.ClassFromTemperature(35000.0)}");
         }
+        if (StarTable.ClassFromTemperature(1800.0) != StarClass.SpectralClass.L)
+        {
+            throw new InvalidOperationException($"Expected L for 1800 K, got {StarTable.ClassFromTemperature(1800.0)}");
+        }
+        if (StarTable.ClassFromTemperature(900.0) != StarClass.SpectralClass.T)
+        {
+            throw new InvalidOperationException($"Expected T for 900 K, got {StarTable.ClassFromTemperature(900.0)}");
+        }
+        if (StarTable.ClassFromTemperature(350.0) != StarClass.SpectralClass.Y)
+        {
+            throw new InvalidOperationException($"Expected Y for 350 K, got {StarTable.ClassFromTemperature(350.0)}");
+        }
     }
 
     /// <summary>
@@ -133,6 +145,29 @@ public static class TestStarTable
         if (oLife.Max >= mLife.Min)
         {
             throw new InvalidOperationException($"O stars should have shorter lifetimes than M stars. O max: {oLife.Max}, M min: {mLife.Min}");
+        }
+    }
+
+    /// <summary>
+    /// Tests brown-dwarf mass ranges stay below the hydrogen-burning regime.
+    /// </summary>
+    public static void TestBrownDwarfMassRanges()
+    {
+        (double Min, double Max) lRange = StarTable.GetMassRange(StarClass.SpectralClass.L);
+        (double Min, double Max) tRange = StarTable.GetMassRange(StarClass.SpectralClass.T);
+        (double Min, double Max) yRange = StarTable.GetMassRange(StarClass.SpectralClass.Y);
+
+        if (lRange.Max >= 0.08)
+        {
+            throw new InvalidOperationException($"L dwarfs should stay below the hydrogen-burning limit, got max mass {lRange.Max}");
+        }
+        if (tRange.Max >= lRange.Max)
+        {
+            throw new InvalidOperationException("T dwarfs should occupy a cooler, lower-mass regime than L dwarfs");
+        }
+        if (yRange.Max >= tRange.Max)
+        {
+            throw new InvalidOperationException("Y dwarfs should occupy a cooler, lower-mass regime than T dwarfs");
         }
     }
 }

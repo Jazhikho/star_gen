@@ -57,13 +57,18 @@ public static class SystemPlanetGenerator
         Array<CelestialBody> stars,
         SeededRng rng,
         bool enablePopulation = false,
-        GenerationUseCaseSettings? useCaseSettings = null)
+        GenerationUseCaseSettings? useCaseSettings = null,
+        SolarSystemSpec? systemSpec = null)
     {
         PlanetGenerationResult result = new()
         {
             Slots = CloneSlots(slots),
         };
         System.Collections.Generic.Dictionary<string, OrbitHost> hostMap = BuildHostMap(orbitHosts);
+        PlanetarySystemState planetaryState = PlanetarySystemState.Build(systemSpec, stars);
+        RpgCompatibilityProfile compatibilityProfile = useCaseSettings?.GetCompatibilityProfile()
+            ?? RpgCompatibilityProfile.Resolve(GenerationUseCaseSettings.RulesetModeType.Default);
+        string preferredMainworldSlotId = SelectPreferredMainworldSlotId(result.Slots, planetaryState, useCaseSettings, compatibilityProfile);
 
         foreach (OrbitSlot slot in result.Slots)
         {
@@ -72,7 +77,8 @@ public static class SystemPlanetGenerator
                 continue;
             }
 
-            if (!ShouldFillSlot(slot, rng))
+            bool targetMainworldSlot = slot.Id == preferredMainworldSlotId;
+            if (!ShouldFillSlot(slot, rng, planetaryState, compatibilityProfile, targetMainworldSlot))
             {
                 continue;
             }
@@ -82,7 +88,16 @@ public static class SystemPlanetGenerator
                 continue;
             }
 
-            CelestialBody? planet = GeneratePlanetForSlot(slot, hostMap[slot.OrbitHostId], stars, rng, enablePopulation, useCaseSettings);
+            CelestialBody? planet = GeneratePlanetForSlot(
+                slot,
+                hostMap[slot.OrbitHostId],
+                stars,
+                rng,
+                enablePopulation,
+                useCaseSettings,
+                planetaryState,
+                compatibilityProfile,
+                targetMainworldSlot);
             if (planet != null)
             {
                 result.Planets.Add(planet);
@@ -104,22 +119,27 @@ public static class SystemPlanetGenerator
         int targetCount,
         SeededRng rng,
         bool enablePopulation = false,
-        GenerationUseCaseSettings? useCaseSettings = null)
+        GenerationUseCaseSettings? useCaseSettings = null,
+        SolarSystemSpec? systemSpec = null)
     {
         PlanetGenerationResult result = new()
         {
             Slots = CloneSlots(slots),
         };
         System.Collections.Generic.Dictionary<string, OrbitHost> hostMap = BuildHostMap(orbitHosts);
+        PlanetarySystemState planetaryState = PlanetarySystemState.Build(systemSpec, stars);
+        RpgCompatibilityProfile compatibilityProfile = useCaseSettings?.GetCompatibilityProfile()
+            ?? RpgCompatibilityProfile.Resolve(GenerationUseCaseSettings.RulesetModeType.Default);
         Array<OrbitSlot> availableSlots = new();
         System.Collections.Generic.Dictionary<OrbitSlot, double> slotScores = new();
+        string preferredMainworldSlotId = SelectPreferredMainworldSlotId(result.Slots, planetaryState, useCaseSettings, compatibilityProfile);
 
         foreach (OrbitSlot slot in result.Slots)
         {
             if (slot.IsAvailable())
             {
                 availableSlots.Add(slot);
-                slotScores[slot] = slot.FillProbability + (rng.Randf() * 0.3);
+                slotScores[slot] = GetSlotOrderingScore(slot, planetaryState, compatibilityProfile, slot.Id == preferredMainworldSlotId) + (rng.Randf() * 0.3);
             }
         }
 
@@ -138,7 +158,17 @@ public static class SystemPlanetGenerator
                 continue;
             }
 
-            CelestialBody? planet = GeneratePlanetForSlot(slot, hostMap[slot.OrbitHostId], stars, rng, enablePopulation, useCaseSettings);
+            bool targetMainworldSlot = slot.Id == preferredMainworldSlotId;
+            CelestialBody? planet = GeneratePlanetForSlot(
+                slot,
+                hostMap[slot.OrbitHostId],
+                stars,
+                rng,
+                enablePopulation,
+                useCaseSettings,
+                planetaryState,
+                compatibilityProfile,
+                targetMainworldSlot);
             if (planet != null)
             {
                 result.Planets.Add(planet);
@@ -428,22 +458,26 @@ public static class SystemPlanetGenerator
         Array<CelestialBody> stars,
         SeededRng rng,
         bool enablePopulation,
-        GenerationUseCaseSettings? useCaseSettings)
+        GenerationUseCaseSettings? useCaseSettings,
+        PlanetarySystemState planetaryState,
+        RpgCompatibilityProfile compatibilityProfile,
+        bool targetMainworldSlot)
     {
-        SizeCategory.Category sizeCategory = DetermineSizeCategory(slot.Zone, rng);
+        SizeCategory.Category sizeCategory = DetermineSizeCategory(slot, planetaryState, rng, compatibilityProfile, targetMainworldSlot);
         int planetSeed = unchecked((int)rng.Randi());
         PlanetSpec spec = new(
             planetSeed,
             (int)sizeCategory,
             (int)slot.Zone,
             useCaseSettings: useCaseSettings);
+        ApplyAggregatePlanetaryContext(spec, slot, planetaryState, rng, compatibilityProfile, targetMainworldSlot);
         spec.SetOverride("orbital.semi_major_axis_m", slot.SemiMajorAxisM);
         if (slot.SuggestedEccentricity > 0.0)
         {
             spec.SetOverride("orbital.eccentricity", slot.SuggestedEccentricity);
         }
 
-        ParentContext context = CreateParentContext(host, stars, slot.SemiMajorAxisM);
+        ParentContext context = CreateParentContext(host, stars, slot.SemiMajorAxisM, planetaryState);
         SeededRng planetRng = new(planetSeed);
         CelestialBody planet = PlanetGenerator.Generate(spec, context, planetRng, enablePopulation);
         planet.Id = $"planet_{slot.Id}";
@@ -463,14 +497,106 @@ public static class SystemPlanetGenerator
     /// <summary>
     /// Selects a size category based on orbit zone.
     /// </summary>
-    private static SizeCategory.Category DetermineSizeCategory(OrbitZone.Zone zone, SeededRng rng)
+    private static SizeCategory.Category DetermineSizeCategory(
+        OrbitSlot slot,
+        PlanetarySystemState planetaryState,
+        SeededRng rng,
+        RpgCompatibilityProfile compatibilityProfile,
+        bool targetMainworldSlot)
     {
+        OrbitZone.Zone zone = slot.Zone;
         System.Collections.Generic.Dictionary<SizeCategory.Category, float> weights = zone switch
         {
-            OrbitZone.Zone.Hot => HotZoneWeights,
-            OrbitZone.Zone.Cold => ColdZoneWeights,
-            _ => TemperateZoneWeights,
+            OrbitZone.Zone.Hot => CloneWeights(HotZoneWeights),
+            OrbitZone.Zone.Cold => CloneWeights(ColdZoneWeights),
+            _ => CloneWeights(TemperateZoneWeights),
         };
+
+        double orbitAu = slot.GetSemiMajorAxisAu();
+        bool beyondSnowLine = orbitAu >= planetaryState.SnowLineAu;
+        double fluxEarth = planetaryState.GetFluxEarth(orbitAu);
+        double habitableAlignment = planetaryState.GetHabitableZoneAlignment(orbitAu);
+        double snowLineGiantWeight = planetaryState.GetSnowLineGiantFormationWeight(orbitAu);
+        double compactInnerWeight = planetaryState.GetCompactInnerArchitectureWeight(orbitAu);
+        double compactRegionEdgeAu = System.Math.Max(1.6, planetaryState.SnowLineAu * 0.70);
+        bool inCompactInnerRegion = orbitAu <= compactRegionEdgeAu;
+        bool insideLossRegime = fluxEarth >= 1.8 || orbitAu <= (planetaryState.HabitableZoneInnerAu * 0.85);
+
+        weights[SizeCategory.Category.GasGiant] = (float)(
+            weights[SizeCategory.Category.GasGiant]
+            * planetaryState.GasGiantWeight
+            * snowLineGiantWeight);
+        if (!beyondSnowLine)
+        {
+            weights[SizeCategory.Category.GasGiant] *= 0.72f;
+        }
+
+        weights[SizeCategory.Category.NeptuneClass] = (float)(
+            weights[SizeCategory.Category.NeptuneClass]
+            * planetaryState.GasBudgetScalar
+            * (0.70 + (0.50 * snowLineGiantWeight)));
+        weights[SizeCategory.Category.MiniNeptune] = (float)(
+            weights[SizeCategory.Category.MiniNeptune]
+            * (0.82 + (planetaryState.GasBudgetScalar * 0.22)));
+        weights[SizeCategory.Category.Terrestrial] = (float)(weights[SizeCategory.Category.Terrestrial] * (0.85 + (planetaryState.SolidBudgetScalar * 0.45)));
+        weights[SizeCategory.Category.SuperEarth] = (float)(
+            weights[SizeCategory.Category.SuperEarth]
+            * (0.72 + (planetaryState.SolidBudgetScalar * 0.30)));
+        weights[SizeCategory.Category.Dwarf] = (float)(weights[SizeCategory.Category.Dwarf] * (0.85 + (planetaryState.ImpactStirring * 0.18)));
+        weights[SizeCategory.Category.SubTerrestrial] = (float)(weights[SizeCategory.Category.SubTerrestrial] * (0.88 + (planetaryState.ImpactStirring * 0.15)));
+
+        if (inCompactInnerRegion)
+        {
+            weights[SizeCategory.Category.SuperEarth] *= (float)(0.88 + (compactInnerWeight * 0.28));
+            weights[SizeCategory.Category.MiniNeptune] *= (float)(0.92 + (compactInnerWeight * 0.18));
+            weights[SizeCategory.Category.GasGiant] *= 0.92f;
+        }
+
+        if (orbitAu > planetaryState.SnowLineAu * 3.50)
+        {
+            weights[SizeCategory.Category.GasGiant] *= 0.82f;
+            weights[SizeCategory.Category.NeptuneClass] *= 0.92f;
+        }
+
+        if (insideLossRegime)
+        {
+            weights[SizeCategory.Category.MiniNeptune] *= planetaryState.Profile.EnvelopeLossModel switch
+            {
+                PlanetEnvelopeLossModel.Photoevaporation => 0.45f,
+                PlanetEnvelopeLossModel.CorePowered => 0.65f,
+                _ => 0.55f,
+            };
+            weights[SizeCategory.Category.NeptuneClass] *= 0.75f;
+            weights[SizeCategory.Category.SuperEarth] *= 1.18f;
+            weights[SizeCategory.Category.SubTerrestrial] *= 1.10f;
+        }
+
+        if (!beyondSnowLine && habitableAlignment > 0.60 && planetaryState.VolatileDeliveryScalar > 1.0)
+        {
+            weights[SizeCategory.Category.Terrestrial] *= 1.15f;
+            weights[SizeCategory.Category.SuperEarth] *= 1.10f;
+            weights[SizeCategory.Category.MiniNeptune] *= 0.90f;
+        }
+
+        if (beyondSnowLine && planetaryState.OuterReservoirScalar > 1.0)
+        {
+            weights[SizeCategory.Category.NeptuneClass] *= (float)(0.95 + (0.15 * snowLineGiantWeight));
+            weights[SizeCategory.Category.GasGiant] *= (float)(0.94 + (0.18 * snowLineGiantWeight));
+            weights[SizeCategory.Category.Terrestrial] *= 0.88f;
+        }
+
+        ApplyCompatibilityWeights(weights, zone, habitableAlignment, beyondSnowLine, compatibilityProfile, targetMainworldSlot);
+
+        if (planetaryState.Profile.RoguePlanetAllowance == PlanetRoguePlanetAllowance.Standard)
+        {
+            weights[SizeCategory.Category.Dwarf] *= 1.05f;
+            weights[SizeCategory.Category.SubTerrestrial] *= 1.08f;
+            weights[SizeCategory.Category.GasGiant] *= 0.92f;
+        }
+        else if (planetaryState.Profile.RoguePlanetAllowance == PlanetRoguePlanetAllowance.Off)
+        {
+            weights[SizeCategory.Category.GasGiant] *= 1.05f;
+        }
 
         List<SizeCategory.Category> categories = new();
         List<float> weightArray = new();
@@ -484,10 +610,384 @@ public static class SystemPlanetGenerator
         return selected ?? SizeCategory.Category.Terrestrial;
     }
 
+    private static void ApplyAggregatePlanetaryContext(
+        PlanetSpec spec,
+        OrbitSlot slot,
+        PlanetarySystemState state,
+        SeededRng rng,
+        RpgCompatibilityProfile compatibilityProfile,
+        bool targetMainworldSlot)
+    {
+        double orbitAu = slot.GetSemiMajorAxisAu();
+        bool beyondSnowLine = orbitAu >= state.SnowLineAu;
+        double fluxEarth = state.GetFluxEarth(orbitAu);
+        double habitableAlignment = state.GetHabitableZoneAlignment(orbitAu);
+        double snowLineGiantWeight = state.GetSnowLineGiantFormationWeight(orbitAu);
+        bool insideLossRegime = fluxEarth >= 1.8 || orbitAu <= (state.HabitableZoneInnerAu * 0.85);
+        double localVolatilePositionFactor = 0.85;
+        if (beyondSnowLine)
+        {
+            localVolatilePositionFactor = 1.10;
+        }
+        else if (habitableAlignment > 0.35)
+        {
+            localVolatilePositionFactor = 1.0;
+        }
+
+        double innerGiantDeliveryBoost = 1.0;
+        if (!beyondSnowLine)
+        {
+            innerGiantDeliveryBoost = 0.82 + (0.18 * state.GiantScatteringScalar);
+            if (habitableAlignment > 0.35)
+            {
+                innerGiantDeliveryBoost += 0.08 * state.GiantScatteringScalar;
+            }
+        }
+
+        double localVolatileDelivery = state.VolatileDeliveryScalar
+            * localVolatilePositionFactor
+            * innerGiantDeliveryBoost;
+        double localBombardment = state.BombardmentScalar * (beyondSnowLine ? 1.05 : 0.95);
+
+        spec.FormationTrace["system_state"] = state.ToDictionary();
+        spec.FormationTrace["slot_au"] = orbitAu;
+        spec.FormationTrace["snow_line_au"] = state.SnowLineAu;
+        spec.FormationTrace["beyond_snow_line"] = beyondSnowLine;
+        spec.FormationTrace["stellar_flux_earth"] = fluxEarth;
+        spec.FormationTrace["habitable_zone_inner_au"] = state.HabitableZoneInnerAu;
+        spec.FormationTrace["habitable_zone_outer_au"] = state.HabitableZoneOuterAu;
+        spec.FormationTrace["habitable_zone_alignment"] = habitableAlignment;
+        spec.FormationTrace["inside_radius_valley_regime"] = insideLossRegime;
+        spec.FormationTrace["xuv_activity_scalar"] = state.XuvActivityScalar;
+        spec.FormationTrace["outer_reservoir_scalar"] = state.OuterReservoirScalar;
+        spec.FormationTrace["snow_line_giant_weight"] = snowLineGiantWeight;
+        spec.FormationTrace["giant_scattering_scalar"] = state.GiantScatteringScalar;
+        spec.FormationTrace["volatile_delivery_scalar"] = localVolatileDelivery;
+        spec.FormationTrace["bombardment_scalar"] = localBombardment;
+
+        if (state.Profile.MassRadiusModel == PlanetMassRadiusModel.Otegi)
+        {
+            spec.FormationTrace["requested_mass_radius_model"] = "otegi_2020";
+        }
+        else
+        {
+            spec.FormationTrace["requested_mass_radius_model"] = "chen_kipping";
+        }
+
+        spec.FormationTrace["envelope_loss_model"] = state.Profile.EnvelopeLossModel.ToString();
+        spec.FormationTrace["gas_giant_formation_model"] = state.Profile.GasGiantFormationModel.ToString();
+        spec.FormationTrace["moon_formation_bias"] = state.Profile.MoonFormationBias.ToString();
+        spec.FormationTrace["rogue_planet_allowance"] = state.Profile.RoguePlanetAllowance.ToString();
+
+        if (insideLossRegime && state.Profile.EnvelopeLossModel != PlanetEnvelopeLossModel.Auto)
+        {
+            spec.EnvelopeOverride = state.Profile.EnvelopeLossModel == PlanetEnvelopeLossModel.Photoevaporation
+                ? PlanetEnvelopeOverride.Stripped
+                : PlanetEnvelopeOverride.Thin;
+        }
+
+        if (insideLossRegime && spec.ClassBias == PlanetClassBias.Auto && rng.Randf() < 0.35f)
+        {
+            spec.ClassBias = state.Profile.EnvelopeLossModel switch
+            {
+                PlanetEnvelopeLossModel.Photoevaporation => PlanetClassBias.StrippedCore,
+                PlanetEnvelopeLossModel.CorePowered => PlanetClassBias.Rocky,
+                _ => PlanetClassBias.StrippedCore,
+            };
+        }
+        else if (beyondSnowLine && spec.ClassBias == PlanetClassBias.Auto)
+        {
+            double gasGiantChance = 0.18 + (0.22 * snowLineGiantWeight);
+            if ((state.GasBudgetScalar * snowLineGiantWeight) >= 1.10 && rng.Randf() < gasGiantChance)
+            {
+                spec.ClassBias = PlanetClassBias.GasGiant;
+            }
+            else
+            {
+                spec.ClassBias = PlanetClassBias.WaterRich;
+            }
+        }
+        else if (slot.Zone == OrbitZone.Zone.Hot && state.EscapePressureProxy > 1.2 && rng.Randf() < 0.28f)
+        {
+            spec.ClassBias = PlanetClassBias.StrippedCore;
+        }
+        else if (state.GasBudgetScalar > 1.05 && rng.Randf() < 0.22f)
+        {
+            spec.ClassBias = PlanetClassBias.SubNeptune;
+        }
+
+        if (state.SolidBudgetScalar > 1.1 && spec.CompositionBias == PlanetCompositionBias.Auto && spec.ClassBias != PlanetClassBias.GasGiant)
+        {
+            spec.CompositionBias = beyondSnowLine ? PlanetCompositionBias.IcyWaterRich : PlanetCompositionBias.Rocky;
+        }
+
+        if (spec.VolatileRichness == PlanetVolatileRichness.Auto)
+        {
+            if (beyondSnowLine || localVolatileDelivery >= 1.35)
+            {
+                spec.VolatileRichness = PlanetVolatileRichness.Rich;
+            }
+            else if (insideLossRegime || localVolatileDelivery <= 0.75)
+            {
+                spec.VolatileRichness = PlanetVolatileRichness.Poor;
+            }
+            else if (habitableAlignment > 0.50)
+            {
+                spec.VolatileRichness = PlanetVolatileRichness.Moderate;
+            }
+        }
+
+        if (spec.HydrosphereTendency == PlanetHydrosphereTendency.Auto && spec.ClassBias != PlanetClassBias.GasGiant)
+        {
+            if (!beyondSnowLine && habitableAlignment > 0.55 && localVolatileDelivery >= 1.10)
+            {
+                spec.HydrosphereTendency = localVolatileDelivery >= 1.35
+                    ? PlanetHydrosphereTendency.Oceanic
+                    : PlanetHydrosphereTendency.Mixed;
+            }
+            else if (insideLossRegime || localVolatileDelivery <= 0.70)
+            {
+                spec.HydrosphereTendency = PlanetHydrosphereTendency.Dry;
+            }
+        }
+
+        if (state.Profile.MoonFormationBias == PlanetMoonFormationBias.CapturedRich)
+        {
+            spec.FormationTrace["captured_moon_bias"] = true;
+        }
+
+        if (targetMainworldSlot)
+        {
+            spec.FormationTrace["override_mainworld_candidate_bias"] = compatibilityProfile.Label;
+            if (spec.ClassBias == PlanetClassBias.Auto && habitableAlignment > 0.45 && !insideLossRegime)
+            {
+                spec.ClassBias = PlanetClassBias.Rocky;
+            }
+
+            if (spec.CompositionBias == PlanetCompositionBias.Auto && !beyondSnowLine)
+            {
+                spec.CompositionBias = PlanetCompositionBias.Rocky;
+            }
+
+            if (spec.VolatileRichness == PlanetVolatileRichness.Auto)
+            {
+                spec.VolatileRichness = PlanetVolatileRichness.Moderate;
+            }
+
+            if (spec.HydrosphereTendency == PlanetHydrosphereTendency.Auto && habitableAlignment > 0.50)
+            {
+                if (compatibilityProfile.MainworldHydrosphereBias == RpgCompatibilityProfile.MainworldHydrosphereBiasType.Oceanic)
+                {
+                    spec.HydrosphereTendency = PlanetHydrosphereTendency.Oceanic;
+                }
+                else if (compatibilityProfile.MainworldHydrosphereBias == RpgCompatibilityProfile.MainworldHydrosphereBiasType.DryLeaning)
+                {
+                    if (localVolatileDelivery >= 1.15 && habitableAlignment >= 0.75)
+                    {
+                        spec.HydrosphereTendency = PlanetHydrosphereTendency.Mixed;
+                    }
+                    else
+                    {
+                        spec.HydrosphereTendency = PlanetHydrosphereTendency.Dry;
+                    }
+                }
+                else if (compatibilityProfile.MainworldHydrosphereBias == RpgCompatibilityProfile.MainworldHydrosphereBiasType.Mixed)
+                {
+                    spec.HydrosphereTendency = PlanetHydrosphereTendency.Mixed;
+                }
+                else
+                {
+                    spec.HydrosphereTendency = PlanetHydrosphereTendency.Mixed;
+                }
+            }
+        }
+    }
+
+    private static void ApplyCompatibilityWeights(
+        System.Collections.Generic.Dictionary<SizeCategory.Category, float> weights,
+        OrbitZone.Zone zone,
+        double habitableAlignment,
+        bool beyondSnowLine,
+        RpgCompatibilityProfile compatibilityProfile,
+        bool targetMainworldSlot)
+    {
+        if (!compatibilityProfile.IsActive)
+        {
+            return;
+        }
+
+        if (habitableAlignment > 0.45 && !beyondSnowLine)
+        {
+            double terrestrialBoost = compatibilityProfile.TerrestrialWorldWeightMultiplier;
+            weights[SizeCategory.Category.Terrestrial] = (float)(weights[SizeCategory.Category.Terrestrial] * terrestrialBoost);
+            weights[SizeCategory.Category.SuperEarth] = (float)(weights[SizeCategory.Category.SuperEarth] * (1.0 + ((terrestrialBoost - 1.0) * 0.7)));
+            weights[SizeCategory.Category.GasGiant] = (float)(weights[SizeCategory.Category.GasGiant] * 0.75);
+            weights[SizeCategory.Category.NeptuneClass] = (float)(weights[SizeCategory.Category.NeptuneClass] * 0.82);
+        }
+
+        if (zone == OrbitZone.Zone.Temperate)
+        {
+            float temperateMultiplier = (float)compatibilityProfile.TemperateSlotFillMultiplier;
+            weights[SizeCategory.Category.Terrestrial] *= temperateMultiplier;
+            weights[SizeCategory.Category.SuperEarth] *= temperateMultiplier;
+        }
+        else
+        {
+            float harshMultiplier = (float)compatibilityProfile.HarshSlotFillMultiplier;
+            weights[SizeCategory.Category.Dwarf] *= harshMultiplier;
+            weights[SizeCategory.Category.SubTerrestrial] *= harshMultiplier;
+            weights[SizeCategory.Category.GasGiant] *= harshMultiplier;
+        }
+
+        if (targetMainworldSlot)
+        {
+            weights[SizeCategory.Category.Terrestrial] *= 1.65f;
+            weights[SizeCategory.Category.SuperEarth] *= 1.45f;
+            weights[SizeCategory.Category.MiniNeptune] *= 0.60f;
+            weights[SizeCategory.Category.NeptuneClass] *= 0.40f;
+            weights[SizeCategory.Category.GasGiant] *= 0.25f;
+            weights[SizeCategory.Category.Dwarf] *= 0.45f;
+            weights[SizeCategory.Category.SubTerrestrial] *= 0.55f;
+        }
+    }
+
+    private static bool ShouldFillSlot(
+        OrbitSlot slot,
+        SeededRng rng,
+        PlanetarySystemState planetaryState,
+        RpgCompatibilityProfile compatibilityProfile,
+        bool targetMainworldSlot)
+    {
+        double fillProbability = slot.FillProbability;
+        double orbitAu = slot.GetSemiMajorAxisAu();
+        double compactInnerWeight = planetaryState.GetCompactInnerArchitectureWeight(orbitAu);
+        if (compatibilityProfile.IsActive)
+        {
+            double habitableAlignment = planetaryState.GetHabitableZoneAlignment(orbitAu);
+            if (slot.Zone == OrbitZone.Zone.Temperate && habitableAlignment > 0.40)
+            {
+                fillProbability *= compatibilityProfile.TemperateSlotFillMultiplier;
+            }
+            else
+            {
+                fillProbability *= compatibilityProfile.HarshSlotFillMultiplier;
+            }
+
+            if (targetMainworldSlot)
+            {
+                if (compatibilityProfile.RecommendedMainworldPolicy == GenerationUseCaseSettings.MainworldPolicyType.Require)
+                {
+                    return true;
+                }
+
+                fillProbability = System.Math.Max(fillProbability, 0.90);
+            }
+        }
+
+        double compactRegionEdgeAu = System.Math.Max(1.6, planetaryState.SnowLineAu * 0.70);
+        if (slot.Zone != OrbitZone.Zone.Cold && orbitAu <= compactRegionEdgeAu)
+        {
+            fillProbability *= 0.92 + (0.16 * compactInnerWeight) + (0.05 * planetaryState.SolidBudgetScalar);
+        }
+
+        if (orbitAu > planetaryState.SnowLineAu * 4.0
+            && planetaryState.GetSnowLineGiantFormationWeight(orbitAu) < 0.70)
+        {
+            fillProbability *= 0.92;
+        }
+
+        return rng.Randf() < System.Math.Clamp(fillProbability, 0.0, 1.0);
+    }
+
+    private static string SelectPreferredMainworldSlotId(
+        Array<OrbitSlot> slots,
+        PlanetarySystemState planetaryState,
+        GenerationUseCaseSettings? useCaseSettings,
+        RpgCompatibilityProfile compatibilityProfile)
+    {
+        if (!compatibilityProfile.IsActive || useCaseSettings == null || useCaseSettings.MainworldPolicy == GenerationUseCaseSettings.MainworldPolicyType.None)
+        {
+            return string.Empty;
+        }
+
+        OrbitSlot? bestSlot = null;
+        double bestScore = double.MinValue;
+        foreach (OrbitSlot slot in slots)
+        {
+            if (!slot.IsAvailable())
+            {
+                continue;
+            }
+
+            double score = GetSlotOrderingScore(slot, planetaryState, compatibilityProfile, true);
+            if (score > bestScore)
+            {
+                bestScore = score;
+                bestSlot = slot;
+            }
+        }
+
+        if (bestSlot == null)
+        {
+            return string.Empty;
+        }
+
+        return bestSlot.Id;
+    }
+
+    private static double GetSlotOrderingScore(
+        OrbitSlot slot,
+        PlanetarySystemState planetaryState,
+        RpgCompatibilityProfile compatibilityProfile,
+        bool targetMainworldSlot)
+    {
+        double orbitAu = slot.GetSemiMajorAxisAu();
+        double habitableAlignment = planetaryState.GetHabitableZoneAlignment(orbitAu);
+        double fluxEarth = planetaryState.GetFluxEarth(orbitAu);
+        double score = slot.FillProbability;
+        score += habitableAlignment * 4.5;
+
+        if (slot.Zone == OrbitZone.Zone.Temperate)
+        {
+            score += 1.2 * compatibilityProfile.TemperateSlotFillMultiplier;
+        }
+        else
+        {
+            score -= 0.5 * compatibilityProfile.HarshSlotFillMultiplier;
+        }
+
+        if (fluxEarth >= 0.55 && fluxEarth <= 1.65)
+        {
+            score += 1.2;
+        }
+
+        if (targetMainworldSlot)
+        {
+            score += compatibilityProfile.TerrestrialWorldWeightMultiplier;
+        }
+
+        return score;
+    }
+
+    private static System.Collections.Generic.Dictionary<SizeCategory.Category, float> CloneWeights(System.Collections.Generic.Dictionary<SizeCategory.Category, float> source)
+    {
+        System.Collections.Generic.Dictionary<SizeCategory.Category, float> clone = new();
+        foreach (KeyValuePair<SizeCategory.Category, float> entry in source)
+        {
+            clone[entry.Key] = entry.Value;
+        }
+
+        return clone;
+    }
+
     /// <summary>
     /// Creates a parent context from an orbit host.
     /// </summary>
-    private static ParentContext CreateParentContext(OrbitHost host, Array<CelestialBody> stars, double orbitalDistanceM)
+    private static ParentContext CreateParentContext(
+        OrbitHost host,
+        Array<CelestialBody> stars,
+        double orbitalDistanceM,
+        PlanetarySystemState planetaryState)
     {
         double systemAge = 4.6e9;
         foreach (CelestialBody star in stars)
@@ -504,7 +1004,8 @@ public static class SystemPlanetGenerator
             host.CombinedLuminosityWatts,
             host.EffectiveTemperatureK,
             systemAge,
-            orbitalDistanceM);
+            orbitalDistanceM,
+            planetaryState.Profile.HabitableZoneModel);
     }
 
     /// <summary>

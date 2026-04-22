@@ -1,11 +1,13 @@
+using System;
 using Godot;
+using StarGen.App.Components;
 using StarGen.App.Shared;
 using StarGen.App.Viewer;
 using StarGen.Domain.Colonization;
-using StarGen.Domain.Concepts;
 using StarGen.Domain.Generation;
 using StarGen.Domain.Generation.Parameters;
 using StarGen.Domain.Galaxy;
+using StarGen.Services.Persistence;
 
 namespace StarGen.App.GalaxyViewer;
 
@@ -41,6 +43,7 @@ public partial class GalaxyInspectorPanel : VBoxContainer
 	private int _selectedStarSeed;
 	private Vector3 _selectedStarPosition = Vector3.Zero;
 	private StarSystemPreviewData? _currentPreview;
+	private bool _showSeedControls;
 
 	private VBoxContainer? _overviewContainer;
 	private VBoxContainer? _configEditorContainer;
@@ -65,6 +68,9 @@ public partial class GalaxyInspectorPanel : VBoxContainer
 	private VBoxContainer? _configIssuesContainer;
 	private VBoxContainer? _selectionContainer;
 	private VBoxContainer? _previewContainer;
+	private Control? _configSection;
+	private Control? _overviewSection;
+	private Control? _colonizationSection;
 	private Button? _openSystemButton;
 	private Button? _calculateRoutesButton;
 	private CheckBox? _showRoutesCheck;
@@ -74,11 +80,12 @@ public partial class GalaxyInspectorPanel : VBoxContainer
 	private GalaxyConfig? _editableConfig;
 
 	/// <summary>
-	/// Builds the inspector UI.
+	/// Binds the scene-authored inspector UI.
 	/// </summary>
 	public override void _Ready()
 	{
-		BuildUi();
+		CacheUi();
+		InitializeUi();
 	}
 
 	/// <summary>
@@ -162,74 +169,40 @@ public partial class GalaxyInspectorPanel : VBoxContainer
 	}
 
 	/// <summary>
-	/// Displays selected quadrant information.
+	/// Displays the live overview details for the active galaxy location.
 	/// </summary>
-	public void display_selected_quadrant(Vector3I coords, float density)
-	{
-		DisplaySelectedQuadrant(coords, density);
-	}
-
-	/// <summary>
-	/// Displays selected quadrant information.
-	/// </summary>
-	public void DisplaySelectedQuadrant(Vector3I coords, float density)
+	public void DisplayOverview(GalaxySpec? spec, Vector3 worldPosition, float density)
 	{
 		ClearContainer(_selectionContainer);
-		ClearStarSelection();
 		if (_selectionContainer == null)
 		{
 			return;
 		}
 
-		AddProperty(_selectionContainer, "Type", "Quadrant");
-		AddProperty(_selectionContainer, "Coordinates", FormatVector3I(coords));
-		AddProperty(_selectionContainer, "Density", density.ToString("0.0000"));
-
-		Vector3 center = GalaxyCoordinates.QuadrantToParsecCenter(coords);
-		double distKpc = center.Length() / 1000.0;
-		AddProperty(_selectionContainer, "Distance", $"{distKpc:0.00} kpc");
-	}
-
-	/// <summary>
-	/// Compatibility overload accepting double density.
-	/// </summary>
-	public void DisplaySelectedQuadrant(Vector3I coords, double density)
-	{
-		DisplaySelectedQuadrant(coords, (float)density);
-	}
-
-	/// <summary>
-	/// Displays selected sector information.
-	/// </summary>
-	public void display_selected_sector(Vector3I quadrantCoords, Vector3I sectorCoords, float density)
-	{
-		DisplaySelectedSector(quadrantCoords, sectorCoords, density);
-	}
-
-	/// <summary>
-	/// Displays selected sector information.
-	/// </summary>
-	public void DisplaySelectedSector(Vector3I quadrantCoords, Vector3I sectorCoords, float density)
-	{
-		ClearContainer(_selectionContainer);
-		ClearStarSelection();
-		if (_selectionContainer == null)
+		if (spec == null)
 		{
+			AddProperty(_selectionContainer, "Status", "No galaxy loaded");
 			return;
 		}
 
-		AddProperty(_selectionContainer, "Type", "Sector");
-		AddProperty(_selectionContainer, "Quadrant", FormatVector3I(quadrantCoords));
-		AddProperty(_selectionContainer, "Local", FormatVector3I(sectorCoords));
-		AddProperty(_selectionContainer, "Density", density.ToString("0.0000"));
-	}
+		GalaxyInspectorSelectionFormatter.SelectionLocationSummary locationSummary =
+			GalaxyInspectorSelectionFormatter.Build(worldPosition);
 
-	/// <summary>
-	/// Compatibility overload accepting double density.
-	/// </summary>
-	public void DisplaySelectedSector(Vector3I quadrantCoords, Vector3I sectorCoords, double density)
-	{
-		DisplaySelectedSector(quadrantCoords, sectorCoords, (float)density);
+		AddProperty(_selectionContainer, "Type", GetGalaxyTypeName(spec.Type));
+		if (_showSeedControls)
+		{
+			AddProperty(_selectionContainer, "Seed", spec.GalaxySeed.ToString());
+		}
+		AddProperty(_selectionContainer, "Quadrant", FormatVector3I(locationSummary.Quadrant));
+		AddProperty(_selectionContainer, "Sector", FormatVector3I(locationSummary.Sector));
+		AddProperty(_selectionContainer, "Local", FormatVector3I(locationSummary.LocalGrid));
+		AddProperty(_selectionContainer, "Density", density.ToString("0.0000"));
+		AddProperty(_selectionContainer, "Azimuth", $"{locationSummary.AzimuthDegrees:0.0} deg");
+		AddProperty(_selectionContainer, "Inclination", $"{locationSummary.InclinationDegrees:0.0} deg");
+		AddProperty(
+			_selectionContainer,
+			"Distance from Core",
+			GalaxyInspectorSelectionFormatter.FormatDistanceFromCore(locationSummary.DistanceFromCorePc));
 	}
 
 	/// <summary>
@@ -245,35 +218,9 @@ public partial class GalaxyInspectorPanel : VBoxContainer
 	/// </summary>
 	public void DisplaySelectedStar(Vector3 worldPosition, int starSeed)
 	{
-		ClearContainer(_selectionContainer);
 		_selectedStarSeed = starSeed;
 		_currentPreview = null;
 		_selectedStarPosition = worldPosition;
-
-		if (_selectionContainer != null)
-		{
-			AddProperty(_selectionContainer, "Type", "Star System");
-			AddProperty(_selectionContainer, "Seed", starSeed.ToString());
-			AddProperty(_selectionContainer, "X", $"{worldPosition.X:0.00} pc");
-			AddProperty(_selectionContainer, "Y", $"{worldPosition.Y:0.00} pc");
-			AddProperty(_selectionContainer, "Z", $"{worldPosition.Z:0.00} pc");
-
-			float distPc = worldPosition.Length();
-			string fromCenterText;
-			if (distPc > 1000.0f)
-			{
-				fromCenterText = $"{distPc / 1000.0f:0.00} kpc";
-			}
-			else
-			{
-				fromCenterText = $"{distPc:0.0} pc";
-			}
-
-			AddProperty(
-				_selectionContainer,
-				"From Center",
-				fromCenterText);
-		}
 
 		if (_openSystemButton != null)
 		{
@@ -313,66 +260,15 @@ public partial class GalaxyInspectorPanel : VBoxContainer
 			return;
 		}
 
-		AddProperty(_previewContainer, "Stars", preview.StarCount.ToString());
-		for (int index = 0; index < preview.SpectralClasses.Length; index++)
-		{
-			string spectral = preview.SpectralClasses[index];
-			float temp;
-			if (index < preview.StarTemperatures.Length)
-			{
-				temp = preview.StarTemperatures[index];
-			}
-			else
-			{
-				temp = 0.0f;
-			}
-
-			string tempText;
-			if (temp > 0.0f)
-			{
-				tempText = $"{(int)temp} K";
-			}
-			else
-			{
-				tempText = "?";
-			}
-			AddProperty(_previewContainer, $"  Star {index + 1}", $"{spectral}  {tempText}");
-		}
-
-		AddProperty(_previewContainer, "Planets", preview.PlanetCount.ToString());
-		AddProperty(_previewContainer, "Moons", preview.MoonCount.ToString());
-		AddProperty(_previewContainer, "Belts", preview.BeltCount.ToString());
-		AddProperty(_previewContainer, "Metallicity", $"{preview.Metallicity:0.00} Zsun");
-		string inhabitedText;
-		if (preview.IsInhabited)
-		{
-			inhabitedText = "Yes";
-		}
-		else
-		{
-			inhabitedText = "No";
-		}
-
-		AddProperty(_previewContainer, "Inhabited", inhabitedText);
-		if (preview.IsInhabited)
-		{
-			AddProperty(_previewContainer, "Population", PropertyFormatter.FormatPopulation(preview.TotalPopulation));
-		}
-
-		if (preview.System != null && preview.System.HasConceptResults())
-		{
-			foreach (ConceptKind kind in preview.System.ConceptResults.GetAll().Keys)
-			{
-				ConceptRunResult? result = preview.System.ConceptResults.Get(kind);
-				if (result == null)
-				{
-					continue;
-				}
-
-				string value = string.IsNullOrEmpty(result.Subtitle) ? result.Title : result.Subtitle;
-				AddProperty(_previewContainer, kind.ToString(), value);
-			}
-		}
+		GalaxyInspectorSelectionFormatter.SelectionLocationSummary locationSummary =
+			GalaxyInspectorSelectionFormatter.Build(_selectedStarPosition);
+		AddProperty(
+			_previewContainer,
+			"Coordinates",
+			GalaxyInspectorSelectionFormatter.FormatHierarchicalCoordinates(locationSummary));
+		AddProperty(_previewContainer, "Stars", BuildStarPreviewSummary(preview));
+		AddProperty(_previewContainer, "Bodies", $"{preview.PlanetCount} planets, {preview.MoonCount} moons, {preview.BeltCount} belts");
+		AddProperty(_previewContainer, "Settlement", BuildSettlementPreviewSummary(preview));
 	}
 
 	/// <summary>
@@ -388,16 +284,11 @@ public partial class GalaxyInspectorPanel : VBoxContainer
 	/// </summary>
 	public void ClearSelection()
 	{
-		ClearContainer(_selectionContainer);
 		ClearContainer(_previewContainer);
 		ClearStarSelection();
-		if (_selectionContainer != null)
-		{
-			AddProperty(_selectionContainer, "Status", "Nothing selected");
-		}
 		if (_previewContainer != null)
 		{
-			AddProperty(_previewContainer, "Status", "Select a star to preview");
+			AddProperty(_previewContainer, "Status", "No system selected");
 		}
 	}
 
@@ -608,119 +499,96 @@ public partial class GalaxyInspectorPanel : VBoxContainer
 		return _currentPreview;
 	}
 
-	private void BuildUi()
+	/// <summary>
+	/// Returns whether the legacy active-profile section is visible.
+	/// </summary>
+	public bool IsConfigSectionVisible()
 	{
-		AddThemeConstantOverride("separation", 4);
+		return _configSection?.Visible ?? false;
+	}
 
-		AddTitle("Galaxy Inspector", 14);
-		AddChild(new HSeparator());
+	/// <summary>
+	/// Returns whether the legacy overview section is visible.
+	/// </summary>
+	public bool IsOverviewSectionVisible()
+	{
+		return _overviewSection?.Visible ?? false;
+	}
 
-		AddSectionLabel("Active Profile");
-		_configEditorContainer = CreateSectionContainer("ConfigEditorContainer");
-		AddChild(_configEditorContainer);
-		BuildConfigEditorUi();
+	/// <summary>
+	/// Returns whether the legacy jump-route tools section is visible.
+	/// </summary>
+	public bool IsColonizationSectionVisible()
+	{
+		return _colonizationSection?.Visible ?? false;
+	}
 
-		AddChild(new HSeparator());
+	private void CacheUi()
+	{
+		_configSection = GetNodeOrNull<Control>("ConfigSection");
+		_overviewSection = GetNodeOrNull<Control>("OverviewSection");
+		_colonizationSection = GetNodeOrNull<Control>("ColonizationSection");
+		_configEditorContainer = GetNodeOrNull<VBoxContainer>("ConfigSection/Content/ConfigEditorContainer");
+		_profileSummaryContainer = GetNodeOrNull<VBoxContainer>("ConfigSection/Content/ConfigEditorContainer/ProfileSummaryContainer");
+		_configIssuesContainer = GetNodeOrNull<VBoxContainer>("ConfigSection/Content/ConfigEditorContainer/ConfigIssuesContainer");
+		_overviewContainer = GetNodeOrNull<VBoxContainer>("OverviewSection/Content");
+		_selectionContainer = GetNodeOrNull<VBoxContainer>("SelectionSection/Content");
+		_previewContainer = GetNodeOrNull<VBoxContainer>("PreviewSection/Content");
+		_openSystemButton = GetNodeOrNull<Button>("PreviewSection/OpenSystemButton");
+		_colonizationPermissivenessInput = GetNodeOrNull<SpinBox>("ColonizationSection/Content/ColonizationSettingsRow/ColonizationPermissivenessInput");
+		_calculateRoutesButton = GetNodeOrNull<Button>("ColonizationSection/Content/CalculateRoutesButton");
+		_showRoutesCheck = GetNodeOrNull<CheckBox>("ColonizationSection/Content/ShowRoutesCheck");
+		_jumpRoutesProgressLabel = GetNodeOrNull<Label>("ColonizationSection/Content/JumpRoutesProgressLabel");
+		_jumpRoutesProgressBar = GetNodeOrNull<ProgressBar>("ColonizationSection/Content/JumpRoutesProgressBar");
 
-		AddSectionLabel("Overview");
-		_overviewContainer = CreateSectionContainer("OverviewContainer");
-		AddChild(_overviewContainer);
-
-		AddChild(new HSeparator());
-
-		AddSectionLabel("Selection");
-		_selectionContainer = CreateSectionContainer("SelectionContainer");
-		AddChild(_selectionContainer);
-
-		AddChild(new HSeparator());
-
-		AddSectionLabel("System Preview");
-		_previewContainer = CreateSectionContainer("PreviewContainer");
-		AddChild(_previewContainer);
-
-		_openSystemButton = new Button
+		if (_openSystemButton != null)
 		{
-			Name = "OpenSystemButton",
-			Text = "Open System",
-			Visible = false,
-		};
-		_openSystemButton.Pressed += OnOpenSystemPressed;
-		AddChild(_openSystemButton);
-
-		AddChild(new HSeparator());
-
-		AddSectionLabel("Colonization Simulator");
-
-		HBoxContainer colonizationSettingsRow = new HBoxContainer();
-		colonizationSettingsRow.AddThemeConstantOverride("separation", 8);
-		Label colonizationLabel = new Label
-		{
-			Text = "Expansion:",
-			CustomMinimumSize = new Vector2(100.0f, 0.0f),
-			TooltipText = "Controls how readily the explicit colonization simulation spreads settlements from viable exporter systems.",
-		};
-		colonizationSettingsRow.AddChild(colonizationLabel);
-		_colonizationPermissivenessInput = new SpinBox
-		{
-			MinValue = 0.0,
-			MaxValue = 1.0,
-			Step = 0.01,
-			Value = GenerationUseCaseSettings.NeutralPermissiveness,
-			TooltipText = colonizationLabel.TooltipText,
-			SizeFlagsHorizontal = SizeFlags.ExpandFill,
-		};
-		colonizationSettingsRow.AddChild(_colonizationPermissivenessInput);
-		AddChild(colonizationSettingsRow);
-
-		_calculateRoutesButton = new Button
-		{
-			Name = "CalculateRoutesButton",
-			Text = "Run Colonization Simulation",
-			Visible = false,
-		};
-		_calculateRoutesButton.Pressed += OnCalculateRoutesPressed;
-		AddChild(_calculateRoutesButton);
-
-		_showRoutesCheck = new CheckBox
-		{
-			Name = "ShowRoutesCheck",
-			Text = "Show Colonization Routes",
-			ButtonPressed = true,
-			Disabled = true,
-		};
-		_showRoutesCheck.Toggled += OnShowRoutesToggled;
-		AddChild(_showRoutesCheck);
-
-		_jumpRoutesProgressLabel = new Label
-		{
-			Name = "JumpRoutesProgressLabel",
-			Text = "Preparing colonization simulation...",
-			Visible = false,
-		};
-		_jumpRoutesProgressLabel.AddThemeFontSizeOverride("font_size", 11);
-		AddChild(_jumpRoutesProgressLabel);
-
-		_jumpRoutesProgressBar = new ProgressBar
-		{
-			Name = "JumpRoutesProgressBar",
-			Visible = false,
-			ShowPercentage = false,
-			MinValue = 0.0,
-			MaxValue = 1.0,
-			Value = 0.0,
-			CustomMinimumSize = new Vector2(0.0f, 18.0f),
-			SizeFlagsHorizontal = SizeFlags.ExpandFill,
-		};
-		AddChild(_jumpRoutesProgressBar);
-
-		if (_selectionContainer != null)
-		{
-			AddProperty(_selectionContainer, "Status", "Nothing selected");
+			_openSystemButton.Pressed += OnOpenSystemPressed;
 		}
-		if (_previewContainer != null)
+
+		if (_calculateRoutesButton != null)
 		{
-			AddProperty(_previewContainer, "Status", "Select a star to preview");
+			_calculateRoutesButton.Pressed += OnCalculateRoutesPressed;
 		}
+
+		if (_showRoutesCheck != null)
+		{
+			_showRoutesCheck.Toggled += OnShowRoutesToggled;
+		}
+	}
+
+	private void InitializeUi()
+	{
+		if (_selectionContainer == null
+			|| _previewContainer == null
+			|| _profileSummaryContainer == null
+			|| _configIssuesContainer == null)
+		{
+			throw new InvalidOperationException("GalaxyInspectorPanel scene is missing required inspector nodes.");
+		}
+
+		if (_configSection != null)
+		{
+			_configSection.Visible = false;
+		}
+
+		if (_overviewSection != null)
+		{
+			_overviewSection.Visible = false;
+		}
+
+		if (_colonizationSection != null)
+		{
+			_colonizationSection.Visible = false;
+		}
+
+		_showSeedControls = StudioUiPreferencesService.LoadOrDefault().ShowSeedControls;
+		ClearContainer(_selectionContainer);
+		ClearContainer(_previewContainer);
+		AddProperty(_selectionContainer, "Status", "No galaxy loaded");
+		AddProperty(_previewContainer, "Status", "No system selected");
+		SetConfigIssues(new GenerationParameterIssueSet());
+		RebuildProfileSummary();
 	}
 
 	/// <summary>
@@ -767,9 +635,8 @@ public partial class GalaxyInspectorPanel : VBoxContainer
 
 		if (issues.Issues.Count == 0)
 		{
-			Label cleanLabel = new Label();
+			Label cleanLabel = UiSceneTemplates.InstantiateMessageLabel();
 			cleanLabel.Text = "No parameter issues.";
-			cleanLabel.AddThemeFontSizeOverride("font_size", 10);
 			cleanLabel.Modulate = new Color(0.55f, 0.75f, 0.55f, 1.0f);
 			_configIssuesContainer.AddChild(cleanLabel);
 			return;
@@ -777,10 +644,7 @@ public partial class GalaxyInspectorPanel : VBoxContainer
 
 		foreach (GenerationParameterIssue issue in issues.Issues)
 		{
-			Label issueLabel = new Label();
-			issueLabel.AutowrapMode = TextServer.AutowrapMode.Word;
-			issueLabel.CustomMinimumSize = new Vector2(220.0f, 0.0f);
-			issueLabel.AddThemeFontSizeOverride("font_size", 10);
+			Label issueLabel = UiSceneTemplates.InstantiateMessageLabel();
 			if (issue.Severity == GenerationParameterIssue.IssueSeverity.Error)
 			{
 				issueLabel.Modulate = new Color(1.0f, 0.45f, 0.45f, 1.0f);
@@ -826,40 +690,6 @@ public partial class GalaxyInspectorPanel : VBoxContainer
 	private void OnShowRoutesToggled(bool enabled)
 	{
 		EmitSignal(SignalName.JumpRoutesVisibilityToggled, enabled);
-	}
-
-	private static VBoxContainer CreateSectionContainer(string name)
-	{
-		VBoxContainer container = new()
-		{
-			Name = name,
-		};
-		container.AddThemeConstantOverride("separation", 2);
-		return container;
-	}
-
-	private void BuildConfigEditorUi()
-	{
-		if (_configEditorContainer == null)
-		{
-			return;
-		}
-
-		_profileSummaryContainer = CreateSectionContainer("ProfileSummaryContainer");
-		_configEditorContainer.AddChild(_profileSummaryContainer);
-
-		Label noteLabel = new Label();
-		noteLabel.Text = "Galaxy parameters are configured in Galaxy Generation Studio. This viewer only shows the active profile while you inspect stars, previews, and jump routes.";
-		noteLabel.AutowrapMode = TextServer.AutowrapMode.Word;
-		noteLabel.CustomMinimumSize = new Vector2(220.0f, 0.0f);
-		noteLabel.AddThemeFontSizeOverride("font_size", 10);
-		noteLabel.Modulate = new Color(0.6f, 0.7f, 0.8f, 1.0f);
-		_configEditorContainer.AddChild(noteLabel);
-
-		_configIssuesContainer = CreateSectionContainer("ConfigIssuesContainer");
-		_configEditorContainer.AddChild(_configIssuesContainer);
-		SetConfigIssues(new GenerationParameterIssueSet());
-		RebuildProfileSummary();
 	}
 
 	private void RebuildProfileSummary()
@@ -1060,70 +890,6 @@ public partial class GalaxyInspectorPanel : VBoxContainer
 		}
 	}
 
-	private void AddEditorRow(string labelText, Control inputControl, string parameterId)
-	{
-		if (_configEditorContainer == null)
-		{
-			return;
-		}
-
-		HBoxContainer row = new HBoxContainer();
-		row.AddThemeConstantOverride("separation", 8);
-		Label label = new Label();
-		label.Text = labelText + ":";
-		label.CustomMinimumSize = new Vector2(100.0f, 0.0f);
-		label.TooltipText = GetConfigAssumption(parameterId);
-		row.AddChild(label);
-		inputControl.SizeFlagsHorizontal = Control.SizeFlags.ExpandFill;
-		inputControl.TooltipText = label.TooltipText;
-		row.AddChild(inputControl);
-		_configEditorContainer.AddChild(row);
-	}
-
-	private SpinBox CreateSpinBox(double minValue, double maxValue, double step, string suffix)
-	{
-		SpinBox spinBox = new SpinBox();
-		spinBox.MinValue = minValue;
-		spinBox.MaxValue = maxValue;
-		spinBox.Step = step;
-		spinBox.Suffix = suffix;
-		return spinBox;
-	}
-
-	private string GetConfigAssumption(string parameterId)
-	{
-		foreach (GenerationParameterDefinition definition in GenerationParameterCatalog.GetGalaxyDefinitions())
-		{
-			if (definition.Id == parameterId)
-			{
-				return definition.AssumptionText;
-			}
-		}
-
-		return string.Empty;
-	}
-
-	private void AddTitle(string text, int fontSize)
-	{
-		Label label = new()
-		{
-			Text = text,
-		};
-		label.AddThemeFontSizeOverride("font_size", fontSize);
-		AddChild(label);
-	}
-
-	private void AddSectionLabel(string text)
-	{
-		Label label = new()
-		{
-			Text = text,
-			Modulate = new Color(0.8f, 0.8f, 0.8f),
-		};
-		label.AddThemeFontSizeOverride("font_size", 12);
-		AddChild(label);
-	}
-
 	private static void ClearContainer(VBoxContainer? container)
 	{
 		if (container == null)
@@ -1139,26 +905,11 @@ public partial class GalaxyInspectorPanel : VBoxContainer
 
 	private static void AddProperty(VBoxContainer container, string key, string value)
 	{
-		HBoxContainer row = new();
-
-		Label keyLabel = new()
-		{
-			Name = "Key",
-			Text = $"{key}:",
-			Modulate = new Color(0.7f, 0.7f, 0.7f),
-			CustomMinimumSize = new Vector2(100.0f, 0.0f),
-		};
-		keyLabel.AddThemeFontSizeOverride("font_size", 11);
-		row.AddChild(keyLabel);
-
-		Label valueLabel = new()
-		{
-			Name = "Value",
-			Text = value,
-		};
-		valueLabel.AddThemeFontSizeOverride("font_size", 11);
-		row.AddChild(valueLabel);
-
+		HBoxContainer row = UiSceneTemplates.InstantiatePropertyRow();
+		Label keyLabel = UiSceneTemplates.GetRequiredChild<Label>(row, "Key");
+		Label valueLabel = UiSceneTemplates.GetRequiredChild<Label>(row, "Value");
+		keyLabel.Text = key + ":";
+		valueLabel.Text = value;
 		container.AddChild(row);
 	}
 
@@ -1168,6 +919,7 @@ public partial class GalaxyInspectorPanel : VBoxContainer
 		{
 			GalaxySpec.GalaxyType.Spiral => "Spiral",
 			GalaxySpec.GalaxyType.Elliptical => "Elliptical",
+			GalaxySpec.GalaxyType.Lenticular => "Lenticular",
 			GalaxySpec.GalaxyType.Irregular => "Irregular",
 			_ => "Unknown",
 		};
@@ -1188,6 +940,52 @@ public partial class GalaxyInspectorPanel : VBoxContainer
 	private static string FormatVector3I(Vector3I value)
 	{
 		return $"({value.X}, {value.Y}, {value.Z})";
+	}
+
+	private static string BuildStarPreviewSummary(StarSystemPreviewData preview)
+	{
+		if (preview.StarCount <= 0)
+		{
+			return "Unknown";
+		}
+
+		string spectralSummary;
+		if (preview.SpectralClasses.Length == 0)
+		{
+			spectralSummary = "type unknown";
+		}
+		else
+		{
+			int maxSpectralCount = Math.Min(preview.SpectralClasses.Length, 3);
+			string[] entries = new string[maxSpectralCount];
+			for (int index = 0; index < maxSpectralCount; index += 1)
+			{
+				entries[index] = preview.SpectralClasses[index];
+			}
+
+			spectralSummary = string.Join(", ", entries);
+			if (preview.SpectralClasses.Length > maxSpectralCount)
+			{
+				spectralSummary += ", ...";
+			}
+		}
+
+		if (preview.StarCount == 1)
+		{
+			return $"1 ({spectralSummary})";
+		}
+
+		return $"{preview.StarCount} ({spectralSummary})";
+	}
+
+	private static string BuildSettlementPreviewSummary(StarSystemPreviewData preview)
+	{
+		if (!preview.IsInhabited)
+		{
+			return "Uninhabited";
+		}
+
+		return $"Inhabited ({PropertyFormatter.FormatPopulation(preview.TotalPopulation)})";
 	}
 
 	private static GalaxySpec? ConvertVariantToGalaxySpec(Variant specVariant)

@@ -30,12 +30,26 @@ public abstract partial class DensityModelInterface : RefCounted
     /// </summary>
     public static DensityModelInterface CreateForSpec(GalaxySpec spec)
     {
-        return spec.Type switch
+        if (spec.Type == GalaxySpec.GalaxyType.Spiral)
         {
-            GalaxySpec.GalaxyType.Spiral => new SpiralDensityModel(spec),
-            GalaxySpec.GalaxyType.Elliptical => new EllipticalDensityModel(spec),
-            GalaxySpec.GalaxyType.Irregular => new IrregularDensityModel(spec),
-            _ => new SpiralDensityModel(spec),
-        };
+            return new SpiralDensityModel(spec);
+        }
+
+        if (spec.Type == GalaxySpec.GalaxyType.Elliptical)
+        {
+            return new EllipticalDensityModel(spec);
+        }
+
+        if (spec.Type == GalaxySpec.GalaxyType.Lenticular)
+        {
+            return new LenticularDensityModel(spec);
+        }
+
+        if (spec.Type == GalaxySpec.GalaxyType.Irregular)
+        {
+            return new IrregularDensityModel(spec);
+        }
+
+        return new SpiralDensityModel(spec);
     }
 }

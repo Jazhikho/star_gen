@@ -29,8 +29,8 @@ public static class GalaxySystemGenerator
             return null;
         }
 
-        SolarSystemSpec spec = CreateSpecFromStar(star, includeAsteroids, useCaseSettings);
-        if (useCaseSettings != null && useCaseSettings.IsTravellerMode())
+        SolarSystemSpec spec = CreateSpecFromStar(star, includeAsteroids, useCaseSettings, galaxy);
+        if (useCaseSettings != null && useCaseSettings.GetCompatibilityProfile().ForcePopulationGeneration)
         {
             spec.GeneratePopulation = true;
         }
@@ -62,7 +62,8 @@ public static class GalaxySystemGenerator
             stars,
             rng,
             generatePopulation,
-            spec.UseCaseSettings);
+            spec.UseCaseSettings,
+            spec);
         foreach (CelestialBody planet in planetResult.Planets)
         {
             system.AddBody(planet);
@@ -74,7 +75,8 @@ public static class GalaxySystemGenerator
             stars,
             rng,
             generatePopulation,
-            spec.UseCaseSettings);
+            spec.UseCaseSettings,
+            spec);
         foreach (CelestialBody moon in moonResult.Moons)
         {
             system.AddBody(moon);
@@ -87,7 +89,8 @@ public static class GalaxySystemGenerator
                 planetResult.Slots,
                 stars,
                 rng,
-                spec.UseCaseSettings);
+                spec.UseCaseSettings,
+                spec);
 
             foreach (AsteroidBelt belt in beltResult.Belts)
             {
@@ -166,10 +169,14 @@ public static class GalaxySystemGenerator
     /// <summary>
     /// Creates a system specification from a galaxy-star entry.
     /// </summary>
-    private static SolarSystemSpec CreateSpecFromStar(GalaxyStar star, bool includeAsteroids, GenerationUseCaseSettings? useCaseSettings)
+    private static SolarSystemSpec CreateSpecFromStar(GalaxyStar star, bool includeAsteroids, GenerationUseCaseSettings? useCaseSettings, Galaxy? galaxy)
     {
         SolarSystemSpec spec = SolarSystemSpec.RandomSmall(star.StarSeed);
         spec.SystemMetallicity = star.Metallicity;
+        spec.SystemAgeYears = star.OriginContext.AgeMeanGyr * 1.0e9;
+        spec.GalaxyContext = star.OriginContext.Clone();
+        spec.StellarProfile = star.OriginContext.StellarProfile.Clone();
+        spec.PlanetaryProfile = galaxy?.Config.PlanetaryProfile?.Clone() ?? PlanetaryGenerationProfile.CreateDefault();
         spec.IncludeAsteroidBelts = includeAsteroids;
         if (useCaseSettings != null)
         {

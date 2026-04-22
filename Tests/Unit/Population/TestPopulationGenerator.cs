@@ -308,6 +308,7 @@ public static class TestPopulationGenerator
         DotNetNativeTestSuite.AssertNotNull(data.Suitability, "Suitability should not be null");
         DotNetNativeTestSuite.AssertEqual(0, data.NativePopulations.Count, "Should have no natives");
         DotNetNativeTestSuite.AssertEqual(0, data.Colonies.Count, "Should have no colonies");
+        DotNetNativeTestSuite.AssertNull(data.SentientWorldProfile, "Profile-only data should not fabricate sentient-world baselines without population");
     }
 
     /// <summary>
@@ -326,6 +327,7 @@ public static class TestPopulationGenerator
             existingSuitability: null);
 
         DotNetNativeTestSuite.AssertEqual(0, data.NativePopulations.Count, "Should have no natives");
+        DotNetNativeTestSuite.AssertNull(data.SentientWorldProfile, "No-population worlds should not produce sentient-world baselines");
     }
 
     /// <summary>
@@ -498,6 +500,7 @@ public static class TestPopulationGenerator
         DotNetNativeTestSuite.AssertNotNull(data.Suitability, "Suitability should not be null");
         DotNetNativeTestSuite.AssertTrue(data.Suitability.IsColonizable(), "Should be colonizable");
         DotNetNativeTestSuite.AssertTrue(data.HasColonies(), "Colonizable profile should materialize at least one colony when colony generation is enabled");
+        DotNetNativeTestSuite.AssertNotNull(data.SentientWorldProfile, "Inhabited colony worlds should produce sentient-world baselines");
     }
 
     /// <summary>

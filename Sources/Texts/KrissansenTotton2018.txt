@@ -1,0 +1,15 @@
+Krissansen-Totton, J., Olson, S., & Catling, D. C. (2018).
+Disequilibrium biosignatures over Earth history and implications for detecting exoplanet life.
+arXiv:1801.08211
+https://arxiv.org/abs/1801.08211
+
+Why this source matters for StarGen
+- This paper shows that life's atmospheric detectability changes with planetary state and that remotely detectable disequilibrium is not limited to modern oxygen-rich Earth analogs.
+- It is useful for separating "life exists" from "life is externally detectable."
+
+How it is used
+- Supports adding a life-detectability layer distinct from biosphere existence in StarGen.
+- Supports treating methane-plus-carbon-dioxide disequilibrium in anoxic worlds as a meaningful context rather than using oxygen alone as the dominant surface expression of life.
+
+Human review notes
+- Use this source to add contextual detectability logic, not to replace the broader life model with a spectroscopy simulator.

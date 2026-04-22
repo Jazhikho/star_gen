@@ -1,0 +1,21 @@
+Source note for StarGen research review
+
+Citation:
+Wordsworth, R., & Kreidberg, L. (2022).
+Atmospheres of rocky exoplanets.
+Annual Review of Astronomy and Astrophysics, 60, 159-201.
+arXiv: https://arxiv.org/abs/2112.04663
+PDF: https://people.seas.harvard.edu/~rwordsworth/papers/wordsworth2022atmospheres.pdf
+DOI: https://doi.org/10.1146/annurev-astro-052920-125632
+
+What was reviewed:
+- Abstract, review summary, and source metadata on 2026-04-19.
+
+Key implementation notes used in StarGen:
+- Many rocky planets likely form with early H2-He envelopes that can later be lost through stellar UV/X-ray irradiation and internal heating.
+- Rocky-planet atmospheres should be treated as outcomes of flux, escape, volatile inventory, and interior exchange, not as decorative labels disconnected from the rest of the world state.
+- Airless rocky planets are a real expected outcome, and atmospheric retention strongly constrains what surface conditions can stay stable.
+
+How StarGen uses this:
+- As reviewed support for Object Studio conflict notes when users force stripped or airless planets while also targeting dense pressure or ocean-heavy surface conditions.
+- As a plain-language help source explaining why direct atmosphere, hydrosphere, and envelope locks can pull against each other even though Object Studio still honors those direct choices.

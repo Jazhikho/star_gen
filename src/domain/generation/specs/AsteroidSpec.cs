@@ -20,12 +20,30 @@ public partial class AsteroidSpec : BaseSpec
     public bool IsLarge { get; set; }
 
     /// <summary>
+    /// Preferred orbit band, or -1 for random.
+    /// </summary>
+    public int OrbitBand { get; set; }
+
+    /// <summary>
+    /// Preferred density profile, or -1 for random.
+    /// </summary>
+    public int DensityProfile { get; set; }
+
+    /// <summary>
+    /// Preferred albedo profile, or -1 for random.
+    /// </summary>
+    public int AlbedoProfile { get; set; }
+
+    /// <summary>
     /// Creates a new asteroid specification.
     /// </summary>
     public AsteroidSpec(
         int generationSeed = 0,
         int asteroidType = -1,
         bool isLarge = false,
+        int orbitBand = -1,
+        int densityProfile = -1,
+        int albedoProfile = -1,
         string nameHint = "",
         Dictionary? overrides = null,
         GenerationUseCaseSettings? useCaseSettings = null)
@@ -33,6 +51,9 @@ public partial class AsteroidSpec : BaseSpec
     {
         AsteroidType = asteroidType;
         IsLarge = isLarge;
+        OrbitBand = orbitBand;
+        DensityProfile = densityProfile;
+        AlbedoProfile = albedoProfile;
     }
 
     /// <summary>
@@ -42,10 +63,13 @@ public partial class AsteroidSpec : BaseSpec
         int generationSeed,
         AsteroidTypeArchetype.Type asteroidType,
         bool isLarge = false,
+        int orbitBand = -1,
+        int densityProfile = -1,
+        int albedoProfile = -1,
         string nameHint = "",
         Dictionary? overrides = null,
         GenerationUseCaseSettings? useCaseSettings = null)
-        : this(generationSeed, (int)asteroidType, isLarge, nameHint, overrides, useCaseSettings)
+        : this(generationSeed, (int)asteroidType, isLarge, orbitBand, densityProfile, albedoProfile, nameHint, overrides, useCaseSettings)
     {
     }
 
@@ -87,9 +111,40 @@ public partial class AsteroidSpec : BaseSpec
     }
 
     /// <summary>
+    /// Creates a dark-red primitive asteroid specification.
+    /// </summary>
+    public static AsteroidSpec DarkRedPrimitive(int generationSeed)
+    {
+        return new AsteroidSpec(generationSeed, (int)AsteroidTypeArchetype.Type.DType, false, 1, 0, 0);
+    }
+
+    /// <summary>
+    /// Creates a basaltic asteroid specification.
+    /// </summary>
+    public static AsteroidSpec Basaltic(int generationSeed)
+    {
+        return new AsteroidSpec(generationSeed, (int)AsteroidTypeArchetype.Type.VType, false, 0, 2, 2);
+    }
+
+    /// <summary>
     /// Returns whether an asteroid type was specified.
     /// </summary>
     public bool HasAsteroidType() => AsteroidType >= 0;
+
+    /// <summary>
+    /// Returns whether an orbit band was specified.
+    /// </summary>
+    public bool HasOrbitBand() => OrbitBand >= 0;
+
+    /// <summary>
+    /// Returns whether a density profile was specified.
+    /// </summary>
+    public bool HasDensityProfile() => DensityProfile >= 0;
+
+    /// <summary>
+    /// Returns whether an albedo profile was specified.
+    /// </summary>
+    public bool HasAlbedoProfile() => AlbedoProfile >= 0;
 
     /// <summary>
     /// Converts this specification to a dictionary payload.
@@ -100,6 +155,9 @@ public partial class AsteroidSpec : BaseSpec
         data["spec_type"] = "asteroid";
         data["asteroid_type"] = AsteroidType;
         data["is_large"] = IsLarge;
+        data["orbit_band"] = OrbitBand;
+        data["density_profile"] = DensityProfile;
+        data["albedo_profile"] = AlbedoProfile;
         return data;
     }
 
@@ -145,7 +203,10 @@ public partial class AsteroidSpec : BaseSpec
         }
 
         bool isLarge = data.ContainsKey("is_large") && (bool)data["is_large"];
-        AsteroidSpec spec = new AsteroidSpec(generationSeed, asteroidType, isLarge, nameHint, overrides);
+        int orbitBand = data.ContainsKey("orbit_band") ? (int)data["orbit_band"] : -1;
+        int densityProfile = data.ContainsKey("density_profile") ? (int)data["density_profile"] : -1;
+        int albedoProfile = data.ContainsKey("albedo_profile") ? (int)data["albedo_profile"] : -1;
+        AsteroidSpec spec = new AsteroidSpec(generationSeed, asteroidType, isLarge, orbitBand, densityProfile, albedoProfile, nameHint, overrides);
         spec.ApplyBaseFromDictionary(data);
         return spec;
     }

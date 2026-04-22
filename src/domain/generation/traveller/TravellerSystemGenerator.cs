@@ -11,12 +11,12 @@ using StarGen.Domain.Systems;
 namespace StarGen.Domain.Generation.Traveller;
 
 /// <summary>
-/// Applies Traveller mainworld takeover to a generated system while keeping non-mainworld bodies on the realistic path.
+/// Applies a UWP-compatible mainworld takeover to a generated system while keeping non-mainworld bodies on the realistic path.
 /// </summary>
 public static class TravellerSystemGenerator
 {
     /// <summary>
-    /// Applies Traveller generation to the selected mainworld when Traveller mode is active.
+    /// Applies UWP-compatible mainworld generation to the selected mainworld when the active override uses UWP-like readouts.
     /// </summary>
     public static void ApplyTravellerMainworld(SolarSystem? system)
     {
@@ -26,7 +26,7 @@ public static class TravellerSystemGenerator
         }
 
         GenerationUseCaseSettings? settings = ResolveUseCaseSettings(system);
-        if (settings == null || !settings.IsTravellerMode())
+        if (settings == null || !settings.UsesUwpLikeReadouts())
         {
             system.TravellerProfile = null;
             return;
@@ -295,6 +295,7 @@ public static class TravellerSystemGenerator
                 planetOrbitalDistanceM = parentBody.Orbital.SemiMajorAxisM;
             }
 
+            PlanetHabitableZoneModel habitableZoneModel = ResolveHabitableZoneModel(system);
             return ParentContext.ForMoon(
                 stellarMassKg,
                 stellarLuminosityWatts,
@@ -303,15 +304,18 @@ public static class TravellerSystemGenerator
                 planetOrbitalDistanceM,
                 parentBody.Physical.MassKg,
                 parentBody.Physical.RadiusM,
-                orbitalDistanceM);
+                orbitalDistanceM,
+                habitableZoneModel);
         }
 
+        PlanetHabitableZoneModel systemHabitableZoneModel = ResolveHabitableZoneModel(system);
         return ParentContext.ForPlanet(
             stellarMassKg,
             stellarLuminosityWatts,
             stellarTemperatureK,
             stellarAgeYears,
-            orbitalDistanceM);
+            orbitalDistanceM,
+            systemHabitableZoneModel);
     }
 
     private static OrbitZone.Zone ResolveOrbitZone(CelestialBody body, ParentContext context)
@@ -325,10 +329,36 @@ public static class TravellerSystemGenerator
 
         if (body.HasOrbital() && body.Orbital != null)
         {
-            return OrbitZone.FromOrbitalDistance(body.Orbital.SemiMajorAxisM, context.StellarLuminosityWatts);
+            return OrbitZone.FromOrbitalDistance(
+                body.Orbital.SemiMajorAxisM,
+                context.StellarLuminosityWatts,
+                context.StellarTemperatureK,
+                context.HabitableZoneModel);
         }
 
         return OrbitZone.Zone.Temperate;
+    }
+
+    private static PlanetHabitableZoneModel ResolveHabitableZoneModel(SolarSystem system)
+    {
+        if (system.Provenance == null || system.Provenance.SpecSnapshot.Count == 0)
+        {
+            return PlanetHabitableZoneModel.Kopparapu2013Conservative;
+        }
+
+        if (!system.Provenance.SpecSnapshot.ContainsKey("planetary_profile"))
+        {
+            return PlanetHabitableZoneModel.Kopparapu2013Conservative;
+        }
+
+        Variant planetaryProfileVariant = system.Provenance.SpecSnapshot["planetary_profile"];
+        if (planetaryProfileVariant.VariantType != Variant.Type.Dictionary)
+        {
+            return PlanetHabitableZoneModel.Kopparapu2013Conservative;
+        }
+
+        PlanetaryGenerationProfile profile = PlanetaryGenerationProfile.FromDictionary((Dictionary)planetaryProfileVariant);
+        return profile.HabitableZoneModel;
     }
 
     private static int ResolveSystemSeed(SolarSystem system)

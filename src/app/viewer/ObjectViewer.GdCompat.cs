@@ -23,6 +23,7 @@ public partial class ObjectViewer
 		Planet = 1,
 		Moon = 2,
 		Asteroid = 3,
+		Comet = 4,
 	}
 
 	/// <summary>
@@ -122,6 +123,12 @@ public partial class ObjectViewer
 				Units.JupiterRadiusMeters,
 				5.0e8);
 			body = MoonGenerator.Generate(spec, moonContext, rng);
+		}
+		else if (objectType == ObjectType.Comet)
+		{
+			CometSpec spec = CometSpec.Random(seedValue);
+			spec.UseCaseSettings = _activeUseCaseSettings.Clone();
+			body = CometGenerator.Generate(spec, ParentContext.SunLike(5.0 * Units.AuMeters), rng);
 		}
 		else
 		{

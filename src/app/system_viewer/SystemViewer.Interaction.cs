@@ -1,4 +1,5 @@
 using Godot;
+using System.Collections.Generic;
 using StarGen.Domain.Celestial;
 using StarGen.Domain.Generation;
 using StarGen.Domain.Celestial.Serialization;
@@ -35,20 +36,6 @@ public partial class SystemViewer
             return;
         }
 
-        if (keyEvent.Keycode == Key.S && keyEvent.CtrlPressed)
-        {
-            OnSavePressed();
-            GetViewport()?.SetInputAsHandled();
-            return;
-        }
-
-        if (keyEvent.Keycode == Key.O && keyEvent.CtrlPressed)
-        {
-            OnLoadPressed();
-            GetViewport()?.SetInputAsHandled();
-            return;
-        }
-
         if (keyEvent.Keycode == Key.Escape)
         {
             if (_backNavigationVisible)
@@ -64,11 +51,6 @@ public partial class SystemViewer
     /// </summary>
     private void OnGeneratePressed()
     {
-        if (!_generationActionsVisible)
-        {
-            return;
-        }
-
         SolarSystemSpec spec = BuildCurrentSpecFromControls();
         _startupState = ViewerStartupState.ViewingExistingContent;
         _sourceStarSeed = 0;
@@ -80,18 +62,11 @@ public partial class SystemViewer
     /// </summary>
     private void OnRerollPressed()
     {
-        if (!_generationActionsVisible)
-        {
-            return;
-        }
-
-        int newSeed = (int)(GD.Randi() % 1000000);
-        if (_seedInput != null)
-        {
-            _seedInput.Value = newSeed;
-        }
-
-        OnGeneratePressed();
+        SolarSystemSpec spec = BuildCurrentSpecFromControls();
+        spec.GenerationSeed = (int)(GD.Randi() % 1000000);
+        _startupState = ViewerStartupState.ViewingExistingContent;
+        _sourceStarSeed = 0;
+        GenerateSystem(spec);
     }
 
     /// <summary>
@@ -99,6 +74,7 @@ public partial class SystemViewer
     /// </summary>
     private void OnShowOrbitsToggled(bool enabled)
     {
+        _showOrbitsVisible = enabled;
         if (_orbitsContainer != null)
         {
             _orbitsContainer.Visible = enabled;
@@ -106,41 +82,10 @@ public partial class SystemViewer
     }
 
     /// <summary>
-    /// Handles zone-visibility toggles.
-    /// </summary>
-    private void OnShowZonesToggled(bool enabled)
-    {
-        if (_zonesContainer != null)
-        {
-            _zonesContainer.Visible = enabled;
-        }
-    }
-
-    /// <summary>
-    /// Handles save-button presses.
-    /// </summary>
-    private void OnSavePressed()
-    {
-        _saveLoad.OnSavePressed(this);
-    }
-
-    /// <summary>
-    /// Handles load-button presses.
-    /// </summary>
-    private void OnLoadPressed()
-    {
-        _saveLoad.OnLoadPressed(this);
-    }
-
-    /// <summary>
     /// Updates save-button availability.
     /// </summary>
     private void UpdateSaveButtonState()
     {
-        if (_saveButton != null)
-        {
-            _saveButton.Disabled = _currentSystem == null;
-        }
     }
 
     /// <summary>
@@ -195,6 +140,7 @@ public partial class SystemViewer
                     if (belt.Id == beltId)
                     {
                         typedInspectorPanel.DisplaySelectedBelt(belt, _currentSystem);
+                        SetStatus($"Selected: {GetDisplayNameForBelt(belt)}");
                         break;
                     }
                 }
@@ -205,7 +151,6 @@ public partial class SystemViewer
             }
         }
 
-        SetStatus($"Selected: {beltId}");
     }
 
     /// <summary>
@@ -300,6 +245,44 @@ public partial class SystemViewer
     }
 
     /// <summary>
+    /// Handles asteroid-belt focus requests from the inspector overview.
+    /// </summary>
+    private void OnFocusBeltRequested(string beltId)
+    {
+        if (string.IsNullOrWhiteSpace(beltId))
+        {
+            return;
+        }
+
+        OnBeltClicked(beltId);
+    }
+
+    private string GetDisplayNameForBelt(AsteroidBelt belt)
+    {
+        if (_currentSystem == null)
+        {
+            return "Asteroid Belt";
+        }
+
+        List<AsteroidBelt> sortedBelts = new();
+        foreach (AsteroidBelt candidate in _currentSystem.AsteroidBelts)
+        {
+            sortedBelts.Add(candidate);
+        }
+
+        sortedBelts.Sort(static (left, right) => left.GetCenterM().CompareTo(right.GetCenterM()));
+        for (int index = 0; index < sortedBelts.Count; index += 1)
+        {
+            if (sortedBelts[index].Id == belt.Id)
+            {
+                return $"Asteroid Belt {index + 1}";
+            }
+        }
+
+        return "Asteroid Belt";
+    }
+
+    /// <summary>
     /// Converts host positions into a GDScript-friendly dictionary.
     /// </summary>
     private static Godot.Collections.Dictionary BuildHostPositionsDictionary(Godot.Collections.Dictionary<string, Vector3> hostPositions)
@@ -367,19 +350,6 @@ public partial class SystemViewer
         }
 
         return null;
-    }
-
-    /// <summary>
-    /// Applies ruleset defaults when the user switches to Traveller mode.
-    /// </summary>
-    private void OnRulesetModeSelected(long selectedId)
-    {
-        if (selectedId == (long)GenerationUseCaseSettings.RulesetModeType.Traveller)
-        {
-            ApplyTravellerDefaultsToControls();
-        }
-
-        RefreshGenerationValidationFromControls();
     }
 
 }

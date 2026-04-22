@@ -1,0 +1,22 @@
+Source note for StarGen research review
+
+Citation:
+Cummings, J. D., Kalirai, J. S., Tremblay, P.-E., Ramirez-Ruiz, E., & Choi, J. (2018).
+The white dwarf initial-final mass relation for progenitor stars from 0.85 to 7.5 M_sun.
+The Astrophysical Journal, 866(1), 21.
+arXiv: https://arxiv.org/abs/1809.01673
+DOI: https://doi.org/10.3847/1538-4357/aadfd6
+
+What was reviewed:
+- arXiv abstract and source metadata on 2026-03-28.
+
+Key implementation notes used in StarGen:
+- The paper measures a white-dwarf initial-final mass relation (IFMR) using Sirius B plus 79 white dwarfs from 13 star clusters.
+- The directly measured IFMR spans progenitor masses from about 0.85 to 7.5 solar masses.
+- The relation is not linear: the abstract reports a moderate slope at lower progenitor masses, a steeper slope around 2.85 to 3.6 solar masses, and another moderate slope at higher masses.
+- Total stellar mass loss rises strongly with progenitor mass, from about one third of the initial mass near the low end to more than four fifths near 7.5 solar masses.
+- Across moderate metallicities, the abstract reports no detectable metallicity sensitivity in the total mass loss.
+
+How StarGen uses this:
+- As the scientific basis for turning an old low- or intermediate-mass progenitor star into a white dwarf with a deterministic final mass.
+- As the reason white-dwarf generation is limited to progenitors that fall inside the source-supported mass range instead of treating all dead stars the same.

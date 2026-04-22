@@ -41,11 +41,13 @@ public static class SystemMoonGenerator
         Array<CelestialBody> stars,
         SeededRng rng,
         bool enablePopulation = false,
-        GenerationUseCaseSettings? useCaseSettings = null)
+        GenerationUseCaseSettings? useCaseSettings = null,
+        SolarSystemSpec? systemSpec = null)
     {
         _ = orbitHosts;
 
         MoonGenerationResult result = new();
+        PlanetarySystemState planetaryState = PlanetarySystemState.Build(systemSpec, stars);
         double stellarMassKg = Units.SolarMassKg;
         double stellarLuminosityWatts = StellarProps.SolarLuminosityWatts;
         double stellarTemperatureK = 5778.0;
@@ -71,6 +73,7 @@ public static class SystemMoonGenerator
                 stellarLuminosityWatts,
                 stellarTemperatureK,
                 stellarAgeYears,
+                planetaryState,
                 rng,
                 enablePopulation,
                 useCaseSettings);
@@ -296,6 +299,7 @@ public static class SystemMoonGenerator
         double stellarLuminosityWatts,
         double stellarTemperatureK,
         double stellarAgeYears,
+        PlanetarySystemState planetaryState,
         SeededRng rng,
         bool enablePopulation,
         GenerationUseCaseSettings? useCaseSettings)
@@ -310,7 +314,7 @@ public static class SystemMoonGenerator
         {
             planetOrbitalDistanceM = Units.AuMeters;
         }
-        int moonCount = DetermineMoonCount(planet, rng);
+        int moonCount = DetermineMoonCount(planet, planetaryState, rng);
         if (moonCount <= 0)
         {
             return moons;
@@ -338,7 +342,11 @@ public static class SystemMoonGenerator
             {
                 hillFraction = 0.0;
             }
-            bool isCaptured = hillFraction > 0.25 && rng.Randf() < CaptureProbability;
+            bool isCaptured = hillFraction > 0.25 && rng.Randf() < CalculateCaptureProbability(planet, planetaryState, hillFraction);
+            if (isCaptured)
+            {
+                moonDistance = System.Math.Max(moonDistance, hillRadiusM * rng.RandfRange(0.32f, 0.60f));
+            }
             CelestialBody? moon = GenerateSingleMoon(
                 planet,
                 moonDistance,
@@ -348,6 +356,7 @@ public static class SystemMoonGenerator
                 stellarTemperatureK,
                 stellarAgeYears,
                 planetOrbitalDistanceM,
+                planetaryState,
                 index,
                 rng,
                 enablePopulation,
@@ -365,36 +374,45 @@ public static class SystemMoonGenerator
     /// <summary>
     /// Determines the moon count for a planet based on its mass.
     /// </summary>
-    private static int DetermineMoonCount(CelestialBody planet, SeededRng rng)
+    private static int DetermineMoonCount(CelestialBody planet, PlanetarySystemState planetaryState, SeededRng rng)
     {
         double massEarth = planet.Physical.MassKg / Units.EarthMassKg;
+        double orbitAu = planet.HasOrbital() ? planet.Orbital!.SemiMajorAxisM / Units.AuMeters : planetaryState.SnowLineAu;
+        bool beyondSnowLine = orbitAu >= planetaryState.SnowLineAu;
+        double regularDiskBonus = planetaryState.Profile.MoonFormationBias switch
+        {
+            PlanetMoonFormationBias.RegularDiskFavored => 1.20,
+            PlanetMoonFormationBias.CapturedRich => 0.92,
+            _ => 1.0,
+        };
+        double outerSystemBonus = beyondSnowLine ? 1.20 : 0.90;
         int minMoons;
         int maxMoons;
         double probability;
 
         if (massEarth >= 50.0)
         {
-            minMoons = 2;
-            maxMoons = 8;
-            probability = 0.95;
+            minMoons = beyondSnowLine ? 3 : 2;
+            maxMoons = beyondSnowLine ? 12 : 8;
+            probability = 0.94 * regularDiskBonus * outerSystemBonus;
         }
         else if (massEarth >= 10.0)
         {
             minMoons = 1;
-            maxMoons = 5;
-            probability = 0.90;
+            maxMoons = beyondSnowLine ? 6 : 4;
+            probability = 0.82 * regularDiskBonus * outerSystemBonus;
         }
         else if (massEarth >= 2.0)
         {
             minMoons = 0;
-            maxMoons = 2;
-            probability = 0.40;
+            maxMoons = 1;
+            probability = 0.24 + (planetaryState.ImpactStirring * 0.08);
         }
         else if (massEarth >= 0.3)
         {
             minMoons = 0;
-            maxMoons = 2;
-            probability = 0.30;
+            maxMoons = 1;
+            probability = 0.18 + (planetaryState.ImpactStirring * 0.06);
         }
         else if (massEarth >= 0.01)
         {
@@ -409,6 +427,8 @@ public static class SystemMoonGenerator
             probability = 0.05;
         }
 
+        probability = System.Math.Clamp(probability, 0.02, 0.99);
+
         if (rng.Randf() > probability)
         {
             return 0;
@@ -420,8 +440,28 @@ public static class SystemMoonGenerator
         }
 
         double raw = rng.Randf();
-        double biased = System.Math.Pow(raw, 0.7);
-        return (int)(minMoons + ((maxMoons + 0.99 - minMoons) * biased));
+            double biasExponent = massEarth >= 10.0 ? 0.60 : 0.85;
+            double biased = System.Math.Pow(raw, biasExponent);
+            return (int)(minMoons + ((maxMoons + 0.99 - minMoons) * biased));
+    }
+
+    private static double CalculateCaptureProbability(
+        CelestialBody planet,
+        PlanetarySystemState planetaryState,
+        double hillFraction)
+    {
+        double orbitAu = planet.HasOrbital() ? planet.Orbital!.SemiMajorAxisM / Units.AuMeters : planetaryState.SnowLineAu;
+        bool beyondSnowLine = orbitAu >= planetaryState.SnowLineAu;
+        double baseProbability = beyondSnowLine ? 0.12 : 0.04;
+        baseProbability *= planetaryState.Profile.MoonFormationBias switch
+        {
+            PlanetMoonFormationBias.CapturedRich => 1.85,
+            PlanetMoonFormationBias.RegularDiskFavored => 0.55,
+            _ => 1.0,
+        };
+        baseProbability *= 0.85 + (planetaryState.ImpactStirring * 0.20);
+        baseProbability *= System.Math.Clamp(0.50 + (hillFraction * 1.40), 0.40, 1.35);
+        return System.Math.Clamp(baseProbability, 0.02, 0.60);
     }
 
     /// <summary>
@@ -503,6 +543,7 @@ public static class SystemMoonGenerator
         double stellarTemperatureK,
         double stellarAgeYears,
         double planetOrbitalDistanceM,
+        PlanetarySystemState planetaryState,
         int moonIndex,
         SeededRng rng,
         bool enablePopulation,
@@ -519,11 +560,24 @@ public static class SystemMoonGenerator
         }
         else if (planetMassEarth >= 50.0)
         {
-            sizeCategory = rng.WeightedChoice(MoonSizeCategories, GasGiantWeights);
+            float[] weights = (float[])GasGiantWeights.Clone();
+            if (planetaryState.Profile.MoonFormationBias == PlanetMoonFormationBias.RegularDiskFavored)
+            {
+                weights[2] += 8.0f;
+                weights[3] += 4.0f;
+            }
+
+            sizeCategory = rng.WeightedChoice(MoonSizeCategories, weights);
         }
         else if (planetMassEarth >= 10.0)
         {
-            sizeCategory = rng.WeightedChoice(MoonSizeCategories, IceGiantWeights);
+            float[] weights = (float[])IceGiantWeights.Clone();
+            if (planetaryState.Profile.MoonFormationBias == PlanetMoonFormationBias.RegularDiskFavored)
+            {
+                weights[2] += 4.0f;
+            }
+
+            sizeCategory = rng.WeightedChoice(MoonSizeCategories, weights);
         }
         else if (planetMassEarth >= 0.5)
         {
@@ -545,7 +599,8 @@ public static class SystemMoonGenerator
             planetOrbitalDistanceM,
             planet.Physical.MassKg,
             planet.Physical.RadiusM,
-            moonDistance);
+            moonDistance,
+            planetaryState.Profile.HabitableZoneModel);
 
         SeededRng moonRng = new(moonSeed);
         CelestialBody? moon = MoonGenerator.Generate(spec, context, moonRng, enablePopulation, planet);

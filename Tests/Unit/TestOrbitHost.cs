@@ -124,13 +124,13 @@ public static class TestOrbitHost
         double hzOuterAu = host.HabitableZoneOuterM / Units.AuMeters;
         double frostAu = host.FrostLineM / Units.AuMeters;
 
-        if (hzInnerAu < 0.9 || hzInnerAu > 1.0)
+        if (hzInnerAu < 0.97 || hzInnerAu > 1.02)
         {
-            throw new InvalidOperationException($"Expected HZ inner 0.9-1.0 AU, got {hzInnerAu}");
+            throw new InvalidOperationException($"Expected default HZ inner 0.97-1.02 AU, got {hzInnerAu}");
         }
-        if (hzOuterAu < 1.3 || hzOuterAu > 1.5)
+        if (hzOuterAu < 1.65 || hzOuterAu > 1.75)
         {
-            throw new InvalidOperationException($"Expected HZ outer 1.3-1.5 AU, got {hzOuterAu}");
+            throw new InvalidOperationException($"Expected default HZ outer 1.65-1.75 AU, got {hzOuterAu}");
         }
         if (frostAu < 2.5 || frostAu > 3.0)
         {
@@ -149,9 +149,9 @@ public static class TestOrbitHost
 
         double hzInnerAu = host.HabitableZoneInnerM / Units.AuMeters;
 
-        if (hzInnerAu < 1.8 || hzInnerAu > 2.1)
+        if (hzInnerAu < 1.95 || hzInnerAu > 2.05)
         {
-            throw new InvalidOperationException($"Expected HZ inner 1.8-2.1 AU, got {hzInnerAu}");
+            throw new InvalidOperationException($"Expected default HZ inner 1.95-2.05 AU, got {hzInnerAu}");
         }
     }
 

@@ -1,0 +1,20 @@
+Source note for StarGen research review
+
+Citation:
+Owen, J. E., & Wu, Y. (2017).
+The evaporation valley in the Kepler planets.
+The Astrophysical Journal, 847(1), 29.
+arXiv: https://arxiv.org/abs/1705.10810
+DOI: https://doi.org/10.3847/1538-4357/aa890a
+
+What was reviewed:
+- Abstract and source metadata on 2026-04-19.
+
+Key implementation notes used in StarGen:
+- The paper supports a photoevaporation-driven explanation for the radius valley in close-in low-mass planets.
+- The practical takeaway is that intense early high-energy stellar flux should make some hot close-in planets lose H/He envelopes and end up as denser bare or thin-envelope cores.
+- The paper also supports treating the loss process as strongest in the early high-activity era rather than as a uniform lifetime effect.
+
+How StarGen uses this:
+- As the named support for the `Photoevaporation` gas-loss option in aggregate planetary priors.
+- As the basis for favoring stripped or thinner hot planets when the upstream system state indicates a strong loss regime.

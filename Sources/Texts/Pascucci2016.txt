@@ -1,0 +1,21 @@
+Source note for StarGen research review
+
+Citation:
+Pascucci, I., Testi, L., Herczeg, G. J., Long, F., Manara, C. F., Hendler, N., Mulders, G. D., Krijt, S., Ciesla, F., Henning, T., Mohanty, S., Drabek-Maunder, E., Apai, D., Szucs, L., Sacco, G., & Olofsson, J. (2016).
+A steeper than linear disk mass-stellar mass scaling relation.
+The Astrophysical Journal, 831(2), 125.
+arXiv: https://arxiv.org/abs/1608.03621
+DOI: https://doi.org/10.3847/0004-637X/831/2/125
+
+What was reviewed:
+- Abstract and source metadata on 2026-04-22.
+
+Key implementation notes used in StarGen:
+- The paper presents an ALMA 887 micron survey of 93 disks in the approximately 2 Myr-old Chamaeleon I region, spanning host masses from about 2 to 0.03 solar masses.
+- It finds that the dust-disk-mass to stellar-mass relation is steeper than linear, with power-law indices between about 1.3 and 1.9.
+- The practical takeaway for StarGen is that solids budgets should scale with stellar mass more strongly than a simple linear or star-independent prior.
+
+How StarGen should use this:
+- As support for tying `SolidMassScalar` more directly to host-star mass or stellar scaffold class in `PlanetarySystemState`.
+- As a calibration reminder that low-mass stars can still produce many small planets even while carrying smaller absolute solids budgets than solar-mass stars.
+- As a source-backed reason to treat disk mass and planet count as related but not interchangeable parameters.

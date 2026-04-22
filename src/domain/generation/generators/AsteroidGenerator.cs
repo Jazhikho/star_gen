@@ -20,6 +20,8 @@ public static class AsteroidGenerator
         75.0f,
         17.0f,
         8.0f,
+        6.0f,
+        4.0f,
     };
 
     private static readonly AsteroidType.Type[] AsteroidTypes =
@@ -27,14 +29,20 @@ public static class AsteroidGenerator
         AsteroidType.Type.CType,
         AsteroidType.Type.SType,
         AsteroidType.Type.MType,
+        AsteroidType.Type.DType,
+        AsteroidType.Type.VType,
     };
 
     private const double TypicalMassMinKg = 1.0e10;
     private const double TypicalMassMaxKg = 1.0e18;
     private const double LargeMassMinKg = 1.0e19;
     private const double LargeMassMaxKg = 1.0e21;
+    private const double InnerBeltInnerAu = 1.7;
+    private const double InnerBeltOuterAu = 2.3;
     private const double MainBeltInnerAu = 2.1;
     private const double MainBeltOuterAu = 3.3;
+    private const double OuterBeltInnerAu = 3.3;
+    private const double OuterBeltOuterAu = 6.0;
     private const double BeltEccentricityMax = 0.3;
     private const double BeltInclinationMaxDeg = 30.0;
 
@@ -84,7 +92,7 @@ public static class AsteroidGenerator
         AsteroidType.Type asteroidType,
         SeededRng rng)
     {
-        Dictionary densityRange = GetDensityRange(asteroidType);
+        Dictionary densityRange = GetDensityRange(asteroidType, spec);
         double densityKgM3 = spec.GetOverrideFloat("physical.density_kg_m3", -1.0);
         if (densityKgM3 < 0.0)
         {
@@ -215,8 +223,9 @@ public static class AsteroidGenerator
         double semiMajorAxisM = spec.GetOverrideFloat("orbital.semi_major_axis_m", -1.0);
         if (semiMajorAxisM < 0.0)
         {
-            double innerM = MainBeltInnerAu * Units.AuMeters;
-            double outerM = MainBeltOuterAu * Units.AuMeters;
+            (double innerAu, double outerAu) = GetOrbitBandRange(spec);
+            double innerM = innerAu * Units.AuMeters;
+            double outerM = outerAu * Units.AuMeters;
             semiMajorAxisM = System.Math.Exp(rng.RandfRange(
                 (float)System.Math.Log(innerM),
                 (float)System.Math.Log(outerM)));
@@ -264,7 +273,7 @@ public static class AsteroidGenerator
         double equilibriumTempK,
         SeededRng rng)
     {
-        Dictionary albedoRange = GetAlbedoRange(asteroidType);
+        Dictionary albedoRange = GetAlbedoRange(asteroidType, spec);
         double albedo = spec.GetOverrideFloat("surface.albedo", -1.0);
         if (albedo < 0.0)
         {
@@ -283,27 +292,65 @@ public static class AsteroidGenerator
     }
 
     /// <summary>Returns min/max density range for the given asteroid type.</summary>
-    private static Dictionary GetDensityRange(AsteroidType.Type asteroidType)
+    private static Dictionary GetDensityRange(AsteroidType.Type asteroidType, AsteroidSpec spec)
     {
-        return asteroidType switch
+        Dictionary defaultRange = asteroidType switch
         {
             AsteroidType.Type.CType => BuildRange(1100.0, 2500.0),
             AsteroidType.Type.SType => BuildRange(2200.0, 3500.0),
             AsteroidType.Type.MType => BuildRange(4500.0, 7500.0),
+            AsteroidType.Type.DType => BuildRange(900.0, 1800.0),
+            AsteroidType.Type.VType => BuildRange(2800.0, 4200.0),
             _ => throw new InvalidOperationException($"AsteroidGenerator.GetDensityRange: unrecognized asteroid type '{asteroidType}'."),
         };
+
+        if (!spec.HasDensityProfile())
+        {
+            return defaultRange;
+        }
+
+        if (spec.DensityProfile == 0)
+        {
+            return BuildRange((double)defaultRange["min"] * 0.75, (double)defaultRange["max"] * 0.85);
+        }
+
+        if (spec.DensityProfile == 2)
+        {
+            return BuildRange((double)defaultRange["min"] * 1.1, (double)defaultRange["max"] * 1.2);
+        }
+
+        return defaultRange;
     }
 
     /// <summary>Returns min/max albedo range for the given asteroid type.</summary>
-    private static Dictionary GetAlbedoRange(AsteroidType.Type asteroidType)
+    private static Dictionary GetAlbedoRange(AsteroidType.Type asteroidType, AsteroidSpec spec)
     {
-        return asteroidType switch
+        Dictionary defaultRange = asteroidType switch
         {
             AsteroidType.Type.CType => BuildRange(0.03, 0.10),
             AsteroidType.Type.SType => BuildRange(0.10, 0.30),
             AsteroidType.Type.MType => BuildRange(0.10, 0.25),
+            AsteroidType.Type.DType => BuildRange(0.02, 0.07),
+            AsteroidType.Type.VType => BuildRange(0.25, 0.45),
             _ => throw new InvalidOperationException($"AsteroidGenerator.GetAlbedoRange: unrecognized asteroid type '{asteroidType}'."),
         };
+
+        if (!spec.HasAlbedoProfile())
+        {
+            return defaultRange;
+        }
+
+        if (spec.AlbedoProfile == 0)
+        {
+            return BuildRange((double)defaultRange["min"] * 0.7, (double)defaultRange["max"] * 0.85);
+        }
+
+        if (spec.AlbedoProfile == 2)
+        {
+            return BuildRange((double)defaultRange["min"] * 1.15, System.Math.Min((double)defaultRange["max"] * 1.3, 0.95));
+        }
+
+        return defaultRange;
     }
 
     /// <summary>Maps asteroid type to surface type string.</summary>
@@ -314,6 +361,8 @@ public static class AsteroidGenerator
             AsteroidType.Type.CType => "carbonaceous",
             AsteroidType.Type.SType => "silicaceous",
             AsteroidType.Type.MType => "metallic",
+            AsteroidType.Type.DType => "dark_red",
+            AsteroidType.Type.VType => "basaltic",
             _ => throw new InvalidOperationException($"AsteroidGenerator.GetSurfaceType: unrecognized asteroid type '{asteroidType}'."),
         };
     }
@@ -343,6 +392,18 @@ public static class AsteroidGenerator
                 composition["nickel"] = rng.RandfRange(0.10f, 0.20f);
                 composition["cobalt"] = rng.RandfRange(0.01f, 0.05f);
                 composition["silicates"] = rng.RandfRange(0.02f, 0.10f);
+                break;
+            case AsteroidType.Type.DType:
+                composition["carbon_compounds"] = rng.RandfRange(0.20f, 0.35f);
+                composition["organics"] = rng.RandfRange(0.10f, 0.22f);
+                composition["water_ice"] = rng.RandfRange(0.10f, 0.25f);
+                composition["silicates"] = rng.RandfRange(0.20f, 0.40f);
+                break;
+            case AsteroidType.Type.VType:
+                composition["silicates"] = rng.RandfRange(0.45f, 0.60f);
+                composition["pyroxene"] = rng.RandfRange(0.20f, 0.32f);
+                composition["iron_oxides"] = rng.RandfRange(0.08f, 0.18f);
+                composition["nickel_iron"] = rng.RandfRange(0.03f, 0.12f);
                 break;
             default:
                 throw new InvalidOperationException($"AsteroidGenerator.GenerateSurfaceComposition: unrecognized asteroid type '{asteroidType}'.");
@@ -430,5 +491,26 @@ public static class AsteroidGenerator
             ["min"] = min,
             ["max"] = max,
         };
+    }
+
+    /// <summary>Returns the seeded orbit-band AU range.</summary>
+    private static (double innerAu, double outerAu) GetOrbitBandRange(AsteroidSpec spec)
+    {
+        if (!spec.HasOrbitBand())
+        {
+            return (MainBeltInnerAu, MainBeltOuterAu);
+        }
+
+        if (spec.OrbitBand == 0)
+        {
+            return (InnerBeltInnerAu, InnerBeltOuterAu);
+        }
+
+        if (spec.OrbitBand == 2)
+        {
+            return (OuterBeltInnerAu, OuterBeltOuterAu);
+        }
+
+        return (MainBeltInnerAu, MainBeltOuterAu);
     }
 }

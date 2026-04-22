@@ -2,6 +2,7 @@
 #nullable disable warnings
 using System;
 using Godot.Collections;
+using StarGen.Domain.Generation;
 using StarGen.Domain.Population;
 using StarGen.Domain.Rng;
 using StarGen.Tests.Framework;
@@ -56,6 +57,30 @@ public static class TestColonyGenerator
     }
 
     /// <summary>
+    /// Creates a harsh but colonizable resource-rich profile.
+    /// </summary>
+    private static PlanetProfile CreateHarshResourceProfile()
+    {
+        PlanetProfile profile = new();
+        profile.BodyId = "harsh_resource_001";
+        profile.HabitabilityScore = 2;
+        profile.AvgTemperatureK = 245.0;
+        profile.PressureAtm = 0.08;
+        profile.HasLiquidWater = false;
+        profile.HasBreathableAtmosphere = false;
+        profile.OceanCoverage = 0.0;
+        profile.LandCoverage = 0.85;
+        profile.GravityG = 0.82;
+        profile.RadiationLevel = 0.42;
+        profile.WeatherSeverity = 0.55;
+
+        profile.Resources[(int)ResourceType.Type.Metals] = 0.8;
+        profile.Resources[(int)ResourceType.Type.RareElements] = 0.7;
+        profile.Resources[(int)ResourceType.Type.Silicates] = 0.8;
+        return profile;
+    }
+
+    /// <summary>
     /// Creates a test native population.
     /// </summary>
     private static NativePopulation CreateTestNative()
@@ -69,6 +94,48 @@ public static class TestColonyGenerator
         native.TerritorialControl = 0.4;
         native.TechLevel = TechnologyLevel.Level.Medieval;
         return native;
+    }
+
+    /// <summary>
+    /// Counts generated colony types across a deterministic seed window for one ruleset mode.
+    /// </summary>
+    private static System.Collections.Generic.Dictionary<ColonyType.Type, int> CountColonyTypes(
+        PlanetProfile profile,
+        ColonySuitability suitability,
+        GenerationUseCaseSettings.RulesetModeType rulesetMode,
+        int startSeed,
+        int sampleCount)
+    {
+        GenerationUseCaseSettings settings = GenerationUseCaseSettings.CreateDefault();
+        settings.RulesetMode = rulesetMode;
+        settings.ApplyRulesetDefaults();
+        RpgCompatibilityProfile profileDefaults = settings.GetCompatibilityProfile();
+
+        System.Collections.Generic.Dictionary<ColonyType.Type, int> counts = new();
+        for (int index = 0; index < sampleCount; index += 1)
+        {
+            Colony? colony = ColonyGenerator.Generate(
+                profile,
+                suitability,
+                new Array<NativePopulation>(),
+                new SeededRng(startSeed + index),
+                currentYear: 0,
+                minHistoryYears: 50,
+                maxHistoryYears: 300,
+                foundingTechLevel: TechnologyLevel.Level.Interstellar,
+                foundingCivilizationId: "civ_test",
+                foundingCivilizationName: "Test Civilization",
+                compatibilityProfile: profileDefaults);
+            DotNetNativeTestSuite.AssertNotNull(colony, "Profile test world should stay colonizable across sampled seeds");
+            if (!counts.ContainsKey(colony.Type))
+            {
+                counts[colony.Type] = 0;
+            }
+
+            counts[colony.Type] += 1;
+        }
+
+        return counts;
     }
 
     /// <summary>
@@ -337,6 +404,117 @@ public static class TestColonyGenerator
 
         DotNetNativeTestSuite.AssertNotNull(colony, "Colony should not be null");
         DotNetNativeTestSuite.AssertEqual(2, colony.NativeRelations.Count, "Should have 2 relations");
+    }
+
+    /// <summary>
+    /// Tests that Cepheus leans toward classic civil settlement colony types more than Starforged.
+    /// </summary>
+    public static void TestCepheusFavorsCivilSettlementColonyTypes()
+    {
+        PlanetProfile profile = CreateHabitableProfile();
+        ColonySuitability suitability = SuitabilityCalculator.Calculate(profile);
+
+        System.Collections.Generic.Dictionary<ColonyType.Type, int> cepheusCounts = CountColonyTypes(
+            profile,
+            suitability,
+            GenerationUseCaseSettings.RulesetModeType.Cepheus,
+            9000,
+            180);
+        System.Collections.Generic.Dictionary<ColonyType.Type, int> starforgedCounts = CountColonyTypes(
+            profile,
+            suitability,
+            GenerationUseCaseSettings.RulesetModeType.Starforged,
+            9000,
+            180);
+
+        int cepheusCivilCount =
+            GetColonyTypeCount(cepheusCounts, ColonyType.Type.Settlement)
+            + GetColonyTypeCount(cepheusCounts, ColonyType.Type.Agricultural)
+            + GetColonyTypeCount(cepheusCounts, ColonyType.Type.Industrial);
+        int starforgedCivilCount =
+            GetColonyTypeCount(starforgedCounts, ColonyType.Type.Settlement)
+            + GetColonyTypeCount(starforgedCounts, ColonyType.Type.Agricultural)
+            + GetColonyTypeCount(starforgedCounts, ColonyType.Type.Industrial);
+
+        DotNetNativeTestSuite.AssertTrue(cepheusCivilCount > starforgedCivilCount, "Cepheus should favor settlement, agricultural, and industrial colonies more than Starforged on good colony worlds");
+    }
+
+    /// <summary>
+    /// Tests that Starfinder leans toward scientific and corporate harsh-world colonies.
+    /// </summary>
+    public static void TestStarfinderFavorsScientificCorporateHarshColonies()
+    {
+        PlanetProfile profile = CreateHarshResourceProfile();
+        ColonySuitability suitability = SuitabilityCalculator.Calculate(profile);
+
+        System.Collections.Generic.Dictionary<ColonyType.Type, int> cepheusCounts = CountColonyTypes(
+            profile,
+            suitability,
+            GenerationUseCaseSettings.RulesetModeType.Cepheus,
+            9500,
+            180);
+        System.Collections.Generic.Dictionary<ColonyType.Type, int> starfinderCounts = CountColonyTypes(
+            profile,
+            suitability,
+            GenerationUseCaseSettings.RulesetModeType.Starfinder,
+            9500,
+            180);
+
+        int cepheusTechnicalCount =
+            GetColonyTypeCount(cepheusCounts, ColonyType.Type.Scientific)
+            + GetColonyTypeCount(cepheusCounts, ColonyType.Type.Corporate)
+            + GetColonyTypeCount(cepheusCounts, ColonyType.Type.Industrial);
+        int starfinderTechnicalCount =
+            GetColonyTypeCount(starfinderCounts, ColonyType.Type.Scientific)
+            + GetColonyTypeCount(starfinderCounts, ColonyType.Type.Corporate)
+            + GetColonyTypeCount(starfinderCounts, ColonyType.Type.Industrial);
+
+        DotNetNativeTestSuite.AssertTrue(starfinderTechnicalCount > cepheusTechnicalCount, "Starfinder should favor scientific, corporate, and industrial harsh-world colonies more than Cepheus");
+    }
+
+    /// <summary>
+    /// Tests that Starforged leans toward frontier colony types on harsh worlds.
+    /// </summary>
+    public static void TestStarforgedFavorsFrontierHarshColonies()
+    {
+        PlanetProfile profile = CreateHarshResourceProfile();
+        ColonySuitability suitability = SuitabilityCalculator.Calculate(profile);
+
+        System.Collections.Generic.Dictionary<ColonyType.Type, int> cepheusCounts = CountColonyTypes(
+            profile,
+            suitability,
+            GenerationUseCaseSettings.RulesetModeType.Cepheus,
+            9800,
+            180);
+        System.Collections.Generic.Dictionary<ColonyType.Type, int> starforgedCounts = CountColonyTypes(
+            profile,
+            suitability,
+            GenerationUseCaseSettings.RulesetModeType.Starforged,
+            9800,
+            180);
+
+        int cepheusFrontierCount =
+            GetColonyTypeCount(cepheusCounts, ColonyType.Type.Military)
+            + GetColonyTypeCount(cepheusCounts, ColonyType.Type.Scientific)
+            + GetColonyTypeCount(cepheusCounts, ColonyType.Type.Refugee)
+            + GetColonyTypeCount(cepheusCounts, ColonyType.Type.Separatist);
+        int starforgedFrontierCount =
+            GetColonyTypeCount(starforgedCounts, ColonyType.Type.Military)
+            + GetColonyTypeCount(starforgedCounts, ColonyType.Type.Scientific)
+            + GetColonyTypeCount(starforgedCounts, ColonyType.Type.Refugee)
+            + GetColonyTypeCount(starforgedCounts, ColonyType.Type.Separatist);
+
+        DotNetNativeTestSuite.AssertTrue(starforgedFrontierCount > cepheusFrontierCount, "Starforged should favor frontier outposts, scientific footholds, and refugee or separatist colonies more than Cepheus");
+    }
+
+    private static int GetColonyTypeCount(System.Collections.Generic.Dictionary<ColonyType.Type, int> counts, ColonyType.Type type)
+    {
+        if (!counts.ContainsKey(type))
+        {
+            return 0;
+        }
+
+        return counts[type];
     }
 
     /// <summary>

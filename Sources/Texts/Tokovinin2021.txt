@@ -1,0 +1,20 @@
+Source note for StarGen research review
+
+Citation:
+Tokovinin, A. (2021).
+Architecture of hierarchical stellar systems and their formation.
+Universe, 7(9), 352.
+arXiv: https://arxiv.org/abs/2109.09118
+DOI: https://doi.org/10.3390/universe7090352
+
+What was reviewed:
+- arXiv abstract and source metadata on 2026-03-28.
+
+Key implementation notes used in StarGen:
+- The abstract reviews statistical trends in hierarchical stellar systems.
+- It highlights orbit alignment and the tendency for stars in the same hierarchy to have comparable masses.
+- It frames hierarchical systems as families with recognizable structural patterns rather than arbitrary random trees.
+
+How StarGen uses this:
+- As the justification for building nested binary architectures intentionally instead of pairing stars at random until one root node remains.
+- As support for giving multi-star systems progressively wider outer orbits and more family-like mass groupings.

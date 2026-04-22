@@ -1,0 +1,15 @@
+Mills, D. B., Macalady, J. L., Frank, A., & Wright, J. T. (2024).
+A reassessment of the "hard-steps" model for the evolution of intelligent life.
+arXiv:2408.10293
+https://arxiv.org/abs/2408.10293
+
+Why this source matters for StarGen
+- This paper argues that the long delay before human intelligence on Earth may reflect environmental timing windows rather than a sequence of intrinsically improbable "hard steps."
+- In StarGen, this is useful because it gives us a model where long-lived stable windows matter more than raw luck alone.
+
+How it is used
+- Supports the "Environmental Windows" life-potential model.
+- Justifies giving extra weight to long stable habitable periods, breathable atmospheres, moderate radiation, and sustained surface diversity when evaluating complex life and civilizations.
+
+Human review notes
+- Use as a research-backed alternative framing, not as a final answer to the hard-steps debate.

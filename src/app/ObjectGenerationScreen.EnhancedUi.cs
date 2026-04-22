@@ -1,10 +1,13 @@
 using System;
 using System.Collections.Generic;
 using Godot;
+using StarGen.App.Components;
 using StarGen.App.Shared;
 using StarGen.App.Viewer;
 using StarGen.Domain.Generation;
 using StarGen.Domain.Generation.Archetypes;
+using StarGen.Domain.Generation.Parameters;
+using StarGen.Domain.Generation.Specs;
 using StarGen.Domain.Generation.Traveller;
 
 namespace StarGen.App;
@@ -20,11 +23,30 @@ public partial class ObjectGenerationScreen
     private LineEdit? _nameInput;
 
     private VBoxContainer? _planetSection;
+    private VBoxContainer? _lifeSection;
+    private OptionButton? _planetOrbitModeOption;
+    private OptionButton? _planetClassBiasOption;
+    private OptionButton? _planetCompositionBiasOption;
+    private OptionButton? _planetEnvelopeOverrideOption;
+    private OptionButton? _planetVolatileRichnessOption;
+    private OptionButton? _planetHydrosphereTendencyOption;
     private OptionButton? _planetSizeCategoryOption;
     private OptionButton? _planetOrbitZoneOption;
     private OptionButton? _planetAtmosphereOption;
     private OptionButton? _planetRingsOption;
     private OptionButton? _planetRingComplexityOption;
+    private OptionButton? _planetSurfacePressureOption;
+    private OptionButton? _planetOceanCoverageOption;
+    private OptionButton? _planetIceCoverageOption;
+    private OptionButton? _planetAlbedoProfileOption;
+    private OptionButton? _planetVolcanismOption;
+    private CheckBox? _planetGenerateMoonCheck;
+    private OptionButton? _moonTargetCountOption;
+    private OptionButton? _lifeFrameworkOption;
+    private OptionButton? _abiogenesisModelOption;
+    private OptionButton? _complexLifeModelOption;
+    private OptionButton? _civilizationModelOption;
+    private OptionButton? _environmentalWindowWeightOption;
 
     private VBoxContainer? _travellerSection;
     private CheckBox? _useTravellerWorldProfileCheck;
@@ -33,18 +55,23 @@ public partial class ObjectGenerationScreen
     private OptionButton? _travellerHydrographicsCodeOption;
     private OptionButton? _travellerPopulationCodeOption;
 
-    private VBoxContainer? _moonSection;
-    private OptionButton? _moonSizeCategoryOption;
     private CheckBox? _moonCapturedCheck;
-    private OptionButton? _moonAtmosphereOption;
-    private OptionButton? _moonOceanOption;
 
     private VBoxContainer? _starSection;
     private OptionButton? _starSpectralClassOption;
+    private OptionButton? _starSubclassOption;
 
     private VBoxContainer? _asteroidSection;
     private OptionButton? _asteroidTypeOption;
     private CheckBox? _asteroidLargeCheck;
+    private OptionButton? _asteroidOrbitBandOption;
+    private OptionButton? _asteroidDensityProfileOption;
+    private OptionButton? _asteroidAlbedoProfileOption;
+
+    private VBoxContainer? _cometSection;
+    private OptionButton? _cometFamilyOption;
+    private OptionButton? _cometActivityOption;
+    private CheckBox? _cometLargeCheck;
 
     private VBoxContainer? _advancedSection;
 
@@ -81,18 +108,32 @@ public partial class ObjectGenerationScreen
         _showTravellerReadoutsCheck = GetRequiredCheckBox("ShowTravellerReadoutsRow", "ShowTravellerReadoutsCheck");
         _showAdvancedControlsCheck = GetRequiredCheckBox("ShowAdvancedControlsRow", "ShowAdvancedControlsCheck");
 
-        _planetSection = GetNodeOrNull<VBoxContainer>("MarginContainer/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/PlanetSection");
-        _travellerSection = GetNodeOrNull<VBoxContainer>("MarginContainer/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/TravellerSection");
-        _moonSection = GetNodeOrNull<VBoxContainer>("MarginContainer/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/MoonSection");
-        _starSection = GetNodeOrNull<VBoxContainer>("MarginContainer/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/StarSection");
-        _asteroidSection = GetNodeOrNull<VBoxContainer>("MarginContainer/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/AsteroidSection");
-        _advancedSection = GetNodeOrNull<VBoxContainer>("MarginContainer/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/AdvancedSection");
+        _planetSection = GetOptionalSection("PlanetSection");
+        _lifeSection = GetOptionalSection("LifeSection");
+        _travellerSection = GetOptionalSection("TravellerSection");
+        _starSection = GetOptionalSection("StarSection");
+        _asteroidSection = GetOptionalSection("AsteroidSection");
+        _cometSection = GetOptionalSection("CometSection");
+        _advancedSection = GetOptionalSection("AdvancedSection");
 
+        _planetOrbitModeOption = GetRequiredOptionButton("PlanetOrbitModeRow", "PlanetOrbitModeOption");
+        _planetClassBiasOption = GetRequiredOptionButton("PlanetClassBiasRow", "PlanetClassBiasOption");
+        _planetCompositionBiasOption = GetRequiredOptionButton("PlanetCompositionBiasRow", "PlanetCompositionBiasOption");
+        _planetEnvelopeOverrideOption = GetRequiredOptionButton("PlanetEnvelopeOverrideRow", "PlanetEnvelopeOverrideOption");
+        _planetVolatileRichnessOption = GetRequiredOptionButton("PlanetVolatileRichnessRow", "PlanetVolatileRichnessOption");
+        _planetHydrosphereTendencyOption = GetRequiredOptionButton("PlanetHydrosphereTendencyRow", "PlanetHydrosphereTendencyOption");
         _planetSizeCategoryOption = GetRequiredOptionButton("PlanetSizeCategoryRow", "PlanetSizeCategoryOption");
         _planetOrbitZoneOption = GetRequiredOptionButton("PlanetOrbitZoneRow", "PlanetOrbitZoneOption");
         _planetAtmosphereOption = GetRequiredOptionButton("PlanetAtmosphereRow", "PlanetAtmosphereOption");
         _planetRingsOption = GetRequiredOptionButton("PlanetRingsRow", "PlanetRingsOption");
         _planetRingComplexityOption = GetRequiredOptionButton("PlanetRingComplexityRow", "PlanetRingComplexityOption");
+        _planetSurfacePressureOption = GetRequiredOptionButton("PlanetSurfacePressureRow", "PlanetSurfacePressureOption");
+        _planetOceanCoverageOption = GetRequiredOptionButton("PlanetOceanCoverageRow", "PlanetOceanCoverageOption");
+        _planetIceCoverageOption = GetRequiredOptionButton("PlanetIceCoverageRow", "PlanetIceCoverageOption");
+        _planetAlbedoProfileOption = GetRequiredOptionButton("PlanetAlbedoProfileRow", "PlanetAlbedoProfileOption");
+        _planetVolcanismOption = GetRequiredOptionButton("PlanetVolcanismRow", "PlanetVolcanismOption");
+        _planetGenerateMoonCheck = GetRequiredCheckBox("PlanetGenerateMoonRow", "PlanetGenerateMoonCheck");
+        _moonTargetCountOption = GetRequiredOptionButton("MoonTargetCountRow", "MoonTargetCountOption");
 
         _useTravellerWorldProfileCheck = GetRequiredCheckBox("UseTravellerWorldProfileRow", "UseTravellerWorldProfileCheck");
         _travellerSizeCodeOption = GetRequiredOptionButton("TravellerSizeCodeRow", "TravellerSizeCodeOption");
@@ -100,24 +141,21 @@ public partial class ObjectGenerationScreen
         _travellerHydrographicsCodeOption = GetRequiredOptionButton("TravellerHydrographicsCodeRow", "TravellerHydrographicsCodeOption");
         _travellerPopulationCodeOption = GetRequiredOptionButton("TravellerPopulationCodeRow", "TravellerPopulationCodeOption");
 
-        _moonSizeCategoryOption = GetRequiredOptionButton("MoonSizeCategoryRow", "MoonSizeCategoryOption");
         _moonCapturedCheck = GetRequiredCheckBox("MoonCapturedRow", "MoonCapturedCheck");
-        _moonAtmosphereOption = GetRequiredOptionButton("MoonAtmosphereRow", "MoonAtmosphereOption");
-        _moonOceanOption = GetRequiredOptionButton("MoonOceanRow", "MoonOceanOption");
 
         _starSpectralClassOption = GetRequiredOptionButton("StarSpectralClassRow", "StarSpectralClassOption");
+        _starSubclassOption = GetRequiredOptionButton("StarSubclassRow", "StarSubclassOption");
 
         _asteroidTypeOption = GetRequiredOptionButton("AsteroidTypeRow", "AsteroidTypeOption");
         _asteroidLargeCheck = GetRequiredCheckBox("AsteroidLargeRow", "AsteroidLargeCheck");
+        _asteroidOrbitBandOption = GetRequiredOptionButton("AsteroidOrbitBandRow", "AsteroidOrbitBandOption");
+        _asteroidDensityProfileOption = GetRequiredOptionButton("AsteroidDensityProfileRow", "AsteroidDensityProfileOption");
+        _asteroidAlbedoProfileOption = GetRequiredOptionButton("AsteroidAlbedoProfileRow", "AsteroidAlbedoProfileOption");
 
-        _lifePermissivenessInput = GetRequiredSlider("LifePermissivenessRow", "LifePermissivenessInput");
-        _lifePermissivenessValueLabel = GetRequiredLabel("LifePermissivenessRow", "LifePermissivenessValue");
-        _populationPermissivenessInput = GetRequiredSlider("PopulationPermissivenessRow", "PopulationPermissivenessInput");
-        _populationPermissivenessValueLabel = GetRequiredLabel("PopulationPermissivenessRow", "PopulationPermissivenessValue");
+        _cometFamilyOption = GetRequiredOptionButton("CometFamilyRow", "CometFamilyOption");
+        _cometActivityOption = GetRequiredOptionButton("CometActivityRow", "CometActivityOption");
+        _cometLargeCheck = GetRequiredCheckBox("CometLargeRow", "CometLargeCheck");
 
-        CacheOptionalOverride("StarSubclass");
-        CacheOptionalOverride("StarMetallicity");
-        CacheOptionalOverride("StarAgeGyr");
         CacheOptionalOverride("MassOverride");
         CacheOptionalOverride("RadiusOverride");
         CacheOptionalOverride("RotationOverride");
@@ -142,16 +180,15 @@ public partial class ObjectGenerationScreen
         _typeOption.Clear();
         _typeOption.AddItem("Star", (int)ObjectViewer.ObjectType.Star);
         _typeOption.AddItem("Planet", (int)ObjectViewer.ObjectType.Planet);
-        _typeOption.AddItem("Moon", (int)ObjectViewer.ObjectType.Moon);
         _typeOption.AddItem("Asteroid", (int)ObjectViewer.ObjectType.Asteroid);
-        _rulesetModeOption.Clear();
-        _rulesetModeOption.AddItem(GenerationUseCasePresentation.RealisticRulesetLabel, (int)GenerationUseCaseSettings.RulesetModeType.Default);
-        _rulesetModeOption.AddItem("Traveller", (int)GenerationUseCaseSettings.RulesetModeType.Traveller);
+        _typeOption.AddItem("Comet", (int)ObjectViewer.ObjectType.Comet);
+        GenerationUseCasePresentation.PopulateRulesetOptions(_rulesetModeOption);
         PopulatePlanetSection();
+        PopulateObjectLifeSection();
         PopulateTravellerSection();
-        PopulateMoonSection();
         PopulateStarSection();
         PopulateAsteroidSection();
+        PopulateCometSection();
         PopulateAdvancedSection();
     }
 
@@ -160,11 +197,6 @@ public partial class ObjectGenerationScreen
         if (_startButton != null)
         {
             _startButton.Pressed += OnStartPressed;
-        }
-
-        if (_loadButton != null)
-        {
-            _loadButton.Pressed += () => EmitSignal(SignalName.load_object_requested);
         }
 
         if (_backButton != null)
@@ -212,34 +244,66 @@ public partial class ObjectGenerationScreen
             _useTravellerWorldProfileCheck.Toggled += _ => OnEnhancedTravellerProfileToggled();
         }
 
-        if (_lifePermissivenessInput != null)
+        if (_planetOrbitModeOption != null)
         {
-            _lifePermissivenessInput.ValueChanged += OnLifePermissivenessChanged;
+            _planetOrbitModeOption.ItemSelected += _ =>
+            {
+                RefreshEnhancedParameterVisibility();
+                RefreshSummary();
+            };
         }
-
+        ConnectOptionToSummary(_planetClassBiasOption);
+        ConnectOptionToSummary(_planetCompositionBiasOption);
+        ConnectOptionToSummary(_planetEnvelopeOverrideOption);
+        ConnectOptionToSummary(_planetVolatileRichnessOption);
+        ConnectOptionToSummary(_planetHydrosphereTendencyOption);
         ConnectOptionToSummary(_planetSizeCategoryOption);
         ConnectOptionToSummary(_planetOrbitZoneOption);
         ConnectOptionToSummary(_planetAtmosphereOption);
         ConnectOptionToSummary(_planetRingsOption);
         ConnectOptionToSummary(_planetRingComplexityOption);
+        ConnectOptionToSummary(_planetSurfacePressureOption);
+        ConnectOptionToSummary(_planetOceanCoverageOption);
+        ConnectOptionToSummary(_planetIceCoverageOption);
+        ConnectOptionToSummary(_planetAlbedoProfileOption);
+        ConnectOptionToSummary(_planetVolcanismOption);
+        ConnectOptionToSummary(_moonTargetCountOption);
+        ConnectObjectLifeSignals();
         ConnectOptionToSummary(_travellerSizeCodeOption);
         ConnectOptionToSummary(_travellerAtmosphereCodeOption);
         ConnectOptionToSummary(_travellerHydrographicsCodeOption);
         ConnectOptionToSummary(_travellerPopulationCodeOption);
-        ConnectOptionToSummary(_moonSizeCategoryOption);
-        ConnectOptionToSummary(_moonAtmosphereOption);
-        ConnectOptionToSummary(_moonOceanOption);
         ConnectOptionToSummary(_starSpectralClassOption);
+        ConnectOptionToSummary(_starSubclassOption);
         ConnectOptionToSummary(_asteroidTypeOption);
+        ConnectOptionToSummary(_asteroidOrbitBandOption);
+        ConnectOptionToSummary(_asteroidDensityProfileOption);
+        ConnectOptionToSummary(_asteroidAlbedoProfileOption);
+        ConnectOptionToSummary(_cometFamilyOption);
+        ConnectOptionToSummary(_cometActivityOption);
 
         if (_moonCapturedCheck != null)
         {
             _moonCapturedCheck.Toggled += _ => RefreshSummary();
         }
 
+        if (_planetGenerateMoonCheck != null)
+        {
+            _planetGenerateMoonCheck.Toggled += _ =>
+            {
+                RefreshEnhancedParameterVisibility();
+                RefreshSummary();
+            };
+        }
+
         if (_asteroidLargeCheck != null)
         {
             _asteroidLargeCheck.Toggled += _ => RefreshSummary();
+        }
+
+        if (_cometLargeCheck != null)
+        {
+            _cometLargeCheck.Toggled += _ => RefreshSummary();
         }
 
         foreach (KeyValuePair<string, CheckBox> entry in _optionalToggles)
@@ -261,41 +325,16 @@ public partial class ObjectGenerationScreen
             SelectOptionById(_typeOption, (int)ObjectViewer.ObjectType.Planet);
         }
 
-        if (_seedInput != null)
-        {
-            _seedInput.Value = 12345.0;
-        }
-
         if (_rulesetModeOption != null)
         {
             SelectOptionById(_rulesetModeOption, (int)GenerationUseCaseSettings.RulesetModeType.Default);
         }
 
-        if (_showTravellerReadoutsCheck != null)
-        {
-            _showTravellerReadoutsCheck.ButtonPressed = false;
-        }
-
-        if (_showAdvancedControlsCheck != null)
-        {
-            _showAdvancedControlsCheck.ButtonPressed = false;
-        }
-
-        if (_useTravellerWorldProfileCheck != null)
-        {
-            _useTravellerWorldProfileCheck.ButtonPressed = false;
-        }
-
-        if (_lifePermissivenessInput != null)
-        {
-            _lifePermissivenessInput.Value = GenerationUseCaseSettings.NeutralPermissiveness;
-        }
-
         ResetEnhancedOptionalInputs();
+        ApplyObjectLifeDefaults();
         RebuildEnhancedPresetOptions();
         RefreshEnhancedFieldPresentation();
         RefreshEnhancedParameterVisibility();
-        UpdatePermissivenessValueLabels();
     }
 
     private void OnEnhancedTypeChanged()
@@ -308,19 +347,28 @@ public partial class ObjectGenerationScreen
 
     private void OnEnhancedRulesetModeSelected(long selectedId)
     {
+        GenerationUseCaseSettings rulesetDefaults = GenerationUseCaseSettings.CreateDefault();
+        rulesetDefaults.RulesetMode = (GenerationUseCaseSettings.RulesetModeType)selectedId;
+        rulesetDefaults.ApplyRulesetDefaults();
+        RpgCompatibilityProfile compatibilityProfile = rulesetDefaults.GetCompatibilityProfile();
+
+        if (_showTravellerReadoutsCheck != null)
+        {
+            _showTravellerReadoutsCheck.ButtonPressed = compatibilityProfile.UsesUwpLikeReadouts;
+        }
+
         if (selectedId == (long)GenerationUseCaseSettings.RulesetModeType.Traveller)
         {
-            if (_showTravellerReadoutsCheck != null)
+            if (_useTravellerWorldProfileCheck != null)
             {
-                _showTravellerReadoutsCheck.ButtonPressed = true;
+                _useTravellerWorldProfileCheck.ButtonPressed = GetSelectedObjectType() == ObjectViewer.ObjectType.Planet;
             }
 
-            if (_useTravellerWorldProfileCheck != null && GetSelectedObjectType() == ObjectViewer.ObjectType.Planet)
-            {
-                _useTravellerWorldProfileCheck.ButtonPressed = true;
-            }
-
-            ApplyTravellerDefaultsToPermissivenessControls();
+            ApplyTravellerObjectLifeDefaultsToControls();
+        }
+        else if (_useTravellerWorldProfileCheck != null)
+        {
+            _useTravellerWorldProfileCheck.ButtonPressed = false;
         }
 
         RefreshEnhancedParameterVisibility();
@@ -346,8 +394,28 @@ public partial class ObjectGenerationScreen
             }
 
             lines.Add($"Ruleset {GenerationUseCasePresentation.GetRulesetLabel(request.UseCaseSettings.RulesetMode)}");
-            lines.Add($"Traveller Readouts {(request.UseCaseSettings.ShowTravellerReadouts ? "On" : "Off")}");
-            lines.Add($"Life Potential {PermissivenessScaleHelper.GetBandLabel(request.UseCaseSettings.LifePermissiveness)}");
+            lines.Add($"Show UWP Code {(request.UseCaseSettings.ShowTravellerReadouts ? "On" : "Off")}");
+            string lifeSummary = BuildObjectLifeSummary();
+            if (!string.IsNullOrWhiteSpace(lifeSummary))
+            {
+                lines.Add(lifeSummary);
+            }
+            if (_planetGenerateMoonCheck != null && _planetGenerateMoonCheck.ButtonPressed)
+            {
+                lines.Add($"Moon Target {GetSelectedMoonTargetLabel()}");
+                if (_moonCapturedCheck != null)
+                {
+                    if (_moonCapturedCheck.ButtonPressed)
+                    {
+                        lines.Add("Moon Bias Captured");
+                    }
+                    else
+                    {
+                        lines.Add("Moon Bias Regular");
+                    }
+                }
+            }
+
             if (request.TravellerWorldProfileData.Count > 0)
             {
                 TravellerWorldProfile profile = TravellerWorldProfile.FromDictionary(request.TravellerWorldProfileData);
@@ -360,7 +428,7 @@ public partial class ObjectGenerationScreen
 
         if (_assumptionsLabel != null)
         {
-            _assumptionsLabel.Text = string.Empty;
+            _assumptionsLabel.Text = BuildEnhancedAssumptionText();
             _assumptionsLabel.TooltipText = BuildEnhancedAssumptionTooltip();
         }
 
@@ -380,14 +448,18 @@ public partial class ObjectGenerationScreen
             settings.ShowTravellerReadouts = _showTravellerReadoutsCheck.ButtonPressed;
         }
 
-        if (_lifePermissivenessInput != null)
-        {
-            settings.LifePermissiveness = _lifePermissivenessInput.Value;
-        }
-
-        if (settings.IsTravellerMode())
+        if (settings.GetCompatibilityProfile().UsesUwpLikeReadouts)
         {
             settings.ShowTravellerReadouts = true;
+        }
+        else
+        {
+            settings.ShowTravellerReadouts = false;
+        }
+
+        if (GetSelectedObjectType() == ObjectViewer.ObjectType.Planet)
+        {
+            ApplyObjectLifeSettingsFromControls(settings);
         }
 
         return settings;
@@ -397,25 +469,57 @@ public partial class ObjectGenerationScreen
     {
         ObjectViewer.ObjectType objectType = GetSelectedObjectType();
         bool showAdvanced = _showAdvancedControlsCheck != null && _showAdvancedControlsCheck.ButtonPressed;
-        bool travellerMode = _rulesetModeOption != null
-            && _rulesetModeOption.GetSelectedId() == (int)GenerationUseCaseSettings.RulesetModeType.Traveller;
+        bool travellerMode = IsTravellerModeSelected();
+        bool usesUwpLikeReadouts = false;
+        if (_rulesetModeOption != null)
+        {
+            GenerationUseCaseSettings.RulesetModeType rulesetMode = (GenerationUseCaseSettings.RulesetModeType)_rulesetModeOption.GetSelectedId();
+            usesUwpLikeReadouts = RpgCompatibilityProfile.Resolve(rulesetMode).UsesUwpLikeReadouts;
+        }
+
         bool useTravellerProfile = travellerMode
             && _useTravellerWorldProfileCheck != null
             && _useTravellerWorldProfileCheck.ButtonPressed;
 
         SetEnhancedRowVisible("SeedRow", _showSeedControls);
         SetEnhancedSectionVisible(_planetSection, objectType == ObjectViewer.ObjectType.Planet);
+        SetEnhancedSectionVisible(_lifeSection, objectType == ObjectViewer.ObjectType.Planet);
         SetEnhancedSectionVisible(_travellerSection, objectType == ObjectViewer.ObjectType.Planet && travellerMode);
-        SetEnhancedSectionVisible(_moonSection, objectType == ObjectViewer.ObjectType.Moon);
         SetEnhancedSectionVisible(_starSection, objectType == ObjectViewer.ObjectType.Star);
         SetEnhancedSectionVisible(_asteroidSection, objectType == ObjectViewer.ObjectType.Asteroid);
+        SetEnhancedSectionVisible(_cometSection, objectType == ObjectViewer.ObjectType.Comet);
         SetEnhancedSectionVisible(_advancedSection, showAdvanced);
 
+        SetEnhancedRowVisible("ShowTravellerReadoutsRow", usesUwpLikeReadouts);
+        SetEnhancedRowVisible("PlanetOrbitModeRow", objectType == ObjectViewer.ObjectType.Planet);
+        SetEnhancedRowVisible("PlanetClassBiasRow", objectType == ObjectViewer.ObjectType.Planet);
+        SetEnhancedRowVisible("PlanetCompositionBiasRow", objectType == ObjectViewer.ObjectType.Planet);
+        SetEnhancedRowVisible("PlanetEnvelopeOverrideRow", objectType == ObjectViewer.ObjectType.Planet);
+        SetEnhancedRowVisible("PlanetVolatileRichnessRow", objectType == ObjectViewer.ObjectType.Planet);
+        SetEnhancedRowVisible("PlanetHydrosphereTendencyRow", objectType == ObjectViewer.ObjectType.Planet);
+        bool rogueMode = objectType == ObjectViewer.ObjectType.Planet
+            && _planetOrbitModeOption != null
+            && _planetOrbitModeOption.GetSelectedId() == (int)PlanetOrbitMode.Rogue;
         SetEnhancedRowVisible("PlanetSizeCategoryRow", !useTravellerProfile && objectType == ObjectViewer.ObjectType.Planet);
+        SetEnhancedRowVisible("PlanetOrbitZoneRow", !useTravellerProfile && objectType == ObjectViewer.ObjectType.Planet && !rogueMode);
         SetEnhancedRowVisible("PlanetAtmosphereRow", !useTravellerProfile && objectType == ObjectViewer.ObjectType.Planet);
+        SetEnhancedRowVisible("PlanetSurfacePressureRow", objectType == ObjectViewer.ObjectType.Planet);
+        SetEnhancedRowVisible("PlanetOceanCoverageRow", objectType == ObjectViewer.ObjectType.Planet);
+        SetEnhancedRowVisible("PlanetIceCoverageRow", objectType == ObjectViewer.ObjectType.Planet);
+        SetEnhancedRowVisible("PlanetAlbedoProfileRow", objectType == ObjectViewer.ObjectType.Planet);
+        SetEnhancedRowVisible("PlanetVolcanismRow", objectType == ObjectViewer.ObjectType.Planet);
+        SetEnhancedRowVisible("PlanetGenerateMoonRow", objectType == ObjectViewer.ObjectType.Planet);
+        SetEnhancedRowVisible(
+            "MoonTargetCountRow",
+            objectType == ObjectViewer.ObjectType.Planet
+                && _planetGenerateMoonCheck != null
+                && _planetGenerateMoonCheck.ButtonPressed);
+        SetEnhancedRowVisible(
+            "MoonCapturedRow",
+            objectType == ObjectViewer.ObjectType.Planet
+                && _planetGenerateMoonCheck != null
+                && _planetGenerateMoonCheck.ButtonPressed);
         SetEnhancedRowVisible("StarSubclassRow", objectType == ObjectViewer.ObjectType.Star);
-        SetEnhancedRowVisible("StarMetallicityRow", objectType == ObjectViewer.ObjectType.Star);
-        SetEnhancedRowVisible("StarAgeGyrRow", objectType == ObjectViewer.ObjectType.Star);
 
         SetEnhancedRowVisible("MassOverrideRow", showAdvanced);
         SetEnhancedRowVisible("RadiusOverrideRow", showAdvanced);
@@ -424,13 +528,11 @@ public partial class ObjectGenerationScreen
         SetEnhancedRowVisible("SemiMajorAxisOverrideRow", showAdvanced && objectType != ObjectViewer.ObjectType.Star);
         SetEnhancedRowVisible("EccentricityOverrideRow", showAdvanced && objectType != ObjectViewer.ObjectType.Star);
         SetEnhancedRowVisible("InclinationOverrideRow", showAdvanced && objectType != ObjectViewer.ObjectType.Star);
-        SetEnhancedRowVisible("SurfacePressureOverrideRow", showAdvanced && (objectType == ObjectViewer.ObjectType.Planet || objectType == ObjectViewer.ObjectType.Moon));
+        SetEnhancedRowVisible("SurfacePressureOverrideRow", showAdvanced && objectType == ObjectViewer.ObjectType.Planet);
         SetEnhancedRowVisible("AlbedoOverrideRow", showAdvanced && objectType != ObjectViewer.ObjectType.Star);
-        SetEnhancedRowVisible("VolcanismOverrideRow", showAdvanced && (objectType == ObjectViewer.ObjectType.Planet || objectType == ObjectViewer.ObjectType.Moon));
+        SetEnhancedRowVisible("VolcanismOverrideRow", showAdvanced && objectType == ObjectViewer.ObjectType.Planet);
         SetEnhancedRowVisible("TemperatureOverrideRow", showAdvanced && objectType == ObjectViewer.ObjectType.Star);
         SetEnhancedRowVisible("LuminosityOverrideRow", showAdvanced && objectType == ObjectViewer.ObjectType.Star);
-        SetEnhancedRowVisible("LifePermissivenessRow", showAdvanced && objectType != ObjectViewer.ObjectType.Star);
-        SetEnhancedRowVisible("PopulationPermissivenessRow", false);
     }
 
     private void RefreshEnhancedFieldPresentation()
@@ -444,6 +546,13 @@ public partial class ObjectGenerationScreen
         }
 
         if (objectType == ObjectViewer.ObjectType.Asteroid)
+        {
+            SetEnhancedRowLabel("MassOverrideRow", "Mass (10^15 kg)");
+            SetEnhancedRowLabel("RadiusOverrideRow", "Radius (km)");
+            return;
+        }
+
+        if (objectType == ObjectViewer.ObjectType.Comet)
         {
             SetEnhancedRowLabel("MassOverrideRow", "Mass (10^15 kg)");
             SetEnhancedRowLabel("RadiusOverrideRow", "Radius (km)");
@@ -472,10 +581,17 @@ public partial class ObjectGenerationScreen
             AddEnhancedIssueLabel("Traveller profile uses SRD-style UWP rules before body generation.");
         }
 
+        if (_planetGenerateMoonCheck != null && _planetGenerateMoonCheck.ButtonPressed)
+        {
+            AddEnhancedIssueLabel($"Planet launch will also generate {GetSelectedMoonTargetDescription()} using the same seed family, then cap the final count by planet size.");
+        }
+
         if (_showAdvancedControlsCheck != null && _showAdvancedControlsCheck.ButtonPressed)
         {
             AddEnhancedIssueLabel("Advanced overrides match the editor override keys.");
         }
+
+        AddPlanetScienceIssueNotes();
     }
 
     private void OnEnhancedAdvancedToggled()
@@ -490,25 +606,9 @@ public partial class ObjectGenerationScreen
         RefreshSummary();
     }
 
-    private void OnLifePermissivenessChanged(double _value)
-    {
-        UpdatePermissivenessValueLabels();
-        RefreshSummary();
-    }
-
     private void OnPopulationPermissivenessChanged(double _value)
     {
         RefreshSummary();
-    }
-
-    private void UpdatePermissivenessValueLabels()
-    {
-        if (_lifePermissivenessInput != null && _lifePermissivenessValueLabel != null)
-        {
-            _lifePermissivenessValueLabel.Text =
-                $"{_lifePermissivenessInput.Value:0.00} {PermissivenessScaleHelper.GetBandLabel(_lifePermissivenessInput.Value)}";
-        }
-
     }
 
     private void OnEnhancedOptionalToggleChanged(string key)
@@ -524,13 +624,42 @@ public partial class ObjectGenerationScreen
 
     private void PopulatePlanetSection()
     {
+        PopulatePlanetOrbitModeOptions(_planetOrbitModeOption);
+        PopulatePlanetClassBiasOptions(_planetClassBiasOption);
+        PopulatePlanetCompositionBiasOptions(_planetCompositionBiasOption);
+        PopulatePlanetEnvelopeOverrideOptions(_planetEnvelopeOverrideOption);
+        PopulatePlanetVolatileRichnessOptions(_planetVolatileRichnessOption);
+        PopulatePlanetHydrosphereTendencyOptions(_planetHydrosphereTendencyOption);
         PopulateAutoSizeOptions(_planetSizeCategoryOption);
         PopulateAutoOrbitZoneOptions(_planetOrbitZoneOption);
         PopulateAutoBoolOptions(_planetAtmosphereOption);
-        ApplyTriStateTooltip("PlanetAtmosphereRow", _planetAtmosphereOption, "atmosphere");
         PopulateAutoBoolOptions(_planetRingsOption);
-        ApplyTriStateTooltip("PlanetRingsRow", _planetRingsOption, "rings");
         PopulateAutoRingComplexityOptions(_planetRingComplexityOption);
+        PopulateProfileLevelOptions(_planetSurfacePressureOption, "Auto", "Thin", "Moderate", "Dense");
+        PopulateProfileLevelOptions(_planetOceanCoverageOption, "Auto", "Dry", "Mixed", "Ocean World");
+        PopulateProfileLevelOptions(_planetIceCoverageOption, "Auto", "Ice-free", "Seasonal", "Frozen");
+        PopulateProfileLevelOptions(_planetAlbedoProfileOption, "Auto", "Dark", "Balanced", "Bright");
+        PopulateProfileLevelOptions(_planetVolcanismOption, "Auto", "Quiet", "Active", "Extreme");
+        PopulateMoonTargetCountOptions(_moonTargetCountOption);
+        ApplyCatalogTooltip("planet_orbit_mode", "PlanetOrbitModeRow", _planetOrbitModeOption);
+        ApplyCatalogTooltip("planet_class_bias", "PlanetClassBiasRow", _planetClassBiasOption);
+        ApplyCatalogTooltip("planet_composition_bias", "PlanetCompositionBiasRow", _planetCompositionBiasOption);
+        ApplyCatalogTooltip("planet_envelope_override", "PlanetEnvelopeOverrideRow", _planetEnvelopeOverrideOption);
+        ApplyCatalogTooltip("planet_volatile_richness", "PlanetVolatileRichnessRow", _planetVolatileRichnessOption);
+        ApplyCatalogTooltip("planet_hydrosphere_tendency", "PlanetHydrosphereTendencyRow", _planetHydrosphereTendencyOption);
+        ApplyCatalogTooltip("planet_size_category", "PlanetSizeCategoryRow", _planetSizeCategoryOption);
+        ApplyCatalogTooltip("planet_orbit_zone", "PlanetOrbitZoneRow", _planetOrbitZoneOption);
+        ApplyCatalogTooltip("planet_atmosphere", "PlanetAtmosphereRow", _planetAtmosphereOption);
+        ApplyCatalogTooltip("planet_rings", "PlanetRingsRow", _planetRingsOption);
+        ApplyCatalogTooltip("planet_ring_complexity", "PlanetRingComplexityRow", _planetRingComplexityOption);
+        ApplyCatalogTooltip("planet_surface_pressure", "PlanetSurfacePressureRow", _planetSurfacePressureOption);
+        ApplyCatalogTooltip("planet_ocean_coverage", "PlanetOceanCoverageRow", _planetOceanCoverageOption);
+        ApplyCatalogTooltip("planet_ice_coverage", "PlanetIceCoverageRow", _planetIceCoverageOption);
+        ApplyCatalogTooltip("planet_albedo_profile", "PlanetAlbedoProfileRow", _planetAlbedoProfileOption);
+        ApplyCatalogTooltip("planet_volcanism", "PlanetVolcanismRow", _planetVolcanismOption);
+        ApplyCatalogTooltip("planet_generate_moons", "PlanetGenerateMoonRow", _planetGenerateMoonCheck);
+        ApplyCatalogTooltip("planet_moon_target_count", "MoonTargetCountRow", _moonTargetCountOption);
+        ApplyCatalogTooltip("planet_moon_captured_bias", "MoonCapturedRow", _moonCapturedCheck);
     }
 
     private void PopulateTravellerSection()
@@ -539,30 +668,84 @@ public partial class ObjectGenerationScreen
         PopulateTravellerCodeOptions(_travellerAtmosphereCodeOption, "atmosphere");
         PopulateTravellerCodeOptions(_travellerHydrographicsCodeOption, "hydrographics");
         PopulateTravellerCodeOptions(_travellerPopulationCodeOption, "population");
-    }
-
-    private void PopulateMoonSection()
-    {
-        PopulateAutoSizeOptions(_moonSizeCategoryOption);
-        PopulateAutoBoolOptions(_moonAtmosphereOption);
-        ApplyTriStateTooltip("MoonAtmosphereRow", _moonAtmosphereOption, "atmosphere");
-        PopulateAutoBoolOptions(_moonOceanOption);
-        ApplyTriStateTooltip("MoonOceanRow", _moonOceanOption, "subsurface ocean");
+        ConfigureEnhancedCheckboxRow("UseTravellerWorldProfileRow", _useTravellerWorldProfileCheck, "Traveller Worldgen");
+        ApplyCatalogTooltip("use_traveller_world_profile", "UseTravellerWorldProfileRow", _useTravellerWorldProfileCheck);
+        ApplyCatalogTooltip("traveller_size_code", "TravellerSizeCodeRow", _travellerSizeCodeOption);
+        ApplyCatalogTooltip("traveller_atmosphere_code", "TravellerAtmosphereCodeRow", _travellerAtmosphereCodeOption);
+        ApplyCatalogTooltip("traveller_hydrographics_code", "TravellerHydrographicsCodeRow", _travellerHydrographicsCodeOption);
+        ApplyCatalogTooltip("traveller_population_code", "TravellerPopulationCodeRow", _travellerPopulationCodeOption);
     }
 
     private void PopulateStarSection()
     {
         PopulateStarClassOptions(_starSpectralClassOption);
+        PopulateStarSubclassOptions(_starSubclassOption);
+        ApplyCatalogTooltip("star_spectral_class", "StarSpectralClassRow", _starSpectralClassOption);
+        ApplyCatalogTooltip("star_subclass", "StarSubclassRow", _starSubclassOption);
     }
 
     private void PopulateAsteroidSection()
     {
         PopulateAsteroidTypeOptions(_asteroidTypeOption);
+        PopulateProfileLevelOptions(_asteroidOrbitBandOption, "Auto", "Inner", "Main Belt", "Outer");
+        PopulateProfileLevelOptions(_asteroidDensityProfileOption, "Auto", "Loose", "Typical", "Dense");
+        PopulateProfileLevelOptions(_asteroidAlbedoProfileOption, "Auto", "Dark", "Balanced", "Bright");
+        ApplyCatalogTooltip("asteroid_type", "AsteroidTypeRow", _asteroidTypeOption);
+        ApplyCatalogTooltip("asteroid_large", "AsteroidLargeRow", _asteroidLargeCheck);
+        ApplyCatalogTooltip("asteroid_orbit_band", "AsteroidOrbitBandRow", _asteroidOrbitBandOption);
+        ApplyCatalogTooltip("asteroid_density_profile", "AsteroidDensityProfileRow", _asteroidDensityProfileOption);
+        ApplyCatalogTooltip("asteroid_albedo_profile", "AsteroidAlbedoProfileRow", _asteroidAlbedoProfileOption);
+    }
+
+    private void PopulateCometSection()
+    {
+        PopulateProfileLevelOptions(_cometFamilyOption, "Auto", "Jupiter-family", "Long-period");
+        PopulateProfileLevelOptions(_cometActivityOption, "Auto", "Active", "Dormant", "Extinct");
+        ApplyCatalogTooltip("comet_family", "CometFamilyRow", _cometFamilyOption);
+        ApplyCatalogTooltip("comet_activity", "CometActivityRow", _cometActivityOption);
+        ApplyCatalogTooltip("comet_large", "CometLargeRow", _cometLargeCheck);
     }
 
     private void PopulateAdvancedSection()
     {
-        ApplyPermissivenessTooltip("LifePermissivenessRow", _lifePermissivenessInput, _lifePermissivenessValueLabel, "life");
+        ConfigureEnhancedCheckboxRow("ShowTravellerReadoutsRow", _showTravellerReadoutsCheck, "Show UWP Code");
+        ConfigureEnhancedCheckboxRow("ShowAdvancedControlsRow", _showAdvancedControlsCheck, "Advanced Controls");
+        ApplyCatalogTooltip("advanced_controls", "ShowAdvancedControlsRow", _showAdvancedControlsCheck);
+        ApplyCatalogTooltip("ruleset_mode", "RulesetRow", _rulesetModeOption);
+        ApplyCatalogTooltip("show_traveller_readouts", "ShowTravellerReadoutsRow", _showTravellerReadoutsCheck);
+    }
+
+    private void AddPlanetScienceIssueNotes()
+    {
+        if (GetSelectedObjectType() != ObjectViewer.ObjectType.Planet)
+        {
+            return;
+        }
+
+        Variant atmospherePreference = GetTriStatePreference(_planetAtmosphereOption);
+        bool atmosphereForcedOff = atmospherePreference.VariantType == Variant.Type.Bool && !(bool)atmospherePreference;
+        PlanetEnvelopeOverride envelopeOverride = (PlanetEnvelopeOverride)(_planetEnvelopeOverrideOption?.GetSelectedId() ?? (int)PlanetEnvelopeOverride.Auto);
+        PlanetHydrosphereTendency hydrosphereTendency = (PlanetHydrosphereTendency)(_planetHydrosphereTendencyOption?.GetSelectedId() ?? (int)PlanetHydrosphereTendency.Auto);
+        int oceanCoverageId = _planetOceanCoverageOption?.GetSelectedId() ?? -1;
+        int surfacePressureId = _planetSurfacePressureOption?.GetSelectedId() ?? -1;
+        PlanetClassBias classBias = (PlanetClassBias)(_planetClassBiasOption?.GetSelectedId() ?? (int)PlanetClassBias.Auto);
+        GenerationUseCaseSettings.CivilizationModelType civilizationModel =
+            (GenerationUseCaseSettings.CivilizationModelType)(_civilizationModelOption?.GetSelectedId()
+            ?? (int)GenerationUseCaseSettings.CivilizationModelType.FollowFramework);
+
+        IReadOnlyList<ObjectScienceIssueNote> notes = ObjectScienceReferenceCatalog.BuildPlanetIssueNotes(
+            atmosphereForcedOff,
+            envelopeOverride,
+            hydrosphereTendency,
+            oceanCoverageId,
+            surfacePressureId,
+            classBias,
+            civilizationModel);
+
+        foreach (ObjectScienceIssueNote note in notes)
+        {
+            AddEnhancedIssueLabel(note.Text, note.Tooltip);
+        }
     }
 
     private string BuildEnhancedAssumptionText()
@@ -572,40 +755,65 @@ public partial class ObjectGenerationScreen
             return "Traveller world profile is generated before launch.";
         }
 
-        if (_showAdvancedControlsCheck != null && _showAdvancedControlsCheck.ButtonPressed)
+        if (_planetGenerateMoonCheck != null && _planetGenerateMoonCheck.ButtonPressed)
         {
-            return "Advanced mode exposes the same override surface used by the editor.";
+            return $"Planet launch targets {GetSelectedMoonTargetLabel().ToLowerInvariant()} and caps the final moon count by planet size.";
         }
 
-        return "Preset and ruleset choices persist into the generated body.";
+        if (GetSelectedObjectType() == ObjectViewer.ObjectType.Planet)
+        {
+            return "Direct planet controls and local life settings persist into the generated world.";
+        }
+
+        if (_showAdvancedControlsCheck != null && _showAdvancedControlsCheck.ButtonPressed)
+        {
+            return "Advanced mode exposes direct physical override keys for this one object.";
+        }
+
+        return "Direct object controls persist into the generated body.";
     }
 
     private string BuildEnhancedAssumptionTooltip()
     {
         if (ShouldUseTravellerWorldGeneration())
         {
-            return "Traveller mode builds a world profile first, then maps that profile into the body generator while keeping the result deterministic.";
+            return "Space Opera mode builds a world profile first, then maps that profile into the body generator while keeping the result deterministic.";
+        }
+
+        if (_planetGenerateMoonCheck != null && _planetGenerateMoonCheck.ButtonPressed)
+        {
+            return $"The planet generator will also create {GetSelectedMoonTargetDescription()} from the same seed family. The target count is capped by the generated planet size so small worlds do not end up with giant-planet moon counts. Captured mode biases those moons toward irregular outsider satellites rather than regular formed-with-the-planet moons.";
+        }
+
+        if (GetSelectedObjectType() == ObjectViewer.ObjectType.Planet)
+        {
+            return "Planet life settings apply only to this one world. Conflict notes call out when direct atmosphere, hydrosphere, envelope, moon, or civilization choices pull against the reviewed science behind the normal generator.";
         }
 
         if (_showAdvancedControlsCheck != null && _showAdvancedControlsCheck.ButtonPressed)
         {
-            return "Advanced controls use the same override keys as the object editor, so creation and later editing stay aligned.";
+            return "Advanced controls use the same override keys as the object editor, so creation and later editing stay aligned for this one object.";
         }
 
-        return "Preset assumptions and use-case settings are persisted into the generated body so downstream inspection and save/load flows stay aligned.";
+        return "Preset assumptions and direct object settings are persisted into the generated body so downstream inspection stays aligned.";
     }
 
     private void AddEnhancedIssueLabel(string text)
+    {
+        AddEnhancedIssueLabel(text, string.Empty);
+    }
+
+    private void AddEnhancedIssueLabel(string text, string tooltipText)
     {
         if (_issuesContainer == null || string.IsNullOrWhiteSpace(text))
         {
             return;
         }
 
-        Label noteLabel = new Label();
-        noteLabel.AutowrapMode = TextServer.AutowrapMode.Word;
+        Label noteLabel = UiSceneTemplates.InstantiateMessageLabel();
         noteLabel.Modulate = new Color(0.85f, 0.7f, 0.3f, 1.0f);
         noteLabel.Text = text;
+        noteLabel.TooltipText = tooltipText;
         _issuesContainer.AddChild(noteLabel);
     }
 
@@ -654,6 +862,29 @@ public partial class ObjectGenerationScreen
         }
     }
 
+    private void ConfigureEnhancedCheckboxRow(string rowName, CheckBox? checkBox, string text)
+    {
+        SetEnhancedRowLabel(rowName, text);
+        if (checkBox == null)
+        {
+            return;
+        }
+
+        if (_rowLabels.TryGetValue(rowName, out Label? label))
+        {
+            label.Visible = false;
+        }
+
+        checkBox.Text = text;
+        checkBox.SizeFlagsHorizontal = Control.SizeFlags.ExpandFill;
+    }
+
+    private bool IsTravellerModeSelected()
+    {
+        return _rulesetModeOption != null
+            && _rulesetModeOption.GetSelectedId() == (int)GenerationUseCaseSettings.RulesetModeType.Traveller;
+    }
+
     private void CacheOptionalOverride(string key)
     {
         HBoxContainer row = GetRequiredRow($"{key}Row");
@@ -675,6 +906,11 @@ public partial class ObjectGenerationScreen
         _rows[rowName] = row;
         _rowLabels[rowName] = label;
         return row;
+    }
+
+    private VBoxContainer? GetOptionalSection(string sectionName)
+    {
+        return FindChild(sectionName, true, false) as VBoxContainer;
     }
 
     private OptionButton GetRequiredOptionButton(string rowName, string controlName)
@@ -724,21 +960,17 @@ public partial class ObjectGenerationScreen
         return child;
     }
 
-    private void ApplyPermissivenessTooltip(string rowName, Control? input, Label? valueLabel, string subject)
+    private void ApplyCatalogTooltip(string parameterId, string rowName, Control? input)
     {
+        string tooltip = ObjectGenerationParameterCatalog.GetTooltip(parameterId);
         if (_rowLabels.TryGetValue(rowName, out Label? label))
         {
-            label.TooltipText = PermissivenessScaleHelper.GetTooltipText(subject);
+            label.TooltipText = tooltip;
         }
 
-        if (input != null && _rowLabels.TryGetValue(rowName, out Label? rowLabel))
+        if (input != null)
         {
-            input.TooltipText = rowLabel.TooltipText;
-        }
-
-        if (valueLabel != null && input != null)
-        {
-            valueLabel.TooltipText = input.TooltipText;
+            input.TooltipText = tooltip;
         }
     }
 
@@ -770,6 +1002,91 @@ public partial class ObjectGenerationScreen
         {
             optionButton.AddItem(OrbitZone.ToStringName(zone), (int)zone);
         }
+    }
+
+    private void PopulatePlanetOrbitModeOptions(OptionButton? optionButton)
+    {
+        if (optionButton == null)
+        {
+            return;
+        }
+
+        optionButton.Clear();
+        optionButton.AddItem("Auto", (int)PlanetOrbitMode.Auto);
+        optionButton.AddItem("Bound", (int)PlanetOrbitMode.Bound);
+        optionButton.AddItem("Rogue", (int)PlanetOrbitMode.Rogue);
+    }
+
+    private void PopulatePlanetClassBiasOptions(OptionButton? optionButton)
+    {
+        if (optionButton == null)
+        {
+            return;
+        }
+
+        optionButton.Clear();
+        optionButton.AddItem("Auto", (int)PlanetClassBias.Auto);
+        optionButton.AddItem("Rocky", (int)PlanetClassBias.Rocky);
+        optionButton.AddItem("Water-rich", (int)PlanetClassBias.WaterRich);
+        optionButton.AddItem("Sub-Neptune", (int)PlanetClassBias.SubNeptune);
+        optionButton.AddItem("Gas Giant", (int)PlanetClassBias.GasGiant);
+        optionButton.AddItem("Stripped Core", (int)PlanetClassBias.StrippedCore);
+    }
+
+    private void PopulatePlanetCompositionBiasOptions(OptionButton? optionButton)
+    {
+        if (optionButton == null)
+        {
+            return;
+        }
+
+        optionButton.Clear();
+        optionButton.AddItem("Auto", (int)PlanetCompositionBias.Auto);
+        optionButton.AddItem("Rocky", (int)PlanetCompositionBias.Rocky);
+        optionButton.AddItem("Ice or Water-rich", (int)PlanetCompositionBias.IcyWaterRich);
+        optionButton.AddItem("Gas Envelope", (int)PlanetCompositionBias.GasEnvelope);
+    }
+
+    private void PopulatePlanetEnvelopeOverrideOptions(OptionButton? optionButton)
+    {
+        if (optionButton == null)
+        {
+            return;
+        }
+
+        optionButton.Clear();
+        optionButton.AddItem("Auto", (int)PlanetEnvelopeOverride.Auto);
+        optionButton.AddItem("Thin", (int)PlanetEnvelopeOverride.Thin);
+        optionButton.AddItem("Retained", (int)PlanetEnvelopeOverride.Retained);
+        optionButton.AddItem("Stripped", (int)PlanetEnvelopeOverride.Stripped);
+    }
+
+    private void PopulatePlanetVolatileRichnessOptions(OptionButton? optionButton)
+    {
+        if (optionButton == null)
+        {
+            return;
+        }
+
+        optionButton.Clear();
+        optionButton.AddItem("Auto", (int)PlanetVolatileRichness.Auto);
+        optionButton.AddItem("Poor", (int)PlanetVolatileRichness.Poor);
+        optionButton.AddItem("Moderate", (int)PlanetVolatileRichness.Moderate);
+        optionButton.AddItem("Rich", (int)PlanetVolatileRichness.Rich);
+    }
+
+    private void PopulatePlanetHydrosphereTendencyOptions(OptionButton? optionButton)
+    {
+        if (optionButton == null)
+        {
+            return;
+        }
+
+        optionButton.Clear();
+        optionButton.AddItem("Auto", (int)PlanetHydrosphereTendency.Auto);
+        optionButton.AddItem("Dry", (int)PlanetHydrosphereTendency.Dry);
+        optionButton.AddItem("Mixed", (int)PlanetHydrosphereTendency.Mixed);
+        optionButton.AddItem("Oceanic", (int)PlanetHydrosphereTendency.Oceanic);
     }
 
     private void PopulateAutoRingComplexityOptions(OptionButton? optionButton)
@@ -830,29 +1147,48 @@ public partial class ObjectGenerationScreen
         optionButton.AddItem("No", 0);
     }
 
-    private void ApplyTriStateTooltip(string rowName, OptionButton? optionButton, string subject)
+    private void PopulateProfileLevelOptions(OptionButton? optionButton, params string[] labels)
     {
         if (optionButton == null)
         {
             return;
         }
 
-        string tooltip = $"Auto lets seeded generation decide when {subject} makes sense. Yes forces it on. No leaves it out.";
-        optionButton.TooltipText = tooltip;
-        if (_rowLabels.TryGetValue(rowName, out Label? label))
+        optionButton.Clear();
+        for (int index = 0; index < labels.Length; index++)
         {
-            label.TooltipText = tooltip;
+            optionButton.AddItem(labels[index], index - 1);
         }
     }
 
-    private void ApplyTravellerDefaultsToPermissivenessControls()
+    private void PopulateMoonTargetCountOptions(OptionButton? optionButton)
     {
-        if (_lifePermissivenessInput != null
-            && System.Math.Abs(_lifePermissivenessInput.Value - GenerationUseCaseSettings.NeutralPermissiveness) < 0.001)
+        if (optionButton == null)
         {
-            _lifePermissivenessInput.Value = GenerationUseCaseSettings.TravellerLifePermissiveness;
+            return;
         }
 
+        optionButton.Clear();
+        optionButton.AddItem("Auto", -1);
+        for (int targetCount = 1; targetCount <= 12; targetCount += 1)
+        {
+            optionButton.AddItem(targetCount.ToString(), targetCount);
+        }
+    }
+
+    private void PopulateStarSubclassOptions(OptionButton? optionButton)
+    {
+        if (optionButton == null)
+        {
+            return;
+        }
+
+        optionButton.Clear();
+        optionButton.AddItem("Auto", -1);
+        for (int subclass = 0; subclass <= 9; subclass++)
+        {
+            optionButton.AddItem(subclass.ToString(), subclass);
+        }
     }
 
     private void PopulateTravellerCodeOptions(OptionButton? optionButton, string kind)
@@ -881,5 +1217,42 @@ public partial class ObjectGenerationScreen
 
             optionButton.AddItem(label, code);
         }
+    }
+
+    private string GetSelectedMoonTargetLabel()
+    {
+        if (_moonTargetCountOption == null)
+        {
+            return "Auto";
+        }
+
+        int selectedId = _moonTargetCountOption.GetSelectedId();
+        if (selectedId < 1)
+        {
+            return "Auto";
+        }
+
+        return selectedId.ToString();
+    }
+
+    private string GetSelectedMoonTargetDescription()
+    {
+        if (_moonTargetCountOption == null)
+        {
+            return "an automatic moon count";
+        }
+
+        int selectedId = _moonTargetCountOption.GetSelectedId();
+        if (selectedId < 1)
+        {
+            return "an automatic moon count based on planet size";
+        }
+
+        if (selectedId == 1)
+        {
+            return "1 moon";
+        }
+
+        return $"{selectedId} moons";
     }
 }

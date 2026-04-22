@@ -52,6 +52,56 @@ Release notes and version summaries are in the [README](../README.md#version-his
 - Keep realism consistency across galaxy, stellar, planetary, and life-distribution outputs rather than applying realism to isolated tiers only.
 - Any realism-related changes require documentation updates and human verification against reviewed sources before acceptance.
 
+### Active effort: Planetary retrofit and downstream environmental constraints (`0.8.7.0`)
+
+- Retrofit the existing planet-generation spine instead of replacing it, keeping `GalaxyConfig -> SolarSystemSpec -> SystemPlanetGenerator -> PlanetSpec -> PlanetGenerator` intact while threading a shared aggregate planetary-formation profile through the upstream tiers.
+- Keep aggregate planetary-formation assumptions at Galaxy Studio and System Studio only, exposing model choices such as mass-radius handling, envelope loss, gas-giant formation, metallicity coupling, rogue-planet allowance, moon-formation bias, and outer-system small-body bias with plain-language help.
+- Keep Object Studio limited to direct single-planet controls, including orbit mode, class bias, composition bias, envelope override, volatile richness, hydrosphere tendency, and moon-bundle settings, without surfacing disk- or system-level formation knobs there.
+- Derive a deterministic `PlanetarySystemState` once per system so orbit-slot weighting and broad class preconditions can respond to snow-line position, solid/gas budget surrogates, escape pressure, metallicity enrichment, migration strength, and impact stirring without rewriting the generator into a simulation.
+- Store enough formation trace and provenance on generated planets to explain why a world became rocky, water-rich, sub-Neptune-like, gas-giant-like, or stripped-core-like, while preserving current save/load compatibility through additive fields and defaults.
+- Keep this pass grounded in `Sources/Texts/planets.md` as a deterministic implementation spec, not a mandate to mirror every latent variable or rewrite the whole planetary stack into a full formation simulator.
+- Use the aggregate planetary state to drive non-cosmetic downstream consequences, especially atmosphere retention, volatile delivery, moon architecture, outer-belt and comet-leaning small-body placement, and biosphere support.
+- Add flux-, habitable-zone-, XUV-, and tidal-heating-aware environment scoring so habitability and native-biology outcomes follow system context rather than only standalone planet readouts.
+- Calibrate these constraints against reviewed literature for planet demographics, moon formation, asteroid/comet structure, and habitability windows, and keep the implementation additive instead of rewriting the current generator stack.
+
+### Planned effort: RPG compatibility overrides
+
+- Expand the current `Generation Overrides` seam beyond the existing Traveller-leaning clean-room mode into a small set of explicitly supported RPG compatibility profiles.
+- Keep this layer compatibility-oriented rather than lore-oriented: it should bias generated outputs toward usable mainworlds, settlement structures, readouts, and constraints for a target game family without copying protected setting material or implying endorsement.
+- Use only systems with reviewed source and licensing support in the repo for first-class built-in overrides. Current first-wave candidates are:
+  - Cepheus Engine
+  - Ironsworn: Starforged
+  - Starfinder, but only as a clean-room compatibility profile unless and until more ORC-designated primary material is reviewed
+- Keep Traveller support clean-room unless a separate human-reviewed licensing path broadens what can be shipped.
+- Avoid shipping unsupported built-in overrides for Stars Without Number or GURPS until a clearer reviewed rights basis exists.
+- Build the override layer on top of the existing `GenerationUseCaseSettings` / `RulesetMode` seam so the same controls can apply consistently in Galaxy Studio, System Studio, and Object Studio.
+- Override profiles should materially change generation:
+  - settlement density and mainworld policy
+  - atmosphere and hydrographics permissiveness
+  - life and civilization forcing or relaxation
+  - starport or hub-world bias
+  - debris, frontier, and hazard pressure
+  - export and readout mappings
+- Do not reproduce rules text or proprietary tables verbatim unless the reviewed source explicitly permits it.
+
+### Recently completed effort: Planetary and minor-body taxonomy expansion (`0.8.5.0`)
+
+- Expanded Object Studio so it behaves as a true single-object authoring surface, showing only the controls that match the currently selected object type instead of exposing unrelated presets and parameters all at once.
+- Removed standalone moon generation from the Object Studio top-level picker and moved moon generation under planets, with context-sensitive moon controls that only appear when moon generation is enabled.
+- Added comet generation as a real celestial-body path, including generation, rendering, save/load metadata, viewer display, and Object Studio controls.
+- Broadened asteroid authoring beyond type-only selection by exposing practical orbit-band, density, and albedo shaping controls that materially change the generated result.
+- Expanded planet object controls toward a richer profile-driven surface so users can shape outcomes such as atmosphere, ocean/ice coverage, albedo, volcanism, and moon generation more directly.
+- Added deterministic and non-visual integration coverage proving the Object Studio context gating, comet support, expanded asteroid tuning, and planet moon controls behave correctly.
+
+### Recently completed effort: Stellar population expansion (`0.8.4.0`)
+
+- Expand the stellar generator beyond main-sequence OBAFGKM output so it can also produce practical, research-backed brown dwarfs, evolved stars, white dwarfs, and more realistic multi-star architectures.
+- Keep the implementation generation-focused rather than simulation-focused: use deterministic approximations grounded in reviewed IMF, isochrone, white-dwarf, brown-dwarf, and multiplicity literature.
+- Carry the expanded stellar offerings through galaxy generation, standalone system generation, viewer readouts, and help surfaces so the same stellar model is used everywhere.
+- Where multiple research-backed model families exist, expose the supported choices in Galaxy Studio and System Studio rather than hardcoding one hidden assumption.
+- Treat unsupported end states such as neutron stars and black holes as out of scope for this effort unless new reviewed sources and explicit user direction expand the model further.
+- Add deterministic and statistical tests that verify the expanded stellar population behaves within the expected scientific bands and that new spectral and stellar-type outputs survive serialization, rendering hints, and system generation.
+
 ### Scope split: StarGen vs MythicWorldGen
 
 - StarGen mainline scope narrows to generation functions and generation-time modification workflows.

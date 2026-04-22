@@ -166,6 +166,80 @@ public static class TestPopulationLikelihood
     }
 
     /// <summary>
+    /// Tests that the supportable-world override guarantees native life without bypassing support gates.
+    /// </summary>
+    public static void TestForceLifeOnSupportableWorldsRespectsSupportGate()
+    {
+        PlanetProfile supportableProfile = new();
+        supportableProfile.BodyId = "supportable";
+        supportableProfile.HabitabilityScore = 4;
+        supportableProfile.AvgTemperatureK = 298.0;
+        supportableProfile.StellarAgeYears = 4.5e9;
+        supportableProfile.PressureAtm = 1.0;
+        supportableProfile.OceanCoverage = 0.55;
+        supportableProfile.LandCoverage = 0.35;
+        supportableProfile.IceCoverage = 0.05;
+        supportableProfile.GravityG = 1.0;
+        supportableProfile.VolcanismLevel = 0.20;
+        supportableProfile.WeatherSeverity = 0.20;
+        supportableProfile.RadiationLevel = 0.15;
+        supportableProfile.StellarFluxEarth = 1.0;
+        supportableProfile.HabitableZoneAlignment = 0.92;
+        supportableProfile.XuvExposure = 0.08;
+        supportableProfile.HasAtmosphere = true;
+        supportableProfile.HasLiquidWater = true;
+        supportableProfile.HasBreathableAtmosphere = true;
+
+        GenerationUseCaseSettings defaultSettings = GenerationUseCaseSettings.CreateDefault();
+        GenerationUseCaseSettings forcedSettings = defaultSettings.Clone();
+        forcedSettings.ForceLifeOnSupportableWorlds = true;
+
+        DotNetNativeTestSuite.AssertTrue(
+            BiologySupportEvaluator.SupportsBiology(supportableProfile, defaultSettings),
+            "The supportable test profile must pass the biology support gate");
+
+        long matchingSeed = -1;
+        for (long populationSeed = 1; populationSeed <= 10000; populationSeed += 1)
+        {
+            bool defaultResult = PopulationLikelihood.ShouldGenerateNatives(supportableProfile, populationSeed, defaultSettings);
+            bool forcedResult = PopulationLikelihood.ShouldGenerateNatives(supportableProfile, populationSeed, forcedSettings);
+            if (!defaultResult && forcedResult)
+            {
+                matchingSeed = populationSeed;
+                break;
+            }
+        }
+
+        DotNetNativeTestSuite.AssertTrue(
+            matchingSeed > 0,
+            "A supportable world should exist where the force-life override admits native life that the normal stochastic roll would miss");
+
+        PlanetProfile unsupportedProfile = new();
+        unsupportedProfile.BodyId = "unsupported";
+        unsupportedProfile.HabitabilityScore = 1;
+        unsupportedProfile.AvgTemperatureK = 110.0;
+        unsupportedProfile.PressureAtm = 0.0;
+        unsupportedProfile.OceanCoverage = 0.0;
+        unsupportedProfile.LandCoverage = 0.20;
+        unsupportedProfile.IceCoverage = 0.0;
+        unsupportedProfile.GravityG = 0.3;
+        unsupportedProfile.RadiationLevel = 0.95;
+        unsupportedProfile.StellarFluxEarth = 0.02;
+        unsupportedProfile.HabitableZoneAlignment = 0.0;
+        unsupportedProfile.XuvExposure = 0.6;
+        unsupportedProfile.HasAtmosphere = false;
+        unsupportedProfile.HasLiquidWater = false;
+        unsupportedProfile.HasBreathableAtmosphere = false;
+
+        DotNetNativeTestSuite.AssertFalse(
+            BiologySupportEvaluator.SupportsBiology(unsupportedProfile, forcedSettings),
+            "The unsupported test profile must fail the biology support gate");
+        DotNetNativeTestSuite.AssertFalse(
+            PopulationLikelihood.ShouldGenerateNatives(unsupportedProfile, 77, forcedSettings),
+            "The force-life override must not create native life on unsupported worlds");
+    }
+
+    /// <summary>
     /// Tests that the same deterministic colony roll can fail without native pressure and pass with it.
     /// </summary>
     public static void TestShouldGenerateColonyRespectsNativePressure()

@@ -1,0 +1,15 @@
+Lingam, M., & Loeb, A. (2018).
+Is Life Most Likely Around Sun-like Stars?
+arXiv:1710.11134
+https://arxiv.org/abs/1710.11134
+
+Why this source matters for StarGen
+- This paper argues that host-star class affects relative habitability through stellar lifetime, atmospheric erosion, and biologically relevant ultraviolet irradiance.
+- It pushes against the idea that the most numerous cool stars should automatically be treated as the best life hosts.
+
+How it is used
+- Supports making host-star context an explicit part of the life model instead of relying only on present-day planetary environment.
+- Supports distinguishing relative prospects for complex exposed biospheres across M, K, and G star contexts.
+
+Human review notes
+- Treat as a comparative-habitability framing, not as a hard exclusion rule for low-mass hosts.

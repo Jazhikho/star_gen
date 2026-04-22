@@ -1,10 +1,8 @@
 using Godot;
-using StarGen.App.Concepts;
-using StarGen.Domain.Concepts;
+using StarGen.App.Audio;
 using StarGen.Domain.Galaxy;
 using StarGen.Domain.Rng;
 using StarGen.Domain.Systems;
-using StarGen.Services.Concepts;
 using StarGen.Services.Persistence;
 
 namespace StarGen.App;
@@ -22,28 +20,26 @@ public partial class MainApp : Node
 	private const string SystemGenerationScreenScenePath = "res://src/app/SystemGenerationScreen.tscn";
 	private const string ObjectGenerationScreenScenePath = "res://src/app/ObjectGenerationScreen.tscn";
 	private const string StationStudioScreenScenePath = "res://src/app/StationStudioScreen.tscn";
-	private const string ConceptAtlasScreenScenePath = "res://src/app/concepts/ConceptAtlasScreen.tscn";
 	private const string GalaxyViewerScenePath = "res://src/app/galaxy_viewer/GalaxyViewerCSharp.tscn";
 	private const string SystemViewerScenePath = "res://src/app/system_viewer/SystemViewer.tscn";
 	private const string ObjectViewerScenePath = "res://src/app/viewer/ObjectViewer.tscn";
 
-	private enum ViewerType { None, Splash, Menu, GalaxyStudio, SystemStudio, ObjectStudio, StationStudio, ConceptAtlas, Galaxy, System, Object }
+	private enum ViewerType { None, Splash, Menu, GalaxyStudio, SystemStudio, ObjectStudio, StationStudio, Galaxy, System, Object }
 	private enum NavigationOrigin { None, Menu, Galaxy, System }
 
 	private ViewerType _activeViewer = ViewerType.None;
 	private Node? _viewerContainer;
 	private ColorRect? _startupTransitionRect;
+	private AppAudioController? _audioController;
 	private SplashScreen? _splashScreen;
 	private MainMenuScreen? _mainMenuScreen;
 	private GalaxyGenerationScreen? _galaxyGenerationScreen;
 	private SystemGenerationScreen? _systemGenerationScreen;
 	private ObjectGenerationScreen? _objectGenerationScreen;
 	private StationStudioScreen? _stationStudioScreen;
-	private ConceptAtlasScreen? _conceptAtlasScreen;
 	private StarGen.App.GalaxyViewer.GalaxyViewer? _galaxyViewer;
 	private StarGen.App.SystemViewer.SystemViewer? _systemViewer;
 	private StarGen.App.Viewer.ObjectViewer? _objectViewer;
-	private ViewerType _conceptAtlasReturnViewer = ViewerType.Menu;
 	private NavigationOrigin _systemOrigin = NavigationOrigin.None;
 	private NavigationOrigin _objectOrigin = NavigationOrigin.None;
 	private readonly SystemCache _systemCache = new();
@@ -61,6 +57,7 @@ public partial class MainApp : Node
 	{
 		_viewerContainer = GetNodeOrNull<Node>("ViewerContainer");
 		_startupTransitionRect = GetNodeOrNull<ColorRect>("TransitionLayer/StartupFadeRect");
+		_audioController = GetNodeOrNull<AppAudioController>("AudioController");
 		if (_startupTransitionRect != null)
 		{
 			_startupTransitionRect.Color = new Color(0.0f, 0.0f, 0.0f, 0.0f);
@@ -74,7 +71,13 @@ public partial class MainApp : Node
 		CreateSystemGenerationScreen();
 		CreateObjectGenerationScreen();
 		CreateStationStudioScreen();
-		CreateConceptAtlasScreen();
+		StudioUiPreferencesService.StudioUiPreferences studioPreferences = StudioUiPreferencesService.LoadOrDefault();
+		if (studioPreferences.SkipIntro)
+		{
+			ShowMainMenu();
+			return;
+		}
+
 		ShowSplashScreen();
 	}
 
@@ -89,7 +92,6 @@ public partial class MainApp : Node
 		QueueDetachedNodeForCleanup(_systemGenerationScreen);
 		QueueDetachedNodeForCleanup(_objectGenerationScreen);
 		QueueDetachedNodeForCleanup(_stationStudioScreen);
-		QueueDetachedNodeForCleanup(_conceptAtlasScreen);
 		QueueDetachedNodeForCleanup(_galaxyViewer);
 		QueueDetachedNodeForCleanup(_systemViewer);
 		QueueDetachedNodeForCleanup(_objectViewer);
@@ -114,6 +116,9 @@ public partial class MainApp : Node
 
 	/// <summary>Returns the current body-override collection.</summary>
 	public GalaxyBodyOverrides GetBodyOverrides() => _bodyOverrides;
+
+	/// <summary>Returns the shared application audio controller.</summary>
+	public AppAudioController? GetAudioController() => _audioController;
 
 	/// <summary>GDScript-compatible body overrides accessor.</summary>
 	public GalaxyBodyOverrides get_body_overrides() => GetBodyOverrides();
@@ -180,7 +185,6 @@ public partial class MainApp : Node
 		_galaxyGenerationScreen.Name = "GalaxyGenerationScreen";
 		_galaxyGenerationScreen.SetSeededRng(_startupRng);
 		_galaxyGenerationScreen.Connect("start_new_galaxy", Callable.From<GalaxyConfig, int>(OnGalaxyGenerationStarted));
-		_galaxyGenerationScreen.Connect("load_galaxy_requested", Callable.From(OnGalaxyLoadRequested));
 		_galaxyGenerationScreen.Connect("back_requested", Callable.From(OnGalaxyGenerationBackRequested));
 		_galaxyGenerationScreen.Connect("quit_requested", Callable.From(OnGalaxyGenerationQuitRequested));
 		_galaxyGenerationScreen.SetNavigationVisibility(showBackButton: true, showQuitButton: false);
@@ -207,7 +211,6 @@ public partial class MainApp : Node
 
 		_systemGenerationScreen.Name = "SystemGenerationScreen";
 		_systemGenerationScreen.Connect("start_system_generation", Callable.From<SolarSystemSpec>(OnSystemGenerationStarted));
-		_systemGenerationScreen.Connect("load_system_requested", Callable.From(OnSystemGenerationLoadRequested));
 		_systemGenerationScreen.Connect("back_requested", Callable.From(OnSystemGenerationBackRequested));
 	}
 
@@ -232,12 +235,11 @@ public partial class MainApp : Node
 
 		_objectGenerationScreen.Name = "ObjectGenerationScreen";
 		_objectGenerationScreen.Connect("start_object_generation", Callable.From<ObjectGenerationRequest>(OnObjectGenerationStarted));
-		_objectGenerationScreen.Connect("load_object_requested", Callable.From(OnObjectGenerationLoadRequested));
 		_objectGenerationScreen.Connect("back_requested", Callable.From(OnObjectGenerationBackRequested));
 	}
 
 	/// <summary>
-	/// Creates the station-studio placeholder screen.
+	/// Creates the station-studio screen.
 	/// </summary>
 	private void CreateStationStudioScreen()
 	{
@@ -257,29 +259,6 @@ public partial class MainApp : Node
 
 		_stationStudioScreen.Name = "StationStudioScreen";
 		_stationStudioScreen.Connect("back_requested", Callable.From(ShowMainMenu));
-	}
-
-	/// <summary>
-	/// Creates the concept atlas screen.
-	/// </summary>
-	private void CreateConceptAtlasScreen()
-	{
-		PackedScene? scene = ResourceLoader.Load<PackedScene>(ConceptAtlasScreenScenePath);
-		if (scene == null)
-		{
-			GD.PushError("MainApp: failed to load concept atlas scene");
-			return;
-		}
-
-		_conceptAtlasScreen = scene.Instantiate() as ConceptAtlasScreen;
-		if (_conceptAtlasScreen == null)
-		{
-			GD.PushError("MainApp: failed to instantiate concept atlas");
-			return;
-		}
-
-		_conceptAtlasScreen.Name = "ConceptAtlasScreen";
-		_conceptAtlasScreen.BackRequested += OnConceptAtlasBackRequested;
 	}
 
 	/// <summary>
@@ -329,7 +308,6 @@ public partial class MainApp : Node
 		_mainMenuScreen.Connect("system_generation_requested", Callable.From(OnMainMenuSystemGenerationRequested));
 		_mainMenuScreen.Connect("object_generation_requested", Callable.From(OnMainMenuObjectGenerationRequested));
 		_mainMenuScreen.Connect("station_generation_requested", Callable.From(OnMainMenuStationGenerationRequested));
-		_mainMenuScreen.Connect("concept_atlas_requested", Callable.From(OnMainMenuConceptAtlasRequested));
 		_mainMenuScreen.Connect("quit_requested", Callable.From(OnGalaxyGenerationQuitRequested));
 	}
 
@@ -343,7 +321,6 @@ public partial class MainApp : Node
 		RemoveFromViewerContainer(_systemGenerationScreen);
 		RemoveFromViewerContainer(_objectGenerationScreen);
 		RemoveFromViewerContainer(_stationStudioScreen);
-		RemoveFromViewerContainer(_conceptAtlasScreen);
 		RemoveFromViewerContainer(_galaxyViewer);
 		RemoveFromViewerContainer(_systemViewer);
 		RemoveFromViewerContainer(_objectViewer);
@@ -361,7 +338,6 @@ public partial class MainApp : Node
 		RemoveFromViewerContainer(_systemGenerationScreen);
 		RemoveFromViewerContainer(_objectGenerationScreen);
 		RemoveFromViewerContainer(_stationStudioScreen);
-		RemoveFromViewerContainer(_conceptAtlasScreen);
 		RemoveFromViewerContainer(_galaxyViewer);
 		RemoveFromViewerContainer(_systemViewer);
 		RemoveFromViewerContainer(_objectViewer);
@@ -380,7 +356,6 @@ public partial class MainApp : Node
 		RemoveFromViewerContainer(_systemGenerationScreen);
 		RemoveFromViewerContainer(_objectGenerationScreen);
 		RemoveFromViewerContainer(_stationStudioScreen);
-		RemoveFromViewerContainer(_conceptAtlasScreen);
 		RemoveFromViewerContainer(_galaxyViewer);
 		RemoveFromViewerContainer(_systemViewer);
 		RemoveFromViewerContainer(_objectViewer);
@@ -400,7 +375,6 @@ public partial class MainApp : Node
 		RemoveFromViewerContainer(_galaxyGenerationScreen);
 		RemoveFromViewerContainer(_objectGenerationScreen);
 		RemoveFromViewerContainer(_stationStudioScreen);
-		RemoveFromViewerContainer(_conceptAtlasScreen);
 		RemoveFromViewerContainer(_galaxyViewer);
 		RemoveFromViewerContainer(_systemViewer);
 		RemoveFromViewerContainer(_objectViewer);
@@ -428,7 +402,7 @@ public partial class MainApp : Node
 	}
 
 	/// <summary>
-	/// Displays the station-studio placeholder.
+	/// Displays the station-studio screen.
 	/// </summary>
 	private void ShowStationStudioScreen()
 	{
@@ -437,7 +411,6 @@ public partial class MainApp : Node
 		RemoveFromViewerContainer(_galaxyGenerationScreen);
 		RemoveFromViewerContainer(_systemGenerationScreen);
 		RemoveFromViewerContainer(_objectGenerationScreen);
-		RemoveFromViewerContainer(_conceptAtlasScreen);
 		RemoveFromViewerContainer(_galaxyViewer);
 		RemoveFromViewerContainer(_systemViewer);
 		RemoveFromViewerContainer(_objectViewer);
@@ -446,71 +419,11 @@ public partial class MainApp : Node
 	}
 
 	/// <summary>
-	/// Displays the concept atlas.
-	/// </summary>
-	private void ShowConceptAtlasScreen()
-	{
-		RemoveFromViewerContainer(_splashScreen);
-		RemoveFromViewerContainer(_mainMenuScreen);
-		RemoveFromViewerContainer(_galaxyGenerationScreen);
-		RemoveFromViewerContainer(_systemGenerationScreen);
-		RemoveFromViewerContainer(_objectGenerationScreen);
-		RemoveFromViewerContainer(_stationStudioScreen);
-		RemoveFromViewerContainer(_galaxyViewer);
-		RemoveFromViewerContainer(_systemViewer);
-		RemoveFromViewerContainer(_objectViewer);
-		AddToViewerContainer(_conceptAtlasScreen);
-		_activeViewer = ViewerType.ConceptAtlas;
-	}
-
-	/// <summary>
-	/// Opens the concept atlas with the provided context and remembers the return target.
-	/// </summary>
-	private void OpenConceptAtlas(ConceptContextSnapshot snapshot, Domain.Concepts.ConceptKind initialKind, ViewerType returnViewer)
-	{
-		if (_conceptAtlasScreen == null)
-		{
-			return;
-		}
-
-		_conceptAtlasReturnViewer = returnViewer;
-		_conceptAtlasScreen.SetContext(snapshot, initialKind);
-		ShowConceptAtlasScreen();
-	}
-
-	/// <summary>
-	/// Returns from the concept atlas to the viewer it was opened from.
-	/// </summary>
-	private void OnConceptAtlasBackRequested()
-	{
-		switch (_conceptAtlasReturnViewer)
-		{
-			case ViewerType.Object:
-				ShowObjectViewer();
-				return;
-			default:
-				ShowMainMenu();
-				return;
-		}
-	}
-
-	/// <summary>
-	/// Opens the station-studio placeholder from the main menu.
+	/// Opens the station studio from the main menu.
 	/// </summary>
 	private void OnMainMenuStationGenerationRequested()
 	{
 		ShowStationStudioScreen();
-	}
-
-	/// <summary>
-	/// Opens the concept atlas from the main menu.
-	/// </summary>
-	private void OnMainMenuConceptAtlasRequested()
-	{
-		OpenConceptAtlas(
-			ConceptContextBuilder.CreateDefault(GenerateRandomSeed()),
-			Domain.Concepts.ConceptKind.Ecology,
-			ViewerType.Menu);
 	}
 
 	/// <summary>
@@ -626,7 +539,6 @@ public partial class MainApp : Node
 		RemoveFromViewerContainer(_systemGenerationScreen);
 		RemoveFromViewerContainer(_objectGenerationScreen);
 		RemoveFromViewerContainer(_stationStudioScreen);
-		RemoveFromViewerContainer(_conceptAtlasScreen);
 		RemoveFromViewerContainer(_systemViewer);
 		RemoveFromViewerContainer(_objectViewer);
 		AddToViewerContainer(_galaxyViewer);
@@ -650,7 +562,6 @@ public partial class MainApp : Node
 		RemoveFromViewerContainer(_systemGenerationScreen);
 		RemoveFromViewerContainer(_objectGenerationScreen);
 		RemoveFromViewerContainer(_stationStudioScreen);
-		RemoveFromViewerContainer(_conceptAtlasScreen);
 		RemoveFromViewerContainer(_galaxyViewer);
 		RemoveFromViewerContainer(_objectViewer);
 		AddToViewerContainer(_systemViewer);
@@ -684,7 +595,6 @@ public partial class MainApp : Node
 		RemoveFromViewerContainer(_systemGenerationScreen);
 		RemoveFromViewerContainer(_objectGenerationScreen);
 		RemoveFromViewerContainer(_stationStudioScreen);
-		RemoveFromViewerContainer(_conceptAtlasScreen);
 		RemoveFromViewerContainer(_galaxyViewer);
 		RemoveFromViewerContainer(_systemViewer);
 		AddToViewerContainer(_objectViewer);

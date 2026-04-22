@@ -21,21 +21,21 @@ public partial class SystemViewer
         _backButton = GetNodeOrNull<Button>("UI/TopBar/MarginContainer/TopBarVBox/HeaderRow/BackButton");
         _statusLabel = GetNodeOrNull<Label>("UI/TopBar/MarginContainer/TopBarVBox/HeaderRow/StatusLabel");
         _inspectorPanel = GetNodeOrNull<Node>("UI/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/InspectorPanel");
-        _generationSection = GetNodeOrNull<VBoxContainer>("UI/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/GenerationSection");
-        _starCountLabel = GetNodeOrNull<Label>("UI/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/GenerationSection/StarCountContainer/StarCountLabel");
-        _starCountSpin = GetNodeOrNull<SpinBox>("UI/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/GenerationSection/StarCountContainer/StarCountSpin");
-        _seedInput = GetNodeOrNull<SpinBox>("UI/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/GenerationSection/SeedContainer/SeedInput");
-        _generateButton = GetNodeOrNull<Button>("UI/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/GenerationSection/ButtonContainer/GenerateButton");
-        _rerollButton = GetNodeOrNull<Button>("UI/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/GenerationSection/ButtonContainer/RerollButton");
-        _saveButton = GetNodeOrNull<Button>("UI/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/SaveLoadSection/ButtonContainer/SaveButton");
-        _loadButton = GetNodeOrNull<Button>("UI/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/SaveLoadSection/ButtonContainer/LoadButton");
-        _showOrbitsCheck = GetNodeOrNull<CheckBox>("UI/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/ViewSection/ShowOrbitsCheck");
-        _showZonesCheck = GetNodeOrNull<CheckBox>("UI/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/ViewSection/ShowZonesCheck");
+        _optionsDialog = GetNodeOrNull<Window>("OptionsDialog");
+        _fullscreenCheck = GetNodeOrNull<CheckBox>("OptionsDialog/MarginContainer/OptionsVBox/FullscreenCheck");
+        _showSeedControlsCheck = GetNodeOrNull<CheckBox>("OptionsDialog/MarginContainer/OptionsVBox/ShowSeedControlsCheck");
+        _skipIntroCheck = GetNodeOrNull<CheckBox>("OptionsDialog/MarginContainer/OptionsVBox/SkipIntroCheck");
+        _resolutionOption = GetNodeOrNull<OptionButton>("OptionsDialog/MarginContainer/OptionsVBox/ResolutionRow/ResolutionOption");
+        _applyOptionsButton = GetNodeOrNull<Button>("OptionsDialog/MarginContainer/OptionsVBox/ButtonRow/ApplyOptionsButton");
+        _optionsStatusLabel = GetNodeOrNull<Label>("OptionsDialog/MarginContainer/OptionsVBox/OptionsStatusLabel");
+        _optionsDialogCloseButton = GetNodeOrNull<Button>("OptionsDialog/MarginContainer/OptionsVBox/ButtonRow/CloseButton");
+        _cameraPanel = GetNodeOrNull<Control>("UI/CameraPanel");
+        _cameraPanelHeaderButton = GetNodeOrNull<Button>("UI/CameraPanel/CameraPanelVBox/CameraPanelHeaderButton");
+        _cameraPanelContent = GetNodeOrNull<Control>("UI/CameraPanel/CameraPanelVBox/CameraPanelContent");
         _emptyStateLabel = GetNodeOrNull<Label>("UI/EmptyStateLabel");
         _cameraController = GetNodeOrNull<Node>("CameraRig/Camera3D");
         _bodiesContainer = GetNodeOrNull<Node3D>("BodiesContainer");
         _orbitsContainer = GetNodeOrNull<Node3D>("OrbitsContainer");
-        _zonesContainer = GetNodeOrNull<Node3D>("ZonesContainer");
         _systemBodyNodeScene = ResourceLoader.Load<PackedScene>(SystemBodyNodeScenePath);
     }
 
@@ -67,26 +67,13 @@ public partial class SystemViewer
     }
 
     /// <summary>
-    /// Initializes generation UI defaults.
+    /// Initializes viewer defaults for a detached standalone instance.
     /// </summary>
     private void SetupGenerationUi()
     {
-        if (_starCountSpin != null)
-        {
-            _starCountSpin.MinValue = 1;
-            _starCountSpin.MaxValue = 10;
-            _starCountSpin.Value = 1;
-        }
-
-        if (_seedInput != null)
-        {
-            _seedInput.Value = GD.Randi() % 1000000;
-        }
-
-        BuildParameterEditorUi();
         if (_currentSpec == null)
         {
-            ApplySpecToControls(new SolarSystemSpec((int)(_seedInput?.Value ?? 1.0), 1, 1));
+            ApplySpecToControls(new SolarSystemSpec((int)(GD.Randi() % 1000000), 1, 1));
         }
     }
 
@@ -95,15 +82,6 @@ public partial class SystemViewer
     /// </summary>
     private void SetupViewUi()
     {
-        if (_showOrbitsCheck != null)
-        {
-            _showOrbitsCheck.ButtonPressed = true;
-        }
-
-        if (_showZonesCheck != null)
-        {
-            _showZonesCheck.ButtonPressed = false;
-        }
     }
 
     /// <summary>
@@ -148,99 +126,34 @@ public partial class SystemViewer
     private void SetupSaveLoadUi()
     {
         SetupEmptyStateUi();
-        UpdateSaveButtonState();
     }
 
     /// <summary>
     /// Creates the empty-state placeholder shown before the first standalone generation.
     /// </summary>
-    private void SetupEmptyStateUi()
-    {
-        if (_emptyStateLabel == null)
-        {
-            throw new System.InvalidOperationException("SystemViewer scene is missing EmptyStateLabel.");
-        }
+	private void SetupEmptyStateUi()
+	{
+		if (_emptyStateLabel == null)
+		{
+			throw new System.InvalidOperationException("SystemViewer scene is missing EmptyStateLabel.");
+		}
 
-        _emptyStateLabel.HorizontalAlignment = HorizontalAlignment.Center;
-        _emptyStateLabel.VerticalAlignment = VerticalAlignment.Center;
-        _emptyStateLabel.AutowrapMode = TextServer.AutowrapMode.Word;
-        _emptyStateLabel.CustomMinimumSize = new Vector2(280.0f, 0.0f);
-        UpdateEmptyStateVisibility();
-    }
+		UpdateEmptyStateVisibility();
+	}
 
     /// <summary>
     /// Applies tooltip text to interactive controls.
     /// </summary>
-    private void SetupTooltips()
-    {
-        if (_generateButton != null)
-        {
-            _generateButton.TooltipText = "Generate system with current settings";
-        }
-
-        if (_rerollButton != null)
-        {
-            _rerollButton.TooltipText = "Generate with a new random seed";
-        }
-
-        if (_starCountSpin != null)
-        {
-            _starCountSpin.TooltipText = "Number of stars in the system (1-10)";
-        }
-
-        if (_seedInput != null)
-        {
-            _seedInput.TooltipText = "Generation seed for deterministic results";
-        }
-
-        if (_showOrbitsCheck != null)
-        {
-            _showOrbitsCheck.TooltipText = "Toggle orbital path visibility";
-        }
-
-        if (_showZonesCheck != null)
-        {
-            _showZonesCheck.TooltipText = "Toggle habitable zone visibility";
-        }
-
-        if (_saveButton != null)
-        {
-            _saveButton.TooltipText = "Save current system to file (Ctrl+S)";
-        }
-
-        if (_loadButton != null)
-        {
-            _loadButton.TooltipText = "Load system from file (Ctrl+O)";
-        }
-
-        if (_backButton != null)
-        {
-            _backButton.TooltipText = _backNavigationTooltip;
-        }
-
-        if (_rulesetModeOption != null)
-        {
-            _rulesetModeOption.TooltipText = GetSystemAssumption("ruleset_mode");
-        }
-
-        if (_showTravellerReadoutsCheck != null)
-        {
-            _showTravellerReadoutsCheck.TooltipText = GetSystemAssumption("show_traveller_readouts");
-        }
-
-        if (_lifePermissivenessInput != null)
-        {
-            _lifePermissivenessInput.TooltipText = PermissivenessScaleHelper.GetTooltipText("life");
+	private void SetupTooltips()
+	{
+		if (_backButton != null)
+		{
+			_backButton.TooltipText = _backNavigationTooltip;
         }
 
         if (_populationPermissivenessInput != null)
         {
             _populationPermissivenessInput.TooltipText = PermissivenessScaleHelper.GetTooltipText("settlement");
-        }
-
-        if (_mainworldPolicyOption != null)
-        {
-            _mainworldPolicyOption.TooltipText = GetSystemAssumption("mainworld_policy");
         }
     }
 
@@ -259,65 +172,16 @@ public partial class SystemViewer
             _rerollButton.Pressed += OnRerollPressed;
         }
 
-        if (_showOrbitsCheck != null)
-        {
-            _showOrbitsCheck.Toggled += OnShowOrbitsToggled;
-        }
-
-        if (_showZonesCheck != null)
-        {
-            _showZonesCheck.Toggled += OnShowZonesToggled;
-        }
-
-        if (_saveButton != null)
-        {
-            _saveButton.Pressed += OnSavePressed;
-        }
-
-        if (_loadButton != null)
-        {
-            _loadButton.Pressed += OnLoadPressed;
-        }
-
         if (_backButton != null)
         {
             _backButton.Pressed += OnBackPressed;
-        }
-
-        if (_rulesetModeOption != null)
-        {
-            _rulesetModeOption.ItemSelected += OnRulesetModeSelected;
-        }
-
-        if (_showTravellerReadoutsCheck != null)
-        {
-            _showTravellerReadoutsCheck.Toggled += _ => RefreshGenerationValidationFromControls();
-        }
-
-        if (_lifePermissivenessInput != null)
-        {
-            _lifePermissivenessInput.ValueChanged += _ => RefreshGenerationValidationFromControls();
-        }
-
-        if (_populationPermissivenessInput != null)
-        {
-            _populationPermissivenessInput.ValueChanged += _ => RefreshGenerationValidationFromControls();
-        }
-
-        if (_mainworldPolicyOption != null)
-        {
-            _mainworldPolicyOption.ItemSelected += _ => RefreshGenerationValidationFromControls();
-        }
-
-        if (_generatePopulationCheck != null)
-        {
-            _generatePopulationCheck.Toggled += _ => RefreshGenerationValidationFromControls();
         }
 
         if (_inspectorPanel is SystemInspectorPanel typedInspectorPanel)
         {
             typedInspectorPanel.OpenInViewerRequested += OnOpenBodyInViewer;
             typedInspectorPanel.FocusBodyRequested += OnFocusBodyRequested;
+            typedInspectorPanel.FocusBeltRequested += OnFocusBeltRequested;
         }
         else if (_inspectorPanel != null && _inspectorPanel.HasSignal("open_in_viewer_requested"))
         {
@@ -327,8 +191,18 @@ public partial class SystemViewer
             {
                 _inspectorPanel.Connect("focus_body_requested", Callable.From<CelestialBody>(OnFocusBodyRequested));
             }
+
+            if (_inspectorPanel.HasSignal("focus_belt_requested"))
+            {
+                _inspectorPanel.Connect("focus_belt_requested", Callable.From<string>(OnFocusBeltRequested));
+            }
         }
 
+        if (_cameraPanelHeaderButton != null)
+        {
+            _cameraPanelHeaderButton.Pressed += ToggleCameraPanel;
+            InitializeCameraPanelLayout();
+        }
     }
 
     /// <summary>

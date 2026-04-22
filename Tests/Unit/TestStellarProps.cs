@@ -4,6 +4,7 @@ using System;
 using Godot.Collections;
 using StarGen.Domain;
 using StarGen.Domain.Celestial.Components;
+using StarGen.Domain.Generation;
 using StarGen.Domain.Math;
 
 namespace StarGen.Tests.Unit;
@@ -97,18 +98,39 @@ public static class TestStellarProps
     /// </summary>
     public static void TestHabitableZoneSunLike()
     {
-        StellarProps props = new StellarProps(StellarProps.SolarLuminosityWatts);
+        StellarProps props = new StellarProps(StellarProps.SolarLuminosityWatts, 5778.0);
 
         double inner = props.GetHabitableZoneInnerM();
         double outer = props.GetHabitableZoneOuterM();
 
-        if (inner < 0.9 * Units.AuMeters || inner > 1.0 * Units.AuMeters)
+        if (inner < 0.97 * Units.AuMeters || inner > 1.02 * Units.AuMeters)
         {
-            throw new InvalidOperationException($"Expected inner HZ in range [0.9 AU, 1.0 AU], got {inner / Units.AuMeters} AU");
+            throw new InvalidOperationException($"Expected default inner HZ in range [0.97 AU, 1.02 AU], got {inner / Units.AuMeters} AU");
         }
-        if (outer < 1.3 * Units.AuMeters || outer > 1.45 * Units.AuMeters)
+        if (outer < 1.65 * Units.AuMeters || outer > 1.75 * Units.AuMeters)
         {
-            throw new InvalidOperationException($"Expected outer HZ in range [1.3 AU, 1.45 AU], got {outer / Units.AuMeters} AU");
+            throw new InvalidOperationException($"Expected default outer HZ in range [1.65 AU, 1.75 AU], got {outer / Units.AuMeters} AU");
+        }
+    }
+
+    /// <summary>
+    /// Tests explicit Kasting-style habitable-zone lookup remains available.
+    /// </summary>
+    public static void TestHabitableZoneKastingOverrideSunLike()
+    {
+        StellarProps props = new StellarProps(StellarProps.SolarLuminosityWatts, 5778.0);
+
+        double inner = props.GetHabitableZoneInnerM(PlanetHabitableZoneModel.Kasting1993Conservative);
+        double outer = props.GetHabitableZoneOuterM(PlanetHabitableZoneModel.Kasting1993Conservative);
+
+        if (inner < 0.93 * Units.AuMeters || inner > 0.97 * Units.AuMeters)
+        {
+            throw new InvalidOperationException($"Expected Kasting inner HZ in range [0.93 AU, 0.97 AU], got {inner / Units.AuMeters} AU");
+        }
+
+        if (outer < 1.33 * Units.AuMeters || outer > 1.41 * Units.AuMeters)
+        {
+            throw new InvalidOperationException($"Expected Kasting outer HZ in range [1.33 AU, 1.41 AU], got {outer / Units.AuMeters} AU");
         }
     }
 
@@ -117,8 +139,8 @@ public static class TestStellarProps
     /// </summary>
     public static void TestHabitableZoneBrighterStar()
     {
-        StellarProps sunLike = new StellarProps(StellarProps.SolarLuminosityWatts);
-        StellarProps brighter = new StellarProps(StellarProps.SolarLuminosityWatts * 4.0);
+        StellarProps sunLike = new StellarProps(StellarProps.SolarLuminosityWatts, 5778.0);
+        StellarProps brighter = new StellarProps(StellarProps.SolarLuminosityWatts * 4.0, 5778.0);
 
         double sunInner = sunLike.GetHabitableZoneInnerM();
         double brightInner = brighter.GetHabitableZoneInnerM();
@@ -206,6 +228,34 @@ public static class TestStellarProps
         if (props.GetSpectralLetter() != "")
         {
             throw new InvalidOperationException($"Expected empty spectral letter, got '{props.GetSpectralLetter()}'");
+        }
+    }
+
+    /// <summary>
+    /// Tests spectral helpers handle brown-dwarf and white-dwarf labels.
+    /// </summary>
+    public static void TestExpandedSpectralHelpers()
+    {
+        StellarProps props = new StellarProps();
+
+        props.SpectralClass = "L5";
+        if (props.GetSpectralLetter() != "L")
+        {
+            throw new InvalidOperationException($"Expected spectral letter 'L', got '{props.GetSpectralLetter()}'");
+        }
+        if (props.GetLuminosityClass() != string.Empty)
+        {
+            throw new InvalidOperationException("Brown-dwarf spectral labels should not report a luminosity class");
+        }
+
+        props.SpectralClass = "DA4";
+        if (props.GetSpectralLetter() != "D")
+        {
+            throw new InvalidOperationException($"Expected spectral letter 'D', got '{props.GetSpectralLetter()}'");
+        }
+        if (props.GetLuminosityClass() != string.Empty)
+        {
+            throw new InvalidOperationException("White-dwarf spectral labels should not report a normal luminosity class");
         }
     }
 

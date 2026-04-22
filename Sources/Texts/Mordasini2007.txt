@@ -1,0 +1,19 @@
+Source note for StarGen research review
+
+Citation:
+Mordasini, C., Alibert, Y., Benz, W., & Naef, D. (2007).
+Giant planet formation by core accretion.
+Extreme Solar Systems, ASP Conference Series.
+arXiv: https://arxiv.org/abs/0710.5667
+
+What was reviewed:
+- Abstract and source metadata on 2026-04-19.
+
+Key implementation notes used in StarGen:
+- The paper reviews the standard giant-planet core-accretion picture, where a heavy solid core forms first and runaway gas accretion follows later.
+- The practical takeaway for StarGen is that `Core Accretion` should remain the conservative baseline giant-growth model.
+- The review also supports using synthetic-population style weighting rather than requiring a full planet-formation simulation.
+
+How StarGen uses this:
+- As the named support for the `Core Accretion` giant-growth option in aggregate planetary priors.
+- As the baseline lower giant-growth weighting when compared with the faster pebble-assisted branch.

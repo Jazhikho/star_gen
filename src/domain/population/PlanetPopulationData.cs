@@ -111,6 +111,11 @@ public partial class PlanetPopulationData : RefCounted
     public DiseaseState? DiseaseState;
 
     /// <summary>
+    /// Neutral sentient-world baseline used by compatibility adapters.
+    /// </summary>
+    public SentientWorldProfile? SentientWorldProfile;
+
+    /// <summary>
     /// Returns the total extant native plus active colony population.
     /// </summary>
     public int GetTotalPopulation()
@@ -466,7 +471,34 @@ public partial class PlanetPopulationData : RefCounted
             summary["suitability_score"] = Suitability.OverallScore;
         }
 
+        SentientWorldProfile? sentientWorldProfile = GetSentientWorldProfile();
+        if (sentientWorldProfile != null)
+        {
+            summary["settlement_pattern"] = sentientWorldProfile.SettlementPattern;
+            summary["primary_settlement_rank"] = sentientWorldProfile.PrimarySettlementRank;
+            summary["logistics_capacity"] = sentientWorldProfile.LogisticsCapacity;
+        }
+
         return summary;
+    }
+
+    /// <summary>
+    /// Returns the neutral sentient-world baseline when the body is inhabited.
+    /// </summary>
+    public SentientWorldProfile? GetSentientWorldProfile()
+    {
+        if (SentientWorldProfile != null)
+        {
+            return SentientWorldProfile;
+        }
+
+        if (!IsInhabited())
+        {
+            return null;
+        }
+
+        SentientWorldProfile = SentientWorldProfileBuilder.Build(this);
+        return SentientWorldProfile;
     }
 
     /// <summary>
@@ -593,6 +625,11 @@ public partial class PlanetPopulationData : RefCounted
             data["disease_state"] = DiseaseState.ToDictionary();
         }
 
+        if (SentientWorldProfile != null)
+        {
+            data["sentient_world_profile"] = SentientWorldProfile.ToDictionary();
+        }
+
         return data;
     }
 
@@ -673,6 +710,11 @@ public partial class PlanetPopulationData : RefCounted
         if (data.ContainsKey("disease_state") && data["disease_state"].VariantType == Variant.Type.Dictionary)
         {
             populationData.DiseaseState = DiseaseState.FromDictionary((Dictionary)data["disease_state"]);
+        }
+
+        if (data.ContainsKey("sentient_world_profile") && data["sentient_world_profile"].VariantType == Variant.Type.Dictionary)
+        {
+            populationData.SentientWorldProfile = SentientWorldProfile.FromDictionary((Dictionary)data["sentient_world_profile"]);
         }
 
         return populationData;

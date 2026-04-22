@@ -1,0 +1,21 @@
+Source note for StarGen research review
+
+Citation:
+Hart, R. E., Bamford, S. P., Hayes, W. B., Cardamone, C. N., Keel, W. C., Kruk, S. J., Lintott, C. J., Masters, K. L., Simmons, B. D., & Smethurst, R. J. (2017).
+Galaxy Zoo and SpArcFiRe: Constraints on spiral arm formation mechanisms from spiral arm number and pitch angles.
+Monthly Notices of the Royal Astronomical Society.
+arXiv: https://arxiv.org/abs/1708.04628
+DOI: https://doi.org/10.1093/mnras/stx2137
+
+What was reviewed:
+- arXiv abstract and source metadata on 2026-04-19.
+
+Key implementation notes used in StarGen:
+- The paper directly studies spiral arm number and pitch angle in a large SDSS and Galaxy Zoo sample.
+- It reports that strong bars are associated with looser spiral arms, and that many-arm spirals are looser on average than two-arm spirals.
+- It also argues that not all spiral arms are explained by one classical density-wave picture, which is useful for a deterministic generator that offers different arm-mechanism modes rather than one universal rule.
+
+How StarGen uses this:
+- Supports the scientific framing for spiral arm count as a meaningful structural control rather than a purely decorative slider.
+- Supports the pitch-angle control and its link to looser versus tighter arm geometry.
+- Supports keeping different arm-mechanism modes in the UI while documenting them as simplified proxies for competing observed spiral-pattern behaviors.

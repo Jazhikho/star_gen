@@ -31,6 +31,10 @@ public partial class GalaxyViewer
 		public string ColonyTargetBodyId = string.Empty;
 		public string ExportCivilizationId = string.Empty;
 		public string ExportCivilizationName = string.Empty;
+		public int HabitabilityScore = -1;
+		public int ResourceScore = -1;
+		public string GovernmentSummary = string.Empty;
+		public string TradeCodesSummary = string.Empty;
 
 		public JumpRouteWorkingSystem(string id, Vector3 position, int population)
 		{
@@ -57,6 +61,10 @@ public partial class GalaxyViewer
 			clone.ColonyTargetBodyId = ColonyTargetBodyId;
 			clone.ExportCivilizationId = ExportCivilizationId;
 			clone.ExportCivilizationName = ExportCivilizationName;
+			clone.HabitabilityScore = HabitabilityScore;
+			clone.ResourceScore = ResourceScore;
+			clone.GovernmentSummary = GovernmentSummary;
+			clone.TradeCodesSummary = TradeCodesSummary;
 			return clone;
 		}
 
@@ -1225,6 +1233,10 @@ public partial class GalaxyViewer
 		system.ColonyTargetBodyId = workingSystem.ColonyTargetBodyId;
 		system.ExportCivilizationId = workingSystem.ExportCivilizationId;
 		system.ExportCivilizationName = workingSystem.ExportCivilizationName;
+		system.HabitabilityScore = workingSystem.HabitabilityScore;
+		system.ResourceScore = workingSystem.ResourceScore;
+		system.GovernmentSummary = workingSystem.GovernmentSummary;
+		system.TradeCodesSummary = workingSystem.TradeCodesSummary;
 		return system;
 	}
 
@@ -1258,6 +1270,10 @@ public partial class GalaxyViewer
 			workingSystem.ColonyTargetBodyId = registeredSystem.ColonyTargetBodyId;
 			workingSystem.ExportCivilizationId = registeredSystem.ExportCivilizationId;
 			workingSystem.ExportCivilizationName = registeredSystem.ExportCivilizationName;
+			workingSystem.HabitabilityScore = registeredSystem.HabitabilityScore;
+			workingSystem.ResourceScore = registeredSystem.ResourceScore;
+			workingSystem.GovernmentSummary = registeredSystem.GovernmentSummary;
+			workingSystem.TradeCodesSummary = registeredSystem.TradeCodesSummary;
 			systems.Add(workingSystem);
 		}
 
@@ -1299,6 +1315,10 @@ public partial class GalaxyViewer
 		copy.ColonyTargetBodyId = source.ColonyTargetBodyId;
 		copy.ExportCivilizationId = source.ExportCivilizationId;
 		copy.ExportCivilizationName = source.ExportCivilizationName;
+		copy.HabitabilityScore = source.HabitabilityScore;
+		copy.ResourceScore = source.ResourceScore;
+		copy.GovernmentSummary = source.GovernmentSummary;
+		copy.TradeCodesSummary = source.TradeCodesSummary;
 		return copy;
 	}
 

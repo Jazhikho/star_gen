@@ -382,6 +382,18 @@ public static class CelestialValidator
                     result.AddWarning("stellar", "Moons should not have stellar properties");
                 }
                 break;
+
+            case CelestialType.Type.Comet:
+                if (body.HasStellar())
+                {
+                    result.AddWarning("stellar", "Comets should not have stellar properties");
+                }
+
+                if (body.HasAtmosphere())
+                {
+                    result.AddWarning("atmosphere", "Comets are modeled here as bare nuclei rather than full coma gas clouds");
+                }
+                break;
         }
     }
 }

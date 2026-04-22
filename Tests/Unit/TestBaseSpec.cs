@@ -224,6 +224,17 @@ public static class TestBaseSpec
         {
             throw new InvalidOperationException("Expected is_large true");
         }
+
+        AsteroidSpec darkRed = AsteroidSpec.DarkRedPrimitive(300);
+        if (darkRed.AsteroidType != (int)AsteroidType.Type.DType)
+        {
+            throw new InvalidOperationException($"Expected asteroid_type D_TYPE, got {darkRed.AsteroidType}");
+        }
+
+        if (darkRed.OrbitBand != 1)
+        {
+            throw new InvalidOperationException($"Expected dark-red orbit band 1, got {darkRed.OrbitBand}");
+        }
     }
 
     /// <summary>
@@ -254,6 +265,24 @@ public static class TestBaseSpec
         if (!restored.HasOverride("mass"))
         {
             throw new InvalidOperationException("Expected override for 'mass'");
+        }
+
+        CometSpec comet = new CometSpec(67890, 1, 2, true, "Visitor");
+        Godot.Collections.Dictionary cometData = comet.ToDictionary();
+        CometSpec restoredComet = CometSpec.FromDictionary(cometData);
+        if (restoredComet.Family != comet.Family)
+        {
+            throw new InvalidOperationException($"Expected comet family {comet.Family}, got {restoredComet.Family}");
+        }
+
+        if (restoredComet.ActivityState != comet.ActivityState)
+        {
+            throw new InvalidOperationException($"Expected comet activity {comet.ActivityState}, got {restoredComet.ActivityState}");
+        }
+
+        if (!restoredComet.IsLarge)
+        {
+            throw new InvalidOperationException("Expected large comet nucleus flag to survive serialization");
         }
     }
 }

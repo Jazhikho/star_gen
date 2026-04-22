@@ -1,6 +1,8 @@
 using System.Collections.Generic;
+using StarGen.Domain.Colonization;
 using StarGen.Domain.Celestial;
 using StarGen.Domain.Generation;
+using StarGen.Domain.Systems;
 
 namespace StarGen.Domain.Galaxy;
 
@@ -25,8 +27,34 @@ public static class StarSystemPreview
         }
 
         GalaxyStar star = GalaxyStar.CreateWithDerivedProperties(worldPosition, starSeed, galaxySpec);
-        bool enablePopulation = true;
-        StarGen.Domain.Systems.SolarSystem? system = GalaxySystemGenerator.GenerateSystem(star, true, enablePopulation, null, useCaseSettings, galaxy);
+        SolarSystem? system = null;
+        if (galaxy != null)
+        {
+            SolarSystem? cachedSystem = galaxy.GetCachedSystem(starSeed);
+            if (cachedSystem != null)
+            {
+                system = SystemSerializer.Clone(cachedSystem);
+            }
+        }
+
+        if (system == null)
+        {
+            bool enablePopulation = true;
+            system = GalaxySystemGenerator.GenerateSystem(star, true, enablePopulation, null, useCaseSettings, galaxy);
+            if (system != null)
+            {
+                ColonizationSimulationOverlay.ApplyToSystem(system, starSeed, galaxy);
+                if (galaxy != null)
+                {
+                    SolarSystem? cachedCopy = SystemSerializer.Clone(system);
+                    if (cachedCopy != null)
+                    {
+                        galaxy.CacheSystem(starSeed, cachedCopy);
+                    }
+                }
+            }
+        }
+
         if (system == null)
         {
             return null;

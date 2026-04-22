@@ -64,7 +64,7 @@ size_flags_horizontal = 3
 [node name="VersionLabel" type="Label" parent="MarginContainer/RootVBox/HeaderRow"]
 unique_name_in_owner = true
 layout_mode = 2
-text = "Version 0.8.0.0"
+text = "Version 0.9"
 
 [node name="BackButton" type="Button" parent="MarginContainer/RootVBox/HeaderRow"]
 unique_name_in_owner = true

@@ -6,6 +6,7 @@ using StarGen.Domain;
 using StarGen.Domain.Celestial;
 using StarGen.Domain.Celestial.Components;
 using StarGen.Domain.Celestial.Validation;
+using StarGen.Domain.Generation;
 using StarGen.Domain.Generation.Generators;
 using StarGen.Domain.Generation.Specs;
 using StarGen.Domain.Rng;
@@ -290,6 +291,73 @@ public static class TestSystemAsteroidGenerator
                 throw new InvalidOperationException("Asteroid should have a name");
             }
         }
+    }
+
+    /// <summary>
+    /// Tests that comet-leaning outer-system bias yields more icy outer belts than asteroid-leaning bias.
+    /// </summary>
+    public static void TestOuterSystemBiasChangesIcyBelts()
+    {
+        OrbitHost host = CreateSunLikeHost();
+        CelestialBody star = CreateTestStar();
+        Array<OrbitSlot> slots = CreatePlanetSlots(host);
+        int cometLeaningIcyBelts = 0;
+        int asteroidLeaningIcyBelts = 0;
+
+        for (int seed = 4100; seed < 4110; seed += 1)
+        {
+            SolarSystemSpec cometSpec = new SolarSystemSpec(seed, 1, 1)
+            {
+                PlanetaryProfile = new PlanetaryGenerationProfile
+                {
+                    MinorBodyOuterSystemBias = PlanetMinorBodyOuterSystemBias.CometLeaning,
+                    GasMassScalar = 1.20,
+                },
+            };
+            SolarSystemSpec asteroidSpec = new SolarSystemSpec(seed, 1, 1)
+            {
+                PlanetaryProfile = new PlanetaryGenerationProfile
+                {
+                    MinorBodyOuterSystemBias = PlanetMinorBodyOuterSystemBias.AsteroidLeaning,
+                    GasMassScalar = 1.20,
+                },
+            };
+
+            BeltGenerationResult cometResult = SystemAsteroidGenerator.Generate(
+                new Array<OrbitHost> { host },
+                slots,
+                new Array<CelestialBody> { star },
+                new SeededRng(seed),
+                systemSpec: cometSpec);
+            BeltGenerationResult asteroidResult = SystemAsteroidGenerator.Generate(
+                new Array<OrbitHost> { host },
+                slots,
+                new Array<CelestialBody> { star },
+                new SeededRng(seed),
+                systemSpec: asteroidSpec);
+
+            cometLeaningIcyBelts += CountIcyBelts(cometResult.Belts);
+            asteroidLeaningIcyBelts += CountIcyBelts(asteroidResult.Belts);
+        }
+
+        if (cometLeaningIcyBelts <= asteroidLeaningIcyBelts)
+        {
+            throw new InvalidOperationException("Comet-leaning outer-system bias should yield more icy belts across the same seeded sample.");
+        }
+    }
+
+    private static int CountIcyBelts(Array<AsteroidBelt> belts)
+    {
+        int count = 0;
+        foreach (AsteroidBelt belt in belts)
+        {
+            if (belt.PrimaryComposition == AsteroidBelt.Composition.Icy)
+            {
+                count += 1;
+            }
+        }
+
+        return count;
     }
 
     /// <summary>

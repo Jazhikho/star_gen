@@ -1,0 +1,21 @@
+Source note for StarGen research review
+
+Citation:
+Ribas, A., Bouy, H., & Merin, B. (2015).
+Protoplanetary disk lifetimes vs stellar mass and possible implications for giant planet populations.
+Astronomy & Astrophysics, 576, A52.
+arXiv: https://arxiv.org/abs/1502.00631
+DOI: https://doi.org/10.1051/0004-6361/201424846
+
+What was reviewed:
+- Abstract and source metadata on 2026-04-22.
+
+Key implementation notes used in StarGen:
+- The paper studies 22 nearby associations and a subsample of 1,428 spectroscopically confirmed members.
+- It reports robust statistical evidence that protoplanetary-disk evolution depends on stellar mass, with disks evolving faster and/or earlier around stars above about 2 solar masses.
+- The practical takeaway for StarGen is that gas-disk lifetime should not be treated as one universal scalar across all host-star masses.
+
+How StarGen should use this:
+- As support for making `DiskLifetimeMyr` a stellar-mass-aware prior in aggregate planetary generation.
+- As a constraint on gas-giant formation and migration pressure around higher-mass stars, which should not inherit the same gas window as solar-mass hosts.
+- As a calibration note that host-mass-dependent disk dispersal should be represented upstream in `PlanetarySystemState`, not only in late planet-level overrides.

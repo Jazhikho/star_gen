@@ -1,9 +1,19 @@
-[gd_scene format=3 uid="uid://d3mainappscrn"]
+[gd_scene format=3 uid="uid://d3mainappscrn" load_steps=3]
 
 [ext_resource type="Script" uid="uid://bjvh3f5rpjro2" path="res://src/app/MainApp.cs" id="1"]
+[ext_resource type="Script" path="res://src/app/audio/AppAudioController.cs" id="2"]
+[ext_resource type="Resource" path="res://Resources/Audio/MainAudioLibrary.tres" id="3"]
 
 [node name="MainApp" type="Node" unique_id=349450094]
 script = ExtResource("1")
+
+[node name="AudioController" type="Node" parent="."]
+script = ExtResource("2")
+Library = ExtResource("3")
+
+[node name="MusicPlayer" type="AudioStreamPlayer" parent="AudioController"]
+
+[node name="UiPlayer" type="AudioStreamPlayer" parent="AudioController"]
 
 [node name="ViewerContainer" type="Node" parent="." unique_id=893447451]
 

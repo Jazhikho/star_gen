@@ -1,0 +1,15 @@
+Olson, S. L., Jansen, M., & Abbot, D. S. (2020).
+Oceanographic Considerations for Exoplanet Life Detection.
+arXiv:1909.02928
+https://arxiv.org/abs/1909.02928
+
+Why this source matters for StarGen
+- This paper argues that ocean dynamics and nutrient upwelling can materially change biosphere productivity and biosignature strength.
+- It highlights that not all water worlds are equally productive simply because they possess liquid oceans.
+
+How it is used
+- Supports adding a nutrient-cycling or ocean-mixing proxy instead of using only raw ocean coverage in life and biosignature calculations.
+- Supports giving some weight to rotation, pressure, and seasonal mixing context when estimating surface biosphere productivity.
+
+Human review notes
+- Use as a productivity and detectability constraint, not as a binary life/no-life cutoff.

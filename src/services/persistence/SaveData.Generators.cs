@@ -158,6 +158,10 @@ public static partial class SaveData
         {
             body = GenerateAsteroid(specData, contextData, seedValue, rng);
         }
+        else if (bodyType == CelestialType.Type.Comet)
+        {
+            body = GenerateComet(specData, contextData, seedValue, rng);
+        }
 
         if (body == null)
         {
@@ -298,6 +302,34 @@ public static partial class SaveData
     }
 
     /// <summary>
+    /// Generates a comet from a persisted payload.
+    /// </summary>
+    private static CelestialBody GenerateComet(
+        Dictionary specData,
+        Dictionary contextData,
+        long seedValue,
+        SeededRng rng)
+    {
+        int generationSeed = ClampSeedToInt(seedValue);
+        CometSpec spec;
+        if (specData.Count == 0)
+        {
+            spec = CometSpec.Random(generationSeed);
+        }
+        else
+        {
+            spec = CometSpec.FromDictionary(specData);
+            if (spec.GenerationSeed == 0)
+            {
+                spec.GenerationSeed = generationSeed;
+            }
+        }
+
+        ParentContext context = ReconstructContext(contextData, CelestialType.Type.Comet);
+        return CometGenerator.Generate(spec, context, rng);
+    }
+
+    /// <summary>
     /// Reconstructs the stored parent context or uses the default for the body type.
     /// </summary>
     private static ParentContext ReconstructContext(Dictionary contextData, CelestialType.Type bodyType)
@@ -331,6 +363,11 @@ public static partial class SaveData
         if (bodyType == CelestialType.Type.Asteroid)
         {
             return ParentContext.SunLike(2.7 * Units.AuMeters);
+        }
+
+        if (bodyType == CelestialType.Type.Comet)
+        {
+            return ParentContext.SunLike(5.0 * Units.AuMeters);
         }
 
         return ParentContext.SunLike();

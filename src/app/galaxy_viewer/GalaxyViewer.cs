@@ -72,12 +72,29 @@ public partial class GalaxyViewer : Node3D, IGalaxyViewerSavedStateHost
 	internal Control? _uiRoot;
 	internal Control? _topBar;
 	internal Control? _sidePanel;
-	internal SpinBox? _seedInput;
-	internal CheckBox? _showCompassCheck;
 	internal Node? _inspectorPanel;
-	internal Button? _saveButton;
-	internal Button? _loadButton;
-	internal Button? _newGalaxyButton;
+	internal Control? _cameraPanel;
+	internal Button? _cameraPanelHeaderButton;
+	internal Control? _cameraPanelContent;
+	internal Label? _cameraHelpLabel;
+	internal Window? _optionsDialog;
+	internal CheckBox? _fullscreenCheck;
+	internal CheckBox? _showSeedControlsCheck;
+	internal CheckBox? _skipIntroCheck;
+	internal OptionButton? _resolutionOption;
+	internal Button? _applyOptionsButton;
+	internal Label? _optionsStatusLabel;
+	internal Button? _optionsDialogCloseButton;
+	internal Window? _buildLocalSpaceDialog;
+	internal SpinBox? _localSpaceExtentXInput;
+	internal SpinBox? _localSpaceExtentYInput;
+	internal SpinBox? _localSpaceExtentZInput;
+	internal Label? _localSpaceAreaLabel;
+	internal Label? _localSpaceStarCountLabel;
+	internal Label? _localSpaceWarningLabel;
+	internal Label? _localSpaceStatusLabel;
+	internal Button? _buildLocalSpaceRunButton;
+	internal Button? _buildLocalSpaceCloseButton;
 
 	internal Galaxy? _galaxy;
 	internal GalaxySpec? _spec;
@@ -90,7 +107,6 @@ public partial class GalaxyViewer : Node3D, IGalaxyViewerSavedStateHost
 	internal GridCursor? _sectorCursor;
 	internal OrbitCamera? _orbitCamera;
 	internal StarViewCamera? _starCamera;
-	internal NavigationCompass? _compass;
 	internal SelectionIndicator? _selectionIndicator;
 	internal Node? _sectorRenderer;
 	internal Node? _neighborhoodRenderer;
@@ -117,6 +133,20 @@ public partial class GalaxyViewer : Node3D, IGalaxyViewerSavedStateHost
 	internal int _jumpRouteCalculationGeneration;
 	internal readonly GalaxyViewerSaveLoad _saveLoad = new();
 	internal Rect2 _renderAreaRect = new Rect2();
+	internal bool _hasInspectorDisplayPosition;
+	internal Vector3 _lastInspectorDisplayPosition = Vector3.Zero;
+	internal int _lastInspectorSelectedStarSeed = -1;
+	internal int _lastInspectorZoomLevel = -1;
+	internal GalaxyLocalSpaceCache? _localSpaceCache;
+	internal SubSectorNeighborhoodData? _localSpacePreviewData;
+	internal bool _isBuildingLocalSpace;
+	internal Vector2 _cameraPanelExpandedSize = Vector2.Zero;
+	internal float _cameraPanelExpandedOffsetLeft;
+	internal float _cameraPanelExpandedOffsetTop;
+	internal float _cameraPanelExpandedOffsetRight;
+	internal float _cameraPanelExpandedOffsetBottom;
+	internal Tween? _cameraPanelTween;
+	internal bool _cameraPanelCollapsed = true;
 
 	/// <summary>
 	/// Initializes controller state and helper objects.
@@ -128,7 +158,6 @@ public partial class GalaxyViewer : Node3D, IGalaxyViewerSavedStateHost
 		BuildStaticRenderers();
 		SetupTopMenu();
 		ConnectUiSignals();
-		UpdateSeedDisplay();
 
 		if (StartAtHome)
 		{
@@ -148,11 +177,7 @@ public partial class GalaxyViewer : Node3D, IGalaxyViewerSavedStateHost
 	public override void _Process(double delta)
 	{
 		UpdatePanelAwareFraming();
-
-		if (_compass != null && _compass.Visible && _orbitCamera != null)
-		{
-			_compass.SyncRotation(_orbitCamera.GetYawDeg(), _orbitCamera.GetPitchDeg());
-		}
+		UpdateInspectorForMovement();
 	}
 
 	/// <summary>

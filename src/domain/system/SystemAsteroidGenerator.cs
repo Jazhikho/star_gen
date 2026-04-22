@@ -39,17 +39,19 @@ public static class SystemAsteroidGenerator
         Array<OrbitSlot> filledSlots,
         Array<CelestialBody> stars,
         SeededRng rng,
-        GenerationUseCaseSettings? useCaseSettings = null)
+        GenerationUseCaseSettings? useCaseSettings = null,
+        SolarSystemSpec? systemSpec = null)
     {
         BeltGenerationResult result = new();
+        PlanetarySystemState planetaryState = PlanetarySystemState.Build(systemSpec, stars);
 
         foreach (OrbitHost host in orbitHosts)
         {
-            Array<AsteroidBelt> hostBelts = GenerateBeltsForHost(host, filledSlots, rng);
+            Array<AsteroidBelt> hostBelts = GenerateBeltsForHost(host, filledSlots, planetaryState, rng);
             foreach (AsteroidBelt belt in hostBelts)
             {
                 result.Belts.Add(belt);
-                Array<CelestialBody> beltAsteroids = GenerateMajorAsteroids(belt, host, stars, rng, useCaseSettings);
+                Array<CelestialBody> beltAsteroids = GenerateMajorAsteroids(belt, host, stars, planetaryState, rng, useCaseSettings);
                 Array<string> asteroidIds = new();
 
                 foreach (CelestialBody asteroid in beltAsteroids)
@@ -75,9 +77,11 @@ public static class SystemAsteroidGenerator
         Array<OrbitHost> orbitHosts,
         Array<CelestialBody> stars,
         SeededRng rng,
-        GenerationUseCaseSettings? useCaseSettings = null)
+        GenerationUseCaseSettings? useCaseSettings = null,
+        SolarSystemSpec? systemSpec = null)
     {
         BeltGenerationResult result = new();
+        PlanetarySystemState planetaryState = PlanetarySystemState.Build(systemSpec, stars);
         System.Collections.Generic.Dictionary<string, OrbitHost> hostsById = new();
         foreach (OrbitHost host in orbitHosts)
         {
@@ -92,7 +96,7 @@ public static class SystemAsteroidGenerator
                 continue;
             }
 
-            Array<CelestialBody> beltAsteroids = GenerateMajorAsteroids(belt, hostsById[belt.OrbitHostId], stars, rng, useCaseSettings);
+            Array<CelestialBody> beltAsteroids = GenerateMajorAsteroids(belt, hostsById[belt.OrbitHostId], stars, planetaryState, rng, useCaseSettings);
             Array<string> asteroidIds = new();
             foreach (CelestialBody asteroid in beltAsteroids)
             {
@@ -115,9 +119,10 @@ public static class SystemAsteroidGenerator
         Array<OrbitHost> orbitHosts,
         Array<OrbitSlot> allSlots,
         Array<CelestialBody> stars,
-        SeededRng rng)
+        SeededRng rng,
+        SolarSystemSpec? systemSpec = null)
     {
-        _ = stars;
+        PlanetarySystemState planetaryState = PlanetarySystemState.Build(systemSpec, stars);
 
         BeltReservationResult result = new();
         foreach (OrbitHost host in orbitHosts)
@@ -151,7 +156,7 @@ public static class SystemAsteroidGenerator
                     continue;
                 }
 
-                AsteroidBelt? belt = CreateBeltAtSlot(slot, host, rng);
+                AsteroidBelt? belt = CreateBeltAtSlot(slot, host, planetaryState, rng);
                 if (belt == null)
                 {
                     continue;
@@ -326,7 +331,7 @@ public static class SystemAsteroidGenerator
     /// <summary>
     /// Generates belts for a single orbit host.
     /// </summary>
-    private static Array<AsteroidBelt> GenerateBeltsForHost(OrbitHost host, Array<OrbitSlot> filledSlots, SeededRng rng)
+    private static Array<AsteroidBelt> GenerateBeltsForHost(OrbitHost host, Array<OrbitSlot> filledSlots, PlanetarySystemState planetaryState, SeededRng rng)
     {
         Array<double> planetDistances = new();
         foreach (OrbitSlot slot in filledSlots)
@@ -344,7 +349,13 @@ public static class SystemAsteroidGenerator
             return belts;
         }
 
-        if (rng.Randf() < InnerBeltProbability)
+        double innerBeltProbability = System.Math.Clamp(
+            InnerBeltProbability
+            * (0.85 + (0.20 * planetaryState.SolidBudgetScalar))
+            * GetInnerBeltBiasFactor(planetaryState.Profile.MinorBodyOuterSystemBias),
+            0.03,
+            0.90);
+        if (rng.Randf() < innerBeltProbability)
         {
             double targetCenter = host.FrostLineM * rng.RandfRange(0.7f, 1.1f);
             if (targetCenter >= host.InnerStabilityM && targetCenter <= host.OuterStabilityM)
@@ -441,8 +452,13 @@ public static class SystemAsteroidGenerator
                         innerBelt.PrimaryComposition = AsteroidBelt.Composition.Metallic;
                     }
 
+                    if (planetaryState.Profile.MinorBodyOuterSystemBias == PlanetMinorBodyOuterSystemBias.AsteroidLeaning && compositionRoll > 0.65)
+                    {
+                        innerBelt.PrimaryComposition = AsteroidBelt.Composition.Metallic;
+                    }
+
                     double widthFactor = (innerBelt.OuterRadiusM - innerBelt.InnerRadiusM) / innerBelt.InnerRadiusM;
-                    double scale = System.Math.Clamp(widthFactor * 2.0, 0.5, 2.0);
+                    double scale = System.Math.Clamp(widthFactor * 2.0, 0.5, 2.0) * (0.85 + (0.25 * planetaryState.SolidBudgetScalar));
                     double logMin = System.Math.Log(InnerBeltMassMinKg * scale);
                     double logMax = System.Math.Log(InnerBeltMassMaxKg * scale);
                     innerBelt.TotalMassKg = System.Math.Exp(rng.RandfRange((float)logMin, (float)logMax));
@@ -451,7 +467,13 @@ public static class SystemAsteroidGenerator
             }
         }
 
-        if (rng.Randf() < OuterBeltProbability)
+        double outerBeltProbability = System.Math.Clamp(
+            OuterBeltProbability
+            * (0.80 + (0.25 * planetaryState.OuterReservoirScalar))
+            * GetOuterBeltBiasFactor(planetaryState.Profile.MinorBodyOuterSystemBias),
+            0.05,
+            0.96);
+        if (rng.Randf() < outerBeltProbability)
         {
             double minDistance = host.FrostLineM * 5.0;
             double maxDistance = host.OuterStabilityM * 0.8;
@@ -474,13 +496,19 @@ public static class SystemAsteroidGenerator
                     if (outerRadius > innerRadius)
                     {
                         AsteroidBelt.Composition outerComposition;
-                        if (rng.Randf() < 0.70)
+                        double outerRoll = rng.Randf();
+                        if (outerRoll < 0.70)
                         {
                             outerComposition = AsteroidBelt.Composition.Icy;
                         }
                         else
                         {
                             outerComposition = AsteroidBelt.Composition.Mixed;
+                        }
+
+                        if (planetaryState.Profile.MinorBodyOuterSystemBias == PlanetMinorBodyOuterSystemBias.CometLeaning && outerRoll < 0.88)
+                        {
+                            outerComposition = AsteroidBelt.Composition.Icy;
                         }
 
                         AsteroidBelt outerBelt = new($"belt_{host.NodeId}_outer", "Outer Asteroid Belt")
@@ -492,7 +520,7 @@ public static class SystemAsteroidGenerator
                         };
 
                         double widthFactor = (outerBelt.OuterRadiusM - outerBelt.InnerRadiusM) / outerBelt.InnerRadiusM;
-                        double scale = System.Math.Clamp(widthFactor * 2.0, 0.5, 2.0);
+                        double scale = System.Math.Clamp(widthFactor * 2.0, 0.5, 2.0) * (0.85 + (0.30 * planetaryState.OuterReservoirScalar));
                         double logMin = System.Math.Log(OuterBeltMassMinKg * scale);
                         double logMax = System.Math.Log(OuterBeltMassMaxKg * scale);
                         outerBelt.TotalMassKg = System.Math.Exp(rng.RandfRange((float)logMin, (float)logMax));
@@ -508,7 +536,7 @@ public static class SystemAsteroidGenerator
     /// <summary>
     /// Creates a belt centered on a specific orbit slot.
     /// </summary>
-    private static AsteroidBelt? CreateBeltAtSlot(OrbitSlot slot, OrbitHost host, SeededRng rng)
+    private static AsteroidBelt? CreateBeltAtSlot(OrbitSlot slot, OrbitHost host, PlanetarySystemState planetaryState, SeededRng rng)
     {
         double centerM = slot.SemiMajorAxisM;
         if (centerM <= 0.0)
@@ -550,7 +578,8 @@ public static class SystemAsteroidGenerator
 
                 break;
             case OrbitZone.Zone.Cold:
-                if (roll < 0.70)
+                double coldIcyThreshold = planetaryState.Profile.MinorBodyOuterSystemBias == PlanetMinorBodyOuterSystemBias.CometLeaning ? 0.88 : 0.70;
+                if (roll < coldIcyThreshold)
                 {
                     composition = AsteroidBelt.Composition.Icy;
                 }
@@ -593,11 +622,32 @@ public static class SystemAsteroidGenerator
             maxMass = InnerBeltMassMaxKg;
         }
         double widthFactor = (belt.OuterRadiusM - belt.InnerRadiusM) / System.Math.Max(belt.InnerRadiusM, 1.0);
-        double scale = System.Math.Clamp(widthFactor * 2.0, 0.5, 2.0);
+        double budgetScalar = isOuter ? planetaryState.OuterReservoirScalar : planetaryState.SolidBudgetScalar;
+        double scale = System.Math.Clamp(widthFactor * 2.0, 0.5, 2.0) * (0.85 + (0.20 * budgetScalar));
         double logMinMass = System.Math.Log(minMass * scale);
         double logMaxMass = System.Math.Log(maxMass * scale);
         belt.TotalMassKg = System.Math.Exp(rng.RandfRange((float)logMinMass, (float)logMaxMass));
         return belt;
+    }
+
+    private static double GetInnerBeltBiasFactor(PlanetMinorBodyOuterSystemBias bias)
+    {
+        return bias switch
+        {
+            PlanetMinorBodyOuterSystemBias.AsteroidLeaning => 1.18,
+            PlanetMinorBodyOuterSystemBias.CometLeaning => 0.82,
+            _ => 1.0,
+        };
+    }
+
+    private static double GetOuterBeltBiasFactor(PlanetMinorBodyOuterSystemBias bias)
+    {
+        return bias switch
+        {
+            PlanetMinorBodyOuterSystemBias.AsteroidLeaning => 0.84,
+            PlanetMinorBodyOuterSystemBias.CometLeaning => 1.24,
+            _ => 1.0,
+        };
     }
 
     /// <summary>
@@ -607,6 +657,7 @@ public static class SystemAsteroidGenerator
         AsteroidBelt belt,
         OrbitHost host,
         Array<CelestialBody> stars,
+        PlanetarySystemState planetaryState,
         SeededRng rng,
         GenerationUseCaseSettings? useCaseSettings)
     {
@@ -647,6 +698,7 @@ public static class SystemAsteroidGenerator
                 stellarTemperatureK,
                 stellarAgeYears,
                 sizesKm[index],
+                planetaryState,
                 index,
                 rng,
                 useCaseSettings);
@@ -670,6 +722,7 @@ public static class SystemAsteroidGenerator
         double stellarTemperatureK,
         double stellarAgeYears,
         double sizeKm,
+        PlanetarySystemState planetaryState,
         int asteroidIndex,
         SeededRng rng,
         GenerationUseCaseSettings? useCaseSettings)
@@ -693,7 +746,9 @@ public static class SystemAsteroidGenerator
 
                 break;
             case AsteroidBelt.Composition.Icy:
-                asteroidType = (int)AsteroidType.Type.CType;
+                asteroidType = planetaryState.Profile.MinorBodyOuterSystemBias == PlanetMinorBodyOuterSystemBias.CometLeaning && compositionRoll < 0.55
+                    ? (int)AsteroidType.Type.DType
+                    : (int)AsteroidType.Type.CType;
                 break;
             case AsteroidBelt.Composition.Metallic:
                 if (compositionRoll < 0.60)
@@ -709,7 +764,9 @@ public static class SystemAsteroidGenerator
             case AsteroidBelt.Composition.Mixed:
                 if (compositionRoll < 0.50)
                 {
-                    asteroidType = (int)AsteroidType.Type.CType;
+                    asteroidType = planetaryState.Profile.MinorBodyOuterSystemBias == PlanetMinorBodyOuterSystemBias.CometLeaning && compositionRoll < 0.25
+                        ? (int)AsteroidType.Type.DType
+                        : (int)AsteroidType.Type.CType;
                 }
                 else if (compositionRoll < 0.85)
                 {
@@ -717,7 +774,7 @@ public static class SystemAsteroidGenerator
                 }
                 else
                 {
-                    asteroidType = (int)AsteroidType.Type.MType;
+                    asteroidType = compositionRoll > 0.94 ? (int)AsteroidType.Type.VType : (int)AsteroidType.Type.MType;
                 }
 
                 break;
@@ -748,7 +805,8 @@ public static class SystemAsteroidGenerator
             stellarLuminosityWatts,
             stellarTemperatureK,
             stellarAgeYears,
-            orbitalDistance);
+            orbitalDistance,
+            planetaryState.Profile.HabitableZoneModel);
 
         SeededRng asteroidRng = new(asteroidSeed);
         CelestialBody asteroid = AsteroidGenerator.Generate(spec, context, asteroidRng);

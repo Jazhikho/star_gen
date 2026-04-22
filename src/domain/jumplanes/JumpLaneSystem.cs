@@ -91,6 +91,26 @@ public partial class JumpLaneSystem : RefCounted
     public string ExportCivilizationName = string.Empty;
 
     /// <summary>
+    /// Best-fit human habitability score for the system's strongest focal world, or -1 when unavailable.
+    /// </summary>
+    public int HabitabilityScore = -1;
+
+    /// <summary>
+    /// Best-fit resource score for the system's strongest focal world, or -1 when unavailable.
+    /// </summary>
+    public int ResourceScore = -1;
+
+    /// <summary>
+    /// Display summary of the strongest active government in the system.
+    /// </summary>
+    public string GovernmentSummary = string.Empty;
+
+    /// <summary>
+    /// Display summary of route-relevant trade codes when available.
+    /// </summary>
+    public string TradeCodesSummary = string.Empty;
+
+    /// <summary>
     /// Creates a new jump-lane system.
     /// </summary>
     public JumpLaneSystem(string id = "", Vector3 position = default, int population = 0)
@@ -169,6 +189,10 @@ public partial class JumpLaneSystem : RefCounted
             ["colony_target_body_id"] = ColonyTargetBodyId,
             ["export_civilization_id"] = ExportCivilizationId,
             ["export_civilization_name"] = ExportCivilizationName,
+            ["habitability_score"] = HabitabilityScore,
+            ["resource_score"] = ResourceScore,
+            ["government_summary"] = GovernmentSummary,
+            ["trade_codes_summary"] = TradeCodesSummary,
         };
 
         if (TravellerProfile != null)
@@ -210,6 +234,10 @@ public partial class JumpLaneSystem : RefCounted
         system.ColonyTargetBodyId = DomainDictionaryUtils.GetString(data, "colony_target_body_id", string.Empty);
         system.ExportCivilizationId = DomainDictionaryUtils.GetString(data, "export_civilization_id", string.Empty);
         system.ExportCivilizationName = DomainDictionaryUtils.GetString(data, "export_civilization_name", string.Empty);
+        system.HabitabilityScore = DomainDictionaryUtils.GetInt(data, "habitability_score", -1);
+        system.ResourceScore = DomainDictionaryUtils.GetInt(data, "resource_score", -1);
+        system.GovernmentSummary = DomainDictionaryUtils.GetString(data, "government_summary", string.Empty);
+        system.TradeCodesSummary = DomainDictionaryUtils.GetString(data, "trade_codes_summary", string.Empty);
         if (data.ContainsKey("traveller_profile") && data["traveller_profile"].VariantType == Variant.Type.Dictionary)
         {
             system.TravellerProfile = TravellerSystemProfile.FromDictionary((Dictionary)data["traveller_profile"]);

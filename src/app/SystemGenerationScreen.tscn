@@ -78,12 +78,96 @@ theme_override_constants/separation = 12
 layout_mode = 2
 text = "<- Main Menu"
 
+[node name="HelpButton" type="Button" parent="MarginContainer/ScrollContainer/Layout/HeroPanel/MarginContainer/HeroVBox/HeaderRow" unique_id=1804492876]
+layout_mode = 2
+text = "Help"
+
 [node name="VersionLabel" type="Label" parent="MarginContainer/ScrollContainer/Layout/HeroPanel/MarginContainer/HeroVBox/HeaderRow" unique_id=1269565507]
 layout_mode = 2
 size_flags_horizontal = 3
 theme_override_colors/font_color = Color(0.631373, 0.701961, 0.772549, 1)
 text = "Version"
 horizontal_alignment = 2
+
+[node name="HelpDialog" type="Window" parent="."]
+visible = false
+theme = ExtResource("2")
+title = "System, Star, Planet, and Life Help"
+initial_position = 2
+size = Vector2i(760, 580)
+transient = true
+exclusive = true
+wrap_controls = true
+unresizable = true
+
+[node name="MarginContainer" type="MarginContainer" parent="HelpDialog"]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 16.0
+offset_top = 16.0
+offset_right = -16.0
+offset_bottom = -16.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="HelpVBox" type="VBoxContainer" parent="HelpDialog/MarginContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+theme_override_constants/separation = 12
+
+[node name="HelpHeaderLabel" type="Label" parent="HelpDialog/MarginContainer/HelpVBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.921569, 0.768627, 0.470588, 1)
+theme_override_font_sizes/font_size = 24
+text = "System, Star, Planet, and Life Guide"
+
+[node name="HelpIntroLabel" type="Label" parent="HelpDialog/MarginContainer/HelpVBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.72, 0.76, 0.82, 1)
+text = "Plain-language notes that explain what the settings mean and how changing them will affect the system you generate."
+autowrap_mode = 2
+
+[node name="HelpCard" type="PanelContainer" parent="HelpDialog/MarginContainer/HelpVBox"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+
+[node name="MarginContainer" type="MarginContainer" parent="HelpDialog/MarginContainer/HelpVBox/HelpCard"]
+layout_mode = 2
+theme_override_constants/margin_left = 14
+theme_override_constants/margin_top = 14
+theme_override_constants/margin_right = 14
+theme_override_constants/margin_bottom = 14
+
+[node name="HelpDialogText" type="RichTextLabel" parent="HelpDialog/MarginContainer/HelpVBox/HelpCard/MarginContainer"]
+custom_minimum_size = Vector2(420, 0)
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+bbcode_enabled = true
+fit_content = false
+selection_enabled = true
+scroll_active = true
+autowrap_mode = 3
+
+[node name="HelpHintLabel" type="Label" parent="HelpDialog/MarginContainer/HelpVBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.631373, 0.701961, 0.772549, 1)
+text = "Scroll for the full guide and research sources."
+autowrap_mode = 2
+
+[node name="ButtonRow" type="HBoxContainer" parent="HelpDialog/MarginContainer/HelpVBox"]
+layout_mode = 2
+
+[node name="ButtonSpacer" type="Control" parent="HelpDialog/MarginContainer/HelpVBox/ButtonRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="CloseButton" type="Button" parent="HelpDialog/MarginContainer/HelpVBox/ButtonRow"]
+layout_mode = 2
+text = "Close"
 
 [node name="TitleLabel" type="Label" parent="MarginContainer/ScrollContainer/Layout/HeroPanel/MarginContainer/HeroVBox" unique_id=686725852]
 layout_mode = 2
@@ -140,7 +224,7 @@ theme_override_constants/separation = 12
 [node name="SettingsTitle" type="Label" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox" unique_id=1003170653]
 layout_mode = 2
 theme_override_font_sizes/font_size = 18
-text = "Parameters"
+text = "Scientific Assumptions"
 
 [node name="ScrollContainer" type="ScrollContainer" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox" unique_id=1809768226]
 layout_mode = 2
@@ -151,6 +235,25 @@ horizontal_scroll_mode = 0
 layout_mode = 2
 size_flags_horizontal = 3
 theme_override_constants/separation = 10
+
+[node name="SystemHeaderRow" type="HBoxContainer" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox"]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="SystemHeader" type="Label" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/SystemHeaderRow"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.921569, 0.768627, 0.470588, 1)
+theme_override_font_sizes/font_size = 16
+text = "System Controls"
+
+[node name="SystemSourcesButton" type="Button" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/SystemHeaderRow"]
+custom_minimum_size = Vector2(24, 24)
+layout_mode = 2
+size_flags_horizontal = 8
+focus_mode = 0
+theme_override_font_sizes/font_size = 12
+text = "(i)"
+flat = true
 
 [node name="SeedRow" type="HBoxContainer" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox" unique_id=233916832]
 layout_mode = 2
@@ -181,7 +284,7 @@ text = "Min Stars"
 layout_mode = 2
 size_flags_horizontal = 3
 min_value = 1.0
-max_value = 4.0
+max_value = 10.0
 value = 1.0
 rounded = true
 
@@ -198,7 +301,7 @@ text = "Max Stars"
 layout_mode = 2
 size_flags_horizontal = 3
 min_value = 1.0
-max_value = 4.0
+max_value = 10.0
 value = 1.0
 rounded = true
 
@@ -250,9 +353,454 @@ max_value = 2.0
 step = 0.05
 value = -1.0
 
+[node name="StellarSection" type="VBoxContainer" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox" unique_id=1506440214]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="StellarHeaderRow" type="HBoxContainer" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/StellarSection"]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="StellarHeader" type="Label" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/StellarSection/StellarHeaderRow" unique_id=2019847145]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.921569, 0.768627, 0.470588, 1)
+theme_override_font_sizes/font_size = 16
+text = "Stellar Priors"
+
+[node name="StellarSourcesButton" type="Button" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/StellarSection/StellarHeaderRow"]
+custom_minimum_size = Vector2(24, 24)
+layout_mode = 2
+size_flags_horizontal = 8
+focus_mode = 0
+theme_override_font_sizes/font_size = 12
+text = "(i)"
+flat = true
+
+[node name="StellarContent" type="MarginContainer" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/StellarSection" unique_id=1626853447]
+layout_mode = 2
+theme_override_constants/margin_left = 16
+theme_override_constants/margin_top = 4
+theme_override_constants/margin_right = 8
+theme_override_constants/margin_bottom = 8
+
+[node name="StellarVBox" type="VBoxContainer" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/StellarSection/StellarContent" unique_id=2102555321]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="ImfFormRow" type="HBoxContainer" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/StellarSection/StellarContent/StellarVBox" unique_id=742498540]
+layout_mode = 2
+
+[node name="ImfFormLabel" type="Label" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/StellarSection/StellarContent/StellarVBox/ImfFormRow" unique_id=466404916]
+custom_minimum_size = Vector2(96, 0)
+layout_mode = 2
+text = "IMF Form"
+
+[node name="ImfFormOption" type="OptionButton" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/StellarSection/StellarContent/StellarVBox/ImfFormRow" unique_id=835595600]
+layout_mode = 2
+size_flags_horizontal = 3
+selected = 0
+item_count = 2
+popup/item_0/text = "Kroupa"
+popup/item_0/id = 0
+popup/item_1/text = "Chabrier"
+popup/item_1/id = 1
+
+[node name="ImfVariationRow" type="HBoxContainer" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/StellarSection/StellarContent/StellarVBox" unique_id=1133093237]
+layout_mode = 2
+
+[node name="ImfVariationLabel" type="Label" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/StellarSection/StellarContent/StellarVBox/ImfVariationRow" unique_id=2016165102]
+custom_minimum_size = Vector2(96, 0)
+layout_mode = 2
+text = "IMF Shift"
+
+[node name="ImfVariationOption" type="OptionButton" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/StellarSection/StellarContent/StellarVBox/ImfVariationRow" unique_id=1654089099]
+layout_mode = 2
+size_flags_horizontal = 3
+selected = 0
+item_count = 2
+popup/item_0/text = "Canonical"
+popup/item_0/id = 0
+popup/item_1/text = "Metallicity and Age"
+popup/item_1/id = 1
+
+[node name="IsochroneRow" type="HBoxContainer" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/StellarSection/StellarContent/StellarVBox" unique_id=1690689762]
+layout_mode = 2
+
+[node name="IsochroneLabel" type="Label" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/StellarSection/StellarContent/StellarVBox/IsochroneRow" unique_id=780599942]
+custom_minimum_size = Vector2(96, 0)
+layout_mode = 2
+text = "Star Model"
+
+[node name="IsochroneOption" type="OptionButton" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/StellarSection/StellarContent/StellarVBox/IsochroneRow" unique_id=1430468064]
+layout_mode = 2
+size_flags_horizontal = 3
+selected = 0
+item_count = 2
+popup/item_0/text = "MIST"
+popup/item_0/id = 0
+popup/item_1/text = "PARSEC"
+popup/item_1/id = 1
+
+[node name="MultiplicityRow" type="HBoxContainer" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/StellarSection/StellarContent/StellarVBox" unique_id=1963548119]
+layout_mode = 2
+
+[node name="MultiplicityLabel" type="Label" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/StellarSection/StellarContent/StellarVBox/MultiplicityRow" unique_id=1429947857]
+custom_minimum_size = Vector2(96, 0)
+layout_mode = 2
+text = "Companions"
+
+[node name="MultiplicityInput" type="HSlider" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/StellarSection/StellarContent/StellarVBox/MultiplicityRow" unique_id=1221957818]
+layout_mode = 2
+size_flags_horizontal = 3
+min_value = 0.35
+max_value = 2.0
+step = 0.05
+value = 1.0
+
+[node name="MultiplicityValue" type="Label" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/StellarSection/StellarContent/StellarVBox/MultiplicityRow" unique_id=1116627682]
+custom_minimum_size = Vector2(52, 0)
+layout_mode = 2
+text = "1.00x"
+horizontal_alignment = 2
+
+[node name="PlanetarySection" type="VBoxContainer" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox"]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="PlanetaryHeaderRow" type="HBoxContainer" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/PlanetarySection"]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="PlanetaryHeader" type="Label" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/PlanetarySection/PlanetaryHeaderRow"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.921569, 0.768627, 0.470588, 1)
+theme_override_font_sizes/font_size = 16
+text = "Planetary Priors"
+
+[node name="PlanetarySourcesButton" type="Button" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/PlanetarySection/PlanetaryHeaderRow"]
+custom_minimum_size = Vector2(24, 24)
+layout_mode = 2
+size_flags_horizontal = 8
+focus_mode = 0
+theme_override_font_sizes/font_size = 12
+text = "(i)"
+flat = true
+
+[node name="PlanetaryContent" type="MarginContainer" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/PlanetarySection"]
+layout_mode = 2
+theme_override_constants/margin_left = 16
+theme_override_constants/margin_top = 4
+theme_override_constants/margin_right = 8
+theme_override_constants/margin_bottom = 8
+
+[node name="PlanetaryVBox" type="VBoxContainer" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/PlanetarySection/PlanetaryContent"]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="MassRadiusRow" type="HBoxContainer" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/PlanetarySection/PlanetaryContent/PlanetaryVBox"]
+layout_mode = 2
+
+[node name="MassRadiusLabel" type="Label" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/PlanetarySection/PlanetaryContent/PlanetaryVBox/MassRadiusRow"]
+custom_minimum_size = Vector2(96, 0)
+layout_mode = 2
+text = "Mass-Radius"
+
+[node name="MassRadiusOption" type="OptionButton" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/PlanetarySection/PlanetaryContent/PlanetaryVBox/MassRadiusRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+selected = 0
+item_count = 2
+popup/item_0/text = "Chen-Kipping"
+popup/item_0/id = 1
+popup/item_1/text = "Otegi"
+popup/item_1/id = 2
+
+[node name="EnvelopeLossRow" type="HBoxContainer" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/PlanetarySection/PlanetaryContent/PlanetaryVBox"]
+layout_mode = 2
+
+[node name="EnvelopeLossLabel" type="Label" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/PlanetarySection/PlanetaryContent/PlanetaryVBox/EnvelopeLossRow"]
+custom_minimum_size = Vector2(96, 0)
+layout_mode = 2
+text = "Gas Loss"
+
+[node name="EnvelopeLossOption" type="OptionButton" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/PlanetarySection/PlanetaryContent/PlanetaryVBox/EnvelopeLossRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+selected = 0
+item_count = 3
+popup/item_0/text = "Auto"
+popup/item_0/id = 0
+popup/item_1/text = "Photoevaporation"
+popup/item_1/id = 1
+popup/item_2/text = "Core-powered"
+popup/item_2/id = 2
+
+[node name="HabitableZoneRow" type="HBoxContainer" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/PlanetarySection/PlanetaryContent/PlanetaryVBox"]
+layout_mode = 2
+
+[node name="HabitableZoneLabel" type="Label" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/PlanetarySection/PlanetaryContent/PlanetaryVBox/HabitableZoneRow"]
+custom_minimum_size = Vector2(96, 0)
+layout_mode = 2
+text = "HZ Model"
+
+[node name="HabitableZoneOption" type="OptionButton" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/PlanetarySection/PlanetaryContent/PlanetaryVBox/HabitableZoneRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+selected = 1
+item_count = 3
+popup/item_0/text = "Kasting 1993"
+popup/item_0/id = 0
+popup/item_1/text = "Kopparapu 2013 (Cons.)"
+popup/item_1/id = 1
+popup/item_2/text = "Kopparapu 2013 (Opt.)"
+popup/item_2/id = 2
+
+[node name="GasGiantFormationRow" type="HBoxContainer" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/PlanetarySection/PlanetaryContent/PlanetaryVBox"]
+layout_mode = 2
+
+[node name="GasGiantFormationLabel" type="Label" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/PlanetarySection/PlanetaryContent/PlanetaryVBox/GasGiantFormationRow"]
+custom_minimum_size = Vector2(96, 0)
+layout_mode = 2
+text = "Giant Growth"
+
+[node name="GasGiantFormationOption" type="OptionButton" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/PlanetarySection/PlanetaryContent/PlanetaryVBox/GasGiantFormationRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+selected = 2
+item_count = 3
+popup/item_0/text = "Core Accretion"
+popup/item_0/id = 0
+popup/item_1/text = "Pebble-assisted"
+popup/item_1/id = 1
+popup/item_2/text = "Mixed"
+popup/item_2/id = 2
+
+[node name="MetallicityCouplingRow" type="HBoxContainer" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/PlanetarySection/PlanetaryContent/PlanetaryVBox"]
+layout_mode = 2
+
+[node name="MetallicityCouplingLabel" type="Label" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/PlanetarySection/PlanetaryContent/PlanetaryVBox/MetallicityCouplingRow"]
+custom_minimum_size = Vector2(96, 0)
+layout_mode = 2
+text = "Metal Link"
+
+[node name="MetallicityCouplingOption" type="OptionButton" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/PlanetarySection/PlanetaryContent/PlanetaryVBox/MetallicityCouplingRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+selected = 1
+item_count = 3
+popup/item_0/text = "Weak"
+popup/item_0/id = 0
+popup/item_1/text = "Observed Default"
+popup/item_1/id = 1
+popup/item_2/text = "Strong"
+popup/item_2/id = 2
+
+[node name="RogueAllowanceRow" type="HBoxContainer" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/PlanetarySection/PlanetaryContent/PlanetaryVBox"]
+layout_mode = 2
+
+[node name="RogueAllowanceLabel" type="Label" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/PlanetarySection/PlanetaryContent/PlanetaryVBox/RogueAllowanceRow"]
+custom_minimum_size = Vector2(96, 0)
+layout_mode = 2
+text = "Rogue Worlds"
+
+[node name="RogueAllowanceOption" type="OptionButton" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/PlanetarySection/PlanetaryContent/PlanetaryVBox/RogueAllowanceRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+selected = 1
+item_count = 3
+popup/item_0/text = "Off"
+popup/item_0/id = 0
+popup/item_1/text = "Rare"
+popup/item_1/id = 1
+popup/item_2/text = "Standard"
+popup/item_2/id = 2
+
+[node name="MoonFormationBiasRow" type="HBoxContainer" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/PlanetarySection/PlanetaryContent/PlanetaryVBox"]
+layout_mode = 2
+
+[node name="MoonFormationBiasLabel" type="Label" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/PlanetarySection/PlanetaryContent/PlanetaryVBox/MoonFormationBiasRow"]
+custom_minimum_size = Vector2(96, 0)
+layout_mode = 2
+text = "Moon Bias"
+
+[node name="MoonFormationBiasOption" type="OptionButton" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/PlanetarySection/PlanetaryContent/PlanetaryVBox/MoonFormationBiasRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+selected = 2
+item_count = 3
+popup/item_0/text = "Regular-disk favored"
+popup/item_0/id = 0
+popup/item_1/text = "Captured-rich"
+popup/item_1/id = 1
+popup/item_2/text = "Mixed"
+popup/item_2/id = 2
+
+[node name="OuterBodyBiasRow" type="HBoxContainer" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/PlanetarySection/PlanetaryContent/PlanetaryVBox"]
+layout_mode = 2
+
+[node name="OuterBodyBiasLabel" type="Label" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/PlanetarySection/PlanetaryContent/PlanetaryVBox/OuterBodyBiasRow"]
+custom_minimum_size = Vector2(96, 0)
+layout_mode = 2
+text = "Outer Debris"
+
+[node name="OuterBodyBiasOption" type="OptionButton" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/PlanetarySection/PlanetaryContent/PlanetaryVBox/OuterBodyBiasRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+selected = 1
+item_count = 3
+popup/item_0/text = "Asteroid-leaning"
+popup/item_0/id = 0
+popup/item_1/text = "Balanced"
+popup/item_1/id = 1
+popup/item_2/text = "Comet-leaning"
+popup/item_2/id = 2
+
 [node name="IncludeBeltsCheck" type="CheckBox" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox" unique_id=666668619]
 layout_mode = 2
+button_pressed = true
 text = "Asteroid Belts"
+
+[node name="LifeSection" type="VBoxContainer" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox"]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="LifeHeaderRow" type="HBoxContainer" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/LifeSection"]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="LifeHeader" type="Label" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/LifeSection/LifeHeaderRow"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.921569, 0.768627, 0.470588, 1)
+theme_override_font_sizes/font_size = 16
+text = "Life Models"
+
+[node name="LifeSourcesButton" type="Button" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/LifeSection/LifeHeaderRow"]
+custom_minimum_size = Vector2(24, 24)
+layout_mode = 2
+size_flags_horizontal = 8
+focus_mode = 0
+theme_override_font_sizes/font_size = 12
+text = "(i)"
+flat = true
+
+[node name="LifeContent" type="MarginContainer" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/LifeSection"]
+layout_mode = 2
+theme_override_constants/margin_left = 16
+theme_override_constants/margin_top = 4
+theme_override_constants/margin_right = 8
+theme_override_constants/margin_bottom = 8
+
+[node name="LifeVBox" type="VBoxContainer" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/LifeSection/LifeContent"]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="LifeFrameworkRow" type="HBoxContainer" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/LifeSection/LifeContent/LifeVBox"]
+layout_mode = 2
+
+[node name="LifeFrameworkLabel" type="Label" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/LifeSection/LifeContent/LifeVBox/LifeFrameworkRow"]
+custom_minimum_size = Vector2(96, 0)
+layout_mode = 2
+text = "Framework"
+
+[node name="LifeFrameworkOption" type="OptionButton" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/LifeSection/LifeContent/LifeVBox/LifeFrameworkRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+selected = 0
+item_count = 4
+popup/item_0/text = "Earth-Anchored Composite"
+popup/item_0/id = 0
+popup/item_1/text = "Rapid Biospheres"
+popup/item_1/id = 1
+popup/item_2/text = "Environmental Windows"
+popup/item_2/id = 2
+popup/item_3/text = "Rare Complex Life"
+popup/item_3/id = 3
+
+[node name="AbiogenesisModelRow" type="HBoxContainer" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/LifeSection/LifeContent/LifeVBox"]
+layout_mode = 2
+
+[node name="AbiogenesisModelLabel" type="Label" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/LifeSection/LifeContent/LifeVBox/AbiogenesisModelRow"]
+custom_minimum_size = Vector2(96, 0)
+layout_mode = 2
+text = "Abiogenesis"
+
+[node name="AbiogenesisModelOption" type="OptionButton" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/LifeSection/LifeContent/LifeVBox/AbiogenesisModelRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+selected = 0
+item_count = 3
+popup/item_0/text = "Follow Framework"
+popup/item_0/id = 0
+popup/item_1/text = "Rapid Start"
+popup/item_1/id = 1
+popup/item_2/text = "Conservative"
+popup/item_2/id = 2
+
+[node name="ComplexLifeModelRow" type="HBoxContainer" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/LifeSection/LifeContent/LifeVBox"]
+layout_mode = 2
+
+[node name="ComplexLifeModelLabel" type="Label" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/LifeSection/LifeContent/LifeVBox/ComplexLifeModelRow"]
+custom_minimum_size = Vector2(96, 0)
+layout_mode = 2
+text = "Complex Life"
+
+[node name="ComplexLifeModelOption" type="OptionButton" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/LifeSection/LifeContent/LifeVBox/ComplexLifeModelRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+selected = 0
+item_count = 4
+popup/item_0/text = "Follow Framework"
+popup/item_0/id = 0
+popup/item_1/text = "Earth-Anchored Composite"
+popup/item_1/id = 1
+popup/item_2/text = "Environmental Windows"
+popup/item_2/id = 2
+popup/item_3/text = "Rare Earth Filters"
+popup/item_3/id = 3
+
+[node name="CivilizationModelRow" type="HBoxContainer" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/LifeSection/LifeContent/LifeVBox"]
+layout_mode = 2
+
+[node name="CivilizationModelLabel" type="Label" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/LifeSection/LifeContent/LifeVBox/CivilizationModelRow"]
+custom_minimum_size = Vector2(96, 0)
+layout_mode = 2
+text = "Civilization"
+
+[node name="CivilizationModelOption" type="OptionButton" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/LifeSection/LifeContent/LifeVBox/CivilizationModelRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+selected = 0
+item_count = 4
+popup/item_0/text = "Follow Framework"
+popup/item_0/id = 0
+popup/item_1/text = "Earth-Anchored Composite"
+popup/item_1/id = 1
+popup/item_2/text = "Rare Civilizations"
+popup/item_2/id = 2
+popup/item_3/text = "Technosphere Oxygen Bottleneck"
+popup/item_3/id = 3
+
+[node name="EnvironmentalWindowWeightRow" type="HBoxContainer" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/LifeSection/LifeContent/LifeVBox"]
+layout_mode = 2
+
+[node name="EnvironmentalWindowWeightLabel" type="Label" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/LifeSection/LifeContent/LifeVBox/EnvironmentalWindowWeightRow"]
+custom_minimum_size = Vector2(96, 0)
+layout_mode = 2
+text = "Window Weight"
+
+[node name="EnvironmentalWindowWeightOption" type="OptionButton" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/LifeSection/LifeContent/LifeVBox/EnvironmentalWindowWeightRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+selected = 0
+item_count = 4
+popup/item_0/text = "Follow Framework"
+popup/item_0/id = 0
+popup/item_1/text = "Low"
+popup/item_1/id = 1
+popup/item_2/text = "Moderate"
+popup/item_2/id = 2
+popup/item_3/text = "High"
+popup/item_3/id = 3
 
 [node name="RulesPanel" type="PanelContainer" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow" unique_id=1483027816]
 custom_minimum_size = Vector2(200, 0)
@@ -275,7 +823,7 @@ theme_override_constants/separation = 12
 [node name="RulesTitle" type="Label" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/RulesPanel/MarginContainer/RulesVBox" unique_id=355540569]
 layout_mode = 2
 theme_override_font_sizes/font_size = 18
-text = "Generation Rules"
+text = "Generation Overrides"
 
 [node name="ScrollContainer" type="ScrollContainer" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/RulesPanel/MarginContainer/RulesVBox" unique_id=678388808]
 layout_mode = 2
@@ -286,10 +834,6 @@ horizontal_scroll_mode = 0
 layout_mode = 2
 size_flags_horizontal = 3
 theme_override_constants/separation = 10
-
-[node name="GeneratePopulationCheck" type="CheckBox" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/RulesPanel/MarginContainer/RulesVBox/ScrollContainer/RulesContent" unique_id=602577542]
-layout_mode = 2
-text = "Population"
 
 [node name="RulesetModeRow" type="HBoxContainer" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/RulesPanel/MarginContainer/RulesVBox/ScrollContainer/RulesContent" unique_id=399413643]
 layout_mode = 2
@@ -305,42 +849,127 @@ layout_mode = 2
 size_flags_horizontal = 3
 selected = 0
 item_count = 2
-popup/item_0/text = "Default"
+popup/item_0/text = "Realistic"
 popup/item_0/id = 0
-popup/item_1/text = "Traveller"
+popup/item_1/text = "Space Opera"
 popup/item_1/id = 1
 
-[node name="ShowTravellerReadoutsCheck" type="CheckBox" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/RulesPanel/MarginContainer/RulesVBox/ScrollContainer/RulesContent" unique_id=1656341870]
-layout_mode = 2
-text = "Traveller Readouts"
-
-[node name="PermissivenessLegend" type="Label" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/RulesPanel/MarginContainer/RulesVBox/ScrollContainer/RulesContent" unique_id=346158602]
-layout_mode = 2
-theme_override_colors/font_color = Color(0.62, 0.7, 0.8, 1)
-theme_override_font_sizes/font_size = 10
-text = "Rare | Less common, still plentiful | Traveller normal | Space opera"
-autowrap_mode = 3
-
-[node name="LifePermissivenessRow" type="HBoxContainer" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/RulesPanel/MarginContainer/RulesVBox/ScrollContainer/RulesContent" unique_id=893634272]
+[node name="ShowTravellerReadoutsRow" type="HBoxContainer" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/RulesPanel/MarginContainer/RulesVBox/ScrollContainer/RulesContent" unique_id=1656341870]
 layout_mode = 2
 theme_override_constants/separation = 10
 
-[node name="LifePermissivenessLabel" type="Label" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/RulesPanel/MarginContainer/RulesVBox/ScrollContainer/RulesContent/LifePermissivenessRow" unique_id=763364509]
-custom_minimum_size = Vector2(120, 0)
-layout_mode = 2
-text = "Life Potential"
-
-[node name="LifePermissivenessInput" type="HSlider" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/RulesPanel/MarginContainer/RulesVBox/ScrollContainer/RulesContent/LifePermissivenessRow" unique_id=406586662]
+[node name="ShowTravellerReadoutsLabel" type="Label" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/RulesPanel/MarginContainer/RulesVBox/ScrollContainer/RulesContent/ShowTravellerReadoutsRow"]
+custom_minimum_size = Vector2(112, 0)
 layout_mode = 2
 size_flags_horizontal = 3
-max_value = 1.0
-step = 0.05
-value = 0.5
+text = "UWP Readout"
 
-[node name="LifePermissivenessValue" type="Label" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/RulesPanel/MarginContainer/RulesVBox/ScrollContainer/RulesContent/LifePermissivenessRow" unique_id=2006709010]
-custom_minimum_size = Vector2(156, 0)
+[node name="ShowTravellerReadoutsCheck" type="CheckBox" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/RulesPanel/MarginContainer/RulesVBox/ScrollContainer/RulesContent/ShowTravellerReadoutsRow"]
 layout_mode = 2
-text = "0.50 Neutral"
+
+[node name="ForceLifeOnSupportableWorldsRow" type="HBoxContainer" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/RulesPanel/MarginContainer/RulesVBox/ScrollContainer/RulesContent"]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="ForceLifeOnSupportableWorldsLabel" type="Label" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/RulesPanel/MarginContainer/RulesVBox/ScrollContainer/RulesContent/ForceLifeOnSupportableWorldsRow"]
+custom_minimum_size = Vector2(112, 0)
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Force Life If Supportable"
+
+[node name="ForceLifeOnSupportableWorldsCheck" type="CheckBox" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/RulesPanel/MarginContainer/RulesVBox/ScrollContainer/RulesContent/ForceLifeOnSupportableWorldsRow"]
+layout_mode = 2
+
+[node name="TemperateWorldBiasRow" type="HBoxContainer" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/RulesPanel/MarginContainer/RulesVBox/ScrollContainer/RulesContent"]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="TemperateWorldBiasLabel" type="Label" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/RulesPanel/MarginContainer/RulesVBox/ScrollContainer/RulesContent/TemperateWorldBiasRow"]
+custom_minimum_size = Vector2(120, 0)
+layout_mode = 2
+text = "Temperate Worlds"
+
+[node name="TemperateWorldBiasInput" type="HSlider" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/RulesPanel/MarginContainer/RulesVBox/ScrollContainer/RulesContent/TemperateWorldBiasRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+min_value = 0.5
+max_value = 1.8
+step = 0.01
+value = 1.35
+
+[node name="TemperateWorldBiasValue" type="Label" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/RulesPanel/MarginContainer/RulesVBox/ScrollContainer/RulesContent/TemperateWorldBiasRow"]
+custom_minimum_size = Vector2(64, 0)
+layout_mode = 2
+text = "1.35x"
+horizontal_alignment = 2
+
+[node name="HarshWorldBiasRow" type="HBoxContainer" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/RulesPanel/MarginContainer/RulesVBox/ScrollContainer/RulesContent"]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="HarshWorldBiasLabel" type="Label" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/RulesPanel/MarginContainer/RulesVBox/ScrollContainer/RulesContent/HarshWorldBiasRow"]
+custom_minimum_size = Vector2(120, 0)
+layout_mode = 2
+text = "Harsh Worlds"
+
+[node name="HarshWorldBiasInput" type="HSlider" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/RulesPanel/MarginContainer/RulesVBox/ScrollContainer/RulesContent/HarshWorldBiasRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+min_value = 0.5
+max_value = 1.8
+step = 0.01
+value = 0.85
+
+[node name="HarshWorldBiasValue" type="Label" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/RulesPanel/MarginContainer/RulesVBox/ScrollContainer/RulesContent/HarshWorldBiasRow"]
+custom_minimum_size = Vector2(64, 0)
+layout_mode = 2
+text = "0.85x"
+horizontal_alignment = 2
+
+[node name="TerrestrialWorldBiasRow" type="HBoxContainer" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/RulesPanel/MarginContainer/RulesVBox/ScrollContainer/RulesContent"]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="TerrestrialWorldBiasLabel" type="Label" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/RulesPanel/MarginContainer/RulesVBox/ScrollContainer/RulesContent/TerrestrialWorldBiasRow"]
+custom_minimum_size = Vector2(120, 0)
+layout_mode = 2
+text = "Mainworld Class"
+
+[node name="TerrestrialWorldBiasInput" type="HSlider" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/RulesPanel/MarginContainer/RulesVBox/ScrollContainer/RulesContent/TerrestrialWorldBiasRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+min_value = 0.5
+max_value = 1.8
+step = 0.01
+value = 1.25
+
+[node name="TerrestrialWorldBiasValue" type="Label" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/RulesPanel/MarginContainer/RulesVBox/ScrollContainer/RulesContent/TerrestrialWorldBiasRow"]
+custom_minimum_size = Vector2(64, 0)
+layout_mode = 2
+text = "1.25x"
+horizontal_alignment = 2
+
+[node name="NativeLifeBiasRow" type="HBoxContainer" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/RulesPanel/MarginContainer/RulesVBox/ScrollContainer/RulesContent"]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="NativeLifeBiasLabel" type="Label" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/RulesPanel/MarginContainer/RulesVBox/ScrollContainer/RulesContent/NativeLifeBiasRow"]
+custom_minimum_size = Vector2(120, 0)
+layout_mode = 2
+text = "Native Life"
+
+[node name="NativeLifeBiasInput" type="HSlider" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/RulesPanel/MarginContainer/RulesVBox/ScrollContainer/RulesContent/NativeLifeBiasRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+min_value = 0.5
+max_value = 1.8
+step = 0.01
+value = 1.15
+
+[node name="NativeLifeBiasValue" type="Label" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/RulesPanel/MarginContainer/RulesVBox/ScrollContainer/RulesContent/NativeLifeBiasRow"]
+custom_minimum_size = Vector2(64, 0)
+layout_mode = 2
+text = "1.15x"
 horizontal_alignment = 2
 
 [node name="PopulationPermissivenessRow" type="HBoxContainer" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/RulesPanel/MarginContainer/RulesVBox/ScrollContainer/RulesContent" unique_id=381482814]
@@ -350,19 +979,20 @@ theme_override_constants/separation = 10
 [node name="PopulationPermissivenessLabel" type="Label" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/RulesPanel/MarginContainer/RulesVBox/ScrollContainer/RulesContent/PopulationPermissivenessRow" unique_id=1206153599]
 custom_minimum_size = Vector2(120, 0)
 layout_mode = 2
-text = "Expansion Pressure"
+text = "Settlement Bias"
 
 [node name="PopulationPermissivenessInput" type="HSlider" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/RulesPanel/MarginContainer/RulesVBox/ScrollContainer/RulesContent/PopulationPermissivenessRow" unique_id=1260453743]
 layout_mode = 2
 size_flags_horizontal = 3
-max_value = 1.0
-step = 0.05
-value = 0.5
+min_value = 0.5
+max_value = 1.8
+step = 0.01
+value = 1.35
 
 [node name="PopulationPermissivenessValue" type="Label" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/RulesPanel/MarginContainer/RulesVBox/ScrollContainer/RulesContent/PopulationPermissivenessRow" unique_id=1589272899]
 custom_minimum_size = Vector2(156, 0)
 layout_mode = 2
-text = "0.50 Neutral"
+text = "1.35x"
 horizontal_alignment = 2
 
 [node name="MainworldPolicyRow" type="HBoxContainer" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/RulesPanel/MarginContainer/RulesVBox/ScrollContainer/RulesContent" unique_id=165454893]
@@ -372,7 +1002,7 @@ theme_override_constants/separation = 10
 [node name="MainworldPolicyLabel" type="Label" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/RulesPanel/MarginContainer/RulesVBox/ScrollContainer/RulesContent/MainworldPolicyRow" unique_id=1155523126]
 custom_minimum_size = Vector2(96, 0)
 layout_mode = 2
-text = "Mainworld"
+text = "Mainworld Policy"
 
 [node name="MainworldPolicyOption" type="OptionButton" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/RulesPanel/MarginContainer/RulesVBox/ScrollContainer/RulesContent/MainworldPolicyRow" unique_id=2055756452]
 layout_mode = 2
@@ -428,6 +1058,7 @@ autowrap_mode = 2
 layout_mode = 2
 theme_override_colors/font_color = Color(0.631373, 0.701961, 0.772549, 1)
 autowrap_mode = 2
+tooltip_text = "Traveller mode raises life permissiveness, enables Traveller readouts, and requires a mainworld candidate when possible while leaving non-Traveller system details to the normal deterministic generator."
 
 [node name="IssuesTitle" type="Label" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SummaryPanel/MarginContainer/SummaryVBox/SummaryScroll/SummaryContent" unique_id=1674242346]
 layout_mode = 2

@@ -23,9 +23,6 @@ public partial class MainMenuScreen : Control
 	public delegate void station_generation_requestedEventHandler();
 
 	[Signal]
-	public delegate void concept_atlas_requestedEventHandler();
-
-	[Signal]
 	public delegate void quit_requestedEventHandler();
 
 	private enum ContentPanel
@@ -44,7 +41,6 @@ public partial class MainMenuScreen : Control
 	private Button? _systemButton;
 	private Button? _objectButton;
 	private Button? _stationButton;
-	private Button? _conceptAtlasButton;
 	private Button? _helpButton;
 	private Button? _creditsButton;
 	private Button? _sourcesButton;
@@ -59,8 +55,9 @@ public partial class MainMenuScreen : Control
 	private RichTextLabel? _helpText;
 	private RichTextLabel? _creditsText;
 	private RichTextLabel? _releaseNotesText;
-	private CheckButton? _fullscreenCheck;
-	private CheckButton? _showSeedControlsCheck;
+	private CheckBox? _fullscreenCheck;
+	private CheckBox? _showSeedControlsCheck;
+	private CheckBox? _skipIntroCheck;
 	private OptionButton? _resolutionOption;
 	private Button? _applyOptionsButton;
 	private Label? _optionsStatusLabel;
@@ -93,7 +90,7 @@ public partial class MainMenuScreen : Control
 			return;
 		}
 
-		WindowSettingsService.WindowSettingsState currentSettings = WindowSettingsService.CaptureCurrent();
+		WindowSettingsService.WindowSettingsState currentSettings = WindowSettingsService.LoadOrCaptureCurrent();
 		_fullscreenCheck.ButtonPressed = currentSettings.Fullscreen;
 
 		int index = FindResolutionIndex(currentSettings.Resolution);
@@ -114,6 +111,10 @@ public partial class MainMenuScreen : Control
 		{
 			_showSeedControlsCheck.ButtonPressed = studioPreferences.ShowSeedControls;
 		}
+		if (_skipIntroCheck != null)
+		{
+			_skipIntroCheck.ButtonPressed = studioPreferences.SkipIntro;
+		}
 
 		if (_optionsStatusLabel != null)
 		{
@@ -129,11 +130,20 @@ public partial class MainMenuScreen : Control
 
 			if (studioPreferences.ShowSeedControls)
 			{
-				_optionsStatusLabel.Text = $"{modeText}. Studio seeds are visible.";
+				_optionsStatusLabel.Text = $"{modeText}. All studio seeds are visible.";
 			}
 			else
 			{
-				_optionsStatusLabel.Text = $"{modeText}. Studio seeds are hidden and reroll on each launch.";
+				_optionsStatusLabel.Text = $"{modeText}. All studio seeds are hidden and reroll on each launch.";
+			}
+
+			if (studioPreferences.SkipIntro)
+			{
+				_optionsStatusLabel.Text += " Intro is skipped on startup.";
+			}
+			else
+			{
+				_optionsStatusLabel.Text += " Intro plays on startup.";
 			}
 		}
 	}
@@ -147,7 +157,6 @@ public partial class MainMenuScreen : Control
 		_systemButton = GetNodeOrNull<Button>($"{Root}/HBoxContainer/ModesPanel/MarginContainer/ModesVBox/ModeCards/CardSystem/MarginContainer/VBoxContainer/SystemButton");
 		_objectButton = GetNodeOrNull<Button>($"{Root}/HBoxContainer/ModesPanel/MarginContainer/ModesVBox/ModeCards/CardObject/MarginContainer/VBoxContainer/ObjectButton");
 		_stationButton = GetNodeOrNull<Button>($"{Root}/HBoxContainer/ModesPanel/MarginContainer/ModesVBox/ModeCards/CardStation/MarginContainer/VBoxContainer/StationButton");
-		_conceptAtlasButton = GetNodeOrNull<Button>($"{Root}/HBoxContainer/ModesPanel/MarginContainer/ModesVBox/ModeCards/CardConceptAtlas/MarginContainer/VBoxContainer/ConceptAtlasButton");
 		_helpButton = GetNodeOrNull<Button>($"{Root}/HBoxContainer/UtilityRow/UtilityPanel/MarginContainer/UtilityVBox/SecondaryButtons/HelpButton");
 		_creditsButton = GetNodeOrNull<Button>($"{Root}/HBoxContainer/UtilityRow/UtilityPanel/MarginContainer/UtilityVBox/SecondaryButtons/CreditsButton");
 		_sourcesButton = GetNodeOrNull<Button>($"{Root}/HBoxContainer/UtilityRow/UtilityPanel/MarginContainer/UtilityVBox/SecondaryButtons/SourcesButton");
@@ -162,8 +171,9 @@ public partial class MainMenuScreen : Control
 		_helpText = GetNodeOrNull<RichTextLabel>($"{Root}/HBoxContainer/UtilityRow/ContentPanel/MarginContainer/ContentStack/HelpPanel/HelpText");
 		_creditsText = GetNodeOrNull<RichTextLabel>($"{Root}/HBoxContainer/UtilityRow/ContentPanel/MarginContainer/ContentStack/CreditsPanel/CreditsText");
 		_releaseNotesText = GetNodeOrNull<RichTextLabel>($"{Root}/HBoxContainer/UtilityRow/ContentPanel/MarginContainer/ContentStack/ReleaseNotesPanel/ReleaseNotesText");
-		_fullscreenCheck = GetNodeOrNull<CheckButton>($"{Root}/HBoxContainer/UtilityRow/ContentPanel/MarginContainer/ContentStack/OptionsPanel/OptionsVBox/FullscreenCheck");
-		_showSeedControlsCheck = GetNodeOrNull<CheckButton>($"{Root}/HBoxContainer/UtilityRow/ContentPanel/MarginContainer/ContentStack/OptionsPanel/OptionsVBox/ShowSeedControlsCheck");
+		_fullscreenCheck = GetNodeOrNull<CheckBox>($"{Root}/HBoxContainer/UtilityRow/ContentPanel/MarginContainer/ContentStack/OptionsPanel/OptionsVBox/FullscreenCheck");
+		_showSeedControlsCheck = GetNodeOrNull<CheckBox>($"{Root}/HBoxContainer/UtilityRow/ContentPanel/MarginContainer/ContentStack/OptionsPanel/OptionsVBox/ShowSeedControlsCheck");
+		_skipIntroCheck = GetNodeOrNull<CheckBox>($"{Root}/HBoxContainer/UtilityRow/ContentPanel/MarginContainer/ContentStack/OptionsPanel/OptionsVBox/SkipIntroCheck");
 		_resolutionOption = GetNodeOrNull<OptionButton>($"{Root}/HBoxContainer/UtilityRow/ContentPanel/MarginContainer/ContentStack/OptionsPanel/OptionsVBox/ResolutionRow/ResolutionOption");
 		_applyOptionsButton = GetNodeOrNull<Button>($"{Root}/HBoxContainer/UtilityRow/ContentPanel/MarginContainer/ContentStack/OptionsPanel/OptionsVBox/ApplyOptionsButton");
 		_optionsStatusLabel = GetNodeOrNull<Label>($"{Root}/HBoxContainer/UtilityRow/ContentPanel/MarginContainer/ContentStack/OptionsPanel/OptionsVBox/OptionsStatusLabel");
@@ -173,12 +183,17 @@ public partial class MainMenuScreen : Control
 		_optionsDialog = GetNodeOrNull<Window>("OptionsDialog");
 		if (_fullscreenCheck == null)
 		{
-			_fullscreenCheck = GetNodeOrNull<CheckButton>("OptionsDialog/MarginContainer/OptionsVBox/FullscreenCheck");
+			_fullscreenCheck = GetNodeOrNull<CheckBox>("OptionsDialog/MarginContainer/OptionsVBox/FullscreenCheck");
 		}
 
 		if (_showSeedControlsCheck == null)
 		{
-			_showSeedControlsCheck = GetNodeOrNull<CheckButton>("OptionsDialog/MarginContainer/OptionsVBox/ShowSeedControlsCheck");
+			_showSeedControlsCheck = GetNodeOrNull<CheckBox>("OptionsDialog/MarginContainer/OptionsVBox/ShowSeedControlsCheck");
+		}
+
+		if (_skipIntroCheck == null)
+		{
+			_skipIntroCheck = GetNodeOrNull<CheckBox>("OptionsDialog/MarginContainer/OptionsVBox/SkipIntroCheck");
 		}
 
 		if (_resolutionOption == null)
@@ -205,7 +220,6 @@ public partial class MainMenuScreen : Control
 		if (_systemButton != null) _systemButton.Connect(Button.SignalName.Pressed, Callable.From(OnSystemButtonPressed));
 		if (_objectButton != null) _objectButton.Connect(Button.SignalName.Pressed, Callable.From(OnObjectButtonPressed));
 		if (_stationButton != null) _stationButton.Connect(Button.SignalName.Pressed, Callable.From(OnStationButtonPressed));
-		if (_conceptAtlasButton != null) _conceptAtlasButton.Connect(Button.SignalName.Pressed, Callable.From(OnConceptAtlasButtonPressed));
 		if (_helpButton != null) _helpButton.Connect(Button.SignalName.Pressed, Callable.From(OnHelpButtonPressed));
 		if (_creditsButton != null) _creditsButton.Connect(Button.SignalName.Pressed, Callable.From(OnCreditsButtonPressed));
 		if (_sourcesButton != null) _sourcesButton.Connect(Button.SignalName.Pressed, Callable.From(OnSourcesButtonPressed));
@@ -213,8 +227,10 @@ public partial class MainMenuScreen : Control
 		if (_optionsButton != null) _optionsButton.Connect(Button.SignalName.Pressed, Callable.From(OnOptionsButtonPressed));
 		if (_quitButton != null) _quitButton.Connect(Button.SignalName.Pressed, Callable.From(OnQuitButtonPressed));
 		if (_applyOptionsButton != null) _applyOptionsButton.Connect(Button.SignalName.Pressed, Callable.From(ApplyWindowSettings));
-		if (_infoDialogCloseButton != null && _infoDialog != null) _infoDialogCloseButton.Pressed += _infoDialog.Hide;
-		if (_optionsDialogCloseButton != null && _optionsDialog != null) _optionsDialogCloseButton.Pressed += _optionsDialog.Hide;
+		if (_infoDialogCloseButton != null) _infoDialogCloseButton.Pressed += HideInfoDialog;
+		if (_optionsDialogCloseButton != null) _optionsDialogCloseButton.Pressed += HideOptionsDialog;
+		if (_infoDialog != null) _infoDialog.CloseRequested += HideInfoDialog;
+		if (_optionsDialog != null) _optionsDialog.CloseRequested += HideOptionsDialog;
 		if (_fullscreenCheck != null) _fullscreenCheck.Toggled += enabled =>
 		{
 			if (_resolutionOption != null)
@@ -241,12 +257,11 @@ public partial class MainMenuScreen : Control
 		{
 			_helpText.Text =
 				"How to use StarGen\n\n" +
-				"- Galaxy Studio: Configure galaxy shape, generation rules, and worldbuilding assumptions before generating the galaxy viewer.\n\n" +
+				"- Galaxy Studio: Configure galaxy shape, scientific assumptions, and generation overrides before generating the galaxy viewer.\n\n" +
 				"- System Studio: Set stellar counts, seed, and worldbuilding assumptions before opening the system viewer.\n\n" +
-				"- Object Studio: Choose a star, planet, moon, or asteroid preset before launching the object viewer.\n\n" +
+				"- Object Studio: Choose a star, planet, asteroid, or comet preset before launching the object viewer.\n\n" +
 				"- Station Studio: Configure an individual station concept and review the current station workflow.\n\n" +
-				"- Concept Atlas: Explore ecology, civilisation, language, religion, disease, and evolution layers as a worldbuilding tool in development.\n\n" +
-				"- Sources: Review the astronomy and worldbuilding references currently guiding the generator's assumptions.";
+				"- Sources: Review the astronomy and worldbuilding references currently guiding the generator's assumptions and realism goals.";
 		}
 
 		if (_creditsText != null)
@@ -257,6 +272,8 @@ public partial class MainMenuScreen : Control
 				"AI assistance: OpenAI Codex / GPT models, Anthropic Claude, and Cursor were used under human direction for exploration, drafting, refactoring, testing support, UI copy iteration, documentation/provenance upkeep, and focused implementation assistance. Human review remained responsible for design, realism, licensing, and release decisions.\n\n" +
 				"App icon: Galaxy icon by Freepik via Flaticon, used with attribution.\n\n" +
 				"Music: \"Thus Spoke Zarathustra\" (Introduction / Sunrise), adapted from the Kevin MacLeod source archived on Free Music Archive.\n\n" +
+				"Patreon support\n\n" +
+				"Thank you to Leo for supporting StarGen on Patreon.\n\n" +
 				"Astronomy and worldbuilding references can be reviewed from Sources on the main menu.";
 		}
 
@@ -284,11 +301,6 @@ public partial class MainMenuScreen : Control
 	private void OnStationButtonPressed()
 	{
 		EmitSignal(SignalName.station_generation_requested);
-	}
-
-	private void OnConceptAtlasButtonPressed()
-	{
-		EmitSignal(SignalName.concept_atlas_requested);
 	}
 
 	private void OnHelpButtonPressed()
@@ -327,24 +339,20 @@ public partial class MainMenuScreen : Control
 	private static string GetReleaseNotesContent()
 	{
 		return
+			"Version 0.9\n\n" +
+			"- Mainline remains focused on deterministic generation and viewing across Galaxy, System, Object, and Station workflows.\n" +
+			"- Scientific assumptions, compatibility overrides, runtime toggles, and readout controls are now partitioned more clearly in the active studios.\n" +
+			"- Planetary generation, habitable-zone handling, life support, and sentient-world baseline fields now follow the audited science passes added during the 0.9 hardening line.\n" +
+			"- Galaxy, System, and Object viewers use scene-owned controls-panel geometry and more explicit input help.\n" +
+			"- Mainline save and load affordances remain removed from the shipped runtime path.\n" +
+			"- Release prep now includes a documented build path, a live acceptance checklist, and itch publishing guidance.\n\n" +
 			"Version 0.8.0.0\n\n" +
 			"- Replaced the timer-based splash with the root intro video, a clean fade into the StarGen logo, and skip behavior that still resolves through the branded transition.\n" +
-			"- Kept startup audio wiring local to the splash and auto-loads the single root `.ogg` intro track when exactly one is present.\n" +
+			"- Moved startup audio onto the shared app audio controller and library so the intro track is an explicit exported resource instead of a runtime directory scan.\n" +
 			"- Added a fade-to-black handoff from the splash into the main menu.\n" +
-			"- Kept Concept Atlas entry on the main menu while removing non-menu launch paths.\n" +
 			"- Replaced the Station Studio placeholder with the production station generation flow and live detail views.\n" +
 			"- Reworked Galaxy Studio around clearer shape controls, separated generation rules, and a stronger active-profile summary.\n" +
-			"- Life Potential now shapes generation, while colonization settings have moved into simulation tooling.\n\n" +
-			"Version 0.7.0.0\n\n" +
-			"- Added the Concept Atlas as a standalone tool for ecology, civilisation, language, religion, disease, and evolution exploration.\n" +
-			"- Brought the first deterministic concept-tool baseline into the main application.\n\n" +
-			"Version 0.6.0.0\n\n" +
-			"- Brought the first showcase set of concept tools into StarGen.\n" +
-			"- Framed the atlas as a worldbuilding tool in development rather than a final simulation layer.\n\n" +
-			"Version 0.5.0.0\n\n" +
-			"- Expanded the current studio lineup with galaxy, system, object, and station entry points.\n" +
-			"- Added Traveller-aligned launch settings, world-profile readouts, and broad navigation polish.\n" +
-			"- Introduced the station studio entry point and deterministic station-design support.";
+			"- Life Potential now shapes generation, while colonization settings have moved into simulation tooling.";
 	}
 
 	private void PopulateResolutionOptions()
@@ -471,6 +479,14 @@ public partial class MainMenuScreen : Control
 		ShowWindow(_infoDialog, new Vector2I(720, 520));
 	}
 
+	private void HideInfoDialog()
+	{
+		if (_infoDialog != null)
+		{
+			_infoDialog.Hide();
+		}
+	}
+
 	private void ShowOptionsDialog()
 	{
 		RefreshOptionsState();
@@ -480,8 +496,22 @@ public partial class MainMenuScreen : Control
 		}
 	}
 
+	private void HideOptionsDialog()
+	{
+		if (_optionsDialog != null)
+		{
+			_optionsDialog.Hide();
+		}
+	}
+
 	private static void ShowWindow(Window window, Vector2I size)
 	{
+		if (window.IsInsideTree())
+		{
+			window.PopupCentered(size);
+			return;
+		}
+
 		window.Size = size;
 		window.Visible = true;
 	}
@@ -490,12 +520,11 @@ public partial class MainMenuScreen : Control
 	{
 		return
 			"How to use StarGen\n\n" +
-			"- Galaxy Studio: Configure galaxy shape, generation rules, and worldbuilding assumptions before generating the galaxy viewer.\n\n" +
+			"- Galaxy Studio: Configure galaxy shape, scientific assumptions, and generation overrides before generating the galaxy viewer.\n\n" +
 			"- System Studio: Set stellar counts, seed, and worldbuilding assumptions before opening the system viewer.\n\n" +
-			"- Object Studio: Choose a star, planet, moon, or asteroid preset before launching the object viewer.\n\n" +
+			"- Object Studio: Choose a star, planet, asteroid, or comet preset before launching the object viewer.\n\n" +
 			"- Station Studio: Configure an individual station concept and review the current station workflow.\n\n" +
-			"- Concept Atlas: Explore ecology, civilisation, language, religion, disease, and evolution layers as a worldbuilding tool in development.\n\n" +
-			"- Sources: Review the astronomy and worldbuilding references currently guiding the generator's assumptions.";
+			"- Sources: Review the astronomy and worldbuilding references currently guiding the generator's assumptions and realism goals.";
 	}
 
 	private static string BuildCreditsFallbackText()
@@ -506,6 +535,8 @@ public partial class MainMenuScreen : Control
 			"AI assistance: OpenAI Codex / GPT models, Anthropic Claude, and Cursor were used under human direction for exploration, drafting, refactoring, testing support, UI copy iteration, documentation/provenance upkeep, and focused implementation assistance. Human review remained responsible for design, realism, licensing, and release decisions.\n\n" +
 			"App icon: Galaxy icon by Freepik via Flaticon, used with attribution.\n\n" +
 			"Music: \"Thus Spoke Zarathustra\" (Introduction / Sunrise), adapted from the Kevin MacLeod source archived on Free Music Archive.\n\n" +
+			"Patreon support\n\n" +
+			"Thank you to Leo for supporting StarGen on Patreon.\n\n" +
 			"Astronomy and worldbuilding references can be reviewed from Sources on the main menu.";
 	}
 
@@ -532,32 +563,42 @@ public partial class MainMenuScreen : Control
 		{
 			WindowSettingsService.ApplyAndSave(new WindowSettingsService.WindowSettingsState(true, GetSelectedResolution()));
 			ApplyStudioPreferences();
+			RefreshOptionsState();
 			if (_optionsStatusLabel != null)
 			{
-				_optionsStatusLabel.Text = "Applied fullscreen mode";
+				_optionsStatusLabel.Text = "Fullscreen active. All studio and intro preferences were saved.";
 			}
-
+			HideOptionsDialog();
 			return;
 		}
 
 		Vector2I resolution = GetSelectedResolution();
 		WindowSettingsService.ApplyAndSave(new WindowSettingsService.WindowSettingsState(false, resolution));
 		ApplyStudioPreferences();
+		RefreshOptionsState();
 		if (_optionsStatusLabel != null)
 		{
-			_optionsStatusLabel.Text = $"Applied windowed mode at {resolution.X} x {resolution.Y}";
+			_optionsStatusLabel.Text = $"Windowed at {resolution.X} x {resolution.Y}. All studio and intro preferences were saved.";
 		}
+
+		HideOptionsDialog();
 	}
 
 	private void ApplyStudioPreferences()
 	{
 		bool showSeedControls = false;
+		bool skipIntro = false;
 		if (_showSeedControlsCheck != null)
 		{
 			showSeedControls = _showSeedControlsCheck.ButtonPressed;
 		}
 
-		StudioUiPreferencesService.Save(new StudioUiPreferencesService.StudioUiPreferences(showSeedControls));
+		if (_skipIntroCheck != null)
+		{
+			skipIntro = _skipIntroCheck.ButtonPressed;
+		}
+
+		StudioUiPreferencesService.Save(new StudioUiPreferencesService.StudioUiPreferences(showSeedControls, skipIntro));
 	}
 
 	private Vector2I GetSelectedResolution()

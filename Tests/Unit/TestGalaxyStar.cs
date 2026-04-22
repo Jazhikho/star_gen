@@ -8,137 +8,80 @@ using StarGen.Tests.Framework;
 namespace StarGen.Tests.Unit;
 
 /// <summary>
-/// Unit tests for GalaxyStar class.
+/// Unit tests for galaxy-star origin context and field derivation.
 /// </summary>
 public static class TestGalaxyStar
 {
     /// <summary>
-    /// Tests basic creation.
+    /// Tests that derived stars receive structured galaxy-origin context.
     /// </summary>
-    public static void TestBasicCreation()
-    {
-        GalaxyStar star = new GalaxyStar(new Vector3(100.0f, 50.0f, 200.0f), 12345);
-        DotNetNativeTestSuite.AssertEqual(12345, star.StarSeed, "Seed should match");
-        if (!star.Position.IsEqualApprox(new Vector3(100.0f, 50.0f, 200.0f)))
-        {
-            throw new InvalidOperationException("Position should match");
-        }
-        DotNetNativeTestSuite.AssertEqual(1.0, star.Metallicity, "Default metallicity should be 1.0");
-        DotNetNativeTestSuite.AssertEqual(1.0, star.AgeBias, "Default age bias should be 1.0");
-    }
-
-    /// <summary>
-    /// Tests create with derived properties.
-    /// </summary>
-    public static void TestCreateWithDerivedProperties()
+    public static void TestDerivedStarsReceiveGalaxyOriginContext()
     {
         GalaxySpec spec = GalaxySpec.CreateMilkyWay(42);
-        GalaxyStar star = GalaxyStar.CreateWithDerivedProperties(
-            new Vector3(1000.0f, 0.0f, 0.0f), 99999, spec
-        );
-        DotNetNativeTestSuite.AssertEqual(99999, star.StarSeed, "Seed should match");
-        if (star.Metallicity <= 0.5)
-        {
-            throw new InvalidOperationException("Metallicity should be derived");
-        }
-        if (star.Metallicity >= 5.0)
-        {
-            throw new InvalidOperationException("Metallicity should be reasonable");
-        }
+        GalaxyStar star = GalaxyStar.CreateWithDerivedProperties(new Vector3(7000.0f, 0.0f, 0.0f), 99999, spec);
+
+        DotNetNativeTestSuite.AssertTrue(star.OriginContext.MetallicityPrior > 0.0, "metallicity prior should be derived");
+        DotNetNativeTestSuite.AssertTrue(star.OriginContext.AgeMeanGyr > 0.0, "age mean should be derived");
+        DotNetNativeTestSuite.AssertTrue(star.OriginContext.GhzWeight >= 0.0 && star.OriginContext.GhzWeight <= 1.0, "GHZ weight should be normalized");
     }
 
     /// <summary>
-    /// Tests metallicity gradient radial.
+    /// Tests that inner and outer stars preserve the metallicity gradient.
     /// </summary>
-    public static void TestMetallicityGradientRadial()
+    public static void TestMetallicityGradientFallsWithRadius()
     {
         GalaxySpec spec = GalaxySpec.CreateMilkyWay(42);
+        GalaxyStar innerStar = GalaxyStar.CreateWithDerivedProperties(new Vector3(2500.0f, 0.0f, 0.0f), 1, spec);
+        GalaxyStar outerStar = GalaxyStar.CreateWithDerivedProperties(new Vector3(14000.0f, 0.0f, 0.0f), 2, spec);
 
-        GalaxyStar centerStar = GalaxyStar.CreateWithDerivedProperties(
-            new Vector3(500.0f, 0.0f, 0.0f), 1, spec
-        );
-
-        GalaxyStar solarStar = GalaxyStar.CreateWithDerivedProperties(
-            new Vector3(8000.0f, 0.0f, 0.0f), 2, spec
-        );
-
-        GalaxyStar outerStar = GalaxyStar.CreateWithDerivedProperties(
-            new Vector3(15000.0f, 0.0f, 0.0f), 3, spec
-        );
-
-        if (centerStar.Metallicity <= solarStar.Metallicity)
-        {
-            throw new InvalidOperationException("Center star should have higher metallicity than solar-distance star");
-        }
-        if (solarStar.Metallicity <= outerStar.Metallicity)
-        {
-            throw new InvalidOperationException("Solar-distance star should have higher metallicity than outer star");
-        }
+        DotNetNativeTestSuite.AssertTrue(innerStar.Metallicity > outerStar.Metallicity, "inner disk should be more metal rich than the outer disk");
     }
 
     /// <summary>
-    /// Tests metallicity gradient vertical.
+    /// Tests that bulge stars skew older than arm stars.
     /// </summary>
-    public static void TestMetallicityGradientVertical()
+    public static void TestBulgeStarsSkewOlderThanArmStars()
     {
         GalaxySpec spec = GalaxySpec.CreateMilkyWay(42);
+        GalaxyStar bulgeStar = GalaxyStar.CreateWithDerivedProperties(new Vector3(300.0f, 0.0f, 0.0f), 11, spec);
+        GalaxyStar armStar = GalaxyStar.CreateWithDerivedProperties(new Vector3(8000.0f, 0.0f, 0.0f), 12, spec);
 
-        GalaxyStar diskStar = GalaxyStar.CreateWithDerivedProperties(
-            new Vector3(5000.0f, 0.0f, 0.0f), 1, spec
-        );
-
-        GalaxyStar haloStar = GalaxyStar.CreateWithDerivedProperties(
-            new Vector3(5000.0f, 2000.0f, 0.0f), 2, spec
-        );
-
-        if (diskStar.Metallicity <= haloStar.Metallicity)
-        {
-            throw new InvalidOperationException("Disk star should have higher metallicity than halo star");
-        }
+        DotNetNativeTestSuite.AssertTrue(bulgeStar.OriginContext.AgeMeanGyr >= armStar.OriginContext.AgeMeanGyr, "bulge context should be older than disk or arm context");
+        DotNetNativeTestSuite.AssertTrue(bulgeStar.AgeBias >= armStar.AgeBias, "legacy age bias should mirror the older bulge context");
     }
 
     /// <summary>
-    /// Tests age bias bulge.
+    /// Tests that cluster probability responds to star-forming regions.
     /// </summary>
-    public static void TestAgeBiasBulge()
+    public static void TestStarFormingRegionsIncreaseClusterProbability()
     {
-        GalaxySpec spec = GalaxySpec.CreateMilkyWay(42);
+        GalaxyConfig irregularConfig = GalaxyConfig.CreateMilkyWay();
+        irregularConfig.Type = GalaxySpec.GalaxyType.Irregular;
+        irregularConfig.HaloMassLog10Solar = 10.2;
+        irregularConfig.StarFormationEfficiency = 0.22;
+        GalaxySpec irregularSpec = GalaxySpec.CreateFromConfig(irregularConfig, 88);
 
-        GalaxyStar bulgeStar = GalaxyStar.CreateWithDerivedProperties(
-            new Vector3(500.0f, 200.0f, 0.0f), 1, spec
-        );
+        GalaxyStar bodyStar = GalaxyStar.CreateWithDerivedProperties(new Vector3(1200.0f, 0.0f, 900.0f), 51, irregularSpec);
+        GalaxyStar envelopeStar = GalaxyStar.CreateWithDerivedProperties(new Vector3(12000.0f, 0.0f, 0.0f), 52, irregularSpec);
 
-        GalaxyStar diskStar = GalaxyStar.CreateWithDerivedProperties(
-            new Vector3(10000.0f, 0.0f, 0.0f), 2, spec
-        );
-
-        if (bulgeStar.AgeBias <= diskStar.AgeBias)
-        {
-            throw new InvalidOperationException("Bulge star should have higher age bias than disk star");
-        }
+        DotNetNativeTestSuite.AssertTrue(bodyStar.OriginContext.ClusterProbability >= envelopeStar.OriginContext.ClusterProbability, "star-forming irregular bodies should be more cluster-prone than their envelopes");
     }
 
     /// <summary>
-    /// Tests distance helpers.
+    /// Tests that serialization preserves the structured origin context.
     /// </summary>
-    public static void TestDistanceHelpers()
+    public static void TestSerializationPreservesOriginContext()
     {
-        GalaxyStar star = new GalaxyStar(new Vector3(3.0f, 4.0f, 0.0f), 1);
-        DotNetNativeTestSuite.AssertEqual(5.0, star.GetDistanceFromCenter(), "Distance from center should be 5");
-        DotNetNativeTestSuite.AssertEqual(3.0, star.GetRadialDistance(), "Radial distance should be 3");
-        DotNetNativeTestSuite.AssertEqual(4.0, star.GetHeight(), "Height should be 4");
-    }
+        GalaxySpec spec = GalaxySpec.CreateMilkyWay(123);
+        GalaxyStar original = GalaxyStar.CreateWithDerivedProperties(new Vector3(6200.0f, 120.0f, -800.0f), 444, spec);
 
-    /// <summary>
-    /// Tests to string.
-    /// </summary>
-    public static void TestToString()
-    {
-        GalaxyStar star = new GalaxyStar(new Vector3(100.0f, 0.0f, 0.0f), 42);
-        string s = star.ToString();
-        if (!s.Contains("42"))
-        {
-            throw new InvalidOperationException("String should contain seed");
-        }
+        Godot.Collections.Dictionary data = original.ToDictionary();
+        GalaxyStar? restored = GalaxyStar.FromDictionary(data);
+
+        DotNetNativeTestSuite.AssertNotNull(restored, "galaxy star should deserialize");
+        DotNetNativeTestSuite.AssertEqual(original.StarSeed, restored!.StarSeed, "seed should round-trip");
+        DotNetNativeTestSuite.AssertEqual(original.OriginContext.RegionKind, restored.OriginContext.RegionKind, "region should round-trip");
+        DotNetNativeTestSuite.AssertEqual(original.OriginContext.AgeCohort, restored.OriginContext.AgeCohort, "age cohort should round-trip");
+        DotNetNativeTestSuite.AssertEqual(original.OriginContext.MetallicityPrior, restored.OriginContext.MetallicityPrior, "metallicity prior should round-trip");
     }
 }

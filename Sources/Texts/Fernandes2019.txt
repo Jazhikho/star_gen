@@ -1,0 +1,21 @@
+Source note for StarGen research review
+
+Citation:
+Fernandes, R. B., Mulders, G. D., Pascucci, I., Mordasini, C., & Emsenhuber, A. (2019).
+Hints for a turnover at the snow line in the giant planet occurrence rate.
+The Astrophysical Journal, 874(1), 81.
+arXiv: https://arxiv.org/abs/1812.05569
+DOI: https://doi.org/10.3847/1538-4357/ab0300
+
+What was reviewed:
+- Abstract and source metadata on 2026-04-22.
+
+Key implementation notes used in StarGen:
+- The paper reports that giant-planet occurrence rises with orbital distance and then breaks around about 2-3 AU, close to the Solar System snow line, after which occurrence decreases with distance.
+- It estimates an occurrence of 26.6 (+7.5 / -5.4)% for 0.1-20 Jupiter-mass planets between 0.1 and 100 AU, and 6.2 (+1.5 / -1.2)% for planets more massive than Jupiter.
+- The practical takeaway for StarGen is that cold-zone giant-planet weighting should peak near the snow line and taper at larger radii rather than increasing monotonically through the whole outer system.
+
+How StarGen should use this:
+- As a calibration anchor for giant-planet radial weighting in `SystemPlanetGenerator`.
+- As support for distinguishing snow-line-adjacent giant-formation pressure from very-wide-orbit giant occurrence.
+- As the basis for future tests that separate hot/warm giants, cold giants, and Jupiter-analog frequencies instead of treating all outer giants as one bucket.

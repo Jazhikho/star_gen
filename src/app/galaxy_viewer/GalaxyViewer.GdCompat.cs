@@ -111,9 +111,9 @@ public partial class GalaxyViewer
         _galaxyConfig ??= GalaxyConfig.CreateDefault();
         _galaxy = new Domain.Galaxy.Galaxy(_galaxyConfig, GalaxySeed);
         _spec = _galaxy.Spec;
+        ClearLocalSpaceCache();
         InvalidateJumpRoutes();
         BuildStaticRenderers();
-        UpdateSeedDisplay();
         UpdateInspectorState();
         EmitSignal(SignalName.GalaxySeedChanged, GalaxySeed);
     }
@@ -126,6 +126,7 @@ public partial class GalaxyViewer
         _galaxyConfig = config;
         _galaxy = new Domain.Galaxy.Galaxy(_galaxyConfig, GalaxySeed);
         _spec = _galaxy.Spec;
+        ClearLocalSpaceCache();
         InvalidateJumpRoutes();
         BuildStaticRenderers();
         UpdateInspectorState();

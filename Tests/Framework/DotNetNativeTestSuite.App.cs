@@ -1,6 +1,8 @@
 #nullable enable annotations
 #nullable disable warnings
+using System.Globalization;
 using Godot;
+using StarGen.App;
 using StarGen.App.GalaxyViewer;
 using StarGen.App.Rendering;
 using StarGen.App.SystemViewer;
@@ -9,6 +11,9 @@ using StarGen.Domain.Celestial.Components;
 using StarGen.Domain.Galaxy;
 using StarGen.Domain.Generation;
 using StarGen.Domain.Math;
+using StarGen.Domain.Jumplanes;
+using StarGen.Domain.Systems;
+using StarGen.Services.Persistence;
 
 namespace StarGen.Tests.Framework;
 
@@ -207,6 +212,460 @@ public static partial class DotNetNativeTestSuite
         finally
         {
             indicator.Free();
+        }
+    }
+
+    /// <summary>
+    /// Verifies the galaxy viewer inspector hides the legacy profile and overview sections.
+    /// </summary>
+    private static void TestGalaxyInspectorPanelHidesLegacySections()
+    {
+        StudioUiPreferencesService.StudioUiPreferences originalPreferences = StudioUiPreferencesService.LoadOrDefault();
+        PackedScene? scene = ResourceLoader.Load<PackedScene>("res://src/app/galaxy_viewer/GalaxyViewerCSharp.tscn");
+        AssertNotNull(scene, "galaxy viewer scene should load for inspector testing");
+
+        GalaxyViewer? viewer = scene!.Instantiate() as GalaxyViewer;
+        AssertNotNull(viewer, "galaxy viewer scene should instantiate for inspector testing");
+
+        try
+        {
+            StudioUiPreferencesService.Save(StudioUiPreferencesService.CreateDefault());
+            viewer!._Ready();
+            GalaxyInspectorPanel? panel = viewer.GetInspectorPanel();
+            AssertNotNull(panel, "galaxy viewer should expose the typed inspector panel");
+            AssertTrue(!panel!.IsConfigSectionVisible(), "galaxy viewer inspector should hide the legacy active-profile section");
+            AssertTrue(!panel.IsOverviewSectionVisible(), "galaxy viewer inspector should hide the legacy overview section");
+            AssertTrue(!panel.IsColonizationSectionVisible(), "galaxy viewer inspector should hide the jump-route tools section");
+
+            SpinBox? seedInput = viewer.GetNodeOrNull<SpinBox>("UI/UIRoot/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/GenerationSection/SeedContainer/SeedInput");
+            AssertTrue(seedInput == null, "galaxy viewer should not expose the old top-level seed input");
+
+            CheckBox? showCompassCheck = viewer.GetNodeOrNull<CheckBox>("UI/UIRoot/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/ViewSection/ShowCompassCheck");
+            AssertTrue(showCompassCheck == null, "galaxy viewer should not expose the old show-compass checkbox");
+
+            Node? compass = viewer.GetNodeOrNull<Node>("UI/Compass");
+            AssertTrue(compass == null, "galaxy viewer should not mount the unused compass viewport");
+
+            Label? overviewTitle = viewer.GetNodeOrNull<Label>("UI/UIRoot/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/InspectorPanel/SelectionSection/TitleLabel");
+            AssertNotNull(overviewTitle, "galaxy viewer should still expose the overview title label");
+            AssertEqual("Overview", overviewTitle!.Text, "galaxy viewer inspector should label the live location block as Overview");
+
+            HBoxContainer? menuRow = viewer.GetNodeOrNull<HBoxContainer>("UI/UIRoot/TopBar/MarginContainer/TopBarVBox/MenuRow");
+            AssertNotNull(menuRow, "galaxy viewer should expose the top menu row");
+            AssertEqual(4, menuRow!.GetChildCount(), "galaxy viewer should expose File, Tools, Options, and Help in the menu row");
+            AssertEqual("File", ((Button)menuRow.GetChild(0)).Text, "first top-level viewer menu should remain File");
+            AssertEqual("Tools", ((Button)menuRow.GetChild(1)).Text, "second top-level viewer menu should be Tools");
+            AssertEqual("Options", ((Button)menuRow.GetChild(2)).Text, "third top-level viewer menu should be Options");
+            AssertEqual("Help", ((Button)menuRow.GetChild(3)).Text, "fourth top-level viewer menu should remain Help");
+
+            Window? optionsDialog = viewer.GetNodeOrNull<Window>("OptionsDialog");
+            AssertNotNull(optionsDialog, "galaxy viewer should expose the shared options dialog");
+            CheckBox? showSeedControlsCheck = viewer.GetNodeOrNull<CheckBox>("OptionsDialog/MarginContainer/OptionsVBox/ShowSeedControlsCheck");
+            CheckBox? skipIntroCheck = viewer.GetNodeOrNull<CheckBox>("OptionsDialog/MarginContainer/OptionsVBox/SkipIntroCheck");
+            Button? applyButton = viewer.GetNodeOrNull<Button>("OptionsDialog/MarginContainer/OptionsVBox/ButtonRow/ApplyOptionsButton");
+            Button? closeButton = viewer.GetNodeOrNull<Button>("OptionsDialog/MarginContainer/OptionsVBox/ButtonRow/CloseButton");
+            AssertNotNull(showSeedControlsCheck, "galaxy viewer options should expose the studio-seed preference toggle");
+            AssertNotNull(skipIntroCheck, "galaxy viewer options should expose the skip-intro checkbox");
+            AssertNotNull(applyButton, "galaxy viewer options should expose the apply button");
+            AssertNotNull(closeButton, "galaxy viewer options should expose the close button");
+            AssertEqual("Show all studio seeds", showSeedControlsCheck!.Text, "galaxy viewer should label the seed toggle as showing all studio seeds");
+
+            Label? optionsStatusLabel = viewer.GetNodeOrNull<Label>("OptionsDialog/MarginContainer/OptionsVBox/OptionsStatusLabel");
+            AssertNotNull(optionsStatusLabel, "galaxy viewer options should expose the options status label");
+            AssertTrue(optionsStatusLabel!.Text.Contains("All studio seeds"), "galaxy viewer options status should describe the all-studio-seeds preference");
+
+            Button? optionsButton = menuRow.GetChild(2) as Button;
+            AssertNotNull(optionsButton, "galaxy viewer should expose an Options menu action button");
+            optionsButton!.EmitSignal(BaseButton.SignalName.Pressed);
+            AssertTrue(optionsDialog!.Visible, "pressing Options should show the viewer options dialog");
+            showSeedControlsCheck.ButtonPressed = true;
+            skipIntroCheck!.ButtonPressed = true;
+            applyButton!.EmitSignal(BaseButton.SignalName.Pressed);
+            StudioUiPreferencesService.StudioUiPreferences updatedPreferences = StudioUiPreferencesService.LoadOrDefault();
+            AssertTrue(updatedPreferences.ShowSeedControls, "galaxy viewer apply should persist the all-studio-seeds preference");
+            AssertTrue(updatedPreferences.SkipIntro, "galaxy viewer apply should persist the skip-intro preference");
+            AssertFalse(optionsDialog.Visible, "galaxy viewer apply should close the viewer options dialog");
+            optionsButton.EmitSignal(BaseButton.SignalName.Pressed);
+            closeButton!.EmitSignal(BaseButton.SignalName.Pressed);
+            AssertFalse(optionsDialog.Visible, "galaxy viewer close button should close the viewer options dialog");
+            optionsButton.EmitSignal(BaseButton.SignalName.Pressed);
+            optionsDialog.EmitSignal(Window.SignalName.CloseRequested);
+            AssertTrue(!optionsDialog.Visible, "the viewer options dialog should close when the window close signal is emitted");
+
+            Window? localSpaceDialog = viewer.GetNodeOrNull<Window>("BuildLocalSpaceDialog");
+            AssertNotNull(localSpaceDialog, "galaxy viewer should expose the build-local-space dialog");
+            Control? cameraPanel = viewer.GetNodeOrNull<Control>("UI/UIRoot/CameraPanel");
+            Button? cameraHeaderButton = viewer.GetNodeOrNull<Button>("UI/UIRoot/CameraPanel/CameraPanelVBox/CameraPanelHeaderButton");
+            Control? cameraPanelContent = viewer.GetNodeOrNull<Control>("UI/UIRoot/CameraPanel/CameraPanelVBox/CameraPanelContent");
+            Label? cameraHelpLabel = viewer.GetNodeOrNull<Label>("UI/UIRoot/CameraPanel/CameraPanelVBox/CameraPanelContent/CameraHelpLabel");
+            AssertNotNull(cameraPanel, "galaxy viewer should expose the compact camera panel");
+            AssertNotNull(cameraHeaderButton, "galaxy viewer camera panel should expose the collapse toggle");
+            AssertNotNull(cameraPanelContent, "galaxy viewer camera panel should expose collapsible content");
+            AssertNotNull(cameraHelpLabel, "galaxy viewer camera panel should expose a help label");
+            AssertEqual("> Controls", cameraHeaderButton!.Text, "galaxy viewer camera panel should start collapsed");
+            AssertFalse(cameraPanelContent!.Visible, "galaxy viewer camera panel should start collapsed");
+            AssertEqual("CameraPanelContent", ((Node)cameraHeaderButton.GetParent()).GetChild(0).Name, "galaxy viewer camera panel content should sit above the header toggle");
+            float collapsedGalaxyWidth = cameraPanel!.OffsetRight - cameraPanel.OffsetLeft;
+            float collapsedGalaxyHeight = cameraPanel.OffsetBottom - cameraPanel.OffsetTop;
+            AssertTrue(collapsedGalaxyWidth < 140.0f, "galaxy viewer collapsed controls box should shrink close to the header width");
+            cameraHeaderButton.EmitSignal(BaseButton.SignalName.Pressed);
+            AssertEqual("^ Controls", cameraHeaderButton.Text, "galaxy viewer controls box should use the expanded caret label");
+            AssertTrue(cameraPanelContent.Visible, "galaxy viewer controls content should appear when expanded");
+            AssertEqual("Wheel: Change move speed\nRight Drag: Look around\nW / S: Move forward / backward\nA / D: Move left / right\nE / C: Move up / down\nLeft Click: Select star", cameraHelpLabel!.Text, "galaxy viewer controls text should match the active subsector camera mode");
+            float expandedGalaxyWidth = cameraPanel.OffsetRight - cameraPanel.OffsetLeft;
+            float expandedGalaxyHeight = cameraPanel.OffsetBottom - cameraPanel.OffsetTop;
+            AssertTrue(expandedGalaxyHeight > collapsedGalaxyHeight, "galaxy viewer controls box should grow taller when expanded");
+            cameraHeaderButton.EmitSignal(BaseButton.SignalName.Pressed);
+            cameraHeaderButton.EmitSignal(BaseButton.SignalName.Pressed);
+            float reopenedGalaxyWidth = cameraPanel.OffsetRight - cameraPanel.OffsetLeft;
+            float reopenedGalaxyHeight = cameraPanel.OffsetBottom - cameraPanel.OffsetTop;
+            AssertFloatNear(expandedGalaxyWidth, reopenedGalaxyWidth, 0.01, "galaxy viewer controls box should reopen to the same width on the first and second expansion");
+            AssertFloatNear(expandedGalaxyHeight, reopenedGalaxyHeight, 0.01, "galaxy viewer controls box should reopen to the same height on the first and second expansion");
+
+            bool builtLocalSpace = viewer.BuildLocalSpaceSynchronouslyForTesting(new Vector3I(1, 1, 1));
+            AssertTrue(builtLocalSpace, "galaxy viewer should be able to build a local-space cache in subsector view");
+            GalaxyLocalSpaceCache? localSpaceCache = viewer.GetLocalSpaceCache();
+            AssertNotNull(localSpaceCache, "local-space build should retain a cache profile");
+            AssertTrue(localSpaceCache!.Region.GetSystemCount() > 0, "local-space cache should contain generated systems");
+            Galaxy? galaxy = viewer.GetGalaxy();
+            AssertNotNull(galaxy, "galaxy viewer should expose the active galaxy after local-space build");
+            AssertTrue(galaxy!.GetCachedSystemCount() > 0, "building local space should also populate the galaxy-level system cache");
+
+            JumpLaneSystem cachedRouteSystem = localSpaceCache.Region.Systems[0];
+            int cachedStarSeed = int.Parse(cachedRouteSystem.Id, CultureInfo.InvariantCulture);
+            SolarSystem? cachedSystem = galaxy.GetCachedSystem(cachedStarSeed);
+            AssertNotNull(cachedSystem, "a route system produced during local-space build should have a matching full-system cache entry");
+
+            GalaxyStar cachedStar = GalaxyStar.CreateWithDerivedProperties(cachedRouteSystem.Position, cachedStarSeed, galaxy.Spec);
+            SolarSystem? directSystem = GalaxySystemGenerator.GenerateSystem(
+                cachedStar,
+                includeAsteroids: true,
+                enablePopulation: true,
+                overrides: null,
+                useCaseSettings: viewer.GetGalaxyConfig()?.UseCaseSettings,
+                galaxy: galaxy);
+            AssertNotNull(directSystem, "direct galaxy-aware regeneration should succeed for a cached local-space system");
+            AssertEqual(directSystem!.GetPlanetCount(), cachedSystem!.GetPlanetCount(), "local-space cache should store systems with the same planet count as the direct galaxy pipeline");
+            AssertEqual(directSystem.GetMoonCount(), cachedSystem.GetMoonCount(), "local-space cache should store systems with the same moon count as the direct galaxy pipeline");
+            AssertEqual(directSystem.GetTotalPopulation(), cachedSystem.GetTotalPopulation(), "local-space cache should store systems with the same total population as the direct galaxy pipeline");
+            AssertEqual(cachedSystem.GetTotalPopulation(), cachedRouteSystem.Population, "local-space route summaries should report the cached system population");
+        }
+        finally
+        {
+            viewer?.QueueFree();
+            StudioUiPreferencesService.Save(originalPreferences);
+        }
+    }
+
+    /// <summary>
+    /// Verifies local-space cache coverage persists across movement and subsequent builds append systems.
+    /// </summary>
+    private static void TestGalaxyViewerLocalSpaceCachePersistsAndAppends()
+    {
+        PackedScene? scene = ResourceLoader.Load<PackedScene>("res://src/app/galaxy_viewer/GalaxyViewerCSharp.tscn");
+        AssertNotNull(scene, "galaxy viewer scene should load for local-space cache testing");
+
+        GalaxyViewer? viewer = scene!.Instantiate() as GalaxyViewer;
+        AssertNotNull(viewer, "galaxy viewer scene should instantiate for local-space cache testing");
+
+        try
+        {
+            viewer!._Ready();
+            Vector3I testExtent = new Vector3I(1, 1, 1);
+            bool initialBuild = viewer.BuildLocalSpaceSynchronouslyForTesting(testExtent);
+            AssertTrue(initialBuild, "initial local-space build should succeed");
+
+            GalaxyLocalSpaceCache? initialCache = viewer.GetLocalSpaceCache();
+            AssertNotNull(initialCache, "initial local-space build should create a cache");
+
+            int initialSystemCount = initialCache!.Region.GetSystemCount();
+            AssertEqual(1, initialCache.CoverageAreaCount, "initial local-space cache should track one coverage area");
+            AssertTrue(!string.IsNullOrEmpty(viewer.GetVisibleJumpRouteRegionId()), "current position should be covered immediately after the initial build");
+
+            StarViewCamera? starCamera = viewer.GetStarCamera();
+            AssertNotNull(starCamera, "galaxy viewer should expose the star camera for movement testing");
+
+            Vector3 initialPosition = starCamera!.GetCurrentPosition();
+            Vector3 shiftedPosition = initialPosition + new Vector3((float)GalaxyCoordinates.SubsectorSizePc * 4.0f, 0.0f, 0.0f);
+            starCamera.Configure(shiftedPosition);
+
+            GalaxyLocalSpaceCache? cacheAfterMove = viewer.GetLocalSpaceCache();
+            AssertNotNull(cacheAfterMove, "moving outside cached coverage should not delete the cache");
+            AssertEqual(initialSystemCount, cacheAfterMove!.Region.GetSystemCount(), "moving should not change cached system count");
+            AssertTrue(cacheAfterMove.ContainsPosition(initialPosition), "cache should still cover the original built position after movement");
+            AssertTrue(!cacheAfterMove.ContainsPosition(shiftedPosition), "shifted position should start outside the original coverage");
+            AssertTrue(string.IsNullOrEmpty(viewer.GetVisibleJumpRouteRegionId()), "jump-route region should be unavailable until the new position is built into the cache");
+
+            bool appendedBuild = viewer.BuildLocalSpaceSynchronouslyForTesting(testExtent);
+            AssertTrue(appendedBuild, "second local-space build should succeed after movement");
+
+            GalaxyLocalSpaceCache? appendedCache = viewer.GetLocalSpaceCache();
+            AssertNotNull(appendedCache, "cache should still exist after appending a new area");
+            AssertEqual(2, appendedCache!.CoverageAreaCount, "second build at a new location should append a second coverage area");
+            AssertTrue(appendedCache.Region.GetSystemCount() > initialSystemCount, "appending a second local-space build should grow the cached system set");
+            AssertTrue(appendedCache.ContainsPosition(initialPosition), "expanded cache should still cover the original built position");
+            AssertTrue(appendedCache.ContainsPosition(shiftedPosition), "expanded cache should also cover the newly built position");
+            AssertTrue(!string.IsNullOrEmpty(viewer.GetVisibleJumpRouteRegionId()), "jump-route region should become available again once the new position is cached");
+        }
+        finally
+        {
+            viewer?.QueueFree();
+        }
+    }
+
+    /// <summary>
+    /// Verifies the main-menu options dialog applies persisted preferences and closes from both affordances.
+    /// </summary>
+    private static void TestMainMenuOptionsDialogAppliesAndCloses()
+    {
+        StudioUiPreferencesService.StudioUiPreferences originalPreferences = StudioUiPreferencesService.LoadOrDefault();
+        try
+        {
+            StudioUiPreferencesService.Save(StudioUiPreferencesService.CreateDefault());
+
+            PackedScene? scene = ResourceLoader.Load<PackedScene>("res://src/app/MainMenuScreen.tscn");
+            AssertNotNull(scene, "main menu scene should load for options testing");
+
+            MainMenuScreen? screen = scene!.Instantiate() as MainMenuScreen;
+            AssertNotNull(screen, "main menu scene should instantiate for options testing");
+
+            try
+            {
+                screen!._Ready();
+                Button? optionsButton = screen.GetNodeOrNull<Button>("MarginContainer/ScrollContainer/Layout/HBoxContainer/UtilityRow/UtilityPanel/MarginContainer/UtilityVBox/SecondaryButtons/OptionsButton");
+                Window? optionsDialog = screen.GetNodeOrNull<Window>("OptionsDialog");
+                CheckBox? showSeedsCheck = screen.GetNodeOrNull<CheckBox>("OptionsDialog/MarginContainer/OptionsVBox/ShowSeedControlsCheck");
+                CheckBox? skipIntroCheck = screen.GetNodeOrNull<CheckBox>("OptionsDialog/MarginContainer/OptionsVBox/SkipIntroCheck");
+                Button? applyButton = screen.GetNodeOrNull<Button>("OptionsDialog/MarginContainer/OptionsVBox/ApplyOptionsButton");
+                Button? closeButton = screen.GetNodeOrNull<Button>("OptionsDialog/MarginContainer/OptionsVBox/CloseButton");
+
+                AssertNotNull(optionsButton, "main menu should expose the options button");
+                AssertNotNull(optionsDialog, "main menu should expose the options dialog");
+                AssertNotNull(showSeedsCheck, "main menu options should expose the show-seeds toggle");
+                AssertNotNull(skipIntroCheck, "main menu options should expose the skip-intro toggle");
+                AssertNotNull(applyButton, "main menu options should expose the apply button");
+                AssertNotNull(closeButton, "main menu options should expose the close button");
+                AssertEqual("Show all studio seeds", showSeedsCheck!.Text, "main menu should use the all-studio-seeds wording");
+
+                optionsButton!.EmitSignal(BaseButton.SignalName.Pressed);
+                AssertTrue(optionsDialog!.Visible, "main menu options should open from the options button");
+
+                showSeedsCheck.ButtonPressed = true;
+                skipIntroCheck!.ButtonPressed = true;
+                applyButton!.EmitSignal(BaseButton.SignalName.Pressed);
+
+                StudioUiPreferencesService.StudioUiPreferences updatedPreferences = StudioUiPreferencesService.LoadOrDefault();
+                AssertTrue(updatedPreferences.ShowSeedControls, "main menu apply should persist the show-seeds preference");
+                AssertTrue(updatedPreferences.SkipIntro, "main menu apply should persist the skip-intro preference");
+                AssertFalse(optionsDialog.Visible, "main menu apply should close the options dialog after saving");
+
+                optionsButton.EmitSignal(BaseButton.SignalName.Pressed);
+                closeButton!.EmitSignal(BaseButton.SignalName.Pressed);
+                AssertTrue(!optionsDialog.Visible, "main menu options should close from the explicit close button");
+
+                optionsButton.EmitSignal(BaseButton.SignalName.Pressed);
+                optionsDialog.EmitSignal(Window.SignalName.CloseRequested);
+                AssertTrue(!optionsDialog.Visible, "main menu options should close from the titlebar close affordance");
+            }
+            finally
+            {
+                screen?.QueueFree();
+            }
+        }
+        finally
+        {
+            StudioUiPreferencesService.Save(originalPreferences);
+        }
+    }
+
+    /// <summary>
+    /// Verifies the system viewer uses the shared viewer menu standard and options dialog.
+    /// </summary>
+    private static void TestSystemViewerMenuMatchesGalaxyViewerStandard()
+    {
+        StudioUiPreferencesService.StudioUiPreferences originalPreferences = StudioUiPreferencesService.LoadOrDefault();
+        SystemViewer? viewer = null;
+        try
+        {
+            StudioUiPreferencesService.Save(StudioUiPreferencesService.CreateDefault());
+
+            PackedScene? scene = ResourceLoader.Load<PackedScene>("res://src/app/system_viewer/SystemViewer.tscn");
+            AssertNotNull(scene, "system viewer scene should load for menu testing");
+
+            viewer = scene!.Instantiate() as SystemViewer;
+            AssertNotNull(viewer, "system viewer scene should instantiate for menu testing");
+
+            viewer!._Ready();
+            HBoxContainer? menuRow = viewer.GetNodeOrNull<HBoxContainer>("UI/TopBar/MarginContainer/TopBarVBox/MenuRow");
+            AssertNotNull(menuRow, "system viewer should expose the top menu row");
+            AssertEqual(4, menuRow!.GetChildCount(), "system viewer should expose File, Tools, Options, and Help");
+            AssertEqual("File", ((Button)menuRow.GetChild(0)).Text, "system viewer first menu should be File");
+            AssertEqual("Tools", ((Button)menuRow.GetChild(1)).Text, "system viewer second menu should be Tools");
+            AssertEqual("Options", ((Button)menuRow.GetChild(2)).Text, "system viewer third menu should be Options");
+            AssertEqual("Help", ((Button)menuRow.GetChild(3)).Text, "system viewer fourth menu should be Help");
+
+            Node? generationSection = viewer.GetNodeOrNull<Node>("UI/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/GenerationSection");
+            Node? saveLoadSection = viewer.GetNodeOrNull<Node>("UI/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/SaveLoadSection");
+            AssertTrue(generationSection == null, "system viewer should not embed the old generator panel");
+            AssertTrue(saveLoadSection == null, "system viewer should not embed the old save-load panel");
+
+            Window? optionsDialog = viewer.GetNodeOrNull<Window>("OptionsDialog");
+            CheckBox? showSeedsCheck = viewer.GetNodeOrNull<CheckBox>("OptionsDialog/MarginContainer/OptionsVBox/ShowSeedControlsCheck");
+            Button? optionsButton = menuRow.GetChild(2) as Button;
+            Button? closeButton = viewer.GetNodeOrNull<Button>("OptionsDialog/MarginContainer/OptionsVBox/ButtonRow/CloseButton");
+            Button? applyButton = viewer.GetNodeOrNull<Button>("OptionsDialog/MarginContainer/OptionsVBox/ButtonRow/ApplyOptionsButton");
+            CheckBox? skipIntroCheck = viewer.GetNodeOrNull<CheckBox>("OptionsDialog/MarginContainer/OptionsVBox/SkipIntroCheck");
+            Control? cameraPanel = viewer.GetNodeOrNull<Control>("UI/CameraPanel");
+            Button? cameraHeaderButton = viewer.GetNodeOrNull<Button>("UI/CameraPanel/CameraPanelVBox/CameraPanelHeaderButton");
+            Control? cameraPanelContent = viewer.GetNodeOrNull<Control>("UI/CameraPanel/CameraPanelVBox/CameraPanelContent");
+            Label? cameraHelpLabel = viewer.GetNodeOrNull<Label>("UI/CameraPanel/CameraPanelVBox/CameraPanelContent/CameraHelpLabel");
+
+            AssertNotNull(optionsDialog, "system viewer should expose an options dialog");
+            AssertNotNull(showSeedsCheck, "system viewer options should expose the all-studio-seeds toggle");
+            AssertNotNull(closeButton, "system viewer options should expose the close button");
+            AssertNotNull(applyButton, "system viewer options should expose the apply button");
+            AssertNotNull(skipIntroCheck, "system viewer options should expose the skip-intro checkbox");
+            AssertEqual("Show all studio seeds", showSeedsCheck!.Text, "system viewer should use the all-studio-seeds wording");
+            AssertNotNull(cameraPanel, "system viewer should expose the compact camera panel");
+            AssertNotNull(cameraHeaderButton, "system viewer camera panel should expose a collapse toggle");
+            AssertNotNull(cameraPanelContent, "system viewer camera panel should expose collapsible content");
+            AssertNotNull(cameraHelpLabel, "system viewer camera panel should expose a help label");
+            AssertEqual("> Controls", cameraHeaderButton!.Text, "system viewer camera panel should start collapsed");
+            AssertFalse(cameraPanelContent!.Visible, "system viewer camera panel should start collapsed");
+            AssertEqual("CameraPanelContent", ((Node)cameraHeaderButton.GetParent()).GetChild(0).Name, "system viewer camera panel content should sit above the header toggle");
+            float collapsedSystemWidth = cameraPanel!.OffsetRight - cameraPanel.OffsetLeft;
+            float collapsedSystemHeight = cameraPanel.OffsetBottom - cameraPanel.OffsetTop;
+            AssertTrue(collapsedSystemWidth < 140.0f, "system viewer collapsed controls box should shrink close to the header width");
+            cameraHeaderButton.EmitSignal(BaseButton.SignalName.Pressed);
+            AssertEqual("^ Controls", cameraHeaderButton.Text, "system viewer controls box should use the expanded caret label");
+            AssertTrue(cameraPanelContent.Visible, "system viewer controls content should appear when expanded");
+            AssertEqual("Left Drag: Orbit view\nMiddle Drag: Orbit view\nRight Drag: Pan view\nWheel: Zoom\nLeft Click: Select body or belt\nF: Focus origin\nT: Toggle view angle", cameraHelpLabel!.Text, "system viewer controls text should match the active camera behavior");
+            float expandedSystemWidth = cameraPanel.OffsetRight - cameraPanel.OffsetLeft;
+            float expandedSystemHeight = cameraPanel.OffsetBottom - cameraPanel.OffsetTop;
+            AssertTrue(expandedSystemHeight > collapsedSystemHeight, "system viewer controls box should grow taller when expanded");
+            cameraHeaderButton.EmitSignal(BaseButton.SignalName.Pressed);
+            cameraHeaderButton.EmitSignal(BaseButton.SignalName.Pressed);
+            float reopenedSystemWidth = cameraPanel.OffsetRight - cameraPanel.OffsetLeft;
+            float reopenedSystemHeight = cameraPanel.OffsetBottom - cameraPanel.OffsetTop;
+            AssertFloatNear(expandedSystemWidth, reopenedSystemWidth, 0.01, "system viewer controls box should reopen to the same width on the first and second expansion");
+            AssertFloatNear(expandedSystemHeight, reopenedSystemHeight, 0.01, "system viewer controls box should reopen to the same height on the first and second expansion");
+
+            optionsButton!.EmitSignal(BaseButton.SignalName.Pressed);
+            AssertTrue(optionsDialog!.Visible, "system viewer options should open from the options action");
+            showSeedsCheck.ButtonPressed = true;
+            skipIntroCheck!.ButtonPressed = true;
+            applyButton!.EmitSignal(BaseButton.SignalName.Pressed);
+            StudioUiPreferencesService.StudioUiPreferences preferences = StudioUiPreferencesService.LoadOrDefault();
+            AssertTrue(preferences.ShowSeedControls, "system viewer apply should persist the all-studio-seeds preference");
+            AssertTrue(preferences.SkipIntro, "system viewer apply should persist the skip-intro preference");
+            AssertFalse(optionsDialog.Visible, "system viewer apply should close the dialog after saving");
+            optionsButton.EmitSignal(BaseButton.SignalName.Pressed);
+            closeButton!.EmitSignal(BaseButton.SignalName.Pressed);
+            AssertTrue(!optionsDialog.Visible, "system viewer options should close from the explicit close button");
+        }
+        finally
+        {
+            viewer?.QueueFree();
+            StudioUiPreferencesService.Save(originalPreferences);
+        }
+    }
+
+    /// <summary>
+    /// Verifies the object viewer uses the shared viewer menu standard and options dialog.
+    /// </summary>
+    private static void TestObjectViewerMenuMatchesGalaxyViewerStandard()
+    {
+        StudioUiPreferencesService.StudioUiPreferences originalPreferences = StudioUiPreferencesService.LoadOrDefault();
+        ObjectViewer? viewer = null;
+        try
+        {
+            StudioUiPreferencesService.Save(StudioUiPreferencesService.CreateDefault());
+
+            PackedScene? scene = ResourceLoader.Load<PackedScene>("res://src/app/viewer/ObjectViewer.tscn");
+            AssertNotNull(scene, "object viewer scene should load for menu testing");
+
+            viewer = scene!.Instantiate() as ObjectViewer;
+            AssertNotNull(viewer, "object viewer scene should instantiate for menu testing");
+
+            viewer!._Ready();
+            HBoxContainer? menuRow = viewer.GetNodeOrNull<HBoxContainer>("UI/TopBar/MarginContainer/TopBarVBox/MenuRow");
+            AssertNotNull(menuRow, "object viewer should expose the top menu row");
+            AssertEqual(4, menuRow!.GetChildCount(), "object viewer should expose File, Tools, Options, and Help");
+            AssertEqual("File", ((Button)menuRow.GetChild(0)).Text, "object viewer first menu should be File");
+            AssertEqual("Tools", ((Button)menuRow.GetChild(1)).Text, "object viewer second menu should be Tools");
+            AssertEqual("Options", ((Button)menuRow.GetChild(2)).Text, "object viewer third menu should be Options");
+            AssertEqual("Help", ((Button)menuRow.GetChild(3)).Text, "object viewer fourth menu should be Help");
+
+            Node? generationSection = viewer.GetNodeOrNull<Node>("UI/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/GenerationSection");
+            VBoxContainer? sidePanelVBox = viewer.GetNodeOrNull<VBoxContainer>("UI/SidePanel/MarginContainer/ScrollContainer/VBoxContainer");
+            VBoxContainer? inspectorContainer = viewer.GetNodeOrNull<VBoxContainer>("UI/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/InspectorPanel/InspectorContainer");
+            Control? bodySection = viewer.GetNodeOrNull<Control>("UI/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/InspectorPanel/InspectorContainer/BodySection");
+            Control? travellerSection = viewer.GetNodeOrNull<Control>("UI/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/InspectorPanel/InspectorContainer/TravellerSection");
+            Window? optionsDialog = viewer.GetNodeOrNull<Window>("OptionsDialog");
+            CheckBox? showSeedsCheck = viewer.GetNodeOrNull<CheckBox>("OptionsDialog/MarginContainer/OptionsVBox/ShowSeedControlsCheck");
+            Button? optionsButton = menuRow.GetChild(2) as Button;
+            Button? closeButton = viewer.GetNodeOrNull<Button>("OptionsDialog/MarginContainer/OptionsVBox/ButtonRow/CloseButton");
+            Button? applyButton = viewer.GetNodeOrNull<Button>("OptionsDialog/MarginContainer/OptionsVBox/ButtonRow/ApplyOptionsButton");
+            CheckBox? skipIntroCheck = viewer.GetNodeOrNull<CheckBox>("OptionsDialog/MarginContainer/OptionsVBox/SkipIntroCheck");
+            Control? cameraPanel = viewer.GetNodeOrNull<Control>("UI/CameraPanel");
+            Button? cameraHeaderButton = viewer.GetNodeOrNull<Button>("UI/CameraPanel/CameraPanelVBox/CameraPanelHeaderButton");
+            Control? cameraPanelContent = viewer.GetNodeOrNull<Control>("UI/CameraPanel/CameraPanelVBox/CameraPanelContent");
+            Label? cameraHelpLabel = viewer.GetNodeOrNull<Label>("UI/CameraPanel/CameraPanelVBox/CameraPanelContent/CameraHelpLabel");
+
+            AssertNotNull(optionsDialog, "object viewer should expose an options dialog");
+            AssertTrue(generationSection == null, "object viewer should not embed the old generator panel in the active scene");
+            AssertNotNull(sidePanelVBox, "object viewer should expose the side-panel container from the scene");
+            AssertTrue(sidePanelVBox!.GetScript().VariantType == Variant.Type.Nil, "object viewer side-panel container should not carry the inspector script");
+            AssertNotNull(inspectorContainer, "object viewer should expose the scene-owned inspector container");
+            AssertNotNull(bodySection, "object viewer should expose the scene-owned body summary section");
+            AssertNotNull(travellerSection, "object viewer should expose the scene-owned traveller section shell");
+            AssertFalse(travellerSection!.Visible, "object viewer traveller section should start hidden until a compatible body is displayed");
+            AssertNotNull(showSeedsCheck, "object viewer options should expose the all-studio-seeds toggle");
+            AssertNotNull(closeButton, "object viewer options should expose the close button");
+            AssertNotNull(applyButton, "object viewer options should expose the apply button");
+            AssertNotNull(skipIntroCheck, "object viewer options should expose the skip-intro checkbox");
+            AssertEqual("Show all studio seeds", showSeedsCheck!.Text, "object viewer should use the all-studio-seeds wording");
+            AssertNotNull(cameraPanel, "object viewer should expose the compact camera panel");
+            AssertNotNull(cameraHeaderButton, "object viewer camera panel should expose a collapse toggle");
+            AssertNotNull(cameraPanelContent, "object viewer camera panel should expose collapsible content");
+            AssertNotNull(cameraHelpLabel, "object viewer camera panel should expose a help label");
+            AssertEqual("> Controls", cameraHeaderButton!.Text, "object viewer camera panel should start collapsed");
+            AssertFalse(cameraPanelContent!.Visible, "object viewer camera panel should start collapsed");
+            AssertEqual("CameraPanelContent", ((Node)cameraHeaderButton.GetParent()).GetChild(0).Name, "object viewer camera panel content should sit above the header toggle");
+            float collapsedObjectWidth = cameraPanel!.OffsetRight - cameraPanel.OffsetLeft;
+            float collapsedObjectHeight = cameraPanel.OffsetBottom - cameraPanel.OffsetTop;
+            AssertTrue(collapsedObjectWidth < 140.0f, "object viewer collapsed controls box should shrink close to the header width");
+            cameraHeaderButton.EmitSignal(BaseButton.SignalName.Pressed);
+            AssertEqual("^ Controls", cameraHeaderButton.Text, "object viewer controls box should use the expanded caret label");
+            AssertTrue(cameraPanelContent.Visible, "object viewer controls content should appear when expanded");
+            AssertEqual("Left Drag: Orbit view\nRight Drag: Pan view\nWheel: Zoom\nLeft Click: Select moon\nF: Focus primary body", cameraHelpLabel!.Text, "object viewer controls text should match the active camera behavior");
+            float expandedObjectWidth = cameraPanel.OffsetRight - cameraPanel.OffsetLeft;
+            float expandedObjectHeight = cameraPanel.OffsetBottom - cameraPanel.OffsetTop;
+            AssertTrue(expandedObjectHeight > collapsedObjectHeight, "object viewer controls box should grow taller when expanded");
+            cameraHeaderButton.EmitSignal(BaseButton.SignalName.Pressed);
+            cameraHeaderButton.EmitSignal(BaseButton.SignalName.Pressed);
+            float reopenedObjectWidth = cameraPanel.OffsetRight - cameraPanel.OffsetLeft;
+            float reopenedObjectHeight = cameraPanel.OffsetBottom - cameraPanel.OffsetTop;
+            AssertFloatNear(expandedObjectWidth, reopenedObjectWidth, 0.01, "object viewer controls box should reopen to the same width on the first and second expansion");
+            AssertFloatNear(expandedObjectHeight, reopenedObjectHeight, 0.01, "object viewer controls box should reopen to the same height on the first and second expansion");
+
+            optionsButton!.EmitSignal(BaseButton.SignalName.Pressed);
+            AssertTrue(optionsDialog!.Visible, "object viewer options should open from the options action");
+            showSeedsCheck.ButtonPressed = true;
+            skipIntroCheck!.ButtonPressed = true;
+            applyButton!.EmitSignal(BaseButton.SignalName.Pressed);
+            StudioUiPreferencesService.StudioUiPreferences preferences = StudioUiPreferencesService.LoadOrDefault();
+            AssertTrue(preferences.ShowSeedControls, "object viewer apply should persist the all-studio-seeds preference");
+            AssertTrue(preferences.SkipIntro, "object viewer apply should persist the skip-intro preference");
+            AssertFalse(optionsDialog.Visible, "object viewer apply should close the dialog after saving");
+            optionsButton.EmitSignal(BaseButton.SignalName.Pressed);
+            closeButton!.EmitSignal(BaseButton.SignalName.Pressed);
+            AssertTrue(!optionsDialog.Visible, "object viewer options should close from the explicit close button");
+        }
+        finally
+        {
+            viewer?.QueueFree();
+            StudioUiPreferencesService.Save(originalPreferences);
         }
     }
 

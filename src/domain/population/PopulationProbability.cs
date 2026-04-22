@@ -52,19 +52,18 @@ public static class PopulationProbability
     }
 
     /// <summary>
-    /// Calculates the probability that native life emerged on a body using a user-facing permissiveness value.
+    /// Calculates the probability that native life emerged on a body using the active use-case settings.
     /// </summary>
-    public static double CalculateNativeProbability(PlanetProfile profile, double lifePermissiveness)
+    public static double CalculateNativeProbability(PlanetProfile profile, GenerationUseCaseSettings? useCaseSettings)
     {
-        double permissiveness = ClampPermissiveness(lifePermissiveness);
-        GenerationUseCaseSettings settings = GenerationUseCaseSettings.CreateDefault();
-        settings.LifePermissiveness = permissiveness;
-        BiologySupportEvaluator.Assessment assessment = BiologySupportEvaluator.Evaluate(profile, settings);
+        BiologySupportEvaluator.Assessment assessment = BiologySupportEvaluator.Evaluate(profile, useCaseSettings);
         if (!assessment.IsSupported)
         {
             return 0.0;
         }
 
+        double permissiveness = ResolveLifePermissiveness(useCaseSettings);
+        RpgCompatibilityProfile compatibilityProfile = ResolveCompatibilityProfile(useCaseSettings);
         double probability = assessment.AbiogenesisChance;
 
         if (profile.IsTidallyLocked)
@@ -87,7 +86,22 @@ public static class PopulationProbability
             probability += Lerp(0.01, TidalHeatingBonus + 0.04, permissiveness);
         }
 
+        probability += assessment.SurfaceBiosphereChance * Lerp(0.02, 0.08, permissiveness);
+        probability += assessment.ProtectedBiosphereChance * Lerp(0.00, 0.03, permissiveness);
+
+        probability *= compatibilityProfile.NativeLifeProbabilityMultiplier;
         return System.Math.Clamp(probability, 0.0, MaxNativeProbability);
+    }
+
+    /// <summary>
+    /// Calculates the probability that native life emerged on a body using a user-facing permissiveness value.
+    /// </summary>
+    public static double CalculateNativeProbability(PlanetProfile profile, double lifePermissiveness)
+    {
+        double permissiveness = ClampPermissiveness(lifePermissiveness);
+        GenerationUseCaseSettings settings = GenerationUseCaseSettings.CreateDefault();
+        settings.LifePermissiveness = permissiveness;
+        return CalculateNativeProbability(profile, settings);
     }
 
     /// <summary>
@@ -186,6 +200,33 @@ public static class PopulationProbability
         return System.Math.Clamp(probability, 0.0, MaxColonyProbability);
     }
 
+    /// <summary>
+    /// Calculates the probability that colonization is attempted using active use-case settings.
+    /// </summary>
+    public static double CalculateColonyProbability(
+        PlanetProfile profile,
+        ColonySuitability suitability,
+        GenerationUseCaseSettings? settings,
+        ColonyPressureContext? pressureContext = null)
+    {
+        double permissiveness = ResolveLifePermissiveness(settings);
+        double probability = CalculateColonyProbability(profile, suitability, permissiveness, pressureContext);
+        RpgCompatibilityProfile compatibilityProfile = ResolveCompatibilityProfile(settings);
+        if (RequiresHarshSettlementSupport(profile, suitability))
+        {
+            if (compatibilityProfile.HarshColonyProbabilityMultiplier > 1.0)
+            {
+                double harshFloor = 0.05 * (compatibilityProfile.HarshColonyProbabilityMultiplier - 1.0);
+                probability = System.Math.Max(probability, harshFloor);
+            }
+
+            probability *= compatibilityProfile.HarshColonyProbabilityMultiplier;
+        }
+
+        probability *= compatibilityProfile.ColonyProbabilityMultiplier;
+        return System.Math.Clamp(probability, 0.0, MaxColonyProbability);
+    }
+
     private static double Normalize(double value, double minValue, double maxValue)
     {
         if (value <= minValue)
@@ -209,6 +250,56 @@ public static class PopulationProbability
     private static double ClampPermissiveness(double permissiveness)
     {
         return System.Math.Clamp(permissiveness, 0.0, 1.0);
+    }
+
+    private static double ResolveLifePermissiveness(GenerationUseCaseSettings? settings)
+    {
+        if (settings == null)
+        {
+            return GenerationUseCaseSettings.NeutralPermissiveness;
+        }
+
+        if (!settings.HasLifePermissivenessOverride())
+        {
+            return GenerationUseCaseSettings.GetRecommendedLifePermissiveness(settings.LifeFramework);
+        }
+
+        return ClampPermissiveness(settings.LifePermissiveness);
+    }
+
+    private static RpgCompatibilityProfile ResolveCompatibilityProfile(GenerationUseCaseSettings? settings)
+    {
+        if (settings == null)
+        {
+            return RpgCompatibilityProfile.Resolve(GenerationUseCaseSettings.RulesetModeType.Default);
+        }
+
+        return settings.GetCompatibilityProfile();
+    }
+
+    private static bool RequiresHarshSettlementSupport(PlanetProfile profile, ColonySuitability suitability)
+    {
+        if (suitability.RequiresLifeSupport)
+        {
+            return true;
+        }
+
+        if (suitability.RequiresPressureSuit)
+        {
+            return true;
+        }
+
+        if (suitability.RequiresRadiationShielding)
+        {
+            return true;
+        }
+
+        if (profile.HabitabilityScore <= 2)
+        {
+            return true;
+        }
+
+        return false;
     }
 
     private static double ResolveEffectivePermissiveness(double basePermissiveness, ColonyPressureContext? pressureContext)

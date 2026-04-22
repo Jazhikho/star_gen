@@ -234,6 +234,10 @@ public partial class BodyRenderer : Node3D
                 sphere.RadialSegments = 24;
                 sphere.Rings = 12;
                 break;
+            case CelestialType.Type.Comet:
+                sphere.RadialSegments = 24;
+                sphere.Rings = 12;
+                break;
         }
 
         _bodyMesh.Scale = new Vector3(_displayScale, _displayScale, _displayScale);

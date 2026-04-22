@@ -46,7 +46,7 @@ public static class PopulationGenerator
             generationSeed,
             body.Name,
             body.GetTypeString());
-        ConceptDependencyChainGenerator.PopulatePreSocietyStates(
+        PopulateSummaryPreSocietyStates(
             environmentProfile,
             out EcologyState ecologyState,
             out SpeciesEvolutionState speciesEvolutionState,
@@ -114,7 +114,7 @@ public static class PopulationGenerator
             generationSeed,
             profile.BodyId,
             "Planet");
-        ConceptDependencyChainGenerator.PopulatePreSocietyStates(
+        PopulateSummaryPreSocietyStates(
             environmentProfile,
             out EcologyState ecologyState,
             out SpeciesEvolutionState speciesEvolutionState,
@@ -151,6 +151,8 @@ public static class PopulationGenerator
                 rng,
                 useCaseSettings);
         }
+
+        data.SentientWorldProfile = SentientWorldProfileBuilder.Build(data);
 
         return data;
     }
@@ -238,6 +240,8 @@ public static class PopulationGenerator
             return colonies;
         }
 
+        RpgCompatibilityProfile compatibilityProfile = useCaseSettings?.GetCompatibilityProfile()
+            ?? RpgCompatibilityProfile.Resolve(GenerationUseCaseSettings.RulesetModeType.Default);
         SeededRng colonyRng = rng.Fork();
         int colonyCount = DetermineAutoColonyCount(profile, suitability, colonyRng, useCaseSettings, pressureContext);
         for (int index = 0; index < colonyCount; index += 1)
@@ -252,7 +256,8 @@ public static class PopulationGenerator
                 DefaultColonyMaxHistoryYears,
                 TechnologyLevel.Level.Interstellar,
                 $"civ_auto_{index}",
-                "Unknown Civilization");
+                "Unknown Civilization",
+                compatibilityProfile);
             if (colony != null)
             {
                 colonies.Add(colony);
@@ -270,9 +275,13 @@ public static class PopulationGenerator
         ColonyPressureContext? pressureContext = null)
     {
         double permissiveness = GenerationUseCaseSettings.NeutralPermissiveness;
+        if (useCaseSettings != null)
+        {
+            permissiveness = System.Math.Clamp(useCaseSettings.LifePermissiveness, 0.0, 1.0);
+        }
 
         int count = 1;
-        double adjustedChance = PopulationProbability.CalculateColonyProbability(profile, suitability, permissiveness, pressureContext);
+        double adjustedChance = PopulationProbability.CalculateColonyProbability(profile, suitability, useCaseSettings, pressureContext);
         int maxColonies = 1 + (int)System.Math.Round(3.0 * permissiveness);
         double additionalChance = adjustedChance * Lerp(0.12, 0.40, permissiveness);
         while (count < maxColonies && rng.Randf() < additionalChance)
@@ -334,12 +343,59 @@ public static class PopulationGenerator
 
             data.Population = data.GetTotalPopulation();
             data.IsActive = data.GetTotalPopulation() > 0;
+            data.SentientWorldProfile = SentientWorldProfileBuilder.Build(data);
         }
     }
 
     private static double Lerp(double minValue, double maxValue, double factor)
     {
         return minValue + ((maxValue - minValue) * factor);
+    }
+
+    internal static void PopulateSummaryPreSocietyStates(
+        PlanetEnvironmentProfile environmentProfile,
+        out EcologyState ecologyState,
+        out SpeciesEvolutionState speciesEvolutionState,
+        out SentienceAssessment sentienceAssessment,
+        GenerationUseCaseSettings? useCaseSettings)
+    {
+        BiologySupportEvaluator.Assessment biologyAssessment = BiologySupportEvaluator.Evaluate(environmentProfile, useCaseSettings);
+        bool supportsBiology = biologyAssessment.IsSupported;
+        bool hasSentientLineage = biologyAssessment.SupportsComplexLife
+            && biologyAssessment.SentienceChance > 0.0
+            && PopulationLikelihood.DeriveRollValue(environmentProfile.Seed, 0x53454E54) < biologyAssessment.SentienceChance;
+        bool hasTechnologicalCivilization = hasSentientLineage
+            && biologyAssessment.CivilizationChance > 0.0
+            && PopulationLikelihood.DeriveRollValue(environmentProfile.Seed, 0x43495649) < biologyAssessment.CivilizationChance;
+        string unavailableReason = "Mainline v0.9 parks the detailed concept dependency chain; summary-only biology assessment remains active.";
+
+        ecologyState = new EcologyState
+        {
+            Status = supportsBiology ? ConceptRunStatus.Generated : ConceptRunStatus.NotApplicable,
+            StatusReason = supportsBiology ? unavailableReason : "Biology support requirements are not met for this world.",
+        };
+
+        speciesEvolutionState = new SpeciesEvolutionState
+        {
+            Status = supportsBiology ? ConceptRunStatus.Generated : ConceptRunStatus.NotApplicable,
+            StatusReason = supportsBiology ? unavailableReason : "No supported biosphere is available for species evolution.",
+            HasSentientCandidate = biologyAssessment.SupportsComplexLife,
+        };
+
+        sentienceAssessment = new SentienceAssessment
+        {
+            Status = supportsBiology ? ConceptRunStatus.Generated : ConceptRunStatus.NotApplicable,
+            StatusReason = supportsBiology
+                ? hasTechnologicalCivilization
+                    ? unavailableReason
+                    : hasSentientLineage
+                        ? "A sentient lineage emerged here, but it did not cross the later bottlenecks for a technological civilization."
+                        : "A biosphere is possible here, but this seed did not produce a sentient native lineage."
+                : "No supported biosphere is available for sentience assessment.",
+            HasSentientLife = hasSentientLineage,
+            HasTechnologicalCivilization = hasTechnologicalCivilization,
+            CandidateSpeciesName = environmentProfile.BodyName,
+        };
     }
 
     private static List<CelestialBody> GetNativeSourceBodies(SolarSystem system)
@@ -571,6 +627,7 @@ public static class PopulationGenerator
         }
 
         data.SentienceAssessment.Status = ConceptRunStatus.Generated;
+        data.SentienceAssessment.HasSentientLife = true;
         if (string.IsNullOrWhiteSpace(data.SentienceAssessment.CandidateSpeciesName))
         {
             data.SentienceAssessment.CandidateSpeciesName = data.NativePopulations[0].Name;

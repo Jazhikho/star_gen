@@ -32,6 +32,11 @@ public partial class ParentContext : Godot.RefCounted
     public double StellarAgeYears;
 
     /// <summary>
+    /// Circumstellar habitable-zone model that was active when this context was built.
+    /// </summary>
+    public PlanetHabitableZoneModel HabitableZoneModel;
+
+    /// <summary>
     /// Distance from the star in meters.
     /// </summary>
     public double OrbitalDistanceFromStarM;
@@ -59,6 +64,7 @@ public partial class ParentContext : Godot.RefCounted
         double stellarLuminosityWatts = 0.0,
         double stellarTemperatureK = 0.0,
         double stellarAgeYears = 0.0,
+        PlanetHabitableZoneModel habitableZoneModel = PlanetHabitableZoneModel.Kopparapu2013Conservative,
         double orbitalDistanceFromStarM = 0.0,
         double parentBodyMassKg = 0.0,
         double parentBodyRadiusM = 0.0,
@@ -68,6 +74,7 @@ public partial class ParentContext : Godot.RefCounted
         StellarLuminosityWatts = stellarLuminosityWatts;
         StellarTemperatureK = stellarTemperatureK;
         StellarAgeYears = stellarAgeYears;
+        HabitableZoneModel = habitableZoneModel;
         OrbitalDistanceFromStarM = orbitalDistanceFromStarM;
         ParentBodyMassKg = parentBodyMassKg;
         ParentBodyRadiusM = parentBodyRadiusM;
@@ -82,13 +89,15 @@ public partial class ParentContext : Godot.RefCounted
         double stellarLuminosityWatts,
         double stellarTemperatureK,
         double stellarAgeYears,
-        double orbitalDistanceM)
+        double orbitalDistanceM,
+        PlanetHabitableZoneModel habitableZoneModel = PlanetHabitableZoneModel.Kopparapu2013Conservative)
     {
         return new ParentContext(
             stellarMassKg,
             stellarLuminosityWatts,
             stellarTemperatureK,
             stellarAgeYears,
+            habitableZoneModel,
             orbitalDistanceM);
     }
 
@@ -103,13 +112,15 @@ public partial class ParentContext : Godot.RefCounted
         double planetOrbitalDistanceM,
         double planetMassKg,
         double planetRadiusM,
-        double moonOrbitalDistanceM)
+        double moonOrbitalDistanceM,
+        PlanetHabitableZoneModel habitableZoneModel = PlanetHabitableZoneModel.Kopparapu2013Conservative)
     {
         return new ParentContext(
             stellarMassKg,
             stellarLuminosityWatts,
             stellarTemperatureK,
             stellarAgeYears,
+            habitableZoneModel,
             planetOrbitalDistanceM,
             planetMassKg,
             planetRadiusM,
@@ -119,14 +130,17 @@ public partial class ParentContext : Godot.RefCounted
     /// <summary>
     /// Creates a Sun-like default context.
     /// </summary>
-    public static ParentContext SunLike(double orbitalDistanceM = Units.AuMeters)
+    public static ParentContext SunLike(
+        double orbitalDistanceM = Units.AuMeters,
+        PlanetHabitableZoneModel habitableZoneModel = PlanetHabitableZoneModel.Kopparapu2013Conservative)
     {
         return ForPlanet(
             Units.SolarMassKg,
             StellarProps.SolarLuminosityWatts,
             5778.0,
             4.6e9,
-            orbitalDistanceM);
+            orbitalDistanceM,
+            habitableZoneModel);
     }
 
     /// <summary>
@@ -188,6 +202,7 @@ public partial class ParentContext : Godot.RefCounted
             ["stellar_luminosity_watts"] = StellarLuminosityWatts,
             ["stellar_temperature_k"] = StellarTemperatureK,
             ["stellar_age_years"] = StellarAgeYears,
+            ["habitable_zone_model"] = (int)HabitableZoneModel,
             ["orbital_distance_from_star_m"] = OrbitalDistanceFromStarM,
             ["parent_body_mass_kg"] = ParentBodyMassKg,
             ["parent_body_radius_m"] = ParentBodyRadiusM,
@@ -205,6 +220,7 @@ public partial class ParentContext : Godot.RefCounted
             GetDouble(data, "stellar_luminosity_watts", 0.0),
             GetDouble(data, "stellar_temperature_k", 0.0),
             GetDouble(data, "stellar_age_years", 0.0),
+            GetHabitableZoneModel(data),
             GetDouble(data, "orbital_distance_from_star_m", 0.0),
             GetDouble(data, "parent_body_mass_kg", 0.0),
             GetDouble(data, "parent_body_radius_m", 0.0),
@@ -219,5 +235,21 @@ public partial class ParentContext : Godot.RefCounted
         }
 
         return fallback;
+    }
+
+    private static PlanetHabitableZoneModel GetHabitableZoneModel(Dictionary data)
+    {
+        if (!data.ContainsKey("habitable_zone_model"))
+        {
+            return PlanetHabitableZoneModel.Kopparapu2013Conservative;
+        }
+
+        int rawValue = (int)data["habitable_zone_model"];
+        if (!System.Enum.IsDefined(typeof(PlanetHabitableZoneModel), rawValue))
+        {
+            return PlanetHabitableZoneModel.Kopparapu2013Conservative;
+        }
+
+        return (PlanetHabitableZoneModel)rawValue;
     }
 }

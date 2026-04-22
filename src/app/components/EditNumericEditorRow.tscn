@@ -1,0 +1,37 @@
+[gd_scene format=3]
+
+[node name="EditNumericEditorRow" type="VBoxContainer"]
+layout_mode = 2
+theme_override_constants/separation = 4
+
+[node name="TitleLabel" type="Label" parent="."]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.6, 0.6, 0.6, 1)
+theme_override_font_sizes/font_size = 13
+text = "Property"
+
+[node name="ControlsRow" type="HBoxContainer" parent="."]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="LockButton" type="CheckButton" parent="ControlsRow"]
+custom_minimum_size = Vector2(50, 0)
+layout_mode = 2
+tooltip_text = "Lock this property (constrains dependent properties)"
+text = "Lock"
+
+[node name="Slider" type="HSlider" parent="ControlsRow"]
+custom_minimum_size = Vector2(100, 0)
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="SpinBox" type="SpinBox" parent="ControlsRow"]
+custom_minimum_size = Vector2(140, 0)
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="RangeLabel" type="Label" parent="."]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.5, 0.5, 0.5, 1)
+theme_override_font_sizes/font_size = 10
+text = "Range"

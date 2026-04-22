@@ -1,5 +1,6 @@
 using Godot;
 using Godot.Collections;
+using StarGen.App.Components;
 using StarGen.App.Shared;
 using StarGen.Domain.Generation;
 using StarGen.Domain.Generation.Parameters;
@@ -15,9 +16,6 @@ public partial class SystemGenerationScreen : Control
 {
 	[Signal]
 	public delegate void start_system_generationEventHandler(SolarSystemSpec spec);
-
-	[Signal]
-	public delegate void load_system_requestedEventHandler();
 
 	[Signal]
 	public delegate void back_requestedEventHandler();
@@ -42,14 +40,25 @@ public partial class SystemGenerationScreen : Control
 	private SpinBox? _systemAgeInput;
 	private SpinBox? _systemMetallicityInput;
 	private CheckBox? _includeBeltsCheck;
-	private CheckBox? _generatePopulationCheck;
 	private OptionButton? _rulesetModeOption;
 	private CheckBox? _showTravellerReadoutsCheck;
-	private HSlider? _lifePermissivenessInput;
-	private Label? _lifePermissivenessValueLabel;
+	private CheckBox? _forceLifeOnSupportableWorldsCheck;
+	private HBoxContainer? _temperateWorldBiasRow;
+	private HSlider? _temperateWorldBiasInput;
+	private Label? _temperateWorldBiasValueLabel;
+	private HBoxContainer? _harshWorldBiasRow;
+	private HSlider? _harshWorldBiasInput;
+	private Label? _harshWorldBiasValueLabel;
+	private HBoxContainer? _terrestrialWorldBiasRow;
+	private HSlider? _terrestrialWorldBiasInput;
+	private Label? _terrestrialWorldBiasValueLabel;
+	private HBoxContainer? _nativeLifeBiasRow;
+	private HSlider? _nativeLifeBiasInput;
+	private Label? _nativeLifeBiasValueLabel;
 	private HSlider? _populationPermissivenessInput;
 	private Label? _populationPermissivenessValueLabel;
 	private HBoxContainer? _populationPermissivenessRow;
+	private HBoxContainer? _mainworldPolicyRow;
 	private OptionButton? _mainworldPolicyOption;
 	private GenerationParameterIssueSet _currentIssues = new();
 	private bool _showSeedControls;
@@ -64,6 +73,10 @@ public partial class SystemGenerationScreen : Control
 		ConnectSignals();
 		ApplyVersionLabel();
 		ApplyDefaults();
+		ApplyStellarParameterTooltips();
+		ApplyPlanetaryParameterTooltips();
+		ApplyLifeParameterTooltips();
+		InitializeScienceHelpUi();
 		ApplySeedVisibilityPreference(rerollHiddenSeed: true);
 		RefreshSummary();
 		ApplyResponsiveLayout();
@@ -141,12 +154,9 @@ public partial class SystemGenerationScreen : Control
 			spec.IncludeAsteroidBelts = _includeBeltsCheck.ButtonPressed;
 		}
 
-		if (_generatePopulationCheck != null)
-		{
-			spec.GeneratePopulation = _generatePopulationCheck.ButtonPressed;
-		}
-
 		spec.UseCaseSettings = BuildUseCaseSettingsFromControls();
+		spec.StellarProfile = BuildStellarProfileFromControls();
+		spec.PlanetaryProfile = BuildPlanetaryProfileFromControls();
 		return spec;
 	}
 
@@ -174,15 +184,30 @@ public partial class SystemGenerationScreen : Control
 		_systemAgeInput = GetNodeOrNull<SpinBox>($"{Root}/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/SystemAgeRow/SystemAgeInput");
 		_systemMetallicityInput = GetNodeOrNull<SpinBox>($"{Root}/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/SystemMetallicityRow/SystemMetallicityInput");
 		_includeBeltsCheck = GetNodeOrNull<CheckBox>($"{Root}/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/IncludeBeltsCheck");
-		_generatePopulationCheck = GetNodeOrNull<CheckBox>($"{Root}/StudioRow/RulesPanel/MarginContainer/RulesVBox/ScrollContainer/RulesContent/GeneratePopulationCheck");
 		_rulesetModeOption = GetNodeOrNull<OptionButton>($"{Root}/StudioRow/RulesPanel/MarginContainer/RulesVBox/ScrollContainer/RulesContent/RulesetModeRow/RulesetModeOption");
-		_showTravellerReadoutsCheck = GetNodeOrNull<CheckBox>($"{Root}/StudioRow/RulesPanel/MarginContainer/RulesVBox/ScrollContainer/RulesContent/ShowTravellerReadoutsCheck");
-		_lifePermissivenessInput = GetNodeOrNull<HSlider>($"{Root}/StudioRow/RulesPanel/MarginContainer/RulesVBox/ScrollContainer/RulesContent/LifePermissivenessRow/LifePermissivenessInput");
-		_lifePermissivenessValueLabel = GetNodeOrNull<Label>($"{Root}/StudioRow/RulesPanel/MarginContainer/RulesVBox/ScrollContainer/RulesContent/LifePermissivenessRow/LifePermissivenessValue");
+		_showTravellerReadoutsCheck = GetNodeOrNull<CheckBox>($"{Root}/StudioRow/RulesPanel/MarginContainer/RulesVBox/ScrollContainer/RulesContent/ShowTravellerReadoutsRow/ShowTravellerReadoutsCheck");
+		_forceLifeOnSupportableWorldsCheck = GetNodeOrNull<CheckBox>($"{Root}/StudioRow/RulesPanel/MarginContainer/RulesVBox/ScrollContainer/RulesContent/ForceLifeOnSupportableWorldsRow/ForceLifeOnSupportableWorldsCheck");
+		_temperateWorldBiasRow = GetNodeOrNull<HBoxContainer>($"{Root}/StudioRow/RulesPanel/MarginContainer/RulesVBox/ScrollContainer/RulesContent/TemperateWorldBiasRow");
+		_temperateWorldBiasInput = GetNodeOrNull<HSlider>($"{Root}/StudioRow/RulesPanel/MarginContainer/RulesVBox/ScrollContainer/RulesContent/TemperateWorldBiasRow/TemperateWorldBiasInput");
+		_temperateWorldBiasValueLabel = GetNodeOrNull<Label>($"{Root}/StudioRow/RulesPanel/MarginContainer/RulesVBox/ScrollContainer/RulesContent/TemperateWorldBiasRow/TemperateWorldBiasValue");
+		_harshWorldBiasRow = GetNodeOrNull<HBoxContainer>($"{Root}/StudioRow/RulesPanel/MarginContainer/RulesVBox/ScrollContainer/RulesContent/HarshWorldBiasRow");
+		_harshWorldBiasInput = GetNodeOrNull<HSlider>($"{Root}/StudioRow/RulesPanel/MarginContainer/RulesVBox/ScrollContainer/RulesContent/HarshWorldBiasRow/HarshWorldBiasInput");
+		_harshWorldBiasValueLabel = GetNodeOrNull<Label>($"{Root}/StudioRow/RulesPanel/MarginContainer/RulesVBox/ScrollContainer/RulesContent/HarshWorldBiasRow/HarshWorldBiasValue");
+		_terrestrialWorldBiasRow = GetNodeOrNull<HBoxContainer>($"{Root}/StudioRow/RulesPanel/MarginContainer/RulesVBox/ScrollContainer/RulesContent/TerrestrialWorldBiasRow");
+		_terrestrialWorldBiasInput = GetNodeOrNull<HSlider>($"{Root}/StudioRow/RulesPanel/MarginContainer/RulesVBox/ScrollContainer/RulesContent/TerrestrialWorldBiasRow/TerrestrialWorldBiasInput");
+		_terrestrialWorldBiasValueLabel = GetNodeOrNull<Label>($"{Root}/StudioRow/RulesPanel/MarginContainer/RulesVBox/ScrollContainer/RulesContent/TerrestrialWorldBiasRow/TerrestrialWorldBiasValue");
+		_nativeLifeBiasRow = GetNodeOrNull<HBoxContainer>($"{Root}/StudioRow/RulesPanel/MarginContainer/RulesVBox/ScrollContainer/RulesContent/NativeLifeBiasRow");
+		_nativeLifeBiasInput = GetNodeOrNull<HSlider>($"{Root}/StudioRow/RulesPanel/MarginContainer/RulesVBox/ScrollContainer/RulesContent/NativeLifeBiasRow/NativeLifeBiasInput");
+		_nativeLifeBiasValueLabel = GetNodeOrNull<Label>($"{Root}/StudioRow/RulesPanel/MarginContainer/RulesVBox/ScrollContainer/RulesContent/NativeLifeBiasRow/NativeLifeBiasValue");
 		_populationPermissivenessRow = GetNodeOrNull<HBoxContainer>($"{Root}/StudioRow/RulesPanel/MarginContainer/RulesVBox/ScrollContainer/RulesContent/PopulationPermissivenessRow");
 		_populationPermissivenessInput = GetNodeOrNull<HSlider>($"{Root}/StudioRow/RulesPanel/MarginContainer/RulesVBox/ScrollContainer/RulesContent/PopulationPermissivenessRow/PopulationPermissivenessInput");
 		_populationPermissivenessValueLabel = GetNodeOrNull<Label>($"{Root}/StudioRow/RulesPanel/MarginContainer/RulesVBox/ScrollContainer/RulesContent/PopulationPermissivenessRow/PopulationPermissivenessValue");
+		_mainworldPolicyRow = GetNodeOrNull<HBoxContainer>($"{Root}/StudioRow/RulesPanel/MarginContainer/RulesVBox/ScrollContainer/RulesContent/MainworldPolicyRow");
 		_mainworldPolicyOption = GetNodeOrNull<OptionButton>($"{Root}/StudioRow/RulesPanel/MarginContainer/RulesVBox/ScrollContainer/RulesContent/MainworldPolicyRow/MainworldPolicyOption");
+		CacheStellarNodeReferences();
+		CachePlanetaryNodeReferences();
+		CacheLifeNodeReferences();
+		CacheScienceHelpNodeReferences();
 	}
 
 	private void ApplyResponsiveLayout()
@@ -193,7 +218,6 @@ public partial class SystemGenerationScreen : Control
 	private void ConnectSignals()
 	{
 		if (_startButton != null) _startButton.Pressed += OnStartPressed;
-		if (_loadButton != null) _loadButton.Pressed += () => EmitSignal(SignalName.load_system_requested);
 		if (_backButton != null) _backButton.Pressed += () => EmitSignal(SignalName.back_requested);
 		if (_seedInput != null) _seedInput.ValueChanged += _ => RefreshSummary();
 		if (_starCountMinInput != null) _starCountMinInput.ValueChanged += _ => RefreshSummary();
@@ -202,11 +226,19 @@ public partial class SystemGenerationScreen : Control
 		if (_systemAgeInput != null) _systemAgeInput.ValueChanged += _ => RefreshSummary();
 		if (_systemMetallicityInput != null) _systemMetallicityInput.ValueChanged += _ => RefreshSummary();
 		if (_includeBeltsCheck != null) _includeBeltsCheck.Toggled += _ => RefreshSummary();
-		if (_generatePopulationCheck != null) _generatePopulationCheck.Toggled += _ => RefreshSummary();
 		if (_showTravellerReadoutsCheck != null) _showTravellerReadoutsCheck.Toggled += _ => RefreshSummary();
-		if (_lifePermissivenessInput != null) _lifePermissivenessInput.ValueChanged += OnLifePermissivenessChanged;
+		if (_forceLifeOnSupportableWorldsCheck != null) _forceLifeOnSupportableWorldsCheck.Toggled += _ => RefreshSummary();
 		if (_mainworldPolicyOption != null) _mainworldPolicyOption.ItemSelected += _ => RefreshSummary();
+		if (_temperateWorldBiasInput != null) _temperateWorldBiasInput.ValueChanged += OnCompatibilityPressureChanged;
+		if (_harshWorldBiasInput != null) _harshWorldBiasInput.ValueChanged += OnCompatibilityPressureChanged;
+		if (_terrestrialWorldBiasInput != null) _terrestrialWorldBiasInput.ValueChanged += OnCompatibilityPressureChanged;
+		if (_nativeLifeBiasInput != null) _nativeLifeBiasInput.ValueChanged += OnCompatibilityPressureChanged;
+		if (_populationPermissivenessInput != null) _populationPermissivenessInput.ValueChanged += OnCompatibilityPressureChanged;
 		if (_rulesetModeOption != null) _rulesetModeOption.ItemSelected += OnRulesetModeSelected;
+		ConnectStellarSignals();
+		ConnectPlanetarySignals();
+		ConnectLifeSignals();
+		ConnectScienceHelpSignals();
 	}
 
 	private void ApplyVersionLabel()
@@ -220,18 +252,14 @@ public partial class SystemGenerationScreen : Control
 
 	private void ApplyDefaults()
 	{
-		if (_seedInput != null) _seedInput.Value = 12345.0;
-		if (_starCountMinInput != null) _starCountMinInput.Value = 1.0;
-		if (_starCountMaxInput != null) _starCountMaxInput.Value = 1.0;
-		if (_systemAgeInput != null) _systemAgeInput.Value = -1.0;
-		if (_systemMetallicityInput != null) _systemMetallicityInput.Value = -1.0;
-		if (_includeBeltsCheck != null) _includeBeltsCheck.ButtonPressed = true;
-		if (_generatePopulationCheck != null) _generatePopulationCheck.ButtonPressed = false;
-		if (_rulesetModeOption != null) _rulesetModeOption.Select((int)GenerationUseCaseSettings.RulesetModeType.Default);
-		if (_showTravellerReadoutsCheck != null) _showTravellerReadoutsCheck.ButtonPressed = false;
-		if (_lifePermissivenessInput != null) _lifePermissivenessInput.Value = GenerationUseCaseSettings.NeutralPermissiveness;
-		if (_mainworldPolicyOption != null) _mainworldPolicyOption.Select((int)GenerationUseCaseSettings.MainworldPolicyType.None);
-		UpdatePermissivenessValueLabels();
+		if (_rulesetModeOption != null)
+		{
+			GenerationUseCasePresentation.PopulateRulesetOptions(_rulesetModeOption);
+		}
+
+		ApplyStellarDefaults();
+		ApplyPlanetaryDefaults();
+		ApplyLifeDefaults();
 	}
 
 	private void OnStartPressed()
@@ -252,26 +280,21 @@ public partial class SystemGenerationScreen : Control
 
 	private void OnRulesetModeSelected(long selectedId)
 	{
-		if (selectedId == (long)GenerationUseCaseSettings.RulesetModeType.Traveller)
+		GenerationUseCaseSettings rulesetDefaults = GenerationUseCaseSettings.CreateDefault();
+		rulesetDefaults.RulesetMode = (GenerationUseCaseSettings.RulesetModeType)selectedId;
+		rulesetDefaults.ApplyRulesetDefaults();
+		RpgCompatibilityProfile compatibilityProfile = rulesetDefaults.GetCompatibilityProfile();
+
+		if (_showTravellerReadoutsCheck != null)
 		{
-			if (_showTravellerReadoutsCheck != null)
-			{
-				_showTravellerReadoutsCheck.ButtonPressed = true;
-			}
-
-			if (_mainworldPolicyOption != null)
-			{
-				_mainworldPolicyOption.Select((int)GenerationUseCaseSettings.MainworldPolicyType.Require);
-			}
-
-			if (_generatePopulationCheck != null)
-			{
-				_generatePopulationCheck.ButtonPressed = true;
-			}
-
-			ApplyTravellerDefaultsToControls();
+			_showTravellerReadoutsCheck.ButtonPressed = compatibilityProfile.UsesUwpLikeReadouts;
 		}
 
+		ApplyRulesetDefaultsToControls(rulesetDefaults);
+		if (!compatibilityProfile.IsActive)
+		{
+			UpdateCompatibilityOverrideVisibility(rulesetDefaults);
+		}
 		RefreshSummary();
 	}
 
@@ -291,17 +314,26 @@ public partial class SystemGenerationScreen : Control
 
 			lines.Add($"Stars {spec.StarCountMin}-{spec.StarCountMax}");
 			lines.Add($"Spectral {hintsText}");
+			lines.Add(BuildStellarProfileSummary(BuildStellarProfileFromControls()));
+			lines.Add(BuildPlanetaryProfileSummary(BuildPlanetaryProfileFromControls()));
 			lines.Add($"Belts {(spec.IncludeAsteroidBelts ? "On" : "Off")}");
-			lines.Add($"Population {(spec.GeneratePopulation ? "On" : "Off")}");
 			lines.Add($"Ruleset {GenerationUseCasePresentation.GetRulesetLabel(spec.UseCaseSettings.RulesetMode)}");
-			lines.Add($"Life Potential {PermissivenessScaleHelper.GetBandLabel(spec.UseCaseSettings.LifePermissiveness)}");
+			lines.Add($"Readout UWP Code {(spec.UseCaseSettings.ShowTravellerReadouts ? "On" : "Off")}");
+			lines.Add($"Life Framework {LifeScienceReferenceCatalog.GetFrameworkLabel(spec.UseCaseSettings.LifeFramework)}");
+			lines.Add($"Abiogenesis {LifeScienceReferenceCatalog.GetAbiogenesisLabel(spec.UseCaseSettings.AbiogenesisModel)} | Complex Life {LifeScienceReferenceCatalog.GetComplexLifeLabel(spec.UseCaseSettings.ComplexLifeModel)}");
+			lines.Add($"Civilization {LifeScienceReferenceCatalog.GetCivilizationLabel(spec.UseCaseSettings.CivilizationModel)} | Window Weight {LifeScienceReferenceCatalog.GetEnvironmentalWindowWeightLabel(spec.UseCaseSettings.EnvironmentalWindowWeight)}");
+			lines.Add($"Force Life On Supportable Worlds {(spec.UseCaseSettings.ForceLifeOnSupportableWorlds ? "On" : "Off")}");
+			if (spec.UseCaseSettings.RulesetMode == GenerationUseCaseSettings.RulesetModeType.Traveller)
+			{
+				lines.Add($"Space Opera Overrides Mainworld {spec.UseCaseSettings.MainworldPolicy} | Temperate {spec.UseCaseSettings.CompatibilityTemperateSlotFillMultiplier:0.00}x | Harsh {spec.UseCaseSettings.CompatibilityHarshSlotFillMultiplier:0.00}x");
+				lines.Add($"Mainworld Class {spec.UseCaseSettings.CompatibilityTerrestrialWorldWeightMultiplier:0.00}x | Native Life {spec.UseCaseSettings.CompatibilityNativeLifeProbabilityMultiplier:0.00}x | Settlements {spec.UseCaseSettings.CompatibilityColonyProbabilityMultiplier:0.00}x");
+			}
 			_summaryLabel.Text = string.Join("\n", lines);
 		}
 
 		if (_assumptionsLabel != null)
 		{
 			_assumptionsLabel.Text = string.Empty;
-			_assumptionsLabel.TooltipText = "Traveller mode raises life permissiveness, enables Traveller readouts, and requires a mainworld candidate when possible while leaving non-Traveller system details to the normal deterministic generator.";
 		}
 
 		RefreshIssuesUi();
@@ -321,7 +353,7 @@ public partial class SystemGenerationScreen : Control
 
 		if (_currentIssues.Issues.Count == 0)
 		{
-			Label label = new Label();
+			Label label = UiSceneTemplates.InstantiateMessageLabel();
 			label.Text = "No parameter issues.";
 			label.Modulate = new Color(0.55f, 0.75f, 0.55f, 1.0f);
 			_issuesContainer.AddChild(label);
@@ -330,8 +362,7 @@ public partial class SystemGenerationScreen : Control
 
 		foreach (GenerationParameterIssue issue in _currentIssues.Issues)
 		{
-			Label label = new Label();
-			label.AutowrapMode = TextServer.AutowrapMode.Word;
+			Label label = UiSceneTemplates.InstantiateMessageLabel();
 			if (issue.Severity == GenerationParameterIssue.IssueSeverity.Error)
 			{
 				label.Modulate = new Color(1.0f, 0.45f, 0.45f, 1.0f);
@@ -360,14 +391,46 @@ public partial class SystemGenerationScreen : Control
 			settings.ShowTravellerReadouts = _showTravellerReadoutsCheck.ButtonPressed;
 		}
 
-		if (_lifePermissivenessInput != null)
+		if (_forceLifeOnSupportableWorldsCheck != null)
 		{
-			settings.LifePermissiveness = _lifePermissivenessInput.Value;
+			settings.ForceLifeOnSupportableWorlds = _forceLifeOnSupportableWorldsCheck.ButtonPressed;
 		}
+
+		ApplyLifeSettingsFromControls(settings);
 
 		if (_mainworldPolicyOption != null)
 		{
 			settings.MainworldPolicy = (GenerationUseCaseSettings.MainworldPolicyType)_mainworldPolicyOption.GetSelectedId();
+		}
+
+		if (_temperateWorldBiasInput != null)
+		{
+			settings.CompatibilityTemperateSlotFillMultiplier = _temperateWorldBiasInput.Value;
+		}
+
+		if (_harshWorldBiasInput != null)
+		{
+			settings.CompatibilityHarshSlotFillMultiplier = _harshWorldBiasInput.Value;
+		}
+
+		if (_terrestrialWorldBiasInput != null)
+		{
+			settings.CompatibilityTerrestrialWorldWeightMultiplier = _terrestrialWorldBiasInput.Value;
+		}
+
+		if (_nativeLifeBiasInput != null)
+		{
+			settings.CompatibilityNativeLifeProbabilityMultiplier = _nativeLifeBiasInput.Value;
+		}
+
+		if (_populationPermissivenessInput != null)
+		{
+			settings.CompatibilityColonyProbabilityMultiplier = _populationPermissivenessInput.Value;
+		}
+
+		if (settings.GetCompatibilityProfile().UsesUwpLikeReadouts)
+		{
+			settings.ShowTravellerReadouts = true;
 		}
 
 		return settings;
@@ -375,35 +438,32 @@ public partial class SystemGenerationScreen : Control
 
 	private void ApplyTravellerDefaultsToControls()
 	{
-		if (_lifePermissivenessInput != null)
+		GenerationUseCaseSettings settings = GenerationUseCaseSettings.CreateDefault();
+		settings.RulesetMode = GenerationUseCaseSettings.RulesetModeType.Traveller;
+		settings.ApplyRulesetDefaults();
+		ApplyRulesetDefaultsToControls(settings);
+	}
+
+	private void ApplyRulesetDefaultsToControls(GenerationUseCaseSettings settings)
+	{
+		ApplyLifeSettingsToControls(settings);
+		if (_mainworldPolicyOption != null)
 		{
-			if (System.Math.Abs(_lifePermissivenessInput.Value - GenerationUseCaseSettings.NeutralPermissiveness) < 0.001)
-			{
-				_lifePermissivenessInput.Value = GenerationUseCaseSettings.TravellerLifePermissiveness;
-			}
+			_mainworldPolicyOption.Select((int)settings.MainworldPolicy);
 		}
 
+		SetCompatibilitySliderValue(_temperateWorldBiasInput, _temperateWorldBiasValueLabel, settings.CompatibilityTemperateSlotFillMultiplier);
+		SetCompatibilitySliderValue(_harshWorldBiasInput, _harshWorldBiasValueLabel, settings.CompatibilityHarshSlotFillMultiplier);
+		SetCompatibilitySliderValue(_terrestrialWorldBiasInput, _terrestrialWorldBiasValueLabel, settings.CompatibilityTerrestrialWorldWeightMultiplier);
+		SetCompatibilitySliderValue(_nativeLifeBiasInput, _nativeLifeBiasValueLabel, settings.CompatibilityNativeLifeProbabilityMultiplier);
+		SetCompatibilitySliderValue(_populationPermissivenessInput, _populationPermissivenessValueLabel, settings.CompatibilityColonyProbabilityMultiplier);
+		UpdateCompatibilityOverrideVisibility(settings);
 	}
 
-	private void OnLifePermissivenessChanged(double _value)
+	private void OnCompatibilityPressureChanged(double _value)
 	{
-		UpdatePermissivenessValueLabels();
+		UpdateCompatibilityValueLabels();
 		RefreshSummary();
-	}
-
-	private void OnPopulationPermissivenessChanged(double _value)
-	{
-		RefreshSummary();
-	}
-
-	private void UpdatePermissivenessValueLabels()
-	{
-		if (_lifePermissivenessInput != null && _lifePermissivenessValueLabel != null)
-		{
-			_lifePermissivenessValueLabel.Text =
-				$"{_lifePermissivenessInput.Value:0.00} {PermissivenessScaleHelper.GetBandLabel(_lifePermissivenessInput.Value)}";
-		}
-
 	}
 
 	private static int GenerateHiddenSeed()
@@ -430,7 +490,142 @@ public partial class SystemGenerationScreen : Control
 		{
 			_populationPermissivenessRow.Visible = false;
 		}
+
+		SetRowVisible(_temperateWorldBiasRow, false);
+		SetRowVisible(_harshWorldBiasRow, false);
+		SetRowVisible(_terrestrialWorldBiasRow, false);
+		SetRowVisible(_nativeLifeBiasRow, false);
+		SetRowVisible(_mainworldPolicyRow, false);
+
+		if (_loadButton != null)
+		{
+			_loadButton.Visible = false;
+		}
+
+		if (_forceLifeOnSupportableWorldsCheck != null)
+		{
+			_forceLifeOnSupportableWorldsCheck.TooltipText = "Generation override, not a scientific model.\nWhen enabled, supportable worlds keep native life instead of losing it to the later life-roll.\nWorlds that fail the biology support gate still stay lifeless.";
+		}
+
+		if (_showTravellerReadoutsCheck != null)
+		{
+			_showTravellerReadoutsCheck.TooltipText = "Presentation control, not a generation parameter.\nShows Universal World Profile code when the current flow has enough information to derive one.\nThis changes the viewer readout, not the generated system.";
+		}
+
+		if (_includeBeltsCheck != null)
+		{
+			_includeBeltsCheck.TooltipText = "Runtime control, not a scientific prior.\nThis only decides whether the asteroid-belt generator stage runs.\nIt does not reinterpret the underlying stellar or planetary science models.";
+		}
+
+		GenerationParameterDefinition? rulesetDefinition = GenerationParameterCatalog.FindSystemDefinition("ruleset_mode");
+		if (_rulesetModeOption != null && rulesetDefinition != null)
+		{
+			_rulesetModeOption.TooltipText = rulesetDefinition.AssumptionText;
+		}
+
+		if (_mainworldPolicyOption != null)
+		{
+			_mainworldPolicyOption.TooltipText = "This tells Space Opera generation whether it should ignore, prefer, or require a strong mainworld candidate.\nRequire pushes harder for one clearly playable focal world.";
+		}
+
+		ApplyCompatibilityTooltip(_temperateWorldBiasInput, _temperateWorldBiasValueLabel, "Higher values fill more good temperate slots with worlds.\nLower values leave more of those slots empty.");
+		ApplyCompatibilityTooltip(_harshWorldBiasInput, _harshWorldBiasValueLabel, "Higher values allow more hot, cold, and otherwise harsh worlds to survive slot filling.\nLower values prune harsh slots more aggressively.");
+		ApplyCompatibilityTooltip(_terrestrialWorldBiasInput, _terrestrialWorldBiasValueLabel, "Higher values favor rocky and super-Earth mainworld candidates over mini-Neptunes and giants.\nLower values relax that bias.");
+		ApplyCompatibilityTooltip(_nativeLifeBiasInput, _nativeLifeBiasValueLabel, "Higher values make supportable worlds more likely to keep native life.\nLower values make life rarer even when a world can support it.");
+		ApplyCompatibilityTooltip(_populationPermissivenessInput, _populationPermissivenessValueLabel, "Higher values make colonies and inhabited outposts more common.\nLower values make settled worlds sparser.");
 	}
+
+	private void UpdateCompatibilityOverrideVisibility(GenerationUseCaseSettings settings)
+	{
+		bool showSpaceOperaOverrides = settings.RulesetMode == GenerationUseCaseSettings.RulesetModeType.Traveller;
+		SetRowVisible(_mainworldPolicyRow, showSpaceOperaOverrides);
+		SetRowVisible(_temperateWorldBiasRow, showSpaceOperaOverrides);
+		SetRowVisible(_harshWorldBiasRow, showSpaceOperaOverrides);
+		SetRowVisible(_terrestrialWorldBiasRow, showSpaceOperaOverrides);
+		SetRowVisible(_nativeLifeBiasRow, showSpaceOperaOverrides);
+		SetRowVisible(_populationPermissivenessRow, showSpaceOperaOverrides);
+		UpdateCompatibilityValueLabels();
+	}
+
+	private void UpdateCompatibilityValueLabels()
+	{
+		UpdateCompatibilityValueLabel(_temperateWorldBiasInput, _temperateWorldBiasValueLabel);
+		UpdateCompatibilityValueLabel(_harshWorldBiasInput, _harshWorldBiasValueLabel);
+		UpdateCompatibilityValueLabel(_terrestrialWorldBiasInput, _terrestrialWorldBiasValueLabel);
+		UpdateCompatibilityValueLabel(_nativeLifeBiasInput, _nativeLifeBiasValueLabel);
+		UpdateCompatibilityValueLabel(_populationPermissivenessInput, _populationPermissivenessValueLabel);
+	}
+
+	private static void UpdateCompatibilityValueLabel(Range? slider, Label? label)
+	{
+		if (slider == null || label == null)
+		{
+			return;
+		}
+
+		label.Text = $"{slider.Value:0.00}x";
+	}
+
+	private static void SetCompatibilitySliderValue(Range? slider, Label? label, double value)
+	{
+		if (slider != null)
+		{
+			slider.Value = value;
+		}
+
+		UpdateCompatibilityValueLabel(slider, label);
+	}
+
+	private static void SetRowVisible(Control? row, bool isVisible)
+	{
+		if (row != null)
+		{
+			row.Visible = isVisible;
+		}
+	}
+
+	private static void ApplyCompatibilityTooltip(Control? inputControl, Control? valueLabel, string tooltip)
+	{
+		if (inputControl != null)
+		{
+			inputControl.TooltipText = tooltip;
+		}
+
+		if (valueLabel != null)
+		{
+			valueLabel.TooltipText = tooltip;
+		}
+	}
+
+	private partial void CacheStellarNodeReferences();
+
+	private partial void ConnectStellarSignals();
+
+	private partial void ApplyStellarDefaults();
+
+	private partial void ApplyStellarParameterTooltips();
+
+	private partial void CacheLifeNodeReferences();
+
+	private partial void ConnectLifeSignals();
+
+	private partial void ApplyLifeDefaults();
+
+	private partial void ApplyLifeParameterTooltips();
+
+	private partial void ApplyLifeSettingsFromControls(GenerationUseCaseSettings settings);
+
+	private partial void ApplyTravellerLifeDefaultsToControls();
+
+	private partial void CacheScienceHelpNodeReferences();
+
+	private partial void ConnectScienceHelpSignals();
+
+	private partial void InitializeScienceHelpUi();
+
+	private partial StellarGenerationProfile BuildStellarProfileFromControls();
+
+	private partial string BuildStellarProfileSummary(StellarGenerationProfile profile);
 
 	private static void ApplyRowSpacing(Node root)
 	{
@@ -447,15 +642,7 @@ public partial class SystemGenerationScreen : Control
 
 	private string GetAssumptionText(string parameterId)
 	{
-		foreach (GenerationParameterDefinition definition in GenerationParameterCatalog.GetSystemDefinitions())
-		{
-			if (definition.Id == parameterId)
-			{
-				return definition.AssumptionText;
-			}
-		}
-
-		return string.Empty;
+		return GenerationParameterCatalog.FindSystemDefinition(parameterId)?.AssumptionText ?? string.Empty;
 	}
 
 	private static Array<int> ParseSpectralHints(string text)
@@ -470,13 +657,10 @@ public partial class SystemGenerationScreen : Control
 		foreach (string rawPart in parts)
 		{
 			string part = rawPart.ToUpperInvariant();
-			if (part == "O") result.Add((int)StarClass.SpectralClass.O);
-			else if (part == "B") result.Add((int)StarClass.SpectralClass.B);
-			else if (part == "A") result.Add((int)StarClass.SpectralClass.A);
-			else if (part == "F") result.Add((int)StarClass.SpectralClass.F);
-			else if (part == "G") result.Add((int)StarClass.SpectralClass.G);
-			else if (part == "K") result.Add((int)StarClass.SpectralClass.K);
-			else if (part == "M") result.Add((int)StarClass.SpectralClass.M);
+			if (StarClass.TryParseLetter(part, out StarClass.SpectralClass spectralClass))
+			{
+				result.Add((int)spectralClass);
+			}
 		}
 
 		return result;

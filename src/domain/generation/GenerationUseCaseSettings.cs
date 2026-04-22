@@ -25,6 +25,75 @@ public partial class GenerationUseCaseSettings : RefCounted
     {
         Default = 0,
         Traveller = 1,
+        Cepheus = 2,
+        Starfinder = 3,
+        Starforged = 4,
+    }
+
+    /// <summary>
+    /// Legacy life-potential model families retained for save compatibility.
+    /// </summary>
+    public enum LifePotentialModelType
+    {
+        EarthAnchoredComposite = 0,
+        EarthHistory = 0,
+        RapidBiospheres = 1,
+        EnvironmentalWindows = 2,
+        RareComplexLife = 3,
+    }
+
+    /// <summary>
+    /// Top-level life framework presets.
+    /// </summary>
+    public enum LifeFrameworkType
+    {
+        EarthAnchoredComposite = 0,
+        RapidBiospheres = 1,
+        EnvironmentalWindows = 2,
+        RareComplexLife = 3,
+    }
+
+    /// <summary>
+    /// Source-aligned abiogenesis assumptions.
+    /// </summary>
+    public enum AbiogenesisModelType
+    {
+        FollowFramework = 0,
+        RapidStart = 1,
+        Conservative = 2,
+    }
+
+    /// <summary>
+    /// Source-aligned complex-life assumptions.
+    /// </summary>
+    public enum ComplexLifeModelType
+    {
+        FollowFramework = 0,
+        EarthAnchoredComposite = 1,
+        EnvironmentalWindows = 2,
+        RareEarthFilters = 3,
+    }
+
+    /// <summary>
+    /// Source-aligned civilization assumptions.
+    /// </summary>
+    public enum CivilizationModelType
+    {
+        FollowFramework = 0,
+        EarthAnchoredComposite = 1,
+        RareCivilizations = 2,
+        TechnosphereOxygenBottleneck = 3,
+    }
+
+    /// <summary>
+    /// Weighting strength for long stable environmental windows.
+    /// </summary>
+    public enum EnvironmentalWindowWeightType
+    {
+        FollowFramework = 0,
+        Low = 1,
+        Moderate = 2,
+        High = 3,
     }
 
     /// <summary>
@@ -53,9 +122,73 @@ public partial class GenerationUseCaseSettings : RefCounted
     public double LifePermissiveness { get; set; } = NeutralPermissiveness;
 
     /// <summary>
+    /// Selected top-level life framework used by model-aware generation flows.
+    /// </summary>
+    public LifeFrameworkType LifeFramework { get; set; } = LifeFrameworkType.EarthAnchoredComposite;
+
+    /// <summary>
+    /// Abiogenesis assumption used by model-aware generation flows.
+    /// </summary>
+    public AbiogenesisModelType AbiogenesisModel { get; set; } = AbiogenesisModelType.FollowFramework;
+
+    /// <summary>
+    /// Complex-life assumption used by model-aware generation flows.
+    /// </summary>
+    public ComplexLifeModelType ComplexLifeModel { get; set; } = ComplexLifeModelType.FollowFramework;
+
+    /// <summary>
+    /// Civilization assumption used by model-aware generation flows.
+    /// </summary>
+    public CivilizationModelType CivilizationModel { get; set; } = CivilizationModelType.FollowFramework;
+
+    /// <summary>
+    /// Stable-window weighting assumption used by model-aware generation flows.
+    /// </summary>
+    public EnvironmentalWindowWeightType EnvironmentalWindowWeight { get; set; } = EnvironmentalWindowWeightType.FollowFramework;
+
+    /// <summary>
+    /// When true, supportable worlds are forced to keep native life instead of rolling it stochastically.
+    /// </summary>
+    public bool ForceLifeOnSupportableWorlds { get; set; }
+
+    /// <summary>
+    /// Legacy compatibility property that maps to the new life framework.
+    /// </summary>
+    public LifePotentialModelType LifePotentialModel
+    {
+        get => MapFrameworkToLegacyLifeModel(LifeFramework);
+        set => LifeFramework = MapLegacyLifeModelToFramework(value);
+    }
+
+    /// <summary>
     /// Desired mainworld policy for system and galaxy flows.
     /// </summary>
     public MainworldPolicyType MainworldPolicy { get; set; } = MainworldPolicyType.None;
+
+    /// <summary>
+    /// Multiplier applied to temperate-slot fill pressure for compatibility-oriented generation.
+    /// </summary>
+    public double CompatibilityTemperateSlotFillMultiplier { get; set; } = 1.0;
+
+    /// <summary>
+    /// Multiplier applied to harsh-slot fill pressure for compatibility-oriented generation.
+    /// </summary>
+    public double CompatibilityHarshSlotFillMultiplier { get; set; } = 1.0;
+
+    /// <summary>
+    /// Multiplier applied to terrestrial-world weighting near mainworld-favored slots.
+    /// </summary>
+    public double CompatibilityTerrestrialWorldWeightMultiplier { get; set; } = 1.0;
+
+    /// <summary>
+    /// Multiplier applied to native-life probability in compatibility-oriented generation.
+    /// </summary>
+    public double CompatibilityNativeLifeProbabilityMultiplier { get; set; } = 1.0;
+
+    /// <summary>
+    /// Multiplier applied to colony probability in compatibility-oriented generation.
+    /// </summary>
+    public double CompatibilityColonyProbabilityMultiplier { get; set; } = 1.0;
 
     /// <summary>
     /// Returns a new default settings instance.
@@ -74,18 +207,98 @@ public partial class GenerationUseCaseSettings : RefCounted
     }
 
     /// <summary>
+    /// Returns whether any RPG compatibility override is active.
+    /// </summary>
+    public bool IsRpgOverrideMode()
+    {
+        return RulesetMode != RulesetModeType.Default;
+    }
+
+    /// <summary>
+    /// Resolves the active RPG compatibility profile.
+    /// </summary>
+    public RpgCompatibilityProfile GetCompatibilityProfile()
+    {
+        RpgCompatibilityProfile resolvedProfile = RpgCompatibilityProfile.Resolve(RulesetMode);
+        if (!resolvedProfile.IsActive)
+        {
+            return resolvedProfile;
+        }
+
+        return new RpgCompatibilityProfile
+        {
+            RulesetMode = resolvedProfile.RulesetMode,
+            Label = resolvedProfile.Label,
+            IsActive = resolvedProfile.IsActive,
+            UsesUwpLikeReadouts = resolvedProfile.UsesUwpLikeReadouts,
+            ForcePopulationGeneration = resolvedProfile.ForcePopulationGeneration,
+            RecommendedMainworldPolicy = MainworldPolicy,
+            RecommendedLifeFramework = resolvedProfile.RecommendedLifeFramework,
+            RecommendedLifePermissiveness = resolvedProfile.RecommendedLifePermissiveness,
+            TemperateSlotFillMultiplier = CompatibilityTemperateSlotFillMultiplier,
+            HarshSlotFillMultiplier = CompatibilityHarshSlotFillMultiplier,
+            TerrestrialWorldWeightMultiplier = CompatibilityTerrestrialWorldWeightMultiplier,
+            NativeLifeProbabilityMultiplier = CompatibilityNativeLifeProbabilityMultiplier,
+            ColonyProbabilityMultiplier = CompatibilityColonyProbabilityMultiplier,
+            HarshColonyProbabilityMultiplier = resolvedProfile.HarshColonyProbabilityMultiplier,
+            SettlementColonyTypeMultiplier = resolvedProfile.SettlementColonyTypeMultiplier,
+            AgriculturalColonyTypeMultiplier = resolvedProfile.AgriculturalColonyTypeMultiplier,
+            IndustrialColonyTypeMultiplier = resolvedProfile.IndustrialColonyTypeMultiplier,
+            CorporateColonyTypeMultiplier = resolvedProfile.CorporateColonyTypeMultiplier,
+            ScientificColonyTypeMultiplier = resolvedProfile.ScientificColonyTypeMultiplier,
+            MilitaryColonyTypeMultiplier = resolvedProfile.MilitaryColonyTypeMultiplier,
+            RefugeeColonyTypeMultiplier = resolvedProfile.RefugeeColonyTypeMultiplier,
+            SeparatistColonyTypeMultiplier = resolvedProfile.SeparatistColonyTypeMultiplier,
+            MainworldHydrosphereBias = resolvedProfile.MainworldHydrosphereBias,
+        };
+    }
+
+    /// <summary>
+    /// Returns whether the active ruleset uses UWP-like readouts.
+    /// </summary>
+    public bool UsesUwpLikeReadouts()
+    {
+        if (ShowTravellerReadouts)
+        {
+            return true;
+        }
+
+        return GetCompatibilityProfile().UsesUwpLikeReadouts;
+    }
+
+    /// <summary>
     /// Applies Traveller-oriented defaults while preserving explicit slider values.
     /// </summary>
     public void ApplyTravellerDefaults()
     {
         RulesetMode = RulesetModeType.Traveller;
-        ShowTravellerReadouts = true;
-        MainworldPolicy = MainworldPolicyType.Require;
-        if (IsApproximatelyNeutral(LifePermissiveness))
+        ApplyRulesetDefaults();
+    }
+
+    /// <summary>
+    /// Applies the defaults for the currently selected ruleset mode.
+    /// </summary>
+    public void ApplyRulesetDefaults()
+    {
+        RpgCompatibilityProfile profile = RpgCompatibilityProfile.Resolve(RulesetMode);
+        if (!profile.IsActive)
         {
-            LifePermissiveness = TravellerLifePermissiveness;
+            return;
         }
 
+        ShowTravellerReadouts = profile.UsesUwpLikeReadouts;
+        MainworldPolicy = profile.RecommendedMainworldPolicy;
+        LifeFramework = profile.RecommendedLifeFramework;
+        AbiogenesisModel = AbiogenesisModelType.FollowFramework;
+        ComplexLifeModel = ComplexLifeModelType.FollowFramework;
+        CivilizationModel = CivilizationModelType.FollowFramework;
+        EnvironmentalWindowWeight = EnvironmentalWindowWeightType.FollowFramework;
+        LifePermissiveness = profile.RecommendedLifePermissiveness;
+        CompatibilityTemperateSlotFillMultiplier = profile.TemperateSlotFillMultiplier;
+        CompatibilityHarshSlotFillMultiplier = profile.HarshSlotFillMultiplier;
+        CompatibilityTerrestrialWorldWeightMultiplier = profile.TerrestrialWorldWeightMultiplier;
+        CompatibilityNativeLifeProbabilityMultiplier = profile.NativeLifeProbabilityMultiplier;
+        CompatibilityColonyProbabilityMultiplier = profile.ColonyProbabilityMultiplier;
     }
 
     /// <summary>
@@ -111,7 +324,18 @@ public partial class GenerationUseCaseSettings : RefCounted
             RulesetMode = RulesetMode,
             ShowTravellerReadouts = ShowTravellerReadouts,
             LifePermissiveness = LifePermissiveness,
+            LifeFramework = LifeFramework,
+            AbiogenesisModel = AbiogenesisModel,
+            ComplexLifeModel = ComplexLifeModel,
+            CivilizationModel = CivilizationModel,
+            EnvironmentalWindowWeight = EnvironmentalWindowWeight,
+            ForceLifeOnSupportableWorlds = ForceLifeOnSupportableWorlds,
             MainworldPolicy = MainworldPolicy,
+            CompatibilityTemperateSlotFillMultiplier = CompatibilityTemperateSlotFillMultiplier,
+            CompatibilityHarshSlotFillMultiplier = CompatibilityHarshSlotFillMultiplier,
+            CompatibilityTerrestrialWorldWeightMultiplier = CompatibilityTerrestrialWorldWeightMultiplier,
+            CompatibilityNativeLifeProbabilityMultiplier = CompatibilityNativeLifeProbabilityMultiplier,
+            CompatibilityColonyProbabilityMultiplier = CompatibilityColonyProbabilityMultiplier,
         };
     }
 
@@ -125,7 +349,19 @@ public partial class GenerationUseCaseSettings : RefCounted
             ["ruleset_mode"] = (int)RulesetMode,
             ["show_traveller_readouts"] = ShowTravellerReadouts,
             ["life_permissiveness"] = System.Math.Clamp(LifePermissiveness, 0.0, 1.0),
+            ["life_potential_model"] = (int)LifePotentialModel,
+            ["life_framework"] = (int)LifeFramework,
+            ["abiogenesis_model"] = (int)AbiogenesisModel,
+            ["complex_life_model"] = (int)ComplexLifeModel,
+            ["civilization_model"] = (int)CivilizationModel,
+            ["environmental_window_weight"] = (int)EnvironmentalWindowWeight,
+            ["force_life_on_supportable_worlds"] = ForceLifeOnSupportableWorlds,
             ["mainworld_policy"] = (int)MainworldPolicy,
+            ["compatibility_temperate_slot_fill_multiplier"] = CompatibilityTemperateSlotFillMultiplier,
+            ["compatibility_harsh_slot_fill_multiplier"] = CompatibilityHarshSlotFillMultiplier,
+            ["compatibility_terrestrial_world_weight_multiplier"] = CompatibilityTerrestrialWorldWeightMultiplier,
+            ["compatibility_native_life_probability_multiplier"] = CompatibilityNativeLifeProbabilityMultiplier,
+            ["compatibility_colony_probability_multiplier"] = CompatibilityColonyProbabilityMultiplier,
         };
     }
 
@@ -147,12 +383,88 @@ public partial class GenerationUseCaseSettings : RefCounted
         }
 
         settings.ShowTravellerReadouts = GetBool(data, "show_traveller_readouts", false);
+        bool hasExplicitLifePermissiveness = data.ContainsKey("life_permissiveness");
         settings.LifePermissiveness = System.Math.Clamp(GetDouble(data, "life_permissiveness", NeutralPermissiveness), 0.0, 1.0);
-        int mainworldPolicyValue = GetInt(data, "mainworld_policy", (int)MainworldPolicyType.None);
+        int lifeFrameworkValue = GetInt(data, "life_framework", -1);
+        if (System.Enum.IsDefined(typeof(LifeFrameworkType), lifeFrameworkValue))
+        {
+            settings.LifeFramework = (LifeFrameworkType)lifeFrameworkValue;
+        }
+        else
+        {
+            int lifePotentialModelValue = GetInt(data, "life_potential_model", -1);
+            if (System.Enum.IsDefined(typeof(LifePotentialModelType), lifePotentialModelValue))
+            {
+                settings.LifeFramework = MapLegacyLifeModelToFramework((LifePotentialModelType)lifePotentialModelValue);
+            }
+            else
+            {
+                settings.LifeFramework = MapPermissivenessToFramework(settings.LifePermissiveness);
+            }
+        }
+
+        int abiogenesisModelValue = GetInt(data, "abiogenesis_model", (int)AbiogenesisModelType.FollowFramework);
+        if (System.Enum.IsDefined(typeof(AbiogenesisModelType), abiogenesisModelValue))
+        {
+            settings.AbiogenesisModel = (AbiogenesisModelType)abiogenesisModelValue;
+        }
+
+        int complexLifeModelValue = GetInt(data, "complex_life_model", (int)ComplexLifeModelType.FollowFramework);
+        if (System.Enum.IsDefined(typeof(ComplexLifeModelType), complexLifeModelValue))
+        {
+            settings.ComplexLifeModel = (ComplexLifeModelType)complexLifeModelValue;
+        }
+
+        int civilizationModelValue = GetInt(data, "civilization_model", (int)CivilizationModelType.FollowFramework);
+        if (System.Enum.IsDefined(typeof(CivilizationModelType), civilizationModelValue))
+        {
+            settings.CivilizationModel = (CivilizationModelType)civilizationModelValue;
+        }
+
+        int environmentalWindowWeightValue = GetInt(data, "environmental_window_weight", (int)EnvironmentalWindowWeightType.FollowFramework);
+        if (System.Enum.IsDefined(typeof(EnvironmentalWindowWeightType), environmentalWindowWeightValue))
+        {
+            settings.EnvironmentalWindowWeight = (EnvironmentalWindowWeightType)environmentalWindowWeightValue;
+        }
+
+        if (!hasExplicitLifePermissiveness)
+        {
+            settings.LifePermissiveness = GetRecommendedLifePermissiveness(settings.LifeFramework);
+        }
+
+        settings.ForceLifeOnSupportableWorlds = GetBool(data, "force_life_on_supportable_worlds", false);
+
+        RpgCompatibilityProfile baseProfile = RpgCompatibilityProfile.Resolve(settings.RulesetMode);
+
+        int mainworldPolicyDefault = baseProfile.IsActive
+            ? (int)baseProfile.RecommendedMainworldPolicy
+            : (int)MainworldPolicyType.None;
+        int mainworldPolicyValue = GetInt(data, "mainworld_policy", mainworldPolicyDefault);
         if (System.Enum.IsDefined(typeof(MainworldPolicyType), mainworldPolicyValue))
         {
             settings.MainworldPolicy = (MainworldPolicyType)mainworldPolicyValue;
         }
+
+        settings.CompatibilityTemperateSlotFillMultiplier = GetDouble(
+            data,
+            "compatibility_temperate_slot_fill_multiplier",
+            baseProfile.TemperateSlotFillMultiplier);
+        settings.CompatibilityHarshSlotFillMultiplier = GetDouble(
+            data,
+            "compatibility_harsh_slot_fill_multiplier",
+            baseProfile.HarshSlotFillMultiplier);
+        settings.CompatibilityTerrestrialWorldWeightMultiplier = GetDouble(
+            data,
+            "compatibility_terrestrial_world_weight_multiplier",
+            baseProfile.TerrestrialWorldWeightMultiplier);
+        settings.CompatibilityNativeLifeProbabilityMultiplier = GetDouble(
+            data,
+            "compatibility_native_life_probability_multiplier",
+            baseProfile.NativeLifeProbabilityMultiplier);
+        settings.CompatibilityColonyProbabilityMultiplier = GetDouble(
+            data,
+            "compatibility_colony_probability_multiplier",
+            baseProfile.ColonyProbabilityMultiplier);
 
         return settings;
     }
@@ -202,5 +514,86 @@ public partial class GenerationUseCaseSettings : RefCounted
     private static bool IsApproximatelyNeutral(double value)
     {
         return System.Math.Abs(value - NeutralPermissiveness) < 0.001;
+    }
+
+    /// <summary>
+    /// Returns the baseline permissiveness value associated with a life-potential model.
+    /// </summary>
+    public static double GetRecommendedLifePermissiveness(LifePotentialModelType model)
+    {
+        return GetRecommendedLifePermissiveness(MapLegacyLifeModelToFramework(model));
+    }
+
+    /// <summary>
+    /// Returns the baseline permissiveness value associated with a life framework.
+    /// </summary>
+    public static double GetRecommendedLifePermissiveness(LifeFrameworkType framework)
+    {
+        return framework switch
+        {
+            LifeFrameworkType.EarthAnchoredComposite => 0.50,
+            LifeFrameworkType.RapidBiospheres => 0.68,
+            LifeFrameworkType.EnvironmentalWindows => 0.56,
+            LifeFrameworkType.RareComplexLife => 0.34,
+            _ => NeutralPermissiveness,
+        };
+    }
+
+    /// <summary>
+    /// Infers the closest life framework for a raw permissiveness value.
+    /// </summary>
+    public static LifeFrameworkType InferLifeFrameworkFromPermissiveness(double permissiveness)
+    {
+        return MapPermissivenessToFramework(permissiveness);
+    }
+
+    /// <summary>
+    /// Returns whether the stored permissiveness differs from the selected model baseline.
+    /// </summary>
+    public bool HasLifePermissivenessOverride()
+    {
+        return System.Math.Abs(LifePermissiveness - GetRecommendedLifePermissiveness(LifeFramework)) > 0.001;
+    }
+
+    private static LifeFrameworkType MapPermissivenessToFramework(double permissiveness)
+    {
+        if (permissiveness <= 0.40)
+        {
+            return LifeFrameworkType.RareComplexLife;
+        }
+
+        if (permissiveness >= 0.62)
+        {
+            return LifeFrameworkType.RapidBiospheres;
+        }
+
+        if (permissiveness >= 0.53)
+        {
+            return LifeFrameworkType.EnvironmentalWindows;
+        }
+
+        return LifeFrameworkType.EarthAnchoredComposite;
+    }
+
+    private static LifeFrameworkType MapLegacyLifeModelToFramework(LifePotentialModelType model)
+    {
+        return model switch
+        {
+            LifePotentialModelType.RapidBiospheres => LifeFrameworkType.RapidBiospheres,
+            LifePotentialModelType.EnvironmentalWindows => LifeFrameworkType.EnvironmentalWindows,
+            LifePotentialModelType.RareComplexLife => LifeFrameworkType.RareComplexLife,
+            _ => LifeFrameworkType.EarthAnchoredComposite,
+        };
+    }
+
+    private static LifePotentialModelType MapFrameworkToLegacyLifeModel(LifeFrameworkType framework)
+    {
+        return framework switch
+        {
+            LifeFrameworkType.RapidBiospheres => LifePotentialModelType.RapidBiospheres,
+            LifeFrameworkType.EnvironmentalWindows => LifePotentialModelType.EnvironmentalWindows,
+            LifeFrameworkType.RareComplexLife => LifePotentialModelType.RareComplexLife,
+            _ => LifePotentialModelType.EarthAnchoredComposite,
+        };
     }
 }

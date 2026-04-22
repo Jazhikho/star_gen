@@ -61,6 +61,17 @@ public partial class DotNetTestRunner : RefCounted
     }
 
     /// <summary>
+    /// Runs only the Solar-system realization suite.
+    /// </summary>
+    public Task<Godot.Collections.Array<DotNetTestResult>> RunSolarRealizationHeadless()
+    {
+        ResetRunState();
+        TestRegistry.RunSolarRealizationHeadlessSuites(this);
+        CompleteRun();
+        return Task.FromResult(_results);
+    }
+
+    /// <summary>
     /// Returns the number of failed tests.
     /// </summary>
     public int GetFailCount()

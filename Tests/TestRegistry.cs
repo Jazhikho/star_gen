@@ -27,6 +27,14 @@ namespace StarGen.Tests
 		}
 
 		/// <summary>
+		/// Registers only the Solar-system realization headless-safe C# suite.
+		/// </summary>
+		public static void RunSolarRealizationHeadlessSuites(DotNetTestRunner runner)
+		{
+			DotNetNativeTestSuite.RunSolarRealizationHeadless(runner);
+		}
+
+		/// <summary>
 		/// Registers the full interactive C# suite set, including scene-only tests.
 		/// </summary>
 		public static void RunInteractiveSuites(DotNetTestRunner runner)

@@ -1,4 +1,5 @@
 using StarGen.Domain.Celestial.Components;
+using StarGen.Domain.Generation;
 using StarGen.Domain.Math;
 
 namespace StarGen.Domain.Systems;
@@ -19,24 +20,50 @@ public static partial class OrbitalMechanics
     /// <returns>Inner HZ boundary in metres.</returns>
     public static double CalculateHabitableZoneInner(double luminosityWatts, double effectiveTempK)
     {
+        return CalculateHabitableZoneInner(
+            luminosityWatts,
+            effectiveTempK,
+            PlanetHabitableZoneModel.Kopparapu2013Conservative);
+    }
+
+    /// <summary>
+    /// Calculates the inner edge of the habitable zone for a selected academic model family.
+    /// </summary>
+    public static double CalculateHabitableZoneInner(
+        double luminosityWatts,
+        double effectiveTempK,
+        PlanetHabitableZoneModel habitableZoneModel)
+    {
         if (luminosityWatts <= 0.0)
         {
             return 0.0;
         }
 
-        // Kopparapu 2013 runaway-greenhouse coefficients (recent Venus proxy).
-        const double S_eff_sun = 1.0140;
-        const double a = 8.1774e-5;
-        const double b = 1.7063e-9;
-        const double c = -4.3241e-12;
-        const double d = -6.6462e-16;
+        if (habitableZoneModel == PlanetHabitableZoneModel.Kasting1993Conservative)
+        {
+            return CalculateKasting1993Boundary(luminosityWatts, 0.95);
+        }
 
-        double deltaT = effectiveTempK - 5780.0;
-        double sEff = S_eff_sun + (a * deltaT) + (b * deltaT * deltaT) + (c * deltaT * deltaT * deltaT) + (d * deltaT * deltaT * deltaT * deltaT);
+        if (habitableZoneModel == PlanetHabitableZoneModel.Kopparapu2013Optimistic)
+        {
+            return CalculateKopparapuBoundary(
+                luminosityWatts,
+                effectiveTempK,
+                1.7763,
+                1.4335e-4,
+                3.3954e-9,
+                -7.6364e-12,
+                -1.1950e-15);
+        }
 
-        double luminositySolar = luminosityWatts / StellarProps.SolarLuminosityWatts;
-        double distanceAu = System.Math.Sqrt(luminositySolar / sEff);
-        return distanceAu * Units.AuMeters;
+        return CalculateKopparapuBoundary(
+            luminosityWatts,
+            effectiveTempK,
+            1.0140,
+            8.1774e-5,
+            1.7063e-9,
+            -4.3241e-12,
+            -6.6462e-16);
     }
 
     /// <summary>
@@ -48,21 +75,50 @@ public static partial class OrbitalMechanics
     /// <returns>Outer HZ boundary in metres.</returns>
     public static double CalculateHabitableZoneOuter(double luminosityWatts, double effectiveTempK)
     {
+        return CalculateHabitableZoneOuter(
+            luminosityWatts,
+            effectiveTempK,
+            PlanetHabitableZoneModel.Kopparapu2013Conservative);
+    }
+
+    /// <summary>
+    /// Calculates the outer edge of the habitable zone for a selected academic model family.
+    /// </summary>
+    public static double CalculateHabitableZoneOuter(
+        double luminosityWatts,
+        double effectiveTempK,
+        PlanetHabitableZoneModel habitableZoneModel)
+    {
         if (luminosityWatts <= 0.0)
         {
             return 0.0;
         }
 
-        // Keep compatibility with the original 0.2 solar-calibrated envelope (~1.37 AU at 1 L_sun).
-        // Apply only a mild stellar-temperature correction to avoid large drift from that baseline.
-        const double BaseOuterAuAtSolar = 1.37;
-        double deltaT = effectiveTempK - 5780.0;
-        double tempCorrection = 1.0 + (deltaT * 1.0e-5);
-        tempCorrection = System.Math.Clamp(tempCorrection, 0.85, 1.15);
+        if (habitableZoneModel == PlanetHabitableZoneModel.Kasting1993Conservative)
+        {
+            return CalculateKasting1993Boundary(luminosityWatts, 1.37);
+        }
 
-        double luminositySolar = luminosityWatts / StellarProps.SolarLuminosityWatts;
-        double distanceAu = BaseOuterAuAtSolar * System.Math.Sqrt(luminositySolar) * tempCorrection;
-        return distanceAu * Units.AuMeters;
+        if (habitableZoneModel == PlanetHabitableZoneModel.Kopparapu2013Optimistic)
+        {
+            return CalculateKopparapuBoundary(
+                luminosityWatts,
+                effectiveTempK,
+                0.3207,
+                5.4471e-5,
+                1.5275e-9,
+                -2.1709e-12,
+                -3.8282e-16);
+        }
+
+        return CalculateKopparapuBoundary(
+            luminosityWatts,
+            effectiveTempK,
+            0.3438,
+            5.8942e-5,
+            1.6558e-9,
+            -3.0045e-12,
+            -5.2983e-16);
     }
 
     /// <summary>
@@ -119,5 +175,54 @@ public static partial class OrbitalMechanics
         }
 
         return "Outer";
+    }
+
+    private static double CalculateKasting1993Boundary(double luminosityWatts, double solarDistanceAu)
+    {
+        if (luminosityWatts <= 0.0)
+        {
+            return 0.0;
+        }
+
+        double luminositySolar = luminosityWatts / StellarProps.SolarLuminosityWatts;
+        double distanceAu = solarDistanceAu * System.Math.Sqrt(luminositySolar);
+        return distanceAu * Units.AuMeters;
+    }
+
+    private static double CalculateKopparapuBoundary(
+        double luminosityWatts,
+        double effectiveTempK,
+        double solarFluxAt5780K,
+        double coefficientA,
+        double coefficientB,
+        double coefficientC,
+        double coefficientD)
+    {
+        if (luminosityWatts <= 0.0)
+        {
+            return 0.0;
+        }
+
+        double temperatureForModelK = effectiveTempK;
+        if (temperatureForModelK <= 0.0)
+        {
+            temperatureForModelK = 5780.0;
+        }
+
+        double clampedTemperatureK = System.Math.Clamp(temperatureForModelK, 2600.0, 7200.0);
+        double deltaT = clampedTemperatureK - 5780.0;
+        double deltaTSquared = deltaT * deltaT;
+        double deltaTCubed = deltaTSquared * deltaT;
+        double deltaTToFourth = deltaTCubed * deltaT;
+        double stellarFlux = solarFluxAt5780K
+            + (coefficientA * deltaT)
+            + (coefficientB * deltaTSquared)
+            + (coefficientC * deltaTCubed)
+            + (coefficientD * deltaTToFourth);
+        stellarFlux = System.Math.Max(stellarFlux, 0.01);
+
+        double luminositySolar = luminosityWatts / StellarProps.SolarLuminosityWatts;
+        double distanceAu = System.Math.Sqrt(luminositySolar / stellarFlux);
+        return distanceAu * Units.AuMeters;
     }
 }

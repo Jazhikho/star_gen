@@ -43,6 +43,7 @@ public static class MaterialFactory
             CelestialType.Type.Planet => CreatePlanetMaterial(body),
             CelestialType.Type.Moon => CreateMoonMaterial(body),
             CelestialType.Type.Asteroid => CreateAsteroidMaterial(body),
+            CelestialType.Type.Comet => CreateCometMaterial(body),
             _ => CreateDefaultMaterial(),
         };
 
@@ -221,6 +222,7 @@ public static class MaterialFactory
                 }
                 break;
             case CelestialType.Type.Asteroid:
+            case CelestialType.Type.Comet:
                 if (body.HasSurface() && body.Surface != null)
                 {
                     keyParts.Add(body.Surface.SurfaceType);
@@ -314,6 +316,23 @@ public static class MaterialFactory
             material.Roughness = 0.9f;
         }
 
+        return material;
+    }
+
+    private static StandardMaterial3D CreateCometMaterial(CelestialBody body)
+    {
+        StandardMaterial3D material = new();
+        if (body.HasSurface() && body.Surface != null)
+        {
+            Color cometColor = ColorUtils.AsteroidToColor(body.Surface.SurfaceType, body.Surface.SurfaceComposition);
+            material.AlbedoColor = cometColor * Mathf.Max((float)body.Surface.Albedo * 2.5f, 0.08f);
+            material.Roughness = 0.98f;
+            material.Metallic = 0.0f;
+            return material;
+        }
+
+        material.AlbedoColor = new Color(0.25f, 0.24f, 0.22f);
+        material.Roughness = 0.98f;
         return material;
     }
 

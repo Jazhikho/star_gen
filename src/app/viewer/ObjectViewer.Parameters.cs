@@ -12,30 +12,18 @@ public partial class ObjectViewer
 {
     private void SetupUseCaseControls()
     {
-        if (_rulesetModeOption == null)
+        if (_rulesetModeOption == null
+            || _showTravellerReadoutsCheck == null
+            || _lifePermissivenessInput == null
+            || _useCaseAssumptionsLabel == null)
         {
-            throw new System.InvalidOperationException("ObjectViewer scene is missing RulesetModeOption.");
-        }
-
-        if (_showTravellerReadoutsCheck == null)
-        {
-            throw new System.InvalidOperationException("ObjectViewer scene is missing ShowTravellerReadoutsCheck.");
-        }
-
-        if (_lifePermissivenessInput == null)
-        {
-            throw new System.InvalidOperationException("ObjectViewer scene is missing LifePermissivenessInput.");
-        }
-
-        if (_useCaseAssumptionsLabel == null)
-        {
-            throw new System.InvalidOperationException("ObjectViewer scene is missing UseCaseAssumptionsLabel.");
+            return;
         }
 
         if (_rulesetModeOption.ItemCount == 0)
         {
             _rulesetModeOption.AddItem(GenerationUseCasePresentation.RealisticRulesetLabel, (int)GenerationUseCaseSettings.RulesetModeType.Default);
-            _rulesetModeOption.AddItem("Traveller", (int)GenerationUseCaseSettings.RulesetModeType.Traveller);
+            _rulesetModeOption.AddItem("Space Opera", (int)GenerationUseCaseSettings.RulesetModeType.Traveller);
         }
 
         _rulesetModeOption.ItemSelected += OnRulesetModeSelected;
@@ -52,10 +40,6 @@ public partial class ObjectViewer
             throw new System.InvalidOperationException("ObjectViewer scene is missing EmptyStateLabel.");
         }
 
-        _emptyStateLabel.HorizontalAlignment = HorizontalAlignment.Center;
-        _emptyStateLabel.VerticalAlignment = VerticalAlignment.Center;
-        _emptyStateLabel.AutowrapMode = TextServer.AutowrapMode.Word;
-        _emptyStateLabel.CustomMinimumSize = new Vector2(280.0f, 0.0f);
         UpdateEmptyStateVisibility();
     }
 
@@ -71,6 +55,11 @@ public partial class ObjectViewer
 
     private void SetFileControlState(bool saveEnabled, bool loadEnabled)
     {
+        if (_fileSection != null)
+        {
+            _fileSection.Visible = false;
+        }
+
         if (_saveButton != null)
         {
             _saveButton.Disabled = !saveEnabled;

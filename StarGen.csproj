@@ -10,11 +10,9 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Remove="Concepts\ReligionGenerator\**\*.cs" />
-    <Compile Include="Concepts\ReligionGenerator\ReligionGenerator.cs" />
-    <Compile Include="Concepts\ReligionGenerator\ReligionParams.cs" />
-    <Compile Include="Concepts\ReligionGenerator\ReligionResult.cs" />
-    <Compile Include="Concepts\ReligionGenerator\ReligionRng.cs" />
+    <Compile Remove="src\app\concepts\**\*.cs" />
+    <Compile Remove="src\services\concepts\**\*.cs" />
+    <Compile Remove="src\domain\concepts\pipeline\ConceptDependencyChainGenerator.cs" />
   </ItemGroup>
 
   <ItemGroup>

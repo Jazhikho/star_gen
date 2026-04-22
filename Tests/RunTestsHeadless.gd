@@ -4,6 +4,7 @@ const CSHARP_TEST_SCENE_PATH := "res://Tests/TestSceneCSharp.tscn"
 const SUPPORTED_GODOT_MAJOR := 4
 const SUPPORTED_GODOT_MINOR := 6
 const POPULATION_FILTER := "population"
+const SOLAR_FILTER := "solar"
 
 var _csharp_harness = null
 
@@ -50,6 +51,10 @@ func _start_csharp_harness() -> void:
 	var user_args := OS.get_cmdline_user_args()
 	if user_args.has(POPULATION_FILTER) and harness.has_method("start_population_headless"):
 		harness.start_population_headless()
+		return
+
+	if user_args.has(SOLAR_FILTER) and harness.has_method("start_solar_realization_headless"):
+		harness.start_solar_realization_headless()
 		return
 
 	harness.start_headless()

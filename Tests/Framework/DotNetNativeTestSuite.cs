@@ -61,6 +61,21 @@ public static partial class DotNetNativeTestSuite
             "DotNetNativeTestSuite::test_selection_indicator_show_hide_wrappers",
             TestSelectionIndicatorShowHideWrappers);
         runner.RunNativeTest(
+            "DotNetNativeTestSuite::test_galaxy_inspector_panel_hides_legacy_sections",
+            TestGalaxyInspectorPanelHidesLegacySections);
+        runner.RunNativeTest(
+            "DotNetNativeTestSuite::test_galaxy_viewer_local_space_cache_persists_and_appends",
+            TestGalaxyViewerLocalSpaceCachePersistsAndAppends);
+        runner.RunNativeTest(
+            "DotNetNativeTestSuite::test_main_menu_options_dialog_applies_and_closes",
+            TestMainMenuOptionsDialogAppliesAndCloses);
+        runner.RunNativeTest(
+            "DotNetNativeTestSuite::test_system_viewer_menu_matches_galaxy_viewer_standard",
+            TestSystemViewerMenuMatchesGalaxyViewerStandard);
+        runner.RunNativeTest(
+            "DotNetNativeTestSuite::test_object_viewer_menu_matches_galaxy_viewer_standard",
+            TestObjectViewerMenuMatchesGalaxyViewerStandard);
+        runner.RunNativeTest(
             "DotNetNativeTestSuite::test_galaxy_config_round_trip_and_validation",
             TestGalaxyConfigRoundTripAndValidation);
         runner.RunNativeTest(
@@ -124,20 +139,11 @@ public static partial class DotNetNativeTestSuite
             "DotNetNativeTestSuite::test_home_position_stays_within_default_galaxy_bounds",
             TestHomePositionStaysWithinDefaultGalaxyBounds);
         runner.RunNativeTest(
-            "DotNetNativeTestSuite::test_galaxy_save_data_round_trip_preserves_payload",
-            TestGalaxySaveDataRoundTripPreservesPayload);
-        runner.RunNativeTest(
             "DotNetNativeTestSuite::test_galaxy_body_overrides_round_trip_and_apply",
             TestGalaxyBodyOverridesRoundTripAndApply);
         runner.RunNativeTest(
             "DotNetNativeTestSuite::test_system_cache_put_get_and_evict",
             TestSystemCachePutGetAndEvict);
-        runner.RunNativeTest(
-            "DotNetNativeTestSuite::test_galaxy_viewer_save_load_clears_saved_state",
-            TestGalaxyViewerSaveLoadClearsSavedState);
-        runner.RunNativeTest(
-            "DotNetNativeTestSuite::test_system_viewer_save_load_round_trips_json_path",
-            TestSystemViewerSaveLoadRoundTripsJsonPath);
         runner.RunNativeTest(
             "TestSuiteIntegrity::test_no_blatant_fake_pass_assertions",
             Tests.Quality.TestSuiteIntegrity.TestNoBlatantFakePassAssertions);
@@ -220,7 +226,6 @@ public static partial class DotNetNativeTestSuite
         RunGalaxyDomainTests(runner);
         RunJumpLanesTests(runner);
         RunPopulationTests(runner);
-        RunConceptTests(runner);
         RunHeadlessIntegrationTests(runner);
     }
 
@@ -301,6 +306,15 @@ public static partial class DotNetNativeTestSuite
         runner.RunNativeTest(
             "TestAsteroidGenerator::test_different_seeds_produce_different_asteroids",
             Tests.Unit.TestAsteroidGenerator.TestDifferentSeedsProduceDifferentAsteroids);
+        runner.RunNativeTest(
+            "TestCometGenerator::test_generate_returns_comet_body",
+            Tests.Unit.TestCometGenerator.TestGenerateReturnsCometBody);
+        runner.RunNativeTest(
+            "TestCometGenerator::test_generate_is_deterministic",
+            Tests.Unit.TestCometGenerator.TestGenerateIsDeterministic);
+        runner.RunNativeTest(
+            "TestCometGenerator::test_long_period_preset_biases_outer_orbit",
+            Tests.Unit.TestCometGenerator.TestLongPeriodPresetBiasesOuterOrbit);
         runner.RunNativeTest(
             "TestAtmosphereProps::test_default_values",
             Tests.Unit.TestAtmosphereProps.TestDefaultValues);
@@ -523,6 +537,9 @@ public static partial class DotNetNativeTestSuite
         runner.RunNativeTest(
             "TestColorUtils::test_spectral_class_colors",
             Tests.Unit.TestColorUtils.TestSpectralClassColors);
+        runner.RunNativeTest(
+            "TestColorUtils::test_extended_spectral_class_colors",
+            Tests.Unit.TestColorUtils.TestExtendedSpectralClassColors);
         runner.RunNativeTest(
             "TestColorUtils::test_atmosphere_nitrogen_is_blue",
             Tests.Unit.TestColorUtils.TestAtmosphereNitrogenIsBlue);
@@ -767,143 +784,89 @@ public static partial class DotNetNativeTestSuite
             "TestGalaxyBodyOverrides::test_apply_to_bodies_handles_nulls_in_array",
             Tests.Unit.TestGalaxyBodyOverrides.TestApplyToBodiesHandlesNullsInArray);
         runner.RunNativeTest(
-            "TestGalaxyConfig::test_create_default_returns_valid_config",
-            Tests.Unit.TestGalaxyConfig.TestCreateDefaultReturnsValidConfig);
+            "TestGalaxyConfig::test_create_default_returns_scientific_milky_way_config",
+            Tests.Unit.TestGalaxyConfig.TestCreateDefaultReturnsScientificMilkyWayConfig);
         runner.RunNativeTest(
-            "TestGalaxyConfig::test_create_milky_way_sets_spiral_params",
-            Tests.Unit.TestGalaxyConfig.TestCreateMilkyWaySetsSpiralParams);
+            "TestGalaxyConfig::test_scientific_fields_round_trip",
+            Tests.Unit.TestGalaxyConfig.TestScientificFieldsRoundTrip);
         runner.RunNativeTest(
-            "TestGalaxyConfig::test_is_valid_rejects_bad_type",
-            Tests.Unit.TestGalaxyConfig.TestIsValidRejectsBadType);
+            "TestGalaxyConfig::test_scientific_validation_rejects_broken_ranges",
+            Tests.Unit.TestGalaxyConfig.TestScientificValidationRejectsBrokenRanges);
         runner.RunNativeTest(
-            "TestGalaxyConfig::test_is_valid_rejects_bad_num_arms",
-            Tests.Unit.TestGalaxyConfig.TestIsValidRejectsBadNumArms);
+            "TestGalaxyConfig::test_apply_to_spec_creates_resolved_scientific_profile",
+            Tests.Unit.TestGalaxyConfig.TestApplyToSpecCreatesResolvedScientificProfile);
         runner.RunNativeTest(
-            "TestGalaxyConfig::test_is_valid_rejects_bad_radius",
-            Tests.Unit.TestGalaxyConfig.TestIsValidRejectsBadRadius);
+            "TestGalaxyConfig::test_get_type_name_includes_expanded_families",
+            Tests.Unit.TestGalaxyConfig.TestGetTypeNameIncludesExpandedFamilies);
         runner.RunNativeTest(
-            "TestGalaxyConfig::test_to_dict_round_trip",
-            Tests.Unit.TestGalaxyConfig.TestToDictRoundTrip);
+            "TestGalaxyConfig::test_galaxy_science_reference_catalog_covers_exposed_parameters",
+            Tests.Unit.TestGalaxyConfig.TestGalaxyScienceReferenceCatalogCoversExposedParameters);
         runner.RunNativeTest(
-            "TestGalaxyConfig::test_from_dict_empty_returns_null",
-            Tests.Unit.TestGalaxyConfig.TestFromDictEmptyReturnsNull);
+            "TestGalaxyConfig::test_galaxy_science_help_uses_plain_language",
+            Tests.Unit.TestGalaxyConfig.TestGalaxyScienceHelpUsesPlainLanguage);
         runner.RunNativeTest(
-            "TestGalaxyConfig::test_get_type_name_spiral",
-            Tests.Unit.TestGalaxyConfig.TestGetTypeNameSpiral);
+            "TestGalaxyConfig::test_life_science_reference_catalog_covers_life_models",
+            Tests.Unit.TestGalaxyConfig.TestLifeScienceReferenceCatalogCoversLifeModels);
         runner.RunNativeTest(
-            "TestGalaxyConfig::test_get_type_name_elliptical",
-            Tests.Unit.TestGalaxyConfig.TestGetTypeNameElliptical);
+            "TestGalaxyConfig::test_life_models_change_biology_assessment",
+            Tests.Unit.TestGalaxyConfig.TestLifeModelsChangeBiologyAssessment);
         runner.RunNativeTest(
-            "TestGalaxyConfig::test_apply_to_spec",
-            Tests.Unit.TestGalaxyConfig.TestApplyToSpec);
+            "TestGalaxyConfig::test_arm_controls_change_arm_coverage",
+            Tests.Unit.TestGalaxyConfig.TestArmControlsChangeArmCoverage);
         runner.RunNativeTest(
-            "TestGalaxyInspectorPanel::test_instantiates",
-            Tests.Unit.TestGalaxyInspectorPanel.TestInstantiates);
+            "TestGalaxyConfig::test_environment_density_bias_changes_resolved_subtype",
+            Tests.Unit.TestGalaxyConfig.TestEnvironmentDensityBiasChangesResolvedSubtype);
         runner.RunNativeTest(
-            "TestGalaxyInspectorPanel::test_starts_without_star_selected",
-            Tests.Unit.TestGalaxyInspectorPanel.TestStartsWithoutStarSelected);
+            "TestGalaxyConfig::test_ellipticity_changes_elliptical_axis_ratio",
+            Tests.Unit.TestGalaxyConfig.TestEllipticityChangesEllipticalAxisRatio);
         runner.RunNativeTest(
-            "TestGalaxyInspectorPanel::test_display_selected_star_sets_selection",
-            Tests.Unit.TestGalaxyInspectorPanel.TestDisplaySelectedStarSetsSelection);
+            "TestGalaxyConfig::test_metallicity_gradient_changes_outer_disk_chemistry",
+            Tests.Unit.TestGalaxyConfig.TestMetallicityGradientChangesOuterDiskChemistry);
         runner.RunNativeTest(
-            "TestGalaxyInspectorPanel::test_clear_selection_removes_star",
-            Tests.Unit.TestGalaxyInspectorPanel.TestClearSelectionRemovesStar);
+            "TestStellarGenerationProfile::test_round_trip",
+            Tests.Unit.TestStellarGenerationProfile.TestRoundTrip);
         runner.RunNativeTest(
-            "TestGalaxyInspectorPanel::test_display_selected_quadrant_clears_star",
-            Tests.Unit.TestGalaxyInspectorPanel.TestDisplaySelectedQuadrantClearsStar);
+            "TestStellarGenerationProfile::test_profile_propagates_through_galaxy_and_system_specs",
+            Tests.Unit.TestStellarGenerationProfile.TestProfilePropagatesThroughGalaxyAndSystemSpecs);
         runner.RunNativeTest(
-            "TestGalaxyInspectorPanel::test_display_selected_sector_clears_star",
-            Tests.Unit.TestGalaxyInspectorPanel.TestDisplaySelectedSectorClearsStar);
+            "TestStellarGenerationProfile::test_reference_catalog_covers_exposed_parameters",
+            Tests.Unit.TestStellarGenerationProfile.TestReferenceCatalogCoversExposedParameters);
         runner.RunNativeTest(
-            "TestGalaxyInspectorPanel::test_display_galaxy_with_spec",
-            Tests.Unit.TestGalaxyInspectorPanel.TestDisplayGalaxyWithSpec);
+            "TestStellarGenerationProfile::test_help_copy_uses_plain_language",
+            Tests.Unit.TestStellarGenerationProfile.TestHelpCopyUsesPlainLanguage);
         runner.RunNativeTest(
-            "TestGalaxyInspectorPanel::test_display_galaxy_with_null_spec",
-            Tests.Unit.TestGalaxyInspectorPanel.TestDisplayGalaxyWithNullSpec);
+            "TestPlanetaryGenerationProfile::test_round_trip",
+            Tests.Unit.TestPlanetaryGenerationProfile.TestRoundTrip);
         runner.RunNativeTest(
-            "TestGalaxySaveData::test_create_sets_timestamp",
-            Tests.Unit.TestGalaxySaveData.TestCreateSetsTimestamp);
+            "TestPlanetaryGenerationProfile::test_legacy_mass_radius_value_maps_to_chen_kipping",
+            Tests.Unit.TestPlanetaryGenerationProfile.TestLegacyMassRadiusValueMapsToChenKipping);
         runner.RunNativeTest(
-            "TestGalaxySaveData::test_default_values",
-            Tests.Unit.TestGalaxySaveData.TestDefaultValues);
+            "TestPlanetaryGenerationProfile::test_derived_state_round_trip",
+            Tests.Unit.TestPlanetaryGenerationProfile.TestDerivedStateRoundTrip);
         runner.RunNativeTest(
-            "TestGalaxySaveData::test_is_valid_with_defaults",
-            Tests.Unit.TestGalaxySaveData.TestIsValidWithDefaults);
+            "TestPlanetaryGenerationProfile::test_profile_propagates_through_galaxy_and_system_specs",
+            Tests.Unit.TestPlanetaryGenerationProfile.TestProfilePropagatesThroughGalaxyAndSystemSpecs);
         runner.RunNativeTest(
-            "TestGalaxySaveData::test_is_valid_rejects_zero_seed",
-            Tests.Unit.TestGalaxySaveData.TestIsValidRejectsZeroSeed);
+            "TestPlanetaryGenerationProfile::test_reference_catalog_covers_exposed_parameters",
+            Tests.Unit.TestPlanetaryGenerationProfile.TestReferenceCatalogCoversExposedParameters);
         runner.RunNativeTest(
-            "TestGalaxySaveData::test_is_valid_rejects_invalid_zoom",
-            Tests.Unit.TestGalaxySaveData.TestIsValidRejectsInvalidZoom);
+            "TestPlanetaryGenerationProfile::test_help_copy_uses_plain_language",
+            Tests.Unit.TestPlanetaryGenerationProfile.TestHelpCopyUsesPlainLanguage);
         runner.RunNativeTest(
-            "TestGalaxySaveData::test_to_dict_contains_required_fields",
-            Tests.Unit.TestGalaxySaveData.TestToDictContainsRequiredFields);
+            "TestGalaxyStar::test_derived_stars_receive_galaxy_origin_context",
+            Tests.Unit.TestGalaxyStar.TestDerivedStarsReceiveGalaxyOriginContext);
         runner.RunNativeTest(
-            "TestGalaxySaveData::test_round_trip_basic",
-            Tests.Unit.TestGalaxySaveData.TestRoundTripBasic);
+            "TestGalaxyStar::test_metallicity_gradient_falls_with_radius",
+            Tests.Unit.TestGalaxyStar.TestMetallicityGradientFallsWithRadius);
         runner.RunNativeTest(
-            "TestGalaxySaveData::test_round_trip_with_quadrant",
-            Tests.Unit.TestGalaxySaveData.TestRoundTripWithQuadrant);
+            "TestGalaxyStar::test_bulge_stars_skew_older_than_arm_stars",
+            Tests.Unit.TestGalaxyStar.TestBulgeStarsSkewOlderThanArmStars);
         runner.RunNativeTest(
-            "TestGalaxySaveData::test_round_trip_with_sector",
-            Tests.Unit.TestGalaxySaveData.TestRoundTripWithSector);
+            "TestGalaxyStar::test_star_forming_regions_increase_cluster_probability",
+            Tests.Unit.TestGalaxyStar.TestStarFormingRegionsIncreaseClusterProbability);
         runner.RunNativeTest(
-            "TestGalaxySaveData::test_round_trip_with_camera",
-            Tests.Unit.TestGalaxySaveData.TestRoundTripWithCamera);
-        runner.RunNativeTest(
-            "TestGalaxySaveData::test_round_trip_with_star_selection",
-            Tests.Unit.TestGalaxySaveData.TestRoundTripWithStarSelection);
-        runner.RunNativeTest(
-            "TestGalaxySaveData::test_null_quadrant_serializes",
-            Tests.Unit.TestGalaxySaveData.TestNullQuadrantSerializes);
-        runner.RunNativeTest(
-            "TestGalaxySaveData::test_from_dict_returns_null_for_invalid",
-            Tests.Unit.TestGalaxySaveData.TestFromDictReturnsNullForInvalid);
-        runner.RunNativeTest(
-            "TestGalaxySaveData::test_from_dict_returns_null_for_empty",
-            Tests.Unit.TestGalaxySaveData.TestFromDictReturnsNullForEmpty);
-        runner.RunNativeTest(
-            "TestGalaxySaveData::test_get_summary",
-            Tests.Unit.TestGalaxySaveData.TestGetSummary);
-        runner.RunNativeTest(
-            "TestGalaxySaveData::test_vector3_conversion",
-            Tests.Unit.TestGalaxySaveData.TestVector3Conversion);
-        runner.RunNativeTest(
-            "TestGalaxySaveData::test_vector3i_conversion",
-            Tests.Unit.TestGalaxySaveData.TestVector3iConversion);
-        runner.RunNativeTest(
-            "TestGalaxySaveData::test_body_overrides_default_empty",
-            Tests.Unit.TestGalaxySaveData.TestBodyOverridesDefaultEmpty);
-        runner.RunNativeTest(
-            "TestGalaxySaveData::test_body_overrides_round_trip",
-            Tests.Unit.TestGalaxySaveData.TestBodyOverridesRoundTrip);
-        runner.RunNativeTest(
-            "TestGalaxySaveData::test_body_overrides_absent_field_legacy_save",
-            Tests.Unit.TestGalaxySaveData.TestBodyOverridesAbsentFieldLegacySave);
-        runner.RunNativeTest(
-            "TestGalaxySaveData::test_set_body_overrides_null_clears",
-            Tests.Unit.TestGalaxySaveData.TestSetBodyOverridesNullClears);
-        runner.RunNativeTest(
-            "TestGalaxyStar::test_basic_creation",
-            Tests.Unit.TestGalaxyStar.TestBasicCreation);
-        runner.RunNativeTest(
-            "TestGalaxyStar::test_create_with_derived_properties",
-            Tests.Unit.TestGalaxyStar.TestCreateWithDerivedProperties);
-        runner.RunNativeTest(
-            "TestGalaxyStar::test_metallicity_gradient_radial",
-            Tests.Unit.TestGalaxyStar.TestMetallicityGradientRadial);
-        runner.RunNativeTest(
-            "TestGalaxyStar::test_metallicity_gradient_vertical",
-            Tests.Unit.TestGalaxyStar.TestMetallicityGradientVertical);
-        runner.RunNativeTest(
-            "TestGalaxyStar::test_age_bias_bulge",
-            Tests.Unit.TestGalaxyStar.TestAgeBiasBulge);
-        runner.RunNativeTest(
-            "TestGalaxyStar::test_distance_helpers",
-            Tests.Unit.TestGalaxyStar.TestDistanceHelpers);
-        runner.RunNativeTest(
-            "TestGalaxyStar::test_to_string",
-            Tests.Unit.TestGalaxyStar.TestToString);
+            "TestGalaxyStar::test_serialization_preserves_origin_context",
+            Tests.Unit.TestGalaxyStar.TestSerializationPreservesOriginContext);
         runner.RunNativeTest(
             "TestGalaxySystemGenerator::test_generate_system_from_star",
             Tests.Unit.TestGalaxySystemGenerator.TestGenerateSystemFromStar);
@@ -920,29 +883,14 @@ public static partial class DotNetNativeTestSuite
             "TestGalaxySystemGenerator::test_generate_system_without_asteroids",
             Tests.Unit.TestGalaxySystemGenerator.TestGenerateSystemWithoutAsteroids);
         runner.RunNativeTest(
-            "TestGalaxySystemGenerator::test_metallicity_applied_to_spec",
-            Tests.Unit.TestGalaxySystemGenerator.TestMetallicityAppliedToSpec);
+            "TestGalaxySystemGenerator::test_system_spec_snapshot_carries_galaxy_context",
+            Tests.Unit.TestGalaxySystemGenerator.TestSystemSpecSnapshotCarriesGalaxyContext);
         runner.RunNativeTest(
-            "TestGalaxySystemGenerator::test_generate_system_has_valid_hierarchy",
-            Tests.Unit.TestGalaxySystemGenerator.TestGenerateSystemHasValidHierarchy);
+            "TestGalaxySystemGenerator::test_galaxy_metallicity_propagates_into_generated_stars",
+            Tests.Unit.TestGalaxySystemGenerator.TestGalaxyMetallicityPropagatesIntoGeneratedStars);
         runner.RunNativeTest(
-            "TestGalaxySystemGenerator::test_generate_system_planets_have_parent_ids",
-            Tests.Unit.TestGalaxySystemGenerator.TestGenerateSystemPlanetsHaveParentIds);
-        runner.RunNativeTest(
-            "TestGalaxySystemGenerator::test_generate_system_provenance_has_spec_snapshot",
-            Tests.Unit.TestGalaxySystemGenerator.TestGenerateSystemProvenanceHasSpecSnapshot);
-        runner.RunNativeTest(
-            "TestGalaxySystemGenerator::test_generate_system_without_overrides_unchanged",
-            Tests.Unit.TestGalaxySystemGenerator.TestGenerateSystemWithoutOverridesUnchanged);
-        runner.RunNativeTest(
-            "TestGalaxySystemGenerator::test_generate_system_applies_planet_override",
-            Tests.Unit.TestGalaxySystemGenerator.TestGenerateSystemAppliesPlanetOverride);
-        runner.RunNativeTest(
-            "TestGalaxySystemGenerator::test_generate_system_ignores_overrides_for_other_seeds",
-            Tests.Unit.TestGalaxySystemGenerator.TestGenerateSystemIgnoresOverridesForOtherSeeds);
-        runner.RunNativeTest(
-            "TestGalaxySystemGenerator::test_generate_system_with_galaxy_context_deterministic_population",
-            Tests.Unit.TestGalaxySystemGenerator.TestGenerateSystemWithGalaxyContextDeterministicPopulation);
+            "TestGalaxySystemGenerator::test_galaxy_age_context_propagates_into_generated_stars",
+            Tests.Unit.TestGalaxySystemGenerator.TestGalaxyAgeContextPropagatesIntoGeneratedStars);
         runner.RunNativeTest(
             "TestGasGiantShaderParams::test_jupiter_like_params",
             Tests.Unit.TestGasGiantShaderParams.TestJupiterLikeParams);
@@ -1205,11 +1153,20 @@ public static partial class DotNetNativeTestSuite
             "TestOrbitalMechanics::test_calculate_habitable_zone_solar",
             Tests.Unit.TestOrbitalMechanics.TestCalculateHabitableZoneSolar);
         runner.RunNativeTest(
+            "TestOrbitalMechanics::test_calculate_habitable_zone_solar_kasting_model",
+            Tests.Unit.TestOrbitalMechanics.TestCalculateHabitableZoneSolarKastingModel);
+        runner.RunNativeTest(
+            "TestOrbitalMechanics::test_calculate_habitable_zone_solar_optimistic_model",
+            Tests.Unit.TestOrbitalMechanics.TestCalculateHabitableZoneSolarOptimisticModel);
+        runner.RunNativeTest(
             "TestOrbitalMechanics::test_calculate_frost_line_solar",
             Tests.Unit.TestOrbitalMechanics.TestCalculateFrostLineSolar);
         runner.RunNativeTest(
             "TestOrbitalMechanics::test_get_orbital_zone",
             Tests.Unit.TestOrbitalMechanics.TestGetOrbitalZone);
+        runner.RunNativeTest(
+            "TestOrbitalMechanics::test_get_orbital_zone_respects_selected_habitable_zone_model",
+            Tests.Unit.TestOrbitalMechanics.TestGetOrbitalZoneRespectsSelectedHabitableZoneModel);
         runner.RunNativeTest(
             "TestOrbitalMechanics::test_get_orbital_zone_invalid_inputs",
             Tests.Unit.TestOrbitalMechanics.TestGetOrbitalZoneInvalidInputs);
@@ -2000,23 +1957,14 @@ public static partial class DotNetNativeTestSuite
             "TestStarGenerator::test_sun_like_preset",
             Tests.Unit.TestStarGenerator.TestSunLikePreset);
         runner.RunNativeTest(
-            "TestStarGenerator::test_red_dwarf_preset",
-            Tests.Unit.TestStarGenerator.TestRedDwarfPreset);
+            "TestStarGenerator::test_galaxy_context_biases_metallicity",
+            Tests.Unit.TestStarGenerator.TestGalaxyContextBiasesMetallicity);
         runner.RunNativeTest(
-            "TestStarGenerator::test_hot_blue_preset",
-            Tests.Unit.TestStarGenerator.TestHotBluePreset);
+            "TestStarGenerator::test_galaxy_context_biases_age",
+            Tests.Unit.TestStarGenerator.TestGalaxyContextBiasesAge);
         runner.RunNativeTest(
-            "TestStarGenerator::test_temperature_matches_class",
-            Tests.Unit.TestStarGenerator.TestTemperatureMatchesClass);
-        runner.RunNativeTest(
-            "TestStarGenerator::test_mass_luminosity_relationship",
-            Tests.Unit.TestStarGenerator.TestMassLuminosityRelationship);
-        runner.RunNativeTest(
-            "TestStarGenerator::test_provenance",
-            Tests.Unit.TestStarGenerator.TestProvenance);
-        runner.RunNativeTest(
-            "TestStarGenerator::test_name_hint",
-            Tests.Unit.TestStarGenerator.TestNameHint);
+            "TestStarGenerator::test_young_contexts_produce_hotter_spectral_mix",
+            Tests.Unit.TestStarGenerator.TestYoungContextsProduceHotterSpectralMix);
         runner.RunNativeTest(
             "TestStarGenerator::test_overrides",
             Tests.Unit.TestStarGenerator.TestOverrides);
@@ -2024,17 +1972,26 @@ public static partial class DotNetNativeTestSuite
             "TestStarGenerator::test_star_type",
             Tests.Unit.TestStarGenerator.TestStarType);
         runner.RunNativeTest(
-            "TestStarGenerator::test_physical_properties_positive",
-            Tests.Unit.TestStarGenerator.TestPhysicalPropertiesPositive);
+            "TestStarGenerator::test_imf_families_shift_average_mass",
+            Tests.Unit.TestStarGenerator.TestImfFamiliesShiftAverageMass);
         runner.RunNativeTest(
-            "TestStarGenerator::test_stellar_properties_positive",
-            Tests.Unit.TestStarGenerator.TestStellarPropertiesPositive);
+            "TestStarGenerator::test_imf_variation_mode_changes_mass_sampling",
+            Tests.Unit.TestStarGenerator.TestImfVariationModeChangesMassSampling);
         runner.RunNativeTest(
-            "TestStarGenerator::test_age_within_lifetime",
-            Tests.Unit.TestStarGenerator.TestAgeWithinLifetime);
+            "TestStarGenerator::test_isochrone_model_changes_resolved_properties",
+            Tests.Unit.TestStarGenerator.TestIsochroneModelChangesResolvedProperties);
         runner.RunNativeTest(
-            "TestStarGenerator::test_habitable_zone",
-            Tests.Unit.TestStarGenerator.TestHabitableZone);
+            "TestStarGenerator::test_spectral_hints_override_profile",
+            Tests.Unit.TestStarGenerator.TestSpectralHintsOverrideProfile);
+        runner.RunNativeTest(
+            "TestStarGenerator::test_brown_dwarf_hints_generate_brown_dwarfs",
+            Tests.Unit.TestStarGenerator.TestBrownDwarfHintsGenerateBrownDwarfs);
+        runner.RunNativeTest(
+            "TestStarGenerator::test_old_intermediate_mass_stars_become_giants",
+            Tests.Unit.TestStarGenerator.TestOldIntermediateMassStarsBecomeGiants);
+        runner.RunNativeTest(
+            "TestStarGenerator::test_ancient_populations_produce_white_dwarfs",
+            Tests.Unit.TestStarGenerator.TestAncientPopulationsProduceWhiteDwarfs);
         runner.RunNativeTest(
             "TestStarGeneratorDistributions::test_spectral_type_distribution_reasonable",
             Tests.Unit.TestStarGeneratorDistributions.TestSpectralTypeDistributionReasonable);
@@ -2114,6 +2071,9 @@ public static partial class DotNetNativeTestSuite
             "TestStarTable::test_lifetime_ranges",
             Tests.Unit.TestStarTable.TestLifetimeRanges);
         runner.RunNativeTest(
+            "TestStarTable::test_brown_dwarf_mass_ranges",
+            Tests.Unit.TestStarTable.TestBrownDwarfMassRanges);
+        runner.RunNativeTest(
             "TestStellarConfigGenerator::test_generate_single_star",
             Tests.Unit.TestStellarConfigGenerator.TestGenerateSingleStar);
         runner.RunNativeTest(
@@ -2150,6 +2110,15 @@ public static partial class DotNetNativeTestSuite
             "TestStellarConfigGenerator::test_maximum_stars",
             Tests.Unit.TestStellarConfigGenerator.TestMaximumStars);
         runner.RunNativeTest(
+            "TestStellarConfigGenerator::test_companions_share_age_and_metallicity",
+            Tests.Unit.TestStellarConfigGenerator.TestCompanionsShareAgeAndMetallicity);
+        runner.RunNativeTest(
+            "TestStellarConfigGenerator::test_hierarchy_separations_widen_outward",
+            Tests.Unit.TestStellarConfigGenerator.TestHierarchySeparationsWidenOutward);
+        runner.RunNativeTest(
+            "TestStellarConfigGenerator::test_multiplicity_scale_changes_average_star_count",
+            Tests.Unit.TestStellarConfigGenerator.TestMultiplicityScaleChangesAverageStarCount);
+        runner.RunNativeTest(
             "TestStellarProps::test_default_values",
             Tests.Unit.TestStellarProps.TestDefaultValues);
         runner.RunNativeTest(
@@ -2162,6 +2131,9 @@ public static partial class DotNetNativeTestSuite
             "TestStellarProps::test_habitable_zone_sun_like",
             Tests.Unit.TestStellarProps.TestHabitableZoneSunLike);
         runner.RunNativeTest(
+            "TestStellarProps::test_habitable_zone_kasting_override_sun_like",
+            Tests.Unit.TestStellarProps.TestHabitableZoneKastingOverrideSunLike);
+        runner.RunNativeTest(
             "TestStellarProps::test_habitable_zone_brighter_star",
             Tests.Unit.TestStellarProps.TestHabitableZoneBrighterStar);
         runner.RunNativeTest(
@@ -2173,6 +2145,9 @@ public static partial class DotNetNativeTestSuite
         runner.RunNativeTest(
             "TestStellarProps::test_spectral_letter",
             Tests.Unit.TestStellarProps.TestSpectralLetter);
+        runner.RunNativeTest(
+            "TestStellarProps::test_expanded_spectral_helpers",
+            Tests.Unit.TestStellarProps.TestExpandedSpectralHelpers);
         runner.RunNativeTest(
             "TestStellarProps::test_round_trip",
             Tests.Unit.TestStellarProps.TestRoundTrip);
@@ -2200,6 +2175,9 @@ public static partial class DotNetNativeTestSuite
         runner.RunNativeTest(
             "TestSystemAsteroidGenerator::test_asteroid_names",
             Tests.Unit.TestSystemAsteroidGenerator.TestAsteroidNames);
+        runner.RunNativeTest(
+            "TestSystemAsteroidGenerator::test_outer_system_bias_changes_icy_belts",
+            Tests.Unit.TestSystemAsteroidGenerator.TestOuterSystemBiasChangesIcyBelts);
         runner.RunNativeTest(
             "TestSystemBodyNode::test_setup_planet",
             Tests.Unit.TestSystemBodyNode.TestSetupPlanet);
@@ -2366,6 +2344,9 @@ public static partial class DotNetNativeTestSuite
             "TestSystemGoldenMasters::test_fixture_serialization_roundtrip",
             Tests.Unit.TestSystemGoldenMasters.TestFixtureSerializationRoundtrip);
         runner.RunNativeTest(
+            "TestSolarSystemReferenceChain::test_solar_reference_chain_builds_expected_system",
+            Tests.Unit.TestSolarSystemReferenceChain.TestSolarReferenceChainBuildsExpectedSystem);
+        runner.RunNativeTest(
             "TestSystemHierarchy::test_empty_hierarchy",
             Tests.Unit.TestSystemHierarchy.TestEmptyHierarchy);
         runner.RunNativeTest(
@@ -2389,21 +2370,6 @@ public static partial class DotNetNativeTestSuite
         runner.RunNativeTest(
             "TestSystemHierarchy::test_round_trip",
             Tests.Unit.TestSystemHierarchy.TestRoundTrip);
-        runner.RunNativeTest(
-            "TestSystemInspectorPanel::test_display_system_star_count",
-            Tests.Unit.TestSystemInspectorPanel.TestDisplaySystemStarCount);
-        runner.RunNativeTest(
-            "TestSystemInspectorPanel::test_display_null_system",
-            Tests.Unit.TestSystemInspectorPanel.TestDisplayNullSystem);
-        runner.RunNativeTest(
-            "TestSystemInspectorPanel::test_display_selected_body_name",
-            Tests.Unit.TestSystemInspectorPanel.TestDisplaySelectedBodyName);
-        runner.RunNativeTest(
-            "TestSystemInspectorPanel::test_display_null_body",
-            Tests.Unit.TestSystemInspectorPanel.TestDisplayNullBody);
-        runner.RunNativeTest(
-            "TestSystemInspectorPanel::test_clear",
-            Tests.Unit.TestSystemInspectorPanel.TestClear);
         runner.RunNativeTest(
             "TestSystemMoonGenerator::test_generate_gas_giant_moons",
             Tests.Unit.TestSystemMoonGenerator.TestGenerateGasGiantMoons);
@@ -2432,6 +2398,9 @@ public static partial class DotNetNativeTestSuite
             "TestSystemMoonGenerator::test_moon_ids_unique",
             Tests.Unit.TestSystemMoonGenerator.TestMoonIdsUnique);
         runner.RunNativeTest(
+            "TestSystemMoonGenerator::test_moon_formation_bias_changes_captured_share",
+            Tests.Unit.TestSystemMoonGenerator.TestMoonFormationBiasChangesCapturedShare);
+        runner.RunNativeTest(
             "TestSystemPlanetGenerator::test_generate_planets",
             Tests.Unit.TestSystemPlanetGenerator.TestGeneratePlanets);
         runner.RunNativeTest(
@@ -2449,6 +2418,45 @@ public static partial class DotNetNativeTestSuite
         runner.RunNativeTest(
             "TestSystemPlanetGenerator::test_planets_pass_validation",
             Tests.Unit.TestSystemPlanetGenerator.TestPlanetsPassValidation);
+        runner.RunNativeTest(
+            "TestSystemPlanetGenerator::test_aggregate_planetary_profile_changes_outcomes",
+            Tests.Unit.TestSystemPlanetGenerator.TestAggregatePlanetaryProfileChangesOutcomes);
+        runner.RunNativeTest(
+            "TestSystemPlanetGenerator::test_host_mass_adjustments_change_disk_and_solid_priors",
+            Tests.Unit.TestSystemPlanetGenerator.TestHostMassAdjustmentsChangeDiskAndSolidPriors);
+        runner.RunNativeTest(
+            "TestSystemPlanetGenerator::test_snow_line_giant_formation_weight_turns_over_outside_peak",
+            Tests.Unit.TestSystemPlanetGenerator.TestSnowLineGiantFormationWeightTurnsOverOutsidePeak);
+        runner.RunNativeTest(
+            "TestSystemPlanetGenerator::test_migration_strength_favors_compact_inner_architecture",
+            Tests.Unit.TestSystemPlanetGenerator.TestMigrationStrengthFavorsCompactInnerArchitecture);
+        runner.RunNativeTest(
+            "TestSystemPlanetGenerator::test_direct_planet_rogue_mode_clears_orbit",
+            Tests.Unit.TestSystemPlanetGenerator.TestDirectPlanetRogueModeClearsOrbit);
+        runner.RunNativeTest(
+            "TestSystemPlanetGenerator::test_mass_radius_models_change_transition_world_scale",
+            Tests.Unit.TestSystemPlanetGenerator.TestMassRadiusModelsChangeTransitionWorldScale);
+        runner.RunNativeTest(
+            "TestSystemPlanetGenerator::test_otegi_falls_back_to_chen_kipping_for_giants",
+            Tests.Unit.TestSystemPlanetGenerator.TestOtegiFallsBackToChenKippingForGiants);
+        runner.RunNativeTest(
+            "TestSystemPlanetGenerator::test_compatibility_profiles_shift_system_fill_pressure",
+            Tests.Unit.TestSystemPlanetGenerator.TestCompatibilityProfilesShiftSystemFillPressure);
+        runner.RunNativeTest(
+            "TestSystemPlanetGenerator::test_custom_space_opera_overrides_shift_system_fill_pressure",
+            Tests.Unit.TestSystemPlanetGenerator.TestCustomSpaceOperaOverridesShiftSystemFillPressure);
+        runner.RunNativeTest(
+            "TestSystemPlanetGenerator::test_non_space_opera_profiles_differentiate_system_bias",
+            Tests.Unit.TestSystemPlanetGenerator.TestNonSpaceOperaProfilesDifferentiateSystemBias);
+        runner.RunNativeTest(
+            "TestSystemPlanetGenerator::test_envelope_loss_model_changes_hot_planet_atmospheres",
+            Tests.Unit.TestSystemPlanetGenerator.TestEnvelopeLossModelChangesHotPlanetAtmospheres);
+        runner.RunNativeTest(
+            "TestSystemPlanetGenerator::test_volatile_delivery_changes_watery_rocky_worlds",
+            Tests.Unit.TestSystemPlanetGenerator.TestVolatileDeliveryChangesWateryRockyWorlds);
+        runner.RunNativeTest(
+            "TestSystemPlanetGenerator::test_rogue_allowance_changes_low_mass_outcome_bias",
+            Tests.Unit.TestSystemPlanetGenerator.TestRogueAllowanceChangesLowMassOutcomeBias);
         runner.RunNativeTest(
             "TestSystemPlanetDistributions::test_hot_jupiter_fraction_rare",
             Tests.Unit.TestSystemPlanetDistributions.TestHotJupiterFractionRare);
@@ -2767,6 +2775,18 @@ public static partial class DotNetNativeTestSuite
         runner.RunNativeTest(
             "TestVersions::test_generator_version_is_non_empty_string",
             Tests.Unit.TestVersions.TestGeneratorVersionIsNonEmptyString);
+        runner.RunNativeTest(
+            "TestGalaxyInspectorSelectionFormatter::test_build_uses_current_quadrant_and_subsector_grid",
+            Tests.Unit.TestGalaxyInspectorSelectionFormatter.TestBuildUsesCurrentQuadrantAndSubsectorGrid);
+        runner.RunNativeTest(
+            "TestGalaxyInspectorSelectionFormatter::test_build_computes_home_relative_polar_readout",
+            Tests.Unit.TestGalaxyInspectorSelectionFormatter.TestBuildComputesHomeRelativePolarReadout);
+        runner.RunNativeTest(
+            "TestGalaxyInspectorSelectionFormatter::test_format_distance_from_core_uses_pc_and_kpc_thresholds",
+            Tests.Unit.TestGalaxyInspectorSelectionFormatter.TestFormatDistanceFromCoreUsesPcAndKpcThresholds);
+        runner.RunNativeTest(
+            "TestGalaxyInspectorSelectionFormatter::test_format_hierarchical_coordinates_uses_quadrant_sector_and_local_triples",
+            Tests.Unit.TestGalaxyInspectorSelectionFormatter.TestFormatHierarchicalCoordinatesUsesQuadrantSectorAndLocalTriples);
         runner.RunNativeTest(
             "TestVersions::test_generator_version_is_semver_format",
             Tests.Unit.TestVersions.TestGeneratorVersionIsSemverFormat);

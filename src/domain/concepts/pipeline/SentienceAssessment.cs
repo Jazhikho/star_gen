@@ -15,6 +15,8 @@ public sealed class SentienceAssessment
 
     public bool HasSentientLife { get; set; }
 
+    public bool HasTechnologicalCivilization { get; set; }
+
     public string CandidateSpeciesName { get; set; } = string.Empty;
 
     public double CognitionScore { get; set; }
@@ -33,6 +35,7 @@ public sealed class SentienceAssessment
             ["status_reason"] = StatusReason,
             ["provenance"] = ConceptRunResultSerialization.ToProvenanceDictionary(Provenance),
             ["has_sentient_life"] = HasSentientLife,
+            ["has_technological_civilization"] = HasTechnologicalCivilization,
             ["candidate_species_name"] = CandidateSpeciesName,
             ["cognition_score"] = CognitionScore,
             ["communication_score"] = CommunicationScore,
@@ -53,6 +56,7 @@ public sealed class SentienceAssessment
         }
 
         state.HasSentientLife = ConceptSerializationUtils.ReadBool(data, "has_sentient_life");
+        state.HasTechnologicalCivilization = ConceptSerializationUtils.ReadBool(data, "has_technological_civilization");
         state.CandidateSpeciesName = ConceptSerializationUtils.ReadString(data, "candidate_species_name");
         state.CognitionScore = ConceptSerializationUtils.ReadDouble(data, "cognition_score");
         state.CommunicationScore = ConceptSerializationUtils.ReadDouble(data, "communication_score");

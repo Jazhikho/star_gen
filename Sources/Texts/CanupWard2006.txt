@@ -1,0 +1,19 @@
+Source note for StarGen research review
+
+Citation:
+Canup, R. M., & Ward, W. R. (2006).
+A common mass scaling for satellite systems of gaseous planets.
+Nature, 441, 834-839.
+DOI: https://doi.org/10.1038/nature04860
+
+What was reviewed:
+- Abstract and source metadata on 2026-04-03.
+
+Key implementation notes used in StarGen:
+- The paper argues that regular satellite systems around gas giants share a broadly similar mass scaling because they form in circumplanetary disks under related supply and loss limits.
+- The useful constraint for StarGen is that gas giants beyond volatile-rich regions should be able to support richer regular moon families than small rocky worlds, but not with unlimited moon mass or arbitrary architectures.
+- The paper supports distinguishing regular moon-rich giant systems from captured-dominated or sparse moon systems.
+
+How StarGen uses this:
+- As support for increasing regular-moon-rich outcomes around gas giants, especially beyond the snow line.
+- As the scientific basis for making moon counts and captured-vs-regular bias depend on host class and aggregate planetary-system state rather than a flat random moon toggle.
