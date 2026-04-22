@@ -5,6 +5,7 @@ using Godot;
 using StarGen.App;
 using StarGen.App.GalaxyViewer;
 using StarGen.App.Rendering;
+using StarGen.App.Shared;
 using StarGen.App.SystemViewer;
 using StarGen.App.Viewer;
 using StarGen.Domain.Celestial.Components;
@@ -13,6 +14,7 @@ using StarGen.Domain.Generation;
 using StarGen.Domain.Math;
 using StarGen.Domain.Jumplanes;
 using StarGen.Domain.Systems;
+using StarGen.Domain.Systems.Fixtures;
 using StarGen.Services.Persistence;
 
 namespace StarGen.Tests.Framework;
@@ -479,6 +481,25 @@ public static partial class DotNetNativeTestSuite
     }
 
     /// <summary>
+    /// Verifies release-edition resolution and user-facing version suffix formatting.
+    /// </summary>
+    private static void TestReleaseEditionServiceFormatsDemoAndExportVersions()
+    {
+        AssertEqual(ReleaseEdition.Demo, ReleaseEditionService.ResolveEdition("demo"), "demo channel should resolve to the demo edition");
+        AssertEqual(ReleaseEdition.Demo, ReleaseEditionService.ResolveEdition("release"), "legacy release channel should normalize to the demo edition");
+        AssertEqual(ReleaseEdition.Export, ReleaseEditionService.ResolveEdition("export"), "export channel should resolve to the export edition");
+        AssertEqual("0.9d", ReleaseEditionService.FormatDisplayVersion("0.9", ReleaseEdition.Demo), "demo editions should append the d suffix");
+        AssertEqual("0.9e", ReleaseEditionService.FormatDisplayVersion("0.9", ReleaseEdition.Export), "export editions should append the e suffix");
+
+        WithTemporaryReleaseChannel(
+            "demo",
+            () => AssertEqual("0.9d", UserFacingVersionHelper.GetDisplayVersion(), "demo release channel should display the d suffix"));
+        WithTemporaryReleaseChannel(
+            "export",
+            () => AssertEqual("0.9e", UserFacingVersionHelper.GetDisplayVersion(), "export release channel should display the e suffix"));
+    }
+
+    /// <summary>
     /// Verifies the system viewer uses the shared viewer menu standard and options dialog.
     /// </summary>
     private static void TestSystemViewerMenuMatchesGalaxyViewerStandard()
@@ -503,6 +524,11 @@ public static partial class DotNetNativeTestSuite
             AssertEqual("Tools", ((Button)menuRow.GetChild(1)).Text, "system viewer second menu should be Tools");
             AssertEqual("Options", ((Button)menuRow.GetChild(2)).Text, "system viewer third menu should be Options");
             AssertEqual("Help", ((Button)menuRow.GetChild(3)).Text, "system viewer fourth menu should be Help");
+            MenuButton? fileMenuButton = menuRow.GetChild(0) as MenuButton;
+            AssertNotNull(fileMenuButton, "system viewer file menu should be a MenuButton");
+            PopupMenu filePopup = fileMenuButton!.GetPopup();
+            AssertFalse(PopupHasItem(filePopup, "Save Current System..."), "demo edition should not expose the system save action");
+            AssertFalse(PopupHasItem(filePopup, "Load System..."), "demo edition should not expose the system load action");
 
             Node? generationSection = viewer.GetNodeOrNull<Node>("UI/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/GenerationSection");
             Node? saveLoadSection = viewer.GetNodeOrNull<Node>("UI/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/SaveLoadSection");
@@ -595,8 +621,14 @@ public static partial class DotNetNativeTestSuite
             AssertEqual("Tools", ((Button)menuRow.GetChild(1)).Text, "object viewer second menu should be Tools");
             AssertEqual("Options", ((Button)menuRow.GetChild(2)).Text, "object viewer third menu should be Options");
             AssertEqual("Help", ((Button)menuRow.GetChild(3)).Text, "object viewer fourth menu should be Help");
+            MenuButton? fileMenuButton = menuRow.GetChild(0) as MenuButton;
+            AssertNotNull(fileMenuButton, "object viewer file menu should be a MenuButton");
+            PopupMenu filePopup = fileMenuButton!.GetPopup();
+            AssertFalse(PopupHasItem(filePopup, "Save Current Object..."), "demo edition should not expose the object save action");
+            AssertFalse(PopupHasItem(filePopup, "Load Object..."), "demo edition should not expose the object load action");
 
             Node? generationSection = viewer.GetNodeOrNull<Node>("UI/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/GenerationSection");
+            Control? fileSection = viewer.GetNodeOrNull<Control>("UI/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/FileSection");
             VBoxContainer? sidePanelVBox = viewer.GetNodeOrNull<VBoxContainer>("UI/SidePanel/MarginContainer/ScrollContainer/VBoxContainer");
             VBoxContainer? inspectorContainer = viewer.GetNodeOrNull<VBoxContainer>("UI/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/InspectorPanel/InspectorContainer");
             Control? bodySection = viewer.GetNodeOrNull<Control>("UI/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/InspectorPanel/InspectorContainer/BodySection");
@@ -614,6 +646,8 @@ public static partial class DotNetNativeTestSuite
 
             AssertNotNull(optionsDialog, "object viewer should expose an options dialog");
             AssertTrue(generationSection == null, "object viewer should not embed the old generator panel in the active scene");
+            AssertNotNull(fileSection, "object viewer should keep the file section in the scene for edition-gated use");
+            AssertFalse(fileSection!.Visible, "demo edition should keep the object file section hidden");
             AssertNotNull(sidePanelVBox, "object viewer should expose the side-panel container from the scene");
             AssertTrue(sidePanelVBox!.GetScript().VariantType == Variant.Type.Nil, "object viewer side-panel container should not carry the inspector script");
             AssertNotNull(inspectorContainer, "object viewer should expose the scene-owned inspector container");
@@ -670,6 +704,94 @@ public static partial class DotNetNativeTestSuite
     }
 
     /// <summary>
+    /// Verifies the viewer persistence affordances appear only in the export edition.
+    /// </summary>
+    private static void TestViewerPersistenceAffordancesFollowReleaseEdition()
+    {
+        WithTemporaryReleaseChannel(
+            "export",
+            () =>
+            {
+                PackedScene? systemScene = ResourceLoader.Load<PackedScene>("res://src/app/system_viewer/SystemViewer.tscn");
+                AssertNotNull(systemScene, "system viewer scene should load for export-edition testing");
+                SystemViewer? systemViewer = systemScene!.Instantiate() as SystemViewer;
+                AssertNotNull(systemViewer, "system viewer scene should instantiate for export-edition testing");
+
+                PackedScene? objectScene = ResourceLoader.Load<PackedScene>("res://src/app/viewer/ObjectViewer.tscn");
+                AssertNotNull(objectScene, "object viewer scene should load for export-edition testing");
+                ObjectViewer? objectViewer = objectScene!.Instantiate() as ObjectViewer;
+                AssertNotNull(objectViewer, "object viewer scene should instantiate for export-edition testing");
+
+                try
+                {
+                    systemViewer!._Ready();
+                    objectViewer!._Ready();
+
+                    MenuButton? systemFileMenuButton = systemViewer.GetNodeOrNull<MenuButton>("UI/TopBar/MarginContainer/TopBarVBox/MenuRow/FileMenuButton");
+                    AssertNotNull(systemFileMenuButton, "system viewer should expose the file menu in export edition");
+                    PopupMenu systemPopup = systemFileMenuButton!.GetPopup();
+                    AssertTrue(PopupHasItem(systemPopup, "Save Current System..."), "export edition should expose the system save action");
+                    AssertTrue(PopupHasItem(systemPopup, "Load System..."), "export edition should expose the system load action");
+
+                    MenuButton? objectFileMenuButton = objectViewer.GetNodeOrNull<MenuButton>("UI/TopBar/MarginContainer/TopBarVBox/MenuRow/FileMenuButton");
+                    AssertNotNull(objectFileMenuButton, "object viewer should expose the file menu in export edition");
+                    PopupMenu objectPopup = objectFileMenuButton!.GetPopup();
+                    AssertTrue(PopupHasItem(objectPopup, "Save Current Object..."), "export edition should expose the object save action");
+                    AssertTrue(PopupHasItem(objectPopup, "Load Object..."), "export edition should expose the object load action");
+
+                    Control? fileSection = objectViewer.GetNodeOrNull<Control>("UI/SidePanel/MarginContainer/ScrollContainer/VBoxContainer/FileSection");
+                    AssertNotNull(fileSection, "object viewer should keep the file section in the scene");
+                    AssertTrue(fileSection!.Visible, "export edition should show the object file section");
+                }
+                finally
+                {
+                    systemViewer?.QueueFree();
+                    objectViewer?.QueueFree();
+                }
+            });
+    }
+
+    /// <summary>
+    /// Verifies the direct save/load helpers fail loudly in the public demo edition.
+    /// </summary>
+    private static void TestSaveLoadHelpersRejectDemoEdition()
+    {
+        WithTemporaryReleaseChannel(
+            "demo",
+            () =>
+            {
+                SolarSystem system = CreateFixtureSaveableSystem();
+                SystemViewerSaveLoad systemSaveLoad = new();
+                MockSystemViewerNode viewerHost = new(system);
+                Error saveError = systemSaveLoad.SaveToPath(viewerHost, "user://demo_blocked_system.sgs");
+                AssertEqual(Error.Failed, saveError, "demo edition should reject direct system saves");
+
+                SystemPersistenceLoadResult systemLoadResult = systemSaveLoad.LoadFromPath("user://demo_blocked_system.sgs");
+                AssertFalse(systemLoadResult.Success, "demo edition should reject direct system loads");
+                AssertEqual(ReleaseEditionService.GetPersistenceDisabledMessage(), systemLoadResult.ErrorMessage, "demo edition should surface the persistence-disabled message for systems");
+
+                PackedScene? objectScene = ResourceLoader.Load<PackedScene>("res://src/app/viewer/ObjectViewer.tscn");
+                AssertNotNull(objectScene, "object viewer scene should load for save-load gating tests");
+                ObjectViewer? objectViewer = objectScene!.Instantiate() as ObjectViewer;
+                AssertNotNull(objectViewer, "object viewer scene should instantiate for save-load gating tests");
+                try
+                {
+                    objectViewer!._Ready();
+                    Error objectSaveError = objectViewer.SaveCurrentBodyToPath("user://demo_blocked_object.sgp");
+                    AssertEqual(Error.Failed, objectSaveError, "demo edition should reject direct object saves");
+
+                    SaveDataLoadResult objectLoadResult = objectViewer.LoadBodyFromPath("user://demo_blocked_object.sgp");
+                    AssertFalse(objectLoadResult.Success, "demo edition should reject direct object loads");
+                    AssertEqual(ReleaseEditionService.GetPersistenceDisabledMessage(), objectLoadResult.ErrorMessage, "demo edition should surface the persistence-disabled message for objects");
+                }
+                finally
+                {
+                    objectViewer?.QueueFree();
+                }
+            });
+    }
+
+    /// <summary>
     /// Verifies realism-profile slider mapping and preset constructors.
     /// </summary>
     private static void TestGenerationRealismProfileSliderAndPresets()
@@ -685,5 +807,50 @@ public static partial class DotNetNativeTestSuite
         AssertFloatNear(0.0, GenerationRealismProfile.Stylized().RealismSlider, 1.0e-9, "stylized preset should pin the slider to 0");
         AssertFloatNear(0.5, GenerationRealismProfile.Balanced().RealismSlider, 1.0e-9, "balanced preset should pin the slider to 0.5");
         AssertFloatNear(1.0, GenerationRealismProfile.Calibrated().RealismSlider, 1.0e-9, "calibrated preset should pin the slider to 1");
+    }
+
+    /// <summary>
+    /// Temporarily applies a release channel for runtime edition-sensitive tests.
+    /// </summary>
+    private static void WithTemporaryReleaseChannel(string releaseChannel, System.Action action)
+    {
+        const string ReleaseChannelSettingPath = "application/config/release_channel";
+        Variant originalValue = ProjectSettings.GetSetting(ReleaseChannelSettingPath, Variant.From("demo"));
+        try
+        {
+            ProjectSettings.SetSetting(ReleaseChannelSettingPath, releaseChannel);
+            action();
+        }
+        finally
+        {
+            ProjectSettings.SetSetting(ReleaseChannelSettingPath, originalValue);
+        }
+    }
+
+    /// <summary>
+    /// Returns whether the popup currently exposes an item with the supplied text.
+    /// </summary>
+    private static bool PopupHasItem(PopupMenu popup, string itemText)
+    {
+        for (int index = 0; index < popup.ItemCount; index += 1)
+        {
+            if (popup.GetItemText(index) == itemText)
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /// <summary>
+    /// Creates a simple generated system suitable for persistence-helper tests.
+    /// </summary>
+    private static SolarSystem CreateFixtureSaveableSystem()
+    {
+        SolarSystemSpec spec = new(12345, 1, 1);
+        SolarSystem? system = SystemFixtureGenerator.GenerateSystem(spec);
+        AssertNotNull(system, "fixture saveable system should generate for persistence tests");
+        return system!;
     }
 }

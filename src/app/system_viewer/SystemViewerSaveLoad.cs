@@ -1,5 +1,6 @@
 using System.IO;
 using Godot;
+using StarGen.App.Shared;
 using StarGen.Domain.Systems;
 using StarGen.Services.Persistence;
 
@@ -46,6 +47,11 @@ public partial class SystemViewerSaveLoad : RefCounted
     /// </summary>
     public void OnSavePressed(SystemViewer viewer)
     {
+        if (!EnsurePersistenceAvailable(viewer))
+        {
+            return;
+        }
+
         SolarSystem? currentSystem = viewer.GetCurrentSystem();
         if (currentSystem == null)
         {
@@ -82,6 +88,11 @@ public partial class SystemViewerSaveLoad : RefCounted
     /// </summary>
     public void OnLoadPressed(SystemViewer viewer)
     {
+        if (!EnsurePersistenceAvailable(viewer))
+        {
+            return;
+        }
+
         FileDialog dialog = new()
         {
             FileMode = FileDialog.FileModeEnum.OpenFile,
@@ -100,6 +111,11 @@ public partial class SystemViewerSaveLoad : RefCounted
     /// </summary>
     public void OnSaveFileSelected(SystemViewer viewer, string path)
     {
+        if (!EnsurePersistenceAvailable(viewer))
+        {
+            return;
+        }
+
         SolarSystem? currentSystem = viewer.GetCurrentSystem();
         if (currentSystem == null)
         {
@@ -126,6 +142,11 @@ public partial class SystemViewerSaveLoad : RefCounted
     /// </summary>
     public void OnLoadFileSelected(SystemViewer viewer, string path)
     {
+        if (!EnsurePersistenceAvailable(viewer))
+        {
+            return;
+        }
+
         SystemPersistenceLoadResult result = SystemPersistence.Load(path);
         if (!result.Success)
         {
@@ -153,6 +174,11 @@ public partial class SystemViewerSaveLoad : RefCounted
     /// </summary>
     public Error SaveToPath(ISystemViewerSaveLoadHost viewer, string path, bool compress = true)
     {
+        if (!ReleaseEditionService.CanUseSaveLoad())
+        {
+            return Error.Failed;
+        }
+
         SolarSystem? currentSystem = viewer.GetCurrentSystem();
         if (currentSystem == null)
         {
@@ -167,7 +193,31 @@ public partial class SystemViewerSaveLoad : RefCounted
     /// </summary>
     public SystemPersistenceLoadResult LoadFromPath(string path)
     {
+        if (!ReleaseEditionService.CanUseSaveLoad())
+        {
+            return CreateDisabledLoadResult();
+        }
+
         return SystemPersistence.Load(path);
+    }
+
+    private static bool EnsurePersistenceAvailable(ISystemViewerSaveLoadHost viewer)
+    {
+        if (ReleaseEditionService.CanUseSaveLoad())
+        {
+            return true;
+        }
+
+        viewer.SetError(ReleaseEditionService.GetPersistenceDisabledMessage());
+        return false;
+    }
+
+    private static SystemPersistenceLoadResult CreateDisabledLoadResult()
+    {
+        SystemPersistenceLoadResult result = new();
+        result.Success = false;
+        result.ErrorMessage = ReleaseEditionService.GetPersistenceDisabledMessage();
+        return result;
     }
 
     /// <summary>

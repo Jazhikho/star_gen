@@ -1,4 +1,5 @@
 using Godot;
+using StarGen.App.Shared;
 
 namespace StarGen.App.SystemViewer;
 
@@ -8,8 +9,10 @@ namespace StarGen.App.SystemViewer;
 public partial class SystemViewer
 {
 	private const int FileMenuNewSystemId = 1;
-	private const int FileMenuMainMenuId = 2;
-	private const int FileMenuReturnId = 3;
+	private const int FileMenuSaveSystemId = 2;
+	private const int FileMenuLoadSystemId = 3;
+	private const int FileMenuMainMenuId = 4;
+	private const int FileMenuReturnId = 5;
 	private const int ToolsMenuShowOrbitsId = 20;
 	private const int ToolsMenuFocusOriginId = 22;
     private const int HelpMenuControlsId = 40;
@@ -83,6 +86,15 @@ public partial class SystemViewer
     {
         popup.Clear();
         popup.AddItem("New System...", FileMenuNewSystemId);
+        if (ReleaseEditionService.CanUseSaveLoad())
+        {
+            popup.AddSeparator();
+            popup.AddItem("Save Current System...", FileMenuSaveSystemId);
+            popup.SetItemDisabled(popup.ItemCount - 1, _currentSystem == null);
+            popup.AddItem("Load System...", FileMenuLoadSystemId);
+        }
+
+        popup.AddSeparator();
         popup.AddItem("Return to Main Menu", FileMenuMainMenuId);
         if (_backNavigationVisible)
         {
@@ -111,6 +123,18 @@ public partial class SystemViewer
         if (id == FileMenuMainMenuId)
         {
             EmitSignal(SignalName.MainMenuRequested);
+            return;
+        }
+
+        if (id == FileMenuSaveSystemId)
+        {
+            _saveLoad.OnSavePressed(this);
+            return;
+        }
+
+        if (id == FileMenuLoadSystemId)
+        {
+            _saveLoad.OnLoadPressed(this);
             return;
         }
 

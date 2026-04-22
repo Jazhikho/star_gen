@@ -1,5 +1,6 @@
 using Godot;
 using Godot.Collections;
+using StarGen.App.Shared;
 using StarGen.Domain.Celestial;
 using StarGen.Domain.Generation;
 
@@ -55,22 +56,27 @@ public partial class ObjectViewer
 
     private void SetFileControlState(bool saveEnabled, bool loadEnabled)
     {
+        bool persistenceEnabled = ReleaseEditionService.CanUseSaveLoad();
         if (_fileSection != null)
         {
-            _fileSection.Visible = false;
+            _fileSection.Visible = persistenceEnabled;
         }
 
         if (_saveButton != null)
         {
-            _saveButton.Disabled = !saveEnabled;
+            _saveButton.Disabled = !persistenceEnabled || !saveEnabled;
         }
 
         if (_loadButton != null)
         {
-            _loadButton.Disabled = !loadEnabled;
+            _loadButton.Disabled = !persistenceEnabled || !loadEnabled;
         }
 
-        if (_fileInfo != null && !saveEnabled)
+        if (_fileInfo != null && !persistenceEnabled)
+        {
+            _fileInfo.Text = ReleaseEditionService.GetPersistenceDisabledMessage();
+        }
+        else if (_fileInfo != null && !saveEnabled)
         {
             _fileInfo.Text = "No object selected";
         }

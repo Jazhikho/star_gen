@@ -15,12 +15,12 @@ compatibility/default_parent_skeleton_in_mesh_instance_3d=true
 [application]
 
 config/name="StarGen"
-config/version="0.9.0.0"
+config/version="0.9.1.0"
 run/main_scene="res://src/app/MainApp.tscn"
 config/features=PackedStringArray("4.6", "C#", "Forward Plus")
 config/icon="res://StarGen.png"
 config/user_facing_version="0.9"
-config/release_channel="release"
+config/release_channel="demo"
 
 [debug]
 

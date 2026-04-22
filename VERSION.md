@@ -1,12 +1,19 @@
 # Version
 
-Current version: `0.9.0.0`
+Current version: `0.9.1.0`
 
-Current user-facing version: `0.9`
+Current user-facing version: `0.9d` by default, `0.9e` for the export/save-enabled edition
 
 Date: `2026-04-22`
 
 Versioning method: release/refactor `+0.1`, feature `+0.0.1`, bug fix `+0.0.0.1`, save-breaking release `+1.0`.
+
+## 0.9.1.0
+
+- Feature: Added a shared `ReleaseEditionService` so the shipped build resolves into the public `0.9d` demo edition or the export/save-enabled `0.9e` edition from explicit build metadata instead of scattered viewer checks.
+- Feature: System Viewer and Object Viewer now gate save/load affordances and direct persistence helpers through the active edition, keeping the public `0.9d` path non-persistable while restoring save/load in `0.9e`.
+- Feature: Main-menu release notes, user-facing version labels, and the Windows release helper now derive their edition suffixes from the same runtime channel so `0.9d` and `0.9e` builds stay aligned across UI, packaging, and artifact folders.
+- Test: Added native regressions for release-edition formatting, viewer persistence affordances, and direct helper rejection in the demo edition; verified with `dotnet build StarGen.sln` and `godot-mono.exe --path . --headless --script res://Tests/RunTestsHeadless.gd` (`1859 / 1859`).
 
 ## 0.9.0.0
 

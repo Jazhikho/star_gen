@@ -9,7 +9,7 @@ public static class UserFacingVersionHelper
 {
     private const string InternalVersionSettingPath = "application/config/version";
     private const string UserFacingVersionSettingPath = "application/config/user_facing_version";
-    private const string DefaultInternalVersion = "0.9.0.0";
+    private const string DefaultInternalVersion = "0.9.1.0";
     private const string DefaultUserFacingVersion = "0.9";
 
     /// <summary>
@@ -17,14 +17,16 @@ public static class UserFacingVersionHelper
     /// </summary>
     public static string GetDisplayVersion()
     {
-        string version = DefaultInternalVersion;
+        string baseVersion = DefaultInternalVersion;
         Variant userFacingVersionValue = ProjectSettings.GetSetting(UserFacingVersionSettingPath, Variant.From(DefaultUserFacingVersion));
         if (userFacingVersionValue.VariantType == Variant.Type.String)
         {
             string configuredUserFacingVersion = userFacingVersionValue.AsString();
             if (!string.IsNullOrWhiteSpace(configuredUserFacingVersion))
             {
-                return configuredUserFacingVersion;
+                return ReleaseEditionService.FormatDisplayVersion(
+                    configuredUserFacingVersion,
+                    ReleaseEditionService.GetCurrentEdition());
             }
         }
 
@@ -34,10 +36,12 @@ public static class UserFacingVersionHelper
             string internalVersion = internalVersionValue.AsString();
             if (!string.IsNullOrWhiteSpace(internalVersion))
             {
-                version = internalVersion;
+                baseVersion = internalVersion;
             }
         }
 
-        return version;
+        return ReleaseEditionService.FormatDisplayVersion(
+            baseVersion,
+            ReleaseEditionService.GetCurrentEdition());
     }
 }

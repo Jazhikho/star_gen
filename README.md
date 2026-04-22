@@ -12,7 +12,7 @@ It is aimed at science-fiction worldbuilding, setting design, and procedural exp
 
 ## Current Status
 
-StarGen `0.9` is the current release baseline.
+StarGen `0.9d` is the default public-build baseline, and `0.9e` is the export/save edition.
 
 - The galaxy, system, and object studios are the main supported entry points.
 - The station studio now uses the production station-generation flow rather than a placeholder shell.
@@ -28,10 +28,11 @@ StarGen `0.9` is the current release baseline.
 - Galaxy Viewer now exposes `Tools` and `Options` in the top bar, supports explicit `Build Local Space` caching around the current local view, and keeps jump-route work dependent on that cached nearby-system profile instead of silently rebuilding hidden data.
 - Galaxy Viewer overview coordinates now report `Quadrant`, `Sector`, and `Local`, while selected systems add their hierarchical coordinates in `System Preview`.
 - Planet, moon, small-body, and biology generation now respond more directly to the upstream planetary state: hot worlds are more sensitive to envelope loss, volatile delivery changes wet vs dry outcomes, moon families react to host class and snow-line context, outer belts shift with primitive icy reservoir strength, and biosphere support now considers stellar flux, habitable-zone alignment, XUV exposure, and tidal heating.
-- Mainline is generation-and-view focused; save/load/export flows are reserved for the export branch.
+- The public `0.9d` build is generation-and-view focused.
+- The export-enabled `0.9e` build restores save/load flows for paid distribution.
 - Mainline no longer ships the Concept Atlas path. `Concepts/Additions.md` remains the StarGen prototype backlog for future work that stays in scope.
 
-The current released version is `0.9` / `0.9.0.0`. Detailed version history and patch notes live in [VERSION.md](VERSION.md).
+The current release target is `0.9.0.0`, with user-facing editions `0.9d` and `0.9e`. Detailed version history and patch notes live in [VERSION.md](VERSION.md).
 
 ## Running StarGen
 
@@ -53,7 +54,9 @@ For release exports and itch-ready packaging on Windows, use:
 powershell -ExecutionPolicy Bypass -File .\scripts\CreateReleaseBuild.ps1 -GodotExe "C:\Path\To\Godot_v4.6-stable_mono_win64_console.exe"
 ```
 
-That helper runs `dotnet build`, runs the headless harness by default, exports the configured release presets, writes artifacts under `release/<internal-version>/`, and prints suggested itch `butler` commands.
+To cut the export-enabled edition instead of the default demo edition, pass `-Edition export`.
+
+That helper runs `dotnet build`, runs the headless harness by default, temporarily stamps the requested edition channel, exports the configured release presets, writes artifacts under `release/<internal-version>/<display-version>/`, and prints suggested itch `butler` commands.
 
 ## Testing
 

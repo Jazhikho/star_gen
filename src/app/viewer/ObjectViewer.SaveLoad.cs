@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.IO;
 using Godot;
+using StarGen.App.Shared;
 using StarGen.Domain.Celestial;
 using StarGen.Domain.Celestial.Components;
 using StarGen.Domain.Generation;
@@ -146,6 +147,11 @@ public partial class ObjectViewer
 
     private void OnSavePressed()
     {
+        if (!EnsurePersistenceAvailable())
+        {
+            return;
+        }
+
         CelestialBody? targetBody = GetCurrentSaveTargetBody();
         if (targetBody == null)
         {
@@ -166,6 +172,11 @@ public partial class ObjectViewer
 
     private void OnLoadPressed()
     {
+        if (!EnsurePersistenceAvailable())
+        {
+            return;
+        }
+
         if (_loadFileDialog == null)
         {
             SetStatus("Load dialog is unavailable");
@@ -178,6 +189,11 @@ public partial class ObjectViewer
 
     private void OnSaveFileSelected(string path)
     {
+        if (!EnsurePersistenceAvailable())
+        {
+            return;
+        }
+
         CelestialBody? targetBody = GetCurrentSaveTargetBody();
         if (targetBody == null)
         {
@@ -203,6 +219,11 @@ public partial class ObjectViewer
 
     private void OnLoadFileSelected(string path)
     {
+        if (!EnsurePersistenceAvailable())
+        {
+            return;
+        }
+
         SaveDataLoadResult result = SaveData.LoadBody(path);
         if (!result.Success)
         {
@@ -235,6 +256,11 @@ public partial class ObjectViewer
 
     public Error SaveCurrentBodyToPath(string path)
     {
+        if (!ReleaseEditionService.CanUseSaveLoad())
+        {
+            return Error.Failed;
+        }
+
         CelestialBody? targetBody = GetCurrentSaveTargetBody();
         if (targetBody == null)
         {
@@ -248,6 +274,11 @@ public partial class ObjectViewer
 
     public SaveDataLoadResult LoadBodyFromPath(string path)
     {
+        if (!ReleaseEditionService.CanUseSaveLoad())
+        {
+            return SaveDataLoadResult.CreateError(ReleaseEditionService.GetPersistenceDisabledMessage());
+        }
+
         SaveDataLoadResult result = SaveData.LoadBody(path);
         if (result.Success && result.Body != null)
         {
@@ -259,6 +290,17 @@ public partial class ObjectViewer
         }
 
         return result;
+    }
+
+    private bool EnsurePersistenceAvailable()
+    {
+        if (ReleaseEditionService.CanUseSaveLoad())
+        {
+            return true;
+        }
+
+        SetStatus(ReleaseEditionService.GetPersistenceDisabledMessage());
+        return false;
     }
 
     private CelestialBody? GetCurrentSaveTargetBody()

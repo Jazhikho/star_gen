@@ -1,4 +1,6 @@
 using Godot;
+using StarGen.App.Shared;
+using StarGen.Domain.Celestial;
 
 namespace StarGen.App.Viewer;
 
@@ -8,8 +10,10 @@ namespace StarGen.App.Viewer;
 public partial class ObjectViewer
 {
 	private const int FileMenuNewObjectId = 1;
-	private const int FileMenuMainMenuId = 2;
-	private const int FileMenuReturnId = 3;
+	private const int FileMenuSaveObjectId = 2;
+	private const int FileMenuLoadObjectId = 3;
+	private const int FileMenuMainMenuId = 4;
+	private const int FileMenuReturnId = 5;
 	private const int ToolsMenuGenerateId = 10;
 	private const int ToolsMenuRerollId = 11;
 	private const int ToolsMenuEditBodyId = 12;
@@ -86,6 +90,16 @@ public partial class ObjectViewer
 	{
 		popup.Clear();
 		popup.AddItem("New Object...", FileMenuNewObjectId);
+		if (ReleaseEditionService.CanUseSaveLoad())
+		{
+			CelestialBody? targetBody = GetCurrentTargetBody();
+			popup.AddSeparator();
+			popup.AddItem("Save Current Object...", FileMenuSaveObjectId);
+			popup.SetItemDisabled(popup.ItemCount - 1, targetBody == null);
+			popup.AddItem("Load Object...", FileMenuLoadObjectId);
+		}
+
+		popup.AddSeparator();
 		popup.AddItem("Return to Main Menu", FileMenuMainMenuId);
 		if (_backNavigationVisible)
 		{
@@ -129,6 +143,18 @@ public partial class ObjectViewer
 		if (id == FileMenuNewObjectId)
 		{
 			EmitSignal(SignalName.NewObjectRequested);
+			return;
+		}
+
+		if (id == FileMenuSaveObjectId)
+		{
+			OnSavePressed();
+			return;
+		}
+
+		if (id == FileMenuLoadObjectId)
+		{
+			OnLoadPressed();
 			return;
 		}
 

@@ -108,15 +108,15 @@ Release notes and version summaries are in the [README](../README.md#version-his
 - Concept systems designated for MythicWorldGen are removed from StarGen scope and tracked as moved in `Concepts/Additions.md`.
 - The StarGen release line should avoid carrying deep concept/simulation systems targeted for MythicWorldGen.
 
-### Branch strategy and persistence split
+### Edition strategy and persistence split
 
-- A dedicated export branch will contain save/load/export conditions for generated objects intended for MythicWorldGen import.
-- This export branch is not part of the standard StarGen release build.
-- Main branch retains generation capabilities only; save, load, and export functionality is removed from mainline.
-- In mainline builds, user modifications are not persistable.
+- The standard public build is `0.9d`, which keeps generation and viewing available but leaves save/load/export disabled.
+- The export-enabled paid build is `0.9e`, which restores the persistence flows needed for authoring and downstream artifact handling.
+- Both editions should come from the same codebase and differ through explicit build-channel capability gating rather than hidden buttons alone.
+- In `0.9d`, user modifications are intentionally non-persistable.
 
 ### Version tag policy for this split
 
-- Main branch versions append the suffix `d`.
-- Export branch versions append the suffix `e`.
-- Keep suffixes, docs, and user-facing version labels synchronized with each branch's actual capabilities.
+- Public/demo builds append the suffix `d`.
+- Export/save-enabled builds append the suffix `e`.
+- Keep suffixes, docs, release tooling, and user-facing version labels synchronized with each build's actual capabilities.
