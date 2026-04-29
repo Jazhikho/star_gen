@@ -1,0 +1,189 @@
+# TanakaTakeuchiWard2002
+
+## Source metadata
+- File: `TanakaTakeuchiWard2002.pdf`
+- Domain: planet formation / disk-planet interaction / Type I migration
+- Pages: ~18
+- Authors: Tanaka, H., Takeuchi, T., & Ward, W. R.
+- Source ID in StarGen code: `tanaka2002`
+- **PDF acquisition:** ApJ 565, 1257 (2002). DOI: 10.1086/324713
+  ADS: https://ui.adsabs.harvard.edu/abs/2002ApJ...565.1257T
+  arXiv: astro-ph/0111048 — https://arxiv.org/abs/astro-ph/0111048
+  **PDF confirmed present in Sources/Texts/.**
+
+## Abstract
+Gravitational interaction between a planet and a three-dimensional isothermal gaseous
+disk is studied. In the present paper we mainly examine the torque on a planet and the
+resultant radial migration of the planet. A planet excites density waves at Lindblad and
+corotation resonances and experiences a negative torque by the density waves, which
+causes a rapid inward migration of the planet during its formation in a protoplanetary
+disk. We formulate the linear wave excitation in three-dimensional isothermal disks and
+calculate the torques of Lindblad resonances and corotation resonances. For corotation
+resonances, a general torque formula is newly derived. The net torque of the inner and
+outer Lindblad resonances (the differential Lindblad torque) is caused by asymmetry such
+as the radial pressure gradient and the scale height variation. In three-dimensional
+disks, the differential Lindblad torques are generally smaller than in two-dimensional
+disks. As a result, the migration time of a planet is of the order of 10⁶ yr for an
+Earth-size planet at 5 AU for a typical disk model, which is longer than the 2D result
+by a factor of 2 or 3.
+
+## Major claims, findings, models, assumptions, and limitations
+- **Canonical Type I migration timescale:** τ_mig ~ 10⁶ yr for a 1 M_Earth planet at 5 AU
+  in a typical disk model (surface density Σ ~ 10² g/cm² at 1 AU, h/r ~ 0.05)
+- **3D correction factor:** The 3D torque calculation gives migration times 2–3× *longer*
+  than the earlier 2D formula of Ward (1997) / Goldreich & Tremaine (1980). This is the
+  canonical 3D Tanaka formula.
+- **TTW torque formula (the key result):**
+  τ_mig = (M_star / M_planet) × (M_star / Σ_g a²) × (h/a)² × Ω⁻¹ × C
+  where C is a numerical coefficient from the 3D torque calculation (~2.7 for typical
+  disk profiles; varies with surface density gradient α and flaring index β)
+- **Total torque = Lindblad torque + corotation torque.** For isothermal disks the
+  corotation torque is partially saturated; in the isothermal limit the net migration
+  is dominated by the Lindblad torque and is always inward for typical disk profiles.
+- **Mass scaling:** τ_mig ∝ M_planet⁻¹. A 10 M_Earth super-Earth migrates 10× faster
+  than an Earth-mass planet. This makes Type I migration particularly dangerous for
+  super-Earths forming beyond ~1 AU.
+- **Disk mass scaling:** τ_mig ∝ Σ_g⁻¹. Heavier disks produce faster migration.
+  Migration stalls or reverses if the disk is depleted (photoevaporation, gap opening).
+- **Disk geometry:** Migration rate depends on the local disk aspect ratio h/r:
+  τ_mig ∝ (h/r)². Hotter (flared) disks give slower migration.
+- **Limitation (critical):** The paper assumes an *isothermal* disk. In reality,
+  non-isothermal (radiative) disks produce a substantially different corotation torque
+  that can be positive (outward) — this is the core correction by Paardekooper et al.
+  (2011) and Jiménez & Masset (2017). The isothermal TTW formula systematically
+  overestimates inward migration rate in radiative disks.
+- **Limitation:** Linear theory applies for M_planet < M_gap (gap-opening mass). Beyond
+  this mass, the planet opens a gap and enters Type II migration (slower, locked to
+  viscous disk evolution). Gap-opening mass ~ (h/r)³ × M_star / 3 ~ 10–100 M_Earth
+  for typical conditions.
+- **Limitation:** This is a single-planet calculation; multi-planet resonant trapping
+  (e.g., mean-motion resonances) can halt or significantly modify migration chains.
+
+## StarGen applicability
+Canonical reference for Type I migration timescales in planet formation. Motivates the
+architecture of compact inner-planet systems in StarGen: rocky planets at short orbital
+periods most likely formed beyond the ice line and migrated inward during the gas disk
+phase. The TTW formula sets the characteristic migration timescale for the initial
+condition generator.
+
+In StarGen, Type I migration is not simulated in real time (initial conditions only),
+but the TTW timescale determines:
+1. Whether a rocky planet at a given location plausibly migrated from beyond the ice line
+2. The probability that small planets at <0.5 AU represent migrated super-Earths vs
+   in-situ formation (which requires a high-density inner disk — see Raymond et al. 2018)
+3. Architecture biases toward compact multi-planet systems (peas-in-a-pod) as post-
+   migration outcomes
+
+## Parameters, constraints, and mechanics implications
+
+**TTW migration timescale formula (implementable):**
+```
+τ_mig (yr) ≈ 1.6 × 10⁶ × (M_star / M_sun)
+                         × (M_planet / M_Earth)⁻¹
+                         × (Σ_g(a) / 1700 g/cm²)⁻¹   [MMSN at 1 AU]
+                         × (h/r / 0.05)²
+                         × (a / 1 AU)^(α + β - 0.5)
+where α = surface density slope, β = temperature slope (MMSN: α=1.5, β=0.5)
+```
+Simplified for code: τ_mig ~ 10⁶ yr × (M_planet / M_Earth)⁻¹ at 5 AU in a MMSN disk.
+
+**Migration gate for rocky planets (<0.5 AU):**
+- If τ_mig < disk_lifetime (~3 Myr): planet has likely migrated significantly
+- If τ_mig > disk_lifetime: planet is roughly in-situ
+- For M_planet = 1 M_Earth: τ_mig at 1 AU ~ 3×10⁵ yr → migrated
+- For M_planet = 0.1 M_Earth (Moon mass): τ_mig ~ 3×10⁶ yr → marginally in-situ
+
+**Gap-opening mass (transition to Type II):**
+- M_gap ~ 3 × (h/r)³ × M_star ~ 15–50 M_Earth for h/r = 0.03–0.05
+- Planets above M_gap are treated as Type II migrators (slower)
+
+**Non-isothermal correction (critical update):**
+Use Paardekooper et al. (2011) entropy-driven corotation torque for realistic disks.
+In a disk with an outward temperature gradient (normal), the corotation torque is
+positive and can halt or reverse migration for planets in the ~1–20 M_Earth range.
+This is the primary reason the Tanaka formula alone should NOT be used for super-Earth
+migration in radiative disk models.
+
+## APA citation
+Tanaka, H., Takeuchi, T., & Ward, W. R. (2002). Three-dimensional interaction between
+a planet and an isothermal gaseous disk. I. Corotation and Lindblad torques and planet
+migration. The Astrophysical Journal, 565(2), 1257–1274.
+https://doi.org/10.1086/324713
+
+## Conflicts and follow-up work
+
+**Critical update (non-isothermal corotation):**
+- Paardekooper, S.-J., Baruteau, C., Crida, A., & Kley, W. (2010) MNRAS 401, 1950 —
+  first full 3D non-isothermal migration study. Corotation torques can reverse migration.
+  arXiv:0909.2255.
+- Paardekooper, S.-J., Baruteau, C., & Kley, W. (2011) MNRAS 410, 293 —
+  "A torque formula for non-isothermal Type I planetary migration." arXiv:1007.4964.
+  **This is the modern replacement for the corotation component of the TTW formula.**
+  The Lindblad torque in TTW remains the standard; only the corotation term needs update.
+
+**Modern reviews and simulation context:**
+- Baruteau, C., et al. (2014) "Planet-Disk Interactions and Early Evolution of Planetary
+  Systems." Protostars and Planets VI, pp. 667–689. arXiv:1312.4293. Comprehensive review
+  of Type I and II migration, including the corotation torque debate.
+- Izidoro, A., et al. (2017) MNRAS 470, 1750 — migration chains and resonant trapping
+  of super-Earths; shows how the peas-in-a-pod architecture arises from coupled migration.
+  arXiv:1703.03634. If IzidoroEtAl2017.txt is in corpus, cross-reference.
+
+**Competing in-situ formation models:**
+- Raymond, S. N., & Cossou, C. (2014) MNRAS 440, L11 — argues that most short-period
+  super-Earths formed in-situ from a dense inner disk, not by migration. Competing
+  interpretation for the same observed architecture.
+- Chiang, E., & Laughlin, G. (2013) MNRAS 431, 3444 — detailed in-situ model.
+  arXiv:1211.1673.
+
+**TTW formula still the standard Lindblad torque reference:**
+As of 2024, the Tanaka et al. (2002) 3D Lindblad torque formula remains the canonical
+reference for the Lindblad component. The corotation torque should be updated per
+Paardekooper et al. (2011) for any radiative/non-isothermal disk model.
+
+**Citation discovery:**
+- ADS: https://ui.adsabs.harvard.edu/abs/2002ApJ...565.1257T
+
+## StarGen mechanics translation
+
+### Type I migration awareness in initial condition generation
+
+**MigrationAwareness flag:**
+StarGen generates initial conditions (post-disk-dispersal), not real-time dynamics.
+Migration does not run. However, migration sets up the architecture we inherit.
+
+**Generation rules for rocky planet placement:**
+```csharp
+// For each rocky planet with M_planet < M_gap:
+// Compute migration timescale at its current orbit
+double tauMig = ComputeTTWMigrationTime(mPlanetEarths, semiMajorAxisAU,
+                                         diskMassScale, diskAspectRatio);
+// If tauMig < disk lifetime (default 3 Myr): flag as likely migrated
+bool likelyMigrated = tauMig < settings.DiskLifetimeYr;
+
+// Consequence: short-period rocky planets (< 0.5 AU) that are likelyMigrated
+// carry different composition priors (may have accreted beyond the ice line)
+// than in-situ planets (dry, refractory-rich)
+if (likelyMigrated && semiMajorAxisAU < 0.5)
+{
+    planet.MigrationFlag = MigrationFlag.TypeI_Inward;
+    planet.WaterMassFractionPrior = WaterPrior.IceLineEnhanced; // wetter on average
+}
+```
+
+**Architecture consequence (peas-in-a-pod):**
+When generating compact multi-planet systems, the rice2023 / HeEtAl2020 spacing
+uniformity arises naturally from migration chains where planets pile up near resonances.
+The `MigrationMode` enum controls whether StarGen uses the migrated-architecture priors
+or in-situ priors for inner-planet composition.
+
+**User lever:** `GenerationSettings.MigrationMode` (enum: TTW_Isothermal /
+Paardekooper_Radiative / InSitu)
+- TTW_Isothermal: use TTW formula; more aggressive inward migration
+- Paardekooper_Radiative: longer migration for super-Earths due to outward corotation
+- InSitu: assume no significant migration; planets form close to observed orbits
+
+**Cross-references:** IzidoroEtAl2017.txt (resonant trapping, migration chains),
+RiceEtAl2023.txt (peas-in-a-pod spacing uniformity, post-migration outcome),
+HeEtAl2020.txt (AMD stability, architectural uniformity),
+LambrechtsJohansen2012.txt (pebble accretion, growth timescale).

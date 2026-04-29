@@ -1,0 +1,155 @@
+# TurchinEtAl2022
+
+## Source metadata
+- File: `TurchinEtAl2022.pdf` — **PDF NOT PRESENT** (TXT only; web retrieval failed)
+- Domain: social science / cliodynamics / social complexity / civilization drivers
+- Pages: unknown (PDF not acquired)
+- Authors: Turchin, P., Whitehouse, H., Gavrilets, S., Hoyer, D., François, P.,
+  Bennett, J. S., Feeney, K. C., Peregrine, P., Feinman, G., Korotayev, A., Kradin, N.,
+  Levine, J., Reddish, J., Cioni, E., Wacziarg, R., Mendel-Gleason, G., & Benam, M.
+- Source ID in StarGen code: `turchin2022`
+- **Paper identified via PMC9232109. PDF not yet downloaded.**
+- **PDF acquisition required:** Download from
+  https://www.science.org/doi/10.1126/sciadv.abn3517 or PMC9232109.
+  PDF should be saved as Sources/Texts/TurchinEtAl2022.pdf.
+
+## Abstract
+*(Not extracted — PDF not acquired. Abstract from published paper.)*
+Using the Seshat: Global History Databank, this study tests which of three theories best
+explains the evolution of social complexity over 10,000 years of history across ~300
+polities spanning 30 geographic regions. The three competing theories examined are:
+(1) military competition (warfare drives social complexity), (2) ecological productivity
+(agricultural surplus enables state formation), and (3) information transmission (writing,
+measurement, and bureaucratic capacity). Key finding: warfare and agriculture are the
+strongest empirical predictors of sociopolitical complexity across world history.
+Bayesian model comparison and structural equation modeling are used for testing.
+
+## Major claims, findings, models, assumptions, and limitations
+- **Warfare is a primary driver of social complexity:** Military competition selects for
+  larger, more organized polities with greater administrative capacity. This is the
+  "cultural group selection" or "competitive exclusion" mechanism.
+- **Agriculture enables social complexity but does not cause it alone:** Food surplus is
+  a necessary but not sufficient precondition; it provides the resource base for
+  specialists, armies, and administrations. Ecological productivity is a strong predictor
+  only when combined with military competition.
+- **Information transmission matters but is secondary:** Writing and measurement
+  technologies are strong predictors of administrative complexity, but the causal direction
+  is unclear — they may be symptoms rather than causes of rising complexity.
+- **Seshat: Global History Databank:** The empirical foundation is 300+ polities across
+  30 geographic regions, covering Neolithic to early modern period. Uses standardized
+  social complexity scores.
+- **Connects to TurchinEtAl2021WarMachines:** The war machines paper covers military
+  technology; this paper covers the social complexity that warfare both produces and
+  requires. Together they form a comprehensive account of how military competition
+  drives civilizational development.
+- **Limitation:** Pre-industrial dataset; modern warfare dynamics may differ significantly.
+- **Limitation:** Seshat coding involves expert judgment; some regions and periods are
+  data-sparse.
+- **Limitation:** Causal direction is debated; this paper uses cross-lagged Bayesian
+  methods but cannot fully resolve causality in historical data.
+
+## StarGen applicability
+This paper provides the **theoretical basis for the warfare → social complexity** link
+in StarGen's civilization development pipeline. Key insights:
+1. Civilizations under military competition pressure develop higher LawLevel and
+   governance sophistication faster than isolated civilizations
+2. Agricultural productivity (food surplus) is a necessary gate for state formation
+3. Information technology (writing, measurement) co-evolves with complexity — connects
+   to TechLevel advancement
+4. Together with TurchinEtAl2021WarMachines (military tech) and MaysharMoavPascali2022
+   (state formation from surplus), forms the complete social complexity model
+
+## Parameters, constraints, and mechanics implications
+
+**Social complexity growth model (Turchin et al. 2022):**
+```csharp
+// Social complexity driven by: military competition + agricultural surplus
+// Per Turchin 2022: these are the strongest predictors across 10,000 years
+
+double militaryPressure = CountBorderConflicts(civilization) * conflictIntensity;
+double agriculturalSurplus = civilization.FoodProductionIndex - civilization.PopulationDemand;
+
+// Social complexity index (maps approximately to StarGen's GovernmentType + LawLevel)
+double complexityGrowthRate = 0.0;
+if (agriculturalSurplus > 0)
+{
+    complexityGrowthRate += agriculturalSurplus * 0.01;  // surplus enables growth
+    complexityGrowthRate += militaryPressure * 0.03;     // competition accelerates it
+}
+// Information transmission (TechLevel ≥ 3 → writing available)
+if (civilization.TechLevel >= 3)
+{
+    complexityGrowthRate *= 1.2;  // writing amplifies complexity accumulation
+}
+civilization.SocialComplexityIndex += complexityGrowthRate;
+```
+
+**Warfare as LawLevel accelerant:**
+```csharp
+// External military threat increases internal social cohesion and LawLevel
+// Turchin 2022: competition → complexity → more laws, more bureaucracy
+if (civilization.ActiveBorderConflicts > 0)
+{
+    civilization.LawLevel = Math.Min(
+        civilization.LawLevel + 1,
+        civilization.MaxLawLevel  // capped by administrative capacity
+    );
+}
+```
+
+**Agricultural productivity gate:**
+```csharp
+// State formation requires agricultural surplus (Turchin 2022; MaysharMoavPascali2022)
+bool canFormState = civilization.FoodProductionIndex > civilization.SubsistenceThreshold;
+if (!canFormState)
+{
+    civilization.GovernmentType = GovernmentType.Band;  // subsistence-only society
+}
+```
+
+## APA citation
+Turchin, P., Whitehouse, H., Gavrilets, S., Hoyer, D., François, P., Bennett, J. S.,
+Feeney, K. C., Peregrine, P., Feinman, G., Korotayev, A., Kradin, N., Levine, J.,
+Reddish, J., Cioni, E., Wacziarg, R., Mendel-Gleason, G., & Benam, M. (2022).
+Disentangling the evolutionary drivers of social complexity: A comprehensive test of
+hypotheses. Science Advances, 8(25), eabn3517.
+https://doi.org/10.1126/sciadv.abn3517 PMCID: PMC9232109
+
+## Human action required
+1. Download PDF → save as Sources/Texts/TurchinEtAl2022.pdf
+2. Verify abstract text and major claims against actual paper content
+3. The abstract above is reconstructed from the paper's known description —
+   populate with actual paper content once PDF is acquired
+
+## Conflicts and follow-up work
+
+**Related papers in corpus:**
+- TurchinEtAl2021WarMachines.txt — Military technology evolution; the companion paper
+  addressing HOW warfare is conducted, while TurchinEtAl2022 addresses WHY social
+  complexity rises in response to warfare.
+- MaysharMoavPascali2022.txt — State formation from agricultural surplus; shares the
+  core finding that surplus + competition drives state formation.
+- AuerbachThachil2024.txt — State capacity dimensions; builds on these foundations
+  to explain what kinds of capacity states develop.
+- ForganRice2010.txt — Civilization emergence probability; the social complexity
+  trajectory these papers describe is the foundation for what ForganRice calls
+  "a civilization capable of technology."
+
+## StarGen mechanics translation
+
+### Warfare + surplus → social complexity
+TurchinEtAl2022 provides the empirical backbone for StarGen's civilization complexity
+progression model. The key mechanic is that social complexity (LawLevel, GovernmentType,
+administrative TechLevel) accelerates under military competition, provided that an
+agricultural (or equivalent) surplus is available.
+
+**Primary updates to StarGen civilization generator:**
+1. Add `BorderConflictIndex` as a driver of social complexity growth rate
+2. Agricultural surplus gate for state formation (parallels Maysharet al.)
+3. Information technology (writing → TechLevel 3) amplifies complexity growth by 20%
+4. Isolated civilizations with no military pressure develop complexity more slowly,
+   consistent with TurchinEtAl2021WarMachines (isolation → slow tech diffusion)
+
+**Cross-references:** TurchinEtAl2021WarMachines.txt (military tech diffusion),
+MaysharMoavPascali2022.txt (surplus → state formation), AuerbachThachil2024.txt
+(state capacity), ForganRice2010.txt (civilization probability).

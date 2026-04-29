@@ -1,0 +1,211 @@
+# SchwietermanEtAl2018
+
+## Source metadata
+- File: `SchwietermanEtAl2018.pdf`
+- Domain: astrobiology / biosignatures / atmospheric signatures / exoplanet science
+- Pages: ~32
+- Authors: Schwieterman, E. W., Kiang, N. Y., Parenteau, M. N., Harman, C. E., DasSarma, S., Fisher, T. M., Arney, G. N., Mandell, A. M., Schindler, T. L., Sherwood Lollar, B., Whitmire, S. E., Airapetian, V. S., Ancour, M. P., Domagal-Goldman, S., Deamer, D., Meadows, V. S., & the NASA Astrobiology Institute
+- Source ID in StarGen code: `schwieterman2018`
+- **PDF acquisition:** arXiv:1705.05791 (open access). Astrobiology 18(6), 663–708 (2018).
+  DOI: 10.1089/ast.2017.1729
+  Download from https://arxiv.org/abs/1705.05791
+  **PDF acquisition required — flag for manual download.**
+
+## Abstract
+In the coming years and decades, advanced space- and ground-based observatories will
+allow an unprecedented opportunity to probe the atmospheres and surfaces of potentially
+habitable exoplanets for signatures of life. Preparing for this challenge requires a
+thorough understanding of biosignatures and their potential false positives. Here we
+provide a comprehensive review of the state of the science of biosignature science as
+of 2017–2018, including: gaseous biosignatures (O₂, O₃, CH₄, N₂O, CH₃Cl, and others);
+surface biosignatures (vegetation red edge, pigments); temporal biosignatures; and
+technosignatures. We discuss abiotic and false-positive sources for each biosignature,
+and the importance of context in interpreting combinations of biosignatures. We describe
+the observational capabilities needed and expected from JWST, ELTs, and future direct-
+imaging missions. This review serves as a community reference for the biosignature
+science community.
+
+## Major claims, findings, models, assumptions, and limitations
+- **Primary biosignature gases (ranked by detectability and reliability):**
+  1. O₂ (0.55 μm, 0.76 μm A-band) — most robust biosignature; abiotic sources exist
+     (photolysis) but are distinguishable with context. pO₂ ≥ 1% required for detection.
+  2. O₃ (9.6 μm) — good proxy for O₂; detectable at O₂ fractions as low as 0.1-1%.
+     Robust because O₃ is photochemically linked to O₂.
+  3. CH₄ (7.7 μm) — biotic CH₄ is detectable; abiotic sources (serpentinization) can
+     be false positive. CH₄ + O₂ together are very strong biosignature combination
+     (would be in chemical disequilibrium without biology).
+  4. N₂O (7.8 μm, 17 μm) — primarily biological; very low abiotic production rate.
+     Hard to detect at current concentrations but strong if abundant.
+  5. CH₃Cl (9.7 μm) — entirely biological on Earth; low abundance makes detection hard.
+- **False positives and context:**
+  - O₂ false positive: photolysis of CO₂/H₂O in M-dwarf systems can produce abiotic O₂.
+    Detection of CO or lack of H₂O absorption can distinguish.
+  - CH₄ false positive: geothermal/volcanic serpentinization. Distinguish by CO₂/H₂ context.
+  - The importance of COMBINATIONS: no single biosignature is definitive; combinations
+    and context (stellar type, planetary mass, presence of water) reduce false positives.
+- **Surface biosignatures:**
+  - Vegetation red edge (~0.7 μm): spectral feature of chlorophyll absorption cutoff.
+    Detectable in disk-averaged spectra at sufficient vegetation coverage (>20% land area).
+  - Carotenoid-dominated worlds (purple/orange surface): detectable if dominant photopigment.
+  - Limitation: requires spatial resolution or orbital phase curves; difficult with disk average.
+- **Technosignatures (civilization-level):**
+  - Industrial pollutants: CFCs, NO₂ (anthropogenic), SF₆ — no natural sources; definitive
+    if detected. Detection requires very sensitive future telescopes.
+  - Waste heat: thermal infrared excess beyond stellar irradiation. Detectable for Type I+
+    Kardashev civilizations.
+  - Radio leakage: not atmospheric but radio SETI (covered elsewhere).
+  - Nightside illumination: artificial lighting detectable on very nearby worlds.
+- **The disequilibrium principle:** Life maintains planetary atmospheres out of thermodynamic
+  equilibrium (e.g., Earth: O₂ + CH₄ coexist, which would react in equilibrium). Detecting
+  disequilibrium is a general biosignature strategy.
+- **JWST capabilities:** Can detect O₃ in optimal systems; CH₄ in transiting atmospheres.
+  Full biosignature suite requires future large direct-imaging missions (HWO, LIFE).
+- **Limitation:** This review covers 2017 knowledge; JWST results and Ariel mission data
+  substantially extend the empirical basis. Treat as the foundational reference to be
+  supplemented by post-2018 JWST results.
+- **Limitation:** Most biosignature analysis assumes Earth-like biochemistry (water, carbon,
+  oxygen). Alternative biochemistry would produce different signatures.
+
+## StarGen applicability
+The authoritative reference for **biosignature science** as applied to stargen's planet
+characterization. Provides:
+1. A catalogue of detectable biosignatures linked to life model stages
+2. Context for when a planet's biological state is inferrable from atmospheric composition
+3. Technosignature thresholds that connect FrankEtAl2018.txt civilization states to
+   observable outputs
+4. The scientific basis for descriptive text about a world's atmospheric signature
+
+In StarGen's planet/civilization output:
+- Stage II+ life (complex biosphere): O₂ + CH₄ disequilibrium signature
+- Stage III+ civilization (pre-industrial): O₂ at 21%; no technosignatures
+- Stage IV (Anthropocene): CO₂ rising, industrial pollutants (NO₂, CFCs)
+- Stage Va (sustainable): stabilized CO₂ + potential waste heat signature
+- Stage Vb (collapsed): atmospheric anomalies decaying; transitional
+
+## Parameters, constraints, and mechanics implications
+
+**Biosignature confidence by gas (for StarGen atmospheric composition output):**
+```
+Gas     | Detection threshold | False positive risk | Life stage correlation
+--------|---------------------|---------------------|----------------------
+O₂      | pO₂ > 0.01 bar      | Low-Moderate        | Stage II+
+O₃      | pO₂ > 0.001 bar     | Low (requires O₂)   | Stage II+
+CH₄     | > 10 ppm            | Moderate            | All biotic stages
+N₂O     | > 0.1 ppm           | Low                 | Complex biology+
+NO₂     | > 1 ppb             | Very Low (abiotic)  | Stage IV+ (industrial)
+CFCs    | any detection       | None (purely tech)  | Stage IV+ (industrial)
+```
+
+**Disequilibrium flag:**
+```csharp
+// Strong biosignature: O₂ + CH₄ coexist (thermodynamically unstable)
+bool strongBiosignature = atmosphere.O2Fraction > 0.001
+                        && atmosphere.CH4Fraction > 1e-6;
+// This flag → "Active biosphere highly probable" in worldbuilding text
+
+// Technosignature flag (Stage IV civilization):
+bool techSignaturePresent = civState == CivilizationState.AnthropoceneTransition
+                          || civState == CivilizationState.SustainableSteadyState;
+// Technosignature → industrial pollutant markers, waste heat anomaly
+```
+
+**Red edge biosignature (vegetation coverage):**
+```csharp
+// Detectable vegetation red edge requires >20% land coverage by vegetation
+// Probability of detectable VRE given complex terrestrial life:
+double pVRE = Math.Max(0, planet.VegetationLandFraction - 0.20) * 2.0;
+pVRE = Math.Clamp(pVRE, 0, 1);
+bool redEdgeDetectable = rng.NextDouble() < pVRE;
+```
+
+**JWST detection probability (for nearby systems within 20 pc):**
+- O₃ detection: possible for HZ planets of M and K dwarfs in ≤ 50 transits
+- CH₄: detectable for high-CH₄ worlds in ≤ 20 transits
+- NO₂/CFCs: beyond current JWST capability; requires future missions
+
+## APA citation
+Schwieterman, E. W., Kiang, N. Y., Parenteau, M. N., Harman, C. E., DasSarma, S.,
+Fisher, T. M., Arney, G. N., Meadows, V. S., et al. (2018). Exoplanet biosignatures:
+A review of remotely detectable signs of life. Astrobiology, 18(6), 663–708.
+https://doi.org/10.1089/ast.2017.1729
+
+## Conflicts and follow-up work
+
+**Post-2018 JWST era updates:**
+- Lustig-Yaeger, J., et al. (2019) AJ 158, 27 — JWST biosignature detection capabilities
+  quantified (updated since this review was written).
+- TRAPPIST-1 system JWST results (2022-2026) — empirical upper limits on TRAPPIST-1b/c/e
+  atmospheres; refine the false-positive landscape for M-dwarf biosignatures.
+
+**Companion reviews in corpus:**
+- WordsworthKreidberg2022.txt (in corpus) — secondary atmosphere review; precondition
+  for biosignature detection.
+- LugerBarnes2015.txt (in corpus) — M-dwarf O₂ false positive from XUV photolysis;
+  specifically discussed in this Schwieterman review.
+- Ribas2015.txt (in corpus) — M-dwarf XUV evolution; impacts O₃ biosignature reliability.
+
+**Post-2018 biosignature reviews:**
+- Meadows, V. S., & Barnes, R. K. (2018) "Factors Affecting Exoplanet Habitability."
+  Handbook of Exoplanets. Updated biosignature context.
+- Catling, D. C., & Kasting, J. F. (2017) "Atmospheric Evolution on Inhabited and
+  Lifeless Worlds." Cambridge UP. Physical chemistry foundation.
+- Schwieterman, E. W., et al. (2022) — updated review in the ARIEL mission context.
+
+**Citation discovery:**
+- DOI: 10.1089/ast.2017.1729
+- arXiv:1705.05791
+
+## StarGen mechanics translation
+
+### Biosignature flags and worldbuilding descriptors
+SchwietermanEtAl2018 provides the scientific basis for how StarGen characterizes
+a planet's atmospheric biosignature state — what an observer would detect.
+
+**Biosignature profile generation:**
+```csharp
+public static BiosignatureProfile GenerateBiosignatureProfile(
+    Planet planet, CivilizationState civState, GalaxyRng rng)
+{
+    var profile = new BiosignatureProfile();
+
+    // O₂/O₃ flag from atmospheric O₂
+    profile.OxygenBiosignature = planet.AtmosphereProps.OxygenPartialPressureBar > 0.01;
+    profile.DisequilibriumFlag = profile.OxygenBiosignature
+                               && planet.AtmosphereProps.MethaneConcentrationPpm > 10;
+
+    // Vegetation red edge
+    profile.VegetationRedEdge = planet.VegetationLandFraction > 0.20
+                               && rng.NextDouble() < 0.7;
+
+    // Technosignatures
+    profile.IndustrialPollutants = civState == CivilizationState.AnthropoceneTransition
+                                 || civState == CivilizationState.SustainableSteadyState;
+    profile.WasteHeatAnomaly = civState == CivilizationState.SustainableSteadyState
+                              && planet.CivilizationTechLevel >= 9;
+
+    // Anomalies for collapsed civilizations
+    profile.DecayingAnomaly = civState == CivilizationState.Collapsed;
+
+    return profile;
+}
+```
+
+**RPG worldbuilding text generation from biosignature profile:**
+```
+OxygenBiosignature + DisequilibriumFlag → "Spectral analysis reveals O₂/CH₄ disequilibrium — active biosphere highly probable"
+VegetationRedEdge → "Red edge absorption feature in reflected spectrum — surface vegetation"
+IndustrialPollutants → "Trace NO₂ and industrial signatures — technologically active civilization"
+WasteHeatAnomaly → "Infrared excess beyond stellar balance — possible large-scale energy infrastructure"
+DecayingAnomaly → "Anomalous atmospheric chemistry — possible ancient civilization remnant"
+```
+
+**User lever:** `BiosignatureModel` (enum: Schwieterman2018 / Simplified / None)
+- Schwieterman2018: use full biosignature catalogue (default for hard sci-fi)
+- Simplified: only O₂ present/absent + technosignature present/absent
+- None: no atmospheric signatures reported
+
+**Cross-references:** FrankEtAl2018.txt (civilization state → atmospheric stage),
+Balbi2023.txt (pO₂ threshold for technosphere → threshold for industrial signatures),
+WordsworthKreidberg2022.txt (secondary atmosphere model, prerequisite),
+LugerBarnes2015.txt (M-dwarf O₂ false positive risk),
+Olson2020.txt (atmospheric O₂ evolution timeline).

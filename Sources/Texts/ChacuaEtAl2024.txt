@@ -1,0 +1,94 @@
+# ChacuaEtAl2024
+
+## Source metadata
+- File: `ChacuaEtAl2024.pdf`
+- Domain: social science / economic complexity / innovation policy / civilization modeling
+- Pages: 37
+- Authors: Chacua, C., Gadgin Matha, S., Hartog, M., Hausmann, R., & Yildirim, M. A.
+- Source ID in StarGen code: `chacua2024`
+- **PDF acquisition:** PDF confirmed present in `Sources/Texts`.
+  Original URL: https://growthlab.hks.harvard.edu/wp-content/uploads/2024/09/2024-09-glwp-234-innovation-policies-under-complexity.pdf
+  Retrieval mode: direct PDF.
+
+## Abstract
+Chacua et al. discuss innovation policy through an economic-complexity lens. The paper
+argues that development and technological progress are processes of accumulating and
+diversifying productive knowledge. Effective innovation policy should therefore be
+place-based and multidimensional: it should use existing capabilities, identify binding
+constraints, and avoid copying policies designed for problems a society does not have.
+
+## Major claims, findings, models, assumptions, and limitations
+- **Capability portfolio framing:** Regions and countries are treated as portfolios of
+  capabilities and know-how, not as blank slates that can adopt any frontier technology
+  at equal cost.
+- **Path dependence:** Future technological options are shaped by existing productive
+  capabilities, related industries, institutions, and learning channels.
+- **Binding constraints:** Policy should target the constraints that prevent movement
+  toward more complex activities, not only the activities that are currently adjacent.
+- **Place-based design:** Copying another society's solution is weak if the local society
+  does not share the same capability base or problem structure.
+- **Technology diffusion channels:** Migration, foreign direct investment, education,
+  and institutional support are treated as mechanisms that diffuse capabilities.
+- **Limitation:** This is a policy and conceptual framework, not a directly calibrated
+  settlement or government generator. StarGen should not convert it into fixed numeric
+  coefficients without a separate human-reviewed modeling step.
+
+## StarGen applicability
+Useful for StarGen's sentient-world and civilization layer, especially for technology
+adoption, economic complexity, trade specialization, and industrial-development pressure.
+It supports a model where a world's future technology and trade profile depends on the
+capabilities it already has rather than on a simple linear tech-level ladder.
+
+Provides:
+- A capability-based rationale for path-dependent `TechnologyAdoptionCapacity`
+- A reason to separate "frontier technology availability" from "local adoption readiness"
+- Support for trade and migration as capability-transfer channels
+- A warning against forcing every advanced world toward the same industrial profile
+
+## Parameters, constraints, and mechanics implications
+
+**Capability portfolio state:**
+```
+technology_adoption_capacity =
+    f(existing_capabilities, relatedness, trade_connectivity, institutions, constraints)
+```
+
+**Generator rule implication:**
+- A world with high trade connectivity but low local capability should receive import
+  access, not automatically high local production capacity.
+- Worlds should gain technology most easily in fields related to their existing resource,
+  industrial, scientific, or institutional base.
+- Policy/government output should distinguish "can import/use" from "can invent/produce".
+
+**Potential StarGen fields:**
+- `CapabilityDiversity`
+- `CapabilityRelatedness`
+- `BindingConstraintPressure`
+- `KnowledgeTransferAccess`
+- `TechnologyAdoptionCapacity`
+
+## APA citation
+Chacua, C., Gadgin Matha, S., Hartog, M., Hausmann, R., & Yildirim, M. A. (2024).
+Innovation policies under economic complexity. Growth Lab Working Paper Series No. 234.
+Harvard Kennedy School Growth Lab.
+
+## Conflicts and follow-up work
+- Compare with `BallandEtAl2022.txt` before choosing a default economic-complexity
+  model. Balland et al. provide a broader research-policy paradigm; Chacua et al. focus
+  on innovation-policy design under complexity.
+- Human audit is required before this source is used to shape government, culture, or
+  civilization-output claims.
+- Add bibliography coverage if this source remains in the retained v1.0 source set.
+
+## StarGen mechanics translation
+
+### Technology adoption and economic-complexity pressure
+The current StarGen sentient-world layer already exposes `TechnologyAdoptionCapacity`
+and `TradeConnectivity`. ChacuaEtAl2024 suggests the next model should add an
+intermediate capability layer so adoption is not only a function of tech level and trade.
+
+**Current fit:** partial. StarGen has adoption and trade fields, but it does not yet model
+capability relatedness, binding constraints, or local production readiness.
+
+**Recommended v1.0 disposition:** documentation/planning source only unless a human
+reviewer accepts a simplified capability model.

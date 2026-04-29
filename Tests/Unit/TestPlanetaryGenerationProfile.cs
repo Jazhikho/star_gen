@@ -34,6 +34,14 @@ public static class TestPlanetaryGenerationProfile
             MoonFormationBias = PlanetMoonFormationBias.CapturedRich,
             RoguePlanetAllowance = PlanetRoguePlanetAllowance.Standard,
             MinorBodyOuterSystemBias = PlanetMinorBodyOuterSystemBias.CometLeaning,
+            CometNucleusModel = CometNucleusModel.LegacyWideRange,
+            CometActivityModel = CometActivityModel.DormantRich,
+            CometSizeScale = 1.25,
+            MinorBodyPopulationSlope = 2.7,
+            DiskRadiusScale = 1.35,
+            DustToGasScale = 1.20,
+            FragmentationVelocityModel = PlanetFragmentationVelocityModel.HighFragmentationVelocity,
+            GiantOriginBandModel = PlanetGiantOriginBandModel.FiveToTwentyFiveAu,
             SolidMassScalar = 1.35,
             GasMassScalar = 1.55,
             DiskLifetimeMyr = 5.2,
@@ -53,6 +61,14 @@ public static class TestPlanetaryGenerationProfile
         DotNetNativeTestSuite.AssertEqual((int)profile.MoonFormationBias, (int)rebuilt.MoonFormationBias, "Moon-formation bias should round-trip");
         DotNetNativeTestSuite.AssertEqual((int)profile.RoguePlanetAllowance, (int)rebuilt.RoguePlanetAllowance, "Rogue allowance should round-trip");
         DotNetNativeTestSuite.AssertEqual((int)profile.MinorBodyOuterSystemBias, (int)rebuilt.MinorBodyOuterSystemBias, "Outer-system bias should round-trip");
+        DotNetNativeTestSuite.AssertEqual((int)profile.CometNucleusModel, (int)rebuilt.CometNucleusModel, "Comet nucleus model should round-trip");
+        DotNetNativeTestSuite.AssertEqual((int)profile.CometActivityModel, (int)rebuilt.CometActivityModel, "Comet activity model should round-trip");
+        DotNetNativeTestSuite.AssertEqual(profile.CometSizeScale, rebuilt.CometSizeScale, "Comet size scale should round-trip");
+        DotNetNativeTestSuite.AssertEqual(profile.MinorBodyPopulationSlope, rebuilt.MinorBodyPopulationSlope, "Minor-body population slope should round-trip");
+        DotNetNativeTestSuite.AssertEqual(profile.DiskRadiusScale, rebuilt.DiskRadiusScale, "Disk radius scale should round-trip");
+        DotNetNativeTestSuite.AssertEqual(profile.DustToGasScale, rebuilt.DustToGasScale, "Dust-to-gas scale should round-trip");
+        DotNetNativeTestSuite.AssertEqual((int)profile.FragmentationVelocityModel, (int)rebuilt.FragmentationVelocityModel, "Fragmentation model should round-trip");
+        DotNetNativeTestSuite.AssertEqual((int)profile.GiantOriginBandModel, (int)rebuilt.GiantOriginBandModel, "Giant origin band model should round-trip");
         DotNetNativeTestSuite.AssertEqual(profile.SolidMassScalar, rebuilt.SolidMassScalar, "Solid-mass scalar should round-trip");
         DotNetNativeTestSuite.AssertEqual(profile.GasMassScalar, rebuilt.GasMassScalar, "Gas-mass scalar should round-trip");
     }
@@ -144,7 +160,7 @@ public static class TestPlanetaryGenerationProfile
 
         foreach (GenerationParameterDefinition definition in GenerationParameterCatalog.GetGalaxyDefinitions())
         {
-            if (!definition.Id.StartsWith("planet_"))
+            if (!IsPlanetaryScienceDefinition(definition.Id))
             {
                 continue;
             }
@@ -155,7 +171,7 @@ public static class TestPlanetaryGenerationProfile
 
         foreach (GenerationParameterDefinition definition in GenerationParameterCatalog.GetSystemDefinitions())
         {
-            if (!definition.Id.StartsWith("planet_"))
+            if (!IsPlanetaryScienceDefinition(definition.Id))
             {
                 continue;
             }
@@ -171,6 +187,13 @@ public static class TestPlanetaryGenerationProfile
                 DotNetNativeTestSuite.AssertNotNull(PlanetaryScienceReferenceCatalog.GetSource(sourceId), $"Planetary source '{sourceId}' should resolve");
             }
         }
+    }
+
+    private static bool IsPlanetaryScienceDefinition(string parameterId)
+    {
+        return parameterId.StartsWith("planet_")
+            || parameterId.StartsWith("comet_")
+            || parameterId == "minor_body_population_slope";
     }
 
     /// <summary>

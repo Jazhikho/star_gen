@@ -1,3 +1,4 @@
+using Godot;
 using Godot.Collections;
 using StarGen.Domain.Generation;
 
@@ -24,6 +25,26 @@ public partial class CometSpec : BaseSpec
     public bool IsLarge { get; set; }
 
     /// <summary>
+    /// Target comet nucleus model, or -1 for the source-backed default.
+    /// </summary>
+    public int NucleusModel { get; set; }
+
+    /// <summary>
+    /// Target comet activity model, or -1 for the source-backed default.
+    /// </summary>
+    public int ActivityModel { get; set; }
+
+    /// <summary>
+    /// Continuous comet-radius scale applied after the selected nucleus model.
+    /// </summary>
+    public double SizeScale { get; set; }
+
+    /// <summary>
+    /// Minor-body population slope proxy used by size sampling.
+    /// </summary>
+    public double PopulationSlope { get; set; }
+
+    /// <summary>
     /// Creates a new comet specification.
     /// </summary>
     public CometSpec(
@@ -31,6 +52,10 @@ public partial class CometSpec : BaseSpec
         int family = -1,
         int activityState = -1,
         bool isLarge = false,
+        int nucleusModel = -1,
+        int activityModel = -1,
+        double sizeScale = 1.0,
+        double populationSlope = 2.0,
         string nameHint = "",
         Dictionary? overrides = null,
         GenerationUseCaseSettings? useCaseSettings = null)
@@ -39,6 +64,36 @@ public partial class CometSpec : BaseSpec
         Family = family;
         ActivityState = activityState;
         IsLarge = isLarge;
+        NucleusModel = nucleusModel;
+        ActivityModel = activityModel;
+        SizeScale = sizeScale;
+        PopulationSlope = populationSlope;
+    }
+
+    /// <summary>
+    /// Compatibility constructor for callers that pass name and overrides after the legacy large-comet flag.
+    /// </summary>
+    public CometSpec(
+        int generationSeed,
+        int family,
+        int activityState,
+        bool isLarge,
+        string nameHint,
+        Dictionary? overrides = null,
+        GenerationUseCaseSettings? useCaseSettings = null)
+        : this(
+            generationSeed,
+            family,
+            activityState,
+            isLarge,
+            -1,
+            -1,
+            1.0,
+            2.0,
+            nameHint,
+            overrides,
+            useCaseSettings)
+    {
     }
 
     /// <summary>
@@ -73,6 +128,16 @@ public partial class CometSpec : BaseSpec
     public bool HasActivityState() => ActivityState >= 0;
 
     /// <summary>
+    /// Returns whether a comet nucleus model was specified.
+    /// </summary>
+    public bool HasNucleusModel() => NucleusModel >= 0;
+
+    /// <summary>
+    /// Returns whether a comet activity model was specified.
+    /// </summary>
+    public bool HasActivityModel() => ActivityModel >= 0;
+
+    /// <summary>
     /// Converts this specification to a dictionary payload.
     /// </summary>
     public Dictionary ToDictionary()
@@ -82,6 +147,10 @@ public partial class CometSpec : BaseSpec
         data["family"] = Family;
         data["activity_state"] = ActivityState;
         data["is_large"] = IsLarge;
+        data["nucleus_model"] = NucleusModel;
+        data["activity_model"] = ActivityModel;
+        data["size_scale"] = SizeScale;
+        data["population_slope"] = PopulationSlope;
         return data;
     }
 
@@ -137,8 +206,32 @@ public partial class CometSpec : BaseSpec
         }
 
         bool isLarge = data.ContainsKey("is_large") && (bool)data["is_large"];
-        CometSpec spec = new CometSpec(generationSeed, family, activityState, isLarge, nameHint, overrides);
+        int nucleusModel = data.ContainsKey("nucleus_model") ? (int)data["nucleus_model"] : -1;
+        int activityModel = data.ContainsKey("activity_model") ? (int)data["activity_model"] : -1;
+        double sizeScale = data.ContainsKey("size_scale") ? GetDouble(data["size_scale"], 1.0) : 1.0;
+        double populationSlope = data.ContainsKey("population_slope") ? GetDouble(data["population_slope"], 2.0) : 2.0;
+        CometSpec spec = new CometSpec(
+            generationSeed,
+            family,
+            activityState,
+            isLarge,
+            nucleusModel,
+            activityModel,
+            sizeScale,
+            populationSlope,
+            nameHint,
+            overrides);
         spec.ApplyBaseFromDictionary(data);
         return spec;
+    }
+
+    private static double GetDouble(Variant value, double fallback)
+    {
+        return value.VariantType switch
+        {
+            Variant.Type.Float => (double)value,
+            Variant.Type.Int => (int)value,
+            _ => fallback,
+        };
     }
 }

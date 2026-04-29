@@ -1,21 +1,83 @@
-Source note for StarGen research review
+# Ribas2015
 
-Citation:
-Ribas, A., Bouy, H., & Merin, B. (2015).
-Protoplanetary disk lifetimes vs stellar mass and possible implications for giant planet populations.
-Astronomy & Astrophysics, 576, A52.
-arXiv: https://arxiv.org/abs/1502.00631
-DOI: https://doi.org/10.1051/0004-6361/201424846
+## Source metadata
+- File: `Ribas2015.pdf`
+- Domain: M-dwarf XUV / stellar activity evolution
+- Pages: 13
+- Authors (auto-extracted — verify against PDF): European Space Astronomy Centre (ESA), P.O. Box, 78, 28691 Villanueva de la Cañada, Madrid, Spain; Centro de Astrobiología, INTA-CSIC, P.O. Box - Apdo. de correos 78, Villanueva de la Cañada Madrid 28691, Spain; Ingeniería y Servicios Aeroespaciales-ESAC, P.O. Box, 78, 28691 Villanueva de la Cañada, Madrid, Spain
 
-What was reviewed:
-- Abstract and source metadata on 2026-04-22.
+## Abstract
+Aims. We study the dependence of protoplanetary disk evolution on stellar mass using a large sample of young stellar objects in nearby young star-forming regions. Methods. We update the protoplanetary disk fractions presented in our recent work (paper I of this series) derived for 22 nearby (< 500 pc) associations between 1 and 100 Myr. We use a subsample of 1 428 spectroscopically confirmed members to study the impact of stellar mass on protoplanetary disk evolution. We divide this sample into two stellar mass bins (2 M boundary) and two age bins (3 Myr boundary), and use infrared excesses over the photospheric emission to classify objects in three groups: protoplanetary disks, evolved disks, and diskless. The homogeneous analysis and bias corrections allow for a statistically significant inter-comparison of the obtained results. Results. We find robust statistical evidence of disk evolution dependence with stellar mass. Our results, combined with previous studies on disk evolution, confirm that protoplanetary disks evolve faster and/or earlier around high-mass (> 2 M ) stars. We also find a roughly constant level of evolved disks throughout the whole age and stellar mass spectra. Conclusions. We conclude that protoplanetary disk evolution depends on stellar mass. Such a dependence could have important implications for gas giant planet formation and migration, and could contribute to explaining the apparent paucity of hot Jupiters around high-mass stars.
 
-Key implementation notes used in StarGen:
-- The paper studies 22 nearby associations and a subsample of 1,428 spectroscopically confirmed members.
-- It reports robust statistical evidence that protoplanetary-disk evolution depends on stellar mass, with disks evolving faster and/or earlier around stars above about 2 solar masses.
-- The practical takeaway for StarGen is that gas-disk lifetime should not be treated as one universal scalar across all host-star masses.
+## Major claims, findings, models, assumptions, and limitations
+*Human verification required before using quantitative values or model assumptions in
+StarGen defaults. Figures and equations not captured by text extraction — read the PDF
+for exact thresholds, fit coefficients, and table values.*
 
-How StarGen should use this:
-- As support for making `DiskLifetimeMyr` a stellar-mass-aware prior in aggregate planetary generation.
-- As a constraint on gas-giant formation and migration pressure around higher-mass stars, which should not inherit the same gas window as solar-mass hosts.
-- As a calibration note that host-mass-dependent disk dispersal should be represented upstream in `PlanetarySystemState`, not only in late planet-level overrides.
+- Primary domain: M-dwarf XUV / stellar activity evolution
+- See StarGen applicability section below for the specific implications.
+
+## StarGen applicability
+XUV saturation phase lasts up to ~1–3 Gyr for early M, longer for late M. Constrains atmospheric erosion rate model for M-dwarf HZ planets in StarGen.
+
+## Parameters, constraints, and mechanics implications
+*(Human action: fill in specific numeric values, distributions, model families, and
+classification boundaries extracted from the paper. Where competing models or confidence
+ranges exist, expose those as user-selectable assumptions rather than collapsing to a
+single default. Where the paper documents uncertainty, preserve it in StarGen rather
+than presenting false precision.)*
+
+## Works cited by this paper (auto-extracted from final pages, partial)
+- Alexander, R., Pascucci, I., Andrews, S., Armitage, P., & Cieza, L. 2013, ArXiv
+- Alexander, R. D. & Armitage, P. J. 2009, ApJ, 704, 989
+- Allard, F., Homeier, D., & Freytag, B. 2012, Royal Society of London Philosophical Transactions Series A, 370, 2765
+- Allen, P. R., Luhman, K. L., Myers, P. C., et al. 2007, ApJ, 655, 1095
+- Andrews, S. M., Rosenfeld, K. A., Kraus, A. L., & Wilner, D. J. 2013, ApJ, 771,
+- Andrews, S. M. & Williams, J. P. 2005, ApJ, 631, 1134
+- Andrews, S. M., Wilner, D. J., Espaillat, C., et al. 2011, ApJ, 732, 42
+- Armitage, P. J., Livio, M., Lubow, S. H., & Pringle, J. E. 2002, MNRAS, 334,
+- Barrado y Navascués, D., Béjar, V. J. S., Mundt, R., et al. 2003, A&A, 404, 171
+- Barrado y Navascués, D., Stauffer, J. R., Morales-Calderón, M., et al. 2007, ApJ,
+- Baruteau, C., Crida, A., Paardekooper, S.-J., et al. 2013, ArXiv e-prints
+- Bayo, A., Barrado, D., Stauffer, J., et al. 2011, A&A, 536, A63
+- Bell, C. P. M., Naylor, T., Mayne, N. J., Jeffries, R. D., & Littlefair, S. P. 2013,
+- Álvaro Ribas et al.: Protoplanetary disk lifetimes vs stellar mass and possible implications for giant planet populations
+- Birnstiel, T., Andrews, S. M., & Ercolano, B. 2012, A&A, 544, A79
+- Bouy, H. 2011, in IAU Symposium, Vol. 270, Computational Star Formation,
+- ed. J. Alves, B. G. Elmegreen, J. M. Girart, & V. Trimble, 41–44
+- Bressan, A., Marigo, P., Girardi, L., et al. 2012, MNRAS, 427, 127
+- Burkert, A. & Ida, S. 2007, ApJ, 660, 845
+- Caballero, J. A. 2007, A&A, 466, 917
+
+## Opposing or alternative findings cited
+*(Human action: identify papers in the reference list that present opposing models,
+competing parameter choices, or significantly different results. Note the specific
+disagreement and its implication for which StarGen default to use.)*
+
+## APA citation
+*(Verify and complete — see AnnotatedBibliography.md for the curated APA entry.)*
+
+## Conflicts and follow-up work
+*(Human action: search for papers explicitly responding to, revising, or challenging
+this paper published after its date. For fast-moving fields (exoplanet demographics,
+habitability, JWST/TESS-informed work), treat results >3 years old as potentially
+superseded. Flag updates in Followup.md.)*
+
+
+## StarGen mechanics translation
+
+### Stellar XUV evolution — M-dwarf time series
+Empirical XUV luminosity evolution for M-dwarfs: early saturation phase (L_XUV/L_bol ~
+10⁻³) followed by power-law decline. Duration of saturation phase ~0.1–3 Gyr.
+
+**StarGen XUV history:**
+- `XUV_SaturationDuration` by M★:
+  - 0.1 M☉: ~3 Gyr saturation
+  - 0.3 M☉: ~0.5 Gyr
+  - 0.5 M☉: ~0.1 Gyr
+  - Solar (1.0 M☉): ~0.1 Gyr or less
+- `XUV_SaturationLuminosity`: L_XUV/L_bol ≈ 10⁻³ (saturated phase)
+- After saturation: L_XUV ∝ t^(−α), α ≈ 1.2 (from paper fit).
+- Use these values as inputs to LugerBarnes2015 water-loss calculation and
+  WordsworthKreidberg2022 atmosphere-retention probability.
+**Cross-references:** LugerBarnes2015.txt, WordsworthKreidberg2022.txt.

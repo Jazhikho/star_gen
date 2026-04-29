@@ -1,0 +1,50 @@
+# Obertas2017
+
+## Source metadata
+- File: `Obertas2017.pdf`
+- Domain: orbital stability / packed systems
+- Pages: 31
+- Authors (auto-extracted — verify against PDF): (see PDF)
+
+## Abstract
+Many of the multi-planet systems discovered to date have been notable for their compactness, with neighbouring planets closer together than any in the Solar System. Interestingly, planet-hosting stars have a wide range of ages, suggesting that such compact systems can survive for extended periods of time. We have used numerical simulations to investigate how quickly systems go unstable in relation to the spacing between planets, focusing on hypothetical systems of Earth-mass planets on evenly-spaced orbits (in mutual Hill radii). In general, the further apart the planets are initially, the longer it takes for a pair of planets to undergo a close encounter. We recover the results of previous studies, showing a linear trend in the initial planet spacing between 3 and 8 mutual Hill radii and the logarithm of the stability time. Investigating thousands of simulations with spacings up to 13 mutual Hill radii reveals distinct modulations superimposed on this relationship in ∗ Corresponding author. Tel.: +1 416-978-7104 Email address: obertas@astro.utoronto.ca (Alysa Obertas) Preprint submitted to Icarus July 4, 2018 the vicinity of first and second-order mean motion resonances of adjacent and next-adjacent planets. We discuss the impact of this structure and the implications on the stability of compact multi-planet systems. Applying the outcomes of our simulations, we show that isolated systems of up to five Earth-mass planets can fit in the habitable zone of a Sun-like star without close encounters for at least 109 orbits.
+
+## Major claims, findings, models, assumptions, and limitations
+*Human verification required before using quantitative values or model assumptions in
+StarGen defaults. Figures and equations not captured by text extraction — read the PDF
+for exact thresholds, fit coefficients, and table values.*
+
+- Primary domain: orbital stability / packed systems
+- See StarGen applicability section below for the specific implications.
+
+## StarGen applicability
+Stability timescales for tightly packed planetary systems as function of period ratio and eccentricity. Provides quantitative stability criteria for StarGen system architecture validation.
+
+## Parameters, constraints, and mechanics implications
+*(Human action: fill in specific numeric values, distributions, model families, and
+classification boundaries extracted from the paper. Where competing models or confidence
+ranges exist, expose those as user-selectable assumptions rather than collapsing to a
+single default. Where the paper documents uncertainty, preserve it in StarGen rather
+than presenting false precision.)*
+
+## Works cited by this paper (auto-extracted from final pages, partial)
+- (Reference extraction incomplete — verify PDF.)
+
+## Opposing or alternative findings cited
+*(Human action: identify papers in the reference list that present opposing models,
+competing parameter choices, or significantly different results. Note the specific
+disagreement and its implication for which StarGen default to use.)*
+
+## APA citation
+*(Verify and complete — see AnnotatedBibliography.md for the curated APA entry.)*
+
+## Conflicts and follow-up work
+*(Human action: search for papers explicitly responding to, revising, or challenging
+this paper published after its date. For fast-moving fields (exoplanet demographics,
+habitability, JWST/TESS-informed work), treat results >3 years old as potentially
+superseded. Flag updates in Followup.md.)*
+
+
+## StarGen mechanics translation
+
+*(Already handled above in the planetary stability section.)*

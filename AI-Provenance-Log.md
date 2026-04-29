@@ -17,6 +17,149 @@ Use this log for significant AI-assisted artifacts in this repository.
 
 ## Entries
 
+### 2026-04-26 - Cursor agent — Bains2004 / BainsEtAl2024 source corpus notes
+
+- Task Purpose: Complete `Sources/Texts` workflow sections for Bains (2004) follow-up linkage and for Bains, Petkowski & Seager (2024) solvent-framework paper; align `AnnotatedBibliography.md` and `Followup.md` with verified PDF title/DOI.
+- Input Materials Used: `Sources/Texts/Bains2004.txt`; `Sources/Texts/BainsEtAl2024.pdf` (text extraction); `Sources/AnnotatedBibliography.md`; `Sources/Followup.md`.
+- AI Produced: Filled **Parameters / Conflicts** (BainsEtAl2024); corrected **BainsEtAl2024** bibliography entry (replaced mistaken Venus-only 2024 citation); updated **Bains2004** corpus cross-note; added **Followup.md** `### BainsEtAl2024`; prior **Bains2004** sections from same session as referenced in git history.
+- Human Accepted: Pending repository owner review.
+- Human Rejected: None recorded in this pass.
+- Human Changed: None recorded in this pass.
+- Validation Method: Human verification of chemistry claims and Table 1 tick transcription against PDF before encoding as StarGen defaults.
+- Final Approver: Pending Christopher B. Del Gesso review.
+
+### 2026-04-26 - Cursor agent — BiologySupportEvaluator audit comment (test harness)
+
+- Task Purpose: Restore a contiguous `speculative biochemistry branch` substring in `BiologySupportEvaluator.cs` so `TestEndToEndScienceAudit` passes (headless harness failure after the C–K second-anchor work).
+- Input Materials Used: `Tests/Quality/TestEndToEndScienceAudit.cs`; `src/domain/population/BiologySupportEvaluator.cs`.
+- AI Produced: Comment reflow only; `VERSION.md` and `project.godot` bump to `0.9.2.2`; AI provenance validation line update on the second-anchor entry.
+- Human Accepted: Pending repository owner review.
+- Human Rejected: None recorded in this pass.
+- Human Changed: None recorded in this pass.
+- Validation Method: `dotnet build StarGen.csproj`; `godot-mono.exe --path . --headless --script res://Tests/RunTestsHeadless.gd` (`Total: 1861 | Passed: 1861 | Failed: 0`; Godot still emitted the repo's known shutdown leak/resource warnings after the green run).
+- Final Approver: Pending Christopher B. Del Gesso review.
+
+### 2026-04-26 - Cursor agent — Workstreams C–K second anchor batch (multi-paper intake)
+
+- Task Purpose: Expand Workstreams **C–K** source intake toward **multiple anchors per letter** (target **2–4** notes each) and **explicit competing-model families** where the literature splits (per contributor correction after the first single-anchor pass).
+- Input Materials Used: arXiv PDF downloads; web search for arXiv identifiers; existing draft-note template; `AnnotatedBibliography.md`; `Docs/EndToEndScienceAudit.md`; `SourceRecencyGapClosurePlan.md`; `Sources/Texts/_source_audit/source_inventory.md`; `Tests/Quality/TestEndToEndScienceAudit.cs`; `VERSION.md`; `project.godot`.
+- AI Produced: Fourteen new draft `Sources/Texts/*.txt` files with paired arXiv PDFs (`BergstenEtAl2023`, `LuquePalle2022`, `VissapragadaEtAl2022`, `BiassoniEtAl2023`, `BenistyEtAl2021`, `MalamudPerets2019`, `NapierEtAl2023`, `BernardinelliEtAl2022`, `GarmaOehmichenEtAl2022`, `FangMargot2013`, `StevensonEtAl2023`, `HamiltonEtAl2016`, `PetkowskiEtAl2020`); bibliography rows and changelog; audit subsection; closure-plan intake standard paragraph; inventory table and counts; test harness string and path expansions; version bump to `0.9.2.1`.
+- Human Accepted: Pending repository owner review.
+- Human Rejected: None recorded in this pass.
+- Human Changed: None recorded in this pass.
+- Validation Method: `dotnet build StarGen.csproj` (full headless harness green run recorded under the same-day BiologySupportEvaluator audit-comment entry after a comment reflow fix).
+- Final Approver: Pending Christopher B. Del Gesso review.
+
+### 2026-04-26 - Cursor agent — Workstreams C through K source intake
+
+- Task Purpose: Web-search and acquire PDFs plus draft `Sources/Texts` notes for Workstreams C through K in `SourceRecencyGapClosurePlan.md` (HZ rocky yield; atmosphere framing; moons; small bodies; galaxy morphology; orbital stability; stellar IMF maintenance; population mechanism design anchor; astrobiology / alternative solvents); index `Bains2004` in the annotated bibliography; keep Workstream J material documentation-only pending human audit.
+- Input Materials Used: Web search; arXiv and open-access MDPI PDFs; existing note template from Workstream B batch; `AnnotatedBibliography.md`; `Docs/EndToEndScienceAudit.md`; `SourceRecencyGapClosurePlan.md`; `Sources/Texts/_source_audit/source_inventory.md`; `Tests/Quality/TestEndToEndScienceAudit.cs`; `Docs/ProjectStructure.md`; `VERSION.md`; `project.godot`.
+- AI Produced: Eleven draft `Sources/Texts/*.txt` files and matching PDFs; bibliography rows and new astrobiology subsection; audit and inventory updates; `TestEndToEndScienceAudit` expansions; version bump to `0.9.2.0`.
+- Human Accepted: Pending repository owner review.
+- Human Rejected: None recorded in this pass.
+- Human Changed: None recorded in this pass.
+- Validation Method: `dotnet build StarGen.csproj`.
+- Final Approver: Pending Christopher B. Del Gesso review.
+
+### 2026-04-26 - Cursor agent — Workstream B exoplanet demographics literature pass
+
+- Task Purpose: Execute Workstream B source discovery (TESS-era occurrence / demographics); defer alternative-chemistry execution per contributor; record competing M-dwarf models; **follow-up:** import all five candidate papers into `Sources/Texts` with draft notes, arXiv PDFs, and bibliography rows.
+- Input Materials Used: Web search and arXiv/ADS abstracts; `SourceRecencyGapClosurePlan.md`; existing bibliography anchors (`Fulton2017`, `Fernandes2019`, `Petigura2013`, `OwenWu2017`, `Ginzburg2018`); arXiv PDF downloads; `AnnotatedBibliography.md`; `Tests/Quality/TestEndToEndScienceAudit.cs`; `Docs/EndToEndScienceAudit.md`; `Sources/Texts/_source_audit/source_inventory.md`; `VERSION.md`; `project.godot`.
+- AI Produced: `Sources/WorkstreamB_ExoplanetDemographicsSources.md`; updates to `SourceRecencyGapClosurePlan.md` (Workstream B link + Workstream K deferred status); `Docs/ProjectStructure.md` tree and Recent Major Additions; **five** draft `Sources/Texts/*.txt` files with *Models vs refinements* sections; **five** local `Sources/Texts/*.pdf` from arXiv; `AnnotatedBibliography.md` rows and changelog; `TestEndToEndScienceAudit` expected/draft note lists + audit string checks; `VERSION` bump to `0.9.1.1`.
+- Human Accepted: Pending repository owner review.
+- Human Rejected: None recorded in this pass.
+- Human Changed: None recorded in this pass.
+- Validation Method: `dotnet build StarGen.csproj` (pending in same session).
+- Final Approver: Pending Christopher B. Del Gesso review.
+
+### 2026-04-26 - Cursor agent — Source recency gap closure plan
+
+- Task Purpose: Capture a phased, auditable plan to close identified bibliography recency and coverage gaps; document under `Sources/` per contributor request.
+- Input Materials Used: Prior recency assessment in chat; `Sources/AnnotatedBibliography.md`; `Sources/ToReview.md`; `StellarScienceReferenceCatalog.cs`; `PlanetaryScienceReferenceCatalog.cs`; `ObjectScienceReferenceCatalog.cs`; `Docs/ProjectStructure.md`.
+- AI Produced: `Sources/SourceRecencyGapClosurePlan.md` (workstreams A–K including planet-conditioned sentient populations and astrobiology / alternative biochemistry; milestones M0–M7; roles/checkpoints); `Docs/ProjectStructure.md` tree and Recent Major Additions pointer; follow-up edits for exoplanet occurrence vs inhabited-world population terminology and for biosphere-without-sentience sourcing (`Bains2004` bibliography gap).
+- Human Accepted: Pending repository owner review.
+- Human Rejected: None recorded in this pass.
+- Human Changed: None recorded in this pass.
+- Validation Method: N/A (documentation only).
+- Final Approver: Pending Christopher B. Del Gesso review.
+
+### 2026-04-26 - Cursor agent (GPT-5.2) — Schulze removal and Lamy access notes
+
+- Task Purpose: Remove the Springer astrobiology monograph from active source tracking; align `Lamy2004` access notes with web search; answer bibliography versus `Sources/Texts` coverage questions.
+- Input Materials Used: User direction to drop sources without inspectable full text; web search for Lamy et al. (2004) *Comets II* chapter PDF; `Sources/AnnotatedBibliography.md`; `Sources/Texts/*.txt`; `Tests/Quality/TestEndToEndScienceAudit.cs`.
+- AI Produced: Deleted `Sources/Texts/SchulzeMakuchIrwin2008.txt`; removed bibliography / ToReview / audit / inventory / `galactic_formation.md` references; rewrote `BiologySupportEvaluator` sulfur-branch comment and matching audit + regression strings; updated Lamy bibliography row and `Lamy2004.txt` with ADS + NASA PDS pointers; added missing `Texts/Conselice2014.txt` link on the Conselice bibliography row.
+- Human Accepted: Pending repository owner review.
+- Human Rejected: None recorded in this pass.
+- Human Changed: None recorded in this pass.
+- Validation Method: `dotnet build StarGen.sln` (0 warnings, 0 errors).
+- Final Approver: Pending Christopher B. Del Gesso review.
+
+### 2026-04-26 - Cursor agent — Canup bibliography removal and ToReview scope
+
+- Task Purpose: Finish removing Canup & Ward (2006) from tracking after PDF withdrawal; keep `Sources/ToReview.md` scoped to **verified works without local full text**; align tests, science audits, Lamy catalog URLs, and `_source_audit` cross-check notes.
+- Input Materials Used: Conversation handoff summary; `Sources/AnnotatedBibliography.md`; `Sources/ToReview.md`; `Tests/Quality/TestEndToEndScienceAudit.cs`; `PlanetaryScienceReferenceCatalog.cs`; `ObjectScienceReferenceCatalog.cs`; `Docs/EndToEndScienceAudit.md`; `Docs/ScientificParameterAudit.md`; `Docs/ProjectStructure.md`; `Sources/Texts/_source_audit/*.md`; `Ronnet2020.comments.md`.
+- AI Produced: Removed `VerifyFileContains` for deleted `CanupWard2006.txt`; added bibliography `EnsureDoesNotContain` for `CanupWard2006.txt`; replaced dead UCF `lamy2004` URLs with ADS abstract links in both reference catalogs; updated moon-formation rows in end-to-end and parameter audits; refreshed bibliography cross-check section A and summary; trimmed follow-up and Ronnet comment-file language; minor `ProjectStructure` and `source_review_log` edits.
+- Human Accepted: Pending repository owner review.
+- Human Rejected: None recorded in this pass.
+- Human Changed: None recorded in this pass.
+- Validation Method: `dotnet build StarGen.csproj` (0 warnings, 0 errors).
+- Final Approver: Pending Christopher B. Del Gesso review.
+
+### 2026-04-26 - Cursor agent (GPT-5.2) — bulk PDF fetch
+
+- Task Purpose: Complete the outstanding **legal PDF acquisition** step for `Sources/Texts/` keys that previously had `.txt` notes only (user feedback: TXT-only sources without matching PDFs).
+- Input Materials Used: `Sources/Texts/_source_audit/missing_pdfs.md`; arXiv / IOP / UCLA / Berkeley-hosted URLs identified in the prior audit thread; local `Sources/Texts/` directory (gitignored PDF policy unchanged).
+- AI Produced: Fifty-one `Sources/Texts/<Key>.pdf` downloads via HTTP with ~3 s inter-request delay; audit updates in `Sources/Texts/_source_audit/missing_pdfs.md` and `Sources/Texts/_source_audit/source_review_log.md` documenting provenance, remaining gap **`Lamy2004`** (chapter PDF), and the third-party **`Kasting1993`** mirror caveat.
+- Human Accepted: Pending repository owner review (especially **Kasting1993** and **TanakaTakeuchiWard2002** publisher PDF licensing).
+- Human Rejected: None recorded in this pass.
+- Human Changed: None recorded in this pass.
+- Validation Method: PowerShell `Invoke-WebRequest` per file with minimum-size check (reject tiny error HTML); post-run stem diff (`txt` vs `pdf`) confirming academic PDF gaps were down to **`Lamy2004`** plus licensing exclusions (Springer book row was later removed from tracking in a follow-up pass).
+- Final Approver: Pending Christopher B. Del Gesso review.
+
+### 2026-04-24 - Codex (GPT-5)
+
+- Task Purpose: Implement the source-grounding cleanup plan for newly added PDFs and reviewer concerns, with per-source dispositions, conservative documentation updates, narrow active-citation cleanup, and source-quality regression coverage.
+- Input Materials Used: User source-grounding cleanup plan; user comments on Balbi2023, Bland2016/BlandHawthornGerhard2016, CanupWard2006, and ChenKipping2017; local PDFs in `Sources/Texts` for Laskar2017, Petit2018, Obertas2017, Petit2020, Tamayo2020, Rice2023, Outland2020, Ronnet2020, Sasaki2010, Szulagyi2018, Chowdhury2022, Comin2013, CominMestieri2013, Stokey2020, and Chen(2017); `Sources/AnnotatedBibliography.md`; `Sources/ToReview.md`; `Docs/EndToEndScienceAudit.md`; `Docs/ProjectStructure.md`; active science reference catalogs; and `Tests/Quality/TestEndToEndScienceAudit.cs`.
+- AI Produced: Draft source notes for the new local PDFs; standardized disposition sections for ChenKipping2017, CanupWard2006, Balbi2023, and BlandHawthornGerhard2016; bibliography and review-queue updates with conservative statuses; audit and project-structure updates; active source catalog/comment changes replacing Canup as moon-formation support; and quality tests for source-note dispositions, draft human-verification language, bibliography text links, and rejected-source handling.
+- Human Accepted: Pending Christopher B. Del Gesso review.
+- Human Rejected: Canup and Ward (2006) as active moon-formation support; fully-implemented treatment of BlandHawthornGerhard2016; and overbroad Chen-Kipping claims beyond mass-radius/class-probability support.
+- Human Changed: The user added PDFs and per-source comments, and explicitly required the cleanup to prioritize traceability and accuracy over broad generator retuning.
+- Validation Method: `dotnet build .\StarGen.sln` (`Build succeeded. 0 Warning(s), 0 Error(s).`); `godot-mono.exe --path . --headless --script res://Tests/RunTestsHeadless.gd` (`Total: 1861 | Passed: 1861 | Failed: 0`). Godot still emitted the repo's known shutdown leak/resource warnings after the green run.
+- Final Approver: Pending Christopher B. Del Gesso review.
+
+### 2026-04-24 - Codex (GPT-5)
+
+- Task Purpose: Review the user's Balbi (2023) and Bland-Hawthorn/Gerhard (2016) source feedback against the current implementation and bring the source-tracking documents back into sync.
+- Input Materials Used: User feedback on `Sources/Texts/Balbi2023.txt` and `Sources/Texts/BlandHawthornGerhard2016.txt`; repo `claude.md`; `Sources/AnnotatedBibliography.md`; `Sources/ToReview.md`; `Docs/EndToEndScienceAudit.md`; `Docs/ProjectStructure.md`; `src/domain/population/BiologySupportEvaluator.cs`; `src/domain/generation/parameters/LifeScienceReferenceCatalog.cs`; `src/domain/generation/parameters/ObjectScienceReferenceCatalog.cs`; and `Tests/Unit/Population/TestBiologySupportEvaluator.cs`.
+- AI Produced: Updated Balbi-related civilization scoring so high abiotic oxygen false-positive risk discounts otherwise breathable atmosphere support; added regression coverage for that behavior; promoted the Bland-Hawthorn/Gerhard source-note status in the review docs while recording it as an underused follow-up anchor; made the `Bland2016` / `BlandHawthornGerhard2016` alias explicit; added per-source AI response notes for Balbi2023 and BlandHawthornGerhard2016 addressing the user's review concerns; and updated the annotated bibliography, review queue, end-to-end audit, project-structure notes, and life/object science help text.
+- Human Accepted: Pending Christopher B. Del Gesso review.
+- Human Rejected: None in this pass.
+- Human Changed: The user supplied the source-review feedback and noted that the annotated bibliography and review queue were stale.
+- Validation Method: `dotnet build StarGen.sln` (`Build succeeded. 0 Warning(s), 0 Error(s).`); `godot-mono.exe --path . --headless --script res://Tests/RunTestsHeadless.gd` (`Total: 1861 | Passed: 1861 | Failed: 0`). Godot still emitted the repo's known shutdown leak/resource warnings after the green run.
+- Final Approver: Pending Christopher B. Del Gesso review.
+
+### 2026-04-23 - Codex (GPT-5)
+
+- Task Purpose: Execute the second-pass end-to-end science-audit work by sweeping broader inline citations from already tracked sources and then collecting the remaining unsupported-source anchors into one batched review queue so human source verification can happen in a single pass.
+- Input Materials Used: User request to do the broader inline-citation sweep first and then a separate source-acquisition pass; root `AGENTS.md`; repo `claude.md`; tracked `Docs/EndToEndScienceAudit.md`; worktree audit draft under `.claude/worktrees/relaxed-mirzakhani-2cd1af/Docs/EndToEndScienceAudit.md`; `Sources/ToReview.md`; `Sources/AnnotatedBibliography.md`; existing reviewed source notes under `Sources/Texts`; `src/domain/galaxy/SpiralDensityModel.cs`; `src/domain/system/StellarConfigGenerator.cs`; `src/domain/generation/generators/StellarMassSampler.cs`; `src/domain/generation/PlanetarySystemState.cs`; `src/domain/system/SystemPlanetGenerator.cs`; `src/domain/population/BiologySupportEvaluator.cs`; `Docs/ProjectStructure.md`; and `Tests/Quality/TestEndToEndScienceAudit.cs`.
+- AI Produced: Added new inline APA-style framework-plus-tuning comments across the broader audit sweep in `SpiralDensityModel`, `StellarConfigGenerator`, `StellarMassSampler`, `PlanetarySystemState`, `SystemPlanetGenerator`, and `BiologySupportEvaluator`; updated `Docs/EndToEndScienceAudit.md` to record the second-pass sweep and the one-pass human-review source batch; created a batched set of draft source notes for Bains (2004), Behroozi et al. (2019), Bland-Hawthorn & Gerhard (2016), Chabrier (2003), Choi et al. (2016), Conselice (2014), Duchene & Kraus (2013), Hayden et al. (2014), Kennicutt (1998), Kroupa (2001), Raghavan et al. (2010), and Wegg & Gerhard (2013); added that batch to `Sources/ToReview.md`; expanded the audit quality regression to check the broader inline-comment sweep and the batched source-note artifacts; and updated `Docs/ProjectStructure.md`.
+- Human Accepted: Pending Christopher B. Del Gesso review.
+- Human Rejected: The user explicitly rejected a staggered review flow where first-pass source additions would be reviewed now and the unsupported-source additions would require a separate later review round.
+- Human Changed: The user required the broader inline-citation sweep to rely on already tracked sources first, and required the unsupported-source acquisition work to be batched afterward so all new source notes can be reviewed together.
+- Validation Method: `dotnet build StarGen.sln` (`Build succeeded. 0 Warning(s), 0 Error(s).`); `godot-mono.exe --path . --headless --script res://Tests/RunTestsHeadless.gd` (`Total: 1860 | Passed: 1860 | Failed: 0`). Godot still emitted the repo's known shutdown leak/resource warnings after the green run.
+- Final Approver: Pending Christopher B. Del Gesso review.
+
+### 2026-04-23 - Codex (GPT-5)
+
+- Task Purpose: Implement the first-pass end-to-end scientific grounding audit remediation so the worktree-only audit becomes tracked repo documentation, the first `needs source` items gain explicit framework-plus-tuning comments, and the related source/bibliography/provenance artifacts are added to the repository.
+- Input Materials Used: User-approved implementation plan for the first-pass end-to-end scientific grounding audit remediation; root `AGENTS.md`; repo `claude.md`; `.claude/worktrees/relaxed-mirzakhani-2cd1af/Docs/EndToEndScienceAudit.md`; `Docs/Roadmap.md`; `Docs/ProjectStructure.md`; `Docs/ScientificParameterAudit.md`; `Sources/SourceReviewProcedure.md`; `Sources/ToReview.md`; `Sources/AnnotatedBibliography.md`; `AI-Use-Statement.md`; `src/domain/galaxy/GalaxyRealismProfileBuilder.cs`; `src/domain/generation/generators/StellarIsochroneApproximator.cs`; `src/domain/generation/PlanetarySystemState.cs`; `src/domain/population/BiologySupportEvaluator.cs`; and the DotNet native test framework files.
+- AI Produced: Added a tracked `Docs/EndToEndScienceAudit.md` as the main audit document; created draft source notes for Diaz-Garcia et al. (2016), Hurley et al. (2000), Kormendy et al. (2009), and Tanaka et al. (2002); updated `Sources/ToReview.md` and `Sources/AnnotatedBibliography.md` to track those first-pass artifacts; added inline APA-style framework comments with explicit `Tuning:` language at the first-pass code sites; added a DotNet quality regression that checks the tracked audit file, the source-note files, and the presence of the inline framework/tuning comments; and updated roadmap/project-structure docs so this remediation pass is tracked in-repo.
+- Human Accepted: Pending Christopher B. Del Gesso review.
+- Human Rejected: The user had already rejected closing unsupported scientific claims without source-first remediation and explicit human-verification gates.
+- Human Changed: The user explicitly required that no first-pass issue be treated as fixed until it had a tracked audit entry, a source note, bibliography coverage, inline comment traceability, and explicit human-verification language.
+- Validation Method: `dotnet build StarGen.sln` (`Build succeeded. 0 Warning(s), 0 Error(s).`); `godot-mono.exe --path . --headless --script res://Tests/RunTestsHeadless.gd` (`Total: 1860 | Passed: 1860 | Failed: 0`). Godot still emitted the repo's known shutdown leak/resource warnings after the green run.
+- Final Approver: Pending Christopher B. Del Gesso review.
+
 ### 2026-04-22 - Codex (GPT-5)
 
 - Task Purpose: Implement the `0.9d` vs `0.9e` edition split so the public build hides and rejects save/load flows while the paid export/save-enabled build restores them through a single capability gate.
@@ -141,8 +284,8 @@ Use this log for significant AI-assisted artifacts in this repository.
 ### 2026-04-22 - Codex (GPT-5)
 
 - Task Purpose: Audit the RPG systems StarGen is trying to stay compatible with by checking what each one actually produces during world generation, then propose an academically grounded baseline for sentient-world outputs such as settlement structure, government, law, technology, starport quality, and faction pressure.
-- Input Materials Used: User request to complete the life-tightening follow-up with a quick RPG-system audit that covers more than government or law; `AGENTS.md`; repo `claude.md`; `src/domain/generation/GenerationUseCaseSettings.cs`; `src/domain/generation/RpgCompatibilityProfile.cs`; `src/domain/generation/Traveller/TravellerWorldProfile.cs`; `src/domain/generation/Traveller/TravellerWorldGenerator.cs`; `src/domain/generation/Traveller/TravellerWorldGenerator.Systems.cs`; `src/domain/generation/Traveller/TravellerSystemGenerator.cs`; `src/domain/population/NativePopulationGenerator.cs`; `src/domain/population/ColonyGenerator.cs`; `src/domain/population/GovernmentType.cs`; `src/domain/population/TechnologyLevel.cs`; `Docs/TravellerWorldCreation.md`; `Docs/LifeScienceAudit.md`; `Sources/AnnotatedBibliography.md`; `Sources/ToReview.md`; and the following external sources reviewed on 2026-04-22: Traveller SRD World Creation, Cepheus SRD Worlds, Paizo's `A Galaxy Of Worlds`, Paizo's `A Galaxy Of Toolboxes`, Paizo's `Starfinder Galaxy Exploration Manual` product page, Tomkin Press `Ironsworn: Starforged`, Tomkin Press `Starforged Truths Workbook`, Kremer (1993), Henrich et al. (2016), Blanton & Fargher (2008), Turchin (2010), Pospisil (1967), Chowdhury (2022), Katz et al. (2020), and Comin & Hobijn (2010).
-- AI Produced: Added `Docs/RpgCompatibilityGenerationAudit.md`; documented what Traveller, Cepheus, Starfinder, and Starforged world or sector generation actually emit; audited current StarGen compatibility coverage against those targets; proposed a shared source-grounded sentient-world latent-state model for settlement structure, regime generation, law reach, technology diffusion, and trade or starport quality; expanded `Sources/AnnotatedBibliography.md` and `Sources/ToReview.md` with the governance, law, and technology-diffusion sources used by the audit; updated `Docs/ProjectStructure.md`; and synced version metadata to `0.8.20.0`.
+- Input Materials Used: User request to complete the life-tightening follow-up with a quick RPG-system audit that covers more than government or law; `AGENTS.md`; repo `claude.md`; `src/domain/generation/GenerationUseCaseSettings.cs`; `src/domain/generation/RpgCompatibilityProfile.cs`; `src/domain/generation/Traveller/TravellerWorldProfile.cs`; `src/domain/generation/Traveller/TravellerWorldGenerator.cs`; `src/domain/generation/Traveller/TravellerWorldGenerator.Systems.cs`; `src/domain/generation/Traveller/TravellerSystemGenerator.cs`; `src/domain/population/NativePopulationGenerator.cs`; `src/domain/population/ColonyGenerator.cs`; `src/domain/population/GovernmentType.cs`; `src/domain/population/TechnologyLevel.cs`; `Docs/TravellerWorldCreation.md`; `Docs/LifeScienceAudit.md`; `Sources/AnnotatedBibliography.md`; `Sources/ToReview.md`; and the following external sources reviewed on 2026-04-22: Traveller SRD World Creation, Cepheus SRD Worlds, Paizo's `A Galaxy Of Worlds`, Paizo's `A Galaxy Of Toolboxes`, Paizo's `Starfinder Galaxy Exploration Manual` product page, Tomkin Press `Ironsworn: Starforged`, Tomkin Press `Starforged Truths Workbook`, Kremer (1993), Henrich et al. (2016), Turchin (2010), Pospisil (1967), Chowdhury (2022), and Katz et al. (2020).
+- AI Produced: Added `Docs/RpgCompatibilityGenerationAudit.md`; documented what Traveller, Cepheus, Starfinder, and Starforged world or sector generation actually emit; audited current StarGen compatibility coverage against those targets; proposed a shared source-grounded sentient-world latent-state model for settlement structure, regime generation, law reach, technology diffusion, and trade or starport quality; expanded `Sources/AnnotatedBibliography.md` and `Sources/ToReview.md` with the governance, law, and related technology-baseline sources used by the audit; updated `Docs/ProjectStructure.md`; and synced version metadata to `0.8.20.0`.
 - Human Accepted: Pending Christopher B. Del Gesso review of the compatibility-scope summary, the academic source selection for sentient-world modeling, and the proposed split between realism-layer outputs and ruleset-adapter outputs.
 - Human Rejected: The user rejected limiting the audit to government, law, and technology only, and required that the audit check each target system for the full set of world-generation outputs it expects.
 - Human Changed: The user explicitly clarified that Traveller, Cepheus, Starfinder, and Starforged should be assessed by what they actually generate during world or sector creation, and that worlds with sentient life should have academically informed baseline modeling before being mapped into those systems' outputs.
@@ -1389,4 +1532,37 @@ Use this log for significant AI-assisted artifacts in this repository.
 - Human Rejected: The Solar realization suite itself was not executed in this pass, and no broader headless harness was run, because the user explicitly asked to avoid running other tests until told otherwise.
 - Human Changed: The user clarified that the earlier direct-system-path realization test was insufficient and that the dedicated suite must prove Solar-system realizability from galactic parameters regardless of the chosen supported model settings, with clear identification of where failure occurs.
 - Validation Method: `dotnet build StarGen.sln` (build passed with 0 warnings and 0 errors). No headless or isolated Solar suite execution was performed in this pass.
+- Final Approver: Pending Christopher B. Del Gesso review.
+
+### 2026-04-28 - Codex (GPT-5)
+
+- Task Purpose: Check the compiled source-note inventory against the annotated bibliography and start mapping the implications of the source corpus onto the v1.0 scientific pipeline closure checklist.
+- Input Materials Used: User request for v1.0 checklist item #3; repo `claude.md`; `Sources/AnnotatedBibliography.md`; `Sources/Texts/*.txt` inventory and source-note metadata; `Docs/V1.0Checklist.md`; `Docs/ScientificParameterAudit.md`; `Docs/ParameterMaterialityAudit.md`; and `Docs/EndToEndScienceAudit.md`.
+- AI Produced: Updated `Docs/V1.0Checklist.md` with a source and bibliography closure subsection, the current bibliography discrepancy counts and missing stems, a first source-cluster-to-generation implication map, and a concrete closure workflow for source IDs, material downstream effects, tests, deferred implications, and human signoff.
+- Human Accepted: Pending user review of the bibliography discrepancy list, source-cluster grouping, and v1.0 scientific pipeline closure plan.
+- Human Rejected: No bibliography entries were rewritten or accepted as final APA corrections in this pass; unresolved and incomplete citations remain flagged for human verification.
+- Human Changed: The user identified the source-compilation work as part of v1.0 checklist item #3 and prioritized the follow-up implication mapping over immediate bibliography cleanup.
+- Validation Method: Documentation-only update; no build or test suite was run.
+- Final Approver: Pending Christopher B. Del Gesso review.
+
+### 2026-04-28 - Codex (GPT-5)
+
+- Task Purpose: Normalize raw full-text source notes into the BauerEtAl2017-style layout and begin comparing current generator behavior against the cleaned source implications.
+- Input Materials Used: User instruction to use `BauerEtAl2017.txt` as the source-note formatting example; `claude.md`; `Sources/Texts/BauerEtAl2017.txt`; local PDFs and text extracts for `ChacuaEtAl2024`, `EscuderoEtAl2023`, `HamiltonEtAl2020`, `Knez2023`, `SavvidouEtAl2023`, and `VanKleefEtAl2023`; `Sources/AnnotatedBibliography.md`; `Docs/V1.0Checklist.md`; `Docs/ProjectStructure.md`; `CometGenerator.cs`; `CometSpec.cs`; `PlanetarySystemState.cs`; `SystemPlanetGenerator.cs`; `BiologySupportEvaluator.cs`; `SentientWorldProfile.cs`; `SentientWorldProfileBuilder.cs`; and `NativePopulationGenerator.cs`.
+- AI Produced: Replaced six raw full-text extract notes with normalized source metadata, abstract, findings, StarGen applicability, mechanics implications, APA citation, follow-up, and current generator-fit sections; added matching bibliography entries in a cleanup-additions section; created `Docs/SourceGeneratorFitAudit.md` with initial fit findings for Bauer, Savvidou, Escudero, Hamilton, Knez, Chacua, and Van Kleef; linked the audit from the v1.0 checklist; and updated project-structure documentation.
+- Human Accepted: Pending user review of source-note summaries, APA formatting, and generator-fit judgments.
+- Human Rejected: No source claims were accepted as final release claims; `SavvidouEtAl2023.pdf` was explicitly flagged as the wrong PDF and must be reacquired before final verification.
+- Human Changed: The user specified `BauerEtAl2017` as the formatting example and asked to start comparing generators against source findings.
+- Validation Method: Documentation-only update; no build or test suite was run.
+- Final Approver: Pending Christopher B. Del Gesso review.
+
+### 2026-04-28 - Codex (GPT-5)
+
+- Task Purpose: Implement the v1.0 science-grounded generation pipeline plan so active heuristics become source-backed, explicitly StarGen-tuned, or exposed as model/slider controls with synchronized citation surfaces.
+- Input Materials Used: User-approved implementation plan; repo `claude.md`; `Docs/V1.0Checklist.md`; `Docs/SourceGeneratorFitAudit.md`; `Sources/AnnotatedBibliography.md`; source notes for `BauerEtAl2017`, `SavvidouEtAl2023`, `EscuderoEtAl2023`, `HamiltonEtAl2020`, `Knez2023`, `ChacuaEtAl2024`, and `VanKleefEtAl2023`; `CometGenerator.cs`; `CometSpec.cs`; `PlanetaryGenerationProfile.cs`; `PlanetarySystemState.cs`; `GenerationUseCaseSettings.cs`; `BiologySupportEvaluator.cs`; `LifePotentialModeling.cs`; `SentientWorldProfile.cs`; `SentientWorldProfileBuilder.cs`; and generation parameter catalogs/tests.
+- AI Produced: Added `ScienceTuningRegistry`, `SentientScienceReferenceCatalog`, new additive planetary/life/sentient model controls, Bauer-style default Jupiter-family comet radius sampling, disk/dust/fragmentation/giant-origin weighting, dark-biosphere chemical-energy proxy scoring, sentient-world proxy model adjustments, synchronized tooltip/help/source catalog updates, source-acquisition metadata, expanded full science-catalog registry coverage with value/range metadata, high-impact internal coefficient-family registry entries, registry/citation tests, serialization tests, and version/project-structure/v1.0 checklist documentation updates.
+- Human Accepted: Pending user review of the new source/tuning registry, model controls, citation wording, and behavior changes.
+- Human Rejected: The implementation does not claim final acceptance of social-science/culture/governance conclusions; those outputs remain human-audit-required release claims.
+- Human Changed: The user clarified that citation updates must propagate into tooltips, the overall help file/help panels, and anywhere sources are listed, and later clarified that already cited sources missing from `Sources/` usually indicate an acquisition failure rather than an uncatalogued source.
+- Validation Method: `dotnet build StarGen.sln` passed. `godot-mono.exe --path . --headless --script res://Tests/RunTestsHeadless.gd` passed (`Total: 1868 | Passed: 1868 | Failed: 0`), with Godot shutdown leak warnings after the green test report.
 - Final Approver: Pending Christopher B. Del Gesso review.

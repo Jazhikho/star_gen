@@ -45,6 +45,10 @@ public static class ObjectGenerationParameterCatalog
         ["comet_family"] = "Jupiter-family comets are shorter-period comets shaped by the giant planets.\nLong-period comets come in from much farther out on stretched orbits.",
         ["comet_activity"] = "Active comets vent more gas and dust.\nDormant comets keep comet origins but show little activity.\nExtinct comets are mostly spent icy bodies.",
         ["comet_large"] = "Turn this on to bias the comet toward a larger nucleus.",
+        ["comet_nucleus_model"] = "This chooses the comet nucleus size prior.\nBauer Jupiter-Family is the source-backed default for smaller Jupiter-family nuclei.\nLegacy Wide Range keeps older StarGen broad sizes only as an explicit stylized or compatibility choice.",
+        ["comet_activity_model"] = "This chooses the active/dormant/extinct activity prior.\nSurvey Anchored is the documented default.\nActive-rich and Dormant-rich expose uncertainty as a setting instead of a hidden roll.",
+        ["comet_size_scale"] = "This scales the selected comet nucleus model.\nUse it to explore uncertainty after choosing the model, not as a replacement for the source-backed model choice.",
+        ["minor_body_population_slope"] = "This controls how strongly minor-body sampling favors smaller bodies.\nHigher slopes make small nuclei more common.",
         ["advanced_controls"] = "Advanced controls expose explicit override keys used later by the editor.\nUse them only when you want to target a specific physical value instead of leaving the direct object profile to guide generation.",
     };
 

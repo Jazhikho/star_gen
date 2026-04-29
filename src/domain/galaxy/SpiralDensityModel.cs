@@ -114,6 +114,10 @@ public partial class SpiralDensityModel : DensityModelInterface
         float armProximity = GetPeakArmProximity(radialDistance, x, zPosition);
         float noiseSample = (_armNoise.GetNoise3D(x, 0.0f, zPosition) + 1.0f) * 0.5f;
 
+        // Hart et al. (2017) and Lingard et al. (2021) treat grand-design, multi-armed,
+        // and flocculent structure as meaningful observational morphology distinctions.
+        // Tuning: the `0.70 / 0.30` and `0.35 / 0.65` blends below are StarGen weights for
+        // mixing arm coherence with stochastic structure, not published coefficients.
         if (_spec.ArmMechanism == GalaxyArmMechanism.GrandDesign)
         {
             return baseline + ((float)_spec.ArmAmplitude * armProximity);

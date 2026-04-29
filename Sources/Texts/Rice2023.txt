@@ -1,0 +1,78 @@
+# Rice2023
+
+## Source metadata
+- File: `Rice2023.pdf`
+- Domain: planetary architecture / spacing uniformity
+- Pages: 11
+- Authors (auto-extracted — verify against PDF): and Jason H. Steffen1,2
+
+## Abstract
+4058 D. R. Rice and J. H. Steffen system’s masses widen the distribution of stability time resulting in a heteroscedastic stability time relationship with spacing. Our paper is laid out as follows. In Sections 2 and 3, we describe the relevant parameters to our study and the set-up of our planetary systems. We reproduce the resonant deviations in stability time for systems with equal mass and equal spacing in Section 4. We then model systems with equal spacing but use variable mass planets in Section 5 and explore the amount of variance in mass needed to erase modulations in the stability time relationship for various masses and multiplicities. Finally, in Section 6 we use planets from 1 to 10 M⊕ in each system and detail the heteroscedastic relationship of stability time for this large range of planet masses. We conclude with a summary and discussion in Section 7. For small eccentricities and inclinations, the mutual Hill radius of two bodies is defined as   m1 + m2 1/3 a1 + a2 RH 1,2 = , (1) 3M 2 where m1 and m2 are the planetary masses, a1 and a2 are their semimajor axes, and M is the mass of the central body. The separation of two planet’s semimajor axes can be measured in units of mutual Hill radii by a spacing parameter, , given as a2 –a1 = RH1,2 . (2) The spacing is denoted as ‘k’ in Zhou, Lin & Sun (2007) and ‘β’ in Smith & Lissauer (2009). For a system of n planets, equations (1) and (2) can combine to give ai+1 = ai 2 + K , 2 − K where   mi + mi+1 1/3 K= 3M (3) (4) for a pair of planets of masses mi (inner) and mi+1 (outer) around a central body of mass M. Once the innermost planet’s orbit (starting from a1 ) and a spacing parameter is chosen, the masses
+
+## Major claims, findings, models, assumptions, and limitations
+*Human verification required before using quantitative values or model assumptions in
+StarGen defaults. Figures and equations not captured by text extraction — read the PDF
+for exact thresholds, fit coefficients, and table values.*
+
+- Primary domain: planetary architecture / spacing uniformity
+- See StarGen applicability section below for the specific implications.
+
+## StarGen applicability
+'Peas in a pod' spacing and size uniformity statistics. Constrains period-ratio and size-ratio distributions for multi-planet system generation in StarGen.
+
+## Parameters, constraints, and mechanics implications
+*(Human action: fill in specific numeric values, distributions, model families, and
+classification boundaries extracted from the paper. Where competing models or confidence
+ranges exist, expose those as user-selectable assumptions rather than collapsing to a
+single default. Where the paper documents uncertainty, preserve it in StarGen rather
+than presenting false precision.)*
+
+## Works cited by this paper (auto-extracted from final pages, partial)
+- Agol E. et al., 2021, Planet. Sci. J., 2, 1
+- Bartram P., Wittig A., Lissauer J. J., Gavino S., Urrutxua H. , 2021, MNRAS,
+- Burgasser A. J., Mamajek E. E. , 2017, ApJ, 845, 110
+- Chambers J. E. , 1999, MNRAS, 304, 793
+- Chambers J. E., Wetherill G. W., Boss A. P., 1996, Icarus, 119, 261
+- Chatterjee S., Ford E. B., Matsumura S., Rasio F. A. , 2008, ApJ, 686, 580
+- Dawson R. I. et al., 2021, AJ, 161, 161
+- Deck K. M., Payne M., Holman M. J. , 2013, ApJ, 774, 129
+- Durbin J., Watson G. S. , 1950, Biometrika, 37, 409
+- Fabrycky D. C. et al., 2014, ApJ, 790, 146
+- Fang J., Margot J.-L. , 2013, ApJ, 767, 115
+- Funk B., Wuchterl G., Schwarz R., Pilat-Lohinger E., Eggl S. , 2010, A&A,
+- Gladman B. , 1993, Icarus, 106, 247
+- Goldreich P., Lithwick Y., Sari R. , 2004, ApJ, 614, 497
+- Gratia P., Lissauer J. J. , 2021, Icarus, 358, 114038
+- Hussain N., Tamayo D. , 2020, MNRAS, 491, 5258
+- Kokubo E., Ida S. , 1998, Icarus, 131, 171
+- Kokubo E., Ida S. , 2000, Icarus, 143, 15
+- Lissauer J. J., Gavino S. , 2021, Icarus, 364, 114470
+- Lissauer J. J. et al., 2013, ApJ, 770, 131
+
+## Opposing or alternative findings cited
+*(Human action: identify papers in the reference list that present opposing models,
+competing parameter choices, or significantly different results. Note the specific
+disagreement and its implication for which StarGen default to use.)*
+
+## APA citation
+*(Verify and complete — see AnnotatedBibliography.md for the curated APA entry.)*
+
+## Conflicts and follow-up work
+*(Human action: search for papers explicitly responding to, revising, or challenging
+this paper published after its date. For fast-moving fields (exoplanet demographics,
+habitability, JWST/TESS-informed work), treat results >3 years old as potentially
+superseded. Flag updates in Followup.md.)*
+
+
+## StarGen mechanics translation
+
+### Planetary system architecture — 'peas in a pod' and radius gap slope (FGK)
+Confirms uniform planet-size architecture ('peas in a pod') within multi-planet systems.
+Also provides updated radius gap slope for FGK stars.
+
+**StarGen planet spacing and architecture:**
+- `PeasInAPod = true` (default for multi-planet systems):
+  adjacent planets in a system are drawn from similar radius/mass bins.
+- Intra-system radius uniformity: σ_R/R̄ ≈ 0.25 for systems with 3+ planets.
+- Gap slope (FGK): consistent with VanEylen2018Ast value (~−0.09 to −0.11).
+**Cross-references:** HeEtAl2020.txt, FangMargot2013.txt, VanEylen2018Ast.txt.

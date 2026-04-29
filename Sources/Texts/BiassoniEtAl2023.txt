@@ -1,0 +1,74 @@
+# BiassoniEtAl2023
+
+## Source metadata
+- File: `BiassoniEtAl2023.pdf`
+- Domain: stellar/galactic structure
+- Pages: 14
+- Authors (auto-extracted — verify against PDF): INAF – Osservatorio Astronomico di Brera, Via E. Bianchi 46, 23807 Merate, Italy
+
+## Abstract
+Absorption of stellar X-ray and Extreme Ultraviolet (EUV) radiation in the upper atmosphere of close-in exoplanets can give rise to hydrodynamic outflows, which may lead to the gradual shedding of their primordial, light element envelopes. Excess absorption by neutral helium atoms in the metastable 2 3 S state [He i(2 3 S)], at „10,830 Å, has recently emerged as a viable diagnostic of atmospheric escape. Here we present a public add-on module to the 1D photo-ionization hydrodynamic code ATES, designed to calculate the He i(2 3 S) transmission probability for a broad range of planetary parameters. By relaxing the isothermal outflow assumption, the code enables a self-consistent assessment of the He i(2 3 S) absorption depth along with the atmospheric mass loss rate and the outflow temperature profile, which strongly affects the recombination rate of He ii into He i(2 3 S). We investigate how the transit signal can be expected to depend upon known system parameters, including host spectral type, orbital distance, as well as planet gravity. At variance with previous studies, which identified K-type stars as favorable hosts, we conclude that late M-dwarfs with Neptune-sized planets orbiting at „0.05-0.1 AU can be expected to yield the strongest transit signal – well in excess of 30% for near-cosmological He-to-H abundances. More generally, we show that the physics which regulates the population and depletion of the metastable state, combined with geometrical effects, can yield somewhat counter-intuitive results, such as a non-monotonic dependence of the transit depth on orbital distance. These are compounded by a strong degeneracy between the stellar EUV flux intensity and th
+
+## Major claims, findings, models, assumptions, and limitations
+*Human verification required before using quantitative values or model assumptions in
+StarGen defaults. Figures and equations not captured by text extraction — read the PDF
+for exact thresholds, fit coefficients, and table values.*
+
+- Primary domain: stellar/galactic structure
+- See StarGen applicability section below for the specific implications.
+
+## StarGen applicability
+Verify abstract — apply to relevant galactic structural parameters in StarGen.
+
+## Parameters, constraints, and mechanics implications
+*(Human action: fill in specific numeric values, distributions, model families, and
+classification boundaries extracted from the paper. Where competing models or confidence
+ranges exist, expose those as user-selectable assumptions rather than collapsing to a
+single default. Where the paper documents uncertainty, preserve it in StarGen rather
+than presenting false precision.)*
+
+## Works cited by this paper (auto-extracted from final pages, partial)
+- Allard, F. 2016, in SF2A-2016: Proceedings of the Annual meeting of the
+- French Society of Astronomy and Astrophysics, ed. C. Reylé, J. Richard,
+- L. Cambrésy, M. Deleuil, E. Pécontal, L. Tresse, & I. Vauglin, 223–227
+- Allart, R., Bourrier, V., Lovis, C., et al. 2018, Science, 362, 1384
+- Alonso-Floriano, F. J., Snellen, I. A. G., Czesla, S., et al. 2019, A&A, 629, A110
+- Bailey, J., Butler, R. P., Tinney, C. G., et al. 2009, ApJ, 690, 743
+- Bakos, G. Á., Torres, G., Pál, A., et al. 2010, ApJ, 710, 1724
+- Ben-Jaffel, L. 2007, ApJ, 671, L61
+- Ben-Jaffel, L., Ballester, G. E., Muñoz, A. G., et al. 2022, Nature Astronomy, 6,
+- Bennett, K. A., Redfield, S., Oklopčić, A., et al. 2023, The Astronomical Journal,
+- Bonomo, A. S., Desidera, S., Benatti, S., et al. 2017, A&A, 602, A107
+- Bourrier, V., Lecavelier des Etangs, A., Ehrenreich, D., et al. 2018, A&A, 620,
+- Caldiroli, A., Haardt, F., Gallo, E., et al. 2021, A&A, 655, A30
+- Caldiroli, A., Haardt, F., Gallo, E., et al. 2022, A&A, 663, A122
+- Carolan, S., Vidotto, A. A., Villarreal D’Angelo, C., & Hazra, G. 2021, MNRAS,
+- Chadney, J. M., Galand, M., Unruh, Y. C., Koskinen, T. T., & Sanz-Forcada, J.
+- Cloutier, R., Charbonneau, D., Deming, D., Bonfils, X., & Astudillo-Defru, N.
+- Craig, N., Abbott, M., Finley, D., et al. 1997, ApJS, 113, 131
+- dos Santos, L. A., Ehrenreich, D., Bourrier, V., et al. 2020, A&A, 640, A29
+- Drake, G. W. F. 1971, Phys. Rev. A, 3, 908
+
+## Opposing or alternative findings cited
+*(Human action: identify papers in the reference list that present opposing models,
+competing parameter choices, or significantly different results. Note the specific
+disagreement and its implication for which StarGen default to use.)*
+
+## APA citation
+*(Verify and complete — see AnnotatedBibliography.md for the curated APA entry.)*
+
+## Conflicts and follow-up work
+*(Human action: search for papers explicitly responding to, revising, or challenging
+this paper published after its date. For fast-moving fields (exoplanet demographics,
+habitability, JWST/TESS-informed work), treat results >3 years old as potentially
+superseded. Flag updates in Followup.md.)*
+
+
+## StarGen mechanics translation
+
+### Planet occurrence / demographics — recent Kepler/TESS study
+*(Verify exact domain of BiassoniEtAl2023 against PDF; domain tag from DOMAIN_HINTS.)*
+
+**StarGen:** Contributes to planet occurrence rate calibration. Verify specific numbers
+against PDF before encoding. Pending human verification.
+**Cross-references:** See AnnotatedBibliography.md.

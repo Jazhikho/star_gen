@@ -1,21 +1,58 @@
-Source note for StarGen research review
+# Pascucci2016
 
-Citation:
-Pascucci, I., Testi, L., Herczeg, G. J., Long, F., Manara, C. F., Hendler, N., Mulders, G. D., Krijt, S., Ciesla, F., Henning, T., Mohanty, S., Drabek-Maunder, E., Apai, D., Szucs, L., Sacco, G., & Olofsson, J. (2016).
-A steeper than linear disk mass-stellar mass scaling relation.
-The Astrophysical Journal, 831(2), 125.
-arXiv: https://arxiv.org/abs/1608.03621
-DOI: https://doi.org/10.3847/0004-637X/831/2/125
+## Source metadata
+- File: `Pascucci2016.pdf`
+- Domain: protoplanetary disk / formation efficiency
+- Pages: 29
+- Authors (auto-extracted — verify against PDF): L. Testi2,3; D. Apai1,4; 2 INAF-Arcetri, Largo E. Fermi 5, I-50125 Firenze, Italy
 
-What was reviewed:
-- Abstract and source metadata on 2026-04-22.
+## Abstract
+The disk mass is among the most important input parameter for every planet formation model to determine the number and masses of the planets that can form. We present an ALMA 887 µm survey of the disk population around objects from ∼ 2 to 0.03 M⊙ in the nearby ∼2 Myr-old Chamaeleon I star-forming region. We detect thermal dust emission from 66 out of 93 disks, spatially resolve 34 of them, and identify two disks with large dust cavities of about 45 AU in radius. Assuming isothermal and optically thin emission, we convert the 887 µm flux densities into dust disk masses, hereafter Mdust . We find that the Mdust − M∗ relation is steeper than linear and of the form Mdust ∝ (M∗ )1.3−1.9 , where the range in the power law index reflects two extremes of the possible relation between the average dust temperature and stellar luminosity. By re-analyzing all millimeter data available for nearby regions in a self-consistent way, we show that the 1-3 Myr-old regions of Taurus, Lupus, and Chamaeleon I share the same Mdust − M∗ relation, while the 10 Myr-old Upper Sco association has a steeper relation. Theoretical models of grain growth, drift, and fragmentation reproduce this trend and suggest that disks are in the fragmentation-limited regime. In this regime millimeter grains will be located closer in around lower-mass stars, a prediction that can be tested with deeper and higher spatial resolution ALMA observations.
 
-Key implementation notes used in StarGen:
-- The paper presents an ALMA 887 micron survey of 93 disks in the approximately 2 Myr-old Chamaeleon I region, spanning host masses from about 2 to 0.03 solar masses.
-- It finds that the dust-disk-mass to stellar-mass relation is steeper than linear, with power-law indices between about 1.3 and 1.9.
-- The practical takeaway for StarGen is that solids budgets should scale with stellar mass more strongly than a simple linear or star-independent prior.
+## Major claims, findings, models, assumptions, and limitations
+*Human verification required before using quantitative values or model assumptions in
+StarGen defaults. Figures and equations not captured by text extraction — read the PDF
+for exact thresholds, fit coefficients, and table values.*
 
-How StarGen should use this:
-- As support for tying `SolidMassScalar` more directly to host-star mass or stellar scaffold class in `PlanetarySystemState`.
-- As a calibration reminder that low-mass stars can still produce many small planets even while carrying smaller absolute solids budgets than solar-mass stars.
-- As a source-backed reason to treat disk mass and planet count as related but not interchangeable parameters.
+- Primary domain: protoplanetary disk / formation efficiency
+- See StarGen applicability section below for the specific implications.
+
+## StarGen applicability
+Disk dust mass ∝ M_*^1.7; sets planet formation budget. Constrains disk mass as a function of stellar mass in StarGen.
+
+## Parameters, constraints, and mechanics implications
+*(Human action: fill in specific numeric values, distributions, model families, and
+classification boundaries extracted from the paper. Where competing models or confidence
+ranges exist, expose those as user-selectable assumptions rather than collapsing to a
+single default. Where the paper documents uncertainty, preserve it in StarGen rather
+than presenting false precision.)*
+
+## Works cited by this paper (auto-extracted from final pages, partial)
+- (Reference extraction incomplete — verify PDF.)
+
+## Opposing or alternative findings cited
+*(Human action: identify papers in the reference list that present opposing models,
+competing parameter choices, or significantly different results. Note the specific
+disagreement and its implication for which StarGen default to use.)*
+
+## APA citation
+*(Verify and complete — see AnnotatedBibliography.md for the curated APA entry.)*
+
+## Conflicts and follow-up work
+*(Human action: search for papers explicitly responding to, revising, or challenging
+this paper published after its date. For fast-moving fields (exoplanet demographics,
+habitability, JWST/TESS-informed work), treat results >3 years old as potentially
+superseded. Flag updates in Followup.md.)*
+
+
+## StarGen mechanics translation
+
+### Protoplanetary disk — dust size distribution and planet formation efficiency
+Disk dust masses correlate with host star mass; sets constraints on how much solid
+material is available for planet formation.
+
+**StarGen initial solid budget:**
+- Solid disk mass M_dust ∝ M★^1.9 (approximate from this survey).
+- For M-dwarfs: proportionally less solid material → fewer / smaller rocky planets.
+- This motivates the lower occurrence rate of large planets around low-mass stars.
+**Cross-references:** LambrechtsJohansen2012.txt, Mordasini2007.txt, MentCharbonneau2023.txt.

@@ -1,0 +1,73 @@
+# Turbet2023Followup
+
+## Source metadata
+- File: `Turbet2023Followup.pdf`
+- Domain: habitable zone inner edge / climate bistability / cloud feedback
+- Authors (verify against PDF title page)
+
+## Abstract
+Understanding the climate dynamics at the inner edge of the habitable zone (HZ) is crucial for predicting the habitability of rocky exoplanets. Previous studies using Global Climate Models (GCMs) have indicated that planets receiving high stellar flux can exhibit climate bifurcations, leading to bistability between a cold (temperate) and a hot (runaway) climate. However, the mechanism causing this bistability has not been fully explained, in part due to the difficulty associated with inferring mechanisms from small numbers of expensive numerical simulations in GCMs. In this study, we employ a two-column (dayside and nightside), two-layer climate model to investigate the physical mechanisms driving this bistability. Through mechanism-denial experiments, we demonstrate that the runaway greenhouse effect, coupled with a cloud feedback on either the dayside or nightside, leads to climate bistability. We also map out the parameters that control the location of the bifurcations and size of the bistability. This work identifies which mechanisms and GCM parameters control the stellar flux at which rocky planets are likely to retain a hot, thick atmosphere if they experience a hot start. This is critical for the prioritization of targets and interpretation of observations by the James Webb Space Telescope (JWST). Furthermore, our modeling framework can be extended to planets with different condensable species and cloud types. Keywords: Exoplanets (498) — Exoplanet atmospheres (487) — Extrasolar rocky planets (511) — Habitable planets (695) — Atmospheric science (116) — Planetary atmospheres (1244) — Water vapor (1791) — Exoplanet atmospheric composition (2021) 1. INTRODUCTION The inner edge of the habitable zone is a crucial threshold in exoplanetary science, delineating the clo
+
+## Major claims, findings, models, assumptions, and limitations
+*Human verification required before using quantitative values or model assumptions in
+StarGen defaults. Figures and equations not captured by text extraction — read the PDF
+for exact thresholds, fit coefficients, and table values.*
+
+- Primary domain: habitable zone inner edge / climate bistability / cloud feedback
+- See StarGen applicability section below for the specific implications.
+
+## StarGen applicability
+Climate bistability at inner HZ edge from runaway greenhouse + cloud feedback. Planets with 'hot start' may retain thick atmospheres interior to the classical HZ. Add bistability flag to StarGen inner-HZ planets.
+
+## Parameters, constraints, and mechanics implications
+*(Human action: fill in specific numeric values, distributions, model families, and
+classification boundaries extracted from the paper. Where competing models or confidence
+ranges exist, expose those as user-selectable assumptions rather than collapsing to a
+single default. Where the paper documents uncertainty, preserve it in StarGen rather
+than presenting false precision.)*
+
+## Works cited by this paper (auto-extracted from final pages, partial)
+- Figure 3. The climate bistability can be understood by considering energy balance between outgoing longwave radiation
+- Figure 2. Each intersection represents an equilibrium climate state, where blue closed circles represent stable cold climates, red
+- Climate Bistability near the IEHZ
+- Since the climate bistability is driven by the runaway greenhouse effect and cloud feedbacks, model parameters
+- Increasing the end-of-runaway greenhouse temperature (Tend ) increases the minimum temperature at which the hot,
+- Figure 4. The size of bistability is controlled by the runaway greenhouse effect and cloud parameters. For each parameter, the
+- T2 are controlled by Temis (panel b) and Tend (panel c), respectively, the temperatures at which the runaway greenhouse process
+- 4. SUMMARY AND DISCUSSION
+- Our study uses a two-column, two-layer model to explore and explain the climate bistability observed at the inner
+- By the nature of low-order, conceptual modeling, our work neglects many potentially important effects, such as
+- 2023; Sergeev et al. 2024), water vapor buoyancy (Yang & Seidel 2020; Seidel & Yang 2020; Yang et al. 2022), and
+- Dagan et al. 2023; Spaulding-Astudillo & Mitchell 2023a; Song et al. 2024; Yang et al. 2024). Nevertheless we are
+- An important assumption of our model is the separation between a dayside column and a nightside column, which is
+- Another important assumption in our work is the absence of dayside clouds when the dayside atmosphere is stratified,
+- Yang et al. 2023).
+
+## Opposing or alternative findings cited
+*(Human action: identify papers in the reference list that present opposing models,
+competing parameter choices, or significantly different results. Note the specific
+disagreement and its implication for which StarGen default to use.)*
+
+## APA citation
+*(Verify and complete — see AnnotatedBibliography.md for the curated APA entry.)*
+
+## Conflicts and follow-up work
+*(Human action: search for papers explicitly responding to, revising, or challenging
+this paper published after its date. For fast-moving fields (exoplanet demographics,
+habitability, JWST/TESS-informed work), treat results >3 years old as potentially
+superseded. Flag updates in Followup.md.)*
+
+## StarGen mechanics translation
+
+### Inner HZ bistability — runaway greenhouse + cloud feedback
+Climate bistability at the inner HZ edge: planets with a 'hot start' can be locked in
+a hot runaway state even where a 'cold start' would yield a temperate climate.
+
+**StarGen habitability flag:**
+- `InnerHZBistability` — bool, set true when planet is within Yang2014-extended inner HZ.
+- When true: generated world may be in either temperate or runaway state depending on
+  formation history (hot vs cold start). Flag both states as plausible; do not resolve.
+- Key control parameters: dayside vs nightside cloud feedback; stellar flux bifurcation
+  point depends on rotation rate and cloud parameterisation.
+**User lever:** `InnerHZModel` — `BistabilityEnabled` | `DeterministicColdStart`
+**Cross-references:** Yang2014.txt, Kopparapu2013.txt, LugerBarnes2015.txt.

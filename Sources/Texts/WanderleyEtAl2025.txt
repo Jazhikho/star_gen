@@ -1,0 +1,77 @@
+# WanderleyEtAl2025
+
+## Source metadata
+- File: `WanderleyEtAl2025.pdf`
+- Domain: stellar/galactic physics
+- Pages: 19
+- Authors (auto-extracted — verify against PDF): M Dwarf Stars; Fábio Wanderley,1 Katia Cunha,2, 1 Verne V. Smith,3 Diogo Souto,4 I. Pascucci,5 Aida Behmard,6, 7; C. Allende Prieto,8, 9 Rachael L. Beaton,10 D. Bizyaev,11, 12 S. Daflon,1 S. Hasselquist,10 Steve Howell,13
+
+## Abstract
+Planetary radii are derived for 218 exoplanets orbiting 161 M dwarf stars. Stellar radii are based on an analysis of APOGEE high-resolution near-IR spectra for a subsample of the M-dwarfs; these results are used to define a stellar radius-MKs calibration that is applied to the sample of M-dwarf planet hosts. The planetary radius distribution displays a gap over Rp ∼1.6–2.0 R⊕ , bordered by two peaks at Rp ∼1.2–1.6 R⊕ (super-Earths) and 2.0–2.4 R⊕ (subNeptunes). The radius gap is nearly constant with exoplanetary orbital period (a power-law slope of m=+0.01+0.03 −0.04 ), which is different (2-3σ) from m∼−0.10 found previously for FGK dwarfs. This flat slope agrees with pebble accretion models, which include photoevaporation and inward orbital migration. The radius gap as a function of insolation is approximately constant over the range of Sp ∼20–250 S⊕ . The Rp -Porb plane exhibits a sub-Neptune desert for Porb <2d, that appears at Sp >120 S⊕ , being significantly smaller than Sp >650 S⊕ found in the FGK planet-hosts, indicating that the appearance of the sub-Neptune desert is a function of host-star mass. Published masses for 51 exoplanets are combined with our radii to determine densities, which exhibit a gap at ρp ∼0.9ρ⊕ , separating rocky exoplanets from sub-Neptunes. The density distribution within the sub-Neptune family itself reveals two peaks, at ρp ∼0.4ρ⊕ and ∼0.7ρ⊕ . Comparisons to planetary models find that the low-density group are gas-rich sub-Neptunes, while the group at <ρp >∼0.7ρ⊕ likely consists of volatile-rich water worlds.
+
+## Major claims, findings, models, assumptions, and limitations
+*Human verification required before using quantitative values or model assumptions in
+StarGen defaults. Figures and equations not captured by text extraction — read the PDF
+for exact thresholds, fit coefficients, and table values.*
+
+- Primary domain: stellar/galactic physics
+- See StarGen applicability section below for the specific implications.
+
+## StarGen applicability
+2025 — verify abstract for specific StarGen application.
+
+## Parameters, constraints, and mechanics implications
+*(Human action: fill in specific numeric values, distributions, model families, and
+classification boundaries extracted from the paper. Where competing models or confidence
+ranges exist, expose those as user-selectable assumptions rather than collapsing to a
+single default. Where the paper documents uncertainty, preserve it in StarGen rather
+than presenting false precision.)*
+
+## Works cited by this paper (auto-extracted from final pages, partial)
+- Abdurro’uf, Accetta, K., Aerts, C., et al. 2022, ApJS, 259,
+- Adams, F. C., Bodenheimer, P., & Laughlin, G. 2005,
+- Astronomische Nachrichten, 326, 913
+- Allard, F., Homeier, D., Freytag, B., Schaffenberger, W., &
+- Rajpurohit, A. S. 2013, Memorie della Societa
+- Astronomica Italiana Supplementi, 24, 128
+- Almenara, J. M., Dı́az, R. F., Dorn, C., Bonfils, X., &
+- Udry, S. 2018, MNRAS, 478, 460
+- Almenara, J. M., Bonfils, X., Otegi, J. F., et al. 2022,
+- Astudillo-Defru, N., Cloutier, R., Wang, S. X., et al. 2020,
+- Bailer-Jones, C. A. L., Rybizki, J., Fouesneau, M.,
+- Demleitner, M., & Andrae, R. 2021, AJ, 161, 147
+- Barkaoui, K., Timmermans, M., Soubkiou, A., et al. 2023,
+- Barkaoui, K., Schwarz, R. P., Narita, N., et al. 2024, A&A,
+- Barros, S. C. C., Demangeon, O., & Deleuil, M. 2016,
+- Batalha, N. M., Rowe, J. F., Bryson, S. T., et al. 2013,
+- Belokurov, V., Penoyre, Z., Oh, S., et al. 2020, MNRAS,
+- Berger, T. A., Schlieder, J. E., Huber, D., & Barclay, T.
+- 2023, arXiv e-prints, arXiv:2302.00009
+- Blanton, M. R., Bershady, M. A., Abolfathi, B., et al. 2017,
+
+## Opposing or alternative findings cited
+*(Human action: identify papers in the reference list that present opposing models,
+competing parameter choices, or significantly different results. Note the specific
+disagreement and its implication for which StarGen default to use.)*
+
+## APA citation
+*(Verify and complete — see AnnotatedBibliography.md for the curated APA entry.)*
+
+## Conflicts and follow-up work
+*(Human action: search for papers explicitly responding to, revising, or challenging
+this paper published after its date. For fast-moving fields (exoplanet demographics,
+habitability, JWST/TESS-informed work), treat results >3 years old as potentially
+superseded. Flag updates in Followup.md.)*
+
+
+## StarGen mechanics translation
+
+### Radius gap — M-dwarf specific location and dependence
+Extends radius gap analysis to M-dwarfs; gap location shifts to smaller radii.
+Critical for applying OwenWu2017/Ginzburg2018 to M-dwarf planet populations.
+
+**StarGen M-dwarf radius gap correction:**
+- Gap centre for M-dwarfs (0.3–0.7 M☉): ~1.4–1.7 R⊕ (smaller than solar-type)
+- Apply stellar-mass correction from FultonPetigura2018CKS but anchored to M-dwarf data.
+- `RadiusGapCentre_Mdwarf`: use empirical values from this paper rather than extrapolation.
+**Cross-references:** OwenWu2017.txt, FultonPetigura2018CKS.txt, MentCharbonneau2023.txt.

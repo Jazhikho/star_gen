@@ -1,0 +1,229 @@
+# BainsEtAl2024
+
+## Source metadata
+- File: `BainsEtAl2024.pdf`
+- Domain: astrobiology / alternative solvents (habitability chemistry)
+- Pages: 75
+- Authors (auto-extracted — verify against PDF): William Bains, Janusz J. Petkowski, Sara Seager
+
+## Abstract
+Life is a complex, dynamic chemical system that requires a dense fluid solvent in which to take place. A common assumption is that the most likely solvent for life is liquid water, and some researchers argue that water is the only plausible solvent. However, a persistent theme in astrobiological research postulates that other liquids might be cosmically common, and could be solvents for the chemistry of life. In this paper we present a new framework for the analysis of candidate solvents for life, and deploy this framework to review substances that have been suggested as solvent candidates. We categorize each solvent candidate through four criteria: occurrence, solvation, solute stability and solvent chemical functionality. Our semi-quantitative approach addresses all the requirements for a solvent not only from the point of view of its chemical properties but also from the standpoint of their biochemical function. Only the protonating solvents fulfil all the chemical requirements to be a solvent for life, and of those only water and concentrated sulfuric acid are also likely to be abundant in a rocky planetary context. Among the non-protonating solvents liquid CO2 stands out as a planetary solvent, and its potential as a solvent for life should be explored. We conclude with a discussion of whether it is possible for a biochemistry to change solvents, as an adaptation to radical changes in a planet’s environment. Our analysis provides the basis for prioritizing future experimental work exploring potential complex chemistry on other planets.
+
+## Major claims, findings, models, assumptions, and limitations
+*Human verification required before using semi-quantitative criterion scores as hard StarGen filters. Table 1 in the PDF uses symbolic ticks/crosses; transcribe from the PDF before encoding as machine rules. Origin-of-life (OOL) criteria are explicitly excluded—claims apply to maintenance biochemistry, not abiogenesis pathways.*
+
+- **Framework:** Any plausible bulk solvent for life must be scored against **four criteria**: (1) **Occurrence**—stable abiotic reservoirs on or near rocky surfaces (clouds/crust) over geological time, dense enough and low enough viscosity for macromolecular motion; (2) **Solvation**—dissolves a wide range of solutes including ions and polymers yet leaves other classes insoluble (enabling barriers, amphipaths, phase separation); (3) **Solute stability**—chemically diverse metabolites survive over biologically relevant timescales at temperatures where the solvent is liquid; (4) **Solvent chemical functionality**—the solvent can participate in metabolism (protonation, hydrolysis, etc.), not only act as passive medium. Criterion 4 is acknowledged as **Earth-life-prejudiced** and treated as **weaker** than the first three.
+- **Occurrence scope:** Analysis emphasizes **surface** (or near-surface / cloud) lakes/oceans pragmatically linked to detectability; subsurface-only life is noted as hard to observe on exoplanets. **Self-generated solvent only** (no abiotic reservoir) is argued to make ecosystems fragile to stress—strong preference for environmentally supplied solvent.
+- **Main survey conclusion (Section 3.12, Table 1):** **Liquid water** meets all four criteria and is judged the **strongest** overall candidate. **Concentrated sulfuric acid (roughly >90% w/w)** also meets all four (with **solute stability** flagged uncertain/qualified in Table 1 as (√)), and is argued **plausibly abundant** on rocky planets in **water-depleted** scenarios (Venus-like; also speculated for **post-migration M-dwarf** “belatedly habitable” worlds after primordial baking). **Liquid CO₂** scores well on occurrence and solute stability, **partially** on solvation, and **fails** chemical-functionality-as-proton donor in their framing; it is singled out for **future work**. **Cryogenic solvents** (CH₄, C₂H₆, N₂, etc.) are judged **very poor**—common but fail **solvation** and **functionality** (and cite near-zero polymer solubility). **Liquid ammonia** as **anhydrous bulk solvent** fails **Occurrence** (photochemical/thermal lability, miscibility with water driving alkaline-aqueous chemistry; Europa-style oceans **>~80% water** in their discussion; “ammonia Europa” ammonia loss scenario).
+- **Protonating vs non-protonating:** Only **protonating** solvents with strong hydrogen-bond networks satisfy **all chemical requirements** in their analysis; among those, **water** and **concentrated H₂SO₄** are the pair argued both **chemically adequate** and **planetarily plausible**. **NH₃, HF** and several others fail occurrence or stability gates despite favorable solvation in some cases.
+- **Mixtures and solvent replacement (Sections 4–5):** Most mixtures are dominated by one component’s chemistry; exceptions discussed include **freezing-point depression** (e.g. water–ammonia down to **176 K** cited; H₂O₂–H₂O; H₂SO₄–H₂O lowering freezing of concentrated acid). **Sulfuric acid** shows **concentration-dependent solvent identity** (~**80% vs 95% w/w** crossover toward “water-like” vs “distinct acid solvent”; **70–100% w/w** regime has non-linear chemistry). **Solvent replacement** over geological time (e.g. Venus water → acid clouds; red-dwarf planets to **liquid CO₂** oceans) is argued **conceivable** with **limited terrestrial precedent** (yeast ethanol tolerance **~25%**, glycerol, D₂O)—**not** demonstrated for wholesale solvent swaps.
+- **Liquid rock** rejected for solute stability (thermal destruction of complexity). **Supercritical CO₂** treated separately from liquid CO₂ for occurrence/solvation. **Ionic liquids**—chemically versatile but fail natural occurrence.
+- **Viscosity:** Pitch excluded; Branscomb & Russell “overdamped” argument noted with counterpoints; SI ties viscosities of life’s cytoplasmic milieu to limits; **liquid CO₂** viscosity lies **below** measured Earth-life water-based milieus—authors flag unknown whether that is an absolute barrier.
+
+## StarGen applicability
+Use this paper as the **primary science-facing solvent plausibility rubric** when StarGen classifies worlds beyond “liquid water HZ.” Implement a **four-axis solvent score** (occurrence / solvation / stability / functionality) or a simplified **enum of solvent regimes** with **documented assumption profiles**: (1) **Earth-like aqueous** (default hard-SF); (2) **Concentrated sulfuric acid** (Venus cloud / hot-rocky desiccated—pair with cloud-layer habitability and acid-concentration bands **81–100% w/w** as in Venus discussions); (3) **Liquid CO₂** (high-pressure cold scenarios—**fiction lever** until solvation/function biochemistry is specified); (4) **Cryogenic hydrocarbon/N₂** surfaces—mark as **low plausibility for complex biochemistry** under this review unless user explicitly overrides to space-opera / speculative modes. **Do not** treat Bains (2004)-style “relative probability of pure liquids” tables as endorsed by this 2024 review—they are superseded for **default scientific gating** by the criterion matrix here. **OOL** and **detectability of subsurface oceans** remain out of scope for automatic scoring unless separate specs are added.
+
+## Parameters, constraints, and mechanics implications
+*Values below are taken from the paper text, Table 1 summary, and SI excerpts in the PDF. Where the authors give ranges or qualitative ticks, StarGen should expose **assumption levers**, not single hard caps.*
+
+**Criterion 1 — Occurrence (planetary mechanics).** Requires **geologically stable**, **abiotically sourced**, **dense**, **low-to-moderate viscosity** fluid on **rocky** surfaces or **cloud layers** (pressure roughly **0–1000 bar** stated as “little effect” except **supercritical CO₂**). **Mercury** as bulk solvent excluded by **~2 ppb** crustal abundance example. **Photochemical/thermal instability** excludes or down-ranks **NH₃** (N₂ sink), **H₂S**, **SO₂** (context-dependent), **H₂O₂**, **formamide**, **hydrazine**, **methanol** accumulation, **HCN** oceans (runaway polymerization risk), **F₂O**, etc., each with narrative thresholds in Section 3. **M-dwarf “baked then migrated”** scenario for **H₂SO₄** accumulation tied to **pre-main-sequence ~1000×** luminosity spike vs main-sequence (Hayashi & Nakano–class argument cited). **Titan** surface temperature range cited **90–94 K** (**~4 K** span) vs Earth **220–320 K** (**100 K**) for intuition about **narrow liquid windows** on cold worlds.
+
+**Criterion 2 — Solvation (macromolecular / mesoscale mechanics).** **Hydrogen-bond network** and **solvophobic** (or analog) effects favor **water, NH₃, HF, conc. H₂SO₄** for amphipathic assembly; **liquid CO₂** allows **some** amphiphile behavior without permanent dipole (cite detergent-like effects). **Metal ions** require solvation shells; **polar / self-ionizing** solvents favored. **Cryogens:** cite **no** known **polymer systems soluble** in liquid methane (Petkowski et al. 2020 cited in cryogen section); solubility of large organics generally poor—**mechanics implication:** procedural “Titan lake biochemistry” should default to **low confidence** unless user mode overrides.
+
+**Criterion 3 — Solute stability (temperature–chemistry coupling).** **Terrestrial organics** largely unstable in **water above ~300 °C** (supercritical hydrolysis context). **Liquid rock** rejected (**>~thousands K**). **Concentrated H₂SO₄:** sugars unstable classically, but authors argue **other organics** can be stable (cite Seager et al., Spacek et al., Petkowski et al., Seager et al. 2024 series)—**stability vs concentration** is **non-monotonic** (SI rate plots: same compound can speed up or slow down with % acid). **DNA hydrolysis** in bone cited **~5.5×10⁻⁶** bases/year at preservation temperatures; **carbamoyl phosphate** half-life **~0.5–1.5 s** at **122 °C** vs **NADH** **<10 min**—illustrates **required spread** of degradation timescales any solvent must support.
+
+**Criterion 4 — Solvent chemical functionality (weakest gate).** Water participates in **hydrolysis**, **proton gradients**, **hydration of charges**. Authors allow that **carrier-based** metabolism could reduce reliance on solvent reactivity but deem **protonating** solvents more plausible **overall**. **Cryogens** are **chemically inert** as bulk media—fail functionality in practice.
+
+**Table 1 (PDF p. 33–34) — symbolic scoring for StarGen mapping.** Transcribe exact tick colors from PDF before hard-coding. Paraphrased summary: **Water** — all four √. **Ammonia** — Occurrence **X**, others √. **Conc. H₂SO₄ (>90%)** — Occurrence √, Solvation √, Solute stability **(√)** (amber/qualified in table), Functionality √. **Liquid sulfur** — mixed amber/red across rows (outside possibility). **HF** — Occurrence X. **Formamide** — Occurrence X. **Liquid CO₂** — Occurrence √, Solvation **(√)**, Stability √, Functionality **X**. **Supercritical CO₂** — Occurrence X, Solvation √, Stability √, Functionality X. **SO₂** — Occurrence X. **H₂S** — Occurrence X, Solvation/Stability partially uncertain ticks. **Cryogenic solvents** — Occurrence √, Solvation **X**, Stability √, Functionality **X**.
+
+**Ammonia–water mixture constraints (mechanics for icy moons).** **Europa-like** subsurface ocean cited as requiring **≥~80% water**; **ammonia ice shell** stability arguments with **density inversions up to ~2000 bar** (Hogenboom et al. cited). **>~40% water** mixture chemistry described as closer to **water** than anhydrous ammonia. **>~80% NH₃, <20% H₂O** “freeze then strip eutectic” route to anhydrous NH₃ called **highly contrived**.
+
+**Sulfuric acid / Venus-relevant bands.** Cloud **81–100% w/w** acid range cited (Hallsworth et al. 2021; Bains et al. 2023). **98% w/w** vs **80% w/w** described as **chemically distinct solvent classes**. **94% w/w** freezing point **241 K** vs pure acid **283 K** (SI / engineering data cite). **Decomposition** upper temperature **~570 K** for stable liquid acid noted in Figure 1 caption.
+
+**Liquid CO₂ / pressure (Figure 1 / SI).** **Critical point** and **non-liquifiability below critical pressure** emphasized (CO₂ **sublimes** at Earth-like pressures; **10 bar** left segment in figure caption). **SI density plot:** **~800 kg/m³** threshold discussed for dissolving **proteins** in CO₂ fluid contexts. **Venus surface** (T/P) marked on SI diagram—**supercritical** regime implications.
+
+**Growth / viscosity anchoring (SI).** Example: microbes reported growing down to **−15 °C**; water dynamic viscosity at **120 °C** given **~2.291×10⁻⁴ Pa·s** as upper reference for “still life-compatible” low end; **sulfuric acid, liquid sulfur, liquid NH₃** viscosities compared to cytoplasmic ranges in SI narrative.
+
+**Solvent mixtures — freezing point depression numeric examples.** Pure water **273 K**, pure ammonia **195 K**, eutectic water:ammonia liquid down to **176 K** (Chua et al. 2023). **50:50 H₂O₂–H₂O** freezing **−52 °C** tied to Mars surface temperature comparisons.
+
+**Ethanol / solvent-replacement lab precedents.** Yeast adaptation **up to ~25% ethanol**; **no** yeasts **>30%** cited as known; **xerophiles ~25% glycerol** internal wet weight; **ionic liquids** defined **mp <100 °C** with “unlikely natural occurrence.”
+
+**Mechanics summary for StarGen.** Encode **Table 1** as **data-driven plausibility weights** per user mode (hard-SF vs space-opera). Treat **H₂SO₄ habitability** as **coupled** to **global desiccation**, **SO₂ photochemistry**, and **acid weight-percent** (not “trace acid in water”). Treat **liquid CO₂** as **pressure–temperature** gated with **separate** biochemistry template. **Down-rank** **anhydrous NH₃ ocean** defaults relative to Bains (2004) speculative language. **Exclude OOL** from automatic “habitable” unless a separate OOL module supplies assumptions. **Surface vs subsurface:** optional bonus for **detectability** only, not for chemistry scoring.
+
+## Works cited by this paper (auto-extracted from final pages, partial)
+- References begin in the PDF around the section numbered **11 References** (author’s pagination **~p. 37** of the extraction). The list is long; for curation see `AnnotatedBibliography.md` and ADS for this DOI. **Key self-citations** appearing at start of list include Bains (2004); Bains et al. (2021a, 2021b, 2023); Petkowski et al. (2020); Seager et al. (2023); Hoehler et al. (2020); Pohorille & Pratt (2012); Hallsworth et al. (2021); National Research Council (2019); Schulze-Makuch & Irwin (2004).
+- *(Human action: extend partial list if building a full bibliography mirror in `Sources/`.)*
+
+## Opposing or alternative findings cited
+- **Water-centric / “no liquid water ⇒ uninhabitable”:** Hallsworth et al. (2021) cited as exemplars of strict water requirement; **Pohorille & Pratt (2012)** cited as arguing water’s unique fitness—**StarGen implication:** “water-only habitability” preset aligns with this strand; it **conflicts** with exotic-solvent-first game modes unless labeled speculative.
+- **NASA “Follow the Water”** (Hubbard et al. 2002) noted as policy framing—not a chemical proof, but sets **mission detectability** priors opposite to exotic-solvent-first exploration.
+- **Sandström & Rahm (2020)** cited as disputing Stevenson et al. (2015) cryogen bilayer structures—**reduces** confidence in **N₂/CH₄** mesoscale prebiotic structures.
+- **Branscomb & Russell (2019)** “beneficent thickness of water” / overdamped macromolecular motion—tension with authors’ dismissal of viscosity as primary barrier for some solvents; preserve as **uncertainty axis** in StarGen advanced settings.
+- **Bains (2004)** cited as prior expansive “many liquids” motivation—**2024 paper narrows** that program; keep both sources for **slider endpoints** (maximal diversity vs 2024-conservative).
+
+## APA citation
+Bains, W., Petkowski, J. J., & Seager, S. (2024). Alternative solvents for life: Framework for evaluation, current status, and future research. Astrobiology, 24, 1231–1256. https://doi.org/10.1089/ast.2024.0004 (preprint: https://arxiv.org/abs/2401.07296 )
+
+*(See `AnnotatedBibliography.md` under **BainsEtAl2024**—entry must match this title/DOI.)*
+
+## StarGen mechanics translation
+
+*This section converts the paper's framework into concrete implementable rules for StarGen. All numeric thresholds are drawn from the paper's text, Table 1, and SI unless otherwise noted. Human verification against Table 1 tick-colors required before encoding as hard gates.*
+
+---
+
+### SolventType enum
+
+```
+SolventType {
+    LiquidWater,                  // Default; meets all four criteria
+    ConcentratedSulfuricAcid,     // >~90% w/w; Venus-like or post-baked rocky worlds
+    LiquidCO2,                    // High-pressure, sub-critical; CO2-ocean worlds
+    CryogenicHydrocarbon,         // CH4 / C2H6 / N2; Titan-like; very low plausibility
+    None                          // No candidate bulk solvent on this world
+}
+```
+
+---
+
+### Four-criterion plausibility matrix (Table 1 encoding)
+
+Each criterion is rated: `Pass (1.0)` / `Qualified (0.5)` / `Fail (0.0)`.
+Overall plausibility = weighted product; any `Fail` on criteria 1–3 eliminates the solvent in HardSF mode.
+
+| Solvent                  | Occurrence | Solvation | Solute Stability | Functionality | Notes |
+|--------------------------|------------|-----------|------------------|---------------|-------|
+| LiquidWater              | 1.0        | 1.0       | 1.0              | 1.0           | Canonical reference |
+| ConcentratedSulfuricAcid | 1.0        | 1.0       | 0.5              | 1.0           | Stability amber/qualified; only >~90% w/w |
+| LiquidCO2                | 1.0        | 0.5       | 1.0              | 0.0           | Fails proton-donor functionality |
+| CryogenicHydrocarbon     | 1.0        | 0.0       | 1.0              | 0.0           | Fails solvation and functionality |
+| AqueousAmmonia (>80% H2O)| 1.0        | 1.0       | 1.0              | 0.5           | Only if water fraction dominates; reclassify as LiquidWater-variant |
+| AnhydrousAmmonia         | 0.0        | 1.0       | 1.0              | 0.5           | Fails occurrence (photolytic lability) |
+
+*Criterion 4 (Functionality) is the weakest gate per the paper; in SpaceOpera/Speculative modes, a Fail here does not eliminate the solvent.*
+
+---
+
+### Per-solvent temperature / pressure gates
+
+**LiquidWater**
+- T_min: 273 K (pure); down to ~176 K with ammonia eutectic (not default)
+- T_max: ~573 K at sufficient pressure (hydrothermal; above this hydrolysis destroys organics)
+- P: any; liquid window wide
+- StarGen rule: eligible whenever surface T 273–373 K and liquid surface water present
+
+**ConcentratedSulfuricAcid**
+- Concentration band: 81–100% w/w (outside this band, chemistry reverts toward aqueous)
+- T_min: 241 K (at 94% w/w freezing point); 283 K for pure acid
+- T_max: ~570 K (decomposition upper bound)
+- P: modest pressure range; cloud-layer default (~0.5–2 bar in Venus analogue context)
+- Requires: global desiccation (water depleted); SO2 photochemistry source; rocky surface or cloud layer
+- StarGen rule: eligible on Venus-analogue worlds (high albedo, slow rotation, desiccated) or post-baked M-dwarf planets where H2O was stripped during pre-MS luminosity spike (~1000× excess). Requires planet_type == Rocky and water_inventory < threshold.
+
+**LiquidCO2**
+- Requires: P > CO2 critical pressure (~7.38 MPa ≈ 73 bar) AND T < critical T (304 K) for liquid phase; below this CO2 sublimes at Earth-like pressures
+- Density threshold for macromolecular solvation: ~800 kg/m³ (flag if below; solvation uncertain)
+- StarGen rule: eligible only on high-pressure cold worlds (thick CO2 atmosphere or subsurface). Default plausibility = LOW (biochemistry template not specified). Expose as SpaceOpera/Speculative lever only unless user explicitly enables CO2 biochemistry module.
+
+**CryogenicHydrocarbon** (CH4, C2H6, N2)
+- T range: Titan surface ~90–94 K (~4 K liquid window — very narrow)
+- Liquid window is far narrower than Earth's (~100 K span); cite as fragility indicator
+- StarGen rule: eligible only on outer-system bodies (T_surface < 100 K, N2/CH4 atmosphere). Default plausibility = VERY LOW. Polymer solubility effectively zero under this paper's review — flag habitability confidence as speculative unless user overrides.
+
+---
+
+### Generation-mode plausibility weights
+
+These weights modulate the per-criterion scores when a generation roll determines if biochemistry is plausible on a world with the relevant solvent.
+
+| SolventType              | HardSF | Realistic | SpaceOpera | Speculative |
+|--------------------------|--------|-----------|------------|-------------|
+| LiquidWater              | 1.0    | 1.0       | 1.0        | 1.0         |
+| ConcentratedSulfuricAcid | 0.6    | 0.7       | 0.9        | 1.0         |
+| LiquidCO2                | 0.0    | 0.2       | 0.6        | 1.0         |
+| CryogenicHydrocarbon     | 0.0    | 0.1       | 0.5        | 1.0         |
+
+*HardSF: any Fail on criteria 1–3 = eliminate. Speculative: criteria are informational only.*
+*0.0 in HardSF means: never generate as "habitable" without explicit user override.*
+
+---
+
+### Decision rules (pseudo-code sketch)
+
+```
+function EvaluateSolventPlausibility(planet, mode):
+    candidates = GetCandidateSolvents(planet)  // from T/P/composition
+    for each solvent in candidates:
+        scores = GetCriterionScores(solvent)    // from matrix above
+        if mode == HardSF and any(scores[0..2] == Fail):
+            eliminate(solvent)
+            continue
+        weight = GenerationModeWeight[mode][solvent]
+        overall = weight * product(scores)
+        planet.SolventPlausibility[solvent] = overall
+    return highest-scoring remaining solvent (or None)
+
+function GetCandidateSolvents(planet):
+    candidates = []
+    if planet.SurfaceTemperature in [273, 373] and planet.HasLiquidWater:
+        candidates.add(LiquidWater)
+    if planet.Type == Rocky and planet.WaterInventory < DesiccationThreshold
+       and planet.SurfaceTemperature in [241, 570]:
+        candidates.add(ConcentratedSulfuricAcid)
+    if planet.AtmospherePressure > 73_bar and planet.SurfaceTemperature < 304:
+        candidates.add(LiquidCO2)
+    if planet.SurfaceTemperature in [88, 95] and planet.HasHydrocarbonLakes:
+        candidates.add(CryogenicHydrocarbon)
+    return candidates
+```
+
+---
+
+### User-override exposure points
+
+- `SolventModel` — enum selector: `Bains2024Conservative` (default HardSF) | `Bains2004Expansive` (historical maximal diversity) | `Custom`
+- `AllowExoticSolvents` — bool; if false, only LiquidWater eligible in HardSF
+- `CO2BiochemistryEnabled` — bool; gates LiquidCO2 as habitable even in HardSF (user accepts speculative assumption)
+- `CryogenBiochemistryEnabled` — bool; same for CryogenicHydrocarbon
+- `H2SO4ConcentrationBand` — float pair [w/w_min, w/w_max]; default [0.81, 1.0]
+- `AcidicHabitabilityMode` — enum: `CloudLayer` | `Surface` | `Both`; Venus analogue placement
+- `SubsurfaceOceanHabitabilityBonus` — float 0.0–1.0; adds to score for detectability-independent scoring only (does not change chemistry gate)
+- `OOLSolventGating` — bool (default false); if true, applies separate OOL-specific criterion weights from a future OOL module (out of scope for this paper)
+
+---
+
+### Cross-references within corpus
+
+- `Bains2004.txt` — historical "many liquids" prior; use as SpaceOpera/Speculative endpoint for SolventModel slider
+- `PetkowskiEtAl2020.txt` — Venus phosphine / acid-cloud context; supports ConcentratedSulfuricAcid occurrence gate
+- `LugerBarnes2015.txt` / `Ribas2015.txt` — pre-MS XUV stripping; couples to H2SO4 scenario on post-baked M-dwarf worlds
+- `WordsworthKreidberg2022.txt` — secondary atmosphere retention; sets context for whether any surface solvent pool persists
+- `Kopparapu2013.txt` / `Kopparapu2014.txt` — HZ boundaries; LiquidWater gate depends on HZ model in use
+
+---
+
+### What this paper does NOT supply (gaps for StarGen)
+
+- No OOL (abiogenesis) criterion — do not infer abiogenesis likelihood from solvent scoring alone
+- No subsurface ocean chemistry scoring — subsurface worlds get no automatic plausibility bonus from this source
+- No abundance / occurrence frequency estimates (number of Venus-analogues per star) — needs separate demographic source
+- Solute stability in conc. H2SO4 is still empirically open (amber in Table 1) — treat as uncertain until Seager/Petkowski/Spacek follow-up work resolves it
+
+## Conflicts and follow-up work
+
+**Precursor / contrast in corpus.** Bains (2004), `Sources/Texts/Bains2004.txt`, argued many bulk liquids could be common and biochemically viable with toy frequency estimates; **this 2024 paper** cites Bains (2004) but **replaces** that approach with the **four-criterion** matrix and **much stricter** default conclusions. `Bains2004.txt` **Conflicts and follow-up** already points here—keep cross-links synchronized.
+
+**What this paper does not settle.** **Origin of life** is explicitly **out of scope** (Section 2.6, Conclusions)—any StarGen feature that infers **abiogenesis likelihood** from solvent choice needs **separate** sources. **Subsurface oceans** are de-emphasized for **observability**, not declared impossible.
+
+**Empirical and modeling extensions (post-publication).** **Solute stability in concentrated H₂SO₄** for diverse organics remains **active** (authors cite ongoing Seager / Petkowski / Spacek lines, including **2024** references in-text). **Cosmic abundance of liquid CO₂ / SO₂** as bulk solvents flagged for **further planetary modeling**. **Liquid sulfur** left **uncertain** pending environments and solvation data.
+
+**Suggested ADS / literature searches.** “Cited by” and responses for DOI **10.1089/ast.2024.0004**: https://ui.adsabs.harvard.edu/ (search bibcode or DOI). Watch for: (a) critiques of **H₂SO₄-as-solvent** habitability from cloud physics or kinetic arguments; (b) **liquid CO₂** biochemistry proposals; (c) **ammonia ocean** rebuttals or updates to **ice/ocean** thermodynamics cited (Chua et al. 2023).
+
+**In-corpus adjacent sources.** `PetkowskiEtAl2020.txt` (Venus phosphine context) and Venus chemistry papers referenced in Section 3.3 support **acid-cloud** narratives but **do not substitute** for this solvent-framework review. `Bains2004.txt` for historical maximal-diversity solvent priors.
+
+**Flagged in `Sources/Followup.md`.** See **### BainsEtAl2024** for search stubs and corpus maintenance notes.
+
+
+## StarGen mechanics translation
+
+*(StarGen mechanics section already present — see ## StarGen mechanics translation above.)*

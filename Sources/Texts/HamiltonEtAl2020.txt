@@ -1,0 +1,85 @@
+# HamiltonEtAl2020
+
+## Source metadata
+- File: `HamiltonEtAl2020.pdf`
+- Domain: social science / sociopolitical complexity / population scaling
+- Pages: 17
+- Authors: Hamilton, M. J., Walker, R. S., Buchanan, B., & Sandeford, D. S.
+- Source ID in StarGen code: `hamilton2020`
+- **PDF acquisition:** PDF confirmed present in `Sources/Texts`.
+  DOI: 10.1371/journal.pone.0234615
+  Original URL: https://journals.plos.org/plosone/article?id=10.1371/journal.pone.0234615
+  Retrieval mode: HTML plus matching PDF.
+
+## Abstract
+Hamilton et al. analyze more than one thousand human societies across levels of
+sociopolitical complexity. They find self-similar scaling across jurisdictional hierarchy:
+adjacent levels show roughly a four-fold increase in population, a two-fold increase in
+geographic range, and a doubling of population density. The paper also stresses that
+population metrics overlap across complexity levels, so large or dense populations do
+not automatically imply high complexity.
+
+## Major claims, findings, models, assumptions, and limitations
+- **Jurisdictional hierarchy scale:** Sociopolitical complexity is represented as levels
+  of jurisdictional hierarchy beyond local community.
+- **Population scaling:** Adjacent complexity levels are associated with approximately
+  four-fold population increases.
+- **Range scaling:** Adjacent levels are associated with approximately two-fold
+  geographic-range increases.
+- **Density scaling:** Population density approximately doubles across complexity levels.
+- **Overlap warning:** Larger and denser societies tend to be more complex, but large
+  population and density are not sufficient conditions for complexity.
+- **Limitation:** This is human historical/anthropological data. It should inform
+  human-audited sentient-world baselines, not be treated as a universal law for all
+  alien societies.
+
+## StarGen applicability
+Useful for StarGen's sentient-world baseline, especially `SocialScale`,
+`StateCapacity`, settlement rank, factional hierarchy, and government complexity. It
+supports making population an important driver while preserving the rule that population
+alone cannot determine social complexity.
+
+Provides:
+- A source anchor for population and density as sociopolitical-complexity pressure
+- Support for hierarchical settlement/government scaling
+- A caution that complexity must also depend on administration, trade, surplus, conflict,
+  and institutional capacity
+
+## Parameters, constraints, and mechanics implications
+
+**Social scale pressure:**
+```
+social_scale = f(log_population, group_count, habitability, surplus, administration)
+```
+
+**Generator rule implication:**
+- Population should materially influence social scale and settlement rank.
+- Government complexity should not be derived from population alone.
+- Settlement rank thresholds should be treated as StarGen tuning unless calibrated from
+  a human-reviewed cross-cultural model.
+
+## APA citation
+Hamilton, M. J., Walker, R. S., Buchanan, B., & Sandeford, D. S. (2020). Scaling
+human sociopolitical complexity. PLOS ONE, 15(7), e0234615.
+https://doi.org/10.1371/journal.pone.0234615
+
+## Conflicts and follow-up work
+- Compare with `BettencourtEtAl2007.txt` before using city-output scaling; Hamilton et
+  al. focus on sociopolitical hierarchy, while Bettencourt et al. focus on urban scaling.
+- Human audit is required before applying human jurisdictional hierarchy assumptions to
+  non-human societies.
+- Add bibliography coverage if this source remains in the retained v1.0 source set.
+
+## StarGen mechanics translation
+
+### Sentient-world social scale
+`SentientWorldProfileBuilder` currently uses normalized population, group count, and
+habitability to compute `SocialScale`, then uses related fields to drive state capacity,
+settlement pattern, urbanization, and logistics.
+
+**Current fit:** good as a broad proxy. The code uses population without making it the
+only determinant. It does not yet model explicit jurisdictional hierarchy levels or
+geographic range.
+
+**Recommended v1.0 disposition:** keep as a supporting source for social-scale pressure,
+with explicit human-audit language for sentient-world release claims.

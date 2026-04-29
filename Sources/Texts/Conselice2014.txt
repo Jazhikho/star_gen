@@ -1,0 +1,77 @@
+# Conselice2014
+
+## Source metadata
+- File: `Conselice2014.pdf`
+- Domain: galaxy number counts/evolution
+- Pages: 49
+- Authors (auto-extracted — verify against PDF): (see PDF)
+
+## Abstract
+I present a comprehensive review of the evolution of galaxy structure in the universe from the first galaxies we can currently observe at z ∼ 6 down to galaxies we see in the local universe. I further address how these changes reveal galaxy formation processes that only galaxy structural analyses can provide. This review is pedagogical and begins with a detailed discussion of the major methods in which galaxies are studied morphologically and structurally. This includes the well-established visual method for morphology; Sérsic fitting to measure galaxy sizes and surface brightness profile shapes; non-parametric structural methods including the concentration (C), asymmetry (A), clumpiness (S) (CAS) method, the Gini/M20 parameters, as well as newer structural indices. Included is a discussion of how these structural indices measure fundamental properties of galaxies such as their scale, star formation rate, and ongoing merger activity. Extensive observational results are shown demonstrating how broad galaxy morphologies and structures change with time up to z ∼ 3, from small, compact and peculiar systems in the distant universe to the formation of the Hubble sequence dominated by spirals and ellipticals we find today. This review further addresses how structural methods accurately identify galaxies in mergers, and allow measurements of the merger history out to z ∼ 3. The properties and evolution of internal structures of galaxies are depicted, such as bulges, disks, bars, and at z > 1 large star forming clumps. The structure and morphologies of host galaxies of active galactic nuclei and starbursts/sub-mm galaxies are described, along with how morphological galaxy quenchi
+
+## Major claims, findings, models, assumptions, and limitations
+*Human verification required before using quantitative values or model assumptions in
+StarGen defaults. Figures and equations not captured by text extraction — read the PDF
+for exact thresholds, fit coefficients, and table values.*
+
+- Primary domain: galaxy number counts/evolution
+- See StarGen applicability section below for the specific implications.
+
+## StarGen applicability
+~2 trillion galaxies in observable universe (revised upward). Galaxy number density evolution — relevant to universe-scale context and galaxy count priors.
+
+## Parameters, constraints, and mechanics implications
+*(Human action: fill in specific numeric values, distributions, model families, and
+classification boundaries extracted from the paper. Where competing models or confidence
+ranges exist, expose those as user-selectable assumptions rather than collapsing to a
+single default. Where the paper documents uncertainty, preserve it in StarGen rather
+than presenting false precision.)*
+
+## Works cited by this paper (auto-extracted from final pages, partial)
+- 1. Abraham RG, van den Bergh S, Nair P. 2003, ApJ, 588, 218
+- 2. Abraham RG, Merrifield MR, Ellis RS, Tanvir NR, Brichmann J. 1999a, MNRAS, 308, 569
+- 3. Abraham RG, Ellis RS, Fabian AC, Tanvir NR, Glazebrook K. 1999b, MNRAS, 303, 641
+- 4. Abraham RG, van den Bergh S, Glazebrook K, et al. 1996, ApJS, 107, 1
+- 5. Akiyama M, Minowa Y, Kobayashi N, et al. 2008, ApJS, 175, 1
+- 6. Allen PD, Driver SP, Graham AW, et al. 2006, MNRAS, 371, 2
+- 7. Arp H. 1966, ApJS, 14, 1
+- 8. Barnes JE, Hernquist LE. 1991, ApJ, 370, 65
+- 9. Barro G, Faber SM, Perez-Gonzalez PG, et al. 2013, ApJ, 765, 104
+- 10. Bauer AE, Conselice CJ, Perez-Gonzalez PG, et al. 2011, MNRAS, 417, 289
+- 11. Beckwith SVW, Stiavelli M, Koekemoer AM, et al. 2006, AJ, 132, 1729
+- 12. Bell EF, van der Wel A, Papovich C, et al. 2012, ApJ, 753, 167
+- 13. Bendo GJ, Calzetti D, Engelbracht CW, et al. 2007, MNRAS, 380, 1313
+- 14. Bershady MA, Jangren A, Conselice CJ. 2000 AJ, 119, 2645
+- 15. Bertone S, Conselice CJ. 2009, MNRAS, 396, 2345
+- 16. Blanton MR, Moustakas J. 2009, ARA&A, 47, 159
+- 17. Bluck AFL, Conselice CJ, Buitrago F, et al. 2012, ApJ, 747, 34
+- 18. Bluck AFL, Conselice CJ, Almaini O. et al. 2011, MNRAS, 410, 1174
+- 19. Bluck AFL, Conselice CJ, Bouwens RJ, et al. 2009, MNRAS, 394, 51L
+- 20. Blumenthal GR, Faber SM, Primack JR, Rees MJ. 1984, Nature, 311, 517
+
+## Opposing or alternative findings cited
+*(Human action: identify papers in the reference list that present opposing models,
+competing parameter choices, or significantly different results. Note the specific
+disagreement and its implication for which StarGen default to use.)*
+
+## APA citation
+*(Verify and complete — see AnnotatedBibliography.md for the curated APA entry.)*
+
+## Conflicts and follow-up work
+*(Human action: search for papers explicitly responding to, revising, or challenging
+this paper published after its date. For fast-moving fields (exoplanet demographics,
+habitability, JWST/TESS-informed work), treat results >3 years old as potentially
+superseded. Flag updates in Followup.md.)*
+
+
+## StarGen mechanics translation
+
+### Galaxy morphology and number density evolution
+Galaxy number density and morphological mix as function of redshift. Provides context
+for galaxy formation history and progenitor pool.
+
+**StarGen galactic context:**
+- Primarily a reference for galaxy-scale generation context; not directly used in
+  stellar or planetary generation.
+- `GalaxyNumberDensity(z)` — use if generating galaxies at cosmological distances.
+**Cross-references:** Behroozi2019.txt, LineweaverDavis2002.txt.

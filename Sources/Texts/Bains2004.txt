@@ -1,0 +1,106 @@
+# Bains2004
+
+## Source metadata
+- File: `Bains2004.pdf`
+- Domain: astrobiology/biochemistry
+- Pages: 31
+- Authors (auto-extracted — verify against PDF): William Bains
+
+## Abstract
+It has been widely suggested that life based around carbon, hydrogen, oxygen, and nitrogen is the only plausible biochemistry, and specifically that terrestrial biochemistry of nucleic acids, proteins, and sugars is likely to be “universal.” This is not an inevitable conclusion from our knowledge of chemistry. I argue that it is the nature of the liquid in which life evolves that defines the most appropriate chemistry. Fluids other than water could be abundant on a cosmic scale and could therefore be an environment in which non-terrestrial biochemistry could evolve. The chemical nature of these liquids could lead to quite different biochemistries, a hypothesis discussed in the context of the proposed “ammonochemistry” of the internal oceans of the Galilean satellites and a more speculative “silicon biochemistry” in liquid nitrogen. These different chemistries satisfy the thermodynamic drive for life through different mechanisms, and so will have different chemical signatures than terrestrial biochemistry. Key Words: Carbon, hydrogen, oxygen, and nitrogen life—Planetary liquid— Silicon. Astrobiology 4, 137–167.
+
+## Major claims, findings, models, assumptions, and limitations
+*Human verification required before using quantitative values or model assumptions in
+StarGen defaults. Figures and equations not captured by text extraction — read the PDF
+for exact thresholds, fit coefficients, and table values.
+
+- Primary domain: astrobiology/biochemistry
+- See StarGen applicability section below for the specific implications.
+
+## StarGen applicability
+Alternative solvents and biochemistries (NH₃, liquid N₂); informs non-water habitability flags. StarGen's habitability model should expose a 'solvent type' override beyond water-only assumptions.
+
+## Parameters, constraints, and mechanics implications
+*Quantities below are taken from the paper’s text and tables; the frequency model assumes chemically/tectonically inert planets, idealized atmospheres, and other simplifications the author flags (e.g. Venus incorrectly predicted wet, CO₂ greenhouse ignored in HZ comparison). Do not treat Table 3 probabilities as observational priors without human review.*
+
+**Solvent-first habitability (design axis).** The paper’s functional requirement is a bulk liquid in which macromolecules can move yet stay concentrated; the *identity* of that liquid is argued to steer polymer chemistry, catalysis, and energy coupling more strongly than “CHON-only” parts-list reasoning. For StarGen, this maps to an explicit **solvent / ocean class** dimension orthogonal to classical “liquid water HZ” scoring: e.g. surface water, ice-capped subsurface water, water–ammonia interior, hydrocarbon lakes, N₂ (surface or subsurface), H₂SO₄ clouds (Venus-like), and speculative cryogenic combinations—each with different default chemistry and detectability assumptions.
+
+**Classical liquid-water HZ (cited bounds).** For the Sun, the paper quotes Kasting-style **~0.85 AU (inner)** and **~2.4 AU (outer)** limits for stable surface liquid water, tied to water vapor photolysis / runaway greenhouse at the inner edge and CO₂ condensation weakening greenhouse at the outer edge. Its own black-body + retention toy model yields a **~0.5–1.6 AU** range where modeled liquid-water likelihood exceeds ~0.05; the author notes this is similar in width but **shifted sunward** because greenhouse feedback is omitted.
+
+**Atmosphere retention (order-of-magnitude gate).** Non-giant bodies are treated as likely to retain **≥~0.1 bar** when a dimensionless grouping *A* (involving mass relative to Earth, radius, Jeans loss rate, day length, thermosphere coupling, and mean molecular weight of the dominant atmospheric species) is **≤ 1** (Eq. 2, Fig. 1). StarGen could use this only as a **coarse filter** for “can this body plausibly hold a vapor pressure column over a liquid?”—not as a substitute for detailed escape/climate models.
+
+**Subsurface oceans (structural constraints).** The paper assumes **≥ ~2% Earth mass** (~Europa-scale) to sustain a subsurface “ocean.” For subsurface liquid (vs surface), it requires a **low-density solid “crust”** over a **denser liquid** with compatible melting relations (Fig. 2; **Table 2** lists solid/liquid densities and **melting/boiling points in K** for He, H₂, Ne, N₂, Ar, CH₄, C₂H₆, NH₃, H₂O, H₂SO₄—e.g. H₂O ice ~900 kg/m³ vs liquid ~958 kg/m³; N₂ solid/liquid 947 vs 808 kg/m³; mp/bp for N₂ **63.2 K / 77.36 K**). It also states that if **surface temperature exceeds ~60% of the liquid’s freezing point**, substantial subsurface reservoirs of that liquid are **not** expected (Solar System heuristic in the text). **Ice less dense than liquid** is special to water among the Table‑1 volatile combinations discussed for floating ice caps; other listed liquids’ ices sink—changing which worlds can hide oceans under ice analogs.
+
+**“Cosmic” volatile inventory (Table 1).** Ranked elemental abundances (H normalized to 1) drive which **volatile molecular combinations** are argued to be common feedstocks (H₂O, NH₃ / nitrogen oxides / HCN families, hydrocarbons, **SiH₄**, H₂S, PH₃, etc.). StarGen implication: generation of **primary volatiles** and **ice/liquid inventories** can be keyed to stellar/planet chemistry tracks, but **silane prominence** in the crude table is flagged in-text as anomalous vs interstellar/cometary patterns—treat as uncertain.
+
+**Modeled relative frequency of pure liquids (Table 3, water = 1.00).** Under the paper’s scaling to the solar neighborhood and assumed pressures **1 / 0.333 / 0.1 atm** (with **0.1 atm** often forcing probability **0** because most entries sublime): examples include **NH₃ ~0.25**, **CH₄ ~0.62**, **C₂H₆ ~1.25**, **N₂ ~1.96**, **H₂SO₄ ~0.42**, **Ar ~1.56**, **Ne ~2.44**, **H₂ ~4.53**, plus other listed species (HCN, H₂S, NO, CS₂ analogs, hydrazine, etc.). **He** is argued effectively absent as a bulk liquid on planets because **no surface sits between ~2.7 K (CMB floor) and 4.2 K** while also being massive enough to retain atmosphere. **H₂ and Ne** probabilities are explicitly **more speculative** (heating from radioactivity/cosmic rays omitted). Mechanics: use Table 3 only as **scenario weights** for “exotic solvent worlds” fiction sliders, not calibrated exoplanet demographics.
+
+**Mixed liquids (Table 4, relative frequency vs water/ammonia = 1).** Illustrative mixtures: **water/ammonia** (frequency **1**, assumed mp **240 K**, bp **325 K**, density **900 kg/m³**); **methane/ethane** (**1.4**, **90–180 K**, **475 kg/m³**); **silane/phosphine** (**1.46**, **100–184 K**, **700 kg/m³**). Narrative implication: Titan-like lakes are **mixtures** (N₂ dissolution, etc.); pure-component Table 2/3 properties are **approximate**.
+
+**Galilean-style water–ammonia interiors (chemistry gates).** Internal oceans are described as **~30–40% ammonia by weight**, hence **extremely basic**. Europa-like internal pH is argued **~≥ 11** (order-of-magnitude from ammonia fraction and reference buffers); **RNA/DNA hydrolyze rapidly** at such pH, and terrestrial extremophiles top out near **pH ~10** with strong intracellular acidification—so **Earth-like biochemistry is ruled implausible** in that environment without separate “pocket” energetics. StarGen should treat **high-pH ammonia-rich oceans** as incompatible with **terrestrial-type life flags** unless a deliberate non-canonical override exists.
+
+**Energy mechanics (not water-specific).** Cryogenic surface environments can still receive **~1 W/m²** in visible light on Titan even if the haze absorbs **~99%** (order-of-magnitude argument for photosynthesis feasibility). **Chemolithotrophy** is framed as universally plausible in liquid environments; **Titan** gets an order-of-magnitude **~5×10⁸ W** biosphere power sketch from heat flow → volcanism → usable chemical energy (highly assumption-laden). **Magnetospheric** energy is mentioned as a possible booster with **uncertain transport to interiors**. **Ammonochemistry** may couple energy via **solvated electrons** / “electricity”-like currencies more than terrestrial **proticity + organophosphate** high-energy bonds—implication for **in-game biosignatures / spectroscopy proxies**: do not assume Earth-like phosphorylation intermediates as generic markers.
+
+**Kinetics / low-temperature limit.** **Table 5** compares **diffusion-limited relative reaction rates at each liquid’s freezing point** (water = 1; examples: water/ammonia **~0.86**, methane **~0.76**, nitrogen **~0.35**, hydrogen **~0.91**—viscosities from Arkharov et al. 1982). Terrestrial enzymes are cited as active down to about **−100 °C (~170 K)** in mixed polar solvents; **below ~170 K** those solvents become so viscous that diffusion quenches chemistry—**but** apolar cryogenic solvents can remain faster per Table 5, so **“too cold for chemistry”** is **not** a universal constant across solvents. Origination may be **slower** and more **catalyst-dependent**; maintenance may still be plausible once catalysts exist.
+
+**Silicon-in-LN₂ illustration (speculative content).** Cryogenic solvents dissolve few heavy organics; **silanols** are discussed as unusually soluble even toward **liquid nitrogen**, with preliminary experimental solubility points (Fig. 8). StarGen should treat **silicon-based life in LN₂** as **optional fiction**, not a default drawn from validated exoplanet statistics.
+
+**System-scale placement hooks.** Accessible volatile-rich shell volume of **~1000 km** bodies scales ~**r⁻¹·⁵** with distance *r* from star (Solar System + debris disc analogy). Giant planets **hot and close** to the star shrink odds of an **Earth-like water HZ planet** but increase relevance of **moons** and **volatile-rich outer** reservoirs. Stellar sample: calculations for **< ~3 M☉** main-sequence stars; **very cool brown dwarfs** and **white dwarfs** excluded. Effective outer “relevant” shell **~2000 AU** (inner Kuiper-like) before cometary cloud dynamics dominate—stellar heating negligible for melting hydrogen at larger distances per the text.
+
+**Mechanics summary for StarGen.** (1) Model **habitability** as **(solvent class, phase, depth, pH/redox, energy channel)** tuples, not water HZ alone. (2) Use **HZ distance** only with the paper’s caveat: **greenhouse/climate** can move real habitability outside black-body bands. (3) For **Europa/Titan analogs**, bind **life-origin / native-life** flags to **solvent-appropriate chemistry templates**; keep **panspermia from Earth** as a separate, user-controlled assumption. (4) Expose **Table 3/4-style weights** only as **stylized “solvent abundance” sliders** with UI copy that states they are **hypothesis-paper model outputs**, not measured occurrence rates. (5) **Biosignature / export fields** should branch on **energy currency** (protic vs electron-rich ammonia vs hydrocarbon phototrophy, etc.) so downstream science-fiction or instrument simulation does not silently assume terrestrial metabolite sets.
+
+## APA citation
+*(Verify and complete — see AnnotatedBibliography.md for the curated APA entry.)*
+
+## Conflicts and follow-up work
+
+**Direct follow-up (same authors; revises and operationalizes 2004).** Bains, W., Petkowski, J. J., & Seager, S. (2024). Alternative solvents for life: Framework for evaluation, current status, and future research. Astrobiology, 24, 1231–1256. https://doi.org/10.1089/ast.2024.0004 (open preprint: https://arxiv.org/abs/2401.07296 ). The 2024 review cites Bains (2004) and replaces the exploratory “cosmic abundance of liquids / Table 3-style probabilities” framing with a **four-criterion** assessment (occurrence, solvation, solute stability, solvent chemical functionality). Its conclusions are **narrower** than the 2004 hypothesis paper: only **protonating** solvents satisfy all stated chemical requirements to be a solvent for life; among those likely on rocky planets the authors emphasize **liquid water** and **concentrated sulfuric acid**, and among non-protonating planetary solvents they highlight **liquid CO₂** for future study. They also discuss **changing solvents** as a planetary-environment adaptation. For StarGen, treat **2004** as motivation for **scenario diversity** (exotic oceans, non-Earth biochemistry levers) and **2024** as the stronger reference for **which solvents to treat as scientifically prioritized defaults** when not in fiction-first mode.
+
+**In this repository.** `Sources/Texts/BainsEtAl2024.txt` (with `BainsEtAl2024.pdf`) matches the solvent-framework article above (PDF title: *Alternative solvents for life: framework for evaluation, current status and future research*). Stub metadata was previously mislabeled “Venus-analogs”; see `BainsEtAl2024.txt` for the corrected domain and sections.
+
+**Related same-author work (different core claim).** Petkowski et al. (2020), Venus phosphorus / phosphine modeling (`PetkowskiEtAl2020.txt`), overlaps 2004 only where **sulfuric acid** cloud environments appear as a chemically exotic solvent—it is **not** a line-by-line update to the 2004 subsurface-ocean or “many liquids” frequency model.
+
+**Opposing or constraining strand (typical in later citations; acquire selectively).** “Liquid water as the only plausible solvent” or “environments without liquid water are uninhabitable” lines (e.g. Pohorille & Pratt, 2012; Hallsworth et al., 2021—both engaged in Bains et al. 2024’s introduction) push back against the **strongest** readings of Bains (2004) and partially align with the **tightened** 2024 chemical requirements. Broader surveys (e.g. Schulze-Makuch & Irwin, 2004; NRC, 2019) bracket which alternative solvents have been seriously proposed. Dedicated `Sources/Texts/*` entries for those works are **not** in the corpus under obvious filenames as of this note.
+
+**Empirical and modeling drift.** Quantitative claims in Bains (2004) tied to specific Solar System bodies, interior-ocean composition, or black-body habitability toys should be checked against **post-2004 mission and modeling literature** before use as StarGen defaults; supersession is ordinary progress, not a logical refutation of the solvent-first *concept*.
+
+**Citation discovery.** NASA ADS “cited by” for this paper: https://ui.adsabs.harvard.edu/abs/2004AsBio...4..137B/
+
+
+## StarGen mechanics translation
+
+### Historical solvent diversity prior
+This paper catalogued a large number of bulk liquids as potential biochemical solvents
+with toy-model frequency estimates. It is the "expansive" endpoint of the solvent model
+slider and is superseded for default scientific gating by BainsEtAl2024.
+
+**SolventModel selector:**
+- `Bains2004Expansive` — all liquid phases treated as potentially viable; plausibility
+  weights are flat and non-discriminating; use for SpaceOpera/Speculative modes.
+- `Bains2024Conservative` (default) — applies the four-criterion matrix from BainsEtAl2024.
+
+**Key numeric values from Table 2:**
+- N₂ melting/boiling: 63.2 K / 77.36 K (liquid window for Titan-like worlds)
+- NH₃ melting/boiling: ~195 K / 240 K (anhydrous; see BainsEtAl2024 for occurrence caveats)
+- H₂SO₄ melting: ~283 K (pure); ~241 K at 94% w/w (see BainsEtAl2024 for concentration bands)
+- H₂O ice density ~900 kg/m³ vs liquid ~958 kg/m³ — ice floats (unique property);
+  other listed solid/liquid pairs have denser solid, meaning ice sinks and cannot form
+  a floating cap over a subsurface ocean.
+
+**Subsurface ocean structural rule:**
+- Body mass ≥ ~2% Earth mass (Europa-scale) required for plausible subsurface ocean.
+- Surface T > ~60% of liquid's freezing point → substantial subsurface reservoir unlikely.
+- Apply as coarse structural pre-filter before detailed ocean modelling.
+
+**Atmosphere retention coarse filter (Eq. 2):**
+- Body retains ≥ ~0.1 bar if dimensionless group A ≤ 1 (involves mass, radius, Jeans
+  escape, day length, thermosphere coupling, mean molecular weight of dominant species).
+- Use only as a coarse pre-filter; not a substitute for detailed escape models.
+
+**User lever:** `SolventModel` enum selects between `Bains2004Expansive` and
+`Bains2024Conservative` endpoints. Do NOT use Bains (2004) frequency estimates as
+quantitative occurrence priors in HardSF or Realistic modes.
+
+**Cross-references:** BainsEtAl2024.txt (supersedes for criterion gating),
+PetkowskiEtAl2020.txt (Venus acid-cloud context), WordsworthKreidberg2022.txt
+(atmosphere retention), LugerBarnes2015.txt (pre-MS XUV stripping).

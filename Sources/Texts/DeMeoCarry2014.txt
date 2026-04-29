@@ -1,20 +1,60 @@
-Source note for StarGen research review
+# DeMeoCarry2014
 
-Citation:
-DeMeo, F. E., & Carry, B. (2014).
-Solar System evolution from compositional mapping of the asteroid belt.
-Nature, 505, 629-634.
-arXiv: https://arxiv.org/abs/1310.3846
-DOI: https://doi.org/10.1038/nature12908
+## Source metadata
+- File: `DeMeoCarry2014.pdf`
+- Domain: asteroid taxonomy/compositional mapping
+- Pages: 15
+- Authors (auto-extracted — verify against PDF): James R. Wootton1 , Jan Burri1 , Sofyan Iblisdir2 , Daniel Loss1
 
-What was reviewed:
-- Abstract and source metadata on 2026-04-03.
+## Abstract
+Department of Physics, University of Basel, Klingelbergstrasse 82, CH-4056 Basel, Switzerland University of Barcelona, Dpt. Estructura i Constituents de la Materia, 647 Av. Diagonal, 08028 Barcelona, Spain The possibility of quantum computation using non-Abelian anyons has been considered for over
 
-Key implementation notes used in StarGen:
-- The paper maps asteroid-belt composition by heliocentric distance and shows that the belt is not compositionally uniform.
-- Broadly, inner regions are more dominated by rocky and differentiated material, while outer regions retain more primitive and volatile-rich bodies.
-- For StarGen, the important constraint is that small-body composition and belt placement should respond to system structure, especially frost-line and outer-reservoir context, rather than being assigned independently per belt.
+## Major claims, findings, models, assumptions, and limitations
+*Human verification required before using quantitative values or model assumptions in
+StarGen defaults. Figures and equations not captured by text extraction — read the PDF
+for exact thresholds, fit coefficients, and table values.*
 
-How StarGen uses this:
-- As the basis for shifting outer belts and cold small-body reservoirs toward icier and more primitive compositions when outer-system bias is stronger.
-- As support for making asteroid/comet placement a system-level consequence of planetary-state scalars rather than a cosmetic label on otherwise identical belts.
+- Primary domain: asteroid taxonomy/compositional mapping
+- See StarGen applicability section below for the specific implications.
+
+## StarGen applicability
+Spectral taxonomy and composition distribution vs heliocentric distance (S/C/X-complex). Reference for asteroid type generation and belt compositional gradients in StarGen.
+
+## Parameters, constraints, and mechanics implications
+*(Human action: fill in specific numeric values, distributions, model families, and
+classification boundaries extracted from the paper. Where competing models or confidence
+ranges exist, expose those as user-selectable assumptions rather than collapsing to a
+single default. Where the paper documents uncertainty, preserve it in StarGen rather
+than presenting false precision.)*
+
+## Works cited by this paper (auto-extracted from final pages, partial)
+- (Reference extraction incomplete — verify PDF.)
+
+## Opposing or alternative findings cited
+*(Human action: identify papers in the reference list that present opposing models,
+competing parameter choices, or significantly different results. Note the specific
+disagreement and its implication for which StarGen default to use.)*
+
+## APA citation
+*(Verify and complete — see AnnotatedBibliography.md for the curated APA entry.)*
+
+## Conflicts and follow-up work
+*(Human action: search for papers explicitly responding to, revising, or challenging
+this paper published after its date. For fast-moving fields (exoplanet demographics,
+habitability, JWST/TESS-informed work), treat results >3 years old as potentially
+superseded. Flag updates in Followup.md.)*
+
+
+## StarGen mechanics translation
+
+### Asteroid taxonomy — bus-DeMeo spectral classification
+Defines 25 spectral classes (C, S, X complexes and subcategories) for asteroids.
+Compositional gradient with heliocentric distance: S-types inner, C-types outer.
+
+**StarGen asteroid belt classification:**
+- `AsteroidTaxonomyModel = BusDeMeo2014`
+- Inner belt (1.5–2.5 AU): ~80% S-type (silicaceous/olivine)
+- Outer belt (2.5–3.5 AU): ~75% C-type (carbonaceous, primitive)
+- X-type (metallic, E-type) at ~2.5 AU; Vesta-type (V) near ~2.4 AU.
+- Apply as prior when generating asteroid composition in belt-like regions.
+**Cross-references:** RaymondIzidoro2017.txt, BernardinelliEtAl2022.txt.

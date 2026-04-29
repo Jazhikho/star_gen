@@ -1,19 +1,79 @@
-Source note for StarGen research review
+# Mordasini2007
 
-Citation:
-Mordasini, C., Alibert, Y., Benz, W., & Naef, D. (2007).
-Giant planet formation by core accretion.
-Extreme Solar Systems, ASP Conference Series.
-arXiv: https://arxiv.org/abs/0710.5667
+## Source metadata
+- File: `Mordasini2007.pdf`
+- Domain: planet formation / Bern model
+- Pages: 8
+- Authors (auto-extracted — verify against PDF): (see PDF)
 
-What was reviewed:
-- Abstract and source metadata on 2026-04-19.
+## Abstract
+We present a review of the standard paradigm for giant planet formation, the core accretion theory. After an overview of the basic concepts of this model, results of the original implementation are discussed. Then, recent improvements and extensions, like the inclusion of planetary migration and the resulting effects are discussed. It is shown that these improvement solve the “timescale problem”. Finally, it is shown that by means of generating synthetic populations of (extrasolar) planets, core accretion models are able to reproduce in a statistically significant way the actually observed planetary population.
 
-Key implementation notes used in StarGen:
-- The paper reviews the standard giant-planet core-accretion picture, where a heavy solid core forms first and runaway gas accretion follows later.
-- The practical takeaway for StarGen is that `Core Accretion` should remain the conservative baseline giant-growth model.
-- The review also supports using synthetic-population style weighting rather than requiring a full planet-formation simulation.
+## Major claims, findings, models, assumptions, and limitations
+*Human verification required before using quantitative values or model assumptions in
+StarGen defaults. Figures and equations not captured by text extraction — read the PDF
+for exact thresholds, fit coefficients, and table values.*
 
-How StarGen uses this:
-- As the named support for the `Core Accretion` giant-growth option in aggregate planetary priors.
-- As the baseline lower giant-growth weighting when compared with the faster pebble-assisted branch.
+- Primary domain: planet formation / Bern model
+- See StarGen applicability section below for the specific implications.
+
+## StarGen applicability
+Bern model: disk mass, gas accretion rates, migration. Constrains planet formation mass budget and gas-envelope accretion thresholds in StarGen.
+
+## Parameters, constraints, and mechanics implications
+*(Human action: fill in specific numeric values, distributions, model families, and
+classification boundaries extracted from the paper. Where competing models or confidence
+ranges exist, expose those as user-selectable assumptions rather than collapsing to a
+single default. Where the paper documents uncertainty, preserve it in StarGen rather
+than presenting false precision.)*
+
+## Works cited by this paper (auto-extracted from final pages, partial)
+- Alibert, Y., Mordasini, C., & Benz, W. 2005, A&A, 417, L25
+- Alibert, Y., Mordasini, C., Benz, W., & Winisdoerffer, C. 2005, A&A, 434, 343
+- Alibert, Y., Mousis, O., Mordasini, C., & Benz, W. 2005, ApJ, 626, L57
+- Alibert, Y., Baraffe, I., Benz, W.,Chabrier, G., Mordasini, C., Lovis, C., Mayor, M.,
+- Pepe, F., Bouchy, F., Queloz, D., & Udry, S. 2006, A&A, 455, L25
+- Beckwith, S. V. W, & Sargent, A. I. 1996, Nat, 383, 139
+- Bodenheimer, P., & Pollack, J. P. 1986, Icarus, 67, 391
+- Boss, A. P. 1997, Science, 276, 1836
+- Fischer, D. A., & Valenti, J. 2005, ApJ, 622, 1102
+- Fortier, A., Benvenuto, O. G., & Brunini, A. 2007, A&A, 473, 311
+- Haisch, K. E., Jr., Lada, E. A., & Lada, C. J. 2001, ApJ, 553, L153
+- Hubickyj, O., Bodenheimer, P., & Lissauer, J. J. 2005, Icarus, 179, 415
+- Ida, S., & Lin, D. N. C. 2004, ApJ, 604, 388
+- Ida, S., & Lin, D. N. C. 2004, ApJ, 616, 567
+- Ida, S., & Lin, D. N. C. 2005, ApJ, 626, 1045
+- Ikoma, M., Nakazawa, K., & Emori, H. 2000, ApJ, 537, 1013
+- Johansen, A., Oishi, J. S., Low, M.-M. M., Klahr, H., Henning, T., & Youdin, A. 2007,
+- Klahr, H., & Bodenheimer, P. 2006, ApJ, 639, 432
+- Mizuno, H., Nakazawa, K., & Hayashi, C. 1978, Prog. Th. Phys., 60, 3, 699
+- Naef, D., Mayor, M., Beuzit, J.-L., Perrier, C., Queloz, D., Sivan, J.-P., & Udry, S.
+
+## Opposing or alternative findings cited
+*(Human action: identify papers in the reference list that present opposing models,
+competing parameter choices, or significantly different results. Note the specific
+disagreement and its implication for which StarGen default to use.)*
+
+## APA citation
+*(Verify and complete — see AnnotatedBibliography.md for the curated APA entry.)*
+
+## Conflicts and follow-up work
+*(Human action: search for papers explicitly responding to, revising, or challenging
+this paper published after its date. For fast-moving fields (exoplanet demographics,
+habitability, JWST/TESS-informed work), treat results >3 years old as potentially
+superseded. Flag updates in Followup.md.)*
+
+
+## StarGen mechanics translation
+
+### Planet formation — Bern core-accretion model (foundational reference)
+Population synthesis framework based on core accretion: seeds grow by pebble/planetesimal
+accretion, followed by envelope accretion and gas runoff.
+
+**StarGen planet formation context:**
+- StarGen generates initial conditions, not a full formation simulation; use Mordasini2007
+  as motivation for mass-period biases in the generated population.
+- Key bias: gas-giant formation is more efficient beyond the snow line and around metal-rich
+  stars (motivates Fernandes2019 giant-planet placement rules).
+- Not directly encoded as a StarGen parameter; informs occurrence rate priors.
+**Cross-references:** Fernandes2019.txt, WangFischer2015Met.txt, LambrechtsJohansen2012.txt.

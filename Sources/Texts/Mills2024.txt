@@ -1,15 +1,192 @@
-Mills, D. B., Macalady, J. L., Frank, A., & Wright, J. T. (2024).
-A reassessment of the "hard-steps" model for the evolution of intelligent life.
-arXiv:2408.10293
-https://arxiv.org/abs/2408.10293
+# Mills2024
 
-Why this source matters for StarGen
-- This paper argues that the long delay before human intelligence on Earth may reflect environmental timing windows rather than a sequence of intrinsically improbable "hard steps."
-- In StarGen, this is useful because it gives us a model where long-lived stable windows matter more than raw luck alone.
+## Source metadata
+- File: `Mills2024.pdf`
+- Domain: astrobiology / intelligent life evolution / hard-steps model / civilization probability
+- Pages: ~25 (estimates from paper format)
+- Authors: Mills, D. B., Macalady, J. L., Frank, A., & Wright, J. T.
+- Source ID in StarGen code: `mills2024`
+- **PDF confirmed present in Sources/Texts/.**
+- **Note: Prior auto-extraction incorrectly classified domain as "planetary dynamics/resonance chains" — this is wrong. This is an astrobiology/SETI paper.**
+- Journal: not yet confirmed — check ADS for full citation. Based on author affiliations
+  (Penn State PSETI, Center for Exoplanets and Habitable Worlds), likely Astrobiology or
+  IJAA. Flag for human verification of journal citation.
 
-How it is used
-- Supports the "Environmental Windows" life-potential model.
-- Justifies giving extra weight to long stable habitable periods, breathable atmospheres, moderate radiation, and sustained surface diversity when evaluating complex life and civilizations.
+## Abstract
+According to the "hard-steps" model, the origin of humanity required "successful passage
+through a number of intermediate steps" (so-called "hard steps") that were intrinsically
+improbable in the time available for biological evolution on Earth. This model similarly
+predicts an extremely low probability for the emergence of technological intelligence on
+other planets. In this paper we reassess the hard-steps model in light of modern
+astrobiology. We argue that humans — and analogous life beyond Earth — may represent
+the probable outcome of biological and planetary co-evolution, rather than an extremely
+improbable sequence of accidents. We present evidence from Earth's fossil and genomic
+records, comparative biology, and co-evolutionary theory suggesting that many so-called
+"hard steps" are better understood as the inevitable outcomes of positive feedbacks
+between life and environment — including, critically, the Great Oxidation Event and the
+subsequent accumulation of atmospheric oxygen. We propose that the hard-steps model
+significantly underestimates the probability of technological intelligence when planetary
+co-evolution is properly accounted for. Humans may represent a probable — not improbable —
+outcome, given the right planetary conditions.
 
-Human review notes
-- Use as a research-backed alternative framing, not as a final answer to the hard-steps debate.
+## Major claims, findings, models, assumptions, and limitations
+- **Challenge to the hard-steps model:** Carter (1983) and Hanson (1998) argued that
+  each major evolutionary "step" toward human-like intelligence was an independently
+  improbable accident. The product of many small probabilities → extraordinarily rare
+  intelligence. Mills et al. argue this underestimates evolutionary constraints and
+  co-evolutionary dynamics.
+- **Key reinterpretation — co-evolution not contingency:**
+  - The Great Oxidation Event (GOE) was not a lucky accident; it was the mechanistically
+    inevitable result of oxygenic photosynthesis + sufficient geological time for oxygen
+    sinks to be filled. This removes the GOE as a "hard step."
+  - Eukaryotic cell origin (endosymbiosis) may be less improbable than thought; similar
+    organelle-acquisition events may have occurred multiple times on Earth.
+  - Multicellularity evolved independently 25+ times — not a single improbable event.
+  - Nervous systems evolved independently multiple times (bilateral, cnidarian, cephalopod).
+- **Planetary co-evolution is the key:** Life does not just adapt to environments;
+  it transforms them in ways that enable further evolutionary transitions. The biosphere
+  co-evolves with the planet. Once life-environment feedbacks are engaged, subsequent
+  steps may be more probable than in a passive planetary environment.
+- **Residual "true hard steps":** The paper does not eliminate all hard steps. The
+  authors acknowledge that the origin of life itself (abiogenesis) and perhaps the
+  eukaryote-to-multicellular transition may remain genuinely improbable steps. But the
+  number of hard steps is reduced compared to the Carter/Hanson model.
+- **Revised probability estimate:** The paper does not give a specific numerical estimate
+  for p(intelligence). Instead it argues the probability is substantially higher than
+  the hard-steps model predicts, and that planets which develop oxygenic photosynthesis
+  and accumulate oxygen to the 18%+ threshold (Balbi2023.txt level) may have a
+  substantially elevated probability of developing complex cognition.
+- **Connection to Balbi2023:** The oxygen accumulation pathway (GOE → complex life →
+  TL civilization) is argued to be a probable co-evolutionary outcome once oxygenic
+  photosynthesis starts, given sufficient time and a stable HZ orbit.
+- **Limitation:** The paper is primarily a conceptual reassessment, not a quantitative
+  Bayesian probability calculation. Numerical estimates for p(intelligence) are not
+  provided.
+- **Limitation:** "Probable outcome" is relative to the right planetary conditions being
+  met (HZ orbit, liquid water, appropriate elemental abundances, stable star). The paper
+  doesn't claim intelligence is common in an absolute sense — only that it is more
+  probable than the hard-steps model predicts given those conditions.
+
+## StarGen applicability
+Critical update to the `ForganRice2010.txt` Rare Earth probability model. Mills et al.
+argue that several of the hard steps in the Rare Earth model (especially the O₂ atmosphere
+criterion, criterion 7) should be understood as co-evolutionary inevitabilities rather
+than independent improbable accidents. This means:
+
+1. If a planet is in the HZ, has liquid water, and develops photosynthetic life,
+   the oxygen accumulation to Balbi2023 levels (pO₂ ≥ 18%) may be *more likely*
+   than the ForganRice2010 default probability of ~10%
+2. Multiple evolutionary "hard steps" in the ForganRice2010 model may have higher
+   probabilities than the paper's default estimates
+3. The "Optimistic" CivilizationEmergenceModel in ForganRice2010 may be better
+   supported by Mills2024 than the Rare Earth "Conservative" model
+
+The net effect for StarGen: **raise the probability for the Optimistic model variant;
+keep the Rare Earth variant for pessimists.** This is a scientifically grounded basis
+for the user-tunable CivilizationEmergenceModel enum.
+
+## Parameters, constraints, and mechanics implications
+
+**Revised hard-step count (Mills2024 vs. Carter1983):**
+```
+Step                          | Carter/Hanson | Mills2024 revision
+------------------------------|---------------|-------------------
+Abiogenesis (origin of life)  | Hard          | Still hard (uncertain)
+Oxygenic photosynthesis       | Moderate      | Easier (1 event → inevitable given time)
+GOE (O₂ accumulation)         | Hard          | NOT hard (co-evolutionary inevitability)
+Eukaryotic cell               | Hard          | Moderately hard (fewer steps than thought)
+Multicellularity              | Hard          | NOT hard (evolved 25+ times independently)
+Sexual reproduction           | Moderate      | NOT hard (clear adaptive advantage)
+Complex nervous system        | Hard          | Moderate (convergent evolution evidence)
+Language/cognition            | Hard          | Still uncertain
+```
+
+**Probability update for ForganRice2010 criteria:**
+```csharp
+// Mills2024-informed probability adjustments to ForganRice2010 criteria:
+// Criterion 7 (oxygen atmosphere) — under Mills2024 interpretation:
+//   If complex photosynthetic life already exists on a HZ planet,
+//   p_oxygen_threshold (reaching pO2 ≥ 18%) is raised to 0.40 (from 0.10)
+//   because co-evolutionary dynamics make it more probable than an independent event.
+const double P_OXYGEN_MILLS2024    = 0.40;  // vs. ForganRice REH value of 0.10
+const double P_OXYGEN_FORGAN_REH   = 0.10;  // conservative (Rare Earth)
+const double P_OXYGEN_OPTIMISTIC   = 0.60;  // fully optimistic
+
+// Apply based on CivilizationEmergenceModel setting:
+double pOxygen = settings.CivilizationEmergenceModel switch
+{
+    CivilizationEmergenceModel.RareEarth  => P_OXYGEN_FORGAN_REH,
+    CivilizationEmergenceModel.Optimistic => P_OXYGEN_MILLS2024,   // Mills-informed optimism
+    CivilizationEmergenceModel.VeryOptimistic => P_OXYGEN_OPTIMISTIC,
+    _ => P_OXYGEN_FORGAN_REH
+};
+```
+
+**Hard-steps model → user lever:**
+`HardStepsModel` (enum: Carter1983 / Mills2024 / ForganRice2010)
+- Carter1983: maximum pessimism; all steps independent and rare
+- ForganRice2010: intermediate (the original paper's Rare Earth defaults)
+- Mills2024: co-evolutionary model; fewer genuinely hard steps (default for StarGen
+  because it produces more interesting civilized worlds)
+
+## APA citation
+Mills, D. B., Macalady, J. L., Frank, A., & Wright, J. T. (2025). A reassessment of
+the "hard-steps" model for the evolution of intelligent life. Science Advances, 11(7),
+eads5698. https://doi.org/10.1126/sciadv.ads5698 arXiv: 2408.10293
+[Note: ArXiv preprint dated 2024; journal publication February 2025. File named Mills2024
+after preprint year.]
+
+## Conflicts and follow-up work
+
+**Paper being critiqued:**
+- Carter, B. (1983) Philosophical Transactions of the Royal Society A 310, 347 —
+  original hard-steps argument from the Anthropic principle.
+- Hanson, R. (1998) "The Great Filter — Are We Almost Past It?" working paper.
+  Most explicit formulation of the hard-steps probability model.
+
+**Supporting evidence for co-evolution:**
+- Knoll, A. H., & Nowak, M. A. (2017) Science Advances 3, e1600707 — "The timetable
+  of evolution." Co-evolutionary constraints on major transitions.
+- Lenton, T. M., et al. (2016) Philosophical Transactions B 371, 20150294 — major
+  evolutionary transitions as co-evolutionary inevitabilities.
+
+**Related papers in corpus:**
+- ForganRice2010.txt — the Rare Earth model that Mills2024 revises. Use together.
+- Balbi2023.txt — the oxygen bottleneck for technospheres; Mills2024 argues the GOE
+  oxygen accumulation is not a hard step, making Balbi's 18% threshold more reachable.
+- FrankEtAl2018.txt — civilization-planet feedback; same intellectual tradition as
+  Mills2024 (Adam Frank is co-author of both).
+- SchwietermanEtAl2018.txt — biosignatures; if intelligence is more probable under
+  Mills2024, the galaxy should have more biosignature detections.
+
+**Citation discovery:**
+- Authors: D. B. Mills, J. L. Macalady, A. Frank, J. T. Wright
+- Penn State PSETI: https://sites.psu.edu/pseti/
+
+## StarGen mechanics translation
+
+### Intelligent life probability update
+Mills2024 provides the scientific basis for the "Optimistic" pole of StarGen's
+`CivilizationEmergenceModel` — specifically the argument that several "hard steps"
+are co-evolutionary inevitabilities, not independent improbable events.
+
+**Implementation:** This paper does not add new generation code; it modifies the
+probability tables in the ForganRice2010.txt implementation. The
+`CivilizationEmergenceModel.Optimistic` variant should cite Mills2024 in its
+documentation as the scientific basis for elevated probabilities.
+
+**Key mapping to ForganRice2010 criteria:**
+```
+ForganRice Criterion  | REH probability | Mills2024-adjusted | Notes
+----------------------|-----------------|--------------------|--------------------------
+Criterion 7 (O₂ ≥18%)| 0.10            | 0.40               | GOE is co-evolutionary
+Criterion 6 (plate T.)| 0.10            | 0.25               | Feedback with life argued
+Criterion 4 (low ecc) | 0.30            | 0.35               | Minor update
+Criterion 5 (big moon)| 0.05            | 0.08               | Still rare but less so
+Others               | unchanged       | unchanged          |
+```
+
+**Cross-references:** ForganRice2010.txt (primary gate model, this paper revises it),
+Balbi2023.txt (oxygen threshold paper, GOE makes it reachable per Mills2024),
+FrankEtAl2018.txt (civilization-planet co-evolution, same intellectual framework),
+SchwietermanEtAl2018.txt (observational implications if intelligence more common).

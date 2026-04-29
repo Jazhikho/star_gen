@@ -152,7 +152,7 @@ public static class PopulationGenerator
                 useCaseSettings);
         }
 
-        data.SentientWorldProfile = SentientWorldProfileBuilder.Build(data);
+        data.SentientWorldProfile = SentientWorldProfileBuilder.Build(data, useCaseSettings);
 
         return data;
     }
@@ -343,7 +343,7 @@ public static class PopulationGenerator
 
             data.Population = data.GetTotalPopulation();
             data.IsActive = data.GetTotalPopulation() > 0;
-            data.SentientWorldProfile = SentientWorldProfileBuilder.Build(data);
+            data.SentientWorldProfile = SentientWorldProfileBuilder.Build(data, useCaseSettings);
         }
     }
 

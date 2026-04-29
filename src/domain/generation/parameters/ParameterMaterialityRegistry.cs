@@ -132,7 +132,23 @@ public static class ParameterMaterialityRegistry
                 new[] { "PlanetarySystemState.Build(...)", "OrbitHost.CalculateZones(...)" },
                 new[] { "SystemPlanetGenerator", "SystemMoonGenerator", "SystemAsteroidGenerator", "ProfileGenerator" },
                 new[] { "planet class mix", "moon architecture", "small-body composition", "environment and habitability context" }),
-            "life_framework" or "abiogenesis_model" or "complex_life_model" or "civilization_model" or "environmental_window_weight" => CreateEntry(
+            "comet_nucleus_model" or "comet_activity_model" or "comet_size_scale" or "minor_body_population_slope" => CreateEntry(
+                parameterId,
+                GenerationParameterClassification.GenerationPrior,
+                new[] { "ObjectGenerationScreen comet section", "GalaxyGenerationScreen planetary section", "SystemGenerationScreen planetary priors" },
+                new[] { "CometSpec", "PlanetaryGenerationProfile" },
+                new[] { "CometGenerator.Generate(...)", "PlanetarySystemState.Build(...)" },
+                new[] { "CometGenerator", "SystemAsteroidGenerator" },
+                new[] { "comet nucleus radius", "comet activity state", "minor-body size mix" }),
+            "planet_disk_radius_scale" or "planet_dust_to_gas_scale" or "planet_fragmentation_velocity_model" or "planet_giant_origin_band_model" => CreateEntry(
+                parameterId,
+                GenerationParameterClassification.GenerationPrior,
+                new[] { "GalaxyGenerationScreen planetary section", "SystemGenerationScreen planetary priors" },
+                new[] { "PlanetaryGenerationProfile" },
+                new[] { "PlanetarySystemState.Build(...)" },
+                new[] { "SystemPlanetGenerator" },
+                new[] { "giant-planet weighting", "solid and gas budgets", "migration and volatile delivery context" }),
+            "life_framework" or "abiogenesis_model" or "complex_life_model" or "civilization_model" or "environmental_window_weight" or "subsurface_habitability_model" or "dark_biosphere_energy_scale" => CreateEntry(
                 parameterId,
                 GenerationParameterClassification.GenerationPrior,
                 new[] { "GalaxyGenerationScreen life section", "SystemGenerationScreen life section", "ObjectGenerationScreen life section" },
@@ -140,6 +156,14 @@ public static class ParameterMaterialityRegistry
                 new[] { "LifePotentialModeling", "BiologySupportEvaluator", "PopulationProbability" },
                 new[] { "BiologySupportEvaluator", "PopulationLikelihood", "PopulationGenerator", "SentientWorldProfileBuilder" },
                 new[] { "native-life gating", "sentience and civilization odds", "population and settlement outcomes" }),
+            "sentient_social_scale_model" or "sentient_technology_diffusion_model" or "sentient_economic_complexity_model" or "sentient_legitimacy_model" => CreateEntry(
+                parameterId,
+                GenerationParameterClassification.GenerationPrior,
+                new[] { "GalaxyGenerationScreen life section", "SystemGenerationScreen life section", "ObjectGenerationScreen life section" },
+                new[] { "GenerationUseCaseSettings" },
+                new[] { "SentientWorldProfileBuilder.Build(...)" },
+                new[] { "PopulationGenerator", "SentientWorldProfileBuilder" },
+                new[] { "social scale", "technology adoption capacity", "economic complexity", "legitimacy proxies" }),
             "ruleset_mode" => CreateEntry(
                 parameterId,
                 GenerationParameterClassification.GeneratorOverride,

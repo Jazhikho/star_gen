@@ -1,0 +1,91 @@
+# SavvidouEtAl2023
+
+## Source metadata
+- File: `SavvidouEtAl2023.pdf`
+- Domain: planet formation / pebble accretion / gas giant formation
+- Pages: 15 for the article; the current local PDF is an A&A journal leaflet and does
+  **not** match the article.
+- Authors: Savvidou, S., & Bitsch, B.
+- Source ID in StarGen code: `savvidou2023`
+- **PDF acquisition:** The local `SavvidouEtAl2023.pdf` was inspected and is not the
+  article PDF. The source note below is based on the local full HTML extraction for the
+  A&A article. Reacquire the article PDF before treating this note as fully verified.
+  DOI: 10.1051/0004-6361/202245793
+  Original URL: https://www.aanda.org/articles/aa/full_html/2023/11/aa45793-22/aa45793-22.html
+  Retrieval mode: HTML; PDF mismatch flagged.
+
+## Abstract
+Savvidou and Bitsch simulate giant-planet formation through pebble and gas accretion
+with migration in viscously evolving protoplanetary disks. They find that giant-planet
+formation depends on combinations of disk mass, disk size, early embryo formation,
+dust-to-gas ratio, viscosity, fragmentation velocity, and embryo starting location. No
+single parameter is sufficient; the outcome comes from interacting disk conditions.
+
+## Major claims, findings, models, assumptions, and limitations
+- **High disk mass is important:** Giant planets require enough solid material to build
+  massive cores before the pebble flux decays.
+- **Early formation matters:** Core growth must start early; the article reports that
+  starting before about 0.9 Myr is needed in the modeled favorable cases.
+- **Disk size matters:** Large disks can maintain long-lasting pebble flux, aiding core
+  growth.
+- **Dust-to-gas ratio matters:** A higher dust-to-gas ratio can compensate for lower
+  disk mass in some cases, but does not remove the need for early formation.
+- **Viscosity tradeoff:** Higher viscosity can increase gas accretion and massive-core
+  growth, but also increases migration.
+- **Embryo location matters:** The highest giant-formation fractions originate roughly
+  between 5 and 25 AU in the explored grid.
+- **Limitation:** This is a numerical parameter study, not a direct observed occurrence
+  distribution. StarGen should use it to shape model structure, not as a literal
+  occurrence table.
+
+## StarGen applicability
+Directly relevant to StarGen's `PlanetarySystemState`, especially gas giant weighting,
+pebble-assisted growth, disk mass scalars, disk lifetime, migration strength, dust/solid
+budget, and snow-line-adjacent giant formation.
+
+Provides:
+- Support for treating giant formation as a multi-parameter outcome
+- A source anchor for the pebble-assisted gas giant model branch
+- Support for early disk lifetime and solid/gas budget interactions
+- A reason to expose or preserve disk-size, dust-to-gas, and migration proxies as
+  provenance or user-facing assumptions
+
+## Parameters, constraints, and mechanics implications
+
+**Giant formation proxy:**
+```
+giant_weight =
+    f(disk_mass, dust_to_gas, disk_lifetime, embryo_start_time, migration, orbit)
+```
+
+**Generator rule implication:**
+- Pebble-assisted giant formation should not be a simple flat multiplier.
+- Disk lifetime, solid budget, gas budget, migration, snow-line distance, and starting
+  orbital region should all influence giant outcomes.
+- StarGen's exact coefficients remain tuning unless calibrated against a reviewed
+  population model.
+
+## APA citation
+Savvidou, S., & Bitsch, B. (2023). How to make giant planets via pebble accretion.
+Astronomy & Astrophysics, 679, A42. https://doi.org/10.1051/0004-6361/202245793
+
+## Conflicts and follow-up work
+- Reacquire the correct article PDF; the current local PDF is an A&A journal leaflet.
+- Compare with `LambrechtsJohansen2012.txt`, `Mordasini2007.txt`, and
+  `Pascucci2016.txt` before retuning gas-giant formation.
+- Add bibliography coverage if this source remains in the retained v1.0 source set.
+
+## StarGen mechanics translation
+
+### Pebble-assisted gas giant branch
+`PlanetarySystemState` already combines solid budget, gas budget, disk lifetime,
+metallicity, migration strength, and snow-line weighting into `GasGiantWeight` and
+`SnowLineGiantFormationScalar`.
+
+**Current fit:** moderate. The code is structurally consistent with the source because
+giant-planet formation depends on multiple interacting parameters. It is not yet close
+to the paper's detailed findings because it lacks explicit disk radius, embryo injection
+time, dust-to-gas ratio, fragmentation velocity, and starting-location distributions.
+
+**Recommended v1.0 disposition:** keep as model-structure support; mark StarGen
+coefficients as tuning until a dedicated retuning pass is approved.

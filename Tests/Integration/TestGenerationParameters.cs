@@ -289,6 +289,12 @@ public static class TestGenerationParameters
         settings.ComplexLifeModel = GenerationUseCaseSettings.ComplexLifeModelType.FollowFramework;
         settings.CivilizationModel = GenerationUseCaseSettings.CivilizationModelType.FollowFramework;
         settings.EnvironmentalWindowWeight = GenerationUseCaseSettings.EnvironmentalWindowWeightType.FollowFramework;
+        settings.SubsurfaceHabitabilityModel = GenerationUseCaseSettings.SubsurfaceHabitabilityModelType.DarkBiosphereEnergyLimited;
+        settings.DarkBiosphereEnergyScale = 1.35;
+        settings.SentientSocialScaleModel = GenerationUseCaseSettings.SentientSocialScaleModelType.PopulationHierarchyAware;
+        settings.SentientTechnologyDiffusionModel = GenerationUseCaseSettings.SentientTechnologyDiffusionModelType.AccessCostDensityProxy;
+        settings.SentientEconomicComplexityModel = GenerationUseCaseSettings.SentientEconomicComplexityModelType.CapabilityPortfolioProxy;
+        settings.SentientLegitimacyModel = GenerationUseCaseSettings.SentientLegitimacyModelType.InternalExternalNormProxy;
         settings.MainworldPolicy = GenerationUseCaseSettings.MainworldPolicyType.Require;
         settings.CompatibilityTemperateSlotFillMultiplier = 1.42;
         settings.CompatibilityHarshSlotFillMultiplier = 0.78;
@@ -309,6 +315,12 @@ public static class TestGenerationParameters
         DotNetNativeTestSuite.AssertEqual(expected.ComplexLifeModel, actual.ComplexLifeModel, messagePrefix + ": complex-life model should match");
         DotNetNativeTestSuite.AssertEqual(expected.CivilizationModel, actual.CivilizationModel, messagePrefix + ": civilization model should match");
         DotNetNativeTestSuite.AssertEqual(expected.EnvironmentalWindowWeight, actual.EnvironmentalWindowWeight, messagePrefix + ": environmental-window weight should match");
+        DotNetNativeTestSuite.AssertEqual(expected.SubsurfaceHabitabilityModel, actual.SubsurfaceHabitabilityModel, messagePrefix + ": subsurface habitability model should match");
+        DotNetNativeTestSuite.AssertEqual(expected.DarkBiosphereEnergyScale, actual.DarkBiosphereEnergyScale, messagePrefix + ": dark-biosphere energy scale should match");
+        DotNetNativeTestSuite.AssertEqual(expected.SentientSocialScaleModel, actual.SentientSocialScaleModel, messagePrefix + ": sentient social-scale model should match");
+        DotNetNativeTestSuite.AssertEqual(expected.SentientTechnologyDiffusionModel, actual.SentientTechnologyDiffusionModel, messagePrefix + ": sentient technology diffusion model should match");
+        DotNetNativeTestSuite.AssertEqual(expected.SentientEconomicComplexityModel, actual.SentientEconomicComplexityModel, messagePrefix + ": sentient economic complexity model should match");
+        DotNetNativeTestSuite.AssertEqual(expected.SentientLegitimacyModel, actual.SentientLegitimacyModel, messagePrefix + ": sentient legitimacy model should match");
         DotNetNativeTestSuite.AssertEqual(expected.MainworldPolicy, actual.MainworldPolicy, messagePrefix + ": mainworld policy should match");
         DotNetNativeTestSuite.AssertEqual(expected.CompatibilityTemperateSlotFillMultiplier, actual.CompatibilityTemperateSlotFillMultiplier, messagePrefix + ": temperate-world multiplier should match");
         DotNetNativeTestSuite.AssertEqual(expected.CompatibilityHarshSlotFillMultiplier, actual.CompatibilityHarshSlotFillMultiplier, messagePrefix + ": harsh-world multiplier should match");

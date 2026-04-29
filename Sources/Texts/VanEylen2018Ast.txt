@@ -1,0 +1,74 @@
+# VanEylen2018Ast
+
+## Source metadata
+- File: `VanEylen2018Ast.pdf`
+- Domain: planet radius gap / asteroseismology (photoevaporation support)
+- Authors (verify against PDF title page)
+
+## Abstract
+Various theoretical models treating the effect of stellar irradiation on planetary envelopes predict the presence of a radius valley: i.e. a bimodal distribution of planet radii, with super-Earths and sub-Neptune planets separated by a valley at around ≈ 2 R ⊕ . Such a valley was observed recently, owing to an improvement in the precision of stellar, and therefore planetary radii. Here we investigate the presence, location and shape of such a valley using a small sample with highly accurate stellar parameters determined from asteroseismology, which includes 117 planets with a median uncertainty on the radius of 3.3%. We detect a clear bimodal distribution, with super-Earths (≈ 1.5 R ⊕ ) and sub-Neptunes (≈ 2.5 R ⊕ ) separated by a deficiency around 2 R ⊕ . We furthermore characterize the slope of the valley as a power law R ∝ Pγ with γ = −0.09+0.02 −0.04 . A negative slope is consistent with models of photo-evaporation, but not with the late formation of rocky planets in a gas-poor environment, which would lead to a slope of opposite sign. The exact location of the gap further points to planet cores consisting of a significant fraction of rocky material. Key words: planets and satellites: physical evolution – planets and satellites: composition – planets and satellites: formation – planets and satellites: fundamental parameters 1 INTRODUCTION Various theoretical models predict that planets at short orbital periods are strongly influenced by the radiation of their host stars. For example, at the shortest orbital period a “photoevaporation desert”, i.e. an absence of sub-Neptunesize planets (1.8 − 4.0 R ⊕ ) and an increase in rocky planets (R<1.8 R ⊕ ) has been predicted (Lopez & Fortney 2013) and observed with increasing clarity as the precision of stellar parameters inc
+
+## Major claims, findings, models, assumptions, and limitations
+*Human verification required before using quantitative values or model assumptions in
+StarGen defaults. Figures and equations not captured by text extraction — read the PDF
+for exact thresholds, fit coefficients, and table values.*
+
+- Primary domain: planet radius gap / asteroseismology (photoevaporation support)
+- See StarGen applicability section below for the specific implications.
+
+## StarGen applicability
+High-precision asteroseismic sample confirms gap at ~2 R⊕; slope γ = −0.09 (R ∝ P^γ) supports photoevaporation over gas-poor formation. Primary observational reference for gap slope in StarGen.
+
+## Parameters, constraints, and mechanics implications
+*(Human action: fill in specific numeric values, distributions, model families, and
+classification boundaries extracted from the paper. Where competing models or confidence
+ranges exist, expose those as user-selectable assumptions rather than collapsing to a
+single default. Where the paper documents uncertainty, preserve it in StarGen rather
+than presenting false precision.)*
+
+## Works cited by this paper (auto-extracted from final pages, partial)
+- V. Van Eylen et al.
+- If photo-evaporation is indeed responsible for the observed super-Earths at short periods, this has implications
+- CONCLUSIONS
+- Using a sample of planet host stars characterized with asteroseismology, we derive accurate stellar and planetary radii to
+- This may be particularly important for the TESS satellite
+- Determining the radii of planets and their host star is
+- Future transit surveys such as TESS and PLATO (Rauer
+- Finally, because of the relative faintness of most stars
+- ACKNOWLEDGEMENTS
+- We thank the anonymous referee for helpful comments
+- European Research Council (ERC) under the European UnionâĂŹs Horizon 2020 research and innovation programme
+- Research Council (Grant agreement no.: 267864). M.S.L. is
+- Sapere Aude program (Grant agreement no.: DFF–505100130). This research was made with the use of NASA’s Astrophysics Data System and the NASA Exoplanet Archive,
+- Administration under the Exoplanet Exploration Program.
+- Borucki W. J., et al., 2011, ApJ, 736, 19
+
+## Opposing or alternative findings cited
+*(Human action: identify papers in the reference list that present opposing models,
+competing parameter choices, or significantly different results. Note the specific
+disagreement and its implication for which StarGen default to use.)*
+
+## APA citation
+*(Verify and complete — see AnnotatedBibliography.md for the curated APA entry.)*
+
+## Conflicts and follow-up work
+*(Human action: search for papers explicitly responding to, revising, or challenging
+this paper published after its date. For fast-moving fields (exoplanet demographics,
+habitability, JWST/TESS-informed work), treat results >3 years old as potentially
+superseded. Flag updates in Followup.md.)*
+
+## StarGen mechanics translation
+
+### Radius gap — asteroseismic confirmation; slope favours photoevaporation
+High-precision asteroseismic sample (117 planets, 3.3% median radius uncertainty).
+Detects clear bimodal distribution; gap at ~2 R⊕; slope γ = −0.09 ± 0.02–0.04.
+
+**StarGen implementation:**
+- Confirm `RadiusGapMechanism = Photoevaporation` as observationally preferred in
+  HardSF mode (negative slope matches photoevaporation; positive slope would indicate
+  gas-poor formation which is disfavoured).
+- Gap centre for solar-type stars: 1.5 R⊕ (super-Earths) / 2.5 R⊕ (sub-Neptunes),
+  separated at ~2 R⊕.
+- Use this paper's slope (γ = −0.09) as the calibration value for the photoevaporation
+  branch in StarGen.
+**Cross-references:** OwenWu2017.txt, Ginzburg2018.txt, FultonPetigura2018CKS.txt.

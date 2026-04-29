@@ -1,20 +1,78 @@
-Source note for StarGen research review
+# Tokovinin2021
 
-Citation:
-Tokovinin, A. (2021).
-Architecture of hierarchical stellar systems and their formation.
-Universe, 7(9), 352.
-arXiv: https://arxiv.org/abs/2109.09118
-DOI: https://doi.org/10.3390/universe7090352
+## Source metadata
+- File: `Tokovinin2021.pdf`
+- Domain: stellar multiplicity / hierarchical systems
+- Pages: 22
+- Authors (auto-extracted — verify against PDF): (see PDF)
 
-What was reviewed:
-- arXiv abstract and source metadata on 2026-03-28.
+## Abstract
+Accumulation of new data on stellar hierarchical systems and the progress in numerical simulations of their formation open the door to genetic classification of these systems, where properties of a certain group (family) of objects are tentatively related to their formation mechanisms and early evolution. A short review of the structure and statistical trends of known stellar hierarchies is given. Like binaries, they can be formed by the disk and core fragmentation events happening sequentially or simultaneously and followed by the evolution of masses and orbits driven by continuing accretion of gas and dynamical interactions between stars. Several basic formation scenarios are proposed and associated qualitatively with the architecture of real systems, although quantitative predictions for these scenarios are still pending. The general trend of increasing orbit alignment with decreasing system size points to the critical role of the accretion-driven orbit migration, which also explains the typically comparable masses of stars belonging to the same system. The architecture of some hierarchies bears imprints of chaotic dynamical interactions. Characteristic features of each family are illustrated by several real systems. Accepted by Universe on 2021-09-18
 
-Key implementation notes used in StarGen:
-- The abstract reviews statistical trends in hierarchical stellar systems.
-- It highlights orbit alignment and the tendency for stars in the same hierarchy to have comparable masses.
-- It frames hierarchical systems as families with recognizable structural patterns rather than arbitrary random trees.
+## Major claims, findings, models, assumptions, and limitations
+*Human verification required before using quantitative values or model assumptions in
+StarGen defaults. Figures and equations not captured by text extraction — read the PDF
+for exact thresholds, fit coefficients, and table values.*
 
-How StarGen uses this:
-- As the justification for building nested binary architectures intentionally instead of pairing stars at random until one root node remains.
-- As support for giving multi-star systems progressively wider outer orbits and more family-like mass groupings.
+- Primary domain: stellar multiplicity / hierarchical systems
+- See StarGen applicability section below for the specific implications.
+
+## StarGen applicability
+Hierarchical triple/quadruple architecture, frequency, and stability. Extends binary statistics to higher-order multiples for StarGen.
+
+## Parameters, constraints, and mechanics implications
+*(Human action: fill in specific numeric values, distributions, model families, and
+classification boundaries extracted from the paper. Where competing models or confidence
+ranges exist, expose those as user-selectable assumptions rather than collapsing to a
+single default. Where the paper documents uncertainty, preserve it in StarGen rather
+than presenting false precision.)*
+
+## Works cited by this paper (auto-extracted from final pages, partial)
+- Alonso, R., Deeg, H. J., Hoyer, S., et al. 2015, A&A, 584, L8
+- Anosova, J. P. 1986, Ap&SS, 124, 217
+- Antognini, J. M. O., & Thompson, T. A. 2016, MNRAS, 456,
+- Bate, M. R. 2019, MNRAS, 484, 2341
+- Batten, A. H. 1973, Binary and multiple systems of stars
+- (Pergamon Press: Oxford)
+- Boden, A. F., Sargent, A. I., Akeson, R. L., et al. 2005, ApJ, 635,
+- Bodenheimer, P. 1978, ApJ, 224, 488
+- Bonnell, I., & Bastien, P. 1993, ApJ, 406, 614
+- Borkovits, T., Hajdu, T., Sztakovics, J., et al. 2016, MNRAS,
+- Borkovits, T., Sperauskas, J., Tokovinin, A., et al. 2019, MNRAS,
+- Borkovits, T., Rappaport, S. A., Tan, T. G., et al. 2020, MNRAS,
+- Bowler, B. P., & Hillenbrand, L. A. 2015, ApJ, 811, L30
+- Brandt, T. D. 2018, ApJS, 239, 31
+- Chambliss, C. R. 1992, PASP, 104, 663
+- Clark, P. C., & Whitworth, A. P. 2021, MNRAS, 500, 1697
+- Deacon, N. R., & Kraus, A. L. 2020, MNRAS, 496, 5176
+- Delgado-Donate, E. J., Clarke, C. J., & Bate, M. R. 2003,
+- Docobo, J. A., Piccotti, L., Abad, A., & Campo, P. P. 2021, AJ,
+- Duchêne, G., & Kraus, A. 2013, ARA&A, 51, 269
+
+## Opposing or alternative findings cited
+*(Human action: identify papers in the reference list that present opposing models,
+competing parameter choices, or significantly different results. Note the specific
+disagreement and its implication for which StarGen default to use.)*
+
+## APA citation
+*(Verify and complete — see AnnotatedBibliography.md for the curated APA entry.)*
+
+## Conflicts and follow-up work
+*(Human action: search for papers explicitly responding to, revising, or challenging
+this paper published after its date. For fast-moving fields (exoplanet demographics,
+habitability, JWST/TESS-informed work), treat results >3 years old as potentially
+superseded. Flag updates in Followup.md.)*
+
+
+## StarGen mechanics translation
+
+### Triple star statistics — inner/outer pair correlations
+Triple and higher-order systems follow specific period-ratio distributions between
+inner and outer pairs. Inner periods < ~3 days correlated with outer < ~10 yr (Kozai-Lidov).
+
+**StarGen triple system generation:**
+- Probability of triple given binary: ~10% for FGK at P_outer < 100 yr.
+- Inner-outer period correlation: P_outer / P_inner typically 3–100.
+- `TripleSystemModel` — when companion is generated, roll for tertiary with
+  conditional probability from this paper.
+**Cross-references:** MoeDiStefano2017.txt, Raghavan2010.txt, DucheneKraus2013.txt.

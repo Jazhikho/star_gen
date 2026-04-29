@@ -1,21 +1,79 @@
-Source note for StarGen research review
+# Izidoro2017
 
-Citation:
-Izidoro, A., Ogihara, M., Raymond, S. N., Morbidelli, A., Pierens, A., Bitsch, B., Cossou, C., & Hersant, F. (2017).
-Breaking the chains: Hot super-Earth systems from migration and disruption of compact resonant chains.
-Monthly Notices of the Royal Astronomical Society, 470(2), 1750-1770.
-arXiv: https://arxiv.org/abs/1703.03634
-DOI: https://doi.org/10.1093/mnras/stx1232
+## Source metadata
+- File: `Izidoro2017.pdf`
+- Domain: planet formation/instability/migration
+- Pages: 23
+- Authors (auto-extracted — verify against PDF): Andre Izidoro,1,2? Masahiro Ogihara3 , Sean N. Raymond,1 Alessandro Morbidelli4 ,
 
-What was reviewed:
-- Abstract and source metadata on 2026-04-22.
+## Abstract
+“Hot super-Earths” (or “Mini-Neptunes”) between 1 and 4 times Earth’s size with period shorter than 100 days orbit 30-50% of Sun-like type stars. Their orbital configuration – measured as the period ratio distribution of adjacent planets in multi-planet systems – is a strong constraint for formation models. Here we use N-body simulations with synthetic forces from an underlying evolving gaseous disk to model the formation and long-term dynamical evolution of super-Earth systems. While the gas disk is present, planetary embryos grow and migrate inward to form a resonant chain anchored at the inner edge of the disk. These resonant chains are far more compact than the observed super-Earth systems. Once the gas dissipates resonant chains may become dynamically unstable. They undergo a phase of giant impacts that spreads the systems out. Disk turbulence has no measurable effect on the outcome. Our simulations match observations if a small fraction of resonant chains remain stable, while most super-Earths undergo a late dynamical instability. Our statistical analysis restricts the contribution of stable systems to less than 25%. Our results also suggest that the large fraction of observed single planet systems does not necessarily imply any dichotomy in the architecture of planetary systems. Finally, we use the low abundance of resonances in Kepler data to argue that, in reality, the survival of resonant chains happens likely only in ∼ 5% of the cases. This leads to a mystery: in our simulations only 50-60% of resonant chains became unstable whereas at least 75% (and probably 90-95%) must be unstable to match observations.
 
-Key implementation notes used in StarGen:
-- The paper states that hot super-Earths or mini-Neptunes with radii between 1 and 4 Earth radii and periods shorter than 100 days orbit about 30-50% of Sun-like stars.
-- It argues that inward migration during the gas-disk phase naturally builds compact resonant chains, and that most of those chains must later become unstable to match the observed Kepler architecture.
-- The practical takeaway for StarGen is that migration strength should primarily shape the compact inner-system population and should not be modeled only as a vague generic architecture scalar.
+## Major claims, findings, models, assumptions, and limitations
+*Human verification required before using quantitative values or model assumptions in
+StarGen defaults. Figures and equations not captured by text extraction — read the PDF
+for exact thresholds, fit coefficients, and table values.*
 
-How StarGen should use this:
-- As support for making `MigrationStrength` materially affect the production of close-in super-Earth and mini-Neptune systems.
-- As a guide that stable compact resonant chains should be uncommon end states rather than the default final architecture.
-- As a source-backed reason to keep hot compact multiplanet systems common around Sun-like stars even though the Solar System lacks them.
+- Primary domain: planet formation/instability/migration
+- See StarGen applicability section below for the specific implications.
+
+## StarGen applicability
+Resonant chains broken by instabilities explain observed planetary architecture. Constrains inner-planet assembly pathways and resonance disruption rates in StarGen.
+
+## Parameters, constraints, and mechanics implications
+*(Human action: fill in specific numeric values, distributions, model families, and
+classification boundaries extracted from the paper. Where competing models or confidence
+ranges exist, expose those as user-selectable assumptions rather than collapsing to a
+single default. Where the paper documents uncertainty, preserve it in StarGen rather
+than presenting false precision.)*
+
+## Works cited by this paper (auto-extracted from final pages, partial)
+- Adams F., Laughlin G., Bloch A., 2008, ApJ, 683, 1117
+- Armitage P. J., 1998, ApJ, 501, L189
+- Artymowicz P., 1993, ApJ, 419, 155
+- Balbus S. A., Hawley J. F., 1998, Reviews of Modern Physics, 70,
+- Ballard S., Johnson J. A., 2014, preprint, (arXiv:1410.4192)
+- Baruteau C., Lin D. N. C., 2010, ApJ, 709, 759
+- Baruteau C., Masset F., 2008, ApJ, 672, 1054
+- Baruteau C., Papaloizou J. C. B., 2013, ApJ, 778, 7
+- Baruteau C., et al., 2014, in , Vol. 1312, Protostars Planets
+- VI. University of Arizona Press, p. 4293 (arXiv:1312.4293),
+- doi:10.2458/azu uapress 9780816531240-ch029
+- Batalha N. M., et al., 2013, ApJS, 204, 24
+- Batygin K., 2015, MNRAS, 451, 2589
+- Batygin K., Adams F. C., 2017, preprint, (arXiv:1701.07849)
+- Batygin K., Morbidelli A., 2013, AJ, 145, 1
+- Bell K. R., Lin D. N. C., 1994, ApJ, 427, 987
+- Bitsch B., Kley W., 2010, A&A, 523, A30
+- Bitsch B., Kley W., 2011, A&A, 530, A41
+- Bitsch B., Morbidelli A., Lega E., Crida A., 2014, A&A, 564,
+- Bitsch B., Johansen A., Lambrechts M., Morbidelli A., 2015, Astronomy & Astrophysics, 575, A28
+
+## Opposing or alternative findings cited
+*(Human action: identify papers in the reference list that present opposing models,
+competing parameter choices, or significantly different results. Note the specific
+disagreement and its implication for which StarGen default to use.)*
+
+## APA citation
+*(Verify and complete — see AnnotatedBibliography.md for the curated APA entry.)*
+
+## Conflicts and follow-up work
+*(Human action: search for papers explicitly responding to, revising, or challenging
+this paper published after its date. For fast-moving fields (exoplanet demographics,
+habitability, JWST/TESS-informed work), treat results >3 years old as potentially
+superseded. Flag updates in Followup.md.)*
+
+
+## StarGen mechanics translation
+
+### Planetary migration — resonant chain formation followed by instability
+Inward migration packs planets into resonant chains; most chains later go unstable, producing
+the observed non-resonant compact multi-planet systems.
+
+**StarGen architecture implication:**
+- Most compact multi-planet systems are the broken remnants of resonant chains.
+- Generate spacing as if post-instability: slightly outside first-order resonances, with
+  AMD near the stability boundary (Petit2018).
+- `ResonantChainBreakup = true` (default for compact systems): applies mild dynamical
+  excitation to post-resonance final spacing.
+**Cross-references:** ObertasTamayo2023.txt, Petit2018.txt, TanakaTakeuchiWard2002.txt.

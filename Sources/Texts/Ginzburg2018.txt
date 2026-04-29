@@ -1,20 +1,82 @@
-Source note for StarGen research review
+# Ginzburg2018
 
-Citation:
-Ginzburg, S., Schlichting, H. E., & Sari, R. (2018).
-Core-powered mass loss and the radius distribution of small exoplanets.
-Monthly Notices of the Royal Astronomical Society, 476(1), 759-765.
-arXiv: https://arxiv.org/abs/1708.01621
-DOI: https://doi.org/10.1093/mnras/sty290
+## Source metadata
+- File: `Ginzburg2018.pdf`
+- Domain: core-powered mass loss / radius gap
+- Pages: 7
+- Authors (auto-extracted — verify against PDF): Sivan Ginzburg,1? Hilke E. Schlichting2,3 and Re’em Sari1
 
-What was reviewed:
-- Abstract and source metadata on 2026-04-19.
+## Abstract
+Recent observations identify a valley in the radius distribution of small exoplanets, with planets in the range 1.5−2.0 R⊕ significantly less common than somewhat smaller or larger planets. This valley may suggest a bimodal population of rocky planets that are either engulfed by massive gas envelopes that significantly enlarge their radius, or do not have detectable atmospheres at all. One explanation of such a bimodal distribution is atmospheric erosion by high-energy stellar photons. We investigate an alternative mechanism: the luminosity of the cooling rocky core, which can completely erode light envelopes while preserving heavy ones, produces a deficit of intermediate sized planets. We evolve planetary populations that are derived from observations using a simple analytical prescription, accounting self-consistently for envelope accretion, cooling and mass loss, and demonstrate that core-powered mass loss naturally reproduces the observed radius distribution, regardless of the high-energy incident flux. Observations of planets around different stellar types may distinguish between photoevaporation, which is powered by the high-energy tail of the stellar radiation, and core-powered mass loss, which depends on the bolometric flux through the planet’s equilibrium temperature that sets both its cooling and mass-loss rates.
 
-Key implementation notes used in StarGen:
-- The paper gives an alternative explanation for the small-planet radius valley in which the cooling rocky core powers loss of light envelopes.
-- The practical takeaway is that not all close-in stripping has to be driven by stellar XUV radiation alone.
-- This gives StarGen a defensible second loss branch for hot small planets.
+## Major claims, findings, models, assumptions, and limitations
+*Human verification required before using quantitative values or model assumptions in
+StarGen defaults. Figures and equations not captured by text extraction — read the PDF
+for exact thresholds, fit coefficients, and table values.*
 
-How StarGen uses this:
-- As the named support for the `Core-powered` gas-loss option in aggregate planetary priors.
-- As the basis for a second hot-planet stripping branch that is less tied to stellar high-energy flux and more tied to planetary cooling and equilibrium temperature.
+- Primary domain: core-powered mass loss / radius gap
+- See StarGen applicability section below for the specific implications.
+
+## StarGen applicability
+Core-powered mass loss alternative to photoevaporation for the radius gap. StarGen should expose mechanism selector: photoevaporation (OwenWu2017) vs core-powered (Ginzburg2018).
+
+## Parameters, constraints, and mechanics implications
+*(Human action: fill in specific numeric values, distributions, model families, and
+classification boundaries extracted from the paper. Where competing models or confidence
+ranges exist, expose those as user-selectable assumptions rather than collapsing to a
+single default. Where the paper documents uncertainty, preserve it in StarGen rather
+than presenting false precision.)*
+
+## Works cited by this paper (auto-extracted from final pages, partial)
+- Chen H., Rogers L. A., 2016, ApJ, 831, 180
+- Freedman R. S., Marley M. S., Lodders K., 2008, ApJS, 174, 504
+- Fulton B. J., et al., 2017, AJ, 154, 109
+- Ginzburg S., Schlichting H. E., Sari R., 2016, ApJ, 825, 29
+- Hadden S., Lithwick Y., 2017, AJ, 154, 5
+- Hirano T., et al., 2017, preprint, (arXiv:1710.03239)
+- Ikoma M., Hori Y., 2012, ApJ, 753, 66
+- Inamdar N. K., Schlichting H. E., 2015, MNRAS, 448, 1751
+- Jin S., Mordasini C., 2017, preprint, (arXiv:1706.00251)
+- Jin S., Mordasini C., Parmentier V., van Boekel R., Henning T.,
+- Ji J., 2014, ApJ, 795, 65
+- Johnson J. A., et al., 2017, AJ, 154, 108
+- Jontof-Hutter D., et al., 2016, ApJ, 820, 39
+- Lee E. J., Chiang E., 2015, ApJ, 811, 41
+- Lee E. J., Chiang E., Ormel C. W., 2014, ApJ, 797, 95
+- Lehmer O. R., Catling D. C., 2017, ApJ, 845, 130
+- Lissauer J. J., et al., 2013, ApJ, 770, 131
+- Lopez E. D., Fortney J. J., 2013, ApJ, 776, 2
+- Lopez E. D., Fortney J. J., Miller N., 2012, ApJ, 761, 59
+- Lundkvist M. S., et al., 2016, Nature Communications, 7, 11201
+
+## Opposing or alternative findings cited
+*(Human action: identify papers in the reference list that present opposing models,
+competing parameter choices, or significantly different results. Note the specific
+disagreement and its implication for which StarGen default to use.)*
+
+## APA citation
+*(Verify and complete — see AnnotatedBibliography.md for the curated APA entry.)*
+
+## Conflicts and follow-up work
+*(Human action: search for papers explicitly responding to, revising, or challenging
+this paper published after its date. For fast-moving fields (exoplanet demographics,
+habitability, JWST/TESS-informed work), treat results >3 years old as potentially
+superseded. Flag updates in Followup.md.)*
+
+
+## StarGen mechanics translation
+
+### Radius gap mechanism — core-powered mass-loss (competing model)
+Core luminosity drives slow atmospheric escape over Gyr timescales. Predicts same
+gap location as photoevaporation but different slope and stellar-age dependence.
+
+**StarGen radius gap implementation (CPML branch):**
+- `RadiusGapMechanism = CorePoweredMassLoss`
+- Gap centre: ~1.8–2.0 R⊕ (slightly larger than photoevaporation prediction)
+- Gap slope: d log R_gap / d log P ≈ +0.11 (POSITIVE — opposite to photoevaporation)
+  *This sign difference is the key diagnostic between the two models.*
+- Stellar age dependence: super-Earth/sub-Neptune ratio increases over Gyr (Berger2020Gaia)
+- Stellar metallicity: sub-Neptune radii increase with [Fe/H] (GuptaSchlichting2020Followup)
+**User lever:** `RadiusGapMechanism` selector (competing model: OwenWu2017).
+**Cross-references:** OwenWu2017.txt, GuptaSchlichting2020Followup.txt,
+OwenSchlichting2023Followup.txt, Berger2020Gaia.txt.

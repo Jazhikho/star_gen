@@ -1,0 +1,167 @@
+# Baumeister2025Followup
+
+## Source metadata
+- File: `Baumeister2025Followup.pdf`
+- Domain: planetary interiors / mass-radius degeneracy / interior structure modeling
+- Pages: 42
+- Authors: Baumeister, P., Miozzi, F., Guimond, C. M., Steinmeyer, M.-L., Dorn, C.,
+  Karato, S.-I., Bolmont, É., Revol, A., & Thamm, A.
+  (Contact: philipp.baumeister@fu-berlin.de)
+- Source ID in StarGen code: `baumeister2025`
+- **PDF acquisition:** PDF confirmed present in Sources/Texts/.
+  Likely Space Science Reviews 221 (2025) — same topical collection as SpohnEtAl2026 and
+  SchonbachlerEtAl2025. Verify journal, volume, article number, and DOI against PDF.
+
+## Abstract
+Most of our knowledge about rocky exoplanets is based on their measured mass and radius.
+These two parameters are routinely measured and used to categorise different populations of
+observed exoplanets. They are also tightly linked to the planet's interior properties. As
+such they offer the unique opportunity to interpret observations and potentially infer the
+planet's chemistry and structure. Required for the interpretation are models of planetary
+interiors, calculated a priori, constrained using other available data, and based on the
+physicochemical properties of mineralogical phases. This article offers an overview of the
+current knowledge about exoplanet interiors, the fundamental aspects and tools for interior
+modelling, and how to improve the constraints on the models, along with a discussion of the
+sources of uncertainty. The origin and fate of volatiles, and their role in planetary
+evolution, is discussed. The chemistry and structure of planetary interiors have a pivotal
+role in the thermal evolution of planets and the development of large-scale properties that
+might become observables with future space missions and ground-based surveys.
+
+## Major claims, findings, models, assumptions, and limitations
+- **Mass + radius alone cannot uniquely constrain interior composition (mass-radius
+  degeneracy):** A given (mass, radius) pair is consistent with multiple interior
+  compositions (e.g., a pure rock world vs. a rocky world with a water layer vs. a rocky
+  world with a thin gas envelope can produce the same apparent mass and radius). Any
+  single composition assignment from mass/radius alone is an under-constrained inference.
+- **Interior modeling tools:** Models use equations of state (EOS) for mineralogical
+  phases (iron core, silicate mantle, water/ice layer, gas envelope) to compute density
+  profiles that match observed mass and radius. Different EOS choices introduce systematic
+  uncertainty.
+- **Additional constraints:** Stellar composition (metallicity, Fe/Si ratio), atmospheric
+  spectroscopy, transit timing variations (TTVs), and thermal emission can help break the
+  degeneracy. Without these, interior models should report probability distributions, not
+  single values.
+- **Volatiles are key:** The presence and amount of volatiles (H₂O, CO₂, H₂, CH₄)
+  dramatically affect the mass-radius relationship. A 5% water mass fraction shifts the
+  radius significantly upward relative to a pure-rock world of the same mass. Volatiles
+  also drive atmospheric evolution and long-term habitability.
+- **Thermal evolution affects observables:** Interior cooling determines whether a planet
+  maintains an active dynamo (magnetic field), drives plate tectonics, and sustains
+  volcanic outgassing. These are all relevant to habitability and biosignature signatures.
+- **Future missions:** Future space missions (PLATO, HWO, LIFE) will provide improved
+  mass-radius measurements for many targets, partially breaking the degeneracy via
+  improved precision and complementary spectroscopic data.
+- **Limitation:** Interior models are calibrated primarily on Solar System data and Earth
+  specifically. EOS extrapolations to high pressure (super-Earth interiors) have
+  substantial uncertainty.
+- **Limitation:** The paper is a review, not primary research. Specific quantitative
+  thresholds and model parameters must be verified against the cited primary literature
+  (LuquePalle2022, Otegi2020, ChenKipping2017 in StarGen corpus).
+
+## StarGen applicability
+Updates StarGen's **planetary interior and composition model** with:
+1. Explicit recognition that mass-radius alone is under-constrained — composition should
+   be represented as a probability distribution, not a single value
+2. Volatile content as a key parameter affecting radius, habitability, and atmosphere
+3. Thermal evolution context (links to tectonic regime and magnetic field from Spohn)
+4. Updated EOS treatment for water layers vs. iron cores vs. silicate mantles
+
+## Parameters, constraints, and mechanics implications
+
+**Mass-radius degeneracy — composition probability approach:**
+```csharp
+// Rather than assigning a single composition from mass+radius, sample from
+// composition probability space (Baumeister & Miozzi 2025)
+// For a given (mass, radius) pair, possible compositions include:
+//   pure rock (Earth-like): low water fraction, high iron fraction
+//   water world: water mass fraction 5-50%, smaller iron core
+//   thin-envelope super-Earth: thin H/He layer over rocky interior
+//   ocean super-Earth: water layer + rocky interior
+
+CompositionModel[] candidateModels = {
+    CompositionModel.PureRock,
+    CompositionModel.WaterWorld,
+    CompositionModel.ThinEnvelope,
+    CompositionModel.OceanSuperEarth
+};
+
+// Weight by formation location (SchonbachlerEtAl2025: NC=rocky, CC=water)
+// and stellar type (GillisEtAl2026: M4+ → water-rich sub-Neptunes)
+// Human: verify specific probability weights against Baumeister et al. figures
+```
+
+**Volatile mass fraction ranges by composition class:**
+```
+Composition class   | H₂O fraction | Iron core fraction | Gas fraction
+--------------------|--------------|---------------------|-------------
+Pure rock           | 0 – 0.01     | 0.25 – 0.40         | 0
+Water world         | 0.05 – 0.50  | 0.10 – 0.25         | 0
+Thin-envelope rocky | 0 – 0.01     | 0.25 – 0.35         | 0.001 – 0.05
+Ocean super-Earth   | 0.10 – 0.30  | 0.20 – 0.30         | 0
+```
+*Note: These are approximate ranges; verify against Baumeister et al. figures/tables.*
+
+**Radius inflation by water mass fraction:**
+```csharp
+// Approximate radius inflation for water fraction (from EOS models)
+// At 1 M⊕: adding 10% water by mass increases radius by ~0.3 R⊕
+double radiusInflation = planet.WaterMassFraction * 3.0;  // rough linear approx
+// More accurate: use mass-radius curves from Baumeister et al. figures
+// Human: extract actual curve fit parameters from paper
+```
+
+**Uncertainty flags for StarGen outputs:**
+```csharp
+// Flag composition as uncertain when only mass+radius available
+planet.CompositionCertain = false;  // always false without spectroscopy
+planet.CompositionDistribution = new CompositionDistribution(/* sampled above */);
+// Display to user as: "Rocky (65%), Water world (25%), Thin-gas envelope (10%)"
+// rather than a single definitive composition label
+```
+
+**User lever:** `InteriorModelUncertainty` (enum: BaumeisterEtAl2025 / Simple / Deterministic)
+- BaumeisterEtAl2025: composition as probability distribution; report uncertainty
+- Simple: use most-probable composition class only; no distribution
+- Deterministic: single composition from formation model (SchonbachlerEtAl2025 NC/CC)
+
+## APA citation
+Baumeister, P., Miozzi, F., Guimond, C. M., Steinmeyer, M.-L., Dorn, C., Karato, S.-I.,
+Bolmont, É., Revol, A., & Thamm, A. (2025). Fundamentals of interior modelling and
+challenges in the interpretation of observed rocky exoplanets. Space Science Reviews,
+221, 123. https://doi.org/10.1007/s11214-025-01248-5 arXiv: 2511.10269
+
+## Conflicts and follow-up work
+
+**Related corpus papers:**
+- LuquePalle2022.txt — Mass-radius diagram with "rocky ocean planets" branch; directly
+  complemented by Baumeister's degeneracy discussion.
+- Otegi2020.txt — Mass-radius relations; foundational for StarGen's composition model;
+  Baumeister provides the uncertainty context for Otegi's deterministic fits.
+- ChenKipping2017.txt — Probabilistic mass-radius relation; conceptually aligned with
+  Baumeister's degeneracy approach.
+- SchonbachlerEtAl2025.txt — Provides the compositional prior (NC vs. CC) that helps
+  break the mass-radius degeneracy when formation location is known.
+- SpohnEtAl2026.txt — Interior structure (tectonic regime, magnetic field) that
+  depends on volatile content and thermal evolution — both discussed by Baumeister.
+- GillisEtAl2026.txt — Water-rich sub-Neptunes around M4+ hosts; consistent with
+  Baumeister's water-world composition regime.
+
+## StarGen mechanics translation
+
+### Composition as probability distribution
+Baumeister & Miozzi (2025) establishes that composition inferred from mass+radius alone
+is fundamentally uncertain. StarGen should expose this uncertainty rather than presenting
+false precision in single-composition labels.
+
+**Primary updates:**
+1. Replace single `CompositionType` enum field with `CompositionDistribution` object
+   that samples from probability-weighted composition classes
+2. Show uncertainty in planet inspector UI ("Likely rocky (65%), possibly water-world
+   (25%)")
+3. Use formation location (SchonbachlerEtAl2025 NC/CC boundary) as a prior to sharpen
+   the composition distribution
+4. For M4+ host planets (GillisEtAl2026): shift prior toward water-world
+
+**Cross-references:** SchonbachlerEtAl2025.txt (formation composition prior),
+GillisEtAl2026.txt (M4+ water-world bias), SpohnEtAl2026.txt (interior → tectonic → HZ),
+LuquePalle2022.txt (mass-radius diagram), Otegi2020.txt (composition fits).

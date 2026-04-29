@@ -325,7 +325,7 @@ public static class SystemValidator
             {
                 result.AddWarning(
                     "orbital_stability",
-                    $"Adjacent planets {inner.Id} and {outer.Id} are closer than ~10 mutual Hill radii (gap {FormatMeters(actualSpacingM)} m, need {FormatMeters(requiredSpacingM)} m)");
+                    $"Adjacent planets {inner.Id} and {outer.Id} are closer than minimum mutual-Hill spacing (gap {FormatMeters(actualSpacingM)} m, need {FormatMeters(requiredSpacingM)} m)");
             }
         }
     }

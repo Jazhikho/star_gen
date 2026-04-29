@@ -1,0 +1,61 @@
+# KavelaarsEtAl2023
+
+## Source metadata
+- File: `KavelaarsEtAl2023.pdf`
+- Domain: TNO/outer Solar System survey
+- Pages: 27
+- Authors (auto-extracted — verify against PDF): Jean-Marc Petit,1 Brett Gladman,2 J. J. Kavelaars,3, 4, 2 Michele T. Bannister,5
+
+## Abstract
+Using the absolute detection calibration and abundant detections of the OSSOS (Outer Solar System Origin Survey) project, we provide population measurements for Corresponding author: Jean-Marc Petit Jean-Marc.Petit@normalesup.org 2 Petit et al. the main Kuiper Belt. For absolute magnitude Hr < 8.3, there are 30,000 non-resonant main-belt objects, with twice as many hot-component objects than cold, and with total mass of 0.014 M⊕ , only 1/7 of which is in the cold belt (assuming a cold-object albedo about half that of hot component objects). We show that transneptunian objects with 5.5 < Hr < 8.3 (rough diameters 400–100 km) have indistinguishable absolute magnitude (size) distributions, regardless of being in the cold classical Kuiper belt (thought to be primordial) or the ‘hot’ population (believed to be implanted after having been formed elsewhere). We discuss how this result was not apparent in previous examinations of the size distribution due to the complications of fitting assumed power-law functional forms to the detections at differing depths. This shared size distribution is surprising in light of the common paradigm that the hot population planetesimals formed in a higher density environment much closer to the Sun, in an environment that also (probably later) formed larger (dwarf planet and bigger) objects. If this paradigm is correct, our result implies that planetesimal formation was relatively insensitive to the local disk conditions and that the subsequent planet-building process in the hot population did not modify the shape of the planetesimal size distribution in this 50–300 km range.
+
+## Major claims, findings, models, assumptions, and limitations
+*Human verification required before using quantitative values or model assumptions in
+StarGen defaults. Figures and equations not captured by text extraction — read the PDF
+for exact thresholds, fit coefficients, and table values.*
+
+- Primary domain: TNO/outer Solar System survey
+- See StarGen applicability section below for the specific implications.
+
+## StarGen applicability
+TNO population: orbital structure, size distribution, detection biases. Constrains outer-belt architecture parameters (inclination, size-frequency slope, number density) in StarGen.
+
+## Parameters, constraints, and mechanics implications
+*(Human action: fill in specific numeric values, distributions, model families, and
+classification boundaries extracted from the paper. Where competing models or confidence
+ranges exist, expose those as user-selectable assumptions rather than collapsing to a
+single default. Where the paper documents uncertainty, preserve it in StarGen rather
+than presenting false precision.)*
+
+## Works cited by this paper (auto-extracted from final pages, partial)
+- (Reference extraction incomplete — verify PDF.)
+
+## Opposing or alternative findings cited
+*(Human action: identify papers in the reference list that present opposing models,
+competing parameter choices, or significantly different results. Note the specific
+disagreement and its implication for which StarGen default to use.)*
+
+## APA citation
+*(Verify and complete — see AnnotatedBibliography.md for the curated APA entry.)*
+
+## Conflicts and follow-up work
+*(Human action: search for papers explicitly responding to, revising, or challenging
+this paper published after its date. For fast-moving fields (exoplanet demographics,
+habitability, JWST/TESS-informed work), treat results >3 years old as potentially
+superseded. Flag updates in Followup.md.)*
+
+
+## StarGen mechanics translation
+
+### Kuiper Belt / TNO inclination and orbital structure
+Characterises the orbital structure of the Kuiper Belt: cold classical, hot classical,
+resonant, and scattered populations.
+
+**StarGen outer system architecture:**
+- `KuiperBeltModel` populations:
+  - Cold classical: low-i (< 5°), near-circular, 42–47 AU
+  - Hot classical: i up to 30°, 35–50 AU
+  - Resonant (3:2 at 39.5 AU; 2:1 at 47.7 AU): significant fraction
+  - Scattered: high-e, a > 50 AU
+- Generate as separate small-body populations rather than a single uniform distribution.
+**Cross-references:** BernardinelliEtAl2022.txt, MalambudPerets2019.txt.

@@ -1,20 +1,57 @@
-Source note for StarGen research review
+# Kasting1993
 
-Citation:
-Kasting, J. F., Whitmire, D. P., & Reynolds, R. T. (1993).
-Habitable zones around main sequence stars.
-Icarus, 101(1), 108-128.
-DOI: https://doi.org/10.1006/icar.1993.1010
+## Source metadata
+- File: `Kasting1993.pdf`
+- Domain: habitable zone (original Kasting)
+- Pages: 21
+- Authors (auto-extracted — verify against PDF): (see PDF)
 
-What was reviewed:
-- Abstract and publication metadata on 2026-04-22.
-- Existing StarGen documentation already grounded the legacy classical habitable-zone implementation against this paper.
+## Abstract
+(Abstract extraction failed — verify PDF manually.)
 
-Key implementation notes used in StarGen:
-- The paper defines the classical circumstellar habitable zone as the range where an Earth-like CO2/H2O/N2 atmosphere can sustain surface liquid water.
-- For StarGen, this remains a valid older conservative model family that users may still want to select explicitly for comparison against later updates.
-- It is appropriate as a user-facing academic option, but it should not be the only habitable-zone treatment exposed by the generator.
+## Major claims, findings, models, assumptions, and limitations
+*Human verification required before using quantitative values or model assumptions in
+StarGen defaults. Figures and equations not captured by text extraction — read the PDF
+for exact thresholds, fit coefficients, and table values.*
 
-How StarGen uses this:
-- As the academic basis for the `Kasting1993Conservative` habitable-zone model option.
-- As the tighter older comparison band against the later Kopparapu 2013 update.
+- Primary domain: habitable zone (original Kasting)
+- See StarGen applicability section below for the specific implications.
+
+## StarGen applicability
+Original HZ: conservative inner 0.95 AU, outer 1.67 AU for Sun. Historical baseline superseded quantitatively by Kopparapu2013. StarGen should cite both and note Kopparapu values are current standard.
+
+## Parameters, constraints, and mechanics implications
+*(Human action: fill in specific numeric values, distributions, model families, and
+classification boundaries extracted from the paper. Where competing models or confidence
+ranges exist, expose those as user-selectable assumptions rather than collapsing to a
+single default. Where the paper documents uncertainty, preserve it in StarGen rather
+than presenting false precision.)*
+
+## Works cited by this paper (auto-extracted from final pages, partial)
+- (Reference extraction incomplete — verify PDF.)
+
+## Opposing or alternative findings cited
+*(Human action: identify papers in the reference list that present opposing models,
+competing parameter choices, or significantly different results. Note the specific
+disagreement and its implication for which StarGen default to use.)*
+
+## APA citation
+*(Verify and complete — see AnnotatedBibliography.md for the curated APA entry.)*
+
+## Conflicts and follow-up work
+*(Human action: search for papers explicitly responding to, revising, or challenging
+this paper published after its date. For fast-moving fields (exoplanet demographics,
+habitability, JWST/TESS-informed work), treat results >3 years old as potentially
+superseded. Flag updates in Followup.md.)*
+
+
+## StarGen mechanics translation
+
+### Original habitable zone model — historical baseline
+The foundational HZ paper; establishes conceptual framework (moist greenhouse / runaway
+greenhouse / maximum greenhouse / early Mars). Superseded numerically by Kopparapu2013.
+
+**StarGen role:** Historical reference only; not recommended for default calculation.
+`HZModel = Kasting1993` is a legacy option exposable to users who want to compare.
+- Conservative HZ (solar): 0.95–1.67 AU (superseded; Kopparapu2013 gives 0.99–1.70)
+**Cross-references:** Kopparapu2013.txt (recommended replacement).

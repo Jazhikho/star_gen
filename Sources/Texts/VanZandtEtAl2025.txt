@@ -1,0 +1,182 @@
+# VanZandtEtAl2025
+
+## Source metadata
+- File: `VanZandtEtAl2025.pdf`
+- Domain: exoplanet demographics / distant giant survey / system architecture
+- Pages: 31
+- Authors: Van Zandt, J., Petigura, E. A., Lubin, J., Weiss, L. M., Turtelboom, E. V.,
+  Fetherolf, T., Murphy, J. M. A., Crossfield, I. J. M., Gilbert, G., Močnik, T.,
+  Batalha, N. M., Dressing, C., & Fulton, B.
+- Source ID in StarGen code: `vanzandt2025`
+- **PDF acquisition:** PDF confirmed present in Sources/Texts/.
+  Verify journal, volume, doi, and arXiv number against PDF.
+  Note: File domain was auto-classified as "planetary science" — updated to
+  "exoplanet demographics / distant giant survey / system architecture."
+
+## Abstract
+We present the results of the Distant Giants Survey, a three-year radial velocity (RV)
+campaign to search for wide-separation giant planets orbiting Sun-like stars known to host
+an inner transiting planet. We defined a distant giant to have a = 1–10 AU and Mp sin i =
+70–4000 M⊕ (0.2–12.5 MJ), and required transiting planets to have a < 1 AU and Rp =
+1–4 R⊕. We assembled our sample of 47 stars using a single selection function, and observed
+each star at monthly intervals to obtain ~30 RV observations per target. The final catalog
+includes a total of twelve distant companions: four giant planets detected during our survey,
+two previously known giant planets, and six objects of uncertain disposition identified
+through RV/astrometric accelerations. Statistically, half of the uncertain objects are
+planets and the remainder are stars/brown dwarfs. We calculated target-by-target
+completeness maps to account for missed planets. We found evidence for a moderate
+enhancement of distant giants (DG) in the presence of close-in small planets (CS):
+P(DG|CS) = 30 +14/−12%, over the field rate of P(DG) = 16 +2/−2%. No enhancement is
+disfavored at p ~ 8%. We found no evidence that stellar metallicity enhances P(DG|CS).
+We found evidence that distant giant companions are preferentially found in systems with
+multiple transiting planets and have lower eccentricities than randomly selected giant
+planets. This points toward dynamically cool formation pathways for the giants that do not
+disturb the inner systems.
+
+## Major claims, findings, models, assumptions, and limitations
+- **P(distant giant | inner small planets) = 30%:** Stars with inner close-in rocky/sub-
+  Neptune planets have roughly double the chance of also hosting an outer giant (1–10 AU)
+  compared to the field rate (~16%). This moderate conditional enhancement (~1.9×)
+  suggests a genuine formation-level correlation.
+- **Field rate P(distant giant) = 16%:** Without conditioning on inner planets, ~16% of
+  Sun-like stars host at least one giant planet at 1–10 AU. This is the base rate for
+  a "Jupiter analog" in the system.
+- **"Dynamically cool" formation pathway:** Distant giants in systems with inner small
+  planets have lower eccentricities than field giant planets. This is inconsistent with
+  dynamical sculpting (which would disrupt inner planets) and consistent with: (a) smooth
+  disk migration without scattering, and/or (b) both giant and small planets forming in
+  the same dynamically calm protoplanetary disk.
+- **Multi-planet systems preferred:** Systems with multiple transiting inner planets are
+  more likely to have a distant giant companion. Single-planet inner systems are less
+  enhanced.
+- **No metallicity correlation:** Unlike hot Jupiters (which strongly prefer metal-rich
+  stars), the distant giant enhancement does not correlate with stellar metallicity.
+  This implies a different formation pathway from hot Jupiter progenitors.
+- **Good Jupiter implication:** The moderate enhancement supports the "Good Jupiter"
+  concept (Wetherill 1994; ForganRice2010 criterion 3): outer giants at moderate
+  distances may be beneficial (or at least not destructive) for inner system stability.
+  Low-eccentricity distant giants do not disrupt inner systems.
+- **Limitation:** Small sample (47 stars, 12 distant companions). Uncertainties are large;
+  P(DG|CS) posterior has +14/-12% uncertainty.
+- **Limitation:** Selection on known inner transiting planets introduces a detection bias.
+  Systems with distant giants but no inner transiting planets are not included.
+- **Limitation:** 3-year RV baseline; giants at 5–10 AU may be underrepresented (orbital
+  period up to ~30 years — only partial RV coverage).
+
+## StarGen applicability
+Directly calibrates the **Jupiter analog conditional probability** in StarGen's system
+architecture model. This is the quantitative basis for the "Good Jupiter" gate
+(ForganRice2010 criterion 3):
+1. P(outer giant | inner small planets) = 30% — use as conditional rate
+2. P(outer giant, field) = 16% — use as base rate when inner planet status unknown
+3. Low-eccentricity correlation: when outer giant exists with inner small planets,
+   give it lower eccentricity (dynamically cool formation)
+4. Multi-inner-planet systems are preferentially enhanced — adjust probability upward
+   for compact multi-planet inner architectures
+
+## Parameters, constraints, and mechanics implications
+
+**Giant planet occurrence by system architecture:**
+```
+Condition                          | P(outer giant, 1–10 AU)
+-----------------------------------|----------------------------------
+Field rate (Sun-like stars)        | 16 +2/-2 %
+Given inner small planet (1–4 R⊕) | 30 +14/-12 %
+Given multi-planet inner system    | Enhanced above 30% (verify magnitude)
+Given single inner transiting      | Below 30%; closer to field rate
+```
+
+**System architecture conditional probability:**
+```csharp
+// Conditional probability of outer giant given inner system architecture
+// Van Zandt et al. (2025)
+double outerGiantProbability;
+if (system.InnerPlanetCount == 0)
+{
+    outerGiantProbability = 0.16;  // field rate
+}
+else if (system.InnerPlanetCount >= 2)
+{
+    outerGiantProbability = 0.35;  // multi-planet boost (estimate; verify against paper)
+}
+else
+{
+    outerGiantProbability = 0.30;  // single inner planet: moderate enhancement
+}
+
+bool hasOuterGiant = rng.NextDouble() < outerGiantProbability;
+```
+
+**Outer giant eccentricity when coexisting with inner system:**
+```csharp
+// Low-eccentricity distant giants in inner-planet systems (dynamically cool formation)
+if (hasOuterGiant && system.InnerPlanetCount > 0)
+{
+    // Inner-system giants have lower eccentricity than field giants
+    planet.OrbitalEccentricity = rng.NextDouble() * 0.15;  // low-e distribution
+    // vs. field giant: e ~ Rayleigh(0.25) or similar
+}
+```
+
+**ForganRice Good Jupiter conditional update:**
+```csharp
+// Criterion 3: no inward-migrating giant (Good Jupiter gate)
+// Bad: hot Jupiter (0.39% from CuiEtAl2026)
+// Good/neutral: outer giant at 1-10 AU with low eccentricity
+// From VanZandt: 30% chance given inner small planets; these are dynamically cool
+bool goodJupiter = hasOuterGiant && outerGiant.SemiMajorAu >= 1.0
+    && outerGiant.OrbitalEccentricity < 0.20;
+bool badJupiter = hotJupiterFormed;  // from migration model
+// ForganRice criterion 3 PASSES if !badJupiter (goodJupiter is neutral to beneficial)
+bool criterion3Passed = !badJupiter;
+```
+
+**User lever:** `DistantGiantModel` (enum: VanZandtEtAl2025 / Classic / Disabled)
+- VanZandtEtAl2025: conditional rates with low-e outer giant rule
+- Classic: field rate (16%) only; no conditioning on inner planets
+- Disabled: no outer giant occurrence rate model
+
+## APA citation
+Van Zandt, J., Petigura, E. A., Lubin, J., Weiss, L. M., Turtelboom, E. V., Fetherolf, T.,
+Murphy, J. M. A., Crossfield, I. J. M., Gilbert, G., Močnik, T., Batalha, N. M.,
+Dressing, C., & Fulton, B. (2025). The TESS-Keck Survey XXIV: Outer giants may be more
+prevalent in the presence of inner small planets. The Astronomical Journal, 169, 235.
+https://doi.org/10.3847/1538-3881/adbbed arXiv: 2501.06342
+
+## Conflicts and follow-up work
+
+**Related corpus papers:**
+- ForganRice2010.txt — Criterion 3 (Good Jupiter): outer giant at correct position.
+  VanZandt provides the quantitative conditional rate for this criterion.
+- CuiEtAl2026.txt — Hot Jupiter close-in occurrence rate (0.39%): the "bad Jupiter"
+  that fails ForganRice criterion 3. CuiEtAl (inner/close) + VanZandt (outer) together
+  provide the complete giant planet architecture model.
+- TanakaTakeuchiWard2002.txt — Type II migration brings giants inward; hot Jupiters
+  are the failed-stopping-point outcome. VanZandt's low-e distant giants are the
+  "stopped in time" outcome.
+
+**Outstanding question:**
+VanZandt finds that distant giants in inner-planet systems have low eccentricities.
+This raises the question: which came first, the giant or the small planets? The
+formation sequence matters for StarGen's generative ordering. The most likely
+interpretation (dynamically cool disk) supports generating the giant at the same time
+as the inner planet disk, not sequentially.
+
+## StarGen mechanics translation
+
+### Outer giant as a system architecture parameter
+VanZandtEtAl2025 elevates the outer giant (Jupiter analog) from an incidental element
+to a system-level architectural parameter that correlates with the inner planet population.
+Rather than placing an outer giant independently, StarGen should condition its probability
+on the inner planet count and set its eccentricity to match the dynamically cool profile.
+
+**Primary updates to StarGen system generator:**
+1. Move outer giant probability from a flat 16% to a conditional rate based on inner
+   planet count: 30% for 1+ inner planets, boosted for 2+ inner planets
+2. When outer giant co-exists with inner small planets: sample eccentricity from
+   low-eccentricity distribution (e < 0.20)
+3. Update ForganRice criterion 3: "Good Jupiter" (outer, low-e) is neutral-to-beneficial;
+   only hot Jupiter (inward migrated) is the failing case
+
+**Cross-references:** ForganRice2010.txt (Good Jupiter criterion), CuiEtAl2026.txt (hot
+Jupiter rate), TanakaTakeuchiWard2002.txt (migration model).

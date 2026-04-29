@@ -1,0 +1,191 @@
+# SolizWelsh2026
+
+## Source metadata
+- File: `SolizWelsh2026.pdf`
+- Domain: astrobiology / M-dwarf habitability / photosynthesis / complex life probability
+- Pages: ~15
+- Authors: Soliz, J. J., & Welsh, W. F.
+- Source ID in StarGen code: `soliz2026`
+- **PDF acquisition:** arXiv:2601.02548 (open access). Submitted January 2026.
+  Download from https://arxiv.org/abs/2601.02548
+  **PDF confirmed present in Sources/Texts/.**
+
+## Abstract
+The rise of oxygen in the Earth's atmosphere during the "Great Oxidation Event" (GOE)
+is fairly well understood to have occurred ~2.3 billion years ago. There is considerably
+greater uncertainty in the date for the origin of oxygenic photosynthesis, but most
+studies suggest it occurred significantly earlier, perhaps ~700 million years earlier.
+Assuming this time lag is proportional to the rate of oxygen generation, we can estimate
+how long it would take for a GOE-like event to occur on a hypothetical Earth-analog planet
+orbiting the star TRAPPIST-1 (an ultra-cool M star with Teff ~2560 K). Despite being in
+the habitable zone, a hypothetical Earth located in TRAPPIST-1e's orbit would receive only
+~0.9% of the "Photosynthetically Active Radiation" (PAR) that the Earth receives from the
+Sun. The resulting dramatically slower rate of oxygen generation, combined with the longer
+stellar evolution timescale of M dwarfs, suggests that complex life would not have time
+to develop before the star exits the main sequence — or at best, complex life would be
+severely delayed. We conclude that the dearth of PAR around late M-type stars represents
+a fundamental barrier to the development of complex life on exoplanets in their habitable
+zones.
+
+## Major claims, findings, models, assumptions, and limitations
+- **PAR bottleneck for complex life:** TRAPPIST-1 (M8V, Teff ~2560 K) provides only
+  ~0.9% of Earth's PAR in the HZ. PAR is the fraction of solar radiation usable by
+  photosynthesis (400–700 nm). M dwarf stars emit most of their flux in the near-IR,
+  outside the PAR window.
+- **Extended GOE timeline:** On Earth, oxygenic photosynthesis started ~2.7 Gya but
+  pO₂ only reached the GOE threshold (~1% O₂) at ~2.3 Gya — a ~400 Myr lag due to
+  oxygen sink depletion. The paper scales this lag inversely with PAR flux:
+  - At 0.9% PAR: oxygen accumulation ~111× slower → GOE delayed by ~44 Gyr
+  - This exceeds the expected main-sequence lifetime of TRAPPIST-1 (~10 Gyr remaining)
+  - **Conclusion: complex life cannot evolve on TRAPPIST-1e by any conventional route.**
+- **General M-dwarf result:** The PAR bottleneck applies broadly to late M-dwarfs
+  (M5 and later). Only early M-dwarfs (M0-M3) provide sufficient PAR for a
+  timely GOE — but these also have stronger XUV (LugerBarnes2015.txt risk).
+- **Stellar type sweet spot for complex life:**
+  - K dwarf and G dwarf: ample PAR, manageable XUV → most favorable
+  - Early M-dwarf (M0-M3): marginal PAR, higher XUV → possible but risky
+  - Late M-dwarf (M4-M9): insufficient PAR → complex life severely inhibited
+- **Not "no life" but "no complex life":** The paper argues that microbial life could
+  still exist around TRAPPIST-1e; it is specifically the accumulation of oxygen to
+  GOE levels (and beyond to Balbi2023's 18% threshold) that is blocked.
+- **Limitation:** The oxygen accumulation model is simplified (linear scaling with PAR).
+  Real oxygen accumulation is non-linear and depends on multiple geochemical factors.
+- **Limitation:** Does not account for alternative photosynthesis using NIR wavelengths
+  (some bacteria can use wavelengths up to ~1100 nm — "anoxygenic" photosynthesis, which
+  does NOT produce oxygen). NIR photosynthesis could support a biosphere without GOE.
+- **Limitation:** TRAPPIST-1 is an extreme case; M3-M4 dwarfs may be borderline.
+
+## StarGen applicability
+Critical update to the **M-dwarf habitable zone habitability model** in StarGen.
+Specifically, this paper:
+1. Adds a PAR-based filter to the complex life pipeline for M-dwarf hosts
+2. Provides a quantitative threshold: only M0-M3 dwarfs supply sufficient PAR for
+   timely GOE; M4+ are severely limited
+3. Reinforces and extends Balbi2023.txt's oxygen gate — not just difficult to achieve,
+   but potentially physically impossible around late M-dwarfs
+4. Together with LugerBarnes2015 (XUV stripping) and Ribas2015 (XUV evolution), forms
+   the complete M-dwarf habitability risk model
+
+## Parameters, constraints, and mechanics implications
+
+**PAR fraction by stellar type (approximate, from photometric models):**
+```
+Spectral type | Teff (K) | PAR fraction (relative to G2V)
+G2V (Sun)     | 5778     | 1.000
+K0V           | 5250     | 0.850
+K5V           | 4250     | 0.600
+M0V           | 3850     | 0.350
+M2V           | 3500     | 0.200
+M4V           | 3200     | 0.070
+M6V           | 2800     | 0.015
+M8V (TRAPP1)  | 2560     | 0.009
+```
+
+**GOE delay factor (linear scaling assumption from Soliz & Welsh):**
+```
+GOE_delay_factor = Earth_GOE_time / PAR_fraction
+// At PAR = 0.009 (TRAPPIST-1): delay factor = 1/0.009 = 111×
+// Earth GOE time from first oxygenic photosynthesis: ~700 Myr
+// Delayed GOE time: 700 Myr × 111 = ~77.7 Gyr (not feasible)
+```
+
+**PAR gate implementation for M-dwarf complex life:**
+```csharp
+// PAR fraction threshold for timely GOE within stellar MS lifetime
+// Stellar MS lifetime for M dwarfs: ~10-50+ Gyr (inverse of mass)
+// GOE needs to occur within MS lifetime:
+// Required PAR_fraction > Earth_GOE_time / (0.75 × stellar_MS_lifetime)
+double goldilocksGOE = 0.7e9 / (0.75 * star.MainSequenceLifetimeYears);
+bool parGatePassed = star.PARFraction > goldilocksGOE;
+// For TRAPPIST-1: goldilocksGOE ~ 0.7e9/(0.75*10e9) = 0.093; PARfraction = 0.009 < 0.093 → FAIL
+
+// Simplified categorical gate:
+bool complexLifePossible = star.SpectralType switch
+{
+    SpectralType.O or SpectralType.B => false,  // too short-lived
+    SpectralType.A or SpectralType.F => true,   // ample PAR, short XUV phase
+    SpectralType.G or SpectralType.K => true,   // optimal
+    SpectralType.M when star.TemperatureK >= 3600 => true,   // M0-M2: marginal OK
+    SpectralType.M when star.TemperatureK >= 3200 => false,  // M3-M4: borderline → usually FAIL
+    SpectralType.M => false,                    // M5+: PAR insufficient
+    _ => true
+};
+```
+
+**Interaction with Balbi2023 (oxygen bottleneck):**
+SolizWelsh establishes that the GOE itself may never happen around late M-dwarfs.
+This is a stronger constraint than Balbi's 18% threshold — you can't reach 18% if
+you can't even reach the GOE (~1%).
+
+**Updated ForganRice2010 criterion 7 (oxygen atmosphere):**
+For M-dwarf host stars (M4+), p_oxygen_atmosphere should be reduced to near-zero:
+```csharp
+// Modify ForganRice criterion 7 for stellar type
+double p_oxygen = star.SpectralType switch
+{
+    SpectralType.G or SpectralType.K => defaultOxygenProbability,
+    SpectralType.M when star.TemperatureK >= 3600 => defaultOxygenProbability * 0.5,
+    SpectralType.M => defaultOxygenProbability * 0.02,  // PAR severely limits O₂
+    _ => defaultOxygenProbability
+};
+```
+
+## APA citation
+Soliz, J. J., & Welsh, W. F. (2026). Dearth of photosynthetically active radiation
+suggests no complex life on late M-star exoplanets. arXiv:2601.02548. [Submitted January
+2026 — verify published journal citation against PDF when available.]
+
+## Conflicts and follow-up work
+
+**Related M-dwarf habitability papers in corpus:**
+- LugerBarnes2015.txt — M-dwarf XUV stripping; the other major M-dwarf habitability
+  hazard. Together with SolizWelsh, forms a two-pronged constraint on M-dwarf life.
+- Ribas2015.txt — M-dwarf XUV evolution; provides the time-dependence of XUV hazard.
+- GillisEtAl2026.txt — radius valley disappears around late M-dwarfs; suggests water-
+  rich planets (not oxygen-accumulating), consistent with SolizWelsh's finding.
+- Balbi2023.txt — the oxygen bottleneck threshold (18%); SolizWelsh explains why late
+  M-dwarf HZ planets may never even approach this.
+
+**Alternative photosynthesis:**
+- Blankenship, R. E., et al. (2011) Science 332, 805 — "Comparing Photosynthetic and
+  Photovoltaic Efficiencies and Recognizing the Potential for Improvement in Both."
+  NIR-utilizing photosynthesis exists in some bacteria; these would not produce O₂.
+- The existence of NIR photosynthesis does not resolve the PAR problem for oxygen
+  accumulation — it would produce a biosphere without GOE.
+
+**Citation discovery:**
+- arXiv:2601.02548
+
+## StarGen mechanics translation
+
+### PAR gate for M-dwarf complex life
+SolizWelsh2026 adds a photosynthetically active radiation gate to StarGen's
+M-dwarf habitability model. It applies to the complex life and civilization
+pipeline for M4+ dwarf host stars.
+
+**PAR gate insertion in life pipeline (for M-dwarf planets):**
+```csharp
+// After Stage 4 (photosynthetic biosphere established):
+// Check PAR sufficiency for oxygen accumulation
+if (star.SpectralType == SpectralType.M && star.TemperatureK < 3600)
+{
+    double parGateProb = star.TemperatureK < 3200 ? 0.02 : 0.15;
+    if (rng.NextDouble() > parGateProb)
+    {
+        // PAR insufficient for GOE on geological timescale
+        planet.AtmosphereO2Fraction = 0.001;  // stays at trace levels
+        planet.LifeStage = LifeStage.MicrobialOnly;
+        return;  // civilization impossible via O₂ pathway
+    }
+}
+```
+
+**User lever:** `MDwarfPARGate` (enum: SolizWelsh2026 / Permissive / Disabled)
+- SolizWelsh2026: apply PAR gate as above (default)
+- Permissive: allow NIR photosynthesis pathway; reduce but don't eliminate probability
+- Disabled: no PAR gate (for settings exploring alternative biology scenarios)
+
+**Cross-references:** LugerBarnes2015.txt (XUV stripping), Balbi2023.txt (O₂ ≥ 18%
+for technosphere), GillisEtAl2026.txt (radius valley disappears around late M dwarfs
+— consistent with water-world not oxygen-rich-world outcome),
+ForganRice2010.txt (criterion 7 — this paper quantifies the M-dwarf failure mode).

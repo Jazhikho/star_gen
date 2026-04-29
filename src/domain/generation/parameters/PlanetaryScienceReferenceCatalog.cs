@@ -88,10 +88,22 @@ public static class PlanetaryScienceReferenceCatalog
             "fischervalenti2005",
             "Fischer and Valenti (2005), planet-metallicity correlation.",
             "https://www.astro.ucla.edu/~aes/AST278/reading/Fischer_2005_ApJ_622_1102.pdf"),
-        ["canupward2006"] = new PlanetaryScienceSource(
-            "canupward2006",
-            "Canup and Ward (2006), regular satellite formation in circumplanetary disks.",
-            "https://www.nature.com/articles/nature04860"),
+        ["fernandes2019"] = new PlanetaryScienceSource(
+            "fernandes2019",
+            "Fernandes et al. (2019), giant-planet occurrence peaks around the snow-line region.",
+            "Sources/Texts/Fernandes2019.txt"),
+        ["ronnet2020"] = new PlanetaryScienceSource(
+            "ronnet2020",
+            "Ronnet and Johansen (2020), giant-planet moon-system formation through planetesimal capture, ablation, and pebble accretion.",
+            "https://doi.org/10.1051/0004-6361/201936804"),
+        ["sasaki2010"] = new PlanetaryScienceSource(
+            "sasaki2010",
+            "Sasaki, Stewart, and Ida (2010), different Jovian and Saturnian satellite-system architectures.",
+            "https://doi.org/10.1088/0004-637X/714/2/1052"),
+        ["szulagyi2018"] = new PlanetaryScienceSource(
+            "szulagyi2018",
+            "Szulagyi, Cilibrasi, and Mayer (2018), in-situ formation of icy moons around Uranus- and Neptune-like planets.",
+            "https://doi.org/10.3847/2041-8213/aaeed6"),
         ["jewitthaghighipour2007"] = new PlanetaryScienceSource(
             "jewitthaghighipour2007",
             "Jewitt and Haghighipour (2007), irregular and captured satellites.",
@@ -103,11 +115,31 @@ public static class PlanetaryScienceReferenceCatalog
         ["lamy2004"] = new PlanetaryScienceSource(
             "lamy2004",
             "Lamy, Toth, Fernandez, and Weaver (2004), comet nucleus sizes, albedos, and colors.",
-            "https://physics.ucf.edu/~yfernandez/papers/comets2chapter/comets2reprint.pdf"),
+            "https://ui.adsabs.harvard.edu/abs/2004come.book..223L/abstract"),
         ["mroz2020"] = new PlanetaryScienceSource(
             "mroz2020",
             "Mroz et al. (2020), free-floating or wide-orbit planet constraints.",
             "https://arxiv.org/abs/2009.12377"),
+        ["petigura2013"] = new PlanetaryScienceSource(
+            "petigura2013",
+            "Petigura et al. (2013), small planet occurrence around Sun-like stars.",
+            "Sources/Texts/Petigura2013.txt"),
+        ["raymondizidoro2017"] = new PlanetaryScienceSource(
+            "raymondizidoro2017",
+            "Raymond and Izidoro (2017), volatile delivery and migration-shaped inner-system context.",
+            "Sources/Texts/RaymondIzidoro2017.txt"),
+        ["pascucci2016"] = new PlanetaryScienceSource(
+            "pascucci2016",
+            "Pascucci et al. (2016), disk mass and host-mass trends relevant to planet-formation budgets.",
+            "Sources/Texts/Pascucci2016.txt"),
+        ["baueretal2017"] = new PlanetaryScienceSource(
+            "baueretal2017",
+            "Bauer et al. (2017), NEOWISE comet nucleus sizes, activity, and Jupiter-family comet population constraints.",
+            "Sources/Texts/BauerEtAl2017.txt"),
+        ["savvidouetal2023"] = new PlanetaryScienceSource(
+            "savvidouetal2023",
+            "Savvidou et al. (2023), gas-giant formation depends on coupled disk, dust, fragmentation, and formation-location assumptions.",
+            "Sources/Texts/SavvidouEtAl2023.txt"),
     };
 
     private static readonly List<PlanetaryScienceParameterReference> ParameterReferences = new()
@@ -139,11 +171,43 @@ public static class PlanetaryScienceReferenceCatalog
         new PlanetaryScienceParameterReference(
             "planet_moon_formation_bias",
             "Regular moons form in a disk around a giant planet.\nCaptured moons are outsiders that got trapped later.\nRegular-disk favored leans toward orderly moon families.\nCaptured-rich leans toward irregular outer moons.\nChanging this mainly affects moon counts, spacing, and how tidy large moon systems look.",
-            new[] { "canupward2006", "jewitthaghighipour2007" }),
+            new[] { "ronnet2020", "sasaki2010", "szulagyi2018", "jewitthaghighipour2007" }),
         new PlanetaryScienceParameterReference(
             "planet_minor_body_outer_system_bias",
             "This biases cold outer leftovers between rockier belts and icier reservoirs.\nAsteroid-leaning favors drier rocky debris.\nBalanced keeps neither branch dominant.\nComet-leaning favors icy primitive reservoirs.\nChanging this affects volatile delivery, comet supply, and outer-belt composition.",
             new[] { "demeocarry2013", "lamy2004" }),
+        new PlanetaryScienceParameterReference(
+            "comet_nucleus_model",
+            "This picks the comet nucleus size prior.\nBauer Jupiter-Family uses a smaller source-backed Jupiter-family nucleus distribution.\nLegacy Wide Range preserves the older StarGen broad comet sizes only as an explicit stylized or compatibility choice.",
+            new[] { "baueretal2017", "lamy2004" }),
+        new PlanetaryScienceParameterReference(
+            "comet_activity_model",
+            "This picks the active, dormant, and extinct comet activity prior.\nSurvey Anchored keeps activity state explicit instead of burying it in an undocumented roll.\nActive-rich and Dormant-rich are controlled alternatives for uncertain population assumptions.",
+            new[] { "baueretal2017", "lamy2004" }),
+        new PlanetaryScienceParameterReference(
+            "comet_size_scale",
+            "This slider scales comet nucleus radii after the selected nucleus model.\nUse it for continuous uncertainty around the selected model, not as a replacement for the model choice.",
+            new[] { "baueretal2017" }),
+        new PlanetaryScienceParameterReference(
+            "minor_body_population_slope",
+            "This slider controls how strongly minor-body sampling favors smaller versus larger bodies.\nHigher slopes make small bodies more dominant.",
+            new[] { "baueretal2017" }),
+        new PlanetaryScienceParameterReference(
+            "planet_disk_radius_scale",
+            "This slider adjusts the disk-size proxy used in formation budgets.\nIt lets gas-giant outcomes respond to disk structure rather than only metallicity or gas mass.",
+            new[] { "savvidouetal2023", "pascucci2016" }),
+        new PlanetaryScienceParameterReference(
+            "planet_dust_to_gas_scale",
+            "This slider adjusts the dust-to-gas proxy used in solid-core growth.\nHigher values make solid cores easier to build relative to gas.",
+            new[] { "savvidouetal2023", "fischervalenti2005" }),
+        new PlanetaryScienceParameterReference(
+            "planet_fragmentation_velocity_model",
+            "This picks the fragmentation environment for pebble-assisted growth.\nLow fragmentation velocity suppresses pebble growth; high fragmentation velocity helps it.",
+            new[] { "savvidouetal2023", "lambrechtsjohansen2012" }),
+        new PlanetaryScienceParameterReference(
+            "planet_giant_origin_band_model",
+            "This picks the assumed giant-planet formation zone.\nBroad Disk keeps StarGen's aggregate default; 5-25 AU follows the source-specific formation band; Snow-Line Adjacent emphasizes local snow-line growth.",
+            new[] { "savvidouetal2023", "fernandes2019" }),
     };
 
     private static readonly List<string> PanelSourceIds = new()
@@ -159,11 +223,19 @@ public static class PlanetaryScienceReferenceCatalog
         "mordasini2007",
         "lambrechtsjohansen2012",
         "fischervalenti2005",
-        "canupward2006",
+        "fernandes2019",
+        "ronnet2020",
+        "sasaki2010",
+        "szulagyi2018",
         "jewitthaghighipour2007",
         "demeocarry2013",
         "lamy2004",
         "mroz2020",
+        "petigura2013",
+        "raymondizidoro2017",
+        "pascucci2016",
+        "baueretal2017",
+        "savvidouetal2023",
     };
 
     public static string GetTooltipSummary(string parameterId)
@@ -263,6 +335,24 @@ public static class PlanetaryScienceReferenceCatalog
             "Outer Small-Body Bias",
             "Cold leftovers can lean more rocky like asteroids or more icy like comet reservoirs.",
             "Asteroid-leaning favors drier rocky debris. Comet-leaning favors icy primitive reservoirs. Balanced stays in the middle. In practice, this changes volatile delivery, comet supply, and the composition of cold belts.");
+
+        AppendGuideSection(
+            builder,
+            "Comet Nucleus Model",
+            "This is the rule that picks comet nucleus sizes.",
+            "Bauer Jupiter-Family uses the newer source-backed smaller Jupiter-family nucleus prior. Compatibility Wide Range preserves older StarGen comet sizes only when a stylized or compatibility flow asks for them. [Bauer et al. 2017]");
+
+        AppendGuideSection(
+            builder,
+            "Comet Activity Model",
+            "This sets the active, dormant, and extinct activity mix for comets.",
+            "Survey Anchored keeps activity as a documented source-linked prior. Active-rich and Dormant-rich are explicit alternatives for uncertainty instead of hidden random thresholds. [Bauer et al. 2017]");
+
+        AppendGuideSection(
+            builder,
+            "Disk, Dust, Fragmentation, and Giant Origin",
+            "These controls expose competing disk-formation assumptions instead of burying them in one giant-planet coefficient.",
+            "Disk radius and dust-to-gas sliders shift the raw disk budget. Fragmentation model shifts pebble-assisted growth. Giant-origin band chooses broad disk, 5-25 AU, or snow-line-adjacent emphasis. [Savvidou et al. 2023; Pascucci et al. 2016; Lambrechts & Johansen 2012]");
 
         builder.AppendLine("[b][color=#f0c46a]What StarGen actually does with this[/color][/b]");
         builder.AppendLine("1. It builds one aggregate system state from the stars plus these formation assumptions.");

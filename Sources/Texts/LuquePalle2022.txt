@@ -1,0 +1,62 @@
+# LuquePalle2022
+
+## Source metadata
+- File: `LuquePalle2022.pdf`
+- Domain: rocky planet composition / density dichotomy
+- Pages: 18
+- Authors (auto-extracted — verify against PDF): (see PDF)
+
+## Abstract
+Department of Astronomy & Astrophysics, University of Chicago, Chicago, IL 60637, USA. Departamento de Astrofı́sica, Universidad de La Laguna, La Laguna, Tenerife 38206, Spain. masses and radii of all known small transiting planets around M dwarfs, identifying three populations: rocky, water-rich, and gas-rich. Our results are inconsistent with the previously known bimodal radius distribution arising from
+
+## Major claims, findings, models, assumptions, and limitations
+*Human verification required before using quantitative values or model assumptions in
+StarGen defaults. Figures and equations not captured by text extraction — read the PDF
+for exact thresholds, fit coefficients, and table values.*
+
+- Primary domain: rocky planet composition / density dichotomy
+- See StarGen applicability section below for the specific implications.
+
+## StarGen applicability
+Density-based rocky vs water-rich dichotomy for sub-Neptunes around M dwarfs. Density alone can discriminate rocky from volatile-rich in StarGen's interior classification.
+
+## Parameters, constraints, and mechanics implications
+*(Human action: fill in specific numeric values, distributions, model families, and
+classification boundaries extracted from the paper. Where competing models or confidence
+ranges exist, expose those as user-selectable assumptions rather than collapsing to a
+single default. Where the paper documents uncertainty, preserve it in StarGen rather
+than presenting false precision.)*
+
+## Works cited by this paper (auto-extracted from final pages, partial)
+- (Reference extraction incomplete — verify PDF.)
+
+## Opposing or alternative findings cited
+*(Human action: identify papers in the reference list that present opposing models,
+competing parameter choices, or significantly different results. Note the specific
+disagreement and its implication for which StarGen default to use.)*
+
+## APA citation
+*(Verify and complete — see AnnotatedBibliography.md for the curated APA entry.)*
+
+## Conflicts and follow-up work
+*(Human action: search for papers explicitly responding to, revising, or challenging
+this paper published after its date. For fast-moving fields (exoplanet demographics,
+habitability, JWST/TESS-informed work), treat results >3 years old as potentially
+superseded. Flag updates in Followup.md.)*
+
+
+## StarGen mechanics translation
+
+### Planet density bimodality — water-world / rocky / gas-dwarf trichotomy
+Finds three distinct planet populations by density: rocky (Earth-like), water-world
+(~50% water by mass), and gas-dwarf (H/He envelope). Challenges the pure rocky/sub-Neptune
+binary interpretation.
+
+**StarGen planet composition classes:**
+- `CompositionClass` enum: `Rocky` | `WaterWorld` | `GasDwarf` | `GasGiant` | `Unknown`
+- Water-world density: ~1.0–2.0 g/cm³ (denser than gas dwarfs, less dense than rock)
+- Rocky: density > 3.5 g/cm³
+- Gas dwarf: density < 1.0 g/cm³
+- Apply classification after mass-radius generation; expose composition class as output field.
+**User lever:** `CompositionModel` — `LuquePalle2022` (trichotomy) | `ChenKipping2017` (binary)
+**Cross-references:** ChenKipping2017.txt, Otegi2020.txt.

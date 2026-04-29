@@ -1,0 +1,56 @@
+# GarmaOehmichenEtAl2022
+
+## Source metadata
+- File: `GarmaOehmichenEtAl2022.pdf`
+- Domain: planetary atmospheres
+- Pages: 20
+- Authors (auto-extracted — verify against PDF): L. Garma-Oehmichen,1★ H. Hernández-Toledo,1 E. Aquino-Ortíz,2 L. Martinez-Medina,1 I. Puerari,3; M. Cano-Díaz,1 O. Valenzuela,1 J. A. Vázquez-Mata,4,5 T. Géron,6 L. A. Martínez-Vázquez,1 and R. Lane7
+
+## Abstract
+Most secular effects produced by stellar bars strongly depend on the pattern speed. Unfortunately, it is also the most difficult observational parameter to estimate. In this work, we measured the bar pattern speed of 97 Milky-Way Analogue galaxies from the MaNGA survey using the Tremaine-Weinberg method. The sample was selected by constraining the stellar mass and morphological type. We improve our measurements by weighting three independent estimates of the disc position angle. To recover the disc rotation curve, we fit a kinematic model to the H 𝛼 velocity maps correcting for the non-circular motions produced by the bar. The complete sample has a smooth distribution of the bar pattern speed (Ω 𝐵𝑎𝑟 = 28.14+12.30 km s−1 −9.55 +3.99 +0.60 −1 kpc ), corotation radius (𝑅𝐶 𝑅 = 7.82−2.96 kpc) and the rotation rate (R = 1.35−0.40 ). We found two sets of correlations: (i) between the bar pattern speed, the bar length and the logarithmic stellar mass (ii) between the bar pattern speed, the disc circular velocity and the bar rotation rate. If we constrain our sample by inclination within 30° < 𝑖 < 60° and relative orientation 20° < |𝑃 𝐴𝑑𝑖𝑠𝑐 − 𝑃 𝐴𝑏𝑎𝑟 | < 70°, the correlations become stronger and the fraction of ultra-fast bars is reduced from 20% to 10% of the sample. This suggest that a significant fraction of ultra-fast bars in our sample could be associated to the geometric limitations of the TW-method. By further constraining the bar size and disc circular velocity, we obtain a sub-sample of 25 +0.57 Milky-Way analogues galaxies with distributions Ω 𝐵𝑎𝑟 = 30.48+10.94 km s−1 kpc−1 , 𝑅𝐶 𝑅 = 6.77+2.32 −1.91 kpc and R = 1.45−0.43 , in −6.57 good agreement with the current estimatio
+
+## Major claims, findings, models, assumptions, and limitations
+*Human verification required before using quantitative values or model assumptions in
+StarGen defaults. Figures and equations not captured by text extraction — read the PDF
+for exact thresholds, fit coefficients, and table values.*
+
+- Primary domain: planetary atmospheres
+- See StarGen applicability section below for the specific implications.
+
+## StarGen applicability
+Atmospheric characterisation — verify abstract for specific constraints applicable to StarGen's atmosphere generation.
+
+## Parameters, constraints, and mechanics implications
+*(Human action: fill in specific numeric values, distributions, model families, and
+classification boundaries extracted from the paper. Where competing models or confidence
+ranges exist, expose those as user-selectable assumptions rather than collapsing to a
+single default. Where the paper documents uncertainty, preserve it in StarGen rather
+than presenting false precision.)*
+
+## Works cited by this paper (auto-extracted from final pages, partial)
+- (Reference extraction incomplete — verify PDF.)
+
+## Opposing or alternative findings cited
+*(Human action: identify papers in the reference list that present opposing models,
+competing parameter choices, or significantly different results. Note the specific
+disagreement and its implication for which StarGen default to use.)*
+
+## APA citation
+*(Verify and complete — see AnnotatedBibliography.md for the curated APA entry.)*
+
+## Conflicts and follow-up work
+*(Human action: search for papers explicitly responding to, revising, or challenging
+this paper published after its date. For fast-moving fields (exoplanet demographics,
+habitability, JWST/TESS-informed work), treat results >3 years old as potentially
+superseded. Flag updates in Followup.md.)*
+
+
+## StarGen mechanics translation
+
+### Milky Way pseudo-bulge and bar — chemical and structural properties
+Characterises the pseudo-bulge and bar components of the Milky Way using spectroscopic surveys.
+
+**StarGen bulge generation:**
+- `PseudoBulge_ScaleHeight_kpc` from paper; rounder than classical bulge.
+- `Bulge_MetallicityPeak` ≈ [Fe/H] +0.2 dex (inner bulge stars metal-rich).
+**Cross-references:** WeggGerhard2013.txt, BlandHawthornGerhard2016.txt.

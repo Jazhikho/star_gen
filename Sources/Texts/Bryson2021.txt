@@ -1,21 +1,69 @@
-Source note for StarGen research review
+# Bryson2021
 
-Citation:
-Bryson, S., Kunimoto, M., Kopparapu, R. K., Coughlin, J. L., Borucki, W. J., Koch, D., Silva Aguirre, V., Allen, C., Barentsen, G., Batalha, N. M., Berger, T., Boss, A., Buchhave, L. A., Burke, C. J., Caldwell, D. A., Campbell, J. R., Catanzarite, J., Chandrasekharan, H., Chaplin, W. J., et al. (2021).
-The occurrence of rocky habitable zone planets around solar-like stars from Kepler data.
-The Astronomical Journal, 161(1), 36.
-arXiv: https://arxiv.org/abs/2010.14812
-DOI: https://doi.org/10.3847/1538-3881/abc418
+## Source metadata
+- File: `Bryson2021.pdf`
+- Domain: planet occurrence/HZ/Kepler reliability
+- Pages: 43
+- Authors (auto-extracted — verify against PDF): Steve Bryson,1 Michelle Kunimoto,2 Ravi K. Kopparapu,3 Jeffrey L. Coughlin,1, 4 William J. Borucki,1; David Koch,1, ∗ Victor Silva Aguirre,5 Christopher Allen,6 Geert Barentsen,7 Natalie. M. Batalha,8; Travis Berger,9 Alan Boss,10 Lars A. Buchhave,11 Christopher J. Burke,12 Douglas A. Caldwell,1, 4
 
-What was reviewed:
-- Abstract and source metadata on 2026-04-22.
+## Abstract
+We present occurrence rates for rocky planets in the habitable zones (HZ) of main-sequence dwarf stars based on the Kepler DR25 planet candidate catalog and Gaia-based stellar properties. We provide the first analysis in terms of star-dependent instellation flux, which allows us to track HZ planets. We define η⊕ as the HZ occurrence of planets with radius between 0.5 and 1.5 R⊕ orbiting stars with effective temperatures between 4800 K and 6300 K. We find that η⊕ for the conservative +0.90 HZ is between 0.37+0.48 −0.21 (errors reflect 68% credible intervals) and 0.60−0.36 planets per star, while the +0.73 +1.28 optimistic HZ occurrence is between 0.58−0.33 and 0.88−0.51 planets per star. These bounds reflect two extreme assumptions about the extrapolation of completeness beyond orbital periods where DR25 completeness data are available. The large uncertainties are due to the small number of detected small HZ planets. We find similar occurrence rates using both a Poisson likelihood Bayesian analysis and Approximate Bayesian Computation. Our results are corrected for catalog completeness and reliability. Both completeness and the planet occurrence rate are dependent on stellar effective temperature. We also present occurrence rates for various stellar populations and planet size ranges. We estimate with 95% confidence that, on average, the nearest HZ planet around G and K dwarfs is ∼6 pc away, and there are ∼ 4 HZ rocky planets around G and K dwarfs within 10 pc of the Sun.
 
-Key implementation notes used in StarGen:
-- The paper defines eta_Earth for 0.5-1.5 Earth-radius rocky planets in the habitable zones of main-sequence stars with effective temperatures between 4800 K and 6300 K.
-- For the conservative habitable zone, the paper reports a broad occurrence interval between about 0.37 and 0.60 planets per star, with large uncertainties driven by completeness extrapolation.
-- The practical takeaway for StarGen is that habitable-zone rocky occurrence around solar-like stars is plausibly substantial, but uncertain enough that it should be treated as a banded calibration target rather than a hard exact rate.
+## Major claims, findings, models, assumptions, and limitations
+*Human verification required before using quantitative values or model assumptions in
+StarGen defaults. Figures and equations not captured by text extraction — read the PDF
+for exact thresholds, fit coefficients, and table values.*
 
-How StarGen should use this:
-- As a calibration envelope for habitable-zone rocky-world frequency in Sun-like systems.
-- As support for using `habitable_zone_alignment` as a weighting field instead of a hard yes/no gate.
-- As a warning that tests for habitable rocky worlds should use broad acceptable bands and should explicitly model uncertainty rather than overfit one point estimate.
+- Primary domain: planet occurrence/HZ/Kepler reliability
+- See StarGen applicability section below for the specific implications.
+
+## StarGen applicability
+HZ occurrence rates with reliability corrections: η⊕ ~0.18 for Sun-like stars (conservative HZ). Key prior for HZ terrestrial planet frequency per star type in StarGen.
+
+## Parameters, constraints, and mechanics implications
+*(Human action: fill in specific numeric values, distributions, model families, and
+classification boundaries extracted from the paper. Where competing models or confidence
+ranges exist, expose those as user-selectable assumptions rather than collapsing to a
+single default. Where the paper documents uncertainty, preserve it in StarGen rather
+than presenting false precision.)*
+
+## Works cited by this paper (auto-extracted from final pages, partial)
+- Batalha, N. M., Rowe, J. F., Bryson, S. T., et al. 2013,
+- Berger, T. A., Huber, D., Gaidos, E., & van Saders, J. L.
+- Berger, T. A., Huber, D., Gaidos, E., van Saders, J. L., &
+- Weiss, L. M. 2020a, AJ, 160, 108
+- Berger, T. A., Huber, D., van Saders, J. L., et al. 2020b,
+- Bin, J., Tian, F., & Liu, L. 2018, E&PSL, 492, 121
+- Borucki, W. J. 2016, RPPh, 79, 036901
+- Borucki, W. J., Koch, D., Basri, G., et al. 2010, Sci, 327,
+- Borucki, W. J., Koch, D. G., Basri, G., et al. 2011, ApJ,
+- Bryson, S., Coughlin, J., Batalha, N. M., et al. 2020a, AJ,
+- Bryson, S., Coughlin, J., Kunimoto, M., & Mullally, S. E.
+- Burke, C. J., & Catanzarite, J. 2017, NExScI Exoplanet
+- Archive, KSCI-19111-002
+- Burke, C. J., Christiansen, J. L., Mullally, F., et al. 2015,
+- Catanzarite, J., & Shao, M. 2011, ApJ, 738, 151
+- Chen, J., & Kipping, D. 2017, ApJ, 834, 17
+- Christiansen, J. L., Clarke, B. D., Burke, C. J., et al. 2020,
+- Ciardi, D. R., Beichman, C. A., Horch, E. P., & Howell,
+- S. B. 2015, ApJ, 805, 16
+- Coughlin, J. L. 2017, NExScI Exoplanet Archive,
+
+## Opposing or alternative findings cited
+*(Human action: identify papers in the reference list that present opposing models,
+competing parameter choices, or significantly different results. Note the specific
+disagreement and its implication for which StarGen default to use.)*
+
+## APA citation
+*(Verify and complete — see AnnotatedBibliography.md for the curated APA entry.)*
+
+## Conflicts and follow-up work
+*(Human action: search for papers explicitly responding to, revising, or challenging
+this paper published after its date. For fast-moving fields (exoplanet demographics,
+habitability, JWST/TESS-informed work), treat results >3 years old as potentially
+superseded. Flag updates in Followup.md.)*
+
+
+## StarGen mechanics translation
+
+*(See Bryson2021 in planet occurrence section above.)*

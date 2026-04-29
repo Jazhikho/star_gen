@@ -1,0 +1,72 @@
+# KarakatsanisMamassis2023
+
+## Source metadata
+- File: `KarakatsanisMamassis2023.pdf`
+- Domain: hydrology/climate/habitability
+- Pages: 40
+- Authors (auto-extracted — verify against PDF): Citation: Karakatsanis, G.; Mamassis,
+
+## Abstract
+For the present work, we utilized Leslie White’s anthropological theory of cultural evolutionism as a theoretical benchmark for econometrically assessing the macrodynamics of energy use in agrarian societies that constituted the human civilization’s second energy paradigm between 12,000 BC and 1800 AC. As White’s theory views a society’s ability to harness and control energy from its environment as the primary function of culture, we may classify the evolution of human civilizations in three phases according to their energy paradigm, defined as the dominant pattern of energy harvesting from nature. In this context, we may distinguish three energy paradigms so far: hunting–gathering, agriculture, and fossil fuels. Agriculture, as humanity’s energy paradigm for ~14,000 years, essentially comprises a secondary form of solar energy that is biochemically transformed by photosynthetic life (plants and land). Based on this property, we model agrarian societies with similar principles to natural ecosystems. Just like natural ecosystems, agrarian societies receive abundant solar energy input but also have limited land ability to transform and store them biochemically. As in natural ecosystems, this constraint is depicted by the carrying capacity emerging biophysically from the limiting factor. Hence, the historical dynamics of agrarian societies are essentially reduced to their struggle to maximize energy use by maximizing the area and productivity of fertile land –in the role of a solar energy transformation hub– mitigating their limiting factor. Such an evolutionary forcing introduced technical upgrades, like the leverage of domesticated livestock power as a multiplier of the ca
+
+## Major claims, findings, models, assumptions, and limitations
+*Human verification required before using quantitative values or model assumptions in
+StarGen defaults. Figures and equations not captured by text extraction — read the PDF
+for exact thresholds, fit coefficients, and table values.*
+
+- Primary domain: hydrology/climate/habitability
+- See StarGen applicability section below for the specific implications.
+
+## StarGen applicability
+If hydrology/climate: relevant to surface-water habitability thresholds — verify abstract.
+
+## Parameters, constraints, and mechanics implications
+*(Human action: fill in specific numeric values, distributions, model families, and
+classification boundaries extracted from the paper. Where competing models or confidence
+ranges exist, expose those as user-selectable assumptions rather than collapsing to a
+single default. Where the paper documents uncertainty, preserve it in StarGen rather
+than presenting false precision.)*
+
+## Works cited by this paper (auto-extracted from final pages, partial)
+- White, L. The Evolution of Culture: The Development of Civilization to the Fall of Rome; McGraw-Hill: New York, NY, USA, 1959;
+- Morgan, H.L. Ancient Society; KP Bagghi & Company: New Delhi, India, 1877.
+- White, K.D. The Efficiency of Roman Farming under the Empire. Agric. Hist. 1956, 30, 85–89.
+- Tainter, J. The Collapse of Complex Societies; Cambridge University Press: Cambridge, MA, USA, 1988; ISBN 978-0521386739.
+- Karakatsanis, G. Exergy and the economic process. Energy Procedia 2016, 97, 51–58. [CrossRef]
+- Kümmel, R. The Second Law of Economics: Energy, Entropy and the Origins of Wealth; Springer: New York, NY, USA, 2011;
+- Chaisson, E.J. Complexity: An Energetics Agenda. Complexity 2004, 9, 14–21. [CrossRef]
+- Prigogine, I. Time, Structure and Fluctuations. Science 1978, 201, 777–785. [CrossRef] [PubMed]
+- Georgescu-Roegen, N. The Entropy Law and the Economic Process; Harvard University Press: Cambridge, MA, USA, 1971;
+- Karakatsanis, G. Energy and the Capital of Nations; European Geosciences Union (EGU) General Assembly: Vienna, Austria, 2016.
+- Ellis, E.C. Land Use and Ecological Change: A 12,000-Year History. Annu. Rev. Environ. Resour. 2021, 46, 1–33. [CrossRef]
+- Zahid, H.J.; Robinson, E.; Kelly, R.L. Agriculture, population growth, and statistical analysis of the radiocarbon record. Proc. Natl.
+- Acad. Sci. USA 2016, 113, 931–935. [CrossRef]
+- Ellis, E.C.; Beusen, A.H.W.; Goldewijk, K.K. Anthropogenic Biomes: 10,000 BCE to 2015 CE. Land 2020, 9, 129. [CrossRef]
+- Hopfenberg, R. An expansion of the demographic transition model: The dynamic link between agricultural productivity and
+- population. Biodiversity 2015, 15, 246–254. [CrossRef]
+- Krausmann, F. Milk, Manure, and Muscle Power. Livestock and the Transformation of Preindustrial Agriculture in Central
+- Europe. Hum. Ecol. 2004, 32, 735–772. [CrossRef]
+- Olsson, E.; Gunilla, A. Agro-Ecosystems from Neolithic Time to the Present. Ecol. Bull. 1991, 41, 293–314.
+- Haswell, M. Energy for Subsistence, 2nd ed.; Palgrave Macmillan: New York, NY, USA, 1985; ISBN 978-0333384275.
+
+## Opposing or alternative findings cited
+*(Human action: identify papers in the reference list that present opposing models,
+competing parameter choices, or significantly different results. Note the specific
+disagreement and its implication for which StarGen default to use.)*
+
+## APA citation
+*(Verify and complete — see AnnotatedBibliography.md for the curated APA entry.)*
+
+## Conflicts and follow-up work
+*(Human action: search for papers explicitly responding to, revising, or challenging
+this paper published after its date. For fast-moving fields (exoplanet demographics,
+habitability, JWST/TESS-informed work), treat results >3 years old as potentially
+superseded. Flag updates in Followup.md.)*
+
+
+## StarGen mechanics translation
+
+### Off-topic candidate — verify corpus membership
+Flagged as potentially off-topic.
+**StarGen:** No mechanics encoded. Verify before use.
+**Cross-references:** ResearchAuditSummary.md.

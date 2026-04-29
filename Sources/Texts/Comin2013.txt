@@ -1,0 +1,53 @@
+# Comin2013
+
+## Source metadata
+- File: `Comin2013.pdf`
+- Domain: economic complexity
+- Pages: 66
+- Authors (auto-extracted — verify against PDF): Nber Working Paper Series; National Bureau Of Economic Research
+
+## Abstract
+We study the lags with which new technologies are adopted across countries, and their long-run penetration rates once they are adopted. Using data from the last two centuries, we document two new facts: there has been convergence in adoption lags between rich and poor countries, while there has been divergence in penetration rates. Using a model of adoption and growth, we show that these changes in the pattern of technology diffusion account for 80% of the Great Income Divergence between rich and poor countries since 1820. Diego A. Comin Harvard Business School Soldiers Field Boston, MA 02163 and NBER dcomin@hbs.edu Martí Mestieri Ferrer Toulouse School of Economics Batiment F, MF503 21, Allée de Brienne 31015 Toulouse France marti.mestieri@gmail.com 1
+
+## Major claims, findings, models, assumptions, and limitations
+*Human verification required before using quantitative values or model assumptions in
+StarGen defaults. Figures and equations not captured by text extraction — read the PDF
+for exact thresholds, fit coefficients, and table values.*
+
+- Primary domain: economic complexity
+- See StarGen applicability section below for the specific implications.
+
+## StarGen applicability
+Economic complexity index. Relevant to civilisation/technology framework in StarGen's population module only — not to physical generation mechanics.
+
+## Parameters, constraints, and mechanics implications
+*(Human action: fill in specific numeric values, distributions, model families, and
+classification boundaries extracted from the paper. Where competing models or confidence
+ranges exist, expose those as user-selectable assumptions rather than collapsing to a
+single default. Where the paper documents uncertainty, preserve it in StarGen rather
+than presenting false precision.)*
+
+## Works cited by this paper (auto-extracted from final pages, partial)
+- (Reference extraction incomplete — verify PDF.)
+
+## Opposing or alternative findings cited
+*(Human action: identify papers in the reference list that present opposing models,
+competing parameter choices, or significantly different results. Note the specific
+disagreement and its implication for which StarGen default to use.)*
+
+## APA citation
+*(Verify and complete — see AnnotatedBibliography.md for the curated APA entry.)*
+
+## Conflicts and follow-up work
+*(Human action: search for papers explicitly responding to, revising, or challenging
+this paper published after its date. For fast-moving fields (exoplanet demographics,
+habitability, JWST/TESS-informed work), treat results >3 years old as potentially
+superseded. Flag updates in Followup.md.)*
+
+
+## StarGen mechanics translation
+
+### Off-topic candidate — verify corpus membership
+Flagged as potentially off-topic. May be a social-science / economics paper added in error.
+**StarGen:** No mechanics encoded. Verify before use.
+**Cross-references:** ResearchAuditSummary.md.

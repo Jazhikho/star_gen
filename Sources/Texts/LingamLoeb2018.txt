@@ -1,15 +1,78 @@
-Lingam, M., & Loeb, A. (2018).
-Is Life Most Likely Around Sun-like Stars?
-arXiv:1710.11134
-https://arxiv.org/abs/1710.11134
+# LingamLoeb2018
 
-Why this source matters for StarGen
-- This paper argues that host-star class affects relative habitability through stellar lifetime, atmospheric erosion, and biologically relevant ultraviolet irradiance.
-- It pushes against the idea that the most numerous cool stars should automatically be treated as the best life hosts.
+## Source metadata
+- File: `LingamLoeb2018.pdf`
+- Domain: astrobiology/life probability
+- Pages: 12
+- Authors (auto-extracted — verify against PDF): (see PDF)
 
-How it is used
-- Supports making host-star context an explicit part of the life model instead of relying only on present-day planetary environment.
-- Supports distinguishing relative prospects for complex exposed biospheres across M, K, and G star contexts.
+## Abstract
+We consider the habitability of Earth-analogs around stars of different masses, which is regulated by the stellar lifetime, stellar wind-induced atmospheric erosion, and biologically active ultraviolet (UV) irradiance. By estimating the timescales associated with each of these processes, we show that they collectively impose limits on the habitability of Earth-analogs. We conclude that planets orbiting most M-dwarfs are not likely to host life, and that the highest probability of complex biospheres is for planets around K- and G-type stars. Our analysis suggests that the current existence of life near the Sun is slightly unusual, but not significantly anomalous. Contents
 
-Human review notes
-- Treat as a comparative-habitability framing, not as a hard exclusion rule for low-mass hosts.
+## Major claims, findings, models, assumptions, and limitations
+*Human verification required before using quantitative values or model assumptions in
+StarGen defaults. Figures and equations not captured by text extraction — read the PDF
+for exact thresholds, fit coefficients, and table values.*
+
+- Primary domain: astrobiology/life probability
+- See StarGen applicability section below for the specific implications.
+
+## StarGen applicability
+Panspermia or abiogenesis probability modelling. Relevant to life-origin base-rate priors in StarGen's population/civilisation module.
+
+## Parameters, constraints, and mechanics implications
+*(Human action: fill in specific numeric values, distributions, model families, and
+classification boundaries extracted from the paper. Where competing models or confidence
+ranges exist, expose those as user-selectable assumptions rather than collapsing to a
+single default. Where the paper documents uncertainty, preserve it in StarGen rather
+than presenting false precision.)*
+
+## Works cited by this paper (auto-extracted from final pages, partial)
+- [1] L. Kaltenegger, How to Characterize Habitable Worlds and Signs of Life,
+- Annu. Rev. Astron. Astrophys. 55 (2017) 433–485.
+- [2] J. F. Kasting, D. P. Whitmire and R. T. Reynolds, Habitable Zones around Main Sequence
+- Stars, Icarus 101 (1993) 108–128.
+- [3] C. Dong, M. Lingam, Y. Ma and O. Cohen, Is Proxima Centauri b Habitable? A Study of
+- Atmospheric Loss, Astrophys. J. Lett. 837 (2017) L26, [1702.04089].
+- [4] M. Lingam and A. Loeb, Physical constraints on the likelihood of life on exoplanets,
+- Int. J. Astrobiol. 17 (2018) 116–126, [1707.02996].
+- [5] K. Ruiz-Mirazo, C. Briones and A. de la Escosura, Prebiotic Systems Chemistry: New
+- Perspectives for the Origins of Life, Chem. Rev. 114 (2014) 285–366.
+- On the other hand, the elevated UV levels can prove to be deleterious to the evolution and sustenance of
+- [6] D. C. Catling, K. J. Zahnle and C. P. McKay, Biogenic Methane, Hydrogen Escape, and the
+- Irreversible Oxidation of Early Earth, Science 293 (2001) 839–843.
+- [7] J. D. Barrow and F. J. Tipler, The Anthropic Cosmological Principle. Oxford: Clarendon
+- [8] A. Loeb, R. A. Batista and D. Sloan, Relative likelihood for life as a function of cosmic time,
+- J. Cosmol. Astropart. Phys. 8 (2016) 040, [1606.08448].
+- [9] P. L. Luisi, The Emergence of Life: From Chemical Origins to Synthetic Biology. Cambridge
+- [10] A. Y. Mulkidjanian, D. A. Cherepanov and M. Y. Galperin, Survival of the fittest before the
+- beginning of life: selection of the first oligonucleotide-like polymers by UV light,
+- BMC Evol. Biol. 3 (2003) 12.
+
+## Opposing or alternative findings cited
+*(Human action: identify papers in the reference list that present opposing models,
+competing parameter choices, or significantly different results. Note the specific
+disagreement and its implication for which StarGen default to use.)*
+
+## APA citation
+*(Verify and complete — see AnnotatedBibliography.md for the curated APA entry.)*
+
+## Conflicts and follow-up work
+*(Human action: search for papers explicitly responding to, revising, or challenging
+this paper published after its date. For fast-moving fields (exoplanet demographics,
+habitability, JWST/TESS-informed work), treat results >3 years old as potentially
+superseded. Flag updates in Followup.md.)*
+
+
+## StarGen mechanics translation
+
+### Habitability / biosphere complexity index
+Derives scaling relations for complexity of life as function of planet age, stellar
+type, and energy flux.
+
+**StarGen annotation (optional complexity index):**
+- `BiosphereComplexityIndex` — scalar derived from planet age, flux, and stellar type.
+  Informational only; not a generation filter unless explicitly enabled.
+- Key finding: older planets around older stars have had more time for complexity to
+  develop; starbursting environments may suppress complex life.
+**Cross-references:** Balbi2023.txt, LineweaverDavis2002.txt, Rimmer2018.txt.

@@ -1,0 +1,147 @@
+# Roos2025
+
+## Source metadata
+- File: `Roos2025.pdf`
+- Domain: social science / complexity theory / social systems / civilization modeling
+- Pages: ~20
+- Authors: Roos, M.
+- Source ID in StarGen code: `roos2025`
+- **PDF acquisition:** PLOS Complex Systems 2(7), e0000055 (2025).
+  DOI: 10.1371/journal.pcsy.0000055
+  Open access. Available at https://doi.org/10.1371/journal.pcsy.0000055
+  **PDF confirmed present in Sources/Texts/.**
+
+## Abstract
+Research in the social sciences often describes social complexity through a combination
+of structure, organization, and behavior within human social systems. In this paper,
+I argue that these aspects, while important, are conceptually distinct. Specifically,
+I distinguish between structural complexity — the organizational properties of a
+system — and dynamic complexity — the patterns of behavior and interaction within the
+system. I argue that the conflation of these two dimensions leads to conceptual confusion
+in the social complexity literature and hampers empirical progress. I propose a framework
+for separating and measuring them, and discuss implications for understanding the
+"problem-solving" capacity of human social systems. A system can be highly structurally
+complex (many differentiated roles, institutions, levels of hierarchy) while being
+dynamically simple (highly predictable, routine behavior). Conversely, a system can
+be dynamically complex (unpredictable, adaptive behavior) while being structurally
+simple (few formal institutions).
+
+## Major claims, findings, models, assumptions, and limitations
+- **Structural complexity vs. dynamic complexity:**
+  - **Structural complexity:** Measures the organizational differentiation of a system
+    — number of distinct roles, institutions, hierarchical levels, degree of specialization.
+    Maps to: government bureaucracy depth, economic sector differentiation, number of
+    distinct social classes.
+  - **Dynamic complexity:** Measures the unpredictability and adaptability of system
+    behavior — how often the system responds in novel ways to perturbations. Maps to:
+    political volatility, economic innovation rate, social change rate.
+- **Independence of the two dimensions:** High structural complexity does not imply
+  high dynamic complexity. A highly bureaucratic dictatorship can be structurally very
+  complex (many ministries, layers of hierarchy) while being dynamically very simple
+  (predictable, rigid response to perturbations). An entrepreneurial startup ecosystem
+  can be dynamically complex but structurally simple.
+- **Problem-solving capacity:** The paper argues that effective social problem-solving
+  requires a match between structural and dynamic complexity: complex problems (novel
+  crises, technological disruption) require dynamic complexity; routine problems require
+  structural complexity. Mismatches → inefficient governance.
+- **Implication for civilization modeling:** A civilization's "resilience" is not
+  determined by TechLevel or population alone, but by the match between structural
+  and dynamic complexity relative to its environmental challenges.
+- **Limitation:** The framework is conceptual; operationalization is discussed but
+  specific measurement tools are preliminary.
+- **Limitation:** The study focuses on contemporary human societies; historical
+  and alien applications require extension.
+
+## StarGen applicability
+Provides the **structural vs. dynamic complexity distinction** for StarGen's
+civilization characterization. This is primarily a conceptual contribution that
+informs the descriptive output for a world's governance style:
+- High structural complexity + low dynamic complexity → "rigid bureaucracy"
+  (stable but slow to adapt; high LawLevel, authoritarian or civil service government)
+- High dynamic complexity + low structural complexity → "entrepreneurial chaos"
+  (innovative but unstable; lower LawLevel, participatory or corporate government)
+- High in both → "mature complex democracy" (OAO states, TL 9+)
+- Low in both → "primitive undifferentiated" (pre-state or post-collapse)
+
+## Parameters, constraints, and mechanics implications
+
+**Two-axis complexity profile:**
+```csharp
+public struct ComplexityProfile
+{
+    public double Structural;  // 0-1: organizational differentiation
+    public double Dynamic;     // 0-1: behavioral adaptability/unpredictability
+}
+
+// Structural complexity correlates with:
+//   - GovernmentType hierarchy depth
+//   - TechLevel (more institutions needed for high tech)
+//   - LawLevel (high law = high structural complexity in enforcement)
+double structural = (techLevel / 15.0) * 0.6
+                  + (lawLevel / 9.0) * 0.3
+                  + rng.NextGaussian(0.0, 0.1);
+
+// Dynamic complexity correlates with:
+//   - Economic openness (OAO → more adaptive)
+//   - InternalLegitimacy (high → more democratic → more adaptive)
+//   - Inversely with LawLevel (high enforcement → less adaptive)
+double dynamic = oaoScore * 0.4
+               + internalLegitimacy * 0.4
+               - (lawLevel / 9.0) * 0.2
+               + rng.NextGaussian(0.0, 0.1);
+```
+
+**Resilience score (for FrankEtAl2018 Anthropocene transition):**
+```csharp
+// Resilience to the Anthropocene transition depends on problem-solving capacity
+// Best: high structural AND dynamic complexity (can organize AND adapt)
+// Worst: high structural + low dynamic (organized but rigid → slow to adapt)
+double resilience = structural * dynamic;  // geometric mean favors balance
+// Used in FrankEtAl2018 adaptabilityRate parameter
+double frankAdaptabilityRate = 0.3 + resilience * 0.7;
+```
+
+## APA citation
+Roos, M. (2025). The complexity of problem-solving human social systems: Structural vs.
+dynamic complexity. PLOS Complex Systems, 2(7), e0000055.
+https://doi.org/10.1371/journal.pcsy.0000055
+
+## Conflicts and follow-up work
+
+**Complexity theory foundations:**
+- Tainter, J. A. (1988) "The Collapse of Complex Societies." Cambridge UP — structural
+  complexity without adaptive capacity → collapse (the original "complexity trap" thesis).
+  Compatible with Roos's framework.
+- Holland, J. H. (1992) "Adaptation in Natural and Artificial Systems." MIT Press —
+  dynamic complexity from adaptive systems theory.
+
+**Related in corpus:**
+- FrankEtAl2018.txt — Anthropocene transition; adaptability rate is the Roos dynamic
+  complexity measure.
+- Murphy2023.txt — OAO states have higher dynamic complexity (adaptive governance).
+- BallandEtAl2022.txt — economic complexity (ECI) has elements of both structural
+  (product diversity) and dynamic (adaptability of economic system) complexity.
+
+**Citation discovery:**
+- DOI: 10.1371/journal.pcsy.0000055
+
+## StarGen mechanics translation
+
+### Structural vs. dynamic complexity → world descriptor
+Roos2025 provides a conceptual enrichment to StarGen's civilization description.
+It is not a primary generation parameter source but informs how the governance
+archetype is described in worldbuilding text.
+
+**Governance archetype from complexity profile:**
+```
+Structural | Dynamic | Archetype label              | RPG description
+-----------|---------|------------------------------|-----------------------------------
+High       | High    | Mature complex democracy     | "Adaptable bureaucratic state"
+High       | Low     | Rigid bureaucracy            | "Stable but inflexible hierarchy"
+Low        | High    | Entrepreneurial chaos        | "Fluid, innovation-driven society"
+Low        | Low     | Pre-state / post-collapse    | "Primitive or fragmented society"
+```
+
+**Cross-references:** FrankEtAl2018.txt (adaptability → Anthropocene transition outcome),
+Murphy2023.txt (OAO → high dynamic complexity), BallandEtAl2022.txt (ECI captures
+structural complexity of the economy).

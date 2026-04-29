@@ -1,0 +1,76 @@
+# Szulagyi2018
+
+## Source metadata
+- File: `Szulagyi2018.pdf`
+- Domain: circumplanetary disk / moon-forming region
+- Pages: 7
+- Authors (auto-extracted — verify against PDF): (see PDF)
+
+## Abstract
+Satellites of giant planets thought to form in gaseous circumplanetary disks (CPDs) during the late planet-formation phase, but it was unknown so far whether smaller mass planets, such as the ice giants could form such disks, thus moons there. We combined radiative hydrodynamical simulations with satellite population synthesis to investigate the question in the case of Uranus and Neptune. For both ice giants we found that a gaseous CPD is created at the end of their formation. The population synthesis confirmed that Uranian-like, icy, prograde satellite-system could form in these CPDs within a couple of 105 years. This means that Neptune could have a Uranian-like moon-system originally that was wiped away by the capture of Triton. Furthermore, the current moons of Uranus can be reproduced by our model without the need for planet-planet impact to create a debris disk for the moons to grow. These results highlight that even ice giants – that among the most common masscategory of exoplanets – can also form satellites, opening a way to a potentially much larger population of exomoons than previously thought.
+
+## Major claims, findings, models, assumptions, and limitations
+*Human verification required before using quantitative values or model assumptions in
+StarGen defaults. Figures and equations not captured by text extraction — read the PDF
+for exact thresholds, fit coefficients, and table values.*
+
+- Primary domain: circumplanetary disk / moon-forming region
+- See StarGen applicability section below for the specific implications.
+
+## StarGen applicability
+CPD simulations: CPD extent ~0.3–0.4 R_Hill, temperature profile. Constrains CPD properties for moon formation in StarGen.
+
+## Parameters, constraints, and mechanics implications
+*(Human action: fill in specific numeric values, distributions, model families, and
+classification boundaries extracted from the paper. Where competing models or confidence
+ranges exist, expose those as user-selectable assumptions rather than collapsing to a
+single default. Where the paper documents uncertainty, preserve it in StarGen rather
+than presenting false precision.)*
+
+## Works cited by this paper (auto-extracted from final pages, partial)
+- Ansdell, M., Williams, J. P., van der Marel, N., et al. 2016,
+- Ayliffe, B. A. & Bate, M. R. 2009, MNRAS, 397, 657.
+- Bell, K. R., & Lin, D. N. C. 1994, ApJ, 427, 987
+- Bohren, C. F. & Huffman, D. R. 1984, Nature, 307, 575.
+- Boué, G. & Laskar, J. 2010, ApJ, 712, L44.
+- Cameron, A. G. W. & Ward, W. R. 1976, Lunar and
+- Planetary Science Conference 7, 120.
+- Canup, R. M. & Ward, W. R. 2009, Europa, 59.
+- Cilibrasi, M., Szulágyi, J., Mayer, L., et al. 2018, ArXiv
+- e-prints , arXiv:1801.06094.
+- Cimerman, N. P., Kuiper, R. & Ormel, C. W. 2017,
+- Crida, A., & Charnoz, S. 2012, Science, 338, 1196
+- Commerçon, B., Teyssier, R., Audit, E., et al. 2011, A&A,
+- Dermott, S. F. 1984, NASA Conference Publication, 377.
+- Draine, B. T. 2003, ARA&A, 41, 241
+- Drazkowska, J. & Szulágyi, J. 2018, ArXiv e-prints ,
+- Duffell, P. C. 2015, ApJL, 807, L11
+- Fortney, J. J. & Nettelmann, N. 2010, SSRv, 152, 423.
+- Fung, J. & Chiang, E. 2016, ApJ, 832, 105.
+- Greenberg, R., Bottke, W. F., Carusi, A., et al. 1991,
+
+## Opposing or alternative findings cited
+*(Human action: identify papers in the reference list that present opposing models,
+competing parameter choices, or significantly different results. Note the specific
+disagreement and its implication for which StarGen default to use.)*
+
+## APA citation
+*(Verify and complete — see AnnotatedBibliography.md for the curated APA entry.)*
+
+## Conflicts and follow-up work
+*(Human action: search for papers explicitly responding to, revising, or challenging
+this paper published after its date. For fast-moving fields (exoplanet demographics,
+habitability, JWST/TESS-informed work), treat results >3 years old as potentially
+superseded. Flag updates in Followup.md.)*
+
+
+## StarGen mechanics translation
+
+### Circumplanetary disk — structure and satellite formation
+CPD properties depend on planet mass and location. More massive planets and smaller
+orbital separations produce higher-density CPDs.
+
+**StarGen moon / CPD properties:**
+- `CPD_Density` scales with planet mass and disk properties.
+- Used as context for regular satellite formation; complements Ronnet2020.
+**Cross-references:** Ronnet2020.txt, BenistyEtAl2021.txt.

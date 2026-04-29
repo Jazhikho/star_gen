@@ -1,12 +1,39 @@
 # Version
 
-Current version: `0.9.1.0`
+Current version: `0.9.3.0`
 
 Current user-facing version: `0.9d` by default, `0.9e` for the export/save-enabled edition
 
-Date: `2026-04-22`
+Date: `2026-04-28`
 
 Versioning method: release/refactor `+0.1`, feature `+0.0.1`, bug fix `+0.0.0.1`, save-breaking release `+1.0`.
+
+## 0.9.3.0
+
+- Feature: Added a source/tuning registry for active science-facing generation heuristics, linking generator coefficients and model choices to source IDs, public controls, consuming generators, implementation status, and human-audit requirements.
+- Feature: Added additive v1.0 science controls for comet nucleus/activity models, comet size scale, minor-body population slope, disk radius, dust-to-gas ratio, fragmentation environment, giant-origin band, subsurface dark-biosphere energy, and sentient-world social/technology/economic/legitimacy model proxies.
+- Feature: Retuned the default Jupiter-family comet nucleus model around the BauerEtAl2017 source implication while preserving the older wide radius range only as an explicit legacy/stylized model.
+- Feature: Wired new disk, dust, fragmentation, giant-origin, dark-biosphere, and sentient-world proxy controls into generation with source/human-audit citation surfaces and deterministic regression coverage.
+- Feature: Added explicit source-acquisition metadata so cited-but-missing sources can be tracked as pending or blocked instead of being confused with uncited heuristics.
+- Feature: Expanded science/tuning registry coverage across exposed galaxy, stellar, planetary, life, and sentient-world science controls, including value/range metadata and high-impact internal coefficient-family entries for existing `Tuning:` comments.
+- Test: Strengthened registry coverage so cataloged science parameters must stay synchronized with tooltip text, help-panel source lists, materiality entries, registry metadata, and source-acquisition metadata.
+- Docs: Updated tooltip/help/catalog source surfaces, the v1.0 checklist, source-generator fit audit, project structure, and AI provenance log for this science-closure increment.
+
+## 0.9.2.2
+
+- Fix: `BiologySupportEvaluator.cs` — keep the phrase `speculative biochemistry branch` on one comment line so `TestEndToEndScienceAudit` substring checks match (no logic change).
+
+## 0.9.2.1
+
+- Documentation / sources: **Second anchor batch** for Workstreams **C–K** — fourteen additional draft `Sources/Texts/*.txt` notes with arXiv PDFs, explicit competing-model family labels per workstream, `AnnotatedBibliography.md` rows and changelog, `Docs/EndToEndScienceAudit.md` second-batch subsection, `SourceRecencyGapClosurePlan.md` multi-anchor intake standard, `_source_audit/source_inventory.md` count and row updates, and `TestEndToEndScienceAudit.cs` expansions.
+
+## 0.9.2.0
+
+- Documentation / sources: Workstreams **C through K** intake from `SourceRecencyGapClosurePlan.md` — eleven draft `Sources/Texts/*.txt` notes with local PDFs (HZ demographics, atmosphere escape framing, impact-moon feasibility, Kuiper belt OSSOS++ demographics, Milky Way bar Gaia-era pair, AMD-stable and dynamical-packing stability pair, microlensing IMF note, agrarian energy / carrying-capacity anchor for population mechanism design, alternative-solvent astrobiology), `AnnotatedBibliography.md` updates (including indexed `Bains2004` and new subsection), `Docs/EndToEndScienceAudit.md`, `SourceRecencyGapClosurePlan.md` (Workstream K status), `_source_audit/source_inventory.md`, and `TestEndToEndScienceAudit.cs` expansions.
+
+## 0.9.1.1
+
+- Documentation / sources: Imported Workstream B exoplanet demographics batch (Cui et al. 2026; Ment & Charbonneau 2023; Wanderley et al. 2025; Gillis et al. 2026; Van Zandt et al. 2025) as draft `Sources/Texts` notes with local arXiv PDFs, `AnnotatedBibliography.md` rows, audit inventory updates, and regression list updates in `TestEndToEndScienceAudit.cs`.
 
 ## 0.9.1.0
 

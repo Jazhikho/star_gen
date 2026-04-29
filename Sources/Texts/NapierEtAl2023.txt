@@ -1,0 +1,73 @@
+# NapierEtAl2023
+
+## Source metadata
+- File: `NapierEtAl2023.pdf`
+- Domain: outer Solar System / Kuiper Belt
+- Pages: 25
+- Authors (auto-extracted — verify against PDF): Kevin J. Napier ,1 Hsing Wen Lin ( 林省文 ) ,1 David W. Gerdes ,1, 2 Fred C. Adams ,1, 2; Anna M. Simpson ,1, 2 Matthew W. Porter ,1 Katherine G. Weber ,3 Larissa Markwardt ,2; Gabriel Gowman ,1, 2 Hayden Smotherman ,4 Pedro H. Bernardinelli ,4 Mario Jurić ,4
+
+## Abstract
+The DECam Ecliptic Exploration Project (DEEP) is a deep survey of the trans-Neptunian solar system being carried out on the 4-meter Blanco telescope at Cerro Tololo Inter-American Observatory in Chile using the Dark Energy Camera (DECam). By using a shift-and-stack technique to achieve a mean limiting magnitude of r ∼ 26.2, DEEP achieves an unprecedented combination of survey area and depth, enabling quantitative leaps forward in our understanding of the Kuiper Belt populations. This work reports results from an analysis of twenty 3 sq. deg. DECam fields along the invariable plane. We characterize the efficiency and false-positive rates for our moving-object detection pipeline, and use this information to construct a Bayesian signal probability for each detected source. This procedure allows us to treat all of our Kuiper Belt Object (KBO) detections statistically, simultaneously accounting for efficiency and false positives. We detect approximately 2300 candidate sources with KBO-like motion at S/N > 6.5. We use a subset of these objects to compute the luminosity function of the Kuiper Belt as a whole, as well as the Cold Classical (CC) population. We also investigate the absolute magnitude (H) distribution of the CCs, and find consistency with both an exponentially tapered power-law, which is predicted by streaming instability models of planetesimal formation, and a rolling power law. Finally, we provide an updated mass estimate for the Cold Classical Kuiper Belt +0.0010 of MCC (Hr < 12) = 0.0017−0.0004 M⊕ , assuming albedo p = 0.15 and density ρ = 1 g cm−3 .
+
+## Major claims, findings, models, assumptions, and limitations
+*Human verification required before using quantitative values or model assumptions in
+StarGen defaults. Figures and equations not captured by text extraction — read the PDF
+for exact thresholds, fit coefficients, and table values.*
+
+- Primary domain: outer Solar System / Kuiper Belt
+- See StarGen applicability section below for the specific implications.
+
+## StarGen applicability
+Kuiper Belt or outer Solar System dynamics (2023). Relevant to outer-belt architecture parameters in StarGen.
+
+## Parameters, constraints, and mechanics implications
+*(Human action: fill in specific numeric values, distributions, model families, and
+classification boundaries extracted from the paper. Where competing models or confidence
+ranges exist, expose those as user-selectable assumptions rather than collapsing to a
+single default. Where the paper documents uncertainty, preserve it in StarGen rather
+than presenting false precision.)*
+
+## Works cited by this paper (auto-extracted from final pages, partial)
+- Abadi, M., et al. 2015, TensorFlow: Large-Scale Machine
+- Learning on Heterogeneous Systems.
+- https://www.tensorflow.org/
+- Abod, C. P., Simon, J. B., Li, R., et al. 2019, ApJ, 883,
+- 192, doi: 10.3847/1538-4357/ab40a3
+- Alard, C., & Lupton, R. H. 1998, ApJ, 503, 325,
+- Allen, R. L., Bernstein, G. M., & Malhotra, R. 2001, The
+- Astrophysical Journal Letters, 549
+- Bannister, M. T., Gladman, B. J., Kavelaars, J. J., et al.
+- 2018, ApJS, 236, 18, doi: 10.3847/1538-4365/aab77a
+- Fuentes, C. I., George, M. R., & Holman, M. J. 2009, ApJ,
+- 696, 91, doi: 10.1088/0004-637X/696/1/91
+- Gladman, B., & Kavelaars, J. J. 1997, Astronomy and
+- Gladman, B., & Volk, K. 2021, ARA&A, 59, 203,
+- doi: 10.1146/annurev-astro-120920-010005
+- Goldstein, D. A., et al. 2015, The Astronomical Journal,
+- 150, doi: 10.1088/0004-6256/150/3/82
+- Heinze, A. N., Metchev, S., & Trollo, J. 2015, The
+- Astronomical Journal, 150
+- Holman, M. J., et al. 2004, Nature, 430
+
+## Opposing or alternative findings cited
+*(Human action: identify papers in the reference list that present opposing models,
+competing parameter choices, or significantly different results. Note the specific
+disagreement and its implication for which StarGen default to use.)*
+
+## APA citation
+*(Verify and complete — see AnnotatedBibliography.md for the curated APA entry.)*
+
+## Conflicts and follow-up work
+*(Human action: search for papers explicitly responding to, revising, or challenging
+this paper published after its date. For fast-moving fields (exoplanet demographics,
+habitability, JWST/TESS-informed work), treat results >3 years old as potentially
+superseded. Flag updates in Followup.md.)*
+
+
+## StarGen mechanics translation
+
+### Planet formation / dynamics — verify exact content
+*(Verify NapierEtAl2023 against PDF.)*
+
+**StarGen:** Pending human verification.
+**Cross-references:** See AnnotatedBibliography.md.

@@ -162,7 +162,7 @@ public static class BiologySupportEvaluator
     {
         LifePotentialModeling.Tuning lifeTuning = LifePotentialModeling.Resolve(environment, useCaseSettings);
         double permissiveness = lifeTuning.Permissiveness;
-        Biochemistry bestChemistry = SelectBiochemistry(environment, permissiveness, out double chemistryScore);
+        Biochemistry bestChemistry = SelectBiochemistry(environment, lifeTuning, permissiveness, out double chemistryScore);
         if (bestChemistry == Biochemistry.None)
         {
             return CreateFailure(DetermineFailureReason(environment, permissiveness));
@@ -256,13 +256,14 @@ public static class BiologySupportEvaluator
 
     private static Biochemistry SelectBiochemistry(
         PlanetEnvironmentProfile environment,
+        LifePotentialModeling.Tuning lifeTuning,
         double permissiveness,
         out double bestScore)
     {
         Biochemistry bestChemistry = Biochemistry.None;
         bestScore = 0.0;
 
-        TryChemistry(Biochemistry.CarbonWater, ScoreCarbonWater(environment), 0.0, permissiveness, ref bestChemistry, ref bestScore);
+        TryChemistry(Biochemistry.CarbonWater, ScoreCarbonWater(environment, lifeTuning), 0.0, permissiveness, ref bestChemistry, ref bestScore);
         TryChemistry(Biochemistry.CarbonAmmonia, ScoreCarbonAmmonia(environment), 0.35, permissiveness, ref bestChemistry, ref bestScore);
         TryChemistry(Biochemistry.CarbonMethane, ScoreCarbonMethane(environment), 0.55, permissiveness, ref bestChemistry, ref bestScore);
         TryChemistry(Biochemistry.SulfurChemistry, ScoreSulfurChemistry(environment), 0.65, permissiveness, ref bestChemistry, ref bestScore);
@@ -303,7 +304,7 @@ public static class BiologySupportEvaluator
         }
     }
 
-    private static double ScoreCarbonWater(PlanetEnvironmentProfile environment)
+    private static double ScoreCarbonWater(PlanetEnvironmentProfile environment, LifePotentialModeling.Tuning lifeTuning)
     {
         bool hasSubsurfaceOcean = environment.IsMoon && environment.HasLiquidWater && environment.IceCoverage > 0.55;
         bool hasWaterWindow = environment.HasLiquidWater || environment.OceanCoverage > 0.02;
@@ -318,6 +319,12 @@ public static class BiologySupportEvaluator
             }
         }
 
+        // Heller and Barnes (2013), Kopparapu et al. (2013, 2014), Wordsworth and Kreidberg
+        // (2022), Luger and Barnes (2015), Lingam and Loeb (2018), and Olson et al. (2020)
+        // support the framework used here: liquid-water windows, subsurface-ocean protection,
+        // atmosphere and gravity retention, high-energy irradiation penalties, magnetic-field
+        // shielding, and solvent availability. Tuning: the trap edges and multipliers below are
+        // StarGen scoring weights rather than literature thresholds.
         double temperatureScore = Trap(environment.AvgTemperatureK, 215.0, 245.0, 315.0, 350.0);
         if (hasSubsurfaceOcean)
         {
@@ -369,6 +376,20 @@ public static class BiologySupportEvaluator
             solventScore = System.Math.Max(solventScore, 0.72);
         }
 
+        double darkBiosphereEnergyScore = 1.0;
+        if (hasSubsurfaceOcean
+            && lifeTuning.SubsurfaceHabitabilityModel == GenerationUseCaseSettings.SubsurfaceHabitabilityModelType.DarkBiosphereEnergyLimited)
+        {
+            double rockFluidInterface = Clamp01(environment.TidalHeatingFactor * 2.4);
+            double radiolyticEnergy = Clamp01((environment.RadiationLevel * 0.35) + (environment.IceCoverage * 0.45));
+            double serpentinizationProxy = Clamp01((environment.GravityG * 0.35) + (environment.VolcanismLevel * 0.45) + 0.20);
+            darkBiosphereEnergyScore = Clamp01(
+                (rockFluidInterface * 0.38)
+                + (radiolyticEnergy * 0.27)
+                + (serpentinizationProxy * 0.35));
+            darkBiosphereEnergyScore = Clamp01(0.45 + (darkBiosphereEnergyScore * lifeTuning.DarkBiosphereEnergyScale * 0.55));
+        }
+
         return temperatureScore
             * pressureScore
             * gravityScore
@@ -378,6 +399,7 @@ public static class BiologySupportEvaluator
             * orbitScore
             * tidalScore
             * magneticBonus
+            * darkBiosphereEnergyScore
             * Clamp01(solventScore);
     }
 
@@ -420,6 +442,10 @@ public static class BiologySupportEvaluator
             return 0.0;
         }
 
+        // Sulfur-bearing environments (Venus-Io-like windows) are treated as a speculative biochemistry branch
+        // without a tracked full-text source in `Sources/Texts/`. Tuning: the temperature, pressure, volcanism,
+        // radiation, XUV, and final `0.62` weight below are StarGen heuristics rather than published threshold
+        // values, and remain pending human verification in the end-to-end science audit.
         double volcanismScore = Clamp01((environment.VolcanismLevel * 0.85) + 0.15);
         double temperatureScore = Trap(environment.AvgTemperatureK, 290.0, 330.0, 430.0, 520.0);
         double pressureScore = Trap(environment.PressureAtm, 0.20, 0.90, 12.0, 55.0);
@@ -507,6 +533,11 @@ public static class BiologySupportEvaluator
         LifePotentialModeling.Tuning lifeTuning,
         LifeOpportunityState opportunityState)
     {
+        // Lineweaver and Davis (2002), Spiegel and Turner (2012), Rimmer et al. (2018), and
+        // Luger and Barnes (2015) support treating abiogenesis as a combination of chemistry,
+        // UV adequacy, environmental stability, and early desiccation risk rather than a single
+        // habitability scalar. Tuning: the lerps, exponents, and floors below are StarGen
+        // policy weights for that framework.
         double baseChance = Lerp(0.08, 0.96, permissiveness);
         double habitabilityExponent = Lerp(3.10, 0.55, permissiveness);
         double chance = baseChance * System.Math.Pow(chemistryScore, habitabilityExponent);
@@ -581,6 +612,10 @@ public static class BiologySupportEvaluator
         LifePotentialModeling.Tuning lifeTuning,
         LifeOpportunityState opportunityState)
     {
+        // Mills et al. (2024), Olson et al. (2020), Herbort et al. (2024), and Heller and
+        // Barnes (2013) support combining environmental persistence, nutrient access, shoreline
+        // structure, and protected biosphere channels when estimating complex-life support.
+        // Tuning: the exact weights below are StarGen synthesis coefficients.
         double ageFactor = CalculateAgeFactor(environment.StellarAgeYears, 0.9e9, 3.2e9, 0.78);
         double complexLifeBase = chemistryScore * ageFactor;
         complexLifeBase *= 0.78 + (0.22 * opportunityState.EnvironmentalWindow);
@@ -628,6 +663,10 @@ public static class BiologySupportEvaluator
             return 0.0;
         }
 
+        // Forgan and Rice (2010) and Balbi and Frank (2023) support treating sentience as a
+        // later-stage filter gated by long-lived complex biospheres, environmental context, and
+        // broad planetary opportunity rather than by habitability alone. Tuning: the age,
+        // land, nutrient, oxygen, and variability coefficients below are StarGen weights.
         double ageFactor = CalculateAgeFactor(environment.StellarAgeYears, 2.2e9, 4.8e9, 0.66);
         double dryLandFactor = 0.22 + (Clamp01(environment.LandCoverage) * 0.58);
         double climaticVariability = CalculateClimaticVariability(environment);
@@ -665,13 +704,22 @@ public static class BiologySupportEvaluator
             return 0.0;
         }
 
+        // Forgan and Rice (2010) and Balbi and Frank (2023) support civilization as a still
+        // narrower late-stage filter shaped by long time windows, land access, resources, and
+        // oxygenation context. Tuning: the exact age, land, resource, and oxygen coefficients
+        // below are StarGen civilization weights.
         double ageFactor = CalculateAgeFactor(environment.StellarAgeYears, 3.0e9, 6.2e9, 0.60);
         double landFactor = 0.20 + (Clamp01(environment.LandCoverage) * 0.60);
         double resourceFactor = 0.55 + (0.20 * environment.ResourceDiversity) + (0.25 * environment.ResourceRichness);
+        double biologicalOxygenSupport = CalculateBiologicalOxygenSupport(oxygenationChance, opportunityState);
         double oxygenFactor = 1.0;
-        if (lifeTuning.RequiresOxygenRichAtmosphereForCivilization && !environment.HasBreathableAtmosphere)
+        if (lifeTuning.RequiresOxygenRichAtmosphereForCivilization)
         {
-            if (environment.HasAtmosphere)
+            if (environment.HasBreathableAtmosphere)
+            {
+                oxygenFactor = 0.42 + (biologicalOxygenSupport * 0.58);
+            }
+            else if (environment.HasAtmosphere)
             {
                 oxygenFactor = 0.12 + (oxygenationChance * 0.25);
             }
@@ -679,6 +727,10 @@ public static class BiologySupportEvaluator
             {
                 oxygenFactor = 0.04;
             }
+        }
+        else if (environment.HasBreathableAtmosphere)
+        {
+            oxygenFactor = 0.78 + (biologicalOxygenSupport * 0.22);
         }
         else if (!environment.HasBreathableAtmosphere)
         {
@@ -694,6 +746,15 @@ public static class BiologySupportEvaluator
         civilizationChance *= lifeTuning.EnvironmentalWindowMultiplier;
         civilizationChance *= lifeTuning.CivilizationMultiplier;
         return Clamp01(civilizationChance);
+    }
+
+    private static double CalculateBiologicalOxygenSupport(
+        double oxygenationChance,
+        LifeOpportunityState opportunityState)
+    {
+        double falsePositivePenalty = 1.0 - (opportunityState.AbioticOxygenFalsePositiveRisk * 0.65);
+        double biosphereLinkedSupport = 0.25 + (oxygenationChance * 0.75);
+        return Clamp01(biosphereLinkedSupport * falsePositivePenalty);
     }
 
     private static double CalculateOxygenationChance(
@@ -742,6 +803,10 @@ public static class BiologySupportEvaluator
         double surfaceBiosphereChance,
         double protectedBiosphereChance)
     {
+        // Olson et al. (2020) support treating biosphere coverage as a function of solvent
+        // access, circulation, and environmental extent rather than only a binary life/no-life
+        // switch. Tuning: the chemistry-specific coverage multipliers below are StarGen
+        // heuristics for converting support into visible surface or protected coverage.
         double coverage = chemistryScore * Lerp(0.25, 0.95, permissiveness);
 
         if (chemistry == Biochemistry.CarbonWater)

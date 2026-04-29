@@ -1,0 +1,59 @@
+# HeEtAl2020
+
+## Source metadata
+- File: `HeEtAl2020.pdf`
+- Domain: planetary architecture/statistics
+- Pages: 49
+- Authors (auto-extracted — verify against PDF): ,1, 2, 3, 4 Eric B. Ford
+
+## Abstract
+The angular momentum deficit (AMD) of a planetary system is a measure of its orbital excitation and a predictor of long–term stability. We adopt the AMD–stability criteria to constrain the orbital architectures for exoplanetary systems. Previously, He, Ford, & Ragozzine (2019) showed through forward modeling (SysSim) that the observed multiplicity distribution can be well reproduced by two populations consisting of a low and a high mutual inclination component. Here, we show that a broad distribution of mutual inclinations arising from systems at the AMD–stability limit can also match the observed Kepler population. We show that distributing a planetary system’s maximum AMD amongst its planets results in a multiplicity–dependent distribution of eccentricities and mutual inclinations. Systems with intrinsically more planets have lower median eccentricities and mutual inclinations, and this trend is well described by power–law functions of the intrinsic planet multiplicity +0.11 +0.09 (n): µ̃e,n ∝ n−1.74−0.07 and µ̃i,n ∝ n−1.73−0.08 , where µ̃e,n and µ̃i,n are the medians of the eccentricity and inclination distributions. We also find that intrinsic single planets have higher eccentricities (σe,1 ∼ 0.25) than multi-planet systems, and that the trends with multiplicity appear in the observed distributions of period–normalized transit duration ratios. We show that the observed preferences for planet size orderings and uniform spacings are more extreme than what can be produced by the detection biases of the Kepler mission alone. Finally, we find that for systems with detected transiting planets between 5 and 10 days, there is another planet with a greater radial velocity sign
+
+## Major claims, findings, models, assumptions, and limitations
+*Human verification required before using quantitative values or model assumptions in
+StarGen defaults. Figures and equations not captured by text extraction — read the PDF
+for exact thresholds, fit coefficients, and table values.*
+
+- Primary domain: planetary architecture/statistics
+- See StarGen applicability section below for the specific implications.
+
+## StarGen applicability
+Multi-planet system spacing, multiplicity, and uniformity statistics. Constrains planet-number distribution and period-ratio spacings for system generation in StarGen.
+
+## Parameters, constraints, and mechanics implications
+*(Human action: fill in specific numeric values, distributions, model families, and
+classification boundaries extracted from the paper. Where competing models or confidence
+ranges exist, expose those as user-selectable assumptions rather than collapsing to a
+single default. Where the paper documents uncertainty, preserve it in StarGen rather
+than presenting false precision.)*
+
+## Works cited by this paper (auto-extracted from final pages, partial)
+- (Reference extraction incomplete — verify PDF.)
+
+## Opposing or alternative findings cited
+*(Human action: identify papers in the reference list that present opposing models,
+competing parameter choices, or significantly different results. Note the specific
+disagreement and its implication for which StarGen default to use.)*
+
+## APA citation
+*(Verify and complete — see AnnotatedBibliography.md for the curated APA entry.)*
+
+## Conflicts and follow-up work
+*(Human action: search for papers explicitly responding to, revising, or challenging
+this paper published after its date. For fast-moving fields (exoplanet demographics,
+habitability, JWST/TESS-informed work), treat results >3 years old as potentially
+superseded. Flag updates in Followup.md.)*
+
+
+## StarGen mechanics translation
+
+### Planetary architecture — period ratio uniformity and multiplicity
+Quantifies the 'peas in a pod' spacing uniformity in period ratios; adjacent planets
+show correlated period ratios and radii within systems.
+
+**StarGen planet spacing implementation:**
+- `PeriodRatioDistribution` — log-normal centred on ~1.5–2.0 with σ ≈ 0.3 in log space.
+- Intra-system correlation: draw first planet's properties, then subsequent planets from
+  a correlated distribution (not independent draws).
+- `IntraSystemCorrelationStrength` user lever: `Strong` (this paper) | `Independent`
+**Cross-references:** Rice2023.txt, FangMargot2013.txt, Petit2018.txt.

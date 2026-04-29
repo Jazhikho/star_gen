@@ -1,0 +1,130 @@
+# HuntVasiliev2025
+
+## Source metadata
+- File: `HuntVasiliev2025.pdf`
+- Domain: galactic dynamics / Gaia / Milky Way structure
+- Pages: 75
+- Authors: Hunt, J. A. S., & Vasiliev, E.
+  (Contact: j.a.hunt@surrey.ac.uk)
+- Source ID in StarGen code: `hunt2025`
+- **PDF acquisition:** PDF confirmed present in Sources/Texts/.
+  Verify journal (likely Annual Review of Astronomy and Astrophysics or similar
+  review journal), volume, doi, and arXiv ID against PDF.
+
+## Abstract
+The Gaia mission has triggered major developments in the field of Galactic dynamics in
+recent years, which we discuss in this review. The structure and kinematics of all Galactic
+components — disc, bar/bulge, and halo — are now mapped in great detail not only in the
+Solar neighbourhood, but across a large part of the Milky Way. The dramatic improvements
+in the coverage and precision of observations revealed various disequilibrium processes,
+such as perturbations in the Galactic disc and the deformations of the outer halo, which
+are partly attributed to the interaction with satellite galaxies. The knowledge of the
+gravitational potential at all scales has also advanced considerably, but we are still far
+from having a consistent view on the key properties of the Galaxy, such as the bar pattern
+speed or the mass profile and shape of the dark halo. The complexity and interplay of
+several dynamical processes makes the interpretation of observational data challenging,
+and it is fair to say that more theoretical effort is needed to fully reap the fruit of
+the Gaia revolution.
+
+## Major claims, findings, models, assumptions, and limitations
+- **Gaia revolution in Galactic dynamics:** Gaia provides full 6D phase-space information
+  for billions of stars, enabling detailed mapping of disk, bar/bulge, and halo kinematics
+  across the Galaxy — far beyond previous Solar-neighbourhood-limited studies.
+- **Disk disequilibrium:** The Galactic disk is not in a static equilibrium. Gaia reveals
+  phase-space spirals, moving groups, and corrugations in the disk — partly from
+  satellite galaxy interactions (Sagittarius passage) and partly from internal resonances
+  with the bar and spiral arms.
+- **Outer halo deformations:** The Gaia halo shows significant substructure (stellar
+  streams, shells, the "Gaia Sausage/Enceladus" merger remnant) and dynamical
+  disequilibrium in the outer halo due to past and ongoing satellite galaxy accretion.
+- **Bar pattern speed uncertain:** The Milky Way bar pattern speed is still debated.
+  Estimates range from ~35 to ~55 km/s/kpc; Gaia has narrowed but not fully resolved
+  this. The bar's corotation resonance location shifts significantly over this range.
+- **Dark halo mass profile uncertain:** Total MW mass estimates from Gaia range from
+  ~0.7×10¹² M⊙ to ~1.5×10¹² M⊙; the halo shape (oblate, prolate, triaxial) remains
+  contested.
+- **Limitation:** This is a review; specific quantitative values (pattern speed, halo mass,
+  velocity dispersion) have large uncertainties spanning the literature. StarGen should
+  treat these as ranges, not point estimates.
+- **Limitation:** Gaia's kinematic mapping covers primarily the disk and nearby halo.
+  The very outer halo (> 50 kpc) remains poorly constrained.
+
+## StarGen applicability
+Context paper for StarGen's **galactic-scale generator and sector/zone modeling**.
+Directly impacts:
+1. Stellar velocity dispersion by disk location (thin disk, thick disk, halo)
+2. Stellar stream and substructure acknowledgment in halo zones
+3. MW bar influence on stellar kinematics near the bar resonance radius
+4. Dark halo mass estimate for galactic potential (affects jump lane distances and
+   gravitational escape velocities at galactic scale)
+
+## Parameters, constraints, and mechanics implications
+
+**Galactic component kinematic parameters (approximate; see cited ranges):**
+```
+Component           | σ_R (km/s) | σ_z (km/s) | Notes
+--------------------|------------|------------|------------------------------
+Thin disk (young)   | ~20-30     | ~10-20     | Low velocity dispersion
+Thin disk (old)     | ~35-45     | ~20-30     | Age-velocity dispersion relation
+Thick disk          | ~55-65     | ~35-45     | [α/Fe] enhanced; old
+Halo (kinematic)    | ~100-140   | ~80-120    | Isotropic; low metallicity
+Bar region          | varies     | varies     | Non-circular orbits dominate
+```
+*Note: Verify exact values from Hunt & Vasiliev Tables/Figures — these are literature
+consensus ranges, not newly derived in this paper.*
+
+**Bar parameters (Milky Way):**
+```csharp
+// MW bar parameters (constrained but still uncertain as of 2025)
+// Pattern speed: 35–55 km/s/kpc → corotation radius: ~3–6 kpc
+// Bar half-length: ~3.5–5 kpc
+// Bar strength: see KhoperskovEtAl2024 (A₂ ≈ 0.35–0.60)
+double barPatternSpeedKmSKpc = 45.0;  // use midpoint; expose as tunable
+double barHalfLengthKpc = 4.2;
+```
+
+**Halo mass for galactic potential:**
+```csharp
+// MW virial mass range from Gaia constraints
+double mwHaloMassMin = 0.7e12;  // M_sun (lower bound from Gaia DR3 studies)
+double mwHaloMassMax = 1.5e12;  // M_sun (upper bound)
+double mwHaloMass = 1.0e12;     // default midpoint; expose as tunable in GHZ model
+```
+
+**User lever:** `GalacticKinematicsModel` (enum: HuntVasiliev2025 / BlandHawthornGerhard2016 / Simple)
+- HuntVasiliev2025: use Gaia-era velocity dispersion profiles with disk/halo components
+- BlandHawthornGerhard2016: use the 2016 review paper profiles (older but well-tested)
+- Simple: flat velocity dispersion by zone
+
+## APA citation
+Hunt, J. A. S., & Vasiliev, E. (2025). Milky Way dynamics in light of Gaia.
+New Astronomy Reviews, 100, 101721. https://doi.org/10.1016/j.newar.2025.101721
+
+## Conflicts and follow-up work
+
+**Related corpus papers:**
+- BlandHawthornGerhard2016.txt — The 2016 ARAA review of the Milky Way. Hunt & Vasiliev
+  (2025) is the updated successor addressing the post-Gaia era. Both should be in the
+  corpus; HuntVasiliev2025 supersedes BlandHawthornGerhard2016 where they overlap.
+- KhoperskovEtAl2024.txt — MW bar formation and strength; provides the quantitative
+  bar parameters that HuntVasiliev2025 uses as context.
+- Bovy2017.txt — Milky Way disk mass model; still relevant for disk surface density.
+
+## StarGen mechanics translation
+
+### Gaia-era galactic kinematic model
+HuntVasiliev2025 provides the context for StarGen's galactic-scale stellar kinematic
+model. The primary mechanical contribution is updated velocity dispersion profiles for
+thin disk, thick disk, and halo zones, and the acknowledgment that the disk is not in
+equilibrium (disequilibrium processes can produce unusual stellar kinematics in certain
+galactic zones near the bar resonance and in the outer halo).
+
+**Primary updates to StarGen galactic generator:**
+1. Distinguish thin disk (young, low σ), thin disk (old, moderate σ), thick disk (high σ),
+   and halo (very high σ) kinematic populations
+2. Bar resonance zones (near corotation radius ~3-6 kpc) have anomalous kinematics
+3. Outer halo sectors may contain stellar stream populations
+4. Expose MW halo mass as a tunable parameter (range: 0.7–1.5×10¹² M⊙)
+
+**Cross-references:** BlandHawthornGerhard2016.txt (predecessor review),
+KhoperskovEtAl2024.txt (bar parameters), Bovy2017.txt (disk mass model).

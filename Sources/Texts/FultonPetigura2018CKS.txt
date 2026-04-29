@@ -1,0 +1,62 @@
+# FultonPetigura2018CKS
+
+## Source metadata
+- File: `FultonPetigura2018CKS.pdf`
+- Domain: planet radius gap / stellar mass dependence
+- Authors (verify against PDF title page)
+
+## Abstract
+The distribution of planet sizes encodes details of planet formation and evolution. We present the most precise planet size distribution to date based on Gaia parallaxes, Kepler photometry, and spectroscopic temperatures from the California-Kepler Survey. Previously, we measured stellar radii to 11% precision using high-resolution spectroscopy; by adding Gaia astrometry, the errors are now 3%. Planet radius measurements are, in turn, improved to 5% precision. With a catalog of ∼1000 planets with precise properties, we probed in fine detail the gap in the planet size distribution that separates two classes of small planets, rocky super-Earths and gas-dominated sub-Neptunes. Our previous study and others suggested that the gap may be observationally under-resolved and inherently flat-bottomed, with a band of forbidden planet sizes. Analysis based on our new catalog refutes this; the gap is partially filled in. Two other important factors that sculpt the distribution are a planet’s orbital distance and its host star mass, both of which are related to a planet’s X-ray/UV irradiation history. For lower mass stars, the bimodal planet distribution shifts to smaller sizes, consistent with smaller stars producing smaller planet cores. Details of the size distribution including the extent of the ‘sub-Neptune desert’ and the width and slope of the gap support the view that photoevaporation of low-density atmospheres is the dominant evolutionary determinant of the planet size distribution. 1. INTRODUCTION NASA’s prime Kepler mission (2009–2013; Borucki et al. 2010; Borucki 2016) is continuing to revolutionize our understanding of planetary astrophysics. Kepler’s success flows from its near continuous high precision photometric monitoring of ∼150,000 stars over a four year mission. 
+
+## Major claims, findings, models, assumptions, and limitations
+*Human verification required before using quantitative values or model assumptions in
+StarGen defaults. Figures and equations not captured by text extraction — read the PDF
+for exact thresholds, fit coefficients, and table values.*
+
+- Primary domain: planet radius gap / stellar mass dependence
+- See StarGen applicability section below for the specific implications.
+
+## StarGen applicability
+Radius gap shifts to smaller sizes around lower-mass stars (d log Rp/d log M★ ≈ 0.25). Use to parameterise gap location as function of host-star mass in StarGen's atmospheric escape model.
+
+## Parameters, constraints, and mechanics implications
+*(Human action: fill in specific numeric values, distributions, model families, and
+classification boundaries extracted from the paper. Where competing models or confidence
+ranges exist, expose those as user-selectable assumptions rather than collapsing to a
+single default. Where the paper documents uncertainty, preserve it in StarGen rather
+than presenting false precision.)*
+
+## Works cited by this paper (auto-extracted from final pages, partial)
+- Planet Size [Earth radii]
+- 2.4 typical
+- Relative Occurrence
+- 2.4 typical
+- 3000 1000 300 100
+- 10 3000 1000 300 100
+- 10 3000 1000 300 100
+- Relative Occurrence
+- Planet Size [Earth radii]
+- Orbital period [days]
+- Stellar light intensity relative to Earth
+- Figure 9. Top row: the two-dimensional distribution of planet size and orbital period for three bins of stellar mass. The typical
+- SysSym code.
+- EAP acknowledges support from Hubble Fellowship
+- Telescope Science Institute, which is operated by the
+
+## Opposing or alternative findings cited
+*(Human action: identify papers in the reference list that present opposing models,
+competing parameter choices, or significantly different results. Note the specific
+disagreement and its implication for which StarGen default to use.)*
+
+## APA citation
+*(Verify and complete — see AnnotatedBibliography.md for the curated APA entry.)*
+
+## Conflicts and follow-up work
+*(Human action: search for papers explicitly responding to, revising, or challenging
+this paper published after its date. For fast-moving fields (exoplanet demographics,
+habitability, JWST/TESS-informed work), treat results >3 years old as potentially
+superseded. Flag updates in Followup.md.)*
+
+## StarGen mechanics translation
+
+*(See StarGen mechanics translation in this file — already handled above.)*

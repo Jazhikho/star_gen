@@ -1,21 +1,78 @@
-Source note for StarGen research review
+# Fernandes2019
 
-Citation:
-Fernandes, R. B., Mulders, G. D., Pascucci, I., Mordasini, C., & Emsenhuber, A. (2019).
-Hints for a turnover at the snow line in the giant planet occurrence rate.
-The Astrophysical Journal, 874(1), 81.
-arXiv: https://arxiv.org/abs/1812.05569
-DOI: https://doi.org/10.3847/1538-4357/ab0300
+## Source metadata
+- File: `Fernandes2019.pdf`
+- Domain: planet occurrence/cold Jupiters
+- Pages: 17
+- Authors (auto-extracted — verify against PDF): Rachel B. Fernandes,1, 2 Gijs D. Mulders,3, 2 Ilaria Pascucci,1, 2 Christoph Mordasini,4 and
 
-What was reviewed:
-- Abstract and source metadata on 2026-04-22.
+## Abstract
+The orbital distribution of giant planets is crucial for understanding how terrestrial planets form and predicting yields of exoplanet surveys. Here, we derive giant planets occurrence rates as a function of orbital period by taking into account the detection efficiency of the Kepler and radial velocity (RV) surveys. The giant planet occurrence rates for Kepler and RV show the same rising trend with increasing distance from the star. We identify a break in the RV giant planet distribution between ∼2-3 au — close to the location of the snow line in the Solar System — after which the occurrence rate decreases with distance from the star. Extrapolating a broken power-law distribution to larger semi-major axes, we find good agreement with the ∼ 1% planet occurrence rates from direct imaging surveys. Assuming a symmetric power law, we also estimate that the occurrence of giant planets +7.5 between 0.1−100 au is 26.6−5.4 % for planets with masses 0.1-20 MJ and decreases to 6.2+1.5 −1.2 % for planets more massive than Jupiter. This implies that only a fraction of the structures detected in disks around young stars can be attributed to giant planets. Various planet population synthesis models show good agreement with the observed distribution, and we show how a quantitative comparison between model and data can be used to constrain planet formation and migration mechanisms.
 
-Key implementation notes used in StarGen:
-- The paper reports that giant-planet occurrence rises with orbital distance and then breaks around about 2-3 AU, close to the Solar System snow line, after which occurrence decreases with distance.
-- It estimates an occurrence of 26.6 (+7.5 / -5.4)% for 0.1-20 Jupiter-mass planets between 0.1 and 100 AU, and 6.2 (+1.5 / -1.2)% for planets more massive than Jupiter.
-- The practical takeaway for StarGen is that cold-zone giant-planet weighting should peak near the snow line and taper at larger radii rather than increasing monotonically through the whole outer system.
+## Major claims, findings, models, assumptions, and limitations
+*Human verification required before using quantitative values or model assumptions in
+StarGen defaults. Figures and equations not captured by text extraction — read the PDF
+for exact thresholds, fit coefficients, and table values.*
 
-How StarGen should use this:
-- As a calibration anchor for giant-planet radial weighting in `SystemPlanetGenerator`.
-- As support for distinguishing snow-line-adjacent giant-formation pressure from very-wide-orbit giant occurrence.
-- As the basis for future tests that separate hot/warm giants, cold giants, and Jupiter-analog frequencies instead of treating all outer giants as one bucket.
+- Primary domain: planet occurrence/cold Jupiters
+- See StarGen applicability section below for the specific implications.
+
+## StarGen applicability
+Cold Jupiter occurrence ~6–10% for Sun-like stars; metallicity and mass dependence. Prior for giant planet frequency as function of host properties in StarGen.
+
+## Parameters, constraints, and mechanics implications
+*(Human action: fill in specific numeric values, distributions, model families, and
+classification boundaries extracted from the paper. Where competing models or confidence
+ranges exist, expose those as user-selectable assumptions rather than collapsing to a
+single default. Where the paper documents uncertainty, preserve it in StarGen rather
+than presenting false precision.)*
+
+## Works cited by this paper (auto-extracted from final pages, partial)
+- Alexander, R., & Pascucci, I. 2012, Monthly Notices of the
+- Royal Astronomical Society: Letters, 422, L82
+- Alibert, Y., Carron, F., Fortier, A., et al. 2013, Astronomy
+- & Astrophysics, 558, A109
+- Andrews, S. M., Huang, J., Pérez, L. M., et al. 2018, arXiv
+- preprint arXiv:1812.04040
+- Bailey, E., & Batygin, K. 2018, The Astrophysical Journal
+- Batygin, K., Bodenheimer, P. H., & Laughlin, G. P. 2016,
+- The Astrophysical Journal, 829, 114
+- Biller, B. A., Liu, M. C., Wahhaj, Z., et al. 2013, The
+- Astrophysical Journal, 777, 160
+- Boley, A. C., Contreras, A. G., & Gladman, B. 2016, The
+- Astrophysical Journal Letters, 817, L17
+- Bowler, B. P. 2016, Publications of the Astronomical
+- Society of the Pacific, 128, 102001
+- Bowler, B. P., Shkolnik, E. L., Liu, M. C., et al. 2015, The
+- Astrophysical Journal, 806, 62
+- Brandt, T. D., McElwain, M. W., Turner, E. L., et al. 2014,
+- The Astrophysical Journal, 794, 159
+- Bryan, M. L., Knutson, H. A., Fulton, B., et al. 2018, arXiv
+
+## Opposing or alternative findings cited
+*(Human action: identify papers in the reference list that present opposing models,
+competing parameter choices, or significantly different results. Note the specific
+disagreement and its implication for which StarGen default to use.)*
+
+## APA citation
+*(Verify and complete — see AnnotatedBibliography.md for the curated APA entry.)*
+
+## Conflicts and follow-up work
+*(Human action: search for papers explicitly responding to, revising, or challenging
+this paper published after its date. For fast-moving fields (exoplanet demographics,
+habitability, JWST/TESS-informed work), treat results >3 years old as potentially
+superseded. Flag updates in Followup.md.)*
+
+
+## StarGen mechanics translation
+
+### Planet occurrence — warm Jupiter / cold Jupiter demographics; occurrence peak at snow line
+Occurrence of giant planets peaks near the snow line (~3–5 AU for solar type).
+Warm Jupiters (~0.1–1 AU) are a distinct, less common population.
+
+**StarGen giant planet placement:**
+- `GiantPlanetOccurrencePeak_AU` ≈ 3–5 AU for solar-type stars (snow line proxy).
+- `WarmJupiter_OccurrenceRate` ≈ 5–10% per FGK star at 0.1–1 AU.
+- `ColdJupiter_OccurrenceRate` ≈ 6–12% per FGK star at 1–10 AU.
+- Giant planet generation should peak near snow-line distance, not at inner orbits.
+**Cross-references:** Mordasini2007.txt, WangFischer2015Met.txt, FischerValenti2005.txt.

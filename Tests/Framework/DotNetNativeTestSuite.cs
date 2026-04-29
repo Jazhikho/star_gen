@@ -157,6 +157,18 @@ public static partial class DotNetNativeTestSuite
             "TestSuiteIntegrity::test_no_blatant_fake_pass_assertions",
             Tests.Quality.TestSuiteIntegrity.TestNoBlatantFakePassAssertions);
         runner.RunNativeTest(
+            "TestEndToEndScienceAudit::test_first_pass_artifacts_and_inline_comments_exist",
+            Tests.Quality.TestEndToEndScienceAudit.TestFirstPassArtifactsAndInlineCommentsExist);
+        runner.RunNativeTest(
+            "TestScienceTuningRegistry::test_registry_entries_have_controls_and_citations",
+            Tests.Quality.TestScienceTuningRegistry.TestRegistryEntriesHaveControlsAndCitations);
+        runner.RunNativeTest(
+            "TestScienceTuningRegistry::test_source_acquisition_metadata_used_by_new_controls_is_explicit",
+            Tests.Quality.TestScienceTuningRegistry.TestSourceAcquisitionMetadataUsedByNewControlsIsExplicit);
+        runner.RunNativeTest(
+            "TestScienceTuningRegistry::test_science_catalog_parameters_have_registry_and_help_coverage",
+            Tests.Quality.TestScienceTuningRegistry.TestScienceCatalogParametersHaveRegistryAndHelpCoverage);
+        runner.RunNativeTest(
             "DotNetNativeTestSuite::test_star_generator_deterministic_same_seed",
             TestStarGeneratorDeterministicSameSeed);
         runner.RunNativeTest(
@@ -324,6 +336,12 @@ public static partial class DotNetNativeTestSuite
         runner.RunNativeTest(
             "TestCometGenerator::test_long_period_preset_biases_outer_orbit",
             Tests.Unit.TestCometGenerator.TestLongPeriodPresetBiasesOuterOrbit);
+        runner.RunNativeTest(
+            "TestCometGenerator::test_bauer_jupiter_family_model_uses_small_nucleus_prior",
+            Tests.Unit.TestCometGenerator.TestBauerJupiterFamilyModelUsesSmallNucleusPrior);
+        runner.RunNativeTest(
+            "TestCometGenerator::test_legacy_comet_model_keeps_wide_range_available",
+            Tests.Unit.TestCometGenerator.TestLegacyCometModelKeepsWideRangeAvailable);
         runner.RunNativeTest(
             "TestAtmosphereProps::test_default_values",
             Tests.Unit.TestAtmosphereProps.TestDefaultValues);

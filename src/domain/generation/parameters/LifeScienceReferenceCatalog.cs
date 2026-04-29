@@ -67,8 +67,16 @@ public static class LifeScienceReferenceCatalog
             "https://arxiv.org/abs/2408.10293"),
         ["balbi2023"] = new LifeScienceSource(
             "balbi2023",
-            "Balbi et al. (2023), oxygen-rich conditions may be an important bottleneck for technological civilizations.",
+            "Balbi and Frank (2023), oxygen-rich conditions may support technological civilizations when the atmospheric context makes biological oxygen plausible.",
             "https://arxiv.org/abs/2308.01160"),
+        ["escuderoetal2023"] = new LifeScienceSource(
+            "escuderoetal2023",
+            "Escudero et al. (2023), subsurface habitability depends on liquid water plus chemical energy and rock-fluid interfaces.",
+            "Sources/Texts/EscuderoEtAl2023.txt"),
+        ["hellerbarnes2013"] = new LifeScienceSource(
+            "hellerbarnes2013",
+            "Heller and Barnes (2013), moon habitability depends on illumination and tidal heating limits.",
+            "https://arxiv.org/abs/1209.5323"),
     };
 
     private static readonly List<LifeScienceParameterReference> ParameterReferences = new()
@@ -87,12 +95,20 @@ public static class LifeScienceReferenceCatalog
             new[] { "mills2024", "forganrice2010", "lineweaverdavis2002", "spiegelturner2012" }),
         new LifeScienceParameterReference(
             "civilization_model",
-            "This sets the extra bottlenecks between a sentient lineage and a technological civilization.\nRare Civilizations keeps advanced societies uncommon even when life exists.\nTechnosphere Oxygen Bottleneck makes oxygen-rich atmospheres more important at that late stage.",
+            "This sets the extra bottlenecks between a sentient lineage and a technological civilization.\nRare Civilizations keeps advanced societies uncommon even when life exists.\nTechnosphere Oxygen Bottleneck makes biologically plausible oxygen-rich atmospheres more important at that late stage without making them a universal gate.",
             new[] { "forganrice2010", "balbi2023" }),
         new LifeScienceParameterReference(
             "environmental_window_weight",
             "This controls how strongly long stable habitable windows matter.\nHigher weights reward worlds with long calm climates, moderate radiation, and durable surface habitability more strongly.",
             new[] { "mills2024" }),
+        new LifeScienceParameterReference(
+            "subsurface_habitability_model",
+            "This selects how protected subsurface oceans are scored.\nProtected Ocean Proxy keeps the current water-and-shielding rule.\nDark Biosphere Energy Limited additionally requires a deterministic proxy for rock-fluid interfaces, radiolytic energy, and serpentinization potential.",
+            new[] { "escuderoetal2023", "hellerbarnes2013" }),
+        new LifeScienceParameterReference(
+            "dark_biosphere_energy_scale",
+            "This slider scales the dark-biosphere chemical-energy proxy after the selected subsurface model.\nUse it for continuous uncertainty; it does not make subsurface oceans automatically inhabited.",
+            new[] { "escuderoetal2023" }),
     };
 
     private static readonly List<string> PanelSourceIds = new()
@@ -103,6 +119,8 @@ public static class LifeScienceReferenceCatalog
         "forganrice2010",
         "mills2024",
         "balbi2023",
+        "escuderoetal2023",
+        "hellerbarnes2013",
     };
 
     public static string GetTooltipSummary(string parameterId)
@@ -125,6 +143,16 @@ public static class LifeScienceReferenceCatalog
         }
 
         return reference.SourceIds;
+    }
+
+    public static IReadOnlyList<LifeScienceParameterReference> GetParameterReferences()
+    {
+        return ParameterReferences;
+    }
+
+    public static IReadOnlyList<string> GetHelpPanelSourceIds()
+    {
+        return PanelSourceIds;
     }
 
     public static LifeScienceSource? GetSource(string sourceId)
@@ -229,6 +257,12 @@ public static class LifeScienceReferenceCatalog
             "Rare Complex Life",
             "Assume microbes may be common but complex life needs unusually favorable conditions.",
             "Biospheres still happen, but complex ecosystems and civilizations become much rarer because the later filters stay tight.");
+
+        AppendGuideSection(
+            builder,
+            "Subsurface Dark Biospheres",
+            "Assume protected oceans need more than liquid water alone.",
+            "The dark-biosphere model keeps subsurface protection but also scores rock-fluid interface, radiolytic energy, and serpentinization proxies. This produces a separate documented path for protected microbial biospheres without claiming a calibrated biosphere simulator. [Escudero et al.; Heller & Barnes]");
 
         builder.AppendLine("[b][color=#f0c46a]What StarGen actually does with this[/color][/b]");
         builder.AppendLine("1. It separates biosphere support, abiogenesis, complex life, sentient lineages, and technological civilizations.");

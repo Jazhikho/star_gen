@@ -1,15 +1,61 @@
-Rimmer, P. B., Xu, J., Thompson, S. J., Gillen, E., Sutherland, J. D., & Queloz, D. (2018).
-The origin of RNA precursors on exoplanets.
-PubMed PMID: 30083602
-https://pubmed.ncbi.nlm.nih.gov/30083602/
+# Rimmer2018
 
-Why this source matters for StarGen
-- This paper links one experimentally motivated prebiotic pathway to the stellar ultraviolet environment instead of treating abiogenesis as equivalent to generic surface habitability.
-- It introduces an "abiogenesis zone" framing that is narrower than the liquid-water habitable zone for the specific chemistry studied.
+## Source metadata
+- File: `Rimmer2018.pdf`
+- Domain: UV / abiogenesis zone
+- Pages: 48
+- Authors (auto-extracted — verify against PDF): Paul B. Rimmer1,2∗
 
-How it is used
-- Supports adding a distinct prebiotic-UV or abiogenesis-opportunity channel in StarGen's life model.
-- Supports keeping abiogenesis separate from long-term biosphere persistence and complex-life filters.
+## Abstract
+photochemically in the presence of ultraviolet (UV) light, we identify some general constraints on which stars produce sufficient UV for this photochemistry. We estimate how much light is needed for the UV photochemistry by experimentally measuring the rate constant for the UV chemistry (‘light chemistry’, Dozens of exoplanets have been found within the liquid water habitable zones of their host
 
-Human review notes
-- This does not prove all life needs the same UV environment; use it as evidence that abiogenesis opportunity should not be modeled as habitability alone.
+## Major claims, findings, models, assumptions, and limitations
+*Human verification required before using quantitative values or model assumptions in
+StarGen defaults. Figures and equations not captured by text extraction — read the PDF
+for exact thresholds, fit coefficients, and table values.*
+
+- Primary domain: UV / abiogenesis zone
+- See StarGen applicability section below for the specific implications.
+
+## StarGen applicability
+UV surface flux threshold for cyanosulfidic prebiotic chemistry; defines an abiogenesis zone. M dwarfs may be UV-quiet enough to inhibit this chemistry pathway — relevant to life-origin probability flags in StarGen.
+
+## Parameters, constraints, and mechanics implications
+*(Human action: fill in specific numeric values, distributions, model families, and
+classification boundaries extracted from the paper. Where competing models or confidence
+ranges exist, expose those as user-selectable assumptions rather than collapsing to a
+single default. Where the paper documents uncertainty, preserve it in StarGen rather
+than presenting false precision.)*
+
+## Works cited by this paper (auto-extracted from final pages, partial)
+- (Reference extraction incomplete — verify PDF.)
+
+## Opposing or alternative findings cited
+*(Human action: identify papers in the reference list that present opposing models,
+competing parameter choices, or significantly different results. Note the specific
+disagreement and its implication for which StarGen default to use.)*
+
+## APA citation
+*(Verify and complete — see AnnotatedBibliography.md for the curated APA entry.)*
+
+## Conflicts and follow-up work
+*(Human action: search for papers explicitly responding to, revising, or challenging
+this paper published after its date. For fast-moving fields (exoplanet demographics,
+habitability, JWST/TESS-informed work), treat results >3 years old as potentially
+superseded. Flag updates in Followup.md.)*
+
+
+## StarGen mechanics translation
+
+### UV prebiotic chemistry / M-dwarf habitability (origin-of-life context)
+Quantifies UV flux threshold needed for cyanosulfidic prebiotic chemistry. M-dwarfs
+often fall below this threshold, disfavouring abiogenesis via this pathway.
+
+**StarGen implication (abiogenesis probability flag):**
+- Compute UV_surface flux from stellar spectrum + atmospheric transmission.
+- Flag `AbiogenesisPathwayUV = plausible` if UV_surface ≥ threshold (paper Table 1).
+- M-dwarfs with quiescent UV spectra default to `AbiogenesisPathwayUV = unlikely`
+  unless user overrides.
+- NOTE: This flag does not gate life presence (life maintenance ≠ OOL); used as
+  optional metadata only.
+**Cross-references:** LugerBarnes2015.txt, Ribas2015.txt, Kopparapu2013.txt.

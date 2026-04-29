@@ -1,0 +1,77 @@
+# Petit2020
+
+## Source metadata
+- File: `Petit2020.pdf`
+- Domain: orbital stability / AMD extended
+- Pages: 23
+- Authors (auto-extracted — verify against PDF): Antoine C. Petit1,2 , Gabriele Pichierri3 , Melvyn B. Davies1 , and Anders Johansen1
+
+## Abstract
+The dynamical stability of tightly packed exoplanetary systems remains poorly understood. While a sharp stability boundary exists for a two-planet system, numerical simulations of three-planet systems and higher show that they can experience instability on timescales up to billions of years. Moreover, an exponential trend between the planet orbital separation measured in units of Hill radii and the survival time has been reported. While these findings have been observed in numerous numerical simulations, little is known of the actual mechanism leading to instability. Contrary to a constant diffusion process, planetary systems seem to remain dynamically quiescent for most of their lifetime before a very short unstable phase. In this work, we show how the slow chaotic diffusion due to the overlap of three-body resonances dominates the timescale leading to the instability for initially coplanar and circular orbits. While the last instability phase is related to scattering due to two-planet mean motion resonances (MMRs), for circular orbits the twoplanets MMRs are too far separated to destabilise systems initially away from them. The studied mechanism reproduces the qualitative behaviour found in numerical simulations very well. We develop an analytical model to generalise the empirical trend obtained for equal-mass and equally spaced planets to general systems on initially circular orbits. We obtain an analytical estimate of the survival time consistent with numerical simulations over four orders of magnitude for the planet-to-star-mass ratio ε, and 6 to 8 orders of magnitude for the instability time. We also confirm that measuring the orbital spacing in terms of Hill radii 
+
+## Major claims, findings, models, assumptions, and limitations
+*Human verification required before using quantitative values or model assumptions in
+StarGen defaults. Figures and equations not captured by text extraction — read the PDF
+for exact thresholds, fit coefficients, and table values.*
+
+- Primary domain: orbital stability / AMD extended
+- See StarGen applicability section below for the specific implications.
+
+## StarGen applicability
+Extended AMD-stability for multi-planet systems. Updates Petit2018 — apply to compact system validation in StarGen.
+
+## Parameters, constraints, and mechanics implications
+*(Human action: fill in specific numeric values, distributions, model families, and
+classification boundaries extracted from the paper. Where competing models or confidence
+ranges exist, expose those as user-selectable assumptions rather than collapsing to a
+single default. Where the paper documents uncertainty, preserve it in StarGen rather
+than presenting false precision.)*
+
+## Works cited by this paper (auto-extracted from final pages, partial)
+- Batygin, K., Morbidelli, A., & Holman, M. J. 2015, ApJ, 799, 120
+- Borodin, A. N., & Salminen, P. 2002, Handbook of Brownian Motion - Facts and
+- Formulae, Probability and Its Applications (Basel: Birkhäuser Basel)
+- Borucki, W. J., Koch, D. G., Basri, G., et al. 2011, ApJ, 736, 19
+- Cachucho, F., Cincotta, P. M., & Ferraz-Mello, S. 2010, Celest. Mech. Dyn.
+- Chambers, J., Wetherill, G., & Boss, A. 1996, Icarus, 119, 261
+- Charalambous, C., Martí, J. G., Beaugé, C., & Ramos, X. S. 2018, MNRAS, 477,
+- Chatzigeorgiou, I. 2013, IEEE Commun. Lett., 17, 1505
+- Chirikov, B. V. 1979, Phys. Rep., 52, 263
+- Cincotta, P. M. 2002, New Astron. Rev., 46, 13
+- Cincotta, P. M., Efthymiopoulos, C., Giordano, C. M., & Mestre, M. F. 2014,
+- Phys. D Nonlinear Phenomena, 266, 49
+- Corless, R. M., Gonnet, G. H., Hare, D. E. G., Jeffrey, D. J., & Knuth, D. E.
+- 1996, Adv. Comput. Math., 5, 329
+- Deck, K. M., Payne, M., & Holman, M. J. 2013, ApJ, 774, 129
+- Delisle, J.-B. 2017, A&A, 605, A96
+- Deprit, A. 1969, Celest. Mech., 1, 12
+- Faber, P., & Quillen, A. C. 2007, MNRAS, 382, 1823
+- Fabrycky, D. C., Lissauer, J. J., Ragozzine, D., et al. 2014, ApJ, 790, 146
+- Fang, J., & Margot, J.-L. 2012, ApJ, 761, 92
+
+## Opposing or alternative findings cited
+*(Human action: identify papers in the reference list that present opposing models,
+competing parameter choices, or significantly different results. Note the specific
+disagreement and its implication for which StarGen default to use.)*
+
+## APA citation
+*(Verify and complete — see AnnotatedBibliography.md for the curated APA entry.)*
+
+## Conflicts and follow-up work
+*(Human action: search for papers explicitly responding to, revising, or challenging
+this paper published after its date. For fast-moving fields (exoplanet demographics,
+habitability, JWST/TESS-informed work), treat results >3 years old as potentially
+superseded. Flag updates in Followup.md.)*
+
+
+## StarGen mechanics translation
+
+### AMD stability — extension and refinements
+Extends Petit2018 AMD framework to handle resonant chains and near-resonant systems.
+
+**StarGen implementation:**
+- Use Petit2018 as base AMD filter; apply Petit2020 corrections for:
+  - Near-resonant planet pairs (period ratio within 5% of simple integer ratios)
+  - Systems with AMD close to the critical value (borderline cases)
+- `ResonanceCorrection = Petit2020` flag in stability filter.
+**Cross-references:** Petit2018.txt, Tamayo2020.txt.

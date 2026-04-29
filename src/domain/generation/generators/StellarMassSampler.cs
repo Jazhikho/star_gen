@@ -78,6 +78,10 @@ public static class StellarMassSampler
 
     private static double ApplyUniversalContextBias(double massSolar, GalaxyOriginContext context)
     {
+        // Li et al. (2023) argue that stellar mass-function shape varies with metallicity and
+        // population age, so young and low-metallicity populations can skew toward higher
+        // characteristic masses than older, metal-richer ones. Tuning: the additive shifts and
+        // final clamp below are StarGen context weights, not directly fitted literature values.
         double massShift = 1.0;
 
         if (context.AgeCohort == GalaxyAgeCohort.Young)
@@ -108,6 +112,9 @@ public static class StellarMassSampler
 
     private static double ApplyMetallicityAgeModulation(double massSolar, GalaxyOriginContext context)
     {
+        // Li et al. (2023) provide the framework for metallicity- and age-dependent IMF
+        // variation. Tuning: the low-Z, high-Z, young, and ancient modulation coefficients
+        // below are compact StarGen approximations for that trend rather than a direct IMF fit.
         double massShift = 1.0;
 
         if (context.MetallicityPrior < 0.7)

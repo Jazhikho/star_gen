@@ -1,0 +1,78 @@
+# FangMargot2013
+
+## Source metadata
+- File: `FangMargot2013.pdf`
+- Domain: planetary architecture/mutual inclinations
+- Pages: 8
+- Authors (auto-extracted — verify against PDF): (see PDF)
+
+## Abstract
+We used a sample of Kepler candidate planets with orbital periods less than 200 days and radii between
+
+## Major claims, findings, models, assumptions, and limitations
+*Human verification required before using quantitative values or model assumptions in
+StarGen defaults. Figures and equations not captured by text extraction — read the PDF
+for exact thresholds, fit coefficients, and table values.*
+
+- Primary domain: planetary architecture/mutual inclinations
+- See StarGen applicability section below for the specific implications.
+
+## StarGen applicability
+Kepler multi-planet mutual inclinations mostly <5°. Constrains inclination distribution (Rayleigh, σ~1–2°) for multi-planet generation in StarGen.
+
+## Parameters, constraints, and mechanics implications
+*(Human action: fill in specific numeric values, distributions, model families, and
+classification boundaries extracted from the paper. Where competing models or confidence
+ranges exist, expose those as user-selectable assumptions rather than collapsing to a
+single default. Where the paper documents uncertainty, preserve it in StarGen rather
+than presenting false precision.)*
+
+## Works cited by this paper (auto-extracted from final pages, partial)
+- Barnes, R., Goździewski, K., & Raymond, S. N. 2008, ApJ, 680, L57
+- Barnes, R. & Greenberg, R. 2007, ApJ, 665, L67
+- Barnes, R. & Quinn, T. 2004, ApJ, 611, 494
+- Batalha, N. M., Rowe, J. F., Bryson, S. T., Barclay, T., Burke, C. J.,
+- Caldwell, D. A., Christiansen, J. L., Mullally, F., Thompson, S. E.,
+- Brown, T. M., Dupree, A. K., Fabrycky, D. C., Ford, E. B., Fortney, J. J.,
+- Gilliland, R. L., Isaacson, H., Latham, D. W., Marcy, G. W., Quinn, S.,
+- Ragozzine, D., Shporer, A., Borucki, W. J., Ciardi, D. R., Gautier, III,
+- T. N., Haas, M. R., Jenkins, J. M., Koch, D. G., Lissauer, J. J., Rapin, W.,
+- Basri, G. S., Boss, A. P., Buchhave, L. A., Charbonneau, D.,
+- Christensen-Dalsgaard, J., Clarke, B. D., Cochran, W. D., Demory, B.-O.,
+- Devore, E., Esquerdo, G. A., Everett, M., Fressin, F., Geary, J. C.,
+- Girouard, F. R., Gould, A., Hall, J. R., Holman, M. J., Howard, A. W.,
+- Howell, S. B., Ibrahim, K. A., Kinemuchi, K., Kjeldsen, H., Klaus, T. C.,
+- Li, J., Lucas, P. W., Morris, R. L., Prsa, A., Quintana, E., Sanderfer, D. T.,
+- Sasselov, D., Seader, S. E., Smith, J. C., Steffen, J. H., Still, M., Stumpe,
+- M. C., Tarter, J. C., Tenenbaum, P., Torres, G., Twicken, J. D., Uddin, K.,
+- Van Cleve, J., Walkowicz, L., & Welsh, W. F. 2012, ArXiv e-prints
+- Batygin, K. & Laughlin, G. 2008, ApJ, 683, 1207
+- Carter, J. A., Agol, E., Chaplin, W. J., Basu, S., Bedding, T. R., Buchhave,
+
+## Opposing or alternative findings cited
+*(Human action: identify papers in the reference list that present opposing models,
+competing parameter choices, or significantly different results. Note the specific
+disagreement and its implication for which StarGen default to use.)*
+
+## APA citation
+*(Verify and complete — see AnnotatedBibliography.md for the curated APA entry.)*
+
+## Conflicts and follow-up work
+*(Human action: search for papers explicitly responding to, revising, or challenging
+this paper published after its date. For fast-moving fields (exoplanet demographics,
+habitability, JWST/TESS-informed work), treat results >3 years old as potentially
+superseded. Flag updates in Followup.md.)*
+
+
+## StarGen mechanics translation
+
+### Planetary system inclination distribution / mutual inclinations
+Kepler multi-planet systems show low mutual inclinations: Rayleigh distribution with
+σ ≈ 1–2° for the bulk of the population; a second, high-inclination population exists.
+
+**StarGen inclination implementation:**
+- `MutualInclinationModel = Rayleigh`
+- `Rayleigh_sigma_deg` = 1.5 (default for compact multi-planet systems)
+- Two-component model: ~80% of systems at σ ≈ 1.5°, ~20% at σ ≈ 10° (dynamically hot).
+- Apply to orbital plane assignment of each planet relative to first planet's plane.
+**Cross-references:** HeEtAl2020.txt, Rice2023.txt, Petit2018.txt.

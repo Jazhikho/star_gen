@@ -1,0 +1,168 @@
+# End-to-End Scientific Grounding Audit
+
+Date: `2026-04-23`
+
+This tracked document supersedes the earlier worktree-only draft under `.claude/worktrees/.../Docs/EndToEndScienceAudit.md` and is now the repository source of truth for the end-to-end science-grounding pass.
+
+Purpose: trace generator-internal numeric claims that materially shape galaxy, stellar, planetary, and life outputs; distinguish literature-backed framework from StarGen tuning; and record which first-pass gaps are still blocked pending human-reviewed source verification.
+
+This audit complements [ScientificParameterAudit.md](ScientificParameterAudit.md), which covers the exposed science-parameter surface. This file goes one layer deeper into internal constants and formulas.
+
+Important: every new source note, bibliography addition, and inline citation added in this first pass is an AI-assisted draft and remains pending human verification. Nothing here should be treated as authoritative until a human reviewer confirms the underlying source text, per [AI-Use-Statement.md](../AI-Use-Statement.md) and [Sources/SourceReviewProcedure.md](../Sources/SourceReviewProcedure.md).
+
+---
+
+## Status meanings
+
+- `blocked on source acquisition`: no reviewed source text has been added yet, so the claim stays open.
+- `source reviewed`: a source note has been added to `Sources/Texts`, but the relevant code site is not yet inline-cited.
+- `inline-cited (human verification pending)`: the code site now carries an APA-style framework comment plus an explicit tuning note, but a human still needs to verify the source note and bibliography entry.
+
+---
+
+## First-pass scope
+
+This first remediation pass is intentionally limited to the audit's explicit `needs source` items that were called out for immediate closure work:
+
+- Galaxy morphology claims in `GalaxyRealismProfileBuilder`
+- Stellar lifetime exponents in `StellarIsochroneApproximator`
+- Migration-framework claim in `PlanetarySystemState`
+- Sulfur-chemistry claim in `BiologySupportEvaluator`
+
+Broader `citeable` cleanup remains future work.
+
+---
+
+## First-pass gap status
+
+| Gap | File | Current status | First-pass disposition |
+|---|---|---|---|
+| Bar strength coefficient | `src/domain/galaxy/GalaxyRealismProfileBuilder.cs` | `inline-cited (human verification pending)` | Framework comment now points to Diaz-Garcia et al. (2016); exact `0.35 + 0.60 * BulgeToTotal` scaling is explicitly labeled StarGen tuning. |
+| Intermediate elliptical Sersic band | `src/domain/galaxy/GalaxyRealismProfileBuilder.cs` | `inline-cited (human verification pending)` | Framework comment now points to Kormendy et al. (2009); exact `3.2 + rand * 1.2` range is explicitly labeled StarGen tuning. |
+| Giant elliptical Sersic band | `src/domain/galaxy/GalaxyRealismProfileBuilder.cs` | `inline-cited (human verification pending)` | Framework comment now points to Kormendy et al. (2009); exact `4.0 + rand * 1.5` range is explicitly labeled StarGen tuning. |
+| Stellar lifetime exponents | `src/domain/generation/generators/StellarIsochroneApproximator.cs` | `inline-cited (human verification pending)` | Framework comment now points to Hurley et al. (2000); the piecewise `2.1 / 2.5 / 2.9` exponents are explicitly labeled StarGen tuning. |
+| Type-I migration framework surrogate | `src/domain/generation/PlanetarySystemState.cs` | `inline-cited (human verification pending)` | Framework comment now points to Tanaka, Takeuchi, and Ward (2002); the composite migration weights remain explicit StarGen tuning. |
+| Sulfur-chemistry support window | `src/domain/population/BiologySupportEvaluator.cs` | `inline-cited (human verification pending)` | Inline comment documents a speculative sulfur branch without a Springer book citation; the sulfur temperature/pressure thresholds and multiplier remain explicit StarGen tuning pending a replaceable peer-reviewed primary source. |
+| Exotic chemistry anchor system | `src/domain/population/BiologySupportEvaluator.cs` | `blocked on source acquisition` | No reviewed source note was added in this pass, so the broader exotic-anchor system remains open. |
+
+---
+
+## First-pass artifacts
+
+- Audit queue updates: [Sources/ToReview.md](../Sources/ToReview.md)
+- Draft source notes: `Sources/Texts/DiazGarcia2016.txt`, `Hurley2000.txt`, `Kormendy2009.txt`, and `TanakaTakeuchiWard2002.txt`
+- Bibliography tracking: [Sources/AnnotatedBibliography.md](../Sources/AnnotatedBibliography.md)
+- Inline-code traceability:
+  - [GalaxyRealismProfileBuilder.cs](../src/domain/galaxy/GalaxyRealismProfileBuilder.cs)
+  - [StellarIsochroneApproximator.cs](../src/domain/generation/generators/StellarIsochroneApproximator.cs)
+  - [PlanetarySystemState.cs](../src/domain/generation/PlanetarySystemState.cs)
+  - [BiologySupportEvaluator.cs](../src/domain/population/BiologySupportEvaluator.cs)
+- Regression guard: [TestEndToEndScienceAudit.cs](../Tests/Quality/TestEndToEndScienceAudit.cs)
+
+---
+
+## Notes for human review
+
+- The new source-note files are deliberately conservative: they support the surrounding scientific framework, not every coefficient.
+- Where the reviewed literature supports a qualitative or family-level claim but not the exact numeric weight, the code comments now say so directly with `Tuning:` language.
+- If human review determines that any cited framework is too weak or the comment is still overstated, narrow the code comment and this audit wording rather than silently leaving a stronger claim in place.
+
+---
+
+## Second-pass inline citation sweep
+
+The broader source-backed inline-citation sweep now covers additional reviewed-source comments in:
+
+- `src/domain/galaxy/SpiralDensityModel.cs`
+- `src/domain/system/StellarConfigGenerator.cs`
+- `src/domain/generation/generators/StellarMassSampler.cs`
+- `src/domain/generation/PlanetarySystemState.cs`
+- `src/domain/system/SystemPlanetGenerator.cs`
+- `src/domain/population/BiologySupportEvaluator.cs`
+
+This pass used only sources that already existed in `Sources/Texts` at the start of the sweep or had already been promoted in the first pass. The 2026-04-24 Balbi feedback follow-up changed only the civilization oxygen-support scalar so abiotic oxygen false-positive risk now discounts otherwise breathable atmosphere support.
+
+## Source-acquisition batch for one-pass human review
+
+To avoid forcing two separate human review rounds, the unsupported or not-yet-localized anchors needed for future closure work were gathered into one source batch. These draft notes are now queued together in [Sources/ToReview.md](../Sources/ToReview.md):
+
+- `Sources/Texts/Bains2004.txt`
+- `Sources/Texts/Behroozi2019.txt`
+- `Sources/Texts/BlandHawthornGerhard2016.txt` (promoted by 2026-04-24 human feedback)
+- `Sources/Texts/Chabrier2003.txt`
+- `Sources/Texts/Choi2016.txt`
+- `Sources/Texts/Conselice2014.txt`
+- `Sources/Texts/DucheneKraus2013.txt`
+- `Sources/Texts/Hayden2014.txt`
+- `Sources/Texts/Kennicutt1998.txt`
+- `Sources/Texts/Kroupa2001.txt`
+- `Sources/Texts/Raghavan2010.txt`
+- `Sources/Texts/WeggGerhard2013.txt`
+
+Except for the Bland-Hawthorn and Gerhard (2016) note promoted by 2026-04-24 human feedback, these are still draft source notes. Human verification is required before any remaining draft notes are treated as reviewed or used to close audit gaps.
+
+## Workstream B demographics intake (2026-04-26)
+
+Draft source notes and local arXiv PDFs were added for TESS / Gaia-era exoplanet demographics and architecture correlation:
+
+- `Sources/Texts/CuiEtAl2026.txt` (+ `CuiEtAl2026.pdf`)
+- `Sources/Texts/MentCharbonneau2023.txt` (+ `MentCharbonneau2023.pdf`)
+- `Sources/Texts/WanderleyEtAl2025.txt` (+ `WanderleyEtAl2025.pdf`)
+- `Sources/Texts/GillisEtAl2026.txt` (+ `GillisEtAl2026.pdf`)
+- `Sources/Texts/VanZandtEtAl2025.txt` (+ `VanZandtEtAl2025.pdf`)
+
+Each note includes a **Models vs refinements** section for humans to decide whether tensions between Ment & Charbonneau (2023), Wanderley et al. (2025), and Gillis et al. (2026) are competing astrophysics or selection-function refinements before any `SystemPlanetGenerator` or benchmark retuning. See also [WorkstreamB_ExoplanetDemographicsSources.md](../Sources/WorkstreamB_ExoplanetDemographicsSources.md).
+
+## Workstreams C through K source intake (2026-04-26)
+
+Draft source notes and local PDFs (arXiv or open-access MDPI) were added for the gap-closure plan workstreams **C** through **K** in [SourceRecencyGapClosurePlan.md](../Sources/SourceRecencyGapClosurePlan.md):
+
+- **C (HZ rocky yield):** `Sources/Texts/KunimotoEtAl2022.txt` (+ `KunimotoEtAl2022.pdf`)
+- **D (atmosphere loss / JWST-era framing):** `Sources/Texts/ChatterjeeEtAl2026.txt` (+ `ChatterjeeEtAl2026.pdf`)
+- **E (moons):** `Sources/Texts/NakajimaEtAl2022.txt` (+ `NakajimaEtAl2022.pdf`)
+- **F (small bodies):** `Sources/Texts/KavelaarsEtAl2023.txt` (+ `KavelaarsEtAl2023.pdf`)
+- **G (galaxy morphology):** `Sources/Texts/KhoperskovEtAl2024.txt`, `Sources/Texts/HuntVasiliev2025.txt` (+ matching PDFs)
+- **H (orbital stability):** `Sources/Texts/HeEtAl2020.txt`, `Sources/Texts/ObertasTamayo2023.txt` (+ matching PDFs)
+- **I (stellar IMF maintenance):** `Sources/Texts/ChabrierLenoble2023.txt` (+ `ChabrierLenoble2023.pdf`)
+- **J (planet-conditioned populations — design only):** `Sources/Texts/KarakatsanisMamassis2023.txt` (+ `KarakatsanisMamassis2023.pdf`) — Earth-history energy and carrying-capacity framing; not a direct exoplanet calibration; human audit required before any production population scoring.
+- **K (astrobiology / alternative biochemistry):** `Sources/Texts/BainsEtAl2024.txt` (+ `BainsEtAl2024.pdf`); `AnnotatedBibliography.md` now also indexes existing `Sources/Texts/Bains2004.txt` under a dedicated subsection.
+
+### Workstreams C–K second anchor batch (2026-04-26)
+
+Additional **AI-assisted draft** notes and arXiv PDFs bring each letter toward **multiple anchors** and name **competing model families** inside each `Texts/*.txt` *Models vs refinements* block (for example C1/C2/C4, D1/D2/D4, E1–E3, F1–F3, G1–G3, H1–H3, I1–I3, J1/J2, K1–K3):
+
+- **C:** `BergstenEtAl2023.txt`, `LuquePalle2022.txt` (alongside existing `Bryson2021.txt`, `KunimotoEtAl2022.txt`)
+- **D:** `VissapragadaEtAl2022.txt`, `BiassoniEtAl2023.txt` (alongside `ChatterjeeEtAl2026.txt` and existing Owen/Ginzburg notes)
+- **E:** `BenistyEtAl2021.txt`, `MalamudPerets2019.txt` (alongside `NakajimaEtAl2022.txt` and existing Ronnet/Sasaki/Szulagyi notes)
+- **F:** `NapierEtAl2023.txt`, `BernardinelliEtAl2022.txt` (alongside `KavelaarsEtAl2023.txt`)
+- **G:** `GarmaOehmichenEtAl2022.txt` (alongside `KhoperskovEtAl2024.txt`, `HuntVasiliev2025.txt`)
+- **H:** `FangMargot2013.txt` (alongside `HeEtAl2020.txt`, `ObertasTamayo2023.txt`, AMD draft batch)
+- **I:** `StevensonEtAl2023.txt` (alongside `ChabrierLenoble2023.txt` and existing `Li2023.txt`, `Kirkpatrick2024.txt`)
+- **J:** `HamiltonEtAl2016.txt` (alongside `KarakatsanisMamassis2023.txt`)
+- **K:** `PetkowskiEtAl2020.txt` (alongside `Bains2004.txt`, `BainsEtAl2024.txt`, `KrissansenTotton2018.txt`)
+
+## Human feedback disposition 2026-04-24
+
+| Source | Current implementation match | Remaining gap |
+|---|---|---|
+| Balbi and Frank (2023) | `BiologySupportEvaluator` already carries early-desiccation risk, prebiotic-UV adequacy, oxygenation chance, biosignature detectability, and abiotic-O2 false-positive risk. This pass also makes high abiotic-O2 risk reduce civilization support even when `HasBreathableAtmosphere` is true. | `PlanetAtmosphereGenerator` still does not emit explicit atmosphere-regime or early-water-loss provenance tags before assigning O2/N2/CO2/H2O/H/He/tenuous/silicate outcomes. |
+| Bland-Hawthorn and Gerhard (2016), local shorthand `Bland2016` / `BlandHawthornGerhard2016` | Current spiral density code uses the paper only as broad support for disk, bulge, and bar framing. The source note and bibliography now record the broader parameter schema identified in human review. | Most listed Milky-Way parameters are not represented as first-class fields: long-bar geometry, pattern speed/corotation, nuclear cluster/disk, thin/thick disk separation, baryon fraction, rotation-curve decomposition, stellar/dark/hot-gas halo, and local mass-budget calibration. Treat this as a future galaxy-realism calibration effort rather than a closed implementation. |
+
+## Source grounding cleanup 2026-04-24
+
+This pass tightened source status without broadly retuning generators. Local PDFs remain ignored acquisition artifacts; committed artifacts are text source notes, bibliography/review updates, provenance, and source-quality tests.
+
+| Domain | Status | Follow-up |
+|---|---|---|
+| Galaxy schema | Bland-Hawthorn and Gerhard (2016) is reviewed but underutilized. Current code uses broad disk/bulge/bar framing, not the paper's full Milky-Way parameter schema. | Decide which long-bar, nuclear, thin/thick disk, baryon, halo, rotation-curve, and local mass-budget fields become first-class schema. |
+| Mass-radius | Chen and Kipping (2017) is reviewed but underutilized. Current code uses a deterministic midpoint approximation, not the full probabilistic broken-power-law model. | Add deterministic seeded sampling, intrinsic dispersion, and Terran/Neptunian/Jovian class probabilities. |
+| Moon formation | Canup and Ward (2006) was dropped from the annotated bibliography after PDF access was withdrawn. Ronnet (2020), Sasaki (2010), and Szulagyi (2018) remain draft replacement notes pending human verification. | Refine gas-giant and ice-giant moon-system architecture after source review. |
+| Orbital stability | The fixed `10 mutual Hill radii` minimum remains a StarGen heuristic. New Laskar/Petit/Obertas/Tamayo/Rice/Outland notes are draft inputs, not accepted support for the current multiplier. | Choose a stability model beyond fixed adjacent spacing, or explicitly retune the heuristic after review. |
+| Technology/governance | Chowdhury, Comin/Mestieri, and Stokey notes are documentation-only anchors for future law/technology models. | Separate legal restriction, enforcement reach, state capacity, invention, diffusion, adoption lag, and adoption intensity in a future model. |
+
+## Next closure targets
+
+- Human verification of the full batched source-note set so the first-pass and second-pass audit additions can be reviewed in one sitting
+- Promotion of verified batch sources into precise bibliography coverage where needed
+- Follow-up closure of the still-open exotic-chemistry anchor system after the batched source review determines whether the current branch should stay speculative-framework-only or be narrowed further
+- Galaxy-realism follow-up for Bland-Hawthorn and Gerhard (2016): decide which Milky-Way analogue parameters should become schema fields, which should remain documentation-only, and which need additional non-Milky-Way comparison sources before generator use

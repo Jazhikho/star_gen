@@ -211,6 +211,30 @@ public static class TestBiologySupportEvaluator
     }
 
     /// <summary>
+    /// Tests that the dark-biosphere model makes subsurface chemical energy a material setting.
+    /// </summary>
+    public static void TestDarkBiosphereEnergyScaleChangesSubsurfaceSupport()
+    {
+        PlanetEnvironmentProfile icyMoon = CreateIcyOceanMoon();
+        icyMoon.TidalHeatingFactor = 0.32;
+        icyMoon.GravityG = 0.20;
+        icyMoon.HabitableZoneAlignment = 0.18;
+        GenerationUseCaseSettings lowEnergy = GenerationUseCaseSettings.CreateDefault();
+        lowEnergy.SubsurfaceHabitabilityModel = GenerationUseCaseSettings.SubsurfaceHabitabilityModelType.DarkBiosphereEnergyLimited;
+        lowEnergy.DarkBiosphereEnergyScale = 0.35;
+        GenerationUseCaseSettings highEnergy = GenerationUseCaseSettings.CreateDefault();
+        highEnergy.SubsurfaceHabitabilityModel = GenerationUseCaseSettings.SubsurfaceHabitabilityModelType.DarkBiosphereEnergyLimited;
+        highEnergy.DarkBiosphereEnergyScale = 1.75;
+
+        BiologySupportEvaluator.Assessment lowAssessment = BiologySupportEvaluator.Evaluate(icyMoon, lowEnergy);
+        BiologySupportEvaluator.Assessment highAssessment = BiologySupportEvaluator.Evaluate(icyMoon, highEnergy);
+
+        DotNetNativeTestSuite.AssertTrue(
+            highAssessment.BiosphereSuitability > lowAssessment.BiosphereSuitability,
+            $"Dark-biosphere energy scale should change subsurface support | low={lowAssessment.BiosphereSuitability:0.000} high={highAssessment.BiosphereSuitability:0.000}");
+    }
+
+    /// <summary>
     /// Tests that strong XUV and weak protection increase desiccation risk and suppress abiogenesis.
     /// </summary>
     public static void TestHighXuvRaisesDesiccationRiskAndSuppressesAbiogenesis()
@@ -254,6 +278,38 @@ public static class TestBiologySupportEvaluator
         DotNetNativeTestSuite.AssertTrue(
             assessment.OxygenationChance < assessment.SurfaceBiosphereChance,
             $"Oxygenation should remain a later bottleneck than surface biosphere support | oxygenation={assessment.OxygenationChance:0.000} surface={assessment.SurfaceBiosphereChance:0.000}");
+    }
+
+    /// <summary>
+    /// Tests that breathable atmospheres with strong abiotic oxygen risk do not fully support civilization odds.
+    /// </summary>
+    public static void TestAbioticOxygenRiskDiscountsCivilizationSupport()
+    {
+        PlanetEnvironmentProfile biologicalOxygenWorld = CreatePrimeSentientWorld();
+        PlanetEnvironmentProfile abioticRiskWorld = CreatePrimeSentientWorld();
+        abioticRiskWorld.XuvExposure = 1.35;
+        abioticRiskWorld.PressureAtm = 0.55;
+        abioticRiskWorld.OceanCoverage = 0.05;
+        abioticRiskWorld.LandCoverage = 0.92;
+        abioticRiskWorld.IceCoverage = 0.0;
+        abioticRiskWorld.MagneticFieldStrength = 0.02;
+        abioticRiskWorld.HasMagneticField = false;
+
+        GenerationUseCaseSettings bottleneckSettings = CreateLifeSettings(
+            GenerationUseCaseSettings.AbiogenesisModelType.Conservative,
+            GenerationUseCaseSettings.ComplexLifeModelType.EarthAnchoredComposite,
+            GenerationUseCaseSettings.CivilizationModelType.TechnosphereOxygenBottleneck,
+            GenerationUseCaseSettings.EnvironmentalWindowWeightType.Moderate);
+
+        BiologySupportEvaluator.Assessment biologicalAssessment = BiologySupportEvaluator.Evaluate(biologicalOxygenWorld, bottleneckSettings);
+        BiologySupportEvaluator.Assessment abioticRiskAssessment = BiologySupportEvaluator.Evaluate(abioticRiskWorld, bottleneckSettings);
+
+        DotNetNativeTestSuite.AssertTrue(
+            abioticRiskAssessment.AbioticOxygenFalsePositiveRisk > biologicalAssessment.AbioticOxygenFalsePositiveRisk,
+            $"Abiotic-risk world should expose higher oxygen false-positive risk | biological={biologicalAssessment.AbioticOxygenFalsePositiveRisk:0.000} abiotic={abioticRiskAssessment.AbioticOxygenFalsePositiveRisk:0.000}");
+        DotNetNativeTestSuite.AssertTrue(
+            biologicalAssessment.CivilizationChance > abioticRiskAssessment.CivilizationChance,
+            $"Abiotic oxygen risk should discount civilization support even when the atmosphere is flagged breathable | biological={biologicalAssessment.CivilizationChance:0.000} abiotic={abioticRiskAssessment.CivilizationChance:0.000}");
     }
 
     private static PlanetEnvironmentProfile CreateTemperateWaterWorld()

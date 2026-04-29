@@ -1,0 +1,75 @@
+# Yang2014
+
+## Source metadata
+- File: `Yang2014.pdf`
+- Domain: habitable zone / cloud + rotation-rate effects
+- Authors (verify against PDF title page)
+
+## Abstract
+Planetary rotation rate is a key parameter in determining atmospheric circulation and hence the spatial pattern of clouds. Since clouds can exert a dominant control on planetary radiation balance, rotation rate could be critical for determining mean planetary climate. Here we investigate this idea using a three-dimensional general circulation model with a sophisticated cloud scheme. We find that slowly rotating planets (like Venus) can maintain an Earth-like climate at nearly twice the stellar flux as rapidly rotating planets (like Earth). This suggests that many exoplanets previously believed to be too hot may actually be habitable, depending on their rotation rate. The explanation for this behavior is that slowly rotating planets have a weak Coriolis force and long daytime illumination, which promotes strong convergence and convection in the substellar region. This produces a large area of optically thick clouds, which greatly increases the planetary albedo. In contrast, on rapidly rotating planets a much narrower belt of clouds form in the deep tropics, leading to a relatively low albedo. A particularly striking example of the importance of rotation rate suggested by our simulations is that a planet with modern Earth’s atmosphere, in Venus’ orbit, and with modern Venus’ (slow) rotation rate would be habitable. This would imply that if Venus went through a runaway greenhouse, it had a higher rotation rate at that time. Subject headings: astrobiology – planets and satellites: atmospheres – planets and satellites: detection 1. INTRODUCTION It is traditional to define the habitable zone based on whether liquid water can be maintained on a planet’s surface, which is primarily controlled by the planet’s surface temperature (Kasting et al. 1993, 2014). Accurate estimates of
+
+## Major claims, findings, models, assumptions, and limitations
+*Human verification required before using quantitative values or model assumptions in
+StarGen defaults. Figures and equations not captured by text extraction — read the PDF
+for exact thresholds, fit coefficients, and table values.*
+
+- Primary domain: habitable zone / cloud + rotation-rate effects
+- See StarGen applicability section below for the specific implications.
+
+## StarGen applicability
+Slowly rotating planets maintain Earth-like climate up to nearly 2× the stellar flux of rapidly rotating planets due to dayside cloud feedback. Rotation rate is a lever on inner HZ boundary in StarGen.
+
+## Parameters, constraints, and mechanics implications
+*(Human action: fill in specific numeric values, distributions, model families, and
+classification boundaries extracted from the paper. Where competing models or confidence
+ranges exist, expose those as user-selectable assumptions rather than collapsing to a
+single default. Where the paper documents uncertainty, preserve it in StarGen rather
+than presenting false precision.)*
+
+## Works cited by this paper (auto-extracted from final pages, partial)
+- Dependence of the HZ on Planetary Rotation Rate
+- Fig. 2.— Differences in clouds and atmospheric circulation between rapidly (left) and slowly (right) rotating planets with an orbital
+- 3D model. Our main conclusion is that for all stellar
+- For most of the results presented below we use the
+- Community Atmosphere Model version 3.1 (CAM3,
+- Collins et al. 2004), which is a 3D atmospheric general
+- National Center for Atmospheric Research to simulate
+- Compared to CAM3, CAM4 has a revised deep convection scheme and a similar cloud scheme. The default
+- CO2 =400 ppmv and CH4 =1 ppmv. We set geothermal
+- We run CAM3 at a horizontal resolution of 3.75◦ ×3.75◦
+- In our simulations where we change the rotation rate
+- Porb = 225 days, Prot = −243 days (retrograde rotation),
+- Yang, Boué, Fabrycky, & Abbot, ApJL, 2014
+- Fig. 3.— Habitable zone boundaries as a function of stellar type and planetary rotation rate for a 1D radiative-convective model and
+- 1D inner edge (runaway greenhouse, Kopparapu et al. 2013); black line: the 3D inner edge for rapidly rotating planets in CAM3 (rotation
+
+## Opposing or alternative findings cited
+*(Human action: identify papers in the reference list that present opposing models,
+competing parameter choices, or significantly different results. Note the specific
+disagreement and its implication for which StarGen default to use.)*
+
+## APA citation
+*(Verify and complete — see AnnotatedBibliography.md for the curated APA entry.)*
+
+## Conflicts and follow-up work
+*(Human action: search for papers explicitly responding to, revising, or challenging
+this paper published after its date. For fast-moving fields (exoplanet demographics,
+habitability, JWST/TESS-informed work), treat results >3 years old as potentially
+superseded. Flag updates in Followup.md.)*
+
+## StarGen mechanics translation
+
+### Habitable zone inner edge — rotation-rate and cloud correction
+Slowly rotating planets can be habitable at up to ~2× the stellar flux of rapidly
+rotating ones, due to a thick dayside cloud deck (substellar anvil cloud mechanism).
+
+**StarGen HZ correction (rotation-rate lever):**
+- `RotationRateClass` enum: `Rapid` (Earth-like, P_rot < ~10 days) | `Slow`
+  (Venus-like, tidally locked, P_rot > ~100 days) | `Intermediate`
+- Inner HZ scaling factor vs Kopparapu2013:
+  - Rapid: ×1.0 (no correction)
+  - Slow: inner HZ flux limit increases ×~1.9 (planet is habitable much closer)
+  - Tidally locked (M-dwarf default): use Slow approximation as lower bound.
+- Apply when: stellar_type is M or K, and planet period < synchronisation threshold.
+**User lever:** `RotationRateModel` — `Yang2014CloudCorrection` | `Kopparapu2013NoClouds`
+**Cross-references:** Kopparapu2013.txt, LugerBarnes2015.txt, Turbet2023Followup.txt.

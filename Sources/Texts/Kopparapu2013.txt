@@ -1,21 +1,69 @@
-Source note for StarGen research review
+# Kopparapu2013
 
-Citation:
-Kopparapu, R. K., Ramirez, R., Kasting, J. F., Eymet, V., Robinson, T. D., Mahadevan, S., Terrien, R. C., Domagal-Goldman, S., Meadows, V., & Deshpande, R. (2013).
-Habitable zones around main-sequence stars: New estimates.
-The Astrophysical Journal, 765(2), 131.
-arXiv: https://arxiv.org/abs/1301.6674
-DOI: https://doi.org/10.1088/0004-637X/765/2/131
+## Source metadata
+- File: `Kopparapu2013.pdf`
+- Domain: habitable zone / updated estimates
+- Pages: 41
+- Authors (auto-extracted — verify against PDF): Ravi kumar Kopparapu1,2,3,4 , Ramses Ramirez1,2,3,4 , James F. Kasting1,2,3,4 , Vincent; Eymet5 , Tyler D. Robinson2,6,7 Suvrath Mahadevan4,8 Ryan C. Terrien4,8 Shawn
 
-What was reviewed:
-- Abstract and source metadata on 2026-04-22.
-- Existing StarGen documentation already cited this paper for the updated cloud-free main-sequence habitable-zone limits.
+## Abstract
+Identifying terrestrial planets in the habitable zones (HZs) of other stars is one of the primary goals of ongoing radial velocity and transit exoplanet surveys and proposed future space missions. Most current estimates of the boundaries of the HZ are based on 1-D, cloud-free, climate model calculations by Kasting et al. (1993). However, this model used band models which were based on older HITRAN and HITEMP line-by-line databases. The inner edge of the HZ in Kasting et al. (1993) model was determined by loss of water, and the outer edge was determined by the maximum greenhouse provided by a CO2 atmosphere. A conservative estimate for the width of the HZ from this model in our Solar system is 0.95-1.67 AU. Here, an updated 1-D radiative-convective, cloud-free climate model is used to obtain new estimates for HZ widths around F, G, K and M stars. New H2 O and CO2 absorption coefficients, derived from the HITRAN 2008 and HITEMP 2010 line-by-line databases, are important improvements to the climate model. According to the new model, the water loss (inner HZ) and maximum greenhouse
 
-Key implementation notes used in StarGen:
-- The paper updates the classical habitable-zone limits with improved H2O and CO2 absorption data.
-- The conservative cloud-free solar anchors move to about 0.99 AU and 1.70 AU.
-- The paper also supports using broader empirical Recent Venus and Early Mars bounds as an optimistic habitable-zone framing.
+## Major claims, findings, models, assumptions, and limitations
+*Human verification required before using quantitative values or model assumptions in
+StarGen defaults. Figures and equations not captured by text extraction — read the PDF
+for exact thresholds, fit coefficients, and table values.*
 
-How StarGen uses this:
-- As the academic basis for the `Kopparapu2013Conservative` and `Kopparapu2013Optimistic` habitable-zone model options.
-- As the default circumstellar habitable-zone family used by new system and galaxy generation profiles.
+- Primary domain: habitable zone / updated estimates
+- See StarGen applicability section below for the specific implications.
+
+## StarGen applicability
+Updated HZ using HITRAN 2008/HITEMP 2010: Solar conservative HZ 0.99–1.70 AU; parametric fit for Teff 2600–7200 K. Primary HZ calculation reference in StarGen. Note: no cloud radiative effects included.
+
+## Parameters, constraints, and mechanics implications
+*(Human action: fill in specific numeric values, distributions, model families, and
+classification boundaries extracted from the paper. Where competing models or confidence
+ranges exist, expose those as user-selectable assumptions rather than collapsing to a
+single default. Where the paper documents uncertainty, preserve it in StarGen rather
+than presenting false precision.)*
+
+## Works cited by this paper (auto-extracted from final pages, partial)
+- (Reference extraction incomplete — verify PDF.)
+
+## Opposing or alternative findings cited
+*(Human action: identify papers in the reference list that present opposing models,
+competing parameter choices, or significantly different results. Note the specific
+disagreement and its implication for which StarGen default to use.)*
+
+## APA citation
+*(Verify and complete — see AnnotatedBibliography.md for the curated APA entry.)*
+
+## Conflicts and follow-up work
+*(Human action: search for papers explicitly responding to, revising, or challenging
+this paper published after its date. For fast-moving fields (exoplanet demographics,
+habitability, JWST/TESS-informed work), treat results >3 years old as potentially
+superseded. Flag updates in Followup.md.)*
+
+
+## StarGen mechanics translation
+
+### Habitable zone boundaries — primary StarGen reference (HZModel = Kopparapu2013)
+Cloud-free 1D radiative-convective model; HITRAN 2008 / HITEMP 2010 line databases.
+
+**Parametric fit for StarGen (from Table 1 / Eq. 4 in paper):**
+- HZ_inner (Recent Venus): S_eff = 1.7763; T★ coefficients from Table 1.
+- HZ_inner (Runaway Greenhouse): S_eff = 1.0512 (solar)
+- HZ_inner (Moist Greenhouse): S_eff = 1.0140 (solar)
+- HZ_outer (Maximum Greenhouse): S_eff = 0.3438 (solar)
+- HZ_outer (Early Mars): S_eff = 0.3179
+- Conservative HZ (solar): 0.99–1.70 AU
+- Valid stellar T★ range: 2600–7200 K
+- Polynomial: S_eff(T★) = S_eff_sun + a·T + b·T² + c·T³ + d·T⁴ where T = T★ − 5780
+
+**HZModel enum entry:** `Kopparapu2013` (default for HardSF / Realistic modes)
+**HZ variants to expose:** Conservative (MoistGreenhouse–MaxGreenhouse) and Optimistic
+(RecentVenus–EarlyMars).
+**User lever:** `HZModel`, `HZVariant` (Conservative | Optimistic)
+**Limitation:** Cloud-free; clouds can extend HZ. See Yang2014.txt for rotation-rate
+cloud correction. Note: no planet-mass dependence — see Kopparapu2014.txt for that.
+**Cross-references:** Kopparapu2014.txt, Kasting1993.txt, Yang2014.txt.

@@ -1,0 +1,58 @@
+# DiazGarcia2016
+
+## Source metadata
+- File: `DiazGarcia2016.pdf`
+- Domain: galaxy morphology/bar fraction
+- Pages: 39
+- Authors (auto-extracted — verify against PDF): S. Díaz-García1 , H. Salo1 , E. Laurikainen1, 2 , and M. Herrera-Endoqui1
+
+## Abstract
+Context. Stellar bars play an essential role in the secular evolution of disk galaxies because they are responsible for the redistribution of matter and angular momentum. Dynamical models predict that bars become stronger and longer in time, while their rotation speed slows down. Aims. We use the Spitzer Survey of Stellar Structure in Galaxies (S4 G) 3.6 µm imaging to study the properties (length and strength) and fraction of bars at z = 0 over a wide range of galaxy masses (M∗ ≈ 108 − 1011 M ) and Hubble types (−3 ≤ T ≤ 10). Methods. We calculated gravitational forces from the 3.6 µm images for galaxies with a disk inclination lower than 65◦ . We used the maximum of the tangential-to-radial force ratio in the bar region (Qb ) as a measure of the bar-induced perturbation strength for a sample of ∼ 600 barred galaxies. We also used the maximum of the normalized m=2 Fourier density amplitude (Amax 2 ) and the bar isophotal ellipticity (ε) to characterize the bar. Bar sizes were estimated i) visually, ii) from ellipse fitting, iii) from the radii of the strongest torque, and iv) from the radii of the largest m=2 Fourier amplitude in the bar region. By combining our force calculations with the H i kinematics from the literature, we estimated the ratio of the halo-to-stellar mass (Mh /M∗ ) within the optical disk and by further using the universal rotation curve models, we obtained a first-order model of the rotation curve decomposition of 1128 disk galaxies. Results. We probe possible sources of uncertainty in our Qb measurements: the assumed scale height and its radial variation, the influence of the spiral arms torques, the effect of non-stellar emission in the bar region, 
+
+## Major claims, findings, models, assumptions, and limitations
+*Human verification required before using quantitative values or model assumptions in
+StarGen defaults. Figures and equations not captured by text extraction — read the PDF
+for exact thresholds, fit coefficients, and table values.*
+
+- Primary domain: galaxy morphology/bar fraction
+- See StarGen applicability section below for the specific implications.
+
+## StarGen applicability
+Bar fraction and properties across galaxy types. Relevant to galactic-bar generation — bar presence/absence, length, and strength as functions of galaxy morphological type.
+
+## Parameters, constraints, and mechanics implications
+*(Human action: fill in specific numeric values, distributions, model families, and
+classification boundaries extracted from the paper. Where competing models or confidence
+ranges exist, expose those as user-selectable assumptions rather than collapsing to a
+single default. Where the paper documents uncertainty, preserve it in StarGen rather
+than presenting false precision.)*
+
+## Works cited by this paper (auto-extracted from final pages, partial)
+- (Reference extraction incomplete — verify PDF.)
+
+## Opposing or alternative findings cited
+*(Human action: identify papers in the reference list that present opposing models,
+competing parameter choices, or significantly different results. Note the specific
+disagreement and its implication for which StarGen default to use.)*
+
+## APA citation
+*(Verify and complete — see AnnotatedBibliography.md for the curated APA entry.)*
+
+## Conflicts and follow-up work
+*(Human action: search for papers explicitly responding to, revising, or challenging
+this paper published after its date. For fast-moving fields (exoplanet demographics,
+habitability, JWST/TESS-informed work), treat results >3 years old as potentially
+superseded. Flag updates in Followup.md.)*
+
+
+## StarGen mechanics translation
+
+### Galactic bar morphology — external galaxies reference sample
+Characterises bar lengths, strengths, and ellipticities in a sample of nearby galaxies.
+Used as prior when placing generated galaxies or parameterising the StarGen galaxy model.
+
+**StarGen external galaxy generation:**
+- `BarStrength` distribution from this paper's sample (Fourier A₂ amplitude).
+- `BarLengthFraction` (bar length / disk scale length): median ~0.5–0.8 for barred spirals.
+- Apply when generating a non-Milky-Way galaxy's bar properties.
+**Cross-references:** WeggGerhard2013.txt, BlandHawthornGerhard2016.txt.

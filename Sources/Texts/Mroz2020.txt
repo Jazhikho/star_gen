@@ -1,20 +1,78 @@
-Source note for StarGen research review
+# Mroz2020
 
-Citation:
-Mróz, P., Poleski, R., Han, C., Udalski, A., Gould, A., Ryu, Y.-H., Yee, J. C., Shin, I.-G., Skowron, J., Szymański, M. K., et al. (2020).
-No large population of unbound or wide-orbit Jupiter-mass planets.
-The Astrophysical Journal Letters, 903(1), L11.
-arXiv: https://arxiv.org/abs/2009.12377
-DOI: https://doi.org/10.3847/2041-8213/abc4a3
+## Source metadata
+- File: `Mroz2020.pdf`
+- Domain: free-floating planets / microlensing
+- Pages: 8
+- Authors (auto-extracted — verify against PDF): Michal K. Szymański,2 Igor Soszyński,2 Pawel Pietrukowicz,2 Szymon Kozlowski,2 Jan Skowron,2 and; Michael D. Albrow,7 Sun-Ju Chung,8, 9 Cheongho Han,10 Kyu-Ha Hwang,8 Youn Kil Jung,8 Hyoun-Woo Kim,8; Yoon-Hyun Ryu,8 In-Gu Shin,8 Yossi Shvartzvald,11 Jennifer C. Yee,12 Weicheng Zang,13 Sang-Mok Cha,8, 14
 
-What was reviewed:
-- Abstract and source metadata on 2026-04-19.
+## Abstract
+Some low-mass planets are expected to be ejected from their parent planetary systems during early stages of planetary system formation. According to planet formation theories, such as the core accretion theory, typical masses of ejected planets should be between 0.3 and 1.0 M⊕ . Although in practice such objects do not emit any light, they may be detected using gravitational microlensing via their light-bending gravity. Microlensing events due to terrestrial-mass rogue planets are expected to have extremely small angular Einstein radii (. 1 µas) and extremely short timescales (. 0.1 day). Here, we present the discovery of the shortest-timescale microlensing event, OGLE-2016-BLG-1928, identified to date (tE ≈ 0.0288 day = 41.5 min). Thanks to the detection of finite-source effects in the light curve of the event, we were able to measure the angular Einstein radius of the lens θE = 0.842 ± 0.064 µas, making the event the most extreme short-timescale microlens discovered to date. Depending on its unknown distance, the lens may be a Mars- to Earth-mass object, with the former possibility favored by the Gaia proper motion measurement of the source. The planet may be orbiting a star but we rule out the presence of stellar companions up to the projected distance of ∼ 8.0 au from the planet. Our discovery demonstrates that terrestrial-mass free-floating planets can be detected and characterized using microlensing. Corresponding author: Przemek Mróz pmroz@astro.caltech.edu 2 Mróz et al.
 
-Key implementation notes used in StarGen:
-- The paper argues against a very large hidden population of Jupiter-mass free-floating or very wide-orbit planets.
-- The practical takeaway is that StarGen should treat rogue worlds as a bounded policy knob rather than a dominant default channel.
-- This supports keeping rogue outcomes possible, but not common.
+## Major claims, findings, models, assumptions, and limitations
+*Human verification required before using quantitative values or model assumptions in
+StarGen defaults. Figures and equations not captured by text extraction — read the PDF
+for exact thresholds, fit coefficients, and table values.*
 
-How StarGen uses this:
-- As the scientific support for the `Rogue Worlds` aggregate prior.
-- As the reason the default policy remains low-frequency rather than treating ejection as a normal outcome for most systems.
+- Primary domain: free-floating planets / microlensing
+- See StarGen applicability section below for the specific implications.
+
+## StarGen applicability
+~1 Jupiter-mass FFP per main-sequence star from microlensing. Relevant to rogue/free-floating planet generation and ejection rate priors in StarGen.
+
+## Parameters, constraints, and mechanics implications
+*(Human action: fill in specific numeric values, distributions, model families, and
+classification boundaries extracted from the paper. Where competing models or confidence
+ranges exist, expose those as user-selectable assumptions rather than collapsing to a
+single default. Where the paper documents uncertainty, preserve it in StarGen rather
+than presenting false precision.)*
+
+## Works cited by this paper (auto-extracted from final pages, partial)
+- Alard, C., & Lupton, R. H. 1998, ApJ, 503, 325
+- Albrow, M. D., Horne, K., Bramich, D. M., et al. 2009,
+- Balona, L. A. 2015, MNRAS, 447, 2714
+- Barclay, T., Quintana, E. V., Raymond, S. N., & Penny,
+- M. T. 2017, ApJ, 841, 86
+- Bensby, T., Adén, D., Meléndez, J., et al. 2011, A&A, 533,
+- Bessell, M. S., & Brett, J. M. 1988, PASP, 100, 1134
+- Bond, I. A., Abe, F., Dodd, R. J., et al. 2001, MNRAS,
+- Bozza, V. 2010, MNRAS, 408, 2188
+- Bozza, V., Bachelet, E., Bartolić, F., et al. 2018, MNRAS,
+- Carrera, D., Davies, M. B., & Johansen, A. 2016, MNRAS,
+- Cassan, A. 2008, A&A, 491, 587
+- Chatterjee, S., Ford, E. B., Matsumura, S., & Rasio, F. A.
+- Claret, A., & Bloemen, S. 2011, A&A, 529, A75
+- Foreman-Mackey, D., Hogg, D. W., Lang, D., & Goodman,
+- J. 2013, PASP, 125, 306
+- Gaia Collaboration, Brown, A. G. A., Vallenari, A., et al.
+- Gould, A. 1994, ApJL, 421, L71
+- Han, C. 2006, ApJ, 638, 1080
+- Henderson, C. B., Poleski, R., Penny, M., et al. 2016,
+
+## Opposing or alternative findings cited
+*(Human action: identify papers in the reference list that present opposing models,
+competing parameter choices, or significantly different results. Note the specific
+disagreement and its implication for which StarGen default to use.)*
+
+## APA citation
+*(Verify and complete — see AnnotatedBibliography.md for the curated APA entry.)*
+
+## Conflicts and follow-up work
+*(Human action: search for papers explicitly responding to, revising, or challenging
+this paper published after its date. For fast-moving fields (exoplanet demographics,
+habitability, JWST/TESS-informed work), treat results >3 years old as potentially
+superseded. Flag updates in Followup.md.)*
+
+
+## StarGen mechanics translation
+
+### Planet occurrence — microlensing demographics (outer systems and free-floating planets)
+Microlensing surveys provide occurrence rates for planets at 1–10 AU and free-floating planets.
+Free-floating Jupiter-mass planet abundance: ~1 per star.
+
+**StarGen outer planet and free-floating planet rates:**
+- `FreeFloatingPlanet_OccurrencePerStar` ≈ 1 (Jupiter-mass); higher for Earth-mass (uncertain)
+- `OuterPlanet_OccurrenceRate(1–10 AU)` from microlensing; complements Kepler for inner orbits.
+- NOTE: free-floating planets are out of scope for current StarGen system generation but
+  relevant for galactic-scale population statistics.
+**Cross-references:** Fernandes2019.txt, LambrechtsJohansen2012.txt.

@@ -14,6 +14,7 @@ star_gen/
 |-- Docs/
 |   |-- Assets.md
 |   |-- CelestialBodyProperties.md
+|   |-- EndToEndScienceAudit.md
 |   |-- GDD.md
 |   |-- LifeScienceAudit.md
 |   |-- ParameterMaterialityAudit.md
@@ -23,6 +24,7 @@ star_gen/
 |   |-- Roadmap.md
 |   |-- ScientificParameterAudit.md
 |   |-- SentientWorldBaseline.md
+|   |-- SourceGeneratorFitAudit.md
 |   |-- V0.9AcceptanceChecklist.md
 |   |-- V0.9Plan.md
 |   |-- V0.9ReleaseChecklist.md
@@ -32,6 +34,11 @@ star_gen/
 |-- NuGet/
 |   `-- Migrations/
 |-- Sources/
+|   |-- AnnotatedBibliography.md
+|   |-- SourceRecencyGapClosurePlan.md
+|   |-- ToReview.md
+|   |-- WorkstreamB_ExoplanetDemographicsSources.md
+|   `-- Texts/
 |-- Resources/
 |   `-- Audio/
 |-- scripts/
@@ -93,6 +100,8 @@ star_gen/
 
 ## Recent Major Additions
 
+- `Sources/SourceRecencyGapClosurePlan.md`: phased plan to close bibliography recency and coverage gaps (exoplanet demographics, habitability, atmospheres, moons, small bodies, galaxy, stability, planet-conditioned sentient populations / technology, and astrobiology including non-sentient biospheres and alternative biochemistry) with human-review gates and wiring into `AnnotatedBibliography.md`, audits, and tests.
+- `Sources/WorkstreamB_ExoplanetDemographicsSources.md`: 2026-04-26 literature pass for Workstream B (TESS/Gaia-era FGK close-in occurrence; three competing M-dwarf demographic lines; optional TESS–Keck outer-giant correlation); draft `Texts/CuiEtAl2026.txt`, `MentCharbonneau2023.txt`, `WanderleyEtAl2025.txt`, `GillisEtAl2026.txt`, `VanZandtEtAl2025.txt` plus local arXiv PDFs now track the batch pending human verification.
 - `src/app/audio/AppAudioController.cs`: shared app-level audio controller that owns reusable music and UI players so startup/menu/UI playback uses explicit exported resources instead of ad hoc runtime file scans.
 - `src/app/audio/AppAudioLibrary.cs`: global-class resource declaring the application's shared music and UI cue streams and their default playback volumes.
 - `src/app/audio/AppAudioCueId.cs`: stable cue identifiers used by the controller and callers such as the splash screen.
@@ -101,6 +110,15 @@ star_gen/
 - `Docs/RpgCompatibilityGenerationAudit.md`: audit of the target RPG systems' world-generation outputs, the current StarGen compatibility coverage gaps, and the proposed science-grounded sentient-world baseline for government, law, technology, settlement structure, and ruleset adapters.
 - `Docs/SentientWorldBaseline.md`: field-by-field grounding note for the neutral sentient-world baseline now carried on inhabited planets and moons, including why each inspector-facing population field is shown and which academic sources support its structural use.
 - `Docs/ScientificParameterAudit.md`: tracked audit matrix for the shipped galaxy, stellar, planetary, and life science controls, including source relevance, generator wiring, expected outcome direction, test coverage, and disposition.
+- `Docs/EndToEndScienceAudit.md`: tracked deep-audit inventory of the generator-internal numeric constants, their scientific grounding status, and the first-pass source-acquisition or inline-citation closure state for unsupported claims.
+- `Docs/SourceGeneratorFitAudit.md`: initial v1.0 source-to-generator fit audit, starting with the cleaned raw full-text source notes and recording whether current generator behavior is a good, partial, weak, or planning-only fit to those sources.
+- `src/domain/generation/parameters/ScienceTuningRegistry.cs`: machine-readable registry for science-facing generator coefficients and model controls, including value/range metadata, source IDs, public control IDs, consuming generators, implementation status, and human-audit requirements.
+- `src/domain/generation/parameters/SourceAcquisitionRegistry.cs`: source-acquisition registry for science-control citations, distinguishing local source notes from pending reacquisition, intentionally blocked sources, and background-only catalog references.
+- `src/domain/generation/parameters/SentientScienceReferenceCatalog.cs`: sentient-world source and tooltip registry for social-scale, technology-diffusion, economic-complexity, and legitimacy proxy controls.
+- `Tests/Quality/TestScienceTuningRegistry.cs`: quality gate proving new science-tuning entries have source IDs, material public controls, tooltip citation surfaces, and explicit acquisition metadata for the new v1.0 source cluster.
+- `Sources/Texts/Bains2004.txt`, `Behroozi2019.txt`, `BlandHawthornGerhard2016.txt`, `Chabrier2003.txt`, `Choi2016.txt`, `Conselice2014.txt`, `DucheneKraus2013.txt`, `Hayden2014.txt`, `Kennicutt1998.txt`, `Kroupa2001.txt`, `Raghavan2010.txt`, and `WeggGerhard2013.txt`: second-pass source-note batch queued together for one-pass human review of the remaining end-to-end science-audit source gaps; `BlandHawthornGerhard2016.txt` was promoted by 2026-04-24 human feedback and now tracks underused galaxy-parameter follow-up work.
+- `Sources/Texts/Laskar2017.txt`, `Petit2018.txt`, `Obertas2017.txt`, `Petit2020.txt`, `Tamayo2020.txt`, `Rice2023.txt`, `Outland2020.txt`, `Ronnet2020.txt`, `Sasaki2010.txt`, `Szulagyi2018.txt`, `Chowdhury2022.txt`, `Comin2013.txt`, `CominMestieri2013.txt`, and `Stokey2020.txt`: source-grounding cleanup notes for orbital stability, moon formation, and technology/governance PDFs; these are draft notes unless their individual status says otherwise and remain subject to human verification.
+- `Sources/Texts/KunimotoEtAl2022.txt`, `ChatterjeeEtAl2026.txt`, `NakajimaEtAl2022.txt`, `KavelaarsEtAl2023.txt`, `KhoperskovEtAl2024.txt`, `HuntVasiliev2025.txt`, `HeEtAl2020.txt`, `ObertasTamayo2023.txt`, `ChabrierLenoble2023.txt`, `KarakatsanisMamassis2023.txt`, `BainsEtAl2024.txt` (plus local PDFs): 2026-04-26 Workstreams C through K draft intake per `SourceRecencyGapClosurePlan.md`; human verification required before generator or benchmark retuning.
 - `src/domain/generation/PlanetaryGenerationProfile.cs`: shared serializable aggregate planetary-formation profile used by galaxy and system generation to carry mass-radius, envelope-loss, habitable-zone model, gas-giant, metallicity-coupling, rogue-planet, moon-bias, and outer-system-bias assumptions.
 - `src/domain/generation/tables/PlanetMassRadiusTable.cs`: empirical planet mass-radius resolver that now applies the supported Chen-Kipping and Otegi model families directly to generated planet sizes and densities, with direct planet-facing overrides layered on top.
 - `src/domain/generation/PlanetarySystemState.cs`: derived per-system planetary state built once from stellar context plus the shared planetary profile so downstream planet generation can react to snow-line, solid/gas budget, escape-pressure, migration/stirring surrogates, habitable-zone alignment, XUV activity, volatile delivery, and outer-reservoir strength.
@@ -130,16 +148,18 @@ star_gen/
 - `Docs/V0.9ReleaseChecklist.md`: concrete `0.9` release-prep procedure covering version sync, verification gates, export flow, artifact review, and itch upload steps.
 - `Docs/V0.9AcceptanceChecklist.md`: live manual QA checklist for exported `0.9` artifacts, covering startup, studios, viewers, mainline scope boundaries, and packaging validation.
 - `Docs/V1.0Checklist.md`: concrete checklist for the remaining scope lock, UI, realism, sentient-world audit, and release-hardening work before a defensible `1.0`.
-- `src/domain/population/BiologySupportEvaluator.cs`: summary biology support now uses weighted orbit, XUV, and tidal-heating constraints so biosphere support reflects system context without turning generation into a simulation.
+- `src/domain/population/BiologySupportEvaluator.cs`: summary biology support now uses weighted orbit, XUV, tidal-heating, nutrient-access, and abiotic-oxygen false-positive constraints so biosphere and civilization support reflect system context without turning generation into a simulation.
 - `Tests/Unit/TestPlanetaryGenerationProfile.cs`: deterministic serialization, propagation, and planetary-help metadata coverage for the shared planetary retrofit.
-- `Tests/Unit/Population/TestBiologySupportEvaluator.cs`: population-side regression coverage for XUV penalties and bounded tidal-heating benefits on icy moons.
+- `Tests/Unit/Population/TestBiologySupportEvaluator.cs`: population-side regression coverage for XUV penalties, bounded tidal-heating benefits on icy moons, separate biosignature detectability diagnostics, and civilization discounting when breathable oxygen has high abiotic false-positive risk.
 - `Tests/Unit/Population/TestSentientWorldProfile.cs`: deterministic regression coverage for sentient-world baseline derivation and serialization, including the new settlement/logistics/governance summary fields.
 - `Sources/Texts/planets.md`: implementation-oriented deterministic planet-formation specification used as the design target for the upstream planetary retrofit.
 - `Sources/Texts/ChenKipping2017.txt`, `Sources/Texts/Otegi2020.txt`, `Sources/Texts/OwenWu2017.txt`, `Sources/Texts/Ginzburg2018.txt`, `Sources/Texts/Mordasini2007.txt`, `Sources/Texts/LambrechtsJohansen2012.txt`, `Sources/Texts/Mroz2020.txt`: reviewed source notes added for the `0.8.8.0` planetary-priors cleanup so every surfaced planetary-prior model points to an external paper-backed basis instead of legacy internal notes.
 - `Sources/Texts/Petigura2013.txt`, `Sources/Texts/Bryson2021.txt`, `Sources/Texts/Ribas2015.txt`, `Sources/Texts/Pascucci2016.txt`, `Sources/Texts/Izidoro2017.txt`, `Sources/Texts/Fernandes2019.txt`, `Sources/Texts/RaymondIzidoro2017.txt`: reviewed source notes added for the current planetary-grounding pass so terrestrial occurrence, habitable-zone rocky yield, disk lifetime, disk mass scaling, migration-shaped compact systems, snow-line giant-planet turnover, and volatile-delivery coupling all point to explicit academic anchors.
 - `Sources/Texts/Kasting1993.txt`, `Sources/Texts/Kopparapu2013.txt`: reviewed source notes added for the habitable-zone parameter pass so StarGen's explicit circumstellar habitable-zone model choices point to named academic climate-model families rather than a mixed legacy implementation.
 - `Sources/AnnotatedBibliography.md`, `Sources/ToReview.md`, `Sources/Texts/planets.md`: expanded planetary source-audit documents that now map StarGen’s aggregate planetary priors to concrete observational and disk-physics calibration anchors instead of treating the upstream sliders as generic heuristics.
-- `Sources/Texts/Fulton2017.txt`, `Sources/Texts/FischerValenti2005.txt`, `Sources/Texts/CanupWard2006.txt`, `Sources/Texts/DeMeoCarry2014.txt`, `Sources/Texts/Lamy2004.txt`, `Sources/Texts/Kopparapu2014.txt`, `Sources/Texts/HellerBarnes2013.txt`: reviewed source notes added for the `0.8.7.0` calibration pass across planet demographics, moon formation, small-body placement, and biosphere-support constraints.
+- `Sources/Texts/Fulton2017.txt`, `Sources/Texts/FischerValenti2005.txt`, `Sources/Texts/DeMeoCarry2014.txt`, `Sources/Texts/Lamy2004.txt`, `Sources/Texts/Kopparapu2014.txt`, `Sources/Texts/HellerBarnes2013.txt`: reviewed source notes added for the `0.8.7.0` calibration pass across planet demographics, moon formation, small-body placement, and biosphere-support constraints.
+- `Sources/Texts/DiazGarcia2016.txt`, `Sources/Texts/Hurley2000.txt`, `Sources/Texts/Kormendy2009.txt`, `Sources/Texts/TanakaTakeuchiWard2002.txt`: end-to-end science-audit source notes for the first-pass unsupported-claim cleanup, covering bar-strength morphology context, elliptical structural families, compact stellar-lifetime approximations, and the Type-I migration framework. These notes are tracked as AI-assisted drafts pending human verification before they are treated as authoritative.
+- `Tests/Quality/TestEndToEndScienceAudit.cs`: audit-contract regression that keeps the tracked end-to-end science audit document, source-note bundle, and required inline citation or `tuning` markers present in the codebase.
 - `src/domain/generation/parameters/LifeScienceReferenceCatalog.cs`: source registry and plain-language help content for the galaxy-studio life-model stack, including the documented `Earth-Anchored Composite` synthesis preset and the per-stage abiogenesis, complex-life, civilization, and environmental-window controls.
 - `src/domain/generation/parameters/ObjectScienceReferenceCatalog.cs`: source registry and plain-language conflict-note/help content for Object Studio, tying direct-setting tensions such as airless versus ocean-heavy worlds to explicit academic sources.
 - `src/domain/population/LifePotentialModeling.cs`: life-model resolver that converts the selected framework and per-stage assumptions into distinct biosphere-support, abiogenesis, complex-life, sentience, civilization, and stability-window tuning.

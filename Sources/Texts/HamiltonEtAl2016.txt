@@ -1,0 +1,55 @@
+# HamiltonEtAl2016
+
+## Source metadata
+- File: `HamiltonEtAl2016.pdf`
+- Domain: planetary dynamics/resonance
+- Pages: 21
+- Authors (auto-extracted — verify against PDF): Author 1: Marcus J. Hamilton1,2 (corresponding author)
+
+## Abstract
+Title: The ecological and evolutionary energetics of hunter-gatherer residential mobility 2 School of Human Evolution and Social Change, Arizona State University, Tempe, AZ 85287 USA 5 Museum of Anthropological Archaeology, University of Michigan, Ann Arbor, MI 48109 USA
+
+## Major claims, findings, models, assumptions, and limitations
+*Human verification required before using quantitative values or model assumptions in
+StarGen defaults. Figures and equations not captured by text extraction — read the PDF
+for exact thresholds, fit coefficients, and table values.*
+
+- Primary domain: planetary dynamics/resonance
+- See StarGen applicability section below for the specific implications.
+
+## StarGen applicability
+Resonant chains and orbital architecture in compact systems. Constrains period-ratio distributions and resonance placement in multi-planet generation.
+
+## Parameters, constraints, and mechanics implications
+*(Human action: fill in specific numeric values, distributions, model families, and
+classification boundaries extracted from the paper. Where competing models or confidence
+ranges exist, expose those as user-selectable assumptions rather than collapsing to a
+single default. Where the paper documents uncertainty, preserve it in StarGen rather
+than presenting false precision.)*
+
+## Works cited by this paper (auto-extracted from final pages, partial)
+- (Reference extraction incomplete — verify PDF.)
+
+## Opposing or alternative findings cited
+*(Human action: identify papers in the reference list that present opposing models,
+competing parameter choices, or significantly different results. Note the specific
+disagreement and its implication for which StarGen default to use.)*
+
+## APA citation
+*(Verify and complete — see AnnotatedBibliography.md for the curated APA entry.)*
+
+## Conflicts and follow-up work
+*(Human action: search for papers explicitly responding to, revising, or challenging
+this paper published after its date. For fast-moving fields (exoplanet demographics,
+habitability, JWST/TESS-informed work), treat results >3 years old as potentially
+superseded. Flag updates in Followup.md.)*
+
+
+## StarGen mechanics translation
+
+### Planetary system architecture / dynamics
+*(Verify exact domain of HamiltonEtAl2016 against PDF.)*
+
+**StarGen:** Likely contributes to orbital dynamics or system stability constraints.
+Verify and fill in specific parameters after reading PDF.
+**Cross-references:** See AnnotatedBibliography.md.

@@ -1,0 +1,60 @@
+# Tamayo2020
+
+## Source metadata
+- File: `Tamayo2020.pdf`
+- Domain: orbital stability / SPOCK / ML
+- Pages: 13
+- Authors (auto-extracted — verify against PDF): Daniel Tamayoa,1,2 , Miles Cranmera , Samuel Haddenb , Hanno Reinc,d , Peter Battagliae , Alysa Obertasd,f , Philip J. Armitageg,h ,
+
+## Abstract
+Daniel Tamayoa,1,2 , Miles Cranmera , Samuel Haddenb , Hanno Reinc,d , Peter Battagliae , Alysa Obertasd,f , Philip J. Armitageg,h , Shirley Hoh,a,i , David Spergelh , Christian Gilbertsonj , Naireen Hussaind , Ari Silburtj,c,d , Daniel Jontof-Hutterk , and Kristen Department of Astrophysical Sciences, Princeton University, Princeton, New Jersey 08544, USA; b Center for Astrophysics | Harvard & Smithsonian, 60 Garden St., MS 51,
+
+## Major claims, findings, models, assumptions, and limitations
+*Human verification required before using quantitative values or model assumptions in
+StarGen defaults. Figures and equations not captured by text extraction — read the PDF
+for exact thresholds, fit coefficients, and table values.*
+
+- Primary domain: orbital stability / SPOCK / ML
+- See StarGen applicability section below for the specific implications.
+
+## StarGen applicability
+SPOCK ML model for rapid orbital stability classification. Directly applicable to StarGen as a fast system validity filter without N-body integration.
+
+## Parameters, constraints, and mechanics implications
+*(Human action: fill in specific numeric values, distributions, model families, and
+classification boundaries extracted from the paper. Where competing models or confidence
+ranges exist, expose those as user-selectable assumptions rather than collapsing to a
+single default. Where the paper documents uncertainty, preserve it in StarGen rather
+than presenting false precision.)*
+
+## Works cited by this paper (auto-extracted from final pages, partial)
+- (Reference extraction incomplete — verify PDF.)
+
+## Opposing or alternative findings cited
+*(Human action: identify papers in the reference list that present opposing models,
+competing parameter choices, or significantly different results. Note the specific
+disagreement and its implication for which StarGen default to use.)*
+
+## APA citation
+*(Verify and complete — see AnnotatedBibliography.md for the curated APA entry.)*
+
+## Conflicts and follow-up work
+*(Human action: search for papers explicitly responding to, revising, or challenging
+this paper published after its date. For fast-moving fields (exoplanet demographics,
+habitability, JWST/TESS-informed work), treat results >3 years old as potentially
+superseded. Flag updates in Followup.md.)*
+
+
+## StarGen mechanics translation
+
+### Planetary stability — SPOCK ML classifier
+Machine-learning stability classifier trained on N-body integrations. Fast (millisecond)
+prediction of long-term (10⁹ orbit) stability probability.
+
+**StarGen stability option:**
+- `StabilityFilter = SPOCK_Tamayo2020` — recommended for final validation of generated
+  multi-planet systems when AMD filter returns borderline result.
+- SPOCK outputs P(stable) ∈ [0,1]; threshold for acceptance: P(stable) > 0.8 (default).
+- `SPOCK_StabilityThreshold` user lever: float 0–1.
+- NOTE: SPOCK requires orbital parameters; run after full system generation.
+**Cross-references:** Petit2018.txt, Petit2020.txt, Obertas2017.txt.

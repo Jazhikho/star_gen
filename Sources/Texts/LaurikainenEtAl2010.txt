@@ -1,0 +1,150 @@
+# LaurikainenEtAl2010
+
+## Source metadata
+- File: `LaurikainenEtAl2010.pdf`
+- Domain: extragalactic astronomy / galaxy structure / near-infrared photometry
+- Pages: ~24
+- Authors: Laurikainen, E., Salo, H., Buta, R., Knapen, J. H., & Comerón, S.
+- Source ID in StarGen code: `laurikainen2010`
+- **PDF acquisition:** MNRAS 405, 1089 (2010). DOI: 10.1111/j.1365-2966.2010.16456.x
+  ADS: https://ui.adsabs.harvard.edu/abs/2010MNRAS.405.1089L
+  MNRAS papers from 2010 may be on arXiv; no confirmed arXiv ID found.
+  **Flag for manual download — check ADS for preprint link or author page.**
+  Backup: Salo et al. (2015) ApJS 219, 4 (S4G survey at 3.6 μm) supersedes this for
+  many purposes and IS on arXiv (arXiv:1503.07711).
+
+## Abstract
+This paper presents 2D multi-component photometric decompositions for 175 early-type
+disk galaxies (117 S0 lenticulars, 22 S0/a, and 36 Sa spirals), using deep Ks-band
+(2.2 μm) near-infrared images from the NIRS0S (Near-Infrared S0 Survey). Galaxy
+structural components — bulge (Sérsic profile), disk (exponential), bar (Ferrers),
+and in some cases lens or ring components — are fitted simultaneously. The paper
+derives photometric scaling relations (effective radius Re, effective surface brightness
+μe, Sérsic index n, B/T, D/T, Bar/T) as a function of morphological type. Key results:
+S0 bulges lie on the same photometric plane as ellipticals (Kormendy relation); S0 disk
+scale lengths and surface brightnesses are similar to those of Sa spirals, supporting
+the hypothesis that S0 galaxies are "faded spirals"; and bar fraction among S0s is
+substantial, suggesting bars play a role in the morphological transformation from
+spiral to S0. The paper provides the most complete NIR structural decomposition catalog
+for early-type disk galaxies available as of 2010.
+
+## Major claims, findings, models, assumptions, and limitations
+- S0 bulges: follow the Kormendy (μe – Re) relation of elliptical galaxies; they are
+  "classical bulges" (not pseudo-bulges), with Sérsic index n typically 2–6
+- S0 disks: scale lengths h_disk and surface brightnesses similar to Sa spirals;
+  this "disk universality" between S0s and spirals supports the faded-spiral hypothesis
+  for S0 formation
+- Sérsic index n: bulge n ranges from ~1–7; S0 bulges have median n ~ 3–4; Sa bulges
+  median n ~ 2–3; later-type spirals n ~ 1–2 (pseudo-bulge territory)
+- Bar fraction: ~30–40% of S0s show a photometric bar; higher than previously thought
+- B/T range: S0: ~0.3–0.65; Sa: ~0.2–0.5; Sb: ~0.1–0.35 (NIR values; slightly higher
+  than optical because NIR better traces old stellar mass)
+- Disk scale lengths: h_disk ~ 2–8 kpc for L* galaxies; median ~3–4 kpc (NIR)
+- Disk scale height: not directly measured (2D images); h_z/h_disk ~ 0.1 (typical
+  thin disk ratio used in the literature)
+- Limitation: sample is early-type (S0 to Sa); no late spirals (Sb–Sd) or irregulars
+- Limitation: deep NIR images but for moderately nearby bright galaxies; sample may be
+  biased toward more luminous, more massive systems
+- Limitation: bar fitting is non-trivial; bar/T values have larger systematic uncertainty
+
+## StarGen applicability
+Primary NIR-based structural parameter reference for S0 and early-type spiral galaxy
+generators in StarGen. Provides Sérsic indices, B/T ratios, disk scale lengths, and
+scale heights as a function of Hubble type. Cited in GalaxyScienceReferenceCatalog.cs
+for `subtype_mode`, `bulge_intensity`, `bulge_radius_pc`, `disk_scale_length_pc`,
+`disk_scale_height_pc`.
+
+## Parameters, constraints, and mechanics implications
+
+**Sérsic index n by component and type (NIR, from paper figures):**
+- S0 bulge:      n = 3.5 ± 1.5 (median ~3–4; classical bulge)
+- Sa bulge:      n = 2.5 ± 1.2 (median ~2–3; mix of classical and intermediate)
+- Sb/Sc bulge:   n = 1.5 ± 0.7 (pseudo-bulge territory; not covered by this paper)
+  (Use OohamaEtAl2009 for Sb–Sd types)
+- Disk:          n = 1.0 (exponential disk by definition in the fit)
+- Bar (Ferrers): n_Ferrers ~ 1–2 (Ferrers profile, not Sérsic)
+
+**Disk scale length (Ks-band, for L* galaxies at ~5×10^10 M_sun):**
+- Median h_disk ~ 3.2 kpc (range 1.5–7 kpc)
+- Mass scaling: h_disk ∝ M_star^0.3–0.35 approximately (from comparison with literature)
+- No strong dependence on Hubble type between S0 and Sa (disk universality confirmed)
+
+**Disk scale height:**
+- h_z/h_disk ~ 0.10–0.15 for thin disk (from 3D galaxy modeling in the literature;
+  this paper measures h_disk; h_z inferred from literature)
+- For the thick disk component: h_z_thick / h_disk ~ 0.3–0.5
+- StarGen `disk_scale_height_pc` default: h_disk × 0.12
+
+**B/T ratio (NIR, more accurate for stellar mass):**
+- S0: B/T ~ 0.45 (NIR; slightly higher than optical OohamaEtAl2009 value due to NIR
+  tracing old stellar mass better, avoiding dust and young star bias)
+- Sa: B/T ~ 0.35–0.40
+- Note: NIR values are recommended as the default for stellar-mass-accurate generation
+
+**Bar fraction:**
+- S0: bar fraction ~35% (substantial; bars are common in lenticulars)
+- Sa: bar fraction ~30%
+- Implication: when generating early-type disk galaxies, apply ~30–35% bar probability
+
+## APA citation
+Laurikainen, E., Salo, H., Buta, R., Knapen, J. H., & Comerón, S. (2010). Photometric
+scaling relations of lenticular and spiral galaxies. Monthly Notices of the Royal
+Astronomical Society, 405(2), 1089–1118.
+https://doi.org/10.1111/j.1365-2966.2010.16456.x
+
+## Conflicts and follow-up work
+
+**Direct follow-up and superseding work from the same group:**
+- Salo, H., et al. (2015) ApJS 219, 4 — S4G (Spitzer Survey of Stellar Structure in
+  Galaxies) multi-component decompositions at 3.6 μm for 2352 galaxies; dramatically
+  larger and more uniform sample. Open access. arXiv:1503.07711. This is the modern
+  replacement for many use cases of Laurikainen et al. (2010).
+- Laurikainen, E., & Salo, H. (2017) A&A 598, A10 — further structural analysis for
+  NIRS0S sample with updated bar metrics.
+
+**Complementary NIR structural work:**
+- Graham, A. W., & Worley, C. C. (2008) MNRAS 388, 1708 — photometric structural
+  parameters and scaling relations of Seyfert galaxies and normal galaxy sample.
+- Gadotti, D. A. (2009) MNRAS 393, 1531 — pseudo-bulge identification and Sérsic
+  indices in SDSS; complementary optical study. arXiv:0810.1953.
+- Fisher, D. B., & Drory, N. (2008) AJ 136, 773 — pseudo-bulge and classical bulge
+  Sérsic index divide (n=2 as boundary); important for interpreting n distributions.
+
+**Context for S0 formation:**
+- The "faded spiral" hypothesis (disk universality between S0 and Sa supports this)
+  is contested by the "red-and-dead" formation scenario via merging. The observational
+  evidence in this paper supports faded spirals, but both pathways likely operate.
+
+**Citation discovery:**
+- ADS: https://ui.adsabs.harvard.edu/abs/2010MNRAS.405.1089L
+
+## StarGen mechanics translation
+
+### NIR-based galaxy structural parameter defaults
+Laurikainen et al. (2010) provides the gold-standard structural parameters for S0 and
+early spiral galaxies in NIR, which better trace stellar mass than optical.
+
+**Parameter defaults (S0 / lenticular):**
+- bulge_sersic_n: sample from Gaussian(mean=3.5, sigma=1.5), clamp to [1, 8]
+- bulge_radius_pc (Re): scale from stellar mass; for M_star = 5×10^10 M_sun → Re ~ 1.5 kpc
+- disk_scale_length_pc: scale from stellar mass; for M_star = 5×10^10 M_sun → h_disk ~ 3.2 kpc
+- disk_scale_height_pc: disk_scale_length_pc × 0.12 (thin disk ratio)
+- B/T_nir: sample from Gaussian(mean=0.45, sigma=0.10), clamp [0.15, 0.80]
+- bar_probability: 0.35 (35% chance of a bar for S0/Sa types)
+
+**Hubble type to NIR structural parameters (lookup table):**
+GalaxySubtype | B/T_nir_mean | n_bulge_mean | BarProb
+S0 / S0/a    |  0.45        | 3.5          | 0.35
+Sa           |  0.38        | 2.8          | 0.30
+(Sb, Sc, Sd: use OohamaEtAl2009.txt optical values; not in this paper's sample)
+
+**Disk universality rule:**
+Do NOT make disk_scale_length_pc or disk scale height depend on B/T or Hubble subtype
+(within S0–Sa range). Scale only with stellar mass. This is the paper's primary insight.
+
+**User lever:** `GalaxyStructureSource` enum: `Laurikainen2010NIR` / `Oohama2009Optical`
+/ `S4G2015` (if Salo et al. 2015 is integrated).
+
+**Cross-references:** OohamaEtAl2009.txt (optical values for Sb–Sd types),
+ParkEtAl2007.txt (environment sets morphological type upstream),
+TanakaEtAl2004.txt (mass-dependent environment effects).

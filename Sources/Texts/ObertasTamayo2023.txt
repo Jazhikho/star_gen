@@ -1,0 +1,69 @@
+# ObertasTamayo2023
+
+## Source metadata
+- File: `ObertasTamayo2023.pdf`
+- Domain: orbital stability / ML (SPOCK)
+- Pages: 15
+- Authors (auto-extracted — verify against PDF): (see PDF)
+
+## Abstract
+Current planet formation theories rely on initially compact orbital configurations undergoing a (possibly extended) phase of giant impacts following the dispersal of the dissipative protoplanetary disk. The orbital architectures of observed mature exoplanet systems have likely been strongly sculpted by chaotic dynamics, instabilities, and giant impacts. One possible signature of systems continually reshaped by instabilities and mergers is their dynamical packing. Early Kepler data showed that many multi-planet systems are maximally packed – placing an additional planet between an observed pair would make the system unstable. However, this result relied on placing the inserted planet in the most optimistic configuration for stability (e.g., circular orbits). While this would be appropriate in an ordered and dissipative picture of planet formation (i.e. planets dampen into their most stable configurations), we argue that this best-case scenario for stability is rarely realized due to the strongly chaotic nature of planet formation. Consequently, the degree of dynamical packing in multi-planet systems under a realistic formation model is likely significantly higher than previously realized. We examine the full Kepler multi-planet sample through this new lens, showing that ∼ 60 − 95% of Kepler multi-planet systems are strongly packed and that dynamical packing increases with multiplicity. This may be a signature of dynamical sculpting or of undetected planets, showing that dynamical packing is an important metric that can be incorporated into planet formation modelling or when searching for unseen planets.
+
+## Major claims, findings, models, assumptions, and limitations
+*Human verification required before using quantitative values or model assumptions in
+StarGen defaults. Figures and equations not captured by text extraction — read the PDF
+for exact thresholds, fit coefficients, and table values.*
+
+- Primary domain: orbital stability / ML (SPOCK)
+- See StarGen applicability section below for the specific implications.
+
+## StarGen applicability
+ML-assisted orbital stability classification. Directly applicable to StarGen as a fast system validity filter without N-body integration.
+
+## Parameters, constraints, and mechanics implications
+*(Human action: fill in specific numeric values, distributions, model families, and
+classification boundaries extracted from the paper. Where competing models or confidence
+ranges exist, expose those as user-selectable assumptions rather than collapsing to a
+single default. Where the paper documents uncertainty, preserve it in StarGen rather
+than presenting false precision.)*
+
+## Works cited by this paper (auto-extracted from final pages, partial)
+- Adams F. C., 2019, MNRAS, 488, 1446
+- Adams F. C., Batygin K., Bloch A. M., 2020, MNRAS, 494, 2289
+- Andrews S. M., 2020, ARA&A, 58, 483
+- Astropy Collaboration et al., 2013, A&A, 558, A33
+- Astropy Collaboration et al., 2018, AJ, 156, 123
+- Astropy Collaboration et al., 2022, ApJ, 935, 167
+- Barnes R., Quinn T., 2004, ApJ, 611, 494
+- Barnes R., Raymond S. N., 2004, ApJ, 617, 569
+- Batalha N. M., et al., 2013, ApJS, 204, 24
+- Berger T. A., Huber D., van Saders J. L., Gaidos E., Tayar J., Kraus A. L.,
+- Berger T. A., Huber D., Gaidos E., van Saders J. L., Weiss L. M., 2020b, AJ,
+- Bonomo A. S., et al., 2023, arXiv e-prints, p. arXiv:2304.05773
+- Bryan M. L., Knutson H. A., Lee E. J., Fulton B. J., Batygin K., Ngo H.,
+- Meshkat T., 2019, AJ, 157, 52
+- Buchhave L. A., et al., 2016, AJ, 152, 160
+- https://www.python.org/
+- Chen J., Kipping D., 2017, ApJ, 834, 17
+- Dawson R. I., Lee E. J., Chiang E., 2016, ApJ, 822, 54
+- Deck K. M., Payne M., Holman M. J., 2013, ApJ, 774, 129
+- Drazkowska J., et al., 2022, arXiv e-prints, p. arXiv:2203.09759
+
+## Opposing or alternative findings cited
+*(Human action: identify papers in the reference list that present opposing models,
+competing parameter choices, or significantly different results. Note the specific
+disagreement and its implication for which StarGen default to use.)*
+
+## APA citation
+*(Verify and complete — see AnnotatedBibliography.md for the curated APA entry.)*
+
+## Conflicts and follow-up work
+*(Human action: search for papers explicitly responding to, revising, or challenging
+this paper published after its date. For fast-moving fields (exoplanet demographics,
+habitability, JWST/TESS-informed work), treat results >3 years old as potentially
+superseded. Flag updates in Followup.md.)*
+
+
+## StarGen mechanics translation
+
+*(Already handled above in the planetary stability section.)*

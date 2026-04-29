@@ -1,0 +1,73 @@
+# WangFischer2015Met
+
+## Source metadata
+- File: `WangFischer2015Met.pdf`
+- Domain: planet occurrence / metallicity correlation all sizes
+- Authors (verify against PDF title page)
+
+## Abstract
+The metallicity of exoplanet systems serves as a critical diagnostic of planet formation mechanisms. Previous studies have demonstrated the planet-metallicity correlation for large planets (RP ≥ 4 RE ); however, a correlation has not been found for smaller planets. With a sample of 406 Kepler Objects of Interest whose stellar properties are determined spectroscopically, we reveal a universal planet-metallicity correlation: not only gas-giant planets (3.9 RE < RP ≤ 22.0 RE ) but also gas-dwarf (1.7 RE < RP ≤ 3.9 RE ) and terrestrial planets (RP ≤ 1.7 RE ) occur more frequently in metal-rich stars. The planet occurrence rates of gas-giant planets, gas-dwarf planets, and terrestrial planets are +0.29 +0.19 9.30+5.62 −3.04 , 2.03−0.26 , and 1.72−0.17 times higher for metal-rich stars than for metal-poor stars, respectively. Subject headings: 1. INTRODUCTION Since thousands of exoplanets and exoplanet candidates have been discovered (Schneider et al. 2011; Wright et al. 2011), we are now in a position to study the statistical attributes of the ensemble of known exoplanets. The correlations between the exoplanets’ occurrence and the properties of their host stars help us to understand how planets form and evolve. For example, studies found that gas-giant planets occur more frequently around metal-rich stars (Gonzalez 1997; Santos et al. 2004; Fischer & Valenti 2005; Johnson et al. 2010). This planet-metallicity correlation provides a critical diagnostic for planet formation mechanisms: the correlation for gasgiant planets is consistent with the core accretion scenario for exoplanets that orbit closer than 20 AU around main sequence stars (Ida & Lin 2004; Mordasini et al. 2009; Alibert et al. 2011). Although recent studies confirmed a planetmetallicity correlation around sub-g
+
+## Major claims, findings, models, assumptions, and limitations
+*Human verification required before using quantitative values or model assumptions in
+StarGen defaults. Figures and equations not captured by text extraction — read the PDF
+for exact thresholds, fit coefficients, and table values.*
+
+- Primary domain: planet occurrence / metallicity correlation all sizes
+- See StarGen applicability section below for the specific implications.
+
+## StarGen applicability
+Universal planet-metallicity correlation: gas-giant +9.3×, gas-dwarf +2.0×, terrestrial +1.7× occurrence for metal-rich vs metal-poor stars. Feeds StarGen's metallicity-dependent planet occurrence weighting.
+
+## Parameters, constraints, and mechanics implications
+*(Human action: fill in specific numeric values, distributions, model families, and
+classification boundaries extracted from the paper. Where competing models or confidence
+ranges exist, expose those as user-selectable assumptions rather than collapsing to a
+single default. Where the paper documents uncertainty, preserve it in StarGen rather
+than presenting false precision.)*
+
+## Works cited by this paper (auto-extracted from final pages, partial)
+- 1.94−0.22 for gas-dwarf planets and terrestrial planets, respectively. This may be explained by a
+- 2001; Mamajek 2009). Observations of transition disks demonstrate that the central region of
+- The observed properties of transitional disks are
+- 2013). There is also some evidence that the dust
+- Yasui et al. 2014). Therefore, planetesimal formation may be cut off at an earlier time in the disks
+- Acknowledgements We acknowledge anonymous referees for their insightful comments. We thank
+- Tabetha Boyajian for her stimulating comments and
+- Alexander, R., Pascucci, I., Andrews, S., Armitage, P., &
+- Cieza, L. 2013, ArXiv e-prints
+- Alibert, Y., Mordasini, C., & Benz, W. 2011, A&A, 526,
+- Andrews, S. M., Wilner, D. J., Espaillat, C., Hughes, A. M.,
+- Dullemond, C. P., McClure, M. K., Qi, C., & Brown,
+- J. M. 2011, ApJ, 732, 42
+- Andrews, S. M., Wilner, D. J., Hughes, A. M., Qi, C., &
+- Dullemond, C. P. 2009, ApJ, 700, 1502
+
+## Opposing or alternative findings cited
+*(Human action: identify papers in the reference list that present opposing models,
+competing parameter choices, or significantly different results. Note the specific
+disagreement and its implication for which StarGen default to use.)*
+
+## APA citation
+*(Verify and complete — see AnnotatedBibliography.md for the curated APA entry.)*
+
+## Conflicts and follow-up work
+*(Human action: search for papers explicitly responding to, revising, or challenging
+this paper published after its date. For fast-moving fields (exoplanet demographics,
+habitability, JWST/TESS-informed work), treat results >3 years old as potentially
+superseded. Flag updates in Followup.md.)*
+
+## StarGen mechanics translation
+
+### Planet occurrence — universal planet-metallicity correlation (all sizes)
+All planet sizes (terrestrial to gas giant) occur more frequently around metal-rich stars.
+Occurrence ratios: gas-giant ×9.3, gas-dwarf ×2.0, terrestrial ×1.7 (metal-rich vs poor).
+
+**StarGen metallicity-dependent occurrence weights:**
+- `MetallicityOccurrenceMultiplier` table by planet class and [Fe/H]:
+  - GasGiant: ×9.3 at [Fe/H] > +0.15 vs [Fe/H] < −0.15
+  - GasDwarf: ×2.0
+  - Terrestrial: ×1.7
+- Apply as multiplicative modifier to base occurrence rates from Petigura2013 /
+  KunimotoEtAl2022 when host star [Fe/H] is generated.
+**Cross-references:** FischerValenti2005.txt, Petigura2013.txt, KunimotoEtAl2022.txt.

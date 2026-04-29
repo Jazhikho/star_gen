@@ -1,20 +1,81 @@
-Source note for StarGen research review
+# Kopparapu2014
 
-Citation:
-Kopparapu, R. K., Ramirez, R. M., SchottelKotte, J., Kasting, J. F., Domagal-Goldman, S., & Eymet, V. (2014).
-Habitable zones around main-sequence stars: Dependence on planetary mass.
-The Astrophysical Journal Letters, 787(2), L29.
-arXiv: https://arxiv.org/abs/1404.5292
-DOI: https://doi.org/10.1088/2041-8205/787/2/L29
+## Source metadata
+- File: `Kopparapu2014.pdf`
+- Domain: habitable zone / planet mass dependence
+- Pages: 14
+- Authors (auto-extracted — verify against PDF): Dependence On Planetary Mass; Ravi kumar Kopparapu1,2,3,4,5 , Ramses M. Ramirez1,2,3,4 , James SchottelKotte6 , James F.
 
-What was reviewed:
-- Abstract and source metadata on 2026-04-03.
+## Abstract
+The ongoing discoveries of extrasolar planets are unveiling a wide range of terrestrial mass (size) planets around their host stars. In this letter, we present estimates of habitable zones (HZs) around stars with stellar effective temperatures in the range 2600 K - 7200 K, for planetary masses between 0.1 M⊕ and 5 M⊕ . Assuming H2 O- (inner HZ) and CO2 - (outer HZ) dominated atmospheres, and scaling the background N2 atmospheric pressure with the radius of the planet, our results indicate that larger planets have wider HZs than do smaller ones. Specifically, with the assumption that smaller planets will have less dense atmospheres, the inner edge of the HZ (runaway greenhouse limit) moves outward (∼ 10% lower than Earth flux) for low mass planets due to larger greenhouse effect arising from the increased H2 O column depth. For larger planets, the H2 O column depth is smaller, and higher temperatures are needed before water vapor completely dominates the outgoing longwave radiation. Hence the inner edge moves inward (∼ 7% higher than Earth’s flux). The outer HZ changes little due to the competing effects of the greenhouse effect and an increase in albedo. New, 3-D climate model results from other groups are also summarized, and we
 
-Key implementation notes used in StarGen:
-- The paper updates habitable-zone boundaries to account for planetary mass, showing that the same star does not imply one universal habitable band for every world.
-- The habitable zone remains a useful high-level guide, but it should influence probability and constraints rather than act as a binary yes/no switch for biospheres.
-- For StarGen, the practical takeaway is that stellar flux and habitable-zone alignment should matter to atmosphere, volatile retention, and biology-support scoring without becoming the only factor.
+## Major claims, findings, models, assumptions, and limitations
+*Human verification required before using quantitative values or model assumptions in
+StarGen defaults. Figures and equations not captured by text extraction — read the PDF
+for exact thresholds, fit coefficients, and table values.*
 
-How StarGen uses this:
-- As the basis for adding habitable-zone boundary fields and habitable-zone alignment into derived planetary and biology profiles.
-- As support for treating biosphere support as a weighted function of flux, orbit, atmosphere, and moon heating rather than a pure human-habitability shortcut.
+- Primary domain: habitable zone / planet mass dependence
+- See StarGen applicability section below for the specific implications.
+
+## StarGen applicability
+HZ limits corrected for planet mass. StarGen should account for planet-mass-dependent HZ boundaries rather than a single fixed HZ per star luminosity/type.
+
+## Parameters, constraints, and mechanics implications
+*(Human action: fill in specific numeric values, distributions, model families, and
+classification boundaries extracted from the paper. Where competing models or confidence
+ranges exist, expose those as user-selectable assumptions rather than collapsing to a
+single default. Where the paper documents uncertainty, preserve it in StarGen rather
+than presenting false precision.)*
+
+## Works cited by this paper (auto-extracted from final pages, partial)
+- Anglada-Escude, G., Tuomi, M., Gerlach, E. et al. 2013. accepted to A&A, arXiv:1306.6074
+- Batalha, N. M., Rowe, J. F., Bryson, S. T. et al. 2012. ApJS, 204, 24
+- Bonfils, X., Delfosse, X., Udry, S. et al. 2011. submitted A&A, arXiv:1111.5019
+- Borucki, W. J., Koch, D. G., Basri, G. et al. 2011. ApJ, 736, article id. 19
+- Borucki, W. J., Koch, D. G., Batalha, N. et al. 2012. ApJ, 745, article id. 120
+- Dressing, C., & Charbonneau, D. 2013. ApJ, 767, 1
+- Edson, A., Lee, S., Bannon, P. et al. 2011. Icarus, 212, 1
+- Forget, F., Wordsworth, R. W., Millour, E. et al. 2013 Icarus, 222, 1
+- Fortney, J. J., Marley, M. S., Barnes, J. W. 2007. ApJ, 659, 1661
+- Gaidos, E. 2013, ApJ, 770, 90
+- Haqq-Misra, J. D., Domagal-Goldman, S. D., Kasting, P. J. & Kasting, J. F. 2008. Astrobiology, 8, 1127
+- Hart, M. H. 1978, Icarus, 33, 23
+- Huang, S. S. 1959, American Scientist, 47, 397
+- Ingersoll, A. P. 1969, JAtS, 26, 1191
+- Kasting, J., F., Whitmire, D., P., & Reynolds. R. T. 1993, Icarus, 101, 108
+- Kopparapu, R. K., Ramirez, R., Kasting, J. F., Eymet, V., Robinson, T. D., Mahadevan,
+- S., Terrien, R. C., Domagal-Goldman, S. D., Meadows, V., & Deshpande, R. 2013,
+- Kopparapu, R. K. 2013. ApJ, 767, 1
+- Leconte, J., Forget, F., Charnay, B., Wordsworth, R., & Pottier, A. 2013. Nature, 504, 268
+- Lissauer, J. J., Marcy, G. W., Bryson, S. T., et al., 2014. ApJ, 784, 44
+
+## Opposing or alternative findings cited
+*(Human action: identify papers in the reference list that present opposing models,
+competing parameter choices, or significantly different results. Note the specific
+disagreement and its implication for which StarGen default to use.)*
+
+## APA citation
+*(Verify and complete — see AnnotatedBibliography.md for the curated APA entry.)*
+
+## Conflicts and follow-up work
+*(Human action: search for papers explicitly responding to, revising, or challenging
+this paper published after its date. For fast-moving fields (exoplanet demographics,
+habitability, JWST/TESS-informed work), treat results >3 years old as potentially
+superseded. Flag updates in Followup.md.)*
+
+
+## StarGen mechanics translation
+
+### Habitable zone with planet-mass dependence
+Extends Kopparapu2013 by adding a CO₂-dominated outer atmosphere with planet-mass
+dependence. Larger planets have wider outer HZ because they retain CO₂ better.
+
+**Planet-mass HZ correction:**
+- Outer HZ shifts outward for more massive rocky planets (1–5 M⊕ parameterised).
+- Inner HZ remains approximately mass-independent.
+- StarGen: apply mass correction to outer HZ when planet_mass is known or estimated.
+  When mass is uncertain, use Kopparapu2013 as lower bound on outer HZ.
+
+**HZModel enum entry:** `Kopparapu2014` — recommended when planet mass is generated.
+**Cross-references:** Kopparapu2013.txt, ChenKipping2017.txt (mass estimation),
+WordsworthKreidberg2022.txt (atmosphere retention).

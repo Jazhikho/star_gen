@@ -1,0 +1,78 @@
+# BergstenEtAl2023
+
+## Source metadata
+- File: `BergstenEtAl2023.pdf`
+- Domain: planet occurrence/M-dwarfs
+- Pages: 22
+- Authors (auto-extracted — verify against PDF): ,1 Ilaria Pascucci ,1 Kevin K. Hardegree-Ullman ,2 Rachel B. Fernandes; Jessie L. Christiansen ,5 and Gijs D. Mulders 6, 7
+
+## Abstract
+Reliable detections of Earth-sized planets in the habitable zone remain elusive in the Kepler sample, even for M dwarfs. The Kepler sample was once thought to contain a considerable number of M dwarf stars (Teff < 4000 K), which hosted enough Earth-sized ([0.5, 1.5] R⊕ ) planets to estimate their occurrence rate (η⊕ ) in the habitable zone. However, updated stellar properties from Gaia have shifted many Kepler stars to earlier spectral type classifications, with most stars (and their planets) now measured to be larger and hotter than previously believed. Today, only one partially-reliable Earthsized candidate remains in the optimistic habitable zone, and zero in the conservative zone. Here we performed a new investigation of Kepler ’s Earth-sized planets orbiting M dwarf stars, using occurrence rate models with considerations of updated parameters and candidate reliability. Extrapolating our models to low instellations, we found an occurrence rate of η⊕ = 8.58+17.94 −8.22 % for the conservative +24.96 habitable zone (and 14.22−12.71 % for the optimistic), consistent with previous works when considering the large uncertainties. Comparing these estimates to those from similarly comprehensive studies of Sun-like stars, we found that the current Kepler sample does not offer evidence to support an increase in η⊕ from FGK to M stars. While the Kepler sample is too sparse to resolve an occurrence trend between early and mid-to-late M dwarfs for Earth-sized planets, studies including larger planets and/or data from the K2 and TESS missions are well-suited to this task.
+
+## Major claims, findings, models, assumptions, and limitations
+*Human verification required before using quantitative values or model assumptions in
+StarGen defaults. Figures and equations not captured by text extraction — read the PDF
+for exact thresholds, fit coefficients, and table values.*
+
+- Primary domain: planet occurrence/M-dwarfs
+- See StarGen applicability section below for the specific implications.
+
+## StarGen applicability
+No enhanced HZ Earth-size rate around M vs FGK stars — contradicts earlier claims. Do not apply an M-dwarf HZ surplus prior in StarGen without noting this contradicting result.
+
+## Parameters, constraints, and mechanics implications
+*(Human action: fill in specific numeric values, distributions, model families, and
+classification boundaries extracted from the paper. Where competing models or confidence
+ranges exist, expose those as user-selectable assumptions rather than collapsing to a
+single default. Where the paper documents uncertainty, preserve it in StarGen rather
+than presenting false precision.)*
+
+## Works cited by this paper (auto-extracted from final pages, partial)
+- Akeson, R., Armus, L., Bachelet, E., et al. 2019, arXiv
+- e-prints, arXiv:1902.05569,
+- doi: 10.48550/arXiv.1902.05569
+- Astudillo-Defru, N., Delfosse, X., Bonfils, X., et al. 2017,
+- A&A, 600, A13, doi: 10.1051/0004-6361/201527078
+- Berger, T. A., Huber, D., Gaidos, E., van Saders, J. L., &
+- Weiss, L. M. 2020a, AJ, 160, 108,
+- doi: 10.3847/1538-3881/aba18a
+- Berger, T. A., Huber, D., van Saders, J. L., et al. 2020b,
+- AJ, 159, 280, doi: 10.3847/1538-3881/159/6/280
+- Bergsten, G. J., Pascucci, I., Mulders, G. D., Fernandes,
+- R. B., & Koskinen, T. T. 2022, AJ, 164, 190,
+- doi: 10.3847/1538-3881/ac8fea
+- Bixel, A., & Apai, D. 2021, AJ, 161, 228,
+- doi: 10.3847/1538-3881/abe042
+- Borucki, W. J. 2016, Reports on Progress in Physics, 79,
+- 036901, doi: 10.1088/0034-4885/79/3/036901
+- Borucki, W. J., Koch, D., Basri, G., et al. 2010, Science,
+- 327, 977, doi: 10.1126/science.1185402
+- Brady, M. T., & Bean, J. L. 2022, AJ, 163, 255,
+
+## Opposing or alternative findings cited
+*(Human action: identify papers in the reference list that present opposing models,
+competing parameter choices, or significantly different results. Note the specific
+disagreement and its implication for which StarGen default to use.)*
+
+## APA citation
+*(Verify and complete — see AnnotatedBibliography.md for the curated APA entry.)*
+
+## Conflicts and follow-up work
+*(Human action: search for papers explicitly responding to, revising, or challenging
+this paper published after its date. For fast-moving fields (exoplanet demographics,
+habitability, JWST/TESS-informed work), treat results >3 years old as potentially
+superseded. Flag updates in Followup.md.)*
+
+
+## StarGen mechanics translation
+
+### Planet occurrence — updated Kepler rates with injection-recovery
+Provides updated occurrence rate table for Kepler planet population using careful
+completeness corrections and injection-recovery tests.
+
+**StarGen calibration update:**
+- Use as updated occurrence rate table over Petigura2013; inject in the same R_p vs P
+  bins but with revised completeness corrections.
+- Key difference: slightly lower occurrence at small radii (completeness correction
+  lowers apparent rate of Earth-sized planets).
+**Cross-references:** Petigura2013.txt, KunimotoEtAl2022.txt, Fulton2017.txt.

@@ -1,0 +1,138 @@
+# TanakaEtAl2004
+
+## Source metadata
+- File: `TanakaEtAl2004.pdf`
+- Domain: extragalactic astronomy / galaxy environment / SDSS
+- Pages: ~14
+- Authors: Tanaka, M., Goto, T., Okamura, S., Shimasaku, K., & Brinkmann, J.
+- Source ID in StarGen code: `tanaka2004`
+- **PDF acquisition:** AJ 128, 2677 (2004). DOI: 10.1086/424937
+  ADS: https://ui.adsabs.harvard.edu/abs/2004AJ....128.2677T
+  A preprint PDF may be accessible at: https://www.giss.nasa.gov/staff/mway/cluster/tanaka200412.pdf
+  Also check arXiv for astro-ph/XXXXXXX (ID not confirmed; check ADS abstract page).
+  **Flag for manual download if neither link works.**
+
+## Abstract
+This paper studies the environmental dependence of galaxy properties (star formation
+rate, morphological type, color) in the local universe using a volume-limited sample of
+19,714 galaxies from the Sloan Digital Sky Survey, restricted to redshift range
+0.030 < z < 0.065 and absolute magnitudes M_r < M*_r + 2. Galaxy environments are
+characterized by local projected surface density Σ. The main result is that galaxies
+in denser environments have suppressed star formation and earlier morphological types
+compared to field galaxies. For faint galaxies, the relationship shows a break at a
+critical local density log Σ_crit ~ 0.4 galaxies h²₇₅ Mpc⁻² (roughly the group scale),
+below which properties are relatively uniform and above which star formation is suppressed
+and morphology shifts to earlier types. However, bright galaxies show no such break —
+their properties vary smoothly and continuously with density. The environmental effects
+on SFR and morphology depend significantly on galaxy luminosity/mass.
+
+## Major claims, findings, models, assumptions, and limitations
+- Dense environments → suppressed SFR + earlier morphological types (confirms morphology-
+  density relation in SDSS)
+- Break at critical density for faint galaxies: log Σ_crit ~ 0.4 galaxies h²75/Mpc²
+  (~group/cluster boundary); below this threshold, faint galaxy properties are
+  relatively uniform (field-like); above it, they change rapidly
+- NO break for bright galaxies: bright galaxies show smooth, continuous SFR and
+  morphology correlations with density across all environments
+- Luminosity dependence of environmental effects: low-mass galaxies are most strongly
+  affected by environment (satellite quenching effects); high-mass galaxies are less
+  strongly affected
+- Methodology: local surface density Σ from 5th nearest neighbor within ±1000 km/s;
+  redshift slice approach to minimize projection effects
+- Limitation: projected density estimator includes some line-of-sight contamination
+- Limitation: morphology from eyeball classification of SDSS images (not automated)
+- Limitation: volume-limited sample cuts off faint galaxies at higher z within the slice
+
+## StarGen applicability
+Provides an alternative (earlier, and in some respects complementary) empirical basis
+for environment-morphology relations compared to ParkEtAl2007. The two papers together
+bracket the environmental density effect. Tanaka et al.'s finding of a luminosity-
+dependent break justifies distinguishing between massive and dwarf galaxies when
+applying environment corrections. Cited in GalaxyScienceReferenceCatalog.cs for
+`environment_density_index`.
+
+## Parameters, constraints, and mechanics implications
+
+**Critical density (group/cluster boundary):**
+- log Σ_crit ~ 0.4 h²₇₅/Mpc² ≈ 2.5 galaxies/Mpc² in physical units at typical group
+  distances — this is roughly the transition from field/pair environment to proper
+  group environments
+- Below Σ_crit: faint galaxy properties (color, SFR) are relatively uniform
+- Above Σ_crit: faint galaxies have suppressed SFR and earlier morphologies rapidly
+
+**Luminosity dependence:**
+- Low-mass (dwarf) galaxies: strong environmental effects; morphology and SFR shift
+  rapidly across the critical density threshold
+- High-mass (bright) galaxies: weaker, smoother dependence; no threshold behavior
+- StarGen implication: when generating galaxy populations in a cluster vs field context,
+  dwarf galaxies should show more extreme morphological changes than massive spirals
+
+**Morphology fraction vs density (approximate from paper):**
+Similar to ParkEtAl2007 results. Confirmed morphology-density relation:
+- Field (low Σ): early-type fraction ~20–30%
+- Dense group/cluster core: early-type fraction ~60–80%
+
+**SFR suppression:**
+- In dense environments, galaxies with M_r > M*_r (faint) show ~3-5× lower specific
+  SFR than field counterparts at same luminosity
+- In dense environments, galaxies with M_r < M*_r (bright) show only ~1.5–2× suppression
+
+## APA citation
+Tanaka, M., Goto, T., Okamura, S., Shimasaku, K., & Brinkmann, J. (2004). The
+environmental dependence of galaxy properties in the local universe: Dependences on
+luminosity, local density, and system richness. The Astronomical Journal, 128(6),
+2677–2695. https://doi.org/10.1086/424937
+
+## Conflicts and follow-up work
+
+**Companion paper in corpus:**
+- ParkEtAl2007.txt — later SDSS study with larger sample; finds no environmental
+  "break" once morphology and luminosity are fixed (complements Tanaka's result that
+  the break is real but only for faint galaxies before morphology is controlled for).
+
+**Follow-up studies:**
+- Goto, T., et al. (2003) MNRAS 346, 601 — earlier SDSS morphology-density relation
+  with spectroscopic morphologies; companion paper from the same group.
+- Peng, Y.-J., et al. (2010) MNRAS 402, 1536 — separates "mass quenching" from
+  "environment quenching"; refines the mass dependence of environmental effects.
+  arXiv:0912.1636. Key update: confirms that low-mass satellite galaxies experience
+  genuine environment-driven quenching beyond what morphology alone explains.
+- Baldry, I. K., et al. (2006) MNRAS 373, 469 — bimodality in galaxy color distribution
+  as function of stellar mass and environment.
+- **As of 2024:** the Tanaka et al. (2004) qualitative findings remain valid (mass-
+  dependent environmental effects, morphology-density relation) but the quantitative
+  threshold values have been updated by larger SDSS samples and COSMOS data.
+
+**Citation discovery:**
+- ADS: https://ui.adsabs.harvard.edu/abs/2004AJ....128.2677T
+
+## StarGen mechanics translation
+
+### Mass-dependent environment effect
+This paper adds nuance to ParkEtAl2007's environment-morphology model: environmental
+effects on low-mass galaxies are stronger than on massive galaxies.
+
+**Generation rule: luminosity-dependent environmental sensitivity**
+```
+// Scale the environmental biasing of morphology type by galaxy mass
+double envSensitivity = Lerp(0.3, 1.0, 1.0 - NormalizedMassRank);
+// Low-mass galaxies (NormalizedMassRank near 0) → envSensitivity = 1.0 (full effect)
+// High-mass galaxies (NormalizedMassRank near 1) → envSensitivity = 0.3 (reduced effect)
+
+double effectiveEnv = environment_density_index * envSensitivity;
+// Then use effectiveEnv in the morphology probability table from ParkEtAl2007
+```
+
+**Critical density threshold (for dwarf galaxy mode):**
+When generating dwarf galaxies specifically (M_r > M*_r + 1, i.e., faint dwarfs),
+apply a step change in morphology fraction at `EnvironmentCriticalDensity` (default:
+corresponding to group environment). Below this: field-like distribution. Above: apply
+full early-type boosting per the morphology-density table.
+
+**User lever:** No new top-level lever required; `EnvironmentDensityIndex` from
+ParkEtAl2007 implementation covers this, with mass-dependent scaling applied internally.
+
+**Cross-references:** ParkEtAl2007.txt (primary environment-morphology reference),
+OohamaEtAl2009.txt (structural properties by morphological type),
+LaurikainenEtAl2010.txt (photometric scaling by Hubble type),
+Behroozi2019.txt (halo mass / galaxy mass).

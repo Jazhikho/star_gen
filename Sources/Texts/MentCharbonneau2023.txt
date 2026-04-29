@@ -1,0 +1,79 @@
+# MentCharbonneau2023
+
+## Source metadata
+- File: `MentCharbonneau2023.pdf`
+- Domain: M-dwarf planet occurrence / ground-based
+- Pages: 25
+- Authors (auto-extracted — verify against PDF): (see PDF)
+
+## Abstract
+We present an analysis of a volume-complete sample of 363 mid-to-late M dwarfs within 15 pc of the Sun with masses between 0.1-0.3 M observed by TESS within Sectors 1 to 42. The median stellar mass of the sample is 0.17 M . We search the TESS light curves for transiting planets with orbital periods below 7 days and recover all 6 known planets within the sample as well as a likely planet candidate orbiting LHS 475. Each of these planets is consistent with a terrestrial composition, with planet radii between 0.91-1.31 R⊕ . We characterize the transit detection sensitivity for each star as a function of planet radius, insolation, and orbital period. We obtain a cumulative occurrence rate of 0.61+0.24 −0.19 terrestrial planets per star with radii above 0.5 R⊕ and orbital periods between 0.4-7 days. We find that for comparable insolations, planets larger than 1.5 R⊕ (sub-Neptunes) are significantly less abundant around mid-to-late M dwarfs compared to earlier-type stars, while the occurrence rate of terrestrial planets is comparable to that of more massive M dwarfs. We estimate that overall, terrestrials outnumber sub-Neptunes around mid-to-late M dwarfs by 14 to 1, in contrast to GK dwarfs where they are roughly equinumerous. We place a 1σ upper limit of 0.07 planets larger than
+
+## Major claims, findings, models, assumptions, and limitations
+*Human verification required before using quantitative values or model assumptions in
+StarGen defaults. Figures and equations not captured by text extraction — read the PDF
+for exact thresholds, fit coefficients, and table values.*
+
+- Primary domain: M-dwarf planet occurrence / ground-based
+- See StarGen applicability section below for the specific implications.
+
+## StarGen applicability
+Ground-based M-dwarf planet occurrence rates. Complements space-based surveys for the most common stellar type.
+
+## Parameters, constraints, and mechanics implications
+*(Human action: fill in specific numeric values, distributions, model families, and
+classification boundaries extracted from the paper. Where competing models or confidence
+ranges exist, expose those as user-selectable assumptions rather than collapsing to a
+single default. Where the paper documents uncertainty, preserve it in StarGen rather
+than presenting false precision.)*
+
+## Works cited by this paper (auto-extracted from final pages, partial)
+- Agol, E., Luger, R., & Foreman-Mackey, D. 2020, AJ, 159,
+- 123, doi: 10.3847/1538-3881/ab4fee
+- Agol, E., Dorn, C., Grimm, S. L., et al. 2021, PSJ, 2, 1,
+- doi: 10.3847/PSJ/abd022
+- Astropy Collaboration, Robitaille, T. P., Tollerud, E. J.,
+- et al. 2013, A&A, 558, A33,
+- doi: 10.1051/0004-6361/201322068
+- Astropy Collaboration, Price-Whelan, A. M., Sipőcz, B. M.,
+- et al. 2018, AJ, 156, 123, doi: 10.3847/1538-3881/aabc4f
+- Berta-Thompson, Z. K., Irwin, J., Charbonneau, D., et al.
+- 2015, Nature, 527, 204, doi: 10.1038/nature15762
+- Bonfils, X., Delfosse, X., Udry, S., et al. 2013, A&A, 549,
+- A109, doi: 10.1051/0004-6361/201014704
+- Bonfils, X., Almenara, J. M., Cloutier, R., et al. 2018,
+- A&A, 618, A142, doi: 10.1051/0004-6361/201731884
+- Boyajian, T. S., von Braun, K., van Belle, G., et al. 2012,
+- ApJ, 757, 112, doi: 10.1088/0004-637X/757/2/112
+- Brady, M. T., & Bean, J. L. 2022, AJ, 163, 255,
+- doi: 10.3847/1538-3881/ac64a0
+- Burke, C. J., Gaudi, B. S., DePoy, D. L., & Pogge, R. W.
+
+## Opposing or alternative findings cited
+*(Human action: identify papers in the reference list that present opposing models,
+competing parameter choices, or significantly different results. Note the specific
+disagreement and its implication for which StarGen default to use.)*
+
+## APA citation
+*(Verify and complete — see AnnotatedBibliography.md for the curated APA entry.)*
+
+## Conflicts and follow-up work
+*(Human action: search for papers explicitly responding to, revising, or challenging
+this paper published after its date. For fast-moving fields (exoplanet demographics,
+habitability, JWST/TESS-informed work), treat results >3 years old as potentially
+superseded. Flag updates in Followup.md.)*
+
+
+## StarGen mechanics translation
+
+### Planet occurrence — M-dwarf occurrence rates (primary M-dwarf reference)
+M-dwarfs host abundant small planets; η_Earth for M-dwarfs substantially higher than FGK.
+Occurrence rates by planet size and period for M0–M4 stars.
+
+**StarGen M-dwarf occurrence table:**
+- `OccurrenceRate_Mdwarf` — distinct table from FGK; M-dwarfs have:
+  - Higher occurrence of rocky/super-Earth planets
+  - Peak occurrence at smaller radii than FGK
+  - η_Earth (M-dwarf, conservative HZ): ~0.15–0.25 per star
+- Apply M-dwarf-specific occurrence when stellar_type == M.
+**Cross-references:** Petigura2013.txt, WanderleyEtAl2025.txt, LugerBarnes2015.txt.

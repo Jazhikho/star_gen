@@ -1,0 +1,139 @@
+# OohamaEtAl2009
+
+## Source metadata
+- File: `OohamaEtAl2009.pdf`
+- Domain: extragalactic astronomy / galaxy structure / photometric decomposition
+- Pages: ~18
+- Authors: Oohama, N., Okamura, S., Fukugita, M., Yasuda, N., & Nakamura, O.
+- Source ID in StarGen code: `oohama2009`
+- **PDF acquisition:** arXiv:0908.4312 (open access). ApJ 705, 245 (2009).
+  DOI: 10.1088/0004-637X/705/1/245
+  Download from https://arxiv.org/abs/0908.4312
+
+## Abstract
+This paper presents bulge-disk decompositions for 737 spiral (Sa–Sd) and lenticular
+(S0) galaxies drawn from the Sloan Digital Sky Survey. Using a growth curve fitting
+method applied to SDSS g-band and r-band photometry, the authors decompose each galaxy
+into a de Vaucouleurs bulge component and an exponential disk component, measuring
+effective radius (r_e), effective surface brightness (μ_e), total magnitudes, and
+bulge-to-total (B/T) luminosity ratios. The main results are: (1) bulge properties
+change systematically along the Hubble sequence (S0→Sc), with earlier types having
+larger, brighter, more luminous bulges; (2) disk properties are nearly universal and
+do not vary significantly from S0 to Sc types, suggesting that disk scale lengths and
+surface brightnesses are relatively independent of bulge prominence; (3) B/T ratios
+decrease from early (S0: ~0.4–0.6) to late types (Sc: ~0.1–0.2).
+
+## Major claims, findings, models, assumptions, and limitations
+- Bulge effective radius: increases slightly from Sc to S0 (bulge grows with earlier type)
+- Bulge effective surface brightness: brighter in earlier types (denser central regions)
+- Bulge absolute magnitude: more luminous in earlier types
+- Disk properties: scale length h_disk and disk central surface brightness μ_0 are
+  NEARLY UNIVERSAL across S0–Sc; variation is ~factor 2 and is not a systematic
+  trend with Hubble type
+- B/T ratio: S0 ≈ 0.4–0.6; Sa ≈ 0.3–0.4; Sb ≈ 0.2–0.3; Sc ≈ 0.1–0.2; Sd ≈ 0.05–0.15
+  (approximate ranges from figure reading; exact values require PDF verification)
+- Methodology: growth curve fitting is more robust to noise than 2D profile fitting
+  for average SDSS image quality; however less flexible (assumes pure de Vaucouleurs
+  bulge + exponential disk, no bar or lens component)
+- Limitation: no bar component in the decomposition; S0s and early spirals with bars
+  may have inflated B/T (bar flux absorbed into bulge component)
+- Limitation: only g and r bands; no NIR; colors may not give purely stellar mass
+- Limitation: sample limited to SDSS main galaxy sample (bright end); low surface
+  brightness galaxies excluded
+- Limitation: de Vaucouleurs profile (Sérsic n=4) assumed for all bulges; pseudo-bulges
+  (with n<2) are misfit and will have over-estimated effective radii
+
+## StarGen applicability
+Provides structural parameter defaults for galaxy bulge and disk components as a
+function of Hubble type. Used for `bulge_intensity`, `bulge_radius_pc`, `disk_scale_length_pc`,
+and related parameters in StarGen's galaxy generator. Cited in
+GalaxyScienceReferenceCatalog.cs for `galaxy_type` (Hubble type distribution),
+`subtype_mode`, `bulge_intensity`, `bulge_radius_pc`.
+
+## Parameters, constraints, and mechanics implications
+
+**B/T ratio by Hubble type (from paper, approximate):**
+- S0 / Lenticular:  B/T ~ 0.45 (range 0.30–0.65)
+- Sa:               B/T ~ 0.35 (range 0.20–0.50)
+- Sb:               B/T ~ 0.25 (range 0.15–0.40)
+- Sc:               B/T ~ 0.15 (range 0.05–0.30)
+- Sd / Irregular:   B/T ~ 0.07 (range 0.01–0.20)
+These are the primary mappings from Hubble subtype → bulge prominence in StarGen.
+
+**Bulge effective radius (approximate, for L* galaxies):**
+- S0: r_e(bulge) ~ 1–3 kpc (depends heavily on galaxy total luminosity)
+- Sc: r_e(bulge) ~ 0.3–1 kpc
+Bulge radius scales with galaxy stellar mass; Kormendy (1977) relation applies.
+
+**Disk scale length (approximately universal):**
+- h_disk ~ 2–5 kpc for L* disk galaxies, regardless of Hubble type
+- Variation is primarily driven by total galaxy stellar mass, not Hubble type
+- StarGen: for `disk_scale_length_pc`, use a mass-based relation, not a Hubble-type
+  dependent one (because disk universality is the key finding)
+
+**Disk central surface brightness (Freeman's law approximation):**
+- μ_0 (disk) ≈ 21.65 ± 0.30 mag/arcsec² in B-band (Freeman 1970) — not strongly
+  dependent on Hubble type (consistent with disk universality finding)
+
+## APA citation
+Oohama, N., Okamura, S., Fukugita, M., Yasuda, N., & Nakamura, O. (2009). Properties
+of disks and bulges of spiral and lenticular galaxies in the Sloan Digital Sky Survey.
+The Astrophysical Journal, 705(1), 245–259.
+https://doi.org/10.1088/0004-637X/705/1/245
+
+## Conflicts and follow-up work
+
+**More comprehensive decompositions (important follow-up):**
+- Meert, A., Vikram, V., & Bernardi, M. (2015) MNRAS 446, 3943 — "A catalog of
+  bulge+disk decompositions and updated photometry for 1.12 million galaxies in SDSS."
+  arXiv:1407.6188. Dramatically larger sample; multi-component (bar, ring, lens)
+  decompositions. Use as a primary reference if detailed structural statistics are
+  needed.
+- Gadotti, D. A. (2009) MNRAS 393, 1531 — pseudo-bulge vs classical bulge decompositions
+  in SDSS; important for getting Sérsic index distributions. arXiv:0810.1953.
+- Simard, L., et al. (2011) ApJS 196, 11 — large SDSS bulge+disk catalog with Sérsic
+  fitting. arXiv:1107.1518. Complementary to Meert et al.
+
+**NIR-based decompositions (more accurate for stellar mass):**
+- LaurikainenEtAl2010.txt (in corpus) — NIRS0S Ks-band decompositions for S0s and
+  spirals; NIR better traces stellar mass, less affected by dust/recent SF.
+- Salo, H., et al. (2015) ApJS 219, 4 (S4G survey) — 2352 galaxies at 3.6 μm with
+  full multi-component decompositions. arXiv:1503.07711. Gold standard for nearby galaxies.
+
+**Citation discovery:**
+- ADS: https://ui.adsabs.harvard.edu/abs/2009ApJ...705..245O
+
+## StarGen mechanics translation
+
+### Bulge/disk parameter generation by Hubble subtype
+This paper (with LaurikainenEtAl2010) provides the structural parameter lookup table
+for galaxy components in StarGen.
+
+**B/T ratio sampling (by Hubble subtype):**
+```
+// Mean and sigma for log-normal B/T distribution by subtype
+GalaxyType | BT_mean | BT_sigma
+S0         |  0.45   |  0.12
+Sa         |  0.35   |  0.10
+Sb         |  0.25   |  0.09
+Sc         |  0.15   |  0.08
+Sd/Irr     |  0.07   |  0.06
+// Sample: double bt = Clamp(rng.NextGaussian(BT_mean, BT_sigma), 0.01, 0.95)
+```
+
+**Disk universality rule:**
+Do NOT vary disk scale length with Hubble subtype directly.
+Instead, scale disk_scale_length_pc from stellar mass:
+  h_disk ~ 3.5 kpc × (M_star / 5e10 M_sun)^0.35 (approximate; tunable)
+Apply a log-normal scatter of σ ~ 0.25 dex around this mass-based median.
+
+**Bulge radius from B/T:**
+  r_e(bulge) ~ r_half_light × sqrt(B/T) × 0.7  (approximate geometric relation)
+where r_half_light is derived from total galaxy radius.
+
+**User lever:** `BulgeDiskDecompositionModel` (default: `Oohama2009` for optical SDSS
+properties; `LaurikainenNIRS0S` for NIR-based values preferred for stellar mass accuracy).
+
+**Cross-references:** LaurikainenEtAl2010.txt (NIR structural parameters, S0 emphasis),
+ParkEtAl2007.txt (environment sets morphological type upstream),
+TanakaEtAl2004.txt (mass-dependent environment effects).

@@ -1,0 +1,69 @@
+# Kormendy2009
+
+## Source metadata
+- File: `Kormendy2009.pdf`
+- Domain: galaxy morphology/pseudobulges
+- Pages: 94
+- Authors (auto-extracted — verify against PDF): (see PDF)
+
+## Abstract
+New surface photometry of all known elliptical galaxies in the Virgo cluster is combined with published data to derive composite profiles of brightness, ellipticity, position angle, isophote shape, and color over large radius ranges. These provide enough leverage to show that Sérsic log I ∝ r1/n functions fit the brightness profiles I(r) of nearly all ellipticals remarkably well over large dynamic ranges. Therefore we can confidently identify departures from these profiles that are diagnostic of galaxy formation. Two kinds of departures are seen at small radii. All 10 of our ellipticals with total absolute magnitudes MV T ≤ −21.66 have cuspy cores – “missing light” – at small radii. Cores are well known and naturally scoured by binary black holes formed in dissipationless (“dry”) mergers. All 17 ellipticals with −21.54 ≤ MV T ≤ −15.53 do not have cores. We find a new distinct component in these galaxies: All coreless ellipticals in our sample have extra light at the center above the inward extrapolation of the outer Sérsic profile. In large ellipticals, the excess light is spatially resolved and resembles the the central components predicted in numerical simulations of mergers of galaxies that contain gas. In the simulations, the gas dissipates, falls toward the center, undergoes a starburst, and builds a compact stellar component that, as in our observations, is distinct from the Sérsic-function main body of the elliptical. But ellipticals with extra light also contain supermassive black holes. We suggest that the starburst has swamped core scouring by binary black holes. That is, we interpret extra light components as a signature of formation in dissipative (“wet”) merg
+
+## Major claims, findings, models, assumptions, and limitations
+*Human verification required before using quantitative values or model assumptions in
+StarGen defaults. Figures and equations not captured by text extraction — read the PDF
+for exact thresholds, fit coefficients, and table values.*
+
+- Primary domain: galaxy morphology/pseudobulges
+- See StarGen applicability section below for the specific implications.
+
+## StarGen applicability
+Pseudobulge vs classical bulge: pseudobulges form by secular disk evolution. Relevant to galaxy morphology classification in StarGen.
+
+## Parameters, constraints, and mechanics implications
+*(Human action: fill in specific numeric values, distributions, model families, and
+classification boundaries extracted from the paper. Where competing models or confidence
+ranges exist, expose those as user-selectable assumptions rather than collapsing to a
+single default. Where the paper documents uncertainty, preserve it in StarGen rather
+than presenting false precision.)*
+
+## Works cited by this paper (auto-extracted from final pages, partial)
+- Abazajian, K., et al. 2003, AJ, 126, 2081
+- Abazajian, K., et al. 2004, AJ, 128, 502
+- Abazajian, K., et al. 2005, AJ, 129, 1755
+- Aguilar, L. A., & White, S. D. M. 1986, ApJ, 307, 97
+- Arsenault, R., Salmon, D. A., Kerr, J. M., Rigaut, F. J., Crampton, D., &
+- Grundmann, W. A. 1994, Proc SPIE, 2201, 833
+- Baggett. S., & Gonzaga, S. 1998, WFPC2 Long-Term Photometric Stability,
+- Instrument Science Report 98-03 (Space Telescope Science Institute),
+- http://www.stsci.edu/hst/wfpc2/documents/isr/wfpc2_
+- Balcells, M., & Quinn, P. J. 1990, ApJ, 361, 381
+- Baldry, I. K., Glazebrook, K., Brinkmann, J., Ivezić, Ž., Lupton, R. H., Nichol,
+- R. C., & Szalay, A. S. 2004, ApJ, 600, 681
+- Balmaverde, B., & Capetti, A. 2006, A&A, 447, 97
+- Banse, K., Ponz, D., Ounnas, C., Grosbøl, P., & Warmels, R. 1988, in
+- Instrumentation for Ground-Based Optical Astronomy: Present and Future,
+- ed. L. B. Robinson (New York: Springer), 431
+- Barnes, J. E., & Hernquist, L. E. 1991, ApJ, 370, L65
+- Barnes, J. E., & Hernquist, L.. 1996, ApJ, 471, 115
+- Barth, A. J., Greene, J. E., & Ho, L. C. 2008, AJ, in press (astro-ph/0807.3316)
+- Barth, A. J., Ho, L. C., Rutledge, R. E., & Sargent, W. L. W. 2004, ApJ, 607,
+
+## Opposing or alternative findings cited
+*(Human action: identify papers in the reference list that present opposing models,
+competing parameter choices, or significantly different results. Note the specific
+disagreement and its implication for which StarGen default to use.)*
+
+## APA citation
+*(Verify and complete — see AnnotatedBibliography.md for the curated APA entry.)*
+
+## Conflicts and follow-up work
+*(Human action: search for papers explicitly responding to, revising, or challenging
+this paper published after its date. For fast-moving fields (exoplanet demographics,
+habitability, JWST/TESS-informed work), treat results >3 years old as potentially
+superseded. Flag updates in Followup.md.)*
+
+
+## StarGen mechanics translation
+
+*(Mechanics for Kormendy2009 pending human review — verify paper domain against PDF and fill in specific implementable rules, enums, numeric thresholds, and cross-references.)*

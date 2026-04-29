@@ -1,0 +1,79 @@
+# Petit2018
+
+## Source metadata
+- File: `Petit2018.pdf`
+- Domain: orbital stability / AMD criterion
+- Pages: 10
+- Authors (auto-extracted — verify against PDF): Antoine C. Petit, Jacques Laskar, Gwenaël Boué
+
+## Abstract
+In a two-planet system, due to Sundman (1912) inequality, a topological boundary can forbid close encounters between the two planets for infinite time. A system is said Hill stable if it verifies this topological condition. Hill stability is widely used in the study of extra solar planets dynamics. However people often use the coplanar and circular orbits approximation. In this paper, we explain how the Hill stability can be understood in the framework of Angular Momentum Deficit (AMD). In the secular approximation, the AMD allows to discriminate between a priori stable systems and systems for which a more in depth dynamical analysis is required. We show that the general Hill stability criterion can be expressed as a function of only the semi major axes, the masses and the total AMD of the system. The proposed criterion is only expanded in the planets-to-star mass ratio ε and not in the semi-major axis ratio, in eccentricities nor in the mutual inclination. Moreover the expansion in ε remains excellent up to values of about 10−3 even for two planets with very different mass values. We performed numerical simulations in order to highlight the sharp change of behaviour between Hill stable and Hill unstable systems. We show that Hill stable systems tend to be very regular whereas Hill unstable ones often lead to rapid planet collisions. We also remind that Hill stability does not protect from the ejection of the outer planet.
+
+## Major claims, findings, models, assumptions, and limitations
+*Human verification required before using quantitative values or model assumptions in
+StarGen defaults. Figures and equations not captured by text extraction — read the PDF
+for exact thresholds, fit coefficients, and table values.*
+
+- Primary domain: orbital stability / AMD criterion
+- See StarGen applicability section below for the specific implications.
+
+## StarGen applicability
+AMD-stability: a system is stable if no planet pair can exchange enough AMD to cause crossing. Quantitative stability filter for StarGen system validation without N-body.
+
+## Parameters, constraints, and mechanics implications
+*(Human action: fill in specific numeric values, distributions, model families, and
+classification boundaries extracted from the paper. Where competing models or confidence
+ranges exist, expose those as user-selectable assumptions rather than collapsing to a
+single default. Where the paper documents uncertainty, preserve it in StarGen rather
+than presenting false precision.)*
+
+## Works cited by this paper (auto-extracted from final pages, partial)
+- In a two planet system, Hill stability is a topological limit
+- that forbids close encounters between the outer planet and
+- the inner planet or the star. If verified, the system will remain stable if the outer planet does not escape or if the inner
+- planet does not collide the star. Moreover, since a minimal
+- distance between planets is imposed, the planet perturbation remains moderate and the system is most likely regular.
+- We have generalised here Gladman’s Hill stability criterion and have shown that it is natural to express the Hill
+- criterion in the AMD framework. Indeed, we have obtained
+- a simple expression for this criterion (Proposition 3), with
+- only an expansion in ε (eq. 1). Moreover, it is easy to recover all former published criteria as particular cases of this
+- expression. Because of its formulation as a function of the
+- AMD, the expression (26) is valid in the general spatial
+- case, for any value of eccentricities and inclinations. Moreover, our Hill criterion is accurate even for very different
+- planet masses. We also highlight that the AMD and the
+- semi-major axis ratio α are the main parameters to consider in a stability study.
+- We show that the Hill stability allows to give an accurate stability limit up to large orbital separations. The
+- sharp change of behaviour at the Hill stability limit has
+- already been studied in (Barnes & Greenberg 2006) or in
+- (Deck et al. 2013). Nevertheless, our numerical integrations
+- confirm it for a much larger range of α and AMD with randomised initial conditions for the parameters not taken into
+- Our simulations for large planet masses also show that
+
+## Opposing or alternative findings cited
+*(Human action: identify papers in the reference list that present opposing models,
+competing parameter choices, or significantly different results. Note the specific
+disagreement and its implication for which StarGen default to use.)*
+
+## APA citation
+*(Verify and complete — see AnnotatedBibliography.md for the curated APA entry.)*
+
+## Conflicts and follow-up work
+*(Human action: search for papers explicitly responding to, revising, or challenging
+this paper published after its date. For fast-moving fields (exoplanet demographics,
+habitability, JWST/TESS-informed work), treat results >3 years old as potentially
+superseded. Flag updates in Followup.md.)*
+
+
+## StarGen mechanics translation
+
+### Planetary system stability — AMD (angular momentum deficit) stability criterion
+AMD stability predicts whether a planetary system is long-term stable without N-body
+integration. Efficient filter for generated system architectures.
+
+**StarGen stability filter:**
+- `AMD_Stability_Check` — compute AMD for each adjacent planet pair.
+- AMD_critical thresholds from paper equations (function of mass ratio, period ratio).
+- If AMD > AMD_critical: flag system as `Unstable` or regenerate with wider spacing.
+- Apply after architecture generation, before finalising planet list.
+**User lever:** `StabilityFilter` — `AMD_Petit2018` | `SPOCK_Tamayo2020` | `None`
+**Cross-references:** Petit2020.txt, Tamayo2020.txt, Obertas2017.txt.

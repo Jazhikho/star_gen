@@ -27,7 +27,7 @@ Grounding:
 
 - Kremer (1993) supports scale-sensitive innovation potential.
 - Henrich et al. (2016) supports cumulative cultural retention as a real limit on complex techniques.
-- Comin and Hobijn (2010) supports technology diffusion and adoption as distinct from invention.
+- Technology diffusion and adoption are modeled as distinct from invention pace for adapter-facing tech readouts.
 
 Presentation logic:
 
@@ -42,7 +42,7 @@ Why it is shown:
 
 Grounding:
 
-- Blanton and Fargher (2008) supports bargaining structure and public-goods dependence as major regime-shaping forces.
+- Fiscal bargaining breadth and public-goods dependence are treated as major regime-shaping inputs distinct from pure extraction or conquest logic.
 - Turchin (2010) supports threat and large-scale coordination pressure as real institutional drivers.
 
 Presentation logic:
@@ -125,8 +125,7 @@ Why it is shown:
 
 Grounding:
 
-- Comin and Hobijn (2010) supports technology diffusion and adoption through connection.
-- Trade and offworld connection also materially affect logistics, political bargaining, and settlement concentration.
+- Trade connectivity is modeled as a driver of technology diffusion and adoption, alongside logistics, political bargaining, and settlement concentration.
 
 Why it is shown:
 
@@ -158,7 +157,7 @@ Why it is shown:
 
 Grounding:
 
-- Blanton and Fargher (2008) supports bargaining and public-goods dependence as central governance variables.
+- Bargaining scope and public-goods dependence are modeled as central governance variables alongside threat and scale drivers.
 
 Why it is shown:
 
@@ -210,7 +209,7 @@ Why it is shown:
 
 Grounding:
 
-- Comin and Hobijn (2010) supports diffusion and adoption as a major part of technological reality.
+- Diffusion and adoption are explicit axes separate from invention-only or age-only technological depth.
 
 Why it is shown:
 

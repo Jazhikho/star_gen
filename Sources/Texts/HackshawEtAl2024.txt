@@ -1,0 +1,154 @@
+# HackshawEtAl2024
+
+## Source metadata
+- File: `HackshawEtAl2024.pdf`
+- Domain: galactic astronomy / Milky Way chemical structure
+- Pages: ~20
+- Authors: Hackshaw, Z., Hawkins, K., et al. (multiple collaborators)
+- Source ID in StarGen code: `apogee2024`
+- **PDF acquisition:** arXiv:2405.18120 (open access). Submitted May 2024, revised Nov 2024.
+  Download from https://arxiv.org/abs/2405.18120
+
+## Abstract
+This paper presents a detailed chemical cartography of the Galactic disk using giant
+stars from APOGEE DR17, focusing on mapping azimuthal variations in multiple elemental
+abundances ([X/Fe] for X = Fe, Mg, O, and others) on top of the well-known radial
+metallicity gradient. The study confirms a radial metallicity gradient of
+Δ[Fe/H]/ΔR = −0.066 ± 0.0004 dex/kpc and a vertical gradient of
+Δ[Fe/H]/ΔZ = −0.164 ± 0.001 dex/kpc. In addition, the authors find azimuthal
+variations at the ±0.1 dex level in [Fe/H] and ±0.05 dex in alpha-element ratios
+([Mg/Fe], [O/Fe]). These azimuthal variations are age-dependent: older stellar
+populations show larger deviations from the mean radial gradient. The results
+demonstrate that the Milky Way disk is not axisymmetric in its chemical abundance
+distribution, with spiral arm and bar-driven mixing as likely causes.
+
+## Major claims, findings, models, assumptions, and limitations
+- Radial [Fe/H] gradient: −0.066 ± 0.0004 dex/kpc (most precise measurement to date
+  from APOGEE; confirmed over 4–14 kpc range)
+- Vertical [Fe/H] gradient: −0.164 ± 0.001 dex/kpc (strong; disk chemistry stratified
+  with height above plane)
+- Azimuthal [Fe/H] scatter: ±0.1 dex around the mean radial gradient at any given radius
+  (comparable to scatter in the thin disk's metallicity distribution function)
+- Alpha-element azimuthal scatter: ±0.05 dex ([Mg/Fe], [O/Fe]) — smaller but significant
+- Age dependence: older stellar populations (>8 Gyr) show larger azimuthal deviations;
+  young populations track the spiral arm structure more tightly
+- Non-axisymmetry likely driven by: spiral arms, bar resonances, open clusters,
+  recent star formation episodes (not just measurement noise)
+- Limitation: APOGEE samples giant stars; may not represent the full thin-disk age/
+  metallicity structure perfectly (evolved off the main sequence, sampling biases)
+- Limitation: only traces stars currently in the disk; radial migration means some
+  stars are not near their birth location
+- Limitation: azimuthal variations are at the ±0.1 dex level — small but real; may
+  not be important for many StarGen use cases
+
+## StarGen applicability
+Primary empirical reference for the Milky Way's radial metallicity gradient. The value
+−0.066 dex/kpc is the most precise recent determination and should be used as the
+default `metallicity_gradient_dex_per_kpc` in StarGen's galaxy generator. The azimuthal
+scatter provides a justification for adding a stochastic metallicity term at any given
+location. Cited in GalaxyScienceReferenceCatalog.cs for `metallicity_gradient_dex_per_kpc`.
+
+## Parameters, constraints, and mechanics implications
+
+**Default metallicity gradient for StarGen galaxy generator:**
+- d[Fe/H]/dR = −0.066 dex/kpc (radial; use as the slope of the linear metallicity
+  model in the disk)
+- Reference point: [Fe/H] = 0.00 at R = 8.0 kpc (solar neighborhood calibration)
+- This gives [Fe/H](R) = −0.066 × (R_kpc − 8.0) for a first-order model
+
+**[Fe/H] at key radii (from gradient):**
+- R = 4 kpc: [Fe/H] ≈ +0.26 dex
+- R = 6 kpc: [Fe/H] ≈ +0.13 dex
+- R = 8 kpc: [Fe/H] ≈ 0.00 dex (solar)
+- R = 10 kpc: [Fe/H] ≈ −0.13 dex
+- R = 12 kpc: [Fe/H] ≈ −0.26 dex
+- R = 14 kpc: [Fe/H] ≈ −0.40 dex
+
+**Vertical gradient:**
+- d[Fe/H]/dZ = −0.164 dex/kpc (perpendicular to disk plane)
+- At Z = 0: use radial gradient value; at Z = 1 kpc above plane: subtract 0.164 dex
+- Relevant for generating stars in thick disk or halo context
+
+**Azimuthal scatter (stochastic term):**
+- At any (R, Z), add a Gaussian scatter with σ_az ≈ 0.05–0.10 dex to [Fe/H]
+  to represent azimuthal non-uniformity
+- Optionally correlate with stellar age: σ_az ∝ age (larger for older stars)
+- Default: apply σ_az = 0.08 dex if `AzimuthalChemicalVariation` is enabled
+
+**Implications for planet habitability:**
+- The ±0.1 dex azimuthal scatter means that at a given R, some regions are ~26% more
+  metal-rich (0.1 dex) and others are ~26% more metal-poor than the mean
+- This scatter can shift individual stellar metallicities across the GHZ metallicity
+  threshold ([Fe/H] = −0.5 dex) for stars near the outer disk boundary
+
+## APA citation
+Hackshaw, Z., & Hawkins, K., et al. (2024). [X/Fe] marks the spot: Mapping chemical
+azimuthal variations in the Galactic disk with APOGEE. [Preprint].
+https://arxiv.org/abs/2405.18120
+
+*(Full journal citation to be confirmed upon publication; verify on ADS or NASA ADS.)*
+
+## Conflicts and follow-up work
+
+**Companion and cross-check papers:**
+- TrentinEtAl2024.txt (C-MetaLL VI): independent Cepheid-based measurement of the
+  radial [Fe/H] gradient gives −0.071 dex/kpc — consistent with Hackshaw et al.'s
+  −0.066 dex/kpc within ~1σ; together these two anchor the default StarGen value.
+- SpitoniEtAl2017.txt: chemical evolution model predicts a similar gradient from
+  theory; this paper provides the observational calibration.
+
+**Earlier APOGEE metallicity gradient papers (context for evolution of the measurement):**
+- Hayden, M. R., et al. (2014) — APOGEE DR10 gradient: −0.056 dex/kpc. arXiv:1408.6855.
+- Donor, J., et al. (2020) — open cluster metallicity gradient with APOGEE: −0.068 dex/kpc.
+  arXiv:1903.01653.
+- These confirm the Hackshaw et al. (2024) value is consistent with the literature
+  trend; the precision is improved by DR17's larger sample.
+
+**Non-axisymmetry / azimuthal variation literature:**
+- Anders, F., et al. (2017) — early evidence for azimuthal metallicity variations from
+  APOGEE: arXiv:1604.07537.
+- Bovy, J., et al. (2019) — APOGEE age-metallicity-spatial structure analysis.
+
+**Citation discovery:**
+- ADS/arXiv: https://arxiv.org/abs/2405.18120
+
+## StarGen mechanics translation
+
+### Radial metallicity gradient — default calibration
+The −0.066 dex/kpc gradient from Hackshaw et al. (2024) is the recommended default
+for StarGen's `metallicity_gradient_dex_per_kpc` parameter (in GalaxyScienceReferenceCatalog.cs).
+
+**Implementation:**
+```csharp
+// Linear disk metallicity model
+double diskFeH(double r_kpc, double centerFeH = 0.264) =>
+    centerFeH + MetallicityGradientDexPerKpc * (r_kpc - 8.0);
+// MetallicityGradientDexPerKpc default: -0.066
+// (yields [Fe/H] = 0.00 at r = 8.0 kpc by construction)
+```
+
+**Azimuthal scatter (optional, controlled by user lever):**
+```csharp
+// Add azimuthal stochastic component if enabled
+if (EnableAzimuthalChemicalVariation)
+{
+    double sigma = 0.08; // dex; from Hackshaw et al. ±0.1 dex range
+    double deltaFeH = rng.NextGaussian(0.0, sigma);
+    feH += deltaFeH;
+}
+```
+
+**Vertical gradient hook (for thick disk / halo context):**
+```csharp
+double verticalCorrection = VerticalMetallicityGradientDexPerKpc * Math.Abs(z_kpc);
+// VerticalMetallicityGradientDexPerKpc default: -0.164
+feH += verticalCorrection;
+```
+
+**User levers:** `MetallicityGradientDexPerKpc` (default −0.066), `CentralDiskFeH`
+(default +0.264), `EnableAzimuthalChemicalVariation` (bool, default false for
+deterministic modes), `VerticalMetallicityGradientDexPerKpc` (default −0.164).
+
+**Cross-references:** TrentinEtAl2024.txt (cross-check), SpitoniEtAl2017.txt (theory
+backbone), ForgnEtAl2017.txt (GHZ uses this gradient as input),
+BlandHawthornGerhard2016.txt (MW disk scale height/length context).

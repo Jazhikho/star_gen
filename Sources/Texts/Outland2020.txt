@@ -1,0 +1,53 @@
+# Outland2020
+
+## Source metadata
+- File: `Outland2020.pdf`
+- Domain: science communication
+- Pages: 38
+- Authors (auto-extracted — verify against PDF): Bennet Outlanda , Gretchen Noblea , Andrew W. Smithb , Jack J. Lissauerc
+
+## Abstract
+We investigate the orbital dynamics of four-planet systems consisting of Earth-mass planets on initially-circular, coplanar orbits around a star of one solar mass. In our simulations, the innermost planet’s semimajor axis is set at 1 AU, with subsequent semimajor axes spaced equally in terms of planets’ mutual Hill radii. Several sets of initial planetary longitudes are investigated, with integrations continuing for up to 1010 orbits of the innermost planet, stopping if a pair of planets pass within 0.01 AU of each other or if a planet is ejected from the system. We find that the simulated lifetimes of four-planet systems follow the general trend of increasing exponentially with planetary spacing, as seen by previous studies of closely-spaced planets. Four-planet system lifetimes are intermediate between those of three- and five-planet systems and more similar to the latter. Moreover, as with fiveplanet systems, but in marked contrast to the three-planet case, no initial semimajor axes spacings are found to yield systems that survive several orders of magnitude longer than other similar spacings. First- and second-order mean-motion resonances (MMRs) between planets correlate with reductions in system lifetimes. Additionally, we find that third-order MMRs between planets on neighboring orbits also have a substantial, though smaller, destabilizing effect on systems very near resonance that otherwise would be very long-lived. Local extrema of system lifetimes as a function of planetary spacing occur at slightly smaller initial orbital separation for systems with planets initially at conjunction relative to those in which the planets begin on widely-separated longitudes. This
+
+## Major claims, findings, models, assumptions, and limitations
+*Human verification required before using quantitative values or model assumptions in
+StarGen defaults. Figures and equations not captured by text extraction — read the PDF
+for exact thresholds, fit coefficients, and table values.*
+
+- Primary domain: science communication
+- See StarGen applicability section below for the specific implications.
+
+## StarGen applicability
+If outreach paper: limited direct StarGen applicability — verify abstract.
+
+## Parameters, constraints, and mechanics implications
+*(Human action: fill in specific numeric values, distributions, model families, and
+classification boundaries extracted from the paper. Where competing models or confidence
+ranges exist, expose those as user-selectable assumptions rather than collapsing to a
+single default. Where the paper documents uncertainty, preserve it in StarGen rather
+than presenting false precision.)*
+
+## Works cited by this paper (auto-extracted from final pages, partial)
+- (Reference extraction incomplete — verify PDF.)
+
+## Opposing or alternative findings cited
+*(Human action: identify papers in the reference list that present opposing models,
+competing parameter choices, or significantly different results. Note the specific
+disagreement and its implication for which StarGen default to use.)*
+
+## APA citation
+*(Verify and complete — see AnnotatedBibliography.md for the curated APA entry.)*
+
+## Conflicts and follow-up work
+*(Human action: search for papers explicitly responding to, revising, or challenging
+this paper published after its date. For fast-moving fields (exoplanet demographics,
+habitability, JWST/TESS-informed work), treat results >3 years old as potentially
+superseded. Flag updates in Followup.md.)*
+
+
+## StarGen mechanics translation
+
+### Off-topic candidate — verify corpus membership
+Flagged as potentially off-topic.
+**StarGen:** No mechanics encoded. Verify before use.
+**Cross-references:** ResearchAuditSummary.md.

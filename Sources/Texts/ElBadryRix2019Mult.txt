@@ -1,0 +1,71 @@
+# ElBadryRix2019Mult
+
+## Source metadata
+- File: `ElBadryRix2019Mult.pdf`
+- Domain: stellar multiplicity / wide binary fraction metallicity dependence
+- Authors (verify against PDF title page)
+
+## Abstract
+We combine a catalog of wide binaries constructed from Gaia DR2 with [Fe/H] abundances from wide-field spectroscopic surveys to quantify how the binary fraction varies with metallicity over separations 50 . s/AU . 50, 000. At a given distance, the completeness of the catalog is independent of metallicity, making it straightforward to constrain intrinsic variation with [Fe/H]. The wide binary fraction is basically constant with [Fe/H] at large separations (s & 250 AU) but becomes quite rapidly anticorrelated with [Fe/H] at smaller separations: for 50 < s/AU < 100, the binary fraction at [Fe/H] = −1 exceeds that at [Fe/H] = 0.5 by a factor of 3, an anti-correlation almost as strong as that found for close binaries with a < 10 AU. Interpreted in terms of models where disk fragmentation is more efficient at low [Fe/H], our results suggest that 100 < a/AU < 200 is the separation below which a significant fraction of binaries formed via fragmentation of individual gravitationally unstable disks rather than through turbulent core fragmentation. We provide a public catalog of 8,407 binaries within 200 pc with spectroscopically-determined [Fe/H] for at least one component. Key words: binaries: visual – stars: formation – stars: abundances 1 INTRODUCTION The statistical properties of the binary star population and their potential variation with metallicity provide powerful diagnostics of the star formation process (White & Ghez 2001; Machida et al. 2009; Duchêne & Kraus 2013; Bate 2014; Badenes et al. 2018; Moe et al. 2018). Different binary formation mechanisms predict different metallicity dependences of the resulting binary fraction (Moe et al. 2018). Measurements of metallicity dependence as a function of orbital separation can thus constrain the separation regimes in which 
+
+## Major claims, findings, models, assumptions, and limitations
+*Human verification required before using quantitative values or model assumptions in
+StarGen defaults. Figures and equations not captured by text extraction — read the PDF
+for exact thresholds, fit coefficients, and table values.*
+
+- Primary domain: stellar multiplicity / wide binary fraction metallicity dependence
+- See StarGen applicability section below for the specific implications.
+
+## StarGen applicability
+Wide binary fraction anti-correlates with [Fe/H] at a < 200 AU; 3× higher at [Fe/H]=−1 vs +0.5 for 50–100 AU. StarGen should apply metallicity-dependent binary fraction for wide companions.
+
+## Parameters, constraints, and mechanics implications
+*(Human action: fill in specific numeric values, distributions, model families, and
+classification boundaries extracted from the paper. Where competing models or confidence
+ranges exist, expose those as user-selectable assumptions rather than collapsing to a
+single default. Where the paper documents uncertainty, preserve it in StarGen rather
+than presenting false precision.)*
+
+## Works cited by this paper (auto-extracted from final pages, partial)
+- El-Badry & Rix
+- Table 1. Sources of the spectroscopic abundances
+- Ntot, d <200 pc
+- Total stars
+- Total number of binaries
+- This extended search yields 23,079 new binaries not included in the initial catalog. Many of the new additions have
+- Spectroscopic metallicities
+- We cross-matched the expanded wide binary catalog with
+- Zhao et al. 2012), RAVE (DR5; Kunder et al. 2017),
+- APOGEE (DR14; Majewski et al. 2017, using the abundances derived by Ting et al. 2018), and GALAH (DR2;
+- Buder et al. 2018). We also cross-matched with the Hypatia
+- The resulting catalog is summarized in Table 1. Crossmatching yields a spectroscopic [Fe/H] for at least one component of 8,407 binaries; in 440, a spectroscopic [Fe/H] is
+- We also construct a spectroscopic “control sample” that
+- Binaries with angular separations of less than a few arcsec may not be spatially resolved by ground-based spectroscopic surveys. The resulting errors in [Fe/H] are expected
+- Metallicity Distribution
+
+## Opposing or alternative findings cited
+*(Human action: identify papers in the reference list that present opposing models,
+competing parameter choices, or significantly different results. Note the specific
+disagreement and its implication for which StarGen default to use.)*
+
+## APA citation
+*(Verify and complete — see AnnotatedBibliography.md for the curated APA entry.)*
+
+## Conflicts and follow-up work
+*(Human action: search for papers explicitly responding to, revising, or challenging
+this paper published after its date. For fast-moving fields (exoplanet demographics,
+habitability, JWST/TESS-informed work), treat results >3 years old as potentially
+superseded. Flag updates in Followup.md.)*
+
+## StarGen mechanics translation
+
+### Wide binary fraction — metallicity dependence (a < 200 AU)
+Wide binary fraction is metallicity-independent at a > 250 AU but anti-correlates with
+[Fe/H] at a < 200 AU by factor ~3 over −1 < [Fe/H] < +0.5.
+
+**StarGen metallicity correction for wide companions:**
+- `WideBinaryFraction_MetallicityCorrection` applies to separations 50–200 AU.
+- At [Fe/H] = −1: binary fraction ×3 higher than at [Fe/H] = +0.5 for this range.
+- At a > 250 AU: no metallicity correction needed.
+- Apply as multiplicative modifier to DucheneKraus2013/MoeDiStefano2017 fractions.
+**Cross-references:** MoeDiStefano2017.txt, DucheneKraus2013.txt, Raghavan2010.txt.

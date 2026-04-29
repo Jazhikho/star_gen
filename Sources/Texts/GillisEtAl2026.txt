@@ -1,0 +1,182 @@
+# GillisEtAl2026
+
+## Source metadata
+- File: `GillisEtAl2026.pdf`
+- Domain: exoplanet demographics / M-dwarf planet populations / radius gap
+- Pages: 26
+- Authors: Gillis, E. [Erik], Pass, E. K., et al.
+- Source ID in StarGen code: `gillis2026`
+- **PDF acquisition:** PDF confirmed present in Sources/Texts/.
+  Note: Author list auto-extraction was garbled; verify first author name against PDF.
+- Journal: pending verification (TESS survey paper — likely AJ or ApJ, 2026)
+
+## Abstract
+We present the deepest systematic search for planets around mid-to-late M dwarfs to date.
+We have surveyed 8134 mid-to-late M dwarfs observed by TESS with a custom built pipeline
+and recover 77 vetted transiting planet candidates. We characterize the sensitivity of our
+survey via injection-recovery and measure the occurrence rate of planets as a function of
+orbital period, instellation, and planet radius. We measure a cumulative occurrence rate of
+1.10 ± 0.16 planets per star with radii > 1 R⊕ orbiting within 30 days. This value is
+consistent with the cumulative occurrence rate around early M dwarfs, making M dwarfs
+collectively the most prolific hosts of small close-in planets. Unlike the bimodal Radius
+Valley exhibited by close-in planet population around FGK and early M dwarfs, we recover
+a unimodal planet radius distribution peaking at 1.25 ± 0.05 R⊕. We additionally find
+0.954 ± 0.147 super-Earths and 0.148 ± 0.045 sub-Neptunes per star, with super-Earths
+outnumbering sub-Neptunes 5.5:1, firmly demonstrating that the Radius Valley disappears
+around the lowest mass stars. The dearth of sub-Neptunes around mid-to-late M dwarfs is
+consistent with predictions from water-rich pebble accretion models that predict a fading
+Radius Valley with decreasing stellar mass. Our results support the emerging idea that the
+sub-Neptune population around M dwarfs is composed of water-rich worlds. We find no hot
+Jupiters in our survey and set an upper limit of 0.012 hot Jupiters per mid-to-late M dwarf
+within 10 days.
+
+## Major claims, findings, models, assumptions, and limitations
+- **Radius Valley disappears around M4+ hosts:** The bimodal gap at ~1.7 R⊕ that
+  separates super-Earths from sub-Neptunes around FGK and early M dwarfs is absent for
+  mid-to-late M dwarfs. Instead, a unimodal distribution peaks at 1.25 ± 0.05 R⊕.
+- **Occurrence rates (mid-to-late M dwarfs):**
+  - Cumulative (radii > 1 R⊕, P < 30 d): 1.10 ± 0.16 planets/star
+  - Super-Earths (1–2 R⊕ approx): 0.954 ± 0.147 per star
+  - Sub-Neptunes (~2–4 R⊕ approx): 0.148 ± 0.045 per star
+  - Super-Earth : sub-Neptune ratio: 5.5 : 1
+  - Hot Jupiters (P < 10 d): < 0.012 per star (upper limit)
+- **Water-rich composition model:** The absence of the radius valley is consistent with
+  water-rich pebble accretion models (Burn et al. 2024): around low-mass M dwarfs,
+  planets form water-rich ("ocean worlds") rather than rocky+H/He worlds. The sub-Neptune
+  population is therefore water-rich, not gas-envelope-stripped rocky planets.
+- **Formation mechanism implication:** The thermal photoevaporation and core-powered mass
+  loss models that explain the radius valley around FGK stars break down for M4+ dwarfs
+  because the planet formation environment (pebble-dominated, water-ice-rich) is
+  fundamentally different.
+- **Consistency with SolizWelsh2026:** Water-rich worlds around late M dwarfs would not
+  accumulate atmospheric oxygen via oxygenic photosynthesis in the same way rocky land-
+  bearing worlds do. This is consistent with SolizWelsh2026's finding that complex life
+  (and GOE-like oxygen accumulation) cannot occur around late M-dwarfs.
+- **Sample:** 8,134 mid-to-late M dwarfs from TESS, 77 vetted transit candidates.
+  Survey sensitivity characterized via injection-recovery tests.
+- **Limitation:** Radii are photometric; composition (water vs. rock) inferred from
+  formation models, not direct measurement. Actual composition requires mass measurements.
+- **Limitation:** Survey covers P < 30 days; occurrence rates at longer periods
+  (and in the habitable zone) are unconstrained.
+- **Limitation:** First author name garbled in text extraction; verify APA citation.
+
+## StarGen applicability
+Directly updates the **radius gap / planet size distribution** model for M-dwarf
+planetary systems. Specifically:
+1. Disables the bimodal radius valley for mid-to-late M dwarf (M4+) hosts
+2. Sets a unimodal radius distribution with peak at 1.25 R⊕ for these systems
+3. Biases sub-Neptune composition to water-rich for M4+ hosts
+4. Confirms very low hot Jupiter probability for M4+ hosts (< 0.012)
+5. Provides per-star occurrence rates for use in system generation
+
+## Parameters, constraints, and mechanics implications
+
+**Radius distribution model by stellar type:**
+```
+Spectral class | Radius Valley | Peak radius    | Sub-Neptune composition
+FGK, K        | Bimodal       | ~1.4 + ~2.4 R⊕ | H/He envelope + rocky core
+Early M (M0-M3)| Bimodal      | ~1.4 + ~2.4 R⊕ | H/He envelope + rocky core
+Mid-Late M (M4+)| Unimodal    | 1.25 ± 0.05 R⊕ | Water-rich (ocean worlds)
+```
+
+**Occurrence rates for mid-to-late M dwarfs (P < 30 days):**
+```
+Planet class         | Rate per star     | Notes
+All (R > 1 R⊕)      | 1.10 ± 0.16      | Consistent with early M dwarfs
+Super-Earths         | 0.954 ± 0.147    | Dominant population
+Sub-Neptunes         | 0.148 ± 0.045    | Minority; water-rich model
+Hot Jupiters         | < 0.012          | Upper limit; effectively absent
+```
+
+**StarGen radius gap switch:**
+```csharp
+// Radius Valley model selection by host star type (Gillis et al. 2026)
+bool radiusValleyEnabled = star.SpectralType switch
+{
+    SpectralType.M when star.TemperatureK < 3500 => false,  // M4+: unimodal
+    SpectralType.M when star.TemperatureK < 3850 => false,  // M2-M4: borderline; disable
+    _ => true  // FGK, early M: bimodal radius valley active
+};
+
+// Planet radius distribution for mid-to-late M dwarfs
+// Unimodal: log-normal centered at 1.25 R⊕ (σ ~ 0.25 R⊕)
+double peakRadiusEarth = 1.25;
+double radiusSigma = 0.25;
+if (!radiusValleyEnabled)
+{
+    planet.RadiusEarth = MathHelper.LogNormalSample(rng, peakRadiusEarth, radiusSigma);
+}
+```
+
+**Sub-Neptune composition bias for M4+ hosts:**
+```csharp
+// For M4+ host stars: sub-Neptunes are water-rich, not gas-envelope rocky
+if (!radiusValleyEnabled && planet.RadiusEarth >= 1.5 && planet.RadiusEarth <= 2.5)
+{
+    planet.CompositionModel = CompositionModel.WaterRich;
+    planet.HasPrimaryAtmosphere = false;  // pebble accretion water world
+    planet.OceanFraction = 0.7 + rng.NextDouble() * 0.3;  // 70-100% ocean coverage
+}
+```
+
+**Hot Jupiter suppression for M4+ hosts:**
+```csharp
+// Hot Jupiter probability upper limit from Gillis et al. survey
+double hotJupiterProbability = star.SpectralType == SpectralType.M
+    && star.TemperatureK < 3500
+    ? 0.012  // hard upper limit from survey
+    : defaultHotJupiterProbability;
+```
+
+**User lever:** `MDwarfRadiusValleyModel` (enum: GillisEtAl2026 / Classic / Disabled)
+- GillisEtAl2026: suppress bimodal gap for M4+ hosts; use unimodal with water-rich bias
+- Classic: use standard bimodal model for all stellar types (ignores this result)
+- Disabled: no radius-based composition inference
+
+## APA citation
+Gillis, E., Pass, E. K., et al. (2026). TESS planet occurrence rates reveal the
+disappearance of the radius valley around mid-to-late M dwarfs. arXiv:2602.23364.
+[Submitted to AAS Journals February 2026 — verify published journal citation against PDF.]
+
+## Conflicts and follow-up work
+
+**Cross-references in corpus:**
+- SolizWelsh2026.txt — Water-rich ocean worlds around late M dwarfs are consistent with
+  no GOE oxygen accumulation (no oxygenic photosynthesis driving O₂). Both papers
+  converge on the same conclusion: complex life is effectively blocked around M4+ hosts.
+- LugerBarnes2015.txt — XUV stripping of atmospheres; water-rich worlds would lose
+  hydrogen rapidly under XUV flux from young M dwarfs.
+- GillisEtAl2026 provides the planetary population context; LugerBarnes the atmospheric
+  evolution context; SolizWelsh the biological feasibility context.
+
+**Related work cited in paper:**
+- Burn et al. (2024) Nature Astronomy 8, 463 — pebble accretion model predicting
+  water-rich sub-Neptunes around low-mass stars (the theoretical counterpart to Gillis).
+- Brady & Bean (2022) AJ 163, 255 — earlier M-dwarf transit survey work.
+
+**Outstanding gap:** Gillis et al. cover P < 30 days; habitable zone occurrence rates
+for mid-to-late M dwarfs remain unconstrained. A follow-up survey at longer periods
+would be highly relevant for StarGen's habitable zone planet generation.
+
+## StarGen mechanics translation
+
+### Radius Valley disappears around M4+ dwarfs
+GillisEtAl2026 establishes that the planet size distribution around mid-to-late M dwarfs
+is fundamentally different from that around FGK stars. The standard bimodal radius
+valley (used in most current planet generation codes) should be suppressed for M4+ hosts.
+
+**Primary update to StarGen planet generation:**
+1. Add stellar-type check before drawing from radius distribution
+2. Use unimodal distribution (peak 1.25 R⊕, σ ~ 0.25) for M4+ hosts
+3. Mark sub-Neptune planets around M4+ hosts as water-rich (ocean world composition)
+4. Apply hot Jupiter probability cap of 0.012 for M4+ hosts
+
+**Interaction with SolizWelsh2026 (M-dwarf habitability):**
+The combination of Gillis (ocean worlds dominate) + SolizWelsh (PAR too low for
+GOE) + LugerBarnes (XUV strips hydrogen) forms a coherent picture in which M4+
+exoplanets in the habitable zone are predominantly water-covered, oxygen-depleted,
+and unable to sustain complex life — but may support microbial life in subsurface oceans
+(analogous to Enceladus or Europa in the Solar System).
+
+**Cross-references:** SolizWelsh2026.txt (PAR/GOE gate), LugerBarnes2015.txt (XUV),
+Ribas2015.txt (XUV evolution), ForganRice2010.txt (habitable planet criteria).

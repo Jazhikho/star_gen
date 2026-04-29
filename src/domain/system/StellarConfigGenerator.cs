@@ -277,6 +277,10 @@ public static class StellarConfigGenerator
             starNodes.Add(HierarchyNode.CreateStar($"node_star_{index}", orderedStars[index].Id));
         }
 
+        // Tokovinin (2021) summarizes hierarchical stellar systems as nested binaries whose
+        // orbital scales stay well separated across levels. Tuning: the `3.5 / 12.0 / 15.0`
+        // spacing factors and the preferred AU bands below are StarGen hierarchy choices that
+        // keep deterministic system construction stable; they are not direct literature values.
         if (starNodes.Count == 1)
         {
             return new SystemHierarchy(starNodes[0]);
@@ -753,6 +757,9 @@ public static class StellarConfigGenerator
 
     private static double ResolveMultiplicityBias(double primaryMassSolar)
     {
+        // Moe and Di Stefano (2017) show that multiplicity rises strongly with primary mass.
+        // Tuning: these stepwise bias factors compress that trend into a lightweight generator
+        // surrogate rather than reproducing the paper's full period and mass-ratio distributions.
         if (primaryMassSolar < 0.25)
         {
             return 0.55;
@@ -778,6 +785,10 @@ public static class StellarConfigGenerator
 
     private static double SampleCompanionMassSolar(double primaryMassSolar, int companionIndex, StellarGenerationProfile profile, SeededRng rng)
     {
+        // Moe and Di Stefano (2017) support primary-mass-dependent companion mass-ratio
+        // structure, with more massive primaries favoring different q-distributions than
+        // low-mass hosts. Tuning: the `minimumRatio` and `qExponent` bands below are StarGen
+        // summary weights for that framework rather than literature coefficients.
         double minimumRatio = 0.04;
         double qExponent = 1.0;
         if (primaryMassSolar < 0.4)

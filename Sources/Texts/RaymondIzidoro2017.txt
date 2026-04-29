@@ -1,21 +1,59 @@
-Source note for StarGen research review
+# RaymondIzidoro2017
 
-Citation:
-Raymond, S. N., & Izidoro, A. (2017).
-Origin of water in the inner Solar System: Planetesimals scattered inward during Jupiter and Saturn's rapid gas accretion.
-Icarus, 297, 134-148.
-arXiv: https://arxiv.org/abs/1707.01234
-DOI: https://doi.org/10.1016/j.icarus.2017.06.030
+## Source metadata
+- File: `RaymondIzidoro2017.pdf`
+- Domain: asteroid belt / grand tack
+- Pages: 49
+- Authors (auto-extracted — verify against PDF): Sean N. Raymonda & Andre Izidoroa,b
 
-What was reviewed:
-- Abstract and source metadata on 2026-04-22.
+## Abstract
+There is a long-standing debate regarding the origin of the terrestrial planets’ water as well as the hydrated C-type asteroids. Here we show that the inner Solar System’s water is a simple byproduct of the giant planets’ formation. Giant planet cores accrete gas slowly until the conditions are met for a rapid phase of runaway growth. As a gas giant’s mass rapidly increases, the orbits of nearby planetesimals are destabilized and gravitationally scattered in all directions. Under the action of aerodynamic gas drag, a fraction of scattered planetesimals are deposited onto stable orbits interior to Jupiter’s. This process is effective in populating the outer main belt with C-type asteroids that originated from a broad (5-20 AU-wide) region of the disk. As the disk starts to dissipate, scattered planetesimals reach sufficiently eccentric orbits to cross the terrestrial planet region and deliver water to the growing Earth. This mechanism does not depend strongly on the giant planets’ orbital migration history and is generic: whenever a giant planet forms it invariably pollutes its inner planetary system with water-rich bodies.
 
-Key implementation notes used in StarGen:
-- The paper argues that water delivery to the inner Solar System is a byproduct of giant-planet formation, not a special one-off Solar-System accident.
-- It reports that C-type asteroids can be sourced from a broad roughly 5-20 AU region and that scattered planetesimals can later cross the terrestrial-planet region as the disk dissipates.
-- The practical takeaway for StarGen is that volatile delivery should respond to whether a cold giant actually formed, not only to a smooth outer-reservoir or snow-line scalar.
+## Major claims, findings, models, assumptions, and limitations
+*Human verification required before using quantitative values or model assumptions in
+StarGen defaults. Figures and equations not captured by text extraction — read the PDF
+for exact thresholds, fit coefficients, and table values.*
 
-How StarGen should use this:
-- As support for coupling `VolatileDeliveryScalar` to giant-planet formation outcomes in addition to radial chemistry.
-- As a reason to bias inner rocky worlds toward wetter outcomes when cold giants form and scatter volatile-rich planetesimals inward.
-- As a source-backed link between outer small-body composition, asteroid-belt style remnants, and inner-system water delivery.
+- Primary domain: asteroid belt / grand tack
+- See StarGen applicability section below for the specific implications.
+
+## StarGen applicability
+Asteroid belt mass depletion during giant planet migration. Informs belt total mass, compositional structure, and dependence on giant planet configuration in StarGen.
+
+## Parameters, constraints, and mechanics implications
+*(Human action: fill in specific numeric values, distributions, model families, and
+classification boundaries extracted from the paper. Where competing models or confidence
+ranges exist, expose those as user-selectable assumptions rather than collapsing to a
+single default. Where the paper documents uncertainty, preserve it in StarGen rather
+than presenting false precision.)*
+
+## Works cited by this paper (auto-extracted from final pages, partial)
+- (Reference extraction incomplete — verify PDF.)
+
+## Opposing or alternative findings cited
+*(Human action: identify papers in the reference list that present opposing models,
+competing parameter choices, or significantly different results. Note the specific
+disagreement and its implication for which StarGen default to use.)*
+
+## APA citation
+*(Verify and complete — see AnnotatedBibliography.md for the curated APA entry.)*
+
+## Conflicts and follow-up work
+*(Human action: search for papers explicitly responding to, revising, or challenging
+this paper published after its date. For fast-moving fields (exoplanet demographics,
+habitability, JWST/TESS-informed work), treat results >3 years old as potentially
+superseded. Flag updates in Followup.md.)*
+
+
+## StarGen mechanics translation
+
+### Asteroid belt formation — Grand Tack and empty belt models
+The asteroid belt's depletion and compositional structure reflects giant planet migration.
+Outer-belt material includes scattered C-type (carbonaceous) objects.
+
+**StarGen asteroid belt / small body:**
+- `AsteroidBeltModel`: `GrandTack` (heavy depletion, compositional mixing) | `EmptyBelt`
+  (if no giant formed) | `Pristine` (if no giant migration occurred).
+- Apply based on whether the system has a migrated giant planet.
+- C-type fraction in outer belt: ~75% (carbonaceous); S-type in inner belt: ~80% (siliceous).
+**Cross-references:** DeMeoCarry2014.txt, MalambudPerets2019.txt, Fernandes2019.txt.

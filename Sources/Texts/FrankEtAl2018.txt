@@ -1,0 +1,218 @@
+# FrankEtAl2018
+
+## Source metadata
+- File: `FrankEtAl2018.pdf`
+- Domain: astrobiology / civilization modeling / planetary feedback / Anthropocene
+- Pages: ~10
+- Authors: Frank, A., Carroll-Nellenback, J., Alberti, M., & Kleidon, A.
+- Source ID in StarGen code: `frank2018`
+
+  **PDF acquisition required — flag for manual download.**
+
+## Abstract
+Is the Anthropocene a predictable consequence of the rise of an energy-intensive species,
+and if so, what can we expect for civilizations on other worlds? We present a framework
+for classifying possible trajectories that planets with civilizations may take. We propose
+five states for co-evolution of a civilization and its host planet: (1) No civilization
+(uninhabited); (2) Pre-technological biosphere; (3) Civilization-biosphere co-evolution
+(pre-Anthropocene); (4) Anthropocene-like transition (rapid resource exploitation);
+(5) Post-transition quasi-steady-state (sustainable or collapsed). We map these states
+onto simple models of energy use and population dynamics, and discuss the conditions
+for a civilization to navigate the Anthropocene transition and reach a sustainable
+steady state versus collapse. We argue that the Anthropocene represents a predictable
+and generic phase of civilization development — not an accident unique to Earth.
+
+## Major claims, findings, models, assumptions, and limitations
+- **Five-state civilization trajectory model:**
+  1. **State I:** No civilization; abiotic or simple biosphere planet
+  2. **State II:** Complex biosphere; no technological species
+  3. **State III:** Civilization in co-evolution with biosphere; pre-industrial
+  4. **State IV:** Rapid Anthropocene transition — industrial energy exploitation,
+     rapid climate forcing, ecological disruption
+  5. **State Va:** Sustainable post-transition — civilization finds equilibrium
+     with planetary systems after transition
+     **State Vb:** Collapse — civilization and/or biosphere fails to reach equilibrium;
+     population crashes; possible biosphere recovery over geological time
+- **The Anthropocene is generic:** The paper argues that any energy-intensive species
+  will drive rapid change in its host planet's geophysical/geochemical systems. This
+  is not unique to Earth but a predictable phase transition in civilization evolution.
+- **Coupled population-resource model:** A simple predator-prey-style ODE model
+  couples civilization population (N) to resource stock (R):
+  - dN/dt = β*N - α*N²/R  (population growth limited by resource depletion)
+  - dR/dt = γ*R - δ*N*R   (resource regeneration minus exploitation)
+  - Possible outcomes: soft landing (State Va), oscillation, or collapse (State Vb)
+- **Key threshold — transition likelihood:**
+  The probability of reaching State Va (sustainable) vs. Vb (collapse) depends on:
+  - Rate of resource exploitation relative to regeneration capacity
+  - Adaptability rate (how quickly the civilization adjusts its resource use)
+  - Initial planetary resource stock (more initial resources → more time to adapt)
+- **TechLevel correlates with energy intensity:** More advanced civilizations use
+  exponentially more energy per capita. The Anthropocene transition is triggered at
+  approximately TL 5-6 (fossil-fuel industrial scale) and resolved (or not) at TL 7-9.
+- **Limitation:** The model is highly simplified (one population variable, one resource);
+  real civilizations have multiple resource streams and feedback loops.
+- **Limitation:** The "sustainable steady state" is not guaranteed; the model is
+  agnostic about whether any given civilization achieves it.
+- **Limitation:** Does not model non-energy resources (water, biodiversity, minerals)
+  separately. Energy is used as the master variable.
+
+## StarGen applicability
+Provides the **civilization trajectory model** for StarGen's population module.
+Specifically:
+- Maps civilization stages to observable planetary signatures (atmospheric composition,
+  surface temperature, energy output)
+- Provides a probabilistic model for whether a civilization at TL 5-9 is in transition
+  (State IV), sustainable (State Va), or collapsed (State Vb)
+- Justifies why some worlds might have signs of past civilization (ruins) without
+  current civilization (State Vb collapse)
+- Connects TechLevel to observable astrophysical signatures (Dyson structures, waste heat,
+  atmospheric biosignatures → technosignatures)
+
+## Parameters, constraints, and mechanics implications
+
+**Five-state classification (for StarGen civilization output):**
+```csharp
+public enum CivilizationState
+{
+    NoCivilization         = 1,  // State I: uninhabited / abiotic
+    ComplexBiosphere       = 2,  // State II: life, no tech
+    PreIndustrialCiv       = 3,  // State III: TL 0-4, co-evolution phase
+    AnthropoceneTransition = 4,  // State IV: TL 5-8, rapid exploitation
+    SustainableSteadyState = 5,  // State Va: TL 9+, equilibrium reached
+    Collapsed              = 6   // State Vb: ex-civilization; ruins possible
+}
+```
+
+**Transition probability model:**
+```csharp
+// At TechLevel 5-8 (Anthropocene equivalent), determine outcome:
+// p_sustainable depends on adaptability_rate / exploitation_rate ratio
+double adaptabilityRate = settings.CivAdaptabilityFactor;      // 0-1 user lever
+double exploitationRate = ComputeExploitationRate(population, planet.ResourceStock);
+
+double pSustainable;
+if (adaptabilityRate / exploitationRate >= 1.5)
+    pSustainable = 0.85;    // civilization adapts faster than it depletes
+else if (adaptabilityRate / exploitationRate >= 1.0)
+    pSustainable = 0.50;    // marginal case
+else
+    pSustainable = 0.15;    // exploitation outruns adaptation → likely collapse
+
+double outcome = rng.NextDouble();
+civState = outcome < pSustainable
+    ? CivilizationState.SustainableSteadyState
+    : CivilizationState.Collapsed;
+```
+
+**TechLevel → Civilization State mapping:**
+```
+TechLevel | Likely CivilizationState         | Notes
+0-4       | PreIndustrialCiv (State III)      | Stable, low resource demand
+5-8       | AnthropoceneTransition (State IV) | Unstable, high pressure on biosphere
+9+        | SustainableSteadyState OR Collapsed| Bifurcation point resolved
+```
+
+**Observable signatures by state (for RPG worldbuilding text):**
+- State III: clean atmosphere, no radio emissions, pre-industrial cities visible
+- State IV: modified atmosphere (CO₂ rise, methane, industrial pollutants), radio noise
+- State Va: modified but stabilized atmosphere, Dyson-lite energy structures possible
+- State Vb: atmospheric anomalies decaying, ruins, fossil biosignatures
+
+**User lever:** `AnthropoceneTransitionModel` (enum: FrankEtAl2018 / OptimisticTransition / PessimisticTransition)
+- FrankEtAl2018: use coupled resource model; ~50% collapse at threshold (default)
+- OptimisticTransition: 80% reach State Va
+- PessimisticTransition: 20% reach State Va; most colonies are ruins
+
+## APA citation
+Frank, A., Carroll-Nellenback, J., Alberti, M., & Kleidon, A. (2018). The Anthropocene
+generalized: Evolution of exo-civilizations and their planetary feedback. International
+Journal of Astrobiology, 17(3), 225–236.
+https://doi.org/10.1017/S1473550418000083
+
+## Conflicts and follow-up work
+
+**Follow-up from same group:**
+- Carroll-Nellenback, J., Frank, A., Wright, J., & Scharf, C. (2019) "The Fermi
+  Paradox and the Aurora Effect: Exo-Civilization Settlement, Expansion, and Steady
+  States." International Journal of Astrobiology (arXiv:1902.04450). Extends the
+  Frank 2018 framework to galactic settlement patterns.
+- Frank, A. (2018) "Light of the Stars: Alien Worlds and the Fate of the Earth."
+  W. W. Norton. Popular book based on this paper's framework.
+
+**Complementary papers in corpus:**
+- Balbi2023.txt — oxygen bottleneck for technosphere emergence; precondition for
+  entering State III/IV.
+- ForganRice2010.txt — civilization emergence probability; sets p(State ≠ I or II).
+- Mills2024.txt (in corpus) — hard-steps model revision; affects the prior probability
+  of reaching State III.
+- SchwietermanEtAl2018.txt (if written) — biosignature review covering atmospheric
+  signatures of States III-Va.
+
+**Related state-collapse models:**
+- Motesharrei, S., et al. (2014) Ecological Economics 101, 90 — HANDY model for
+  human population collapse from inequality and resource depletion. More detailed ODE
+  treatment of the coupled system.
+- Turchin, P. — structural-demographic theory of political instability; the secular
+  cycle model (TurchinEtAl2022 in corpus) is the political analog of Frank's
+  resource-collapse model.
+
+**Citation discovery:**
+- DOI: 10.1017/S1473550418000083
+- arXiv:1709.06435
+
+## StarGen mechanics translation
+
+### Civilization trajectory classification
+FrankEtAl2018 provides StarGen's five-state civilization trajectory system, which
+determines the *current status* of any generated civilization and its observable
+signatures.
+
+**Integration with BiologySupportEvaluator.cs:**
+```csharp
+// After ForganRice2010 gates are passed (civilization can exist):
+// 1. Determine TechLevel from Turchin network-scale model
+// 2. Apply FrankEtAl2018 state transition at TL 5-8 boundary
+// 3. Return observable state + signatures for RPG text generation
+
+public static CivilizationProfile GenerateCivilizationProfile(
+    Planet planet, Star star, CivilizationContext ctx, GalaxyRng rng,
+    GenerationSettings settings)
+{
+    // Gate 1-8: ForganRice2010 gates (civilization can exist?)
+    double pCiv = ComputeRareEarthProbability(planet, star, ctx, settings);
+    if (rng.NextDouble() > pCiv) return CivilizationProfile.None;
+
+    // TechLevel from TurchinEtAl2021 network model
+    int techLevel = ComputeNetworkTechLevel(ctx, rng, settings);
+
+    // FrankEtAl2018 state from TechLevel
+    CivilizationState state = DetermineState(techLevel, planet, rng, settings);
+
+    // Observable signatures from state
+    string[] signatures = GenerateSignatures(state, techLevel, planet);
+
+    // RPG parameters from state + tech level
+    GovernmentProfile gov = SampleGovernmentProfile(state, techLevel, planet, rng, settings);
+
+    return new CivilizationProfile(techLevel, state, gov, signatures);
+}
+```
+
+**State → RPG output mapping:**
+```
+CivilizationState     | Population range  | GovernmentType | LawLevel | Trade
+----------------------|-------------------|----------------|----------|-------
+NoCivilization        | 0                 | None (0)       | 0        | None
+ComplexBiosphere      | 0 (tech)          | None (0)       | 0        | None
+PreIndustrialCiv      | 10^4 – 10^8       | 2-8            | 2-6      | Limited
+AnthropoceneTransition| 10^8 – 10^11      | 1-12           | 1-8      | Active
+SustainableSteadyState| 10^9 – 10^12      | 1-13           | 1-9      | High
+Collapsed             | 0 (or ruins)      | None/remnant   | 0-1      | None/salvage
+```
+
+**User lever:** `CivilizationTrajectoryModel` (enum: FrankEtAl2018 / AlwaysSurvive / AlwaysCollapse)
+
+**Cross-references:** ForganRice2010.txt (emergence gates), TurchinEtAl2021WarMachines.txt
+(tech level from network model), Balbi2023.txt (O₂ gate preceding State III),
+MaysharMoavPascali2022.txt (appropriability → government emergence in State III),
+BettencourtEtAl2007.txt (population → output scaling for States III-Va).

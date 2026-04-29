@@ -1,20 +1,76 @@
-Source note for StarGen research review
+# FischerValenti2005
 
-Citation:
-Fischer, D. A., & Valenti, J. (2005).
-The planet-metallicity correlation.
-The Astrophysical Journal, 622(2), 1102-1117.
-PDF: https://www.astro.ucla.edu/~aes/AST278/reading/Fischer_2005_ApJ_622_1102.pdf
-DOI: https://doi.org/10.1086/428383
+## Source metadata
+- File: `FischerValenti2005.pdf`
+- Domain: planet-metallicity correlation
+- Pages: 16
+- Authors (auto-extracted — verify against PDF): (see PDF)
 
-What was reviewed:
-- Abstract and source metadata on 2026-04-03.
+## Abstract
+We have recently carried out spectral synthesis modeling to determine TeA , log g, v sin i, and [Fe/ H ] for 1040 FGK-type stars on the Keck, Lick, and Anglo-Australian Telescope planet search programs. This is the first time that a single, uniform spectroscopic analysis has been made for every star on a large Doppler planet search survey. We identify a subset of 850 stars that have Doppler observations sufficient to detect uniformly all planets with radial velocity semiamplitudes K > 30 m s1 and orbital periods shorter than 4 yr. From this subset of stars, we determine that fewer than 3% of stars with 0:5 < ½Fe/H < 0:0 have Doppler-detected planets. Above solar metallicity, there is a smooth and rapid rise in the fraction of stars with planets. At ½Fe/H > þ0:3 dex, 25% of observed stars have detected gas giant planets. A power-law fit to these data relates the formation probability for gas giant planets to the square of the number of metal atoms. High stellar metallicity also appears to be correlated with the presence of multiple-planet systems and with the total detected planet mass. This data set was examined to better understand the origin of high metallicity in stars with planets. None of the expected fossil signatures of accretion are observed in stars with planets relative to the general sample: (1) metallicity does not appear to increase as the mass of the convective envelopes decreases, (2) subgiants with planets do not show dilution of metallicity, (3) no abundance variations for Na, Si, Ti, or Ni are found as a function of condensation temperature, and (4) no correlations between metallicity and orbital period or eccentricity could be identified. We conclud
 
-Key implementation notes used in StarGen:
-- The paper finds a strong empirical correlation between host-star metallicity and the occurrence of detectable giant planets.
-- Metal-rich systems are more likely to form or retain giant planets than metal-poor systems under otherwise similar broad conditions.
-- For StarGen, the practical value is that metallicity should not be cosmetic once aggregate planetary models are in play. It should affect giant-planet weighting and, by extension, the architecture of the whole system.
+## Major claims, findings, models, assumptions, and limitations
+*Human verification required before using quantitative values or model assumptions in
+StarGen defaults. Figures and equations not captured by text extraction — read the PDF
+for exact thresholds, fit coefficients, and table values.*
 
-How StarGen uses this:
-- As the scientific basis for letting system metallicity enrichment and metallicity-coupling strength alter giant-planet likelihood in the upstream planetary state.
-- As support for treating metallicity as a downstream constraint on moon-rich giant systems and outer-system reservoir structure rather than leaving it as a viewer-only number.
+- Primary domain: planet-metallicity correlation
+- See StarGen applicability section below for the specific implications.
+
+## StarGen applicability
+Giant planet occurrence ∝ 10^(2[Fe/H]). Critical: giant planet frequency is a steep function of stellar metallicity in StarGen system generation.
+
+## Parameters, constraints, and mechanics implications
+*(Human action: fill in specific numeric values, distributions, model families, and
+classification boundaries extracted from the paper. Where competing models or confidence
+ranges exist, expose those as user-selectable assumptions rather than collapsing to a
+single default. Where the paper documents uncertainty, preserve it in StarGen rather
+than presenting false precision.)*
+
+## Works cited by this paper (auto-extracted from final pages, partial)
+- Butler, R. P., Marcy, G. W., Williams, E., McCarthy, C., Dosanjh, P., & Vogt,
+- Latham, D., Stefanik, R., Mazeh, T., Mayor, M., & Burki, G. 1989, Nature,
+- S. S. 1996, PASP, 108, 500
+- Cochran, W. D., Hatzes, A. P., & Hancock, T. J. 1991, ApJ, 380, L35
+- Laughlin, G., & Adams, F. 1997, ApJ, 491, L51
+- Fischer, D. A., Valenti, J., & Marcy, G. W. 2004, in IAU Symp. 219, Stars as
+- Laws, C., Gonzalez, G., Walker, K. M., Tyagi, S., Dodsworth, J., Snider, K., &
+- Suns: Activity, Evolution and Planets, ed. A. K. Dupree & A. O. Benz (San
+- Suntzeff, N. B. 2003, AJ, 125, 2664
+- Lin, D. N. C., Bodenheimer, P., & Richardson, D. 1996, Nature, 380, 606
+- Fuhrmann, K., Pfeiffer, M. J., & Bernkopf, J. 1997, A&A, 326, 1081
+- Lodders, K. 2003, ApJ, 591, 1220
+- ———. 1998, A&A, 336, 942
+- Mayor, M., Pepe, F., Queloz, D., Udry, S., Benz, W., Santos, N., & Moutou, C.
+- Gonzalez, G. 1997, MNRAS, 285, 403
+- 2003, Stellar Metallicity and the Formation of Giant Planets—Metal Deficient
+- ———. 1998, A&A, 334, 221
+- Stars (Garching: ESO), http://www.eso.org/observing/proposals/gto/ harps/4
+- ———. 1999, MNRAS, 308, 447
+- Gonzalez, G., Laws, C., Tyagi, S., & Reddy, B. E. 2001, AJ, 121, 432
+
+## Opposing or alternative findings cited
+*(Human action: identify papers in the reference list that present opposing models,
+competing parameter choices, or significantly different results. Note the specific
+disagreement and its implication for which StarGen default to use.)*
+
+## APA citation
+*(Verify and complete — see AnnotatedBibliography.md for the curated APA entry.)*
+
+## Conflicts and follow-up work
+*(Human action: search for papers explicitly responding to, revising, or challenging
+this paper published after its date. For fast-moving fields (exoplanet demographics,
+habitability, JWST/TESS-informed work), treat results >3 years old as potentially
+superseded. Flag updates in Followup.md.)*
+
+
+## StarGen mechanics translation
+
+### Planet-metallicity correlation — gas giants (foundational reference)
+Establishes the gas-giant planet-metallicity correlation: ~25% of [Fe/H] > +0.3 stars
+host gas giants vs ~3% at [Fe/H] < −0.3. Power-law fit: P(giant) ∝ 10^(2×[Fe/H]).
+
+**StarGen hot Jupiter / cold Jupiter occurrence:**
+- `GasGiantOccurrence([Fe/H])` = N₀ × 10^(2×[Fe/H]) where N₀ is baseline rate.
+- This is the founding empirical relation; WangFischer2015 extends it to all sizes.
+**Cross-references:** WangFischer2015Met.txt, Petigura2013.txt.

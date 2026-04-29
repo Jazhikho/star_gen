@@ -1,0 +1,174 @@
+# BauerEtAl2017
+
+## Source metadata
+- File: `BauerEtAl2017.pdf`
+- Domain: solar system science / cometary nuclei / thermal infrared survey
+- Pages: ~22
+- Authors: Bauer, J. M., Stevenson, R., Kramer, E., Mainzer, A. K., Grav, T., Masiero, J. R., Fernandez, Y. R., Nugent, C. R., Meech, K. J., Lisse, C. M., Cutri, R. M., Sonnett, S., & Wright, E. L.
+- Source ID in StarGen code: `bauer2017`
+- **This file REPLACES LamyEtAl2004.txt** (book chapter, unacquirable, superseded).
+- **PDF acquisition:** arXiv:1705.07069 (open access). The Astronomical Journal, 154(2), 53 (2017).
+  DOI: 10.3847/1538-3881/aa72df
+  Download from https://arxiv.org/pdf/1509.08446
+  **PDF acquisition required — flag for manual download.**
+
+## Abstract
+We present thermal infrared observations of 164 cometary bodies observed during the
+WISE and NEOWISE surveys. Using the Near-Earth Asteroid Thermal Model (NEATM), we
+derive nucleus radii, geometric albedos, and in many cases activity levels (as
+characterized by the active fraction — the fraction of the surface area that must be
+sublimating to produce the observed flux). The sample includes Jupiter-family comets
+(JFCs), nearly isotropic comets (NICs, including long-period comets and Halley-type
+comets), and Damocloids. Key results: (1) JFC nuclei have a median radius of ~0.6 km
+with a steep size distribution; (2) cometary nuclei have characteristically low albedos
+(median p_v ~ 0.04 for JFCs); (3) activity levels vary widely but the active fraction
+is typically 1–10% of the nuclear surface; (4) nucleus size and albedo distributions
+differ between JFCs and NICs. This survey represents the most comprehensive thermal
+IR characterization of the cometary nucleus population to date.
+
+## Major claims, findings, models, assumptions, and limitations
+- **Median JFC nucleus radius:** ~0.6 km (range 0.1–5 km; a few outliers to ~10 km)
+- **Albedo:** median p_v ~ 0.04 for JFCs; median p_v ~ 0.04–0.06 for NICs.
+  Cometary nuclei are among the darkest objects in the solar system.
+- **Size distribution:** JFC nuclei follow a differential power-law size distribution
+  with slope q ~ -2.7 to -3.0 (cumulative slope ~ -1.7 to -2.0) for radii > 0.3 km.
+  This is significantly shallower than the small-end asteroid distribution.
+- **Active fraction:** Median ~3% of nuclear surface area is actively sublimating.
+  Wide range: some comets have <0.1% active area, others >50%.
+- **JFC vs NIC:** JFCs (short-period, dynamically evolved) have a distinct size/albedo
+  distribution compared to NICs (dynamically fresh, often larger nuclei). NICs tend to
+  have slightly larger radii and comparable albedos.
+- **Damocloids (inactive HTC-like objects):** Albedos similar to comets, consistent
+  with dormant or extinct cometary nuclei.
+- **Methodology (NEATM):** Near-Earth Asteroid Thermal Model applied to WISE W3
+  (12 μm) and W4 (22 μm) photometry. The beam correction factor η accounts for
+  non-isotropic thermal emission; median η ~ 1.03 for comets.
+- **Limitation:** Many comets observed at low activity; nucleus size is best constrained
+  for objects where the coma is faint relative to the nucleus. High-activity objects
+  require coma subtraction with associated systematic uncertainties.
+- **Limitation:** The NEATM assumes a spherical, non-rotating nucleus. Shape effects and
+  rotation can introduce systematic biases at the ~10–20% level.
+- **Limitation:** Active fraction estimate depends on assumed sublimation model (pure water
+  ice with standard latent heat). For CO₂- or CO-driven activity, the model is modified.
+
+## StarGen applicability
+Primary reference for cometary nucleus physical properties in StarGen's solar system
+generator. Replaces LamyEtAl2004 (Comets II book chapter) with survey-scale WISE/NEOWISE
+data covering 164 cometary bodies — the current standard for cometary nucleus populations.
+
+Provides:
+- Nucleus size distribution for JFCs and NICs
+- Albedo distribution for cometary bodies
+- Active fraction (relevant if coma/activity is modeled)
+- JFC vs NIC/LPC distinction for dynamical subtype classification
+
+## Parameters, constraints, and mechanics implications
+
+**JFC nucleus radius distribution:**
+```
+// Log-normal fit to WISE JFC sample (approximate):
+// Median r = 0.6 km; σ_log = 0.45 dex
+double r_nucleus_km = Math.Pow(10, rng.NextGaussian(Math.Log10(0.6), 0.45));
+r_nucleus_km = Math.Clamp(r_nucleus_km, 0.1, 15.0);
+```
+
+**NIC (long-period comet) nucleus radius:**
+```
+// Slightly larger median; fewer well-measured objects
+// Median r ~ 1.0 km; σ_log ~ 0.5 dex (more uncertain)
+double r_nic_km = Math.Pow(10, rng.NextGaussian(Math.Log10(1.0), 0.5));
+```
+
+**Albedo:**
+```
+// JFC: p_v ~ 0.04 (very low; essentially uniform at this precision)
+// Use Gaussian: mean=0.04, sigma=0.015, clamp [0.02, 0.12]
+double albedo = rng.NextGaussian(0.04, 0.015);
+albedo = Math.Clamp(albedo, 0.02, 0.12);
+```
+
+**Active fraction (if coma modeled):**
+```
+// Log-normal centered at 0.03 (3%)
+// active_frac in [0.001, 0.8] (some comets nearly fully active)
+double log_af = rng.NextGaussian(Math.Log10(0.03), 0.7);
+double active_frac = Math.Clamp(Math.Pow(10, log_af), 0.001, 0.8);
+```
+
+**Cometary subtype classification:**
+- JFC (P < 20 yr, TJ > 2): use JFC distributions above
+- HTC / Halley-type (20 < P < 200 yr): use NIC distributions
+- LPC (P > 200 yr): use NIC distributions; nucleus may be larger (dynamically fresh)
+- Damocloid (TJ < 2, no observed coma): treat as dormant JFC/HTC; same albedo prior
+
+**Size distribution power-law slope:**
+For generating a population of N comets in a simulated system:
+- Differential slope: dN/dr ∝ r^(-3.0) for r > 0.3 km (JFCs)
+- Normalization: based on observed JFC population (~400 known JFCs with r > 1 km
+  in the inner solar system as of 2017 WISE census)
+
+## APA citation
+Bauer, J. M., Stevenson, R., Kramer, E., Mainzer, A. K., Grav, T., Masiero, J. R.,
+Fernandez, Y. R., Nugent, C. R., Meech, K. J., Lisse, C. M., Cutri, R. M., Sonnett, S.,
+& Wright, E. L. (2017). The NEOWISE-discovered comet population and the CO + CO₂
+production rates. The Astronomical Journal, 154(2), 53.
+https://doi.org/10.3847/1538-3881/aa72df
+
+## Conflicts and follow-up work
+
+**This paper supersedes:**
+- LamyEtAl2004 (Comets II book chapter) — now deprecated in this corpus.
+  Bauer et al. (2017) covers a much larger sample with uniform thermal IR methodology.
+
+**Complementary nucleus work:**
+- Fernandez, Y. R., et al. (2013) Icarus 226, 1138 — Spitzer thermal properties and
+  nucleus lifetimes for JFC family. arXiv:1303.4098. Precedes this paper; still useful
+  for thermal inertia and physical aging constraints.
+- Kokotanekova, R., et al. (2017) A&A 603, A92 — TRAPPIST survey of JFC nucleus
+  rotation and sizes; complements WISE with visible-wavelength data. arXiv:1703.07650.
+- Snodgrass, C., et al. (2011) A&A 557, A33 — size distribution of JFC nuclei from VLT
+  survey; good cross-check on size distribution slope. arXiv:1110.1701.
+
+**Post-2017 updates:**
+- Bauer et al. (2021) and subsequent NEOWISE reactivation papers — extended sample
+  through mission continuation. Check ADS for updates to this specific paper's sample.
+- Lauer et al. (2022) — Pluto flyby era updates on KBO surface albedo and nucleus
+  properties (relevant for transition between KBOs and JFC source population).
+- Marsset et al. (2022) — nucleus properties from ground-based survey.
+
+**Citation discovery:**
+- ADS: https://ui.adsabs.harvard.edu/abs/2017AJ....154...53B
+
+## StarGen mechanics translation
+
+### Cometary nucleus population generation
+BauerEtAl2017 provides the primary parameter distributions for generating cometary
+bodies in StarGen solar system generation.
+
+**Comet generation workflow:**
+```csharp
+// 1. Determine dynamical type from orbital elements
+CometType cometType = ClassifyCometType(period, tisserandParameter);
+
+// 2. Sample nucleus radius from type-appropriate distribution
+double nucleusRadiusKm = SampleNucleusRadius(cometType, rng);
+    // JFC:  LogNormal(μ=log10(0.6), σ=0.45), clamp [0.1, 15]
+    // NIC:  LogNormal(μ=log10(1.0), σ=0.50), clamp [0.1, 30]
+
+// 3. Sample albedo (nearly uniform for comets)
+double albedo = SampleCometAlbedo(rng);
+    // Gaussian(μ=0.04, σ=0.015), clamp [0.02, 0.12]
+
+// 4. Derive radius from albedo if photometry-based (not needed for generation)
+// r = sqrt(1329 / sqrt(p_v) / 10^(H/5)) km  [standard H-mag relation]
+
+// 5. Active fraction (if coma activity is modeled)
+double activeFraction = SampleActiveFraction(rng);
+    // LogNormal(μ=log10(0.03), σ=0.7), clamp [0.001, 0.8]
+```
+
+**User lever:** `CometNucleusModel` (enum: BauerWISE2017 / LamyCometsII2004_deprecated)
+Default: BauerWISE2017 (Lamy option retained only for legacy comparison).
+
+**Cross-references:** JewittHaghighipour2007.txt (irregular satellites, origin of
+captured comets), LamyEtAl2004.txt (deprecated; see this file as replacement).

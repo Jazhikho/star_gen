@@ -1,0 +1,82 @@
+# Chabrier2003
+
+## Source metadata
+- File: `Chabrier2003.pdf`
+- Domain: initial mass function (defining reference)
+- Pages: 33
+- Authors (auto-extracted — verify against PDF): enables us to derive only an upper limit for the spheroid mass density and IMF. Within all the uncertainties, the
+
+## Abstract
+We review recent determinations of the present-day mass function (PDMF) and initial mass function (IMF) in various components of the Galaxy—disk, spheroid, young, and globular clusters—and in conditions characteristic of early star formation. As a general feature, the IMF is found to depend weakly on the environment and to be well described by a power-law form for m ⲏ 1 M, and a lognormal form below, except possibly for early star formation conditions. The disk IMF for single objects has a characteristic mass around mc ∼ 0.08 M, and a variance in logarithmic mass j ∼ 0.7 , whereas the IMF for multiple systems has mc ∼ 0.2 M, and j ∼ 0.6. The extension of the single MF into the brown dwarf regime is in good agreement with present estimates of Land T-dwarf densities and yields a disk brown dwarf number density comparable to the stellar one, n BD ∼ n∗ ∼ 0.1 pc⫺3. The IMF of young clusters is found to be consistent with the disk field IMF, providing the same correction for unresolved binaries, confirming the fact that young star clusters and disk field stars represent the same stellar population. Dynamical effects, yielding depletion of the lowest mass objects, are found to become consequential for ages ⲏ130 Myr. The spheroid IMF relies on much less robust grounds. The large metallicity spread in the local subdwarf photometric sample, in particular, remains puzzling. Recent observations suggest that there is a continuous kinematic shear between the thick-disk population, present in local samples, and the genuine spheroid one. This enables us to derive only an upper limit for the spheroid mass density and IMF. Within all the uncertainties, the latter is found to be similar to 
+
+## Major claims, findings, models, assumptions, and limitations
+*Human verification required before using quantitative values or model assumptions in
+StarGen defaults. Figures and equations not captured by text extraction — read the PDF
+for exact thresholds, fit coefficients, and table values.*
+
+- Primary domain: initial mass function (defining reference)
+- See StarGen applicability section below for the specific implications.
+
+## StarGen applicability
+IMF: lognormal below 1 M☉ (disk single-star: m_c≈0.08 M☉, σ≈0.7; systems: m_c≈0.2 M☉, σ≈0.6), Salpeter power-law above. BD density ≈ stellar density ~0.1 pc⁻³. Primary star-mass sampling reference for StarGen.
+
+## Parameters, constraints, and mechanics implications
+*(Human action: fill in specific numeric values, distributions, model families, and
+classification boundaries extracted from the paper. Where competing models or confidence
+ranges exist, expose those as user-selectable assumptions rather than collapsing to a
+single default. Where the paper documents uncertainty, preserve it in StarGen rather
+than presenting false precision.)*
+
+## Works cited by this paper (auto-extracted from final pages, partial)
+- Abel, T., Bryan, G. L., & Norman, M. L. 2000, ApJ, 540, 39
+- ———. 2002, Science, 295, 93
+- Adams, F., & Fatuzzo, M. 1996, ApJ, 464, 256
+- Adams, F., & Laughlin, G. 1996, ApJ, 468, 586
+- Adams, J., Stauffer, J., Monet, D., Skrutskie, M., & Beichman, C.
+- Afonso, C., et al. (EROS Collaboration). 2003, A&A, 400, 951
+- Albrow, M. D., Gilliland, R. L., Brown, T. M., Edmonds, P. D.,
+- Guhathakurta, P., & Sarajedini, A. 2001, ApJ, 559, 1060
+- Alcock, C., et al. (MACHO Collaboration). 2000, ApJ, 542, 281
+- Bahcall, J., & Casertano, S. 1986, ApJ, 308, 347 (BC86)
+- Bahcall, J., Flynn, C., Gould, A., & Kirhakos, S. 1994, ApJ, 435, L51
+- Baraffe, I., Chabrier, G., Allard, F., & Hauschildt, P. H. 1997, A&A,
+- ———. 1998, A&A, 337, 403 (BCAH98)
+- ———. 2002, A&A, 382, 563
+- ———. 2003, in IAU Colloq. 211, Brown Dwarfs, ed. E. Martı́n (San
+- Francisco: ASP), in press
+- Barrado y Navascues, D., Bouvier, J., Stauffer, J. R., Lodieu, N., &
+- McCaughrean, M. J. 2002, A&A, 395, 813
+- Bate, M. R., Bonnell, I. A., & Bromm, V. 2002, MNRAS, 332, L65
+- ———. 2003, MNRAS, 339, 577
+
+## Opposing or alternative findings cited
+*(Human action: identify papers in the reference list that present opposing models,
+competing parameter choices, or significantly different results. Note the specific
+disagreement and its implication for which StarGen default to use.)*
+
+## APA citation
+*(Verify and complete — see AnnotatedBibliography.md for the curated APA entry.)*
+
+## Conflicts and follow-up work
+*(Human action: search for papers explicitly responding to, revising, or challenging
+this paper published after its date. For fast-moving fields (exoplanet demographics,
+habitability, JWST/TESS-informed work), treat results >3 years old as potentially
+superseded. Flag updates in Followup.md.)*
+
+
+## StarGen mechanics translation
+
+### Initial mass function — lognormal below 1 M☉ (primary StarGen reference)
+Disk IMF: lognormal for m < 1 M☉ (mc ≈ 0.08 M☉ for singles, σ ≈ 0.7; mc ≈ 0.2 M☉
+for systems, σ ≈ 0.6); Salpeter power-law for m > 1 M☉ (α = 2.35).
+
+**StarGen stellar mass sampling:**
+- `IMFFamily` enum: `Chabrier2003` | `Kroupa2001` | `Salpeter` | `UserDefined`
+- `Chabrier2003` parameters:
+  - m < 1 M☉ (singles): lognormal(mc=0.08, σ=0.7)
+  - m < 1 M☉ (systems): lognormal(mc=0.2, σ=0.6)
+  - m ≥ 1 M☉: power-law, α=2.35 (Salpeter)
+- Brown dwarf number density: n_BD ≈ n★ ≈ 0.1 pc⁻³ (roughly equal BD and star density)
+- Use `singles` variant for isolated star sampling; `systems` variant for population-level.
+**User lever:** `IMFFamily`, `BrownDwarfIncluded` (bool)
+**Cross-references:** Kroupa2001.txt, ChabrierLenoble2023.txt, Kirkpatrick2024.txt.

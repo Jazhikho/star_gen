@@ -1,21 +1,59 @@
-Source note for StarGen research review
+# Petigura2013
 
-Citation:
-Petigura, E. A., Howard, A. W., & Marcy, G. W. (2013).
-Prevalence of Earth-size planets orbiting Sun-like stars.
-Proceedings of the National Academy of Sciences, 110(48), 19273-19278.
-arXiv: https://arxiv.org/abs/1311.6806
-DOI: https://doi.org/10.1073/pnas.1319909110
+## Source metadata
+- File: `Petigura2013.pdf`
+- Domain: planet occurrence / Kepler / η⊕
+- Pages: 60
+- Authors (auto-extracted — verify against PDF): Erik A. Petiguraa,b,1, Andrew W. Howardb, and Geoffrey W. Marcya; P, and planet radius, RP. We restricted our survey to a set of Sunlike stars (GK type) that are the most amenable to the detection
 
-What was reviewed:
-- Abstract and source metadata on 2026-04-22.
+## Abstract
+Astronomy Department, University of California, Berkeley, CA 94720; and bInstitute for Astronomy, University of Hawaii at Manoa, Honolulu, HI 96822 detected. We ﬁnd that 11 ± 4% of Sun-like stars harbor an Earthsize planet receiving between one and four times the stellar intensity as Earth. We also ﬁnd that the occurrence of Earth-size planets is dimming of the host stars is detectable by measuring their brightness, and Kepler monitored the brightness of 150,000 stars every
 
-Key implementation notes used in StarGen:
-- The paper reports that 11 +/- 4% of Sun-like stars harbor an Earth-size planet receiving between one and four times Earth's incident flux.
-- It also reports that Earth-size-planet occurrence is approximately constant with increasing orbital period in equal intervals of logP out to about 200 days.
-- The practical takeaway for StarGen is that Earth-size rocky planets in temperate irradiance regimes should not be treated as rare edge cases around Sun-like stars.
+## Major claims, findings, models, assumptions, and limitations
+*Human verification required before using quantitative values or model assumptions in
+StarGen defaults. Figures and equations not captured by text extraction — read the PDF
+for exact thresholds, fit coefficients, and table values.*
 
-How StarGen should use this:
-- As a demographic anchor for `SystemPlanetGenerator` and the aggregate planetary priors when weighting terrestrial outcomes in the inner and temperate system.
-- As support for keeping terrestrial-planet occurrence broadly distributed across log-period space instead of over-concentrating rocky worlds into one narrow orbital band.
-- As a calibration target for future occurrence tests that compare temperate rocky-world frequency against Sun-like host expectations.
+- Primary domain: planet occurrence / Kepler / η⊕
+- See StarGen applicability section below for the specific implications.
+
+## StarGen applicability
+η⊕ ≈ 22% of Sun-like stars have Earth-size planet in HZ. Key prior for HZ occurrence rates — note significant uncertainty and compare with Bryson2021.
+
+## Parameters, constraints, and mechanics implications
+*(Human action: fill in specific numeric values, distributions, model families, and
+classification boundaries extracted from the paper. Where competing models or confidence
+ranges exist, expose those as user-selectable assumptions rather than collapsing to a
+single default. Where the paper documents uncertainty, preserve it in StarGen rather
+than presenting false precision.)*
+
+## Works cited by this paper (auto-extracted from final pages, partial)
+- (Reference extraction incomplete — verify PDF.)
+
+## Opposing or alternative findings cited
+*(Human action: identify papers in the reference list that present opposing models,
+competing parameter choices, or significantly different results. Note the specific
+disagreement and its implication for which StarGen default to use.)*
+
+## APA citation
+*(Verify and complete — see AnnotatedBibliography.md for the curated APA entry.)*
+
+## Conflicts and follow-up work
+*(Human action: search for papers explicitly responding to, revising, or challenging
+this paper published after its date. For fast-moving fields (exoplanet demographics,
+habitability, JWST/TESS-informed work), treat results >3 years old as potentially
+superseded. Flag updates in Followup.md.)*
+
+
+## StarGen mechanics translation
+
+### Planet occurrence rates — Kepler (primary demographic reference for FGK)
+η_Earth (FGK): ~22% have rocky HZ planet. Also: nearly every Sun-like star has
+a planet between 1–4 R⊕ at < 1 yr period. Occurrence peaks around 2 R⊕, 10-day period.
+
+**StarGen occurrence calibration:**
+- `OccurrenceRate_FGK` table (R_p vs P bins) from Table 3 / Figure 9 of paper.
+- `EtaEarth_Petigura2013` ≈ 0.22 (HZ rocky planets per FGK star); large uncertainty.
+- Occurrence as function of orbital period: power-law rise from 1 day to ~100 days
+  for sub-Neptunes (dN/d log P ∝ P^α, α ~ 0).
+**Cross-references:** Fulton2017.txt, KunimotoEtAl2022.txt, Bryson2021.txt.

@@ -1,0 +1,72 @@
+# OffnerEtAl2022Review
+
+## Source metadata
+- File: `OffnerEtAl2022Review.pdf`
+- Domain: stellar multiplicity / formation review (PPVII)
+- Authors (verify against PDF title page)
+
+## Abstract
+The Origin and Evolution of Multiple Star Systems Stella S. R. Offner1 , Maxwell Moe2 , Kaitlin M. Kratter2 , Sarah I. Sadavoy3 , Eric L. N. Jensen4 , John J. Tobin5 arXiv:2203.10066v3 [astro-ph.SR] 7 Dec 2022 1 The University of Texas at Austin, 2 University of Arizona, 3 Queen’s University, 4 Swarthmore College, 5 National Radio Astronomy Observatory Observational advances over the last decade have enabled high-resolution, interferometric studies of forming multiple systems, statistical surveys of multiplicity in star-forming regions, and new insights into disk evolution and planetary architectures in these systems. In this review, we compile the results of observational and theoretical studies of stellar multiplicity. We summarize the population statistics spanning system evolution from the protostellar phase through the main-sequence phase and evaluate the influence of the local environment. In short, most stars are born in multiple stellar systems, most main sequence stars are members of multiple systems, but most star systems are single. We describe current models for the origin of stellar multiplicity and review the landscape of numerical simulations and evaluate their consistency with observations. We review the properties of disks and discuss the impact of multiplicity on planet formation and system architectures. Finally, we summarize open questions and discuss the technical requirements for future observational and theoretical progress. 1. INTRODUCTION The formation of multiple star systems – systems of two or more gravitationally bound stars with separations . 0.1 pc – takes place during the earliest phases of star formation. The majority of such systems form and evolve to their final configuration during the time period spanned by the collapse of dense core
+
+## Major claims, findings, models, assumptions, and limitations
+*Human verification required before using quantitative values or model assumptions in
+StarGen defaults. Figures and equations not captured by text extraction — read the PDF
+for exact thresholds, fit coefficients, and table values.*
+
+- Primary domain: stellar multiplicity / formation review (PPVII)
+- See StarGen applicability section below for the specific implications.
+
+## StarGen applicability
+Comprehensive review: most stars form in multiples; multiplicity fraction, period distribution, and mass-ratio distribution vary with primary mass and environment. Primary companion-generation reference.
+
+## Parameters, constraints, and mechanics implications
+*(Human action: fill in specific numeric values, distributions, model families, and
+classification boundaries extracted from the paper. Where competing models or confidence
+ranges exist, expose those as user-selectable assumptions rather than collapsing to a
+single default. Where the paper documents uncertainty, preserve it in StarGen rather
+than presenting false precision.)*
+
+## Works cited by this paper (auto-extracted from final pages, partial)
+- Offner, Moe, Kratter, Sadavoy, Jensen & Tobin
+- The Origin and Evolution of Multiple Star Systems
+- Cieza L. A. et al., 2019 MNRAS, 482, 698.
+- Clarke C. J., 2009 MNRAS, 396, 1066.
+- Clarke C. J. and Pringle J. E., 1991 MNRAS, 249, 584.
+- Claudi R. et al., 2019 A&A, 622, A96.
+- Close L. M. et al., 2002 ApJL, 567, 1, L53.
+- Close L. M. et al., 2003 ApJ, 587, 1, 407.
+- Connelley M. S. et al., 2008 AJ, 135, 2496.
+- Corporon P. and Lagrange A. M., 1999 A&AS, 136, 429.
+- Cournoyer-Cloutier C. et al., 2021 MNRAS, 501, 3, 4464.
+- Cox E. G. et al., 2017 ApJ, 851, 2, 83.
+- Cox E. G. et al., 2018 ApJ, 855, 92.
+- Cruz-Sáenz de Miera F. et al., 2019 ApJL, 882, 1, L4.
+- Csizmadia S. et al., 2015 A&A, 584, A13.
+
+## Opposing or alternative findings cited
+*(Human action: identify papers in the reference list that present opposing models,
+competing parameter choices, or significantly different results. Note the specific
+disagreement and its implication for which StarGen default to use.)*
+
+## APA citation
+*(Verify and complete — see AnnotatedBibliography.md for the curated APA entry.)*
+
+## Conflicts and follow-up work
+*(Human action: search for papers explicitly responding to, revising, or challenging
+this paper published after its date. For fast-moving fields (exoplanet demographics,
+habitability, JWST/TESS-informed work), treat results >3 years old as potentially
+superseded. Flag updates in Followup.md.)*
+
+## StarGen mechanics translation
+
+### Stellar multiplicity — comprehensive formation review (PPVII)
+Most stars form in multiples; multiplicity fraction decreases from protostellar (~2/3)
+to main sequence (~1/3 for solar type) due to dynamical evolution.
+
+**StarGen implementation notes:**
+- This review synthesises DucheneKraus2013, MoeDiStefano2017, and newer ALMA+VLA
+  results. Use it to cross-check assumptions in StarGen's multiplicity model.
+- Key updated numbers: protostellar multiplicity fraction ~65%; field star ~44% FGK.
+- Planet formation is suppressed in close binaries (a < 10 AU) and in some wide
+  configurations; flag `CompanionSeparation < 10 AU` → `PlanetFormationSuppressed`.
+**Cross-references:** DucheneKraus2013.txt, MoeDiStefano2017.txt, Raghavan2010.txt.

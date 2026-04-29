@@ -1,15 +1,78 @@
-Olson, S. L., Jansen, M., & Abbot, D. S. (2020).
-Oceanographic Considerations for Exoplanet Life Detection.
-arXiv:1909.02928
-https://arxiv.org/abs/1909.02928
+# Olson2020
 
-Why this source matters for StarGen
-- This paper argues that ocean dynamics and nutrient upwelling can materially change biosphere productivity and biosignature strength.
-- It highlights that not all water worlds are equally productive simply because they possess liquid oceans.
+## Source metadata
+- File: `Olson2020.pdf`
+- Domain: planetary habitability / atmospheric redox
+- Pages: 21
+- Authors (auto-extracted — verify against PDF): Stephanie L. Olson,1 Malte Jansen,1 and Dorian S. Abbot1; using ROCKE-3D, a fully coupled ocean-atmosphere GCM. Our results suggest that planets that
 
-How it is used
-- Supports adding a nutrient-cycling or ocean-mixing proxy instead of using only raw ocean coverage in life and biosignature calculations.
-- Supports giving some weight to rotation, pressure, and seasonal mixing context when estimating surface biosphere productivity.
+## Abstract
+Liquid water oceans are at the center of our search for life on exoplanets because water is a strict requirement for life as we know it. However, oceans are dynamic habitats—and some oceans may be better hosts for life than others. In Earth’s ocean, circulation transports essential nutrients such as phosphate and is a first-order control on the distribution and productivity of life. Of particular importance is upward flow from the dark depths of the ocean in response to wind-driven divergence in surface layers. This ‘upwelling’ returns essential nutrients that tend to accumulate at depth via sinking of organic particulates back to the sunlit regions where photosynthetic life thrives. Ocean dynamics are likely to impose constraints on the activity and atmospheric expression of photosynthetic life in exo-oceans as well, but we lack an understanding of how ocean dynamics may differ on other planets. We address this issue by exploring the sensitivity of ocean dynamics to a suite of planetary parameters using ROCKE-3D, a fully coupled ocean-atmosphere GCM. Our results suggest that planets that rotate slower and have higher surface pressure than Earth may be the most attractive targets for remote life detection because upwelling is enhanced under these conditions, resulting in greater nutrient supply to the surface biosphere. Seasonal deepening of the mixed layer on high obliquity planets may also enhance nutrient replenishment from depth into the surface mixed layer. Efficient nutrient recycling favors greater biological activity, more biosignature production, and thus more detectable life. More generally, our results demonstrate the importance of considering oceanographic phe
 
-Human review notes
-- Use as a productivity and detectability constraint, not as a binary life/no-life cutoff.
+## Major claims, findings, models, assumptions, and limitations
+*Human verification required before using quantitative values or model assumptions in
+StarGen defaults. Figures and equations not captured by text extraction — read the PDF
+for exact thresholds, fit coefficients, and table values.*
+
+- Primary domain: planetary habitability / atmospheric redox
+- See StarGen applicability section below for the specific implications.
+
+## StarGen applicability
+Planetary redox chemistry and atmospheric oxygenation timeline. Relevant to habitability state and biosignature atmosphere generation for rocky planets in StarGen.
+
+## Parameters, constraints, and mechanics implications
+*(Human action: fill in specific numeric values, distributions, model families, and
+classification boundaries extracted from the paper. Where competing models or confidence
+ranges exist, expose those as user-selectable assumptions rather than collapsing to a
+single default. Where the paper documents uncertainty, preserve it in StarGen rather
+than presenting false precision.)*
+
+## Works cited by this paper (auto-extracted from final pages, partial)
+- Abbot, D. S., Cowan, N. B., & Ciesla, F. J. 2012, The
+- Astrophysical Journal, 756, 178
+- Ashkenazy, Y., Gildor, H., Losch, M., et al. 2013, Nature,
+- Bartlett, B. C., & Stevenson, D. J. 2016, Geophysical
+- Research Letters, 43, 5716
+- Beal, E. J., Claire, M. W., & House, C. H. 2011,
+- Behrenfeld, M. J., & Falkowski, P. G. 1997, Limnology and
+- Cael, B. B., & Ferrari, R. 2017, Geophysical Research
+- Canfield, D., Jrgensen, B., Fossing, H., et al. 1993, Marine
+- Cowan, N. B., & Abbot, D. S. 2014, The Astrophysical
+- Cowan, N. B., & Fujii, Y. 2018, in Handbook of
+- Exoplanets, ed. H. J. Deeg & J. A. Belmonte (Cham:
+- Springer International Publishing), 1469–1484
+- Cowan, N. B., Agol, E., Meadows, V. S., et al. 2009, The
+- Astrophysical Journal, 700, 915
+- Cullum, J., Stevens, D., & Joshi, M. 2014, Astrobiology, 14,
+- Cullum, J., Stevens, D. P., & Joshi, M. M. 2016,
+- Proceedings of the National Academy of Sciences, 113,
+- Del Genio, A. D., Way, M. J., Amundsen, D. S., et al.
+- 2019a, Astrobiology, 19
+
+## Opposing or alternative findings cited
+*(Human action: identify papers in the reference list that present opposing models,
+competing parameter choices, or significantly different results. Note the specific
+disagreement and its implication for which StarGen default to use.)*
+
+## APA citation
+*(Verify and complete — see AnnotatedBibliography.md for the curated APA entry.)*
+
+## Conflicts and follow-up work
+*(Human action: search for papers explicitly responding to, revising, or challenging
+this paper published after its date. For fast-moving fields (exoplanet demographics,
+habitability, JWST/TESS-informed work), treat results >3 years old as potentially
+superseded. Flag updates in Followup.md.)*
+
+
+## StarGen mechanics translation
+
+### Atmospheric O2 and biosignature false-positives
+Abiotic O2 build-up mechanisms (photolysis, H-escape) can mimic biological signatures
+on M-dwarf HZ planets. Key risk: pre-MS water loss on inner-HZ M-dwarf planets.
+
+**StarGen false-positive flag:**
+- If planet is in HZ of M-dwarf AND water_inventory was reduced during pre-MS phase
+  (flag from LugerBarnes2015): set `O2_AbioticRisk = elevated`.
+- This flag is metadata only; it annotates generated worlds for downstream use in
+  habitability or observation-planning tools.
+**Cross-references:** LugerBarnes2015.txt, WordsworthKreidberg2022.txt, Ribas2015.txt.

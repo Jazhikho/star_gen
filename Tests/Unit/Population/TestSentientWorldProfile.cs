@@ -1,6 +1,7 @@
 #nullable enable annotations
 #nullable disable warnings
 using StarGen.Domain.Population;
+using StarGen.Domain.Generation;
 using StarGen.Tests.Framework;
 
 namespace StarGen.Tests.Unit.Population;
@@ -79,6 +80,10 @@ public static class TestSentientWorldProfile
         original.TechnologyAdoptionCapacity = 0.66;
         original.FactionalFragmentation = 0.31;
         original.ReligiousCentralization = 0.37;
+        original.EconomicComplexity = 0.64;
+        original.InternalLegitimacy = 0.53;
+        original.ExternalLegitimacy = 0.48;
+        original.HumanAuditRequired = true;
 
         Godot.Collections.Dictionary data = original.ToDictionary();
         SentientWorldProfile restored = SentientWorldProfile.FromDictionary(data);
@@ -89,6 +94,35 @@ public static class TestSentientWorldProfile
         DotNetNativeTestSuite.AssertEqual(original.SettlementPattern, restored.SettlementPattern, "Settlement pattern should round-trip");
         DotNetNativeTestSuite.AssertFloatNear(original.TradeConnectivity, restored.TradeConnectivity, 0.0001, "Trade connectivity should round-trip");
         DotNetNativeTestSuite.AssertFloatNear(original.LegalReach, restored.LegalReach, 0.0001, "Legal reach should round-trip");
+        DotNetNativeTestSuite.AssertFloatNear(original.EconomicComplexity, restored.EconomicComplexity, 0.0001, "Economic complexity should round-trip");
+        DotNetNativeTestSuite.AssertFloatNear(original.InternalLegitimacy, restored.InternalLegitimacy, 0.0001, "Internal legitimacy should round-trip");
+        DotNetNativeTestSuite.AssertFloatNear(original.ExternalLegitimacy, restored.ExternalLegitimacy, 0.0001, "External legitimacy should round-trip");
+        DotNetNativeTestSuite.AssertEqual(original.HumanAuditRequired, restored.HumanAuditRequired, "Human-audit flag should round-trip");
+    }
+
+    /// <summary>
+    /// Tests source-aligned sentient model switches materially change the profile and mark audit status.
+    /// </summary>
+    public static void TestSourceAlignedModelsChangeProfileAndRequireAudit()
+    {
+        PlanetPopulationData data = CreateInhabitedWorldData();
+        SentientWorldProfile? baseline = SentientWorldProfileBuilder.Build(data);
+        GenerationUseCaseSettings settings = GenerationUseCaseSettings.CreateDefault();
+        settings.SentientSocialScaleModel = GenerationUseCaseSettings.SentientSocialScaleModelType.PopulationHierarchyAware;
+        settings.SentientTechnologyDiffusionModel = GenerationUseCaseSettings.SentientTechnologyDiffusionModelType.AccessCostDensityProxy;
+        settings.SentientEconomicComplexityModel = GenerationUseCaseSettings.SentientEconomicComplexityModelType.CapabilityPortfolioProxy;
+        settings.SentientLegitimacyModel = GenerationUseCaseSettings.SentientLegitimacyModelType.InternalExternalNormProxy;
+
+        SentientWorldProfile? sourceAligned = SentientWorldProfileBuilder.Build(data, settings);
+
+        DotNetNativeTestSuite.AssertNotNull(baseline, "Baseline profile should exist");
+        DotNetNativeTestSuite.AssertNotNull(sourceAligned, "Source-aligned profile should exist");
+        DotNetNativeTestSuite.AssertTrue(sourceAligned!.HumanAuditRequired, "Source-aligned social-science proxies should require human audit");
+        DotNetNativeTestSuite.AssertTrue(sourceAligned.EconomicComplexity > 0.0, "Economic complexity proxy should be populated");
+        DotNetNativeTestSuite.AssertTrue(
+            System.Math.Abs(sourceAligned.TechnologyAdoptionCapacity - baseline!.TechnologyAdoptionCapacity) > 0.0001
+            || System.Math.Abs(sourceAligned.SocialScale - baseline.SocialScale) > 0.0001,
+            "Selected sentient models should materially change at least one profile score");
     }
 
     private static PlanetPopulationData CreateInhabitedWorldData()

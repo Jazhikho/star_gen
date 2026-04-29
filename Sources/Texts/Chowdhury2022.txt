@@ -1,0 +1,76 @@
+# Chowdhury2022
+
+## Source metadata
+- File: `Chowdhury2022.pdf`
+- Domain: galactic structure/morphology
+- Pages: 23
+- Authors (auto-extracted — verify against PDF): (see PDF)
+
+## Abstract
+While one might expect states with low capacity to regulate less than states with high capacity, this is not supported by evidence, leaving open the possibility of rent-seeking. I use the example of the regulation of witchcraft in parts of Africa to informally model the conditions under which states with low capacity still come to promulgate a range of regulations even in the absence of rent-seeking interests. The model suggests that regulation can be a substitute for basic state functions like policing. I identify one normatively troubling aspect of this; the conditions under which such regulation might still improve state capacity over time, which qualiﬁes claims made about rent-seeking and neo-patrimonialism; the model’s implications for contemporary state formation; and the parallels between the regulation of witchcraft and the regulation of offensive speech.
+
+## Major claims, findings, models, assumptions, and limitations
+*Human verification required before using quantitative values or model assumptions in
+StarGen defaults. Figures and equations not captured by text extraction — read the PDF
+for exact thresholds, fit coefficients, and table values.*
+
+- Primary domain: galactic structure/morphology
+- See StarGen applicability section below for the specific implications.
+
+## StarGen applicability
+Verify abstract — apply to MW or galaxy morphology parameters in StarGen.
+
+## Parameters, constraints, and mechanics implications
+*(Human action: fill in specific numeric values, distributions, model families, and
+classification boundaries extracted from the paper. Where competing models or confidence
+ranges exist, expose those as user-selectable assumptions rather than collapsing to a
+single default. Where the paper documents uncertainty, preserve it in StarGen rather
+than presenting false precision.)*
+
+## Works cited by this paper (auto-extracted from final pages, partial)
+- Afrobarometer Data, Multiple Countries, Round 7, 2016/18. Available at http://www.
+- Abrahams Ray (1987) Sungusungu: village vigilante groups in Tanzania. African
+- Affairs 86(343): 179–196.
+- Action Aid (London) (2012) Condemned without trial: women and witchcraft in
+- Ghana. Available at: https://www.actionaid.org.uk/sites/default/ﬁles/doc_lib/
+- ghana_report_single_pages.pdf
+- Amnesty International (2009) Hundreds accused of ‘witchcraft’ persecuted in the
+- Gambia. Available at: https://www.amnesty.org/en/press-releases/2009/03/
+- gambia-hundreds-accused-e2809cwitchcrafte2809d-and-poisonedgovernment-campaign-20/
+- Appignanesi L and Maitland S (1990) The Rushdie File. Syracuse: Syracuse University Press.
+- Ashforth A (2005) Witchcraft, Violence, and Democracy in South Africa. Chicago:
+- University of Chicago Press.
+- Ashforth A (2015) Witchcraft, justice, and human rights in Africa: cases from
+- Malawi. African Studies Review 58(1): 5–38.
+- Baldwin K (2016) The Paradox of Traditional Chiefs in Democratic Africa. New
+- York: Cambridge University Press.
+- Rationality and Society 34(4)
+- Bates R (1981) Markets and States in Tropical Africa: The Political Bases of Agricultural Policies. Berkeley: University of California Press.
+- Behringer W (2004) Witches and Witch-Hunts: A Global History. Cambridge: Polity.
+- Besley T and Persson T (2009) The origins of state capacity: property rights, taxation,
+
+## Opposing or alternative findings cited
+*(Human action: identify papers in the reference list that present opposing models,
+competing parameter choices, or significantly different results. Note the specific
+disagreement and its implication for which StarGen default to use.)*
+
+## APA citation
+*(Verify and complete — see AnnotatedBibliography.md for the curated APA entry.)*
+
+## Conflicts and follow-up work
+*(Human action: search for papers explicitly responding to, revising, or challenging
+this paper published after its date. For fast-moving fields (exoplanet demographics,
+habitability, JWST/TESS-informed work), treat results >3 years old as potentially
+superseded. Flag updates in Followup.md.)*
+
+
+## StarGen mechanics translation
+
+### Galactic stellar populations — kinematic and chemical structure
+Studies kinematic and chemical structure of Milky Way stellar populations using spectroscopic survey data.
+
+**StarGen stellar population context:**
+- Provides kinematic dispersion values by galactic component and population age.
+- `KinematicDispersion(age, R_GC)` — velocity dispersion increases with stellar age.
+- Use to assign plausible stellar kinematics to generated stars in galactic mode.
+**Cross-references:** BlandHawthornGerhard2016.txt, Bovy2017.txt, Hayden2014.txt.

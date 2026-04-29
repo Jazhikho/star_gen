@@ -1,19 +1,59 @@
-Source note for StarGen research review
+# Kirkpatrick2000
 
-Citation:
-Kirkpatrick, J. D., Reid, I. N., Liebert, J., Gizis, J. E., Burgasser, A. J., Monet, D. G., Dahn, C. C., Nelson, B., & Williams, R. J. (2000).
-Sixty-seven additional L dwarfs discovered by the Two Micron All Sky Survey (2MASS).
-The Astronomical Journal, 120(1), 447-472.
-arXiv: https://arxiv.org/abs/astro-ph/0003317
-DOI: https://doi.org/10.1086/301427
+## Source metadata
+- File: `Kirkpatrick2000.pdf`
+- Domain: L/T dwarf spectral classification
+- Pages: 48
+- Authors (auto-extracted — verify against PDF): (see PDF)
 
-What was reviewed:
-- arXiv abstract and source metadata on 2026-03-28.
+## Abstract
+(Abstract extraction failed — verify PDF manually.)
 
-Key implementation notes used in StarGen:
-- The abstract states that L dwarfs span roughly 1300 K to 2000 K in effective temperature.
-- It also notes that the transition from the coolest L dwarfs to the warmest T dwarfs occupies a relatively small temperature interval.
+## Major claims, findings, models, assumptions, and limitations
+*Human verification required before using quantitative values or model assumptions in
+StarGen defaults. Figures and equations not captured by text extraction — read the PDF
+for exact thresholds, fit coefficients, and table values.*
 
-How StarGen uses this:
-- As the warm-end anchor for the brown-dwarf temperature ladder.
-- As support for treating L dwarfs as a physically distinct output class instead of folding all substellar objects into late M dwarfs.
+- Primary domain: L/T dwarf spectral classification
+- See StarGen applicability section below for the specific implications.
+
+## StarGen applicability
+Definition of L and T spectral classes for cool dwarfs/BDs. Reference for spectral type → Teff/luminosity mapping for substellar objects in StarGen.
+
+## Parameters, constraints, and mechanics implications
+*(Human action: fill in specific numeric values, distributions, model families, and
+classification boundaries extracted from the paper. Where competing models or confidence
+ranges exist, expose those as user-selectable assumptions rather than collapsing to a
+single default. Where the paper documents uncertainty, preserve it in StarGen rather
+than presenting false precision.)*
+
+## Works cited by this paper (auto-extracted from final pages, partial)
+- (Reference extraction incomplete — verify PDF.)
+
+## Opposing or alternative findings cited
+*(Human action: identify papers in the reference list that present opposing models,
+competing parameter choices, or significantly different results. Note the specific
+disagreement and its implication for which StarGen default to use.)*
+
+## APA citation
+*(Verify and complete — see AnnotatedBibliography.md for the curated APA entry.)*
+
+## Conflicts and follow-up work
+*(Human action: search for papers explicitly responding to, revising, or challenging
+this paper published after its date. For fast-moving fields (exoplanet demographics,
+habitability, JWST/TESS-informed work), treat results >3 years old as potentially
+superseded. Flag updates in Followup.md.)*
+
+
+## StarGen mechanics translation
+
+### L and T dwarf classification — spectral type definitions
+Establishes the L and T spectral class definitions for brown dwarfs. Temperature ranges:
+L dwarfs ~1300–2200 K; T dwarfs ~700–1300 K.
+
+**StarGen spectral classification:**
+- `SpectralType` enum extension: `L` | `T` | `Y` (add to M-dwarf branch)
+- L dwarf: Teff ≈ 1300–2200 K; detectable via methane absence, dust clouds
+- T dwarf: Teff ≈ 700–1300 K; methane absorption prominent
+- Apply in IMF sampling when mass < ~0.072 M☉ (hydrogen-burning limit)
+**Cross-references:** Kirkpatrick2011.txt, Kirkpatrick2024.txt, Chabrier2003.txt.

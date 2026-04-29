@@ -1,0 +1,76 @@
+# Laskar2017
+
+## Source metadata
+- File: `Laskar2017.pdf`
+- Domain: orbital stability/secular chaos
+- Pages: 18
+- Authors (auto-extracted — verify against PDF): (see PDF)
+
+## Abstract
+We present here in full detail the evolution of the angular momentum deficit (AMD) during collisions as it was described in (Laskar 2000). Since then, the AMD has been revealed to be a key parameter for the understanding of the outcome of planetary formation models. We define here the AMD-stability criterion that can be easily verified on a newly discovered planetary system. We show how AMDstability can be used to establish a classification of the multiplanet systems in order to exhibit the planetary systems that are long-term stable because they are AMD-stable, and those that are AMDunstable which then require some additional dynamical studies to conclude on their stability. The AMD-stability classification is applied to the 131 multiplanet systems from The Extrasolar Planet Encyclopaedia database (exoplanet.eu) for which the orbital elements are sufficiently well known.
+
+## Major claims, findings, models, assumptions, and limitations
+*Human verification required before using quantitative values or model assumptions in
+StarGen defaults. Figures and equations not captured by text extraction — read the PDF
+for exact thresholds, fit coefficients, and table values.*
+
+- Primary domain: orbital stability/secular chaos
+- See StarGen applicability section below for the specific implications.
+
+## StarGen applicability
+Long-term secular orbital chaos in planetary systems. Relevant to long-term stability filters in system architecture generation.
+
+## Parameters, constraints, and mechanics implications
+*(Human action: fill in specific numeric values, distributions, model families, and
+classification boundaries extracted from the paper. Where competing models or confidence
+ranges exist, expose those as user-selectable assumptions rather than collapsing to a
+single default. Where the paper documents uncertainty, preserve it in StarGen rather
+than presenting false precision.)*
+
+## Works cited by this paper (auto-extracted from final pages, partial)
+- Fig. 12. Probability density function of the two first
+- minimum values of P(x, Rα ) from 10,000 samples Rα
+- drawn from the F distribution.
+- the 131 studied systems from exoplanet.eu, we find
+- 48 strong AMD-stable, 22 weak AMD-stable, and
+- 61 AMD-unstable systems, including 5 hierarchical
+- As for the solar system, the AMD-unstable systems are not necessarily unstable, but determining their stability requires some further dynamical
+- analysis. Several mechanisms can stabilise AMDunstable systems. The absence of secular chaotic interactions between parts of the systems, like in the
+- solar system case, or the presence of mean motion
+- resonances, protecting pairs of planets from collision. In this case, the AMD-stability classification
+- is still useful in order to select the systems that
+- require this more in-depth dynamical analysis. It
+- should also be noted that the discovery of additional
+- planets in a system will require a revision of the
+- computation of the AMD-stability of the system.
+- This additional planet will always increase the total AMD, and thus the maximum AMD-coefficient
+- of the system, decreasing its AMD-stability unless
+- it is split into two subsystems.
+- In the present work, we have not taken into
+- account mean motion resonances (MMR) and the
+
+## Opposing or alternative findings cited
+*(Human action: identify papers in the reference list that present opposing models,
+competing parameter choices, or significantly different results. Note the specific
+disagreement and its implication for which StarGen default to use.)*
+
+## APA citation
+*(Verify and complete — see AnnotatedBibliography.md for the curated APA entry.)*
+
+## Conflicts and follow-up work
+*(Human action: search for papers explicitly responding to, revising, or challenging
+this paper published after its date. For fast-moving fields (exoplanet demographics,
+habitability, JWST/TESS-informed work), treat results >3 years old as potentially
+superseded. Flag updates in Followup.md.)*
+
+
+## StarGen mechanics translation
+
+### Planetary spin / obliquity — chaotic dynamics
+*(See Laskar2017 entry above for mechanics. Stem name 'Laskar2017' is in the corpus.)*
+Without large moon stabilisation, terrestrial planets undergo chaotic obliquity evolution.
+
+**StarGen obliquity:**
+- `ObliquityStabilised` — bool; true if large moon present.
+- Unstable obliquity → `HabitabilityFlag = ObliquityUnstable`.
+**Cross-references:** NakajimaEtAl2022.txt, Kopparapu2013.txt.

@@ -64,6 +64,15 @@ Release notes and version summaries are in the [README](../README.md#version-his
 - Add flux-, habitable-zone-, XUV-, and tidal-heating-aware environment scoring so habitability and native-biology outcomes follow system context rather than only standalone planet readouts.
 - Calibrate these constraints against reviewed literature for planet demographics, moon formation, asteroid/comet structure, and habitability windows, and keep the implementation additive instead of rewriting the current generator stack.
 
+### Active effort: End-to-end scientific grounding audit (`0.9.1.0`)
+
+- Promote the internal audit inventory into tracked repo docs and use it as the source of truth for generator-internal numeric constants that materially shape output.
+- Close unsupported science claims in staged passes: source acquisition first, bibliography and `Sources/Texts` notes second, inline APA-style code citations third, with human verification required before any claim is treated as fully grounded.
+- Keep this effort traceability-focused rather than behavior-focused: unless reviewed literature clearly contradicts a narrow coefficient, runtime generator formulas stay stable and only their grounding comments, audit status, and source trail change.
+- First-pass targets are the galaxy bar-strength and elliptical-structure claims, the compact stellar-lifetime exponents, the planetary migration framework reference, and the sulfur-chemistry support window.
+- Deliverables for each pass are explicit status updates in `Docs/EndToEndScienceAudit.md`, corresponding bibliography and `Sources/Texts` entries, inline code comments that distinguish sourced framework from StarGen tuning, provenance updates, and a quality regression that checks the tracked audit contract.
+- AI-assisted source summaries or inline citations added during this effort must remain marked as pending human verification until a human reviews the underlying source material and accepts the claim.
+
 ### Planned effort: RPG compatibility overrides
 
 - Expand the current `Generation Overrides` seam beyond the existing Traveller-leaning clean-room mode into a small set of explicitly supported RPG compatibility profiles.

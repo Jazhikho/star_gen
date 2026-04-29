@@ -1,0 +1,50 @@
+# MalamudPerets2019
+
+## Source metadata
+- File: `MalamudPerets2019.pdf`
+- Domain: tidal disruption / WD pollution
+- Pages: 15
+- Authors (auto-extracted — verify against PDF): Uri Malamud,1,2 Hagai B. Perets,2,3 Christoph Schäfer,4 Christoph Burger4,5
+
+## Abstract
+Exomoons orbiting terrestrial or super-terrestrial exoplanets have not yet been discovered; their possible existence and properties are therefore still an unresolved question. Here we explore the collisional formation of exomoons through giant planetary impacts. We make use of smooth particle hydrodynamical (SPH) collision simulations and survey a large phase-space of terrestrial/superterrestrial planetary collisions. We characterize the properties of such collisions, finding one rare case in which an exomoon forms through a graze & capture scenario, in addition to a few graze & merge or hit & run scenarios. Typically however, our collisions form massive circumplanetary discs, for which we use followup N-body simulations in order to derive lower-limit mass estimates for the ensuing exomoons. We investigate the mass, long-term tidal-stability, composition and origin of material in both the discs and the exomoons. Our giant-impact models often generate relatively iron-rich moons, that form beyond the synchronous radius of the planet, and would thus tidally evolve outward with stable orbits, rather than be destroyed. Our results suggest that it is extremely difficult to collisionally form currently-detectable exomoons orbiting super-terrestrial planets, through single giant impacts. It might be possible to form massive, detectable exomoons through several mergers of smaller exomoons, formed by multiple impacts, however more studies are required in order to reach a conclusion. Given the current observational initiatives, the search should focus primarily on more massive planet categories. However, about a quarter of the exomoons predicted by our models are approximately Mercu
+
+## Major claims, findings, models, assumptions, and limitations
+*Human verification required before using quantitative values or model assumptions in
+StarGen defaults. Figures and equations not captured by text extraction — read the PDF
+for exact thresholds, fit coefficients, and table values.*
+
+- Primary domain: tidal disruption / WD pollution
+- See StarGen applicability section below for the specific implications.
+
+## StarGen applicability
+Tidal disruption of planetesimals near white dwarfs or close-orbit dynamics. Relevant to planetary system evolution around evolved stellar remnants in StarGen.
+
+## Parameters, constraints, and mechanics implications
+*(Human action: fill in specific numeric values, distributions, model families, and
+classification boundaries extracted from the paper. Where competing models or confidence
+ranges exist, expose those as user-selectable assumptions rather than collapsing to a
+single default. Where the paper documents uncertainty, preserve it in StarGen rather
+than presenting false precision.)*
+
+## Works cited by this paper (auto-extracted from final pages, partial)
+- (Reference extraction incomplete — verify PDF.)
+
+## Opposing or alternative findings cited
+*(Human action: identify papers in the reference list that present opposing models,
+competing parameter choices, or significantly different results. Note the specific
+disagreement and its implication for which StarGen default to use.)*
+
+## APA citation
+*(Verify and complete — see AnnotatedBibliography.md for the curated APA entry.)*
+
+## Conflicts and follow-up work
+*(Human action: search for papers explicitly responding to, revising, or challenging
+this paper published after its date. For fast-moving fields (exoplanet demographics,
+habitability, JWST/TESS-informed work), treat results >3 years old as potentially
+superseded. Flag updates in Followup.md.)*
+
+
+## StarGen mechanics translation
+
+*(Mechanics for MalamudPerets2019 pending human review — verify paper domain against PDF and fill in specific implementable rules, enums, numeric thresholds, and cross-references.)*

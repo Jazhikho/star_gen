@@ -1,0 +1,62 @@
+# Berger2020Gaia
+
+## Source metadata
+- File: `Berger2020Gaia.pdf`
+- Domain: planet radius demographics / stellar mass + age dependence
+- Authors (verify against PDF title page)
+
+## Abstract
+Studies of exoplanet demographics require large samples and precise constraints on exoplanet host stars. Using the homogeneous Kepler stellar properties derived using Gaia Data Release 2 by Berger et al. (2020), we re-compute Kepler planet radii and incident fluxes and investigate their distributions with stellar mass and age. We measure the stellar mass dependence of the planet radius valley to +0.21 be d log Rp /d log M? = 0.26−0.16 , consistent with the slope predicted by a planet mass dependence on stellar mass (0.24–0.35) and core-powered mass-loss (0.33). We also find first evidence of a stellar age dependence of the planet populations straddling the radius valley. Specifically, we determine that the fraction of super-Earths (1–1.8 R⊕ ) to sub-Neptunes (1.8–3.5 R⊕ ) increases from 0.61 ± 0.09 at young ages (< 1 Gyr) to 1.00 ± 0.10 at old ages (> 1 Gyr), consistent with the prediction by core-powered massloss that the mechanism shaping the radius valley operates over Gyr timescales. Additionally, we find a tentative decrease in the radii of relatively cool (Fp < 150 F⊕ ) sub-Neptunes over Gyr timescales, which suggests that these planets may possess H/He envelopes instead of higher mean molecular weight atmospheres. We confirm the existence of planets within the hot sub-Neptunian “desert” (2.2 < Rp < 3.8 R⊕ , Fp > 650 F⊕ ) and show that these planets are preferentially orbiting more evolved stars compared to other planets at similar incident fluxes. In addition, we identify candidates for cool (Fp < 20 F⊕ ) inflated Jupiters, present a revised list of habitable zone candidates, and find that the ages of single- and multiple-transiting planet systems are statistically indistinguishable. 1. INTRODUCTION One of the most impactful exoplanet discoveries in recent years 
+
+## Major claims, findings, models, assumptions, and limitations
+*Human verification required before using quantitative values or model assumptions in
+StarGen defaults. Figures and equations not captured by text extraction — read the PDF
+for exact thresholds, fit coefficients, and table values.*
+
+- Primary domain: planet radius demographics / stellar mass + age dependence
+- See StarGen applicability section below for the specific implications.
+
+## StarGen applicability
+Gaia-calibrated Kepler radii: gap slope d log Rp/d log M★ ≈ 0.26; super-Earth/sub-Neptune ratio increases from 0.61 (<1 Gyr) to 1.00 (>1 Gyr). Age evolution of composition is key StarGen planet-evolution lever.
+
+## Parameters, constraints, and mechanics implications
+*(Human action: fill in specific numeric values, distributions, model families, and
+classification boundaries extracted from the paper. Where competing models or confidence
+ranges exist, expose those as user-selectable assumptions rather than collapsing to a
+single default. Where the paper documents uncertainty, preserve it in StarGen rather
+than presenting false precision.)*
+
+## Works cited by this paper (auto-extracted from final pages, partial)
+- Berger et al.
+- Figure 13 shows cumulative distribution functions
+- 1768 systems). We observe that the single transiting
+- A-D tests, respectively, indicating that the single- and
+- 2019), produced p-values of 0.59 and 0.25 (capped) for
+- We therefore conclude that the ages of single and
+- Obertas et al. 2017), and may happen at almost any age.
+- For instance, young singles could be the multis that were
+- 8. SUMMARY AND CONCLUSIONS
+- We presented a re-analysis of Kepler exoplanet properties using the uniform stellar properties provided by
+- B20. In particular, we performed a systematic analysis
+- Wu 2019) and core-powered mass-loss (Gupta &
+- Schlichting 2020). We estimate that differentiating between these theories would require & 20,000
+- 0.61 ± 0.09) to old planets (> 1 Gyr, 1.00 ± 0.10).
+- This is consistent with predictions of the corepowered mass-loss mechanism that sub-Neptunes
+
+## Opposing or alternative findings cited
+*(Human action: identify papers in the reference list that present opposing models,
+competing parameter choices, or significantly different results. Note the specific
+disagreement and its implication for which StarGen default to use.)*
+
+## APA citation
+*(Verify and complete — see AnnotatedBibliography.md for the curated APA entry.)*
+
+## Conflicts and follow-up work
+*(Human action: search for papers explicitly responding to, revising, or challenging
+this paper published after its date. For fast-moving fields (exoplanet demographics,
+habitability, JWST/TESS-informed work), treat results >3 years old as potentially
+superseded. Flag updates in Followup.md.)*
+
+## StarGen mechanics translation
+
+*(Mechanics for Berger2020Gaia pending human review — verify paper domain against PDF and fill in specific implementable rules, enums, numeric thresholds, and cross-references.)*

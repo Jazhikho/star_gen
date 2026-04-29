@@ -1,21 +1,65 @@
-Source note for StarGen research review
+# WordsworthKreidberg2022
 
-Citation:
-Wordsworth, R., & Kreidberg, L. (2022).
-Atmospheres of rocky exoplanets.
-Annual Review of Astronomy and Astrophysics, 60, 159-201.
-arXiv: https://arxiv.org/abs/2112.04663
-PDF: https://people.seas.harvard.edu/~rwordsworth/papers/wordsworth2022atmospheres.pdf
-DOI: https://doi.org/10.1146/annurev-astro-052920-125632
+## Source metadata
+- File: `WordsworthKreidberg2022.pdf`
+- Domain: terrestrial atmospheres / secondary atmosphere retention
+- Pages: 48
+- Authors (auto-extracted — verify against PDF): (see PDF)
 
-What was reviewed:
-- Abstract, review summary, and source metadata on 2026-04-19.
+## Abstract
+Rocky planets are common around other stars, but their atmospheric properties remain largely unconstrained. Thanks to a wealth of recent planet discoveries and upcoming advances in observing capability, we are poised to characterize the atmospheres of dozens of rocky exoplanets in this decade. Theoretical understanding of rocky exoplanet atmospheres has advanced considerably in the last few years, yielding testable predictions of their evolution, chemistry, dynamics and even possible biosignatures. Here we review key progress in this field to date and discuss future objectives. Our major conclusions are as follows: • Many rocky planets may form with initial H2 – He envelopes that are later lost to space, likely due to a combination of stellar UV/Xray irradiation and internal heating. • After the early stages of evolution, a wide diversity of atmospheric compositions is expected, due to variations in host star flux, atmospheric escape rates, interior exchange and other factors. • Observations have ruled out the presence of hydrogen-dominated atmospheres on several nearby rocky exoplanets, and the presence of any thick atmosphere on one target. More detailed atmospheric characterization of these planets and others will become possible in the near future. • Exoplanet biosphere searches are an exciting future goal. However, reliable detections for a representative sample of planets will require further advances in observing capability and improvements in our understanding of abiotic planetary processes.
 
-Key implementation notes used in StarGen:
-- Many rocky planets likely form with early H2-He envelopes that can later be lost through stellar UV/X-ray irradiation and internal heating.
-- Rocky-planet atmospheres should be treated as outcomes of flux, escape, volatile inventory, and interior exchange, not as decorative labels disconnected from the rest of the world state.
-- Airless rocky planets are a real expected outcome, and atmospheric retention strongly constrains what surface conditions can stay stable.
+## Major claims, findings, models, assumptions, and limitations
+*Human verification required before using quantitative values or model assumptions in
+StarGen defaults. Figures and equations not captured by text extraction — read the PDF
+for exact thresholds, fit coefficients, and table values.*
 
-How StarGen uses this:
-- As reviewed support for Object Studio conflict notes when users force stripped or airless planets while also targeting dense pressure or ocean-heavy surface conditions.
-- As a plain-language help source explaining why direct atmosphere, hydrosphere, and envelope locks can pull against each other even though Object Studio still honors those direct choices.
+- Primary domain: terrestrial atmospheres / secondary atmosphere retention
+- See StarGen applicability section below for the specific implications.
+
+## StarGen applicability
+Secondary atmosphere formation and retention: volcanic outgassing, photodissociation, escape rates, composition evolution. Constrains atmosphere generation for rocky worlds in StarGen — not all rocky HZ planets retain atmospheres; expose model uncertainty.
+
+## Parameters, constraints, and mechanics implications
+*(Human action: fill in specific numeric values, distributions, model families, and
+classification boundaries extracted from the paper. Where competing models or confidence
+ranges exist, expose those as user-selectable assumptions rather than collapsing to a
+single default. Where the paper documents uncertainty, preserve it in StarGen rather
+than presenting false precision.)*
+
+## Works cited by this paper (auto-extracted from final pages, partial)
+- (Reference extraction incomplete — verify PDF.)
+
+## Opposing or alternative findings cited
+*(Human action: identify papers in the reference list that present opposing models,
+competing parameter choices, or significantly different results. Note the specific
+disagreement and its implication for which StarGen default to use.)*
+
+## APA citation
+*(Verify and complete — see AnnotatedBibliography.md for the curated APA entry.)*
+
+## Conflicts and follow-up work
+*(Human action: search for papers explicitly responding to, revising, or challenging
+this paper published after its date. For fast-moving fields (exoplanet demographics,
+habitability, JWST/TESS-informed work), treat results >3 years old as potentially
+superseded. Flag updates in Followup.md.)*
+
+
+## StarGen mechanics translation
+
+### Secondary atmosphere retention — definitive review
+Establishes that not all rocky HZ planets retain atmospheres. Atmosphere loss depends
+on: planet mass, instellation, stellar XUV history, outgassing rate, atmospheric
+composition, and initial volatile inventory.
+
+**StarGen atmosphere retention model:**
+- `AtmosphereRetentionProbability` — float [0,1]; computed from:
+  - Planet mass (higher mass → higher gravity → better retention)
+  - Instellation relative to HZ position
+  - Stellar XUV history (Ribas2015 / LugerBarnes2015 for M-dwarfs)
+  - Stellar age (cumulative XUV dose)
+- `AtmosphereType` enum (post-retention): `Thick` | `Thin` | `None` | `Unknown`
+- For M-dwarf HZ planets: default to elevated XUV stripping risk (LugerBarnes2015).
+**User lever:** `AtmosphereRetentionModel` — `WordsworthKreidberg2022` | `Simple` | `Off`
+**Cross-references:** LugerBarnes2015.txt, Ribas2015.txt, Kopparapu2013.txt,
+Olson2020.txt.

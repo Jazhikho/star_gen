@@ -92,4 +92,36 @@ public static class TestCometGenerator
             throw new InvalidOperationException($"Expected long-period comet semi-major axis >= 20 AU, got {semiMajorAxisAu:0.00} AU.");
         }
     }
+
+    /// <summary>
+    /// Tests source-backed Bauer-style Jupiter-family comet radii stay below the old broad default range.
+    /// </summary>
+    public static void TestBauerJupiterFamilyModelUsesSmallNucleusPrior()
+    {
+        CometSpec spec = CometSpec.JupiterFamily(72501);
+        spec.NucleusModel = (int)CometNucleusModel.BauerJupiterFamily;
+        ParentContext context = ParentContext.SunLike(5.0 * Units.AuMeters);
+
+        CelestialBody comet = CometGenerator.Generate(spec, context, new SeededRng(72501));
+        if (comet.Physical.RadiusM >= 2500.0)
+        {
+            throw new InvalidOperationException($"Expected Bauer-style Jupiter-family radius below 2.5 km, got {comet.Physical.RadiusM:0.00} m.");
+        }
+    }
+
+    /// <summary>
+    /// Tests legacy comet-radius behavior is retained only when explicitly selected.
+    /// </summary>
+    public static void TestLegacyCometModelKeepsWideRangeAvailable()
+    {
+        CometSpec spec = CometSpec.JupiterFamily(72502);
+        spec.NucleusModel = (int)CometNucleusModel.LegacyWideRange;
+        ParentContext context = ParentContext.SunLike(5.0 * Units.AuMeters);
+
+        CelestialBody comet = CometGenerator.Generate(spec, context, new SeededRng(72502));
+        if (comet.Physical.RadiusM < 1000.0)
+        {
+            throw new InvalidOperationException($"Expected legacy comet radius to keep the older wide kilometer-scale floor, got {comet.Physical.RadiusM:0.00} m.");
+        }
+    }
 }

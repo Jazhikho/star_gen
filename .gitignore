@@ -36,5 +36,11 @@ releases/
 *.bak
 *.log
 
+# Paper / reference PDFs (keep plain-text extracts under Sources/Texts/*.txt; do not commit binaries)
+*.pdf
+
+# Local agent worktrees and caches
+.claude/
+
 # Local / non-repo copy of galactic formation reference (not versioned)
 Docs/galactic_formation.md

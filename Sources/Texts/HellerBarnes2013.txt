@@ -1,20 +1,78 @@
-Source note for StarGen research review
+# HellerBarnes2013
 
-Citation:
-Heller, R., & Barnes, R. (2013).
-Exomoon habitability constrained by illumination and tidal heating.
-Astrobiology, 13(1), 18-46.
-arXiv: https://arxiv.org/abs/1209.5323
-DOI: https://doi.org/10.1089/ast.2012.0859
+## Source metadata
+- File: `HellerBarnes2013.pdf`
+- Domain: exomoon habitability/tidal heating
+- Pages: 35
+- Authors (auto-extracted — verify against PDF): (see PDF)
 
-What was reviewed:
-- Abstract and source metadata on 2026-04-03.
+## Abstract
+The detection of moons orbiting extrasolar planets (“exomoons”) has now become feasible. Once they are discovered in the circumstellar habitable zone, questions about their habitability will emerge. Exomoons are likely to be tidally locked to their planet and hence experience days much shorter than their orbital period around the star and have seasons, all of which works in favor of habitability. These satellites can receive more illumination per area than their host planets, as the planet reflects stellar light and emits thermal photons. On the contrary, eclipses can significantly alter local climates on exomoons by reducing stellar illumination. In addition to radiative heating, tidal heating can be very large on exomoons, possibly even large enough for sterilization. We identify combinations of physical and orbital parameters for which radiative and tidal heating are strong enough to trigger a runaway greenhouse. By analogy with the circumstellar habitable zone, these constraints define a circumplanetary “habitable edge”. We apply our model to hypothetical moons around the recently discovered exoplanet Kepler-22b and the giant planet candidate KOI211.01 and describe, for the first time, the orbits of habitable exomoons. If either planet hosted a satellite at a distance greater than 10 planetary radii, then this could indicate the presence of a habitable moon.
 
-Key implementation notes used in StarGen:
-- Exomoon habitability is constrained by more than starlight alone. Tidal heating, eclipses, planetary illumination, and system architecture can all move a moon toward or away from biologically useful conditions.
-- Moderate tidal heating can help maintain subsurface or temperate habitable environments, while excessive heating can become destabilizing.
-- For StarGen, the valuable constraint is the shape of the curve: too little heating can leave icy moons inert, moderate heating can help, and too much can become harmful.
+## Major claims, findings, models, assumptions, and limitations
+*Human verification required before using quantitative values or model assumptions in
+StarGen defaults. Figures and equations not captured by text extraction — read the PDF
+for exact thresholds, fit coefficients, and table values.*
 
-How StarGen uses this:
-- As support for making moon biology and moon-supporting habitability respond to a bounded tidal-heating window rather than a flat moon bonus.
-- As the scientific basis for letting icy-moon support, complex-life odds, and captured-vs-regular moon consequences depend on system context in a deterministic way.
+- Primary domain: exomoon habitability/tidal heating
+- See StarGen applicability section below for the specific implications.
+
+## StarGen applicability
+Exomoon habitable edge; tidal heating as enabler and hazard for moon habitability. StarGen should model tidal heating for inner moons and apply a habitability threshold distinct from insolation-only HZ.
+
+## Parameters, constraints, and mechanics implications
+*(Human action: fill in specific numeric values, distributions, model families, and
+classification boundaries extracted from the paper. Where competing models or confidence
+ranges exist, expose those as user-selectable assumptions rather than collapsing to a
+single default. Where the paper documents uncertainty, preserve it in StarGen rather
+than presenting false precision.)*
+
+## Works cited by this paper (auto-extracted from final pages, partial)
+- Agnor, C. B., Hamilton, D. P. 2006, Nature, 441, 192
+- Baraffe, I., Chabrier, G., Barman, T. S., Allard, F., Hauschildt, P. H. 2003, A&A, 402, 701
+- Barnes, J. W., O’Brien, D. P. 2002, ApJ, 575, 1087
+- Barnes, R., Jackson, B., Greenberg, R., Raymond, S. N. 2009, ApJ, 700, L30
+- Barnes, R., Mullins, K., Goldblatt C., et al. 2013, Astrobiology, 13, 225
+- Batalha, N. M., Rowe, J. F., Bryson, S. T., et al. 2012, ApJS, 204, 24
+- Běhounková, M., Tobie, G., Choblet, G., Čadek, O. 2011, ApJ, 2011, 728, 89
+- Bland, M. T., Showman, A. P., Tobie, G. 2008, Icarus, 198, 384
+- Bolmont, E., Raymond, S. N., Leconte, J. 2011, A&A, 535, A94
+- Borucki, W. J., Koch, D. G., Basri, G., et al. 2011, ApJ, 736, 19
+- Borucki, W. J., Koch, D. G., Batalha, N., et al. 2012, ApJ, 745, 120
+- Budaj, J., Hubeny, I., Burrows, A. 2012, A&A, 537, 115
+- Burrows, A., Sudarsky, D., Hubney, I. 2006a, ApJ, 640, 1063
+- Burrows, A., Sudarsky, D., Hubney, I. 2006b, ApJ, 650, 1140
+- Cabrera, J., Schneider, J. 2007, A&A, 464, 1133
+- Canup, R. M. 2004, Icarus, 168, 433
+- Canup, R. M., Ward, W. R. 2006, Nature, 441, 834
+- Carruba, V., Burns, J. A., Nicholson, P. D., Gladman, B. J. 2002, Icarus, 158, 434
+- Cassidy, T. A., Mendez, R., Arras, P., Johnson, R. E., Skrutskie, M. F. 2009, ApJ, 704, 1341
+- Chambers, J. E. 1999, MNRAS, 304, 793
+
+## Opposing or alternative findings cited
+*(Human action: identify papers in the reference list that present opposing models,
+competing parameter choices, or significantly different results. Note the specific
+disagreement and its implication for which StarGen default to use.)*
+
+## APA citation
+*(Verify and complete — see AnnotatedBibliography.md for the curated APA entry.)*
+
+## Conflicts and follow-up work
+*(Human action: search for papers explicitly responding to, revising, or challenging
+this paper published after its date. For fast-moving fields (exoplanet demographics,
+habitability, JWST/TESS-informed work), treat results >3 years old as potentially
+superseded. Flag updates in Followup.md.)*
+
+
+## StarGen mechanics translation
+
+### Habitable zone — tidal heating on moons / exomoons
+Tidal heating from giant planet can render moons habitable even outside the stellar HZ.
+Overcooking risk: excessive tidal heating drives a 'tidal Venus' runaway.
+
+**StarGen exomoon habitability (future exomoon module):**
+- `TidalHabitability` flag on moons of giant planets.
+- Tidal heating flux Q_tidal depends on eccentricity, orbital radius, and moon radius.
+- Habitable window: Q_tidal ≈ 0.04–2 W/m² (analogous to Earth radiogenic ~0.08 W/m²).
+- NOTE: exomoon generation is not in current StarGen scope. Register as prototype gate.
+**Cross-references:** Kopparapu2013.txt, WordsworthKreidberg2022.txt.

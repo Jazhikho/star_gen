@@ -1,0 +1,58 @@
+# ChabrierLenoble2023
+
+## Source metadata
+- File: `ChabrierLenoble2023.pdf`
+- Domain: IMF/updated low-mass
+- Pages: 18
+- Authors (auto-extracted — verify against PDF): Microlensing Observations; incorrect parameterization of the IMF. Furthermore, we show that the IMF in the central regions of
+
+## Abstract
+We use recent microlensing observations toward the central bulge of the Galaxy to probe the overall stellar plus brown dwarf initial mass function (IMF) in these regions well within the brown dwarf domain. We find that the IMF is consistent with the same Chabrier (2005) IMF characteristic of the Galactic disk. In contrast, other IMFs suggested in the literature overpredict the number of shorttime events, thus of very-low mass stars and brown dwarfs, compared with observations. This, again, supports the suggestion that brown dwarfs and stars form predominantly via the same mechanism. We show that claims for different IMFs in the stellar and substellar domains rather arise from an incorrect parameterization of the IMF. Furthermore, we show that the IMF in the central regions of the bulge seems to be bottom-heavy, as illustrated by the large number of short-time events compared with the other regions. This recalls our previous analysis of the IMF in massive early type galaxies and suggests the same kind of two-phase formation scenario, with the central bulge initially formed under more violent, burst-like conditions than the rest of the Galaxy.
+
+## Major claims, findings, models, assumptions, and limitations
+*Human verification required before using quantitative values or model assumptions in
+StarGen defaults. Figures and equations not captured by text extraction — read the PDF
+for exact thresholds, fit coefficients, and table values.*
+
+- Primary domain: IMF/updated low-mass
+- See StarGen applicability section below for the specific implications.
+
+## StarGen applicability
+Updated Chabrier IMF with improved low-mass constraints (2023). May revise characteristic mass and BD boundary vs Chabrier2003.
+
+## Parameters, constraints, and mechanics implications
+*(Human action: fill in specific numeric values, distributions, model families, and
+classification boundaries extracted from the paper. Where competing models or confidence
+ranges exist, expose those as user-selectable assumptions rather than collapsing to a
+single default. Where the paper documents uncertainty, preserve it in StarGen rather
+than presenting false precision.)*
+
+## Works cited by this paper (auto-extracted from final pages, partial)
+- (Reference extraction incomplete — verify PDF.)
+
+## Opposing or alternative findings cited
+*(Human action: identify papers in the reference list that present opposing models,
+competing parameter choices, or significantly different results. Note the specific
+disagreement and its implication for which StarGen default to use.)*
+
+## APA citation
+*(Verify and complete — see AnnotatedBibliography.md for the curated APA entry.)*
+
+## Conflicts and follow-up work
+*(Human action: search for papers explicitly responding to, revising, or challenging
+this paper published after its date. For fast-moving fields (exoplanet demographics,
+habitability, JWST/TESS-informed work), treat results >3 years old as potentially
+superseded. Flag updates in Followup.md.)*
+
+
+## StarGen mechanics translation
+
+### IMF — updated lognormal fits (2023 revision of Chabrier)
+Revises Chabrier2003 fits with modern photometric calibrations and updated spectral
+models. Characteristic mass shifts slightly; primary update to Chabrier2003 for < 1 M☉.
+
+**StarGen:**
+- `IMFFamily = ChabrierLenoble2023` — recommended replacement for Chabrier2003 if
+  a more recent calibration is desired.
+- Updated mc and σ from paper; verify exact values against Table 1 of the PDF.
+**Cross-references:** Chabrier2003.txt, Kroupa2001.txt.

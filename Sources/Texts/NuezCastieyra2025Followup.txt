@@ -1,0 +1,147 @@
+# NuezCastieyra2025Followup
+
+## Source metadata
+- File: `NuezCastieyra2025Followup.pdf`
+- Domain: galaxy formation / dark matter halos / subhalo dynamics / baryonic feedback
+- Pages: 32
+- Authors: Nuñez-Castiñeyra, A., Nezri, E., Mollitor, P., Michel-Dansac, L.,
+  Devriendt, J., & Teyssier, R.
+- Source ID in StarGen code: `nuez2025`
+- **PDF acquisition:** PDF confirmed present in Sources/Texts/.
+  Verify journal, volume, doi, and arXiv ID against PDF.
+
+## Abstract
+We investigate the role of baryonic physics in shaping the population, structure, and
+internal dynamics of galactic subhalos using the Mochima suite of cosmological zoom-in
+simulations. A refined method is developed to identify bound subhalo material by isolating
+the local gravitational potential and applying multi-criteria phase-space selection. This
+approach enables robust characterisation of subhalo properties across five baryonic runs
+with varying prescriptions for star formation, and supernova and protostellar feedback,
+as well as a dark matter-only baseline. At the population level, we find that host halo
+concentration, modulated by baryonic feedback, is a key predictor of subhalo survival.
+Subhalos with more massive stellar components exhibit deeper internal potentials and
+enhanced resilience to tidal disruption. At the structural level, we identify a broad
+diversity in inner dark matter profiles, consistent with observations of dwarf galaxies.
+We show that this diversity correlates with both star formation history and environmental
+interaction. In particular, galaxies that form most of their stars early tend to retain
+steep cusps, while those with extended or recent star formation exhibit oscillating inner
+slopes shaped by bursty feedback and tidal perturbations. These findings suggest that the
+so-called "diversity problem" may reflect the complex interplay between feedback history
+and gravitational environment, rather than a breakdown of cold dark matter predictions.
+
+## Major claims, findings, models, assumptions, and limitations
+- **Host halo concentration predicts subhalo survival:** More concentrated host halos
+  (shorter characteristic scale radius) destroy subhalos faster via tidal stripping.
+  Baryonic feedback modulates the host's concentration — supernova feedback puffs up
+  the host, reducing concentration, and thereby increasing subhalo survival rates.
+- **Stellar mass protects subhalos:** Subhalos with more massive stellar components have
+  deeper gravitational potential wells and are more resistant to tidal disruption. This
+  explains why dwarf galaxies (stellar-rich) survive longer than dark-matter-only
+  subhalos of the same total mass.
+- **DM inner profile diversity = resolved diversity problem:** The observed variety in
+  inner dark matter profiles (cuspy vs. cored) of dwarf galaxies is not a flaw in cold
+  dark matter (CDM) — it reflects the diversity of star formation histories and tidal
+  environments, both of which are physical and predictable.
+- **Early star formation → cuspy DM profile:** Galaxies that form most of their stars
+  early (before z ~ 2) retain the original cuspy NFW-like dark matter profile because
+  supernova feedback episodes ended before they could flatten the cusp.
+- **Late/extended star formation → cored DM profile:** Galaxies with extended or bursty
+  recent star formation have oscillating inner slopes — supernova-driven gas outflows
+  heat the DM cusp, potentially flattening it over multiple cycles.
+- **Baryonic feedback prescriptions matter:** Different sub-grid models (supernova rate,
+  protostellar feedback) produce measurably different subhalo populations and DM profiles,
+  highlighting the model dependence of simulation predictions.
+- **Limitation:** Zoom-in simulations (Mochima suite) focus on one galaxy halo and its
+  subhalos; not a statistical sample. Generalization requires caution.
+- **Limitation:** The "diversity problem" resolution is specific to their simulations'
+  feedback prescriptions. Other feedback models may not produce the same profile diversity.
+
+## StarGen applicability
+Provides context for StarGen's **galactic satellite and subhalo population model**.
+Limited direct impact on individual system generation; primarily relevant to:
+1. Satellite galaxy count and properties when generating a full galaxy
+2. DM halo profile type (cuspy vs. cored) based on galaxy star formation history
+3. Dwarf galaxy and globular cluster population survival rates
+4. Context for galactic habitable zone — concentrated host halos strip satellites faster
+
+## Parameters, constraints, and mechanics implications
+
+**DM inner profile by star formation history:**
+```csharp
+// DM inner profile classification (Nuñez-Castiñeyra et al. 2025)
+DMProfile innerProfile;
+if (galaxy.StarFormationHistory == SFH.EarlyBurst)
+{
+    innerProfile = DMProfile.Cuspy;    // NFW-like; cusp preserved
+}
+else if (galaxy.StarFormationHistory == SFH.ExtendedBursty)
+{
+    innerProfile = DMProfile.Cored;    // flattened by bursty SN feedback
+}
+else
+{
+    innerProfile = DMProfile.Intermediate;  // between cuspy and cored
+}
+galaxy.DarkMatterProfile = innerProfile;
+```
+
+**Subhalo survival fraction by host concentration:**
+```csharp
+// Higher host halo concentration → fewer surviving satellite subhalos
+// Nuñez-Castiñeyra: survival fraction inversely correlated with concentration
+double survivalFraction = Math.Max(0.1, 1.0 - 0.4 * galaxy.HaloConcentration / 10.0);
+// galaxy.HaloConcentration: typical range 5–20 for spiral galaxies
+// At c=10: ~60% survive; at c=15: ~40% survive
+int survivingSatellites = (int)(galaxy.ExpectedSatelliteCount * survivalFraction);
+```
+
+**Satellite galaxy star formation type:**
+```csharp
+// Stellar-rich satellites are more resilient → they survive tidal stripping longer
+// Affects satellite galaxy catalog properties in galactic generator
+bool stellarRich = satellite.StellarMassFraction > 0.05;
+if (stellarRich)
+{
+    satellite.TidalDisruptionRisk = TidalDisruptionRisk.Low;
+}
+else
+{
+    satellite.TidalDisruptionRisk = TidalDisruptionRisk.High;
+}
+```
+
+## APA citation
+Nuñez-Castiñeyra, A., Nezri, E., Mollitor, P., Michel-Dansac, L., Devriendt, J., &
+Teyssier, R. (2025). Cosmological simulations of the same spiral galaxy: satellite
+properties, the role of baryonic physics and star formation history in shaping dark
+matter cores/cusps. arXiv:2509.07470. [Journal submission pending — verify published
+citation against PDF.]
+
+## Conflicts and follow-up work
+
+**Related corpus papers:**
+- HuntVasiliev2025.txt — Gaia-era review of MW dynamics; the Gaia satellite detections
+  of stellar streams are the observational counterpart to Nuñez-Castiñeyra's simulation
+  predictions about subhalo survival.
+- KhoperskovEtAl2024.txt — MW bar formation from TNG50; complementary cosmological
+  simulation approach.
+- BlandHawthornGerhard2016.txt — MW mass and potential model; sets the host halo
+  parameters that Nuñez-Castiñeyra uses to predict satellite survival.
+
+## StarGen mechanics translation
+
+### Satellite subhalo survival and DM profile diversity
+NuezCastieyra2025 provides physical motivation for the satellite galaxy survival model
+in StarGen's galactic generator. The key mechanic is that satellite count and DM profile
+type correlate with the host galaxy's star formation history and halo concentration.
+
+**Primary updates to StarGen galactic generator:**
+1. Add `DarkMatterProfile` field to galaxy (Cuspy / Cored / Intermediate) derived from
+   star formation history
+2. Scale satellite galaxy count by host halo concentration (more concentrated = fewer
+   survivors)
+3. Mark stellar-rich satellites as tidal-disruption-resistant (long-lived)
+4. These are galactic-scale details; low priority relative to exoplanet/habitability work
+
+**Cross-references:** HuntVasiliev2025.txt (Gaia satellite observations),
+KhoperskovEtAl2024.txt (TNG50 galaxy formation), BlandHawthornGerhard2016.txt (MW model).

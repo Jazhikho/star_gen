@@ -1,0 +1,84 @@
+# VanKleefEtAl2023
+
+## Source metadata
+- File: `VanKleefEtAl2023.pdf`
+- Domain: social psychology / norm violation / dominance / prestige / leadership
+- Pages: 40
+- Authors: van Kleef, G. A., Wanders, F., van Vianen, A. E. M., Dunham, R. L.,
+  Du, X., & Homan, A. C.
+- Source ID in StarGen code: `vankleef2023`
+- **PDF acquisition:** PDF confirmed present in `Sources/Texts`.
+  DOI: 10.1371/journal.pone.0294019
+  Original URL: https://journals.plos.org/plosone/article?id=10.1371/journal.pone.0294019
+  Retrieval mode: HTML plus matching PDF.
+
+## Abstract
+Van Kleef et al. examine how norm violations affect dominance, prestige, and voluntary
+influence granting. Across five studies, they find that norm violations are associated
+with dominance, while norm abidance is associated with prestige. When local group norms
+and wider community norms conflict, actors who violate global norms while abiding by
+local group norms can gain prestige and leadership endorsement.
+
+## Major claims, findings, models, assumptions, and limitations
+- **Dominance route:** Norm violation can signal dominance because violators appear
+  willing or able to risk sanctions.
+- **Prestige route:** Norm abidance often supports prestige because it signals value to
+  the group and conformity to locally valued expectations.
+- **Nested norms matter:** Local group norms and global community norms can conflict.
+- **Rebels with a cause:** Violating global norms while abiding by local norms can
+  increase leadership endorsement when the conflict makes the act seem locally valuable.
+- **Influence granting:** Prestige generally supports voluntary influence more than raw
+  dominance, but context changes the effect.
+- **Limitation:** This is contemporary human social psychology. It is not a direct
+  government, law, or alien-culture generator.
+
+## StarGen applicability
+Useful for future human-audited sentient-world descriptors involving faction legitimacy,
+local vs central law, rebellion framing, leadership emergence, and regime stability. It
+should inform optional social interpretation layers, not physical generation.
+
+Provides:
+- A source anchor for separating coercive dominance from prestige-based legitimacy
+- Support for modeling conflict between local faction norms and global law
+- A reason for some anti-central actors to gain local legitimacy rather than only
+  increasing disorder
+
+## Parameters, constraints, and mechanics implications
+
+**Legitimacy/faction implication:**
+```
+local_legitimacy =
+    f(local_norm_abidance, global_norm_violation, perceived_group_value, dominance)
+```
+
+**Generator rule implication:**
+- High law or state capacity should not automatically imply high local legitimacy.
+- Factions that violate central law may still gain local support if they satisfy local
+  norms or defend local interests.
+- StarGen should keep coercion, prestige, legitimacy, and legal reach as separate axes
+  if this layer is implemented.
+
+## APA citation
+van Kleef, G. A., Wanders, F., van Vianen, A. E. M., Dunham, R. L., Du, X., &
+Homan, A. C. (2023). Rebels with a cause? How norm violations shape dominance,
+prestige, and influence granting. PLOS ONE, 18(11), e0294019.
+https://doi.org/10.1371/journal.pone.0294019
+
+## Conflicts and follow-up work
+- Compare with `HarfstEtAl2024.txt`, `Murphy2023.txt`, and `WichmannEtAl2025.txt`
+  before implementing any legitimacy or conflict-typology generator.
+- Human audit is required before using this source for sentient-world release outputs.
+- Add bibliography coverage if this source remains in the retained v1.0 source set.
+
+## StarGen mechanics translation
+
+### Legitimacy and faction modeling
+StarGen currently has `StateCapacity`, `LegalReach`, `RestrictionPressure`, and
+`FactionalFragmentation`, but it does not yet distinguish internal legitimacy, external
+legitimacy, prestige, dominance, local norms, and global norms.
+
+**Current fit:** weak to partial. The existing profile can represent conflict pressure
+and state reach, but not the mechanism described by the paper.
+
+**Recommended v1.0 disposition:** planning source only unless the sentient-world audit
+explicitly adopts a local/global legitimacy model.

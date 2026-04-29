@@ -1,15 +1,63 @@
-Krissansen-Totton, J., Olson, S., & Catling, D. C. (2018).
-Disequilibrium biosignatures over Earth history and implications for detecting exoplanet life.
-arXiv:1801.08211
-https://arxiv.org/abs/1801.08211
+# KrissansenTotton2018
 
-Why this source matters for StarGen
-- This paper shows that life's atmospheric detectability changes with planetary state and that remotely detectable disequilibrium is not limited to modern oxygen-rich Earth analogs.
-- It is useful for separating "life exists" from "life is externally detectable."
+## Source metadata
+- File: `KrissansenTotton2018.pdf`
+- Domain: biosignatures/atmospheric disequilibrium
+- Pages: 30
+- Authors (auto-extracted — verify against PDF): Planetary Science; Joshua Krissansen-Totton,1,2* Stephanie Olson,3 David C. Catling1,2
 
-How it is used
-- Supports adding a life-detectability layer distinct from biosphere existence in StarGen.
-- Supports treating methane-plus-carbon-dioxide disequilibrium in anoxic worlds as a meaningful context rather than using oxygen alone as the dominant surface expression of life.
+## Abstract
+exoplanets using telescopic observations. In the near future, a highcontrast imaging system coupled to a spectrograph on the Very planets orbiting close stars (7). In the more distant future, nextgeneration space telescopes could survey our stellar neighborhood because it is challenging to produce in large quantities without oxygenic photosynthesis (10). Although several pathological scenarios
 
-Human review notes
-- Use this source to add contextual detectability logic, not to replace the broader life model with a spectroscopy simulator.
+## Major claims, findings, models, assumptions, and limitations
+*Human verification required before using quantitative values or model assumptions in
+StarGen defaults. Figures and equations not captured by text extraction — read the PDF
+for exact thresholds, fit coefficients, and table values.*
+
+- Primary domain: biosignatures/atmospheric disequilibrium
+- See StarGen applicability section below for the specific implications.
+
+## StarGen applicability
+Atmospheric disequilibrium (O₂+CH₄ coexistence) as biosignature; quantified for modern/early Earth. Relevant to atmosphere classification and life-indicator flag generation in StarGen.
+
+## Parameters, constraints, and mechanics implications
+*(Human action: fill in specific numeric values, distributions, model families, and
+classification boundaries extracted from the paper. Where competing models or confidence
+ranges exist, expose those as user-selectable assumptions rather than collapsing to a
+single default. Where the paper documents uncertainty, preserve it in StarGen rather
+than presenting false precision.)*
+
+## Works cited by this paper (auto-extracted from final pages, partial)
+- (Reference extraction incomplete — verify PDF.)
+
+## Opposing or alternative findings cited
+*(Human action: identify papers in the reference list that present opposing models,
+competing parameter choices, or significantly different results. Note the specific
+disagreement and its implication for which StarGen default to use.)*
+
+## APA citation
+*(Verify and complete — see AnnotatedBibliography.md for the curated APA entry.)*
+
+## Conflicts and follow-up work
+*(Human action: search for papers explicitly responding to, revising, or challenging
+this paper published after its date. For fast-moving fields (exoplanet demographics,
+habitability, JWST/TESS-informed work), treat results >3 years old as potentially
+superseded. Flag updates in Followup.md.)*
+
+
+## StarGen mechanics translation
+
+### Biosignature detection / disequilibrium chemistry
+Defines the O2 + CH4 disequilibrium pair as a robust biosignature; quantifies the
+thermodynamic disequilibrium in Earth's atmosphere.
+
+**StarGen biosignature flag (future biosignature module):**
+- `AtmosphericDisequilibrium` — flag when O2 + CH4 co-exist above threshold; requires
+  separate biosignature module (out of scope for initial StarGen release).
+- For now: tag rocky HZ planets with `BiosignatureCandidate = true` if atmosphere
+  retention is plausible (WordsworthKreidberg2022 cross-check) and stellar XUV
+  history is not extreme (Ribas2015, LugerBarnes2015).
+
+**User lever:** `BiosignatureDetectability` flag (optional annotation only; not a
+generation filter unless a future biosignature module is added).
+**Cross-references:** WordsworthKreidberg2022.txt, Ribas2015.txt, LugerBarnes2015.txt.

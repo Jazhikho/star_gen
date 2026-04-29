@@ -1,0 +1,76 @@
+# BenistyEtAl2021
+
+## Source metadata
+- File: `BenistyEtAl2021.pdf`
+- Domain: circumplanetary disks/moon formation
+- Pages: 19
+- Authors (auto-extracted — verify against PDF): Andrea Isella ,7 Nicolas T. Kurtovic ,5 Laura M. Pérez ,8 Anibal Sierra ,8 Sean M. Andrews ,6
+
+## Abstract
+PDS 70 is a unique system in which two protoplanets, PDS 70 b and c, have been discovered within the dust-depleted cavity of their disk, at ∼22 and 34 au respectively, by direct imaging at infrared wavelengths. Subsequent detection of the planets in the Hα line indicates that they are still accreting material through circumplanetary disks. In this Letter, we present new Atacama Large Millimeter/submillimeter Array (ALMA) observations of the dust continuum emission at 855 µm at high angular resolution (∼20 mas, 2.3 au) that aim to resolve the circumplanetary disks and constrain their dust masses. Our observations confirm the presence of a compact source of emission co-located with PDS 70 c, spatially separated from the circumstellar disk and less extended than ∼1.2 au in radius, a value close to the expected truncation radius of the cicumplanetary disk at a third of the Hill radius. The emission around PDS 70 c has a peak intensity of ∼86±16 µJy beam−1 which corresponds to a dust mass of ∼0.031 M⊕ or ∼0.007 M⊕ , assuming that it is only constituted of 1 µm or 1 mm sized grains, respectively. We also detect extended, low surface brightness continuum emission within the cavity near PDS 70 b. We observe an optically thin inner disk within 18 au of the star with an emission that could result from small micron-sized grains transported from the outer disk through the orbits of b and c. In addition, we find that the outer disk resolves into a narrow and bright ring with a faint inner shoulder.
+
+## Major claims, findings, models, assumptions, and limitations
+*Human verification required before using quantitative values or model assumptions in
+StarGen defaults. Figures and equations not captured by text extraction — read the PDF
+for exact thresholds, fit coefficients, and table values.*
+
+- Primary domain: circumplanetary disks/moon formation
+- See StarGen applicability section below for the specific implications.
+
+## StarGen applicability
+First resolved CPD (PDS 70c); confirms ongoing moon formation around forming giants. Relevant to moon-generation — CPD presence and mass set the moon-forming budget for giant planets.
+
+## Parameters, constraints, and mechanics implications
+*(Human action: fill in specific numeric values, distributions, model families, and
+classification boundaries extracted from the paper. Where competing models or confidence
+ranges exist, expose those as user-selectable assumptions rather than collapsing to a
+single default. Where the paper documents uncertainty, preserve it in StarGen rather
+than presenting false precision.)*
+
+## Works cited by this paper (auto-extracted from final pages, partial)
+- 102.61±0.09 -139.93±0.24
+- 104.70±0.09 -135.04±0.11
+- Predicted astrometry of PDS 70 b
+- -153.66±0.63 181.76±0.78
+- 103.69±0.99 -139.97±0.22 174.12±0.69
+- Predicted astrometry of PDS 70 c
+- A Circumplanetary Disk Around PDS70 c
+- Figure 9. Dust mass in the CPD around PDS 70 c for various dust grain size distribution, as a function of the maximum grain
+- size. All the grain size distributions varies from amin = 0.05 µm to amax .
+- We are very grateful to Marco Tazzari and Antonella Natta for their support during the Covid-19 pandemic. We
+- thank the North American ALMA ARC for their help. We acknowledge Ryan Loomis, Jason Wang and Rens Waters for insightful discussions and the reviewer for helpful suggestions that improved the manuscript. This Letter
+- makes use of the following ALMA data: ADS/JAO.ALMA#2018.A.00030.S., ADS/JAO.ALMA#2017.A.00006.S,
+- ADS/JAO.ALMA#2015.1.00888.S. ALMA is a partnership of ESO (representing its member states), NSF (USA), and
+- NINS (Japan), together with NRC (Canada), NSC and ASIAA (Taiwan), and KASI (Republic of Korea), in cooperation with the Republic of Chile. The Joint ALMA Observatory is operated by ESO, AUI/NRAO, and NAOJ. This
+- project has received funding from the European Research Council (ERC) under the European Union’s Horizon 2020
+- research and innovation programme (grant agreement No. 101002188 and No. 832428). JB acknowledges support by
+- NASA through the NASA Hubble Fellowship grant #HST-HF2-51427.001-A awarded by the Space Telescope Science
+- Institute, which is operated by the Association of Universities for Research in Astronomy, Incorporated, under NASA
+- contract NAS5-26555. SF acknowledges an ESO Fellowship. S.A. acknowledges support from the National Aeronautics
+- and Space Administration under grant No. 17-XRP17 2-0012 issued through the Exoplanets Research Program. A.I.
+
+## Opposing or alternative findings cited
+*(Human action: identify papers in the reference list that present opposing models,
+competing parameter choices, or significantly different results. Note the specific
+disagreement and its implication for which StarGen default to use.)*
+
+## APA citation
+*(Verify and complete — see AnnotatedBibliography.md for the curated APA entry.)*
+
+## Conflicts and follow-up work
+*(Human action: search for papers explicitly responding to, revising, or challenging
+this paper published after its date. For fast-moving fields (exoplanet demographics,
+habitability, JWST/TESS-informed work), treat results >3 years old as potentially
+superseded. Flag updates in Followup.md.)*
+
+
+## StarGen mechanics translation
+
+### Circumplanetary disk — direct detection (observational)
+First direct spatially resolved CPD detection around a forming giant planet (PDS 70 c).
+Provides observational anchor for CPD mass and size estimates.
+
+**StarGen moon context:**
+- `CPD_ObservationalConstraint`: confirmed CPD masses are ~0.01–0.1 Jupiter ocean masses.
+- Use as sanity check on generated satellite systems.
+**Cross-references:** Ronnet2020.txt, Szulagyi2018.txt.

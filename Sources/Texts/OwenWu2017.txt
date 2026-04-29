@@ -1,20 +1,83 @@
-Source note for StarGen research review
+# OwenWu2017
 
-Citation:
-Owen, J. E., & Wu, Y. (2017).
-The evaporation valley in the Kepler planets.
-The Astrophysical Journal, 847(1), 29.
-arXiv: https://arxiv.org/abs/1705.10810
-DOI: https://doi.org/10.3847/1538-4357/aa890a
+## Source metadata
+- File: `OwenWu2017.pdf`
+- Domain: photoevaporation / radius gap
+- Pages: 15
+- Authors (auto-extracted — verify against PDF): (see PDF)
 
-What was reviewed:
-- Abstract and source metadata on 2026-04-19.
+## Abstract
+A new piece of evidence supporting the photoevaporation-driven evolution model for low-mass, close-in exoplanets was recently presented by the California-Kepler-Survey. The radius distribution of the Kepler planets is shown to be bimodal, with a “valley’ separating two peaks at 1.3 and 2.6 R⊕ . Such an “evaporation-valley’ had been predicted by numerical models previously. Here, we develop a minimal model to demonstrate that this valley results from the following fact: the timescale for envelope erosion is the longest for those planets with hydrogen/helium-rich envelopes that, while only a few percent in weight, double its radius. The timescale falls for envelopes lighter than this because the planet’s radius remains largely constant for tenuous envelopes. The timescale also drops for heavier envelopes because the planet swells up faster than the addition of envelope mass. Photoevaporation therefore herds planets into either bare cores (∼ 1.3 R⊕ ), or those with double the core’s radius (∼ 2.6 R⊕ ). This process mostly occurs during the first 100 Myrs when the stars’ high energy flux are high and nearly constant. The observed radius distribution further requires that the Kepler planets are clustered around 3 M⊕ in mass, are born with H/He envelopes more than a few percent in mass, and that their cores are similar to the Earth in composition. Such envelopes must have been accreted before the dispersal of the gas disks, while the core composition indicates formation inside the ice-line. Lastly, the photoevaporation model fails to account for bare planets beyond ∼ 30 − 60 days, if these planets are abundant, they may point to a significant second channel for planet formation
 
-Key implementation notes used in StarGen:
-- The paper supports a photoevaporation-driven explanation for the radius valley in close-in low-mass planets.
-- The practical takeaway is that intense early high-energy stellar flux should make some hot close-in planets lose H/He envelopes and end up as denser bare or thin-envelope cores.
-- The paper also supports treating the loss process as strongest in the early high-activity era rather than as a uniform lifetime effect.
+## Major claims, findings, models, assumptions, and limitations
+*Human verification required before using quantitative values or model assumptions in
+StarGen defaults. Figures and equations not captured by text extraction — read the PDF
+for exact thresholds, fit coefficients, and table values.*
 
-How StarGen uses this:
-- As the named support for the `Photoevaporation` gas-loss option in aggregate planetary priors.
-- As the basis for favoring stripped or thinner hot planets when the upstream system state indicates a strong loss regime.
+- Primary domain: photoevaporation / radius gap
+- See StarGen applicability section below for the specific implications.
+
+## StarGen applicability
+XUV-driven photoevaporation model reproducing radius gap at ~1.7 R⊕ within first 100 Myr. One of two canonical radius-gap mechanisms (the other: Ginzburg2018 core-powered mass loss).
+
+## Parameters, constraints, and mechanics implications
+*(Human action: fill in specific numeric values, distributions, model families, and
+classification boundaries extracted from the paper. Where competing models or confidence
+ranges exist, expose those as user-selectable assumptions rather than collapsing to a
+single default. Where the paper documents uncertainty, preserve it in StarGen rather
+than presenting false precision.)*
+
+## Works cited by this paper (auto-extracted from final pages, partial)
+- Adams, E. R., Seager, S., & Elkins-Tanton, L. 2008, ApJ, 673,
+- Adams, F. C. 2011, ApJ, 730, 27
+- Agnor, C., & Asphaug, E. 2004, ApJ, 613, L157
+- Baraffe, I., Selsis, F., Chabrier, G., et al. 2004, A&A, 419, L13
+- Baraffe, I., Alibert, Y., Chabrier, G., & Benz, W. 2006, A&A,
+- Batalha, N. M., Rowe, J. F., Bryson, S. T., et al. 2013, ApJS,
+- Borucki, W. J., Koch, D. G., Basri, G., et al. 2011, ApJ, 736, 19
+- Burke, C. J., Bryson, S. T., Mullally, F., et al. 2014, ApJS, 210, 19
+- Carter, J. A., Agol, E., Chaplin, W. J., et al. 2012, Science, 337,
+- Charnay, B., Meadows, V., & Leconte, J. 2015, ApJ, 813, 15
+- Chen, H., & Rogers, L. A. 2016, ApJ, 831, 180
+- Ciardi, D. R., Fabrycky, D. C., Ford, E. B., et al. 2013, ApJ, 763,
+- Cox, A. N. 2000, Allen’s Astrophysical Quantities,
+- Davis, T. A., & Wheatley, P. J. 2009, MNRAS, 396, 1012
+- Dong, S., Xie, J.-W., Zhou, J.-L., Zheng, Z., & Luo, A. 2017,
+- Dressing, C. D., Charbonneau, D., Dumusque, X., et al. 2015,
+- Ehrenreich, D., Bourrier, V., Wheatley, P. J., et al. 2015, Nature,
+- Elkins-Tanton, L. T. 2008, Earth and Planetary Science Letters,
+- Elkins-Tanton, L. T., & Seager, S. 2008, ApJ, 685, 1237-1246
+- Erkaev, N. V., Kulikov, Y. N., Lammer, H., et al. 2007, A&A,
+
+## Opposing or alternative findings cited
+*(Human action: identify papers in the reference list that present opposing models,
+competing parameter choices, or significantly different results. Note the specific
+disagreement and its implication for which StarGen default to use.)*
+
+## APA citation
+*(Verify and complete — see AnnotatedBibliography.md for the curated APA entry.)*
+
+## Conflicts and follow-up work
+*(Human action: search for papers explicitly responding to, revising, or challenging
+this paper published after its date. For fast-moving fields (exoplanet demographics,
+habitability, JWST/TESS-informed work), treat results >3 years old as potentially
+superseded. Flag updates in Followup.md.)*
+
+
+## StarGen mechanics translation
+
+### Radius gap mechanism — photoevaporation (primary reference)
+Photoevaporation model predicts radius valley at ~1.7–2.0 R⊕ for P < ~100 days.
+Gap location and slope are definitive predictions of XUV-driven atmospheric escape.
+
+**StarGen radius gap implementation (photoevaporation branch):**
+- `RadiusGapMechanism` enum: `Photoevaporation` | `CorePoweredMassLoss` | `GasPoor` | `UserDefined`
+- Gap centre: R_gap ≈ 1.7 R⊕ at P = 10 days for solar-type star; scales with P.
+- Gap slope: d log R_gap / d log P ≈ −0.11 (negative; gap moves to smaller R at longer P)
+- Stellar mass scaling: gap shifts to smaller R for lower-mass stars
+  (see FultonPetigura2018CKS for empirical confirmation).
+- Planets below gap: stripped cores (super-Earths), rocky, density > 3 g/cm³.
+- Planets above gap: retained envelopes (sub-Neptunes), density < 1.5 g/cm³.
+**User lever:** `RadiusGapMechanism` selector (competing model: Ginzburg2018).
+**Cross-references:** Ginzburg2018.txt, VanEylen2018Ast.txt, FultonPetigura2018CKS.txt,
+OwenSchlichting2023Followup.txt.

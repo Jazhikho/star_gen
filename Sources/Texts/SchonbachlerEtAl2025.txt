@@ -1,0 +1,188 @@
+# SchonbachlerEtAl2025
+
+## Source metadata
+- File: `SchonbachlerEtAl2025.pdf`
+- Domain: cosmochemistry / planet formation timescales / protoplanetary disk
+- Pages: ~40 (review)
+- Authors: Schönbächler, M., Bouvier, A., Kita, N. T., & Kruijer, T. S.
+- Source ID in StarGen code: `schonbachler2025`
+- **PDF acquisition:** Open Access. Space Science Reviews 221, 97 (2025).
+  DOI: 10.1007/s11214-025-01216-z (Springer Nature Link)
+  Download from https://link.springer.com/article/10.1007/s11214-025-01216-z
+  **PDF status: confirm presence in Sources/Texts/.**
+
+## Abstract
+This review explores the timescales of the initial phase of planet formation, from nebular
+dust (CAIs and chondrules) to planetesimal accretion and differentiation, using evidence
+from meteorite research. Aluminium-Mg systematics of CAIs indicate either an extended
+period of CAI formation (~0.3 Ma) or initial ²⁶Al heterogeneity, with evidence supporting
+a homogeneous ²⁶Al abundance in the protoplanetary disk. Thermal and aqueous alteration
+on the parent body can disturb the U-Pb and Al-Mg chronometers in chondrules. Focusing
+on relatively robust isochron data from plagioclase of pristine chondrites indicates a shift
+in chondrule formation locations, moving from the inner to the outer disk over time. Ages of
+basaltic achondrites show that silicate differentiation on small bodies was well underway
+within the first few million years (Ma) of our solar system. Nucleosynthetic isotope data
+indicate that parent bodies of iron and stony meteorites formed in two distinct regions:
+the inner, non-carbonaceous (NC) and outer, carbonaceous (CC) region. Based on Hf-W
+chronometry, NC and CC parent bodies of magmatic iron meteorites segregated their cores
+within ~1–3 Ma after CAI formation, implying parent body accretion within < 1 Ma in both
+reservoirs. NC and CC reservoirs were established within 1 Ma and persisted over several Ma
+with limited exchange between them.
+
+## Major claims, findings, models, assumptions, and limitations
+- **CAI formation marks t₀ of solar system:** Calcium-aluminium-rich inclusions (CAIs) are
+  the oldest solar system solids (~4.567 Ga). CAI formation occupied ~0.3 Ma. These set the
+  absolute time zero for all solar system dating.
+- **Chondrule formation timeline:** Chondrules (the main component of chondrites, up to 80%)
+  formed from ~1–3 Ma after CAIs, with formation locations shifting from inner to outer disk
+  over time. The protoplanetary disk lifetime is ~1–5 Ma (consistent with ALMA observations).
+- **Planetesimal accretion: < 1 Ma:** Both NC (inner, dry) and CC (outer, wet/icy) parent
+  bodies accreted within < 1 Ma after CAI formation. Core segregation (metal-silicate
+  differentiation) occurred within ~1–3 Ma.
+- **Two-reservoir structure (NC vs. CC):** The protoplanetary disk had two isotopically
+  distinct reservoirs from early on: inner (NC = non-carbonaceous, volatile-poor) and outer
+  (CC = carbonaceous, volatile-rich). These were separated for several Ma with limited mixing.
+  Implication: inner rocky planets and outer ice/volatile-rich bodies have fundamentally
+  different primordial compositions.
+- **²⁶Al as heat source:** Radioactive decay of ²⁶Al (half-life 0.705 Ma) was the primary
+  heat source for early planetesimal differentiation. Bodies accreting early (< 1 Ma after
+  CAIs) had enough ²⁶Al to melt and differentiate; bodies accreting late (> 2 Ma) were too
+  cold and remained undifferentiated chondrites.
+- **Volatile delivery to rocky planets:** CC material (outer disk, carbonaceous) is the
+  source of water and volatiles delivered to inner planets via impactors (pebble accretion
+  or giant planet migration sculpting). The NC/CC boundary corresponds to the original
+  snow line position.
+- **Limitation:** Model assumes Solar System is representative of planetary systems generally.
+  Protoplanetary disk lifetimes, snow line positions, and NC/CC ratios depend on stellar
+  mass and disk chemistry — these may vary substantially around other star types.
+- **Limitation:** Meteorite record samples only our own solar system. Results may not
+  generalize; extrapolation to exoplanetary systems requires theoretical modeling.
+
+## StarGen applicability
+Provides the **protoplanetary disk and planetesimal timescale model** for StarGen's planet
+formation layer. Specifically:
+1. Establishes disk lifetime (~1–5 Ma) as the window for planet assembly
+2. Quantifies the NC/CC reservoir dichotomy — inner rocky vs. outer volatile-rich
+   composition as a function of snow line position
+3. ²⁶Al-driven early differentiation: planetesimals that form early melt and differentiate;
+   late ones remain primitive (affects rocky planet iron-core mass fraction)
+4. Volatile delivery to inner planets is stochastic — depends on CC impactor flux crossing
+   the snow line (Jupiter gap formation timing)
+
+## Parameters, constraints, and mechanics implications
+
+**Protoplanetary disk timescales:**
+```
+Event                        | Timing after CAIs (t₀)
+-----------------------------|------------------------
+CAI formation                | 0 – 0.3 Ma
+Chondrule formation          | 1 – 3 Ma
+Planetesimal accretion       | < 1 Ma (NC and CC)
+Core segregation             | 1 – 3 Ma
+NC/CC reservoir separation   | < 1 Ma
+Disk dispersal (gas phase)   | ~3 – 5 Ma
+Terrestrial planet assembly  | ~10 – 100 Ma (after disk dispersal)
+```
+
+**NC/CC composition dichotomy (snow line basis):**
+```csharp
+// Planet bulk composition depends on formation location relative to snow line
+// Inner disk (< snow line): NC composition — rocky, volatile-poor, high iron fraction
+// Outer disk (> snow line): CC composition — volatile-rich, water/ice-bearing
+bool innerDisk = planet.SemiMajorAuAtFormation < star.SnowLineAu;
+
+if (innerDisk)
+{
+    planet.CompositionClass = CompositionClass.NonCarbonaceous;  // rocky, volatile-poor
+    planet.WaterMassFraction = rng.NextDouble() * 0.01;          // 0-1% water (delivered later)
+    planet.IronCoreFraction = 0.25 + rng.NextDouble() * 0.15;   // Earth-like iron core
+}
+else
+{
+    planet.CompositionClass = CompositionClass.Carbonaceous;     // volatile-rich
+    planet.WaterMassFraction = 0.05 + rng.NextDouble() * 0.20;  // 5-25% water by mass
+    planet.IronCoreFraction = 0.10 + rng.NextDouble() * 0.10;   // smaller iron core
+}
+```
+
+**²⁶Al differentiation timing (affects iron core development):**
+```csharp
+// Early-accreting planetesimals fully differentiated; late ones remain chondritic
+// This affects the iron core fraction of rocky planets
+double accretionTimeMa = /* estimate from disk model */;
+if (accretionTimeMa < 1.0)
+{
+    // Early accretion: ²⁶Al drives full melting → large iron core
+    planet.IronCoreFraction *= 1.2;
+}
+else if (accretionTimeMa > 2.5)
+{
+    // Late accretion: ²⁶Al mostly decayed → limited differentiation
+    planet.IronCoreFraction *= 0.7;
+}
+```
+
+**Snow line scaling with stellar luminosity:**
+```csharp
+// Snow line position scales with stellar luminosity
+// Snow line AU ≈ 2.7 × (L_star / L_sun)^0.5 (approximate)
+double snowLineAu = 2.7 * Math.Sqrt(star.LuminositySolar);
+star.SnowLineAu = snowLineAu;
+```
+
+**User lever:** `PlanetFormationTimingModel` (enum: SchonbachlerEtAl2025 / Classic / Disabled)
+- SchonbachlerEtAl2025: use NC/CC boundary at snow line; ²⁶Al differentiation modifier
+- Classic: fixed inner/outer disk compositions without timing-based differentiation
+- Disabled: no protoplanetary disk compositional model
+
+## APA citation
+Schönbächler, M., Bouvier, A., Kita, N. T., & Kruijer, T. S. (2025). Initial conditions of
+planet formation: Time constraints from small bodies and the lifetime of reservoirs in the
+solar protoplanetary disk. Space Science Reviews, 221, 97.
+https://doi.org/10.1007/s11214-025-01216-z
+
+## Conflicts and follow-up work
+
+**Related corpus papers:**
+- SpohnEtAl2026.txt — Planetary interiors and tectonic regimes. Schönbächler provides
+  the compositional input (NC/CC, iron core fraction) that Spohn's interior models build on.
+- GillisEtAl2026.txt — Water-rich sub-Neptunes around M dwarfs. The CC composition class
+  (water-rich) is the dominant outcome for outer disk planets, consistent with Gillis's
+  ocean-world interpretation.
+- BauerEtAl2017.txt — Comet nucleus survey. Comets are primitive CC-type objects; their
+  mass and composition are directly informed by Schönbächler's outer disk model.
+- TanakaTakeuchiWard2002.txt — Type I migration. Planet migration may transport NC-type
+  rocky planets outward into the CC zone or vice versa, mixing composition classes.
+
+**Papers in this topical collection (Space Science Reviews 221, 2025):**
+This paper is part of a larger collection on early solar system formation — other papers
+in the same collection may also be relevant to StarGen (e.g., Lourenço et al. on plate
+tectonics initiation; Baumeister et al. on interior structure of exoplanets).
+
+**Key limitation for exoplanet application:**
+Schönbächler et al. use meteoritic data from our Solar System only. Extension to other
+stellar systems requires the disk chemistry and stellar mass to be similar. Around M dwarfs,
+the snow line is closer (lower luminosity), and the NC/CC ratio may differ. Around A/F
+stars, the disk is more energetic and volatile-poor in general. StarGen should scale snow
+line position by stellar luminosity (see formula above) rather than using a fixed 2.7 AU.
+
+## StarGen mechanics translation
+
+### NC/CC snow line boundary for planet composition
+SchonbachlerEtAl2025 establishes the physical basis for the inner-dry / outer-wet planet
+compositional dichotomy used in StarGen's planet generator. The key mechanic is:
+- Snow line position = 2.7 × √(L_star/L_sun) AU
+- Planets forming inward of snow line: rocky/dry (NC class)
+- Planets forming outward: water-rich (CC class), with stochastic volatile delivery
+  to inner planets via impactor flux
+
+**Primary update to StarGen planet generator:**
+1. Compute snow line position during system generation (per stellar luminosity)
+2. Assign NC vs. CC composition class based on formation location
+3. Apply ²⁶Al differentiation timing modifier to iron core fraction
+4. For NC inner planets: water delivery is stochastic (0–1% base; modified by
+   Jupiter-equivalent presence and migration history)
+
+**Cross-references:** SpohnEtAl2026.txt (interior model), GillisEtAl2026.txt (ocean
+worlds), BauerEtAl2017.txt (comet composition), TanakaTakeuchiWard2002.txt (migration
+can cross snow line, shuffling composition class).

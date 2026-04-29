@@ -1,0 +1,57 @@
+# Sasaki2010
+
+## Source metadata
+- File: `Sasaki2010.pdf`
+- Domain: satellite formation / resonance trapping
+- Pages: 33
+- Authors (auto-extracted — verify against PDF): (see PDF)
+
+## Abstract
+The Jovian regular satellite system mainly consists of four Galilean satellites that have similar masses and are trapped in mutual mean motion resonances except for the outer satellite, Callisto. On the other hand, the Saturnian regular satellite system has only one big icy body, Titan, and a population of much smaller icy moons. We have investigated the origin of these major differences between the Jovian and Saturnian satellite systems by semi-analytically simulating the growth and orbital migration of proto-satellites in an accreting proto-satellite disk. We set up two different disk evolution/structure models that correspond to Jovian and Saturnian systems, by building upon previously developed models of an actively-supplied proto-satellite disk, the formation of gas giants, and observations of young stars. Our simulations extend previous models by including the (1) different termination timescales of gas infall onto the protosatellite disk and (2) different evolution of a cavity in the disk, between the Jovian and Saturnian systems. We have performed Monte Carlo simulations and show that in the case of the Jovian systems, four to five similar-mass satellites are likely to remain trapped in mean motion resonances. This orbital configuration is formed by type I –2– migration, temporal stopping of the migration near the disk inner edge, and quick truncation of gas infall caused by Jupiter opening a gap in the Solar nebula. The Saturnian systems tend to end up with one dominant body in the outer regions caused by the slower decay of gas infall associated with global depletion of the Solar nebula. The total mass and compositional zoning of the predicted Jovian and Saturni
+
+## Major claims, findings, models, assumptions, and limitations
+*Human verification required before using quantitative values or model assumptions in
+StarGen defaults. Figures and equations not captured by text extraction — read the PDF
+for exact thresholds, fit coefficients, and table values.*
+
+- Primary domain: satellite formation / resonance trapping
+- See StarGen applicability section below for the specific implications.
+
+## StarGen applicability
+Satellite system formation and resonance trapping around giant planets. Constrains moon system orbital architecture (resonance chains, mass hierarchy) in StarGen.
+
+## Parameters, constraints, and mechanics implications
+*(Human action: fill in specific numeric values, distributions, model families, and
+classification boundaries extracted from the paper. Where competing models or confidence
+ranges exist, expose those as user-selectable assumptions rather than collapsing to a
+single default. Where the paper documents uncertainty, preserve it in StarGen rather
+than presenting false precision.)*
+
+## Works cited by this paper (auto-extracted from final pages, partial)
+- (Reference extraction incomplete — verify PDF.)
+
+## Opposing or alternative findings cited
+*(Human action: identify papers in the reference list that present opposing models,
+competing parameter choices, or significantly different results. Note the specific
+disagreement and its implication for which StarGen default to use.)*
+
+## APA citation
+*(Verify and complete — see AnnotatedBibliography.md for the curated APA entry.)*
+
+## Conflicts and follow-up work
+*(Human action: search for papers explicitly responding to, revising, or challenging
+this paper published after its date. For fast-moving fields (exoplanet demographics,
+habitability, JWST/TESS-informed work), treat results >3 years old as potentially
+superseded. Flag updates in Followup.md.)*
+
+
+## StarGen mechanics translation
+
+### Icy moon formation — tidal evolution and Laplace resonance
+Formation of resonant satellite systems (Galilean analog) through tidal evolution.
+
+**StarGen satellite orbital architecture:**
+- `LaplacianResonance` flag: set if multiple large moons form and tidal evolution
+  has had time to lock them (system age > tidal resonance capture time).
+- Tidal resonance capture probability depends on planet tidal Q and satellite masses.
+**Cross-references:** Ronnet2020.txt, MalambudPerets2019.txt.

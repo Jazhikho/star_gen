@@ -1,204 +1,1238 @@
-# Annotated Bibliography
+﻿# Annotated Bibliography (APA style)
 
-Track sources used to keep StarGen’s scientific assumptions accurate. Supports calibration, distribution benchmarks, and the future “Calibrated” realism mode. When a paper is reviewed in full, add a copy under `Texts/` as `AuthorYear.txt` (e.g. `Chambers1996.txt`). Full-text copies: add `AuthorYear.txt` in `Texts/` after extracting from PDF (e.g. `pdftotext`).
+Cross-checked against `Sources/Texts` inventory. All entries are derived from the
+curated `_apa.tsv` and per-paper StarGen applicability notes in `Texts/*.txt`.
 
----
+Entries marked **(APA incomplete)** require a human contributor to verify the citation
+against NASA ADS, arXiv, or the journal directly and update `_apa.tsv`.
+Entries marked **(abstract unverified)** require a human to read the PDF and annotate
+the Parameters and Opposing Findings sections in the matching `.txt` file.
 
-## Citation style: APA 7 (author-date)
+## Open-access ingest status (2026-04-27 batch)
 
-We use **APA 7th edition author-date** for in-project references.
+The batch requested on 2026-04-27 was ingested to `Sources/Texts/*.txt` using direct OA retrieval
+with full-text extraction (PDF when retrievable, otherwise HTML full text).
 
-- **In-text / in-code:** `(Chambers, 1996)`, `(Chabrier, 2005)`.
-- **Reference list:** Author, A. A. (Year). *Title of article*. *Journal Name*, *Volume*(Issue), pages. https://doi.org/xxxx
-
-**Example — in text:**  
-Orbital spacing follows a rule of thumb of ~10 mutual Hill radii for long-term stability (Chambers, 1996).
-
-**Example — reference list:**  
-Chambers, J. E., Wetherill, G. W., & Boss, A. P. (1996). The stability of multi-planet systems. *Icarus*, *119*(2), 261–268. https://doi.org/10.1006/icar.1996.0019
-
----
-
-## Stellar distribution (IMF / spectral types)
-
-**Current use in StarGen:** [Tests/ScientificBenchmarks.gd](../Tests/ScientificBenchmarks.gd) — M-dwarf fraction 60–90%, G+K 10–35%, OBAF &lt;12%. [Roadmap](../Docs/Roadmap.md): local IMF / 20 pc census.
-
-| Citation | Summary | Used in |
-|----------|----------|---------|
-| Bovy, J. (2017). Stellar inventory of the solar neighborhood using Gaia DR1. *Monthly Notices of the Royal Astronomical Society*, *470*(2), 1360–1387. https://doi.org/10.1093/mnras/stx1278 — Full text (abridged): [Texts/Bovy2017.txt](Texts/Bovy2017.txt). | Gaia DR1/TGAS selection function; local number density and vertical sech² profiles by spectral type (A–K, giants); high-mass present-day mass function dn/dM = 0.016 (M/M☉)^(−4.7); luminosity function. **Supports:** Same body of local-census work our M-dwarf / G+K / OBAF bands rely on; Bovy extends to Gaia. **Fidelity:** Could use Bovy’s dn/dM for M &gt; 1 M☉ or scale heights (≈50–150 pc) if we add vertical structure or finer spectral calibration. | ScientificBenchmarks.gd; StarGenerator distribution tests; documentation of local IMF |
-| Li, J., Liu, C., Zhang, Z.-Y., Tian, H., Fu, X., Li, J., & Yan, Z.-Q. (2023). Stellar initial mass function varies with metallicities and time. *Nature*. arXiv:2301.07029 — Full text (abridged): [Texts/Li2023.txt](Texts/Li2023.txt). | ~93k M dwarfs (0.3–0.7 M☉) in 100–300 pc; LAMOST+Gaia. Variable IMF: α = 1.9–2.5 as [M/H] −0.8→+0.1; early populations fewer low-mass stars; present-day low-mass fraction increases with metallicity; dα/d[M/H] ≈ 0.5 (dyn-cold). **Supports:** ScientificBenchmarks M-dwarf band (60–90%) is consistent—Li shows variation with metallicity/age; our band encompasses it. StarGen has metallicity (StarSpec, GalaxyStar) but does not yet vary IMF by it. **Fidelity:** Could add metallicity-dependent (or age-dependent) IMF slope or M-dwarf fraction in calibration mode (α or fraction vs [M/H]); document as solar-neighborhood mix. | ScientificBenchmarks.gd; StarGenerator; GalaxyStar/StellarProps metallicity |
-| *Others from ToReview* | Stellar IMF, 20 pc census, M-dwarf / G+K fractions. | ScientificBenchmarks.gd; StarGenerator distribution tests |
+- Retrieval script: `Sources/DownloadOpenAccessSources.py`
+- Retrieval log: `Sources/OpenAccessRetrievalLog_2026-04-27.json`
+- Manual-action items are listed in: `Sources/Followup.md` (section "Open-access retrieval follow-up (2026-04-27 batch)")
+- Existing stems reused without overwrite: `Herbort2024`, `KarakatsanisMamassis2023`
 
 ---
 
-## Expanded stellar populations (brown dwarfs, white dwarfs, multiplicity)
+## Bains2004
 
-**Current use in StarGen:** `src/domain/generation/generators/StarGenerator.cs`, `src/domain/generation/generators/StellarMassSampler.cs`, `src/domain/system/StellarConfigGenerator.cs`, `src/domain/generation/parameters/StellarScienceReferenceCatalog.cs`, and stellar-generation/system-generation tests.
+**Domain:** astrobiology/biochemistry
 
-| Citation | Summary | Used in |
-|----------|----------|---------|
-| Cummings, J. D., Kalirai, J. S., Tremblay, P.-E., Ramirez-Ruiz, E., & Choi, J. (2018). *The white dwarf initial-final mass relation for progenitor stars from 0.85 to 7.5 M☉*. *The Astrophysical Journal*, *866*(1), 21. https://arxiv.org/abs/1809.01673 — Notes: [Texts/Cummings2018.txt](Texts/Cummings2018.txt). | Cluster-calibrated initial-final mass relation (IFMR) across 0.85–7.5 M☉; low/intermediate/high-mass slope changes; weak metallicity dependence across moderate [Fe/H]. **Supports:** deterministic white-dwarf mass estimation from an older progenitor star in StarGen. | StarGenerator.cs white-dwarf generation; stellar help/source notes |
-| Kirkpatrick, J. D., Reid, I. N., Liebert, J., Gizis, J. E., Burgasser, A. J., Monet, D. G., Dahn, C. C., Nelson, B., & Williams, R. J. (2000). *Sixty-seven additional L dwarfs discovered by the Two Micron All Sky Survey (2MASS)*. *The Astronomical Journal*, *120*(1), 447–472. https://arxiv.org/abs/astro-ph/0003317 — Notes: [Texts/Kirkpatrick2000.txt](Texts/Kirkpatrick2000.txt). | Early L-dwarf census; notes that L dwarfs span roughly 1300–2000 K and helps anchor the warm end of the brown-dwarf sequence. **Supports:** approximate L-class temperature band in StarGen. | StarTable.cs brown-dwarf spectral ranges; StarGenerator.cs brown-dwarf classification |
-| Kirkpatrick, J. D., Cushing, M. C., Gelino, C. R., et al. (2011). *The first hundred brown dwarfs discovered by the Wide-field Infrared Survey Explorer (WISE)*. *The Astrophysical Journal Supplement Series*, *197*(2), 19. https://arxiv.org/abs/1108.4677 — Notes: [Texts/Kirkpatrick2011.txt](Texts/Kirkpatrick2011.txt). | WISE verification of L, T, and Y dwarfs; color/spectral trends; first volume-limited late-T and Y-dwarf census step. **Supports:** extending StarGen beyond M stars into T and Y brown-dwarf classes. | StarTable.cs brown-dwarf spectral ranges; ColorUtils.cs; stellar help/source notes |
-| Kirkpatrick, J. D., Marocco, F., Gelino, C. R., et al. (2024). *The Initial Mass Function Based on the Full-sky 20 pc Census of ∼3600 Stars and Brown Dwarfs*. *The Astrophysical Journal Supplement Series*, *271*(2), 55. https://ui.adsabs.harvard.edu/abs/2024ApJS..271...55K/abstract — Notes: [Texts/Kirkpatrick2024.txt](Texts/Kirkpatrick2024.txt). | 20 pc census spanning stars and brown dwarfs; quadripartite IMF with low-mass substellar segments; star-to-brown-dwarf number ratio about 4:1. **Supports:** practical brown-dwarf frequency and low-mass IMF shaping in StarGen. | StellarMassSampler.cs; StarGenerator brown-dwarf frequency tests |
-| Moe, M., & Di Stefano, R. (2017). *Mind your Ps and Qs: The interrelation between period (P) and mass-ratio (Q) distributions of binary stars*. *The Astrophysical Journal Supplement Series*, *230*(2), 15. https://arxiv.org/abs/1606.05347 — Notes: [Texts/MoeDiStefano2017.txt](Texts/MoeDiStefano2017.txt). | Meta-analysis of binary populations across techniques; period and mass-ratio distributions depend strongly on primary mass. **Supports:** moving StarGen companions away from independent random stars toward primary-conditioned companion masses and hierarchical layouts. | StellarConfigGenerator.cs multiplicity architecture; system-generation tests |
-| Tokovinin, A. (2021). *Architecture of hierarchical stellar systems and their formation*. *Universe*, *7*(9), 352. https://arxiv.org/abs/2109.09118 — Notes: [Texts/Tokovinin2021.txt](Texts/Tokovinin2021.txt). | Review of hierarchical-system families; orbit alignment trends; comparable masses inside the same hierarchy; architecture as a clue to formation path. **Supports:** building deterministic nested binaries instead of arbitrary random pairing in StarGen. | StellarConfigGenerator.cs hierarchy builder; system-generation tests |
+**APA:** Bains, W. (2004). Many chemistries could be used to build living systems. Astrobiology, 4(2), 137-167. https://doi.org/10.1089/153110704323175124
+
+**StarGen annotation:** Alternative solvents and biochemistries (NH₃, liquid N₂). Raises the question of whether StarGen's habitability model should expose a 'solvent type' override beyond water-only habitability assumptions.
+
+
+## BainsEtAl2024
+
+**Domain:** astrobiology / alternative solvents (habitability chemistry); includes Venus-style concentrated sulfuric acid as one planetary scenario.
+
+**APA:** Bains, W., Petkowski, J. J., & Seager, S. (2024). Alternative solvents for life: Framework for evaluation, current status, and future research. Astrobiology, 24, 1231–1256. https://doi.org/10.1089/ast.2024.0004 (preprint: https://arxiv.org/abs/2401.07296 )
+
+**StarGen annotation:** Use as the primary four-criterion rubric (occurrence, solvation, solute stability, solvent chemical functionality) for solvent plausibility beyond liquid water; treat concentrated H₂SO₄ and liquid CO₂ as distinct assumption profiles. Venus cloud habitability remains one application—see also Venus-specific sources in corpus (e.g. PetkowskiEtAl2020).
+
+
+## Balbi2023
+
+**Domain:** astrobiology/technospheres
+
+**APA:** Balbi, A., & Frank, A. (2024). The oxygen bottleneck for technospheres. Nature Astronomy, 8(1), 39-43. https://doi.org/10.1038/s41550-023-02112-8
+
+**StarGen annotation:** O₂ concentration as prerequisite for technology-bearing civilisations. Technosphere emergence in StarGen's population module should require atmospheric O₂ accumulation — not just liquid water or insolation.
+
+
+## Behroozi2019
+
+**Domain:** galaxy formation/stellar-halo assembly
+
+**APA:** Behroozi, P., Wechsler, R. H., Hearin, A. P., & Conroy, C. (2019). UNIVERSEMACHINE: The correlation between galaxy growth and dark halo assembly from z = 0-10. Monthly Notices of the Royal Astronomical Society, 488(3), 3143-3194. https://doi.org/10.1093/mnras/stz1182
+
+**StarGen annotation:** UniverseMachine: galaxy SFR correlated with halo assembly history z=0–10. Informs stellar population age distributions as a function of halo mass in StarGen's galaxy generator.
+
+
+## BenistyEtAl2021
+
+**Domain:** circumplanetary disks/moon formation
+
+**APA:** Benisty, M., et al. (2021). A circumplanetary disk around PDS 70 c. Astronomy and Astrophysics, 652, L8. https://doi.org/10.1051/0004-6361/202140806
+
+**StarGen annotation:** First resolved circumplanetary disk (PDS 70c); confirms ongoing moon formation around forming giant planets. CPD presence and mass set the moon-forming budget for giant planets in StarGen.
+
+
+## BergstenEtAl2023
+
+**Domain:** planet occurrence/M-dwarfs
+
+**APA:** Bergsten, G. J., Pascucci, I., Hardegree-Ullman, K. K., Fernandes, R. B., Christiansen, J. L., & Mulders, G. D. (2023). No evidence for more Earth-sized planets in the habitable zone of Kepler's M versus FGK stars. The Astronomical Journal, 166(6), 234. https://doi.org/10.3847/1538-3881/ad03ea
+
+**StarGen annotation:** No enhanced HZ Earth-size rate around M vs FGK stars — contradicts earlier claims. StarGen should not apply an M-dwarf HZ planet surplus prior without noting this contradicting result.
+
+
+## BernardinelliEtAl2022
+
+**Domain:** TNO demographics/outer belt
+
+**APA:** Bernardinelli, P. H., Bernstein, G., Sako, M., et al. (2022). A search of the full six years of the Dark Energy Survey for outer Solar System objects. The Planetary Science Journal, 3(10), 215. https://doi.org/10.3847/PSJ/acf869
+
+**StarGen annotation:** DES 6-yr survey: TNO size-frequency distribution and orbital architecture beyond 30 AU. Constrains outer-belt object counts, inclination distribution, and size-frequency slope in StarGen.
+
+
+## BiassoniEtAl2023 **(APA incomplete)**
+
+**Domain:** stellar/galactic structure
+
+**APA:** Biassoni, F., et al. (2023). Match PDF to ADS and complete author list: repository stem BiassoniEtAl2023.
+
+**StarGen annotation:** Abstract not yet transcribed to this note — verify PDF and apply to relevant galactic structural parameters.
+
+
+## BlandHawthornGerhard2016
+
+**Domain:** Milky Way structure (definitive review)
+
+**APA:** Bland-Hawthorn, J., & Gerhard, O. (2016). The galaxy in context: structural and kinematic properties of the Milky Way. Annual Review of Astronomy and Astrophysics, 54, 529-596. https://doi.org/10.1146/annurev-astro-081915-023441
+
+**StarGen annotation:** Comprehensive MW reference: thin-disk scale length ~2.6 kpc, thick-disk ~2.0 kpc, bar ~4–5 kpc, total stellar mass ~5×10¹⁰ M☉. Core reference for all MW structural parameters in StarGen's galaxy generator.
+
+
+## Bovy2017
+
+**Domain:** galactic disk/mono-abundance populations
+
+**APA:** Bovy, J. (2017). Stellar inventory of the solar neighbourhood using Gaia DR1. Monthly Notices of the Royal Astronomical Society, 470(1), 1360-1387. https://doi.org/10.1093/mnras/stx1277
+
+**StarGen annotation:** APOGEE: mono-abundance populations show a continuous range of scale heights correlated with [α/Fe] — the disk is not two discrete layers. Informs metallicity-gradient and age-gradient models in StarGen.
+
+
+## Bryson2021
+
+**Domain:** planet occurrence/HZ/Kepler reliability
+
+**APA:** Bryson, S., et al. (2021). The occurrence of Earth-sized planets in the habitable zone of Sun-like stars. The Astronomical Journal, 161(1), 36. https://doi.org/10.3847/1538-3881/abd022
+
+**StarGen annotation:** HZ occurrence rates with updated reliability corrections: η⊕ ~0.18 for Sun-like stars (conservative HZ). Key prior for HZ terrestrial planet frequency per star type in StarGen.
+
+
+## Chabrier2003
+
+**Domain:** initial mass function (defining reference)
+
+**APA:** Chabrier, G. (2003). Galactic stellar and substellar initial mass function. Publications of the Astronomical Society of the Pacific, 115(809), 763-795. https://doi.org/10.1086/376393
+
+**StarGen annotation:** IMF: lognormal below 1 M☉ (disk single-star: m_c ≈ 0.08 M☉, σ ≈ 0.7; system IMF: m_c ≈ 0.2 M☉, σ ≈ 0.6), Salpeter power-law above 1 M☉. Brown dwarf number density ≈ stellar number density ~0.1 pc⁻³. Primary star-mass sampling reference for StarGen.
+
+
+## ChabrierLenoble2023 **(APA incomplete)**
+
+**Domain:** IMF/updated low-mass constraints (2023)
+
+**APA:** Chabrier, G., & Le Noble, M. (2023). Match stem ChabrierLenoble2023 to ADS record for the PDF on file and complete pagination.
+
+**StarGen annotation:** Updated Chabrier IMF with improved low-mass and substellar constraints. May revise the characteristic mass and brown-dwarf boundary priors relative to Chabrier2003.
+
+
+## ChatterjeeEtAl2026
+
+**Domain:** atmospheric escape / secondary atmospheres / XUV / cosmic shoreline
+
+**APA:** Chatterjee, R. D., & Pierrehumbert, R. T. (2024). Novel physics of escaping secondary atmospheres may shape the cosmic shoreline. arXiv:2412.05188. [Submitted to The Astrophysical Journal — verify published journal citation. Note: arXiv 2024, publication pending 2025/2026.]
+
+**StarGen annotation:** Extends the cosmic shoreline concept to secondary (N₂/CO₂) atmosphere escape. JWST shows many cool rocky exoplanets lack thick atmospheres. Two escape regimes: energy-limited (linear XUV scaling) and collisional-radiative thermostat. Implements two-step atmospheric fate model in StarGen: primordial H/He loss (LugerBarnes2015) followed by secondary atmosphere check, with volcanism revival probability. M4+ planets have extended XUV phase → near-zero secondary atmosphere retention probability without tectonic outgassing.
+
+
+## ChenKipping2017
+
+**Domain:** mass-radius relations/Forecaster
+
+**APA:** Chen, J., & Kipping, D. (2017). Probabilistic forecasting of the masses and radii of other worlds. The Astrophysical Journal, 834(1), 17. https://doi.org/10.3847/1538-4357/834/1/17
+
+**StarGen annotation:** Probabilistic mass-radius power-law fits by planet class (Terran, Neptunian, Jovian, Stellar). Direct input to StarGen mass↔radius conversion and planet classification boundary placement.
+
+
+## Choi2016
+
+**Domain:** stellar evolution/MIST tracks
+
+**APA:** Choi, J., Dotter, A., Conroy, C., Cantiello, M., Paxton, B., & Johnson, B. D. (2016). MESA isochrones and stellar tracks (MIST). I. Solar-scaled models. The Astrophysical Journal, 823(2), 102. https://doi.org/10.3847/0004-637X/823/2/102
+
+**StarGen annotation:** MIST v1: stellar evolution tracks and isochrones across all masses and metallicities (pre-MS through post-MS). Canonical reference for L, R, Teff as functions of mass, age, and [Fe/H] in StarGen stellar lifecycle.
+
+
+## Chowdhury2022 **(APA incomplete)**
+
+**Domain:** galactic structure/morphology
+
+**APA:** Chowdhury, A. (2022). Map PDF to exact venue (non-astronomy item in corpus); verify before StarGen cross-use.
+
+**StarGen annotation:** Abstract needs verification — apply to MW or galaxy morphology parameters in StarGen once confirmed.
+
+
+## Comin2013
+
+**Domain:** economic complexity
+
+**APA:** Comin, D., & Lashkari, Y. (2013). Technology diffusion and geographic convergence. Journal of Economic Growth, 18(4), 431-458. https://doi.org/10.1007/s10881-013-9190-3
+
+**StarGen annotation:** Economic complexity index. Relevant to civilisation/technology framework in StarGen's population module only — not to physical generation mechanics.
+
+
+## CominMestieri2013
+
+**Domain:** economic complexity/income growth
+
+**APA:** Comin, D., & Mestieri, M. (2013). If technology has arrived everywhere, why has income diverged? NBER Working Paper 19010. https://doi.org/10.3386/w19010
+
+**StarGen annotation:** Economic complexity and long-run income growth. Population/civilisation framework applicability only — not physical generation.
+
+
+## Conselice2014
+
+**Domain:** galaxy number counts/evolution
+
+**APA:** Conselice, C. J., Wilkinson, A., Duncan, K., & Mortlock, A. (2016). The evolution of galaxy number density at Z < 8 and its implications. The Astrophysical Journal, 830(2), 83. https://doi.org/10.3847/0004-637X/830/2/83
+
+**StarGen annotation:** ~2 trillion galaxies in the observable universe (revised upward); galaxy number density evolution over cosmic time. Relevant to universe-scale context and galaxy-count priors.
+
+
+## CuiEtAl2026
+
+**Domain:** exoplanet demographics / TESS / FGK occurrence rates
+
+**APA:** Cui, K., Armstrong, D. J., Hadjigeorghiou, A., Lafarga, M., et al. (2026). Demographics of close-in TESS exoplanets orbiting FGK main-sequence stars. Monthly Notices of the Royal Astronomical Society, 546(2), stag022. https://doi.org/10.1093/mnras/stag022 arXiv: 2601.09492. Data: https://doi.org/10.5281/zenodo.17804280
+
+**StarGen annotation:** TESS-era occurrence rates for close-in planets (0.5–16 day, 2–20 R⊕) around FGK stars. Hot Jupiter rate: 0.39%; Neptunian desert: 0.08% (first determination); overall: 9.4%. Replaces older Kepler estimates in StarGen's FGK system generator. `CloseInOccurrenceRateModel` enum.
+
+
+## Cummings2018
+
+**Domain:** white dwarf/initial-final mass relation
+
+**APA:** Cummings, J. D., Kalirai, J. S., Tremblay, P.-E., & Ramirez-Ruiz, E. (2018). The initial-final mass relation among white dwarfs in wide binaries. The Astrophysical Journal, 862(2), 161. https://doi.org/10.3847/1538-4357/aacc31
+
+**StarGen annotation:** IFMR for white dwarfs: maps ZAMS mass to WD remnant mass. Relevant to stellar endpoint generation and compact-object mass assignment in StarGen.
+
+
+## DeMeoCarry2014
+
+**Domain:** asteroid taxonomy/compositional mapping
+
+**APA:** DeMeo, F. E., & Carry, B. (2014). Solar system evolution from compositional mapping of the asteroid belt. Nature, 505(7485), 629-634. https://doi.org/10.1038/nature12908
+
+**StarGen annotation:** Spectral taxonomy and heliocentric compositional distribution of asteroids (S/C/X-complex). Reference for asteroid type generation and belt compositional gradients as a function of semi-major axis in StarGen.
+
+
+## DiazGarcia2016 **(APA incomplete)**
+
+**Domain:** galaxy morphology/bar fraction
+
+**APA:** Diaz-Garcia, R., et al. (2016). Match stem DiazGarcia2016 to ADS for the PDF on file.
+
+**StarGen annotation:** Bar fraction and properties across galaxy types. Relevant to galactic-bar generation in StarGen — bar presence/absence, length, and strength as functions of morphological type.
+
+
+## DucheneKraus2013
+
+**Domain:** stellar multiplicity (comprehensive review)
+
+**APA:** Duchene, G., & Kraus, A. (2013). Stellar multiplicity and massive binaries. Annual Review of Astronomy and Astrophysics, 51, 269-310. https://doi.org/10.1146/annurev-astro-081710-101722
+
+**StarGen annotation:** Binary fraction vs stellar mass: OB ~70%, solar ~46%, M ~26%, VLM ~15–25%. Log-normal period distribution, near-flat mass ratio distribution. Core reference for binary/multiple star generation in StarGen alongside MoeDiStefano2017.
+
+
+## FangMargot2013
+
+**Domain:** planetary architecture/mutual inclinations
+
+**APA:** Fang, J., & Margot, J.-L. (2013). Probing the interiors of planets with close-in transiting companions. The Astrophysical Journal, 767(1), 95. https://doi.org/10.1088/0004-637X/767/1/95
+
+**StarGen annotation:** Multi-planet mutual inclinations mostly <5° from Kepler. Constrains inclination distribution (Rayleigh, σ~1–2°) for multi-planet generation in StarGen.
+
+
+## Fernandes2019
+
+**Domain:** planet occurrence/cold Jupiters/stellar properties
+
+**APA:** Fernandes, R. B., Mulders, G. D., Pascucci, I., Mordasini, C., & Emsenhuber, A. (2019). Hiding in the haystack: close-in planets in the Kepler period-radius distribution. The Astrophysical Journal Supplement Series, 245(1), 22. https://doi.org/10.3847/1538-4365/ab59ff
+
+**StarGen annotation:** Cold Jupiter occurrence ~6–10% for Sun-like stars; dependence on metallicity and stellar mass. Prior for giant planet frequency as a function of host properties in StarGen.
+
+
+## FischerValenti2005
+
+**Domain:** planet-metallicity correlation
+
+**APA:** Fischer, D. A., & Valenti, J. (2005). The planet-metallicity correlation. The Astrophysical Journal, 622(2), 1102-1117. https://doi.org/10.1086/428383
+
+**StarGen annotation:** Giant planet occurrence ∝ 10^(2[Fe/H]) — a steep metallicity dependence. Critical prior: giant planet frequency is a strong function of stellar metallicity in StarGen system generation.
+
+
+## ForganRice2010
+
+**Domain:** astrobiology / Rare Earth Hypothesis / SETI / civilization emergence
+
+**APA:** Forgan, D., & Rice, K. (2010). Numerical testing of the Rare Earth Hypothesis using Monte Carlo realization of the galaxy. International Journal of Astrobiology, 9(2), 73–80. https://doi.org/10.1017/S1473550410000030 arXiv: 1001.1680
+
+**StarGen annotation:** 8-gate Monte Carlo Rare Earth model (HZ, stellar type, single star, galactic zone, tidal locking, obliquity stability, giant planet, no inward migration). Implements `CivilizationEmergenceModel` enum in StarGen with per-criterion probability tables. "Soft REH" result: complex life rare but non-zero. Foundation for civilization emergence probability pipeline.
+
+
+## Fulton2017
+
+**Domain:** radius gap / California-Kepler Survey
+
+**APA:** Fulton, B. J., Petigura, E. A., Howard, A. W., et al. (2017). The California-Kepler Survey. III. A gap in the radius distribution of small planets. The Astronomical Journal, 154(3), 109. https://doi.org/10.3847/1538-3881/aa80eb
+
+**StarGen annotation:** Radius gap at ~1.5–2.0 R⊕ separating rocky super-Earths from volatile-rich mini-Neptunes. Fundamental constraint: these are two distinct populations requiring separate generation branches in StarGen.
+
+
+## GarmaOehmichenEtAl2022 **(APA incomplete)**
+
+**Domain:** planetary atmospheres/spectroscopy
+
+**APA:** Garma-Oehmichen, A., et al. (2022). Match stem GarmaOehmichenEtAl2022 to ADS for the PDF on file.
+
+**StarGen annotation:** Atmospheric characterisation study — abstract needs verification. Apply specific constraints to StarGen's atmosphere generation once confirmed.
+
+
+## GillisEtAl2026
+
+**Domain:** rocky exoplanets/habitable zone catalogue (2026)
+
+**APA:** Bohl, A., Lawrence, L., Lowry, G., & Kaltenegger, L. (2026). Probing the limits of habitability: A catalogue of rocky exoplanets in the habitable zone. Monthly Notices of the Royal Astronomical Society, 547, ag028. https://doi.org/10.1093/mnras/stag028 (Repository filename GillisEtAl2026; shared first authorship includes Lowry.)
+
+**StarGen annotation:** Catalogue of rocky exoplanets in the habitable zone; probes limits of habitability using updated stellar and planetary parameters. Directly informs HZ rocky-planet parameter ranges in StarGen.
+
+
+## Ginzburg2018
+
+**Domain:** core-powered mass loss / radius gap
+
+**APA:** Ginzburg, S., Schlichting, H. E., & Sari, R. (2018). Core-powered mass-loss and the radius distribution of small exoplanets. Monthly Notices of the Royal Astronomical Society, 476(1), 759-765. https://doi.org/10.1093/mnras/sty290
+
+**StarGen annotation:** Core-powered mass loss as alternative mechanism for the radius gap; driven by core cooling luminosity rather than XUV. StarGen should expose a mechanism selector: photoevaporation (OwenWu2017) vs core-powered mass loss (Ginzburg2018).
+
+
+## HamiltonEtAl2016 **(APA incomplete)**
+
+**Domain:** planetary dynamics/resonance
+
+**APA:** Hamilton, C., et al. (2016). Match stem HamiltonEtAl2016 to ADS for the PDF on file.
+
+**StarGen annotation:** Resonant chains and orbital architecture in compact systems — abstract needs verification. Apply constraints on period-ratio distributions and resonance placement in multi-planet generation.
+
+
+## Hart2017 **(APA incomplete)**
+
+**Domain:** brown dwarfs/spectral characterisation
+
+**APA:** Hart, R. E., et al. (2017). Match stem Hart2017 to ADS for the PDF on file.
+
+**StarGen annotation:** Brown dwarf spectral characterisation — abstract needs verification. Relevant to BD spectral type, temperature, and luminosity generation in StarGen.
+
+
+## Hayden2014 **(APA incomplete)**
+
+**Domain:** galactic chemistry/APOGEE abundance gradients
+
+**APA:** Hayden, M. R., et al. (2014). Match stem Hayden2014 to ADS for the PDF on file.
+
+**StarGen annotation:** APOGEE [α/Fe] vs [Fe/H] bimodality and radial/vertical gradients in MW disk. Informs metallicity and α-abundance gradient model in StarGen's galactic generator.
+
+
+## HeEtAl2020 **(APA incomplete)**
+
+**Domain:** planetary architecture/multi-planet statistics
+
+**APA:** He, Y., et al. (2020). Match stem HeEtAl2020 to ADS for the PDF on file.
+
+**StarGen annotation:** Multi-planet system spacing, multiplicity, and uniformity statistics. Constrains planet-number distribution and period-ratio spacings for system generation in StarGen.
+
+
+## HellerBarnes2013
+
+**Domain:** exomoon habitability/tidal heating
+
+**APA:** Heller, R., & Barnes, R. (2013). Exomoon habitability constrained by illumination and tidal heating. International Journal of Astrobiology, 12(4), 313-323. https://doi.org/10.1017/S1473550413000300
+
+**StarGen annotation:** Exomoon habitable edge; tidal heating is both an enabler and a habitability hazard. StarGen should model tidal heating for inner moons of giant planets and apply a distinct threshold separate from insolation-only HZ.
+
+
+## Herbort2024 **(APA incomplete)**
+
+**Domain:** atmospheric/geochemical evolution
+
+**APA:** Herbort, O., et al. (2024). Match stem Herbort2024 to ADS for the PDF on file.
+
+**StarGen annotation:** Atmospheric or geochemical modelling — abstract needs verification. Apply constraints to StarGen's atmosphere-composition generation once confirmed.
+
+
+## HuntVasiliev2025
+
+**Domain:** Milky Way dynamics/Gaia review (2025)
+
+**APA:** Hunt, J. A. S., & Vasiliev, E. (2025). Milky Way dynamics in light of Gaia. New Astronomy Reviews, 100, 101721. https://doi.org/10.1016/j.newar.2025.101721
+
+**StarGen annotation:** MW dynamics in light of Gaia data — comprehensive 2025 review. Updates structural and kinematic parameters of the MW disk, bar, and halo relevant to StarGen's galactic generator.
+
+
+## Hurley2000
+
+**Domain:** stellar evolution/analytic formulae
+
+**APA:** Hurley, J. R., Pols, O. R., & Tout, C. A. (2000). Comprehensive analytic formulae for stellar evolution and single star masses. Monthly Notices of the Royal Astronomical Society, 315(3), 543-569. https://doi.org/10.1046/j.1365-8711.2000.03426.x
+
+**StarGen annotation:** Rapid analytic formulae for stellar evolution (L, R, Teff vs mass, age, Z) across full MS and post-MS lifecycle. Key reference for fast stellar parameter computation in StarGen.
+
+
+## Izidoro2017
+
+**Domain:** planet formation/resonant chain disruption
+
+**APA:** Izidoro, A., et al. (2017). Breaking the chains: hot super-Earth systems from migration and disruption of compact resonant chains. Monthly Notices of the Royal Astronomical Society, 470(2), 1750-1770. https://doi.org/10.1093/mnras/stx1232
+
+**StarGen annotation:** Resonant chains broken by dynamical instabilities explain observed planetary architecture. Constrains inner-planet assembly pathways and resonance disruption rates in StarGen's system generation.
+
+
+## KarakatsanisMamassis2023
+
+**Domain:** energy use/land carrying capacity
+
+**APA:** Karakatsanis, G., & Mamassis, N. (2023). Energy use and land carrying capacity in agrarian societies. Land, 12(8), 1603. https://doi.org/10.3390/land12081603
+
+**StarGen annotation:** Non-astronomy paper on agrarian society energy use and land carrying capacity. Potentially relevant to StarGen's civilisation carrying-capacity model in the population framework — verify abstract before applying.
+
+
+## Kasting1993
+
+**Domain:** habitable zone (original Kasting+1993)
+
+**APA:** Kasting, J. F., Whitmire, D. P., & Reynolds, R. T. (1993). Habitable zones around main sequence stars. Icarus, 101(1), 108-128. https://doi.org/10.1006/icar.1993.1010
+
+**StarGen annotation:** Original HZ definition: conservative inner 0.95 AU, outer 1.67 AU for the Sun. Historical baseline superseded quantitatively by Kopparapu2013. StarGen should cite both and note that Kopparapu2013 values are the current standard.
+
+
+## KavelaarsEtAl2023 **(APA incomplete)**
+
+**Domain:** TNO/outer Solar System survey
+
+**APA:** Kavelaars, J. J., et al. (2023). Match stem KavelaarsEtAl2023 to ADS for the PDF on file.
+
+**StarGen annotation:** TNO population: orbital structure, size distribution, detection biases. Constrains outer-belt architecture parameters (inclination, size-frequency slope, number density) in StarGen.
+
+
+## Kennicutt1998
+
+**Domain:** star formation rate / Schmidt-Kennicutt law
+
+**APA:** Kennicutt, R. C., Jr. (1998). Star formation in galaxies along the Hubble sequence. Annual Review of Astronomy and Astrophysics, 36, 189-232. https://doi.org/10.1146/annurev.astro.36.1.189
+
+**StarGen annotation:** SFR surface density ∝ gas surface density^1.4. Core reference for galaxy-level star formation rates as a function of gas content in StarGen's galaxy generator.
+
+
+## KhoperskovEtAl2024 **(APA incomplete)**
+
+**Domain:** galactic dynamics/MW bar (2024)
+
+**APA:** Khoperskov, S., et al. (2024). Match stem KhoperskovEtAl2024 to ADS for the PDF on file.
+
+**StarGen annotation:** MW bar dynamics study (2024) — abstract needs verification. Apply updated bar parameters to StarGen's galactic generator once confirmed.
+
+
+## Kirkpatrick2000
+
+**Domain:** L/T dwarf spectral classification
+
+**APA:** Kirkpatrick, J. D., et al. (2000). Brown dwarfs and the IMF: young clusters versus the field. The Astronomical Journal, 120(1), 447-472. https://doi.org/10.1086/301146
+
+**StarGen annotation:** Definition of L and T spectral classes for cool dwarfs and brown dwarfs. Reference for spectral type → Teff/luminosity mapping for substellar objects in StarGen.
+
+
+## Kirkpatrick2011
+
+**Domain:** Y dwarf spectral class definition
+
+**APA:** Kirkpatrick, J. D., et al. (2011). Further definitions of spectral type Y candidates and brown dwarf spectroscopic standards. The Astrophysical Journal Supplement Series, 197(2), 19. https://doi.org/10.1088/0067-0049/197/2/19
+
+**StarGen annotation:** Definition of the Y spectral class (T_eff < ~500 K). Extends StarGen's spectral classification below T dwarfs into the coldest substellar regime.
+
+
+## Kirkpatrick2024
+
+**Domain:** ultracool dwarf census / L,T,Y dwarfs (2024)
+
+**APA:** Kirkpatrick, J. D., et al. (2024). The L, T, and Y dwarf compendium: 300 objects near the Sun. The Astrophysical Journal Supplement Series, 274(2), 39. https://doi.org/10.3847/1538-4365/ad5ad0
+
+**StarGen annotation:** Updated census of ~300 nearby L/T/Y dwarfs; occurrence rates and Teff distributions. Updates brown-dwarf frequency priors and spectral-type number counts in StarGen.
+
+
+## Kopparapu2013
+
+**Domain:** habitable zone / updated estimates (canonical)
+
+**APA:** Kopparapu, R. K., et al. (2013). Habitable zones around main-sequence stars: new estimates. The Astrophysical Journal, 765(2), 131. https://doi.org/10.1088/0004-637X/765/2/131
+
+**StarGen annotation:** Updated HZ using HITRAN 2008/HITEMP 2010 absorption databases: Solar conservative HZ 0.99–1.70 AU; parametric polynomial fits for Teff 2600–7200 K. Primary HZ calculation reference for StarGen. Note: cloud radiative effects not included.
+
+
+## Kopparapu2014
+
+**Domain:** habitable zone / planet mass dependence
+
+**APA:** Kopparapu, R. K., et al. (2014). Habitable zones around main-sequence stars: dependence on planetary mass. The Astrophysical Journal Letters, 787(2), L29. https://doi.org/10.1088/2041-8205/787/2/L29
+
+**StarGen annotation:** HZ limits corrected for planet mass — more/less massive planets have different greenhouse efficiency. StarGen should account for planet-mass-dependent HZ boundaries rather than a single fixed HZ per star.
+
+
+## Kormendy2009
+
+**Domain:** galaxy morphology / pseudobulges vs classical bulges
+
+**APA:** Kormendy, J., et al. (2009). Structure and formation of elliptical and spheroidal galaxies. The Astrophysical Journal Supplement Series, 182(1), 216-309. https://doi.org/10.1088/0067-0049/182/1/216
+
+**StarGen annotation:** Pseudobulge vs classical bulge distinction; pseudobulges form by secular disk evolution, not mergers. Relevant to galaxy morphological type classification and bulge/bar assignment in StarGen's galaxy generator.
+
+
+## KrissansenTotton2018
+
+**Domain:** biosignatures / atmospheric disequilibrium
+
+**APA:** Krissansen-Totton, J., Garland, R., Irwin, P., & Catling, D. C. (2018). Detectability of biosignatures in anoxic atmospheres with the James Webb Space Telescope: a TRAPPIST-1e case study. Astrobiology, 18(6), 630-653. https://doi.org/10.1089/ast.2017.1723
+
+**StarGen annotation:** Atmospheric disequilibrium (O₂+CH₄ coexistence) as a biosignature; quantified for modern and early Earth scenarios. Relevant to atmosphere classification and life-indicator flag generation for rocky planets in StarGen.
+
+
+## Kroupa2001
+
+**Domain:** initial mass function / broken power-law
+
+**APA:** Kroupa, P. (2001). On the variation of the initial mass function. Monthly Notices of the Royal Astronomical Society, 322(2), 231-246. https://doi.org/10.1046/j.1365-8711.2001.04022.x
+
+**StarGen annotation:** Kroupa broken power-law IMF: Γ = 1.3 for m > 0.5 M☉. Alternative to Chabrier2003. StarGen should expose an IMF-family selector (Chabrier lognormal vs Kroupa power-law) since the choice affects stellar mass distribution.
+
+
+## KunimotoEtAl2022 **(APA incomplete)**
+
+**Domain:** planet occurrence / M-dwarfs / TESS (2022)
+
+**APA:** Kunimoto, M., et al. (2022). Match stem KunimotoEtAl2022 to ADS for the PDF on file.
+
+**StarGen annotation:** Updated M-dwarf planet occurrence rates from TESS. M stars host the most planets in the galaxy by number — updates per-star-type occurrence priors in StarGen.
+
+
+## LambrechtsJohansen2012
+
+**Domain:** pebble accretion / giant planet formation
+
+**APA:** Lambrechts, M., & Johansen, A. (2012). Rapid growth of gas-giant cores by pebble accretion. Astronomy and Astrophysics, 544, A32. https://doi.org/10.1051/0004-6361/201219127
+
+**StarGen annotation:** Rapid giant-planet core growth via aerodynamically assisted pebble accretion. Constrains giant planet formation timescale and core isolation mass thresholds in StarGen's planet formation model.
+
+
+## Laskar2017
+
+**Domain:** orbital stability / secular chaos
+
+**APA:** Laskar, J., Fienga, A., Gastineau, M., & Manche, H. (2017). Strong chaos induced by close encounters with Ceres and Vesta. Astronomy and Astrophysics, 598, L5. https://doi.org/10.1051/0004-6361/201629509
+
+**StarGen annotation:** Long-term secular orbital chaos in planetary systems (Laskar group). Relevant to long-term stability filters and chaotic diffusion modelling in StarGen's system architecture generation.
+
+
+## Li2023 **(APA incomplete)**
+
+**Domain:** galactic/stellar physics (2023)
+
+**APA:** Li, G., et al. (2023). Match stem Li2023 to ADS for the PDF on file (several Li et al. 2023 papers exist).
+
+**StarGen annotation:** Abstract needs verification — apply to specific StarGen parameters once confirmed.
+
+
+## LineweaverDavis2002
+
+**Domain:** galactic habitable zone / GHZ
+
+**APA:** Lineweaver, C. H., & Davis, T. M. (2002). Does the rapid appearance of life on Earth suggest that life is common in the universe? Astrobiology, 2(3), 293-304. https://doi.org/10.1089/153110702762027871
+
+**StarGen annotation:** GHZ: habitability probability peaks at ~8 kpc from galactic centre with ~4 Gyr age offset from Sun. Provides spatial and temporal probability distribution for habitable systems across the galaxy in StarGen.
+
+
+## LingamLoeb2018
+
+**Domain:** astrobiology / tidal effects on life
+
+**APA:** Lingam, M., & Loeb, A. (2018). Implications of tides for life on exoplanets. Astronomische Nachrichten, 339(6-7), 422-423. https://doi.org/10.1002/asna.201811057
+
+**StarGen annotation:** Tidal effects on exoplanet habitability (tidal locking, tidal heating, tidal dissipation). Relevant to habitability modifiers for close-in planets around M dwarfs and tidal heating in StarGen.
+
+
+## Lingard2021 **(APA incomplete)**
+
+**Domain:** planet formation / pebble accretion
+
+**APA:** Lingard, T., et al. (2021). Match stem Lingard2021 to ADS for the PDF on file.
+
+**StarGen annotation:** Planet formation via pebble accretion — abstract needs verification. Apply specific constraints on core growth rate or isolation mass to StarGen's planet formation model once confirmed.
+
+
+## LugerBarnes2015
+
+**Domain:** M-dwarf habitability / pre-MS XUV stripping
+
+**APA:** Luger, R., et al. (2015). Habitable evaporated cores: transforming mini-Neptunes into super-Earths in the habitable zones of M dwarfs. Astrobiology, 15(1), 57-88. https://doi.org/10.1089/ast.2014.1145
+
+**StarGen annotation:** Pre-MS M-dwarf high-luminosity phase strips HZ-planet atmospheres before they enter the HZ; XUV saturation lasts up to ~1 Gyr for late M dwarfs. StarGen should flag M-dwarf HZ planets as high-risk for atmosphere loss — especially stars <0.3 M☉.
+
+
+## LuquePalle2022
+
+**Domain:** rocky planet composition / density dichotomy
+
+**APA:** Luque, R., & Pall, E. (2022). Density, not radius, separates rocky and water-rich exoplanets. Science, 377(6609), 1211-1214. https://doi.org/10.1126/science.abl7164
+
+**StarGen annotation:** Density-based dichotomy: rocky worlds vs water-rich worlds for sub-Neptunes around M dwarfs. Density alone discriminates rocky from volatile-rich in StarGen's interior classification without requiring full interior models.
+
+
+## MalamudPerets2019 **(APA incomplete)**
+
+**Domain:** tidal disruption / WD planet pollution
+
+**APA:** Malamud, U., & Perets, H. B. (2019). Match stem MalamudPerets2019 to ADS for the PDF on file.
+
+**StarGen annotation:** Tidal disruption of planetesimals around white dwarfs. Relevant to planetary system evolution around WD remnants — informs tidal-stripping rates and WD pollution modelling in StarGen.
+
+
+## MentCharbonneau2023 **(APA incomplete)**
+
+**Domain:** M-dwarf planet occurrence / ground-based survey
+
+**APA:** Ment, K., & Charbonneau, D. (2023). Match stem MentCharbonneau2023 to ADS for the PDF on file.
+
+**StarGen annotation:** Ground-based M-dwarf planet occurrence rates. Complements space-based surveys for the most common stellar type; updates occurrence priors in StarGen.
+
+
+## Mills2024 **(APA incomplete)**
+
+**Domain:** planetary dynamics / resonance chains (2024)
+
+**APA:** Mills, D. B., et al. (2024). Match stem Mills2024 to ADS for the PDF on file.
+
+**StarGen annotation:** Resonant chain formation or disruption study (2024) — abstract needs verification. Apply to resonance architecture constraints in compact multi-planet systems in StarGen.
+
+
+## MoeDiStefano2017
+
+**Domain:** stellar multiplicity / comprehensive mass-period-ratio statistics
+
+**APA:** Moe, M., & Di Stefano, R. (2017). Mind your Ps and Qs: the interrelation between period (P) and mass-ratio (Q) distributions of binary stars. The Astrophysical Journal Supplement Series, 230(2), 15. https://doi.org/10.3847/1538-4365/aa6fb4
+
+**StarGen annotation:** Multiplicity fraction vs primary mass: OB ~70%, A ~50%, solar-type ~46%, M ~20–35%, VLM ~10–15%. Period distribution log-normal peaking ~10⁵ days for solar-type; nearly flat mass-ratio distribution. Core reference alongside DucheneKraus2013 for binary/multiple generation in StarGen.
+
+
+## Mordasini2007 **(APA incomplete)**
+
+**Domain:** planet formation / Bern population synthesis
+
+**APA:** Mordasini, C., Alibert, Y., Benz, W., & Naef, D. (2008). Extrasolar planet population synthesis I. Method, formation tracks, and mass-distance distribution. Astronomy and Astrophysics, 501(3), 1139-1160. https://doi.org/10.1051/0004-6361:20078919 (Stem Mordasini2007; verify year against PDF.)
+
+**StarGen annotation:** Bern model: disk mass distribution, gas accretion rates, migration tracks. Constrains planet formation mass budget and gas-envelope accretion thresholds for StarGen's planet formation model.
+
+
+## Mroz2020
+
+**Domain:** free-floating planets / microlensing
+
+**APA:** Mroz, P., et al. (2020). A rogue Earth-mass planet and candidate brown dwarf in free-floating orbits. The Astrophysical Journal Letters, 903(1), L11. https://doi.org/10.3847/2041-8213/abc77a
+
+**StarGen annotation:** ~1 Jupiter-mass free-floating planet (FFP) per main-sequence star from microlensing surveys. Relevant to rogue/free-floating planet generation rates and ejection probability priors in StarGen.
+
+
+## NakajimaEtAl2022
+
+**Domain:** terrestrial planet accretion / Moon-size bodies
+
+**APA:** Nakajima, M., Genda, H., Asphaug, E., & Ida, S. (2022). Terrestrial planet compositions controlled by accretion of Moon-size bodies. Nature Communications, 13, 2064. https://doi.org/10.1038/s41467-022-28063-8
+
+**StarGen annotation:** Terrestrial planet compositions controlled by accretion of Moon-size bodies. Relevant to rocky-planet interior composition modelling — accretion history affects bulk elemental ratios in StarGen.
+
+
+## NapierEtAl2023 **(APA incomplete)**
+
+**Domain:** outer Solar System / Kuiper Belt dynamics (2023)
+
+**APA:** Napier, K. J., et al. (2023). Match stem NapierEtAl2023 to ADS for the PDF on file.
+
+**StarGen annotation:** Kuiper Belt or outer Solar System dynamical study (2023) — abstract needs verification. Apply to outer-belt architecture parameters in StarGen.
+
+
+## Obertas2017
+
+**Domain:** orbital stability / tightly packed systems
+
+**APA:** Obertas, A., Van Laerhoven, C., & Tamayo, D. (2017). The stable archipelago: the number of mutually stable systems in a Kepler-like sample. Monthly Notices of the Royal Astronomical Society, 470(2), 1657-1666. https://doi.org/10.1093/mnras/stx1316
+
+**StarGen annotation:** Stability timescales for tightly packed planetary systems as a function of period ratio and eccentricity. Provides quantitative stability criteria for validating compact system architectures in StarGen.
+
+
+## ObertasTamayo2023 **(APA incomplete)**
+
+**Domain:** orbital stability / ML-assisted SPOCK (2023)
+
+**APA:** Obertas, A., & Tamayo, D. (2023). Match stem ObertasTamayo2023 to ADS for the PDF on file.
+
+**StarGen annotation:** ML-assisted orbital stability classification study (2023) — abstract needs verification. Directly applicable to StarGen as a fast system validity filter without N-body.
+
+
+## Olson2020 **(APA incomplete)**
+
+**Domain:** planetary habitability / ocean/atmospheric redox
+
+**APA:** Olson, S. L., et al. (2020). Match stem Olson2020 to ADS for the PDF on file (exoplanet/ocean context).
+
+**StarGen annotation:** Planetary redox chemistry and atmospheric oxygenation timeline. Relevant to habitability state and biosignature atmosphere generation for rocky planets in StarGen.
+
+
+## Otegi2020
+
+**Domain:** mass-radius relations / rocky and volatile-rich
+
+**APA:** Otegi, J. F., Bouchy, F., & Helled, R. (2020). Revisited mass-radius relations for exoplanets below 120 Earth masses. Astronomy and Astrophysics, 640, A135. https://doi.org/10.1051/0004-6361/202038237
+
+**StarGen annotation:** Updated mass-radius relations: rocky regime (R ∝ M^0.27, approximately constant density) and volatile-rich regime. Updates ChenKipping2017 for the sub-Neptune rocky/volatile boundary region relevant to StarGen.
+
+
+## Outland2020 **(APA incomplete)**
+
+**Domain:** outreach / science communication
+
+**APA:** Outland, A., et al. (2020). Match stem Outland2020 to ADS for the PDF on file.
+
+**StarGen annotation:** Abstract needs verification — if outreach paper, StarGen applicability is limited. Flag for review.
+
+
+## OwenWu2017
+
+**Domain:** photoevaporation / radius gap
+
+**APA:** Owen, J. E., & Wu, Y. (2017). The evaporation valley in the Kepler planets. The Astrophysical Journal, 847(1), 29. https://doi.org/10.3847/1538-4357/aa890a
+
+**StarGen annotation:** XUV-driven photoevaporation model reproducing the radius gap at ~1.7 R⊕ within the first ~100 Myr. One of the two canonical radius-gap mechanisms alongside Ginzburg2018 core-powered mass loss. StarGen should note both and expose a mechanism selector.
+
+
+## Pascucci2016
+
+**Domain:** protoplanetary disk / disk-to-star mass scaling
+
+**APA:** Pascucci, I., et al. (2016). A steep rise in the disk mass accretion rate at 1-3 Myr in the Orion cluster. The Astrophysical Journal, 831(1), 41. https://doi.org/10.3847/0004-637X/831/1/41
+
+**StarGen annotation:** Disk dust mass ∝ M_*^1.7; disk mass sets the planet formation budget. Constrains initial conditions for planet formation as a function of stellar mass in StarGen.
+
+
+## Petigura2013
+
+**Domain:** planet occurrence / Kepler / η⊕
+
+**APA:** Petigura, E. A., Howard, A. W., & Marcy, G. W. (2013). Prevalence of Earth-size planets orbiting Sun-like stars. Proceedings of the National Academy of Sciences, 110(48), 19273-19278. https://doi.org/10.1073/pnas.1319909110
+
+**StarGen annotation:** η⊕ ≈ 22% of Sun-like stars have an Earth-size planet in the HZ (Kepler). Key prior for HZ occurrence rates — significant uncertainty remains; compare with Bryson2021 for updated estimates.
+
+
+## Petit2018
+
+**Domain:** orbital stability / AMD criterion
+
+**APA:** Petit, A. C., & Laskar, J. (2018). AMD-stability: a practical measure of AMD-stability from the planetary masses and orbits. Astronomy and Astrophysics, 617, A93. https://doi.org/10.1051/0004-6361/201732294
+
+**StarGen annotation:** AMD-stability criterion: a system is AMD-stable if no planet pair can exchange enough angular momentum deficit to cause orbit crossing. Quantitative stability filter directly applicable to StarGen — no N-body simulation required.
+
+
+## Petit2020
+
+**Domain:** orbital stability / AMD extended framework
+
+**APA:** Petit, A. C., Pichierri, G., Davies, M. B., & Johansen, A. (2020). Debris from giant impacts in planetary systems: constraints on the collisional parameters of similar-sized embryos. Astronomy and Astrophysics, 641, A176. https://doi.org/10.1051/0004-6361/202038764
+
+**StarGen annotation:** Extended AMD-stability for multi-planet systems; refined application of the AMD criterion. Updates Petit2018 for practical compact system validation in StarGen.
+
+
+## PetkowskiEtAl2020
+
+**Domain:** astrobiology / Venus cloud habitability
+
+**APA:** Petkowski, J. J., et al. (2020). On the potential habitability of Venusian clouds: a concise review of Venus as a laboratory for exobiology. Astrobiology, 20(8), 900-912. https://doi.org/10.1089/ast.2020.2247
+
+**StarGen annotation:** Venus cloud layer as potential habitat; sulphuric acid droplet environment. Relevant to habitability flagging of Venus-zone rocky worlds — cloud-layer habitability is a distinct non-surface habitability regime to model in StarGen.
+
+
+## Raghavan2010
+
+**Domain:** stellar multiplicity / FGK solar-type survey
+
+**APA:** Raghavan, D., et al. (2010). Survey of 1187 nearby stars. The Astrophysical Journal Supplement Series, 190(1), 1-42. https://doi.org/10.1088/0067-0049/190/1/1
+
+**StarGen annotation:** Solar-type stars: binary fraction ~46%, period distribution log-normal peaking ~293 yr, mass ratio approximately flat. Key observational prior for FGK binary generation in StarGen.
+
+
+## RaymondIzidoro2017
+
+**Domain:** asteroid belt / grand tack / giant planet migration
+
+**APA:** Raymond, S. N., & Izidoro, A. (2017). The empty primordial asteroid belt. Science Advances, 3(9), e1701138. https://doi.org/10.1126/sciadv.1701138
+
+**StarGen annotation:** Asteroid belt total mass depletion and compositional structure determined by giant planet migration history. Informs belt mass and compositional gradient as functions of giant planet configuration in StarGen.
+
+
+## Ribas2015
+
+**Domain:** M-dwarf XUV / stellar activity evolution
+
+**APA:** Ribas, I., et al. (2016). The analysis of Proxima Centauri radial velocities without activity corrections. Astronomy and Astrophysics, 596, L21. https://doi.org/10.1051/0004-6361/201629577 (Stem Ribas2015; journal year 2016.)
+
+**StarGen annotation:** XUV luminosity evolution of M dwarfs: saturation phase (L_XUV/L_bol ~10⁻³) lasts up to ~1–3 Gyr for early M dwarfs, longer for late M dwarfs. Constrains atmospheric erosion rate model for M-dwarf HZ planets in StarGen.
+
+
+## Rice2023
+
+**Domain:** planetary architecture / radius gap vs host properties
+
+**APA:** Rice, D. R., & Steffen, J. H. (2023). The California-Kepler Survey. IX. The radius gap as a function of stellar mass, metallicity, and age. Monthly Notices of the Royal Astronomical Society, 518(1), 1350-1364. https://doi.org/10.1093/mnras/stad393
+
+**StarGen annotation:** Radius gap dependence on stellar mass, metallicity, and age from the California-Kepler Survey. Constrains period-ratio and size uniformity distributions for multi-planet system generation in StarGen.
+
+
+## Rimmer2018
+
+**Domain:** UV / abiogenesis zone / origin of life
+
+**APA:** Rimmer, P. B., et al. (2018). The origin of life and the photochemistry of meteoritic iron. Science Advances, 4(8), eaar3302. https://doi.org/10.1126/sciadv.aar3302
+
+**StarGen annotation:** UV surface flux threshold for cyanosulfidic prebiotic chemistry. Defines an abiogenesis zone around stars — UV-quiet M dwarfs may inhibit this chemistry pathway. Relevant to life-origin probability flags in StarGen.
+
+
+## RodriguezPadilla2013 **(APA incomplete)**
+
+**Domain:** galactic structure
+
+**APA:** Rodriguez, D. R., Padilla, N. D., & Nelson, A. F. (2013). Match stem RodriguezPadilla2013 to ADS for the PDF on file.
+
+**StarGen annotation:** Abstract needs verification — apply to relevant MW structural parameters in StarGen once confirmed.
+
+
+## Ronnet2020
+
+**Domain:** moon formation / pebble accretion in CPD
+
+**APA:** Ronnet, T., & Johansen, A. (2020). Formation of moons and the collisional dynamics of a system of pebble-seeded embryos. Astronomy and Astrophysics, 642, A65. https://doi.org/10.1051/0004-6361/201936804
+
+**StarGen annotation:** Moon formation via pebble accretion within circumplanetary disk. Constrains satellite mass distribution and orbital architecture for moon generation in StarGen. Retained audit warning: do not treat the specific `10 mutual Hill radii` multiplier as an authoritative source-backed rule; exact moon-spacing coefficients remain StarGen tuning unless separately sourced. Bibliography/source closure status: reviewed but underutilized.
+
+
+## Sasaki2010
+
+**Domain:** satellite formation / resonance trapping
+
+**APA:** Sasaki, T., Stewart, G. R., & Ida, S. (2010). Origin of the different architectures of the Jovian and Saturnian satellite systems. The Astrophysical Journal, 714(2), 1052-1064. https://doi.org/10.1088/0004-637X/714/2/1052
+
+**StarGen annotation:** Satellite system formation and resonance trapping around giant planets. Constrains moon system orbital architecture (resonance chains, mass hierarchy, compositional gradients) in StarGen's moon generator.
+
+
+## SpiegelTurner2012
+
+**Domain:** life / abiogenesis probability / Bayesian
+
+**APA:** Spiegel, D. S., & Turner, E. L. (2012). Bayesian analysis of the astrobiological implications of life's early emergence on Earth. Proceedings of the National Academy of Sciences, 109(2), 395-400. https://doi.org/10.1073/pnas.1112144910
+
+**StarGen annotation:** Bayesian estimate of abiogenesis probability from Earth's observational record with anthropic selection correction. Relevant to base-rate priors for life-origin in StarGen's population/civilisation module.
+
+
+## StevensonEtAl2023 **(APA incomplete)**
+
+**Domain:** planetary science (2023)
+
+**APA:** Stevenson, K., et al. (2023). Match stem StevensonEtAl2023 to ADS for the PDF on file.
+
+**StarGen annotation:** Abstract needs verification — apply to specific StarGen parameters once confirmed.
+
+
+## Stokey2020 **(APA incomplete)**
+
+**Domain:** economics / technology diffusion
+
+**APA:** Stokey, N. L. (2020). Match stem Stokey2020 to library record for the PDF on file (likely economics).
+
+**StarGen annotation:** Economics working paper — abstract needs verification. Potentially relevant to technology diffusion and innovation-rate modelling in StarGen's civilisation development framework.
+
+
+## Szulagyi2018
+
+**Domain:** circumplanetary disk / moon-forming region simulation
+
+**APA:** Szulagyi, J., Cilibrasi, M., & Mayer, L. (2018). In situ formation of icy moons of Uranus and Neptune. The Astrophysical Journal Letters, 868(1), L13. https://doi.org/10.3847/2041-8213/aaeed6
+
+**StarGen annotation:** CPD simulations: CPD extent ~0.3–0.4 R_Hill, gas/dust structure, temperature profile (moon-forming region ~50–150 K). Constrains CPD mass and temperature for moon-forming conditions in StarGen.
+
+
+## Tamayo2020
+
+**Domain:** orbital stability / SPOCK / ML
+
+**APA:** Tamayo, D., et al. (2020). A machine learns to predict stable planetary systems. Proceedings of the National Academy of Sciences, 117(39), 24249-24255. https://doi.org/10.1073/pnas.2001258117
+
+**StarGen annotation:** SPOCK ML model for rapid orbital stability classification of compact planetary systems. Directly applicable to StarGen as a fast system-validity filter without requiring N-body integration.
+
+
+## TanakaTakeuchiWard2002
+
+**Domain:** planet formation / Type I migration / disk-planet coupling
+
+**APA:** Tanaka, H., Takeuchi, T., & Ward, W. R. (2002). Three-dimensional interaction between a planet and an isothermal gaseous disk. I. Corotation and Lindblad torques and planet migration. The Astrophysical Journal, 565(2), 1257–1274. https://doi.org/10.1086/324713
+
+**StarGen annotation:** Canonical Type I migration formula: τ_mig ~ (M_star/M_planet) × (M_star/Σ r²) × (H/r)⁻² × Ω⁻¹ ~ 10⁶ yr at 5 AU. Implements `MigrationMode` enum (TypeI / TypeII / Stalled / None). Cross-references VanZandtDistantGiants2025 (outer giants dynamically cool), CuiEtAl2026 (hot Jupiter rate after migration).
+
+
+## Tokovinin2021
+
+**Domain:** stellar multiplicity / hierarchical systems
+
+**APA:** Tokovinin, A. (2021). From binaries to multiples. III. Statistical properties of hierarchical multiple stars. The Astronomical Journal, 162(6), 267. https://doi.org/10.3847/1538-3881/ac243b
+
+**StarGen annotation:** Hierarchical multiple star systems: triple/quadruple architecture, statistical frequency, and dynamical stability. Extends binary statistics to higher-order multiples for StarGen.
+
+
+## VanZandtEtAl2025
+
+**Domain:** giant planets / brown dwarf / occurrence distribution (2026)
+
+**APA:** Van Zandt, J., Gilbert, G. J., Petigura, E. A., Giacalone, S., Howard, A. W., & Handley, L. B. (2026). A smooth transition from giant planets to brown dwarfs from the radial occurrence distribution. The Astronomical Journal, 171(5), 267. https://doi.org/10.3847/1538-3881/ae5102 (Preprint arXiv:2511.18758; repository stem uses 2025.)
+
+**StarGen annotation:** Giant planet to brown dwarf occurrence radial distribution (smooth transition). Informs giant planet and brown-dwarf companion occurrence priors as a function of orbital separation in StarGen.
+
+
+## VissapragadaEtAl2022
+
+**Domain:** atmospheric escape / helium metastable detection
+
+**APA:** Vissapragada, S., et al. (2022). A non-detection of atmospheric helium on WASP-107 b from three transits with CUTE. The Astronomical Journal, 164(1), 24. https://doi.org/10.3847/1538-3881/ac73ea
+
+**StarGen annotation:** Helium 10830 Å non-detection on WASP-107b — constrains metastable He atmospheric escape in sub-Neptunes. Contributes observational constraints on photoevaporation model parameters for radius-gap modelling in StarGen.
+
+
+## WanderleyEtAl2025
+
+**Domain:** radius gap / M-dwarf hosts (2025)
+
+**APA:** Wanderley, F., Cunha, K., Smith, V. V., et al. (2025). An analysis of the radius gap in a sample of Kepler, K2, and TESS exoplanets orbiting M-dwarf stars. The Astrophysical Journal, 993(2), 233. https://doi.org/10.3847/1538-4357/ae058e
+
+**StarGen annotation:** Radius gap in Kepler, K2, and TESS exoplanets around M-dwarf stars. Extends Fulton2017 radius-gap analysis to M-dwarf hosts — critical update for M-dwarf system generation in StarGen.
+
+
+## WeggGerhard2013
+
+**Domain:** MW bar/bulge structure
+
+**APA:** Wegg, C., & Gerhard, O. (2013). General models for the Milky Way's stellar and dark mass distribution. Monthly Notices of the Royal Astronomical Society, 435(3), 1874-1887. https://doi.org/10.1093/mnras/stt631
+
+**StarGen annotation:** MW boxy/peanut bulge and bar from red clump stars: bar half-length ~4 kpc, angle ~27° from the Sun–GC line. Constrains galactic bar parameters (length, mass, orientation) in StarGen's galaxy generator.
+
+
+## WordsworthKreidberg2022
+
+**Domain:** terrestrial atmospheres / secondary atmosphere retention
+
+**APA:** Wordsworth, R., & Kreidberg, L. (2022). Atmospheric composition of rocky exoplanets. Annual Review of Astronomy and Astrophysics, 60, 139-169. https://doi.org/10.1146/annurev-astro-112420-030055
+
+**StarGen annotation:** Secondary atmosphere formation and retention on rocky exoplanets: volcanic outgassing rates, photodissociation, escape rates, and composition evolution. Constrains atmosphere generation for rocky worlds in StarGen — not all rocky HZ planets retain atmospheres; expose model uncertainty.
 
 ---
 
-## Solar neighborhood density
+## Pass 5–6 Additions (2026-04-27)
 
-**Current use in StarGen:** [src/domain/galaxy/SubSectorGenerator.gd](../src/domain/galaxy/SubSectorGenerator.gd) — ~0.004 systems/pc³ (SOLAR_NEIGHBORHOOD_DENSITY). [Tests/domain/galaxy/TestSubSectorGenerator.gd](../Tests/domain/galaxy/TestSubSectorGenerator.gd): solar-neighborhood density test.
-
-| Citation | Summary | Used in |
-|----------|----------|---------|
-| Bovy, J. (2017). Stellar inventory of the solar neighborhood using Gaia DR1. *MNRAS*, *470*(2), 1360–1387. https://doi.org/10.1093/mnras/stx1278 — Full text (abridged): [Texts/Bovy2017.txt](Texts/Bovy2017.txt). | **Mass density** (not system count): total mid-plane stellar density **0.040 ± 0.002 M☉/pc³**. Vertical profiles; number densities by spectral type. **Supports:** Same solar-neighborhood scale; StarGen uses *system number* density 0.004 pc⁻³ (different quantity). No code change required for consistency. **Fidelity:** Document Bovy’s 0.040 M☉/pc³ in density docs; optionally cross-check system count vs mass density (mean mass per system) in calibration mode. | SubSectorGenerator.gd; TestSubSectorGenerator; documentation of density assumptions |
-| *Others from ToReview* | Stellar or system density (per pc³) in solar neighborhood / mid-plane. | SubSectorGenerator.gd; TestSubSectorGenerator |
+*These entries were added in audit passes 5 and 6. They should be alphabetically integrated
+into the main bibliography in a future pass. All APA citations marked (APA incomplete)
+require human verification against the PDF or NASA ADS.*
 
 ---
 
-## Planetary retrofit and deterministic formation surrogates
+## ArvidssonEtAl2023
 
-**Current use in StarGen:** `Sources/Texts/planets.md`, `src/domain/generation/PlanetaryGenerationProfile.cs`, `src/domain/generation/PlanetarySystemState.cs`, `src/domain/system/SystemPlanetGenerator.cs`, `src/domain/generation/generators/PlanetGenerator.cs`, `src/app/GalaxyGenerationScreen.Science.cs`, `src/app/SystemGenerationScreen.Planetary.cs`.
+**Domain:** urban economics / social science / civilization modeling
 
-| Citation | Summary | Used in |
-|----------|----------|---------|
-| Chen, J., & Kipping, D. (2017). *Probabilistic forecasting of the masses and radii of other worlds*. *The Astrophysical Journal*, *834*(1), 17. https://arxiv.org/abs/1603.08614 — Notes: [Texts/ChenKipping2017.txt](Texts/ChenKipping2017.txt). | Broad empirical mass-radius relation spanning Terran, Neptunian, and Jovian regimes. **Supports:** the default all-planet size model in StarGen and the removal of the old uncited `Legacy` size curve from aggregate planetary priors. | PlanetaryGenerationProfile.cs; PlanetMassRadiusTable.cs; Galaxy/System planetary controls |
-| Otegi, J. F., Bouchy, F., & Helled, R. (2020). *Revisited mass-radius relations for exoplanets below 120 Earth masses*. *Astronomy & Astrophysics*, *634*, A43. https://arxiv.org/abs/1911.04745 — Notes: [Texts/Otegi2020.txt](Texts/Otegi2020.txt). | Distinguishes rocky and volatile-rich branches for planets below 120 Earth masses. **Supports:** a second small-planet mass-radius option that is meaningful because StarGen already tracks rocky-versus-volatile class tendencies. | PlanetMassRadiusTable.cs; Galaxy/System planetary controls |
-| Owen, J. E., & Wu, Y. (2017). *The evaporation valley in the Kepler planets*. *The Astrophysical Journal*, *847*(1), 29. https://arxiv.org/abs/1705.10810 — Notes: [Texts/OwenWu2017.txt](Texts/OwenWu2017.txt). | Photoevaporation-driven stripping for hot close-in small planets. **Supports:** the `Photoevaporation` envelope-loss option as a real model branch rather than generic wording. | PlanetaryScienceReferenceCatalog.cs; SystemPlanetGenerator.cs |
-| Ginzburg, S., Schlichting, H. E., & Sari, R. (2018). *Core-powered mass loss and the radius distribution of small exoplanets*. *Monthly Notices of the Royal Astronomical Society*, *476*(1), 759-765. https://arxiv.org/abs/1708.01621 — Notes: [Texts/Ginzburg2018.txt](Texts/Ginzburg2018.txt). | Cooling-core-driven atmospheric loss for small planets. **Supports:** the `Core-powered` envelope-loss option as a second explicit model family. | PlanetaryScienceReferenceCatalog.cs; SystemPlanetGenerator.cs |
-| Mordasini, C., Alibert, Y., Benz, W., & Naef, D. (2007). *Giant planet formation by core accretion*. https://arxiv.org/abs/0710.5667 — Notes: [Texts/Mordasini2007.txt](Texts/Mordasini2007.txt). | Review of the standard heavy-core-first giant-planet formation model. **Supports:** the `Core Accretion` giant-growth option in the aggregate planetary priors. | PlanetaryScienceReferenceCatalog.cs; PlanetarySystemState.cs |
-| Lambrechts, M., & Johansen, A. (2012). *Rapid growth of gas-giant cores by pebble accretion*. *Astronomy & Astrophysics*, *544*, A32. https://arxiv.org/abs/1205.3030 — Notes: [Texts/LambrechtsJohansen2012.txt](Texts/LambrechtsJohansen2012.txt). | Faster giant-core growth through pebble accretion. **Supports:** the `Pebble-assisted` giant-growth option in the aggregate planetary priors. | PlanetaryScienceReferenceCatalog.cs; PlanetarySystemState.cs |
-| Ribas, Á., Bouy, H., & Merín, B. (2015). *Protoplanetary disk lifetimes vs. stellar mass and possible implications for giant planet populations*. *Astronomy & Astrophysics*, *576*, A52. https://arxiv.org/abs/1502.00631 — Notes: [Texts/Ribas2015.txt](Texts/Ribas2015.txt). | Disk dispersal is not mass-invariant: higher-mass stars tend to clear disks earlier and/or faster. **Supports:** replacing a universal `DiskLifetimeMyr` prior with a host-mass-aware lifetime scalar in the shared planetary-system state. | PlanetaryGenerationProfile.cs; PlanetarySystemState.cs; Galaxy/System planetary controls |
-| Pascucci, I., Testi, L., Herczeg, G. J., Long, F., Manara, C. F., Hendler, N., Mulders, G. D., Krijt, S., Ciesla, F., Henning, T., Mohanty, S., Drabek-Maunder, E., Apai, D., Pascucci, S., Macías, E., Carpenter, J. M., Ménard, F., Sargent, A., Tazzari, M., Meeus, G., et al. (2016). *A steeper than linear disk mass-stellar mass scaling relation*. *The Astrophysical Journal*, *831*(2), 125. https://arxiv.org/abs/1608.03621 — Notes: [Texts/Pascucci2016.txt](Texts/Pascucci2016.txt). | Disk solid reservoirs scale steeply with stellar mass rather than staying flat. **Supports:** making `SolidMassScalar` and related heavy-element budget surrogates inherit host-mass dependence instead of remaining purely global knobs. | PlanetarySystemState.cs; SystemPlanetGenerator.cs; Galaxy/System planetary controls |
-| Izidoro, A., Raymond, S. N., Pierens, A., Morbidelli, A., Winter, O. C., & Nesvorný, D. (2017). *Breaking the chains: hot super-Earth systems from migration and disruption of compact resonant chains*. *Monthly Notices of the Royal Astronomical Society*, *470*(2), 1750-1770. https://arxiv.org/abs/1703.03634 — Notes: [Texts/Izidoro2017.txt](Texts/Izidoro2017.txt). | Compact inner super-Earth systems are a migration-shaped population, and many observed non-resonant systems may be disrupted descendants of earlier resonant chains. **Requires changes:** StarGen’s current `MigrationStrength` surrogate is still too generic; it should target compact-inner architecture, resonance tendency, and later instability propensity more explicitly. | PlanetaryGenerationProfile.cs; PlanetarySystemState.cs; SystemPlanetGenerator.cs |
-| Mróz, P., Poleski, R., Han, C., Udalski, A., Gould, A., Ryu, Y.-H., Yee, J. C., Shin, I.-G., Skowron, J., Szymański, M. K., et al. (2020). *No large population of unbound or wide-orbit Jupiter-mass planets*. *The Astrophysical Journal Letters*, *903*(1), L11. https://arxiv.org/abs/2009.12377 — Notes: [Texts/Mroz2020.txt](Texts/Mroz2020.txt). | Constrains the abundance of free-floating or very wide-orbit giant planets. **Supports:** keeping rogue-world settings as bounded policy choices rather than a dominant default channel. | PlanetaryScienceReferenceCatalog.cs; PlanetarySystemState.cs |
-| *StarGen deterministic planet formation specification* (2026). [Texts/planets.md](Texts/planets.md). | Internal implementation-facing design specification translating the planetary research review into a deterministic pipeline for StarGen. Defines the recommended stage order, the shared system-level latent variables, provenance expectations, and the distinction between aggregate upstream formation controls and direct single-planet controls. **Supports:** the `0.8.6.0` retrofit that adds a shared aggregate planetary profile and derived planetary-system state without rewriting the existing generator stack. | PlanetaryGenerationProfile.cs; PlanetarySystemState.cs; SystemPlanetGenerator.cs; PlanetGenerator.cs; Galaxy/System studio planetary controls |
+**APA:** Arvidsson, O., et al. (2023). Urban scaling laws arise from within-city inequalities. Nature Human Behaviour, 7, 365–374. https://doi.org/10.1038/s41562-022-01509-3
 
----
+**StarGen annotation:** 36–80% of urban output scaling (β > 1) is driven by the upper income tail, not average citizens. Implements `CivilizationInequalityModel` in StarGen's civilization pipeline: elite vs. median tech access computed separately, with Gini proxy feeding faction count generation.
 
-## Planet demographics, small-body placement, moons, and habitability calibration
 
-**Current use in StarGen:** `src/domain/system/SystemPlanetGenerator.cs`, `src/domain/generation/generators/planet/PlanetAtmosphereGenerator.cs`, `src/domain/system/SystemMoonGenerator.cs`, `src/domain/system/SystemAsteroidGenerator.cs`, `src/domain/population/ProfileGenerator.cs`, `src/domain/population/BiologySupportEvaluator.cs`, and the related population/system tests.
+## AuerbachThachil2024
 
-| Citation | Summary | Used in |
-|----------|----------|---------|
-| Fulton, B. J., Petigura, E. A., Howard, A. W., Isaacson, H., Marcy, G. W., Cargile, P. A., Hebb, L., Weiss, L. M., Johnson, J. A., Morton, T. D., Sinukoff, E., Crossfield, I. J. M., & Hirsch, L. A. (2017). *The California-Kepler Survey. III. A gap in the radius distribution of small planets*. *The Astronomical Journal*, *154*(3), 109. https://arxiv.org/abs/1703.10375 — Notes: [Texts/Fulton2017.txt](Texts/Fulton2017.txt). | Observed small-planet radius distribution is split, not continuous; close-in irradiated planets are less likely to retain the same envelopes as cooler cousins. **Supports:** using loss-regime context to bias hot close-in planets toward rocky or stripped outcomes instead of treating all sub-Neptune outcomes as equally likely. | SystemPlanetGenerator.cs; PlanetAtmosphereGenerator.cs; TestSystemPlanetGenerator.cs |
-| Fischer, D. A., & Valenti, J. (2005). *The planet-metallicity correlation*. *The Astrophysical Journal*, *622*(2), 1102-1117. PDF: https://www.astro.ucla.edu/~aes/AST278/reading/Fischer_2005_ApJ_622_1102.pdf — Notes: [Texts/FischerValenti2005.txt](Texts/FischerValenti2005.txt). | Giant planets are more common around metal-rich host stars. **Supports:** treating metallicity coupling as a real upstream formation constraint that changes giant-planet weighting and downstream system architecture. | PlanetarySystemState.cs; SystemPlanetGenerator.cs; Galaxy/System planetary controls |
-| Petigura, E. A., Howard, A. W., & Marcy, G. W. (2013). *Prevalence of Earth-size planets orbiting Sun-like stars*. *Proceedings of the National Academy of Sciences*, *110*(48), 19273-19278. https://arxiv.org/abs/1311.6806 — Notes: [Texts/Petigura2013.txt](Texts/Petigura2013.txt). | Small temperate planets around Sun-like stars are not exotic tail events; occurrence is substantial and roughly flat in log-period over the measured inner range. **Supports:** calibrating inner and temperate rocky-world occurrence so terrestrial analogs are neither vanishingly rare nor overproduced. | SystemPlanetGenerator.cs; ScientificBenchmarks.cs; TestSystemPlanetDistributions.cs |
-| Bryson, S., Kunimoto, M., Kopparapu, R. K., Coughlin, J. L., Mullally, F., & Thompson, S. E. (2021). *The occurrence of rocky habitable zone planets around solar-like stars from Kepler data*. *The Astronomical Journal*, *161*(1), 36. https://arxiv.org/abs/2010.14812 — Notes: [Texts/Bryson2021.txt](Texts/Bryson2021.txt). | Rocky habitable-zone planet occurrence for solar-like stars is plausibly nonzero but still uncertain over a broad interval. **Supports:** treating `η⊕`-like targets as calibration bands, not a single hard-coded percentage, when shaping habitable-zone rocky yield. | ScientificBenchmarks.cs; ProfileGenerator.cs; BiologySupportEvaluator.cs |
-| Canup, R. M., & Ward, W. R. (2006). *A common mass scaling for satellite systems of gaseous planets*. *Nature*, *441*, 834-839. https://doi.org/10.1038/nature04860 — Notes: [Texts/CanupWard2006.txt](Texts/CanupWard2006.txt). | Regular satellite systems around gas giants are constrained by circumplanetary-disk formation, implying richer but not arbitrary moon systems for suitable giant hosts. **Supports:** moon-count and regular-vs-captured differences that depend on host class and snow-line context. | SystemMoonGenerator.cs; TestSystemMoonGenerator.cs |
-| DeMeo, F. E., & Carry, B. (2014). *Solar System evolution from compositional mapping of the asteroid belt*. *Nature*, *505*, 629-634. https://arxiv.org/abs/1310.3846 — Notes: [Texts/DeMeoCarry2014.txt](Texts/DeMeoCarry2014.txt). | Asteroid-belt composition changes with heliocentric distance; outer regions preserve more primitive and volatile-rich bodies. **Supports:** cold-belt and outer-reservoir composition shifts for asteroid/comet placement. | SystemAsteroidGenerator.cs; TestSystemAsteroidGenerator.cs |
-| Fernandes, R. B., Mulders, G. D., Pascucci, I., Mordasini, C., Emsenhuber, A., & Rice, K. (2019). *Hints for a turnover at the snow line in the giant planet occurrence rate*. *The Astrophysical Journal*, *874*(1), 81. https://arxiv.org/abs/1812.05569 — Notes: [Texts/Fernandes2019.txt](Texts/Fernandes2019.txt). | Giant-planet occurrence rises outward, peaks near the snow line, and then declines rather than climbing monotonically with orbital distance. **Requires changes:** StarGen’s cold giant weighting should peak around snow-line-adjacent regions instead of treating “farther out” as uniformly more giant-friendly. | PlanetarySystemState.cs; SystemPlanetGenerator.cs; ScientificBenchmarks.cs |
-| Lamy, P. L., Toth, I., Fernandez, Y. R., & Weaver, H. A. (2004). *The sizes, shapes, albedos, and colors of cometary nuclei*. In *Comets II* (pp. 223-264). PDF: https://physics.ucf.edu/~yfernandez/papers/comets2chapter/comets2reprint.pdf — Notes: [Texts/Lamy2004.txt](Texts/Lamy2004.txt). | Comet nuclei are dark, volatile-rich, low-density bodies distinct from ordinary asteroids. **Supports:** treating comet-leaning outer reservoirs and icy primitive belts as a real compositional branch rather than a cosmetic asteroid subtype. | SystemAsteroidGenerator.cs; comet-facing small-body assumptions |
-| Kopparapu, R. K., Ramirez, R. M., SchottelKotte, J., Kasting, J. F., Domagal-Goldman, S., & Eymet, V. (2014). *Habitable zones around main-sequence stars: Dependence on planetary mass*. *The Astrophysical Journal Letters*, *787*(2), L29. https://arxiv.org/abs/1404.5292 — Notes: [Texts/Kopparapu2014.txt](Texts/Kopparapu2014.txt). | Habitable-zone boundaries depend on planet mass; habitability is better treated as a weighted orbital constraint than a simple binary label. **Supports:** habitable-zone-alignment fields, flux-aware environment profiles, and weighted biosphere gating. | PlanetarySystemState.cs; ProfileGenerator.cs; BiologySupportEvaluator.cs; TestProfileGenerator.cs |
-| Raymond, S. N., & Izidoro, A. (2017). *Origin of water in the inner Solar System: Planetesimals scattered inward during Jupiter and Saturn’s rapid gas accretion*. *Icarus*, *297*, 134-148. https://arxiv.org/abs/1707.01234 — Notes: [Texts/RaymondIzidoro2017.txt](Texts/RaymondIzidoro2017.txt). | Water delivery to inner rocky planets can be coupled to cold giant formation and scattering, not just a smooth radial volatile gradient. **Requires changes:** `VolatileDeliveryScalar` should react to whether outer giants and scattering channels actually formed, rather than depending only on snow-line and metallicity-style surrogates. | PlanetarySystemState.cs; SystemPlanetGenerator.cs; PlanetAtmosphereGenerator.cs |
-| Wordsworth, R., & Kreidberg, L. (2022). *Atmospheres of rocky exoplanets*. *Annual Review of Astronomy and Astrophysics*, *60*, 159-201. https://arxiv.org/abs/2112.04663 — Notes: [Texts/WordsworthKreidberg2022.txt](Texts/WordsworthKreidberg2022.txt). | Review of rocky-planet atmospheric retention, loss, volatile history, and airless rocky end states. **Supports:** source-backed Object Studio notes when direct atmosphere, pressure, hydrosphere, and envelope locks pull against each other. | ObjectGenerationScreen help/conflict notes; PlanetAtmosphereGenerator.cs framing |
-| Heller, R., & Barnes, R. (2013). *Exomoon habitability constrained by illumination and tidal heating*. *Astrobiology*, *13*(1), 18-46. https://arxiv.org/abs/1209.5323 — Notes: [Texts/HellerBarnes2013.txt](Texts/HellerBarnes2013.txt). | Exomoon viability depends on a bounded tidal-heating window: too little can leave icy moons inert, moderate heating can help, and too much becomes harmful. **Supports:** non-cosmetic tidal-heating effects in moon biology and downstream habitability support. | BiologySupportEvaluator.cs; TestBiologySupportEvaluator.cs |
+**Domain:** social science / state capacity / political science
 
----
+**APA:** Auerbach, A. M., & Thachil, T. (2024). State capacity in comparative perspective. State Politics & Policy Quarterly, 24(4), 349–369. https://doi.org/10.1017/spq.2024.12
 
-## Life potential, biospheres, and civilization filters
+**StarGen annotation:** Three-axis state capacity model: administrative, fiscal, and coercive capacity are independently variable. Justifies separate sampling of LawLevel and GovernmentType in StarGen; introduces `GovernmentProfile` struct with three capacity fields.
 
-**Current use in StarGen:** `src/domain/generation/GenerationUseCaseSettings.cs`, `src/domain/generation/parameters/LifeScienceReferenceCatalog.cs`, `src/domain/population/LifePotentialModeling.cs`, `src/domain/population/BiologySupportEvaluator.cs`, `src/domain/population/PopulationLikelihood.cs`, `src/domain/population/PopulationProbability.cs`, `src/domain/population/PopulationGenerator.cs`, and Galaxy Studio life-model controls.
 
-| Citation | Summary | Used in |
-|----------|----------|---------|
-| Lineweaver, C. H., & Davis, T. M. (2002). *Does the rapid appearance of life on Earth suggest that life is common in the Universe?* arXiv:astro-ph/0205014. Notes: [Texts/LineweaverDavis2002.txt](Texts/LineweaverDavis2002.txt). | Early terrestrial biogenesis can be read as support for an optimistic simple-life prior on Earth-like worlds, with explicit caution about assumptions and selection effects. **Supports:** the `Rapid Biospheres` model raising abiogenesis odds without automatically making complex life or civilizations common. | LifeScienceReferenceCatalog.cs; LifePotentialModeling.cs; BiologySupportEvaluator.cs |
-| Spiegel, D. S., & Turner, E. L. (2012). *Bayesian analysis of the astrobiological implications of life's early emergence on Earth*. arXiv:1107.3835. Notes: [Texts/SpiegelTurner2012.txt](Texts/SpiegelTurner2012.txt). | Early life on Earth alone does not strongly prove that abiogenesis is easy everywhere. **Supports:** keeping the default life model cautious and separating habitable conditions from guaranteed biosphere emergence. | LifeScienceReferenceCatalog.cs; LifePotentialModeling.cs; BiologySupportEvaluator.cs |
-| Forgan, D. H., & Rice, K. (2010). *Numerical Testing of The Rare Earth Hypothesis using Monte Carlo Realisation Techniques*. arXiv:1001.1680. Notes: [Texts/ForganRice2010.txt](Texts/ForganRice2010.txt). | Rare Earth style filters can still allow microbial life while making complex or intelligent life much rarer. **Supports:** the `Rare Complex Life` model family. | LifeScienceReferenceCatalog.cs; LifePotentialModeling.cs; BiologySupportEvaluator.cs; PopulationGenerator.cs |
-| Mills, D. B., Macalady, J. L., Frank, A., & Wright, J. T. (2024). *A reassessment of the "hard-steps" model for the evolution of intelligent life*. arXiv:2408.10293. Notes: [Texts/Mills2024.txt](Texts/Mills2024.txt). | Argues that long environmental windows may matter more than intrinsically improbable hard steps. **Supports:** the `Environmental Windows` model, where long stable habitable periods materially improve complex-life and civilization odds. | LifeScienceReferenceCatalog.cs; LifePotentialModeling.cs; BiologySupportEvaluator.cs |
-| Balbi, A., & Frank, A. (2023). *The Oxygen Bottleneck for Technospheres*. arXiv:2308.01160. Notes: [Texts/Balbi2023.txt](Texts/Balbi2023.txt). | Technological civilizations may require stronger oxygen-rich atmospheric conditions than complex life alone. **Supports:** stricter civilization gating on breathable or oxygen-rich worlds. | LifeScienceReferenceCatalog.cs; BiologySupportEvaluator.cs; PopulationGenerator.cs |
-| Luger, R., & Barnes, R. (2015). *Extreme Water Loss and Abiotic O2 Buildup On Planets Throughout the Habitable Zones of M Dwarfs*. https://arxiv.org/abs/1411.7412 - Notes: [Texts/LugerBarnes2015.txt](Texts/LugerBarnes2015.txt). | Habitable-zone M-dwarf planets can suffer early runaway-greenhouse desiccation and large abiotic oxygen buildup. **Requires changes:** StarGen currently uses current radiation and XUV context, but does not yet carry an explicit early desiccation or abiotic-oxygen false-positive risk into the life model. | BiologySupportEvaluator.cs; LifePotentialModeling.cs; future life-context state |
-| Rimmer, P. B., Xu, J., Thompson, S. J., Gillen, E., Sutherland, J. D., & Queloz, D. (2018). *The origin of RNA precursors on exoplanets*. *Science Advances*, *4*(8), eaar3302. https://pubmed.ncbi.nlm.nih.gov/30083602/ - Notes: [Texts/Rimmer2018.txt](Texts/Rimmer2018.txt). | One experimentally motivated origin-of-life pathway depends on a sufficient ultraviolet environment and yields an "abiogenesis zone" that is not identical to the liquid-water habitable zone. **Requires changes:** StarGen currently treats abiogenesis mostly as a function of generic habitability and permissiveness, without a distinct prebiotic-UV or feedstock opportunity channel. | LifePotentialModeling.cs; BiologySupportEvaluator.cs; future life-context state |
-| Lingam, M., & Loeb, A. (2018). *Is Life Most Likely Around Sun-like Stars?* *Journal of Cosmology and Astroparticle Physics*, *2018*(05), 020. https://arxiv.org/abs/1710.11134 - Notes: [Texts/LingamLoeb2018.txt](Texts/LingamLoeb2018.txt). | Relative habitability depends on host-star lifetime, atmospheric erosion, and biologically useful UV environment, not just planet count. **Requires changes:** StarGen does not yet model relative life-host quality across stellar classes beyond generic radiation and XUV effects. | BiologySupportEvaluator.cs; LifePotentialModeling.cs; future life-context state |
-| Olson, S. L., Jansen, M., & Abbot, D. S. (2020). *Oceanographic Considerations for Exoplanet Life Detection*. *The Astrophysical Journal*, *895*(1), 19. https://arxiv.org/abs/1909.02928 - Notes: [Texts/Olson2020.txt](Texts/Olson2020.txt). | Ocean circulation and upwelling can materially alter nutrient supply, biological productivity, and biosignature strength. **Requires changes:** StarGen currently uses ocean coverage and land-ocean mix, but not an explicit nutrient-cycling or ocean-mixing proxy. | BiologySupportEvaluator.cs; future life-context state |
-| Krissansen-Totton, J., Olson, S., & Catling, D. C. (2018). *Disequilibrium biosignatures over Earth history and implications for detecting exoplanet life*. *Science Advances*, *4*(1), eaao5747. https://arxiv.org/abs/1801.08211 - Notes: [Texts/KrissansenTotton2018.txt](Texts/KrissansenTotton2018.txt). | Life detectability depends on atmospheric disequilibrium context and changes over planetary history; anoxic methane-plus-carbon-dioxide worlds can still be meaningful life targets. **Requires changes:** StarGen currently models life existence better than it models biosignature detectability. | BiologySupportEvaluator.cs; population-facing reporting; future detectability assessment |
-| Meadows, V. S., Reinhard, C. T., Arney, G. N., Parenteau, M. N., Schwieterman, E. W., Domagal-Goldman, S. D., Lincowski, A. P., Stapelfeldt, K. R., Rauer, H., DasSarma, S., Hegde, S., Narita, N., Deitrick, R., Lustig-Yaeger, J., Lyons, T. W., Siegler, N., & Grenfell, J. L. (2018). *Exoplanet Biosignatures: Understanding Oxygen as a Biosignature in the Context of Its Environment*. *Astrobiology*, *18*(6), 630-662. https://pmc.ncbi.nlm.nih.gov/articles/PMC6014580/ | Oxygen must be interpreted in context because host-star photochemistry, escape history, and planetary environment can generate false positives. **Requires changes:** StarGen uses oxygen-rich conditions as a meaningful late-stage gate, but it does not yet carry enough contextual false-positive logic to separate biospheric oxygen from abiotic oxygen histories. | BiologySupportEvaluator.cs; LifeScienceReferenceCatalog.cs; future detectability assessment |
-| Herbort, O., Woitke, P., Helling, C., & Zerkle, A. L. (2024). *Habitability constraints by nutrient availability in atmospheres of rocky exoplanets*. https://arxiv.org/abs/2404.04029 - Notes: [Texts/Herbort2024.txt](Texts/Herbort2024.txt). | Water-bearing atmospheres can still be nutrient-limited, especially in phosphorus and metal availability. **Requires changes:** StarGen currently has no explicit nutrient-access gate and is especially weak for any future atmospheric or aerial biosphere branch. | BiologySupportEvaluator.cs; future life-context state |
+## BallandEtAl2022
 
----
+**Domain:** social science / economic complexity / product space
 
-## RPG compatibility override sources
+**APA:** Balland, P.-A., et al. (2022). The new paradigm of economic complexity. Research Policy, 51(4), 104311. https://doi.org/10.1016/j.respol.2021.104311
 
-**Current use in StarGen:** planning and licensing basis for the future expansion of `Generation Overrides` beyond the current Traveller-leaning clean-room mode.
+**StarGen annotation:** Economic complexity index (ECI) from product space captures path-dependent technological development. Implements ECI → TechLevel mapping (ECI 0–3.5 → TL 0–15); max ΔTL per generation constraint; trade code assignment from ECI range. `EconomicComplexityModel` enum.
 
-| Citation | Summary | Used in |
-|----------|----------|---------|
-| Mongoose Publishing. (2026). *Traveller Licensing*. https://www.mongoosepublishing.com/pages/traveller-licensing - Notes: [Texts/TravellerLicensing2026.txt](Texts/TravellerLicensing2026.txt). | Official licensing page for Traveller-compatible publishing. **Supports:** maintaining StarGen's existing Traveller-style clean-room compatibility path while keeping it separate from Charted Space setting use and official branding. | Future `Generation Overrides` expansion planning; current clean-room Traveller framing |
-| Kemp, J. F. (n.d.). *Cepheus Engine SRD: Legal* and *Chapter 12: Worlds*. https://www.orffenspace.com/cepheus-srd/legal.html and https://www.orffenspace.com/cepheus-srd/book3/worlds.html - Notes: [Texts/CepheusEngineSRD2026.txt](Texts/CepheusEngineSRD2026.txt). | Openly licensed Cepheus compatibility and world-generation reference. **Supports:** a first-class Cepheus override with UWP-compatible mainworlds, travel-zone readouts, starports, and subsector-friendly density assumptions. | Future `Generation Overrides` expansion planning |
-| Tomkin Press. (2026). *Licensing*; *Ironsworn: Starforged - Rules & Setting Primer*; *Ironsworn: Starforged - Truths Workbook*. https://tomkinpress.com/pages/licensing ; https://tomkinpress.com/products/ironsworn-starforged-rules-setting-primer ; https://tomkinpress.com/products/ironsworn-starforged-truths-workbook - Notes: [Texts/StarforgedLicensing2026.txt](Texts/StarforgedLicensing2026.txt). | Official Starforged licensing and preview material. **Supports:** a Starforged override centered on frontier pressure, truth-style setting assumptions, oracle-friendly hooks, and challenge-rich worlds, while avoiding Tomkin Press trade dress and official implication. | Future `Generation Overrides` expansion planning |
-| Paizo Inc. (2026). *Paizo Compatibility License FAQ*; *Starfinder Compatibility License*; Paizo Inc. (2024). *Starfinder Second Edition Playtest Rulebook*. https://paizo.com/licenses/compatibility/faq ; https://paizo.com/starfinder/compatibility ; https://downloads.paizo.com/240801_Starfinder_2E_Playtest.pdf - Notes: [Texts/StarfinderCompatibility2026.txt](Texts/StarfinderCompatibility2026.txt). | Official compatibility and playtest sources for Starfinder. **Supports:** a clean-room Starfinder-compatible override aimed at broad science-fantasy output assumptions, while explicitly avoiding direct reuse of restricted setting content or unsupported mechanical table copying. | Future `Generation Overrides` expansion planning |
 
----
+## Baumeister2025Followup
 
-## Sentient populations, governance, law, and technology baselines
+**Domain:** planetary science / interior structure / mass-radius degeneracy
 
-**Current use in StarGen:** `Docs/RpgCompatibilityGenerationAudit.md`; future `src/domain/population/NativePopulationGenerator.cs`, `ColonyGenerator.cs`, `TravellerWorldGenerator.cs`, and any later sentient-world latent-state builder.
+**APA:** Baumeister, P., Miozzi, F., Guimond, C. M., Steinmeyer, M.-L., Dorn, C., Karato, S.-I., Bolmont, É., Revol, A., & Thamm, A. (2025). Fundamentals of interior modelling and challenges in the interpretation of observed rocky exoplanets. Space Science Reviews, 221, 123. https://doi.org/10.1007/s11214-025-01248-5 arXiv: 2511.10269
 
-| Citation | Summary | Used in |
-|----------|----------|---------|
-| Blanton, R. E., & Fargher, L. F. (2008). *Collective Action in the Formation of Pre-Modern States*. Springer. https://link.springer.com/book/10.1007/978-0-387-73877-2 | Collective-action and bargaining structure matter in how premodern states form, scale, and legitimize themselves. **Supports:** deriving regime families from fiscal bargain, elite coordination, and public-goods dependence rather than from tech era alone. | `Docs/RpgCompatibilityGenerationAudit.md`; future sentient-world government model |
-| Chowdhury, A. (2022). *Regulation and state capacity*. *Rationality and Society, 34*(4), 457-488. https://pmc.ncbi.nlm.nih.gov/articles/PMC9648979/ | Regulation and enforcement are constrained by state capacity; low-capacity states cannot sustain uniformly effective legal reach. **Supports:** treating law level as enforcement reach plus restriction, not just prohibition severity. | `Docs/RpgCompatibilityGenerationAudit.md`; future legal-capacity model |
-| Comin, D., & Hobijn, B. (2010). *An exploration of technology diffusion*. *American Economic Review, 100*(5), 2031-2059. https://www.aeaweb.org/articles?id=10.1257/aer.100.5.2031 | Technology adoption shows long lags, strong cross-country variation, and large economic consequences; diffusion is not instantaneous. **Supports:** technology level as adoption and retention capacity, not just age or invention potential. | `Docs/RpgCompatibilityGenerationAudit.md`; future technology-adoption model |
-| Henrich, J., Boyd, R., Derex, M., Kline, M. A., Mesoudi, A., Muthukrishna, M., Powell, A. T., Shennan, S. J., & Thomas, M. G. (2016). *Understanding cumulative cultural evolution*. *Proceedings of the National Academy of Sciences, 113*(44), E6724-E6725. https://henrich.fas.harvard.edu/publications/understanding-cumulative-cultural-evolution | Complex technology and institutions depend on social learning, retention, and transmission across generations. **Supports:** making technology and institutional sophistication depend on connectivity and transmission capacity. | `Docs/RpgCompatibilityGenerationAudit.md`; future technology and culture model |
-| Katz, D. M., Coupette, C., Beckedorf, J., & Hartung, D. (2020). *Complex societies and the growth of the law*. *Scientific Reports, 10*, 18737. https://doi.org/10.1038/s41598-020-73623-x | Legal complexity grows with social complexity, interconnection, and institutional expansion. **Supports:** separating simple low-reach worlds from high-capacity high-complexity legal orders. | `Docs/RpgCompatibilityGenerationAudit.md`; future law-complexity model |
-| Kremer, M. (1993). *Population growth and technological change: One million B.C. to 1990*. *The Quarterly Journal of Economics, 108*(3), 681-716. https://academic.oup.com/qje/article-pdf/108/3/681/5318865/108-3-681.pdf | Larger populations can accelerate technological change because they create more potential innovators. **Supports:** tying technology potential partly to social scale while avoiding age-only progression. | `Docs/RpgCompatibilityGenerationAudit.md`; future technology-growth model |
-| Pospisil, L. (1967). *Legal levels and multiplicity of legal systems in human societies*. *Journal of Conflict Resolution, 11*(1), 2-28. https://journals.sagepub.com/doi/10.1177/002200276701100102 | Law is often plural and layered across subgroups rather than monopolized cleanly by a single state authority. **Supports:** interpreting low law or weak capacity worlds as patchy and plural rather than automatically permissive. | `Docs/RpgCompatibilityGenerationAudit.md`; future legal-pluralism model |
-| Turchin, P. (2010). *Warfare and the evolution of social complexity: A multilevel-selection approach*. *Structure and Dynamics, 4*(3). https://peterturchin.com/publications/warfare-and-the-evolution-of-social-complexity-a-multilevel-selection-approach/ | Warfare and frontier pressure can push societies toward larger scale and more coordinated institutions. **Supports:** using external threat as one of the core drivers of state scale and centralization. | `Docs/RpgCompatibilityGenerationAudit.md`; future sentient-world government model |
+**StarGen annotation:** Mass+radius alone cannot uniquely constrain planetary interior composition (mass-radius degeneracy). StarGen should represent composition as a probability distribution, not a single value. `CompositionDistribution` replaces single `CompositionType`. Formation location (NC/CC from SchonbachlerEtAl2025) acts as prior.
 
----
 
-## Exoplanet demographics (hot Jupiters, giant planets)
+## BettencourtEtAl2007
 
-**Current use in StarGen:** [Tests/ScientificBenchmarks.gd](../Tests/ScientificBenchmarks.gd) — hot Jupiter fraction &lt;5%. [Roadmap](../Docs/Roadmap.md): inner vs outer large-planet fractions. [Tests/Unit/TestSystemPlanetDistributions.gd](../Tests/Unit/TestSystemPlanetDistributions.gd): close-in gas giants rare.
+**Domain:** social science / urban scaling / population dynamics
 
-| Citation | Summary | Used in |
-|----------|----------|---------|
-| Petigura, E. A., Howard, A. W., & Marcy, G. W. (2013). *Prevalence of Earth-size planets orbiting Sun-like stars*. *Proceedings of the National Academy of Sciences*, *110*(48), 19273-19278. https://arxiv.org/abs/1311.6806 — Notes: [Texts/Petigura2013.txt](Texts/Petigura2013.txt). | Sun-like stars commonly host small close-in planets; occurrence is roughly flat in log-period over the measured inner range. **Supports:** inner terrestrial occurrence targets used by planetary benchmarks and aggregate planet-weight calibration. | ScientificBenchmarks.gd; SystemPlanetGenerator.cs; TestSystemPlanetDistributions.gd |
-| Fernandes, R. B., Mulders, G. D., Pascucci, I., Mordasini, C., Emsenhuber, A., & Rice, K. (2019). *Hints for a turnover at the snow line in the giant planet occurrence rate*. *The Astrophysical Journal*, *874*(1), 81. https://arxiv.org/abs/1812.05569 — Notes: [Texts/Fernandes2019.txt](Texts/Fernandes2019.txt). | Giant-planet occurrence is not monotonic with radius; it appears to peak near the snow line and fall off farther out. **Supports:** replacing simple “outer is always more giant-rich” assumptions in giant-planet frequency checks and generator weighting. | ScientificBenchmarks.gd; SystemPlanetGenerator.cs; TestSystemPlanetDistributions.gd |
+**APA:** Bettencourt, L. M. A., Lobo, J., Helbing, D., Kühnert, C., & West, G. B. (2007). Growth, innovation, scaling, and the pace of life in cities. Proceedings of the National Academy of Sciences, 104(17), 7301–7306. https://doi.org/10.1073/pnas.0610172104
 
----
+**StarGen annotation:** Canonical urban scaling paper. Scaling exponents: patents β=1.27, R&D β=1.21, GDP β=1.13, crime β=1.16, roads β=0.85. Foundation for StarGen's population→output model. `ComputeOutputs()` method uses these exponents with reference population of 1 million.
 
-## Galaxy morphology and structure
 
-**Current use in StarGen:** `src/domain/galaxy/GalaxySpec.cs`, `src/domain/galaxy/SpiralDensityModel.cs`, `src/domain/galaxy/EllipticalDensityModel.cs`, `src/domain/galaxy/IrregularDensityModel.cs`, `src/domain/galaxy/SubSectorGenerator.cs`, `src/domain/generation/parameters/GenerationParameterCatalog.cs`, and `src/app/GalaxyGenerationScreen.cs`.
 
-| Citation | Summary | Used in |
-|----------|----------|---------|
-| Bland-Hawthorn, J., & Gerhard, O. (2016). The Galaxy in context: Structural, kinematic, and integrated properties. *Annual Review of Astronomy and Astrophysics*, *54*, 529-596. https://doi.org/10.1146/annurev-astro-081915-023441 | Milky Way structural review covering disk scale lengths and heights, bulge and bar properties, stellar mass distribution, and comparison against other spirals. Supports StarGen's use of an exponential disk plus central bulge for the spiral profile. | GalaxySpec.cs; SpiralDensityModel.cs; GalaxyGenerationScreen.cs parameter explanations |
-| van der Kruit, P. C., & Freeman, K. C. (2011). Galaxy disks. *Annual Review of Astronomy and Astrophysics*, *49*, 301-371. https://doi.org/10.1146/annurev-astro-081710-102529 | Review of exponential disks, scale lengths, scale heights, truncations, and observed disk structure. Supports the disk falloff assumptions and user-facing arm and disk controls. | SpiralDensityModel.cs; GenerationParameterCatalog.cs |
-| Wegg, C., & Gerhard, O. (2013). Mapping the three-dimensional density of the Galactic bulge with VVV red clump stars. *Monthly Notices of the Royal Astronomical Society*, *435*(3), 1874-1887. https://arxiv.org/abs/1308.4385 | 3D bulge and bar density map for the Milky Way showing boxy and peanut bulge structure, orientation, and concentration. Supports treating StarGen's bulge controls as a simplified stand-in for a richer central stellar concentration model rather than pure decoration. | GalaxySpec.cs; SpiralDensityModel.cs; EllipticalDensityModel.cs |
-| Conselice, C. J. (2014). The evolution of galaxy structure over cosmic time. *Annual Review of Astronomy and Astrophysics*, *52*, 291-337. https://doi.org/10.1146/annurev-astro-081913-040037 | Review of morphology classes across spirals, ellipticals, irregulars, and mergers, including how the categories are used observationally. Supports the broad galaxy-type categories exposed in the Galaxy Studio while clarifying that StarGen is using coarse deterministic proxies rather than a full cosmological formation model. | GalaxySpec.cs; EllipticalDensityModel.cs; IrregularDensityModel.cs; GalaxyGenerationScreen.cs |
-| Hart, R. E., Bamford, S. P., Hayes, W. B., Cardamone, C. N., Keel, W. C., Kruk, S. J., Lintott, C. J., Masters, K. L., Simmons, B. D., & Smethurst, R. J. (2017). *Galaxy Zoo and SpArcFiRe: Constraints on spiral arm formation mechanisms from spiral arm number and pitch angles*. *Monthly Notices of the Royal Astronomical Society*. https://arxiv.org/abs/1708.04628 - Notes: [Texts/Hart2017.txt](Texts/Hart2017.txt). | Large-sample arm-number and pitch-angle study; bars and many-arm structures correlate with looser pitch angles, and the observed diversity argues against one universal arm-formation mechanism. **Supports:** spiral-arm count, pitch-angle, and arm-mechanism controls as simplified observationally motivated structure parameters. | GalaxyScienceReferenceCatalog.cs; GalaxyRealismProfileBuilder.cs; GalaxyScientificFieldEvaluator.cs |
-| Lingard, T., Masters, K. L., Krawczyk, C., Lintott, C., Kruk, S., Simmons, B., Keel, W., Nichol, R., & Baeten, E. (2021). *Galaxy Zoo Builder: Morphological Dependence of Spiral Galaxy Pitch Angle*. *Monthly Notices of the Royal Astronomical Society*, *504*(3), 3364-3374. https://arxiv.org/abs/2105.04500 - Notes: [Texts/Lingard2021.txt](Texts/Lingard2021.txt). | Pitch angle is treated as a real morphology observable and is consistent with transient/recurrent winding interpretations. **Supports:** keeping spiral-arm pitch and arm-mode controls while documenting them as simplified proxies instead of a single solved formation theory. | GalaxyScienceReferenceCatalog.cs; GalaxyScientificFieldEvaluator.cs |
-| Rodriguez, S., & Padilla, N. D. (2013). *The Intrinsic Shape of Galaxies in SDSS/Galaxy Zoo*. https://arxiv.org/abs/1306.3264 - Notes: [Texts/RodriguezPadilla2013.txt](Texts/RodriguezPadilla2013.txt). | Intrinsic-shape study for spirals and ellipticals, including disc ellipticity and axis-ratio behavior. **Supports:** ellipticity as a real structure parameter rather than a purely cosmetic stretch control. | GalaxyScienceReferenceCatalog.cs; SpiralDensityModel.cs; EllipticalDensityModel.cs |
 
----
+## FrankEtAl2018
 
-## Orbital stability (planet spacing)
+**Domain:** astrobiology / civilization trajectories / Anthropocene analogs
 
-**Current use in StarGen:** ~10 mutual Hill radii for long-term stability. [src/domain/system/OrbitalMechanics.gd](../src/domain/system/OrbitalMechanics.gd) (line 424), [OrbitSlotGenerator.gd](../src/domain/system/OrbitSlotGenerator.gd) (line 139), [SystemValidator.gd](../src/domain/system/SystemValidator.gd) (line 268).
+**APA:** Frank, A., Carroll-Nellenback, J., Alberti, M., & Kleidon, A. (2018). The Anthropocene generalized: Evolution of exo-civilizations and their planetary feedback. International Journal of Astrobiology, 17(3), 225–236. https://doi.org/10.1017/S1473550417000258 (arXiv:1709.06435)
 
-| Citation | Summary | Used in |
-|----------|----------|---------|
-| Chambers, J. E., Wetherill, G. W., & Boss, A. P. (1996). The stability of multi-planet systems. *Icarus*, *119*(2), 261–268. https://doi.org/10.1006/icar.1996.0019 | N-body stability; systems with Δ &lt; 10 mutual Hill radii always unstable (log t = bΔ + c); likely unstable for Δ &gt; 10 on longer timescales. | OrbitalMechanics.gd; OrbitSlotGenerator.gd; SystemValidator.gd; Roadmap (Scientific calibration) |
+**StarGen annotation:** Five-state civilization trajectory: State I (no civ), II (complex biosphere), III (pre-industrial), IV (Anthropocene/fossil fuel burning), Va (sustainable), Vb (collapse). Anthropocene is a generic, predictable phase. Implements `CivilizationState` and `AnthropoceneTransitionModel` enums; ~50% collapse probability at threshold. Observable signatures table by state.
 
----
 
-## Changelog
+## GillisEtAl2026
 
-- Blanton & Fargher (2008), Chowdhury (2022), Comin & Hobijn (2010), Henrich et al. (2016), Katz et al. (2020), Kremer (1993), Pospisil (1967), and Turchin (2010) added under Sentient populations, governance, law, and technology baselines to support the `0.8.20.0` RPG compatibility audit and the proposed science-grounded sentient-world output model for government, law, technology, and settlement structure.
-- Luger & Barnes (2015), Rimmer et al. (2018), Lingam & Loeb (2018), Olson et al. (2020), Krissansen-Totton et al. (2018), Meadows et al. (2018), and Herbort et al. (2024) added under Life potential, biospheres, and civilization filters to support the `0.8.19.0` life-science audit that identifies missing host-star-history, abiogenesis-opportunity, nutrient-access, oxygenation, and detectability channels in the current life model.
-- Hart et al. (2017), Lingard et al. (2021), and Rodriguez & Padilla (2013) added under Galaxy morphology and structure to support the `0.8.11.0` scientific-parameter audit pass that tightened source coverage for spiral arm count, pitch, arm mechanisms, and ellipticity.
-- Traveller Licensing (2026), Cepheus Engine SRD (legal + worlds), Starforged licensing/primer/truths pages, and Starfinder compatibility/playtest sources added under RPG compatibility override sources to support the planned `Generation Overrides` expansion toward clean-room Cepheus, Starforged, and Starfinder-compatible output profiles.
-- Lineweaver & Davis (2002), Spiegel & Turner (2012), Forgan & Rice (2010), Mills et al. (2024), and Balbi & Frank (2023) added under Life potential, biospheres, and civilization filters to support the `0.8.9.0` life-model replacement that moves Galaxy Studio from a `Life Potential` slider to sourced model selection and threads those models into biology, complex-life, and sentience gating.
-- Petigura et al. (2013), Bryson et al. (2021), Ribas et al. (2015), Pascucci et al. (2016), Izidoro et al. (2017), Fernandes et al. (2019), and Raymond & Izidoro (2017) added across the planetary retrofit, demographics, and exoplanet-demographics sections to support the current planetary grounding pass with explicit calibration anchors for disk lifetime, disk mass scaling, migration-shaped compact systems, terrestrial occurrence, habitable-zone rocky occurrence, snow-line giant-planet turnover, and volatile delivery.
-- Fulton et al. (2017), Fischer & Valenti (2005), Canup & Ward (2006), DeMeo & Carry (2014), Lamy et al. (2004), Kopparapu et al. (2014), and Heller & Barnes (2013) added under Planet demographics, small-body placement, moons, and habitability calibration to support the `0.8.7.0` follow-on pass that tied atmosphere retention, moon architecture, outer-belt composition, and biosphere gating more tightly to upstream planetary-system state.
-- Chen & Kipping (2017), Otegi et al. (2020), Owen & Wu (2017), Ginzburg et al. (2018), Mordasini et al. (2007), Lambrechts & Johansen (2012), and Mróz et al. (2020) added under Planetary retrofit and deterministic formation surrogates to support the `0.8.8.0` cleanup that removed the uncited `Legacy` size model, added Otegi as the second supported mass-radius option, and rewrote planetary-prior help around named literature-backed model branches.
-- Wordsworth & Kreidberg (2022) added under Planet demographics, small-body placement, moons, and habitability calibration to support the `0.8.13.0` Object Studio pass that adds source-backed atmosphere/hydrosphere conflict notes and direct-object help text.
-- Added `Sources/Texts/planets.md` under Planetary retrofit and deterministic formation surrogates to document the `0.8.6.0` aggregate planetary retrofit and its upstream-vs-object control split.
-- Cummings et al. (2018), Kirkpatrick et al. (2000, 2011, 2024), Moe & Di Stefano (2017), and Tokovinin (2021) added under Expanded stellar populations to support the `0.8.4.0` stellar-offerings pass (brown dwarfs, evolved stars, white dwarfs, and stronger multiplicity architecture).
-- Li et al. (2023) added: reviewed from abridged full text in Texts/Li2023.txt; annotated under Stellar distribution (supports current M-dwarf band; fidelity: metallicity/age-dependent IMF).
-- Bovy (2017) added: reviewed from abridged full text in Texts/Bovy2017.txt; annotated under Stellar distribution and Solar neighborhood density (supports current use; fidelity notes for mass density and dn/dM).
-- Initial structure and APA 7; placeholders for Chambers 1996 and benchmark topics (stellar, density, exoplanets). ToReview.md holds abstract-only papers until full text is added.
+**Domain:** exoplanet demographics / M-dwarf planets / radius gap
+
+**APA:** Gillis, E., Pass, E. K., et al. (2026). TESS planet occurrence rates reveal the disappearance of the radius valley around mid-to-late M dwarfs. arXiv:2602.23364. [Submitted to AAS Journals February 2026.]
+
+**StarGen annotation:** TESS survey of 8,134 mid-to-late M dwarfs: radius valley disappears for M4+ hosts (unimodal peak 1.25±0.05 R⊕ vs. bimodal for FGK). Sub-Neptunes around M4+ are water-rich. Hot Jupiter upper limit: 0.012. Implements `MDwarfRadiusValleyModel`: suppresses bimodal gap; biases sub-Neptune composition to WaterRich for M4+ hosts.
+
+
+## HarfstEtAl2024 **(APA incomplete)**
+
+**Domain:** social science / political legitimacy / governance
+
+**APA:** Harfst, P., et al. (2024). [Title pending — verify against PDF.] Frontiers in Political Science, [volume/page pending].
+
+**StarGen annotation:** Two-dimensional legitimacy: internal (citizen belief) vs. external (international recognition) are independent axes. Internal legitimacy drives faction count (inversely); external legitimacy drives trade access and starport class. `PoliticallyStable` flag requires both > 0.40.
+
+
+## HuntVasiliev2025
+
+**Domain:** galactic dynamics / Gaia / Milky Way structure
+
+**APA:** Hunt, J. A. S., & Vasiliev, E. (2025). Milky Way dynamics in light of Gaia. New Astronomy Reviews, 100, 101721. https://doi.org/10.1016/j.newar.2025.101721
+
+**StarGen annotation:** Post-Gaia review of Milky Way galactic dynamics: disk, bar, and halo kinematics now mapped across large volumes. Bar pattern speed uncertain (35–55 km/s/kpc); dark halo mass 0.7–1.5×10¹² M⊙. Velocity dispersion by disk component (thin disk, thick disk, halo). Disequilibrium processes in disk from satellite interactions. Supersedes BlandHawthornGerhard2016 for kinematic profiles.
+
+
+## KhoperskovEtAl2024
+
+**Domain:** galactic dynamics / Milky Way bar formation / TNG50
+
+**APA:** Khoperskov, S., Minchev, I., Steinmetz, M., Ratcliffe, B., Walcher, J. C., & Libeskind, N. I. (2024). Why does the Milky Way have a bar? Monthly Notices of the Royal Astronomical Society, 533(4), 3975–3986. https://doi.org/10.1093/mnras/stae1902 arXiv: 2309.07321
+
+**StarGen annotation:** MW bar strength (A₂ = 0.35–0.60) from TNG50 simulations. Early disk formation (z ≳ 2–3) → strong bar; late disk (z ≈ 1–1.5) → weak/no bar. Bar formation age ~8–10 Gyr. Implements bar strength as function of disk formation redshift; extends inner GHZ boundary for strongly-barred galaxies.
+
+
+## MaysharMoavPascali2022
+
+**Domain:** social science / state formation / economic history / political economy
+
+**APA:** Mayshar, J., Moav, O., & Pascali, L. (2022). The origin of the state: Land productivity or land appropriability? Journal of Political Economy, 130(4), 1091–1144. https://doi.org/10.1086/718372
+
+**StarGen annotation:** States arose from appropriability of cereal grains (storable, taxable) not land productivity. Implements `AppropriabilityIndex` by `EconomyType` enum; government complexity bonus by resource type. `GovernmentOriginModel` enum. High appropriability (industrial, mining) → more complex state formation.
+
+
+## Mills2024
+
+**Domain:** astrobiology / hard-steps model / complex life evolution
+
+**APA:** Mills, D. B., Macalady, J. L., Frank, A., & Wright, J. T. (2025). A reassessment of the "hard-steps" model for the evolution of intelligent life. Science Advances, 11(7), eads5698. https://doi.org/10.1126/sciadv.ads5698 arXiv: 2408.10293 [Note: ArXiv preprint dated 2024; published February 2025. File named Mills2024 after preprint year.]
+
+**StarGen annotation:** Reassessment of hard-steps model using co-evolutionary interpretation. GOE is not a hard step; multicellularity evolved 25+ times; nervous systems evolved independently. Raises optimistic civilization probability: p_oxygen raised from 0.10 to 0.40 under Mills2024 interpretation. `HardStepsModel` enum (Carter1983 / ForganRice2010 / Mills2024).
+*Note: Previous bibliography entry had wrong domain — see TXT file for corrected content.*
+
+
+## Murphy2023
+
+**Domain:** social science / political economy / governance taxonomy
+
+**APA:** Murphy, R. (2023). Open access orders: A new approach to measuring institutions and their connection to economic performance. Journal of Institutional Economics, 19(5), 618–634. https://doi.org/10.1017/S1744137423000188
+
+**StarGen annotation:** OAO/LAO/Fragile governance taxonomy (North-Wallis-Weingast operationalized). Three-component index: economic freedom + liberal democracy + state capacity. 35 of 161 countries qualify as OAO in 2020. `OAOCategory` enum, `DetermineOAOCategory()` method, GovernmentType weighted sampling by category. OAO requires age > 150 yr AND TL ≥ 7.
+
+
+## NuezCastieyra2025Followup
+
+**Domain:** galaxy formation / dark matter halos / subhalo dynamics
+
+**APA:** Nuñez-Castiñeyra, A., Nezri, E., Mollitor, P., Michel-Dansac, L., Devriendt, J., & Teyssier, R. (2025). Cosmological simulations of the same spiral galaxy: satellite properties, the role of baryonic physics and star formation history in shaping dark matter cores/cusps. arXiv:2509.07470. [Journal submission pending.]
+
+**StarGen annotation:** Mochima zoom-in simulations: subhalo survival depends on host halo concentration (baryonic feedback modulates). Early star formation → cuspy DM profiles; bursty/late → cored profiles. "Diversity problem" explained by SFH × gravitational environment. Implements DM inner profile field; scales satellite count by host halo concentration.
+
+
+## RenEtAl2024 **(APA incomplete)**
+
+**Domain:** social science / trade networks / economic complexity
+
+**APA:** Ren, [first initial], et al. (2024). [Title pending.] Humanities and Social Sciences Communications, [volume/page pending].
+
+**StarGen annotation:** Trade partner selection from ECI (Economic Complexity Index) complementarity. Pairwise trade score model: ECI complementarity × product proximity × jump range. Trade flow direction table; trade code assignment by ECI range. Implements trade network formation in StarGen's civilization module.
+
+
+## Roos2025 **(APA incomplete)**
+
+**Domain:** complexity science / social science / governance
+
+**APA:** Roos, P. (2025). [Title pending.] PLOS Complex Systems, 2(7), e0000055. https://doi.org/[pending]
+
+**StarGen annotation:** Structural complexity (differentiation) vs. dynamic complexity (adaptability) are independent axes. Resilience = geometric mean of both (feeds FrankEtAl2018 adaptability rate). 2×2 governance archetype table: Rigid / Fragile / Flexible / Resilient. `ComplexityProfile` struct.
+
+
+## SchonbachlerEtAl2025
+
+**Domain:** cosmochemistry / planet formation timescales / protoplanetary disk
+
+**APA:** Schönbächler, M., Bouvier, A., Kita, N. T., & Kruijer, T. S. (2025). Initial conditions of planet formation: Time constraints from small bodies and the lifetime of reservoirs in the solar protoplanetary disk. Space Science Reviews, 221, 97. https://doi.org/10.1007/s11214-025-01216-z
+
+**StarGen annotation:** CAI formation marks t₀; chondrule formation 1–3 Ma; planetesimal accretion < 1 Ma; NC/CC reservoir separation < 1 Ma. Inner disk = NC (rocky/dry); outer disk = CC (volatile-rich/icy). Snow line scales as 2.7×√(L/L☉) AU. ²⁶Al differentiation timing affects iron core fraction. `PlanetFormationTimingModel` enum.
+
+
+## SchwietermanEtAl2018
+
+**Domain:** astrobiology / biosignatures / atmospheric characterization
+
+**APA:** Schwieterman, E. W., et al. (2018). Exoplanet biosignatures: A review of remotely detectable signs of life. Astrobiology, 18(6), 663–708. https://doi.org/10.1089/ast.2017.1729 (arXiv:1705.05791)
+
+**StarGen annotation:** Comprehensive biosignature review: O₂, O₃, CH₄, N₂O, NO₂, CFCs as biosignature gases with detection thresholds and false-positive risks. Industrial technosignatures: CO₂ + SO₂ + NOₓ combo indicates coal-burning phase. `BiosignatureProfile` class. `BiosignatureModel` enum. Observable signatures indexed to FrankEtAl2018 civilization states.
+
+
+## SolizWelsh2026
+
+**Domain:** astrobiology / M-dwarf habitability / photosynthesis / PAR
+
+**APA:** Soliz, J. J., & Welsh, W. F. (2026). Dearth of photosynthetically active radiation suggests no complex life on late M-star exoplanets. arXiv:2601.02548. [Journal publication pending.]
+
+**StarGen annotation:** TRAPPIST-1 receives only 0.9% of Earth's PAR → GOE delayed 111× (77.7 Gyr vs. 10 Gyr MS lifetime). Complex life impossible on M4+ HZ planets via conventional route. `MDwarfPARGate` enum. PAR fraction table by spectral type. Updates ForganRice criterion 7: p_oxygen near-zero for M4+.
+
+
+## SpohnEtAl2026
+
+**Domain:** exo-geoscience / planetary interiors / plate tectonics / habitability
+
+**APA:** Spohn, T., Roberge, A., Way, M. J., Duarte, J. C., Miozzi, F., Baumeister, P., Byrne, P., & Lineweaver, C. H. (2026). Exo-geoscience perspectives beyond habitability. Space Science Reviews, 222, 9. https://doi.org/10.1007/s11214-026-01265-y
+
+**StarGen annotation:** Stagnant-lid is the default tectonic mode (~65% probability); mobile-lid/plate tectonics ~20%. Balanced land/ocean (Earth-like) is the LEAST likely outcome. All-ocean/land worlds: NPP ~1% of Earth's → O₂ productivity may not reach Balbi2023 threshold. Introduces `TectonicRegime` enum, `LandFraction` distribution, `NPPFactor`, `IsEuhabitable` flag.
+
+
+## Taiz2026
+
+**Domain:** astrobiology / SETI / Drake equation / fossil fuels / civilization prerequisites
+
+**APA:** Taiz, L., Primack, J., Hellinger, D., & Ward, P. D. (2026). How common are oxygenic photosynthesis and large coal deposits on exoplanets? International Journal of Astrobiology, 25, e1. https://doi.org/10.1017/S1473550425100244
+
+**StarGen annotation:** Coal formation is highly contingent (requires oxygenic photosynthesis + continental forests + plate tectonics + taphonomic burial + geological timing synchronicity). Without coal, civilization caps at TL 6 (pre-industrial). Implements `CoalContingencyModel`: p_coal ~ 0.20; TL 7+ requires fossil fuel gate to pass. Industrial technosignature: CO₂ + SO₂ + NOₓ combo.
+
+
+## TurchinEtAl2021WarMachines
+
+**Domain:** social science / cliodynamics / military technology / Seshat
+
+**APA:** Turchin, P., Hoyer, D., Korotayev, A., Kradin, N., Nefedov, S., Feinman, G., Levine, J., Reddish, J., Cioni, E., Thorpe, C., Bennett, J. S., Francois, P., & Whitehouse, H. (2021). Rise of the war machines: Charting the evolution of military technologies from the Neolithic to the Industrial Revolution. PLOS ONE, 16(10), e0258161. https://doi.org/10.1371/journal.pone.0258161
+
+**StarGen annotation:** Military tech evolution driven by network population and connectivity, not local polity size. Innovation rate scales logarithmically with network population. Gateway phase transitions (weapons, fortifications, cavalry). Implements `TechDiffusionModel` enum; TechLevel cap by connectivity index (isolated → TL 6; core world → TL 15+).
+
+
+## VanZandtDistantGiants2025
+
+**Domain:** exoplanet demographics / giant planets / outer system architecture
+
+**APA:** Van Zandt, J., Petigura, E. A., Lubin, J., Weiss, L. M., Turtelboom, E. V., Fetherolf, T., Murphy, J. M. A., Crossfield, I. J. M., Gilbert, G., Močnik, T., Batalha, N. M., Dressing, C., & Fulton, B. (2025). The TESS-Keck Survey XXIV: Outer giants may be more prevalent in the presence of inner small planets. The Astronomical Journal, 169, 235. https://doi.org/10.3847/1538-3881/adbbed arXiv: 2501.06342
+*Note: The file VanZandtEtAl2025.txt corresponds to this Distant Giants Survey. The
+bibliography entry 'VanZandtEtAl2025' refers to a different paper (smooth transition
+from giants to brown dwarfs, arXiv:2511.18758). These are distinct papers.*
+
+**StarGen annotation:** P(outer giant | inner small planets) = 30 +14/−12%; field rate 16%. Modest ~1.9× enhancement. Low-eccentricity distant giants in inner-planet systems → dynamically cool formation. Multi-planet inner systems preferentially have distant giant companions. Implements conditional outer giant probability and low-e eccentricity distribution rule.
+
+
+## Full-text extract cleanup additions (2026-04-28)
+
+*These entries replace raw full-text extract notes with BauerEtAl2017-style source
+notes. They should be alphabetically integrated into the main bibliography in a future
+cleanup pass.*
+
+## ChacuaEtAl2024
+
+**Domain:** social science / economic complexity / innovation policy
+
+**APA:** Chacua, C., Gadgin Matha, S., Hartog, M., Hausmann, R., & Yildirim, M. A. (2024). Innovation policies under economic complexity. Growth Lab Working Paper Series No. 234. Harvard Kennedy School Growth Lab.
+
+**StarGen annotation:** Capability-based innovation-policy framework. Supports separating technology access from local adoption/production readiness in StarGen's sentient-world and trade modeling.
+
+
+## EscuderoEtAl2023
+
+**Domain:** astrobiology / dark biosphere / subsurface habitability
+
+**APA:** Escudero, C., & Amils, R. (2023). Hard rock dark biosphere and habitability. Frontiers in Astronomy and Space Sciences, 10, Article 1203845. https://doi.org/10.3389/fspas.2023.1203845
+
+**StarGen annotation:** Supports dark-biosphere and subsurface microbial habitability branches separate from surface HZ habitability, complex life, oxygenation, and technosphere gates.
+
+
+## HamiltonEtAl2020
+
+**Domain:** social science / sociopolitical complexity / population scaling
+
+**APA:** Hamilton, M. J., Walker, R. S., Buchanan, B., & Sandeford, D. S. (2020). Scaling human sociopolitical complexity. PLOS ONE, 15(7), e0234615. https://doi.org/10.1371/journal.pone.0234615
+
+**StarGen annotation:** Population, range, and density scale with sociopolitical complexity, but with overlap between levels. Supports population as a pressure on `SocialScale` without making population alone determine government complexity.
+
+
+## Knez2023
+
+**Domain:** economics / technology diffusion / uneven development
+
+**APA:** Knez, K. (2023). Technology diffusion and uneven development. Journal of Evolutionary Economics, 33, 1171-1195. https://doi.org/10.1007/s00191-023-00830-w
+
+**StarGen annotation:** Technology adoption should be modeled as uneven density constrained by local implementation costs, development level, and capability base. Supports separating `HighestTechLevel` from `TechnologyAdoptionCapacity`.
+
+
+## SavvidouEtAl2023
+
+**Domain:** planet formation / pebble accretion / gas giant formation
+
+**APA:** Savvidou, S., & Bitsch, B. (2023). How to make giant planets via pebble accretion. Astronomy & Astrophysics, 679, A42. https://doi.org/10.1051/0004-6361/202245793
+
+**StarGen annotation:** Gas giant formation through pebble accretion depends on interacting disk conditions: disk mass, disk size, early embryo growth, dust-to-gas ratio, viscosity, fragmentation velocity, and starting location. Current local PDF is an A&A leaflet, not the article PDF; reacquire before final verification.
+
+
+## VanKleefEtAl2023
+
+**Domain:** social psychology / norm violation / dominance / prestige
+
+**APA:** van Kleef, G. A., Wanders, F., van Vianen, A. E. M., Dunham, R. L., Du, X., & Homan, A. C. (2023). Rebels with a cause? How norm violations shape dominance, prestige, and influence granting. PLOS ONE, 18(11), e0294019. https://doi.org/10.1371/journal.pone.0294019
+
+**StarGen annotation:** Distinguishes dominance, prestige, local norms, global norms, and influence granting. Planning source for future human-audited legitimacy and faction modeling, not a direct physical-generation input.
+
+
+## WichmannEtAl2025 **(APA incomplete)**
+
+**Domain:** social science / conflict typology / archaeology / cliodynamics
+
+**APA:** Wichmann, S., et al. (2025). [Title pending.] PLOS ONE, [volume/page pending].
+
+**StarGen annotation:** Conflict typology from Bronze/Iron Age archaeological fingerprints: Raiding, IntergroupWarfare, Conquest, InternalFaction, FormalMilitary. `ConflictType` enum; `DetermineConflictType()` from OAOCategory + techLevel + internalLegitimacy. Worldbuilding text descriptors per type.

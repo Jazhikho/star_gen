@@ -1,0 +1,181 @@
+# BallandEtAl2022
+
+## Source metadata
+- File: `BallandEtAl2022.pdf`
+- Domain: social science / economic complexity / technological capability / civilization modeling
+- Pages: ~12
+- Authors: Balland, P.-A., Broekel, T., Diodato, D., Giuliani, E., Hausmann, R., O'Clery, N., & Rigby, D.
+- Source ID in StarGen code: `balland2022`
+- **PDF acquisition:** Research Policy 51(8), 104568 (2022) [Reprint].
+  DOI: 10.1016/j.respol.2021.104311
+  Originally: Research Policy 51(4), 104311 (2022).
+  **PDF confirmed present in Sources/Texts/.**
+
+## Abstract
+Economic complexity offers a potentially powerful paradigm to understand key societal
+issues and challenges of our time. The underlying idea is that growth, development,
+technological change, income inequality, spatial disparities, and resilience are the visible
+outcomes of hidden systemic interactions. The study of economic complexity seeks to
+understand the structure of these interactions and how they shape various socioeconomic
+processes. This emerging field relies heavily on big data and machine learning techniques.
+This brief introduction to economic complexity has three aims: (1) to summarize key
+theoretical foundations and principles of economic complexity; (2) to briefly review the
+tools and metrics developed in the economic complexity literature that exploit information
+encoded in the structure of the economy to find new empirical patterns; (3) to highlight
+insights from economic complexity to improve prediction and political decision-making.
+Institutions including the World Bank, the European Commission, the World Economic Forum,
+the OECD, and a range of national and regional organizations have embraced the principles
+of economic complexity and its analytical framework.
+
+## Major claims, findings, models, assumptions, and limitations
+- **Economic complexity index (ECI):** A nation's ECI captures the diversity AND
+  sophistication (ubiquity-adjusted) of its exports. High-ECI countries export many
+  diverse, low-ubiquity (rare) products. ECI predicts future economic growth better than
+  GDP per capita or raw export diversity alone.
+- **Product Space:** Products cluster into a network where proximity = probability of
+  comparative-advantage co-occurrence. Countries can only move into nearby products.
+  This means technological capability grows in path-dependent steps.
+- **Complexity Fitness Index (CFI):** An alternative to ECI (Tacchella et al. 2012)
+  that uses nonlinear iteration; better suited for developing economies where ECI
+  underperforms.
+- **Key empirical patterns:**
+  - ECI strongly predicts 5-10 year GDP per capita growth (r² ~ 0.5–0.7 in cross-country
+    regressions) with 5–15 year lead time.
+  - Diversification is easier to achieve via product-space proximity moves than via
+    development assistance or institutional reform alone.
+  - Income inequality within countries is negatively correlated with ECI; more complex
+    economies are more equal on average (counterintuitive: same level as Arvidsson's
+    finding at the within-city scale).
+  - Regional disparities within countries track regional ECI differences.
+- **Policy implications:** Countries/regions should invest in capabilities adjacent to
+  their current product space position, not jump to unrelated sectors.
+- **Limitation:** ECI is export-based and misses domestic service complexity; services
+  (banking, software, biotech) are undercounted.
+- **Limitation:** Product space proximity is historically inferred from co-occurrence;
+  may not transfer to radically new industries (AI, synthetic biology).
+- **Limitation:** Short-term political shocks can decouple ECI from growth predictions.
+
+## StarGen applicability
+Provides the **product-space / path-dependency framework** for modeling technological
+capability development in a civilization. Complements Bettencourt (population → output
+scaling) and Arvidsson (output → inequality) with a structural model of what a civilization
+CAN produce given its current capability base.
+
+In StarGen's civilization generator:
+- `TechLevel` is not just population-dependent — it depends on the civilization's
+  accumulated capability diversity (analogous to ECI)
+- A civilization at TL 8 cannot jump directly to TL 12 without intermediate steps
+- Trade codes are path-dependent: a world exports what it has been able to develop
+  from its starting conditions (planetary resources × history × contact with neighbors)
+- Economic complexity provides a principled reason why isolated worlds fall behind
+  connected trade-network worlds even at the same population
+
+## Parameters, constraints, and mechanics implications
+
+**Economic Complexity Index → Tech Level mapping:**
+```
+// ECI ranges empirically from ~ -3.5 (least complex) to +3.5 (most complex)
+// Normalized ECI (0-1 scale) → maps approximately to TL fraction
+// TL 0-4 (pre-industrial):   ECI_norm ~ 0.0–0.25
+// TL 5-8 (industrial):        ECI_norm ~ 0.25–0.60
+// TL 9-12 (advanced):         ECI_norm ~ 0.60–0.85
+// TL 13+ (interstellar):      ECI_norm ~ 0.85–1.0
+// Note: ECI alone doesn't capture the energy technology needed for TL 9+;
+// supplement with a separate energy-sector capability index.
+```
+
+**Product-space path-dependency:**
+```csharp
+// A civilization's reachable tech level is bounded by adjacency to current capabilities.
+// Each "tech step" requires capability prerequisites to be met.
+// Simple model: TechLevel can advance by at most DeltaTL per generation of contact.
+// DeltaTL = base_rate * connectivity_bonus * ECI_growth_rate
+// base_rate ~ 0.5 TL per 100 years (isolated)
+// connectivity_bonus ~ 2-5x for worlds in active trade networks
+// DeltaTL cap: ~2 per 100 years even with maximum connectivity (no quantum jumps)
+double reachableTL = currentTL + deltaPerGeneration * Math.Min(connectivityIndex, 5.0);
+```
+
+**Product space → Trade codes:**
+- Worlds early in ECI development export raw resources (agricultural, mining trade codes)
+- Mid-ECI worlds develop manufacturing and specialization
+- High-ECI worlds export diverse high-value goods and services (industrial, high-tech codes)
+```
+ECI_norm | Likely Trade Codes
+0.0-0.2  | Ag, Na, Ni (agricultural, non-agricultural, non-industrial)
+0.2-0.4  | In, Mi, Re (industrial, mining, refinery)
+0.4-0.6  | Ht, Ri (high tech emerging, rich)
+0.6-1.0  | Ht, Ri, Ph, Di (high tech, rich, pharmaceutical, diverse)
+```
+
+**Connectivity bonus (trade route access):**
+- Isolated world: connectivity_index = 0 → slow tech development
+- One trade partner: connectivity_index = 1 → moderate growth
+- Active starport (class A/B): connectivity_index = 3–5 → rapid capability growth
+This directly motivates why Starport class matters for technological development pace.
+
+## APA citation
+Balland, P.-A., Broekel, T., Diodato, D., Giuliani, E., Hausmann, R., O'Clery, N., &
+Rigby, D. (2022). The new paradigm of economic complexity. Research Policy, 51(4),
+104311. https://doi.org/10.1016/j.respol.2021.104311
+
+## Conflicts and follow-up work
+
+**Foundational papers this review builds on:**
+- Hausmann, R., & Hidalgo, C. A. (2011) Journal of Evolutionary Economics 23, 369 —
+  original product-space formulation.
+- Hidalgo, C. A., & Hausmann, R. (2009) PNAS 106, 10570 — ECI derivation.
+- Tacchella, A., et al. (2012) Scientific Reports 2, 723 — Fitness and Complexity
+  alternative metric. arXiv:1205.0629.
+
+**Complementary papers in corpus:**
+- BettencourtEtAl2007.txt — aggregate output scaling with population (city-level)
+- ArvidssonEtAl2023.txt — within-city inequality decomposition of scaling
+- RenEtAl2024.txt (in corpus) — trading partner selection strategies based on ECI
+
+**Economic complexity and inequality:**
+- Hartmann, D., et al. (2017) World Development 93, 75 — ECI negatively predicts
+  income inequality (Gini coefficient). The more complex an economy, the lower the
+  within-country inequality.
+
+**Citation discovery:**
+- DOI: 10.1016/j.respol.2021.104311
+
+## StarGen mechanics translation
+
+### Economic complexity → Civilization capability model
+BallandEtAl2022 provides the structural foundation for StarGen's economic-capability
+model: what a civilization can produce, trade, and develop depends on its position in
+the product space, not just its population.
+
+**Civilization ECI profile generation:**
+```csharp
+// Starting ECI is set by:
+// 1. Planetary resource endowment (affects initial product space entry points)
+// 2. Contact history (trade routes → connectivity boosts)
+// 3. Age of civilization (more time → more ECI growth steps)
+double startingECI = PlanetaryResourceECI(planet)
+                   + ConnectivityBonus(tradeRoutes)
+                   + AgeFactor(civilizationAgeYears);
+startingECI = Math.Clamp(startingECI, -3.5, 3.5);
+
+// Map to TechLevel
+int techLevel = ECIToTechLevel(startingECI);
+
+// Map to Trade codes (primary export basket)
+List<TradeCode> tradeCodes = ECIToTradeCodes(startingECI, planet.ResourceProfile);
+```
+
+**Product-space path dependency rule:**
+No civilization can be at TechLevel 12 without passing through TL 5-9 intermediate
+stages UNLESS it received deliberate technology transfer from an advanced neighbor.
+Implement this as a constraint on the maximum achievable TL given civilization age
+and connectivity history.
+
+**User lever:** `EconomicComplexityModel` (enum: ProductSpace / SimpleScaling)
+- ProductSpace: use ECI path-dependency model (BallandEtAl2022 + RenEtAl2024)
+- SimpleScaling: use population-only Bettencourt scaling (simpler, less realistic)
+
+**Cross-references:** BettencourtEtAl2007.txt (population → output scaling),
+ArvidssonEtAl2023.txt (output → inequality), RenEtAl2024.txt (trade partner selection),
+MaysharMoavPascali2022.txt (state emergence as prerequisite for complex trade).

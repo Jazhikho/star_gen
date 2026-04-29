@@ -1,0 +1,75 @@
+# OwenSchlichting2023Followup
+
+## Source metadata
+- File: `OwenSchlichting2023Followup.pdf`
+- Domain: atmospheric escape / photoevaporation vs core-powered mass-loss (parameter space map)
+- Authors (verify against PDF title page)
+
+## Abstract
+Understanding atmospheric escape in close-in exoplanets is critical to interpreting their evolution. We map out the parameter space over which photoevaporation and core-powered mass loss dominate atmospheric escape. Generally, the transition between the two regimes is determined by the location of the Bondi radius (i.e. the sonic point of core-powered outflow) relative to the penetration depth of XUV photons. Photoevaporation dominates the loss when the XUV penetration depth lies inside the Bondi radius (𝑅 𝑋𝑈𝑉 < 𝑅 𝐵 ) and core-powered mass-loss when XUV radiation is absorbed higher up in the flow (𝑅 𝐵 < 𝑅 𝑋𝑈𝑉 ). The transition between the two regimes occurs at a roughly constant ratio of the planet’s radius to its Bondi radius, with the exact value depending logarithmically on planetary and stellar properties. In general, core-powered mass-loss dominates for lowergravity planets with higher equilibrium temperatures, and photoevaporation dominates for higher-gravity planets with lower equilibrium temperatures. However, planets can transition between these two mass-loss regimes during their evolution, and core-powered mass loss can “enhance” photo-evaporation over a significant region of parameter space. Interestingly, a planet that is ultimately stripped by core-powered mass-loss has likely only ever experienced core-powered mass-loss. In contrast a planet that is ultimately stripped by photoevaporation could have experienced an early phase of core-powered mass-loss. Applying our results to the observed super-Earth population suggests that it contains significant fractions of planets where each mechanism controlled the final removal of the H/He envelope, although photoevaporation appears to be responsible for the final carving of the exoplanet radius-valley. Key words: p
+
+## Major claims, findings, models, assumptions, and limitations
+*Human verification required before using quantitative values or model assumptions in
+StarGen defaults. Figures and equations not captured by text extraction — read the PDF
+for exact thresholds, fit coefficients, and table values.*
+
+- Primary domain: atmospheric escape / photoevaporation vs core-powered mass-loss (parameter space map)
+- See StarGen applicability section below for the specific implications.
+
+## StarGen applicability
+Maps which mechanism dominates: CPML for low-gravity + high Teq; photoevaporation for high-gravity + low Teq. Planets can transition between regimes. Use to select mechanism per planet in StarGen.
+
+## Parameters, constraints, and mechanics implications
+*(Human action: fill in specific numeric values, distributions, model families, and
+classification boundaries extracted from the paper. Where competing models or confidence
+ranges exist, expose those as user-selectable assumptions rather than collapsing to a
+single default. Where the paper documents uncertainty, preserve it in StarGen rather
+than presenting false precision.)*
+
+## Works cited by this paper (auto-extracted from final pages, partial)
+- Owen, J. E. & Schlichting, H. E.
+- Planet Radius [R⊕ ]
+- Likely finally stripped
+- Likely finally stripped
+- Equilibrium Temperature [K]
+- Figure 8. The radii of small detected transiting planets shown as a function of
+- 100 Myr (black dot-dashed). The position of the radius-gap from Owen &
+- Wu (2017) is shown as the red dashed line. Exoplanet data was downloaded
+- 4.2 Mass-loss across the exoplanet population
+- Using our results, we can sketch out an evolutionary pathway for
+- Hori 2012; Owen & Wu 2016; Ginzburg et al. 2016; Rogers et al.
+- 2023a). Boil-off/spontaneous mass-loss will then transition to a corepowered mass-loss outflow, as the planets are initially large ∼ 10 R ⊕
+- Since the trajectory of most planets in Figure 7 will essentially
+- Inferences about which mechanism removes that majority of the
+- However, since the exoplanet radius gap borders the photoevaporative
+
+## Opposing or alternative findings cited
+*(Human action: identify papers in the reference list that present opposing models,
+competing parameter choices, or significantly different results. Note the specific
+disagreement and its implication for which StarGen default to use.)*
+
+## APA citation
+*(Verify and complete — see AnnotatedBibliography.md for the curated APA entry.)*
+
+## Conflicts and follow-up work
+*(Human action: search for papers explicitly responding to, revising, or challenging
+this paper published after its date. For fast-moving fields (exoplanet demographics,
+habitability, JWST/TESS-informed work), treat results >3 years old as potentially
+superseded. Flag updates in Followup.md.)*
+
+## StarGen mechanics translation
+
+### Atmospheric escape — parameter space map (photoevaporation vs CPML)
+Maps which mechanism dominates as function of planet gravity and equilibrium temperature.
+CPML dominates for lower-gravity, high-Teq planets; photoevaporation for high-gravity, low-Teq.
+
+**StarGen per-planet mechanism selection:**
+- Evaluate at generation time: if R_Bondi > R_XUV → photoevaporation; else CPML.
+- Practical heuristic:
+  - Planet gravity < ~10 m/s² AND Teq > 700 K: CPML
+  - Planet gravity > ~20 m/s² OR Teq < 500 K: photoevaporation
+  - Transition zone: both mechanisms possible; expose as uncertainty flag.
+- A planet that is ultimately stripped by photoevaporation may have started with CPML.
+  A planet stripped by CPML has usually only experienced CPML.
+- `AtmosphericEscapeMechanism` field: `Photoevaporation` | `CPML` | `Mixed` | `Neither`
+**Cross-references:** OwenWu2017.txt, Ginzburg2018.txt, GuptaSchlichting2020Followup.txt.

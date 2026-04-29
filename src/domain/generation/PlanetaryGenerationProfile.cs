@@ -84,6 +84,45 @@ public enum PlanetMinorBodyOuterSystemBias
 }
 
 /// <summary>
+/// Supported comet nucleus size-prior families.
+/// </summary>
+public enum CometNucleusModel
+{
+    BauerJupiterFamily = 0,
+    LegacyWideRange = 1,
+}
+
+/// <summary>
+/// Supported comet activity-state priors.
+/// </summary>
+public enum CometActivityModel
+{
+    SurveyAnchored = 0,
+    ActiveRich = 1,
+    DormantRich = 2,
+}
+
+/// <summary>
+/// Assumed fragmentation environment for pebble-assisted giant-core growth.
+/// </summary>
+public enum PlanetFragmentationVelocityModel
+{
+    Standard = 0,
+    LowFragmentationVelocity = 1,
+    HighFragmentationVelocity = 2,
+}
+
+/// <summary>
+/// Preferred giant-planet formation zone.
+/// </summary>
+public enum PlanetGiantOriginBandModel
+{
+    BroadDisk = 0,
+    FiveToTwentyFiveAu = 1,
+    SnowLineAdjacent = 2,
+}
+
+/// <summary>
 /// Shared aggregate planetary-generation priors used by galaxy and system generation.
 /// </summary>
 public partial class PlanetaryGenerationProfile : RefCounted
@@ -127,6 +166,46 @@ public partial class PlanetaryGenerationProfile : RefCounted
     /// Bias for how much outer-system leftover material behaves like comet reservoirs.
     /// </summary>
     public PlanetMinorBodyOuterSystemBias MinorBodyOuterSystemBias { get; set; } = PlanetMinorBodyOuterSystemBias.Balanced;
+
+    /// <summary>
+    /// Comet nucleus size-prior family used by object and small-body generation.
+    /// </summary>
+    public CometNucleusModel CometNucleusModel { get; set; } = CometNucleusModel.BauerJupiterFamily;
+
+    /// <summary>
+    /// Comet activity-state prior used when a comet spec leaves activity random.
+    /// </summary>
+    public CometActivityModel CometActivityModel { get; set; } = CometActivityModel.SurveyAnchored;
+
+    /// <summary>
+    /// Continuous scale applied to comet nucleus radii.
+    /// </summary>
+    public double CometSizeScale { get; set; } = 1.0;
+
+    /// <summary>
+    /// Population-slope proxy for minor-body size distributions.
+    /// </summary>
+    public double MinorBodyPopulationSlope { get; set; } = 2.0;
+
+    /// <summary>
+    /// Scale for the characteristic disk radius used in planet formation weighting.
+    /// </summary>
+    public double DiskRadiusScale { get; set; } = 1.0;
+
+    /// <summary>
+    /// Dust-to-gas scale used to tune solids relative to gas in disk budgets.
+    /// </summary>
+    public double DustToGasScale { get; set; } = 1.0;
+
+    /// <summary>
+    /// Fragmentation environment used for pebble-growth weighting.
+    /// </summary>
+    public PlanetFragmentationVelocityModel FragmentationVelocityModel { get; set; } = PlanetFragmentationVelocityModel.Standard;
+
+    /// <summary>
+    /// Preferred origin band for giant-planet formation.
+    /// </summary>
+    public PlanetGiantOriginBandModel GiantOriginBandModel { get; set; } = PlanetGiantOriginBandModel.BroadDisk;
 
     /// <summary>
     /// Aggregate solids budget scalar used to bias rocky and ice-rich outcomes.
@@ -186,6 +265,14 @@ public partial class PlanetaryGenerationProfile : RefCounted
             MoonFormationBias = MoonFormationBias,
             RoguePlanetAllowance = RoguePlanetAllowance,
             MinorBodyOuterSystemBias = MinorBodyOuterSystemBias,
+            CometNucleusModel = CometNucleusModel,
+            CometActivityModel = CometActivityModel,
+            CometSizeScale = CometSizeScale,
+            MinorBodyPopulationSlope = MinorBodyPopulationSlope,
+            DiskRadiusScale = DiskRadiusScale,
+            DustToGasScale = DustToGasScale,
+            FragmentationVelocityModel = FragmentationVelocityModel,
+            GiantOriginBandModel = GiantOriginBandModel,
             SolidMassScalar = SolidMassScalar,
             GasMassScalar = GasMassScalar,
             DiskLifetimeMyr = DiskLifetimeMyr,
@@ -237,6 +324,46 @@ public partial class PlanetaryGenerationProfile : RefCounted
         }
 
         if (!System.Enum.IsDefined(typeof(PlanetMinorBodyOuterSystemBias), (int)MinorBodyOuterSystemBias))
+        {
+            return false;
+        }
+
+        if (!System.Enum.IsDefined(typeof(CometNucleusModel), (int)CometNucleusModel))
+        {
+            return false;
+        }
+
+        if (!System.Enum.IsDefined(typeof(CometActivityModel), (int)CometActivityModel))
+        {
+            return false;
+        }
+
+        if (!System.Enum.IsDefined(typeof(PlanetFragmentationVelocityModel), (int)FragmentationVelocityModel))
+        {
+            return false;
+        }
+
+        if (!System.Enum.IsDefined(typeof(PlanetGiantOriginBandModel), (int)GiantOriginBandModel))
+        {
+            return false;
+        }
+
+        if (CometSizeScale < 0.35 || CometSizeScale > 3.0)
+        {
+            return false;
+        }
+
+        if (MinorBodyPopulationSlope < 1.0 || MinorBodyPopulationSlope > 5.0)
+        {
+            return false;
+        }
+
+        if (DiskRadiusScale < 0.35 || DiskRadiusScale > 3.0)
+        {
+            return false;
+        }
+
+        if (DustToGasScale < 0.35 || DustToGasScale > 3.0)
         {
             return false;
         }
@@ -294,6 +421,14 @@ public partial class PlanetaryGenerationProfile : RefCounted
             ["moon_formation_bias"] = (int)MoonFormationBias,
             ["rogue_planet_allowance"] = (int)RoguePlanetAllowance,
             ["minor_body_outer_system_bias"] = (int)MinorBodyOuterSystemBias,
+            ["comet_nucleus_model"] = (int)CometNucleusModel,
+            ["comet_activity_model"] = (int)CometActivityModel,
+            ["comet_size_scale"] = CometSizeScale,
+            ["minor_body_population_slope"] = MinorBodyPopulationSlope,
+            ["disk_radius_scale"] = DiskRadiusScale,
+            ["dust_to_gas_scale"] = DustToGasScale,
+            ["fragmentation_velocity_model"] = (int)FragmentationVelocityModel,
+            ["giant_origin_band_model"] = (int)GiantOriginBandModel,
             ["solid_mass_scalar"] = SolidMassScalar,
             ["gas_mass_scalar"] = GasMassScalar,
             ["disk_lifetime_myr"] = DiskLifetimeMyr,
@@ -364,6 +499,34 @@ public partial class PlanetaryGenerationProfile : RefCounted
             profile.MinorBodyOuterSystemBias = (PlanetMinorBodyOuterSystemBias)outerBiasValue;
         }
 
+        int cometNucleusValue = DomainDictionaryUtils.GetInt(data, "comet_nucleus_model", (int)CometNucleusModel.BauerJupiterFamily);
+        if (System.Enum.IsDefined(typeof(CometNucleusModel), cometNucleusValue))
+        {
+            profile.CometNucleusModel = (CometNucleusModel)cometNucleusValue;
+        }
+
+        int cometActivityValue = DomainDictionaryUtils.GetInt(data, "comet_activity_model", (int)CometActivityModel.SurveyAnchored);
+        if (System.Enum.IsDefined(typeof(CometActivityModel), cometActivityValue))
+        {
+            profile.CometActivityModel = (CometActivityModel)cometActivityValue;
+        }
+
+        int fragmentationValue = DomainDictionaryUtils.GetInt(data, "fragmentation_velocity_model", (int)PlanetFragmentationVelocityModel.Standard);
+        if (System.Enum.IsDefined(typeof(PlanetFragmentationVelocityModel), fragmentationValue))
+        {
+            profile.FragmentationVelocityModel = (PlanetFragmentationVelocityModel)fragmentationValue;
+        }
+
+        int originBandValue = DomainDictionaryUtils.GetInt(data, "giant_origin_band_model", (int)PlanetGiantOriginBandModel.BroadDisk);
+        if (System.Enum.IsDefined(typeof(PlanetGiantOriginBandModel), originBandValue))
+        {
+            profile.GiantOriginBandModel = (PlanetGiantOriginBandModel)originBandValue;
+        }
+
+        profile.CometSizeScale = DomainDictionaryUtils.GetDouble(data, "comet_size_scale", 1.0);
+        profile.MinorBodyPopulationSlope = DomainDictionaryUtils.GetDouble(data, "minor_body_population_slope", 2.0);
+        profile.DiskRadiusScale = DomainDictionaryUtils.GetDouble(data, "disk_radius_scale", 1.0);
+        profile.DustToGasScale = DomainDictionaryUtils.GetDouble(data, "dust_to_gas_scale", 1.0);
         profile.SolidMassScalar = DomainDictionaryUtils.GetDouble(data, "solid_mass_scalar", 1.0);
         profile.GasMassScalar = DomainDictionaryUtils.GetDouble(data, "gas_mass_scalar", 1.0);
         profile.DiskLifetimeMyr = DomainDictionaryUtils.GetDouble(data, "disk_lifetime_myr", 3.5);

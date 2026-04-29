@@ -1,0 +1,77 @@
+# Hayden2014
+
+## Source metadata
+- File: `Hayden2014.pdf`
+- Domain: galactic chemistry/APOGEE gradients
+- Pages: 16
+- Authors (auto-extracted — verify against PDF): Milky Way; Michael R. Hayden1 , Jon A. Holtzman1 , Jo Bovy2,23 , Steven R. Majewski3 , Carlos Allende Prieto4 , Timothy C.; Beers5 , Katia Cunha6,7 , Peter M. Frinchaboy8 , Ana E. Garcı́a Pérez3 , Léo Girardi 9,10 , Fred R. Hearty 11 ,
+
+## Abstract
+We present Galactic mean metallicity maps derived from the first year of the SDSS-III APOGEE experiment. Mean abundances in different zones of Galactocentric radius (0 < R < 15 kpc) at a range of heights above the plane (0 < |z| < 3 kpc), are derived from a sample of nearly 20,000 stars with unprecedented coverage, including stars in the Galactic mid-plane at large distances. We also split the sample into subsamples of stars with low and high-[α/M] abundance ratios. We assess possible biases in deriving the mean abundances, and find they are likely to be small except in the inner regions of the Galaxy. A negative radial gradient exists over much of the Galaxy; however, the gradient appears to flatten for R < 6 kpc, in particular near the Galactic mid-plane and for low-[α/M] stars. At R > 6 kpc, the gradient flattens as one moves off of the plane, and is flatter at all heights for high-[α/M] stars than for low-[α/M] stars. Alternatively, these gradients can be described as vertical gradients that flatten at larger Galactocentric radius; these vertical gradients are similar for both low and high-[α/M] populations. Stars with higher [α/M] appear to have a flatter radial gradient than stars with lower [α/M]. This could suggest that the metallicity gradient has grown steeper with time or, alternatively, that gradients are washed out over time by migration of stars.
+
+## Major claims, findings, models, assumptions, and limitations
+*Human verification required before using quantitative values or model assumptions in
+StarGen defaults. Figures and equations not captured by text extraction — read the PDF
+for exact thresholds, fit coefficients, and table values.*
+
+- Primary domain: galactic chemistry/APOGEE gradients
+- See StarGen applicability section below for the specific implications.
+
+## StarGen applicability
+APOGEE [α/Fe] vs [Fe/H] bimodality and radial/vertical gradients in MW disk. Informs metallicity and α-abundance gradient model in StarGen's galactic generator.
+
+## Parameters, constraints, and mechanics implications
+*(Human action: fill in specific numeric values, distributions, model families, and
+classification boundaries extracted from the paper. Where competing models or confidence
+ranges exist, expose those as user-selectable assumptions rather than collapsing to a
+single default. Where the paper documents uncertainty, preserve it in StarGen rather
+than presenting false precision.)*
+
+## Works cited by this paper (auto-extracted from final pages, partial)
+- Adelman-McCarthy, J. K., Agueros, M. A., Allam, S. S., et al.
+- Adibekyan, V. Z., Sousa, S. G., Santos, N. C., et al. 2012, A&A,
+- Ahn, C. P., Alexandroff, R., Prieto, C. A., et al. 2013
+- Aihara, H., Allende Prieto, C., An, D., et al. 2011, ApJS, 193, 29
+- Ak, S., Bilir, S., Karaali, S., Buser, R., & Cabrera-Lavers, A.
+- 2007, New Astronomy, 12, 14
+- Allende Prieto, C., Beers, T. C., Wilhelm, R., et al. 2006, AJ,
+- Allende Prieto, C., Majewski, Schiavon, R., et al. 2008, AN, 329, 4
+- Anders, F., et al. 2013, submitted, A&A
+- Balser, D. S., Rood, R. T., Bania, T. M., & Anderson, L. D.
+- Bartašiūtė, S., Aslan, Z., Boyle, R. P., et al. 2003, Baltic
+- Bensby, T., Alves-Brito, A., Oey, M. S., Yong, D., & Meléndez, J.
+- Bird, J. C., Kazantzidis, S., Weinberg, D. H., et al. 2013, ApJ,
+- Boeche, ., Siebert, ., Piffl, ., et al. 2013, eprint arXiv:1309.4279
+- Bovy, J., Rix, H.-W., & Hogg, D. W. 2012a, ApJ, 751, 131
+- Bovy, J., Rix, H.-W., Hogg, D. W., et al. 2012b, ApJ, 755, 115
+- Bovy, J., Rix, H.-W., Liu, C., et al. 2012c, ApJ, 753, 148
+- Bressan, A., Marigo, P., Girardi, L., et al. 2012, MNRAS, 427, 127
+- Burnett, B., & Binney, J. 2010, MNRAS, 407, 16
+- Carraro, G., Ng, Y. K., & Portinari, L. 1998, MNRAS, 296, 1045
+
+## Opposing or alternative findings cited
+*(Human action: identify papers in the reference list that present opposing models,
+competing parameter choices, or significantly different results. Note the specific
+disagreement and its implication for which StarGen default to use.)*
+
+## APA citation
+*(Verify and complete — see AnnotatedBibliography.md for the curated APA entry.)*
+
+## Conflicts and follow-up work
+*(Human action: search for papers explicitly responding to, revising, or challenging
+this paper published after its date. For fast-moving fields (exoplanet demographics,
+habitability, JWST/TESS-informed work), treat results >3 years old as potentially
+superseded. Flag updates in Followup.md.)*
+
+
+## StarGen mechanics translation
+
+### Milky Way chemical gradients — APOGEE abundance maps
+Radial [Fe/H] and [α/Fe] gradients across the Milky Way disk.
+Inner disk: metal-rich, low-α; outer disk: metal-poor, high-α.
+
+**StarGen stellar chemistry:**
+- `MetallicityGradient_APOGEE`: [Fe/H] decreases by ~−0.07 dex/kpc from 4–14 kpc.
+- Apply when generating stellar [Fe/H] as function of Galactocentric radius.
+- Use with Bovy2017 for full 2D (R, z) abundance distribution.
+**Cross-references:** Bovy2017.txt, BlandHawthornGerhard2016.txt.

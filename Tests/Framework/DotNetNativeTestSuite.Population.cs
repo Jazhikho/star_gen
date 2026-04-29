@@ -140,8 +140,10 @@ public static partial class DotNetNativeTestSuite
         runner.RunNativeTest("TestBiologySupportEvaluator::test_population_summary_distinguishes_sentience_from_civilization", TestBiologySupportEvaluator.TestPopulationSummaryDistinguishesSentienceFromCivilization);
         runner.RunNativeTest("TestBiologySupportEvaluator::test_mixed_land_ocean_world_improves_nutrient_accessibility", TestBiologySupportEvaluator.TestMixedLandOceanWorldImprovesNutrientAccessibility);
         runner.RunNativeTest("TestBiologySupportEvaluator::test_icy_moon_favors_protected_biosphere", TestBiologySupportEvaluator.TestIcyMoonFavorsProtectedBiosphere);
+        runner.RunNativeTest("TestBiologySupportEvaluator::test_dark_biosphere_energy_scale_changes_subsurface_support", TestBiologySupportEvaluator.TestDarkBiosphereEnergyScaleChangesSubsurfaceSupport);
         runner.RunNativeTest("TestBiologySupportEvaluator::test_high_xuv_raises_desiccation_risk_and_suppresses_abiogenesis", TestBiologySupportEvaluator.TestHighXuvRaisesDesiccationRiskAndSuppressesAbiogenesis);
         runner.RunNativeTest("TestBiologySupportEvaluator::test_detectability_remains_separate_from_life_existence", TestBiologySupportEvaluator.TestDetectabilityRemainsSeparateFromLifeExistence);
+        runner.RunNativeTest("TestBiologySupportEvaluator::test_abiotic_oxygen_risk_discounts_civilization_support", TestBiologySupportEvaluator.TestAbioticOxygenRiskDiscountsCivilizationSupport);
 
         runner.RunNativeTest("TestColonySuitability::test_creation", TestColonySuitability.TestCreation);
         runner.RunNativeTest("TestColonySuitability::test_get_category_ranges", TestColonySuitability.TestGetCategoryRanges);
@@ -383,6 +385,7 @@ public static partial class DotNetNativeTestSuite
         runner.RunNativeTest("TestSentientWorldProfile::test_builder_returns_null_for_uninhabited_world", TestSentientWorldProfile.TestBuilderReturnsNullForUninhabitedWorld);
         runner.RunNativeTest("TestSentientWorldProfile::test_builder_produces_baseline_for_inhabited_world", TestSentientWorldProfile.TestBuilderProducesBaselineForInhabitedWorld);
         runner.RunNativeTest("TestSentientWorldProfile::test_serialization_round_trip", TestSentientWorldProfile.TestSerializationRoundTrip);
+        runner.RunNativeTest("TestSentientWorldProfile::test_source_aligned_models_change_profile_and_require_audit", TestSentientWorldProfile.TestSourceAlignedModelsChangeProfileAndRequireAudit);
         runner.RunNativeTest("TestPlanetPopulationData::test_get_total_population_empty", TestPlanetPopulationData.TestGetTotalPopulationEmpty);
         runner.RunNativeTest("TestPlanetPopulationData::test_get_total_population_natives_only", TestPlanetPopulationData.TestGetTotalPopulationNativesOnly);
         runner.RunNativeTest("TestPlanetPopulationData::test_get_total_population_colonies_only", TestPlanetPopulationData.TestGetTotalPopulationColoniesOnly);

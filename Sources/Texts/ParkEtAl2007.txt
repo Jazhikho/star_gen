@@ -1,0 +1,148 @@
+# ParkEtAl2007
+
+## Source metadata
+- File: `ParkEtAl2007.pdf`
+- Domain: extragalactic astronomy / galaxy environment / SDSS
+- Pages: ~20
+- Authors: Park, C., Choi, Y., Vogeley, M. S., Gott, J. R. III, & Blanton, M. R.
+- Source ID in StarGen code: `park2007`
+- **PDF acquisition:** ApJ 658, 898 (2007). DOI: 10.1086/511059
+  ADS: https://ui.adsabs.harvard.edu/abs/2007ApJ...658..898P
+  ResearchGate open access: https://www.researchgate.net/publication/1791898
+  No confirmed arXiv preprint found; check ADS for alternate access routes.
+  **Flag for manual download if ResearchGate is not accessible.**
+
+## Abstract
+This paper investigates the environmental dependence of physical properties of galaxies
+in the Sloan Digital Sky Survey (SDSS). Using a volume-limited sample brighter than
+M_r = −18.0 + 5 log h, the authors measure galaxy properties (color, morphology, star
+formation rate, concentration, velocity dispersion, size) as a function of local galaxy
+number density, estimated via an adaptive smoothing kernel. The key finding is that the
+observed correlations of galaxy properties with environment are almost entirely explained
+by the pre-existing dependences of morphology and luminosity on environment (the
+morphology-density and luminosity-density relations). When morphology and luminosity
+are held fixed, all other physical properties — including color, SFR, and concentration
+— are nearly independent of local density, with no detectable break or feature. This
+result suggests that the primary environmental influence on galaxies is to determine
+their morphological type, and that morphological transformation drives all other
+observed property correlations with density.
+
+## Major claims, findings, models, assumptions, and limitations
+- Galaxy properties (color, SFR, concentration, size, velocity dispersion) all correlate
+  with local density when measured without morphology/luminosity fixed
+- When morphology AND luminosity are simultaneously fixed: residual dependence on density
+  is negligible for these properties
+- Morphology-density relation: early-type galaxies (E/S0) are more common in dense
+  environments (clusters/groups); late-type spirals more common in field
+- Luminosity-density relation: brighter/more massive galaxies tend to reside in denser
+  environments on average
+- No sharp "break" or threshold density for the observed correlations in bright galaxies;
+  the relation is smooth and continuous
+- Methodology: local density estimated using the adaptive smoothing kernel from
+  Vogeley et al. (with refinements); distance to Nth nearest neighbor as alternative
+- Limitation: sample limited to M_r < −18.0 (missing faint/dwarf galaxies)
+- Limitation: morphology measured from concentration index + visual classification;
+  not as precise as GZ2-era morphologies
+- Limitation: 2D projected density on sky may misclassify some galaxies
+- Limitation: SDSS DR4 era data; sample size and depth now exceeded by SDSS DR7/DR12
+  and COSMOS/CANDELS surveys
+
+## StarGen applicability
+Provides the environmental-dependence model for StarGen's galaxy generator. When the
+user sets `environment_density_index` (dense cluster vs loose field), this paper
+justifies how galaxy morphological type probabilities should shift. In the catalog,
+`park2007` is cited for `galaxy_type` and `environment_density_index` parameters.
+
+## Parameters, constraints, and mechanics implications
+
+**Morphology-density relation (quantitative summary):**
+The fraction of early-type (E/S0) galaxies increases with local density:
+- Field (low density, Σ < 0.1 galaxies/Mpc²): ~20–30% early-type
+- Group (intermediate density): ~40–50% early-type
+- Cluster core (high density, Σ > 10 galaxies/Mpc²): ~60–80% early-type
+(These fractions are approximate from the paper's figures; exact values depend on
+sample selection and morphology definition.)
+
+**Luminosity-density relation:**
+- Higher-mass galaxies are more likely to reside in denser environments
+- A galaxy generator that places massive galaxies preferentially in clusters is
+  consistent with this finding
+- Conversely: field environments should be richer in low-mass, late-type spirals and
+  irregular galaxies
+
+**Implications for StarGen galaxy type distribution by environment:**
+Map `environment_density_index` (0 = void/field, 1 = cluster/dense) to morphological
+type mixing fractions as follows:
+- `environment_density_index = 0.0` (field): 70% Spiral/Irregular, 30% Elliptical/Lenticular
+- `environment_density_index = 0.5` (group): 50% Spiral, 50% E/S0
+- `environment_density_index = 1.0` (cluster): 25% Spiral, 75% E/S0
+(These are indicative numbers consistent with the paper; tunable as user levers.)
+
+**Properties NOT driven by environment (once morphology fixed):**
+- Color gradient: not independently environment-dependent → no separate color vs density
+  rule needed; color follows from morphology/age
+- Concentration: similarly explained by morphology
+- Star formation rate: explained by morphology (spirals star-forming; ellipticals passive)
+
+## APA citation
+Park, C., Choi, Y., Vogeley, M. S., Gott, J. R. III, & Blanton, M. R. (2007).
+Environmental dependence of properties of galaxies in the Sloan Digital Sky Survey.
+The Astrophysical Journal, 658(2), 898–916.
+https://doi.org/10.1086/511059
+
+## Conflicts and follow-up work
+
+**Companion paper in corpus:**
+- TanakaEtAl2004.txt — earlier study with similar methodology using SDSS; finds a
+  "break" at a critical density for faint galaxies (complementary result)
+
+**Follow-up environmental quenching studies:**
+- Peng, Y.-J., et al. (2010) MNRAS 402, 1536 — "mass quenching" and "environment
+  quenching" as independent channels; important refinement showing environment effects
+  are real even at fixed morphology for low-mass galaxies. arXiv:0912.1636.
+- Wetzel, A. R., et al. (2012) MNRAS 424, 232 — quenching timescale in satellite
+  galaxies is ~2–5 Gyr; slow "delayed-then-rapid" process. arXiv:1205.1tenure.
+- Woo, J., et al. (2013) MNRAS 428, 3306 — SDSS environmental effects vs stellar mass.
+- **The Park et al. (2007) "morphology mediates all effects" conclusion has been partly
+  nuanced by subsequent work:** Peng et al. (2010) and others show that for low-mass
+  satellite galaxies, environment has quenching effects beyond what morphology alone
+  explains. For bright/massive galaxies, the Park et al. result remains valid.
+
+**Broader context:**
+- Dressler, A. (1980) — original morphology-density relation (the classic reference
+  that Park et al. revisit with SDSS).
+- Blanton, M. R., & Moustakas, J. (2009) ARA&A — comprehensive review of physical
+  properties and environments of nearby galaxies. arXiv:0908.3017.
+
+**Citation discovery:**
+- ADS: https://ui.adsabs.harvard.edu/abs/2007ApJ...658..898P
+
+## StarGen mechanics translation
+
+### Environment-to-morphology mapping
+This paper provides the empirical basis for how `environment_density_index` biases the
+galaxy type distribution in StarGen's galaxy generator.
+
+**Galaxy type probability by environment (implementation sketch):**
+```
+// Spiral fraction as a function of environment_density_index (0=field, 1=cluster)
+double spiralFraction = Lerp(0.70, 0.25, environment_density_index);
+double ellipticalFraction = Lerp(0.10, 0.50, environment_density_index);
+double lenticularFraction = 1.0 - spiralFraction - ellipticalFraction;
+
+// Then galaxy_type is sampled from (spiralFraction, ellipticalFraction, lenticularFraction)
+GalaxyType type = rng.Sample(spiralFraction, ellipticalFraction, lenticularFraction);
+```
+
+**Rule: morphology-first generation**
+Do NOT apply separate color, SFR, or concentration biases as a function of environment
+after morphology is assigned. Those properties follow from morphology.
+Color and SFR are determined by galaxy type (morphology), not independently by density.
+
+**User lever:** `EnvironmentDensityIndex` (0.0–1.0 slider); labels: "Field" / "Group" /
+"Cluster". This lever shifts morphology probabilities per the table above.
+
+**Cross-references:** TanakaEtAl2004.txt (complementary SDSS environmental study),
+OohamaEtAl2009.txt (bulge/disk structural parameters), LaurikainenEtAl2010.txt
+(photometric scaling by morphological type), Behroozi2019.txt (halo mass and galaxy
+mass function context).

@@ -218,11 +218,11 @@ Kremer (1993) argues that larger populations can accelerate technological change
 
 Henrich et al. (2016) on cumulative cultural evolution supports treating technology as a retention-and-transmission problem, not just a genius-inventor problem. That means small, isolated, or fragmented societies should lose or plateau in complex techniques more easily than large, connected societies with strong knowledge transmission.
 
-Comin and Hobijn (2010) support modeling technology as adoption and diffusion, not just invention. In StarGen terms, tech level should depend on trade connectivity and absorption capacity, especially for colonies and worlds inside larger interstellar networks.
+Technology diffusion and adoption are modeled separately from invention pace: tech level and adapter-facing readouts should depend on trade connectivity and absorption capacity, especially for colonies and worlds inside larger interstellar networks. That split is a StarGen design choice, not a single-citation empirical claim.
 
 #### Governance and regime formation
 
-Blanton and Fargher (2008) support using collective-action and bargaining structure as a core governance variable. A polity with broad fiscal bargaining and strong public-goods dependence should not resolve to the same regime distribution as an extraction-heavy conquest polity.
+Fiscal bargaining breadth and public-goods dependence are modeled as governance inputs so that broad-bargain polities and extraction-heavy or conquest-tilted polities are not forced into the same regime distribution. Those axes are design variables for sentient-world output, not single-source empirical claims.
 
 Turchin (2010) and related Seshat work support giving warfare and frontier pressure a real role in pushing institutions toward greater scale, hierarchy, and coordination. That does not mean "war always improves states," but it does justify using external threat as one of the main regime-shaping inputs.
 

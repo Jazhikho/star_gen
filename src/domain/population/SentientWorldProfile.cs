@@ -119,6 +119,26 @@ public partial class SentientWorldProfile : RefCounted
     public double ReligiousCentralization;
 
     /// <summary>
+    /// Proxy for capability breadth, relatedness, and production readiness.
+    /// </summary>
+    public double EconomicComplexity;
+
+    /// <summary>
+    /// Internal legitimacy proxy for acceptance by local populations.
+    /// </summary>
+    public double InternalLegitimacy;
+
+    /// <summary>
+    /// External legitimacy proxy for acceptance by connected outside actors.
+    /// </summary>
+    public double ExternalLegitimacy;
+
+    /// <summary>
+    /// Whether this profile uses social-science proxies that require human audit before release claims.
+    /// </summary>
+    public bool HumanAuditRequired;
+
+    /// <summary>
     /// Converts this profile to a dictionary payload.
     /// </summary>
     public Dictionary ToDictionary()
@@ -146,6 +166,10 @@ public partial class SentientWorldProfile : RefCounted
         data["technology_adoption_capacity"] = TechnologyAdoptionCapacity;
         data["factional_fragmentation"] = FactionalFragmentation;
         data["religious_centralization"] = ReligiousCentralization;
+        data["economic_complexity"] = EconomicComplexity;
+        data["internal_legitimacy"] = InternalLegitimacy;
+        data["external_legitimacy"] = ExternalLegitimacy;
+        data["human_audit_required"] = HumanAuditRequired;
         return data;
     }
 
@@ -177,6 +201,10 @@ public partial class SentientWorldProfile : RefCounted
         profile.TechnologyAdoptionCapacity = Clamp01(GetDouble(data, "technology_adoption_capacity", 0.0));
         profile.FactionalFragmentation = Clamp01(GetDouble(data, "factional_fragmentation", 0.0));
         profile.ReligiousCentralization = Clamp01(GetDouble(data, "religious_centralization", 0.0));
+        profile.EconomicComplexity = Clamp01(GetDouble(data, "economic_complexity", 0.0));
+        profile.InternalLegitimacy = Clamp01(GetDouble(data, "internal_legitimacy", 0.0));
+        profile.ExternalLegitimacy = Clamp01(GetDouble(data, "external_legitimacy", 0.0));
+        profile.HumanAuditRequired = GetBool(data, "human_audit_required", false);
         return profile;
     }
 
@@ -194,6 +222,8 @@ public partial class SentientWorldProfile : RefCounted
         summary["social_scale"] = SocialScale;
         summary["state_capacity"] = StateCapacity;
         summary["trade_connectivity"] = TradeConnectivity;
+        summary["economic_complexity"] = EconomicComplexity;
+        summary["human_audit_required"] = HumanAuditRequired;
         return summary;
     }
 
@@ -271,6 +301,22 @@ public partial class SentientWorldProfile : RefCounted
         if (value.VariantType == Variant.Type.String)
         {
             return (string)value;
+        }
+
+        return fallback;
+    }
+
+    private static bool GetBool(Dictionary data, string key, bool fallback)
+    {
+        if (!data.ContainsKey(key))
+        {
+            return fallback;
+        }
+
+        Variant value = data[key];
+        if (value.VariantType == Variant.Type.Bool)
+        {
+            return (bool)value;
         }
 
         return fallback;

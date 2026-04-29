@@ -1,0 +1,218 @@
+# Murphy2023
+
+## Source metadata
+- File: `Murphy2023.pdf`
+- Domain: political economy / institutional economics / government classification / civilization modeling
+- Pages: ~17
+- Authors: Murphy, R. H.
+- Source ID in StarGen code: `murphy2023`
+- **PDF acquisition:** Journal of Institutional Economics, 19(5), 618–634 (2023).
+  DOI: 10.1017/S1744137423000103
+  Published online April 28, 2023.
+  Open access: https://www.cambridge.org/core/journals/journal-of-institutional-economics/article/measuring-open-access-orders/8CDF16BED0467FC5DAC41D4B80EF112A
+  **PDF confirmed present in Sources/Texts/.**
+
+## Abstract
+This paper assesses how to quantitatively classify countries as conforming to the ideal
+of an "open access order" in the spirit of Douglass North, John Joseph Wallis, and Barry
+Weingast's "Violence and Social Orders." It does so by taking the harmonic mean of already
+existing measures of economic freedom, liberal democracy, and state capacity. Thirty-five
+countries out of 161 in 2020 were assessed to be open access orders. A main dataset is
+constructed for the years 1950 to present, and a supplementary dataset for select countries
+is constructed for years back to 1850. Switzerland has the highest index score for open
+access orders in 2020, is classified to be an open access order continuously since 1950,
+and is the first country to be classified as an open access order (in 1875).
+
+## Major claims, findings, models, assumptions, and limitations
+- **Open Access Order (OAO):** Concept from North, Wallis & Weingast (2009) "Violence
+  and Social Orders." An OAO is a society where: (1) impersonal rule of law applies to
+  elites and citizens alike, (2) open entry into economic and political organizations
+  is permitted, (3) the state has a consolidated monopoly on violence. This is the
+  "mature liberal democratic capitalist state" in NWW terminology.
+- **The three-component index:** Murphy operationalizes OAO as the harmonic mean of:
+  1. Economic freedom (Fraser Institute EFW index) — 0-10 scale
+  2. Liberal democracy (V-Dem Liberal Democracy Index) — 0-1 scale
+  3. State capacity (Hanson & Sigman 2021) — 0-1 scale
+  These three components correspond directly to the three dimensions in NWW theory:
+  economic openness, political openness, and enforcement capacity.
+- **OAO threshold:** A country is classified as an OAO if its harmonic mean score
+  exceeds a threshold (roughly 0.70 on the normalized index). 35 of 161 countries
+  qualified in 2020.
+- **Historical path to OAO:** The data show that states transition toward OAO slowly
+  over decades to centuries. No sudden transitions; the path is path-dependent.
+- **Key empirical pattern:** OAO status correlates strongly with high income, low crime,
+  stable institutions, high TechLevel analog, and open trade — exactly the civilization
+  profile of a TL 9-12 world in Traveller/SWN terms.
+- **Limited access orders (LAO):** All non-OAO states are in some form of "limited
+  access order" — elites limit entry into economic and political organizations to
+  maintain rents. This is the normal condition of human governance for most of history.
+  Maps to GovernmentType 4-10 in Traveller/SWN.
+- **Fragile states:** A third category — "fragile states" — where the state lacks a
+  consolidated monopoly on violence. Maps to GovernmentType 0-2 (anarchy, company,
+  self-perpetuating oligarchy) plus high LawLevel = 0 situations.
+- **Limitation:** The three components are independently developed indices, each with
+  their own methodological limitations. The composite inherits all of them.
+- **Limitation:** Covers 1950-2020 for most countries. Pre-1950 estimates for limited
+  countries only.
+- **Limitation:** The OAO concept is normatively loaded (implicitly Western liberal
+  model). Alien civilizations may have alternative stable governance configurations
+  not captured by this framework.
+
+## StarGen applicability
+Provides the **quantitative three-dimensional government classification** for StarGen's
+civilized world generator. The OAO index maps cleanly to the most important Traveller/SWN
+government type and law level combinations:
+- OAO → GovernmentType 1-3 (democratic types) + LawLevel 3-6
+- LAO → GovernmentType 4-10 (various authoritarian/oligarchic types) + LawLevel 4-9
+- Fragile → GovernmentType 0, 2 (anarchy, company) + LawLevel 0-3
+
+Together with MaysharMoavPascali2022 (origin of state) and AuerbachThachil2024
+(three-axis capacity model), Murphy2023 provides the mature-state endpoint classification.
+
+## Parameters, constraints, and mechanics implications
+
+**Three-component index (quantified):**
+```
+Component                  | Source index | Range | High = what?
+---------------------------|--------------|-------|------------------------
+Economic freedom (EF)      | Fraser EFW   | 0-10  | Open markets, property rights
+Liberal democracy (LD)     | V-Dem LDI    | 0-1   | Electoral + civil liberties
+State capacity (SC)        | Hanson 2021  | 0-1   | Administrative effectiveness
+OAO_index = harmonic_mean(EF/10, LD, SC)
+OAO if OAO_index >= 0.70
+LAO if 0.30 <= OAO_index < 0.70
+Fragile if OAO_index < 0.30
+```
+
+**Government type probability by governance category:**
+```csharp
+// Map governance category to Traveller/SWN GovernmentType probabilities
+GovernmentType GovernmentFromOAO(OAOCategory cat, GalaxyRng rng)
+{
+    return cat switch
+    {
+        OAOCategory.OpenAccess =>
+            // Weighted toward participatory types
+            WeightedSample(rng, new[] {
+                (GovernmentType.Participatory, 0.35),
+                (GovernmentType.RepresentativeDemocracy, 0.30),
+                (GovernmentType.SelfPerpetuatingOligarchy, 0.10),
+                (GovernmentType.CivilService, 0.15),
+                (GovernmentType.Corporate, 0.10)
+            }),
+        OAOCategory.LimitedAccess =>
+            // All types possible, authoritarian weighted higher
+            WeightedSample(rng, new[] {
+                (GovernmentType.Feudal, 0.10),
+                (GovernmentType.Technocracy, 0.10),
+                (GovernmentType.Dictatorship, 0.20),
+                (GovernmentType.Military, 0.15),
+                (GovernmentType.Religious, 0.10),
+                (GovernmentType.TheocraticOligarchy, 0.10),
+                (GovernmentType.CaptiveGovernment, 0.10),
+                (GovernmentType.RepresentativeDemocracy, 0.10),
+                (GovernmentType.SelfPerpetuatingOligarchy, 0.05)
+            }),
+        OAOCategory.Fragile =>
+            // Anarchic and weak state types
+            WeightedSample(rng, new[] {
+                (GovernmentType.Anarchy, 0.30),
+                (GovernmentType.Company, 0.25),
+                (GovernmentType.Charismatic, 0.20),
+                (GovernmentType.Balkanization, 0.25)
+            }),
+        _ => GovernmentType.Anarchy
+    };
+}
+```
+
+**LawLevel by governance category:**
+```
+OAO (open access): LawLevel ~ 3-6 (rule of law; enforced but accessible)
+LAO (limited access): LawLevel ~ 4-9 (arbitrary enforcement; high for elites)
+Fragile: LawLevel ~ 0-3 (weak enforcement; danger from non-state actors)
+```
+
+**Historical path to OAO (generation constraint):**
+```csharp
+// Civilizations cannot jump to OAO status without a civilization age threshold
+// Murphy's data: earliest OAO status reached ~1875 (Switzerland), after ~200 years
+// of proto-democratic development from post-feudal LAO.
+// Approximate rule: OAO requires minimum civilizationAge > 150 years AND TechLevel >= 7
+bool oaoEligible = civAgeYears > 150 && techLevel >= 7;
+if (!oaoEligible && randomGovType == GovernmentType.Participatory)
+    randomGovType = GovernmentType.RepresentativeDemocracy; // downgrade
+```
+
+## APA citation
+Murphy, R. H. (2023). Measuring open access orders. Journal of Institutional Economics,
+19(5), 618–634. https://doi.org/10.1017/S1744137423000103
+
+## Conflicts and follow-up work
+
+**Foundational theory this operationalizes:**
+- North, D. C., Wallis, J. J., & Weingast, B. R. (2009) "Violence and Social Orders:
+  A Conceptual Framework for Interpreting Recorded Human History." Cambridge UP.
+  The three-category taxonomy (OAO / LAO / Fragile) comes from this book.
+
+**Related in corpus:**
+- MaysharMoavPascali2022.txt — origin of state; the LAO phase begins with appropriability
+  of agricultural surplus. Murphy's LAO is the mature form of Mayshar's hierarchy.
+- AuerbachThachil2024.txt — three-axis state capacity; the Murphy index embeds state
+  capacity as one of its three components.
+- HarfstEtAl2024.txt (in corpus) — political legitimacy measurement; complements
+  Murphy's economic freedom + democracy components.
+- TurchinEtAl2021WarMachines.txt — military technology. The state capacity component
+  in Murphy's index is partly military/coercive capacity.
+
+**Alternative government typologies:**
+- Polity V dataset — classic political science democracy-autocracy scale; more granular
+  than V-Dem but covers similar ground.
+- Freedom House Freedom in the World — alternative democratic freedom index.
+- World Bank Worldwide Governance Indicators — alternative state capacity proxy.
+
+**Citation discovery:**
+- DOI: 10.1017/S1744137423000103
+
+## StarGen mechanics translation
+
+### OAO classification → Government type and law level
+Murphy2023 provides the three-category governance typology and its mapping to
+RPG government type and law level distributions.
+
+**Generation rule: OAO category from TechLevel + age:**
+```csharp
+OAOCategory DetermineOAOCategory(int techLevel, long civAgeYears,
+    double appropriabilityIdx, GalaxyRng rng)
+{
+    // Base probability of OAO from tech level
+    double pOAO = techLevel switch
+    {
+        >= 10 => 0.50,
+        >= 8  => 0.25,
+        >= 6  => 0.10,
+        _     => 0.02
+    };
+    pOAO *= civAgeYears > 150 ? 1.5 : 0.5;
+    // Low appropriability (service/digital economy) → OAO more likely
+    pOAO *= (1.0 + (1.0 - appropriabilityIdx) * 0.5);
+
+    double roll = rng.NextDouble();
+    if (roll < pOAO) return OAOCategory.OpenAccess;
+
+    // Fragile states: young civilizations and very high exploitation
+    double pFragile = techLevel < 5 ? 0.20 : 0.05;
+    if (roll > (1.0 - pFragile)) return OAOCategory.Fragile;
+
+    return OAOCategory.LimitedAccess;
+}
+```
+
+**User lever:** `GovernanceModel` (enum: NWWThreeCategory / TraditionalRPG)
+- NWWThreeCategory: use OAO/LAO/Fragile classification (Murphy2023; default)
+- TraditionalRPG: use raw Traveller/SWN government type table (bypass)
+
+**Cross-references:** MaysharMoavPascali2022.txt (appropriability → LAO emergence),
+AuerbachThachil2024.txt (three-axis capacity model within LAO/OAO),
+HarfstEtAl2024.txt (legitimacy dimension), TurchinEtAl2021WarMachines.txt (military
+capacity component of state capacity score).

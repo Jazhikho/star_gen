@@ -1,0 +1,57 @@
+# KunimotoEtAl2022
+
+## Source metadata
+- File: `KunimotoEtAl2022.pdf`
+- Domain: planet occurrence/M-dwarfs/TESS
+- Pages: 27
+- Authors (auto-extracted — verify against PDF): Galen J. Bergsten,1 Ilaria Pascucci,1 Gijs D. Mulders,2, 3 Rachel B. Fernandes,1 and Tommi T. Koskinen1
+
+## Abstract
+Understanding the occurrence of Earth-sized planets in the habitable zone of Sun-like stars is essential to the search for Earth analogues. Yet a lack of reliable Kepler detections for such planets has forced many estimates to be derived from the close-in (2 < Porb < 100 days) population, whose radii may have evolved differently under the effect of atmospheric mass loss mechanisms. In this work, we compute the intrinsic occurrence rates of close-in super-Earths (∼ 1 − 2 R⊕ ) and sub-Neptunes (∼ 2 − 3.5 R⊕ ) for FGK stars (0.56 − 1.63 M ) as a function of orbital period and find evidence of two regimes: where super-Earths are more abundant at short orbital periods, and where sub-Neptunes are more abundant at longer orbital periods. We fit a parametric model in five equally populated stellar mass bins and find that the orbital period of transition between these two regimes scales with stellar mass, like Ptrans ∝ M∗1.7±0.2 . These results suggest a population of former sub-Neptunes contaminating the population of Gyr-old close-in super-Earths, indicative of a population shaped by atmospheric loss. Using our model to constrain the long-period population of intrinsically rocky planets, we estimate an occurrence rate of Γ⊕ = 15+6 −4 % for Earth-sized habitable zone planets, and predict that sub-Neptunes may be ∼ twice as common as super-Earths in the habitable zone (when normalized over the natural log orbital period and radius range used). Finally, we discuss our results in the context of future missions searching for habitable zone planets.
+
+## Major claims, findings, models, assumptions, and limitations
+*Human verification required before using quantitative values or model assumptions in
+StarGen defaults. Figures and equations not captured by text extraction — read the PDF
+for exact thresholds, fit coefficients, and table values.*
+
+- Primary domain: planet occurrence/M-dwarfs/TESS
+- See StarGen applicability section below for the specific implications.
+
+## StarGen applicability
+Updated M-dwarf occurrence rates from TESS (2022). M stars host most planets in the galaxy by number — updates per-star-type occurrence priors in StarGen.
+
+## Parameters, constraints, and mechanics implications
+*(Human action: fill in specific numeric values, distributions, model families, and
+classification boundaries extracted from the paper. Where competing models or confidence
+ranges exist, expose those as user-selectable assumptions rather than collapsing to a
+single default. Where the paper documents uncertainty, preserve it in StarGen rather
+than presenting false precision.)*
+
+## Works cited by this paper (auto-extracted from final pages, partial)
+- (Reference extraction incomplete — verify PDF.)
+
+## Opposing or alternative findings cited
+*(Human action: identify papers in the reference list that present opposing models,
+competing parameter choices, or significantly different results. Note the specific
+disagreement and its implication for which StarGen default to use.)*
+
+## APA citation
+*(Verify and complete — see AnnotatedBibliography.md for the curated APA entry.)*
+
+## Conflicts and follow-up work
+*(Human action: search for papers explicitly responding to, revising, or challenging
+this paper published after its date. For fast-moving fields (exoplanet demographics,
+habitability, JWST/TESS-informed work), treat results >3 years old as potentially
+superseded. Flag updates in Followup.md.)*
+
+
+## StarGen mechanics translation
+
+### Planet occurrence — TESS-calibrated rates (updated, GK stars)
+TESS-based occurrence rates for short-period planets; cross-validates Kepler results
+and extends to brighter stars. Broadly consistent with Petigura2013/Fulton2017.
+
+**StarGen:**
+- Use as alternative or cross-check occurrence table for P < 50 days.
+- `OccurrenceRateSource` enum: `Petigura2013` | `KunimotoEtAl2022` | `BergstenEtAl2023`
+**Cross-references:** Petigura2013.txt, Fulton2017.txt, BergstenEtAl2023.txt.

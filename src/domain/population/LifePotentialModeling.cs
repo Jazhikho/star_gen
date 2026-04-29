@@ -26,6 +26,8 @@ public static class LifePotentialModeling
             double sentienceMultiplier,
             double civilizationMultiplier,
             double environmentalWindowMultiplier,
+            GenerationUseCaseSettings.SubsurfaceHabitabilityModelType subsurfaceHabitabilityModel,
+            double darkBiosphereEnergyScale,
             bool requiresBreathableAtmosphereForComplexLife,
             bool requiresOxygenRichAtmosphereForCivilization)
         {
@@ -41,6 +43,8 @@ public static class LifePotentialModeling
             SentienceMultiplier = sentienceMultiplier;
             CivilizationMultiplier = civilizationMultiplier;
             EnvironmentalWindowMultiplier = environmentalWindowMultiplier;
+            SubsurfaceHabitabilityModel = subsurfaceHabitabilityModel;
+            DarkBiosphereEnergyScale = darkBiosphereEnergyScale;
             RequiresBreathableAtmosphereForComplexLife = requiresBreathableAtmosphereForComplexLife;
             RequiresOxygenRichAtmosphereForCivilization = requiresOxygenRichAtmosphereForCivilization;
         }
@@ -68,6 +72,10 @@ public static class LifePotentialModeling
         public double CivilizationMultiplier { get; }
 
         public double EnvironmentalWindowMultiplier { get; }
+
+        public GenerationUseCaseSettings.SubsurfaceHabitabilityModelType SubsurfaceHabitabilityModel { get; }
+
+        public double DarkBiosphereEnergyScale { get; }
 
         public bool RequiresBreathableAtmosphereForComplexLife { get; }
 
@@ -127,6 +135,8 @@ public static class LifePotentialModeling
             sentienceMultiplier,
             civilizationMultiplier,
             environmentalWindowMultiplier,
+            settings?.SubsurfaceHabitabilityModel ?? GenerationUseCaseSettings.SubsurfaceHabitabilityModelType.ProtectedOceanProxy,
+            System.Math.Clamp(settings?.DarkBiosphereEnergyScale ?? 1.0, 0.25, 3.0),
             requiresBreathableAtmosphereForComplexLife,
             requiresOxygenRichAtmosphereForCivilization);
     }

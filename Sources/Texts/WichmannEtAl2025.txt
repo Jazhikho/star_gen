@@ -1,0 +1,154 @@
+# WichmannEtAl2025
+
+## Source metadata
+- File: `WichmannEtAl2025.pdf`
+- Domain: social science / conflict modeling / historical archaeology / civilization violence
+- Pages: ~23
+- Authors: Wichmann, S., Loy, A. K., Andersen, A.-T., Bleile, R., Jonjić, D., Kneisel, J., Nübler, N., Santamaria, A., Schneeweiß, J., Schwedler, G., Zerzeropulos, K., Kienle, L., & Nakoinz, O.
+- Source ID in StarGen code: `wichmann2025`
+- **PDF acquisition:** PLOS ONE (2025). DOI: 10.1371/journal.pone.0313895
+  Open access. Available at https://doi.org/10.1371/journal.pone.0313895
+  **PDF confirmed present in Sources/Texts/.**
+
+## Abstract
+This paper develops a comparative model for fingerprinting armed conflict using
+archaeological and historical data from Bronze Age and Iron Age European societies.
+The authors identify a set of material culture indicators (weapon deposits, fortification
+investments, trauma patterns in skeletal remains, settlement disruption signatures)
+that can distinguish between different types of conflict: raiding, warfare, conquest,
+and internal factional violence. The model is applied to datasets from the ROOTS
+Cluster of Excellence and shows that different conflict types leave distinct archaeological
+fingerprints. Key findings: (1) raiding and inter-group warfare are distinguishable
+by the spatial pattern and scale of material remains; (2) conquest events correlate
+with abrupt settlement abandonment and material culture discontinuity; (3) internal
+factional violence correlates with fortification investment and weapon hoarding without
+settlement discontinuity. The paper provides a typology of conflict signatures useful
+for comparative historical analysis.
+
+## Major claims, findings, models, assumptions, and limitations
+- **Conflict typology (four types):**
+  1. **Raiding:** Small-scale, recurrent, limited geographic range. Material signature:
+     weapon hoards at boundaries, trauma on young males, no settlement abandonment.
+  2. **Warfare (inter-group):** Larger scale, episodic. Material signature: mass graves,
+     fortification construction, settlement consolidation (nucleation).
+  3. **Conquest:** Discontinuous. Material signature: abrupt material culture change,
+     settlement abandonment, population replacement in archaeogenomics.
+  4. **Internal factional violence:** Intra-group. Material signature: fortification
+     within settlement clusters, weapon hoarding, no external discontinuity.
+- **Archaeological fingerprint framework:** Each conflict type has a distinctive
+  combination of: (a) spatial scale, (b) skeletal trauma pattern, (c) settlement
+  pattern change, (d) weapon deposit type, (e) fortification investment.
+- **Historical periods studied:** Bronze Age (~2300-800 BCE) and Iron Age (~800-0 BCE)
+  Europe and adjacent regions. The Seshat databank and ROOTS project data used.
+- **Comparative application:** The model can be applied to any society with sufficient
+  archaeological data. It provides a standardizable conflict coding scheme.
+- **Implication for civilization modeling:** Conflict type tracks political complexity.
+  Raiding → pre-state (fragile governance). Warfare + conquest → early state formation.
+  Internal factional violence → LAO states with competing elites. External warfare in
+  OAO states tends toward formal military conflict rather than raiding.
+- **Limitation:** The model is derived from European Bronze/Iron Age data; applicability
+  to other regions and time periods requires validation.
+- **Limitation:** Archaeological preservation bias; absence of evidence ≠ absence of
+  conflict.
+
+## StarGen applicability
+Provides the **conflict type typology** for StarGen's law level and faction system.
+In StarGen's worldbuilding output:
+- Low TechLevel (0-4) + low GovernmentComplexity → raiding conflict type
+- Medium TechLevel (4-6) + LAO government → inter-group warfare and conquest
+- High TechLevel (6+) + low LawLevel → internal factional violence (civil conflict)
+- High TechLevel + OAO government → formal military (reduced frequency, higher scale)
+
+The conflict type fingerprint translates directly into descriptive worldbuilding text
+for StarGen's "Summary" output for a world.
+
+## Parameters, constraints, and mechanics implications
+
+**Conflict type from government/tech profile:**
+```csharp
+public enum ConflictType { None, Raiding, IntergroupWarfare, Conquest, InternalFaction, FormalMilitary }
+
+ConflictType DetermineConflictType(
+    OAOCategory govCat, int techLevel, double internalLegitimacy, GalaxyRng rng)
+{
+    if (govCat == OAOCategory.Fragile)
+    {
+        return techLevel < 3
+            ? ConflictType.Raiding              // pre-state: sporadic raiding
+            : ConflictType.Conquest;            // power vacuum: conquest attempts
+    }
+    if (govCat == OAOCategory.LimitedAccess)
+    {
+        return internalLegitimacy < 0.35
+            ? ConflictType.InternalFaction      // elite competition
+            : ConflictType.IntergroupWarfare;   // external territorial conflict
+    }
+    // OAO: formal military if in conflict
+    return rng.NextDouble() < 0.15
+        ? ConflictType.FormalMilitary           // OAO still wars, but formally
+        : ConflictType.None;                    // most OAO worlds: no active conflict
+}
+```
+
+**LawLevel adjustment from conflict type:**
+```
+ConflictType          | LawLevel adjustment | Notes
+----------------------|---------------------|----------------------------------
+None                  | Baseline            |
+Raiding               | -1                  | Rule of law weak at frontier
+IntergroupWarfare     | 0 to +1             | Martial law possible
+Conquest              | -2 (transition)     | Governance breakdown during conquest
+InternalFaction       | -1 to +2            | Crackdown possible, or breakdown
+FormalMilitary        | +1                  | Emergency powers, martial law lite
+```
+
+## APA citation
+Wichmann, S., Loy, A. K., Andersen, A.-T., Bleile, R., Jonjić, D., Kneisel, J.,
+Nübler, N., Santamaria, A., Schneeweiß, J., Schwedler, G., Zerzeropulos, K., Kienle, L.,
+& Nakoinz, O. (2025). Fingerprinting conflict: A comparative model with applications
+to archaeological and historical data. PLOS ONE.
+https://doi.org/10.1371/journal.pone.0313895
+
+## Conflicts and follow-up work
+
+**Related cliodynamics / conflict typology:**
+- Turchin's secular cycle / PAX model — structural-demographic theory of political
+  instability; TurchinEtAl2021WarMachines.txt (in corpus) and TurchinEtAl2022.txt
+  for the temporal dynamics of conflict.
+- Richardson, L. F. (1960) "Statistics of Deadly Quarrels" — power-law distribution
+  of conflict magnitudes; foundational empirical work that Wichmann extends.
+
+**Related in corpus:**
+- TurchinEtAl2021WarMachines.txt — military technology drives conflict capability;
+  conflict type from Wichmann shifts with TechLevel (that paper's focus).
+- HarfstEtAl2024.txt — internal legitimacy deficit → InternalFaction conflict type.
+- Murphy2023.txt — Fragile category → Raiding/Conquest; OAO → FormalMilitary.
+
+**Citation discovery:**
+- DOI: 10.1371/journal.pone.0313895
+
+## StarGen mechanics translation
+
+### Conflict type → worldbuilding description
+WichmannEtAl2025 provides the conflict typology used in StarGen's world description
+generation. The conflict type is derived from government profile and translates to
+text describing the security environment of a world.
+
+**Conflict type → worldbuilding text (examples):**
+```
+ConflictType.None:             "Stable — no active armed conflict"
+ConflictType.Raiding:          "Persistent low-level raiding from non-state actors;
+                                 frontier zones dangerous"
+ConflictType.IntergroupWarfare:"Active territorial dispute with neighboring polity;
+                                 border regions contested"
+ConflictType.Conquest:         "Political transition — former government collapsed;
+                                 new authority establishing control"
+ConflictType.InternalFaction:  "Factional civil conflict; competing elite groups
+                                 contest control of government"
+ConflictType.FormalMilitary:   "State of formal military conflict with rival state;
+                                 wartime governance in effect"
+```
+
+**Cross-references:** HarfstEtAl2024.txt (legitimacy → conflict type trigger),
+Murphy2023.txt (governance category → conflict type prior),
+TurchinEtAl2021WarMachines.txt (tech level determines conflict capability).

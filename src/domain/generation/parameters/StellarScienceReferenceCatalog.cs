@@ -128,6 +128,10 @@ public static class StellarScienceReferenceCatalog
             "moedistefano2017",
             "Moe and Di Stefano (2017), period and mass-ratio distributions depend on primary mass.",
             "https://arxiv.org/abs/1606.05347"),
+        ["hurley2000"] = new StellarScienceSource(
+            "hurley2000",
+            "Hurley et al. (2000), analytic formulae for stellar evolution approximations.",
+            "Sources/Texts/Hurley2000.txt"),
     };
 
     private static readonly List<StellarScienceParameterReference> ParameterReferences = new()
@@ -166,6 +170,7 @@ public static class StellarScienceReferenceCatalog
         "kirkpatrick2000",
         "kirkpatrick2011",
         "kirkpatrick2024",
+        "hurley2000",
     };
 
     /// <summary>

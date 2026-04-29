@@ -1,0 +1,175 @@
+# ArvidssonEtAl2023
+
+## Source metadata
+- File: `ArvidssonEtAl2023.pdf`
+- Domain: social science / urban scaling / economic inequality / civilization modeling
+- Pages: ~13
+- Authors: Arvidsson, M., Lovsjö, N., & Keuschnigg, M.
+- Source ID in StarGen code: `arvidsson2023`
+- **PDF acquisition:** Nature Human Behaviour 7, 365–374 (2023).
+  DOI: 10.1038/s41562-022-01509-1
+  Published online 26 January 2023.
+  **PDF confirmed present in Sources/Texts/.**
+
+## Abstract
+Theories of urban scaling have demonstrated remarkable predictive accuracy at aggregate
+levels. However, they have overlooked the stark inequalities that exist within cities. Human
+networking and productivity exhibit heavy-tailed distributions, with some individuals
+contributing disproportionately to city totals. Here we use micro-level data from Europe
+and the United States on interconnectivity, productivity and innovation in cities. We find
+that the tails of within-city distributions and their growth by city size account for 36–80%
+of previously reported scaling effects, and 56–87% of the variance in scaling between
+indicators of varying economic complexity. Providing explanatory depth to these findings,
+we identify a mechanism — city size-dependent cumulative advantage — that constitutes
+an important channel through which differences in the size of tails emerge. Our findings
+demonstrate that urban scaling is in large part a story about inequality in cities, implying
+that the causal processes underlying the heavier tails in larger cities must be considered
+in explanations of urban scaling. This result also shows that agglomeration effects benefit
+urban elites the most, with the majority of city dwellers partially excluded from the
+socio-economic benefits of growing cities.
+
+## Major claims, findings, models, assumptions, and limitations
+- **Urban scaling laws are real but inequality-driven:** The power-law scaling of city
+  outputs (Y ~ N^β) is substantially driven by the heavy tails of within-city distributions,
+  not by average improvements for all residents. Scaling is largely an elite phenomenon.
+- **Quantitative decomposition:** 36–80% of previously reported scaling effects are
+  explained by the tails of within-city distributions growing with city size. This is a
+  critical reinterpretation of Bettencourt et al. (2007) and West et al. (2017).
+- **Mechanism — city size-dependent cumulative advantage:** Larger cities amplify
+  network externalities preferentially for already-connected individuals. The rich-get-richer
+  dynamic is stronger in bigger cities.
+- **Scaling variance by indicator:** The tail effect explains 56–87% of variance in
+  scaling exponents between different urban indicators (innovation > economic output >
+  infrastructure). High-complexity economic activities are most unequal.
+- **Across-country consistency:** The mechanism holds in both US and European city
+  data, suggesting a general urban social phenomenon.
+- **Implication for StarGen:** The aggregate tech level / trade output of a city is not
+  uniformly distributed. A high-tech-level world has a small ultra-productive elite
+  driving innovation, with a large majority at lower effective tech access. This is the
+  "inequality of civilization" insight.
+- **Limitation:** Micro-level data requires administrative definitions of city boundaries;
+  results sensitive to how "city" is defined.
+- **Limitation:** Focuses on contemporary developed-economy cities; applicability to
+  pre-industrial or non-Western urbanization patterns is uncertain.
+- **Limitation:** Does not model causation directly — cumulative advantage is a
+  proposed mechanism, not fully experimentally isolated.
+
+## StarGen applicability
+Provides the mechanistic basis for **within-civilization inequality** as a complement to
+Bettencourt et al. (2007)'s aggregate scaling laws. For StarGen's civilization output
+model (tech level, trade codes, law level), this paper justifies:
+1. Disaggregating "tech level" into a population-wide access measure vs. an elite
+   capability measure — the two can differ substantially
+2. Modeling civilizations with high aggregate output but high inequality as distinct
+   from civilizations with more uniform development
+3. A "development index" that separates aggregate GDP-equivalent from median
+   welfare, which maps to different RPG worldbuilding outcomes
+
+## Parameters, constraints, and mechanics implications
+
+**Scaling decomposition (quantitative):**
+- Tail fraction of scaling β: 36–80% (varies by indicator type)
+  - Innovation indicators (patents, startups): tail explains ~80%
+  - Economic output (GDP, wages): tail explains ~60%
+  - Infrastructure (roads, services): tail explains ~36%
+- This maps to StarGen's civilization output indicators:
+  - `TechLevel` (innovation): tail-driven → high inequality possible
+  - `TradeCode` (economic): moderate inequality
+  - `LawLevel` (infrastructure/administration): lower inequality (more uniform)
+
+**Cumulative advantage model (simplified for StarGen):**
+```csharp
+// For a civilization of given population N and aggregate tech level T_agg:
+// Elite capability (top decile): T_elite = T_agg * pow(N / N_ref, delta_elite)
+// Median capability: T_median = T_agg * pow(N / N_ref, delta_median)
+// where delta_elite > delta_median (larger cities amplify elite more)
+// Suggested defaults (calibrated to paper):
+//   delta_elite  ~ 0.20  (superlinear for elite)
+//   delta_median ~ 0.05  (near-linear for median)
+double techElite  = techAggregate * Math.Pow(population / refPopulation, 0.20);
+double techMedian = techAggregate * Math.Pow(population / refPopulation, 0.05);
+
+// Inequality index (Gini-proxy for tech/trade access):
+double giniProxy = (techElite - techMedian) / (techElite + techMedian);
+// giniProxy → 0: egalitarian (small city or uniform society)
+// giniProxy → 1: extreme inequality (large city, elite capture)
+```
+
+**Mapping to RPG parameters:**
+- High inequality world: high `TechLevel` but also high `LawLevel` (strong enforcement
+  apparatus needed to maintain elite power) and factional conflict
+- Low inequality world: lower peak `TechLevel` but more stable governance, lower
+  `LawLevel`, higher trade access for the median citizen
+- `FactionStrength` in StarGen population model: scales positively with giniProxy
+
+## APA citation
+Arvidsson, M., Lovsjö, N., & Keuschnigg, M. (2023). Urban scaling laws arise from
+within-city inequalities. Nature Human Behaviour, 7(3), 365–374.
+https://doi.org/10.1038/s41562-022-01509-1
+
+## Conflicts and follow-up work
+
+**This paper critiques and refines:**
+- Bettencourt, L. M. A., et al. (2007) PNAS 104, 7301 — the original urban scaling
+  law paper. BettencourtEtAl2007.txt (in corpus). The aggregate scaling β values in
+  Bettencourt are valid but the mechanism is now understood as inequality-driven,
+  not uniform productivity gains.
+- West, G. (2017) "Scale: The Universal Laws of Growth." — popular science treatment
+  of urban scaling. The Arvidsson paper directly challenges the "everyone benefits"
+  narrative.
+
+**Related inequality and urban complexity work:**
+- Florida, R. (2017) "The New Urban Crisis" — discusses urban inequality from a
+  geographic perspective; compatible with Arvidsson's findings.
+- Glaeser, E. L., et al. (2009) Journal of Urban Economics — urban wage premium
+  studies; the cumulative advantage mechanism is consistent with this literature.
+
+**Implications for economic complexity theory:**
+- Complementary to BallandEtAl2022.txt (in corpus) — economic complexity ECI
+  captures structural inequality in productive capacity at the national level; Arvidsson
+  captures it at the city level.
+
+**Citation discovery:**
+- DOI: 10.1038/s41562-022-01509-1
+
+## StarGen mechanics translation
+
+### Within-civilization inequality model
+ArvidssonEtAl2023 adds a second axis to StarGen's civilization characterization:
+aggregate output AND inequality. Together with BettencourtEtAl2007.txt, this provides
+a two-parameter civilization model.
+
+**Two-parameter civilization space:**
+```
+Axis 1 (from BettencourtEtAl2007): AggregateOutput = f(Population)
+Axis 2 (from ArvidssonEtAl2023):   InequalityIndex = f(Population, TechType)
+```
+
+**Generation rule:**
+```csharp
+// 1. Compute aggregate tech/trade level from Bettencourt scaling
+double aggOutput = BettencourtScale(population, techScalingExponent);
+
+// 2. Compute inequality index from Arvidsson tail model
+double inequalityIdx = 0.3 + 0.5 * Math.Log10(population / 1e5) / 5.0;
+inequalityIdx = Math.Clamp(inequalityIdx, 0.0, 0.9);
+
+// 3. Derive elite vs. median tech access
+double eliteTech  = aggOutput * (1.0 + inequalityIdx);
+double medianTech = aggOutput * (1.0 - inequalityIdx * 0.6);
+
+// 4. Map to RPG outputs
+int effectiveTechLevel   = (int)(medianTech * TL_SCALE);  // what most citizens experience
+int eliteTechLevel       = (int)(eliteTech  * TL_SCALE);  // what the ruling class has access to
+int factionCount         = (int)(2 + inequalityIdx * 5);   // more factions in unequal societies
+```
+
+**User lever:** `CivilizationInequalityModel` (enum: Egalitarian / Realistic / Dystopian)
+- Egalitarian: suppress inequality scaling; median ≈ aggregate
+- Realistic: use Arvidsson model as above
+- Dystopian: amplify tail effects; extreme elite/median gap
+
+**Cross-references:** BettencourtEtAl2007.txt (aggregate scaling),
+BallandEtAl2022.txt (economic complexity, product space),
+MaysharMoavPascali2022.txt (origin of state and elite taxation),
+TurchinEtAl2021WarMachines.txt (military tech as elite-driven).

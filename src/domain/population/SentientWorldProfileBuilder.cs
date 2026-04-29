@@ -1,4 +1,5 @@
 using Godot;
+using StarGen.Domain.Generation;
 
 namespace StarGen.Domain.Population;
 
@@ -13,7 +14,7 @@ public static class SentientWorldProfileBuilder
     /// <summary>
     /// Builds a sentient-world baseline from the active native and colony populations on a body.
     /// </summary>
-    public static SentientWorldProfile? Build(PlanetPopulationData data)
+    public static SentientWorldProfile? Build(PlanetPopulationData data, GenerationUseCaseSettings? settings = null)
     {
         if (!data.IsInhabited())
         {
@@ -53,6 +54,23 @@ public static class SentientWorldProfileBuilder
         double inclusiveness = accumulator.WeightedInclusiveness / accumulator.TotalPopulation;
 
         profile.SocialScale = Clamp01((populationScale * 0.75) + (groupScale * 0.15) + (habitability * 0.10));
+        if (settings?.SentientSocialScaleModel == GenerationUseCaseSettings.SentientSocialScaleModelType.PopulationHierarchyAware)
+        {
+            double highTechnologyBonus = 0.0;
+            if ((int)profile.HighestTechLevel >= (int)TechnologyLevel.Level.Industrial)
+            {
+                highTechnologyBonus = 0.06;
+            }
+
+            profile.SocialScale = Clamp01(
+                (populationScale * 0.58)
+                + (groupScale * 0.18)
+                + (administrativeCapacity * 0.14)
+                + highTechnologyBonus
+                + (habitability * 0.04));
+            profile.HumanAuditRequired = true;
+        }
+
         profile.SurplusBase = Clamp01(
             (habitability * 0.25)
             + (suitability * 0.20)
@@ -120,6 +138,32 @@ public static class SentientWorldProfileBuilder
             + (profile.CulturalAccumulation * 0.20)
             + (profile.StateCapacity * 0.15)
             + (profile.SurplusBase * 0.10));
+        if (settings?.SentientTechnologyDiffusionModel == GenerationUseCaseSettings.SentientTechnologyDiffusionModelType.AccessCostDensityProxy)
+        {
+            double implementationCostProxy = Clamp01((1.0 - selfSufficiency) * 0.35 + terrainFragmentation * 0.30 + frontierPressure * 0.35);
+            double densityProxy = Clamp01((populationScale * 0.55) + (profile.UrbanizationShare * 0.45));
+            profile.TechnologyAdoptionCapacity = Clamp01(
+                (profile.TechnologyAdoptionCapacity * 0.65)
+                + (densityProxy * 0.25)
+                - (implementationCostProxy * 0.20)
+                + (averageTech * 0.10));
+            profile.HumanAuditRequired = true;
+        }
+
+        profile.EconomicComplexity = Clamp01(
+            (resourceDiversity * 0.25)
+            + (profile.SurplusBase * 0.25)
+            + (profile.TradeConnectivity * 0.20)
+            + (profile.TechnologyAdoptionCapacity * 0.20)
+            + (profile.StateCapacity * 0.10));
+        if (settings?.SentientEconomicComplexityModel == GenerationUseCaseSettings.SentientEconomicComplexityModelType.CapabilityPortfolioProxy)
+        {
+            double capabilityRelatedness = Clamp01((resourceDiversity * 0.35) + (averageTech * 0.30) + (profile.CulturalAccumulation * 0.35));
+            double bindingConstraint = Clamp01((1.0 - selfSufficiency) * 0.45 + frontierPressure * 0.35 + terrainFragmentation * 0.20);
+            profile.EconomicComplexity = Clamp01((profile.EconomicComplexity * 0.55) + (capabilityRelatedness * 0.40) - (bindingConstraint * 0.20));
+            profile.SurplusBase = Clamp01((profile.SurplusBase * 0.88) + (profile.EconomicComplexity * 0.12));
+            profile.HumanAuditRequired = true;
+        }
 
         profile.FactionalFragmentation = Clamp01(
             (groupScale * 0.30)
@@ -134,11 +178,26 @@ public static class SentientWorldProfileBuilder
             + (profile.SocialScale * 0.20)
             + ((1.0 - profile.FactionalFragmentation) * 0.15)
             + (coercion * 0.10));
+        profile.InternalLegitimacy = Clamp01(
+            (inclusiveness * 0.42)
+            + (profile.FiscalContract * 0.24)
+            + ((1.0 - profile.RestrictionPressure) * 0.20)
+            + ((1.0 - coexistencePressure) * 0.14));
+        profile.LogisticsCapacity = ResolveLogisticsCapacity(profile);
+        profile.ExternalLegitimacy = Clamp01(
+            (profile.TradeConnectivity * 0.35)
+            + (profile.StateCapacity * 0.25)
+            + GetInterstellarHubLegitimacyBonus(profile)
+            + ((1.0 - profile.ExternalThreat) * 0.25));
+        if (settings?.SentientLegitimacyModel == GenerationUseCaseSettings.SentientLegitimacyModelType.InternalExternalNormProxy)
+        {
+            profile.LegalReach = Clamp01((profile.LegalReach * 0.70) + (profile.InternalLegitimacy * 0.18) + (profile.ExternalLegitimacy * 0.12));
+            profile.HumanAuditRequired = true;
+        }
 
         profile.UrbanizationShare = ResolveUrbanizationShare(profile, data);
         profile.SettlementPattern = ResolveSettlementPattern(profile, data, colonyShare);
         profile.PrimarySettlementRank = ResolvePrimarySettlementRank(profile.TotalPopulation, profile.UrbanizationShare);
-        profile.LogisticsCapacity = ResolveLogisticsCapacity(profile);
         return profile;
     }
 
@@ -569,6 +628,16 @@ public static class SentientWorldProfileBuilder
     private static double Clamp01(double value)
     {
         return System.Math.Clamp(value, 0.0, 1.0);
+    }
+
+    private static double GetInterstellarHubLegitimacyBonus(SentientWorldProfile profile)
+    {
+        if (profile.LogisticsCapacity == "Interstellar Hub")
+        {
+            return 0.15;
+        }
+
+        return 0.0;
     }
 
     private sealed class Accumulator

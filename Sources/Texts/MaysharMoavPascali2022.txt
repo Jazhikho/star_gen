@@ -1,0 +1,213 @@
+# MaysharMoavPascali2022
+
+## Source metadata
+- File: `MaysharMoavPascali2022.pdf`
+- Domain: social science / political economy / state formation / historical economics
+- Pages: ~60 (including appendices)
+- Authors: Mayshar, J., Moav, O., & Pascali, L.
+- Source ID in StarGen code: `mayshar2022`
+- **PDF acquisition:** Journal of Political Economy, 130(4), 1091–1144 (2022).
+  DOI: 10.1086/718372
+  Electronically published March 8, 2022.
+  **PDF confirmed present in Sources/Texts/.**
+
+## Abstract
+The conventional theory about the origin of the state is that the adoption of farming
+increased land productivity, which led to the production of food surplus. This surplus
+was a prerequisite for the emergence of tax-levying elites and, eventually, states. We
+challenge this theory and propose that hierarchy arose as a result of the shift to
+dependence on appropriable cereal grains. Our empirical investigation, utilizing multiple
+data sets spanning several millennia, demonstrates a causal effect of the cultivation of
+cereals on hierarchy, without finding a similar effect for land productivity. We further
+support our claims with several case studies. Regions with roots-and-tubers agriculture
+(non-storable, non-appropriable) systematically failed to develop state hierarchies even
+when productive. Regions with cereal agriculture (storable, appropriable) consistently
+produced tax-levying elites and states.
+
+## Major claims, findings, models, assumptions, and limitations
+- **Appropriability, not productivity, explains state emergence:** The decisive factor
+  was not food surplus per se, but whether the surplus COULD BE CONFISCATED. Cereal
+  grains (wheat, barley, millet, rice) are storable, harvestable in a fixed season, and
+  portable — making them ideal for taxation by emerging elites.
+- **Roots and tubers do not produce states:** Cassava, yam, taro, sweet potato, and
+  similar crops are perennial, harvested over extended periods, perishable, and hard to
+  transport — making them effectively impossible to tax. Regions relying on these crops
+  did not develop state hierarchies even when agricultural productivity was high.
+- **Empirical evidence:** Spanning multiple data sets including cross-national crop
+  suitability data, archaeological records of hierarchy indicators, and historical state
+  presence — the cereal cultivation variable has a significant causal effect on hierarchy
+  (via instrumental variable using geographic suitability), while land productivity alone
+  does not.
+- **Case studies:** Sub-Saharan Africa (roots/tubers dominant → limited state formation
+  in many regions), Southeast Asian highlands (James Scott "Zomia" — root cultivators
+  deliberately avoided state formation), vs. Mesopotamia, Yellow River, Nile Valley
+  (cereal-based → early complex states).
+- **"Storage revolution" framing:** This echoes J. C. Scott (2017) "Against the Grain"
+  and Taylor (1973) — what mattered was the ability to concentrate and store caloric
+  wealth, not just to produce it.
+- **Quantitative threshold (from paper's model):**
+  A tax rate of ~10–30% of cereal production was sufficient to support a non-farming
+  elite (bureaucrats, soldiers, priests) as a share of total population.
+- **Implication for technology:** Metallurgy and military technology (TurchinEtAl2021
+  "War Machines") co-evolve with state formation because both require concentrated
+  resource extraction to fund specialist production.
+- **Limitation:** The mechanism is historical and applies to the earliest phase of
+  state formation. Modern and post-industrial state formation has different drivers.
+- **Limitation:** The model treats "state" as binary (hierarchy present/absent). Real
+  state formation is graded and path-dependent.
+
+## StarGen applicability
+The foundational reference for **state/government emergence** from planetary conditions.
+In StarGen, a civilization cannot develop a complex government (GovernmentType > simple
+chieftain/tribal, LawLevel > 2) without having first developed:
+1. A storable, concentratable primary resource (analogous to cereals)
+2. The ability to extract that resource from producers (taxation/appropriation)
+3. A specialist class supported by that extraction (military, administration, religion)
+
+This translates to: planetary resource type influences government type. Worlds where
+the primary economic output is diffuse, non-storable, or hard to appropriate (digital
+goods, subsistence farming, nomadic pastoralism) should have LOWER government complexity
+and LawLevel than worlds where wealth is concentrated and storable (industrial output,
+mining, agricultural surplus).
+
+## Parameters, constraints, and mechanics implications
+
+**State formation prerequisites (from paper's model):**
+```
+1. Storable primary output: YES → state formation possible
+                            NO  → state formation blocked or delayed
+2. Appropriability of output: HIGH → rapid hierarchy emergence
+                              LOW  → slow or no hierarchy
+3. Agricultural base → surplus rate: ~10-30% extractable tax rate threshold
+```
+
+**Planetary resource → appropriability mapping:**
+```
+Resource Type               | Appropriability | State Complexity Bonus
+---------------------------|-----------------|----------------------
+Industrial manufacturing   | Very High       | +2
+Cereal/agricultural        | High            | +1
+Mining/extraction          | High            | +1
+Livestock/pastoral         | Moderate        | 0
+Digital/service economy    | Low             | -1 (hard to tax)
+Nomadic/dispersed          | Very Low        | -2
+Subsistence roots/tubers   | Very Low        | -2
+```
+
+**Government type emergence model:**
+```csharp
+// Government complexity requires:
+// 1. Sufficient population (absolute threshold, not relative)
+// 2. Concentratable/storable primary resource
+// 3. Sufficient time for hierarchy emergence (generations)
+int maxGovernmentComplexity = BaseGovComplexity(civilizationAge);
+maxGovernmentComplexity += AppropriabilityBonus(planet.PrimaryEconomy);
+maxGovernmentComplexity = Math.Clamp(maxGovernmentComplexity, 0, 13);
+
+// A world with all digital/service economy and no physical surplus control:
+// maxGovernmentComplexity is capped lower, favoring participatory/democratic types
+// A world with industrial surplus extraction:
+// maxGovernmentComplexity can reach authoritarian types with high LawLevel
+```
+
+**Tax rate / extraction rate as a derived parameter:**
+```
+// Extraction rate E = fraction of primary output directed to non-producing elite
+// E ~ 0.10 – 0.30 for pre-industrial states (consistent with paper)
+// E ~ 0.30 – 0.50 for advanced industrial states (via diversified tax base)
+// E > 0.50: unsustainable — triggers instability / collapse cycle (Turchin's PSI)
+double extractionRate = Math.Min(0.05 + 0.25 * govComplexity / 13.0, 0.50);
+// Note: connect to TurchinEtAl2021WarMachines.txt for military spend fraction
+```
+
+## APA citation
+Mayshar, J., Moav, O., & Pascali, L. (2022). The origin of the state: Land productivity
+or appropriability? Journal of Political Economy, 130(4), 1091–1144.
+https://doi.org/10.1086/718372
+
+## Conflicts and follow-up work
+
+**Intellectual tradition this paper challenges:**
+- Smith, A. (1776) "Wealth of Nations" — productivity surplus → surplus → state (the
+  "conventional" theory the paper critiques).
+- Boserup, E. (1965) "The Conditions of Agricultural Growth" — population pressure
+  drives agricultural intensification → surplus → state. Mayshar argues appropriability
+  is the key mediating variable.
+
+**Supporting intellectual tradition:**
+- Scott, J. C. (2017) "Against the Grain: A Deep History of the Earliest States." Yale
+  UP. Key insight: cereal grains are "legible" to tax collectors; roots and tubers are not.
+- Carneiro, R. L. (1970) Science 169, 733 — "A Theory of the Origin of the State."
+  Circumscription theory: geographic constraints forced populations into resource
+  competition → hierarchy. Compatible with Mayshar's appropriability mechanism.
+- North, D. C., Wallis, J. J., & Weingast, B. R. (2009) "Violence and Social Orders."
+  MurphyEtAl2023.txt (in corpus) — open access orders as mature state form.
+
+**Related papers in corpus:**
+- TurchinEtAl2021WarMachines.txt — military technology evolution co-evolves with
+  state formation; war funding requires cereal-grain-like concentratable surplus.
+- AuerbachThachil2024.txt — modern state capacity dimensions (fiscal, administrative,
+  legal); the fiscal dimension is rooted in the appropriability mechanism.
+- MurphyEtAl2023.txt — measuring modern state quality; the open access order is the
+  mature endpoint of the process this paper describes at the origin.
+
+**Recent related work:**
+- Mayshar, J., Moav, O., Neeman, Z., & Pascali, L. (2023) "Cereals, Appropriability
+  and Hierarchy." Working paper — extends the model with formal theory.
+
+**Citation discovery:**
+- DOI: 10.1086/718372
+
+## StarGen mechanics translation
+
+### Planet-to-government-type via resource appropriability
+MaysharMoavPascali2022 is the foundational source for mapping planetary resource
+profiles to government type probabilities in StarGen.
+
+**The appropriability chain (generation logic):**
+```
+Planetary resources → Primary economic output type
+     → Appropriability index
+          → State formation probability and speed
+               → Government complexity range
+                    → GovernmentType distribution
+                         → LawLevel
+```
+
+**Appropriability index by economy type (for generation):**
+```csharp
+public static double AppropriabilityIndex(EconomyType economy)
+{
+    return economy switch
+    {
+        EconomyType.HeavyIndustrial  => 0.90,
+        EconomyType.Agricultural     => 0.80,
+        EconomyType.Mining           => 0.85,
+        EconomyType.MixedIndustrial  => 0.70,
+        EconomyType.ServiceBased     => 0.40,
+        EconomyType.DigitalNomadic   => 0.20,
+        EconomyType.SubsistenceFarm  => 0.15,
+        _                            => 0.50
+    };
+}
+// High appropriability (> 0.7): authoritarian government types more probable
+// Low appropriability (< 0.4): distributed/participatory types more probable
+```
+
+**Government type probability weight adjustment:**
+```csharp
+// Boost authoritarian types (types 4-9 in SWN/Traveller) for high appropriability
+// Boost democratic/corporate types (types 1-3, 12-13) for low appropriability
+double authBias = AppropriabilityIndex(economy) - 0.5;
+// authBias in [-0.5, 0.4]; positive → boost authoritarian probability weights
+```
+
+**User lever:** `GovernmentOriginModel` (enum: Appropriability / Population / Random)
+- Appropriability: use MaysharMoavPascali resource-to-government chain (default)
+- Population: use simple population threshold only
+- Random: uniform distribution across government types
+
+**Cross-references:** AuerbachThachil2024.txt (modern three-axis capacity model),
+TurchinEtAl2021WarMachines.txt (military as co-evolutionary product of state),
+MurphyEtAl2023.txt (open access order as mature state endpoint),
+BallandEtAl2022.txt (economic complexity and trade capacity built on state foundation).

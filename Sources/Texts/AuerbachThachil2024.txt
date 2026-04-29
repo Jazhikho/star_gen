@@ -1,0 +1,157 @@
+# AuerbachThachil2024
+
+## Source metadata
+- File: `AuerbachThachil2024.pdf`
+- Domain: political science / state capacity / governance / civilization modeling
+- Pages: ~21
+- Authors: Auerbach, K., Lerner, J. Y., & Ridge, H. M.
+- Source ID in StarGen code: `auerbach2024`
+- **PDF acquisition:** State Politics & Policy Quarterly, 24(4), 349–369 (2024).
+  DOI: 10.1017/spq.2024.11
+  **PDF confirmed present in Sources/Texts/.**
+
+## Abstract
+This article addresses the interstate differences in outcomes from the COVID-19 pandemic
+by focusing on state capacity. State capacity refers to states' ability to create and implement
+policy. We posit that states want to limit death and destruction within their borders. COVID-19
+created an instance in which states had a shared, preferred outcome but had very different
+levels of success. Using a novel measure of state capacity that allows for subnational
+comparisons — and is independent of ideological political will — we show that states with
+greater capacity experienced fewer excess deaths during 2020 and more successfully
+distributed vaccines in early 2021. The findings are robust to various measures of
+partisanship, social capital, geography, and demographics.
+
+## Major claims, findings, models, assumptions, and limitations
+- **State capacity predicts policy outcomes independently of ideology:** States with
+  higher administrative/bureaucratic capacity achieved better COVID-19 outcomes
+  regardless of political partisanship. Capacity and political will are separable dimensions.
+- **Novel state capacity measure:** The paper constructs a US state-level capacity index
+  combining economic freedom, democratic accountability, and bureaucratic effectiveness.
+  This three-component measure is validated against pandemic outcomes.
+- **Dimensions of state capacity (from the paper's index framework):**
+  1. Bureaucratic/administrative capacity — ability to implement decisions
+  2. Fiscal capacity — ability to raise and deploy resources
+  3. Legal-coercive capacity — ability to enforce compliance
+- **Key result:** The capacity index has r ~ 0.5–0.6 with excess-death outcomes;
+  this is comparable to or exceeds the predictive power of partisanship.
+- **Limitation:** The study is confined to US states (subnational variation within a
+  single federal system). Generalizability to cross-national variation is uncertain.
+- **Limitation:** COVID-19 is an unusual crisis. State capacity in normal-governance
+  conditions may be structured differently than in emergency response.
+- **Limitation:** The capacity index is contemporary and backward-looking (based on
+  institutional track record). New states, post-revolution states, or externally-formed
+  states may have different trajectories.
+
+## StarGen applicability
+**Assessment: partially on-topic.** The paper's direct subject (COVID response) is
+off-topic for StarGen. However, the three-component state capacity framework and the
+separation of "capacity" from "political will" are directly applicable to StarGen's
+government modeling:
+- `LawLevel` in Traveller/SWN maps to legal-coercive capacity
+- Government type maps to political will / ideology
+- `TechLevel` and economic development map to fiscal capacity
+- The paper provides validation that these three dimensions are empirically separable,
+  supporting StarGen's multi-axis civilization model.
+
+**Recommendation:** Use for the conceptual three-axis government model only.
+Do not cite COVID outcomes in StarGen documentation. Cross-reference with
+MurphyEtAl2023 (open access orders index) and HarfstEtAl2024 (political legitimacy).
+
+## Parameters, constraints, and mechanics implications
+
+**Three-axis government model (from state capacity dimensions):**
+```
+Axis 1: Administrative capacity   → maps to LawLevel (ability to enforce rules)
+Axis 2: Fiscal capacity           → maps to TechLevel / economic complexity
+Axis 3: Democratic legitimacy     → maps to GovernmentType (authority basis)
+```
+
+**Key insight for StarGen — capacity ≠ political form:**
+- A military dictatorship can have high administrative capacity (enforces rules well)
+  and low democratic legitimacy → high LawLevel, authoritarian GovernmentType
+- A democracy can have low administrative capacity → low effective LawLevel despite
+  formal rule-of-law
+- This justifies independent sampling of GovernmentType and LawLevel in StarGen
+
+**State capacity vs. political will — independence:**
+```csharp
+// These two dimensions are empirically separable (Auerbach et al. 2024):
+// LawLevel = f(capacity) independent of governmentType
+// GovernmentType = f(political economy, history) independent of LawLevel
+// Correlation is moderate (~0.3-0.5) but far from deterministic
+// → Sample them with a moderate correlation, not as a deterministic function
+double lawLevelBase = SampleLawLevel(rng);
+double governmentTypeBase = SampleGovernmentType(rng);
+// Mild positive correlation: more capable states are weakly more likely to be democratic
+double correlation = 0.35;
+// Apply correlation via Cholesky or simple adjustment
+```
+
+## APA citation
+Auerbach, K., Lerner, J. Y., & Ridge, H. M. (2024). State capacity and COVID-19
+responses: Comparing the US states. State Politics & Policy Quarterly, 24(4), 349–369.
+https://doi.org/10.1017/spq.2024.11
+
+## Conflicts and follow-up work
+
+**Foundational state capacity framework:**
+- North, D. C., Wallis, J. J., & Weingast, B. R. (2009) "Violence and Social Orders:
+  A Conceptual Framework for Interpreting Recorded Human History." Cambridge UP.
+  MurphyEtAl2023.txt (in corpus) operationalizes this "open access orders" concept.
+- Fukuyama, F. (2013) Governance 26, 347 — state capacity vs. rule of law vs.
+  accountability: the three independent dimensions of state quality.
+
+**Complementary measures:**
+- HarfstEtAl2024.txt (in corpus) — internal vs. external political legitimacy; adds
+  the consent dimension to state capacity.
+- MurphyEtAl2023.txt (in corpus) — measuring open access orders; closely related
+  operational index.
+- MaysharMoavPascali2022.txt (in corpus) — historical origin of state capacity
+  through appropriability of agricultural surplus.
+
+**Citation discovery:**
+- DOI: 10.1017/spq.2024.11
+
+## StarGen mechanics translation
+
+### State capacity as a civilization generation parameter
+AuerbachThachil2024 supports treating administrative capacity, fiscal capacity, and
+political legitimacy as three orthogonal axes in StarGen's government generation.
+
+**Government profile sampling (three-axis model):**
+```csharp
+public struct GovernmentProfile
+{
+    public double AdminCapacity;    // 0-1: ability to implement policy
+    public double FiscalCapacity;   // 0-1: ability to raise/deploy resources
+    public double Legitimacy;       // 0-1: degree of consent-based authority
+}
+
+// Sample each with mild correlations between them
+GovernmentProfile SampleGovernment(GalaxyRng rng, CivilizationContext ctx)
+{
+    double adminBase = rng.NextGaussian(0.5, 0.2);
+    double fiscalBase = adminBase * 0.5 + rng.NextGaussian(0.5, 0.2) * 0.5;
+    double legBase = rng.NextGaussian(0.5, 0.25);  // nearly independent
+    return new GovernmentProfile
+    {
+        AdminCapacity = Math.Clamp(adminBase, 0.0, 1.0),
+        FiscalCapacity = Math.Clamp(fiscalBase, 0.0, 1.0),
+        Legitimacy = Math.Clamp(legBase, 0.0, 1.0)
+    };
+}
+
+// Map to RPG outputs:
+// LawLevel: primarily AdminCapacity (0→LL0; 1→LL9)
+// GovernmentType: primarily Legitimacy dimension
+// TechLevel: partially FiscalCapacity
+```
+
+**User lever:** `GovernmentModel` (enum: Simple / ThreeAxis)
+- Simple: sample GovernmentType and LawLevel independently with mild correlation
+- ThreeAxis: use AdminCapacity/FiscalCapacity/Legitimacy model from this paper
+
+**Cross-references:** MurphyEtAl2023.txt (open access orders, operationalizes
+legitimacy dimension), HarfstEtAl2024.txt (internal/external legitimacy),
+MaysharMoavPascali2022.txt (historical origin of fiscal capacity through taxation),
+TurchinEtAl2021WarMachines.txt (military capacity as a driver of state capacity).

@@ -10,6 +10,17 @@ namespace StarGen.Domain.Systems;
 public static partial class OrbitalMechanics
 {
     /// <summary>
+    /// Minimum center-to-center spacing between adjacent planets as a multiple of the mutual Hill radius at the inner orbit.
+    /// </summary>
+    /// <remarks>
+    /// This multiplier is an engineering default for deterministic generation. It is not backed by any
+    /// human-reviewed full text stored under <c>Sources/Texts/</c>. Contributors must add and review
+    /// sourced material (see <c>Sources/SourceReviewProcedure.md</c> and <c>Sources/AnnotatedBibliography.md</c>,
+    /// Orbital stability section) to validate or replace this value.
+    /// </remarks>
+    private const double MinimumAdjacentPlanetSpacingMutualHillRadii = 10.0;
+
+    /// <summary>
     /// Calculates the Hill sphere radius for a body.
     /// </summary>
     public static double CalculateHillSphere(double bodyMassKg, double primaryMassKg, double semiMajorAxisM)
@@ -168,8 +179,14 @@ public static partial class OrbitalMechanics
     }
 
     /// <summary>
-    /// Estimates minimum long-term-stable spacing between adjacent planets.
+    /// Estimates minimum spacing between adjacent planets using the mutual Hill radius at the inner orbit
+    /// scaled by <see cref="MinimumAdjacentPlanetSpacingMutualHillRadii"/>.
     /// </summary>
+    /// <param name="innerPlanetMassKg">Mass of the inner planet in kilograms.</param>
+    /// <param name="outerPlanetMassKg">Mass of the outer planet in kilograms.</param>
+    /// <param name="starMassKg">Mass of the host star in kilograms.</param>
+    /// <param name="innerOrbitM">Semi-major axis of the inner planet in meters.</param>
+    /// <returns>Minimum center-to-center separation in meters.</returns>
     public static double CalculateMinimumPlanetSpacing(double innerPlanetMassKg, double outerPlanetMassKg, double starMassKg, double innerOrbitM)
     {
         if (innerOrbitM <= 0.0 || starMassKg <= 0.0)
@@ -179,7 +196,7 @@ public static partial class OrbitalMechanics
 
         double combinedMass = innerPlanetMassKg + outerPlanetMassKg;
         double hillRadius = innerOrbitM * System.Math.Pow(combinedMass / (3.0 * starMassKg), 1.0 / 3.0);
-        return hillRadius * 10.0;
+        return hillRadius * MinimumAdjacentPlanetSpacingMutualHillRadii;
     }
 
     /// <summary>

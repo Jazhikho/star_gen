@@ -1,0 +1,226 @@
+# Taiz2026
+
+## Source metadata
+- File: `Taiz2026.pdf`
+- Domain: astrobiology / Drake equation / fossil fuels / civilization prerequisites / coal
+- Pages: ~20 (review article)
+- Authors: Taiz, L., Primack, J., Hellinger, D., & Ward, P. D.
+- Source ID in StarGen code: `taiz2026`
+- **PDF acquisition:** Open Access (CC BY 4.0). DOI: 10.1017/S1473550425100244
+  Download from https://doi.org/10.1017/S1473550425100244 (Cambridge Core open access)
+  **PDF status: confirm presence in Sources/Texts/.**
+  Note: Web HTML retrieved 2026-04-27 — abstract and main text available from retrieval.
+
+## Abstract
+In the search for extraterrestrial intelligence (SETI), it is often assumed that intelligent
+life on an Earth-like exoplanet would inevitably develop the technological means for
+interstellar communication. This assumption ignores the critical role that fossil fuels
+played in driving the Industrial Revolution on Earth, which ultimately gave rise to our own
+advanced technological civilization (ATC) and the possibility of interstellar communication.
+We therefore propose that any habitable exoplanet that could potentially generate an ATC
+must contain sizable fossil fuel deposits, especially coal, which supplied most of the energy
+used in the Industrial Revolution during the 19th century. Coal is critical because, based
+on an Earth-like geology, it is more accessible than the much deeper deposits of oil and gas.
+Without coal, it would have been impossible to tap into the vast underground deposits of
+oil and gas during the 20th century. This raises the question of the inevitability of coal
+formation on an Earth-like exoplanet. Here we present arguments that coal formation may
+be unlikely, even on an Earth-like planet, because of the many contingent factors that have
+been recorded in the rock and biological record of our own planet, including the evolution of
+oxygenic photosynthesis itself, which generated the oxygen-rich atmosphere required for
+complex life to develop. Central to our argument is the host of highly contingent taphonomic
+factors, involving plate tectonics and climate, that were required to convert the tropical
+lycopsid swamp forests of the Pangean supercontinent to the massive coal deposits of the
+Carboniferous period. Finally, we discuss the need for synchronicity of the appearance of
+intelligent life forms and the maturation of vast deposits of coal. We conclude that the
+large number of contingencies involved in coal production justifies adding a term for coal
+to the Drake Equation for the number of ATCs in the galaxy.
+
+## Major claims, findings, models, assumptions, and limitations
+- **Fossil fuels as ATC prerequisite:** Coal was energetically necessary for the Industrial
+  Revolution. No equivalent energy-density substrate could have powered early
+  industrialization: wood/biomass max power density ~0.5 W/m², while industrial cities
+  need 20-30 W/m²; coal/oil reach 1,000-10,000 W/m². Solar, wind, geothermal, and early
+  nuclear were not scalable without pre-existing industrial technology.
+- **Coal gate for industrial-phase civilization:** Without coal, steel production
+  (requiring ~1,650°C in blast furnaces) is impossible. Without steel, deep oil/gas wells
+  (1,000-1,800 m) cannot be drilled. This creates a dependency chain: coal → steel
+  → oil/gas → advanced industrial civilization (TL 7+).
+- **Coal formation is highly contingent (the core argument):**
+  - Requires oxygenic photosynthesis → atmospheric O₂ → complex forests
+  - Requires Carboniferous-analog conditions: warm, humid, low-latitude swamp forests
+  - Requires Pangean-scale supercontinent geometry for tropical forest coverage
+  - Requires taphonomic preservation: plate tectonics must bury and compress organic
+    matter (taphonomic compression; requires active plate tectonics)
+  - Requires geological timing: coal must mature before intelligent life appears
+    (geologically: ~300 Myr after forest burial for high-grade coal)
+  - **Synchronicity constraint:** intelligent life must arise when coal exists AND is
+    accessible at shallow depth (< 300 m initially). If intelligence arrives too early
+    (coal not mature) or too late (coal exhausted or too deep), the gate fails.
+- **Photosynthetic Habitable Zone (PHZ) narrower than HZ:**
+  - Hall et al. (2023): Only 5 of ~5,000 known HZ exoplanets may be in the PHZ
+  - PHZ requires both liquid water AND oxygenic photosynthesis conditions
+  - M-dwarf planets particularly disadvantaged (low PAR — see SolizWelsh2026)
+- **Proposed new Drake Equation term:** f_coal = fraction of Earth-like HZ planets
+  with accessible large coal deposits when intelligent life reaches industrial phase.
+  Authors argue f_coal may be very small (< 0.1) due to cumulative contingencies.
+- **Technosignature of coal combustion:**
+  Simultaneous atmospheric detection of CO₂ + SO₂ + NOₓ + soot particulates would
+  indicate an active Industrial Revolution. However, this phase is short (decades to
+  centuries), so f_c is further reduced for non-coal paths.
+- **Limitation:** The coal-necessity argument assumes Earth-analog geology and biology.
+  Alternative energy bootstrapping paths are not ruled out but are argued to be
+  physically or technologically very unlikely without pre-existing industrial base.
+- **Limitation:** Coal-equivalent fossil fuels could include peat, oil shales accessible
+  at shallow depth, or very high-density biomass. Authors acknowledge these but argue
+  they are similarly contingent.
+- **Limitation:** Authors are explicitly pessimistic (Rare Earth camp). Paper should
+  be read alongside optimistic counterparts (Mills2024, ForganRice2010 optimistic mode).
+
+## StarGen applicability
+Adds a **fossil fuel gate** to the civilization advancement pipeline between early complex
+society (TL 5-6) and industrial civilization (TL 7+). Specifically:
+1. Introduces `f_coal` as a contingency modifier on the probability of reaching TL 7+
+2. Provides the coal formation dependency chain: O₂ ≥ 18% (Balbi2023) → forests →
+   plate tectonics → taphonomic burial → geologic maturation → timing synchronicity
+3. Adds industrial-phase technosignature: CO₂ + SO₂ + NOₓ combo (ties to
+   SchwietermanEtAl2018 biosignature profile)
+4. Compatible with FrankEtAl2018 State IV (Anthropocene = fossil fuel burning phase)
+   — Taiz provides the contingent prerequisite, Frank provides the trajectory outcome
+
+## Parameters, constraints, and mechanics implications
+
+**Coal formation dependency chain:**
+```
+Prerequisite                      | Source           | StarGen field
+----------------------------------|------------------|---------------------------
+Atmospheric O₂ ≥ 18%             | Balbi2023        | pO2 ≥ 0.18
+Complex land-based forests        | Taiz2026         | HasLandMasses + ForestCoverage
+Active plate tectonics            | SpohnEtAl2026    | TectonicRegime == Active
+Supercontinent/tropical geography | Taiz2026         | HasSupercontinentPhase
+Taphonomic burial depth           | Taiz2026         | CoalFormationPossible
+Geological maturation timing      | Taiz2026         | CoalMatureBeforeIntelligence
+```
+
+**Probability of coal formation given all prerequisites:**
+```
+// Taiz et al. argue each step is contingent; combined probability:
+// p_coal ≈ p_oxyphotosyn × p_forests × p_platetect × p_taphonomy × p_timing
+// Each factor estimated ~0.5–0.8 in favorable conditions (speculative)
+// Approximate p_coal (given HZ rocky planet with O2 atmosphere): ~0.10–0.30
+double p_coal = 0.20;  // midpoint estimate; expose as user-tunable lever
+```
+
+**Industrial TechLevel gate from coal:**
+```csharp
+// Coal gate for tech level advancement to industrial phase (Taiz et al. 2026)
+// Applies between TL 6 (complex pre-industrial) and TL 7 (early industrial)
+bool coalGatePassed = planet.HasActiveRockyPlateTectonics
+    && planet.AtmosphereO2Fraction >= 0.18   // Balbi2023 prerequisite
+    && planet.HasContinentalLandMasses
+    && rng.NextDouble() < p_coal;            // p_coal: contingency roll
+
+if (!coalGatePassed)
+{
+    // Without coal, civilization caps at TL 6 unless alternative energy path available
+    double altEnergyPath = rng.NextDouble();  // alternative bootstrapping probability
+    double p_alt = 0.05;  // authors argue alternative paths are very unlikely
+    if (altEnergyPath > p_alt)
+    {
+        civilization.TechLevelCap = 6;  // pre-industrial: can maintain complex society
+        civilization.State = CivilizationState.PreIndustrialSteady;
+        return;  // TL 7+ civilization never develops
+    }
+}
+```
+
+**Technosignature for industrial-phase civilizations (Taiz2026 + SchwietermanEtAl2018):**
+```csharp
+// Industrial combustion technosignature (coal-burning phase)
+if (civilization.TechLevel >= 7 && civilization.TechLevel <= 9
+    && civilization.State == CivilizationState.AnthropoceneTransition)
+{
+    planet.Technosignature = new TechnosignatureProfile
+    {
+        CarbonDioxideAnomaly = true,     // CO2 spike
+        SulfurDioxideDetectable = true,  // SO2 from coal combustion
+        NitrogenOxidesDetectable = true, // NOx from combustion
+        SootParticulates = true,         // aerosols
+        WasteHeatAnomaly = false,        // not yet at nuclear/industrial scale
+        DecayingAnomaly = false          // active, not decaying
+    };
+}
+```
+
+**User lever:** `CoalContingencyModel` (enum: TaizPessimistic / Moderate / Disabled)
+- TaizPessimistic: p_coal ~0.10; hard cap at TL 6 if gate fails
+- Moderate: p_coal ~0.30; alternative energy path probability raised to 0.15
+- Disabled: no coal gate; assume fossil fuels always available on HZ rocky worlds
+
+**Interaction with FrankEtAl2018:**
+Taiz provides a prerequisite for Frank's State IV (Anthropocene transition = fossil fuel
+burning). Without coal, State IV may still be reached via alternative paths, but at
+substantially lower probability. The two papers together model the full trajectory:
+coal formation (Taiz) → industrial use → Anthropocene CO₂ spike (Frank) → State Va/Vb.
+
+## APA citation
+Taiz, L., Primack, J., Hellinger, D., & Ward, P. D. (2026). How common are oxygenic
+photosynthesis and large coal deposits on exoplanets? International Journal of
+Astrobiology, 25, e1. https://doi.org/10.1017/S1473550425100244
+
+## Conflicts and follow-up work
+
+**Related corpus papers:**
+- Balbi2023.txt — O₂ ≥ 18% prerequisite for open-air combustion; Taiz depends on this
+  threshold being reached before the coal gate can open.
+- SolizWelsh2026.txt — Late M-dwarf PAR bottleneck blocks oxygenic photosynthesis → no
+  forests → no coal. Both papers converge on complex civilization being impossible around
+  late M-dwarfs, via independent routes.
+- FrankEtAl2018.txt — State IV (Anthropocene) is the coal-burning industrial phase;
+  Taiz explains why State IV may never be reached even with complex life present.
+- SchwietermanEtAl2018.txt — Industrial technosignature biosignatures (CO₂ + SO₂ + NOₓ)
+  directly correspond to Taiz's coal combustion signature.
+- Mills2024.txt — Optimistic re-assessment of hard steps. Counter-argument to Taiz:
+  complex life may be less rare, reducing the weight of the coal contingency.
+- ForganRice2010.txt — Criterion 7 (oxygen atmosphere) and criterion 8 (stable geological
+  history) are prerequisites that interact with Taiz's coal chain.
+- SpohnEtAl2026.txt — Plate tectonics prerequisite for taphonomic coal burial; Spohn
+  reviews the probability of active plate tectonics on rocky exoplanets.
+
+**Alternative to coal argument:**
+- Smil (2010, 2015, 2017) — Energy density analysis; foundational for Taiz's power
+  density argument. Not in corpus but cited extensively.
+- Hall et al. (2023) — Photosynthetic Habitable Zone (PHZ); directly cited in Taiz.
+  PHZ concept complements SolizWelsh's PAR gate and Taiz's oxygenic photosynthesis gate.
+  **Potential corpus addition:** Hall, Stancil, Terry & Ellison (2023).
+
+## StarGen mechanics translation
+
+### Coal gate for industrial-phase civilization
+Taiz et al. (2026) establishes that coal formation is a contingent event requiring
+a cumulative chain of prerequisites: oxygenic photosynthesis → O₂ atmosphere → complex
+forests → active plate tectonics → taphonomic burial → geologic maturation → timing
+synchronicity. The gate blocks advancement from TL 6 to TL 7+ in the absence of fossil
+fuels or a highly improbable alternative energy bootstrapping path.
+
+**Primary update to StarGen civilization pipeline:**
+1. Insert coal gate check at TL 6 → TL 7 transition
+2. Coal gate requires: O₂ ≥ 18%, active plate tectonics, continental land masses,
+   and passes a probability roll (p_coal tunable, default ~0.20)
+3. If gate fails: civilization stays at TL 6 (pre-industrial) unless alt energy path
+   (p_alt ~0.05) saves it
+4. If gate passed: coal-burning technosignature activates for TL 7-9, State IV
+
+**Position in civilization pipeline (ordered):**
+```
+ForganRice2010 → life emergence probability (8-gate MC)
+Balbi2023      → O₂ ≥ 18% for technosphere (required for coal gate)
+Taiz2026       → coal availability gate (required for TL 7+)
+FrankEtAl2018  → State IV Anthropocene transition (coal-burning phase begins)
+Taiz2026       → industrial technosignature emission
+FrankEtAl2018  → State Va/Vb outcome (sustainable vs. collapse)
+```
+
+**Cross-references:** Balbi2023.txt (O₂ prerequisite), SolizWelsh2026.txt (PAR gate
+that blocks oxygenic photosynthesis around late M dwarfs), FrankEtAl2018.txt (State IV),
+SchwietermanEtAl2018.txt (industrial technosignatures), SpohnEtAl2026.txt (plate
+tectonics prerequisite), ForganRice2010.txt (civilization emergence probability).

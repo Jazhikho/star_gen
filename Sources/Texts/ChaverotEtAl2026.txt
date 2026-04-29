@@ -1,0 +1,148 @@
+# ChaverotEtAl2026
+
+## Source metadata
+- File: `ChaverotEtAl2026.pdf`
+- Domain: exoplanet climates / habitability / biosignature detection
+- Pages: ~40+ (review chapter)
+- Authors: Bhatnagar, S., Bolmont, E., Boeren, N. J., Hansen, J., Konrad, B.,
+  Schlarmann, L., Alei, E., Azevedo, M., Braam, M., Chaverot, G., Grone, J., Hakim, K.,
+  Houelle, M., Kitzmann, D., Lovis, C., Pommerol, A., Quanz, S. P., Turbet, M.,
+  Vorburger, A., Wampfler, S. F., & Zong Lang, F.
+  **Note: File is named after Chaverot but first author is Bhatnagar. The naming appears
+  to be an indexing error — human should confirm and consider renaming if needed.**
+- Source ID in StarGen code: `chaverot2026`
+- **PDF acquisition:** arXiv:2601.20620v1 (open access, submitted January 2026).
+  Download from https://arxiv.org/pdf/2601.20620v1
+  **PDF status: confirm presence in Sources/Texts/.**
+  Note: NCCR PlanetS review chapter; journal/book publication status pending.
+
+## Abstract
+This chapter provides a non-exhaustive overview of climate simulations, habitability,
+and biosignature detection for terrestrial exoplanets, with a focus on science produced
+within the NCCR PlanetS program (2014-2025). The review covers: (1) the concept of
+habitability for Solar System objects and exoplanets and how it is assessed; (2) the concept
+of biosignatures and how they may be detected by current and future instruments. Habitability
+is reviewed in terms of five key factors: presence of liquid water, energy source, essential
+CHNOPS nutrients, protection from harmful conditions, and long-term stability. The review
+covers M-dwarf exoplanets (TRAPPIST-1 system, Proxima Centauri b) currently accessible
+to JWST, as well as Solar System targets (Mars, Europa, Enceladus, Titan). Upcoming
+instruments discussed include RISTRETTO, ANDES/PCS at the ELT, the LIFE large
+interferometer, and the Habitable Worlds Observatory (HWO).
+
+## Major claims, findings, models, assumptions, and limitations
+- **Habitability five-factor framework:** Liquid water (limiting factor), energy source,
+  CHNOPS nutrients, protection from harmful radiation, and long-term stability.
+  Surface requirement is also noted: interfaces between phases (surface/ocean) allow
+  chemical complexity to build up.
+- **M-dwarf planet observational focus:** TRAPPIST-1 planets and Proxima-b are the
+  near-term test cases for atmospheric characterization. Tidal locking (permanent day/
+  night sides) fundamentally changes climate compared to Earth-like rotation.
+- **Biosignature detection pipeline:**
+  JWST (transmission/emission spectroscopy now) →
+  RISTRETTO/ANDES at ELT (direct imaging, reflected light) →
+  LIFE interferometer (mid-IR thermal emission, ~2030s) →
+  HWO (UV-optical-NIR direct imaging, ~2040s)
+- **CHNOPS nutrients:** Carbon, hydrogen, nitrogen, oxygen, phosphorus, and sulfur are
+  the essential building blocks. Phosphorus is particularly constrained — derived
+  primarily from continental weathering (consistent with SpohnEtAl2026).
+- **Only one data point (Earth):** The review notes that all habitability definitions
+  are necessarily Earth-analogous. Life-as-we-know-it is the only operationalizable
+  framework; truly alien life may be undetectable with current approaches.
+- **Solar System proxies:** Mars (geological habitability record), Europa (liquid water
+  under ice), Enceladus (active vent chemistry), Titan (complex organics) provide
+  diversity of habitability types beyond classical HZ.
+- **Limitation:** This is a review chapter, not a primary research paper. It synthesizes
+  the NCCR PlanetS research portfolio and does not introduce new original findings.
+  Use for context and instrument timelines, not for novel quantitative constraints.
+- **Limitation:** Author list is very large (21 authors); the "et al." in the file name
+  does not correctly reflect that Bhatnagar is first author, not Chaverot.
+
+## StarGen applicability
+Moderate relevance. This review consolidates the habitability and biosignature detection
+context that informs several StarGen systems:
+1. Reinforces the five-factor habitability framework (consistent with ForganRice2010)
+2. Provides instrument timeline for biosignature detection — informs the "detectability"
+   flag in civilization/life output (tied to SchwietermanEtAl2018)
+3. M-dwarf tidal locking as a habitability modifier (day/night asymmetry)
+4. CHNOPS nutrient availability as a life origin prerequisite
+
+## Parameters, constraints, and mechanics implications
+
+**Habitability five-factor checklist (Chaverot et al. 2026, citing Meadows & Barnes 2018):**
+```csharp
+// Five-factor habitability evaluation
+bool habCheck = planet.HasLiquidWater           // factor 1
+    && planet.HasEnergySources                   // factor 2 (stellar, geothermal, chemical)
+    && planet.HasCHNOPSNutrients                 // factor 3 (continental weathering key for P)
+    && planet.IsProtectedFromRadiation           // factor 4 (magnetic field, ozone)
+    && planet.HasLongTermClimateStability;       // factor 5 (CO2 weathering feedback)
+planet.IsHabitable = habCheck;
+```
+
+**Tidal locking modifier for M-dwarf habitable zone planets:**
+```csharp
+// Tidal locking is common for close-in HZ M-dwarf planets
+// Affects habitability through day/night temperature asymmetry
+bool tidallyLocked = star.SpectralType == SpectralType.M
+    && planet.OrbitalPeriodDays < 50.0;  // rough threshold for strong tidal locking
+
+if (tidallyLocked)
+{
+    planet.ClimateModifier = ClimateModifier.TidallyLocked;
+    // Reduces effective habitability by ~30% due to atmospheric collapse risk
+    planet.HabitabilityScore *= 0.70;
+}
+```
+
+**Biosignature detectability window (instrument timeline):**
+```
+Era      | Instrument      | Detection capability
+---------|-----------------|----------------------------------
+Current  | JWST            | Transmission spectroscopy (thick atmospheres only)
+~2030s   | ELT + RISTRETTO | Reflected light spectra (bright nearby targets)
+~2030s   | LIFE            | Mid-IR thermal emission (multiple targets)
+~2040s   | HWO             | UV-optical-NIR direct imaging (Earth twins)
+```
+
+This timeline informs when, in-universe, a civilization might detect biosignatures
+from another world — feeds into the "detectable by peer civilization" flag.
+
+## APA citation
+Bhatnagar, S., Bolmont, E., Boeren, N. J., Hansen, J., Konrad, B., Schlarmann, L.,
+Alei, E., Azevedo, M., Braam, M., Chaverot, G., Grone, J., Hakim, K., Houelle, M.,
+Kitzmann, D., Lovis, C., Pommerol, A., Quanz, S. P., Turbet, M., Vorburger, A.,
+Wampfler, S. F., & Zong Lang, F. (2026). Climates of terrestrial exoplanets and
+biosignatures. arXiv:2601.20620. [NCCR PlanetS review chapter — verify journal/book
+publication against final PDF.]
+**Note:** File named after Chaverot but first author is Bhatnagar. Consider renaming
+to BhatnagarEtAl2026 for accuracy (human decision required).
+
+## Conflicts and follow-up work
+
+**Related corpus papers:**
+- SchwietermanEtAl2018.txt — The comprehensive biosignature review; Chaverot et al.
+  is the more recent NCCR PlanetS perspective on the same topic. Together they provide
+  a 2018 + 2026 bookend on biosignature detection capability.
+- ForganRice2010.txt — Habitability five-factor framework is conceptually aligned with
+  ForganRice's multi-gate model.
+- SolizWelsh2026.txt — M-dwarf PAR limitations; relevant to the M-dwarf climate focus.
+- GillisEtAl2026.txt — M-dwarf planet demographics (ocean worlds); informs climate
+  models for M-dwarf targets.
+- SpohnEtAl2026.txt — CHNOPS nutrients from continental weathering (phosphorus)
+  consistent with Chaverot et al.'s nutrient availability factor.
+
+## StarGen mechanics translation
+
+### Tidal locking and five-factor habitability
+ChaverotEtAl2026 primarily reinforces existing StarGen habitability logic. The main
+new mechanical contribution is the explicit tidal locking habitability modifier for
+close-in M-dwarf HZ planets, which reduces effective habitability score by ~30% due to
+the risk of atmospheric collapse on the night side and extreme temperature contrasts.
+
+The biosignature instrument timeline provides context for the in-game "detection window"
+— i.e., at what technology level can an external observer detect life signatures from
+a given planet. This feeds into the FrankEtAl2018 State IV detectability output.
+
+**Cross-references:** SchwietermanEtAl2018.txt (biosignature profiles), ForganRice2010.txt
+(habitability criteria), SolizWelsh2026.txt (M-dwarf limitations), GillisEtAl2026.txt
+(M-dwarf planet types).

@@ -1,0 +1,62 @@
+# PetkowskiEtAl2020
+
+## Source metadata
+- File: `PetkowskiEtAl2020.pdf`
+- Domain: astrobiology / Venus cloud habitability
+- Pages: 126
+- Authors (auto-extracted — verify against PDF): William Bains1,9, #,*, Janusz J. Petkowski1, #,*, Sara Seager1,2,3, Sukrit Ranjan1a, Clara SousaSilva1,2, Paul B. Rimmer4,5,6, Zhuchang Zhan1, Jane S. Greaves7, Anita M. S. Richards8
+
+## Abstract
+The recent candidate detection of ~1 ppb of phosphine in the middle atmosphere of Venus is so unexpected that it requires an exhaustive search for explanations of its origin. Phosphoruscontaining species have not been modelled for Venus’ atmosphere before and our work represents the first attempt to model phosphorus species in the Venusian atmosphere. We thoroughly explore the potential pathways of formation of phosphine in a Venusian environment, including in the planet’s atmosphere, cloud and haze layers, surface, and subsurface. We investigate gas reactions, geochemical reactions, photochemistry, and other non-equilibrium processes. None of these potential phosphine production pathways are sufficient to explain the presence of ppb phosphine levels on Venus. If PH3’s presence in Venus’ atmosphere is confirmed, it therefore is highly likely to be the result of a process not previously considered plausible for Venusian conditions. The process could be unknown geochemistry, photochemistry, or even aerial microbial life, given that on Earth phosphine is exclusively associated with anthropogenic and biological sources. The detection of phosphine adds to the complexity of chemical processes in the Venusian environment and motivates in situ follow up sampling missions to Venus. Our analysis provides a template for investigation of phosphine as a biosignature on other worlds. 2 Introduction A biosignature is a feature of a planet that provides evidence for the presence of life on that planet (Catling et al. 2018; Schwieterman et al. 2018). Few, if any, remotely detectable feature of a planet is unambiguous evidence for life, and so any feature must be interpreted in the context
+
+## Major claims, findings, models, assumptions, and limitations
+*Human verification required before using quantitative values or model assumptions in
+StarGen defaults. Figures and equations not captured by text extraction — read the PDF
+for exact thresholds, fit coefficients, and table values.*
+
+- Primary domain: astrobiology / Venus cloud habitability
+- See StarGen applicability section below for the specific implications.
+
+## StarGen applicability
+Venus cloud layer as potential habitat; sulphuric acid droplet environment. Relevant to habitability flagging of Venus-zone rocky worlds — cloud-layer habitability is a distinct non-surface regime.
+
+## Parameters, constraints, and mechanics implications
+*(Human action: fill in specific numeric values, distributions, model families, and
+classification boundaries extracted from the paper. Where competing models or confidence
+ranges exist, expose those as user-selectable assumptions rather than collapsing to a
+single default. Where the paper documents uncertainty, preserve it in StarGen rather
+than presenting false precision.)*
+
+## Works cited by this paper (auto-extracted from final pages, partial)
+- (Reference extraction incomplete — verify PDF.)
+
+## Opposing or alternative findings cited
+*(Human action: identify papers in the reference list that present opposing models,
+competing parameter choices, or significantly different results. Note the specific
+disagreement and its implication for which StarGen default to use.)*
+
+## APA citation
+*(Verify and complete — see AnnotatedBibliography.md for the curated APA entry.)*
+
+## Conflicts and follow-up work
+*(Human action: search for papers explicitly responding to, revising, or challenging
+this paper published after its date. For fast-moving fields (exoplanet demographics,
+habitability, JWST/TESS-informed work), treat results >3 years old as potentially
+superseded. Flag updates in Followup.md.)*
+
+
+## StarGen mechanics translation
+
+### Venus phosphine / acid-cloud context for ConcentratedSulfuricAcid solvent
+This paper is the primary observational motivation for the Venus cloud habitability
+discussion in BainsEtAl2024. It does not itself provide solvent chemistry; it provides
+the environmental context for when ConcentratedSulfuricAcid becomes a candidate.
+
+**Condition flag: VenusAnalogueCloudLayer**
+- Set when: planet_type == Rocky, albedo_high == true, slow_rotation == true,
+  surface_water_depleted == true, SO2_photochemistry_source == true.
+- When flag is set: enable ConcentratedSulfuricAcid as candidate solvent
+  (probability weight from BainsEtAl2024 matrix).
+
+**Cross-references:** BainsEtAl2024.txt (solvent framework), Yang2014.txt (rotation
+rate effects on cloud distribution), Ribas2015.txt (pre-MS XUV context).

@@ -1,0 +1,135 @@
+# BressanEtAl2012
+
+## Source metadata
+- File: `BressanEtAl2012.pdf`
+- Domain: stellar evolution / isochrones
+- Pages: ~14 (MNRAS letter + appendices)
+- Authors: Bressan, A., Marigo, P., Girardi, L., Salasnich, B., Dal Cero, C., Rubele, S., & Nanni, A.
+- Source ID in StarGen code: `bressan2012`
+- **PDF acquisition:** arXiv:1208.4498 (open access). DOI: 10.1111/j.1365-2966.2012.21948.x
+  MNRAS 427, 127 (2012). Download from https://arxiv.org/abs/1208.4498
+
+## Abstract
+This paper presents PARSEC: the PAdova and TRieste Stellar Evolution code, a
+significantly updated version of the Padova stellar evolution library. Key updates
+include: new solar chemical abundances (Caffau et al. 2011, Z_sun = 0.01524), a revised
+equation of state, new opacity tables (OPAL + Marigo low-T tables), new nuclear
+reaction rates, and new convective overshooting prescription. The code provides
+stellar tracks and isochrones from 0.1 to 12 solar masses (subsequently extended),
+covering the full evolutionary path from pre-main-sequence through the TP-AGB phase.
+The updated solar model, revised helium-to-metal enrichment ratio (ΔY/ΔZ ≈ 1.78),
+and improved mass loss prescriptions produce better agreement with observed CMDs of
+star clusters and the solar properties.
+
+## Major claims, findings, models, assumptions, and limitations
+- Solar abundances: Caffau et al. (2011) Z_sun = 0.01524, Y_sun = 0.2485
+- Helium enrichment law: Y = 0.2485 + 1.78Z (primordial + metal enrichment)
+- Convective overshooting: step-overshoot with λ_ov = 0.5 H_p for M > ~1.5 M_sun
+- Mass range covered: 0.1–12 M_sun in initial release; low-mass end well-calibrated to
+  solar and sub-solar observations
+- Evolutionary phases: pre-MS, MS, sub-giant, RGB, He-flash, HB/CHeB, E-AGB, TP-AGB
+- Mass loss prescriptions: Reimers on RGB, Bloecker on AGB
+- Isochrone grid: ages 0.1 Myr to ~20 Gyr; metallicities Z = 0.0001 to 0.06
+  (equivalent [M/H] from −2.2 to +0.5 dex)
+- Limitation: TP-AGB treatment simplified at this stage (improved in later PARSEC versions)
+- Limitation: rotation not included; only classic overshoot model
+
+## StarGen applicability
+PARSEC isochrones are the foundational stellar evolution library for StarGen's stellar
+generation: main-sequence lifetime, luminosity class, spectral type, post-MS evolution
+track selection, and age-metallicity-mass relations. Used by stellar generator to place
+stars on the HR diagram and assign consistent radius/luminosity/temperature.
+
+## Parameters, constraints, and mechanics implications
+
+**Main-sequence lifetime (T_MS) scaling:**
+- T_MS ≈ (M/L) × 10^10 yr in solar units; PARSEC tracks give exact numbers by grid lookup.
+- For solar-type star (1 M_sun, Z_sun): T_MS ≈ 10 Gyr.
+- For 0.5 M_sun: T_MS ~ 50–70 Gyr; for 2 M_sun: T_MS ~ 1.5 Gyr.
+- General power-law approximation: T_MS ∝ M^(-2.5) works to first order but deviates
+  at low and high masses — use isochrone grids rather than power laws in StarGen.
+
+**Mass-luminosity-temperature (ZAMS):**
+- L/L_sun ≈ (M/M_sun)^4 for M = 1–30 M_sun (approximate)
+- T_eff increases with M; decreases with Z (metal-rich stars cooler at given M)
+- PARSEC provides L, T_eff, log g, R directly for each (M, age, Z) point
+
+**Metallicity effect on stellar properties:**
+- Higher Z → lower T_eff at fixed M (opacity increases, cooler surface)
+- Higher Z → higher L on RGB; stronger mass loss on AGB
+- Very metal-poor stars (Z < 0.0001): hotter, faster evolution, shorter T_MS at given M
+
+**Age-metallicity tie to generation:**
+- StarGen stellar generator must sample (M, Z, age) consistently from a joint distribution
+  constrained by the galactic chemical evolution model (see SpitoniEtAl2017, HackshawEtAl2024)
+- Cannot independently sample M, Z, age; older galactic populations are more metal-poor
+  on average
+
+**Post-MS evolution selection:**
+- RGB, HB, AGB: probability of catching a star in each phase scales inversely with that
+  phase duration relative to MS duration (~10^-4 to ~10^-2 of MS lifetime)
+- White dwarf remnants: M < ~8 M_sun → WD; M = 8–20 M_sun → NS; M > ~20 M_sun → BH
+  (PARSEC tracks give the pre-WD endpoint mass)
+
+## APA citation
+Bressan, A., Marigo, P., Girardi, L., Salasnich, B., Dal Cero, C., Rubele, S., & Nanni, A.
+(2012). PARSEC: stellar tracks and isochrones with the PAdova and TRieste Stellar
+Evolution code. Monthly Notices of the Royal Astronomical Society, 427(1), 127–145.
+https://doi.org/10.1111/j.1365-2966.2012.21948.x
+
+## Conflicts and follow-up work
+
+**Significant updates to PARSEC (required follow-up):**
+- **Chen et al. (2014) PARSEC v1.2 / v1.2S** — Extended mass range to 350 M_sun; improved
+  intermediate-mass and massive star treatment; TP-AGB improvements (Marigo et al. 2013).
+  arXiv:1409.6174. This is the version most commonly used in CMD 2.x web tools.
+- **Nguyen et al. (2022) PARSEC v2.0** — Major revision: new convection scheme, improved
+  overshooting, rotation (optional), updated nuclear networks. arXiv:2211.01816. MNRAS 519,
+  2537. Substantially supersedes the 2012 release for massive stars; low-mass star
+  treatment also revised.
+- **Tang et al. (2014)** — Improved TP-AGB for PARSEC tracks. arXiv:1402.0235.
+- The CMD 3.x web tool (http://stev.oapd.inaf.it/cmd) always provides the latest PARSEC
+  version and is the authoritative source for isochrone tables.
+
+**Competing/alternative libraries:**
+- MIST (Dotter et al. 2016, Choi et al. 2016): MESA-based; includes rotation; commonly
+  used alternative to PARSEC. arXiv:1601.05779.
+- BaSTI (Pietrinferni et al. 2004, 2021): Bologna-based; good for old stellar populations.
+- Dartmouth (Dotter et al. 2008): well-tested for low-mass stars and globular clusters.
+- For StarGen: PARSEC is a good default given its broad mass/metallicity coverage; expose
+  a library selector if scientific precision matters for a use case.
+
+**Citation discovery:**
+- ADS: https://ui.adsabs.harvard.edu/abs/2012MNRAS.427..127B
+
+## StarGen mechanics translation
+
+### Stellar evolution library selector
+PARSEC provides the grid backing for stellar mass → {T_eff, L, R, phase, lifetime} lookups.
+
+**EvolutionLibrary selector:**
+- `PARSEC2012` — 2012 baseline (this paper); mass range 0.1–12 M_sun; good for most
+  systems but TP-AGB and massive stars less accurate.
+- `PARSEC2022` (recommended default) — v2.0 (Nguyen et al. 2022); broader mass range,
+  better overshooting and convection. Use when the PARSEC v2.0 grid is integrated.
+- `MIST2016` — alternative if user wants rotation-included tracks.
+
+**Key numeric thresholds for StarGen stellar generator:**
+- Solar reference: Z_sun = 0.01524, Y_sun = 0.2485
+- MS lifetime (approximate, for generation-mode use): T_MS ≈ 10 Gyr × (M/M_sun)^-2.5
+  (use grid for precision; this formula breaks below 0.5 M_sun and above 5 M_sun)
+- Remnant boundary (PARSEC-consistent): M_initial < 8 M_sun → WD; 8–20 → NS; >20 → BH
+- He enrichment: Y = 0.2485 + 1.78 × Z (used to set stellar interior Y from Z)
+
+**Decision rule: evolved star probability**
+For a star of age t and mass M, the probability it is still on the MS is:
+  p_MS = 1 if t < T_MS(M, Z); else it has evolved off MS.
+Post-MS phase assignment: interpolate from PARSEC grid by (M, Z, age).
+StarGen should implement this as grid lookup, not analytic formula, for any mode
+claiming scientific accuracy.
+
+**User lever:** `EvolutionLibrary` enum controls which grid is loaded at generation time.
+
+**Cross-references:** SpitoniEtAl2017.txt (chemical evolution → Z distribution),
+HackshawEtAl2024.txt (radial Z gradient), Chabrier2003.txt (IMF → M distribution),
+Kroupa2001.txt (alternative IMF).

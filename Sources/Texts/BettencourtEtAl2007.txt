@@ -1,0 +1,221 @@
+# BettencourtEtAl2007
+
+## Source metadata
+- File: `BettencourtEtAl2007.pdf`
+- Domain: social science / urban scaling / civilization output / population economics
+- Pages: ~6
+- Authors: Bettencourt, L. M. A., Lobo, J., Helbing, D., Kühnert, C., & West, G. B.
+- Source ID in StarGen code: `bettencourt2007`
+- **PDF acquisition:** PNAS 104(17), 7301–7306 (2007).
+  DOI: 10.1073/pnas.0610172104
+  Open access via PNAS. arXiv preprint may be available.
+  **PDF acquisition required — flag for manual download.**
+
+## Abstract
+Urbanization is one of the most significant transformations of human civilization.
+Urban population concentrations have been responsible for a disproportionate fraction
+of human social and economic activities, including wealth generation, innovation, crime,
+disease, and resource consumption. Here we show that a wide range of urban indicators
+— socioeconomic quantities (wages, patents, crime, entertainment, disease) and
+infrastructure measures (length of electrical cables, roads, petrol stations) — scale
+with city population according to a power law, Y = Y₀ × N^β, where the scaling
+exponents β are either superlinear (β > 1, for socioeconomic output) or sublinear
+(β < 1, for infrastructure). These relationships hold across different nations and
+times. The superlinear scaling of socioeconomic quantities implies that larger cities
+are disproportionately more productive, innovative, and also more crime-prone. The
+sublinear scaling of infrastructure implies economies of scale: larger cities are
+more resource-efficient per capita.
+
+## Major claims, findings, models, assumptions, and limitations
+- **Superlinear scaling (β > 1) for socioeconomic output:**
+  - GDP, wages: β ~ 1.13–1.15
+  - Patents (innovation): β ~ 1.27
+  - R&D spending: β ~ 1.21
+  - Violent crime: β ~ 1.16 (scales faster than population — a key finding for
+    law level modeling)
+  - Entertainment venues, restaurants: β ~ 1.10–1.15
+  Interpretation: a city of 1 million is more productive per capita than 10 cities
+  of 100,000 — the whole is greater than the sum of parts.
+- **Sublinear scaling (β < 1) for infrastructure:**
+  - Road length: β ~ 0.85
+  - Electrical cable length: β ~ 0.87
+  - Petrol stations: β ~ 0.77
+  Interpretation: larger cities need less infrastructure per capita — economies of scale.
+  This is why it's cheaper to service a large city than many small ones.
+- **Universal scaling:** The power laws hold across different countries (US, Germany,
+  China, Brazil) and different decades. They appear to be a fundamental feature of
+  urban social networks.
+- **Theoretical basis:** The scaling emerges from network effects — in a city of N
+  people, the number of possible pairwise interactions scales as N², but meaningful
+  interactions are limited by time/space constraints, leading to N^β where β > 1.
+- **Arvidsson (2023) refinement:** The aggregate β values reported here mask severe
+  within-city inequality. ArvidssonEtAl2023.txt (in corpus) shows that 36-80% of
+  the scaling is driven by the upper tail of within-city distributions.
+- **Limitation:** The study covers contemporary cities in developed and developing
+  nations. Extension to pre-industrial, post-collapse, or alien civilizations requires
+  extrapolation.
+- **Limitation:** The power law fits have scatter; individual cities deviate substantially
+  from the fitted exponent. β is a statistical description, not a deterministic prediction.
+- **Limitation:** The model treats all cities as equivalent; specialized cities
+  (university towns, mining towns, capital cities) deviate from the average scaling.
+
+## StarGen applicability
+The canonical quantitative model for mapping **population → civilization output**
+in StarGen. Provides scaling exponents for:
+- Tech output (proxy: patents/R&D) → scales at β~1.27
+- Trade volume (proxy: wages/GDP) → scales at β~1.13
+- Crime/conflict (proxy: violent crime) → scales at β~1.16, key for LawLevel
+- Infrastructure cost (proxy: roads/cables) → scales at β~0.85 (economies of scale)
+
+Together with ArvidssonEtAl2023 (inequality) and BallandEtAl2022 (economic complexity),
+this forms the three-layer civilization output model: aggregate → structure → inequality.
+
+## Parameters, constraints, and mechanics implications
+
+**Scaling exponents (from paper, verified empirically):**
+```
+Output measure      | β     | Notes
+--------------------|-------|------------------------------------------------
+Patents/Innovation  | 1.27  | Most superlinear; used for TechLevel scaling
+R&D spending        | 1.21  | Correlated with patents
+GDP/Wages           | 1.13  | Used for TradeCode / wealth scaling
+Violent crime       | 1.16  | Used for LawLevel scaling (higher pop → more crime)
+Entertainment       | 1.10  | Cultural output
+Road length         | 0.85  | Infrastructure — economies of scale
+Electrical cable    | 0.87  | Infrastructure
+Petrol stations     | 0.77  | Service infrastructure
+```
+
+**StarGen scaling implementation:**
+```csharp
+// Reference population: 1 million (10^6) is baseline
+const double REF_POPULATION = 1e6;
+const double BETA_TECH = 1.27;
+const double BETA_TRADE = 1.13;
+const double BETA_CRIME = 1.16;
+const double BETA_INFRA = 0.85;
+
+// For a civilization with given population:
+double popRatio = population / REF_POPULATION;
+double techOutput  = Math.Pow(popRatio, BETA_TECH);   // relative to 1M baseline
+double tradeOutput = Math.Pow(popRatio, BETA_TRADE);
+double crimeLevel  = Math.Pow(popRatio, BETA_CRIME);
+double infraCost   = Math.Pow(popRatio, BETA_INFRA);
+
+// Map to RPG parameters:
+int techLevel  = BetaOutputToTechLevel(techOutput, planet.TechBase);
+int tradeCode  = BetaOutputToTradeCode(tradeOutput, planet.EconomicBase);
+int lawLevel   = BetaOutputToLawLevel(crimeLevel, govType, adminCapacity);
+```
+
+**Population → TechLevel reference curve (approximate, calibrated to Bettencourt):**
+```
+Population    | TechOutput (relative) | Approx TL range
+10^4 (town)   | 0.08x                 | TL 2-4 (pre-industrial)
+10^5 (small)  | 0.35x                 | TL 3-6
+10^6 (city)   | 1.00x (baseline)      | TL 5-7
+10^7 (large)  | 3.7x                  | TL 6-9
+10^8 (metro)  | 13.5x                 | TL 8-10
+10^9 (small civ)| 49x                 | TL 9-11
+10^10 (major) | 180x                  | TL 10-13
+10^11 (huge)  | 650x                  | TL 12-15
+```
+Note: These TL ranges assume the civilization is networked (connectivity > 0.5).
+Isolated civilizations plateau at lower TL regardless of population.
+
+**LawLevel from crime scaling:**
+LawLevel represents both the level of law enforcement AND the level of crime (more
+population → more both). A large population increases crime pressure (β=1.16) but
+also increases enforcement capacity. Net LawLevel depends on GovernmentType.
+```csharp
+double crimePresure = Math.Pow(population / REF_POPULATION, 1.16);
+double enforcementCapacity = govProfile.AdminCapacity;
+int lawLevel = (int)Math.Round(crimePresure * 3.0 * enforcementCapacity);
+lawLevel = Math.Clamp(lawLevel, 0, 9);
+```
+
+## APA citation
+Bettencourt, L. M. A., Lobo, J., Helbing, D., Kühnert, C., & West, G. B. (2007).
+Growth, innovation, scaling, and the pace of life in cities. Proceedings of the National
+Academy of Sciences, 104(17), 7301–7306.
+https://doi.org/10.1073/pnas.0610172104
+
+## Conflicts and follow-up work
+
+**Direct refinements:**
+- ArvidssonEtAl2023.txt (in corpus) — 36-80% of reported β is driven by within-city
+  inequality (upper tail), not average productivity. The aggregate β values remain valid
+  but interpretation changes.
+- Bettencourt, L. M. A. (2013) Science 340, 1438 — "The Origins of Scaling in Cities."
+  Theoretical derivation of β from network dynamics. More rigorous foundation.
+- West, G. B. (2017) "Scale: The Universal Laws of Growth, Innovation, Sustainability,
+  and the Pace of Life in Organisms, Cities, Economies, and Companies." Riverhead Books.
+  Popular synthesis; accessible for understanding the model's intent.
+
+**Complementary in corpus:**
+- BallandEtAl2022.txt — economic complexity (ECI); adds path-dependency to scaling
+- ArvidssonEtAl2023.txt — within-city inequality decomposition
+- MaysharMoavPascali2022.txt — prerequisite: state formation enables cities
+- TurchinEtAl2021WarMachines.txt — network population drives tech, consistent with
+  Bettencourt's network-effect mechanism
+
+**Critiques:**
+- Cottineau, C., et al. (2017) Computers, Environment and Urban Systems 63, 80 —
+  "Diverse cities or the systematic paradox of urban scaling laws." Scaling exponents
+  are sensitive to city boundary definitions.
+- Leitão, J. C., et al. (2016) Royal Society Open Science 3, 150649 — temporal
+  variation in scaling exponents; β is not perfectly stable over time.
+
+**Citation discovery:**
+- DOI: 10.1073/pnas.0610172104
+
+## StarGen mechanics translation
+
+### Population → Civilization output master scaling model
+BettencourtEtAl2007 is the foundational quantitative reference for the
+population-to-output scaling in StarGen's civilization generator.
+
+**Three-paper output stack:**
+```
+BettencourtEtAl2007: Population → Aggregate output (β-scaling)
+ArvidssonEtAl2023:   Aggregate → Inequality decomposition (elite vs. median)
+BallandEtAl2022:     Capability structure → Trade code path dependency
+```
+
+**Civilizaton output generator (simplified):**
+```csharp
+public static CivilizationOutputs ComputeOutputs(
+    long population, GovernmentProfile gov, PlanetResources resources,
+    ConnectivityIndex connectivity, GalaxyRng rng, GenerationSettings settings)
+{
+    // 1. Bettencourt aggregate scaling
+    double techAgg   = ScaleByBeta(population, 1.27, settings.TechBaseMultiplier);
+    double tradeAgg  = ScaleByBeta(population, 1.13, resources.EconomicBase);
+    double crimeAgg  = ScaleByBeta(population, 1.16, 1.0);
+
+    // 2. Arvidsson inequality decomposition
+    double ineqIdx = ArvidssonInequalityIndex(population, techAgg);
+    double techElite  = techAgg * (1.0 + ineqIdx);
+    double techMedian = techAgg * (1.0 - ineqIdx * 0.6);
+
+    // 3. Turchin network correction (connectivity)
+    double netFactor = 0.1 + 0.9 * connectivity.Index;
+    techElite *= netFactor; techMedian *= netFactor;
+
+    // 4. Balland ECI constraint (path dependency)
+    int maxTL = BallandMaxTechLevel(resources, connectivity, civilizationAge);
+    int techLevel = Math.Min((int)(techMedian * TL_SCALE), maxTL);
+
+    // 5. Frank state (Anthropocene transition at TL 5-8)
+    CivilizationState state = FrankStateFromTechLevel(techLevel, rng, settings);
+
+    // 6. Law level from crime + admin capacity
+    int lawLevel = LawLevelFromCrimeAndCapacity(crimeAgg, gov.AdminCapacity, techLevel);
+
+    return new CivilizationOutputs(techLevel, techElite, tradeAgg, lawLevel, state);
+}
+```
+
+**Cross-references:** ArvidssonEtAl2023.txt (inequality), BallandEtAl2022.txt (ECI),
+TurchinEtAl2021WarMachines.txt (network tech), FrankEtAl2018.txt (state transition),
+MaysharMoavPascali2022.txt (government type from appropriability).

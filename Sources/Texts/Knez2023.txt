@@ -1,0 +1,84 @@
+# Knez2023
+
+## Source metadata
+- File: `Knez2023.pdf`
+- Domain: economics / technology diffusion / uneven development / civilization modeling
+- Pages: 25
+- Authors: Knez, K.
+- Source ID in StarGen code: `knez2023`
+- **PDF acquisition:** PDF confirmed present in `Sources/Texts`.
+  DOI: 10.1007/s00191-023-00830-w
+  Original URL: https://link.springer.com/article/10.1007/s00191-023-00830-w
+  Retrieval mode: HTML plus matching PDF.
+
+## Abstract
+Knez proposes a dynamic macroeconomic model of technology diffusion that accounts for
+uneven relative costs of technology implementation, especially wage-level differences.
+Using CHAT and Penn World Table data, the paper calibrates country- and
+technology-specific adoption curves and explains about half of the variability in
+technology density. The resulting curves generalize logistic adoption patterns and vary
+with development and wage levels.
+
+## Major claims, findings, models, assumptions, and limitations
+- **Technology density:** Adoption is modeled as relative technology density rather
+  than a binary "has/does not have" state.
+- **Relative implementation cost:** The model generalizes distance in diffusion models
+  into a space of relative technology-implementation costs.
+- **Wage/development link:** Wage levels are used as a proxy for country-specific
+  relative adoption costs and broader development constraints.
+- **Uneven adoption curves:** Adoption curves vary across countries and technologies,
+  rather than following one universal logistic curve.
+- **Empirical fit:** The calibrated model explains roughly 50% of technology-density
+  variability in the selected data.
+- **Limitation:** Wage-level logic is human economic history. StarGen should not treat
+  it as a universal alien-civilization rule without human review.
+
+## StarGen applicability
+Useful for StarGen's technology-diffusion and colony/civilization layers. It supports
+separating access to a technology from adoption density, and it suggests that adoption
+depends on local cost structure, development level, and existing capability base.
+
+Provides:
+- A source anchor for `TechnologyAdoptionCapacity`
+- Support for partial adoption rather than all-or-nothing tech levels
+- A reason to model imported technology separately from local saturation
+- A caution that low-development worlds may adopt some technologies slowly even when
+  connected to high-tech trade networks
+
+## Parameters, constraints, and mechanics implications
+
+**Technology density curve:**
+```
+technology_density(t) = diffusion_curve(local_cost, development, external_access, time)
+```
+
+**Generator rule implication:**
+- `HighestTechLevel` should not imply full adoption of every lower or contemporary
+  technology.
+- Colonies may have high imported tech but low local adoption density.
+- Trade connectivity should help adoption, but local capacity and cost should still
+  constrain saturation.
+
+## APA citation
+Knez, K. (2023). Technology diffusion and uneven development. Journal of Evolutionary
+Economics, 33, 1171-1195. https://doi.org/10.1007/s00191-023-00830-w
+
+## Conflicts and follow-up work
+- Compare with `Comin2013.txt`, `CominMestieri2013.txt`, and `Stokey2020.txt` before
+  choosing a technology-diffusion implementation.
+- Human audit is required before using wage-level analogs for non-human societies.
+- Add bibliography coverage if this source remains in the retained v1.0 source set.
+
+## StarGen mechanics translation
+
+### Technology adoption capacity
+`SentientWorldProfileBuilder` already computes `TechnologyAdoptionCapacity` from average
+tech level, trade connectivity, cultural accumulation, state capacity, and surplus. That
+is directionally consistent with Knez2023's claim that adoption depends on local
+conditions, not just exposure.
+
+**Current fit:** partial. StarGen has an adoption-capacity score, but no per-technology
+density, cost-space, wage/development proxy, or time-series diffusion curve.
+
+**Recommended v1.0 disposition:** use as support for keeping technology adoption separate
+from tech access; defer calibrated diffusion curves.

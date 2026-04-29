@@ -97,6 +97,51 @@ public partial class GenerationUseCaseSettings : RefCounted
     }
 
     /// <summary>
+    /// Subsurface life model for protected oceans and dark-biosphere proxies.
+    /// </summary>
+    public enum SubsurfaceHabitabilityModelType
+    {
+        ProtectedOceanProxy = 0,
+        DarkBiosphereEnergyLimited = 1,
+    }
+
+    /// <summary>
+    /// Social-scale assumptions used by the sentient-world profile builder.
+    /// </summary>
+    public enum SentientSocialScaleModelType
+    {
+        PopulationComposite = 0,
+        PopulationHierarchyAware = 1,
+    }
+
+    /// <summary>
+    /// Technology diffusion assumptions used by the sentient-world profile builder.
+    /// </summary>
+    public enum SentientTechnologyDiffusionModelType
+    {
+        AggregateAdoptionCapacity = 0,
+        AccessCostDensityProxy = 1,
+    }
+
+    /// <summary>
+    /// Economic-complexity assumptions used by the sentient-world profile builder.
+    /// </summary>
+    public enum SentientEconomicComplexityModelType
+    {
+        TradeSurplusProxy = 0,
+        CapabilityPortfolioProxy = 1,
+    }
+
+    /// <summary>
+    /// Legitimacy assumptions used by the sentient-world profile builder.
+    /// </summary>
+    public enum SentientLegitimacyModelType
+    {
+        SingleCapacityProxy = 0,
+        InternalExternalNormProxy = 1,
+    }
+
+    /// <summary>
     /// Mainworld policy strength for system and galaxy flows.
     /// </summary>
     public enum MainworldPolicyType
@@ -145,6 +190,36 @@ public partial class GenerationUseCaseSettings : RefCounted
     /// Stable-window weighting assumption used by model-aware generation flows.
     /// </summary>
     public EnvironmentalWindowWeightType EnvironmentalWindowWeight { get; set; } = EnvironmentalWindowWeightType.FollowFramework;
+
+    /// <summary>
+    /// Model used for subsurface-ocean and dark-biosphere support.
+    /// </summary>
+    public SubsurfaceHabitabilityModelType SubsurfaceHabitabilityModel { get; set; } = SubsurfaceHabitabilityModelType.ProtectedOceanProxy;
+
+    /// <summary>
+    /// Scale for chemical-energy support in dark-biosphere proxy scoring.
+    /// </summary>
+    public double DarkBiosphereEnergyScale { get; set; } = 1.0;
+
+    /// <summary>
+    /// Model used to derive sentient-world social scale.
+    /// </summary>
+    public SentientSocialScaleModelType SentientSocialScaleModel { get; set; } = SentientSocialScaleModelType.PopulationComposite;
+
+    /// <summary>
+    /// Model used to derive technology adoption capacity.
+    /// </summary>
+    public SentientTechnologyDiffusionModelType SentientTechnologyDiffusionModel { get; set; } = SentientTechnologyDiffusionModelType.AggregateAdoptionCapacity;
+
+    /// <summary>
+    /// Model used to derive economic-complexity proxies.
+    /// </summary>
+    public SentientEconomicComplexityModelType SentientEconomicComplexityModel { get; set; } = SentientEconomicComplexityModelType.TradeSurplusProxy;
+
+    /// <summary>
+    /// Model used to derive legitimacy and legal-reach proxies.
+    /// </summary>
+    public SentientLegitimacyModelType SentientLegitimacyModel { get; set; } = SentientLegitimacyModelType.SingleCapacityProxy;
 
     /// <summary>
     /// When true, supportable worlds are forced to keep native life instead of rolling it stochastically.
@@ -291,9 +366,15 @@ public partial class GenerationUseCaseSettings : RefCounted
         LifeFramework = profile.RecommendedLifeFramework;
         AbiogenesisModel = AbiogenesisModelType.FollowFramework;
         ComplexLifeModel = ComplexLifeModelType.FollowFramework;
-        CivilizationModel = CivilizationModelType.FollowFramework;
-        EnvironmentalWindowWeight = EnvironmentalWindowWeightType.FollowFramework;
-        LifePermissiveness = profile.RecommendedLifePermissiveness;
+            CivilizationModel = CivilizationModelType.FollowFramework;
+            EnvironmentalWindowWeight = EnvironmentalWindowWeightType.FollowFramework;
+            SubsurfaceHabitabilityModel = SubsurfaceHabitabilityModelType.ProtectedOceanProxy;
+            DarkBiosphereEnergyScale = 1.0;
+            SentientSocialScaleModel = SentientSocialScaleModelType.PopulationComposite;
+            SentientTechnologyDiffusionModel = SentientTechnologyDiffusionModelType.AggregateAdoptionCapacity;
+            SentientEconomicComplexityModel = SentientEconomicComplexityModelType.TradeSurplusProxy;
+            SentientLegitimacyModel = SentientLegitimacyModelType.SingleCapacityProxy;
+            LifePermissiveness = profile.RecommendedLifePermissiveness;
         CompatibilityTemperateSlotFillMultiplier = profile.TemperateSlotFillMultiplier;
         CompatibilityHarshSlotFillMultiplier = profile.HarshSlotFillMultiplier;
         CompatibilityTerrestrialWorldWeightMultiplier = profile.TerrestrialWorldWeightMultiplier;
@@ -329,6 +410,12 @@ public partial class GenerationUseCaseSettings : RefCounted
             ComplexLifeModel = ComplexLifeModel,
             CivilizationModel = CivilizationModel,
             EnvironmentalWindowWeight = EnvironmentalWindowWeight,
+            SubsurfaceHabitabilityModel = SubsurfaceHabitabilityModel,
+            DarkBiosphereEnergyScale = DarkBiosphereEnergyScale,
+            SentientSocialScaleModel = SentientSocialScaleModel,
+            SentientTechnologyDiffusionModel = SentientTechnologyDiffusionModel,
+            SentientEconomicComplexityModel = SentientEconomicComplexityModel,
+            SentientLegitimacyModel = SentientLegitimacyModel,
             ForceLifeOnSupportableWorlds = ForceLifeOnSupportableWorlds,
             MainworldPolicy = MainworldPolicy,
             CompatibilityTemperateSlotFillMultiplier = CompatibilityTemperateSlotFillMultiplier,
@@ -355,6 +442,12 @@ public partial class GenerationUseCaseSettings : RefCounted
             ["complex_life_model"] = (int)ComplexLifeModel,
             ["civilization_model"] = (int)CivilizationModel,
             ["environmental_window_weight"] = (int)EnvironmentalWindowWeight,
+            ["subsurface_habitability_model"] = (int)SubsurfaceHabitabilityModel,
+            ["dark_biosphere_energy_scale"] = System.Math.Clamp(DarkBiosphereEnergyScale, 0.25, 3.0),
+            ["sentient_social_scale_model"] = (int)SentientSocialScaleModel,
+            ["sentient_technology_diffusion_model"] = (int)SentientTechnologyDiffusionModel,
+            ["sentient_economic_complexity_model"] = (int)SentientEconomicComplexityModel,
+            ["sentient_legitimacy_model"] = (int)SentientLegitimacyModel,
             ["force_life_on_supportable_worlds"] = ForceLifeOnSupportableWorlds,
             ["mainworld_policy"] = (int)MainworldPolicy,
             ["compatibility_temperate_slot_fill_multiplier"] = CompatibilityTemperateSlotFillMultiplier,
@@ -425,6 +518,38 @@ public partial class GenerationUseCaseSettings : RefCounted
         if (System.Enum.IsDefined(typeof(EnvironmentalWindowWeightType), environmentalWindowWeightValue))
         {
             settings.EnvironmentalWindowWeight = (EnvironmentalWindowWeightType)environmentalWindowWeightValue;
+        }
+
+        int subsurfaceModelValue = GetInt(data, "subsurface_habitability_model", (int)SubsurfaceHabitabilityModelType.ProtectedOceanProxy);
+        if (System.Enum.IsDefined(typeof(SubsurfaceHabitabilityModelType), subsurfaceModelValue))
+        {
+            settings.SubsurfaceHabitabilityModel = (SubsurfaceHabitabilityModelType)subsurfaceModelValue;
+        }
+
+        settings.DarkBiosphereEnergyScale = System.Math.Clamp(GetDouble(data, "dark_biosphere_energy_scale", 1.0), 0.25, 3.0);
+
+        int socialScaleModelValue = GetInt(data, "sentient_social_scale_model", (int)SentientSocialScaleModelType.PopulationComposite);
+        if (System.Enum.IsDefined(typeof(SentientSocialScaleModelType), socialScaleModelValue))
+        {
+            settings.SentientSocialScaleModel = (SentientSocialScaleModelType)socialScaleModelValue;
+        }
+
+        int technologyDiffusionModelValue = GetInt(data, "sentient_technology_diffusion_model", (int)SentientTechnologyDiffusionModelType.AggregateAdoptionCapacity);
+        if (System.Enum.IsDefined(typeof(SentientTechnologyDiffusionModelType), technologyDiffusionModelValue))
+        {
+            settings.SentientTechnologyDiffusionModel = (SentientTechnologyDiffusionModelType)technologyDiffusionModelValue;
+        }
+
+        int economicComplexityModelValue = GetInt(data, "sentient_economic_complexity_model", (int)SentientEconomicComplexityModelType.TradeSurplusProxy);
+        if (System.Enum.IsDefined(typeof(SentientEconomicComplexityModelType), economicComplexityModelValue))
+        {
+            settings.SentientEconomicComplexityModel = (SentientEconomicComplexityModelType)economicComplexityModelValue;
+        }
+
+        int legitimacyModelValue = GetInt(data, "sentient_legitimacy_model", (int)SentientLegitimacyModelType.SingleCapacityProxy);
+        if (System.Enum.IsDefined(typeof(SentientLegitimacyModelType), legitimacyModelValue))
+        {
+            settings.SentientLegitimacyModel = (SentientLegitimacyModelType)legitimacyModelValue;
         }
 
         if (!hasExplicitLifePermissiveness)

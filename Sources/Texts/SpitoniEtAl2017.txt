@@ -1,0 +1,149 @@
+# SpitoniEtAl2017
+
+## Source metadata
+- File: `SpitoniEtAl2017.pdf`
+- Domain: galactic chemical evolution / habitable zone
+- Pages: ~10
+- Authors: Spitoni, E., Gioannini, L., & Matteucci, F.
+- Source ID in StarGen code: `spitoni2017`
+- **PDF acquisition:** A&A 605, A38 (2017). DOI: 10.1051/0004-6361/201730545
+  HTML version (open): https://www.aanda.org/articles/aa/full_html/2017/09/aa30545-17/aa30545-17.html
+  arXiv likely available at: https://arxiv.org/abs/1705.01297
+
+## Abstract
+This paper presents a revised two-infall chemical evolution model of the Milky Way that
+explicitly incorporates dust yields and depletion, allowing for a more accurate
+prediction of gas-phase metallicity as a function of Galactocentric radius and time.
+The model is applied to evaluate the temporal and spatial evolution of the Galactic
+Habitable Zone (GHZ). By tracking [Fe/H] as a function of radius over cosmic time, the
+authors identify when and where in the Milky Way disk sufficient heavy-element
+enrichment was achieved for rocky planet formation, and compare this with observational
+constraints from APOGEE and disk open cluster data. The paper demonstrates that the
+outer disk enriched significantly later than the inner disk, and that the classical
+GHZ annulus (4–10 kpc) reflects a present-day snapshot of a time-evolving enrichment
+gradient.
+
+## Major claims, findings, models, assumptions, and limitations
+- Two-infall model: thick disk formed quickly from a fast early infall (~1 Gyr timescale);
+  thin disk formed more slowly from a second, delayed infall (~7 Gyr timescale)
+- Dust incorporation: using Zhukovska et al. (2008) dust yields; depletion reduces
+  gas-phase heavy element abundance by ~15–30% in the inner disk
+- Metallicity gradient at present day: approximately −0.05 to −0.07 dex/kpc in [Fe/H]
+  across 4–14 kpc; inner disk more metal-rich
+- [Fe/H] timeline: inner disk (4–6 kpc) reached [Fe/H] = −0.5 by ~10 Gyr ago;
+  solar neighborhood (~8 kpc) by ~6–7 Gyr ago; outer disk (>10 kpc) much later
+- GHZ implication: complex life (requiring >4 Gyr window) can only exist in the MW
+  disk from roughly 4–8 Gyr ago, with earlier onset in the inner disk
+- SFR history: star formation rate peaks early (thick disk epoch) then declines; traces
+  the infall rate
+- Limitation: 1D model (radially averaged at each annulus); no spiral structure, radial
+  migration, or bar effects
+- Limitation: dust model is parametric; exact dust yields uncertain by factor ~2
+- Limitation: GHZ boundary does not include GRB or AGN sterilization events
+
+## StarGen applicability
+Provides the chemical evolution time series that feeds into the GHZ metallicity gate in
+StarGen. Specifically: the [Fe/H](r, t) function (how metal-rich is the disk at radius r
+and lookback time t?) determines the "metallicity gate" probability in the GHZ model.
+Cited in GalaxyScienceReferenceCatalog.cs for `ghz_inner_radius_pc` and
+`ghz_outer_radius_pc`. Companion paper to ForgnEtAl2017.txt.
+
+## Parameters, constraints, and mechanics implications
+
+**Metallicity gradient (present-day thin disk, 4–14 kpc):**
+- d[Fe/H]/dR ≈ −0.05 to −0.07 dex/kpc (range from model fit to APOGEE data)
+- Central value at ~4 kpc: [Fe/H] ≈ +0.2 to +0.3 dex
+- Solar neighborhood (~8 kpc): [Fe/H] ≈ 0.00 dex (by definition/calibration)
+- At 14 kpc: [Fe/H] ≈ −0.3 to −0.4 dex
+- Note: APOGEE 2024 updates (HackshawEtAl2024.txt) give a slightly tighter constraint:
+  −0.066 dex/kpc; C-MetaLL (TrentinEtAl2024.txt) gives −0.071 dex/kpc. These are
+  consistent with the Spitoni (2017) range.
+
+**Enrichment timeline for GHZ gate ([Fe/H] > −0.5 threshold):**
+- Inner disk 4–6 kpc: threshold crossed ~10–11 Gyr ago (z ~ 2)
+- Solar ring ~8 kpc: threshold crossed ~6–7 Gyr ago
+- Outer disk ~12 kpc: threshold crossed ~3–4 Gyr ago
+- Outer disk ~14 kpc: threshold may not yet be crossed everywhere
+- Implication for StarGen: a star in the outer disk at r > 12 kpc cannot have hosted
+  complex life unless it is younger than ~3–4 Gyr (not enough enrichment before that)
+
+**Two-infall model parameters (for reference):**
+- Thin disk infall timescale τ_thin: 7–8 Gyr (dependent on radius; longer in outer disk)
+- Thick disk infall timescale τ_thick: ~0.8–1.2 Gyr
+- Thin disk formation delay: ~2 Gyr after the Big Bang
+- These are model parameters, not directly observable; treat as approximate priors
+
+**SFR history (qualitative for StarGen):**
+- Star formation rate peaks in inner disk at high z (thick disk epoch)
+- Outer disk SFR peaks later, lower amplitude
+- For generating star age distributions at a given Galactocentric radius: weight older
+  populations more heavily toward inner disk, younger populations more toward outer disk
+
+## APA citation
+Spitoni, E., Gioannini, L., & Matteucci, F. (2017). Milky Way chemical evolution model
+with dust: New constraints on the galactic star formation rate. Astronomy & Astrophysics,
+605, A38. https://doi.org/10.1051/0004-6361/201730545
+
+## Conflicts and follow-up work
+
+**Follow-up by same group (significant updates):**
+- Spitoni, E., et al. (2019) A&A 628, A38 — Two-infall model constrained by APOGEE DR14;
+  better treatment of radial migration; updates thin/thick disk enrichment history.
+  arXiv:1901.09114.
+- Spitoni, E., et al. (2020) A&A 641, A14 — adds asteroseismic constraints (APOKASC);
+  improves age precision for the two-infall model. arXiv:2004.08395.
+- Spitoni, E., et al. (2021) A&A 647, A73 — extends to full APOGEE DR16.
+  arXiv:2101.02506.
+- These later papers should be consulted if numeric accuracy of the enrichment timeline
+  matters for StarGen's GHZ model; the 2017 paper is the entry point.
+
+**Context / competing chemical evolution models:**
+- Chiappini, C., Matteucci, F., & Gratton, R. (1997) — original two-infall model
+  (this paper builds on it).
+- Minchev, I., et al. (2013, 2014) — chemical evolution model with radial migration;
+  produces different metallicity gradient evolution. Important if StarGen needs to
+  simulate radial migration of stars.
+- HackshawEtAl2024.txt — APOGEE DR17 empirical metallicity gradient; use for present-
+  day gradient calibration (more direct observational constraint than model output).
+- TrentinEtAl2024.txt — C-MetaLL VI; independent Cepheid-based measurement of gradient.
+
+**Citation discovery:**
+- ADS: https://ui.adsabs.harvard.edu/abs/2017A%26A...605A..38S
+
+## StarGen mechanics translation
+
+### Chemical evolution input to GHZ metallicity gate
+This paper provides the time-evolution of the MW disk metallicity as a function of
+radius, which is the backbone of the GHZ metallicity gate in StarGen.
+
+**Key lookup table (approximate; for StarGen default initialization):**
+Galactocentric radius | [Fe/H] now | Time since [Fe/H] > -0.5
+ 4 kpc               | +0.25 dex  | ~10 Gyr ago
+ 6 kpc               | +0.12 dex  | ~8 Gyr ago
+ 8 kpc               |  0.00 dex  | ~6–7 Gyr ago
+10 kpc               | −0.15 dex  | ~5 Gyr ago
+12 kpc               | −0.28 dex  | ~3–4 Gyr ago
+14 kpc               | −0.40 dex  | uncertain / marginal
+
+**Generation rule: metallicity-based habitability gate**
+```
+double metallicityAtRadius(double r_kpc) =>
+    centerFeH + gradient_dex_per_kpc × (r_kpc - r_solar_kpc);
+// Use: centerFeH = +0.25, gradient = -0.065, r_solar = 8.0
+// (adjust with HackshawEtAl2024 / TrentinEtAl2024 for most accurate value)
+
+bool sufficientMetallicity = metallicityAtRadius(r) >= GHZMetallicityThreshold;
+// Default threshold: -0.5 dex (corresponds to ~1/3 solar metallicity)
+```
+
+**Time-dependent habitability onset (lookback):**
+For a star at r kpc, complex life cannot have evolved unless the star's age ≤
+(age of universe − time when [Fe/H] exceeded threshold at r). Implement as a
+table lookup or linear interpolation from the table above.
+
+**User lever:** `GHZChemicalEvolutionModel` — selects whether to use the Spitoni (2017)
+two-infall time-series or a simpler present-day gradient-only model.
+
+**Cross-references:** ForgnEtAl2017.txt (GHZ spatial model), HackshawEtAl2024.txt
+(present-day gradient calibration), TrentinEtAl2024.txt (gradient cross-check),
+BlandHawthornGerhard2016.txt (MW structural parameters).

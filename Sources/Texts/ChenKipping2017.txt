@@ -1,21 +1,95 @@
-Source note for StarGen research review
+# ChenKipping2017
 
-Citation:
-Chen, J., & Kipping, D. (2017).
-Probabilistic forecasting of the masses and radii of other worlds.
-The Astrophysical Journal, 834(1), 17.
-arXiv: https://arxiv.org/abs/1603.08614
-DOI: https://doi.org/10.3847/1538-4357/834/1/17
+## Source metadata
+- File: `ChenKipping2017.pdf`
+- Domain: mass-radius relations/Forecaster
+- Pages: 25
+- Authors (auto-extracted — verify against PDF): (see PDF)
 
-What was reviewed:
-- Abstract and source metadata on 2026-04-19.
+## Abstract
+Mass and radius are two of the most fundamental properties of an astronomical object. Increasingly, new planet discoveries are being announced with a measurement of one of these terms, but not both. This has led to a growing need to forecast the missing quantity using the other, especially when predicting the detectability of certain follow-up observations. We present am unbiased forecasting model built upon a probabilistic mass-radius relation conditioned on a sample of 316 well-constrained objects. Our publicly available code, Forecaster, accounts for observational errors, hyper-parameter uncertainties and the intrinsic dispersions observed in the calibration sample. By conditioning our model upon a sample spanning dwarf planets to late-type stars, Forecaster can predict the mass (or radius) from the radius (or mass) for objects covering nine orders-of-magnitude in mass. Classification is naturally performed by our model, which uses four classes we label as Terran worlds, Neptunian worlds, Jovian worlds and stars. Our classification identifies dwarf planets as merely low-mass Terrans (like the Earth), and brown dwarfs as merely high-mass Jovians (like Jupiter). We detect a transition in the mass-radius relation at 2.0+0.7 −0.6 M⊕ , which we associate with the divide between solid, Terran worlds and Neptunian worlds. This independent analysis adds further weight to the emerging consensus that rocky Super-Earths represent a narrower region of parameter space than originally thought. Effectively, then, the Earth is the Super-Earth we have been looking for.
 
-Key implementation notes used in StarGen:
-- The paper presents a probabilistic mass-radius relation spanning dwarf planets through stars, with regime changes between Terran, Neptunian, Jovian, and stellar scales.
-- The broad practical takeaway for StarGen is that one empirical curve can cover rocky planets, Neptunes, and gas giants without forcing a separate hard-coded size table for each one.
-- The paper's regime-based approach is especially useful for a deterministic generator because it gives a stable default curve even when a planet has not been hand-authored.
+## Major claims, findings, models, assumptions, and limitations
+*Human verification required before using quantitative values or model assumptions in
+StarGen defaults. Figures and equations not captured by text extraction — read the PDF
+for exact thresholds, fit coefficients, and table values.*
 
-How StarGen uses this:
-- As the default mass-radius model for aggregate planetary priors in Galaxy Studio and System Studio.
-- As the default physical-size resolver for generated planets when the user has not directly overridden mass, radius, or density.
-- As the fallback branch when the optional Otegi small-planet model is selected but the planet lies outside the mass range where that paper is appropriate.
+- Primary domain: mass-radius relations/Forecaster
+- See StarGen applicability section below for the specific implications.
+
+## StarGen applicability
+Probabilistic mass-radius power-law fits by planet class (Terran, Neptunian, Jovian, Stellar). Direct input to StarGen mass↔radius conversion and planet classification boundary placement.
+
+## Human reviewer concern
+The Chen and Kipping relation is useful for probabilistic mass-radius conversion, but it is underutilized if treated as a complete planet model. It should not be used alone for atmosphere, habitability, volatile history, formation pathway, photoevaporation state, or detailed composition.
+
+## AI response / disposition
+Retain ChenKipping2017 as a mass-radius model family and keep other planetary outcomes tied to separate atmosphere, composition, formation, and habitability sources.
+
+## Implementation status
+reviewed but underutilized; active as one mass-radius option, with follow-up needed to keep downstream claims separated from the relation itself.
+
+## Follow-up action
+Human review should verify the exact APA metadata and numeric transition values against the PDF before final v1.0 citation closure.
+
+## Parameters, constraints, and mechanics implications
+*(Human action: fill in specific numeric values, distributions, model families, and
+classification boundaries extracted from the paper. Where competing models or confidence
+ranges exist, expose those as user-selectable assumptions rather than collapsing to a
+single default. Where the paper documents uncertainty, preserve it in StarGen rather
+than presenting false precision.)*
+
+## Works cited by this paper (auto-extracted from final pages, partial)
+- Jontof-Hutter et al. (2015)
+- Jontof-Hutter et al. (2014)
+- TABLE 1 – continued from previous page
+- Southworth et al. (2013)
+- Anderson et al. (2015b)
+- Southworth et al. (2014)
+- Southworth et al. (2014)
+- Southworth et al. (2015b)
+- Tregloan-Reed et al. (2015)
+- Southworth et al. (2013)
+- Southworth et al. (2012c)
+- Southworth et al. (2014)
+- Anderson et al. (2015b)
+- Southworth et al. (2015b)
+- TABLE 1 – continued from previous page
+- Tregloan-Reed & Southworth (2013)
+- Southworth et al. (2015c)
+- Anderson et al. (2014b)
+- Gómez Maqueo Chew et al. (2013)
+- Anderson et al. (2014a)
+
+## Opposing or alternative findings cited
+*(Human action: identify papers in the reference list that present opposing models,
+competing parameter choices, or significantly different results. Note the specific
+disagreement and its implication for which StarGen default to use.)*
+
+## APA citation
+*(Verify and complete — see AnnotatedBibliography.md for the curated APA entry.)*
+
+## Conflicts and follow-up work
+*(Human action: search for papers explicitly responding to, revising, or challenging
+this paper published after its date. For fast-moving fields (exoplanet demographics,
+habitability, JWST/TESS-informed work), treat results >3 years old as potentially
+superseded. Flag updates in Followup.md.)*
+
+
+## StarGen mechanics translation
+
+### Planet mass-radius relation — probabilistic forecaster (primary StarGen reference)
+Forecaster: four-class probabilistic M-R relation trained on 316 well-constrained objects.
+Covers dwarf planets to late-type stars in a single self-consistent model.
+
+**StarGen M-R implementation:**
+- `MassRadiusModel` enum: `ChenKipping2017` (default) | `Otegi2020` | `UserDefined`
+- Four object classes: Terran | Neptunian | Jovian | Stellar
+  - Terran boundary: 0.41–2.0 M⊕ (roughly)
+  - Terran-Neptunian transition: ~2.0+0.7-0.6 M⊕ (rocky→volatile-rich)
+  - Neptunian-Jovian transition: ~132 M⊕ (Neptune→gas giant)
+  - Jovian-Stellar transition: ~0.08 M☉ (brown dwarf boundary)
+- R = A × M^β per class; use published posteriors on β for uncertainty sampling.
+- For transit-only detections: forecast mass from radius; vice versa for RV-only.
+**User lever:** `MassRadiusModel`, `MRUncertaintySampling` (median | posterior sample)
+**Cross-references:** Otegi2020.txt, Wolfgang2016MR.txt.

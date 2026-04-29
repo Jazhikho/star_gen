@@ -1,0 +1,80 @@
+# WeggGerhard2013
+
+## Source metadata
+- File: `WeggGerhard2013.pdf`
+- Domain: MW bar/bulge structure
+- Pages: 16
+- Authors (auto-extracted — verify against PDF): P. Ciuciua,∗, G. Varoquauxa,b,c, P. Abryd , S. Sadaghianie, A. Kleinschmidtc
+
+## Abstract
+Scaling temporal dynamics in functional MRI (fMRI) signals have been evidenced for a decade as intrinsic characteristics of ongoing brain activity [76]. Recently, scaling properties were shown to fluctuate across brain networks and to be modulated between rest and task [40]: Notably, Hurst exponent, quantifying long memory, decreases under task in activating and deactivating brain regions. In most cases, such results were obtained: First, from univariate (voxelwise or regionwise) analysis, hence focusing on specific cognitive systems such as Resting-State Networks (RSNs) and raising the issue of the specificity of this scale-free dynamics modulation in RSNs. Second, using analysis tools designed to measure a single scaling exponent related to the second order statistics of the data, thus relying on models that either implicitly or explicitly assume Gaussianity and (asymptotic) selfsimilarity, while fMRI signals may significantly depart from those either of those two assumptions [25, 74]. To address these issues, the present contribution elaborates on the analysis of the scaling properties of fMRI temporal dynamics by proposing two significant variations. First, scaling properties are technically investigated using the recently introduced Wavelet Leader-based Multifractal formalism (WLMF) [73, 3]. This measures a collection of scaling exponents, thus enables a richer and more versatile description of scale invariance (beyond correlation and Gaussianity), referred to as multifractality. Also, it benefits from improved estimation performance compared to tools previously used in the literature. Second, scaling properties are investigated in both RSN and non-RSN structures (e.
+
+## Major claims, findings, models, assumptions, and limitations
+*Human verification required before using quantitative values or model assumptions in
+StarGen defaults. Figures and equations not captured by text extraction — read the PDF
+for exact thresholds, fit coefficients, and table values.*
+
+- Primary domain: MW bar/bulge structure
+- See StarGen applicability section below for the specific implications.
+
+## StarGen applicability
+MW boxy/peanut bulge and bar from red clump stars: bar half-length ~4 kpc, angle ~27°. Constrains galactic bar parameters (length, mass, orientation) in StarGen's galaxy generator.
+
+## Parameters, constraints, and mechanics implications
+*(Human action: fill in specific numeric values, distributions, model families, and
+classification boundaries extracted from the paper. Where competing models or confidence
+ranges exist, expose those as user-selectable assumptions rather than collapsing to a
+single default. Where the paper documents uncertainty, preserve it in StarGen rather
+than presenting false precision.)*
+
+## Works cited by this paper (auto-extracted from final pages, partial)
+- [1] P. Abry, R. Baraniuk, P. Flandrin, R. Riedi, D. Veitch, Multiscale network traffic analysis, modeling, and inference using wavelets, multifractals, and cascades, IEEE Signal Processing Magazine 3 (2002) 28–46.
+- [2] P. Abry, P. Gonçalvès, P. Flandrin, Wavelets, spectrum estimation and 1/f
+- processes, Wavelets, spectrum estimation and 1/f processes, SpringerVerlag, New York, 1995. Wavelets and Statistics, Lecture Notes in Statistics.
+- [3] P. Abry, S. Jaffard, H. Wendt, Irregularities and scaling in signal and image processing: Multifractal analysis, in: M. Frame (Ed.), Benoit Mandelbrot: A Life in Many Dimensions, To Appear, Yale University, 2012.
+- [4] P. Abry, D. Veitch, P. Flandrin, Long-range dependence: revisiting aggregation with wavelets, Journal of Time Series Analysis 19 (1998) 253–266.
+- [5] S. Achard, R. Salvador, B. Whitcher, J. Suckling, E. Bullmore, A resilient, low-frequency, small-world human brain functional network with
+- highly connected association cortical hubs., The Journal of neuroscience
+- [6] A. Arneodo, B. Audit, N. Decoster, J.F. Muzy, C. Vaillant, Wavelet-based
+- multifractal formalism: applications to dna sequences, satellite images of
+- the cloud structure and stock market data, The Science of Disasters; A.
+- Bunde, J. Kropp, H.J. Schellnhuber, Eds. (Springer) (2002) 27–102.
+- [7] E. Bacry, J. Delour, J. Muzy, Multifractal random walk, Phys. Rev. E 64
+- [8] P. Bak, M. Paczuski, Complexity, contingency, and criticality., Proceedings of the National Academy of Sciences of the United States of America
+- [9] J. Barral, B. Mandelbrot, Multifractal products of cylindrical pulses,
+- Probability Theory and Related Fields 124 (2002) 409–430.
+- [10] C. Beckmann, S. Smith, Probabilistic independent component analysis
+- for functional magnetic resonance imaging, IEEE Transactions on Medical Imaging 23 (2004) 137–152.
+- [11] B. Biswal, F. Zerrin Yetkin, V. Haughton, J. Hyde, Functional connectivity in the motor cortex of resting human brain using echo-planar MRI,
+- Magnetic Resonance in Medicine 34 (1995).
+- [12] J. Britz, D. Van De Ville, C.M. Michel, BOLD correlates of EEG topography reveal rapid resting-state network dynamics., Neuroimage 52 (2010)
+
+## Opposing or alternative findings cited
+*(Human action: identify papers in the reference list that present opposing models,
+competing parameter choices, or significantly different results. Note the specific
+disagreement and its implication for which StarGen default to use.)*
+
+## APA citation
+*(Verify and complete — see AnnotatedBibliography.md for the curated APA entry.)*
+
+## Conflicts and follow-up work
+*(Human action: search for papers explicitly responding to, revising, or challenging
+this paper published after its date. For fast-moving fields (exoplanet demographics,
+habitability, JWST/TESS-informed work), treat results >3 years old as potentially
+superseded. Flag updates in Followup.md.)*
+
+
+## StarGen mechanics translation
+
+### Milky Way bar — geometry and mass from red clump stars
+Bar half-length: ~4.6 kpc; orientation: ~28° to Sun-Galactic Centre line.
+Provides definitive bar geometry for the Milky Way.
+
+**StarGen bar geometry:**
+- `Bar_HalfLength_kpc` = 4.6
+- `Bar_Orientation_deg` = 28 (relative to Sun–GC direction)
+- `Bar_AxisRatio` ≈ 0.5:0.4:0.3 (x:y:z, from paper triaxial model)
+- Used in galactic mode to define star-forming region exclusion inside the bar and to
+  weight stellar density along sight lines.
+**Cross-references:** BlandHawthornGerhard2016.txt, KhoperskovEtAl2024.txt,
+DiazGarcia2016.txt.

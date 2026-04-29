@@ -1,4 +1,4 @@
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using Godot.Collections;
 using StarGen.Domain.Celestial;
 using StarGen.Domain.Generation;
@@ -15,6 +15,10 @@ namespace StarGen.Domain.Systems;
 /// </summary>
 public static class SystemPlanetGenerator
 {
+    // Petigura et al. (2013), Fulton et al. (2017), and Fernandes et al. (2019) support
+    // different size-class prevalence across hot, temperate, and cold orbital regimes.
+    // Tuning: the zone tables below are StarGen deterministic weights shaped by that
+    // observational framework, not literal occurrence-rate tables.
     private static readonly System.Collections.Generic.Dictionary<SizeCategory.Category, float> HotZoneWeights = new()
     {
         [SizeCategory.Category.Dwarf] = 5.0f,
@@ -345,6 +349,10 @@ public static class SystemPlanetGenerator
         foreach (CelestialBody planet in planets)
         {
             double massEarth = planet.Physical.MassKg / Units.EarthMassKg;
+            // Ronnet and Johansen (2020), Sasaki et al. (2010), and Szulagyi et al. (2018)
+            // support treating large-planet moon systems as architecture-dependent outcomes
+            // rather than equally likely around arbitrarily tiny primaries. Tuning: the
+            // `0.1 Earth mass` cutoff below is StarGen's lightweight moon-host floor.
             if (massEarth >= 0.1)
             {
                 result.Add(planet);
@@ -522,6 +530,12 @@ public static class SystemPlanetGenerator
         bool inCompactInnerRegion = orbitAu <= compactRegionEdgeAu;
         bool insideLossRegime = fluxEarth >= 1.8 || orbitAu <= (planetaryState.HabitableZoneInnerAu * 0.85);
 
+        // Izidoro et al. (2017), Raymond and Izidoro (2017), Fernandes et al. (2019), Fulton
+        // et al. (2017), Owen and Wu (2017), Ginzburg et al. (2018), and MrÃ³z et al. (2020)
+        // support the architecture trends being summarized here: compact inner systems,
+        // snow-line giant enhancement, loss-regime stripping, volatile delivery coupling, and
+        // bounded rogue-world effects. Tuning: the scalar multipliers below are StarGen
+        // generator weights inside that framework rather than literature coefficients.
         weights[SizeCategory.Category.GasGiant] = (float)(
             weights[SizeCategory.Category.GasGiant]
             * planetaryState.GasGiantWeight
@@ -634,6 +648,9 @@ public static class SystemPlanetGenerator
             localVolatilePositionFactor = 1.0;
         }
 
+        // Raymond and Izidoro (2017) support giant-planet growth and scattering as a volatile-
+        // delivery channel into inner rocky systems. Tuning: the local volatile-position and
+        // giant-delivery blends below are deterministic StarGen transport weights.
         double innerGiantDeliveryBoost = 1.0;
         if (!beyondSnowLine)
         {
@@ -944,6 +961,9 @@ public static class SystemPlanetGenerator
         double orbitAu = slot.GetSemiMajorAxisAu();
         double habitableAlignment = planetaryState.GetHabitableZoneAlignment(orbitAu);
         double fluxEarth = planetaryState.GetFluxEarth(orbitAu);
+        // Kopparapu et al. (2013, 2014) support prioritizing temperate orbits and Earth-like
+        // flux windows when scoring potentially habitable slots. Tuning: the `4.5`, `1.2`,
+        // `-0.5`, and flux-window bonus below are StarGen prioritization weights.
         double score = slot.FillProbability;
         score += habitableAlignment * 4.5;
 

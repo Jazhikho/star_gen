@@ -191,6 +191,10 @@ public static class GalaxyRealismProfileBuilder
         }
 
         profile.IsBarred = ResolveBarState(config.BarMode, 0.65, rng);
+        // Diaz-Garcia et al. (2016) measure bar strength with Q_b and show that bar structure
+        // co-varies with host-galaxy morphology and bulge prominence. Tuning: this
+        // `0.35 + 0.6 * BulgeToTotal` blend is a StarGen calibration for the resolved profile,
+        // not a published law, and remains pending human verification in the science-audit pass.
         profile.BarStrength = profile.IsBarred ? 0.35 + (profile.BulgeToTotal * 0.6) : 0.0;
         profile.ArmMechanism = ResolveArmMechanism(config.ArmMechanismPreference, profile.ResolvedSubtype, rng);
         profile.EffectiveRadiusPc = ResolveDiskScaleLength(profile.HaloMassLog10Solar, profile.ResolvedSubtype);
@@ -210,6 +214,11 @@ public static class GalaxyRealismProfileBuilder
         else if (mass < 12.2)
         {
             profile.ResolvedSubtype = GalaxyResolvedSubtype.EllipticalIntermediate;
+            // Kormendy et al. (2009) treat Sersic profiles as the main-body description for
+            // elliptical galaxies and distinguish lower-luminosity/coreless ellipticals from
+            // giant/core systems. Tuning: the `3.2 + rand * 1.2` range is StarGen's compact
+            // intermediate-elliptical band within that framework and remains pending human
+            // verification of the specific range choice.
             profile.SersicIndex = 3.2 + (rng.Randf() * 1.2);
             profile.BulgeToTotal = 1.0;
             profile.CharacteristicAgeGyr = 10.0;
@@ -217,6 +226,11 @@ public static class GalaxyRealismProfileBuilder
         else
         {
             profile.ResolvedSubtype = GalaxyResolvedSubtype.EllipticalGiant;
+            // Kormendy et al. (2009) describe giant ellipticals as a distinct structural family
+            // whose main bodies are still well fit by Sersic functions. Tuning: the
+            // `4.0 + rand * 1.5` range is StarGen's giant-elliptical calibration band rather
+            // than a direct transcription of a published fit, and remains pending human
+            // verification in the audit pass.
             profile.SersicIndex = 4.0 + (rng.Randf() * 1.5);
             profile.BulgeToTotal = 1.0;
             profile.CharacteristicAgeGyr = 11.5;

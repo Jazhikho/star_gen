@@ -1,0 +1,164 @@
+# ForgnEtAl2017
+
+## Source metadata
+- File: `ForgnEtAl2017.pdf`
+- Domain: astrobiology / galactic habitable zone
+- Pages: ~14
+- Authors: Forgan, D., Dayal, P., Cockell, C., & Libeskind, N.
+- Source ID in StarGen code: `forgan2017`
+- **PDF acquisition:** arXiv:1511.01786 (open access). DOI: 10.1017/S1473550416000276
+  International Journal of Astrobiology 16, 60–73 (2017).
+  Download from https://arxiv.org/abs/1511.01786
+
+## Abstract
+This paper evaluates the Galactic Habitable Zone (GHZ) using a high-resolution
+cosmological simulation of galaxy formation, specifically the CLUES (Constrained Local
+UniversE Simulations) realization of a Local Group analog. Unlike analytic models of
+the GHZ (e.g., Lineweaver et al. 2004) that assume steady-state galaxy properties, this
+approach captures the time-dependent nature of the GHZ as the Milky Way-like galaxy
+forms and evolves. The GHZ is modeled as a spatially and temporally varying probability
+distribution governed by three factors: (1) sufficient metallicity for rocky planet
+formation ([Fe/H] > threshold), (2) sufficiently low supernova rate to avoid sterilizing
+radiation, and (3) sufficient elapsed time for complex life to evolve (>4 Gyr window).
+The paper also introduces a "soft" habitability formalism using continuous probability
+weighting rather than binary in/out boundaries, and discusses how the GHZ changes over
+cosmic time.
+
+## Major claims, findings, models, assumptions, and limitations
+- GHZ is NOT a static ring: it evolves substantially with time as the galaxy forms
+- At early epochs the GHZ is nearly absent (insufficient metallicity everywhere)
+- At intermediate times (~4–6 Gyr ago) a ring begins to form in the inner/middle disk
+- At present day: GHZ is an annulus at approximately 4–10 kpc from galactic center
+  (inner boundary set by SN rate; outer boundary set by metallicity threshold)
+- The peak of the GHZ probability distribution shifts slightly inward over time
+- Soft habitability produces a more extended, gradual GHZ boundary vs hard threshold
+- Time window for complex life: at least 4 Gyr required → sets when in the GHZ history
+  habitability "turns on"
+- Metallicity threshold: [Fe/H] ≥ −0.5 dex required for sufficient rocky-planet
+  formation material (approximate; paper explores threshold sensitivity)
+- SN sterilization rate: based on Galactic supernova history from the CLUES simulation
+- Limitation: single simulation realization; scatter between simulations not quantified
+- Limitation: SN sterilization model is simplified; does not model GRBs or AGN flares
+- Limitation: "complex life" = 4 Gyr assumption is anthropocentric and uncertain
+- The soft habitability formalism is the paper's key methodological contribution;
+  allows GHZ to be treated as a probability field rather than a sharp boundary
+
+## StarGen applicability
+Direct input to StarGen's GHZ model. Provides: GHZ inner and outer radius, temporal
+evolution, soft vs hard boundary toggle, the three habitability factors, and justification
+for exposing these as user-tunable parameters. The `forgan2017` source ID is cited in
+GalaxyScienceReferenceCatalog.cs for `ghz_inner_radius_pc`, `ghz_outer_radius_pc`, and
+`ghz_transition_width_pc` parameters.
+
+## Parameters, constraints, and mechanics implications
+
+**GHZ spatial extent (present-day Milky Way-analog):**
+- Inner edge: ~4 kpc (driven by SN sterilization rate)
+- Outer edge: ~10 kpc (driven by metallicity threshold)
+- Width: ~6 kpc in the hard-boundary case; the soft boundary extends this to ~3–13 kpc
+  with graded probability weighting
+- Transition width: ~1–2 kpc for a soft boundary in the inner/outer zone (σ of the
+  probability ramp)
+
+**The three GHZ gates (and their StarGen lever mapping):**
+1. **Metallicity gate:** [Fe/H] ≥ −0.5 dex for rocky planet formation
+   → parameterised by `metallicity_gradient_dex_per_kpc` and central [Fe/H]
+2. **SN sterilization gate:** local SN rate < threshold (empirically: outer > 4 kpc from
+   center in MW analogs is typically safe at present day)
+   → parameterised implicitly by `ghz_inner_radius_pc`
+3. **Time window gate:** host star age > 4 Gyr (for complex life) or > ~0.5 Gyr (for
+   simple life); this is the temporal gate
+   → parameterised by `ghz_transition_width_pc` indirectly; expose as separate lever
+
+**Soft vs hard habitability toggle:**
+- Hard: binary in/out; GHZ is a sharp annulus
+- Soft: probability p(r) = f(metallicity, SN rate, age) × continuous; results in a
+  gradual falloff toward GHZ boundaries
+- The soft formalism produces a broader GHZ; the hard formalism is conservative
+
+**Time evolution:**
+- GHZ did not exist as an annulus before ~8 Gyr ago (too metal-poor everywhere, or
+  too high SN rate)
+- For generating stars in a galaxy at lookback time t, the GHZ boundaries shift:
+  inner boundary moves outward (higher SN rate at earlier times); outer boundary
+  moves inward (less metallicity at earlier times) → net result: smaller GHZ in the past
+
+## APA citation
+Forgan, D., Dayal, P., Cockell, C., & Libeskind, N. (2017). Evaluating galactic
+habitability using high-resolution cosmological simulations of galaxy formation.
+International Journal of Astrobiology, 16(1), 60–73.
+https://doi.org/10.1017/S1473550416000276
+
+## Conflicts and follow-up work
+
+**Context and companion papers:**
+- Lineweaver, C. H., Fenner, Y., & Gibson, B. K. (2004) — the original GHZ paper
+  (Science 303, 59); analytic model that Forgan et al. extend/supersede. ADS reference
+  for comparison.
+- SpitoniEtAl2017.txt (in corpus) — chemical-evolution companion; provides metallicity
+  gradient vs time that feeds into the GHZ metallicity gate.
+
+**Follow-up work on GHZ:**
+- Gobat, R., & Hong, S. E. (2016) — GHZ in early-type galaxies; GHZ may not exist in
+  ellipticals (no SFR gradient; no SN ring boundary).
+- Zackrisson, E., et al. (2016) — GHZ across different universe realizations
+  (arXiv:1612.01864); examines whether Milky Way is typical.
+- Carigi, L., García-Rojas, J., & Montiel, A. (2013) — chemical evolution constraints
+  on GHZ for the MW.
+- Morrison, P. R., & Gowanlock, M. G. (2015) — updated GHZ model with improved SN
+  sterilization estimates; suggests GHZ is larger than Lineweaver (2004) estimated.
+- **As of 2024:** JWST and improved galactic chemical evolution models (e.g., APOGEE
+  constraints; see HackshawEtAl2024.txt, TrentinEtAl2024.txt) have tightened the
+  metallicity gradient inputs to the GHZ model. The 4–10 kpc boundary estimate remains
+  broadly consistent with updated inputs.
+
+**Criticism and alternatives:**
+- Prantzos, N. (2008) — argues GHZ boundaries are too uncertain to be useful; entire
+  MW disk may be habitable if metallicity threshold is relaxed.
+- The anthropocentric 4 Gyr time window is a significant assumption; relaxing it
+  expands the GHZ substantially.
+
+**Citation discovery:**
+- ADS: https://ui.adsabs.harvard.edu/abs/2017IJAsB..16...60F
+
+## StarGen mechanics translation
+
+### Galactic Habitable Zone model
+This paper (with SpitoniEtAl2017) provides the GHZ parameter basis in StarGen's galaxy
+generator. Both are cited in GalaxyScienceReferenceCatalog.cs.
+
+**GHZModel selector:**
+- `Forgan2017Soft` (default for HardSF/Realistic): continuous probability weighting
+  using three gates; GHZ appears as a gradual probability ramp.
+- `Lineweaver2004Hard`: binary annulus (historic reference model; deprecated for
+  scientific use but useful for comparison).
+- `NoBoundary`: no GHZ applied (SpaceOpera mode; habitability decided by other rules).
+
+**Default parameter values (Milky Way-like galaxy at present day):**
+- `ghz_inner_radius_pc`: 4,000 pc (4 kpc); driven by SN sterilization rate
+- `ghz_outer_radius_pc`: 10,000 pc (10 kpc); driven by metallicity threshold
+- `ghz_transition_width_pc`: 1,000 pc (1 kpc) — width of the soft probability ramp
+  at each boundary (half-Gaussian σ)
+
+**Three-gate probability computation:**
+```
+p_metallicity = logistic([Fe/H](r) - threshold_FeH, steepness)
+p_sn_safe    = logistic(r - r_inner_hard, transition_kpc)
+p_time       = 1 if star_age > min_complex_life_gyr else 0  (hard gate)
+p_ghz        = p_metallicity × p_sn_safe × p_time
+```
+- `threshold_FeH`: default −0.5 dex; expose as user lever `GHZMetallicityThreshold`
+- `min_complex_life_gyr`: default 4.0 Gyr; expose as `GHZComplexLifeTimeGyr`
+
+**Time evolution hook:**
+For galaxy generator tools that simulate at a lookback time, scale `ghz_inner_radius_pc`
+upward and `ghz_outer_radius_pc` downward proportionally to the metallicity and SN
+history of the galaxy at that epoch (implement as a scaling factor table vs lookback time).
+
+**User levers:** `GHZModel`, `GHZMetallicityThreshold`, `GHZComplexLifeTimeGyr`,
+`GHZTransitionWidthPc`.
+
+**Cross-references:** SpitoniEtAl2017.txt (chemical evolution / metallicity gate),
+HackshawEtAl2024.txt (radial metallicity gradient), TrentinEtAl2024.txt (Cepheid
+metallicity gradient cross-check), WordsworthKreidberg2022.txt (atmosphere retention
+at the individual planet level).

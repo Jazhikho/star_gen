@@ -1,16 +1,61 @@
-Lineweaver, C. H., & Davis, T. M. (2002).
-Does the rapid appearance of life on Earth suggest that life is common in the Universe?
-arXiv:astro-ph/0205014
-https://arxiv.org/abs/astro-ph/0205014
+# LineweaverDavis2002
 
-Why this source matters for StarGen
-- This paper is useful for an optimistic simple-life model.
-- It argues that rapid biogenesis on Earth can be treated as evidence that simple life may not be extremely rare on Earth-like worlds, while still being careful about selection effects.
-- In StarGen, this supports the "Rapid Biospheres" life-potential model as a research-backed way to raise abiogenesis odds without automatically making complex life or civilizations common.
+## Source metadata
+- File: `LineweaverDavis2002.pdf`
+- Domain: galactic habitable zone/GHZ
+- Pages: 21
+- Authors (auto-extracted — verify against PDF): Charles H. Lineweaver, Tamara M. Davis
 
-How it is used
-- Supports higher abiogenesis weighting for worlds that already meet water, energy, and habitability requirements.
-- Does not justify making intelligent life easy; it only informs the simple-life side of the model.
+## Abstract
+It is sometimes assumed that the rapidity of biogenesis on Earth suggests that life is common in the Universe. Here we critically examine the assumptions inherent in this if-life-evolved-rapidly-life-must-be-common argument. We use the observational constraints on the rapidity of biogenesis on Earth to infer the probability of biogenesis on terrestrial planets with the same unknown probability of biogenesis as the Earth. We find that on such planets, older than ∼ 1 Gyr, the probability of biogenesis is > 13% at the 95% confidence level. This quantifies an important term in the Drake Equation but does not necessarily mean that life is common in the Universe.
 
-Human review notes
-- Treat as a bounded optimistic prior, not a proof that life is common everywhere.
+## Major claims, findings, models, assumptions, and limitations
+*Human verification required before using quantitative values or model assumptions in
+StarGen defaults. Figures and equations not captured by text extraction — read the PDF
+for exact thresholds, fit coefficients, and table values.*
+
+- Primary domain: galactic habitable zone/GHZ
+- See StarGen applicability section below for the specific implications.
+
+## StarGen applicability
+GHZ: habitability probability peaks at ~8 kpc with ~4 Gyr age offset from Sun. Provides spatial/temporal probability distribution for habitable systems across the galaxy in StarGen.
+
+## Parameters, constraints, and mechanics implications
+*(Human action: fill in specific numeric values, distributions, model families, and
+classification boundaries extracted from the paper. Where competing models or confidence
+ranges exist, expose those as user-selectable assumptions rather than collapsing to a
+single default. Where the paper documents uncertainty, preserve it in StarGen rather
+than presenting false precision.)*
+
+## Works cited by this paper (auto-extracted from final pages, partial)
+- (Reference extraction incomplete — verify PDF.)
+
+## Opposing or alternative findings cited
+*(Human action: identify papers in the reference list that present opposing models,
+competing parameter choices, or significantly different results. Note the specific
+disagreement and its implication for which StarGen default to use.)*
+
+## APA citation
+*(Verify and complete — see AnnotatedBibliography.md for the curated APA entry.)*
+
+## Conflicts and follow-up work
+*(Human action: search for papers explicitly responding to, revising, or challenging
+this paper published after its date. For fast-moving fields (exoplanet demographics,
+habitability, JWST/TESS-informed work), treat results >3 years old as potentially
+superseded. Flag updates in Followup.md.)*
+
+
+## StarGen mechanics translation
+
+### Galactic habitable zone (GHZ) / temporal window
+Defines GHZ as annular band (~7–9 kpc) where metallicity and SFR support complex life,
+with temporal peak ~4 Gyr ago.
+
+**StarGen galactic habitability:**
+- `GHZ_Galactocentric_R_inner`: ~7 kpc (metallicity gradient inner bound)
+- `GHZ_Galactocentric_R_outer`: ~9 kpc (SN rate outer bound)
+- `GHZ_Peak_Age`: ~4 Gyr before present
+- Use these as soft priors (multiplicative weight) on habitability annotation for each
+  generated system. Do not hard-gate; use as probability modifier.
+- User lever: `GHZModel` — `LineweaverDavis2002` | `Balbi2023` | `Off`.
+**Cross-references:** Balbi2023.txt, Behroozi2019.txt, BlandHawthornGerhard2016.txt.

@@ -1,20 +1,81 @@
-Source note for StarGen research review
+# MoeDiStefano2017
 
-Citation:
-Moe, M., & Di Stefano, R. (2017).
-Mind your Ps and Qs: The interrelation between period (P) and mass-ratio (Q) distributions of binary stars.
-The Astrophysical Journal Supplement Series, 230(2), 15.
-arXiv: https://arxiv.org/abs/1606.05347
-DOI: https://doi.org/10.3847/1538-4365/aa6fb6
+## Source metadata
+- File: `MoeDiStefano2017.pdf`
+- Domain: stellar multiplicity / comprehensive statistics
+- Pages: 59
+- Authors (auto-extracted — verify against PDF): (see PDF)
 
-What was reviewed:
-- arXiv abstract and source metadata on 2026-03-28.
+## Abstract
+We compile observations of early-type binaries identiﬁed via spectroscopy, eclipses, long-baseline interferometry, adaptive optics, common proper motion, etc. Each observational technique is sensitive to companions across a narrow parameter space of orbital periods P and mass ratios q = Mcomp/M1 . After combining the samples from the various surveys and correcting for their respective selection eﬀects, we ﬁnd the properties of companions to O-type and B-type main-sequence (MS) stars diﬀer among three regimes. First, at short orbital periods P . 20 days (separations a . 0.4 AU), the binaries have small eccentricities e . 0.4, favor modest mass ratios hqi ≈ 0.5, and exhibit a small excess of twins q > 0.95. Second, the companion frequency peaks at intermediate periods log P (days) ≈ 3.5 (a ≈ 10 AU), where the binaries have mass ratios weighted toward small values q ≈ 0.2 - 0.3 and follow a Maxwellian “thermal” eccentricity distribution. Finally, companions with long orbital periods log P (days) ≈ 5.5 - 7.5 (a ≈ 200 - 5,000 AU) are outer tertiary components in hierarchical triples, and have a mass ratio distribution across q ≈ 0.1 - 1.0 that is nearly consistent with random pairings drawn from the initial mass function. We discuss these companion distributions and properties in the context of binary star formation and evolution. We also reanalyze the binary statistics of solar-type MS primaries, taking into account that (30 ± 10)% of single-lined spectroscopic binaries likely contain white dwarf companions instead of low-mass stellar secondaries. The mean frequency of stellar companions with q > 0.1 and log P (days) < 8.0 per primary increases from 0.50 ± 0.04 for solar-type
 
-Key implementation notes used in StarGen:
-- The paper is a meta-analysis that combines spectroscopic, eclipsing, interferometric, and imaging surveys.
-- Its core framing is that binary-star period and mass-ratio distributions are linked and depend strongly on primary mass.
-- This supports moving away from treating every extra star in a system as a fully independent random draw from the same population.
+## Major claims, findings, models, assumptions, and limitations
+*Human verification required before using quantitative values or model assumptions in
+StarGen defaults. Figures and equations not captured by text extraction — read the PDF
+for exact thresholds, fit coefficients, and table values.*
 
-How StarGen uses this:
-- As the basis for sampling companion masses from a primary-conditioned mass-ratio distribution instead of generating companions as unrelated field stars.
-- As support for making close and wide companions part of one empirical multiplicity model rather than separate ad hoc heuristics.
+- Primary domain: stellar multiplicity / comprehensive statistics
+- See StarGen applicability section below for the specific implications.
+
+## StarGen applicability
+Multiplicity vs primary mass: OB ~70%, A ~50%, solar ~46%, M ~20–35%, VLM ~10–15%. Period distribution log-normal peaking ~10⁵ days for solar-type. Core reference alongside DucheneKraus2013.
+
+## Parameters, constraints, and mechanics implications
+*(Human action: fill in specific numeric values, distributions, model families, and
+classification boundaries extracted from the paper. Where competing models or confidence
+ranges exist, expose those as user-selectable assumptions rather than collapsing to a
+single default. Where the paper documents uncertainty, preserve it in StarGen rather
+than presenting false precision.)*
+
+## Works cited by this paper (auto-extracted from final pages, partial)
+- Abt, H. A. 1983, ARA&A, 21, 343
+- Abt, H. A. & Corbally, C. J. 2000, ApJ, 541, 841
+- Abt, H. A., Gomez, A. E., & Levy, S. G. 1990, ApJS, 74, 551
+- Abt, H. A., Levato, H., & Grosso, M. 2002, ApJ, 573, 359
+- Aldoretta, E. J., Caballero-Nieves, S. M., Gies, D. R., Nelan,
+- E. P., Wallace, D. J., Hartkopf, W. I., Henry, T. J., Jao, W.-C.,
+- Maı́z Apellániz, J., Mason, B. D., Moﬀat, A. F. J., Norris,
+- R. P., Richardson, N. D., & Williams, S. J. 2015, AJ, 149, 26
+- Alonso-Albi, T., Fuente, A., Bachiller, R., Neri, R., Planesas, P.,
+- Testi, L., Berné, O., & Joblin, C. 2009, A&A, 497, 117
+- Ambartsumian, V. A. 1937, Astron. Zh., 14, 207
+- Andrews, S. M., Wilner, D. J., Hughes, A. M., Qi, C., &
+- Dullemond, C. P. 2009, ApJ, 700, 1502
+- Bate, M. R. 2000, MNRAS, 314, 33
+- —. 2012, MNRAS, 419, 3115
+- Bate, M. R. & Bonnell, I. A. 1997, MNRAS, 285, 33
+- Bate, M. R., Bonnell, I. A., & Price, N. M. 1995, MNRAS, 277,
+- Belczynski, K., Kalogera, V., Rasio, F. A., Taam, R. E., Zezas,
+- A., Bulik, T., Maccarone, T. J., & Ivanova, N. 2008, ApJS, 174,
+- Bertelli, G., Girardi, L., Marigo, P., & Nasi, E. 2008, A&A, 484,
+
+## Opposing or alternative findings cited
+*(Human action: identify papers in the reference list that present opposing models,
+competing parameter choices, or significantly different results. Note the specific
+disagreement and its implication for which StarGen default to use.)*
+
+## APA citation
+*(Verify and complete — see AnnotatedBibliography.md for the curated APA entry.)*
+
+## Conflicts and follow-up work
+*(Human action: search for papers explicitly responding to, revising, or challenging
+this paper published after its date. For fast-moving fields (exoplanet demographics,
+habitability, JWST/TESS-informed work), treat results >3 years old as potentially
+superseded. Flag updates in Followup.md.)*
+
+
+## StarGen mechanics translation
+
+### Stellar multiplicity — comprehensive statistical framework (high precision)
+Provides period distribution, mass-ratio distribution, and eccentricity distribution
+as functions of primary mass, all calibrated against multiple surveys.
+
+**StarGen companion generation (preferred over DucheneKraus2013 for precision):**
+- Period distribution: log-normal for solar-type (log P_peak ≈ 4.8, σ_logP ≈ 2.3)
+- Mass ratio: power-law q^γ; γ ≈ −0.5 for solar-type at P > 1 yr; nearly flat for close pairs
+- Eccentricity: Rayleigh-like for wide, circularised for P < ~12 days
+- `MultiplicityModel = MoeDiStefano2017` — recommended default for detailed systems.
+- Inner binary fraction (a < 10 AU): depends strongly on M★ and [Fe/H] (see ElBadryRix2019).
+**User lever:** `MultiplicityModel`, `CompanionMassRatioModel`, `PeriodDistributionModel`
+**Cross-references:** DucheneKraus2013.txt, Raghavan2010.txt, ElBadryRix2019Mult.txt,
+OffnerEtAl2022Review.txt.

@@ -1,20 +1,58 @@
-Source note for StarGen research review
+# Kirkpatrick2011
 
-Citation:
-Kirkpatrick, J. D., Cushing, M. C., Gelino, C. R., et al. (2011).
-The first hundred brown dwarfs discovered by the Wide-field Infrared Survey Explorer (WISE).
-The Astrophysical Journal Supplement Series, 197(2), 19.
-arXiv: https://arxiv.org/abs/1108.4677
-DOI: https://doi.org/10.1088/0067-0049/197/2/19
+## Source metadata
+- File: `Kirkpatrick2011.pdf`
+- Domain: Y dwarf spectral class definition
+- Pages: 147
+- Authors (auto-extracted — verify against PDF): J. Davy Kirkpatricka , Michael C. Cushingb , Christopher R. Gelinoa , Roger L. Griffitha ,; Michael F. Skrutskied , Kenneth A. Marsha , Edward L. Wrightc , Amanda K. Mainzerb ,; Peter R. Eisenhardtb , Ian S. McLeanc , Maggie A. Thompsonj , James M. Bauerb , Dominic J.
 
-What was reviewed:
-- arXiv abstract and source metadata on 2026-03-28.
+## Abstract
+We present ground-based spectroscopic verification of six Y dwarfs (see also Cushing et al.), eighty-nine T dwarfs, eight L dwarfs, and one M dwarf identified by the Wide-field Infrared Survey Explorer (WISE). Eighty of these are cold brown dwarfs with spectral types ≥T6, six of which have been announced earlier in Mainzer et al. and Burgasser et al. We present color-color and colortype diagrams showing the locus of M, L, T, and Y dwarfs in WISE color space. a Infrared Processing and Analysis Center, MS 100-22, California Institute of Technology, Pasadena, CA 91125; davy@ipac.caltech.edu b NASA Jet Propulsion Laboratory, 4800 Oak Grove Drive, Pasadena, CA 91109 c Department of Physics and Astronomy, UCLA, Los Angeles, CA 90095-1547 d Department of Astronomy, University of Virginia, Charlottesville, VA, 22904 e Lowell Observatory, 1400 West Mars Hill Road, Flagstaff, AZ, 86001 f SOFIA-USRA, NASA Ames Research Center, Moffett Field, CA 94035 g Massachusetts Institute of Technology, 77 Massachusetts Avenue, Building 37, Cambridge, MA 02139 h Department of Physics, University of California, San Diego, CA 92093 i Department of Physics and Astronomy, Hunter College, New York, NY 10065 j The Potomac School, 1301 Potomac School Road, McLean, VA 22101 k Division of Physics, Mathematics, and Astronomy, MS 220-6, California Institute of Technology, Pasadena, CA 91125 l Infrared Astrophysics Branch, NASA-Goddard Space Flight Center, 8800 Greenbelt Road, Greenbelt, MD 20771 m University of California, Davis, CA 95616 n Spitzer Science Center, California Institute of Technology, Pasadena, CA 91125 o National Optical Astronomy Observatory, 950 North Cherry Avenue, Tucson, AZ 85719 p Cal
 
-Key implementation notes used in StarGen:
-- The abstract reports spectroscopic verification of L, T, and Y dwarfs in one survey sample, including objects as late as early Y.
-- It presents the WISE color and spectral-type locus for M, L, T, and Y dwarfs.
-- It explicitly treats late-T and Y dwarfs as a nearby, volume-limited census problem rather than rare curiosities.
+## Major claims, findings, models, assumptions, and limitations
+*Human verification required before using quantitative values or model assumptions in
+StarGen defaults. Figures and equations not captured by text extraction — read the PDF
+for exact thresholds, fit coefficients, and table values.*
 
-How StarGen uses this:
-- As support for exposing T and Y dwarfs as real procedural outcomes rather than stopping at L dwarfs.
-- As the source-backed reason to color and classify substellar outputs across L, T, and Y rather than one generic "brown dwarf" label.
+- Primary domain: Y dwarf spectral class definition
+- See StarGen applicability section below for the specific implications.
+
+## StarGen applicability
+Y spectral class for coolest BDs (T_eff < ~500 K). Extends StarGen's spectral classification below T dwarfs into the coldest substellar regime.
+
+## Parameters, constraints, and mechanics implications
+*(Human action: fill in specific numeric values, distributions, model families, and
+classification boundaries extracted from the paper. Where competing models or confidence
+ranges exist, expose those as user-selectable assumptions rather than collapsing to a
+single default. Where the paper documents uncertainty, preserve it in StarGen rather
+than presenting false precision.)*
+
+## Works cited by this paper (auto-extracted from final pages, partial)
+- (Reference extraction incomplete — verify PDF.)
+
+## Opposing or alternative findings cited
+*(Human action: identify papers in the reference list that present opposing models,
+competing parameter choices, or significantly different results. Note the specific
+disagreement and its implication for which StarGen default to use.)*
+
+## APA citation
+*(Verify and complete — see AnnotatedBibliography.md for the curated APA entry.)*
+
+## Conflicts and follow-up work
+*(Human action: search for papers explicitly responding to, revising, or challenging
+this paper published after its date. For fast-moving fields (exoplanet demographics,
+habitability, JWST/TESS-informed work), treat results >3 years old as potentially
+superseded. Flag updates in Followup.md.)*
+
+
+## StarGen mechanics translation
+
+### Y dwarf discovery and classification
+Defines the Y spectral class (Teff < ~500 K); coldest known brown dwarfs.
+Y dwarfs: Teff ≈ 300–500 K; detected only in mid-infrared.
+
+**StarGen:**
+- `SpectralType = Y`: Teff < 500 K; mass < ~0.015 M☉ (15 M_Jup)
+- Y dwarfs are at the boundary with giant planets; use as reference for cool companion
+  classification when mass is ambiguous.
+**Cross-references:** Kirkpatrick2000.txt, Kirkpatrick2024.txt.

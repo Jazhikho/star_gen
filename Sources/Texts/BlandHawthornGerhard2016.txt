@@ -1,0 +1,76 @@
+# BlandHawthornGerhard2016
+
+## Source metadata
+- File: `BlandHawthornGerhard2016.pdf`
+- Domain: Milky Way structure (definitive review)
+- Pages: 68
+- Authors (auto-extracted — verify against PDF): (see PDF)
+
+## Abstract
+Our Galaxy, the Milky Way, is a benchmark for understanding disk galaxies. It is the only galaxy whose formation history can be studied using the full distribution of stars from faint dwarfs to supergiants. The oldest components provide us with unique insight into how galaxies form and evolve over billions of years. The Galaxy is a luminous (L ) barred spiral with a central box/peanut bulge, a dominant disk, and a diffuse stellar halo. Based on global properties, it falls in the sparsely populated “green valley” region of the galaxy color-magnitude diagram. Here we review the key integrated, structural and kinematic parameters of the Galaxy, and point to uncertainties as well as directions for future progress. Galactic studies will continue to play a fundamental role far into the future because there are measurements that can only be made in the near field and much of contemporary astrophysics depends on such observations. 529 AA54CH14-BlandHawthorn ARI 25 August 2016 20:21 Contents Downloaded from www.annualreviews.org. Guest (guest) IP: 35.150.254.12 On: Fri, 24 Apr 2026 19:25:04
+
+## Major claims, findings, models, assumptions, and limitations
+*Human verification required before using quantitative values or model assumptions in
+StarGen defaults. Figures and equations not captured by text extraction — read the PDF
+for exact thresholds, fit coefficients, and table values.*
+
+- Primary domain: Milky Way structure (definitive review)
+- See StarGen applicability section below for the specific implications.
+
+## StarGen applicability
+MW disk scale lengths (thin ~2.6 kpc, thick ~2.0 kpc), bar ~4–5 kpc, M_* ~5×10¹⁰ M☉. Core reference for all MW structural parameters in StarGen's galaxy generator.
+
+## Human reviewer concern
+This Milky Way review is useful for galaxy-structure grounding, but StarGen still underuses several parameters and should not imply a fully calibrated Milky Way simulator.
+
+## AI response / disposition
+Keep BlandHawthornGerhard2016 as a structural anchor for galaxy morphology and scale parameters while marking exact generator coefficients as StarGen tuning where they are not directly fit values.
+
+## Implementation status
+reviewed but underutilized; active as a galaxy-structure source with additional generator-fit follow-up required.
+
+## Follow-up action
+Human review should verify exact scale lengths, bar/bulge values, and follow-up Gaia-era revisions before final v1.0 citation closure.
+
+## Parameters, constraints, and mechanics implications
+*(Human action: fill in specific numeric values, distributions, model families, and
+classification boundaries extracted from the paper. Where competing models or confidence
+ranges exist, expose those as user-selectable assumptions rather than collapsing to a
+single default. Where the paper documents uncertainty, preserve it in StarGen rather
+than presenting false precision.)*
+
+## Works cited by this paper (auto-extracted from final pages, partial)
+- (Reference extraction incomplete — verify PDF.)
+
+## Opposing or alternative findings cited
+*(Human action: identify papers in the reference list that present opposing models,
+competing parameter choices, or significantly different results. Note the specific
+disagreement and its implication for which StarGen default to use.)*
+
+## APA citation
+*(Verify and complete — see AnnotatedBibliography.md for the curated APA entry.)*
+
+## Conflicts and follow-up work
+*(Human action: search for papers explicitly responding to, revising, or challenging
+this paper published after its date. For fast-moving fields (exoplanet demographics,
+habitability, JWST/TESS-informed work), treat results >3 years old as potentially
+superseded. Flag updates in Followup.md.)*
+
+
+## StarGen mechanics translation
+
+### Milky Way parameters — definitive compilation (primary galactic reference)
+Comprehensive review of all Milky Way structural parameters: disk, bulge, halo, bar,
+spiral arms, SFR, and mass components.
+
+**StarGen galactic structure parameters:**
+- Disk scale length: R_d ≈ 2.6 kpc (thin disk); 2.0 kpc (thick disk)
+- Disk scale height: h_z ≈ 0.3 kpc (thin); 0.9 kpc (thick)
+- Solar Galactocentric radius: R₀ = 8.2 ± 0.1 kpc
+- Bar half-length: ~3.5–5 kpc (see WeggGerhard2013 for geometry)
+- Total stellar mass: ~5 × 10¹⁰ M☉
+- Circular velocity at R₀: ≈ 240 km/s
+- These define the spatial distribution of generated star positions in galactic mode.
+**User lever:** `GalacticModel = BlandHawthornGerhard2016` (default)
+**Cross-references:** WeggGerhard2013.txt, Kennicutt1998.txt, Bovy2017.txt,
+KhoperskovEtAl2024.txt.

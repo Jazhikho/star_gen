@@ -1,20 +1,60 @@
-Source note for StarGen research review
+# Fulton2017
 
-Citation:
-Fulton, B. J., Petigura, E. A., Howard, A. W., Isaacson, H., Marcy, G. W., Cargile, P. A., Hebb, L., Weiss, L. M., Johnson, J. A., Morton, T. D., Sinukoff, E., Crossfield, I. J. M., & Hirsch, L. A. (2017).
-The California-Kepler Survey. III. A gap in the radius distribution of small planets.
-The Astronomical Journal, 154(3), 109.
-arXiv: https://arxiv.org/abs/1703.10375
-DOI: https://doi.org/10.3847/1538-3881/aa80eb
+## Source metadata
+- File: `Fulton2017.pdf`
+- Domain: radius gap / California-Kepler Survey
+- Pages: 22
+- Authors (auto-extracted — verify against PDF): The California-Kepler Survey.; Benjamin J. Fulton2,3,12,* , Erik A. Petigura3,15 , Andrew W. Howard3 , Howard Isaacson4 , Geoffrey W.; Marcy4 , Phillip A. Cargile5 , Leslie Hebb6 , Lauren M. Weiss7,13 , John Asher Johnson5 , Timothy D. Morton8 ,
 
-What was reviewed:
-- Abstract and source metadata on 2026-04-03.
+## Abstract
+The size of a planet is an observable property directly connected to the physics of its formation and evolution. We used precise radius measurements from the California-Kepler Survey (CKS) to study the size distribution of 2025 Kepler planets in fine detail. We detect a factor of ≥2 deficit in the occurrence rate distribution at 1.5–2.0 R⊕ . This gap splits the population of close-in (P < 100 d) small planets into two size regimes: RP < 1.5 R⊕ and RP = 2.0–3.0 R⊕ , with few planets in between. Planets in these two regimes have nearly the same intrinsic frequency based on occurrence measurements that account for planet detection efficiencies. The paucity of planets between 1.5 and 2.0 R⊕ supports the emerging picture that close-in planets smaller than Neptune are composed of rocky cores measuring 1.5 R⊕ or smaller with varying amounts of low-density gas that determine their total sizes.
 
-Key implementation notes used in StarGen:
-- The paper reports that close-in small planets do not form one smooth size family. Instead, the observed distribution splits into a smaller rocky group and a larger gas-envelope group with a radius gap between them.
-- The gap is strongest for planets that receive significant irradiation, which supports treating hot close-in worlds as more likely to lose or strongly thin their envelopes.
-- For StarGen, the useful takeaway is not an exact observed fraction. It is the causal constraint that stellar flux and loss-model assumptions should materially affect whether a close-in world lands as rocky, stripped, or sub-Neptune-like.
+## Major claims, findings, models, assumptions, and limitations
+*Human verification required before using quantitative values or model assumptions in
+StarGen defaults. Figures and equations not captured by text extraction — read the PDF
+for exact thresholds, fit coefficients, and table values.*
 
-How StarGen uses this:
-- As the basis for biasing hot inner-system worlds away from stable mini-Neptune outcomes and toward rocky or stripped-core outcomes when the aggregate planetary state indicates a strong envelope-loss regime.
-- As support for making atmosphere retention and thin-air outcomes depend on stellar flux and loss context instead of only planet mass or cosmetic preset choice.
+- Primary domain: radius gap / California-Kepler Survey
+- See StarGen applicability section below for the specific implications.
+
+## StarGen applicability
+Radius gap at ~1.5–2.0 R⊕ separating rocky super-Earths from volatile-rich mini-Neptunes. Fundamental: two distinct planet populations require separate generation branches in StarGen.
+
+## Parameters, constraints, and mechanics implications
+*(Human action: fill in specific numeric values, distributions, model families, and
+classification boundaries extracted from the paper. Where competing models or confidence
+ranges exist, expose those as user-selectable assumptions rather than collapsing to a
+single default. Where the paper documents uncertainty, preserve it in StarGen rather
+than presenting false precision.)*
+
+## Works cited by this paper (auto-extracted from final pages, partial)
+- (Reference extraction incomplete — verify PDF.)
+
+## Opposing or alternative findings cited
+*(Human action: identify papers in the reference list that present opposing models,
+competing parameter choices, or significantly different results. Note the specific
+disagreement and its implication for which StarGen default to use.)*
+
+## APA citation
+*(Verify and complete — see AnnotatedBibliography.md for the curated APA entry.)*
+
+## Conflicts and follow-up work
+*(Human action: search for papers explicitly responding to, revising, or challenging
+this paper published after its date. For fast-moving fields (exoplanet demographics,
+habitability, JWST/TESS-informed work), treat results >3 years old as potentially
+superseded. Flag updates in Followup.md.)*
+
+
+## StarGen mechanics translation
+
+### Planet size distribution — radius gap discovery (California-Kepler Survey)
+First high-precision detection of the bimodal planet radius distribution (the 'Fulton gap').
+Gap at ~1.7–2.0 R⊕ separates super-Earths and sub-Neptunes.
+
+**StarGen planet size distribution anchor:**
+- `FultonGap_Centre` ≈ 1.8 R⊕ (solar-type stars, P < 100 days)
+- `FultonGap_Width` ≈ 0.4 R⊕ (between peaks at ~1.4 and ~2.4 R⊕)
+- Planet occurrence rolls: draw radii from bimodal distribution; gap is the low-
+  probability region.
+- This is the primary observational anchor for radius gap in StarGen's distribution.
+**Cross-references:** FultonPetigura2018CKS.txt, OwenWu2017.txt, VanEylen2018Ast.txt.

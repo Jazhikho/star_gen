@@ -1,0 +1,71 @@
+# Kennicutt1998
+
+## Source metadata
+- File: `Kennicutt1998.pdf`
+- Domain: star formation rate / Schmidt-Kennicutt law
+- Pages: 34
+- Authors (auto-extracted — verify against PDF): Robert C. Kennicutt, Jr.
+
+## Abstract
+Measurements of Hα, HI, and CO distributions in 61 normal spiral galaxies are combined with published far-infrared and CO observations of 36 infrared-selected starburst galaxies, in order to study the form of the global star formation law, over the full range of gas densities and star formation rates (SFRs) observed in galaxies. The disk-averaged SFRs and gas densities for the combined sample are well represented by a Schmidt law with index N = 1.4 ± 0.15. The Schmidt law provides a surprisingly tight parametrization of the global star formation law, extending over several orders of magnitude in SFR and gas density. An alternative formulation of the star formation law, in which the SFR is presumed to scale with the ratio of the gas density to the average orbital timescale, also fits the data very well. Both descriptions provide potentially useful “recipes” for modelling the SFR in numerical simulations of galaxy formation and evolution.
+
+## Major claims, findings, models, assumptions, and limitations
+*Human verification required before using quantitative values or model assumptions in
+StarGen defaults. Figures and equations not captured by text extraction — read the PDF
+for exact thresholds, fit coefficients, and table values.*
+
+- Primary domain: star formation rate / Schmidt-Kennicutt law
+- See StarGen applicability section below for the specific implications.
+
+## StarGen applicability
+SFR surface density ∝ gas surface density^1.4. Core reference for galaxy-level SFR as a function of gas content in StarGen's galaxy generator.
+
+## Parameters, constraints, and mechanics implications
+*(Human action: fill in specific numeric values, distributions, model families, and
+classification boundaries extracted from the paper. Where competing models or confidence
+ranges exist, expose those as user-selectable assumptions rather than collapsing to a
+single default. Where the paper documents uncertainty, preserve it in StarGen rather
+than presenting false precision.)*
+
+## Works cited by this paper (auto-extracted from final pages, partial)
+- Units 108 yr, for H0 = 75 km s 1 Mpc 1
+- SFR based on Br luminosity
+- SFR based on FIR and Br luminosities
+- REFERENCES.| (1) Smith & Harvey 1996; (2) Telesco et al. 1993; (3) Mauersberger et al. 1996;
+- (4) Scoville et al. 1994; (5) Casoli et al. 1988; (6) Jackson et al. 1991; (7) Lo et al. 1987; (8) Wild
+- et al. 1992; (9) Casoli et al. 1991; (10) Kenney et al. 1992; (11) Devereux et al. 1992; (12) Kenney
+- et al. 1993; (13) Ball et al. 1985; (14) Telesco & Harper 1980; (15) Dupraz et al. 1990; (16) Wang
+- et al. 1992; (17) Lo et al. 1984; (18) Becklin et al. 1980; (19) Ishiguro et al. 1989; (20) Rickard &
+- NOAO/IRAF robk@vega Mon Dec 15 14:05:27 1997
+- NOAO/IRAF robk@vega Mon Dec 15 14:06:24 1997
+- NOAO/IRAF robk@vega Mon Dec 15 14:07:22 1997
+- NOAO/IRAF robk@vega Mon Dec 15 14:56:53 1997
+- NOAO/IRAF robk@vega Mon Dec 15 14:58:09 1997
+
+## Opposing or alternative findings cited
+*(Human action: identify papers in the reference list that present opposing models,
+competing parameter choices, or significantly different results. Note the specific
+disagreement and its implication for which StarGen default to use.)*
+
+## APA citation
+*(Verify and complete — see AnnotatedBibliography.md for the curated APA entry.)*
+
+## Conflicts and follow-up work
+*(Human action: search for papers explicitly responding to, revising, or challenging
+this paper published after its date. For fast-moving fields (exoplanet demographics,
+habitability, JWST/TESS-informed work), treat results >3 years old as potentially
+superseded. Flag updates in Followup.md.)*
+
+
+## StarGen mechanics translation
+
+### Star formation rate — Kennicutt-Schmidt law (primary SFR reference)
+SFR ∝ Σ_gas^1.4 (where Σ is surface density). Sets star formation rate as function of
+local gas density; foundational relation for galactic star formation modelling.
+
+**StarGen galactic SFR:**
+- `SFR_Law = Kennicutt1998`: SFR per kpc² = A × Σ_gas^1.4 (A from Table 4 of paper)
+- Normalisation: global SFR of MW ≈ 1–2 M☉/yr (consistent with BlandHawthornGerhard2016)
+- Use to weight stellar age distribution in galactic rolls: more recent stars in gas-rich
+  regions; older stars in gas-poor outer disk.
+**Cross-references:** BlandHawthornGerhard2016.txt, Behroozi2019.txt, DiazGarcia2016.txt.

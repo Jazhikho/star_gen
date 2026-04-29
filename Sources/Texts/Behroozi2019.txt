@@ -1,0 +1,58 @@
+# Behroozi2019
+
+## Source metadata
+- File: `Behroozi2019.pdf`
+- Domain: galaxy formation/stellar-halo assembly
+- Pages: 52
+- Authors (auto-extracted — verify against PDF): Peter Behroozi ,1‹ Risa H. Wechsler,2,3 Andrew P. Hearin4 and Charlie Conroy5
+
+## Abstract
+We present a method to flexibly and self-consistently determine individual galaxies’ star formation rates (SFRs) from their host haloes’ potential well depths, assembly histories, and redshifts. The method is constrained by galaxies’ observed stellar mass functions, SFRs (specific and cosmic), quenched fractions, ultraviolet (UV) luminosity functions, UV–stellar mass relations, IRX–UV relations, auto- and cross-correlation functions (including quenched and star-forming subsamples), and quenching dependence on environment; each observable is reproduced over the full redshift range available, up to 0 < z < 10. Key findings include the following: galaxy assembly correlates strongly with halo assembly; quenching correlates strongly with halo mass; quenched fractions at fixed halo mass decrease with increasing redshift; massive quenched galaxies reside in higher-mass haloes than star-forming galaxies at fixed galaxy mass; star-forming and quenched galaxies’ star formation histories at fixed mass differ most at z < 0.5; satellites have large scatter in quenching time-scales after infall, and have modestly higher quenched fractions than central galaxies; Planck cosmologies result in up to 0.3 dex lower stellar – halo mass ratios at early times; and, none the less, stellar mass– halo mass ratios rise at z > 5. Also presented are revised stellar mass – halo mass relations for all, quenched, star-forming, central, and satellite galaxies; the dependence of star formation histories on halo mass, stellar mass, and galaxy SSFR; quenched fractions and quenching time-scale distributions for satellites; and predictions for higher-redshift galaxy correlation functions and weak lensing surf
+
+## Major claims, findings, models, assumptions, and limitations
+*Human verification required before using quantitative values or model assumptions in
+StarGen defaults. Figures and equations not captured by text extraction — read the PDF
+for exact thresholds, fit coefficients, and table values.*
+
+- Primary domain: galaxy formation/stellar-halo assembly
+- See StarGen applicability section below for the specific implications.
+
+## StarGen applicability
+UniverseMachine: galaxy–halo SFR correlation z=0–10. Informs stellar population age distributions as a function of halo mass in StarGen's galaxy generator.
+
+## Parameters, constraints, and mechanics implications
+*(Human action: fill in specific numeric values, distributions, model families, and
+classification boundaries extracted from the paper. Where competing models or confidence
+ranges exist, expose those as user-selectable assumptions rather than collapsing to a
+single default. Where the paper documents uncertainty, preserve it in StarGen rather
+than presenting false precision.)*
+
+## Works cited by this paper (auto-extracted from final pages, partial)
+- (Reference extraction incomplete — verify PDF.)
+
+## Opposing or alternative findings cited
+*(Human action: identify papers in the reference list that present opposing models,
+competing parameter choices, or significantly different results. Note the specific
+disagreement and its implication for which StarGen default to use.)*
+
+## APA citation
+*(Verify and complete — see AnnotatedBibliography.md for the curated APA entry.)*
+
+## Conflicts and follow-up work
+*(Human action: search for papers explicitly responding to, revising, or challenging
+this paper published after its date. For fast-moving fields (exoplanet demographics,
+habitability, JWST/TESS-informed work), treat results >3 years old as potentially
+superseded. Flag updates in Followup.md.)*
+
+
+## StarGen mechanics translation
+
+### Galaxy stellar mass function and SFR history — UniverseMachine
+Provides stellar-mass-to-halo-mass relation and SFR history as function of halo mass
+and redshift; most comprehensive galaxy formation constraint model to date.
+
+**StarGen galactic host properties:**
+- `StellarMassToHaloMass(Mhalo, z)` — for placing generated galaxy in cosmological context.
+- `SFR_History(Mhalo, z)` — for computing stellar age distribution in a galaxy.
+- For Milky Way mass halos (M_halo ~ 10^12 M☉): SFR peaked at z~2 (≈10 Gyr ago).
+**Cross-references:** Conselice2014.txt, BlandHawthornGerhard2016.txt, Kennicutt1998.txt.

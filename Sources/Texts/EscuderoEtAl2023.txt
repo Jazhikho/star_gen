@@ -1,0 +1,89 @@
+# EscuderoEtAl2023
+
+## Source metadata
+- File: `EscuderoEtAl2023.pdf`
+- Domain: astrobiology / dark biosphere / subsurface habitability / Mars analogs
+- Pages: 11
+- Authors: Escudero, C., & Amils, R.
+- Source ID in StarGen code: `escudero2023`
+- **PDF acquisition:** PDF confirmed present in `Sources/Texts`.
+  DOI: 10.3389/fspas.2023.1203845
+  Original URL: https://www.frontiersin.org/journals/astronomy-and-space-sciences/articles/10.3389/fspas.2023.1203845/full
+  Retrieval mode: HTML plus matching PDF.
+
+## Abstract
+Escudero and Amils review Earth's hard-rock deep subsurface biosphere and argue that
+habitability assessments should include dark biospheres, not only surface liquid-water
+worlds. The review emphasizes energy, liquid water, usable chemistry, and substrate
+properties as requirements for deep subsurface life, with Mars exploration as a major
+application.
+
+## Major claims, findings, models, assumptions, and limitations
+- **Habitability is broader than surface HZ:** Surface liquid water is not the only
+  meaningful habitat. Rocky planets and moons can support deep subsurface ecosystems.
+- **Deep biosphere requirements:** The paper identifies energy, liquid water, suitable
+  temperature, CHNOPS elements, and accessible rock/fluid interfaces as central.
+- **Energy sources:** The hard-rock dark biosphere can rely on chemolithotrophic
+  metabolisms, including hydrogen, sulfur, iron, methane, acetate, and radiolysis-linked
+  pathways depending on geology.
+- **Oxygen is not required:** Anaerobic metabolisms dominate many deep subsurface
+  contexts, so oxygen-rich atmospheres should not be required for microbial habitability.
+- **Mars relevance:** The paper treats hard-rock subsurface methods and biosignatures as
+  important for Mars habitability assessment.
+- **Limitation:** This is a review and method paper. It does not provide a single
+  exoplanet probability model for subsurface life.
+
+## StarGen applicability
+Directly supports StarGen's distinction between surface habitability and subsurface or
+dark-biosphere habitability. It is relevant to worlds with subsurface oceans, fractured
+rock, geothermal or tidal energy, weak or absent atmospheres, and low surface irradiance.
+
+Provides:
+- A source anchor for `BiomeType.Subsurface`
+- Support for life potential on airless or low-atmosphere bodies if water and energy exist
+- A reason to keep microbial life separate from complex surface biosphere outcomes
+- A framework for habitability readouts that do not over-focus on the classical HZ
+
+## Parameters, constraints, and mechanics implications
+
+**Subsurface habitability gate:**
+```
+subsurface_support =
+    liquid_water_access
+    * energy_flux
+    * rock_fluid_interface
+    * chemistry_access
+```
+
+**Generator rule implication:**
+- `HasSubsurfaceOcean` should raise microbial-life support, but should not by itself
+  imply photosynthetic, oxygenating, complex, or technosphere-supporting biospheres.
+- Low atmosphere should not zero out simple-life support if subsurface water and energy
+  are present.
+- Tidal heating and geothermal proxies should be consumed by the biology evaluator.
+
+## APA citation
+Escudero, C., & Amils, R. (2023). Hard rock dark biosphere and habitability.
+Frontiers in Astronomy and Space Sciences, 10, Article 1203845.
+https://doi.org/10.3389/fspas.2023.1203845
+
+## Conflicts and follow-up work
+- Compare with `HellerBarnes2013.txt` for tidal-heating limits and with
+  `WordsworthKreidberg2022.txt` for atmosphere-retention constraints.
+- Human audit should decide whether StarGen needs a separate "subsurface microbial"
+  life stage distinct from general native-life probability.
+- Add bibliography coverage if this source remains in the retained v1.0 source set.
+
+## StarGen mechanics translation
+
+### Dark-biosphere branch
+Current StarGen already has `CryosphereProps.HasSubsurfaceOcean`, `BiomeType.Subsurface`,
+and a `BiologySupportEvaluator` branch that increases support for subsurface oceans and
+tidal heating.
+
+**Current fit:** moderate. The code recognizes subsurface oceans and non-surface life,
+but the generator does not yet represent rock permeability, radiolytic hydrogen,
+serpentinization, or geochemical energy availability as first-class fields.
+
+**Recommended v1.0 disposition:** keep the current branch as a deterministic proxy, but
+document it as StarGen tuning rather than a calibrated subsurface-biosphere model.

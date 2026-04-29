@@ -1,0 +1,131 @@
+# HarfstEtAl2024
+
+## Source metadata
+- File: `HarfstEtAl2024.pdf`
+- Domain: political science / governance / political legitimacy / civilization modeling
+- Pages: ~15
+- Authors: Harfst, P., & Wiesner, C.
+- Source ID in StarGen code: `harfst2024`
+- **PDF acquisition:** Frontiers in Political Science, published 12 February 2024.
+  DOI: 10.3389/fpos.2024.999743
+  Open access: https://www.frontiersin.org/journals/political-science/articles/10.3389/fpos.2024.999743/full
+  **PDF confirmed present in Sources/Texts/.**
+
+## Abstract
+This paper proposes a two-dimensional model of political legitimacy, distinguishing
+between internal legitimacy (the belief of citizens that their government has the
+right to rule) and external legitimacy (the recognition by other political units that
+a government's authority is valid). The authors argue that existing political legitimacy
+measurements conflate these two dimensions, leading to confusion in comparative
+political analysis. They develop operational measures for both dimensions and apply
+them to a comparative dataset. Key findings: internal and external legitimacy are
+empirically distinct and can vary independently; a government can have high internal
+legitimacy (popular support) while having low external legitimacy (contested
+internationally) and vice versa. This two-dimensional model improves prediction of
+political stability and regime durability.
+
+## Major claims, findings, models, assumptions, and limitations
+- **Two dimensions of political legitimacy:**
+  1. **Internal legitimacy:** Citizens' belief that their government has the right to
+     govern. Measured by survey-based support, institutional trust, national identity
+     alignment. High internal legitimacy → government can govern without constant
+     coercive enforcement.
+  2. **External legitimacy:** Recognition by other states/actors that the government
+     is the valid authority. Measured by diplomatic recognition, international
+     organization membership, treaty participation.
+- **Key finding — independence:** The two dimensions can vary independently. Examples:
+  - High internal / Low external: non-recognized states (Kosovo, Taiwan at some points,
+    de facto governments in conflict zones)
+  - Low internal / High external: internationally recognized authoritarian governments
+    with suppressed domestic populations
+  - High/High: mature democratic states (OAO in Murphy2023.txt terminology)
+  - Low/Low: failed states (fragile in Murphy2023 terminology)
+- **Stability prediction:** Political stability correlates with BOTH dimensions.
+  Either can be a weak point — a government with high external but low internal
+  legitimacy is vulnerable to internal revolt; the reverse is vulnerable to external
+  intervention.
+- **Factions and contestation:** Low internal legitimacy predicts higher faction
+  activity — multiple actors competing for the government's claim to rule.
+- **Limitation:** Measurement of internal legitimacy in authoritarian contexts is
+  difficult; surveys undercount true dissent.
+
+## StarGen applicability
+Provides the **two-axis legitimacy model** for StarGen's government characterization.
+Adds the internal/external distinction to the government profile:
+- Internal legitimacy → faction count / intensity (low internal = more factions)
+- External legitimacy → diplomatic status, starport access, trade partner count
+- Together with Murphy2023 (OAO/LAO/Fragile) and AuerbachThachil2024 (capacity),
+  this completes the four-axis government profile: [capacity, legitimacy_internal,
+  legitimacy_external, economic_openness]
+
+## Parameters, constraints, and mechanics implications
+
+**Two-axis legitimacy → StarGen outputs:**
+```csharp
+// Internal legitimacy → faction count
+double internalLegitimacy = SampleInternalLegitimacy(govType, rng);
+// 0.0 = no popular support; 1.0 = full popular mandate
+int factionCount = (int)Math.Round(rng.NextGaussian(
+    3 + (1.0 - internalLegitimacy) * 8,  // low legitimacy → more factions
+    1.5));
+factionCount = Math.Clamp(factionCount, 0, 12);
+
+// External legitimacy → diplomatic openness
+double externalLegitimacy = SampleExternalLegitimacy(govType, oaoCategory, rng);
+// High external → trade access, starport class
+bool hasTradeAccess = externalLegitimacy > 0.50;
+int starportClassBonus = (int)(externalLegitimacy * 3); // 0-3 bonus
+
+// Stability flag
+bool politicallyStable = internalLegitimacy > 0.40 && externalLegitimacy > 0.40;
+```
+
+**Government type → legitimacy priors:**
+```
+GovernmentType        | Internal prior | External prior | Notes
+----------------------|----------------|----------------|---------------------------
+Participatory (demo.) | High (0.7-1.0) | High (0.8-1.0) | OAO states
+Military dictatorship | Low (0.1-0.5)  | Moderate (0.4-0.7)| Suppressed internally
+Charismatic           | High (0.6-0.9) | Low (0.2-0.6)  | Popular but contested
+Theocracy             | Moderate-high  | Low (depends)  | Internal cohesion, external doubt
+Balkanization/anarchy | None (0.0-0.1) | None (0.0-0.1) | Both dimensions failed
+Company/corporate     | Low-moderate   | High (0.7-0.9) | Recognized by trading partners
+```
+
+## APA citation
+Harfst, P., & Wiesner, C. (2024). Measuring political legitimacy in two dimensions:
+Internal and external measures. Frontiers in Political Science.
+https://doi.org/10.3389/fpos.2024.999743
+
+## Conflicts and follow-up work
+
+**Theoretical foundation:**
+- Weber, M. (1919) "Politics as a Vocation" — classic legitimacy framework
+  (traditional, charismatic, legal-rational). The Harfst two-dimension model extends
+  Weber by separating internal acceptance from external recognition.
+
+**Related in corpus:**
+- Murphy2023.txt — OAO/LAO/Fragile → overall governance quality
+- AuerbachThachil2024.txt — state capacity (administrative, fiscal, coercive)
+- MaysharMoavPascali2022.txt — legitimacy originates in the appropriability story
+  (those who control the grain control the narrative of legitimate rule)
+
+**Citation discovery:**
+- DOI: 10.3389/fpos.2024.999743
+
+## StarGen mechanics translation
+
+### Legitimacy → Factions and diplomatic status
+HarfstEtAl2024 adds the internal/external legitimacy dimensions to StarGen's
+government profile, which directly generate faction count and trade access.
+
+**Faction generation:**
+```csharp
+int factionCount = ComputeFactionCount(internalLegitimacy, techLevel, rng);
+// Low legitimacy + high TechLevel → organized factions (opposition parties, rebels)
+// Low legitimacy + low TechLevel → unorganized conflict (warlordism)
+```
+
+**Cross-references:** Murphy2023.txt (OAO/LAO/Fragile classification),
+AuerbachThachil2024.txt (capacity ≠ legitimacy), WichmannEtAl2025.txt (conflict
+fingerprinting; low legitimacy → armed conflict patterns).

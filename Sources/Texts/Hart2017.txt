@@ -1,21 +1,74 @@
-Source note for StarGen research review
+# Hart2017
 
-Citation:
-Hart, R. E., Bamford, S. P., Hayes, W. B., Cardamone, C. N., Keel, W. C., Kruk, S. J., Lintott, C. J., Masters, K. L., Simmons, B. D., & Smethurst, R. J. (2017).
-Galaxy Zoo and SpArcFiRe: Constraints on spiral arm formation mechanisms from spiral arm number and pitch angles.
-Monthly Notices of the Royal Astronomical Society.
-arXiv: https://arxiv.org/abs/1708.04628
-DOI: https://doi.org/10.1093/mnras/stx2137
+## Source metadata
+- File: `Hart2017.pdf`
+- Domain: brown dwarfs/T dwarfs
+- Pages: 18
+- Authors (auto-extracted — verify against PDF): Ross E. Hart,1? Steven P. Bamford,1 Wayne B. Hayes,2 Carolin N. Cardamone,3; William C. Keel,4 Sandor J. Kruk,5 Chris J. Lintott,5 Karen L. Masters,6
 
-What was reviewed:
-- arXiv abstract and source metadata on 2026-04-19.
+## Abstract
+In this paper we study the morphological properties of spiral galaxies, including measurements of spiral arm number and pitch angle. Using Galaxy Zoo 2, a stellar masscomplete sample of 6,222 SDSS spiral galaxies is selected. We use the machine vision algorithm SpArcFiRe to identify spiral arm features and measure their associated geometries. A support vector machine classifier is employed to identify reliable spiral features, with which we are able to estimate pitch angles for half of our sample. We use these machine measurements to calibrate visual estimates of arm tightness, and hence estimate pitch angles for our entire sample. The properties of spiral arms are compared with respect to various galaxy properties. The star formation properties of galaxies vary significantly with arm number, but not pitch angle. We find that galaxies hosting strong bars have spiral arms substantially (4-6°) looser than unbarred galaxies. Accounting for this, spiral arms associated with many-arm structures are looser (by 2°) than those in two-arm galaxies. In contrast to this average trend, galaxies with greater bulge-to-total stellar mass ratios display both fewer and looser spiral arms. This effect is primarily driven by the galaxy disc, such that galaxies with more massive discs contain more spiral arms with tighter pitch angles. This implies that galaxy central mass concentration is not the dominant cause of pitch angle and arm number variations between galaxies, which in turn suggests that not all spiral arms are governed by classical density waves or modal theories.
 
-Key implementation notes used in StarGen:
-- The paper directly studies spiral arm number and pitch angle in a large SDSS and Galaxy Zoo sample.
-- It reports that strong bars are associated with looser spiral arms, and that many-arm spirals are looser on average than two-arm spirals.
-- It also argues that not all spiral arms are explained by one classical density-wave picture, which is useful for a deterministic generator that offers different arm-mechanism modes rather than one universal rule.
+## Major claims, findings, models, assumptions, and limitations
+*Human verification required before using quantitative values or model assumptions in
+StarGen defaults. Figures and equations not captured by text extraction — read the PDF
+for exact thresholds, fit coefficients, and table values.*
 
-How StarGen uses this:
-- Supports the scientific framing for spiral arm count as a meaningful structural control rather than a purely decorative slider.
-- Supports the pitch-angle control and its link to looser versus tighter arm geometry.
-- Supports keeping different arm-mechanism modes in the UI while documenting them as simplified proxies for competing observed spiral-pattern behaviors.
+- Primary domain: brown dwarfs/T dwarfs
+- See StarGen applicability section below for the specific implications.
+
+## StarGen applicability
+Brown dwarf characterisation — verify abstract. Relevant to BD spectral classification and temperature/luminosity generation in StarGen.
+
+## Parameters, constraints, and mechanics implications
+*(Human action: fill in specific numeric values, distributions, model families, and
+classification boundaries extracted from the paper. Where competing models or confidence
+ranges exist, expose those as user-selectable assumptions rather than collapsing to a
+single default. Where the paper documents uncertainty, preserve it in StarGen rather
+than presenting false precision.)*
+
+## Works cited by this paper (auto-extracted from final pages, partial)
+- Abazajian K. N., et al., 2009, ApJS, 182, 543
+- Ann H. B., Lee H.-R., 2013, Journal of Korean Astronomical Society, 46, 141
+- Astropy Collaboration et al., 2013, AAP, 558, A33
+- Athanassoula E., Romero-Gómez M., Masdemont J. J., 2009a,
+- Athanassoula E., Romero-Gómez M., Bosma A., Masdemont J. J.,
+- 2009b, MNRAS, 400, 1706
+- Athanassoula E., Romero-Gómez M., Bosma A., Masdemont J. J.,
+- Baba J., 2015, MNRAS, 454, 2954
+- Baba J., Saitoh T. R., Wada K., 2013, ApJ, 763, 46
+- Bamford S. P., et al., 2009, MNRAS, 393, 1324
+- Barton E. J., Geller M. J., Kenyon S. J., 2000, ApJ, 530, 660
+- Berrier J. C., et al., 2013, ApJ, 769, 132
+- Binggeli B., Sandage A., Tammann G. A., 1985, AJ, 90, 1681
+- Biviano A., Girardi M., Giuricin G., Mardirossian F., Mezzetti
+- M., 1991, ApJ, 376, 458
+- Blanton M. R., Kazin E., Muna D., Weaver B. A., Price-Whelan
+- Block D. L., Puerari I., 1999, A&A, 342, 627
+- Boeshaar G. O., Hodge P. W., 1977, ApJ, 213, 361
+- Brinchmann J., Charlot S., White S. D. M., Tremonti C., Kauffmann G., Heckman T., Brinkmann J., 2004, MNRAS, 351,
+- Bryant J. J., et al., 2015, MNRAS, 447, 2857
+
+## Opposing or alternative findings cited
+*(Human action: identify papers in the reference list that present opposing models,
+competing parameter choices, or significantly different results. Note the specific
+disagreement and its implication for which StarGen default to use.)*
+
+## APA citation
+*(Verify and complete — see AnnotatedBibliography.md for the curated APA entry.)*
+
+## Conflicts and follow-up work
+*(Human action: search for papers explicitly responding to, revising, or challenging
+this paper published after its date. For fast-moving fields (exoplanet demographics,
+habitability, JWST/TESS-informed work), treat results >3 years old as potentially
+superseded. Flag updates in Followup.md.)*
+
+
+## StarGen mechanics translation
+
+### Stellar population / galactic archaeology
+*(Verify exact domain of Hart2017 against PDF.)*
+
+**StarGen:** Domain pending verification. Likely contributes to stellar age-metallicity
+or galactic population statistics. Check PDF and update this section.
+**Cross-references:** See AnnotatedBibliography.md.

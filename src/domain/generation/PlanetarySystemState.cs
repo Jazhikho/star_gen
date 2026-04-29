@@ -186,19 +186,47 @@ public partial class PlanetarySystemState : RefCounted
 
         double metallicityEnrichment = System.Math.Clamp(metallicity, 0.35, 2.5);
         double snowLineAu = 2.7 * System.Math.Sqrt(System.Math.Max(0.05, luminositySolar)) * profile.SnowLineScalar;
+        // Pascucci et al. (2016) and Ribas et al. (2015) support host-mass dependence in disk
+        // solids and disk lifetimes. Tuning: the `0.65`, `0.25`, `3.5`, and clamp bands below
+        // are StarGen surrogates for propagating those trends into one deterministic system
+        // state rather than direct disk-population fit coefficients.
         double hostMassDiskLifetimeScalar = ComputeHostMassDiskLifetimeScalar(massSolar);
         double hostMassSolidReservoirScalar = System.Math.Clamp(System.Math.Pow(System.Math.Max(0.2, massSolar), 0.65), 0.45, 1.85);
         double hostMassGasReservoirScalar = System.Math.Clamp(System.Math.Pow(System.Math.Max(0.2, massSolar), 0.25), 0.70, 1.35);
         double adjustedDiskLifetimeMyr = profile.DiskLifetimeMyr * hostMassDiskLifetimeScalar;
         double diskLifetimeFactor = System.Math.Clamp(adjustedDiskLifetimeMyr / 3.5, 0.35, 2.10);
+        double diskRadiusFactor = System.Math.Clamp(profile.DiskRadiusScale, 0.35, 3.0);
+        double dustToGasFactor = System.Math.Clamp(profile.DustToGasScale, 0.35, 3.0);
+        double fragmentationFactor = profile.FragmentationVelocityModel switch
+        {
+            PlanetFragmentationVelocityModel.LowFragmentationVelocity => 0.86,
+            PlanetFragmentationVelocityModel.HighFragmentationVelocity => 1.14,
+            _ => 1.0,
+        };
+        double giantOriginBandFactor = profile.GiantOriginBandModel switch
+        {
+            PlanetGiantOriginBandModel.FiveToTwentyFiveAu => 1.12,
+            PlanetGiantOriginBandModel.SnowLineAdjacent => 1.08,
+            _ => 1.0,
+        };
+        // Fischer and Valenti (2005) support stronger giant-planet and solid-reservoir outcomes
+        // around metal-rich hosts. Tuning: the metallicity blends below are StarGen enrichment
+        // weights layered onto that framework instead of literature coefficients.
         double solidBudget = profile.SolidMassScalar
             * hostMassSolidReservoirScalar
+            * dustToGasFactor
             * (0.72 + (0.28 * metallicityEnrichment))
             * System.Math.Pow(profile.OxidationScalar, 0.35);
         double gasBudget = profile.GasMassScalar
             * hostMassGasReservoirScalar
+            * System.Math.Pow(diskRadiusFactor, 0.18)
             * (0.80 + (0.12 * metallicityEnrichment))
             * System.Math.Sqrt(diskLifetimeFactor);
+        // Tanaka, Takeuchi, and Ward (2002) provide the canonical isothermal Type-I migration
+        // framework for low-mass planets embedded in gaseous discs. Tuning: the weighted
+        // surrogate below compresses that framework into a deterministic StarGen aggregate
+        // proxy, so the `0.78 / 0.18 / 0.10 / 0.18` coefficients are calibration choices rather
+        // than literature constants, and remain pending human verification in the audit pass.
         double effectiveMigrationStrength = System.Math.Clamp(
             profile.MigrationStrength
             * (0.78 + (0.18 * solidBudget) + (0.10 * gasBudget))
@@ -209,6 +237,10 @@ public partial class PlanetarySystemState : RefCounted
             (luminositySolar * 0.55) + (effectiveMigrationStrength * 0.22) + (profile.ImpactStirring * 0.15),
             0.3,
             3.5);
+        // Mordasini et al. (2007) and Lambrechts and Johansen (2012) motivate distinct giant-
+        // formation branches for core accretion and pebble-assisted growth. Tuning: the
+        // `0.95 / 1.15 / 1.05` multipliers below are StarGen branch weights, not published
+        // occurrence ratios.
         double gasGiantWeight = 1.0;
         if (profile.GasGiantFormationModel == GasGiantFormationModel.CoreAccretion)
         {
@@ -216,12 +248,14 @@ public partial class PlanetarySystemState : RefCounted
         }
         else if (profile.GasGiantFormationModel == GasGiantFormationModel.PebbleAssisted)
         {
-            gasGiantWeight *= 1.15;
+            gasGiantWeight *= 1.15 * fragmentationFactor;
         }
         else
         {
-            gasGiantWeight *= 1.05;
+            gasGiantWeight *= 1.05 * System.Math.Sqrt(fragmentationFactor);
         }
+
+        gasGiantWeight *= giantOriginBandFactor;
 
         gasGiantWeight *= profile.MetallicityCouplingStrength switch
         {
@@ -240,12 +274,27 @@ public partial class PlanetarySystemState : RefCounted
             escapeProxy *= 0.92;
         }
 
+        // Fernandes et al. (2019) support a giant-planet occurrence peak near the snow line,
+        // and Izidoro et al. (2017) support migration-linked scattering as an architecture
+        // shaper. Tuning: the `0.72 + 0.20 * gas + 0.16 * solids` and
+        // `0.62 + 0.20 * stirring + 0.12 * migration` composites below are StarGen weights.
         double snowLineGiantFormation = System.Math.Clamp(
             gasGiantWeight
             * (0.72 + (0.20 * gasBudget) + (0.16 * solidBudget))
             * System.Math.Pow(diskLifetimeFactor, 0.20),
             0.25,
             3.00);
+        if (profile.GiantOriginBandModel == PlanetGiantOriginBandModel.FiveToTwentyFiveAu)
+        {
+            double sourceBandAlignment = System.Math.Clamp((snowLineAu - 2.0) / 23.0, 0.0, 1.0);
+            snowLineGiantFormation *= 0.94 + (0.18 * sourceBandAlignment);
+        }
+        else if (profile.GiantOriginBandModel == PlanetGiantOriginBandModel.SnowLineAdjacent)
+        {
+            snowLineGiantFormation *= 1.08;
+        }
+
+        snowLineGiantFormation = System.Math.Clamp(snowLineGiantFormation, 0.25, 3.00);
         double giantScattering = System.Math.Clamp(
             snowLineGiantFormation
             * (0.62 + (0.20 * profile.ImpactStirring) + (0.12 * effectiveMigrationStrength)),
@@ -267,6 +316,9 @@ public partial class PlanetarySystemState : RefCounted
             lowMassActivityFactor = System.Math.Clamp(1.02 - ((massSolar - 0.85) * 0.10), 0.82, 1.02);
         }
 
+        // Luger and Barnes (2015) support stronger long-lived high-energy activity around low-
+        // mass hosts, while Ribas et al. (2015) anchors the broad age dependence of young
+        // systems. Tuning: the final luminosity blend and clamp remain StarGen summary weights.
         double xuvActivity = System.Math.Clamp(ageActivityFactor * lowMassActivityFactor * (0.92 + (0.08 * luminositySolar)), 0.45, 1.85);
         double outerBias = profile.MinorBodyOuterSystemBias switch
         {
@@ -274,6 +326,10 @@ public partial class PlanetarySystemState : RefCounted
             PlanetMinorBodyOuterSystemBias.CometLeaning => 1.24,
             _ => 1.0,
         };
+        // DeMeo and Carry (2014), Lamy et al. (2004), and Raymond and Izidoro (2017) support
+        // treating outer small-body reservoirs and inward volatile delivery as linked but not
+        // identical channels. Tuning: the `0.74 / 0.26 / 0.18 / 0.08` and
+        // `0.56 / 0.22 / 0.10` blends below are StarGen transport weights.
         double outerReservoir = System.Math.Clamp(
             outerBias * (0.74 + (0.26 * gasBudget) + (0.18 * solidBudget) + (0.08 * snowLineGiantFormation)),
             0.45,

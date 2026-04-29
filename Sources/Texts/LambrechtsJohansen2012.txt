@@ -1,20 +1,78 @@
-Source note for StarGen research review
+# LambrechtsJohansen2012
 
-Citation:
-Lambrechts, M., & Johansen, A. (2012).
-Rapid growth of gas-giant cores by pebble accretion.
-Astronomy & Astrophysics, 544, A32.
-arXiv: https://arxiv.org/abs/1205.3030
-DOI: https://doi.org/10.1051/0004-6361/201219127
+## Source metadata
+- File: `LambrechtsJohansen2012.pdf`
+- Domain: pebble accretion/planet formation
+- Pages: 14
+- Authors (auto-extracted — verify against PDF): (see PDF)
 
-What was reviewed:
-- Abstract and source metadata on 2026-04-19.
+## Abstract
+The observed lifetimes of gaseous protoplanetary discs place strong constraints on gas and ice giant formation in the core accretion scenario. The approximately 10-Earth-mass solid core responsible for the attraction of the gaseous envelope has to form before gas dissipation in the protoplanetary disc is completed within 1-10 million years. Building up the core by collisions between kmsized planetesimals fails to meet this time-scale constraint, especially at wide stellar separations. Nonetheless, gas-giant planets are detected by direct imaging at wide orbital distances. In this paper, we numerically study the growth of cores by the accretion of cmsized pebbles loosely coupled to the gas. We measure the accretion rate onto seed masses ranging from a large planetesimal to a fully grown 10-Earth-mass core and test different particle sizes. The numerical results are in good agreement with our analytic expressions, indicating the existence of two accretion regimes, one set by the azimuthal and radial particle drift for the lower seed masses and the other, for higher masses, by the velocity at the edge of the Hill sphere. In the former, the optimally accreted particle size increases with core mass, while in the latter the optimal size is centimeters, independent of core mass. We discuss the implications for rapid core growth of gas-giant and ice-giant cores. We conclude that pebble accretion can resolve the long-standing core accretion time-scale conflict. This requires a near-unity dust-to-gas ratio in the midplane, particle growth to mm and cm and the formation of massive planetesimals or low radial pressure support. The core growth time-scale is shortened by a factor 30–1,
 
-Key implementation notes used in StarGen:
-- The paper shows that cm-scale pebble accretion can accelerate giant-core growth enough to ease the usual disk-lifetime timescale problem.
-- The practical takeaway is that a system can be biased toward faster giant formation without changing every other part of the planet generator.
-- This gives StarGen a real named alternative to the standard heavy-core-first weighting.
+## Major claims, findings, models, assumptions, and limitations
+*Human verification required before using quantitative values or model assumptions in
+StarGen defaults. Figures and equations not captured by text extraction — read the PDF
+for exact thresholds, fit coefficients, and table values.*
 
-How StarGen uses this:
-- As the named support for the `Pebble-assisted` giant-growth option in aggregate planetary priors.
-- As the basis for a higher giant-growth weighting when the upstream planetary profile assumes faster solid-core assembly.
+- Primary domain: pebble accretion/planet formation
+- See StarGen applicability section below for the specific implications.
+
+## StarGen applicability
+Rapid giant-planet core growth via pebble accretion. Constrains giant planet formation timescale and core isolation mass thresholds in StarGen.
+
+## Parameters, constraints, and mechanics implications
+*(Human action: fill in specific numeric values, distributions, model families, and
+classification boundaries extracted from the paper. Where competing models or confidence
+ranges exist, expose those as user-selectable assumptions rather than collapsing to a
+single default. Where the paper documents uncertainty, preserve it in StarGen rather
+than presenting false precision.)*
+
+## Works cited by this paper (auto-extracted from final pages, partial)
+- Adachi, I., Hayashi, C., & Nakazawa, K. 1976, Progress of Theoretical Physics,
+- Bai, X.-N., & Stone, J. M. 2010, ApJ, 722, 1437
+- Balbus, S. A., & Hawley, J. F. 1991, ApJ, 376, 214
+- Bell, K. R., Cassen, P. M., Klahr, H. H., & Henning, T. 1997, ApJ, 486, 372
+- Binney, J., & Tremaine, S. 1987, Princeton, NJ, Princeton University Press,
+- Blum, J., & Wurm, G. 2008, ARA&A, 46, 21
+- Boss, A. P. 1997, Science, 276, 1836
+- Brandenburg, A., Nordlund, A., Stein, R. F., & Torkelsson, U. 1995, ApJ, 446,
+- Brauer, F., Dullemond, C. P., & Henning, T. 2008, aap, 480, 859
+- Chiang, E., & Youdin, A. N. 2010, Annual Review of Earth and Planetary
+- Currie, T., Lada, C. J., Plavchan, P., et al. 2009, ApJ, 698, 1
+- Dodson-Robinson, S. E., Veras, D., Ford, E. B., & Beichman, C. A. 2009, ApJ,
+- Epstein, P. S. 1924, Physical Review , 23, 710
+- Fischer, D. A., & Valenti, J. 2005, ApJ, 622, 1102
+- Fromang, S., & Stone, J. M. 2009, A&A, 507, 19
+- Goldreich, P., & Tremaine, S. 1980, ApJ, 241, 425
+- Goldreich, P., Lithwick, Y., & Sari, R. 2004, ARA&A, 42, 549
+- Guillot, T. 2005, Annual Review of Earth and Planetary Sciences, 33, 493
+- Guillot, T., Santos, N. C., Pont, F., et al. 2006, A&A, 453, L21
+- Haisch, K. E., Jr., Lada, E. A., & Lada, C. J. 2001, ApJ, 553, L153
+
+## Opposing or alternative findings cited
+*(Human action: identify papers in the reference list that present opposing models,
+competing parameter choices, or significantly different results. Note the specific
+disagreement and its implication for which StarGen default to use.)*
+
+## APA citation
+*(Verify and complete — see AnnotatedBibliography.md for the curated APA entry.)*
+
+## Conflicts and follow-up work
+*(Human action: search for papers explicitly responding to, revising, or challenging
+this paper published after its date. For fast-moving fields (exoplanet demographics,
+habitability, JWST/TESS-informed work), treat results >3 years old as potentially
+superseded. Flag updates in Followup.md.)*
+
+
+## StarGen mechanics translation
+
+### Planet formation — pebble accretion (rapid core growth mechanism)
+Pebble accretion can grow planetary cores rapidly (< 0.1 Myr) to pebble isolation mass.
+Pebble isolation mass depends on disk properties; typically ~10–20 M⊕.
+
+**StarGen core mass priors:**
+- `PebbleIsolationMass` range: 10–20 M⊕ (fiducial for solar-type stars).
+- Above this mass: gas accretion begins → gas giant formation pathway.
+- Below: rocky/icy core without gas envelope.
+- Use as upper bound for terrestrial planet core mass in the inner disk.
+**Cross-references:** Mordasini2007.txt, Izidoro2017.txt, RaymondIzidoro2017.txt.

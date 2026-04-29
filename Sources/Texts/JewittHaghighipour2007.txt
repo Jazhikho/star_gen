@@ -1,0 +1,149 @@
+# JewittHaghighipour2007
+
+## Source metadata
+- File: `JewittHaghighipour2007.pdf`
+- Domain: planetary science / small bodies / irregular satellites
+- Pages: ~35 (Annual Reviews chapter)
+- Authors: Jewitt, D., & Haghighipour, N.
+- Source ID in StarGen code: `jewitthaghighipour2007`
+- **PDF acquisition:** arXiv:astro-ph/0703059 (open access). DOI: 10.1146/annurev.astro.44.051905.092459
+  ARA&A 45, 261 (2007). Download from https://arxiv.org/abs/astro-ph/0703059
+
+## Abstract
+A comprehensive review of irregular satellites of the giant planets as known by 2007.
+Irregular satellites are bodies with large, eccentric, and highly inclined (often
+retrograde) orbits that cannot have formed in-situ and must have been captured from
+heliocentric orbit. The paper reviews the discovery history, orbital properties, size
+distributions, surface colors, and composition of known irregular satellites across
+all four giant planets. The capture mechanism is discussed in the context of planetary
+formation scenarios: gas drag during proto-giant-planet envelope growth (for Jupiter
+and Saturn), and three-body exchange interactions during the Late Heavy Bombardment /
+Nice Model dynamical instability. The paper also examines the dynamical clustering
+of irregulars into collisional families and discusses the evolutionary relationships
+between irregular satellites, Centaurs, and Kuiper Belt Objects.
+
+## Major claims, findings, models, assumptions, and limitations
+- As of 2007: ~100 known irregular satellites total (Jupiter ~55, Saturn ~38,
+  Uranus ~9, Neptune ~7); numbers have continued to grow since.
+- Retrograde satellites significantly outnumber prograde around Jupiter and Saturn
+  (retrograde:prograde ratio ~2–3:1)
+- Orbital clustering: distinct dynamical families (Himalia group: prograde Jupiter;
+  Ananke, Carme, Pasiphae groups: retrograde Jupiter)
+- Surface colors: bimodal distribution (gray/neutral + red) similar to Centaur/TNO
+  color distribution; suggests common origin from outer solar system
+- Geometric albedos: dark bodies, p_V ~ 0.04–0.10
+- Size distribution: cumulative power law with index q ≈ 2 for larger irregulars
+  (radius > 10 km); steeper for smaller bodies
+- Densities: poorly constrained; bulk densities estimated ~1.5–2.5 g/cm³ (rock/ice mix)
+- Two leading capture scenarios: (1) gas drag during proto-Jupiter's rapid gas accretion
+  phase; (2) three-body exchange interactions during Nice Model instability
+- Limitation: many orbits still poorly determined for newly discovered members as of 2007
+- Limitation: composition data limited to photometric colors (no spectra for most)
+
+## StarGen applicability
+Irregular satellite generation for giant planets (and analogues around extrasolar giants).
+Provides: probability of having irregulars, expected retrograde/prograde ratio, number
+vs planetary mass, size distribution, orbital parameter distributions. Also constrains
+dynamical history assumptions for gas-giant systems.
+
+## Parameters, constraints, and mechanics implications
+
+**Occurrence and numbers:**
+- All four giant planets have significant irregular satellite populations
+- Number scales roughly with planetary mass and Hill sphere volume
+- Jupiter (most massive, widest Hill sphere) has the most; Neptune (compact Hill sphere
+  due to orbital radius) has fewer
+- For a generated giant planet at some orbit, scale expected irregular count by
+  (M_planet/M_Jupiter)^α × (a_planet/5.2 AU)^β — exact scaling uncertain; use as
+  qualitative order-of-magnitude guide
+
+**Retrograde/prograde asymmetry:**
+- Jupiter: ~60–70% of known irregulars are retrograde
+- Saturn: similar asymmetry
+- Physical reason: retrograde orbits are more stable at large semi-major axes within
+  the Hill sphere (they experience weaker perturbations from the Sun)
+- StarGen implementation: generate irregulars with ~65% retrograde probability as default
+
+**Size distribution:**
+- Cumulative size distribution: N(>R) ∝ R^(-q) with q ≈ 2 for R > 10 km
+- Differential size distribution index: ~3 (number ∝ R^-3 dR)
+- Typical irregular radius range: 1–100 km (radius); few bodies > 100 km (Himalia ~80 km)
+- Implied: many small, few large; most mass in the larger bodies
+
+**Orbital parameter distributions:**
+- Semi-major axes: 0.02–0.5 × R_Hill (Hill radius of planet)
+- Inclinations: 0–90° for prograde; 90–180° for retrograde; gap near 90° (Kozai unstable)
+- Eccentricities: 0–0.7, broadly distributed (irregulars orbit far from planet)
+- For random generation: draw inclination from two peaks (prograde: 30–60°; retrograde:
+  130–160°) to match observed distributions approximately
+
+**Surface properties (observational, for flavor/rendering):**
+- Colors: B-V ≈ 0.6–0.9; V-R ≈ 0.3–0.6 (reddish to neutral; no ultrared objects)
+- Geometric albedo: default p_V = 0.04 (dark, primitive composition)
+- Likely composition: outer solar system material (hydrated silicates, organics, ices)
+
+## APA citation
+Jewitt, D., & Haghighipour, N. (2007). Irregular satellites of the planets: Products of
+capture in the early solar system. Annual Review of Astronomy and Astrophysics, 45,
+261–295. https://doi.org/10.1146/annurev.astro.44.051905.092459
+
+## Conflicts and follow-up work
+
+**Observational updates (many new irregular satellites discovered since 2007):**
+- Sheppard & Jewitt (2003), Sheppard et al. (2005, 2006): earlier surveys that fed this review
+- Nicholson et al. (2008): Cassini photometry of Saturn irregular satellites
+- Denk & Mottola (2019): Cassini survey of Saturn's outer moons — detailed lightcurves
+- Sheppard et al. (2018, 2023): new surveys adding 70+ satellites to Jupiter's irregular
+  population; total now >90 Jupiter irregulars confirmed (as of 2023)
+- **As of 2023-2024:** Jupiter has 95 known moons (most irregulars); Saturn ~150 (mostly
+  new Cassini-era small irregulars). The Jewitt & Haghighipour (2007) counts are now
+  substantially out of date for precise numbers, though size distributions and
+  mechanisms remain valid.
+
+**Theoretical updates:**
+- Nesvorny et al. (2007, 2014): Nice Model simulations of irregular satellite capture
+  during the Late Heavy Bombardment — strong evidence for three-body exchange
+- Bottke et al. (2023): updated dynamical capture simulations
+
+**Competing mechanisms note:**
+- Gas drag capture (Pollack et al. 1979, Cuk & Burns 2004) primarily applies to Jupiter/Saturn
+  (formed in dense nebula); three-body exchange (Agnor & Hamilton 2006) applies more
+  broadly. Modern consensus: three-body exchange + collisional disruption post-capture
+  can explain all four giant planet irregular systems.
+
+**Citation discovery:**
+- ADS: https://ui.adsabs.harvard.edu/abs/2007ARA%26A..45..261J
+
+## StarGen mechanics translation
+
+### Irregular satellite generator
+This paper provides the empirical basis for generating irregular satellite swarms around
+giant planets.
+
+**GenerationMode behavior:**
+- `HardSF` / `Realistic`: include realistic irregular satellite populations with size
+  distribution and orbital statistics from this paper.
+- `SpaceOpera`: can simplify to 0 or 1 named irregular with placeholder properties.
+
+**Key generation rules:**
+1. **Gate:** only generate irregular populations for planets with M > ~0.1 M_Jupiter
+   (Hill sphere must be wide enough to retain them).
+2. **Count:** draw total irregular count N_irr from distribution calibrated to Jupiter
+   (~55), Saturn (~38), Uranus (~9), Neptune (~7). Scale with Hill sphere radius as proxy.
+   For first-order scaling: N_irr ∝ (R_Hill / AU)^1.5 roughly.
+3. **Retrograde fraction:** 0.65 (default); expose as user slider `IrregularRetrogradeFraction`.
+4. **Size distribution:** draw radii from N(>R) ∝ R^(-2), minimum radius 1 km,
+   maximum radius ~100 km; normalize to match expected total count.
+5. **Orbital elements:**
+   - a: uniform in [0.03, 0.45] × R_Hill
+   - e: uniform in [0.1, 0.7]
+   - i: prograde → draw from 20°–70°; retrograde → draw from 110°–165°
+   (avoid ~90° ± 15° Kozai instability zone)
+6. **Surface:** p_V = 0.04 default; color = gray/reddish (no ultrared).
+7. **Naming convention:** designate as `[PlanetName] [Roman numeral]` for named moons,
+   or generate unnamed designations for small swarm members.
+
+**User lever:** `IrregularSatelliteDetail` enum: `None` / `NamedOnly` / `Full`.
+
+**Cross-references:** planetary formation papers; Chabrier2003.txt (stellar/planetary
+mass scaling context); Lamy2004.txt (comet nucleus size/albedo comparison).

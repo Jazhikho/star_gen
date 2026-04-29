@@ -67,6 +67,12 @@ public static class StellarIsochroneApproximator
             return 1.0e10;
         }
 
+        // Hurley et al. (2000) provide analytic stellar-evolution formulae across mass and
+        // metallicity. Tuning: the compact `2.1 / 2.5 / 2.9` piecewise exponents below are a
+        // StarGen lifetime approximation inspired by that SSE-style framework rather than a
+        // direct transcription of the paper's fitting formulae, and remain pending human
+        // verification in the science-audit pass. This comment and its source linkage are
+        // still pending human verification.
         double exponent = 2.5;
         if (massSolar < 0.45)
         {

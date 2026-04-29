@@ -1,0 +1,72 @@
+# GuptaSchlichting2020Followup
+
+## Source metadata
+- File: `GuptaSchlichting2020Followup.pdf`
+- Domain: radius gap / core-powered mass-loss stellar dependence
+- Authors (verify against PDF title page)
+
+## Abstract
+Recent studies have shown that atmospheric mass-loss powered by the cooling luminosity of a planet’s core can explain the observed radius valley separating super-Earths and sub-Neptunes, even without photoevaporation. In this work, we investigate the dependence of this core-powered mass-loss mechanism on stellar mass (M∗ ), metallicity (Z∗ ) and age (τ∗ ). Without making any changes to the underlying planet population, we find that the core-powered mass-loss model yields a shift in the radius valley to larger planet sizes around more massive stars with a slope given by d logRp /d logM∗ ' 0.35, in agreement with observations. To first order, this slope is driven by the dependence of core-powered mass-loss on the bolometric luminosity of the host star and is given by d logRp /d logM∗ ' (3α − 2)/36 ' 0.33, where (L∗ /L ) = (M∗ /M )α is the stellar massluminosity relation and α ' 4.6 for the CKS dataset. We therefore find, in contrast to photoevaporation models, no evidence for a linear correlation between planet and stellar mass, but can’t rule it out either. In addition, we show that the location of the radius valley is, to first order, independent of stellar age and metallicity. Since corepowered mass-loss proceeds over Gyr timescales, the abundance of super-Earths relative to sub-Neptunes increases with age but decreases with stellar metallicity. Finally, due the dependence of the envelope’s cooling timescale on metallicity, we find that the radii of sub-Neptunes increase with metallicity and decrease with age with slopes given by d logRp /d logZ∗ ' 0.1 and d logRp /d logτ∗ ' −0.1, respectively. We conclude with a series of observational tests that can differentiate between core-powered mass-loss and photoevaporation models. Key words: planets and satellites: atmosphere
+
+## Major claims, findings, models, assumptions, and limitations
+*Human verification required before using quantitative values or model assumptions in
+StarGen defaults. Figures and equations not captured by text extraction — read the PDF
+for exact thresholds, fit coefficients, and table values.*
+
+- Primary domain: radius gap / core-powered mass-loss stellar dependence
+- See StarGen applicability section below for the specific implications.
+
+## StarGen applicability
+CPML predicts gap slope d log Rp/d log M★ ≈ 0.33–0.35, consistent with CKS data; gap location independent of stellar age and metallicity to first order. Age proxy: super-Earth/sub-Neptune ratio increases >1 Gyr.
+
+## Parameters, constraints, and mechanics implications
+*(Human action: fill in specific numeric values, distributions, model families, and
+classification boundaries extracted from the paper. Where competing models or confidence
+ranges exist, expose those as user-selectable assumptions rather than collapsing to a
+single default. Where the paper documents uncertainty, preserve it in StarGen rather
+than presenting false precision.)*
+
+## Works cited by this paper (auto-extracted from final pages, partial)
+- A. Gupta and H.E. Schlichting
+- Figure 9. Core-powered mass-loss results as a function of stellar metallicity for planets around solar mass stars after 3 Gyrs of thermal
+- The left panel of Figure 9 shows the planet size distribution as a function of metallicity, where we assume that the
+- Equation (7)). The size trend with metallicity and slope of
+- In contrast to the sub-Neptune population, corepowered mass-loss predicts a negligible dependence of the
+- Schlichting (2019) and summarized in Section 5.1, the slope
+- Rp ' 2Rc independent of envelope metallicity, we find that
+- In reality, there is a weak dependence of the radius valley and super-Earth sizes on metallicity because the atmospheric mass-loss timescales increase with stellar metallicity
+- MNRAS 000, 1–16 (2019)
+- Core-Powered Mass-Loss: Stellar Dependence
+- Figure 10. Core-powered mass-loss results as a function of stellar age for planets with solar mass and solar metallicity host stars. The
+- In contrast to the sub-Neptunes, the average size of super-Earths increases with age. In addition, this figure shows that the relative
+- Dependence on stellar age
+- Atmospheric mass-loss driven by the cooling of the underlying core depends on the age of the system as mass-loss and
+- Assuming a constant metallicity, we have from Equation (19) that the radii of the sub-Neptune population vary
+
+## Opposing or alternative findings cited
+*(Human action: identify papers in the reference list that present opposing models,
+competing parameter choices, or significantly different results. Note the specific
+disagreement and its implication for which StarGen default to use.)*
+
+## APA citation
+*(Verify and complete — see AnnotatedBibliography.md for the curated APA entry.)*
+
+## Conflicts and follow-up work
+*(Human action: search for papers explicitly responding to, revising, or challenging
+this paper published after its date. For fast-moving fields (exoplanet demographics,
+habitability, JWST/TESS-informed work), treat results >3 years old as potentially
+superseded. Flag updates in Followup.md.)*
+
+## StarGen mechanics translation
+
+### Radius gap — core-powered mass-loss stellar property dependence
+CPML model reproduces stellar mass dependence of gap without changing planet population.
+Gap slope vs M★: d log Rp / d log M★ ≈ 0.33–0.35 (consistent with CKS observations).
+
+**StarGen CPML branch parameters:**
+- Stellar mass slope: 0.33–0.35 (gap shifts to larger R around more massive stars)
+- Age dependence: super-Earth fraction rises from 0.61 (< 1 Gyr) → 1.00 (> 1 Gyr)
+  → apply time-evolution to planet type fractions when system age is generated.
+- Metallicity: sub-Neptune radii d log Rp / d log Z★ ≈ +0.1 (radii increase with [Fe/H])
+- `PlanetTypeAgeFraction` lookup table: f_superEarth(age, M★, Z★)
+**Cross-references:** Ginzburg2018.txt, Berger2020Gaia.txt, OwenSchlichting2023Followup.txt.

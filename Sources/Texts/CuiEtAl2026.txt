@@ -1,0 +1,156 @@
+# CuiEtAl2026
+
+## Source metadata
+- File: `CuiEtAl2026.pdf`
+- Domain: exoplanet demographics / occurrence rates / TESS close-in planets
+- Pages: 16
+- Authors: Cui, K. [Kaiming], Armstrong, D. J., Hadjigeorghiou, A., Lafarga, M., et al.
+- Source ID in StarGen code: `cui2026`
+- **PDF acquisition:** PDF confirmed present in Sources/Texts/.
+  Data deposited: doi:10.5281/zenodo.17804280. Verify journal and arXiv ID against PDF.
+  Note: File domain was auto-classified as "stellar/galactic" — corrected to
+  "exoplanet demographics / occurrence rates."
+
+## Abstract
+Understanding the demographics of close-in planets is crucial for insights into exoplanet
+formation and evolution. We present a detailed analysis of occurrence rates for close-in
+(0.5–16 day) planets with radii between 2 and 20 R⊕ around FGK main-sequence stars. Our
+study uses a comprehensive sample from four years of TESS Science Processing Operations
+Center full-frame image data cross-matched with Gaia, analysed through our rigorous
+detection, vetting, and validation pipeline. Using high-confidence planet candidates, we
+apply a hierarchical Bayesian model to determine occurrence rates in the two-dimensional
+orbital period-radius plane. Our results are presented using 10-by-10 bins across the
+period-radius parameter space, offering unprecedented resolution and statistical precision.
+We find an overall occurrence rate of 9.4 +0.7/−0.6 %. When using identical binning, our
+occurrence rate posterior distributions align with Kepler's but have on average smaller
+uncertainties. For hot Jupiters, we estimate the overall occurrence rate of 0.39 +0.03/−0.02 %.
+This value is consistent with the previous Kepler FGK-type result within 1σ. We find an
+overall occurrence rate of Neptunian desert planets of 0.08 ± 0.01%, to our knowledge the
+first such determination. Additionally, in a volume-limited Gaia subsample within 100 pc
+in the same parameter region, we measure an overall planet occurrence rate of 15.4 +1.6/−1.5%
+and a hot Jupiter occurrence rate of 0.42 +0.16/−0.12%. Our results establish an improved
+foundation for constraining theoretical models of exoplanet populations.
+
+## Major claims, findings, models, assumptions, and limitations
+- **Close-in planet overall occurrence rate: 9.4% for FGK stars** (2–20 R⊕, 0.5–16 day
+  period). This is the TESS-era update to earlier Kepler results; smaller uncertainties
+  while consistent with Kepler posteriors.
+- **Hot Jupiter occurrence rate: 0.39%** (FGK main-sequence stars); volume-limited
+  sample within 100 pc: 0.42%. Consistent with Kepler within 1σ. This validates
+  and tightens the hot Jupiter rate.
+- **Neptunian desert occurrence rate: 0.08 ± 0.01%** — first quantitative determination
+  from TESS. The Neptunian desert is the dearth of Neptune-sized planets at very short
+  orbital periods (<3–4 days); this rate represents the rare planets that survive in
+  this region despite intense atmospheric escape.
+- **10×10 period-radius bins:** Unprecedented resolution in the period-radius parameter
+  space; individual bin posteriors available from the Zenodo data release.
+- **Volume-limited sample enhancements:** Within 100 pc, overall rate is 15.4% — higher
+  than the magnitude-limited full sample (9.4%) due to bias corrections.
+- **Hierarchical Bayesian model:** Properly propagates uncertainties from detection
+  efficiency through to occurrence rates; avoids Simpson's paradox artifacts.
+- **Limitation:** Study covers 2–20 R⊕ and 0.5–16 day periods only. Earth-sized planets
+  (< 2 R⊕) and longer-period planets are not covered by this analysis.
+- **Limitation:** FGK main-sequence stars only. M-dwarf occurrence rates require the
+  GillisEtAl2026 companion study.
+- **Limitation:** TESS geometric transit probability bias toward close-in planets is
+  fully corrected, but contamination from false positives may remain at small levels
+  despite the vetting pipeline.
+
+## StarGen applicability
+Provides the most current TESS-era **occurrence rates for close-in planets** around FGK
+stars, directly updating StarGen's planet population model. Specifically:
+1. Hot Jupiter occurrence rate (0.39%) — replace older Kepler estimates
+2. Neptunian desert rate (0.08%) — first quantitative constraint on desert survivors
+3. Overall close-in planet rate (9.4%) — calibration anchor for the 2–20 R⊕ regime
+4. Period-radius distribution at 10×10 resolution — feeds the period-radius occurrence
+   rate table used in StarGen's FGK system generation
+
+## Parameters, constraints, and mechanics implications
+
+**Updated FGK close-in planet occurrence rates (Cui et al. 2026):**
+```
+Planet class          | P (days)  | R (R⊕)   | Occurrence rate (FGK)
+----------------------|-----------|----------|------------------------
+All close-in          | 0.5–16   | 2–20     | 9.4 +0.7/-0.6 %
+Hot Jupiters          | 0.5–10   | 8–20     | 0.39 +0.03/-0.02 %
+Hot Jupiters (100pc)  | 0.5–10   | 8–20     | 0.42 +0.16/-0.12 %
+Neptunian desert      | < 4      | ~3–8     | 0.08 ± 0.01 %
+All (volume-limited)  | 0.5–16   | 2–20     | 15.4 +1.6/-1.5 %
+```
+
+**Hot Jupiter probability for FGK system generation:**
+```csharp
+// Updated hot Jupiter occurrence rate (Cui et al. 2026)
+// FGK main-sequence stars only
+double hotJupiterProbability = star.SpectralType switch
+{
+    SpectralType.F or SpectralType.G or SpectralType.K => 0.0039,  // 0.39%
+    SpectralType.M => 0.012,  // upper limit from GillisEtAl2026
+    _ => 0.003  // conservative default for other types
+};
+```
+
+**Neptunian desert survivor probability:**
+```csharp
+// Neptunian desert: very rare close-in Neptunes (survived photoevaporation)
+// Apply only at orbital period < 4 days and 3–8 R⊕
+bool inNeptunianDesert = planet.OrbitalPeriodDays < 4.0
+    && planet.RadiusEarth >= 3.0 && planet.RadiusEarth <= 8.0;
+double neptunianDesertSurvivorProbability = 0.0008;  // 0.08%
+if (inNeptunianDesert && rng.NextDouble() > neptunianDesertSurvivorProbability)
+{
+    // Planet would be in desert but not a survivor — photoevaporation removes it
+    planet.WasEvaporated = true;
+    return;
+}
+```
+
+**User lever:** `CloseInOccurrenceRateModel` (enum: CuiEtAl2026 / KeplerEra / Disabled)
+- CuiEtAl2026: use updated TESS-era rates for FGK stars
+- KeplerEra: use older Kepler-based rates (Petigura, Howard, etc.)
+- Disabled: no occurrence rate calibration
+
+## APA citation
+Cui, K., Armstrong, D. J., Hadjigeorghiou, A., Lafarga, M., et al. (2026). Demographics
+of close-in TESS exoplanets orbiting FGK main-sequence stars. Monthly Notices of the
+Royal Astronomical Society, 546(2). https://doi.org/10.1093/mnras/stag022
+arXiv: 2601.09492. Data: https://doi.org/10.5281/zenodo.17804280
+
+## Conflicts and follow-up work
+
+**Related corpus papers:**
+- GillisEtAl2026.txt — Companion study for M-dwarf occurrence rates; together Cui (FGK)
+  and Gillis (M-dwarf) provide a complete TESS-era occurrence rate picture.
+- VanZandtEtAl2025.txt — Distant giant survey around stars with inner small planets;
+  complementary to Cui's close-in demographics (Cui = inner planets, VanZandt = outer).
+- TanakaTakeuchiWard2002.txt — Planet migration model; hot Jupiters are the endpoint
+  of Type II inward migration; Cui's 0.39% hot Jupiter rate calibrates migration outcomes.
+- ForganRice2010.txt — Criterion 3 (no Jupiter-like inward migration = Good Jupiter);
+  Cui's hot Jupiter rate directly sets the probability of this criterion being failed.
+
+**Key inconsistency to watch:**
+Cui et al. use 2–20 R⊕. Below 2 R⊕ (super-Earth/rocky planet regime) is not covered.
+For Earth-twin occurrence rates around FGK stars, use Bryson et al. (2021) or the
+broader FGK habitable zone occurrence rate literature.
+
+## StarGen mechanics translation
+
+### TESS-era occurrence rate calibration
+CuiEtAl2026 provides the most up-to-date empirical calibration for close-in planet
+demographics around FGK stars. The key mechanics update is replacing the older Kepler-era
+hot Jupiter rate (~0.5%) with the tighter TESS measurement (0.39%) and adding the first
+quantitative Neptunian desert survivor rate (0.08%).
+
+**Primary updates to StarGen FGK system generator:**
+1. `HotJupiterProbability` = 0.0039 for FGK stars (down from older ~0.005 estimates)
+2. `NeptunianDesertSurvivorProbability` = 0.0008 for P < 4 days, R = 3-8 R⊕
+3. Add `WasEvaporated` flag for planets that fall in the desert but don't survive
+4. Overall close-in companion rate: 9.4% for 2-20 R⊕ within 0.5-16 days
+
+**Interaction with ForganRice2010 Good Jupiter criterion:**
+Hot Jupiter formation probability is ~0.39%, meaning ~0.4% of FGK systems have a
+hot Jupiter. Per ForganRice2010 criterion 3, hot Jupiter inward migration disrupts
+inner system habitability. This rate calibrates the criterion 3 failure probability.
+
+**Cross-references:** GillisEtAl2026.txt (M-dwarf rates), VanZandtEtAl2025.txt (outer
+giants), TanakaTakeuchiWard2002.txt (migration), ForganRice2010.txt (Good Jupiter gate).

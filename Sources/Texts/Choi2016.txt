@@ -1,0 +1,78 @@
+# Choi2016
+
+## Source metadata
+- File: `Choi2016.pdf`
+- Domain: stellar evolution/MIST tracks
+- Pages: 48
+- Authors (auto-extracted — verify against PDF): Jieun Choi1, Aaron Dotter2, Charlie Conroy1, Matteo Cantiello3, Bill Paxton3, and Benjamin D. Johnson1
+
+## Abstract
+This is the ﬁrst of a series of papers presenting the Modules for Experiments in Stellar Astrophysics (MESA) Isochrones and Stellar Tracks (MIST) project, a new comprehensive set of stellar evolutionary tracks and isochrones computed using MESA, a state-of-the-art open-source 1D stellar evolution package. In this work, we present models with solar-scaled abundance ratios covering a wide range of ages (5  log (Age) [year]  10.3), masses (0.1  M M  300), and metallicities (-2.0  [Z H]  0.5). The models are self-consistently and continuously evolved from the pre-main sequence (PMS) to the end of hydrogen burning, the white dwarf cooling sequence, or the end of carbon burning, depending on the initial mass. We also provide a grid of models evolved from the PMS to the end of core helium burning for -4.0  [Z H] < -2.0 . We showcase extensive comparisons with observational constraints as well as with some of the most widely used existing models in the literature. The evolutionary tracks and isochrones can be downloaded from the project website at http://waps.cfa.harvard.edu/ MIST/.
+
+## Major claims, findings, models, assumptions, and limitations
+*Human verification required before using quantitative values or model assumptions in
+StarGen defaults. Figures and equations not captured by text extraction — read the PDF
+for exact thresholds, fit coefficients, and table values.*
+
+- Primary domain: stellar evolution/MIST tracks
+- See StarGen applicability section below for the specific implications.
+
+## StarGen applicability
+MIST v1: full stellar evolution tracks across all masses and metallicities. Canonical reference for L, R, Teff as functions of mass, age, [Fe/H] in StarGen stellar lifecycle.
+
+## Parameters, constraints, and mechanics implications
+*(Human action: fill in specific numeric values, distributions, model families, and
+classification boundaries extracted from the paper. Where competing models or confidence
+ranges exist, expose those as user-selectable assumptions rather than collapsing to a
+single default. Where the paper documents uncertainty, preserve it in StarGen rather
+than presenting false precision.)*
+
+## Works cited by this paper (auto-extracted from final pages, partial)
+- Aerts, C., Molenberghs, G., Kenward, M. G., & Neiner, C. 2014, ApJ, 781, 88
+- Alastuey, A., & Jancovici, B. 1978, ApJ, 226, 1034
+- Alecian, G., Michaud, G., & Tully, J. 1993, ApJ, 411, 882
+- An, D., Pinsonneault, M. H., Masseron, T., et al. 2009, ApJ, 700, 523
+- We initially considered additional smaller values of C but many models
+- failed to complete successfully within a reasonable amount of time.
+- The Astrophysical Journal, 823:102 (48pp), 2016 June 1
+- Castelli, F., Gratton, R. G., & Kurucz, R. L. 1997, A&A, 318, 841
+- Castor, J. I., Abbott, D. C., & Klein, R. I. 1975, ApJ, 195, 157
+- Castro, N., Fossati, L., Langer, N., et al. 2014, A&A, 570, L13
+- Catalán, S., Isern, J., García-Berro, E., et al. 2008a, A&A, 477, 213
+- Catalán, S., Isern, J., García-Berro, E., & Ribas, I. 2008b, MNRAS, 387, 1693
+- Chaboyer, B., Fenton, W. H., Nelan, J. E., Patnaude, D. J., & Simon, F. E.
+- Chaboyer, B., & Zahn, J.-P. 1992, A&A, 253, 173
+- Chabrier, G., Baraffe, I., & Plez, B. 1996, ApJL, 459, L91
+- Charbonneau, P., & MacGregor, K. B. 1993, ApJ, 417, 762
+- Charbonnel, C., & Lagarde, N. 2010, A&A, 522, A10
+- Charbonnel, C., & Talon, S. 2005, Sci, 309, 2189
+- Charbonnel, C., & Zahn, J.-P. 2007, A&A, 467, L15
+- Chen, C. H., Mamajek, E. E., Bitner, M. A., et al. 2011, ApJ, 738, 122
+
+## Opposing or alternative findings cited
+*(Human action: identify papers in the reference list that present opposing models,
+competing parameter choices, or significantly different results. Note the specific
+disagreement and its implication for which StarGen default to use.)*
+
+## APA citation
+*(Verify and complete — see AnnotatedBibliography.md for the curated APA entry.)*
+
+## Conflicts and follow-up work
+*(Human action: search for papers explicitly responding to, revising, or challenging
+this paper published after its date. For fast-moving fields (exoplanet demographics,
+habitability, JWST/TESS-informed work), treat results >3 years old as potentially
+superseded. Flag updates in Followup.md.)*
+
+
+## StarGen mechanics translation
+
+### Stellar evolution — MIST tracks (MESA Isochrones and Stellar Tracks)
+High-precision stellar evolution tracks from MESA. More accurate than Hurley2000 but
+slower; better suited for individual star characterisation than bulk population.
+
+**StarGen use case:**
+- `StellarEvolutionModel = Choi2016MIST` — use for high-fidelity single-star or small
+  system generation where accuracy matters more than speed.
+- Age-luminosity and age-temperature tracks calibrated against astroseismology.
+- Covers 0.1–300 M☉, Z = 0.0001–0.04.
+**Cross-references:** Hurley2000.txt, Cummings2018.txt.

@@ -1,0 +1,75 @@
+# RamirezKaltenegger2016
+
+## Source metadata
+- File: `RamirezKaltenegger2016.pdf`
+- Domain: habitable zone / post-main-sequence stars
+- Authors (verify against PDF title page)
+
+## Abstract
+Once a star leaves the main sequence and becomes a red giant, its Habitable Zone (HZ) moves outward, promoting detectable habitable conditions at larger orbital distances. We use a one-dimensional radiative-convective climate and stellar evolutionary models to calculate post-MS HZ distances for a grid of stars from 3,700K to 10,000K (~M1 to A5 stellar types) for different stellar metallicities. The post-MS HZ limits are comparable to the distances of known directly imaged planets. We model the stellar as well as planetary atmospheric mass loss during the Red Giant Branch (RGB) and Asymptotic Giant Branch (AGB) phases for super-Moons to super-Earths. A planet can stay between 200 million years up to 9 Gyr in the post-MS HZ for our hottest and coldest grid stars, respectively, assuming solar metallicity. These numbers increase for increased stellar metallicity. Total atmospheric erosion only occurs for planets in close-in orbits. The post-MS HZ orbital distances are within detection capabilities of direct imaging techniques. Key words: planets and satellites: atmospheres, planets and satellites: detection, planet-star interactions, stars: post-main-sequence, stars: winds, outflows that may promote habitability (Stern 2003). Here, we calculate the post-main-sequence boundaries of the Habitable Zone as well as discuss potential habitability for planets around such evolved stars. 1. Introduction The recent discovery of sub-Earth sized planets around an 11 billion year old star (Campante et al. 2015) illustrates that planets have formed early in the history of the universe. Although none of the 5 planets found are located in the Habitable Zone, this discovery shows that such planets could be found in the near-future in the HZ of their star (e.g. in the Kepler dataset). This f
+
+## Major claims, findings, models, assumptions, and limitations
+*Human verification required before using quantitative values or model assumptions in
+StarGen defaults. Figures and equations not captured by text extraction — read the PDF
+for exact thresholds, fit coefficients, and table values.*
+
+- Primary domain: habitable zone / post-main-sequence stars
+- See StarGen applicability section below for the specific implications.
+
+## StarGen applicability
+HZ moves outward during RGB/AGB; planets can remain in post-MS HZ 200 Myr–9 Gyr. StarGen should compute HZ for evolved stars and flag temporarily habitable outer-system planets.
+
+## Parameters, constraints, and mechanics implications
+*(Human action: fill in specific numeric values, distributions, model families, and
+classification boundaries extracted from the paper. Where competing models or confidence
+ranges exist, expose those as user-selectable assumptions rather than collapsing to a
+single default. Where the paper documents uncertainty, preserve it in StarGen rather
+than presenting false precision.)*
+
+## Works cited by this paper (auto-extracted from final pages, partial)
+- D.; Riddle, R.; Baranec, C.; Basu, S.; Chaplin,
+- W. J.; Christensen-Dalsgaard, J.; Metcalfe, T.
+- S.; Bedding, T. R.; Handberg, R.; Stello, D.;
+- Brewer, J. M.; Hekker, S.; Karoff, C.; Kolbl,
+- R.; Law, N. M.; Lundkvist, M.; Miglio, A.;
+- Rowe, J. F.; Santos, N. C.; Van Laerhoven, C.;
+- Arentoft, T.; Elsworth, Y. P.; Fischer, D. A.;
+- Kawaler, S. D.; Kjeldsen, H.; Lund, M. N.;
+- Marcy, G. W.; Sousa, S. G.; Sozzetti, A.;
+- White, T. R., 2015. An Ancient Extrasolar
+- Abe, Y., Abe-Ouchi, A., Sleep, N. H., &
+- Zahnle, K. J. (2011). Habitable zone limits for
+- Allard, F., 2003. Model atmospheres and
+- Vol. 211, p. 325
+- Allard, F., F-Allard, N., Homeier, D., Kielkopf,
+
+## Opposing or alternative findings cited
+*(Human action: identify papers in the reference list that present opposing models,
+competing parameter choices, or significantly different results. Note the specific
+disagreement and its implication for which StarGen default to use.)*
+
+## APA citation
+*(Verify and complete — see AnnotatedBibliography.md for the curated APA entry.)*
+
+## Conflicts and follow-up work
+*(Human action: search for papers explicitly responding to, revising, or challenging
+this paper published after its date. For fast-moving fields (exoplanet demographics,
+habitability, JWST/TESS-informed work), treat results >3 years old as potentially
+superseded. Flag updates in Followup.md.)*
+
+## StarGen mechanics translation
+
+### Habitable zone — post-main-sequence stars (RGB/AGB)
+HZ moves outward on RGB/AGB; planets can enter the HZ for 200 Myr–9 Gyr depending
+on stellar mass. Atmospheric loss during giant phases modelled for super-Moons to
+super-Earths.
+
+**StarGen post-MS HZ implementation:**
+- Compute post-MS HZ boundaries using stellar evolution track (Choi2016 / Hurley2000).
+- `PostMS_HZ_Duration` — Gyr spent in HZ during RGB+AGB phases; lookup by M★ and Z★.
+- Flag outer-system planets (beyond main-sequence HZ) as `TransienceHabitable` if they
+  enter HZ during post-MS phase.
+- Apply atmospheric erosion check: planets at a < 0.5 AU from RGB star may lose entire
+  atmosphere (mass-dependent; see paper Figure 4 thresholds).
+**Cross-references:** Hurley2000.txt, Choi2016.txt, Kopparapu2013.txt,
+WordsworthKreidberg2022.txt.

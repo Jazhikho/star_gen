@@ -1,0 +1,77 @@
+# Ronnet2020
+
+## Source metadata
+- File: `Ronnet2020.pdf`
+- Domain: moon formation / pebble accretion in CPD
+- Pages: 20
+- Authors (auto-extracted — verify against PDF): (see PDF)
+
+## Abstract
+The four major satellites of Jupiter, known as the Galilean moons, and Saturn’s most massive satellite, Titan, are believed to have formed in a predominantly gaseous circum-planetary disk, during the last stages of formation of their parent planet. Pebbles from the protoplanetary disk are blocked from flowing into the circumplanetary disk by the positive pressure gradient at the outer edge of the planetary gap, so the gas drag assisted capture of planetesimals should be the main contributor to the delivery of solids onto circum-planetary disks. However, a consistent framework for the subsequent accretion of the moons remains to be built. Here we use numerical integrations to show that most planetesimals being captured within a circum-planetary disk are strongly ablated due to the frictional heating they experience, thus supplying the disk with small dust grains, whereas only a small fraction ’survives’ their capture. We then construct a simple model of a circum-planetary disk supplied by ablation, where the flux of solids through the disk is at equilibrium with the ablation supply rate, and investigate the formation of moons in such disks. We show that the growth of satellites is driven mainly by accretion of the pebbles that coagulate from the ablated material. The pebble-accreting protosatellites rapidly migrate inward and pile up in resonant chains at the inner edge of the circum-planetary disk. We propose that dynamical instabilities in these resonant chains are at the origin of the different architectures of Jupiter’s and Saturn’s moon systems. The assembly of moon systems through pebble accretion can therefore be seen as a down-scaled manifestation of the same proce
+
+## Major claims, findings, models, assumptions, and limitations
+*Human verification required before using quantitative values or model assumptions in
+StarGen defaults. Figures and equations not captured by text extraction — read the PDF
+for exact thresholds, fit coefficients, and table values.*
+
+- Primary domain: moon formation / pebble accretion in CPD
+- See StarGen applicability section below for the specific implications.
+
+## StarGen applicability
+Moon formation via pebble accretion within circumplanetary disk. Constrains satellite mass distribution and orbital architecture for moon generation in StarGen.
+
+## Parameters, constraints, and mechanics implications
+*(Human action: fill in specific numeric values, distributions, model families, and
+classification boundaries extracted from the paper. Where competing models or confidence
+ranges exist, expose those as user-selectable assumptions rather than collapsing to a
+single default. Where the paper documents uncertainty, preserve it in StarGen rather
+than presenting false precision.)*
+
+## Works cited by this paper (auto-extracted from final pages, partial)
+- Anderson, J. D., Jacobson, R. A., McElrath, T. P., et al. 2001, Icarus, 153, 157
+- Asphaug, E. & Reufer, A. 2013, Icarus, 223, 544
+- Bai, X.-N. 2017, ApJ, 845, 75
+- Barr, A. C. & Canup, R. M. 2008, Icarus, 198, 163
+- Batygin, K. 2018, AJ, 155, 178
+- Birnstiel, T., Klahr, H., & Ercolano, B. 2012, A&A, 539, A148
+- Bitsch, B., Johansen, A., Lambrechts, M., & Morbidelli, A. 2015, A&A, 575,
+- Bitsch, B., Morbidelli, A., Johansen, A., et al. 2018, A&A, 612, A30
+- Blum, J. & Wurm, G. 2008, Annual Review of Astronomy and Astrophysics, 46,
+- Brauer, F., Dullemond, C. P., & Henning, T. 2008, A&A, 480, 859
+- Cameron, A. G. W. 1985, Icarus, 64, 285
+- Canup, R. M. & Ward, W. R. 2002, AJ, 124, 3404
+- Canup, R. M. & Ward, W. R. 2006, Nature, 441, 834
+- Castillo-Rogez, J. C. & Lunine, J. I. 2010, Geophys. Res. Lett., 37, L20205
+- Chiang, E. I. & Goldreich, P. 1997, ApJ, 490, 368
+- Cilibrasi, M., Szulágyi, J., Mayer, L., et al. 2018, MNRAS, 480, 4355
+- Coradini, A., Federico, C., Forni, O., & Magni, G. 1995, Surveys in Geophysics,
+- D’Angelo, G. & Podolak, M. 2015, ApJ, 806, 203
+- J. & Szulágyi, J. 2018, ApJ, 866, 142
+- Dubrulle, B., Morfill, G., & Sterzik, M. 1995, Icarus, 114, 237
+
+## Opposing or alternative findings cited
+*(Human action: identify papers in the reference list that present opposing models,
+competing parameter choices, or significantly different results. Note the specific
+disagreement and its implication for which StarGen default to use.)*
+
+## APA citation
+*(Verify and complete — see AnnotatedBibliography.md for the curated APA entry.)*
+
+## Conflicts and follow-up work
+*(Human action: search for papers explicitly responding to, revising, or challenging
+this paper published after its date. For fast-moving fields (exoplanet demographics,
+habitability, JWST/TESS-informed work), treat results >3 years old as potentially
+superseded. Flag updates in Followup.md.)*
+
+
+## StarGen mechanics translation
+
+### Moon formation — satellite accretion in circumplanetary disk
+Regular satellite formation occurs in the circumplanetary disk (CPD) during gas giant
+formation. Satellite/planet mass ratio: M_sat/M_planet ≈ 10⁻⁴.
+
+**StarGen moon generation (regular satellites of gas giants):**
+- `RegularMoonMassRatio` ≈ 10⁻⁴ (total satellite mass / planet mass; Galilean analog)
+- `RegularMoon_MaxRadius` ≈ Roche limit inner, CPD outer limit (a few R_planet to Hill sphere)
+- Satellite density: icy/rocky mix depending on snow line position during CPD phase.
+**Cross-references:** Szulagyi2018.txt, MalambudPerets2019.txt.

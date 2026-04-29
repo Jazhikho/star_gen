@@ -1,0 +1,186 @@
+# ChatterjeeEtAl2026
+
+## Source metadata
+- File: `ChatterjeeEtAl2026.pdf`
+- Domain: atmospheric escape / secondary atmospheres / XUV radiation / cosmic shoreline
+- Pages: 27
+- Authors: Chatterjee, R. D., & Pierrehumbert, R. T.
+- Source ID in StarGen code: `chatterjee2026`
+- **PDF acquisition:** PDF confirmed present in Sources/Texts/.
+  arXiv number or journal DOI: verify against PDF.
+  **Note:** File was auto-classified as "planet formation/migration" — this is incorrect.
+  This paper is about secondary atmosphere escape via XUV hydrodynamic outflow.
+
+## Abstract
+Recent James Webb Space Telescope observations of cool, rocky exoplanets reveal a probable
+lack of thick atmospheres, suggesting prevalent escape of the 'secondary' atmospheres formed
+after losing primordial hydrogen. Yet, simulations indicate that hydrodynamic escape of
+secondary atmospheres, composed of nitrogen and carbon dioxide, requires intense fluxes of
+ionizing radiation (XUV) to overcome the effects of high molecular weight and efficient line
+cooling. This transonic outflow of hot, ionized metals (not hydrogen) presents a novel
+astrophysical regime ripe for exploration. We introduce an analytic framework to determine
+which planets retain or lose their atmospheres, positioning them on either side of the cosmic
+shoreline. We model the radial structure of escaping atmospheres as polytropic expansions —
+power-law relationships between density and temperature driven by local XUV heating. Our
+approach diagnoses line cooling with a three-level atom model and incorporates how
+ion-electron interactions reduce mean molecular weight. Crucially, hydrodynamic escape onsets
+for a threshold XUV flux dependent upon the atmosphere's gravitational binding. Ensuing
+escape rates either scale linearly with XUV flux when weakly ionized (energy-limited) or are
+controlled by a collisional-radiative thermostat when strongly ionized. Thus, airlessness is
+determined by whether the XUV flux surpasses the critical threshold during the star's active
+periods, accounting for expendable primordial hydrogen and revival by volcanism. Applications
+include young Sun Mars and Earth, LHS 1140 b and c, and TRAPPIST-1 b.
+
+## Major claims, findings, models, assumptions, and limitations
+- **Secondary atmosphere escape is the new frontier:** JWST results (as of 2025-2026) show
+  many cool rocky exoplanets lack thick atmospheres. The question is no longer only "did the
+  primordial H/He envelope escape?" but "did the secondary (volcanic/outgassed) N₂-CO₂
+  atmosphere also escape?"
+- **Cosmic shoreline applies to secondary atmospheres too:** The Zahnle & Catling "cosmic
+  shoreline" (escape velocity vs. insolation) originally demarcated primordial H/He
+  retention. This paper extends the concept to heavy secondary atmospheres (N₂, CO₂).
+- **Novel escape regime:** Heavy molecules (mean molecular weight ~28-44 g/mol) are much
+  harder to escape than hydrogen (2 g/mol). They require transonic outflow of hot ionized
+  metals at XUV fluxes well above the primordial hydrogen threshold.
+- **Two escape regimes:**
+  - Energy-limited: escape rate scales linearly with XUV flux (weakly ionized atmosphere)
+  - Collisional-radiative thermostat: escape rate saturates (strongly ionized; more efficient
+    cooling limits further acceleration)
+- **XUV threshold for secondary atmosphere loss:** There is a critical XUV flux above which
+  hydrodynamic escape of secondary N₂/CO₂ atmosphere occurs. Below this threshold,
+  the atmosphere is retained. (Specific numeric value: verify against PDF — depends on
+  planet mass and gravity.)
+- **Volcanism revival:** Even if an atmosphere is stripped, volcanic outgassing can replenish
+  it. The paper accounts for this "revival" mechanism. Net atmospheric fate depends on
+  the balance between XUV loss rate and volcanic supply rate.
+- **Application: LHS 1140 b/c:** LHS 1140 b (inner, higher XUV) may be on the edge;
+  LHS 1140 c appears to be in the retained regime.
+- **Application: TRAPPIST-1 b:** Modeling suggests TRAPPIST-1 b may be airless or
+  have lost its secondary atmosphere due to high XUV flux, consistent with JWST
+  measurements showing no thermal emission signature of a thick atmosphere.
+- **Application: Young Mars/Earth:** The model recovers the expected outcome —
+  Mars lost its secondary atmosphere; Earth retained it — providing validation.
+- **Limitation:** Analytic polytropic model; full hydrodynamics may produce different
+  results for complex atmospheres with multiple species.
+- **Limitation:** Volcanism rate is poorly constrained for exoplanets; revival probability
+  is speculative.
+- **Limitation:** Requires XUV flux history as input; XUV evolution model (Ribas2015,
+  LugerBarnes2015) needed to apply.
+
+## StarGen applicability
+Directly updates StarGen's **secondary atmosphere retention model**. Provides the
+missing link between the primordial envelope loss model (LugerBarnes2015, XUV stripping
+of H/He) and the final atmospheric state of a rocky planet:
+1. After primordial H/He loss: does the planet subsequently build and retain a secondary
+   (volcanic/outgassed) N₂-CO₂ atmosphere?
+2. The answer depends on whether peak XUV flux during the stellar active period exceeds
+   the secondary atmosphere escape threshold
+3. Volcanism revival probability provides a second chance for atmosphere retention
+4. JWST empirical results provide observational grounding for the model
+
+## Parameters, constraints, and mechanics implications
+
+**Two-step atmospheric retention model (LugerBarnes + Chatterjee et al.):**
+```
+Step 1: Primordial H/He envelope             Step 2: Secondary atmosphere
+LugerBarnes2015 + Ribas2015 (XUV history) → ChatterjeeEtAl2026 (N2/CO2 retention)
+If XUV too high → primordial atmosphere lost  If XUV too high → secondary lost too
+If XUV moderate → partial retention           Volcanism can replenish if tectonic regime allows
+```
+
+**Cosmic shoreline for secondary atmospheres:**
+```csharp
+// Secondary atmosphere retention check (Chatterjee et al. 2026)
+// Based on: XUV flux at peak active period vs. escape threshold
+double xuvPeakFlux = star.XUVPeakFluxAtPlanet(planet);  // from Ribas2015 model
+double escapeThresholdXUV = ComputeSecondaryEscapeThreshold(
+    planet.MassEarth, planet.RadiusEarth, planet.SurfaceGravity);
+// Threshold scales with gravitational binding energy
+
+bool secondaryAtmosphereStripped = xuvPeakFlux > escapeThresholdXUV;
+
+if (secondaryAtmosphereStripped)
+{
+    // Check volcanism revival
+    bool tectonicallyActive = planet.TectonicRegime != TectonicRegime.StagnantLid;
+    double p_revival = tectonicallyActive ? 0.40 : 0.10;  // active volcanism needed
+    if (rng.NextDouble() < p_revival)
+    {
+        planet.AtmosphereType = AtmosphereType.Thin_CO2;   // volcanic revival
+        planet.AtmospherePressureBar = 0.01 + rng.NextDouble() * 0.5;
+    }
+    else
+    {
+        planet.AtmosphereType = AtmosphereType.Airless;    // fully stripped
+        planet.AtmospherePressureBar = 0.0;
+    }
+}
+```
+
+**M-dwarf emphasis:**
+For late M-dwarfs (M4+), extended XUV active period (LugerBarnes2015: up to 3 Gyr for
+M8V) means secondary atmospheres face a much longer stripping window. Combined with
+low volcanism probability (stagnant-lid common for low-mass rocky planets), airlessness
+is a likely outcome for M-dwarf HZ planets:
+```csharp
+// M-dwarf secondary atmosphere fate (combined Chatterjee + LugerBarnes + Ribas)
+if (star.SpectralType == SpectralType.M && star.TemperatureK < 3500)
+{
+    // Extended XUV phase: secondary atmosphere very vulnerable
+    double p_retainSecondary = 0.15;  // rough estimate; verify numeric value against PDF
+    planet.HasSecondaryAtmosphere = rng.NextDouble() < p_retainSecondary;
+}
+```
+
+**User lever:** `SecondaryAtmosphereEscapeModel` (enum: ChatterjeeEtAl2026 / Simple / Disabled)
+- ChatterjeeEtAl2026: two-regime escape model with volcanism revival
+- Simple: binary threshold (high XUV → airless; otherwise retained)
+- Disabled: no secondary atmosphere stripping
+
+## APA citation
+Chatterjee, R. D., & Pierrehumbert, R. T. (2024). Novel physics of escaping secondary
+atmospheres may shape the cosmic shoreline. arXiv:2412.05188. [Submitted to The
+Astrophysical Journal — verify published journal citation against PDF.]
+
+## Conflicts and follow-up work
+
+**Related corpus papers:**
+- LugerBarnes2015.txt — Primordial H/He stripping by XUV in M-dwarf systems. Chatterjee
+  provides the next step: secondary atmosphere fate after primordial loss.
+- Ribas2015.txt — XUV evolution model: how does XUV flux change over stellar age? This
+  provides the input XUV history for Chatterjee's escape threshold calculation.
+- SolizWelsh2026.txt — PAR bottleneck for M-dwarfs; compatible with Chatterjee's result
+  that secondary atmospheres around M4+ are likely lost. Both papers converge on M-dwarf
+  HZ planets being hostile to complex life.
+- SchwietermanEtAl2018.txt — Biosignature detection; the absence of a secondary
+  atmosphere (airless planets) produces a flat spectral signature and no biosignatures.
+- GillisEtAl2026.txt — Water-rich planets (CC composition) around M dwarfs may have
+  different secondary atmosphere compositions (H₂O-dominated) than N₂/CO₂.
+
+**JWST observational counterparts:**
+- TRAPPIST-1 b observation (Zieba et al. 2023; Gillon et al. 2025 cited in Chaverot et al.)
+  — no thick atmosphere detected, consistent with Chatterjee's model.
+- LHS 1140 b/c (Cadieux et al. 2024 in references) — competing claims on atmosphere retention.
+
+## StarGen mechanics translation
+
+### Two-step atmospheric fate model
+ChatterjeeEtAl2026 closes the gap between primordial envelope loss (LugerBarnes2015)
+and final rocky planet atmospheric state. The cosmic shoreline concept, now extended to
+secondary atmospheres, provides a physically motivated binary gate: retain or airless,
+with a stochastic volcanic revival probability.
+
+**Primary update to StarGen atmosphere pipeline:**
+1. After primordial atmosphere loss check (LugerBarnes): run secondary atmosphere check
+2. If peak XUV > escape threshold: mark as `SecondaryAtmosphereVulnerable`
+3. Apply volcanic revival roll (p_revival depends on tectonic regime from Spohn)
+4. If airless result: biosignature probability = 0 (no surface life, no detectable signal)
+
+**M-dwarf integration:**
+For M4+ stars, chain with SolizWelsh (no GOE) + Gillis (ocean worlds) + Chatterjee (no
+secondary atmosphere) = maximum airlessness probability around late M-dwarfs, even for
+HZ planets.
+
+**Cross-references:** LugerBarnes2015.txt (XUV stripping), Ribas2015.txt (XUV history),
+SolizWelsh2026.txt (PAR/GOE), SpohnEtAl2026.txt (tectonic regime for volcanism revival),
+SchwietermanEtAl2018.txt (biosignature detection).

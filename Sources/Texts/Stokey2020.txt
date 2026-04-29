@@ -1,0 +1,55 @@
+# Stokey2020
+
+## Source metadata
+- File: `Stokey2020.pdf`
+- Domain: economics / technology diffusion
+- Pages: 56
+- Authors (auto-extracted — verify against PDF): (see PDF)
+
+## Abstract
+The importance of new technologies derives from the fact that they spread across many different users and uses, as well as different geographic regions. The diffusion of technological improvements, across producers within a country and across international borders, is critical for long run growth. This paper looks at some evidence on adoption patterns in the U.S. for specific innovations, reviews some evidence on the diffusion of new technologies across international boundaries, and looks at two theoretical frameworks for studying the two types of evidence. One focuses on the dynamics of adoption costs, the other on input costs. Nancy Stokey Department of Economics University of Chicago 1126 East 59th Street Chicago, IL 60637 and NBER nstokey@uchicago.edu 1. INTRODUCTION Sustained long-run growth requires the adoption of new technologies.1 Thus, innovation, whether it is costly R&D or serendipitous discovery, is fundamental for growth and has|deservedly|been well studied. But the importance of most new technologies derives from the fact that they spread across many di erent users and uses, as well as di erent geographic regions. Thus, the di usion of technological improvements, across producers within a country and across international borders, is arguably as critical as innovation for long run growth. Technology di usion is the focus here. Good data on di usion are not readily available. Indeed, for many innovations, there are none at all. This paper looks at the evidence on adoption patterns and rates in the U.S. for several speci c innovations where good micro data have permitted detailed studies. It then reviews some of the evidence on the di usion of new technologies
+
+## Major claims, findings, models, assumptions, and limitations
+*Human verification required before using quantitative values or model assumptions in
+StarGen defaults. Figures and equations not captured by text extraction — read the PDF
+for exact thresholds, fit coefficients, and table values.*
+
+- Primary domain: economics / technology diffusion
+- See StarGen applicability section below for the specific implications.
+
+## StarGen applicability
+Economics working paper — verify relevance to civilisation technology development model in StarGen's population framework.
+
+## Parameters, constraints, and mechanics implications
+*(Human action: fill in specific numeric values, distributions, model families, and
+classification boundaries extracted from the paper. Where competing models or confidence
+ranges exist, expose those as user-selectable assumptions rather than collapsing to a
+single default. Where the paper documents uncertainty, preserve it in StarGen rather
+than presenting false precision.)*
+
+## Works cited by this paper (auto-extracted from final pages, partial)
+- (Reference extraction incomplete — verify PDF.)
+
+## Opposing or alternative findings cited
+*(Human action: identify papers in the reference list that present opposing models,
+competing parameter choices, or significantly different results. Note the specific
+disagreement and its implication for which StarGen default to use.)*
+
+## APA citation
+*(Verify and complete — see AnnotatedBibliography.md for the curated APA entry.)*
+
+## Conflicts and follow-up work
+*(Human action: search for papers explicitly responding to, revising, or challenging
+this paper published after its date. For fast-moving fields (exoplanet demographics,
+habitability, JWST/TESS-informed work), treat results >3 years old as potentially
+superseded. Flag updates in Followup.md.)*
+
+
+## StarGen mechanics translation
+
+### Off-topic candidate — verify corpus membership
+This paper is flagged as potentially off-topic (ResearchAuditSummary.md). Verify that
+it belongs in the StarGen corpus before encoding any mechanics.
+
+**StarGen:** Pending human verification of relevance. No mechanics encoded until confirmed.
+**Cross-references:** ResearchAuditSummary.md — 'Verify 5 off-topic papers' section.

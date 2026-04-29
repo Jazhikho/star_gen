@@ -1,22 +1,78 @@
-Source note for StarGen research review
+# Cummings2018
 
-Citation:
-Cummings, J. D., Kalirai, J. S., Tremblay, P.-E., Ramirez-Ruiz, E., & Choi, J. (2018).
-The white dwarf initial-final mass relation for progenitor stars from 0.85 to 7.5 M_sun.
-The Astrophysical Journal, 866(1), 21.
-arXiv: https://arxiv.org/abs/1809.01673
-DOI: https://doi.org/10.3847/1538-4357/aadfd6
+## Source metadata
+- File: `Cummings2018.pdf`
+- Domain: white dwarf/initial-final mass relation
+- Pages: 14
+- Authors (auto-extracted — verify against PDF): Jeffrey D. Cummings2 , Jason S. Kalirai3,2 , P.-E. Tremblay4 , Enrico Ramirez-Ruiz5, AND Jieun Choi6; 1 Based on observations with the W.M. Keck Observatory,
 
-What was reviewed:
-- arXiv abstract and source metadata on 2026-03-28.
+## Abstract
+We present the initial-final mass relation (IFMR) based on the self-consistent analysis of Sirius B and 79 white dwarfs from 13 star clusters. We have also acquired additional signal on eight white dwarfs previously analyzed in the NGC 2099 cluster field, four of which are consistent with membership. These reobserved white dwarfs have masses ranging from 0.72 to 0.97 M⊙ , with initial masses from 3.0 to 3.65 M⊙ , where the IFMR has an important change in slope that these new data help to observationally confirm. In total, this directly measured IFMR has small scatter (σ = 0.06 M⊙ ) and spans from progenitors of 0.85 to 7.5 M⊙ . Applying two different stellar evolutionary models to infer two different sets of white dwarf progenitor masses shows that when the same model is also used to derive the cluster ages, the resulting IFMR has weak sensitivity to the adopted model at all but the highest initial masses (>5.5 M⊙ ). The non-linearity of the IFMR is also clearly observed with moderate slopes at lower masses (0.08 Mfinal /Minitial ) and higher masses (0.11 Mfinal /Minitial) that are broken up by a steep slope (0.19 Mfinal /Minitial ) between progenitors from 2.85 to 3.6 M⊙ . This IFMR shows total stellar mass loss ranges from 33% of Minitial at 0.83 M⊙ to 83% of Minitial at 7.5 M⊙ . Testing this total mass loss for dependence on progenitor metallicity, however, finds no detectable sensitivity across the moderate range of –0.15 < [Fe/H] < +0.15.
 
-Key implementation notes used in StarGen:
-- The paper measures a white-dwarf initial-final mass relation (IFMR) using Sirius B plus 79 white dwarfs from 13 star clusters.
-- The directly measured IFMR spans progenitor masses from about 0.85 to 7.5 solar masses.
-- The relation is not linear: the abstract reports a moderate slope at lower progenitor masses, a steeper slope around 2.85 to 3.6 solar masses, and another moderate slope at higher masses.
-- Total stellar mass loss rises strongly with progenitor mass, from about one third of the initial mass near the low end to more than four fifths near 7.5 solar masses.
-- Across moderate metallicities, the abstract reports no detectable metallicity sensitivity in the total mass loss.
+## Major claims, findings, models, assumptions, and limitations
+*Human verification required before using quantitative values or model assumptions in
+StarGen defaults. Figures and equations not captured by text extraction — read the PDF
+for exact thresholds, fit coefficients, and table values.*
 
-How StarGen uses this:
-- As the scientific basis for turning an old low- or intermediate-mass progenitor star into a white dwarf with a deterministic final mass.
-- As the reason white-dwarf generation is limited to progenitors that fall inside the source-supported mass range instead of treating all dead stars the same.
+- Primary domain: white dwarf/initial-final mass relation
+- See StarGen applicability section below for the specific implications.
+
+## StarGen applicability
+IFMR for white dwarfs: maps ZAMS mass to WD remnant mass. Relevant to stellar endpoint generation in StarGen.
+
+## Parameters, constraints, and mechanics implications
+*(Human action: fill in specific numeric values, distributions, model families, and
+classification boundaries extracted from the paper. Where competing models or confidence
+ranges exist, expose those as user-selectable assumptions rather than collapsing to a
+single default. Where the paper documents uncertainty, preserve it in StarGen rather
+than presenting false precision.)*
+
+## Works cited by this paper (auto-extracted from final pages, partial)
+- Althaus, L. G., Garcı́a-Berro, E., Isern, J., Córsico, A. H., &
+- Rohrmann, R. D. 2007, A&A, 465, 249
+- Andrews, J. J., Agüeros, M. A., Gianninas, A., et al. 2015, ApJ,
+- Anthony-Twarog, B. J., Deliyannis, C. P., & Twarog, B. A. 2014,
+- Bergeron, P., Saffer, R. A., & Liebert, J. 1992, ApJ, 394, 228
+- Bressan, A., Marigo, P., Girardi, L., et al. 2012, MNRAS, 427, 127
+- Bond, H. E., Schaefer, G. H., Gilliland, R. L., et al. 2017, ApJ,
+- Casewell, S. L., Dobbie, P. D., Napiwotzki, R., et al. 2009,
+- Catalán, S., Isern, J., Garcı́a-Berro, E., & Ribas, I. 2008a,
+- Catalán, S., Isern, J., Garcı́a-Berro, E., et al. 2008b, A&A, 477,
+- Claria, J. J., Piatti, A. E., & Lapasset, E. 1998, A&A, 128, 131
+- Clem, J. L., Landolt, A. U., Hoard, D. W., & Wachter, S. 2011,
+- Choi, J., Dotter, A., Conroy, C., et al. 2016, ApJ, 823, 102
+- Cummings, J. 2011, Ph.D. Thesis
+- Cummings, J. D., Kalirai, J. S., Tremblay, P.-E., & Ramirez-Ruiz,
+- Cummings, J. D., Kalirai, J. S., Tremblay, P.-E., & Ramirez-Ruiz,
+- Cummings, J. D., Kalirai, J. S., Tremblay, P.-E., Ramirez-Ruiz,
+- E., & Bergeron, P. 2016b, ApJ, 820, L18
+- Cummings, J. D. 2017a, Planetary Nebulae: Multi-Wavelength
+- Probes of Stellar and Galactic Evolution, 323, 157
+
+## Opposing or alternative findings cited
+*(Human action: identify papers in the reference list that present opposing models,
+competing parameter choices, or significantly different results. Note the specific
+disagreement and its implication for which StarGen default to use.)*
+
+## APA citation
+*(Verify and complete — see AnnotatedBibliography.md for the curated APA entry.)*
+
+## Conflicts and follow-up work
+*(Human action: search for papers explicitly responding to, revising, or challenging
+this paper published after its date. For fast-moving fields (exoplanet demographics,
+habitability, JWST/TESS-informed work), treat results >3 years old as potentially
+superseded. Flag updates in Followup.md.)*
+
+
+## StarGen mechanics translation
+
+### White dwarf initial-final mass relation (IFMR)
+Empirical IFMR from open cluster WDs. Connects initial progenitor mass to final WD mass.
+WD mass ≈ 0.53 + 0.082 × M_initial (simplified linear fit for solar metallicity).
+
+**StarGen WD generation:**
+- `WD_Mass = IFMR(M_progenitor, Z)` — apply when stellar evolution reaches WD stage.
+- Apply Hurley2000 to determine when WD stage is reached; apply this IFMR for final mass.
+- WD cooling age and temperature from WD cooling tracks (not in this paper; add Fontaine2001
+  or similar as companion source).
+**Cross-references:** Hurley2000.txt, Choi2016.txt, Kirkpatrick2000.txt.

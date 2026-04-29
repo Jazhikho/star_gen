@@ -1,0 +1,79 @@
+# Kroupa2001
+
+## Source metadata
+- File: `Kroupa2001.pdf`
+- Domain: initial mass function / broken power-law
+- Pages: 34
+- Authors (auto-extracted — verify against PDF): about the Galactic-field IMF. In particular, a systematic difference ought to be evident between low-density
+
+## Abstract
+A universal initial mass function (IMF) is not intuitive, but so far no convincing evidence for a variable IMF exists. The detection of systematic variations of the IMF with star-forming In this contribution an average or Galactic-field IMF is defined, stressing that there is
+
+## Major claims, findings, models, assumptions, and limitations
+*Human verification required before using quantitative values or model assumptions in
+StarGen defaults. Figures and equations not captured by text extraction — read the PDF
+for exact thresholds, fit coefficients, and table values.*
+
+- Primary domain: initial mass function / broken power-law
+- See StarGen applicability section below for the specific implications.
+
+## StarGen applicability
+Kroupa broken power-law IMF: Γ=1.3 for m>0.5 M☉. Alternative to Chabrier. StarGen should expose IMF-family selector (Chabrier vs Kroupa).
+
+## Parameters, constraints, and mechanics implications
+*(Human action: fill in specific numeric values, distributions, model families, and
+classification boundaries extracted from the paper. Where competing models or confidence
+ranges exist, expose those as user-selectable assumptions rather than collapsing to a
+single default. Where the paper documents uncertainty, preserve it in StarGen rather
+than presenting false precision.)*
+
+## Works cited by this paper (auto-extracted from final pages, partial)
+- Aarseth S.J., 1999, PASP, 111, 1333
+- Aarseth S.J., 2000, Gravitational N-Body Simulations, in prep.
+- Aarseth S.J., Hénon M., Wielen R., 1974, A&A, 37, 183
+- Adams F.C., Laughlin G., 1996, ApJ, 468, 586 (AL96)
+- Allen E.J., Bastien P., 1995, ApJ, 452, 652
+- Baraffe I., Chabrier G., Allard F., Hauschildt P.H., 1997, A&A, 327, 1054
+- Bastien P., 1981, A&A, 93, 160
+- Bonnell I.A., Davies M.B., 1998, MNRAS, 295, 691
+- Bonnell I.A., Bate M.R., Zinnecker H., 1998, MNRAS, 298, 93
+- Brandl B., Brandner W., Eisenhauer F., Moffat A.F.J., Palla F., Zinnecker H., 1999, A&A, 352, L69
+- Briceno C., Hartmann L., Stauffer J., Martin E., 1998, AJ, 115, 2074
+- Chabrier G., 1999, ApJ, 513, L103
+- Chabrier G., Baraffe I., 2000, ARA&A, 38, 337 (astro-ph/0006383)
+- Chabrier G., Segretain L., Méra D., 1996, ApJ, 468, L21
+- Comeron F., Rieke G.H., Rieke M.J., 1996, ApJ, 473, 294
+- Dominguez I., Chieffi A., Limongi M., Straniero O., 1999, ApJ, 524, 226
+- Duchene G., 1999, A&A, 341, 547
+- Duchene G., Bouvier J., Simon T., 1999, A&A, 343, 831
+- Duquennoy A. & Mayor M., 1991, A&A, 248, 485
+- Eisenhauer F., Quirrenbach A., Zinnecker H., Genzel R., 1998, ApJ, 498, 278
+
+## Opposing or alternative findings cited
+*(Human action: identify papers in the reference list that present opposing models,
+competing parameter choices, or significantly different results. Note the specific
+disagreement and its implication for which StarGen default to use.)*
+
+## APA citation
+*(Verify and complete — see AnnotatedBibliography.md for the curated APA entry.)*
+
+## Conflicts and follow-up work
+*(Human action: search for papers explicitly responding to, revising, or challenging
+this paper published after its date. For fast-moving fields (exoplanet demographics,
+habitability, JWST/TESS-informed work), treat results >3 years old as potentially
+superseded. Flag updates in Followup.md.)*
+
+
+## StarGen mechanics translation
+
+### Initial mass function — broken power-law (competing model)
+Three-segment broken power-law: α₁ ≈ 0.3 (0.08–0.5 M☉), α₂ ≈ 1.3 (0.5–1.0 M☉),
+α₃ ≈ 2.3 (> 1.0 M☉). Produces different low-mass end than Chabrier lognormal.
+
+**StarGen IMF option:**
+- `IMFFamily = Kroupa2001`
+- Segment breakpoints: 0.08, 0.5, 1.0 M☉
+- Exponents: 0.3, 1.3, 2.3 (these are α in dN/dm ∝ m^(-α))
+- Key difference from Chabrier: Kroupa produces slightly more stars at 0.1–0.5 M☉.
+**User lever:** `IMFFamily` selector
+**Cross-references:** Chabrier2003.txt, ChabrierLenoble2023.txt.
