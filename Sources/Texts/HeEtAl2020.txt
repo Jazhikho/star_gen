@@ -57,3 +57,18 @@ show correlated period ratios and radii within systems.
   a correlated distribution (not independent draws).
 - `IntraSystemCorrelationStrength` user lever: `Strong` (this paper) | `Independent`
 **Cross-references:** Rice2023.txt, FangMargot2013.txt, Petit2018.txt.
+
+## Current StarGen usage
+StarGen now records compact-architecture spacing diagnostics on generated orbit slots, carries those diagnostics into planet formation provenance, and uses a compact inner-system mass proxy before planets are assigned. `HeEtAl2020` is used as part of the source cluster for period-ratio architecture and intra-system uniformity framing, not as a full SysSim/AMD population model.
+
+## Human reviewer concern
+The source was present as a planetary-architecture citation, but current orbit generation did not expose period-ratio or spacing diagnostics that made the source connection auditable.
+
+## AI response / disposition
+Added slot-level `period_ratio_from_inner`, `spacing_from_inner_mutual_hill_radii`, `spacing_mass_proxy_earth_masses`, `stability_policy_id`, and `stability_source_ids` fields. Planet generation now preserves those fields in formation traces. The active behavior remains a deterministic StarGen mutual-Hill spacing policy with architecture mass proxies; full AMD-stability, multiplicity-dependent eccentricity/inclination modeling, and correlated period-ratio sampling remain follow-up.
+
+## Implementation status
+partly implemented
+
+## Follow-up action
+Use the reviewed equations and tables to replace current deterministic slot spacing with a proper period-ratio distribution, multiplicity dependence, and system-level intra-system correlation model after human verification.

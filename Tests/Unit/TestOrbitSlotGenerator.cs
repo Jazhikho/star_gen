@@ -18,6 +18,8 @@ namespace StarGen.Tests.Unit;
 /// </summary>
 public static class TestOrbitSlotGenerator
 {
+    private const double DefaultTolerance = 0.000001;
+
     /// <summary>
     /// Creates a Sun-like orbit host for testing.
     /// </summary>
@@ -438,6 +440,118 @@ public static class TestOrbitSlotGenerator
             {
                 throw new InvalidOperationException("Spacing should meet minimum requirement");
             }
+        }
+    }
+
+    /// <summary>Tests source-marked stability policy diagnostics on generated slots.</summary>
+    public static void TestSpacingPolicyDiagnostics()
+    {
+        OrbitHost host = CreateSunLikeHost();
+        SeededRng rng = new SeededRng(56565);
+        OrbitSlotGenerationResult result = OrbitSlotGenerator.GenerateForHost(
+            host,
+            Units.SolarRadiusMeters,
+            new Array<double>(),
+            new Array<double>(),
+            rng
+        );
+
+        if (result.Slots.Count < 2)
+        {
+            throw new InvalidOperationException("Spacing diagnostics test needs at least two generated slots.");
+        }
+
+        OrbitSlot firstSlot = result.Slots[0];
+        if (firstSlot.StabilityPolicyId != OrbitalMechanics.CompactArchitectureSpacingPolicyId)
+        {
+            throw new InvalidOperationException("First slot should record the active stability policy.");
+        }
+        if (firstSlot.SpacingMassProxyEarthMasses <= 0.0)
+        {
+            throw new InvalidOperationException("First slot should record the spacing mass proxy.");
+        }
+
+        for (int index = 1; index < result.Slots.Count; index += 1)
+        {
+            OrbitSlot slot = result.Slots[index];
+            if (slot.StabilityPolicyId != OrbitalMechanics.CompactArchitectureSpacingPolicyId)
+            {
+                throw new InvalidOperationException("Generated slots should record the active stability policy.");
+            }
+
+            if (!slot.StabilitySourceIds.Contains("Obertas2017") || !slot.StabilitySourceIds.Contains("Rice2023") || !slot.StabilitySourceIds.Contains("HeEtAl2020"))
+            {
+                throw new InvalidOperationException("Generated slots should record the source notes supporting the current spacing policy.");
+            }
+
+            if (slot.PeriodRatioFromInner <= 1.0)
+            {
+                throw new InvalidOperationException("Generated outer slots should record a period ratio above one.");
+            }
+
+            if (slot.SpacingMassProxyEarthMasses <= 0.0)
+            {
+                throw new InvalidOperationException("Generated slots should record the spacing mass proxy.");
+            }
+
+            if (slot.SpacingFromInnerMutualHillRadii < slot.MinimumSpacingMutualHillRadii * 0.99)
+            {
+                throw new InvalidOperationException("Generated slot spacing should meet the recorded mutual-Hill threshold.");
+            }
+        }
+    }
+
+    /// <summary>Tests architecture mass proxies vary by orbital region.</summary>
+    public static void TestArchitectureSpacingMassProxyByRegion()
+    {
+        OrbitHost host = CreateSunLikeHost();
+        double compactProxy = OrbitSlotGenerator.CalculateSpacingMassProxyEarthMasses(1.0 * Units.AuMeters, host);
+        double transitionProxy = OrbitSlotGenerator.CalculateSpacingMassProxyEarthMasses(host.FrostLineM * 1.1, host);
+        double giantProxy = OrbitSlotGenerator.CalculateSpacingMassProxyEarthMasses(host.FrostLineM * 2.0, host);
+
+        if (System.Math.Abs(compactProxy - OrbitSlotGenerator.CompactArchitectureMassProxyEarthMasses) > DefaultTolerance)
+        {
+            throw new InvalidOperationException("Inner-system slots should use the compact architecture mass proxy.");
+        }
+
+        if (System.Math.Abs(transitionProxy - OrbitSlotGenerator.TransitionalArchitectureMassProxyEarthMasses) > DefaultTolerance)
+        {
+            throw new InvalidOperationException("Frost-line-adjacent slots should use the transition architecture mass proxy.");
+        }
+
+        if (System.Math.Abs(giantProxy - OrbitSlotGenerator.GiantArchitectureMassProxyEarthMasses) > DefaultTolerance)
+        {
+            throw new InvalidOperationException("Outer slots should use the giant architecture mass proxy.");
+        }
+    }
+
+    /// <summary>Tests exact mutual-Hill retuning still leaves enough Solar-system scaffold slots.</summary>
+    public static void TestRetunedSpacingPreservesSolarReferenceCapacity()
+    {
+        OrbitHost host = CreateSunLikeHost();
+        host.InnerStabilityM = 0.30 * Units.AuMeters;
+        host.OuterStabilityM = 45.0 * Units.AuMeters;
+        host.CalculateZones();
+        bool foundSufficientScaffold = false;
+        for (int attempt = 0; attempt < 64; attempt += 1)
+        {
+            OrbitSlotGenerationResult result = OrbitSlotGenerator.GenerateForHost(
+                host,
+                Units.SolarRadiusMeters,
+                new Array<double>(),
+                new Array<double>(),
+                new SeededRng(8_640_421 + attempt)
+            );
+            if (result.Slots.Count >= 8)
+            {
+                foundSufficientScaffold = true;
+                break;
+            }
+        }
+
+        if (!foundSufficientScaffold)
+        {
+            throw new InvalidOperationException("Retuned exact mutual-Hill spacing should still produce an eight-slot Solar-system scaffold for some deterministic seeds.");
         }
     }
 

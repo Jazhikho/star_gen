@@ -124,6 +124,26 @@ public static class PlanetaryScienceReferenceCatalog
             "petigura2013",
             "Petigura et al. (2013), small planet occurrence around Sun-like stars.",
             "Sources/Texts/Petigura2013.txt"),
+        ["bryson2021"] = new PlanetaryScienceSource(
+            "bryson2021",
+            "Bryson et al. (2021), Kepler DR25 reliability-corrected rocky habitable-zone occurrence.",
+            "Sources/Texts/Bryson2021.txt"),
+        ["bergstenetal2023"] = new PlanetaryScienceSource(
+            "bergstenetal2023",
+            "Bergsten et al. (2023), no clear M-dwarf Earth-size habitable-zone surplus over FGK stars in the updated Kepler sample.",
+            "Sources/Texts/BergstenEtAl2023.txt"),
+        ["mentcharbonneau2023"] = new PlanetaryScienceSource(
+            "mentcharbonneau2023",
+            "Ment and Charbonneau (2023), close-in terrestrial planets around mid-to-late M dwarfs and sub-Neptune scarcity.",
+            "Sources/Texts/MentCharbonneau2023.txt"),
+        ["cuietal2026"] = new PlanetaryScienceSource(
+            "cuietal2026",
+            "Cui et al. (2026), TESS-era close-in FGK planet occurrence and hot-Jupiter calibration.",
+            "Sources/Texts/CuiEtAl2026.txt"),
+        ["gillisetal2026"] = new PlanetaryScienceSource(
+            "gillisetal2026",
+            "Gillis et al. (2026), mid-to-late M dwarf close-in planet occurrence, sub-Neptune scarcity, and hot-Jupiter upper limit.",
+            "Sources/Texts/GillisEtAl2026.txt"),
         ["raymondizidoro2017"] = new PlanetaryScienceSource(
             "raymondizidoro2017",
             "Raymond and Izidoro (2017), volatile delivery and migration-shaped inner-system context.",
@@ -232,6 +252,11 @@ public static class PlanetaryScienceReferenceCatalog
         "lamy2004",
         "mroz2020",
         "petigura2013",
+        "bryson2021",
+        "bergstenetal2023",
+        "mentcharbonneau2023",
+        "cuietal2026",
+        "gillisetal2026",
         "raymondizidoro2017",
         "pascucci2016",
         "baueretal2017",

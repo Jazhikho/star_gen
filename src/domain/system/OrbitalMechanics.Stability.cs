@@ -10,15 +10,24 @@ namespace StarGen.Domain.Systems;
 public static partial class OrbitalMechanics
 {
     /// <summary>
-    /// Minimum center-to-center spacing between adjacent planets as a multiple of the mutual Hill radius at the inner orbit.
+    /// Default slot-spacing policy identifier for compact multi-planet architecture generation.
     /// </summary>
-    /// <remarks>
-    /// This multiplier is an engineering default for deterministic generation. It is not backed by any
-    /// human-reviewed full text stored under <c>Sources/Texts/</c>. Contributors must add and review
-    /// sourced material (see <c>Sources/SourceReviewProcedure.md</c> and <c>Sources/AnnotatedBibliography.md</c>,
-    /// Orbital stability section) to validate or replace this value.
-    /// </remarks>
-    private const double MinimumAdjacentPlanetSpacingMutualHillRadii = 10.0;
+    public const string CompactArchitectureSpacingPolicyId = "stargen_architecture_mass_proxy_mutual_hill_v2";
+
+    /// <summary>
+    /// Source notes used by the default slot-spacing policy.
+    /// </summary>
+    public const string CompactArchitectureSpacingSourceIds = "Obertas2017;Rice2023;HeEtAl2020";
+
+    /// <summary>
+    /// Minimum center-to-center spacing between adjacent planets as a multiple of mutual Hill radii.
+    /// </summary>
+    public const double MinimumAdjacentPlanetSpacingMutualHillRadii = 10.0;
+
+    /// <summary>
+    /// Minimum spacing for giant-dominated candidate architecture scaffolds.
+    /// </summary>
+    public const double MinimumGiantAdjacentSpacingMutualHillRadii = 6.0;
 
     /// <summary>
     /// Calculates the Hill sphere radius for a body.
@@ -32,6 +41,81 @@ public static partial class OrbitalMechanics
 
         double massRatio = bodyMassKg / (3.0 * primaryMassKg);
         return semiMajorAxisM * System.Math.Pow(massRatio, 1.0 / 3.0);
+    }
+
+    /// <summary>
+    /// Calculates the mutual Hill radius for an adjacent planet pair.
+    /// </summary>
+    public static double CalculateMutualHillRadius(
+        double innerPlanetMassKg,
+        double outerPlanetMassKg,
+        double starMassKg,
+        double innerOrbitM,
+        double outerOrbitM)
+    {
+        if (innerPlanetMassKg <= 0.0 || outerPlanetMassKg <= 0.0 || starMassKg <= 0.0 || innerOrbitM <= 0.0 || outerOrbitM <= 0.0)
+        {
+            return 0.0;
+        }
+
+        double averageOrbitM = (innerOrbitM + outerOrbitM) * 0.5;
+        double combinedMassRatio = (innerPlanetMassKg + outerPlanetMassKg) / (3.0 * starMassKg);
+        return averageOrbitM * System.Math.Pow(combinedMassRatio, 1.0 / 3.0);
+    }
+
+    /// <summary>
+    /// Calculates adjacent-planet separation in mutual Hill radii.
+    /// </summary>
+    public static double CalculateSeparationInMutualHillRadii(
+        double innerPlanetMassKg,
+        double outerPlanetMassKg,
+        double starMassKg,
+        double innerOrbitM,
+        double outerOrbitM)
+    {
+        if (outerOrbitM <= innerOrbitM)
+        {
+            return 0.0;
+        }
+
+        double mutualHillRadius = CalculateMutualHillRadius(
+            innerPlanetMassKg,
+            outerPlanetMassKg,
+            starMassKg,
+            innerOrbitM,
+            outerOrbitM);
+        if (mutualHillRadius <= 0.0)
+        {
+            return 0.0;
+        }
+
+        return (outerOrbitM - innerOrbitM) / mutualHillRadius;
+    }
+
+    /// <summary>
+    /// Calculates the outer orbit that yields a requested adjacent-pair mutual-Hill separation.
+    /// </summary>
+    public static double CalculateOuterOrbitForMutualHillSeparation(
+        double innerPlanetMassKg,
+        double outerPlanetMassKg,
+        double starMassKg,
+        double innerOrbitM,
+        double separationMutualHillRadii)
+    {
+        if (innerPlanetMassKg <= 0.0 || outerPlanetMassKg <= 0.0 || starMassKg <= 0.0 || innerOrbitM <= 0.0 || separationMutualHillRadii <= 0.0)
+        {
+            return 0.0;
+        }
+
+        double combinedMassRatio = (innerPlanetMassKg + outerPlanetMassKg) / (3.0 * starMassKg);
+        double massScale = System.Math.Pow(combinedMassRatio, 1.0 / 3.0);
+        double scaledSeparation = separationMutualHillRadii * massScale;
+        if (scaledSeparation >= 2.0)
+        {
+            return double.PositiveInfinity;
+        }
+
+        return innerOrbitM * ((2.0 + scaledSeparation) / (2.0 - scaledSeparation));
     }
 
     /// <summary>
@@ -179,8 +263,7 @@ public static partial class OrbitalMechanics
     }
 
     /// <summary>
-    /// Estimates minimum spacing between adjacent planets using the mutual Hill radius at the inner orbit
-    /// scaled by <see cref="MinimumAdjacentPlanetSpacingMutualHillRadii"/>.
+    /// Estimates minimum spacing between adjacent planets using the adjacent-pair mutual Hill radius.
     /// </summary>
     /// <param name="innerPlanetMassKg">Mass of the inner planet in kilograms.</param>
     /// <param name="outerPlanetMassKg">Mass of the outer planet in kilograms.</param>
@@ -189,14 +272,60 @@ public static partial class OrbitalMechanics
     /// <returns>Minimum center-to-center separation in meters.</returns>
     public static double CalculateMinimumPlanetSpacing(double innerPlanetMassKg, double outerPlanetMassKg, double starMassKg, double innerOrbitM)
     {
+        return CalculateMinimumPlanetSpacing(
+            innerPlanetMassKg,
+            outerPlanetMassKg,
+            starMassKg,
+            innerOrbitM,
+            MinimumAdjacentPlanetSpacingMutualHillRadii);
+    }
+
+    /// <summary>
+    /// Estimates minimum spacing between adjacent planets using a requested mutual-Hill threshold.
+    /// </summary>
+    /// <param name="innerPlanetMassKg">Mass of the inner planet in kilograms.</param>
+    /// <param name="outerPlanetMassKg">Mass of the outer planet in kilograms.</param>
+    /// <param name="starMassKg">Mass of the host star in kilograms.</param>
+    /// <param name="innerOrbitM">Semi-major axis of the inner planet in meters.</param>
+    /// <param name="separationMutualHillRadii">Required separation in mutual Hill radii.</param>
+    /// <returns>Minimum center-to-center separation in meters.</returns>
+    public static double CalculateMinimumPlanetSpacing(
+        double innerPlanetMassKg,
+        double outerPlanetMassKg,
+        double starMassKg,
+        double innerOrbitM,
+        double separationMutualHillRadii)
+    {
         if (innerOrbitM <= 0.0 || starMassKg <= 0.0)
         {
             return 0.0;
         }
 
-        double combinedMass = innerPlanetMassKg + outerPlanetMassKg;
-        double hillRadius = innerOrbitM * System.Math.Pow(combinedMass / (3.0 * starMassKg), 1.0 / 3.0);
-        return hillRadius * MinimumAdjacentPlanetSpacingMutualHillRadii;
+        double outerOrbitM = CalculateOuterOrbitForMutualHillSeparation(
+            innerPlanetMassKg,
+            outerPlanetMassKg,
+            starMassKg,
+            innerOrbitM,
+            separationMutualHillRadii);
+        if (double.IsInfinity(outerOrbitM))
+        {
+            return double.PositiveInfinity;
+        }
+
+        return outerOrbitM - innerOrbitM;
+    }
+
+    /// <summary>
+    /// Returns whether a period ratio lies in StarGen's current compact-architecture source band.
+    /// </summary>
+    public static bool IsCompactArchitecturePeriodRatio(double periodRatio)
+    {
+        if (periodRatio <= 0.0)
+        {
+            return false;
+        }
+
+        return periodRatio >= 1.25 && periodRatio <= 2.0;
     }
 
     /// <summary>

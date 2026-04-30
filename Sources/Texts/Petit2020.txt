@@ -75,3 +75,18 @@ Extends Petit2018 AMD framework to handle resonant chains and near-resonant syst
   - Systems with AMD close to the critical value (borderline cases)
 - `ResonanceCorrection = Petit2020` flag in stability filter.
 **Cross-references:** Petit2018.txt, Tamayo2020.txt.
+
+## Current StarGen usage
+StarGen does not yet implement Petit2020 resonance corrections or multi-planet AMD refinements. Current use is limited to recording period-ratio and mutual-Hill diagnostics that can support a future stability-filter implementation.
+
+## Human reviewer concern
+The source note implies near-resonance correction behavior, but current generation only uses resonance-like spacing ratios plus a conservative mutual-Hill threshold.
+
+## AI response / disposition
+Kept Petit2020 as underutilized and did not present the current heuristic as a Petit2020 implementation. The code now records period ratios so future near-resonance checks can be tested explicitly.
+
+## Implementation status
+underutilized
+
+## Follow-up action
+Implement resonance-proximity classification and AMD-borderline handling after human verification of the relevant equations and appropriate acceptance thresholds.

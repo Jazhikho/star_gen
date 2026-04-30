@@ -67,3 +67,18 @@ superseded. Flag updates in Followup.md.)*
 ## StarGen mechanics translation
 
 *(See Bryson2021 in planet occurrence section above.)*
+
+## Current StarGen usage
+StarGen uses Bryson2021 as the modern FGK/GK habitable-zone rocky occurrence anchor in the host demographic scalar cluster. The active code records `habitable_zone_rocky_occurrence_scalar` in `PlanetarySystemState` and planet formation provenance.
+
+## Human reviewer concern
+HZ rocky occurrence should affect generation, but the paper's broad credible intervals and completeness extrapolation choices should not be collapsed into false precision.
+
+## AI response / disposition
+Implemented a conservative scalar/provenance hook rather than a fixed eta-Earth table. The source is active for FGK/GK HZ occurrence framing, while exact numeric occurrence tables remain human-verification follow-up.
+
+## Implementation status
+partly implemented
+
+## Follow-up action
+Add a selectable eta-Earth model/range after human review of the conservative and optimistic HZ definitions and the completeness extrapolation alternatives.

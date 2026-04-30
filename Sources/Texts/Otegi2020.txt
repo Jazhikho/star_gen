@@ -68,3 +68,26 @@ Volatile-rich: R ∝ M^0.55 for larger planets.
 - Transition density: ~3.3 g/cm³ distinguishes rocky from volatile-rich.
 - Use alongside ChenKipping2017 as a `MassRadiusModel` option; expose selector.
 **Cross-references:** ChenKipping2017.txt, LuquePalle2022.txt.
+
+## Current StarGen usage
+- `PlanetMassRadiusTable` exposes Otegi 2020 as the second supported mass-radius model family.
+- Rocky-biased planets use the rocky relation only up to the source's approximate 25 Earth-mass rocky-population endpoint.
+- Volatile-rich and above-endpoint transition worlds use the volatile-rich relation.
+- Generated planets now sample the reported coefficient and exponent uncertainty with deterministic seeds.
+
+## Human reviewer concern
+- No direct per-source reviewer concern has been recorded yet.
+- The source note itself cautions that quantitative values and exact boundaries require human verification before final default closure.
+
+## AI response / disposition
+- Current StarGen use is now source-informed for the central relations, the rocky endpoint, and uncertainty sampling.
+- The model still should not be treated as a full composition, atmosphere, habitability, or formation-history model by itself.
+- The pure-water separation line and post-2020 follow-up literature still need human review before being encoded as stricter classification logic.
+
+## Implementation status
+- partly implemented
+
+## Follow-up action
+- Human-verify the APA metadata, transition density, and exact equation values against the PDF.
+- Decide whether the pure-water density separator should become an explicit generated diagnostic or branch-selection rule.
+- Review post-2020 mass-radius updates before marking Otegi 2020 fully implemented.

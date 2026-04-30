@@ -76,3 +76,18 @@ Also provides updated radius gap slope for FGK stars.
 - Intra-system radius uniformity: σ_R/R̄ ≈ 0.25 for systems with 3+ planets.
 - Gap slope (FGK): consistent with VanEylen2018Ast value (~−0.09 to −0.11).
 **Cross-references:** HeEtAl2020.txt, FangMargot2013.txt, VanEylen2018Ast.txt.
+
+## Current StarGen usage
+StarGen now uses the mutual-Hill spacing definition from the architecture/stability source cluster to compute adjacent-slot spacing diagnostics and the minimum candidate-slot advance. Generated slots also record compact period-ratio diagnostics and the architecture mass proxy used for spacing. The source is used here for architecture/spacing-uniformity framing, not as a final host-property radius-gap model.
+
+## Human reviewer concern
+The note's mechanics section pointed to peas-in-a-pod and spacing uniformity, but current generation lacked auditable adjacent-spacing fields.
+
+## AI response / disposition
+Added `CalculateMutualHillRadius`, `CalculateSeparationInMutualHillRadii`, exact mutual-Hill spacing inversion, and slot/planet provenance fields for period ratio, mass proxy, and mutual-Hill spacing. Replaced the old all-Jupiter candidate-slot spacing scaffold with compact/transition/giant mass proxies so the generator can support compact rocky/sub-Neptune systems without losing outer giant-system spacing.
+
+## Implementation status
+partly implemented
+
+## Follow-up action
+Reconcile this note's bibliographic metadata and decide whether Rice2023 is being used primarily for spacing/peas-in-a-pod architecture, radius-gap demographics, or both. Implement intra-system mass/radius correlation and a reviewed mass-proxy distribution only after the source role is verified.

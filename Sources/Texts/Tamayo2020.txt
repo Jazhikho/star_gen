@@ -58,3 +58,18 @@ prediction of long-term (10⁹ orbit) stability probability.
 - `SPOCK_StabilityThreshold` user lever: float 0–1.
 - NOTE: SPOCK requires orbital parameters; run after full system generation.
 **Cross-references:** Petit2018.txt, Petit2020.txt, Obertas2017.txt.
+
+## Current StarGen usage
+StarGen does not currently run the SPOCK classifier or any ML stability model. The source remains a future stability-filter target.
+
+## Human reviewer concern
+The source note describes a direct SPOCK option, but the repository does not currently include SPOCK model dependencies, feature extraction, probability thresholds, or validation fixtures.
+
+## AI response / disposition
+Marked the source as underutilized and kept this pass to transparent mutual-Hill and period-ratio provenance. No active source entry should imply that SPOCK is implemented.
+
+## Implementation status
+underutilized
+
+## Follow-up action
+Decide whether adding a SPOCK-style dependency/model is acceptable for StarGen. If not, implement a simpler reviewed deterministic classifier and record Tamayo2020 as comparison/background rather than active support.

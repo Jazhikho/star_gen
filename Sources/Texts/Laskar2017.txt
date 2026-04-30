@@ -74,3 +74,18 @@ Without large moon stabilisation, terrestrial planets undergo chaotic obliquity 
 - `ObliquityStabilised` — bool; true if large moon present.
 - Unstable obliquity → `HabitabilityFlag = ObliquityUnstable`.
 **Cross-references:** NakajimaEtAl2022.txt, Kopparapu2013.txt.
+
+## Current StarGen usage
+No active orbital-slot stability behavior uses the Laskar AMD-stability classification yet. The current pass records mutual-Hill spacing and period-ratio diagnostics only.
+
+## Human reviewer concern
+The source is in the stability batch, but the mechanics translation currently points to obliquity rather than StarGen's adjacent-planet stability policy.
+
+## AI response / disposition
+Marked this source as underutilized for orbital stability and did not use it as active support for the current mutual-Hill threshold.
+
+## Implementation status
+underutilized
+
+## Follow-up action
+Clarify whether this note should support AMD-stability, obliquity/habitability, or both. If used for AMD, add a reviewed AMD-stability summary and code-facing equations.

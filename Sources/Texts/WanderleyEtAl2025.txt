@@ -75,3 +75,18 @@ Critical for applying OwenWu2017/Ginzburg2018 to M-dwarf planet populations.
 - Apply stellar-mass correction from FultonPetigura2018CKS but anchored to M-dwarf data.
 - `RadiusGapCentre_Mdwarf`: use empirical values from this paper rather than extrapolation.
 **Cross-references:** OwenWu2017.txt, FultonPetigura2018CKS.txt, MentCharbonneau2023.txt.
+
+## Current StarGen usage
+No new active generator behavior is attributed to WanderleyEtAl2025 in the occurrence-demographics pass. Existing radius-valley behavior still uses the broader Fulton/Owen/Ginzburg cluster with a simple lower-mass host shift.
+
+## Human reviewer concern
+The note contains concrete M-dwarf radius-gap claims, but the source metadata was auto-classified incorrectly and needs verification before changing M-dwarf radius-gap defaults.
+
+## AI response / disposition
+Marked this source as underutilized for now. The current pass uses GillisEtAl2026 only for close-in demographic scalars, not for a full M-dwarf radius-gap replacement.
+
+## Implementation status
+underutilized
+
+## Follow-up action
+Verify the paper metadata and reconcile WanderleyEtAl2025 with GillisEtAl2026 before implementing an M-dwarf radius-gap or water-world composition mode.

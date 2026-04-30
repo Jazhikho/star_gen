@@ -77,3 +77,18 @@ integration. Efficient filter for generated system architectures.
 - Apply after architecture generation, before finalising planet list.
 **User lever:** `StabilityFilter` — `AMD_Petit2018` | `SPOCK_Tamayo2020` | `None`
 **Cross-references:** Petit2020.txt, Tamayo2020.txt, Obertas2017.txt.
+
+## Current StarGen usage
+StarGen does not yet implement the Petit AMD-stability criterion. The current pass only records the existing mutual-Hill spacing policy and adjacent architecture diagnostics so future AMD validation has provenance inputs to compare against.
+
+## Human reviewer concern
+The source note described an AMD stability filter as a desired implementation target, but current code still relied on a fixed spacing heuristic.
+
+## AI response / disposition
+Marked this source as underutilized for code behavior. No claim is made that StarGen currently performs Petit-style AMD-stability filtering.
+
+## Implementation status
+underutilized
+
+## Follow-up action
+Implement a deterministic AMD-stability evaluator only after the exact equations, required orbital-element assumptions, and treatment of missing masses/eccentricities/inclinations are human-verified.

@@ -76,3 +76,18 @@ Kepler multi-planet systems show low mutual inclinations: Rayleigh distribution 
 - Two-component model: ~80% of systems at σ ≈ 1.5°, ~20% at σ ≈ 10° (dynamically hot).
 - Apply to orbital plane assignment of each planet relative to first planet's plane.
 **Cross-references:** HeEtAl2020.txt, Rice2023.txt, Petit2018.txt.
+
+## Current StarGen usage
+StarGen does not yet implement a Rayleigh mutual-inclination model for multi-planet slots. Current use is limited to the broader compact-system architecture source cluster and does not affect generated inclinations.
+
+## Human reviewer concern
+The mechanics section describes a concrete inclination implementation, but current slot generation only records eccentricity and spacing diagnostics.
+
+## AI response / disposition
+Marked this source as underutilized for current behavior. The orbital-stability pass did not add inclination sampling because that would be a separate architecture change requiring human verification.
+
+## Implementation status
+underutilized
+
+## Follow-up action
+Add a mutual-inclination model and provenance only after the two-component Rayleigh parameters and their scope are verified against the paper.

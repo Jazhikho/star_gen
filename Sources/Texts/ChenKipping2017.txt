@@ -26,11 +26,17 @@ The Chen and Kipping relation is useful for probabilistic mass-radius conversion
 ## AI response / disposition
 Retain ChenKipping2017 as a mass-radius model family and keep other planetary outcomes tied to separate atmosphere, composition, formation, and habitability sources.
 
+2026-04-30 implementation update:
+- StarGen now exposes Chen-Kipping Terran, Neptunian, and Jovian classification probabilities from the mass-radius resolver.
+- Generated planets now receive seeded radius scatter around the Chen-Kipping relation instead of always using the deterministic midpoint.
+- The current scatter widths are conservative StarGen sampling envelopes, not the complete Forecaster posterior implementation.
+
 ## Implementation status
-reviewed but underutilized; active as one mass-radius option, with follow-up needed to keep downstream claims separated from the relation itself.
+partly implemented; active as one mass-radius option with seeded radius scatter and class probabilities, but still not the complete Forecaster posterior model.
 
 ## Follow-up action
 Human review should verify the exact APA metadata and numeric transition values against the PDF before final v1.0 citation closure.
+Implement the full Forecaster posterior/hyperparameter uncertainty path before marking this source fully implemented.
 
 ## Parameters, constraints, and mechanics implications
 *(Human action: fill in specific numeric values, distributions, model families, and

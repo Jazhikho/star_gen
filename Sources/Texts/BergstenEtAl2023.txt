@@ -76,3 +76,18 @@ completeness corrections and injection-recovery tests.
 - Key difference: slightly lower occurrence at small radii (completeness correction
   lowers apparent rate of Earth-sized planets).
 **Cross-references:** Petigura2013.txt, KunimotoEtAl2022.txt, Fulton2017.txt.
+
+## Current StarGen usage
+StarGen uses BergstenEtAl2023 to prevent an automatic M-dwarf habitable-zone rocky surplus. Mid-to-late M hosts can receive close-in small-planet boosts from other sources, but their HZ rocky scalar is not boosted above the FGK baseline.
+
+## Human reviewer concern
+Earlier notes and common lore can overstate M-dwarf habitable-zone Earth-size occurrence.
+
+## AI response / disposition
+Added `habitable_zone_rocky_occurrence_scalar` and set the mid-to-late M demographic regime below the FGK value rather than above it. This is a conservative response to the source's "no evidence for more" conclusion.
+
+## Implementation status
+partly implemented
+
+## Follow-up action
+Revisit once M-dwarf HZ occurrence at longer periods is better constrained; keep the current scalar auditable and not a final eta-Earth estimate.

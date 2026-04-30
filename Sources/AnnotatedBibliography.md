@@ -71,7 +71,7 @@ with full-text extraction (PDF when retrievable, otherwise HTML full text).
 
 **APA:** Bergsten, G. J., Pascucci, I., Hardegree-Ullman, K. K., Fernandes, R. B., Christiansen, J. L., & Mulders, G. D. (2023). No evidence for more Earth-sized planets in the habitable zone of Kepler's M versus FGK stars. The Astronomical Journal, 166(6), 234. https://doi.org/10.3847/1538-3881/ad03ea
 
-**StarGen annotation:** No enhanced HZ Earth-size rate around M vs FGK stars — contradicts earlier claims. StarGen should not apply an M-dwarf HZ planet surplus prior without noting this contradicting result.
+**StarGen annotation:** No enhanced HZ Earth-size rate around M vs FGK stars — contradicts earlier claims. Partly implemented: StarGen's mid-to-late M demographic regime does not boost HZ rocky occurrence over FGK, even though close-in small-planet pressure can be higher.
 
 
 ## BernardinelliEtAl2022
@@ -116,7 +116,7 @@ with full-text extraction (PDF when retrievable, otherwise HTML full text).
 
 **APA:** Bryson, S., et al. (2021). The occurrence of Earth-sized planets in the habitable zone of Sun-like stars. The Astronomical Journal, 161(1), 36. https://doi.org/10.3847/1538-3881/abd022
 
-**StarGen annotation:** HZ occurrence rates with updated reliability corrections: η⊕ ~0.18 for Sun-like stars (conservative HZ). Key prior for HZ terrestrial planet frequency per star type in StarGen.
+**StarGen annotation:** HZ occurrence rates with updated reliability corrections. Partly implemented as the FGK/GK HZ rocky occurrence scalar in `PlanetarySystemState`; exact eta-Earth tables remain human-verification follow-up.
 
 
 ## Chabrier2003
@@ -152,7 +152,7 @@ with full-text extraction (PDF when retrievable, otherwise HTML full text).
 
 **APA:** Chen, J., & Kipping, D. (2017). Probabilistic forecasting of the masses and radii of other worlds. The Astrophysical Journal, 834(1), 17. https://doi.org/10.3847/1538-4357/834/1/17
 
-**StarGen annotation:** Probabilistic mass-radius power-law fits by planet class (Terran, Neptunian, Jovian, Stellar). Direct input to StarGen mass↔radius conversion and planet classification boundary placement.
+**StarGen annotation:** Probabilistic mass-radius power-law fits by planet class (Terran, Neptunian, Jovian, Stellar). Now partly implemented in StarGen as seeded Chen-Kipping radius scatter plus Terran/Neptunian/Jovian classification probabilities in `PlanetMassRadiusTable`; full Forecaster posterior sampling remains follow-up work.
 
 
 ## Choi2016
@@ -206,7 +206,7 @@ with full-text extraction (PDF when retrievable, otherwise HTML full text).
 
 **APA:** Cui, K., Armstrong, D. J., Hadjigeorghiou, A., Lafarga, M., et al. (2026). Demographics of close-in TESS exoplanets orbiting FGK main-sequence stars. Monthly Notices of the Royal Astronomical Society, 546(2), stag022. https://doi.org/10.1093/mnras/stag022 arXiv: 2601.09492. Data: https://doi.org/10.5281/zenodo.17804280
 
-**StarGen annotation:** TESS-era occurrence rates for close-in planets (0.5–16 day, 2–20 R⊕) around FGK stars. Hot Jupiter rate: 0.39%; Neptunian desert: 0.08% (first determination); overall: 9.4%. Replaces older Kepler estimates in StarGen's FGK system generator. `CloseInOccurrenceRateModel` enum.
+**StarGen annotation:** TESS-era occurrence rates for close-in planets (0.5–16 day, 2–20 R⊕) around FGK stars. Partly implemented as a close-in FGK hot-giant suppression scalar and provenance hook; exact 10x10 period-radius bins and Neptunian desert survivor modeling remain follow-up.
 
 
 ## Cummings2018
@@ -251,7 +251,7 @@ with full-text extraction (PDF when retrievable, otherwise HTML full text).
 
 **APA:** Fang, J., & Margot, J.-L. (2013). Probing the interiors of planets with close-in transiting companions. The Astrophysical Journal, 767(1), 95. https://doi.org/10.1088/0004-637X/767/1/95
 
-**StarGen annotation:** Multi-planet mutual inclinations mostly <5° from Kepler. Constrains inclination distribution (Rayleigh, σ~1–2°) for multi-planet generation in StarGen.
+**StarGen annotation:** Multi-planet mutual inclinations mostly <5° from Kepler. Underutilized: StarGen does not yet implement a Rayleigh mutual-inclination model; current orbital architecture work records spacing/period diagnostics only.
 
 
 ## Fernandes2019
@@ -287,7 +287,7 @@ with full-text extraction (PDF when retrievable, otherwise HTML full text).
 
 **APA:** Fulton, B. J., Petigura, E. A., Howard, A. W., et al. (2017). The California-Kepler Survey. III. A gap in the radius distribution of small planets. The Astronomical Journal, 154(3), 109. https://doi.org/10.3847/1538-3881/aa80eb
 
-**StarGen annotation:** Radius gap at ~1.5–2.0 R⊕ separating rocky super-Earths from volatile-rich mini-Neptunes. Fundamental constraint: these are two distinct populations requiring separate generation branches in StarGen.
+**StarGen annotation:** Radius gap at ~1.5-2.0 R⊕ separating rocky super-Earths from volatile-rich mini-Neptunes. Partly implemented: generated close-in planets now carry radius-valley diagnostics and use a period-limited valley regime to reduce intermediate envelope-world weighting. Still needs an explicit bimodal radius-distribution sampler from reviewed occurrence tables.
 
 
 ## GarmaOehmichenEtAl2022 **(APA incomplete)**
@@ -314,7 +314,7 @@ with full-text extraction (PDF when retrievable, otherwise HTML full text).
 
 **APA:** Ginzburg, S., Schlichting, H. E., & Sari, R. (2018). Core-powered mass-loss and the radius distribution of small exoplanets. Monthly Notices of the Royal Astronomical Society, 476(1), 759-765. https://doi.org/10.1093/mnras/sty290
 
-**StarGen annotation:** Core-powered mass loss as alternative mechanism for the radius gap; driven by core cooling luminosity rather than XUV. StarGen should expose a mechanism selector: photoevaporation (OwenWu2017) vs core-powered mass loss (Ginzburg2018).
+**StarGen annotation:** Core-powered mass loss as alternative mechanism for the radius gap; driven by core cooling luminosity/bolometric flux rather than XUV. Partly implemented: the core-powered branch now has a positive radius-valley period slope, separate loss-pressure proxy, and provenance mechanism tag. Full age-dependent population evolution remains follow-up.
 
 
 ## HamiltonEtAl2016 **(APA incomplete)**
@@ -350,7 +350,7 @@ with full-text extraction (PDF when retrievable, otherwise HTML full text).
 
 **APA:** He, Y., et al. (2020). Match stem HeEtAl2020 to ADS for the PDF on file.
 
-**StarGen annotation:** Multi-planet system spacing, multiplicity, and uniformity statistics. Constrains planet-number distribution and period-ratio spacings for system generation in StarGen.
+**StarGen annotation:** Multi-planet system spacing, multiplicity, and uniformity statistics. Partly implemented: generated slots and planets now record period-ratio, architecture mass-proxy, and mutual-Hill spacing diagnostics under the active architecture spacing policy. Full SysSim/AMD population modeling remains follow-up.
 
 
 ## HellerBarnes2013
@@ -521,7 +521,7 @@ with full-text extraction (PDF when retrievable, otherwise HTML full text).
 
 **APA:** Kunimoto, M., et al. (2022). Match stem KunimotoEtAl2022 to ADS for the PDF on file.
 
-**StarGen annotation:** Updated M-dwarf planet occurrence rates from TESS. M stars host the most planets in the galaxy by number — updates per-star-type occurrence priors in StarGen.
+**StarGen annotation:** Draft occurrence note needs reconciliation: the current note metadata and abstract appear inconsistent. Underutilized until title, target stellar population, and key equations are verified.
 
 
 ## LambrechtsJohansen2012
@@ -539,7 +539,7 @@ with full-text extraction (PDF when retrievable, otherwise HTML full text).
 
 **APA:** Laskar, J., Fienga, A., Gastineau, M., & Manche, H. (2017). Strong chaos induced by close encounters with Ceres and Vesta. Astronomy and Astrophysics, 598, L5. https://doi.org/10.1051/0004-6361/201629509
 
-**StarGen annotation:** Long-term secular orbital chaos in planetary systems (Laskar group). Relevant to long-term stability filters and chaotic diffusion modelling in StarGen's system architecture generation.
+**StarGen annotation:** Long-term secular orbital chaos and AMD-stability context. Underutilized for current orbital-slot generation; the active stability pass records mutual-Hill and period-ratio diagnostics only and does not yet implement Laskar-style AMD classification.
 
 
 ## Li2023 **(APA incomplete)**
@@ -611,7 +611,7 @@ with full-text extraction (PDF when retrievable, otherwise HTML full text).
 
 **APA:** Ment, K., & Charbonneau, D. (2023). Match stem MentCharbonneau2023 to ADS for the PDF on file.
 
-**StarGen annotation:** Ground-based M-dwarf planet occurrence rates. Complements space-based surveys for the most common stellar type; updates occurrence priors in StarGen.
+**StarGen annotation:** Ground-based mid-to-late M-dwarf planet occurrence rates. Partly implemented for close-in terrestrial abundance and sub-Neptune scarcity, but not used to boost M-dwarf HZ rocky occurrence over FGK because BergstenEtAl2023 contradicts that broader claim.
 
 
 ## Mills2024 **(APA incomplete)**
@@ -674,7 +674,7 @@ with full-text extraction (PDF when retrievable, otherwise HTML full text).
 
 **APA:** Obertas, A., Van Laerhoven, C., & Tamayo, D. (2017). The stable archipelago: the number of mutually stable systems in a Kepler-like sample. Monthly Notices of the Royal Astronomical Society, 470(2), 1657-1666. https://doi.org/10.1093/mnras/stx1316
 
-**StarGen annotation:** Stability timescales for tightly packed planetary systems as a function of period ratio and eccentricity. Provides quantitative stability criteria for validating compact system architectures in StarGen.
+**StarGen annotation:** Stability timescales for tightly packed planetary systems as a function of mutual-Hill spacing, period ratio, and eccentricity. Partly implemented as an auditable architecture spacing scaffold using exact mutual-Hill spacing, compact/transition/giant mass proxies, and policy/source provenance; this remains a StarGen proxy policy, not a full Obertas stability-time fit.
 
 
 ## ObertasTamayo2023 **(APA incomplete)**
@@ -683,7 +683,7 @@ with full-text extraction (PDF when retrievable, otherwise HTML full text).
 
 **APA:** Obertas, A., & Tamayo, D. (2023). Match stem ObertasTamayo2023 to ADS for the PDF on file.
 
-**StarGen annotation:** ML-assisted orbital stability classification study (2023) — abstract needs verification. Directly applicable to StarGen as a fast system validity filter without N-body.
+**StarGen annotation:** ML-assisted orbital stability and dynamical-packing study (2023) — abstract needs verification. Underutilized: not active in generation; future work must decide whether this supports packing priors, unseen-planet heuristics, or classifier validation.
 
 
 ## Olson2020 **(APA incomplete)**
@@ -701,7 +701,7 @@ with full-text extraction (PDF when retrievable, otherwise HTML full text).
 
 **APA:** Otegi, J. F., Bouchy, F., & Helled, R. (2020). Revisited mass-radius relations for exoplanets below 120 Earth masses. Astronomy and Astrophysics, 640, A135. https://doi.org/10.1051/0004-6361/202038237
 
-**StarGen annotation:** Updated mass-radius relations: rocky regime (R ∝ M^0.27, approximately constant density) and volatile-rich regime. Updates ChenKipping2017 for the sub-Neptune rocky/volatile boundary region relevant to StarGen.
+**StarGen annotation:** Updated mass-radius relations: rocky regime (R ∝ M^0.27, approximately constant density) and volatile-rich regime. Now partly implemented in `PlanetMassRadiusTable`: rocky branch capped at the source's approximate 25 Earth-mass endpoint, volatile-rich branch used beyond that point, and generated planets sample the reported relation uncertainties with deterministic seeds. The pure-water density separator remains follow-up work pending human review.
 
 
 ## Outland2020 **(APA incomplete)**
@@ -710,7 +710,7 @@ with full-text extraction (PDF when retrievable, otherwise HTML full text).
 
 **APA:** Outland, A., et al. (2020). Match stem Outland2020 to ADS for the PDF on file.
 
-**StarGen annotation:** Abstract needs verification — if outreach paper, StarGen applicability is limited. Flag for review.
+**StarGen annotation:** Abstract needs verification. Documentation-only pending review; no active generation behavior should cite this as support.
 
 
 ## OwenWu2017
@@ -719,7 +719,7 @@ with full-text extraction (PDF when retrievable, otherwise HTML full text).
 
 **APA:** Owen, J. E., & Wu, Y. (2017). The evaporation valley in the Kepler planets. The Astrophysical Journal, 847(1), 29. https://doi.org/10.3847/1538-4357/aa890a
 
-**StarGen annotation:** XUV-driven photoevaporation model reproducing the radius gap at ~1.7 R⊕ within the first ~100 Myr. One of the two canonical radius-gap mechanisms alongside Ginzburg2018 core-powered mass loss. StarGen should note both and expose a mechanism selector.
+**StarGen annotation:** XUV-driven photoevaporation model reproducing the radius gap at ~1.7 R⊕ within the first ~100 Myr. Partly implemented: the photoevaporation branch now has a negative radius-valley period slope, XUV-weighted loss-pressure proxy, stronger stripped-envelope bias, and provenance mechanism tag. Full escape-model treatment remains follow-up.
 
 
 ## Pascucci2016
@@ -737,7 +737,7 @@ with full-text extraction (PDF when retrievable, otherwise HTML full text).
 
 **APA:** Petigura, E. A., Howard, A. W., & Marcy, G. W. (2013). Prevalence of Earth-size planets orbiting Sun-like stars. Proceedings of the National Academy of Sciences, 110(48), 19273-19278. https://doi.org/10.1073/pnas.1319909110
 
-**StarGen annotation:** η⊕ ≈ 22% of Sun-like stars have an Earth-size planet in the HZ (Kepler). Key prior for HZ occurrence rates — significant uncertainty remains; compare with Bryson2021 for updated estimates.
+**StarGen annotation:** Kepler small-planet occurrence around Sun-like stars. Partly implemented as FGK close-in/small-planet occurrence context in `PlanetarySystemState`; Bryson2021 is the preferred modern HZ rocky occurrence anchor.
 
 
 ## Petit2018
@@ -746,7 +746,7 @@ with full-text extraction (PDF when retrievable, otherwise HTML full text).
 
 **APA:** Petit, A. C., & Laskar, J. (2018). AMD-stability: a practical measure of AMD-stability from the planetary masses and orbits. Astronomy and Astrophysics, 617, A93. https://doi.org/10.1051/0004-6361/201732294
 
-**StarGen annotation:** AMD-stability criterion: a system is AMD-stable if no planet pair can exchange enough angular momentum deficit to cause orbit crossing. Quantitative stability filter directly applicable to StarGen — no N-body simulation required.
+**StarGen annotation:** AMD-stability criterion: a system is AMD-stable if no planet pair can exchange enough angular momentum deficit to cause orbit crossing. Underutilized: StarGen does not yet implement the Petit AMD filter; current work only records spacing diagnostics that can feed future validation.
 
 
 ## Petit2020
@@ -755,7 +755,7 @@ with full-text extraction (PDF when retrievable, otherwise HTML full text).
 
 **APA:** Petit, A. C., Pichierri, G., Davies, M. B., & Johansen, A. (2020). Debris from giant impacts in planetary systems: constraints on the collisional parameters of similar-sized embryos. Astronomy and Astrophysics, 641, A176. https://doi.org/10.1051/0004-6361/202038764
 
-**StarGen annotation:** Extended AMD-stability for multi-planet systems; refined application of the AMD criterion. Updates Petit2018 for practical compact system validation in StarGen.
+**StarGen annotation:** Extended AMD-stability for multi-planet systems; refined application of the AMD criterion. Underutilized: no Petit2020 resonance correction is active yet, though generated slots now expose period-ratio diagnostics for future implementation.
 
 
 ## PetkowskiEtAl2020
@@ -800,7 +800,7 @@ with full-text extraction (PDF when retrievable, otherwise HTML full text).
 
 **APA:** Rice, D. R., & Steffen, J. H. (2023). The California-Kepler Survey. IX. The radius gap as a function of stellar mass, metallicity, and age. Monthly Notices of the Royal Astronomical Society, 518(1), 1350-1364. https://doi.org/10.1093/mnras/stad393
 
-**StarGen annotation:** Radius gap dependence on stellar mass, metallicity, and age from the California-Kepler Survey. Constrains period-ratio and size uniformity distributions for multi-planet system generation in StarGen.
+**StarGen annotation:** Planetary architecture / spacing-uniformity note in the current source corpus. Partly implemented for mutual-Hill spacing, period-ratio diagnostics, and source-marked architecture mass proxies; bibliographic role needs human reconciliation because the current APA/domain text may describe a different Rice/Steffen radius-gap paper.
 
 
 ## Rimmer2018
@@ -881,7 +881,7 @@ with full-text extraction (PDF when retrievable, otherwise HTML full text).
 
 **APA:** Tamayo, D., et al. (2020). A machine learns to predict stable planetary systems. Proceedings of the National Academy of Sciences, 117(39), 24249-24255. https://doi.org/10.1073/pnas.2001258117
 
-**StarGen annotation:** SPOCK ML model for rapid orbital stability classification of compact planetary systems. Directly applicable to StarGen as a fast system-validity filter without requiring N-body integration.
+**StarGen annotation:** SPOCK ML model for rapid orbital stability classification of compact planetary systems. Underutilized: StarGen does not ship SPOCK feature extraction, model dependencies, or probability thresholds; current stability pass records diagnostics only.
 
 
 ## TanakaTakeuchiWard2002
@@ -926,7 +926,7 @@ with full-text extraction (PDF when retrievable, otherwise HTML full text).
 
 **APA:** Wanderley, F., Cunha, K., Smith, V. V., et al. (2025). An analysis of the radius gap in a sample of Kepler, K2, and TESS exoplanets orbiting M-dwarf stars. The Astrophysical Journal, 993(2), 233. https://doi.org/10.3847/1538-4357/ae058e
 
-**StarGen annotation:** Radius gap in Kepler, K2, and TESS exoplanets around M-dwarf stars. Extends Fulton2017 radius-gap analysis to M-dwarf hosts — critical update for M-dwarf system generation in StarGen.
+**StarGen annotation:** Radius gap in Kepler, K2, and TESS exoplanets around M-dwarf stars. Underutilized pending metadata verification and reconciliation with GillisEtAl2026; current occurrence pass does not yet implement an M-dwarf radius-gap replacement.
 
 
 ## WeggGerhard2013
@@ -1018,7 +1018,7 @@ require human verification against the PDF or NASA ADS.*
 
 **APA:** Gillis, E., Pass, E. K., et al. (2026). TESS planet occurrence rates reveal the disappearance of the radius valley around mid-to-late M dwarfs. arXiv:2602.23364. [Submitted to AAS Journals February 2026.]
 
-**StarGen annotation:** TESS survey of 8,134 mid-to-late M dwarfs: radius valley disappears for M4+ hosts (unimodal peak 1.25±0.05 R⊕ vs. bimodal for FGK). Sub-Neptunes around M4+ are water-rich. Hot Jupiter upper limit: 0.012. Implements `MDwarfRadiusValleyModel`: suppresses bimodal gap; biases sub-Neptune composition to WaterRich for M4+ hosts.
+**StarGen annotation:** TESS survey of 8,134 mid-to-late M dwarfs. Partly implemented as mid-to-late M close-in small-planet boost plus sub-Neptune and hot-giant suppression in `PlanetarySystemState`; radius-valley disappearance and water-rich composition mode remain follow-up.
 
 
 ## HarfstEtAl2024 **(APA incomplete)**
@@ -1166,7 +1166,7 @@ require human verification against the PDF or NASA ADS.*
 bibliography entry 'VanZandtEtAl2025' refers to a different paper (smooth transition
 from giants to brown dwarfs, arXiv:2511.18758). These are distinct papers.*
 
-**StarGen annotation:** P(outer giant | inner small planets) = 30 +14/−12%; field rate 16%. Modest ~1.9× enhancement. Low-eccentricity distant giants in inner-planet systems → dynamically cool formation. Multi-planet inner systems preferentially have distant giant companions. Implements conditional outer giant probability and low-e eccentricity distribution rule.
+**StarGen annotation:** P(outer giant | inner small planets) = 30 +14/−12%; field rate 16%. Underutilized: StarGen does not yet have the post-inner-system conditional outer-giant architecture pass needed to use this source correctly.
 
 
 ## Full-text extract cleanup additions (2026-04-28)

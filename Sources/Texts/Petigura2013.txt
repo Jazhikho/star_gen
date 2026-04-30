@@ -57,3 +57,18 @@ a planet between 1–4 R⊕ at < 1 yr period. Occurrence peaks around 2 R⊕, 10
 - Occurrence as function of orbital period: power-law rise from 1 day to ~100 days
   for sub-Neptunes (dN/d log P ∝ P^α, α ~ 0).
 **Cross-references:** Fulton2017.txt, KunimotoEtAl2022.txt, Bryson2021.txt.
+
+## Current StarGen usage
+StarGen uses this as part of the FGK occurrence baseline for `planet_occurrence_demographic_scalars`, especially close-in small-planet prevalence and the Sun-like host regime used by `PlanetarySystemState`.
+
+## Human reviewer concern
+Occurrence sources should inform generation rather than remain bibliography-only, but older Petigura eta-Earth values should not override newer reliability-corrected work.
+
+## AI response / disposition
+Kept Petigura2013 as FGK close-in/small-planet context and paired it with Bryson2021 for HZ rocky occurrence. The generator records the occurrence source cluster in planet formation provenance rather than treating Petigura2013 as a complete modern occurrence table.
+
+## Implementation status
+partly implemented
+
+## Follow-up action
+Replace scalar use with a reviewed FGK period-radius occurrence table after Table/Figure values are verified by a human.

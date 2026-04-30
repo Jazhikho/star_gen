@@ -46,6 +46,36 @@ public partial class OrbitSlot : RefCounted
     public double FillProbability = 0.5;
 
     /// <summary>
+    /// Stability or spacing policy used when this slot was generated.
+    /// </summary>
+    public string StabilityPolicyId = OrbitalMechanics.CompactArchitectureSpacingPolicyId;
+
+    /// <summary>
+    /// Source-note identifiers used by the spacing policy.
+    /// </summary>
+    public string StabilitySourceIds = OrbitalMechanics.CompactArchitectureSpacingSourceIds;
+
+    /// <summary>
+    /// Adjacent spacing from the inner slot in mutual Hill radii, if applicable.
+    /// </summary>
+    public double SpacingFromInnerMutualHillRadii;
+
+    /// <summary>
+    /// Orbital period ratio relative to the inner slot, if applicable.
+    /// </summary>
+    public double PeriodRatioFromInner;
+
+    /// <summary>
+    /// Minimum spacing threshold used by the policy, in mutual Hill radii.
+    /// </summary>
+    public double MinimumSpacingMutualHillRadii = OrbitalMechanics.MinimumAdjacentPlanetSpacingMutualHillRadii;
+
+    /// <summary>
+    /// Candidate architecture mass proxy used for the spacing scaffold, in Earth masses.
+    /// </summary>
+    public double SpacingMassProxyEarthMasses;
+
+    /// <summary>
     /// Whether the slot is already filled.
     /// </summary>
     public bool IsFilled;
@@ -121,6 +151,12 @@ public partial class OrbitSlot : RefCounted
             ["zone"] = OrbitZone.ToStringName(Zone).ToLowerInvariant(),
             ["is_stable"] = IsStable,
             ["fill_probability"] = FillProbability,
+            ["stability_policy_id"] = StabilityPolicyId,
+            ["stability_source_ids"] = StabilitySourceIds,
+            ["spacing_from_inner_mutual_hill_radii"] = SpacingFromInnerMutualHillRadii,
+            ["period_ratio_from_inner"] = PeriodRatioFromInner,
+            ["minimum_spacing_mutual_hill_radii"] = MinimumSpacingMutualHillRadii,
+            ["spacing_mass_proxy_earth_masses"] = SpacingMassProxyEarthMasses,
             ["is_filled"] = IsFilled,
             ["planet_id"] = PlanetId,
         };
@@ -149,6 +185,12 @@ public partial class OrbitSlot : RefCounted
 
         slot.IsStable = GetBool(data, "is_stable", true);
         slot.FillProbability = GetDouble(data, "fill_probability", 0.5);
+        slot.StabilityPolicyId = GetString(data, "stability_policy_id", OrbitalMechanics.CompactArchitectureSpacingPolicyId);
+        slot.StabilitySourceIds = GetString(data, "stability_source_ids", OrbitalMechanics.CompactArchitectureSpacingSourceIds);
+        slot.SpacingFromInnerMutualHillRadii = GetDouble(data, "spacing_from_inner_mutual_hill_radii", 0.0);
+        slot.PeriodRatioFromInner = GetDouble(data, "period_ratio_from_inner", 0.0);
+        slot.MinimumSpacingMutualHillRadii = GetDouble(data, "minimum_spacing_mutual_hill_radii", OrbitalMechanics.MinimumAdjacentPlanetSpacingMutualHillRadii);
+        slot.SpacingMassProxyEarthMasses = GetDouble(data, "spacing_mass_proxy_earth_masses", 0.0);
         slot.IsFilled = GetBool(data, "is_filled", false);
         slot.PlanetId = GetString(data, "planet_id", string.Empty);
         return slot;

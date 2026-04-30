@@ -1,12 +1,19 @@
 # Version
 
-Current version: `0.9.3.0`
+Current version: `0.9.4.0`
 
 Current user-facing version: `0.9d` by default, `0.9e` for the export/save-enabled edition
 
-Date: `2026-04-28`
+Date: `2026-04-30`
 
 Versioning method: release/refactor `+0.1`, feature `+0.0.1`, bug fix `+0.0.0.1`, save-breaking release `+1.0`.
+
+## 0.9.4.0
+
+- Feature: Retooled orbital-spacing generation around exact mutual-Hill separation inversion and architecture-specific mass proxies, replacing the previous all-Jupiter spacing proxy that over-pruned compact systems around higher-mass hosts.
+- Feature: Added source-grounded mass-radius, radius-valley, and occurrence-demographic tightening for reviewed planetary sources, including explicit provenance for active source IDs, host occurrence regimes, demographic scalars, and implementation status.
+- Docs: Added the source-utilization plan and refreshed source notes, bibliography, science audit, project structure, and AI provenance for the source-grounding cleanup.
+- Test: Added and updated native regressions for orbital spacing, orbit-slot serialization/provenance, mass-radius uncertainty, occurrence scalars, and source-quality traceability; revalidated with `dotnet build .\StarGen.sln` and the full Godot headless harness.
 
 ## 0.9.3.0
 

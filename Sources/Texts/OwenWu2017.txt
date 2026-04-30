@@ -81,3 +81,18 @@ Gap location and slope are definitive predictions of XUV-driven atmospheric esca
 **User lever:** `RadiusGapMechanism` selector (competing model: Ginzburg2018).
 **Cross-references:** Ginzburg2018.txt, VanEylen2018Ast.txt, FultonPetigura2018CKS.txt,
 OwenSchlichting2023Followup.txt.
+
+## Current StarGen usage
+StarGen now uses Owen and Wu's photoevaporation branch as a distinct envelope-loss mechanism. In the photoevaporation profile, the radius-valley center scales with orbital period using a negative slope, close-in loss pressure depends on the stellar XUV activity proxy, and hot close-in planets are more strongly pushed toward stripped envelopes and stripped-core class bias.
+
+## Human reviewer concern
+The source was previously named in comments and profile options, but the generator did not clearly separate the Owen-Wu mechanism from the Ginzburg core-powered mechanism or expose its period-slope implication in tests/provenance.
+
+## AI response / disposition
+Implemented model-specific helpers in `PlanetarySystemState`: orbital period, radius-valley center, loss pressure, and radius-valley regime membership. Added tests proving the photoevaporation branch has the expected negative period slope and that generated planets record the selected mechanism in provenance.
+
+## Implementation status
+partly implemented
+
+## Follow-up action
+Replace the current StarGen-tuned pressure proxy with a reviewed atmospheric-escape model or table, including initial H/He envelope fraction, core mass/composition, early high-energy luminosity history, and the paper's limitations beyond roughly 30-60 day bare planets.

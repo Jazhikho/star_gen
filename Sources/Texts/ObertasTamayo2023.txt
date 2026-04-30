@@ -67,3 +67,18 @@ superseded. Flag updates in Followup.md.)*
 ## StarGen mechanics translation
 
 *(Already handled above in the planetary stability section.)*
+
+## Current StarGen usage
+StarGen does not currently implement the Obertas and Tamayo 2023 dynamical-packing or ML-assisted stability framing. The current pass records adjacent slot spacing diagnostics only.
+
+## Human reviewer concern
+The source was grouped with orbital-stability materials, but no active code path previously distinguished reviewed stability models from future ML/dynamical-packing work.
+
+## AI response / disposition
+Marked this source as underutilized and did not use it to justify the current fixed mutual-Hill threshold. The added provenance gives future work a place to record packing policy and classifier status.
+
+## Implementation status
+underutilized
+
+## Follow-up action
+After human verification, decide whether StarGen should use this as a dynamical-packing prior, an unseen-planet search heuristic, or a validation classifier. Add tests only once that role is chosen.

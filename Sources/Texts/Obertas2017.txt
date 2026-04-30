@@ -48,3 +48,18 @@ superseded. Flag updates in Followup.md.)*
 ## StarGen mechanics translation
 
 *(Already handled above in the planetary stability section.)*
+
+## Current StarGen usage
+StarGen now exposes the active adjacent-slot spacing rule as `stargen_architecture_mass_proxy_mutual_hill_v2`, uses an exact adjacent-pair mutual-Hill spacing inversion for candidate slot scaffolding, and records the generated separation in mutual Hill radii. `Obertas2017` supports the broad framing that compact multi-planet stability time depends strongly on separation measured in mutual Hill radii and that resonances can modulate survival time.
+
+## Human reviewer concern
+The prior implementation used a fixed `10 mutual Hill radii` spacing rule without recording the policy or showing how generated slots related to the source-backed mutual-Hill stability literature.
+
+## AI response / disposition
+Added mutual-Hill radius and separation diagnostics using the adjacent-pair average-orbit formula, recorded the active policy/source IDs on slots, and propagated those diagnostics into planet formation provenance. After the first exact-spacing attempt exposed that the old Jupiter/Jupiter scaffold was over-constraining slot density, the generator was retuned to use compact, transition, and giant architecture mass proxies before planets are assigned. This remains a deterministic StarGen policy, not a full Obertas stability-time fit.
+
+## Implementation status
+partly implemented
+
+## Follow-up action
+Replace the proxy policy with a reviewed stability-time or acceptance-probability model that accounts for multiplicity, resonance proximity, actual planet-mass distribution, eccentricity, and intended survival timescale.

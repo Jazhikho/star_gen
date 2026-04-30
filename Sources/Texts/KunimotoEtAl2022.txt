@@ -55,3 +55,18 @@ and extends to brighter stars. Broadly consistent with Petigura2013/Fulton2017.
 - Use as alternative or cross-check occurrence table for P < 50 days.
 - `OccurrenceRateSource` enum: `Petigura2013` | `KunimotoEtAl2022` | `BergstenEtAl2023`
 **Cross-references:** Petigura2013.txt, Fulton2017.txt, BergstenEtAl2023.txt.
+
+## Current StarGen usage
+No active generator behavior is attributed to KunimotoEtAl2022 in this pass.
+
+## Human reviewer concern
+The source note metadata and abstract appear internally inconsistent: the domain says M-dwarf/TESS, while the abstract text describes FGK close-in super-Earth/sub-Neptune occurrence and a stellar-mass-dependent transition period.
+
+## AI response / disposition
+Marked the source as underutilized pending bibliographic and PDF reconciliation. The current occurrence implementation relies on Petigura2013, Bryson2021, BergstenEtAl2023, MentCharbonneau2023, CuiEtAl2026, and GillisEtAl2026 instead.
+
+## Implementation status
+underutilized
+
+## Follow-up action
+Verify the title, author list, target stellar population, and key equations against the PDF before using the transition-period model or exact occurrence rates in generation.

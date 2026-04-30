@@ -51,3 +51,18 @@ superseded. Flag updates in Followup.md.)*
 Flagged as potentially off-topic.
 **StarGen:** No mechanics encoded. Verify before use.
 **Cross-references:** ResearchAuditSummary.md.
+
+## Current StarGen usage
+No active generator behavior uses this source.
+
+## Human reviewer concern
+The source was included in the orbital-stability batch, but the note itself flags it as potentially off-topic or needing verification before use.
+
+## AI response / disposition
+Kept this source out of the active spacing policy and marked it documentation-only pending human verification.
+
+## Implementation status
+documentation-only
+
+## Follow-up action
+Verify whether this PDF should remain in the orbital-stability corpus. If it is retained, replace the current off-topic note with a reviewed mechanics summary before using it in generation.

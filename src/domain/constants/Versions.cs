@@ -8,7 +8,7 @@ public static class Versions
     /// <summary>
     /// Current generator version. Increment when generation output changes.
     /// </summary>
-    public const string GeneratorVersion = "0.2.2";
+    public const string GeneratorVersion = "0.2.3";
 
     /// <summary>
     /// Current schema version. Increment when serialization has breaking changes.

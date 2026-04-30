@@ -35,9 +35,7 @@ star_gen/
 |   `-- Migrations/
 |-- Sources/
 |   |-- AnnotatedBibliography.md
-|   |-- SourceRecencyGapClosurePlan.md
-|   |-- ToReview.md
-|   |-- WorkstreamB_ExoplanetDemographicsSources.md
+|   |-- SourceUtilizationPlan.md
 |   `-- Texts/
 |-- Resources/
 |   `-- Audio/
@@ -100,8 +98,7 @@ star_gen/
 
 ## Recent Major Additions
 
-- `Sources/SourceRecencyGapClosurePlan.md`: phased plan to close bibliography recency and coverage gaps (exoplanet demographics, habitability, atmospheres, moons, small bodies, galaxy, stability, planet-conditioned sentient populations / technology, and astrobiology including non-sentient biospheres and alternative biochemistry) with human-review gates and wiring into `AnnotatedBibliography.md`, audits, and tests.
-- `Sources/WorkstreamB_ExoplanetDemographicsSources.md`: 2026-04-26 literature pass for Workstream B (TESS/Gaia-era FGK close-in occurrence; three competing M-dwarf demographic lines; optional TESS–Keck outer-giant correlation); draft `Texts/CuiEtAl2026.txt`, `MentCharbonneau2023.txt`, `WanderleyEtAl2025.txt`, `GillisEtAl2026.txt`, `VanZandtEtAl2025.txt` plus local arXiv PDFs now track the batch pending human verification.
+- `Sources/SourceUtilizationPlan.md`: source-to-generator implementation plan for using reviewed sources to inform active generation behavior. It records the current completed slices, the per-source workflow, and the next priority queue, with orbital architecture/stability identified as the next recommended implementation target.
 - `src/app/audio/AppAudioController.cs`: shared app-level audio controller that owns reusable music and UI players so startup/menu/UI playback uses explicit exported resources instead of ad hoc runtime file scans.
 - `src/app/audio/AppAudioLibrary.cs`: global-class resource declaring the application's shared music and UI cue streams and their default playback volumes.
 - `src/app/audio/AppAudioCueId.cs`: stable cue identifiers used by the controller and callers such as the splash screen.

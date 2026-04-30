@@ -1273,6 +1273,15 @@ public static partial class DotNetNativeTestSuite
             "TestOrbitalMechanics::test_calculate_minimum_planet_spacing",
             Tests.Unit.TestOrbitalMechanics.TestCalculateMinimumPlanetSpacing);
         runner.RunNativeTest(
+            "TestOrbitalMechanics::test_calculate_outer_orbit_for_mutual_hill_separation",
+            Tests.Unit.TestOrbitalMechanics.TestCalculateOuterOrbitForMutualHillSeparation);
+        runner.RunNativeTest(
+            "TestOrbitalMechanics::test_mutual_hill_spacing_diagnostics",
+            Tests.Unit.TestOrbitalMechanics.TestMutualHillSpacingDiagnostics);
+        runner.RunNativeTest(
+            "TestOrbitalMechanics::test_compact_architecture_period_ratio_band",
+            Tests.Unit.TestOrbitalMechanics.TestCompactArchitecturePeriodRatioBand);
+        runner.RunNativeTest(
             "TestOrbitalMechanics::test_is_orbit_stable_no_companions",
             Tests.Unit.TestOrbitalMechanics.TestIsOrbitStableNoCompanions);
         runner.RunNativeTest(
@@ -1461,6 +1470,15 @@ public static partial class DotNetNativeTestSuite
         runner.RunNativeTest(
             "TestOrbitSlotGenerator::test_minimum_spacing",
             Tests.Unit.TestOrbitSlotGenerator.TestMinimumSpacing);
+        runner.RunNativeTest(
+            "TestOrbitSlotGenerator::test_spacing_policy_diagnostics",
+            Tests.Unit.TestOrbitSlotGenerator.TestSpacingPolicyDiagnostics);
+        runner.RunNativeTest(
+            "TestOrbitSlotGenerator::test_architecture_spacing_mass_proxy_by_region",
+            Tests.Unit.TestOrbitSlotGenerator.TestArchitectureSpacingMassProxyByRegion);
+        runner.RunNativeTest(
+            "TestOrbitSlotGenerator::test_retuned_spacing_preserves_solar_reference_capacity",
+            Tests.Unit.TestOrbitSlotGenerator.TestRetunedSpacingPreservesSolarReferenceCapacity);
         runner.RunNativeTest(
             "TestOrbitSlotGenerator::test_star_radius_safety",
             Tests.Unit.TestOrbitSlotGenerator.TestStarRadiusSafety);
@@ -2452,6 +2470,9 @@ public static partial class DotNetNativeTestSuite
             "TestSystemPlanetGenerator::test_host_mass_adjustments_change_disk_and_solid_priors",
             Tests.Unit.TestSystemPlanetGenerator.TestHostMassAdjustmentsChangeDiskAndSolidPriors);
         runner.RunNativeTest(
+            "TestSystemPlanetGenerator::test_host_occurrence_regime_adjusts_demographic_scalars",
+            Tests.Unit.TestSystemPlanetGenerator.TestHostOccurrenceRegimeAdjustsDemographicScalars);
+        runner.RunNativeTest(
             "TestSystemPlanetGenerator::test_snow_line_giant_formation_weight_turns_over_outside_peak",
             Tests.Unit.TestSystemPlanetGenerator.TestSnowLineGiantFormationWeightTurnsOverOutsidePeak);
         runner.RunNativeTest(
@@ -2463,6 +2484,18 @@ public static partial class DotNetNativeTestSuite
         runner.RunNativeTest(
             "TestSystemPlanetGenerator::test_mass_radius_models_change_transition_world_scale",
             Tests.Unit.TestSystemPlanetGenerator.TestMassRadiusModelsChangeTransitionWorldScale);
+        runner.RunNativeTest(
+            "TestSystemPlanetGenerator::test_otegi_rocky_branch_stops_at_source_mass_limit",
+            Tests.Unit.TestSystemPlanetGenerator.TestOtegiRockyBranchStopsAtSourceMassLimit);
+        runner.RunNativeTest(
+            "TestSystemPlanetGenerator::test_otegi_seeded_uncertainty_sampling_is_deterministic_and_active",
+            Tests.Unit.TestSystemPlanetGenerator.TestOtegiSeededUncertaintySamplingIsDeterministicAndActive);
+        runner.RunNativeTest(
+            "TestSystemPlanetGenerator::test_chen_kipping_classification_probabilities_track_transition",
+            Tests.Unit.TestSystemPlanetGenerator.TestChenKippingClassificationProbabilitiesTrackTransition);
+        runner.RunNativeTest(
+            "TestSystemPlanetGenerator::test_chen_kipping_seeded_scatter_is_deterministic_and_active",
+            Tests.Unit.TestSystemPlanetGenerator.TestChenKippingSeededScatterIsDeterministicAndActive);
         runner.RunNativeTest(
             "TestSystemPlanetGenerator::test_otegi_falls_back_to_chen_kipping_for_giants",
             Tests.Unit.TestSystemPlanetGenerator.TestOtegiFallsBackToChenKippingForGiants);
@@ -2478,6 +2511,15 @@ public static partial class DotNetNativeTestSuite
         runner.RunNativeTest(
             "TestSystemPlanetGenerator::test_envelope_loss_model_changes_hot_planet_atmospheres",
             Tests.Unit.TestSystemPlanetGenerator.TestEnvelopeLossModelChangesHotPlanetAtmospheres);
+        runner.RunNativeTest(
+            "TestSystemPlanetGenerator::test_radius_valley_mechanisms_have_opposite_period_slopes",
+            Tests.Unit.TestSystemPlanetGenerator.TestRadiusValleyMechanismsHaveOppositePeriodSlopes);
+        runner.RunNativeTest(
+            "TestSystemPlanetGenerator::test_envelope_loss_trace_records_radius_valley_diagnostics",
+            Tests.Unit.TestSystemPlanetGenerator.TestEnvelopeLossTraceRecordsRadiusValleyDiagnostics);
+        runner.RunNativeTest(
+            "TestSystemPlanetGenerator::test_planet_formation_trace_records_slot_stability_policy",
+            Tests.Unit.TestSystemPlanetGenerator.TestPlanetFormationTraceRecordsSlotStabilityPolicy);
         runner.RunNativeTest(
             "TestSystemPlanetGenerator::test_volatile_delivery_changes_watery_rocky_worlds",
             Tests.Unit.TestSystemPlanetGenerator.TestVolatileDeliveryChangesWateryRockyWorlds);

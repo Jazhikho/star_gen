@@ -17,6 +17,28 @@ Use this log for significant AI-assisted artifacts in this repository.
 
 ## Entries
 
+### 2026-04-30 - Codex (GPT-5)
+
+- Task Purpose: Start converting source notes into generator behavior by implementing the first Chen-Kipping mass-radius source slice.
+- Input Materials Used: User request to begin using sources to inform generation; `Sources/Texts/ChenKipping2017.txt`; `Sources/AnnotatedBibliography.md`; `Docs/EndToEndScienceAudit.md`; `src/domain/generation/tables/PlanetMassRadiusTable.cs`; `src/domain/generation/generators/planet/PlanetPhysicalGenerator.cs`; `Tests/Unit/TestSystemPlanetGenerator.cs`; and `Tests/Framework/DotNetNativeTestSuite.cs`.
+- AI Produced: Added seeded Chen-Kipping radius scatter to generated planet physical properties; exposed Terran, Neptunian, and Jovian classification probabilities from the mass-radius resolver; recorded those probabilities and sampled scatter in planet formation traces; added unit coverage for transition probabilities and deterministic seeded scatter; and updated source/audit documentation to mark Chen-Kipping as partly implemented rather than only underutilized.
+- Human Accepted: Pending Christopher B. Del Gesso review.
+- Human Rejected: Treating Chen-Kipping as a complete atmosphere, habitability, volatile-history, formation, photoevaporation, or composition model.
+- Human Changed: The user directed the work away from source bookkeeping and toward source-informed generation behavior.
+- Validation Method: `dotnet build .\StarGen.sln` (`Build succeeded. 0 Warning(s), 0 Error(s).`); `godot-mono.exe --path . --headless --script res://Tests/RunTestsHeadless.gd` first hit the repo's intermittent native finalizer crash after 225 passing tests, then immediate rerun passed (`Total: 1870 | Passed: 1870 | Failed: 0`) with the known Godot shutdown leak/resource warnings.
+- Final Approver: Pending Christopher B. Del Gesso review.
+
+### 2026-04-30 - Codex (GPT-5)
+
+- Task Purpose: Continue the source-to-generator pass through the Otegi et al. (2020) mass-radius model.
+- Input Materials Used: User direction to proceed by source-to-generator priority; `Sources/Texts/Otegi2020.txt`; `Sources/AnnotatedBibliography.md`; `Docs/EndToEndScienceAudit.md`; `src/domain/generation/tables/PlanetMassRadiusTable.cs`; `Tests/Unit/TestSystemPlanetGenerator.cs`; and `Tests/Framework/DotNetNativeTestSuite.cs`.
+- AI Produced: Capped the Otegi rocky branch at the source's approximate 25 Earth-mass rocky-population endpoint, routed above-endpoint cases to the volatile-rich branch, added deterministic seeded sampling of the reported Otegi coefficient/exponent uncertainties, and added regression coverage for endpoint behavior plus seeded uncertainty sampling.
+- Human Accepted: Pending Christopher B. Del Gesso review.
+- Human Rejected: Treating Otegi 2020 as a complete composition, atmosphere, habitability, or formation-history model.
+- Human Changed: The user asked to keep proceeding in the logical source-to-generation order rather than alphabetically.
+- Validation Method: `dotnet build .\StarGen.sln` (`Build succeeded. 0 Warning(s), 0 Error(s).`); `godot-mono.exe --path . --headless --script res://Tests/RunTestsHeadless.gd` (`Total: 1872 | Passed: 1872 | Failed: 0`) with the known Godot shutdown leak/resource warnings.
+- Final Approver: Pending Christopher B. Del Gesso review.
+
 ### 2026-04-26 - Cursor agent — Bains2004 / BainsEtAl2024 source corpus notes
 
 - Task Purpose: Complete `Sources/Texts` workflow sections for Bains (2004) follow-up linkage and for Bains, Petkowski & Seager (2024) solvent-framework paper; align `AnnotatedBibliography.md` and `Followup.md` with verified PDF title/DOI.
@@ -1565,4 +1587,59 @@ Use this log for significant AI-assisted artifacts in this repository.
 - Human Rejected: The implementation does not claim final acceptance of social-science/culture/governance conclusions; those outputs remain human-audit-required release claims.
 - Human Changed: The user clarified that citation updates must propagate into tooltips, the overall help file/help panels, and anywhere sources are listed, and later clarified that already cited sources missing from `Sources/` usually indicate an acquisition failure rather than an uncatalogued source.
 - Validation Method: `dotnet build StarGen.sln` passed. `godot-mono.exe --path . --headless --script res://Tests/RunTestsHeadless.gd` passed (`Total: 1868 | Passed: 1868 | Failed: 0`), with Godot shutdown leak warnings after the green test report.
+- Final Approver: Pending Christopher B. Del Gesso review.
+
+### 2026-04-30 - Codex (GPT-5)
+
+- Task Purpose: Continue the logical source-utilization pass by moving the active atmosphere/envelope-loss sources from broad citation support into explicit generation behavior and provenance.
+- Input Materials Used: User direction to keep going source-by-source toward actual generator use; repo `claude.md`; user-supplied AGENTS instructions; `Sources/Texts/Fulton2017.txt`; `Sources/Texts/OwenWu2017.txt`; `Sources/Texts/Ginzburg2018.txt`; `Sources/AnnotatedBibliography.md`; `Docs/EndToEndScienceAudit.md`; `src/domain/generation/PlanetarySystemState.cs`; `src/domain/system/SystemPlanetGenerator.cs`; `Tests/Unit/TestSystemPlanetGenerator.cs`; and `Tests/Framework/DotNetNativeTestSuite.cs`.
+- AI Produced: Added source-backed radius-valley helpers for orbital period, mechanism-specific valley center, loss pressure, and regime membership; wired system planet weighting and formation provenance to those helpers; distinguished Owen-Wu photoevaporation from Ginzburg core-powered mass loss with opposite period slopes and different pressure drivers; added provenance fields for Fulton/Owen/Ginzburg diagnostics; and updated source notes, bibliography annotations, and the science audit.
+- Human Accepted: Pending user review of the new radius-valley implementation and source-note dispositions.
+- Human Rejected: No full atmospheric-escape solver, occurrence-rate sampler, or broad generator retuning was implemented in this pass; those remain follow-up tasks requiring human review of exact source tables and later literature.
+- Human Changed: The user clarified that the goal is not just source cleanup but using sources to inform generation, and approved proceeding in a logical order rather than alphabetical order.
+- Validation Method: `dotnet build .\StarGen.sln` passed with 0 warnings and 0 errors. `godot-mono.exe --path . --headless --script res://Tests/RunTestsHeadless.gd` passed (`Total: 1874 | Passed: 1874 | Failed: 0`), with the known Godot shutdown leak warnings after the green test report.
+- Final Approver: Pending Christopher B. Del Gesso review.
+
+### 2026-04-30 - Codex (GPT-5)
+
+- Task Purpose: Add a dedicated source-folder plan for continuing the source-to-generator utilization pass after confirming no current plan file exists in `Sources/`.
+- Input Materials Used: User request for the next-step plan; repo `claude.md`; user-supplied AGENTS instructions; current `Sources/` folder inventory; `Sources/AnnotatedBibliography.md`; `Docs/EndToEndScienceAudit.md`; `Docs/ProjectStructure.md`; and the source-to-generator work completed so far for Chen-Kipping, Otegi, Fulton, Owen-Wu, and Ginzburg.
+- AI Produced: Added `Sources/SourceUtilizationPlan.md` with working rules, per-source workflow, completed source-to-generator slices, a prioritized next-work queue, and the immediate recommendation to tackle orbital architecture/stability next. Updated `Docs/ProjectStructure.md` to list the actual source-plan file and remove stale top-level source-plan entries from the tree.
+- Human Accepted: Pending user review of the proposed source-utilization order and next target.
+- Human Rejected: No generator changes were made in this planning pass.
+- Human Changed: The user asked to lay out the plan specifically if no plan existed in the `Sources` folder.
+- Validation Method: Documentation-only update; no build or headless test run was required.
+- Final Approver: Pending Christopher B. Del Gesso review.
+
+### 2026-04-30 - Codex (GPT-5)
+
+- Task Purpose: Implement the first orbital architecture/stability source-utilization slice without broadly retuning system generation.
+- Input Materials Used: User approval to proceed from `Sources/SourceUtilizationPlan.md`; repo `claude.md`; user-supplied AGENTS instructions; source notes for `HeEtAl2020`, `FangMargot2013`, `Obertas2017`, `Petit2018`, `Petit2020`, `Tamayo2020`, `Laskar2017`, `Rice2023`, `Outland2020`, and `ObertasTamayo2023`; `Sources/AnnotatedBibliography.md`; `Docs/EndToEndScienceAudit.md`; `Sources/SourceUtilizationPlan.md`; `src/domain/system/OrbitalMechanics.Stability.cs`; `OrbitSlot.cs`; `OrbitSlotGenerator.cs`; `SystemPlanetGenerator.cs`; and the orbit/system test suites.
+- AI Produced: Added a named compact mutual-Hill spacing policy with source IDs, mutual-Hill/period-ratio diagnostic helpers, slot serialization fields for stability policy/source/spacing diagnostics, planet formation-trace propagation for slot stability provenance, focused unit tests, updated source-note dispositions, bibliography/audit updates, and plan updates marking AMD/SPOCK/inclination filters as follow-up rather than implemented.
+- Human Accepted: Pending user review of the stability-policy provenance approach.
+- Human Rejected: A broader retune that changed slot density by switching the generator's minimum-spacing behavior to an exact average-orbit mutual-Hill threshold; the Solar reference chain showed that would be too large for this pass.
+- Human Changed: The user approved starting the next logical source-utilization target from the plan.
+- Validation Method: `dotnet build .\StarGen.sln` passed with 0 warnings and 0 errors. `godot-mono.exe --path . --headless --script res://Tests/RunTestsHeadless.gd` passed (`Total: 1878 | Passed: 1878 | Failed: 0`), with the known Godot shutdown leak warnings after the green test report.
+- Final Approver: Pending Christopher B. Del Gesso review.
+
+### 2026-04-30 - Codex (GPT-5)
+
+- Task Purpose: Branch and retune the orbital-slot spacing process after source review exposed that replacing the old spacing approximation with exact mutual-Hill spacing while keeping an all-Jupiter candidate scaffold over-constrained Solar-system-like slot density.
+- Input Materials Used: User direction to branch process-level fixes before merging; repo `claude.md`; user-supplied AGENTS instructions; `Sources/Texts/Obertas2017.txt`; `Sources/Texts/Rice2023.txt`; `Sources/Texts/HeEtAl2020.txt`; `Docs/Roadmap.md`; `Docs/EndToEndScienceAudit.md`; `Sources/AnnotatedBibliography.md`; `Sources/SourceUtilizationPlan.md`; `src/domain/system/OrbitalMechanics.Stability.cs`; `src/domain/system/OrbitSlot.cs`; `src/domain/system/OrbitSlotGenerator.cs`; `src/domain/system/SystemPlanetGenerator.cs`; `Tests/Unit/TestOrbitalMechanics.cs`; `Tests/Unit/TestOrbitSlot.cs`; `Tests/Unit/TestOrbitSlotGenerator.cs`; `Tests/Unit/TestSystemPlanetGenerator.cs`; and `Tests/Framework/DotNetNativeTestSuite.cs`.
+- AI Produced: Created branch `codex/orbital-spacing-retool`; replaced the prior all-Jupiter candidate-slot scaffold with compact, transition, and giant architecture mass proxies; added exact mutual-Hill spacing inversion for candidate slot advancement; preserved slot and planet provenance for policy/source IDs, period ratio, spacing threshold, and mass proxy; added regression coverage for exact inversion, mass-proxy selection, Solar scaffold capacity, serialization, and formation trace propagation; and updated source notes, bibliography annotations, science audit, and the source-utilization plan.
+- Human Accepted: The user accepted treating the earlier orbital-spacing catch as a process defect requiring a branch, retune, and tests before merge.
+- Human Rejected: The user rejected leaving the problem as provenance-only once it was clear the spacing process itself was wrong.
+- Human Changed: The user set the rule that future source-review catches exposing broken generation processes should be handled on a branch with process correction and validation before merging back.
+- Validation Method: `dotnet build .\StarGen.sln` passed with 0 warnings and 0 errors. `godot-mono.exe --path . --headless --script res://Tests/RunTestsHeadless.gd` passed (`Total: 1881 | Passed: 1881 | Failed: 0`), with the known Godot shutdown leak warnings after the green test report.
+- Final Approver: Pending Christopher B. Del Gesso review.
+
+### 2026-04-30 - Codex (GPT-5)
+
+- Task Purpose: Continue the source-to-generator utilization pass with planet occurrence and architecture demographics after the orbital spacing retune remained functional.
+- Input Materials Used: User approval to continue; repo `claude.md`; user-supplied AGENTS instructions; `Sources/SourceUtilizationPlan.md`; source notes for `Petigura2013`, `Bryson2021`, `BergstenEtAl2023`, `KunimotoEtAl2022`, `MentCharbonneau2023`, `CuiEtAl2026`, `GillisEtAl2026`, `WanderleyEtAl2025`, and `VanZandtEtAl2025`; `Sources/AnnotatedBibliography.md`; `Docs/EndToEndScienceAudit.md`; `src/domain/generation/PlanetarySystemState.cs`; `src/domain/system/SystemPlanetGenerator.cs`; planetary science reference/tuning/acquisition registries; and the system/planet tests.
+- AI Produced: Added host occurrence regimes and demographic scalars to `PlanetarySystemState`; wired close-in small-planet, HZ rocky, sub-Neptune, and hot-giant occurrence scalars into slot fill and size-class weighting; recorded occurrence source IDs/regime/scalars in generated planet formation provenance; added science registry/acquisition metadata; updated source-note dispositions, bibliography annotations, the source-utilization plan, and the end-to-end audit; and added/updated focused tests for state round-trip, host-regime scalar selection, and provenance.
+- Human Accepted: Pending review of the conservative scalar approach and the decision to avoid an M-dwarf HZ rocky surplus.
+- Human Rejected: Did not implement full period-radius occurrence tables, Kunimoto transition-period modeling, Wanderley/Gillis M-dwarf radius-gap replacement, or Van Zandt conditional outer-giant architecture in this pass because those require human metadata reconciliation or a larger process branch.
+- Human Changed: The user observed that generation still appeared functional after the orbital spacing retune and approved continuing the source-utilization sequence.
+- Validation Method: `dotnet build .\StarGen.sln` passed with 0 warnings and 0 errors. `godot-mono.exe --path . --headless --script res://Tests/RunTestsHeadless.gd` passed (`Total: 1882 | Passed: 1882 | Failed: 0`), with the known Godot shutdown leak warnings after the green test report.
 - Final Approver: Pending Christopher B. Del Gesso review.

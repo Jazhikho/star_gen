@@ -80,3 +80,18 @@ gap location as photoevaporation but different slope and stellar-age dependence.
 **User lever:** `RadiusGapMechanism` selector (competing model: OwenWu2017).
 **Cross-references:** OwenWu2017.txt, GuptaSchlichting2020Followup.txt,
 OwenSchlichting2023Followup.txt, Berger2020Gaia.txt.
+
+## Current StarGen usage
+StarGen now uses Ginzburg, Schlichting, and Sari's core-powered mass-loss branch as a distinct envelope-loss mechanism. In the core-powered profile, the radius-valley center scales with orbital period using a positive slope, close-in loss pressure depends on bolometric flux rather than the XUV activity proxy, and hot planets are biased toward thin envelopes/rockier outcomes rather than the stronger stripped-envelope behavior used for the photoevaporation branch.
+
+## Human reviewer concern
+The source was previously listed as the competing mechanism, but the implementation did not encode the key diagnostic difference from photoevaporation: opposite radius-valley period slope and bolometric-flux dependence.
+
+## AI response / disposition
+Implemented model-specific radius-valley helpers in `PlanetarySystemState`, wired the system planet generator to those helpers, and added tests proving the core-powered branch has the expected positive period slope while photoevaporation has the negative slope.
+
+## Implementation status
+partly implemented
+
+## Follow-up action
+Add age-dependent evolution of the super-Earth/sub-Neptune ratio and reviewed metallicity/radius effects after the follow-up sources in this note are verified. Current behavior is a deterministic StarGen proxy, not a full population-evolution model.

@@ -154,3 +154,18 @@ inner system habitability. This rate calibrates the criterion 3 failure probabil
 
 **Cross-references:** GillisEtAl2026.txt (M-dwarf rates), VanZandtEtAl2025.txt (outer
 giants), TanakaTakeuchiWard2002.txt (migration), ForganRice2010.txt (Good Jupiter gate).
+
+## Current StarGen usage
+StarGen uses CuiEtAl2026 in the FGK close-in demographic scalar cluster. The active implementation suppresses close-in FGK gas-giant weighting relative to older hot-Jupiter expectations and records the source cluster in planet formation provenance.
+
+## Human reviewer concern
+The note includes precise TESS-era rates, but the current generator does not yet have a period-radius occurrence table or a hot-Jupiter formation event model.
+
+## AI response / disposition
+Implemented only a conservative close-in hot-giant scalar and provenance hook. Did not implement the 10x10 occurrence table, a Neptunian desert survivor flag, or a full hot-Jupiter migration pathway in this pass.
+
+## Implementation status
+partly implemented
+
+## Follow-up action
+Human-verify the paper metadata and bin table, then add a proper close-in FGK period-radius occurrence sampler and explicit Neptunian-desert survivor handling.

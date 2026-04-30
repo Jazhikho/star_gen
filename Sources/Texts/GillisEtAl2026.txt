@@ -180,3 +180,18 @@ and unable to sustain complex life — but may support microbial life in subsurf
 
 **Cross-references:** SolizWelsh2026.txt (PAR/GOE gate), LugerBarnes2015.txt (XUV),
 Ribas2015.txt (XUV evolution), ForganRice2010.txt (habitable planet criteria).
+
+## Current StarGen usage
+StarGen uses GillisEtAl2026 for the mid-to-late M dwarf demographic scalar cluster. Mid-to-late M systems receive stronger close-in small-planet pressure, suppressed close-in sub-Neptune weighting, and stronger close-in hot-giant suppression. These values are recorded in `PlanetarySystemState` and planet formation provenance.
+
+## Human reviewer concern
+The source should affect M-dwarf generation, but its P < 30 day scope and draft metadata mean it should not be treated as a complete HZ occurrence model.
+
+## AI response / disposition
+Implemented the close-in demographic direction only. Did not disable the radius valley globally, force water-world composition, or change HZ rocky occurrence based on Gillis alone.
+
+## Implementation status
+partly implemented
+
+## Follow-up action
+After human metadata verification, implement an explicit M-dwarf radius-distribution/composition mode and decide how it interacts with WanderleyEtAl2025 and existing radius-valley sources.

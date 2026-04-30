@@ -77,3 +77,18 @@ Occurrence rates by planet size and period for M0–M4 stars.
   - η_Earth (M-dwarf, conservative HZ): ~0.15–0.25 per star
 - Apply M-dwarf-specific occurrence when stellar_type == M.
 **Cross-references:** Petigura2013.txt, WanderleyEtAl2025.txt, LugerBarnes2015.txt.
+
+## Current StarGen usage
+StarGen uses this source as part of the mid-to-late M dwarf close-in demographic regime: close-in small-planet fill pressure is increased, while sub-Neptune and hot-giant weights are suppressed.
+
+## Human reviewer concern
+The mechanics translation claims M-dwarf eta-Earth is substantially higher than FGK, which conflicts with BergstenEtAl2023 for HZ Earth-size planets.
+
+## AI response / disposition
+Used MentCharbonneau2023 only for close-in mid-to-late M dwarf terrestrial abundance and sub-Neptune scarcity. Did not use it to boost M-dwarf habitable-zone rocky occurrence over FGK.
+
+## Implementation status
+partly implemented
+
+## Follow-up action
+Separate close-in terrestrial occurrence from HZ eta-Earth in future UI/source tables; verify period and radius bins before using exact rates.

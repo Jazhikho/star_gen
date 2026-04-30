@@ -180,3 +180,18 @@ on the inner planet count and set its eccentricity to match the dynamically cool
 
 **Cross-references:** ForganRice2010.txt (Good Jupiter criterion), CuiEtAl2026.txt (hot
 Jupiter rate), TanakaTakeuchiWard2002.txt (migration model).
+
+## Current StarGen usage
+No active outer-giant conditional occurrence behavior is implemented from VanZandtEtAl2025 yet.
+
+## Human reviewer concern
+Outer giants should eventually be conditioned on the presence and multiplicity of inner small planets, but that requires a process change because current class selection is mostly local to each slot.
+
+## AI response / disposition
+Marked the source as underutilized in this pass. The current implementation records and uses host-demographic scalar hooks, but does not yet add a post-inner-system outer-giant architecture pass.
+
+## Implementation status
+underutilized
+
+## Follow-up action
+Branch a dedicated outer-giant architecture retool: generate or score inner small systems first, then condition 1-10 AU giant placement and eccentricity on the resulting architecture.

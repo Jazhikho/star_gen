@@ -188,6 +188,12 @@ public static class TestOrbitSlot
         original.Zone = OrbitZone.Zone.Cold;
         original.IsStable = true;
         original.FillProbability = 0.75;
+        original.StabilityPolicyId = "test_policy";
+        original.StabilitySourceIds = "SourceA;SourceB";
+        original.SpacingFromInnerMutualHillRadii = 12.5;
+        original.PeriodRatioFromInner = 1.62;
+        original.MinimumSpacingMutualHillRadii = 10.0;
+        original.SpacingMassProxyEarthMasses = 5.0;
         original.FillWithPlanet("planet_99");
 
         Godot.Collections.Dictionary data = original.ToDictionary();
@@ -220,6 +226,30 @@ public static class TestOrbitSlot
         if (System.Math.Abs(restored.FillProbability - original.FillProbability) > DefaultTolerance)
         {
             throw new InvalidOperationException("Fill probability should match");
+        }
+        if (restored.StabilityPolicyId != original.StabilityPolicyId)
+        {
+            throw new InvalidOperationException("Stability policy should match");
+        }
+        if (restored.StabilitySourceIds != original.StabilitySourceIds)
+        {
+            throw new InvalidOperationException("Stability sources should match");
+        }
+        if (System.Math.Abs(restored.SpacingFromInnerMutualHillRadii - original.SpacingFromInnerMutualHillRadii) > DefaultTolerance)
+        {
+            throw new InvalidOperationException("Mutual Hill spacing diagnostic should match");
+        }
+        if (System.Math.Abs(restored.PeriodRatioFromInner - original.PeriodRatioFromInner) > DefaultTolerance)
+        {
+            throw new InvalidOperationException("Period ratio diagnostic should match");
+        }
+        if (System.Math.Abs(restored.MinimumSpacingMutualHillRadii - original.MinimumSpacingMutualHillRadii) > DefaultTolerance)
+        {
+            throw new InvalidOperationException("Minimum mutual Hill spacing should match");
+        }
+        if (System.Math.Abs(restored.SpacingMassProxyEarthMasses - original.SpacingMassProxyEarthMasses) > DefaultTolerance)
+        {
+            throw new InvalidOperationException("Spacing mass proxy should match");
         }
         if (restored.IsFilled != original.IsFilled)
         {

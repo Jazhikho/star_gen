@@ -40,6 +40,21 @@ public static class OrbitSlotGenerator
     public const double StarRadiusSafetyMargin = 3.0;
 
     /// <summary>
+    /// Compact inner-system architecture mass proxy in Earth masses.
+    /// </summary>
+    public const double CompactArchitectureMassProxyEarthMasses = 5.0;
+
+    /// <summary>
+    /// Transitional ice-core architecture mass proxy in Earth masses.
+    /// </summary>
+    public const double TransitionalArchitectureMassProxyEarthMasses = 17.0;
+
+    /// <summary>
+    /// Outer giant-system architecture mass proxy in Earth masses.
+    /// </summary>
+    public const double GiantArchitectureMassProxyEarthMasses = 95.0;
+
+    /// <summary>
     /// Generates orbit slots for a single orbit host.
     /// </summary>
     public static OrbitSlotGenerationResult GenerateForHost(
@@ -67,6 +82,7 @@ public static class OrbitSlotGenerator
         double startingDistance = System.Math.Max(innerLimit, minSafeDistance);
         double firstOrbitFactor = rng.RandfRange(1.05f, 1.2f);
         double currentDistance = startingDistance * firstOrbitFactor;
+        double previousDistance = 0.0;
         Array<double> resonanceRatios = OrbitalMechanics.GetCommonResonanceRatios();
 
         while (currentDistance < outerLimit && slotIndex < MaxSlotsPerHost)
@@ -79,6 +95,7 @@ public static class OrbitSlotGenerator
             slot.SuggestedEccentricity = CalculateSuggestedEccentricity(currentDistance, host, rng);
             slot.IsStable = CheckSlotStability(currentDistance, host, companionPositionsM, companionMassesKg);
             slot.FillProbability = CalculateFillProbability(currentDistance, host);
+            ApplySpacingDiagnostics(slot, previousDistance, currentDistance, host);
             slots.Add(slot);
             slotIndex += 1;
 
@@ -91,17 +108,22 @@ public static class OrbitSlotGenerator
                 rng);
 
             double minSpacingFraction = currentDistance * MinSpacingFactor;
+            double spacingMassProxyEarthMasses = CalculateSpacingMassProxyEarthMasses(currentDistance, host);
+            double spacingMassProxyKg = spacingMassProxyEarthMasses * Units.EarthMassKg;
+            double spacingThresholdMutualHillRadii = CalculateSpacingThresholdMutualHillRadii(spacingMassProxyEarthMasses);
             double minHillSpacingM = OrbitalMechanics.CalculateMinimumPlanetSpacing(
-                Units.JupiterMassKg,
-                Units.JupiterMassKg,
+                spacingMassProxyKg,
+                spacingMassProxyKg,
                 host.CombinedMassKg,
-                currentDistance);
+                currentDistance,
+                spacingThresholdMutualHillRadii);
             double minSpacing = System.Math.Max(minSpacingFraction, minHillSpacingM);
             if (nextDistance - currentDistance < minSpacing)
             {
                 nextDistance = currentDistance + minSpacing;
             }
 
+            previousDistance = currentDistance;
             currentDistance = nextDistance;
         }
 
@@ -453,6 +475,107 @@ public static class OrbitSlotGenerator
         }
 
         return System.Math.Clamp(probability, BaselineFillProbability, 1.0);
+    }
+
+    /// <summary>
+    /// Records the slot-spacing policy and adjacent architecture diagnostics.
+    /// </summary>
+    private static void ApplySpacingDiagnostics(
+        OrbitSlot slot,
+        double previousDistanceM,
+        double currentDistanceM,
+        OrbitHost host)
+    {
+        slot.StabilityPolicyId = OrbitalMechanics.CompactArchitectureSpacingPolicyId;
+        slot.StabilitySourceIds = OrbitalMechanics.CompactArchitectureSpacingSourceIds;
+        double proxyDistanceM = currentDistanceM;
+        if (previousDistanceM > 0.0)
+        {
+            proxyDistanceM = previousDistanceM;
+        }
+
+        double spacingMassProxyEarthMasses = CalculateSpacingMassProxyEarthMasses(proxyDistanceM, host);
+        double spacingMassProxyKg = spacingMassProxyEarthMasses * Units.EarthMassKg;
+        double spacingThresholdMutualHillRadii = CalculateSpacingThresholdMutualHillRadii(spacingMassProxyEarthMasses);
+        slot.SpacingMassProxyEarthMasses = spacingMassProxyEarthMasses;
+        slot.MinimumSpacingMutualHillRadii = spacingThresholdMutualHillRadii;
+        if (previousDistanceM <= 0.0 || currentDistanceM <= previousDistanceM || host.CombinedMassKg <= 0.0)
+        {
+            slot.PeriodRatioFromInner = 0.0;
+            slot.SpacingFromInnerMutualHillRadii = 0.0;
+            return;
+        }
+
+        double innerPeriodS = OrbitalMechanics.CalculateOrbitalPeriod(previousDistanceM, host.CombinedMassKg);
+        double outerPeriodS = OrbitalMechanics.CalculateOrbitalPeriod(currentDistanceM, host.CombinedMassKg);
+        if (innerPeriodS > 0.0)
+        {
+            slot.PeriodRatioFromInner = outerPeriodS / innerPeriodS;
+        }
+        else
+        {
+            slot.PeriodRatioFromInner = 0.0;
+        }
+
+        slot.SpacingFromInnerMutualHillRadii = OrbitalMechanics.CalculateSeparationInMutualHillRadii(
+            spacingMassProxyKg,
+            spacingMassProxyKg,
+            host.CombinedMassKg,
+            previousDistanceM,
+            currentDistanceM);
+        double minimumSpacingM = OrbitalMechanics.CalculateMinimumPlanetSpacing(
+            spacingMassProxyKg,
+            spacingMassProxyKg,
+            host.CombinedMassKg,
+            previousDistanceM,
+            spacingThresholdMutualHillRadii);
+        slot.MinimumSpacingMutualHillRadii = OrbitalMechanics.CalculateSeparationInMutualHillRadii(
+            spacingMassProxyKg,
+            spacingMassProxyKg,
+            host.CombinedMassKg,
+            previousDistanceM,
+            previousDistanceM + minimumSpacingM);
+    }
+
+    /// <summary>
+    /// Returns the candidate architecture mass proxy used for spacing before planets are assigned.
+    /// </summary>
+    public static double CalculateSpacingMassProxyEarthMasses(double distanceM, OrbitHost host)
+    {
+        if (distanceM <= 0.0 || host.FrostLineM <= 0.0)
+        {
+            return CompactArchitectureMassProxyEarthMasses;
+        }
+
+        if (distanceM < host.FrostLineM)
+        {
+            return CompactArchitectureMassProxyEarthMasses;
+        }
+
+        if (distanceM < host.FrostLineM * 1.8)
+        {
+            return TransitionalArchitectureMassProxyEarthMasses;
+        }
+
+        return GiantArchitectureMassProxyEarthMasses;
+    }
+
+    /// <summary>
+    /// Returns the spacing threshold for a candidate architecture mass proxy.
+    /// </summary>
+    public static double CalculateSpacingThresholdMutualHillRadii(double spacingMassProxyEarthMasses)
+    {
+        if (spacingMassProxyEarthMasses <= TransitionalArchitectureMassProxyEarthMasses)
+        {
+            return OrbitalMechanics.MinimumAdjacentPlanetSpacingMutualHillRadii;
+        }
+
+        if (spacingMassProxyEarthMasses <= 40.0)
+        {
+            return 8.0;
+        }
+
+        return OrbitalMechanics.MinimumGiantAdjacentSpacingMutualHillRadii;
     }
 
     /// <summary>

@@ -276,6 +276,31 @@ public static class SourceAcquisitionRegistry
             SourceAcquisitionStatus.LocalSourceNote,
             "res://Sources/Texts/Petigura2013.txt",
             "Local source note exists for small-planet occurrence context."),
+        ["bryson2021"] = Create(
+            "bryson2021",
+            SourceAcquisitionStatus.LocalSourceNote,
+            "res://Sources/Texts/Bryson2021.txt",
+            "Local source note exists for reliability-corrected habitable-zone rocky occurrence context."),
+        ["bergstenetal2023"] = Create(
+            "bergstenetal2023",
+            SourceAcquisitionStatus.LocalSourceNote,
+            "res://Sources/Texts/BergstenEtAl2023.txt",
+            "Local source note exists for M-dwarf habitable-zone occurrence caution."),
+        ["mentcharbonneau2023"] = Create(
+            "mentcharbonneau2023",
+            SourceAcquisitionStatus.LocalSourceNote,
+            "res://Sources/Texts/MentCharbonneau2023.txt",
+            "Local source note exists for close-in mid-to-late M dwarf occurrence context."),
+        ["cuietal2026"] = Create(
+            "cuietal2026",
+            SourceAcquisitionStatus.LocalSourceNote,
+            "res://Sources/Texts/CuiEtAl2026.txt",
+            "Local source note exists for close-in FGK TESS-era occurrence context; human metadata verification remains required."),
+        ["gillisetal2026"] = Create(
+            "gillisetal2026",
+            SourceAcquisitionStatus.LocalSourceNote,
+            "res://Sources/Texts/GillisEtAl2026.txt",
+            "Local source note exists for mid-to-late M dwarf close-in occurrence context; human metadata verification remains required."),
         ["raymondizidoro2017"] = Create(
             "raymondizidoro2017",
             SourceAcquisitionStatus.LocalSourceNote,

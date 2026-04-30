@@ -29,6 +29,11 @@ public partial class PlanetarySystemState : RefCounted
     public double StellarLuminositySolar { get; set; } = 1.0;
 
     /// <summary>
+    /// Effective stellar temperature used for host-demographic occurrence adjustments.
+    /// </summary>
+    public double EffectiveTemperatureK { get; set; } = 5778.0;
+
+    /// <summary>
     /// Aggregate system metallicity used for planet weighting.
     /// </summary>
     public double SystemMetallicity { get; set; } = 1.0;
@@ -124,6 +129,36 @@ public partial class PlanetarySystemState : RefCounted
     public double BombardmentScalar { get; set; } = 1.0;
 
     /// <summary>
+    /// Source IDs used for host-demographic occurrence adjustments.
+    /// </summary>
+    public string OccurrenceSourceIds { get; set; } = "Petigura2013;Bryson2021;BergstenEtAl2023;MentCharbonneau2023;CuiEtAl2026;GillisEtAl2026";
+
+    /// <summary>
+    /// Host demographic regime selected from stellar mass and temperature.
+    /// </summary>
+    public string HostOccurrenceRegime { get; set; } = "fgk_kepler_tess";
+
+    /// <summary>
+    /// Scalar for close-in small-planet slot fill pressure.
+    /// </summary>
+    public double CloseInSmallPlanetOccurrenceScalar { get; set; } = 1.0;
+
+    /// <summary>
+    /// Scalar for habitable-zone rocky-planet slot fill pressure.
+    /// </summary>
+    public double HabitableZoneRockyOccurrenceScalar { get; set; } = 1.0;
+
+    /// <summary>
+    /// Scalar for close-in sub-Neptune and Neptune-class outcomes.
+    /// </summary>
+    public double SubNeptuneOccurrenceScalar { get; set; } = 1.0;
+
+    /// <summary>
+    /// Scalar for close-in hot giant outcomes.
+    /// </summary>
+    public double CloseInHotGiantOccurrenceScalar { get; set; } = 1.0;
+
+    /// <summary>
     /// Creates a default derived state.
     /// </summary>
     public static PlanetarySystemState CreateDefault()
@@ -185,6 +220,11 @@ public partial class PlanetarySystemState : RefCounted
         }
 
         double metallicityEnrichment = System.Math.Clamp(metallicity, 0.35, 2.5);
+        string hostOccurrenceRegime = ClassifyHostOccurrenceRegime(massSolar, effectiveTempK);
+        double closeInSmallPlanetOccurrenceScalar = ComputeCloseInSmallPlanetOccurrenceScalar(hostOccurrenceRegime);
+        double habitableZoneRockyOccurrenceScalar = ComputeHabitableZoneRockyOccurrenceScalar(hostOccurrenceRegime);
+        double subNeptuneOccurrenceScalar = ComputeSubNeptuneOccurrenceScalar(hostOccurrenceRegime);
+        double closeInHotGiantOccurrenceScalar = ComputeCloseInHotGiantOccurrenceScalar(hostOccurrenceRegime);
         double snowLineAu = 2.7 * System.Math.Sqrt(System.Math.Max(0.05, luminositySolar)) * profile.SnowLineScalar;
         // Pascucci et al. (2016) and Ribas et al. (2015) support host-mass dependence in disk
         // solids and disk lifetimes. Tuning: the `0.65`, `0.25`, `3.5`, and clamp bands below
@@ -356,6 +396,7 @@ public partial class PlanetarySystemState : RefCounted
             Profile = profile,
             StellarMassSolar = massSolar,
             StellarLuminositySolar = luminositySolar,
+            EffectiveTemperatureK = effectiveTempK,
             SystemMetallicity = metallicity,
             SnowLineAu = snowLineAu,
             SolidBudgetScalar = solidBudget,
@@ -375,7 +416,28 @@ public partial class PlanetarySystemState : RefCounted
             OuterReservoirScalar = outerReservoir,
             VolatileDeliveryScalar = volatileDelivery,
             BombardmentScalar = bombardment,
+            HostOccurrenceRegime = hostOccurrenceRegime,
+            CloseInSmallPlanetOccurrenceScalar = closeInSmallPlanetOccurrenceScalar,
+            HabitableZoneRockyOccurrenceScalar = habitableZoneRockyOccurrenceScalar,
+            SubNeptuneOccurrenceScalar = subNeptuneOccurrenceScalar,
+            CloseInHotGiantOccurrenceScalar = closeInHotGiantOccurrenceScalar,
         };
+    }
+
+    /// <summary>
+    /// Returns true when this state uses the mid-to-late M dwarf demographic regime.
+    /// </summary>
+    public bool IsMidLateMDwarfOccurrenceRegime()
+    {
+        return HostOccurrenceRegime == "mid_late_m_tess";
+    }
+
+    /// <summary>
+    /// Returns true when this state uses the FGK demographic regime.
+    /// </summary>
+    public bool IsFgkOccurrenceRegime()
+    {
+        return HostOccurrenceRegime == "fgk_kepler_tess";
     }
 
     /// <summary>
@@ -481,6 +543,123 @@ public partial class PlanetarySystemState : RefCounted
     }
 
     /// <summary>
+    /// Returns the Keplerian orbital period at the supplied orbit in days.
+    /// </summary>
+    public double GetOrbitalPeriodDays(double orbitAu)
+    {
+        if (orbitAu <= 0.0)
+        {
+            return 0.0;
+        }
+
+        double stellarMassSolar = System.Math.Max(StellarMassSolar, 0.05);
+        double periodYears = System.Math.Sqrt(System.Math.Pow(orbitAu, 3.0) / stellarMassSolar);
+        return periodYears * 365.25;
+    }
+
+    /// <summary>
+    /// Returns the model-dependent radius-valley center in Earth radii.
+    /// </summary>
+    public double GetRadiusValleyCenterEarth(double orbitAu)
+    {
+        double periodDays = GetOrbitalPeriodDays(orbitAu);
+        if (periodDays <= 0.0)
+        {
+            return 0.0;
+        }
+
+        double baseRadiusEarth = 1.80;
+        double periodSlope = 0.0;
+        if (Profile.EnvelopeLossModel == PlanetEnvelopeLossModel.Photoevaporation)
+        {
+            baseRadiusEarth = 1.70;
+            periodSlope = -0.11;
+        }
+        else if (Profile.EnvelopeLossModel == PlanetEnvelopeLossModel.CorePowered)
+        {
+            baseRadiusEarth = 1.90;
+            periodSlope = 0.11;
+        }
+
+        double periodScale = System.Math.Max(periodDays / 10.0, 0.20);
+        double radiusEarth = baseRadiusEarth * System.Math.Pow(periodScale, periodSlope);
+        if (Profile.EnvelopeLossModel == PlanetEnvelopeLossModel.Photoevaporation && StellarMassSolar < 1.0)
+        {
+            double lowMassShift = System.Math.Clamp(0.92 + (0.08 * StellarMassSolar), 0.84, 1.0);
+            radiusEarth *= lowMassShift;
+        }
+
+        return System.Math.Clamp(radiusEarth, 1.15, 2.65);
+    }
+
+    /// <summary>
+    /// Returns the source-informed close-in envelope-loss pressure used for radius-valley weighting.
+    /// </summary>
+    public double GetRadiusValleyLossPressure(double orbitAu)
+    {
+        double periodDays = GetOrbitalPeriodDays(orbitAu);
+        if (periodDays <= 0.0)
+        {
+            return 0.0;
+        }
+
+        double fluxEarth = GetFluxEarth(orbitAu);
+        double periodWindow = System.Math.Clamp((100.0 - periodDays) / 90.0, 0.0, 1.0);
+        double photoPressure = XuvActivityScalar
+            * System.Math.Pow(System.Math.Max(fluxEarth, 0.05), 0.30)
+            * (0.45 + (0.55 * periodWindow));
+        if (periodDays > 60.0)
+        {
+            photoPressure *= System.Math.Clamp((100.0 - periodDays) / 40.0, 0.25, 1.0);
+        }
+
+        double corePoweredPressure = System.Math.Pow(System.Math.Max(fluxEarth, 0.05), 0.22)
+            * (0.70 + (0.30 * periodWindow))
+            * (0.85 + (0.15 * System.Math.Clamp(SolidBudgetScalar, 0.5, 1.8)));
+
+        double pressure;
+        if (Profile.EnvelopeLossModel == PlanetEnvelopeLossModel.Photoevaporation)
+        {
+            pressure = photoPressure;
+        }
+        else if (Profile.EnvelopeLossModel == PlanetEnvelopeLossModel.CorePowered)
+        {
+            pressure = corePoweredPressure;
+        }
+        else
+        {
+            pressure = (photoPressure + corePoweredPressure) * 0.5;
+        }
+
+        return System.Math.Clamp(pressure, 0.0, 3.0);
+    }
+
+    /// <summary>
+    /// Returns whether the supplied orbit falls in the close-in radius-valley regime.
+    /// </summary>
+    public bool IsInsideRadiusValleyRegime(double orbitAu)
+    {
+        double periodDays = GetOrbitalPeriodDays(orbitAu);
+        if (periodDays <= 0.0 || periodDays > 100.0)
+        {
+            return false;
+        }
+
+        double fluxEarth = GetFluxEarth(orbitAu);
+        if (fluxEarth >= 0.75)
+        {
+            return true;
+        }
+
+        if (HabitableZoneInnerAu > 0.0 && orbitAu <= HabitableZoneInnerAu * 1.20)
+        {
+            return true;
+        }
+
+        return false;
+    }
+
+    /// <summary>
     /// Creates a detached copy of the state.
     /// </summary>
     public PlanetarySystemState Clone()
@@ -490,6 +669,7 @@ public partial class PlanetarySystemState : RefCounted
             Profile = Profile.Clone(),
             StellarMassSolar = StellarMassSolar,
             StellarLuminositySolar = StellarLuminositySolar,
+            EffectiveTemperatureK = EffectiveTemperatureK,
             SystemMetallicity = SystemMetallicity,
             SnowLineAu = SnowLineAu,
             SolidBudgetScalar = SolidBudgetScalar,
@@ -509,6 +689,12 @@ public partial class PlanetarySystemState : RefCounted
             OuterReservoirScalar = OuterReservoirScalar,
             VolatileDeliveryScalar = VolatileDeliveryScalar,
             BombardmentScalar = BombardmentScalar,
+            OccurrenceSourceIds = OccurrenceSourceIds,
+            HostOccurrenceRegime = HostOccurrenceRegime,
+            CloseInSmallPlanetOccurrenceScalar = CloseInSmallPlanetOccurrenceScalar,
+            HabitableZoneRockyOccurrenceScalar = HabitableZoneRockyOccurrenceScalar,
+            SubNeptuneOccurrenceScalar = SubNeptuneOccurrenceScalar,
+            CloseInHotGiantOccurrenceScalar = CloseInHotGiantOccurrenceScalar,
         };
     }
 
@@ -522,6 +708,7 @@ public partial class PlanetarySystemState : RefCounted
             ["profile"] = Profile.ToDictionary(),
             ["stellar_mass_solar"] = StellarMassSolar,
             ["stellar_luminosity_solar"] = StellarLuminositySolar,
+            ["effective_temperature_k"] = EffectiveTemperatureK,
             ["system_metallicity"] = SystemMetallicity,
             ["snow_line_au"] = SnowLineAu,
             ["solid_budget_scalar"] = SolidBudgetScalar,
@@ -541,6 +728,12 @@ public partial class PlanetarySystemState : RefCounted
             ["outer_reservoir_scalar"] = OuterReservoirScalar,
             ["volatile_delivery_scalar"] = VolatileDeliveryScalar,
             ["bombardment_scalar"] = BombardmentScalar,
+            ["occurrence_source_ids"] = OccurrenceSourceIds,
+            ["host_occurrence_regime"] = HostOccurrenceRegime,
+            ["close_in_small_planet_occurrence_scalar"] = CloseInSmallPlanetOccurrenceScalar,
+            ["habitable_zone_rocky_occurrence_scalar"] = HabitableZoneRockyOccurrenceScalar,
+            ["sub_neptune_occurrence_scalar"] = SubNeptuneOccurrenceScalar,
+            ["close_in_hot_giant_occurrence_scalar"] = CloseInHotGiantOccurrenceScalar,
         };
     }
 
@@ -557,6 +750,7 @@ public partial class PlanetarySystemState : RefCounted
 
         state.StellarMassSolar = DomainDictionaryUtils.GetDouble(data, "stellar_mass_solar", 1.0);
         state.StellarLuminositySolar = DomainDictionaryUtils.GetDouble(data, "stellar_luminosity_solar", 1.0);
+        state.EffectiveTemperatureK = DomainDictionaryUtils.GetDouble(data, "effective_temperature_k", 5778.0);
         state.SystemMetallicity = DomainDictionaryUtils.GetDouble(data, "system_metallicity", 1.0);
         state.SnowLineAu = DomainDictionaryUtils.GetDouble(data, "snow_line_au", 2.7);
         state.SolidBudgetScalar = DomainDictionaryUtils.GetDouble(data, "solid_budget_scalar", 1.0);
@@ -576,7 +770,108 @@ public partial class PlanetarySystemState : RefCounted
         state.OuterReservoirScalar = DomainDictionaryUtils.GetDouble(data, "outer_reservoir_scalar", 1.0);
         state.VolatileDeliveryScalar = DomainDictionaryUtils.GetDouble(data, "volatile_delivery_scalar", 1.0);
         state.BombardmentScalar = DomainDictionaryUtils.GetDouble(data, "bombardment_scalar", 1.0);
+        state.OccurrenceSourceIds = DomainDictionaryUtils.GetString(data, "occurrence_source_ids", "Petigura2013;Bryson2021;BergstenEtAl2023;MentCharbonneau2023;CuiEtAl2026;GillisEtAl2026");
+        state.HostOccurrenceRegime = DomainDictionaryUtils.GetString(data, "host_occurrence_regime", "fgk_kepler_tess");
+        state.CloseInSmallPlanetOccurrenceScalar = DomainDictionaryUtils.GetDouble(data, "close_in_small_planet_occurrence_scalar", 1.0);
+        state.HabitableZoneRockyOccurrenceScalar = DomainDictionaryUtils.GetDouble(data, "habitable_zone_rocky_occurrence_scalar", 1.0);
+        state.SubNeptuneOccurrenceScalar = DomainDictionaryUtils.GetDouble(data, "sub_neptune_occurrence_scalar", 1.0);
+        state.CloseInHotGiantOccurrenceScalar = DomainDictionaryUtils.GetDouble(data, "close_in_hot_giant_occurrence_scalar", 1.0);
         return state;
+    }
+
+    private static string ClassifyHostOccurrenceRegime(double stellarMassSolar, double effectiveTemperatureK)
+    {
+        if (effectiveTemperatureK <= 3500.0 || stellarMassSolar <= 0.35)
+        {
+            return "mid_late_m_tess";
+        }
+
+        if (effectiveTemperatureK < 4800.0 || stellarMassSolar < 0.70)
+        {
+            return "early_m_mixed";
+        }
+
+        if (effectiveTemperatureK <= 6300.0 && stellarMassSolar <= 1.35)
+        {
+            return "fgk_kepler_tess";
+        }
+
+        return "outside_reviewed_occurrence_range";
+    }
+
+    private static double ComputeCloseInSmallPlanetOccurrenceScalar(string hostOccurrenceRegime)
+    {
+        if (hostOccurrenceRegime == "mid_late_m_tess")
+        {
+            return 1.22;
+        }
+
+        if (hostOccurrenceRegime == "early_m_mixed")
+        {
+            return 1.10;
+        }
+
+        if (hostOccurrenceRegime == "outside_reviewed_occurrence_range")
+        {
+            return 0.92;
+        }
+
+        return 1.0;
+    }
+
+    private static double ComputeHabitableZoneRockyOccurrenceScalar(string hostOccurrenceRegime)
+    {
+        if (hostOccurrenceRegime == "mid_late_m_tess")
+        {
+            return 0.95;
+        }
+
+        if (hostOccurrenceRegime == "early_m_mixed")
+        {
+            return 0.98;
+        }
+
+        if (hostOccurrenceRegime == "outside_reviewed_occurrence_range")
+        {
+            return 0.90;
+        }
+
+        return 1.0;
+    }
+
+    private static double ComputeSubNeptuneOccurrenceScalar(string hostOccurrenceRegime)
+    {
+        if (hostOccurrenceRegime == "mid_late_m_tess")
+        {
+            return 0.32;
+        }
+
+        if (hostOccurrenceRegime == "early_m_mixed")
+        {
+            return 0.72;
+        }
+
+        return 1.0;
+    }
+
+    private static double ComputeCloseInHotGiantOccurrenceScalar(string hostOccurrenceRegime)
+    {
+        if (hostOccurrenceRegime == "mid_late_m_tess")
+        {
+            return 0.30;
+        }
+
+        if (hostOccurrenceRegime == "fgk_kepler_tess")
+        {
+            return 0.78;
+        }
+
+        if (hostOccurrenceRegime == "early_m_mixed")
+        {
+            return 0.50;
+        }
+
+        return 0.80;
     }
 
     private static double ComputeHostMassDiskLifetimeScalar(double stellarMassSolar)

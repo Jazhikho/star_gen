@@ -497,6 +497,58 @@ public static class TestSystemPlanetGenerator
     }
 
     /// <summary>
+    /// Tests source-backed host occurrence regimes alter demographic scalars.
+    /// </summary>
+    public static void TestHostOccurrenceRegimeAdjustsDemographicScalars()
+    {
+        SolarSystemSpec spec = new SolarSystemSpec(8182, 1, 1)
+        {
+            PlanetaryProfile = PlanetaryGenerationProfile.CreateDefault(),
+        };
+        Array<CelestialBody> fgkStars = new Array<CelestialBody>
+        {
+            CreateStellarFixture("fgk_star", 1.00, 1.0, 5778.0, 1.0, 5.0e9),
+        };
+        Array<CelestialBody> midLateMStars = new Array<CelestialBody>
+        {
+            CreateStellarFixture("mid_late_m_star", 0.22, 0.008, 3200.0, 1.0, 5.0e9),
+        };
+
+        PlanetarySystemState fgkState = PlanetarySystemState.Build(spec, fgkStars);
+        PlanetarySystemState midLateMState = PlanetarySystemState.Build(spec, midLateMStars);
+
+        if (!fgkState.IsFgkOccurrenceRegime())
+        {
+            throw new InvalidOperationException("Solar-type hosts should use the FGK occurrence regime.");
+        }
+
+        if (!midLateMState.IsMidLateMDwarfOccurrenceRegime())
+        {
+            throw new InvalidOperationException("Cool low-mass hosts should use the mid-late M occurrence regime.");
+        }
+
+        if (midLateMState.CloseInSmallPlanetOccurrenceScalar <= fgkState.CloseInSmallPlanetOccurrenceScalar)
+        {
+            throw new InvalidOperationException("Mid-late M hosts should carry a stronger close-in small-planet occurrence scalar.");
+        }
+
+        if (midLateMState.HabitableZoneRockyOccurrenceScalar > fgkState.HabitableZoneRockyOccurrenceScalar)
+        {
+            throw new InvalidOperationException("M-dwarf HZ rocky occurrence should not receive an automatic surplus over FGK after Bergsten et al. 2023.");
+        }
+
+        if (midLateMState.SubNeptuneOccurrenceScalar >= fgkState.SubNeptuneOccurrenceScalar)
+        {
+            throw new InvalidOperationException("Mid-late M hosts should suppress close-in sub-Neptune weighting.");
+        }
+
+        if (midLateMState.CloseInHotGiantOccurrenceScalar >= fgkState.CloseInHotGiantOccurrenceScalar)
+        {
+            throw new InvalidOperationException("Mid-late M hosts should suppress close-in hot-giant weighting more strongly than FGK hosts.");
+        }
+    }
+
+    /// <summary>
     /// Tests that giant-planet weighting now peaks near the snow line instead of rising monotonically outward.
     /// </summary>
     public static void TestSnowLineGiantFormationWeightTurnsOverOutsidePeak()
@@ -623,6 +675,148 @@ public static class TestSystemPlanetGenerator
         if (photoThinCount < coreThinCount)
         {
             throw new InvalidOperationException("Photoevaporation should not leave fewer thin or stripped hot planets than the same seeded core-powered run.");
+        }
+    }
+
+    /// <summary>
+    /// Tests that the source-backed radius-valley mechanisms expose opposite orbital-period slopes.
+    /// </summary>
+    public static void TestRadiusValleyMechanismsHaveOppositePeriodSlopes()
+    {
+        SolarSystemSpec photoSpec = new SolarSystemSpec(2323, 1, 1)
+        {
+            PlanetaryProfile = new PlanetaryGenerationProfile
+            {
+                EnvelopeLossModel = PlanetEnvelopeLossModel.Photoevaporation,
+            },
+        };
+        SolarSystemSpec coreSpec = new SolarSystemSpec(2323, 1, 1)
+        {
+            PlanetaryProfile = new PlanetaryGenerationProfile
+            {
+                EnvelopeLossModel = PlanetEnvelopeLossModel.CorePowered,
+            },
+        };
+        Array<CelestialBody> stars = new Array<CelestialBody> { CreateTestStar() };
+        PlanetarySystemState photoState = PlanetarySystemState.Build(photoSpec, stars);
+        PlanetarySystemState coreState = PlanetarySystemState.Build(coreSpec, stars);
+        double tenDayOrbitAu = OrbitAuForPeriodDays(10.0, photoState.StellarMassSolar);
+        double sixtyDayOrbitAu = OrbitAuForPeriodDays(60.0, photoState.StellarMassSolar);
+
+        double photoInnerCenter = photoState.GetRadiusValleyCenterEarth(tenDayOrbitAu);
+        double photoOuterCenter = photoState.GetRadiusValleyCenterEarth(sixtyDayOrbitAu);
+        double coreInnerCenter = coreState.GetRadiusValleyCenterEarth(tenDayOrbitAu);
+        double coreOuterCenter = coreState.GetRadiusValleyCenterEarth(sixtyDayOrbitAu);
+
+        if (photoOuterCenter >= photoInnerCenter)
+        {
+            throw new InvalidOperationException("Owen-Wu photoevaporation should move the radius-valley center smaller at longer periods.");
+        }
+
+        if (coreOuterCenter <= coreInnerCenter)
+        {
+            throw new InvalidOperationException("Ginzburg core-powered mass loss should move the radius-valley center larger at longer periods.");
+        }
+    }
+
+    /// <summary>
+    /// Tests that generated planets record radius-valley diagnostics in provenance.
+    /// </summary>
+    public static void TestEnvelopeLossTraceRecordsRadiusValleyDiagnostics()
+    {
+        OrbitHost host = CreateTestHost();
+        CelestialBody star = CreateTestStar();
+        Array<OrbitSlot> slots = CreateHotLossSlots(host, 1);
+        SolarSystemSpec spec = new SolarSystemSpec(2424, 1, 1)
+        {
+            PlanetaryProfile = new PlanetaryGenerationProfile
+            {
+                EnvelopeLossModel = PlanetEnvelopeLossModel.Photoevaporation,
+            },
+        };
+
+        PlanetGenerationResult result = SystemPlanetGenerator.Generate(
+            slots,
+            new Array<OrbitHost> { host },
+            new Array<CelestialBody> { star },
+            new SeededRng(2424),
+            systemSpec: spec);
+
+        if (result.Planets.Count != 1)
+        {
+            throw new InvalidOperationException("Trace test should generate exactly one close-in planet.");
+        }
+
+        CelestialBody planet = result.Planets[0];
+        if (planet.Provenance == null || !planet.Provenance.SpecSnapshot.ContainsKey("formation_trace"))
+        {
+            throw new InvalidOperationException("Generated planet should preserve the formation trace in provenance.");
+        }
+
+        Dictionary trace = (Dictionary)planet.Provenance.SpecSnapshot["formation_trace"];
+        DotNetNativeTestSuite.AssertTrue(trace.ContainsKey("radius_valley_period_days"), "Trace should include radius-valley orbital period.");
+        DotNetNativeTestSuite.AssertTrue(trace.ContainsKey("radius_valley_center_earth"), "Trace should include radius-valley center.");
+        DotNetNativeTestSuite.AssertTrue(trace.ContainsKey("radius_valley_loss_pressure"), "Trace should include radius-valley loss pressure.");
+        DotNetNativeTestSuite.AssertTrue(trace.ContainsKey("radius_valley_mechanism"), "Trace should include radius-valley mechanism.");
+        DotNetNativeTestSuite.AssertEqual("owen_wu_photoevaporation", trace["radius_valley_mechanism"].AsString(), "Trace should identify the selected source-backed mechanism.");
+
+        if (!trace["inside_radius_valley_regime"].AsBool())
+        {
+            throw new InvalidOperationException("Close-in trace test planet should be inside the radius-valley regime.");
+        }
+
+        if (trace["radius_valley_center_earth"].AsDouble() <= 0.0)
+        {
+            throw new InvalidOperationException("Radius-valley center should be positive.");
+        }
+
+        if (trace["radius_valley_loss_pressure"].AsDouble() <= 0.0)
+        {
+            throw new InvalidOperationException("Radius-valley loss pressure should be positive.");
+        }
+    }
+
+    /// <summary>
+    /// Tests that generated planet provenance records the slot stability policy.
+    /// </summary>
+    public static void TestPlanetFormationTraceRecordsSlotStabilityPolicy()
+    {
+        OrbitHost host = CreateTestHost();
+        CelestialBody star = CreateTestStar();
+        Array<OrbitSlot> slots = CreateTestSlots(host, 1);
+        slots[0].FillProbability = 1.0;
+        slots[0].SpacingFromInnerMutualHillRadii = 11.0;
+        slots[0].PeriodRatioFromInner = 1.5;
+        PlanetGenerationResult result = SystemPlanetGenerator.Generate(
+            slots,
+            new Array<OrbitHost> { host },
+            new Array<CelestialBody> { star },
+            new SeededRng(2525));
+
+        if (result.Planets.Count != 1)
+        {
+            throw new InvalidOperationException("Slot stability trace test should generate exactly one planet.");
+        }
+
+        CelestialBody planet = result.Planets[0];
+        if (planet.Provenance == null || !planet.Provenance.SpecSnapshot.ContainsKey("formation_trace"))
+        {
+            throw new InvalidOperationException("Generated planet should preserve the formation trace in provenance.");
+        }
+
+        Dictionary trace = (Dictionary)planet.Provenance.SpecSnapshot["formation_trace"];
+        DotNetNativeTestSuite.AssertTrue(trace.ContainsKey("slot_stability_policy"), "Trace should include slot stability policy.");
+        DotNetNativeTestSuite.AssertTrue(trace.ContainsKey("slot_stability_sources"), "Trace should include slot stability sources.");
+        DotNetNativeTestSuite.AssertTrue(trace.ContainsKey("slot_spacing_from_inner_mutual_hill_radii"), "Trace should include mutual-Hill spacing diagnostic.");
+        DotNetNativeTestSuite.AssertTrue(trace.ContainsKey("slot_spacing_mass_proxy_earth_masses"), "Trace should include the slot spacing mass proxy.");
+        DotNetNativeTestSuite.AssertTrue(trace.ContainsKey("host_occurrence_regime"), "Trace should include the host occurrence regime.");
+        DotNetNativeTestSuite.AssertTrue(trace.ContainsKey("occurrence_sources"), "Trace should include occurrence source IDs.");
+        DotNetNativeTestSuite.AssertTrue(trace.ContainsKey("close_in_small_planet_occurrence_scalar"), "Trace should include close-in occurrence scalar.");
+        DotNetNativeTestSuite.AssertEqual(OrbitalMechanics.CompactArchitectureSpacingPolicyId, trace["slot_stability_policy"].AsString(), "Trace should identify the active spacing policy.");
+
+        if (!trace["slot_stability_sources"].AsString().Contains("Obertas2017"))
+        {
+            throw new InvalidOperationException("Trace should carry the source cluster backing the active spacing policy.");
         }
     }
 
@@ -792,6 +986,165 @@ public static class TestSystemPlanetGenerator
         if (otegiResolution.DensityKgM3 >= otegiRockyResolution.DensityKgM3)
         {
             throw new InvalidOperationException("Under Otegi, the volatile-rich transition world should come out less dense than the rocky one.");
+        }
+    }
+
+    /// <summary>
+    /// Tests that Otegi's rocky relation does not silently extend beyond the source's rocky-population endpoint.
+    /// </summary>
+    public static void TestOtegiRockyBranchStopsAtSourceMassLimit()
+    {
+        PlanetSpec rockySpec = PlanetSpec.Random(5252);
+        rockySpec.ClassBias = PlanetClassBias.Rocky;
+        rockySpec.CompositionBias = PlanetCompositionBias.Rocky;
+
+        PlanetMassRadiusResolution belowLimit = PlanetMassRadiusTable.Resolve(
+            PlanetMassRadiusModel.Otegi,
+            rockySpec,
+            SizeCategory.Category.SuperEarth,
+            24.0);
+        PlanetMassRadiusResolution aboveLimit = PlanetMassRadiusTable.Resolve(
+            PlanetMassRadiusModel.Otegi,
+            rockySpec,
+            SizeCategory.Category.SuperEarth,
+            30.0);
+
+        DotNetNativeTestSuite.AssertEqual("otegi_rocky", belowLimit.AppliedRegimeId, "Otegi should still allow the rocky branch below the source mass limit.");
+        DotNetNativeTestSuite.AssertEqual("otegi_volatile", aboveLimit.AppliedRegimeId, "Otegi should switch to the volatile branch above the rocky-population endpoint.");
+
+        if (aboveLimit.RadiusEarth <= belowLimit.RadiusEarth)
+        {
+            throw new InvalidOperationException("Above-limit Otegi worlds should not be held to the capped rocky radius.");
+        }
+    }
+
+    /// <summary>
+    /// Tests that Otegi coefficient and exponent uncertainties are sampled deterministically during generation.
+    /// </summary>
+    public static void TestOtegiSeededUncertaintySamplingIsDeterministicAndActive()
+    {
+        PlanetSpec volatileSpec = PlanetSpec.Random(5353);
+        volatileSpec.ClassBias = PlanetClassBias.SubNeptune;
+        volatileSpec.CompositionBias = PlanetCompositionBias.GasEnvelope;
+
+        PlanetMassRadiusResolution midpointResolution = PlanetMassRadiusTable.Resolve(
+            PlanetMassRadiusModel.Otegi,
+            volatileSpec,
+            SizeCategory.Category.MiniNeptune,
+            12.0);
+        PlanetMassRadiusResolution firstSample = PlanetMassRadiusTable.Resolve(
+            PlanetMassRadiusModel.Otegi,
+            volatileSpec,
+            SizeCategory.Category.MiniNeptune,
+            12.0,
+            new SeededRng(5353));
+        PlanetMassRadiusResolution repeatedSample = PlanetMassRadiusTable.Resolve(
+            PlanetMassRadiusModel.Otegi,
+            volatileSpec,
+            SizeCategory.Category.MiniNeptune,
+            12.0,
+            new SeededRng(5353));
+        PlanetMassRadiusResolution alternateSample = PlanetMassRadiusTable.Resolve(
+            PlanetMassRadiusModel.Otegi,
+            volatileSpec,
+            SizeCategory.Category.MiniNeptune,
+            12.0,
+            new SeededRng(5354));
+
+        DotNetNativeTestSuite.AssertEqual(firstSample.RadiusEarth, repeatedSample.RadiusEarth, "Same seed should produce the same Otegi sampled radius.");
+        DotNetNativeTestSuite.AssertEqual(firstSample.RadiusScatterLog10, repeatedSample.RadiusScatterLog10, "Same seed should produce the same Otegi sampled coefficient/exponent offset.");
+
+        if (System.Math.Abs(firstSample.RadiusEarth - midpointResolution.RadiusEarth) < 0.000001
+            && System.Math.Abs(alternateSample.RadiusEarth - midpointResolution.RadiusEarth) < 0.000001)
+        {
+            throw new InvalidOperationException("Seeded Otegi sampling should move generated radii away from the central relation for at least one checked seed.");
+        }
+
+        if (System.Math.Abs(firstSample.RadiusScatterLog10) < 0.000001
+            && System.Math.Abs(alternateSample.RadiusScatterLog10) < 0.000001)
+        {
+            throw new InvalidOperationException("Seeded Otegi sampling should record a nonzero coefficient/exponent offset for at least one checked seed.");
+        }
+    }
+
+    /// <summary>
+    /// Tests that Chen-Kipping class probabilities now expose the Terran-to-Neptunian transition instead of only a hard regime label.
+    /// </summary>
+    public static void TestChenKippingClassificationProbabilitiesTrackTransition()
+    {
+        PlanetMassRadiusResolution earthMassClassification = PlanetMassRadiusTable.ResolveChenKippingClassificationOnly(1.0);
+        PlanetMassRadiusResolution transitionClassification = PlanetMassRadiusTable.ResolveChenKippingClassificationOnly(2.04);
+        PlanetMassRadiusResolution subNeptuneClassification = PlanetMassRadiusTable.ResolveChenKippingClassificationOnly(10.0);
+        PlanetMassRadiusResolution jovianClassification = PlanetMassRadiusTable.ResolveChenKippingClassificationOnly(300.0);
+
+        if (earthMassClassification.TerranProbability <= earthMassClassification.NeptunianProbability)
+        {
+            throw new InvalidOperationException("A one Earth-mass world should remain more Terran than Neptunian under Chen-Kipping classification.");
+        }
+
+        double transitionDifference = System.Math.Abs(transitionClassification.TerranProbability - transitionClassification.NeptunianProbability);
+        if (transitionDifference > 0.05)
+        {
+            throw new InvalidOperationException("The Chen-Kipping transition mass should expose comparable Terran and Neptunian probabilities.");
+        }
+
+        if (subNeptuneClassification.NeptunianProbability <= subNeptuneClassification.TerranProbability)
+        {
+            throw new InvalidOperationException("A 10 Earth-mass world should be more Neptunian than Terran under Chen-Kipping classification.");
+        }
+
+        if (jovianClassification.JovianProbability <= jovianClassification.NeptunianProbability)
+        {
+            throw new InvalidOperationException("A 300 Earth-mass world should be more Jovian than Neptunian under Chen-Kipping classification.");
+        }
+    }
+
+    /// <summary>
+    /// Tests that generated Chen-Kipping radii use deterministic seeded scatter instead of a single midpoint curve.
+    /// </summary>
+    public static void TestChenKippingSeededScatterIsDeterministicAndActive()
+    {
+        PlanetSpec spec = PlanetSpec.Random(6161);
+        spec.ClassBias = PlanetClassBias.SubNeptune;
+        spec.CompositionBias = PlanetCompositionBias.GasEnvelope;
+
+        PlanetMassRadiusResolution midpointResolution = PlanetMassRadiusTable.Resolve(
+            PlanetMassRadiusModel.ChenKipping,
+            spec,
+            SizeCategory.Category.MiniNeptune,
+            8.0);
+        PlanetMassRadiusResolution firstSample = PlanetMassRadiusTable.Resolve(
+            PlanetMassRadiusModel.ChenKipping,
+            spec,
+            SizeCategory.Category.MiniNeptune,
+            8.0,
+            new SeededRng(6161));
+        PlanetMassRadiusResolution repeatedSample = PlanetMassRadiusTable.Resolve(
+            PlanetMassRadiusModel.ChenKipping,
+            spec,
+            SizeCategory.Category.MiniNeptune,
+            8.0,
+            new SeededRng(6161));
+        PlanetMassRadiusResolution alternateSample = PlanetMassRadiusTable.Resolve(
+            PlanetMassRadiusModel.ChenKipping,
+            spec,
+            SizeCategory.Category.MiniNeptune,
+            8.0,
+            new SeededRng(6162));
+
+        DotNetNativeTestSuite.AssertEqual(firstSample.RadiusEarth, repeatedSample.RadiusEarth, "Same seed should produce the same Chen-Kipping sampled radius.");
+        DotNetNativeTestSuite.AssertEqual(firstSample.RadiusScatterLog10, repeatedSample.RadiusScatterLog10, "Same seed should produce the same Chen-Kipping radius scatter.");
+
+        if (System.Math.Abs(firstSample.RadiusEarth - midpointResolution.RadiusEarth) < 0.000001
+            && System.Math.Abs(alternateSample.RadiusEarth - midpointResolution.RadiusEarth) < 0.000001)
+        {
+            throw new InvalidOperationException("Seeded Chen-Kipping sampling should move generated radii away from the deterministic midpoint for at least one checked seed.");
+        }
+
+        if (System.Math.Abs(firstSample.RadiusScatterLog10) < 0.000001
+            && System.Math.Abs(alternateSample.RadiusScatterLog10) < 0.000001)
+        {
+            throw new InvalidOperationException("Seeded Chen-Kipping sampling should record nonzero scatter for at least one checked seed.");
         }
     }
 
@@ -1135,6 +1488,12 @@ public static class TestSystemPlanetGenerator
         }
 
         return count;
+    }
+
+    private static double OrbitAuForPeriodDays(double periodDays, double stellarMassSolar)
+    {
+        double periodYears = periodDays / 365.25;
+        return System.Math.Pow(periodYears * periodYears * stellarMassSolar, 1.0 / 3.0);
     }
 
     private static int CountFilledSlotsByZone(Array<OrbitSlot> slots, OrbitZone.Zone zone)

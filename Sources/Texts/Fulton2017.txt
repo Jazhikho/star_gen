@@ -58,3 +58,18 @@ Gap at ~1.7–2.0 R⊕ separates super-Earths and sub-Neptunes.
   probability region.
 - This is the primary observational anchor for radius gap in StarGen's distribution.
 **Cross-references:** FultonPetigura2018CKS.txt, OwenWu2017.txt, VanEylen2018Ast.txt.
+
+## Current StarGen usage
+StarGen now records a radius-valley center and observed Fulton-gap anchor in planet formation traces. The system generator uses the close-in period-limited radius-valley regime to reduce intermediate envelope-world weighting and boost stripped/super-Earth outcomes.
+
+## Human reviewer concern
+The source was previously present as broad radius-gap support, but the generator did not expose enough source-linked diagnostics to show that the Fulton gap was actively shaping generated planets.
+
+## AI response / disposition
+Implemented a narrow source-to-generator pass: generated planets now carry `radius_valley_period_days`, `radius_valley_center_earth`, `radius_valley_loss_pressure`, `radius_valley_mechanism`, and `fulton_gap_observed_center_earth` in formation provenance. Fulton remains the observational anchor for the close-in 1.5-2.0 Earth-radius gap; OwenWu2017 and Ginzburg2018 define competing physical mechanisms.
+
+## Implementation status
+partly implemented
+
+## Follow-up action
+Replace the current scalar weighting with an explicit bimodal radius-distribution sampler after human review of exact occurrence-rate tables, host-star dependencies, and later CKS/TESS follow-up sources.

@@ -57,13 +57,17 @@ public static class PlanetPhysicalGenerator
                 else
                 {
                     PlanetMassRadiusModel massRadiusModel = ResolveRequestedMassRadiusModel(spec);
-                    PlanetMassRadiusResolution resolution = PlanetMassRadiusTable.Resolve(massRadiusModel, spec, sizeCategory, massEarth);
+                    PlanetMassRadiusResolution resolution = PlanetMassRadiusTable.Resolve(massRadiusModel, spec, sizeCategory, massEarth, rng);
                     radiusM = resolution.RadiusEarth * Units.EarthRadiusMeters;
                     densityKgM3 = resolution.DensityKgM3;
                     spec.FormationTrace["mass_radius_model_applied"] = resolution.AppliedModelId;
                     spec.FormationTrace["mass_radius_regime"] = resolution.AppliedRegimeId;
                     spec.FormationTrace["radius_model_radius_earth"] = resolution.RadiusEarth;
                     spec.FormationTrace["radius_model_density_kg_m3"] = resolution.DensityKgM3;
+                    spec.FormationTrace["chen_kipping_terran_probability"] = resolution.TerranProbability;
+                    spec.FormationTrace["chen_kipping_neptunian_probability"] = resolution.NeptunianProbability;
+                    spec.FormationTrace["chen_kipping_jovian_probability"] = resolution.JovianProbability;
+                    spec.FormationTrace["radius_model_scatter_log10"] = resolution.RadiusScatterLog10;
                 }
             }
             else

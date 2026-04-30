@@ -755,6 +755,88 @@ public static class TestOrbitalMechanics
         }
     }
 
+    /// <summary>Tests exact mutual-Hill spacing inversion.</summary>
+    public static void TestCalculateOuterOrbitForMutualHillSeparation()
+    {
+        double innerOrbitM = 1.0 * Units.AuMeters;
+        double outerOrbitM = OrbitalMechanics.CalculateOuterOrbitForMutualHillSeparation(
+            Units.EarthMassKg,
+            Units.EarthMassKg,
+            Units.SolarMassKg,
+            innerOrbitM,
+            OrbitalMechanics.MinimumAdjacentPlanetSpacingMutualHillRadii);
+
+        if (outerOrbitM <= innerOrbitM)
+        {
+            throw new InvalidOperationException("Outer orbit should be larger than the inner orbit.");
+        }
+
+        double separation = OrbitalMechanics.CalculateSeparationInMutualHillRadii(
+            Units.EarthMassKg,
+            Units.EarthMassKg,
+            Units.SolarMassKg,
+            innerOrbitM,
+            outerOrbitM);
+        if (System.Math.Abs(separation - OrbitalMechanics.MinimumAdjacentPlanetSpacingMutualHillRadii) > 0.000001)
+        {
+            throw new InvalidOperationException("Inverted outer orbit should reproduce the requested mutual-Hill spacing.");
+        }
+    }
+
+    /// <summary>Tests mutual Hill diagnostics for adjacent planet pairs.</summary>
+    public static void TestMutualHillSpacingDiagnostics()
+    {
+        double innerOrbitM = 1.0 * Units.AuMeters;
+        double outerOrbitM = 1.2 * Units.AuMeters;
+        double mutualHillRadius = OrbitalMechanics.CalculateMutualHillRadius(
+            Units.EarthMassKg,
+            Units.EarthMassKg,
+            Units.SolarMassKg,
+            innerOrbitM,
+            outerOrbitM);
+        double separationRadii = OrbitalMechanics.CalculateSeparationInMutualHillRadii(
+            Units.EarthMassKg,
+            Units.EarthMassKg,
+            Units.SolarMassKg,
+            innerOrbitM,
+            outerOrbitM);
+
+        if (mutualHillRadius <= 0.0)
+        {
+            throw new InvalidOperationException("Mutual Hill radius should be positive for valid adjacent planets.");
+        }
+
+        double expectedSeparation = (outerOrbitM - innerOrbitM) / mutualHillRadius;
+        if (System.Math.Abs(separationRadii - expectedSeparation) > 0.000001)
+        {
+            throw new InvalidOperationException("Mutual Hill spacing should use the average-orbit pair radius.");
+        }
+
+        if (separationRadii <= OrbitalMechanics.MinimumAdjacentPlanetSpacingMutualHillRadii)
+        {
+            throw new InvalidOperationException("A 1.0-1.2 AU Earth-mass pair should clear the conservative StarGen mutual-Hill threshold.");
+        }
+    }
+
+    /// <summary>Tests compact architecture period-ratio policy band.</summary>
+    public static void TestCompactArchitecturePeriodRatioBand()
+    {
+        if (!OrbitalMechanics.IsCompactArchitecturePeriodRatio(1.5))
+        {
+            throw new InvalidOperationException("A 3:2 period ratio should be inside the compact architecture band.");
+        }
+
+        if (!OrbitalMechanics.IsCompactArchitecturePeriodRatio(2.0))
+        {
+            throw new InvalidOperationException("A 2:1 period ratio should be inside the compact architecture band.");
+        }
+
+        if (OrbitalMechanics.IsCompactArchitecturePeriodRatio(2.8))
+        {
+            throw new InvalidOperationException("Wide period ratios should not be classified as compact architecture spacing.");
+        }
+    }
+
     /// <summary>Tests is_orbit_stable with no companions.</summary>
     public static void TestIsOrbitStableNoCompanions()
     {
