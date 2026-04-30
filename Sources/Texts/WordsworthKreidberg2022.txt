@@ -20,6 +20,21 @@ for exact thresholds, fit coefficients, and table values.*
 ## StarGen applicability
 Secondary atmosphere formation and retention: volcanic outgassing, photodissociation, escape rates, composition evolution. Constrains atmosphere generation for rocky worlds in StarGen — not all rocky HZ planets retain atmospheres; expose model uncertainty.
 
+## Current StarGen usage
+`PlanetAtmosphereGenerator` now records a source-marked secondary-atmosphere retention trace, including retention probability, secondary-atmosphere escape pressure, retention scalar, final atmosphere regime, composition family, and oxygen context.
+
+## Human reviewer concern
+Use this review to prevent generated rocky HZ planets from being treated as automatically atmosphere-bearing or Earthlike.
+
+## AI response / disposition
+Use WordsworthKreidberg2022 as the broad reviewed anchor for secondary atmosphere diversity and retention uncertainty. The current implementation remains a heuristic trace layer, not a full atmospheric evolution model.
+
+## Implementation status
+partly implemented
+
+## Follow-up action
+Replace the scalar retention proxy with a reviewed atmosphere-evolution model that couples outgassing, photochemistry, XUV history, volatile inventory, and interior exchange after human verification.
+
 ## Parameters, constraints, and mechanics implications
 *(Human action: fill in specific numeric values, distributions, model families, and
 classification boundaries extracted from the paper. Where competing models or confidence

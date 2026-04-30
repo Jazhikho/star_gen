@@ -20,6 +20,21 @@ for exact thresholds, fit coefficients, and table values.*
 ## StarGen applicability
 Updated HZ using HITRAN 2008/HITEMP 2010: Solar conservative HZ 0.99–1.70 AU; parametric fit for Teff 2600–7200 K. Primary HZ calculation reference in StarGen. Note: no cloud radiative effects included.
 
+## Current StarGen usage
+StarGen uses Kopparapu2013 conservative boundaries as the default HZ model, with an optimistic variant exposed for orbit-zone scoring and downstream habitability context.
+
+## Human reviewer concern
+Keep the cloud-free and valid-temperature-range limitations visible so HZ alignment is not mistaken for guaranteed habitability.
+
+## AI response / disposition
+Use Kopparapu2013 as the active default circumstellar HZ reference while preserving atmosphere retention, volatile history, and life bottlenecks as separate generator inputs.
+
+## Implementation status
+supports current use
+
+## Follow-up action
+Add model-range warnings or fallback behavior if future host types fall outside the verified 2600-7200 K range.
+
 ## Parameters, constraints, and mechanics implications
 *(Human action: fill in specific numeric values, distributions, model families, and
 classification boundaries extracted from the paper. Where competing models or confidence

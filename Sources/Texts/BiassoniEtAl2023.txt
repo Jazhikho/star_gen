@@ -2,7 +2,7 @@
 
 ## Source metadata
 - File: `BiassoniEtAl2023.pdf`
-- Domain: stellar/galactic structure
+- Domain: atmospheric escape / metastable helium observation
 - Pages: 14
 - Authors (auto-extracted — verify against PDF): INAF – Osservatorio Astronomico di Brera, Via E. Bianchi 46, 23807 Merate, Italy
 
@@ -14,11 +14,27 @@ Absorption of stellar X-ray and Extreme Ultraviolet (EUV) radiation in the upper
 StarGen defaults. Figures and equations not captured by text extraction — read the PDF
 for exact thresholds, fit coefficients, and table values.*
 
-- Primary domain: stellar/galactic structure
+- Primary domain: atmospheric escape / metastable helium observation
 - See StarGen applicability section below for the specific implications.
 
 ## StarGen applicability
-Verify abstract — apply to relevant galactic structural parameters in StarGen.
+Metastable helium escape modeling and transmission diagnostics. Use only as observational/contextual support for H/He escape until the PDF metadata and numerical model are verified; do not use for galactic structural parameters.
+
+## Current StarGen usage
+`PlanetAtmosphereGenerator` records BiassoniEtAl2023 only in `atmosphere_context_sources` with a caveat that it is not an active default model.
+
+## Human reviewer concern
+The previous domain/applicability metadata was wrong and would have routed the source toward galaxy structure or occurrence calibration.
+
+## AI response / disposition
+Correct the domain to atmospheric escape and keep the note as human-verification-pending observational context. It should not be treated as authoritative support for active default atmosphere outcomes.
+
+## Implementation status
+documentation-only
+
+## Follow-up action
+Human verification should complete the citation and decide whether any ATES/He 10830 diagnostics should become optional calibration checks.
+
 
 ## Parameters, constraints, and mechanics implications
 *(Human action: fill in specific numeric values, distributions, model families, and
@@ -66,9 +82,9 @@ superseded. Flag updates in Followup.md.)*
 
 ## StarGen mechanics translation
 
-### Planet occurrence / demographics — recent Kepler/TESS study
+### Atmospheric escape / metastable helium context
 *(Verify exact domain of BiassoniEtAl2023 against PDF; domain tag from DOMAIN_HINTS.)*
 
-**StarGen:** Contributes to planet occurrence rate calibration. Verify specific numbers
+**StarGen:** Contributes observational context for atmospheric escape diagnostics. Verify specific numbers
 against PDF before encoding. Pending human verification.
 **Cross-references:** See AnnotatedBibliography.md.

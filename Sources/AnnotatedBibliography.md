@@ -44,7 +44,7 @@ with full-text extraction (PDF when retrievable, otherwise HTML full text).
 
 **APA:** Balbi, A., & Frank, A. (2024). The oxygen bottleneck for technospheres. Nature Astronomy, 8(1), 39-43. https://doi.org/10.1038/s41550-023-02112-8
 
-**StarGen annotation:** O₂ concentration as prerequisite for technology-bearing civilisations. Technosphere emergence in StarGen's population module should require atmospheric O₂ accumulation — not just liquid water or insolation.
+**StarGen annotation:** Reviewed and partly implemented as a late-stage technosphere oxygen bottleneck, including civilization scoring and atmosphere oxygen-context provenance. Do not use as proof that every possible technological pathway requires an Earthlike oxygen history.
 
 
 ## Behroozi2019
@@ -85,11 +85,11 @@ with full-text extraction (PDF when retrievable, otherwise HTML full text).
 
 ## BiassoniEtAl2023 **(APA incomplete)**
 
-**Domain:** stellar/galactic structure
+**Domain:** atmospheric escape / metastable helium observation
 
 **APA:** Biassoni, F., et al. (2023). Match PDF to ADS and complete author list: repository stem BiassoniEtAl2023.
 
-**StarGen annotation:** Abstract not yet transcribed to this note — verify PDF and apply to relevant galactic structural parameters.
+**StarGen annotation:** Documentation-only observational context for H/He escape diagnostics. The previous galaxy/occurrence metadata was wrong; this source is not active authoritative support for default rocky-atmosphere or galaxy-structure generation.
 
 
 ## BlandHawthornGerhard2016
@@ -143,7 +143,7 @@ with full-text extraction (PDF when retrievable, otherwise HTML full text).
 
 **APA:** Chatterjee, R. D., & Pierrehumbert, R. T. (2024). Novel physics of escaping secondary atmospheres may shape the cosmic shoreline. arXiv:2412.05188. [Submitted to The Astrophysical Journal — verify published journal citation. Note: arXiv 2024, publication pending 2025/2026.]
 
-**StarGen annotation:** Extends the cosmic shoreline concept to secondary (N₂/CO₂) atmosphere escape. JWST shows many cool rocky exoplanets lack thick atmospheres. Two escape regimes: energy-limited (linear XUV scaling) and collisional-radiative thermostat. Implements two-step atmospheric fate model in StarGen: primordial H/He loss (LugerBarnes2015) followed by secondary atmosphere check, with volcanism revival probability. M4+ planets have extended XUV phase → near-zero secondary atmosphere retention probability without tectonic outgassing.
+**StarGen annotation:** Extends the cosmic shoreline concept to secondary (N₂/CO₂) atmosphere escape. Partly implemented as heuristic secondary-atmosphere escape-pressure, retention-scalar, and retained/airless provenance in `PlanetAtmosphereGenerator`; the analytic hydrodynamic threshold and volcanic-revival model remain follow-up.
 
 
 ## ChenKipping2017
@@ -413,7 +413,7 @@ with full-text extraction (PDF when retrievable, otherwise HTML full text).
 
 **APA:** Kasting, J. F., Whitmire, D. P., & Reynolds, R. T. (1993). Habitable zones around main sequence stars. Icarus, 101(1), 108-128. https://doi.org/10.1006/icar.1993.1010
 
-**StarGen annotation:** Original HZ definition: conservative inner 0.95 AU, outer 1.67 AU for the Sun. Historical baseline superseded quantitatively by Kopparapu2013. StarGen should cite both and note that Kopparapu2013 values are the current standard.
+**StarGen annotation:** Reviewed legacy HZ option. StarGen exposes `Kasting1993Conservative`, but Kopparapu2013 remains the quantitative default.
 
 
 ## KavelaarsEtAl2023 **(APA incomplete)**
@@ -476,7 +476,7 @@ with full-text extraction (PDF when retrievable, otherwise HTML full text).
 
 **APA:** Kopparapu, R. K., et al. (2013). Habitable zones around main-sequence stars: new estimates. The Astrophysical Journal, 765(2), 131. https://doi.org/10.1088/0004-637X/765/2/131
 
-**StarGen annotation:** Updated HZ using HITRAN 2008/HITEMP 2010 absorption databases: Solar conservative HZ 0.99–1.70 AU; parametric polynomial fits for Teff 2600–7200 K. Primary HZ calculation reference for StarGen. Note: cloud radiative effects not included.
+**StarGen annotation:** Reviewed and supports current use as StarGen's default cloud-free circumstellar HZ reference. HZ alignment is recorded separately from atmosphere retention, volatile history, and life bottlenecks.
 
 
 ## Kopparapu2014
@@ -485,7 +485,7 @@ with full-text extraction (PDF when retrievable, otherwise HTML full text).
 
 **APA:** Kopparapu, R. K., et al. (2014). Habitable zones around main-sequence stars: dependence on planetary mass. The Astrophysical Journal Letters, 787(2), L29. https://doi.org/10.1088/2041-8205/787/2/L29
 
-**StarGen annotation:** HZ limits corrected for planet mass — more/less massive planets have different greenhouse efficiency. StarGen should account for planet-mass-dependent HZ boundaries rather than a single fixed HZ per star.
+**StarGen annotation:** Reviewed but underutilized. StarGen cites this as the planet-mass HZ follow-up, but the active HZ calculation still uses system-level Kasting/Kopparapu2013 options before planet mass is known.
 
 
 ## Kormendy2009
@@ -584,7 +584,7 @@ with full-text extraction (PDF when retrievable, otherwise HTML full text).
 
 **APA:** Luger, R., et al. (2015). Habitable evaporated cores: transforming mini-Neptunes into super-Earths in the habitable zones of M dwarfs. Astrobiology, 15(1), 57-88. https://doi.org/10.1089/ast.2014.1145
 
-**StarGen annotation:** Pre-MS M-dwarf high-luminosity phase strips HZ-planet atmospheres before they enter the HZ; XUV saturation lasts up to ~1 Gyr for late M dwarfs. StarGen should flag M-dwarf HZ planets as high-risk for atmosphere loss — especially stars <0.3 M☉.
+**StarGen annotation:** Partly implemented. StarGen now records cool-host pre-main-sequence XUV risk in atmosphere provenance and folds it into secondary-atmosphere escape-pressure heuristics; exact ocean-loss and abiotic-O₂ amounts remain follow-up.
 
 
 ## LuquePalle2022
@@ -917,7 +917,7 @@ with full-text extraction (PDF when retrievable, otherwise HTML full text).
 
 **APA:** Vissapragada, S., et al. (2022). A non-detection of atmospheric helium on WASP-107 b from three transits with CUTE. The Astronomical Journal, 164(1), 24. https://doi.org/10.3847/1538-3881/ac73ea
 
-**StarGen annotation:** Helium 10830 Å non-detection on WASP-107b — constrains metastable He atmospheric escape in sub-Neptunes. Contributes observational constraints on photoevaporation model parameters for radius-gap modelling in StarGen.
+**StarGen annotation:** Documentation-only observational context for atmospheric escape calibration. Not used as a direct rocky secondary-atmosphere retention model.
 
 
 ## WanderleyEtAl2025
@@ -944,7 +944,7 @@ with full-text extraction (PDF when retrievable, otherwise HTML full text).
 
 **APA:** Wordsworth, R., & Kreidberg, L. (2022). Atmospheric composition of rocky exoplanets. Annual Review of Astronomy and Astrophysics, 60, 139-169. https://doi.org/10.1146/annurev-astro-112420-030055
 
-**StarGen annotation:** Secondary atmosphere formation and retention on rocky exoplanets: volcanic outgassing rates, photodissociation, escape rates, and composition evolution. Constrains atmosphere generation for rocky worlds in StarGen — not all rocky HZ planets retain atmospheres; expose model uncertainty.
+**StarGen annotation:** Partly implemented as the broad anchor for rocky secondary-atmosphere retention uncertainty. Generated planets now record retention probability, escape pressure, retention scalar, atmosphere regime, composition family, and oxygen context; full atmosphere evolution remains follow-up.
 
 ---
 

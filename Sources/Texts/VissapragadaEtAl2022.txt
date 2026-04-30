@@ -20,6 +20,21 @@ for exact thresholds, fit coefficients, and table values.*
 ## StarGen applicability
 Helium 10830 Å detection probing sub-Neptune atmospheric escape. Observational support for XUV-driven photoevaporation; constrains escape rate for radius-gap modelling in StarGen.
 
+## Current StarGen usage
+`PlanetAtmosphereGenerator` records VissapragadaEtAl2022 as observational context for escape calibration rather than as an active default atmosphere-retention model.
+
+## Human reviewer concern
+Do not use a He 10830 observational survey as if it directly specifies rocky secondary-atmosphere retention or Earthlike habitability outcomes.
+
+## AI response / disposition
+Use the source as context for escape diagnostics and future calibration sanity checks. The active secondary-atmosphere trace is grounded mainly in WordsworthKreidberg2022, ChatterjeeEtAl2026, and LugerBarnes2015.
+
+## Implementation status
+documentation-only
+
+## Follow-up action
+After human verification, decide whether generated sub-Neptune mass-loss rates need an optional He-observation calibration diagnostic.
+
 ## Parameters, constraints, and mechanics implications
 *(Human action: fill in specific numeric values, distributions, model families, and
 classification boundaries extracted from the paper. Where competing models or confidence

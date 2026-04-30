@@ -20,6 +20,21 @@ for exact thresholds, fit coefficients, and table values.*
 ## StarGen applicability
 Original HZ: conservative inner 0.95 AU, outer 1.67 AU for Sun. Historical baseline superseded quantitatively by Kopparapu2013. StarGen should cite both and note Kopparapu values are current standard.
 
+## Current StarGen usage
+StarGen exposes `Kasting1993Conservative` as a legacy habitable-zone option in orbit-zone and HZ-boundary calculations.
+
+## Human reviewer concern
+Do not present Kasting1993 as the current quantitative default when Kopparapu2013 supersedes it for the main HZ calculation.
+
+## AI response / disposition
+Keep Kasting1993 as a reviewed historical/legacy option and cite it as conceptual HZ grounding only when that option is selected.
+
+## Implementation status
+supports current use
+
+## Follow-up action
+None for the current slice beyond keeping UI/help wording clear that Kopparapu2013 is the default.
+
 ## Parameters, constraints, and mechanics implications
 *(Human action: fill in specific numeric values, distributions, model families, and
 classification boundaries extracted from the paper. Where competing models or confidence

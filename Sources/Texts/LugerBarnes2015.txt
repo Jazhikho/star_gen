@@ -20,6 +20,21 @@ for exact thresholds, fit coefficients, and table values.*
 ## StarGen applicability
 Pre-MS M-dwarf XUV strips atmospheres before HZ is reached; saturation up to ~1 Gyr for late M dwarfs. StarGen should flag M-dwarf HZ planets as high-risk for atmosphere loss — especially stars <0.3 M☉.
 
+## Current StarGen usage
+`PlanetAtmosphereGenerator` now records `pre_main_sequence_xuv_risk` for cool-host, HZ-like atmosphere contexts and folds that risk into the secondary-atmosphere escape-pressure heuristic. `BiologySupportEvaluator` already uses XUV and desiccation risk as life-bottleneck diagnostics.
+
+## Human reviewer concern
+Do not let M-dwarf HZ placement alone imply Earthlike habitability or retained oceans/atmospheres.
+
+## AI response / disposition
+Use LugerBarnes2015 as an active risk flag and penalty surface for cool-host HZ planets, while avoiding exact ocean-loss or abiotic-O2 bar estimates until the PDF values are verified.
+
+## Implementation status
+partly implemented
+
+## Follow-up action
+Add a reviewed pre-main-sequence luminosity/XUV history model with water-loss and abiotic-O2 diagnostics after human verification.
+
 ## Parameters, constraints, and mechanics implications
 *(Human action: fill in specific numeric values, distributions, model families, and
 classification boundaries extracted from the paper. Where competing models or confidence

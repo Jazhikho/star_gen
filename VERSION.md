@@ -1,12 +1,18 @@
 # Version
 
-Current version: `0.9.5.0`
+Current version: `0.9.6.0`
 
 Current user-facing version: `0.9d` by default, `0.9e` for the export/save-enabled edition
 
 Date: `2026-04-30`
 
 Versioning method: release/refactor `+0.1`, feature `+0.0.1`, bug fix `+0.0.0.1`, save-breaking release `+1.0`.
+
+## 0.9.6.0
+
+- Feature: Tightened the habitable-zone/atmosphere/life-bottleneck source slice with atmosphere-retention source provenance, secondary-atmosphere escape pressure, retention scalar, pre-main-sequence XUV risk, final atmosphere regime, composition family, and oxygen context.
+- Docs: Updated source dispositions and bibliography/audit/project-structure notes for Kasting, Kopparapu, Balbi, Wordsworth/Kreidberg, Chatterjee/Pierrehumbert, Luger/Barnes, Vissapragada, and Biassoni.
+- Test: Added regression coverage for atmosphere source-regime provenance on generated planets.
 
 ## 0.9.5.0
 

@@ -20,6 +20,21 @@ for exact thresholds, fit coefficients, and table values.*
 ## StarGen applicability
 HZ limits corrected for planet mass. StarGen should account for planet-mass-dependent HZ boundaries rather than a single fixed HZ per star luminosity/type.
 
+## Current StarGen usage
+Kopparapu2014 appears in help text and atmosphere/HZ provenance as an underutilized source. The active HZ calculation still uses system-level Kopparapu2013/Kasting options before planet mass is known.
+
+## Human reviewer concern
+Do not imply the generator has fully implemented planet-mass-dependent HZ boundaries.
+
+## AI response / disposition
+Mark this source as underutilized. The current pass records the gap explicitly and keeps planet-mass HZ correction as follow-up rather than silently claiming support.
+
+## Implementation status
+underutilized
+
+## Follow-up action
+Add a planet-mass-conditioned HZ/alignment pass after physical properties are generated, then decide how it should feed surface temperature, hydrosphere, and life scoring.
+
 ## Parameters, constraints, and mechanics implications
 *(Human action: fill in specific numeric values, distributions, model families, and
 classification boundaries extracted from the paper. Where competing models or confidence

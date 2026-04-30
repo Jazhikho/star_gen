@@ -10,6 +10,7 @@ using StarGen.Domain.Generation.Archetypes;
 using StarGen.Domain.Generation.Generators;
 using StarGen.Domain.Generation.Specs;
 using StarGen.Domain.Rng;
+using StarGen.Tests.Framework;
 
 using StarGen.Domain.Math;
 namespace StarGen.Tests.Unit;
@@ -363,6 +364,68 @@ public static class TestPlanetGenerator
         if (snapshot["orbit_zone"].AsInt32() != (int)OrbitZone.Zone.Temperate)
         {
             throw new InvalidOperationException("Orbit zone should be in snapshot");
+        }
+    }
+
+    /// <summary>
+    /// Tests that atmosphere generation records source-grounded retention and regime diagnostics.
+    /// </summary>
+    public static void TestAtmosphereTraceRecordsReviewedSourceRegime()
+    {
+        PlanetSpec spec = new PlanetSpec(
+            9090,
+            SizeCategory.Category.Terrestrial,
+            OrbitZone.Zone.Temperate);
+        spec.HasAtmosphere = true;
+        spec.FormationTrace["habitable_zone_alignment"] = 0.85;
+        spec.FormationTrace["volatile_delivery_scalar"] = 1.10;
+        spec.SetOverride("atmosphere.surface_pressure_pa", 101325.0);
+
+        ParentContext context = ParentContext.ForPlanet(
+            0.25 * Units.SolarMassKg,
+            0.01 * StellarProps.SolarLuminosityWatts,
+            3200.0,
+            4.0e9,
+            0.10 * Units.AuMeters);
+        SeededRng rng = new SeededRng(spec.GenerationSeed);
+
+        CelestialBody planet = PlanetGenerator.Generate(spec, context, rng);
+        if (!planet.HasAtmosphere())
+        {
+            throw new InvalidOperationException("Forced-atmosphere trace test should generate an atmosphere.");
+        }
+
+        Godot.Collections.Dictionary snapshot = planet.Provenance.SpecSnapshot;
+        if (!snapshot.ContainsKey("formation_trace"))
+        {
+            throw new InvalidOperationException("Planet provenance should include the formation trace.");
+        }
+
+        Godot.Collections.Dictionary trace = (Godot.Collections.Dictionary)snapshot["formation_trace"];
+        DotNetNativeTestSuite.AssertTrue(trace.ContainsKey("atmosphere_retention_model"), "Trace should include atmosphere retention model.");
+        DotNetNativeTestSuite.AssertTrue(trace.ContainsKey("atmosphere_active_sources"), "Trace should include active atmosphere sources.");
+        DotNetNativeTestSuite.AssertTrue(trace.ContainsKey("atmosphere_context_source_caveat"), "Trace should include context-source caveat.");
+        DotNetNativeTestSuite.AssertTrue(trace.ContainsKey("secondary_atmosphere_escape_pressure"), "Trace should include secondary-atmosphere escape pressure.");
+        DotNetNativeTestSuite.AssertTrue(trace.ContainsKey("secondary_atmosphere_retention_scalar"), "Trace should include secondary-atmosphere retention scalar.");
+        DotNetNativeTestSuite.AssertTrue(trace.ContainsKey("pre_main_sequence_xuv_risk"), "Trace should include pre-main-sequence XUV risk.");
+        DotNetNativeTestSuite.AssertTrue(trace.ContainsKey("atmosphere_regime"), "Trace should include generated atmosphere regime.");
+        DotNetNativeTestSuite.AssertTrue(trace.ContainsKey("atmosphere_composition_family"), "Trace should include atmosphere composition family.");
+        DotNetNativeTestSuite.AssertTrue(trace.ContainsKey("oxygen_context"), "Trace should include oxygen context.");
+
+        string activeSources = trace["atmosphere_active_sources"].AsString();
+        if (!activeSources.Contains("WordsworthKreidberg2022") || !activeSources.Contains("ChatterjeeEtAl2026") || !activeSources.Contains("LugerBarnes2015"))
+        {
+            throw new InvalidOperationException("Trace should carry the reviewed atmosphere-retention source cluster.");
+        }
+
+        if (!trace["atmosphere_context_source_caveat"].AsString().Contains("not active default models"))
+        {
+            throw new InvalidOperationException("Biassoni context should be marked as caveated observational context, not active default support.");
+        }
+
+        if (trace["pre_main_sequence_xuv_risk"].AsDouble() <= 0.50)
+        {
+            throw new InvalidOperationException("Cool M-dwarf HZ-like context should record elevated pre-main-sequence XUV risk.");
         }
     }
 

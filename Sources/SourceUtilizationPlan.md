@@ -37,18 +37,11 @@ This plan tracks the source-to-generator cleanup separately from the annotated b
 | Orbital architecture and stability spacing | `Obertas2017`, `Rice2023`, `HeEtAl2020`, with `Petit2018`, `Petit2020`, `Tamayo2020`, `Laskar2017`, `FangMargot2013`, `ObertasTamayo2023`, `Outland2020` disposition updates | Partly implemented as source-marked slot scaffolding and planet provenance: exact mutual-Hill spacing, active spacing policy, source IDs, period ratio, architecture mass proxy, and threshold are now recorded. AMD/SPOCK/inclination/dynamical-packing models remain follow-up. |
 | Planet occurrence and architecture demographics | `Petigura2013`, `Bryson2021`, `BergstenEtAl2023`, `MentCharbonneau2023`, `CuiEtAl2026`, `GillisEtAl2026`, with `KunimotoEtAl2022`, `WanderleyEtAl2025`, `VanZandtEtAl2025` disposition updates | Partly implemented as host demographic scalars in `PlanetarySystemState`: FGK close-in/HZ anchors, no automatic M-dwarf HZ surplus, mid-to-late M close-in small-planet boost, and close-in sub-Neptune/hot-giant suppression. Exact period-radius occurrence tables and conditional outer giants remain follow-up. |
 | Disk, formation, migration, giants, and volatile delivery | `Pascucci2016`, `Ribas2015`, `Izidoro2017`, `Fernandes2019`, `RaymondIzidoro2017`, `Mordasini2007`, `LambrechtsJohansen2012`, `TanakaTakeuchiWard2002` | Partly implemented as active formation-state provenance and deterministic generator hooks: host-mass solid-reservoir scaling, adjusted disk lifetime, snow-line giant turnover, pebble/core-accretion branch weighting, giant-scattering volatile delivery, and Type-I migration likelihood diagnostics. Full disk-population fitting, resonant-chain generation/breakup, non-isothermal migration, and asteroid-belt architecture remain follow-up. |
+| Habitable zones, atmospheres, and life bottlenecks | `Kasting1993`, `Kopparapu2013`, `Kopparapu2014`, `Balbi2023`, `WordsworthKreidberg2022`, `ChatterjeeEtAl2026`, `BiassoniEtAl2023`, `VissapragadaEtAl2022`, `LugerBarnes2015` | Partly implemented as atmosphere-retention and composition-regime provenance: active secondary-atmosphere source IDs, escape pressure, retention scalar, pre-main-sequence XUV risk, atmosphere regime, composition family, and oxygen context are now recorded. Full hydrodynamic escape, volcanic revival, planet-mass HZ correction, and atmospheric evolution remain follow-up. |
 
 ## Next priority queue
 
-### 1. Habitable zones, atmospheres, and life bottlenecks
-
-Primary sources: `Kasting1993`, `Kopparapu2013`, `Kopparapu2014`, `Balbi2023`, `WordsworthKreidberg2022`, `ChatterjeeEtAl2026`, `BiassoniEtAl2023`, `VissapragadaEtAl2022`, `LugerBarnes2015`.
-
-Expected work:
-- Keep HZ models and atmosphere-loss/life-support fields aligned with reviewed assumptions.
-- Add missing atmosphere-regime provenance before O2/N2/CO2/H2O/H/He/tenuous/silicate outcomes.
-
-### 2. Moon formation and moon-system architecture
+### 1. Moon formation and moon-system architecture
 
 Primary sources: `Ronnet2020`, `Sasaki2010`, `Szulagyi2018`, `HellerBarnes2013`, `BenistyEtAl2021`, `MalamudPerets2019`, `NakajimaEtAl2022`.
 
@@ -56,7 +49,7 @@ Expected work:
 - Replace generic active moon-formation support with the reviewed Ronnet/Sasaki/Szulagyi cluster.
 - Separate regular circumplanetary-disk moons, captured moons, and impact/accretion limits in tests and provenance.
 
-### 3. Galaxy schema and Milky-Way analog structure
+### 2. Galaxy schema and Milky-Way analog structure
 
 Primary sources: `BlandHawthornGerhard2016`, `Bovy2017`, `Chabrier2003`, `ChabrierLenoble2023`, `KhoperskovEtAl2024`, `HuntVasiliev2025`, `Hayden2014`, `Kroupa2001`, `Kennicutt1998`.
 
@@ -64,7 +57,7 @@ Expected work:
 - Keep `BlandHawthornGerhard2016` marked reviewed but underutilized until schema fields exist for the broader Milky-Way parameter set.
 - Decide which long-bar, nuclear, thin/thick disk, baryon, halo, rotation-curve, and local mass-budget fields become first-class.
 
-### 4. Small bodies and reservoirs
+### 3. Small bodies and reservoirs
 
 Primary sources: `DeMeoCarry2014`, `Lamy2004`, `KavelaarsEtAl2023`, `NapierEtAl2023`, `BernardinelliEtAl2022`, `JewittHaghighipour2022`.
 
@@ -72,7 +65,7 @@ Expected work:
 - Tighten asteroid/comet reservoir scaling, belt placement, and volatile-delivery assumptions.
 - Ensure object-family generation and system-level reservoirs cite the same accepted notes.
 
-### 5. Sentient populations, technology, and governance
+### 4. Sentient populations, technology, and governance
 
 Primary sources: `Chowdhury2022`, `Comin2013`, `CominMestieri2013`, `Stokey2020`, `BettencourtEtAl2007`, `ArvidssonEtAl2023`, `BallandEtAl2022`, `HamiltonEtAl2020`, `Knez2023`.
 
@@ -93,4 +86,4 @@ Remaining work:
 
 ## Immediate recommendation
 
-Continue with **Habitable zones, atmospheres, and life bottlenecks**. Formation-budget provenance is now active enough for the current pass, while Balbi/Wordsworth/Chatterjee/Vissapragada/Luger-Barnes still need atmosphere-regime and life-bottleneck provenance before the generated O2/N2/CO2/H2O/H/He/tenuous/silicate outcomes are as traceable as the planet-formation layer.
+Continue with **Moon formation and moon-system architecture**. Atmosphere-regime provenance is now active enough for the current pass, while Ronnet/Sasaki/Szulagyi still need to replace generic moon-formation support in moon-system architecture, tests, and provenance.

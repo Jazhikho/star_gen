@@ -1603,6 +1603,9 @@ public static partial class DotNetNativeTestSuite
             "TestPlanetGenerator::test_provenance",
             Tests.Unit.TestPlanetGenerator.TestProvenance);
         runner.RunNativeTest(
+            "TestPlanetGenerator::test_atmosphere_trace_records_reviewed_source_regime",
+            Tests.Unit.TestPlanetGenerator.TestAtmosphereTraceRecordsReviewedSourceRegime);
+        runner.RunNativeTest(
             "TestPlanetGenerator::test_name_hint",
             Tests.Unit.TestPlanetGenerator.TestNameHint);
         runner.RunNativeTest(

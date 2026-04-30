@@ -1654,3 +1654,14 @@ Use this log for significant AI-assisted artifacts in this repository.
 - Human Changed: The user observed that generation still appeared functional after the orbital spacing retune and approved continuing the source-utilization sequence.
 - Validation Method: `dotnet build .\StarGen.sln` passed with 0 warnings and 0 errors. `godot-mono.exe --path . --headless --script res://Tests/RunTestsHeadless.gd` passed (`Total: 1882 | Passed: 1882 | Failed: 0`), with the known Godot shutdown leak warnings after the green test report.
 - Final Approver: Pending Christopher B. Del Gesso review.
+
+### 2026-04-30 - Codex (GPT-5)
+
+- Task Purpose: Continue the source-to-generator utilization pass with habitable-zone, atmosphere-retention, and life-bottleneck sources.
+- Input Materials Used: User approval to continue from `Sources/SourceUtilizationPlan.md`; repo `claude.md`; user-supplied AGENTS instructions; source notes for `Kasting1993`, `Kopparapu2013`, `Kopparapu2014`, `Balbi2023`, `WordsworthKreidberg2022`, `ChatterjeeEtAl2026`, `BiassoniEtAl2023`, `VissapragadaEtAl2022`, and `LugerBarnes2015`; `Sources/AnnotatedBibliography.md`; `Docs/EndToEndScienceAudit.md`; `Docs/ProjectStructure.md`; `src/domain/generation/generators/planet/PlanetAtmosphereGenerator.cs`; `src/domain/population/BiologySupportEvaluator.cs`; and the planet/native test registration files.
+- AI Produced: Added source-marked atmosphere-retention provenance to generated planets, including active/context/underutilized atmosphere source IDs, secondary-atmosphere escape pressure, retention scalar, pre-main-sequence XUV risk, final atmosphere regime, composition family, oxygen fraction/partial pressure, and oxygen context; added a regression for generated atmosphere source-regime provenance; updated individual source dispositions, bibliography annotations, source-utilization plan, science audit, project structure, and version metadata.
+- Human Accepted: Pending user review of the heuristic retention/regime provenance approach and wording around observational context sources.
+- Human Rejected: No full hydrodynamic escape solver, volcanic revival model, planet-mass-dependent HZ correction, or oxygen-evolution timeline was implemented; those remain follow-up tasks requiring human verification of source thresholds and applicability.
+- Human Changed: The user approved continuing the logical source-utilization sequence after merging the orbital-spacing retool back to `master`.
+- Validation Method: `dotnet build .\StarGen.sln` passed with 0 warnings and 0 errors. `godot-mono.exe --path . --headless --script res://Tests/RunTestsHeadless.gd` passed (`Total: 1884 | Passed: 1884 | Failed: 0`), with the known Godot shutdown leak warnings after the green test report.
+- Final Approver: Pending Christopher B. Del Gesso review.

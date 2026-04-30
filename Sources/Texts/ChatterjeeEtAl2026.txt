@@ -78,6 +78,21 @@ of H/He) and the final atmospheric state of a rocky planet:
 3. Volcanism revival probability provides a second chance for atmosphere retention
 4. JWST empirical results provide observational grounding for the model
 
+## Current StarGen usage
+`PlanetAtmosphereGenerator` now records secondary-atmosphere escape pressure, a retention scalar, a final retained/airless outcome, and a `secondary_atmosphere_model_status` note. It does not yet implement the paper's analytic hydrodynamic escape threshold or volcanic revival model.
+
+## Human reviewer concern
+The source should be treated as atmospheric escape / secondary-atmosphere grounding, not as planet-formation or migration support.
+
+## AI response / disposition
+The active trace now classifies this as an atmosphere-retention source and marks the current implementation as a heuristic. Larger hydrodynamic-escape and volcanic-revival changes remain explicit follow-up work.
+
+## Implementation status
+partly implemented
+
+## Follow-up action
+Implement a selectable Chatterjee-style secondary atmosphere loss/revival policy only after human verification of thresholds, coefficients, and applicability limits.
+
 ## Parameters, constraints, and mechanics implications
 
 **Two-step atmospheric retention model (LugerBarnes + Chatterjee et al.):**
