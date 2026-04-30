@@ -77,3 +77,20 @@ accretion, followed by envelope accretion and gas runoff.
   stars (motivates Fernandes2019 giant-planet placement rules).
 - Not directly encoded as a StarGen parameter; informs occurrence rate priors.
 **Cross-references:** Fernandes2019.txt, WangFischer2015Met.txt, LambrechtsJohansen2012.txt.
+
+## Source utilization disposition
+
+### Current StarGen usage
+Partly implemented as the core-accretion branch of the gas-giant formation model, metallicity-coupled giant weighting, and snow-line giant formation context.
+
+### Human reviewer concern
+Foundational population-synthesis sources should inform formation budgets while not being overstated as a full simulator.
+
+### AI response / disposition
+StarGen uses this as formation-model grounding for deterministic giant-planet weights, not as a direct Bern-model reproduction. Provenance now makes the compressed proxy status explicit.
+
+### Implementation status
+partly implemented
+
+### Follow-up action
+Add explicit core/envelope growth thresholds and disk-track families only after the relevant parameters are human-verified.

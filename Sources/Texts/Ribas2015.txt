@@ -81,3 +81,20 @@ Empirical XUV luminosity evolution for M-dwarfs: early saturation phase (L_XUV/L
 - Use these values as inputs to LugerBarnes2015 water-loss calculation and
   WordsworthKreidberg2022 atmosphere-retention probability.
 **Cross-references:** LugerBarnes2015.txt, WordsworthKreidberg2022.txt.
+
+## Source utilization disposition
+
+### Current StarGen usage
+Partly implemented in `PlanetarySystemState` through host-mass disk-lifetime scaling and the low-mass-host XUV activity proxy. The adjusted disk lifetime is now serialized and recorded in planet formation traces.
+
+### Human reviewer concern
+The source needs to inform the generation process where disk lifetime and stellar activity affect formation and atmospheric outcomes.
+
+### AI response / disposition
+The active model uses Ribas-style host-mass dependence as a conservative deterministic scalar. It does not yet implement the full XUV saturation-duration time series described in the note.
+
+### Implementation status
+partly implemented
+
+### Follow-up action
+Replace the compact XUV scalar with a source-verified saturation-and-decay curve before using it as a detailed atmosphere-loss model input.

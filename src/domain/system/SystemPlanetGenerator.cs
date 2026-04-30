@@ -682,6 +682,10 @@ public static class SystemPlanetGenerator
         double radiusValleyPeriodDays = state.GetOrbitalPeriodDays(orbitAu);
         double radiusValleyCenterEarth = state.GetRadiusValleyCenterEarth(orbitAu);
         double radiusValleyLossPressure = state.GetRadiusValleyLossPressure(orbitAu);
+        SizeCategory.Category sizeCategory = (SizeCategory.Category)spec.SizeCategory;
+        double migrationMassProxyEarth = GetTypeIMigrationMassProxyEarth(sizeCategory);
+        double typeIMigrationTimescaleMyr = state.EstimateTypeIMigrationTimescaleMyr(migrationMassProxyEarth, orbitAu);
+        double typeIMigrationLikelihood = state.GetTypeIMigrationLikelihood(migrationMassProxyEarth, orbitAu);
         double localVolatilePositionFactor = 0.85;
         if (beyondSnowLine)
         {
@@ -708,10 +712,22 @@ public static class SystemPlanetGenerator
         double localVolatileDelivery = state.VolatileDeliveryScalar
             * localVolatilePositionFactor
             * innerGiantDeliveryBoost;
+        if (!beyondSnowLine && orbitAu <= 0.50 && typeIMigrationLikelihood >= 0.55)
+        {
+            localVolatileDelivery *= 0.92 + (0.20 * typeIMigrationLikelihood);
+        }
+
         double localBombardment = state.BombardmentScalar * (beyondSnowLine ? 1.05 : 0.95);
 
         spec.FormationTrace["system_state"] = state.ToDictionary();
         spec.FormationTrace["slot_au"] = orbitAu;
+        spec.FormationTrace["formation_sources"] = state.FormationSourceIds;
+        spec.FormationTrace["disk_dust_host_mass_exponent"] = state.DiskDustHostMassExponent;
+        spec.FormationTrace["adjusted_disk_lifetime_myr"] = state.AdjustedDiskLifetimeMyr;
+        spec.FormationTrace["type_i_migration_model"] = "tanaka_takeuchi_ward_2002_isothermal_surrogate";
+        spec.FormationTrace["type_i_migration_mass_proxy_earth"] = migrationMassProxyEarth;
+        spec.FormationTrace["type_i_migration_timescale_myr"] = typeIMigrationTimescaleMyr;
+        spec.FormationTrace["type_i_migration_likelihood"] = typeIMigrationLikelihood;
         spec.FormationTrace["slot_stability_policy"] = slot.StabilityPolicyId;
         spec.FormationTrace["slot_stability_sources"] = slot.StabilitySourceIds;
         spec.FormationTrace["slot_spacing_from_inner_mutual_hill_radii"] = slot.SpacingFromInnerMutualHillRadii;
@@ -819,7 +835,15 @@ public static class SystemPlanetGenerator
 
         if (spec.VolatileRichness == PlanetVolatileRichness.Auto)
         {
-            if (beyondSnowLine || localVolatileDelivery >= 1.35)
+            if (!beyondSnowLine
+                && orbitAu <= 0.50
+                && typeIMigrationLikelihood >= 0.65
+                && localVolatileDelivery >= 0.95
+                && !insideLossRegime)
+            {
+                spec.VolatileRichness = PlanetVolatileRichness.Moderate;
+            }
+            else if (beyondSnowLine || localVolatileDelivery >= 1.35)
             {
                 spec.VolatileRichness = PlanetVolatileRichness.Rich;
             }
@@ -897,6 +921,41 @@ public static class SystemPlanetGenerator
                 }
             }
         }
+    }
+
+    private static double GetTypeIMigrationMassProxyEarth(SizeCategory.Category sizeCategory)
+    {
+        if (sizeCategory == SizeCategory.Category.Dwarf)
+        {
+            return 0.01;
+        }
+
+        if (sizeCategory == SizeCategory.Category.SubTerrestrial)
+        {
+            return 0.10;
+        }
+
+        if (sizeCategory == SizeCategory.Category.Terrestrial)
+        {
+            return 1.0;
+        }
+
+        if (sizeCategory == SizeCategory.Category.SuperEarth)
+        {
+            return 5.0;
+        }
+
+        if (sizeCategory == SizeCategory.Category.MiniNeptune)
+        {
+            return 15.0;
+        }
+
+        if (sizeCategory == SizeCategory.Category.NeptuneClass)
+        {
+            return 50.0;
+        }
+
+        return 80.0;
     }
 
     private static void ApplyCompatibilityWeights(

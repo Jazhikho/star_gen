@@ -2479,6 +2479,9 @@ public static partial class DotNetNativeTestSuite
             "TestSystemPlanetGenerator::test_migration_strength_favors_compact_inner_architecture",
             Tests.Unit.TestSystemPlanetGenerator.TestMigrationStrengthFavorsCompactInnerArchitecture);
         runner.RunNativeTest(
+            "TestSystemPlanetGenerator::test_type_i_migration_diagnostic_responds_to_planet_mass_and_gas_disk",
+            Tests.Unit.TestSystemPlanetGenerator.TestTypeIMigrationDiagnosticRespondsToPlanetMassAndGasDisk);
+        runner.RunNativeTest(
             "TestSystemPlanetGenerator::test_direct_planet_rogue_mode_clears_orbit",
             Tests.Unit.TestSystemPlanetGenerator.TestDirectPlanetRogueModeClearsOrbit);
         runner.RunNativeTest(

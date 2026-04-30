@@ -187,3 +187,20 @@ Paardekooper_Radiative / InSitu)
 RiceEtAl2023.txt (peas-in-a-pod spacing uniformity, post-migration outcome),
 HeEtAl2020.txt (AMD stability, architectural uniformity),
 LambrechtsJohansen2012.txt (pebble accretion, growth timescale).
+
+## Source utilization disposition
+
+### Current StarGen usage
+Partly implemented as a Type-I migration timescale and likelihood diagnostic in `PlanetarySystemState`. Generated planets now record the active Tanaka-style isothermal surrogate, migration mass proxy, timescale, and likelihood in formation provenance.
+
+### Human reviewer concern
+The Type-I migration source was previously too easy to overstate because StarGen did not compute even a coarse timescale.
+
+### AI response / disposition
+The generator now uses a bounded diagnostic to influence close-in volatile handling and provenance. The note's own limitation remains active: this is not a modern non-isothermal migration model.
+
+### Implementation status
+partly implemented
+
+### Follow-up action
+Add a selectable non-isothermal/radiative migration branch before treating migration likelihood as a high-precision physical result.

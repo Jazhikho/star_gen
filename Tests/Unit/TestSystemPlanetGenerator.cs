@@ -630,6 +630,47 @@ public static class TestSystemPlanetGenerator
     }
 
     /// <summary>
+    /// Tests that the Tanaka-style Type-I migration diagnostic responds to mass and disk gas.
+    /// </summary>
+    public static void TestTypeIMigrationDiagnosticRespondsToPlanetMassAndGasDisk()
+    {
+        Array<CelestialBody> stars = new Array<CelestialBody> { CreateTestStar() };
+        SolarSystemSpec lightDiskSpec = new SolarSystemSpec(9191, 1, 1)
+        {
+            PlanetaryProfile = new PlanetaryGenerationProfile
+            {
+                GasMassScalar = 0.55,
+                DiskLifetimeMyr = 2.0,
+            },
+        };
+        SolarSystemSpec gasRichSpec = new SolarSystemSpec(9191, 1, 1)
+        {
+            PlanetaryProfile = new PlanetaryGenerationProfile
+            {
+                GasMassScalar = 1.70,
+                DiskLifetimeMyr = 5.0,
+            },
+        };
+
+        PlanetarySystemState lightDiskState = PlanetarySystemState.Build(lightDiskSpec, stars);
+        PlanetarySystemState gasRichState = PlanetarySystemState.Build(gasRichSpec, stars);
+        double earthMassSlow = lightDiskState.EstimateTypeIMigrationTimescaleMyr(1.0, 2.0);
+        double superEarthFast = lightDiskState.EstimateTypeIMigrationTimescaleMyr(5.0, 2.0);
+        double lightLikelihood = lightDiskState.GetTypeIMigrationLikelihood(5.0, 2.0);
+        double gasRichLikelihood = gasRichState.GetTypeIMigrationLikelihood(5.0, 2.0);
+
+        if (superEarthFast >= earthMassSlow)
+        {
+            throw new InvalidOperationException("Type-I migration timescale should be shorter for higher-mass low-mass planets.");
+        }
+
+        if (gasRichLikelihood <= lightLikelihood)
+        {
+            throw new InvalidOperationException("Gas-rich, longer-lived disks should produce a stronger Type-I migration likelihood.");
+        }
+    }
+
+    /// <summary>
     /// Tests that hot close-in worlds strip more easily under the photoevaporation model.
     /// </summary>
     public static void TestEnvelopeLossModelChangesHotPlanetAtmospheres()
@@ -811,12 +852,21 @@ public static class TestSystemPlanetGenerator
         DotNetNativeTestSuite.AssertTrue(trace.ContainsKey("slot_spacing_mass_proxy_earth_masses"), "Trace should include the slot spacing mass proxy.");
         DotNetNativeTestSuite.AssertTrue(trace.ContainsKey("host_occurrence_regime"), "Trace should include the host occurrence regime.");
         DotNetNativeTestSuite.AssertTrue(trace.ContainsKey("occurrence_sources"), "Trace should include occurrence source IDs.");
+        DotNetNativeTestSuite.AssertTrue(trace.ContainsKey("formation_sources"), "Trace should include formation source IDs.");
+        DotNetNativeTestSuite.AssertTrue(trace.ContainsKey("disk_dust_host_mass_exponent"), "Trace should include the active disk-dust exponent.");
+        DotNetNativeTestSuite.AssertTrue(trace.ContainsKey("type_i_migration_model"), "Trace should include the Type-I migration model.");
+        DotNetNativeTestSuite.AssertTrue(trace.ContainsKey("type_i_migration_likelihood"), "Trace should include Type-I migration likelihood.");
         DotNetNativeTestSuite.AssertTrue(trace.ContainsKey("close_in_small_planet_occurrence_scalar"), "Trace should include close-in occurrence scalar.");
         DotNetNativeTestSuite.AssertEqual(OrbitalMechanics.CompactArchitectureSpacingPolicyId, trace["slot_stability_policy"].AsString(), "Trace should identify the active spacing policy.");
 
         if (!trace["slot_stability_sources"].AsString().Contains("Obertas2017"))
         {
             throw new InvalidOperationException("Trace should carry the source cluster backing the active spacing policy.");
+        }
+
+        if (!trace["formation_sources"].AsString().Contains("TanakaTakeuchiWard2002"))
+        {
+            throw new InvalidOperationException("Trace should carry the source cluster backing the active formation and migration proxies.");
         }
     }
 

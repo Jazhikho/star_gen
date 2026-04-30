@@ -129,6 +129,21 @@ public partial class PlanetarySystemState : RefCounted
     public double BombardmentScalar { get; set; } = 1.0;
 
     /// <summary>
+    /// Source IDs used for disk, migration, giant-formation, and volatile-delivery proxies.
+    /// </summary>
+    public string FormationSourceIds { get; set; } = "Pascucci2016;Ribas2015;Izidoro2017;Fernandes2019;RaymondIzidoro2017;Mordasini2007;LambrechtsJohansen2012;TanakaTakeuchiWard2002";
+
+    /// <summary>
+    /// Host-mass exponent used by the active disk-dust solid-reservoir proxy.
+    /// </summary>
+    public double DiskDustHostMassExponent { get; set; } = 1.30;
+
+    /// <summary>
+    /// Disk lifetime after host-mass adjustment, in Myr.
+    /// </summary>
+    public double AdjustedDiskLifetimeMyr { get; set; } = 3.5;
+
+    /// <summary>
     /// Source IDs used for host-demographic occurrence adjustments.
     /// </summary>
     public string OccurrenceSourceIds { get; set; } = "Petigura2013;Bryson2021;BergstenEtAl2023;MentCharbonneau2023;CuiEtAl2026;GillisEtAl2026";
@@ -227,11 +242,12 @@ public partial class PlanetarySystemState : RefCounted
         double closeInHotGiantOccurrenceScalar = ComputeCloseInHotGiantOccurrenceScalar(hostOccurrenceRegime);
         double snowLineAu = 2.7 * System.Math.Sqrt(System.Math.Max(0.05, luminositySolar)) * profile.SnowLineScalar;
         // Pascucci et al. (2016) and Ribas et al. (2015) support host-mass dependence in disk
-        // solids and disk lifetimes. Tuning: the `0.65`, `0.25`, `3.5`, and clamp bands below
+        // solids and disk lifetimes. Tuning: the `1.30`, `0.25`, `3.5`, and clamp bands below
         // are StarGen surrogates for propagating those trends into one deterministic system
         // state rather than direct disk-population fit coefficients.
         double hostMassDiskLifetimeScalar = ComputeHostMassDiskLifetimeScalar(massSolar);
-        double hostMassSolidReservoirScalar = System.Math.Clamp(System.Math.Pow(System.Math.Max(0.2, massSolar), 0.65), 0.45, 1.85);
+        double diskDustHostMassExponent = 1.30;
+        double hostMassSolidReservoirScalar = System.Math.Clamp(System.Math.Pow(System.Math.Max(0.2, massSolar), diskDustHostMassExponent), 0.35, 2.35);
         double hostMassGasReservoirScalar = System.Math.Clamp(System.Math.Pow(System.Math.Max(0.2, massSolar), 0.25), 0.70, 1.35);
         double adjustedDiskLifetimeMyr = profile.DiskLifetimeMyr * hostMassDiskLifetimeScalar;
         double diskLifetimeFactor = System.Math.Clamp(adjustedDiskLifetimeMyr / 3.5, 0.35, 2.10);
@@ -416,12 +432,60 @@ public partial class PlanetarySystemState : RefCounted
             OuterReservoirScalar = outerReservoir,
             VolatileDeliveryScalar = volatileDelivery,
             BombardmentScalar = bombardment,
+            FormationSourceIds = "Pascucci2016;Ribas2015;Izidoro2017;Fernandes2019;RaymondIzidoro2017;Mordasini2007;LambrechtsJohansen2012;TanakaTakeuchiWard2002",
+            DiskDustHostMassExponent = diskDustHostMassExponent,
+            AdjustedDiskLifetimeMyr = adjustedDiskLifetimeMyr,
             HostOccurrenceRegime = hostOccurrenceRegime,
             CloseInSmallPlanetOccurrenceScalar = closeInSmallPlanetOccurrenceScalar,
             HabitableZoneRockyOccurrenceScalar = habitableZoneRockyOccurrenceScalar,
             SubNeptuneOccurrenceScalar = subNeptuneOccurrenceScalar,
             CloseInHotGiantOccurrenceScalar = closeInHotGiantOccurrenceScalar,
         };
+    }
+
+    /// <summary>
+    /// Estimates the Type-I migration timescale in Myr for a low-mass planet in the active disk proxy.
+    /// </summary>
+    public double EstimateTypeIMigrationTimescaleMyr(double planetMassEarth, double orbitAu)
+    {
+        if (planetMassEarth <= 0.0 || orbitAu <= 0.0)
+        {
+            return 200.0;
+        }
+
+        if (planetMassEarth >= 50.0)
+        {
+            return 200.0;
+        }
+
+        double gasSurfaceDensityProxy = GasBudgetScalar / System.Math.Max(System.Math.Sqrt(Profile.DiskRadiusScale), 0.35);
+        gasSurfaceDensityProxy = System.Math.Clamp(gasSurfaceDensityProxy, 0.20, 3.50);
+        double aspectRatioProxy = 0.05 * System.Math.Pow(System.Math.Max(orbitAu, 0.05), 0.08);
+        double aspectRatioFactor = System.Math.Pow(aspectRatioProxy / 0.05, 2.0);
+        double distanceFactor = System.Math.Pow(System.Math.Max(orbitAu, 0.05), 1.50);
+        double stellarMassFactor = System.Math.Clamp(StellarMassSolar, 0.08, 2.50);
+        double timescale = 1.60
+            * stellarMassFactor
+            * (1.0 / planetMassEarth)
+            * (1.0 / gasSurfaceDensityProxy)
+            * aspectRatioFactor
+            * distanceFactor;
+        return System.Math.Clamp(timescale, 0.01, 200.0);
+    }
+
+    /// <summary>
+    /// Returns a bounded likelihood that Type-I migration acted within the gas-disk lifetime.
+    /// </summary>
+    public double GetTypeIMigrationLikelihood(double planetMassEarth, double orbitAu)
+    {
+        double timescaleMyr = EstimateTypeIMigrationTimescaleMyr(planetMassEarth, orbitAu);
+        if (timescaleMyr >= 200.0 || timescaleMyr <= 0.0 || AdjustedDiskLifetimeMyr <= 0.0)
+        {
+            return 0.0;
+        }
+
+        double ratio = AdjustedDiskLifetimeMyr / timescaleMyr;
+        return System.Math.Clamp((ratio - 0.50) / 2.50, 0.0, 1.0);
     }
 
     /// <summary>
@@ -689,6 +753,9 @@ public partial class PlanetarySystemState : RefCounted
             OuterReservoirScalar = OuterReservoirScalar,
             VolatileDeliveryScalar = VolatileDeliveryScalar,
             BombardmentScalar = BombardmentScalar,
+            FormationSourceIds = FormationSourceIds,
+            DiskDustHostMassExponent = DiskDustHostMassExponent,
+            AdjustedDiskLifetimeMyr = AdjustedDiskLifetimeMyr,
             OccurrenceSourceIds = OccurrenceSourceIds,
             HostOccurrenceRegime = HostOccurrenceRegime,
             CloseInSmallPlanetOccurrenceScalar = CloseInSmallPlanetOccurrenceScalar,
@@ -728,6 +795,9 @@ public partial class PlanetarySystemState : RefCounted
             ["outer_reservoir_scalar"] = OuterReservoirScalar,
             ["volatile_delivery_scalar"] = VolatileDeliveryScalar,
             ["bombardment_scalar"] = BombardmentScalar,
+            ["formation_source_ids"] = FormationSourceIds,
+            ["disk_dust_host_mass_exponent"] = DiskDustHostMassExponent,
+            ["adjusted_disk_lifetime_myr"] = AdjustedDiskLifetimeMyr,
             ["occurrence_source_ids"] = OccurrenceSourceIds,
             ["host_occurrence_regime"] = HostOccurrenceRegime,
             ["close_in_small_planet_occurrence_scalar"] = CloseInSmallPlanetOccurrenceScalar,
@@ -770,6 +840,9 @@ public partial class PlanetarySystemState : RefCounted
         state.OuterReservoirScalar = DomainDictionaryUtils.GetDouble(data, "outer_reservoir_scalar", 1.0);
         state.VolatileDeliveryScalar = DomainDictionaryUtils.GetDouble(data, "volatile_delivery_scalar", 1.0);
         state.BombardmentScalar = DomainDictionaryUtils.GetDouble(data, "bombardment_scalar", 1.0);
+        state.FormationSourceIds = DomainDictionaryUtils.GetString(data, "formation_source_ids", "Pascucci2016;Ribas2015;Izidoro2017;Fernandes2019;RaymondIzidoro2017;Mordasini2007;LambrechtsJohansen2012;TanakaTakeuchiWard2002");
+        state.DiskDustHostMassExponent = DomainDictionaryUtils.GetDouble(data, "disk_dust_host_mass_exponent", 1.30);
+        state.AdjustedDiskLifetimeMyr = DomainDictionaryUtils.GetDouble(data, "adjusted_disk_lifetime_myr", 3.5);
         state.OccurrenceSourceIds = DomainDictionaryUtils.GetString(data, "occurrence_source_ids", "Petigura2013;Bryson2021;BergstenEtAl2023;MentCharbonneau2023;CuiEtAl2026;GillisEtAl2026");
         state.HostOccurrenceRegime = DomainDictionaryUtils.GetString(data, "host_occurrence_regime", "fgk_kepler_tess");
         state.CloseInSmallPlanetOccurrenceScalar = DomainDictionaryUtils.GetDouble(data, "close_in_small_planet_occurrence_scalar", 1.0);

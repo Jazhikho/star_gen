@@ -76,3 +76,20 @@ Pebble isolation mass depends on disk properties; typically ~10–20 M⊕.
 - Below: rocky/icy core without gas envelope.
 - Use as upper bound for terrestrial planet core mass in the inner disk.
 **Cross-references:** Mordasini2007.txt, Izidoro2017.txt, RaymondIzidoro2017.txt.
+
+## Source utilization disposition
+
+### Current StarGen usage
+Partly implemented as the pebble-assisted gas-giant formation branch and fragmentation-velocity weighting in the aggregate planetary state.
+
+### Human reviewer concern
+Pebble accretion should change core-growth and giant-formation outcomes, not only be cited as background.
+
+### AI response / disposition
+The active generator lets the pebble-assisted model increase giant-formation weight, with the effect moderated by fragmentation settings. It does not yet model pebble isolation mass, particle drift, or explicit growth times.
+
+### Implementation status
+partly implemented
+
+### Follow-up action
+Add a verified pebble-isolation/core-threshold model for Neptune-to-giant transitions.

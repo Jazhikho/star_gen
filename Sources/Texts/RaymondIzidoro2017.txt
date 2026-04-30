@@ -57,3 +57,20 @@ Outer-belt material includes scattered C-type (carbonaceous) objects.
 - Apply based on whether the system has a migrated giant planet.
 - C-type fraction in outer belt: ~75% (carbonaceous); S-type in inner belt: ~80% (siliceous).
 **Cross-references:** DeMeoCarry2014.txt, MalambudPerets2019.txt, Fernandes2019.txt.
+
+## Source utilization disposition
+
+### Current StarGen usage
+Partly implemented as the giant-scattering and volatile-delivery coupling in `PlanetarySystemState` and `SystemPlanetGenerator`. Inner-planet formation traces now record the same formation source cluster that backs this volatile-delivery proxy.
+
+### Human reviewer concern
+Volatile delivery should be coupled to giant formation and migration, not treated as an isolated random water roll.
+
+### AI response / disposition
+The current model links outer reservoir, snow-line giant formation, giant scattering, bombardment, and inner volatile richness. It remains a deterministic transport proxy rather than a planetesimal scattering simulation.
+
+### Implementation status
+partly implemented
+
+### Follow-up action
+Connect asteroid-belt composition and main-belt depletion directly to the generated giant-planet architecture in the small-bodies pass.

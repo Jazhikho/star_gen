@@ -260,7 +260,7 @@ with full-text extraction (PDF when retrievable, otherwise HTML full text).
 
 **APA:** Fernandes, R. B., Mulders, G. D., Pascucci, I., Mordasini, C., & Emsenhuber, A. (2019). Hiding in the haystack: close-in planets in the Kepler period-radius distribution. The Astrophysical Journal Supplement Series, 245(1), 22. https://doi.org/10.3847/1538-4365/ab59ff
 
-**StarGen annotation:** Cold Jupiter occurrence ~6–10% for Sun-like stars; dependence on metallicity and stellar mass. Prior for giant planet frequency as a function of host properties in StarGen.
+**StarGen annotation:** Reviewed but partly implemented. StarGen uses Fernandes2019 to keep giant-planet weighting peaked near the snow-line region instead of rising monotonically outward; exact broken-power-law occurrence rates remain follow-up.
 
 
 ## FischerValenti2005
@@ -395,7 +395,7 @@ with full-text extraction (PDF when retrievable, otherwise HTML full text).
 
 **APA:** Izidoro, A., et al. (2017). Breaking the chains: hot super-Earth systems from migration and disruption of compact resonant chains. Monthly Notices of the Royal Astronomical Society, 470(2), 1750-1770. https://doi.org/10.1093/mnras/stx1232
 
-**StarGen annotation:** Resonant chains broken by dynamical instabilities explain observed planetary architecture. Constrains inner-planet assembly pathways and resonance disruption rates in StarGen's system generation.
+**StarGen annotation:** Reviewed but partly implemented. StarGen uses Izidoro2017 to shape compact inner architecture pressure and Type-I migration provenance; explicit resonant-chain generation and breakup remain follow-up.
 
 
 ## KarakatsanisMamassis2023
@@ -530,7 +530,7 @@ with full-text extraction (PDF when retrievable, otherwise HTML full text).
 
 **APA:** Lambrechts, M., & Johansen, A. (2012). Rapid growth of gas-giant cores by pebble accretion. Astronomy and Astrophysics, 544, A32. https://doi.org/10.1051/0004-6361/201219127
 
-**StarGen annotation:** Rapid giant-planet core growth via aerodynamically assisted pebble accretion. Constrains giant planet formation timescale and core isolation mass thresholds in StarGen's planet formation model.
+**StarGen annotation:** Reviewed but partly implemented. StarGen uses LambrechtsJohansen2012 for the pebble-assisted gas-giant branch and fragmentation sensitivity; explicit pebble-isolation mass and growth-time modeling remain follow-up.
 
 
 ## Laskar2017
@@ -638,7 +638,7 @@ with full-text extraction (PDF when retrievable, otherwise HTML full text).
 
 **APA:** Mordasini, C., Alibert, Y., Benz, W., & Naef, D. (2008). Extrasolar planet population synthesis I. Method, formation tracks, and mass-distance distribution. Astronomy and Astrophysics, 501(3), 1139-1160. https://doi.org/10.1051/0004-6361:20078919 (Stem Mordasini2007; verify year against PDF.)
 
-**StarGen annotation:** Bern model: disk mass distribution, gas accretion rates, migration tracks. Constrains planet formation mass budget and gas-envelope accretion thresholds for StarGen's planet formation model.
+**StarGen annotation:** Reviewed but partly implemented. StarGen uses Mordasini2007 as core-accretion / population-synthesis grounding for gas-giant formation weights, not as a direct Bern-model simulator.
 
 
 ## Mroz2020
@@ -728,7 +728,7 @@ with full-text extraction (PDF when retrievable, otherwise HTML full text).
 
 **APA:** Pascucci, I., et al. (2016). A steep rise in the disk mass accretion rate at 1-3 Myr in the Orion cluster. The Astrophysical Journal, 831(1), 41. https://doi.org/10.3847/0004-637X/831/1/41
 
-**StarGen annotation:** Disk dust mass ∝ M_*^1.7; disk mass sets the planet formation budget. Constrains initial conditions for planet formation as a function of stellar mass in StarGen.
+**StarGen annotation:** Reviewed but partly implemented. StarGen uses Pascucci2016 to scale the active solid-reservoir proxy with host mass and records the disk-dust exponent in formation provenance; exact ALMA disk-population fits remain follow-up.
 
 
 ## Petigura2013
@@ -782,7 +782,7 @@ with full-text extraction (PDF when retrievable, otherwise HTML full text).
 
 **APA:** Raymond, S. N., & Izidoro, A. (2017). The empty primordial asteroid belt. Science Advances, 3(9), e1701138. https://doi.org/10.1126/sciadv.1701138
 
-**StarGen annotation:** Asteroid belt total mass depletion and compositional structure determined by giant planet migration history. Informs belt mass and compositional gradient as functions of giant planet configuration in StarGen.
+**StarGen annotation:** Reviewed but partly implemented. StarGen uses RaymondIzidoro2017 to link outer reservoirs, giant scattering, bombardment, and volatile delivery; asteroid-belt depletion and compositional structure remain follow-up for the small-bodies pass.
 
 
 ## Ribas2015
@@ -791,7 +791,7 @@ with full-text extraction (PDF when retrievable, otherwise HTML full text).
 
 **APA:** Ribas, I., et al. (2016). The analysis of Proxima Centauri radial velocities without activity corrections. Astronomy and Astrophysics, 596, L21. https://doi.org/10.1051/0004-6361/201629577 (Stem Ribas2015; journal year 2016.)
 
-**StarGen annotation:** XUV luminosity evolution of M dwarfs: saturation phase (L_XUV/L_bol ~10⁻³) lasts up to ~1–3 Gyr for early M dwarfs, longer for late M dwarfs. Constrains atmospheric erosion rate model for M-dwarf HZ planets in StarGen.
+**StarGen annotation:** Reviewed but partly implemented. StarGen uses Ribas2015 for host-mass disk-lifetime and low-mass-host activity proxies; full XUV saturation-and-decay history remains follow-up.
 
 
 ## Rice2023
@@ -890,7 +890,7 @@ with full-text extraction (PDF when retrievable, otherwise HTML full text).
 
 **APA:** Tanaka, H., Takeuchi, T., & Ward, W. R. (2002). Three-dimensional interaction between a planet and an isothermal gaseous disk. I. Corotation and Lindblad torques and planet migration. The Astrophysical Journal, 565(2), 1257–1274. https://doi.org/10.1086/324713
 
-**StarGen annotation:** Canonical Type I migration formula: τ_mig ~ (M_star/M_planet) × (M_star/Σ r²) × (H/r)⁻² × Ω⁻¹ ~ 10⁶ yr at 5 AU. Implements `MigrationMode` enum (TypeI / TypeII / Stalled / None). Cross-references VanZandtDistantGiants2025 (outer giants dynamically cool), CuiEtAl2026 (hot Jupiter rate after migration).
+**StarGen annotation:** AI-assisted draft, partly implemented. StarGen now records a Tanaka-style isothermal Type-I migration timescale and likelihood diagnostic in planet formation provenance. It does not yet implement a public `MigrationMode` enum or the non-isothermal/radiative corrections noted in the source file.
 
 
 ## Tokovinin2021

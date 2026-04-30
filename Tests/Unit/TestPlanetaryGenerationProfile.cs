@@ -118,6 +118,9 @@ public static class TestPlanetaryGenerationProfile
         DotNetNativeTestSuite.AssertEqual(state.HabitableZoneOuterAu, rebuilt.HabitableZoneOuterAu, "Derived state should preserve habitable-zone outer edge");
         DotNetNativeTestSuite.AssertEqual(state.VolatileDeliveryScalar, rebuilt.VolatileDeliveryScalar, "Derived state should preserve volatile delivery");
         DotNetNativeTestSuite.AssertEqual(state.XuvActivityScalar, rebuilt.XuvActivityScalar, "Derived state should preserve XUV activity");
+        DotNetNativeTestSuite.AssertEqual(state.FormationSourceIds, rebuilt.FormationSourceIds, "Derived state should preserve formation source IDs");
+        DotNetNativeTestSuite.AssertEqual(state.DiskDustHostMassExponent, rebuilt.DiskDustHostMassExponent, "Derived state should preserve the disk-dust host-mass exponent");
+        DotNetNativeTestSuite.AssertEqual(state.AdjustedDiskLifetimeMyr, rebuilt.AdjustedDiskLifetimeMyr, "Derived state should preserve adjusted disk lifetime");
         DotNetNativeTestSuite.AssertEqual(state.EffectiveTemperatureK, rebuilt.EffectiveTemperatureK, "Derived state should preserve effective temperature");
         DotNetNativeTestSuite.AssertEqual(state.HostOccurrenceRegime, rebuilt.HostOccurrenceRegime, "Derived state should preserve occurrence regime");
         DotNetNativeTestSuite.AssertEqual(state.CloseInSmallPlanetOccurrenceScalar, rebuilt.CloseInSmallPlanetOccurrenceScalar, "Derived state should preserve close-in occurrence scalar");

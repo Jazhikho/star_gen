@@ -56,3 +56,20 @@ material is available for planet formation.
 - For M-dwarfs: proportionally less solid material → fewer / smaller rocky planets.
 - This motivates the lower occurrence rate of large planets around low-mass stars.
 **Cross-references:** LambrechtsJohansen2012.txt, Mordasini2007.txt, MentCharbonneau2023.txt.
+
+## Source utilization disposition
+
+### Current StarGen usage
+Partly implemented in `PlanetarySystemState` as the active host-mass solid-reservoir proxy. The disk-dust host-mass exponent is now recorded in system state and planet formation traces.
+
+### Human reviewer concern
+The source should shape generation, not only appear as a bibliography entry. The disk mass / host mass relation needs to affect downstream planet budgets.
+
+### AI response / disposition
+StarGen now uses a stronger host-mass disk-dust exponent for solid-budget derivation and records the active exponent and source cluster in formation provenance. This is still a deterministic proxy, not a full ALMA disk-population model.
+
+### Implementation status
+partly implemented
+
+### Follow-up action
+Verify the exact preferred exponent range from the PDF and decide whether to expose disk-dust host-mass scaling as a first-class user assumption.

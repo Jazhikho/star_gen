@@ -92,6 +92,18 @@ public static class PlanetaryScienceReferenceCatalog
             "fernandes2019",
             "Fernandes et al. (2019), giant-planet occurrence peaks around the snow-line region.",
             "Sources/Texts/Fernandes2019.txt"),
+        ["ribas2015"] = new PlanetaryScienceSource(
+            "ribas2015",
+            "Ribas et al. (2015), stellar-mass dependence in protoplanetary disk evolution and high-energy activity context.",
+            "Sources/Texts/Ribas2015.txt"),
+        ["izidoro2017"] = new PlanetaryScienceSource(
+            "izidoro2017",
+            "Izidoro et al. (2017), migration chains and post-disk instability in compact super-Earth systems.",
+            "Sources/Texts/Izidoro2017.txt"),
+        ["tanakatakeuchiward2002"] = new PlanetaryScienceSource(
+            "tanakatakeuchiward2002",
+            "Tanaka, Takeuchi, and Ward (2002), canonical isothermal Type-I migration timescale.",
+            "Sources/Texts/TanakaTakeuchiWard2002.txt"),
         ["ronnet2020"] = new PlanetaryScienceSource(
             "ronnet2020",
             "Ronnet and Johansen (2020), giant-planet moon-system formation through planetesimal capture, ablation, and pebble accretion.",
@@ -227,7 +239,7 @@ public static class PlanetaryScienceReferenceCatalog
         new PlanetaryScienceParameterReference(
             "planet_giant_origin_band_model",
             "This picks the assumed giant-planet formation zone.\nBroad Disk keeps StarGen's aggregate default; 5-25 AU follows the source-specific formation band; Snow-Line Adjacent emphasizes local snow-line growth.",
-            new[] { "savvidouetal2023", "fernandes2019" }),
+            new[] { "savvidouetal2023", "fernandes2019", "raymondizidoro2017" }),
     };
 
     private static readonly List<string> PanelSourceIds = new()
@@ -244,6 +256,9 @@ public static class PlanetaryScienceReferenceCatalog
         "lambrechtsjohansen2012",
         "fischervalenti2005",
         "fernandes2019",
+        "ribas2015",
+        "izidoro2017",
+        "tanakatakeuchiward2002",
         "ronnet2020",
         "sasaki2010",
         "szulagyi2018",

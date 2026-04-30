@@ -77,3 +77,20 @@ the observed non-resonant compact multi-planet systems.
 - `ResonantChainBreakup = true` (default for compact systems): applies mild dynamical
   excitation to post-resonance final spacing.
 **Cross-references:** ObertasTamayo2023.txt, Petit2018.txt, TanakaTakeuchiWard2002.txt.
+
+## Source utilization disposition
+
+### Current StarGen usage
+Partly implemented through compact-inner architecture weighting, migration-strength provenance, and the new Type-I migration likelihood diagnostic carried on each generated planet.
+
+### Human reviewer concern
+Migration-chain sources should change generated architectures rather than remain descriptive.
+
+### AI response / disposition
+StarGen now uses migration pressure to bias compact inner systems and records the migration diagnostic in formation traces. It still does not explicitly generate resonant chains, break them, or target resonance offsets from N-body outcomes.
+
+### Implementation status
+partly implemented
+
+### Follow-up action
+Add a dedicated migrated-chain architecture mode with resonance proximity, instability fraction, and post-instability spacing once the stability-source pass is expanded.

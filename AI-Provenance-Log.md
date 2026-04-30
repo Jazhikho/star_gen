@@ -19,6 +19,17 @@ Use this log for significant AI-assisted artifacts in this repository.
 
 ### 2026-04-30 - Codex (GPT-5)
 
+- Task Purpose: Continue the source-to-generator cleanup through disk formation, migration, giant formation, and volatile-delivery sources.
+- Input Materials Used: User direction to continue from `master`; `Sources/SourceUtilizationPlan.md`; `Sources/Texts/Pascucci2016.txt`; `Sources/Texts/Ribas2015.txt`; `Sources/Texts/Izidoro2017.txt`; `Sources/Texts/Fernandes2019.txt`; `Sources/Texts/RaymondIzidoro2017.txt`; `Sources/Texts/Mordasini2007.txt`; `Sources/Texts/LambrechtsJohansen2012.txt`; `Sources/Texts/TanakaTakeuchiWard2002.txt`; `src/domain/generation/PlanetarySystemState.cs`; `src/domain/system/SystemPlanetGenerator.cs`; planetary science registries; tests; bibliography and science-audit docs.
+- AI Produced: Added active formation source IDs, disk-dust host-mass exponent provenance, adjusted disk-lifetime provenance, and a Tanaka-style Type-I migration timescale/likelihood diagnostic; carried those diagnostics into planet formation traces; modestly coupled likely close-in Type-I migration to volatile handling; expanded tests and source dispositions; updated bibliography, science audit, source-utilization plan, version metadata, and registry source coverage.
+- Human Accepted: Pending Christopher B. Del Gesso review.
+- Human Rejected: Treating the deterministic formation proxies as full disk-population, resonant-chain, Bern, pebble-isolation, non-isothermal migration, or planetesimal-scattering simulations.
+- Human Changed: The user directed continuation from `master` after merging the orbital-spacing and occurrence work.
+- Validation Method: `dotnet build .\StarGen.sln` (`Build succeeded. 0 Warning(s), 0 Error(s).`); `godot-mono.exe --path . --headless --script res://Tests/RunTestsHeadless.gd` (`Total: 1883 | Passed: 1883 | Failed: 0`) with the known Godot shutdown leak/resource warnings.
+- Final Approver: Pending Christopher B. Del Gesso review.
+
+### 2026-04-30 - Codex (GPT-5)
+
 - Task Purpose: Start converting source notes into generator behavior by implementing the first Chen-Kipping mass-radius source slice.
 - Input Materials Used: User request to begin using sources to inform generation; `Sources/Texts/ChenKipping2017.txt`; `Sources/AnnotatedBibliography.md`; `Docs/EndToEndScienceAudit.md`; `src/domain/generation/tables/PlanetMassRadiusTable.cs`; `src/domain/generation/generators/planet/PlanetPhysicalGenerator.cs`; `Tests/Unit/TestSystemPlanetGenerator.cs`; and `Tests/Framework/DotNetNativeTestSuite.cs`.
 - AI Produced: Added seeded Chen-Kipping radius scatter to generated planet physical properties; exposed Terran, Neptunian, and Jovian classification probabilities from the mass-radius resolver; recorded those probabilities and sampled scatter in planet formation traces; added unit coverage for transition probabilities and deterministic seeded scatter; and updated source/audit documentation to mark Chen-Kipping as partly implemented rather than only underutilized.

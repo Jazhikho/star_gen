@@ -76,3 +76,20 @@ Warm Jupiters (~0.1–1 AU) are a distinct, less common population.
 - `ColdJupiter_OccurrenceRate` ≈ 6–12% per FGK star at 1–10 AU.
 - Giant planet generation should peak near snow-line distance, not at inner orbits.
 **Cross-references:** Mordasini2007.txt, WangFischer2015Met.txt, FischerValenti2005.txt.
+
+## Source utilization disposition
+
+### Current StarGen usage
+Partly implemented in `PlanetarySystemState.GetSnowLineGiantFormationWeight`, which peaks giant-planet weighting near the system snow line and turns the weight down in the far outer system.
+
+### Human reviewer concern
+Giant planets should not simply become more likely forever with orbital distance.
+
+### AI response / disposition
+The active generator now uses a snow-line-centered giant-formation weight and records the local snow-line giant weight in planet provenance. Exact broken-power-law occurrence rates remain deferred.
+
+### Implementation status
+partly implemented
+
+### Follow-up action
+Replace the current smooth snow-line proxy with a verified broken-power-law giant occurrence table by host type and mass bin.

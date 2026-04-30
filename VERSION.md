@@ -1,12 +1,19 @@
 # Version
 
-Current version: `0.9.4.0`
+Current version: `0.9.5.0`
 
 Current user-facing version: `0.9d` by default, `0.9e` for the export/save-enabled edition
 
 Date: `2026-04-30`
 
 Versioning method: release/refactor `+0.1`, feature `+0.0.1`, bug fix `+0.0.0.1`, save-breaking release `+1.0`.
+
+## 0.9.5.0
+
+- Feature: Tightened the disk/formation/migration source slice with active formation source IDs, disk-dust host-mass exponent provenance, adjusted disk-lifetime provenance, and a Tanaka-style Type-I migration timescale/likelihood diagnostic.
+- Feature: Formation context now modestly affects close-in volatile handling when Type-I migration is likely, while keeping non-isothermal migration and resonant-chain generation as explicit follow-ups.
+- Docs: Updated individual source dispositions, annotated bibliography, source-utilization plan, science audit, and AI provenance for the formation-source pass.
+- Test: Added regressions for Type-I migration diagnostics and expanded formation-trace serialization/provenance coverage.
 
 ## 0.9.4.0
 

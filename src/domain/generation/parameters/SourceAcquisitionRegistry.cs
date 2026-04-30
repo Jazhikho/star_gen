@@ -306,6 +306,21 @@ public static class SourceAcquisitionRegistry
             SourceAcquisitionStatus.LocalSourceNote,
             "res://Sources/Texts/RaymondIzidoro2017.txt",
             "Local source note exists for volatile-delivery and migration context."),
+        ["ribas2015"] = Create(
+            "ribas2015",
+            SourceAcquisitionStatus.LocalSourceNote,
+            "res://Sources/Texts/Ribas2015.txt",
+            "Local source note exists for stellar-mass disk lifetime and XUV activity context."),
+        ["izidoro2017"] = Create(
+            "izidoro2017",
+            SourceAcquisitionStatus.LocalSourceNote,
+            "res://Sources/Texts/Izidoro2017.txt",
+            "Local source note exists for migration-chain and post-instability compact-system context."),
+        ["tanakatakeuchiward2002"] = Create(
+            "tanakatakeuchiward2002",
+            SourceAcquisitionStatus.LocalSourceNote,
+            "res://Sources/Texts/TanakaTakeuchiWard2002.txt",
+            "Local source note exists for Type-I migration diagnostics; non-isothermal migration remains follow-up."),
         ["baueretal2017"] = Create(
             "baueretal2017",
             SourceAcquisitionStatus.LocalSourceNote,
