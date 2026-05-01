@@ -2,7 +2,7 @@
 
 ## Source metadata
 - File: `MalamudPerets2019.pdf`
-- Domain: tidal disruption / WD pollution
+- Domain: giant-impact exomoon formation / terrestrial exomoons
 - Pages: 15
 - Authors (auto-extracted — verify against PDF): Uri Malamud,1,2 Hagai B. Perets,2,3 Christoph Schäfer,4 Christoph Burger4,5
 
@@ -14,11 +14,26 @@ Exomoons orbiting terrestrial or super-terrestrial exoplanets have not yet been 
 StarGen defaults. Figures and equations not captured by text extraction — read the PDF
 for exact thresholds, fit coefficients, and table values.*
 
-- Primary domain: tidal disruption / WD pollution
+- Primary domain: giant-impact exomoon formation / terrestrial exomoons
 - See StarGen applicability section below for the specific implications.
 
 ## StarGen applicability
-Tidal disruption of planetesimals near white dwarfs or close-orbit dynamics. Relevant to planetary system evolution around evolved stellar remnants in StarGen.
+Giant-impact exomoon formation around terrestrial and super-terrestrial planets. Relevant to impact-limited terrestrial moon generation, but not a CPD regular-satellite source.
+
+## Current StarGen usage
+`SystemMoonGenerator` records MalamudPerets2019 as underutilized context for future terrestrial giant-impact moon generation. Current terrestrial moons are labeled `impact_limited_terrestrial_candidate`, but the SPH/N-body impact model is not implemented.
+
+## Human reviewer concern
+Do not misclassify this as white-dwarf pollution or use it to justify giant-planet CPD moons.
+
+## AI response / disposition
+Correct the source domain and keep it as a planned terrestrial-impact moon source. It is not active default logic beyond provenance identifying the gap.
+
+## Implementation status
+underutilized
+
+## Follow-up action
+After human verification, add a terrestrial giant-impact moon branch with impact probability, moon mass ratio, stable-orbit checks, and composition diagnostics.
 
 ## Parameters, constraints, and mechanics implications
 *(Human action: fill in specific numeric values, distributions, model families, and
@@ -47,4 +62,4 @@ superseded. Flag updates in Followup.md.)*
 
 ## StarGen mechanics translation
 
-*(Mechanics for MalamudPerets2019 pending human review — verify paper domain against PDF and fill in specific implementable rules, enums, numeric thresholds, and cross-references.)*
+Mechanics are not implemented as active default generation in this pass. The reviewed disposition above records this source as underutilized and limits current use to provenance for future terrestrial giant-impact moon work; exact SPH/N-body thresholds, stable-orbit criteria, and composition diagnostics still require human verification against the PDF before becoming generator defaults.

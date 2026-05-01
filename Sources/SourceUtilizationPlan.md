@@ -38,18 +38,11 @@ This plan tracks the source-to-generator cleanup separately from the annotated b
 | Planet occurrence and architecture demographics | `Petigura2013`, `Bryson2021`, `BergstenEtAl2023`, `MentCharbonneau2023`, `CuiEtAl2026`, `GillisEtAl2026`, with `KunimotoEtAl2022`, `WanderleyEtAl2025`, `VanZandtEtAl2025` disposition updates | Partly implemented as host demographic scalars in `PlanetarySystemState`: FGK close-in/HZ anchors, no automatic M-dwarf HZ surplus, mid-to-late M close-in small-planet boost, and close-in sub-Neptune/hot-giant suppression. Exact period-radius occurrence tables and conditional outer giants remain follow-up. |
 | Disk, formation, migration, giants, and volatile delivery | `Pascucci2016`, `Ribas2015`, `Izidoro2017`, `Fernandes2019`, `RaymondIzidoro2017`, `Mordasini2007`, `LambrechtsJohansen2012`, `TanakaTakeuchiWard2002` | Partly implemented as active formation-state provenance and deterministic generator hooks: host-mass solid-reservoir scaling, adjusted disk lifetime, snow-line giant turnover, pebble/core-accretion branch weighting, giant-scattering volatile delivery, and Type-I migration likelihood diagnostics. Full disk-population fitting, resonant-chain generation/breakup, non-isothermal migration, and asteroid-belt architecture remain follow-up. |
 | Habitable zones, atmospheres, and life bottlenecks | `Kasting1993`, `Kopparapu2013`, `Kopparapu2014`, `Balbi2023`, `WordsworthKreidberg2022`, `ChatterjeeEtAl2026`, `BiassoniEtAl2023`, `VissapragadaEtAl2022`, `LugerBarnes2015` | Partly implemented as atmosphere-retention and composition-regime provenance: active secondary-atmosphere source IDs, escape pressure, retention scalar, pre-main-sequence XUV risk, atmosphere regime, composition family, and oxygen context are now recorded. Full hydrodynamic escape, volcanic revival, planet-mass HZ correction, and atmospheric evolution remain follow-up. |
+| Moon formation and moon-system architecture | `Ronnet2020`, `Sasaki2010`, `Szulagyi2018`, `JewittHaghighipour2007`, with `BenistyEtAl2021`, `HellerBarnes2013`, `MalamudPerets2019`, `NakajimaEtAl2022` dispositions | Partly implemented as source-marked moon-channel and architecture provenance. Regular CPD moons now use a satellite-scale mass budget and record Ronnet/Sasaki/Szulagyi active sources, CPD/Hill diagnostics, and Galilean/Saturnian/ice-giant architecture modes. Captured moons are separated under Jewitt/Haghighipour irregular-satellite context with retrograde-favored orbit style. Benisty is CPD observational context, Heller/Barnes is habitability/tidal-heating context, and Malamud/Perets plus Nakajima remain underutilized terrestrial-impact follow-ups. |
 
 ## Next priority queue
 
-### 1. Moon formation and moon-system architecture
-
-Primary sources: `Ronnet2020`, `Sasaki2010`, `Szulagyi2018`, `HellerBarnes2013`, `BenistyEtAl2021`, `MalamudPerets2019`, `NakajimaEtAl2022`.
-
-Expected work:
-- Replace generic active moon-formation support with the reviewed Ronnet/Sasaki/Szulagyi cluster.
-- Separate regular circumplanetary-disk moons, captured moons, and impact/accretion limits in tests and provenance.
-
-### 2. Galaxy schema and Milky-Way analog structure
+### 1. Galaxy schema and Milky-Way analog structure
 
 Primary sources: `BlandHawthornGerhard2016`, `Bovy2017`, `Chabrier2003`, `ChabrierLenoble2023`, `KhoperskovEtAl2024`, `HuntVasiliev2025`, `Hayden2014`, `Kroupa2001`, `Kennicutt1998`.
 
@@ -57,7 +50,7 @@ Expected work:
 - Keep `BlandHawthornGerhard2016` marked reviewed but underutilized until schema fields exist for the broader Milky-Way parameter set.
 - Decide which long-bar, nuclear, thin/thick disk, baryon, halo, rotation-curve, and local mass-budget fields become first-class.
 
-### 3. Small bodies and reservoirs
+### 2. Small bodies and reservoirs
 
 Primary sources: `DeMeoCarry2014`, `Lamy2004`, `KavelaarsEtAl2023`, `NapierEtAl2023`, `BernardinelliEtAl2022`, `JewittHaghighipour2022`.
 
@@ -65,7 +58,7 @@ Expected work:
 - Tighten asteroid/comet reservoir scaling, belt placement, and volatile-delivery assumptions.
 - Ensure object-family generation and system-level reservoirs cite the same accepted notes.
 
-### 4. Sentient populations, technology, and governance
+### 3. Sentient populations, technology, and governance
 
 Primary sources: `Chowdhury2022`, `Comin2013`, `CominMestieri2013`, `Stokey2020`, `BettencourtEtAl2007`, `ArvidssonEtAl2023`, `BallandEtAl2022`, `HamiltonEtAl2020`, `Knez2023`.
 
@@ -84,6 +77,38 @@ Remaining work:
 - Add mutual-inclination sampling after Fang/Margot parameter verification.
 - Add tests that distinguish the current heuristic from the reviewed future policy.
 
+## Deferred Kopparapu2014 follow-up
+
+Primary sources: `Kopparapu2013`, `Kopparapu2014`, with mass/radius inputs from `ChenKipping2017` and `Otegi2020`.
+
+Why deferred: StarGen currently computes the circumstellar HZ as a system/star-level band before individual planet mass is known. Kopparapu2014 is specifically about planet-mass-dependent HZ limits, so fully using it requires a second, planet-level HZ/alignment pass after physical properties are generated.
+
+Remaining work:
+- Add planet-specific mass-corrected HZ diagnostics after `PlanetPhysicalGenerator` resolves mass and radius.
+- Record `kopparapu2014_mass_corrected_hz_inner_au`, `kopparapu2014_mass_corrected_hz_outer_au`, and `kopparapu2014_mass_corrected_hz_alignment` in planet provenance.
+- Decide whether mass-corrected HZ alignment should affect only diagnostics at first, or also surface temperature, hydrosphere, atmosphere, and life scoring.
+- Add tests comparing low-mass, Earth-mass, and super-Earth rocky planets at the same orbit so the Kopparapu2014 correction is visible and bounded.
+- Branch this work if it changes orbit selection, hydrosphere generation, or life scoring rather than remaining provenance-only.
+
+## Deferred moon follow-up
+
+Primary sources: `Ronnet2020`, `Sasaki2010`, `Szulagyi2018`, `JewittHaghighipour2007`, `BenistyEtAl2021`, `HellerBarnes2013`, `MalamudPerets2019`, `NakajimaEtAl2022`.
+
+Current source use:
+- `Ronnet2020`: active for regular CPD moon channel, satellite-scale total mass-ratio budget, and CPD/Hill provenance; not yet a pebble-accretion or ablation solver.
+- `Sasaki2010`: active for Galilean resonant-chain and Saturnian dominant-moon architecture labels and mass-hierarchy shaping; not yet a gas-infall, cavity-evolution, or resonance-capture model.
+- `Szulagyi2018`: active for allowing ice-giant regular icy CPD moon systems and CPD outer-fraction diagnostics; not yet a CPD thermodynamics or population-synthesis implementation.
+- `JewittHaghighipour2007`: active for captured/irregular moon channel and retrograde-favored captured-orbit style; not yet a capture-family or irregular size-distribution model.
+- `BenistyEtAl2021`: observational context only; use later as a CPD mass/size sanity check for young giant systems.
+- `HellerBarnes2013`: habitability/tidal-heating context only for this slice; use later for a circumplanetary habitable-edge diagnostic.
+- `MalamudPerets2019` and `NakajimaEtAl2022`: underutilized terrestrial-impact moon sources; use later for a branch that models late impacts, large-Moon mass ratios, stable outward tidal evolution, and composition/obliquity effects.
+
+Remaining work:
+- Replace StarGen-tuned regular-moon mass shares with source-extracted distributions after human verification.
+- Add explicit resonance spacing/capture diagnostics for Galilean-like chains.
+- Add captured-satellite family generation, including prograde/retrograde clusters and small-body size distribution.
+- Add a terrestrial giant-impact moon process branch; branch the work if it changes rocky-planet moon frequency, habitability scoring, or planet formation history.
+
 ## Immediate recommendation
 
-Continue with **Moon formation and moon-system architecture**. Atmosphere-regime provenance is now active enough for the current pass, while Ronnet/Sasaki/Szulagyi still need to replace generic moon-formation support in moon-system architecture, tests, and provenance.
+Continue with **Galaxy schema and Milky-Way analog structure**. Moon architecture provenance and mass-budget constraints are now active enough for the current pass, while Bland-Hawthorn/Gerhard remains reviewed but underutilized until the broader Milky-Way schema exists.

@@ -2449,6 +2449,9 @@ public static partial class DotNetNativeTestSuite
             "TestSystemMoonGenerator::test_moon_formation_bias_changes_captured_share",
             Tests.Unit.TestSystemMoonGenerator.TestMoonFormationBiasChangesCapturedShare);
         runner.RunNativeTest(
+            "TestSystemMoonGenerator::test_moon_formation_trace_records_source_architecture",
+            Tests.Unit.TestSystemMoonGenerator.TestMoonFormationTraceRecordsSourceArchitecture);
+        runner.RunNativeTest(
             "TestSystemPlanetGenerator::test_generate_planets",
             Tests.Unit.TestSystemPlanetGenerator.TestGeneratePlanets);
         runner.RunNativeTest(

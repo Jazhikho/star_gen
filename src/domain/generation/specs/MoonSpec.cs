@@ -31,6 +31,11 @@ public partial class MoonSpec : BaseSpec
     public Variant HasSubsurfaceOcean { get; set; }
 
     /// <summary>
+    /// Derived formation trace used for provenance and later inspection.
+    /// </summary>
+    public Dictionary FormationTrace { get; set; } = new();
+
+    /// <summary>
     /// Creates a new moon specification.
     /// </summary>
     public MoonSpec(
@@ -149,6 +154,7 @@ public partial class MoonSpec : BaseSpec
         data["is_captured"] = IsCaptured;
         data["has_atmosphere"] = HasAtmosphere;
         data["has_subsurface_ocean"] = HasSubsurfaceOcean;
+        data["formation_trace"] = FormationTrace.Duplicate(true);
         return data;
     }
 
@@ -195,6 +201,11 @@ public partial class MoonSpec : BaseSpec
 
         bool isCaptured = data.ContainsKey("is_captured") && (bool)data["is_captured"];
         MoonSpec spec = new MoonSpec(generationSeed, sizeCategory, isCaptured, GetVariant(data, "has_atmosphere"), GetVariant(data, "has_subsurface_ocean"), nameHint, overrides);
+        if (data.ContainsKey("formation_trace") && data["formation_trace"].VariantType == Variant.Type.Dictionary)
+        {
+            spec.FormationTrace = ((Dictionary)data["formation_trace"]).Duplicate(true);
+        }
+
         spec.ApplyBaseFromDictionary(data);
         return spec;
     }

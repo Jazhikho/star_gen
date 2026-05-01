@@ -20,6 +20,21 @@ for exact thresholds, fit coefficients, and table values.*
 ## StarGen applicability
 Satellite system formation and resonance trapping around giant planets. Constrains moon system orbital architecture (resonance chains, mass hierarchy) in StarGen.
 
+## Current StarGen usage
+`SystemMoonGenerator` now records Sasaki2010 in active regular-moon source provenance and uses a simple architecture mode split between `galilean_resonant_chain_candidate` and `saturnian_dominant_outer_moon_candidate` for gas-giant systems.
+
+## Human reviewer concern
+Do not claim a full resonance-capture or Jovian/Saturnian disk-evolution model when the generator only has a proxy architecture mode.
+
+## AI response / disposition
+Sasaki2010 is partly implemented as source-marked architecture provenance and mass-hierarchy shaping. Full gas-infall timing, cavity evolution, Type-I migration, and resonance capture remain follow-up.
+
+## Implementation status
+partly implemented
+
+## Follow-up action
+Add a verified Jovian/Saturnian architecture selector with explicit resonance spacing and mass-hierarchy distributions after human review of the source parameters.
+
 ## Parameters, constraints, and mechanics implications
 *(Human action: fill in specific numeric values, distributions, model families, and
 classification boundaries extracted from the paper. Where competing models or confidence

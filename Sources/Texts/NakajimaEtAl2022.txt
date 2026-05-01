@@ -2,7 +2,7 @@
 
 ## Source metadata
 - File: `NakajimaEtAl2022.pdf`
-- Domain: stellar/planetary physics
+- Domain: terrestrial planet accretion / Moon-size bodies
 - Pages: 10
 - Authors (auto-extracted — verify against PDF): (see PDF)
 
@@ -14,11 +14,26 @@ One of the unique aspects of Earth is that it has a fractionally large Moon, whi
 StarGen defaults. Figures and equations not captured by text extraction — read the PDF
 for exact thresholds, fit coefficients, and table values.*
 
-- Primary domain: stellar/planetary physics
+- Primary domain: terrestrial planet accretion / Moon-size bodies
 - See StarGen applicability section below for the specific implications.
 
 ## StarGen applicability
-2022 — verify abstract for specific StarGen application.
+Terrestrial accretion by Moon-size bodies and giant-impact Moon formation context. Relevant to future rocky-planet accretion history, impact-limited moons, and large-moon habitability diagnostics.
+
+## Current StarGen usage
+`SystemMoonGenerator` records NakajimaEtAl2022 as underutilized context for future terrestrial giant-impact moon generation. It is not used for regular giant-planet CPD moons.
+
+## Human reviewer concern
+Do not route this source into stellar physics or generic CPD moon formation; its relevance is terrestrial accretion and large impact-origin moons.
+
+## AI response / disposition
+Correct the source domain and keep it as planned support for an impact-origin terrestrial moon branch. Current implementation only labels terrestrial regular moons as impact-limited candidates.
+
+## Implementation status
+underutilized
+
+## Follow-up action
+After human verification, add provenance and generation logic for late Moon-size impactors, large Moon mass ratios, obliquity stabilization context, and composition effects.
 
 ## Parameters, constraints, and mechanics implications
 *(Human action: fill in specific numeric values, distributions, model families, and

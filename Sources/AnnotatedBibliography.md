@@ -62,7 +62,7 @@ with full-text extraction (PDF when retrievable, otherwise HTML full text).
 
 **APA:** Benisty, M., et al. (2021). A circumplanetary disk around PDS 70 c. Astronomy and Astrophysics, 652, L8. https://doi.org/10.1051/0004-6361/202140806
 
-**StarGen annotation:** First resolved circumplanetary disk (PDS 70c); confirms ongoing moon formation around forming giant planets. CPD presence and mass set the moon-forming budget for giant planets in StarGen.
+**StarGen annotation:** Documentation-only observational context for CPD existence and scale. It supports the plausibility of moon-forming disks but is not used as an active default moon-count or moon-mass model.
 
 
 ## BergstenEtAl2023
@@ -359,7 +359,16 @@ with full-text extraction (PDF when retrievable, otherwise HTML full text).
 
 **APA:** Heller, R., & Barnes, R. (2013). Exomoon habitability constrained by illumination and tidal heating. International Journal of Astrobiology, 12(4), 313-323. https://doi.org/10.1017/S1473550413000300
 
-**StarGen annotation:** Exomoon habitable edge; tidal heating is both an enabler and a habitability hazard. StarGen should model tidal heating for inner moons of giant planets and apply a distinct threshold separate from insolation-only HZ.
+**StarGen annotation:** Partly implemented as moon habitability/tidal-heating context, not as a moon-formation source. `MoonPhysicalGenerator` computes tidal heating; a full circumplanetary habitable-edge diagnostic remains follow-up.
+
+
+## JewittHaghighipour2007
+
+**Domain:** irregular satellites / captured moons
+
+**APA:** Jewitt, D., & Haghighipour, N. (2007). Irregular satellites of the planets: Products of capture in the early solar system. Annual Review of Astronomy and Astrophysics, 45, 261-295. https://doi.org/10.1146/annurev.astro.44.051905.092459
+
+**StarGen annotation:** Partly implemented as the active captured/irregular moon source. Captured moons are separated from regular CPD moons in provenance and get retrograde-favored, eccentric orbit styling; detailed capture families and size distributions remain follow-up.
 
 
 ## Herbort2024 **(APA incomplete)**
@@ -598,11 +607,11 @@ with full-text extraction (PDF when retrievable, otherwise HTML full text).
 
 ## MalamudPerets2019 **(APA incomplete)**
 
-**Domain:** tidal disruption / WD planet pollution
+**Domain:** giant-impact exomoon formation / terrestrial exomoons
 
 **APA:** Malamud, U., & Perets, H. B. (2019). Match stem MalamudPerets2019 to ADS for the PDF on file.
 
-**StarGen annotation:** Tidal disruption of planetesimals around white dwarfs. Relevant to planetary system evolution around WD remnants — informs tidal-stripping rates and WD pollution modelling in StarGen.
+**StarGen annotation:** Underutilized terrestrial-impact moon source. Current moons can be labeled as `impact_limited_terrestrial_candidate`, but the SPH/N-body impact model, stable-orbit criteria, and composition diagnostics are not implemented.
 
 
 ## MentCharbonneau2023 **(APA incomplete)**
@@ -656,7 +665,7 @@ with full-text extraction (PDF when retrievable, otherwise HTML full text).
 
 **APA:** Nakajima, M., Genda, H., Asphaug, E., & Ida, S. (2022). Terrestrial planet compositions controlled by accretion of Moon-size bodies. Nature Communications, 13, 2064. https://doi.org/10.1038/s41467-022-28063-8
 
-**StarGen annotation:** Terrestrial planet compositions controlled by accretion of Moon-size bodies. Relevant to rocky-planet interior composition modelling — accretion history affects bulk elemental ratios in StarGen.
+**StarGen annotation:** Underutilized for terrestrial accretion and impact-origin large moons. Planned use is a future rocky-planet impact/accretion branch, not regular giant-planet CPD moon formation.
 
 
 ## NapierEtAl2023 **(APA incomplete)**
@@ -827,7 +836,7 @@ with full-text extraction (PDF when retrievable, otherwise HTML full text).
 
 **APA:** Ronnet, T., & Johansen, A. (2020). Formation of moons and the collisional dynamics of a system of pebble-seeded embryos. Astronomy and Astrophysics, 642, A65. https://doi.org/10.1051/0004-6361/201936804
 
-**StarGen annotation:** Moon formation via pebble accretion within circumplanetary disk. Constrains satellite mass distribution and orbital architecture for moon generation in StarGen. Retained audit warning: do not treat the specific `10 mutual Hill radii` multiplier as an authoritative source-backed rule; exact moon-spacing coefficients remain StarGen tuning unless separately sourced. Bibliography/source closure status: reviewed but underutilized.
+**StarGen annotation:** Partly implemented as the active regular CPD moon-channel source after previously being reviewed but underutilized. StarGen now uses a satellite-scale regular-moon mass budget and records CPD/Hill provenance; detailed pebble accretion, ablation, migration, and resonant-chain instability remain follow-up. Retained audit warning: do not treat the specific `10 mutual Hill radii` multiplier as an authoritative source-backed rule; exact moon-spacing coefficients remain StarGen tuning unless separately sourced.
 
 
 ## Sasaki2010
@@ -836,7 +845,7 @@ with full-text extraction (PDF when retrievable, otherwise HTML full text).
 
 **APA:** Sasaki, T., Stewart, G. R., & Ida, S. (2010). Origin of the different architectures of the Jovian and Saturnian satellite systems. The Astrophysical Journal, 714(2), 1052-1064. https://doi.org/10.1088/0004-637X/714/2/1052
 
-**StarGen annotation:** Satellite system formation and resonance trapping around giant planets. Constrains moon system orbital architecture (resonance chains, mass hierarchy, compositional gradients) in StarGen's moon generator.
+**StarGen annotation:** Partly implemented as gas-giant moon architecture provenance and mass-hierarchy shaping. StarGen records Galilean resonant-chain and Saturnian dominant-moon candidate modes, but does not yet implement gas-infall/cavity evolution or resonance capture.
 
 
 ## SpiegelTurner2012
@@ -872,7 +881,7 @@ with full-text extraction (PDF when retrievable, otherwise HTML full text).
 
 **APA:** Szulagyi, J., Cilibrasi, M., & Mayer, L. (2018). In situ formation of icy moons of Uranus and Neptune. The Astrophysical Journal Letters, 868(1), L13. https://doi.org/10.3847/2041-8213/aaeed6
 
-**StarGen annotation:** CPD simulations: CPD extent ~0.3–0.4 R_Hill, gas/dust structure, temperature profile (moon-forming region ~50–150 K). Constrains CPD mass and temperature for moon-forming conditions in StarGen.
+**StarGen annotation:** Partly implemented as the active source for ice-giant regular icy CPD moon systems and CPD outer-Hill diagnostics. Full CPD thermodynamics and population synthesis remain follow-up.
 
 
 ## Tamayo2020

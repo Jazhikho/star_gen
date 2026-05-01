@@ -46,6 +46,21 @@ Provides: probability of having irregulars, expected retrograde/prograde ratio, 
 vs planetary mass, size distribution, orbital parameter distributions. Also constrains
 dynamical history assumptions for gas-giant systems.
 
+## Current StarGen usage
+`SystemMoonGenerator` uses JewittHaghighipour2007 as active support for captured/irregular moon provenance and for captured-moon orbital overrides: broad eccentricities and a retrograde-favored inclination draw.
+
+## Human reviewer concern
+Captured/irregular moons should not be mixed with regular CPD moon formation or counted against the same source logic.
+
+## AI response / disposition
+Keep this source separate from the Ronnet/Sasaki/Szulagyi regular CPD cluster. Current usage is a deterministic StarGen proxy for captured irregular orbit style; detailed capture mechanisms and size-family distributions remain follow-up.
+
+## Implementation status
+partly implemented
+
+## Follow-up action
+Add a captured-satellite family model with prograde/retrograde groupings, small-body size distribution, and capture-scenario controls after human verification.
+
 ## Parameters, constraints, and mechanics implications
 
 **Occurrence and numbers:**

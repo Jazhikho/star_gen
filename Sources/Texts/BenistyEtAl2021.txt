@@ -20,6 +20,21 @@ for exact thresholds, fit coefficients, and table values.*
 ## StarGen applicability
 First resolved CPD (PDS 70c); confirms ongoing moon formation around forming giants. Relevant to moon-generation — CPD presence and mass set the moon-forming budget for giant planets.
 
+## Current StarGen usage
+`SystemMoonGenerator` records BenistyEtAl2021 as observational context for CPD existence and scale, not as an active default moon-mass or moon-count model.
+
+## Human reviewer concern
+One resolved CPD observation should not be treated as a complete satellite population model.
+
+## AI response / disposition
+Use BenistyEtAl2021 as contextual validation that moon-forming CPDs exist around forming giants. Active regular-moon behavior is instead grounded in the Ronnet/Sasaki/Szulagyi model cluster.
+
+## Implementation status
+documentation-only
+
+## Follow-up action
+After human verification, decide whether PDS 70 c CPD dust-mass and size constraints should become optional sanity checks on generated young giant systems.
+
 ## Parameters, constraints, and mechanics implications
 *(Human action: fill in specific numeric values, distributions, model families, and
 classification boundaries extracted from the paper. Where competing models or confidence

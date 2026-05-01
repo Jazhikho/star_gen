@@ -436,6 +436,95 @@ public static class TestSystemMoonGenerator
         }
     }
 
+    /// <summary>
+    /// Tests that generated moon provenance records source-backed architecture and mass-budget diagnostics.
+    /// </summary>
+    public static void TestMoonFormationTraceRecordsSourceArchitecture()
+    {
+        CelestialBody planet = CreateGasGiant();
+        CelestialBody star = CreateTestStar();
+        SolarSystemSpec systemSpec = new SolarSystemSpec(4545, 1, 1)
+        {
+            PlanetaryProfile = new PlanetaryGenerationProfile
+            {
+                MoonFormationBias = PlanetMoonFormationBias.RegularDiskFavored,
+                ImpactStirring = 1.0,
+            },
+        };
+
+        MoonGenerationResult result = SystemMoonGenerator.Generate(
+            new Array<CelestialBody> { planet },
+            new Array<OrbitHost>(),
+            new Array<CelestialBody> { star },
+            new SeededRng(4545),
+            false,
+            null,
+            systemSpec);
+
+        if (result.Moons.Count <= 0)
+        {
+            throw new InvalidOperationException("Source-architecture trace test should generate moons for the gas giant.");
+        }
+
+        int regularCount = 0;
+        double regularMassRatioSum = 0.0;
+        foreach (CelestialBody moon in result.Moons)
+        {
+            if (moon.Provenance == null || !moon.Provenance.SpecSnapshot.ContainsKey("formation_trace"))
+            {
+                throw new InvalidOperationException("Generated moon should preserve formation trace provenance.");
+            }
+
+            Dictionary trace = (Dictionary)moon.Provenance.SpecSnapshot["formation_trace"];
+            EnsureMoonTraceField(trace, "moon_formation_model");
+            EnsureMoonTraceField(trace, "moon_formation_channel");
+            EnsureMoonTraceField(trace, "moon_architecture_mode");
+            EnsureMoonTraceField(trace, "moon_context_sources");
+            EnsureMoonTraceField(trace, "moon_underutilized_sources");
+            EnsureMoonTraceField(trace, "moon_source_use_status");
+            EnsureMoonTraceField(trace, "moon_planned_mass_ratio");
+            EnsureMoonTraceField(trace, "moon_cpd_outer_hill_fraction");
+            EnsureMoonTraceField(trace, "moon_orbit_hill_fraction");
+
+            string channel = trace["moon_formation_channel"].AsString();
+            if (channel == "regular_cpd_pebble_accretion")
+            {
+                regularCount += 1;
+                regularMassRatioSum += trace["moon_planned_mass_ratio"].AsDouble();
+                string activeSources = trace["moon_active_sources"].AsString();
+                if (!activeSources.Contains("Ronnet2020", StringComparison.Ordinal)
+                    || !activeSources.Contains("Sasaki2010", StringComparison.Ordinal)
+                    || !activeSources.Contains("Szulagyi2018", StringComparison.Ordinal))
+                {
+                    throw new InvalidOperationException("Regular CPD moons should carry the reviewed Ronnet/Sasaki/Szulagyi source cluster.");
+                }
+
+                if (trace["moon_planned_mass_earth"].AsDouble() > 0.20)
+                {
+                    throw new InvalidOperationException("Regular giant-planet moons should stay inside the source-backed satellite mass budget.");
+                }
+            }
+        }
+
+        if (regularCount <= 0)
+        {
+            throw new InvalidOperationException("Gas giant trace test should include at least one regular CPD moon.");
+        }
+
+        if (regularMassRatioSum > 0.001)
+        {
+            throw new InvalidOperationException($"Regular moon mass budget should remain satellite-scale, got total ratio {regularMassRatioSum:0.000000}.");
+        }
+    }
+
+    private static void EnsureMoonTraceField(Dictionary trace, string key)
+    {
+        if (!trace.ContainsKey(key))
+        {
+            throw new InvalidOperationException($"Moon formation trace should include `{key}`.");
+        }
+    }
+
     private static int CountCapturedMoons(Array<CelestialBody> moons)
     {
         int count = 0;

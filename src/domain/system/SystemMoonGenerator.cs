@@ -6,6 +6,7 @@ using StarGen.Domain.Generation;
 using StarGen.Domain.Generation.Archetypes;
 using StarGen.Domain.Generation.Generators;
 using StarGen.Domain.Generation.Specs;
+using StarGen.Domain.Generation.Tables;
 using StarGen.Domain.Math;
 using StarGen.Domain.Rng;
 
@@ -31,6 +32,9 @@ public static class SystemMoonGenerator
 
     private const double MaxHillFractionRegular = 0.40;
     private const double CaptureProbability = 0.30;
+    private const string MoonActiveSources = "Ronnet2020;Sasaki2010;Szulagyi2018";
+    private const string MoonContextSources = "BenistyEtAl2021;HellerBarnes2013";
+    private const string MoonUnderutilizedSources = "MalamudPerets2019;NakajimaEtAl2022";
 
     /// <summary>
     /// Generates moons for all planets in a system.
@@ -330,6 +334,8 @@ public static class SystemMoonGenerator
         }
 
         Array<double> moonDistances = GenerateMoonDistances(planet, hillRadiusM, moonCount, rng);
+        List<double> plannedDistances = new();
+        List<bool> capturedFlags = new();
         for (int index = 0; index < moonDistances.Count; index += 1)
         {
             double moonDistance = moonDistances[index];
@@ -347,10 +353,39 @@ public static class SystemMoonGenerator
             {
                 moonDistance = System.Math.Max(moonDistance, hillRadiusM * rng.RandfRange(0.32f, 0.60f));
             }
+
+            plannedDistances.Add(moonDistance);
+            capturedFlags.Add(isCaptured);
+        }
+
+        int regularCount = 0;
+        foreach (bool captured in capturedFlags)
+        {
+            if (!captured)
+            {
+                regularCount += 1;
+            }
+        }
+
+        MoonArchitectureContext architecture = BuildArchitectureContext(planet, planetaryState, moonCount, regularCount, hillRadiusM, rng);
+        int regularOrdinal = 0;
+        for (int index = 0; index < plannedDistances.Count; index += 1)
+        {
+            double moonDistance = plannedDistances[index];
+            bool isCaptured = capturedFlags[index];
+            int currentRegularOrdinal = regularOrdinal;
+            if (!isCaptured)
+            {
+                regularOrdinal += 1;
+            }
+
             CelestialBody? moon = GenerateSingleMoon(
                 planet,
                 moonDistance,
                 isCaptured,
+                architecture,
+                regularCount,
+                currentRegularOrdinal,
                 stellarMassKg,
                 stellarLuminosityWatts,
                 stellarTemperatureK,
@@ -377,7 +412,12 @@ public static class SystemMoonGenerator
     private static int DetermineMoonCount(CelestialBody planet, PlanetarySystemState planetaryState, SeededRng rng)
     {
         double massEarth = planet.Physical.MassKg / Units.EarthMassKg;
-        double orbitAu = planet.HasOrbital() ? planet.Orbital!.SemiMajorAxisM / Units.AuMeters : planetaryState.SnowLineAu;
+        double orbitAu = planetaryState.SnowLineAu;
+        if (planet.HasOrbital())
+        {
+            orbitAu = planet.Orbital!.SemiMajorAxisM / Units.AuMeters;
+        }
+
         bool beyondSnowLine = orbitAu >= planetaryState.SnowLineAu;
         double regularDiskBonus = planetaryState.Profile.MoonFormationBias switch
         {
@@ -385,21 +425,37 @@ public static class SystemMoonGenerator
             PlanetMoonFormationBias.CapturedRich => 0.92,
             _ => 1.0,
         };
-        double outerSystemBonus = beyondSnowLine ? 1.20 : 0.90;
+        double outerSystemBonus = 0.90;
+        if (beyondSnowLine)
+        {
+            outerSystemBonus = 1.20;
+        }
+
         int minMoons;
         int maxMoons;
         double probability;
 
         if (massEarth >= 50.0)
         {
-            minMoons = beyondSnowLine ? 3 : 2;
-            maxMoons = beyondSnowLine ? 12 : 8;
+            minMoons = 2;
+            maxMoons = 8;
+            if (beyondSnowLine)
+            {
+                minMoons = 3;
+                maxMoons = 12;
+            }
+
             probability = 0.94 * regularDiskBonus * outerSystemBonus;
         }
         else if (massEarth >= 10.0)
         {
             minMoons = 1;
-            maxMoons = beyondSnowLine ? 6 : 4;
+            maxMoons = 4;
+            if (beyondSnowLine)
+            {
+                maxMoons = 6;
+            }
+
             probability = 0.82 * regularDiskBonus * outerSystemBonus;
         }
         else if (massEarth >= 2.0)
@@ -440,9 +496,18 @@ public static class SystemMoonGenerator
         }
 
         double raw = rng.Randf();
-            double biasExponent = massEarth >= 10.0 ? 0.60 : 0.85;
-            double biased = System.Math.Pow(raw, biasExponent);
-            return (int)(minMoons + ((maxMoons + 0.99 - minMoons) * biased));
+        double biasExponent;
+        if (massEarth >= 10.0)
+        {
+            biasExponent = 0.60;
+        }
+        else
+        {
+            biasExponent = 0.85;
+        }
+
+        double biased = System.Math.Pow(raw, biasExponent);
+        return (int)(minMoons + ((maxMoons + 0.99 - minMoons) * biased));
     }
 
     private static double CalculateCaptureProbability(
@@ -450,9 +515,19 @@ public static class SystemMoonGenerator
         PlanetarySystemState planetaryState,
         double hillFraction)
     {
-        double orbitAu = planet.HasOrbital() ? planet.Orbital!.SemiMajorAxisM / Units.AuMeters : planetaryState.SnowLineAu;
+        double orbitAu = planetaryState.SnowLineAu;
+        if (planet.HasOrbital())
+        {
+            orbitAu = planet.Orbital!.SemiMajorAxisM / Units.AuMeters;
+        }
+
         bool beyondSnowLine = orbitAu >= planetaryState.SnowLineAu;
-        double baseProbability = beyondSnowLine ? 0.12 : 0.04;
+        double baseProbability = 0.04;
+        if (beyondSnowLine)
+        {
+            baseProbability = 0.12;
+        }
+
         baseProbability *= planetaryState.Profile.MoonFormationBias switch
         {
             PlanetMoonFormationBias.CapturedRich => 1.85,
@@ -538,6 +613,9 @@ public static class SystemMoonGenerator
         CelestialBody planet,
         double moonDistance,
         bool isCaptured,
+        MoonArchitectureContext architecture,
+        int regularCount,
+        int regularOrdinal,
         double stellarMassKg,
         double stellarLuminosityWatts,
         double stellarTemperatureK,
@@ -552,44 +630,14 @@ public static class SystemMoonGenerator
         int moonSeed = unchecked((int)rng.Randi());
         MoonSpec spec = new(moonSeed, -1, isCaptured, useCaseSettings: useCaseSettings);
         double planetMassEarth = planet.Physical.MassKg / Units.EarthMassKg;
-        SizeCategory.Category sizeCategory;
-
-        if (isCaptured)
-        {
-            sizeCategory = rng.WeightedChoice(MoonSizeCategories, CapturedWeights);
-        }
-        else if (planetMassEarth >= 50.0)
-        {
-            float[] weights = (float[])GasGiantWeights.Clone();
-            if (planetaryState.Profile.MoonFormationBias == PlanetMoonFormationBias.RegularDiskFavored)
-            {
-                weights[2] += 8.0f;
-                weights[3] += 4.0f;
-            }
-
-            sizeCategory = rng.WeightedChoice(MoonSizeCategories, weights);
-        }
-        else if (planetMassEarth >= 10.0)
-        {
-            float[] weights = (float[])IceGiantWeights.Clone();
-            if (planetaryState.Profile.MoonFormationBias == PlanetMoonFormationBias.RegularDiskFavored)
-            {
-                weights[2] += 4.0f;
-            }
-
-            sizeCategory = rng.WeightedChoice(MoonSizeCategories, weights);
-        }
-        else if (planetMassEarth >= 0.5)
-        {
-            sizeCategory = rng.WeightedChoice(MoonSizeCategories, TerrestrialWeights);
-        }
-        else
-        {
-            sizeCategory = SizeCategory.Category.Dwarf;
-        }
+        double plannedMassEarth = CalculatePlannedMoonMassEarth(planetMassEarth, isCaptured, architecture, regularCount, regularOrdinal, rng);
+        SizeCategory.Category sizeCategory = SizeTable.CategoryFromMass(plannedMassEarth);
 
         spec.SizeCategory = (int)sizeCategory;
         spec.SetOverride("orbital.semi_major_axis_m", moonDistance);
+        spec.SetOverride("physical.mass_earth", plannedMassEarth);
+        ApplyChannelOrbitOverrides(spec, isCaptured, rng);
+        RecordMoonFormationTrace(spec, planet, architecture, isCaptured, regularCount, regularOrdinal, moonDistance, plannedMassEarth, planetaryState);
 
         ParentContext context = ParentContext.ForMoon(
             stellarMassKg,
@@ -648,5 +696,240 @@ public static class SystemMoonGenerator
         }
 
         return moon;
+    }
+
+    private static void ApplyChannelOrbitOverrides(MoonSpec spec, bool isCaptured, SeededRng rng)
+    {
+        if (!isCaptured)
+        {
+            return;
+        }
+
+        spec.SetOverride("orbital.eccentricity", rng.RandfRange(0.10f, 0.65f));
+        if (rng.Randf() < 0.65f)
+        {
+            spec.SetOverride("orbital.inclination_deg", rng.RandfRange(125.0f, 170.0f));
+        }
+        else
+        {
+            spec.SetOverride("orbital.inclination_deg", rng.RandfRange(20.0f, 75.0f));
+        }
+    }
+
+    private static MoonArchitectureContext BuildArchitectureContext(
+        CelestialBody planet,
+        PlanetarySystemState planetaryState,
+        int requestedMoonCount,
+        int regularCount,
+        double hillRadiusM,
+        SeededRng rng)
+    {
+        double planetMassEarth = planet.Physical.MassKg / Units.EarthMassKg;
+        double orbitAu = planetaryState.SnowLineAu;
+        if (planet.HasOrbital())
+        {
+            orbitAu = planet.Orbital!.SemiMajorAxisM / Units.AuMeters;
+        }
+
+        bool beyondSnowLine = orbitAu >= planetaryState.SnowLineAu;
+        MoonArchitectureContext context = new();
+        context.RequestedMoonCount = requestedMoonCount;
+        context.RegularMoonCount = regularCount;
+        context.HillRadiusM = hillRadiusM;
+        context.HostMassEarth = planetMassEarth;
+        context.HostOrbitAu = orbitAu;
+        context.BeyondSnowLine = beyondSnowLine;
+        context.TotalRegularMassRatio = 0.0;
+        context.RegularOuterHillFraction = MaxHillFractionRegular;
+        context.CpdOuterHillFraction = 0.0;
+        context.ResonanceChainCandidate = false;
+
+        if (planetMassEarth >= 50.0)
+        {
+            context.HostClass = "gas_giant";
+            context.CpdOuterHillFraction = 0.33;
+            context.TotalRegularMassRatio = 1.2e-4;
+            if (planetaryState.Profile.MoonFormationBias == PlanetMoonFormationBias.RegularDiskFavored)
+            {
+                context.TotalRegularMassRatio *= 1.25;
+            }
+
+            if (regularCount >= 3 && rng.Randf() < 0.62)
+            {
+                context.ArchitectureMode = "galilean_resonant_chain_candidate";
+                context.ResonanceChainCandidate = true;
+            }
+            else
+            {
+                context.ArchitectureMode = "saturnian_dominant_outer_moon_candidate";
+            }
+        }
+        else if (planetMassEarth >= 10.0)
+        {
+            context.HostClass = "ice_giant";
+            context.CpdOuterHillFraction = 0.34;
+            context.TotalRegularMassRatio = 7.0e-5;
+            context.ArchitectureMode = "ice_giant_icy_cpd_candidate";
+            context.ResonanceChainCandidate = regularCount >= 3 && planetaryState.Profile.MoonFormationBias == PlanetMoonFormationBias.RegularDiskFavored;
+        }
+        else if (planetMassEarth >= 0.3)
+        {
+            context.HostClass = "terrestrial";
+            context.CpdOuterHillFraction = 0.0;
+            context.TotalRegularMassRatio = 0.012;
+            context.RegularOuterHillFraction = 0.10;
+            context.ArchitectureMode = "impact_limited_terrestrial_candidate";
+        }
+        else
+        {
+            context.HostClass = "minor_planet";
+            context.CpdOuterHillFraction = 0.0;
+            context.TotalRegularMassRatio = 0.002;
+            context.RegularOuterHillFraction = 0.12;
+            context.ArchitectureMode = "minor_body_binary_or_capture_candidate";
+        }
+
+        if (!beyondSnowLine && planetMassEarth >= 10.0)
+        {
+            context.TotalRegularMassRatio *= 0.75;
+        }
+
+        return context;
+    }
+
+    private static double CalculatePlannedMoonMassEarth(
+        double planetMassEarth,
+        bool isCaptured,
+        MoonArchitectureContext architecture,
+        int regularCount,
+        int regularOrdinal,
+        SeededRng rng)
+    {
+        if (isCaptured)
+        {
+            double capturedRatio = rng.RandfRange(1.0e-6f, 2.0e-4f);
+            double capturedMass = planetMassEarth * capturedRatio;
+            return System.Math.Clamp(capturedMass, 0.0001, 0.05);
+        }
+
+        if (regularCount <= 0)
+        {
+            return 0.0001;
+        }
+
+        double totalBudgetEarth = planetMassEarth * architecture.TotalRegularMassRatio;
+        double share;
+        if (architecture.ArchitectureMode == "saturnian_dominant_outer_moon_candidate")
+        {
+            if (regularOrdinal == regularCount - 1)
+            {
+                share = 0.62;
+            }
+            else
+            {
+                share = 0.38 / System.Math.Max(regularCount - 1, 1);
+            }
+        }
+        else if (architecture.ArchitectureMode == "impact_limited_terrestrial_candidate")
+        {
+            share = 1.0 / regularCount;
+        }
+        else
+        {
+            share = 1.0 / regularCount;
+            share *= rng.RandfRange(0.75f, 1.25f);
+        }
+
+        double moonMassEarth = totalBudgetEarth * share;
+        if (architecture.HostClass == "terrestrial")
+        {
+            double maximumImpactMoonMass = planetMassEarth * 0.025;
+            moonMassEarth = System.Math.Min(moonMassEarth, maximumImpactMoonMass);
+        }
+        else
+        {
+            double maximumRegularMoonMass = planetMassEarth * 4.5e-4;
+            moonMassEarth = System.Math.Min(moonMassEarth, maximumRegularMoonMass);
+        }
+
+        return System.Math.Clamp(moonMassEarth, 0.0001, 0.30);
+    }
+
+    private static void RecordMoonFormationTrace(
+        MoonSpec spec,
+        CelestialBody planet,
+        MoonArchitectureContext architecture,
+        bool isCaptured,
+        int regularCount,
+        int regularOrdinal,
+        double moonDistance,
+        double plannedMassEarth,
+        PlanetarySystemState planetaryState)
+    {
+        string channel = "regular_cpd_pebble_accretion";
+        string activeSources = MoonActiveSources;
+        string modelStatus = "partly implemented; deterministic StarGen architecture and mass-budget proxy";
+        if (isCaptured)
+        {
+            channel = "captured_irregular";
+            activeSources = "JewittHaghighipour2007";
+            modelStatus = "partly implemented as capture-biased irregular moon proxy; capture mechanics remain follow-up";
+        }
+        else if (architecture.HostClass == "terrestrial")
+        {
+            channel = "impact_limited_terrestrial";
+            activeSources = string.Empty;
+            modelStatus = "provenance-only; giant-impact source implementation remains follow-up";
+        }
+
+        double hillFraction = 0.0;
+        if (architecture.HillRadiusM > 0.0)
+        {
+            hillFraction = moonDistance / architecture.HillRadiusM;
+        }
+
+        double massRatio = 0.0;
+        if (architecture.HostMassEarth > 0.0)
+        {
+            massRatio = plannedMassEarth / architecture.HostMassEarth;
+        }
+
+        spec.FormationTrace["moon_formation_model"] = "stargen_moon_architecture_v1";
+        spec.FormationTrace["moon_active_sources"] = activeSources;
+        spec.FormationTrace["moon_context_sources"] = MoonContextSources;
+        spec.FormationTrace["moon_underutilized_sources"] = MoonUnderutilizedSources;
+        spec.FormationTrace["moon_source_use_status"] = modelStatus;
+        spec.FormationTrace["moon_formation_channel"] = channel;
+        spec.FormationTrace["moon_architecture_mode"] = architecture.ArchitectureMode;
+        spec.FormationTrace["moon_host_class"] = architecture.HostClass;
+        spec.FormationTrace["moon_host_mass_earth"] = architecture.HostMassEarth;
+        spec.FormationTrace["moon_host_orbit_au"] = architecture.HostOrbitAu;
+        spec.FormationTrace["moon_beyond_snow_line"] = architecture.BeyondSnowLine;
+        spec.FormationTrace["moon_requested_count"] = architecture.RequestedMoonCount;
+        spec.FormationTrace["moon_regular_count"] = regularCount;
+        spec.FormationTrace["moon_regular_ordinal"] = regularOrdinal;
+        spec.FormationTrace["moon_total_regular_mass_ratio_budget"] = architecture.TotalRegularMassRatio;
+        spec.FormationTrace["moon_planned_mass_earth"] = plannedMassEarth;
+        spec.FormationTrace["moon_planned_mass_ratio"] = massRatio;
+        spec.FormationTrace["moon_cpd_outer_hill_fraction"] = architecture.CpdOuterHillFraction;
+        spec.FormationTrace["moon_orbit_hill_fraction"] = hillFraction;
+        spec.FormationTrace["moon_resonance_chain_candidate"] = architecture.ResonanceChainCandidate;
+        spec.FormationTrace["moon_formation_bias"] = planetaryState.Profile.MoonFormationBias.ToString();
+    }
+
+    private sealed class MoonArchitectureContext
+    {
+        public string HostClass = "unknown";
+        public string ArchitectureMode = "unclassified";
+        public int RequestedMoonCount;
+        public int RegularMoonCount;
+        public double HostMassEarth;
+        public double HostOrbitAu;
+        public bool BeyondSnowLine;
+        public double TotalRegularMassRatio;
+        public double CpdOuterHillFraction;
+        public double RegularOuterHillFraction;
+        public double HillRadiusM;
+        public bool ResonanceChainCandidate;
     }
 }

@@ -20,6 +20,21 @@ for exact thresholds, fit coefficients, and table values.*
 ## StarGen applicability
 Moon formation via pebble accretion within circumplanetary disk. Constrains satellite mass distribution and orbital architecture for moon generation in StarGen.
 
+## Current StarGen usage
+`SystemMoonGenerator` now uses Ronnet2020 as active support for regular circumplanetary-disk moon channels around giant planets. Regular CPD moons receive source-marked provenance, a satellite-scale total mass-ratio budget, CPD/Hill-fraction diagnostics, and a `regular_cpd_pebble_accretion` channel label.
+
+## Human reviewer concern
+Do not use the withdrawn Canup/Ward source as active moon-formation support, and do not let giant-planet moons draw arbitrary planet-scale masses.
+
+## AI response / disposition
+Ronnet2020 is active but only through a conservative StarGen proxy: CPD regular-moon channel, satellite mass-budget cap, and architecture provenance. Exact pebble accretion, ablation, migration, resonant-chain instability, and coefficient values remain human-verification follow-up.
+
+## Implementation status
+partly implemented
+
+## Follow-up action
+Verify the PDF's quantitative satellite mass budget, migration, and resonant-chain outcomes before replacing the current StarGen-tuned coefficients with source-extracted parameters.
+
 ## Parameters, constraints, and mechanics implications
 *(Human action: fill in specific numeric values, distributions, model families, and
 classification boundaries extracted from the paper. Where competing models or confidence

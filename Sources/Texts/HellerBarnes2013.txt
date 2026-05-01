@@ -20,6 +20,21 @@ for exact thresholds, fit coefficients, and table values.*
 ## StarGen applicability
 Exomoon habitable edge; tidal heating as enabler and hazard for moon habitability. StarGen should model tidal heating for inner moons and apply a habitability threshold distinct from insolation-only HZ.
 
+## Current StarGen usage
+`MoonPhysicalGenerator` computes tidal heating, and population/life scoring consumes moon tidal-heating context. `SystemMoonGenerator` records HellerBarnes2013 as moon-habitability context, not as a moon-formation source.
+
+## Human reviewer concern
+Keep moon habitability/tidal heating separate from moon formation channels.
+
+## AI response / disposition
+HellerBarnes2013 supports downstream moon habitability and tidal-heating interpretation. It should not be used to justify moon counts, CPD mass budgets, or capture channels.
+
+## Implementation status
+partly implemented
+
+## Follow-up action
+Add a verified circumplanetary habitable-edge diagnostic for moons after the current architecture and mass-budget work stabilizes.
+
 ## Parameters, constraints, and mechanics implications
 *(Human action: fill in specific numeric values, distributions, model families, and
 classification boundaries extracted from the paper. Where competing models or confidence

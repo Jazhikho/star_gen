@@ -1,12 +1,19 @@
 # Version
 
-Current version: `0.9.6.0`
+Current version: `0.9.7.0`
 
 Current user-facing version: `0.9d` by default, `0.9e` for the export/save-enabled edition
 
-Date: `2026-04-30`
+Date: `2026-05-01`
 
 Versioning method: release/refactor `+0.1`, feature `+0.0.1`, bug fix `+0.0.0.1`, save-breaking release `+1.0`.
+
+## 0.9.7.0
+
+- Feature: Retooled moon-system generation around source-marked regular CPD, captured irregular, and impact-limited terrestrial channels, with satellite-scale mass budgets and architecture provenance.
+- Feature: Captured moons now use irregular-satellite-style eccentric and retrograde-favored orbit overrides, while regular giant/ice-giant moons stay inside a source-backed satellite mass-ratio budget.
+- Docs: Updated moon source dispositions, annotated bibliography, source-utilization plan, science audit, project structure, and AI provenance for Ronnet, Sasaki, Szulagyi, Jewitt/Haghighipour, Benisty, Heller/Barnes, Malamud/Perets, and Nakajima.
+- Test: Added regression coverage for generated moon source architecture and mass-budget provenance.
 
 ## 0.9.6.0
 

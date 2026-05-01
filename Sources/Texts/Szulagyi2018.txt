@@ -20,6 +20,21 @@ for exact thresholds, fit coefficients, and table values.*
 ## StarGen applicability
 CPD simulations: CPD extent ~0.3–0.4 R_Hill, temperature profile. Constrains CPD properties for moon formation in StarGen.
 
+## Current StarGen usage
+`SystemMoonGenerator` now records Szulagyi2018 in active regular-moon source provenance and marks ice-giant regular moon systems as `ice_giant_icy_cpd_candidate`, with CPD outer-Hill-fraction diagnostics.
+
+## Human reviewer concern
+Do not treat ice-giant moon formation as absent simply because older giant-planet moon models focused on Jupiter/Saturn.
+
+## AI response / disposition
+Szulagyi2018 is partly implemented as the active reason ice giants can receive regular icy CPD moon systems. The current implementation does not yet model CPD thermodynamics, dust/gas structure, or Uranus/Neptune-specific population synthesis.
+
+## Implementation status
+partly implemented
+
+## Follow-up action
+Verify CPD size, temperature, and formation-timescale parameters before adding an ice-giant-specific moon population model.
+
 ## Parameters, constraints, and mechanics implications
 *(Human action: fill in specific numeric values, distributions, model families, and
 classification boundaries extracted from the paper. Where competing models or confidence
