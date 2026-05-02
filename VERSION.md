@@ -1,12 +1,21 @@
 # Version
 
-Current version: `0.9.9.0`
+Current version: `0.10.0.0`
 
-Current user-facing version: `0.9d` by default, `0.9e` for the export/save-enabled edition
+Current user-facing version: `0.10`
 
 Date: `2026-05-02`
 
 Versioning method: release/refactor `+0.1`, feature `+0.0.1`, bug fix `+0.0.0.1`, save-breaking release `+1.0`.
+
+## 0.10.0.0
+
+- Release: Promote the current source-grounded generation baseline to the approved user-facing `0.10` release line.
+- Release: Sync `project.godot`, export metadata, scene-authored placeholders, runtime version helpers, README, release checklist, and acceptance checklist to internal `0.10.0.0` / visible `0.10`.
+- Release: Keep demo/export build-channel capability gating in place while removing the old `d`/`e` visible version suffixes from app labels.
+- Feature: Include the current Station Studio production flow, including single-station generation, explicit random-or-defined station inputs, construction/classification readouts, and station population-profile summaries.
+- Docs: Add `Docs/V0.10ReleaseChecklist.md` and `Docs/V0.10AcceptanceChecklist.md` for the release candidate review path.
+- Test: Revalidated with `dotnet build .\StarGen.sln` and `godot-mono.exe --path . --headless --script res://Tests/RunTestsHeadless.gd` (`1891 / 1891`).
 
 ## 0.9.9.0
 

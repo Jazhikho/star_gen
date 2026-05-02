@@ -24,6 +24,16 @@ public partial class StationSpec : RefCounted
 	public StationPlacementContext.Context? ForceContext;
 
 	/// <summary>
+	/// Forced station size class, or null to derive from context and population.
+	/// </summary>
+	public StationClass.Class? ForceStationClass;
+
+	/// <summary>
+	/// Forced station location type, or null to derive from context.
+	/// </summary>
+	public StationType.Type? ForceStationType;
+
+	/// <summary>
 	/// Minimum number of stations.
 	/// </summary>
 	public int MinStations;
@@ -265,6 +275,14 @@ public partial class StationSpec : RefCounted
 		{
 			data["force_context"] = (int)ForceContext.Value;
 		}
+		if (ForceStationClass.HasValue)
+		{
+			data["force_station_class"] = (int)ForceStationClass.Value;
+		}
+		if (ForceStationType.HasValue)
+		{
+			data["force_station_type"] = (int)ForceStationType.Value;
+		}
 
 		return data;
 	}
@@ -295,6 +313,14 @@ public partial class StationSpec : RefCounted
 		if (data.ContainsKey("force_context"))
 		{
 			spec.ForceContext = (StationPlacementContext.Context)GetInt(data, "force_context", (int)StationPlacementContext.Context.Other);
+		}
+		if (data.ContainsKey("force_station_class"))
+		{
+			spec.ForceStationClass = (StationClass.Class)GetInt(data, "force_station_class", (int)StationClass.Class.B);
+		}
+		if (data.ContainsKey("force_station_type"))
+		{
+			spec.ForceStationType = (StationType.Type)GetInt(data, "force_station_type", (int)StationType.Type.DeepSpace);
 		}
 
 		spec.RequiredPurposes = GetPurposeArray(data, "required_purposes");

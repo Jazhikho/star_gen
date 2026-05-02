@@ -455,6 +455,65 @@ public static class TestStationGenerator
     }
 
     /// <summary>
+    /// Tests detailed generation includes station construction and population profile data.
+    /// </summary>
+    public static void TestDetailedGenerationAddsPopulationProfile()
+    {
+        StationSystemContext ctx = CreateColonyContext();
+        StationSpec spec = new StationSpec();
+        spec.GenerationSeed = 12345;
+        spec.MinStations = 1;
+        spec.MaxStations = 1;
+        spec.AllowUtility = false;
+        spec.AllowOutposts = false;
+        spec.AllowLargeStations = true;
+        spec.GenerateDetailedDesign = true;
+
+        StationGenerator.GenerationResult result = StationGenerator.Generate(ctx, spec);
+
+        DotNetNativeTestSuite.AssertEqual(1, result.Stations.Count, "Should generate exactly one station");
+        DotNetNativeTestSuite.AssertEqual(0, result.Outposts.Count, "Should not generate outposts");
+        DotNetNativeTestSuite.AssertNotNull(result.Stations[0].DetailedDesign, "Detailed design should be generated");
+        DotNetNativeTestSuite.AssertNotNull(result.Stations[0].SentientWorldProfile, "Population profile should be generated");
+        DotNetNativeTestSuite.AssertEqual(
+            result.Stations[0].Population,
+            result.Stations[0].SentientWorldProfile.TotalPopulation,
+            "Profile population should match station population");
+    }
+
+    /// <summary>
+    /// Tests explicit station class and location overrides.
+    /// </summary>
+    public static void TestForcedStationClassAndType()
+    {
+        StationSystemContext ctx = CreateColonyContext();
+        StationSpec spec = new StationSpec();
+        spec.GenerationSeed = 54321;
+        spec.MinStations = 1;
+        spec.MaxStations = 1;
+        spec.AllowUtility = false;
+        spec.AllowOutposts = false;
+        spec.AllowLargeStations = true;
+        spec.GenerateDetailedDesign = true;
+        spec.ForceContext = StationPlacementContext.Context.ColonyWorld;
+        spec.ForceStationClass = StationClass.Class.A;
+        spec.ForceStationType = StationType.Type.DeepSpace;
+        spec.RequiredPurposes = new Array<StationPurpose.Purpose> { StationPurpose.Purpose.Trade };
+
+        StationGenerator.GenerationResult result = StationGenerator.Generate(ctx, spec);
+
+        DotNetNativeTestSuite.AssertEqual(1, result.Stations.Count, "Should generate exactly one station");
+        DotNetNativeTestSuite.AssertEqual(0, result.Outposts.Count, "Should not generate outposts");
+        DotNetNativeTestSuite.AssertEqual(StationClass.Class.A, result.Stations[0].StationClass, "Station class should be forced");
+        DotNetNativeTestSuite.AssertEqual(StationType.Type.DeepSpace, result.Stations[0].StationType, "Station type should be forced");
+        DotNetNativeTestSuite.AssertEqual(string.Empty, result.Stations[0].OrbitingBodyId, "Deep-space station should not orbit a body");
+        DotNetNativeTestSuite.AssertGreaterThan(result.Stations[0].Population, 99999, "A-class population should be at least 100K");
+        DotNetNativeTestSuite.AssertLessThan(result.Stations[0].Population, 1000001, "A-class population should be at most 1M");
+        DotNetNativeTestSuite.AssertNotNull(result.Stations[0].DetailedDesign, "Detailed design should be generated");
+        DotNetNativeTestSuite.AssertNotNull(result.Stations[0].SentientWorldProfile, "Population profile should be generated");
+    }
+
+    /// <summary>
     /// Tests get_stations_for_body.
     /// </summary>
     public static void TestGetStationsForBody()

@@ -585,6 +585,7 @@ public static partial class DotNetNativeTestSuite
         runner.RunNativeTest("TestSpaceStation::test_record_independence", TestSpaceStation.TestRecordIndependence);
         runner.RunNativeTest("TestSpaceStation::test_get_summary_small", TestSpaceStation.TestGetSummarySmall);
         runner.RunNativeTest("TestSpaceStation::test_get_summary_large", TestSpaceStation.TestGetSummaryLarge);
+        runner.RunNativeTest("TestSpaceStation::test_sentient_world_profile", TestSpaceStation.TestSentientWorldProfile);
         runner.RunNativeTest("TestSpaceStation::test_validation_valid_small", TestSpaceStation.TestValidationValidSmall);
         runner.RunNativeTest("TestSpaceStation::test_validation_valid_large", TestSpaceStation.TestValidationValidLarge);
         runner.RunNativeTest("TestSpaceStation::test_validation_missing_id", TestSpaceStation.TestValidationMissingId);
@@ -664,6 +665,8 @@ public static partial class DotNetNativeTestSuite
         runner.RunNativeTest("TestStationGenerator::test_unique_ids", TestStationGenerator.TestUniqueIds);
         runner.RunNativeTest("TestStationGenerator::test_orbital_body_ids", TestStationGenerator.TestOrbitalBodyIds);
         runner.RunNativeTest("TestStationGenerator::test_large_stations_have_government", TestStationGenerator.TestLargeStationsHaveGovernment);
+        runner.RunNativeTest("TestStationGenerator::test_detailed_generation_adds_population_profile", TestStationGenerator.TestDetailedGenerationAddsPopulationProfile);
+        runner.RunNativeTest("TestStationGenerator::test_forced_station_class_and_type", TestStationGenerator.TestForcedStationClassAndType);
         runner.RunNativeTest("TestStationGenerator::test_get_stations_for_body", TestStationGenerator.TestGetStationsForBody);
         runner.RunNativeTest("TestStationGenerator::test_result_to_dict", TestStationGenerator.TestResultToDict);
         runner.RunNativeTest("TestStationGenerator::test_invalid_spec_warnings", TestStationGenerator.TestInvalidSpecWarnings);

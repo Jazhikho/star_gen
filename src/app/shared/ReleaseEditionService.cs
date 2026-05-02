@@ -91,12 +91,7 @@ public static class ReleaseEditionService
     /// </summary>
     public static string GetDisplaySuffix(ReleaseEdition edition)
     {
-        if (edition == ReleaseEdition.Export)
-        {
-            return "e";
-        }
-
-        return "d";
+        return string.Empty;
     }
 
     /// <summary>
@@ -112,25 +107,19 @@ public static class ReleaseEditionService
     /// </summary>
     public static string FormatDisplayVersion(string baseVersion, ReleaseEdition edition)
     {
-        string suffix = GetDisplaySuffix(edition);
         if (string.IsNullOrWhiteSpace(baseVersion))
         {
-            return suffix;
+            return string.Empty;
         }
 
         string trimmedVersion = baseVersion.Trim();
-        if (trimmedVersion.EndsWith(suffix, System.StringComparison.OrdinalIgnoreCase))
-        {
-            return trimmedVersion;
-        }
-
         if (trimmedVersion.EndsWith("d", System.StringComparison.OrdinalIgnoreCase)
             || trimmedVersion.EndsWith("e", System.StringComparison.OrdinalIgnoreCase))
         {
-            return trimmedVersion.Substring(0, trimmedVersion.Length - 1) + suffix;
+            return trimmedVersion.Substring(0, trimmedVersion.Length - 1);
         }
 
-        return trimmedVersion + suffix;
+        return trimmedVersion;
     }
 
     /// <summary>
@@ -146,7 +135,7 @@ public static class ReleaseEditionService
     /// </summary>
     public static string GetPersistenceDisabledMessage()
     {
-        return "Save and load are only available in the 0.9e build.";
+        return "Save and load are only available in export-enabled builds.";
     }
 
     /// <summary>

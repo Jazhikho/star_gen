@@ -29,9 +29,9 @@ Release notes and version summaries are in the [README](../README.md#version-his
 
 ---
 
-## Version v0.9 specifications
+## Version v0.10 specifications
 
-### Core direction for v0.9
+### Core direction for v0.10
 
 - Migrate existing UI elements from code into `.tscn` scenes as far as possible.
 - Keep scripts behavior-focused; if an element does not require runtime logic, it must be scene-defined.
@@ -43,7 +43,7 @@ Release notes and version summaries are in the [README](../README.md#version-his
 - Audit all current UI created or configured in C# and move layout/appearance/static configuration into `.tscn`.
 - Reserve scripting for dynamic behavior, state transitions, validation, and event handling only.
 - Prefer engine/editor configuration over hardcoded UI construction in scripts.
-- Treat this as a release gate for v0.9: UI that can be authored in scene files should not remain code-built.
+- Treat this as a release gate: UI that can be authored in scene files should not remain code-built.
 
 ### Scientific realism requirement (start to finish)
 
@@ -119,13 +119,13 @@ Release notes and version summaries are in the [README](../README.md#version-his
 
 ### Edition strategy and persistence split
 
-- The standard public build is `0.9d`, which keeps generation and viewing available but leaves save/load/export disabled.
-- The export-enabled paid build is `0.9e`, which restores the persistence flows needed for authoring and downstream artifact handling.
+- The standard public build is `0.10`, which keeps generation and viewing available but leaves save/load/export disabled.
+- The export-enabled paid build also displays `0.10`, and restores the persistence flows needed for authoring and downstream artifact handling.
 - Both editions should come from the same codebase and differ through explicit build-channel capability gating rather than hidden buttons alone.
-- In `0.9d`, user modifications are intentionally non-persistable.
+- In the public build, user modifications are intentionally non-persistable.
 
 ### Version tag policy for this split
 
-- Public/demo builds append the suffix `d`.
-- Export/save-enabled builds append the suffix `e`.
-- Keep suffixes, docs, release tooling, and user-facing version labels synchronized with each build's actual capabilities.
+- User-facing labels use the plain approved release version, currently `0.10`.
+- Release artifacts identify export-enabled packages with an `-export` artifact label rather than an in-app version suffix.
+- Keep docs, release tooling, packaging labels, and user-facing version labels synchronized with each build's actual capabilities.

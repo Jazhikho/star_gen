@@ -1,4 +1,4 @@
-[gd_scene load_steps=2 format=3 uid="uid://bu7a0wovkldsu"]
+[gd_scene load_steps=3 format=3 uid="uid://bu7a0wovkldsu"]
 
 [ext_resource type="Script" uid="uid://dxxi253b3ns8y" path="res://src/app/StationStudioScreen.cs" id="1"]
 [ext_resource type="Theme" uid="uid://c6a5io6e0kwn8" path="res://src/app/themes/DarkTheme.tres" id="2"]
@@ -29,7 +29,7 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-color = Color(0.105882, 0.14902, 0.247059, 0.12)
+color = Color(0.055, 0.13, 0.19, 0.14)
 
 [node name="MarginContainer" type="MarginContainer" parent="."]
 layout_mode = 1
@@ -38,306 +38,468 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-theme_override_constants/margin_left = 16
-theme_override_constants/margin_top = 16
-theme_override_constants/margin_right = 16
-theme_override_constants/margin_bottom = 16
+theme_override_constants/margin_left = 22
+theme_override_constants/margin_top = 18
+theme_override_constants/margin_right = 22
+theme_override_constants/margin_bottom = 18
 
-[node name="RootVBox" type="VBoxContainer" parent="MarginContainer"]
+[node name="ScrollContainer" type="ScrollContainer" parent="MarginContainer"]
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
-theme_override_constants/separation = 8
-
-[node name="HeaderRow" type="HBoxContainer" parent="MarginContainer/RootVBox"]
-layout_mode = 2
-
-[node name="TitleLabel" type="Label" parent="MarginContainer/RootVBox/HeaderRow"]
-layout_mode = 2
-theme_override_font_sizes/font_size = 28
-text = "Station Studio"
-
-[node name="HeaderSpacer" type="Control" parent="MarginContainer/RootVBox/HeaderRow"]
-layout_mode = 2
-size_flags_horizontal = 3
-
-[node name="VersionLabel" type="Label" parent="MarginContainer/RootVBox/HeaderRow"]
-unique_name_in_owner = true
-layout_mode = 2
-text = "Version 0.9"
-
-[node name="BackButton" type="Button" parent="MarginContainer/RootVBox/HeaderRow"]
-unique_name_in_owner = true
-layout_mode = 2
-text = "Return to Main Menu"
-
-[node name="HSplitContainer" type="HSplitContainer" parent="MarginContainer/RootVBox"]
-layout_mode = 2
-size_flags_horizontal = 3
-size_flags_vertical = 3
-split_offset = 350
-
-[node name="LeftPanel" type="PanelContainer" parent="MarginContainer/RootVBox/HSplitContainer"]
-layout_mode = 2
-size_flags_horizontal = 3
-
-[node name="ScrollContainer" type="ScrollContainer" parent="MarginContainer/RootVBox/HSplitContainer/LeftPanel"]
-layout_mode = 2
 horizontal_scroll_mode = 0
 
-[node name="VBoxContainer" type="VBoxContainer" parent="MarginContainer/RootVBox/HSplitContainer/LeftPanel/ScrollContainer"]
+[node name="Layout" type="VBoxContainer" parent="MarginContainer/ScrollContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+theme_override_constants/separation = 22
+
+[node name="HeroPanel" type="PanelContainer" parent="MarginContainer/ScrollContainer/Layout"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="MarginContainer" type="MarginContainer" parent="MarginContainer/ScrollContainer/Layout/HeroPanel"]
+layout_mode = 2
+theme_override_constants/margin_left = 10
+theme_override_constants/margin_top = 10
+theme_override_constants/margin_right = 10
+theme_override_constants/margin_bottom = 10
+
+[node name="HeroVBox" type="VBoxContainer" parent="MarginContainer/ScrollContainer/Layout/HeroPanel/MarginContainer"]
+layout_mode = 2
+theme_override_constants/separation = 14
+
+[node name="HeaderRow" type="HBoxContainer" parent="MarginContainer/ScrollContainer/Layout/HeroPanel/MarginContainer/HeroVBox"]
+layout_mode = 2
+theme_override_constants/separation = 12
+
+[node name="BackButton" type="Button" parent="MarginContainer/ScrollContainer/Layout/HeroPanel/MarginContainer/HeroVBox/HeaderRow"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "<- Main Menu"
+
+[node name="HelpButton" type="Button" parent="MarginContainer/ScrollContainer/Layout/HeroPanel/MarginContainer/HeroVBox/HeaderRow"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Help"
+
+[node name="VersionLabel" type="Label" parent="MarginContainer/ScrollContainer/Layout/HeroPanel/MarginContainer/HeroVBox/HeaderRow"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_colors/font_color = Color(0.631373, 0.701961, 0.772549, 1)
+text = "Version"
+horizontal_alignment = 2
+
+[node name="TitleLabel" type="Label" parent="MarginContainer/ScrollContainer/Layout/HeroPanel/MarginContainer/HeroVBox"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 34
+text = "Station Studio"
+
+[node name="SubtitleLabel" type="Label" parent="MarginContainer/ScrollContainer/Layout/HeroPanel/MarginContainer/HeroVBox"]
+custom_minimum_size = Vector2(420, 0)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.72, 0.76, 0.82, 1)
+text = "Configure one RPG-agnostic station, then choose an optional compatibility readout."
+autowrap_mode = 2
+
+[node name="HelpDialog" type="Window" parent="."]
+unique_name_in_owner = true
+visible = false
+theme = ExtResource("2")
+title = "Station Studio Help"
+initial_position = 2
+size = Vector2i(760, 580)
+transient = true
+exclusive = true
+wrap_controls = true
+unresizable = true
+
+[node name="MarginContainer" type="MarginContainer" parent="HelpDialog"]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 16.0
+offset_top = 16.0
+offset_right = -16.0
+offset_bottom = -16.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="HelpVBox" type="VBoxContainer" parent="HelpDialog/MarginContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+theme_override_constants/separation = 12
+
+[node name="HelpHeaderLabel" type="Label" parent="HelpDialog/MarginContainer/HelpVBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.921569, 0.768627, 0.470588, 1)
+theme_override_font_sizes/font_size = 24
+text = "Station Studio Guide"
+
+[node name="HelpIntroLabel" type="Label" parent="HelpDialog/MarginContainer/HelpVBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.72, 0.76, 0.82, 1)
+text = "Plain-language notes for single-station generation and compatibility readouts."
+autowrap_mode = 2
+
+[node name="HelpCard" type="PanelContainer" parent="HelpDialog/MarginContainer/HelpVBox"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+
+[node name="MarginContainer" type="MarginContainer" parent="HelpDialog/MarginContainer/HelpVBox/HelpCard"]
+layout_mode = 2
+theme_override_constants/margin_left = 14
+theme_override_constants/margin_top = 14
+theme_override_constants/margin_right = 14
+theme_override_constants/margin_bottom = 14
+
+[node name="HelpDialogText" type="RichTextLabel" parent="HelpDialog/MarginContainer/HelpVBox/HelpCard/MarginContainer"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(420, 0)
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+bbcode_enabled = true
+fit_content = false
+selection_enabled = true
+scroll_active = true
+autowrap_mode = 3
+
+[node name="HelpHintLabel" type="Label" parent="HelpDialog/MarginContainer/HelpVBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.631373, 0.701961, 0.772549, 1)
+text = "Scroll for the full guide."
+autowrap_mode = 2
+
+[node name="ButtonRow" type="HBoxContainer" parent="HelpDialog/MarginContainer/HelpVBox"]
+layout_mode = 2
+
+[node name="ButtonSpacer" type="Control" parent="HelpDialog/MarginContainer/HelpVBox/ButtonRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="CloseButton" type="Button" parent="HelpDialog/MarginContainer/HelpVBox/ButtonRow"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Close"
+
+[node name="MainPanel" type="PanelContainer" parent="MarginContainer/ScrollContainer/Layout"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+
+[node name="MarginContainer" type="MarginContainer" parent="MarginContainer/ScrollContainer/Layout/MainPanel"]
+layout_mode = 2
+theme_override_constants/margin_left = 18
+theme_override_constants/margin_top = 18
+theme_override_constants/margin_right = 18
+theme_override_constants/margin_bottom = 18
+
+[node name="VBox" type="VBoxContainer" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer"]
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_constants/separation = 14
+
+[node name="StudioRow" type="BoxContainer" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_vertical = 3
+vertical = false
+theme_override_constants/separation = 18
+
+[node name="SettingsPanel" type="PanelContainer" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(230, 0)
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+
+[node name="MarginContainer" type="MarginContainer" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel"]
+layout_mode = 2
+theme_override_constants/margin_left = 18
+theme_override_constants/margin_top = 18
+theme_override_constants/margin_right = 18
+theme_override_constants/margin_bottom = 18
+
+[node name="SettingsVBox" type="VBoxContainer" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer"]
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_constants/separation = 12
+
+[node name="SettingsTitle" type="Label" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 18
+text = "Station Inputs"
+
+[node name="SettingsScroll" type="ScrollContainer" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox"]
+layout_mode = 2
+size_flags_vertical = 3
+horizontal_scroll_mode = 0
+
+[node name="ParameterVBox" type="VBoxContainer" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/SettingsScroll"]
 layout_mode = 2
 size_flags_horizontal = 3
 theme_override_constants/separation = 10
 
-[node name="ContextLabel" type="Label" parent="MarginContainer/RootVBox/HSplitContainer/LeftPanel/ScrollContainer/VBoxContainer"]
+[node name="RoleHeader" type="Label" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/SettingsScroll/ParameterVBox"]
 layout_mode = 2
-text = "System Context"
+theme_override_colors/font_color = Color(0.921569, 0.768627, 0.470588, 1)
 theme_override_font_sizes/font_size = 16
+text = "Role and Purpose"
 
-[node name="ContextOption" type="OptionButton" parent="MarginContainer/RootVBox/HSplitContainer/LeftPanel/ScrollContainer/VBoxContainer"]
+[node name="ContextRow" type="HBoxContainer" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/SettingsScroll/ParameterVBox"]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="ContextLabel" type="Label" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/SettingsScroll/ParameterVBox/ContextRow"]
+custom_minimum_size = Vector2(96, 0)
+layout_mode = 2
+text = "Role"
+
+[node name="ContextOption" type="OptionButton" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/SettingsScroll/ParameterVBox/ContextRow"]
 unique_name_in_owner = true
 layout_mode = 2
+size_flags_horizontal = 3
 
-[node name="SeedContainer" type="HBoxContainer" parent="MarginContainer/RootVBox/HSplitContainer/LeftPanel/ScrollContainer/VBoxContainer"]
+[node name="PurposeRow" type="HBoxContainer" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/SettingsScroll/ParameterVBox"]
 layout_mode = 2
+theme_override_constants/separation = 10
 
-[node name="SeedLabel" type="Label" parent="MarginContainer/RootVBox/HSplitContainer/LeftPanel/ScrollContainer/VBoxContainer/SeedContainer"]
+[node name="PurposeLabel" type="Label" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/SettingsScroll/ParameterVBox/PurposeRow"]
+custom_minimum_size = Vector2(96, 0)
+layout_mode = 2
+text = "Purpose"
+
+[node name="PurposeOption" type="OptionButton" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/SettingsScroll/ParameterVBox/PurposeRow"]
+unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 3
-text = "Seed:"
 
-[node name="SeedSpinBox" type="SpinBox" parent="MarginContainer/RootVBox/HSplitContainer/LeftPanel/ScrollContainer/VBoxContainer/SeedContainer"]
+[node name="StructureHeader" type="Label" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/SettingsScroll/ParameterVBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.921569, 0.768627, 0.470588, 1)
+theme_override_font_sizes/font_size = 16
+text = "Station Structure"
+
+[node name="ClassRow" type="HBoxContainer" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/SettingsScroll/ParameterVBox"]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="ClassLabel" type="Label" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/SettingsScroll/ParameterVBox/ClassRow"]
+custom_minimum_size = Vector2(96, 0)
+layout_mode = 2
+text = "Class"
+
+[node name="ClassOption" type="OptionButton" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/SettingsScroll/ParameterVBox/ClassRow"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="LocationRow" type="HBoxContainer" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/SettingsScroll/ParameterVBox"]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="LocationLabel" type="Label" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/SettingsScroll/ParameterVBox/LocationRow"]
+custom_minimum_size = Vector2(96, 0)
+layout_mode = 2
+text = "Location"
+
+[node name="LocationOption" type="OptionButton" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/SettingsScroll/ParameterVBox/LocationRow"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="PopulationHeader" type="Label" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/SettingsScroll/ParameterVBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.921569, 0.768627, 0.470588, 1)
+theme_override_font_sizes/font_size = 16
+text = "Population"
+
+[node name="PopulationModeRow" type="HBoxContainer" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/SettingsScroll/ParameterVBox"]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="PopulationModeLabel" type="Label" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/SettingsScroll/ParameterVBox/PopulationModeRow"]
+custom_minimum_size = Vector2(96, 0)
+layout_mode = 2
+text = "Scale Mode"
+
+[node name="PopulationModeOption" type="OptionButton" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/SettingsScroll/ParameterVBox/PopulationModeRow"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="DensityRow" type="HBoxContainer" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/SettingsScroll/ParameterVBox"]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="DensityTextLabel" type="Label" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/SettingsScroll/ParameterVBox/DensityRow"]
+custom_minimum_size = Vector2(96, 0)
+layout_mode = 2
+text = "Scale"
+
+[node name="DensitySlider" type="HSlider" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/SettingsScroll/ParameterVBox/DensityRow"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+min_value = 0.4
+max_value = 3.0
+step = 0.1
+value = 1.0
+
+[node name="DensityLabel" type="Label" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/SettingsScroll/ParameterVBox/DensityRow"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(48, 0)
+layout_mode = 2
+text = "1.0x"
+horizontal_alignment = 2
+
+[node name="SeedHeader" type="Label" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/SettingsScroll/ParameterVBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.921569, 0.768627, 0.470588, 1)
+theme_override_font_sizes/font_size = 16
+text = "Seed"
+
+[node name="SeedRow" type="HBoxContainer" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/SettingsScroll/ParameterVBox"]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="SeedLabel" type="Label" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/SettingsScroll/ParameterVBox/SeedRow"]
+custom_minimum_size = Vector2(96, 0)
+layout_mode = 2
+text = "Seed"
+
+[node name="SeedSpinBox" type="SpinBox" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/SettingsScroll/ParameterVBox/SeedRow"]
 unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 3
 max_value = 999999.0
 value = 12345.0
 
-[node name="RandomSeedButton" type="Button" parent="MarginContainer/RootVBox/HSplitContainer/LeftPanel/ScrollContainer/VBoxContainer/SeedContainer"]
+[node name="RandomSeedButton" type="Button" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/SettingsScroll/ParameterVBox/SeedRow"]
 unique_name_in_owner = true
 layout_mode = 2
-text = "Random"
+text = "Randomize"
 
-[node name="DensityContainer" type="HBoxContainer" parent="MarginContainer/RootVBox/HSplitContainer/LeftPanel/ScrollContainer/VBoxContainer"]
+[node name="Buttons" type="VBoxContainer" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox"]
 layout_mode = 2
+theme_override_constants/separation = 10
 
-[node name="DensityTextLabel" type="Label" parent="MarginContainer/RootVBox/HSplitContainer/LeftPanel/ScrollContainer/VBoxContainer/DensityContainer"]
-layout_mode = 2
-text = "Density:"
-
-[node name="DensitySlider" type="HSlider" parent="MarginContainer/RootVBox/HSplitContainer/LeftPanel/ScrollContainer/VBoxContainer/DensityContainer"]
+[node name="GenerateButton" type="Button" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/Buttons"]
 unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 3
-min_value = 0.1
-max_value = 3.0
-step = 0.1
-value = 1.0
+theme_override_font_sizes/font_size = 18
+text = "Generate Station"
 
-[node name="DensityLabel" type="Label" parent="MarginContainer/RootVBox/HSplitContainer/LeftPanel/ScrollContainer/VBoxContainer/DensityContainer"]
+[node name="RpgPanel" type="PanelContainer" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow"]
 unique_name_in_owner = true
-layout_mode = 2
-custom_minimum_size = Vector2(50, 0)
-text = "1.0x"
-
-[node name="StationLimitsLabel" type="Label" parent="MarginContainer/RootVBox/HSplitContainer/LeftPanel/ScrollContainer/VBoxContainer"]
-layout_mode = 2
-text = "Station Limits"
-theme_override_font_sizes/font_size = 16
-
-[node name="MinMaxContainer" type="HBoxContainer" parent="MarginContainer/RootVBox/HSplitContainer/LeftPanel/ScrollContainer/VBoxContainer"]
-layout_mode = 2
-
-[node name="MinLabel" type="Label" parent="MarginContainer/RootVBox/HSplitContainer/LeftPanel/ScrollContainer/VBoxContainer/MinMaxContainer"]
-layout_mode = 2
-text = "Min:"
-
-[node name="MinStationsSpinBox" type="SpinBox" parent="MarginContainer/RootVBox/HSplitContainer/LeftPanel/ScrollContainer/VBoxContainer/MinMaxContainer"]
-unique_name_in_owner = true
+custom_minimum_size = Vector2(230, 0)
 layout_mode = 2
 size_flags_horizontal = 3
-max_value = 20.0
+size_flags_vertical = 3
 
-[node name="MaxLabel" type="Label" parent="MarginContainer/RootVBox/HSplitContainer/LeftPanel/ScrollContainer/VBoxContainer/MinMaxContainer"]
+[node name="MarginContainer" type="MarginContainer" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/RpgPanel"]
 layout_mode = 2
-text = "Max:"
+theme_override_constants/margin_left = 18
+theme_override_constants/margin_top = 18
+theme_override_constants/margin_right = 18
+theme_override_constants/margin_bottom = 18
 
-[node name="MaxStationsSpinBox" type="SpinBox" parent="MarginContainer/RootVBox/HSplitContainer/LeftPanel/ScrollContainer/VBoxContainer/MinMaxContainer"]
-unique_name_in_owner = true
+[node name="RpgVBox" type="VBoxContainer" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/RpgPanel/MarginContainer"]
 layout_mode = 2
-size_flags_horizontal = 3
-max_value = 50.0
+size_flags_vertical = 3
+theme_override_constants/separation = 12
 
-[node name="AllowedTypesLabel" type="Label" parent="MarginContainer/RootVBox/HSplitContainer/LeftPanel/ScrollContainer/VBoxContainer"]
-layout_mode = 2
-text = "Allowed Types"
-theme_override_font_sizes/font_size = 16
-
-[node name="AllowUtilityCheck" type="CheckBox" parent="MarginContainer/RootVBox/HSplitContainer/LeftPanel/ScrollContainer/VBoxContainer"]
-unique_name_in_owner = true
-layout_mode = 2
-button_pressed = true
-text = "Utility Stations (U)"
-
-[node name="AllowOutpostsCheck" type="CheckBox" parent="MarginContainer/RootVBox/HSplitContainer/LeftPanel/ScrollContainer/VBoxContainer"]
-unique_name_in_owner = true
-layout_mode = 2
-button_pressed = true
-text = "Outposts (O)"
-
-[node name="AllowLargeCheck" type="CheckBox" parent="MarginContainer/RootVBox/HSplitContainer/LeftPanel/ScrollContainer/VBoxContainer"]
-unique_name_in_owner = true
-layout_mode = 2
-button_pressed = true
-text = "Large Stations (B/A/S)"
-
-[node name="HSeparator2" type="HSeparator" parent="MarginContainer/RootVBox/HSplitContainer/LeftPanel/ScrollContainer/VBoxContainer"]
-layout_mode = 2
-
-[node name="SystemPropsLabel" type="Label" parent="MarginContainer/RootVBox/HSplitContainer/LeftPanel/ScrollContainer/VBoxContainer"]
-layout_mode = 2
-text = "System Properties"
-theme_override_font_sizes/font_size = 16
-
-[node name="ColonyContainer" type="HBoxContainer" parent="MarginContainer/RootVBox/HSplitContainer/LeftPanel/ScrollContainer/VBoxContainer"]
-layout_mode = 2
-
-[node name="ColonyLabel" type="Label" parent="MarginContainer/RootVBox/HSplitContainer/LeftPanel/ScrollContainer/VBoxContainer/ColonyContainer"]
-layout_mode = 2
-size_flags_horizontal = 3
-text = "Colony Worlds:"
-
-[node name="ColonyCountSpinBox" type="SpinBox" parent="MarginContainer/RootVBox/HSplitContainer/LeftPanel/ScrollContainer/VBoxContainer/ColonyContainer"]
-unique_name_in_owner = true
-layout_mode = 2
-max_value = 5.0
-
-[node name="NativeCheck" type="CheckBox" parent="MarginContainer/RootVBox/HSplitContainer/LeftPanel/ScrollContainer/VBoxContainer"]
-unique_name_in_owner = true
-layout_mode = 2
-text = "Has Native Population"
-
-[node name="NativeSpacefaringCheck" type="CheckBox" parent="MarginContainer/RootVBox/HSplitContainer/LeftPanel/ScrollContainer/VBoxContainer"]
-unique_name_in_owner = true
-layout_mode = 2
-disabled = true
-text = "  Spacefaring Tech"
-
-[node name="ResourceContainer" type="HBoxContainer" parent="MarginContainer/RootVBox/HSplitContainer/LeftPanel/ScrollContainer/VBoxContainer"]
-layout_mode = 2
-
-[node name="ResourceTextLabel" type="Label" parent="MarginContainer/RootVBox/HSplitContainer/LeftPanel/ScrollContainer/VBoxContainer/ResourceContainer"]
-layout_mode = 2
-text = "Resources:"
-
-[node name="ResourceSlider" type="HSlider" parent="MarginContainer/RootVBox/HSplitContainer/LeftPanel/ScrollContainer/VBoxContainer/ResourceContainer"]
-unique_name_in_owner = true
-layout_mode = 2
-size_flags_horizontal = 3
-max_value = 1.0
-step = 0.05
-value = 0.3
-
-[node name="ResourceLabel" type="Label" parent="MarginContainer/RootVBox/HSplitContainer/LeftPanel/ScrollContainer/VBoxContainer/ResourceContainer"]
-unique_name_in_owner = true
-layout_mode = 2
-custom_minimum_size = Vector2(50, 0)
-text = "30%"
-
-[node name="BeltContainer" type="HBoxContainer" parent="MarginContainer/RootVBox/HSplitContainer/LeftPanel/ScrollContainer/VBoxContainer"]
-layout_mode = 2
-
-[node name="BeltLabel" type="Label" parent="MarginContainer/RootVBox/HSplitContainer/LeftPanel/ScrollContainer/VBoxContainer/BeltContainer"]
-layout_mode = 2
-size_flags_horizontal = 3
-text = "Asteroid Belts:"
-
-[node name="BeltCountSpinBox" type="SpinBox" parent="MarginContainer/RootVBox/HSplitContainer/LeftPanel/ScrollContainer/VBoxContainer/BeltContainer"]
-unique_name_in_owner = true
-layout_mode = 2
-max_value = 5.0
-
-[node name="HSeparator3" type="HSeparator" parent="MarginContainer/RootVBox/HSplitContainer/LeftPanel/ScrollContainer/VBoxContainer"]
-layout_mode = 2
-
-[node name="GenerateButton" type="Button" parent="MarginContainer/RootVBox/HSplitContainer/LeftPanel/ScrollContainer/VBoxContainer"]
-unique_name_in_owner = true
+[node name="RpgTitle" type="Label" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/RpgPanel/MarginContainer/RpgVBox"]
 layout_mode = 2
 theme_override_font_sizes/font_size = 18
-text = "Generate Stations"
+text = "RPG Overrides"
 
-[node name="RightPanel" type="VSplitContainer" parent="MarginContainer/RootVBox/HSplitContainer"]
+[node name="RpgSystemRow" type="HBoxContainer" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/RpgPanel/MarginContainer/RpgVBox"]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="RpgSystemLabel" type="Label" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/RpgPanel/MarginContainer/RpgVBox/RpgSystemRow"]
+custom_minimum_size = Vector2(96, 0)
+layout_mode = 2
+text = "System"
+
+[node name="RpgSystemOption" type="OptionButton" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/RpgPanel/MarginContainer/RpgVBox/RpgSystemRow"]
+unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 3
-size_flags_stretch_ratio = 2.0
-split_offset = 200
 
-[node name="TopRight" type="VBoxContainer" parent="MarginContainer/RootVBox/HSplitContainer/RightPanel"]
+[node name="RpgReadoutRow" type="HBoxContainer" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/RpgPanel/MarginContainer/RpgVBox"]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="RpgReadoutLabel" type="Label" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/RpgPanel/MarginContainer/RpgVBox/RpgReadoutRow"]
+custom_minimum_size = Vector2(96, 0)
+layout_mode = 2
+text = "Readout"
+
+[node name="RpgReadoutOption" type="OptionButton" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/RpgPanel/MarginContainer/RpgVBox/RpgReadoutRow"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="RpgScroll" type="ScrollContainer" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/RpgPanel/MarginContainer/RpgVBox"]
 layout_mode = 2
 size_flags_vertical = 3
+horizontal_scroll_mode = 0
 
-[node name="SummaryPanel" type="PanelContainer" parent="MarginContainer/RootVBox/HSplitContainer/RightPanel/TopRight"]
-layout_mode = 2
-size_flags_vertical = 3
-
-[node name="SummaryScroll" type="ScrollContainer" parent="MarginContainer/RootVBox/HSplitContainer/RightPanel/TopRight/SummaryPanel"]
-layout_mode = 2
-
-[node name="SummaryLabel" type="RichTextLabel" parent="MarginContainer/RootVBox/HSplitContainer/RightPanel/TopRight/SummaryPanel/SummaryScroll"]
+[node name="RpgOverrideLabel" type="RichTextLabel" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/RpgPanel/MarginContainer/RpgVBox/RpgScroll"]
 unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
 bbcode_enabled = true
-text = "Generation summary will appear here..."
-fit_content = true
+fit_content = false
+selection_enabled = true
+scroll_active = true
+autowrap_mode = 3
 
-[node name="BottomRight" type="HSplitContainer" parent="MarginContainer/RootVBox/HSplitContainer/RightPanel"]
-layout_mode = 2
-size_flags_vertical = 3
-size_flags_stretch_ratio = 2.0
-split_offset = 300
-
-[node name="StationListPanel" type="PanelContainer" parent="MarginContainer/RootVBox/HSplitContainer/RightPanel/BottomRight"]
-layout_mode = 2
-size_flags_horizontal = 3
-
-[node name="StationListVBox" type="VBoxContainer" parent="MarginContainer/RootVBox/HSplitContainer/RightPanel/BottomRight/StationListPanel"]
-layout_mode = 2
-
-[node name="ListLabel" type="Label" parent="MarginContainer/RootVBox/HSplitContainer/RightPanel/BottomRight/StationListPanel/StationListVBox"]
-layout_mode = 2
-text = "Generated Stations"
-horizontal_alignment = 1
-
-[node name="StationList" type="ItemList" parent="MarginContainer/RootVBox/HSplitContainer/RightPanel/BottomRight/StationListPanel/StationListVBox"]
+[node name="ResultPanel" type="PanelContainer" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow"]
 unique_name_in_owner = true
-layout_mode = 2
-size_flags_vertical = 3
-
-[node name="DetailPanel" type="PanelContainer" parent="MarginContainer/RootVBox/HSplitContainer/RightPanel/BottomRight"]
+custom_minimum_size = Vector2(260, 0)
 layout_mode = 2
 size_flags_horizontal = 3
-size_flags_stretch_ratio = 1.5
-
-[node name="DetailVBox" type="VBoxContainer" parent="MarginContainer/RootVBox/HSplitContainer/RightPanel/BottomRight/DetailPanel"]
-layout_mode = 2
-
-[node name="DetailLabel" type="Label" parent="MarginContainer/RootVBox/HSplitContainer/RightPanel/BottomRight/DetailPanel/DetailVBox"]
-layout_mode = 2
-text = "Station Details"
-horizontal_alignment = 1
-
-[node name="DetailScroll" type="ScrollContainer" parent="MarginContainer/RootVBox/HSplitContainer/RightPanel/BottomRight/DetailPanel/DetailVBox"]
-layout_mode = 2
 size_flags_vertical = 3
 
-[node name="DetailText" type="RichTextLabel" parent="MarginContainer/RootVBox/HSplitContainer/RightPanel/BottomRight/DetailPanel/DetailVBox/DetailScroll"]
+[node name="MarginContainer" type="MarginContainer" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/ResultPanel"]
+layout_mode = 2
+theme_override_constants/margin_left = 18
+theme_override_constants/margin_top = 18
+theme_override_constants/margin_right = 18
+theme_override_constants/margin_bottom = 18
+
+[node name="ResultVBox" type="VBoxContainer" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/ResultPanel/MarginContainer"]
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_constants/separation = 12
+
+[node name="SystemInfoTitle" type="Label" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/ResultPanel/MarginContainer/ResultVBox"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 18
+text = "System Information"
+
+[node name="SystemInfoScroll" type="ScrollContainer" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/ResultPanel/MarginContainer/ResultVBox"]
+layout_mode = 2
+size_flags_vertical = 3
+horizontal_scroll_mode = 0
+
+[node name="SystemInfoLabel" type="RichTextLabel" parent="MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/ResultPanel/MarginContainer/ResultVBox/SystemInfoScroll"]
 unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
 bbcode_enabled = true
-text = "Select a station to view details."
-fit_content = true
+fit_content = false
+selection_enabled = true
+scroll_active = true
+autowrap_mode = 3

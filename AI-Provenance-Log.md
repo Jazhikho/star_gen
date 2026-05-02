@@ -19,6 +19,28 @@ Use this log for significant AI-assisted artifacts in this repository.
 
 ### 2026-05-02 - Codex (GPT-5)
 
+- Task Purpose: Prepare the current repository state for a user-facing `0.10` release-readiness check.
+- Input Materials Used: User release-readiness request; `claude.md`; `VERSION.md`; `project.godot`; `export_presets.cfg`; `README.md`; `Docs/Roadmap.md`; release helper script; runtime version helper and release-edition service; release-edition tests; `Docs/V0.9ReleaseChecklist.md`; `Docs/V0.9AcceptanceChecklist.md`.
+- AI Produced: Synchronized internal version metadata to `0.10.0.0`; synchronized visible runtime labels to `0.10`; removed the old `d`/`e` display suffix behavior while preserving demo/export capability gates; updated export metadata and artifact labels; added `Docs/V0.10ReleaseChecklist.md` and `Docs/V0.10AcceptanceChecklist.md`; updated README, roadmap, project-structure documentation, release notes, and version tests.
+- Human Accepted: Pending Christopher B. Del Gesso review.
+- Human Rejected: None recorded in this pass.
+- Human Changed: Pending release-owner review.
+- Validation Method: `dotnet build .\StarGen.sln` (`Build succeeded. 0 Warning(s), 0 Error(s).`); `godot-mono.exe --path . --headless --script res://Tests/RunTestsHeadless.gd` (`Total: 1891 | Passed: 1891 | Failed: 0`) with known Godot shutdown leak/resource warnings after the successful test summary; `git diff --check` reported only CRLF normalization warnings.
+- Final Approver: Pending Christopher B. Del Gesso review.
+
+### 2026-05-02 - Codex (GPT-5)
+
+- Task Purpose: Fix studio help-dialog sizing and rework Station Studio into a single-station generation flow with construction and planet-like population readouts.
+- Input Materials Used: User request and screenshot; `claude.md`; `src/app/shared/HelpDialogLayoutHelper.cs`; Galaxy/System/Object studio scenes; `src/app/StationStudioScreen.cs`; `src/app/StationStudioScreen.tscn`; station population and station-design domain code; station tests.
+- AI Produced: Fixed help dialogs to size against the app root viewport; reformatted Station Studio to match the other studio screens; changed the Station Studio flow to generate exactly one station only after the user presses Generate Station; exposed RPG-agnostic random-or-specific station inputs; added a work-in-progress RPG Overrides column with Traveller-compatible construction as the only implemented compatibility readout; added detailed construction and station population-profile display; added `StationPopulationProfileBuilder` and persisted station `SentientWorldProfile` data; added tests for station profile generation, forced station class/type generation, and detailed station generation.
+- Human Accepted: Pending Christopher B. Del Gesso review.
+- Human Rejected: None recorded in this pass.
+- Human Changed: User requested removal of Concept Atlas-style leftovers from the station workflow, clarified that station construction should be Traveller-inspired while population details should resemble planet population stats, and then asked for more station inputs, explicit random-or-defined parameter selection, RPG-agnostic inputs, a middle RPG Overrides column, a single System Information report column, and no generation before the Generate Station button is pressed.
+- Validation Method: `dotnet build .\StarGen.csproj` (`Build succeeded. 0 Warning(s), 0 Error(s).`); `godot-mono.exe --path . --headless --script res://Tests/RunTestsHeadless.gd` (`Total: 1891 | Passed: 1891 | Failed: 0`) with the known Godot shutdown leak/resource warnings; `git diff --check` reported only CRLF normalization warnings.
+- Final Approver: Pending Christopher B. Del Gesso review.
+
+### 2026-05-02 - Codex (GPT-5)
+
 - Task Purpose: Continue source-to-generator cleanup through small bodies and reservoirs.
 - Input Materials Used: User direction to continue; `Sources/SourceUtilizationPlan.md`; `Sources/Texts/DeMeoCarry2014.txt`; `Sources/Texts/BauerEtAl2017.txt`; `Sources/Texts/KavelaarsEtAl2023.txt`; `Sources/Texts/BernardinelliEtAl2022.txt`; `Sources/Texts/NapierEtAl2023.txt`; asteroid/comet/system generator code; planetary science registries; tests; bibliography and audit docs.
 - AI Produced: Added source-backed belt reservoir metadata, normalized active small-body source IDs, removed `Lamy2004` from active comet/small-body citation surfaces, moved cold reservoirs outward toward a Kuiper-belt analog, lowered the outer-reservoir mass ceiling, made `minor_body_population_slope` affect representative major-body sizes, added Bauer active-fraction/source metadata to comets, and updated tests/docs/source dispositions.

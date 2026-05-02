@@ -393,6 +393,24 @@ public static class TestSpaceStation
     }
 
     /// <summary>
+    /// Tests station population profile generation.
+    /// </summary>
+    public static void TestSentientWorldProfile()
+    {
+        SpaceStation station = CreateLargeStation();
+
+        SentientWorldProfile profile = station.GetSentientWorldProfile();
+
+        DotNetNativeTestSuite.AssertNotNull(profile, "Profile should be generated");
+        DotNetNativeTestSuite.AssertEqual(station.Population, profile.TotalPopulation, "Total population should match");
+        DotNetNativeTestSuite.AssertEqual(0, profile.NativePopulation, "Station profile should not have native population");
+        DotNetNativeTestSuite.AssertEqual(station.Population, profile.ColonyPopulation, "Station profile colony population should match");
+        DotNetNativeTestSuite.AssertEqual(TechnologyLevel.Level.Spacefaring, profile.HighestTechLevel, "Station profile should be spacefaring");
+        DotNetNativeTestSuite.AssertNotEqual("", profile.LogisticsCapacity, "Logistics should be populated");
+        DotNetNativeTestSuite.AssertTrue(profile.HumanAuditRequired, "Station social profile should require human audit");
+    }
+
+    /// <summary>
     /// Tests validation - valid small station.
     /// </summary>
     public static void TestValidationValidSmall()
@@ -508,6 +526,7 @@ public static class TestSpaceStation
     public static void TestSerializationLargeStation()
     {
         SpaceStation original = CreateLargeStation();
+        original.SentientWorldProfile = original.GetSentientWorldProfile();
 
         Godot.Collections.Dictionary data = original.ToDictionary();
         SpaceStation restored = SpaceStation.FromDictionary(data);
@@ -524,6 +543,11 @@ public static class TestSpaceStation
 
         DotNetNativeTestSuite.AssertNotNull(restored.History, "History should be restored");
         DotNetNativeTestSuite.AssertEqual(original.History.Size(), restored.History.Size(), "History size should match");
+        DotNetNativeTestSuite.AssertNotNull(restored.SentientWorldProfile, "Population profile should be restored");
+        DotNetNativeTestSuite.AssertEqual(
+            original.SentientWorldProfile.TotalPopulation,
+            restored.SentientWorldProfile.TotalPopulation,
+            "Population profile total should match");
     }
 
     /// <summary>

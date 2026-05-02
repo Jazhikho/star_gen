@@ -25,6 +25,8 @@ star_gen/
 |   |-- ScientificParameterAudit.md
 |   |-- SentientWorldBaseline.md
 |   |-- SourceGeneratorFitAudit.md
+|   |-- V0.10AcceptanceChecklist.md
+|   |-- V0.10ReleaseChecklist.md
 |   |-- V0.9AcceptanceChecklist.md
 |   |-- V0.9Plan.md
 |   |-- V0.9ReleaseChecklist.md
@@ -70,7 +72,7 @@ star_gen/
 |   `-- services/
 |       |-- concepts/                  # parked/migration-facing helpers
 |       |-- export/
-|       `-- persistence/               # retained for the export-enabled edition and gated off in the public 0.9d UI
+|       `-- persistence/               # retained for the export-enabled edition and gated off in the public demo UI
 |-- Tests/
 |   |-- Baselines/
 |   |   `-- Artifacts/
@@ -143,10 +145,13 @@ star_gen/
 - `src/domain/population/ProfileGenerator.cs`: derived life-support profiles now carry stellar flux, habitable-zone alignment, and XUV exposure for downstream ecology and biosphere decisions.
 - `src/domain/population/SentientWorldProfile.cs`: neutral inhabited-world baseline that stores settlement pattern, logistics capacity, dominant regime, law-facing capacity fields, and the structural societal axes used by future RPG adapters.
 - `src/domain/population/SentientWorldProfileBuilder.cs`: deterministic builder that derives the neutral sentient-world baseline from active native and colony populations plus the body's environmental and suitability context.
+- `src/domain/population/StationPopulationProfileBuilder.cs`: deterministic builder that derives the same neutral sentient population baseline for a single space station from station class, services, construction role, governance, and population.
 - `scripts/CreateReleaseBuild.ps1`: Windows-hosted release helper that runs the build and headless verification gates, temporarily stamps the requested `demo` or `export` edition channel, exports the configured release presets, zips platform folders, and prints suggested itch `butler` commands.
-- `src/app/shared/ReleaseEditionService.cs`: shared build-channel resolver that maps the configured release channel and export features to the active `0.9d` or `0.9e` edition, persistence capability gates, and version suffix behavior.
-- `Docs/V0.9ReleaseChecklist.md`: concrete `0.9` release-prep procedure covering version sync, verification gates, export flow, artifact review, and itch upload steps.
-- `Docs/V0.9AcceptanceChecklist.md`: live manual QA checklist for exported `0.9` artifacts, covering startup, studios, viewers, mainline scope boundaries, and packaging validation.
+- `src/app/shared/ReleaseEditionService.cs`: shared build-channel resolver that maps the configured release channel and export features to persistence capability gates while keeping the approved plain release version visible in-app.
+- `Docs/V0.10ReleaseChecklist.md`: concrete `0.10` release-prep procedure covering version sync, verification gates, export flow, artifact review, and itch upload steps.
+- `Docs/V0.10AcceptanceChecklist.md`: live manual QA checklist for exported `0.10` artifacts, covering startup, studios, viewers, station generation, mainline scope boundaries, and packaging validation.
+- `Docs/V0.9ReleaseChecklist.md`: historical `0.9` release-prep procedure retained for reference.
+- `Docs/V0.9AcceptanceChecklist.md`: historical manual QA checklist for exported `0.9` artifacts.
 - `Docs/V1.0Checklist.md`: concrete checklist for the remaining scope lock, UI, realism, sentient-world audit, and release-hardening work before a defensible `1.0`.
 - `src/domain/population/BiologySupportEvaluator.cs`: summary biology support now uses weighted orbit, XUV, tidal-heating, nutrient-access, and abiotic-oxygen false-positive constraints so biosphere and civilization support reflect system context without turning generation into a simulation.
 - `Tests/Unit/TestPlanetaryGenerationProfile.cs`: deterministic serialization, propagation, and planetary-help metadata coverage for the shared planetary retrofit.

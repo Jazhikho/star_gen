@@ -355,6 +355,7 @@ public partial class MainMenuScreen : Control
 			"- Mainline remains focused on deterministic generation and viewing across Galaxy, System, Object, and Station workflows.\n" +
 			"- Scientific assumptions, compatibility overrides, runtime toggles, and readout controls are now partitioned more clearly in the active studios.\n" +
 			"- Planetary generation, habitable-zone handling, life support, and sentient-world baseline fields now follow the audited science passes added during the 0.9 hardening line.\n" +
+			"- Station Studio now generates a single requested station with construction, RPG override, and station-population readouts.\n" +
 			"- Galaxy, System, and Object viewers use scene-owned controls-panel geometry and more explicit input help.\n" +
 			persistenceNote +
 			"- Release prep now includes a documented build path, a live acceptance checklist, and itch publishing guidance.\n\n" +

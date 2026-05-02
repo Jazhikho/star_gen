@@ -12,7 +12,7 @@ It is aimed at science-fiction worldbuilding, setting design, and procedural exp
 
 ## Current Status
 
-StarGen `0.9d` is the default public-build baseline, and `0.9e` is the export/save edition.
+StarGen `0.10` is the current user-facing release line. The default public build remains generation-and-view focused, and the export-enabled channel keeps save/load flows available for authoring builds.
 
 - The galaxy, system, and object studios are the main supported entry points.
 - The station studio now uses the production station-generation flow rather than a placeholder shell.
@@ -28,11 +28,11 @@ StarGen `0.9d` is the default public-build baseline, and `0.9e` is the export/sa
 - Galaxy Viewer now exposes `Tools` and `Options` in the top bar, supports explicit `Build Local Space` caching around the current local view, and keeps jump-route work dependent on that cached nearby-system profile instead of silently rebuilding hidden data.
 - Galaxy Viewer overview coordinates now report `Quadrant`, `Sector`, and `Local`, while selected systems add their hierarchical coordinates in `System Preview`.
 - Planet, moon, small-body, and biology generation now respond more directly to the upstream planetary state: hot worlds are more sensitive to envelope loss, volatile delivery changes wet vs dry outcomes, moon families react to host class and snow-line context, outer belts shift with primitive icy reservoir strength, and biosphere support now considers stellar flux, habitable-zone alignment, XUV exposure, and tidal heating.
-- The public `0.9d` build is generation-and-view focused.
-- The export-enabled `0.9e` build restores save/load flows for paid distribution.
+- The public `0.10` build is generation-and-view focused.
+- The export-enabled `0.10` channel restores save/load flows for paid distribution while keeping the visible release label aligned.
 - Mainline no longer ships the Concept Atlas path. `Concepts/Additions.md` remains the StarGen prototype backlog for future work that stays in scope.
 
-The current release target is `0.9.0.0`, with user-facing editions `0.9d` and `0.9e`. Detailed version history and patch notes live in [VERSION.md](VERSION.md).
+The current release target is `0.10.0.0`, with user-facing version `0.10`. Detailed version history and patch notes live in [VERSION.md](VERSION.md).
 
 ## Running StarGen
 
@@ -56,7 +56,7 @@ powershell -ExecutionPolicy Bypass -File .\scripts\CreateReleaseBuild.ps1 -Godot
 
 To cut the export-enabled edition instead of the default demo edition, pass `-Edition export`.
 
-That helper runs `dotnet build`, runs the headless harness by default, temporarily stamps the requested edition channel, exports the configured release presets, writes artifacts under `release/<internal-version>/<display-version>/`, and prints suggested itch `butler` commands.
+That helper runs `dotnet build`, runs the headless harness by default, temporarily stamps the requested edition channel, exports the configured release presets, writes artifacts under `release/<internal-version>/<artifact-label>/`, and prints suggested itch `butler` commands. Export-enabled artifacts use an `-export` artifact label while keeping the in-app version label at `0.10`.
 
 ## Testing
 
@@ -78,8 +78,8 @@ godot-mono.exe --path . --headless --script res://Tests/Baselines/RunLifeDistrib
 - [VERSION.md](VERSION.md) for release notes and version history
 - [Docs/Roadmap.md](Docs/Roadmap.md) for planned efforts and development status
 - [Docs/ProjectStructure.md](Docs/ProjectStructure.md) for the codebase layout
-- [Docs/V0.9ReleaseChecklist.md](Docs/V0.9ReleaseChecklist.md) for the `0.9` build, packaging, and itch-release procedure
-- [Docs/V0.9AcceptanceChecklist.md](Docs/V0.9AcceptanceChecklist.md) for the live manual verification pass before publishing
+- [Docs/V0.10ReleaseChecklist.md](Docs/V0.10ReleaseChecklist.md) for the `0.10` build, packaging, and itch-release procedure
+- [Docs/V0.10AcceptanceChecklist.md](Docs/V0.10AcceptanceChecklist.md) for the live manual verification pass before publishing
 - [Docs/V1.0Checklist.md](Docs/V1.0Checklist.md) for the remaining work required before a defensible `1.0`
 - [AI-Use-Statement.md](AI-Use-Statement.md) for the repository AI-use policy
 - [AI-Provenance-Log.md](AI-Provenance-Log.md) for significant AI-assisted artifacts

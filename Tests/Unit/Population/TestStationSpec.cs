@@ -207,6 +207,8 @@ public static class TestStationSpec
         original.GenerationSeed = 12345;
         original.GenerateStations = true;
         original.ForceContext = StationPlacementContext.Context.ColonyWorld;
+        original.ForceStationClass = StationClass.Class.A;
+        original.ForceStationType = StationType.Type.DeepSpace;
         original.MinStations = 2;
         original.MaxStations = 10;
         original.AllowUtility = false;
@@ -223,6 +225,8 @@ public static class TestStationSpec
         DotNetNativeTestSuite.AssertEqual(original.GenerationSeed, restored.GenerationSeed, "GenerationSeed should match");
         DotNetNativeTestSuite.AssertEqual(original.GenerateStations, restored.GenerateStations, "GenerateStations should match");
         DotNetNativeTestSuite.AssertEqual((int)original.ForceContext, (int)restored.ForceContext, "ForceContext should match");
+        DotNetNativeTestSuite.AssertEqual((int)original.ForceStationClass, (int)restored.ForceStationClass, "ForceStationClass should match");
+        DotNetNativeTestSuite.AssertEqual((int)original.ForceStationType, (int)restored.ForceStationType, "ForceStationType should match");
         DotNetNativeTestSuite.AssertEqual(original.MinStations, restored.MinStations, "MinStations should match");
         DotNetNativeTestSuite.AssertEqual(original.MaxStations, restored.MaxStations, "MaxStations should match");
         DotNetNativeTestSuite.AssertEqual(original.AllowUtility, restored.AllowUtility, "AllowUtility should match");
@@ -241,10 +245,14 @@ public static class TestStationSpec
     {
         StationSpec original = new StationSpec();
         original.ForceContext = null;
+        original.ForceStationClass = null;
+        original.ForceStationType = null;
 
         Godot.Collections.Dictionary data = original.ToDictionary();
         StationSpec restored = StationSpec.FromDictionary(data);
 
         DotNetNativeTestSuite.AssertNull(restored.ForceContext, "ForceContext should be null");
+        DotNetNativeTestSuite.AssertNull(restored.ForceStationClass, "ForceStationClass should be null");
+        DotNetNativeTestSuite.AssertNull(restored.ForceStationType, "ForceStationType should be null");
     }
 }

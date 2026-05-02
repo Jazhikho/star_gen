@@ -503,22 +503,22 @@ public static partial class DotNetNativeTestSuite
     }
 
     /// <summary>
-    /// Verifies release-edition resolution and user-facing version suffix formatting.
+    /// Verifies release-edition resolution and user-facing version formatting.
     /// </summary>
     private static void TestReleaseEditionServiceFormatsDemoAndExportVersions()
     {
         AssertEqual(ReleaseEdition.Demo, ReleaseEditionService.ResolveEdition("demo"), "demo channel should resolve to the demo edition");
         AssertEqual(ReleaseEdition.Demo, ReleaseEditionService.ResolveEdition("release"), "legacy release channel should normalize to the demo edition");
         AssertEqual(ReleaseEdition.Export, ReleaseEditionService.ResolveEdition("export"), "export channel should resolve to the export edition");
-        AssertEqual("0.9d", ReleaseEditionService.FormatDisplayVersion("0.9", ReleaseEdition.Demo), "demo editions should append the d suffix");
-        AssertEqual("0.9e", ReleaseEditionService.FormatDisplayVersion("0.9", ReleaseEdition.Export), "export editions should append the e suffix");
+        AssertEqual("0.10", ReleaseEditionService.FormatDisplayVersion("0.10", ReleaseEdition.Demo), "demo editions should use the base release label");
+        AssertEqual("0.10", ReleaseEditionService.FormatDisplayVersion("0.10", ReleaseEdition.Export), "export editions should use the base release label");
 
         WithTemporaryReleaseChannel(
             "demo",
-            () => AssertEqual("0.9d", UserFacingVersionHelper.GetDisplayVersion(), "demo release channel should display the d suffix"));
+            () => AssertEqual("0.10", UserFacingVersionHelper.GetDisplayVersion(), "demo release channel should display the base release label"));
         WithTemporaryReleaseChannel(
             "export",
-            () => AssertEqual("0.9e", UserFacingVersionHelper.GetDisplayVersion(), "export release channel should display the e suffix"));
+            () => AssertEqual("0.10", UserFacingVersionHelper.GetDisplayVersion(), "export release channel should display the base release label"));
     }
 
     /// <summary>

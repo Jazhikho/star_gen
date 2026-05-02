@@ -81,22 +81,31 @@ public static class HelpDialogLayoutHelper
 
     private static Vector2I ResolveViewportSize(Window window)
     {
-        Viewport? viewport = window.GetViewport();
-        if (viewport != null)
-        {
-            Rect2 visibleRect = viewport.GetVisibleRect();
-            if (visibleRect.Size.X > 0.0f && visibleRect.Size.Y > 0.0f)
-            {
-                return new Vector2I((int)visibleRect.Size.X, (int)visibleRect.Size.Y);
-            }
-        }
-
         if (window.IsInsideTree())
         {
             SceneTree? tree = window.GetTree();
             if (tree?.Root != null && tree.Root.Size.X > 0 && tree.Root.Size.Y > 0)
             {
                 return tree.Root.Size;
+            }
+        }
+
+        Node? parent = window.GetParent();
+        if (parent is Control parentControl && parentControl.Size.X > 0.0f && parentControl.Size.Y > 0.0f)
+        {
+            return new Vector2I((int)parentControl.Size.X, (int)parentControl.Size.Y);
+        }
+
+        if (parent is Control viewportOwner)
+        {
+            Viewport? viewport = viewportOwner.GetViewport();
+            if (viewport != null)
+            {
+                Rect2 visibleRect = viewport.GetVisibleRect();
+                if (visibleRect.Size.X > 0.0f && visibleRect.Size.Y > 0.0f)
+                {
+                    return new Vector2I((int)visibleRect.Size.X, (int)visibleRect.Size.Y);
+                }
             }
         }
 

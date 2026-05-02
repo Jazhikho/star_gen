@@ -170,6 +170,11 @@ public partial class SpaceStation : RefCounted
 	public StarGen.Domain.Population.StationDesign.Classification.ClassificationReport? ClassificationReport;
 
 	/// <summary>
+	/// Planet-like sentient population profile for the station population.
+	/// </summary>
+	public SentientWorldProfile? SentientWorldProfile;
+
+	/// <summary>
 	/// Creates a new station.
 	/// </summary>
 	public SpaceStation()
@@ -404,7 +409,29 @@ public partial class SpaceStation : RefCounted
 			summary["is_independent"] = IsIndependent;
 		}
 
+		SentientWorldProfile? sentientWorldProfile = GetSentientWorldProfile();
+		if (sentientWorldProfile != null)
+		{
+			summary["settlement_pattern"] = sentientWorldProfile.SettlementPattern;
+			summary["primary_settlement_rank"] = sentientWorldProfile.PrimarySettlementRank;
+			summary["logistics_capacity"] = sentientWorldProfile.LogisticsCapacity;
+		}
+
 		return summary;
+	}
+
+	/// <summary>
+	/// Returns the station's planet-like sentient population profile when inhabited.
+	/// </summary>
+	public SentientWorldProfile? GetSentientWorldProfile()
+	{
+		if (SentientWorldProfile != null)
+		{
+			return SentientWorldProfile;
+		}
+
+		SentientWorldProfile = StationPopulationProfileBuilder.Build(this);
+		return SentientWorldProfile;
 	}
 
 	/// <summary>
@@ -529,6 +556,10 @@ public partial class SpaceStation : RefCounted
 		{
 			data["classification_report"] = ClassificationReport.ToDictionary();
 		}
+		if (SentientWorldProfile != null)
+		{
+			data["sentient_world_profile"] = SentientWorldProfile.ToDictionary();
+		}
 
 		return data;
 	}
@@ -625,6 +656,11 @@ public partial class SpaceStation : RefCounted
 
 			station.DetailedDesign = StarGen.Domain.Population.StationDesign.DesignResult.FromCompactDictionary(compactDesign);
 			station.ClassificationReport = StarGen.Domain.Population.StationDesign.Classification.ClassificationEvaluator.Evaluate(station.DetailedDesign);
+		}
+
+		if (data.ContainsKey("sentient_world_profile") && data["sentient_world_profile"].VariantType == Variant.Type.Dictionary)
+		{
+			station.SentientWorldProfile = StarGen.Domain.Population.SentientWorldProfile.FromDictionary((Dictionary)data["sentient_world_profile"]);
 		}
 
 		if (string.IsNullOrEmpty(station.CommanderTitle))

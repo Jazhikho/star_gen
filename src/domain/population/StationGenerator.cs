@@ -483,14 +483,39 @@ public static partial class StationGenerator
 				station.OrbitingBodyId = systemContext.PlanetIds[rng.RandiRange(0, systemContext.PlanetIds.Count - 1)];
 			}
 		}
+		if (spec.ForceStationType.HasValue)
+		{
+			station.StationType = spec.ForceStationType.Value;
+			if (station.StationType == StationType.Type.Orbital && string.IsNullOrEmpty(station.OrbitingBodyId))
+			{
+				station.OrbitingBodyId = SelectFallbackOrbitingBody(systemContext, recommendation, rng);
+			}
+			else if (station.StationType != StationType.Type.Orbital)
+			{
+				station.OrbitingBodyId = string.Empty;
+			}
+		}
 
-		StationClass.Class targetClass = StationPlacementRules.RecommendStationClass(
-			recommendation.Context,
-			IsLargePopulationContext(systemContext));
+		StationClass.Class targetClass;
+		if (spec.ForceStationClass.HasValue)
+		{
+			targetClass = spec.ForceStationClass.Value;
+		}
+		else
+		{
+			targetClass = StationPlacementRules.RecommendStationClass(
+				recommendation.Context,
+				IsLargePopulationContext(systemContext));
+		}
 		(int Min, int Max) popRange = GetPopRange(targetClass);
 		int basePopulation = rng.RandiRange(popRange.Min, popRange.Max);
 		station.Population = (int)(basePopulation * spec.PopulationDensity);
 		station.UpdateClassFromPopulation();
+		if (spec.ForceStationClass.HasValue)
+		{
+			station.StationClass = spec.ForceStationClass.Value;
+			station.Population = ClampPopulationToForcedClass(station.Population, station.StationClass);
+		}
 		station.EstablishedYear = rng.RandiRange(spec.MinEstablishedYear, spec.MaxEstablishedYear);
 		station.Services = SelectServices(station.PrimaryPurpose, station.StationClass, rng);
 
@@ -554,6 +579,8 @@ public static partial class StationGenerator
 			station.DetailedDesign = StarGen.Domain.Population.StationDesign.DesignCalculator.Calculate(designSpec);
 			station.ClassificationReport = StarGen.Domain.Population.StationDesign.Classification.ClassificationEvaluator.Evaluate(station.DetailedDesign);
 		}
+
+		station.SentientWorldProfile = StationPopulationProfileBuilder.Build(station);
 
 		return station;
 	}
@@ -645,6 +672,28 @@ public static partial class StationGenerator
 		}
 
 		return recommendation.OrbitalCandidates[rng.RandiRange(0, recommendation.OrbitalCandidates.Count - 1)];
+	}
+
+	/// <summary>
+	/// Selects an orbital body when a station type override requires one.
+	/// </summary>
+	private static string SelectFallbackOrbitingBody(
+		StationSystemContext systemContext,
+		StationPlacementRecommendation recommendation,
+		SeededRng rng)
+	{
+		string recommendedBody = SelectOrbitalBody(recommendation, rng);
+		if (!string.IsNullOrEmpty(recommendedBody))
+		{
+			return recommendedBody;
+		}
+
+		if (systemContext.PlanetIds.Count > 0)
+		{
+			return systemContext.PlanetIds[rng.RandiRange(0, systemContext.PlanetIds.Count - 1)];
+		}
+
+		return "station_anchor_001";
 	}
 
 	/// <summary>
@@ -877,6 +926,15 @@ public static partial class StationGenerator
 			StationClass.Class.S => PopRangeS,
 			_ => PopRangeO,
 		};
+	}
+
+	/// <summary>
+	/// Keeps density scaling inside an explicitly requested station class.
+	/// </summary>
+	private static int ClampPopulationToForcedClass(int population, StationClass.Class stationClass)
+	{
+		(int Min, int Max) range = GetPopRange(stationClass);
+		return System.Math.Clamp(population, range.Min, range.Max);
 	}
 
 	/// <summary>

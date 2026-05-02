@@ -82,32 +82,37 @@ if ($RequestedEdition -ne "export") {
 }
 
 $DisplayVersion = "$UserFacingVersion"
+$EditionLabel = "demo"
 if ($RequestedEdition -eq "export") {
-    $DisplayVersion = "$UserFacingVersion" + "e"
-}
-else {
-    $DisplayVersion = "$UserFacingVersion" + "d"
+    $EditionLabel = "export"
 }
 
-$OutputRoot = Join-Path $RepoRoot "release\$Version\$DisplayVersion"
+$ArtifactLabel = $DisplayVersion
+$OutputFolderName = $DisplayVersion
+if ($EditionLabel -eq "export") {
+    $ArtifactLabel = "$DisplayVersion-export"
+    $OutputFolderName = "$DisplayVersion-export"
+}
+
+$OutputRoot = Join-Path $RepoRoot "release\$Version\$OutputFolderName"
 
 $PresetMap = @{
     "Windows Desktop" = @{
         Folder = "windows"
         Entry = "StarGen.exe"
-        Zip = "StarGen-$DisplayVersion-windows.zip"
+        Zip = "StarGen-$ArtifactLabel-windows.zip"
         ButlerChannel = "windows"
     }
     "Linux" = @{
         Folder = "linux"
         Entry = "stargen.x86_64"
-        Zip = "StarGen-$DisplayVersion-linux.zip"
+        Zip = "StarGen-$ArtifactLabel-linux.zip"
         ButlerChannel = "linux"
     }
     "Web" = @{
         Folder = "web"
         Entry = "index.html"
-        Zip = "StarGen-$DisplayVersion-web.zip"
+        Zip = "StarGen-$ArtifactLabel-web.zip"
         ButlerChannel = "web"
     }
 }
@@ -116,11 +121,8 @@ Write-Host ""
 Write-Host "StarGen release build"
 Write-Host "Internal version: $Version"
 Write-Host "User-facing version: $DisplayVersion"
-$EditionLabel = "demo"
-if ($RequestedEdition -eq "export") {
-    $EditionLabel = "export"
-}
 Write-Host "Edition channel: $EditionLabel"
+Write-Host "Artifact label: $ArtifactLabel"
 Write-Host "Output root: $OutputRoot"
 Write-Host ""
 
