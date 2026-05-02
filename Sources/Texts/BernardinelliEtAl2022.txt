@@ -74,3 +74,23 @@ Large TNO size-frequency distribution; detection of large (>100 km) TNOs.
 - `LargeTNO_Occurrence` — ~few × 10⁴ TNOs with D > 100 km in Kuiper Belt analog
 - Apply when generating outer system small body populations beyond 30 AU.
 **Cross-references:** DeMeoCarry2014.txt, KavelaarsEtAl2023.txt.
+
+## Current StarGen usage
+
+StarGen uses this source as active but simplified support for large trans-Neptunian-object demographics. `SystemAsteroidGenerator` records `BernardinelliEtAl2022` in generated cold-reservoir provenance and size-distribution provenance, and the planetary science catalog now exposes it for `planet_minor_body_outer_system_bias` and `minor_body_population_slope`.
+
+## Human reviewer concern
+
+The reviewer concern is that StarGen should distinguish actual TNO/Kuiper-style reservoirs from a generic "outer asteroid belt" and should not overstate survey-derived counts as if the current generator were a full survey-bias model.
+
+## AI response / disposition
+
+Disposition: partly implemented as a source-marked large-TNO reservoir proxy. The current generator uses a bounded reservoir placement/mass/size-slope heuristic; it does not yet model DES selection functions, survey completeness, or all orbital subpopulations.
+
+## Implementation status
+
+partly implemented
+
+## Follow-up action
+
+Add explicit TNO population-count diagnostics, survey-bias caveats, and separate orbital families after human verification of the quantitative distribution. Keep the current implementation framed as a generator prior, not a DES reproduction.

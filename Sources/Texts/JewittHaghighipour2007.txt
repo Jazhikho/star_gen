@@ -161,4 +161,4 @@ giant planets.
 **User lever:** `IrregularSatelliteDetail` enum: `None` / `NamedOnly` / `Full`.
 
 **Cross-references:** planetary formation papers; Chabrier2003.txt (stellar/planetary
-mass scaling context); Lamy2004.txt (comet nucleus size/albedo comparison).
+mass scaling context); BauerEtAl2017.txt (comet nucleus size/albedo comparison).

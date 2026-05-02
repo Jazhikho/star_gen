@@ -58,3 +58,23 @@ Compositional gradient with heliocentric distance: S-types inner, C-types outer.
 - X-type (metallic, E-type) at ~2.5 AU; Vesta-type (V) near ~2.4 AU.
 - Apply as prior when generating asteroid composition in belt-like regions.
 **Cross-references:** RaymondIzidoro2017.txt, BernardinelliEtAl2022.txt.
+
+## Current StarGen usage
+
+StarGen uses this source as an active, partly implemented asteroid-composition anchor. `AsteroidGenerator` marks generated asteroids with the `bus_demeo_carry_gradient_proxy` taxonomy model, and `SystemAsteroidGenerator` now records `DeMeoCarry2014` on belt composition provenance. Representative major bodies use a simple heliocentric/snow-line composition gradient: S-type rich inside the snow-line region, mixed C/S/M near the transition, and C/D rich in cold trans-Neptunian-style reservoirs.
+
+## Human reviewer concern
+
+The reviewer concern is that asteroid/comet reservoirs should not remain generic debris rolls. Belt placement, family composition, and volatile-delivery assumptions need to be traceable to the accepted source notes and should not cite unavailable or replaced comet sources as active support.
+
+## AI response / disposition
+
+Disposition: retain as active support for qualitative asteroid family/composition gradients only. The local PDF text extraction is corrupted in the source metadata and abstract, so the numeric thresholds in the mechanics translation remain human-verification-required rather than final calibrated source values.
+
+## Implementation status
+
+partly implemented
+
+## Follow-up action
+
+Human-verify the PDF metadata, figures, and compositional fractions. Later work should replace the current snow-line-relative proxy with an explicit main-belt family and radial taxonomic distribution, including uncertainty and source alternatives.

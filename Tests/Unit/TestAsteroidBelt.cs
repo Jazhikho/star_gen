@@ -149,6 +149,11 @@ public static class TestAsteroidBelt
         original.OuterRadiusM = 3.2 * Units.AuMeters;
         original.TotalMassKg = 3.0e21;
         original.PrimaryComposition = (AsteroidBelt.Composition)AsteroidBelt.CompositionType.Mixed;
+        original.ReservoirKind = "main_asteroid_belt";
+        original.ReservoirSourceIds = "DeMeoCarry2014;RaymondIzidoro2017";
+        original.CompositionSourceIds = "DeMeoCarry2014";
+        original.SizeDistributionSourceIds = "DeMeoCarry2014";
+        original.PopulationModel = "demeo_carry_inner_belt_proxy";
         original.MajorAsteroidIds = new Array<string> { "ceres", "vesta", "pallas" };
 
         Godot.Collections.Dictionary data = original.ToDictionary();
@@ -181,6 +186,26 @@ public static class TestAsteroidBelt
         if (restored.PrimaryComposition != original.PrimaryComposition)
         {
             throw new InvalidOperationException("Composition should match");
+        }
+        if (restored.ReservoirKind != original.ReservoirKind)
+        {
+            throw new InvalidOperationException("Reservoir kind should match");
+        }
+        if (restored.ReservoirSourceIds != original.ReservoirSourceIds)
+        {
+            throw new InvalidOperationException("Reservoir source ids should match");
+        }
+        if (restored.CompositionSourceIds != original.CompositionSourceIds)
+        {
+            throw new InvalidOperationException("Composition source ids should match");
+        }
+        if (restored.SizeDistributionSourceIds != original.SizeDistributionSourceIds)
+        {
+            throw new InvalidOperationException("Size-distribution source ids should match");
+        }
+        if (restored.PopulationModel != original.PopulationModel)
+        {
+            throw new InvalidOperationException("Population model should match");
         }
         if (restored.MajorAsteroidIds.Count != 3)
         {

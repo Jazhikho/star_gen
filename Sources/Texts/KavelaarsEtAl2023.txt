@@ -59,3 +59,23 @@ resonant, and scattered populations.
   - Scattered: high-e, a > 50 AU
 - Generate as separate small-body populations rather than a single uniform distribution.
 **Cross-references:** BernardinelliEtAl2022.txt, MalambudPerets2019.txt.
+
+## Current StarGen usage
+
+StarGen uses this source as active but simplified TNO reservoir support. `SystemAsteroidGenerator` now labels generated cold belts as `trans_neptunian_reservoir`, moves the default cold reservoir outward toward Kuiper-belt analog distances, lowers the outer-reservoir mass ceiling, records `KavelaarsEtAl2023` in belt reservoir and size-distribution provenance, and uses the public `minor_body_population_slope` control when sampling representative large TNO-like bodies.
+
+## Human reviewer concern
+
+The reviewer concern is that outer belts should not be generic asteroid belts placed only a few frost-line distances from the star. Kuiper-belt/TNO sources need to inform placement, size-slope, mass-scale, and provenance.
+
+## AI response / disposition
+
+Disposition: partly implemented as a deterministic trans-Neptunian reservoir proxy. The current implementation does not yet split cold classical, hot classical, resonant, and scattered populations as separate generated families.
+
+## Implementation status
+
+partly implemented
+
+## Follow-up action
+
+Add separate TNO sub-population records and orbital distributions after human verification of exact inclination, resonance, and mass-population values. The current single-belt proxy should remain labeled as simplified.

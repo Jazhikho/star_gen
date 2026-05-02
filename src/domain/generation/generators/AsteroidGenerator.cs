@@ -65,6 +65,8 @@ public static class AsteroidGenerator
             Surface = surface,
             Atmosphere = null,
         };
+        body.SetMeta("asteroid_composition_source_ids", "DeMeoCarry2014");
+        body.SetMeta("asteroid_taxonomy_model", "bus_demeo_carry_gradient_proxy");
         return body;
     }
 

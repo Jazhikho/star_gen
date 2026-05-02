@@ -26,10 +26,14 @@ public static class SystemAsteroidGenerator
     private const double OuterBeltProbability = 0.50;
     private const double InnerBeltMassMinKg = 1.0e20;
     private const double InnerBeltMassMaxKg = 1.0e22;
-    private const double OuterBeltMassMinKg = 1.0e21;
-    private const double OuterBeltMassMaxKg = 1.0e24;
+    private const double OuterBeltMassMinKg = 1.0e20;
+    private const double OuterBeltMassMaxKg = 1.0e23;
     private const double MajorAsteroidThresholdKm = 100.0;
-    private const double PowerLawAlpha = 2.5;
+    private const string InnerReservoirSourceIds = "DeMeoCarry2014;RaymondIzidoro2017";
+    private const string OuterReservoirSourceIds = "KavelaarsEtAl2023;BernardinelliEtAl2022;BauerEtAl2017;RaymondIzidoro2017";
+    private const string CompositionSourceIds = "DeMeoCarry2014";
+    private const string InnerSizeSourceIds = "DeMeoCarry2014";
+    private const string OuterSizeSourceIds = "KavelaarsEtAl2023;BernardinelliEtAl2022";
 
     /// <summary>
     /// Generates belts and their major asteroids for a system.
@@ -462,6 +466,7 @@ public static class SystemAsteroidGenerator
                     double logMin = System.Math.Log(InnerBeltMassMinKg * scale);
                     double logMax = System.Math.Log(InnerBeltMassMaxKg * scale);
                     innerBelt.TotalMassKg = System.Math.Exp(rng.RandfRange((float)logMin, (float)logMax));
+                    AnnotateBelt(innerBelt, "main_asteroid_belt", InnerReservoirSourceIds, CompositionSourceIds, InnerSizeSourceIds, "demeo_carry_inner_belt_proxy");
                     belts.Add(innerBelt);
                 }
             }
@@ -475,8 +480,13 @@ public static class SystemAsteroidGenerator
             0.96);
         if (rng.Randf() < outerBeltProbability)
         {
-            double minDistance = host.FrostLineM * 5.0;
-            double maxDistance = host.OuterStabilityM * 0.8;
+            double minDistance = System.Math.Max(host.FrostLineM * 10.0, host.HabitableZoneOuterM * 18.0);
+            if (minDistance <= 0.0)
+            {
+                minDistance = host.FrostLineM * 8.0;
+            }
+
+            double maxDistance = host.OuterStabilityM * 0.85;
             if (minDistance < maxDistance)
             {
                 double outermostPlanet;
@@ -491,7 +501,7 @@ public static class SystemAsteroidGenerator
                 double innerRadius = System.Math.Max(minDistance, outermostPlanet * 1.5);
                 if (innerRadius < maxDistance)
                 {
-                    double widthFraction = rng.RandfRange((float)MinBeltWidthFraction, (float)MaxBeltWidthFraction);
+                    double widthFraction = rng.RandfRange(0.18f, 0.45f);
                     double outerRadius = System.Math.Min(innerRadius * (1.0 + widthFraction), maxDistance);
                     if (outerRadius > innerRadius)
                     {
@@ -524,6 +534,7 @@ public static class SystemAsteroidGenerator
                         double logMin = System.Math.Log(OuterBeltMassMinKg * scale);
                         double logMax = System.Math.Log(OuterBeltMassMaxKg * scale);
                         outerBelt.TotalMassKg = System.Math.Exp(rng.RandfRange((float)logMin, (float)logMax));
+                        AnnotateBelt(outerBelt, "trans_neptunian_reservoir", OuterReservoirSourceIds, CompositionSourceIds, OuterSizeSourceIds, "kavelaars_bernardinelli_large_tno_proxy");
                         belts.Add(outerBelt);
                     }
                 }
@@ -607,6 +618,14 @@ public static class SystemAsteroidGenerator
         }
 
         belt.PrimaryComposition = composition;
+        if (slot.Zone == OrbitZone.Zone.Cold)
+        {
+            AnnotateBelt(belt, "trans_neptunian_reservoir", OuterReservoirSourceIds, CompositionSourceIds, OuterSizeSourceIds, "kavelaars_bernardinelli_large_tno_proxy");
+        }
+        else
+        {
+            AnnotateBelt(belt, "main_asteroid_belt", InnerReservoirSourceIds, CompositionSourceIds, InnerSizeSourceIds, "demeo_carry_inner_belt_proxy");
+        }
 
         bool isOuter = slot.Zone == OrbitZone.Zone.Cold;
         double minMass;
@@ -650,6 +669,21 @@ public static class SystemAsteroidGenerator
         };
     }
 
+    private static void AnnotateBelt(
+        AsteroidBelt belt,
+        string reservoirKind,
+        string reservoirSourceIds,
+        string compositionSourceIds,
+        string sizeDistributionSourceIds,
+        string populationModel)
+    {
+        belt.ReservoirKind = reservoirKind;
+        belt.ReservoirSourceIds = reservoirSourceIds;
+        belt.CompositionSourceIds = compositionSourceIds;
+        belt.SizeDistributionSourceIds = sizeDistributionSourceIds;
+        belt.PopulationModel = populationModel;
+    }
+
     /// <summary>
     /// Generates the major asteroids tracked for a belt.
     /// </summary>
@@ -674,16 +708,17 @@ public static class SystemAsteroidGenerator
         }
 
         List<double> sizesKm = new();
+        double alpha = ResolveMajorBodyPowerLawAlpha(belt, planetaryState);
         for (int index = 0; index < count; index += 1)
         {
             double maxSizeKm = 1000.0;
             double minSizeKm = MajorAsteroidThresholdKm;
-            double lower = System.Math.Pow(minSizeKm, 1.0 - PowerLawAlpha);
-            double upper = System.Math.Pow(maxSizeKm, 1.0 - PowerLawAlpha);
+            double lower = System.Math.Pow(minSizeKm, 1.0 - alpha);
+            double upper = System.Math.Pow(maxSizeKm, 1.0 - alpha);
             double u = rng.Randf();
             double sizeKm = System.Math.Pow(
                 lower + (u * (upper - lower)),
-                1.0 / (1.0 - PowerLawAlpha));
+                1.0 / (1.0 - alpha));
             sizesKm.Add(sizeKm);
         }
 
@@ -730,58 +765,7 @@ public static class SystemAsteroidGenerator
         double distanceFraction = rng.RandfRange(0.1f, 0.9f);
         double orbitalDistance = belt.InnerRadiusM + ((belt.OuterRadiusM - belt.InnerRadiusM) * distanceFraction);
 
-        double compositionRoll = rng.Randf();
-        int asteroidType;
-        switch (belt.PrimaryComposition)
-        {
-            case AsteroidBelt.Composition.Rocky:
-                if (compositionRoll < 0.75)
-                {
-                    asteroidType = (int)AsteroidType.Type.SType;
-                }
-                else
-                {
-                    asteroidType = (int)AsteroidType.Type.CType;
-                }
-
-                break;
-            case AsteroidBelt.Composition.Icy:
-                asteroidType = planetaryState.Profile.MinorBodyOuterSystemBias == PlanetMinorBodyOuterSystemBias.CometLeaning && compositionRoll < 0.55
-                    ? (int)AsteroidType.Type.DType
-                    : (int)AsteroidType.Type.CType;
-                break;
-            case AsteroidBelt.Composition.Metallic:
-                if (compositionRoll < 0.60)
-                {
-                    asteroidType = (int)AsteroidType.Type.MType;
-                }
-                else
-                {
-                    asteroidType = (int)AsteroidType.Type.SType;
-                }
-
-                break;
-            case AsteroidBelt.Composition.Mixed:
-                if (compositionRoll < 0.50)
-                {
-                    asteroidType = planetaryState.Profile.MinorBodyOuterSystemBias == PlanetMinorBodyOuterSystemBias.CometLeaning && compositionRoll < 0.25
-                        ? (int)AsteroidType.Type.DType
-                        : (int)AsteroidType.Type.CType;
-                }
-                else if (compositionRoll < 0.85)
-                {
-                    asteroidType = (int)AsteroidType.Type.SType;
-                }
-                else
-                {
-                    asteroidType = compositionRoll > 0.94 ? (int)AsteroidType.Type.VType : (int)AsteroidType.Type.MType;
-                }
-
-                break;
-            default:
-                asteroidType = (int)AsteroidType.Type.CType;
-                break;
-        }
+        int asteroidType = SelectAsteroidTypeForBelt(belt, host, orbitalDistance, planetaryState, rng);
 
         int asteroidSeed = unchecked((int)rng.Randi());
         AsteroidSpec spec;
@@ -829,6 +813,88 @@ public static class SystemAsteroidGenerator
             asteroid.Orbital!.ParentId = host.NodeId;
         }
 
+        asteroid.SetMeta("small_body_reservoir_kind", belt.ReservoirKind);
+        asteroid.SetMeta("small_body_source_ids", planetaryState.SmallBodySourceIds);
+        asteroid.SetMeta("belt_reservoir_source_ids", belt.ReservoirSourceIds);
+        asteroid.SetMeta("belt_composition_source_ids", belt.CompositionSourceIds);
+        asteroid.SetMeta("belt_size_distribution_source_ids", belt.SizeDistributionSourceIds);
+        asteroid.SetMeta("minor_body_population_slope", ResolveMajorBodyPowerLawAlpha(belt, planetaryState));
         return asteroid;
+    }
+
+    private static double ResolveMajorBodyPowerLawAlpha(AsteroidBelt belt, PlanetarySystemState planetaryState)
+    {
+        double slope = System.Math.Clamp(planetaryState.Profile.MinorBodyPopulationSlope, 1.0, 5.0);
+        if (string.Equals(belt.ReservoirKind, "trans_neptunian_reservoir", System.StringComparison.Ordinal))
+        {
+            return System.Math.Clamp(2.15 + (0.22 * slope), 1.8, 3.4);
+        }
+
+        return System.Math.Clamp(2.0 + (0.25 * slope), 1.8, 3.6);
+    }
+
+    private static int SelectAsteroidTypeForBelt(
+        AsteroidBelt belt,
+        OrbitHost host,
+        double orbitalDistanceM,
+        PlanetarySystemState planetaryState,
+        SeededRng rng)
+    {
+        double compositionRoll = rng.Randf();
+        double snowLineM = System.Math.Max(host.FrostLineM, 1.0);
+        double snowLineRatio = orbitalDistanceM / snowLineM;
+
+        if (string.Equals(belt.ReservoirKind, "trans_neptunian_reservoir", System.StringComparison.Ordinal))
+        {
+            double dTypeThreshold = planetaryState.Profile.MinorBodyOuterSystemBias == PlanetMinorBodyOuterSystemBias.CometLeaning ? 0.34 : 0.18;
+            if (compositionRoll < dTypeThreshold)
+            {
+                return (int)AsteroidType.Type.DType;
+            }
+
+            return (int)AsteroidType.Type.CType;
+        }
+
+        if (snowLineRatio < 0.92)
+        {
+            if (compositionRoll < 0.74)
+            {
+                return (int)AsteroidType.Type.SType;
+            }
+
+            if (compositionRoll < 0.88)
+            {
+                return (int)AsteroidType.Type.CType;
+            }
+
+            return compositionRoll > 0.97 ? (int)AsteroidType.Type.VType : (int)AsteroidType.Type.MType;
+        }
+
+        if (snowLineRatio < 1.35)
+        {
+            if (compositionRoll < 0.46)
+            {
+                return (int)AsteroidType.Type.CType;
+            }
+
+            if (compositionRoll < 0.78)
+            {
+                return (int)AsteroidType.Type.SType;
+            }
+
+            return compositionRoll > 0.94 ? (int)AsteroidType.Type.VType : (int)AsteroidType.Type.MType;
+        }
+
+        if (compositionRoll < 0.68)
+        {
+            return (int)AsteroidType.Type.CType;
+        }
+
+        if (compositionRoll < 0.86)
+        {
+            return (int)AsteroidType.Type.DType;
+        }
+
+        return (int)AsteroidType.Type.SType;
     }
 }

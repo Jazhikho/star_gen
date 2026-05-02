@@ -261,11 +261,26 @@ public static class SourceAcquisitionRegistry
             SourceAcquisitionStatus.LocalSourceNote,
             "res://Sources/Texts/JewittHaghighipour2007.txt",
             "Local source note exists for irregular and captured satellites."),
-        ["demeocarry2013"] = Create(
-            "demeocarry2013",
+        ["demeocarry2014"] = Create(
+            "demeocarry2014",
             SourceAcquisitionStatus.LocalSourceNote,
             "res://Sources/Texts/DeMeoCarry2014.txt",
-            "Local source note exists under the retained DeMeoCarry2014 filename; catalog ID normalization remains a follow-up."),
+            "Local source note exists for asteroid compositional gradients; human verification remains required because the PDF extract metadata is corrupted."),
+        ["kavelaarsetal2023"] = Create(
+            "kavelaarsetal2023",
+            SourceAcquisitionStatus.LocalSourceNote,
+            "res://Sources/Texts/KavelaarsEtAl2023.txt",
+            "Local source note exists for Kuiper-belt/TNO population structure; retained as partly implemented with human-verification caveats."),
+        ["bernardinellietal2022"] = Create(
+            "bernardinellietal2022",
+            SourceAcquisitionStatus.LocalSourceNote,
+            "res://Sources/Texts/BernardinelliEtAl2022.txt",
+            "Local source note exists for DES TNO demographics; retained as partly implemented with survey-bias caveats."),
+        ["napieretal2023"] = Create(
+            "napieretal2023",
+            SourceAcquisitionStatus.LocalSourceNote,
+            "res://Sources/Texts/NapierEtAl2023.txt",
+            "Local source note exists, but the mechanics translation remains human-verification pending and is not an active default source in this pass."),
         ["lamy2004"] = Create(
             "lamy2004",
             SourceAcquisitionStatus.AcquisitionBlocked,

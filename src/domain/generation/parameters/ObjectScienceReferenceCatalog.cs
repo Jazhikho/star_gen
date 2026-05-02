@@ -80,10 +80,6 @@ public static class ObjectScienceReferenceCatalog
             "demeocarry2014",
             "DeMeo and Carry (2014), asteroid composition changes with heliocentric distance and preserves different inner versus outer-system materials.",
             "https://arxiv.org/abs/1310.3846"),
-        ["lamy2004"] = new ObjectScienceSource(
-            "lamy2004",
-            "Lamy et al. (2004), comet nuclei are dark volatile-rich bodies distinct from ordinary asteroids.",
-            "https://ui.adsabs.harvard.edu/abs/2004come.book..223L/abstract"),
         ["baueretal2017"] = new ObjectScienceSource(
             "baueretal2017",
             "Bauer et al. (2017), NEOWISE comet nucleus sizes and activity fractions support smaller Jupiter-family comet nuclei than StarGen's old wide range.",
@@ -123,7 +119,7 @@ public static class ObjectScienceReferenceCatalog
         builder.AppendLine();
         builder.AppendLine("[b]Direct object families[/b]");
         builder.AppendLine("- [color=#9cc4ff]Asteroids:[/color] Orbit band, density, and albedo help you target inner rocky fragments, main-belt bodies, or darker outer primitive material. [DeMeo & Carry 2014]");
-        builder.AppendLine("- [color=#9cc4ff]Comets:[/color] Family, activity, and nucleus model let you target short-period Jupiter-family comets, distant long-period icy bodies, or explicit legacy wide-size behavior without pretending all comets are asteroids with a different label. [Bauer et al. 2017; Lamy et al. 2004]");
+        builder.AppendLine("- [color=#9cc4ff]Comets:[/color] Family, activity, and nucleus model let you target short-period Jupiter-family comets, distant long-period icy bodies, or explicit legacy wide-size behavior without pretending all comets are asteroids with a different label. [Bauer et al. 2017]");
         builder.AppendLine("- [color=#9cc4ff]Subsurface oceans:[/color] Protected oceans can support a separate dark-biosphere proxy, but the stronger model also asks for chemical energy and rock-fluid interface support. [Escudero et al. 2023; Heller & Barnes 2013]");
         builder.AppendLine();
         builder.AppendLine("[b][color=#f0c46a]Sources[/color][/b]");

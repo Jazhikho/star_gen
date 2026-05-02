@@ -1,12 +1,20 @@
 # Version
 
-Current version: `0.9.8.0`
+Current version: `0.9.9.0`
 
 Current user-facing version: `0.9d` by default, `0.9e` for the export/save-enabled edition
 
-Date: `2026-05-01`
+Date: `2026-05-02`
 
 Versioning method: release/refactor `+0.1`, feature `+0.0.1`, bug fix `+0.0.0.1`, save-breaking release `+1.0`.
+
+## 0.9.9.0
+
+- Feature: Retooled small-body reservoirs around source-marked asteroid/comet/TNO provenance, including DeMeo/Carry asteroid taxonomy, Bauer comet activity metadata, and Kavelaars/Bernardinelli trans-Neptunian reservoir context.
+- Feature: Cold reservoirs now form farther out as Kuiper-belt analogs, use a lower TNO-scale mass ceiling, and serialize reservoir/composition/size-distribution source metadata on belts.
+- Feature: The public minor-body population slope now affects representative major-body sizes instead of remaining only a cataloged control.
+- Docs: Updated source notes, annotated bibliography, source-utilization plan, science audits, project structure, and AI provenance for the small-body source-utilization slice; `Lamy2004` is no longer active support.
+- Test: Added regression coverage for small-body reservoir provenance, trans-Neptunian placement, minor-body slope effects, and belt metadata round-tripping.
 
 ## 0.9.8.0
 

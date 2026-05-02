@@ -17,6 +17,17 @@ Use this log for significant AI-assisted artifacts in this repository.
 
 ## Entries
 
+### 2026-05-02 - Codex (GPT-5)
+
+- Task Purpose: Continue source-to-generator cleanup through small bodies and reservoirs.
+- Input Materials Used: User direction to continue; `Sources/SourceUtilizationPlan.md`; `Sources/Texts/DeMeoCarry2014.txt`; `Sources/Texts/BauerEtAl2017.txt`; `Sources/Texts/KavelaarsEtAl2023.txt`; `Sources/Texts/BernardinelliEtAl2022.txt`; `Sources/Texts/NapierEtAl2023.txt`; asteroid/comet/system generator code; planetary science registries; tests; bibliography and audit docs.
+- AI Produced: Added source-backed belt reservoir metadata, normalized active small-body source IDs, removed `Lamy2004` from active comet/small-body citation surfaces, moved cold reservoirs outward toward a Kuiper-belt analog, lowered the outer-reservoir mass ceiling, made `minor_body_population_slope` affect representative major-body sizes, added Bauer active-fraction/source metadata to comets, and updated tests/docs/source dispositions.
+- Human Accepted: Pending Christopher B. Del Gesso review.
+- Human Rejected: Treating the current implementation as a full asteroid-belt family model, Kuiper-belt survey-bias reproduction, or calibrated TNO/comet population model. `NapierEtAl2023` remains documentation-only pending human verification; `Lamy2004` is rejected/replaced as active support.
+- Human Changed: The user asked to continue the logical source-utilization sequence and to branch process-breaking/source-retuning work before merging.
+- Validation Method: `dotnet build .\StarGen.sln` (`Build succeeded. 0 Warning(s), 0 Error(s).`); `godot-mono.exe --path . --headless --script res://Tests/RunTestsHeadless.gd` (`Total: 1888 | Passed: 1888 | Failed: 0`) with the known Godot shutdown leak/resource warnings.
+- Final Approver: Pending Christopher B. Del Gesso review.
+
 ### 2026-04-30 - Codex (GPT-5)
 
 - Task Purpose: Continue the source-to-generator cleanup through disk formation, migration, giant formation, and volatile-delivery sources.

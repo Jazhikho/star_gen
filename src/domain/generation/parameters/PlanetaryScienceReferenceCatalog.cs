@@ -120,14 +120,22 @@ public static class PlanetaryScienceReferenceCatalog
             "jewitthaghighipour2007",
             "Jewitt and Haghighipour (2007), irregular and captured satellites.",
             "https://arxiv.org/abs/astro-ph/0703059"),
-        ["demeocarry2013"] = new PlanetaryScienceSource(
-            "demeocarry2013",
-            "DeMeo and Carry (2013), asteroid compositional structure.",
+        ["demeocarry2014"] = new PlanetaryScienceSource(
+            "demeocarry2014",
+            "DeMeo and Carry (2014), asteroid compositional structure.",
             "https://arxiv.org/abs/1307.2424"),
-        ["lamy2004"] = new PlanetaryScienceSource(
-            "lamy2004",
-            "Lamy, Toth, Fernandez, and Weaver (2004), comet nucleus sizes, albedos, and colors.",
-            "https://ui.adsabs.harvard.edu/abs/2004come.book..223L/abstract"),
+        ["kavelaarsetal2023"] = new PlanetaryScienceSource(
+            "kavelaarsetal2023",
+            "Kavelaars et al. (2023), OSSOS-calibrated Kuiper-belt population and mass estimates.",
+            "Sources/Texts/KavelaarsEtAl2023.txt"),
+        ["bernardinellietal2022"] = new PlanetaryScienceSource(
+            "bernardinellietal2022",
+            "Bernardinelli et al. (2022), DES trans-Neptunian object survey and large-TNO demographics.",
+            "Sources/Texts/BernardinelliEtAl2022.txt"),
+        ["napieretal2023"] = new PlanetaryScienceSource(
+            "napieretal2023",
+            "Napier et al. (2023), DEEP Kuiper-belt luminosity function and cold classical mass context.",
+            "Sources/Texts/NapierEtAl2023.txt"),
         ["mroz2020"] = new PlanetaryScienceSource(
             "mroz2020",
             "Mroz et al. (2020), free-floating or wide-orbit planet constraints.",
@@ -207,15 +215,15 @@ public static class PlanetaryScienceReferenceCatalog
         new PlanetaryScienceParameterReference(
             "planet_minor_body_outer_system_bias",
             "This biases cold outer leftovers between rockier belts and icier reservoirs.\nAsteroid-leaning favors drier rocky debris.\nBalanced keeps neither branch dominant.\nComet-leaning favors icy primitive reservoirs.\nChanging this affects volatile delivery, comet supply, and outer-belt composition.",
-            new[] { "demeocarry2013", "lamy2004" }),
+            new[] { "demeocarry2014", "baueretal2017", "kavelaarsetal2023", "bernardinellietal2022" }),
         new PlanetaryScienceParameterReference(
             "comet_nucleus_model",
             "This picks the comet nucleus size prior.\nBauer Jupiter-Family uses a smaller source-backed Jupiter-family nucleus distribution.\nLegacy Wide Range preserves the older StarGen broad comet sizes only as an explicit stylized or compatibility choice.",
-            new[] { "baueretal2017", "lamy2004" }),
+            new[] { "baueretal2017" }),
         new PlanetaryScienceParameterReference(
             "comet_activity_model",
             "This picks the active, dormant, and extinct comet activity prior.\nSurvey Anchored keeps activity state explicit instead of burying it in an undocumented roll.\nActive-rich and Dormant-rich are controlled alternatives for uncertain population assumptions.",
-            new[] { "baueretal2017", "lamy2004" }),
+            new[] { "baueretal2017" }),
         new PlanetaryScienceParameterReference(
             "comet_size_scale",
             "This slider scales comet nucleus radii after the selected nucleus model.\nUse it for continuous uncertainty around the selected model, not as a replacement for the model choice.",
@@ -223,7 +231,7 @@ public static class PlanetaryScienceReferenceCatalog
         new PlanetaryScienceParameterReference(
             "minor_body_population_slope",
             "This slider controls how strongly minor-body sampling favors smaller versus larger bodies.\nHigher slopes make small bodies more dominant.",
-            new[] { "baueretal2017" }),
+            new[] { "baueretal2017", "kavelaarsetal2023", "bernardinellietal2022" }),
         new PlanetaryScienceParameterReference(
             "planet_disk_radius_scale",
             "This slider adjusts the disk-size proxy used in formation budgets.\nIt lets gas-giant outcomes respond to disk structure rather than only metallicity or gas mass.",
@@ -263,8 +271,10 @@ public static class PlanetaryScienceReferenceCatalog
         "sasaki2010",
         "szulagyi2018",
         "jewitthaghighipour2007",
-        "demeocarry2013",
-        "lamy2004",
+        "demeocarry2014",
+        "kavelaarsetal2023",
+        "bernardinellietal2022",
+        "napieretal2023",
         "mroz2020",
         "petigura2013",
         "bryson2021",

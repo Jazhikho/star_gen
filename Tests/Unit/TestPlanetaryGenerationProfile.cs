@@ -119,6 +119,9 @@ public static class TestPlanetaryGenerationProfile
         DotNetNativeTestSuite.AssertEqual(state.VolatileDeliveryScalar, rebuilt.VolatileDeliveryScalar, "Derived state should preserve volatile delivery");
         DotNetNativeTestSuite.AssertEqual(state.XuvActivityScalar, rebuilt.XuvActivityScalar, "Derived state should preserve XUV activity");
         DotNetNativeTestSuite.AssertEqual(state.FormationSourceIds, rebuilt.FormationSourceIds, "Derived state should preserve formation source IDs");
+        DotNetNativeTestSuite.AssertEqual(state.SmallBodySourceIds, rebuilt.SmallBodySourceIds, "Derived state should preserve small-body source IDs");
+        DotNetNativeTestSuite.AssertTrue(state.SmallBodySourceIds.Contains("DeMeoCarry2014"), "Derived state should include asteroid source IDs");
+        DotNetNativeTestSuite.AssertTrue(state.SmallBodySourceIds.Contains("BauerEtAl2017"), "Derived state should include comet source IDs");
         DotNetNativeTestSuite.AssertEqual(state.DiskDustHostMassExponent, rebuilt.DiskDustHostMassExponent, "Derived state should preserve the disk-dust host-mass exponent");
         DotNetNativeTestSuite.AssertEqual(state.AdjustedDiskLifetimeMyr, rebuilt.AdjustedDiskLifetimeMyr, "Derived state should preserve adjusted disk lifetime");
         DotNetNativeTestSuite.AssertEqual(state.EffectiveTemperatureK, rebuilt.EffectiveTemperatureK, "Derived state should preserve effective temperature");

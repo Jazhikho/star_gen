@@ -47,6 +47,15 @@ with full-text extraction (PDF when retrievable, otherwise HTML full text).
 **StarGen annotation:** Reviewed and partly implemented as a late-stage technosphere oxygen bottleneck, including civilization scoring and atmosphere oxygen-context provenance. Do not use as proof that every possible technological pathway requires an Earthlike oxygen history.
 
 
+## BauerEtAl2017
+
+**Domain:** comet nuclei / small bodies
+
+**APA:** Bauer, J. M., Stevenson, R., Kramer, E., Mainzer, A. K., Grav, T., Masiero, J. R., Fernandez, Y. R., Nugent, C. R., Meech, K. J., Lisse, C. M., Cutri, R. M., Sonnett, S., & Wright, E. L. (2017). The NEOWISE-discovered comet population and the CO + CO2 production rates. The Astronomical Journal, 154(2), 53. https://doi.org/10.3847/1538-3881/aa72df
+
+**StarGen annotation:** Partly implemented as the active comet-nucleus and activity anchor. `CometGenerator` uses Bauer-style Jupiter-family and nearly-isotropic comet radius priors, records comet source/activity metadata, and exposes active-fraction provenance. Replaces `Lamy2004` as active comet support; the old wide-radius behavior remains only as an explicit compatibility mode.
+
+
 ## Behroozi2019
 
 **Domain:** galaxy formation/stellar-halo assembly
@@ -80,7 +89,7 @@ with full-text extraction (PDF when retrievable, otherwise HTML full text).
 
 **APA:** Bernardinelli, P. H., Bernstein, G., Sako, M., et al. (2022). A search of the full six years of the Dark Energy Survey for outer Solar System objects. The Planetary Science Journal, 3(10), 215. https://doi.org/10.3847/PSJ/acf869
 
-**StarGen annotation:** DES 6-yr survey: TNO size-frequency distribution and orbital architecture beyond 30 AU. Constrains outer-belt object counts, inclination distribution, and size-frequency slope in StarGen.
+**StarGen annotation:** Partly implemented as source-marked large-TNO/outer-reservoir support. StarGen now records this source on trans-Neptunian reservoir belts and uses it with `KavelaarsEtAl2023` for representative size-slope provenance. DES survey-bias modeling and detailed orbital subpopulations remain follow-up.
 
 
 ## BiassoniEtAl2023 **(APA incomplete)**
@@ -224,7 +233,7 @@ with full-text extraction (PDF when retrievable, otherwise HTML full text).
 
 **APA:** DeMeo, F. E., & Carry, B. (2014). Solar system evolution from compositional mapping of the asteroid belt. Nature, 505(7485), 629-634. https://doi.org/10.1038/nature12908
 
-**StarGen annotation:** Spectral taxonomy and heliocentric compositional distribution of asteroids (S/C/X-complex). Reference for asteroid type generation and belt compositional gradients as a function of semi-major axis in StarGen.
+**StarGen annotation:** Partly implemented as the active asteroid composition-gradient anchor. StarGen records DeMeo/Carry source metadata on generated asteroids and belts, and uses a snow-line-relative S/C/D/M/V proxy for representative belt bodies. Exact radial fractions remain human-verification follow-up because the local PDF extraction metadata is corrupted.
 
 
 ## DiazGarcia2016 **(APA incomplete)**
@@ -431,7 +440,7 @@ with full-text extraction (PDF when retrievable, otherwise HTML full text).
 
 **APA:** Kavelaars, J. J., et al. (2023). Match stem KavelaarsEtAl2023 to ADS for the PDF on file.
 
-**StarGen annotation:** TNO population: orbital structure, size distribution, detection biases. Constrains outer-belt architecture parameters (inclination, size-frequency slope, number density) in StarGen.
+**StarGen annotation:** Partly implemented as trans-Neptunian reservoir support. StarGen now shifts cold reservoirs toward Kuiper-belt analog distances, records this source on outer-belt reservoir and size-distribution provenance, and applies the public minor-body population slope to representative large bodies. Separate cold/hot/resonant/scattered TNO families remain follow-up.
 
 
 ## Kennicutt1998
@@ -674,7 +683,7 @@ with full-text extraction (PDF when retrievable, otherwise HTML full text).
 
 **APA:** Napier, K. J., et al. (2023). Match stem NapierEtAl2023 to ADS for the PDF on file.
 
-**StarGen annotation:** Kuiper Belt or outer Solar System dynamical study (2023) — abstract needs verification. Apply to outer-belt architecture parameters in StarGen.
+**StarGen annotation:** Draft / human verification pending. Kept as Kuiper-belt context only in this pass; not used as an active default model until the note's mechanics translation is verified against the PDF.
 
 
 ## Obertas2017

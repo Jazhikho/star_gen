@@ -346,6 +346,122 @@ public static class TestSystemAsteroidGenerator
         }
     }
 
+    /// <summary>
+    /// Tests generated cold reservoirs carry source metadata and use Kuiper-belt-scale placement.
+    /// </summary>
+    public static void TestOuterReservoirSourceMetadataAndPlacement()
+    {
+        OrbitHost host = CreateSunLikeHost();
+        CelestialBody star = CreateTestStar();
+        Array<OrbitSlot> slots = CreatePlanetSlots(host);
+
+        for (int seed = 5200; seed < 5300; seed += 1)
+        {
+            SolarSystemSpec spec = new SolarSystemSpec(seed, 1, 1)
+            {
+                PlanetaryProfile = new PlanetaryGenerationProfile
+                {
+                    MinorBodyOuterSystemBias = PlanetMinorBodyOuterSystemBias.CometLeaning,
+                    GasMassScalar = 1.35,
+                },
+            };
+
+            BeltGenerationResult result = SystemAsteroidGenerator.Generate(
+                new Array<OrbitHost> { host },
+                slots,
+                new Array<CelestialBody> { star },
+                new SeededRng(seed),
+                systemSpec: spec);
+
+            foreach (AsteroidBelt belt in result.Belts)
+            {
+                if (belt.ReservoirKind != "trans_neptunian_reservoir")
+                {
+                    continue;
+                }
+
+                double innerAu = belt.InnerRadiusM / Units.AuMeters;
+                if (innerAu < 25.0)
+                {
+                    throw new InvalidOperationException($"Outer reservoir should begin near Kuiper-belt analog distances, got {innerAu:0.00} AU.");
+                }
+
+                if (!belt.ReservoirSourceIds.Contains("KavelaarsEtAl2023") || !belt.ReservoirSourceIds.Contains("BernardinelliEtAl2022"))
+                {
+                    throw new InvalidOperationException("Outer reservoir should carry TNO source IDs.");
+                }
+
+                if (!belt.CompositionSourceIds.Contains("DeMeoCarry2014"))
+                {
+                    throw new InvalidOperationException("Outer reservoir should retain DeMeo/Carry composition source ID.");
+                }
+
+                if (belt.TotalMassKg > 2.5e23)
+                {
+                    throw new InvalidOperationException($"Outer reservoir mass should stay within the reduced TNO-proxy range, got {belt.TotalMassKg:0.000e0} kg.");
+                }
+
+                return;
+            }
+        }
+
+        throw new InvalidOperationException("Expected at least one generated trans-Neptunian reservoir in the seeded sample.");
+    }
+
+    /// <summary>
+    /// Tests the exposed minor-body population slope materially affects representative major-body sizes.
+    /// </summary>
+    public static void TestMinorBodyPopulationSlopeChangesMajorBodySizes()
+    {
+        OrbitHost host = CreateSunLikeHost();
+        CelestialBody star = CreateTestStar();
+        AsteroidBelt lowSlopeBelt = CreatePredefinedOuterBelt(host);
+        AsteroidBelt highSlopeBelt = CreatePredefinedOuterBelt(host);
+
+        SolarSystemSpec lowSlopeSpec = new SolarSystemSpec(6100, 1, 1)
+        {
+            PlanetaryProfile = new PlanetaryGenerationProfile
+            {
+                MinorBodyPopulationSlope = 1.0,
+            },
+        };
+        SolarSystemSpec highSlopeSpec = new SolarSystemSpec(6100, 1, 1)
+        {
+            PlanetaryProfile = new PlanetaryGenerationProfile
+            {
+                MinorBodyPopulationSlope = 5.0,
+            },
+        };
+
+        BeltGenerationResult lowSlopeResult = SystemAsteroidGenerator.GenerateFromPredefinedBelts(
+            new Array<AsteroidBelt> { lowSlopeBelt },
+            new Array<OrbitHost> { host },
+            new Array<CelestialBody> { star },
+            new SeededRng(6100),
+            systemSpec: lowSlopeSpec);
+        BeltGenerationResult highSlopeResult = SystemAsteroidGenerator.GenerateFromPredefinedBelts(
+            new Array<AsteroidBelt> { highSlopeBelt },
+            new Array<OrbitHost> { host },
+            new Array<CelestialBody> { star },
+            new SeededRng(6100),
+            systemSpec: highSlopeSpec);
+
+        double lowSlopeAverageRadius = AverageRadiusM(lowSlopeResult.Asteroids);
+        double highSlopeAverageRadius = AverageRadiusM(highSlopeResult.Asteroids);
+        if (highSlopeAverageRadius >= lowSlopeAverageRadius)
+        {
+            throw new InvalidOperationException($"Higher minor-body slope should favor smaller representative bodies. Low={lowSlopeAverageRadius:0.00} m high={highSlopeAverageRadius:0.00} m.");
+        }
+
+        foreach (CelestialBody asteroid in highSlopeResult.Asteroids)
+        {
+            if (!asteroid.HasMeta("minor_body_population_slope"))
+            {
+                throw new InvalidOperationException("Generated representative asteroids should carry minor-body slope provenance.");
+            }
+        }
+    }
+
     private static int CountIcyBelts(Array<AsteroidBelt> belts)
     {
         int count = 0;
@@ -358,6 +474,39 @@ public static class TestSystemAsteroidGenerator
         }
 
         return count;
+    }
+
+    private static AsteroidBelt CreatePredefinedOuterBelt(OrbitHost host)
+    {
+        return new AsteroidBelt("belt_test_outer", "Outer Asteroid Belt")
+        {
+            OrbitHostId = host.NodeId,
+            InnerRadiusM = 35.0 * Units.AuMeters,
+            OuterRadiusM = 48.0 * Units.AuMeters,
+            TotalMassKg = 1.0e22,
+            PrimaryComposition = AsteroidBelt.Composition.Icy,
+            ReservoirKind = "trans_neptunian_reservoir",
+            ReservoirSourceIds = "KavelaarsEtAl2023;BernardinelliEtAl2022",
+            CompositionSourceIds = "DeMeoCarry2014",
+            SizeDistributionSourceIds = "KavelaarsEtAl2023;BernardinelliEtAl2022",
+            PopulationModel = "kavelaars_bernardinelli_large_tno_proxy",
+        };
+    }
+
+    private static double AverageRadiusM(Array<CelestialBody> bodies)
+    {
+        if (bodies.Count == 0)
+        {
+            throw new InvalidOperationException("Expected generated representative bodies.");
+        }
+
+        double total = 0.0;
+        foreach (CelestialBody body in bodies)
+        {
+            total += body.Physical.RadiusM;
+        }
+
+        return total / bodies.Count;
     }
 
     /// <summary>

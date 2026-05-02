@@ -71,3 +71,23 @@ superseded. Flag updates in Followup.md.)*
 
 **StarGen:** Pending human verification.
 **Cross-references:** See AnnotatedBibliography.md.
+
+## Current StarGen usage
+
+StarGen does not use this source as an active default model in the current pass. It is listed in the planetary science source panel as TNO/KBO context and remains useful for future cold-classical mass and luminosity-function checks.
+
+## Human reviewer concern
+
+The reviewer concern is that new outer Solar System PDFs should be captured, but only reviewed/usable claims should be allowed to steer generation. This note still says pending human verification, so it should not be treated as active authoritative support.
+
+## AI response / disposition
+
+Disposition: draft / human verification pending. The current small-body retune uses `KavelaarsEtAl2023` and `BernardinelliEtAl2022` for active TNO-reservoir provenance while keeping `NapierEtAl2023` as context until its mechanics translation is verified.
+
+## Implementation status
+
+documentation-only
+
+## Follow-up action
+
+Human-verify the source note against the PDF, especially the luminosity-function and cold-classical mass claims. After that, decide whether to add a separate cold-classical reservoir mass diagnostic or keep this source as context only.

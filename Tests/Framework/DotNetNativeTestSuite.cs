@@ -2230,6 +2230,12 @@ public static partial class DotNetNativeTestSuite
             "TestSystemAsteroidGenerator::test_outer_system_bias_changes_icy_belts",
             Tests.Unit.TestSystemAsteroidGenerator.TestOuterSystemBiasChangesIcyBelts);
         runner.RunNativeTest(
+            "TestSystemAsteroidGenerator::test_outer_reservoir_source_metadata_and_placement",
+            Tests.Unit.TestSystemAsteroidGenerator.TestOuterReservoirSourceMetadataAndPlacement);
+        runner.RunNativeTest(
+            "TestSystemAsteroidGenerator::test_minor_body_population_slope_changes_major_body_sizes",
+            Tests.Unit.TestSystemAsteroidGenerator.TestMinorBodyPopulationSlopeChangesMajorBodySizes);
+        runner.RunNativeTest(
             "TestSystemBodyNode::test_setup_planet",
             Tests.Unit.TestSystemBodyNode.TestSetupPlanet);
         runner.RunNativeTest(

@@ -67,6 +67,31 @@ public partial class AsteroidBelt : RefCounted
     public Composition PrimaryComposition = Composition.Rocky;
 
     /// <summary>
+    /// Source-marked reservoir family used to create the belt.
+    /// </summary>
+    public string ReservoirKind = string.Empty;
+
+    /// <summary>
+    /// Semicolon-delimited source IDs supporting the reservoir placement and mass proxy.
+    /// </summary>
+    public string ReservoirSourceIds = string.Empty;
+
+    /// <summary>
+    /// Semicolon-delimited source IDs supporting the composition gradient proxy.
+    /// </summary>
+    public string CompositionSourceIds = string.Empty;
+
+    /// <summary>
+    /// Semicolon-delimited source IDs supporting the representative-object size distribution.
+    /// </summary>
+    public string SizeDistributionSourceIds = string.Empty;
+
+    /// <summary>
+    /// Generator-facing population model label for the belt's representative objects.
+    /// </summary>
+    public string PopulationModel = string.Empty;
+
+    /// <summary>
     /// Identifiers of the largest asteroids associated with the belt.
     /// </summary>
     public Array<string> MajorAsteroidIds = new();
@@ -201,6 +226,11 @@ public partial class AsteroidBelt : RefCounted
             ["outer_radius_m"] = OuterRadiusM,
             ["total_mass_kg"] = TotalMassKg,
             ["composition"] = CompositionToString(PrimaryComposition),
+            ["reservoir_kind"] = ReservoirKind,
+            ["reservoir_source_ids"] = ReservoirSourceIds,
+            ["composition_source_ids"] = CompositionSourceIds,
+            ["size_distribution_source_ids"] = SizeDistributionSourceIds,
+            ["population_model"] = PopulationModel,
             ["major_asteroid_ids"] = asteroidIds,
         };
     }
@@ -218,6 +248,11 @@ public partial class AsteroidBelt : RefCounted
         belt.OuterRadiusM = GetDouble(data, "outer_radius_m", 0.0);
         belt.TotalMassKg = GetDouble(data, "total_mass_kg", 0.0);
         belt.PrimaryComposition = (Composition)StringToComposition(GetString(data, "composition", "rocky"));
+        belt.ReservoirKind = GetString(data, "reservoir_kind", string.Empty);
+        belt.ReservoirSourceIds = GetString(data, "reservoir_source_ids", string.Empty);
+        belt.CompositionSourceIds = GetString(data, "composition_source_ids", string.Empty);
+        belt.SizeDistributionSourceIds = GetString(data, "size_distribution_source_ids", string.Empty);
+        belt.PopulationModel = GetString(data, "population_model", string.Empty);
 
         if (data.ContainsKey("major_asteroid_ids") && data["major_asteroid_ids"].VariantType == Variant.Type.Array)
         {
@@ -266,7 +301,7 @@ public partial class AsteroidBelt : RefCounted
         return value.VariantType switch
         {
             Variant.Type.Float => (double)value,
-            Variant.Type.Int => (int)value,
+            Variant.Type.Int => value.AsInt64(),
             Variant.Type.String => TryParseDouble((string)value, fallback),
             _ => fallback,
         };

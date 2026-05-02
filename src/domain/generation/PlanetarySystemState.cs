@@ -134,6 +134,11 @@ public partial class PlanetarySystemState : RefCounted
     public string FormationSourceIds { get; set; } = "Pascucci2016;Ribas2015;Izidoro2017;Fernandes2019;RaymondIzidoro2017;Mordasini2007;LambrechtsJohansen2012;TanakaTakeuchiWard2002";
 
     /// <summary>
+    /// Source IDs used for asteroid, comet, and trans-Neptunian reservoir proxies.
+    /// </summary>
+    public string SmallBodySourceIds { get; set; } = "DeMeoCarry2014;BauerEtAl2017;KavelaarsEtAl2023;BernardinelliEtAl2022;RaymondIzidoro2017";
+
+    /// <summary>
     /// Host-mass exponent used by the active disk-dust solid-reservoir proxy.
     /// </summary>
     public double DiskDustHostMassExponent { get; set; } = 1.30;
@@ -382,8 +387,9 @@ public partial class PlanetarySystemState : RefCounted
             PlanetMinorBodyOuterSystemBias.CometLeaning => 1.24,
             _ => 1.0,
         };
-        // DeMeo and Carry (2014), Lamy et al. (2004), and Raymond and Izidoro (2017) support
-        // treating outer small-body reservoirs and inward volatile delivery as linked but not
+        // DeMeo and Carry (2014), Bauer et al. (2017), Kavelaars et al. (2023),
+        // Bernardinelli et al. (2022), and Raymond and Izidoro (2017) support treating
+        // asteroid/comet/TNO reservoirs and inward volatile delivery as linked but not
         // identical channels. Tuning: the `0.74 / 0.26 / 0.18 / 0.08` and
         // `0.56 / 0.22 / 0.10` blends below are StarGen transport weights.
         double outerReservoir = System.Math.Clamp(
@@ -433,6 +439,7 @@ public partial class PlanetarySystemState : RefCounted
             VolatileDeliveryScalar = volatileDelivery,
             BombardmentScalar = bombardment,
             FormationSourceIds = "Pascucci2016;Ribas2015;Izidoro2017;Fernandes2019;RaymondIzidoro2017;Mordasini2007;LambrechtsJohansen2012;TanakaTakeuchiWard2002",
+            SmallBodySourceIds = "DeMeoCarry2014;BauerEtAl2017;KavelaarsEtAl2023;BernardinelliEtAl2022;RaymondIzidoro2017",
             DiskDustHostMassExponent = diskDustHostMassExponent,
             AdjustedDiskLifetimeMyr = adjustedDiskLifetimeMyr,
             HostOccurrenceRegime = hostOccurrenceRegime,
@@ -754,6 +761,7 @@ public partial class PlanetarySystemState : RefCounted
             VolatileDeliveryScalar = VolatileDeliveryScalar,
             BombardmentScalar = BombardmentScalar,
             FormationSourceIds = FormationSourceIds,
+            SmallBodySourceIds = SmallBodySourceIds,
             DiskDustHostMassExponent = DiskDustHostMassExponent,
             AdjustedDiskLifetimeMyr = AdjustedDiskLifetimeMyr,
             OccurrenceSourceIds = OccurrenceSourceIds,
@@ -796,6 +804,7 @@ public partial class PlanetarySystemState : RefCounted
             ["volatile_delivery_scalar"] = VolatileDeliveryScalar,
             ["bombardment_scalar"] = BombardmentScalar,
             ["formation_source_ids"] = FormationSourceIds,
+            ["small_body_source_ids"] = SmallBodySourceIds,
             ["disk_dust_host_mass_exponent"] = DiskDustHostMassExponent,
             ["adjusted_disk_lifetime_myr"] = AdjustedDiskLifetimeMyr,
             ["occurrence_source_ids"] = OccurrenceSourceIds,
@@ -841,6 +850,7 @@ public partial class PlanetarySystemState : RefCounted
         state.VolatileDeliveryScalar = DomainDictionaryUtils.GetDouble(data, "volatile_delivery_scalar", 1.0);
         state.BombardmentScalar = DomainDictionaryUtils.GetDouble(data, "bombardment_scalar", 1.0);
         state.FormationSourceIds = DomainDictionaryUtils.GetString(data, "formation_source_ids", "Pascucci2016;Ribas2015;Izidoro2017;Fernandes2019;RaymondIzidoro2017;Mordasini2007;LambrechtsJohansen2012;TanakaTakeuchiWard2002");
+        state.SmallBodySourceIds = DomainDictionaryUtils.GetString(data, "small_body_source_ids", "DeMeoCarry2014;BauerEtAl2017;KavelaarsEtAl2023;BernardinelliEtAl2022;RaymondIzidoro2017");
         state.DiskDustHostMassExponent = DomainDictionaryUtils.GetDouble(data, "disk_dust_host_mass_exponent", 1.30);
         state.AdjustedDiskLifetimeMyr = DomainDictionaryUtils.GetDouble(data, "adjusted_disk_lifetime_myr", 3.5);
         state.OccurrenceSourceIds = DomainDictionaryUtils.GetString(data, "occurrence_source_ids", "Petigura2013;Bryson2021;BergstenEtAl2023;MentCharbonneau2023;CuiEtAl2026;GillisEtAl2026");

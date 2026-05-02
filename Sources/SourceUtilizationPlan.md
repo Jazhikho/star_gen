@@ -40,24 +40,26 @@ This plan tracks the source-to-generator cleanup separately from the annotated b
 | Habitable zones, atmospheres, and life bottlenecks | `Kasting1993`, `Kopparapu2013`, `Kopparapu2014`, `Balbi2023`, `WordsworthKreidberg2022`, `ChatterjeeEtAl2026`, `BiassoniEtAl2023`, `VissapragadaEtAl2022`, `LugerBarnes2015` | Partly implemented as atmosphere-retention and composition-regime provenance: active secondary-atmosphere source IDs, escape pressure, retention scalar, pre-main-sequence XUV risk, atmosphere regime, composition family, and oxygen context are now recorded. Full hydrodynamic escape, volcanic revival, planet-mass HZ correction, and atmospheric evolution remain follow-up. |
 | Moon formation and moon-system architecture | `Ronnet2020`, `Sasaki2010`, `Szulagyi2018`, `JewittHaghighipour2007`, with `BenistyEtAl2021`, `HellerBarnes2013`, `MalamudPerets2019`, `NakajimaEtAl2022` dispositions | Partly implemented as source-marked moon-channel and architecture provenance. Regular CPD moons now use a satellite-scale mass budget and record Ronnet/Sasaki/Szulagyi active sources, CPD/Hill diagnostics, and Galilean/Saturnian/ice-giant architecture modes. Captured moons are separated under Jewitt/Haghighipour irregular-satellite context with retrograde-favored orbit style. Benisty is CPD observational context, Heller/Barnes is habitability/tidal-heating context, and Malamud/Perets plus Nakajima remain underutilized terrestrial-impact follow-ups. |
 | Galaxy schema and Milky-Way analog structure | `BlandHawthornGerhard2016`, with `Bovy2017`, `KhoperskovEtAl2024`, `HuntVasiliev2025`, `Hayden2014`, `Kennicutt1998`, `Chabrier2003`, `Kroupa2001` context | Partly implemented as first-class Milky-Way structural schema fields: thin/thick disk scale lengths and heights, bar half-length, solar-circle radius, circular velocity at the solar circle, and stellar-mass scale now serialize through config/spec/profile. Spiral density uses the thin/thick disk fields, bar density and bar-region classification use explicit bar geometry, and source/status metadata is surfaced through source notes and galaxy science references. Nuclear cluster/disk, baryon/gas components, halo decomposition, pattern speed/corotation, full rotation curve, local mass budget, and non-Milky-Way analog comparison remain follow-up. |
+| Small bodies and reservoirs | `DeMeoCarry2014`, `BauerEtAl2017`, `KavelaarsEtAl2023`, `BernardinelliEtAl2022`, with `NapierEtAl2023` context and `Lamy2004` replacement | Partly implemented as source-marked asteroid/comet/TNO reservoir provenance. Inner belts and generated asteroids now record DeMeo/Carry taxonomy-composition provenance; cold belts are labeled as trans-Neptunian reservoirs, placed farther outward, given a lower TNO-scale mass ceiling, and record Kavelaars/Bernardinelli/Bauer source IDs. The public minor-body population slope now affects representative major-body sizes, and comet generation records Bauer activity-fraction/source metadata. `Lamy2004` is rejected/replaced as active support; `NapierEtAl2023` remains human-verification pending. Separate TNO subfamilies, survey-bias models, and calibrated population counts remain follow-up. |
 
 ## Next priority queue
 
-### 1. Small bodies and reservoirs
-
-Primary sources: `DeMeoCarry2014`, `Lamy2004`, `KavelaarsEtAl2023`, `NapierEtAl2023`, `BernardinelliEtAl2022`, `JewittHaghighipour2022`.
-
-Expected work:
-- Tighten asteroid/comet reservoir scaling, belt placement, and volatile-delivery assumptions.
-- Ensure object-family generation and system-level reservoirs cite the same accepted notes.
-
-### 2. Sentient populations, technology, and governance
+### 1. Sentient populations, technology, and governance
 
 Primary sources: `Chowdhury2022`, `Comin2013`, `CominMestieri2013`, `Stokey2020`, `BettencourtEtAl2007`, `ArvidssonEtAl2023`, `BallandEtAl2022`, `HamiltonEtAl2020`, `Knez2023`.
 
 Expected work:
 - Keep cultural, governance, law, and technology outputs human-audit-required.
 - Separate invention, diffusion, adoption lag, enforcement reach, state capacity, settlement structure, and economic complexity before generator changes.
+
+### 2. Remaining small-body refinement
+
+Primary sources: `DeMeoCarry2014`, `BauerEtAl2017`, `KavelaarsEtAl2023`, `BernardinelliEtAl2022`, `NapierEtAl2023`, plus future verified comet/TNO updates.
+
+Expected work:
+- Split the current single trans-Neptunian reservoir proxy into cold classical, hot classical, resonant, scattered, Centaur, and comet-feeding reservoirs.
+- Add calibrated population-count diagnostics only after human verification of survey completeness and luminosity/size distributions.
+- Keep `Lamy2004` out of active support unless a human explicitly reacquires and re-approves it.
 
 ## Deferred stability follow-up
 
@@ -123,4 +125,4 @@ Remaining work:
 
 ## Immediate recommendation
 
-Continue with **Small bodies and reservoirs**. The Bland-Hawthorn/Gerhard schema slice is now active enough for the current pass, while full Milky-Way dynamics and mass decomposition remain deferred galaxy follow-up.
+Continue with **Sentient populations, technology, and governance**. The small-body slice now has active source provenance and narrow generator retuning, while detailed TNO subpopulation and survey-bias modeling remains deferred small-body follow-up.

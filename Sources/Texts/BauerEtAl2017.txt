@@ -172,3 +172,23 @@ Default: BauerWISE2017 (Lamy option retained only for legacy comparison).
 
 **Cross-references:** JewittHaghighipour2007.txt (irregular satellites, origin of
 captured comets), LamyEtAl2004.txt (deprecated; see this file as replacement).
+
+## Current StarGen usage
+
+StarGen uses this source as the active comet-nucleus and comet-activity anchor. `CometGenerator` defaults to the Bauer-style Jupiter-family nucleus prior, records `comet_source_ids = BauerEtAl2017`, exposes activity state, and now records an explicit `comet_active_fraction` metadata value. `SystemAsteroidGenerator` also cites Bauer as part of the cold outer reservoir context because comet supply and trans-Neptunian reservoirs are linked in the generator's small-body provenance.
+
+## Human reviewer concern
+
+The reviewer concern is that older comet claims should not remain active if the local corpus no longer supports them. In particular, `Lamy2004` was previously cited in active controls even though the retained source note says Bauer replaces it.
+
+## AI response / disposition
+
+Disposition: Bauer is active and `Lamy2004` is rejected/replaced as active support. The legacy wide comet radius mode remains available only as an explicit stylized/compatibility choice and is no longer presented as a source-backed default.
+
+## Implementation status
+
+partly implemented
+
+## Follow-up action
+
+Add Damocloid/Halley-type subfamilies, a fuller active-fraction distribution, and population-level comet counts after human verification. Keep the current activity thresholds marked as StarGen tuning around the source, not published fitted coefficients.

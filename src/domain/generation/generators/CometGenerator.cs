@@ -21,8 +21,9 @@ public static class CometGenerator
     private const double BauerJupiterFamilyRadiusSpreadMax = 1.85;
     private const double BauerLargeCometRadiusMinM = 2500.0;
     private const double BauerLargeCometRadiusMaxM = 9000.0;
-    private const double LongPeriodRadiusMinM = 1200.0;
-    private const double LongPeriodRadiusMaxM = 14000.0;
+    private const double BauerNearlyIsotropicMedianRadiusM = 1000.0;
+    private const double BauerNearlyIsotropicRadiusSpreadMin = 0.35;
+    private const double BauerNearlyIsotropicRadiusSpreadMax = 4.5;
     private const double LegacySmallRadiusMinM = 1000.0;
     private const double LegacySmallRadiusMaxM = 12000.0;
     private const double LegacyLargeRadiusMinM = 7000.0;
@@ -60,6 +61,7 @@ public static class CometGenerator
     {
         FamilyType family = DetermineFamily(spec, rng);
         ActivityType activity = DetermineActivity(spec, rng);
+        double activeFraction = SampleActiveFraction(activity, ResolveActivityModel(spec), rng);
         PhysicalProps physical = GeneratePhysicalProps(spec, family, rng);
         OrbitalProps orbital = GenerateOrbitalProps(spec, family, rng);
         SurfaceProps surface = GenerateSurface(spec, activity, context, rng);
@@ -75,8 +77,10 @@ public static class CometGenerator
 
         body.SetMeta("comet_family", FamilyToString(family));
         body.SetMeta("comet_activity", ActivityToString(activity));
+        body.SetMeta("comet_active_fraction", activeFraction);
         body.SetMeta("comet_nucleus_model", ResolveNucleusModel(spec).ToString());
         body.SetMeta("comet_activity_model", ResolveActivityModel(spec).ToString());
+        body.SetMeta("comet_source_ids", "BauerEtAl2017");
         return body;
     }
 
@@ -239,12 +243,36 @@ public static class CometGenerator
 
         if (family == FamilyType.LongPeriod)
         {
-            return rng.RandfRange((float)LongPeriodRadiusMinM, (float)LongPeriodRadiusMaxM) * sizeScale;
+            double longPeriodSpread = rng.RandfRange((float)BauerNearlyIsotropicRadiusSpreadMin, (float)BauerNearlyIsotropicRadiusSpreadMax);
+            double longPeriodSlopeBias = System.Math.Pow(longPeriodSpread, 2.0 / slope);
+            return BauerNearlyIsotropicMedianRadiusM * longPeriodSlopeBias * sizeScale;
         }
 
         double spread = rng.RandfRange((float)BauerJupiterFamilyRadiusSpreadMin, (float)BauerJupiterFamilyRadiusSpreadMax);
         double slopeBias = System.Math.Pow(spread, 2.0 / slope);
         return BauerJupiterFamilyMedianRadiusM * slopeBias * sizeScale;
+    }
+
+    private static double SampleActiveFraction(ActivityType activity, CometActivityModel activityModel, SeededRng rng)
+    {
+        if (activity == ActivityType.Extinct)
+        {
+            return 0.0;
+        }
+
+        double center = activity == ActivityType.Active ? 0.03 : 0.003;
+        if (activityModel == CometActivityModel.ActiveRich && activity == ActivityType.Active)
+        {
+            center = 0.06;
+        }
+        else if (activityModel == CometActivityModel.DormantRich && activity == ActivityType.Active)
+        {
+            center = 0.015;
+        }
+
+        double logCenter = System.Math.Log(center);
+        double logSpread = rng.RandfRange(-1.1f, 1.1f);
+        return System.Math.Clamp(System.Math.Exp(logCenter + logSpread), 0.001, 0.80);
     }
 
     private static CometNucleusModel ResolveNucleusModel(CometSpec spec)
