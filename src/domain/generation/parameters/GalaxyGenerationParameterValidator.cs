@@ -106,6 +106,46 @@ public static class GalaxyGenerationParameterValidator
             issues.AddError("disk_scale_height_pc", "Disk scale height must be between 200 and 500 pc.");
         }
 
+        if (config.ThinDiskScaleLengthPc < 1200.0 || config.ThinDiskScaleLengthPc > 6000.0)
+        {
+            issues.AddError("thin_disk_scale_length_pc", "Thin-disk scale length must be between 1200 and 6000 pc.");
+        }
+
+        if (config.ThickDiskScaleLengthPc < 1000.0 || config.ThickDiskScaleLengthPc > 6000.0)
+        {
+            issues.AddError("thick_disk_scale_length_pc", "Thick-disk scale length must be between 1000 and 6000 pc.");
+        }
+
+        if (config.ThinDiskScaleHeightPc < 100.0 || config.ThinDiskScaleHeightPc > 600.0)
+        {
+            issues.AddError("thin_disk_scale_height_pc", "Thin-disk scale height must be between 100 and 600 pc.");
+        }
+
+        if (config.ThickDiskScaleHeightPc < 500.0 || config.ThickDiskScaleHeightPc > 2000.0)
+        {
+            issues.AddError("thick_disk_scale_height_pc", "Thick-disk scale height must be between 500 and 2000 pc.");
+        }
+
+        if (config.BarHalfLengthPc < 1500.0 || config.BarHalfLengthPc > 7000.0)
+        {
+            issues.AddError("bar_half_length_pc", "Bar half-length must be between 1500 and 7000 pc.");
+        }
+
+        if (config.SolarGalactocentricRadiusPc < 7000.0 || config.SolarGalactocentricRadiusPc > 9000.0)
+        {
+            issues.AddError("solar_galactocentric_radius_pc", "Solar-circle radius must be between 7000 and 9000 pc.");
+        }
+
+        if (config.CircularVelocityAtSolarRadiusKmS < 180.0 || config.CircularVelocityAtSolarRadiusKmS > 280.0)
+        {
+            issues.AddError("circular_velocity_at_solar_radius_km_s", "Solar-circle circular velocity must be between 180 and 280 km/s.");
+        }
+
+        if (config.StellarMassSolar < 1.0e9 || config.StellarMassSolar > 3.0e11)
+        {
+            issues.AddError("stellar_mass_solar", "Stellar mass scale must be between 1e9 and 3e11 solar masses.");
+        }
+
         if (config.StarDensityMultiplier < 0.5 || config.StarDensityMultiplier > 2.0)
         {
             issues.AddError("star_density_multiplier", "Density multiplier must be between 0.5 and 2.0.");

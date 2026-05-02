@@ -85,6 +85,10 @@ public static class GalaxyScienceReferenceCatalog
             "behroozi2019",
             "Behroozi et al. (2019), UniverseMachine stellar-to-halo mass priors.",
             "https://arxiv.org/abs/1806.07893"),
+        ["bland2016"] = new GalaxyScienceSource(
+            "bland2016",
+            "Bland-Hawthorn and Gerhard (2016), Milky Way structural and kinematic parameter review.",
+            "https://doi.org/10.1146/annurev-astro-081915-023441"),
         ["oohama2009"] = new GalaxyScienceSource(
             "oohama2009",
             "Oohama et al. (2009), lenticular bulge-disc scaling and structure.",
@@ -156,7 +160,7 @@ public static class GalaxyScienceReferenceCatalog
         new GalaxyScienceParameterReference(
             "bar_mode",
             "A barred galaxy has a straight bar of stars through the center.\nPushing this upward makes that bar more likely, which can change how strongly the center and inner arms stand out.",
-            new[] { "diazgarcia2016" }),
+            new[] { "diazgarcia2016", "bland2016" }),
         new GalaxyScienceParameterReference(
             "arm_mechanism_preference",
             "Grand design means a few long, clean arms.\nMulti-armed means several strong arms.\nFlocculent means short, patchy arm pieces.\nThis changes how orderly or broken the spiral pattern looks.",
@@ -172,23 +176,23 @@ public static class GalaxyScienceReferenceCatalog
         new GalaxyScienceParameterReference(
             "bulge_intensity",
             "The bulge is the bright star-packed middle.\nRaising this makes the center more dominant.\nLowering it lets the disk matter more.",
-            new[] { "oohama2009", "laurikainen2010" }),
+            new[] { "oohama2009", "laurikainen2010", "bland2016" }),
         new GalaxyScienceParameterReference(
             "bulge_radius_pc",
             "This sets how far the central bulge spreads.\nA larger bulge means the bright center influences more of the inner galaxy.",
-            new[] { "oohama2009", "laurikainen2010" }),
+            new[] { "oohama2009", "laurikainen2010", "bland2016" }),
         new GalaxyScienceParameterReference(
             "radius_pc",
             "This is the galaxy's rough outer size.\nLarger values spread stars over a wider region.\nSmaller values keep the whole galaxy more compact.",
-            new[] { "behroozi2019" }),
+            new[] { "behroozi2019", "bland2016" }),
         new GalaxyScienceParameterReference(
             "disk_scale_length_pc",
             "This controls how quickly the disk thins out as you move away from the center.\nA larger value keeps the main disk important farther out.",
-            new[] { "laurikainen2010" }),
+            new[] { "laurikainen2010", "bland2016" }),
         new GalaxyScienceParameterReference(
             "disk_scale_height_pc",
             "This controls disk thickness above and below the main plane.\nHigher values make the disk puffier.\nLower values keep it flatter and thinner.",
-            new[] { "laurikainen2010" }),
+            new[] { "laurikainen2010", "bland2016" }),
         new GalaxyScienceParameterReference(
             "star_density_multiplier",
             "This is a generator crowding scale layered on top of the science-backed structure.\nRaising it makes the whole galaxy feel fuller.\nLowering it makes it feel emptier without changing the underlying morphology model.",
@@ -220,7 +224,7 @@ public static class GalaxyScienceReferenceCatalog
         new GalaxyScienceParameterReference(
             "star_formation_efficiency",
             "This controls how easily gas turns into new stars.\nHigher values mean more young star-forming patches and clustering.\nLower values make the galaxy feel calmer and more settled.",
-            new[] { "kennicutt1998" }),
+            new[] { "kennicutt1998", "bland2016" }),
     };
 
     private static readonly List<string> PanelSourceIds = new()
@@ -228,6 +232,7 @@ public static class GalaxyScienceReferenceCatalog
         "park2007",
         "tanaka2004",
         "behroozi2019",
+        "bland2016",
         "oohama2009",
         "laurikainen2010",
         "diazgarcia2016",

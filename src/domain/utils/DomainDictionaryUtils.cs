@@ -87,7 +87,7 @@ public static class DomainDictionaryUtils
         Variant value = data[key];
         if (value.VariantType == Variant.Type.Int)
         {
-            return (long)(int)value;
+            return value.AsInt64();
         }
 
         if (value.VariantType == Variant.Type.Float)
@@ -121,7 +121,7 @@ public static class DomainDictionaryUtils
 
         if (value.VariantType == Variant.Type.Int)
         {
-            return (int)value;
+            return value.AsInt64();
         }
 
         if (value.VariantType == Variant.Type.String)
@@ -201,7 +201,7 @@ public static class DomainDictionaryUtils
     {
         if (value.VariantType == Variant.Type.Int)
         {
-            return (int)value;
+            return value.AsInt64();
         }
 
         if (value.VariantType == Variant.Type.Float)

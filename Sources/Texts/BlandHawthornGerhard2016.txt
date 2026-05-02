@@ -20,17 +20,22 @@ for exact thresholds, fit coefficients, and table values.*
 ## StarGen applicability
 MW disk scale lengths (thin ~2.6 kpc, thick ~2.0 kpc), bar ~4–5 kpc, M_* ~5×10¹⁰ M☉. Core reference for all MW structural parameters in StarGen's galaxy generator.
 
+## Current StarGen usage
+Partly implemented as the active Milky-Way structural schema anchor. `GalaxyConfig`, `GalaxySpec`, and `GalaxyRealismProfile` now carry thin/thick disk scale lengths and heights, bar half-length, solar-circle radius, circular velocity at the solar circle, and stellar-mass scale. `SpiralDensityModel` uses the thin/thick disk fields for disk density, bar density uses the explicit bar half-length, and `GalaxyScientificFieldEvaluator` classifies bar-influenced inner positions using the explicit bar geometry.
+
 ## Human reviewer concern
 This Milky Way review is useful for galaxy-structure grounding, but StarGen still underuses several parameters and should not imply a fully calibrated Milky Way simulator.
 
 ## AI response / disposition
-Keep BlandHawthornGerhard2016 as a structural anchor for galaxy morphology and scale parameters while marking exact generator coefficients as StarGen tuning where they are not directly fit values.
+Promote the reviewed structural parameters that can be represented safely as schema fields, while keeping exact generator coefficients and unresolved dynamics as StarGen tuning. Do not treat this as a full Milky-Way simulator.
 
 ## Implementation status
-reviewed but underutilized; active as a galaxy-structure source with additional generator-fit follow-up required.
+partly implemented
+
+Previous review status was reviewed but underutilized; this pass promotes only the conservative structural schema subset to partly implemented.
 
 ## Follow-up action
-Human review should verify exact scale lengths, bar/bulge values, and follow-up Gaia-era revisions before final v1.0 citation closure.
+Human review should verify exact scale lengths, bar/bulge values, and follow-up Gaia-era revisions before final v1.0 citation closure. Remaining implementation work includes nuclear cluster/disk, baryon and gas components, stellar/dark/hot-gas halo decomposition, full rotation-curve terms, pattern speed/corotation, local mass-budget calibration, and non-Milky-Way analog comparison sources.
 
 ## Parameters, constraints, and mechanics implications
 *(Human action: fill in specific numeric values, distributions, model families, and

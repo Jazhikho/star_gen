@@ -43,6 +43,8 @@ public static class GalaxyScientificFieldEvaluator
         context.IsArmInfluenced = context.RegionKind == GalaxyRegionKind.SpiralArm;
         context.EnvironmentDensityIndex = profile.EnvironmentDensityIndex;
         context.HaloMassLog10Solar = profile.HaloMassLog10Solar;
+        context.SolarGalactocentricRadiusPc = profile.SolarGalactocentricRadiusPc;
+        context.CircularVelocityAtSolarRadiusKmS = profile.CircularVelocityAtSolarRadiusKmS;
         context.LocalDensityRatio = CalculateLocalDensityRatio(normalizedRadius, normalizedHeight, galaxySpec, context);
         context.LocalStarFormationEfficiency = CalculateLocalStarFormationEfficiency(context, profile);
         context.StellarProfile = ResolveLocalStellarProfile(galaxySpec, context);
@@ -81,23 +83,13 @@ public static class GalaxyScientificFieldEvaluator
             return GalaxyRegionKind.Core;
         }
 
-        if (normalizedRadius < 0.16)
+        if (galaxySpec.IsBarred && IsInsideBar(position, galaxySpec))
         {
-            if (galaxySpec.IsBarred)
-            {
-                double barMajor = galaxySpec.BulgeRadiusPc * (1.6 + galaxySpec.BarStrength);
-                double barMinor = galaxySpec.BulgeRadiusPc * 0.55;
-                if (barMajor > 0.0 && barMinor > 0.0)
-                {
-                    double barDistance = ((position.X * position.X) / (barMajor * barMajor)) +
-                        ((position.Z * position.Z) / (barMinor * barMinor));
-                    if (barDistance <= 1.0)
-                    {
-                        return GalaxyRegionKind.Bar;
-                    }
-                }
-            }
+            return GalaxyRegionKind.Bar;
+        }
 
+        if (radialDistance < galaxySpec.BulgeRadiusPc)
+        {
             return GalaxyRegionKind.Bulge;
         }
 
@@ -324,6 +316,22 @@ public static class GalaxyScientificFieldEvaluator
         }
 
         return System.Math.Clamp(localDensity, 0.05, 10.0);
+    }
+
+    private static bool IsInsideBar(Vector3 position, GalaxySpec galaxySpec)
+    {
+        if (galaxySpec.BarHalfLengthPc <= 0.0)
+        {
+            return false;
+        }
+
+        double barMajor = System.Math.Max(galaxySpec.BulgeRadiusPc, galaxySpec.BarHalfLengthPc);
+        double barMinor = System.Math.Max(galaxySpec.BulgeRadiusPc * 0.55, barMajor * 0.25);
+        double barVertical = System.Math.Max(120.0, galaxySpec.ThinDiskScaleHeightPc * 1.4);
+        double barDistance = ((position.X * position.X) / (barMajor * barMajor)) +
+            ((position.Z * position.Z) / (barMinor * barMinor)) +
+            ((position.Y * position.Y) / (barVertical * barVertical));
+        return barDistance <= 1.0;
     }
 
     private static double CalculateLocalStarFormationEfficiency(GalaxyOriginContext context, GalaxyRealismProfile profile)

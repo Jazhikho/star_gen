@@ -45,6 +45,11 @@ public partial class GalaxyRealismProfile : RefCounted
     public double BarStrength { get; set; } = 0.0;
 
     /// <summary>
+    /// Half-length of the central stellar bar in parsecs.
+    /// </summary>
+    public double BarHalfLengthPc { get; set; } = 4500.0;
+
+    /// <summary>
     /// Sérsic index used for bulge or spheroid structure.
     /// </summary>
     public double SersicIndex { get; set; } = 2.5;
@@ -100,6 +105,46 @@ public partial class GalaxyRealismProfile : RefCounted
     public double CharacteristicAgeGyr { get; set; } = 6.0;
 
     /// <summary>
+    /// Thin-disk exponential scale length in parsecs.
+    /// </summary>
+    public double ThinDiskScaleLengthPc { get; set; } = 2600.0;
+
+    /// <summary>
+    /// Thick-disk exponential scale length in parsecs.
+    /// </summary>
+    public double ThickDiskScaleLengthPc { get; set; } = 2000.0;
+
+    /// <summary>
+    /// Thin-disk exponential scale height in parsecs.
+    /// </summary>
+    public double ThinDiskScaleHeightPc { get; set; } = 300.0;
+
+    /// <summary>
+    /// Thick-disk exponential scale height in parsecs.
+    /// </summary>
+    public double ThickDiskScaleHeightPc { get; set; } = 900.0;
+
+    /// <summary>
+    /// Solar-circle Galactocentric radius in parsecs.
+    /// </summary>
+    public double SolarGalactocentricRadiusPc { get; set; } = 8200.0;
+
+    /// <summary>
+    /// Circular velocity at the solar-circle radius in kilometers per second.
+    /// </summary>
+    public double CircularVelocityAtSolarRadiusKmS { get; set; } = 240.0;
+
+    /// <summary>
+    /// Stellar mass scale in solar masses.
+    /// </summary>
+    public double StellarMassSolar { get; set; } = 5.0e10;
+
+    /// <summary>
+    /// Source-use status for the Milky-Way structural schema.
+    /// </summary>
+    public string MilkyWayStructureSourceStatus { get; set; } = "partly implemented";
+
+    /// <summary>
     /// Creates a dictionary payload for persistence and provenance.
     /// </summary>
     public Dictionary ToDictionary()
@@ -113,6 +158,7 @@ public partial class GalaxyRealismProfile : RefCounted
             ["arm_mechanism"] = (int)ArmMechanism,
             ["is_barred"] = IsBarred,
             ["bar_strength"] = BarStrength,
+            ["bar_half_length_pc"] = BarHalfLengthPc,
             ["sersic_index"] = SersicIndex,
             ["effective_radius_pc"] = EffectiveRadiusPc,
             ["bulge_to_total"] = BulgeToTotal,
@@ -124,6 +170,14 @@ public partial class GalaxyRealismProfile : RefCounted
             ["cluster_mass_function_slope"] = ClusterMassFunctionSlope,
             ["cluster_dissolution_timescale_myr"] = ClusterDissolutionTimescaleMyr,
             ["characteristic_age_gyr"] = CharacteristicAgeGyr,
+            ["thin_disk_scale_length_pc"] = ThinDiskScaleLengthPc,
+            ["thick_disk_scale_length_pc"] = ThickDiskScaleLengthPc,
+            ["thin_disk_scale_height_pc"] = ThinDiskScaleHeightPc,
+            ["thick_disk_scale_height_pc"] = ThickDiskScaleHeightPc,
+            ["solar_galactocentric_radius_pc"] = SolarGalactocentricRadiusPc,
+            ["circular_velocity_at_solar_radius_km_s"] = CircularVelocityAtSolarRadiusKmS,
+            ["stellar_mass_solar"] = StellarMassSolar,
+            ["milky_way_structure_source_status"] = MilkyWayStructureSourceStatus,
         };
     }
 
@@ -155,6 +209,7 @@ public partial class GalaxyRealismProfile : RefCounted
         profile.EnvironmentDensityIndex = DomainDictionaryUtils.GetDouble(data, "environment_density_index", 0.25);
         profile.IsBarred = DomainDictionaryUtils.GetBool(data, "is_barred", false);
         profile.BarStrength = DomainDictionaryUtils.GetDouble(data, "bar_strength", 0.0);
+        profile.BarHalfLengthPc = DomainDictionaryUtils.GetDouble(data, "bar_half_length_pc", 4500.0);
         profile.SersicIndex = DomainDictionaryUtils.GetDouble(data, "sersic_index", 2.5);
         profile.EffectiveRadiusPc = DomainDictionaryUtils.GetDouble(data, "effective_radius_pc", 2500.0);
         profile.BulgeToTotal = DomainDictionaryUtils.GetDouble(data, "bulge_to_total", 0.2);
@@ -166,6 +221,14 @@ public partial class GalaxyRealismProfile : RefCounted
         profile.ClusterMassFunctionSlope = DomainDictionaryUtils.GetDouble(data, "cluster_mass_function_slope", 2.0);
         profile.ClusterDissolutionTimescaleMyr = DomainDictionaryUtils.GetDouble(data, "cluster_dissolution_timescale_myr", 10.0);
         profile.CharacteristicAgeGyr = DomainDictionaryUtils.GetDouble(data, "characteristic_age_gyr", 6.0);
+        profile.ThinDiskScaleLengthPc = DomainDictionaryUtils.GetDouble(data, "thin_disk_scale_length_pc", 2600.0);
+        profile.ThickDiskScaleLengthPc = DomainDictionaryUtils.GetDouble(data, "thick_disk_scale_length_pc", 2000.0);
+        profile.ThinDiskScaleHeightPc = DomainDictionaryUtils.GetDouble(data, "thin_disk_scale_height_pc", 300.0);
+        profile.ThickDiskScaleHeightPc = DomainDictionaryUtils.GetDouble(data, "thick_disk_scale_height_pc", 900.0);
+        profile.SolarGalactocentricRadiusPc = DomainDictionaryUtils.GetDouble(data, "solar_galactocentric_radius_pc", 8200.0);
+        profile.CircularVelocityAtSolarRadiusKmS = DomainDictionaryUtils.GetDouble(data, "circular_velocity_at_solar_radius_km_s", 240.0);
+        profile.StellarMassSolar = DomainDictionaryUtils.GetDouble(data, "stellar_mass_solar", 5.0e10);
+        profile.MilkyWayStructureSourceStatus = DomainDictionaryUtils.GetString(data, "milky_way_structure_source_status", "partly implemented");
         return profile;
     }
 }

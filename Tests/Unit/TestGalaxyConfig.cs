@@ -29,6 +29,14 @@ public static class TestGalaxyConfig
         DotNetNativeTestSuite.AssertEqual((int)GalaxySubtypeMode.IntermediateType, (int)config.SubtypeMode, "Milky Way preset should bias toward an intermediate spiral");
         DotNetNativeTestSuite.AssertEqual((int)GalaxyBarMode.PreferBarred, (int)config.BarMode, "Milky Way preset should prefer a bar");
         DotNetNativeTestSuite.AssertEqual((int)GalaxyArmMechanism.GrandDesign, (int)config.ArmMechanismPreference, "Milky Way preset should default to grand-design arms");
+        DotNetNativeTestSuite.AssertEqual(2600.0, config.ThinDiskScaleLengthPc, "Milky Way preset should carry the Bland-Hawthorn/Gerhard thin-disk scale length");
+        DotNetNativeTestSuite.AssertEqual(2000.0, config.ThickDiskScaleLengthPc, "Milky Way preset should carry the Bland-Hawthorn/Gerhard thick-disk scale length");
+        DotNetNativeTestSuite.AssertEqual(300.0, config.ThinDiskScaleHeightPc, "Milky Way preset should carry the thin-disk scale height");
+        DotNetNativeTestSuite.AssertEqual(900.0, config.ThickDiskScaleHeightPc, "Milky Way preset should carry the thick-disk scale height");
+        DotNetNativeTestSuite.AssertEqual(4500.0, config.BarHalfLengthPc, "Milky Way preset should expose bar half-length separately from bulge radius");
+        DotNetNativeTestSuite.AssertEqual(8200.0, config.SolarGalactocentricRadiusPc, "Milky Way preset should carry the solar-circle radius");
+        DotNetNativeTestSuite.AssertEqual(240.0, config.CircularVelocityAtSolarRadiusKmS, "Milky Way preset should carry the circular velocity at the solar circle");
+        DotNetNativeTestSuite.AssertEqual(5.0e10, config.StellarMassSolar, "Milky Way preset should carry the stellar mass scale");
     }
 
     /// <summary>
@@ -47,6 +55,14 @@ public static class TestGalaxyConfig
         original.GhzTransitionWidthPc = 2400.0;
         original.MetallicityGradientDexPerKpc = -0.035;
         original.StarFormationEfficiency = 0.09;
+        original.ThinDiskScaleLengthPc = 2700.0;
+        original.ThickDiskScaleLengthPc = 2100.0;
+        original.ThinDiskScaleHeightPc = 320.0;
+        original.ThickDiskScaleHeightPc = 950.0;
+        original.BarHalfLengthPc = 4300.0;
+        original.SolarGalactocentricRadiusPc = 8300.0;
+        original.CircularVelocityAtSolarRadiusKmS = 235.0;
+        original.StellarMassSolar = 4.8e10;
         original.StellarProfile.ImfForm = StellarImfForm.Chabrier;
         original.StellarProfile.IsochroneModel = StellarIsochroneModel.Parsec;
         original.StellarProfile.MultiplicityScale = 1.15;
@@ -61,6 +77,14 @@ public static class TestGalaxyConfig
         DotNetNativeTestSuite.AssertEqual(original.HaloMassLog10Solar, restored.HaloMassLog10Solar, "halo mass should round-trip");
         DotNetNativeTestSuite.AssertEqual(original.GhzOuterRadiusPc, restored.GhzOuterRadiusPc, "GHZ outer radius should round-trip");
         DotNetNativeTestSuite.AssertEqual(original.MetallicityGradientDexPerKpc, restored.MetallicityGradientDexPerKpc, "metallicity gradient should round-trip");
+        DotNetNativeTestSuite.AssertEqual(original.ThinDiskScaleLengthPc, restored.ThinDiskScaleLengthPc, "thin-disk scale length should round-trip");
+        DotNetNativeTestSuite.AssertEqual(original.ThickDiskScaleLengthPc, restored.ThickDiskScaleLengthPc, "thick-disk scale length should round-trip");
+        DotNetNativeTestSuite.AssertEqual(original.ThinDiskScaleHeightPc, restored.ThinDiskScaleHeightPc, "thin-disk scale height should round-trip");
+        DotNetNativeTestSuite.AssertEqual(original.ThickDiskScaleHeightPc, restored.ThickDiskScaleHeightPc, "thick-disk scale height should round-trip");
+        DotNetNativeTestSuite.AssertEqual(original.BarHalfLengthPc, restored.BarHalfLengthPc, "bar half-length should round-trip");
+        DotNetNativeTestSuite.AssertEqual(original.SolarGalactocentricRadiusPc, restored.SolarGalactocentricRadiusPc, "solar-circle radius should round-trip");
+        DotNetNativeTestSuite.AssertEqual(original.CircularVelocityAtSolarRadiusKmS, restored.CircularVelocityAtSolarRadiusKmS, "solar-circle circular velocity should round-trip");
+        DotNetNativeTestSuite.AssertEqual(original.StellarMassSolar, restored.StellarMassSolar, "stellar mass scale should round-trip");
         DotNetNativeTestSuite.AssertEqual((int)original.StellarProfile.ImfForm, (int)restored.StellarProfile.ImfForm, "stellar IMF should round-trip");
         DotNetNativeTestSuite.AssertEqual(original.StellarProfile.MultiplicityScale, restored.StellarProfile.MultiplicityScale, "stellar multiplicity should round-trip");
     }
@@ -77,6 +101,10 @@ public static class TestGalaxyConfig
         config = GalaxyConfig.CreateMilkyWay();
         config.GhzOuterRadiusPc = config.GhzInnerRadiusPc;
         DotNetNativeTestSuite.AssertTrue(!config.IsValid(), "GHZ outer radius must exceed inner radius");
+
+        config = GalaxyConfig.CreateMilkyWay();
+        config.ThickDiskScaleHeightPc = 250.0;
+        DotNetNativeTestSuite.AssertTrue(!config.IsValid(), "thick-disk scale height below range should be invalid");
     }
 
     /// <summary>
@@ -101,6 +129,37 @@ public static class TestGalaxyConfig
         DotNetNativeTestSuite.AssertTrue(spec.IsBarred, "preferred barred lenticular should resolve as barred");
         DotNetNativeTestSuite.AssertEqual(0, spec.NumArms, "lenticular profiles should not expose active spiral arms");
         DotNetNativeTestSuite.AssertNotNull(spec.RealismProfile, "resolved realism profile should be stored");
+    }
+
+    /// <summary>
+    /// Tests that Milky-Way structural parameters are first-class fields and affect regional classification.
+    /// </summary>
+    public static void TestMilkyWayStructuralSchemaUsesBlandParameters()
+    {
+        GalaxyConfig config = GalaxyConfig.CreateMilkyWay();
+        GalaxySpec spec = GalaxySpec.CreateFromConfig(config, 15001);
+
+        DotNetNativeTestSuite.AssertEqual(2600.0, spec.ThinDiskScaleLengthPc, "spec should carry thin-disk scale length");
+        DotNetNativeTestSuite.AssertEqual(2000.0, spec.ThickDiskScaleLengthPc, "spec should carry thick-disk scale length");
+        DotNetNativeTestSuite.AssertEqual(300.0, spec.ThinDiskScaleHeightPc, "spec should carry thin-disk scale height");
+        DotNetNativeTestSuite.AssertEqual(900.0, spec.ThickDiskScaleHeightPc, "spec should carry thick-disk scale height");
+        DotNetNativeTestSuite.AssertEqual(4500.0, spec.BarHalfLengthPc, "spec should carry bar half-length");
+        DotNetNativeTestSuite.AssertEqual(8200.0, spec.SolarGalactocentricRadiusPc, "spec should carry solar-circle radius");
+        DotNetNativeTestSuite.AssertEqual(240.0, spec.CircularVelocityAtSolarRadiusKmS, "spec should carry circular velocity at the solar circle");
+        DotNetNativeTestSuite.AssertEqual(5.0e10, spec.StellarMassSolar, "spec should carry stellar mass scale");
+        DotNetNativeTestSuite.AssertEqual("partly implemented", spec.RealismProfile.MilkyWayStructureSourceStatus, "profile should record partial Bland-Hawthorn/Gerhard implementation status");
+
+        GalaxyOriginContext barContext = GalaxyScientificFieldEvaluator.Evaluate(new Vector3(3200.0f, 0.0f, 0.0f), spec);
+        DotNetNativeTestSuite.AssertEqual((int)GalaxyRegionKind.Bar, (int)barContext.RegionKind, "bar half-length should classify elongated inner-bar positions as bar influenced");
+        DotNetNativeTestSuite.AssertTrue(barContext.IsBarInfluenced, "bar-region context should carry bar influence");
+        DotNetNativeTestSuite.AssertEqual(8200.0, barContext.SolarGalactocentricRadiusPc, "origin context should carry solar-circle radius");
+        DotNetNativeTestSuite.AssertEqual(240.0, barContext.CircularVelocityAtSolarRadiusKmS, "origin context should carry solar-circle circular velocity");
+
+        Dictionary specData = spec.ToDictionary();
+        GalaxySpec restored = GalaxySpec.FromDictionary(specData);
+        DotNetNativeTestSuite.AssertEqual(spec.ThickDiskScaleHeightPc, restored.ThickDiskScaleHeightPc, "spec thick-disk field should survive round-trip");
+        DotNetNativeTestSuite.AssertEqual(spec.BarHalfLengthPc, restored.BarHalfLengthPc, "spec bar half-length should survive round-trip");
+        DotNetNativeTestSuite.AssertEqual(spec.RealismProfile.MilkyWayStructureSourceStatus, restored.RealismProfile.MilkyWayStructureSourceStatus, "profile source status should survive round-trip");
     }
 
     /// <summary>

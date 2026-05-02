@@ -76,6 +76,16 @@ public partial class GalaxyOriginContext : RefCounted
     public double HaloMassLog10Solar { get; set; } = 12.0;
 
     /// <summary>
+    /// Solar-circle radius inherited from the host-galaxy structural profile.
+    /// </summary>
+    public double SolarGalactocentricRadiusPc { get; set; } = 8200.0;
+
+    /// <summary>
+    /// Circular velocity at the solar circle inherited from the host-galaxy structural profile.
+    /// </summary>
+    public double CircularVelocityAtSolarRadiusKmS { get; set; } = 240.0;
+
+    /// <summary>
     /// Local density ratio relative to the galaxy reference density.
     /// </summary>
     public double LocalDensityRatio { get; set; } = 1.0;
@@ -110,6 +120,8 @@ public partial class GalaxyOriginContext : RefCounted
             IsArmInfluenced = IsArmInfluenced,
             EnvironmentDensityIndex = EnvironmentDensityIndex,
             HaloMassLog10Solar = HaloMassLog10Solar,
+            SolarGalactocentricRadiusPc = SolarGalactocentricRadiusPc,
+            CircularVelocityAtSolarRadiusKmS = CircularVelocityAtSolarRadiusKmS,
             LocalDensityRatio = LocalDensityRatio,
             LocalStarFormationEfficiency = LocalStarFormationEfficiency,
             StellarProfile = StellarProfile.Clone(),
@@ -136,6 +148,8 @@ public partial class GalaxyOriginContext : RefCounted
             ["is_arm_influenced"] = IsArmInfluenced,
             ["environment_density_index"] = EnvironmentDensityIndex,
             ["halo_mass_log10_solar"] = HaloMassLog10Solar,
+            ["solar_galactocentric_radius_pc"] = SolarGalactocentricRadiusPc,
+            ["circular_velocity_at_solar_radius_km_s"] = CircularVelocityAtSolarRadiusKmS,
             ["local_density_ratio"] = LocalDensityRatio,
             ["local_star_formation_efficiency"] = LocalStarFormationEfficiency,
             ["stellar_profile"] = StellarProfile.ToDictionary(),
@@ -176,6 +190,8 @@ public partial class GalaxyOriginContext : RefCounted
         context.IsArmInfluenced = DomainDictionaryUtils.GetBool(data, "is_arm_influenced", false);
         context.EnvironmentDensityIndex = DomainDictionaryUtils.GetDouble(data, "environment_density_index", 0.25);
         context.HaloMassLog10Solar = DomainDictionaryUtils.GetDouble(data, "halo_mass_log10_solar", 12.0);
+        context.SolarGalactocentricRadiusPc = DomainDictionaryUtils.GetDouble(data, "solar_galactocentric_radius_pc", 8200.0);
+        context.CircularVelocityAtSolarRadiusKmS = DomainDictionaryUtils.GetDouble(data, "circular_velocity_at_solar_radius_km_s", 240.0);
         context.LocalDensityRatio = DomainDictionaryUtils.GetDouble(data, "local_density_ratio", 1.0);
         context.LocalStarFormationEfficiency = DomainDictionaryUtils.GetDouble(data, "local_star_formation_efficiency", 0.1);
         if (data.ContainsKey("stellar_profile") && data["stellar_profile"].VariantType == Variant.Type.Dictionary)

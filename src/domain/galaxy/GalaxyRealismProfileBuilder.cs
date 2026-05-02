@@ -21,6 +21,15 @@ public static class GalaxyRealismProfileBuilder
         profile.StarFormationEfficiency = System.Math.Clamp(config.StarFormationEfficiency, 0.05, 0.65);
         profile.ClusterMassFunctionSlope = 2.0;
         profile.ClusterDissolutionTimescaleMyr = 10.0;
+        profile.ThinDiskScaleLengthPc = System.Math.Clamp(config.ThinDiskScaleLengthPc, 1200.0, 6000.0);
+        profile.ThickDiskScaleLengthPc = System.Math.Clamp(config.ThickDiskScaleLengthPc, 1000.0, 6000.0);
+        profile.ThinDiskScaleHeightPc = System.Math.Clamp(config.ThinDiskScaleHeightPc, 100.0, 600.0);
+        profile.ThickDiskScaleHeightPc = System.Math.Clamp(config.ThickDiskScaleHeightPc, 500.0, 2000.0);
+        profile.BarHalfLengthPc = System.Math.Clamp(config.BarHalfLengthPc, 1500.0, 7000.0);
+        profile.SolarGalactocentricRadiusPc = System.Math.Clamp(config.SolarGalactocentricRadiusPc, 7000.0, 9000.0);
+        profile.CircularVelocityAtSolarRadiusKmS = System.Math.Clamp(config.CircularVelocityAtSolarRadiusKmS, 180.0, 280.0);
+        profile.StellarMassSolar = System.Math.Clamp(config.StellarMassSolar, 1.0e9, 3.0e11);
+        profile.MilkyWayStructureSourceStatus = "partly implemented";
 
         if (config.Type == GalaxySpec.GalaxyType.Spiral)
         {
@@ -61,6 +70,10 @@ public static class GalaxyRealismProfileBuilder
         spec.ArmMechanism = profile.ArmMechanism;
         spec.IsBarred = profile.IsBarred;
         spec.BarStrength = profile.BarStrength;
+        spec.BarHalfLengthPc = profile.BarHalfLengthPc;
+        spec.SolarGalactocentricRadiusPc = profile.SolarGalactocentricRadiusPc;
+        spec.CircularVelocityAtSolarRadiusKmS = profile.CircularVelocityAtSolarRadiusKmS;
+        spec.StellarMassSolar = profile.StellarMassSolar;
         spec.SersicIndex = profile.SersicIndex;
         spec.EffectiveRadiusPc = profile.EffectiveRadiusPc;
         spec.BulgeToTotal = profile.BulgeToTotal;
@@ -80,6 +93,10 @@ public static class GalaxyRealismProfileBuilder
         spec.BulgeIntensity = config.BulgeIntensity;
         spec.DiskScaleLengthPc = config.DiskScaleLengthPc;
         spec.DiskScaleHeightPc = config.DiskScaleHeightPc;
+        spec.ThinDiskScaleLengthPc = profile.ThinDiskScaleLengthPc;
+        spec.ThickDiskScaleLengthPc = profile.ThickDiskScaleLengthPc;
+        spec.ThinDiskScaleHeightPc = profile.ThinDiskScaleHeightPc;
+        spec.ThickDiskScaleHeightPc = profile.ThickDiskScaleHeightPc;
         spec.BulgeRadiusPc = config.BulgeRadiusPc;
         spec.RadiusPc = config.RadiusPc;
         spec.Ellipticity = config.Ellipticity;

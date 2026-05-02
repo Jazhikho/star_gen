@@ -110,6 +110,46 @@ public partial class GalaxyConfig : RefCounted
     public double DiskScaleHeightPc { get; set; } = 300.0;
 
     /// <summary>
+    /// Milky-Way thin-disk exponential scale length in parsecs.
+    /// </summary>
+    public double ThinDiskScaleLengthPc { get; set; } = 2600.0;
+
+    /// <summary>
+    /// Milky-Way thick-disk exponential scale length in parsecs.
+    /// </summary>
+    public double ThickDiskScaleLengthPc { get; set; } = 2000.0;
+
+    /// <summary>
+    /// Milky-Way thin-disk exponential scale height in parsecs.
+    /// </summary>
+    public double ThinDiskScaleHeightPc { get; set; } = 300.0;
+
+    /// <summary>
+    /// Milky-Way thick-disk exponential scale height in parsecs.
+    /// </summary>
+    public double ThickDiskScaleHeightPc { get; set; } = 900.0;
+
+    /// <summary>
+    /// Half-length of the central stellar bar in parsecs.
+    /// </summary>
+    public double BarHalfLengthPc { get; set; } = 4500.0;
+
+    /// <summary>
+    /// Solar-circle Galactocentric radius used for Milky-Way analog calibration in parsecs.
+    /// </summary>
+    public double SolarGalactocentricRadiusPc { get; set; } = 8200.0;
+
+    /// <summary>
+    /// Circular velocity at the solar-circle radius in kilometers per second.
+    /// </summary>
+    public double CircularVelocityAtSolarRadiusKmS { get; set; } = 240.0;
+
+    /// <summary>
+    /// Stellar mass scale for the Milky-Way analog in solar masses.
+    /// </summary>
+    public double StellarMassSolar { get; set; } = 5.0e10;
+
+    /// <summary>
     /// Central bulge radius in parsecs.
     /// </summary>
     public double BulgeRadiusPc { get; set; } = 1500.0;
@@ -174,9 +214,17 @@ public partial class GalaxyConfig : RefCounted
             ArmPitchAngleDeg = 14.0,
             ArmAmplitude = 0.65,
             BulgeIntensity = 0.8,
-            DiskScaleLengthPc = 4000.0,
+            DiskScaleLengthPc = 2600.0,
             StarDensityMultiplier = 1.0,
             DiskScaleHeightPc = 300.0,
+            ThinDiskScaleLengthPc = 2600.0,
+            ThickDiskScaleLengthPc = 2000.0,
+            ThinDiskScaleHeightPc = 300.0,
+            ThickDiskScaleHeightPc = 900.0,
+            BarHalfLengthPc = 4500.0,
+            SolarGalactocentricRadiusPc = 8200.0,
+            CircularVelocityAtSolarRadiusKmS = 240.0,
+            StellarMassSolar = 5.0e10,
             BulgeRadiusPc = 1500.0,
             RadiusPc = 15000.0,
             Ellipticity = 0.3,
@@ -290,6 +338,46 @@ public partial class GalaxyConfig : RefCounted
             return false;
         }
 
+        if (ThinDiskScaleLengthPc < 1200.0 || ThinDiskScaleLengthPc > 6000.0)
+        {
+            return false;
+        }
+
+        if (ThickDiskScaleLengthPc < 1000.0 || ThickDiskScaleLengthPc > 6000.0)
+        {
+            return false;
+        }
+
+        if (ThinDiskScaleHeightPc < 100.0 || ThinDiskScaleHeightPc > 600.0)
+        {
+            return false;
+        }
+
+        if (ThickDiskScaleHeightPc < 500.0 || ThickDiskScaleHeightPc > 2000.0)
+        {
+            return false;
+        }
+
+        if (BarHalfLengthPc < 1500.0 || BarHalfLengthPc > 7000.0)
+        {
+            return false;
+        }
+
+        if (SolarGalactocentricRadiusPc < 7000.0 || SolarGalactocentricRadiusPc > 9000.0)
+        {
+            return false;
+        }
+
+        if (CircularVelocityAtSolarRadiusKmS < 180.0 || CircularVelocityAtSolarRadiusKmS > 280.0)
+        {
+            return false;
+        }
+
+        if (StellarMassSolar < 1.0e9 || StellarMassSolar > 3.0e11)
+        {
+            return false;
+        }
+
         if (BulgeRadiusPc < 600.0 || BulgeRadiusPc > 6000.0)
         {
             return false;
@@ -348,6 +436,14 @@ public partial class GalaxyConfig : RefCounted
             ["disk_scale_length_pc"] = DiskScaleLengthPc,
             ["star_density_multiplier"] = StarDensityMultiplier,
             ["disk_scale_height_pc"] = DiskScaleHeightPc,
+            ["thin_disk_scale_length_pc"] = ThinDiskScaleLengthPc,
+            ["thick_disk_scale_length_pc"] = ThickDiskScaleLengthPc,
+            ["thin_disk_scale_height_pc"] = ThinDiskScaleHeightPc,
+            ["thick_disk_scale_height_pc"] = ThickDiskScaleHeightPc,
+            ["bar_half_length_pc"] = BarHalfLengthPc,
+            ["solar_galactocentric_radius_pc"] = SolarGalactocentricRadiusPc,
+            ["circular_velocity_at_solar_radius_km_s"] = CircularVelocityAtSolarRadiusKmS,
+            ["stellar_mass_solar"] = StellarMassSolar,
             ["bulge_radius_pc"] = BulgeRadiusPc,
             ["radius_pc"] = RadiusPc,
             ["ellipticity"] = Ellipticity,
@@ -381,9 +477,17 @@ public partial class GalaxyConfig : RefCounted
             ArmPitchAngleDeg = DomainDictionaryUtils.GetDouble(data, "arm_pitch_angle_deg", 14.0),
             ArmAmplitude = DomainDictionaryUtils.GetDouble(data, "arm_amplitude", 0.65),
             BulgeIntensity = DomainDictionaryUtils.GetDouble(data, "bulge_intensity", 0.8),
-            DiskScaleLengthPc = DomainDictionaryUtils.GetDouble(data, "disk_scale_length_pc", 4000.0),
+            DiskScaleLengthPc = DomainDictionaryUtils.GetDouble(data, "disk_scale_length_pc", 2600.0),
             StarDensityMultiplier = DomainDictionaryUtils.GetDouble(data, "star_density_multiplier", 1.0),
             DiskScaleHeightPc = DomainDictionaryUtils.GetDouble(data, "disk_scale_height_pc", 300.0),
+            ThinDiskScaleLengthPc = DomainDictionaryUtils.GetDouble(data, "thin_disk_scale_length_pc", 2600.0),
+            ThickDiskScaleLengthPc = DomainDictionaryUtils.GetDouble(data, "thick_disk_scale_length_pc", 2000.0),
+            ThinDiskScaleHeightPc = DomainDictionaryUtils.GetDouble(data, "thin_disk_scale_height_pc", 300.0),
+            ThickDiskScaleHeightPc = DomainDictionaryUtils.GetDouble(data, "thick_disk_scale_height_pc", 900.0),
+            BarHalfLengthPc = DomainDictionaryUtils.GetDouble(data, "bar_half_length_pc", 4500.0),
+            SolarGalactocentricRadiusPc = DomainDictionaryUtils.GetDouble(data, "solar_galactocentric_radius_pc", 8200.0),
+            CircularVelocityAtSolarRadiusKmS = DomainDictionaryUtils.GetDouble(data, "circular_velocity_at_solar_radius_km_s", 240.0),
+            StellarMassSolar = DomainDictionaryUtils.GetDouble(data, "stellar_mass_solar", 5.0e10),
             BulgeRadiusPc = DomainDictionaryUtils.GetDouble(data, "bulge_radius_pc", 1500.0),
             RadiusPc = DomainDictionaryUtils.GetDouble(data, "radius_pc", 15000.0),
             Ellipticity = DomainDictionaryUtils.GetDouble(data, "ellipticity", 0.3),

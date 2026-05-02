@@ -120,7 +120,8 @@ public partial class PlanetPopulationData : RefCounted
     /// </summary>
     public int GetTotalPopulation()
     {
-        return GetNativePopulation() + GetColonyPopulation();
+        long total = (long)GetNativePopulation() + GetColonyPopulation();
+        return ClampPopulationToInt(total);
     }
 
     /// <summary>
@@ -128,7 +129,7 @@ public partial class PlanetPopulationData : RefCounted
     /// </summary>
     public int GetNativePopulation()
     {
-        int total = 0;
+        long total = 0;
         foreach (NativePopulation nativePopulation in NativePopulations)
         {
             if (nativePopulation.IsExtant)
@@ -137,7 +138,7 @@ public partial class PlanetPopulationData : RefCounted
             }
         }
 
-        return total;
+        return ClampPopulationToInt(total);
     }
 
     /// <summary>
@@ -145,7 +146,7 @@ public partial class PlanetPopulationData : RefCounted
     /// </summary>
     public int GetColonyPopulation()
     {
-        int total = 0;
+        long total = 0;
         foreach (Colony colony in Colonies)
         {
             if (colony.IsActive)
@@ -154,7 +155,22 @@ public partial class PlanetPopulationData : RefCounted
             }
         }
 
-        return total;
+        return ClampPopulationToInt(total);
+    }
+
+    private static int ClampPopulationToInt(long population)
+    {
+        if (population > int.MaxValue)
+        {
+            return int.MaxValue;
+        }
+
+        if (population < int.MinValue)
+        {
+            return int.MinValue;
+        }
+
+        return (int)population;
     }
 
     /// <summary>

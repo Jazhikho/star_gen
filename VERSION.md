@@ -1,12 +1,20 @@
 # Version
 
-Current version: `0.9.7.0`
+Current version: `0.9.8.0`
 
 Current user-facing version: `0.9d` by default, `0.9e` for the export/save-enabled edition
 
 Date: `2026-05-01`
 
 Versioning method: release/refactor `+0.1`, feature `+0.0.1`, bug fix `+0.0.0.1`, save-breaking release `+1.0`.
+
+## 0.9.8.0
+
+- Feature: Promoted Bland-Hawthorn/Gerhard Milky-Way structure from underutilized review status to partly implemented schema fields for thin/thick disk dimensions, bar half-length, solar-circle radius, circular velocity, and stellar mass.
+- Feature: Spiral density, bar density, bar-region classification, galaxy origin context, and reference-density calibration now use the new Milky-Way structural fields where appropriate.
+- Fix: Hardened Godot numeric conversion and population preview aggregation against large 64-bit values encountered during galaxy local-space generation.
+- Docs: Updated source notes, annotated bibliography, source-utilization plan, science audit, project structure, and AI provenance for the galaxy schema source-utilization slice.
+- Test: Added regression coverage for Bland-Hawthorn/Gerhard Milky-Way structural schema serialization and bar-region use.
 
 ## 0.9.7.0
 

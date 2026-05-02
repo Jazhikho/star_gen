@@ -61,6 +61,11 @@ public static class SourceAcquisitionRegistry
             SourceAcquisitionStatus.LocalSourceNote,
             "res://Sources/Texts/Behroozi2019.txt",
             "Local source note exists for halo-mass and galaxy population context."),
+        ["bland2016"] = Create(
+            "bland2016",
+            SourceAcquisitionStatus.LocalSourceNote,
+            "res://Sources/Texts/BlandHawthornGerhard2016.txt",
+            "Local reviewed source note exists for Milky-Way structural and kinematic parameter grounding."),
         ["oohama2009"] = Create(
             "oohama2009",
             SourceAcquisitionStatus.LocalSourceNote,

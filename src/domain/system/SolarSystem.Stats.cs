@@ -110,7 +110,7 @@ public partial class SolarSystem
     /// </summary>
     private int GetPopulationMetric(PopulationMetric metric)
     {
-        int total = 0;
+        long total = 0;
         foreach (CelestialBody body in Bodies.Values)
         {
             if (!body.HasPopulationData() || body.PopulationData == null)
@@ -133,6 +133,16 @@ public partial class SolarSystem
             }
         }
 
-        return total;
+        if (total > int.MaxValue)
+        {
+            return int.MaxValue;
+        }
+
+        if (total < int.MinValue)
+        {
+            return int.MinValue;
+        }
+
+        return (int)total;
     }
 }

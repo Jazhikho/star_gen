@@ -1676,3 +1676,14 @@ Use this log for significant AI-assisted artifacts in this repository.
 - Human Changed: The user asked for more detailed report-backs explaining how each source is used, not used, or planned for future use, with corresponding plan annotation.
 - Validation Method: `dotnet build .\StarGen.sln` passed with 0 warnings and 0 errors. `godot-mono.exe --path . --headless --script res://Tests/RunTestsHeadless.gd` passed (`Total: 1885 | Passed: 1885 | Failed: 0`), with the known Godot shutdown leak warnings after the green test report.
 - Final Approver: Pending Christopher B. Del Gesso review.
+
+### 2026-05-01 - Codex (GPT-5)
+
+- Task Purpose: Continue the source-to-generator utilization pass with galaxy schema and Milky-Way analog structure, branching because Bland-Hawthorn/Gerhard review showed the active galaxy schema was underusing first-class structural parameters.
+- Input Materials Used: User direction to continue with detailed source-use reporting; repo `claude.md`; user-supplied AGENTS instructions; `Sources/SourceUtilizationPlan.md`; `Sources/Texts/BlandHawthornGerhard2016.txt`; `Sources/AnnotatedBibliography.md`; `Docs/EndToEndScienceAudit.md`; `Docs/ProjectStructure.md`; galaxy schema/profile/density/evaluator code; galaxy science reference and source-acquisition registries; galaxy viewer local-space tests; and native galaxy unit tests.
+- AI Produced: Created branch `codex/galaxy-schema-source-retool`; added Milky-Way structural fields for thin/thick disk scale lengths and heights, bar half-length, solar-circle radius, circular velocity at the solar circle, stellar mass, and source status; wired those fields through `GalaxyConfig`, `GalaxySpec`, `GalaxyRealismProfile`, `GalaxyOriginContext`, spiral density, bar geometry, reference-density calibration, source catalogs, and tests; hardened large numeric conversion/population aggregation encountered during local-space preview generation; updated source notes, bibliography, source plan, science audit, project structure, version metadata, and AI provenance.
+- Human Accepted: Pending user review of the Milky-Way structural schema fields and source-use wording.
+- Human Rejected: Full Milky-Way dynamics, nuclear cluster/disk, baryon/gas components, dark/stellar/hot-gas halo decomposition, pattern speed/corotation, full rotation curve, local mass-budget calibration, and non-Milky-Way analog source comparison were not implemented in this slice.
+- Human Changed: The user asked to continue the plan and requested more detailed report-backs about how sources are used, not used, and planned for future use.
+- Validation Method: `dotnet build .\StarGen.sln` passed with 0 warnings and 0 errors. `godot-mono.exe --path . --headless --script res://Tests/RunTestsHeadless.gd` passed (`Total: 1886 | Passed: 1886 | Failed: 0`), with the known Godot shutdown leak warnings after the green test report.
+- Final Approver: Pending Christopher B. Del Gesso review.

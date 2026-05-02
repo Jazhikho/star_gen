@@ -108,12 +108,18 @@ public static class DensitySampler
             * System.Math.Sqrt(Mathf.Tau)
             * spec.BulgeHeightPc;
         double averageArmModulation = 1.0 - (spec.ArmAmplitude * 0.4);
+        double thinDiskVolume = spec.ThinDiskScaleLengthPc
+            * spec.ThinDiskScaleLengthPc
+            * spec.ThinDiskScaleHeightPc
+            * 0.88;
+        double thickDiskVolume = spec.ThickDiskScaleLengthPc
+            * spec.ThickDiskScaleLengthPc
+            * spec.ThickDiskScaleHeightPc
+            * 0.12;
         double diskVolume = averageArmModulation
             * Mathf.Tau
-            * spec.DiskScaleLengthPc
-            * spec.DiskScaleLengthPc
-            * 2.0
-            * spec.DiskScaleHeightPc;
+            * (thinDiskVolume + thickDiskVolume)
+            * 2.0;
         double total = bulgeVolume + diskVolume;
         if (total <= 0.0)
         {
@@ -157,14 +163,14 @@ public static class DensitySampler
         while (accepted < count && attempt < maxAttempts)
         {
             attempt += 1;
-            float radialDistance = SampleGamma2((float)spec.DiskScaleLengthPc, rng);
+            float radialDistance = SampleGamma2((float)spec.ThinDiskScaleLengthPc, rng);
             if (radialDistance > spec.RadiusPc)
             {
                 continue;
             }
 
             float theta = rng.Randf() * Mathf.Tau;
-            float height = SampleLaplace((float)spec.DiskScaleHeightPc, rng);
+            float height = SampleThinOrThickDiskHeight(spec, rng);
             if (Mathf.Abs(height) > spec.HeightPc)
             {
                 continue;
@@ -186,6 +192,16 @@ public static class DensitySampler
         }
 
         return points;
+    }
+
+    private static float SampleThinOrThickDiskHeight(GalaxySpec spec, SeededRng rng)
+    {
+        if (rng.Randf() < 0.12f)
+        {
+            return SampleLaplace((float)spec.ThickDiskScaleHeightPc, rng);
+        }
+
+        return SampleLaplace((float)spec.ThinDiskScaleHeightPc, rng);
     }
 
     /// <summary>

@@ -1049,12 +1049,32 @@ public partial class GalaxyInspectorPanel : VBoxContainer
 	private static int GetIntProperty(GodotObject source, string propertyName, int fallback)
 	{
 		Variant value = source.Get(propertyName);
-		return value.VariantType switch
+		if (value.VariantType == Variant.Type.Int)
 		{
-			Variant.Type.Int => (int)value,
-			Variant.Type.Float => (int)(double)value,
-			_ => fallback,
-		};
+			return ClampToInt(value.AsInt64());
+		}
+
+		if (value.VariantType == Variant.Type.Float)
+		{
+			return ClampToInt((long)(double)value);
+		}
+
+		return fallback;
+	}
+
+	private static int ClampToInt(long value)
+	{
+		if (value > int.MaxValue)
+		{
+			return int.MaxValue;
+		}
+
+		if (value < int.MinValue)
+		{
+			return int.MinValue;
+		}
+
+		return (int)value;
 	}
 
 	private static double GetDoubleProperty(GodotObject source, string propertyName, double fallback)
@@ -1063,7 +1083,7 @@ public partial class GalaxyInspectorPanel : VBoxContainer
 		return value.VariantType switch
 		{
 			Variant.Type.Float => (double)value,
-			Variant.Type.Int => (int)value,
+			Variant.Type.Int => value.AsInt64(),
 			_ => fallback,
 		};
 	}

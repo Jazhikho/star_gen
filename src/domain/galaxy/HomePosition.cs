@@ -10,7 +10,7 @@ public static class HomePosition
     /// <summary>
     /// Approximate solar radial distance from the galactic center in parsecs.
     /// </summary>
-    public const float SolarDistancePc = 8000.0f;
+    public const float SolarDistancePc = 8200.0f;
 
     /// <summary>
     /// Approximate solar height above the galactic plane in parsecs.

@@ -823,6 +823,9 @@ public static partial class DotNetNativeTestSuite
             "TestGalaxyConfig::test_apply_to_spec_creates_resolved_scientific_profile",
             Tests.Unit.TestGalaxyConfig.TestApplyToSpecCreatesResolvedScientificProfile);
         runner.RunNativeTest(
+            "TestGalaxyConfig::test_milky_way_structural_schema_uses_bland_parameters",
+            Tests.Unit.TestGalaxyConfig.TestMilkyWayStructuralSchemaUsesBlandParameters);
+        runner.RunNativeTest(
             "TestGalaxyConfig::test_get_type_name_includes_expanded_families",
             Tests.Unit.TestGalaxyConfig.TestGetTypeNameIncludesExpandedFamilies);
         runner.RunNativeTest(

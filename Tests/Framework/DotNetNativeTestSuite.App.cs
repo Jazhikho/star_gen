@@ -333,12 +333,34 @@ public static partial class DotNetNativeTestSuite
             AssertNotNull(galaxy, "galaxy viewer should expose the active galaxy after local-space build");
             AssertTrue(galaxy!.GetCachedSystemCount() > 0, "building local space should also populate the galaxy-level system cache");
 
-            JumpLaneSystem cachedRouteSystem = localSpaceCache.Region.Systems[0];
-            int cachedStarSeed = int.Parse(cachedRouteSystem.Id, CultureInfo.InvariantCulture);
+            JumpLaneSystem? cachedRouteSystem = null;
+            int cachedStarSeed = 0;
+            foreach (JumpLaneSystem candidate in localSpaceCache.Region.Systems)
+            {
+                if (!long.TryParse(candidate.Id, NumberStyles.Integer, CultureInfo.InvariantCulture, out long parsedSeed))
+                {
+                    continue;
+                }
+
+                if (parsedSeed < int.MinValue || parsedSeed > int.MaxValue)
+                {
+                    continue;
+                }
+
+                int typedSeed = (int)parsedSeed;
+                if (galaxy.HasCachedSystem(typedSeed))
+                {
+                    cachedRouteSystem = candidate;
+                    cachedStarSeed = typedSeed;
+                    break;
+                }
+            }
+
+            AssertNotNull(cachedRouteSystem, "local-space build should include at least one cacheable route system");
             SolarSystem? cachedSystem = galaxy.GetCachedSystem(cachedStarSeed);
             AssertNotNull(cachedSystem, "a route system produced during local-space build should have a matching full-system cache entry");
 
-            GalaxyStar cachedStar = GalaxyStar.CreateWithDerivedProperties(cachedRouteSystem.Position, cachedStarSeed, galaxy.Spec);
+            GalaxyStar cachedStar = GalaxyStar.CreateWithDerivedProperties(cachedRouteSystem!.Position, cachedStarSeed, galaxy.Spec);
             SolarSystem? directSystem = GalaxySystemGenerator.GenerateSystem(
                 cachedStar,
                 includeAsteroids: true,

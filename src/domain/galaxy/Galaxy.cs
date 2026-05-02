@@ -376,7 +376,7 @@ public partial class Galaxy : RefCounted
     /// </summary>
     private float ComputeReferenceDensity()
     {
-        return DensityModel.GetDensity(new Vector3(8000.0f, 0.0f, 0.0f));
+        return DensityModel.GetDensity(new Vector3((float)Spec.SolarGalactocentricRadiusPc, 0.0f, 0.0f));
     }
 
     /// <summary>

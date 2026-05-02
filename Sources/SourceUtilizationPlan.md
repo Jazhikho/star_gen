@@ -39,18 +39,11 @@ This plan tracks the source-to-generator cleanup separately from the annotated b
 | Disk, formation, migration, giants, and volatile delivery | `Pascucci2016`, `Ribas2015`, `Izidoro2017`, `Fernandes2019`, `RaymondIzidoro2017`, `Mordasini2007`, `LambrechtsJohansen2012`, `TanakaTakeuchiWard2002` | Partly implemented as active formation-state provenance and deterministic generator hooks: host-mass solid-reservoir scaling, adjusted disk lifetime, snow-line giant turnover, pebble/core-accretion branch weighting, giant-scattering volatile delivery, and Type-I migration likelihood diagnostics. Full disk-population fitting, resonant-chain generation/breakup, non-isothermal migration, and asteroid-belt architecture remain follow-up. |
 | Habitable zones, atmospheres, and life bottlenecks | `Kasting1993`, `Kopparapu2013`, `Kopparapu2014`, `Balbi2023`, `WordsworthKreidberg2022`, `ChatterjeeEtAl2026`, `BiassoniEtAl2023`, `VissapragadaEtAl2022`, `LugerBarnes2015` | Partly implemented as atmosphere-retention and composition-regime provenance: active secondary-atmosphere source IDs, escape pressure, retention scalar, pre-main-sequence XUV risk, atmosphere regime, composition family, and oxygen context are now recorded. Full hydrodynamic escape, volcanic revival, planet-mass HZ correction, and atmospheric evolution remain follow-up. |
 | Moon formation and moon-system architecture | `Ronnet2020`, `Sasaki2010`, `Szulagyi2018`, `JewittHaghighipour2007`, with `BenistyEtAl2021`, `HellerBarnes2013`, `MalamudPerets2019`, `NakajimaEtAl2022` dispositions | Partly implemented as source-marked moon-channel and architecture provenance. Regular CPD moons now use a satellite-scale mass budget and record Ronnet/Sasaki/Szulagyi active sources, CPD/Hill diagnostics, and Galilean/Saturnian/ice-giant architecture modes. Captured moons are separated under Jewitt/Haghighipour irregular-satellite context with retrograde-favored orbit style. Benisty is CPD observational context, Heller/Barnes is habitability/tidal-heating context, and Malamud/Perets plus Nakajima remain underutilized terrestrial-impact follow-ups. |
+| Galaxy schema and Milky-Way analog structure | `BlandHawthornGerhard2016`, with `Bovy2017`, `KhoperskovEtAl2024`, `HuntVasiliev2025`, `Hayden2014`, `Kennicutt1998`, `Chabrier2003`, `Kroupa2001` context | Partly implemented as first-class Milky-Way structural schema fields: thin/thick disk scale lengths and heights, bar half-length, solar-circle radius, circular velocity at the solar circle, and stellar-mass scale now serialize through config/spec/profile. Spiral density uses the thin/thick disk fields, bar density and bar-region classification use explicit bar geometry, and source/status metadata is surfaced through source notes and galaxy science references. Nuclear cluster/disk, baryon/gas components, halo decomposition, pattern speed/corotation, full rotation curve, local mass budget, and non-Milky-Way analog comparison remain follow-up. |
 
 ## Next priority queue
 
-### 1. Galaxy schema and Milky-Way analog structure
-
-Primary sources: `BlandHawthornGerhard2016`, `Bovy2017`, `Chabrier2003`, `ChabrierLenoble2023`, `KhoperskovEtAl2024`, `HuntVasiliev2025`, `Hayden2014`, `Kroupa2001`, `Kennicutt1998`.
-
-Expected work:
-- Keep `BlandHawthornGerhard2016` marked reviewed but underutilized until schema fields exist for the broader Milky-Way parameter set.
-- Decide which long-bar, nuclear, thin/thick disk, baryon, halo, rotation-curve, and local mass-budget fields become first-class.
-
-### 2. Small bodies and reservoirs
+### 1. Small bodies and reservoirs
 
 Primary sources: `DeMeoCarry2014`, `Lamy2004`, `KavelaarsEtAl2023`, `NapierEtAl2023`, `BernardinelliEtAl2022`, `JewittHaghighipour2022`.
 
@@ -58,7 +51,7 @@ Expected work:
 - Tighten asteroid/comet reservoir scaling, belt placement, and volatile-delivery assumptions.
 - Ensure object-family generation and system-level reservoirs cite the same accepted notes.
 
-### 3. Sentient populations, technology, and governance
+### 2. Sentient populations, technology, and governance
 
 Primary sources: `Chowdhury2022`, `Comin2013`, `CominMestieri2013`, `Stokey2020`, `BettencourtEtAl2007`, `ArvidssonEtAl2023`, `BallandEtAl2022`, `HamiltonEtAl2020`, `Knez2023`.
 
@@ -109,6 +102,25 @@ Remaining work:
 - Add captured-satellite family generation, including prograde/retrograde clusters and small-body size distribution.
 - Add a terrestrial giant-impact moon process branch; branch the work if it changes rocky-planet moon frequency, habitability scoring, or planet formation history.
 
+## Deferred galaxy follow-up
+
+Primary sources: `BlandHawthornGerhard2016`, `Bovy2017`, `KhoperskovEtAl2024`, `HuntVasiliev2025`, `Hayden2014`, `Kennicutt1998`, `Chabrier2003`, `Kroupa2001`.
+
+Current source use:
+- `BlandHawthornGerhard2016`: active for Milky-Way analog schema fields, thin/thick disk dimensions, bar half-length, solar-circle radius, circular velocity, stellar-mass scale, and structural source status. It is not yet a full Milky-Way dynamical model.
+- `Bovy2017`: context for disk population structure and the warning that the disk is not truly two discrete components; current thin/thick split is a generator-facing schema proxy, not a full mono-abundance-population model.
+- `KhoperskovEtAl2024` and `HuntVasiliev2025`: context for future bar dynamics and Gaia-era kinematics; not active defaults in this slice because pattern speed, corotation, disequilibrium, and halo kinematics need a separate dynamics branch.
+- `Hayden2014`: context for future radial/vertical chemical structure; current metallicity gradient remains a separate simplified field.
+- `Kennicutt1998`: active elsewhere for star-formation-efficiency context, not for Milky-Way structural geometry.
+- `Chabrier2003` and `Kroupa2001`: active stellar IMF sources, not galaxy-structure schema sources.
+
+Remaining work:
+- Add nuclear stellar cluster/disk fields only after source-specific values are human verified.
+- Add baryon, cold-gas, hot-gas, stellar-halo, dark-halo, and local mass-budget components as explicit schema/provenance rather than implicit tuning.
+- Add a rotation-curve decomposition model and decide whether it remains diagnostic-only or affects local stellar context.
+- Add selectable Milky-Way analog vs broader barred-spiral analog behavior using non-Milky-Way comparison sources.
+- Branch the work if any dynamics field changes star placement, system priors, or population/route-generation behavior.
+
 ## Immediate recommendation
 
-Continue with **Galaxy schema and Milky-Way analog structure**. Moon architecture provenance and mass-budget constraints are now active enough for the current pass, while Bland-Hawthorn/Gerhard remains reviewed but underutilized until the broader Milky-Way schema exists.
+Continue with **Small bodies and reservoirs**. The Bland-Hawthorn/Gerhard schema slice is now active enough for the current pass, while full Milky-Way dynamics and mass decomposition remain deferred galaxy follow-up.

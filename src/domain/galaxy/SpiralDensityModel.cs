@@ -75,10 +75,14 @@ public partial class SpiralDensityModel : DensityModelInterface
 
     private float GetDiskDensity(float radialDistance, float height)
     {
-        double radialTerm = System.Math.Exp(-radialDistance / System.Math.Max(1.0, _spec.DiskScaleLengthPc));
-        double verticalTerm = System.Math.Exp(-System.Math.Abs(height) / System.Math.Max(1.0, _spec.DiskScaleHeightPc));
+        double thinRadialTerm = System.Math.Exp(-radialDistance / System.Math.Max(1.0, _spec.ThinDiskScaleLengthPc));
+        double thinVerticalTerm = System.Math.Exp(-System.Math.Abs(height) / System.Math.Max(1.0, _spec.ThinDiskScaleHeightPc));
+        double thickRadialTerm = System.Math.Exp(-radialDistance / System.Math.Max(1.0, _spec.ThickDiskScaleLengthPc));
+        double thickVerticalTerm = System.Math.Exp(-System.Math.Abs(height) / System.Math.Max(1.0, _spec.ThickDiskScaleHeightPc));
+        double thinComponent = thinRadialTerm * thinVerticalTerm * 0.88;
+        double thickComponent = thickRadialTerm * thickVerticalTerm * 0.12;
         double diskWeight = System.Math.Max(0.25, 1.0 - _spec.BulgeToTotal);
-        return (float)(diskWeight * radialTerm * verticalTerm);
+        return (float)(diskWeight * (thinComponent + thickComponent));
     }
 
     private float GetBarDensity(Vector3 position)
@@ -88,9 +92,9 @@ public partial class SpiralDensityModel : DensityModelInterface
             return 0.0f;
         }
 
-        double major = _spec.BulgeRadiusPc * (1.5 + _spec.BarStrength);
-        double minor = _spec.BulgeRadiusPc * 0.40;
-        double vertical = System.Math.Max(120.0, _spec.DiskScaleHeightPc * 0.9);
+        double major = System.Math.Max(_spec.BulgeRadiusPc, _spec.BarHalfLengthPc);
+        double minor = System.Math.Max(_spec.BulgeRadiusPc * 0.40, major * 0.22);
+        double vertical = System.Math.Max(120.0, _spec.ThinDiskScaleHeightPc * 0.9);
         double exponent = -0.5 * (
             (position.X * position.X) / (major * major) +
             (position.Z * position.Z) / (minor * minor) +
