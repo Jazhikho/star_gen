@@ -40,6 +40,7 @@ public static class StationPopulationProfileBuilder
         profile.FiscalContract = Clamp01((profile.TradeConnectivity * 0.35) + (profile.StateCapacity * 0.30) + (profile.SurplusBase * 0.20) + 0.10);
         profile.LegalCentralization = Clamp01((profile.StateCapacity * 0.55) + (securityPressure * 0.25) + (stationScale * 0.20));
         profile.LegalReach = Clamp01((profile.StateCapacity * 0.70) + (profile.LegalCentralization * 0.30));
+        profile.EnforcementReach = Clamp01((profile.StateCapacity * 0.42) + (profile.LegalCentralization * 0.20) + (securityPressure * 0.22) + (serviceScale * 0.10) + (stationScale * 0.06));
         profile.RestrictionPressure = Clamp01((securityPressure * 0.55) + ((1.0 - profile.FiscalContract) * 0.25) + (stationScale * 0.10));
         profile.CulturalAccumulation = Clamp01((profile.SocialScale * 0.35) + (profile.TradeConnectivity * 0.30) + (profile.SurplusBase * 0.20) + (serviceScale * 0.15));
         profile.TechnologyAdoptionCapacity = Clamp01((profile.TradeConnectivity * 0.35) + (profile.CulturalAccumulation * 0.25) + (profile.StateCapacity * 0.20) + 0.20);

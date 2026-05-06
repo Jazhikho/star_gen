@@ -1731,3 +1731,13 @@ Use this log for significant AI-assisted artifacts in this repository.
 - Human Changed: The user asked to continue the plan and requested more detailed report-backs about how sources are used, not used, and planned for future use.
 - Validation Method: `dotnet build .\StarGen.sln` passed with 0 warnings and 0 errors. `godot-mono.exe --path . --headless --script res://Tests/RunTestsHeadless.gd` passed (`Total: 1886 | Passed: 1886 | Failed: 0`), with the known Godot shutdown leak warnings after the green test report.
 - Final Approver: Pending Christopher B. Del Gesso review.
+### 2026-05-06 - Codex (GPT-5)
+
+- Task Purpose: Patch the Godot shutdown leak warnings and continue the v0.11 science-hardening pass for sentient governance/state-capacity diagnostics.
+- Input Materials Used: User question about the leak and request to continue hardening; repo `claude.md`; user-supplied AGENTS instructions; Godot verbose/full headless test logs; `Tests/Framework/DotNetNativeTestSuite.App.cs`; integration UI tests; `SentientWorldProfile`, `SentientWorldProfileBuilder`, `StationPopulationProfileBuilder`, inspector and station readout code; `Sources/SourceUtilizationPlan.md`; `Docs/SentientWorldBaseline.md`; `Sources/Texts/Chowdhury2022.txt`; `Sources/AnnotatedBibliography.md`; and `Docs/EndToEndScienceAudit.md`.
+- AI Produced: Mounted UI scene tests under the active Godot scene tree so normal `_Ready()` lifecycle and queued cleanup run, removed detached manual-ready assumptions from affected tests, and added sentient-world `EnforcementReach` serialization, builder logic, inspector/station readouts, and focused regressions.
+- Human Accepted: Pending user review of the test-harness lifecycle patch and enforcement-reach proxy.
+- Human Rejected: Direct synchronous `Free()` as the general leak fix; testing showed it did not solve the UI leak and could trigger Godot C# finalizer instability for detached wrapper objects.
+- Human Changed: The user asked whether the leak could be patched and whether it reflected code hygiene, then asked to continue the science hardening pass.
+- Validation Method: `dotnet build .\StarGen.sln` passed with 0 warnings and 0 errors. Population-focused Godot headless harness passed (`Total: 660 | Passed: 660 | Failed: 0`). Full Godot headless harness passed (`Total: 1892 | Passed: 1892 | Failed: 0`) and exited without the previous RID/ObjectDB/resource leak warnings.
+- Final Approver: Pending Christopher B. Del Gesso review.

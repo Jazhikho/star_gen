@@ -1,12 +1,19 @@
 # Version
 
-Current version: `0.10.1.0`
+Current version: `0.10.2.0`
 
 Current user-facing version: `0.11`
 
-Date: `2026-05-02`
+Date: `2026-05-06`
 
 Versioning method: release/refactor `+0.1`, feature `+0.0.1`, bug fix `+0.0.0.1`, save-breaking release `+1.0`.
+
+## 0.10.2.0
+
+- Feature: Added sentient-world practical enforcement-reach diagnostics, keeping formal legal reach, enforcement capability, state capacity, and restriction pressure separate for human-audited governance proxies.
+- Fix: Mounted UI scene integration tests under the active Godot scene tree instead of manually calling `_Ready()` on detached scene roots, eliminating the full-suite shutdown RID/ObjectDB/resource leak warnings.
+- Docs: Updated the sentient-world baseline, source-utilization plan, annotated bibliography, end-to-end science audit, and Chowdhury source note for the enforcement/state-capacity hardening slice.
+- Test: Revalidated with `dotnet build .\StarGen.sln`, population-focused Godot headless harness (`660 / 660`), and full Godot headless harness (`1892 / 1892`) with clean shutdown.
 
 ## 0.10.1.0
 

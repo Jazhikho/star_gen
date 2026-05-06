@@ -48,6 +48,8 @@ public static class TestSentientWorldProfile
         DotNetNativeTestSuite.AssertEqual("City", profile.PrimarySettlementRank, "Expected city-scale settlement rank for the test population");
         DotNetNativeTestSuite.AssertEqual("Archipelago", profile.SettlementPattern, "Mixed-ocean inhabited worlds should resolve to archipelago settlement when geography fragments settlement");
         DotNetNativeTestSuite.AssertTrue(profile.StateCapacity > 0.0, "State capacity should be populated");
+        DotNetNativeTestSuite.AssertTrue(profile.EnforcementReach > 0.0, "Enforcement reach should be populated");
+        DotNetNativeTestSuite.AssertTrue(profile.EnforcementReach <= profile.LegalReach + 0.20, "Practical enforcement should remain tied to, but distinct from, formal legal reach");
         DotNetNativeTestSuite.AssertTrue(profile.TradeConnectivity > 0.0, "Trade connectivity should be populated");
         DotNetNativeTestSuite.AssertTrue(profile.InventionCapacity > 0.0, "Invention capacity should be populated");
         DotNetNativeTestSuite.AssertTrue(profile.AdoptionLagPressure >= 0.0, "Adoption lag pressure should be bounded");
@@ -83,6 +85,7 @@ public static class TestSentientWorldProfile
         original.FiscalContract = 0.51;
         original.LegalCentralization = 0.49;
         original.LegalReach = 0.55;
+        original.EnforcementReach = 0.47;
         original.RestrictionPressure = 0.28;
         original.CulturalAccumulation = 0.59;
         original.TechnologyAdoptionCapacity = 0.66;
@@ -107,6 +110,7 @@ public static class TestSentientWorldProfile
         DotNetNativeTestSuite.AssertEqual(original.SettlementPattern, restored.SettlementPattern, "Settlement pattern should round-trip");
         DotNetNativeTestSuite.AssertFloatNear(original.TradeConnectivity, restored.TradeConnectivity, 0.0001, "Trade connectivity should round-trip");
         DotNetNativeTestSuite.AssertFloatNear(original.LegalReach, restored.LegalReach, 0.0001, "Legal reach should round-trip");
+        DotNetNativeTestSuite.AssertFloatNear(original.EnforcementReach, restored.EnforcementReach, 0.0001, "Enforcement reach should round-trip");
         DotNetNativeTestSuite.AssertFloatNear(original.EconomicComplexity, restored.EconomicComplexity, 0.0001, "Economic complexity should round-trip");
         DotNetNativeTestSuite.AssertFloatNear(original.InventionCapacity, restored.InventionCapacity, 0.0001, "Invention capacity should round-trip");
         DotNetNativeTestSuite.AssertFloatNear(original.AdoptionLagPressure, restored.AdoptionLagPressure, 0.0001, "Adoption lag pressure should round-trip");
@@ -135,6 +139,7 @@ public static class TestSentientWorldProfile
         DotNetNativeTestSuite.AssertNotNull(sourceAligned, "Source-aligned profile should exist");
         DotNetNativeTestSuite.AssertTrue(sourceAligned!.HumanAuditRequired, "Source-aligned social-science proxies should require human audit");
         DotNetNativeTestSuite.AssertTrue(sourceAligned.EconomicComplexity > 0.0, "Economic complexity proxy should be populated");
+        DotNetNativeTestSuite.AssertTrue(sourceAligned.EnforcementReach > 0.0, "Source-aligned profile should expose practical enforcement reach");
         DotNetNativeTestSuite.AssertTrue(sourceAligned.InventionCapacity > 0.0, "Source-aligned profile should expose invention capacity");
         DotNetNativeTestSuite.AssertTrue(sourceAligned.AdoptionLagPressure >= 0.0, "Source-aligned profile should expose adoption lag pressure");
         DotNetNativeTestSuite.AssertTrue(sourceAligned.TechnologyAccessInequality >= 0.0, "Source-aligned profile should expose access inequality");

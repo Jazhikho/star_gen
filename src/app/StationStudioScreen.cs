@@ -718,6 +718,7 @@ public partial class StationStudioScreen : Control
 		lines.Add($"Social Scale: {FormatScore(profile.SocialScale)}");
 		lines.Add($"Trade Connectivity: {FormatScore(profile.TradeConnectivity)}");
 		lines.Add($"State Capacity: {FormatScore(profile.StateCapacity)}");
+		lines.Add($"Enforcement Reach: {FormatScore(profile.EnforcementReach)}");
 		lines.Add($"Economic Complexity: {FormatScore(profile.EconomicComplexity)}");
 		lines.Add($"Invention Capacity: {FormatScore(profile.InventionCapacity)}");
 		lines.Add($"Adoption Lag: {FormatScore(profile.AdoptionLagPressure)}");

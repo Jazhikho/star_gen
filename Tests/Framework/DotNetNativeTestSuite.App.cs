@@ -223,16 +223,13 @@ public static partial class DotNetNativeTestSuite
     private static void TestGalaxyInspectorPanelHidesLegacySections()
     {
         StudioUiPreferencesService.StudioUiPreferences originalPreferences = StudioUiPreferencesService.LoadOrDefault();
-        PackedScene? scene = ResourceLoader.Load<PackedScene>("res://src/app/galaxy_viewer/GalaxyViewerCSharp.tscn");
-        AssertNotNull(scene, "galaxy viewer scene should load for inspector testing");
-
-        GalaxyViewer? viewer = scene!.Instantiate() as GalaxyViewer;
-        AssertNotNull(viewer, "galaxy viewer scene should instantiate for inspector testing");
+        GalaxyViewer? viewer = InstantiateReadySceneForTesting<GalaxyViewer>(
+            "res://src/app/galaxy_viewer/GalaxyViewerCSharp.tscn",
+            "galaxy viewer inspector testing");
 
         try
         {
             StudioUiPreferencesService.Save(StudioUiPreferencesService.CreateDefault());
-            viewer!._Ready();
             GalaxyInspectorPanel? panel = viewer.GetInspectorPanel();
             AssertNotNull(panel, "galaxy viewer should expose the typed inspector panel");
             AssertTrue(!panel!.IsConfigSectionVisible(), "galaxy viewer inspector should hide the legacy active-profile section");
@@ -386,15 +383,12 @@ public static partial class DotNetNativeTestSuite
     /// </summary>
     private static void TestGalaxyViewerLocalSpaceCachePersistsAndAppends()
     {
-        PackedScene? scene = ResourceLoader.Load<PackedScene>("res://src/app/galaxy_viewer/GalaxyViewerCSharp.tscn");
-        AssertNotNull(scene, "galaxy viewer scene should load for local-space cache testing");
-
-        GalaxyViewer? viewer = scene!.Instantiate() as GalaxyViewer;
-        AssertNotNull(viewer, "galaxy viewer scene should instantiate for local-space cache testing");
+        GalaxyViewer? viewer = InstantiateReadySceneForTesting<GalaxyViewer>(
+            "res://src/app/galaxy_viewer/GalaxyViewerCSharp.tscn",
+            "galaxy viewer local-space cache testing");
 
         try
         {
-            viewer!._Ready();
             Vector3I testExtent = new Vector3I(1, 1, 1);
             bool initialBuild = viewer.BuildLocalSpaceSynchronouslyForTesting(testExtent);
             AssertTrue(initialBuild, "initial local-space build should succeed");
@@ -447,15 +441,12 @@ public static partial class DotNetNativeTestSuite
         {
             StudioUiPreferencesService.Save(StudioUiPreferencesService.CreateDefault());
 
-            PackedScene? scene = ResourceLoader.Load<PackedScene>("res://src/app/MainMenuScreen.tscn");
-            AssertNotNull(scene, "main menu scene should load for options testing");
-
-            MainMenuScreen? screen = scene!.Instantiate() as MainMenuScreen;
-            AssertNotNull(screen, "main menu scene should instantiate for options testing");
+            MainMenuScreen? screen = InstantiateReadySceneForTesting<MainMenuScreen>(
+                "res://src/app/MainMenuScreen.tscn",
+                "main menu options testing");
 
             try
             {
-                screen!._Ready();
                 Button? optionsButton = screen.GetNodeOrNull<Button>("MarginContainer/ScrollContainer/Layout/HBoxContainer/UtilityRow/UtilityPanel/MarginContainer/UtilityVBox/SecondaryButtons/OptionsButton");
                 Window? optionsDialog = screen.GetNodeOrNull<Window>("OptionsDialog");
                 CheckBox? showSeedsCheck = screen.GetNodeOrNull<CheckBox>("OptionsDialog/MarginContainer/OptionsVBox/ShowSeedControlsCheck");
@@ -532,13 +523,10 @@ public static partial class DotNetNativeTestSuite
         {
             StudioUiPreferencesService.Save(StudioUiPreferencesService.CreateDefault());
 
-            PackedScene? scene = ResourceLoader.Load<PackedScene>("res://src/app/system_viewer/SystemViewer.tscn");
-            AssertNotNull(scene, "system viewer scene should load for menu testing");
+            viewer = InstantiateReadySceneForTesting<SystemViewer>(
+                "res://src/app/system_viewer/SystemViewer.tscn",
+                "system viewer menu testing");
 
-            viewer = scene!.Instantiate() as SystemViewer;
-            AssertNotNull(viewer, "system viewer scene should instantiate for menu testing");
-
-            viewer!._Ready();
             HBoxContainer? menuRow = viewer.GetNodeOrNull<HBoxContainer>("UI/TopBar/MarginContainer/TopBarVBox/MenuRow");
             AssertNotNull(menuRow, "system viewer should expose the top menu row");
             AssertEqual(4, menuRow!.GetChildCount(), "system viewer should expose File, Tools, Options, and Help");
@@ -629,13 +617,10 @@ public static partial class DotNetNativeTestSuite
         {
             StudioUiPreferencesService.Save(StudioUiPreferencesService.CreateDefault());
 
-            PackedScene? scene = ResourceLoader.Load<PackedScene>("res://src/app/viewer/ObjectViewer.tscn");
-            AssertNotNull(scene, "object viewer scene should load for menu testing");
+            viewer = InstantiateReadySceneForTesting<ObjectViewer>(
+                "res://src/app/viewer/ObjectViewer.tscn",
+                "object viewer menu testing");
 
-            viewer = scene!.Instantiate() as ObjectViewer;
-            AssertNotNull(viewer, "object viewer scene should instantiate for menu testing");
-
-            viewer!._Ready();
             HBoxContainer? menuRow = viewer.GetNodeOrNull<HBoxContainer>("UI/TopBar/MarginContainer/TopBarVBox/MenuRow");
             AssertNotNull(menuRow, "object viewer should expose the top menu row");
             AssertEqual(4, menuRow!.GetChildCount(), "object viewer should expose File, Tools, Options, and Help");
@@ -734,21 +719,15 @@ public static partial class DotNetNativeTestSuite
             "export",
             () =>
             {
-                PackedScene? systemScene = ResourceLoader.Load<PackedScene>("res://src/app/system_viewer/SystemViewer.tscn");
-                AssertNotNull(systemScene, "system viewer scene should load for export-edition testing");
-                SystemViewer? systemViewer = systemScene!.Instantiate() as SystemViewer;
-                AssertNotNull(systemViewer, "system viewer scene should instantiate for export-edition testing");
-
-                PackedScene? objectScene = ResourceLoader.Load<PackedScene>("res://src/app/viewer/ObjectViewer.tscn");
-                AssertNotNull(objectScene, "object viewer scene should load for export-edition testing");
-                ObjectViewer? objectViewer = objectScene!.Instantiate() as ObjectViewer;
-                AssertNotNull(objectViewer, "object viewer scene should instantiate for export-edition testing");
+                SystemViewer? systemViewer = InstantiateReadySceneForTesting<SystemViewer>(
+                    "res://src/app/system_viewer/SystemViewer.tscn",
+                    "system viewer export-edition testing");
+                ObjectViewer? objectViewer = InstantiateReadySceneForTesting<ObjectViewer>(
+                    "res://src/app/viewer/ObjectViewer.tscn",
+                    "object viewer export-edition testing");
 
                 try
                 {
-                    systemViewer!._Ready();
-                    objectViewer!._Ready();
-
                     MenuButton? systemFileMenuButton = systemViewer.GetNodeOrNull<MenuButton>("UI/TopBar/MarginContainer/TopBarVBox/MenuRow/FileMenuButton");
                     AssertNotNull(systemFileMenuButton, "system viewer should expose the file menu in export edition");
                     PopupMenu systemPopup = systemFileMenuButton!.GetPopup();
@@ -785,20 +764,25 @@ public static partial class DotNetNativeTestSuite
                 SolarSystem system = CreateFixtureSaveableSystem();
                 SystemViewerSaveLoad systemSaveLoad = new();
                 MockSystemViewerNode viewerHost = new(system);
-                Error saveError = systemSaveLoad.SaveToPath(viewerHost, "user://demo_blocked_system.sgs");
-                AssertEqual(Error.Failed, saveError, "demo edition should reject direct system saves");
-
-                SystemPersistenceLoadResult systemLoadResult = systemSaveLoad.LoadFromPath("user://demo_blocked_system.sgs");
-                AssertFalse(systemLoadResult.Success, "demo edition should reject direct system loads");
-                AssertEqual(ReleaseEditionService.GetPersistenceDisabledMessage(), systemLoadResult.ErrorMessage, "demo edition should surface the persistence-disabled message for systems");
-
-                PackedScene? objectScene = ResourceLoader.Load<PackedScene>("res://src/app/viewer/ObjectViewer.tscn");
-                AssertNotNull(objectScene, "object viewer scene should load for save-load gating tests");
-                ObjectViewer? objectViewer = objectScene!.Instantiate() as ObjectViewer;
-                AssertNotNull(objectViewer, "object viewer scene should instantiate for save-load gating tests");
                 try
                 {
-                    objectViewer!._Ready();
+                    Error saveError = systemSaveLoad.SaveToPath(viewerHost, "user://demo_blocked_system.sgs");
+                    AssertEqual(Error.Failed, saveError, "demo edition should reject direct system saves");
+
+                    SystemPersistenceLoadResult systemLoadResult = systemSaveLoad.LoadFromPath("user://demo_blocked_system.sgs");
+                    AssertFalse(systemLoadResult.Success, "demo edition should reject direct system loads");
+                    AssertEqual(ReleaseEditionService.GetPersistenceDisabledMessage(), systemLoadResult.ErrorMessage, "demo edition should surface the persistence-disabled message for systems");
+                }
+                finally
+                {
+                    viewerHost.Free();
+                }
+
+                ObjectViewer? objectViewer = InstantiateReadySceneForTesting<ObjectViewer>(
+                    "res://src/app/viewer/ObjectViewer.tscn",
+                    "object viewer save-load gating tests");
+                try
+                {
                     Error objectSaveError = objectViewer.SaveCurrentBodyToPath("user://demo_blocked_object.sgp");
                     AssertEqual(Error.Failed, objectSaveError, "demo edition should reject direct object saves");
 
@@ -829,6 +813,24 @@ public static partial class DotNetNativeTestSuite
         AssertFloatNear(0.0, GenerationRealismProfile.Stylized().RealismSlider, 1.0e-9, "stylized preset should pin the slider to 0");
         AssertFloatNear(0.5, GenerationRealismProfile.Balanced().RealismSlider, 1.0e-9, "balanced preset should pin the slider to 0.5");
         AssertFloatNear(1.0, GenerationRealismProfile.Calibrated().RealismSlider, 1.0e-9, "calibrated preset should pin the slider to 1");
+    }
+
+    /// <summary>
+    /// Instantiates a UI scene under the active test scene tree so Godot owns its lifecycle.
+    /// </summary>
+    private static T InstantiateReadySceneForTesting<T>(string scenePath, string purpose) where T : Node
+    {
+        PackedScene? scene = ResourceLoader.Load<PackedScene>(scenePath);
+        AssertNotNull(scene, $"{scenePath} should load for {purpose}");
+
+        Node? node = scene!.Instantiate();
+        AssertNotNull(node, $"{scenePath} should instantiate for {purpose}");
+        AssertTrue(node is T, $"{scenePath} root should be {typeof(T).Name} for {purpose}");
+
+        SceneTree? tree = Engine.GetMainLoop() as SceneTree;
+        AssertNotNull(tree, $"scene tree should be available for {purpose}");
+        tree!.Root.AddChild(node);
+        return (T)node;
     }
 
     /// <summary>

@@ -683,11 +683,7 @@ public static class TestObjectViewerMoons
         ObjectViewer? viewer = null;
         try
         {
-            PackedScene? scene = ResourceLoader.Load<PackedScene>("res://src/app/viewer/ObjectViewer.tscn");
-            DotNetNativeTestSuite.AssertNotNull(scene, "object viewer scene should load for inspector testing");
-            viewer = scene!.Instantiate() as ObjectViewer;
-            DotNetNativeTestSuite.AssertNotNull(viewer, "object viewer should instantiate for inspector testing");
-            viewer!._Ready();
+            viewer = IntegrationTestUtils.InstantiateScene<ObjectViewer>("res://src/app/viewer/ObjectViewer.tscn");
 
             CelestialBody body = MakeInspectablePlanet(false);
             viewer.DisplayExternalBody(Variant.From(body), new Godot.Collections.Array(), 0);
@@ -709,11 +705,7 @@ public static class TestObjectViewerMoons
         ObjectViewer? viewer = null;
         try
         {
-            PackedScene? scene = ResourceLoader.Load<PackedScene>("res://src/app/viewer/ObjectViewer.tscn");
-            DotNetNativeTestSuite.AssertNotNull(scene, "object viewer scene should load for traveller inspector testing");
-            viewer = scene!.Instantiate() as ObjectViewer;
-            DotNetNativeTestSuite.AssertNotNull(viewer, "object viewer should instantiate for traveller inspector testing");
-            viewer!._Ready();
+            viewer = IntegrationTestUtils.InstantiateScene<ObjectViewer>("res://src/app/viewer/ObjectViewer.tscn");
 
             CelestialBody body = MakeInspectablePlanet(true);
             viewer.DisplayExternalBody(Variant.From(body), new Godot.Collections.Array(), 0);
@@ -735,11 +727,7 @@ public static class TestObjectViewerMoons
         ObjectViewer? viewer = null;
         try
         {
-            PackedScene? scene = ResourceLoader.Load<PackedScene>("res://src/app/viewer/ObjectViewer.tscn");
-            DotNetNativeTestSuite.AssertNotNull(scene, "object viewer scene should load for population inspector testing");
-            viewer = scene!.Instantiate() as ObjectViewer;
-            DotNetNativeTestSuite.AssertNotNull(viewer, "object viewer should instantiate for population inspector testing");
-            viewer!._Ready();
+            viewer = IntegrationTestUtils.InstantiateScene<ObjectViewer>("res://src/app/viewer/ObjectViewer.tscn");
 
             CelestialBody body = MakeInspectablePlanet(false);
             body.PopulationData = MakePopulationData(false);
@@ -761,11 +749,7 @@ public static class TestObjectViewerMoons
         ObjectViewer? viewer = null;
         try
         {
-            PackedScene? scene = ResourceLoader.Load<PackedScene>("res://src/app/viewer/ObjectViewer.tscn");
-            DotNetNativeTestSuite.AssertNotNull(scene, "object viewer scene should load for inhabited population inspector testing");
-            viewer = scene!.Instantiate() as ObjectViewer;
-            DotNetNativeTestSuite.AssertNotNull(viewer, "object viewer should instantiate for inhabited population inspector testing");
-            viewer!._Ready();
+            viewer = IntegrationTestUtils.InstantiateScene<ObjectViewer>("res://src/app/viewer/ObjectViewer.tscn");
 
             CelestialBody body = MakeInspectablePlanet(false);
             body.PopulationData = MakePopulationData(true);

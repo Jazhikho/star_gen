@@ -179,7 +179,7 @@ with full-text extraction (PDF when retrievable, otherwise HTML full text).
 
 **APA:** Chowdhury, A. (2022). Map PDF to exact venue (non-astronomy item in corpus); verify before StarGen cross-use.
 
-**StarGen annotation:** Human-verification pending social-science source. Used only as qualitative context for keeping state capacity, legal reach, and restriction pressure separate in sentient-world profiles; no physical-generation mechanics or specific regulation thresholds are encoded.
+**StarGen annotation:** Human-verification pending social-science source. Used only as qualitative context for keeping state capacity, legal reach, enforcement reach, and restriction pressure separate in sentient-world profiles; no physical-generation mechanics or specific regulation thresholds are encoded.
 
 
 ## Comin2013

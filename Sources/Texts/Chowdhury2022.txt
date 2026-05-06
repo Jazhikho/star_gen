@@ -72,8 +72,8 @@ This is a social-science source and remains human-verification pending for StarG
 release claims.
 
 **Current StarGen use:** `SentientWorldProfileBuilder` and the sentient science catalog
-use this only as qualitative context for keeping state capacity, legal reach, and
-restriction pressure separate. No specific historical regulation model or threshold is
-encoded.
+use this only as qualitative context for keeping state capacity, legal reach,
+enforcement reach, and restriction pressure separate. No specific historical regulation
+model or threshold is encoded.
 
 **Cross-references:** `Sources/SourceUtilizationPlan.md`, `Docs/SentientWorldBaseline.md`.

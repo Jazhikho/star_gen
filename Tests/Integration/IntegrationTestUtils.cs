@@ -25,13 +25,15 @@ internal static class IntegrationTestUtils
         Node? node = scene.Instantiate();
         DotNetNativeTestSuite.AssertNotNull(node, $"Scene should instantiate: {scenePath}");
         DotNetNativeTestSuite.AssertTrue(node is T, $"Scene root should be {typeof(T).Name}: {scenePath}");
+        SceneTree? tree = Engine.GetMainLoop() as SceneTree;
+        DotNetNativeTestSuite.AssertNotNull(tree, $"Scene tree should be available for: {scenePath}");
+        tree!.Root.AddChild(node);
         return (T)node;
     }
 
     internal static MainApp CreateMainAppReady()
     {
         MainApp app = InstantiateScene<MainApp>("res://src/app/MainApp.tscn");
-        app._Ready();
         return app;
     }
 
@@ -40,10 +42,6 @@ internal static class IntegrationTestUtils
         MainApp app = CreateMainAppReady();
         app.start_galaxy_with_defaults();
         GalaxyViewer? viewer = app.get_galaxy_viewer();
-        if (viewer != null)
-        {
-            viewer._Ready();
-        }
         return app;
     }
 

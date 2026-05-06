@@ -509,6 +509,7 @@ public partial class InspectorPanel : VBoxContainer
 			AddPropertyToSection(PopulationSectionPath, "Fiscal Contract", PropertyFormatter.FormatPercent(sentientWorldProfile.FiscalContract));
 			AddPropertyToSection(PopulationSectionPath, "Legal Centralization", PropertyFormatter.FormatPercent(sentientWorldProfile.LegalCentralization));
 			AddPropertyToSection(PopulationSectionPath, "Legal Reach", PropertyFormatter.FormatPercent(sentientWorldProfile.LegalReach));
+			AddPropertyToSection(PopulationSectionPath, "Enforcement Reach", PropertyFormatter.FormatPercent(sentientWorldProfile.EnforcementReach));
 			AddPropertyToSection(PopulationSectionPath, "Restriction Pressure", PropertyFormatter.FormatPercent(sentientWorldProfile.RestrictionPressure));
 			AddPropertyToSection(PopulationSectionPath, "Cultural Accumulation", PropertyFormatter.FormatPercent(sentientWorldProfile.CulturalAccumulation));
 			AddPropertyToSection(PopulationSectionPath, "Tech Adoption", PropertyFormatter.FormatPercent(sentientWorldProfile.TechnologyAdoptionCapacity));

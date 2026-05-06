@@ -195,12 +195,24 @@ Why it is shown:
 
 Grounding:
 
-- Legal reach is shown separately from centralization because a world can claim centralized law without actually enforcing it broadly.
-- Chowdhury (2022) is the main anchor for capacity-limited enforcement.
+- Legal reach is shown separately from centralization because a world can claim centralized law without applying it consistently across all regions or populations.
+- Chowdhury (2022) is the main anchor for keeping formal regulation distinct from the harder state functions needed to enforce it.
 
 Why it is shown:
 
-- This is the clearer realism-layer answer to "how much of the world is actually under effective law?"
+- This is the clearer realism-layer answer to "how far does formal law claim to reach?"
+
+### Enforcement Reach
+
+Grounding:
+
+- Enforcement reach is the practical companion to legal reach: it is reduced by frontier pressure and terrain fragmentation, and supported by state capacity, centralization, coercive capacity, trade, and surplus.
+- This follows the source-hardening rule that regulation, legal claims, and practical state capacity should not be collapsed into one number.
+
+Why it is shown:
+
+- It helps adapters distinguish worlds with high formal law but weak practical enforcement from worlds where institutions can actually project authority.
+- It also keeps restriction pressure interpretable: restrictive rules can exist even when enforcement is patchy.
 
 ### Restriction Pressure
 

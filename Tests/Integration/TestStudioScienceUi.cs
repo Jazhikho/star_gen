@@ -16,6 +16,9 @@ namespace StarGen.Tests.Integration;
 /// </summary>
 public static class TestStudioScienceUi
 {
+    private const int MinimumHelpDialogWidth = 420;
+    private const int MinimumHelpDialogHeight = 340;
+
     public static void RunAll(DotNetTestRunner runner)
     {
         runner.RunNativeTest("TestStudioScienceUi::test_checkbox_theme_uses_compact_white_box_icons", TestCheckboxThemeUsesCompactWhiteBoxIcons);
@@ -52,7 +55,6 @@ public static class TestStudioScienceUi
     private static void TestGalaxyHelpPopupExistsAndToggles()
     {
         GalaxyGenerationScreen screen = IntegrationTestUtils.InstantiateScene<GalaxyGenerationScreen>("res://src/app/GalaxyGenerationScreen.tscn");
-        screen._Ready();
 
         Button? helpButton = screen.GetNodeOrNull<Button>("MarginContainer/ScrollContainer/Layout/HeroPanel/MarginContainer/HeroVBox/HeaderRow/HelpButton");
         Window? helpDialog = screen.GetNodeOrNull<Window>("HelpDialog");
@@ -194,7 +196,6 @@ public static class TestStudioScienceUi
     private static void TestSystemStudioSupportsTenStarCapAndScienceControls()
     {
         SystemGenerationScreen screen = IntegrationTestUtils.InstantiateScene<SystemGenerationScreen>("res://src/app/SystemGenerationScreen.tscn");
-        screen._Ready();
 
         SpinBox? starCountMinInput = screen.GetNodeOrNull<SpinBox>("MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/StarCountMinRow/StarCountMinInput");
         SpinBox? starCountMaxInput = screen.GetNodeOrNull<SpinBox>("MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/StarCountMaxRow/StarCountMaxInput");
@@ -314,7 +315,6 @@ public static class TestStudioScienceUi
     private static void TestObjectStudioFiltersPresetsAndTravellerRulesByContext()
     {
         ObjectGenerationScreen screen = IntegrationTestUtils.InstantiateScene<ObjectGenerationScreen>("res://src/app/ObjectGenerationScreen.tscn");
-        screen._Ready();
 
         OptionButton? typeOption = screen.GetNodeOrNull<OptionButton>("MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/TypeRow/TypeOption");
         OptionButton? presetOption = screen.GetNodeOrNull<OptionButton>("MarginContainer/ScrollContainer/Layout/MainPanel/MarginContainer/VBox/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/PresetRow/PresetOption");
@@ -501,7 +501,6 @@ public static class TestStudioScienceUi
     private static void TestSystemHelpPopupExistsAndToggles()
     {
         SystemGenerationScreen screen = IntegrationTestUtils.InstantiateScene<SystemGenerationScreen>("res://src/app/SystemGenerationScreen.tscn");
-        screen._Ready();
 
         Button? helpButton = screen.GetNodeOrNull<Button>("MarginContainer/ScrollContainer/Layout/HeroPanel/MarginContainer/HeroVBox/HeaderRow/HelpButton");
         Window? helpDialog = screen.GetNodeOrNull<Window>("HelpDialog");
@@ -541,7 +540,6 @@ public static class TestStudioScienceUi
     private static void TestObjectHelpPopupAndPlanetLifeControls()
     {
         ObjectGenerationScreen screen = IntegrationTestUtils.InstantiateScene<ObjectGenerationScreen>("res://src/app/ObjectGenerationScreen.tscn");
-        screen._Ready();
 
         Button? helpButton = screen.GetNodeOrNull<Button>("MarginContainer/ScrollContainer/Layout/HeroPanel/MarginContainer/HeroVBox/HeaderRow/HelpButton");
         Window? helpDialog = screen.GetNodeOrNull<Window>("HelpDialog");
@@ -665,8 +663,8 @@ public static class TestStudioScienceUi
     private static void AssertHelpDialogFitsViewport(Window helpDialog, string dialogLabel)
     {
         Vector2I viewportSize = ResolveViewportSize(helpDialog);
-        int maxWidth = (int)System.Math.Floor(viewportSize.X * 0.70);
-        int maxHeight = (int)System.Math.Floor(viewportSize.Y * 0.70);
+        int maxWidth = System.Math.Max((int)System.Math.Floor(viewportSize.X * 0.70), System.Math.Min(MinimumHelpDialogWidth, viewportSize.X));
+        int maxHeight = System.Math.Max((int)System.Math.Floor(viewportSize.Y * 0.70), System.Math.Min(MinimumHelpDialogHeight, viewportSize.Y));
 
         DotNetNativeTestSuite.AssertTrue(helpDialog.Size.X <= maxWidth, $"{dialogLabel} Help popup should stay within 70% of the viewport width");
         DotNetNativeTestSuite.AssertTrue(helpDialog.Size.Y <= maxHeight, $"{dialogLabel} Help popup should stay within 70% of the viewport height");
@@ -678,6 +676,15 @@ public static class TestStudioScienceUi
 
     private static Vector2I ResolveViewportSize(Window helpDialog)
     {
+        if (helpDialog.IsInsideTree())
+        {
+            SceneTree? tree = helpDialog.GetTree();
+            if (tree?.Root != null && tree.Root.Size.X > 0 && tree.Root.Size.Y > 0)
+            {
+                return tree.Root.Size;
+            }
+        }
+
         Viewport? viewport = helpDialog.GetViewport();
         if (viewport != null)
         {

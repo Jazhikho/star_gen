@@ -123,6 +123,14 @@ public static class SentientWorldProfileBuilder
             + (groupScale * 0.10));
 
         profile.LegalReach = Clamp01((profile.StateCapacity * 0.65) + (profile.LegalCentralization * 0.35));
+        profile.EnforcementReach = Clamp01(
+            (profile.StateCapacity * 0.46)
+            + (profile.LegalCentralization * 0.18)
+            + (coercion * 0.18)
+            + (profile.TradeConnectivity * 0.12)
+            + (profile.SurplusBase * 0.06)
+            - (terrainFragmentation * 0.14)
+            - (frontierPressure * 0.10));
         profile.RestrictionPressure = Clamp01(
             (coercion * 0.55)
             + (profile.ExternalThreat * 0.25)
@@ -195,6 +203,7 @@ public static class SentientWorldProfileBuilder
         if (settings?.SentientLegitimacyModel == GenerationUseCaseSettings.SentientLegitimacyModelType.InternalExternalNormProxy)
         {
             profile.LegalReach = Clamp01((profile.LegalReach * 0.70) + (profile.InternalLegitimacy * 0.18) + (profile.ExternalLegitimacy * 0.12));
+            profile.EnforcementReach = Clamp01((profile.EnforcementReach * 0.80) + (profile.ExternalLegitimacy * 0.12) + (profile.InternalLegitimacy * 0.08));
             profile.HumanAuditRequired = true;
         }
 

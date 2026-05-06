@@ -104,6 +104,11 @@ public partial class SentientWorldProfile : RefCounted
     public double LegalReach;
 
     /// <summary>
+    /// Practical enforcement reach after logistics, terrain, and state capacity constraints.
+    /// </summary>
+    public double EnforcementReach;
+
+    /// <summary>
     /// Pressure toward restrictive enforcement once law is formalized.
     /// </summary>
     public double RestrictionPressure;
@@ -188,6 +193,7 @@ public partial class SentientWorldProfile : RefCounted
         data["fiscal_contract"] = FiscalContract;
         data["legal_centralization"] = LegalCentralization;
         data["legal_reach"] = LegalReach;
+        data["enforcement_reach"] = EnforcementReach;
         data["restriction_pressure"] = RestrictionPressure;
         data["cultural_accumulation"] = CulturalAccumulation;
         data["technology_adoption_capacity"] = TechnologyAdoptionCapacity;
@@ -228,6 +234,7 @@ public partial class SentientWorldProfile : RefCounted
         profile.FiscalContract = Clamp01(GetDouble(data, "fiscal_contract", 0.0));
         profile.LegalCentralization = Clamp01(GetDouble(data, "legal_centralization", 0.0));
         profile.LegalReach = Clamp01(GetDouble(data, "legal_reach", 0.0));
+        profile.EnforcementReach = Clamp01(GetDouble(data, "enforcement_reach", profile.LegalReach));
         profile.RestrictionPressure = Clamp01(GetDouble(data, "restriction_pressure", 0.0));
         profile.CulturalAccumulation = Clamp01(GetDouble(data, "cultural_accumulation", 0.0));
         profile.TechnologyAdoptionCapacity = Clamp01(GetDouble(data, "technology_adoption_capacity", 0.0));
@@ -258,6 +265,7 @@ public partial class SentientWorldProfile : RefCounted
         summary["dominant_regime"] = GovernmentType.ToStringName(DominantRegime);
         summary["social_scale"] = SocialScale;
         summary["state_capacity"] = StateCapacity;
+        summary["enforcement_reach"] = EnforcementReach;
         summary["trade_connectivity"] = TradeConnectivity;
         summary["economic_complexity"] = EconomicComplexity;
         summary["invention_capacity"] = InventionCapacity;
