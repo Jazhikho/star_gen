@@ -386,6 +386,7 @@ public static partial class DotNetNativeTestSuite
         runner.RunNativeTest("TestSentientWorldProfile::test_builder_produces_baseline_for_inhabited_world", TestSentientWorldProfile.TestBuilderProducesBaselineForInhabitedWorld);
         runner.RunNativeTest("TestSentientWorldProfile::test_serialization_round_trip", TestSentientWorldProfile.TestSerializationRoundTrip);
         runner.RunNativeTest("TestSentientWorldProfile::test_source_aligned_models_change_profile_and_require_audit", TestSentientWorldProfile.TestSourceAlignedModelsChangeProfileAndRequireAudit);
+        runner.RunNativeTest("TestSentientWorldProfile::test_technology_access_diagnostics_separate_peak_and_median_access", TestSentientWorldProfile.TestTechnologyAccessDiagnosticsSeparatePeakAndMedianAccess);
         runner.RunNativeTest("TestPlanetPopulationData::test_get_total_population_empty", TestPlanetPopulationData.TestGetTotalPopulationEmpty);
         runner.RunNativeTest("TestPlanetPopulationData::test_get_total_population_natives_only", TestPlanetPopulationData.TestGetTotalPopulationNativesOnly);
         runner.RunNativeTest("TestPlanetPopulationData::test_get_total_population_colonies_only", TestPlanetPopulationData.TestGetTotalPopulationColoniesOnly);

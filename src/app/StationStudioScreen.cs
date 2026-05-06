@@ -709,6 +709,7 @@ public partial class StationStudioScreen : Control
 		lines.Add("[b]Population Profile[/b]");
 		lines.Add($"Total Population: {FormatPopulation(profile.TotalPopulation)}");
 		lines.Add($"Highest Tech: {TechnologyLevel.ToStringName(profile.HighestTechLevel)}");
+		lines.Add($"Median Tech Access: {TechnologyLevel.ToStringName(profile.MedianTechLevel)}");
 		lines.Add($"Dominant Regime: {GovernmentType.ToStringName(profile.DominantRegime)}");
 		lines.Add($"Settlement Pattern: {profile.SettlementPattern}");
 		lines.Add($"Primary Settlement: {profile.PrimarySettlementRank}");
@@ -718,6 +719,9 @@ public partial class StationStudioScreen : Control
 		lines.Add($"Trade Connectivity: {FormatScore(profile.TradeConnectivity)}");
 		lines.Add($"State Capacity: {FormatScore(profile.StateCapacity)}");
 		lines.Add($"Economic Complexity: {FormatScore(profile.EconomicComplexity)}");
+		lines.Add($"Invention Capacity: {FormatScore(profile.InventionCapacity)}");
+		lines.Add($"Adoption Lag: {FormatScore(profile.AdoptionLagPressure)}");
+		lines.Add($"Tech Access Gap: {FormatScore(profile.TechnologyAccessInequality)}");
 		if (profile.HumanAuditRequired)
 		{
 			lines.Add("Human audit required for population-culture interpretation before release claims.");

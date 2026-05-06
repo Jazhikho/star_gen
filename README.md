@@ -12,7 +12,7 @@ It is aimed at science-fiction worldbuilding, setting design, and procedural exp
 
 ## Current Status
 
-StarGen `0.10` is the current user-facing release line. The default public build remains generation-and-view focused, and the export-enabled channel keeps save/load flows available for authoring builds.
+StarGen is currently working toward the user-facing `0.11` weekly release line. The default public build remains generation-and-view focused, and the export-enabled channel keeps save/load flows available for authoring builds.
 
 - The galaxy, system, and object studios are the main supported entry points.
 - The station studio now uses the production station-generation flow rather than a placeholder shell.
@@ -28,11 +28,11 @@ StarGen `0.10` is the current user-facing release line. The default public build
 - Galaxy Viewer now exposes `Tools` and `Options` in the top bar, supports explicit `Build Local Space` caching around the current local view, and keeps jump-route work dependent on that cached nearby-system profile instead of silently rebuilding hidden data.
 - Galaxy Viewer overview coordinates now report `Quadrant`, `Sector`, and `Local`, while selected systems add their hierarchical coordinates in `System Preview`.
 - Planet, moon, small-body, and biology generation now respond more directly to the upstream planetary state: hot worlds are more sensitive to envelope loss, volatile delivery changes wet vs dry outcomes, moon families react to host class and snow-line context, outer belts shift with primitive icy reservoir strength, and biosphere support now considers stellar flux, habitable-zone alignment, XUV exposure, and tidal heating.
-- The public `0.10` build is generation-and-view focused.
-- The export-enabled `0.10` channel restores save/load flows for paid distribution while keeping the visible release label aligned.
+- The public `0.11` target is generation-and-view focused.
+- The export-enabled `0.11` channel restores save/load flows for paid distribution while keeping the visible release label aligned.
 - Mainline no longer ships the Concept Atlas path. `Concepts/Additions.md` remains the StarGen prototype backlog for future work that stays in scope.
 
-The current release target is `0.10.0.0`, with user-facing version `0.10`. Detailed version history and patch notes live in [VERSION.md](VERSION.md).
+The current internal checkpoint is `0.10.1.0`, with user-facing target `0.11`. Detailed version history and patch notes live in [VERSION.md](VERSION.md).
 
 ## Running StarGen
 
@@ -56,7 +56,7 @@ powershell -ExecutionPolicy Bypass -File .\scripts\CreateReleaseBuild.ps1 -Godot
 
 To cut the export-enabled edition instead of the default demo edition, pass `-Edition export`.
 
-That helper runs `dotnet build`, runs the headless harness by default, temporarily stamps the requested edition channel, exports the configured release presets, writes artifacts under `release/<internal-version>/<artifact-label>/`, and prints suggested itch `butler` commands. Export-enabled artifacts use an `-export` artifact label while keeping the in-app version label at `0.10`.
+That helper runs `dotnet build`, runs the headless harness by default, temporarily stamps the requested edition channel, exports the configured release presets, writes artifacts under `release/<internal-version>/<artifact-label>/`, and prints suggested itch `butler` commands. Export-enabled artifacts use an `-export` artifact label while keeping the in-app version label at the configured user-facing release target.
 
 ## Testing
 

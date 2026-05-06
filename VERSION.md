@@ -1,12 +1,19 @@
 # Version
 
-Current version: `0.10.0.0`
+Current version: `0.10.1.0`
 
-Current user-facing version: `0.10`
+Current user-facing version: `0.11`
 
 Date: `2026-05-02`
 
 Versioning method: release/refactor `+0.1`, feature `+0.0.1`, bug fix `+0.0.0.1`, save-breaking release `+1.0`.
+
+## 0.10.1.0
+
+- Feature: Added sentient-world technology-access diagnostics that separate elite technology access, median technology access, local invention capacity, adoption-lag pressure, and technology-access inequality from the older highest-tech/adoption-capacity fields.
+- Feature: Station population profiles now populate the same technology-access diagnostics for inhabited station readouts.
+- Docs: Updated the sentient-world baseline, source-utilization plan, scientific/end-to-end audits, source notes, bibliography dispositions, project structure, and AI provenance for the v0.11 sentient-population source-hardening slice.
+- Test: Added regression coverage for technology-access diagnostics and serialization; revalidated with `dotnet build .\StarGen.sln` and the full Godot headless harness (`1892 / 1892`).
 
 ## 0.10.0.0
 

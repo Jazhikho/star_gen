@@ -32,6 +32,8 @@ public static class SentientWorldProfileBuilder
         profile.NativePopulation = data.GetNativePopulation();
         profile.ColonyPopulation = data.GetColonyPopulation();
         profile.HighestTechLevel = data.GetHighestTechLevel();
+        profile.EliteTechLevel = profile.HighestTechLevel;
+        profile.MedianTechLevel = profile.HighestTechLevel;
         profile.DominantRegime = accumulator.DominantRegime;
 
         double habitability = GetHabitabilityFactor(data);
@@ -138,10 +140,11 @@ public static class SentientWorldProfileBuilder
             + (profile.CulturalAccumulation * 0.20)
             + (profile.StateCapacity * 0.15)
             + (profile.SurplusBase * 0.10));
+        double preliminaryUrbanizationShare = ResolveUrbanizationShare(profile, data);
         if (settings?.SentientTechnologyDiffusionModel == GenerationUseCaseSettings.SentientTechnologyDiffusionModelType.AccessCostDensityProxy)
         {
             double implementationCostProxy = Clamp01((1.0 - selfSufficiency) * 0.35 + terrainFragmentation * 0.30 + frontierPressure * 0.35);
-            double densityProxy = Clamp01((populationScale * 0.55) + (profile.UrbanizationShare * 0.45));
+            double densityProxy = Clamp01((populationScale * 0.55) + (preliminaryUrbanizationShare * 0.45));
             profile.TechnologyAdoptionCapacity = Clamp01(
                 (profile.TechnologyAdoptionCapacity * 0.65)
                 + (densityProxy * 0.25)
@@ -198,7 +201,91 @@ public static class SentientWorldProfileBuilder
         profile.UrbanizationShare = ResolveUrbanizationShare(profile, data);
         profile.SettlementPattern = ResolveSettlementPattern(profile, data, colonyShare);
         profile.PrimarySettlementRank = ResolvePrimarySettlementRank(profile.TotalPopulation, profile.UrbanizationShare);
+        ApplyTechnologyAccessDiagnostics(
+            profile,
+            populationScale,
+            averageTech,
+            cultureAge,
+            terrainFragmentation,
+            frontierPressure,
+            selfSufficiency,
+            resourceDiversity,
+            settings);
         return profile;
+    }
+
+    /// <summary>
+    /// Separates peak availability, median access, invention pressure, and adoption lag.
+    /// </summary>
+    private static void ApplyTechnologyAccessDiagnostics(
+        SentientWorldProfile profile,
+        double populationScale,
+        double averageTech,
+        double cultureAge,
+        double terrainFragmentation,
+        double frontierPressure,
+        double selfSufficiency,
+        double resourceDiversity,
+        GenerationUseCaseSettings? settings)
+    {
+        profile.EliteTechLevel = profile.HighestTechLevel;
+        profile.InventionCapacity = Clamp01(
+            (profile.CulturalAccumulation * 0.24)
+            + (profile.EconomicComplexity * 0.24)
+            + (profile.UrbanizationShare * 0.18)
+            + (profile.SocialScale * 0.14)
+            + (profile.SurplusBase * 0.12)
+            + (cultureAge * 0.08));
+
+        profile.AdoptionLagPressure = Clamp01(
+            ((1.0 - selfSufficiency) * 0.25)
+            + (terrainFragmentation * 0.20)
+            + (frontierPressure * 0.20)
+            + ((1.0 - profile.StateCapacity) * 0.15)
+            + ((1.0 - profile.TradeConnectivity) * 0.12)
+            + ((1.0 - resourceDiversity) * 0.08)
+            - (profile.TechnologyAdoptionCapacity * 0.16));
+
+        profile.TechnologyAccessInequality = Clamp01(
+            (populationScale * 0.20)
+            + (profile.UrbanizationShare * 0.18)
+            + (profile.InventionCapacity * 0.20)
+            + (profile.RestrictionPressure * 0.14)
+            + (profile.FactionalFragmentation * 0.14)
+            + (profile.ExternalThreat * 0.08)
+            - (profile.InternalLegitimacy * 0.10)
+            - (profile.EconomicComplexity * 0.08));
+
+        double medianAccess = Clamp01(
+            averageTech
+            + (profile.TechnologyAdoptionCapacity * 0.18)
+            + (profile.EconomicComplexity * 0.10)
+            - (profile.TechnologyAccessInequality * 0.22)
+            - (profile.AdoptionLagPressure * 0.18));
+        profile.MedianTechLevel = ResolveTechnologyLevelFromNormalized(medianAccess);
+        if ((int)profile.MedianTechLevel > (int)profile.EliteTechLevel)
+        {
+            profile.MedianTechLevel = profile.EliteTechLevel;
+        }
+
+        bool sourceAlignedTechnologyModel = false;
+        if (settings != null)
+        {
+            if (settings.SentientTechnologyDiffusionModel == GenerationUseCaseSettings.SentientTechnologyDiffusionModelType.AccessCostDensityProxy)
+            {
+                sourceAlignedTechnologyModel = true;
+            }
+
+            if (settings.SentientEconomicComplexityModel == GenerationUseCaseSettings.SentientEconomicComplexityModelType.CapabilityPortfolioProxy)
+            {
+                sourceAlignedTechnologyModel = true;
+            }
+        }
+
+        if (sourceAlignedTechnologyModel)
+        {
+            profile.HumanAuditRequired = true;
+        }
     }
 
     private static Accumulator AccumulatePopulationMetrics(PlanetPopulationData data)
@@ -613,6 +700,23 @@ public static class SentientWorldProfileBuilder
         }
 
         return Clamp01((int)level / (double)maxLevelIndex);
+    }
+
+    private static TechnologyLevel.Level ResolveTechnologyLevelFromNormalized(double normalizedLevel)
+    {
+        int maxLevelIndex = TechnologyLevel.Count() - 1;
+        int levelIndex = (int)System.Math.Round(Clamp01(normalizedLevel) * maxLevelIndex);
+        if (levelIndex < 0)
+        {
+            levelIndex = 0;
+        }
+
+        if (levelIndex > maxLevelIndex)
+        {
+            levelIndex = maxLevelIndex;
+        }
+
+        return (TechnologyLevel.Level)levelIndex;
     }
 
     private static double NormalizeCultureAge(int earliestSocietyYear)

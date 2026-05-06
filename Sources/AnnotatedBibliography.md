@@ -175,11 +175,11 @@ with full-text extraction (PDF when retrievable, otherwise HTML full text).
 
 ## Chowdhury2022 **(APA incomplete)**
 
-**Domain:** galactic structure/morphology
+**Domain:** social science / state capacity / regulation
 
 **APA:** Chowdhury, A. (2022). Map PDF to exact venue (non-astronomy item in corpus); verify before StarGen cross-use.
 
-**StarGen annotation:** Abstract needs verification — apply to MW or galaxy morphology parameters in StarGen once confirmed.
+**StarGen annotation:** Human-verification pending social-science source. Used only as qualitative context for keeping state capacity, legal reach, and restriction pressure separate in sentient-world profiles; no physical-generation mechanics or specific regulation thresholds are encoded.
 
 
 ## Comin2013
@@ -188,7 +188,7 @@ with full-text extraction (PDF when retrievable, otherwise HTML full text).
 
 **APA:** Comin, D., & Lashkari, Y. (2013). Technology diffusion and geographic convergence. Journal of Economic Growth, 18(4), 431-458. https://doi.org/10.1007/s10881-013-9190-3
 
-**StarGen annotation:** Economic complexity index. Relevant to civilisation/technology framework in StarGen's population module only — not to physical generation mechanics.
+**StarGen annotation:** Technology diffusion and adoption-lag context. Relevant to civilisation/technology framework in StarGen's population module only — not to physical generation mechanics. Used qualitatively to separate first access, median access, adoption capacity, and adoption lag.
 
 
 ## CominMestieri2013
@@ -197,7 +197,7 @@ with full-text extraction (PDF when retrievable, otherwise HTML full text).
 
 **APA:** Comin, D., & Mestieri, M. (2013). If technology has arrived everywhere, why has income diverged? NBER Working Paper 19010. https://doi.org/10.3386/w19010
 
-**StarGen annotation:** Economic complexity and long-run income growth. Population/civilisation framework applicability only — not physical generation.
+**StarGen annotation:** Technology diffusion, adoption penetration, and long-run development context. Population/civilisation framework applicability only — not physical generation. Used qualitatively; no numeric diffusion curve from this source is encoded.
 
 
 ## Conselice2014
@@ -881,7 +881,7 @@ with full-text extraction (PDF when retrievable, otherwise HTML full text).
 
 **APA:** Stokey, N. L. (2020). Match stem Stokey2020 to library record for the PDF on file (likely economics).
 
-**StarGen annotation:** Economics working paper — abstract needs verification. Potentially relevant to technology diffusion and innovation-rate modelling in StarGen's civilisation development framework.
+**StarGen annotation:** Economics working paper — corpus fit and exact model use need human verification. Used only as qualitative support for separating invention/first access from broad technology diffusion and adoption lag.
 
 
 ## Szulagyi2018
@@ -978,9 +978,9 @@ require human verification against the PDF or NASA ADS.*
 
 **Domain:** urban economics / social science / civilization modeling
 
-**APA:** Arvidsson, O., et al. (2023). Urban scaling laws arise from within-city inequalities. Nature Human Behaviour, 7, 365–374. https://doi.org/10.1038/s41562-022-01509-3
+**APA:** Arvidsson, O., et al. (2023). Urban scaling laws arise from within-city inequalities. Nature Human Behaviour, 7, 365–374. https://doi.org/10.1038/s41562-022-01509-1
 
-**StarGen annotation:** 36–80% of urban output scaling (β > 1) is driven by the upper income tail, not average citizens. Implements `CivilizationInequalityModel` in StarGen's civilization pipeline: elite vs. median tech access computed separately, with Gini proxy feeding faction count generation.
+**StarGen annotation:** 36–80% of urban output scaling (β > 1) is driven by the upper income tail, not average citizens. Partly implemented as technology-access inequality plus separate elite and median technology access in `SentientWorldProfile`; no faction-count or calibrated Gini model is encoded.
 
 
 ## AuerbachThachil2024
@@ -998,7 +998,7 @@ require human verification against the PDF or NASA ADS.*
 
 **APA:** Balland, P.-A., et al. (2022). The new paradigm of economic complexity. Research Policy, 51(4), 104311. https://doi.org/10.1016/j.respol.2021.104311
 
-**StarGen annotation:** Economic complexity index (ECI) from product space captures path-dependent technological development. Implements ECI → TechLevel mapping (ECI 0–3.5 → TL 0–15); max ΔTL per generation constraint; trade code assignment from ECI range. `EconomicComplexityModel` enum.
+**StarGen annotation:** Economic complexity from product space captures path-dependent technological development and capability relatedness. Partly implemented as a capability-portfolio proxy feeding `EconomicComplexity` and `InventionCapacity`; no ECI-to-tech-level table, generation-rate cap, or trade-code basket is encoded.
 
 
 ## Baumeister2025Followup
@@ -1016,7 +1016,7 @@ require human verification against the PDF or NASA ADS.*
 
 **APA:** Bettencourt, L. M. A., Lobo, J., Helbing, D., Kühnert, C., & West, G. B. (2007). Growth, innovation, scaling, and the pace of life in cities. Proceedings of the National Academy of Sciences, 104(17), 7301–7306. https://doi.org/10.1073/pnas.0610172104
 
-**StarGen annotation:** Canonical urban scaling paper. Scaling exponents: patents β=1.27, R&D β=1.21, GDP β=1.13, crime β=1.16, roads β=0.85. Foundation for StarGen's population→output model. `ComputeOutputs()` method uses these exponents with reference population of 1 million.
+**StarGen annotation:** Canonical urban scaling paper. Used as human-audit-required context for population-sensitive social scale, invention pressure, and urban output diagnostics. StarGen does not currently encode the paper's exact scaling exponents as release-default mechanics.
 
 
 
@@ -1226,7 +1226,7 @@ cleanup pass.*
 
 **APA:** Knez, K. (2023). Technology diffusion and uneven development. Journal of Evolutionary Economics, 33, 1171-1195. https://doi.org/10.1007/s00191-023-00830-w
 
-**StarGen annotation:** Technology adoption should be modeled as uneven density constrained by local implementation costs, development level, and capability base. Supports separating `HighestTechLevel` from `TechnologyAdoptionCapacity`.
+**StarGen annotation:** Technology adoption should be modeled as uneven density constrained by local implementation costs, development level, and capability base. Supports separating `HighestTechLevel`, `MedianTechLevel`, `TechnologyAdoptionCapacity`, and `AdoptionLagPressure`.
 
 
 ## SavvidouEtAl2023

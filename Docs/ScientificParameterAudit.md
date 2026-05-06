@@ -76,6 +76,15 @@ Disposition meanings:
 | `civilization_model` | Galaxy Studio | Sentient lineages and technological civilizations should be modeled separately. | `forganrice2010`, `balbi2023` | `LifePotentialModeling.ResolveCivilizationMultiplier`, `BiologySupportEvaluator.CalculateCivilizationChance`, concept/population consumers | Rare Civilizations and oxygen bottlenecks suppress civilization later than sentience. | Required wiring fix in audit pass. | `fix wiring`, `fix tests` |
 | `environmental_window_weight` | Galaxy Studio | Long stable habitable windows should matter for later biological stages. | `mills2024` | `LifePotentialModeling.ResolveEnvironmentalWindowMultiplier`, `BiologySupportEvaluator` | Higher weighting rewards long-lived stable worlds more strongly. | Existing and expanded. | `valid` |
 
+## Sentient-World Models
+
+| Parameter ID | UI Surface | Intended scientific claim | Source IDs | Consuming generator code | Expected outcome change | Test coverage status | Disposition |
+|---|---|---|---|---|---|---|---|
+| `sentient_social_scale_model` | Galaxy/System/Object use-case settings | Population should affect social scale without being the only determinant. | `hamiltonetal2020`, `bettencourtetal2007` | `SentientWorldProfileBuilder` | Source-aligned mode gives administration and group structure more weight while retaining population pressure. | Existing and expanded. | `human audit required` |
+| `sentient_technology_diffusion_model` | Galaxy/System/Object use-case settings | Highest available technology, adoption capacity, median access, and adoption lag should be separate diagnostics. | `knez2023`, `stokey2020`, `comin2013`, `cominmestieri2013` | `SentientWorldProfileBuilder` | Source-aligned mode exposes median tech access, invention capacity, adoption-lag pressure, and access inequality instead of only highest tech. | Added in this pass. | `human audit required` |
+| `sentient_economic_complexity_model` | Galaxy/System/Object use-case settings | Capability breadth and productive relatedness constrain economic complexity and invention pressure. | `chacuaetal2024`, `ballandetal2022`, `bettencourtetal2007`, `arvidssonetal2023` | `SentientWorldProfileBuilder` | Capability-portfolio mode changes economic complexity and now feeds invention/access diagnostics. | Existing and expanded. | `human audit required` |
+| `sentient_legitimacy_model` | Galaxy/System/Object use-case settings | Internal acceptance and external recognition should be separate from raw state capacity. | `vankleefetal2023`, `chowdhury2022` | `SentientWorldProfileBuilder` | Internal/external legitimacy mode changes legal reach and keeps state-capacity/regulation claims explicitly audited. | Existing. | `human audit required` |
+
 ## Audit outcome
 
 - The main wiring bug in this pass was the life pipeline: sentient-lineage checks were still reading `CivilizationChance` in downstream consumers. This was corrected.

@@ -510,15 +510,15 @@ public static partial class DotNetNativeTestSuite
         AssertEqual(ReleaseEdition.Demo, ReleaseEditionService.ResolveEdition("demo"), "demo channel should resolve to the demo edition");
         AssertEqual(ReleaseEdition.Demo, ReleaseEditionService.ResolveEdition("release"), "legacy release channel should normalize to the demo edition");
         AssertEqual(ReleaseEdition.Export, ReleaseEditionService.ResolveEdition("export"), "export channel should resolve to the export edition");
-        AssertEqual("0.10", ReleaseEditionService.FormatDisplayVersion("0.10", ReleaseEdition.Demo), "demo editions should use the base release label");
-        AssertEqual("0.10", ReleaseEditionService.FormatDisplayVersion("0.10", ReleaseEdition.Export), "export editions should use the base release label");
+        AssertEqual("0.11", ReleaseEditionService.FormatDisplayVersion("0.11", ReleaseEdition.Demo), "demo editions should use the base release label");
+        AssertEqual("0.11", ReleaseEditionService.FormatDisplayVersion("0.11", ReleaseEdition.Export), "export editions should use the base release label");
 
         WithTemporaryReleaseChannel(
             "demo",
-            () => AssertEqual("0.10", UserFacingVersionHelper.GetDisplayVersion(), "demo release channel should display the base release label"));
+            () => AssertEqual("0.11", UserFacingVersionHelper.GetDisplayVersion(), "demo release channel should display the base release label"));
         WithTemporaryReleaseChannel(
             "export",
-            () => AssertEqual("0.10", UserFacingVersionHelper.GetDisplayVersion(), "export release channel should display the base release label"));
+            () => AssertEqual("0.11", UserFacingVersionHelper.GetDisplayVersion(), "export release channel should display the base release label"));
     }
 
     /// <summary>

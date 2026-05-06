@@ -33,6 +33,23 @@ Presentation logic:
 
 - The inspector shows the highest active level because that is the most useful adapter-facing summary for port quality, offworld trade, and compatibility exports.
 
+### Elite Tech Access / Median Tech Access
+
+Why they are shown:
+
+- Highest available technology can be imported, elite-held, or institutionally concentrated.
+- Median access is a better proxy for what most residents can actually use.
+
+Grounding:
+
+- Knez (2023), Comin and Mestieri (2013), Comin and Lashkari (2013), and Stokey (2020) support treating diffusion and adoption density as distinct from invention or first access.
+- Arvidsson et al. (2023) cautions that urban scaling benefits can be strongly driven by upper-tail access rather than uniform gains.
+
+Presentation logic:
+
+- `Elite Tech Access` starts from the highest active technology level.
+- `Median Tech Access` is reduced by adoption lag and access inequality, then bounded so it never exceeds elite access.
+
 ### Dominant Regime
 
 Why it is shown:
@@ -214,6 +231,38 @@ Grounding:
 Why it is shown:
 
 - It helps future adapters distinguish imported or network-supported technology from purely local developmental depth.
+
+### Invention Capacity
+
+Grounding:
+
+- Bettencourt et al. (2007) supports population-sensitive urban output and innovation pressure.
+- Balland et al. (2022) supports treating capability portfolios and relatedness as constraints on what a society can produce.
+
+Why it is shown:
+
+- It separates local production and invention pressure from the mere presence of imported or elite-held technology.
+
+### Adoption Lag
+
+Grounding:
+
+- Knez (2023), Comin and Mestieri (2013), Comin and Lashkari (2013), and Stokey (2020) support the idea that diffusion timing, implementation costs, and penetration rates vary independently of first availability.
+
+Why it is shown:
+
+- It gives adapters a direct signal for worlds where advanced technology exists but broad adoption is slow because of frontier conditions, weak capacity, low self-sufficiency, or geography.
+
+### Tech Access Gap
+
+Grounding:
+
+- Arvidsson et al. (2023) refines urban scaling by showing that much of the apparent output gain can be concentrated in distribution tails.
+- This field remains a human-audit-required proxy and should not be treated as a universal alien-society law.
+
+Why it is shown:
+
+- It distinguishes high-capability but unequal worlds from worlds where advanced techniques are broadly available.
 
 ### Factional Fragmentation
 

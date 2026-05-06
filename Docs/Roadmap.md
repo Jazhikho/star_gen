@@ -29,9 +29,9 @@ Release notes and version summaries are in the [README](../README.md#version-his
 
 ---
 
-## Version v0.10 specifications
+## Version v0.11 specifications
 
-### Core direction for v0.10
+### Core direction for v0.11
 
 - Migrate existing UI elements from code into `.tscn` scenes as far as possible.
 - Keep scripts behavior-focused; if an element does not require runtime logic, it must be scene-defined.
@@ -119,13 +119,13 @@ Release notes and version summaries are in the [README](../README.md#version-his
 
 ### Edition strategy and persistence split
 
-- The standard public build is `0.10`, which keeps generation and viewing available but leaves save/load/export disabled.
-- The export-enabled paid build also displays `0.10`, and restores the persistence flows needed for authoring and downstream artifact handling.
+- The standard public build is targeting `0.11`, which keeps generation and viewing available but leaves save/load/export disabled.
+- The export-enabled paid build also displays `0.11`, and restores the persistence flows needed for authoring and downstream artifact handling.
 - Both editions should come from the same codebase and differ through explicit build-channel capability gating rather than hidden buttons alone.
 - In the public build, user modifications are intentionally non-persistable.
 
 ### Version tag policy for this split
 
-- User-facing labels use the plain approved release version, currently `0.10`.
+- User-facing labels use the plain approved release version, currently targeting `0.11`.
 - Release artifacts identify export-enabled packages with an `-export` artifact label rather than an in-app version suffix.
 - Keep docs, release tooling, packaging labels, and user-facing version labels synchronized with each build's actual capabilities.

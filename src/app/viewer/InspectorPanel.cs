@@ -495,6 +495,8 @@ public partial class InspectorPanel : VBoxContainer
 		if (sentientWorldProfile != null)
 		{
 			AddPropertyToSection(PopulationSectionPath, "Dominant Regime", PropertyFormatter.FormatRegime(sentientWorldProfile.DominantRegime));
+			AddPropertyToSection(PopulationSectionPath, "Elite Tech Access", TechnologyLevel.ToStringName(sentientWorldProfile.EliteTechLevel));
+			AddPropertyToSection(PopulationSectionPath, "Median Tech Access", TechnologyLevel.ToStringName(sentientWorldProfile.MedianTechLevel));
 			AddPropertyToSection(PopulationSectionPath, "Settlement Pattern", sentientWorldProfile.SettlementPattern);
 			AddPropertyToSection(PopulationSectionPath, "Primary Settlement", sentientWorldProfile.PrimarySettlementRank);
 			AddPropertyToSection(PopulationSectionPath, "Logistics Capacity", sentientWorldProfile.LogisticsCapacity);
@@ -510,6 +512,9 @@ public partial class InspectorPanel : VBoxContainer
 			AddPropertyToSection(PopulationSectionPath, "Restriction Pressure", PropertyFormatter.FormatPercent(sentientWorldProfile.RestrictionPressure));
 			AddPropertyToSection(PopulationSectionPath, "Cultural Accumulation", PropertyFormatter.FormatPercent(sentientWorldProfile.CulturalAccumulation));
 			AddPropertyToSection(PopulationSectionPath, "Tech Adoption", PropertyFormatter.FormatPercent(sentientWorldProfile.TechnologyAdoptionCapacity));
+			AddPropertyToSection(PopulationSectionPath, "Invention Capacity", PropertyFormatter.FormatPercent(sentientWorldProfile.InventionCapacity));
+			AddPropertyToSection(PopulationSectionPath, "Adoption Lag", PropertyFormatter.FormatPercent(sentientWorldProfile.AdoptionLagPressure));
+			AddPropertyToSection(PopulationSectionPath, "Tech Access Gap", PropertyFormatter.FormatPercent(sentientWorldProfile.TechnologyAccessInequality));
 			AddPropertyToSection(PopulationSectionPath, "Factional Fragmentation", PropertyFormatter.FormatPercent(sentientWorldProfile.FactionalFragmentation));
 			AddPropertyToSection(PopulationSectionPath, "Religious Centralization", PropertyFormatter.FormatPercent(sentientWorldProfile.ReligiousCentralization));
 		}

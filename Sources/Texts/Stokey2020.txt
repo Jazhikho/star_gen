@@ -47,9 +47,13 @@ superseded. Flag updates in Followup.md.)*
 
 ## StarGen mechanics translation
 
-### Off-topic candidate — verify corpus membership
-This paper is flagged as potentially off-topic (ResearchAuditSummary.md). Verify that
-it belongs in the StarGen corpus before encoding any mechanics.
+### Technology diffusion and adoption-lag context
+This paper is still flagged for human verification of corpus fit. It is not a physical
+generation source and should not be used for planet, star, or galaxy mechanics.
 
-**StarGen:** Pending human verification of relevance. No mechanics encoded until confirmed.
-**Cross-references:** ResearchAuditSummary.md — 'Verify 5 off-topic papers' section.
+**Current StarGen use:** `SentientWorldProfileBuilder` uses it only as qualitative
+support for separating invention or first access from broad diffusion across users,
+places, and use cases. No numeric adoption-cost or input-cost model from this source
+is encoded.
+
+**Cross-references:** `Sources/SourceUtilizationPlan.md`, `Docs/SentientWorldBaseline.md`.

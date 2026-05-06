@@ -29,6 +29,16 @@ public partial class SentientWorldProfile : RefCounted
     public TechnologyLevel.Level HighestTechLevel = TechnologyLevel.Level.StoneAge;
 
     /// <summary>
+    /// Highest elite or institutionally available technology access.
+    /// </summary>
+    public TechnologyLevel.Level EliteTechLevel = TechnologyLevel.Level.StoneAge;
+
+    /// <summary>
+    /// Approximate median technology access experienced by the active population.
+    /// </summary>
+    public TechnologyLevel.Level MedianTechLevel = TechnologyLevel.Level.StoneAge;
+
+    /// <summary>
     /// Dominant regime among the active populations.
     /// </summary>
     public GovernmentType.Regime DominantRegime = GovernmentType.Regime.Tribal;
@@ -109,6 +119,21 @@ public partial class SentientWorldProfile : RefCounted
     public double TechnologyAdoptionCapacity;
 
     /// <summary>
+    /// Capacity for local invention and high-complexity production, separate from adoption.
+    /// </summary>
+    public double InventionCapacity;
+
+    /// <summary>
+    /// Pressure delaying broad adoption after a technology is known or imported.
+    /// </summary>
+    public double AdoptionLagPressure;
+
+    /// <summary>
+    /// Gap between elite/peak access and median technology access.
+    /// </summary>
+    public double TechnologyAccessInequality;
+
+    /// <summary>
     /// Degree of fragmentation among elites, settlements, and active populations.
     /// </summary>
     public double FactionalFragmentation;
@@ -148,6 +173,8 @@ public partial class SentientWorldProfile : RefCounted
         data["native_population"] = NativePopulation;
         data["colony_population"] = ColonyPopulation;
         data["highest_tech_level"] = (int)HighestTechLevel;
+        data["elite_tech_level"] = (int)EliteTechLevel;
+        data["median_tech_level"] = (int)MedianTechLevel;
         data["dominant_regime"] = (int)DominantRegime;
         data["settlement_pattern"] = SettlementPattern;
         data["urbanization_share"] = UrbanizationShare;
@@ -164,6 +191,9 @@ public partial class SentientWorldProfile : RefCounted
         data["restriction_pressure"] = RestrictionPressure;
         data["cultural_accumulation"] = CulturalAccumulation;
         data["technology_adoption_capacity"] = TechnologyAdoptionCapacity;
+        data["invention_capacity"] = InventionCapacity;
+        data["adoption_lag_pressure"] = AdoptionLagPressure;
+        data["technology_access_inequality"] = TechnologyAccessInequality;
         data["factional_fragmentation"] = FactionalFragmentation;
         data["religious_centralization"] = ReligiousCentralization;
         data["economic_complexity"] = EconomicComplexity;
@@ -183,6 +213,8 @@ public partial class SentientWorldProfile : RefCounted
         profile.NativePopulation = GetInt(data, "native_population", 0);
         profile.ColonyPopulation = GetInt(data, "colony_population", 0);
         profile.HighestTechLevel = (TechnologyLevel.Level)GetInt(data, "highest_tech_level", 0);
+        profile.EliteTechLevel = (TechnologyLevel.Level)GetInt(data, "elite_tech_level", (int)profile.HighestTechLevel);
+        profile.MedianTechLevel = (TechnologyLevel.Level)GetInt(data, "median_tech_level", (int)profile.HighestTechLevel);
         profile.DominantRegime = (GovernmentType.Regime)GetInt(data, "dominant_regime", 0);
         profile.SettlementPattern = GetString(data, "settlement_pattern", string.Empty);
         profile.UrbanizationShare = Clamp01(GetDouble(data, "urbanization_share", 0.0));
@@ -199,6 +231,9 @@ public partial class SentientWorldProfile : RefCounted
         profile.RestrictionPressure = Clamp01(GetDouble(data, "restriction_pressure", 0.0));
         profile.CulturalAccumulation = Clamp01(GetDouble(data, "cultural_accumulation", 0.0));
         profile.TechnologyAdoptionCapacity = Clamp01(GetDouble(data, "technology_adoption_capacity", 0.0));
+        profile.InventionCapacity = Clamp01(GetDouble(data, "invention_capacity", 0.0));
+        profile.AdoptionLagPressure = Clamp01(GetDouble(data, "adoption_lag_pressure", 0.0));
+        profile.TechnologyAccessInequality = Clamp01(GetDouble(data, "technology_access_inequality", 0.0));
         profile.FactionalFragmentation = Clamp01(GetDouble(data, "factional_fragmentation", 0.0));
         profile.ReligiousCentralization = Clamp01(GetDouble(data, "religious_centralization", 0.0));
         profile.EconomicComplexity = Clamp01(GetDouble(data, "economic_complexity", 0.0));
@@ -218,11 +253,16 @@ public partial class SentientWorldProfile : RefCounted
         summary["primary_settlement_rank"] = PrimarySettlementRank;
         summary["logistics_capacity"] = LogisticsCapacity;
         summary["highest_tech_level"] = TechnologyLevel.ToStringName(HighestTechLevel);
+        summary["elite_tech_level"] = TechnologyLevel.ToStringName(EliteTechLevel);
+        summary["median_tech_level"] = TechnologyLevel.ToStringName(MedianTechLevel);
         summary["dominant_regime"] = GovernmentType.ToStringName(DominantRegime);
         summary["social_scale"] = SocialScale;
         summary["state_capacity"] = StateCapacity;
         summary["trade_connectivity"] = TradeConnectivity;
         summary["economic_complexity"] = EconomicComplexity;
+        summary["invention_capacity"] = InventionCapacity;
+        summary["adoption_lag_pressure"] = AdoptionLagPressure;
+        summary["technology_access_inequality"] = TechnologyAccessInequality;
         summary["human_audit_required"] = HumanAuditRequired;
         return summary;
     }

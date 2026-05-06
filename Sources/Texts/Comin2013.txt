@@ -47,7 +47,13 @@ superseded. Flag updates in Followup.md.)*
 
 ## StarGen mechanics translation
 
-### Off-topic candidate — verify corpus membership
-Flagged as potentially off-topic. May be a social-science / economics paper added in error.
-**StarGen:** No mechanics encoded. Verify before use.
-**Cross-references:** ResearchAuditSummary.md.
+### Technology diffusion and adoption-lag context
+This source remains human-verification pending for StarGen release claims, but it is
+relevant to the sentient population layer rather than to physical world generation.
+
+**Current StarGen use:** `SentientWorldProfileBuilder` uses the source only as
+qualitative support for separating highest available technology, median technology
+access, adoption capacity, and adoption-lag pressure. No numeric diffusion coefficient
+from this paper is encoded.
+
+**Cross-references:** `Sources/SourceUtilizationPlan.md`, `Docs/SentientWorldBaseline.md`.

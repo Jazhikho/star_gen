@@ -49,6 +49,12 @@ public static class TestSentientWorldProfile
         DotNetNativeTestSuite.AssertEqual("Archipelago", profile.SettlementPattern, "Mixed-ocean inhabited worlds should resolve to archipelago settlement when geography fragments settlement");
         DotNetNativeTestSuite.AssertTrue(profile.StateCapacity > 0.0, "State capacity should be populated");
         DotNetNativeTestSuite.AssertTrue(profile.TradeConnectivity > 0.0, "Trade connectivity should be populated");
+        DotNetNativeTestSuite.AssertTrue(profile.InventionCapacity > 0.0, "Invention capacity should be populated");
+        DotNetNativeTestSuite.AssertTrue(profile.AdoptionLagPressure >= 0.0, "Adoption lag pressure should be bounded");
+        DotNetNativeTestSuite.AssertTrue(profile.TechnologyAccessInequality >= 0.0, "Technology access inequality should be bounded");
+        DotNetNativeTestSuite.AssertTrue(
+            (int)profile.MedianTechLevel <= (int)profile.EliteTechLevel,
+            "Median technology access should not exceed elite technology access");
         DotNetNativeTestSuite.AssertEqual(GovernmentType.Regime.Constitutional, profile.DominantRegime, "Dominant regime should follow the largest active population");
     }
 
@@ -62,6 +68,8 @@ public static class TestSentientWorldProfile
         original.NativePopulation = 500000;
         original.ColonyPopulation = 1000000;
         original.HighestTechLevel = TechnologyLevel.Level.Interstellar;
+        original.EliteTechLevel = TechnologyLevel.Level.Interstellar;
+        original.MedianTechLevel = TechnologyLevel.Level.Information;
         original.DominantRegime = GovernmentType.Regime.Constitutional;
         original.SettlementPattern = "Corridor";
         original.UrbanizationShare = 0.52;
@@ -78,6 +86,9 @@ public static class TestSentientWorldProfile
         original.RestrictionPressure = 0.28;
         original.CulturalAccumulation = 0.59;
         original.TechnologyAdoptionCapacity = 0.66;
+        original.InventionCapacity = 0.62;
+        original.AdoptionLagPressure = 0.23;
+        original.TechnologyAccessInequality = 0.34;
         original.FactionalFragmentation = 0.31;
         original.ReligiousCentralization = 0.37;
         original.EconomicComplexity = 0.64;
@@ -90,11 +101,16 @@ public static class TestSentientWorldProfile
 
         DotNetNativeTestSuite.AssertEqual(original.TotalPopulation, restored.TotalPopulation, "Total population should round-trip");
         DotNetNativeTestSuite.AssertEqual(original.HighestTechLevel, restored.HighestTechLevel, "Highest tech should round-trip");
+        DotNetNativeTestSuite.AssertEqual(original.EliteTechLevel, restored.EliteTechLevel, "Elite tech access should round-trip");
+        DotNetNativeTestSuite.AssertEqual(original.MedianTechLevel, restored.MedianTechLevel, "Median tech access should round-trip");
         DotNetNativeTestSuite.AssertEqual(original.DominantRegime, restored.DominantRegime, "Dominant regime should round-trip");
         DotNetNativeTestSuite.AssertEqual(original.SettlementPattern, restored.SettlementPattern, "Settlement pattern should round-trip");
         DotNetNativeTestSuite.AssertFloatNear(original.TradeConnectivity, restored.TradeConnectivity, 0.0001, "Trade connectivity should round-trip");
         DotNetNativeTestSuite.AssertFloatNear(original.LegalReach, restored.LegalReach, 0.0001, "Legal reach should round-trip");
         DotNetNativeTestSuite.AssertFloatNear(original.EconomicComplexity, restored.EconomicComplexity, 0.0001, "Economic complexity should round-trip");
+        DotNetNativeTestSuite.AssertFloatNear(original.InventionCapacity, restored.InventionCapacity, 0.0001, "Invention capacity should round-trip");
+        DotNetNativeTestSuite.AssertFloatNear(original.AdoptionLagPressure, restored.AdoptionLagPressure, 0.0001, "Adoption lag pressure should round-trip");
+        DotNetNativeTestSuite.AssertFloatNear(original.TechnologyAccessInequality, restored.TechnologyAccessInequality, 0.0001, "Technology access inequality should round-trip");
         DotNetNativeTestSuite.AssertFloatNear(original.InternalLegitimacy, restored.InternalLegitimacy, 0.0001, "Internal legitimacy should round-trip");
         DotNetNativeTestSuite.AssertFloatNear(original.ExternalLegitimacy, restored.ExternalLegitimacy, 0.0001, "External legitimacy should round-trip");
         DotNetNativeTestSuite.AssertEqual(original.HumanAuditRequired, restored.HumanAuditRequired, "Human-audit flag should round-trip");
@@ -119,10 +135,40 @@ public static class TestSentientWorldProfile
         DotNetNativeTestSuite.AssertNotNull(sourceAligned, "Source-aligned profile should exist");
         DotNetNativeTestSuite.AssertTrue(sourceAligned!.HumanAuditRequired, "Source-aligned social-science proxies should require human audit");
         DotNetNativeTestSuite.AssertTrue(sourceAligned.EconomicComplexity > 0.0, "Economic complexity proxy should be populated");
+        DotNetNativeTestSuite.AssertTrue(sourceAligned.InventionCapacity > 0.0, "Source-aligned profile should expose invention capacity");
+        DotNetNativeTestSuite.AssertTrue(sourceAligned.AdoptionLagPressure >= 0.0, "Source-aligned profile should expose adoption lag pressure");
+        DotNetNativeTestSuite.AssertTrue(sourceAligned.TechnologyAccessInequality >= 0.0, "Source-aligned profile should expose access inequality");
         DotNetNativeTestSuite.AssertTrue(
             System.Math.Abs(sourceAligned.TechnologyAdoptionCapacity - baseline!.TechnologyAdoptionCapacity) > 0.0001
             || System.Math.Abs(sourceAligned.SocialScale - baseline.SocialScale) > 0.0001,
             "Selected sentient models should materially change at least one profile score");
+    }
+
+    /// <summary>
+    /// Tests technology access diagnostics distinguish frontier lag from connected adoption.
+    /// </summary>
+    public static void TestTechnologyAccessDiagnosticsSeparatePeakAndMedianAccess()
+    {
+        PlanetPopulationData connectedData = CreateInhabitedWorldData();
+        PlanetPopulationData frontierData = CreateFrontierWorldData();
+        GenerationUseCaseSettings settings = GenerationUseCaseSettings.CreateDefault();
+        settings.SentientTechnologyDiffusionModel = GenerationUseCaseSettings.SentientTechnologyDiffusionModelType.AccessCostDensityProxy;
+        settings.SentientEconomicComplexityModel = GenerationUseCaseSettings.SentientEconomicComplexityModelType.CapabilityPortfolioProxy;
+
+        SentientWorldProfile? connectedProfile = SentientWorldProfileBuilder.Build(connectedData, settings);
+        SentientWorldProfile? frontierProfile = SentientWorldProfileBuilder.Build(frontierData, settings);
+
+        DotNetNativeTestSuite.AssertNotNull(connectedProfile, "Connected profile should exist");
+        DotNetNativeTestSuite.AssertNotNull(frontierProfile, "Frontier profile should exist");
+        DotNetNativeTestSuite.AssertTrue(
+            frontierProfile!.AdoptionLagPressure > connectedProfile!.AdoptionLagPressure,
+            "Harsh, low-self-sufficiency frontier worlds should carry higher adoption-lag pressure");
+        DotNetNativeTestSuite.AssertTrue(
+            (int)frontierProfile.MedianTechLevel <= (int)frontierProfile.EliteTechLevel,
+            "Frontier median technology access should stay at or below elite access");
+        DotNetNativeTestSuite.AssertTrue(
+            frontierProfile.TechnologyAccessInequality > 0.0,
+            "Frontier profiles should expose a nonzero access-inequality diagnostic");
     }
 
     private static PlanetPopulationData CreateInhabitedWorldData()
@@ -174,6 +220,48 @@ public static class TestSentientWorldProfile
         colony.Government.AdministrativeCapacity = 0.73;
         colony.Government.CoercionCentralization = 0.36;
         colony.Government.PoliticalInclusiveness = 0.69;
+        data.Colonies.Add(colony);
+
+        return data;
+    }
+
+    private static PlanetPopulationData CreateFrontierWorldData()
+    {
+        PlanetPopulationData data = new();
+        data.Profile = new PlanetProfile
+        {
+            BodyId = "frontier_001",
+            HabitabilityScore = 3,
+            HasLiquidWater = false,
+            HasAtmosphere = false,
+            HasBreathableAtmosphere = false,
+            OceanCoverage = 0.08,
+            LandCoverage = 0.72,
+            ContinentCount = 2,
+            IsMoon = true,
+        };
+        data.Profile.Resources[(int)ResourceType.Type.Metals] = 0.8;
+        data.Profile.Resources[(int)ResourceType.Type.RareElements] = 0.6;
+
+        data.Suitability = new ColonySuitability
+        {
+            OverallScore = 28,
+            RequiresLifeSupport = true,
+            RequiresPressureSuit = true,
+        };
+
+        Colony colony = new();
+        colony.Id = "frontier_colony_001";
+        colony.Name = "Frontier Hold";
+        colony.Population = 42000;
+        colony.IsActive = true;
+        colony.TechLevel = TechnologyLevel.Level.Interstellar;
+        colony.FoundingYear = -18;
+        colony.SelfSufficiency = 0.18;
+        colony.Government.Regime = GovernmentType.Regime.Corporate;
+        colony.Government.AdministrativeCapacity = 0.38;
+        colony.Government.CoercionCentralization = 0.62;
+        colony.Government.PoliticalInclusiveness = 0.24;
         data.Colonies.Add(colony);
 
         return data;

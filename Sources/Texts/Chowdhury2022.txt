@@ -66,11 +66,14 @@ superseded. Flag updates in Followup.md.)*
 
 ## StarGen mechanics translation
 
-### Galactic stellar populations — kinematic and chemical structure
-Studies kinematic and chemical structure of Milky Way stellar populations using spectroscopic survey data.
+### State-capacity and regulation context
+The older auto-classified galaxy/morphology note above is incorrect for this source.
+This is a social-science source and remains human-verification pending for StarGen
+release claims.
 
-**StarGen stellar population context:**
-- Provides kinematic dispersion values by galactic component and population age.
-- `KinematicDispersion(age, R_GC)` — velocity dispersion increases with stellar age.
-- Use to assign plausible stellar kinematics to generated stars in galactic mode.
-**Cross-references:** BlandHawthornGerhard2016.txt, Bovy2017.txt, Hayden2014.txt.
+**Current StarGen use:** `SentientWorldProfileBuilder` and the sentient science catalog
+use this only as qualitative context for keeping state capacity, legal reach, and
+restriction pressure separate. No specific historical regulation model or threshold is
+encoded.
+
+**Cross-references:** `Sources/SourceUtilizationPlan.md`, `Docs/SentientWorldBaseline.md`.

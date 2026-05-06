@@ -20,6 +20,8 @@ public static class StationPopulationProfileBuilder
         profile.NativePopulation = 0;
         profile.ColonyPopulation = station.Population;
         profile.HighestTechLevel = TechnologyLevel.Level.Spacefaring;
+        profile.EliteTechLevel = TechnologyLevel.Level.Spacefaring;
+        profile.MedianTechLevel = TechnologyLevel.Level.Spacefaring;
         profile.DominantRegime = station.GetRegime();
 
         double populationScale = NormalizePopulation(station.Population);
@@ -50,8 +52,51 @@ public static class StationPopulationProfileBuilder
         profile.UrbanizationShare = ResolveUrbanizationShare(station, profile);
         profile.SettlementPattern = ResolveSettlementPattern(station);
         profile.PrimarySettlementRank = ResolvePrimarySettlementRank(station);
+        ApplyTechnologyAccessDiagnostics(profile, stationScale, serviceScale, securityPressure);
         profile.HumanAuditRequired = true;
         return profile;
+    }
+
+    /// <summary>
+    /// Adds station-local technology access diagnostics for inhabited stations.
+    /// </summary>
+    private static void ApplyTechnologyAccessDiagnostics(
+        SentientWorldProfile profile,
+        double stationScale,
+        double serviceScale,
+        double securityPressure)
+    {
+        profile.InventionCapacity = Clamp01(
+            (profile.EconomicComplexity * 0.30)
+            + (profile.CulturalAccumulation * 0.24)
+            + (profile.TradeConnectivity * 0.18)
+            + (serviceScale * 0.16)
+            + (stationScale * 0.12));
+
+        profile.AdoptionLagPressure = Clamp01(
+            ((1.0 - profile.TradeConnectivity) * 0.28)
+            + ((1.0 - profile.StateCapacity) * 0.22)
+            + (securityPressure * 0.18)
+            + ((1.0 - serviceScale) * 0.18)
+            - (profile.TechnologyAdoptionCapacity * 0.20));
+
+        profile.TechnologyAccessInequality = Clamp01(
+            (profile.InventionCapacity * 0.24)
+            + (profile.RestrictionPressure * 0.20)
+            + (profile.FactionalFragmentation * 0.18)
+            + (stationScale * 0.16)
+            - (profile.InternalLegitimacy * 0.12)
+            - (profile.EconomicComplexity * 0.08));
+
+        double medianAccess = 0.82
+            + (profile.TechnologyAdoptionCapacity * 0.10)
+            - (profile.AdoptionLagPressure * 0.16)
+            - (profile.TechnologyAccessInequality * 0.12);
+        profile.MedianTechLevel = ResolveTechnologyLevelFromNormalized(medianAccess);
+        if ((int)profile.MedianTechLevel > (int)profile.EliteTechLevel)
+        {
+            profile.MedianTechLevel = profile.EliteTechLevel;
+        }
     }
 
     private static double ResolveGovernanceCapacity(SpaceStation station)
@@ -287,6 +332,23 @@ public static class StationPopulationProfileBuilder
         }
 
         return 1.0;
+    }
+
+    private static TechnologyLevel.Level ResolveTechnologyLevelFromNormalized(double normalizedLevel)
+    {
+        int maxLevelIndex = TechnologyLevel.Count() - 1;
+        int levelIndex = (int)System.Math.Round(Clamp01(normalizedLevel) * maxLevelIndex);
+        if (levelIndex < 0)
+        {
+            levelIndex = 0;
+        }
+
+        if (levelIndex > maxLevelIndex)
+        {
+            levelIndex = maxLevelIndex;
+        }
+
+        return (TechnologyLevel.Level)levelIndex;
     }
 
     private static double Clamp01(double value)

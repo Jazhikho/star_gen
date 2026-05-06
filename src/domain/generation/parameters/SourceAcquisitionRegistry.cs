@@ -411,11 +411,26 @@ public static class SourceAcquisitionRegistry
             SourceAcquisitionStatus.LocalSourceNote,
             "res://Sources/Texts/HamiltonEtAl2020.txt",
             "Local source note exists; sentient-world implications remain human-audit-required."),
+        ["bettencourtetal2007"] = Create(
+            "bettencourtetal2007",
+            SourceAcquisitionStatus.LocalSourceNote,
+            "res://Sources/Texts/BettencourtEtAl2007.txt",
+            "Local source note exists; urban-scaling implications remain human-audit-required before release claims."),
+        ["arvidssonetal2023"] = Create(
+            "arvidssonetal2023",
+            SourceAcquisitionStatus.LocalSourceNote,
+            "res://Sources/Texts/ArvidssonEtAl2023.txt",
+            "Local source note exists; technology-access inequality implications remain human-audit-required."),
         ["knez2023"] = Create(
             "knez2023",
             SourceAcquisitionStatus.LocalSourceNote,
             "res://Sources/Texts/Knez2023.txt",
             "Local source note exists; technology-diffusion implications remain human-audit-required."),
+        ["stokey2020"] = Create(
+            "stokey2020",
+            SourceAcquisitionStatus.LocalSourceNote,
+            "res://Sources/Texts/Stokey2020.txt",
+            "Local source note exists; technology-diffusion implications remain human-audit-required and off-topic status must stay visible until human review."),
         ["comin2013"] = Create(
             "comin2013",
             SourceAcquisitionStatus.LocalSourceNote,
@@ -426,6 +441,11 @@ public static class SourceAcquisitionRegistry
             SourceAcquisitionStatus.LocalSourceNote,
             "res://Sources/Texts/CominMestieri2013.txt",
             "Local source note exists; use as a technology-diffusion support source pending human verification."),
+        ["chowdhury2022"] = Create(
+            "chowdhury2022",
+            SourceAcquisitionStatus.LocalSourceNote,
+            "res://Sources/Texts/Chowdhury2022.txt",
+            "Local source note exists; state-capacity/regulation implications remain human-audit-required and source-note metadata needs cleanup."),
         ["chacuaetal2024"] = Create(
             "chacuaetal2024",
             SourceAcquisitionStatus.LocalSourceNote,

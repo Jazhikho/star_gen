@@ -52,10 +52,22 @@ public static class SentientScienceReferenceCatalog
             "hamiltonetal2020",
             "Hamilton et al. (2020), population scale matters for social organization but is not sufficient by itself.",
             "Sources/Texts/HamiltonEtAl2020.txt"),
+        ["bettencourtetal2007"] = new SentientScienceSource(
+            "bettencourtetal2007",
+            "Bettencourt et al. (2007), urban output scales nonlinearly with population and infrastructure.",
+            "Sources/Texts/BettencourtEtAl2007.txt"),
+        ["arvidssonetal2023"] = new SentientScienceSource(
+            "arvidssonetal2023",
+            "Arvidsson et al. (2023), urban scaling benefits are strongly shaped by within-city inequality.",
+            "Sources/Texts/ArvidssonEtAl2023.txt"),
         ["knez2023"] = new SentientScienceSource(
             "knez2023",
             "Knez (2023), technology access and adoption density can diverge from the highest technology present.",
             "Sources/Texts/Knez2023.txt"),
+        ["stokey2020"] = new SentientScienceSource(
+            "stokey2020",
+            "Stokey (2020), diffusion across users and places can matter as much as invention for long-run technology effects.",
+            "Sources/Texts/Stokey2020.txt"),
         ["chacuaetal2024"] = new SentientScienceSource(
             "chacuaetal2024",
             "Chacua et al. (2024), economic complexity depends on capability portfolios and relatedness.",
@@ -72,6 +84,10 @@ public static class SentientScienceReferenceCatalog
             "cominmestieri2013",
             "Comin and Mestieri (2013), technology adoption lags shape long-run development differences.",
             "Sources/Texts/CominMestieri2013.txt"),
+        ["chowdhury2022"] = new SentientScienceSource(
+            "chowdhury2022",
+            "Chowdhury (2022), low state capacity can substitute regulation for harder enforcement functions.",
+            "Sources/Texts/Chowdhury2022.txt"),
         ["ballandetal2022"] = new SentientScienceSource(
             "ballandetal2022",
             "Balland et al. (2022), productive capabilities and relatedness constrain economic development paths.",
@@ -83,27 +99,31 @@ public static class SentientScienceReferenceCatalog
         new SentientScienceParameterReference(
             "sentient_social_scale_model",
             "This selects how population turns into institutional scale.\nPopulation Composite keeps the current StarGen blend.\nPopulation Hierarchy Aware adds administrative capacity and group structure while keeping population important.\nHuman audit is required before release claims.",
-            new[] { "hamiltonetal2020" }),
+            new[] { "hamiltonetal2020", "bettencourtetal2007" }),
         new SentientScienceParameterReference(
             "sentient_technology_diffusion_model",
-            "This selects how StarGen separates highest available technology from adoption capacity.\nAccess-Cost Density Proxy adds density and implementation-cost pressure.\nHuman audit is required before release claims.",
-            new[] { "knez2023", "comin2013", "cominmestieri2013" }),
+            "This selects how StarGen separates highest available technology from median access, adoption capacity, and lag pressure.\nAccess-Cost Density Proxy adds density and implementation-cost pressure.\nHuman audit is required before release claims.",
+            new[] { "knez2023", "stokey2020", "comin2013", "cominmestieri2013" }),
         new SentientScienceParameterReference(
             "sentient_economic_complexity_model",
-            "This selects how StarGen estimates capability breadth.\nCapability Portfolio Proxy adds resource diversity, cultural accumulation, and binding constraints to trade and surplus.\nHuman audit is required before release claims.",
-            new[] { "chacuaetal2024", "ballandetal2022" }),
+            "This selects how StarGen estimates capability breadth and invention pressure.\nCapability Portfolio Proxy adds resource diversity, cultural accumulation, access inequality, and binding constraints to trade and surplus.\nHuman audit is required before release claims.",
+            new[] { "chacuaetal2024", "ballandetal2022", "bettencourtetal2007", "arvidssonetal2023" }),
         new SentientScienceParameterReference(
             "sentient_legitimacy_model",
             "This selects how StarGen treats legitimacy.\nInternal/External Norm Proxy separates local acceptance from outside recognition instead of using one capacity score.\nHuman audit is required before release claims.",
-            new[] { "vankleefetal2023" }),
+            new[] { "vankleefetal2023", "chowdhury2022" }),
     };
 
     private static readonly List<string> PanelSourceIds = new()
     {
         "hamiltonetal2020",
+        "bettencourtetal2007",
+        "arvidssonetal2023",
         "knez2023",
+        "stokey2020",
         "comin2013",
         "cominmestieri2013",
+        "chowdhury2022",
         "chacuaetal2024",
         "ballandetal2022",
         "vankleefetal2023",
