@@ -2275,6 +2275,12 @@ public static partial class DotNetNativeTestSuite
             "TestSystemBodyNode::test_cleanup",
             Tests.Unit.TestSystemBodyNode.TestCleanup);
         runner.RunNativeTest(
+            "TestSystemInspectorPanel::test_system_overview_shows_small_body_reservoir_families",
+            Tests.Unit.TestSystemInspectorPanel.TestSystemOverviewShowsSmallBodyReservoirFamilies);
+        runner.RunNativeTest(
+            "TestSystemInspectorPanel::test_selected_belt_shows_reservoir_family_summary",
+            Tests.Unit.TestSystemInspectorPanel.TestSelectedBeltShowsReservoirFamilySummary);
+        runner.RunNativeTest(
             "TestSystemCache::test_starts_empty",
             Tests.Unit.TestSystemCache.TestStartsEmpty);
         runner.RunNativeTest(

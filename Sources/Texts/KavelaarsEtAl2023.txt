@@ -62,7 +62,7 @@ resonant, and scattered populations.
 
 ## Current StarGen usage
 
-StarGen uses this source as active but simplified TNO reservoir support. `SystemAsteroidGenerator` now labels generated cold belts as `trans_neptunian_reservoir`, moves the default cold reservoir outward toward Kuiper-belt analog distances, lowers the outer-reservoir mass ceiling, records `KavelaarsEtAl2023` in belt reservoir, size-distribution, diagnostic subfamily provenance, and first-class `SmallBodyReservoir` records, and uses the public `minor_body_population_slope` control when sampling representative large TNO-like bodies.
+StarGen uses this source as active but simplified TNO reservoir support. `SystemAsteroidGenerator` now labels generated cold belts as `trans_neptunian_reservoir`, moves the default cold reservoir outward toward Kuiper-belt analog distances, lowers the outer-reservoir mass ceiling, records `KavelaarsEtAl2023` in belt reservoir, size-distribution, diagnostic subfamily provenance, and first-class `SmallBodyReservoir` records, uses the public `minor_body_population_slope` control when sampling representative large TNO-like bodies, and System Viewer surfaces reservoir-family weights in overview and selected-belt readouts.
 
 ## Human reviewer concern
 
@@ -70,7 +70,7 @@ The reviewer concern is that outer belts should not be generic asteroid belts pl
 
 ## AI response / disposition
 
-Disposition: partly implemented as a deterministic trans-Neptunian reservoir proxy. The current implementation records cold classical, hot classical, resonant, scattered, Centaur, and comet-feeding families as `SmallBodyReservoir` records linked to the current belt anchor, but does not yet give those families separate orbital distributions or calibrated population counts.
+Disposition: partly implemented as a deterministic trans-Neptunian reservoir proxy. The current implementation records cold classical, hot classical, resonant, scattered, Centaur, and comet-feeding families as `SmallBodyReservoir` records linked to the current belt anchor and exposes the family mix in System Viewer, but does not yet give those families separate orbital distributions or calibrated population counts.
 
 ## Implementation status
 
@@ -78,4 +78,4 @@ partly implemented
 
 ## Follow-up action
 
-Add separate TNO orbital distributions, reservoir-specific viewer/export panels, and calibrated population diagnostics from the reviewed inclination, resonance, and mass-population values. The current subfamily mix should remain labeled as a simplified diagnostic proxy.
+Add separate TNO orbital distributions, dedicated reservoir viewer/export panels beyond the compact System Viewer belt summaries, and calibrated population diagnostics from the reviewed inclination, resonance, and mass-population values. The current subfamily mix should remain labeled as a simplified diagnostic proxy.

@@ -1,12 +1,18 @@
 # Version
 
-Current version: `0.10.4.0`
+Current version: `0.10.5.0`
 
 Current user-facing version: `0.11`
 
 Date: `2026-05-07`
 
 Versioning method: release/refactor `+0.1`, feature `+0.0.1`, bug fix `+0.0.0.1`, save-breaking release `+1.0`.
+
+## 0.10.5.0
+
+- Feature: System Viewer now surfaces linked `SmallBodyReservoir` families in the system overview and selected-belt summary, so TNO, Centaur, and comet-feeding diagnostics are visible instead of only serialized.
+- Docs: Updated the small-body source plan, science audits, source notes, project structure, README, version metadata, and AI provenance to mark the new readout surface and the remaining reservoir-panel/export work.
+- Test: Added System Inspector regression coverage for overview and selected-belt reservoir family summaries; revalidated with `dotnet build .\StarGen.sln` and the full Godot headless harness (`1894 / 1894`).
 
 ## 0.10.4.0
 

@@ -1763,3 +1763,14 @@ Use this log for significant AI-assisted artifacts in this repository.
 - Human Changed: The user called out that the program lacked a good way to express TNO/comet work apart from asteroid belts and asked for expansion notes while continuing.
 - Validation Method: `dotnet build .\StarGen.sln` passed with 0 warnings and 0 errors. Full Godot headless harness passed (`Total: 1892 | Passed: 1892 | Failed: 0`).
 - Final Approver: Pending Christopher B. Del Gesso review.
+
+### 2026-05-07 - Codex (GPT-5)
+
+- Task Purpose: Continue the TNO/small-body hardening pass by making the new reservoir representation visible in the user-facing system readout.
+- Input Materials Used: User request to continue and report the remaining science-hardening plan; repo `claude.md`; user-supplied AGENTS instructions; `SystemInspectorPanel`; `SmallBodyReservoir`; system inspector test scaffolding; `Sources/SourceUtilizationPlan.md`; `Sources/Texts/KavelaarsEtAl2023.txt`; `Sources/Texts/BernardinelliEtAl2022.txt`; `Docs/EndToEndScienceAudit.md`; `Docs/SourceGeneratorFitAudit.md`; and version/release metadata.
+- AI Produced: Added System Viewer overview rows that group `SmallBodyReservoir` families under their current belt anchor, added selected-belt reservoir-family summaries, added regression coverage for both readouts, and updated version, source-note, science-audit, project-structure, and provenance documentation for the compact reservoir readout surface.
+- Human Accepted: User instructed Codex to assume source review is complete for this pass.
+- Human Rejected: No dedicated reservoir viewer/export panel, family-specific orbital renderer, calibrated TNO population-count diagnostic, or DES/OSSOS survey-bias model was added in this slice.
+- Human Changed: The user asked for a continuation pass and requested a summary of what science hardening remains after this work.
+- Validation Method: `dotnet build .\StarGen.sln` passed with 0 warnings and 0 errors. Full Godot headless harness passed (`Total: 1894 | Passed: 1894 | Failed: 0`) with clean shutdown.
+- Final Approver: Pending Christopher B. Del Gesso review.

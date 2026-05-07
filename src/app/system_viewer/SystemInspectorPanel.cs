@@ -130,6 +130,12 @@ public partial class SystemInspectorPanel : VBoxContainer
             AddProperty(_bodySection, "Reservoir", FormatReservoirSubfamily(belt.ReservoirSubfamily));
         }
 
+        string reservoirSummary = GetReservoirFamilySummary(belt.Id);
+        if (!string.IsNullOrWhiteSpace(reservoirSummary))
+        {
+            AddProperty(_bodySection, "Reservoir Families", reservoirSummary);
+        }
+
         AddProperty(_bodySection, "Major Bodies", belt.GetMajorAsteroidCount().ToString(CultureInfo.InvariantCulture));
         RemoveOpenViewerButton();
     }
@@ -229,6 +235,31 @@ public partial class SystemInspectorPanel : VBoxContainer
                 AddBeltFocusButton(label, entry.Belt, entry.Belt.Id == _selectedBeltId);
             }
         }
+
+        AddReservoirPreviewRows(system);
+    }
+
+    private void AddReservoirPreviewRows(SolarSystem system)
+    {
+        if (system.SmallBodyReservoirs.Count == 0)
+        {
+            return;
+        }
+
+        AddSeparator(_overviewSection);
+        AddHeader(_overviewSection, "Small-Body Reservoirs");
+        Dictionary<string, List<SmallBodyReservoir>> grouped = GroupReservoirsByAnchor(system.SmallBodyReservoirs);
+        foreach (string anchorBeltId in grouped.Keys)
+        {
+            string anchorName = anchorBeltId;
+            AsteroidBelt? anchorBelt = FindBeltById(anchorBeltId);
+            if (anchorBelt != null)
+            {
+                anchorName = GetBeltDisplayName(anchorBelt);
+            }
+
+            AddInfoLabel(_overviewSection, $"{anchorName}: {FormatReservoirFamilySummary(grouped[anchorBeltId])}");
+        }
     }
 
     private void AddBodyFocusButton(string text, CelestialBody body, bool selected)
@@ -282,6 +313,72 @@ public partial class SystemInspectorPanel : VBoxContainer
 
         entries.Sort(static (left, right) => left.DistanceM.CompareTo(right.DistanceM));
         return entries;
+    }
+
+    private string GetReservoirFamilySummary(string anchorBeltId)
+    {
+        if (_currentSystem == null)
+        {
+            return string.Empty;
+        }
+
+        List<SmallBodyReservoir> reservoirs = new();
+        foreach (SmallBodyReservoir reservoir in _currentSystem.SmallBodyReservoirs)
+        {
+            if (reservoir.AnchorBeltId == anchorBeltId)
+            {
+                reservoirs.Add(reservoir);
+            }
+        }
+
+        return FormatReservoirFamilySummary(reservoirs);
+    }
+
+    private static Dictionary<string, List<SmallBodyReservoir>> GroupReservoirsByAnchor(Godot.Collections.Array<SmallBodyReservoir> reservoirs)
+    {
+        Dictionary<string, List<SmallBodyReservoir>> grouped = new();
+        foreach (SmallBodyReservoir reservoir in reservoirs)
+        {
+            string key = reservoir.AnchorBeltId;
+            if (string.IsNullOrWhiteSpace(key))
+            {
+                key = reservoir.Id;
+            }
+
+            if (!grouped.ContainsKey(key))
+            {
+                grouped[key] = new List<SmallBodyReservoir>();
+            }
+
+            grouped[key].Add(reservoir);
+        }
+
+        return grouped;
+    }
+
+    private static string FormatReservoirFamilySummary(List<SmallBodyReservoir> reservoirs)
+    {
+        if (reservoirs.Count == 0)
+        {
+            return string.Empty;
+        }
+
+        reservoirs.Sort(static (left, right) => right.RelativeWeight.CompareTo(left.RelativeWeight));
+        List<string> labels = new();
+        int limit = System.Math.Min(3, reservoirs.Count);
+        for (int index = 0; index < limit; index += 1)
+        {
+            SmallBodyReservoir reservoir = reservoirs[index];
+            string familyLabel = FormatReservoirFamily(reservoir.ReservoirFamily);
+            labels.Add(string.Format(CultureInfo.InvariantCulture, "{0} {1:0}%", familyLabel, reservoir.RelativeWeight * 100.0));
+        }
+
+        if (reservoirs.Count > limit)
+        {
+            labels.Add($"+{reservoirs.Count - limit} more");
+        }
+
+        return string.Join(", ", labels);
     }
 
     private void AddPopulationSelectionSummary(CelestialBody body)
@@ -378,6 +475,13 @@ public partial class SystemInspectorPanel : VBoxContainer
     private static string FormatReservoirSubfamily(string subfamily)
     {
         string label = subfamily.Replace("_", " ");
+        label = CultureInfo.InvariantCulture.TextInfo.ToTitleCase(label);
+        return label.Replace("Tno", "TNO");
+    }
+
+    private static string FormatReservoirFamily(string family)
+    {
+        string label = family.Replace("_", " ");
         label = CultureInfo.InvariantCulture.TextInfo.ToTitleCase(label);
         return label.Replace("Tno", "TNO");
     }
