@@ -1752,3 +1752,14 @@ Use this log for significant AI-assisted artifacts in this repository.
 - Human Changed: The user reminded Codex to keep documentation and commits current while continuing the hardening pass.
 - Validation Method: `dotnet build .\StarGen.sln` passed with 0 warnings and 0 errors. Full Godot headless harness passed (`Total: 1892 | Passed: 1892 | Failed: 0`).
 - Final Approver: Pending Christopher B. Del Gesso review.
+
+### 2026-05-07 - Codex (GPT-5)
+
+- Task Purpose: Continue the reviewed-source TNO hardening pass by giving small-body reservoirs a first-class system representation instead of expressing TNO/Centaur/comet-feeding work only through asteroid-belt metadata.
+- Input Materials Used: User direction to assume source review is complete and to note where StarGen should expand for TNO work; repo `claude.md`; user-supplied AGENTS instructions; `Sources/SourceUtilizationPlan.md`; `Sources/Texts/KavelaarsEtAl2023.txt`; `Sources/Texts/BernardinelliEtAl2022.txt`; `Docs/EndToEndScienceAudit.md`; `Docs/SourceGeneratorFitAudit.md`; `Docs/ProjectStructure.md`; `SolarSystem`, `SolarSystem.Serialization`, `SystemAsteroidGenerator`, `GalaxySystemGenerator`, system fixture generation, system validator, and serialization/generator tests.
+- AI Produced: Added serializable `SmallBodyReservoir` records to `SolarSystem`; emitted asteroid, TNO, Centaur, and comet-feeding reservoir records from system asteroid generation; linked those records to their current asteroid-belt anchor; preserved them through save/load and fixture/galaxy generation paths; surfaced reservoir count in the system inspector overview; and updated source/audit/project/version documentation to identify `SmallBodyReservoir` as the expansion surface for future TNO UI/export work.
+- Human Accepted: User instructed Codex to assume source review is complete for this pass.
+- Human Rejected: No separate orbital-family renderer, calibrated TNO counts, DES/OSSOS survey simulator, or dedicated reservoir inspector panel was added in this slice.
+- Human Changed: The user called out that the program lacked a good way to express TNO/comet work apart from asteroid belts and asked for expansion notes while continuing.
+- Validation Method: `dotnet build .\StarGen.sln` passed with 0 warnings and 0 errors. Full Godot headless harness passed (`Total: 1892 | Passed: 1892 | Failed: 0`).
+- Final Approver: Pending Christopher B. Del Gesso review.

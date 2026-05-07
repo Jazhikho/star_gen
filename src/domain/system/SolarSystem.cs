@@ -57,6 +57,11 @@ public partial class SolarSystem : Godot.RefCounted
     public Array<AsteroidBelt> AsteroidBelts = new();
 
     /// <summary>
+    /// Source-backed small-body reservoirs in the system.
+    /// </summary>
+    public Array<SmallBodyReservoir> SmallBodyReservoirs = new();
+
+    /// <summary>
     /// Computed orbit hosts in the system.
     /// </summary>
     public Array<OrbitHost> OrbitHosts = new();
@@ -189,6 +194,17 @@ public partial class SolarSystem : Godot.RefCounted
         if (belt != null)
         {
             AsteroidBelts.Add(belt);
+        }
+    }
+
+    /// <summary>
+    /// Adds a small-body reservoir.
+    /// </summary>
+    public void AddSmallBodyReservoir(SmallBodyReservoir? reservoir)
+    {
+        if (reservoir != null)
+        {
+            SmallBodyReservoirs.Add(reservoir);
         }
     }
 

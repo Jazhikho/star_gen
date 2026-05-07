@@ -22,6 +22,7 @@ public static class SystemValidator
         ValidateOrbitHosts(system, result);
         ValidateOrbitalRelationships(system, result);
         ValidateAsteroidBelts(system, result);
+        ValidateSmallBodyReservoirs(system, result);
         return result;
     }
 
@@ -368,6 +369,61 @@ public static class SystemValidator
                 }
             }
         }
+    }
+
+    /// <summary>
+    /// Validates small-body reservoir data.
+    /// </summary>
+    private static void ValidateSmallBodyReservoirs(SolarSystem system, ValidationResult result)
+    {
+        for (int index = 0; index < system.SmallBodyReservoirs.Count; index += 1)
+        {
+            SmallBodyReservoir reservoir = system.SmallBodyReservoirs[index];
+            string prefix = $"small_body_reservoirs[{index}]";
+
+            if (string.IsNullOrEmpty(reservoir.Id))
+            {
+                result.AddError($"{prefix}.id", "Reservoir ID is empty");
+            }
+
+            if (string.IsNullOrEmpty(reservoir.ReservoirKind))
+            {
+                result.AddError($"{prefix}.reservoir_kind", "Reservoir kind is empty");
+            }
+
+            if (string.IsNullOrEmpty(reservoir.ReservoirFamily))
+            {
+                result.AddError($"{prefix}.reservoir_family", "Reservoir family is empty");
+            }
+
+            if (reservoir.RelativeWeight < 0.0)
+            {
+                result.AddError($"{prefix}.relative_weight", "Reservoir relative weight cannot be negative");
+            }
+
+            if (reservoir.OuterRadiusM <= reservoir.InnerRadiusM)
+            {
+                result.AddError(prefix, "Reservoir outer radius must be greater than inner radius");
+            }
+
+            if (!string.IsNullOrEmpty(reservoir.AnchorBeltId) && !HasAsteroidBelt(system, reservoir.AnchorBeltId))
+            {
+                result.AddError($"{prefix}.anchor_belt_id", $"Reservoir references non-existent belt: {reservoir.AnchorBeltId}");
+            }
+        }
+    }
+
+    private static bool HasAsteroidBelt(SolarSystem system, string beltId)
+    {
+        foreach (AsteroidBelt belt in system.AsteroidBelts)
+        {
+            if (belt.Id == beltId)
+            {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     /// <summary>

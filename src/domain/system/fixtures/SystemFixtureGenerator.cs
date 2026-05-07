@@ -123,6 +123,11 @@ public static class SystemFixtureGenerator
                 system.AddAsteroidBelt(belt);
             }
 
+            foreach (SmallBodyReservoir reservoir in beltResult.Reservoirs)
+            {
+                system.AddSmallBodyReservoir(reservoir);
+            }
+
             foreach (CelestialBody asteroid in beltResult.Asteroids)
             {
                 system.AddBody(asteroid);

@@ -19,6 +19,11 @@ public partial class BeltGenerationResult : Godot.RefCounted
     public Array<CelestialBody> Asteroids = new();
 
     /// <summary>
+    /// Generated source-backed small-body reservoir records.
+    /// </summary>
+    public Array<SmallBodyReservoir> Reservoirs = new();
+
+    /// <summary>
     /// Mapping of belt identifiers to major asteroid identifiers.
     /// </summary>
     public Dictionary BeltAsteroidMap = new();

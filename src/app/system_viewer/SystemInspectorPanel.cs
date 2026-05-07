@@ -176,10 +176,11 @@ public partial class SystemInspectorPanel : VBoxContainer
             "Bodies",
             string.Format(
                 CultureInfo.InvariantCulture,
-                "{0} planets, {1} moons, {2} belts",
+                "{0} planets, {1} moons, {2} belts, {3} reservoirs",
                 _currentSystem.GetPlanetCount(),
                 _currentSystem.GetMoonCount(),
-                _currentSystem.AsteroidBelts.Count));
+                _currentSystem.AsteroidBelts.Count,
+                _currentSystem.SmallBodyReservoirs.Count));
         AddProperty(_overviewSection, "Settlement", GetSystemSettlementSummary(_currentSystem));
 
         AddSeparator(_overviewSection);

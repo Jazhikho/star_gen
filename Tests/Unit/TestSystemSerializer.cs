@@ -61,6 +61,19 @@ public static class TestSystemSerializer
         belt.PrimaryComposition = AsteroidBelt.Composition.Rocky;
         system.AddAsteroidBelt(belt);
 
+        SmallBodyReservoir reservoir = new SmallBodyReservoir("reservoir_belt_1_main_belt", "Main Belt Reservoir");
+        reservoir.OrbitHostId = "node_star";
+        reservoir.AnchorBeltId = "belt_1";
+        reservoir.ReservoirKind = "main_asteroid_belt";
+        reservoir.ReservoirFamily = "main_belt";
+        reservoir.RelativeWeight = 1.0;
+        reservoir.InnerRadiusM = 2.2 * Units.AuMeters;
+        reservoir.OuterRadiusM = 3.2 * Units.AuMeters;
+        reservoir.SourceIds = "DeMeoCarry2014;RaymondIzidoro2017";
+        reservoir.PopulationModel = "demeo_carry_inner_belt_proxy";
+        reservoir.RepresentationStatus = "diagnostic_proxy";
+        system.AddSmallBodyReservoir(reservoir);
+
         system.Provenance = new Provenance(12345, "0.4.1.1", 1, 1234567890, new Godot.Collections.Dictionary { { "test", true } });
 
         return system;
@@ -103,6 +116,10 @@ public static class TestSystemSerializer
         if (restored.AsteroidBelts.Count != original.AsteroidBelts.Count)
         {
             throw new InvalidOperationException("Asteroid belts count should match");
+        }
+        if (restored.SmallBodyReservoirs.Count != original.SmallBodyReservoirs.Count)
+        {
+            throw new InvalidOperationException("Small-body reservoir count should match");
         }
         if (restored.OrbitHosts.Count != original.OrbitHosts.Count)
         {
@@ -245,6 +262,30 @@ public static class TestSystemSerializer
         if (System.Math.Abs(restBelt.InnerRadiusM - origBelt.InnerRadiusM) > DefaultTolerance)
         {
             throw new InvalidOperationException("Inner radius should match");
+        }
+
+        if (restored.SmallBodyReservoirs.Count != original.SmallBodyReservoirs.Count)
+        {
+            throw new InvalidOperationException("Small-body reservoirs count should match");
+        }
+
+        SmallBodyReservoir origReservoir = original.SmallBodyReservoirs[0];
+        SmallBodyReservoir restReservoir = restored.SmallBodyReservoirs[0];
+        if (restReservoir.Id != origReservoir.Id)
+        {
+            throw new InvalidOperationException("Reservoir ID should match");
+        }
+        if (restReservoir.AnchorBeltId != origReservoir.AnchorBeltId)
+        {
+            throw new InvalidOperationException("Reservoir anchor belt should match");
+        }
+        if (restReservoir.ReservoirFamily != origReservoir.ReservoirFamily)
+        {
+            throw new InvalidOperationException("Reservoir family should match");
+        }
+        if (System.Math.Abs(restReservoir.RelativeWeight - origReservoir.RelativeWeight) > 0.00001)
+        {
+            throw new InvalidOperationException("Reservoir relative weight should match");
         }
     }
 

@@ -206,6 +206,14 @@ public static class TestSolarSystem
 
         AsteroidBelt belt = new AsteroidBelt("main_belt", "Main Belt");
         system.AddAsteroidBelt(belt);
+        SmallBodyReservoir reservoir = new SmallBodyReservoir("reservoir_main_belt", "Main Belt Reservoir")
+        {
+            AnchorBeltId = "main_belt",
+            ReservoirKind = "main_asteroid_belt",
+            ReservoirFamily = "main_belt",
+            RelativeWeight = 1.0,
+        };
+        system.AddSmallBodyReservoir(reservoir);
 
         if (system.AsteroidBelts.Count != 1)
         {
@@ -214,6 +222,14 @@ public static class TestSolarSystem
         if (system.AsteroidBelts[0].Name != "Main Belt")
         {
             throw new InvalidOperationException("Expected Main Belt");
+        }
+        if (system.GetSmallBodyReservoirCount() != 1)
+        {
+            throw new InvalidOperationException("Expected 1 small-body reservoir");
+        }
+        if (system.SmallBodyReservoirs[0].ReservoirFamily != "main_belt")
+        {
+            throw new InvalidOperationException("Expected main-belt reservoir family");
         }
     }
 

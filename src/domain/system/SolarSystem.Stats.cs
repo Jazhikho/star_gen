@@ -57,6 +57,14 @@ public partial class SolarSystem
     }
 
     /// <summary>
+    /// Returns the total small-body reservoir count.
+    /// </summary>
+    public int GetSmallBodyReservoirCount()
+    {
+        return SmallBodyReservoirs.Count;
+    }
+
+    /// <summary>
     /// Returns total active population across all bodies.
     /// </summary>
     public int GetTotalPopulation()
@@ -102,7 +110,7 @@ public partial class SolarSystem
         {
             label = Name;
         }
-        return $"{label}: {GetStarCount()} stars, {GetPlanetCount()} planets, {GetMoonCount()} moons, {GetAsteroidCount()} asteroids, {AsteroidBelts.Count} belts";
+        return $"{label}: {GetStarCount()} stars, {GetPlanetCount()} planets, {GetMoonCount()} moons, {GetAsteroidCount()} asteroids, {AsteroidBelts.Count} belts, {SmallBodyReservoirs.Count} reservoirs";
     }
 
     /// <summary>

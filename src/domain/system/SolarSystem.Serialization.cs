@@ -54,6 +54,14 @@ public partial class SolarSystem
 
         data["asteroid_belts"] = beltsData;
 
+        Array<Dictionary> reservoirsData = new();
+        foreach (SmallBodyReservoir reservoir in SmallBodyReservoirs)
+        {
+            reservoirsData.Add(reservoir.ToDictionary());
+        }
+
+        data["small_body_reservoirs"] = reservoirsData;
+
         Array<Dictionary> hostsData = new();
         foreach (OrbitHost host in OrbitHosts)
         {
@@ -130,6 +138,17 @@ public partial class SolarSystem
                 if (value.VariantType == Variant.Type.Dictionary)
                 {
                     system.AsteroidBelts.Add(AsteroidBelt.FromDictionary((Dictionary)value));
+                }
+            }
+        }
+
+        if (data.ContainsKey("small_body_reservoirs") && data["small_body_reservoirs"].VariantType == Variant.Type.Array)
+        {
+            foreach (Variant value in (Array)data["small_body_reservoirs"])
+            {
+                if (value.VariantType == Variant.Type.Dictionary)
+                {
+                    system.SmallBodyReservoirs.Add(SmallBodyReservoir.FromDictionary((Dictionary)value));
                 }
             }
         }

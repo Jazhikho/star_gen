@@ -422,6 +422,7 @@ public static class TestSystemAsteroidGenerator
                 }
 
                 AssertMajorAsteroidsCarryReservoirSubfamily(result.Asteroids, belt);
+                AssertOuterReservoirRecordsCarryTnoFamilies(result.Reservoirs, belt);
                 return;
             }
         }
@@ -546,6 +547,61 @@ public static class TestSystemAsteroidGenerator
         }
 
         throw new InvalidOperationException("Expected a representative body for the selected outer reservoir.");
+    }
+
+    private static void AssertOuterReservoirRecordsCarryTnoFamilies(Array<SmallBodyReservoir> reservoirs, AsteroidBelt belt)
+    {
+        bool hasColdClassical = false;
+        bool hasResonant = false;
+        bool hasCometFeeding = false;
+        double totalWeight = 0.0;
+
+        foreach (SmallBodyReservoir reservoir in reservoirs)
+        {
+            if (reservoir.AnchorBeltId != belt.Id)
+            {
+                continue;
+            }
+
+            if (reservoir.ReservoirKind != "trans_neptunian_reservoir")
+            {
+                throw new InvalidOperationException("TNO reservoir records should retain trans-Neptunian reservoir kind.");
+            }
+
+            if (reservoir.RepresentationStatus != "diagnostic_proxy")
+            {
+                throw new InvalidOperationException("TNO reservoir records should remain diagnostic proxies until orbital-family generation is added.");
+            }
+
+            if (!reservoir.SourceIds.Contains("KavelaarsEtAl2023") || !reservoir.SourceIds.Contains("BernardinelliEtAl2022"))
+            {
+                throw new InvalidOperationException("TNO reservoir records should carry TNO source IDs.");
+            }
+
+            totalWeight += reservoir.RelativeWeight;
+            if (reservoir.ReservoirFamily == "cold_classical")
+            {
+                hasColdClassical = true;
+            }
+            else if (reservoir.ReservoirFamily == "resonant")
+            {
+                hasResonant = true;
+            }
+            else if (reservoir.ReservoirFamily == "comet_feeding")
+            {
+                hasCometFeeding = true;
+            }
+        }
+
+        if (!hasColdClassical || !hasResonant || !hasCometFeeding)
+        {
+            throw new InvalidOperationException("Outer reservoir records should expose TNO and comet-feeding families independently from belt geometry.");
+        }
+
+        if (System.Math.Abs(totalWeight - 1.0) > 0.001)
+        {
+            throw new InvalidOperationException($"TNO reservoir family weights should sum to 1.0, got {totalWeight:0.000}.");
+        }
     }
 
     private static double AverageRadiusM(Array<CelestialBody> bodies)

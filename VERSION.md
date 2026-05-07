@@ -1,12 +1,19 @@
 # Version
 
-Current version: `0.10.3.0`
+Current version: `0.10.4.0`
 
 Current user-facing version: `0.11`
 
 Date: `2026-05-07`
 
 Versioning method: release/refactor `+0.1`, feature `+0.0.1`, bug fix `+0.0.0.1`, save-breaking release `+1.0`.
+
+## 0.10.4.0
+
+- Feature: Added first-class `SmallBodyReservoir` system records so TNO, Centaur, comet-feeding, and asteroid reservoir families no longer have to be represented only as asteroid-belt metadata.
+- Feature: System generation now persists source-backed small-body reservoir records linked to their current belt anchor, with TNO subfamily weights exposed as separate diagnostic reservoir records.
+- Docs: Updated the small-body source plan, science audits, project structure, README, version metadata, and AI provenance to mark the new reservoir surface and the remaining UI/export expansion path.
+- Test: Added regression coverage for reservoir generation and solar-system serialization of small-body reservoir records; revalidated with `dotnet build .\StarGen.sln` and the full Godot headless harness (`1892 / 1892`).
 
 ## 0.10.3.0
 

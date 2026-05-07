@@ -77,7 +77,7 @@ Large TNO size-frequency distribution; detection of large (>100 km) TNOs.
 
 ## Current StarGen usage
 
-StarGen uses this source as active but simplified support for large trans-Neptunian-object demographics. `SystemAsteroidGenerator` records `BernardinelliEtAl2022` in generated cold-reservoir provenance, size-distribution provenance, and diagnostic subfamily provenance, and the planetary science catalog now exposes it for `planet_minor_body_outer_system_bias` and `minor_body_population_slope`.
+StarGen uses this source as active but simplified support for large trans-Neptunian-object demographics. `SystemAsteroidGenerator` records `BernardinelliEtAl2022` in generated cold-reservoir provenance, size-distribution provenance, diagnostic subfamily provenance, and first-class `SmallBodyReservoir` records, and the planetary science catalog now exposes it for `planet_minor_body_outer_system_bias` and `minor_body_population_slope`.
 
 ## Human reviewer concern
 
@@ -85,7 +85,7 @@ The reviewer concern is that StarGen should distinguish actual TNO/Kuiper-style 
 
 ## AI response / disposition
 
-Disposition: partly implemented as a source-marked large-TNO reservoir proxy. The current generator uses a bounded reservoir placement/mass/size-slope heuristic and records diagnostic TNO subfamily metadata; it does not yet model DES selection functions, survey completeness, or all orbital subpopulations as separate generated families.
+Disposition: partly implemented as a source-marked large-TNO reservoir proxy. The current generator uses a bounded reservoir placement/mass/size-slope heuristic and records diagnostic TNO subfamily families as `SmallBodyReservoir` records; it does not yet model DES selection functions, survey completeness, or family-specific orbital distributions.
 
 ## Implementation status
 
@@ -93,4 +93,4 @@ partly implemented
 
 ## Follow-up action
 
-Add explicit TNO population-count diagnostics, survey-bias caveats, and separate generated orbital families after human verification of the quantitative distribution. Keep the current implementation framed as a generator prior, not a DES reproduction.
+Add explicit TNO population-count diagnostics, survey-bias caveats, and separate generated orbital-family distributions from the reviewed quantitative distribution. Keep the current implementation framed as a generator prior, not a DES reproduction.

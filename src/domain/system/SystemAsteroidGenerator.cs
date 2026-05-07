@@ -69,6 +69,7 @@ public static class SystemAsteroidGenerator
 
                 belt.MajorAsteroidIds = asteroidIds;
                 result.BeltAsteroidMap[belt.Id] = asteroidIds;
+                AddReservoirRecordsForBelt(result.Reservoirs, belt);
             }
         }
 
@@ -113,6 +114,7 @@ public static class SystemAsteroidGenerator
 
             belt.MajorAsteroidIds = asteroidIds;
             result.BeltAsteroidMap[belt.Id] = asteroidIds;
+            AddReservoirRecordsForBelt(result.Reservoirs, belt);
         }
 
         result.Success = true;
@@ -801,6 +803,100 @@ public static class SystemAsteroidGenerator
             "scattered:" + weights.Scattered.ToString("0.00", CultureInfo.InvariantCulture),
             "centaur:" + weights.Centaur.ToString("0.00", CultureInfo.InvariantCulture),
             "comet_feeding:" + weights.CometFeeding.ToString("0.00", CultureInfo.InvariantCulture));
+    }
+
+    private static void AddReservoirRecordsForBelt(Array<SmallBodyReservoir> reservoirs, AsteroidBelt belt)
+    {
+        if (string.Equals(belt.ReservoirKind, "trans_neptunian_reservoir", System.StringComparison.Ordinal))
+        {
+            AddTransNeptunianReservoirRecords(reservoirs, belt);
+            return;
+        }
+
+        reservoirs.Add(CreateReservoirRecord(
+            belt,
+            "main_belt",
+            "Main Belt",
+            1.0,
+            belt.ReservoirSourceIds,
+            belt.PopulationModel));
+    }
+
+    private static void AddTransNeptunianReservoirRecords(Array<SmallBodyReservoir> reservoirs, AsteroidBelt belt)
+    {
+        AddReservoirRecordFromMix(reservoirs, belt, "cold_classical", "Cold Classical TNO");
+        AddReservoirRecordFromMix(reservoirs, belt, "hot_classical", "Hot Classical TNO");
+        AddReservoirRecordFromMix(reservoirs, belt, "resonant", "Resonant TNO");
+        AddReservoirRecordFromMix(reservoirs, belt, "scattered", "Scattered TNO");
+        AddReservoirRecordFromMix(reservoirs, belt, "centaur", "Centaur");
+        AddReservoirRecordFromMix(reservoirs, belt, "comet_feeding", "Comet-Feeding");
+    }
+
+    private static void AddReservoirRecordFromMix(Array<SmallBodyReservoir> reservoirs, AsteroidBelt belt, string family, string displayFamily)
+    {
+        double weight = ResolveSubfamilyWeight(belt.ReservoirSubfamilyMix, family);
+        if (weight <= 0.0)
+        {
+            return;
+        }
+
+        reservoirs.Add(CreateReservoirRecord(
+            belt,
+            family,
+            displayFamily,
+            weight,
+            belt.ReservoirSubfamilySourceIds,
+            "tno_subfamily_diagnostic_proxy"));
+    }
+
+    private static SmallBodyReservoir CreateReservoirRecord(
+        AsteroidBelt belt,
+        string family,
+        string displayFamily,
+        double relativeWeight,
+        string sourceIds,
+        string populationModel)
+    {
+        SmallBodyReservoir reservoir = new($"reservoir_{belt.Id}_{family}", $"{displayFamily} Reservoir")
+        {
+            OrbitHostId = belt.OrbitHostId,
+            AnchorBeltId = belt.Id,
+            ReservoirKind = belt.ReservoirKind,
+            ReservoirFamily = family,
+            RelativeWeight = relativeWeight,
+            InnerRadiusM = belt.InnerRadiusM,
+            OuterRadiusM = belt.OuterRadiusM,
+            SourceIds = sourceIds,
+            PopulationModel = populationModel,
+            RepresentationStatus = "diagnostic_proxy",
+        };
+
+        return reservoir;
+    }
+
+    private static double ResolveSubfamilyWeight(string mix, string family)
+    {
+        string[] entries = mix.Split(';', System.StringSplitOptions.RemoveEmptyEntries);
+        foreach (string entry in entries)
+        {
+            string[] parts = entry.Split(':', System.StringSplitOptions.RemoveEmptyEntries);
+            if (parts.Length != 2)
+            {
+                continue;
+            }
+
+            if (!string.Equals(parts[0], family, System.StringComparison.Ordinal))
+            {
+                continue;
+            }
+
+            if (double.TryParse(parts[1], System.Globalization.NumberStyles.Float, CultureInfo.InvariantCulture, out double parsed))
+            {
+                return parsed;
+            }
+        }
+
+        return 0.0;
     }
 
     /// <summary>
