@@ -125,6 +125,11 @@ public partial class SystemInspectorPanel : VBoxContainer
         AddProperty(_bodySection, "Class", belt.GetCompositionString() + " belt");
         AddProperty(_bodySection, "Center", string.Format(CultureInfo.InvariantCulture, "{0:0.0000} AU", belt.GetCenterAu()));
         AddProperty(_bodySection, "Width", string.Format(CultureInfo.InvariantCulture, "{0:0.0000} AU", belt.GetWidthAu()));
+        if (!string.IsNullOrWhiteSpace(belt.ReservoirSubfamily))
+        {
+            AddProperty(_bodySection, "Reservoir", FormatReservoirSubfamily(belt.ReservoirSubfamily));
+        }
+
         AddProperty(_bodySection, "Major Bodies", belt.GetMajorAsteroidCount().ToString(CultureInfo.InvariantCulture));
         RemoveOpenViewerButton();
     }
@@ -367,6 +372,13 @@ public partial class SystemInspectorPanel : VBoxContainer
         }
 
         return "Asteroid Belt";
+    }
+
+    private static string FormatReservoirSubfamily(string subfamily)
+    {
+        string label = subfamily.Replace("_", " ");
+        label = CultureInfo.InvariantCulture.TextInfo.ToTitleCase(label);
+        return label.Replace("Tno", "TNO");
     }
 
     private string ResolveOrbitHostName(string parentId)

@@ -391,6 +391,26 @@ public static class TestSystemAsteroidGenerator
                     throw new InvalidOperationException("Outer reservoir should carry TNO source IDs.");
                 }
 
+                if (string.IsNullOrWhiteSpace(belt.ReservoirSubfamily))
+                {
+                    throw new InvalidOperationException("Outer reservoir should carry a dominant TNO subfamily diagnostic.");
+                }
+
+                if (!belt.ReservoirSubfamily.EndsWith("_proxy", StringComparison.Ordinal))
+                {
+                    throw new InvalidOperationException($"Outer reservoir subfamily should be explicitly labeled as a proxy, got {belt.ReservoirSubfamily}.");
+                }
+
+                if (!belt.ReservoirSubfamilyMix.Contains("cold_classical") || !belt.ReservoirSubfamilyMix.Contains("comet_feeding"))
+                {
+                    throw new InvalidOperationException("Outer reservoir should carry the full TNO subfamily mix diagnostic.");
+                }
+
+                if (!belt.ReservoirSubfamilySourceIds.Contains("KavelaarsEtAl2023") || !belt.ReservoirSubfamilySourceIds.Contains("BernardinelliEtAl2022"))
+                {
+                    throw new InvalidOperationException("Outer reservoir subfamily diagnostics should carry TNO source IDs.");
+                }
+
                 if (!belt.CompositionSourceIds.Contains("DeMeoCarry2014"))
                 {
                     throw new InvalidOperationException("Outer reservoir should retain DeMeo/Carry composition source ID.");
@@ -401,6 +421,7 @@ public static class TestSystemAsteroidGenerator
                     throw new InvalidOperationException($"Outer reservoir mass should stay within the reduced TNO-proxy range, got {belt.TotalMassKg:0.000e0} kg.");
                 }
 
+                AssertMajorAsteroidsCarryReservoirSubfamily(result.Asteroids, belt);
                 return;
             }
         }
@@ -487,10 +508,44 @@ public static class TestSystemAsteroidGenerator
             PrimaryComposition = AsteroidBelt.Composition.Icy,
             ReservoirKind = "trans_neptunian_reservoir",
             ReservoirSourceIds = "KavelaarsEtAl2023;BernardinelliEtAl2022",
+            ReservoirSubfamily = "hot_classical_tno_proxy",
+            ReservoirSubfamilyMix = "cold_classical:0.14;hot_classical:0.38;resonant:0.26;scattered:0.12;centaur:0.04;comet_feeding:0.06",
+            ReservoirSubfamilySourceIds = "KavelaarsEtAl2023;BernardinelliEtAl2022",
             CompositionSourceIds = "DeMeoCarry2014",
             SizeDistributionSourceIds = "KavelaarsEtAl2023;BernardinelliEtAl2022",
             PopulationModel = "kavelaars_bernardinelli_large_tno_proxy",
         };
+    }
+
+    private static void AssertMajorAsteroidsCarryReservoirSubfamily(Array<CelestialBody> asteroids, AsteroidBelt belt)
+    {
+        foreach (CelestialBody asteroid in asteroids)
+        {
+            if (!belt.MajorAsteroidIds.Contains(asteroid.Id))
+            {
+                continue;
+            }
+
+            if (!asteroid.HasMeta("belt_reservoir_subfamily"))
+            {
+                throw new InvalidOperationException("Representative TNO-like bodies should carry reservoir subfamily metadata.");
+            }
+
+            string subfamily = asteroid.GetMeta("belt_reservoir_subfamily").AsString();
+            if (subfamily != belt.ReservoirSubfamily)
+            {
+                throw new InvalidOperationException("Representative TNO-like body subfamily metadata should match its belt.");
+            }
+
+            if (!asteroid.HasMeta("belt_reservoir_subfamily_mix") || !asteroid.HasMeta("belt_reservoir_subfamily_source_ids"))
+            {
+                throw new InvalidOperationException("Representative TNO-like bodies should carry subfamily mix and source metadata.");
+            }
+
+            return;
+        }
+
+        throw new InvalidOperationException("Expected a representative body for the selected outer reservoir.");
     }
 
     private static double AverageRadiusM(Array<CelestialBody> bodies)

@@ -1741,3 +1741,14 @@ Use this log for significant AI-assisted artifacts in this repository.
 - Human Changed: The user asked whether the leak could be patched and whether it reflected code hygiene, then asked to continue the science hardening pass.
 - Validation Method: `dotnet build .\StarGen.sln` passed with 0 warnings and 0 errors. Population-focused Godot headless harness passed (`Total: 660 | Passed: 660 | Failed: 0`). Full Godot headless harness passed (`Total: 1892 | Passed: 1892 | Failed: 0`) and exited without the previous RID/ObjectDB/resource leak warnings.
 - Final Approver: Pending Christopher B. Del Gesso review.
+
+### 2026-05-07 - Codex (GPT-5)
+
+- Task Purpose: Continue the v0.11 science-hardening pass with a narrow small-body reservoir refinement after deeper sentient governance/diffusion work was deferred for human source review.
+- Input Materials Used: User request to keep committing/docs updated and continue the next bit; repo `claude.md`; user-supplied AGENTS instructions; `Sources/SourceUtilizationPlan.md`; `Sources/Texts/KavelaarsEtAl2023.txt`; `Sources/Texts/BernardinelliEtAl2022.txt`; `Sources/AnnotatedBibliography.md`; `Docs/EndToEndScienceAudit.md`; `Docs/SourceGeneratorFitAudit.md`; `Docs/ProjectStructure.md`; `src/domain/system/AsteroidBelt.cs`; `src/domain/system/SystemAsteroidGenerator.cs`; `src/app/system_viewer/SystemInspectorPanel.cs`; and focused asteroid-belt tests.
+- AI Produced: Added serializable reservoir subfamily diagnostics to asteroid belts; annotated trans-Neptunian reservoir proxies with dominant cold classical, hot classical, resonant, scattered, Centaur, or comet-feeding subfamily labels plus full diagnostic mix/source IDs; propagated that metadata onto representative TNO-like bodies and the system inspector; updated source notes, bibliography, audits, plan, README, version/export metadata, and tests.
+- Human Accepted: Pending user review of the diagnostic-only TNO subfamily proxy.
+- Human Rejected: No survey-bias-calibrated TNO counts, luminosity-function model, or separate generated orbital-family populations were added; those remain deferred until human verification of the quantitative source translation.
+- Human Changed: The user reminded Codex to keep documentation and commits current while continuing the hardening pass.
+- Validation Method: `dotnet build .\StarGen.sln` passed with 0 warnings and 0 errors. Full Godot headless harness passed (`Total: 1892 | Passed: 1892 | Failed: 0`).
+- Final Approver: Pending Christopher B. Del Gesso review.

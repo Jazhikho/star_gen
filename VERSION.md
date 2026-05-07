@@ -1,12 +1,19 @@
 # Version
 
-Current version: `0.10.2.0`
+Current version: `0.10.3.0`
 
 Current user-facing version: `0.11`
 
-Date: `2026-05-06`
+Date: `2026-05-07`
 
 Versioning method: release/refactor `+0.1`, feature `+0.0.1`, bug fix `+0.0.0.1`, save-breaking release `+1.0`.
+
+## 0.10.3.0
+
+- Feature: Split the single trans-Neptunian reservoir proxy into source-marked diagnostic subfamily metadata for cold classical, hot classical, resonant, scattered, Centaur, and comet-feeding reservoirs.
+- Feature: Generated TNO-like belts and representative bodies now serialize dominant subfamily, subfamily mix, and subfamily source IDs for viewer/debug inspection without adding survey-bias-calibrated population counts.
+- Docs: Updated the small-body source plan, science audits, bibliography/source notes, project structure, README, and AI provenance for the TNO subfamily hardening slice.
+- Test: Added regression coverage for reservoir subfamily round-tripping and generated outer-reservoir subfamily metadata; revalidated with `dotnet build .\StarGen.sln` and the full Godot headless harness (`1892 / 1892`).
 
 ## 0.10.2.0
 

@@ -77,6 +77,21 @@ public partial class AsteroidBelt : RefCounted
     public string ReservoirSourceIds = string.Empty;
 
     /// <summary>
+    /// Dominant diagnostic reservoir subfamily used for inspectable small-body provenance.
+    /// </summary>
+    public string ReservoirSubfamily = string.Empty;
+
+    /// <summary>
+    /// Semicolon-delimited diagnostic mix for source-backed reservoir subfamilies.
+    /// </summary>
+    public string ReservoirSubfamilyMix = string.Empty;
+
+    /// <summary>
+    /// Semicolon-delimited source IDs supporting the reservoir subfamily proxy.
+    /// </summary>
+    public string ReservoirSubfamilySourceIds = string.Empty;
+
+    /// <summary>
     /// Semicolon-delimited source IDs supporting the composition gradient proxy.
     /// </summary>
     public string CompositionSourceIds = string.Empty;
@@ -228,6 +243,9 @@ public partial class AsteroidBelt : RefCounted
             ["composition"] = CompositionToString(PrimaryComposition),
             ["reservoir_kind"] = ReservoirKind,
             ["reservoir_source_ids"] = ReservoirSourceIds,
+            ["reservoir_subfamily"] = ReservoirSubfamily,
+            ["reservoir_subfamily_mix"] = ReservoirSubfamilyMix,
+            ["reservoir_subfamily_source_ids"] = ReservoirSubfamilySourceIds,
             ["composition_source_ids"] = CompositionSourceIds,
             ["size_distribution_source_ids"] = SizeDistributionSourceIds,
             ["population_model"] = PopulationModel,
@@ -250,6 +268,9 @@ public partial class AsteroidBelt : RefCounted
         belt.PrimaryComposition = (Composition)StringToComposition(GetString(data, "composition", "rocky"));
         belt.ReservoirKind = GetString(data, "reservoir_kind", string.Empty);
         belt.ReservoirSourceIds = GetString(data, "reservoir_source_ids", string.Empty);
+        belt.ReservoirSubfamily = GetString(data, "reservoir_subfamily", string.Empty);
+        belt.ReservoirSubfamilyMix = GetString(data, "reservoir_subfamily_mix", string.Empty);
+        belt.ReservoirSubfamilySourceIds = GetString(data, "reservoir_subfamily_source_ids", string.Empty);
         belt.CompositionSourceIds = GetString(data, "composition_source_ids", string.Empty);
         belt.SizeDistributionSourceIds = GetString(data, "size_distribution_source_ids", string.Empty);
         belt.PopulationModel = GetString(data, "population_model", string.Empty);

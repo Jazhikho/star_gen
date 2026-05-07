@@ -151,6 +151,9 @@ public static class TestAsteroidBelt
         original.PrimaryComposition = (AsteroidBelt.Composition)AsteroidBelt.CompositionType.Mixed;
         original.ReservoirKind = "main_asteroid_belt";
         original.ReservoirSourceIds = "DeMeoCarry2014;RaymondIzidoro2017";
+        original.ReservoirSubfamily = "main_belt_proxy";
+        original.ReservoirSubfamilyMix = "main_belt_proxy:1.00";
+        original.ReservoirSubfamilySourceIds = "DeMeoCarry2014;RaymondIzidoro2017";
         original.CompositionSourceIds = "DeMeoCarry2014";
         original.SizeDistributionSourceIds = "DeMeoCarry2014";
         original.PopulationModel = "demeo_carry_inner_belt_proxy";
@@ -194,6 +197,18 @@ public static class TestAsteroidBelt
         if (restored.ReservoirSourceIds != original.ReservoirSourceIds)
         {
             throw new InvalidOperationException("Reservoir source ids should match");
+        }
+        if (restored.ReservoirSubfamily != original.ReservoirSubfamily)
+        {
+            throw new InvalidOperationException("Reservoir subfamily should match");
+        }
+        if (restored.ReservoirSubfamilyMix != original.ReservoirSubfamilyMix)
+        {
+            throw new InvalidOperationException("Reservoir subfamily mix should match");
+        }
+        if (restored.ReservoirSubfamilySourceIds != original.ReservoirSubfamilySourceIds)
+        {
+            throw new InvalidOperationException("Reservoir subfamily source ids should match");
         }
         if (restored.CompositionSourceIds != original.CompositionSourceIds)
         {

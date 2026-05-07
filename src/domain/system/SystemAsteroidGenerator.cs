@@ -6,7 +6,9 @@ using StarGen.Domain.Generation;
 using StarGen.Domain.Generation.Archetypes;
 using StarGen.Domain.Generation.Generators;
 using StarGen.Domain.Generation.Specs;
+using StarGen.Domain.Math;
 using StarGen.Domain.Rng;
+using System.Globalization;
 
 namespace StarGen.Domain.Systems;
 
@@ -34,6 +36,7 @@ public static class SystemAsteroidGenerator
     private const string CompositionSourceIds = "DeMeoCarry2014";
     private const string InnerSizeSourceIds = "DeMeoCarry2014";
     private const string OuterSizeSourceIds = "KavelaarsEtAl2023;BernardinelliEtAl2022";
+    private const string OuterSubfamilySourceIds = "KavelaarsEtAl2023;BernardinelliEtAl2022";
 
     /// <summary>
     /// Generates belts and their major asteroids for a system.
@@ -682,6 +685,122 @@ public static class SystemAsteroidGenerator
         belt.CompositionSourceIds = compositionSourceIds;
         belt.SizeDistributionSourceIds = sizeDistributionSourceIds;
         belt.PopulationModel = populationModel;
+        if (string.Equals(reservoirKind, "trans_neptunian_reservoir", System.StringComparison.Ordinal))
+        {
+            ApplyTransNeptunianReservoirSubfamilies(belt);
+        }
+        else
+        {
+            belt.ReservoirSubfamily = "main_belt_proxy";
+            belt.ReservoirSubfamilyMix = "main_belt_proxy:1.00";
+            belt.ReservoirSubfamilySourceIds = reservoirSourceIds;
+        }
+    }
+
+    private static void ApplyTransNeptunianReservoirSubfamilies(AsteroidBelt belt)
+    {
+        double innerAu = belt.InnerRadiusM / Units.AuMeters;
+        double outerAu = belt.OuterRadiusM / Units.AuMeters;
+        double centerAu = belt.GetCenterAu();
+        double widthAu = belt.GetWidthAu();
+        TnoSubfamilyWeights weights = ResolveTransNeptunianSubfamilyWeights(innerAu, outerAu, centerAu, widthAu);
+
+        belt.ReservoirSubfamily = SelectDominantTransNeptunianSubfamily(weights);
+        belt.ReservoirSubfamilyMix = FormatTransNeptunianSubfamilyMix(weights);
+        belt.ReservoirSubfamilySourceIds = OuterSubfamilySourceIds;
+    }
+
+    private static TnoSubfamilyWeights ResolveTransNeptunianSubfamilyWeights(double innerAu, double outerAu, double centerAu, double widthAu)
+    {
+        TnoSubfamilyWeights weights = new();
+        if (centerAu < 35.0)
+        {
+            weights.ColdClassical = 0.04;
+            weights.HotClassical = 0.18;
+            weights.Resonant = 0.28;
+            weights.Scattered = 0.06;
+            weights.Centaur = 0.22;
+            weights.CometFeeding = 0.22;
+            return weights;
+        }
+
+        if (innerAu >= 41.0 && outerAu <= 49.5 && widthAu <= 12.0)
+        {
+            weights.ColdClassical = 0.32;
+            weights.HotClassical = 0.30;
+            weights.Resonant = 0.20;
+            weights.Scattered = 0.08;
+            weights.Centaur = 0.03;
+            weights.CometFeeding = 0.07;
+            return weights;
+        }
+
+        if (centerAu <= 50.0)
+        {
+            weights.ColdClassical = 0.14;
+            weights.HotClassical = 0.38;
+            weights.Resonant = 0.26;
+            weights.Scattered = 0.12;
+            weights.Centaur = 0.04;
+            weights.CometFeeding = 0.06;
+            return weights;
+        }
+
+        weights.ColdClassical = 0.04;
+        weights.HotClassical = 0.16;
+        weights.Resonant = 0.14;
+        weights.Scattered = 0.38;
+        weights.Centaur = 0.10;
+        weights.CometFeeding = 0.18;
+        return weights;
+    }
+
+    private static string SelectDominantTransNeptunianSubfamily(TnoSubfamilyWeights weights)
+    {
+        string dominant = "cold_classical_tno_proxy";
+        double value = weights.ColdClassical;
+        if (weights.HotClassical > value)
+        {
+            dominant = "hot_classical_tno_proxy";
+            value = weights.HotClassical;
+        }
+
+        if (weights.Resonant > value)
+        {
+            dominant = "resonant_tno_proxy";
+            value = weights.Resonant;
+        }
+
+        if (weights.Scattered > value)
+        {
+            dominant = "scattered_tno_proxy";
+            value = weights.Scattered;
+        }
+
+        if (weights.Centaur > value)
+        {
+            dominant = "centaur_proxy";
+            value = weights.Centaur;
+        }
+
+        if (weights.CometFeeding > value)
+        {
+            dominant = "comet_feeding_proxy";
+        }
+
+        return dominant;
+    }
+
+    private static string FormatTransNeptunianSubfamilyMix(TnoSubfamilyWeights weights)
+    {
+        return string.Join(
+            ";",
+            "cold_classical:" + weights.ColdClassical.ToString("0.00", CultureInfo.InvariantCulture),
+            "hot_classical:" + weights.HotClassical.ToString("0.00", CultureInfo.InvariantCulture),
+            "resonant:" + weights.Resonant.ToString("0.00", CultureInfo.InvariantCulture),
+            "scattered:" + weights.Scattered.ToString("0.00", CultureInfo.InvariantCulture),
+            "centaur:" + weights.Centaur.ToString("0.00", CultureInfo.InvariantCulture),
+            "comet_feeding:" + weights.CometFeeding.ToString("0.00", CultureInfo.InvariantCulture));
     }
 
     /// <summary>
@@ -816,6 +935,9 @@ public static class SystemAsteroidGenerator
         asteroid.SetMeta("small_body_reservoir_kind", belt.ReservoirKind);
         asteroid.SetMeta("small_body_source_ids", planetaryState.SmallBodySourceIds);
         asteroid.SetMeta("belt_reservoir_source_ids", belt.ReservoirSourceIds);
+        asteroid.SetMeta("belt_reservoir_subfamily", belt.ReservoirSubfamily);
+        asteroid.SetMeta("belt_reservoir_subfamily_mix", belt.ReservoirSubfamilyMix);
+        asteroid.SetMeta("belt_reservoir_subfamily_source_ids", belt.ReservoirSubfamilySourceIds);
         asteroid.SetMeta("belt_composition_source_ids", belt.CompositionSourceIds);
         asteroid.SetMeta("belt_size_distribution_source_ids", belt.SizeDistributionSourceIds);
         asteroid.SetMeta("minor_body_population_slope", ResolveMajorBodyPowerLawAlpha(belt, planetaryState));
@@ -896,5 +1018,15 @@ public static class SystemAsteroidGenerator
         }
 
         return (int)AsteroidType.Type.SType;
+    }
+
+    private sealed class TnoSubfamilyWeights
+    {
+        public double ColdClassical;
+        public double HotClassical;
+        public double Resonant;
+        public double Scattered;
+        public double Centaur;
+        public double CometFeeding;
     }
 }
