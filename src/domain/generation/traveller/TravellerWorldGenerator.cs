@@ -771,6 +771,12 @@ public static partial class TravellerWorldGenerator
 
         if (body.HasPopulationData() && body.PopulationData != null)
         {
+            SentientWorldProfile? sentientProfile = body.PopulationData.GetSentientWorldProfile();
+            if (sentientProfile != null)
+            {
+                return MapGovernmentRegime(sentientProfile.DominantRegime);
+            }
+
             Variant dominant = body.PopulationData.GetDominantPopulation();
             if (dominant.Obj is Colony colony)
             {
@@ -807,6 +813,12 @@ public static partial class TravellerWorldGenerator
 
         if (body.HasPopulationData() && body.PopulationData != null)
         {
+            SentientWorldProfile? sentientProfile = body.PopulationData.GetSentientWorldProfile();
+            if (sentientProfile != null)
+            {
+                return System.Math.Clamp(sentientProfile.LawLevel, 0, 15);
+            }
+
             Variant dominant = body.PopulationData.GetDominantPopulation();
             if (dominant.Obj is Colony colony)
             {
@@ -832,6 +844,12 @@ public static partial class TravellerWorldGenerator
     {
         if (body.HasPopulationData() && body.PopulationData != null)
         {
+            SentientWorldProfile? sentientProfile = body.PopulationData.GetSentientWorldProfile();
+            if (sentientProfile != null)
+            {
+                return TechnologyLevel.CoreLevelToTravellerTechLevel(sentientProfile.EliteCoreTechLevel);
+            }
+
             return MapTechLevel(body.PopulationData.GetHighestTechLevel());
         }
 

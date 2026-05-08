@@ -6,6 +6,16 @@ namespace StarGen.Domain.Population;
 public static class TechnologyLevel
 {
     /// <summary>
+    /// Minimum neutral core technology level.
+    /// </summary>
+    public const int MinCoreTechLevel = 0;
+
+    /// <summary>
+    /// Maximum neutral core technology level.
+    /// </summary>
+    public const int MaxCoreTechLevel = 24;
+
+    /// <summary>
     /// Technology eras and levels.
     /// </summary>
     public enum Level
@@ -115,6 +125,185 @@ public static class TechnologyLevel
     public static bool CanInterstellar(Level level)
     {
         return level >= Level.Interstellar;
+    }
+
+    /// <summary>
+    /// Clamps a neutral core technology level to the supported range.
+    /// </summary>
+    public static int ClampCoreLevel(int coreLevel)
+    {
+        return System.Math.Clamp(coreLevel, MinCoreTechLevel, MaxCoreTechLevel);
+    }
+
+    /// <summary>
+    /// Maps a neutral 0-24 core technology level to the legacy era label.
+    /// </summary>
+    public static Level CoreLevelToEra(int coreLevel)
+    {
+        int clamped = ClampCoreLevel(coreLevel);
+        if (clamped <= 1)
+        {
+            return Level.StoneAge;
+        }
+
+        if (clamped == 2)
+        {
+            return Level.BronzeAge;
+        }
+
+        if (clamped == 3)
+        {
+            return Level.IronAge;
+        }
+
+        if (clamped == 4)
+        {
+            return Level.Classical;
+        }
+
+        if (clamped == 5)
+        {
+            return Level.Medieval;
+        }
+
+        if (clamped == 6)
+        {
+            return Level.Renaissance;
+        }
+
+        if (clamped == 7)
+        {
+            return Level.Industrial;
+        }
+
+        if (clamped == 8)
+        {
+            return Level.Atomic;
+        }
+
+        if (clamped == 9)
+        {
+            return Level.Information;
+        }
+
+        if (clamped <= 11)
+        {
+            return Level.Spacefaring;
+        }
+
+        if (clamped <= 15)
+        {
+            return Level.Interstellar;
+        }
+
+        return Level.Advanced;
+    }
+
+    /// <summary>
+    /// Maps a legacy era to a representative neutral core technology level.
+    /// </summary>
+    public static int EraToRepresentativeCoreLevel(Level level)
+    {
+        return level switch
+        {
+            Level.StoneAge => 1,
+            Level.BronzeAge => 2,
+            Level.IronAge => 3,
+            Level.Classical => 4,
+            Level.Medieval => 5,
+            Level.Renaissance => 6,
+            Level.Industrial => 7,
+            Level.Atomic => 8,
+            Level.Information => 9,
+            Level.Spacefaring => 10,
+            Level.Interstellar => 12,
+            Level.Advanced => 18,
+            _ => 0,
+        };
+    }
+
+    /// <summary>
+    /// Maps a neutral core technology level to a Traveller/Cepheus tech level code.
+    /// </summary>
+    public static int CoreLevelToTravellerTechLevel(int coreLevel)
+    {
+        int clamped = ClampCoreLevel(coreLevel);
+        if (clamped == 0)
+        {
+            return 0;
+        }
+
+        if (clamped == 1 || clamped == 2)
+        {
+            return 1;
+        }
+
+        if (clamped == 3)
+        {
+            return 2;
+        }
+
+        if (clamped == 4)
+        {
+            return 3;
+        }
+
+        if (clamped == 5)
+        {
+            return 4;
+        }
+
+        if (clamped == 6)
+        {
+            return 5;
+        }
+
+        if (clamped == 7 || clamped == 8)
+        {
+            return 6;
+        }
+
+        if (clamped == 9)
+        {
+            return 7;
+        }
+
+        if (clamped == 10)
+        {
+            return 8;
+        }
+
+        if (clamped == 11)
+        {
+            return 9;
+        }
+
+        if (clamped == 12 || clamped == 13)
+        {
+            return 10;
+        }
+
+        if (clamped == 14)
+        {
+            return 11;
+        }
+
+        if (clamped == 15 || clamped == 16)
+        {
+            return 12;
+        }
+
+        if (clamped == 17 || clamped == 18)
+        {
+            return 13;
+        }
+
+        if (clamped == 19 || clamped == 20)
+        {
+            return 14;
+        }
+
+        return 15;
     }
 
     /// <summary>

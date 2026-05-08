@@ -17,6 +17,17 @@ Use this log for significant AI-assisted artifacts in this repository.
 
 ## Entries
 
+### 2026-05-08 - Codex (GPT-5)
+
+- Task Purpose: Implement the sentient population worldbuilding baseline for the v0.11 science-hardening line.
+- Input Materials Used: User-provided `Sentient Population Worldbuilding Baseline Plan`; user confirmation that source review was already complete; `claude.md`; `Sources/SourceUtilizationPlan.md`; `Docs/SentientWorldBaseline.md`; `Docs/RpgCompatibilityGenerationAudit.md`; population domain code; Traveller compatibility generator; Object Viewer inspector code; population and Traveller tests; version metadata.
+- AI Produced: Added neutral `0-24` core technology fields and mappings; added compressed neutral law level and law interpretation; added first-class deterministic faction records; added structured cultural tags, institutional religion structure, and biology-gated life-biome readouts; added a Starfinder-only adapter payload with magic isolated outside normal generation; updated Traveller/Cepheus UWP derivation to prefer neutral sentient profile fields; exposed compact Object Viewer readouts; updated tests, docs, version surfaces, and provenance.
+- Human Accepted: Pending Christopher B. Del Gesso review.
+- Human Rejected: Treating magic, doctrine, culture prose, religion content, or faction narrative claims as normal-generation science outputs. Magic remains Starfinder adapter-only.
+- Human Changed: User directed the implementation goal and clarified that population outputs should support sci-fi worldbuilding, RPG compatibility, life-biome gating, and future TNO/comet/outer-reservoir expression beyond asteroid-belt-only readouts.
+- Validation Method: `dotnet build .\StarGen.sln` (`Build succeeded. 0 Warning(s), 0 Error(s).`); `godot-mono.exe --path . --headless --script res://Tests/RunTestsHeadless.gd -- population` (`Total: 667 | Passed: 667 | Failed: 0`); `godot-mono.exe --path . --headless --script res://Tests/RunTestsHeadless.gd` (`Total: 1902 | Passed: 1902 | Failed: 0`).
+- Final Approver: Pending Christopher B. Del Gesso review.
+
 ### 2026-05-06 - Codex (GPT-5)
 
 - Task Purpose: Continue v0.11 science hardening through sentient populations, technology diffusion, and governance source alignment.

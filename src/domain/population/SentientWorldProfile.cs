@@ -39,6 +39,21 @@ public partial class SentientWorldProfile : RefCounted
     public TechnologyLevel.Level MedianTechLevel = TechnologyLevel.Level.StoneAge;
 
     /// <summary>
+    /// Neutral 0-24 overall core technology level used by ruleset adapters.
+    /// </summary>
+    public int CoreTechLevel;
+
+    /// <summary>
+    /// Neutral 0-24 elite or institutionally available technology level.
+    /// </summary>
+    public int EliteCoreTechLevel;
+
+    /// <summary>
+    /// Neutral 0-24 median technology level experienced by the active population.
+    /// </summary>
+    public int MedianCoreTechLevel;
+
+    /// <summary>
     /// Dominant regime among the active populations.
     /// </summary>
     public GovernmentType.Regime DominantRegime = GovernmentType.Regime.Tribal;
@@ -114,6 +129,16 @@ public partial class SentientWorldProfile : RefCounted
     public double RestrictionPressure;
 
     /// <summary>
+    /// Compressed neutral 0-15 law code for ruleset adapters.
+    /// </summary>
+    public int LawLevel;
+
+    /// <summary>
+    /// Compact interpretation of the neutral legal order.
+    /// </summary>
+    public string LawInterpretation = string.Empty;
+
+    /// <summary>
     /// Capacity to preserve, transmit, and accumulate complex cultural knowledge.
     /// </summary>
     public double CulturalAccumulation;
@@ -149,6 +174,26 @@ public partial class SentientWorldProfile : RefCounted
     public double ReligiousCentralization;
 
     /// <summary>
+    /// First-class neutral factions inferred from population and governance structure.
+    /// </summary>
+    public Array<SentientFactionRecord> Factions = new();
+
+    /// <summary>
+    /// Structured cultural feature tags only; no doctrine or prose culture generation.
+    /// </summary>
+    public Array<string> CulturalFeatureTags = new();
+
+    /// <summary>
+    /// Institutional religion structure only.
+    /// </summary>
+    public string ReligionStructure = string.Empty;
+
+    /// <summary>
+    /// Life-supportable biome readout, only populated for worlds that pass the native-life gate.
+    /// </summary>
+    public Array<string> AvailableLifeBiomes = new();
+
+    /// <summary>
     /// Proxy for capability breadth, relatedness, and production readiness.
     /// </summary>
     public double EconomicComplexity;
@@ -180,6 +225,9 @@ public partial class SentientWorldProfile : RefCounted
         data["highest_tech_level"] = (int)HighestTechLevel;
         data["elite_tech_level"] = (int)EliteTechLevel;
         data["median_tech_level"] = (int)MedianTechLevel;
+        data["core_tech_level"] = TechnologyLevel.ClampCoreLevel(CoreTechLevel);
+        data["elite_core_tech_level"] = TechnologyLevel.ClampCoreLevel(EliteCoreTechLevel);
+        data["median_core_tech_level"] = TechnologyLevel.ClampCoreLevel(MedianCoreTechLevel);
         data["dominant_regime"] = (int)DominantRegime;
         data["settlement_pattern"] = SettlementPattern;
         data["urbanization_share"] = UrbanizationShare;
@@ -195,6 +243,8 @@ public partial class SentientWorldProfile : RefCounted
         data["legal_reach"] = LegalReach;
         data["enforcement_reach"] = EnforcementReach;
         data["restriction_pressure"] = RestrictionPressure;
+        data["law_level"] = System.Math.Clamp(LawLevel, 0, 15);
+        data["law_interpretation"] = LawInterpretation;
         data["cultural_accumulation"] = CulturalAccumulation;
         data["technology_adoption_capacity"] = TechnologyAdoptionCapacity;
         data["invention_capacity"] = InventionCapacity;
@@ -202,6 +252,16 @@ public partial class SentientWorldProfile : RefCounted
         data["technology_access_inequality"] = TechnologyAccessInequality;
         data["factional_fragmentation"] = FactionalFragmentation;
         data["religious_centralization"] = ReligiousCentralization;
+        Array<Dictionary> factionData = new();
+        foreach (SentientFactionRecord faction in Factions)
+        {
+            factionData.Add(faction.ToDictionary());
+        }
+
+        data["factions"] = factionData;
+        data["cultural_feature_tags"] = CloneStringArray(CulturalFeatureTags);
+        data["religion_structure"] = ReligionStructure;
+        data["available_life_biomes"] = CloneStringArray(AvailableLifeBiomes);
         data["economic_complexity"] = EconomicComplexity;
         data["internal_legitimacy"] = InternalLegitimacy;
         data["external_legitimacy"] = ExternalLegitimacy;
@@ -221,6 +281,18 @@ public partial class SentientWorldProfile : RefCounted
         profile.HighestTechLevel = (TechnologyLevel.Level)GetInt(data, "highest_tech_level", 0);
         profile.EliteTechLevel = (TechnologyLevel.Level)GetInt(data, "elite_tech_level", (int)profile.HighestTechLevel);
         profile.MedianTechLevel = (TechnologyLevel.Level)GetInt(data, "median_tech_level", (int)profile.HighestTechLevel);
+        profile.EliteCoreTechLevel = TechnologyLevel.ClampCoreLevel(GetInt(
+            data,
+            "elite_core_tech_level",
+            TechnologyLevel.EraToRepresentativeCoreLevel(profile.EliteTechLevel)));
+        profile.MedianCoreTechLevel = TechnologyLevel.ClampCoreLevel(GetInt(
+            data,
+            "median_core_tech_level",
+            TechnologyLevel.EraToRepresentativeCoreLevel(profile.MedianTechLevel)));
+        profile.CoreTechLevel = TechnologyLevel.ClampCoreLevel(GetInt(
+            data,
+            "core_tech_level",
+            profile.MedianCoreTechLevel));
         profile.DominantRegime = (GovernmentType.Regime)GetInt(data, "dominant_regime", 0);
         profile.SettlementPattern = GetString(data, "settlement_pattern", string.Empty);
         profile.UrbanizationShare = Clamp01(GetDouble(data, "urbanization_share", 0.0));
@@ -236,6 +308,24 @@ public partial class SentientWorldProfile : RefCounted
         profile.LegalReach = Clamp01(GetDouble(data, "legal_reach", 0.0));
         profile.EnforcementReach = Clamp01(GetDouble(data, "enforcement_reach", profile.LegalReach));
         profile.RestrictionPressure = Clamp01(GetDouble(data, "restriction_pressure", 0.0));
+        int derivedLawLevel = DeriveLawLevel(
+            profile.LegalReach,
+            profile.EnforcementReach,
+            profile.LegalCentralization,
+            profile.RestrictionPressure,
+            profile.StateCapacity,
+            profile.ExternalThreat,
+            0.0);
+        profile.LawLevel = System.Math.Clamp(GetInt(data, "law_level", derivedLawLevel), 0, 15);
+        profile.LawInterpretation = GetString(
+            data,
+            "law_interpretation",
+            DeriveLawInterpretation(
+                profile.LegalReach,
+                profile.EnforcementReach,
+                profile.LegalCentralization,
+                profile.RestrictionPressure,
+                profile.StateCapacity));
         profile.CulturalAccumulation = Clamp01(GetDouble(data, "cultural_accumulation", 0.0));
         profile.TechnologyAdoptionCapacity = Clamp01(GetDouble(data, "technology_adoption_capacity", 0.0));
         profile.InventionCapacity = Clamp01(GetDouble(data, "invention_capacity", 0.0));
@@ -243,6 +333,10 @@ public partial class SentientWorldProfile : RefCounted
         profile.TechnologyAccessInequality = Clamp01(GetDouble(data, "technology_access_inequality", 0.0));
         profile.FactionalFragmentation = Clamp01(GetDouble(data, "factional_fragmentation", 0.0));
         profile.ReligiousCentralization = Clamp01(GetDouble(data, "religious_centralization", 0.0));
+        profile.Factions = ParseFactionArray(data, "factions");
+        profile.CulturalFeatureTags = ParseStringArray(data, "cultural_feature_tags");
+        profile.ReligionStructure = GetString(data, "religion_structure", DeriveReligionStructure(profile));
+        profile.AvailableLifeBiomes = ParseStringArray(data, "available_life_biomes");
         profile.EconomicComplexity = Clamp01(GetDouble(data, "economic_complexity", 0.0));
         profile.InternalLegitimacy = Clamp01(GetDouble(data, "internal_legitimacy", 0.0));
         profile.ExternalLegitimacy = Clamp01(GetDouble(data, "external_legitimacy", 0.0));
@@ -262,7 +356,12 @@ public partial class SentientWorldProfile : RefCounted
         summary["highest_tech_level"] = TechnologyLevel.ToStringName(HighestTechLevel);
         summary["elite_tech_level"] = TechnologyLevel.ToStringName(EliteTechLevel);
         summary["median_tech_level"] = TechnologyLevel.ToStringName(MedianTechLevel);
+        summary["core_tech_level"] = CoreTechLevel;
+        summary["elite_core_tech_level"] = EliteCoreTechLevel;
+        summary["median_core_tech_level"] = MedianCoreTechLevel;
         summary["dominant_regime"] = GovernmentType.ToStringName(DominantRegime);
+        summary["law_level"] = LawLevel;
+        summary["law_interpretation"] = LawInterpretation;
         summary["social_scale"] = SocialScale;
         summary["state_capacity"] = StateCapacity;
         summary["enforcement_reach"] = EnforcementReach;
@@ -271,8 +370,103 @@ public partial class SentientWorldProfile : RefCounted
         summary["invention_capacity"] = InventionCapacity;
         summary["adoption_lag_pressure"] = AdoptionLagPressure;
         summary["technology_access_inequality"] = TechnologyAccessInequality;
+        summary["religion_structure"] = ReligionStructure;
         summary["human_audit_required"] = HumanAuditRequired;
         return summary;
+    }
+
+    /// <summary>
+    /// Derives the neutral compressed law level from legal and coercive reach.
+    /// </summary>
+    public static int DeriveLawLevel(
+        double legalReach,
+        double enforcementReach,
+        double legalCentralization,
+        double restrictionPressure,
+        double stateCapacity,
+        double threat,
+        double regimeCoercion)
+    {
+        double score = (Clamp01(legalReach) * 3.2)
+            + (Clamp01(enforcementReach) * 3.0)
+            + (Clamp01(legalCentralization) * 2.0)
+            + (Clamp01(restrictionPressure) * 3.0)
+            + (Clamp01(stateCapacity) * 2.0)
+            + (Clamp01(threat) * 0.9)
+            + (Clamp01(regimeCoercion) * 1.4);
+        return System.Math.Clamp((int)System.Math.Round(score), 0, 15);
+    }
+
+    /// <summary>
+    /// Derives a compact legal-order interpretation.
+    /// </summary>
+    public static string DeriveLawInterpretation(
+        double legalReach,
+        double enforcementReach,
+        double legalCentralization,
+        double restrictionPressure,
+        double stateCapacity)
+    {
+        if (legalReach < 0.12 && stateCapacity < 0.18)
+        {
+            return "No Formal Reach";
+        }
+
+        if (legalCentralization < 0.24 || legalReach < 0.25)
+        {
+            return "Plural/Customary";
+        }
+
+        if (enforcementReach < 0.35)
+        {
+            return "Patchy Formal Law";
+        }
+
+        if (restrictionPressure >= 0.65 && enforcementReach >= 0.55)
+        {
+            return "Restrictive High-Enforcement Order";
+        }
+
+        if (stateCapacity >= 0.65 && legalReach >= 0.60)
+        {
+            return "High-Capacity Legal Order";
+        }
+
+        return "Codified Moderate Reach";
+    }
+
+    /// <summary>
+    /// Derives institutional religion structure from neutral profile axes.
+    /// </summary>
+    public static string DeriveReligionStructure(SentientWorldProfile profile)
+    {
+        if (profile.ReligiousCentralization < 0.12 && profile.CulturalAccumulation < 0.20)
+        {
+            return "None";
+        }
+
+        if (profile.RestrictionPressure >= 0.72 && profile.ReligiousCentralization < 0.45)
+        {
+            return "Suppressed";
+        }
+
+        if (profile.DominantRegime == GovernmentType.Regime.Theocracy
+            || (profile.ReligiousCentralization >= 0.66 && profile.LegalCentralization >= 0.56))
+        {
+            return "State-Aligned";
+        }
+
+        if (profile.ReligiousCentralization >= 0.62)
+        {
+            return "Centralized";
+        }
+
+        if (profile.FactionalFragmentation >= 0.34 || profile.TradeConnectivity >= 0.48)
+        {
+            return "Plural";
+        }
+
+        return "Localized";
     }
 
     private static double Clamp01(double value)
@@ -368,5 +562,68 @@ public partial class SentientWorldProfile : RefCounted
         }
 
         return fallback;
+    }
+
+    private static Array<string> CloneStringArray(Array<string> source)
+    {
+        Array<string> clone = new();
+        foreach (string value in source)
+        {
+            clone.Add(value);
+        }
+
+        return clone;
+    }
+
+    private static Array<string> ParseStringArray(Dictionary data, string key)
+    {
+        Array<string> values = new();
+        if (!data.ContainsKey(key))
+        {
+            return values;
+        }
+
+        Variant value = data[key];
+        if (value.VariantType != Variant.Type.Array)
+        {
+            return values;
+        }
+
+        Array array = (Array)value;
+        foreach (Variant item in array)
+        {
+            if (item.VariantType == Variant.Type.String)
+            {
+                values.Add((string)item);
+            }
+        }
+
+        return values;
+    }
+
+    private static Array<SentientFactionRecord> ParseFactionArray(Dictionary data, string key)
+    {
+        Array<SentientFactionRecord> values = new();
+        if (!data.ContainsKey(key))
+        {
+            return values;
+        }
+
+        Variant value = data[key];
+        if (value.VariantType != Variant.Type.Array)
+        {
+            return values;
+        }
+
+        Array array = (Array)value;
+        foreach (Variant item in array)
+        {
+            if (item.VariantType == Variant.Type.Dictionary)
+            {
+                values.Add(SentientFactionRecord.FromDictionary((Dictionary)item));
+            }
+        }
+
+        return values;
     }
 }

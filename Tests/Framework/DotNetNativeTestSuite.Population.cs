@@ -307,6 +307,8 @@ public static partial class DotNetNativeTestSuite
         runner.RunNativeTest("TestTechnologyLevel::test_can_interstellar", TestTechnologyLevel.TestCanInterstellar);
         runner.RunNativeTest("TestTechnologyLevel::test_typical_years_to_reach_increases", TestTechnologyLevel.TestTypicalYearsToReachIncreases);
         runner.RunNativeTest("TestTechnologyLevel::test_count", TestTechnologyLevel.TestCount);
+        runner.RunNativeTest("TestTechnologyLevel::test_core_level_to_era", TestTechnologyLevel.TestCoreLevelToEra);
+        runner.RunNativeTest("TestTechnologyLevel::test_core_level_to_traveller_tech_level", TestTechnologyLevel.TestCoreLevelToTravellerTechLevel);
 
         runner.RunNativeTest("TestNativePopulationGenerator::test_generate_habitable_world", TestNativePopulationGenerator.TestGenerateHabitableWorld);
         runner.RunNativeTest("TestNativePopulationGenerator::test_generate_uninhabitable_world", TestNativePopulationGenerator.TestGenerateUninhabitableWorld);
@@ -387,6 +389,11 @@ public static partial class DotNetNativeTestSuite
         runner.RunNativeTest("TestSentientWorldProfile::test_serialization_round_trip", TestSentientWorldProfile.TestSerializationRoundTrip);
         runner.RunNativeTest("TestSentientWorldProfile::test_source_aligned_models_change_profile_and_require_audit", TestSentientWorldProfile.TestSourceAlignedModelsChangeProfileAndRequireAudit);
         runner.RunNativeTest("TestSentientWorldProfile::test_technology_access_diagnostics_separate_peak_and_median_access", TestSentientWorldProfile.TestTechnologyAccessDiagnosticsSeparatePeakAndMedianAccess);
+        runner.RunNativeTest("TestSentientWorldProfile::test_law_level_distinguishes_reach_from_restriction", TestSentientWorldProfile.TestLawLevelDistinguishesReachFromRestriction);
+        runner.RunNativeTest("TestSentientWorldProfile::test_faction_generation_is_deterministic_and_bounded", TestSentientWorldProfile.TestFactionGenerationIsDeterministicAndBounded);
+        runner.RunNativeTest("TestSentientWorldProfile::test_fragmentation_increases_faction_pressure", TestSentientWorldProfile.TestFragmentationIncreasesFactionPressure);
+        runner.RunNativeTest("TestSentientWorldProfile::test_available_life_biomes_are_life_gated", TestSentientWorldProfile.TestAvailableLifeBiomesAreLifeGated);
+        runner.RunNativeTest("TestSentientWorldProfile::test_starfinder_magic_is_adapter_only", TestSentientWorldProfile.TestStarfinderMagicIsAdapterOnly);
         runner.RunNativeTest("TestPlanetPopulationData::test_get_total_population_empty", TestPlanetPopulationData.TestGetTotalPopulationEmpty);
         runner.RunNativeTest("TestPlanetPopulationData::test_get_total_population_natives_only", TestPlanetPopulationData.TestGetTotalPopulationNativesOnly);
         runner.RunNativeTest("TestPlanetPopulationData::test_get_total_population_colonies_only", TestPlanetPopulationData.TestGetTotalPopulationColoniesOnly);

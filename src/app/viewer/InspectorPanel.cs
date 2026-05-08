@@ -1,4 +1,5 @@
 using Godot;
+using System.Collections.Generic;
 using StarGen.App.Components;
 using StarGen.Domain.Celestial;
 using StarGen.Domain.Celestial.Components;
@@ -495,8 +496,16 @@ public partial class InspectorPanel : VBoxContainer
 		if (sentientWorldProfile != null)
 		{
 			AddPropertyToSection(PopulationSectionPath, "Dominant Regime", PropertyFormatter.FormatRegime(sentientWorldProfile.DominantRegime));
+			AddPropertyToSection(PopulationSectionPath, "Core Tech", FormatCoreTech(sentientWorldProfile.CoreTechLevel));
 			AddPropertyToSection(PopulationSectionPath, "Elite Tech Access", TechnologyLevel.ToStringName(sentientWorldProfile.EliteTechLevel));
 			AddPropertyToSection(PopulationSectionPath, "Median Tech Access", TechnologyLevel.ToStringName(sentientWorldProfile.MedianTechLevel));
+			AddPropertyToSection(PopulationSectionPath, "Elite Core Tech", FormatCoreTech(sentientWorldProfile.EliteCoreTechLevel));
+			AddPropertyToSection(PopulationSectionPath, "Median Core Tech", FormatCoreTech(sentientWorldProfile.MedianCoreTechLevel));
+			AddPropertyToSection(PopulationSectionPath, "Law Level", $"{sentientWorldProfile.LawLevel} - {sentientWorldProfile.LawInterpretation}");
+			AddPropertyToSection(PopulationSectionPath, "Factions", FormatFactions(sentientWorldProfile));
+			AddPropertyToSection(PopulationSectionPath, "Culture Tags", FormatStringArray(sentientWorldProfile.CulturalFeatureTags));
+			AddPropertyToSection(PopulationSectionPath, "Religion Structure", sentientWorldProfile.ReligionStructure);
+			AddPropertyToSection(PopulationSectionPath, "Life Biomes", FormatStringArray(sentientWorldProfile.AvailableLifeBiomes));
 			AddPropertyToSection(PopulationSectionPath, "Settlement Pattern", sentientWorldProfile.SettlementPattern);
 			AddPropertyToSection(PopulationSectionPath, "Primary Settlement", sentientWorldProfile.PrimarySettlementRank);
 			AddPropertyToSection(PopulationSectionPath, "Logistics Capacity", sentientWorldProfile.LogisticsCapacity);
@@ -806,6 +815,51 @@ public partial class InspectorPanel : VBoxContainer
 		}
 
 		return $"{meters:0.###} m";
+	}
+
+	private static string FormatCoreTech(int coreTechLevel)
+	{
+		int clamped = TechnologyLevel.ClampCoreLevel(coreTechLevel);
+		return $"{clamped} ({TechnologyLevel.ToStringName(TechnologyLevel.CoreLevelToEra(clamped))})";
+	}
+
+	private static string FormatStringArray(Godot.Collections.Array<string> values)
+	{
+		if (values.Count == 0)
+		{
+			return "None";
+		}
+
+		List<string> output = new();
+		foreach (string value in values)
+		{
+			output.Add(value);
+		}
+
+		return string.Join(", ", output);
+	}
+
+	private static string FormatFactions(SentientWorldProfile profile)
+	{
+		if (profile.Factions.Count == 0)
+		{
+			return "None";
+		}
+
+		List<string> output = new();
+		int limit = System.Math.Min(3, profile.Factions.Count);
+		for (int i = 0; i < limit; i += 1)
+		{
+			SentientFactionRecord faction = profile.Factions[i];
+			output.Add($"{faction.Type} {faction.InfluenceShare:P0}");
+		}
+
+		if (profile.Factions.Count > limit)
+		{
+			output.Add($"+{profile.Factions.Count - limit} more");
+		}
+
+		return string.Join(", ", output);
 	}
 
 	private static CelestialBody? ConvertVariantToCelestialBody(Variant value)

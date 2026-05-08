@@ -94,4 +94,67 @@ public static class TestTechnologyLevel
     {
         DotNetNativeTestSuite.AssertEqual(12, TechnologyLevel.Count(), "Should have 12 technology levels");
     }
+
+    /// <summary>
+    /// Tests neutral core technology levels map to stable era bands.
+    /// </summary>
+    public static void TestCoreLevelToEra()
+    {
+        DotNetNativeTestSuite.AssertEqual(TechnologyLevel.Level.StoneAge, TechnologyLevel.CoreLevelToEra(0), "Core 0 should map to Stone");
+        DotNetNativeTestSuite.AssertEqual(TechnologyLevel.Level.StoneAge, TechnologyLevel.CoreLevelToEra(1), "Core 1 should map to Stone");
+        DotNetNativeTestSuite.AssertEqual(TechnologyLevel.Level.BronzeAge, TechnologyLevel.CoreLevelToEra(2), "Core 2 should map to Bronze");
+        DotNetNativeTestSuite.AssertEqual(TechnologyLevel.Level.IronAge, TechnologyLevel.CoreLevelToEra(3), "Core 3 should map to Iron");
+        DotNetNativeTestSuite.AssertEqual(TechnologyLevel.Level.Classical, TechnologyLevel.CoreLevelToEra(4), "Core 4 should map to Classical");
+        DotNetNativeTestSuite.AssertEqual(TechnologyLevel.Level.Medieval, TechnologyLevel.CoreLevelToEra(5), "Core 5 should map to Medieval");
+        DotNetNativeTestSuite.AssertEqual(TechnologyLevel.Level.Renaissance, TechnologyLevel.CoreLevelToEra(6), "Core 6 should map to Renaissance");
+        DotNetNativeTestSuite.AssertEqual(TechnologyLevel.Level.Industrial, TechnologyLevel.CoreLevelToEra(7), "Core 7 should map to Industrial");
+        DotNetNativeTestSuite.AssertEqual(TechnologyLevel.Level.Atomic, TechnologyLevel.CoreLevelToEra(8), "Core 8 should map to Atomic");
+        DotNetNativeTestSuite.AssertEqual(TechnologyLevel.Level.Information, TechnologyLevel.CoreLevelToEra(9), "Core 9 should map to Information");
+        DotNetNativeTestSuite.AssertEqual(TechnologyLevel.Level.Spacefaring, TechnologyLevel.CoreLevelToEra(11), "Core 11 should map to Spacefaring");
+        DotNetNativeTestSuite.AssertEqual(TechnologyLevel.Level.Interstellar, TechnologyLevel.CoreLevelToEra(15), "Core 15 should map to Interstellar");
+        DotNetNativeTestSuite.AssertEqual(TechnologyLevel.Level.Advanced, TechnologyLevel.CoreLevelToEra(24), "Core 24 should map to Advanced");
+    }
+
+    /// <summary>
+    /// Tests neutral core technology levels map to Traveller/Cepheus codes deterministically.
+    /// </summary>
+    public static void TestCoreLevelToTravellerTechLevel()
+    {
+        int[] expected =
+        [
+            0,
+            1,
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            6,
+            7,
+            8,
+            9,
+            10,
+            10,
+            11,
+            12,
+            12,
+            13,
+            13,
+            14,
+            14,
+            15,
+            15,
+            15,
+            15,
+        ];
+
+        for (int coreLevel = 0; coreLevel < expected.Length; coreLevel += 1)
+        {
+            DotNetNativeTestSuite.AssertEqual(
+                expected[coreLevel],
+                TechnologyLevel.CoreLevelToTravellerTechLevel(coreLevel),
+                $"Core {coreLevel} should map to Traveller TL {expected[coreLevel]}");
+        }
+    }
 }

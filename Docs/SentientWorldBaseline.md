@@ -50,6 +50,41 @@ Presentation logic:
 - `Elite Tech Access` starts from the highest active technology level.
 - `Median Tech Access` is reduced by adoption lag and access inequality, then bounded so it never exceeds elite access.
 
+### Core Tech / Elite Core Tech / Median Core Tech
+
+Why they are shown:
+
+- The legacy `TechnologyLevel.Level` enum is useful as a readable era label, but RPG compatibility needs finer deterministic numeric codes.
+- The neutral core scale runs from `0` to `24` and is the source of Traveller/Cepheus tech codes rather than the other way around.
+
+Mapping:
+
+- `0-1`: Stone.
+- `2`: Bronze.
+- `3`: Iron.
+- `4`: Classical.
+- `5`: Medieval.
+- `6`: Renaissance.
+- `7`: Industrial.
+- `8`: Atomic.
+- `9`: Information.
+- `10-11`: Spacefaring.
+- `12-15`: Interstellar.
+- `16-24`: Advanced.
+
+Traveller/Cepheus mapping:
+
+- Core `0` maps to TL `0`.
+- Core `1-2` maps to TL `1`.
+- Core `3` maps to TL `2`, then each historical band climbs through TL `12` by core `15-16`.
+- Core `17-18` maps to TL `13`, core `19-20` maps to TL `14`, and core `21-24` maps to TL `15`.
+
+Presentation logic:
+
+- `Core Tech` is the overall neutral technology depth after adoption, economy, and lag pressure.
+- `Elite Core Tech` is the highest institutional or elite-access level.
+- `Median Core Tech` is the broad resident-access level and is bounded below elite access.
+
 ### Dominant Regime
 
 Why it is shown:
@@ -224,6 +259,18 @@ Why it is shown:
 
 - It gives the adapters a more honest precursor for Traveller-style law levels than a single random digit would.
 
+### Law Level / Law Interpretation
+
+Grounding:
+
+- The compressed `0-15` law level is derived from legal reach, enforcement reach, legal centralization, restriction pressure, state capacity, threat, and regime coercion.
+- This keeps low formal reach separate from low restriction: a plural or customary low-reach world should not look the same as a high-capacity low-restriction legal order.
+
+Presentation logic:
+
+- The inspector shows the numeric code alongside one of the compact interpretations: `No Formal Reach`, `Plural/Customary`, `Patchy Formal Law`, `Codified Moderate Reach`, `High-Capacity Legal Order`, or `Restrictive High-Enforcement Order`.
+- Traveller/Cepheus adapters use this neutral law code as the preferred UWP law source.
+
 ### Cultural Accumulation
 
 Grounding:
@@ -286,6 +333,18 @@ Why it is shown:
 
 - Traveller factions, Starfinder settlement complications, and Starforged community tension all need a defensible precursor.
 
+### Factions
+
+Grounding:
+
+- Factions are now first-class deterministic records, not adapter-only flavor.
+- Each record carries an id, name, type, influence share, regime alignment, tension level, source population id, and primary issue.
+
+Presentation logic:
+
+- Names remain generic and structural, such as governing, native, colony, opposition, or security blocs.
+- The baseline does not invent ideology, doctrine, faction slogans, or narrative claims; those remain setting or adapter material.
+
 ### Religious Centralization
 
 Grounding:
@@ -297,10 +356,35 @@ Why it is shown:
 
 - Some compatibility systems want religion-facing structural context, but the realism layer must stop at institutional concentration rather than inventing belief claims.
 
+### Cultural Feature Tags / Religion Structure
+
+Grounding:
+
+- Culture remains a structured tag layer only. It can say that a world is `trade-connected`, `plural-authority`, `tech-stratified`, or `native-colony-contact`; it does not generate doctrine or prose culture.
+- Religion structure is institutional only: `None`, `Localized`, `Plural`, `Centralized`, `State-Aligned`, or `Suppressed`.
+
+Presentation logic:
+
+- These fields provide RPG adapter inputs while preserving the human-audit boundary around culture and religion content.
+- Starfinder and Starforged can later transform these signals into setting-facing prompts, but the neutral baseline remains compact and auditable.
+
+### Life Biomes
+
+Grounding:
+
+- Physical `PlanetProfile.Biomes` remains the environment and terrain distribution.
+- `AvailableLifeBiomes` is a separate readout and is populated only when the biology support evaluator says the world can support native biology.
+
+Presentation logic:
+
+- Barren, volcanic, ice-sheet, and gas-giant physical biomes never appear as life biomes.
+- `Subsurface` appears only when the support evaluator exposes protected-biosphere support.
+- Non-life-capable worlds show no life-biome list even when their physical terrain data contains barren, ice, gas-giant, volcanic, or other non-supporting biome records.
+
 ## Adapter implications
 
 - Traveller and Cepheus should map government, law, and tech from these neutral fields instead of rolling them independently when realism mode is active.
-- Starfinder should treat accord, technology, settlement complexity, and some challenge framing as downstream transformations of this baseline.
+- Starfinder should treat accord, technology, religion, and magic as adapter outputs derived downstream from this baseline. Magic is not present in normal generation and appears only in the Starfinder adapter payload.
 - Starforged should treat settlement rank, frontier trouble, and faction pressure as oracle-facing transformations of this baseline.
 
 ## Human-audit boundary

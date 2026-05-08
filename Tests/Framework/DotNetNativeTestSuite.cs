@@ -2800,6 +2800,9 @@ public static partial class DotNetNativeTestSuite
             "TestTravellerWorldGenerator::test_generate_trade_codes_and_travel_zone_from_supported_uwp_elements",
             Tests.Unit.TestTravellerWorldGenerator.TestGenerateTradeCodesAndTravelZoneFromSupportedUwpElements);
         runner.RunNativeTest(
+            "TestTravellerWorldGenerator::test_derive_from_body_uses_sentient_world_profile_codes",
+            Tests.Unit.TestTravellerWorldGenerator.TestDeriveFromBodyUsesSentientWorldProfileCodes);
+        runner.RunNativeTest(
             "TestTravellerWorldGenerator::test_traveller_system_takeover_is_deterministic",
             Tests.Unit.TestTravellerWorldGenerator.TestTravellerSystemTakeoverIsDeterministic);
         runner.RunNativeTest(

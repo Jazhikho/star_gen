@@ -1,9 +1,12 @@
 #nullable enable annotations
 #nullable disable warnings
 using Godot;
+using StarGen.Domain.Celestial;
+using StarGen.Domain.Celestial.Components;
 using StarGen.Domain.Generation.Archetypes;
 using StarGen.Domain.Generation.Specs;
 using StarGen.Domain.Generation.Traveller;
+using StarGen.Domain.Population;
 using StarGen.Domain.Rng;
 using StarGen.Domain.Generation;
 using StarGen.Domain.Systems;
@@ -172,6 +175,52 @@ public static class TestTravellerWorldGenerator
         if (routeProfile.MaxJumpNumber != 2)
         {
             throw new System.InvalidOperationException($"Expected max jump number 2, got {routeProfile.MaxJumpNumber}");
+        }
+    }
+
+    public static void TestDeriveFromBodyUsesSentientWorldProfileCodes()
+    {
+        CelestialBody body = new CelestialBody(
+            id: "traveller_profile_world",
+            name: "Traveller Profile World",
+            type: CelestialType.Type.Planet,
+            physical: new PhysicalProps(radiusM: 6_371_000.0));
+        PlanetPopulationData populationData = new();
+        Colony colony = new();
+        colony.Id = "colony_001";
+        colony.Name = "Fixture Colony";
+        colony.Population = 1_500_000;
+        colony.IsActive = true;
+        colony.TechLevel = TechnologyLevel.Level.Information;
+        colony.Government.Regime = GovernmentType.Regime.Tribal;
+        populationData.Colonies.Add(colony);
+        populationData.SentientWorldProfile = new SentientWorldProfile
+        {
+            TotalPopulation = 1_500_000,
+            ColonyPopulation = 1_500_000,
+            DominantRegime = GovernmentType.Regime.Theocracy,
+            EliteCoreTechLevel = 21,
+            CoreTechLevel = 19,
+            MedianCoreTechLevel = 17,
+            LawLevel = 13,
+        };
+        body.PopulationData = populationData;
+
+        TravellerWorldProfile profile = TravellerWorldGenerator.DeriveFromBody(body);
+
+        if (profile.GovernmentCode != 13)
+        {
+            throw new System.InvalidOperationException($"Expected sentient profile government code 13, got {profile.GovernmentCode}");
+        }
+
+        if (profile.LawCode != 13)
+        {
+            throw new System.InvalidOperationException($"Expected sentient profile law code 13, got {profile.LawCode}");
+        }
+
+        if (profile.TechLevelCode != 15)
+        {
+            throw new System.InvalidOperationException($"Expected sentient profile tech code 15, got {profile.TechLevelCode}");
         }
     }
 

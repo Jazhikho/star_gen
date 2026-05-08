@@ -1,12 +1,19 @@
 # Version
 
-Current version: `0.10.5.0`
+Current version: `0.10.6.0`
 
 Current user-facing version: `0.11`
 
-Date: `2026-05-07`
+Date: `2026-05-08`
 
 Versioning method: release/refactor `+0.1`, feature `+0.0.1`, bug fix `+0.0.0.1`, save-breaking release `+1.0`.
+
+## 0.10.6.0
+
+- Feature: Expanded `SentientWorldProfile` into a ruleset-agnostic worldbuilding baseline with neutral core tech levels, law level/interpretation, first-class factions, culture tags, religion structure, and life-biome readouts.
+- Feature: Traveller/Cepheus UWP derivation now prefers the neutral sentient profile for government, law, and technology mapping, while Starfinder magic remains isolated to a Starfinder-only adapter payload.
+- Docs: Updated sentient baseline, RPG compatibility audit, source-utilization plan, project structure, README, version surfaces, and AI provenance for the population worldbuilding hardening slice.
+- Test: Added regression coverage for core-tech mappings, law interpretation, faction determinism, life-biome gating, Traveller neutral-field derivation, and Starfinder adapter-only magic. Revalidated with `dotnet build .\StarGen.sln`, the population-focused Godot headless harness (`667 / 667`), and the full Godot headless harness (`1902 / 1902`).
 
 ## 0.10.5.0
 

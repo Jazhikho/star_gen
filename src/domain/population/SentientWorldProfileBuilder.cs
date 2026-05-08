@@ -1,4 +1,6 @@
 using Godot;
+using Godot.Collections;
+using System.Collections.Generic;
 using StarGen.Domain.Generation;
 
 namespace StarGen.Domain.Population;
@@ -45,6 +47,7 @@ public static class SentientWorldProfileBuilder
         double populationScale = NormalizePopulation(accumulator.TotalPopulation);
         double groupScale = NormalizeGroupCount(data.GetExtantNativeCount() + data.GetActiveColonyCount());
         double averageTech = accumulator.WeightedTechLevel / accumulator.TotalPopulation;
+        double averageCoreTech = accumulator.WeightedCoreTechLevel / accumulator.TotalPopulation;
         double cultureAge = NormalizeCultureAge(accumulator.EarliestSocietyYear);
         double colonyShare = accumulator.ColonyPopulation / accumulator.TotalPopulation;
         double nativeShare = accumulator.NativePopulation / accumulator.TotalPopulation;
@@ -214,12 +217,31 @@ public static class SentientWorldProfileBuilder
             profile,
             populationScale,
             averageTech,
+            averageCoreTech,
             cultureAge,
             terrainFragmentation,
             frontierPressure,
             selfSufficiency,
             resourceDiversity,
             settings);
+        profile.LawLevel = SentientWorldProfile.DeriveLawLevel(
+            profile.LegalReach,
+            profile.EnforcementReach,
+            profile.LegalCentralization,
+            profile.RestrictionPressure,
+            profile.StateCapacity,
+            profile.ExternalThreat,
+            coercion);
+        profile.LawInterpretation = SentientWorldProfile.DeriveLawInterpretation(
+            profile.LegalReach,
+            profile.EnforcementReach,
+            profile.LegalCentralization,
+            profile.RestrictionPressure,
+            profile.StateCapacity);
+        profile.Factions = BuildFactions(profile, data);
+        profile.AvailableLifeBiomes = BuildAvailableLifeBiomes(data, settings);
+        profile.CulturalFeatureTags = BuildCulturalFeatureTags(profile, data);
+        profile.ReligionStructure = SentientWorldProfile.DeriveReligionStructure(profile);
         return profile;
     }
 
@@ -230,6 +252,7 @@ public static class SentientWorldProfileBuilder
         SentientWorldProfile profile,
         double populationScale,
         double averageTech,
+        double averageCoreTech,
         double cultureAge,
         double terrainFragmentation,
         double frontierPressure,
@@ -277,6 +300,40 @@ public static class SentientWorldProfileBuilder
             profile.MedianTechLevel = profile.EliteTechLevel;
         }
 
+        int eliteBaseCore = TechnologyLevel.EraToRepresentativeCoreLevel(profile.HighestTechLevel);
+        int inventionBonus = (int)System.Math.Round(profile.InventionCapacity * 3.0);
+        int hubBonus = 0;
+        if (profile.LogisticsCapacity == "Interstellar Hub")
+        {
+            hubBonus = 1;
+        }
+
+        profile.EliteCoreTechLevel = TechnologyLevel.ClampCoreLevel(eliteBaseCore + inventionBonus + hubBonus);
+        double coreScore = averageCoreTech
+            + (profile.TechnologyAdoptionCapacity * 1.45)
+            + (profile.EconomicComplexity * 0.90)
+            - (profile.AdoptionLagPressure * 1.25);
+        profile.CoreTechLevel = TechnologyLevel.ClampCoreLevel((int)System.Math.Round(coreScore));
+
+        double medianCoreScore = profile.CoreTechLevel
+            - (profile.TechnologyAccessInequality * 3.0)
+            - (profile.AdoptionLagPressure * 1.5)
+            + (profile.TechnologyAdoptionCapacity * 0.75);
+        profile.MedianCoreTechLevel = TechnologyLevel.ClampCoreLevel((int)System.Math.Round(medianCoreScore));
+        if (profile.MedianCoreTechLevel > profile.EliteCoreTechLevel)
+        {
+            profile.MedianCoreTechLevel = profile.EliteCoreTechLevel;
+        }
+
+        if (profile.CoreTechLevel > profile.EliteCoreTechLevel)
+        {
+            profile.CoreTechLevel = profile.EliteCoreTechLevel;
+        }
+
+        profile.HighestTechLevel = TechnologyLevel.CoreLevelToEra(profile.EliteCoreTechLevel);
+        profile.EliteTechLevel = TechnologyLevel.CoreLevelToEra(profile.EliteCoreTechLevel);
+        profile.MedianTechLevel = TechnologyLevel.CoreLevelToEra(profile.MedianCoreTechLevel);
+
         bool sourceAlignedTechnologyModel = false;
         if (settings != null)
         {
@@ -313,6 +370,7 @@ public static class SentientWorldProfileBuilder
             accumulator.TotalPopulation += weight;
             accumulator.NativePopulation += weight;
             accumulator.WeightedTechLevel += weight * NormalizeTechLevel(nativePopulation.TechLevel);
+            accumulator.WeightedCoreTechLevel += weight * TechnologyLevel.EraToRepresentativeCoreLevel(nativePopulation.TechLevel);
             accumulator.WeightedAdministrativeCapacity += weight * nativePopulation.Government.AdministrativeCapacity;
             accumulator.WeightedCoercion += weight * nativePopulation.Government.CoercionCentralization;
             accumulator.WeightedInclusiveness += weight * nativePopulation.Government.PoliticalInclusiveness;
@@ -340,6 +398,7 @@ public static class SentientWorldProfileBuilder
             accumulator.TotalPopulation += weight;
             accumulator.ColonyPopulation += weight;
             accumulator.WeightedTechLevel += weight * NormalizeTechLevel(colony.TechLevel);
+            accumulator.WeightedCoreTechLevel += weight * TechnologyLevel.EraToRepresentativeCoreLevel(colony.TechLevel);
             accumulator.WeightedAdministrativeCapacity += weight * colony.Government.AdministrativeCapacity;
             accumulator.WeightedCoercion += weight * colony.Government.CoercionCentralization;
             accumulator.WeightedInclusiveness += weight * colony.Government.PoliticalInclusiveness;
@@ -753,12 +812,332 @@ public static class SentientWorldProfileBuilder
         return 0.0;
     }
 
+    private static Array<SentientFactionRecord> BuildFactions(SentientWorldProfile profile, PlanetPopulationData data)
+    {
+        List<SentientFactionRecord> factions = new();
+        PopulationGroupInfo dominant = FindDominantPopulation(data);
+        double totalPopulation = System.Math.Max(1.0, profile.TotalPopulation);
+        double dominantShare = dominant.Population / totalPopulation;
+        if (dominant.Population > 0.0)
+        {
+            factions.Add(CreateFaction(
+                "faction_001",
+                "Primary Administration",
+                "Governing Bloc",
+                System.Math.Max(0.30, dominantShare),
+                "Aligned",
+                Clamp01(profile.ExternalThreat * 0.35 + profile.FactionalFragmentation * 0.25),
+                dominant.Id,
+                "governance"));
+        }
+
+        if (profile.NativePopulation > 0 && !dominant.IsNative)
+        {
+            double nativeShare = profile.NativePopulation / totalPopulation;
+            factions.Add(CreateFaction(
+                "faction_002",
+                "Native Assembly",
+                "Native Bloc",
+                System.Math.Max(0.12, nativeShare * 0.90),
+                "Autonomous",
+                Clamp01(profile.FactionalFragmentation * 0.55 + profile.ExternalThreat * 0.25),
+                FindFirstNativeId(data),
+                "sovereignty"));
+        }
+
+        if (profile.ColonyPopulation > 0 && dominant.IsNative)
+        {
+            double colonyShare = profile.ColonyPopulation / totalPopulation;
+            factions.Add(CreateFaction(
+                "faction_003",
+                "Colonial Directorate",
+                "Colony Bloc",
+                System.Math.Max(0.12, colonyShare * 0.90),
+                "Contested",
+                Clamp01(profile.FactionalFragmentation * 0.45 + profile.TradeConnectivity * 0.20),
+                FindFirstColonyId(data),
+                "resource access"));
+        }
+
+        int activeGroups = data.GetExtantNativeCount() + data.GetActiveColonyCount();
+        if (profile.FactionalFragmentation >= 0.30 || activeGroups >= 3)
+        {
+            factions.Add(CreateFaction(
+                "faction_004",
+                "Local Autonomy Network",
+                "Opposition Network",
+                0.18 + (profile.FactionalFragmentation * 0.18),
+                "Opposed",
+                Clamp01(0.35 + (profile.FactionalFragmentation * 0.45)),
+                string.Empty,
+                "local autonomy"));
+        }
+
+        if (profile.RestrictionPressure >= 0.50 || profile.ExternalThreat >= 0.46)
+        {
+            factions.Add(CreateFaction(
+                "faction_005",
+                "Security Compact",
+                "Security Bloc",
+                0.14 + (profile.RestrictionPressure * 0.16),
+                "Aligned",
+                Clamp01(0.25 + (profile.ExternalThreat * 0.45)),
+                dominant.Id,
+                "security"));
+        }
+
+        NormalizeFactionInfluence(factions);
+        Array<SentientFactionRecord> result = new();
+        foreach (SentientFactionRecord faction in factions)
+        {
+            result.Add(faction);
+        }
+
+        return result;
+    }
+
+    private static SentientFactionRecord CreateFaction(
+        string id,
+        string name,
+        string type,
+        double influenceShare,
+        string regimeAlignment,
+        double tensionLevel,
+        string sourcePopulationId,
+        string primaryIssue)
+    {
+        return new SentientFactionRecord
+        {
+            Id = id,
+            Name = name,
+            Type = type,
+            InfluenceShare = Clamp01(influenceShare),
+            RegimeAlignment = regimeAlignment,
+            TensionLevel = Clamp01(tensionLevel),
+            SourcePopulationId = sourcePopulationId,
+            PrimaryIssue = primaryIssue,
+        };
+    }
+
+    private static void NormalizeFactionInfluence(List<SentientFactionRecord> factions)
+    {
+        double total = 0.0;
+        foreach (SentientFactionRecord faction in factions)
+        {
+            total += faction.InfluenceShare;
+        }
+
+        if (total <= 0.0)
+        {
+            return;
+        }
+
+        foreach (SentientFactionRecord faction in factions)
+        {
+            faction.InfluenceShare = Clamp01(faction.InfluenceShare / total);
+        }
+    }
+
+    private static Array<string> BuildCulturalFeatureTags(SentientWorldProfile profile, PlanetPopulationData data)
+    {
+        Array<string> tags = new();
+        if (profile.TradeConnectivity >= 0.50)
+        {
+            AddUniqueTag(tags, "trade-connected");
+        }
+
+        if (profile.ExternalThreat >= 0.38)
+        {
+            AddUniqueTag(tags, "frontier-pressure");
+        }
+
+        if (profile.FactionalFragmentation >= 0.32)
+        {
+            AddUniqueTag(tags, "plural-authority");
+        }
+
+        if (profile.UrbanizationShare >= 0.45)
+        {
+            AddUniqueTag(tags, "urban-settlement");
+        }
+
+        if (profile.TechnologyAccessInequality >= 0.26)
+        {
+            AddUniqueTag(tags, "tech-stratified");
+        }
+
+        if (data.HasExtantNatives() && data.HasActiveColonies())
+        {
+            AddUniqueTag(tags, "native-colony-contact");
+        }
+
+        if (profile.SettlementPattern == "Archipelago")
+        {
+            AddUniqueTag(tags, "archipelago-settled");
+        }
+
+        if (profile.AvailableLifeBiomes.Contains("Subsurface"))
+        {
+            AddUniqueTag(tags, "subsurface-adapted");
+        }
+
+        foreach (NativePopulation nativePopulation in data.NativePopulations)
+        {
+            if (!nativePopulation.IsExtant)
+            {
+                continue;
+            }
+
+            foreach (string trait in nativePopulation.CulturalTraits)
+            {
+                if (tags.Count >= 10)
+                {
+                    return tags;
+                }
+
+                AddUniqueTag(tags, NormalizeTag(trait));
+            }
+        }
+
+        return tags;
+    }
+
+    private static Array<string> BuildAvailableLifeBiomes(PlanetPopulationData data, GenerationUseCaseSettings? settings)
+    {
+        Array<string> biomes = new();
+        if (data.Profile == null)
+        {
+            return biomes;
+        }
+
+        BiologySupportEvaluator.Assessment assessment = BiologySupportEvaluator.Evaluate(data.Profile, settings);
+        if (!assessment.IsSupported)
+        {
+            return biomes;
+        }
+
+        bool supportsSubsurfaceBiology = assessment.ProtectedBiosphereChance > 0.0;
+        List<int> biomeKeys = new();
+        foreach (Variant key in data.Profile.Biomes.Keys)
+        {
+            biomeKeys.Add((int)key);
+        }
+
+        biomeKeys.Sort();
+        foreach (int biomeKey in biomeKeys)
+        {
+            BiomeType.Type biome = (BiomeType.Type)biomeKey;
+            if (!BiomeType.CanSupportLife(biome))
+            {
+                continue;
+            }
+
+            if (biome == BiomeType.Type.Subsurface && !supportsSubsurfaceBiology)
+            {
+                continue;
+            }
+
+            biomes.Add(BiomeType.ToStringName(biome));
+        }
+
+        return biomes;
+    }
+
+    private static void AddUniqueTag(Array<string> tags, string tag)
+    {
+        if (string.IsNullOrWhiteSpace(tag))
+        {
+            return;
+        }
+
+        if (!tags.Contains(tag))
+        {
+            tags.Add(tag);
+        }
+    }
+
+    private static string NormalizeTag(string value)
+    {
+        string normalized = value.Trim().ToLowerInvariant().Replace(" ", "-").Replace("_", "-");
+        while (normalized.Contains("--"))
+        {
+            normalized = normalized.Replace("--", "-");
+        }
+
+        return normalized;
+    }
+
+    private static PopulationGroupInfo FindDominantPopulation(PlanetPopulationData data)
+    {
+        PopulationGroupInfo dominant = new();
+        foreach (NativePopulation nativePopulation in data.NativePopulations)
+        {
+            if (!nativePopulation.IsExtant || nativePopulation.Population <= 0)
+            {
+                continue;
+            }
+
+            if (nativePopulation.Population > dominant.Population)
+            {
+                dominant.Id = nativePopulation.Id;
+                dominant.Name = nativePopulation.Name;
+                dominant.Population = nativePopulation.Population;
+                dominant.IsNative = true;
+            }
+        }
+
+        foreach (Colony colony in data.Colonies)
+        {
+            if (!colony.IsActive || colony.Population <= 0)
+            {
+                continue;
+            }
+
+            if (colony.Population > dominant.Population)
+            {
+                dominant.Id = colony.Id;
+                dominant.Name = colony.Name;
+                dominant.Population = colony.Population;
+                dominant.IsNative = false;
+            }
+        }
+
+        return dominant;
+    }
+
+    private static string FindFirstNativeId(PlanetPopulationData data)
+    {
+        foreach (NativePopulation nativePopulation in data.NativePopulations)
+        {
+            if (nativePopulation.IsExtant && nativePopulation.Population > 0)
+            {
+                return nativePopulation.Id;
+            }
+        }
+
+        return string.Empty;
+    }
+
+    private static string FindFirstColonyId(PlanetPopulationData data)
+    {
+        foreach (Colony colony in data.Colonies)
+        {
+            if (colony.IsActive && colony.Population > 0)
+            {
+                return colony.Id;
+            }
+        }
+
+        return string.Empty;
+    }
+
     private sealed class Accumulator
     {
         public double TotalPopulation;
         public double NativePopulation;
         public double ColonyPopulation;
         public double WeightedTechLevel;
+        public double WeightedCoreTechLevel;
         public double WeightedAdministrativeCapacity;
         public double WeightedCoercion;
         public double WeightedInclusiveness;
@@ -768,5 +1147,13 @@ public static class SentientWorldProfileBuilder
         public double DominantPopulation;
         public GovernmentType.Regime DominantRegime = GovernmentType.Regime.Tribal;
         public int EarliestSocietyYear;
+    }
+
+    private sealed class PopulationGroupInfo
+    {
+        public string Id = string.Empty;
+        public string Name = string.Empty;
+        public double Population;
+        public bool IsNative;
     }
 }

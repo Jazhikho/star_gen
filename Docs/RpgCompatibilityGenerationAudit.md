@@ -105,6 +105,7 @@ Current code already produces:
 - Route profile.
 - Mainworld takeover of a realistic system.
 - Traveller-style government and tech backfill into local StarGen population structures.
+- UWP government, law, and tech derivation that now prefers the neutral `SentientWorldProfile` when a populated body has one.
 
 Current files:
 
@@ -115,7 +116,8 @@ Current files:
 
 Current weakness:
 
-- Government, law, starport, and tech backfill are still heuristic adapters over StarGen population data, not academically grounded social models.
+- Starport remains a heuristic adapter over StarGen population data.
+- Government, law, and technology now have a neutral sentient-world source layer, but the social-science proxies remain human-audit-required rather than final academic claims.
 
 ### Cepheus
 
@@ -140,12 +142,10 @@ Current code does bias:
 - Colony-type weighting.
 - Harsh-world colony tolerance.
 - Hydrosphere lean.
+- A Starfinder-only `StarfinderWorldbuildingProfile` adapter can derive `TechnologyTier`, `AccordSignal`, `ReligionSignal`, and `MagicPrevalence` from the neutral sentient-world profile.
 
-But it does not yet generate Starfinder-style worldbuilding outputs such as:
+It does not yet generate deeper Starfinder-style worldbuilding outputs such as:
 
-- Accord.
-- Magic level.
-- Religion framing.
 - Biome-driven cultural synthesis.
 - Settlement quirks and settlement challenges.
 
@@ -207,8 +207,13 @@ For any sentient world, build a deterministic `SentientWorldProfile` from the bi
 - `LegalCentralization`: whether conflict resolution is local and plural or centralized and codified.
 - `CulturalAccumulation`: how much cumulative cultural knowledge can be retained and transmitted.
 - `TechnologyAdoptionCapacity`: how quickly a society absorbs and scales new techniques.
+- `CoreTechLevel`, `EliteCoreTechLevel`, and `MedianCoreTechLevel`: neutral `0-24` numeric technology codes used before RPG mapping.
 - `FactionalFragmentation`: how divided the polity is among rival elites, regions, or communities.
+- `Factions`: first-class deterministic faction records with influence, alignment, tension, source population, and primary issue.
 - `ReligiousCentralization`: placeholder axis for later human-reviewed religion modeling.
+- `ReligionStructure`: institutional religion structure only, not belief content.
+- `CulturalFeatureTags`: structured tags only, not prose doctrine.
+- `AvailableLifeBiomes`: life-supportable biomes gated separately from physical terrain biomes.
 
 ### Academic anchors
 
