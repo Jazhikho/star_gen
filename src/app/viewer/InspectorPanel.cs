@@ -502,6 +502,9 @@ public partial class InspectorPanel : VBoxContainer
 			AddPropertyToSection(PopulationSectionPath, "Elite Core Tech", FormatCoreTech(sentientWorldProfile.EliteCoreTechLevel));
 			AddPropertyToSection(PopulationSectionPath, "Median Core Tech", FormatCoreTech(sentientWorldProfile.MedianCoreTechLevel));
 			AddPropertyToSection(PopulationSectionPath, "Law Level", $"{sentientWorldProfile.LawLevel} - {sentientWorldProfile.LawInterpretation}");
+			AddPropertyToSection(PopulationSectionPath, "Jurisdiction", sentientWorldProfile.JurisdictionStructure);
+			AddPropertyToSection(PopulationSectionPath, "Jurisdiction Pluralism", PropertyFormatter.FormatPercent(sentientWorldProfile.JurisdictionPluralism));
+			AddPropertyToSection(PopulationSectionPath, "Jurisdiction Conflict", PropertyFormatter.FormatPercent(sentientWorldProfile.JurisdictionConflict));
 			AddPropertyToSection(PopulationSectionPath, "Factions", FormatFactions(sentientWorldProfile));
 			AddPropertyToSection(PopulationSectionPath, "Culture Tags", FormatStringArray(sentientWorldProfile.CulturalFeatureTags));
 			AddPropertyToSection(PopulationSectionPath, "Religion Structure", sentientWorldProfile.ReligionStructure);

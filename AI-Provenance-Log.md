@@ -19,6 +19,17 @@ Use this log for significant AI-assisted artifacts in this repository.
 
 ### 2026-05-08 - Codex (GPT-5)
 
+- Task Purpose: Continue v0.11 sentient population hardening with neutral jurisdiction signals.
+- Input Materials Used: User instruction to continue; previous sentient worldbuilding baseline implementation; `claude.md`; `Docs/SentientWorldBaseline.md`; `Docs/RpgCompatibilityGenerationAudit.md`; `Sources/SourceUtilizationPlan.md`; `SentientWorldProfile`; `SentientWorldProfileBuilder`; Object Viewer inspector; population tests; version metadata.
+- AI Produced: Added serialized jurisdiction structure, jurisdiction pluralism, and jurisdiction conflict fields to the neutral sentient-world profile; derived those fields from legal centralization, factional fragmentation, coexistence, terrain fragmentation, state capacity, threat, legitimacy, and native-colony mix; exposed jurisdiction readouts in Object Viewer; added regression coverage; updated docs, version surfaces, and provenance.
+- Human Accepted: Pending Christopher B. Del Gesso review.
+- Human Rejected: Treating jurisdiction labels as final legal anthropology, named legal systems, statutes, doctrine, or cultural prose.
+- Human Changed: User asked to proceed with the next science-hardening slice.
+- Validation Method: `dotnet build .\StarGen.sln` (`Build succeeded. 0 Warning(s), 0 Error(s).`); `godot-mono.exe --path . --headless --script res://Tests/RunTestsHeadless.gd -- population` (`Total: 668 | Passed: 668 | Failed: 0`); `godot-mono.exe --path . --headless --script res://Tests/RunTestsHeadless.gd` (`Total: 1903 | Passed: 1903 | Failed: 0`).
+- Final Approver: Pending Christopher B. Del Gesso review.
+
+### 2026-05-08 - Codex (GPT-5)
+
 - Task Purpose: Implement the sentient population worldbuilding baseline for the v0.11 science-hardening line.
 - Input Materials Used: User-provided `Sentient Population Worldbuilding Baseline Plan`; user confirmation that source review was already complete; `claude.md`; `Sources/SourceUtilizationPlan.md`; `Docs/SentientWorldBaseline.md`; `Docs/RpgCompatibilityGenerationAudit.md`; population domain code; Traveller compatibility generator; Object Viewer inspector code; population and Traveller tests; version metadata.
 - AI Produced: Added neutral `0-24` core technology fields and mappings; added compressed neutral law level and law interpretation; added first-class deterministic faction records; added structured cultural tags, institutional religion structure, and biology-gated life-biome readouts; added a Starfinder-only adapter payload with magic isolated outside normal generation; updated Traveller/Cepheus UWP derivation to prefer neutral sentient profile fields; exposed compact Object Viewer readouts; updated tests, docs, version surfaces, and provenance.

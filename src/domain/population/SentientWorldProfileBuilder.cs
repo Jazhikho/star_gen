@@ -238,6 +238,27 @@ public static class SentientWorldProfileBuilder
             profile.LegalCentralization,
             profile.RestrictionPressure,
             profile.StateCapacity);
+        profile.JurisdictionPluralism = SentientWorldProfile.DeriveJurisdictionPluralism(
+            profile.LegalCentralization,
+            profile.FactionalFragmentation,
+            coexistencePressure,
+            terrainFragmentation,
+            groupScale);
+        profile.JurisdictionConflict = SentientWorldProfile.DeriveJurisdictionConflict(
+            profile.FactionalFragmentation,
+            profile.ExternalThreat,
+            profile.InternalLegitimacy,
+            coexistencePressure,
+            profile.RestrictionPressure,
+            profile.StateCapacity);
+        profile.JurisdictionStructure = SentientWorldProfile.DeriveJurisdictionStructure(
+            profile.LegalCentralization,
+            profile.StateCapacity,
+            profile.TradeConnectivity,
+            profile.JurisdictionPluralism,
+            profile.JurisdictionConflict,
+            colonyShare,
+            nativeShare);
         profile.Factions = BuildFactions(profile, data);
         profile.AvailableLifeBiomes = BuildAvailableLifeBiomes(data, settings);
         profile.CulturalFeatureTags = BuildCulturalFeatureTags(profile, data);

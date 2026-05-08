@@ -210,6 +210,7 @@ For any sentient world, build a deterministic `SentientWorldProfile` from the bi
 - `CoreTechLevel`, `EliteCoreTechLevel`, and `MedianCoreTechLevel`: neutral `0-24` numeric technology codes used before RPG mapping.
 - `FactionalFragmentation`: how divided the polity is among rival elites, regions, or communities.
 - `Factions`: first-class deterministic faction records with influence, alignment, tension, source population, and primary issue.
+- `JurisdictionStructure`, `JurisdictionPluralism`, and `JurisdictionConflict`: neutral signals for whether law is informal, layered, patchwork, charter/federal, centralized, extraterritorial, or contested.
 - `ReligiousCentralization`: placeholder axis for later human-reviewed religion modeling.
 - `ReligionStructure`: institutional religion structure only, not belief content.
 - `CulturalFeatureTags`: structured tags only, not prose doctrine.

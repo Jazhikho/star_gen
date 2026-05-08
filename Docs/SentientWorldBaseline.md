@@ -271,6 +271,20 @@ Presentation logic:
 - The inspector shows the numeric code alongside one of the compact interpretations: `No Formal Reach`, `Plural/Customary`, `Patchy Formal Law`, `Codified Moderate Reach`, `High-Capacity Legal Order`, or `Restrictive High-Enforcement Order`.
 - Traveller/Cepheus adapters use this neutral law code as the preferred UWP law source.
 
+### Jurisdiction Structure / Jurisdiction Pluralism / Jurisdiction Conflict
+
+Grounding:
+
+- Formal law should not imply one unified legal authority. Mixed native-colony worlds, frontier worlds, and fragmented settlement geographies can have overlapping authorities even when a formal code exists.
+- `JurisdictionPluralism` responds to weak legal centralization, factional fragmentation, coexistence pressure, terrain fragmentation, and active group count.
+- `JurisdictionConflict` responds to fragmentation, external threat, low internal legitimacy, coexistence pressure, restriction pressure, and weak state capacity.
+
+Presentation logic:
+
+- `Jurisdiction Structure` is one of: `Informal Local`, `Layered Customary`, `Patchwork Formal`, `Charter/Federal`, `Centralized Unitary`, `Extraterritorial/Imperial`, or `Contested Jurisdictions`.
+- These fields are neutral readouts. They do not name courts, write statutes, assign cultural doctrine, or claim a final legal anthropology model.
+- Future adapters should use these fields before generating Traveller factions, Starfinder settlement complications, Starforged community trouble, or export schemas that need multiple legal authorities.
+
 ### Cultural Accumulation
 
 Grounding:

@@ -1,12 +1,19 @@
 # Version
 
-Current version: `0.10.6.0`
+Current version: `0.10.7.0`
 
 Current user-facing version: `0.11`
 
 Date: `2026-05-08`
 
 Versioning method: release/refactor `+0.1`, feature `+0.0.1`, bug fix `+0.0.0.1`, save-breaking release `+1.0`.
+
+## 0.10.7.0
+
+- Feature: Added neutral jurisdiction structure, jurisdiction pluralism, and jurisdiction conflict pressure to `SentientWorldProfile` so law can distinguish centralized, charter/federal, customary, patchwork, and contested authority.
+- Feature: Object Viewer now shows compact jurisdiction readouts beside law level and interpretation.
+- Docs: Updated the sentient baseline, RPG audit, source-utilization plan, project structure, README, version surfaces, and AI provenance for the jurisdiction hardening slice.
+- Test: Added regression coverage for jurisdiction serialization and plural/customary versus charter/federal versus centralized legal authority. Revalidated with `dotnet build .\StarGen.sln`, the population-focused Godot headless harness (`668 / 668`), and the full Godot headless harness (`1903 / 1903`).
 
 ## 0.10.6.0
 

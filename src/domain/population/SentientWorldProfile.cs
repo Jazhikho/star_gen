@@ -139,6 +139,21 @@ public partial class SentientWorldProfile : RefCounted
     public string LawInterpretation = string.Empty;
 
     /// <summary>
+    /// Compact neutral description of how legal authority is partitioned across the world.
+    /// </summary>
+    public string JurisdictionStructure = string.Empty;
+
+    /// <summary>
+    /// Pressure toward plural or overlapping legal authorities in the inclusive range [0, 1].
+    /// </summary>
+    public double JurisdictionPluralism;
+
+    /// <summary>
+    /// Pressure from contested jurisdictional authority in the inclusive range [0, 1].
+    /// </summary>
+    public double JurisdictionConflict;
+
+    /// <summary>
     /// Capacity to preserve, transmit, and accumulate complex cultural knowledge.
     /// </summary>
     public double CulturalAccumulation;
@@ -245,6 +260,9 @@ public partial class SentientWorldProfile : RefCounted
         data["restriction_pressure"] = RestrictionPressure;
         data["law_level"] = System.Math.Clamp(LawLevel, 0, 15);
         data["law_interpretation"] = LawInterpretation;
+        data["jurisdiction_structure"] = JurisdictionStructure;
+        data["jurisdiction_pluralism"] = JurisdictionPluralism;
+        data["jurisdiction_conflict"] = JurisdictionConflict;
         data["cultural_accumulation"] = CulturalAccumulation;
         data["technology_adoption_capacity"] = TechnologyAdoptionCapacity;
         data["invention_capacity"] = InventionCapacity;
@@ -340,6 +358,30 @@ public partial class SentientWorldProfile : RefCounted
         profile.EconomicComplexity = Clamp01(GetDouble(data, "economic_complexity", 0.0));
         profile.InternalLegitimacy = Clamp01(GetDouble(data, "internal_legitimacy", 0.0));
         profile.ExternalLegitimacy = Clamp01(GetDouble(data, "external_legitimacy", 0.0));
+        profile.JurisdictionPluralism = Clamp01(GetDouble(data, "jurisdiction_pluralism", DeriveJurisdictionPluralism(
+            profile.LegalCentralization,
+            profile.FactionalFragmentation,
+            0.0,
+            0.0,
+            0.0)));
+        profile.JurisdictionConflict = Clamp01(GetDouble(data, "jurisdiction_conflict", DeriveJurisdictionConflict(
+            profile.FactionalFragmentation,
+            profile.ExternalThreat,
+            profile.InternalLegitimacy,
+            0.0,
+            profile.RestrictionPressure,
+            profile.StateCapacity)));
+        profile.JurisdictionStructure = GetString(
+            data,
+            "jurisdiction_structure",
+            DeriveJurisdictionStructure(
+                profile.LegalCentralization,
+                profile.StateCapacity,
+                profile.TradeConnectivity,
+                profile.JurisdictionPluralism,
+                profile.JurisdictionConflict,
+                0.0,
+                0.0));
         profile.HumanAuditRequired = GetBool(data, "human_audit_required", false);
         return profile;
     }
@@ -362,6 +404,9 @@ public partial class SentientWorldProfile : RefCounted
         summary["dominant_regime"] = GovernmentType.ToStringName(DominantRegime);
         summary["law_level"] = LawLevel;
         summary["law_interpretation"] = LawInterpretation;
+        summary["jurisdiction_structure"] = JurisdictionStructure;
+        summary["jurisdiction_pluralism"] = JurisdictionPluralism;
+        summary["jurisdiction_conflict"] = JurisdictionConflict;
         summary["social_scale"] = SocialScale;
         summary["state_capacity"] = StateCapacity;
         summary["enforcement_reach"] = EnforcementReach;
@@ -433,6 +478,87 @@ public partial class SentientWorldProfile : RefCounted
         }
 
         return "Codified Moderate Reach";
+    }
+
+    /// <summary>
+    /// Derives plural or overlapping jurisdiction pressure.
+    /// </summary>
+    public static double DeriveJurisdictionPluralism(
+        double legalCentralization,
+        double factionalFragmentation,
+        double coexistencePressure,
+        double terrainFragmentation,
+        double groupScale)
+    {
+        return Clamp01(((1.0 - Clamp01(legalCentralization)) * 0.34)
+            + (Clamp01(factionalFragmentation) * 0.24)
+            + (Clamp01(coexistencePressure) * 0.20)
+            + (Clamp01(terrainFragmentation) * 0.12)
+            + (Clamp01(groupScale) * 0.10));
+    }
+
+    /// <summary>
+    /// Derives contested jurisdiction pressure.
+    /// </summary>
+    public static double DeriveJurisdictionConflict(
+        double factionalFragmentation,
+        double externalThreat,
+        double internalLegitimacy,
+        double coexistencePressure,
+        double restrictionPressure,
+        double stateCapacity)
+    {
+        return Clamp01((Clamp01(factionalFragmentation) * 0.30)
+            + (Clamp01(externalThreat) * 0.24)
+            + ((1.0 - Clamp01(internalLegitimacy)) * 0.18)
+            + (Clamp01(coexistencePressure) * 0.16)
+            + (Clamp01(restrictionPressure) * 0.12)
+            - (Clamp01(stateCapacity) * 0.12));
+    }
+
+    /// <summary>
+    /// Derives the neutral jurisdiction structure label.
+    /// </summary>
+    public static string DeriveJurisdictionStructure(
+        double legalCentralization,
+        double stateCapacity,
+        double tradeConnectivity,
+        double jurisdictionPluralism,
+        double jurisdictionConflict,
+        double colonyShare,
+        double nativeShare)
+    {
+        if (stateCapacity < 0.18 && legalCentralization < 0.18)
+        {
+            return "Informal Local";
+        }
+
+        if (jurisdictionConflict >= 0.56)
+        {
+            return "Contested Jurisdictions";
+        }
+
+        if (jurisdictionPluralism >= 0.55 && legalCentralization < 0.46)
+        {
+            return "Layered Customary";
+        }
+
+        if (colonyShare >= 0.10 && nativeShare >= 0.10 && tradeConnectivity >= 0.42)
+        {
+            return "Charter/Federal";
+        }
+
+        if (stateCapacity >= 0.70 && legalCentralization >= 0.66 && tradeConnectivity >= 0.50)
+        {
+            return "Centralized Unitary";
+        }
+
+        if (tradeConnectivity >= 0.62 && stateCapacity >= 0.48)
+        {
+            return "Extraterritorial/Imperial";
+        }
+
+        return "Patchwork Formal";
     }
 
     /// <summary>

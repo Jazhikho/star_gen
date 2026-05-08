@@ -390,6 +390,7 @@ public static partial class DotNetNativeTestSuite
         runner.RunNativeTest("TestSentientWorldProfile::test_source_aligned_models_change_profile_and_require_audit", TestSentientWorldProfile.TestSourceAlignedModelsChangeProfileAndRequireAudit);
         runner.RunNativeTest("TestSentientWorldProfile::test_technology_access_diagnostics_separate_peak_and_median_access", TestSentientWorldProfile.TestTechnologyAccessDiagnosticsSeparatePeakAndMedianAccess);
         runner.RunNativeTest("TestSentientWorldProfile::test_law_level_distinguishes_reach_from_restriction", TestSentientWorldProfile.TestLawLevelDistinguishesReachFromRestriction);
+        runner.RunNativeTest("TestSentientWorldProfile::test_jurisdiction_structure_distinguishes_plural_and_centralized_law", TestSentientWorldProfile.TestJurisdictionStructureDistinguishesPluralAndCentralizedLaw);
         runner.RunNativeTest("TestSentientWorldProfile::test_faction_generation_is_deterministic_and_bounded", TestSentientWorldProfile.TestFactionGenerationIsDeterministicAndBounded);
         runner.RunNativeTest("TestSentientWorldProfile::test_fragmentation_increases_faction_pressure", TestSentientWorldProfile.TestFragmentationIncreasesFactionPressure);
         runner.RunNativeTest("TestSentientWorldProfile::test_available_life_biomes_are_life_gated", TestSentientWorldProfile.TestAvailableLifeBiomesAreLifeGated);

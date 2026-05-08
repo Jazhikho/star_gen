@@ -56,6 +56,9 @@ public static class TestSentientWorldProfile
         DotNetNativeTestSuite.AssertTrue(profile.MedianCoreTechLevel <= profile.EliteCoreTechLevel, "Median core technology should not exceed elite core technology");
         DotNetNativeTestSuite.AssertTrue(profile.LawLevel >= 0 && profile.LawLevel <= 15, "Law level should be compressed to the 0-15 range");
         DotNetNativeTestSuite.AssertTrue(!string.IsNullOrWhiteSpace(profile.LawInterpretation), "Law interpretation should be populated");
+        DotNetNativeTestSuite.AssertTrue(!string.IsNullOrWhiteSpace(profile.JurisdictionStructure), "Jurisdiction structure should be populated");
+        DotNetNativeTestSuite.AssertTrue(profile.JurisdictionPluralism >= 0.0 && profile.JurisdictionPluralism <= 1.0, "Jurisdiction pluralism should be bounded");
+        DotNetNativeTestSuite.AssertTrue(profile.JurisdictionConflict >= 0.0 && profile.JurisdictionConflict <= 1.0, "Jurisdiction conflict should be bounded");
         DotNetNativeTestSuite.AssertTrue(profile.Factions.Count > 0, "Faction records should be generated");
         DotNetNativeTestSuite.AssertTrue(profile.CulturalFeatureTags.Count > 0, "Cultural feature tags should be generated");
         DotNetNativeTestSuite.AssertTrue(!string.IsNullOrWhiteSpace(profile.ReligionStructure), "Religion structure should be populated");
@@ -101,6 +104,9 @@ public static class TestSentientWorldProfile
         original.RestrictionPressure = 0.28;
         original.LawLevel = 6;
         original.LawInterpretation = "Codified Moderate Reach";
+        original.JurisdictionStructure = "Charter/Federal";
+        original.JurisdictionPluralism = 0.44;
+        original.JurisdictionConflict = 0.23;
         original.CulturalAccumulation = 0.59;
         original.TechnologyAdoptionCapacity = 0.66;
         original.InventionCapacity = 0.62;
@@ -146,6 +152,9 @@ public static class TestSentientWorldProfile
         DotNetNativeTestSuite.AssertFloatNear(original.EnforcementReach, restored.EnforcementReach, 0.0001, "Enforcement reach should round-trip");
         DotNetNativeTestSuite.AssertEqual(original.LawLevel, restored.LawLevel, "Law level should round-trip");
         DotNetNativeTestSuite.AssertEqual(original.LawInterpretation, restored.LawInterpretation, "Law interpretation should round-trip");
+        DotNetNativeTestSuite.AssertEqual(original.JurisdictionStructure, restored.JurisdictionStructure, "Jurisdiction structure should round-trip");
+        DotNetNativeTestSuite.AssertFloatNear(original.JurisdictionPluralism, restored.JurisdictionPluralism, 0.0001, "Jurisdiction pluralism should round-trip");
+        DotNetNativeTestSuite.AssertFloatNear(original.JurisdictionConflict, restored.JurisdictionConflict, 0.0001, "Jurisdiction conflict should round-trip");
         DotNetNativeTestSuite.AssertFloatNear(original.EconomicComplexity, restored.EconomicComplexity, 0.0001, "Economic complexity should round-trip");
         DotNetNativeTestSuite.AssertFloatNear(original.InventionCapacity, restored.InventionCapacity, 0.0001, "Invention capacity should round-trip");
         DotNetNativeTestSuite.AssertFloatNear(original.AdoptionLagPressure, restored.AdoptionLagPressure, 0.0001, "Adoption lag pressure should round-trip");
@@ -236,6 +245,23 @@ public static class TestSentientWorldProfile
     }
 
     /// <summary>
+    /// Tests jurisdiction structure keeps plural authority distinct from centralized capacity.
+    /// </summary>
+    public static void TestJurisdictionStructureDistinguishesPluralAndCentralizedLaw()
+    {
+        double pluralism = SentientWorldProfile.DeriveJurisdictionPluralism(0.18, 0.72, 0.80, 0.60, 0.65);
+        double conflict = SentientWorldProfile.DeriveJurisdictionConflict(0.72, 0.20, 0.62, 0.80, 0.18, 0.34);
+        string pluralStructure = SentientWorldProfile.DeriveJurisdictionStructure(0.18, 0.34, 0.30, pluralism, conflict, 0.0, 1.0);
+        string federalStructure = SentientWorldProfile.DeriveJurisdictionStructure(0.48, 0.55, 0.55, 0.35, 0.20, 0.42, 0.36);
+        string centralizedStructure = SentientWorldProfile.DeriveJurisdictionStructure(0.78, 0.82, 0.62, 0.10, 0.08, 0.0, 1.0);
+
+        DotNetNativeTestSuite.AssertTrue(pluralism > 0.55, "Fragmented customary inputs should raise jurisdiction pluralism");
+        DotNetNativeTestSuite.AssertEqual("Layered Customary", pluralStructure, "Plural legal authority should not collapse to centralized law");
+        DotNetNativeTestSuite.AssertEqual("Charter/Federal", federalStructure, "Mixed native-colony worlds with trade should support charter or federal structure");
+        DotNetNativeTestSuite.AssertEqual("Centralized Unitary", centralizedStructure, "High centralization and capacity should resolve to centralized unitary structure");
+    }
+
+    /// <summary>
     /// Tests faction generation is deterministic, bounded, and stable.
     /// </summary>
     public static void TestFactionGenerationIsDeterministicAndBounded()
@@ -274,6 +300,9 @@ public static class TestSentientWorldProfile
         DotNetNativeTestSuite.AssertTrue(
             highFragmentation.Factions.Count >= lowFragmentation.Factions.Count,
             "Fragmented worlds should not produce fewer first-class factions");
+        DotNetNativeTestSuite.AssertTrue(
+            highFragmentation.JurisdictionPluralism > lowFragmentation.JurisdictionPluralism,
+            "Fragmented worlds should raise jurisdiction pluralism");
     }
 
     /// <summary>
