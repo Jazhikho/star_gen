@@ -83,6 +83,8 @@ These controls are still useful, but they are not part of the shared generation 
 | Ids | Class | Why It Is Not A Scientific Parameter | Downstream Effect |
 | --- | --- | --- | --- |
 | `include_asteroid_belts` | `Runtime/orchestration control` | only decides whether the belt stage runs | asteroid belts are present or absent |
+| `major_asteroid_display_count` | `Runtime/orchestration control` | selects how many already-generated eligible belt large objects are promoted to inspectable bodies | largest eligible large-object body entries exposed per belt |
+| `major_asteroid_min_diameter_km` | `Runtime/orchestration control` | selects the minimum diameter for promotion to inspectable body records, not the physical size-distribution slope | which belt large objects are eligible for System Viewer/Object Viewer handoff |
 | `generate_population` | `Runtime/orchestration control` | only decides whether the population stage runs | natives, colonies, and sentient-world baselines are present or absent |
 | `show_traveller_readouts` | `Presentation/readout control` | only affects UI/readout visibility | UWP and Traveller-style sections appear or stay hidden |
 

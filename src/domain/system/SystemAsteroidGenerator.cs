@@ -17,7 +17,7 @@ namespace StarGen.Domain.Systems;
 /// </summary>
 public static class SystemAsteroidGenerator
 {
-    private const int MaxMajorAsteroids = 10;
+    private const int MajorAsteroidCandidatePoolCount = 256;
     private const double BeltProbabilityHot = 0.05;
     private const double BeltProbabilityTemperate = 0.12;
     private const double BeltProbabilityCold = 0.25;
@@ -30,7 +30,6 @@ public static class SystemAsteroidGenerator
     private const double InnerBeltMassMaxKg = 1.0e22;
     private const double OuterBeltMassMinKg = 1.0e20;
     private const double OuterBeltMassMaxKg = 1.0e23;
-    private const double LargeObjectDiameterThresholdKm = 500.0;
     private const double InnerLargeObjectMaxDiameterKm = 1100.0;
     private const double OuterLargeObjectMaxDiameterKm = 2400.0;
     private const string InnerReservoirSourceIds = "DeMeoCarry2014;RaymondIzidoro2017";
@@ -60,7 +59,7 @@ public static class SystemAsteroidGenerator
             foreach (AsteroidBelt belt in hostBelts)
             {
                 result.Belts.Add(belt);
-                Array<CelestialBody> beltAsteroids = GenerateMajorAsteroids(belt, host, stars, planetaryState, rng, useCaseSettings);
+                Array<CelestialBody> beltAsteroids = GenerateMajorAsteroids(belt, host, stars, planetaryState, rng, useCaseSettings, systemSpec);
                 Array<string> asteroidIds = new();
 
                 foreach (CelestialBody asteroid in beltAsteroids)
@@ -106,7 +105,7 @@ public static class SystemAsteroidGenerator
                 continue;
             }
 
-            Array<CelestialBody> beltAsteroids = GenerateMajorAsteroids(belt, hostsById[belt.OrbitHostId], stars, planetaryState, rng, useCaseSettings);
+            Array<CelestialBody> beltAsteroids = GenerateMajorAsteroids(belt, hostsById[belt.OrbitHostId], stars, planetaryState, rng, useCaseSettings, systemSpec);
             Array<string> asteroidIds = new();
             foreach (CelestialBody asteroid in beltAsteroids)
             {
@@ -910,10 +909,16 @@ public static class SystemAsteroidGenerator
         Array<CelestialBody> stars,
         PlanetarySystemState planetaryState,
         SeededRng rng,
-        GenerationUseCaseSettings? useCaseSettings)
+        GenerationUseCaseSettings? useCaseSettings,
+        SolarSystemSpec? systemSpec)
     {
         Array<CelestialBody> asteroids = new();
-        int count = rng.RandiRange(3, MaxMajorAsteroids);
+        int count = ResolveMajorAsteroidDisplayCount(systemSpec);
+        if (count <= 0)
+        {
+            return asteroids;
+        }
+
         double stellarMassKg = host.CombinedMassKg;
         double stellarLuminosityWatts = host.CombinedLuminosityWatts;
         double stellarTemperatureK = host.EffectiveTemperatureK;
@@ -924,21 +929,7 @@ public static class SystemAsteroidGenerator
             stellarAgeYears = stars[0].Stellar!.AgeYears;
         }
 
-        List<double> diametersKm = new();
-        double alpha = ResolveMajorBodyPowerLawAlpha(belt, planetaryState);
-        for (int index = 0; index < count; index += 1)
-        {
-            double maxDiameterKm = ResolveLargeObjectMaxDiameterKm(belt);
-            double lower = System.Math.Pow(LargeObjectDiameterThresholdKm, 1.0 - alpha);
-            double upper = System.Math.Pow(maxDiameterKm, 1.0 - alpha);
-            double u = rng.Randf();
-            double diameterKm = System.Math.Pow(
-                lower + (u * (upper - lower)),
-                1.0 / (1.0 - alpha));
-            diametersKm.Add(diameterKm);
-        }
-
-        diametersKm.Sort((left, right) => right.CompareTo(left));
+        List<double> diametersKm = BuildLargestEligibleDiameters(belt, planetaryState, rng, count, ResolveMajorAsteroidMinDiameterKm(systemSpec));
         for (int index = 0; index < diametersKm.Count; index += 1)
         {
             CelestialBody? asteroid = GenerateSingleMajorAsteroid(
@@ -960,6 +951,63 @@ public static class SystemAsteroidGenerator
         }
 
         return asteroids;
+    }
+
+    private static int ResolveMajorAsteroidDisplayCount(SolarSystemSpec? systemSpec)
+    {
+        if (systemSpec == null)
+        {
+            return SolarSystemSpec.DefaultMajorAsteroidDisplayCount;
+        }
+
+        return systemSpec.MajorAsteroidDisplayCount;
+    }
+
+    private static double ResolveMajorAsteroidMinDiameterKm(SolarSystemSpec? systemSpec)
+    {
+        if (systemSpec == null)
+        {
+            return SolarSystemSpec.DefaultMajorAsteroidMinDiameterKm;
+        }
+
+        return systemSpec.MajorAsteroidMinDiameterKm;
+    }
+
+    private static List<double> BuildLargestEligibleDiameters(
+        AsteroidBelt belt,
+        PlanetarySystemState planetaryState,
+        SeededRng rng,
+        int displayCount,
+        double minDiameterKm)
+    {
+        List<double> candidateDiametersKm = new();
+        double maxDiameterKm = ResolveLargeObjectMaxDiameterKm(belt);
+        if (minDiameterKm > maxDiameterKm)
+        {
+            return candidateDiametersKm;
+        }
+
+        double alpha = ResolveMajorBodyPowerLawAlpha(belt, planetaryState);
+        double lower = System.Math.Pow(minDiameterKm, 1.0 - alpha);
+        double upper = System.Math.Pow(maxDiameterKm, 1.0 - alpha);
+        for (int index = 0; index < MajorAsteroidCandidatePoolCount; index += 1)
+        {
+            double u = rng.Randf();
+            double diameterKm = System.Math.Pow(
+                lower + (u * (upper - lower)),
+                1.0 / (1.0 - alpha));
+            candidateDiametersKm.Add(diameterKm);
+        }
+
+        candidateDiametersKm.Sort((left, right) => right.CompareTo(left));
+        List<double> selectedDiametersKm = new();
+        int selectedCount = System.Math.Min(displayCount, candidateDiametersKm.Count);
+        for (int index = 0; index < selectedCount; index += 1)
+        {
+            selectedDiametersKm.Add(candidateDiametersKm[index]);
+        }
+
+        return selectedDiametersKm;
     }
 
     private static double ResolveLargeObjectMaxDiameterKm(AsteroidBelt belt)

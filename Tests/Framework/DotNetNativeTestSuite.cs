@@ -1966,6 +1966,9 @@ public static partial class DotNetNativeTestSuite
             "TestSolarSystemSpec::test_star_count_clamping",
             Tests.Unit.TestSolarSystemSpec.TestStarCountClamping);
         runner.RunNativeTest(
+            "TestSolarSystemSpec::test_major_asteroid_display_setting_clamping",
+            Tests.Unit.TestSolarSystemSpec.TestMajorAsteroidDisplaySettingClamping);
+        runner.RunNativeTest(
             "TestSolarSystemSpec::test_star_count_min_greater_than_max",
             Tests.Unit.TestSolarSystemSpec.TestStarCountMinGreaterThanMax);
         runner.RunNativeTest(
@@ -2241,6 +2244,9 @@ public static partial class DotNetNativeTestSuite
         runner.RunNativeTest(
             "TestSystemAsteroidGenerator::test_major_asteroids_use_large_object_diameter_semantics",
             Tests.Unit.TestSystemAsteroidGenerator.TestMajorAsteroidsUseLargeObjectDiameterSemantics);
+        runner.RunNativeTest(
+            "TestSystemAsteroidGenerator::test_major_asteroid_display_parameters_select_largest_eligible_objects",
+            Tests.Unit.TestSystemAsteroidGenerator.TestMajorAsteroidDisplayParametersSelectLargestEligibleObjects);
         runner.RunNativeTest(
             "TestSystemBodyNode::test_setup_planet",
             Tests.Unit.TestSystemBodyNode.TestSetupPlanet);

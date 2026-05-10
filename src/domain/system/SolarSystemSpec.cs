@@ -12,6 +12,31 @@ namespace StarGen.Domain.Systems;
 public partial class SolarSystemSpec : RefCounted
 {
     /// <summary>
+    /// Default number of large asteroid-belt objects to expose as inspectable bodies.
+    /// </summary>
+    public const int DefaultMajorAsteroidDisplayCount = 10;
+
+    /// <summary>
+    /// Maximum number of large asteroid-belt objects the system generator will expose per belt.
+    /// </summary>
+    public const int MaxMajorAsteroidDisplayCount = 25;
+
+    /// <summary>
+    /// Default minimum large-object diameter for asteroid-belt object surfacing.
+    /// </summary>
+    public const double DefaultMajorAsteroidMinDiameterKm = 500.0;
+
+    /// <summary>
+    /// Minimum supported diameter threshold for asteroid-belt large-object surfacing.
+    /// </summary>
+    public const double MinMajorAsteroidMinDiameterKm = 50.0;
+
+    /// <summary>
+    /// Maximum supported diameter threshold for asteroid-belt large-object surfacing.
+    /// </summary>
+    public const double MaxMajorAsteroidMinDiameterKm = 2500.0;
+
+    /// <summary>
     /// Deterministic seed for system generation.
     /// </summary>
     public int GenerationSeed;
@@ -65,6 +90,28 @@ public partial class SolarSystemSpec : RefCounted
     /// Whether asteroid belts should be generated.
     /// </summary>
     public bool IncludeAsteroidBelts = true;
+
+    private int _majorAsteroidDisplayCount = DefaultMajorAsteroidDisplayCount;
+
+    /// <summary>
+    /// Maximum number of generated belt large objects to expose as inspectable bodies per belt.
+    /// </summary>
+    public int MajorAsteroidDisplayCount
+    {
+        get => _majorAsteroidDisplayCount;
+        set => _majorAsteroidDisplayCount = ClampMajorAsteroidDisplayCount(value);
+    }
+
+    private double _majorAsteroidMinDiameterKm = DefaultMajorAsteroidMinDiameterKm;
+
+    /// <summary>
+    /// Minimum diameter in kilometers for generated belt objects to be exposed as inspectable bodies.
+    /// </summary>
+    public double MajorAsteroidMinDiameterKm
+    {
+        get => _majorAsteroidMinDiameterKm;
+        set => _majorAsteroidMinDiameterKm = ClampMajorAsteroidMinDiameterKm(value);
+    }
 
     /// <summary>
     /// Whether planet and moon population data should be generated.
@@ -198,6 +245,8 @@ public partial class SolarSystemSpec : RefCounted
             ["stellar_profile"] = StellarProfile.ToDictionary(),
             ["planetary_profile"] = PlanetaryProfile.ToDictionary(),
             ["include_asteroid_belts"] = IncludeAsteroidBelts,
+            ["major_asteroid_display_count"] = MajorAsteroidDisplayCount,
+            ["major_asteroid_min_diameter_km"] = MajorAsteroidMinDiameterKm,
             ["generate_population"] = GeneratePopulation,
             ["overrides"] = CloneDictionary(Overrides),
             ["use_case_settings"] = UseCaseSettings.ToDictionary(),
@@ -229,6 +278,8 @@ public partial class SolarSystemSpec : RefCounted
             spec.PlanetaryProfile = PlanetaryGenerationProfile.FromDictionary((Dictionary)data["planetary_profile"]);
         }
         spec.IncludeAsteroidBelts = GetBool(data, "include_asteroid_belts", true);
+        spec.MajorAsteroidDisplayCount = GetInt(data, "major_asteroid_display_count", DefaultMajorAsteroidDisplayCount);
+        spec.MajorAsteroidMinDiameterKm = GetDouble(data, "major_asteroid_min_diameter_km", DefaultMajorAsteroidMinDiameterKm);
         spec.GeneratePopulation = GetBool(data, "generate_population", false);
 
         if (data.ContainsKey("overrides") && data["overrides"].VariantType == Variant.Type.Dictionary)
@@ -359,5 +410,20 @@ public partial class SolarSystemSpec : RefCounted
         }
 
         return fallback;
+    }
+
+    private static int ClampMajorAsteroidDisplayCount(int value)
+    {
+        return System.Math.Clamp(value, 0, MaxMajorAsteroidDisplayCount);
+    }
+
+    private static double ClampMajorAsteroidMinDiameterKm(double value)
+    {
+        if (double.IsNaN(value) || double.IsInfinity(value))
+        {
+            return DefaultMajorAsteroidMinDiameterKm;
+        }
+
+        return System.Math.Clamp(value, MinMajorAsteroidMinDiameterKm, MaxMajorAsteroidMinDiameterKm);
     }
 }

@@ -1,12 +1,19 @@
 # Version
 
-Current version: `0.10.9.0`
+Current version: `0.10.10.0`
 
 Current user-facing version: `0.11`
 
 Date: `2026-05-10`
 
 Versioning method: release/refactor `+0.1`, feature `+0.0.1`, bug fix `+0.0.0.1`, save-breaking release `+1.0`.
+
+## 0.10.10.0
+
+- Feature: Added System Studio controls for asteroid-belt large-object surfacing: per-belt display count defaults to 10, the minimum diameter defaults to 500 km, and both serialize through `SolarSystemSpec`.
+- Feature: Changed generated belt large-object promotion to sample a deterministic candidate pool, sort by diameter, and expose the largest eligible objects rather than treating the first generated objects as the display list.
+- Docs: Updated small-body science/readout documentation, parameter materiality notes, project structure, and provenance for the configurable largest-object selection pass.
+- Test: Added regression coverage for `SolarSystemSpec` setting round-trips and clamping plus largest-prefix large-object selection and threshold behavior. Revalidated with `dotnet build .\StarGen.sln` and the full Godot headless harness (`1910 / 1910`).
 
 ## 0.10.9.0
 

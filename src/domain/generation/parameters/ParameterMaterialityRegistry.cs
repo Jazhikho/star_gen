@@ -196,6 +196,14 @@ public static class ParameterMaterialityRegistry
                 new[] { "SystemFixtureGenerator.GenerateSystem(...)" },
                 new[] { "SystemAsteroidGenerator.Generate(...)" },
                 new[] { "presence or absence of asteroid belts" }),
+            "major_asteroid_display_count" or "major_asteroid_min_diameter_km" => CreateEntry(
+                parameterId,
+                GenerationParameterClassification.RuntimeOrchestrationControl,
+                new[] { "SystemGenerationScreen system controls" },
+                new[] { "SolarSystemSpec" },
+                new[] { "SystemAsteroidGenerator.BuildLargestEligibleDiameters(...)" },
+                new[] { "SystemAsteroidGenerator.Generate(...)", "SystemViewer", "SystemInspectorPanel" },
+                new[] { "which belt large objects become inspectable generated bodies" }),
             "generate_population" => CreateEntry(
                 parameterId,
                 GenerationParameterClassification.RuntimeOrchestrationControl,

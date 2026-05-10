@@ -40,6 +40,8 @@ public partial class SystemGenerationScreen : Control
 	private SpinBox? _systemAgeInput;
 	private SpinBox? _systemMetallicityInput;
 	private CheckBox? _includeBeltsCheck;
+	private SpinBox? _majorAsteroidDisplayCountInput;
+	private SpinBox? _majorAsteroidMinDiameterInput;
 	private OptionButton? _rulesetModeOption;
 	private CheckBox? _showTravellerReadoutsCheck;
 	private CheckBox? _forceLifeOnSupportableWorldsCheck;
@@ -154,6 +156,16 @@ public partial class SystemGenerationScreen : Control
 			spec.IncludeAsteroidBelts = _includeBeltsCheck.ButtonPressed;
 		}
 
+		if (_majorAsteroidDisplayCountInput != null)
+		{
+			spec.MajorAsteroidDisplayCount = (int)_majorAsteroidDisplayCountInput.Value;
+		}
+
+		if (_majorAsteroidMinDiameterInput != null)
+		{
+			spec.MajorAsteroidMinDiameterKm = _majorAsteroidMinDiameterInput.Value;
+		}
+
 		spec.UseCaseSettings = BuildUseCaseSettingsFromControls();
 		spec.StellarProfile = BuildStellarProfileFromControls();
 		spec.PlanetaryProfile = BuildPlanetaryProfileFromControls();
@@ -184,6 +196,8 @@ public partial class SystemGenerationScreen : Control
 		_systemAgeInput = GetNodeOrNull<SpinBox>($"{Root}/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/SystemAgeRow/SystemAgeInput");
 		_systemMetallicityInput = GetNodeOrNull<SpinBox>($"{Root}/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/SystemMetallicityRow/SystemMetallicityInput");
 		_includeBeltsCheck = GetNodeOrNull<CheckBox>($"{Root}/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/IncludeBeltsCheck");
+		_majorAsteroidDisplayCountInput = GetNodeOrNull<SpinBox>($"{Root}/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/MajorAsteroidDisplayCountRow/MajorAsteroidDisplayCountInput");
+		_majorAsteroidMinDiameterInput = GetNodeOrNull<SpinBox>($"{Root}/StudioRow/SettingsPanel/MarginContainer/SettingsVBox/ScrollContainer/ParameterVBox/MajorAsteroidMinDiameterRow/MajorAsteroidMinDiameterInput");
 		_rulesetModeOption = GetNodeOrNull<OptionButton>($"{Root}/StudioRow/RulesPanel/MarginContainer/RulesVBox/ScrollContainer/RulesContent/RulesetModeRow/RulesetModeOption");
 		_showTravellerReadoutsCheck = GetNodeOrNull<CheckBox>($"{Root}/StudioRow/RulesPanel/MarginContainer/RulesVBox/ScrollContainer/RulesContent/ShowTravellerReadoutsRow/ShowTravellerReadoutsCheck");
 		_forceLifeOnSupportableWorldsCheck = GetNodeOrNull<CheckBox>($"{Root}/StudioRow/RulesPanel/MarginContainer/RulesVBox/ScrollContainer/RulesContent/ForceLifeOnSupportableWorldsRow/ForceLifeOnSupportableWorldsCheck");
@@ -226,6 +240,8 @@ public partial class SystemGenerationScreen : Control
 		if (_systemAgeInput != null) _systemAgeInput.ValueChanged += _ => RefreshSummary();
 		if (_systemMetallicityInput != null) _systemMetallicityInput.ValueChanged += _ => RefreshSummary();
 		if (_includeBeltsCheck != null) _includeBeltsCheck.Toggled += _ => RefreshSummary();
+		if (_majorAsteroidDisplayCountInput != null) _majorAsteroidDisplayCountInput.ValueChanged += _ => RefreshSummary();
+		if (_majorAsteroidMinDiameterInput != null) _majorAsteroidMinDiameterInput.ValueChanged += _ => RefreshSummary();
 		if (_showTravellerReadoutsCheck != null) _showTravellerReadoutsCheck.Toggled += _ => RefreshSummary();
 		if (_forceLifeOnSupportableWorldsCheck != null) _forceLifeOnSupportableWorldsCheck.Toggled += _ => RefreshSummary();
 		if (_mainworldPolicyOption != null) _mainworldPolicyOption.ItemSelected += _ => RefreshSummary();
@@ -317,6 +333,10 @@ public partial class SystemGenerationScreen : Control
 			lines.Add(BuildStellarProfileSummary(BuildStellarProfileFromControls()));
 			lines.Add(BuildPlanetaryProfileSummary(BuildPlanetaryProfileFromControls()));
 			lines.Add($"Belts {(spec.IncludeAsteroidBelts ? "On" : "Off")}");
+			if (spec.IncludeAsteroidBelts)
+			{
+				lines.Add($"Large Belt Objects {spec.MajorAsteroidDisplayCount} >= {spec.MajorAsteroidMinDiameterKm:0} km");
+			}
 			lines.Add($"Ruleset {GenerationUseCasePresentation.GetRulesetLabel(spec.UseCaseSettings.RulesetMode)}");
 			lines.Add($"Readout UWP Code {(spec.UseCaseSettings.ShowTravellerReadouts ? "On" : "Off")}");
 			lines.Add($"Life Framework {LifeScienceReferenceCatalog.GetFrameworkLabel(spec.UseCaseSettings.LifeFramework)}");
@@ -515,6 +535,16 @@ public partial class SystemGenerationScreen : Control
 		if (_includeBeltsCheck != null)
 		{
 			_includeBeltsCheck.TooltipText = "Runtime control, not a scientific prior.\nThis only decides whether the asteroid-belt generator stage runs.\nIt does not reinterpret the underlying stellar or planetary science models.";
+		}
+
+		if (_majorAsteroidDisplayCountInput != null)
+		{
+			_majorAsteroidDisplayCountInput.TooltipText = "Runtime display-selection control.\nSets how many of the largest eligible belt objects are promoted to inspectable system bodies per belt.";
+		}
+
+		if (_majorAsteroidMinDiameterInput != null)
+		{
+			_majorAsteroidMinDiameterInput.TooltipText = "Runtime display-selection control.\nSets the minimum diameter for belt objects that can be promoted to inspectable system bodies.";
 		}
 
 		GenerationParameterDefinition? rulesetDefinition = GenerationParameterCatalog.FindSystemDefinition("ruleset_mode");

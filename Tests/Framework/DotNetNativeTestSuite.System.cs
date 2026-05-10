@@ -68,10 +68,14 @@ public static partial class DotNetNativeTestSuite
         spec.NameHint = "Alpha";
         spec.GeneratePopulation = true;
         spec.IncludeAsteroidBelts = false;
+        spec.MajorAsteroidDisplayCount = 6;
+        spec.MajorAsteroidMinDiameterKm = 750.0;
         spec.SetOverride("viewer.force_binary", true);
 
         AssertEqual(3, spec.StarCountMin, "Alpha-Centauri preset should request three stars");
         AssertEqual(3, spec.StarCountMax, "Alpha-Centauri preset should cap at three stars");
+        AssertEqual(6, spec.MajorAsteroidDisplayCount, "large-object display count should store the requested value");
+        AssertFloatNear(750.0, spec.MajorAsteroidMinDiameterKm, 0.001, "large-object threshold should store the requested value");
         AssertTrue(spec.HasOverride("viewer.force_binary"), "set overrides should be addressable");
 
         Godot.Collections.Dictionary data = spec.ToDictionary();

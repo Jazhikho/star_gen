@@ -670,6 +670,84 @@ public static class TestSystemAsteroidGenerator
         }
     }
 
+    /// <summary>
+    /// Tests configurable belt large-object display parameters select the largest eligible bodies.
+    /// </summary>
+    public static void TestMajorAsteroidDisplayParametersSelectLargestEligibleObjects()
+    {
+        OrbitHost host = CreateSunLikeHost();
+        CelestialBody star = CreateTestStar();
+        SolarSystemSpec topThreeSpec = new SolarSystemSpec(7002, 1, 1);
+        topThreeSpec.MajorAsteroidDisplayCount = 3;
+        topThreeSpec.MajorAsteroidMinDiameterKm = 900.0;
+
+        AsteroidBelt topThreeBelt = CreatePredefinedOuterBelt(host);
+        BeltGenerationResult topThreeResult = SystemAsteroidGenerator.GenerateFromPredefinedBelts(
+            new Array<AsteroidBelt> { topThreeBelt },
+            new Array<OrbitHost> { host },
+            new Array<CelestialBody> { star },
+            new SeededRng(7002),
+            systemSpec: topThreeSpec);
+
+        if (topThreeBelt.MajorAsteroidIds.Count != 3)
+        {
+            throw new InvalidOperationException("Requested display count should cap the exposed belt large-object list.");
+        }
+
+        foreach (string asteroidId in topThreeBelt.MajorAsteroidIds)
+        {
+            CelestialBody asteroid = RequireAsteroid(topThreeResult.Asteroids, asteroidId);
+            double diameterKm = asteroid.Physical.RadiusM * 2.0 / 1000.0;
+            if (diameterKm < 900.0)
+            {
+                throw new InvalidOperationException($"Custom large-object threshold should be honored, got {diameterKm:0.00} km.");
+            }
+        }
+
+        SolarSystemSpec topEightSpec = new SolarSystemSpec(7002, 1, 1);
+        topEightSpec.MajorAsteroidDisplayCount = 8;
+        topEightSpec.MajorAsteroidMinDiameterKm = 900.0;
+        AsteroidBelt topEightBelt = CreatePredefinedOuterBelt(host);
+        BeltGenerationResult topEightResult = SystemAsteroidGenerator.GenerateFromPredefinedBelts(
+            new Array<AsteroidBelt> { topEightBelt },
+            new Array<OrbitHost> { host },
+            new Array<CelestialBody> { star },
+            new SeededRng(7002),
+            systemSpec: topEightSpec);
+
+        if (topEightBelt.MajorAsteroidIds.Count != 8)
+        {
+            throw new InvalidOperationException("Higher display count should expose more eligible large objects.");
+        }
+
+        for (int index = 0; index < topThreeBelt.MajorAsteroidIds.Count; index += 1)
+        {
+            CelestialBody topThreeAsteroid = RequireAsteroid(topThreeResult.Asteroids, topThreeBelt.MajorAsteroidIds[index]);
+            CelestialBody topEightAsteroid = RequireAsteroid(topEightResult.Asteroids, topEightBelt.MajorAsteroidIds[index]);
+            double topThreeDiameterKm = topThreeAsteroid.Physical.RadiusM * 2.0 / 1000.0;
+            double topEightDiameterKm = topEightAsteroid.Physical.RadiusM * 2.0 / 1000.0;
+            if (System.Math.Abs(topThreeDiameterKm - topEightDiameterKm) > 0.001)
+            {
+                throw new InvalidOperationException("Lower display counts should expose the same largest-prefix selection from the deterministic candidate pool.");
+            }
+        }
+
+        SolarSystemSpec zeroSpec = new SolarSystemSpec(7002, 1, 1);
+        zeroSpec.MajorAsteroidDisplayCount = 0;
+        AsteroidBelt zeroBelt = CreatePredefinedOuterBelt(host);
+        SystemAsteroidGenerator.GenerateFromPredefinedBelts(
+            new Array<AsteroidBelt> { zeroBelt },
+            new Array<OrbitHost> { host },
+            new Array<CelestialBody> { star },
+            new SeededRng(7002),
+            systemSpec: zeroSpec);
+
+        if (zeroBelt.MajorAsteroidIds.Count != 0)
+        {
+            throw new InvalidOperationException("Zero display count should suppress inspectable large-object promotion.");
+        }
+    }
+
     private static CelestialBody RequireAsteroid(Array<CelestialBody> asteroids, string asteroidId)
     {
         foreach (CelestialBody asteroid in asteroids)

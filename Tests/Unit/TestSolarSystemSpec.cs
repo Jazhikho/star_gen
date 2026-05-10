@@ -54,6 +54,38 @@ public static class TestSolarSystemSpec
     }
 
     /// <summary>
+    /// Tests clamping of asteroid-belt large-object display settings.
+    /// </summary>
+    public static void TestMajorAsteroidDisplaySettingClamping()
+    {
+        SolarSystemSpec spec = new SolarSystemSpec(123, 1, 1);
+        spec.MajorAsteroidDisplayCount = 99;
+        spec.MajorAsteroidMinDiameterKm = 9999.0;
+
+        if (spec.MajorAsteroidDisplayCount != SolarSystemSpec.MaxMajorAsteroidDisplayCount)
+        {
+            throw new InvalidOperationException("Large-object display count should clamp to the supported maximum.");
+        }
+
+        if (System.Math.Abs(spec.MajorAsteroidMinDiameterKm - SolarSystemSpec.MaxMajorAsteroidMinDiameterKm) > DefaultTolerance)
+        {
+            throw new InvalidOperationException("Large-object minimum diameter should clamp to the supported maximum.");
+        }
+
+        spec.MajorAsteroidDisplayCount = -1;
+        spec.MajorAsteroidMinDiameterKm = -100.0;
+        if (spec.MajorAsteroidDisplayCount != 0)
+        {
+            throw new InvalidOperationException("Large-object display count should allow zero and clamp negative values to zero.");
+        }
+
+        if (System.Math.Abs(spec.MajorAsteroidMinDiameterKm - SolarSystemSpec.MinMajorAsteroidMinDiameterKm) > DefaultTolerance)
+        {
+            throw new InvalidOperationException("Large-object minimum diameter should clamp to the supported minimum.");
+        }
+    }
+
+    /// <summary>
     /// Tests min > max handling.
     /// </summary>
     public static void TestStarCountMinGreaterThanMax()
@@ -258,6 +290,8 @@ public static class TestSolarSystemSpec
         original.SpectralClassHints = new Array<int> { (int)StarClass.SpectralClass.G, (int)StarClass.SpectralClass.K };
         original.SystemAgeYears = 4.5e9;
         original.SystemMetallicity = 0.8;
+        original.MajorAsteroidDisplayCount = 7;
+        original.MajorAsteroidMinDiameterKm = 800.0;
         original.SetOverride("test", "value");
 
         Godot.Collections.Dictionary data = original.ToDictionary();
@@ -290,6 +324,14 @@ public static class TestSolarSystemSpec
         if (System.Math.Abs(restored.SystemMetallicity - original.SystemMetallicity) > DefaultTolerance)
         {
             throw new InvalidOperationException("System metallicity should match");
+        }
+        if (restored.MajorAsteroidDisplayCount != original.MajorAsteroidDisplayCount)
+        {
+            throw new InvalidOperationException("Large-object display count should match");
+        }
+        if (System.Math.Abs(restored.MajorAsteroidMinDiameterKm - original.MajorAsteroidMinDiameterKm) > DefaultTolerance)
+        {
+            throw new InvalidOperationException("Large-object minimum diameter should match");
         }
         if (!restored.HasOverride("test"))
         {
