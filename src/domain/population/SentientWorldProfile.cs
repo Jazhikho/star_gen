@@ -179,6 +179,11 @@ public partial class SentientWorldProfile : RefCounted
     public double TechnologyAccessInequality;
 
     /// <summary>
+    /// Domain-specific neutral technology access records.
+    /// </summary>
+    public Array<TechnologyDomainAccessRecord> TechnologyDomains = new();
+
+    /// <summary>
     /// Degree of fragmentation among elites, settlements, and active populations.
     /// </summary>
     public double FactionalFragmentation;
@@ -268,6 +273,13 @@ public partial class SentientWorldProfile : RefCounted
         data["invention_capacity"] = InventionCapacity;
         data["adoption_lag_pressure"] = AdoptionLagPressure;
         data["technology_access_inequality"] = TechnologyAccessInequality;
+        Array<Dictionary> technologyDomainData = new();
+        foreach (TechnologyDomainAccessRecord technologyDomain in TechnologyDomains)
+        {
+            technologyDomainData.Add(technologyDomain.ToDictionary());
+        }
+
+        data["technology_domains"] = technologyDomainData;
         data["factional_fragmentation"] = FactionalFragmentation;
         data["religious_centralization"] = ReligiousCentralization;
         Array<Dictionary> factionData = new();
@@ -349,6 +361,7 @@ public partial class SentientWorldProfile : RefCounted
         profile.InventionCapacity = Clamp01(GetDouble(data, "invention_capacity", 0.0));
         profile.AdoptionLagPressure = Clamp01(GetDouble(data, "adoption_lag_pressure", 0.0));
         profile.TechnologyAccessInequality = Clamp01(GetDouble(data, "technology_access_inequality", 0.0));
+        profile.TechnologyDomains = ParseTechnologyDomainArray(data, "technology_domains");
         profile.FactionalFragmentation = Clamp01(GetDouble(data, "factional_fragmentation", 0.0));
         profile.ReligiousCentralization = Clamp01(GetDouble(data, "religious_centralization", 0.0));
         profile.Factions = ParseFactionArray(data, "factions");
@@ -415,6 +428,7 @@ public partial class SentientWorldProfile : RefCounted
         summary["invention_capacity"] = InventionCapacity;
         summary["adoption_lag_pressure"] = AdoptionLagPressure;
         summary["technology_access_inequality"] = TechnologyAccessInequality;
+        summary["technology_domain_count"] = TechnologyDomains.Count;
         summary["religion_structure"] = ReligionStructure;
         summary["human_audit_required"] = HumanAuditRequired;
         return summary;
@@ -747,6 +761,32 @@ public partial class SentientWorldProfile : RefCounted
             if (item.VariantType == Variant.Type.Dictionary)
             {
                 values.Add(SentientFactionRecord.FromDictionary((Dictionary)item));
+            }
+        }
+
+        return values;
+    }
+
+    private static Array<TechnologyDomainAccessRecord> ParseTechnologyDomainArray(Dictionary data, string key)
+    {
+        Array<TechnologyDomainAccessRecord> values = new();
+        if (!data.ContainsKey(key))
+        {
+            return values;
+        }
+
+        Variant value = data[key];
+        if (value.VariantType != Variant.Type.Array)
+        {
+            return values;
+        }
+
+        Array array = (Array)value;
+        foreach (Variant item in array)
+        {
+            if (item.VariantType == Variant.Type.Dictionary)
+            {
+                values.Add(TechnologyDomainAccessRecord.FromDictionary((Dictionary)item));
             }
         }
 

@@ -224,6 +224,18 @@ public static class SentientWorldProfileBuilder
             selfSufficiency,
             resourceDiversity,
             settings);
+        profile.AvailableLifeBiomes = BuildAvailableLifeBiomes(data, settings);
+        profile.TechnologyDomains = BuildTechnologyDomains(
+            profile,
+            data,
+            resourceRichness,
+            resourceDiversity,
+            waterSupport,
+            selfSufficiency,
+            frontierPressure,
+            terrainFragmentation,
+            colonyShare,
+            nativeShare);
         profile.LawLevel = SentientWorldProfile.DeriveLawLevel(
             profile.LegalReach,
             profile.EnforcementReach,
@@ -260,7 +272,6 @@ public static class SentientWorldProfileBuilder
             colonyShare,
             nativeShare);
         profile.Factions = BuildFactions(profile, data);
-        profile.AvailableLifeBiomes = BuildAvailableLifeBiomes(data, settings);
         profile.CulturalFeatureTags = BuildCulturalFeatureTags(profile, data);
         profile.ReligionStructure = SentientWorldProfile.DeriveReligionStructure(profile);
         return profile;
@@ -831,6 +842,152 @@ public static class SentientWorldProfileBuilder
         }
 
         return 0.0;
+    }
+
+    private static Array<TechnologyDomainAccessRecord> BuildTechnologyDomains(
+        SentientWorldProfile profile,
+        PlanetPopulationData data,
+        double resourceRichness,
+        double resourceDiversity,
+        double waterSupport,
+        double selfSufficiency,
+        double frontierPressure,
+        double terrainFragmentation,
+        double colonyShare,
+        double nativeShare)
+    {
+        Array<TechnologyDomainAccessRecord> domains = new();
+        double lifeBiomeSupport = 0.0;
+        if (profile.AvailableLifeBiomes.Count > 0)
+        {
+            lifeBiomeSupport = System.Math.Min(1.0, profile.AvailableLifeBiomes.Count / 6.0);
+        }
+
+        double harshWorldPressure = 0.0;
+        if (data.Suitability != null)
+        {
+            if (data.Suitability.RequiresLifeSupport)
+            {
+                harshWorldPressure += 0.25;
+            }
+
+            if (data.Suitability.RequiresPressureSuit)
+            {
+                harshWorldPressure += 0.20;
+            }
+        }
+
+        double biologySignal = Clamp01(waterSupport * 0.45 + lifeBiomeSupport * 0.30 + nativeShare * 0.25);
+        AddTechnologyDomain(domains, profile, "Energy", resourceRichness * 0.55 + resourceDiversity * 0.20 + profile.EconomicComplexity * 0.25, 1.0, 0.0, 0.0);
+        AddTechnologyDomain(domains, profile, "Materials", resourceDiversity * 0.45 + resourceRichness * 0.25 + profile.EconomicComplexity * 0.30, 0.8, 0.0, 0.0);
+        AddTechnologyDomain(domains, profile, "Computing", profile.InventionCapacity * 0.45 + profile.UrbanizationShare * 0.25 + profile.TradeConnectivity * 0.30, 0.7, 0.0, 0.0);
+        AddTechnologyDomain(domains, profile, "Communications", profile.TradeConnectivity * 0.50 + profile.StateCapacity * 0.20 + profile.UrbanizationShare * 0.30, 0.6, 0.0, 0.0);
+        AddTechnologyDomain(domains, profile, "Medicine", biologySignal * 0.35 + profile.CulturalAccumulation * 0.25 + profile.StateCapacity * 0.20 + profile.SurplusBase * 0.20, 0.4, 0.0, 0.0);
+        AddTechnologyDomain(domains, profile, "Biotechnology", biologySignal * 0.45 + profile.InventionCapacity * 0.25 + profile.CulturalAccumulation * 0.20 + waterSupport * 0.10, 0.2, 0.0, 0.0);
+        AddTechnologyDomain(domains, profile, "Spaceflight", colonyShare * 0.34 + profile.TradeConnectivity * 0.32 + GetLogisticsCapacityScore(profile) * 0.20 + selfSufficiency * 0.14, 1.4, frontierPressure * 0.18, harshWorldPressure);
+        AddTechnologyDomain(domains, profile, "Infrastructure", profile.StateCapacity * 0.32 + profile.SurplusBase * 0.26 + profile.UrbanizationShare * 0.22 + selfSufficiency * 0.20, 0.5, terrainFragmentation * 0.18 + frontierPressure * 0.10, harshWorldPressure);
+        return domains;
+    }
+
+    private static double GetLogisticsCapacityScore(SentientWorldProfile profile)
+    {
+        if (profile.LogisticsCapacity == "Interstellar Hub")
+        {
+            return 1.0;
+        }
+
+        if (profile.LogisticsCapacity == "Major Port")
+        {
+            return 0.78;
+        }
+
+        if (profile.LogisticsCapacity == "Regional Port")
+        {
+            return 0.58;
+        }
+
+        if (profile.LogisticsCapacity == "Frontier Port")
+        {
+            return 0.34;
+        }
+
+        return 0.12;
+    }
+
+    private static void AddTechnologyDomain(
+        Array<TechnologyDomainAccessRecord> domains,
+        SentientWorldProfile profile,
+        string domain,
+        double supportSignal,
+        double eliteBias,
+        double lagPenalty,
+        double adaptationPressure)
+    {
+        double support = Clamp01(supportSignal);
+        double adoption = Clamp01((profile.TechnologyAdoptionCapacity * 0.62) + (support * 0.28) + (profile.TradeConnectivity * 0.10) - lagPenalty);
+        double lag = Clamp01((profile.AdoptionLagPressure * 0.70) + ((1.0 - support) * 0.18) + lagPenalty - (profile.StateCapacity * 0.08));
+        double inequality = Clamp01((profile.TechnologyAccessInequality * 0.72) + (eliteBias * 0.04) + (adaptationPressure * 0.16) - (adoption * 0.08));
+
+        int coreDelta = (int)System.Math.Round((support - 0.50) * 4.0);
+        int coreLevel = TechnologyLevel.ClampCoreLevel(profile.CoreTechLevel + coreDelta);
+        int eliteLevel = TechnologyLevel.ClampCoreLevel(coreLevel + (int)System.Math.Round(eliteBias + profile.InventionCapacity));
+        if (eliteLevel > profile.EliteCoreTechLevel)
+        {
+            eliteLevel = profile.EliteCoreTechLevel;
+        }
+
+        int medianLevel = TechnologyLevel.ClampCoreLevel(coreLevel - (int)System.Math.Round((inequality * 2.0) + lag));
+        if (medianLevel > eliteLevel)
+        {
+            medianLevel = eliteLevel;
+        }
+
+        domains.Add(new TechnologyDomainAccessRecord
+        {
+            Domain = domain,
+            CoreTechLevel = coreLevel,
+            EliteCoreTechLevel = eliteLevel,
+            MedianCoreTechLevel = medianLevel,
+            AdoptionCapacity = adoption,
+            LagPressure = lag,
+            AccessInequality = inequality,
+            SourceSignal = ResolveTechnologyDomainSourceSignal(adoption, lag, inequality, support, adaptationPressure),
+        });
+    }
+
+    private static string ResolveTechnologyDomainSourceSignal(
+        double adoption,
+        double lag,
+        double inequality,
+        double support,
+        double adaptationPressure)
+    {
+        if (adaptationPressure >= 0.25 && adoption >= 0.44)
+        {
+            return "necessity-driven";
+        }
+
+        if (lag >= 0.55)
+        {
+            return "frontier-lagged";
+        }
+
+        if (inequality >= 0.50)
+        {
+            return "elite-concentrated";
+        }
+
+        if (support >= 0.58 && adoption >= 0.55)
+        {
+            return "local-capability";
+        }
+
+        if (adoption >= 0.48)
+        {
+            return "trade-diffused";
+        }
+
+        return "limited-access";
     }
 
     private static Array<SentientFactionRecord> BuildFactions(SentientWorldProfile profile, PlanetPopulationData data)

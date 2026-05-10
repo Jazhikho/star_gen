@@ -389,6 +389,8 @@ public static partial class DotNetNativeTestSuite
         runner.RunNativeTest("TestSentientWorldProfile::test_serialization_round_trip", TestSentientWorldProfile.TestSerializationRoundTrip);
         runner.RunNativeTest("TestSentientWorldProfile::test_source_aligned_models_change_profile_and_require_audit", TestSentientWorldProfile.TestSourceAlignedModelsChangeProfileAndRequireAudit);
         runner.RunNativeTest("TestSentientWorldProfile::test_technology_access_diagnostics_separate_peak_and_median_access", TestSentientWorldProfile.TestTechnologyAccessDiagnosticsSeparatePeakAndMedianAccess);
+        runner.RunNativeTest("TestSentientWorldProfile::test_technology_domains_are_deterministic_and_bounded", TestSentientWorldProfile.TestTechnologyDomainsAreDeterministicAndBounded);
+        runner.RunNativeTest("TestSentientWorldProfile::test_frontier_technology_domains_expose_spaceflight_lag", TestSentientWorldProfile.TestFrontierTechnologyDomainsExposeSpaceflightLag);
         runner.RunNativeTest("TestSentientWorldProfile::test_law_level_distinguishes_reach_from_restriction", TestSentientWorldProfile.TestLawLevelDistinguishesReachFromRestriction);
         runner.RunNativeTest("TestSentientWorldProfile::test_jurisdiction_structure_distinguishes_plural_and_centralized_law", TestSentientWorldProfile.TestJurisdictionStructureDistinguishesPluralAndCentralizedLaw);
         runner.RunNativeTest("TestSentientWorldProfile::test_faction_generation_is_deterministic_and_bounded", TestSentientWorldProfile.TestFactionGenerationIsDeterministicAndBounded);

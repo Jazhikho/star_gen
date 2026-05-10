@@ -17,6 +17,17 @@ Use this log for significant AI-assisted artifacts in this repository.
 
 ## Entries
 
+### 2026-05-10 - Codex (GPT-5)
+
+- Task Purpose: Continue v0.11 sentient population hardening with domain-specific technology diffusion and access records.
+- Input Materials Used: User instruction to continue; previous sentient worldbuilding baseline and jurisdiction slices; `claude.md`; `Docs/SentientWorldBaseline.md`; `Docs/RpgCompatibilityGenerationAudit.md`; `Sources/SourceUtilizationPlan.md`; `SentientWorldProfile`; `SentientWorldProfileBuilder`; Object Viewer inspector; population tests; version metadata.
+- AI Produced: Added serialized `TechnologyDomainAccessRecord` data for energy, materials, computing, communications, medicine, biotechnology, spaceflight, and infrastructure; derived domain core/elite/median access, adoption, lag, inequality, and source signals from neutral population/environment signals; exposed compact Object Viewer summaries; added regression coverage; updated docs, version surfaces, and provenance.
+- Human Accepted: Pending Christopher B. Del Gesso review.
+- Human Rejected: Treating domain records as a complete future-tech tree, final source-calibrated technology taxonomy, or RPG-specific tech list.
+- Human Changed: User asked to continue the science-hardening pass.
+- Validation Method: `dotnet build .\StarGen.sln` (`Build succeeded. 0 Warning(s), 0 Error(s).`); `godot-mono.exe --path . --headless --script res://Tests/RunTestsHeadless.gd -- population` (`Total: 670 | Passed: 670 | Failed: 0`); `godot-mono.exe --path . --headless --script res://Tests/RunTestsHeadless.gd` (`Total: 1905 | Passed: 1905 | Failed: 0`).
+- Final Approver: Pending Christopher B. Del Gesso review.
+
 ### 2026-05-08 - Codex (GPT-5)
 
 - Task Purpose: Continue v0.11 sentient population hardening with neutral jurisdiction signals.

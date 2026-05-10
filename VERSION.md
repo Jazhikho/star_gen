@@ -1,12 +1,19 @@
 # Version
 
-Current version: `0.10.7.0`
+Current version: `0.10.8.0`
 
 Current user-facing version: `0.11`
 
-Date: `2026-05-08`
+Date: `2026-05-10`
 
 Versioning method: release/refactor `+0.1`, feature `+0.0.1`, bug fix `+0.0.0.1`, save-breaking release `+1.0`.
+
+## 0.10.8.0
+
+- Feature: Added neutral technology-domain access records to `SentientWorldProfile`, covering Energy, Materials, Computing, Communications, Medicine, Biotechnology, Spaceflight, and Infrastructure with core/elite/median access, adoption, lag, inequality, and source-signal readouts.
+- Feature: Object Viewer now shows compact per-domain technology access summaries so high-level tech no longer implies uniform access across every domain.
+- Docs: Updated the sentient baseline, source-utilization plan, project structure, README, version surfaces, and AI provenance for the technology-domain diffusion slice.
+- Test: Added regression coverage for technology-domain serialization, deterministic bounded records, and frontier spaceflight lag/access behavior. Revalidated with `dotnet build .\StarGen.sln`, the population-focused Godot headless harness (`670 / 670`), and the full Godot headless harness (`1905 / 1905`).
 
 ## 0.10.7.0
 

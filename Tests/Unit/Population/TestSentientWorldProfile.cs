@@ -54,6 +54,7 @@ public static class TestSentientWorldProfile
         DotNetNativeTestSuite.AssertTrue(profile.CoreTechLevel > 0, "Core technology level should be populated");
         DotNetNativeTestSuite.AssertTrue(profile.EliteCoreTechLevel >= profile.CoreTechLevel, "Elite core technology should meet or exceed overall core technology");
         DotNetNativeTestSuite.AssertTrue(profile.MedianCoreTechLevel <= profile.EliteCoreTechLevel, "Median core technology should not exceed elite core technology");
+        DotNetNativeTestSuite.AssertTrue(profile.TechnologyDomains.Count >= 8, "Technology domain records should be populated");
         DotNetNativeTestSuite.AssertTrue(profile.LawLevel >= 0 && profile.LawLevel <= 15, "Law level should be compressed to the 0-15 range");
         DotNetNativeTestSuite.AssertTrue(!string.IsNullOrWhiteSpace(profile.LawInterpretation), "Law interpretation should be populated");
         DotNetNativeTestSuite.AssertTrue(!string.IsNullOrWhiteSpace(profile.JurisdictionStructure), "Jurisdiction structure should be populated");
@@ -112,6 +113,17 @@ public static class TestSentientWorldProfile
         original.InventionCapacity = 0.62;
         original.AdoptionLagPressure = 0.23;
         original.TechnologyAccessInequality = 0.34;
+        original.TechnologyDomains.Add(new TechnologyDomainAccessRecord
+        {
+            Domain = "Medicine",
+            CoreTechLevel = 11,
+            EliteCoreTechLevel = 12,
+            MedianCoreTechLevel = 10,
+            AdoptionCapacity = 0.61,
+            LagPressure = 0.24,
+            AccessInequality = 0.31,
+            SourceSignal = "local-capability",
+        });
         original.FactionalFragmentation = 0.31;
         original.ReligiousCentralization = 0.37;
         original.Factions.Add(new SentientFactionRecord
@@ -159,6 +171,10 @@ public static class TestSentientWorldProfile
         DotNetNativeTestSuite.AssertFloatNear(original.InventionCapacity, restored.InventionCapacity, 0.0001, "Invention capacity should round-trip");
         DotNetNativeTestSuite.AssertFloatNear(original.AdoptionLagPressure, restored.AdoptionLagPressure, 0.0001, "Adoption lag pressure should round-trip");
         DotNetNativeTestSuite.AssertFloatNear(original.TechnologyAccessInequality, restored.TechnologyAccessInequality, 0.0001, "Technology access inequality should round-trip");
+        DotNetNativeTestSuite.AssertEqual(1, restored.TechnologyDomains.Count, "Technology domain array should round-trip");
+        DotNetNativeTestSuite.AssertEqual("Medicine", restored.TechnologyDomains[0].Domain, "Technology domain label should round-trip");
+        DotNetNativeTestSuite.AssertEqual(10, restored.TechnologyDomains[0].MedianCoreTechLevel, "Technology domain median access should round-trip");
+        DotNetNativeTestSuite.AssertEqual("local-capability", restored.TechnologyDomains[0].SourceSignal, "Technology domain source signal should round-trip");
         DotNetNativeTestSuite.AssertFloatNear(original.InternalLegitimacy, restored.InternalLegitimacy, 0.0001, "Internal legitimacy should round-trip");
         DotNetNativeTestSuite.AssertFloatNear(original.ExternalLegitimacy, restored.ExternalLegitimacy, 0.0001, "External legitimacy should round-trip");
         DotNetNativeTestSuite.AssertEqual(1, restored.Factions.Count, "Faction array should round-trip");
@@ -223,6 +239,53 @@ public static class TestSentientWorldProfile
         DotNetNativeTestSuite.AssertTrue(
             frontierProfile.TechnologyAccessInequality > 0.0,
             "Frontier profiles should expose a nonzero access-inequality diagnostic");
+    }
+
+    /// <summary>
+    /// Tests technology domain records are deterministic and bounded.
+    /// </summary>
+    public static void TestTechnologyDomainsAreDeterministicAndBounded()
+    {
+        SentientWorldProfile? first = SentientWorldProfileBuilder.Build(CreateInhabitedWorldData());
+        SentientWorldProfile? second = SentientWorldProfileBuilder.Build(CreateInhabitedWorldData());
+
+        DotNetNativeTestSuite.AssertNotNull(first, "First profile should exist");
+        DotNetNativeTestSuite.AssertNotNull(second, "Second profile should exist");
+        DotNetNativeTestSuite.AssertEqual(first!.TechnologyDomains.Count, second!.TechnologyDomains.Count, "Technology domain count should be deterministic");
+        DotNetNativeTestSuite.AssertTrue(first.TechnologyDomains.Count >= 8, "Expected baseline technology domains");
+
+        for (int index = 0; index < first.TechnologyDomains.Count; index += 1)
+        {
+            TechnologyDomainAccessRecord firstDomain = first.TechnologyDomains[index];
+            TechnologyDomainAccessRecord secondDomain = second.TechnologyDomains[index];
+            DotNetNativeTestSuite.AssertEqual(firstDomain.Domain, secondDomain.Domain, "Technology domain labels should be stable");
+            DotNetNativeTestSuite.AssertTrue(firstDomain.CoreTechLevel >= 0 && firstDomain.CoreTechLevel <= 24, "Domain core tech should be bounded");
+            DotNetNativeTestSuite.AssertTrue(firstDomain.MedianCoreTechLevel <= firstDomain.EliteCoreTechLevel, "Domain median access should not exceed elite access");
+            DotNetNativeTestSuite.AssertTrue(firstDomain.AdoptionCapacity >= 0.0 && firstDomain.AdoptionCapacity <= 1.0, "Domain adoption should be bounded");
+            DotNetNativeTestSuite.AssertTrue(firstDomain.LagPressure >= 0.0 && firstDomain.LagPressure <= 1.0, "Domain lag should be bounded");
+            DotNetNativeTestSuite.AssertTrue(firstDomain.AccessInequality >= 0.0 && firstDomain.AccessInequality <= 1.0, "Domain inequality should be bounded");
+            DotNetNativeTestSuite.AssertTrue(!string.IsNullOrWhiteSpace(firstDomain.SourceSignal), "Domain source signal should be populated");
+        }
+    }
+
+    /// <summary>
+    /// Tests frontier conditions visibly affect domain-specific access.
+    /// </summary>
+    public static void TestFrontierTechnologyDomainsExposeSpaceflightLag()
+    {
+        SentientWorldProfile? connectedProfile = SentientWorldProfileBuilder.Build(CreateInhabitedWorldData());
+        SentientWorldProfile? frontierProfile = SentientWorldProfileBuilder.Build(CreateFrontierWorldData());
+
+        DotNetNativeTestSuite.AssertNotNull(connectedProfile, "Connected profile should exist");
+        DotNetNativeTestSuite.AssertNotNull(frontierProfile, "Frontier profile should exist");
+
+        TechnologyDomainAccessRecord connectedSpaceflight = RequireTechnologyDomain(connectedProfile!, "Spaceflight");
+        TechnologyDomainAccessRecord frontierSpaceflight = RequireTechnologyDomain(frontierProfile!, "Spaceflight");
+
+        DotNetNativeTestSuite.AssertTrue(
+            frontierSpaceflight.LagPressure > connectedSpaceflight.LagPressure
+            || frontierSpaceflight.MedianCoreTechLevel < connectedSpaceflight.MedianCoreTechLevel,
+            "Harsh frontier spaceflight should show higher lag or lower median access than connected worlds");
     }
 
     /// <summary>
@@ -511,5 +574,18 @@ public static class TestSentientWorldProfile
         data.Colonies.Add(thirdColony);
 
         return data;
+    }
+
+    private static TechnologyDomainAccessRecord RequireTechnologyDomain(SentientWorldProfile profile, string domainName)
+    {
+        foreach (TechnologyDomainAccessRecord domain in profile.TechnologyDomains)
+        {
+            if (domain.Domain == domainName)
+            {
+                return domain;
+            }
+        }
+
+        throw new System.InvalidOperationException($"Expected technology domain '{domainName}'");
     }
 }

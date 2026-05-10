@@ -208,6 +208,7 @@ For any sentient world, build a deterministic `SentientWorldProfile` from the bi
 - `CulturalAccumulation`: how much cumulative cultural knowledge can be retained and transmitted.
 - `TechnologyAdoptionCapacity`: how quickly a society absorbs and scales new techniques.
 - `CoreTechLevel`, `EliteCoreTechLevel`, and `MedianCoreTechLevel`: neutral `0-24` numeric technology codes used before RPG mapping.
+- `TechnologyDomains`: domain-specific technology access records for energy, materials, computing, communications, medicine, biotechnology, spaceflight, and infrastructure.
 - `FactionalFragmentation`: how divided the polity is among rival elites, regions, or communities.
 - `Factions`: first-class deterministic faction records with influence, alignment, tension, source population, and primary issue.
 - `JurisdictionStructure`, `JurisdictionPluralism`, and `JurisdictionConflict`: neutral signals for whether law is informal, layered, patchwork, charter/federal, centralized, extraterritorial, or contested.

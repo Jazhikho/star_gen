@@ -501,6 +501,7 @@ public partial class InspectorPanel : VBoxContainer
 			AddPropertyToSection(PopulationSectionPath, "Median Tech Access", TechnologyLevel.ToStringName(sentientWorldProfile.MedianTechLevel));
 			AddPropertyToSection(PopulationSectionPath, "Elite Core Tech", FormatCoreTech(sentientWorldProfile.EliteCoreTechLevel));
 			AddPropertyToSection(PopulationSectionPath, "Median Core Tech", FormatCoreTech(sentientWorldProfile.MedianCoreTechLevel));
+			AddPropertyToSection(PopulationSectionPath, "Tech Domains", FormatTechnologyDomains(sentientWorldProfile));
 			AddPropertyToSection(PopulationSectionPath, "Law Level", $"{sentientWorldProfile.LawLevel} - {sentientWorldProfile.LawInterpretation}");
 			AddPropertyToSection(PopulationSectionPath, "Jurisdiction", sentientWorldProfile.JurisdictionStructure);
 			AddPropertyToSection(PopulationSectionPath, "Jurisdiction Pluralism", PropertyFormatter.FormatPercent(sentientWorldProfile.JurisdictionPluralism));
@@ -860,6 +861,29 @@ public partial class InspectorPanel : VBoxContainer
 		if (profile.Factions.Count > limit)
 		{
 			output.Add($"+{profile.Factions.Count - limit} more");
+		}
+
+		return string.Join(", ", output);
+	}
+
+	private static string FormatTechnologyDomains(SentientWorldProfile profile)
+	{
+		if (profile.TechnologyDomains.Count == 0)
+		{
+			return "None";
+		}
+
+		List<string> output = new();
+		int limit = System.Math.Min(4, profile.TechnologyDomains.Count);
+		for (int i = 0; i < limit; i += 1)
+		{
+			TechnologyDomainAccessRecord domain = profile.TechnologyDomains[i];
+			output.Add($"{domain.Domain} {domain.MedianCoreTechLevel}/{domain.EliteCoreTechLevel}");
+		}
+
+		if (profile.TechnologyDomains.Count > limit)
+		{
+			output.Add($"+{profile.TechnologyDomains.Count - limit} more");
 		}
 
 		return string.Join(", ", output);

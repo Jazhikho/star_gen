@@ -85,6 +85,23 @@ Presentation logic:
 - `Elite Core Tech` is the highest institutional or elite-access level.
 - `Median Core Tech` is the broad resident-access level and is bounded below elite access.
 
+### Tech Domains
+
+Why they are shown:
+
+- A world can have high elite technology in one domain and weaker broad access in another. A frontier mining moon may have strong spaceflight and energy maintenance but poor medicine access; a mature biosphere world may have broad medicine and infrastructure but less imported interstellar machinery.
+- The neutral profile now carries domain records for `Energy`, `Materials`, `Computing`, `Communications`, `Medicine`, `Biotechnology`, `Spaceflight`, and `Infrastructure`.
+
+Grounding:
+
+- These are adoption-access records, not invention trees. Each domain combines the global core tech scale with trade, infrastructure, state capacity, economic complexity, resources, biology support, harsh-world pressure, and adoption lag.
+- This remains a source-hardened proxy. It should not be read as a full technology history or a complete future-tech taxonomy.
+
+Presentation logic:
+
+- Each domain stores core, elite, and median neutral tech levels; adoption capacity; lag pressure; access inequality; and a compact source signal such as `local-capability`, `trade-diffused`, `frontier-lagged`, `elite-concentrated`, `necessity-driven`, or `limited-access`.
+- Object Viewer summarizes domains as median/elite pairs. Exporters and RPG adapters can use the detailed records when they need more than a single world tech number.
+
 ### Dominant Regime
 
 Why it is shown:

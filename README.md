@@ -32,7 +32,7 @@ StarGen is currently working toward the user-facing `0.11` weekly release line. 
 - The export-enabled `0.11` channel restores save/load flows for paid distribution while keeping the visible release label aligned.
 - Mainline no longer ships the Concept Atlas path. `Concepts/Additions.md` remains the StarGen prototype backlog for future work that stays in scope.
 
-The current internal checkpoint is `0.10.7.0`, with user-facing target `0.11`. Detailed version history and patch notes live in [VERSION.md](VERSION.md).
+The current internal checkpoint is `0.10.8.0`, with user-facing target `0.11`. Detailed version history and patch notes live in [VERSION.md](VERSION.md).
 
 ## Running StarGen
 
