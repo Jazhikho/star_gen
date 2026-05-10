@@ -74,6 +74,50 @@ public static class TestSystemInspectorPanel
     }
 
     /// <summary>
+    /// Tests the dedicated reservoir panel shows source, span, status, and population-surface caveats.
+    /// </summary>
+    public static void TestReservoirPanelShowsDedicatedFamilyDetails()
+    {
+        SystemInspectorPanel? panel = null;
+        try
+        {
+            panel = CreatePanel();
+            SolarSystem system = CreateReservoirSystem();
+
+            panel.DisplaySystem(system);
+
+            if (!ContainsLabelText(panel, "Records:"))
+            {
+                throw new InvalidOperationException("Reservoir panel should show a dedicated record count.");
+            }
+
+            if (!ContainsLabelText(panel, "35.0-48.0 AU"))
+            {
+                throw new InvalidOperationException("Reservoir panel should show the reservoir radial span.");
+            }
+
+            if (!ContainsLabelText(panel, "KavelaarsEtAl2023, BernardinelliEtAl2022"))
+            {
+                throw new InvalidOperationException("Reservoir panel should show source IDs for human audit.");
+            }
+
+            if (!ContainsLabelText(panel, "Diagnostic Proxy"))
+            {
+                throw new InvalidOperationException("Reservoir panel should label current reservoir implementation status.");
+            }
+
+            if (!ContainsLabelText(panel, "No native life; stations/habitats follow-up"))
+            {
+                throw new InvalidOperationException("Reservoir panel should avoid implying native-life or colony generation for belts.");
+            }
+        }
+        finally
+        {
+            CleanupPanel(panel);
+        }
+    }
+
+    /// <summary>
     /// Tests selected belts expose their tracked large objects as focusable subentries.
     /// </summary>
     public static void TestSelectedBeltShowsLargeObjectSubentries()
@@ -134,6 +178,16 @@ public static class TestSystemInspectorPanel
             Name = "OpenViewerButton",
         });
         panel.AddChild(selectedSection);
+
+        VBoxContainer reservoirSection = new()
+        {
+            Name = "ReservoirSection",
+        };
+        reservoirSection.AddChild(new VBoxContainer
+        {
+            Name = "Content",
+        });
+        panel.AddChild(reservoirSection);
 
         SceneTree? tree = Engine.GetMainLoop() as SceneTree;
         if (tree == null)

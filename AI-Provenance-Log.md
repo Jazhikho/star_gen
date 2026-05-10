@@ -19,6 +19,17 @@ Use this log for significant AI-assisted artifacts in this repository.
 
 ### 2026-05-10 - Codex (GPT-5)
 
+- Task Purpose: Continue v0.11 science hardening by expanding first-class small-body reservoir records into a dedicated System Viewer readout.
+- Input Materials Used: User request to continue the science-hardening pass; `claude.md`; `SystemInspectorPanel`; `SystemViewer.tscn`; `SmallBodyReservoir`; system-inspector tests; small-body source-utilization and science-audit docs; `Sources/Texts/KavelaarsEtAl2023.txt`; `Sources/Texts/BernardinelliEtAl2022.txt`; version metadata.
+- AI Produced: Added a scene-authored reservoir-details section to System Viewer, rendered reservoir record count, family mix, radial span, source IDs, diagnostic-proxy status, and no-native-life/station-habitat follow-up caveat, added regression coverage, and updated source/audit/project/version documentation.
+- Human Accepted: Pending Christopher B. Del Gesso review.
+- Human Rejected: No calibrated TNO population counts, separate orbital-family renderer, settlement generator, or RPG adapter output was added in this slice.
+- Human Changed: No direct user edits during this slice.
+- Validation Method: `dotnet build .\StarGen.sln` (`Build succeeded. 0 Warning(s), 0 Error(s).`); `godot-mono.exe --path . --headless --script res://Tests/RunTestsHeadless.gd` (`Total: 1911 | Passed: 1911 | Failed: 0`).
+- Final Approver: Pending Christopher B. Del Gesso review.
+
+### 2026-05-10 - Codex (GPT-5)
+
 - Task Purpose: Continue v0.11 science hardening by making asteroid-belt large-object surfacing configurable and correcting selection to largest eligible objects.
 - Input Materials Used: User clarification that belt display bodies should be the largest eligible objects and that count/diameter threshold should be exposed; `claude.md`; `SolarSystemSpec`; `SystemAsteroidGenerator`; `SystemGenerationScreen`; generation parameter catalog/materiality registry; small-body science docs; asteroid and spec tests; version metadata.
 - AI Produced: Added serialized `SolarSystemSpec` controls for large-object display count and minimum diameter, exposed them in System Studio, switched belt object promotion to sample a deterministic candidate pool and select the largest eligible prefix, updated parameter materiality/docs/version metadata, and added regression coverage for clamping, round-trip, threshold behavior, zero-count suppression, and largest-prefix determinism.

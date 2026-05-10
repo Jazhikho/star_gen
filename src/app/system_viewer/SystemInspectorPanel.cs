@@ -28,6 +28,7 @@ public partial class SystemInspectorPanel : VBoxContainer
 
     private VBoxContainer? _overviewSection;
     private VBoxContainer? _bodySection;
+    private VBoxContainer? _reservoirSection;
     private Button? _openViewerButton;
     private SolarSystem? _currentSystem;
     private CelestialBody? _selectedBody;
@@ -50,6 +51,7 @@ public partial class SystemInspectorPanel : VBoxContainer
         _selectedBeltId = string.Empty;
         ResetOpenViewerButtonState();
         RenderOverview();
+        RenderReservoirPanel();
         RenderSelectionPrompt();
     }
 
@@ -64,6 +66,7 @@ public partial class SystemInspectorPanel : VBoxContainer
         _selectedBeltId = string.Empty;
         ResetOpenViewerButtonState();
         RenderOverview();
+        RenderReservoirPanel();
         ClearSectionContent(_bodySection);
 
         if (body == null)
@@ -112,6 +115,7 @@ public partial class SystemInspectorPanel : VBoxContainer
         _selectedBeltId = belt?.Id ?? string.Empty;
         ResetOpenViewerButtonState();
         RenderOverview();
+        RenderReservoirPanel();
         ClearSectionContent(_bodySection);
 
         if (belt == null)
@@ -154,6 +158,7 @@ public partial class SystemInspectorPanel : VBoxContainer
         _selectedBeltId = string.Empty;
         ResetOpenViewerButtonState();
         RenderOverview();
+        RenderReservoirPanel();
         RenderSelectionPrompt();
     }
 
@@ -161,6 +166,7 @@ public partial class SystemInspectorPanel : VBoxContainer
     {
         _overviewSection = GetNodeOrNull<VBoxContainer>("OverviewSection/Content");
         _bodySection = GetNodeOrNull<VBoxContainer>("SelectedBodySection/Content");
+        _reservoirSection = GetNodeOrNull<VBoxContainer>("ReservoirSection/Content");
         _openViewerButton = GetNodeOrNull<Button>("SelectedBodySection/OpenViewerButton");
         if (_openViewerButton != null)
         {
@@ -239,6 +245,83 @@ public partial class SystemInspectorPanel : VBoxContainer
         }
 
         AddReservoirPreviewRows(system);
+    }
+
+    private void RenderReservoirPanel()
+    {
+        ClearSectionContent(_reservoirSection);
+        if (_currentSystem == null)
+        {
+            AddProperty(_reservoirSection, "Status", "No system generated");
+            return;
+        }
+
+        if (_currentSystem.SmallBodyReservoirs.Count == 0)
+        {
+            AddProperty(_reservoirSection, "Status", "No small-body reservoirs");
+            return;
+        }
+
+        AddProperty(_reservoirSection, "Records", _currentSystem.SmallBodyReservoirs.Count.ToString(CultureInfo.InvariantCulture));
+        Dictionary<string, List<SmallBodyReservoir>> grouped = GroupReservoirsByAnchor(_currentSystem.SmallBodyReservoirs);
+        List<string> anchorIds = new(grouped.Keys);
+        anchorIds.Sort(CompareReservoirAnchorIds);
+        foreach (string anchorId in anchorIds)
+        {
+            AddReservoirAnchorDetails(anchorId, grouped[anchorId]);
+        }
+    }
+
+    private int CompareReservoirAnchorIds(string leftAnchorId, string rightAnchorId)
+    {
+        double leftCenter = ResolveAnchorCenterM(leftAnchorId);
+        double rightCenter = ResolveAnchorCenterM(rightAnchorId);
+        int centerComparison = leftCenter.CompareTo(rightCenter);
+        if (centerComparison != 0)
+        {
+            return centerComparison;
+        }
+
+        return string.Compare(leftAnchorId, rightAnchorId, System.StringComparison.Ordinal);
+    }
+
+    private double ResolveAnchorCenterM(string anchorId)
+    {
+        AsteroidBelt? belt = FindBeltById(anchorId);
+        if (belt != null)
+        {
+            return belt.GetCenterM();
+        }
+
+        return double.MaxValue;
+    }
+
+    private void AddReservoirAnchorDetails(string anchorId, List<SmallBodyReservoir> reservoirs)
+    {
+        if (reservoirs.Count == 0)
+        {
+            return;
+        }
+
+        AsteroidBelt? anchorBelt = FindBeltById(anchorId);
+        string anchorName = anchorId;
+        if (anchorBelt != null)
+        {
+            anchorName = GetBeltDisplayName(anchorBelt);
+        }
+
+        AddSeparator(_reservoirSection);
+        AddHeader(_reservoirSection, anchorName);
+        AddProperty(_reservoirSection, "Family Mix", FormatReservoirFamilySummary(reservoirs));
+        AddProperty(_reservoirSection, "Radial Span", FormatReservoirRadialSpan(reservoirs));
+        AddProperty(_reservoirSection, "Sources", FormatReservoirSources(reservoirs));
+        AddProperty(_reservoirSection, "Population Surface", "No native life; stations/habitats follow-up");
+
+        reservoirs.Sort(static (left, right) => right.RelativeWeight.CompareTo(left.RelativeWeight));
+        foreach (SmallBodyReservoir reservoir in reservoirs)
+        {
+            AddInfoLabel(_reservoirSection, FormatReservoirDetailLine(reservoir));
+        }
     }
 
     private void AddReservoirPreviewRows(SolarSystem system)
@@ -433,6 +516,68 @@ public partial class SystemInspectorPanel : VBoxContainer
         return string.Join(", ", labels);
     }
 
+    private static string FormatReservoirDetailLine(SmallBodyReservoir reservoir)
+    {
+        return string.Format(
+            CultureInfo.InvariantCulture,
+            "{0} - {1:0}% | {2}",
+            FormatReservoirFamily(reservoir.ReservoirFamily),
+            reservoir.RelativeWeight * 100.0,
+            FormatRepresentationStatus(reservoir.RepresentationStatus));
+    }
+
+    private static string FormatReservoirRadialSpan(List<SmallBodyReservoir> reservoirs)
+    {
+        double inner = double.MaxValue;
+        double outer = 0.0;
+        foreach (SmallBodyReservoir reservoir in reservoirs)
+        {
+            if (reservoir.InnerRadiusM > 0.0 && reservoir.InnerRadiusM < inner)
+            {
+                inner = reservoir.InnerRadiusM;
+            }
+
+            if (reservoir.OuterRadiusM > outer)
+            {
+                outer = reservoir.OuterRadiusM;
+            }
+        }
+
+        if (inner == double.MaxValue || outer <= 0.0)
+        {
+            return "Unknown";
+        }
+
+        return string.Format(CultureInfo.InvariantCulture, "{0:0.0}-{1:0.0} AU", inner / Units.AuMeters, outer / Units.AuMeters);
+    }
+
+    private static string FormatReservoirSources(List<SmallBodyReservoir> reservoirs)
+    {
+        HashSet<string> seenSourceIds = new();
+        List<string> sourceIds = new();
+        foreach (SmallBodyReservoir reservoir in reservoirs)
+        {
+            string[] ids = reservoir.SourceIds.Split(';', System.StringSplitOptions.RemoveEmptyEntries | System.StringSplitOptions.TrimEntries);
+            foreach (string id in ids)
+            {
+                if (seenSourceIds.Contains(id))
+                {
+                    continue;
+                }
+
+                seenSourceIds.Add(id);
+                sourceIds.Add(id);
+            }
+        }
+
+        if (sourceIds.Count == 0)
+        {
+            return "Unspecified";
+        }
+
+        return string.Join(", ", sourceIds);
+    }
+
     private void AddPopulationSelectionSummary(CelestialBody body)
     {
         if (!body.HasPopulationData() || body.PopulationData == null)
@@ -536,6 +681,17 @@ public partial class SystemInspectorPanel : VBoxContainer
         string label = family.Replace("_", " ");
         label = CultureInfo.InvariantCulture.TextInfo.ToTitleCase(label);
         return label.Replace("Tno", "TNO");
+    }
+
+    private static string FormatRepresentationStatus(string status)
+    {
+        if (string.IsNullOrWhiteSpace(status))
+        {
+            return "Unspecified";
+        }
+
+        string label = status.Replace("_", " ");
+        return CultureInfo.InvariantCulture.TextInfo.ToTitleCase(label);
     }
 
     private string ResolveOrbitHostName(string parentId)
@@ -773,12 +929,12 @@ public partial class SystemInspectorPanel : VBoxContainer
 
     private void EnsureUi()
     {
-        if (_overviewSection == null || _bodySection == null || _openViewerButton == null)
+        if (_overviewSection == null || _bodySection == null || _reservoirSection == null || _openViewerButton == null)
         {
             CacheUi();
         }
 
-        if (_overviewSection == null || _bodySection == null || _openViewerButton == null)
+        if (_overviewSection == null || _bodySection == null || _reservoirSection == null || _openViewerButton == null)
         {
             throw new System.InvalidOperationException("SystemInspectorPanel scene is missing required inspector nodes.");
         }

@@ -2293,6 +2293,9 @@ public static partial class DotNetNativeTestSuite
             "TestSystemInspectorPanel::test_selected_belt_shows_reservoir_family_summary",
             Tests.Unit.TestSystemInspectorPanel.TestSelectedBeltShowsReservoirFamilySummary);
         runner.RunNativeTest(
+            "TestSystemInspectorPanel::test_reservoir_panel_shows_dedicated_family_details",
+            Tests.Unit.TestSystemInspectorPanel.TestReservoirPanelShowsDedicatedFamilyDetails);
+        runner.RunNativeTest(
             "TestSystemInspectorPanel::test_selected_belt_shows_large_object_subentries",
             Tests.Unit.TestSystemInspectorPanel.TestSelectedBeltShowsLargeObjectSubentries);
         runner.RunNativeTest(

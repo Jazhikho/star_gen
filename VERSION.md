@@ -1,12 +1,18 @@
 # Version
 
-Current version: `0.10.10.0`
+Current version: `0.10.11.0`
 
 Current user-facing version: `0.11`
 
 Date: `2026-05-10`
 
 Versioning method: release/refactor `+0.1`, feature `+0.0.1`, bug fix `+0.0.0.1`, save-breaking release `+1.0`.
+
+## 0.10.11.0
+
+- Feature: Added a dedicated System Viewer reservoir details section for first-class `SmallBodyReservoir` records, including record count, belt anchor, family mix, radial span, source IDs, diagnostic-proxy status, and the station/habitat follow-up caveat for non-native-life belt habitation.
+- Docs: Updated small-body science/readout documentation, project structure, source notes, and provenance to move reservoir readouts beyond compact belt summary rows while keeping calibrated populations and settlement records deferred.
+- Test: Added System Inspector regression coverage for the dedicated reservoir panel details. Revalidated with `dotnet build .\StarGen.sln` and the full Godot headless harness (`1911 / 1911`).
 
 ## 0.10.10.0
 
