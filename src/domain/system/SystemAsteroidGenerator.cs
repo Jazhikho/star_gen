@@ -30,7 +30,9 @@ public static class SystemAsteroidGenerator
     private const double InnerBeltMassMaxKg = 1.0e22;
     private const double OuterBeltMassMinKg = 1.0e20;
     private const double OuterBeltMassMaxKg = 1.0e23;
-    private const double MajorAsteroidThresholdKm = 100.0;
+    private const double LargeObjectDiameterThresholdKm = 500.0;
+    private const double InnerLargeObjectMaxDiameterKm = 1100.0;
+    private const double OuterLargeObjectMaxDiameterKm = 2400.0;
     private const string InnerReservoirSourceIds = "DeMeoCarry2014;RaymondIzidoro2017";
     private const string OuterReservoirSourceIds = "KavelaarsEtAl2023;BernardinelliEtAl2022;BauerEtAl2017;RaymondIzidoro2017";
     private const string CompositionSourceIds = "DeMeoCarry2014";
@@ -922,23 +924,22 @@ public static class SystemAsteroidGenerator
             stellarAgeYears = stars[0].Stellar!.AgeYears;
         }
 
-        List<double> sizesKm = new();
+        List<double> diametersKm = new();
         double alpha = ResolveMajorBodyPowerLawAlpha(belt, planetaryState);
         for (int index = 0; index < count; index += 1)
         {
-            double maxSizeKm = 1000.0;
-            double minSizeKm = MajorAsteroidThresholdKm;
-            double lower = System.Math.Pow(minSizeKm, 1.0 - alpha);
-            double upper = System.Math.Pow(maxSizeKm, 1.0 - alpha);
+            double maxDiameterKm = ResolveLargeObjectMaxDiameterKm(belt);
+            double lower = System.Math.Pow(LargeObjectDiameterThresholdKm, 1.0 - alpha);
+            double upper = System.Math.Pow(maxDiameterKm, 1.0 - alpha);
             double u = rng.Randf();
-            double sizeKm = System.Math.Pow(
+            double diameterKm = System.Math.Pow(
                 lower + (u * (upper - lower)),
                 1.0 / (1.0 - alpha));
-            sizesKm.Add(sizeKm);
+            diametersKm.Add(diameterKm);
         }
 
-        sizesKm.Sort((left, right) => right.CompareTo(left));
-        for (int index = 0; index < sizesKm.Count; index += 1)
+        diametersKm.Sort((left, right) => right.CompareTo(left));
+        for (int index = 0; index < diametersKm.Count; index += 1)
         {
             CelestialBody? asteroid = GenerateSingleMajorAsteroid(
                 belt,
@@ -947,7 +948,7 @@ public static class SystemAsteroidGenerator
                 stellarLuminosityWatts,
                 stellarTemperatureK,
                 stellarAgeYears,
-                sizesKm[index],
+                diametersKm[index],
                 planetaryState,
                 index,
                 rng,
@@ -961,6 +962,16 @@ public static class SystemAsteroidGenerator
         return asteroids;
     }
 
+    private static double ResolveLargeObjectMaxDiameterKm(AsteroidBelt belt)
+    {
+        if (string.Equals(belt.ReservoirKind, "trans_neptunian_reservoir", System.StringComparison.Ordinal))
+        {
+            return OuterLargeObjectMaxDiameterKm;
+        }
+
+        return InnerLargeObjectMaxDiameterKm;
+    }
+
     /// <summary>
     /// Generates a single representative major asteroid.
     /// </summary>
@@ -971,7 +982,7 @@ public static class SystemAsteroidGenerator
         double stellarLuminosityWatts,
         double stellarTemperatureK,
         double stellarAgeYears,
-        double sizeKm,
+        double diameterKm,
         PlanetarySystemState planetaryState,
         int asteroidIndex,
         SeededRng rng,
@@ -984,19 +995,33 @@ public static class SystemAsteroidGenerator
 
         int asteroidSeed = unchecked((int)rng.Randi());
         AsteroidSpec spec;
-        if (asteroidIndex == 0 && sizeKm >= 400.0)
+        if (asteroidIndex == 0)
         {
             spec = AsteroidSpec.CeresLike(asteroidSeed);
             spec.AsteroidType = asteroidType;
-            spec.UseCaseSettings = useCaseSettings?.Clone() ?? GenerationUseCaseSettings.CreateDefault();
+            if (useCaseSettings != null)
+            {
+                spec.UseCaseSettings = useCaseSettings.Clone();
+            }
+            else
+            {
+                spec.UseCaseSettings = GenerationUseCaseSettings.CreateDefault();
+            }
         }
         else
         {
             spec = new AsteroidSpec(asteroidSeed, asteroidType, useCaseSettings: useCaseSettings);
-            spec.IsLarge = sizeKm >= 400.0;
+            spec.IsLarge = true;
         }
 
-        spec.SetOverride("physical.radius_m", sizeKm * 1000.0);
+        double radiusM = diameterKm * 500.0;
+        double densityKgM3 = ResolveRepresentativeDensityKgM3((AsteroidType.Type)asteroidType);
+        double volumeM3 = (4.0 / 3.0) * System.Math.PI * radiusM * radiusM * radiusM;
+        double massKg = volumeM3 * densityKgM3;
+
+        spec.SetOverride("physical.radius_m", radiusM);
+        spec.SetOverride("physical.density_kg_m3", densityKgM3);
+        spec.SetOverride("physical.mass_kg", massKg);
         spec.SetOverride("orbital.semi_major_axis_m", orbitalDistance);
 
         ParentContext context = ParentContext.ForPlanet(
@@ -1037,7 +1062,30 @@ public static class SystemAsteroidGenerator
         asteroid.SetMeta("belt_composition_source_ids", belt.CompositionSourceIds);
         asteroid.SetMeta("belt_size_distribution_source_ids", belt.SizeDistributionSourceIds);
         asteroid.SetMeta("minor_body_population_slope", ResolveMajorBodyPowerLawAlpha(belt, planetaryState));
+        asteroid.SetMeta("belt_id", belt.Id);
+        asteroid.SetMeta("major_body_diameter_km", diameterKm);
+        asteroid.SetMeta("major_body_size_semantics", "diameter_km");
+        asteroid.SetMeta("belt_population_readiness", "native_life_absent_station_or_habitat_settlement_followup");
         return asteroid;
+    }
+
+    private static double ResolveRepresentativeDensityKgM3(AsteroidType.Type asteroidType)
+    {
+        switch (asteroidType)
+        {
+            case AsteroidType.Type.CType:
+                return 1600.0;
+            case AsteroidType.Type.SType:
+                return 2700.0;
+            case AsteroidType.Type.MType:
+                return 5200.0;
+            case AsteroidType.Type.DType:
+                return 1000.0;
+            case AsteroidType.Type.VType:
+                return 3000.0;
+            default:
+                return 2000.0;
+        }
     }
 
     private static double ResolveMajorBodyPowerLawAlpha(AsteroidBelt belt, PlanetarySystemState planetaryState)

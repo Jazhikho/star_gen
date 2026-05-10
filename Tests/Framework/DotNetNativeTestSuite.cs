@@ -76,6 +76,9 @@ public static partial class DotNetNativeTestSuite
             "DotNetNativeTestSuite::test_system_viewer_menu_matches_galaxy_viewer_standard",
             TestSystemViewerMenuMatchesGalaxyViewerStandard);
         runner.RunNativeTest(
+            "DotNetNativeTestSuite::test_system_viewer_registers_major_asteroid_body_nodes",
+            TestSystemViewerRegistersMajorAsteroidBodyNodes);
+        runner.RunNativeTest(
             "DotNetNativeTestSuite::test_object_viewer_menu_matches_galaxy_viewer_standard",
             TestObjectViewerMenuMatchesGalaxyViewerStandard);
         runner.RunNativeTest(
@@ -2236,6 +2239,9 @@ public static partial class DotNetNativeTestSuite
             "TestSystemAsteroidGenerator::test_minor_body_population_slope_changes_major_body_sizes",
             Tests.Unit.TestSystemAsteroidGenerator.TestMinorBodyPopulationSlopeChangesMajorBodySizes);
         runner.RunNativeTest(
+            "TestSystemAsteroidGenerator::test_major_asteroids_use_large_object_diameter_semantics",
+            Tests.Unit.TestSystemAsteroidGenerator.TestMajorAsteroidsUseLargeObjectDiameterSemantics);
+        runner.RunNativeTest(
             "TestSystemBodyNode::test_setup_planet",
             Tests.Unit.TestSystemBodyNode.TestSetupPlanet);
         runner.RunNativeTest(
@@ -2280,6 +2286,9 @@ public static partial class DotNetNativeTestSuite
         runner.RunNativeTest(
             "TestSystemInspectorPanel::test_selected_belt_shows_reservoir_family_summary",
             Tests.Unit.TestSystemInspectorPanel.TestSelectedBeltShowsReservoirFamilySummary);
+        runner.RunNativeTest(
+            "TestSystemInspectorPanel::test_selected_belt_shows_large_object_subentries",
+            Tests.Unit.TestSystemInspectorPanel.TestSelectedBeltShowsLargeObjectSubentries);
         runner.RunNativeTest(
             "TestSystemCache::test_starts_empty",
             Tests.Unit.TestSystemCache.TestStartsEmpty);

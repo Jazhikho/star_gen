@@ -137,6 +137,8 @@ public partial class SystemInspectorPanel : VBoxContainer
         }
 
         AddProperty(_bodySection, "Major Bodies", belt.GetMajorAsteroidCount().ToString(CultureInfo.InvariantCulture));
+        AddProperty(_bodySection, "Habitation Model", "No native life; stations/habitats follow-up");
+        AddBeltMajorBodyRows(belt);
         RemoveOpenViewerButton();
     }
 
@@ -290,6 +292,56 @@ public partial class SystemInspectorPanel : VBoxContainer
         button.TooltipText = "Focus " + GetBeltDisplayName(belt);
         button.Pressed += () => EmitSignal(SignalName.FocusBeltRequested, belt.Id);
         _overviewSection.AddChild(button);
+    }
+
+    private void AddBeltMajorBodyRows(AsteroidBelt belt)
+    {
+        if (_currentSystem == null || _bodySection == null || belt.MajorAsteroidIds.Count == 0)
+        {
+            return;
+        }
+
+        AddSeparator(_bodySection);
+        AddHeader(_bodySection, "Large Objects");
+        foreach (string asteroidId in belt.MajorAsteroidIds)
+        {
+            CelestialBody? asteroid = _currentSystem.GetBody(asteroidId);
+            if (asteroid == null)
+            {
+                continue;
+            }
+
+            Button button = UiSceneTemplates.InstantiateActionButton();
+            button.Alignment = HorizontalAlignment.Left;
+            button.Text = FormatBeltMajorBodyButtonText(asteroid, belt);
+            button.TooltipText = "Focus " + GetBodyDisplayName(asteroid);
+            button.Pressed += () => EmitSignal(SignalName.FocusBodyRequested, asteroid);
+            _bodySection.AddChild(button);
+        }
+    }
+
+    private static string FormatBeltMajorBodyButtonText(CelestialBody asteroid, AsteroidBelt belt)
+    {
+        double diameterKm = asteroid.Physical.RadiusM * 2.0 / 1000.0;
+        double distanceAu = 0.0;
+        if (asteroid.HasOrbital() && asteroid.Orbital != null)
+        {
+            distanceAu = asteroid.Orbital.SemiMajorAxisM / Units.AuMeters;
+        }
+
+        string name = asteroid.Name;
+        if (string.IsNullOrWhiteSpace(name))
+        {
+            name = asteroid.Id;
+        }
+
+        return string.Format(
+            CultureInfo.InvariantCulture,
+            "{0} - {1:0} km dia, {2}, {3:0.00} AU",
+            name,
+            diameterKm,
+            belt.GetCompositionString(),
+            distanceAu);
     }
 
     private static List<OrbitPreviewEntry> BuildOrbitPreviewEntries(SolarSystem system)

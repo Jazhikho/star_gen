@@ -19,6 +19,17 @@ Use this log for significant AI-assisted artifacts in this repository.
 
 ### 2026-05-10 - Codex (GPT-5)
 
+- Task Purpose: Continue v0.11 science hardening by correcting asteroid-belt large-object semantics and making generated large belt bodies discoverable in System Viewer/Object Viewer flows.
+- Input Materials Used: User-approved asteroid-belt large-object science pass; `claude.md`; `SystemAsteroidGenerator`; `AsteroidBelt`; `BeltRenderer`; `SystemViewer`; `SystemInspectorPanel`; small-body source-utilization and science-audit docs; asteroid and system-inspector tests; version metadata.
+- AI Produced: Reworked generated belt major bodies to use diameter-based `>= 500 km` large-object semantics with composition-derived mass, retained `MajorAsteroidIds` as the save-compatible body list, registered major asteroid nodes for viewer selection/focus, added selected-belt large-object subentry buttons, documented belt habitation as a future neutral station/habitat settlement model, and added regression coverage.
+- Human Accepted: Pending Christopher B. Del Gesso review.
+- Human Rejected: RPG-adapter changes and native-life/planet-surface colony shortcuts for asteroid belts in this pass.
+- Human Changed: User explicitly directed implementation of the narrow large-object science pass while keeping RPG adapters deferred.
+- Validation Method: `dotnet build .\StarGen.sln` (`Build succeeded. 0 Warning(s), 0 Error(s).`); `godot-mono.exe --path . --headless --script res://Tests/RunTestsHeadless.gd` (`Total: 1908 | Passed: 1908 | Failed: 0`).
+- Final Approver: Pending Christopher B. Del Gesso review.
+
+### 2026-05-10 - Codex (GPT-5)
+
 - Task Purpose: Continue v0.11 sentient population hardening with domain-specific technology diffusion and access records.
 - Input Materials Used: User instruction to continue; previous sentient worldbuilding baseline and jurisdiction slices; `claude.md`; `Docs/SentientWorldBaseline.md`; `Docs/RpgCompatibilityGenerationAudit.md`; `Sources/SourceUtilizationPlan.md`; `SentientWorldProfile`; `SentientWorldProfileBuilder`; Object Viewer inspector; population tests; version metadata.
 - AI Produced: Added serialized `TechnologyDomainAccessRecord` data for energy, materials, computing, communications, medicine, biotechnology, spaceflight, and infrastructure; derived domain core/elite/median access, adoption, lag, inequality, and source signals from neutral population/environment signals; exposed compact Object Viewer summaries; added regression coverage; updated docs, version surfaces, and provenance.

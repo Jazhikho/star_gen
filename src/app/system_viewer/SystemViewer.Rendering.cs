@@ -199,6 +199,7 @@ public partial class SystemViewer
         }
 
         parentNode.AddChild(asteroidNode);
+        _bodyNodes[asteroid.Id] = asteroidNode;
     }
 
     /// <summary>

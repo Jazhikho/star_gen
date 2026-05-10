@@ -553,6 +553,14 @@ public partial class SystemViewer : Node3D, ISystemViewerSaveLoadHost
 	}
 
 	/// <summary>
+	/// Returns whether a rendered body node exists for test verification.
+	/// </summary>
+	internal bool HasBodyNodeForTesting(string bodyId)
+	{
+		return _bodyNodes.ContainsKey(bodyId);
+	}
+
+	/// <summary>
 	/// Enables or disables orbital animation.
 	/// </summary>
 	public void SetAnimationEnabled(bool enabled)

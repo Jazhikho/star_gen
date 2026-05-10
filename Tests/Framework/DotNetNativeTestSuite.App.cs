@@ -8,6 +8,7 @@ using StarGen.App.Rendering;
 using StarGen.App.Shared;
 using StarGen.App.SystemViewer;
 using StarGen.App.Viewer;
+using StarGen.Domain.Celestial;
 using StarGen.Domain.Celestial.Components;
 using StarGen.Domain.Galaxy;
 using StarGen.Domain.Generation;
@@ -604,6 +605,63 @@ public static partial class DotNetNativeTestSuite
             viewer?.QueueFree();
             StudioUiPreferencesService.Save(originalPreferences);
         }
+    }
+
+    /// <summary>
+    /// Verifies generated major asteroids are registered as selectable system-viewer body nodes.
+    /// </summary>
+    private static void TestSystemViewerRegistersMajorAsteroidBodyNodes()
+    {
+        SystemViewer? viewer = null;
+        try
+        {
+            viewer = InstantiateReadySceneForTesting<SystemViewer>(
+                "res://src/app/system_viewer/SystemViewer.tscn",
+                "system viewer major-asteroid testing");
+
+            SolarSystem system = CreateSystemWithMajorAsteroidsForViewer();
+            CelestialBody asteroid = system.GetAsteroids()[0];
+
+            viewer.DisplaySystem(system);
+
+            AssertTrue(
+                viewer.HasBodyNodeForTesting(asteroid.Id),
+                "system viewer should register generated major asteroids in the selectable body-node map");
+
+            viewer.SelectBody(asteroid.Id);
+            AssertTrue(
+                viewer.HasBodyNodeForTesting(asteroid.Id),
+                "selecting a generated major asteroid should keep the body node available for focus and object-viewer handoff");
+        }
+        finally
+        {
+            viewer?.QueueFree();
+        }
+    }
+
+    private static SolarSystem CreateSystemWithMajorAsteroidsForViewer()
+    {
+        for (int seed = 810000; seed < 810200; seed += 1)
+        {
+            SolarSystemSpec spec = new(seed, 1, 1)
+            {
+                IncludeAsteroidBelts = true,
+                GeneratePopulation = false,
+            };
+
+            SolarSystem? system = SystemFixtureGenerator.GenerateSystem(spec);
+            if (system == null)
+            {
+                continue;
+            }
+
+            if (system.AsteroidBelts.Count > 0 && system.GetAsteroids().Count > 0)
+            {
+                return system;
+            }
+        }
+
+        throw new System.InvalidOperationException("Expected seeded system search to find at least one belt with generated major asteroids.");
     }
 
     /// <summary>

@@ -1,12 +1,19 @@
 # Version
 
-Current version: `0.10.8.0`
+Current version: `0.10.9.0`
 
 Current user-facing version: `0.11`
 
 Date: `2026-05-10`
 
 Versioning method: release/refactor `+0.1`, feature `+0.0.1`, bug fix `+0.0.0.1`, save-breaking release `+1.0`.
+
+## 0.10.9.0
+
+- Feature: Reworked generated asteroid-belt large objects around diameter semantics, treating tracked major bodies as inspectable `>= 500 km` diameter objects capped at 10 per belt with mass derived from sampled size and composition-appropriate density.
+- Feature: System Viewer now registers generated large belt objects as selectable body nodes and selected-belt inspector readouts list those objects as focusable subentries with diameter, composition context, and orbital placement.
+- Docs: Updated small-body science/readout documentation and provenance to note that asteroid-belt native life remains absent and belt habitation should use a later neutral station/habitat settlement model.
+- Test: Added regression coverage for large-object diameter semantics, body resolution, radial bounds, density coherence, inspector subentries, and System Viewer node registration. Revalidated with `dotnet build .\StarGen.sln` and the full Godot headless harness (`1908 / 1908`).
 
 ## 0.10.8.0
 

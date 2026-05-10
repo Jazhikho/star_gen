@@ -73,6 +73,40 @@ public static class TestSystemInspectorPanel
         }
     }
 
+    /// <summary>
+    /// Tests selected belts expose their tracked large objects as focusable subentries.
+    /// </summary>
+    public static void TestSelectedBeltShowsLargeObjectSubentries()
+    {
+        SystemInspectorPanel? panel = null;
+        try
+        {
+            panel = CreatePanel();
+            SolarSystem system = CreateReservoirSystem();
+
+            panel.DisplaySelectedBelt(system.AsteroidBelts[0], system);
+
+            if (!ContainsLabelText(panel, "Large Objects"))
+            {
+                throw new InvalidOperationException("Selected belt should include a large-object section.");
+            }
+
+            if (!ContainsLabelText(panel, "900 km dia"))
+            {
+                throw new InvalidOperationException("Selected belt should show major-object diameter semantics.");
+            }
+
+            if (!ContainsLabelText(panel, "Habitation Model:"))
+            {
+                throw new InvalidOperationException("Selected belt should note that belt habitation is station/habitat follow-up, not native life.");
+            }
+        }
+        finally
+        {
+            CleanupPanel(panel);
+        }
+    }
+
     private static SystemInspectorPanel CreatePanel()
     {
         SystemInspectorPanel panel = new();
@@ -142,6 +176,14 @@ public static class TestSystemInspectorPanel
         };
         system.AddAsteroidBelt(belt);
 
+        CelestialBody asteroid = new("asteroid_belt_outer_0", "1 Test TNO", CelestialType.Type.Asteroid)
+        {
+            Physical = new PhysicalProps(9.0e20, 450.0e3, 2.0e4),
+            Orbital = new OrbitalProps(42.0 * Units.AuMeters, 0.04, 2.0, 0.0, 0.0, 45.0, star.Id),
+        };
+        system.AddBody(asteroid);
+        belt.MajorAsteroidIds.Add(asteroid.Id);
+
         AddReservoir(system, belt, "hot_classical", 0.38);
         AddReservoir(system, belt, "resonant", 0.26);
         AddReservoir(system, belt, "cold_classical", 0.14);
@@ -169,6 +211,11 @@ public static class TestSystemInspectorPanel
     private static bool ContainsLabelText(Node node, string text)
     {
         if (node is Label label && label.Text.Contains(text, StringComparison.Ordinal))
+        {
+            return true;
+        }
+
+        if (node is Button button && button.Text.Contains(text, StringComparison.Ordinal))
         {
             return true;
         }

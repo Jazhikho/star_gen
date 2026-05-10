@@ -484,6 +484,72 @@ public static class TestSystemAsteroidGenerator
         }
     }
 
+    /// <summary>
+    /// Tests major belt objects use diameter semantics and remain inspectable bodies.
+    /// </summary>
+    public static void TestMajorAsteroidsUseLargeObjectDiameterSemantics()
+    {
+        OrbitHost host = CreateSunLikeHost();
+        CelestialBody star = CreateTestStar();
+        AsteroidBelt belt = CreatePredefinedOuterBelt(host);
+
+        BeltGenerationResult result = SystemAsteroidGenerator.GenerateFromPredefinedBelts(
+            new Array<AsteroidBelt> { belt },
+            new Array<OrbitHost> { host },
+            new Array<CelestialBody> { star },
+            new SeededRng(7001));
+
+        if (belt.MajorAsteroidIds.Count <= 0)
+        {
+            throw new InvalidOperationException("Predefined belt should generate inspectable large objects.");
+        }
+
+        if (belt.MajorAsteroidIds.Count > 10)
+        {
+            throw new InvalidOperationException("Tracked large belt objects should be capped at 10.");
+        }
+
+        double previousDiameterKm = double.MaxValue;
+        foreach (string asteroidId in belt.MajorAsteroidIds)
+        {
+            CelestialBody asteroid = RequireAsteroid(result.Asteroids, asteroidId);
+            double diameterKm = asteroid.Physical.RadiusM * 2.0 / 1000.0;
+            if (diameterKm < 500.0)
+            {
+                throw new InvalidOperationException($"Tracked belt object {asteroidId} should be at least 500 km diameter, got {diameterKm:0.00} km.");
+            }
+
+            if (diameterKm > previousDiameterKm + 0.001)
+            {
+                throw new InvalidOperationException("Tracked belt objects should be sorted largest-first by diameter.");
+            }
+
+            previousDiameterKm = diameterKm;
+
+            if (!asteroid.HasOrbital() || asteroid.Orbital == null)
+            {
+                throw new InvalidOperationException("Tracked belt object should keep orbital data.");
+            }
+
+            if (asteroid.Orbital.SemiMajorAxisM < belt.InnerRadiusM || asteroid.Orbital.SemiMajorAxisM > belt.OuterRadiusM)
+            {
+                throw new InvalidOperationException("Tracked belt object should remain inside the parent belt radial bounds.");
+            }
+
+            double volumeM3 = (4.0 / 3.0) * System.Math.PI * asteroid.Physical.RadiusM * asteroid.Physical.RadiusM * asteroid.Physical.RadiusM;
+            double densityKgM3 = asteroid.Physical.MassKg / volumeM3;
+            if (densityKgM3 < 900.0 || densityKgM3 > 5300.0)
+            {
+                throw new InvalidOperationException($"Tracked belt object density should be composition-plausible, got {densityKgM3:0.00} kg/m3.");
+            }
+
+            if (!asteroid.HasMeta("major_body_diameter_km") || !asteroid.HasMeta("belt_id") || !asteroid.HasMeta("belt_population_readiness"))
+            {
+                throw new InvalidOperationException("Tracked belt object should carry neutral belt membership, size, and habitation follow-up metadata.");
+            }
+        }
+    }
+
     private static int CountIcyBelts(Array<AsteroidBelt> belts)
     {
         int count = 0;
@@ -602,6 +668,19 @@ public static class TestSystemAsteroidGenerator
         {
             throw new InvalidOperationException($"TNO reservoir family weights should sum to 1.0, got {totalWeight:0.000}.");
         }
+    }
+
+    private static CelestialBody RequireAsteroid(Array<CelestialBody> asteroids, string asteroidId)
+    {
+        foreach (CelestialBody asteroid in asteroids)
+        {
+            if (asteroid.Id == asteroidId)
+            {
+                return asteroid;
+            }
+        }
+
+        throw new InvalidOperationException($"Expected generated asteroid id {asteroidId} to resolve to a body.");
     }
 
     private static double AverageRadiusM(Array<CelestialBody> bodies)
