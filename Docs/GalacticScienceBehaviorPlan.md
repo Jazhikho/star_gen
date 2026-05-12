@@ -24,13 +24,13 @@ The current test baseline uses two labels:
 
 Current `P2P` baseline tests cover full diagnostic field serialization, star-position/density-sampling stability when diagnostics change, unchanged `GalaxyOriginContext` behavior while diagnostics are readout-only, and comparison-source caveats for non-Sb family proxies. These tests run in the default headless harness and must stay green.
 
-Current `F2P` baseline tests assert the actual future behavior surfaces: `GalaxyDynamicsBehaviorMode` serialization, `GalaxyOriginContext` local-dynamics annotations, Galaxy Studio diagnostics and disabled dynamics controls, Galaxy Viewer diagnostics readouts, non-Milky-Way comparison calibration presets, and future overlay surfaces. They run only through the explicit future-behavior harness:
+Current `F2P` baseline tests assert the actual future behavior surfaces: `GalaxyDynamicsBehaviorMode` serialization and documented mode values, `DiagnosticsOnly` placement stability, `AffectRegionContext` origin-context-only behavior, `AffectPlacement` placement behavior, `GalaxyOriginContext` local-dynamics annotations, Galaxy Studio diagnostics/help and disabled dynamics controls, Galaxy Viewer diagnostics readouts without mutation, non-Milky-Way comparison calibration presets, local-space diagnostic annotations, and future overlay surfaces. They run only through the explicit future-behavior harness:
 
 ```powershell
 godot-mono.exe --path . --headless --script res://Tests/RunTestsHeadless.gd -- f2p
 ```
 
-The initial baseline is expected to fail. Each future implementation slice should turn its corresponding F2P failures green, then move those tests or equivalent direct tests into the default harness.
+The current baseline is expected to fail with `Total: 13 | Passed: 0 | Failed: 13`. Each future implementation slice should turn its corresponding F2P failures green, then move those tests or equivalent direct tests into the default harness.
 
 ## Galaxy Studio Changes Needed
 

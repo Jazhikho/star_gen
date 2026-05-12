@@ -9,7 +9,7 @@ public static class UserFacingVersionHelper
 {
     private const string InternalVersionSettingPath = "application/config/version";
     private const string UserFacingVersionSettingPath = "application/config/user_facing_version";
-    private const string DefaultInternalVersion = "0.10.17.0";
+    private const string DefaultInternalVersion = "0.10.18.0";
     private const string DefaultUserFacingVersion = "0.11";
 
     /// <summary>

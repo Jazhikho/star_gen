@@ -122,7 +122,7 @@ Current source use:
 Remaining work:
 - Replace diagnostic nuclear stellar, baryon/gas/halo/local-density, rotation, pattern-speed, and corotation proxies with calibrated behavior only after source-specific values and downstream effects are reviewed.
 - Add selectable Milky-Way analog vs broader barred-spiral/elliptical/lenticular/irregular behavior using non-Milky-Way comparison sources.
-- Implement the Galaxy Studio and Galaxy Viewer changes in `Docs/GalacticScienceBehaviorPlan.md` before activating diagnostics as behavior. The default P2P/plan-contract tests protect the current diagnostic-only invariants, and the explicit `f2p` future-behavior harness now fails against the missing planned UI/domain behavior until each slice is implemented.
+- Implement the Galaxy Studio and Galaxy Viewer changes in `Docs/GalacticScienceBehaviorPlan.md` before activating diagnostics as behavior. The default P2P/plan-contract tests protect the current diagnostic-only invariants, and the explicit `f2p` future-behavior harness now fails against thirteen missing planned UI/domain behavior surfaces until each slice is implemented.
 - Branch the work if any dynamics field changes star placement, system priors, or population/route-generation behavior.
 
 ## Immediate recommendation

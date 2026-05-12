@@ -1,12 +1,18 @@
 # Version
 
-Current version: `0.10.17.0`
+Current version: `0.10.18.0`
 
 Current user-facing version: `0.11`
 
 Date: `2026-05-12`
 
 Versioning method: release/refactor `+0.1`, feature `+0.0.1`, bug fix `+0.0.0.1`, save-breaking release `+1.0`.
+
+## 0.10.18.0
+
+- Test: Expanded the explicit F2P galactic future-behavior baseline to cover behavior-mode enum stages, diagnostics-only placement stability, region-context-only behavior, explicit placement-mode behavior, Studio help/source copy, Viewer readout non-mutation, and local-space diagnostic annotations before route/population behavior.
+- Docs: Updated the galactic behavior plan and source-utilization notes to distinguish the default P2P/plan-contract suite from the intentionally failing future-behavior baseline.
+- Validation: Revalidated with `dotnet build .\StarGen.sln`, the default Godot headless harness (`Total: 1921 | Passed: 1921 | Failed: 0`), and the explicit F2P baseline (`Total: 13 | Passed: 0 | Failed: 13`).
 
 ## 0.10.17.0
 
