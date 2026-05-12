@@ -1,12 +1,19 @@
 # Version
 
-Current version: `0.10.12.0`
+Current version: `0.10.13.0`
 
 Current user-facing version: `0.11`
 
-Date: `2026-05-11`
+Date: `2026-05-12`
 
 Versioning method: release/refactor `+0.1`, feature `+0.0.1`, bug fix `+0.0.0.1`, save-breaking release `+1.0`.
+
+## 0.10.13.0
+
+- Feature: Added a diagnostic-only `GalaxyMassComponentBudget` surface for galaxy profiles/specs, including halo, dark matter, baryonic, stellar disk/spheroid/halo, nuclear stellar, cold gas, hot gas, baryon/gas fraction, local stellar-density, source IDs, status, and audit notes.
+- Feature: Resolved galaxy realism profiles now populate and serialize the mass-component budget without feeding it back into star placement, density models, routes, populations, or rotation-curve behavior.
+- Docs: Updated galactic hardening docs, source notes, project structure, and provenance to mark component budgets as present while keeping calibrated dynamics and non-Milky-Way comparison work deferred.
+- Test: Added regression coverage for diagnostic galaxy mass budgets and serialization. Revalidated with `dotnet build .\StarGen.sln` and the Godot headless harness (`Total: 1913 | Passed: 1913 | Failed: 0`).
 
 ## 0.10.12.0
 

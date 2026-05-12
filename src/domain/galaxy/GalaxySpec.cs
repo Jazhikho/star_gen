@@ -182,6 +182,11 @@ public partial class GalaxySpec : RefCounted
     public double StellarMassSolar { get; set; } = 5.0e10;
 
     /// <summary>
+    /// Diagnostic-only galaxy mass component budget.
+    /// </summary>
+    public GalaxyMassComponentBudget MassComponentBudget { get; set; } = new GalaxyMassComponentBudget();
+
+    /// <summary>
     /// Sérsic index of the dominant spheroid.
     /// </summary>
     public double SersicIndex { get; set; } = 2.5;
@@ -303,6 +308,7 @@ public partial class GalaxySpec : RefCounted
             ["solar_galactocentric_radius_pc"] = SolarGalactocentricRadiusPc,
             ["circular_velocity_at_solar_radius_km_s"] = CircularVelocityAtSolarRadiusKmS,
             ["stellar_mass_solar"] = StellarMassSolar,
+            ["mass_component_budget"] = MassComponentBudget.ToDictionary(),
             ["sersic_index"] = SersicIndex,
             ["effective_radius_pc"] = EffectiveRadiusPc,
             ["bulge_to_total"] = BulgeToTotal,
@@ -406,6 +412,15 @@ public partial class GalaxySpec : RefCounted
         else
         {
             spec.RealismProfile = GalaxyRealismProfileBuilder.Build(GalaxyConfig.CreateMilkyWay(), spec.GalaxySeed);
+        }
+
+        if (data.ContainsKey("mass_component_budget") && data["mass_component_budget"].VariantType == Variant.Type.Dictionary)
+        {
+            spec.MassComponentBudget = GalaxyMassComponentBudget.FromDictionary((Dictionary)data["mass_component_budget"]);
+        }
+        else
+        {
+            spec.MassComponentBudget = spec.RealismProfile.MassComponentBudget.Clone();
         }
 
         if (data.ContainsKey("stellar_profile") && data["stellar_profile"].VariantType == Variant.Type.Dictionary)

@@ -17,6 +17,17 @@ Use this log for significant AI-assisted artifacts in this repository.
 
 ## Entries
 
+### 2026-05-12 - Codex (GPT-5)
+
+- Task Purpose: Continue v0.11 science hardening at the galactic level by adding diagnostic-only mass component budgets.
+- Input Materials Used: User request to continue galactic hardening; `claude.md`; user-provided AGENTS instructions; `GalaxyRealismProfile`; `GalaxyRealismProfileBuilder`; `GalaxySpec`; `TestGalaxyConfig`; `Sources/Texts/BlandHawthornGerhard2016.txt`; `Sources/Texts/Bovy2017.txt`; `Sources/Texts/Kennicutt1998.txt`; `Sources/Texts/HuntVasiliev2025.txt`; galactic science-audit docs; version metadata.
+- AI Produced: Added serialized `GalaxyMassComponentBudget` records for halo, dark matter, baryonic, stellar disk/spheroid/halo, nuclear stellar, cold gas, hot gas, baryon/gas fraction, local stellar-density, source IDs, status, and audit notes; populated the budget deterministically from the resolved galaxy realism profile; added regression coverage; updated docs, source notes, version surfaces, and provenance.
+- Human Accepted: Pending Christopher B. Del Gesso review.
+- Human Rejected: No rotation curve, gravitational potential, star-placement change, route/population effect, calibrated dynamics, or RPG adapter behavior was added in this slice.
+- Human Changed: User asked to continue after discussing remaining galactic-level hardening.
+- Validation Method: `dotnet build .\StarGen.sln` (`Build succeeded. 0 Warning(s), 0 Error(s).`); `godot-mono.exe --path . --headless --script res://Tests/RunTestsHeadless.gd` (`Total: 1913 | Passed: 1913 | Failed: 0`).
+- Final Approver: Pending Christopher B. Del Gesso review.
+
 ### 2026-05-11 - Codex (GPT-5)
 
 - Task Purpose: Continue v0.11 science hardening by adding neutral small-body reservoir settlement-readiness diagnostics.

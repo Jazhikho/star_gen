@@ -107,7 +107,7 @@ with full-text extraction (PDF when retrievable, otherwise HTML full text).
 
 **APA:** Bland-Hawthorn, J., & Gerhard, O. (2016). The galaxy in context: structural and kinematic properties of the Milky Way. Annual Review of Astronomy and Astrophysics, 54, 529-596. https://doi.org/10.1146/annurev-astro-081915-023441
 
-**StarGen annotation:** Partly implemented as the active Milky-Way structural schema anchor. StarGen now carries thin/thick disk scale lengths and heights, explicit bar half-length, solar-circle radius, circular velocity at the solar circle, and stellar-mass scale through `GalaxyConfig`, `GalaxySpec`, and `GalaxyRealismProfile`; disk/bar density and bar-region classification use those fields. Nuclear cluster/disk, baryon/gas components, halo decomposition, pattern speed/corotation, and full rotation-curve/local-mass-budget modeling remain follow-up.
+**StarGen annotation:** Partly implemented as the active Milky-Way structural schema anchor. StarGen now carries thin/thick disk scale lengths and heights, explicit bar half-length, solar-circle radius, circular velocity at the solar circle, stellar-mass scale, and diagnostic mass-component budgets through `GalaxySpec` and `GalaxyRealismProfile`; disk/bar density and bar-region classification use the structural fields. Calibrated nuclear cluster/disk structure, halo decomposition, pattern speed/corotation, rotation-curve modeling, gravitational potential, and source-fitted local-mass-budget modeling remain follow-up.
 
 
 ## Bovy2017

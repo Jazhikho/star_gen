@@ -91,6 +91,17 @@ The note was normalized from the local HTML extraction and is flagged for PDF re
   outputs remain human-audit-required release claims, not final accepted cultural or
   governance models.
 
+## Implementation Follow-Up 2026-05-12
+
+- Added `GalaxyMassComponentBudget` as a diagnostic-only galaxy schema surface for halo,
+  dark matter, baryonic, stellar disk/spheroid/halo, nuclear stellar, cold gas, hot gas,
+  baryon/gas fraction, and local stellar-density fields.
+- The component budget is serialized through `GalaxyRealismProfile` and `GalaxySpec`,
+  but it does not yet drive star placement, density evaluation, jump routes, population
+  pressure, gravitational potential, or rotation curves.
+- Exact component ratios remain StarGen tuning pending human verification of the Milky
+  Way mass-budget and Gaia-era dynamics sources.
+
 ## Next Audit Targets
 
 - `SystemMoonGenerator` against `BenistyEtAl2021`, `Ronnet2020`, `Sasaki2010`, and
@@ -98,5 +109,6 @@ The note was normalized from the local HTML extraction and is flagged for PDF re
 - `SystemPlanetGenerator` radius-gap and atmosphere branches against `Fulton2017`,
   `OwenWu2017`, `Ginzburg2018`, `Berger2020Gaia`, `GillisEtAl2026`, and
   `WordsworthKreidberg2022`.
-- `GalaxyRealismProfileBuilder` and `GalaxyScientificFieldEvaluator` against the
-  galaxy morphology, environment, metallicity, and GHZ source cluster.
+- `GalaxyRealismProfileBuilder`, `GalaxyMassComponentBudget`, and
+  `GalaxyScientificFieldEvaluator` against the galaxy morphology, component-budget,
+  environment, metallicity, and GHZ source cluster.

@@ -145,6 +145,11 @@ public partial class GalaxyRealismProfile : RefCounted
     public string MilkyWayStructureSourceStatus { get; set; } = "partly implemented";
 
     /// <summary>
+    /// Diagnostic-only mass component budget used by science audits and future dynamics work.
+    /// </summary>
+    public GalaxyMassComponentBudget MassComponentBudget { get; set; } = new GalaxyMassComponentBudget();
+
+    /// <summary>
     /// Creates a dictionary payload for persistence and provenance.
     /// </summary>
     public Dictionary ToDictionary()
@@ -178,6 +183,7 @@ public partial class GalaxyRealismProfile : RefCounted
             ["circular_velocity_at_solar_radius_km_s"] = CircularVelocityAtSolarRadiusKmS,
             ["stellar_mass_solar"] = StellarMassSolar,
             ["milky_way_structure_source_status"] = MilkyWayStructureSourceStatus,
+            ["mass_component_budget"] = MassComponentBudget.ToDictionary(),
         };
     }
 
@@ -229,6 +235,15 @@ public partial class GalaxyRealismProfile : RefCounted
         profile.CircularVelocityAtSolarRadiusKmS = DomainDictionaryUtils.GetDouble(data, "circular_velocity_at_solar_radius_km_s", 240.0);
         profile.StellarMassSolar = DomainDictionaryUtils.GetDouble(data, "stellar_mass_solar", 5.0e10);
         profile.MilkyWayStructureSourceStatus = DomainDictionaryUtils.GetString(data, "milky_way_structure_source_status", "partly implemented");
+        if (data.ContainsKey("mass_component_budget") && data["mass_component_budget"].VariantType == Variant.Type.Dictionary)
+        {
+            profile.MassComponentBudget = GalaxyMassComponentBudget.FromDictionary((Dictionary)data["mass_component_budget"]);
+        }
+        else
+        {
+            profile.MassComponentBudget = GalaxyMassComponentBudget.CreateDiagnostic(profile);
+        }
+
         return profile;
     }
 }

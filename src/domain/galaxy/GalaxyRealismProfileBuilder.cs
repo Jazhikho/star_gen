@@ -52,6 +52,7 @@ public static class GalaxyRealismProfileBuilder
         profile.GhzOuterRadiusPc = System.Math.Max(profile.GhzInnerRadiusPc + 1000.0, config.GhzOuterRadiusPc);
         profile.GhzTransitionWidthPc = System.Math.Max(500.0, config.GhzTransitionWidthPc);
         profile.MetallicityGradientDexPerKpc = System.Math.Clamp(config.MetallicityGradientDexPerKpc, -0.12, -0.005);
+        profile.MassComponentBudget = GalaxyMassComponentBudget.CreateDiagnostic(profile);
         return profile;
     }
 
@@ -74,6 +75,7 @@ public static class GalaxyRealismProfileBuilder
         spec.SolarGalactocentricRadiusPc = profile.SolarGalactocentricRadiusPc;
         spec.CircularVelocityAtSolarRadiusKmS = profile.CircularVelocityAtSolarRadiusKmS;
         spec.StellarMassSolar = profile.StellarMassSolar;
+        spec.MassComponentBudget = profile.MassComponentBudget.Clone();
         spec.SersicIndex = profile.SersicIndex;
         spec.EffectiveRadiusPc = profile.EffectiveRadiusPc;
         spec.BulgeToTotal = profile.BulgeToTotal;
@@ -212,7 +214,14 @@ public static class GalaxyRealismProfileBuilder
         // co-varies with host-galaxy morphology and bulge prominence. Tuning: this
         // `0.35 + 0.6 * BulgeToTotal` blend is a StarGen calibration for the resolved profile,
         // not a published law, and remains pending human verification in the science-audit pass.
-        profile.BarStrength = profile.IsBarred ? 0.35 + (profile.BulgeToTotal * 0.6) : 0.0;
+        if (profile.IsBarred)
+        {
+            profile.BarStrength = 0.35 + (profile.BulgeToTotal * 0.6);
+        }
+        else
+        {
+            profile.BarStrength = 0.0;
+        }
         profile.ArmMechanism = ResolveArmMechanism(config.ArmMechanismPreference, profile.ResolvedSubtype, rng);
         profile.EffectiveRadiusPc = ResolveDiskScaleLength(profile.HaloMassLog10Solar, profile.ResolvedSubtype);
         profile.CharacteristicAgeGyr = 4.5 + (profile.BulgeToTotal * 6.0);
@@ -275,7 +284,14 @@ public static class GalaxyRealismProfileBuilder
         }
 
         profile.IsBarred = ResolveBarState(config.BarMode, 0.45, rng);
-        profile.BarStrength = profile.IsBarred ? 0.28 + (rng.Randf() * 0.18) : 0.0;
+        if (profile.IsBarred)
+        {
+            profile.BarStrength = 0.28 + (rng.Randf() * 0.18);
+        }
+        else
+        {
+            profile.BarStrength = 0.0;
+        }
         profile.ArmMechanism = GalaxyArmMechanism.Auto;
         profile.EffectiveRadiusPc = ResolveDiskScaleLength(profile.HaloMassLog10Solar, GalaxyResolvedSubtype.SpiralSa) * 0.9;
         profile.CharacteristicAgeGyr = 8.5 + (profile.EnvironmentDensityIndex * 2.0);

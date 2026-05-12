@@ -829,6 +829,9 @@ public static partial class DotNetNativeTestSuite
             "TestGalaxyConfig::test_milky_way_structural_schema_uses_bland_parameters",
             Tests.Unit.TestGalaxyConfig.TestMilkyWayStructuralSchemaUsesBlandParameters);
         runner.RunNativeTest(
+            "TestGalaxyConfig::test_galaxy_mass_component_budget_is_diagnostic_and_serializable",
+            Tests.Unit.TestGalaxyConfig.TestGalaxyMassComponentBudgetIsDiagnosticAndSerializable);
+        runner.RunNativeTest(
             "TestGalaxyConfig::test_get_type_name_includes_expanded_families",
             Tests.Unit.TestGalaxyConfig.TestGetTypeNameIncludesExpandedFamilies);
         runner.RunNativeTest(

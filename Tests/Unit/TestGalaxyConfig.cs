@@ -163,6 +163,35 @@ public static class TestGalaxyConfig
     }
 
     /// <summary>
+    /// Tests that galaxy profiles carry a diagnostic mass-component budget without changing generation behavior.
+    /// </summary>
+    public static void TestGalaxyMassComponentBudgetIsDiagnosticAndSerializable()
+    {
+        GalaxyConfig config = GalaxyConfig.CreateMilkyWay();
+        GalaxySpec spec = GalaxySpec.CreateFromConfig(config, 15101);
+        GalaxyMassComponentBudget budget = spec.MassComponentBudget;
+
+        DotNetNativeTestSuite.AssertNotNull(budget, "spec should carry a mass component budget");
+        DotNetNativeTestSuite.AssertEqual(1.0e12, budget.TotalHaloMassSolar, "Milky Way halo-mass proxy should resolve from log halo mass");
+        DotNetNativeTestSuite.AssertTrue(budget.DarkMatterHaloMassSolar > budget.BaryonicMassSolar, "dark matter should remain the dominant diagnostic mass component");
+        DotNetNativeTestSuite.AssertTrue(budget.StellarDiskMassSolar > budget.StellarSpheroidMassSolar, "Milky Way analog should keep a disk-dominated stellar budget");
+        DotNetNativeTestSuite.AssertTrue(budget.ColdGasMassSolar > 0.0, "cold gas budget should be present for future star-formation diagnostics");
+        DotNetNativeTestSuite.AssertTrue(budget.HotGasMassSolar > 0.0, "hot gas budget should be present for future halo diagnostics");
+        DotNetNativeTestSuite.AssertTrue(budget.NuclearStellarMassSolar > 0.0, "nuclear stellar component should be present as a diagnostic field");
+        DotNetNativeTestSuite.AssertTrue(budget.BaryonFraction > 0.0 && budget.BaryonFraction < 0.2, "baryon fraction should be bounded for the default diagnostic budget");
+        DotNetNativeTestSuite.AssertEqual(0.040, budget.LocalStellarMassDensitySolarPerPc3, "Bovy local stellar density proxy should be preserved");
+        DotNetNativeTestSuite.AssertEqual("diagnostic_proxy", budget.SourceStatus, "component budget should be labeled diagnostic-only");
+        DotNetNativeTestSuite.AssertTrue(budget.SourceIds.Contains("BlandHawthornGerhard2016"), "budget should cite the Milky Way structural source");
+        DotNetNativeTestSuite.AssertTrue(budget.SourceIds.Contains("Bovy2017"), "budget should cite the local-disk source");
+        DotNetNativeTestSuite.AssertTrue(budget.Notes.Contains("not a rotation curve"), "budget notes should prevent dynamics overclaiming");
+
+        Dictionary specData = spec.ToDictionary();
+        GalaxySpec restored = GalaxySpec.FromDictionary(specData);
+        DotNetNativeTestSuite.AssertEqual(budget.BaryonicMassSolar, restored.MassComponentBudget.BaryonicMassSolar, "spec budget should survive round-trip");
+        DotNetNativeTestSuite.AssertEqual(budget.SourceStatus, restored.RealismProfile.MassComponentBudget.SourceStatus, "profile budget status should survive round-trip");
+    }
+
+    /// <summary>
     /// Tests that galaxy-family names include the new lenticular and irregular labels.
     /// </summary>
     public static void TestGetTypeNameIncludesExpandedFamilies()
