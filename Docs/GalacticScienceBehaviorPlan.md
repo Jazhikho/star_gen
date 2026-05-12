@@ -20,11 +20,17 @@ These are currently audit/export/readout facts only. They must not affect star p
 The current test baseline uses two labels:
 
 - `P2P` means present-to-present coverage: behavior that already exists or is already intentionally absent, and therefore should stay protected in the current suite.
-- `F2P` means future-to-present coverage: plan requirements for future Galaxy Studio, Galaxy Viewer, and behavior-mode work that are not yet active, but must remain explicit and test-visible before implementation starts.
+- `F2P` means future-to-present coverage: executable tests for expected future Galaxy Studio, Galaxy Viewer, and behavior-mode behavior. These tests are expected to fail until the future behavior is implemented.
 
-Current `P2P` baseline tests cover full diagnostic field serialization, star-position/density-sampling stability when diagnostics change, unchanged `GalaxyOriginContext` behavior while diagnostics are readout-only, and comparison-source caveats for non-Sb family proxies.
+Current `P2P` baseline tests cover full diagnostic field serialization, star-position/density-sampling stability when diagnostics change, unchanged `GalaxyOriginContext` behavior while diagnostics are readout-only, and comparison-source caveats for non-Sb family proxies. These tests run in the default headless harness and must stay green.
 
-Current `F2P` baseline tests cover this plan document's Studio readout requirements, Viewer diagnostics, disabled behavior-gated controls, future `GalaxyDynamicsBehaviorMode`, staged activation path, non-Milky-Way calibration requirement, and future test requirements. These tests should be replaced or supplemented with direct UI/domain behavior tests as each future step is implemented.
+Current `F2P` baseline tests assert the actual future behavior surfaces: `GalaxyDynamicsBehaviorMode` serialization, `GalaxyOriginContext` local-dynamics annotations, Galaxy Studio diagnostics and disabled dynamics controls, Galaxy Viewer diagnostics readouts, non-Milky-Way comparison calibration presets, and future overlay surfaces. They run only through the explicit future-behavior harness:
+
+```powershell
+godot-mono.exe --path . --headless --script res://Tests/RunTestsHeadless.gd -- f2p
+```
+
+The initial baseline is expected to fail. Each future implementation slice should turn its corresponding F2P failures green, then move those tests or equivalent direct tests into the default harness.
 
 ## Galaxy Studio Changes Needed
 

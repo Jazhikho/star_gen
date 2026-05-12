@@ -72,6 +72,17 @@ public partial class DotNetTestRunner : RefCounted
     }
 
     /// <summary>
+    /// Runs the intentionally failing future galactic science behavior baseline.
+    /// </summary>
+    public Task<Godot.Collections.Array<DotNetTestResult>> RunGalacticFutureBehaviorHeadless()
+    {
+        ResetRunState();
+        TestRegistry.RunGalacticFutureBehaviorHeadlessSuites(this);
+        CompleteRun();
+        return Task.FromResult(_results);
+    }
+
+    /// <summary>
     /// Returns the number of failed tests.
     /// </summary>
     public int GetFailCount()

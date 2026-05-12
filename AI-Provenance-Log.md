@@ -19,6 +19,17 @@ Use this log for significant AI-assisted artifacts in this repository.
 
 ### 2026-05-12 - Codex (GPT-5)
 
+- Task Purpose: Correct the galactic F2P baseline so it tests future behavior directly instead of only checking plan text.
+- Input Materials Used: User correction about intended F2P tests; `claude.md`; user-provided AGENTS instructions; `Docs/GalacticScienceBehaviorPlan.md`; `TestGalacticScienceBehaviorPlan`; `DotNetTestRunner`; `TestSceneCSharp`; `RunTestsHeadless.gd`; galaxy Studio/Viewer source files; galaxy diagnostic/domain classes.
+- AI Produced: Renamed the previous passing F2P checks as plan-contract tests; added an explicit future-behavior F2P suite that currently fails on missing behavior mode serialization, origin-context dynamics annotations, Studio diagnostics controls, Viewer diagnostics readouts, non-Milky-Way calibration presets, and diagnostics overlays; added a `f2p` headless filter; updated docs, source plan, version surfaces, and provenance.
+- Human Accepted: Pending Christopher B. Del Gesso review.
+- Human Rejected: The prior interpretation that F2P should pass as a future-plan documentation contract.
+- Human Changed: User clarified that F2P tests should assert expected future behaviors now and be run to establish the current failing baseline.
+- Validation Method: `dotnet build .\StarGen.sln` (`Build succeeded. 0 Warning(s), 0 Error(s).`); default `godot-mono.exe --path . --headless --script res://Tests/RunTestsHeadless.gd` (`Total: 1921 | Passed: 1921 | Failed: 0`); explicit F2P baseline `godot-mono.exe --path . --headless --script res://Tests/RunTestsHeadless.gd -- f2p` (`Total: 6 | Passed: 0 | Failed: 6`, expected missing-future-behavior baseline).
+- Final Approver: Pending Christopher B. Del Gesso review.
+
+### 2026-05-12 - Codex (GPT-5)
+
 - Task Purpose: Create P2P/F2P baseline tests for the Galactic Science Behavior plan and run the suite for a clean baseline.
 - Input Materials Used: User request for P2P/F2P tests; `claude.md`; user-provided AGENTS instructions; `Docs/GalacticScienceBehaviorPlan.md`; `GalaxyMassComponentBudget`; `GalaxyRotationCurveDiagnostic`; `GalaxyDynamicsDiagnostic`; `GalaxySpec`; `GalaxyRealismProfile`; `GalaxyScientificFieldEvaluator`; `DensitySampler`; native C# test harness.
 - AI Produced: Added `Tests/Unit/TestGalacticScienceBehaviorPlan.cs` with present-behavior diagnostic serialization/non-behavior invariants and future-plan contract tests; registered the suite; documented the P2P/F2P mapping; updated project/source/version metadata and provenance.

@@ -66,6 +66,14 @@ public partial class TestSceneCSharp : Node
 	}
 
 	/// <summary>
+	/// Starts the intentionally failing future galactic science behavior baseline.
+	/// </summary>
+	public void start_galactic_future_behavior_headless()
+	{
+		_ = RunGalacticFutureBehaviorHeadlessAsync();
+	}
+
+	/// <summary>
 	/// Starts the full interactive test suite.
 	/// </summary>
 	public void start_interactive()
@@ -109,6 +117,21 @@ public partial class TestSceneCSharp : Node
 		GD.Print("Using C# Solar realization test harness");
 		GD.Print(string.Empty);
 		await _runner.RunSolarRealizationHeadless();
+		_runner.PrintSummary();
+		int exitCode = 0;
+		if (_runner.GetFailCount() != 0)
+		{
+			exitCode = 1;
+		}
+
+		EmitSignal(SignalName.RunCompleted, exitCode);
+	}
+
+	private async Task RunGalacticFutureBehaviorHeadlessAsync()
+	{
+		GD.Print("Using C# future galactic behavior baseline harness");
+		GD.Print(string.Empty);
+		await _runner.RunGalacticFutureBehaviorHeadless();
 		_runner.PrintSummary();
 		int exitCode = 0;
 		if (_runner.GetFailCount() != 0)

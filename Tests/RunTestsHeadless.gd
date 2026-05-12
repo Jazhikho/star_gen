@@ -5,6 +5,8 @@ const SUPPORTED_GODOT_MAJOR := 4
 const SUPPORTED_GODOT_MINOR := 6
 const POPULATION_FILTER := "population"
 const SOLAR_FILTER := "solar"
+const GALACTIC_FUTURE_FILTER := "galactic-future"
+const F2P_FILTER := "f2p"
 
 var _csharp_harness = null
 
@@ -55,6 +57,10 @@ func _start_csharp_harness() -> void:
 
 	if user_args.has(SOLAR_FILTER) and harness.has_method("start_solar_realization_headless"):
 		harness.start_solar_realization_headless()
+		return
+
+	if (user_args.has(GALACTIC_FUTURE_FILTER) or user_args.has(F2P_FILTER)) and harness.has_method("start_galactic_future_behavior_headless"):
+		harness.start_galactic_future_behavior_headless()
 		return
 
 	harness.start_headless()

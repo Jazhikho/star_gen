@@ -877,11 +877,11 @@ public static partial class DotNetNativeTestSuite
             "TestGalacticScienceBehaviorPlan::test_p2p_non_milky_way_families_carry_comparison_caveats",
             Tests.Unit.TestGalacticScienceBehaviorPlan.TestP2PNonMilkyWayFamiliesCarryComparisonCaveats);
         runner.RunNativeTest(
-            "TestGalacticScienceBehaviorPlan::test_f2p_behavior_plan_covers_studio_viewer_and_domain_gates",
-            Tests.Unit.TestGalacticScienceBehaviorPlan.TestF2PBehaviorPlanCoversStudioViewerAndDomainGates);
+            "TestGalacticScienceBehaviorPlan::test_plan_contract_covers_studio_viewer_and_domain_gates",
+            Tests.Unit.TestGalacticScienceBehaviorPlan.TestPlanContractCoversStudioViewerAndDomainGates);
         runner.RunNativeTest(
-            "TestGalacticScienceBehaviorPlan::test_f2p_behavior_plan_covers_future_test_requirements",
-            Tests.Unit.TestGalacticScienceBehaviorPlan.TestF2PBehaviorPlanCoversFutureTestRequirements);
+            "TestGalacticScienceBehaviorPlan::test_plan_contract_covers_future_test_requirements",
+            Tests.Unit.TestGalacticScienceBehaviorPlan.TestPlanContractCoversFutureTestRequirements);
         runner.RunNativeTest(
             "TestStellarGenerationProfile::test_round_trip",
             Tests.Unit.TestStellarGenerationProfile.TestRoundTrip);

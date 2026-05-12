@@ -35,6 +35,14 @@ namespace StarGen.Tests
 		}
 
 		/// <summary>
+		/// Registers the intentionally failing future galactic science behavior baseline.
+		/// </summary>
+		public static void RunGalacticFutureBehaviorHeadlessSuites(DotNetTestRunner runner)
+		{
+			DotNetNativeTestSuite.RunGalacticFutureBehaviorHeadless(runner);
+		}
+
+		/// <summary>
 		/// Registers the full interactive C# suite set, including scene-only tests.
 		/// </summary>
 		public static void RunInteractiveSuites(DotNetTestRunner runner)

@@ -1,12 +1,19 @@
 # Version
 
-Current version: `0.10.16.0`
+Current version: `0.10.17.0`
 
 Current user-facing version: `0.11`
 
 Date: `2026-05-12`
 
 Versioning method: release/refactor `+0.1`, feature `+0.0.1`, bug fix `+0.0.0.1`, save-breaking release `+1.0`.
+
+## 0.10.17.0
+
+- Test: Reworked the previous F2P plan-presence checks into plan-contract tests and added an explicit, intentionally failing F2P galactic future-behavior harness.
+- Test: Added future-behavior assertions for `GalaxyDynamicsBehaviorMode` serialization, `GalaxyOriginContext` dynamics annotations, Galaxy Studio diagnostics/disabled controls, Galaxy Viewer diagnostics readouts, non-Milky-Way calibration presets, and diagnostics overlay surfaces.
+- Docs: Updated the galactic behavior plan to clarify that P2P runs in the default green suite while F2P is run explicitly with `godot-mono.exe --path . --headless --script res://Tests/RunTestsHeadless.gd -- f2p`.
+- Validation: Revalidated the default suite with `dotnet build .\StarGen.sln` and the Godot headless harness (`Total: 1921 | Passed: 1921 | Failed: 0`); ran the F2P baseline separately (`Total: 6 | Passed: 0 | Failed: 6`) as the expected missing-future-behavior baseline.
 
 ## 0.10.16.0
 

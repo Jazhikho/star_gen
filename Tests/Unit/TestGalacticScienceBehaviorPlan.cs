@@ -105,9 +105,9 @@ public static class TestGalacticScienceBehaviorPlan
     }
 
     /// <summary>
-    /// F2P: the behavior plan must keep Studio, Viewer, and behavior-gate requirements explicit.
+    /// Plan contract: the behavior plan must keep Studio, Viewer, and behavior-gate requirements explicit.
     /// </summary>
-    public static void TestF2PBehaviorPlanCoversStudioViewerAndDomainGates()
+    public static void TestPlanContractCoversStudioViewerAndDomainGates()
     {
         string plan = ReadBehaviorPlan();
         string[] requiredFragments = new string[]
@@ -132,9 +132,9 @@ public static class TestGalacticScienceBehaviorPlan
     }
 
     /// <summary>
-    /// F2P: the behavior plan must state the test surfaces required before future activation.
+    /// Plan contract: the behavior plan must state the test surfaces required before future activation.
     /// </summary>
-    public static void TestF2PBehaviorPlanCoversFutureTestRequirements()
+    public static void TestPlanContractCoversFutureTestRequirements()
     {
         string plan = ReadBehaviorPlan();
         string[] requiredFragments = new string[]
