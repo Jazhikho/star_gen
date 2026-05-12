@@ -19,6 +19,17 @@ Use this log for significant AI-assisted artifacts in this repository.
 
 ### 2026-05-12 - Codex (GPT-5)
 
+- Task Purpose: Create P2P/F2P baseline tests for the Galactic Science Behavior plan and run the suite for a clean baseline.
+- Input Materials Used: User request for P2P/F2P tests; `claude.md`; user-provided AGENTS instructions; `Docs/GalacticScienceBehaviorPlan.md`; `GalaxyMassComponentBudget`; `GalaxyRotationCurveDiagnostic`; `GalaxyDynamicsDiagnostic`; `GalaxySpec`; `GalaxyRealismProfile`; `GalaxyScientificFieldEvaluator`; `DensitySampler`; native C# test harness.
+- AI Produced: Added `Tests/Unit/TestGalacticScienceBehaviorPlan.cs` with present-behavior diagnostic serialization/non-behavior invariants and future-plan contract tests; registered the suite; documented the P2P/F2P mapping; updated project/source/version metadata and provenance.
+- Human Accepted: Pending Christopher B. Del Gesso review.
+- Human Rejected: No Galaxy Studio/Viewer UI behavior, active dynamics behavior mode, star-placement change, route/population effect, or non-Milky-Way calibration behavior was implemented in this test-baseline slice.
+- Human Changed: User requested baseline tests and validation before continuing behavior implementation.
+- Validation Method: `dotnet build .\StarGen.sln` (`Build succeeded. 0 Warning(s), 0 Error(s).`); `godot-mono.exe --path . --headless --script res://Tests/RunTestsHeadless.gd` (`Total: 1921 | Passed: 1921 | Failed: 0`).
+- Final Approver: Pending Christopher B. Del Gesso review.
+
+### 2026-05-12 - Codex (GPT-5)
+
 - Task Purpose: Finish the current non-behavioral galactic science-hardening schema and prepare the Galaxy Studio/Viewer behavior-change plan.
 - Input Materials Used: User request to continue and finish galactic-level science hardening; `claude.md`; user-provided AGENTS instructions; `GalaxyMassComponentBudget`; `GalaxyRotationCurveDiagnostic`; `GalaxyRealismProfile`; `GalaxyRealismProfileBuilder`; `GalaxySpec`; `TestGalaxyConfig`; `Sources/Texts/BlandHawthornGerhard2016.txt`; `Sources/Texts/Bovy2017.txt`; `Sources/Texts/KhoperskovEtAl2024.txt`; `Sources/Texts/HuntVasiliev2025.txt`; galactic science-audit docs; version metadata.
 - AI Produced: Added serialized `GalaxyDynamicsDiagnostic` records for bar pattern speed, corotation, local mass-budget proxies, analog calibration mode, non-Milky-Way comparison caveats, source/status metadata, and audit notes; added regression coverage; added `Docs/GalacticScienceBehaviorPlan.md`; updated docs, source notes, version surfaces, and provenance.

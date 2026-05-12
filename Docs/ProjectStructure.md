@@ -216,4 +216,5 @@ star_gen/
 - `src/domain/generation/parameters/GalaxyScienceReferenceCatalog.cs`: source registry and user-facing plain-language science/help content for the galaxy studio.
 - `src/domain/generation/parameters/StellarScienceReferenceCatalog.cs`: source registry and plain-language stellar science/help content shared by the galaxy and system studios.
 - `Tests/Integration/TestStudioScienceUi.cs`: non-visual integration coverage for the galaxy help popup and the `1..10` stellar controls in the studios.
+- `Tests/Unit/TestGalacticScienceBehaviorPlan.cs`: P2P/F2P regression baseline for the galactic science behavior plan, covering current diagnostic serialization/non-behavior invariants and future Studio/Viewer/domain behavior-gate plan requirements.
 - `Tests/Unit/TestStellarGenerationProfile.cs`: deterministic unit coverage for stellar-profile serialization and metadata wiring.

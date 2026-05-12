@@ -15,6 +15,17 @@ The domain layer now serializes these galaxy-level diagnostic surfaces through `
 
 These are currently audit/export/readout facts only. They must not affect star placement, local-space builds, system generation, population pressure, jump routes, or gravitational potential until a separate behavior pass is reviewed.
 
+## Test Baseline Mapping
+
+The current test baseline uses two labels:
+
+- `P2P` means present-to-present coverage: behavior that already exists or is already intentionally absent, and therefore should stay protected in the current suite.
+- `F2P` means future-to-present coverage: plan requirements for future Galaxy Studio, Galaxy Viewer, and behavior-mode work that are not yet active, but must remain explicit and test-visible before implementation starts.
+
+Current `P2P` baseline tests cover full diagnostic field serialization, star-position/density-sampling stability when diagnostics change, unchanged `GalaxyOriginContext` behavior while diagnostics are readout-only, and comparison-source caveats for non-Sb family proxies.
+
+Current `F2P` baseline tests cover this plan document's Studio readout requirements, Viewer diagnostics, disabled behavior-gated controls, future `GalaxyDynamicsBehaviorMode`, staged activation path, non-Milky-Way calibration requirement, and future test requirements. These tests should be replaced or supplemented with direct UI/domain behavior tests as each future step is implemented.
+
 ## Galaxy Studio Changes Needed
 
 1. Add a read-only `Resolved Galactic Diagnostics` panel in the Active Profile column.

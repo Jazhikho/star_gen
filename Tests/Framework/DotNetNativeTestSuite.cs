@@ -865,6 +865,24 @@ public static partial class DotNetNativeTestSuite
             "TestGalaxyConfig::test_metallicity_gradient_changes_outer_disk_chemistry",
             Tests.Unit.TestGalaxyConfig.TestMetallicityGradientChangesOuterDiskChemistry);
         runner.RunNativeTest(
+            "TestGalacticScienceBehaviorPlan::test_p2p_diagnostic_fields_round_trip_every_current_field",
+            Tests.Unit.TestGalacticScienceBehaviorPlan.TestP2PDiagnosticFieldsRoundTripEveryCurrentField);
+        runner.RunNativeTest(
+            "TestGalacticScienceBehaviorPlan::test_p2p_diagnostic_only_fields_do_not_change_density_sampling",
+            Tests.Unit.TestGalacticScienceBehaviorPlan.TestP2PDiagnosticOnlyFieldsDoNotChangeDensitySampling);
+        runner.RunNativeTest(
+            "TestGalacticScienceBehaviorPlan::test_p2p_diagnostic_only_fields_do_not_change_origin_context",
+            Tests.Unit.TestGalacticScienceBehaviorPlan.TestP2PDiagnosticOnlyFieldsDoNotChangeOriginContext);
+        runner.RunNativeTest(
+            "TestGalacticScienceBehaviorPlan::test_p2p_non_milky_way_families_carry_comparison_caveats",
+            Tests.Unit.TestGalacticScienceBehaviorPlan.TestP2PNonMilkyWayFamiliesCarryComparisonCaveats);
+        runner.RunNativeTest(
+            "TestGalacticScienceBehaviorPlan::test_f2p_behavior_plan_covers_studio_viewer_and_domain_gates",
+            Tests.Unit.TestGalacticScienceBehaviorPlan.TestF2PBehaviorPlanCoversStudioViewerAndDomainGates);
+        runner.RunNativeTest(
+            "TestGalacticScienceBehaviorPlan::test_f2p_behavior_plan_covers_future_test_requirements",
+            Tests.Unit.TestGalacticScienceBehaviorPlan.TestF2PBehaviorPlanCoversFutureTestRequirements);
+        runner.RunNativeTest(
             "TestStellarGenerationProfile::test_round_trip",
             Tests.Unit.TestStellarGenerationProfile.TestRoundTrip);
         runner.RunNativeTest(

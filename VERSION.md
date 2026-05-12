@@ -1,12 +1,19 @@
 # Version
 
-Current version: `0.10.15.0`
+Current version: `0.10.16.0`
 
 Current user-facing version: `0.11`
 
 Date: `2026-05-12`
 
 Versioning method: release/refactor `+0.1`, feature `+0.0.1`, bug fix `+0.0.0.1`, save-breaking release `+1.0`.
+
+## 0.10.16.0
+
+- Test: Added P2P galactic behavior-plan coverage for full diagnostic field serialization, density-sampling/star-position stability when diagnostic-only fields change, unchanged `GalaxyOriginContext` behavior before behavior-mode activation, and non-Sb comparison-source caveats.
+- Test: Added F2P plan-contract coverage to keep the future Galaxy Studio, Galaxy Viewer, behavior-gate, staged activation, non-Milky-Way calibration, and future test requirements explicit until direct implementation tests replace them.
+- Docs: Defined the P2P/F2P galactic behavior baseline in `Docs/GalacticScienceBehaviorPlan.md` and updated project/source/version/provenance tracking.
+- Validation: Revalidated with `dotnet build .\StarGen.sln` and the Godot headless harness (`Total: 1921 | Passed: 1921 | Failed: 0`).
 
 ## 0.10.15.0
 
