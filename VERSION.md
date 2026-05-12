@@ -1,12 +1,19 @@
 # Version
 
-Current version: `0.10.11.0`
+Current version: `0.10.12.0`
 
 Current user-facing version: `0.11`
 
-Date: `2026-05-10`
+Date: `2026-05-11`
 
 Versioning method: release/refactor `+0.1`, feature `+0.0.1`, bug fix `+0.0.0.1`, save-breaking release `+1.0`.
+
+## 0.10.12.0
+
+- Feature: Added neutral small-body settlement-readiness diagnostics to `SmallBodyReservoir`, including native-life absence, normalized station/habitat readiness, preferred habitation mode, settlement follow-up surface, and audit-facing notes.
+- Feature: System Viewer reservoir details now surface settlement-readiness summaries and per-family habitation modes without generating colonies or RPG adapter payloads.
+- Docs: Updated small-body science docs, source notes, project structure, and provenance to distinguish colonizable belt/resource contexts from native-life generation.
+- Test: Added regression coverage for generated reservoir settlement diagnostics, serializer round-trips, System Viewer readouts, and validator bounds. Revalidated with `dotnet build .\StarGen.sln` and the Godot headless harness (`Total: 1912 | Passed: 1912 | Failed: 0`).
 
 ## 0.10.11.0
 

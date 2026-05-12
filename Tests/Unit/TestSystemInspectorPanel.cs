@@ -96,6 +96,11 @@ public static class TestSystemInspectorPanel
                 throw new InvalidOperationException("Reservoir panel should show the reservoir radial span.");
             }
 
+            if (!ContainsLabelText(panel, "Station Habitat Candidate 0.62"))
+            {
+                throw new InvalidOperationException("Reservoir panel should show neutral station/habitat readiness.");
+            }
+
             if (!ContainsLabelText(panel, "KavelaarsEtAl2023, BernardinelliEtAl2022"))
             {
                 throw new InvalidOperationException("Reservoir panel should show source IDs for human audit.");
@@ -259,6 +264,12 @@ public static class TestSystemInspectorPanel
             InnerRadiusM = belt.InnerRadiusM,
             OuterRadiusM = belt.OuterRadiusM,
             SourceIds = "KavelaarsEtAl2023;BernardinelliEtAl2022",
+            NativeLifeAbsent = true,
+            SettlementReadinessScore = weight + 0.24,
+            SettlementReadiness = "station_habitat_candidate",
+            PreferredHabitationMode = "mining_station",
+            SettlementSurface = "station_or_habitat_followup",
+            SettlementNotes = "Native life absent; future settlement should be modeled as artificial habitats.",
         });
     }
 

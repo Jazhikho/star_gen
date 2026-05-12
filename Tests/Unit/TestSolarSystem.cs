@@ -212,6 +212,10 @@ public static class TestSolarSystem
             ReservoirKind = "main_asteroid_belt",
             ReservoirFamily = "main_belt",
             RelativeWeight = 1.0,
+            SettlementReadinessScore = 0.55,
+            SettlementReadiness = "station_habitat_candidate",
+            PreferredHabitationMode = "mining_station",
+            SettlementSurface = "station_or_habitat_followup",
         };
         system.AddSmallBodyReservoir(reservoir);
 
@@ -230,6 +234,10 @@ public static class TestSolarSystem
         if (system.SmallBodyReservoirs[0].ReservoirFamily != "main_belt")
         {
             throw new InvalidOperationException("Expected main-belt reservoir family");
+        }
+        if (system.SmallBodyReservoirs[0].SettlementSurface != "station_or_habitat_followup")
+        {
+            throw new InvalidOperationException("Expected station/habitat follow-up settlement surface");
         }
     }
 

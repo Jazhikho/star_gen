@@ -872,7 +872,112 @@ public static class SystemAsteroidGenerator
             RepresentationStatus = "diagnostic_proxy",
         };
 
+        ApplySettlementReadiness(reservoir, belt);
         return reservoir;
+    }
+
+    private static void ApplySettlementReadiness(SmallBodyReservoir reservoir, AsteroidBelt belt)
+    {
+        double score = ResolveSettlementReadinessScore(reservoir, belt);
+        reservoir.NativeLifeAbsent = true;
+        reservoir.SettlementReadinessScore = score;
+        reservoir.SettlementReadiness = ResolveSettlementReadinessLabel(score);
+        reservoir.PreferredHabitationMode = ResolvePreferredHabitationMode(reservoir, score);
+        reservoir.SettlementSurface = "station_or_habitat_followup";
+        reservoir.SettlementNotes = ResolveSettlementNote(reservoir);
+    }
+
+    private static double ResolveSettlementReadinessScore(SmallBodyReservoir reservoir, AsteroidBelt belt)
+    {
+        double score = 0.25;
+        if (belt.PrimaryComposition == AsteroidBelt.Composition.Icy)
+        {
+            score += 0.20;
+        }
+        else if (belt.PrimaryComposition == AsteroidBelt.Composition.Mixed)
+        {
+            score += 0.18;
+        }
+        else if (belt.PrimaryComposition == AsteroidBelt.Composition.Metallic)
+        {
+            score += 0.16;
+        }
+        else if (belt.PrimaryComposition == AsteroidBelt.Composition.Rocky)
+        {
+            score += 0.10;
+        }
+
+        if (string.Equals(reservoir.ReservoirKind, "trans_neptunian_reservoir", System.StringComparison.Ordinal))
+        {
+            score += 0.12;
+        }
+
+        if (string.Equals(reservoir.ReservoirFamily, "comet_feeding", System.StringComparison.Ordinal))
+        {
+            score += 0.14;
+        }
+        else if (string.Equals(reservoir.ReservoirFamily, "centaur", System.StringComparison.Ordinal))
+        {
+            score -= 0.08;
+        }
+        else if (string.Equals(reservoir.ReservoirFamily, "main_belt", System.StringComparison.Ordinal))
+        {
+            score += 0.08;
+        }
+
+        double massScore = System.Math.Log10(System.Math.Max(belt.TotalMassKg, 1.0e18)) - 18.0;
+        score += System.Math.Clamp(massScore / 20.0, 0.0, 0.18);
+        return System.Math.Clamp(score, 0.0, 1.0);
+    }
+
+    private static string ResolveSettlementReadinessLabel(double score)
+    {
+        if (score >= 0.70)
+        {
+            return "strong_station_habitat_candidate";
+        }
+
+        if (score >= 0.50)
+        {
+            return "station_habitat_candidate";
+        }
+
+        if (score >= 0.30)
+        {
+            return "limited_outpost_candidate";
+        }
+
+        return "poor_candidate";
+    }
+
+    private static string ResolvePreferredHabitationMode(SmallBodyReservoir reservoir, double score)
+    {
+        if (score >= 0.70)
+        {
+            return "habitat_cluster";
+        }
+
+        if (score >= 0.50)
+        {
+            return "mining_station";
+        }
+
+        if (string.Equals(reservoir.ReservoirFamily, "centaur", System.StringComparison.Ordinal))
+        {
+            return "temporary_outpost";
+        }
+
+        return "small_outpost";
+    }
+
+    private static string ResolveSettlementNote(SmallBodyReservoir reservoir)
+    {
+        if (string.Equals(reservoir.ReservoirKind, "trans_neptunian_reservoir", System.StringComparison.Ordinal))
+        {
+            return "Native life absent; future settlement should be modeled as artificial habitats, stations, or resource outposts attached to reservoir families.";
+        }
+
+        return "Native life absent; future settlement should be modeled as belt stations, mining outposts, or habitats rather than planet-surface colonies.";
     }
 
     private static double ResolveSubfamilyWeight(string mix, string family)

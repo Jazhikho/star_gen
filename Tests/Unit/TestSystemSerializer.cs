@@ -72,6 +72,12 @@ public static class TestSystemSerializer
         reservoir.SourceIds = "DeMeoCarry2014;RaymondIzidoro2017";
         reservoir.PopulationModel = "demeo_carry_inner_belt_proxy";
         reservoir.RepresentationStatus = "diagnostic_proxy";
+        reservoir.NativeLifeAbsent = true;
+        reservoir.SettlementReadinessScore = 0.58;
+        reservoir.SettlementReadiness = "station_habitat_candidate";
+        reservoir.PreferredHabitationMode = "mining_station";
+        reservoir.SettlementSurface = "station_or_habitat_followup";
+        reservoir.SettlementNotes = "Native life absent; use future station or habitat records.";
         system.AddSmallBodyReservoir(reservoir);
 
         system.Provenance = new Provenance(12345, "0.4.1.1", 1, 1234567890, new Godot.Collections.Dictionary { { "test", true } });
@@ -286,6 +292,22 @@ public static class TestSystemSerializer
         if (System.Math.Abs(restReservoir.RelativeWeight - origReservoir.RelativeWeight) > 0.00001)
         {
             throw new InvalidOperationException("Reservoir relative weight should match");
+        }
+        if (System.Math.Abs(restReservoir.SettlementReadinessScore - origReservoir.SettlementReadinessScore) > 0.00001)
+        {
+            throw new InvalidOperationException("Reservoir settlement-readiness score should match");
+        }
+        if (restReservoir.SettlementReadiness != origReservoir.SettlementReadiness)
+        {
+            throw new InvalidOperationException("Reservoir settlement-readiness label should match");
+        }
+        if (restReservoir.PreferredHabitationMode != origReservoir.PreferredHabitationMode)
+        {
+            throw new InvalidOperationException("Reservoir habitation mode should match");
+        }
+        if (!restReservoir.NativeLifeAbsent)
+        {
+            throw new InvalidOperationException("Reservoir native-life absence flag should round-trip");
         }
     }
 

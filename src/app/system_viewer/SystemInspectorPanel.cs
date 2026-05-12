@@ -314,6 +314,7 @@ public partial class SystemInspectorPanel : VBoxContainer
         AddHeader(_reservoirSection, anchorName);
         AddProperty(_reservoirSection, "Family Mix", FormatReservoirFamilySummary(reservoirs));
         AddProperty(_reservoirSection, "Radial Span", FormatReservoirRadialSpan(reservoirs));
+        AddProperty(_reservoirSection, "Settlement Readiness", FormatReservoirSettlementSummary(reservoirs));
         AddProperty(_reservoirSection, "Sources", FormatReservoirSources(reservoirs));
         AddProperty(_reservoirSection, "Population Surface", "No native life; stations/habitats follow-up");
 
@@ -523,7 +524,37 @@ public partial class SystemInspectorPanel : VBoxContainer
             "{0} - {1:0}% | {2}",
             FormatReservoirFamily(reservoir.ReservoirFamily),
             reservoir.RelativeWeight * 100.0,
-            FormatRepresentationStatus(reservoir.RepresentationStatus));
+            FormatRepresentationStatus(reservoir.RepresentationStatus)
+                + " | "
+                + FormatSettlementReadiness(reservoir.SettlementReadiness)
+                + " "
+                + reservoir.SettlementReadinessScore.ToString("0.00", CultureInfo.InvariantCulture)
+                + " | "
+                + FormatSettlementReadiness(reservoir.PreferredHabitationMode));
+    }
+
+    private static string FormatReservoirSettlementSummary(List<SmallBodyReservoir> reservoirs)
+    {
+        if (reservoirs.Count == 0)
+        {
+            return "Not evaluated";
+        }
+
+        SmallBodyReservoir strongest = reservoirs[0];
+        foreach (SmallBodyReservoir reservoir in reservoirs)
+        {
+            if (reservoir.SettlementReadinessScore > strongest.SettlementReadinessScore)
+            {
+                strongest = reservoir;
+            }
+        }
+
+        return string.Format(
+            CultureInfo.InvariantCulture,
+            "{0} {1:0.00} ({2})",
+            FormatSettlementReadiness(strongest.SettlementReadiness),
+            strongest.SettlementReadinessScore,
+            FormatSettlementReadiness(strongest.PreferredHabitationMode));
     }
 
     private static string FormatReservoirRadialSpan(List<SmallBodyReservoir> reservoirs)
@@ -691,6 +722,17 @@ public partial class SystemInspectorPanel : VBoxContainer
         }
 
         string label = status.Replace("_", " ");
+        return CultureInfo.InvariantCulture.TextInfo.ToTitleCase(label);
+    }
+
+    private static string FormatSettlementReadiness(string value)
+    {
+        if (string.IsNullOrWhiteSpace(value))
+        {
+            return "Not Evaluated";
+        }
+
+        string label = value.Replace("_", " ");
         return CultureInfo.InvariantCulture.TextInfo.ToTitleCase(label);
     }
 

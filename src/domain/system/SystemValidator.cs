@@ -406,6 +406,16 @@ public static class SystemValidator
                 result.AddError(prefix, "Reservoir outer radius must be greater than inner radius");
             }
 
+            if (reservoir.SettlementReadinessScore < 0.0 || reservoir.SettlementReadinessScore > 1.0)
+            {
+                result.AddError($"{prefix}.settlement_readiness_score", "Reservoir settlement-readiness score must be in [0, 1]");
+            }
+
+            if (!reservoir.NativeLifeAbsent)
+            {
+                result.AddWarning($"{prefix}.native_life_absent", "Small-body reservoirs should not claim native-life surfaces; use station or habitat records for habitation");
+            }
+
             if (!string.IsNullOrEmpty(reservoir.AnchorBeltId) && !HasAsteroidBelt(system, reservoir.AnchorBeltId))
             {
                 result.AddError($"{prefix}.anchor_belt_id", $"Reservoir references non-existent belt: {reservoir.AnchorBeltId}");

@@ -69,6 +69,36 @@ public partial class SmallBodyReservoir : RefCounted
     public string RepresentationStatus = "diagnostic_proxy";
 
     /// <summary>
+    /// Whether native life should be considered absent for this reservoir surface.
+    /// </summary>
+    public bool NativeLifeAbsent = true;
+
+    /// <summary>
+    /// Normalized resource and logistics readiness for future station or habitat placement.
+    /// </summary>
+    public double SettlementReadinessScore;
+
+    /// <summary>
+    /// Human-readable readiness category for future station or habitat placement.
+    /// </summary>
+    public string SettlementReadiness = "not_evaluated";
+
+    /// <summary>
+    /// Preferred neutral habitation mode for this reservoir.
+    /// </summary>
+    public string PreferredHabitationMode = "none";
+
+    /// <summary>
+    /// Explicit follow-up surface for population generation.
+    /// </summary>
+    public string SettlementSurface = "station_or_habitat_followup";
+
+    /// <summary>
+    /// Short non-RPG settlement note for viewer/export consumers.
+    /// </summary>
+    public string SettlementNotes = string.Empty;
+
+    /// <summary>
     /// Creates a new small-body reservoir.
     /// </summary>
     public SmallBodyReservoir(string id = "", string name = "")
@@ -96,6 +126,12 @@ public partial class SmallBodyReservoir : RefCounted
             ["source_ids"] = SourceIds,
             ["population_model"] = PopulationModel,
             ["representation_status"] = RepresentationStatus,
+            ["native_life_absent"] = NativeLifeAbsent,
+            ["settlement_readiness_score"] = SettlementReadinessScore,
+            ["settlement_readiness"] = SettlementReadiness,
+            ["preferred_habitation_mode"] = PreferredHabitationMode,
+            ["settlement_surface"] = SettlementSurface,
+            ["settlement_notes"] = SettlementNotes,
         };
     }
 
@@ -117,6 +153,12 @@ public partial class SmallBodyReservoir : RefCounted
         reservoir.SourceIds = GetString(data, "source_ids", string.Empty);
         reservoir.PopulationModel = GetString(data, "population_model", string.Empty);
         reservoir.RepresentationStatus = GetString(data, "representation_status", "diagnostic_proxy");
+        reservoir.NativeLifeAbsent = GetBool(data, "native_life_absent", true);
+        reservoir.SettlementReadinessScore = GetDouble(data, "settlement_readiness_score", 0.0);
+        reservoir.SettlementReadiness = GetString(data, "settlement_readiness", "not_evaluated");
+        reservoir.PreferredHabitationMode = GetString(data, "preferred_habitation_mode", "none");
+        reservoir.SettlementSurface = GetString(data, "settlement_surface", "station_or_habitat_followup");
+        reservoir.SettlementNotes = GetString(data, "settlement_notes", string.Empty);
         return reservoir;
     }
 
@@ -155,6 +197,22 @@ public partial class SmallBodyReservoir : RefCounted
             default:
                 return fallback;
         }
+    }
+
+    private static bool GetBool(Dictionary data, string key, bool fallback)
+    {
+        if (!data.ContainsKey(key))
+        {
+            return fallback;
+        }
+
+        Variant value = data[key];
+        if (value.VariantType == Variant.Type.Bool)
+        {
+            return (bool)value;
+        }
+
+        return fallback;
     }
 
     private static double TryParseDouble(string text, double fallback)

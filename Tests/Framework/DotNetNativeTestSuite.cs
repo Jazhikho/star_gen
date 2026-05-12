@@ -2248,6 +2248,9 @@ public static partial class DotNetNativeTestSuite
             "TestSystemAsteroidGenerator::test_major_asteroid_display_parameters_select_largest_eligible_objects",
             Tests.Unit.TestSystemAsteroidGenerator.TestMajorAsteroidDisplayParametersSelectLargestEligibleObjects);
         runner.RunNativeTest(
+            "TestSystemAsteroidGenerator::test_reservoirs_carry_settlement_readiness_diagnostics",
+            Tests.Unit.TestSystemAsteroidGenerator.TestReservoirsCarrySettlementReadinessDiagnostics);
+        runner.RunNativeTest(
             "TestSystemBodyNode::test_setup_planet",
             Tests.Unit.TestSystemBodyNode.TestSetupPlanet);
         runner.RunNativeTest(

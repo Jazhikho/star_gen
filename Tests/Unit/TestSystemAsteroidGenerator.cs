@@ -748,6 +748,59 @@ public static class TestSystemAsteroidGenerator
         }
     }
 
+    /// <summary>
+    /// Tests small-body reservoir records carry neutral settlement-readiness diagnostics.
+    /// </summary>
+    public static void TestReservoirsCarrySettlementReadinessDiagnostics()
+    {
+        OrbitHost host = CreateSunLikeHost();
+        CelestialBody star = CreateTestStar();
+        AsteroidBelt belt = CreatePredefinedOuterBelt(host);
+
+        BeltGenerationResult result = SystemAsteroidGenerator.GenerateFromPredefinedBelts(
+            new Array<AsteroidBelt> { belt },
+            new Array<OrbitHost> { host },
+            new Array<CelestialBody> { star },
+            new SeededRng(7010));
+
+        if (result.Reservoirs.Count == 0)
+        {
+            throw new InvalidOperationException("Predefined outer belt should emit small-body reservoir records.");
+        }
+
+        foreach (SmallBodyReservoir reservoir in result.Reservoirs)
+        {
+            if (!reservoir.NativeLifeAbsent)
+            {
+                throw new InvalidOperationException("Small-body reservoirs should explicitly mark native life as absent.");
+            }
+
+            if (reservoir.SettlementReadinessScore < 0.0 || reservoir.SettlementReadinessScore > 1.0)
+            {
+                throw new InvalidOperationException("Settlement-readiness score should be normalized.");
+            }
+
+            if (string.IsNullOrWhiteSpace(reservoir.SettlementReadiness)
+                || reservoir.SettlementReadiness == "not_evaluated")
+            {
+                throw new InvalidOperationException("Generated reservoirs should carry a settlement-readiness category.");
+            }
+
+            if (reservoir.SettlementSurface != "station_or_habitat_followup")
+            {
+                throw new InvalidOperationException("Reservoir settlement surface should point to future station or habitat records.");
+            }
+
+            if (reservoir.SettlementNotes.Contains("native life", StringComparison.OrdinalIgnoreCase)
+                && reservoir.SettlementNotes.Contains("habitat", StringComparison.OrdinalIgnoreCase))
+            {
+                continue;
+            }
+
+            throw new InvalidOperationException("Reservoir settlement notes should avoid native-life shortcuts and point to habitats/stations.");
+        }
+    }
+
     private static CelestialBody RequireAsteroid(Array<CelestialBody> asteroids, string asteroidId)
     {
         foreach (CelestialBody asteroid in asteroids)

@@ -89,7 +89,7 @@ with full-text extraction (PDF when retrievable, otherwise HTML full text).
 
 **APA:** Bernardinelli, P. H., Bernstein, G., Sako, M., et al. (2022). A search of the full six years of the Dark Energy Survey for outer Solar System objects. The Planetary Science Journal, 3(10), 215. https://doi.org/10.3847/PSJ/acf869
 
-**StarGen annotation:** Partly implemented as source-marked large-TNO/outer-reservoir support. StarGen now records this source on trans-Neptunian reservoir belts and first-class `SmallBodyReservoir` records, uses it with `KavelaarsEtAl2023` for representative size-slope and diagnostic subfamily provenance, and surfaces those reservoir details in System Viewer. DES survey-bias modeling, calibrated counts, and separate orbital-family distributions remain follow-up.
+**StarGen annotation:** Partly implemented as source-marked large-TNO/outer-reservoir support. StarGen now records this source on trans-Neptunian reservoir belts and first-class `SmallBodyReservoir` records, uses it with `KavelaarsEtAl2023` for representative size-slope and diagnostic subfamily provenance, and surfaces those reservoir details plus neutral station/habitat readiness in System Viewer. DES survey-bias modeling, actual settlement records, calibrated counts, and separate orbital-family distributions remain follow-up.
 
 
 ## BiassoniEtAl2023 **(APA incomplete)**
@@ -440,7 +440,7 @@ with full-text extraction (PDF when retrievable, otherwise HTML full text).
 
 **APA:** Kavelaars, J. J., et al. (2023). Match stem KavelaarsEtAl2023 to ADS for the PDF on file.
 
-**StarGen annotation:** Partly implemented as trans-Neptunian reservoir support. StarGen now shifts cold reservoirs toward Kuiper-belt analog distances, records this source on outer-belt reservoir, size-distribution, diagnostic subfamily provenance, and first-class `SmallBodyReservoir` records, applies the public minor-body population slope to representative large bodies, and surfaces reservoir source/span/status details in System Viewer. Separate orbital-family distributions and calibrated population counts remain follow-up.
+**StarGen annotation:** Partly implemented as trans-Neptunian reservoir support. StarGen now shifts cold reservoirs toward Kuiper-belt analog distances, records this source on outer-belt reservoir, size-distribution, diagnostic subfamily provenance, and first-class `SmallBodyReservoir` records, applies the public minor-body population slope to representative large bodies, marks native life absent on reservoir records, and surfaces reservoir source/span/status plus neutral station/habitat readiness in System Viewer. Actual settlement records, separate orbital-family distributions, and calibrated population counts remain follow-up.
 
 
 ## Kennicutt1998

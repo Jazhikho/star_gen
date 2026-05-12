@@ -77,7 +77,7 @@ Large TNO size-frequency distribution; detection of large (>100 km) TNOs.
 
 ## Current StarGen usage
 
-StarGen uses this source as active but simplified support for large trans-Neptunian-object demographics. `SystemAsteroidGenerator` records `BernardinelliEtAl2022` in generated cold-reservoir provenance, size-distribution provenance, diagnostic subfamily provenance, and first-class `SmallBodyReservoir` records; System Viewer surfaces the linked reservoir-family weights in overview, selected-belt readouts, and a dedicated reservoir-details section with source/span/status rows; and the planetary science catalog now exposes it for `planet_minor_body_outer_system_bias` and `minor_body_population_slope`.
+StarGen uses this source as active but simplified support for large trans-Neptunian-object demographics. `SystemAsteroidGenerator` records `BernardinelliEtAl2022` in generated cold-reservoir provenance, size-distribution provenance, diagnostic subfamily provenance, and first-class `SmallBodyReservoir` records; those reservoir records now carry neutral station/habitat readiness diagnostics and explicit native-life absence as future settlement-surface hints rather than population counts; System Viewer surfaces the linked reservoir-family weights, source/span/status rows, and readiness diagnostics; and the planetary science catalog now exposes it for `planet_minor_body_outer_system_bias` and `minor_body_population_slope`.
 
 ## Human reviewer concern
 
@@ -85,7 +85,7 @@ The reviewer concern is that StarGen should distinguish actual TNO/Kuiper-style 
 
 ## AI response / disposition
 
-Disposition: partly implemented as a source-marked large-TNO reservoir proxy. The current generator uses a bounded reservoir placement/mass/size-slope heuristic, records diagnostic TNO subfamily families as `SmallBodyReservoir` records, and exposes those family weights/details in System Viewer; it does not yet model DES selection functions, survey completeness, or family-specific orbital distributions.
+Disposition: partly implemented as a source-marked large-TNO reservoir proxy. The current generator uses a bounded reservoir placement/mass/size-slope heuristic, records diagnostic TNO subfamily families as `SmallBodyReservoir` records, marks native life absent, and exposes those family weights/details plus neutral station/habitat readiness in System Viewer; it does not yet model DES selection functions, survey completeness, calibrated population counts, actual settlement records, or family-specific orbital distributions.
 
 ## Implementation status
 
@@ -93,4 +93,4 @@ partly implemented
 
 ## Follow-up action
 
-Add explicit TNO population-count diagnostics, survey-bias caveats, reservoir export surfaces beyond the System Viewer readouts, and separate generated orbital-family distributions from the reviewed quantitative distribution. Keep the current implementation framed as a generator prior, not a DES reproduction.
+Add explicit TNO population-count diagnostics, survey-bias caveats, actual station/habitat records, reservoir export surfaces beyond the System Viewer readouts, and separate generated orbital-family distributions from the reviewed quantitative distribution. Keep the current implementation framed as a generator prior, not a DES reproduction.
