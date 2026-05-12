@@ -128,7 +128,7 @@ galactic zones near the bar resonance and in the outer halo).
 
 ## Current StarGen usage
 
-StarGen uses this source as Gaia-era context for diagnostic galactic dynamics surfaces. `GalaxyRotationCurveDiagnostic` now records inner/reference/outer velocity anchors and component velocity contributions with `diagnostic_proxy` status, while avoiding gravitational-potential, orbit-integration, star-placement, jump-route, or population effects.
+StarGen uses this source as Gaia-era context for diagnostic galactic dynamics surfaces. `GalaxyRotationCurveDiagnostic` records inner/reference/outer velocity anchors and component velocity contributions, and `GalaxyDynamicsDiagnostic` records pattern-speed, corotation, local mass-budget, and analog-comparison caveats with `diagnostic_proxy` status, while avoiding gravitational-potential, orbit-integration, star-placement, jump-route, or population effects.
 
 **Cross-references:** BlandHawthornGerhard2016.txt (predecessor review),
 KhoperskovEtAl2024.txt (bar parameters), Bovy2017.txt (disk mass model).

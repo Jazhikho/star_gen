@@ -19,6 +19,17 @@ Use this log for significant AI-assisted artifacts in this repository.
 
 ### 2026-05-12 - Codex (GPT-5)
 
+- Task Purpose: Finish the current non-behavioral galactic science-hardening schema and prepare the Galaxy Studio/Viewer behavior-change plan.
+- Input Materials Used: User request to continue and finish galactic-level science hardening; `claude.md`; user-provided AGENTS instructions; `GalaxyMassComponentBudget`; `GalaxyRotationCurveDiagnostic`; `GalaxyRealismProfile`; `GalaxyRealismProfileBuilder`; `GalaxySpec`; `TestGalaxyConfig`; `Sources/Texts/BlandHawthornGerhard2016.txt`; `Sources/Texts/Bovy2017.txt`; `Sources/Texts/KhoperskovEtAl2024.txt`; `Sources/Texts/HuntVasiliev2025.txt`; galactic science-audit docs; version metadata.
+- AI Produced: Added serialized `GalaxyDynamicsDiagnostic` records for bar pattern speed, corotation, local mass-budget proxies, analog calibration mode, non-Milky-Way comparison caveats, source/status metadata, and audit notes; added regression coverage; added `Docs/GalacticScienceBehaviorPlan.md`; updated docs, source notes, version surfaces, and provenance.
+- Human Accepted: Pending Christopher B. Del Gesso review.
+- Human Rejected: No active dynamics behavior, gravitational potential, orbit integration, star-placement change, route/population effect, or Galaxy Studio/Viewer UI change was added in this slice.
+- Human Changed: User directed completion of galactic diagnostic hardening and requested a plan for later Studio/Viewer behavior changes.
+- Validation Method: `dotnet build .\StarGen.sln` (`Build succeeded. 0 Warning(s), 0 Error(s).`); `godot-mono.exe --path . --headless --script res://Tests/RunTestsHeadless.gd` (`Total: 1915 | Passed: 1915 | Failed: 0`).
+- Final Approver: Pending Christopher B. Del Gesso review.
+
+### 2026-05-12 - Codex (GPT-5)
+
 - Task Purpose: Continue v0.11 galactic science hardening by adding diagnostic-only rotation-curve decomposition.
 - Input Materials Used: User request to continue; `claude.md`; user-provided AGENTS instructions; `GalaxyMassComponentBudget`; `GalaxyRealismProfile`; `GalaxyRealismProfileBuilder`; `GalaxySpec`; `TestGalaxyConfig`; `Sources/Texts/BlandHawthornGerhard2016.txt`; `Sources/Texts/HuntVasiliev2025.txt`; galactic science-audit docs; version metadata.
 - AI Produced: Added serialized `GalaxyRotationCurveDiagnostic` records for inner/reference/outer velocity anchors, disk/spheroid/gas/dark-matter velocity contributions, curve-shape label, source IDs/status, and audit notes; derived the diagnostic from the existing circular-velocity anchor and mass-component budget; added regression coverage; updated docs, source notes, version surfaces, and provenance.

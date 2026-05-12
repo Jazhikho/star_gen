@@ -54,6 +54,10 @@ public static class GalaxyRealismProfileBuilder
         profile.MetallicityGradientDexPerKpc = System.Math.Clamp(config.MetallicityGradientDexPerKpc, -0.12, -0.005);
         profile.MassComponentBudget = GalaxyMassComponentBudget.CreateDiagnostic(profile);
         profile.RotationCurveDiagnostic = GalaxyRotationCurveDiagnostic.CreateDiagnostic(profile, profile.MassComponentBudget);
+        profile.DynamicsDiagnostic = GalaxyDynamicsDiagnostic.CreateDiagnostic(
+            profile,
+            profile.MassComponentBudget,
+            profile.RotationCurveDiagnostic);
         return profile;
     }
 
@@ -78,6 +82,7 @@ public static class GalaxyRealismProfileBuilder
         spec.StellarMassSolar = profile.StellarMassSolar;
         spec.MassComponentBudget = profile.MassComponentBudget.Clone();
         spec.RotationCurveDiagnostic = profile.RotationCurveDiagnostic.Clone();
+        spec.DynamicsDiagnostic = profile.DynamicsDiagnostic.Clone();
         spec.SersicIndex = profile.SersicIndex;
         spec.EffectiveRadiusPc = profile.EffectiveRadiusPc;
         spec.BulgeToTotal = profile.BulgeToTotal;

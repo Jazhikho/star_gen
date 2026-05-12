@@ -1,12 +1,19 @@
 # Version
 
-Current version: `0.10.14.0`
+Current version: `0.10.15.0`
 
 Current user-facing version: `0.11`
 
 Date: `2026-05-12`
 
 Versioning method: release/refactor `+0.1`, feature `+0.0.1`, bug fix `+0.0.0.1`, save-breaking release `+1.0`.
+
+## 0.10.15.0
+
+- Feature: Added final diagnostic-only `GalaxyDynamicsDiagnostic` records to galaxy profiles/specs, including bar pattern speed, corotation radius, corotation/bar ratio, local baryonic/dark/total mass-density proxies, local surface-density proxy, analog calibration mode, non-Milky-Way comparison status, source IDs/status, and audit notes.
+- Feature: Completed the current non-behavioral galactic science-hardening schema by keeping mass, rotation, dynamics, local mass-budget, and comparison-status surfaces serializable while preserving existing generation behavior.
+- Docs: Added `Docs/GalacticScienceBehaviorPlan.md` for the required Galaxy Studio/Viewer and downstream behavior changes after diagnostic hardening.
+- Test: Added regression coverage for pattern-speed, corotation, local mass-budget, non-Milky-Way comparison caveats, and serialization. Revalidated with `dotnet build .\StarGen.sln` and the Godot headless harness (`Total: 1915 | Passed: 1915 | Failed: 0`).
 
 ## 0.10.14.0
 

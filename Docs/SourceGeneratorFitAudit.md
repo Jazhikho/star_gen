@@ -99,11 +99,16 @@ The note was normalized from the local HTML extraction and is flagged for PDF re
 - Added `GalaxyRotationCurveDiagnostic` as a diagnostic-only velocity-decomposition
   surface for inner/reference/outer velocity anchors and disk/spheroid/gas/dark-matter
   reference contributions.
-- The component budget and rotation diagnostic serialize through `GalaxyRealismProfile`
-  and `GalaxySpec`, but they do not yet drive star placement, density evaluation, jump
-  routes, population pressure, gravitational potential, or orbit integration.
+- Added `GalaxyDynamicsDiagnostic` as the final non-behavioral hardening surface for
+  bar pattern speed, corotation, local mass-density and surface-density proxies,
+  analog calibration mode, and non-Milky-Way comparison caveats.
+- The component budget, rotation diagnostic, and dynamics diagnostic serialize through
+  `GalaxyRealismProfile` and `GalaxySpec`, but they do not yet drive star placement,
+  density evaluation, jump routes, population pressure, gravitational potential, or
+  orbit integration.
 - Exact component ratios and velocity-contribution weights remain StarGen tuning pending
-  human verification of the Milky Way mass-budget and Gaia-era dynamics sources.
+  human verification of the Milky Way mass-budget and Gaia-era dynamics sources. The
+  required behavior work is tracked in `Docs/GalacticScienceBehaviorPlan.md`.
 
 ## Next Audit Targets
 

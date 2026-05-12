@@ -155,6 +155,11 @@ public partial class GalaxyRealismProfile : RefCounted
     public GalaxyRotationCurveDiagnostic RotationCurveDiagnostic { get; set; } = new GalaxyRotationCurveDiagnostic();
 
     /// <summary>
+    /// Diagnostic-only pattern-speed, corotation, local mass-budget, and analog-scope surface.
+    /// </summary>
+    public GalaxyDynamicsDiagnostic DynamicsDiagnostic { get; set; } = new GalaxyDynamicsDiagnostic();
+
+    /// <summary>
     /// Creates a dictionary payload for persistence and provenance.
     /// </summary>
     public Dictionary ToDictionary()
@@ -190,6 +195,7 @@ public partial class GalaxyRealismProfile : RefCounted
             ["milky_way_structure_source_status"] = MilkyWayStructureSourceStatus,
             ["mass_component_budget"] = MassComponentBudget.ToDictionary(),
             ["rotation_curve_diagnostic"] = RotationCurveDiagnostic.ToDictionary(),
+            ["dynamics_diagnostic"] = DynamicsDiagnostic.ToDictionary(),
         };
     }
 
@@ -257,6 +263,15 @@ public partial class GalaxyRealismProfile : RefCounted
         else
         {
             profile.RotationCurveDiagnostic = GalaxyRotationCurveDiagnostic.CreateDiagnostic(profile, profile.MassComponentBudget);
+        }
+
+        if (data.ContainsKey("dynamics_diagnostic") && data["dynamics_diagnostic"].VariantType == Variant.Type.Dictionary)
+        {
+            profile.DynamicsDiagnostic = GalaxyDynamicsDiagnostic.FromDictionary((Dictionary)data["dynamics_diagnostic"]);
+        }
+        else
+        {
+            profile.DynamicsDiagnostic = GalaxyDynamicsDiagnostic.CreateDiagnostic(profile, profile.MassComponentBudget, profile.RotationCurveDiagnostic);
         }
 
         return profile;

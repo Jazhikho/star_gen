@@ -192,6 +192,11 @@ public partial class GalaxySpec : RefCounted
     public GalaxyRotationCurveDiagnostic RotationCurveDiagnostic { get; set; } = new GalaxyRotationCurveDiagnostic();
 
     /// <summary>
+    /// Diagnostic-only galaxy dynamics, local mass-budget, and analog-scope surface.
+    /// </summary>
+    public GalaxyDynamicsDiagnostic DynamicsDiagnostic { get; set; } = new GalaxyDynamicsDiagnostic();
+
+    /// <summary>
     /// Sérsic index of the dominant spheroid.
     /// </summary>
     public double SersicIndex { get; set; } = 2.5;
@@ -315,6 +320,7 @@ public partial class GalaxySpec : RefCounted
             ["stellar_mass_solar"] = StellarMassSolar,
             ["mass_component_budget"] = MassComponentBudget.ToDictionary(),
             ["rotation_curve_diagnostic"] = RotationCurveDiagnostic.ToDictionary(),
+            ["dynamics_diagnostic"] = DynamicsDiagnostic.ToDictionary(),
             ["sersic_index"] = SersicIndex,
             ["effective_radius_pc"] = EffectiveRadiusPc,
             ["bulge_to_total"] = BulgeToTotal,
@@ -436,6 +442,15 @@ public partial class GalaxySpec : RefCounted
         else
         {
             spec.RotationCurveDiagnostic = spec.RealismProfile.RotationCurveDiagnostic.Clone();
+        }
+
+        if (data.ContainsKey("dynamics_diagnostic") && data["dynamics_diagnostic"].VariantType == Variant.Type.Dictionary)
+        {
+            spec.DynamicsDiagnostic = GalaxyDynamicsDiagnostic.FromDictionary((Dictionary)data["dynamics_diagnostic"]);
+        }
+        else
+        {
+            spec.DynamicsDiagnostic = spec.RealismProfile.DynamicsDiagnostic.Clone();
         }
 
         if (data.ContainsKey("stellar_profile") && data["stellar_profile"].VariantType == Variant.Type.Dictionary)

@@ -107,7 +107,7 @@ with full-text extraction (PDF when retrievable, otherwise HTML full text).
 
 **APA:** Bland-Hawthorn, J., & Gerhard, O. (2016). The galaxy in context: structural and kinematic properties of the Milky Way. Annual Review of Astronomy and Astrophysics, 54, 529-596. https://doi.org/10.1146/annurev-astro-081915-023441
 
-**StarGen annotation:** Partly implemented as the active Milky-Way structural schema anchor. StarGen now carries thin/thick disk scale lengths and heights, explicit bar half-length, solar-circle radius, circular velocity at the solar circle, stellar-mass scale, diagnostic mass-component budgets, and diagnostic rotation-curve decomposition through `GalaxySpec` and `GalaxyRealismProfile`; disk/bar density and bar-region classification use the structural fields. Calibrated nuclear cluster/disk structure, halo decomposition, pattern speed/corotation, gravitational potential, orbit integration, and source-fitted local-mass-budget modeling remain follow-up.
+**StarGen annotation:** Partly implemented as the active Milky-Way structural schema anchor. StarGen now carries thin/thick disk scale lengths and heights, explicit bar half-length, solar-circle radius, circular velocity at the solar circle, stellar-mass scale, diagnostic mass-component budgets, diagnostic rotation-curve decomposition, diagnostic dynamics/local-mass fields, and non-Milky-Way comparison caveats through `GalaxySpec` and `GalaxyRealismProfile`; disk/bar density and bar-region classification use the structural fields. Calibrated nuclear cluster/disk structure, halo decomposition, gravitational potential, orbit integration, source-fitted active local-mass behavior, and family-specific comparison behavior remain follow-up.
 
 
 ## Bovy2017
@@ -1054,7 +1054,7 @@ require human verification against the PDF or NASA ADS.*
 
 **APA:** Hunt, J. A. S., & Vasiliev, E. (2025). Milky Way dynamics in light of Gaia. New Astronomy Reviews, 100, 101721. https://doi.org/10.1016/j.newar.2025.101721
 
-**StarGen annotation:** Post-Gaia review of Milky Way galactic dynamics: disk, bar, and halo kinematics now mapped across large volumes. Bar pattern speed uncertain (35–55 km/s/kpc); dark halo mass 0.7–1.5×10¹² M⊙. Velocity dispersion by disk component (thin disk, thick disk, halo). Partly implemented only as diagnostic rotation-curve context; calibrated potential, orbit integration, pattern speed/corotation, and disequilibrium modeling remain follow-up. Supersedes BlandHawthornGerhard2016 for kinematic profiles.
+**StarGen annotation:** Post-Gaia review of Milky Way galactic dynamics: disk, bar, and halo kinematics now mapped across large volumes. Bar pattern speed uncertain (35–55 km/s/kpc); dark halo mass 0.7–1.5×10¹² M⊙. Velocity dispersion by disk component (thin disk, thick disk, halo). Partly implemented only as diagnostic rotation/dynamics context, including pattern-speed/corotation and local-mass proxy fields; calibrated potential, orbit integration, active context effects, and disequilibrium modeling remain follow-up. Supersedes BlandHawthornGerhard2016 for kinematic profiles.
 
 
 ## KhoperskovEtAl2024

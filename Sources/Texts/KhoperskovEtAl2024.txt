@@ -151,3 +151,7 @@ redshift is sampled, bar strength follows predictably.
 
 **Cross-references:** HuntVasiliev2025.txt (Gaia bar constraints), BlandHawthornGerhard2016.txt
 (MW structural parameters), WeggGerhard2013.txt (bar morphology).
+
+## Current StarGen usage
+
+StarGen uses this source as context for diagnostic bar-dynamics fields only. `GalaxyDynamicsDiagnostic` now records pattern-speed and corotation proxies with `diagnostic_proxy` status, but those fields do not yet affect star placement, local region context, jump routes, populations, or orbital behavior.

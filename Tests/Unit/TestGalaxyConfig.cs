@@ -218,6 +218,41 @@ public static class TestGalaxyConfig
     }
 
     /// <summary>
+    /// Tests that final galaxy dynamics diagnostics carry pattern, local-budget, and analog-scope caveats.
+    /// </summary>
+    public static void TestGalaxyDynamicsDiagnosticClosesRemainingAuditSurface()
+    {
+        GalaxyConfig config = GalaxyConfig.CreateMilkyWay();
+        GalaxySpec spec = GalaxySpec.CreateFromConfig(config, 15103);
+        GalaxyDynamicsDiagnostic diagnostic = spec.DynamicsDiagnostic;
+
+        DotNetNativeTestSuite.AssertNotNull(diagnostic, "spec should carry final dynamics diagnostics");
+        DotNetNativeTestSuite.AssertTrue(diagnostic.BarPatternSpeedKmSPerKpc >= 25.0, "barred Milky Way analog should carry a pattern-speed diagnostic");
+        DotNetNativeTestSuite.AssertTrue(diagnostic.CorotationRadiusPc > spec.BarHalfLengthPc, "corotation should sit beyond bar half-length for the diagnostic proxy");
+        DotNetNativeTestSuite.AssertTrue(diagnostic.CorotationToBarLengthRatio > 1.0, "corotation ratio should be greater than one for barred disks");
+        DotNetNativeTestSuite.AssertTrue(diagnostic.LocalTotalMassDensitySolarPerPc3 > diagnostic.LocalBaryonicMassDensitySolarPerPc3, "local total density should include dark matter");
+        DotNetNativeTestSuite.AssertTrue(diagnostic.LocalDarkMatterDensitySolarPerPc3 > 0.0, "local dark-matter density should be present");
+        DotNetNativeTestSuite.AssertTrue(diagnostic.LocalSurfaceDensitySolarPerPc2 > 0.0, "local surface-density proxy should be present");
+        DotNetNativeTestSuite.AssertEqual("milky_way_analog", diagnostic.AnalogCalibrationMode, "default Sb spiral should identify as Milky Way analog calibrated");
+        DotNetNativeTestSuite.AssertEqual("milky_way_anchor_only", diagnostic.NonMilkyWayComparisonStatus, "default analog should still declare its Milky Way anchor");
+        DotNetNativeTestSuite.AssertEqual("diagnostic_proxy", diagnostic.SourceStatus, "dynamics diagnostic should be labeled diagnostic-only");
+        DotNetNativeTestSuite.AssertTrue(diagnostic.SourceIds.Contains("KhoperskovEtAl2024"), "dynamics diagnostic should cite the bar-dynamics context");
+        DotNetNativeTestSuite.AssertTrue(diagnostic.Notes.Contains("not a gravitational potential"), "dynamics notes should prevent behavior overclaiming");
+
+        GalaxyConfig ellipticalConfig = GalaxyConfig.CreateMilkyWay();
+        ellipticalConfig.Type = GalaxySpec.GalaxyType.Elliptical;
+        GalaxySpec ellipticalSpec = GalaxySpec.CreateFromConfig(ellipticalConfig, 15103);
+        DotNetNativeTestSuite.AssertEqual(0.0, ellipticalSpec.DynamicsDiagnostic.BarPatternSpeedKmSPerKpc, "unbarred elliptical should not claim a bar pattern speed");
+        DotNetNativeTestSuite.AssertEqual("family_proxy_pending_comparison", ellipticalSpec.DynamicsDiagnostic.AnalogCalibrationMode, "non-Sb families should be marked as comparison-pending proxies");
+        DotNetNativeTestSuite.AssertEqual("needs_non_milky_way_comparison_sources", ellipticalSpec.DynamicsDiagnostic.NonMilkyWayComparisonStatus, "non-Sb families should carry comparison-source caveats");
+
+        Dictionary specData = spec.ToDictionary();
+        GalaxySpec restored = GalaxySpec.FromDictionary(specData);
+        DotNetNativeTestSuite.AssertEqual(diagnostic.BarPatternSpeedKmSPerKpc, restored.DynamicsDiagnostic.BarPatternSpeedKmSPerKpc, "spec dynamics diagnostic should survive round-trip");
+        DotNetNativeTestSuite.AssertEqual(diagnostic.NonMilkyWayComparisonStatus, restored.RealismProfile.DynamicsDiagnostic.NonMilkyWayComparisonStatus, "profile dynamics diagnostic should survive round-trip");
+    }
+
+    /// <summary>
     /// Tests that galaxy-family names include the new lenticular and irregular labels.
     /// </summary>
     public static void TestGetTypeNameIncludesExpandedFamilies()
