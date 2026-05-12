@@ -832,6 +832,9 @@ public static partial class DotNetNativeTestSuite
             "TestGalaxyConfig::test_galaxy_mass_component_budget_is_diagnostic_and_serializable",
             Tests.Unit.TestGalaxyConfig.TestGalaxyMassComponentBudgetIsDiagnosticAndSerializable);
         runner.RunNativeTest(
+            "TestGalaxyConfig::test_galaxy_rotation_curve_diagnostic_is_serializable_and_non_behavioral",
+            Tests.Unit.TestGalaxyConfig.TestGalaxyRotationCurveDiagnosticIsSerializableAndNonBehavioral);
+        runner.RunNativeTest(
             "TestGalaxyConfig::test_get_type_name_includes_expanded_families",
             Tests.Unit.TestGalaxyConfig.TestGetTypeNameIncludesExpandedFamilies);
         runner.RunNativeTest(

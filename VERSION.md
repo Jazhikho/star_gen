@@ -1,12 +1,19 @@
 # Version
 
-Current version: `0.10.13.0`
+Current version: `0.10.14.0`
 
 Current user-facing version: `0.11`
 
 Date: `2026-05-12`
 
 Versioning method: release/refactor `+0.1`, feature `+0.0.1`, bug fix `+0.0.0.1`, save-breaking release `+1.0`.
+
+## 0.10.14.0
+
+- Feature: Added diagnostic-only `GalaxyRotationCurveDiagnostic` records to galaxy profiles/specs, including inner/reference/outer velocity anchors, component velocity contributions, curve-shape label, source IDs/status, and audit notes.
+- Feature: Resolved galaxy realism profiles now derive the rotation diagnostic from the existing circular-velocity anchor and mass-component budget without changing star placement, density evaluation, jump routes, populations, or orbit behavior.
+- Docs: Updated galactic science docs, source notes, project structure, and provenance to mark rotation-curve diagnostics as present while keeping calibrated potential/dynamics work deferred.
+- Test: Added regression coverage for diagnostic galaxy rotation curves and serialization. Revalidated with `dotnet build .\StarGen.sln` and the Godot headless harness (`Total: 1914 | Passed: 1914 | Failed: 0`).
 
 ## 0.10.13.0
 

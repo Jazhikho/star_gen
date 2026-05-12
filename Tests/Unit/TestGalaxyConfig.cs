@@ -192,6 +192,32 @@ public static class TestGalaxyConfig
     }
 
     /// <summary>
+    /// Tests that galaxy profiles carry diagnostic-only rotation-curve decomposition fields.
+    /// </summary>
+    public static void TestGalaxyRotationCurveDiagnosticIsSerializableAndNonBehavioral()
+    {
+        GalaxyConfig config = GalaxyConfig.CreateMilkyWay();
+        GalaxySpec spec = GalaxySpec.CreateFromConfig(config, 15102);
+        GalaxyRotationCurveDiagnostic diagnostic = spec.RotationCurveDiagnostic;
+
+        DotNetNativeTestSuite.AssertNotNull(diagnostic, "spec should carry a rotation-curve diagnostic");
+        DotNetNativeTestSuite.AssertEqual(spec.SolarGalactocentricRadiusPc, diagnostic.ReferenceRadiusPc, "rotation diagnostic should use the configured reference radius");
+        DotNetNativeTestSuite.AssertEqual(spec.CircularVelocityAtSolarRadiusKmS, diagnostic.ReferenceVelocityKmS, "rotation diagnostic should preserve the existing circular-velocity anchor");
+        DotNetNativeTestSuite.AssertTrue(diagnostic.InnerVelocityKmS > 0.0, "inner velocity diagnostic should be positive");
+        DotNetNativeTestSuite.AssertTrue(diagnostic.OuterVelocityKmS > 0.0, "outer velocity diagnostic should be positive");
+        DotNetNativeTestSuite.AssertTrue(diagnostic.DarkMatterContributionKmS > diagnostic.GasContributionKmS, "dark-matter contribution should dominate gas in the default diagnostic proxy");
+        DotNetNativeTestSuite.AssertTrue(diagnostic.DiskContributionKmS > 0.0, "disk contribution should be present for the Milky Way analog");
+        DotNetNativeTestSuite.AssertEqual("diagnostic_proxy", diagnostic.SourceStatus, "rotation diagnostic should be labeled diagnostic-only");
+        DotNetNativeTestSuite.AssertTrue(diagnostic.SourceIds.Contains("HuntVasiliev2025"), "rotation diagnostic should cite the Gaia-era dynamics context");
+        DotNetNativeTestSuite.AssertTrue(diagnostic.Notes.Contains("not a gravitational potential"), "rotation diagnostic notes should prevent dynamics overclaiming");
+
+        Dictionary specData = spec.ToDictionary();
+        GalaxySpec restored = GalaxySpec.FromDictionary(specData);
+        DotNetNativeTestSuite.AssertEqual(diagnostic.ReferenceVelocityKmS, restored.RotationCurveDiagnostic.ReferenceVelocityKmS, "spec rotation diagnostic should survive round-trip");
+        DotNetNativeTestSuite.AssertEqual(diagnostic.CurveShape, restored.RealismProfile.RotationCurveDiagnostic.CurveShape, "profile rotation diagnostic should survive round-trip");
+    }
+
+    /// <summary>
     /// Tests that galaxy-family names include the new lenticular and irregular labels.
     /// </summary>
     public static void TestGetTypeNameIncludesExpandedFamilies()

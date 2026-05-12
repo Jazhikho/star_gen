@@ -126,5 +126,9 @@ galactic zones near the bar resonance and in the outer halo).
 3. Outer halo sectors may contain stellar stream populations
 4. Expose MW halo mass as a tunable parameter (range: 0.7–1.5×10¹² M⊙)
 
+## Current StarGen usage
+
+StarGen uses this source as Gaia-era context for diagnostic galactic dynamics surfaces. `GalaxyRotationCurveDiagnostic` now records inner/reference/outer velocity anchors and component velocity contributions with `diagnostic_proxy` status, while avoiding gravitational-potential, orbit-integration, star-placement, jump-route, or population effects.
+
 **Cross-references:** BlandHawthornGerhard2016.txt (predecessor review),
 KhoperskovEtAl2024.txt (bar parameters), Bovy2017.txt (disk mass model).

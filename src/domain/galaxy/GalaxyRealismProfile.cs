@@ -150,6 +150,11 @@ public partial class GalaxyRealismProfile : RefCounted
     public GalaxyMassComponentBudget MassComponentBudget { get; set; } = new GalaxyMassComponentBudget();
 
     /// <summary>
+    /// Diagnostic-only rotation-curve decomposition used by science audits and future dynamics work.
+    /// </summary>
+    public GalaxyRotationCurveDiagnostic RotationCurveDiagnostic { get; set; } = new GalaxyRotationCurveDiagnostic();
+
+    /// <summary>
     /// Creates a dictionary payload for persistence and provenance.
     /// </summary>
     public Dictionary ToDictionary()
@@ -184,6 +189,7 @@ public partial class GalaxyRealismProfile : RefCounted
             ["stellar_mass_solar"] = StellarMassSolar,
             ["milky_way_structure_source_status"] = MilkyWayStructureSourceStatus,
             ["mass_component_budget"] = MassComponentBudget.ToDictionary(),
+            ["rotation_curve_diagnostic"] = RotationCurveDiagnostic.ToDictionary(),
         };
     }
 
@@ -242,6 +248,15 @@ public partial class GalaxyRealismProfile : RefCounted
         else
         {
             profile.MassComponentBudget = GalaxyMassComponentBudget.CreateDiagnostic(profile);
+        }
+
+        if (data.ContainsKey("rotation_curve_diagnostic") && data["rotation_curve_diagnostic"].VariantType == Variant.Type.Dictionary)
+        {
+            profile.RotationCurveDiagnostic = GalaxyRotationCurveDiagnostic.FromDictionary((Dictionary)data["rotation_curve_diagnostic"]);
+        }
+        else
+        {
+            profile.RotationCurveDiagnostic = GalaxyRotationCurveDiagnostic.CreateDiagnostic(profile, profile.MassComponentBudget);
         }
 
         return profile;
