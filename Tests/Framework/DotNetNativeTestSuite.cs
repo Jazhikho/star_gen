@@ -874,8 +874,8 @@ public static partial class DotNetNativeTestSuite
             "TestGalacticScienceBehaviorPlan::test_p2p_diagnostic_only_fields_do_not_change_origin_context",
             Tests.Unit.TestGalacticScienceBehaviorPlan.TestP2PDiagnosticOnlyFieldsDoNotChangeOriginContext);
         runner.RunNativeTest(
-            "TestGalacticScienceBehaviorPlan::test_p2p_non_milky_way_families_carry_comparison_caveats",
-            Tests.Unit.TestGalacticScienceBehaviorPlan.TestP2PNonMilkyWayFamiliesCarryComparisonCaveats);
+            "TestGalacticScienceBehaviorPlan::test_p2p_non_milky_way_families_carry_comparison_presets",
+            Tests.Unit.TestGalacticScienceBehaviorPlan.TestP2PNonMilkyWayFamiliesCarryComparisonPresets);
         runner.RunNativeTest(
             "TestGalacticScienceBehaviorPlan::test_plan_contract_covers_studio_viewer_and_domain_gates",
             Tests.Unit.TestGalacticScienceBehaviorPlan.TestPlanContractCoversStudioViewerAndDomainGates);

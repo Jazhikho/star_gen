@@ -243,8 +243,8 @@ public static class TestGalaxyConfig
         ellipticalConfig.Type = GalaxySpec.GalaxyType.Elliptical;
         GalaxySpec ellipticalSpec = GalaxySpec.CreateFromConfig(ellipticalConfig, 15103);
         DotNetNativeTestSuite.AssertEqual(0.0, ellipticalSpec.DynamicsDiagnostic.BarPatternSpeedKmSPerKpc, "unbarred elliptical should not claim a bar pattern speed");
-        DotNetNativeTestSuite.AssertEqual("family_proxy_pending_comparison", ellipticalSpec.DynamicsDiagnostic.AnalogCalibrationMode, "non-Sb families should be marked as comparison-pending proxies");
-        DotNetNativeTestSuite.AssertEqual("needs_non_milky_way_comparison_sources", ellipticalSpec.DynamicsDiagnostic.NonMilkyWayComparisonStatus, "non-Sb families should carry comparison-source caveats");
+        DotNetNativeTestSuite.AssertEqual("elliptical_family_comparison_preset", ellipticalSpec.DynamicsDiagnostic.AnalogCalibrationMode, "non-Sb families should resolve comparison presets");
+        DotNetNativeTestSuite.AssertEqual("elliptical_comparison_sources", ellipticalSpec.DynamicsDiagnostic.NonMilkyWayComparisonStatus, "non-Sb families should carry comparison-source status");
 
         Dictionary specData = spec.ToDictionary();
         GalaxySpec restored = GalaxySpec.FromDictionary(specData);

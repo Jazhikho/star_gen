@@ -197,6 +197,11 @@ public partial class GalaxySpec : RefCounted
     public GalaxyDynamicsDiagnostic DynamicsDiagnostic { get; set; } = new GalaxyDynamicsDiagnostic();
 
     /// <summary>
+    /// Controls whether diagnostic galaxy dynamics are readout-only or can affect downstream behavior.
+    /// </summary>
+    public GalaxyDynamicsBehaviorMode DynamicsBehaviorMode { get; set; } = GalaxyDynamicsBehaviorMode.DiagnosticsOnly;
+
+    /// <summary>
     /// Sérsic index of the dominant spheroid.
     /// </summary>
     public double SersicIndex { get; set; } = 2.5;
@@ -321,6 +326,7 @@ public partial class GalaxySpec : RefCounted
             ["mass_component_budget"] = MassComponentBudget.ToDictionary(),
             ["rotation_curve_diagnostic"] = RotationCurveDiagnostic.ToDictionary(),
             ["dynamics_diagnostic"] = DynamicsDiagnostic.ToDictionary(),
+            ["dynamics_behavior_mode"] = GalaxyDynamicsBehaviorModePersistence.ToPersistenceString(DynamicsBehaviorMode),
             ["sersic_index"] = SersicIndex,
             ["effective_radius_pc"] = EffectiveRadiusPc,
             ["bulge_to_total"] = BulgeToTotal,
@@ -379,6 +385,8 @@ public partial class GalaxySpec : RefCounted
             StarFormationEfficiency = DomainDictionaryUtils.GetDouble(data, "star_formation_efficiency", 0.1),
             ClusterMassFunctionSlope = DomainDictionaryUtils.GetDouble(data, "cluster_mass_function_slope", 2.0),
             ClusterDissolutionTimescaleMyr = DomainDictionaryUtils.GetDouble(data, "cluster_dissolution_timescale_myr", 10.0),
+            DynamicsBehaviorMode = GalaxyDynamicsBehaviorModePersistence.FromPersistenceString(
+                DomainDictionaryUtils.GetString(data, "dynamics_behavior_mode", "diagnostics_only")),
         };
 
         int typeValue = DomainDictionaryUtils.GetInt(data, "galaxy_type", (int)GalaxyType.Spiral);

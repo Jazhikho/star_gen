@@ -120,6 +120,7 @@ public partial class GalaxyInspectorPanel : VBoxContainer
 		AddProperty(_overviewContainer, "Spiral Arms", spec.NumArms.ToString());
 		AddProperty(_overviewContainer, "Arm Pitch", $"{spec.ArmPitchAngleDeg:0.0} deg");
 		AddUseCaseOverview(_overviewContainer, _editableConfig?.UseCaseSettings);
+		BuildScienceDiagnostics(_overviewContainer, spec);
 		AddProperty(_overviewContainer, "View", GetZoomLevelName(zoomLevel));
 	}
 
@@ -166,6 +167,27 @@ public partial class GalaxyInspectorPanel : VBoxContainer
 		}
 
 		AddProperty(_overviewContainer, "View", GetZoomLevelName(zoomLevel));
+	}
+
+	private static void BuildScienceDiagnostics(VBoxContainer container, GalaxySpec spec)
+	{
+		AddProperty(container, "Science Diagnostics", "ReadOnly");
+		AddProperty(
+			container,
+			"Structure",
+			$"{GalaxyRealismProfileBuilder.GetSubtypeLabel(spec.ResolvedSubtype)} | GHZ {spec.GhzInnerRadiusPc:0}-{spec.GhzOuterRadiusPc:0} pc | metallicity gradient {spec.MetallicityGradientDexPerKpc:0.000} dex/kpc | stellar mass {spec.StellarMassSolar:0.00e0} Msun | disk/bar fields {spec.ThinDiskScaleLengthPc:0} pc/{spec.BarHalfLengthPc:0} pc");
+		AddProperty(
+			container,
+			"Mass Budget",
+			$"baryonic {spec.MassComponentBudget.BaryonicMassSolar:0.00e0} Msun | dark halo {spec.MassComponentBudget.DarkMatterHaloMassSolar:0.00e0} Msun | stellar disk {spec.MassComponentBudget.StellarDiskMassSolar:0.00e0} Msun | spheroid {spec.MassComponentBudget.StellarSpheroidMassSolar:0.00e0} Msun | gas fractions {spec.MassComponentBudget.GasFraction:0.00}");
+		AddProperty(
+			container,
+			"Rotation",
+			$"reference {spec.RotationCurveDiagnostic.ReferenceVelocityKmS:0} km/s | inner/outer {spec.RotationCurveDiagnostic.InnerVelocityKmS:0}/{spec.RotationCurveDiagnostic.OuterVelocityKmS:0} km/s | disk/spheroid/gas/dark {spec.RotationCurveDiagnostic.DiskContributionKmS:0}/{spec.RotationCurveDiagnostic.SpheroidContributionKmS:0}/{spec.RotationCurveDiagnostic.GasContributionKmS:0}/{spec.RotationCurveDiagnostic.DarkMatterContributionKmS:0} km/s | curve shape {spec.RotationCurveDiagnostic.CurveShape}");
+		AddProperty(
+			container,
+			"Dynamics",
+			$"pattern speed {spec.DynamicsDiagnostic.BarPatternSpeedKmSPerKpc:0.0} km/s/kpc | corotation {spec.DynamicsDiagnostic.CorotationRadiusPc:0} pc | local density {spec.DynamicsDiagnostic.LocalTotalMassDensitySolarPerPc3:0.000} Msun/pc^3 | analog calibration {spec.DynamicsDiagnostic.AnalogCalibrationMode} | mode {GalaxyDynamicsBehaviorModePersistence.ToPersistenceString(spec.DynamicsBehaviorMode)}");
 	}
 
 	/// <summary>

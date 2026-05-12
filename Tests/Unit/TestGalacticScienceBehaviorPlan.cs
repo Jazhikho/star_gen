@@ -83,9 +83,9 @@ public static class TestGalacticScienceBehaviorPlan
     }
 
     /// <summary>
-    /// P2P: every non-Sb family currently exposes comparison-source caveats before active behavior.
+    /// P2P: every non-Sb family exposes a comparison-calibration preset before active behavior.
     /// </summary>
-    public static void TestP2PNonMilkyWayFamiliesCarryComparisonCaveats()
+    public static void TestP2PNonMilkyWayFamiliesCarryComparisonPresets()
     {
         GalaxyConfig[] configs = new GalaxyConfig[]
         {
@@ -99,8 +99,8 @@ public static class TestGalacticScienceBehaviorPlan
         {
             GalaxySpec spec = GalaxySpec.CreateFromConfig(configs[index], 18104 + index);
             DotNetNativeTestSuite.AssertTrue(spec.ResolvedSubtype != GalaxyResolvedSubtype.SpiralSb, $"test config {index} should exercise a non-Sb subtype");
-            DotNetNativeTestSuite.AssertEqual("family_proxy_pending_comparison", spec.DynamicsDiagnostic.AnalogCalibrationMode, $"non-Sb config {index} should not claim Milky Way analog calibration");
-            DotNetNativeTestSuite.AssertEqual("needs_non_milky_way_comparison_sources", spec.DynamicsDiagnostic.NonMilkyWayComparisonStatus, $"non-Sb config {index} should carry source caveat");
+            DotNetNativeTestSuite.AssertTrue(spec.DynamicsDiagnostic.AnalogCalibrationMode.Contains("comparison_preset"), $"non-Sb config {index} should resolve a comparison preset");
+            DotNetNativeTestSuite.AssertTrue(spec.DynamicsDiagnostic.NonMilkyWayComparisonStatus.Contains("comparison_sources"), $"non-Sb config {index} should carry comparison-source status");
         }
     }
 

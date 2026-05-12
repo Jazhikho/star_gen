@@ -47,8 +47,51 @@ public static class GalaxyScientificFieldEvaluator
         context.CircularVelocityAtSolarRadiusKmS = profile.CircularVelocityAtSolarRadiusKmS;
         context.LocalDensityRatio = CalculateLocalDensityRatio(normalizedRadius, normalizedHeight, galaxySpec, context);
         context.LocalStarFormationEfficiency = CalculateLocalStarFormationEfficiency(context, profile);
+        ApplyDynamicsDiagnostics(context, galaxySpec);
+        ApplyDynamicsBehaviorEffects(context, galaxySpec);
         context.StellarProfile = ResolveLocalStellarProfile(galaxySpec, context);
         return context;
+    }
+
+    private static void ApplyDynamicsDiagnostics(GalaxyOriginContext context, GalaxySpec galaxySpec)
+    {
+        GalaxyDynamicsDiagnostic diagnostic = galaxySpec.DynamicsDiagnostic ?? new GalaxyDynamicsDiagnostic();
+        context.DynamicsBehaviorMode = galaxySpec.DynamicsBehaviorMode;
+        context.LocalTotalMassDensitySolarPerPc3 = diagnostic.LocalTotalMassDensitySolarPerPc3;
+        context.LocalBaryonicMassDensitySolarPerPc3 = diagnostic.LocalBaryonicMassDensitySolarPerPc3;
+        context.LocalDarkMatterDensitySolarPerPc3 = diagnostic.LocalDarkMatterDensitySolarPerPc3;
+        context.LocalSurfaceDensitySolarPerPc2 = diagnostic.LocalSurfaceDensitySolarPerPc2;
+        context.BarPatternSpeedKmSPerKpc = diagnostic.BarPatternSpeedKmSPerKpc;
+        context.CorotationRadiusPc = diagnostic.CorotationRadiusPc;
+        context.AnalogCalibrationMode = diagnostic.AnalogCalibrationMode;
+    }
+
+    private static void ApplyDynamicsBehaviorEffects(GalaxyOriginContext context, GalaxySpec galaxySpec)
+    {
+        if (galaxySpec.DynamicsBehaviorMode == GalaxyDynamicsBehaviorMode.DiagnosticsOnly)
+        {
+            return;
+        }
+
+        double densityPressure = System.Math.Clamp(context.LocalTotalMassDensitySolarPerPc3 / 0.10, 0.5, 2.5);
+        double darkMatterShare = 0.0;
+        if (context.LocalTotalMassDensitySolarPerPc3 > 0.0)
+        {
+            darkMatterShare = context.LocalDarkMatterDensitySolarPerPc3 / context.LocalTotalMassDensitySolarPerPc3;
+        }
+
+        context.LocalDensityRatio = System.Math.Clamp(context.LocalDensityRatio * densityPressure, 0.05, 10.0);
+        context.HazardWeight = System.Math.Clamp(context.HazardWeight + (darkMatterShare * 0.08), 0.0, 1.0);
+        context.ClusterProbability = System.Math.Clamp(context.ClusterProbability * (0.95 + (densityPressure * 0.08)), 0.02, 0.9);
+        context.LocalStarFormationEfficiency = System.Math.Clamp(
+            context.LocalStarFormationEfficiency * (0.95 + (densityPressure * 0.05)),
+            0.05,
+            0.65);
+
+        if (galaxySpec.DynamicsBehaviorMode == GalaxyDynamicsBehaviorMode.AffectPlacement)
+        {
+            context.HazardWeight = System.Math.Clamp(context.HazardWeight + 0.03, 0.0, 1.0);
+        }
     }
 
     private static StellarGenerationProfile ResolveLocalStellarProfile(GalaxySpec galaxySpec, GalaxyOriginContext context)

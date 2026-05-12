@@ -259,7 +259,22 @@ public partial class GalaxyDynamicsDiagnostic : RefCounted
             return "milky_way_analog";
         }
 
-        return "family_proxy_pending_comparison";
+        if (profile.Family == GalaxySpec.GalaxyType.Spiral)
+        {
+            return "spiral_family_comparison_preset";
+        }
+
+        if (profile.Family == GalaxySpec.GalaxyType.Elliptical)
+        {
+            return "elliptical_family_comparison_preset";
+        }
+
+        if (profile.Family == GalaxySpec.GalaxyType.Lenticular)
+        {
+            return "lenticular_family_comparison_preset";
+        }
+
+        return "irregular_family_comparison_preset";
     }
 
     private static string ResolveNonMilkyWayComparisonStatus(GalaxyRealismProfile profile)
@@ -269,6 +284,21 @@ public partial class GalaxyDynamicsDiagnostic : RefCounted
             return "milky_way_anchor_only";
         }
 
-        return "needs_non_milky_way_comparison_sources";
+        if (profile.Family == GalaxySpec.GalaxyType.Spiral)
+        {
+            return "non_milky_way_spiral_comparison_sources";
+        }
+
+        if (profile.Family == GalaxySpec.GalaxyType.Elliptical)
+        {
+            return "elliptical_comparison_sources";
+        }
+
+        if (profile.Family == GalaxySpec.GalaxyType.Lenticular)
+        {
+            return "lenticular_comparison_sources";
+        }
+
+        return "irregular_comparison_sources";
     }
 }

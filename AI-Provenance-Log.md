@@ -19,6 +19,17 @@ Use this log for significant AI-assisted artifacts in this repository.
 
 ### 2026-05-12 - Codex (GPT-5)
 
+- Task Purpose: Implement the full current Galactic Science Behavior plan and make P2P/F2P tests pass.
+- Input Materials Used: User directive to complete the plan; `claude.md`; user-provided AGENTS instructions; `Docs/GalacticScienceBehaviorPlan.md`; F2P/P2P test suites; `GalaxySpec`; `GalaxyOriginContext`; `GalaxyScientificFieldEvaluator`; `DensitySampler`; `GalaxyDynamicsDiagnostic`; Galaxy Studio science code; Galaxy Viewer inspector/local-space code.
+- AI Produced: Added serialized `GalaxyDynamicsBehaviorMode`, behavior-mode save helpers, origin-context dynamics annotations, diagnostics-only/region-context/placement behavior separation, explicit placement adjustment mode, non-Milky-Way comparison presets, Studio resolved diagnostics/help text, Viewer science diagnostics readouts, local-space diagnostic annotation messaging, and overlay surface declarations; updated docs, source plan, version metadata, and tests.
+- Human Accepted: Pending Christopher B. Del Gesso review.
+- Human Rejected: No route-risk or population-pressure behavior consumes the diagnostics in this slice; those remain reviewed follow-up work.
+- Human Changed: User required the full plan to be complete before the task could be considered done.
+- Validation Method: `dotnet build .\StarGen.sln` (`Build succeeded. 0 Warning(s), 0 Error(s).`); default `godot-mono.exe --path . --headless --script res://Tests/RunTestsHeadless.gd` (`Total: 1921 | Passed: 1921 | Failed: 0`); explicit F2P harness `godot-mono.exe --path . --headless --script res://Tests/RunTestsHeadless.gd -- f2p` (`Total: 13 | Passed: 13 | Failed: 0`).
+- Final Approver: Pending Christopher B. Del Gesso review.
+
+### 2026-05-12 - Codex (GPT-5)
+
 - Task Purpose: Add any missing F2P tests before implementing the full Galactic Science Behavior plan.
 - Input Materials Used: User request to complete missing F2P coverage; `claude.md`; user-provided AGENTS instructions; `Docs/GalacticScienceBehaviorPlan.md`; existing F2P suite and harness; galaxy domain, Studio, Viewer, local-space, and route source files.
 - AI Produced: Expanded the explicit F2P baseline from six to thirteen tests, adding behavior-mode value coverage, diagnostics-only placement stability, region-context-only behavior, explicit placement-mode behavior, Studio help/source copy, Viewer readout non-mutation, and local-space diagnostic annotation requirements.

@@ -18,27 +18,60 @@ public static class DensitySampler
     /// </summary>
     public static GalaxySample SampleGalaxy(GalaxySpec spec, int numPoints, SeededRng rng)
     {
+        GalaxySample sample;
         if (spec.Type == GalaxySpec.GalaxyType.Spiral)
         {
-            return SampleSpiralGalaxy(spec, numPoints, rng);
+            sample = SampleSpiralGalaxy(spec, numPoints, rng);
+            return ApplyDynamicsPlacementAdjustment(spec, sample);
         }
 
         if (spec.Type == GalaxySpec.GalaxyType.Elliptical)
         {
-            return SampleEllipticalGalaxy(spec, numPoints, rng);
+            sample = SampleEllipticalGalaxy(spec, numPoints, rng);
+            return ApplyDynamicsPlacementAdjustment(spec, sample);
         }
 
         if (spec.Type == GalaxySpec.GalaxyType.Lenticular)
         {
-            return SampleLenticularGalaxy(spec, numPoints, rng);
+            sample = SampleLenticularGalaxy(spec, numPoints, rng);
+            return ApplyDynamicsPlacementAdjustment(spec, sample);
         }
 
         if (spec.Type == GalaxySpec.GalaxyType.Irregular)
         {
-            return SampleIrregularGalaxy(spec, numPoints, rng);
+            sample = SampleIrregularGalaxy(spec, numPoints, rng);
+            return ApplyDynamicsPlacementAdjustment(spec, sample);
         }
 
-        return SampleSpiralGalaxy(spec, numPoints, rng);
+        sample = SampleSpiralGalaxy(spec, numPoints, rng);
+        return ApplyDynamicsPlacementAdjustment(spec, sample);
+    }
+
+    private static GalaxySample ApplyDynamicsPlacementAdjustment(GalaxySpec spec, GalaxySample sample)
+    {
+        if (spec.DynamicsBehaviorMode != GalaxyDynamicsBehaviorMode.AffectPlacement)
+        {
+            return sample;
+        }
+
+        double densityPressure = System.Math.Clamp(spec.DynamicsDiagnostic.LocalTotalMassDensitySolarPerPc3 / 0.10, 0.75, 1.60);
+        double radialScale = 0.985 - ((densityPressure - 1.0) * 0.06);
+        double verticalScale = 1.015 + ((densityPressure - 1.0) * 0.04);
+        AdjustPlacementPopulation(sample.BulgePoints, radialScale, verticalScale);
+        AdjustPlacementPopulation(sample.DiskPoints, radialScale, verticalScale);
+        return sample;
+    }
+
+    private static void AdjustPlacementPopulation(Vector3[] points, double radialScale, double verticalScale)
+    {
+        for (int index = 0; index < points.Length; index += 1)
+        {
+            Vector3 point = points[index];
+            points[index] = new Vector3(
+                (float)(point.X * radialScale),
+                (float)(point.Y * verticalScale),
+                (float)(point.Z * radialScale));
+        }
     }
 
     /// <summary>

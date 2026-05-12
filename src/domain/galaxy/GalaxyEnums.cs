@@ -33,6 +33,58 @@ public enum GalaxyArmMechanism
 }
 
 /// <summary>
+/// Controls whether galaxy dynamics diagnostics are readout-only or allowed to influence downstream behavior.
+/// </summary>
+public enum GalaxyDynamicsBehaviorMode
+{
+    DiagnosticsOnly = 0,
+    AffectRegionContext = 1,
+    AffectPlacement = 2,
+}
+
+/// <summary>
+/// Persistence helpers for galaxy dynamics behavior modes.
+/// </summary>
+public static class GalaxyDynamicsBehaviorModePersistence
+{
+    /// <summary>
+    /// Converts a mode to its stable save-string value.
+    /// </summary>
+    public static string ToPersistenceString(GalaxyDynamicsBehaviorMode mode)
+    {
+        if (mode == GalaxyDynamicsBehaviorMode.AffectRegionContext)
+        {
+            return "affect_region_context";
+        }
+
+        if (mode == GalaxyDynamicsBehaviorMode.AffectPlacement)
+        {
+            return "affect_placement";
+        }
+
+        return "diagnostics_only";
+    }
+
+    /// <summary>
+    /// Parses a stable save-string value, defaulting to diagnostic-only for old saves.
+    /// </summary>
+    public static GalaxyDynamicsBehaviorMode FromPersistenceString(string value)
+    {
+        if (value == "affect_region_context")
+        {
+            return GalaxyDynamicsBehaviorMode.AffectRegionContext;
+        }
+
+        if (value == "affect_placement")
+        {
+            return GalaxyDynamicsBehaviorMode.AffectPlacement;
+        }
+
+        return GalaxyDynamicsBehaviorMode.DiagnosticsOnly;
+    }
+}
+
+/// <summary>
 /// Resolved scientific subtype chosen inside the current top-level family lock.
 /// </summary>
 public enum GalaxyResolvedSubtype

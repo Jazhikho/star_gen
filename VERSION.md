@@ -1,12 +1,19 @@
 # Version
 
-Current version: `0.10.18.0`
+Current version: `0.10.19.0`
 
 Current user-facing version: `0.11`
 
 Date: `2026-05-12`
 
 Versioning method: release/refactor `+0.1`, feature `+0.0.1`, bug fix `+0.0.0.1`, save-breaking release `+1.0`.
+
+## 0.10.19.0
+
+- Feature: Completed the current Galactic Science Behavior plan with serialized `GalaxyDynamicsBehaviorMode`, default diagnostic-only behavior, region-context enrichment mode, explicit placement-affecting mode, and local dynamics annotations on `GalaxyOriginContext`.
+- Feature: Added behavior-gated placement changes, non-Milky-Way comparison calibration presets, Galaxy Studio resolved diagnostics/help text, Galaxy Viewer science diagnostics readouts, local-space diagnostic annotations, and viewer overlay surface declarations.
+- Test: Updated P2P expectations for non-Milky-Way comparison presets and made the explicit F2P behavior harness pass.
+- Validation: Revalidated with `dotnet build .\StarGen.sln`, the default Godot headless harness (`Total: 1921 | Passed: 1921 | Failed: 0`), and the explicit F2P harness (`Total: 13 | Passed: 13 | Failed: 0`).
 
 ## 0.10.18.0
 

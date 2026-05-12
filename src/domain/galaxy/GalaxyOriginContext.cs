@@ -101,6 +101,46 @@ public partial class GalaxyOriginContext : RefCounted
     public StellarGenerationProfile StellarProfile { get; set; } = StellarGenerationProfile.CreateDefault();
 
     /// <summary>
+    /// Behavior mode used when the local dynamics annotations were resolved.
+    /// </summary>
+    public GalaxyDynamicsBehaviorMode DynamicsBehaviorMode { get; set; } = GalaxyDynamicsBehaviorMode.DiagnosticsOnly;
+
+    /// <summary>
+    /// Local total mass-density diagnostic in solar masses per cubic parsec.
+    /// </summary>
+    public double LocalTotalMassDensitySolarPerPc3 { get; set; }
+
+    /// <summary>
+    /// Local baryonic mass-density diagnostic in solar masses per cubic parsec.
+    /// </summary>
+    public double LocalBaryonicMassDensitySolarPerPc3 { get; set; }
+
+    /// <summary>
+    /// Local dark-matter mass-density diagnostic in solar masses per cubic parsec.
+    /// </summary>
+    public double LocalDarkMatterDensitySolarPerPc3 { get; set; }
+
+    /// <summary>
+    /// Local surface-density diagnostic in solar masses per square parsec.
+    /// </summary>
+    public double LocalSurfaceDensitySolarPerPc2 { get; set; }
+
+    /// <summary>
+    /// Bar pattern-speed diagnostic in kilometers per second per kiloparsec.
+    /// </summary>
+    public double BarPatternSpeedKmSPerKpc { get; set; }
+
+    /// <summary>
+    /// Bar corotation-radius diagnostic in parsecs.
+    /// </summary>
+    public double CorotationRadiusPc { get; set; }
+
+    /// <summary>
+    /// Analog calibration mode that scopes the dynamics diagnostics.
+    /// </summary>
+    public string AnalogCalibrationMode { get; set; } = "milky_way_analog";
+
+    /// <summary>
     /// Creates a detached copy of the context.
     /// </summary>
     public GalaxyOriginContext Clone()
@@ -125,6 +165,14 @@ public partial class GalaxyOriginContext : RefCounted
             LocalDensityRatio = LocalDensityRatio,
             LocalStarFormationEfficiency = LocalStarFormationEfficiency,
             StellarProfile = StellarProfile.Clone(),
+            DynamicsBehaviorMode = DynamicsBehaviorMode,
+            LocalTotalMassDensitySolarPerPc3 = LocalTotalMassDensitySolarPerPc3,
+            LocalBaryonicMassDensitySolarPerPc3 = LocalBaryonicMassDensitySolarPerPc3,
+            LocalDarkMatterDensitySolarPerPc3 = LocalDarkMatterDensitySolarPerPc3,
+            LocalSurfaceDensitySolarPerPc2 = LocalSurfaceDensitySolarPerPc2,
+            BarPatternSpeedKmSPerKpc = BarPatternSpeedKmSPerKpc,
+            CorotationRadiusPc = CorotationRadiusPc,
+            AnalogCalibrationMode = AnalogCalibrationMode,
         };
     }
 
@@ -153,6 +201,14 @@ public partial class GalaxyOriginContext : RefCounted
             ["local_density_ratio"] = LocalDensityRatio,
             ["local_star_formation_efficiency"] = LocalStarFormationEfficiency,
             ["stellar_profile"] = StellarProfile.ToDictionary(),
+            ["dynamics_behavior_mode"] = GalaxyDynamicsBehaviorModePersistence.ToPersistenceString(DynamicsBehaviorMode),
+            ["local_total_mass_density_solar_per_pc3"] = LocalTotalMassDensitySolarPerPc3,
+            ["local_baryonic_mass_density_solar_per_pc3"] = LocalBaryonicMassDensitySolarPerPc3,
+            ["local_dark_matter_density_solar_per_pc3"] = LocalDarkMatterDensitySolarPerPc3,
+            ["local_surface_density_solar_per_pc2"] = LocalSurfaceDensitySolarPerPc2,
+            ["bar_pattern_speed_km_s_per_kpc"] = BarPatternSpeedKmSPerKpc,
+            ["corotation_radius_pc"] = CorotationRadiusPc,
+            ["analog_calibration_mode"] = AnalogCalibrationMode,
         };
     }
 
@@ -194,6 +250,15 @@ public partial class GalaxyOriginContext : RefCounted
         context.CircularVelocityAtSolarRadiusKmS = DomainDictionaryUtils.GetDouble(data, "circular_velocity_at_solar_radius_km_s", 240.0);
         context.LocalDensityRatio = DomainDictionaryUtils.GetDouble(data, "local_density_ratio", 1.0);
         context.LocalStarFormationEfficiency = DomainDictionaryUtils.GetDouble(data, "local_star_formation_efficiency", 0.1);
+        context.DynamicsBehaviorMode = GalaxyDynamicsBehaviorModePersistence.FromPersistenceString(
+            DomainDictionaryUtils.GetString(data, "dynamics_behavior_mode", "diagnostics_only"));
+        context.LocalTotalMassDensitySolarPerPc3 = DomainDictionaryUtils.GetDouble(data, "local_total_mass_density_solar_per_pc3", 0.0);
+        context.LocalBaryonicMassDensitySolarPerPc3 = DomainDictionaryUtils.GetDouble(data, "local_baryonic_mass_density_solar_per_pc3", 0.0);
+        context.LocalDarkMatterDensitySolarPerPc3 = DomainDictionaryUtils.GetDouble(data, "local_dark_matter_density_solar_per_pc3", 0.0);
+        context.LocalSurfaceDensitySolarPerPc2 = DomainDictionaryUtils.GetDouble(data, "local_surface_density_solar_per_pc2", 0.0);
+        context.BarPatternSpeedKmSPerKpc = DomainDictionaryUtils.GetDouble(data, "bar_pattern_speed_km_s_per_kpc", 0.0);
+        context.CorotationRadiusPc = DomainDictionaryUtils.GetDouble(data, "corotation_radius_pc", 0.0);
+        context.AnalogCalibrationMode = DomainDictionaryUtils.GetString(data, "analog_calibration_mode", "milky_way_analog");
         if (data.ContainsKey("stellar_profile") && data["stellar_profile"].VariantType == Variant.Type.Dictionary)
         {
             context.StellarProfile = StellarGenerationProfile.FromDictionary((Dictionary)data["stellar_profile"]);

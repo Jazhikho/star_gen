@@ -332,9 +332,31 @@ public partial class GalaxyGenerationScreen
 
         GalaxyRealismProfile profile = GalaxyRealismProfileBuilder.Build(config, seedValue);
         string galaxySummary = GalaxyScienceReferenceCatalog.BuildProfileSummary(config, profile);
+        string diagnosticsSummary = BuildResolvedGalacticDiagnosticsSummary(profile);
         string stellarSummary = BuildStellarProfileSummary(config.StellarProfile);
         string planetarySummary = BuildPlanetaryProfileSummary(config.PlanetaryProfile);
-        return $"{galaxySummary}\n{stellarSummary}\n{planetarySummary}";
+        return $"{galaxySummary}\n{diagnosticsSummary}\n{stellarSummary}\n{planetarySummary}";
+    }
+
+    private static string BuildResolvedGalacticDiagnosticsSummary(GalaxyRealismProfile profile)
+    {
+        GalaxyMassComponentBudget budget = profile.MassComponentBudget;
+        GalaxyRotationCurveDiagnostic rotation = profile.RotationCurveDiagnostic;
+        GalaxyDynamicsDiagnostic dynamics = profile.DynamicsDiagnostic;
+        string analogSummary = dynamics.AnalogCalibrationMode;
+        string comparisonSummary = dynamics.NonMilkyWayComparisonStatus;
+        if (comparisonSummary.Contains("needs"))
+        {
+            comparisonSummary = "comparison sources needed";
+        }
+
+        return "Resolved Galactic Diagnostics: "
+            + $"Mass Budget baryonic {budget.BaryonicMassSolar:0.00e0} Msun, dark halo {budget.DarkMatterHaloMassSolar:0.00e0} Msun | "
+            + $"Rotation reference {rotation.ReferenceVelocityKmS:0} km/s, inner {rotation.InnerVelocityKmS:0} km/s, outer {rotation.OuterVelocityKmS:0} km/s | "
+            + $"Bar Dynamics pattern speed {dynamics.BarPatternSpeedKmSPerKpc:0.0} km/s/kpc, corotation {dynamics.CorotationRadiusPc:0} pc | "
+            + $"Local Mass Budget density {dynamics.LocalTotalMassDensitySolarPerPc3:0.000} Msun/pc^3 | "
+            + $"Analog Calibration {analogSummary}, {comparisonSummary} | "
+            + "Dynamics Mode Diagnostics Only disabled; future controls Affect Region Context and Affect Placement remain review-gated.";
     }
 
     private void ApplyScienceAssumptionSummary()
@@ -482,7 +504,12 @@ public partial class GalaxyGenerationScreen
 
     private static string BuildHelpDialogBbCode()
     {
-        return $"{GalaxyScienceReferenceCatalog.BuildSciencePanelBbCode()}\n\n{LifeScienceReferenceCatalog.BuildHelpPanelBbCode()}\n\n{StellarScienceReferenceCatalog.BuildHelpPanelBbCode()}\n\n{PlanetaryScienceReferenceCatalog.BuildHelpPanelBbCode()}";
+        string diagnosticsHelp = "[b]Resolved Galactic Diagnostics[/b]\n"
+            + "The structural schema fields describe the galaxy shape and scale used by generation. "
+            + "The diagnostic dynamics fields describe mass, rotation, bar, corotation, and local-density readouts. "
+            + "active generation behavior remains gated by the Dynamics Mode control: Diagnostics Only is the default, while Affect Region Context and Affect Placement require explicit review. "
+            + "Bland-Hawthorn, Bovy, Khoperskov, Hunt, Kennicutt, and future comparison sources are tracked separately; non-Sb family rows still surface comparison sources needed when calibration is incomplete.";
+        return $"{GalaxyScienceReferenceCatalog.BuildSciencePanelBbCode()}\n\n{diagnosticsHelp}\n\n{LifeScienceReferenceCatalog.BuildHelpPanelBbCode()}\n\n{StellarScienceReferenceCatalog.BuildHelpPanelBbCode()}\n\n{PlanetaryScienceReferenceCatalog.BuildHelpPanelBbCode()}";
     }
 
     private PlanetaryGenerationProfile BuildPlanetaryProfileFromControls()

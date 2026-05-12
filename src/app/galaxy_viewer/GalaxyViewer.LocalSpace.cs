@@ -516,7 +516,7 @@ private const float CameraPanelCollapsedMinimumHeightPixels = 26.0f;
 		_localSpaceStarCountLabel.Text = $"Stars in area: {_localSpacePreviewData.GetStarCount()}";
 		if (_localSpaceWarningLabel != null)
 		{
-			_localSpaceWarningLabel.Text = "Larger areas retain more systems but increase cache build time.";
+			_localSpaceWarningLabel.Text = "Larger areas retain more systems but increase cache build time. local dynamics diagnostics are diagnostic-only annotations until route or population behavior is explicitly reviewed.";
 		}
 
 		if (_localSpaceStatusLabel != null)
@@ -593,7 +593,7 @@ private const float CameraPanelCollapsedMinimumHeightPixels = 26.0f;
 		SetLocalSpaceDialogEnabled(false);
 		if (_localSpaceStatusLabel != null)
 		{
-			_localSpaceStatusLabel.Text = "Building local-space cache...";
+			_localSpaceStatusLabel.Text = "Building local-space cache with local dynamics diagnostics as diagnostic-only annotations...";
 		}
 
 		try

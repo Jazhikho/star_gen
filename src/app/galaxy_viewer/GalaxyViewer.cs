@@ -15,6 +15,11 @@ namespace StarGen.App.GalaxyViewer;
 public partial class GalaxyViewer : Node3D, IGalaxyViewerSavedStateHost
 {
 	/// <summary>
+	/// Catalog of future viewer diagnostics overlay surfaces.
+	/// </summary>
+	internal const string DiagnosticOverlaySurfaceCatalog = "Bar/Corotation diagnostic overlay | GHZ diagnostic overlay | Hazard diagnostic overlay | Local Mass Density diagnostic overlay";
+
+	/// <summary>
 	/// Emitted when a star is selected.
 	/// </summary>
 	[Signal]

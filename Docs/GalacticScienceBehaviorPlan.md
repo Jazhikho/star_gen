@@ -30,7 +30,7 @@ Current `F2P` baseline tests assert the actual future behavior surfaces: `Galaxy
 godot-mono.exe --path . --headless --script res://Tests/RunTestsHeadless.gd -- f2p
 ```
 
-The current baseline is expected to fail with `Total: 13 | Passed: 0 | Failed: 13`. Each future implementation slice should turn its corresponding F2P failures green, then move those tests or equivalent direct tests into the default harness.
+The implementation baseline now passes with `Total: 13 | Passed: 13 | Failed: 0`. Keep running this explicit harness alongside the default suite whenever galactic behavior-mode, Studio diagnostics, Viewer diagnostics, local-space annotations, or placement behavior changes.
 
 ## Galaxy Studio Changes Needed
 
@@ -93,8 +93,9 @@ The current baseline is expected to fail with `Total: 13 | Passed: 0 | Failed: 1
 
 ## Recommended Next Implementation Order
 
-1. Add read-only Galaxy Studio and Galaxy Viewer diagnostic readouts.
-2. Add disabled/future-gated dynamics-mode UI so users can see the planned behavior boundary.
-3. Add `GalaxyOriginContext` diagnostic annotations without behavior changes.
-4. Add source-backed non-Milky-Way family comparison presets.
-5. Only then branch active dynamics behavior for region context, routes, population pressure, or placement.
+1. Keep active dynamics behavior guarded by `GalaxyDynamicsBehaviorMode`.
+2. Keep `DiagnosticsOnly` as the default for old saves and normal generation.
+3. Treat `AffectRegionContext` as context enrichment only; it must not alter density-sampled placement.
+4. Treat `AffectPlacement` as the only mode allowed to change density-sampled galaxy placement.
+5. Maintain source-backed non-Milky-Way family comparison presets before adding broader family behavior.
+6. Add deeper source-fitted dynamics, route effects, and population pressure only in reviewed follow-up slices.
