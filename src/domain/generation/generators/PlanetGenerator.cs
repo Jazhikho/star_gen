@@ -4,6 +4,7 @@ using StarGen.Domain.Celestial;
 using StarGen.Domain.Celestial.Components;
 using StarGen.Domain.Generation.Archetypes;
 using StarGen.Domain.Generation.Generators.Planet;
+using StarGen.Domain.Generation.Science;
 using StarGen.Domain.Generation.Specs;
 using StarGen.Domain.Generation.Tables;
 using StarGen.Domain.Generation.Utils;
@@ -66,6 +67,7 @@ public static class PlanetGenerator
         DetermineResolvedPlanetProfile(spec, context, rng, out SizeCategory.Category sizeCategory, out OrbitZone.Zone zone);
         OrbitalProps orbital = GenerateOrbitalProps(spec, context, zone, rng);
         PhysicalProps physical = PlanetPhysicalGenerator.GeneratePhysicalProps(spec, context, sizeCategory, orbital, rng);
+        RecordMassCorrectedHabitableZoneDiagnostic(spec, physical, orbital, context);
         double equilibriumTempK = context.GetEquilibriumTemperatureK(0.3);
 
         AtmosphereProps? atmosphere = null;
@@ -344,6 +346,29 @@ public static class PlanetGenerator
         Dictionary specSnapshot = spec.ToDictionary();
         specSnapshot["context"] = context.ToDictionary();
         return Provenance.CreateCurrent(spec.GenerationSeed, specSnapshot);
+    }
+
+    private static void RecordMassCorrectedHabitableZoneDiagnostic(
+        PlanetSpec spec,
+        PhysicalProps physical,
+        OrbitalProps orbital,
+        ParentContext context)
+    {
+        if (context.StellarLuminosityWatts <= 0.0 || orbital.SemiMajorAxisM <= 0.0)
+        {
+            return;
+        }
+
+        PlanetHabitableZoneDiagnostic diagnostic = PlanetHabitableZoneDiagnosticEngine.EvaluateMassCorrectedKopparapu2014(
+            physical,
+            orbital,
+            context);
+        spec.FormationTrace["kopparapu2014_mass_corrected_hz"] = diagnostic.ToDictionary();
+        spec.FormationTrace["kopparapu2014_mass_corrected_hz_inner_au"] = diagnostic.InnerAu;
+        spec.FormationTrace["kopparapu2014_mass_corrected_hz_outer_au"] = diagnostic.OuterAu;
+        spec.FormationTrace["kopparapu2014_mass_corrected_hz_alignment"] = diagnostic.Alignment;
+        spec.FormationTrace["kopparapu2014_mass_corrected_hz_source_ids"] = diagnostic.SourceIds;
+        spec.FormationTrace["kopparapu2014_mass_corrected_hz_status"] = diagnostic.Status;
     }
 
     private static string GenerateId(PlanetSpec spec, SeededRng rng)

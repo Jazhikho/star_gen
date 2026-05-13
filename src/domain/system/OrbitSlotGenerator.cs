@@ -503,6 +503,9 @@ public static class OrbitSlotGenerator
         {
             slot.PeriodRatioFromInner = 0.0;
             slot.SpacingFromInnerMutualHillRadii = 0.0;
+            slot.AmdInstabilityRisk = 0.0;
+            slot.DynamicalPackingRisk = 0.0;
+            slot.ResonanceProximityScore = 0.0;
             return;
         }
 
@@ -523,6 +526,15 @@ public static class OrbitSlotGenerator
             host.CombinedMassKg,
             previousDistanceM,
             currentDistanceM);
+        slot.ResonanceProximityScore = OrbitalMechanics.CalculateResonanceProximityScore(slot.PeriodRatioFromInner);
+        slot.AmdInstabilityRisk = OrbitalMechanics.EstimateAmdInstabilityRisk(
+            slot.SpacingFromInnerMutualHillRadii,
+            slot.SuggestedEccentricity,
+            spacingMassProxyEarthMasses);
+        slot.DynamicalPackingRisk = OrbitalMechanics.EstimateDynamicalPackingRisk(
+            slot.PeriodRatioFromInner,
+            slot.SpacingFromInnerMutualHillRadii,
+            slot.ResonanceProximityScore);
         double minimumSpacingM = OrbitalMechanics.CalculateMinimumPlanetSpacing(
             spacingMassProxyKg,
             spacingMassProxyKg,

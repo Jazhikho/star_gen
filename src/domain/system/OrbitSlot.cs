@@ -76,6 +76,31 @@ public partial class OrbitSlot : RefCounted
     public double SpacingMassProxyEarthMasses;
 
     /// <summary>
+    /// Alternative diagnostic stability engines recorded for future reviewed behavior changes.
+    /// </summary>
+    public string StabilityAlternativeEngineIds = OrbitalMechanics.StabilityAlternativeEngineIds;
+
+    /// <summary>
+    /// Source IDs used by alternative diagnostic stability screens.
+    /// </summary>
+    public string StabilityAlternativeSourceIds = OrbitalMechanics.StabilityAlternativeSourceIds;
+
+    /// <summary>
+    /// AMD-style instability risk proxy in the range [0, 1].
+    /// </summary>
+    public double AmdInstabilityRisk;
+
+    /// <summary>
+    /// Dynamical-packing risk proxy in the range [0, 1].
+    /// </summary>
+    public double DynamicalPackingRisk;
+
+    /// <summary>
+    /// Proximity to simple period-ratio resonances in the range [0, 1].
+    /// </summary>
+    public double ResonanceProximityScore;
+
+    /// <summary>
     /// Whether the slot is already filled.
     /// </summary>
     public bool IsFilled;
@@ -157,6 +182,11 @@ public partial class OrbitSlot : RefCounted
             ["period_ratio_from_inner"] = PeriodRatioFromInner,
             ["minimum_spacing_mutual_hill_radii"] = MinimumSpacingMutualHillRadii,
             ["spacing_mass_proxy_earth_masses"] = SpacingMassProxyEarthMasses,
+            ["stability_alternative_engine_ids"] = StabilityAlternativeEngineIds,
+            ["stability_alternative_source_ids"] = StabilityAlternativeSourceIds,
+            ["amd_instability_risk"] = AmdInstabilityRisk,
+            ["dynamical_packing_risk"] = DynamicalPackingRisk,
+            ["resonance_proximity_score"] = ResonanceProximityScore,
             ["is_filled"] = IsFilled,
             ["planet_id"] = PlanetId,
         };
@@ -191,6 +221,11 @@ public partial class OrbitSlot : RefCounted
         slot.PeriodRatioFromInner = GetDouble(data, "period_ratio_from_inner", 0.0);
         slot.MinimumSpacingMutualHillRadii = GetDouble(data, "minimum_spacing_mutual_hill_radii", OrbitalMechanics.MinimumAdjacentPlanetSpacingMutualHillRadii);
         slot.SpacingMassProxyEarthMasses = GetDouble(data, "spacing_mass_proxy_earth_masses", 0.0);
+        slot.StabilityAlternativeEngineIds = GetString(data, "stability_alternative_engine_ids", OrbitalMechanics.StabilityAlternativeEngineIds);
+        slot.StabilityAlternativeSourceIds = GetString(data, "stability_alternative_source_ids", OrbitalMechanics.StabilityAlternativeSourceIds);
+        slot.AmdInstabilityRisk = GetDouble(data, "amd_instability_risk", 0.0);
+        slot.DynamicalPackingRisk = GetDouble(data, "dynamical_packing_risk", 0.0);
+        slot.ResonanceProximityScore = GetDouble(data, "resonance_proximity_score", 0.0);
         slot.IsFilled = GetBool(data, "is_filled", false);
         slot.PlanetId = GetString(data, "planet_id", string.Empty);
         return slot;

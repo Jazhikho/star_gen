@@ -32,7 +32,7 @@ StarGen is currently working toward the user-facing `0.11` weekly release line. 
 - The export-enabled `0.11` channel restores save/load flows for paid distribution while keeping the visible release label aligned.
 - Mainline no longer ships the Concept Atlas path. `Concepts/Additions.md` remains the StarGen prototype backlog for future work that stays in scope.
 
-The current internal checkpoint is `0.10.19.0`, with user-facing target `0.11`. Detailed version history and patch notes live in [VERSION.md](VERSION.md).
+The current internal checkpoint is `0.11.0.0`, with user-facing target `0.11`. Detailed version history and patch notes live in [VERSION.md](VERSION.md).
 
 ## Running StarGen
 
@@ -78,8 +78,8 @@ godot-mono.exe --path . --headless --script res://Tests/Baselines/RunLifeDistrib
 - [VERSION.md](VERSION.md) for release notes and version history
 - [Docs/Roadmap.md](Docs/Roadmap.md) for planned efforts and development status
 - [Docs/ProjectStructure.md](Docs/ProjectStructure.md) for the codebase layout
-- [Docs/V0.10ReleaseChecklist.md](Docs/V0.10ReleaseChecklist.md) for the `0.10` build, packaging, and itch-release procedure
-- [Docs/V0.10AcceptanceChecklist.md](Docs/V0.10AcceptanceChecklist.md) for the live manual verification pass before publishing
+- [Docs/V0.11ReleaseChecklist.md](Docs/V0.11ReleaseChecklist.md) for the `0.11` build, packaging, and itch-release procedure
+- [Docs/V0.11AcceptanceChecklist.md](Docs/V0.11AcceptanceChecklist.md) for the live manual verification pass before publishing
 - [Docs/V1.0Checklist.md](Docs/V1.0Checklist.md) for the remaining work required before a defensible `1.0`
 - [AI-Use-Statement.md](AI-Use-Statement.md) for the repository AI-use policy
 - [AI-Provenance-Log.md](AI-Provenance-Log.md) for significant AI-assisted artifacts

@@ -66,7 +66,7 @@ public partial class TestSceneCSharp : Node
 	}
 
 	/// <summary>
-	/// Starts the intentionally failing future galactic science behavior baseline.
+	/// Starts the explicit future-to-present science behavior baseline.
 	/// </summary>
 	public void start_galactic_future_behavior_headless()
 	{
@@ -129,7 +129,7 @@ public partial class TestSceneCSharp : Node
 
 	private async Task RunGalacticFutureBehaviorHeadlessAsync()
 	{
-		GD.Print("Using C# future galactic behavior baseline harness");
+		GD.Print("Using C# F2P science behavior baseline harness");
 		GD.Print(string.Empty);
 		await _runner.RunGalacticFutureBehaviorHeadless();
 		_runner.PrintSummary();

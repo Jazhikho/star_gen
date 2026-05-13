@@ -72,7 +72,7 @@ public partial class DotNetTestRunner : RefCounted
     }
 
     /// <summary>
-    /// Runs the intentionally failing future galactic science behavior baseline.
+    /// Runs the explicit future-to-present science behavior baseline.
     /// </summary>
     public Task<Godot.Collections.Array<DotNetTestResult>> RunGalacticFutureBehaviorHeadless()
     {

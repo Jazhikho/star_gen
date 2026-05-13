@@ -877,9 +877,9 @@ public static class SystemMoonGenerator
         }
         else if (architecture.HostClass == "terrestrial")
         {
-            channel = "impact_limited_terrestrial";
-            activeSources = string.Empty;
-            modelStatus = "provenance-only; giant-impact source implementation remains follow-up";
+            channel = "terrestrial_giant_impact_candidate";
+            activeSources = "MalamudPerets2019;NakajimaEtAl2022";
+            modelStatus = "diagnostic-only terrestrial impact candidate; impact hydrodynamics, composition, and tidal evolution remain follow-up";
         }
 
         double hillFraction = 0.0;

@@ -17,6 +17,28 @@ Use this log for significant AI-assisted artifacts in this repository.
 
 ## Entries
 
+### 2026-05-13 - Codex (GPT-5)
+
+- Task Purpose: Prepare, commit, push, build, and publish the `0.11` Windows/Linux release line.
+- Input Materials Used: User release directive; `claude.md`; user-provided AGENTS instructions; `VERSION.md`; `project.godot`; `export_presets.cfg`; `README.md`; `Docs/V0.10ReleaseChecklist.md`; `Docs/V0.10AcceptanceChecklist.md`; `scripts/CreateReleaseBuild.ps1`; current uncommitted science-hardening changes; local Godot, git, GitHub, and butler tooling.
+- AI Produced: Promoted internal release metadata to `0.11.0.0` while keeping the visible release label `0.11`; added `Docs/V0.11ReleaseChecklist.md` and `Docs/V0.11AcceptanceChecklist.md`; updated README/project-structure references and export preset versions; prepared release validation, commit, push, artifact build, and itch upload workflow.
+- Human Accepted: Pending Christopher B. Del Gesso review of exported artifacts and itch release page.
+- Human Rejected: No web build is included; only Windows and Linux were requested for itch.
+- Human Changed: User explicitly requested committing all uncommitted work, pushing to GitHub, and uploading Windows/Linux builds to itch with butler.
+- Validation Method: `dotnet build .\StarGen.sln` (`Build succeeded. 0 Warning(s), 0 Error(s).`); default `godot-mono.exe --path . --headless --script res://Tests/RunTestsHeadless.gd` (`Total: 1921 | Passed: 1921 | Failed: 0`); expanded explicit F2P harness `godot-mono.exe --path . --headless --script res://Tests/RunTestsHeadless.gd -- f2p` (`Total: 19 | Passed: 19 | Failed: 0`).
+- Final Approver: Pending Christopher B. Del Gesso release review.
+
+### 2026-05-13 - Codex (GPT-5)
+
+- Task Purpose: Create F2P coverage for the remaining global science-hardening plan and implement diagnostic-first hardening engines.
+- Input Materials Used: User directive to continue StarGen science hardening; `claude.md`; user-provided AGENTS instructions; `Docs/EndToEndScienceAudit.md`; `Docs/ScientificParameterAudit.md`; `Sources/SourceUtilizationPlan.md`; `Docs/GalacticScienceBehaviorPlan.md`; planetary, orbit-slot, moon, and system generator source files; existing F2P harness.
+- AI Produced: Added `Docs/ScienceHardeningCompletionPlan.md`, `ScienceHardeningEngineCatalog`, planet-mass-corrected Kopparapu 2014 HZ diagnostics, orbit-slot AMD/dynamical-packing/resonance diagnostic fields, planet formation-trace propagation for stability diagnostics, source-marked diagnostic terrestrial-impact moon channel metadata, expanded F2P tests, and synced docs/version metadata.
+- Human Accepted: Pending Christopher B. Del Gesso review.
+- Human Rejected: Active station/habitat placement, calibrated survey-bias counts, N-body stability simulation, full hydrodynamic HZ/escape modeling, galaxy route/population dynamics, and sentient-population retuning remain outside this diagnostic-first slice pending human review.
+- Human Changed: User requested a two-step workflow: first F2P for everything needed to finish the hardening plan, then implementation of source-backed systems/generators and explicit tradeoff/alternative-engine handling.
+- Validation Method: `dotnet build .\StarGen.sln` (`Build succeeded. 0 Warning(s), 0 Error(s).`); default `godot-mono.exe --path . --headless --script res://Tests/RunTestsHeadless.gd` (`Total: 1921 | Passed: 1921 | Failed: 0`); expanded explicit F2P harness `godot-mono.exe --path . --headless --script res://Tests/RunTestsHeadless.gd -- f2p` (`Total: 19 | Passed: 19 | Failed: 0`).
+- Final Approver: Pending Christopher B. Del Gesso review.
+
 ### 2026-05-12 - Codex (GPT-5)
 
 - Task Purpose: Implement the full current Galactic Science Behavior plan and make P2P/F2P tests pass.

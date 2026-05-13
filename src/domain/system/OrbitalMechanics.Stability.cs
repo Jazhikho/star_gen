@@ -20,6 +20,16 @@ public static partial class OrbitalMechanics
     public const string CompactArchitectureSpacingSourceIds = "Obertas2017;Rice2023;HeEtAl2020";
 
     /// <summary>
+    /// Alternative diagnostic engine IDs for stability hardening.
+    /// </summary>
+    public const string StabilityAlternativeEngineIds = "mutual_hill_spacing_proxy;amd_screen_diagnostic;dynamical_packing_diagnostic;resonance_proximity_diagnostic";
+
+    /// <summary>
+    /// Source notes used by alternative diagnostic stability screens.
+    /// </summary>
+    public const string StabilityAlternativeSourceIds = "Petit2018;Petit2020;Laskar2017;Tamayo2020;FangMargot2013;ObertasTamayo2023";
+
+    /// <summary>
     /// Minimum center-to-center spacing between adjacent planets as a multiple of mutual Hill radii.
     /// </summary>
     public const double MinimumAdjacentPlanetSpacingMutualHillRadii = 10.0;
@@ -326,6 +336,75 @@ public static partial class OrbitalMechanics
         }
 
         return periodRatio >= 1.25 && periodRatio <= 2.0;
+    }
+
+    /// <summary>
+    /// Estimates proximity to simple low-order period-ratio resonances.
+    /// </summary>
+    public static double CalculateResonanceProximityScore(double periodRatio)
+    {
+        if (periodRatio <= 0.0)
+        {
+            return 0.0;
+        }
+
+        double[] candidateRatios =
+        {
+            1.25,
+            1.3333333333333333,
+            1.5,
+            1.6666666666666667,
+            2.0,
+            2.5,
+            3.0,
+        };
+        double bestScore = 0.0;
+        foreach (double candidate in candidateRatios)
+        {
+            double fractionalDistance = System.Math.Abs(periodRatio - candidate) / candidate;
+            double score = 1.0 - System.Math.Clamp(fractionalDistance / 0.04, 0.0, 1.0);
+            bestScore = System.Math.Max(bestScore, score);
+        }
+
+        return bestScore;
+    }
+
+    /// <summary>
+    /// Estimates AMD-style instability risk from spacing and eccentricity.
+    /// </summary>
+    public static double EstimateAmdInstabilityRisk(
+        double separationMutualHillRadii,
+        double eccentricity,
+        double massProxyEarth)
+    {
+        if (separationMutualHillRadii <= 0.0)
+        {
+            return 0.0;
+        }
+
+        double spacingRisk = System.Math.Clamp((10.0 - separationMutualHillRadii) / 6.0, 0.0, 1.0);
+        double eccentricityRisk = System.Math.Clamp(eccentricity / 0.18, 0.0, 1.0);
+        double massRisk = System.Math.Clamp((massProxyEarth - 5.0) / 90.0, 0.0, 1.0);
+        return System.Math.Clamp((spacingRisk * 0.55) + (eccentricityRisk * 0.30) + (massRisk * 0.15), 0.0, 1.0);
+    }
+
+    /// <summary>
+    /// Estimates dynamical-packing risk from period ratio and mutual-Hill spacing.
+    /// </summary>
+    public static double EstimateDynamicalPackingRisk(
+        double periodRatio,
+        double separationMutualHillRadii,
+        double resonanceProximityScore)
+    {
+        if (periodRatio <= 0.0 || separationMutualHillRadii <= 0.0)
+        {
+            return 0.0;
+        }
+
+        double periodRisk = System.Math.Clamp((1.60 - periodRatio) / 0.45, 0.0, 1.0);
+        double spacingRisk = System.Math.Clamp((8.0 - separationMutualHillRadii) / 5.0, 0.0, 1.0);
+        double resonanceRelief = resonanceProximityScore * 0.15;
+        return System.Math.Clamp((periodRisk * 0.45) + (spacingRisk * 0.45) - resonanceRelief, 0.0, 1.0);
     }
 
     /// <summary>

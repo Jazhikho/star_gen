@@ -35,7 +35,7 @@ namespace StarGen.Tests
 		}
 
 		/// <summary>
-		/// Registers the intentionally failing future galactic science behavior baseline.
+		/// Registers the explicit future-to-present science behavior baseline.
 		/// </summary>
 		public static void RunGalacticFutureBehaviorHeadlessSuites(DotNetTestRunner runner)
 		{

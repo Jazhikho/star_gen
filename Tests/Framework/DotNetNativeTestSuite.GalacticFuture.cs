@@ -6,7 +6,7 @@ namespace StarGen.Tests.Framework;
 public static partial class DotNetNativeTestSuite
 {
     /// <summary>
-    /// Runs the intentionally failing future galactic science behavior baseline.
+    /// Runs the explicit future-to-present science behavior baseline.
     /// </summary>
     public static void RunGalacticFutureBehaviorHeadless(DotNetTestRunner runner)
     {
@@ -49,5 +49,23 @@ public static partial class DotNetNativeTestSuite
         runner.RunNativeTest(
             "TestGalacticScienceFutureBehavior::test_f2p_local_space_preview_annotates_selected_systems_without_route_population_effects",
             Tests.Unit.TestGalacticScienceFutureBehavior.TestF2PLocalSpacePreviewAnnotatesSelectedSystemsWithoutRoutePopulationEffects);
+        runner.RunNativeTest(
+            "TestScienceHardeningFutureBehavior::test_f2p_completion_plan_covers_remaining_hardening_families",
+            Tests.Unit.TestScienceHardeningFutureBehavior.TestF2PCompletionPlanCoversRemainingHardeningFamilies);
+        runner.RunNativeTest(
+            "TestScienceHardeningFutureBehavior::test_f2p_engine_catalog_defines_alternative_families",
+            Tests.Unit.TestScienceHardeningFutureBehavior.TestF2PEngineCatalogDefinesAlternativeFamilies);
+        runner.RunNativeTest(
+            "TestScienceHardeningFutureBehavior::test_f2p_planet_generation_records_mass_corrected_hz_diagnostics",
+            Tests.Unit.TestScienceHardeningFutureBehavior.TestF2PPlanetGenerationRecordsMassCorrectedHzDiagnostics);
+        runner.RunNativeTest(
+            "TestScienceHardeningFutureBehavior::test_f2p_orbit_slots_serialize_alternative_stability_diagnostics",
+            Tests.Unit.TestScienceHardeningFutureBehavior.TestF2POrbitSlotsSerializeAlternativeStabilityDiagnostics);
+        runner.RunNativeTest(
+            "TestScienceHardeningFutureBehavior::test_f2p_planet_formation_trace_copies_stability_diagnostics",
+            Tests.Unit.TestScienceHardeningFutureBehavior.TestF2PPlanetFormationTraceCopiesStabilityDiagnostics);
+        runner.RunNativeTest(
+            "TestScienceHardeningFutureBehavior::test_f2p_moon_trace_marks_terrestrial_impact_channel_sources",
+            Tests.Unit.TestScienceHardeningFutureBehavior.TestF2PMoonTraceMarksTerrestrialImpactChannelSources);
     }
 }

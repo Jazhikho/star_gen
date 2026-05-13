@@ -734,6 +734,11 @@ public static class SystemPlanetGenerator
         spec.FormationTrace["slot_period_ratio_from_inner"] = slot.PeriodRatioFromInner;
         spec.FormationTrace["slot_minimum_spacing_mutual_hill_radii"] = slot.MinimumSpacingMutualHillRadii;
         spec.FormationTrace["slot_spacing_mass_proxy_earth_masses"] = slot.SpacingMassProxyEarthMasses;
+        spec.FormationTrace["slot_stability_alternative_engine_ids"] = slot.StabilityAlternativeEngineIds;
+        spec.FormationTrace["slot_stability_alternative_source_ids"] = slot.StabilityAlternativeSourceIds;
+        spec.FormationTrace["slot_amd_instability_risk"] = slot.AmdInstabilityRisk;
+        spec.FormationTrace["slot_dynamical_packing_risk"] = slot.DynamicalPackingRisk;
+        spec.FormationTrace["slot_resonance_proximity_score"] = slot.ResonanceProximityScore;
         spec.FormationTrace["snow_line_au"] = state.SnowLineAu;
         spec.FormationTrace["occurrence_sources"] = state.OccurrenceSourceIds;
         spec.FormationTrace["host_occurrence_regime"] = state.HostOccurrenceRegime;

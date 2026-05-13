@@ -27,6 +27,8 @@ star_gen/
 |   |-- SourceGeneratorFitAudit.md
 |   |-- V0.10AcceptanceChecklist.md
 |   |-- V0.10ReleaseChecklist.md
+|   |-- V0.11AcceptanceChecklist.md
+|   |-- V0.11ReleaseChecklist.md
 |   |-- V0.9AcceptanceChecklist.md
 |   |-- V0.9Plan.md
 |   |-- V0.9ReleaseChecklist.md
@@ -143,6 +145,8 @@ star_gen/
 - `src/domain/system/SystemMoonGenerator.cs`: moon generation now reacts to the shared planetary-system state so giant hosts, snow-line context, and moon-formation bias change regular-vs-captured architecture and count tendencies.
 - `src/domain/system/SystemMoonGenerator.cs`: moon source-utilization pass now records moon-channel provenance, separates regular CPD, captured irregular, and impact-limited terrestrial candidates, applies satellite-scale regular-moon mass budgets, and records active/context/underutilized moon sources on generated moons.
 - `src/domain/system/SmallBodyReservoir.cs`: serializable system-level small-body reservoir record for asteroid, TNO, Centaur, and comet-feeding families that should be available to science audits, export, future UI, and future station/habitat settlement generation independently from asteroid-belt render geometry. It now carries native-life absence and neutral settlement-readiness diagnostics without generating population records.
+- `src/domain/generation/science/ScienceHardeningEngineCatalog.cs`, `ScienceHardeningEngineDescriptor.cs`: source-marked registry of completion-critical hardening engine families and competing alternatives for planet habitability, orbital stability, moon formation, small bodies, galaxy dynamics, and sentient-population proxy work.
+- `src/domain/generation/science/PlanetHabitableZoneDiagnosticEngine.cs`, `PlanetHabitableZoneDiagnostic.cs`: diagnostic-only planet-level Kopparapu 2014 mass-corrected HZ evaluator that records mass-aware HZ edges and alignment after physical planet generation without changing orbit placement.
 - `src/domain/system/AsteroidBelt.cs`: serializable belt model carrying orbit bounds, composition, major-body IDs, and source-backed reservoir/composition/size-distribution/subfamily provenance for generated small-body reservoirs.
 - `src/domain/system/SystemAsteroidGenerator.cs`: asteroid-belt placement and composition now respond to solid budget, outer-reservoir strength, comet-leaning bias, TNO-style cold-reservoir placement, diagnostic TNO subfamily proxies, and minor-body population slope instead of using flat belt assumptions; it emits first-class small-body reservoir records with settlement-readiness diagnostics linked to the current belt anchor and promotes the largest eligible candidate-pool objects to inspectable bodies using configurable per-belt count and diameter-threshold settings.
 - `src/domain/population/ProfileGenerator.cs`: derived life-support profiles now carry stellar flux, habitable-zone alignment, and XUV exposure for downstream ecology and biosphere decisions.
@@ -155,7 +159,10 @@ star_gen/
 - `src/app/shared/ReleaseEditionService.cs`: shared build-channel resolver that maps the configured release channel and export features to persistence capability gates while keeping the approved plain release version visible in-app.
 - `Docs/V0.10ReleaseChecklist.md`: concrete `0.10` release-prep procedure covering version sync, verification gates, export flow, artifact review, and itch upload steps.
 - `Docs/V0.10AcceptanceChecklist.md`: live manual QA checklist for exported `0.10` artifacts, covering startup, studios, viewers, station generation, mainline scope boundaries, and packaging validation.
+- `Docs/V0.11ReleaseChecklist.md`: concrete `0.11` release-prep procedure covering version sync, verification gates, export flow, artifact review, and itch upload steps.
+- `Docs/V0.11AcceptanceChecklist.md`: live manual QA checklist for exported `0.11` artifacts, covering startup, studios, viewers, station generation, science diagnostics, and packaging validation.
 - `Docs/GalacticScienceBehaviorPlan.md`: post-diagnostic behavior plan for Galaxy Studio, Galaxy Viewer, and downstream domain changes needed before galaxy dynamics/local-mass/comparison diagnostics can affect generation behavior.
+- `Docs/ScienceHardeningCompletionPlan.md`: global F2P science-hardening completion plan covering planet habitability, orbital stability, moon formation, small-body population/export, galaxy dynamics, and sentient-population audit surfaces with explicit tradeoffs and alternative engines.
 - `Docs/V0.9ReleaseChecklist.md`: historical `0.9` release-prep procedure retained for reference.
 - `Docs/V0.9AcceptanceChecklist.md`: historical manual QA checklist for exported `0.9` artifacts.
 - `Docs/V1.0Checklist.md`: concrete checklist for the remaining scope lock, UI, realism, sentient-world audit, and release-hardening work before a defensible `1.0`.
@@ -218,5 +225,6 @@ star_gen/
 - `Tests/Integration/TestStudioScienceUi.cs`: non-visual integration coverage for the galaxy help popup and the `1..10` stellar controls in the studios.
 - `Tests/Unit/TestGalacticScienceBehaviorPlan.cs`: P2P regression and plan-contract baseline for the galactic science behavior plan, covering current diagnostic serialization/non-behavior invariants and keeping future Studio/Viewer/domain behavior-gate requirements explicit.
 - `Tests/Unit/TestGalacticScienceFutureBehavior.cs`: explicit F2P behavior baseline for galactic science, covering the behavior mode and mode semantics, origin-context annotations, Studio/Viewer diagnostics and readout purity, non-Milky-Way calibration presets, local-space annotations, and overlay surfaces. It runs through the explicit `f2p` headless filter.
+- `Tests/Unit/TestScienceHardeningFutureBehavior.cs`: explicit global F2P baseline for the science-hardening completion plan, engine catalog, planet-level HZ diagnostics, alternative orbit-slot stability diagnostics, planet formation-trace propagation, and terrestrial-impact moon source marking.
 - `src/domain/galaxy/GalaxyEnums.cs`: shared galaxy-science enums now include `GalaxyDynamicsBehaviorMode` and save-string helpers for `DiagnosticsOnly`, `AffectRegionContext`, and `AffectPlacement`.
 - `Tests/Unit/TestStellarGenerationProfile.cs`: deterministic unit coverage for stellar-profile serialization and metadata wiring.

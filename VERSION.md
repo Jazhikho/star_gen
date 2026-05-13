@@ -1,12 +1,26 @@
 # Version
 
-Current version: `0.10.19.0`
+Current version: `0.11.0.0`
 
 Current user-facing version: `0.11`
 
-Date: `2026-05-12`
+Date: `2026-05-13`
 
 Versioning method: release/refactor `+0.1`, feature `+0.0.1`, bug fix `+0.0.0.1`, save-breaking release `+1.0`.
+
+## 0.11.0.0
+
+- Release: Promoted the current science-hardened generation-and-view line to the approved `0.11` release baseline for Windows and Linux public demo builds.
+- Release prep: Synchronized `VERSION.md`, `project.godot`, `export_presets.cfg`, `README.md`, and user-facing version helpers so the internal release checkpoint is `0.11.0.0` while the visible release label remains `0.11`.
+- Docs: Added `Docs/V0.11ReleaseChecklist.md` and `Docs/V0.11AcceptanceChecklist.md` for build, packaging, artifact review, and itch publication.
+- Validation: Revalidated with `dotnet build .\StarGen.sln`, the default Godot headless harness (`Total: 1921 | Passed: 1921 | Failed: 0`), and the explicit F2P harness (`Total: 19 | Passed: 19 | Failed: 0`).
+
+## 0.10.20.0
+
+- Feature: Added a global science-hardening completion plan and explicit F2P coverage for planet habitability, orbital stability, moon formation, small-body population/export, galaxy dynamics, and sentient-population audit surfaces.
+- Feature: Added a source-marked science engine catalog plus diagnostic planet-mass-corrected Kopparapu 2014 HZ provenance, alternative orbit-slot stability diagnostics, and copied stability diagnostics into planet formation traces without changing default mutual-Hill placement behavior.
+- Feature: Promoted terrestrial moon candidates from an empty-source impact placeholder to a diagnostic-only Malamud/Perets + Nakajima source-marked channel.
+- Validation: Revalidated with `dotnet build .\StarGen.sln`, the default Godot headless harness (`Total: 1921 | Passed: 1921 | Failed: 0`), and the expanded explicit F2P harness (`Total: 19 | Passed: 19 | Failed: 0`).
 
 ## 0.10.19.0
 
